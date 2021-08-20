@@ -43,13 +43,11 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 	ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
 	if (i != ServerInstance->Config->oper_blocks.end())
 	{
-		const std::string userHost = user->ident + "@" + user->GetRealHost();
-		const std::string userIP = user->ident + "@" + user->GetIPString();
 		std::shared_ptr<OperInfo> ifo = i->second;
 		std::shared_ptr<ConfigTag> tag = ifo->oper_block;
 		match_user = true;
 		match_pass = ServerInstance->PassCompare(user, tag->getString("password"), parameters[1], tag->getString("hash"));
-		match_hosts = InspIRCd::MatchMask(tag->getString("host"), userHost, userIP);
+		match_hosts = InspIRCd::MatchMask(tag->getString("host"), user->MakeHost(), user->MakeHostIP());
 
 		if (match_pass && match_hosts)
 		{

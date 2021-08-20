@@ -48,9 +48,7 @@ struct CustomTitle
 
 	bool MatchUser(User* user) const
 	{
-		const std::string userHost = user->ident + "@" + user->GetRealHost();
-		const std::string userIP = user->ident + "@" + user->GetIPString();
-		return InspIRCd::MatchMask(host, userHost, userIP);
+		return InspIRCd::MatchMask(host, user->MakeHost(), user->MakeHostIP());
 	}
 
 	bool CheckPass(User* user, const std::string& pass) const

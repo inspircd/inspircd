@@ -393,8 +393,8 @@ void User::Oper(std::shared_ptr<OperInfo> info)
 	if (info->oper_block)
 		opername = info->oper_block->getString("name");
 
-	ServerInstance->SNO.WriteToSnoMask('o', "%s (%s@%s) is now a server operator of type %s (using oper '%s')",
-		nick.c_str(), ident.c_str(), GetRealHost().c_str(), oper->name.c_str(), opername.c_str());
+	ServerInstance->SNO.WriteToSnoMask('o', "%s (%s) is now a server operator of type %s (using oper '%s')",
+		nick.c_str(), MakeHost().c_str(), oper->name.c_str(), opername.c_str());
 	this->WriteNumeric(RPL_YOUAREOPER, InspIRCd::Format("You are now %s %s", strchr("aeiouAEIOU", oper->name[0]) ? "an" : "a", oper->name.c_str()));
 
 	ServerInstance->Users.all_opers.push_back(this);

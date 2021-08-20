@@ -272,7 +272,7 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 	ServerInstance->Logs.Log("USERS", LOG_DEBUG, "QuitUser: %s=%s '%s'", user->uuid.c_str(), user->nick.c_str(), quitmessage.c_str());
 	if (localuser)
 	{
-		ClientProtocol::Messages::Error errormsg(InspIRCd::Format("Closing link: (%s@%s) [%s]", user->ident.c_str(), user->GetRealHost().c_str(), operquitmsg.c_str()));
+		ClientProtocol::Messages::Error errormsg(InspIRCd::Format("Closing link: (%s) [%s]", user->MakeHost().c_str(), operquitmsg.c_str()));
 		localuser->Send(ServerInstance->GetRFCEvents().error, errormsg);
 	}
 

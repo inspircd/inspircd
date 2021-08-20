@@ -57,7 +57,8 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& para
 			return CmdResult::SUCCESS;
 	}
 
-	ServerInstance->SNO.WriteToSnoMask('O', "From %s: User %s (%s@%s) is now a server operator of type %s", u->server->GetName().c_str(), u->nick.c_str(),u->ident.c_str(), u->GetRealHost().c_str(), opertype.c_str());
+	ServerInstance->SNO.WriteToSnoMask('O', "From %s: User %s (%s) is now a server operator of type %s",
+		u->server->GetName().c_str(), u->nick.c_str(), u->MakeHost().c_str(), opertype.c_str());
 	return CmdResult::SUCCESS;
 }
 
