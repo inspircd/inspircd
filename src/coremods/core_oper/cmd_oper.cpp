@@ -36,7 +36,7 @@ CommandOper::CommandOper(Module* parent)
 
 CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 {
-	bool match_login = false;
+	bool match_user = false;
 	bool match_pass = false;
 	bool match_hosts = false;
 
@@ -47,7 +47,7 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 		const std::string userIP = user->ident + "@" + user->GetIPString();
 		std::shared_ptr<OperInfo> ifo = i->second;
 		std::shared_ptr<ConfigTag> tag = ifo->oper_block;
-		match_login = true;
+		match_user = true;
 		match_pass = ServerInstance->PassCompare(user, tag->getString("password"), parameters[1], tag->getString("hash"));
 		match_hosts = InspIRCd::MatchMask(tag->getString("host"), userHost, userIP);
 
@@ -59,8 +59,8 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 	}
 
 	std::string fields;
-	if (!match_login)
-		fields.append("login ");
+	if (!match_user)
+		fields.append("username ");
 	if (!match_pass)
 		fields.append("password ");
 	if (!match_hosts)
