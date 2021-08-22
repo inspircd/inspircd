@@ -2472,7 +2472,7 @@
 #             protocol requires all text frames to be sent as UTF-8.
 #             If you do not have this enabled messages will be sent as
 #             binary frames instead. Clients can override this using a
-#             WebSocket subprotocol.
+#             WebSocket subprotocol. See the docs page for more info.
 #<websocket proxyranges="192.0.2.0/24 198.51.100.*"
 #           sendastext="yes">
 #
