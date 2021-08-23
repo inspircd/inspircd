@@ -73,7 +73,8 @@ static const char* const lines[] = {
 	"   Thunderhacker   typobox43       Zaba",
 	" ",
 	"\002Thanks To\002:",
-	"   Asmo            Brik            Duck            prawnsalad",
+	"   Asmo            Brik            dan-            Duck",
+	"   jwheare         prawnsalad",
 	" ",
 	" Best experienced with \002an IRC client\002",
 	NULL
