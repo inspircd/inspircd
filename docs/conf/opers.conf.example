@@ -124,11 +124,8 @@
       #fingerprint="67cb9dc013248a829bb2171ed11becd4"
 
       # autologin: If a TLS client certificate fingerprint for this oper is specified,
-      # you can have the oper block automatically log in. This can also be set to
-      # "if-host-match", to additionally check the host setting for this block before
-      # automatically logging in. Otherwise, all security of the oper block rests on the
-      # protection of the TLS client certificate, so be sure that the private key is
-      # well-protected!. Requires the sslinfo module.
+      # you can have the oper block automatically log in if they match the fingerprint
+      # and host fields. Requires the sslinfo module.
       #autologin="yes"
 
       # sslonly: If enabled, this oper can only oper up if they're using a TLS connection.

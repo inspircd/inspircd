@@ -373,27 +373,19 @@ class ModuleSSLInfo
 			return;
 
 		// Find an auto-oper block for this user
-		for (const auto& [_, ifo] :  ServerInstance->Config->oper_blocks)
+		for (const auto& [_, info] :  ServerInstance->Config->oper_blocks)
 		{
-			std::string fp = ifo->oper_block->getString("fingerprint");
-			if (!MatchFP(cert, fp))
-				continue;
+			auto oper = info->oper_block;
+			if (!oper->getBool("autologin"))
+				continue; // No autologin for this block.
 
-			bool do_login = false;
-			const std::string autologin = ifo->oper_block->getString("autologin");
-			if (stdalgo::string::equalsci(autologin, "if-host-match"))
-			{
-				const std::string& userHost = localuser->MakeHost();
-				const std::string& userIP = localuser->MakeHostIP();
-				do_login = InspIRCd::MatchMask(ifo->oper_block->getString("host"), userHost, userIP);
-			}
-			else if (ifo->oper_block->getBool("autologin"))
-			{
-				do_login = true;
-			}
+			if (!InspIRCd::MatchMask(oper->getString("host"), localuser->MakeHost(), localuser->MakeHostIP()))
+				continue; // Host doesn't match.
 
-			if (do_login)
-				user->Oper(ifo);
+			if (!MatchFP(cert, oper->getString("fingerprint")))
+				continue; // Fingerprint doesn't match.
+
+			user->Oper(info);
 		}
 	}
 
