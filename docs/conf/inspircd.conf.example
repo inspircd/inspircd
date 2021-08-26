@@ -97,20 +97,19 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-   ADMIN INFORMATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-#   Describes the Server Administrator's real name (optionally),      #
-#   nick, and email address.                                          #
+#   Configures the name and email of the server admin.                #
 #                                                                     #
 
 <admin
-       # name: Real Name
-       name="Johnny English"
+       # name: The nickname, real name, or team name of the server admin(s).
+       name="Adam Inistrator"
 
-       # nick: Nickname (preferably what you use on the network)
-       nick="MI5"
+       # description: An optional description of the server admin(s).
+       description="Supreme Overlord"
 
-       # email: email address. Does not have to be valid
-       # but should be for the users to be able to contact you.
-       email="MI5@the.best.secret.agent">
+       # email: An email address at which the server admin(s) can be contacted
+       #        in case of issues.
+       email="irc@example.com">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-   PORT CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-

@@ -79,21 +79,9 @@ class ServerTargetCommand : public Command
 class CommandAdmin : public ServerTargetCommand
 {
  public:
-	/** Holds the admin's name, for output in
-	 * the /ADMIN command.
-	 */
-	std::string AdminName;
-
-	/** Holds the email address of the admin,
-	 * for output in the /ADMIN command.
-	 */
-	std::string AdminEmail;
-
-	/** Holds the admin's nickname, for output
-	 * in the /ADMIN command
-	 */
-	std::string AdminNick;
-
+	std::string adminname;
+	std::string admindesc;
+	std::string adminemail;
 	CommandAdmin(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
