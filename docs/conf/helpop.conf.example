@@ -1091,6 +1091,8 @@ Matching extbans:
                serverban module).
  z:<certfp>    Matches users having the given TLS certificate
                fingerprint (requires the sslmodes module).
+ w:<gateway>   Matches users who are connecting via a WebIRC gateway that
+               matches <gateway>.
  O:<opertype>  Matches server operators of a matching type, mostly
                useful as an invite exception (requires the
                operchans module).
