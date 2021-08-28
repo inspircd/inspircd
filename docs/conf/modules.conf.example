@@ -1709,7 +1709,7 @@
 # pgsql is more complex than described here, see the docs for         #
 # more: https://docs.inspircd.org/3/modules/pgsql                     #
 #
-#<database module="pgsql" name="mydb" user="myuser" pass="mypass" host="localhost" id="my_database" ssl="no">
+#<database module="pgsql" name="mydb" user="myuser" pass="mypass" host="localhost" id="my_database" tls="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Muteban: Implements extended ban 'm', which stops anyone matching

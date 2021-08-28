@@ -259,7 +259,7 @@ class SQLConn : public SQL::Provider, public EventHandler
 		if (conf->readString("pass", item))
 			conninfo << " password = '" << item << "'";
 
-		if (conf->getBool("ssl"))
+		if (conf->getBool("tls", conf->getBool("ssl", true)))
 			conninfo << " sslmode = 'require'";
 		else
 			conninfo << " sslmode = 'disable'";
