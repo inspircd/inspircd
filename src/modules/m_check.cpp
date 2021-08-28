@@ -156,7 +156,10 @@ class CommandCheck : public Command
 		, snomaskmode(parent, "snomask")
 	{
 		access_needed = CmdAccess::OPERATOR;
-		syntax = { "<nick>|<ipmask>|<hostmask>|<channel> [<servername>]" };
+		syntax = {
+			"<nick>|<channel> [<servername>]",
+			"<nickmask>|<identmask>|<hostmask>|<ipmask>|<realnamemask> [<servername>]",
+		};
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
@@ -272,19 +275,37 @@ class CommandCheck : public Command
 			/*  /check on an IP address, or something that doesn't exist */
 			size_t x = 0;
 
+			std::vector<const char*> matches;
+			matches.reserve(6);
+
 			/* hostname or other */
 			for (const auto& [_, u] : ServerInstance->Users.GetUsers())
 			{
-				if (InspIRCd::Match(u->GetRealHost(), parameters[0], ascii_case_insensitive_map) || InspIRCd::Match(u->GetDisplayedHost(), parameters[0], ascii_case_insensitive_map))
+				if (InspIRCd::Match(u->nick, parameters[0], ascii_case_insensitive_map))
+					matches.push_back("nick");
+
+				if (InspIRCd::Match(u->ident, parameters[0], ascii_case_insensitive_map))
+					matches.push_back("ident");
+
+				if (InspIRCd::Match(u->GetRealHost(), parameters[0], ascii_case_insensitive_map))
+					matches.push_back("rhost");
+
+				if (InspIRCd::Match(u->GetDisplayedHost(), parameters[0], ascii_case_insensitive_map))
+					matches.push_back("dhost");
+
+				if (InspIRCd::MatchCIDR(u->GetIPString(), parameters[0]))
+					matches.push_back("ipaddr");
+
+				if (InspIRCd::MatchCIDR(u->GetRealName(), parameters[0]))
+					matches.push_back("realname");
+
+				if (!matches.empty())
 				{
-					/* host or vhost matches mask */
-					context.Write("match", ConvToStr(++x) + " " + u->GetFullRealHost() + " " + u->GetIPString() + " " + u->GetRealName());
-				}
-				/* IP address */
-				else if (InspIRCd::MatchCIDR(u->GetIPString(), parameters[0]))
-				{
-					/* same IP. */
-					context.Write("match", ConvToStr(++x) + " " + u->GetFullRealHost() + " " + u->GetIPString() + " " + u->GetRealName());
+					const std::string whatmatch = stdalgo::string::join(matches, ',');
+					context.Write("match", InspIRCd::Format("%ld %s %s %s %s %s %s :%s", ++x, whatmatch.c_str(),
+						u->nick.c_str(), u->ident.c_str(), u->GetRealHost().c_str(), u->GetDisplayedHost().c_str(),
+						u->GetIPString().c_str(), u->GetRealName().c_str()));
+					matches.clear();
 				}
 			}
 
