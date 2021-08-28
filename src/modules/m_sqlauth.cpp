@@ -188,7 +188,9 @@ class ModuleSQLAuth : public Module
 		SQL::ParamMap userinfo;
 		SQL::PopulateUserInfo(user, userinfo);
 		userinfo["pass"] = user->password;
-		userinfo["certfp"] = sslapi ? sslapi->GetFingerprint(user) : "";
+		userinfo["sslfp"] = sslapi ? sslapi->GetFingerprint(user) : "";
+		userinfo["certfp"] = userinfo["sslfp"]; // deprecated
+
 
 		for (std::vector<std::string>::const_iterator it = hash_algos.begin(); it != hash_algos.end(); ++it)
 		{

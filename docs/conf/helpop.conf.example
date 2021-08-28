@@ -1117,7 +1117,7 @@ Matching extbans:
                gecosban module).
  s:<server>    Matches users on a matching server (requires the
                serverban module).
- z:<certfp>    Matches users having the given TLS (SSL) certificate
+ z:<sslfp>     Matches users having the given TLS (SSL) certificate
                fingerprint (requires the sslmodes module).
  w:<gateway>   Matches users who are connecting via a WebIRC gateway that
                matches <gateway>.
