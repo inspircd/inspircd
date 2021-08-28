@@ -235,7 +235,7 @@ void TreeSocket::OnDataReady()
 
 static std::string newline("\n");
 
-void TreeSocket::WriteLine(const std::string& line)
+void TreeSocket::WriteLineInternal(const std::string& line)
 {
 	ServerInstance->Logs.Log(MODNAME, LOG_RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
 	this->WriteData(line);

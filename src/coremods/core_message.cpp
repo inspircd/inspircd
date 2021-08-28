@@ -92,8 +92,11 @@ public:
 	}
 };
 
-namespace
+class CommandMessage : public Command
 {
+ private:
+	const MessageType msgtype;
+
 	bool FirePreEvents(User* source, MessageTarget& msgtarget, MessageDetails& msgdetails)
 	{
 		// Inform modules that a message wants to be sent.
@@ -129,12 +132,6 @@ namespace
 		FOREACH_MOD(OnUserPostMessage, (source, msgtarget, msgdetails));
 		return CmdResult::SUCCESS;
 	}
-}
-
-class CommandMessage : public Command
-{
- private:
-	const MessageType msgtype;
 
 	CmdResult HandleChannelTarget(User* source, const Params& parameters, const char* target, PrefixMode* pm)
 	{
@@ -324,59 +321,66 @@ class CommandMessage : public Command
 	}
 };
 
-class CommandSQuery : public SplitCommand
+class CommandSQuery final
+	: public Command
 {
  public:
 	CommandSQuery(Module* Creator)
-		: SplitCommand(Creator, "SQUERY", 2, 2)
+		: Command(Creator, "SQUERY", 2, 2)
 	{
 		syntax = { "<service> :<message>" };
+		translation = { TR_NICK, TR_TEXT };
 	}
 
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		// The specified message was empty.
 		if (parameters[1].empty())
 		{
-			user->WriteNumeric(ERR_NOTEXTTOSEND, "No text to send");
+			user->WriteRemoteNumeric(ERR_NOTEXTTOSEND, "No text to send");
 			return CmdResult::FAILURE;
 		}
 
-		// The target can be either a nick or a nick@server mask.
 		User* target;
-		const char* targetserver = strchr(parameters[0].c_str(), '@');
-		if (targetserver)
+		if (IS_LOCAL(user))
 		{
-			// The target is a user on a specific server (e.g. jto@tolsun.oulu.fi).
-			target = ServerInstance->Users.FindNick(parameters[0].substr(0, targetserver - parameters[0].c_str()));
-			if (target && strcasecmp(target->server->GetName().c_str(), targetserver + 1))
-				target = NULL;
+			// Local sources can specify either a nick or a nick@server mask as the target.
+			const char* targetserver = strchr(parameters[0].c_str(), '@');
+			if (targetserver)
+			{
+				// The target is a user on a specific server (e.g. jto@tolsun.oulu.fi).
+				target = ServerInstance->Users.FindNick(parameters[0].substr(0, targetserver - parameters[0].c_str()));
+				if (target && strcasecmp(target->server->GetName().c_str(), targetserver + 1))
+					target = NULL;
+			}
+			else
+			{
+				// If the source is a local user then we only look up the target by nick.
+				target = ServerInstance->Users.FindNick(parameters[0]);
+			}
 		}
 		else
 		{
-			// The targer can be on any server.
-			target = ServerInstance->Users.FindNick(parameters[0]);
+			// Remote users can only specify a nick or UUID as the target.
+			target = ServerInstance->Users.Find(parameters[0]);
 		}
 
 		if (!target || target->registered != REG_ALL || !target->server->IsService())
 		{
 			// The target user does not exist, is not fully registered, or is not a service.
-			user->WriteNumeric(ERR_NOSUCHSERVICE, parameters[0], "No such service");
+			user->WriteRemoteNumeric(ERR_NOSUCHSERVICE, parameters[0], "No such service");
 			return CmdResult::FAILURE;
 		}
 
-		// Fire the pre-message events.
-		MessageTarget msgtarget(target);
-		MessageDetailsImpl msgdetails(MSG_PRIVMSG, parameters[1], parameters.GetTags());
-		if (!FirePreEvents(user, msgtarget, msgdetails))
-			return CmdResult::FAILURE;
+		// The SQUERY command targets a service on a services server. This can
+		// never be on the server local to the source so we can just unicast it
+		// to the server in question.
+		return CmdResult::SUCCESS;
+	}
 
-		// The SQUERY command targets a service on a U-lined server. This can never
-		// be on the server local to the source so we don't need to do any routing
-		// logic and can forward it as a PRIVMSG.
-
-		// Fire the post-message event.
-		return FirePostEvent(user, msgtarget, msgdetails);
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
+	{
+		return ROUTE_UNICAST(parameters[0]);
 	}
 };
 

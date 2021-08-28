@@ -174,6 +174,11 @@ class TreeSocket : public BufferedSocket
 	 */
 	bool GetNextLine(std::string& line, char delim = '\n');
 
+	/** Write a line directly to the socket bypassing the older protocol translation layer.
+	 * @param line The line to write directly to the socket.
+	 */
+	void WriteLineInternal(const std::string& line);
+
  public:
 	const time_t age;
 
