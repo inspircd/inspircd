@@ -692,11 +692,11 @@ namespace
 
 		if (loading)
 		{
-			const std::string linkstring = Utils->BuildLinkString(PROTO_INSPIRCD_40_A1, mod);
+			const std::string linkstring = Utils->BuildLinkString(PROTO_INSPIRCD_4, mod);
 			if (!linkstring.empty())
 				buffer << '=' << linkstring;
 
-			const std::string compatlinkstring = Utils->BuildLinkString(PROTO_INSPIRCD_30, mod);
+			const std::string compatlinkstring = Utils->BuildLinkString(PROTO_INSPIRCD_3, mod);
 			if (!linkstring.empty())
 				compatbuffer << '=' << compatlinkstring;
 		}
@@ -706,7 +706,7 @@ namespace
 			if (!child->GetSocket())
 				continue; // Should never happen?
 
-			if (child->GetSocket()->proto_version <= PROTO_INSPIRCD_30)
+			if (child->GetSocket()->proto_version <= PROTO_INSPIRCD_3)
 				CommandMetadata::Builder("modules", buffer.str()).Forward(child);
 			else
 				CommandMetadata::Builder("modules", compatbuffer.str()).Forward(child);

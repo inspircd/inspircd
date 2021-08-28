@@ -369,7 +369,7 @@ std::string SpanningTreeUtilities::BuildLinkString(uint16_t proto, Module* mod)
 	std::string compatdata;
 	mod->GetLinkData(data, compatdata);
 
-	if (proto <= PROTO_INSPIRCD_30)
+	if (proto <= PROTO_INSPIRCD_3)
 		return compatdata;
 
 	std::stringstream buffer;

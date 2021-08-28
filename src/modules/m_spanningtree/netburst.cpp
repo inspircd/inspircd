@@ -189,7 +189,7 @@ void TreeSocket::SendXLines()
 
 void TreeSocket::SendListModes(Channel* chan)
 {
-	if (proto_version < PROTO_INSPIRCD_40_A1)
+	if (proto_version < PROTO_INSPIRCD_4)
 	{
 		SendLegacyListModes(chan);
 		return;

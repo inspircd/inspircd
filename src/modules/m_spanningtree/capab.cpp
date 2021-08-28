@@ -49,7 +49,7 @@ namespace
 
 			std::string modname;
 			size_t endpos = name.length() - strlen(DLL_EXTENSION);
-			if (protocol <= PROTO_INSPIRCD_30)
+			if (protocol <= PROTO_INSPIRCD_3)
 			{
 				// Replace m_foo.dylib with m_foo.so
 				modname.append(name.substr(0, endpos)).append(".so");
@@ -112,7 +112,7 @@ namespace
 		std::ostringstream& localmissing, std::ostringstream& remotemissing)
 	{
 		// Retrieve the local module list and compare to the remote.
-		CapabData::ModuleMap mymodules = BuildModuleList(property, PROTO_INSPIRCD_30);
+		CapabData::ModuleMap mymodules = BuildModuleList(property, PROTO_INSPIRCD_3);
 		TokenDiff modulediff;
 		stdalgo::map::difference(mymodules, remote, modulediff);
 
@@ -200,7 +200,7 @@ namespace
 
 		bool okay;
 		std::ostringstream diffconfig, localmissing, remotemissing;
-		if (protocol <= PROTO_INSPIRCD_30)
+		if (protocol <= PROTO_INSPIRCD_3)
 			okay = CompareModulesOld(property, *remote, diffconfig, localmissing, remotemissing);
 		else
 			okay = CompareModulesNew(property, *remote, diffconfig, localmissing, remotemissing);
@@ -337,7 +337,7 @@ void TreeSocket::SendCapabilities(int phase)
 		{ "MAXUSER",     ConvToStr(ServerInstance->Config->Limits.MaxUser)    },
 	};
 
-	if (proto_version <= PROTO_INSPIRCD_30)
+	if (proto_version <= PROTO_INSPIRCD_3)
 	{
 		// 1205 HACK: Allow services to know what extbans exist.
 		dynamic_reference_nocheck<ExtBan::Manager> extbanmgr(Utils->Creator, "extbanmanager");
