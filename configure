@@ -338,6 +338,16 @@ updating to $compiler{NAME} v$future_compilers{$compiler{NAME}} or newer.
 EOW
 }
 
+# Warn about how quirky musl's libdl implementation is.
+chomp(my $machine = `$config{CXX} -dumpmachine 2>/dev/null`);
+if ($machine =~ /-musl$/) {
+	print_warning <<'EOW';
+You are building InspIRCd with musl. This libc does not have a useful
+dlclose() implementation which causes problems with unloading and reloading
+modules. Please complain to the musl maintainers if this is an issue for you.
+EOW
+}
+
 # Check that the user actually wants this version.
 if (defined $version{REAL_LABEL}) {
 	print_warning <<'EOW';
