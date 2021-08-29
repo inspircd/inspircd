@@ -100,7 +100,7 @@ class RemoveBase : public Command
 
 		if (target->server->IsService())
 		{
-			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, channame, "Only a U-line may remove a U-line from a channel.");
+			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, channame, "Only a service may remove a service from a channel.");
 			return CmdResult::FAILURE;
 		}
 

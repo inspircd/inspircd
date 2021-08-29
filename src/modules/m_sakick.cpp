@@ -45,7 +45,7 @@ class CommandSakick : public Command
 
 			if (dest->server->IsService())
 			{
-				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a U-lined client");
+				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a service");
 				return CmdResult::FAILURE;
 			}
 

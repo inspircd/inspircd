@@ -958,7 +958,7 @@ using their cloak when they quit.
                     topic, modes, and such will not be lost when it
                     empties (can only be set by server operators,
                     requires the permchannels module).
- Q                  Only U-lined servers and their users can kick
+ Q                  Only services servers and their users can kick
                     (requires the nokicks module).
  R                  Blocks unregistered users from joining (requires
                     the services account module).
@@ -1024,7 +1024,7 @@ l  Show all client connections with information (sendq, commands, bytes, time co
 L  Show all client connections with information and IP address
 P  Show online opers and their idle times
 T  Show bandwidth/socket statistics
-U  Show U-lined servers
+U  Show services servers
 Y  Show connection classes
 O  Show opertypes and the allowed user and channel modes it can set
 E  Show socket engine events

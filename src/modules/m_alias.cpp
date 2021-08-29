@@ -288,7 +288,7 @@ class ModuleAlias : public Module
 
 			if ((a.ServiceOnly) && (!u->server->IsService()))
 			{
-				ServerInstance->SNO.WriteToSnoMask('a', "NOTICE -- Service "+a.RequiredNick+" required by alias "+a.AliasedCommand+" is not on a U-lined server, possibly underhanded antics detected!");
+				ServerInstance->SNO.WriteToSnoMask('a', "NOTICE -- Service "+a.RequiredNick+" required by alias "+a.AliasedCommand+" is not on a services server, possibly underhanded antics detected!");
 				user->WriteNumeric(numeric, a.RequiredNick, "is not a network service! Please inform a server operator as soon as possible.");
 				return 1;
 			}

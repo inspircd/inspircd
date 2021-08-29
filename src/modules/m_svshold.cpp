@@ -109,7 +109,7 @@ class CommandSvshold : public Command
 
 		if (!user->server->IsService())
 		{
-			/* don't allow SVSHOLD from non-services clients */
+			/* don't allow SVSHOLD from non-services */
 			return CmdResult::FAILURE;
 		}
 

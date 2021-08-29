@@ -45,7 +45,7 @@ class CoreExport UserManager
 	 */
 	typedef std::vector<User*> OperList;
 
-	/** A list containing users who are on a U-lined servers. */
+	/** A list containing users who are on a services server. */
 	typedef std::vector<User*> ServiceList;
 
 	/** A list holding local users
