@@ -189,7 +189,7 @@ class ModuleSQLAuth : public Module
 		SQL::ParamMap userinfo;
 		SQL::PopulateUserInfo(user, userinfo);
 		userinfo["pass"] = user->password;
-		userinfo["certfp"] = sslapi ? sslapi->GetFingerprint(user) : "";
+		userinfo["sslfp"] = sslapi ? sslapi->GetFingerprint(user) : "";
 
 		for (const auto& algo : hash_algos)
 		{

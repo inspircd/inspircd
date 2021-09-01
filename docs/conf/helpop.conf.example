@@ -1089,7 +1089,7 @@ Matching extbans:
                realnameban module).
  s:<server>    Matches users on a matching server (requires the
                serverban module).
- z:<certfp>    Matches users having the given TLS certificate
+ z:<sslfp>     Matches users having the given TLS certificate
                fingerprint (requires the sslmodes module).
  w:<gateway>   Matches users who are connecting via a WebIRC gateway that
                matches <gateway>.
