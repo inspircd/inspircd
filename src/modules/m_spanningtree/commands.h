@@ -210,6 +210,13 @@ class CommandFHost : public UserOnlyServerCommand<CommandFHost>
 	CmdResult HandleRemote(RemoteUser* user, Params& params);
 };
 
+class CommandFRHost : public UserOnlyServerCommand<CommandFRHost>
+{
+ public:
+	CommandFRHost(Module* Creator) : UserOnlyServerCommand<CommandFRHost>(Creator, "FRHOST", 1) { }
+	CmdResult HandleRemote(RemoteUser* user, Params& params);
+};
+
 class CommandFIdent : public UserOnlyServerCommand<CommandFIdent>
 {
  public:
@@ -419,6 +426,7 @@ class SpanningTreeCommands
 	CommandFMode fmode;
 	CommandFTopic ftopic;
 	CommandFHost fhost;
+	CommandFHost frhost;
 	CommandFIdent fident;
 	CommandFName fname;
 	SpanningTree::CommandAway away;

@@ -47,7 +47,12 @@ void TreeSocket::WriteLine(const std::string& original_line)
 	std::string command(line, cmdstart + 1, cmdend - cmdstart - 1);
 	if (proto_version == PROTO_INSPIRCD_3)
 	{
-		if (irc::equals(command, "SQUERY"))
+		if (irc::equals(command, "FRHOST"))
+		{
+			// FRHOST was introduced in PROTO_INSPIRCD_4; drop it.
+			return;
+		}
+		else if (irc::equals(command, "SQUERY"))
 		{
 			// SQUERY was introduced in PROTO_INSPIRCD_4; convert to PRIVMSG.
 			line.replace(cmdstart + 1, cmdend - cmdstart - 1, "PRIVMSG");

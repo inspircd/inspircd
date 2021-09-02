@@ -75,6 +75,7 @@ SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
 	, fmode(module)
 	, ftopic(module)
 	, fhost(module)
+	, frhost(module)
 	, fident(module)
 	, fname(module)
 	, away(module)
@@ -543,12 +544,20 @@ void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by
 	}
 }
 
-void ModuleSpanningTree::OnChangeHost(User* user, const std::string &newhost)
+void ModuleSpanningTree::OnChangeHost(User* user, const std::string& newhost)
 {
 	if (user->registered != REG_ALL || !IS_LOCAL(user))
 		return;
 
 	CmdBuilder(user, "FHOST").push(newhost).Broadcast();
+}
+
+void ModuleSpanningTree::OnChangeRealHost(User* user, const std::string& newhost)
+{
+	if (user->registered != REG_ALL || !IS_LOCAL(user))
+		return;
+
+	CmdBuilder(user, "FRHOST").push(newhost).Broadcast();
 }
 
 void ModuleSpanningTree::OnChangeRealName(User* user, const std::string& real)

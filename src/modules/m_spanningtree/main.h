@@ -185,7 +185,8 @@ class ModuleSpanningTree
 	void OnUserPostTagMessage(User* user, const MessageTarget& target, const CTCTags::TagMessageDetails& details) override;
 	void OnBackgroundTimer(time_t curtime) override;
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) override;
-	void OnChangeHost(User* user, const std::string &newhost) override;
+	void OnChangeHost(User* user, const std::string& newhost) override;
+	void OnChangeRealHost(User* user, const std::string& newhost) override;
 	void OnChangeRealName(User* user, const std::string& real) override;
 	void OnChangeIdent(User* user, const std::string &ident) override;
 	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts) override;

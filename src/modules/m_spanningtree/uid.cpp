@@ -146,6 +146,13 @@ CmdResult CommandFHost::HandleRemote(RemoteUser* src, Params& params)
 	return CmdResult::SUCCESS;
 }
 
+
+CmdResult CommandFRHost::HandleRemote(RemoteUser* src, Params& params)
+{
+	src->ChangeRealHost(params[0], false);
+	return CmdResult::SUCCESS;
+}
+
 CmdResult CommandFIdent::HandleRemote(RemoteUser* src, Params& params)
 {
 	src->ChangeIdent(params[0]);
