@@ -56,6 +56,8 @@
 // to support. Support for it was removed in the master branch at the same time that
 // support for OpenSSL pre-1.1 was.
 #if defined __GNUC__ && defined LIBRESSL_VERSION_NUMBER
+# undef OPENSSL_VERSION_NUMBER
+# define OPENSSL_VERSION_NUMBER 0x10000000L
 # warning LibreSSL support will be discontinued in the future. Consider using the ssl_gnutls or ssl_mbedtls modules instead.
 #endif
 
@@ -80,7 +82,7 @@
 #endif
 
 // Compatibility layer to allow OpenSSL 1.0 to use the 1.1 API.
-#if ((defined LIBRESSL_VERSION_NUMBER) || (OPENSSL_VERSION_NUMBER < 0x10100000L))
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 
 // BIO is opaque in OpenSSL 1.1 but the access API does not exist in 1.0.
 # define BIO_get_data(BIO) BIO->ptr
