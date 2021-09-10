@@ -34,7 +34,7 @@ CmdResult CommandAway::HandleRemote(::RemoteUser* u, Params& params)
 	if (!params.empty())
 	{
 		if (params.size() > 1)
-			u->awaytime = ConvToNum<time_t>(params[0]);
+			u->awaytime = ServerCommand::ExtractTS(params[0]);
 		else
 			u->awaytime = ServerInstance->Time();
 

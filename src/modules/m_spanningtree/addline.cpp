@@ -52,7 +52,7 @@ CmdResult CommandAddLine::Handle(User* usr, Params& params)
 		ServerInstance->SNO.WriteToSnoMask('x', "Unable to ADDLINE type %s from %s: %s", params[0].c_str(), setter.c_str(), e.GetReason().c_str());
 		return CmdResult::FAILURE;
 	}
-	xl->SetCreateTime(ConvToNum<time_t>(params[3]));
+	xl->SetCreateTime(ServerCommand::ExtractTS(params[3]));
 	if (ServerInstance->XLines->AddLine(xl, NULL))
 	{
 		if (xl->duration)

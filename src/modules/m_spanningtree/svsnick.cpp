@@ -51,7 +51,7 @@ CmdResult CommandSVSNick::Handle(User* user, Params& parameters)
 		// won't happen because the timestamps won't match.
 		if (parameters.size() > 3)
 		{
-			time_t ExpectedTS = ConvToNum<time_t>(parameters[3]);
+			time_t ExpectedTS = ServerCommand::ExtractTS(parameters[3]);
 			if (u->age != ExpectedTS)
 				return CmdResult::FAILURE; // Ignore SVSNICK
 		}
@@ -60,10 +60,7 @@ CmdResult CommandSVSNick::Handle(User* user, Params& parameters)
 		if (isdigit(nick[0]))
 			nick = u->uuid;
 
-		time_t NickTS = ConvToNum<time_t>(parameters[2]);
-		if (NickTS <= 0)
-			return CmdResult::FAILURE;
-
+		time_t NickTS = ServerCommand::ExtractTS(parameters[2]);
 		if (!u->ChangeNick(nick, NickTS))
 		{
 			// Changing to 'nick' failed (it may already be in use), change to the uuid

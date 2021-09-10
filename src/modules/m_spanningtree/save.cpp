@@ -36,8 +36,7 @@ CmdResult CommandSave::Handle(User* user, Params& params)
 	if (!u)
 		return CmdResult::FAILURE;
 
-	time_t ts = ConvToNum<time_t>(params[1]);
-
+	time_t ts = ServerCommand::ExtractTS(params[1]);
 	if (u->age == ts)
 		u->ChangeNick(u->uuid, SavedTimestamp);
 
