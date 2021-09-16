@@ -474,7 +474,7 @@ class CoreExport ServerConfig
 	const std::string& GetServerName() const { return HideServer.empty() ? ServerName : HideServer; }
 
 	/** Retrieves the server description which should be shown to users. */
-	const std::string& GetServerDesc() const { return HideServer.empty() ? ServerDesc : HideServer; }
+	const std::string& GetServerDesc() const { return HideServer.empty() ? ServerDesc : Network; }
 
 	/** Read the entire configuration into memory
 	 * and initialize this class. All other methods
