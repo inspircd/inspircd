@@ -57,6 +57,9 @@ class ModuleCustomPrefix : public Module
 			if (name.empty())
 				throw ModuleException("<customprefix:name> must be specified at " + tag->getTagLocation());
 
+			if (name.find(' ') != std::string::npos)
+				throw ModuleException("<customprefix:name> must not contain spaces at " + tag->getTagLocation());
+
 			if (tag->getBool("change"))
 			{
 				ModeHandler* mh = ServerInstance->Modes->FindMode(name, MODETYPE_CHANNEL);
