@@ -2048,7 +2048,7 @@
 
 # You must define <sasl:target> to the name of your services server so
 # that InspIRCd knows where to send SASL authentication messages and
-# when it should enable the SASL capability.
+# when it should enable the SASL capability.
 # You can also define <sasl:requiressl> to require users to use TLS (SSL)
 # in order to be able to use SASL.
 #<sasl target="services.mynetwork.com"
@@ -2511,4 +2511,3 @@
 # You will almost always want to load this.
 #
 #<module name="spanningtree">
-
