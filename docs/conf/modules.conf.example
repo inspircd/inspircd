@@ -1924,12 +1924,14 @@
 #               any effect, as the maximum length of a message on IRC
 #               cannot exceed that.
 # kickmessage - Kick message when * is specified
+# opersimmune - Should opers be affected by repeat checking?
 #<repeat maxbacklog="20"
 #        maxdistance="50"
 #        maxlines="20"
 #        maxtime="0s"
 #        size="512"
-#        kickmessage="Repeat flood">
+#        kickmessage="Repeat flood"
+#        opersimmune="yes">
 #<module name="repeat">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -2048,7 +2050,7 @@
 
 # You must define <sasl:target> to the name of your services server so
 # that InspIRCd knows where to send SASL authentication messages and
-# when it should enable the SASL capability.
+# when it should enable the SASL capability.
 # You can also define <sasl:requiressl> to require users to use TLS (SSL)
 # in order to be able to use SASL.
 #<sasl target="services.mynetwork.com"
@@ -2511,3 +2513,4 @@
 # You will almost always want to load this.
 #
 #<module name="spanningtree">
+
