@@ -1924,14 +1924,12 @@
 #               any effect, as the maximum length of a message on IRC
 #               cannot exceed that.
 # kickmessage - Kick message when * is specified
-# opersimmune - Should opers be affected by repeat checking?
 #<repeat maxbacklog="20"
 #        maxdistance="50"
 #        maxlines="20"
 #        maxtime="0s"
 #        size="512"
-#        kickmessage="Repeat flood"
-#        opersimmune="yes">
+#        kickmessage="Repeat flood">
 #<module name="repeat">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

@@ -92,7 +92,6 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		unsigned int MaxDiff;
 		unsigned int MaxMessageSize;
 		std::string KickMessage;
-		bool OpersImmune;
 		ModuleSettings() : MaxLines(0), MaxSecs(0), MaxBacklog(0), MaxDiff() { }
 	};
 
@@ -256,8 +255,6 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		Resize(newsize);
 
 		ms.KickMessage = conf->getString("kickmessage", "Repeat flood");
-
-		ms.OpersImmune = conf->getBool("opersimmune");
 	}
 
 	std::string GetModuleSettings() const
@@ -268,11 +265,6 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 	std::string GetKickMessage() const
 	{
 		return ms.KickMessage;
-	}
-
-	bool IsOpersImmune()
-	{
-		return ms.OpersImmune;
 	}
 
 	void SerializeParam(Channel* chan, const ChannelSettings* chset, std::string& out)
@@ -404,7 +396,7 @@ class RepeatModule : public Module
 		if (res == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 
-		if (rm.IsOpersImmune() && user->IsOper())
+		if (user->HasPrivPermission("channels/ignore-repeat"))
 			return MOD_RES_PASSTHRU;
 
 		if (rm.MatchLine(memb, settings, details.text))
