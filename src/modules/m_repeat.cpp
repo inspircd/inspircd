@@ -396,6 +396,9 @@ class RepeatModule : public Module
 		if (res == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 
+		if (user->HasPrivPermission("channels/ignore-repeat"))
+			return MOD_RES_PASSTHRU;
+
 		if (rm.MatchLine(memb, settings, details.text))
 		{
 			if (settings->Action == ChannelSettings::ACT_BLOCK)
