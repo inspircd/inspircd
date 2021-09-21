@@ -35,17 +35,29 @@ static dynamic_reference_nocheck<HashProvider>* sha1;
 
 struct WebSocketConfig
 {
+	enum DefaultMode
+	{
+		// Reject connections if a subprotocol is not requested.
+		DM_REJECT,
+
+		// Use binary frames if a subprotocol is not requested.
+		DM_BINARY,
+
+		// Use UTF-8 text frames if a subprotocol is not requested.
+		DM_TEXT
+	};
+
 	typedef std::vector<std::string> OriginList;
 	typedef std::vector<std::string> ProxyRanges;
 
 	// The HTTP origins that can connect to the server.
 	OriginList allowedorigins;
 
+	// The method to use if a subprotocol is not negotiated.
+	DefaultMode defaultmode;
+
 	// The IP ranges which send trustworthy X-Real-IP or X-Forwarded-For headers.
 	ProxyRanges proxyranges;
-
-	// Whether to send as UTF-8 text instead of binary data.
-	bool sendastext;
 };
 
 class WebSocketHookProvider : public IOHookProvider
@@ -406,14 +418,22 @@ class WebSocketHook : public IOHookMiddle
 			irc::spacesepstream protostream(protocolheader.ExtractValue(recvq));
 			for (std::string proto; protostream.GetToken(proto); )
 			{
+				bool is_binary = stdalgo::string::equalsci(proto, "binary.inspircd.org");
 				bool is_text = stdalgo::string::equalsci(proto, "text.inspircd.org");
-				if (stdalgo::string::equalsci(proto, "binary.inspircd.org") || is_text)
+
+				if (is_binary || is_text)
 				{
 					selectedproto = proto;
 					sendastext = is_text;
 					break;
 				}
 			}
+		}
+
+		if (selectedproto.empty() && config.defaultmode == WebSocketConfig::DM_REJECT)
+		{
+			FailHandshake(sock, "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n", "WebSocket: Received HTTP request that did not send the Sec-WebSocket-Protocol header");
+			return -1;
 		}
 
 		HTTPHeaderFinder keyheader;
@@ -454,7 +474,7 @@ class WebSocketHook : public IOHookMiddle
 		, state(STATE_HTTPREQ)
 		, lastpingpong(0)
 		, config(cfg)
-		, sendastext(cfg.sendastext)
+		, sendastext(config.defaultmode != WebSocketConfig::DM_BINARY)
 	{
 		sock->AddIOHook(this);
 	}
@@ -577,7 +597,16 @@ class ModuleWebSocket : public Module
 		}
 
 		ConfigTag* tag = ServerInstance->Config->ConfValue("websocket");
-		config.sendastext = tag->getBool("sendastext", true);
+
+		const std::string defaultmodestr = tag->getString("defaultmode", tag->getBool("sendastext", true) ? "text" : "binary", 1);
+		if (stdalgo::string::equalsci(defaultmodestr, "reject"))
+			config.defaultmode = WebSocketConfig::DM_REJECT;
+		else if (stdalgo::string::equalsci(defaultmodestr, "binary"))
+			config.defaultmode = WebSocketConfig::DM_BINARY;
+		else if (stdalgo::string::equalsci(defaultmodestr, "text"))
+			config.defaultmode = WebSocketConfig::DM_TEXT;
+		else
+			throw ModuleException(defaultmodestr + " is an invalid value for <websocket:defaultmode>; acceptable values are 'binary', 'text' and 'reject', at " + tag->getTagLocation());
 
 		irc::spacesepstream proxyranges(tag->getString("proxyranges"));
 		for (std::string proxyrange; proxyranges.GetToken(proxyrange); )
