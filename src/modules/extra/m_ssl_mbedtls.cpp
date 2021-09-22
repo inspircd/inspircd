@@ -968,7 +968,7 @@ class ModuleSSLmbedTLS : public Module
 		}
 		catch (ModuleException& ex)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, ex.GetReason() + " Not applying settings.");
+			ServerInstance->SNO->WriteToSnoMask('a', "Failed to reload the mbedTLS TLS (SSL) profiles. " + ex.GetReason());
 		}
 	}
 
