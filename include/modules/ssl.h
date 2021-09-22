@@ -260,7 +260,7 @@ class SSLIOHook : public IOHook
 	virtual bool GetServerName(std::string& out) const = 0;
 
 	/** @copydoc IOHook::IsHookReady */
-	bool IsHookReady() const override { return status == STATUS_OPEN; }
+	bool IsHookReady() const CXX11_OVERRIDE { return status == STATUS_OPEN; }
 };
 
 /** Helper functions for obtaining TLS (SSL) client certificates and key fingerprints
