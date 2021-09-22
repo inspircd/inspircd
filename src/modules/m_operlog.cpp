@@ -38,11 +38,6 @@ class ModuleOperLog
 	{
 	}
 
-	void init() override
-	{
-		ServerInstance->SNO.EnableSnomask('r', "OPERLOG");
-	}
-
 	void ReadConfig(ConfigStatus& status) override
 	{
 		tosnomask = ServerInstance->Config->ConfValue("operlog")->getBool("tosnomask", false);
@@ -61,7 +56,7 @@ class ModuleOperLog
 			{
 				std::string msg = "[" + user->GetFullRealHost() + "] " + command + " " + stdalgo::string::join(parameters);
 				if (tosnomask)
-					ServerInstance->SNO.WriteGlobalSno('r', msg);
+					ServerInstance->SNO.WriteGlobalSno('o', msg);
 				else
 					ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, msg);
 			}

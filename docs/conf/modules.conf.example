@@ -1530,7 +1530,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper log module: Logs all oper commands to the server log (with log
-# type "m_operlog" at default loglevel), and optionally to the 'r'
+# type "m_operlog" at default loglevel), and optionally to the 'o'
 # snomask.
 # This module is oper-only.
 #<module name="operlog">

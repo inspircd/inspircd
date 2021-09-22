@@ -1056,8 +1056,6 @@ Note that all /STATS use is broadcast to online server operators.
  O      Allows receipt of remote oper-up, oper-down, and oper-failure messages.
  q      Allows receipt of local quit messages.
  Q      Allows receipt of remote quit messages.
- r      Allows receipt of local oper commands (requires the operlog module).
- R      Allows receipt of remote oper commands (requires the operlog module).
  t      Allows receipt of attempts to use /STATS (local and remote).
  v      Allows receipt of oper override notices (requires the override module).
  x      Allows receipt of local X-line notices (G/Z/Q/K/E/R/SHUN/CBan).
