@@ -384,7 +384,7 @@ class HAProxyHook : public IOHookMiddle
 		sock->AddIOHook(this);
 	}
 
-	bool IsHookReady() const override
+	bool IsHookReady() const CXX11_OVERRIDE
 	{
 		return state == HPS_CONNECTED;
 	}
