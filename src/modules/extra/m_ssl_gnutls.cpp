@@ -1370,7 +1370,7 @@ class ModuleSSLGnuTLS : public Module
 		}
 		catch (ModuleException& ex)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, ex.GetReason() + " Not applying settings.");
+			ServerInstance->SNO->WriteToSnoMask('a', "Failed to reload the GnuTLS TLS (SSL) profiles. " + ex.GetReason());
 		}
 	}
 
