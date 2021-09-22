@@ -153,9 +153,25 @@ public:
 class SSLIOHook : public IOHook
 {
  protected:
+	/** An enumeration of possible TLS (SSL) socket states. */
+	enum Status
+	{
+		/** The SSL socket has just been opened or has been closed. */
+		STATUS_NONE,
+
+		/** The SSL socket is currently handshaking. */
+		STATUS_HANDSHAKING,
+
+		/** The SSL handshake has completed and data can be sent. */
+		STATUS_OPEN
+	};
+
 	/** Peer TLS certificate, set by the TLS module
 	 */
 	reference<ssl_cert> certificate;
+
+	/** The status of the TLS (SSL) connection. */
+	Status status = STATUS_NONE;
 
 	/** Reduce elements in a send queue by appending later elements to the first element until there are no more
 	 * elements to append or a desired length is reached
@@ -230,6 +246,9 @@ class SSLIOHook : public IOHook
 	 * returns True if the server name was retrieved; otherwise, false.
 	 */
 	virtual bool GetServerName(std::string& out) const = 0;
+
+	/** @copydoc IOHook::IsHookReady */
+	bool IsHookReady() const override { return status == STATUS_OPEN; }
 };
 
 /** Helper functions for obtaining TLS client certificates and key fingerprints

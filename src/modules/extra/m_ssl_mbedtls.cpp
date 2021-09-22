@@ -523,25 +523,18 @@ namespace mbedTLS
 
 class mbedTLSIOHook : public SSLIOHook
 {
-	enum Status
-	{
-		ISSL_NONE,
-		ISSL_HANDSHAKING,
-		ISSL_HANDSHAKEN
-	};
-
+ private:
 	mbedtls_ssl_context sess;
-	Status status;
 
 	void CloseSession()
 	{
-		if (status == ISSL_NONE)
+		if (status == STATUS_NONE)
 			return;
 
 		mbedtls_ssl_close_notify(&sess);
 		mbedtls_ssl_free(&sess);
 		certificate = NULL;
-		status = ISSL_NONE;
+		status = STATUS_NONE;
 	}
 
 	// Returns 1 if handshake succeeded, 0 if it is still in progress, -1 if it failed
@@ -551,7 +544,7 @@ class mbedTLSIOHook : public SSLIOHook
 		if (ret == 0)
 		{
 			// Change the session state
-			this->status = ISSL_HANDSHAKEN;
+			this->status = STATUS_OPEN;
 
 			VerifyCertificate();
 
@@ -561,7 +554,7 @@ class mbedTLSIOHook : public SSLIOHook
 			return 1;
 		}
 
-		this->status = ISSL_HANDSHAKING;
+		this->status = STATUS_HANDSHAKING;
 		if (ret == MBEDTLS_ERR_SSL_WANT_READ)
 		{
 			SocketEngine::ChangeEventMask(sock, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
@@ -581,9 +574,9 @@ class mbedTLSIOHook : public SSLIOHook
 	// Returns 1 if application I/O should proceed, 0 if it must wait for the underlying protocol to progress, -1 on fatal error
 	int PrepareIO(StreamSocket* sock)
 	{
-		if (status == ISSL_HANDSHAKEN)
+		if (status == STATUS_OPEN)
 			return 1;
-		else if (status == ISSL_HANDSHAKING)
+		else if (status == STATUS_HANDSHAKING)
 		{
 			// The handshake isn't finished, try to finish it
 			return Handshake(sock);
@@ -685,7 +678,6 @@ class mbedTLSIOHook : public SSLIOHook
  public:
 	mbedTLSIOHook(std::shared_ptr<IOHookProvider> hookprov, StreamSocket* sock, bool isserver)
 		: SSLIOHook(hookprov)
-		, status(ISSL_NONE)
 	{
 		mbedtls_ssl_init(&sess);
 		if (isserver)
@@ -711,7 +703,7 @@ class mbedTLSIOHook : public SSLIOHook
 		if (prepret <= 0)
 			return prepret;
 
-		// If we resumed the handshake then this->status will be ISSL_HANDSHAKEN.
+		// If we resumed the handshake then this->status will be STATUS_OPEN.
 		char* const readbuf = ServerInstance->GetReadBuffer();
 		const size_t readbufsize = ServerInstance->Config->NetBufferSize;
 		int ret = mbedtls_ssl_read(&sess, reinterpret_cast<unsigned char*>(readbuf), readbufsize);
@@ -802,7 +794,7 @@ class mbedTLSIOHook : public SSLIOHook
 
 	void GetCiphersuite(std::string& out) const override
 	{
-		if (!IsHandshakeDone())
+		if (!IsHookReady())
 			return;
 		out.append(mbedtls_ssl_get_version(&sess)).push_back('-');
 
@@ -822,7 +814,6 @@ class mbedTLSIOHook : public SSLIOHook
 	}
 
 	mbedTLS::Profile& GetProfile();
-	bool IsHandshakeDone() const { return (status == ISSL_HANDSHAKEN); }
 };
 
 class mbedTLSIOHookProvider : public SSLIOHookProvider
@@ -952,7 +943,7 @@ class ModuleSSLmbedTLS : public Module
 		}
 		catch (ModuleException& ex)
 		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, ex.GetReason() + " Not applying settings.");
+			ServerInstance->SNO.WriteToSnoMask('a', "Failed to reload the mbedTLS TLS profiles. " + ex.GetReason());
 		}
 	}
 
@@ -973,7 +964,7 @@ class ModuleSSLmbedTLS : public Module
 	ModResult OnCheckReady(LocalUser* user) override
 	{
 		const mbedTLSIOHook* const iohook = static_cast<mbedTLSIOHook*>(user->eh.GetModHook(this));
-		if ((iohook) && (!iohook->IsHandshakeDone()))
+		if ((iohook) && (!iohook->IsHookReady()))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
