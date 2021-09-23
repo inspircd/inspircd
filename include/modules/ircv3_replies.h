@@ -89,24 +89,13 @@ class IRCv3::Replies::Reply
 	 * @param user The user to send the reply to.
 	 * @param command The command that the reply relates to.
 	 * @param code A machine readable code for this reply.
-	 * @param description A human readable description of this reply.
+	 * @param args A variable number of context parameters and a human readable description of this reply.
 	 */
-	void Send(LocalUser* user, Command* command, const std::string& code, const std::string& description)
-	{
-		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->GetServerName());
-		if (command)
-			msg.PushParamRef(command->name);
-		else
-			msg.PushParam("*");
-		msg.PushParam(code);
-		msg.PushParam(description);
-		SendInternal(user, msg);
-	}
-
 	template<typename... Args>
-	void Send(LocalUser* user, Command* command, const std::string& code, Args&&... args,
-		const std::string& description)
+	void Send(LocalUser* user, Command* command, const std::string& code, Args&&... args)
 	{
+		static_assert(sizeof...(Args) >= 1);
+
 		ClientProtocol::Message msg(cmd.c_str(), ServerInstance->Config->GetServerName());
 		if (command)
 			msg.PushParamRef(command->name);
@@ -114,7 +103,6 @@ class IRCv3::Replies::Reply
 			msg.PushParam("*");
 		msg.PushParam(code);
 		msg.PushParam(std::forward<Args>(args)...);
-		msg.PushParam(description);
 		SendInternal(user, msg);
 	}
 
@@ -124,25 +112,18 @@ class IRCv3::Replies::Reply
 	 * @param user The user to send the reply to.
 	 * @param command The command that the reply relates to.
 	 * @param code A machine readable code for this reply.
-	 * @param description A human readable description of this reply.
+	 * @param args A variable number of context parameters and a human readable description of this reply.
 	 */
-	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code,
-		const std::string& description)
-	{
-		if (cap.IsEnabled(user))
-			Send(user, command, code, description);
-		else
-			SendNoticeInternal(user, command, description);
-	}
-
 	template<typename... Args>
 	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code,
-		Args&&... args, const std::string& description)
+		Args&&... args)
 	{
+		static_assert(sizeof...(Args) >= 1);
+
 		if (cap.IsEnabled(user))
-			Send<Args&&...>(user, command, code, std::forward<Args>(args)..., description);
+			Send(user, command, code, std::forward<Args>(args)...);
 		else
-			SendNoticeInternal(user, command, description);
+			SendNoticeInternal(user, command, std::get<sizeof...(Args) - 1>(std::forward_as_tuple(args...)));
 	}
 };
 
