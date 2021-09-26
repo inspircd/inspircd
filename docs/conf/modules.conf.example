@@ -1765,6 +1765,10 @@
 # module. You must have at least 1 provider loaded to use the filter or
 # R-line modules.
 #<module name="regex_pcre2">
+#
+# If you were using PCRE in v3 or earlier you can enable this to try to
+# keep compatibility with your regular expressions from older versions.
+#<pcre2 compat="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Regular Expression Provider for RE2 Regular Expressions.

@@ -75,15 +75,34 @@ class PCRE2Pattern final
 	}
 };
 
+class PCRECompatEngine final
+	: public Regex::Engine
+{
+public:
+	PCRECompatEngine(Module* Creator, const std::string& Name)
+		: Regex::Engine(Creator, Name)
+	{
+		if (!ServerInstance->Config->ConfValue("pcre2")->getBool("compat"))
+			DisableAutoRegister();
+	}
+
+	Regex::PatternPtr Create(const std::string& pattern, uint8_t options) override
+	{
+		return std::make_shared<PCRE2Pattern>(pattern, options);
+	}
+};
+
 class ModuleRegexPCRE2 final
 	: public Module
 {
  private:
+	PCRECompatEngine compatregex;
 	Regex::SimpleEngine<PCRE2Pattern> regex;
 
  public:
 	ModuleRegexPCRE2()
 		: Module(VF_VENDOR, "Provides the pcre2 regular expression engine which uses the PCRE2 library.")
+		, compatregex(this, "pcre")
 		, regex(this, "pcre2")
 	{
 	}
