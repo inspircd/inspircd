@@ -891,7 +891,7 @@
 # warning will be sent to opers instead. This stops spambots which    #
 # send their spam message to themselves first to check if it is being #
 # filtered by the server.                                             #
-#<filteropts engine="glob" notifyuser="yes" warnonselfmsg="no">
+#<filteropts engine="stdregex" notifyuser="yes" warnonselfmsg="no">
 #                                                                     #
 # Your choice of regex engine must match on all servers network-wide. #
 #                                                                     #
@@ -1874,7 +1874,7 @@
 # regex_<engine> must be loaded, or rline will be non-functional
 # until you load it or change the engine to one that is loaded.
 #
-#<rline matchonnickchange="yes" zlineonmatch="no" engine="pcre">
+#<rline matchonnickchange="yes" zlineonmatch="no" engine="stdregex">
 #
 # Generally, you will NOT want to use 'glob' here, as this turns an
 # R-line into just another G-line. The exceptions are that R-lines will
