@@ -870,14 +870,14 @@
 # Filter module: Provides message filtering, similar to SPAMFILTER.   #
 #<module name="filter">
 #                                                                     #
-# This module depends upon a regex provider such as regex_pcre or     #
+# This module depends upon a regex provider such as regex_stdlib or   #
 # regex_glob to function. You must specify which of these you want    #
 # the filter module to use via the tag below.                         #
 #                                                                     #
 # Valid engines are:                                                  #
 #                                                                     #
 # glob   - Glob patterns, provided via regex_glob.                    #
-# pcre   - PCRE regexps, provided via regex_pcre, needs libpcre.      #
+# pcre2  - PCRE regexps, provided via regex_pcre2, needs libpcre2.    #
 # posix  - POSIX regexps, provided via regex_posix, not available     #
 #          on Windows, no dependencies on other operating systems.    #
 # stdregex - stdlib regexps, provided via regex_stdlib, see comment   #
@@ -1751,13 +1751,6 @@
 # modules. This module has no additional requirements, as it uses the
 # matching already present in InspIRCd core.
 #<module name="regex_glob">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Regular expression provider for PCRE (Perl-Compatible Regular
-# Expressions). You need libpcre installed to compile and load this
-# module. You must have at least 1 provider loaded to use the filter or
-# R-line modules.
-#<module name="regex_pcre">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Regular expression provider for PCRE2 (Perl-Compatible Regular
