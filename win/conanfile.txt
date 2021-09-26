@@ -12,6 +12,7 @@ libpq/13.2
 mysql-connector-c/6.1.11
 # openssl/1.1.1k
 pcre/8.44
+pcre2/10.37
 re2/20210401
 sqlite3/3.35.5
 
@@ -23,6 +24,7 @@ libpq:shared=True
 mysql-connector:shared=True
 # openssl:shared=True
 pcre:shared=True
+pcre2:shared=True
 re2:shared=True
 sqlite3:shared=True
 

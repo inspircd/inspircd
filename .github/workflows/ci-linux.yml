@@ -27,6 +27,7 @@ jobs:
             libmaxminddb-dev \
             libmbedtls-dev \
             libmysqlclient-dev \
+            libpcre2-dev \
             libpcre3-dev \
             libpq-dev \
             libre2-dev \
@@ -42,7 +43,7 @@ jobs:
 
       - name: Run configure
         run: |
-          ./configure --enable-extras "argon2 geo_maxmind ldap mysql pgsql regex_pcre regex_posix regex_re2 sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal"
+          ./configure --enable-extras "argon2 geo_maxmind ldap mysql pgsql regex_pcre regex_pcre2 regex_posix regex_re2 sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal"
           ./configure --development --disable-auto-extras --socketengine ${{ matrix.socketengine }}
 
       - name: Build core

@@ -139,7 +139,7 @@ class Regex::Exception final
 	 * @param error The error which occurred whilst compiling the regular expression.
 	 * @param offset The offset at which the errror occurred.
 	*/
-	Exception(const std::string& regex, const std::string& error, int offset)
+	Exception(const std::string& regex, const std::string& error, size_t offset)
 		: ModuleException("Error in regex '" + regex + "' at offset " + ConvToStr(offset) + ": " + error)
 	{
 	}
