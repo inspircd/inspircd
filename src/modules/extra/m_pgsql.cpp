@@ -27,7 +27,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: -Iexecute("pg_config --includedir" "POSTGRESQL_INCLUDE_DIR")
+/// $CompilerFlags: -isystem execute("pg_config --includedir" "POSTGRESQL_INCLUDE_DIR")
 /// $LinkerFlags: -Lexecute("pg_config --libdir" "POSTGRESQL_LIBRARY_DIR") -lpq
 
 /// $PackageInfo: require_system("arch") postgresql-libs
