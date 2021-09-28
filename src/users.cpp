@@ -1227,11 +1227,11 @@ ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::ve
 }
 
 ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::vector<std::string>& masks, std::shared_ptr<ConnectClass> parent)
+	: hosts(masks)
 {
 	Update(parent);
 	name = "unnamed";
 	type = t;
-	hosts = masks;
 
 	// Connect classes can inherit from each other but this is problematic for modules which can't use
 	// ConnectClass::Update so we build a hybrid tag containing all of the values set on this class as

@@ -423,7 +423,7 @@ class WebSocketHook : public IOHookMiddle
 
 				if (is_binary || is_text)
 				{
-					selectedproto = proto;
+					selectedproto = std::move(proto);
 					sendastext = is_text;
 					break;
 				}

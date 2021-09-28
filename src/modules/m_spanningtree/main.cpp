@@ -705,9 +705,8 @@ namespace
 			if (!linkstring.empty())
 				buffer << '=' << linkstring;
 
-			const std::string compatlinkstring = Utils->BuildLinkString(PROTO_INSPIRCD_3, mod);
 			if (!linkstring.empty())
-				compatbuffer << '=' << compatlinkstring;
+				compatbuffer << '=' << Utils->BuildLinkString(PROTO_INSPIRCD_3, mod);
 		}
 
 		for (const auto& child : Utils->TreeRoot->GetChildren())
