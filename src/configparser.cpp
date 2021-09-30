@@ -462,6 +462,43 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 	}
 }
 
+ParseStack::ParseStack(ServerConfig* conf)
+	: output(conf->config_data)
+	, FilesOutput(conf->Files)
+	, errstr(conf->errstr)
+{
+	vars = {
+		// Special character escapes.
+		{ "newline", "\n" },
+		{ "nl",      "\n" },
+
+		// XML escapes.
+		{ "amp",  "&"  },
+		{ "apos", "'"  },
+		{ "gt",   ">"  },
+		{ "lt",   "<"  },
+		{ "quot", "\"" },
+
+		// Directories that were set at build time.
+		{ "dir.config",  INSPIRCD_CONFIG_PATH  },
+		{ "dir.data",    INSPIRCD_DATA_PATH    },
+		{ "dir.log",     INSPIRCD_LOG_PATH     },
+		{ "dir.module",  INSPIRCD_MODULE_PATH  },
+		{ "dir.runtime", INSPIRCD_RUNTIME_PATH },
+
+		// IRC formatting codes.
+		{ "irc.bold",          "\x02" },
+		{ "irc.color",         "\x03" },
+		{ "irc.colour",        "\x03" },
+		{ "irc.italic",        "\x1D" },
+		{ "irc.monospace",     "\x11" },
+		{ "irc.reset",         "\x0F" },
+		{ "irc.reverse",       "\x16" },
+		{ "irc.strikethrough", "\x1E" },
+		{ "irc.underline",     "\x1F" },
+	};
+}
+
 bool ParseStack::ParseFile(const std::string& path, int flags, const std::string& mandatory_tag, bool isexec)
 {
 	ServerInstance->Logs.Log("CONFIG", LOG_DEBUG, "Reading (isexec=%d) %s", isexec, path.c_str());

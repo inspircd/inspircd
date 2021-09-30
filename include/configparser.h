@@ -30,40 +30,7 @@ struct ParseStack
 	ConfigFileCache& FilesOutput;
 	std::stringstream& errstr;
 
-	ParseStack(ServerConfig* conf)
-		: output(conf->config_data), FilesOutput(conf->Files), errstr(conf->errstr)
-	{
-		vars = {
-			// Special character escapes.
-			{ "newline", "\n" },
-			{ "nl",      "\n" },
-
-			// XML escapes.
-			{ "amp",  "&"  },
-			{ "apos", "'"  },
-			{ "gt",   ">"  },
-			{ "lt",   "<"  },
-			{ "quot", "\"" },
-
-			// Directories that were set at build time.
-			{ "dir.config",  INSPIRCD_CONFIG_PATH  },
-			{ "dir.data",    INSPIRCD_DATA_PATH    },
-			{ "dir.log",     INSPIRCD_LOG_PATH     },
-			{ "dir.module",  INSPIRCD_MODULE_PATH  },
-			{ "dir.runtime", INSPIRCD_RUNTIME_PATH },
-
-			// IRC formatting codes.
-			{ "irc.bold",          "\x02" },
-			{ "irc.color",         "\x03" },
-			{ "irc.colour",        "\x03" },
-			{ "irc.italic",        "\x1D" },
-			{ "irc.monospace",     "\x11" },
-			{ "irc.reset",         "\x0F" },
-			{ "irc.reverse",       "\x16" },
-			{ "irc.strikethrough", "\x1E" },
-			{ "irc.underline",     "\x1F" },
-		};
-	}
+	ParseStack(ServerConfig* conf);
 	bool ParseFile(const std::string& name, int flags, const std::string& mandatory_tag = std::string(), bool isexec = false);
 	void DoInclude(std::shared_ptr<ConfigTag> includeTag, int flags);
 	void DoReadFile(const std::string& key, const std::string& file, int flags, bool exec);
