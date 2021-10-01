@@ -33,7 +33,8 @@ enum
 	RPL_ENDOFINVEXLIST = 347
 };
 
-class InviteException : public ListModeBase
+class InviteException final
+	: public ListModeBase
 {
  public:
 	InviteException(Module* Creator)

@@ -67,7 +67,8 @@ class floodsettings
 
 /** Handles channel mode +f
  */
-class MsgFlood : public ParamMode<MsgFlood, SimpleExtItem<floodsettings> >
+class MsgFlood final
+	: public ParamMode<MsgFlood, SimpleExtItem<floodsettings>>
 {
  public:
 	MsgFlood(Module* Creator)

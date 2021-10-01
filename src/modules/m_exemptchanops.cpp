@@ -31,7 +31,8 @@ enum
 	RPL_EXEMPTIONLIST = 954
 };
 
-class ExemptChanOps : public ListModeBase
+class ExemptChanOps final
+	: public ListModeBase
 {
  public:
 	ExemptChanOps(Module* Creator)

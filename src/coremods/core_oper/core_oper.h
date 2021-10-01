@@ -83,7 +83,8 @@ class CommandRestart final
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-class ModeUserServerNoticeMask : public ModeHandler
+class ModeUserServerNoticeMask final
+	: public ModeHandler
 {
  private:
 	/** Process a snomask modifier string, e.g. +abc-de

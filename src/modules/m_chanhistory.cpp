@@ -75,7 +75,8 @@ struct HistoryList
 	}
 };
 
-class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
+class HistoryMode final
+	: public ParamMode<HistoryMode, SimpleExtItem<HistoryList>>
 {
  public:
 	unsigned long maxlines;

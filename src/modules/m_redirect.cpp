@@ -30,7 +30,8 @@
 
 /** Handle channel mode +L
  */
-class Redirect : public ParamMode<Redirect, StringExtItem>
+class Redirect final
+	: public ParamMode<Redirect, StringExtItem>
 {
  public:
 	Redirect(Module* Creator)

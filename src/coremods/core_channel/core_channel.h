@@ -127,7 +127,8 @@ class CommandKick final
 
 /** Channel mode +b
  */
-class ModeChannelBan : public ListModeBase
+class ModeChannelBan final
+	: public ListModeBase
 {
  public:
 	ModeChannelBan(Module* Creator)
@@ -139,7 +140,8 @@ class ModeChannelBan : public ListModeBase
 
 /** Channel mode +k
  */
-class ModeChannelKey : public ParamMode<ModeChannelKey, StringExtItem>
+class ModeChannelKey final
+	: public ParamMode<ModeChannelKey, StringExtItem>
 {
  public:
 	std::string::size_type maxkeylen;
@@ -152,7 +154,8 @@ class ModeChannelKey : public ParamMode<ModeChannelKey, StringExtItem>
 
 /** Channel mode +l
  */
-class ModeChannelLimit : public ParamMode<ModeChannelLimit, IntExtItem>
+class ModeChannelLimit final
+	: public ParamMode<ModeChannelLimit, IntExtItem>
 {
  public:
 	ModeChannelLimit(Module* Creator);
@@ -163,7 +166,8 @@ class ModeChannelLimit : public ParamMode<ModeChannelLimit, IntExtItem>
 
 /** Channel mode +o
  */
-class ModeChannelOp : public PrefixMode
+class ModeChannelOp final
+	: public PrefixMode
 {
  public:
 	ModeChannelOp(Module* Creator)
@@ -175,7 +179,8 @@ class ModeChannelOp : public PrefixMode
 
 /** Channel mode +v
  */
-class ModeChannelVoice : public PrefixMode
+class ModeChannelVoice final
+	: public PrefixMode
 {
  public:
 	ModeChannelVoice(Module* Creator)

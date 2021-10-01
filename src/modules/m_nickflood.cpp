@@ -83,7 +83,8 @@ class nickfloodsettings
 
 /** Handles channel mode +F
  */
-class NickFlood : public ParamMode<NickFlood, SimpleExtItem<nickfloodsettings> >
+class NickFlood final
+	: public ParamMode<NickFlood, SimpleExtItem<nickfloodsettings>>
 {
  public:
 	NickFlood(Module* Creator)

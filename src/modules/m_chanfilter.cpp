@@ -35,7 +35,8 @@ enum
 	RPL_SPAMFILTER = 941
 };
 
-class ChanFilter : public ListModeBase
+class ChanFilter final
+	: public ListModeBase
 {
  public:
 	unsigned long maxlen;

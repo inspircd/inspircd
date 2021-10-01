@@ -65,7 +65,8 @@ class ChannelSettings
 	}
 };
 
-class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
+class RepeatMode final
+	: public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings>>
 {
  private:
 	struct RepeatItem

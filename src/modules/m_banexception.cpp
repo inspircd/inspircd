@@ -36,7 +36,8 @@ enum
 	RPL_ENDOFEXCEPTLIST = 349
 };
 
-class BanException : public ListModeBase
+class BanException final
+	: public ListModeBase
 {
  public:
 	BanException(Module* Creator)

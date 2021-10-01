@@ -84,7 +84,8 @@ class CommandOjoin final
 
 /** channel mode +Y
  */
-class NetworkPrefix : public PrefixMode
+class NetworkPrefix final
+	: public PrefixMode
 {
  public:
 	NetworkPrefix(Module* parent, char NPrefix)

@@ -62,7 +62,8 @@ class SSLFPExtBan
 
 /** Handle channel mode +z
  */
-class SSLMode : public ModeHandler
+class SSLMode final
+	: public ModeHandler
 {
  private:
 	UserCertificateAPI& API;
@@ -126,7 +127,8 @@ class SSLMode : public ModeHandler
 
 /** Handle user mode +z
 */
-class SSLModeUser : public ModeHandler
+class SSLModeUser final
+	: public ModeHandler
 {
  private:
 	UserCertificateAPI& API;

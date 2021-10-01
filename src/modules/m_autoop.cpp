@@ -31,7 +31,8 @@ enum
 	RPL_ENDOFACCESSLIST = 911
 };
 
-class AutoOpList : public ListModeBase
+class AutoOpList final
+	: public ListModeBase
 {
  public:
 	AutoOpList(Module* Creator)

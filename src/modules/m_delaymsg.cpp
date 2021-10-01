@@ -23,7 +23,8 @@
 #include "inspircd.h"
 #include "modules/ctctags.h"
 
-class DelayMsgMode : public ParamMode<DelayMsgMode, IntExtItem>
+class DelayMsgMode final
+	: public ParamMode<DelayMsgMode, IntExtItem>
 {
  public:
 	IntExtItem jointime;

@@ -22,7 +22,8 @@
 
 #include "inspircd.h"
 
-class CustomPrefixMode : public PrefixMode
+class CustomPrefixMode final
+	: public PrefixMode
 {
  public:
 	std::shared_ptr<ConfigTag> tag;

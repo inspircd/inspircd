@@ -95,7 +95,8 @@ class joinfloodsettings
 
 /** Handles channel mode +j
  */
-class JoinFlood : public ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings> >
+class JoinFlood final
+	: public ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings>>
 {
  public:
 	JoinFlood(Module* Creator)

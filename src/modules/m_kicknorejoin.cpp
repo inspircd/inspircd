@@ -91,7 +91,8 @@ class KickRejoinData
 
 /** Handles channel mode +J
  */
-class KickRejoin : public ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >
+class KickRejoin final
+	: public ParamMode<KickRejoin, SimpleExtItem<KickRejoinData>>
 {
  public:
 	const unsigned int max = 60;

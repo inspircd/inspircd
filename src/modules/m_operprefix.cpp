@@ -31,7 +31,8 @@
 
 #define OPERPREFIX_VALUE 1000000
 
-class OperPrefixMode : public PrefixMode
+class OperPrefixMode final
+	: public PrefixMode
 {
 	public:
 		OperPrefixMode(Module* Creator)

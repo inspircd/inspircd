@@ -96,7 +96,8 @@ class CloakExtItem : public SimpleExtItem<CloakList>
 	}
 };
 
-class CloakUser : public ModeHandler
+class CloakUser final
+	: public ModeHandler
 {
  public:
 	bool active = false;

@@ -45,7 +45,8 @@ class AntiCapsSettings
 	}
 };
 
-class AntiCapsMode : public ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettings> >
+class AntiCapsMode final
+	: public ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettings>>
 {
  private:
 	bool ParseMethod(irc::sepstream& stream, AntiCapsMethod& method)
