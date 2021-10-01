@@ -115,7 +115,8 @@ class RLineFactory : public XLineFactory
 	}
 };
 
-class CommandRLine : public Command
+class CommandRLine final
+	: public Command
 {
 	std::string rxengine;
 	RLineFactory& factory;

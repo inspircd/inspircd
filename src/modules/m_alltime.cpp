@@ -26,7 +26,8 @@
 
 #include "inspircd.h"
 
-class CommandAlltime : public Command
+class CommandAlltime final
+	: public Command
 {
  public:
 	CommandAlltime(Module* Creator) : Command(Creator, "ALLTIME", 0)

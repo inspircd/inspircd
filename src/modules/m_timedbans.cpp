@@ -46,7 +46,8 @@ class TimedBan
 typedef std::vector<TimedBan> timedbans;
 timedbans TimedBanList;
 
-class CommandTban : public Command
+class CommandTban final
+	: public Command
 {
 	ChanModeReference banmode;
 

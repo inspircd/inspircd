@@ -26,7 +26,8 @@
 
 #include "inspircd.h"
 
-class CommandGLoadModule : public Command
+class CommandGLoadModule final
+	: public Command
 {
  public:
 	CommandGLoadModule(Module* Creator)
@@ -65,7 +66,8 @@ class CommandGLoadModule : public Command
 	}
 };
 
-class CommandGUnloadModule : public Command
+class CommandGUnloadModule final
+	: public Command
 {
  public:
 	CommandGUnloadModule(Module* Creator)
@@ -116,7 +118,8 @@ class CommandGUnloadModule : public Command
 	}
 };
 
-class CommandGReloadModule : public Command
+class CommandGReloadModule final
+	: public Command
 {
  public:
 	CommandGReloadModule(Module* Creator)

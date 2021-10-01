@@ -23,7 +23,8 @@
 #include "modules/ctctags.h"
 #include "modules/isupport.h"
 
-class CommandTagMsg : public Command
+class CommandTagMsg final
+	: public Command
 {
  private:
 	Cap::Capability& cap;

@@ -25,7 +25,8 @@
 
 #include "inspircd.h"
 
-class CommandWallops : public Command
+class CommandWallops final
+	: public Command
 {
 	SimpleUserMode wallopsmode;
 	ClientProtocol::EventProvider protoevprov;

@@ -24,7 +24,8 @@
 
 #define NETWORK_VALUE 9000000
 
-class CommandOjoin : public SplitCommand
+class CommandOjoin final
+	: public SplitCommand
 {
  public:
 	bool active;

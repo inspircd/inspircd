@@ -28,7 +28,8 @@
 
 #include "inspircd.h"
 
-class CommandChgident : public Command
+class CommandChgident final
+	: public Command
 {
  public:
 	CommandChgident(Module* Creator) : Command(Creator,"CHGIDENT", 2)

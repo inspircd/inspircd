@@ -25,7 +25,8 @@
 
 #include "inspircd.h"
 
-class CommandTline : public Command
+class CommandTline final
+	: public Command
 {
  public:
 	CommandTline(Module* Creator) : Command(Creator,"TLINE", 1)

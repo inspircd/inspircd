@@ -354,7 +354,8 @@ class CapMessage : public Cap::MessageBase
 	}
 };
 
-class CommandCap : public SplitCommand
+class CommandCap final
+	: public SplitCommand
 {
  private:
 	Events::ModuleEventProvider evprov;

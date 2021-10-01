@@ -305,7 +305,8 @@ class SaslAuthenticator
 	}
 };
 
-class CommandAuthenticate : public SplitCommand
+class CommandAuthenticate final
+	: public SplitCommand
 {
  private:
 	// The maximum length of an AUTHENTICATE request.
@@ -354,7 +355,8 @@ class CommandAuthenticate : public SplitCommand
 	}
 };
 
-class CommandSASL : public Command
+class CommandSASL final
+	: public Command
 {
  public:
 	SimpleExtItem<SaslAuthenticator>& authExt;

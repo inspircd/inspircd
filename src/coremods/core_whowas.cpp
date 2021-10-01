@@ -171,7 +171,8 @@ namespace WhoWas
 	};
 }
 
-class CommandWhowas : public Command
+class CommandWhowas final
+	: public Command
 {
   public:
 	// Manager handling all whowas database related tasks

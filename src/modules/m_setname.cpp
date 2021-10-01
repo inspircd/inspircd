@@ -27,7 +27,8 @@
 #include "modules/ircv3.h"
 #include "modules/ircv3_replies.h"
 
-class CommandSetName : public SplitCommand
+class CommandSetName final
+	: public SplitCommand
 {
 private:
 	IRCv3::Replies::Fail fail;

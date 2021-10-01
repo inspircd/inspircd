@@ -22,7 +22,8 @@
 #include "inspircd.h"
 #include "xline.h"
 
-class CommandClearChan : public Command
+class CommandClearChan final
+	: public Command
 {
  public:
 	Channel* activechan;

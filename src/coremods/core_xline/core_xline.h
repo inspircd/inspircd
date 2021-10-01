@@ -67,28 +67,32 @@ class InsaneBan
 	static bool MatchesEveryone(const std::string& mask, MatcherBase& test, User* user, const char* bantype, const char* confkey);
 };
 
-class CommandEline : public Command
+class CommandEline final
+	: public Command
 {
  public:
 	CommandEline(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-class CommandGline : public Command
+class CommandGline final
+	: public Command
 {
  public:
 	CommandGline(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-class CommandKline : public Command
+class CommandKline final
+	: public Command
 {
  public:
 	CommandKline(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-class CommandQline : public Command
+class CommandQline final
+	: public Command
 {
  private:
 	class NickMatcher : public InsaneBan::Matcher<NickMatcher>
@@ -102,7 +106,8 @@ class CommandQline : public Command
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-class CommandZline : public Command
+class CommandZline final
+	: public Command
 {
  private:
 	class IPMatcher : public InsaneBan::Matcher<IPMatcher>

@@ -25,7 +25,8 @@ enum
 	ERR_TOPICLOCK = 744
 };
 
-class CommandSVSTOPIC : public Command
+class CommandSVSTOPIC final
+	: public Command
 {
  public:
 	CommandSVSTOPIC(Module* Creator)

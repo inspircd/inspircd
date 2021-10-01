@@ -27,7 +27,8 @@
 #include "inspircd.h"
 #include "modules/hash.h"
 
-class CommandMkpasswd : public Command
+class CommandMkpasswd final
+	: public Command
 {
  public:
 	CommandMkpasswd(Module* Creator) : Command(Creator, "MKPASSWD", 2)

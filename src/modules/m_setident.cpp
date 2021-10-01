@@ -27,7 +27,8 @@
 
 #include "inspircd.h"
 
-class CommandSetident : public Command
+class CommandSetident final
+	: public Command
 {
  public:
  CommandSetident(Module* Creator) : Command(Creator,"SETIDENT", 1)

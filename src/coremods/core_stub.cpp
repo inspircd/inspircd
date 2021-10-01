@@ -28,7 +28,8 @@ enum
 	ERR_USERSDISABLED = 446
 };
 
-class CommandCapab : public Command
+class CommandCapab final
+	: public Command
 {
  public:
 	CommandCapab(Module* parent)
@@ -52,7 +53,8 @@ class CommandCapab : public Command
 	}
 };
 
-class CommandConnect : public Command
+class CommandConnect final
+	: public Command
 {
  public:
 	CommandConnect(Module* parent)
@@ -72,7 +74,8 @@ class CommandConnect : public Command
 	}
 };
 
-class CommandLinks : public Command
+class CommandLinks final
+	: public Command
 {
  public:
 	CommandLinks(Module* parent)
@@ -88,7 +91,8 @@ class CommandLinks : public Command
 	}
 };
 
-class CommandSquit : public Command
+class CommandSquit final
+	: public Command
 {
  public:
 	CommandSquit(Module* parent)
@@ -105,7 +109,7 @@ class CommandSquit : public Command
 	}
 };
 
-class CommandSummon
+class CommandSummon final
 	: public SplitCommand
 {
  public:
@@ -121,7 +125,7 @@ class CommandSummon
 	}
 };
 
-class CommandUsers
+class CommandUsers final
 	: public SplitCommand
 {
  public:

@@ -21,7 +21,8 @@
 #include "inspircd.h"
 #include "core_user.h"
 
-class CommandPass : public SplitCommand
+class CommandPass final
+	: public SplitCommand
 {
  public:
 	CommandPass(Module* parent)
@@ -47,7 +48,8 @@ class CommandPass : public SplitCommand
 	}
 };
 
-class CommandPing : public SplitCommand
+class CommandPing final
+	: public SplitCommand
 {
  public:
 	CommandPing(Module* parent)
@@ -71,7 +73,8 @@ class CommandPing : public SplitCommand
 	}
 };
 
-class CommandPong : public Command
+class CommandPong final
+	: public Command
 {
  public:
 	CommandPong(Module* parent)

@@ -76,7 +76,8 @@ class ServerTargetCommand : public Command
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-class CommandAdmin : public ServerTargetCommand
+class CommandAdmin final
+	: public ServerTargetCommand
 {
  public:
 	std::string adminname;
@@ -94,21 +95,24 @@ class CommandCommands final
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
-class CommandInfo : public ServerTargetCommand
+class CommandInfo final
+	: public ServerTargetCommand
 {
  public:
 	CommandInfo(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-class CommandModules : public ServerTargetCommand
+class CommandModules final
+	: public ServerTargetCommand
 {
  public:
 	CommandModules(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-class CommandMotd : public ServerTargetCommand
+class CommandMotd final
+	: public ServerTargetCommand
 {
  public:
 	ConfigFileCache motds;
@@ -117,7 +121,8 @@ class CommandMotd : public ServerTargetCommand
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-class CommandServList : public SplitCommand
+class CommandServList final
+	: public SplitCommand
 {
  private:
 	UserModeReference invisiblemode;
@@ -127,14 +132,16 @@ class CommandServList : public SplitCommand
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
-class CommandTime : public ServerTargetCommand
+class CommandTime final
+	: public ServerTargetCommand
 {
  public:
 	CommandTime(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-class CommandVersion : public Command
+class CommandVersion final
+	: public Command
 {
  private:
 	ISupportManager& isupport;

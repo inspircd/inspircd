@@ -191,7 +191,8 @@ class CloakUser : public ModeHandler
 	}
 };
 
-class CommandCloak : public Command
+class CommandCloak final
+	: public Command
 {
  public:
 	CommandCloak(Module* Creator) : Command(Creator, "CLOAK", 1)

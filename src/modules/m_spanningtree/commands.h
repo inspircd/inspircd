@@ -43,7 +43,8 @@ using SpanningTree::CommandPing;
 using SpanningTree::CommandPong;
 using SpanningTree::CommandServer;
 
-class CommandRConnect : public Command
+class CommandRConnect final
+	: public Command
 {
  public:
 	CommandRConnect(Module* Creator);
@@ -51,7 +52,8 @@ class CommandRConnect : public Command
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-class CommandRSQuit : public Command
+class CommandRSQuit final
+	: public Command
 {
  public:
 	CommandRSQuit(Module* Creator);
@@ -59,7 +61,8 @@ class CommandRSQuit : public Command
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-class CommandMap : public Command
+class CommandMap final
+	: public Command
 {
  public:
 	CommandMap(Module* Creator);
@@ -67,7 +70,8 @@ class CommandMap : public Command
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-class CommandSVSJoin : public ServerCommand
+class CommandSVSJoin final
+	: public ServerCommand
 {
  public:
 	CommandSVSJoin(Module* Creator) : ServerCommand(Creator, "SVSJOIN", 2) { }
@@ -75,7 +79,8 @@ class CommandSVSJoin : public ServerCommand
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-class CommandSVSPart : public ServerCommand
+class CommandSVSPart final
+	: public ServerCommand
 {
  public:
 	CommandSVSPart(Module* Creator) : ServerCommand(Creator, "SVSPART", 2) { }
@@ -83,7 +88,8 @@ class CommandSVSPart : public ServerCommand
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-class CommandSVSNick : public ServerCommand
+class CommandSVSNick final
+	: public ServerCommand
 {
  public:
 	CommandSVSNick(Module* Creator) : ServerCommand(Creator, "SVSNICK", 3) { }
@@ -91,7 +97,8 @@ class CommandSVSNick : public ServerCommand
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-class CommandMetadata : public ServerCommand
+class CommandMetadata final
+	: public ServerCommand
 {
  public:
 	CommandMetadata(Module* Creator) : ServerCommand(Creator, "METADATA", 2) { }
@@ -107,7 +114,8 @@ class CommandMetadata : public ServerCommand
 	};
 };
 
-class CommandUID : public ServerOnlyServerCommand<CommandUID>
+class CommandUID final
+	: public ServerOnlyServerCommand<CommandUID>
 {
  public:
 	CommandUID(Module* Creator) : ServerOnlyServerCommand<CommandUID>(Creator, "UID", 10) { }
@@ -120,7 +128,8 @@ class CommandUID : public ServerOnlyServerCommand<CommandUID>
 	};
 };
 
-class CommandOpertype : public UserOnlyServerCommand<CommandOpertype>
+class CommandOpertype final
+	: public UserOnlyServerCommand<CommandOpertype>
 {
  public:
 	CommandOpertype(Module* Creator) : UserOnlyServerCommand<CommandOpertype>(Creator, "OPERTYPE", 1) { }
@@ -135,7 +144,8 @@ class CommandOpertype : public UserOnlyServerCommand<CommandOpertype>
 
 class TreeSocket;
 class FwdFJoinBuilder;
-class CommandFJoin : public ServerCommand
+class CommandFJoin final
+	: public ServerCommand
 {
 	/** Remove all modes from a channel, including statusmodes (+qaovh etc), simplemodes, parameter modes.
 	 * This does not update the timestamp of the target channel, this must be done separately.
@@ -182,14 +192,16 @@ class CommandFJoin : public ServerCommand
 	};
 };
 
-class CommandFMode : public ServerCommand
+class CommandFMode final
+	: public ServerCommand
 {
  public:
 	CommandFMode(Module* Creator) : ServerCommand(Creator, "FMODE", 3) { }
 	CmdResult Handle(User* user, Params& params) override;
 };
 
-class CommandFTopic : public ServerCommand
+class CommandFTopic final
+	: public ServerCommand
 {
  public:
 	CommandFTopic(Module* Creator) : ServerCommand(Creator, "FTOPIC", 4, 5) { }
@@ -203,42 +215,48 @@ class CommandFTopic : public ServerCommand
 	};
 };
 
-class CommandFHost : public UserOnlyServerCommand<CommandFHost>
+class CommandFHost final
+	: public UserOnlyServerCommand<CommandFHost>
 {
  public:
 	CommandFHost(Module* Creator) : UserOnlyServerCommand<CommandFHost>(Creator, "FHOST", 1) { }
 	CmdResult HandleRemote(RemoteUser* user, Params& params);
 };
 
-class CommandFRHost : public UserOnlyServerCommand<CommandFRHost>
+class CommandFRHost final
+	: public UserOnlyServerCommand<CommandFRHost>
 {
  public:
 	CommandFRHost(Module* Creator) : UserOnlyServerCommand<CommandFRHost>(Creator, "FRHOST", 1) { }
 	CmdResult HandleRemote(RemoteUser* user, Params& params);
 };
 
-class CommandFIdent : public UserOnlyServerCommand<CommandFIdent>
+class CommandFIdent final
+	: public UserOnlyServerCommand<CommandFIdent>
 {
  public:
 	CommandFIdent(Module* Creator) : UserOnlyServerCommand<CommandFIdent>(Creator, "FIDENT", 1) { }
 	CmdResult HandleRemote(RemoteUser* user, Params& params);
 };
 
-class CommandFName : public UserOnlyServerCommand<CommandFName>
+class CommandFName final
+	: public UserOnlyServerCommand<CommandFName>
 {
  public:
 	CommandFName(Module* Creator) : UserOnlyServerCommand<CommandFName>(Creator, "FNAME", 1) { }
 	CmdResult HandleRemote(RemoteUser* user, Params& params);
 };
 
-class CommandIJoin : public UserOnlyServerCommand<CommandIJoin>
+class CommandIJoin final
+	: public UserOnlyServerCommand<CommandIJoin>
 {
  public:
 	CommandIJoin(Module* Creator) : UserOnlyServerCommand<CommandIJoin>(Creator, "IJOIN", 2) { }
 	CmdResult HandleRemote(RemoteUser* user, Params& params);
 };
 
-class CommandResync : public ServerOnlyServerCommand<CommandResync>
+class CommandResync final
+	: public ServerOnlyServerCommand<CommandResync>
 {
  public:
 	CommandResync(Module* Creator) : ServerOnlyServerCommand<CommandResync>(Creator, "RESYNC", 1) { }
@@ -246,7 +264,8 @@ class CommandResync : public ServerOnlyServerCommand<CommandResync>
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override { return ROUTE_LOCALONLY; }
 };
 
-class SpanningTree::CommandAway : public UserOnlyServerCommand<SpanningTree::CommandAway>
+class SpanningTree::CommandAway final
+	: public UserOnlyServerCommand<SpanningTree::CommandAway>
 {
  private:
 	Away::EventProvider awayevprov;
@@ -267,7 +286,8 @@ class SpanningTree::CommandAway : public UserOnlyServerCommand<SpanningTree::Com
 };
 
 class XLine;
-class CommandAddLine : public ServerCommand
+class CommandAddLine final
+	: public ServerCommand
 {
  public:
 	CommandAddLine(Module* Creator) : ServerCommand(Creator, "ADDLINE", 6, 6) { }
@@ -280,14 +300,16 @@ class CommandAddLine : public ServerCommand
 	};
 };
 
-class CommandDelLine : public ServerCommand
+class CommandDelLine final
+	: public ServerCommand
 {
  public:
 	CommandDelLine(Module* Creator) : ServerCommand(Creator, "DELLINE", 2, 2) { }
 	CmdResult Handle(User* user, Params& parameters) override;
 };
 
-class CommandEncap : public ServerCommand
+class CommandEncap final
+	: public ServerCommand
 {
  public:
 	CommandEncap(Module* Creator) : ServerCommand(Creator, "ENCAP", 2) { }
@@ -295,7 +317,8 @@ class CommandEncap : public ServerCommand
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-class CommandIdle : public UserOnlyServerCommand<CommandIdle>
+class CommandIdle final
+	: public UserOnlyServerCommand<CommandIdle>
 {
  public:
 	CommandIdle(Module* Creator) : UserOnlyServerCommand<CommandIdle>(Creator, "IDLE", 1) { }
@@ -303,14 +326,16 @@ class CommandIdle : public UserOnlyServerCommand<CommandIdle>
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override { return ROUTE_UNICAST(parameters[0]); }
 };
 
-class SpanningTree::CommandNick : public UserOnlyServerCommand<SpanningTree::CommandNick>
+class SpanningTree::CommandNick final
+	: public UserOnlyServerCommand<SpanningTree::CommandNick>
 {
  public:
 	CommandNick(Module* Creator) : UserOnlyServerCommand<SpanningTree::CommandNick>(Creator, "NICK", 2) { }
 	CmdResult HandleRemote(::RemoteUser* user, Params& parameters);
 };
 
-class SpanningTree::CommandPing : public ServerCommand
+class SpanningTree::CommandPing final
+	: public ServerCommand
 {
  public:
 	CommandPing(Module* Creator) : ServerCommand(Creator, "PING", 1) { }
@@ -318,7 +343,8 @@ class SpanningTree::CommandPing : public ServerCommand
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override { return ROUTE_UNICAST(parameters[0]); }
 };
 
-class SpanningTree::CommandPong : public ServerOnlyServerCommand<SpanningTree::CommandPong>
+class SpanningTree::CommandPong final
+	: public ServerOnlyServerCommand<SpanningTree::CommandPong>
 {
  public:
 	CommandPong(Module* Creator) : ServerOnlyServerCommand<SpanningTree::CommandPong>(Creator, "PONG", 1) { }
@@ -326,7 +352,8 @@ class SpanningTree::CommandPong : public ServerOnlyServerCommand<SpanningTree::C
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override { return ROUTE_UNICAST(parameters[0]); }
 };
 
-class DllExport CommandSave : public ServerCommand
+class DllExport CommandSave final
+	: public ServerCommand
 {
  public:
 	/** Timestamp of the uuid nick of all users who collided and got their nick changed to uuid
@@ -337,7 +364,8 @@ class DllExport CommandSave : public ServerCommand
 	CmdResult Handle(User* user, Params& parameters) override;
 };
 
-class SpanningTree::CommandServer : public ServerOnlyServerCommand<SpanningTree::CommandServer>
+class SpanningTree::CommandServer final
+	: public ServerOnlyServerCommand<SpanningTree::CommandServer>
 {
 	static void HandleExtra(TreeServer* newserver, Params& params);
 
@@ -356,28 +384,32 @@ class SpanningTree::CommandServer : public ServerOnlyServerCommand<SpanningTree:
 	};
 };
 
-class CommandSQuit : public ServerOnlyServerCommand<CommandSQuit>
+class CommandSQuit final
+	: public ServerOnlyServerCommand<CommandSQuit>
 {
  public:
 	CommandSQuit(Module* Creator) : ServerOnlyServerCommand<CommandSQuit>(Creator, "SQUIT", 2) { }
 	CmdResult HandleServer(TreeServer* server, Params& parameters);
 };
 
-class CommandSNONotice : public ServerCommand
+class CommandSNONotice final
+	: public ServerCommand
 {
  public:
 	CommandSNONotice(Module* Creator) : ServerCommand(Creator, "SNONOTICE", 2) { }
 	CmdResult Handle(User* user, Params& parameters) override;
 };
 
-class CommandEndBurst : public ServerOnlyServerCommand<CommandEndBurst>
+class CommandEndBurst final
+	: public ServerOnlyServerCommand<CommandEndBurst>
 {
  public:
 	CommandEndBurst(Module* Creator) : ServerOnlyServerCommand<CommandEndBurst>(Creator, "ENDBURST") { }
 	CmdResult HandleServer(TreeServer* server, Params& parameters);
 };
 
-class CommandSInfo : public ServerOnlyServerCommand<CommandSInfo>
+class CommandSInfo final
+	: public ServerOnlyServerCommand<CommandSInfo>
 {
  public:
 	CommandSInfo(Module* Creator) : ServerOnlyServerCommand<CommandSInfo>(Creator, "SINFO", 2) { }
@@ -390,7 +422,8 @@ class CommandSInfo : public ServerOnlyServerCommand<CommandSInfo>
 	};
 };
 
-class CommandNum : public ServerOnlyServerCommand<CommandNum>
+class CommandNum final
+	: public ServerOnlyServerCommand<CommandNum>
 {
  public:
 	CommandNum(Module* Creator) : ServerOnlyServerCommand<CommandNum>(Creator, "NUM", 3) { }
@@ -404,7 +437,8 @@ class CommandNum : public ServerOnlyServerCommand<CommandNum>
 	};
 };
 
-class CommandLMode : public ServerCommand
+class CommandLMode final
+	: public ServerCommand
 {
  public:
 	CommandLMode(Module* Creator) : ServerCommand(Creator, "LMODE", 3) { }

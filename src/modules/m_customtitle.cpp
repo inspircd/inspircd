@@ -59,7 +59,8 @@ struct CustomTitle
 
 typedef std::multimap<std::string, CustomTitle> CustomVhostMap;
 
-class CommandTitle : public Command
+class CommandTitle final
+	: public Command
 {
  public:
 	StringExtItem ctitle;

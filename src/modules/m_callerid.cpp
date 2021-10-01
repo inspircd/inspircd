@@ -152,7 +152,8 @@ struct CallerIDExtInfo : public ExtensionItem
 	}
 };
 
-class CommandAccept : public Command
+class CommandAccept final
+	: public Command
 {
 	/** Pair: first is the target, second is true to add, false to remove
 	 */

@@ -26,7 +26,8 @@
 
 #include "inspircd.h"
 
-class CommandChgname : public Command
+class CommandChgname final
+	: public Command
 {
  public:
 	CommandChgname(Module* Creator) : Command(Creator,"CHGNAME", 2, 2)

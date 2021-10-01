@@ -273,7 +273,8 @@ class SilenceMessage : public ClientProtocol::Message
 	}
 };
 
-class CommandSilence : public SplitCommand
+class CommandSilence final
+	: public SplitCommand
 {
  private:
 	ClientProtocol::EventProvider msgprov;

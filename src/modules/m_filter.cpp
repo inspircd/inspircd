@@ -167,7 +167,8 @@ class FilterResult
 	FilterResult() = default;
 };
 
-class CommandFilter : public Command
+class CommandFilter final
+	: public Command
 {
  public:
 	CommandFilter(Module* f)

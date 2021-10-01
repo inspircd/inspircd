@@ -32,7 +32,8 @@ enum
 	ERR_STARTTLS = 691
 };
 
-class CommandStartTLS : public SplitCommand
+class CommandStartTLS final
+	: public SplitCommand
 {
 	dynamic_reference_nocheck<IOHookProvider>& ssl;
 

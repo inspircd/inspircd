@@ -26,7 +26,8 @@
 
 #include "inspircd.h"
 
-class CommandSATopic : public Command
+class CommandSATopic final
+	: public Command
 {
  public:
 	CommandSATopic(Module* Creator) : Command(Creator,"SATOPIC", 2, 2)

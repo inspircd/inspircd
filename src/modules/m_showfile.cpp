@@ -29,7 +29,8 @@ enum
 	ERR_NORULES = 434
 };
 
-class CommandShowFile : public Command
+class CommandShowFile final
+	: public Command
 {
 	enum Method
 	{

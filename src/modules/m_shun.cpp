@@ -52,7 +52,8 @@ class ShunFactory : public XLineFactory
 	}
 };
 
-class CommandShun : public Command
+class CommandShun final
+	: public Command
 {
  public:
 	CommandShun(Module* Creator) : Command(Creator, "SHUN", 1, 3)

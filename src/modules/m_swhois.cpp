@@ -27,7 +27,8 @@
 #include "inspircd.h"
 #include "modules/whois.h"
 
-class CommandSwhois : public Command
+class CommandSwhois final
+	: public Command
 {
  public:
 	BoolExtItem operblock;

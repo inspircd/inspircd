@@ -92,7 +92,8 @@ public:
 	}
 };
 
-class CommandMessage : public Command
+class CommandMessage final
+	: public Command
 {
  private:
 	const MessageType msgtype;

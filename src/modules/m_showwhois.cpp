@@ -43,7 +43,8 @@ class SeeWhois final
 	}
 };
 
-class WhoisNoticeCmd : public Command
+class WhoisNoticeCmd final
+	: public Command
 {
  public:
 	WhoisNoticeCmd(Module* Creator) : Command(Creator,"WHOISNOTICE", 2)

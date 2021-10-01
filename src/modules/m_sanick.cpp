@@ -25,7 +25,8 @@
 
 #include "inspircd.h"
 
-class CommandSanick : public Command
+class CommandSanick final
+	: public Command
 {
  public:
 	CommandSanick(Module* Creator) : Command(Creator,"SANICK", 2)

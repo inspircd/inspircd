@@ -153,7 +153,8 @@ class UserCertificateAPIImpl : public UserCertificateAPIBase
 	}
 };
 
-class CommandSSLInfo : public SplitCommand
+class CommandSSLInfo final
+	: public SplitCommand
 {
  private:
 	ChanModeReference sslonlymode;

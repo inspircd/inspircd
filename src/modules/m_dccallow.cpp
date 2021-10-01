@@ -179,7 +179,8 @@ class DCCAllowExt : public SimpleExtItem<dccallowlist>
 	}
 };
 
-class CommandDccallow : public Command
+class CommandDccallow final
+	: public Command
 {
  public:
 	DCCAllowExt& ext;

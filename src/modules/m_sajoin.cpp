@@ -27,7 +27,8 @@
 
 #include "inspircd.h"
 
-class CommandSajoin : public Command
+class CommandSajoin final
+	: public Command
 {
  public:
 	CommandSajoin(Module* Creator) : Command(Creator,"SAJOIN", 1)

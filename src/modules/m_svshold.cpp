@@ -93,7 +93,8 @@ class SVSHoldFactory : public XLineFactory
 	}
 };
 
-class CommandSvshold : public Command
+class CommandSvshold final
+	: public Command
 {
  public:
 	CommandSvshold(Module* Creator) : Command(Creator, "SVSHOLD", 1)

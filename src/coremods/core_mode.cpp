@@ -24,7 +24,8 @@
 #include "inspircd.h"
 #include "modules/isupport.h"
 
-class CommandMode : public Command
+class CommandMode final
+	: public Command
 {
  private:
 	unsigned int sent[256];

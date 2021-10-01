@@ -55,7 +55,8 @@ struct HelpTopic
 
 typedef std::map<std::string, HelpTopic, irc::insensitive_swo> HelpMap;
 
-class CommandHelpop : public Command
+class CommandHelpop final
+	: public Command
 {
  private:
 	const std::string startkey;

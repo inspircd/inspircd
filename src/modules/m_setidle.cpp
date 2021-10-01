@@ -34,7 +34,8 @@ enum
 	RPL_IDLETIMESET = 944
 };
 
-class CommandSetidle : public SplitCommand
+class CommandSetidle final
+	: public SplitCommand
 {
  public:
 	CommandSetidle(Module* Creator) : SplitCommand(Creator,"SETIDLE", 1)

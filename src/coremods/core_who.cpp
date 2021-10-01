@@ -112,7 +112,8 @@ struct WhoData : public Who::Request
 	}
 };
 
-class CommandWho : public SplitCommand
+class CommandWho final
+	: public SplitCommand
 {
  private:
 	ChanModeReference secretmode;

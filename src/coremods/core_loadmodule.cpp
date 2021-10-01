@@ -26,7 +26,8 @@
 
 #include "inspircd.h"
 
-class CommandLoadmodule : public Command
+class CommandLoadmodule final
+	: public Command
 {
  public:
 	CommandLoadmodule(Module* parent)
@@ -54,7 +55,8 @@ CmdResult CommandLoadmodule::Handle(User* user, const Params& parameters)
 	}
 }
 
-class CommandUnloadmodule : public Command
+class CommandUnloadmodule final
+	: public Command
 {
  public:
 	CommandUnloadmodule(Module* parent)

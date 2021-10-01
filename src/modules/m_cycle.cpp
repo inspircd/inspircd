@@ -28,7 +28,8 @@
 
 #include "inspircd.h"
 
-class CommandCycle : public SplitCommand
+class CommandCycle final
+	: public SplitCommand
 {
  public:
 	CommandCycle(Module* Creator)

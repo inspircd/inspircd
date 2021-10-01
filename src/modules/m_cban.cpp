@@ -86,7 +86,8 @@ class CBanFactory : public XLineFactory
 	}
 };
 
-class CommandCBan : public Command
+class CommandCBan final
+	: public Command
 {
  public:
 	CommandCBan(Module* Creator) : Command(Creator, "CBAN", 1, 3)

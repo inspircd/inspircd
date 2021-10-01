@@ -54,7 +54,8 @@ class MessageWrapper
 	void ReadConfig(const char* prefixname, const char* suffixname, const char* fixedname);
 };
 
-class CommandAway : public Command
+class CommandAway final
+	: public Command
 {
  private:
 	Away::EventProvider awayevprov;
@@ -65,7 +66,8 @@ class CommandAway : public Command
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-class CommandIson : public SplitCommand
+class CommandIson final
+	: public SplitCommand
 {
  public:
 	CommandIson(Module* parent)
@@ -78,14 +80,16 @@ class CommandIson : public SplitCommand
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
-class CommandNick : public SplitCommand
+class CommandNick final
+	: public SplitCommand
 {
  public:
 	CommandNick(Module* parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
-class CommandPart : public Command
+class CommandPart final
+	: public Command
 {
  public:
 	MessageWrapper msgwrap;
@@ -95,7 +99,8 @@ class CommandPart : public Command
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-class CommandQuit : public Command
+class CommandQuit final
+	: public Command
 {
  private:
 	StringExtItem operquit;
@@ -108,7 +113,8 @@ class CommandQuit : public Command
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-class CommandUser : public SplitCommand
+class CommandUser final
+	: public SplitCommand
 {
  public:
 	CommandUser(Module* parent);
@@ -124,7 +130,8 @@ class CommandUser : public SplitCommand
 	static CmdResult CheckRegister(LocalUser* user);
 };
 
-class CommandUserhost : public Command
+class CommandUserhost final
+	: public Command
 {
  private:
 	UserModeReference hideopermode;

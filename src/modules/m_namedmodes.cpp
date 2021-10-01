@@ -55,7 +55,8 @@ static void DisplayList(LocalUser* user, Channel* channel)
 	user->WriteNumeric(RPL_ENDOFPROPLIST, channel->name, "End of mode list");
 }
 
-class CommandProp : public SplitCommand
+class CommandProp final
+	: public SplitCommand
 {
  public:
 	CommandProp(Module* parent)

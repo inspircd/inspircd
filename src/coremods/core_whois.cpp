@@ -64,7 +64,8 @@ void WhoisContextImpl::SendLine(Numeric::Numeric& numeric)
 		source->WriteNumeric(numeric);
 }
 
-class CommandWhois : public SplitCommand
+class CommandWhois final
+	: public SplitCommand
 {
 	ChanModeReference secretmode;
 	ChanModeReference privatemode;

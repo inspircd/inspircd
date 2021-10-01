@@ -260,7 +260,8 @@ enum
 	ERR_MONLISTFULL = 734
 };
 
-class CommandMonitor : public SplitCommand
+class CommandMonitor final
+	: public SplitCommand
 {
 	typedef Numeric::Builder<> ReplyBuilder;
 	// Additional penalty for the /MONITOR L and /MONITOR S commands that request a list from the server

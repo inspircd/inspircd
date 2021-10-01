@@ -25,7 +25,8 @@
 
 #include "inspircd.h"
 
-class CommandSethost : public Command
+class CommandSethost final
+	: public Command
 {
  public:
 	std::bitset<UCHAR_MAX + 1> hostmap;

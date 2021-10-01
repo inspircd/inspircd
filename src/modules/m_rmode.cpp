@@ -23,7 +23,8 @@
 #include "inspircd.h"
 #include "listmode.h"
 
-class CommandRMode : public Command
+class CommandRMode final
+	: public Command
 {
  public:
 	CommandRMode(Module* Creator) : Command(Creator,"RMODE", 2, 3)

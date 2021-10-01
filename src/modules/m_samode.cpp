@@ -26,7 +26,8 @@
 
 #include "inspircd.h"
 
-class CommandSamode : public Command
+class CommandSamode final
+	: public Command
 {
 	bool logged;
 

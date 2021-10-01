@@ -27,7 +27,8 @@
 
 #include "inspircd.h"
 
-class CommandSaquit : public Command
+class CommandSaquit final
+	: public Command
 {
  public:
 	CommandSaquit(Module* Creator) : Command(Creator, "SAQUIT", 2, 2)

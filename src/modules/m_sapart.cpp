@@ -25,7 +25,8 @@
 
 #include "inspircd.h"
 
-class CommandSapart : public Command
+class CommandSapart final
+	: public Command
 {
  public:
 	CommandSapart(Module* Creator) : Command(Creator,"SAPART", 2, 3)

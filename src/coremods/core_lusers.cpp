@@ -55,7 +55,8 @@ struct LusersCounters
 	}
 };
 
-class CommandLusers : public Command
+class CommandLusers final
+	: public Command
 {
  private:
 	LusersCounters& counters;

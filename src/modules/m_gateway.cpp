@@ -119,7 +119,8 @@ class WebIRCHost
 	}
 };
 
-class CommandHexIP : public SplitCommand
+class CommandHexIP final
+	: public SplitCommand
 {
  public:
 	CommandHexIP(Module* Creator)
@@ -220,7 +221,8 @@ class GatewayExtBan
 	}
 };
 
-class CommandWebIRC : public SplitCommand
+class CommandWebIRC final
+	: public SplitCommand
 {
  public:
 	std::vector<WebIRCHost> hosts;

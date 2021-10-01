@@ -28,7 +28,8 @@
 
 #include "inspircd.h"
 
-class CommandGlobops : public Command
+class CommandGlobops final
+	: public Command
 {
  public:
 	CommandGlobops(Module* Creator) : Command(Creator,"GLOBOPS", 1,1)

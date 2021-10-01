@@ -59,7 +59,8 @@ enum
 	ERR_KEYSET = 467
 };
 
-class CommandInvite : public Command
+class CommandInvite final
+	: public Command
 {
  private:
 	Invite::APIImpl& invapi;
@@ -72,14 +73,16 @@ class CommandInvite : public Command
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-class CommandJoin : public SplitCommand
+class CommandJoin final
+	: public SplitCommand
 {
  public:
 	CommandJoin(Module* parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
-class CommandTopic : public SplitCommand
+class CommandTopic final
+	: public SplitCommand
 {
  private:
 	CheckExemption::EventProvider exemptionprov;
@@ -91,7 +94,8 @@ class CommandTopic : public SplitCommand
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
-class CommandNames : public SplitCommand
+class CommandNames final
+	: public SplitCommand
 {
  private:
 	ChanModeReference secretmode;
@@ -112,7 +116,8 @@ class CommandNames : public SplitCommand
 	void SendNames(LocalUser* user, Channel* chan, bool show_invisible);
 };
 
-class CommandKick : public Command
+class CommandKick final
+	: public Command
 {
  public:
 	CommandKick(Module* parent);

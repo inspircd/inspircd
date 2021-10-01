@@ -37,7 +37,8 @@ enum
 	RPL_ENDOFOMOTD = 722
 };
 
-class CommandOpermotd : public Command
+class CommandOpermotd final
+	: public Command
 {
  public:
 	file_cache opermotd;

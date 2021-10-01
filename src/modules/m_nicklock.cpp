@@ -34,7 +34,8 @@ enum
 	RPL_NICKLOCKOFF = 945
 };
 
-class CommandNicklock : public Command
+class CommandNicklock final
+	: public Command
 {
  public:
 	BoolExtItem& locked;
@@ -92,7 +93,8 @@ class CommandNicklock : public Command
 	}
 };
 
-class CommandNickunlock : public Command
+class CommandNickunlock final
+	: public Command
 {
  public:
 	BoolExtItem& locked;

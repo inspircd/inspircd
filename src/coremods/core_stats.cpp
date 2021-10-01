@@ -35,7 +35,8 @@
 #pragma comment(lib, "psapi.lib") // For GetProcessMemoryInfo()
 #endif
 
-class CommandStats : public Command
+class CommandStats final
+	: public Command
 {
 	Events::ModuleEventProvider statsevprov;
 	void DoStats(Stats::Context& stats);

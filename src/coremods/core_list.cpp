@@ -27,7 +27,8 @@
 #include "inspircd.h"
 #include "modules/isupport.h"
 
-class CommandList : public Command
+class CommandList final
+	: public Command
 {
  private:
 	ChanModeReference secretmode;

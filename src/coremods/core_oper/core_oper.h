@@ -31,14 +31,16 @@ namespace DieRestart
 	void SendError(const std::string& message);
 }
 
-class CommandDie : public Command
+class CommandDie final
+	: public Command
 {
  public:
 	CommandDie(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-class CommandKill : public Command
+class CommandKill final
+	: public Command
 {
 	std::string lastuuid;
 	std::string killreason;
@@ -57,21 +59,24 @@ class CommandKill : public Command
 	void EncodeParameter(std::string& param, unsigned int index) override;
 };
 
-class CommandOper : public SplitCommand
+class CommandOper final
+	: public SplitCommand
 {
  public:
 	CommandOper(Module* parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
-class CommandRehash : public Command
+class CommandRehash final
+	: public Command
 {
  public:
 	CommandRehash(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-class CommandRestart : public Command
+class CommandRestart final
+	: public Command
 {
  public:
 	CommandRestart(Module* parent);

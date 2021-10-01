@@ -54,7 +54,8 @@ enum KnockNotify : uint8_t
 
 /** Handles the /KNOCK command
  */
-class CommandKnock : public Command
+class CommandKnock final
+	: public Command
 {
 	SimpleChannelMode& noknockmode;
 	ChanModeReference inviteonlymode;

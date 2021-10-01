@@ -48,7 +48,8 @@ class DummySerializer : public ClientProtocol::Serializer
 	}
 };
 
-class CommandReloadmodule : public Command
+class CommandReloadmodule final
+	: public Command
 {
 	Events::ModuleEventProvider evprov;
 	DummySerializer dummyser;
