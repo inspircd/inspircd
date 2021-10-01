@@ -163,7 +163,8 @@ class SHA1Context
 	}
 };
 
-class SHA1HashProvider : public HashProvider
+class SHA1HashProvider final
+	: public HashProvider
 {
  public:
 	SHA1HashProvider(Module* mod)

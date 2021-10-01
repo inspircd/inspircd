@@ -72,7 +72,8 @@ class PBKDF2Hash
 	}
 };
 
-class PBKDF2Provider : public HashProvider
+class PBKDF2Provider final
+	: public HashProvider
 {
  public:
 	HashProvider* provider;

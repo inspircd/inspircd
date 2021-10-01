@@ -94,7 +94,8 @@ class ProviderConfig
 	}
 };
 
-class HashArgon2 : public HashProvider
+class HashArgon2 final
+	: public HashProvider
 {
  private:
 	const Argon2_type argon2Type;

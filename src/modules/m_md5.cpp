@@ -50,7 +50,8 @@ class MD5Context
 	word32 in[16];
 };
 
-class MD5Provider : public HashProvider
+class MD5Provider final
+	: public HashProvider
 {
 	void byteSwap(word32 *buf, unsigned words)
 	{

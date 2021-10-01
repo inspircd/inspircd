@@ -42,7 +42,8 @@
 #include "modules/hash.h"
 
 template<void (*SHA)(const unsigned char*, unsigned int, unsigned char*)>
-class HashSHA2 : public HashProvider
+class HashSHA2 final
+	: public HashProvider
 {
  public:
 	HashSHA2(Module* parent, const std::string& Name, unsigned int osize, unsigned int bsize)

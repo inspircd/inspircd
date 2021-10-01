@@ -25,7 +25,8 @@
 
 #include <crypt_blowfish.c>
 
-class BCryptProvider : public HashProvider
+class BCryptProvider final
+	: public HashProvider
 {
  private:
 	std::string Salt()
