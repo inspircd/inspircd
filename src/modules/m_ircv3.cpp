@@ -47,7 +47,8 @@ class AwayMessage : public ClientProtocol::Message
 	}
 };
 
-class JoinHook : public ClientProtocol::EventHook
+class JoinHook final
+	: public ClientProtocol::EventHook
 {
 	ClientProtocol::Events::Join extendedjoinmsg;
 

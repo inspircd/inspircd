@@ -72,7 +72,8 @@ namespace
  * This is not the same as OnUserJoin() because that runs only when a real join happens but this runs also when a module
  * such as hostcycle generates a join.
  */
-class JoinHook : public ClientProtocol::EventHook
+class JoinHook final
+	: public ClientProtocol::EventHook
 {
  private:
 	const IntExtItem& unjoined;

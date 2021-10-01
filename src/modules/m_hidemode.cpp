@@ -59,7 +59,8 @@ class Settings
 	}
 };
 
-class ModeHook : public ClientProtocol::EventHook
+class ModeHook final
+	: public ClientProtocol::EventHook
 {
 	typedef insp::flat_map<unsigned int, const ClientProtocol::MessageList*> FilteredModeMap;
 

@@ -33,7 +33,8 @@ namespace
  * This happens e.g. when modules such as operprefix explicitly set prefix modes on the joining
  * user, or when a member with prefix modes does a host cycle.
  */
-class JoinHook : public ClientProtocol::EventHook
+class JoinHook final
+	: public ClientProtocol::EventHook
 {
 	ClientProtocol::Messages::Mode modemsg;
 	Modes::ChangeList modechangelist;
