@@ -27,7 +27,7 @@
 #include "inspircd.h"
 #include "modules/exemption.h"
 
-class ChannelSettings
+class ChannelSettings final
 {
  public:
 	enum RepeatAction

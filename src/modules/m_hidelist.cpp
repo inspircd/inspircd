@@ -21,7 +21,8 @@
 
 #include "inspircd.h"
 
-class ListWatcher : public ModeWatcher
+class ListWatcher final
+	: public ModeWatcher
 {
 	// Minimum rank required to view the list
 	const unsigned int minrank;

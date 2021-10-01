@@ -37,7 +37,7 @@ static unsigned int duration;
 
 /** Holds settings and state associated with channel mode +j
  */
-class joinfloodsettings
+class joinfloodsettings final
 {
  public:
 	unsigned int secs;

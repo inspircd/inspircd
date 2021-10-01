@@ -30,7 +30,7 @@
 
 /** Holds flood settings and state for mode +f
  */
-class floodsettings
+class floodsettings final
 {
  public:
 	bool ban;

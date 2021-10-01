@@ -30,7 +30,7 @@ enum AntiCapsMethod
 	ACM_KICK_BAN
 };
 
-class AntiCapsSettings
+class AntiCapsSettings final
 {
  public:
 	const AntiCapsMethod method;

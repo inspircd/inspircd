@@ -44,7 +44,8 @@ class OperPrefixMode final
 };
 
 class ModuleOperPrefixMode;
-class HideOperWatcher : public ModeWatcher
+class HideOperWatcher final
+	: public ModeWatcher
 {
 	ModuleOperPrefixMode* parentmod;
 

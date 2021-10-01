@@ -35,7 +35,7 @@
 /* Originally written by Om, January 2009
  */
 
-class BanRedirectEntry
+class BanRedirectEntry final
 {
  public:
 	std::string targetchan;
@@ -49,7 +49,8 @@ class BanRedirectEntry
 
 typedef std::vector<BanRedirectEntry> BanRedirectList;
 
-class BanRedirect : public ModeWatcher
+class BanRedirect final
+	: public ModeWatcher
 {
 	ChanModeReference ban;
  public:

@@ -34,7 +34,7 @@
 #include "listmode.h"
 
 // Holds a timed ban
-class TimedBan
+class TimedBan final
 {
  public:
 	std::string mask;
@@ -166,7 +166,8 @@ class CommandTban final
 	}
 };
 
-class BanWatcher : public ModeWatcher
+class BanWatcher final
+	: public ModeWatcher
 {
  public:
 	BanWatcher(Module* parent)

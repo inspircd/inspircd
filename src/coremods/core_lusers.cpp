@@ -107,7 +107,8 @@ CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 	return CmdResult::SUCCESS;
 }
 
-class InvisibleWatcher : public ModeWatcher
+class InvisibleWatcher final
+	: public ModeWatcher
 {
 	size_t& invisible;
 public:

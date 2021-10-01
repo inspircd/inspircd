@@ -30,7 +30,7 @@ static unsigned int duration;
 
 /** Holds settings and state associated with channel mode +F
  */
-class nickfloodsettings
+class nickfloodsettings final
 {
  public:
 	unsigned int secs;
