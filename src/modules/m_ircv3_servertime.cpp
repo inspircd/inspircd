@@ -23,7 +23,7 @@
 #include "modules/ircv3_servertime.h"
 #include "modules/server.h"
 
-class ServerTimeTag
+class ServerTimeTag final
 	: public IRCv3::ServerTime::Manager
 	, public IRCv3::CapTag<ServerTimeTag>
 	, public ServerProtocol::MessageEventListener

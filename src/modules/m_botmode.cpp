@@ -29,7 +29,8 @@
 #include "modules/who.h"
 #include "modules/whois.h"
 
-class BotTag : public ClientProtocol::MessageTagProvider
+class BotTag final
+	: public ClientProtocol::MessageTagProvider
 {
  private:
 	SimpleUserMode& botmode;

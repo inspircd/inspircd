@@ -21,7 +21,8 @@
 #include "modules/cap.h"
 #include "modules/ircv3_batch.h"
 
-class LabeledResponseTag : public ClientProtocol::MessageTagProvider
+class LabeledResponseTag final
+	: public ClientProtocol::MessageTagProvider
 {
  private:
 	const Cap::Capability& cap;

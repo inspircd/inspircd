@@ -21,7 +21,8 @@
 
 #include "modules/ctctags.h"
 
-class ServerTags : public ClientProtocol::MessageTagProvider
+class ServerTags final
+    : public ClientProtocol::MessageTagProvider
 {
  public:
 	ServerTags(Module* Creator);
@@ -29,7 +30,8 @@ class ServerTags : public ClientProtocol::MessageTagProvider
 	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override;
 };
 
-class ServiceTag : public ClientProtocol::MessageTagProvider
+class ServiceTag final
+    : public ClientProtocol::MessageTagProvider
 {
  private:
 	CTCTags::CapReference ctctagcap;

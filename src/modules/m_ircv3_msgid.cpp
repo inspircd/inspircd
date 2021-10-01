@@ -20,7 +20,8 @@
 #include "inspircd.h"
 #include "modules/ctctags.h"
 
-class MsgIdTag : public ClientProtocol::MessageTagProvider
+class MsgIdTag final
+	: public ClientProtocol::MessageTagProvider
 {
  private:
 	CTCTags::CapReference ctctagcap;

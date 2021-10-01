@@ -267,7 +267,8 @@ class CommandTagMsg final
 	}
 };
 
-class C2CTags : public ClientProtocol::MessageTagProvider
+class C2CTags final
+	: public ClientProtocol::MessageTagProvider
 {
  private:
 	Cap::Capability& cap;

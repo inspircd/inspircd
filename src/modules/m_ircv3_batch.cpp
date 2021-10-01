@@ -57,7 +57,7 @@ struct IRCv3::Batch::BatchInfo
 	}
 };
 
-class IRCv3::Batch::ManagerImpl : public Manager
+class IRCv3::Batch::ManagerImpl final : public Manager
 {
 	typedef std::vector<Batch*> BatchList;
 

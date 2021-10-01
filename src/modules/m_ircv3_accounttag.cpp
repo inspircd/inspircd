@@ -22,7 +22,8 @@
 #include "modules/ircv3.h"
 #include "modules/account.h"
 
-class AccountTag : public IRCv3::CapTag<AccountTag>
+class AccountTag final
+	: public IRCv3::CapTag<AccountTag>
 {
  public:
 	const std::string* GetValue(const ClientProtocol::Message& msg) const
