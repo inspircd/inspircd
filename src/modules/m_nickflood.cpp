@@ -122,7 +122,8 @@ class NickFlood : public ParamMode<NickFlood, SimpleExtItem<nickfloodsettings> >
 	}
 };
 
-class ModuleNickFlood : public Module
+class ModuleNickFlood final
+	: public Module
 {
  private:
 	CheckExemption::EventProvider exemptionprov;

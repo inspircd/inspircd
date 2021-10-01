@@ -384,7 +384,8 @@ class CommandSQuery final
 	}
 };
 
-class ModuleCoreMessage : public Module
+class ModuleCoreMessage final
+	: public Module
 {
  private:
 	CommandMessage cmdprivmsg;

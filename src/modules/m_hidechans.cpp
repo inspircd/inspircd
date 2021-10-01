@@ -38,7 +38,9 @@ class HideChans final
 	}
 };
 
-class ModuleHideChans : public Module, public Whois::LineEventListener
+class ModuleHideChans final
+	: public Module
+	, public Whois::LineEventListener
 {
  private:
 	bool AffectsOpers;

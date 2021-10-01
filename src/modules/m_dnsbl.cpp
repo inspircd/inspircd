@@ -372,7 +372,9 @@ class DNSBLResolver : public DNS::Request
 
 typedef std::vector<std::shared_ptr<DNSBLEntry>> DNSBLConfList;
 
-class ModuleDNSBL : public Module, public Stats::EventListener
+class ModuleDNSBL final
+	: public Module
+	, public Stats::EventListener
 {
 	DNSBLConfList DNSBLConfEntries;
 	dynamic_reference<DNS::Manager> DNS;

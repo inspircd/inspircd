@@ -158,7 +158,8 @@ class OperQuery : public SQL::Query
 	}
 };
 
-class ModuleSQLOper : public Module
+class ModuleSQLOper final
+	: public Module
 {
  private:
 	// Whether OperQuery is running

@@ -83,7 +83,8 @@ class AutoOpList : public ListModeBase
 	}
 };
 
-class ModuleAutoOp : public Module
+class ModuleAutoOp final
+	: public Module
 {
 	AutoOpList mh;
 

@@ -95,7 +95,9 @@ class CommandTitle : public Command
 
 };
 
-class ModuleCustomTitle : public Module, public Whois::LineEventListener
+class ModuleCustomTitle final
+	: public Module
+	, public Whois::LineEventListener
 {
  private:
 	CommandTitle cmd;

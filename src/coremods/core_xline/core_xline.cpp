@@ -54,7 +54,8 @@ bool InsaneBan::IPHostMatcher::Check(User* user, const std::string& mask) const
 			(InspIRCd::MatchCIDR(user->MakeHostIP(), mask, ascii_case_insensitive_map)));
 }
 
-class CoreModXLine : public Module
+class CoreModXLine final
+	: public Module
 {
 	CommandEline cmdeline;
 	CommandGline cmdgline;

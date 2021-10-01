@@ -124,7 +124,8 @@ class STSCap : public Cap::Capability
 	}
 };
 
-class ModuleIRCv3STS : public Module
+class ModuleIRCv3STS final
+	: public Module
 {
  private:
 	STSCap cap;

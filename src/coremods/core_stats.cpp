@@ -390,7 +390,8 @@ CmdResult CommandStats::Handle(User* user, const Params& parameters)
 	return CmdResult::SUCCESS;
 }
 
-class CoreModStats : public Module
+class CoreModStats final
+	: public Module
 {
  private:
 	CommandStats cmd;

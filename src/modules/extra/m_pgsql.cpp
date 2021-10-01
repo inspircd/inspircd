@@ -521,7 +521,8 @@ restart:
 	}
 };
 
-class ModulePgSQL : public Module
+class ModulePgSQL final
+	: public Module
 {
  public:
 	ConnMap connections;

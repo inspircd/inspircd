@@ -73,7 +73,9 @@ class WhoisNoticeCmd : public Command
 	}
 };
 
-class ModuleShowwhois : public Module, public Whois::EventListener
+class ModuleShowwhois final
+	: public Module
+	, public Whois::EventListener
 {
  private:
 	bool ShowWhoisFromOpers;

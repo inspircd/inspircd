@@ -22,7 +22,8 @@
 
 static volatile sig_atomic_t signaled;
 
-class ModuleSSLRehashSignal : public Module
+class ModuleSSLRehashSignal final
+	: public Module
 {
  private:
 	static void SignalHandler(int)

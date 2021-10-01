@@ -52,7 +52,8 @@ class CommandAlltime : public Command
 	}
 };
 
-class Modulealltime : public Module
+class Modulealltime final
+	: public Module
 {
  private:
 	CommandAlltime mycommand;

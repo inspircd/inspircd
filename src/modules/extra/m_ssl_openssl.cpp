@@ -914,7 +914,8 @@ OpenSSL::Profile& OpenSSLIOHook::GetProfile()
 	return std::static_pointer_cast<OpenSSLIOHookProvider>(prov)->GetProfile();
 }
 
-class ModuleSSLOpenSSL : public Module
+class ModuleSSLOpenSSL final
+	: public Module
 {
 	typedef std::vector<std::shared_ptr<OpenSSLIOHookProvider>> ProfileList;
 

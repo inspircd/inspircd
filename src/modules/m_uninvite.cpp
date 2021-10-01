@@ -116,7 +116,8 @@ class CommandUninvite : public Command
 	}
 };
 
-class ModuleUninvite : public Module
+class ModuleUninvite final
+	: public Module
 {
  private:
 	CommandUninvite cmd;

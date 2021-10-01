@@ -24,7 +24,8 @@
 
 #include "inspircd.h"
 
-class ModuleMapHide : public Module
+class ModuleMapHide final
+	: public Module
 {
  private:
 	std::string url;

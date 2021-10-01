@@ -73,7 +73,8 @@ class StdLibEngine final
 	}
 };
 
-class ModuleRegexStdLib : public Module
+class ModuleRegexStdLib final
+	: public Module
 {
  private:
 	StdLibEngine regex;

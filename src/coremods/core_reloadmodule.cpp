@@ -737,7 +737,8 @@ CmdResult CommandReloadmodule::Handle(User* user, const Params& parameters)
 	}
 }
 
-class CoreModReloadmodule : public Module
+class CoreModReloadmodule final
+	: public Module
 {
  private:
 	CommandReloadmodule cmd;

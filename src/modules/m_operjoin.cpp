@@ -27,7 +27,8 @@
 
 #include "inspircd.h"
 
-class ModuleOperjoin : public Module
+class ModuleOperjoin final
+	: public Module
 {
 	private:
 		std::vector<std::string> operChans;

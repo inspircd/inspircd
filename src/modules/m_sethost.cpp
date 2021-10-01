@@ -65,7 +65,8 @@ class CommandSethost : public Command
 	}
 };
 
-class ModuleSetHost : public Module
+class ModuleSetHost final
+	: public Module
 {
  private:
 	CommandSethost cmd;

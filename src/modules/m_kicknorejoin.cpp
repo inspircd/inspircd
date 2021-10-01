@@ -124,7 +124,8 @@ class KickRejoin : public ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >
 	}
 };
 
-class ModuleKickNoRejoin : public Module
+class ModuleKickNoRejoin final
+	: public Module
 {
 	KickRejoin kr;
 	Invite::API invapi;

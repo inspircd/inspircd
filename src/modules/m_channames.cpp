@@ -46,7 +46,8 @@ bool NewIsChannelHandler::Call(const std::string& channame)
 	return true;
 }
 
-class ModuleChannelNames : public Module
+class ModuleChannelNames final
+	: public Module
 {
 	std::function<bool(const std::string&)> rememberer;
 	bool badchan = false;

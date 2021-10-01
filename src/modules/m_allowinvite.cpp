@@ -26,7 +26,8 @@
 #include "inspircd.h"
 #include "modules/extban.h"
 
-class ModuleAllowInvite : public Module
+class ModuleAllowInvite final
+	: public Module
 {
  private:
 	ExtBan::Acting extban;

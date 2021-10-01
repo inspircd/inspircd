@@ -44,7 +44,8 @@ class AccountTag : public IRCv3::CapTag<AccountTag>
 	}
 };
 
-class ModuleIRCv3AccountTag : public Module
+class ModuleIRCv3AccountTag final
+	: public Module
 {
  private:
 	AccountTag tag;

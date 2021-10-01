@@ -469,7 +469,8 @@ class PoisonCap : public Cap::Capability
 	}
 };
 
-class ModuleCap : public Module
+class ModuleCap final
+	: public Module
 {
  private:
 	CommandCap cmd;

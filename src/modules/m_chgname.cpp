@@ -74,7 +74,8 @@ class CommandChgname : public Command
 	}
 };
 
-class ModuleChgName : public Module
+class ModuleChgName final
+	: public Module
 {
  private:
 	CommandChgname cmd;

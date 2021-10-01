@@ -172,7 +172,9 @@ class CommandSvshold : public Command
 	}
 };
 
-class ModuleSVSHold : public Module, public Stats::EventListener
+class ModuleSVSHold final
+	: public Module
+	, public Stats::EventListener
 {
  private:
 	CommandSvshold cmd;

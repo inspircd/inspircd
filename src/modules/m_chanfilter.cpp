@@ -58,7 +58,8 @@ class ChanFilter : public ListModeBase
 	}
 };
 
-class ModuleChanFilter : public Module
+class ModuleChanFilter final
+	: public Module
 {
 	CheckExemption::EventProvider exemptionprov;
 	ChanFilter cf;

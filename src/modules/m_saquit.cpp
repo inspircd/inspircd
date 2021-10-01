@@ -70,7 +70,8 @@ class CommandSaquit : public Command
 	}
 };
 
-class ModuleSaquit : public Module
+class ModuleSaquit final
+	: public Module
 {
  private:
 	CommandSaquit cmd;

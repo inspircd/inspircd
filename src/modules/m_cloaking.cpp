@@ -203,7 +203,8 @@ class CommandCloak : public Command
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-class ModuleCloaking : public Module
+class ModuleCloaking final
+	: public Module
 {
  public:
 	CloakUser cu;

@@ -370,7 +370,8 @@ class CommandDccallow : public Command
 
 };
 
-class ModuleDCCAllow : public Module
+class ModuleDCCAllow final
+	: public Module
 {
  private:
 	DCCAllowExt ext;

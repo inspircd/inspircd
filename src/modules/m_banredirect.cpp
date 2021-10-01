@@ -245,7 +245,8 @@ class BanRedirect : public ModeWatcher
 	}
 };
 
-class ModuleBanRedirect : public Module
+class ModuleBanRedirect final
+	: public Module
 {
  private:
 	BanRedirect re;

@@ -21,7 +21,8 @@
 #include "inspircd.h"
 #include "modules/cap.h"
 
-class ModuleHostCycle : public Module
+class ModuleHostCycle final
+	: public Module
 {
 	Cap::Reference chghostcap;
 	const std::string quitmsghost;

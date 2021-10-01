@@ -66,7 +66,8 @@ private:
 	}
 };
 
-class ModuleSetName : public Module
+class ModuleSetName final
+	: public Module
 {
  private:
 	CommandSetName cmd;

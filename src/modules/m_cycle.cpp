@@ -78,7 +78,8 @@ class CommandCycle : public SplitCommand
 	}
 };
 
-class ModuleCycle : public Module
+class ModuleCycle final
+	: public Module
 {
  private:
 	CommandCycle cmd;

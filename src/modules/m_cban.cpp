@@ -150,7 +150,9 @@ class CommandCBan : public Command
 	}
 };
 
-class ModuleCBan : public Module, public Stats::EventListener
+class ModuleCBan final
+	: public Module
+	, public Stats::EventListener
 {
 	CommandCBan mycommand;
 	CBanFactory f;

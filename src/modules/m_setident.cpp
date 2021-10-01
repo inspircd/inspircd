@@ -58,7 +58,8 @@ class CommandSetident : public Command
 	}
 };
 
-class ModuleSetIdent : public Module
+class ModuleSetIdent final
+	: public Module
 {
  private:
 	CommandSetident cmd;

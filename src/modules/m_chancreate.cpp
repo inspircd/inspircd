@@ -25,7 +25,8 @@
 
 #include "inspircd.h"
 
-class ModuleChanCreate : public Module
+class ModuleChanCreate final
+	: public Module
 {
  public:
 	ModuleChanCreate()

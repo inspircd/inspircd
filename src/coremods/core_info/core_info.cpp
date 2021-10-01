@@ -39,7 +39,8 @@ RouteDescriptor ServerTargetCommand::GetRouting(User* user, const Params& parame
 	return ROUTE_LOCALONLY;
 }
 
-class CoreModInfo : public Module
+class CoreModInfo final
+	: public Module
 {
 	CommandAdmin cmdadmin;
 	CommandCommands cmdcommands;

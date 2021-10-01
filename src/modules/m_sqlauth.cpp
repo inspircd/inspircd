@@ -119,7 +119,8 @@ class AuthQuery : public SQL::Query
 	}
 };
 
-class ModuleSQLAuth : public Module
+class ModuleSQLAuth final
+	: public Module
 {
 	IntExtItem pendingExt;
 	dynamic_reference<SQL::Provider> SQL;

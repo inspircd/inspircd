@@ -28,7 +28,8 @@
 
 typedef insp::flat_set<std::string, irc::insensitive_swo> AllowChans;
 
-class ModuleRestrictChans : public Module
+class ModuleRestrictChans final
+	: public Module
 {
  private:
 	AllowChans allowchans;

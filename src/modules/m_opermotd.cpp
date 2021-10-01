@@ -78,7 +78,8 @@ class CommandOpermotd : public Command
 	}
 };
 
-class ModuleOpermotd : public Module
+class ModuleOpermotd final
+	: public Module
 {
  private:
 	CommandOpermotd cmd;

@@ -31,7 +31,8 @@
 #include "modules/exemption.h"
 #include "modules/extban.h"
 
-class ModuleBlockColor : public Module
+class ModuleBlockColor final
+	: public Module
 {
  private:
 	ExtBan::Acting extban;

@@ -80,7 +80,10 @@ class CapNotifyValueMessage : public Cap::MessageBase
 	}
 };
 
-class ModuleIRCv3CapNotify : public Module, public Cap::EventListener, public ReloadModule::EventListener
+class ModuleIRCv3CapNotify final
+	: public Module
+	, public Cap::EventListener
+	, public ReloadModule::EventListener
 {
 	CapNotify capnotify;
 	std::string reloadedmod;

@@ -25,7 +25,8 @@
 
 #include "inspircd.h"
 
-class ModuleConnFlood : public Module
+class ModuleConnFlood final
+	: public Module
 {
  private:
 	unsigned long seconds;

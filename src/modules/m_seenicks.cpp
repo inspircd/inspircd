@@ -23,7 +23,8 @@
 
 #include "inspircd.h"
 
-class ModuleSeeNicks : public Module
+class ModuleSeeNicks final
+	: public Module
 {
  public:
 	ModuleSeeNicks()

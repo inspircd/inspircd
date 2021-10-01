@@ -26,7 +26,8 @@
 
 #include "inspircd.h"
 
-class ModuleWaitPong : public Module
+class ModuleWaitPong final
+	: public Module
 {
 	bool sendsnotice;
 	bool killonbadreply;

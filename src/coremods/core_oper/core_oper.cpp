@@ -22,7 +22,8 @@
 #include "inspircd.h"
 #include "core_oper.h"
 
-class CoreModOper : public Module
+class CoreModOper final
+	: public Module
 {
  private:
 	CommandDie cmddie;

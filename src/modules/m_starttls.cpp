@@ -81,7 +81,8 @@ class CommandStartTLS : public SplitCommand
 	}
 };
 
-class ModuleStartTLS : public Module
+class ModuleStartTLS final
+	: public Module
 {
  private:
 	CommandStartTLS starttls;

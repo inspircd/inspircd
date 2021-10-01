@@ -71,7 +71,8 @@ class ServerTimeTag
 
 };
 
-class ModuleIRCv3ServerTime : public Module
+class ModuleIRCv3ServerTime final
+	: public Module
 {
  private:
 	ServerTimeTag tag;

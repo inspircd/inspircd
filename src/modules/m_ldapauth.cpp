@@ -296,7 +296,8 @@ class AdminBindInterface : public LDAPInterface
 	}
 };
 
-class ModuleLDAPAuth : public Module
+class ModuleLDAPAuth final
+	: public Module
 {
 	dynamic_reference<LDAPProvider> LDAP;
 	BoolExtItem ldapAuthed;

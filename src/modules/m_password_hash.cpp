@@ -83,7 +83,8 @@ class CommandMkpasswd : public Command
 	}
 };
 
-class ModulePasswordHash : public Module
+class ModulePasswordHash final
+	: public Module
 {
  private:
 	CommandMkpasswd cmd;

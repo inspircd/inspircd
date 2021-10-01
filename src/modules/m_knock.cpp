@@ -124,7 +124,8 @@ class CommandKnock : public Command
 	}
 };
 
-class ModuleKnock : public Module
+class ModuleKnock final
+	: public Module
 {
 	SimpleChannelMode kn;
 	CommandKnock cmd;

@@ -74,7 +74,8 @@ class CommandSVSTOPIC : public Command
 	}
 };
 
-class ModuleTopicLock : public Module
+class ModuleTopicLock final
+	: public Module
 {
  private:
 	CommandSVSTOPIC cmd;

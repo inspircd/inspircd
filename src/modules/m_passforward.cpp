@@ -26,7 +26,8 @@
 #include "inspircd.h"
 #include "modules/account.h"
 
-class ModulePassForward : public Module
+class ModulePassForward final
+	: public Module
 {
 	std::string nickrequired, forwardmsg, forwardcmd;
 

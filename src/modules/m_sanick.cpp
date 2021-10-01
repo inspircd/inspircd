@@ -86,7 +86,8 @@ class CommandSanick : public Command
 	}
 };
 
-class ModuleSanick : public Module
+class ModuleSanick final
+	: public Module
 {
  private:
 	CommandSanick cmd;

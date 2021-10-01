@@ -271,7 +271,8 @@ class IdentRequestSocket : public EventHandler
 	}
 };
 
-class ModuleIdent : public Module
+class ModuleIdent final
+	: public Module
 {
  private:
 	unsigned long timeout;

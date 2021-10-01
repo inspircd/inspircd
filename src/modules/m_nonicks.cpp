@@ -29,7 +29,8 @@
 #include "modules/exemption.h"
 #include "modules/extban.h"
 
-class ModuleNoNickChange : public Module
+class ModuleNoNickChange final
+	: public Module
 {
  private:
 	CheckExemption::EventProvider exemptionprov;

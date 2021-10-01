@@ -72,7 +72,8 @@ class BCryptProvider : public HashProvider
 	}
 };
 
-class ModuleBCrypt : public Module
+class ModuleBCrypt final
+	: public Module
 {
  private:
 	BCryptProvider bcrypt;

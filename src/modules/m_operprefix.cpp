@@ -52,7 +52,8 @@ class HideOperWatcher : public ModeWatcher
 	void AfterMode(User* source, User* dest, Channel* channel, const Modes::Change& change) override;
 };
 
-class ModuleOperPrefixMode : public Module
+class ModuleOperPrefixMode final
+	: public Module
 {
  private:
 	OperPrefixMode opm;

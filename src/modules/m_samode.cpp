@@ -88,7 +88,8 @@ class CommandSamode : public Command
 	}
 };
 
-class ModuleSaMode : public Module
+class ModuleSaMode final
+	: public Module
 {
  private:
 	CommandSamode cmd;

@@ -24,7 +24,8 @@
 
 #include "inspircd.h"
 
-class ModuleRandQuote : public Module
+class ModuleRandQuote final
+	: public Module
 {
  private:
 	std::string prefix;

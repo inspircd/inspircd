@@ -29,7 +29,8 @@ enum
 	ERR_AMBIGUOUSCOMMAND = 420
 };
 
-class ModuleAbbreviation : public Module
+class ModuleAbbreviation final
+	: public Module
 {
  public:
 	ModuleAbbreviation()

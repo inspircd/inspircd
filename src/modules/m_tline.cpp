@@ -70,7 +70,8 @@ class CommandTline : public Command
 	}
 };
 
-class ModuleTLine : public Module
+class ModuleTLine final
+	: public Module
 {
  private:
 	CommandTline cmd;

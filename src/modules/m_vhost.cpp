@@ -77,7 +77,8 @@ class CommandVhost : public Command
 	}
 };
 
-class ModuleVHost : public Module
+class ModuleVHost final
+	: public Module
 {
  private:
 	CommandVhost cmd;

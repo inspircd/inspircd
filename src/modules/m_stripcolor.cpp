@@ -30,7 +30,8 @@
 #include "modules/exemption.h"
 #include "modules/extban.h"
 
-class ModuleStripColor : public Module
+class ModuleStripColor final
+	: public Module
 {
  private:
 	CheckExemption::EventProvider exemptionprov;

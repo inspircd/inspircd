@@ -384,7 +384,9 @@ namespace Stats
 	}
 }
 
-class ModuleHttpStats : public Module, public HTTPRequestEventListener
+class ModuleHttpStats final
+	: public Module
+	, public HTTPRequestEventListener
 {
  private:
 	HTTPdAPI API;

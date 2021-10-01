@@ -151,7 +151,8 @@ class UserResolver : public DNS::Request
 	}
 };
 
-class ModuleHostnameLookup : public Module
+class ModuleHostnameLookup final
+	: public Module
 {
  private:
 	BoolExtItem dnsLookup;

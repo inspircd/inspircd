@@ -181,7 +181,8 @@ class ModeHook : public ClientProtocol::EventHook
 };
 }
 
-class ModuleHideMode : public Module
+class ModuleHideMode final
+	: public Module
 {
  private:
 	ModeHook modehook;

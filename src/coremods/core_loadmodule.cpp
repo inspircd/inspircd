@@ -96,7 +96,8 @@ CmdResult CommandUnloadmodule::Handle(User* user, const Params& parameters)
 	return CmdResult::SUCCESS;
 }
 
-class CoreModLoadModule : public Module
+class CoreModLoadModule final
+	: public Module
 {
 	CommandLoadmodule cmdloadmod;
 	CommandUnloadmodule cmdunloadmod;

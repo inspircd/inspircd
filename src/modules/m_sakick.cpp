@@ -82,7 +82,8 @@ class CommandSakick : public Command
 	}
 };
 
-class ModuleSakick : public Module
+class ModuleSakick final
+	: public Module
 {
  private:
 	CommandSakick cmd;

@@ -30,7 +30,8 @@
 #include "modules/exemption.h"
 #include "modules/extban.h"
 
-class ModuleNoCTCP : public Module
+class ModuleNoCTCP final
+	: public Module
 {
  private:
 	CheckExemption::EventProvider exemptionprov;

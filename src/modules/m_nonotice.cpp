@@ -29,7 +29,8 @@
 #include "modules/exemption.h"
 #include "modules/extban.h"
 
-class ModuleNoNotice : public Module
+class ModuleNoNotice final
+	: public Module
 {
  private:
 	ExtBan::Acting extban;

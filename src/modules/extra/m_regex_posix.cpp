@@ -68,7 +68,8 @@ class POSIXPattern final
 	}
 };
 
-class ModuleRegexPOSIX : public Module
+class ModuleRegexPOSIX final
+	: public Module
 {
  private:
 	Regex::SimpleEngine<POSIXPattern> regex;

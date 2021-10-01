@@ -27,7 +27,8 @@
 
 #include "inspircd.h"
 
-class ModuleOperLevels : public Module
+class ModuleOperLevels final
+	: public Module
 {
 	public:
 		ModuleOperLevels()

@@ -97,7 +97,8 @@ class CommandShowFile : public Command
 	}
 };
 
-class ModuleShowFile : public Module
+class ModuleShowFile final
+	: public Module
 {
  private:
 	std::vector<CommandShowFile*> cmds;

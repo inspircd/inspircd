@@ -22,7 +22,8 @@
 #include "modules/cap.h"
 #include "modules/ircv3.h"
 
-class ModuleIRCv3ChgHost : public Module
+class ModuleIRCv3ChgHost final
+	: public Module
 {
 	Cap::Capability cap;
 	ClientProtocol::EventProvider protoevprov;

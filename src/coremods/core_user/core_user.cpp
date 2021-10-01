@@ -124,7 +124,8 @@ void MessageWrapper::ReadConfig(const char* prefixname, const char* suffixname, 
 	}
 }
 
-class CoreModUser : public Module
+class CoreModUser final
+	: public Module
 {
 	CommandAway cmdaway;
 	CommandNick cmdnick;

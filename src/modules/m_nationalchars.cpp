@@ -218,7 +218,8 @@ bool lwbNickHandler::Call(const std::string& nick)
 	return (p < ServerInstance->Config->Limits.MaxNick);
 }
 
-class ModuleNationalChars : public Module
+class ModuleNationalChars final
+	: public Module
 {
 	std::string charset;
 	unsigned char m_additional[256], m_additionalUp[256], m_lower[256], m_upper[256];

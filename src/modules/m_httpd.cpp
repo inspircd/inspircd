@@ -402,7 +402,8 @@ class HTTPdAPIImpl : public HTTPdAPIBase
 	}
 };
 
-class ModuleHttpServer : public Module
+class ModuleHttpServer final
+	: public Module
 {
  private:
 	HTTPdAPIImpl APIImpl;

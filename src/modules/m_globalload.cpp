@@ -157,7 +157,8 @@ class CommandGReloadModule : public Command
 	}
 };
 
-class ModuleGlobalLoad : public Module
+class ModuleGlobalLoad final
+	: public Module
 {
  private:
 	CommandGLoadModule cmdgloadmodule;

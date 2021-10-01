@@ -150,7 +150,8 @@ class AntiCapsMode : public ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettin
 	}
 };
 
-class ModuleAntiCaps : public Module
+class ModuleAntiCaps final
+	: public Module
 {
  private:
 	CheckExemption::EventProvider exemptionprov;

@@ -131,7 +131,8 @@ public:
 	}
 };
 
-class ModuleLusers : public Module
+class ModuleLusers final
+	: public Module
 {
 	UserModeReference invisiblemode;
 	LusersCounters counters;

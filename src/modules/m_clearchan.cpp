@@ -142,7 +142,8 @@ class CommandClearChan : public Command
 	}
 };
 
-class ModuleClearChan : public Module
+class ModuleClearChan final
+	: public Module
 {
  private:
 	CommandClearChan cmd;

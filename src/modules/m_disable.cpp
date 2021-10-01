@@ -32,7 +32,8 @@ typedef std::vector<std::string> CommandList;
 // Holds whether modes are disabled or not.
 typedef std::bitset<64> ModeStatus;
 
-class ModuleDisable : public Module
+class ModuleDisable final
+	: public Module
 {
  private:
 	CommandList commands;

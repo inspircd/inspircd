@@ -136,7 +136,9 @@ class CommandShun : public Command
 	}
 };
 
-class ModuleShun : public Module, public Stats::EventListener
+class ModuleShun final
+	: public Module
+	, public Stats::EventListener
 {
  private:
 	CommandShun cmd;

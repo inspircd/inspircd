@@ -184,7 +184,8 @@ class AdminBindInterface : public LDAPInterface
 	}
 };
 
-class ModuleLDAPOper : public Module
+class ModuleLDAPOper final
+	: public Module
 {
 	dynamic_reference<LDAPProvider> LDAP;
 	std::string base;

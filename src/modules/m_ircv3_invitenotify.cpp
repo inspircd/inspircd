@@ -21,7 +21,8 @@
 #include "inspircd.h"
 #include "modules/cap.h"
 
-class ModuleIRCv3InviteNotify : public Module
+class ModuleIRCv3InviteNotify final
+	: public Module
 {
 	Cap::Capability cap;
 

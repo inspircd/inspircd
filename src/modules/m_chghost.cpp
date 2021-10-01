@@ -82,7 +82,8 @@ class CommandChghost : public Command
 	}
 };
 
-class ModuleChgHost : public Module
+class ModuleChgHost final
+	: public Module
 {
  private:
 	CommandChghost cmd;

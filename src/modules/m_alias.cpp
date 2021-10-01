@@ -60,7 +60,8 @@ class Alias
 	bool StripColor;
 };
 
-class ModuleAlias : public Module
+class ModuleAlias final
+	: public Module
 {
 	std::string fprefix;
 

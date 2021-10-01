@@ -352,7 +352,8 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 	}
 };
 
-class RepeatModule : public Module
+class RepeatModule final
+	: public Module
 {
 	CheckExemption::EventProvider exemptionprov;
 	RepeatMode rm;

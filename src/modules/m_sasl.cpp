@@ -391,7 +391,8 @@ class CommandSASL : public Command
 	}
 };
 
-class ModuleSASL : public Module
+class ModuleSASL final
+	: public Module
 {
  private:
 	SimpleExtItem<SaslAuthenticator> authExt;

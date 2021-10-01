@@ -28,7 +28,8 @@
 #include "inspircd.h"
 #include "modules/extban.h"
 
-class ModuleNoKicks : public Module
+class ModuleNoKicks final
+	: public Module
 {
  private:
 	ExtBan::Acting extban;

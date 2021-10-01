@@ -64,7 +64,8 @@ class CommandSATopic : public Command
 	}
 };
 
-class ModuleSATopic : public Module
+class ModuleSATopic final
+	: public Module
 {
  private:
 	CommandSATopic cmd;

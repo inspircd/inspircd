@@ -23,7 +23,8 @@
 
 #include "inspircd.h"
 
-class ModuleModesOnConnect : public Module
+class ModuleModesOnConnect final
+	: public Module
 {
  public:
 	ModuleModesOnConnect()

@@ -1089,7 +1089,8 @@ GnuTLS::Profile& GnuTLSIOHook::GetProfile()
 	return std::static_pointer_cast<GnuTLSIOHookProvider>(prov)->GetProfile();
 }
 
-class ModuleSSLGnuTLS : public Module
+class ModuleSSLGnuTLS final
+	: public Module
 {
 	typedef std::vector<std::shared_ptr<GnuTLSIOHookProvider>> ProfileList;
 

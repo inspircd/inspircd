@@ -87,7 +87,8 @@ class CommandSapart : public Command
 	}
 };
 
-class ModuleSapart : public Module
+class ModuleSapart final
+	: public Module
 {
  private:
 	CommandSapart cmd;

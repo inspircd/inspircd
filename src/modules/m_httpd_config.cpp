@@ -25,7 +25,9 @@
 #include "inspircd.h"
 #include "modules/httpd.h"
 
-class ModuleHttpConfig : public Module, public HTTPRequestEventListener
+class ModuleHttpConfig final
+	: public Module
+	, public HTTPRequestEventListener
 {
  private:
 	HTTPdAPI API;

@@ -28,7 +28,8 @@ enum
 	ERR_MLOCKRESTRICTED = 742
 };
 
-class ModuleMLock : public Module
+class ModuleMLock final
+	: public Module
 {
 	StringExtItem mlock;
 

@@ -41,7 +41,8 @@ class GlobPattern final
 	}
 };
 
-class ModuleRegexGlob : public Module
+class ModuleRegexGlob final
+	: public Module
 {
  private:
 	Regex::SimpleEngine<GlobPattern> regex;

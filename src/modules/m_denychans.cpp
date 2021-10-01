@@ -52,7 +52,8 @@ struct BadChannel
 typedef std::vector<BadChannel> BadChannels;
 typedef std::vector<std::string> GoodChannels;
 
-class ModuleDenyChannels : public Module
+class ModuleDenyChannels final
+	: public Module
 {
  private:
 	BadChannels badchannels;

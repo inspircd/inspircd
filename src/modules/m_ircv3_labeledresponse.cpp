@@ -64,7 +64,8 @@ class LabeledResponseTag : public ClientProtocol::MessageTagProvider
 	}
 };
 
-class ModuleIRCv3LabeledResponse : public Module
+class ModuleIRCv3LabeledResponse final
+	: public Module
 {
  private:
 	Cap::Capability cap;

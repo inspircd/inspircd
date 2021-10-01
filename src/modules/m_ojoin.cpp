@@ -103,7 +103,8 @@ class NetworkPrefix : public PrefixMode
 	}
 };
 
-class ModuleOjoin : public Module
+class ModuleOjoin final
+	: public Module
 {
  private:
 	NetworkPrefix np;

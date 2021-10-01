@@ -138,7 +138,8 @@ class CommandNickunlock : public Command
 	}
 };
 
-class ModuleNickLock : public Module
+class ModuleNickLock final
+	: public Module
 {
  private:
 	BoolExtItem locked;

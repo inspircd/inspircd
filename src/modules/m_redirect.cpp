@@ -79,7 +79,8 @@ class Redirect : public ParamMode<Redirect, StringExtItem>
 	}
 };
 
-class ModuleRedirect : public Module
+class ModuleRedirect final
+	: public Module
 {
  private:
 	Redirect re;

@@ -535,7 +535,8 @@ class LDAPService : public LDAPProvider, public SocketThread
 	}
 };
 
-class ModuleLDAP : public Module
+class ModuleLDAP final
+	: public Module
 {
 	typedef insp::flat_map<std::string, LDAPService*> ServiceMap;
 	ServiceMap LDAPServices;

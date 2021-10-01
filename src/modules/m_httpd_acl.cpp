@@ -41,7 +41,9 @@ class HTTPACL
 		blacklist(set_blacklist) { }
 };
 
-class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
+class ModuleHTTPAccessList final
+	: public Module
+	, public HTTPACLEventListener
 {
  private:
 	std::vector<HTTPACL> acl_list;

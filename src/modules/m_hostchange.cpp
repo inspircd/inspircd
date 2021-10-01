@@ -122,7 +122,8 @@ class HostRule
 
 typedef std::vector<HostRule> HostRules;
 
-class ModuleHostChange : public Module
+class ModuleHostChange final
+	: public Module
 {
 private:
 	std::bitset<UCHAR_MAX + 1> hostmap;

@@ -152,7 +152,8 @@ class ExemptHandler : public CheckExemption::EventListener
 	}
 };
 
-class ModuleExemptChanOps : public Module
+class ModuleExemptChanOps final
+	: public Module
 {
  private:
 	ExemptHandler eh;

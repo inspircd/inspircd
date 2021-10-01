@@ -27,7 +27,8 @@
 
 #include "inspircd.h"
 
-class ModuleChanLog : public Module
+class ModuleChanLog final
+	: public Module
 {
 	/*
 	 * Multimap so people can redirect a snomask to multiple channels.

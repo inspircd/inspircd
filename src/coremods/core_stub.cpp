@@ -137,7 +137,8 @@ class CommandUsers
 	}
 };
 
-class CoreModStub : public Module
+class CoreModStub final
+	: public Module
 {
  private:
 	CommandCapab cmdcapab;

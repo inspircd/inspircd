@@ -143,7 +143,8 @@ class GeolocationAPIImpl : public Geolocation::APIBase
 	}
 };
 
-class ModuleGeoMaxMind : public Module
+class ModuleGeoMaxMind final
+	: public Module
 {
  private:
 	GeolocationAPIImpl geoapi;

@@ -851,7 +851,8 @@ mbedTLS::Profile& mbedTLSIOHook::GetProfile()
 	return std::static_pointer_cast<mbedTLSIOHookProvider>(prov)->GetProfile();
 }
 
-class ModuleSSLmbedTLS : public Module
+class ModuleSSLmbedTLS final
+	: public Module
 {
  private:
 	typedef std::vector<std::shared_ptr<mbedTLSIOHookProvider>> ProfileList;

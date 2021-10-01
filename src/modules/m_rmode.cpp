@@ -94,7 +94,8 @@ class CommandRMode : public Command
 	}
 };
 
-class ModuleRMode : public Module
+class ModuleRMode final
+	: public Module
 {
  private:
 	CommandRMode cmd;

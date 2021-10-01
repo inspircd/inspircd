@@ -26,7 +26,8 @@
 #include "inspircd.h"
 #include "modules/extban.h"
 
-class ModulePartMsgBan : public Module
+class ModulePartMsgBan final
+	: public Module
 {
  private:
 	ExtBan::Acting extban;

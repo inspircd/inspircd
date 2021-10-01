@@ -42,7 +42,8 @@ class CustomPrefixMode : public PrefixMode
 	}
 };
 
-class ModuleCustomPrefix : public Module
+class ModuleCustomPrefix final
+	: public Module
 {
  private:
 	std::vector<CustomPrefixMode*> modes;

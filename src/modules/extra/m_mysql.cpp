@@ -130,7 +130,8 @@ typedef std::deque<ResultQueueItem> ResultQueue;
 
 /** MySQL module
  *  */
-class ModuleSQL : public Module
+class ModuleSQL final
+	: public Module
 {
  public:
 	DispatcherThread* Dispatcher = nullptr;

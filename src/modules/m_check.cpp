@@ -325,7 +325,8 @@ class CommandCheck : public Command
 	}
 };
 
-class ModuleCheck : public Module
+class ModuleCheck final
+	: public Module
 {
  private:
 	CommandCheck cmd;

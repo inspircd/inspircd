@@ -425,7 +425,8 @@ void HAProxyHookProvider::OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* 
 	new HAProxyHook(shared_from_this(), sock, sslapi);
 }
 
-class ModuleHAProxy : public Module
+class ModuleHAProxy final
+	: public Module
 {
  private:
 	std::shared_ptr<HAProxyHookProvider> hookprov;

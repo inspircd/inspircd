@@ -112,7 +112,8 @@ class CommandSajoin : public Command
 	}
 };
 
-class ModuleSajoin : public Module
+class ModuleSajoin final
+	: public Module
 {
  private:
 	CommandSajoin cmd;

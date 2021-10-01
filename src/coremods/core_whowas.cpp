@@ -394,7 +394,9 @@ WhoWas::Nick::~Nick()
 	stdalgo::delete_all(entries);
 }
 
-class ModuleWhoWas : public Module, public Stats::EventListener
+class ModuleWhoWas final
+	: public Module
+	, public Stats::EventListener
 {
 	CommandWhowas cmd;
 

@@ -320,7 +320,8 @@ CmdResult CommandWhois::HandleLocal(LocalUser* user, const Params& parameters)
 	return CmdResult::SUCCESS;
 }
 
-class CoreModWhois : public Module
+class CoreModWhois final
+	: public Module
 {
  private:
 	CommandWhois cmd;

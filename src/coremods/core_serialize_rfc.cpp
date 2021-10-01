@@ -224,7 +224,8 @@ ClientProtocol::SerializedMessage RFCSerializer::Serialize(const ClientProtocol:
 	return line;
 }
 
-class ModuleCoreRFCSerializer : public Module
+class ModuleCoreRFCSerializer final
+	: public Module
 {
 	RFCSerializer rfcserializer;
 

@@ -78,7 +78,8 @@ class CommandChgident : public Command
 	}
 };
 
-class ModuleChgIdent : public Module
+class ModuleChgIdent final
+	: public Module
 {
  private:
 	CommandChgident cmd;

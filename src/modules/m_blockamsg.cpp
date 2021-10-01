@@ -48,7 +48,8 @@ class BlockedMessage
 	}
 };
 
-class ModuleBlockAmsg : public Module
+class ModuleBlockAmsg final
+	: public Module
 {
 	unsigned long ForgetDelay;
 	BlockAction action;

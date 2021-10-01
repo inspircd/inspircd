@@ -50,7 +50,8 @@ class CommandGlobops : public Command
 	}
 };
 
-class ModuleGlobops : public Module
+class ModuleGlobops final
+	: public Module
 {
  private:
 	CommandGlobops cmd;

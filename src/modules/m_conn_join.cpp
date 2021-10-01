@@ -64,7 +64,8 @@ class JoinTimer : public Timer
 	}
 };
 
-class ModuleConnJoin : public Module
+class ModuleConnJoin final
+	: public Module
 {
  private:
 	SimpleExtItem<JoinTimer> ext;

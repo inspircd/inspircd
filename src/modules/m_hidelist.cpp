@@ -53,7 +53,8 @@ class ListWatcher : public ModeWatcher
 	}
 };
 
-class ModuleHideList : public Module
+class ModuleHideList final
+	: public Module
 {
 	std::vector<ListWatcher*> watchers;
 

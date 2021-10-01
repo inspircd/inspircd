@@ -26,7 +26,8 @@
 
 #include "inspircd.h"
 
-class ModuleModesOnOper : public Module
+class ModuleModesOnOper final
+	: public Module
 {
  public:
 	ModuleModesOnOper()

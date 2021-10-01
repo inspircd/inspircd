@@ -562,7 +562,8 @@ void WebSocketHookProvider::OnAccept(StreamSocket* sock, irc::sockets::sockaddrs
 	new WebSocketHook(shared_from_this(), sock, config);
 }
 
-class ModuleWebSocket : public Module
+class ModuleWebSocket final
+	: public Module
 {
  private:
 	dynamic_reference_nocheck<HashProvider> hash;

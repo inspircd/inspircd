@@ -209,7 +209,8 @@ class ChannelMatcher
 	}
 };
 
-class ModuleTimedBans : public Module
+class ModuleTimedBans final
+	: public Module
 {
  private:
 	CommandTban cmd;

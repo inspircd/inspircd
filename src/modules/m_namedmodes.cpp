@@ -123,7 +123,8 @@ class DummyZ : public ModeHandler
 	}
 };
 
-class ModuleNamedModes : public Module
+class ModuleNamedModes final
+	: public Module
 {
  private:
 	CommandProp cmd;

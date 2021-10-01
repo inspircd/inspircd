@@ -69,7 +69,8 @@ CmdResult CommandWallops::Handle(User* user, const Params& parameters)
 	return CmdResult::SUCCESS;
 }
 
-class CoreModWallops : public Module
+class CoreModWallops final
+	: public Module
 {
  private:
 	CommandWallops cmd;

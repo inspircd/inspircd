@@ -62,7 +62,8 @@ class CommandSetidle : public SplitCommand
 	}
 };
 
-class ModuleSetIdle : public Module
+class ModuleSetIdle final
+	: public Module
 {
  private:
 	CommandSetidle cmd;

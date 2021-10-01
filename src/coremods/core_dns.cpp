@@ -804,7 +804,8 @@ class MyManager : public Manager, public Timer, public EventHandler
 	}
 };
 
-class ModuleDNS : public Module
+class ModuleDNS final
+	: public Module
 {
 	MyManager manager;
 	std::string DNSServer;

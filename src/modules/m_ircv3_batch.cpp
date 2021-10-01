@@ -178,7 +178,8 @@ class IRCv3::Batch::ManagerImpl : public Manager
 	}
 };
 
-class ModuleIRCv3Batch : public Module
+class ModuleIRCv3Batch final
+	: public Module
 {
  private:
 	IRCv3::Batch::ManagerImpl manager;
