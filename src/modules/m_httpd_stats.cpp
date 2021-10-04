@@ -39,7 +39,7 @@ static ISupport::EventProvider* isevprov;
 
 namespace Stats
 {
-	struct Entities
+	struct Entities final
 	{
 		static const insp::flat_map<char, char const*>& entities;
 	};
@@ -291,7 +291,7 @@ namespace Stats
 		OB_NONE
 	};
 
-	struct UserSorter
+	struct UserSorter final
 	{
 		OrderBy order;
 		bool desc;

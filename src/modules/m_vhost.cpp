@@ -26,7 +26,7 @@
 
 #include "inspircd.h"
 
-struct CustomVhost
+struct CustomVhost final
 {
 	const std::string name;
 	const std::string password;

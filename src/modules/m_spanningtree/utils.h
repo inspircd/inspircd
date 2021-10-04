@@ -45,7 +45,8 @@ typedef std::unordered_map<std::string, TreeServer*, irc::insensitive, irc::StrH
 /** Contains helper functions and variables for this module,
  * and keeps them out of the global namespace
  */
-class SpanningTreeUtilities : public Cullable
+class SpanningTreeUtilities final
+	: public Cullable
 {
 	CacheRefreshTimer RefreshTimer;
 

@@ -44,7 +44,7 @@ class InviteException final
 	}
 };
 
-class ModuleInviteException
+class ModuleInviteException final
 	: public Module
 	, public ISupport::EventListener
 {

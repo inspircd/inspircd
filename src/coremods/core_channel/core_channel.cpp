@@ -93,7 +93,7 @@ class JoinHook final
 
 }
 
-class CoreModChannel
+class CoreModChannel final
 	: public Module
 	, public CheckExemption::EventListener
 	, public ISupport::EventListener

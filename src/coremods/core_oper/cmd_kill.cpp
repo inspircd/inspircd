@@ -37,7 +37,8 @@ CommandKill::CommandKill(Module* parent)
 	translation = { TR_CUSTOM, TR_CUSTOM };
 }
 
-class KillMessage : public ClientProtocol::Message
+class KillMessage final
+	: public ClientProtocol::Message
 {
  public:
 	KillMessage(ClientProtocol::EventProvider& protoev, User* user, LocalUser* target, const std::string& text, const std::string& hidenick)

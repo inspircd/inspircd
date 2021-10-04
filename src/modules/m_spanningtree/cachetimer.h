@@ -26,7 +26,8 @@
 
 /** Timer that fires when we need to refresh the IP cache of servers
  */
-class CacheRefreshTimer : public Timer
+class CacheRefreshTimer final
+	: public Timer
 {
  public:
 	CacheRefreshTimer();

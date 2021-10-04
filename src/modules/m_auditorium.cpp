@@ -63,7 +63,7 @@ class JoinHook final
 
 }
 
-class ModuleAuditorium
+class ModuleAuditorium final
 	: public Module
 	, public Names::EventListener
 	, public Who::EventListener

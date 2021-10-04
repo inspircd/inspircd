@@ -35,9 +35,9 @@ enum
 	ERR_UNAVAILRESOURCE = 437
 };
 
-class KickRejoinData
+class KickRejoinData final
 {
-	struct KickedUser
+	struct KickedUser final
 	{
 		std::string uuid;
 		time_t expire;

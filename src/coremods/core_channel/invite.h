@@ -25,7 +25,7 @@
 namespace Invite
 {
 	template<typename T>
-	struct Store
+	struct Store final
 	{
 		typedef insp::intrusive_list<Invite, T> List;
 
@@ -44,7 +44,8 @@ extern void RemoveInvite(Invite::Invite* inv, bool remove_user, bool remove_chan
 extern void UnserializeInvite(LocalUser* user, const std::string& value);
 
 template<typename T, ExtensionItem::ExtensibleType ExtType>
-class Invite::ExtItem : public ExtensionItem
+class Invite::ExtItem final
+	: public ExtensionItem
 {
  private:
 	static std::string ToString(void* item, bool human)
@@ -115,7 +116,8 @@ class Invite::ExtItem : public ExtensionItem
 	}
 };
 
-class Invite::APIImpl : public APIBase
+class Invite::APIImpl final
+	: public APIBase
 {
 	ExtItem<LocalUser, ExtensionItem::EXT_USER> userext;
 	ExtItem<Channel, ExtensionItem::EXT_CHANNEL> chanext;

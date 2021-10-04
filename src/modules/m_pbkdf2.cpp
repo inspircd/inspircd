@@ -143,7 +143,7 @@ class PBKDF2Provider final
 	}
 };
 
-struct ProviderConfig
+struct ProviderConfig final
 {
 	unsigned long dkey_length;
 	unsigned long iterations;

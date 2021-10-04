@@ -113,7 +113,8 @@ class ExemptChanOps final
 	}
 };
 
-class ExemptHandler : public CheckExemption::EventListener
+class ExemptHandler final
+	: public CheckExemption::EventListener
 {
  public:
 	ExemptChanOps ec;

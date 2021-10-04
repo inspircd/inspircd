@@ -110,7 +110,7 @@ class MsgFlood final
 	}
 };
 
-class ModuleMsgFlood
+class ModuleMsgFlood final
 	: public Module
 	, public CTCTags::EventListener
 {

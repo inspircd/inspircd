@@ -72,7 +72,7 @@ class PrivDeafMode final
 	}
 };
 
-class ModuleDeaf
+class ModuleDeaf final
 	: public Module
 	, public CTCTags::EventListener
 {

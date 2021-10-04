@@ -24,7 +24,7 @@
 #include "inspircd.h"
 #include "modules/ctctags.h"
 
-class ModuleCommonChans
+class ModuleCommonChans final
 	: public Module
 	, public CTCTags::EventListener
 {

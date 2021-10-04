@@ -92,7 +92,7 @@ enum HAProxyCommand
 	HPC_PROXY = 0x01
 };
 
-struct HAProxyHeader
+struct HAProxyHeader final
 {
 	// The signature used to identify the HAProxy protocol.
 	uint8_t signature[PP2_SIGNATURE_LENGTH];
@@ -107,7 +107,8 @@ struct HAProxyHeader
 	uint16_t length;
 };
 
-class HAProxyHookProvider : public IOHookProvider
+class HAProxyHookProvider final
+	: public IOHookProvider
 {
  private:
 	UserCertificateAPI sslapi;
@@ -130,7 +131,8 @@ class HAProxyHookProvider : public IOHookProvider
 // The signature for a HAProxy PROXY protocol header.
 static const char proxy_signature[13] = "\x0D\x0A\x0D\x0A\x00\x0D\x0A\x51\x55\x49\x54\x0A";
 
-class HAProxyHook : public IOHookMiddle
+class HAProxyHook final
+	: public IOHookMiddle
 {
  private:
 	// The length of the address section.

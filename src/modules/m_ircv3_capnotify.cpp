@@ -22,7 +22,8 @@
 #include "modules/cap.h"
 #include "modules/reload.h"
 
-class CapNotify : public Cap::Capability
+class CapNotify final
+	: public Cap::Capability
 {
 	bool OnRequest(LocalUser* user, bool add) override
 	{
@@ -47,7 +48,8 @@ class CapNotify : public Cap::Capability
 	}
 };
 
-class CapNotifyMessage : public Cap::MessageBase
+class CapNotifyMessage final
+	: public Cap::MessageBase
 {
  public:
 	CapNotifyMessage(bool add, const std::string& capname)
@@ -57,7 +59,8 @@ class CapNotifyMessage : public Cap::MessageBase
 	}
 };
 
-class CapNotifyValueMessage : public Cap::MessageBase
+class CapNotifyValueMessage final
+	: public Cap::MessageBase
 {
 	std::string s;
 	const std::string::size_type pos;

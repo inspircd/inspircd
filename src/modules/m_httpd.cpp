@@ -58,7 +58,10 @@ static http_parser_settings parser_settings;
 
 /** A socket used for HTTP transport
  */
-class HttpServerSocket : public BufferedSocket, public Timer, public insp::intrusive_list_node<HttpServerSocket>
+class HttpServerSocket final
+	: public BufferedSocket
+	, public Timer
+	, public insp::intrusive_list_node<HttpServerSocket>
 {
  private:
 	friend class ModuleHttpServer;
@@ -388,7 +391,8 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 	}
 };
 
-class HTTPdAPIImpl : public HTTPdAPIBase
+class HTTPdAPIImpl final
+	: public HTTPdAPIBase
 {
  public:
 	HTTPdAPIImpl(Module* parent)

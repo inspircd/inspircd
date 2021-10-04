@@ -265,7 +265,7 @@ void CommandMode::DisplayCurrentModes(User* user, User* targetuser, Channel* tar
 	}
 }
 
-class CoreModMode
+class CoreModMode final
 	: public Module
 	, public ISupport::EventListener
 {

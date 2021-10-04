@@ -35,7 +35,8 @@
 #include "modules/geolocation.h"
 #include <maxminddb.h>
 
-class GeolocationExtItem : public ExtensionItem
+class GeolocationExtItem final
+	: public ExtensionItem
 {
  public:
 	GeolocationExtItem(Module* parent)
@@ -75,7 +76,8 @@ class GeolocationExtItem : public ExtensionItem
 
 typedef insp::flat_map<std::string, Geolocation::Location*> LocationMap;
 
-class GeolocationAPIImpl : public Geolocation::APIBase
+class GeolocationAPIImpl final
+	: public Geolocation::APIBase
 {
  public:
 	GeolocationExtItem ext;

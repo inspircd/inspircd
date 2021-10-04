@@ -73,7 +73,8 @@ enum SQLstatus
 	WWRITE
 };
 
-class ReconnectTimer : public Timer
+class ReconnectTimer final
+	: public Timer
 {
  private:
 	ModulePgSQL* mod;
@@ -84,7 +85,7 @@ class ReconnectTimer : public Timer
 	bool Tick(time_t TIME) override;
 };
 
-struct QueueItem
+struct QueueItem final
 {
 	SQL::Query* c;
 	std::string q;
@@ -98,7 +99,8 @@ struct QueueItem
  * data is passes to the module nearly as directly as if it was using the API directly itself.
  */
 
-class PgSQLresult : public SQL::Result
+class PgSQLresult final
+	: public SQL::Result
 {
 	PGresult* res;
 	int currentrow = 0;
@@ -182,7 +184,9 @@ class PgSQLresult : public SQL::Result
 
 /** SQLConn represents one SQL session.
  */
-class SQLConn : public SQL::Provider, public EventHandler
+class SQLConn final
+	: public SQL::Provider
+	, public EventHandler
 {
  public:
 	std::shared_ptr<ConfigTag> conf; /* The <database> entry */

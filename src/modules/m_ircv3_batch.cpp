@@ -22,7 +22,8 @@
 #include "modules/cap.h"
 #include "modules/ircv3_batch.h"
 
-class BatchMessage : public ClientProtocol::Message
+class BatchMessage final
+	: public ClientProtocol::Message
 {
  public:
 	BatchMessage(const IRCv3::Batch::Batch& batch, bool start)

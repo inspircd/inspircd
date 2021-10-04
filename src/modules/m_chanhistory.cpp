@@ -30,7 +30,7 @@
 
 typedef insp::flat_map<std::string, std::string> HistoryTagMap;
 
-struct HistoryItem
+struct HistoryItem final
 {
 	time_t ts;
 	std::string text;
@@ -50,7 +50,7 @@ struct HistoryItem
 	}
 };
 
-struct HistoryList
+struct HistoryList final
 {
 	std::deque<HistoryItem> lines;
 	unsigned long maxlen;
@@ -138,7 +138,7 @@ class HistoryMode final
 	}
 };
 
-class ModuleChanHistory
+class ModuleChanHistory final
 	: public Module
 	, public ServerProtocol::BroadcastEventListener
 {

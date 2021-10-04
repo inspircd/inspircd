@@ -29,7 +29,8 @@
 
 /** FJOIN builder for rebuilding incoming FJOINs and splitting them up into multiple messages if necessary
  */
-class FwdFJoinBuilder : public CommandFJoin::Builder
+class FwdFJoinBuilder final
+	: public CommandFJoin::Builder
 {
  public:
 	FwdFJoinBuilder(Channel* chan, TreeServer* server)

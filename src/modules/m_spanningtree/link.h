@@ -26,7 +26,7 @@
 
 #pragma once
 
-class Link
+class Link final
 {
  public:
 	std::shared_ptr<ConfigTag> tag;
@@ -48,7 +48,7 @@ class Link
 	}
 };
 
-class Autoconnect
+class Autoconnect final
 {
  public:
 	std::shared_ptr<ConfigTag> tag;

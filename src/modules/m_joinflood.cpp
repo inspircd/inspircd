@@ -134,7 +134,7 @@ class JoinFlood final
 	}
 };
 
-class ModuleJoinFlood
+class ModuleJoinFlood final
 	: public Module
 	, public ServerProtocol::LinkEventListener
 {

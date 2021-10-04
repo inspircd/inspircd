@@ -40,7 +40,8 @@ using namespace DNS;
 
 /** A full packet sent or received to/from the nameserver
  */
-class Packet : public Query
+class Packet final
+	: public Query
 {
 	void PackName(unsigned char* output, unsigned short output_size, unsigned short& pos, const std::string& name)
 	{
@@ -369,7 +370,10 @@ class Packet : public Query
 	}
 };
 
-class MyManager : public Manager, public Timer, public EventHandler
+class MyManager final
+	: public Manager
+	, public Timer
+	, public EventHandler
 {
 	typedef std::unordered_map<Question, Query, Question::hash> cache_map;
 	cache_map cache;

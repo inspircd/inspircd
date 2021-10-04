@@ -65,14 +65,15 @@ static void StaticSSLInfoCallback(const SSL* ssl, int where, int rc);
 
 namespace OpenSSL
 {
-	class Exception : public ModuleException
+	class Exception final
+		: public ModuleException
 	{
 	 public:
 		Exception(const std::string& reason)
 			: ModuleException(reason) { }
 	};
 
-	class DHParams
+	class DHParams final
 	{
 		DH* dh;
 
@@ -101,7 +102,7 @@ namespace OpenSSL
 		}
 	};
 
-	class Context
+	class Context final
 	{
 		SSL_CTX* const ctx;
 		long ctx_options;
@@ -270,7 +271,7 @@ namespace OpenSSL
 		}
 	};
 
-	class Profile
+	class Profile final
 	{
 		/** Name of this profile
 		 */
@@ -495,7 +496,8 @@ static int OnVerify(int preverify_ok, X509_STORE_CTX *ctx)
 	return 1;
 }
 
-class OpenSSLIOHook : public SSLIOHook
+class OpenSSLIOHook final
+	: public SSLIOHook
 {
  private:
 	SSL* sess;
@@ -879,7 +881,8 @@ static int OpenSSL::BIOMethod::read(BIO* bio, char* buffer, int size)
 	return static_cast<int>(ret);
 }
 
-class OpenSSLIOHookProvider : public SSLIOHookProvider
+class OpenSSLIOHookProvider final
+	: public SSLIOHookProvider
 {
 	OpenSSL::Profile profile;
 

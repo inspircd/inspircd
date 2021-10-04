@@ -23,7 +23,7 @@
 #include "modules/geolocation.h"
 #include "modules/whois.h"
 
-class CountryExtBan
+class CountryExtBan final
 	: public ExtBan::MatchingBase
 {
  private:
@@ -46,7 +46,7 @@ class CountryExtBan
 	}
 };
 
-class ModuleGeoBan
+class ModuleGeoBan final
 	: public Module
 	, public Whois::EventListener
 {

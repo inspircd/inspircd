@@ -49,7 +49,7 @@ static const char base32[] = "0123456789abcdefghijklmnopqrstuv";
 // The minimum length of a cloak key.
 static const size_t minkeylen = 30;
 
-struct CloakInfo
+struct CloakInfo final
 {
 	// The method used for cloaking users.
 	CloakMode mode;
@@ -82,7 +82,8 @@ struct CloakInfo
 
 typedef std::vector<std::string> CloakList;
 
-class CloakExtItem : public SimpleExtItem<CloakList>
+class CloakExtItem final
+	: public SimpleExtItem<CloakList>
 {
  public:
 	CloakExtItem(Module* Creator)

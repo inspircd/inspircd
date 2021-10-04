@@ -26,7 +26,7 @@
 #include "inspircd.h"
 #include "modules/httpd.h"
 
-class HTTPACL
+class HTTPACL final
 {
  public:
 	std::string path;

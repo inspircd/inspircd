@@ -156,7 +156,8 @@ public:
 	}
 };
 
-class DNSBLResolver : public DNS::Request
+class DNSBLResolver final
+	: public DNS::Request
 {
  private:
 	irc::sockets::sockaddrs theirsa;

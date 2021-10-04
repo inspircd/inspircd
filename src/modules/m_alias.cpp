@@ -29,7 +29,7 @@
 
 /** An alias definition
  */
-class Alias
+class Alias final
 {
  public:
 	/** The text of the alias command */

@@ -42,7 +42,8 @@ enum SplitWhoisState
 	SPLITWHOIS_SPLITMSG
 };
 
-class WhoisContextImpl : public Whois::Context
+class WhoisContextImpl final
+	: public Whois::Context
 {
 	Events::ModuleEventProvider& lineevprov;
 
@@ -99,7 +100,7 @@ class CommandWhois final
 	CmdResult HandleRemote(RemoteUser* target, const Params& parameters) override;
 };
 
-class WhoisNumericSink
+class WhoisNumericSink final
 {
 	WhoisContextImpl& whois;
  public:
@@ -114,7 +115,8 @@ class WhoisNumericSink
 	}
 };
 
-class WhoisChanListNumericBuilder : public Numeric::GenericBuilder<' ', false, WhoisNumericSink>
+class WhoisChanListNumericBuilder final
+	: public Numeric::GenericBuilder<' ', false, WhoisNumericSink>
 {
  public:
 	WhoisChanListNumericBuilder(WhoisContextImpl& whois)
@@ -124,7 +126,7 @@ class WhoisChanListNumericBuilder : public Numeric::GenericBuilder<' ', false, W
 	}
 };
 
-class WhoisChanList
+class WhoisChanList final
 {
 	const SplitWhoisState& splitwhois;
 	WhoisChanListNumericBuilder num;

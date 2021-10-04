@@ -26,7 +26,7 @@
 
 static std::bitset<256> allowedmap;
 
-class NewIsChannelHandler
+class NewIsChannelHandler final
 {
  public:
 	static bool Call(const std::string&);

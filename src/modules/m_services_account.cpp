@@ -91,7 +91,8 @@ class RegisteredUser final
 	}
 };
 
-class AccountExtItemImpl : public AccountExtItem
+class AccountExtItemImpl final
+	: public AccountExtItem
 {
 	Events::ModuleEventProvider eventprov;
 
@@ -130,7 +131,7 @@ class AccountExtItemImpl : public AccountExtItem
 	}
 };
 
-class AccountExtBan
+class AccountExtBan final
 	: public ExtBan::MatchingBase
 {
 private:
@@ -150,7 +151,7 @@ private:
 	}
 };
 
-class UnauthedExtBan
+class UnauthedExtBan final
 	: public ExtBan::MatchingBase
 {
 private:
@@ -170,7 +171,7 @@ private:
 	}
 };
 
-class ModuleServicesAccount
+class ModuleServicesAccount final
 	: public Module
 	, public CTCTags::EventListener
 	, public Whois::EventListener

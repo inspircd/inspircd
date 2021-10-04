@@ -30,7 +30,8 @@ namespace
 
 /** Derived from Resolver, and performs user forward/reverse lookups.
  */
-class UserResolver : public DNS::Request
+class UserResolver final
+	: public DNS::Request
 {
  private:
 	/** The socket address that the user we are looking up is connected from. */

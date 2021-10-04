@@ -58,7 +58,7 @@ class HideOper final
 	}
 };
 
-class ModuleHideOper
+class ModuleHideOper final
 	: public Module
 	, public Stats::EventListener
 	, public Who::EventListener

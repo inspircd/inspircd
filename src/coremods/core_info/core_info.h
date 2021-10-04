@@ -24,7 +24,7 @@
 #include "modules/isupport.h"
 
 /** This class manages the generation and transmission of ISUPPORT. */
-class ISupportManager
+class ISupportManager final
 {
  private:
 	/** The generated numerics which are sent to clients. */
@@ -65,7 +65,8 @@ class ISupportManager
 
 /** These commands require no parameters, but if there is a parameter it is a server name where the command will be routed to.
  */
-class ServerTargetCommand : public Command
+class ServerTargetCommand
+	: public Command
 {
  public:
 	ServerTargetCommand(Module* mod, const std::string& Name)

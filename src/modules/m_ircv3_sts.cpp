@@ -22,7 +22,8 @@
 #include "modules/cap.h"
 #include "modules/ssl.h"
 
-class STSCap : public Cap::Capability
+class STSCap final
+	: public Cap::Capability
 {
  private:
 	std::string host;

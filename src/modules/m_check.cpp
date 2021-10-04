@@ -34,7 +34,7 @@ enum
 	RPL_CHECK = 802
 };
 
-class CheckContext
+class CheckContext final
 {
  private:
 	User* const user;
@@ -105,7 +105,8 @@ class CheckContext
 		extlist.Flush();
 	}
 
-	class List : public Numeric::GenericBuilder<' ', false, Numeric::WriteRemoteNumericSink>
+	class List final
+		: public Numeric::GenericBuilder<' ', false, Numeric::WriteRemoteNumericSink>
 	{
 	 public:
 		List(CheckContext& context, const char* checktype)

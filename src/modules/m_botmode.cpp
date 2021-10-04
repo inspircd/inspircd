@@ -57,7 +57,7 @@ class BotTag final
 	}
 };
 
-class ModuleBotMode
+class ModuleBotMode final
 	: public Module
 	, public ISupport::EventListener
 	, public Who::EventListener

@@ -32,7 +32,7 @@
 
 #include <argon2.h>
 
-class ProviderConfig
+class ProviderConfig final
 {
  private:
 	static Argon2_version SanitizeArgon2Version(unsigned long version)

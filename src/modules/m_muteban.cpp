@@ -26,7 +26,7 @@
 #include "modules/ctctags.h"
 #include "modules/extban.h"
 
-class ModuleQuietBan
+class ModuleQuietBan final
 	: public Module
 	, public CTCTags::EventListener
 {

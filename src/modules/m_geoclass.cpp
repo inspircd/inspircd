@@ -27,7 +27,7 @@ enum
 	RPL_STATSCOUNTRY = 801
 };
 
-class ModuleGeoClass
+class ModuleGeoClass final
 	: public Module
 	, public Stats::EventListener
 {

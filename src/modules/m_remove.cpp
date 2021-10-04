@@ -39,7 +39,8 @@
 
 /** Base class for /FPART and /REMOVE
  */
-class RemoveBase : public Command
+class RemoveBase
+	: public Command
 {
 	bool& supportnokicks;
 	ChanModeReference& nokicksmode;
@@ -164,7 +165,8 @@ class RemoveBase : public Command
 	}
 };
 
-class CommandRemove : public RemoveBase
+class CommandRemove final
+	: public RemoveBase
 {
  public:
 	CommandRemove(Module* Creator, bool& snk, ChanModeReference& nkm)
@@ -180,7 +182,8 @@ class CommandRemove : public RemoveBase
 	}
 };
 
-class CommandFpart : public RemoveBase
+class CommandFpart final
+	: public RemoveBase
 {
  public:
 	CommandFpart(Module* Creator, bool& snk, ChanModeReference& nkm)
@@ -196,7 +199,7 @@ class CommandFpart : public RemoveBase
 	}
 };
 
-class ModuleRemove
+class ModuleRemove final
 	: public Module
 	, public ISupport::EventListener
 {

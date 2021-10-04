@@ -35,7 +35,8 @@ enum AuthState {
 	AUTH_STATE_FAIL = 2
 };
 
-class AuthQuery : public SQL::Query
+class AuthQuery final
+	: public SQL::Query
 {
  public:
 	const std::string uid;

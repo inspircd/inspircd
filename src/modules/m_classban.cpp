@@ -21,7 +21,7 @@
 #include "inspircd.h"
 #include "modules/extban.h"
 
-class ClassExtBan
+class ClassExtBan final
 	: public ExtBan::MatchingBase
 {
  private:
@@ -49,7 +49,7 @@ class ClassExtBan
 	}
 };
 
-class ModuleClassBan
+class ModuleClassBan final
 	: public Module
 {
  private:

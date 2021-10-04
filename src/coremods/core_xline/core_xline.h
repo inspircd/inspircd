@@ -24,7 +24,7 @@
 
 #include "inspircd.h"
 
-class InsaneBan
+class InsaneBan final
 {
  public:
 	class MatcherBase
@@ -34,7 +34,8 @@ class InsaneBan
 	};
 
 	template <typename T>
-	class Matcher : public MatcherBase
+	class Matcher
+		: public MatcherBase
 	{
 	 public:
 		long Run(const std::string& mask) override
@@ -50,7 +51,8 @@ class InsaneBan
 		}
 	};
 
-	class IPHostMatcher : public Matcher<IPHostMatcher>
+	class IPHostMatcher final
+		: public Matcher<IPHostMatcher>
 	{
 	 public:
 		bool Check(User* user, const std::string& mask) const;
@@ -95,7 +97,8 @@ class CommandQline final
 	: public Command
 {
  private:
-	class NickMatcher : public InsaneBan::Matcher<NickMatcher>
+	class NickMatcher final
+		: public InsaneBan::Matcher<NickMatcher>
 	{
 	 public:
 		bool Check(User* user, const std::string& mask) const;
@@ -110,7 +113,8 @@ class CommandZline final
 	: public Command
 {
  private:
-	class IPMatcher : public InsaneBan::Matcher<IPMatcher>
+	class IPMatcher final
+		: public InsaneBan::Matcher<IPMatcher>
 	{
 	 public:
 		bool Check(User* user, const std::string& mask) const;

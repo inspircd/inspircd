@@ -24,7 +24,8 @@
 
 #include "inspircd.h"
 
-class MessageDetailsImpl : public MessageDetails
+class MessageDetailsImpl final
+	: public MessageDetails
 {
 public:
 	MessageDetailsImpl(MessageType mt, const std::string& msg, const ClientProtocol::TagMap& tags)

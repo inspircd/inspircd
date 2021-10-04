@@ -28,7 +28,8 @@ namespace
 	Module* me;
 }
 
-class LDAPOperBase : public LDAPInterface
+class LDAPOperBase
+	: public LDAPInterface
 {
  protected:
 	const std::string uid;
@@ -72,7 +73,8 @@ class LDAPOperBase : public LDAPInterface
 	}
 };
 
-class BindInterface : public LDAPOperBase
+class BindInterface final
+	: public LDAPOperBase
 {
  public:
 	BindInterface(Module* mod, const std::string& uuid, const std::string& oper, const std::string& pass)
@@ -97,7 +99,8 @@ class BindInterface : public LDAPOperBase
 	}
 };
 
-class SearchInterface : public LDAPOperBase
+class SearchInterface final
+	: public LDAPOperBase
 {
 	const std::string provider;
 
@@ -139,7 +142,8 @@ class SearchInterface : public LDAPOperBase
 	}
 };
 
-class AdminBindInterface : public LDAPInterface
+class AdminBindInterface final
+	: public LDAPInterface
 {
 	const std::string provider;
 	const std::string user;

@@ -191,7 +191,8 @@ class ModeChannelVoice final
 	}
 };
 
-class ExtBanManager : public ExtBan::Manager
+class ExtBanManager final
+	: public ExtBan::Manager
 {
  private:
 	ModeChannelBan& banmode;

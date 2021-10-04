@@ -192,7 +192,7 @@ CmdResult CommandList::Handle(User* user, const Params& parameters)
 	return CmdResult::SUCCESS;
 }
 
-class CoreModList
+class CoreModList final
 	: public Module
 	, public ISupport::EventListener
 {

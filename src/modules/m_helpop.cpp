@@ -38,7 +38,7 @@ enum
 
 typedef std::vector<std::string> HelpMessage;
 
-struct HelpTopic
+struct HelpTopic final
 {
 	// The body of the help topic.
 	const HelpMessage body;
@@ -91,7 +91,7 @@ class CommandHelpop final
 	}
 };
 
-class ModuleHelpop
+class ModuleHelpop final
 	: public Module
 	, public Whois::EventListener
 {

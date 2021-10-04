@@ -74,7 +74,8 @@ class callerid_data
 	}
 };
 
-struct CallerIDExtInfo : public ExtensionItem
+struct CallerIDExtInfo final
+	: public ExtensionItem
 {
 	CallerIDExtInfo(Module* parent)
 		: ExtensionItem(parent, "callerid_data", ExtensionItem::EXT_USER)
@@ -329,7 +330,8 @@ public:
 	}
 };
 
-class CallerIDAPIImpl : public CallerID::APIBase
+class CallerIDAPIImpl final
+	: public CallerID::APIBase
 {
  private:
 	CallerIDExtInfo& ext;
@@ -348,7 +350,7 @@ class CallerIDAPIImpl : public CallerID::APIBase
 	}
 };
 
-class ModuleCallerID
+class ModuleCallerID final
 	: public Module
 	, public CTCTags::EventListener
 	, public ISupport::EventListener

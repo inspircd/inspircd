@@ -104,7 +104,8 @@ class CommandMetadata final
 	CommandMetadata(Module* Creator) : ServerCommand(Creator, "METADATA", 2) { }
 	CmdResult Handle(User* user, Params& params) override;
 
-	class Builder : public CmdBuilder
+	class Builder final
+		: public CmdBuilder
 	{
 	 public:
 		Builder(const User* user, const std::string& key, const std::string& val);
@@ -121,7 +122,8 @@ class CommandUID final
 	CommandUID(Module* Creator) : ServerOnlyServerCommand<CommandUID>(Creator, "UID", 10) { }
 	CmdResult HandleServer(TreeServer* server, CommandBase::Params& params);
 
-	class Builder : public CmdBuilder
+	class Builder final
+		: public CmdBuilder
 	{
 	 public:
 		Builder(User* user);
@@ -135,7 +137,8 @@ class CommandOpertype final
 	CommandOpertype(Module* Creator) : UserOnlyServerCommand<CommandOpertype>(Creator, "OPERTYPE", 1) { }
 	CmdResult HandleRemote(RemoteUser* user, Params& params);
 
-	class Builder : public CmdBuilder
+	class Builder final
+		: public CmdBuilder
 	{
 	 public:
 		Builder(User* user);
@@ -166,7 +169,8 @@ class CommandFJoin final
 	CmdResult Handle(User* user, Params& params) override;
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override { return ROUTE_LOCALONLY; }
 
-	class Builder : public CmdBuilder
+	class Builder
+		: public CmdBuilder
 	{
 		/** Maximum possible Membership::Id length in decimal digits, used for determining whether a user will fit into
 		 * a message or not
@@ -207,7 +211,8 @@ class CommandFTopic final
 	CommandFTopic(Module* Creator) : ServerCommand(Creator, "FTOPIC", 4, 5) { }
 	CmdResult Handle(User* user, Params& params) override;
 
-	class Builder : public CmdBuilder
+	class Builder final
+		: public CmdBuilder
 	{
 	 public:
 		Builder(Channel* chan);
@@ -278,7 +283,8 @@ class SpanningTree::CommandAway final
 	}
 	CmdResult HandleRemote(::RemoteUser* user, Params& parameters);
 
-	class Builder : public CmdBuilder
+	class Builder final
+		: public CmdBuilder
 	{
 	 public:
 		Builder(User* user);
@@ -293,7 +299,8 @@ class CommandAddLine final
 	CommandAddLine(Module* Creator) : ServerCommand(Creator, "ADDLINE", 6, 6) { }
 	CmdResult Handle(User* user, Params& parameters) override;
 
-	class Builder : public CmdBuilder
+	class Builder final
+		: public CmdBuilder
 	{
 	 public:
 		Builder(XLine* xline, User* user = ServerInstance->FakeClient);
@@ -373,7 +380,8 @@ class SpanningTree::CommandServer final
 	CommandServer(Module* Creator) : ServerOnlyServerCommand<SpanningTree::CommandServer>(Creator, "SERVER", 3) { }
 	CmdResult HandleServer(TreeServer* server, Params& parameters);
 
-	class Builder : public CmdBuilder
+	class Builder final
+		: public CmdBuilder
 	{
 		void push_property(const char* key, const std::string& val)
 		{
@@ -415,7 +423,8 @@ class CommandSInfo final
 	CommandSInfo(Module* Creator) : ServerOnlyServerCommand<CommandSInfo>(Creator, "SINFO", 2) { }
 	CmdResult HandleServer(TreeServer* server, Params& parameters);
 
-	class Builder : public CmdBuilder
+	class Builder final
+		: public CmdBuilder
 	{
 	 public:
 		Builder(TreeServer* server, const char* type, const std::string& value);
@@ -430,7 +439,8 @@ class CommandNum final
 	CmdResult HandleServer(TreeServer* server, Params& parameters);
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 
-	class Builder : public CmdBuilder
+	class Builder final
+		: public CmdBuilder
 	{
 	 public:
 		Builder(SpanningTree::RemoteUser* target, const Numeric::Numeric& numeric);
@@ -445,7 +455,7 @@ class CommandLMode final
 	CmdResult Handle(User* user, Params& params) override;
 };
 
-class SpanningTreeCommands
+class SpanningTreeCommands final
 {
  public:
 	CommandSVSJoin svsjoin;

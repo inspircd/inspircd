@@ -35,13 +35,15 @@ namespace Cap
 
 static Cap::ManagerImpl* managerimpl;
 
-class Cap::ManagerImpl : public Cap::Manager, public ReloadModule::EventListener
+class Cap::ManagerImpl final
+	: public Cap::Manager
+	, public ReloadModule::EventListener
 {
 	/** Stores the cap state of a module being reloaded
 	 */
-	struct CapModData
+	struct CapModData final
 	{
-		struct Data
+		struct Data final
 		{
 			std::string name;
 			std::vector<std::string> users;
@@ -341,7 +343,8 @@ void Cap::ExtItem::FromInternal(Extensible* container, const std::string& value)
 	managerimpl->HandleReq(user, caplist);
 }
 
-class CapMessage : public Cap::MessageBase
+class CapMessage final
+	: public Cap::MessageBase
 {
  public:
 	CapMessage(LocalUser* user, const std::string& subcmd, const std::string& result, bool asterisk)
@@ -455,7 +458,8 @@ class CommandCap final
 	}
 };
 
-class PoisonCap : public Cap::Capability
+class PoisonCap final
+	: public Cap::Capability
 {
  public:
 	PoisonCap(Module* mod)

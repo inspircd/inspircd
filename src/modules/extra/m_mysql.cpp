@@ -90,7 +90,7 @@ class SQLConnection;
 class MySQLresult;
 class DispatcherThread;
 
-struct QueryQueueItem
+struct QueryQueueItem final
 {
 	// An SQL database which this query is executed on.
 	SQLConnection* connection;
@@ -109,7 +109,7 @@ struct QueryQueueItem
 	}
 };
 
-struct ResultQueueItem
+struct ResultQueueItem final
 {
 	// An object which handles the result of the query.
 	SQL::Query* query;
@@ -146,7 +146,8 @@ class ModuleSQL final
 	void OnUnloadModule(Module* mod) override;
 };
 
-class DispatcherThread : public SocketThread
+class DispatcherThread final
+	: public SocketThread
 {
  private:
 	ModuleSQL* const Parent;
@@ -158,7 +159,8 @@ class DispatcherThread : public SocketThread
 
 /** Represents a mysql result set
  */
-class MySQLresult : public SQL::Result
+class MySQLresult final
+	: public SQL::Result
 {
  public:
 	SQL::Error err;
@@ -267,7 +269,8 @@ class MySQLresult : public SQL::Result
 
 /** Represents a connection to a mysql database
  */
-class SQLConnection : public SQL::Provider
+class SQLConnection final
+	: public SQL::Provider
 {
  private:
 	bool EscapeString(SQL::Query* query, const std::string& in, std::string& out)

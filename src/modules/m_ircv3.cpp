@@ -24,7 +24,8 @@
 #include "modules/cap.h"
 #include "modules/ircv3.h"
 
-class AwayMessage : public ClientProtocol::Message
+class AwayMessage final
+	: public ClientProtocol::Message
 {
  public:
 	AwayMessage(User* user)

@@ -26,7 +26,7 @@
 #include "inspircd.h"
 #include "modules/ctctags.h"
 
-class ModuleRestrictMsg
+class ModuleRestrictMsg final
 	: public Module
 	, public CTCTags::EventListener
 {

@@ -195,7 +195,7 @@ class BanWatcher final
 	}
 };
 
-class ChannelMatcher
+class ChannelMatcher final
 {
 	Channel* const chan;
 

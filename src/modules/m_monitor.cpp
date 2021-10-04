@@ -36,7 +36,7 @@ namespace IRCv3
 	}
 }
 
-struct IRCv3::Monitor::Entry
+struct IRCv3::Monitor::Entry final
 {
 	WatcherList watchers;
 	std::string nick;
@@ -53,12 +53,13 @@ struct IRCv3::Monitor::Entry
 
 class IRCv3::Monitor::Manager
 {
-	struct ExtData
+	struct ExtData final
 	{
 		WatchedList list;
 	};
 
-	class ExtItem : public ExtensionItem
+	class ExtItem final
+		: public ExtensionItem
 	{
 		Manager& manager;
 
@@ -363,7 +364,7 @@ class CommandMonitor final
 	}
 };
 
-class ModuleMonitor
+class ModuleMonitor final
 	: public Module
 	, public ISupport::EventListener
 {

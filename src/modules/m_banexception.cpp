@@ -47,7 +47,7 @@ class BanException final
 	}
 };
 
-class ModuleBanException
+class ModuleBanException final
 	: public Module
 	, public ExtBan::EventListener
 	, public ISupport::EventListener

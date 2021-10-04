@@ -27,7 +27,7 @@
 #include "inspircd.h"
 #include "modules/whois.h"
 
-struct CustomTitle
+struct CustomTitle final
 {
 	const std::string name;
 	const std::string password;

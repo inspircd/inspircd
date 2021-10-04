@@ -93,7 +93,8 @@ class SQLite3Result : public SQL::Result
 	}
 };
 
-class SQLConn : public SQL::Provider
+class SQLConn final
+	: public SQL::Provider
 {
 	sqlite3* conn;
 	std::shared_ptr<ConfigTag> config;

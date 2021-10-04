@@ -38,7 +38,7 @@
 typedef std::vector<std::string> MaskList;
 
 // Encapsulates information about an ident host.
-class IdentHost
+class IdentHost final
 {
  private:
 	MaskList hostmasks;
@@ -75,7 +75,7 @@ class IdentHost
 };
 
 // Encapsulates information about a WebIRC host.
-class WebIRCHost
+class WebIRCHost final
 {
  private:
 	MaskList hostmasks;
@@ -202,7 +202,7 @@ class CommandHexIP final
 	}
 };
 
-class GatewayExtBan
+class GatewayExtBan final
 	: public ExtBan::MatchingBase
 {
  public:
@@ -314,7 +314,7 @@ class CommandWebIRC final
 	}
 };
 
-class ModuleGateway
+class ModuleGateway final
 	: public Module
 	, public WebIRC::EventListener
 	, public Whois::EventListener

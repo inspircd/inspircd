@@ -35,7 +35,7 @@
 #include "inspircd.h"
 #include <fstream>
 
-class lwbNickHandler
+class lwbNickHandler final
 {
  public:
 	static bool Call(const std::string&);

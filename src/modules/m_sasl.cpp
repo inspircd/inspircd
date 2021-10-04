@@ -44,7 +44,7 @@ enum
 
 static std::string sasl_target;
 
-class ServerTracker
+class ServerTracker final
 	: public ServerProtocol::LinkEventListener
 {
  private:
@@ -104,7 +104,8 @@ class ServerTracker
 	bool IsOnline() const { return online; }
 };
 
-class SASLCap : public Cap::Capability
+class SASLCap final
+	: public Cap::Capability
 {
  private:
 	std::string mechlist;
@@ -173,7 +174,7 @@ static ClientProtocol::EventProvider* g_protoev;
 /**
  * Tracks SASL authentication state like charybdis does. --nenolod
  */
-class SaslAuthenticator
+class SaslAuthenticator final
 {
  private:
 	std::string agent;

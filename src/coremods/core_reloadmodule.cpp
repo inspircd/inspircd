@@ -29,7 +29,8 @@
 static Events::ModuleEventProvider* reloadevprov;
 static ClientProtocol::Serializer* dummyserializer;
 
-class DummySerializer : public ClientProtocol::Serializer
+class DummySerializer final
+	: public ClientProtocol::Serializer
 {
 	bool Parse(LocalUser* user, const std::string& line, ClientProtocol::ParseOutput& parseoutput) override
 	{
@@ -72,7 +73,7 @@ class CommandReloadmodule final
 namespace ReloadModule
 {
 
-class DataKeeper
+class DataKeeper final
 {
 	/** Data we save for each mode and extension provided by the module
 	 */
@@ -665,7 +666,8 @@ void DataKeeper::DoRestoreModules()
 
 } // namespace ReloadModule
 
-class ReloadAction : public ActionBase
+class ReloadAction final
+	: public ActionBase
 {
 	Module* const mod;
 	const std::string uuid;

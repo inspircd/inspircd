@@ -160,7 +160,7 @@ static bool WriteDatabase(PermChannel& permchanmode, Module* mod, bool save_list
 	return true;
 }
 
-class ModulePermanentChannels
+class ModulePermanentChannels final
 	: public Module
 	, public Timer
 

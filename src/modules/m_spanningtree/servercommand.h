@@ -23,7 +23,8 @@
 #include "utils.h"
 #include "treeserver.h"
 
-class ProtocolException : public ModuleException
+class ProtocolException final
+	: public ModuleException
 {
  public:
 	ProtocolException(const std::string& msg)
@@ -34,7 +35,8 @@ class ProtocolException : public ModuleException
 
 /** Base class for server-to-server commands that may have a (remote) user source or server source.
  */
-class ServerCommand : public CommandBase
+class ServerCommand
+	: public CommandBase
 {
  public:
 	ServerCommand(Module* Creator, const std::string& Name, unsigned int MinPara = 0, unsigned int MaxPara = 0);
@@ -60,7 +62,8 @@ class ServerCommand : public CommandBase
  * When a server sends a command of this type and the source is a server (sid), the link is aborted.
  */
 template <class T>
-class UserOnlyServerCommand : public ServerCommand
+class UserOnlyServerCommand
+	: public ServerCommand
 {
  public:
 	UserOnlyServerCommand(Module* Creator, const std::string& Name, unsigned int MinPara = 0, unsigned int MaxPara = 0)
@@ -79,7 +82,8 @@ class UserOnlyServerCommand : public ServerCommand
  * When a server sends a command of this type and the source is a user (uuid), the link is aborted.
  */
 template <class T>
-class ServerOnlyServerCommand : public ServerCommand
+class ServerOnlyServerCommand
+	: public ServerCommand
 {
  public:
 	ServerOnlyServerCommand(Module* Creator, const std::string& Name, unsigned int MinPara = 0, unsigned int MaxPara = 0)
@@ -94,7 +98,7 @@ class ServerOnlyServerCommand : public ServerCommand
 	}
 };
 
-class ServerCommandManager
+class ServerCommandManager final
 {
 	typedef std::unordered_map<std::string, ServerCommand*> ServerCommandMap;
 	ServerCommandMap commands;

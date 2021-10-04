@@ -22,7 +22,8 @@
 
 #include "invite.h"
 
-class InviteExpireTimer : public Timer
+class InviteExpireTimer final
+	: public Timer
 {
 	Invite::Invite* const inv;
 

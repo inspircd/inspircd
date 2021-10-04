@@ -53,7 +53,8 @@
 
 namespace mbedTLS
 {
-	class Exception : public ModuleException
+	class Exception final
+		: public ModuleException
 	{
 	 public:
 		Exception(const std::string& reason)
@@ -99,7 +100,8 @@ namespace mbedTLS
 
 	typedef RAIIObj<mbedtls_entropy_context, mbedtls_entropy_init, mbedtls_entropy_free> Entropy;
 
-	class CTRDRBG : private RAIIObj<mbedtls_ctr_drbg_context, mbedtls_ctr_drbg_init, mbedtls_ctr_drbg_free>
+	class CTRDRBG final
+		: private RAIIObj<mbedtls_ctr_drbg_context, mbedtls_ctr_drbg_init, mbedtls_ctr_drbg_free>
 	{
 	 public:
 		bool Seed(Entropy& entropy)
@@ -113,7 +115,8 @@ namespace mbedTLS
 		}
 	};
 
-	class DHParams : public RAIIObj<mbedtls_dhm_context, mbedtls_dhm_init, mbedtls_dhm_free>
+	class DHParams final
+		: public RAIIObj<mbedtls_dhm_context, mbedtls_dhm_init, mbedtls_dhm_free>
 	{
 	 public:
 		void set(const std::string& dhstr)
@@ -141,7 +144,7 @@ namespace mbedTLS
 		}
 	};
 
-	class Ciphersuites
+	class Ciphersuites final
 	{
 		std::vector<int> list;
 
@@ -169,7 +172,7 @@ namespace mbedTLS
 		bool empty() const { return (list.size() <= 1); }
 	};
 
-	class Curves
+	class Curves final
 	{
 		std::vector<mbedtls_ecp_group_id> list;
 
@@ -257,7 +260,7 @@ namespace mbedTLS
 		mbedtls_x509_crt* getcerts() { return certs.get(); }
 	};
 
-	class Context
+	class Context final
 	{
 		mbedtls_ssl_config conf;
 
@@ -337,7 +340,7 @@ namespace mbedTLS
 		const mbedtls_ssl_config* GetConf() const { return &conf; }
 	};
 
-	class Hash
+	class Hash final
 	{
 		const mbedtls_md_info_t* md;
 
@@ -363,7 +366,7 @@ namespace mbedTLS
 		}
 	};
 
-	class Profile
+	class Profile final
 	{
 		/** Name of this profile
 		 */
@@ -397,7 +400,7 @@ namespace mbedTLS
 		const unsigned int outrecsize;
 
 	 public:
-		struct Config
+		struct Config final
 		{
 			const std::string name;
 
@@ -521,7 +524,8 @@ namespace mbedTLS
 	};
 }
 
-class mbedTLSIOHook : public SSLIOHook
+class mbedTLSIOHook final
+	: public SSLIOHook
 {
  private:
 	mbedtls_ssl_context sess;
@@ -816,7 +820,8 @@ class mbedTLSIOHook : public SSLIOHook
 	mbedTLS::Profile& GetProfile();
 };
 
-class mbedTLSIOHookProvider : public SSLIOHookProvider
+class mbedTLSIOHookProvider final
+	: public SSLIOHookProvider
 {
 	mbedTLS::Profile profile;
 

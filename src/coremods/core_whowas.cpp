@@ -87,7 +87,7 @@ namespace WhoWas
 		~Nick();
 	};
 
-	class Manager
+	class Manager final
 	{
 	 public:
 		struct Stats

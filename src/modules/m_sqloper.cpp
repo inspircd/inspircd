@@ -28,7 +28,8 @@
 #include "inspircd.h"
 #include "modules/sql.h"
 
-class OperQuery : public SQL::Query
+class OperQuery final
+	: public SQL::Query
 {
  public:
 	// This variable will store all the OPER blocks from the DB

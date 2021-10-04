@@ -579,7 +579,7 @@ CmdResult CommandWho::HandleLocal(LocalUser* user, const Params& parameters)
 	return CmdResult::SUCCESS;
 }
 
-class CoreModWho
+class CoreModWho final
 	: public Module
 	, public ISupport::EventListener
 {

@@ -27,7 +27,7 @@
 #include "modules/account.h"
 
 // Holds information about a <hostchange> rule.
-class HostRule
+class HostRule final
 {
  public:
 	enum HostChangeAction

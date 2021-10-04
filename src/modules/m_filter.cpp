@@ -62,7 +62,7 @@ enum FilterAction
 	FA_NONE
 };
 
-class FilterResult
+class FilterResult final
 {
  public:
 	Regex::PatternPtr regex;
@@ -186,7 +186,7 @@ class CommandFilter final
 	}
 };
 
-class ModuleFilter
+class ModuleFilter final
 	: public Module
 	, public ServerProtocol::SyncEventListener
 	, public Stats::EventListener

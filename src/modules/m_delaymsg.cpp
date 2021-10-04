@@ -50,7 +50,7 @@ class DelayMsgMode final
 	}
 };
 
-class ModuleDelayMsg
+class ModuleDelayMsg final
 	: public Module
 	, public CTCTags::EventListener
 {

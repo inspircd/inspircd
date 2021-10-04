@@ -32,7 +32,7 @@ enum
 	ERR_CANTJOINOPERSONLY = 520
 };
 
-class OperExtBan
+class OperExtBan final
 	: public ExtBan::MatchingBase
 {
  private:
@@ -60,7 +60,7 @@ class OperExtBan
 	}
 };
 
-class ModuleOperChans
+class ModuleOperChans final
 	: public Module
 {
  private:

@@ -39,7 +39,8 @@ enum
 
 /** Holds a CBAN item
  */
-class CBan : public XLine
+class CBan final
+	: public XLine
 {
 private:
 	std::string matchtext;
@@ -70,7 +71,8 @@ public:
 
 /** An XLineFactory specialized to generate cban pointers
  */
-class CBanFactory : public XLineFactory
+class CBanFactory final
+	: public XLineFactory
 {
  public:
 	CBanFactory() : XLineFactory("CBAN") { }

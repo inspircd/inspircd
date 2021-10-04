@@ -100,7 +100,8 @@ enum
  * --------------------------------------------------------------
  */
 
-class IdentRequestSocket : public EventHandler
+class IdentRequestSocket final
+	: public EventHandler
 {
  public:
 	LocalUser *user;			/* User we are attached to */

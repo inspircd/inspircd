@@ -176,7 +176,7 @@ class CommandWatch final
 	}
 };
 
-class ModuleWatch
+class ModuleWatch final
 	: public Module
 	, public Away::EventListener
 	, public ISupport::EventListener

@@ -33,7 +33,7 @@ static const char newline[] = "\r\n";
 static const char whitespace[] = " \t";
 static dynamic_reference_nocheck<HashProvider>* sha1;
 
-struct WebSocketConfig
+struct WebSocketConfig final
 {
 	enum DefaultMode
 	{
@@ -60,7 +60,8 @@ struct WebSocketConfig
 	ProxyRanges proxyranges;
 };
 
-class WebSocketHookProvider : public IOHookProvider
+class WebSocketHookProvider final
+	: public IOHookProvider
 {
  public:
 	WebSocketConfig config;
@@ -76,9 +77,10 @@ class WebSocketHookProvider : public IOHookProvider
 	}
 };
 
-class WebSocketHook : public IOHookMiddle
+class WebSocketHook final
+	: public IOHookMiddle
 {
-	class HTTPHeaderFinder
+	class HTTPHeaderFinder final
 	{
 	 private:
 		std::string::size_type bpos;

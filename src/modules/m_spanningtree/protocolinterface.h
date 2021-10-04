@@ -23,10 +23,12 @@
 
 #pragma once
 
-class SpanningTreeProtocolInterface : public ProtocolInterface
+class SpanningTreeProtocolInterface final
+	: public ProtocolInterface
 {
  public:
-	class Server : public ProtocolInterface::Server
+	class Server final
+		: public ProtocolInterface::Server
 	{
 		TreeSocket* const sock;
 

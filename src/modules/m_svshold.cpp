@@ -37,7 +37,8 @@ namespace
 
 /** Holds a SVSHold item
  */
-class SVSHold : public XLine
+class SVSHold final
+	: public XLine
 {
 public:
 	std::string nickname;
@@ -77,7 +78,8 @@ public:
 
 /** An XLineFactory specialized to generate SVSHOLD pointers
  */
-class SVSHoldFactory : public XLineFactory
+class SVSHoldFactory final
+	: public XLineFactory
 {
  public:
 	SVSHoldFactory() : XLineFactory("SVSHOLD") { }

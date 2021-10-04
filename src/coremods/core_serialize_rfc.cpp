@@ -27,7 +27,8 @@ enum
 	ERR_INPUTTOOLONG = 417
 };
 
-class RFCSerializer : public ClientProtocol::Serializer
+class RFCSerializer final
+	: public ClientProtocol::Serializer
 {
 
 	/** The maximum size of client-originated message tags in an incoming message including the `@`. */

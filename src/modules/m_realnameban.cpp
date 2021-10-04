@@ -26,7 +26,7 @@
 #include "inspircd.h"
 #include "modules/extban.h"
 
-class RealMaskExtBan
+class RealMaskExtBan final
 	: public ExtBan::MatchingBase
 {
  public:
@@ -51,7 +51,7 @@ class RealMaskExtBan
 	}
 };
 
-class RealNameExtBan
+class RealNameExtBan final
 	: public ExtBan::MatchingBase
 {
  public:
@@ -66,7 +66,7 @@ class RealNameExtBan
 	}
 };
 
-class ModuleGecosBan
+class ModuleGecosBan final
 	: public Module
 {
  private:

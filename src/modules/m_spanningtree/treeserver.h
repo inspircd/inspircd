@@ -43,7 +43,8 @@
  * TreeServer items, deleting and inserting them as they
  * are created and destroyed.
  */
-class TreeServer : public Server
+class TreeServer final
+	: public Server
 {
 	TreeServer* Parent;			/* Parent entry */
 	TreeServer* Route;			/* Route entry */

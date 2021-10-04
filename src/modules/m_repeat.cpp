@@ -69,7 +69,7 @@ class RepeatMode final
 	: public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings>>
 {
  private:
-	struct RepeatItem
+	struct RepeatItem final
 	{
 		time_t ts;
 		std::string line;
@@ -78,13 +78,13 @@ class RepeatMode final
 
 	typedef std::deque<RepeatItem> RepeatItemList;
 
-	struct MemberInfo
+	struct MemberInfo final
 	{
 		RepeatItemList ItemList;
 		unsigned int Counter = 0;
 	};
 
-	struct ModuleSettings
+	struct ModuleSettings final
 	{
 		unsigned long MaxLines = 0;
 		unsigned long MaxSecs = 0;

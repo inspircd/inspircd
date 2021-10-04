@@ -26,7 +26,7 @@
 #include "inspircd.h"
 #include "modules/isupport.h"
 
-class ModuleOperLog
+class ModuleOperLog final
 	: public Module
 {
  private:

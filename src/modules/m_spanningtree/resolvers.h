@@ -33,7 +33,8 @@
 
 /** Handle resolving of server IPs for the cache
  */
-class SecurityIPResolver : public DNS::Request
+class SecurityIPResolver final
+	: public DNS::Request
 {
  private:
 	std::shared_ptr<Link> MyLink;
@@ -52,7 +53,8 @@ class SecurityIPResolver : public DNS::Request
  * callback to OnLookupComplete or OnError when completed. Once it has completed we
  * will have an IP address which we can then use to continue our connection.
  */
-class ServernameResolver : public DNS::Request
+class ServernameResolver final
+	: public DNS::Request
 {
  private:
 	DNS::QueryType query;

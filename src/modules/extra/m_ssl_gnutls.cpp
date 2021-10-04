@@ -70,14 +70,15 @@ namespace GnuTLS
 		gnutls_rnd(GNUTLS_RND_RANDOM, buffer, len);
 	}
 
-	class Init
+	class Init final
 	{
 	 public:
 		Init() { gnutls_global_init(); }
 		~Init() { gnutls_global_deinit(); }
 	};
 
-	class Exception : public ModuleException
+	class Exception final
+		: public ModuleException
 	{
 	 public:
 		Exception(const std::string& reason)
@@ -96,7 +97,7 @@ namespace GnuTLS
 
 	/** Used to create a gnutls_datum_t* from a std::string
 	 */
-	class Datum
+	class Datum final
 	{
 		gnutls_datum_t datum;
 
@@ -110,7 +111,7 @@ namespace GnuTLS
 		const gnutls_datum_t* get() const { return &datum; }
 	};
 
-	class Hash
+	class Hash final
 	{
 		gnutls_digest_algorithm_t hash;
 
@@ -134,7 +135,7 @@ namespace GnuTLS
 		gnutls_digest_algorithm_t get() const { return hash; }
 	};
 
-	class DHParams
+	class DHParams final
 	{
 		gnutls_dh_params_t dh_params;
 
@@ -165,7 +166,7 @@ namespace GnuTLS
 	{
 		/** Ensure that the key is deinited in case the constructor of X509Key throws
 		 */
-		class RAIIKey
+		class RAIIKey final
 		{
 		 public:
 			gnutls_x509_privkey_t key;
@@ -232,7 +233,7 @@ namespace GnuTLS
 
 	class X509CRL
 	{
-		class RAIICRL
+		class RAIICRL final
 		{
 		 public:
 			gnutls_x509_crl_t crl;
@@ -259,7 +260,7 @@ namespace GnuTLS
 		gnutls_x509_crl_t& get() { return crl.crl; }
 	};
 
-	class Priority
+	class Priority final
 	{
 		gnutls_priority_t priority;
 
@@ -415,7 +416,7 @@ namespace GnuTLS
 		}
 	};
 
-	class DataReader
+	class DataReader final
 	{
 		ssize_t retval;
 #ifdef INSPIRCD_GNUTLS_HAS_RECV_PACKET
@@ -460,7 +461,7 @@ namespace GnuTLS
 		ssize_t ret() const { return retval; }
 	};
 
-	class Profile
+	class Profile final
 	{
 		/** Name of this profile
 		 */
@@ -525,7 +526,7 @@ namespace GnuTLS
 		}
 
 	 public:
-		struct Config
+		struct Config final
 		{
 			std::string name;
 
@@ -605,7 +606,8 @@ namespace GnuTLS
 	};
 }
 
-class GnuTLSIOHook : public SSLIOHook
+class GnuTLSIOHook final
+	: public SSLIOHook
 {
  private:
 	gnutls_session_t sess = nullptr;
@@ -1054,7 +1056,8 @@ int GnuTLS::X509Credentials::cert_callback(gnutls_session_t sess, const gnutls_d
 	return 0;
 }
 
-class GnuTLSIOHookProvider : public SSLIOHookProvider
+class GnuTLSIOHookProvider final
+	: public SSLIOHookProvider
 {
 	GnuTLS::Profile profile;
 

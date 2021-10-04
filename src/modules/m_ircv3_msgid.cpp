@@ -48,7 +48,7 @@ class MsgIdTag final
 	}
 };
 
-class MsgIdGenerator
+class MsgIdGenerator final
 {
 	uint64_t counter = 0;
 	std::string strid;
@@ -69,7 +69,7 @@ class MsgIdGenerator
 	}
 };
 
-class ModuleMsgId
+class ModuleMsgId final
 	: public Module
 	, public CTCTags::EventListener
 {

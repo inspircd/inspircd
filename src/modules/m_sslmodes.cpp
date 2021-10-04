@@ -40,7 +40,7 @@ enum
 	ERR_ALLMUSTSSL = 490
 };
 
-class SSLFPExtBan
+class SSLFPExtBan final
 	: public ExtBan::MatchingBase
 {
  private:
@@ -153,7 +153,7 @@ class SSLModeUser final
 	}
 };
 
-class ModuleSSLModes
+class ModuleSSLModes final
 	: public Module
 	, public CTCTags::EventListener
 {

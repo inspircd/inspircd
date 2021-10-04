@@ -35,7 +35,8 @@
 /**
  * Creates FMODE messages, used only when syncing channels
  */
-class FModeBuilder : public CmdBuilder
+class FModeBuilder final
+	: public CmdBuilder
 {
 	static const size_t maxline = 480;
 	std::string params;
@@ -84,7 +85,7 @@ class FModeBuilder : public CmdBuilder
 	}
 };
 
-struct TreeSocket::BurstState
+struct TreeSocket::BurstState final
 {
 	SpanningTreeProtocolInterface::Server server;
 	BurstState(TreeSocket* sock) : server(sock) { }

@@ -24,7 +24,7 @@
 
 namespace
 {
-class Settings
+class Settings final
 {
 	typedef insp::flat_map<std::string, unsigned int> RanksToSeeMap;
 	RanksToSeeMap rankstosee;

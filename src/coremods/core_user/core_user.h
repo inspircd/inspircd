@@ -30,7 +30,7 @@ enum
 	ERR_NOORIGIN = 409
 };
 
-class MessageWrapper
+class MessageWrapper final
 {
 	std::string prefix;
 	std::string suffix;

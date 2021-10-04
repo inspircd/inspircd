@@ -35,7 +35,7 @@
 #include "modules/invite.h"
 #include "modules/isupport.h"
 
-class ModuleOverride
+class ModuleOverride final
 	: public Module
 	, public ISupport::EventListener
 {

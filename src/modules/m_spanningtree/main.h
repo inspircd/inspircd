@@ -70,7 +70,7 @@ class Autoconnect;
 
 /** This is the main class for the spanningtree module
  */
-class ModuleSpanningTree
+class ModuleSpanningTree final
 	: public Module
 	, public Away::EventListener
 	, public Stats::EventListener

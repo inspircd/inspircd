@@ -36,7 +36,8 @@ namespace
 	std::vector<std::pair<std::string, std::string> > requiredattributes;
 }
 
-class BindInterface : public LDAPInterface
+class BindInterface
+	: public LDAPInterface
 {
 	const std::string provider;
 	const std::string uid;
@@ -206,7 +207,8 @@ class BindInterface : public LDAPInterface
 	}
 };
 
-class SearchInterface : public LDAPInterface
+class SearchInterface final
+	: public LDAPInterface
 {
 	const std::string provider;
 	const std::string uid;
@@ -259,7 +261,8 @@ class SearchInterface : public LDAPInterface
 	}
 };
 
-class AdminBindInterface : public LDAPInterface
+class AdminBindInterface final
+	: public LDAPInterface
 {
 	const std::string provider;
 	const std::string uuid;

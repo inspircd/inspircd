@@ -31,7 +31,7 @@
 #include "xline.h"
 #include <fstream>
 
-class ModuleXLineDB
+class ModuleXLineDB final
 	: public Module
 	, public Timer
 {

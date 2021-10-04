@@ -25,7 +25,8 @@
 #include "inspircd.h"
 #include "core_user.h"
 
-class IsonReplyBuilder : public Numeric::Builder<' ', true>
+class IsonReplyBuilder final
+	: public Numeric::Builder<' ', true>
 {
  public:
 	IsonReplyBuilder(LocalUser* user)

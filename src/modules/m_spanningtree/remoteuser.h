@@ -24,7 +24,8 @@ namespace SpanningTree
 	class RemoteUser;
 }
 
-class SpanningTree::RemoteUser : public ::RemoteUser
+class SpanningTree::RemoteUser final
+	: public ::RemoteUser
 {
  public:
 	RemoteUser(const std::string& uid, Server* srv);

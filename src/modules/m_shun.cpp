@@ -36,7 +36,8 @@
 
 /** An XLineFactory specialized to generate shun pointers
  */
-class ShunFactory : public XLineFactory
+class ShunFactory final
+	: public XLineFactory
 {
  public:
 	ShunFactory() : XLineFactory("SHUN") { }

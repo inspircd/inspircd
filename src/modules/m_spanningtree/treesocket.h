@@ -66,7 +66,7 @@
  */
 enum ServerState { CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED, DYING };
 
-struct CapabData
+struct CapabData final
 {
 	// A map of module names to their link data.
 	typedef std::map<std::string, std::string, irc::insensitive_swo> ModuleMap;
@@ -107,7 +107,8 @@ struct CapabData
  * type TreeSocket. During setup, the object can be found in Utils->timeoutlist;
  * after setup, MyRoot will have been created as a child of Utils->TreeRoot
  */
-class TreeSocket : public BufferedSocket
+class TreeSocket final
+	: public BufferedSocket
 {
 	struct BurstState;
 

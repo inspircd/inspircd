@@ -72,14 +72,14 @@ static const char* const helptext[] =
 	"  Your DCCALLOW list will be deleted when you leave IRC."
 };
 
-class BannedFileList
+class BannedFileList final
 {
  public:
 	std::string filemask;
 	std::string action;
 };
 
-class DCCAllow
+class DCCAllow final
 {
  public:
 	std::string nickname;
@@ -105,7 +105,8 @@ dccallowlist* dl;
 typedef std::vector<BannedFileList> bannedfilelist;
 bannedfilelist bfl;
 
-class DCCAllowExt : public SimpleExtItem<dccallowlist>
+class DCCAllowExt final
+	: public SimpleExtItem<dccallowlist>
 {
  public:
 	unsigned long maxentries;

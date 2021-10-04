@@ -23,7 +23,8 @@ class TreeServer;
 
 /** Handles PINGing servers and killing them on timeout
  */
-class PingTimer : public Timer
+class PingTimer final
+	: public Timer
 {
 	enum State
 	{

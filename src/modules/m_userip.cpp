@@ -81,7 +81,7 @@ class CommandUserip final
 	}
 };
 
-class ModuleUserIP
+class ModuleUserIP final
 	: public Module
 	, public ISupport::EventListener
 {

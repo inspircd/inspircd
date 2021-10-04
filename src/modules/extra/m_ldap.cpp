@@ -79,7 +79,8 @@ class LDAPRequest
 	virtual std::string info() = 0;
 };
 
-class LDAPBind : public LDAPRequest
+class LDAPBind final
+	: public LDAPRequest
 {
 	std::string who, pass;
 
@@ -96,7 +97,8 @@ class LDAPBind : public LDAPRequest
 	std::string info() override;
 };
 
-class LDAPSearch : public LDAPRequest
+class LDAPSearch final
+	: public LDAPRequest
 {
 	std::string base;
 	int searchscope;
@@ -116,7 +118,8 @@ class LDAPSearch : public LDAPRequest
 	std::string info() override;
 };
 
-class LDAPAdd : public LDAPRequest
+class LDAPAdd final
+	: public LDAPRequest
 {
 	std::string dn;
 	LDAPMods attributes;
@@ -134,7 +137,8 @@ class LDAPAdd : public LDAPRequest
 	std::string info() override;
 };
 
-class LDAPDel : public LDAPRequest
+class LDAPDel final
+	: public LDAPRequest
 {
 	std::string dn;
 
@@ -150,7 +154,8 @@ class LDAPDel : public LDAPRequest
 	std::string info() override;
 };
 
-class LDAPModify : public LDAPRequest
+class LDAPModify final
+	: public LDAPRequest
 {
 	std::string base;
 	LDAPMods attributes;
@@ -168,7 +173,8 @@ class LDAPModify : public LDAPRequest
 	std::string info() override;
 };
 
-class LDAPCompare : public LDAPRequest
+class LDAPCompare final
+	: public LDAPRequest
 {
 	std::string dn, attr, val;
 
@@ -186,7 +192,9 @@ class LDAPCompare : public LDAPRequest
 	std::string info() override;
 };
 
-class LDAPService : public LDAPProvider, public SocketThread
+class LDAPService final
+	: public LDAPProvider
+	, public SocketThread
 {
 	LDAP* con = nullptr;
 	std::shared_ptr<ConfigTag> config;

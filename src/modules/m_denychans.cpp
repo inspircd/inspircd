@@ -33,7 +33,7 @@ enum
 	ERR_BADCHANNEL = 926
 };
 
-struct BadChannel
+struct BadChannel final
 {
 	bool allowopers;
 	std::string name;

@@ -39,7 +39,8 @@ static void JoinChannels(LocalUser* u, const std::string& chanlist)
 	}
 }
 
-class JoinTimer : public Timer
+class JoinTimer final
+	: public Timer
 {
  private:
 	LocalUser* const user;

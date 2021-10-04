@@ -34,7 +34,8 @@
 static bool ZlineOnMatch = false;
 static bool added_zline = false;
 
-class RLine : public XLine
+class RLine final
+	: public XLine
 {
  public:
 	RLine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& regexs, Regex::EngineReference& rxfactory)
@@ -93,7 +94,8 @@ class RLine : public XLine
 
 /** An XLineFactory specialized to generate RLine* pointers
  */
-class RLineFactory : public XLineFactory
+class RLineFactory final
+	: public XLineFactory
 {
  public:
 	Regex::EngineReference& rxfactory;
@@ -194,7 +196,7 @@ class CommandRLine final
 	}
 };
 
-class ModuleRLine
+class ModuleRLine final
 	: public Module
 	, public Stats::EventListener
 {

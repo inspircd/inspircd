@@ -32,7 +32,8 @@
 #include "modules/whois.h"
 #include "modules/who.h"
 
-class SSLCertExt : public ExtensionItem
+class SSLCertExt final
+	: public ExtensionItem
 {
  public:
 	SSLCertExt(Module* parent)
@@ -114,7 +115,8 @@ class SSLCertExt : public ExtensionItem
 	}
 };
 
-class UserCertificateAPIImpl : public UserCertificateAPIBase
+class UserCertificateAPIImpl final
+	: public UserCertificateAPIBase
 {
  public:
 	BoolExtItem nosslext;
@@ -262,7 +264,7 @@ class CommandSSLInfo final
 	}
 };
 
-class ModuleSSLInfo
+class ModuleSSLInfo final
 	: public Module
 	, public WebIRC::EventListener
 	, public Whois::EventListener

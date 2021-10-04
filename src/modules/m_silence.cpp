@@ -35,7 +35,7 @@ enum
 	ERR_SILENCE = 952
 };
 
-class SilenceEntry
+class SilenceEntry final
 {
  public:
 	enum SilenceFlags
@@ -184,7 +184,8 @@ class SilenceEntry
 
 typedef insp::flat_set<SilenceEntry> SilenceList;
 
-class SilenceExtItem : public SimpleExtItem<SilenceList>
+class SilenceExtItem final
+	: public SimpleExtItem<SilenceList>
 {
  public:
 	unsigned long maxsilence;
@@ -262,7 +263,8 @@ class SilenceExtItem : public SimpleExtItem<SilenceList>
 	}
 };
 
-class SilenceMessage : public ClientProtocol::Message
+class SilenceMessage final
+	: public ClientProtocol::Message
 {
  public:
 	SilenceMessage(const std::string& mask, const std::string& flags)
@@ -389,7 +391,7 @@ class CommandSilence final
 	}
 };
 
-class ModuleSilence
+class ModuleSilence final
 	: public Module
 	, public CTCTags::EventListener
 	, public ISupport::EventListener
