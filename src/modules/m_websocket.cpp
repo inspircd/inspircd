@@ -415,9 +415,11 @@ class WebSocketHook : public IOHookMiddle
 		HTTPHeaderFinder protocolheader;
 		if (protocolheader.Find(recvq, "Sec-WebSocket-Protocol:", 23, reqend))
 		{
-			irc::spacesepstream protostream(protocolheader.ExtractValue(recvq));
+			irc::commasepstream protostream(protocolheader.ExtractValue(recvq));
 			for (std::string proto; protostream.GetToken(proto); )
 			{
+				proto.erase(std::remove_if(proto.begin(), proto.end(), ::isspace), proto.end());
+
 				bool is_binary = stdalgo::string::equalsci(proto, "binary.inspircd.org");
 				bool is_text = stdalgo::string::equalsci(proto, "text.inspircd.org");
 
