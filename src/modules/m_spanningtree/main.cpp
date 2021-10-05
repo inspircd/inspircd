@@ -706,7 +706,7 @@ namespace
 				buffer << '=' << linkstring;
 
 			const std::string compatlinkstring = Utils->BuildLinkString(PROTO_INSPIRCD_3, mod);
-			if (!linkstring.empty())
+			if (!compatlinkstring.empty())
 				compatbuffer << '=' << compatlinkstring;
 		}
 
