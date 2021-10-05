@@ -58,7 +58,7 @@
 #if defined __GNUC__ && defined LIBRESSL_VERSION_NUMBER
 # undef OPENSSL_VERSION_NUMBER
 # define OPENSSL_VERSION_NUMBER 0x10000000L
-# warning LibreSSL support will be discontinued in the future. Consider using the ssl_gnutls or ssl_mbedtls modules instead.
+# warning LibreSSL support will be removed in v4. Consider using the ssl_gnutls or ssl_mbedtls modules instead if you can not use OpenSSL.
 #endif
 
 // Fix warnings about the use of `long long` on C++03.
