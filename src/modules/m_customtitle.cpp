@@ -154,10 +154,8 @@ class ModuleCustomTitle : public Module, public Whois::LineEventListener
 		{
 			/* Insert our numeric before 312 */
 			const std::string* ctitle = cmd.ctitle.get(whois.GetTarget());
-			if (ctitle)
-			{
-				whois.SendLine(RPL_WHOISSPECIAL, ctitle);
-			}
+			if (ctitle && !ctitle->empty())
+				whois.SendLine(RPL_WHOISSPECIAL, *ctitle);
 		}
 		/* Don't block anything */
 		return MOD_RES_PASSTHRU;
