@@ -68,7 +68,7 @@ class ModuleOpModerated final
 
  public:
 	ModuleOpModerated()
-		: Module(VF_OPTCOMMON, "Implements opmoderated channel mode +U (non-voiced messages sent to ops) and extban 'u'.")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Implements opmoderated channel mode +U (non-voiced messages sent to ops) and extban 'u'.")
 		, CTCTags::EventListener(this)
 		, exemptionprov(this)
 		, extban(this, "opmoderated", 'u')
