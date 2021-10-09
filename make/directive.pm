@@ -27,6 +27,7 @@ use File::Basename        qw(dirname);
 use File::Spec::Functions qw(catdir);
 use Exporter              qw(import);
 
+use make::common;
 use make::configure;
 use make::console;
 
@@ -123,11 +124,12 @@ sub __error {
 			push @message, " * $author";
 		}
 	} else {
+		my %version = get_version();
 		push @message, 'If you believe this error to be a bug then you can file a bug report';
 		push @message, 'at https://github.com/inspircd/inspircd/issues';
 		push @message, '';
 		push @message, 'You can also refer to the documentation page for this module at';
-		push @message, "https://docs.inspircd.org/3/modules/${\module_shrink $file}";
+		push @message, "https://docs.inspircd.org/$version{MAJOR}/modules/${\module_shrink $file}";
 	}
 	push @message, '';
 
