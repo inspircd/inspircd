@@ -33,24 +33,32 @@ use make::console;
 use constant DIRECTIVE_ERROR_PIPE => $ENV{INSPIRCD_VERBOSE} ? '' : '2>/dev/null';
 use constant VENDOR_DIRECTORY     => catdir(dirname(dirname(__FILE__)), 'vendor');
 
-our @EXPORT = qw(get_directive
-                 execute_functions);
+our @EXPORT = qw(
+	get_directives
+	get_directive
+	execute_functions
+);
 
-sub get_directive($$;$)
-{
-	my ($file, $property, $default) = @_;
-	open(my $fh, $file) or return $default;
+sub get_directives($$) {
+	my ($file, $property) = @_;
+	open(my $fh, $file) or return ();
 
-	my $value = '';
+	my @values;
 	while (<$fh>) {
 		if ($_ =~ /^\/\* \$(\S+): (.+) \*\/$/ || $_ =~ /^\/\/\/ \$(\S+): (.+)/) {
 			next unless $1 eq $property;
-			$value .= ' ' . execute_functions($file, $1, $2);
+			push @values, execute_functions($file, $1, $2);
 		}
 	}
 	close $fh;
+	return @values;
+}
 
-	# Strip all extraneous whitespace.
+sub get_directive($$;$) {
+	my ($file, $property, $default) = @_;
+	my @values = get_directives($file, $property);
+
+	my $value = join ' ', @values;
 	$value =~ s/^\s+|\s+$//g;
 	return $value || $default;
 }
@@ -107,14 +115,11 @@ sub __error {
 	# If we have author information then tell the user to report the bug
 	# to them. Otherwise, assume it is a bundled module and tell the user
 	# to report it to the InspIRCd issue tracker.
-	my $author = get_directive($file, 'ModAuthor');
-	if (defined $author) {
+	my @authors = get_directives($file, 'ModAuthor');
+	if (@authors) {
 		push @message, 'If you believe this error to be a bug then you can try to contact the';
-		push @message, 'author of this module:';
-		my $author_mail = get_directive($file, 'ModAuthorMail');
-		if (defined $author_mail) {
-			push @message, " * $author <$author_mail>";
-		} else {
+		push @message, "author${$#authors ? \'s' : \''} of this module:";
+		for my $author (@authors) {
 			push @message, " * $author";
 		}
 	} else {
