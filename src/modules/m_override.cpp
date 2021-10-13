@@ -111,7 +111,8 @@ class ModuleOverride : public Module
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
-		tokens["OVERRIDE"];
+		if (UmodeEnabled)
+			tokens["OVERRIDE"] = ConvToStr(ou.GetModeChar());
 	}
 
 	bool CanOverride(User* source, const char* token)
