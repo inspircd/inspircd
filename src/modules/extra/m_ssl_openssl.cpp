@@ -589,17 +589,8 @@ class OpenSSLIOHook final
 			certinfo->trusted = false;
 		}
 
-		char buf[512];
-		X509_NAME_oneline(X509_get_subject_name(cert), buf, sizeof(buf));
-		certinfo->dn = buf;
-		// Make sure there are no chars in the string that we consider invalid
-		if (certinfo->dn.find_first_of("\r\n") != std::string::npos)
-			certinfo->dn.clear();
-
-		X509_NAME_oneline(X509_get_issuer_name(cert), buf, sizeof(buf));
-		certinfo->issuer = buf;
-		if (certinfo->issuer.find_first_of("\r\n") != std::string::npos)
-			certinfo->issuer.clear();
+		GetDNString(X509_get_subject_name(cert), certinfo->dn);
+		GetDNString(X509_get_issuer_name(cert), certinfo->issuer);
 
 		if (!X509_digest(cert, GetProfile().GetDigest(), md, &n))
 		{
@@ -616,6 +607,16 @@ class OpenSSLIOHook final
 		}
 
 		X509_free(cert);
+	}
+
+	static void GetDNString(const X509_NAME* x509name, std::string& out)
+	{
+		char buf[512];
+		X509_NAME_oneline(x509name, buf, sizeof(buf));
+
+		out.assign(buf);
+		for (size_t pos = 0; ((pos = out.find_first_of("\r\n", pos)) != std::string::npos); )
+			out[pos] = ' ';
 	}
 
 	void SSLInfoCallback(int where, int rc)

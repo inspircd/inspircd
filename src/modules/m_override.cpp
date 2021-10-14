@@ -102,7 +102,7 @@ class ModuleOverride final
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
-		tokens["OVERRIDE"];
+		tokens["OVERRIDE"] = ConvToStr(ou.GetModeChar());
 	}
 
 	bool CanOverride(User* source, const char* token)
