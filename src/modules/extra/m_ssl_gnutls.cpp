@@ -839,21 +839,11 @@ class GnuTLSIOHook : public SSLIOHook
 		}
 
 		if (gnutls_x509_crt_get_dn(cert, buffer, &buffer_size) == 0)
-		{
-			// Make sure there are no chars in the string that we consider invalid.
-			certinfo->dn = buffer;
-			if (certinfo->dn.find_first_of("\r\n") != std::string::npos)
-				certinfo->dn.clear();
-		}
+			ProcessDNString(buffer, buffer_size, certinfo->dn);
 
 		buffer_size = sizeof(buffer);
 		if (gnutls_x509_crt_get_issuer_dn(cert, buffer, &buffer_size) == 0)
-		{
-			// Make sure there are no chars in the string that we consider invalid.
-			certinfo->issuer = buffer;
-			if (certinfo->issuer.find_first_of("\r\n") != std::string::npos)
-				certinfo->issuer.clear();
-		}
+			ProcessDNString(buffer, buffer_size, certinfo->issuer);
 
 		buffer_size = sizeof(buffer);
 		if ((ret = gnutls_x509_crt_get_fingerprint(cert, GetProfile().GetHash(), buffer, &buffer_size)) < 0)
@@ -874,6 +864,13 @@ class GnuTLSIOHook : public SSLIOHook
 
 info_done_dealloc:
 		gnutls_x509_crt_deinit(cert);
+	}
+
+	static void ProcessDNString(const char* buffer, size_t buffer_size, std::string& out)
+	{
+		out.assign(buffer, buffer_size);
+		for (size_t pos = 0; ((pos = out.find_first_of("\r\n", pos)) != std::string::npos); )
+			out[pos] = ' ';
 	}
 
 	// Returns 1 if application I/O should proceed, 0 if it must wait for the underlying protocol to progress, -1 on fatal error
