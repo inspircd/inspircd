@@ -649,6 +649,8 @@ class mbedTLSIOHook : public SSLIOHook
 			return;
 
 		out.assign(buf, ret);
+		for (size_t pos = 0; ((pos = out.find_first_of("\r\n", pos)) != std::string::npos); )
+			out[pos] = ' ';
 	}
 
 	static int Pull(void* userptr, unsigned char* buffer, size_t size)
