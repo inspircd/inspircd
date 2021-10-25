@@ -163,7 +163,7 @@ class CommandTagMsg : public Command
 			{
 				// The target is a user on a specific server (e.g. jto@tolsun.oulu.fi).
 				target = ServerInstance->FindNickOnly(parameters[0].substr(0, targetserver - parameters[0].c_str()));
-				if (target && strcasecmp(target->server->GetName().c_str(), targetserver + 1))
+				if (target && strcasecmp(target->server->GetPublicName().c_str(), targetserver + 1))
 					target = NULL;
 			}
 			else
