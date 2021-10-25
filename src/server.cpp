@@ -162,6 +162,13 @@ std::string UIDGenerator::GetUID()
 	return current_uid;
 }
 
+const std::string& Server::GetPublicName() const
+{
+	if (!ServerInstance->Config->HideServer.empty())
+		return ServerInstance->Config->HideServer;
+	return GetName();
+}
+
 void ISupportManager::AppendValue(std::string& buffer, const std::string& value)
 {
 	// If this token has no value then we have nothing to do.

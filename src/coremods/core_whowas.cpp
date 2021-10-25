@@ -394,7 +394,7 @@ WhoWas::Entry::Entry(User* user)
 	: host(user->GetRealHost())
 	, dhost(user->GetDisplayedHost())
 	, ident(user->ident)
-	, server(user->server->GetName())
+	, server(user->server->GetPublicName())
 	, real(user->GetRealName())
 	, signon(user->signon)
 {
