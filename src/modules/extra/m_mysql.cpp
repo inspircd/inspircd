@@ -40,11 +40,18 @@
 # pragma GCC diagnostic push
 #endif
 
-// Fix warnings about the use of `long long` on C++03.
+// Fix warnings about the use of commas at end of enumerator lists and long long
+// on C++03.
 #if defined __clang__
+# pragma clang diagnostic ignored "-Wc++11-extensions"
 # pragma clang diagnostic ignored "-Wc++11-long-long"
 #elif defined __GNUC__
 # pragma GCC diagnostic ignored "-Wlong-long"
+# if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 8))
+#  pragma GCC diagnostic ignored "-Wpedantic"
+# else
+#  pragma GCC diagnostic ignored "-pedantic"
+# endif
 #endif
 
 #include "inspircd.h"
