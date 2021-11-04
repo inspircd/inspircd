@@ -1,7 +1,9 @@
 name: macOS CI
 on:
-  - pull_request
-  - push
+  pull_request:
+  push:
+  schedule:
+    - cron: '0 0 * * 0'
 jobs:
   build:
     runs-on: macos-latest
