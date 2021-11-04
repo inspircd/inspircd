@@ -32,6 +32,7 @@ use v5.10.0;
 use strict;
 use warnings FATAL => qw(all);
 
+use Config                qw(%Config);
 use Cwd                   qw(getcwd);
 use File::Basename        qw(basename);
 use File::Copy            ();
@@ -143,7 +144,8 @@ our $interactive = !(
 );
 
 my %version = get_version $opt_distribution_label;
-say console_format "<|BOLD Configuring InspIRCd $version{FULL} on $^O.|>";
+chomp(my $platform = `uname -mrs 2>/dev/null` || "$Config{osname} $Config{osvers} $Config{archname}");
+say console_format "Configuring <|GREEN InspIRCd $version{FULL}|> on <|GREEN $platform|>.";
 
 my %config;
 if ($interactive) {
