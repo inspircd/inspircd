@@ -27,4 +27,4 @@ jobs:
           - g++
         standard:
           - gnu++98
-          - c++14
+          - c++17
