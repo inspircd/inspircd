@@ -68,8 +68,12 @@
 # pragma GCC diagnostic pop
 #endif
 
-// Fix warnings about using std::auto_ptr on C++11 or newer.
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+// C++98 compilers can't use shared_ptr and C++17 compilers can't use auto_ptr.
+#if defined _LIBCPP_VERSION || defined _WIN32 || __cplusplus >= 201103L
+# define SMART_PTR std::shared_ptr
+#else
+# define SMART_PTR std::auto_ptr
+#endif
 
 #ifndef GNUTLS_VERSION_NUMBER
 #define GNUTLS_VERSION_NUMBER LIBGNUTLS_VERSION_NUMBER
@@ -227,9 +231,9 @@ namespace GnuTLS
 
 	 public:
 		/** Import */
-		static std::auto_ptr<DHParams> Import(const std::string& dhstr)
+		static SMART_PTR<DHParams> Import(const std::string& dhstr)
 		{
-			std::auto_ptr<DHParams> dh(new DHParams);
+			SMART_PTR<DHParams> dh(new DHParams);
 			int ret = gnutls_dh_params_import_pkcs3(dh->dh_params, Datum(dhstr).get(), GNUTLS_X509_FMT_PEM);
 			ThrowOnError(ret, "Unable to import DH params");
 			return dh;
@@ -441,7 +445,7 @@ namespace GnuTLS
 	{
 		/** DH parameters associated with these credentials
 		 */
-		std::auto_ptr<DHParams> dh;
+		SMART_PTR<DHParams> dh;
 
 	 protected:
 		gnutls_certificate_credentials_t cred;
@@ -466,7 +470,7 @@ namespace GnuTLS
 
 		/** Set the given DH parameters to be used with these credentials
 		 */
-		void SetDH(std::auto_ptr<DHParams>& DH)
+		void SetDH(SMART_PTR<DHParams>& DH)
 		{
 			dh = DH;
 			gnutls_certificate_set_dh_params(cred, dh->get());
@@ -485,11 +489,11 @@ namespace GnuTLS
 
 		/** Trusted CA, may be NULL
 		 */
-		std::auto_ptr<X509CertList> trustedca;
+		SMART_PTR<X509CertList> trustedca;
 
 		/** Certificate revocation list, may be NULL
 		 */
-		std::auto_ptr<X509CRL> crl;
+		SMART_PTR<X509CRL> crl;
 
 		static int cert_callback(gnutls_session_t session, const gnutls_datum_t* req_ca_rdn, int nreqs, const gnutls_pk_algorithm_t* sign_algos, int sign_algos_length, cert_cb_last_param_type* st);
 
@@ -512,7 +516,7 @@ namespace GnuTLS
 		/** Sets the trusted CA and the certificate revocation list
 		 * to use when verifying certificates
 		 */
-		void SetCA(std::auto_ptr<X509CertList>& certlist, std::auto_ptr<X509CRL>& CRL)
+		void SetCA(SMART_PTR<X509CertList>& certlist, SMART_PTR<X509CRL>& CRL)
 		{
 			// Do nothing if certlist is NULL
 			if (certlist.get())
@@ -646,12 +650,12 @@ namespace GnuTLS
 		{
 			std::string name;
 
-			std::auto_ptr<X509CertList> ca;
-			std::auto_ptr<X509CRL> crl;
+			SMART_PTR<X509CertList> ca;
+			SMART_PTR<X509CRL> crl;
 
 			std::string certstr;
 			std::string keystr;
-			std::auto_ptr<DHParams> dh;
+			SMART_PTR<DHParams> dh;
 
 			std::string priostr;
 			unsigned int mindh;
