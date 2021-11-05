@@ -36,17 +36,10 @@
 /// $PackageInfo: require_system("debian") libmysqlclient-dev
 /// $PackageInfo: require_system("ubuntu") libmysqlclient-dev
 
-#ifdef __GNUC__
-# pragma GCC diagnostic push
-#endif
 
 #include "inspircd.h"
 #include <mysql.h>
 #include "modules/sql.h"
-
-#ifdef __GNUC__
-# pragma GCC diagnostic pop
-#endif
 
 #ifdef _WIN32
 # pragma comment(lib, "mysqlclient.lib")

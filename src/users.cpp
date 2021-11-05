@@ -1208,14 +1208,12 @@ void User::WriteNotice(const std::string& text)
 
 const std::string& FakeUser::GetFullHost()
 {
-	if (!ServerInstance->Config->HideServer.empty())
-		return ServerInstance->Config->HideServer;
-	return server->GetName();
+	return server->GetPublicName();
 }
 
 const std::string& FakeUser::GetFullRealHost()
 {
-	return GetFullHost();
+	return server->GetPublicName();
 }
 
 ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::vector<std::string>& masks)

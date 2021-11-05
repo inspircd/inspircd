@@ -162,3 +162,10 @@ std::string UIDGenerator::GetUID()
 
 	return current_uid;
 }
+
+const std::string& Server::GetPublicName() const
+{
+	if (!ServerInstance->Config->HideServer.empty())
+		return ServerInstance->Config->HideServer;
+	return GetName();
+}

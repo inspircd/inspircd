@@ -63,6 +63,9 @@ class CoreExport Server : public Cullable
 	 */
 	const std::string& GetName() const { return name; }
 
+	/** Returns the public name of this server respecting <security:hideserver> if set. */
+	const std::string& GetPublicName() const;
+
 	/** Returns the description of this server
 	 * @return The description of this server
 	 */

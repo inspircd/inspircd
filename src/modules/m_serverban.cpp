@@ -37,7 +37,7 @@ class ServerExtBan final
 
 	bool IsMatch(User* user, Channel* channel, const std::string& text) override
 	{
-		return InspIRCd::Match(user->server->GetName(), text);
+		return InspIRCd::Match(user->server->GetPublicName(), text);
 	}
 };
 

@@ -101,7 +101,7 @@ class CoreModInfo final
 		, cmdversion(this, isupport)
 		, numeric004(RPL_MYINFO)
 	{
-		numeric004.push(ServerInstance->Config->ServerName);
+		numeric004.push(ServerInstance->Config->GetServerName());
 		numeric004.push(INSPIRCD_BRANCH);
 	}
 

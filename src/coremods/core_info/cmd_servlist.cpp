@@ -51,7 +51,7 @@ CmdResult CommandServList::HandleLocal(LocalUser* user, const Params& parameters
 		Numeric::Numeric numeric(RPL_SERVLIST);
 		numeric
 			.push(serviceuser->nick)
-			.push(serviceuser->server->GetName())
+			.push(serviceuser->server->GetPublicName())
 			.push("*")
 			.push(serviceuser->IsOper() ? serviceuser->oper->name : "*")
 			.push(0)
