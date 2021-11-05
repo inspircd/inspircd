@@ -83,7 +83,7 @@ void PingTimer::SetState(State newstate)
 	// If state == PS_IDLE, do not set the timer, see above why
 }
 
-bool PingTimer::Tick(time_t currtime)
+bool PingTimer::Tick()
 {
 	if (server->IsDead())
 		return false;

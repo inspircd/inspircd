@@ -46,22 +46,23 @@ Timer::~Timer()
 	ServerInstance->Timers.DelTimer(this);
 }
 
-void TimerManager::TickTimers(time_t TIME)
+void TimerManager::TickTimers()
 {
+	const time_t now = ServerInstance->Time();
 	for (TimerMap::iterator i = Timers.begin(); i != Timers.end(); )
 	{
 		Timer* t = i->second;
-		if (t->GetTrigger() > TIME)
+		if (t->GetTrigger() > now)
 			break;
 
 		Timers.erase(i++);
 
-		if (!t->Tick(TIME))
+		if (!t->Tick())
 			continue;
 
 		if (t->GetRepeat())
 		{
-			t->SetTrigger(TIME + t->GetInterval());
+			t->SetTrigger(now + t->GetInterval());
 			AddTimer(t);
 		}
 	}

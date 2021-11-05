@@ -645,7 +645,7 @@ void InspIRCd::Run()
 			if ((TIME.tv_sec % 3600) == 0)
 				FOREACH_MOD(OnGarbageCollect, ());
 
-			Timers.TickTimers(TIME.tv_sec);
+			Timers.TickTimers();
 			Users.DoBackgroundUserStuff();
 
 			if ((TIME.tv_sec % 5) == 0)

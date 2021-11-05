@@ -86,10 +86,9 @@ class CoreExport Timer
 	/** Called when the timer ticks.
 	 * You should override this method with some useful code to
 	 * handle the tick event.
-	 * @param TIME The current time.
 	 * @return True if the Timer object is still valid, false if it was destructed.
 	 */
-	virtual bool Tick(time_t TIME) = 0;
+	virtual bool Tick() = 0;
 
 	/** Returns true if this timer is set to repeat
 	 */
@@ -130,9 +129,8 @@ class CoreExport TimerManager
 
  public:
 	/** Tick all pending Timers
-	 * @param TIME the current system time
 	 */
-	void TickTimers(time_t TIME);
+	void TickTimers();
 
 	/** Add an Timer
 	 * @param T an Timer derived class to add

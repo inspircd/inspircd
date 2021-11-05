@@ -55,7 +55,7 @@ class JoinTimer final
 		ServerInstance->Timers.AddTimer(this);
 	}
 
-	bool Tick(time_t time) override
+	bool Tick() override
 	{
 		if (user->chans.empty())
 			JoinChannels(user, channels);

@@ -374,7 +374,7 @@ void StreamSocket::WriteData(const std::string &data)
 	SocketEngine::ChangeEventMask(this, FD_ADD_TRIAL_WRITE);
 }
 
-bool SocketTimeout::Tick(time_t)
+bool SocketTimeout::Tick()
 {
 	ServerInstance->Logs.Log("SOCKET", LOG_DEBUG, "SocketTimeout::Tick");
 

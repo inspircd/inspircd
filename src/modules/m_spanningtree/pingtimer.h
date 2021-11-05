@@ -62,9 +62,8 @@ class PingTimer final
 
 	/** Called by the TimerManager when the timer expires
 	 * @param currtime Time now
-	 * @return Always false, we reschedule ourselves instead
 	 */
-	bool Tick(time_t currtime) override;
+	bool Tick() override;
 
  public:
 	/** Construct the timer. This doesn't schedule the timer.

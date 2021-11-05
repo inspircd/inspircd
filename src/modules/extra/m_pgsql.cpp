@@ -82,7 +82,7 @@ class ReconnectTimer final
 	ReconnectTimer(ModulePgSQL* m) : Timer(5, false), mod(m)
 	{
 	}
-	bool Tick(time_t TIME) override;
+	bool Tick() override;
 };
 
 struct QueueItem final
@@ -618,7 +618,7 @@ class ModulePgSQL final
 	}
 };
 
-bool ReconnectTimer::Tick(time_t time)
+bool ReconnectTimer::Tick()
 {
 	mod->retimer = NULL;
 	mod->ReadConf();

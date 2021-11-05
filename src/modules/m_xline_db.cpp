@@ -85,7 +85,7 @@ class ModuleXLineDB final
 		OnAddLine(source, line);
 	}
 
-	bool Tick(time_t) override
+	bool Tick() override
 	{
 		if (dirty)
 		{

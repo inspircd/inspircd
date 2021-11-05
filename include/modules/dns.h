@@ -219,7 +219,7 @@ namespace DNS
 		/** Used to time out the query, calls OnError and asks the TimerManager
 		 * to delete this request
 		 */
-		bool Tick(time_t now) override
+		bool Tick() override
 		{
 			Query rr(this->question);
 			rr.error = ERROR_TIMEDOUT;

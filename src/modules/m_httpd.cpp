@@ -80,7 +80,7 @@ class HttpServerSocket final
 	bool waitingcull = false;
 	bool messagecomplete = false;
 
-	bool Tick(time_t currtime) override
+	bool Tick() override
 	{
 		if (!messagecomplete)
 		{

@@ -274,7 +274,7 @@ public:
 			dirty = true;
 	}
 
-	bool Tick(time_t) override
+	bool Tick() override
 	{
 		if (dirty)
 			WriteDatabase(p, this, save_listmodes);

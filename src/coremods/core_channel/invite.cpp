@@ -27,7 +27,7 @@ class InviteExpireTimer final
 {
 	Invite::Invite* const inv;
 
-	bool Tick(time_t currtime) override;
+	bool Tick() override;
 
  public:
 	InviteExpireTimer(Invite::Invite* invite, time_t timeout);
@@ -203,7 +203,7 @@ InviteExpireTimer::InviteExpireTimer(Invite::Invite* invite, time_t timeout)
 {
 }
 
-bool InviteExpireTimer::Tick(time_t currtime)
+bool InviteExpireTimer::Tick()
 {
 	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "InviteExpireTimer::Tick(): expired %p", static_cast<void*>(inv));
 	apiimpl->Destruct(inv);

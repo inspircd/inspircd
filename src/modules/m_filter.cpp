@@ -231,7 +231,7 @@ class ModuleFilter final
 	ModResult OnStats(Stats::Context& stats) override;
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override;
 	void OnUnloadModule(Module* mod) override;
-	bool Tick(time_t) override;
+	bool Tick() override;
 	bool AppliesToMe(User* user, const FilterResult& filter, int flags);
 	void ReadFilters();
 	static bool StringToFilterAction(const std::string& str, FilterAction& fa);
@@ -929,7 +929,7 @@ void ModuleFilter::OnUnloadModule(Module* mod)
 	}
 }
 
-bool ModuleFilter::Tick(time_t)
+bool ModuleFilter::Tick()
 {
 		if (!dirty) // No need to write.
 			return true;

@@ -104,7 +104,7 @@ class CoreExport SocketTimeout : public Timer
 
 	/** Handle tick event
 	 */
-	bool Tick(time_t now) override;
+	bool Tick() override;
 };
 
 /**

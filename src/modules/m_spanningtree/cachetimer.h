@@ -31,5 +31,5 @@ class CacheRefreshTimer final
 {
  public:
 	CacheRefreshTimer();
-	bool Tick(time_t TIME) override;
+	bool Tick() override;
 };

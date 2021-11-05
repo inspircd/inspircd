@@ -385,10 +385,10 @@ class MyManager final
 	 */
 	static const unsigned int MAX_CACHE_SIZE = 1000;
 
-	static bool IsExpired(const Query& record, time_t now = ServerInstance->Time())
+	static bool IsExpired(const Query& record)
 	{
 		const ResourceRecord& req = record.answers[0];
-		return (req.created + static_cast<time_t>(req.ttl) < now);
+		return (req.created + static_cast<time_t>(req.ttl) < ServerInstance->Time());
 	}
 
 	/** Check the DNS cache to see if request can be handled by a cached result
@@ -737,13 +737,13 @@ class MyManager final
 		delete request;
 	}
 
-	bool Tick(time_t now) override
+	bool Tick() override
 	{
 		unsigned long expired = 0;
 		for (cache_map::iterator it = this->cache.begin(); it != this->cache.end(); )
 		{
 			const Query& query = it->second;
-			if (IsExpired(query, now))
+			if (IsExpired(query))
 			{
 				expired++;
 				this->cache.erase(it++);

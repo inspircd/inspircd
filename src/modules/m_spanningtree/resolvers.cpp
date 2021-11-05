@@ -154,7 +154,7 @@ CacheRefreshTimer::CacheRefreshTimer()
 {
 }
 
-bool CacheRefreshTimer::Tick(time_t TIME)
+bool CacheRefreshTimer::Tick()
 {
 	Utils->RefreshIPCache();
 	return true;
