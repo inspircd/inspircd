@@ -82,14 +82,21 @@ class WebIRCHost final
 	std::string fingerprint;
 	std::string password;
 	std::string passhash;
+	TokenList trustedflags;
 
  public:
-	WebIRCHost(const MaskList& masks, const std::string& fp, const std::string& pass, const std::string& hash)
+	WebIRCHost(const MaskList& masks, const std::string& fp, const std::string& pass, const std::string& hash, const std::string& flags)
 		: hostmasks(masks)
 		, fingerprint(fp)
 		, password(pass)
 		, passhash(hash)
 	{
+		trustedflags.AddList(flags);
+	}
+
+	bool IsFlagTrusted(const std::string& flag) const
+	{
+		return trustedflags.Contains(flag);
 	}
 
 	bool Matches(LocalUser* user, const std::string& pass, UserCertificateAPI& sslapi) const
@@ -279,6 +286,9 @@ class CommandWebIRC final
 			const bool hasflags = (parameters.size() > 4);
 			if (hasflags)
 			{
+				std::string flagname;
+				std::string flagvalue;
+
 				// Parse the flags.
 				irc::spacesepstream flagstream(parameters[4]);
 				for (std::string flag; flagstream.GetToken(flag); )
@@ -287,14 +297,19 @@ class CommandWebIRC final
 					const size_t separator = flag.find('=');
 					if (separator == std::string::npos)
 					{
-						flags[flag];
-						continue;
+						// It does not; just use the flag.
+						flagname = flag;
+						flagvalue.clear();
+					}
+					else
+					{
+						// It does; extract the value.
+						flagname = flag.substr(0, separator);
+						flagvalue = flag.substr(separator + 1);
 					}
 
-					// The flag has a value!
-					const std::string key = flag.substr(0, separator);
-					const std::string value = flag.substr(separator + 1);
-					flags[key] = value;
+					if (host.IsFlagTrusted(flagname))
+						flags[flagname] = flagvalue;
 				}
 			}
 
@@ -369,6 +384,7 @@ class ModuleGateway final
 				const std::string fingerprint = tag->getString("fingerprint");
 				const std::string password = tag->getString("password");
 				const std::string passwordhash = tag->getString("hash", "plaintext", 1);
+				const std::string trustedflags = tag->getString("trustedflags", "*", 1);
 
 				// WebIRC blocks require a password.
 				if (fingerprint.empty() && password.empty())
@@ -380,7 +396,7 @@ class ModuleGateway final
 						tag->name.c_str(), tag->source.str().c_str());
 				}
 
-				webirchosts.emplace_back(masks, fingerprint, password, passwordhash);
+				webirchosts.emplace_back(masks, fingerprint, password, passwordhash, trustedflags);
 			}
 			else
 			{

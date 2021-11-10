@@ -272,6 +272,7 @@ class ModuleSSLInfo final
 {
  private:
 	CommandSSLInfo cmd;
+	std::string hash;
 
 	bool MatchFP(ssl_cert* const cert, const std::string& fp) const
 	{
@@ -292,6 +293,7 @@ class ModuleSSLInfo final
 	{
 		auto tag = ServerInstance->Config->ConfValue("sslinfo");
 		cmd.operonlyfp = tag->getBool("operonly");
+		hash = tag->getString("hash");
 	}
 
 	void OnWhois(Whois::Context& whois) override
@@ -443,11 +445,29 @@ class ModuleSSLInfo final
 
 		// Create a fake ssl_cert for the user.
 		ssl_cert* cert = new ssl_cert;
-		cert->error = "WebIRC users can not specify valid certs yet";
-		cert->invalid = true;
-		cert->revoked = true;
-		cert->trusted = false;
-		cert->unknownsigner = true;
+		if (!hash.empty())
+		{
+			iter = flags->find("certfp-" + hash);
+			if (iter != flags->end() && !iter->second.empty())
+			{
+				// If the gateway specifies this flag we put all trust onto them
+				// for having validated the client certificate. This is probably
+				// ill-advised but there's not much else we can do.
+				cert->fingerprint = iter->second;
+				cert->dn = "(unknown)";
+				cert->invalid = false;
+				cert->issuer = "(unknown)";
+				cert->trusted = true;
+				cert->unknownsigner = false;
+			}
+		}
+
+		if (cert->fingerprint.empty())
+		{
+			cert->error = "WebIRC gateway did not send a client fingerprint";
+			cert->revoked = true;
+		}
+
 		cmd.sslapi.SetCertificate(user, cert);
 	}
 };
