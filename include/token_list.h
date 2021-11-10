@@ -31,6 +31,11 @@ class CoreExport TokenList
 	insp::flat_set<std::string, irc::insensitive_swo> tokens;
 
  public:
+	TokenList()
+		: permissive(false)
+	{
+	}
+
 	/** Adds a space-delimited list of tokens to the token list.
 	 * @param tokenlist The list of space-delimited tokens to add.
 	 */
