@@ -2,7 +2,7 @@ if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
 	file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_argon2.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
 	file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_pgsql.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
 	file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_mysql.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
-	file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_regex_pcre2.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
+	file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_regex_pcre.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
 	file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_regex_re2.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
 	file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_sqlite3.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
 

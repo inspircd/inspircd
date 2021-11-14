@@ -36,14 +36,14 @@
 # pragma comment(lib, "pcre2-8.lib")
 #endif
 
-class PCRE2Pattern final
+class PCREPattern final
 	: public Regex::Pattern
 {
  private:
 	pcre2_code* regex;
 
  public:
-	PCRE2Pattern(const std::string& pattern, uint8_t options)
+	PCREPattern(const std::string& pattern, uint8_t options)
 		: Regex::Pattern(pattern, options)
 	{
 		int flags = 0;
@@ -61,7 +61,7 @@ class PCRE2Pattern final
 		}
 	}
 
-	~PCRE2Pattern() override
+	~PCREPattern() override
 	{
 		pcre2_code_free(regex);
 	}
@@ -75,18 +75,18 @@ class PCRE2Pattern final
 	}
 };
 
-class ModuleRegexPCRE2 final
+class ModuleRegexPCRE final
 	: public Module
 {
  private:
-	Regex::SimpleEngine<PCRE2Pattern> regex;
+	Regex::SimpleEngine<PCREPattern> regex;
 
  public:
-	ModuleRegexPCRE2()
-		: Module(VF_VENDOR, "Provides the pcre2 regular expression engine which uses the PCRE2 library.")
-		, regex(this, "pcre2")
+	ModuleRegexPCRE()
+		: Module(VF_VENDOR, "Provides the pcre regular expression engine which uses the PCRE library.")
+		, regex(this, "pcre")
 	{
 	}
 };
 
-MODULE_INIT(ModuleRegexPCRE2)
+MODULE_INIT(ModuleRegexPCRE)
