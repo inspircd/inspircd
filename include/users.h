@@ -71,86 +71,21 @@ enum UserType {
 	USERTYPE_SERVER = 3
 };
 
-/** Holds information relevant to &lt;connect allow&gt; and &lt;connect deny&gt; tags in the config file.
- */
-struct CoreExport ConnectClass : public refcountbase
+/** Represents \<connect> class tags from the server config */
+class CoreExport ConnectClass : public refcountbase
 {
+ public:
+ 	/** The synthesized (with all inheritance applied) config tag this class was read from. */
 	reference<ConfigTag> config;
-	/** Type of line, either CC_ALLOW or CC_DENY
-	 */
-	char type;
 
-	/** True if this class uses fake lag to manage flood, false if it kills */
-	bool fakelag;
-
-	/** Connect class name
-	 */
-	std::string name;
-
-	/** Max time to register the connection in seconds
-	 */
-	unsigned int registration_timeout;
-
-	/** Hosts that this user can connect from as a string. */
+	/** The hosts that this user can connect from as a string. */
 	std::string host;
 
-	/** Hosts that this user can connect from as a vector. */
+	/** The hosts that this user can connect from as a vector. */
 	std::vector<std::string> hosts;
 
-	/** Number of seconds between pings for this line
-	 */
-	unsigned int pingtime;
-
-	/** Maximum size of sendq for users in this class (bytes)
-	 * Users cannot send commands if they go over this limit
-	 */
-	unsigned long softsendqmax;
-
-	/** Maximum size of sendq for users in this class (bytes)
-	 * Users are killed if they go over this limit
-	 */
-	unsigned long hardsendqmax;
-
-	/** Maximum size of recvq for users in this class (bytes)
-	 */
-	unsigned long recvqmax;
-
-	/** Seconds worth of penalty before penalty system activates
-	 */
-	unsigned int penaltythreshold;
-
-	/** Maximum rate of commands (units: millicommands per second) */
-	unsigned int commandrate;
-
-	/** Local max when connecting by this connection class
-	 */
-	unsigned long maxlocal;
-
-	/** Global max when connecting by this connection class
-	 */
-	unsigned long maxglobal;
-
-	/** True if max connections for this class is hit and a warning is wanted
-	 */
-	bool maxconnwarn;
-
-	/** Max channels for this class
-	 */
-	unsigned int maxchans;
-
-	/** How many users may be in this connect class before they are refused?
-	 * (0 = no limit = default)
-	 */
-	unsigned long limit;
-
-	/** If set to true, no user DNS lookups are to be performed
-	 */
-	bool resolvehostnames;
-
-	/**
-	 * If non-empty the server ports which this user has to be using
-	 */
-	insp::flat_set<int> ports;
+	/** The name of this connect class. */
+	std::string name;
 
 	/** If non-empty then the password a user must specify in PASS to be assigned to this class. */
 	std::string password;
@@ -158,18 +93,70 @@ struct CoreExport ConnectClass : public refcountbase
 	/** If non-empty then the hash algorithm that the password field is hashed with. */
 	std::string passwordhash;
 
-	/** Create a new connect class with no settings.
-	 */
+	/** If non-empty then the server ports which a user has to be connecting on. */
+	insp::flat_set<int> ports;
+
+	/** The type of class this. */
+	char type;
+
+	/** Whether fake lag is used by this class. */
+	bool fakelag:1;
+
+	/** Whether to warn server operators about the limit for this class being reached. */
+	bool maxconnwarn:1;
+
+	/** Whether the DNS hostnames of users in this class should be resolved. */
+	bool resolvehostnames:1;
+
+	/** The maximum number of channels that users in this class can join. */
+	unsigned int maxchans;
+
+	/** The amount of penalty that a user in this class can have before the penalty system activates. */
+	unsigned int penaltythreshold;
+
+	/** The number of seconds between keepalive checks for idle clients in this class. */
+	unsigned int pingtime;
+
+	/** The number of seconds that connecting users have to register within in this class. */
+	unsigned int registration_timeout;
+
+	/** Maximum rate of commands (units: millicommands per second) */
+	unsigned int commandrate;
+
+	/** The maximum number of bytes that users in this class can have in their send queue before they are disconnected. */
+	unsigned long hardsendqmax;
+
+	/** The maximum number of users in this class that can connect to the local server from one host. */
+	unsigned long limit;
+
+	/** The maximum number of users in this class that can connect to the entire network from one host. */
+	unsigned long maxglobal;
+
+	/** The maximum number of users that can be in this class on the local server. */
+	unsigned long maxlocal;
+
+	/** The maximum number of bytes that users in this class can have in their receive queue before they are disconnected. */
+	unsigned long recvqmax;
+
+	/** The maximum number of bytes that users in this class can have in their send queue before their commands stop being processed. */
+	unsigned long softsendqmax;
+
+	/** Creates a new connect class from a config tag */
 	ConnectClass(ConfigTag* tag, char type, const std::string& mask);
-	/** Create a new connect class with inherited settings.
-	 */
+
+	/** Creates a new connect class with a parent from a config tag. */
 	ConnectClass(ConfigTag* tag, char type, const std::string& mask, const ConnectClass& parent);
 
-	/** Update the settings in this block to match the given block */
+	/** Update the settings in this block to match the given class */
 	void Update(const ConnectClass* newSettings);
 
+	/** Retrieves the name of this connect class. */
 	const std::string& GetName() const { return name; }
+
+	/** Retrieves the hosts that this user can connect from as a string. */
 	const std::string& GetHost() const { return host; }
+
+	/** Retrieves the hosts that this user can connect from as a vector. */
 	const std::vector<std::string>& GetHosts() const { return hosts; }
 
 	/** Returns the registration timeout
