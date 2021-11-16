@@ -1259,23 +1259,23 @@ const std::string& FakeUser::GetFullRealHost()
 
 ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask)
 	: config(tag)
+	, host(mask)
+	, name("unnamed")
 	, type(t)
 	, fakelag(true)
-	, name("unnamed")
-	, registration_timeout(0)
-	, host(mask)
-	, pingtime(0)
-	, softsendqmax(0)
-	, hardsendqmax(0)
-	, recvqmax(0)
-	, penaltythreshold(0)
-	, commandrate(0)
-	, maxlocal(0)
-	, maxglobal(0)
 	, maxconnwarn(true)
-	, maxchans(0)
-	, limit(0)
 	, resolvehostnames(true)
+	, maxchans(0)
+	, penaltythreshold(0)
+	, pingtime(0)
+	, registration_timeout(0)
+	, commandrate(0)
+	, hardsendqmax(0)
+	, limit(0)
+	, maxglobal(0)
+	, maxlocal(0)
+	, recvqmax(0)
+	, softsendqmax(0)
 {
 	irc::spacesepstream hoststream(host);
 	for (std::string hostentry; hoststream.GetToken(hostentry); )
@@ -1322,25 +1322,25 @@ ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask, cons
 void ConnectClass::Update(const ConnectClass* src)
 {
 	config = src->config;
-	type = src->type;
-	fakelag = src->fakelag;
-	name = src->name;
-	registration_timeout = src->registration_timeout;
 	host = src->host;
 	hosts = src->hosts;
-	pingtime = src->pingtime;
-	softsendqmax = src->softsendqmax;
-	hardsendqmax = src->hardsendqmax;
-	recvqmax = src->recvqmax;
-	penaltythreshold = src->penaltythreshold;
-	commandrate = src->commandrate;
-	maxlocal = src->maxlocal;
-	maxglobal = src->maxglobal;
-	maxconnwarn = src->maxconnwarn;
-	maxchans = src->maxchans;
-	limit = src->limit;
-	resolvehostnames = src->resolvehostnames;
-	ports = src->ports;
+	name = src->name;
 	password = src->password;
 	passwordhash = src->passwordhash;
+	ports = src->ports;
+	type = src->type;
+	fakelag = src->fakelag;
+	maxconnwarn = src->maxconnwarn;
+	resolvehostnames = src->resolvehostnames;
+	maxchans = src->maxchans;
+	penaltythreshold = src->penaltythreshold;
+	pingtime = src->pingtime;
+	registration_timeout = src->registration_timeout;
+	commandrate = src->commandrate;
+	hardsendqmax = src->hardsendqmax;
+	limit = src->limit;
+	maxglobal = src->maxglobal;
+	maxlocal = src->maxlocal;
+	recvqmax = src->recvqmax;
+	softsendqmax = src->softsendqmax;
 }
