@@ -213,12 +213,15 @@ class ChannelMatcher
 
 class ModuleTimedBans : public Module
 {
+ private:
+	ChanModeReference banmode;
 	CommandTban cmd;
 	BanWatcher banwatcher;
 
  public:
 	ModuleTimedBans()
-		: cmd(this)
+		: banmode(this, "ban")
+		, cmd(this)
 		, banwatcher(this)
 	{
 	}
@@ -260,7 +263,7 @@ class ModuleTimedBans : public Module
 			}
 
 			Modes::ChangeList setban;
-			setban.push_remove(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), mask);
+			setban.push_remove(*banmode, mask);
 			ServerInstance->Modes->Process(ServerInstance->FakeClient, cr, NULL, setban);
 		}
 	}
