@@ -114,6 +114,7 @@ class ModuleMsgFlood
 	, public CTCTags::EventListener
 {
 private:
+	ChanModeReference banmode;
 	CheckExemption::EventProvider exemptionprov;
 	MsgFlood mf;
 	double notice;
@@ -123,6 +124,7 @@ private:
  public:
 	ModuleMsgFlood()
 		: CTCTags::EventListener(this)
+		, banmode(this, "ban")
 		, exemptionprov(this)
 		, mf(this)
 	{
@@ -159,7 +161,7 @@ private:
 				if (f->ban)
 				{
 					Modes::ChangeList changelist;
-					changelist.push_add(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), "*!*@" + user->GetDisplayedHost());
+					changelist.push_add(*banmode, "*!*@" + user->GetDisplayedHost());
 					ServerInstance->Modes->Process(ServerInstance->FakeClient, dest, NULL, changelist);
 				}
 
