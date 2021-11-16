@@ -157,6 +157,7 @@ class AntiCapsMode : public ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettin
 class ModuleAntiCaps : public Module
 {
  private:
+	ChanModeReference banmode;
 	CheckExemption::EventProvider exemptionprov;
 	std::bitset<UCHAR_MAX + 1> uppercase;
 	std::bitset<UCHAR_MAX + 1> lowercase;
@@ -169,7 +170,7 @@ class ModuleAntiCaps : public Module
 		banmask.append(user->GetDisplayedHost());
 
 		Modes::ChangeList changelist;
-		changelist.push_add(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), banmask);
+		changelist.push_add(*banmode, banmask);
 		ServerInstance->Modes->Process(ServerInstance->FakeClient, channel, NULL, changelist);
 	}
 
@@ -180,7 +181,8 @@ class ModuleAntiCaps : public Module
 
  public:
 	ModuleAntiCaps()
-		: exemptionprov(this)
+		: banmode(this, "ban")
+		, exemptionprov(this)
 		, mode(this)
 	{
 	}
