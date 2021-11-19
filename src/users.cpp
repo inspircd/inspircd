@@ -1265,6 +1265,7 @@ ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask)
 	, fakelag(true)
 	, maxconnwarn(true)
 	, resolvehostnames(true)
+	, uniqueusername(false)
 	, maxchans(0)
 	, penaltythreshold(0)
 	, pingtime(0)
@@ -1332,6 +1333,7 @@ void ConnectClass::Update(const ConnectClass* src)
 	fakelag = src->fakelag;
 	maxconnwarn = src->maxconnwarn;
 	resolvehostnames = src->resolvehostnames;
+	uniqueusername = src->uniqueusername;
 	maxchans = src->maxchans;
 	penaltythreshold = src->penaltythreshold;
 	pingtime = src->pingtime;

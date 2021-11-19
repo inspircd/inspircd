@@ -294,6 +294,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			me->maxconnwarn = tag->getBool("maxconnwarn", me->maxconnwarn);
 			me->limit = tag->getUInt("limit", me->limit);
 			me->resolvehostnames = tag->getBool("resolvehostnames", me->resolvehostnames);
+			me->uniqueusername = tag->getBool("uniqueusername", me->uniqueusername);
 			me->password = tag->getString("password", me->password);
 
 			me->passwordhash = tag->getString("hash", me->passwordhash);

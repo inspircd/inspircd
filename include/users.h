@@ -108,6 +108,9 @@ class CoreExport ConnectClass : public refcountbase
 	/** Whether the DNS hostnames of users in this class should be resolved. */
 	bool resolvehostnames:1;
 
+	/** Whether this class is for a shared host where the username (ident) uniquely identifies users. */
+	bool uniqueusername:1;
+
 	/** The maximum number of channels that users in this class can join. */
 	unsigned int maxchans;
 
