@@ -27,10 +27,9 @@
 #include "core_info.h"
 
 CommandInfo::CommandInfo(Module* parent)
-	: ServerTargetCommand(parent, "INFO")
+	: SplitCommand(parent, "INFO")
 {
-	Penalty = 4;
-	syntax = { "[<servername>]" };
+	Penalty = 3;
 }
 
 static const char* const lines[] = {
@@ -77,18 +76,13 @@ static const char* const lines[] = {
 	"   jwheare         prawnsalad",
 	" ",
 	" Best experienced with \002an IRC client\002",
-	NULL
+	nullptr
 };
 
-CmdResult CommandInfo::Handle(User* user, const Params& parameters)
+CmdResult CommandInfo::HandleLocal(LocalUser* user, const Params& parameters)
 {
-	if (parameters.size() > 0 && !irc::equals(parameters[0], ServerInstance->Config->ServerName))
-		return CmdResult::SUCCESS;
-
-	int i=0;
-	while (lines[i])
-		user->WriteRemoteNumeric(RPL_INFO, lines[i++]);
-
+	for (size_t idx = 0; lines[idx]; ++idx)
+		user->WriteRemoteNumeric(RPL_INFO, lines[idx]);
 	user->WriteRemoteNumeric(RPL_ENDOFINFO, "End of /INFO list");
 	return CmdResult::SUCCESS;
 }

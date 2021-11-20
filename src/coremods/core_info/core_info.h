@@ -97,11 +97,11 @@ class CommandCommands final
 };
 
 class CommandInfo final
-	: public ServerTargetCommand
+	: public SplitCommand
 {
  public:
 	CommandInfo(Module* parent);
-	CmdResult Handle(User* user, const Params& parameters) override;
+	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
 class CommandModules final
