@@ -22,12 +22,12 @@ use v5.10.0;
 use strict;
 use warnings FATAL => qw(all);
 
+use CommonMark              ();
 use File::Basename          qw(basename dirname);
 use File::Spec::Functions   qw(catdir catfile rel2abs);
 use FindBin                 qw($RealDir);
 use HTML::FormatText        ();
 use HTML::TreeBuilder       ();
-use Text::Markdown::Hoedown qw(HOEDOWN_HTML_SKIP_HTML markdown);
 use Text::Sentence          qw(split_sentences);
 use YAML::Tiny              ();
 
@@ -54,7 +54,7 @@ for my $module (<$root/src/modules/extra/m_*.cpp>, <$root/src/modules/m_*.cpp>, 
 	print_error "unable to find the module description in $docfile!" unless $docdata->[0]->{description};
 
 	my $docraw = $docdata->[0]->{description} =~ s/^(?:This module )//r;
-	my $docrendered = markdown ucfirst $docraw, extensions => HOEDOWN_HTML_SKIP_HTML;
+	my $docrendered = CommonMark->markdown_to_html(ucfirst $docraw);
 	my $docplain = HTML::FormatText->new(leftmargin => 0, rightmargin => ~0)->format(HTML::TreeBuilder->new->parse($docrendered));
 
 	my $description = (split_sentences $docplain)[0] =~ s/"/\\"/gr;
