@@ -103,37 +103,37 @@ class CoreExport ConnectClass final
 	bool uniqueusername:1;
 
 	/** Maximum rate of commands (units: millicommands per second). */
-	unsigned long commandrate = 0;
+	unsigned long commandrate = 1000UL;
 
 	/** The maximum number of bytes that users in this class can have in their send queue before they are disconnected. */
-	unsigned long hardsendqmax = 0;
+	unsigned long hardsendqmax = 1048576UL;
 
 	/** The maximum number of users in this class that can connect to the local server from one host. */
-	unsigned long limit = 0;
+	unsigned long limit = 5000UL;
 
 	/** The maximum number of channels that users in this class can join. */
-	unsigned long maxchans = 20;
+	unsigned long maxchans = 20UL;
 
 	/** The maximum number of users in this class that can connect to the entire network from one host. */
-	unsigned long maxglobal = 0;
+	unsigned long maxglobal = 3UL;
 
 	/** The maximum number of users that can be in this class on the local server. */
-	unsigned long maxlocal = 0;
+	unsigned long maxlocal = 3UL;
 
 	/** The amount of penalty that a user in this class can have before the penalty system activates. */
-	unsigned long penaltythreshold = 0;
+	unsigned long penaltythreshold = 20UL;
 
 	/** The number of seconds between keepalive checks for idle clients in this class. */
-	unsigned long pingtime = 0;
+	unsigned long pingtime = 120UL;
 
 	/** The maximum number of bytes that users in this class can have in their receive queue before they are disconnected. */
-	unsigned long recvqmax = 0;
+	unsigned long recvqmax = 4096UL;
 
 	/** The number of seconds that connecting users have to register within in this class. */
-	unsigned long registration_timeout = 0;
+	unsigned long registration_timeout = 90UL;
 
 	/** The maximum number of bytes that users in this class can have in their send queue before their commands stop being processed. */
-	unsigned long softsendqmax = 0;
+	unsigned long softsendqmax = 4096UL;
 
 	/** Creates a new connect class from a config tag. */
 	ConnectClass(std::shared_ptr<ConfigTag> tag, char type, const std::vector<std::string>& masks);
@@ -154,14 +154,14 @@ class CoreExport ConnectClass final
 	 */
 	time_t GetRegTimeout()
 	{
-		return (registration_timeout ? registration_timeout : 90);
+		return registration_timeout;
 	}
 
 	/** Returns the ping frequency
 	 */
 	unsigned long GetPingTime()
 	{
-		return (pingtime ? pingtime : 120L);
+		return pingtime;
 	}
 
 	/** Returns the maximum sendq value (soft limit)
@@ -169,33 +169,33 @@ class CoreExport ConnectClass final
 	 */
 	unsigned long GetSendqSoftMax()
 	{
-		return (softsendqmax ? softsendqmax : 4096L);
+		return softsendqmax;
 	}
 
 	/** Returns the maximum sendq value (hard limit)
 	 */
 	unsigned long GetSendqHardMax()
 	{
-		return (hardsendqmax ? hardsendqmax : 0x100000L);
+		return hardsendqmax;
 	}
 
 	/** Returns the maximum recvq value
 	 */
 	unsigned long GetRecvqMax()
 	{
-		return (recvqmax ? recvqmax : 4096L);
+		return recvqmax;
 	}
 
 	/** Returns the penalty threshold value
 	 */
 	unsigned long GetPenaltyThreshold()
 	{
-		return penaltythreshold ? penaltythreshold : (fakelag ? 10L : 20L);
+		return penaltythreshold;
 	}
 
 	unsigned long GetCommandRate()
 	{
-		return commandrate ? commandrate : 1000L;
+		return commandrate;
 	}
 
 	/** Return the maximum number of local sessions

@@ -262,17 +262,17 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 					me->softsendqmax = value;
 				me->hardsendqmax = value * 8;
 			}
-			me->softsendqmax = tag->getUInt("softsendq", me->softsendqmax);
-			me->hardsendqmax = tag->getUInt("hardsendq", me->hardsendqmax);
-			me->recvqmax = tag->getUInt("recvq", me->recvqmax);
-			me->penaltythreshold = tag->getUInt("threshold", me->penaltythreshold);
-			me->commandrate = tag->getUInt("commandrate", me->commandrate);
+			me->softsendqmax = tag->getUInt("softsendq", me->softsendqmax, ServerInstance->Config->Limits.MaxLine);
+			me->hardsendqmax = tag->getUInt("hardsendq", me->hardsendqmax, ServerInstance->Config->Limits.MaxLine);
+			me->recvqmax = tag->getUInt("recvq", me->recvqmax, ServerInstance->Config->Limits.MaxLine);
+			me->penaltythreshold = tag->getUInt("threshold", me->penaltythreshold, 1);
+			me->commandrate = tag->getUInt("commandrate", me->commandrate, 1);
 			me->fakelag = tag->getBool("fakelag", me->fakelag);
-			me->maxlocal = tag->getUInt("localmax", me->maxlocal);
-			me->maxglobal = tag->getUInt("globalmax", me->maxglobal);
+			me->maxlocal = tag->getUInt("localmax", me->maxlocal, 1);
+			me->maxglobal = tag->getUInt("globalmax", me->maxglobal, 1);
 			me->maxchans = tag->getUInt("maxchans", me->maxchans);
 			me->maxconnwarn = tag->getBool("maxconnwarn", me->maxconnwarn);
-			me->limit = tag->getUInt("limit", me->limit);
+			me->limit = tag->getUInt("limit", me->limit, 1);
 			me->resolvehostnames = tag->getBool("resolvehostnames", me->resolvehostnames);
 			me->uniqueusername = tag->getBool("uniqueusername", me->uniqueusername);
 			me->password = tag->getString("password", me->password);
