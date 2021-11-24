@@ -235,7 +235,7 @@ namespace Stats
 				<< lu->GetClass()->GetName() << "</connectclass><lastmsg>"
 				<< lu->idle_lastmsg << "</lastmsg>";
 
-		data << "<ipaddress>" << u->GetIPString() << "</ipaddress>";
+		data << "<ipaddress>" << Sanitize(u->GetIPString()) << "</ipaddress>";
 
 		DumpMeta(data, u);
 
