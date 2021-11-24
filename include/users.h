@@ -66,7 +66,7 @@ enum RegistrationState {
 };
 
 /** Represents \<connect> class tags from the server config */
-class CoreExport ConnectClass : public refcountbase
+class CoreExport ConnectClass final
 {
  public:
 	/** The synthesized (with all inheritance applied) config tag this class was read from. */
