@@ -1257,6 +1257,39 @@ ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, Type t, const std::ve
 	}
 }
 
+void ConnectClass::Configure(const std::string& classname, std::shared_ptr<ConfigTag> tag)
+{
+	name = classname;
+
+	password = tag->getString("password", password);
+	passwordhash = tag->getString("hash", passwordhash);
+	if (!password.empty() && (passwordhash.empty() || stdalgo::string::equalsci(passwordhash, "plaintext")))
+	{
+		ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEFAULT, "<connect> tag '%s' at %s contains an plain text password, this is insecure!",
+			name.c_str(), tag->source.str().c_str());
+	}
+
+	irc::portparser portrange(tag->getString("port"), false);
+	while (long port = portrange.GetToken())
+		ports.insert(static_cast<int>(port));
+
+	commandrate = tag->getUInt("commandrate", commandrate, 1);
+	fakelag = tag->getBool("fakelag", fakelag);
+	hardsendqmax = tag->getUInt("hardsendq", hardsendqmax, ServerInstance->Config->Limits.MaxLine);
+	limit = tag->getUInt("limit", limit, 1);
+	maxchans = tag->getUInt("maxchans", maxchans);
+	maxconnwarn = tag->getBool("maxconnwarn", maxconnwarn);
+	maxglobal = tag->getUInt("globalmax", maxglobal, 1);
+	maxlocal = tag->getUInt("localmax", maxlocal, 1);
+	penaltythreshold = tag->getUInt("threshold", penaltythreshold, 1);
+	pingtime = tag->getDuration("pingfreq", pingtime);
+	recvqmax = tag->getUInt("recvq", recvqmax, ServerInstance->Config->Limits.MaxLine);
+	registration_timeout = tag->getDuration("timeout", registration_timeout);
+	resolvehostnames = tag->getBool("resolvehostnames", resolvehostnames);
+	softsendqmax = tag->getUInt("softsendq", softsendqmax, ServerInstance->Config->Limits.MaxLine);
+	uniqueusername = tag->getBool("uniqueusername", uniqueusername);
+}
+
 void ConnectClass::Update(const std::shared_ptr<ConnectClass> src)
 {
 	commandrate = src->commandrate;

@@ -247,39 +247,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 				? std::make_shared<ConnectClass>(tag, type, masks, parent)
 				: std::make_shared<ConnectClass>(tag, type, masks);
 
-			me->name = name;
-
-			me->registration_timeout = tag->getDuration("timeout", me->registration_timeout);
-			me->pingtime = tag->getDuration("pingfreq", me->pingtime);
-			me->softsendqmax = tag->getUInt("softsendq", me->softsendqmax, ServerInstance->Config->Limits.MaxLine);
-			me->hardsendqmax = tag->getUInt("hardsendq", me->hardsendqmax, ServerInstance->Config->Limits.MaxLine);
-			me->recvqmax = tag->getUInt("recvq", me->recvqmax, ServerInstance->Config->Limits.MaxLine);
-			me->penaltythreshold = tag->getUInt("threshold", me->penaltythreshold, 1);
-			me->commandrate = tag->getUInt("commandrate", me->commandrate, 1);
-			me->fakelag = tag->getBool("fakelag", me->fakelag);
-			me->maxlocal = tag->getUInt("localmax", me->maxlocal, 1);
-			me->maxglobal = tag->getUInt("globalmax", me->maxglobal, 1);
-			me->maxchans = tag->getUInt("maxchans", me->maxchans);
-			me->maxconnwarn = tag->getBool("maxconnwarn", me->maxconnwarn);
-			me->limit = tag->getUInt("limit", me->limit, 1);
-			me->resolvehostnames = tag->getBool("resolvehostnames", me->resolvehostnames);
-			me->uniqueusername = tag->getBool("uniqueusername", me->uniqueusername);
-			me->password = tag->getString("password", me->password);
-
-			me->passwordhash = tag->getString("hash", me->passwordhash);
-			if (!me->password.empty() && (me->passwordhash.empty() || stdalgo::string::equalsci(me->passwordhash, "plaintext")))
-			{
-				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEFAULT, "<connect> tag '%s' at %s contains an plain text password, this is insecure!",
-					name.c_str(), tag->source.str().c_str());
-			}
-
-			std::string ports = tag->getString("port");
-			if (!ports.empty())
-			{
-				irc::portparser portrange(ports, false);
-				while (long port = portrange.GetToken())
-					me->ports.insert(static_cast<int>(port));
-			}
+			me->Configure(name, tag);
 
 			ClassMap::iterator oldMask = oldBlocksByMask.find(std::make_pair(me->name, me->type));
 			if (oldMask != oldBlocksByMask.end())
