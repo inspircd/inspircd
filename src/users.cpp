@@ -490,7 +490,7 @@ void LocalUser::CheckClass(bool clone_count)
 		ServerInstance->Users.QuitUser(this, "Access denied by configuration");
 		return;
 	}
-	else if (a->type == CC_DENY)
+	else if (a->type == ConnectClass::DENY)
 	{
 		ServerInstance->Users.QuitUser(this, a->config->getString("reason", "Unauthorised connection", 1));
 		return;
@@ -1109,7 +1109,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 				break;
 			}
 
-			if (c->type == CC_NAMED)
+			if (c->type == ConnectClass::NAMED)
 			{
 				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as neither <connect:allow> nor <connect:deny> are set",
 						c->GetName().c_str());
@@ -1216,7 +1216,7 @@ const std::string& FakeUser::GetFullRealHost()
 	return server->GetPublicName();
 }
 
-ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::vector<std::string>& masks)
+ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, Type t, const std::vector<std::string>& masks)
 	: config(tag)
 	, hosts(masks)
 	, name("unnamed")
@@ -1228,7 +1228,7 @@ ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::ve
 {
 }
 
-ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::vector<std::string>& masks, std::shared_ptr<ConnectClass> parent)
+ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, Type t, const std::vector<std::string>& masks, std::shared_ptr<ConnectClass> parent)
 {
 	Update(parent);
 	name = "unnamed";

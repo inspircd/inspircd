@@ -131,12 +131,12 @@ void CommandStats::DoStats(Stats::Context& stats)
 				row.push("I").push(c->name);
 
 				std::string param;
-				if (c->type == CC_ALLOW)
+				if (c->type == ConnectClass::ALLOW)
 					param.push_back('+');
-				if (c->type == CC_DENY)
+				if (c->type == ConnectClass::DENY)
 					param.push_back('-');
 
-				if (c->type == CC_NAMED)
+				if (c->type == ConnectClass::NAMED)
 					param.push_back('*');
 				else
 					param.append(stdalgo::string::join(c->GetHosts(), ','));

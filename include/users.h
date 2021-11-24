@@ -39,17 +39,6 @@
 #include "mode.h"
 #include "membership.h"
 
-/** connect class types
- */
-enum ClassTypes {
-	/** connect:allow */
-	CC_ALLOW = 0,
-	/** connect:deny */
-	CC_DENY  = 1,
-	/** named connect block (for opers, etc) */
-	CC_NAMED = 2
-};
-
 /** Registration state of a user, e.g.
  * have they sent USER, NICK, PASS yet?
  */
@@ -68,7 +57,20 @@ enum RegistrationState {
 /** Represents \<connect> class tags from the server config */
 class CoreExport ConnectClass final
 {
- public:
+public:
+	/** An enumeration of possible types of connect class. */
+	enum Type : uint8_t
+	{
+		/** The class defines who is allowed to connect to the server. */
+		ALLOW = 0,
+
+		/** The class defines who is banned from connecting to the server. */
+		DENY = 1,
+
+		/** The class is for server operators to be assigned to by name. */
+		NAMED = 2,
+	};
+
 	/** The synthesized (with all inheritance applied) config tag this class was read from. */
 	std::shared_ptr<ConfigTag> config;
 
@@ -88,7 +90,7 @@ class CoreExport ConnectClass final
 	insp::flat_set<int> ports;
 
 	/** The type of class this. */
-	char type;
+	Type type;
 
 	/** Whether fake lag is used by this class. */
 	bool fakelag:1;
@@ -136,10 +138,10 @@ class CoreExport ConnectClass final
 	unsigned long softsendqmax = 4096UL;
 
 	/** Creates a new connect class from a config tag. */
-	ConnectClass(std::shared_ptr<ConfigTag> tag, char type, const std::vector<std::string>& masks);
+	ConnectClass(std::shared_ptr<ConfigTag> tag, Type type, const std::vector<std::string>& masks);
 
 	/** Creates a new connect class with a parent from a config tag. */
-	ConnectClass(std::shared_ptr<ConfigTag> tag, char type, const std::vector<std::string>& masks, std::shared_ptr<ConnectClass> parent);
+	ConnectClass(std::shared_ptr<ConfigTag> tag, Type type, const std::vector<std::string>& masks, std::shared_ptr<ConnectClass> parent);
 
 	/** Update the settings in this block to match the given class */
 	void Update(const std::shared_ptr<ConnectClass> klass);

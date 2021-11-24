@@ -154,7 +154,7 @@ void ServerConfig::CrossCheckOperClassType()
 
 void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 {
-	typedef std::map<std::pair<std::string, char>, std::shared_ptr<ConnectClass>> ClassMap;
+	typedef std::map<std::pair<std::string, ConnectClass::Type>, std::shared_ptr<ConnectClass>> ClassMap;
 	ClassMap oldBlocksByMask;
 	if (current)
 	{
@@ -162,12 +162,12 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 		{
 			switch (c->type)
 			{
-				case CC_ALLOW:
-				case CC_DENY:
+				case ConnectClass::ALLOW:
+				case ConnectClass::DENY:
 					oldBlocksByMask[std::make_pair(stdalgo::string::join(c->GetHosts()), c->type)] = c;
 					break;
 
-				case CC_NAMED:
+				case ConnectClass::NAMED:
 					oldBlocksByMask[std::make_pair(c->GetName(), c->type)] = c;
 					break;
 			}
@@ -220,14 +220,14 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 
 			std::string name = tag->getString("name");
 			std::string mask;
-			char type;
+			ConnectClass::Type type;
 
 			if (tag->readString("allow", mask, false) && !mask.empty())
-				type = CC_ALLOW;
+				type = ConnectClass::ALLOW;
 			else if (tag->readString("deny", mask, false) && !mask.empty())
-				type = CC_DENY;
+				type = ConnectClass::DENY;
 			else if (!name.empty())
-				type = CC_NAMED;
+				type = ConnectClass::NAMED;
 			else
 				throw CoreException("Connect class must have allow, deny, or name specified at " + tag->source.str());
 
