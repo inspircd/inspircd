@@ -384,15 +384,23 @@ class WebSocketHook : public IOHookMiddle
 			irc::sockets::sockaddrs realsa(luser->client_sa);
 
 			HTTPHeaderFinder proxyheader;
-			if (proxyheader.Find(recvq, "X-Real-IP:", 10, reqend)
-				&& irc::sockets::aptosa(proxyheader.ExtractValue(recvq), realsa.port(), realsa))
+			if (proxyheader.Find(recvq, "X-Real-IP:", 10, reqend) || proxyheader.Find(recvq, "X-Forwarded-For:", 16, reqend))
 			{
-				// Nothing to do here.
+				// Attempt to parse the proxy HTTP header.
+				irc::sockets::aptosa(proxyheader.ExtractValue(recvq), realsa.port(), realsa);
 			}
-			else if (proxyheader.Find(recvq, "X-Forwarded-For:", 16, reqend)
-				&& irc::sockets::aptosa(proxyheader.ExtractValue(recvq), realsa.port(), realsa))
+			else
 			{
-				// Nothing to do here.
+				// The proxy header is missing.
+				FailHandshake(sock, "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n", "WebSocket: Received a proxied HTTP request that did not send a real IP address header");
+				return -1;
+			}
+
+			if (realsa.family() == AF_UNSPEC)
+			{
+				// The proxy header value contains a malformed value.
+				FailHandshake(sock, "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n", "WebSocket: Received a proxied HTTP request that sent a malformed real IP address");
+				return -1;
 			}
 
 			for (WebSocketConfig::ProxyRanges::const_iterator iter = config.proxyranges.begin(); iter != config.proxyranges.end(); ++iter)
