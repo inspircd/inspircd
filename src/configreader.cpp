@@ -251,17 +251,6 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 
 			me->registration_timeout = tag->getDuration("timeout", me->registration_timeout);
 			me->pingtime = tag->getDuration("pingfreq", me->pingtime);
-			std::string sendq;
-			if (tag->readString("sendq", sendq))
-			{
-				// attempt to guess a good hard/soft sendq from a single value
-				unsigned long value = strtoul(sendq.c_str(), NULL, 10);
-				if (value > 16384)
-					me->softsendqmax = value / 16;
-				else
-					me->softsendqmax = value;
-				me->hardsendqmax = value * 8;
-			}
 			me->softsendqmax = tag->getUInt("softsendq", me->softsendqmax, ServerInstance->Config->Limits.MaxLine);
 			me->hardsendqmax = tag->getUInt("hardsendq", me->hardsendqmax, ServerInstance->Config->Limits.MaxLine);
 			me->recvqmax = tag->getUInt("recvq", me->recvqmax, ServerInstance->Config->Limits.MaxLine);
