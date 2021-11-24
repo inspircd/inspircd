@@ -216,7 +216,7 @@ namespace Stats
 	{
 		data << "<user>";
 		data << "<nickname>" << u->nick << "</nickname><uuid>" << u->uuid << "</uuid><realhost>"
-			<< u->GetRealHost() << "</realhost><displayhost>" << u->GetDisplayedHost() << "</displayhost><realname>"
+			<< Sanitize(u->GetRealHost()) << "</realhost><displayhost>" << Sanitize(u->GetDisplayedHost()) << "</displayhost><realname>"
 			<< Sanitize(u->GetRealName()) << "</realname><server>" << u->server->GetName() << "</server><signon>"
 			<< u->signon << "</signon><age>" << u->age << "</age>";
 
