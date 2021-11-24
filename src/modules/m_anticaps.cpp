@@ -155,6 +155,7 @@ class ModuleAntiCaps final
 	: public Module
 {
  private:
+	ChanModeReference banmode;
 	CheckExemption::EventProvider exemptionprov;
 	std::bitset<UCHAR_MAX + 1> uppercase;
 	std::bitset<UCHAR_MAX + 1> lowercase;
@@ -167,8 +168,8 @@ class ModuleAntiCaps final
 		banmask.append(user->GetDisplayedHost());
 
 		Modes::ChangeList changelist;
-		changelist.push_add(ServerInstance->Modes.FindMode('b', MODETYPE_CHANNEL), banmask);
-		ServerInstance->Modes.Process(ServerInstance->FakeClient, channel, NULL, changelist);
+		changelist.push_add(*banmode, banmask);
+		ServerInstance->Modes.Process(ServerInstance->FakeClient, channel, nullptr, changelist);
 	}
 
 	void InformUser(Channel* channel, User* user, const std::string& message)
@@ -179,6 +180,7 @@ class ModuleAntiCaps final
  public:
 	ModuleAntiCaps()
 		: Module(VF_VENDOR | VF_COMMON, "Adds channel mode B (anticaps) which allows channels to block messages which are excessively capitalised.")
+		, banmode(this, "ban")
 		, exemptionprov(this)
 		, mode(this)
 	{

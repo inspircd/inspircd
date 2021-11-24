@@ -1218,9 +1218,13 @@ const std::string& FakeUser::GetFullRealHost()
 
 ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::vector<std::string>& masks)
 	: config(tag)
-	, type(t)
-	, name("unnamed")
 	, hosts(masks)
+	, name("unnamed")
+	, type(t)
+	, fakelag(true)
+	, maxconnwarn(true)
+	, resolvehostnames(true)
+	, uniqueusername(false)
 {
 }
 
@@ -1255,25 +1259,26 @@ ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, char t, const std::ve
 
 void ConnectClass::Update(const std::shared_ptr<ConnectClass> src)
 {
-	config = src->config;
-	type = src->type;
-	fakelag = src->fakelag;
-	name = src->name;
-	registration_timeout = src->registration_timeout;
-	hosts = src->hosts;
-	pingtime = src->pingtime;
-	softsendqmax = src->softsendqmax;
-	hardsendqmax = src->hardsendqmax;
-	recvqmax = src->recvqmax;
-	penaltythreshold = src->penaltythreshold;
 	commandrate = src->commandrate;
-	maxlocal = src->maxlocal;
-	maxglobal = src->maxglobal;
-	maxconnwarn = src->maxconnwarn;
-	maxchans = src->maxchans;
+	config = src->config;
+	fakelag = src->fakelag;
+	hardsendqmax = src->hardsendqmax;
+	hosts = src->hosts;
 	limit = src->limit;
-	resolvehostnames = src->resolvehostnames;
-	ports = src->ports;
+	maxchans = src->maxchans;
+	maxconnwarn = src->maxconnwarn;
+	maxglobal = src->maxglobal;
+	maxlocal = src->maxlocal;
+	name = src->name;
 	password = src->password;
 	passwordhash = src->passwordhash;
+	penaltythreshold = src->penaltythreshold;
+	pingtime = src->pingtime;
+	ports = src->ports;
+	recvqmax = src->recvqmax;
+	registration_timeout = src->registration_timeout;
+	resolvehostnames = src->resolvehostnames;
+	softsendqmax = src->softsendqmax;
+	type = src->type;
+	uniqueusername = src->uniqueusername;
 }

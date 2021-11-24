@@ -115,6 +115,7 @@ class ModuleMsgFlood final
 	, public CTCTags::EventListener
 {
 private:
+	ChanModeReference banmode;
 	CheckExemption::EventProvider exemptionprov;
 	MsgFlood mf;
 	double notice;
@@ -125,6 +126,7 @@ private:
 	ModuleMsgFlood()
 		: Module(VF_VENDOR, "Adds channel mode f (flood) which helps protect against spammers which mass-message channels.")
 		, CTCTags::EventListener(this)
+		, banmode(this, "ban")
 		, exemptionprov(this)
 		, mf(this)
 	{
@@ -161,8 +163,8 @@ private:
 				if (f->ban)
 				{
 					Modes::ChangeList changelist;
-					changelist.push_add(ServerInstance->Modes.FindMode('b', MODETYPE_CHANNEL), "*!*@" + user->GetDisplayedHost());
-					ServerInstance->Modes.Process(ServerInstance->FakeClient, dest, NULL, changelist);
+					changelist.push_add(*banmode, "*!*@" + user->GetDisplayedHost());
+					ServerInstance->Modes.Process(ServerInstance->FakeClient, dest, nullptr, changelist);
 				}
 
 				const std::string kickMessage = "Channel flood triggered (trigger is " + ConvToStr(f->lines) +

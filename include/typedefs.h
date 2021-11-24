@@ -49,7 +49,7 @@ class User;
 class XLine;
 class XLineManager;
 class XLineFactory;
-struct ConnectClass;
+class ConnectClass;
 class ModResult;
 
 namespace ClientProtocol

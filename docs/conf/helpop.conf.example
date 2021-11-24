@@ -51,9 +51,12 @@ match against the nickname of the network service and the oper type of
 the network service.
 ">
 
-<helpop key="sslinfo" title="/SSLINFO <nick>" value="
-Displays information on the TLS connection and certificate of the
-target user.
+<helpop key="sslinfo" title="/SSLINFO <chan>|<nick>" value="
+If a channel is specified then display TLS connection information
+for users in the specified channel.
+
+If a user is specified then display information on the TLS (SSL)
+connection and certificate of the specified user.
 ">
 
 <helpop key="uninvite" title="/UNINVITE <nick> <channel>" value="

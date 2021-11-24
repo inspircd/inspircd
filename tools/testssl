@@ -139,8 +139,10 @@ ${\CC_RED}no${\CC_RESET}
 
 It appears that something is wrong with your server. Make sure that:
 
-  - You are not using an old version of GnuTLS, mbedTLS, or OpenSSL which only
+  * You are not using an old version of GnuTLS, mbedTLS, or OpenSSL which only
     supports deprecated algorithms like SSLv3.
+  * If you are using a self-signed certificate (not recommended) that you passed
+    the `selfsigned` argument to this script.
 
 The error provided by the TLS library was:
 

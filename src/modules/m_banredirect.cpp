@@ -52,13 +52,14 @@ typedef std::vector<BanRedirectEntry> BanRedirectList;
 class BanRedirect final
 	: public ModeWatcher
 {
-	ChanModeReference ban;
  public:
-	SimpleExtItem<BanRedirectList> extItem;
+	ChanModeReference banmode;
+	SimpleExtItem<BanRedirectList> redirectlist;
+
 	BanRedirect(Module* parent)
 		: ModeWatcher(parent, "ban", MODETYPE_CHANNEL)
-		, ban(parent, "ban")
-		, extItem(parent, "banredirect", ExtensionItem::EXT_CHANNEL)
+		, banmode(parent, "ban")
+		, redirectlist(parent, "banredirect", ExtensionItem::EXT_CHANNEL)
 	{
 	}
 
@@ -85,7 +86,7 @@ class BanRedirect final
 			if (change.param.find('#') == std::string::npos)
 				return true;
 
-			ListModeBase* banlm = static_cast<ListModeBase*>(*ban);
+			ListModeBase* banlm = static_cast<ListModeBase*>(*banmode);
 			unsigned long maxbans = banlm->GetLimit(channel);
 			ListModeBase::ModeList* list = banlm->GetList(channel);
 			if (list && change.adding && maxbans <= list->size())
@@ -184,11 +185,11 @@ class BanRedirect final
 				if (change.adding)
 				{
 					/* It's a properly valid redirecting ban, and we're adding it */
-					redirects = extItem.Get(channel);
+					redirects = redirectlist.Get(channel);
 					if (!redirects)
 					{
 						redirects = new BanRedirectList;
-						extItem.Set(channel, redirects);
+						redirectlist.Set(channel, redirects);
 					}
 					else
 					{
@@ -215,7 +216,7 @@ class BanRedirect final
 				else
 				{
 					/* Removing a ban, if there's no extensible there are no redirecting bans and we're fine. */
-					redirects = extItem.Get(channel);
+					redirects = redirectlist.Get(channel);
 					if (redirects)
 					{
 						/* But there were, so we need to remove the matching one if there is one */
@@ -228,7 +229,7 @@ class BanRedirect final
 
 								if(redirects->empty())
 								{
-									extItem.Unset(channel);
+									redirectlist.Unset(channel);
 								}
 
 								break;
@@ -250,7 +251,7 @@ class ModuleBanRedirect final
 	: public Module
 {
  private:
-	BanRedirect re;
+	BanRedirect banwatcher;
 	bool nofollow = false;
 	ChanModeReference limitmode;
 	ChanModeReference redirectmode;
@@ -258,7 +259,7 @@ class ModuleBanRedirect final
  public:
 	ModuleBanRedirect()
 		: Module(VF_VENDOR | VF_COMMON, "Allows specifying a channel to redirect a banned user to in the ban mask.")
-		, re(this)
+		, banwatcher(this)
 		, limitmode(this, "limit")
 		, redirectmode(this, "redirect")
 	{
@@ -269,18 +270,17 @@ class ModuleBanRedirect final
 		if (type == ExtensionItem::EXT_CHANNEL)
 		{
 			Channel* chan = static_cast<Channel*>(item);
-			BanRedirectList* redirects = re.extItem.Get(chan);
+			BanRedirectList* redirects = banwatcher.redirectlist.Get(chan);
 
 			if(redirects)
 			{
-				ModeHandler* ban = ServerInstance->Modes.FindMode('b', MODETYPE_CHANNEL);
 				Modes::ChangeList changelist;
 
 				for (auto& redirect : *redirects)
-					changelist.push_remove(ban, redirect.targetchan.insert(0, redirect.banmask));
+					changelist.push_remove(*banwatcher.banmode, redirect.targetchan.insert(0, redirect.banmask));
 
 				for (const auto& redirect : *redirects)
-					changelist.push_add(ban, redirect.banmask);
+					changelist.push_add(*banwatcher.banmode, redirect.banmask);
 
 				ServerInstance->Modes.Process(ServerInstance->FakeClient, chan, NULL, changelist, ModeParser::MODE_LOCALONLY);
 			}
@@ -291,7 +291,7 @@ class ModuleBanRedirect final
 	{
 		if (!override && chan)
 		{
-			BanRedirectList* redirects = re.extItem.Get(chan);
+			BanRedirectList* redirects = banwatcher.redirectlist.Get(chan);
 
 			if (redirects)
 			{

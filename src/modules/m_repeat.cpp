@@ -356,12 +356,15 @@ class RepeatMode final
 class RepeatModule final
 	: public Module
 {
+ private:
+	ChanModeReference banmode;
 	CheckExemption::EventProvider exemptionprov;
 	RepeatMode rm;
 
  public:
 	RepeatModule()
 		: Module(VF_VENDOR | VF_COMMON, "Adds channel mode E (repeat) which helps protect against spammers which spam the same message repeatedly.")
+		, banmode(this, "ban")
 		, exemptionprov(this)
 		, rm(this)
 	{
@@ -404,8 +407,8 @@ class RepeatModule final
 			if (settings->Action == ChannelSettings::ACT_BAN)
 			{
 				Modes::ChangeList changelist;
-				changelist.push_add(ServerInstance->Modes.FindMode('b', MODETYPE_CHANNEL), "*!*@" + user->GetDisplayedHost());
-				ServerInstance->Modes.Process(ServerInstance->FakeClient, chan, NULL, changelist);
+				changelist.push_add(*banmode, "*!*@" + user->GetDisplayedHost());
+				ServerInstance->Modes.Process(ServerInstance->FakeClient, chan, nullptr, changelist);
 			}
 
 			memb->chan->KickUser(ServerInstance->FakeClient, user, rm.GetKickMessage());

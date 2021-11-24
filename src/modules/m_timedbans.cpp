@@ -215,12 +215,14 @@ class ModuleTimedBans final
 	: public Module
 {
  private:
+	ChanModeReference banmode;
 	CommandTban cmd;
 	BanWatcher banwatcher;
 
  public:
 	ModuleTimedBans()
 		: Module(VF_VENDOR | VF_COMMON, "Adds the /TBAN command which allows channel operators to add bans which will be expired after the specified period.")
+		, banmode(this, "ban")
 		, cmd(this)
 		, banwatcher(this)
 	{
@@ -261,8 +263,8 @@ class ModuleTimedBans final
 			}
 
 			Modes::ChangeList setban;
-			setban.push_remove(ServerInstance->Modes.FindMode('b', MODETYPE_CHANNEL), timedban.mask);
-			ServerInstance->Modes.Process(ServerInstance->FakeClient, timedban.chan, NULL, setban);
+			setban.push_remove(*banmode, timedban.mask);
+			ServerInstance->Modes.Process(ServerInstance->FakeClient, timedban.chan, nullptr, setban);
 		}
 	}
 
