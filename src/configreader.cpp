@@ -406,6 +406,15 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 			}
 		}
 
+		// Reject the broken configs that outdated tutorials keep pushing.
+		if (!ConfValue("power")->getString("pause").empty())
+		{
+			errstr << "You appear to be using a config file from an ancient outdated tutorial!" << std::endl
+				<< "This will almost certainly not work. You should instead create a config" << std::endl
+				<< "file using the examples shipped with InspIRCd or by referring to the" << std::endl
+				<< "docs available at " INSPIRCD_DOCS "configuration." << std::endl;
+		}
+
 		Fill();
 
 		// Handle special items
