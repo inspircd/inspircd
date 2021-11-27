@@ -58,12 +58,14 @@ class LDAPRequest
 	LDAPResult* result; /* final result */
 	struct timeval tv;
 	QueryType type;
+	int success;
 
-	LDAPRequest(LDAPService* s, LDAPInterface* i)
+	LDAPRequest(LDAPService* s, LDAPInterface* i, int c)
 		: service(s)
 		, inter(i)
 		, message(NULL)
 		, result(NULL)
+		, success(c)
 	{
 		type = QUERY_UNKNOWN;
 		tv.tv_sec = 0;
@@ -87,7 +89,7 @@ class LDAPBind : public LDAPRequest
 
  public:
 	LDAPBind(LDAPService* s, LDAPInterface* i, const std::string& w, const std::string& p)
-		: LDAPRequest(s, i)
+		: LDAPRequest(s, i, LDAP_SUCCESS)
 		, who(w)
 		, pass(p)
 	{
@@ -106,7 +108,7 @@ class LDAPSearch : public LDAPRequest
 
  public:
 	LDAPSearch(LDAPService* s, LDAPInterface* i, const std::string& b, int se, const std::string& f)
-		: LDAPRequest(s, i)
+		: LDAPRequest(s, i, LDAP_SUCCESS)
 		, base(b)
 		, searchscope(se)
 		, filter(f)
@@ -125,7 +127,7 @@ class LDAPAdd : public LDAPRequest
 
  public:
 	LDAPAdd(LDAPService* s, LDAPInterface* i, const std::string& d, const LDAPMods& attr)
-		: LDAPRequest(s, i)
+		: LDAPRequest(s, i, LDAP_SUCCESS)
 		, dn(d)
 		, attributes(attr)
 	{
@@ -142,7 +144,7 @@ class LDAPDel : public LDAPRequest
 
  public:
 	LDAPDel(LDAPService* s, LDAPInterface* i, const std::string& d)
-		: LDAPRequest(s, i)
+		: LDAPRequest(s, i, LDAP_SUCCESS)
 		, dn(d)
 	{
 		type = QUERY_DELETE;
@@ -159,7 +161,7 @@ class LDAPModify : public LDAPRequest
 
  public:
 	LDAPModify(LDAPService* s, LDAPInterface* i, const std::string& b, const LDAPMods& attr)
-		: LDAPRequest(s, i)
+		: LDAPRequest(s, i, LDAP_SUCCESS)
 		, base(b)
 		, attributes(attr)
 	{
@@ -176,7 +178,7 @@ class LDAPCompare : public LDAPRequest
 
  public:
 	LDAPCompare(LDAPService* s, LDAPInterface* i, const std::string& d, const std::string& a, const std::string& v)
-		: LDAPRequest(s, i)
+		: LDAPRequest(s, i, LDAP_COMPARE_TRUE)
 		, dn(d)
 		, attr(a)
 		, val(v)
@@ -401,7 +403,7 @@ class LDAPService : public LDAPProvider, public SocketThread
 		LDAPResult* ldap_result = req->result = new LDAPResult();
 		req->result->type = req->type;
 
-		if (res != LDAP_SUCCESS)
+		if (res != req->success)
 		{
 			ldap_result->error = InspIRCd::Format("%s (%s)", ldap_err2string(res), req->info().c_str());
 			return;
