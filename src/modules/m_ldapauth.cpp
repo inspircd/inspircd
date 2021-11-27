@@ -186,6 +186,11 @@ class BindInterface : public LDAPInterface
 
 	void OnError(const LDAPResult& err) CXX11_OVERRIDE
 	{
+	
+		//ldap_compare_s() returns an LDAP error code.
+		if (err.getError().find("Compare True") != std::string::npos) //Should be changed to a better implementation
+			OnResult(err); //Relay that to OnResult
+		
 		if (checkingAttributes && --attrCount)
 			return;
 
