@@ -265,15 +265,15 @@ class ModuleRLine final
 		if (!rxfactory)
 		{
 			if (newrxengine.empty())
-				ServerInstance->SNO.WriteToSnoMask('a', "WARNING: No regex engine loaded - R-line functionality disabled until this is corrected.");
+				ServerInstance->SNO.WriteToSnoMask('r', "WARNING: No regex engine loaded - R-line functionality disabled until this is corrected.");
 			else
-				ServerInstance->SNO.WriteToSnoMask('a', "WARNING: Regex engine '%s' is not loaded - R-line functionality disabled until this is corrected.", newrxengine.c_str());
+				ServerInstance->SNO.WriteToSnoMask('r', "WARNING: Regex engine '%s' is not loaded - R-line functionality disabled until this is corrected.", newrxengine.c_str());
 
 			ServerInstance->XLines->DelAll(f.GetType());
 		}
 		else if ((!initing) && (rxfactory.operator->() != factory))
 		{
-			ServerInstance->SNO.WriteToSnoMask('a', "Regex engine has changed, removing all R-lines.");
+			ServerInstance->SNO.WriteToSnoMask('r', "Regex engine has changed, removing all R-lines.");
 			ServerInstance->XLines->DelAll(f.GetType());
 		}
 

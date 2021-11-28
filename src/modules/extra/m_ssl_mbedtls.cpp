@@ -947,11 +947,11 @@ class ModuleSSLmbedTLS final
 		try
 		{
 			ReadProfiles();
-			ServerInstance->SNO.WriteToSnoMask('a', "mbedTLS TLS profiles have been reloaded.");
+			ServerInstance->SNO.WriteToSnoMask('r', "mbedTLS TLS profiles have been reloaded.");
 		}
 		catch (ModuleException& ex)
 		{
-			ServerInstance->SNO.WriteToSnoMask('a', "Failed to reload the mbedTLS TLS profiles. " + ex.GetReason());
+			ServerInstance->SNO.WriteToSnoMask('r', "Failed to reload the mbedTLS TLS profiles. " + ex.GetReason());
 		}
 	}
 

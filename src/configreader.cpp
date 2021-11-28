@@ -475,7 +475,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		if (user)
 			user->WriteRemoteNotice(InspIRCd::Format("*** %s", line.c_str()));
 		// Also tell opers
-		ServerInstance->SNO.WriteGlobalSno('a', line);
+		ServerInstance->SNO.WriteGlobalSno('r', line);
 	}
 
 	errstr.clear();
@@ -500,7 +500,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 
 	if (user)
 		user->WriteRemoteNotice("*** Successfully rehashed server.");
-	ServerInstance->SNO.WriteGlobalSno('a', "*** Successfully rehashed server.");
+	ServerInstance->SNO.WriteGlobalSno('r', "*** Successfully rehashed server.");
 }
 
 void ServerConfig::ApplyModules(User* user)
@@ -528,19 +528,19 @@ void ServerConfig::ApplyModules(User* user)
 			continue;
 		if (ServerInstance->Modules.Unload(mod))
 		{
-			ServerInstance->SNO.WriteGlobalSno('a', "*** REHASH UNLOADED MODULE: %s", modname.c_str());
+			ServerInstance->SNO.WriteGlobalSno('r', "*** REHASH UNLOADED MODULE: %s", modname.c_str());
 
 			if (user)
 				user->WriteNumeric(RPL_UNLOADEDMODULE, modname, InspIRCd::Format("The %s module was unloaded.", modname.c_str()));
 			else
-				ServerInstance->SNO.WriteGlobalSno('a', "The %s module was unloaded.", modname.c_str());
+				ServerInstance->SNO.WriteGlobalSno('r', "The %s module was unloaded.", modname.c_str());
 		}
 		else
 		{
 			if (user)
 				user->WriteNumeric(ERR_CANTUNLOADMODULE, modname, InspIRCd::Format("Failed to unload the %s module: %s", modname.c_str(), ServerInstance->Modules.LastError().c_str()));
 			else
-				ServerInstance->SNO.WriteGlobalSno('a', "Failed to unload the %s module: %s", modname.c_str(), ServerInstance->Modules.LastError().c_str());
+				ServerInstance->SNO.WriteGlobalSno('r', "Failed to unload the %s module: %s", modname.c_str(), ServerInstance->Modules.LastError().c_str());
 		}
 	}
 
@@ -552,18 +552,18 @@ void ServerConfig::ApplyModules(User* user)
 
 		if (ServerInstance->Modules.Load(modname))
 		{
-			ServerInstance->SNO.WriteGlobalSno('a', "*** REHASH LOADED MODULE: %s", modname.c_str());
+			ServerInstance->SNO.WriteGlobalSno('r', "*** REHASH LOADED MODULE: %s", modname.c_str());
 			if (user)
 				user->WriteNumeric(RPL_LOADEDMODULE, modname, InspIRCd::Format("The %s module was loaded.", modname.c_str()));
 			else
-				ServerInstance->SNO.WriteGlobalSno('a', "The %s module was loaded.", modname.c_str());
+				ServerInstance->SNO.WriteGlobalSno('r', "The %s module was loaded.", modname.c_str());
 		}
 		else
 		{
 			if (user)
 				user->WriteNumeric(ERR_CANTLOADMODULE, modname, InspIRCd::Format("Failed to load the %s module: %s", modname.c_str(), ServerInstance->Modules.LastError().c_str()));
 			else
-				ServerInstance->SNO.WriteGlobalSno('a', "Failed to load the %s module: %s", modname.c_str(), ServerInstance->Modules.LastError().c_str());
+				ServerInstance->SNO.WriteGlobalSno('r', "Failed to load the %s module: %s", modname.c_str(), ServerInstance->Modules.LastError().c_str());
 		}
 	}
 }

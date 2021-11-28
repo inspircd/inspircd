@@ -77,6 +77,7 @@ SnomaskManager::SnomaskManager()
 	EnableSnomask('k', "KILL");
 	EnableSnomask('o', "OPER");
 	EnableSnomask('q', "QUIT");
+	EnableSnomask('r', "REHASH");
 }
 
 bool SnomaskManager::IsSnomaskUsable(char ch) const

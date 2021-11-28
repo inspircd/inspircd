@@ -1174,11 +1174,11 @@ class ModuleSSLGnuTLS final
 		try
 		{
 			ReadProfiles();
-			ServerInstance->SNO.WriteToSnoMask('a', "GnuTLS TLS profiles have been reloaded.");
+			ServerInstance->SNO.WriteToSnoMask('r', "GnuTLS TLS profiles have been reloaded.");
 		}
 		catch (ModuleException& ex)
 		{
-			ServerInstance->SNO.WriteToSnoMask('a', "Failed to reload the GnuTLS TLS (SSL) profiles. " + ex.GetReason());
+			ServerInstance->SNO.WriteToSnoMask('r', "Failed to reload the GnuTLS TLS (SSL) profiles. " + ex.GetReason());
 		}
 	}
 

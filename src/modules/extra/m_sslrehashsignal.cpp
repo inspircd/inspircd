@@ -53,7 +53,7 @@ class ModuleSSLRehashSignal final
 			return;
 
 		const std::string feedbackmsg = "Got SIGUSR1, reloading TLS credentials";
-		ServerInstance->SNO.WriteGlobalSno('a', feedbackmsg);
+		ServerInstance->SNO.WriteGlobalSno('r', feedbackmsg);
 		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, feedbackmsg);
 
 		const std::string str = "tls";
