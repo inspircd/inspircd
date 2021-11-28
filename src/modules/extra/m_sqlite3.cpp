@@ -46,7 +46,8 @@
 class SQLConn;
 typedef insp::flat_map<std::string, SQLConn*> ConnMap;
 
-class SQLite3Result : public SQL::Result
+class SQLite3Result final
+	: public SQL::Result
 {
  public:
 	int currentrow = 0;

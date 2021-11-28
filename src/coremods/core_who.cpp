@@ -44,7 +44,8 @@ enum
 static const char whox_field_order[] = "tcuihsnfdlaor";
 static const char who_field_order[] = "cuhsnf";
 
-struct WhoData : public Who::Request
+struct WhoData final
+	: public Who::Request
 {
 	bool GetFieldIndex(char flag, size_t& out) const override
 	{

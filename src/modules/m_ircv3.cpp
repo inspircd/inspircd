@@ -113,7 +113,7 @@ class JoinHook final
 	}
 };
 
-class ModuleIRCv3
+class ModuleIRCv3 final
 	: public Module
 	, public AccountEventListener
 	, public Away::EventListener

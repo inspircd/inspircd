@@ -23,7 +23,7 @@
 #include "modules/cap.h"
 #include "modules/ctctags.h"
 
-class ModuleIRCv3EchoMessage
+class ModuleIRCv3EchoMessage final
 	: public Module
 	, public CTCTags::EventListener
 {

@@ -27,7 +27,7 @@
 // Iterations:B64(Hash):B64(Salt)
 // E.g.
 // 10200:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA:BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
-class PBKDF2Hash
+class PBKDF2Hash final
 {
  public:
 	unsigned long iterations;

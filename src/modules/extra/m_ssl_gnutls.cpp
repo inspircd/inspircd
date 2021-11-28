@@ -162,7 +162,7 @@ namespace GnuTLS
 		const gnutls_dh_params_t& get() const { return dh_params; }
 	};
 
-	class X509Key
+	class X509Key final
 	{
 		/** Ensure that the key is deinited in case the constructor of X509Key throws
 		 */
@@ -193,7 +193,7 @@ namespace GnuTLS
 		gnutls_x509_privkey_t& get() { return key.key; }
 	};
 
-	class X509CertList
+	class X509CertList final
 	{
 		std::vector<gnutls_x509_crt_t> certs;
 
@@ -231,7 +231,7 @@ namespace GnuTLS
 		size_t size() const { return certs.size(); }
 	};
 
-	class X509CRL
+	class X509CRL final
 	{
 		class RAIICRL final
 		{
@@ -361,7 +361,8 @@ namespace GnuTLS
 		}
 	};
 
-	class X509Credentials : public CertCredentials
+	class X509Credentials final
+		: public CertCredentials
 	{
 		/** Private key
 		 */

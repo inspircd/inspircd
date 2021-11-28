@@ -41,7 +41,7 @@ enum
 namespace WhoWas
 {
 	/** One entry for a nick. There may be multiple entries for a nick. */
-	struct Entry
+	struct Entry final
 	{
 		/** Real host */
 		const std::string host;
@@ -66,7 +66,8 @@ namespace WhoWas
 	};
 
 	/** Everything known about one nick */
-	struct Nick : public insp::intrusive_list_node<Nick>
+	struct Nick final
+		: public insp::intrusive_list_node<Nick>
 	{
 		/** A group of users related by nickname */
 		typedef std::deque<Entry*> List;
@@ -90,7 +91,7 @@ namespace WhoWas
 	class Manager final
 	{
 	 public:
-		struct Stats
+		struct Stats final
 		{
 			/** Number of currently existing WhoWas::Entry objects */
 			size_t entrycount;

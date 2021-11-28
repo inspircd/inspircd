@@ -77,7 +77,7 @@ class DataKeeper final
 {
 	/** Data we save for each mode and extension provided by the module
 	 */
-	struct ProviderInfo
+	struct ProviderInfo final
 	{
 		std::string itemname;
 		union
@@ -106,7 +106,7 @@ class DataKeeper final
 		}
 	};
 
-	struct InstanceData
+	struct InstanceData final
 	{
 		/** Position of the ModeHandler or ExtensionItem that the serialized data belongs to
 		 */
@@ -142,7 +142,8 @@ class DataKeeper final
 		}
 	};
 
-	struct OwnedModesExts : public ModesExts
+	struct OwnedModesExts
+		: public ModesExts
 	{
 		/** User uuid or channel name
 		 */
@@ -155,7 +156,8 @@ class DataKeeper final
 	};
 
 	// Data saved for each channel
-	struct ChanData : public OwnedModesExts
+	struct ChanData final
+		: public OwnedModesExts
 	{
 		/** Type of data stored for each member who has any affected modes or extensions set
 		 */
@@ -172,7 +174,8 @@ class DataKeeper final
 	};
 
 	// Data saved for each user
-	struct UserData : public OwnedModesExts
+	struct UserData final
+		: public OwnedModesExts
 	{
 		static const size_t UNUSED_INDEX = SIZE_MAX;
 		size_t serializerindex;

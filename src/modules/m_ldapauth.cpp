@@ -36,7 +36,7 @@ namespace
 	std::vector<std::pair<std::string, std::string> > requiredattributes;
 }
 
-class BindInterface
+class BindInterface final
 	: public LDAPInterface
 {
 	const std::string provider;

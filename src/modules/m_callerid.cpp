@@ -43,7 +43,7 @@ enum
 	RPL_UMODEGMSG = 718
 };
 
-class callerid_data
+class callerid_data final
 {
  public:
 	typedef insp::flat_set<User*> UserSet;

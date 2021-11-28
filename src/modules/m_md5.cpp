@@ -42,7 +42,7 @@ typedef unsigned char byte;
 
 /** An MD5 context, used by m_opermd5
  */
-class MD5Context
+class MD5Context final
 {
  public:
 	word32 buf[4];

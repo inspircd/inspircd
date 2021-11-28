@@ -26,7 +26,7 @@
 
 #include "inspircd.h"
 
-struct LusersCounters
+struct LusersCounters final
 {
 	size_t max_local;
 	size_t max_global;

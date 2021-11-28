@@ -127,7 +127,8 @@ namespace mbedTLS
 		}
 	};
 
-	class X509Key : public RAIIObj<mbedtls_pk_context, mbedtls_pk_init, mbedtls_pk_free>
+	class X509Key final
+		: public RAIIObj<mbedtls_pk_context, mbedtls_pk_init, mbedtls_pk_free>
 	{
 	 public:
 		/** Import */
@@ -194,7 +195,8 @@ namespace mbedTLS
 		bool empty() const { return (list.size() <= 1); }
 	};
 
-	class X509CertList : public RAIIObj<mbedtls_x509_crt, mbedtls_x509_crt_init, mbedtls_x509_crt_free>
+	class X509CertList final
+		: public RAIIObj<mbedtls_x509_crt, mbedtls_x509_crt_init, mbedtls_x509_crt_free>
 	{
 	 public:
 		/** Import or create empty */
@@ -209,7 +211,8 @@ namespace mbedTLS
 		bool empty() const { return (get()->raw.p != NULL); }
 	};
 
-	class X509CRL : public RAIIObj<mbedtls_x509_crl, mbedtls_x509_crl_init, mbedtls_x509_crl_free>
+	class X509CRL final
+		: public RAIIObj<mbedtls_x509_crl, mbedtls_x509_crl_init, mbedtls_x509_crl_free>
 	{
 	 public:
 		X509CRL(const std::string& crlstr)
@@ -221,7 +224,7 @@ namespace mbedTLS
 		}
 	};
 
-	class X509Credentials
+	class X509Credentials final
 	{
 		/** Private key
 		 */

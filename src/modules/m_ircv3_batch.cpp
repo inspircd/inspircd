@@ -39,7 +39,7 @@ class BatchMessage final
 /** Extra structure allocated only for running batches, containing objects only relevant for
  * that specific run of the batch.
  */
-struct IRCv3::Batch::BatchInfo
+struct IRCv3::Batch::BatchInfo final
 {
 	/** List of users that have received the batch start message
 	 */
@@ -58,7 +58,8 @@ struct IRCv3::Batch::BatchInfo
 	}
 };
 
-class IRCv3::Batch::ManagerImpl final : public Manager
+class IRCv3::Batch::ManagerImpl final
+	: public Manager
 {
 	typedef std::vector<Batch*> BatchList;
 

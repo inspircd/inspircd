@@ -304,7 +304,7 @@ class C2CTags final
 	}
 };
 
-class ModuleIRCv3CTCTags
+class ModuleIRCv3CTCTags final
 	: public Module
 	, public CTCTags::EventListener
 	, public ISupport::EventListener

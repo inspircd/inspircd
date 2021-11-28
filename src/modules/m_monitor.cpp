@@ -51,7 +51,7 @@ struct IRCv3::Monitor::Entry final
 	const std::string& GetNick() const { return nick; }
 };
 
-class IRCv3::Monitor::Manager
+class IRCv3::Monitor::Manager final
 {
 	struct ExtData final
 	{
