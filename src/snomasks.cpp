@@ -72,11 +72,11 @@ void SnomaskManager::WriteGlobalSno(char letter, const char* text, ...)
 
 SnomaskManager::SnomaskManager()
 {
-	EnableSnomask('c',"CONNECT");			/* Local connect notices */
-	EnableSnomask('q',"QUIT");			/* Local quit notices */
-	EnableSnomask('k',"KILL");			/* Kill notices */
-	EnableSnomask('o',"OPER");			/* Oper up/down notices */
-	EnableSnomask('a',"ANNOUNCEMENT");		/* formerly WriteOpers() - generic notices to all opers */
+	EnableSnomask('a', "ANNOUNCEMENT");
+	EnableSnomask('c', "CONNECT");
+	EnableSnomask('k', "KILL");
+	EnableSnomask('o', "OPER");
+	EnableSnomask('q', "QUIT");
 }
 
 bool SnomaskManager::IsSnomaskUsable(char ch) const
