@@ -74,6 +74,11 @@ class CoreModXLine final
 	{
 	}
 
+	void init() override
+	{
+		ServerInstance->SNO.EnableSnomask('x', "XLINE");
+	}
+
 	void OnSetUserIP(LocalUser* user) override
 	{
 		if (user->quitting)

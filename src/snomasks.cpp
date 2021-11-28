@@ -77,8 +77,6 @@ SnomaskManager::SnomaskManager()
 	EnableSnomask('k',"KILL");			/* Kill notices */
 	EnableSnomask('o',"OPER");			/* Oper up/down notices */
 	EnableSnomask('a',"ANNOUNCEMENT");		/* formerly WriteOpers() - generic notices to all opers */
-	EnableSnomask('x',"XLINE");			/* X-line notices (G/Z/Q/K/E/R/SHUN/CBan) */
-	EnableSnomask('t',"STATS");			/* Local or remote stats request */
 }
 
 bool SnomaskManager::IsSnomaskUsable(char ch) const

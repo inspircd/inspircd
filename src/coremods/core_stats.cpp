@@ -404,6 +404,11 @@ class CoreModStats final
 	{
 	}
 
+	void init() override
+	{
+		ServerInstance->SNO.EnableSnomask('t', "STATS");
+	}
+
 	void ReadConfig(ConfigStatus& status) override
 	{
 		auto security = ServerInstance->Config->ConfValue("security");
