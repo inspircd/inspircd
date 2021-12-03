@@ -39,14 +39,14 @@ class CommandRMode final
 		Channel* chan = ServerInstance->Channels.Find(parameters[0]);
 		char modeletter = parameters[1][0];
 
-		if (chan == NULL)
+		if (!chan)
 		{
 			user->WriteNotice("The channel " + parameters[0] + " does not exist.");
 			return CmdResult::FAILURE;
 		}
 
 		mh = ServerInstance->Modes.FindMode(modeletter, MODETYPE_CHANNEL);
-		if (mh == NULL || parameters[1].size() > 1)
+		if (!mh || parameters[1].size() > 1)
 		{
 			user->WriteNotice(parameters[1] + " is not a valid channel mode.");
 			return CmdResult::FAILURE;

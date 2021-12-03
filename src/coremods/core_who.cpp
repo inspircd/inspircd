@@ -52,7 +52,7 @@ struct WhoData final
 		if (!whox)
 		{
 			const char* pos = strchr(who_field_order, flag);
-			if (pos == NULL)
+			if (!pos)
 				return false;
 
 			out = pos - who_field_order;

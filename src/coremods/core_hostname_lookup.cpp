@@ -77,7 +77,7 @@ class UserResolver final
 			return;
 
 		const DNS::ResourceRecord* ans_record = r->FindAnswerOfType(this->question.type);
-		if (ans_record == NULL)
+		if (!ans_record)
 		{
 			HandleError(bound_user, "Could not resolve your hostname: No " + this->manager->GetTypeStr(this->question.type) + " records found");
 			return;

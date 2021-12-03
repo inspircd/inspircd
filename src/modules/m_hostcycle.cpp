@@ -73,7 +73,7 @@ class ModuleHostCycle final
 			for (const auto& [chanuser, _] : c->GetUsers())
 			{
 				LocalUser* u = IS_LOCAL(chanuser);
-				if (u == NULL || u == user)
+				if (!u || u == user)
 					continue;
 				if (u->already_sent == silent_id)
 					continue;

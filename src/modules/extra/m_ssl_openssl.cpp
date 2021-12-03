@@ -81,7 +81,7 @@ namespace OpenSSL
 		DHParams(const std::string& filename)
 		{
 			BIO* dhpfile = BIO_new_file(filename.c_str(), "r");
-			if (dhpfile == NULL)
+			if (!dhpfile)
 				throw Exception("Couldn't open DH file " + filename);
 
 			dh = PEM_read_bio_DHparams(dhpfile, NULL, NULL, NULL);
@@ -359,7 +359,7 @@ namespace OpenSSL
 
 			const std::string hash = tag->getString("hash", "sha256", 1);
 			digest = EVP_get_digestbyname(hash.c_str());
-			if (digest == NULL)
+			if (!digest)
 				throw Exception("Unknown hash type " + hash);
 
 			const std::string ciphers = tag->getString("ciphers");

@@ -370,7 +370,7 @@ class LDAPService final
 
 	void Search(LDAPInterface* i, const std::string& base, const std::string& filter) override
 	{
-		if (i == NULL)
+		if (!i)
 			throw LDAPException("No interface");
 
 		LDAPSearch* s = new LDAPSearch(this, i, base, searchscope, filter);
@@ -413,7 +413,7 @@ class LDAPService final
 			return;
 		}
 
-		if (req->message == NULL)
+		if (!req->message)
 		{
 			return;
 		}

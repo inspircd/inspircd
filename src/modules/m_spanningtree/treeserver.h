@@ -132,7 +132,7 @@ class TreeServer final
 
 	/** Returns true if this server is the tree root (i.e.: us)
 	 */
-	bool IsRoot() const { return (this->Parent == NULL); }
+	bool IsRoot() const { return (!this->Parent); }
 
 	/** Returns true if this server is locally connected
 	 */

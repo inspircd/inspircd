@@ -439,7 +439,7 @@ class ModuleSASL final
 
 	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata) override
 	{
-		if ((target == NULL) && (extname == "saslmechlist"))
+		if ((!target) && (extname == "saslmechlist"))
 			cap.SetMechlist(extdata);
 	}
 };

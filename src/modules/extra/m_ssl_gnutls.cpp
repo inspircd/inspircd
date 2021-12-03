@@ -711,7 +711,7 @@ class GnuTLSIOHook final
 
 		unsigned int cert_list_size = 0;
 		const gnutls_datum_t* cert_list = gnutls_certificate_get_peers(this->sess, &cert_list_size);
-		if (cert_list == NULL)
+		if (!cert_list)
 		{
 			certinfo->error = "No certificate was found";
 			goto info_done_dealloc;

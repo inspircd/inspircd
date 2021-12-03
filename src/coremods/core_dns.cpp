@@ -656,7 +656,7 @@ class MyManager final
 
 		// recv_packet.id must be filled in here
 		DNS::Request* request = this->requests[recv_packet.id];
-		if (request == NULL)
+		if (!request)
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Received an answer for something we didn't request");
 			return;

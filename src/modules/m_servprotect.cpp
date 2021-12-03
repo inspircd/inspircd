@@ -104,7 +104,7 @@ class ModuleServProtectMode final
 
 	ModResult OnKill(User* src, User* dst, const std::string &reason) override
 	{
-		if (src == NULL)
+		if (!src)
 			return MOD_RES_PASSTHRU;
 
 		if (dst->IsModeSet(bm))
