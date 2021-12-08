@@ -105,7 +105,7 @@ It appears that the server endpoint is using plaintext! Make sure that:
     - ssl_openssl
     - ssl_mbedtls
 
-  * The value of <bind:ssl> is the same as an <sslprofile:name> field.
+  * The value of <bind:sslprofile> is the same as an <sslprofile:name> field.
 
   * The value of <sslprofile:provider> for your used TLS profile is set to
     "gnutls" if using the ssl_gnutls module, "openssl" if using the ssl_openssl

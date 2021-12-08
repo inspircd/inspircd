@@ -45,7 +45,7 @@ class CoreExport ExtensionItem
 
 	/** Initializes an instance of the ExtensionItem class.
 	 * @param owner The module which created this ExtensionItem.
-	 * @param key The name of the extension item (e.g. ssl_cert).
+	 * @param key The name of the extension item (e.g. foo_bar).
 	 * @param exttype The type of Extensible that this ExtensionItem applies to.
 	 */
 	ExtensionItem(Module* owner, const std::string& key, ExtensibleType exttype);
@@ -193,7 +193,7 @@ class SimpleExtItem : public ExtensionItem
  public:
 	/** Initializes an instance of the SimpleExtItem class.
 	 * @param parent The module which created this SimpleExtItem.
-	 * @param Key The name of the extension item (e.g. ssl_cert).
+	 * @param Key The name of the extension item (e.g. foo_bar).
 	 * @param exttype The type of Extensible that this SimpleExtItem applies to.
 	 */
 	SimpleExtItem(Module* parent, const std::string& Key, ExtensibleType exttype)
@@ -244,7 +244,7 @@ class CoreExport StringExtItem : public SimpleExtItem<std::string>
  public:
 	/** Initializes an instance of the StringExtItem class.
 	 * @param owner The module which created this StringExtItem.
-	 * @param key The name of the extension item (e.g. ssl_cert).
+	 * @param key The name of the extension item (e.g. foo_bar).
 	 * @param exttype The type of Extensible that this IntExtItem applies to.
 	 * @param sync Whether this StringExtItem should be broadcast to other servers.
 	 */
@@ -273,7 +273,7 @@ class CoreExport IntExtItem : public ExtensionItem
  public:
 	/** Initializes an instance of the IntExtItem class.
 	 * @param owner The module which created this IntExtItem.
-	 * @param key The name of the extension item (e.g. ssl_cert).
+	 * @param key The name of the extension item (e.g. foo_bar).
 	 * @param exttype The type of Extensible that this IntExtItem applies to.
 	 * @param sync Whether this IntExtItem should be broadcast to other servers.
 	 */
@@ -324,7 +324,7 @@ class CoreExport BoolExtItem : public ExtensionItem
  public:
 	/** Initializes an instance of the BoolExtItem class.
 	 * @param owner The module which created this BoolExtItem.
-	 * @param key The name of the extension item (e.g. ssl_cert).
+	 * @param key The name of the extension item (e.g. foo_bar).
 	 * @param exttype The type of Extensible that this BoolExtItem applies to.
 	 * @param sync Whether this BoolExtItem should be broadcast to other servers.
 	 */

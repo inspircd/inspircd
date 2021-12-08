@@ -153,16 +153,16 @@ public:
 class SSLIOHook : public IOHook
 {
  protected:
-	/** An enumeration of possible TLS (SSL) socket states. */
+	/** An enumeration of possible TLS socket states. */
 	enum Status
 	{
-		/** The SSL socket has just been opened or has been closed. */
+		/** The TLS socket has just been opened or has been closed. */
 		STATUS_NONE,
 
-		/** The SSL socket is currently handshaking. */
+		/** The TLS socket is currently handshaking. */
 		STATUS_HANDSHAKING,
 
-		/** The SSL handshake has completed and data can be sent. */
+		/** The TLS handshake has completed and data can be sent. */
 		STATUS_OPEN
 	};
 
@@ -170,7 +170,7 @@ class SSLIOHook : public IOHook
 	 */
 	reference<ssl_cert> certificate;
 
-	/** The status of the TLS (SSL) connection. */
+	/** The status of the TLS connection. */
 	Status status = STATUS_NONE;
 
 	/** Reduce elements in a send queue by appending later elements to the first element until there are no more

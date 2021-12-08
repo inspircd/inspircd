@@ -1010,7 +1010,7 @@ class ModuleSSLOpenSSL final
 		}
 		catch (ModuleException& ex)
 		{
-			ServerInstance->SNO.WriteToSnoMask('r', "Failed to reload the OpenSSL TLS (SSL) profiles. " + ex.GetReason());
+			ServerInstance->SNO.WriteToSnoMask('r', "Failed to reload the OpenSSL TLS profiles. " + ex.GetReason());
 		}
 	}
 
