@@ -73,7 +73,7 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 
 		if (u->server->IsULine())
 		{
-			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, "You may not kick a U-lined client");
+			user->WriteNumeric(ERR_RESTRICTED, c->name, "You may not kick a U-lined client");
 			return CMD_FAILURE;
 		}
 	}

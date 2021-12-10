@@ -48,7 +48,7 @@ class ModuleNoKicks : public Module
 		if (!memb->chan->GetExtBanStatus(source, 'Q').check(!modeset))
 		{
 			// Can't kick with Q in place, not even opers with override, and founders
-			source->WriteNumeric(ERR_CHANOPRIVSNEEDED, memb->chan->name, InspIRCd::Format("Can't kick user %s from channel (%s)",
+			source->WriteNumeric(ERR_RESTRICTED, memb->chan->name, InspIRCd::Format("Can't kick user %s from channel (%s)",
 				memb->user->nick.c_str(), modeset ? "+Q is set" : "you're extbanned"));
 			return MOD_RES_DENY;
 		}
