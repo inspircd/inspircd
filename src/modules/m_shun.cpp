@@ -243,22 +243,22 @@ class ModuleShun final
 			}
 		}
 
-		if (cleanedcommands.count(command))
+		if (!cleanedcommands.count(command))
+			return MOD_RES_PASSTHRU;
+
+		switch (parameters.size())
 		{
-			if (command == "AWAY" && !parameters.empty())
+			case 0:
 			{
-				// Allow away but only for unsetting.
-				parameters.clear();
+				if (command == "AWAY" || command == "QUIT")
+					parameters.clear();
+				break;
 			}
-			else if (command == "PART" && parameters.size() > 1)
+			case 1:
 			{
-				// Allow part but strip the message.
-				parameters.pop_back();
-			}
-			else if (command == "QUIT" && !parameters.empty())
-			{
-				// Allow quit but strip the message.
-				parameters.clear();
+				if (command == "CYCLE" || command == "KNOCK" || command == "PART")
+					parameters.resize(1);
+				break;
 			}
 		}
 

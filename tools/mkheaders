@@ -79,11 +79,16 @@ for my $path (@paths) {
 			} elsif ($line =~ /^author (.+)/) {
 				$commits{$commit}->{NAME} = $1;
 			} elsif ($line =~ /^author-mail <(.+)>/) {
+				next if $1 eq 'unknown@email.invalid';
+				next if $1 =~ /\@users.noreply.github.com$/;
 				$commits{$commit}->{EMAIL} = $1;
 			} elsif ($line =~ /^author-time (.+)/) {
 				$commits{$commit}->{YEAR} = strftime '%Y', gmtime $1;
 			} elsif ($line =~ /^filename /) {
-				my $display = sprintf "%s <%s>", $commits{$commit}->{NAME}, $commits{$commit}->{EMAIL};
+				my $display = $commits{$commit}->{NAME};
+				if (exists $commits{$commit}->{EMAIL}) {
+					$display .= sprintf " <%s>", $commits{$commit}->{EMAIL};
+				}
 				$authors{$display} //= [];
 				push @{$authors{$display}}, $commits{$commit}->{YEAR};
 				my $details = `git rev-list --format=%B --max-count=1 $commit`;

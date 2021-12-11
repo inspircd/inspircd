@@ -58,10 +58,12 @@ class LDAPRequest
 	LDAPResult* result = nullptr; /* final result */
 	struct timeval tv;
 	QueryType type;
+	int success;
 
-	LDAPRequest(LDAPService* s, LDAPInterface* i)
+	LDAPRequest(LDAPService* s, LDAPInterface* i, int c)
 		: service(s)
 		, inter(i)
+		, success(c)
 	{
 		type = QUERY_UNKNOWN;
 		tv.tv_sec = 0;
@@ -86,7 +88,7 @@ class LDAPBind final
 
  public:
 	LDAPBind(LDAPService* s, LDAPInterface* i, const std::string& w, const std::string& p)
-		: LDAPRequest(s, i)
+		: LDAPRequest(s, i, LDAP_SUCCESS)
 		, who(w)
 		, pass(p)
 	{
@@ -106,7 +108,7 @@ class LDAPSearch final
 
  public:
 	LDAPSearch(LDAPService* s, LDAPInterface* i, const std::string& b, int se, const std::string& f)
-		: LDAPRequest(s, i)
+		: LDAPRequest(s, i, LDAP_SUCCESS)
 		, base(b)
 		, searchscope(se)
 		, filter(f)
@@ -126,7 +128,7 @@ class LDAPAdd final
 
  public:
 	LDAPAdd(LDAPService* s, LDAPInterface* i, const std::string& d, const LDAPMods& attr)
-		: LDAPRequest(s, i)
+		: LDAPRequest(s, i, LDAP_SUCCESS)
 		, dn(d)
 		, attributes(attr)
 	{
@@ -144,7 +146,7 @@ class LDAPDel final
 
  public:
 	LDAPDel(LDAPService* s, LDAPInterface* i, const std::string& d)
-		: LDAPRequest(s, i)
+		: LDAPRequest(s, i, LDAP_SUCCESS)
 		, dn(d)
 	{
 		type = QUERY_DELETE;
@@ -162,7 +164,7 @@ class LDAPModify final
 
  public:
 	LDAPModify(LDAPService* s, LDAPInterface* i, const std::string& b, const LDAPMods& attr)
-		: LDAPRequest(s, i)
+		: LDAPRequest(s, i, LDAP_SUCCESS)
 		, base(b)
 		, attributes(attr)
 	{
@@ -180,7 +182,7 @@ class LDAPCompare final
 
  public:
 	LDAPCompare(LDAPService* s, LDAPInterface* i, const std::string& d, const std::string& a, const std::string& v)
-		: LDAPRequest(s, i)
+		: LDAPRequest(s, i, LDAP_COMPARE_TRUE)
 		, dn(d)
 		, attr(a)
 		, val(v)
@@ -407,7 +409,7 @@ class LDAPService final
 		LDAPResult* ldap_result = req->result = new LDAPResult();
 		req->result->type = req->type;
 
-		if (res != LDAP_SUCCESS)
+		if (res != req->success)
 		{
 			ldap_result->error = InspIRCd::Format("%s (%s)", ldap_err2string(res), req->info().c_str());
 			return;

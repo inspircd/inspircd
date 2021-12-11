@@ -271,7 +271,7 @@ static std::string GetServerHost()
 	{
 		std::string name(hostname);
 		if (name.find('.') == std::string::npos)
-			name.push_back('.');
+			name.append(".local");
 
 		if (name.length() <= ServerInstance->Config->Limits.MaxHost && InspIRCd::IsHost(name))
 			return name;

@@ -22,6 +22,7 @@ Daniel Vassdal <shutter@canternet.org>       ShutterQuick <shutter@canternet.org
 Dennis Friis <peavey@inspircd.org>           peavey <peavey@e03df62e-2008-0410-955e-edbf42e46eb7>
 DjSlash <djslash@djslash.org>                Rutger <djslash+github@djslash.org>
 Geoff Bricker <geoff.bricker@gmail.com>      bricker <bricker@e03df62e-2008-0410-955e-edbf42e46eb7>
+Herman <GermanAizek@yandex.ru>               GermanAizek <GermanAizek@yandex.ru>
 iwalkalone <iwalkalone69@gmail.com>          iwalkalone <iwalkalone69@users.noreply.github.com>
 jackmcbarn <jackmcbarn@inspircd.org>         Jackmcbarn <jackmcbarn@jackmcbarn.no-ip.org>
 James Lu <GLolol@overdrivenetworks.com>      James Lu <GLolol1@hotmail.com>
@@ -40,16 +41,19 @@ Robby <robby@chatbelgie.be>                  Robby- <robbyke@gmail.com>
 Robin Burchell <robin+git@viroteck.net>      Robin Burchell <viroteck@viroteck.net>
 Robin Burchell <robin+git@viroteck.net>      w00t <w00t@e03df62e-2008-0410-955e-edbf42e46eb7>
 Sadie Powell <sadie@witchery.services>       Peter Powell <petpow@saberuk.com>
+satmd <satmd@satmd.de>                       satmd <satmd@lain.at>
+satmd <satmd@satmd.de>                       satmd <satmd@users.noreply.github.com>
 Thomas Stagner <aquanight@inspircd.org>      aquanight <aquanight@e03df62e-2008-0410-955e-edbf42e46eb7>
 Uli Schlachter <psychon@inspircd.org>        psychon <psychon@e03df62e-2008-0410-955e-edbf42e46eb7>
 
-# The identities of the following people could not be verified:
-#
-#   burlex <burlex@e03df62e-2008-0410-955e-edbf42e46eb7>
-#   eggy <eggy@e03df62e-2008-0410-955e-edbf42e46eb7>
-#   fez <fez@e03df62e-2008-0410-955e-edbf42e46eb7>
-#   jamie <jamie@e03df62e-2008-0410-955e-edbf42e46eb7>
-#   katsklaw <katsklaw@e03df62e-2008-0410-955e-edbf42e46eb7>
-#   Philouuu <philsliders@laptop.(none)> / PhilSliderS <philsliders@laptop.(none)>
-#   randomdan <randomdan@e03df62e-2008-0410-955e-edbf42e46eb7>
-#   typobox43 <typobox43@e03df62e-2008-0410-955e-edbf42e46eb7>
+# The identities of the following people could not be verified. If you have an
+# email address for them please contact Sadie.
+burlex <unknown@email.invalid>        burlex <burlex@e03df62e-2008-0410-955e-edbf42e46eb7>
+eggy <unknown@email.invalid>          eggy <eggy@e03df62e-2008-0410-955e-edbf42e46eb7>
+fez <unknown@email.invalid>           fez <fez@e03df62e-2008-0410-955e-edbf42e46eb7>
+jamie <unknown@email.invalid>         jamie <jamie@e03df62e-2008-0410-955e-edbf42e46eb7>
+katsklaw <unknown@email.invalid>      katsklaw <katsklaw@e03df62e-2008-0410-955e-edbf42e46eb7>
+PhilSliderS <unknown@email.invalid>   Philouuu <philsliders@laptop.(none)>
+PhilSliderS <unknown@email.invalid>   PhilSliderS <philsliders@laptop.(none)>
+randomdan <unknown@email.invalid>     randomdan <randomdan@e03df62e-2008-0410-955e-edbf42e46eb7>
+typobox43  <unknown@email.invalid>    typobox43 <typobox43@e03df62e-2008-0410-955e-edbf42e46eb7>
