@@ -20,7 +20,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $LinkerFlags: -llber -lldap_r
+/// $LinkerFlags: find_compiler_flags("lber" "") find_compiler_flags("ldap" "")
+/// $LinkerFlags: find_linker_flags("lber" "-llber") find_linker_flags("ldap" "-lldap_r")
 
 /// $PackageInfo: require_system("arch") libldap
 /// $PackageInfo: require_system("centos") openldap-devel
