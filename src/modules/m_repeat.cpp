@@ -413,7 +413,7 @@ class RepeatModule : public Module
 			if (settings->Action == ChannelSettings::ACT_BAN)
 			{
 				Modes::ChangeList changelist;
-				changelist.push_add(*banmode, "*!*@" + user->GetDisplayedHost());
+				changelist.push_add(*banmode, "*!" + user->GetBanIdent() + "@" + user->GetDisplayedHost());
 				ServerInstance->Modes->Process(ServerInstance->FakeClient, chan, NULL, changelist);
 			}
 

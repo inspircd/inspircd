@@ -722,6 +722,12 @@ const std::string& User::GetIPString()
 	return cachedip;
 }
 
+const std::string& User::GetBanIdent() const
+{
+	static const std::string wildcard = "*";
+	return uniqueusername ? ident : wildcard;
+}
+
 const std::string& User::GetHost(bool uncloak) const
 {
 	return uncloak ? GetRealHost() : GetDisplayedHost();
