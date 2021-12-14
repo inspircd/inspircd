@@ -18,7 +18,6 @@
  */
 
 /// $CompilerFlags: find_compiler_flags("libargon2" "")
-
 /// $LinkerFlags: find_linker_flags("libargon2" "-largon2")
 
 /// $PackageInfo: require_system("arch") argon2 pkgconf

@@ -176,7 +176,7 @@ sub __function_execute {
 }
 
 sub __function_find_compiler_flags {
-	my ($file, $name) = @_;
+	my ($file, $name, $defaults) = @_;
 
 	# Try to look up the compiler flags with pkg-config...
 	chomp(my $flags = `pkg-config --cflags $name ${\DIRECTIVE_ERROR_PIPE}`);
@@ -192,12 +192,18 @@ sub __function_find_compiler_flags {
 		return $ENV{$key};
 	}
 
+	# If all else fails then look for the defaults..
+	if (defined $defaults) {
+		say console_format "Using the default <|GREEN $name|> compiler flags for <|GREEN ${\module_shrink $file}|>: <|BOLD $defaults|>";
+		return $defaults;
+	}
+
 	# We can't find it via pkg-config, via the environment, or via the defaults so give up.
 	__error $file, "unable to find the <|GREEN $name|> compiler flags for <|GREEN ${\module_shrink $file}|>!";
 }
 
 sub __function_find_linker_flags {
-	my ($file, $name) = @_;
+	my ($file, $name, $defaults) = @_;
 
 	# Try to look up the linker flags with pkg-config...
 	chomp(my $flags = `pkg-config --libs $name ${\DIRECTIVE_ERROR_PIPE}`);
@@ -211,6 +217,12 @@ sub __function_find_linker_flags {
 	if (defined $ENV{$key}) {
 		say console_format "Found the <|GREEN $name|> linker flags for <|GREEN ${\module_shrink $file}|> using the environment: <|BOLD $ENV{$key}|>";
 		return $ENV{$key};
+	}
+
+	# If all else fails then look for the defaults..
+	if (defined $defaults) {
+		say console_format "Using the default <|GREEN $name|> linker flags for <|GREEN ${\module_shrink $file}|>: <|BOLD $defaults|>";
+		return $defaults;
 	}
 
 	# We can't find it via pkg-config, via the environment, or via the defaults so give up.
