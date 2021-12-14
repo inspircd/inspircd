@@ -118,7 +118,7 @@ class CommandClearChan : public Command
 				XLine* xline;
 				try
 				{
-					mask = ((method[0] == 'Z') ? curr->GetIPString() : "*@" + curr->GetRealHost());
+					mask = (method[0] == 'Z') ? curr->GetIPString() : (curr->GetBanIdent() + "@" + curr->GetRealHost());
 					xline = xlf->Generate(ServerInstance->Time(), 60*60, user->nick, reason, mask);
 				}
 				catch (ModuleException&)

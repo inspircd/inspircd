@@ -73,7 +73,7 @@ class CommandShun : public Command
 
 		User *find = ServerInstance->FindNick(target);
 		if ((find) && (find->registered == REG_ALL))
-			target = std::string("*!*@") + find->GetIPString();
+			target = "*!" + find->GetBanIdent() + "@" + find->GetIPString();
 
 		if (parameters.size() == 1)
 		{

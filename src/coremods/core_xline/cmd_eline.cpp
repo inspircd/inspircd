@@ -48,9 +48,9 @@ CmdResult CommandEline::Handle(User* user, const Params& parameters)
 		User* find = ServerInstance->FindNick(target);
 		if ((find) && (find->registered == REG_ALL))
 		{
-			ih.first = "*";
+			ih.first = find->GetBanIdent();
 			ih.second = find->GetIPString();
-			target = std::string("*@") + find->GetIPString();
+			target = ih.first + "@" + ih.second;
 		}
 		else
 			ih = ServerInstance->XLines->IdentSplit(target);

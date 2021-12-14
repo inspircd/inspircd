@@ -379,6 +379,9 @@ class CoreExport User : public Extensible
 	 */
 	const std::string& GetHost(bool uncloak) const;
 
+	/** Retrieves the username which should be included in bans for this user. */
+	const std::string& GetBanIdent() const;
+
 	/** Retrieves this user's displayed hostname. */
 	const std::string& GetDisplayedHost() const;
 
