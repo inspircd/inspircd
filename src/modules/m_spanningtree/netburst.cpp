@@ -284,6 +284,9 @@ void TreeSocket::SendUsers(BurstState& bs)
 		if (user->IsAway())
 			this->WriteLine(CommandAway::Builder(user));
 
+		if (user->uniqueusername) // TODO: convert this to BooleanExtItem in v4.
+			this->WriteLine(CommandMetadata::Builder(user, "uniqueusername", "1"));
+
 		for (const auto& [item, obj] : user->GetExtList())
 		{
 			const std::string value = item->ToNetwork(user, obj);

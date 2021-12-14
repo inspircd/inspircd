@@ -83,6 +83,7 @@ User::User(const std::string& uid, Server* srv, Type type)
 	, server(srv)
 	, registered(REG_NONE)
 	, quitting(false)
+	, uniqueusername(false)
 	, usertype(type)
 {
 	client_sa.sa.sa_family = AF_UNSPEC;
@@ -521,6 +522,7 @@ void LocalUser::CheckClass(bool clone_count)
 	}
 
 	this->nextping = ServerInstance->Time() + a->GetPingTime();
+	this->uniqueusername = a->uniqueusername;
 }
 
 bool LocalUser::CheckLines(bool doZline)
@@ -684,6 +686,12 @@ const std::string& User::GetIPString()
 	}
 
 	return cachedip;
+}
+
+const std::string& User::GetBanIdent() const
+{
+	static const std::string wildcard = "*";
+	return uniqueusername ? ident : wildcard;
 }
 
 const std::string& User::GetHost(bool uncloak) const

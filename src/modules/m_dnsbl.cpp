@@ -279,11 +279,11 @@ class DNSBLResolver final
 				case DNSBLEntry::Action::KLINE:
 				{
 					KLine* kl = new KLine(ServerInstance->Time(), ConfEntry->xlineduration, ServerInstance->Config->ServerName.c_str(), reason.c_str(),
-							"*", them->GetIPString());
+							them->GetBanIdent(), them->GetIPString());
 					if (ServerInstance->XLines->AddLine(kl,NULL))
 					{
-						ServerInstance->SNO.WriteToSnoMask('x', "K-line added due to DNSBL match on *@%s to expire in %s (on %s): %s",
-							them->GetIPString().c_str(), InspIRCd::DurationString(kl->duration).c_str(),
+						ServerInstance->SNO.WriteToSnoMask('x', "K-line added due to DNSBL match on %s to expire in %s (on %s): %s",
+							kl->Displayable().c_str(), InspIRCd::DurationString(kl->duration).c_str(),
 							InspIRCd::TimeString(kl->expiry).c_str(), reason.c_str());
 						ServerInstance->XLines->ApplyLines();
 					}
@@ -297,11 +297,11 @@ class DNSBLResolver final
 				case DNSBLEntry::Action::GLINE:
 				{
 					GLine* gl = new GLine(ServerInstance->Time(), ConfEntry->xlineduration, ServerInstance->Config->ServerName.c_str(), reason.c_str(),
-							"*", them->GetIPString());
+							them->GetBanIdent(), them->GetIPString());
 					if (ServerInstance->XLines->AddLine(gl,NULL))
 					{
-						ServerInstance->SNO.WriteToSnoMask('x', "G-line added due to DNSBL match on *@%s to expire in %s (on %s): %s",
-							them->GetIPString().c_str(), InspIRCd::DurationString(gl->duration).c_str(),
+						ServerInstance->SNO.WriteToSnoMask('x', "G-line added due to DNSBL match on %s to expire in %s (on %s): %s",
+							gl->Displayable().c_str(), InspIRCd::DurationString(gl->duration).c_str(),
 							InspIRCd::TimeString(gl->expiry).c_str(), reason.c_str());
 						ServerInstance->XLines->ApplyLines();
 					}

@@ -163,7 +163,7 @@ private:
 				if (f->ban)
 				{
 					Modes::ChangeList changelist;
-					changelist.push_add(*banmode, "*!*@" + user->GetDisplayedHost());
+					changelist.push_add(*banmode, "*!" + user->GetBanIdent() + "@" + user->GetDisplayedHost());
 					ServerInstance->Modes.Process(ServerInstance->FakeClient, dest, nullptr, changelist);
 				}
 

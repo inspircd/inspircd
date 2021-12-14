@@ -163,8 +163,9 @@ class ModuleAntiCaps final
 
 	void CreateBan(Channel* channel, User* user, bool mute)
 	{
-		std::string banmask(mute ? "m:" : "");
-		banmask.append("*!*@");
+		std::string banmask(mute ? "m:*!" : "*!");
+		banmask.append(user->GetBanIdent());
+		banmask.append("@");
 		banmask.append(user->GetDisplayedHost());
 
 		Modes::ChangeList changelist;

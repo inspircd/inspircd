@@ -366,6 +366,9 @@ class CoreExport User : public Extensible
 	 */
 	unsigned int quitting:1;
 
+	/** Whether the ident field uniquely identifies this user on their origin host. */
+	bool uniqueusername:1;
+
 	/** What type of user is this? */
 	const uint8_t usertype:2;
 
@@ -378,6 +381,9 @@ class CoreExport User : public Extensible
 	 * @param uncloak If true then return the real host; otherwise, the display host.
 	 */
 	const std::string& GetHost(bool uncloak) const;
+
+	/** Retrieves the username which should be included in bans for this user. */
+	const std::string& GetBanIdent() const;
 
 	/** Retrieves this user's displayed hostname. */
 	const std::string& GetDisplayedHost() const;

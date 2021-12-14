@@ -206,6 +206,7 @@ class ModuleSpanningTree final
 	ModResult OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) override;
 	void OnMode(User* source, User* u, Channel* c, const Modes::ChangeList& modes, ModeParser::ModeProcessFlag processflags) override;
 	void OnShutdown(const std::string& reason) override;
+	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata) override;
 	Cullable::Result Cull() override;
 	~ModuleSpanningTree() override;
 	void Prioritize() override;
