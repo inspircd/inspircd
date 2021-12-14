@@ -363,6 +363,9 @@ class CoreExport User : public Extensible
 	 */
 	unsigned int quitting:1;
 
+	/** Whether the ident field uniquely identifies this user on their origin host. */
+	bool uniqueusername:1;
+
 	/** What type of user is this? */
 	const unsigned int usertype:2;
 

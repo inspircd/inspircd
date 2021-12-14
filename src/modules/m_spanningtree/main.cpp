@@ -803,6 +803,14 @@ void ModuleSpanningTree::OnShutdown(const std::string& reason)
 		children.front()->SQuit(reason, true);
 }
 
+void ModuleSpanningTree::OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata)
+{
+	// HACK: this should use automatically synced user metadata in v4.
+	User* dest = static_cast<User*>(target);
+	if (dest && (extname == "uniqueusername"))
+		dest->uniqueusername = true;
+}
+
 CullResult ModuleSpanningTree::cull()
 {
 	if (Utils)

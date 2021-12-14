@@ -296,6 +296,9 @@ void TreeSocket::SendUsers(BurstState& bs)
 		if (user->IsAway())
 			this->WriteLine(CommandAway::Builder(user));
 
+		if (user->uniqueusername) // TODO: convert this to BooleanExtItem in v4.
+			this->WriteLine(CommandMetadata::Builder(user, "uniqueusername", "1"));
+
 		const Extensible::ExtensibleStore& exts = user->GetExtList();
 		for (Extensible::ExtensibleStore::const_iterator i = exts.begin(); i != exts.end(); ++i)
 		{
