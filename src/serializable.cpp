@@ -132,6 +132,7 @@ bool User::Deserialize(Serializable::Data& data)
 		return false;
 
 	long client_port;
+	bool user_uniqueusername;
 	std::string client_addr;
 	std::string user_modes;
 	std::string user_oper;
@@ -151,11 +152,13 @@ bool User::Deserialize(Serializable::Data& data)
 		.Load("realhost", realhost)
 		.Load("realname", realname)
 		.Load("signon", signon)
-		.Load("snomasks", user_snomasks);
+		.Load("snomasks", user_snomasks)
+		.Load("uniqueusername", user_uniqueusername);
 
 	// Apply the rest of the members.
 	modes = std::bitset<ModeParser::MODEID_MAX>(user_modes);
 	snomasks = std::bitset<64>(user_snomasks);
+	uniqueusername = user_uniqueusername;
 
 	ServerConfig::OperIndex::const_iterator iter = ServerInstance->Config->OperTypes.find(user_oper);
 	if (iter != ServerInstance->Config->OperTypes.end())
@@ -213,6 +216,7 @@ bool User::Serialize(Serializable::Data& data)
 		.Store("realname", realname)
 		.Store("signon", signon)
 		.Store("snomasks", snomasks.to_string())
+		.Store("uniqueusername", uniqueusername)
 		.Store("uuid", uuid);
 
 	return true;

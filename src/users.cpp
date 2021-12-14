@@ -84,6 +84,7 @@ User::User(const std::string& uid, Server* srv, UserType type)
 	, server(srv)
 	, registered(REG_NONE)
 	, quitting(false)
+	, uniqueusername(false)
 	, usertype(type)
 {
 	client_sa.sa.sa_family = AF_UNSPEC;
@@ -555,6 +556,7 @@ void LocalUser::CheckClass(bool clone_count)
 	}
 
 	this->nextping = ServerInstance->Time() + a->GetPingTime();
+	this->uniqueusername = a->uniqueusername;
 }
 
 bool LocalUser::CheckLines(bool doZline)
