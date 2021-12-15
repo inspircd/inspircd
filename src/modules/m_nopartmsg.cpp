@@ -34,7 +34,7 @@ class ModulePartMsgBan final
 
  public:
 	ModulePartMsgBan()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban p: which blocks the part message of matching users.")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban p: (partmsg) which blocks the part message of matching users.")
 		, extban(this, "partmsg", 'p')
 	{
 	}

@@ -56,7 +56,7 @@ class ModuleGeoBan final
 
  public:
 	ModuleGeoBan()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban G: which matches against two letter country codes.")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban G: (country) which matches against two letter country codes.")
 		, Whois::EventListener(this)
 		, geoapi(this)
 		, extban(this, geoapi)

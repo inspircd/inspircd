@@ -36,7 +36,7 @@ class ModuleQuietBan final
 
  public:
 	ModuleQuietBan()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban m: which bans specific masks from speaking in a channel.")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban m: (mute) which bans specific masks from speaking in a channel.")
 		, CTCTags::EventListener(this)
 		, extban(this, "mute", 'm')
 	{
