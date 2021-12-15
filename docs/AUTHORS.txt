@@ -1,11 +1,11 @@
-Since the first commit in January 2003 102 people have submitted patches,
+Since the first commit in January 2003 104 people have submitted patches,
 commits, and other useful contributions to InspIRCd. These people, ordered by
 the number of contributions they have made, are:
 
 
   * Craig Edwards <brain@inspircd.org>
-  * Attila Molnar <attilamolnar@hush.com>
   * Sadie Powell <sadie@witchery.services>
+  * Attila Molnar <attilamolnar@hush.com>
   * Robin Burchell <robin+git@viroteck.net>
   * Daniel De Graaf <danieldg@inspircd.org>
   * Dennis Friis <peavey@inspircd.org>
@@ -39,6 +39,7 @@ the number of contributions they have made, are:
   * Steven Van Acker <steven@singularity.be>
   * Dan Parsons <dparsons@nyip.net>
   * Googolplexed <googol@googolplexed.net>
+  * Herman <GermanAizek@yandex.ru>
   * Mantas Mikulėnas <grawity@gmail.com>
   * Renegade334 <contact.caaeed4f@renegade334.me.uk>
   * Sheogorath <sheogorath@shivering-isles.com>
@@ -75,12 +76,12 @@ the number of contributions they have made, are:
   * Christos Triantafyllidis
   * David Lamont <del6597@rit.edu>
   * David Schultz <me@zpld.me>
+  * Dominic Hamon
   * ElementalAlchemist <ElementAlchemist7@gmail.com>
   * Elizabeth Myers <elizabeth@interlinked.me>
   * Filippo Cortigiani <simos@simosnap.org>
   * Florian Praden <florian@praden.eu>
   * Garrett Holmstrom <gholms@fedoraproject.org>
-  * Herman <GermanAizek@yandex.ru>
   * Joel Sing <joel@sing.id.au>
   * Jordyn/The Linux Geek <onlinecloud1@gmail.com>
   * Josh Soref
@@ -96,6 +97,7 @@ the number of contributions they have made, are:
   * Thiago Crepaldi <thiago@thiagocrepaldi.com>
   * Thomas Fargeix <t.fargeix@gmail.com>
   * Tim Heckman <t@heckman.io>
+  * Val Lorentz <progval+git@progval.net>
   * Vitor Luis <droider.pc@gmail.com>
   * WindowsUser
   * edef <edef@edef.eu>
