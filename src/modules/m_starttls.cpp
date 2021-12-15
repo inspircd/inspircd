@@ -81,16 +81,39 @@ class CommandStartTLS : public SplitCommand
 	}
 };
 
+class TLSCap : public Cap::Capability
+{
+ private:
+	dynamic_reference_nocheck<IOHookProvider>& sslref;
+
+	bool OnList(LocalUser* user) CXX11_OVERRIDE
+	{
+		return sslref;
+	}
+
+	bool OnRequest(LocalUser* user, bool adding) CXX11_OVERRIDE
+	{
+		return sslref;
+	}
+
+ public:
+	TLSCap(Module* mod, dynamic_reference_nocheck<IOHookProvider>& ssl)
+		: Cap::Capability(mod, "tls")
+		, sslref(ssl)
+	{
+	}
+};
+
 class ModuleStartTLS : public Module
 {
 	CommandStartTLS starttls;
-	Cap::Capability tls;
+	TLSCap tls;
 	dynamic_reference_nocheck<IOHookProvider> ssl;
 
  public:
 	ModuleStartTLS()
 		: starttls(this, ssl)
-		, tls(this, "tls")
+		, tls(this, ssl)
 		, ssl(this, "ssl")
 	{
 	}
