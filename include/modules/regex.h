@@ -69,13 +69,13 @@ class Regex::Engine
 	 * @param options One or more options to use when matching the pattern.
 	 * @return A shared pointer to an instance of the Regex::Pattern class.
 	 */
-	virtual PatternPtr Create(const std::string& pattern, uint8_t options = Regex::OPT_NONE) = 0;
+	virtual PatternPtr Create(const std::string& pattern, uint8_t options = Regex::OPT_NONE) const = 0;
 
 	/** Compiles a regular expression from the human-writable form.
 	 * @param pattern The pattern to compile in the format /pattern/flags.
 	 * @return A shared pointer to an instance of the Regex::Pattern class.
 	 */
-	PatternPtr CreateHuman(const std::string& pattern);
+	PatternPtr CreateHuman(const std::string& pattern) const;
 };
 
 /**The base class for simple regular expression engines. */
@@ -91,7 +91,7 @@ class Regex::SimpleEngine final
 	}
 
 	/** @copydoc Regex::Engine::Create */
-	PatternPtr Create(const std::string& pattern, uint8_t options) override
+	PatternPtr Create(const std::string& pattern, uint8_t options) const override
 	{
 		return std::make_shared<PatternClass>(pattern, options);
 	}
@@ -183,7 +183,7 @@ class Regex::Pattern
 	virtual bool IsMatch(const std::string& text) = 0;
 };
 
-inline Regex::PatternPtr Regex::Engine::CreateHuman(const std::string& pattern)
+inline Regex::PatternPtr Regex::Engine::CreateHuman(const std::string& pattern) const
 {
 	if (pattern.empty() || pattern[0] != '/')
 		return Create(pattern, OPT_NONE);

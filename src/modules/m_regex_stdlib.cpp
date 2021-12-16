@@ -67,7 +67,7 @@ class StdLibEngine final
 	{
 	}
 
-	Regex::PatternPtr Create(const std::string& pattern, uint8_t options) override
+	Regex::PatternPtr Create(const std::string& pattern, uint8_t options) const override
 	{
 		return std::make_shared<StdLibPattern>(pattern, options, regextype);
 	}
