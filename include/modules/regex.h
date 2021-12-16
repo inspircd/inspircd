@@ -198,6 +198,9 @@ inline Regex::PatternPtr Regex::Engine::CreateHuman(const std::string& pattern)
 		switch (flag)
 		{
 			case 'I':
+				options &= ~OPT_CASE_INSENSITIVE;
+				break;
+
 			case 'i':
 				options |= OPT_CASE_INSENSITIVE;
 				break;
