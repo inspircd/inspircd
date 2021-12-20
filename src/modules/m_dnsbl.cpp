@@ -171,7 +171,7 @@ class DNSBLResolver final
 	void AddLine(const char* type, const std::string& reason, unsigned long duration, Extra&&... extra)
 	{
 		auto line = new Line(ServerInstance->Time(), duration, ServerInstance->Config->ServerName, reason, std::forward<Extra>(extra)...);
-		if (ServerInstance->XLines->AddLine(line, nullptr))
+		if (!ServerInstance->XLines->AddLine(line, nullptr))
 		{
 			delete line;
 			return;
