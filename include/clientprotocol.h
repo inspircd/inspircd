@@ -34,7 +34,7 @@ namespace ClientProtocol
 /** Contains a message parsed from wire format.
  * Used by Serializer::Parse().
  */
-struct ClientProtocol::ParseOutput
+struct ClientProtocol::ParseOutput final
 {
 	/** Command name, must not be empty.
 	 */
@@ -51,7 +51,7 @@ struct ClientProtocol::ParseOutput
 
 /** A selection of zero or more tags in a TagMap.
  */
-class ClientProtocol::TagSelection
+class ClientProtocol::TagSelection final
 {
 	std::bitset<64> selection;
 
@@ -178,7 +178,8 @@ class ClientProtocol::MessageSource
  * All messages have a command name, a list of parameters and a map of tags, the last two can be empty.
  * They also always have a source, see class MessageSource.
  */
-class ClientProtocol::Message : public ClientProtocol::MessageSource
+class ClientProtocol::Message
+	: public ClientProtocol::MessageSource
 {
  public:
 	/** Contains information required to identify a specific version of a serialized message.
@@ -533,7 +534,8 @@ class ClientProtocol::MessageTagEvent
  * with tags before the message is sent and they have the job of determining whether a user should
  * get a message tag or be allowed to send one.
  */
-class ClientProtocol::MessageTagProvider : public Events::ModuleEventListener
+class ClientProtocol::MessageTagProvider
+	: public Events::ModuleEventListener
 {
  public:
 	/** Constructor.
@@ -580,7 +582,8 @@ class ClientProtocol::MessageTagProvider : public Events::ModuleEventListener
  * A protocol event hook is attached to a single event type. It has the ability to alter or block messages
  * sent to users which belong to the event the hook is attached to.
  */
-class ClientProtocol::EventHook : public Events::ModuleEventListener
+class ClientProtocol::EventHook
+	: public Events::ModuleEventListener
 {
  public:
 	static std::string GetEventName(const std::string& name)
@@ -624,7 +627,8 @@ class ClientProtocol::EventHook : public Events::ModuleEventListener
  * Protocol event hooks can be attached to the instances of these providers. The core has event
  * providers for most common IRC events defined in RFC1459.
  */
-class ClientProtocol::EventProvider : public Events::ModuleEventProvider
+class ClientProtocol::EventProvider final
+	: public Events::ModuleEventProvider
 {
  public:
 	/** Constructor.
@@ -641,7 +645,7 @@ class ClientProtocol::EventProvider : public Events::ModuleEventProvider
 /** Commonly used client protocol events.
  * Available via InspIRCd::GetRFCEvents().
  */
-struct ClientProtocol::RFCEvents
+struct ClientProtocol::RFCEvents final
 {
 	EventProvider numeric;
 	EventProvider join;
@@ -678,7 +682,8 @@ struct ClientProtocol::RFCEvents
 /** Base class for client protocol serializers.
  * A serializer has to implement serialization and parsing of protocol messages to/from wire format.
  */
-class CoreExport ClientProtocol::Serializer : public DataProvider
+class CoreExport ClientProtocol::Serializer
+	: public DataProvider
 {
  private:
 	ClientProtocol::MessageTagEvent evprov;

@@ -62,7 +62,8 @@ enum
 	RPL_WHOISSECURE = 671
 };
 
-class Whois::EventListener : public Events::ModuleEventListener
+class Whois::EventListener
+	: public Events::ModuleEventListener
 {
  public:
 	EventListener(Module* mod)
@@ -76,7 +77,8 @@ class Whois::EventListener : public Events::ModuleEventListener
 	virtual void OnWhois(Context& whois) = 0;
 };
 
-class Whois::LineEventListener : public Events::ModuleEventListener
+class Whois::LineEventListener
+	: public Events::ModuleEventListener
 {
  public:
 	LineEventListener(Module* mod)

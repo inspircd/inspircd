@@ -151,7 +151,8 @@ struct ProviderConfig final
 
 typedef std::map<std::string, ProviderConfig> ProviderConfigMap;
 
-class ModulePBKDF2 : public Module
+class ModulePBKDF2 final
+	: public Module
 {
 	std::vector<PBKDF2Provider*> providers;
 	ProviderConfig globalconfig;

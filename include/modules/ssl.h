@@ -39,7 +39,8 @@
  * in a unified manner. These classes are attached to ssl-
  * connected local users using SSLCertExt
  */
-class ssl_cert : public refcountbase
+class ssl_cert final
+	: public refcountbase
 {
  public:
 	std::string dn;
@@ -141,7 +142,8 @@ class ssl_cert : public refcountbase
 };
 
 /** I/O hook provider for TLS modules. */
-class SSLIOHookProvider : public IOHookProvider
+class SSLIOHookProvider
+	: public IOHookProvider
 {
 public:
 	SSLIOHookProvider(Module* mod, const std::string& Name)
@@ -150,7 +152,8 @@ public:
 	}
 };
 
-class SSLIOHook : public IOHook
+class SSLIOHook
+	: public IOHook
 {
  protected:
 	/** An enumeration of possible TLS socket states. */
@@ -254,7 +257,7 @@ class SSLIOHook : public IOHook
 /** Helper functions for obtaining TLS client certificates and key fingerprints
  * from StreamSockets
  */
-class SSLClientCert
+class SSLClientCert final
 {
  public:
 	/**
@@ -287,7 +290,8 @@ class SSLClientCert
 	}
 };
 
-class UserCertificateAPIBase : public DataProvider
+class UserCertificateAPIBase
+	: public DataProvider
 {
  public:
 	UserCertificateAPIBase(Module* parent)
@@ -325,7 +329,8 @@ class UserCertificateAPIBase : public DataProvider
  * information of local and remote users. It can also be used to find out whether a
  * user is using TLS or not.
  */
-class UserCertificateAPI : public dynamic_reference<UserCertificateAPIBase>
+class UserCertificateAPI final
+	: public dynamic_reference<UserCertificateAPIBase>
 {
  public:
 	UserCertificateAPI(Module* parent)

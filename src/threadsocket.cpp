@@ -25,7 +25,8 @@
 #if __has_include(<sys/eventfd.h>)
 #include <sys/eventfd.h>
 
-class ThreadSignalSocket : public EventHandler
+class ThreadSignalSocket final
+	: public EventHandler
 {
 	SocketThread* parent;
  public:
@@ -73,7 +74,8 @@ SocketThread::SocketThread()
 }
 #else
 
-class ThreadSignalSocket : public EventHandler
+class ThreadSignalSocket final
+	: public EventHandler
 {
 	SocketThread* parent;
 	int send_fd;

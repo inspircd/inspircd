@@ -60,7 +60,8 @@ class RE2Pattern final
 	}
 };
 
-class ModuleRegexRE2 : public Module
+class ModuleRegexRE2 final
+	: public Module
 {
  private:
 	Regex::SimpleEngine<RE2Pattern> regex;

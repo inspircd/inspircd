@@ -141,7 +141,7 @@ namespace irc
 }
 
 /** Represents information about a failed port binding. */
-struct CoreExport FailedPort
+struct CoreExport FailedPort final
 {
 	/** The error which happened during binding. */
 	int error;
@@ -169,7 +169,8 @@ typedef std::vector<FailedPort> FailedPortList;
  * It will create a new User for every valid connection
  * and assign it a file descriptor.
  */
-class CoreExport ListenSocket : public EventHandler
+class CoreExport ListenSocket final
+	: public EventHandler
 {
  public:
 	std::shared_ptr<ConfigTag> bind_tag;

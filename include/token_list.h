@@ -21,7 +21,7 @@
 
 #include "compat.h"
 
-class CoreExport TokenList
+class CoreExport TokenList final
 {
  private:
 	/** Whether this list includes all tokens by default. */

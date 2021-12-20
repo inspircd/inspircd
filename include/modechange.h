@@ -28,7 +28,7 @@ namespace Modes
 
 /** A single mode to be changed
  */
-struct Modes::Change
+struct Modes::Change final
 {
 	bool adding;
 	ModeHandler* mh;
@@ -67,7 +67,7 @@ struct Modes::Change
 
 /** A list of mode changes that can be applied on a Channel or User
  */
-class Modes::ChangeList
+class Modes::ChangeList final
 {
  public:
 	typedef std::vector<Change> List;

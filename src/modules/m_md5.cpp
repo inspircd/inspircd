@@ -248,7 +248,8 @@ class MD5Provider final
 	MD5Provider(Module* parent) : HashProvider(parent, "md5", 16, 64) {}
 };
 
-class ModuleMD5 : public Module
+class ModuleMD5 final
+	: public Module
 {
  private:
 	MD5Provider md5;

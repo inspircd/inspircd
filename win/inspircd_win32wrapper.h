@@ -150,7 +150,8 @@ void ::operator delete(void * ptr);
 
 #include <exception>
 
-class CWin32Exception : public std::exception
+class CWin32Exception final
+	: public std::exception
 {
 public:
 	CWin32Exception();
@@ -167,14 +168,14 @@ private:
 #define EXIT_STATUS_SERVICE 4
 
 // POSIX iovec
-struct iovec
+struct iovec final
 {
 	void* iov_base; // Starting address
 	size_t iov_len; // Number of bytes to transfer
 };
 
 // Windows WSABUF with POSIX field names
-struct WindowsIOVec
+struct WindowsIOVec final
 {
 	// POSIX iovec has iov_base then iov_len, WSABUF in Windows has the fields in reverse order
 	u_long iov_len; // Number of bytes to transfer
@@ -192,13 +193,13 @@ inline ssize_t writev(int fd, const WindowsIOVec* iov, int count)
 
 // This wrapper is just so we don't need to do #ifdef _WIN32 everywhere in the socket code. It is
 // not actually used and does not need to be the same size as sockaddr_un on UNIX systems.
-struct sockaddr_un
+struct sockaddr_un final
 {
 	ADDRESS_FAMILY sun_family;
 	char sun_path[6];
 };
 
-struct WindowsStream
+struct WindowsStream final
 {
 	WORD BackgroundColor;
 	WORD ForegroundColor;

@@ -25,7 +25,8 @@ namespace CallerID
 	class API;
 }
 
-class CallerID::APIBase : public DataProvider
+class CallerID::APIBase
+	: public DataProvider
 {
  public:
 	APIBase(Module* parent)
@@ -41,7 +42,8 @@ class CallerID::APIBase : public DataProvider
 	virtual bool IsOnAcceptList(User* source, User* target) = 0;
 };
 
-class CallerID::API : public dynamic_reference<CallerID::APIBase>
+class CallerID::API final
+	: public dynamic_reference<CallerID::APIBase>
 {
  public:
 	API(Module* parent)

@@ -25,7 +25,8 @@
 
 class ThreadSignalSocket;
 
-class CoreExport SocketThread : public Thread
+class CoreExport SocketThread
+	: public Thread
 {
  private:
 	std::mutex mutex;

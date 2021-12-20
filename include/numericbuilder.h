@@ -38,7 +38,7 @@ namespace Numeric
 	class ParamBuilder;
 }
 
-class Numeric::WriteNumericSink
+class Numeric::WriteNumericSink final
 {
 	LocalUser* const user;
 
@@ -54,7 +54,7 @@ class Numeric::WriteNumericSink
 	}
 };
 
-class Numeric::WriteRemoteNumericSink
+class Numeric::WriteRemoteNumericSink final
 {
 	User* const user;
 
@@ -129,7 +129,8 @@ class Numeric::GenericBuilder
 };
 
 template <char Sep, bool SendEmpty>
-class Numeric::Builder : public GenericBuilder<Sep, SendEmpty, WriteNumericSink>
+class Numeric::Builder
+	: public GenericBuilder<Sep, SendEmpty, WriteNumericSink>
 {
  public:
 	Builder(LocalUser* user, unsigned int num, bool addparam = true, size_t additionalsize = 0)
@@ -188,7 +189,8 @@ class Numeric::GenericParamBuilder
 };
 
 template <unsigned int NumStaticParams, bool SendEmpty>
-class Numeric::ParamBuilder : public GenericParamBuilder<NumStaticParams, SendEmpty, WriteNumericSink>
+class Numeric::ParamBuilder
+	: public GenericParamBuilder<NumStaticParams, SendEmpty, WriteNumericSink>
 {
  public:
 	ParamBuilder(LocalUser* user, unsigned int num)
@@ -206,7 +208,8 @@ namespace Numerics
 }
 
 /** Builder for the ERR_CANNOTSENDTOCHAN and ERR_CANNOTSENDTOUSER numerics. */
-class Numerics::CannotSendTo : public Numeric::Numeric
+class Numerics::CannotSendTo final
+	: public Numeric::Numeric
 {
  public:
 	CannotSendTo(Channel* chan, const std::string& message)
@@ -249,7 +252,8 @@ class Numerics::CannotSendTo : public Numeric::Numeric
 };
 
 /* Builder for the ERR_INVALIDMODEPARAM numeric. */
-class Numerics::InvalidModeParameter : public Numeric::Numeric
+class Numerics::InvalidModeParameter final
+	: public Numeric::Numeric
 {
  private:
 	void push_message(ModeHandler* mode, const std::string& message)
@@ -295,7 +299,8 @@ class Numerics::InvalidModeParameter : public Numeric::Numeric
 };
 
 /** Builder for the ERR_NOSUCHCHANNEL numeric. */
-class Numerics::NoSuchChannel : public Numeric::Numeric
+class Numerics::NoSuchChannel final
+	: public Numeric::Numeric
 {
  public:
 	NoSuchChannel(const std::string& chan)
@@ -307,7 +312,8 @@ class Numerics::NoSuchChannel : public Numeric::Numeric
 };
 
 /** Builder for the ERR_NOSUCHNICK numeric. */
-class Numerics::NoSuchNick : public Numeric::Numeric
+class Numerics::NoSuchNick final
+	: public Numeric::Numeric
 {
  public:
 	NoSuchNick(const std::string& nick)

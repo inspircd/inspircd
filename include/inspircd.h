@@ -111,7 +111,7 @@ CoreExport extern InspIRCd* ServerInstance;
  * It is used by the InspIRCd class, which internally
  * has an instance of it.
  */
-class serverstats
+class serverstats final
 {
   public:
 	/** Number of accepted connections
@@ -187,7 +187,7 @@ class serverstats
  * object, and a list of active Module objects, and facilities for Module
  * objects to interact with the core system it implements.
  */
-class CoreExport InspIRCd
+class CoreExport InspIRCd final
 {
  private:
 	/** The current time, updated in the mainloop

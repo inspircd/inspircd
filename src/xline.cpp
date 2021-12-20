@@ -33,7 +33,8 @@
 
 /** An XLineFactory specialized to generate GLine* pointers
  */
-class GLineFactory : public XLineFactory
+class GLineFactory final
+	: public XLineFactory
 {
  public:
 	GLineFactory() : XLineFactory("G") { }
@@ -49,7 +50,8 @@ class GLineFactory : public XLineFactory
 
 /** An XLineFactory specialized to generate ELine* pointers
  */
-class ELineFactory : public XLineFactory
+class ELineFactory final
+	: public XLineFactory
 {
  public:
 	ELineFactory() : XLineFactory("E") { }
@@ -65,7 +67,8 @@ class ELineFactory : public XLineFactory
 
 /** An XLineFactory specialized to generate KLine* pointers
  */
-class KLineFactory : public XLineFactory
+class KLineFactory final
+	: public XLineFactory
 {
  public:
 	KLineFactory() : XLineFactory("K") { }
@@ -81,7 +84,8 @@ class KLineFactory : public XLineFactory
 
 /** An XLineFactory specialized to generate QLine* pointers
  */
-class QLineFactory : public XLineFactory
+class QLineFactory final
+	: public XLineFactory
 {
  public:
 	QLineFactory() : XLineFactory("Q") { }
@@ -96,7 +100,8 @@ class QLineFactory : public XLineFactory
 
 /** An XLineFactory specialized to generate ZLine* pointers
  */
-class ZLineFactory : public XLineFactory
+class ZLineFactory final
+	: public XLineFactory
 {
  public:
 	ZLineFactory() : XLineFactory("Z") { }

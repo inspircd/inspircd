@@ -68,7 +68,7 @@ enum ModuleFlags
 #define MOD_RES_DENY (ModResult(-1))
 
 /** Represents the result of a module event. */
-class ModResult
+class ModResult final
 {
  private:
 	/** The underlying result value. */
@@ -190,7 +190,8 @@ do { \
 	WHILE_EACH_HOOK(n); \
 } while (0)
 
-class CoreExport DataProvider : public ServiceProvider
+class CoreExport DataProvider
+	: public ServiceProvider
 {
  public:
 	DataProvider(Module* Creator, const std::string& Name)
@@ -283,7 +284,9 @@ enum Implementation
  *  its methods will be called when irc server events occur. class inherited from module must be
  *  instantiated by the ModuleFactory class (see relevant section) for the module to be initialised.
  */
-class CoreExport Module : public Cullable, public usecountbase
+class CoreExport Module
+	: public Cullable
+	, public usecountbase
 {
  protected:
 	/** Initializes a new instance of the Module class.
@@ -1017,7 +1020,7 @@ class CoreExport Module : public Cullable, public usecountbase
 /** ModuleManager takes care of all things module-related
  * in the core.
  */
-class CoreExport ModuleManager
+class CoreExport ModuleManager final
 {
  public:
 	typedef std::multimap<std::string, ServiceProvider*, irc::insensitive_swo> DataProviderMap;

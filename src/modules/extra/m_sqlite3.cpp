@@ -228,7 +228,8 @@ class SQLConn final
 	}
 };
 
-class ModuleSQLite3 : public Module
+class ModuleSQLite3 final
+	: public Module
 {
  private:
 	ConnMap conns;

@@ -32,7 +32,7 @@
  * entries expire every few hours, which is a reasonable expiry for any reasonable
  * sized network.
  */
-class CoreExport BanCacheHit
+class CoreExport BanCacheHit final
 {
  public:
 	/** Type of cached ban
@@ -52,7 +52,7 @@ class CoreExport BanCacheHit
 
 /** A manager for ban cache, which allocates and deallocates and checks cached bans.
  */
-class CoreExport BanCacheManager
+class CoreExport BanCacheManager final
 {
 	/** A container of ban cache items.
 	 */

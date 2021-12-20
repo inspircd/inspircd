@@ -181,7 +181,8 @@ class SHA1HashProvider final
 	}
 };
 
-class ModuleSHA1 : public Module
+class ModuleSHA1 final
+	: public Module
 {
  private:
 	SHA1HashProvider sha1;

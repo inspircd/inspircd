@@ -78,7 +78,8 @@ class BufferedSocket;
 
 /** Used to time out socket connections
  */
-class CoreExport SocketTimeout : public Timer
+class CoreExport SocketTimeout final
+	: public Timer
 {
  private:
 	/** BufferedSocket the class is attached to
@@ -111,7 +112,8 @@ class CoreExport SocketTimeout : public Timer
  * StreamSocket is a class that wraps a TCP socket and handles send
  * and receive queues, including passing them to IO hooks
  */
-class CoreExport StreamSocket : public EventHandler
+class CoreExport StreamSocket
+	: public EventHandler
 {
  public:
 	/** Socket send queue
@@ -371,7 +373,8 @@ class CoreExport StreamSocket : public EventHandler
  *
  * To use BufferedSocket, you must inherit a class from it.
  */
-class CoreExport BufferedSocket : public StreamSocket
+class CoreExport BufferedSocket
+	: public StreamSocket
 {
  public:
 	/** Timeout object or NULL

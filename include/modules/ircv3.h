@@ -29,7 +29,8 @@ namespace IRCv3
 	class CapTag;
 }
 
-class IRCv3::WriteNeighborsWithCap : public User::ForEachNeighborHandler
+class IRCv3::WriteNeighborsWithCap final
+	: public User::ForEachNeighborHandler
 {
  private:
 	const Cap::Capability& cap;
@@ -70,7 +71,8 @@ class IRCv3::WriteNeighborsWithCap : public User::ForEachNeighborHandler
  * Template parameter T is the derived class.
  */
 template <typename T>
-class IRCv3::CapTag : public ClientProtocol::MessageTagProvider
+class IRCv3::CapTag
+	: public ClientProtocol::MessageTagProvider
 {
  protected:
 	Cap::Capability cap;

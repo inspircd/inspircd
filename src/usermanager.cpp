@@ -33,7 +33,8 @@
 
 namespace
 {
-	class WriteCommonQuit : public User::ForEachNeighborHandler
+	class WriteCommonQuit final
+		: public User::ForEachNeighborHandler
 	{
 		ClientProtocol::Messages::Quit quitmsg;
 		ClientProtocol::Event quitevent;

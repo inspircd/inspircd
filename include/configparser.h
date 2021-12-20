@@ -22,7 +22,7 @@
 
 #pragma once
 
-struct ParseStack
+struct ParseStack final
 {
 	std::vector<std::string> reading;
 	insp::flat_map<std::string, std::string, irc::insensitive_swo> vars;

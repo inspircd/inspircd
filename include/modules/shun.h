@@ -24,7 +24,8 @@
 
 /** Shun class
  */
-class Shun : public XLine
+class Shun final
+	: public XLine
 {
   public:
 	/** Create a Shun.

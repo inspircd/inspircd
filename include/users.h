@@ -223,7 +223,8 @@ public:
  * connection is stored here primarily, from the user's socket ID (file descriptor) through to the
  * user's nickname and hostname.
  */
-class CoreExport User : public Extensible
+class CoreExport User
+	: public Extensible
 {
  private:
 	/** Cached nick!ident\@dhost value using the displayed hostname
@@ -624,7 +625,8 @@ class CoreExport User : public Extensible
 	bool Serialize(Serializable::Data& data) override;
 };
 
-class CoreExport UserIOHandler : public StreamSocket
+class CoreExport UserIOHandler final
+	: public StreamSocket
 {
  private:
 	size_t checked_until;
@@ -649,7 +651,9 @@ class CoreExport UserIOHandler : public StreamSocket
 	void AddWriteBuf(const std::string &data);
 };
 
-class CoreExport LocalUser : public User, public insp::intrusive_list_node<LocalUser>
+class CoreExport LocalUser final
+	: public User
+	, public insp::intrusive_list_node<LocalUser>
 {
  private:
 	/** The connect class this user is in. */
@@ -823,7 +827,8 @@ class CoreExport LocalUser : public User, public insp::intrusive_list_node<Local
 	bool Serialize(Serializable::Data& data) override;
 };
 
-class RemoteUser : public User
+class RemoteUser
+	: public User
 {
  public:
 	RemoteUser(const std::string& uid, Server* srv)
@@ -832,7 +837,8 @@ class RemoteUser : public User
 	}
 };
 
-class CoreExport FakeUser : public User
+class CoreExport FakeUser final
+	: public User
 {
  public:
 	FakeUser(const std::string& uid, Server* srv)

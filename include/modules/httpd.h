@@ -33,7 +33,8 @@
 #include <sstream>
 #include <map>
 
-class HTTPQueryParameters : public insp::flat_multimap<std::string, std::string>
+class HTTPQueryParameters final
+	: public insp::flat_multimap<std::string, std::string>
 {
  public:
 	bool get(const std::string& key, std::string& value) const
@@ -80,7 +81,7 @@ class HTTPQueryParameters : public insp::flat_multimap<std::string, std::string>
 	}
 };
 
-struct HTTPRequestURI
+struct HTTPRequestURI final
 {
 	std::string path;
 	HTTPQueryParameters query_params;
@@ -89,7 +90,7 @@ struct HTTPRequestURI
 
 /** A modifiable list of HTTP header fields
  */
-class HTTPHeaders
+class HTTPHeaders final
 {
  protected:
 	std::map<std::string,std::string> headers;
@@ -163,7 +164,7 @@ class HttpServerSocket;
 
 /** This class represents a HTTP request.
  */
-class HTTPRequest
+class HTTPRequest final
 {
  protected:
 	std::string type;
@@ -245,7 +246,7 @@ class HTTPRequest
  * form a valid HTTP response: the document data and a response code.
  * You can add additional HTTP headers, if you want.
  */
-class HTTPDocumentResponse
+class HTTPDocumentResponse final
 {
  public:
 	/** Module that generated this reply
@@ -274,7 +275,8 @@ class HTTPDocumentResponse
 	}
 };
 
-class HTTPdAPIBase : public DataProvider
+class HTTPdAPIBase
+	: public DataProvider
 {
  public:
 	HTTPdAPIBase(Module* parent)
@@ -291,7 +293,8 @@ class HTTPdAPIBase : public DataProvider
 /** The API provided by the httpd module that allows other modules to respond to incoming
  * HTTP requests
  */
-class HTTPdAPI : public dynamic_reference<HTTPdAPIBase>
+class HTTPdAPI final
+	: public dynamic_reference<HTTPdAPIBase>
 {
  public:
 	HTTPdAPI(Module* parent)
@@ -300,7 +303,8 @@ class HTTPdAPI : public dynamic_reference<HTTPdAPIBase>
 	}
 };
 
-class HTTPACLEventListener : public Events::ModuleEventListener
+class HTTPACLEventListener
+	: public Events::ModuleEventListener
 {
  public:
 	HTTPACLEventListener(Module* mod)
@@ -311,7 +315,8 @@ class HTTPACLEventListener : public Events::ModuleEventListener
 	virtual ModResult OnHTTPACLCheck(HTTPRequest& req) = 0;
 };
 
-class HTTPRequestEventListener : public Events::ModuleEventListener
+class HTTPRequestEventListener
+	: public Events::ModuleEventListener
 {
  public:
 	HTTPRequestEventListener(Module* mod)

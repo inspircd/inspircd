@@ -873,7 +873,8 @@ void LocalUser::WriteRemoteNotice(const std::string& text)
 
 namespace
 {
-	class WriteCommonRawHandler : public User::ForEachNeighborHandler
+	class WriteCommonRawHandler final
+		: public User::ForEachNeighborHandler
 	{
 		ClientProtocol::Event& ev;
 

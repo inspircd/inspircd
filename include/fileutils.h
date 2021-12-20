@@ -21,7 +21,7 @@
 #pragma once
 
 /** Represents the position within a file. */
-class CoreExport FilePosition
+class CoreExport FilePosition final
 {
  public:
 	/** The name of the file that the position points to. */
@@ -45,7 +45,7 @@ class CoreExport FilePosition
 };
 
 /** Provides an easy method of reading a text file into memory. */
-class CoreExport FileReader
+class CoreExport FileReader final
 {
 	/** The lines of text in the file. */
 	std::vector<std::string> lines;
@@ -79,7 +79,7 @@ class CoreExport FileReader
 };
 
 /** Implements methods for file system access */
-class CoreExport FileSystem
+class CoreExport FileSystem final
 {
 private:
 	FileSystem() = delete;

@@ -22,7 +22,8 @@
 
 #include "base.h"
 
-class CoreExport dynamic_reference_base : public insp::intrusive_list_node<dynamic_reference_base>
+class CoreExport dynamic_reference_base
+	: public insp::intrusive_list_node<dynamic_reference_base>
 {
  public:
 	class CaptureHook
@@ -65,7 +66,8 @@ inline void dynamic_reference_base::check()
 }
 
 template<typename T>
-class dynamic_reference : public dynamic_reference_base
+class dynamic_reference
+	: public dynamic_reference_base
 {
  public:
 	dynamic_reference(Module* Creator, const std::string& Name)
@@ -94,7 +96,8 @@ class dynamic_reference : public dynamic_reference_base
 };
 
 template<typename T>
-class dynamic_reference_nocheck : public dynamic_reference_base
+class dynamic_reference_nocheck
+	: public dynamic_reference_base
 {
  public:
 	dynamic_reference_nocheck(Module* Creator, const std::string& Name)
@@ -122,14 +125,16 @@ class dynamic_reference_nocheck : public dynamic_reference_base
 };
 
 class ModeHandler;
-class ChanModeReference : public dynamic_reference_nocheck<ModeHandler>
+class ChanModeReference final
+	: public dynamic_reference_nocheck<ModeHandler>
 {
  public:
 	ChanModeReference(Module* mod, const std::string& modename)
 		: dynamic_reference_nocheck<ModeHandler>(mod, "mode/" + modename) {}
 };
 
-class UserModeReference : public dynamic_reference_nocheck<ModeHandler>
+class UserModeReference final
+	: public dynamic_reference_nocheck<ModeHandler>
 {
  public:
 	UserModeReference(Module* mod, const std::string& modename)

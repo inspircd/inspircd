@@ -34,7 +34,7 @@ namespace IRCv3
 }
 
 /** Reference to the inspircd.org/standard-replies cap. */
-class IRCv3::Replies::CapReference
+class IRCv3::Replies::CapReference final
 	: public Cap::Reference
 {
  public:
@@ -128,7 +128,7 @@ class IRCv3::Replies::Reply
 };
 
 /** Sends a FAIL standard reply. */
-class IRCv3::Replies::Fail
+class IRCv3::Replies::Fail final
 	: public IRCv3::Replies::Reply
 {
 public:
@@ -142,7 +142,7 @@ public:
 };
 
 /** Sends a NOTE standard reply. */
-class IRCv3::Replies::Note
+class IRCv3::Replies::Note final
 	: public IRCv3::Replies::Reply
 {
 public:
@@ -156,7 +156,7 @@ public:
 };
 
 /** Sends a WARN standard reply. */
-class IRCv3::Replies::Warn
+class IRCv3::Replies::Warn final
 	: public IRCv3::Replies::Reply
 {
 public:

@@ -28,7 +28,7 @@
 #pragma once
 
 class SnomaskManager;
-class Snomask
+class Snomask final
 {
 	/** Description of this snomask, e.g.: OPER, ANNOUNCEMENT, XLINE
 	 */
@@ -73,7 +73,7 @@ class Snomask
  * Modules and the core can enable and disable snomask characters. If they do,
  * then sending snomasks using these characters becomes possible.
  */
-class CoreExport SnomaskManager
+class CoreExport SnomaskManager final
 {
 	Snomask	masks[26];
 

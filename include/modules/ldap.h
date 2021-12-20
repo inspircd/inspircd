@@ -20,7 +20,8 @@
 
 typedef int LDAPQuery;
 
-class LDAPException : public ModuleException
+class LDAPException final
+	: public ModuleException
 {
  public:
 	LDAPException(const std::string& reason) : ModuleException(reason) { }
@@ -28,7 +29,7 @@ class LDAPException : public ModuleException
 	virtual ~LDAPException() noexcept = default;
 };
 
-struct LDAPModification
+struct LDAPModification final
 {
 	enum LDAPOperation
 	{
@@ -44,7 +45,8 @@ struct LDAPModification
 
 typedef std::vector<LDAPModification> LDAPMods;
 
-struct LDAPAttributes : public std::map<std::string, std::vector<std::string> >
+struct LDAPAttributes final
+	: public std::map<std::string, std::vector<std::string> >
 {
 	size_t size(const std::string& attr) const
 	{
@@ -88,7 +90,7 @@ enum QueryType
 	QUERY_COMPARE
 };
 
-struct LDAPResult
+struct LDAPResult final
 {
 	std::vector<LDAPAttributes> messages;
 	std::string error;
@@ -136,7 +138,8 @@ class LDAPInterface
 	virtual void OnError(const LDAPResult& err) = 0;
 };
 
-class LDAPProvider : public DataProvider
+class LDAPProvider
+	: public DataProvider
 {
  public:
 	LDAPProvider(Module* Creator, const std::string& Name)

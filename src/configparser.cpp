@@ -45,7 +45,7 @@ enum ParseFlags
 };
 
 // RAII wrapper for FILE* which closes the file when it goes out of scope.
-class FileWrapper
+class FileWrapper final
 {
  private:
 	// Whether this file handle should be closed with pclose.
@@ -79,7 +79,7 @@ class FileWrapper
 	}
 };
 
-struct Parser
+struct Parser final
 {
 	ParseStack& stack;
 	int flags;

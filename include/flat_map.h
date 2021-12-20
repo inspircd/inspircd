@@ -29,7 +29,8 @@ namespace detail
 {
 
 template <typename T, typename Comp>
-class map_pair_compare : public Comp
+class map_pair_compare final
+	: public Comp
 {
 	typedef T value_type;
 	typedef typename value_type::first_type key_type;
@@ -202,7 +203,8 @@ class flat_map_base
 } // namespace detail
 
 template <typename T, typename Comp = std::less<T>, typename ElementComp = Comp>
-class flat_set : public detail::flat_map_base<T, Comp, T, ElementComp>
+class flat_set
+	: public detail::flat_map_base<T, Comp, T, ElementComp>
 {
 	typedef detail::flat_map_base<T, Comp, T, ElementComp> base_type;
 
@@ -256,7 +258,8 @@ class flat_set : public detail::flat_map_base<T, Comp, T, ElementComp>
 };
 
 template <typename T, typename Comp = std::less<T>, typename ElementComp = Comp>
-class flat_multiset : public detail::flat_map_base<T, Comp, T, ElementComp>
+class flat_multiset
+	: public detail::flat_map_base<T, Comp, T, ElementComp>
 {
 	typedef detail::flat_map_base<T, Comp, T, ElementComp> base_type;
 
@@ -310,7 +313,8 @@ class flat_multiset : public detail::flat_map_base<T, Comp, T, ElementComp>
 };
 
 template <typename T, typename U, typename Comp = std::less<T>, typename ElementComp = Comp >
-class flat_map : public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp> >
+class flat_map
+	: public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp> >
 {
 	typedef detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp> > base_type;
 
@@ -377,7 +381,8 @@ class flat_map : public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::
 };
 
 template <typename T, typename U, typename Comp = std::less<T>, typename ElementComp = Comp >
-class flat_multimap : public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp> >
+class flat_multimap
+	: public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp> >
 {
 	typedef detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp> > base_type;
 

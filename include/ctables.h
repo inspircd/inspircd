@@ -87,7 +87,7 @@ enum class RouteType : uint8_t
 };
 
 /** Describes the routing of an IRC message. */
-class RouteDescriptor
+class RouteDescriptor final
 {
  public:
 	/** The target of the message in question. */
@@ -135,7 +135,8 @@ class RouteDescriptor
 /** A structure that defines a command. Every command available
  * in InspIRCd must be defined as derived from Command.
  */
-class CoreExport CommandBase : public ServiceProvider
+class CoreExport CommandBase
+	: public ServiceProvider
 {
  public:
 	/** Encapsulates parameters to a command. */
@@ -219,7 +220,8 @@ class CoreExport CommandBase : public ServiceProvider
 	virtual ~CommandBase() = default;
 };
 
-class CoreExport Command : public CommandBase
+class CoreExport Command
+	: public CommandBase
 {
  protected:
 	/** Initializes a new instance of the Command class.
@@ -276,7 +278,8 @@ class CoreExport Command : public CommandBase
 	virtual void TellNotRegistered(LocalUser* user, const Params& parameters);
 };
 
-class CoreExport SplitCommand : public Command
+class CoreExport SplitCommand
+	: public Command
 {
 protected:
 	/** Initializes a new instance of the SplitCommand class.

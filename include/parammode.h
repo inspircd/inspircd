@@ -20,7 +20,8 @@
 
 #pragma once
 
-class CoreExport ParamModeBase : public ModeHandler
+class CoreExport ParamModeBase
+	: public ModeHandler
 {
  private:
 	virtual void OnUnsetInternal(User* source, Channel* chan) = 0;
@@ -45,7 +46,8 @@ class CoreExport ParamModeBase : public ModeHandler
  * When unsetting the mode, the extension is automatically unset.
  */
 template <typename T, typename ExtItemT>
-class ParamMode : public ParamModeBase
+class ParamMode
+	: public ParamModeBase
 {
  public:
 	ExtItemT ext;

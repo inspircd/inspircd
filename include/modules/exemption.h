@@ -57,7 +57,7 @@ class CheckExemption::EventListener
 	virtual ModResult OnCheckExemption(User* user, Channel* chan, const std::string& restriction) = 0;
 };
 
-class CheckExemption::EventProvider
+class CheckExemption::EventProvider final
 	: public Events::ModuleEventProvider
 {
  public:

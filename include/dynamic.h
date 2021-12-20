@@ -37,7 +37,8 @@
 /** The DLLManager class is able to load a module file by filename,
  * and locate its init_module symbol.
  */
-class CoreExport DLLManager : public Cullable
+class CoreExport DLLManager final
+	: public Cullable
 {
  private:
 	/** The last error string. */

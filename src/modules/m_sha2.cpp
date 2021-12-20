@@ -59,7 +59,8 @@ class HashSHA2 final
 	}
 };
 
-class ModuleSHA2 : public Module
+class ModuleSHA2 final
+	: public Module
 {
  private:
 	HashSHA2<sha224> sha224algo;

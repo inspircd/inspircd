@@ -34,7 +34,7 @@
 #include "token_list.h"
 
 /** Structure representing a single \<tag> in config */
-class CoreExport ConfigTag
+class CoreExport ConfigTag final
 {
 public:
 	/** A mapping of configuration keys to their assigned values. */
@@ -112,7 +112,7 @@ public:
 /** Defines the server's length limits on various length-limited
  * items such as topics, nicknames, channel names etc.
  */
-class ServerLimits
+class ServerLimits final
 {
  public:
 	/** Maximum line length */
@@ -147,7 +147,7 @@ class ServerLimits
 	size_t GetMaxMask() const { return MaxNick + 1 + MaxUser + 1 + MaxHost; }
 };
 
-struct CommandLineConf
+struct CommandLineConf final
 {
 	/** If this value is true, the owner of the
 	 * server specified -nofork on the command
@@ -196,7 +196,7 @@ struct CommandLineConf
 	char** argv;
 };
 
-class CoreExport OperInfo
+class CoreExport OperInfo final
 {
  public:
 	TokenList AllowedOperCommands;
@@ -235,7 +235,7 @@ class CoreExport OperInfo
  * and storage of the configuration data needed to run the ircd, such as
  * the servername, connect classes, /ADMIN data, MOTDs and filenames etc.
  */
-class CoreExport ServerConfig
+class CoreExport ServerConfig final
 {
  private:
 	void ApplyModules(User* user);
@@ -499,7 +499,8 @@ class CoreExport ServerConfig
 /** The background thread for config reading, so that reading from executable includes
  * does not block.
  */
-class CoreExport ConfigReaderThread : public Thread
+class CoreExport ConfigReaderThread final
+	: public Thread
 {
  private:
 	/** The new server configuration. */
@@ -533,7 +534,7 @@ class CoreExport ConfigReaderThread : public Thread
 };
 
 /** Represents the status of a config load. */
-class CoreExport ConfigStatus
+class CoreExport ConfigStatus final
 {
  public:
 	/** Whether this is the initial config load. */

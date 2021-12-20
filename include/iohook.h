@@ -66,7 +66,8 @@ class IOHookProvider
 	virtual void OnConnect(StreamSocket* sock) = 0;
 };
 
-class IOHook : public Cullable
+class IOHook
+	: public Cullable
 {
  public:
 	/** The IOHookProvider for this hook, contains information about the hook,
@@ -108,7 +109,8 @@ class IOHook : public Cullable
 	virtual int OnStreamSocketRead(StreamSocket* sock, std::string& recvq) = 0;
 };
 
-class IOHookMiddle : public IOHook
+class IOHookMiddle
+	: public IOHook
 {
 	/** Data already processed by the IOHook waiting to go down the chain
 	 */

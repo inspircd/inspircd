@@ -88,7 +88,7 @@ class CoreExport MessageDetails
 };
 
 /** Represents the target of a message (NOTICE, PRIVMSG, etc). */
-class CoreExport MessageTarget
+class CoreExport MessageTarget final
 {
  public:
 	/** An enumeration of possible message target types. */

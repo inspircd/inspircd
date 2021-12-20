@@ -96,7 +96,8 @@ class ParamModeBase;
  * mode is expected to have a parameter, then this is
  * equivalent to returning MODEACTION_DENY.
  */
-class CoreExport ModeHandler : public ServiceProvider
+class CoreExport ModeHandler
+	: public ServiceProvider
 {
  public:
 	typedef size_t Id;
@@ -358,7 +359,8 @@ class CoreExport ModeHandler : public ServiceProvider
  * for example changing the topic on a channel having +t set requires a rank that is >= than the rank of a halfop,
  * but there is no such restriction when +t isn't set.
  */
-class CoreExport PrefixMode : public ModeHandler
+class CoreExport PrefixMode
+	: public ModeHandler
 {
  protected:
 	/** The prefix character granted by this mode. '@' for op, '+' for voice, etc.
@@ -451,7 +453,8 @@ class CoreExport PrefixMode : public ModeHandler
  * is already set and not allowing it to be unset if it is already unset.
  * An example of a simple user mode is user mode +w.
  */
-class CoreExport SimpleUserMode : public ModeHandler
+class CoreExport SimpleUserMode
+	: public ModeHandler
 {
  public:
 	SimpleUserMode(Module* Creator, const std::string& Name, char modeletter, bool operonly = false)
@@ -468,7 +471,8 @@ class CoreExport SimpleUserMode : public ModeHandler
  * is already set and not allowing it to be unset if it is already unset.
  * An example of a simple channel mode is channel mode +s.
  */
-class CoreExport SimpleChannelMode : public ModeHandler
+class CoreExport SimpleChannelMode
+	: public ModeHandler
 {
  public:
 
@@ -487,7 +491,8 @@ class CoreExport SimpleChannelMode : public ModeHandler
  * and attach it to the mode using Server::AddModeWatcher and Server::DelModeWatcher.
  * A ModeWatcher will be called both before and after the mode change.
  */
-class CoreExport ModeWatcher : public Cullable
+class CoreExport ModeWatcher
+	: public Cullable
 {
  private:
 	/**
@@ -553,7 +558,7 @@ class CoreExport ModeWatcher : public Cullable
  * parses client to server MODE strings for user and channel modes, and performs
  * processing for the 004 mode list numeric, amongst other things.
  */
-class CoreExport ModeParser
+class CoreExport ModeParser final
 {
  public:
 	/** The maximum number of modes which can be created. */

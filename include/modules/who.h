@@ -28,7 +28,8 @@ namespace Who
 	class Request;
 }
 
-class Who::EventListener : public Events::ModuleEventListener
+class Who::EventListener
+	: public Events::ModuleEventListener
 {
  public:
 	EventListener(Module* mod)

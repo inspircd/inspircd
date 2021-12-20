@@ -30,7 +30,8 @@ namespace CTCTags
 	class TagMessageDetails;
 }
 
-class CTCTags::CapReference : public Cap::Reference
+class CTCTags::CapReference final
+	: public Cap::Reference
 {
  public:
 	CapReference(Module* mod)
@@ -39,7 +40,8 @@ class CTCTags::CapReference : public Cap::Reference
 	}
 };
 
-class CTCTags::TagMessage : public ClientProtocol::Message
+class CTCTags::TagMessage final
+	: public ClientProtocol::Message
 {
 private:
 	void PushTarget(const char* target, char status)
@@ -87,7 +89,7 @@ private:
 	}
 };
 
-class CTCTags::TagMessageDetails
+class CTCTags::TagMessageDetails final
 {
  public:
 	/** Whether to echo the tags at all. */

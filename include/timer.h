@@ -119,7 +119,7 @@ class CoreExport Timer
  * This will ensure timers are not missed, as well as removing timers that have
  * expired and allowing the addition of new ones.
  */
-class CoreExport TimerManager
+class CoreExport TimerManager final
 {
 	typedef std::multimap<time_t, Timer*> TimerMap;
 

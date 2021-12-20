@@ -43,7 +43,7 @@ class ISupport::EventListener
 	virtual void OnBuildISupport(TokenMap& tokens) = 0;
 };
 
-class ISupport::EventProvider
+class ISupport::EventProvider final
 	: public Events::ModuleEventProvider
 {
  public:

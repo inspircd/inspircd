@@ -29,7 +29,8 @@ namespace Stats
 	class Row;
 }
 
-class Stats::EventListener : public Events::ModuleEventListener
+class Stats::EventListener
+	: public Events::ModuleEventListener
 {
  public:
 	EventListener(Module* mod)
@@ -44,7 +45,8 @@ class Stats::EventListener : public Events::ModuleEventListener
 	virtual ModResult OnStats(Stats::Context& stats) = 0;
 };
 
-class Stats::Row : public Numeric::Numeric
+class Stats::Row final
+	: public Numeric::Numeric
 {
  public:
 	Row(unsigned int num)
@@ -53,7 +55,7 @@ class Stats::Row : public Numeric::Numeric
 	}
 };
 
-class Stats::Context
+class Stats::Context final
 {
 	/** Source user of the STATS request
 	 */

@@ -71,7 +71,7 @@ class Away::EventListener
 	virtual void OnUserBack(User* user) = 0;
 };
 
-class Away::EventProvider
+class Away::EventProvider final
 	: public Events::ModuleEventProvider
 {
  public:

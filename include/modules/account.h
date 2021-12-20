@@ -36,7 +36,8 @@ inline AccountExtItem* GetAccountExtItem()
 	return static_cast<AccountExtItem*>(ServerInstance->Extensions.GetItem("accountname"));
 }
 
-class AccountEventListener : public Events::ModuleEventListener
+class AccountEventListener
+	: public Events::ModuleEventListener
 {
  public:
 	AccountEventListener(Module* mod)

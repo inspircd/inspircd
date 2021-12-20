@@ -32,7 +32,8 @@
  * to a known line type is done by means of an XLineFactory object (see
  * below).
  */
-class CoreExport XLine : public Cullable
+class CoreExport XLine
+	: public Cullable
 {
  protected:
 
@@ -153,7 +154,8 @@ class CoreExport XLine : public Cullable
 
 /** KLine class
  */
-class CoreExport KLine : public XLine
+class CoreExport KLine final
+	: public XLine
 {
   public:
 
@@ -194,7 +196,8 @@ class CoreExport KLine : public XLine
 
 /** GLine class
  */
-class CoreExport GLine : public XLine
+class CoreExport GLine final
+	: public XLine
 {
   public:
 	/** Create a G-line.
@@ -232,7 +235,8 @@ class CoreExport GLine : public XLine
 
 /** ELine class
  */
-class CoreExport ELine : public XLine
+class CoreExport ELine final
+	: public XLine
 {
   public:
 	/** Create an E-line.
@@ -272,7 +276,8 @@ class CoreExport ELine : public XLine
 
 /** ZLine class
  */
-class CoreExport ZLine : public XLine
+class CoreExport ZLine final
+	: public XLine
 {
   public:
 	/** Create a Z-line.
@@ -302,7 +307,8 @@ class CoreExport ZLine : public XLine
 
 /** QLine class
  */
-class CoreExport QLine : public XLine
+class CoreExport QLine final
+	: public XLine
 {
   public:
 	/** Create a Q-line.
@@ -376,7 +382,7 @@ class CoreExport XLineFactory
  * or any other line created by a module. It also manages XLineFactory classes which
  * can generate a specialized XLine for use by another module.
  */
-class CoreExport XLineManager
+class CoreExport XLineManager final
 {
  protected:
 	/** Used to hold XLines which have not yet been applied.

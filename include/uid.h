@@ -22,7 +22,7 @@
 
 #pragma once
 
-class CoreExport UIDGenerator
+class CoreExport UIDGenerator final
 {
  private:
 	/** Holds the current UID. Used to generate the next one.

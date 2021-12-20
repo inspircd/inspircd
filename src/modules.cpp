@@ -474,7 +474,8 @@ void ModuleManager::UnloadAll()
 
 namespace
 {
-	struct UnloadAction : public ActionBase
+	struct UnloadAction final
+		: public ActionBase
 	{
 		Module* const mod;
 		UnloadAction(Module* m) : mod(m) {}

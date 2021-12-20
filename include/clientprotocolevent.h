@@ -29,7 +29,8 @@ namespace ClientProtocol
 	}
 }
 
-struct ClientProtocol::Events::Join : public ClientProtocol::Messages::Join, public ClientProtocol::Event
+struct ClientProtocol::Events::Join
+	: public ClientProtocol::Messages::Join, public ClientProtocol::Event
 {
 	Join()
 		: ClientProtocol::Event(ServerInstance->GetRFCEvents().join, *this)
@@ -49,7 +50,8 @@ struct ClientProtocol::Events::Join : public ClientProtocol::Messages::Join, pub
 	}
 };
 
-class ClientProtocol::Events::Mode : public ClientProtocol::Event
+class ClientProtocol::Events::Mode
+	: public ClientProtocol::Event
 {
 	std::list<ClientProtocol::Messages::Mode> modelist;
 	std::vector<Message*> modemsgplist;

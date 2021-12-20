@@ -26,7 +26,8 @@ namespace Geolocation
 	class Location;
 }
 
-class Geolocation::APIBase : public DataProvider
+class Geolocation::APIBase
+	: public DataProvider
 {
  public:
 	APIBase(Module* parent)
@@ -47,7 +48,8 @@ class Geolocation::APIBase : public DataProvider
 	virtual Location* GetLocation(irc::sockets::sockaddrs& sa) = 0;
 };
 
-class Geolocation::API : public dynamic_reference<Geolocation::APIBase>
+class Geolocation::API final
+	: public dynamic_reference<Geolocation::APIBase>
 {
  public:
 	API(Module* parent)
@@ -56,7 +58,8 @@ class Geolocation::API : public dynamic_reference<Geolocation::APIBase>
 	}
 };
 
-class Geolocation::Location : public usecountbase
+class Geolocation::Location final
+	: public usecountbase
 {
 private:
 	/** The two character country code for this location. */

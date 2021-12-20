@@ -53,7 +53,7 @@ class CoreExport Cullable
  * avoid problems with references to deleted pointers if an object were deleted
  * during execution.
  */
-class CoreExport CullList
+class CoreExport CullList final
 {
 	std::vector<Cullable*> list;
 	std::vector<LocalUser*> SQlist;
@@ -70,7 +70,8 @@ class CoreExport CullList
 };
 
 /** Represents an action which is executable by an action list */
-class CoreExport ActionBase : public Cullable
+class CoreExport ActionBase
+	: public Cullable
 {
  public:
 	/** Executes this action. */

@@ -38,7 +38,7 @@ enum LogLevel
 
 /** Simple wrapper providing periodic flushing to a disk-backed file.
  */
-class CoreExport FileWriter
+class CoreExport FileWriter final
 {
  protected:
 	/** The log file (fd is inside this somewhere,
@@ -91,7 +91,8 @@ class CoreExport FileWriter
 
 /** LogStream base class. Modules (and other stuff) inherit from this to decide what logging they are interested in, and what to do with it.
  */
-class CoreExport LogStream : public Cullable
+class CoreExport LogStream
+	: public Cullable
 {
  protected:
 	LogLevel loglvl;
@@ -116,7 +117,7 @@ class CoreExport LogStream : public Cullable
 
 typedef std::map<FileWriter*, int> FileLogMap;
 
-class CoreExport LogManager
+class CoreExport LogManager final
 {
  private:
 	/** Lock variable, set to true when a log is in progress, which prevents further logging from happening and creating a loop.

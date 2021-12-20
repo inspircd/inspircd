@@ -29,7 +29,8 @@
 
 /** A logging class which logs to a streamed file.
  */
-class CoreExport FileLogStream : public LogStream
+class CoreExport FileLogStream final
+	: public LogStream
 {
  private:
 	FileWriter *f;

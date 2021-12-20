@@ -69,7 +69,8 @@ namespace SQL
 }
 
 /** Represents the result of an SQL query. */
-class SQL::Result : public Cullable
+class SQL::Result
+	: public Cullable
 {
  public:
 	/**
@@ -108,7 +109,7 @@ class SQL::Result : public Cullable
  * The error string varies from database software to database software
  * and should be used to display informational error messages to users.
  */
-class SQL::Error
+class SQL::Error final
 {
  private:
 	/** The custom error message if one has been specified. */
@@ -166,7 +167,8 @@ class SQL::Error
  * You should store whatever information is needed to have the callbacks work in
  * this object (UID of user, channel name, etc).
  */
-class SQL::Query : public Cullable
+class SQL::Query
+	: public Cullable
 {
  protected:
 	/** Creates a new SQL query. */
@@ -195,7 +197,8 @@ class SQL::Query : public Cullable
 /**
  * Provider object for SQL servers
  */
-class SQL::Provider : public DataProvider
+class SQL::Provider
+	: public DataProvider
 {
  private:
 	/** The name of the database tag in the config. */

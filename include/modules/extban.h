@@ -188,7 +188,7 @@ class ExtBan::Base
 };
 
 /** Base class for acting extbans. */
-class ExtBan::Acting
+class ExtBan::Acting final
 	: public Base
 {
  public:

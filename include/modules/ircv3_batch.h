@@ -43,7 +43,9 @@ namespace IRCv3
  * Implements batch starting and stopping. When it becomes unavailable (due to e.g. module unload)
  * all running batches are stopped.
  */
-class IRCv3::Batch::Manager : public DataProvider, public ClientProtocol::MessageTagProvider
+class IRCv3::Batch::Manager
+	: public DataProvider
+	, public ClientProtocol::MessageTagProvider
 {
  public:
 	/** Constructor.
@@ -81,7 +83,7 @@ class IRCv3::Batch::Manager : public DataProvider, public ClientProtocol::Messag
  * batch message for B.
  * A message may only be part of a single batch at any given time.
  */
-class IRCv3::Batch::Batch
+class IRCv3::Batch::Batch final
 {
 	Manager* manager = nullptr;
 	const std::string type;
@@ -171,7 +173,8 @@ class IRCv3::Batch::Batch
 
 /** Batch API. Use this to access the Manager.
  */
-class IRCv3::Batch::API : public dynamic_reference_nocheck<Manager>
+class IRCv3::Batch::API final
+	: public dynamic_reference_nocheck<Manager>
 {
  public:
 	API(Module* mod)
@@ -183,7 +186,8 @@ class IRCv3::Batch::API : public dynamic_reference_nocheck<Manager>
 /** Reference to the batch cap.
  * Can be used to check whether a user has the batch client cap enabled.
  */
-class IRCv3::Batch::CapReference : public Cap::Reference
+class IRCv3::Batch::CapReference final
+	: public Cap::Reference
 {
  public:
 	CapReference(Module* mod)

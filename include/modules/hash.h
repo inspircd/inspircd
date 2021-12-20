@@ -26,7 +26,8 @@
 
 #include "modules.h"
 
-class HashProvider : public DataProvider
+class HashProvider
+	: public DataProvider
 {
  public:
 	const unsigned int out_size;

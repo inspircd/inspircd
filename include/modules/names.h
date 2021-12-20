@@ -26,7 +26,8 @@ namespace Names
 	class EventListener;
 }
 
-class Names::EventListener : public Events::ModuleEventListener
+class Names::EventListener
+	: public Events::ModuleEventListener
 {
  public:
 	EventListener(Module* mod)

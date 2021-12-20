@@ -22,7 +22,7 @@
 typedef std::unordered_map<std::string, Channel*, irc::insensitive, irc::StrHashComp> ChannelMap;
 
 /** Manages state relating to channels. */
-class CoreExport ChannelManager
+class CoreExport ChannelManager final
 {
  private:
 	/** A map of channel names to the channel object. */

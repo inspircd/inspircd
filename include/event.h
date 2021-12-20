@@ -133,7 +133,8 @@ class Events::ModuleEventProvider
 /** Base class for abstract classes describing cross-module events.
  * Subscribers should NOT inherit directly from this class.
  */
-class Events::ModuleEventListener : private dynamic_reference_base::CaptureHook
+class Events::ModuleEventListener
+	: private dynamic_reference_base::CaptureHook
 {
 	/** Reference to the provider, can be NULL if none of the provider modules are loaded
 	 */

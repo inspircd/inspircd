@@ -21,7 +21,8 @@
 
 #pragma once
 
-class CoreExport Server : public Cullable
+class CoreExport Server
+	: public Cullable
 {
  protected:
 	/** The unique identifier for this server. */

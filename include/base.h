@@ -80,7 +80,7 @@ class CoreExport usecountbase
 };
 
 template <typename T>
-class reference
+class reference final
 {
 	T* value = nullptr;
  public:
@@ -136,7 +136,8 @@ class reference
  * be loaded. If this happens, the error message returned by ModuleException::GetReason will be displayed to the user
  * attempting to load the module, or dumped to the console if the ircd is currently loading for the first time.
  */
-class CoreExport CoreException : public std::exception
+class CoreExport CoreException
+	: public std::exception
 {
  protected:
 	/** Holds the error message to be displayed
@@ -174,7 +175,8 @@ class CoreExport CoreException : public std::exception
 };
 
 class Module;
-class CoreExport ModuleException : public CoreException
+class CoreExport ModuleException
+	: public CoreException
 {
  public:
 	/** This constructor can be used to specify an error message before throwing.
@@ -200,7 +202,8 @@ enum ServiceType {
 };
 
 /** A structure defining something that a module can provide */
-class CoreExport ServiceProvider : public Cullable
+class CoreExport ServiceProvider
+	: public Cullable
 {
  public:
 	/** Module that is providing this service */

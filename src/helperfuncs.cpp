@@ -106,7 +106,7 @@ void InspIRCd::ProcessColors(file_cache& input)
 	 * color code chars using C++ style escape sequences. You
 	 * can append other chars to replace if you like -- Justasic
 	 */
-	static struct special_chars
+	static struct special_chars final
 	{
 		std::string character;
 		std::string replace;

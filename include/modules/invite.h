@@ -29,7 +29,8 @@ namespace Invite
 	typedef insp::intrusive_list<Invite, LocalUser> List;
 }
 
-class Invite::APIBase : public DataProvider
+class Invite::APIBase
+	: public DataProvider
 {
  public:
 	APIBase(Module* parent);
@@ -72,7 +73,8 @@ class Invite::APIBase : public DataProvider
 	virtual bool Remove(LocalUser* user, Channel* chan) = 0;
 };
 
-class Invite::API : public dynamic_reference<APIBase>
+class Invite::API final
+	: public dynamic_reference<APIBase>
 {
  public:
 	API(Module* parent)
@@ -85,7 +87,8 @@ class Invite::API : public dynamic_reference<APIBase>
  * The Invite class contains all data about a pending invite.
  * Invite objects are referenced from the user and the channel they belong to.
  */
-class Invite::Invite : public insp::intrusive_list_node<Invite, LocalUser>, public insp::intrusive_list_node<Invite, Channel>
+class Invite::Invite final
+	: public insp::intrusive_list_node<Invite, LocalUser>, public insp::intrusive_list_node<Invite, Channel>
 {
  public:
 	/** User the invite is for

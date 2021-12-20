@@ -28,7 +28,7 @@
 
 #include <list>
 
-class CoreExport UserManager
+class CoreExport UserManager final
 {
  public:
 	struct CloneCounts

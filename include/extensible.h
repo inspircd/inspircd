@@ -168,7 +168,7 @@ class CoreExport Extensible
 	bool Serialize(Serializable::Data& data) override;
 };
 
-class CoreExport ExtensionManager
+class CoreExport ExtensionManager final
 {
  public:
 	typedef std::map<std::string, ExtensionItem*> ExtMap;
@@ -188,7 +188,8 @@ class CoreExport ExtensionManager
 
 /** Represents a simple ExtensionItem. */
 template <typename T, typename Del = std::default_delete<T>>
-class SimpleExtItem : public ExtensionItem
+class SimpleExtItem
+	: public ExtensionItem
 {
  public:
 	/** Initializes an instance of the SimpleExtItem class.
@@ -235,7 +236,8 @@ class SimpleExtItem : public ExtensionItem
 };
 
 /** Encapsulates an ExtensionItem which has a string value. */
-class CoreExport StringExtItem : public SimpleExtItem<std::string>
+class CoreExport StringExtItem
+	: public SimpleExtItem<std::string>
 {
  protected:
 	/** Whether to sync this StringExtItem across the network. */
@@ -264,7 +266,8 @@ class CoreExport StringExtItem : public SimpleExtItem<std::string>
 };
 
 /** Encapsulates an ExtensionItem which has a integer value. */
-class CoreExport IntExtItem : public ExtensionItem
+class CoreExport IntExtItem
+	: public ExtensionItem
 {
  protected:
 	/** Whether to sync this IntExtItem across the network. */
@@ -315,7 +318,8 @@ class CoreExport IntExtItem : public ExtensionItem
 };
 
 /** Encapsulates an ExtensionItem which has a boolean value. */
-class CoreExport BoolExtItem : public ExtensionItem
+class CoreExport BoolExtItem
+	: public ExtensionItem
 {
  protected:
 	/** Whether to sync this BoolExtItem across the network. */

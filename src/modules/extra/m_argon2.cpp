@@ -167,7 +167,8 @@ class HashArgon2 final
 	}
 };
 
-class ModuleArgon2 : public Module
+class ModuleArgon2 final
+	: public Module
 {
  private:
 	HashArgon2 argon2i;
