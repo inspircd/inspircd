@@ -371,14 +371,15 @@ class DNSBLResolver final
 	}
 };
 
-typedef std::vector<std::shared_ptr<DNSBLEntry>> DNSBLConfList;
+typedef std::vector<std::shared_ptr<DNSBLEntry>> DNSBLEntries;
 
 class ModuleDNSBL final
 	: public Module
 	, public Stats::EventListener
 {
-	DNSBLConfList DNSBLConfEntries;
+ private:
 	dynamic_reference<DNS::Manager> DNS;
+	DNSBLEntries dnsbls;
 	StringExtItem nameExt;
 	IntExtItem countExt;
 
@@ -405,14 +406,13 @@ class ModuleDNSBL final
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		DNSBLConfList newentries;
+		DNSBLEntries newdnsbls;
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("dnsbl"))
 		{
 			auto entry = std::make_shared<DNSBLEntry>(tag);
-			newentries.push_back(entry);
+			newdnsbls.push_back(entry);
 		}
-
-		DNSBLConfEntries.swap(newentries);
+		dnsbls.swap(newdnsbls);
 	}
 
 	void OnSetUserIP(LocalUser* user) override
@@ -455,16 +455,16 @@ class ModuleDNSBL final
 
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Reversed IP %s -> %s", user->GetIPString().c_str(), reversedip.c_str());
 
-		countExt.Set(user, DNSBLConfEntries.size());
+		countExt.Set(user, dnsbls.size());
 
 		// For each DNSBL, we will run through this lookup
-		for (unsigned i = 0; i < DNSBLConfEntries.size(); ++i)
+		for (const auto& dnsbl : dnsbls)
 		{
 			// Fill hostname with a dnsbl style host (d.c.b.a.domain.tld)
-			std::string hostname = reversedip + "." + DNSBLConfEntries[i]->domain;
+			std::string hostname = reversedip + "." + dnsbl->domain;
 
 			/* now we'd need to fire off lookups for `hostname'. */
-			DNSBLResolver *r = new DNSBLResolver(*this->DNS, this, nameExt, countExt, hostname, user, DNSBLConfEntries[i]);
+			DNSBLResolver *r = new DNSBLResolver(*this->DNS, this, nameExt, countExt, hostname, user, dnsbl);
 			try
 			{
 				this->DNS->Process(r);
@@ -519,14 +519,14 @@ class ModuleDNSBL final
 		unsigned long total_hits = 0;
 		unsigned long total_misses = 0;
 		unsigned long total_errors = 0;
-		for (const auto& e : DNSBLConfEntries)
+		for (const auto& dnsbl : dnsbls)
 		{
-			total_hits += e->stats_hits;
-			total_misses += e->stats_misses;
-			total_errors += e->stats_errors;
+			total_hits += dnsbl->stats_hits;
+			total_misses += dnsbl->stats_misses;
+			total_errors += dnsbl->stats_errors;
 
 			stats.AddRow(304, InspIRCd::Format("DNSBLSTATS \"%s\" had %lu hits, %lu misses, and %lu errors",
-				e->name.c_str(), e->stats_hits, e->stats_misses, e->stats_errors));
+				dnsbl->name.c_str(), dnsbl->stats_hits, dnsbl->stats_misses, dnsbl->stats_errors));
 		}
 
 		stats.AddRow(304, "DNSBLSTATS Total hits: " + ConvToStr(total_hits));
