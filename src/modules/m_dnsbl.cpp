@@ -166,6 +166,23 @@ class DNSBLResolver final
 	IntExtItem& countExt;
 	std::shared_ptr<DNSBLEntry> ConfEntry;
 
+
+	template <typename Line, typename... Extra>
+	void AddLine(const char* type, const std::string& reason, unsigned long duration, Extra&&... extra)
+	{
+		auto line = new Line(ServerInstance->Time(), duration, ServerInstance->Config->ServerName, reason, std::forward<Extra>(extra)...);
+		if (ServerInstance->XLines->AddLine(line, nullptr))
+		{
+			delete line;
+			return;
+		}
+
+		ServerInstance->SNO.WriteToSnoMask('x', "%s added due to DNSBL match on %s to expire in %s (on %s): %s",
+			type, line->Displayable().c_str(), InspIRCd::DurationString(line->duration).c_str(),
+			InspIRCd::TimeString(line->expiry).c_str(), reason.c_str());
+		ServerInstance->XLines->ApplyLines();
+	}
+
  public:
 	DNSBLResolver(DNS::Manager *mgr, Module *me, StringExtItem& match, IntExtItem& ctr, const std::string &hostname, LocalUser* u, std::shared_ptr<DNSBLEntry> conf)
 		: DNS::Request(mgr, me, hostname, DNS::QUERY_A, true, conf->timeout)
@@ -278,56 +295,17 @@ class DNSBLResolver final
 				}
 				case DNSBLEntry::Action::KLINE:
 				{
-					KLine* kl = new KLine(ServerInstance->Time(), ConfEntry->xlineduration, ServerInstance->Config->ServerName.c_str(), reason.c_str(),
-							them->GetBanIdent(), them->GetIPString());
-					if (ServerInstance->XLines->AddLine(kl,NULL))
-					{
-						ServerInstance->SNO.WriteToSnoMask('x', "K-line added due to DNSBL match on %s to expire in %s (on %s): %s",
-							kl->Displayable().c_str(), InspIRCd::DurationString(kl->duration).c_str(),
-							InspIRCd::TimeString(kl->expiry).c_str(), reason.c_str());
-						ServerInstance->XLines->ApplyLines();
-					}
-					else
-					{
-						delete kl;
-						return;
-					}
+					AddLine<KLine>("K-line", reason, ConfEntry->xlineduration, them->GetBanIdent(), them->GetIPString());
 					break;
 				}
 				case DNSBLEntry::Action::GLINE:
 				{
-					GLine* gl = new GLine(ServerInstance->Time(), ConfEntry->xlineduration, ServerInstance->Config->ServerName.c_str(), reason.c_str(),
-							them->GetBanIdent(), them->GetIPString());
-					if (ServerInstance->XLines->AddLine(gl,NULL))
-					{
-						ServerInstance->SNO.WriteToSnoMask('x', "G-line added due to DNSBL match on %s to expire in %s (on %s): %s",
-							gl->Displayable().c_str(), InspIRCd::DurationString(gl->duration).c_str(),
-							InspIRCd::TimeString(gl->expiry).c_str(), reason.c_str());
-						ServerInstance->XLines->ApplyLines();
-					}
-					else
-					{
-						delete gl;
-						return;
-					}
+					AddLine<GLine>("G-line", reason, ConfEntry->xlineduration, them->GetBanIdent(), them->GetIPString());
 					break;
 				}
 				case DNSBLEntry::Action::ZLINE:
 				{
-					ZLine* zl = new ZLine(ServerInstance->Time(), ConfEntry->xlineduration, ServerInstance->Config->ServerName.c_str(), reason.c_str(),
-							them->GetIPString());
-					if (ServerInstance->XLines->AddLine(zl,NULL))
-					{
-						ServerInstance->SNO.WriteToSnoMask('x', "Z-line added due to DNSBL match on %s to expire in %s (on %s): %s",
-							them->GetIPString().c_str(), InspIRCd::DurationString(zl->duration).c_str(),
-							InspIRCd::TimeString(zl->expiry).c_str(), reason.c_str());
-						ServerInstance->XLines->ApplyLines();
-					}
-					else
-					{
-						delete zl;
-						return;
-					}
+					AddLine<ZLine>("Z-line", reason, ConfEntry->xlineduration, them->GetIPString());
 					break;
 				}
 			}
