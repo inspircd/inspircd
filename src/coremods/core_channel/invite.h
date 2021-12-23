@@ -34,7 +34,7 @@ namespace Invite
 		List invites;
 	};
 
-	template<typename T, ExtensionItem::ExtensibleType ExtType>
+	template<typename T, ExtensionType ExtType>
 	class ExtItem;
 
 	class APIImpl;
@@ -43,7 +43,7 @@ namespace Invite
 extern void RemoveInvite(Invite::Invite* inv, bool remove_user, bool remove_chan);
 extern void UnserializeInvite(LocalUser* user, const std::string& value);
 
-template<typename T, ExtensionItem::ExtensibleType ExtType>
+template<typename T, ExtensionType ExtType>
 class Invite::ExtItem final
 	: public ExtensionItem
 {
@@ -53,7 +53,7 @@ class Invite::ExtItem final
 		std::string ret;
 		Store<T>* store = static_cast<Store<T>*>(item);
 		for (auto* inv : store->invites)
-			inv->Serialize(human, (ExtType == ExtensionItem::EXT_USER), ret);
+			inv->Serialize(human, (ExtType == ExtensionType::USER), ret);
 
 		if (!ret.empty())
 			ret.erase(ret.length()-1);
@@ -93,7 +93,7 @@ class Invite::ExtItem final
 			Invite* inv = *i;
 			// Destructing the Invite invalidates the iterator, so move it now
 			++i;
-			RemoveInvite(inv, (ExtType != ExtensionItem::EXT_USER), (ExtType == ExtensionItem::EXT_USER));
+			RemoveInvite(inv, (ExtType != ExtensionType::USER), (ExtType == ExtensionType::USER));
 		}
 
 		delete store;
@@ -111,7 +111,7 @@ class Invite::ExtItem final
 
 	void FromInternal(Extensible* container, const std::string& value) noexcept override
 	{
-		if (ExtType != ExtensionItem::EXT_CHANNEL)
+		if (ExtType != ExtensionType::CHANNEL)
 			UnserializeInvite(static_cast<LocalUser*>(container), value);
 	}
 };
@@ -119,8 +119,8 @@ class Invite::ExtItem final
 class Invite::APIImpl final
 	: public APIBase
 {
-	ExtItem<LocalUser, ExtensionItem::EXT_USER> userext;
-	ExtItem<Channel, ExtensionItem::EXT_CHANNEL> chanext;
+	ExtItem<LocalUser, ExtensionType::USER> userext;
+	ExtItem<Channel, ExtensionType::CHANNEL> chanext;
 
  public:
 	APIImpl(Module* owner);

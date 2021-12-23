@@ -408,7 +408,7 @@ class ModuleSASL final
  public:
 	ModuleSASL()
 		: Module(VF_VENDOR, "Provides the IRCv3 sasl client capability.")
-		, authExt(this, "sasl_auth", ExtensionItem::EXT_USER)
+		, authExt(this, "sasl_auth", ExtensionType::USER)
 		, servertracker(this)
 		, cap(this, servertracker)
 		, auth(this, authExt, cap)

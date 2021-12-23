@@ -88,7 +88,7 @@ void Extensible::UnhookExtensions(const std::vector<ExtensionItem*>& items)
 	}
 }
 
-ExtensionItem::ExtensionItem(Module* mod, const std::string& Key, ExtensibleType exttype)
+ExtensionItem::ExtensionItem(Module* mod, const std::string& Key, ExtensionType exttype)
 	: ServiceProvider(mod, Key, SERVICE_METADATA)
 	, type(exttype)
 {
@@ -139,15 +139,15 @@ void ExtensionItem::Sync(const Extensible* container, void* item)
 
 	switch (type)
 	{
-		case ExtensionItem::EXT_CHANNEL:
+		case ExtensionType::CHANNEL:
 			ServerInstance->PI->SendMetaData(static_cast<const Channel*>(container), name, networkstr);
 			break;
 
-		case ExtensionItem::EXT_MEMBERSHIP:
+		case ExtensionType::MEMBERSHIP:
 			ServerInstance->PI->SendMetaData(static_cast<const Membership*>(container), name, networkstr);
 			break;
 
-		case ExtensionItem::EXT_USER:
+		case ExtensionType::USER:
 			ServerInstance->PI->SendMetaData(static_cast<const User*>(container), name, networkstr);
 			break;
 	}
@@ -184,7 +184,7 @@ std::string ExtensionItem::ToNetwork(const Extensible* container, void* item) co
 	return std::string();
 }
 
-BoolExtItem::BoolExtItem(Module* owner, const std::string& key, ExtensibleType exttype, bool sync)
+BoolExtItem::BoolExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync)
 	: ExtensionItem(owner, key, exttype)
 	, synced(sync)
 {
@@ -243,7 +243,7 @@ void BoolExtItem::Unset(Extensible* container, bool sync)
 		Sync(container, reinterpret_cast<void*>(0));
 }
 
-IntExtItem::IntExtItem(Module* owner, const std::string& key, ExtensibleType exttype, bool sync)
+IntExtItem::IntExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync)
 	: ExtensionItem(owner, key, exttype)
 	, synced(sync)
 {
@@ -298,7 +298,7 @@ void IntExtItem::Unset(Extensible* container, bool sync)
 		Sync(container, nullptr);
 }
 
-StringExtItem::StringExtItem(Module* owner, const std::string& key, ExtensibleType exttype, bool sync)
+StringExtItem::StringExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync)
 	: SimpleExtItem(owner, key, exttype)
 	, synced(sync)
 {

@@ -76,7 +76,7 @@ class ModuleConnJoin final
  public:
 	ModuleConnJoin()
 		: Module(VF_VENDOR, "Allows the server administrator to force users to join one or more channels on connect.")
-		, ext(this, "join_timer", ExtensionItem::EXT_USER)
+		, ext(this, "join_timer", ExtensionType::USER)
 	{
 	}
 

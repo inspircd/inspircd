@@ -59,7 +59,7 @@ class BanRedirect final
 	BanRedirect(Module* parent)
 		: ModeWatcher(parent, "ban", MODETYPE_CHANNEL)
 		, banmode(parent, "ban")
-		, redirectlist(parent, "banredirect", ExtensionItem::EXT_CHANNEL)
+		, redirectlist(parent, "banredirect", ExtensionType::CHANNEL)
 	{
 	}
 
@@ -265,9 +265,9 @@ class ModuleBanRedirect final
 	{
 	}
 
-	void OnCleanup(ExtensionItem::ExtensibleType type, Extensible* item) override
+	void OnCleanup(ExtensionType type, Extensible* item) override
 	{
-		if (type == ExtensionItem::EXT_CHANNEL)
+		if (type == ExtensionType::CHANNEL)
 		{
 			Channel* chan = static_cast<Channel*>(item);
 			BanRedirectList* redirects = banwatcher.redirectlist.Get(chan);

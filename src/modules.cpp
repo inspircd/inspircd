@@ -146,7 +146,7 @@ void		Module::OnChangeIdent(User*, const std::string&) { DetachEvent(I_OnChangeI
 void		Module::OnAddLine(User*, XLine*) { DetachEvent(I_OnAddLine); }
 void		Module::OnDelLine(User*, XLine*) { DetachEvent(I_OnDelLine); }
 void		Module::OnExpireLine(XLine*) { DetachEvent(I_OnExpireLine); }
-void		Module::OnCleanup(ExtensionItem::ExtensibleType, Extensible*) { }
+void		Module::OnCleanup(ExtensionType, Extensible*) { }
 ModResult	Module::OnChannelPreDelete(Channel*) { DetachEvent(I_OnChannelPreDelete); return MOD_RES_PASSTHRU; }
 void		Module::OnChannelDelete(Channel*) { DetachEvent(I_OnChannelDelete); }
 void		Module::OnBuildNeighborList(User*, IncludeChanList&, std::map<User*,bool>&) { DetachEvent(I_OnBuildNeighborList); }
@@ -410,11 +410,11 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	{
 		Channel* chan = c->second;
 		++c;
-		mod->OnCleanup(ExtensionItem::EXT_CHANNEL, chan);
+		mod->OnCleanup(ExtensionType::CHANNEL, chan);
 		chan->UnhookExtensions(items);
 		for (const auto& [_, memb] : chan->GetUsers())
 		{
-			mod->OnCleanup(ExtensionItem::EXT_MEMBERSHIP, memb);
+			mod->OnCleanup(ExtensionType::MEMBERSHIP, memb);
 			memb->UnhookExtensions(items);
 		}
 	}
@@ -425,7 +425,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		User* user = u->second;
 		// The module may quit the user (e.g. TLS mod unloading) and that will remove it from the container
 		++u;
-		mod->OnCleanup(ExtensionItem::EXT_USER, user);
+		mod->OnCleanup(ExtensionType::USER, user);
 		user->UnhookExtensions(items);
 	}
 

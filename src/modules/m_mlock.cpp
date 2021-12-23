@@ -36,7 +36,7 @@ class ModuleMLock final
  public:
 	ModuleMLock()
 		: Module(VF_VENDOR, "Allows services to lock channel modes so that they can not be changed.")
-		, mlock(this, "mlock", ExtensionItem::EXT_CHANNEL, true)
+		, mlock(this, "mlock", ExtensionType::CHANNEL, true)
 	{
 	}
 

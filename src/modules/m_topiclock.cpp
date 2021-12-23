@@ -86,7 +86,7 @@ class ModuleTopicLock final
 	ModuleTopicLock()
 		: Module(VF_VENDOR | VF_COMMON, "Allows services to lock the channel topic so that it can not be changed.")
 		, cmd(this)
-		, topiclock(this, "topiclock", ExtensionItem::EXT_CHANNEL)
+		, topiclock(this, "topiclock", ExtensionType::CHANNEL)
 	{
 	}
 

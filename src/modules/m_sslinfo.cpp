@@ -37,7 +37,7 @@ class SSLCertExt final
 {
  public:
 	SSLCertExt(Module* parent)
-		: ExtensionItem(parent, "ssl_cert", ExtensionItem::EXT_USER)
+		: ExtensionItem(parent, "ssl_cert", ExtensionType::USER)
 	{
 	}
 
@@ -124,7 +124,7 @@ class UserCertificateAPIImpl final
 
 	UserCertificateAPIImpl(Module* mod)
 		: UserCertificateAPIBase(mod)
-		, nosslext(mod, "no_ssl_cert", ExtensionItem::EXT_USER)
+		, nosslext(mod, "no_ssl_cert", ExtensionType::USER)
 		, sslext(mod)
 	{
 	}

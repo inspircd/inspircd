@@ -22,33 +22,33 @@
 
 #pragma once
 
+/** Types of Extensible that an ExtensionItem can apply to. */
+enum class ExtensionType : uint8_t
+{
+	/** The ExtensionItem applies to a User object. */
+	USER = 0,
+
+	/** The ExtensionItem applies to a Channel object. */
+	CHANNEL = 1,
+
+	/** The ExtensionItem applies to a Membership object. */
+	MEMBERSHIP = 2,
+};
+
 /** Base class for logic that extends an Extensible object. */
 class CoreExport ExtensionItem
 	: public ServiceProvider
 {
  public:
-	/** Types of Extensible that an ExtensionItem can apply to. */
-	enum ExtensibleType
-	{
-		/** The ExtensionItem applies to a User object. */
-		EXT_USER,
-
-		/** The ExtensionItem applies to a Channel object. */
-		EXT_CHANNEL,
-
-		/** The ExtensionItem applies to a Membership object. */
-		EXT_MEMBERSHIP
-	};
-
 	/** The type of Extensible that this ExtensionItem applies to. */
-	const ExtensibleType type;
+	const ExtensionType type;
 
 	/** Initializes an instance of the ExtensionItem class.
 	 * @param owner The module which created this ExtensionItem.
 	 * @param key The name of the extension item (e.g. foo_bar).
 	 * @param exttype The type of Extensible that this ExtensionItem applies to.
 	 */
-	ExtensionItem(Module* owner, const std::string& key, ExtensibleType exttype);
+	ExtensionItem(Module* owner, const std::string& key, ExtensionType exttype);
 
 	/** Sets an ExtensionItem using a value in the internal format.
 	 * @param container A container the ExtensionItem should be set on.
@@ -197,7 +197,7 @@ class SimpleExtItem
 	 * @param Key The name of the extension item (e.g. foo_bar).
 	 * @param exttype The type of Extensible that this SimpleExtItem applies to.
 	 */
-	SimpleExtItem(Module* parent, const std::string& Key, ExtensibleType exttype)
+	SimpleExtItem(Module* parent, const std::string& Key, ExtensionType exttype)
 		: ExtensionItem(parent, Key, exttype)
 	{
 	}
@@ -250,7 +250,7 @@ class CoreExport StringExtItem
 	 * @param exttype The type of Extensible that this IntExtItem applies to.
 	 * @param sync Whether this StringExtItem should be broadcast to other servers.
 	 */
-	StringExtItem(Module* owner, const std::string& key, ExtensibleType exttype, bool sync = false);
+	StringExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync = false);
 
 	/** @copydoc ExtensionItem::FromInternal */
 	void FromInternal(Extensible* container, const std::string& value) noexcept override;
@@ -280,7 +280,7 @@ class CoreExport IntExtItem
 	 * @param exttype The type of Extensible that this IntExtItem applies to.
 	 * @param sync Whether this IntExtItem should be broadcast to other servers.
 	 */
-	IntExtItem(Module* owner, const std::string& key, ExtensibleType exttype, bool sync = false);
+	IntExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync = false);
 
 	/** @copydoc ExtensionItem::Delete */
 	void Delete(Extensible* container, void* item) override;
@@ -332,7 +332,7 @@ class CoreExport BoolExtItem
 	 * @param exttype The type of Extensible that this BoolExtItem applies to.
 	 * @param sync Whether this BoolExtItem should be broadcast to other servers.
 	 */
-	BoolExtItem(Module* owner, const std::string& key, ExtensibleType exttype, bool sync = false);
+	BoolExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync = false);
 
 	/** @copydoc ExtensionItem::Delete */
 	void Delete(Extensible* container, void* item) override;

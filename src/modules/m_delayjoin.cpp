@@ -128,7 +128,7 @@ class ModuleDelayJoin final
 		, CTCTags::EventListener(this)
 		, Names::EventListener(this)
 		, Who::EventListener(this)
-		, unjoined(this, "delayjoin", ExtensionItem::EXT_MEMBERSHIP)
+		, unjoined(this, "delayjoin", ExtensionType::MEMBERSHIP)
 		, joinhook(this, unjoined)
 		, djm(this, unjoined)
 	{

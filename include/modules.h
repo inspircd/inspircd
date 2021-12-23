@@ -698,7 +698,7 @@ class CoreExport Module
 	 *             and EXT_USER then item is a User*.
 	 * @param item A pointer to the extensible which is being cleaned up.
 	 */
-	virtual void OnCleanup(ExtensionItem::ExtensibleType type, Extensible* item);
+	virtual void OnCleanup(ExtensionType type, Extensible* item);
 
 	/** Called after any nickchange, local or remote. This can be used to track users after nickchanges
 	 * have been applied. Please note that although you can see remote nickchanges through this function, you should

@@ -30,7 +30,7 @@ class DelayMsgMode final
 	IntExtItem jointime;
 	DelayMsgMode(Module* Parent)
 		: ParamMode<DelayMsgMode, IntExtItem>(Parent, "delaymsg", 'd')
-		, jointime(Parent, "delaymsg", ExtensionItem::EXT_MEMBERSHIP)
+		, jointime(Parent, "delaymsg", ExtensionType::MEMBERSHIP)
 	{
 		ranktoset = ranktounset = OP_VALUE;
 		syntax = "<seconds>";

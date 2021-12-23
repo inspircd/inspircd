@@ -313,7 +313,7 @@ namespace
 }
 
 Cap::ExtItem::ExtItem(Module* mod)
-	: IntExtItem(mod, "caps", ExtensionItem::EXT_USER)
+	: IntExtItem(mod, "caps", ExtensionType::USER)
 {
 }
 
@@ -400,7 +400,7 @@ class CommandCap final
 		, evprov(mod, "event/cap")
 		, manager(mod, evprov)
 		, protoevprov(mod, name)
-		, holdext(mod, "cap_hold", ExtensionItem::EXT_USER)
+		, holdext(mod, "cap_hold", ExtensionType::USER)
 	{
 		works_before_reg = true;
 	}

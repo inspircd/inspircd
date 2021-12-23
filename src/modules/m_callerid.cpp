@@ -78,7 +78,7 @@ struct CallerIDExtInfo final
 	: public ExtensionItem
 {
 	CallerIDExtInfo(Module* parent)
-		: ExtensionItem(parent, "callerid_data", ExtensionItem::EXT_USER)
+		: ExtensionItem(parent, "callerid_data", ExtensionType::USER)
 	{
 	}
 

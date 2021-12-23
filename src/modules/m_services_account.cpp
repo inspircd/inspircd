@@ -98,7 +98,7 @@ class AccountExtItemImpl final
 
  public:
 	AccountExtItemImpl(Module* mod)
-		: AccountExtItem(mod, "accountname", ExtensionItem::EXT_USER, true)
+		: AccountExtItem(mod, "accountname", ExtensionType::USER, true)
 		, eventprov(mod, "event/account")
 	{
 	}

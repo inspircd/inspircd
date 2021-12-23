@@ -138,7 +138,7 @@ class ModuleSQLAuth final
  public:
 	ModuleSQLAuth()
 		: Module(VF_VENDOR, "Allows connecting users to be authenticated against an arbitrary SQL table.")
-		, pendingExt(this, "sqlauth-wait", ExtensionItem::EXT_USER)
+		, pendingExt(this, "sqlauth-wait", ExtensionType::USER)
 		, SQL(this, "SQL")
 		, sslapi(this)
 	{

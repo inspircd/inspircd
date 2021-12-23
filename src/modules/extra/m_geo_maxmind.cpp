@@ -40,7 +40,7 @@ class GeolocationExtItem final
 {
  public:
 	GeolocationExtItem(Module* parent)
-		: ExtensionItem(parent, "geolocation", ExtensionItem::EXT_USER)
+		: ExtensionItem(parent, "geolocation", ExtensionType::USER)
 	{
 	}
 

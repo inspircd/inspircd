@@ -112,7 +112,7 @@ class DCCAllowExt final
 	unsigned long maxentries;
 
 	DCCAllowExt(Module* Creator)
-		: SimpleExtItem<dccallowlist>(Creator, "dccallow", ExtensionItem::EXT_USER)
+		: SimpleExtItem<dccallowlist>(Creator, "dccallow", ExtensionType::USER)
 	{
 	}
 

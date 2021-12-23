@@ -68,7 +68,7 @@ class CommandTitle final
 
 	CommandTitle(Module* Creator)
 		: Command(Creator,"TITLE", 2)
-		, ctitle(Creator, "ctitle", ExtensionItem::EXT_USER, true)
+		, ctitle(Creator, "ctitle", ExtensionType::USER, true)
 	{
 		syntax = { "<username> <password>" };
 	}

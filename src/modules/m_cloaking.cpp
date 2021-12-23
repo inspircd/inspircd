@@ -87,7 +87,7 @@ class CloakExtItem final
 {
  public:
 	CloakExtItem(Module* Creator)
-		: SimpleExtItem(Creator, "cloaks", ExtensionItem::EXT_USER)
+		: SimpleExtItem(Creator, "cloaks", ExtensionType::USER)
 	{
 	}
 

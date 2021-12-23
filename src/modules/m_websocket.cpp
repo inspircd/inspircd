@@ -627,9 +627,9 @@ class ModuleWebSocket final
 		hookprov->config = config;
 	}
 
-	void OnCleanup(ExtensionItem::ExtensibleType type, Extensible* item) override
+	void OnCleanup(ExtensionType type, Extensible* item) override
 	{
-		if (type != ExtensionItem::EXT_USER)
+		if (type != ExtensionType::USER)
 			return;
 
 		LocalUser* user = IS_LOCAL(static_cast<User*>(item));

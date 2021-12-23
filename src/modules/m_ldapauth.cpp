@@ -315,8 +315,8 @@ public:
 	ModuleLDAPAuth()
 		: Module(VF_VENDOR, "Allows connecting users to be authenticated against an LDAP database.")
 		, LDAP(this, "LDAP")
-		, ldapAuthed(this, "ldapauth", ExtensionItem::EXT_USER)
-		, ldapVhost(this, "ldapauth_vhost", ExtensionItem::EXT_USER)
+		, ldapAuthed(this, "ldapauth", ExtensionType::USER)
+		, ldapVhost(this, "ldapauth_vhost", ExtensionType::USER)
 	{
 		me = this;
 		authed = &ldapAuthed;

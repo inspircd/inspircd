@@ -217,7 +217,7 @@ class GatewayExtBan final
 
 	GatewayExtBan(Module* Creator)
 		: ExtBan::MatchingBase(Creator, "gateway", 'w')
-		, gateway(Creator, "webirc-gateway", ExtensionItem::EXT_USER, true)
+		, gateway(Creator, "webirc-gateway", ExtensionType::USER, true)
 	{
 	}
 
@@ -242,8 +242,8 @@ class CommandWebIRC final
 	CommandWebIRC(Module* Creator)
 		: SplitCommand(Creator, "WEBIRC", 4)
 		, extban(Creator)
-		, realhost(Creator, "gateway-realhost", ExtensionItem::EXT_USER, true)
-		, realip(Creator, "gateway-realip", ExtensionItem::EXT_USER, true)
+		, realhost(Creator, "gateway-realhost", ExtensionType::USER, true)
+		, realip(Creator, "gateway-realip", ExtensionType::USER, true)
 		, sslapi(Creator)
 		, webircevprov(Creator, "event/webirc")
 	{

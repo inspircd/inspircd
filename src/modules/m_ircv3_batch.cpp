@@ -102,7 +102,7 @@ class IRCv3::Batch::ManagerImpl final
 		: Manager(mod)
 		, cap(mod, "batch")
 		, protoevprov(mod, "BATCH")
-		, batchbits(mod, "batchbits", ExtensionItem::EXT_USER)
+		, batchbits(mod, "batchbits", ExtensionType::USER)
 	{
 	}
 
