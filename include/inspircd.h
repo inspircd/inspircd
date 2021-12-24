@@ -130,22 +130,6 @@ class serverstats final
 	 */
 	unsigned long Collisions = 0;
 
-	/** Number of DNS queries sent out
-	 */
-	unsigned long Dns = 0;
-
-	/** Number of good DNS replies received
-	 * NOTE: This may not tally to the number sent out,
-	 * due to timeouts and other latency issues.
-	 */
-	unsigned long DnsGood = 0;
-
-	/** Number of bad (negative) DNS replies received
-	 * NOTE: This may not tally to the number sent out,
-	 * due to timeouts and other latency issues.
-	 */
-	unsigned long DnsBad = 0;
-
 	/** Number of inbound connections seen
 	 */
 	unsigned long Connects = 0;

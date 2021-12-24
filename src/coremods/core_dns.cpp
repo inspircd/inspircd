@@ -21,6 +21,8 @@
 
 #include "inspircd.h"
 #include "modules/dns.h"
+#include "modules/stats.h"
+
 #include <iostream>
 #include <fstream>
 
@@ -441,6 +443,9 @@ class MyManager final
 
  public:
 	DNS::Request* requests[MAX_REQUEST_ID+1];
+	size_t stats_total = 0;
+	size_t stats_success = 0;
+	size_t stats_failure = 0;
 
 	MyManager(Module* c)
 		: Manager(c)
@@ -671,14 +676,14 @@ class MyManager final
 
 		if (!valid)
 		{
-			ServerInstance->stats.DnsBad++;
+			this->stats_failure++;
 			recv_packet.error = ERROR_MALFORMED;
 			request->OnError(&recv_packet);
 		}
 		else if (recv_packet.flags & QUERYFLAGS_OPCODE)
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Received a nonstandard query");
-			ServerInstance->stats.DnsBad++;
+			this->stats_failure++;
 			recv_packet.error = ERROR_NONSTANDARD_QUERY;
 			request->OnError(&recv_packet);
 		}
@@ -712,26 +717,26 @@ class MyManager final
 					break;
 			}
 
-			ServerInstance->stats.DnsBad++;
+			this->stats_failure++;
 			recv_packet.error = error;
 			request->OnError(&recv_packet);
 		}
 		else if (recv_packet.answers.empty())
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "No resource records returned");
-			ServerInstance->stats.DnsBad++;
+			this->stats_failure++;
 			recv_packet.error = ERROR_NO_RECORDS;
 			request->OnError(&recv_packet);
 		}
 		else
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Lookup complete for " + request->question.name);
-			ServerInstance->stats.DnsGood++;
+			this->stats_success++;
 			request->OnLookupComplete(&recv_packet);
 			this->AddCache(recv_packet);
 		}
 
-		ServerInstance->stats.Dns++;
+		this->stats_total++;
 
 		/* Request's destructor removes it from the request map */
 		delete request;
@@ -810,6 +815,7 @@ class MyManager final
 
 class ModuleDNS final
 	: public Module
+	, public Stats::EventListener
 {
 	MyManager manager;
 	std::string DNSServer;
@@ -877,6 +883,7 @@ class ModuleDNS final
  public:
 	ModuleDNS()
 		: Module(VF_CORE | VF_VENDOR, "Provides support for DNS lookups")
+		, Stats::EventListener(this)
 		, manager(this)
 	{
 	}
@@ -909,6 +916,16 @@ class ModuleDNS final
 
 		if (oldserver != DNSServer || oldip != SourceIP || oldport != SourcePort)
 			this->manager.Rehash(DNSServer, SourceIP, SourcePort);
+	}
+
+	ModResult OnStats(Stats::Context& stats) override
+	{
+		if (stats.GetSymbol() == 'T')
+		{
+			stats.AddRow(RPL_STATS, stats.GetSymbol(), InspIRCd::Format("DNS requests: %zu (%zu succeeded, %zu failed)",
+				manager.stats_total, manager.stats_success, manager.stats_failure));
+		}
+		return MOD_RES_PASSTHRU;
 	}
 
 	void OnUnloadModule(Module* mod) override

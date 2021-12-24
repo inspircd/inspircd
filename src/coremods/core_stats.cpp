@@ -307,7 +307,6 @@ void CommandStats::DoStats(Stats::Context& stats)
 			stats.AddRow(249, "accepts "+ConvToStr(ServerInstance->stats.Accept)+" refused "+ConvToStr(ServerInstance->stats.Refused));
 			stats.AddRow(249, "unknown commands "+ConvToStr(ServerInstance->stats.Unknown));
 			stats.AddRow(249, "nick collisions "+ConvToStr(ServerInstance->stats.Collisions));
-			stats.AddRow(249, "dns requests "+ConvToStr(ServerInstance->stats.DnsGood+ServerInstance->stats.DnsBad)+" succeeded "+ConvToStr(ServerInstance->stats.DnsGood)+" failed "+ConvToStr(ServerInstance->stats.DnsBad));
 			stats.AddRow(249, "connection count "+ConvToStr(ServerInstance->stats.Connects));
 			stats.AddRow(249, InspIRCd::Format("bytes sent %5.2fK recv %5.2fK",
 				ServerInstance->stats.Sent / 1024.0, ServerInstance->stats.Recv / 1024.0));
