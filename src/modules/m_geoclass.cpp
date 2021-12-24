@@ -21,12 +21,6 @@
 #include "modules/geolocation.h"
 #include "modules/stats.h"
 
-enum
-{
-	// InspIRCd-specific.
-	RPL_STATSCOUNTRY = 801
-};
-
 class ModuleGeoClass final
 	: public Module
 	, public Stats::EventListener
@@ -90,10 +84,13 @@ class ModuleGeoClass final
 		}
 
 		for (const auto& [location, count] : counts)
-			stats.AddRow(RPL_STATSCOUNTRY, count, location->GetCode(), location->GetName());
+		{
+			stats.AddGenericRow(InspIRCd::Format("%s (%s): %lu", location->GetName().c_str(),
+				location->GetCode().c_str(), count));
+		}
 
 		if (unknown)
-			stats.AddRow(RPL_STATSCOUNTRY, unknown, "*", "Unknown Country");
+			stats.AddGenericRow("Unknown Country: " + ConvToStr(unknown));
 
 		return MOD_RES_DENY;
 	}
