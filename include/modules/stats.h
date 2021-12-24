@@ -29,6 +29,12 @@ namespace Stats
 	class Row;
 }
 
+enum
+{
+	// From aircd.
+	RPL_STATS = 210,
+};
+
 class Stats::EventListener
 	: public Events::ModuleEventListener
 {
