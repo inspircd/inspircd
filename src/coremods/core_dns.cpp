@@ -922,7 +922,7 @@ class ModuleDNS final
 	{
 		if (stats.GetSymbol() == 'T')
 		{
-			stats.AddRow(RPL_STATS, stats.GetSymbol(), InspIRCd::Format("DNS requests: %zu (%zu succeeded, %zu failed)",
+			stats.AddGenericRow(InspIRCd::Format("DNS requests: %zu (%zu succeeded, %zu failed)",
 				manager.stats_total, manager.stats_success, manager.stats_failure));
 		}
 		return MOD_RES_PASSTHRU;

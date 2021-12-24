@@ -107,4 +107,16 @@ class Stats::Context final
 		n.push(std::forward<Param>(p)...);
 		AddRow(n);
 	}
+
+	/** Adds a row to the stats response using a generic numeric.
+	 * @param p One or more fields to add to the response.
+	 */
+	template <typename... Param>
+	void AddGenericRow(Param... p)
+	{
+		Row n(RPL_STATS);
+		n.push(GetSymbol());
+		n.push(std::forward<Param>(p)...);
+		AddRow(n);
+	}
 };

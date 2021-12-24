@@ -496,7 +496,7 @@ bool XLineManager::InvokeStats(const std::string& type, Stats::Context& context)
 			continue;
 		}
 
-		context.AddRow(RPL_STATS, context.GetSymbol(), xline->Displayable(), xline->set_time, xline->duration, xline->source, xline->reason);
+		context.AddGenericRow(xline->Displayable(), xline->set_time, xline->duration, xline->source, xline->reason);
 	}
 	return true;
 }
