@@ -40,6 +40,7 @@ class SecurityIPResolver : public DNS::Request
 	Module* mine;
 	std::string host;
 	DNS::QueryType query;
+	bool CheckIPv4();
  public:
 	SecurityIPResolver(Module* me, DNS::Manager* mgr, const std::string& hostname, Link* x, DNS::QueryType qt);
 	void OnLookupComplete(const DNS::Query *r) CXX11_OVERRIDE;
