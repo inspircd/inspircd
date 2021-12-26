@@ -400,7 +400,7 @@ class CommandCap final
 		, evprov(mod, "event/cap")
 		, manager(mod, evprov)
 		, protoevprov(mod, name)
-		, holdext(mod, "cap_hold", ExtensionType::USER)
+		, holdext(mod, "cap-hold", ExtensionType::USER)
 	{
 		works_before_reg = true;
 	}

@@ -124,7 +124,7 @@ class UserCertificateAPIImpl final
 
 	UserCertificateAPIImpl(Module* mod)
 		: UserCertificateAPIBase(mod)
-		, nosslext(mod, "no_ssl_cert", ExtensionType::USER)
+		, nosslext(mod, "no-ssl-cert", ExtensionType::USER)
 		, sslext(mod)
 	{
 	}

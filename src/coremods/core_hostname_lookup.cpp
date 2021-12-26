@@ -162,7 +162,7 @@ class ModuleHostnameLookup final
  public:
 	ModuleHostnameLookup()
 		: Module(VF_CORE | VF_VENDOR, "Provides support for DNS lookups on connecting clients")
-		, dnsLookup(this, "dnsLookup", ExtensionType::USER)
+		, dnsLookup(this, "dns-lookup", ExtensionType::USER)
 		, DNS(this, "DNS")
 	{
 		dl = &dnsLookup;

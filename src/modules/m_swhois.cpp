@@ -35,7 +35,7 @@ class CommandSwhois final
 	StringExtItem swhois;
 	CommandSwhois(Module* Creator)
 		: Command(Creator, "SWHOIS", 2, 2)
-		, operblock(Creator, "swhois_operblock", ExtensionType::USER)
+		, operblock(Creator, "swhois-operblock", ExtensionType::USER)
 		, swhois(Creator, "swhois", ExtensionType::USER, true)
 	{
 		access_needed = CmdAccess::OPERATOR;

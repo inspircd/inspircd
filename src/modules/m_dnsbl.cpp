@@ -366,8 +366,8 @@ class ModuleDNSBL final
 		: Module(VF_VENDOR, "Allows the server administrator to check the IP address of connecting users against a DNSBL.")
 		, Stats::EventListener(this)
 		, DNS(this, "DNS")
-		, nameExt(this, "dnsbl_match", ExtensionType::USER)
-		, countExt(this, "dnsbl_pending", ExtensionType::USER)
+		, nameExt(this, "dnsbl-match", ExtensionType::USER)
+		, countExt(this, "dnsbl-pending", ExtensionType::USER)
 	{
 	}
 

@@ -131,7 +131,7 @@ class RepeatMode final
 
 	RepeatMode(Module* Creator)
 		: ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >(Creator, "repeat", 'E')
-		, MemberInfoExt(Creator, "repeat_memb", ExtensionType::MEMBERSHIP)
+		, MemberInfoExt(Creator, "repeat", ExtensionType::MEMBERSHIP)
 	{
 		syntax = "[~|*]<lines>:<sec>[:<difference>][:<backlog>]";
 	}

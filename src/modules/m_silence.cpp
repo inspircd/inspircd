@@ -191,7 +191,7 @@ class SilenceExtItem final
 	unsigned long maxsilence;
 
 	SilenceExtItem(Module* Creator)
-		: SimpleExtItem<SilenceList>(Creator, "silence_list", ExtensionType::USER)
+		: SimpleExtItem<SilenceList>(Creator, "silence-list", ExtensionType::USER)
 	{
 	}
 

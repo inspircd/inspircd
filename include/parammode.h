@@ -60,7 +60,7 @@ class ParamMode
 	 */
 	ParamMode(Module* Creator, const std::string& Name, char modeletter, ParamSpec ps = PARAM_SETONLY)
 		: ParamModeBase(Creator, Name, modeletter, ps)
-		, ext(Creator, "parammode_" + Name, ExtensionType::CHANNEL)
+		, ext(Creator, "param-mode-" + Name, ExtensionType::CHANNEL)
 	{
 	}
 
