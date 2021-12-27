@@ -82,19 +82,43 @@ class CommandStartTLS final
 	}
 };
 
+class TLSCap final
+	: public Cap::Capability
+{
+ private:
+	dynamic_reference_nocheck<IOHookProvider>& sslref;
+
+	bool OnList(LocalUser* user) override
+	{
+		return sslref;
+	}
+
+	bool OnRequest(LocalUser* user, bool adding) override
+	{
+		return sslref;
+	}
+
+ public:
+	TLSCap(Module* mod, dynamic_reference_nocheck<IOHookProvider>& ssl)
+		: Cap::Capability(mod, "tls")
+		, sslref(ssl)
+	{
+	}
+};
+
 class ModuleStartTLS final
 	: public Module
 {
  private:
 	CommandStartTLS starttls;
-	Cap::Capability tls;
+	TLSCap tls;
 	dynamic_reference_nocheck<IOHookProvider> ssl;
 
  public:
 	ModuleStartTLS()
 		: Module(VF_VENDOR, "Provides the IRCv3 tls client capability.")
 		, starttls(this, ssl)
-		, tls(this, "tls")
+		, tls(this, ssl)
 		, ssl(this, "ssl")
 	{
 	}

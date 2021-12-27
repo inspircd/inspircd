@@ -41,6 +41,7 @@ class SecurityIPResolver final
 	Module* mine;
 	std::string host;
 	DNS::QueryType query;
+	bool CheckIPv4();
  public:
 	SecurityIPResolver(Module* me, DNS::Manager* mgr, const std::string& hostname, std::shared_ptr<Link> x, DNS::QueryType qt);
 	void OnLookupComplete(const DNS::Query *r) override;

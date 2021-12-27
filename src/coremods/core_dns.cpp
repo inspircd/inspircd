@@ -303,7 +303,7 @@ class Packet final
 	unsigned short Pack(unsigned char* output, unsigned short output_size)
 	{
 		if (output_size < HEADER_LENGTH)
-			throw Exception("Unable to pack packet");
+			throw Exception("Unable to pack oversized packet header");
 
 		unsigned short pos = 0;
 
@@ -326,7 +326,8 @@ class Packet final
 			if (q.type == QUERY_PTR)
 			{
 				irc::sockets::sockaddrs ip;
-				irc::sockets::aptosa(q.name, 0, ip);
+				if (!irc::sockets::aptosa(q.name, 0, ip))
+					throw Exception("Unable to pack packet with malformed IP for PTR lookup");
 
 				if (q.name.find(':') != std::string::npos)
 				{
@@ -357,7 +358,7 @@ class Packet final
 			this->PackName(output, output_size, pos, q.name);
 
 			if (pos + 4 >= output_size)
-				throw Exception("Unable to pack packet");
+				throw Exception("Unable to pack oversized packet body");
 
 			short s = htons(q.type);
 			memcpy(&output[pos], &s, 2);
