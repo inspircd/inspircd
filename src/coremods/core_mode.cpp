@@ -346,11 +346,11 @@ class CoreModMode final
 		std::string prefixchars;
 		for (const auto& pm : insp::iterator_range(prefixes.rbegin(), prefixes.rend()))
 		{
-			modechars += pm->GetPrefix();
-			prefixchars += pm->GetModeChar();
+			modechars += pm->GetModeChar();
+			prefixchars += pm->GetPrefix();
 		}
 
-		return includeprefixes ? "(" + prefixchars + ")" + prefixchars : modechars;
+		return includeprefixes ? "(" + modechars + ")" + prefixchars : prefixchars;
 	}
 
  public:
