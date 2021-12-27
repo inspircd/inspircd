@@ -329,7 +329,7 @@ class CoreModMode final
 		return InspIRCd::Format("%s,%s,%s,%s", type1.c_str(), type2.c_str(), type3.c_str(), type4.c_str());
 	}
 
-	std::string GeneratePrefixList(bool includeprefixes)
+	std::string GeneratePrefixList(bool includemodechars)
 	{
 		std::vector<PrefixMode*> prefixes;
 		for (const auto& pm : ServerInstance->Modes.GetPrefixModes())
@@ -346,11 +346,11 @@ class CoreModMode final
 		std::string prefixchars;
 		for (const auto& pm : insp::iterator_range(prefixes.rbegin(), prefixes.rend()))
 		{
-			modechars += pm->GetPrefix();
-			prefixchars += pm->GetModeChar();
+			modechars += pm->GetModeChar();
+			prefixchars += pm->GetPrefix();
 		}
 
-		return includeprefixes ? "(" + prefixchars + ")" + prefixchars : modechars;
+		return includemodechars ? "(" + modechars + ")" + prefixchars : prefixchars;
 	}
 
  public:
