@@ -301,6 +301,7 @@ class ModuleSSLInfo final
 private:
 	CommandSSLInfo cmd;
 	std::string hash;
+	bool spkifp;
 	unsigned long warnexpiring;
 
 	static bool MatchFP(ssl_cert* const cert, const std::string& fp)
@@ -324,6 +325,7 @@ public:
 		cmd.operonlyfp = tag->getBool("operonly");
 		cmd.sslapi.localsecure = tag->getBool("localsecure", true);
 		hash = tag->getString("hash");
+		spkifp = tag->getBool("spkifp");
 		warnexpiring = tag->getDuration("warnexpiring", 0, 0, 60*60*24*365);
 	}
 
@@ -468,7 +470,7 @@ public:
 		auto* cert = new ssl_cert();
 		if (!hash.empty())
 		{
-			iter = flags->find("certfp-" + hash);
+			iter = flags->find(spkifp ? "spkifp-" : "certfp-" + hash);
 			if (iter != flags->end() && !iter->second.empty())
 			{
 				// If the gateway specifies this flag we put all trust onto them

@@ -2445,11 +2445,13 @@
 # to an IANA Hash Function Textual Name to use the SSL fingerprint sent by a
 # WebIRC gateway (requires the cgiirc module), localsecure to allow locally
 # connected connections where TLS is not necessary to be considered secure,
-# and warnexpiring to warn users when their client certificate is about to
-# expire.
+# spkifp to use a SPKI key fingerprint instead of a client certificate
+# fingerprint and warnexpiring to warn users when their client certificate is
+# about to expire.
 #<sslinfo operonly="no"
 #         hash="sha-256"
 #         localsecure="yes"
+#         spkifp="no"
 #         warnexpiring="1w">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
