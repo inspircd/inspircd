@@ -29,7 +29,7 @@
 #include "core_user.h"
 
 CommandNick::CommandNick(Module* parent)
-	: SplitCommand(parent, "NICK", 1, 1)
+	: SplitCommand(parent, "NICK", 1)
 {
 	works_before_reg = true;
 	syntax = "<newnick>";
