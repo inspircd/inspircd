@@ -33,18 +33,18 @@ class ModulePassForward : public Module
  public:
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Allows the /PASS password to be forwarded to a services pseudoclient such as NickServ.", VF_VENDOR);
+		return Version("Allows an account password to be forwarded to a services pseudoclient such as NickServ.", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("passforward");
 		nickrequired = tag->getString("nick", "NickServ");
-		forwardmsg = tag->getString("forwardmsg", "NOTICE $nick :*** Forwarding PASS to $nickrequired");
+		forwardmsg = tag->getString("forwardmsg", "NOTICE $nick :*** Forwarding password to $nickrequired");
 		forwardcmd = tag->getString("cmd", "SQUERY $nickrequired :IDENTIFY $pass", 1);
 	}
 
-	void FormatStr(std::string& result, const std::string& format, const LocalUser* user)
+	void FormatStr(const LocalUser* user, const std::string& format, const std::string& pass, std::string& result)
 	{
 		for (unsigned int i = 0; i < format.length(); i++)
 		{
@@ -68,7 +68,7 @@ class ModulePassForward : public Module
 				}
 				else if (!format.compare(i, 5, "$pass", 5))
 				{
-					result.append(user->password);
+					result.append(pass);
 					i += 4;
 				}
 				else
@@ -96,6 +96,17 @@ class ModulePassForward : public Module
 			return;
 		}
 
+		ForwardPass(user, user->password);
+	}
+
+	void OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, bool loop) CXX11_OVERRIDE
+	{
+		if (command->name == "NICK" && parameters.size() > 1)
+			ForwardPass(user, parameters[1]);
+	}
+
+	void ForwardPass(LocalUser* user, const std::string& pass)
+	{
 		if (!nickrequired.empty())
 		{
 			/* Check if nick exists and its server is ulined */
@@ -107,12 +118,12 @@ class ModulePassForward : public Module
 		std::string tmp;
 		if (!forwardmsg.empty())
 		{
-			FormatStr(tmp, forwardmsg, user);
+			FormatStr(user, forwardmsg, pass, tmp);
 			ServerInstance->Parser.ProcessBuffer(user, tmp);
 			tmp.clear();
 		}
 
-		FormatStr(tmp, forwardcmd, user);
+		FormatStr(user, forwardcmd, pass, tmp);
 		ServerInstance->Parser.ProcessBuffer(user, tmp);
 	}
 };
