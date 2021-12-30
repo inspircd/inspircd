@@ -13,7 +13,7 @@
  *   Copyright (C) 2008 John Brooks <special@inspircd.org>
  *   Copyright (C) 2007-2008 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2007-2008 Dennis Friis <peavey@inspircd.org>
- *   Copyright (C) 2006 jamie <jamie@e03df62e-2008-0410-955e-edbf42e46eb7>
+ *   Copyright (C) 2006 jamie
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
