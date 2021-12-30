@@ -30,7 +30,7 @@ class ModuleServerBan : public Module
  public:
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Adds extended ban s: which check whether users are on a server matching the specified glob pattern.", VF_OPTCOMMON|VF_VENDOR);
+		return Version("Adds extended ban s: (server) which check whether users are on a server matching the specified glob pattern.", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) CXX11_OVERRIDE
