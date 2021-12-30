@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
- *   Copyright (C) 2018 Chris Novakovic <chrisnovakovic@users.noreply.github.com>
+ *   Copyright (C) 2018 Chris Novakovic
  *   Copyright (C) 2013-2014, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
  *   Copyright (C) 2012-2014, 2016-2021 Sadie Powell <sadie@witchery.services>
