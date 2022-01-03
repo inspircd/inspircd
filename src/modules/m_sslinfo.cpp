@@ -281,7 +281,7 @@ class ModuleSSLInfo final
 
  public:
 	ModuleSSLInfo()
-		: Module(VF_VENDOR, "Adds user facing TLS (SSL) information, various TLS (SSL) configuration options, and the /SSLINFO command to look up TLS (SSL) certificate information for other users.")
+		: Module(VF_VENDOR, "Adds user facing TLS information, various TLS configuration options, and the /SSLINFO command to look up TLS certificate information for other users.")
 		, WebIRC::EventListener(this)
 		, Whois::EventListener(this)
 		, Who::EventListener(this)
