@@ -1608,25 +1608,28 @@
 #<module name="opmoderated">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Password forwarding module: Forwards a password users can send on
-# connect to the specified client below. The client is usually NickServ
-# and this module is usually used to authenticate users with NickServ
-# using their connect password.
+# Password forwarding module: Allows forwarding passwords to services to
+# automatically log users into their account. The password can either be
+# specified as the server password or as a second parameter to the /NICK
+# command.
 #<module name="passforward">
 
 <passforward
-		# nick: nick to forward connect passwords to.
-		nick="NickServ"
 
-		# forwardmsg: Message to send to users using a connect password.
-		# $nick will be the users' nick, $nickrequired will be the nick
-		# of where the password is going (the nick above).
-		# You can also use $user for the user ident string.
-		forwardmsg="NOTICE $nick :*** Forwarding PASS to $nickrequired"
+	# nick: The nick of the service to forward passwords to.
+	nick="NickServ"
 
-		# cmd: Command for the user to run when it receives a connect
-		# password.
-		cmd="SQUERY $nickrequired :IDENTIFY $pass">
+	# forwardmsg: Message to send to users when forwarding their
+	# password. You can use the following variables in this message:
+	#
+	# $nick          The nickname of the authenticating user.
+	# $nickrequired  The nickname of the service to forward to (see above).
+	# $pass          The password to forward to services.
+	# $user          The username (ident) of the authenticating user.
+	forwardmsg="NOTICE $nick :*** Forwarding password to $nickrequired"
+
+	# cmd: The message to send to forward passwords to services.
+	cmd="SQUERY $nickrequired :IDENTIFY $nick $pass">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Password hash module: Allows hashed passwords to be used.

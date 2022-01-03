@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2014 Googolplexed <googol@googolplexed.net>
- *   Copyright (C) 2013, 2018, 2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2018, 2020-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2014 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 Boleslaw Tokarski <boleslaw.tokarski@tieto.com>
@@ -33,7 +33,7 @@ class ModulePassForward final
 
  public:
 	ModulePassForward()
-		: Module(VF_VENDOR, "Allows the /PASS password to be forwarded to a services pseudoclient such as NickServ.")
+		: Module(VF_VENDOR, "Allows an account password to be forwarded to a services pseudoclient such as NickServ.")
 	{
 	}
 
@@ -41,11 +41,11 @@ class ModulePassForward final
 	{
 		auto tag = ServerInstance->Config->ConfValue("passforward");
 		nickrequired = tag->getString("nick", "NickServ");
-		forwardmsg = tag->getString("forwardmsg", "NOTICE $nick :*** Forwarding PASS to $nickrequired");
-		forwardcmd = tag->getString("cmd", "SQUERY $nickrequired :IDENTIFY $pass", 1);
+		forwardmsg = tag->getString("forwardmsg", "NOTICE $nick :*** Forwarding password to $nickrequired");
+		forwardcmd = tag->getString("cmd", "SQUERY $nickrequired :IDENTIFY $nick $pass", 1);
 	}
 
-	void FormatStr(std::string& result, const std::string& format, const LocalUser* user)
+	void FormatStr(const LocalUser* user, const std::string& format, const std::string& pass, std::string& result)
 	{
 		for (unsigned int i = 0; i < format.length(); i++)
 		{
@@ -69,7 +69,7 @@ class ModulePassForward final
 				}
 				else if (!format.compare(i, 5, "$pass", 5))
 				{
-					result.append(user->password);
+					result.append(pass);
 					i += 4;
 				}
 				else
@@ -97,6 +97,17 @@ class ModulePassForward final
 			return;
 		}
 
+		ForwardPass(user, user->password);
+	}
+
+	void OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, bool loop) override
+	{
+		if (command->name == "NICK" && parameters.size() > 1)
+			ForwardPass(user, parameters[1]);
+	}
+
+	void ForwardPass(LocalUser* user, const std::string& pass)
+	{
 		if (!nickrequired.empty())
 		{
 			/* Check if nick exists and is on a services server. */
@@ -108,12 +119,12 @@ class ModulePassForward final
 		std::string tmp;
 		if (!forwardmsg.empty())
 		{
-			FormatStr(tmp, forwardmsg, user);
+			FormatStr(user, forwardmsg, pass, tmp);
 			ServerInstance->Parser.ProcessBuffer(user, tmp);
 			tmp.clear();
 		}
 
-		FormatStr(tmp, forwardcmd, user);
+		FormatStr(user, forwardcmd, pass, tmp);
 		ServerInstance->Parser.ProcessBuffer(user, tmp);
 	}
 };

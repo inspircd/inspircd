@@ -2,11 +2,11 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2021 Herman <GermanAizek@yandex.ru>
- *   Copyright (C) 2020 satmd <satmd@users.noreply.github.com>
+ *   Copyright (C) 2020 satmd <satmd@satmd.de>
  *   Copyright (C) 2017 B00mX0r <b00mx0r@aureus.pw>
  *   Copyright (C) 2017 Adam <Adam@anope.org>
  *   Copyright (C) 2016 Sheogorath <sheogorath@shivering-isles.com>
- *   Copyright (C) 2013, 2017, 2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017, 2020-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
  *   Copyright (C) 2012-2015 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Shawn Smith <ShawnSmith0828@gmail.com>

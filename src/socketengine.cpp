@@ -8,7 +8,7 @@
  *   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008, 2017 Robin Burchell <robin+git@viroteck.net>
- *   Copyright (C) 2007 burlex <burlex@e03df62e-2008-0410-955e-edbf42e46eb7>
+ *   Copyright (C) 2007 burlex
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
  *   Copyright (C) 2006-2008, 2010 Craig Edwards <brain@inspircd.org>
  *

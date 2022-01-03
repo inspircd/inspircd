@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2021 Molly Miller <sysvinit@users.noreply.github.com>
+ *   Copyright (C) 2021 Molly Miller
  *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2013, 2017-2021 Sadie Powell <sadie@witchery.services>
@@ -281,7 +281,7 @@ class ModuleSSLInfo final
 
  public:
 	ModuleSSLInfo()
-		: Module(VF_VENDOR, "Adds user facing TLS information, various TLS configuration options, and the /SSLINFO command to look up TLS certificate information for other users.")
+		: Module(VF_VENDOR, "Adds user facing TLS (SSL) information, various TLS (SSL) configuration options, and the /SSLINFO command to look up TLS (SSL) certificate information for other users.")
 		, WebIRC::EventListener(this)
 		, Whois::EventListener(this)
 		, Who::EventListener(this)

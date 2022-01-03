@@ -165,7 +165,7 @@ class ModuleSSLModes final
 
  public:
 	ModuleSSLModes()
-		: Module(VF_VENDOR, "Adds channel mode z (sslonly) which prevents users who are not connecting using TLS from joining the channel and user mode z (sslqueries) to prevent messages from non-TLS users.")
+		: Module(VF_VENDOR, "Adds channel mode z (sslonly) which prevents users who are not connecting using TLS (SSL) from joining the channel and user mode z (sslqueries) to prevent messages from non-TLS (SSL) users.")
 		, CTCTags::EventListener(this)
 		, api(this)
 		, sslm(this, api)

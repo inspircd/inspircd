@@ -184,6 +184,7 @@ class ModuleServicesAccount final
 	SimpleUserMode regdeafmode;
 	RegisteredChannel chanregmode;
 	RegisteredUser userregmode;
+	AccountExtItem accountid;
 	AccountExtItemImpl accountname;
 	AccountExtBan accountextban;
 	UnauthedExtBan unauthedextban;
@@ -200,6 +201,7 @@ class ModuleServicesAccount final
 		, regdeafmode(this, "regdeaf", 'R')
 		, chanregmode(this)
 		, userregmode(this)
+		, accountid(this, "accountid", ExtensionType::USER)
 		, accountname(this)
 		, accountextban(this, accountname)
 		, unauthedextban(this, accountname)

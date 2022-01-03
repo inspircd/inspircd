@@ -7,7 +7,7 @@
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
- *   Copyright (C) 2006 jamie <jamie@e03df62e-2008-0410-955e-edbf42e46eb7>
+ *   Copyright (C) 2006 jamie
  *   Copyright (C) 2005, 2007 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2004, 2007, 2010 Craig Edwards <brain@inspircd.org>
  *
