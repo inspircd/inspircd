@@ -173,7 +173,7 @@ class ModuleGeoMaxMind final
 		MMDB_s mmdb;
 		int result = MMDB_open(file.c_str(), MMDB_MODE_MMAP, &mmdb);
 		if (result != MMDB_SUCCESS)
-			throw ModuleException(InspIRCd::Format("Unable to load the MaxMind database (%s): %s",
+			throw ModuleException(this, InspIRCd::Format("Unable to load the MaxMind database (%s): %s",
 				file.c_str(), MMDB_strerror(result)));
 
 		// Swap the new database with the old database.

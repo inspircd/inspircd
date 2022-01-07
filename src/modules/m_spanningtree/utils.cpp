@@ -270,25 +270,25 @@ void SpanningTreeUtilities::ReadConfiguration()
 		L->Hidden = tag->getBool("hidden");
 
 		if (L->Name.empty())
-			throw ModuleException("Invalid configuration, found a link tag without a name!" + (!L->IPAddr.empty() ? " IP address: "+L->IPAddr : ""));
+			throw ModuleException((Module*)Creator, "Invalid configuration, found a link tag without a name!" + (!L->IPAddr.empty() ? " IP address: "+L->IPAddr : ""));
 
 		if (L->Name.find('.') == std::string::npos)
-			throw ModuleException("The link name '"+L->Name+"' is invalid as it must contain at least one '.' character");
+			throw ModuleException((Module*)Creator, "The link name '"+L->Name+"' is invalid as it must contain at least one '.' character");
 
 		if (L->Name.length() > ServerInstance->Config->Limits.MaxHost)
-			throw ModuleException("The link name '"+L->Name+"' is invalid as it is longer than " + ConvToStr(ServerInstance->Config->Limits.MaxHost) + " characters");
+			throw ModuleException((Module*)Creator, "The link name '"+L->Name+"' is invalid as it is longer than " + ConvToStr(ServerInstance->Config->Limits.MaxHost) + " characters");
 
 		if (L->RecvPass.empty())
-			throw ModuleException("Invalid configuration for server '"+L->Name+"', recvpass not defined");
+			throw ModuleException((Module*)Creator, "Invalid configuration for server '"+L->Name+"', recvpass not defined");
 
 		if (L->SendPass.empty())
-			throw ModuleException("Invalid configuration for server '"+L->Name+"', sendpass not defined");
+			throw ModuleException((Module*)Creator, "Invalid configuration for server '"+L->Name+"', sendpass not defined");
 
 		if ((L->SendPass.find(' ') != std::string::npos) || (L->RecvPass.find(' ') != std::string::npos))
-			throw ModuleException("Link block '" + L->Name + "' has a password set that contains a space character which is invalid");
+			throw ModuleException((Module*)Creator, "Link block '" + L->Name + "' has a password set that contains a space character which is invalid");
 
 		if ((L->SendPass[0] == ':') || (L->RecvPass[0] == ':'))
-			throw ModuleException("Link block '" + L->Name + "' has a password set that begins with a colon (:) which is invalid");
+			throw ModuleException((Module*)Creator, "Link block '" + L->Name + "' has a password set that begins with a colon (:) which is invalid");
 
 		if (L->IPAddr.empty())
 		{
@@ -318,7 +318,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 
 		if (A->servers.empty())
 		{
-			throw ModuleException("Invalid configuration for autoconnect, server cannot be empty!");
+			throw ModuleException((Module*)Creator, "Invalid configuration for autoconnect, server cannot be empty!");
 		}
 
 		AutoconnectBlocks.push_back(A);

@@ -54,6 +54,7 @@
 
 static bool SelfSigned = false;
 static int exdataindex;
+static Module* thismod;
 
 char* get_error()
 {
@@ -69,8 +70,10 @@ namespace OpenSSL
 		: public ModuleException
 	{
 	 public:
-		Exception(const std::string& reason)
-			: ModuleException(reason) { }
+		Exception(const std::string& msg)
+			: ModuleException(thismod, msg)
+		{
+		}
 	};
 
 	class DHParams final
@@ -211,14 +214,14 @@ namespace OpenSSL
 			}
 			else if (!stdalgo::string::equalsci(crlmode, "leaf"))
 			{
-				throw ModuleException("Unknown mode '" + crlmode + "'; expected either 'chain' (default) or 'leaf'");
+				throw ModuleException(thismod, "Unknown mode '" + crlmode + "'; expected either 'chain' (default) or 'leaf'");
 			}
 
 			/* Load CRL files */
 			X509_STORE* store = SSL_CTX_get_cert_store(ctx);
 			if (!store)
 			{
-				throw ModuleException("Unable to get X509_STORE from TLS context; this should never happen");
+				throw ModuleException(thismod, "Unable to get X509_STORE from TLS context; this should never happen");
 			}
 			ERR_clear_error();
 			if (!X509_STORE_load_locations(store,
@@ -226,13 +229,13 @@ namespace OpenSSL
 				crlpath.empty() ? NULL : crlpath.c_str()))
 			{
 				unsigned long err = ERR_get_error();
-				throw ModuleException("Unable to load CRL file '" + crlfile + "' or CRL path '" + crlpath + "': '" + (err ? ERR_error_string(err, NULL) : "unknown") + "'");
+				throw ModuleException(thismod, "Unable to load CRL file '" + crlfile + "' or CRL path '" + crlpath + "': '" + (err ? ERR_error_string(err, NULL) : "unknown") + "'");
 			}
 
 			/* Set CRL mode */
 			if (X509_STORE_set_flags(store, crlflags) != 1)
 			{
-				throw ModuleException("Unable to set X509 CRL flags");
+				throw ModuleException(thismod, "Unable to set X509 CRL flags");
 			}
 		}
 
@@ -930,7 +933,7 @@ class ModuleSSLOpenSSL final
 		ProfileList newprofiles;
 		auto tags = ServerInstance->Config->ConfTags("sslprofile");
 		if (tags.empty())
-			throw ModuleException("You have not specified any <sslprofile> tags that are usable by this module!");
+			throw ModuleException(this, "You have not specified any <sslprofile> tags that are usable by this module!");
 
 		for (const auto& [_, tag] : tags)
 		{
@@ -954,7 +957,7 @@ class ModuleSSLOpenSSL final
 			}
 			catch (CoreException& ex)
 			{
-				throw ModuleException("Error while initializing TLS profile \"" + name + "\" at " + tag->source.str() + " - " + ex.GetReason());
+				throw ModuleException(this, "Error while initializing TLS profile \"" + name + "\" at " + tag->source.str() + " - " + ex.GetReason());
 			}
 
 			newprofiles.push_back(prov);
@@ -973,6 +976,8 @@ class ModuleSSLOpenSSL final
 		// Initialize OpenSSL
 		OPENSSL_init_ssl(0, NULL);
 		biomethods = OpenSSL::BIOMethod::alloc();
+
+		thismod = this;
 	}
 
 	~ModuleSSLOpenSSL() override
@@ -988,7 +993,7 @@ class ModuleSSLOpenSSL final
 		char exdatastr[] = "inspircd";
 		exdataindex = SSL_get_ex_new_index(0, exdatastr, NULL, NULL, NULL);
 		if (exdataindex < 0)
-			throw ModuleException("Failed to register application specific data");
+			throw ModuleException(this, "Failed to register application specific data");
 	}
 
 	void ReadConfig(ConfigStatus& status) override

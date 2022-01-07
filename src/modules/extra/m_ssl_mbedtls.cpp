@@ -51,14 +51,18 @@
 #include <mbedtls/debug.h>
 #endif
 
+static Module* thismod;
+
 namespace mbedTLS
 {
 	class Exception final
 		: public ModuleException
 	{
 	 public:
-		Exception(const std::string& reason)
-			: ModuleException(reason) { }
+		Exception(const std::string& msg)
+			: ModuleException(thismod, msg)
+		{
+		}
 	};
 
 	std::string ErrorToString(int errcode)
@@ -880,7 +884,7 @@ class ModuleSSLmbedTLS final
 
 		auto tags = ServerInstance->Config->ConfTags("sslprofile");
 		if (tags.empty())
-			throw ModuleException("You have not specified any <sslprofile> tags that are usable by this module!");
+			throw ModuleException(this, "You have not specified any <sslprofile> tags that are usable by this module!");
 
 		for (const auto& [_, tag] : tags)
 		{
@@ -905,7 +909,7 @@ class ModuleSSLmbedTLS final
 			}
 			catch (CoreException& ex)
 			{
-				throw ModuleException("Error while initializing TLS profile \"" + name + "\" at " + tag->source.str() + " - " + ex.GetReason());
+				throw ModuleException(this, "Error while initializing TLS profile \"" + name + "\" at " + tag->source.str() + " - " + ex.GetReason());
 			}
 
 			newprofiles.push_back(prov);
@@ -923,6 +927,7 @@ class ModuleSSLmbedTLS final
 	ModuleSSLmbedTLS()
 		: Module(VF_VENDOR, "Allows TLS encrypted connections using the mbedTLS library.")
 	{
+		thismod = this;
 	}
 
 	void init() override
@@ -932,7 +937,7 @@ class ModuleSSLmbedTLS final
 		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "mbedTLS lib version %s module was compiled for " MBEDTLS_VERSION_STRING, verbuf);
 
 		if (!ctr_drbg.Seed(entropy))
-			throw ModuleException("CTR DRBG seed failed");
+			throw ModuleException(this, "CTR DRBG seed failed");
 	}
 
 	void ReadConfig(ConfigStatus& status) override

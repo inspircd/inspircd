@@ -53,7 +53,7 @@ Command::~Command()
 void Command::RegisterService()
 {
 	if (!ServerInstance->Parser.AddCommand(this))
-		throw ModuleException("Command already exists: " + name);
+		throw ModuleException(creator, "Command already exists: " + name);
 }
 
 void Command::TellNotEnoughParameters(LocalUser* user, const Params& parameters)

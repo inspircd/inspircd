@@ -589,7 +589,7 @@ void ModuleManager::AddService(ServiceProvider& item)
 		case SERVICE_IOHOOK:
 		{
 			if ((!item.name.compare(0, 5, "mode/", 5)) || (!item.name.compare(0, 6, "umode/", 6)))
-				throw ModuleException("The \"mode/\" and the \"umode\" service name prefixes are reserved.");
+				throw ModuleException(item.creator, "The \"mode/\" and the \"umode\" service name prefixes are reserved.");
 
 			DataProviders.emplace(item.name, &item);
 			std::string::size_type slash = item.name.find('/');
@@ -617,7 +617,7 @@ void ModuleManager::DelService(ServiceProvider& item)
 	{
 		case SERVICE_MODE:
 			if (!ServerInstance->Modes.DelMode(static_cast<ModeHandler*>(&item)))
-				throw ModuleException("Mode "+std::string(item.name)+" does not exist.");
+				throw ModuleException(item.creator, "Mode " + std::string(item.name) + " does not exist.");
 			[[fallthrough]];
 		case SERVICE_DATA:
 		case SERVICE_IOHOOK:
@@ -626,7 +626,7 @@ void ModuleManager::DelService(ServiceProvider& item)
 			break;
 		}
 		default:
-			throw ModuleException("Cannot delete unknown service type");
+			throw ModuleException(item.creator, "Cannot delete unknown service type");
 	}
 
 	FOREACH_MOD(OnServiceDel, (item));
@@ -646,7 +646,7 @@ ServiceProvider* ModuleManager::FindService(ServiceType type, const std::string&
 		}
 		// TODO implement finding of the other types
 		default:
-			throw ModuleException("Cannot find unknown service type");
+			throw CoreException("Cannot find unknown service type");
 	}
 }
 

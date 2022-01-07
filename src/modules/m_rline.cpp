@@ -97,9 +97,15 @@ class RLine final
 class RLineFactory final
 	: public XLineFactory
 {
- public:
+ private:
+	const Module* creator;
 	Regex::EngineReference& rxfactory;
-	RLineFactory(Regex::EngineReference& rx) : XLineFactory("R"), rxfactory(rx)
+
+ public:
+	RLineFactory(const Module* mod, Regex::EngineReference& rx)
+		: XLineFactory("R")
+		, creator(mod)
+		, rxfactory(rx)
 	{
 	}
 
@@ -110,7 +116,7 @@ class RLineFactory final
 		if (!rxfactory)
 		{
 			ServerInstance->SNO.WriteToSnoMask('a', "Cannot create regexes until engine is set to a loaded provider!");
-			throw ModuleException("Regex engine not set or loaded!");
+			throw ModuleException(creator, "Regex engine not set or loaded!");
 		}
 
 		return new RLine(set_time, duration, source, reason, xline_specific_mask, rxfactory);
@@ -213,7 +219,7 @@ class ModuleRLine final
 		: Module(VF_VENDOR | VF_COMMON, "Adds the /RLINE command which allows server operators to prevent users matching a nickname!username@hostname+realname regular expression from connecting to the server.")
 		, Stats::EventListener(this)
 		, rxfactory(this)
-		, f(rxfactory)
+		, f(this, rxfactory)
 		, r(this, f)
 	{
 	}

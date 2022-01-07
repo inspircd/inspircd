@@ -108,13 +108,13 @@ class ModuleShowFile final
 	{
 		std::string cmdname = tag->getString("name");
 		if (cmdname.empty())
-			throw ModuleException("Empty value for 'name'");
+			throw ModuleException(this, "Empty value for 'name'");
 
 		std::transform(cmdname.begin(), cmdname.end(), cmdname.begin(), ::toupper);
 
 		const std::string file = tag->getString("file", cmdname);
 		if (file.empty())
-			throw ModuleException("Empty value for 'file'");
+			throw ModuleException(this, "Empty value for 'file'");
 		FileReader reader(file);
 
 		CommandShowFile* sfcmd;
@@ -123,12 +123,12 @@ class ModuleShowFile final
 		{
 			// Command exists, check if it is ours
 			if (handler->creator != this)
-				throw ModuleException("Command " + cmdname + " already exists");
+				throw ModuleException(this, "Command " + cmdname + " already exists");
 
 			// This is our command, make sure we don't have the same entry twice
 			sfcmd = static_cast<CommandShowFile*>(handler);
 			if (stdalgo::isin(newcmds, sfcmd))
-				throw ModuleException("Command " + cmdname + " is already used in a <showfile> tag");
+				throw ModuleException(this, "Command " + cmdname + " is already used in a <showfile> tag");
 		}
 		else
 		{

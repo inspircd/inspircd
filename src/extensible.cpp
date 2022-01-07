@@ -97,7 +97,7 @@ ExtensionItem::ExtensionItem(Module* mod, const std::string& Key, ExtensionType 
 void ExtensionItem::RegisterService()
 {
 	if (!ServerInstance->Extensions.Register(this))
-		throw ModuleException("Extension already exists: " + name);
+		throw ModuleException(creator, "Extension already exists: " + name);
 }
 
 void* ExtensionItem::GetRaw(const Extensible* container) const

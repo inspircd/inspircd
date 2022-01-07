@@ -62,7 +62,7 @@ class CoreExport dynamic_reference_base
 inline void dynamic_reference_base::check()
 {
 	if (!value)
-		throw ModuleException("Dynamic reference to '" + name + "' failed to resolve. Are you missing a module?");
+		throw ModuleException(creator, "Dynamic reference to '" + name + "' failed to resolve. Are you missing a module?");
 }
 
 template<typename T>

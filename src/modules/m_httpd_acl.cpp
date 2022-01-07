@@ -88,7 +88,7 @@ class ModuleHTTPAccessList final
 				}
 				else
 				{
-					throw ModuleException("Invalid HTTP ACL type '" + type + "'");
+					throw ModuleException(this, "Invalid HTTP ACL type '" + type + "'");
 				}
 			}
 

@@ -93,7 +93,7 @@ class Regex::SimpleEngine final
 	/** @copydoc Regex::Engine::Create */
 	PatternPtr Create(const std::string& pattern, uint8_t options) const override
 	{
-		return std::make_shared<PatternClass>(pattern, options);
+		return std::make_shared<PatternClass>(creator, pattern, options);
 	}
 };
 
@@ -126,21 +126,23 @@ class Regex::Exception final
 {
  public:
 	/** Initializes a new instance of the Regex::Exception class.
+	 * @param mod The module which caused this exception to be thrown.
 	 * @param regex A regular expression which failed to compile.
 	 * @param error The error which occurred whilst compiling the regular expression.
 	*/
-	Exception(const std::string& regex, const std::string& error)
-		: ModuleException("Error in regex '" + regex + "': " + error)
+	Exception(const Module* mod, const std::string& regex, const std::string& error)
+		: ModuleException(mod, "Error in regex '" + regex + "': " + error)
 	{
 	}
 
 	/** Initializes a new instance of the Regex::Exception class.
+	 * @param mod The module which caused this exception to be thrown.
 	 * @param regex A regular expression which failed to compile.
 	 * @param error The error which occurred whilst compiling the regular expression.
 	 * @param offset The offset at which the errror occurred.
 	*/
-	Exception(const std::string& regex, const std::string& error, size_t offset)
-		: ModuleException("Error in regex '" + regex + "' at offset " + ConvToStr(offset) + ": " + error)
+	Exception(const Module* mod, const std::string& regex, const std::string& error, size_t offset)
+		: ModuleException(mod, "Error in regex '" + regex + "' at offset " + ConvToStr(offset) + ": " + error)
 	{
 	}
 };
@@ -190,7 +192,7 @@ inline Regex::PatternPtr Regex::Engine::CreateHuman(const std::string& pattern) 
 
 	size_t end = pattern.find_last_not_of("Ii");
 	if (!end || end == std::string::npos || pattern[end] != '/')
-		throw Exception(pattern, "Regex patterns must be terminated with a '/'!");
+		throw Exception(creator, pattern, "Regex patterns must be terminated with a '/'!");
 
 	uint8_t options = Regex::OPT_NONE;
 	for (const auto& flag : insp::iterator_range(pattern.begin() + end + 1, pattern.end()))

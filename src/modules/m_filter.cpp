@@ -62,6 +62,8 @@ enum FilterAction
 	FA_NONE
 };
 
+static Module* thismod;
+
 class FilterResult final
 {
  public:
@@ -88,7 +90,7 @@ class FilterResult final
 		, from_config(cfg)
 	{
 		if (!RegexEngine)
-			throw ModuleException("Regex module implementing '"+RegexEngine.GetProvider()+"' is not loaded!");
+			throw ModuleException(thismod, "Regex module implementing '"+RegexEngine.GetProvider()+"' is not loaded!");
 		regex = RegexEngine->Create(free);
 		this->FillFlags(fla);
 	}
@@ -359,6 +361,7 @@ ModuleFilter::ModuleFilter()
 	, filtcommand(this)
 	, RegexEngine(this)
 {
+	thismod = this;
 }
 
 void ModuleFilter::init()
@@ -701,13 +704,13 @@ FilterResult ModuleFilter::DecodeFilter(const std::string &data)
 	tokens.GetMiddle(res.freeform);
 	tokens.GetMiddle(filteraction);
 	if (!StringToFilterAction(filteraction, res.action))
-		throw ModuleException("Invalid action: " + filteraction);
+		throw ModuleException(this, "Invalid action: " + filteraction);
 
 	std::string filterflags;
 	tokens.GetMiddle(filterflags);
 	char c = res.FillFlags(filterflags);
 	if (c != 0)
-		throw ModuleException("Invalid flag: '" + std::string(1, c) + "'");
+		throw ModuleException(this, "Invalid flag: '" + std::string(1, c) + "'");
 
 	std::string duration;
 	tokens.GetMiddle(duration);

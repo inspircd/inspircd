@@ -78,7 +78,7 @@ class ModuleDenyChannels final
 			// Ensure that we have the <goodchan:name> parameter.
 			const std::string name = tag->getString("name");
 			if (name.empty())
-				throw ModuleException("<goodchan:name> is a mandatory field, at " + tag->source.str());
+				throw ModuleException(this, "<goodchan:name> is a mandatory field, at " + tag->source.str());
 
 			goodchans.push_back(name);
 		}
@@ -89,19 +89,19 @@ class ModuleDenyChannels final
 			// Ensure that we have the <badchan:name> parameter.
 			const std::string name = tag->getString("name");
 			if (name.empty())
-				throw ModuleException("<badchan:name> is a mandatory field, at " + tag->source.str());
+				throw ModuleException(this, "<badchan:name> is a mandatory field, at " + tag->source.str());
 
 			// Ensure that we have the <badchan:reason> parameter.
 			const std::string reason = tag->getString("reason");
 			if (reason.empty())
-				throw ModuleException("<badchan:reason> is a mandatory field, at " + tag->source.str());
+				throw ModuleException(this, "<badchan:reason> is a mandatory field, at " + tag->source.str());
 
 			const std::string redirect = tag->getString("redirect");
 			if (!redirect.empty())
 			{
 				// Ensure that <badchan:redirect> contains a channel name.
 				if (!ServerInstance->Channels.IsChannel(redirect))
-					throw ModuleException("<badchan:redirect> is not a valid channel name, at " + tag->source.str());
+					throw ModuleException(this, "<badchan:redirect> is not a valid channel name, at " + tag->source.str());
 
 				// We defer the rest of the validation of the redirect channel until we have
 				// finished parsing all of the badchans.
@@ -136,7 +136,7 @@ class ModuleDenyChannels final
 			for (const auto& badchanredir : badchans)
 			{
 				if (InspIRCd::Match(badchan.redirect, badchanredir.name))
-					throw ModuleException("<badchan:redirect> cannot be a blacklisted channel name");
+					throw ModuleException(this, "<badchan:redirect> cannot be a blacklisted channel name");
 			}
 		}
 

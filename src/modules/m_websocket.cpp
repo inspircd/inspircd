@@ -594,7 +594,7 @@ class ModuleWebSocket final
 	{
 		auto tags = ServerInstance->Config->ConfTags("wsorigin");
 		if (tags.empty())
-			throw ModuleException("You have loaded the websocket module but not configured any allowed origins!");
+			throw ModuleException(this, "You have loaded the websocket module but not configured any allowed origins!");
 
 		WebSocketConfig config;
 		for (const auto& [_, tag] : tags)
@@ -602,7 +602,7 @@ class ModuleWebSocket final
 			// Ensure that we have the <wsorigin:allow> parameter.
 			const std::string allow = tag->getString("allow");
 			if (allow.empty())
-				throw ModuleException("<wsorigin:allow> is a mandatory field, at " + tag->source.str());
+				throw ModuleException(this, "<wsorigin:allow> is a mandatory field, at " + tag->source.str());
 
 			config.allowedorigins.push_back(allow);
 		}
@@ -617,7 +617,7 @@ class ModuleWebSocket final
 		else if (stdalgo::string::equalsci(defaultmodestr, "text"))
 			config.defaultmode = WebSocketConfig::DM_TEXT;
 		else
-			throw ModuleException(defaultmodestr + " is an invalid value for <websocket:defaultmode>; acceptable values are 'binary', 'text' and 'reject', at " + tag->source.str());
+			throw ModuleException(this, defaultmodestr + " is an invalid value for <websocket:defaultmode>; acceptable values are 'binary', 'text' and 'reject', at " + tag->source.str());
 
 		irc::spacesepstream proxyranges(tag->getString("proxyranges"));
 		for (std::string proxyrange; proxyranges.GetToken(proxyrange); )

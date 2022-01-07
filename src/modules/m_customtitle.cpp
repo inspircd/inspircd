@@ -118,11 +118,11 @@ class ModuleCustomTitle final
 		{
 			std::string name = tag->getString("name", "", 1);
 			if (name.empty())
-				throw ModuleException("<title:name> is empty at " + tag->source.str());
+				throw ModuleException(this, "<title:name> is empty at " + tag->source.str());
 
 			std::string pass = tag->getString("password");
 			if (pass.empty())
-				throw ModuleException("<title:password> is empty at " + tag->source.str());
+				throw ModuleException(this, "<title:password> is empty at " + tag->source.str());
 
 			const std::string hash = tag->getString("hash", "plaintext", 1);
 			if (stdalgo::string::equalsci(hash, "plaintext"))

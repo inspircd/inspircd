@@ -275,7 +275,7 @@ class ModuleNationalChars final
 		charset = tag->getString("file");
 		std::string casemapping = tag->getString("casemapping", FileSystem::GetFileName(charset), 1);
 		if (casemapping.find(' ') != std::string::npos)
-			throw ModuleException("<nationalchars:casemapping> must not contain any spaces!");
+			throw ModuleException(this, "<nationalchars:casemapping> must not contain any spaces!");
 		ServerInstance->Config->CaseMapping = std::move(casemapping);
 #if defined _WIN32
 		if (!FileSystem::StartsWithWindowsDriveLetter(charset))
@@ -286,7 +286,7 @@ class ModuleNationalChars final
 #endif
 		unsigned char* tables[8] = { m_additional, m_additionalMB, m_additionalUp, m_lower, m_upper, m_additionalUtf8, m_additionalUtf8range, m_additionalUtf8interval };
 		if (!loadtables(charset, tables, 8, 5))
-			throw ModuleException("The locale file failed to load. Check your log file for more information.");
+			throw ModuleException(this, "The locale file failed to load. Check your log file for more information.");
 		forcequit = tag->getBool("forcequit");
 		CheckForceQuit("National character set changed");
 		CheckRehash();

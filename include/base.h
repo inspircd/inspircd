@@ -130,60 +130,6 @@ class reference final
 #endif
 };
 
-/** This class can be used on its own to represent an exception, or derived to represent a module-specific exception.
- * When a module whishes to abort, e.g. within a constructor, it should throw an exception using ModuleException or
- * a class derived from ModuleException. If a module throws an exception during its constructor, the module will not
- * be loaded. If this happens, the error message returned by ModuleException::GetReason will be displayed to the user
- * attempting to load the module, or dumped to the console if the ircd is currently loading for the first time.
- */
-class CoreExport CoreException
-	: public std::exception
-{
- protected:
-	/** Holds the error message to be displayed
-	 */
-	const std::string err;
-	/** Source of the exception
-	 */
-	const std::string source;
-
- public:
-	/** This constructor can be used to specify an error message before throwing.
-	 * @param message Human readable error message
-	 */
-	CoreException(const std::string &message) : err(message), source("The core") {}
-	/** This constructor can be used to specify an error message before throwing,
-	 * and to specify the source of the exception.
-	 * @param message Human readable error message
-	 * @param src Source of the exception
-	 */
-	CoreException(const std::string &message, const std::string &src) : err(message), source(src) {}
-	/** This destructor solves world hunger, cancels the world debt, and causes the world to end.
-	 * Actually no, it does nothing. Never mind.
-	 * @throws Nothing!
-	 */
-	virtual ~CoreException() noexcept = default;
-	/** Returns the reason for the exception.
-	 * @return Human readable description of the error
-	 */
-	const std::string& GetReason() const { return err; }
-
-	/** Returns the source of the exception
-	 * @return Source of the exception
-	 */
-	const std::string& GetSource() const { return source; }
-};
-
-class Module;
-class CoreExport ModuleException
-	: public CoreException
-{
- public:
-	/** This constructor can be used to specify an error message before throwing.
-	 */
-	ModuleException(const std::string &message, Module* me = NULL);
-};
-
 typedef const reference<Module> ModuleRef;
 
 enum ServiceType {

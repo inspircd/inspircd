@@ -469,7 +469,7 @@ class ModuleCloaking final
 	{
 		auto tags = ServerInstance->Config->ConfTags("cloak");
 		if (tags.empty())
-			throw ModuleException("You have loaded the cloaking module but not configured any <cloak> tags!");
+			throw ModuleException(this, "You have loaded the cloaking module but not configured any <cloak> tags!");
 
 		bool firstcloak = true;
 		std::vector<CloakInfo> newcloaks;
@@ -478,11 +478,11 @@ class ModuleCloaking final
 			// Ensure that we have the <cloak:key> parameter.
 			const std::string key = tag->getString("key");
 			if (key.empty())
-				throw ModuleException("You have not defined a cloaking key. Define <cloak:key> as a " + ConvToStr(minkeylen) + "+ character network-wide secret, at " + tag->source.str());
+				throw ModuleException(this, "You have not defined a cloaking key. Define <cloak:key> as a " + ConvToStr(minkeylen) + "+ character network-wide secret, at " + tag->source.str());
 
 			// If we are the first cloak method then mandate a strong key.
 			if (firstcloak && key.length() < minkeylen)
-				throw ModuleException("Your cloaking key is not secure. It should be at least " + ConvToStr(minkeylen) + " characters long, at " + tag->source.str());
+				throw ModuleException(this, "Your cloaking key is not secure. It should be at least " + ConvToStr(minkeylen) + " characters long, at " + tag->source.str());
 
 			firstcloak = false;
 			const bool ignorecase = tag->getBool("ignorecase");
@@ -497,7 +497,7 @@ class ModuleCloaking final
 			else if (stdalgo::string::equalsci(mode, "full"))
 				newcloaks.emplace_back(MODE_OPAQUE, key, prefix, suffix, ignorecase);
 			else
-				throw ModuleException(mode + " is an invalid value for <cloak:mode>; acceptable values are 'half' and 'full', at " + tag->source.str());
+				throw ModuleException(this, mode + " is an invalid value for <cloak:mode>; acceptable values are 'half' and 'full', at " + tag->source.str());
 		}
 
 		// The cloak configuration was valid so we can apply it.

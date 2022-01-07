@@ -38,7 +38,7 @@ class Settings final
 		return 0;
 	}
 
-	void Load()
+	void Load(const Module* mod)
 	{
 		RanksToSeeMap newranks;
 
@@ -46,11 +46,11 @@ class Settings final
 		{
 			const std::string modename = tag->getString("mode");
 			if (modename.empty())
-				throw ModuleException("<hidemode:mode> is empty at " + tag->source.str());
+				throw ModuleException(mod, "<hidemode:mode> is empty at " + tag->source.str());
 
 			unsigned long rank = tag->getUInt("rank", 0);
 			if (!rank)
-				throw ModuleException("<hidemode:rank> must be greater than 0 at " + tag->source.str());
+				throw ModuleException(mod, "<hidemode:rank> must be greater than 0 at " + tag->source.str());
 
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Hiding the %s mode from users below rank %lu", modename.c_str(), rank);
 			newranks.emplace(modename, rank);
@@ -197,7 +197,7 @@ class ModuleHideMode final
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		modehook.settings.Load();
+		modehook.settings.Load(this);
 	}
 };
 

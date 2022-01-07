@@ -156,7 +156,7 @@ private:
 			// Ensure that we have the <hostchange:mask> parameter.
 			const std::string mask = tag->getString("mask");
 			if (mask.empty())
-				throw ModuleException("<hostchange:mask> is a mandatory field, at " + tag->source.str());
+				throw ModuleException(this, "<hostchange:mask> is a mandatory field, at " + tag->source.str());
 
 			// Determine what type of host rule this is.
 			const std::string action = tag->getString("action");
@@ -175,7 +175,7 @@ private:
 				// Ensure that we have the <hostchange:value> parameter.
 				const std::string value = tag->getString("value");
 				if (value.empty())
-					throw ModuleException("<hostchange:value> is a mandatory field when using the 'set' action, at " + tag->source.str());
+					throw ModuleException(this, "<hostchange:value> is a mandatory field when using the 'set' action, at " + tag->source.str());
 
 				// The hostname is in the format <value>.
 				rules.emplace_back(tag, mask, value);
@@ -183,7 +183,7 @@ private:
 			}
 			else
 			{
-				throw ModuleException(action + " is an invalid <hostchange:action> type, at " + tag->source.str());
+				throw ModuleException(this, action + " is an invalid <hostchange:action> type, at " + tag->source.str());
 			}
 		}
 

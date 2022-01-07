@@ -262,18 +262,18 @@ class ModuleCodepage final
 
 		const std::string name = codepagetag->getString("name");
 		if (name.empty())
-			throw ModuleException("<codepage:name> is a required field!");
+			throw ModuleException(this, "<codepage:name> is a required field!");
 
 		std::unique_ptr<Codepage> newcodepage = std::make_unique<SingleByteCodepage>();
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("cpchars"))
 		{
 			unsigned long begin = tag->getUInt("begin", tag->getUInt("index", 0));
 			if (!begin)
-				throw ModuleException("<cpchars> tag without index or begin specified at " + tag->source.str());
+				throw ModuleException(this, "<cpchars> tag without index or begin specified at " + tag->source.str());
 
 			unsigned long end = tag->getUInt("end", begin);
 			if (begin > end)
-				throw ModuleException("<cpchars:begin> must be lower than <cpchars:end> at " + tag->source.str());
+				throw ModuleException(this, "<cpchars:begin> must be lower than <cpchars:end> at " + tag->source.str());
 
 			bool front = tag->getBool("front", false);
 			for (unsigned long pos = begin; pos <= end; ++pos)
@@ -287,11 +287,11 @@ class ModuleCodepage final
 						break;
 
 					case Codepage::ACR_NOT_VALID:
-						throw ModuleException(InspIRCd::Format("<cpchars> tag contains a forbidden character: %lu at %s",
+						throw ModuleException(this, InspIRCd::Format("<cpchars> tag contains a forbidden character: %lu at %s",
 							pos, tag->source.str().c_str()));
 
 					case Codepage::ACR_NOT_VALID_AT_FRONT:
-						throw ModuleException(InspIRCd::Format("<cpchars> tag contains a forbidden front character: %lu at %s",
+						throw ModuleException(this, InspIRCd::Format("<cpchars> tag contains a forbidden front character: %lu at %s",
 							pos, tag->source.str().c_str()));
 				}
 			}
@@ -301,14 +301,14 @@ class ModuleCodepage final
 		{
 			unsigned long lower = tag->getUInt("lower", 0);
 			if (!lower)
-				throw ModuleException("<cpcase:lower> is required at " + tag->source.str());
+				throw ModuleException(this, "<cpcase:lower> is required at " + tag->source.str());
 
 			unsigned long upper = tag->getUInt("upper", 0);
 			if (!upper)
-				throw ModuleException("<cpcase:upper> is required at " + tag->source.str());
+				throw ModuleException(this, "<cpcase:upper> is required at " + tag->source.str());
 
 			if (!newcodepage->Map(upper, lower))
-				throw ModuleException("Malformed <cpcase> tag at " + tag->source.str());
+				throw ModuleException(this, "Malformed <cpcase> tag at " + tag->source.str());
 
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Marked %lu (%.4s) as the lower case version of %lu (%.4s)",
 				lower, reinterpret_cast<unsigned char*>(&lower), upper, reinterpret_cast<unsigned char*>(&upper));

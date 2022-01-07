@@ -32,7 +32,7 @@ class StdLibPattern final
 	std::regex regex;
 
  public:
-	StdLibPattern(const std::string& pattern, uint8_t options, std::regex::flag_type type)
+	StdLibPattern(const Module* mod, const std::string& pattern, uint8_t options, std::regex::flag_type type)
 		: Regex::Pattern(pattern, options)
 	{
 		// Convert the generic pattern options to stdlib pattern flags.
@@ -46,7 +46,7 @@ class StdLibPattern final
 		}
 		catch(const std::regex_error& error)
 		{
-			throw Regex::Exception(pattern, error.what());
+			throw Regex::Exception(mod, pattern, error.what());
 		}
 	}
 
@@ -69,7 +69,7 @@ class StdLibEngine final
 
 	Regex::PatternPtr Create(const std::string& pattern, uint8_t options) const override
 	{
-		return std::make_shared<StdLibPattern>(pattern, options, regextype);
+		return std::make_shared<StdLibPattern>(creator, pattern, options, regextype);
 	}
 };
 

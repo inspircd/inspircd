@@ -629,7 +629,7 @@ class CoreExport ModeParser final
 	 * @param mt The type of the mode to allocate the id for
 	 * @return The id
 	 */
-	ModeHandler::Id AllocateModeId(ModeType mt);
+	ModeHandler::Id AllocateModeId(ModeHandler* mh);
 
  public:
 	typedef std::vector<ListModeBase*> ListModeList;

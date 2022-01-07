@@ -560,22 +560,24 @@ void ModeParser::CleanMask(std::string &mask)
 	}
 }
 
-ModeHandler::Id ModeParser::AllocateModeId(ModeType mt)
+ModeHandler::Id ModeParser::AllocateModeId(ModeHandler* mh)
 {
 	for (ModeHandler::Id i = 0; i != MODEID_MAX; ++i)
 	{
-		if (!modehandlersbyid[mt][i])
+		if (!modehandlersbyid[mh->GetModeType()][i])
 			return i;
 	}
 
-	throw ModuleException("Out of ModeIds");
+	throw ModuleException(mh->creator, "Out of mode ids");
 }
 
 void ModeParser::AddMode(ModeHandler* mh)
 {
 	if (!ModeParser::IsModeChar(mh->GetModeChar()))
-		throw ModuleException(InspIRCd::Format("Mode letter for %s is invalid: %c",
+	{
+		throw ModuleException(mh->creator, InspIRCd::Format("Mode letter for %s is invalid: %c",
 			mh->name.c_str(), mh->GetModeChar()));
+	}
 
 	/* A mode prefix of ',' is not acceptable, it would fuck up server to server.
 	 * A mode prefix of ':' will fuck up both server to server, and client to server.
@@ -585,31 +587,37 @@ void ModeParser::AddMode(ModeHandler* mh)
 	if (pm)
 	{
 		if ((pm->GetPrefix() > 126) || (pm->GetPrefix() == ',') || (pm->GetPrefix() == ':') || ServerInstance->Channels.IsPrefix(pm->GetPrefix()))
-			throw ModuleException(InspIRCd::Format("Mode prefix for %s is invalid: %c",
+		{
+			throw ModuleException(mh->creator, InspIRCd::Format("Mode prefix for %s is invalid: %c",
 				mh->name.c_str(), pm->GetPrefix()));
+		}
 
 		PrefixMode* otherpm = FindPrefix(pm->GetPrefix());
 		if (otherpm)
-			throw ModuleException(InspIRCd::Format("Mode prefix for %s already used by %s from %s: %c",
+		{
+			throw ModuleException(mh->creator, InspIRCd::Format("Mode prefix for %s already used by %s from %s: %c",
 				mh->name.c_str(), otherpm->name.c_str(), otherpm->creator->ModuleSourceFile.c_str(), pm->GetPrefix()));
+		}
 	}
 
 	ModeHandler*& slot = modehandlers[mh->GetModeType()][mh->GetModeChar()-65];
 	if (slot)
-		throw ModuleException(InspIRCd::Format("Mode letter for %s already used by %s from %s: %c",
+	{
+		throw ModuleException(mh->creator, InspIRCd::Format("Mode letter for %s already used by %s from %s: %c",
 			mh->name.c_str(), slot->name.c_str(), slot->creator->ModuleSourceFile.c_str(), mh->GetModeChar()));
+	}
 
 	// The mode needs an id if it is either a user mode, a simple mode (flag) or a parameter mode.
 	// Otherwise (for listmodes and prefix modes) the id remains MODEID_MAX, which is invalid.
 	ModeHandler::Id modeid = MODEID_MAX;
 	if ((mh->GetModeType() == MODETYPE_USER) || (mh->IsParameterMode()) || (!mh->IsListMode()))
-		modeid = AllocateModeId(mh->GetModeType());
+		modeid = AllocateModeId(mh);
 
 	std::pair<ModeHandlerMap::iterator, bool> res = modehandlersbyname[mh->GetModeType()].emplace(mh->name, mh);
 	if (!res.second)
 	{
 		ModeHandler* othermh = res.first->second;
-		throw ModuleException(InspIRCd::Format("Mode name %s already used by %c from %s",
+		throw ModuleException(mh->creator, InspIRCd::Format("Mode name %s already used by %c from %s",
 			mh->name.c_str(), othermh->GetModeChar(), othermh->creator->ModuleSourceFile.c_str()));
 	}
 

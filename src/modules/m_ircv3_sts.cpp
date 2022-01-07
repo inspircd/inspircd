@@ -163,15 +163,15 @@ class ModuleIRCv3STS final
 		// TODO: Multiple SNI profiles
 		auto tag = ServerInstance->Config->ConfValue("sts");
 		if (tag == ServerInstance->Config->EmptyTag)
-			throw ModuleException("You must define a STS policy!");
+			throw ModuleException(this, "You must define a STS policy!");
 
 		const std::string host = tag->getString("host");
 		if (host.empty())
-			throw ModuleException("<sts:host> must contain a hostname, at " + tag->source.str());
+			throw ModuleException(this, "<sts:host> must contain a hostname, at " + tag->source.str());
 
 		unsigned int port = static_cast<unsigned int>(tag->getUInt("port", 0, 0, UINT16_MAX));
 		if (!HasValidSSLPort(port))
-			throw ModuleException("<sts:port> must be a TLS port, at " + tag->source.str());
+			throw ModuleException(this, "<sts:port> must be a TLS port, at " + tag->source.str());
 
 		unsigned long duration = tag->getDuration("duration", 5*60, 60);
 		bool preload = tag->getBool("preload");

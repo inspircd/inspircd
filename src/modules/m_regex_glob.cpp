@@ -30,7 +30,7 @@ class GlobPattern final
 	: public Regex::Pattern
 {
  public:
-	GlobPattern(const std::string& pattern, uint8_t options)
+	GlobPattern(const Module* mod, const std::string& pattern, uint8_t options)
 		: Regex::Pattern(pattern, options)
 	{
 	}

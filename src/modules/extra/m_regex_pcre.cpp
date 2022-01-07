@@ -43,7 +43,7 @@ class PCREPattern final
 	pcre2_code* regex;
 
  public:
-	PCREPattern(const std::string& pattern, uint8_t options)
+	PCREPattern(const Module* mod, const std::string& pattern, uint8_t options)
 		: Regex::Pattern(pattern, options)
 	{
 		int flags = 0;
@@ -57,7 +57,7 @@ class PCREPattern final
 		{
 			PCRE2_UCHAR errorstr[128];
 			pcre2_get_error_message(errorcode, errorstr, sizeof errorstr);
-			throw Regex::Exception(pattern, reinterpret_cast<const char*>(errorstr), erroroffset);
+			throw Regex::Exception(mod, pattern, reinterpret_cast<const char*>(errorstr), erroroffset);
 		}
 	}
 

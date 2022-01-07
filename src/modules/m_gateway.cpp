@@ -368,7 +368,7 @@ class ModuleGateway final
 
 			// Ensure that we have the <gateway:mask> parameter.
 			if (masks.empty())
-				throw ModuleException("<" + tag->name + ":mask> is a mandatory field, at " + tag->source.str());
+				throw ModuleException(this, "<" + tag->name + ":mask> is a mandatory field, at " + tag->source.str());
 
 			// Determine what lookup type this host uses.
 			const std::string type = tag->getString("type");
@@ -388,7 +388,7 @@ class ModuleGateway final
 
 				// WebIRC blocks require a password.
 				if (fingerprint.empty() && password.empty())
-					throw ModuleException("When using <" + tag->name + " type=\"webirc\"> either the fingerprint or password field is required, at " + tag->source.str());
+					throw ModuleException(this, "When using <" + tag->name + " type=\"webirc\"> either the fingerprint or password field is required, at " + tag->source.str());
 
 				if (!password.empty() && stdalgo::string::equalsci(passwordhash, "plaintext"))
 				{
@@ -400,7 +400,7 @@ class ModuleGateway final
 			}
 			else
 			{
-				throw ModuleException(type + " is an invalid <" + tag->name + ":mask> type, at " + tag->source.str());
+				throw ModuleException(this, type + " is an invalid <" + tag->name + ":mask> type, at " + tag->source.str());
 			}
 		}
 

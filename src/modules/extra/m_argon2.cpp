@@ -144,7 +144,7 @@ class HashArgon2 final
 			config.version);
 
 		if (argonResult != ARGON2_OK)
-			throw ModuleException("Argon2 hashing failed!: " + std::string(argon2_error_message(argonResult)));
+			throw ModuleException(creator, "Argon2 hashing failed: " + std::string(argon2_error_message(argonResult)));
 
 		// This isn't the raw version, but we don't have
 		// the facilities to juggle around the extra state required

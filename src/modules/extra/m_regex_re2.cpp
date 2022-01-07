@@ -46,12 +46,12 @@ class RE2Pattern final
 	}
 
  public:
-	RE2Pattern(const std::string& pattern, uint8_t options)
+	RE2Pattern(const Module* mod, const std::string& pattern, uint8_t options)
 		: Regex::Pattern(pattern, options)
 		, regex(pattern, BuildOptions(options))
 	{
 		if (!regex.ok())
-			throw Regex::Exception(pattern, regex.error());
+			throw Regex::Exception(mod, pattern, regex.error());
 	}
 
 	bool IsMatch(const std::string& text) override

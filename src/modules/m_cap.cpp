@@ -83,7 +83,7 @@ class Cap::ManagerImpl final
 			if (!(used & bit))
 				return bit;
 		}
-		throw ModuleException("Too many caps");
+		throw ModuleException(creator, "Too many caps");
 	}
 
 	void OnReloadModuleSave(Module* mod, ReloadModule::CustomData& cd) override

@@ -98,15 +98,15 @@ class ModuleVHost final
 		{
 			std::string mask = tag->getString("host");
 			if (mask.empty())
-				throw ModuleException("<vhost:host> is empty! at " + tag->source.str());
+				throw ModuleException(this, "<vhost:host> is empty! at " + tag->source.str());
 
 			std::string username = tag->getString("user");
 			if (username.empty())
-				throw ModuleException("<vhost:user> is empty! at " + tag->source.str());
+				throw ModuleException(this, "<vhost:user> is empty! at " + tag->source.str());
 
 			std::string pass = tag->getString("pass");
 			if (pass.empty())
-				throw ModuleException("<vhost:pass> is empty! at " + tag->source.str());
+				throw ModuleException(this, "<vhost:pass> is empty! at " + tag->source.str());
 
 			const std::string hash = tag->getString("hash", "plaintext", 1);
 			if (stdalgo::string::equalsci(hash, "plaintext"))

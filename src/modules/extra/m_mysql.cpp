@@ -432,7 +432,7 @@ class SQLConnection final
 void ModuleSQL::init()
 {
 	if (mysql_library_init(0, NULL, NULL))
-		throw ModuleException("Unable to initialise the MySQL library!");
+		throw ModuleException(this, "Unable to initialise the MySQL library!");
 
 	Dispatcher = new DispatcherThread(this);
 	Dispatcher->Start();

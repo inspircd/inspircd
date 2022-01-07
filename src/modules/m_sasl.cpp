@@ -430,7 +430,7 @@ class ModuleSASL final
 
 		const std::string target = tag->getString("target");
 		if (target.empty())
-			throw ModuleException("<sasl:target> must be set to the name of your services server!");
+			throw ModuleException(this, "<sasl:target> must be set to the name of your services server!");
 
 		cap.requiressl = tag->getBool("requiressl");
 		sasl_target = target;

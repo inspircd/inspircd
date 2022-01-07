@@ -67,7 +67,7 @@ class ModuleHideList final
 		{
 			std::string modename = tag->getString("mode");
 			if (modename.empty())
-				throw ModuleException("Empty <hidelist:mode> at " + tag->source.str());
+				throw ModuleException(this, "Empty <hidelist:mode> at " + tag->source.str());
 			// If rank is set to 0 everyone inside the channel can view the list,
 			// but non-members may not
 			unsigned long rank = tag->getUInt("rank", HALFOP_VALUE);

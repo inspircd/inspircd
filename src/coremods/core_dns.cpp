@@ -45,10 +45,13 @@ using namespace DNS;
 class Packet final
 	: public Query
 {
+ private:
+	const Module* creator;
+
 	void PackName(unsigned char* output, unsigned short output_size, unsigned short& pos, const std::string& name)
 	{
 		if (pos + name.length() + 2 > output_size)
-			throw Exception("Unable to pack name");
+			throw Exception(creator, "Unable to pack name");
 
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Packing name " + name);
 
@@ -72,7 +75,7 @@ class Packet final
 		bool compressed = false;
 
 		if (pos_ptr >= input_size)
-			throw Exception("Unable to unpack name - no input");
+			throw Exception(creator, "Unable to unpack name - no input");
 
 		while (input[pos_ptr] > 0)
 		{
@@ -81,9 +84,9 @@ class Packet final
 			if (offset & POINTER)
 			{
 				if ((offset & POINTER) != POINTER)
-					throw Exception("Unable to unpack name - bogus compression header");
+					throw Exception(creator, "Unable to unpack name - bogus compression header");
 				if (pos_ptr + 1 >= input_size)
-					throw Exception("Unable to unpack name - bogus compression header");
+					throw Exception(creator, "Unable to unpack name - bogus compression header");
 
 				/* Place pos at the second byte of the first (farthest) compression pointer */
 				if (compressed == false)
@@ -96,13 +99,13 @@ class Packet final
 
 				/* Pointers can only go back */
 				if (pos_ptr >= lowest_ptr)
-					throw Exception("Unable to unpack name - bogus compression pointer");
+					throw Exception(creator, "Unable to unpack name - bogus compression pointer");
 				lowest_ptr = pos_ptr;
 			}
 			else
 			{
 				if (pos_ptr + offset + 1 >= input_size)
-					throw Exception("Unable to unpack name - offset too large");
+					throw Exception(creator, "Unable to unpack name - offset too large");
 				if (!name.empty())
 					name += ".";
 				for (unsigned i = 1; i <= offset; ++i)
@@ -119,7 +122,7 @@ class Packet final
 		++pos;
 
 		if (name.empty())
-			throw Exception("Unable to unpack name - no name");
+			throw Exception(creator, "Unable to unpack name - no name");
 
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Unpack name " + name);
 
@@ -133,7 +136,7 @@ class Packet final
 		q.name = this->UnpackName(input, input_size, pos);
 
 		if (pos + 4 > input_size)
-			throw Exception("Unable to unpack question");
+			throw Exception(creator, "Unable to unpack question");
 
 		q.type = static_cast<QueryType>(input[pos] << 8 | input[pos + 1]);
 		pos += 2;
@@ -149,7 +152,7 @@ class Packet final
 		ResourceRecord record = static_cast<ResourceRecord>(this->UnpackQuestion(input, input_size, pos));
 
 		if (pos + 6 > input_size)
-			throw Exception("Unable to unpack resource record");
+			throw Exception(creator, "Unable to unpack resource record");
 
 		record.ttl = (input[pos] << 24) | (input[pos + 1] << 16) | (input[pos + 2] << 8) | input[pos + 3];
 		pos += 4;
@@ -162,7 +165,7 @@ class Packet final
 			case QUERY_A:
 			{
 				if (pos + 4 > input_size)
-					throw Exception("Unable to unpack A resource record");
+					throw Exception(creator, "Unable to unpack A resource record");
 
 				irc::sockets::sockaddrs addrs;
 				memset(&addrs, 0, sizeof(addrs));
@@ -177,7 +180,7 @@ class Packet final
 			case QUERY_AAAA:
 			{
 				if (pos + 16 > input_size)
-					throw Exception("Unable to unpack AAAA resource record");
+					throw Exception(creator, "Unable to unpack AAAA resource record");
 
 				irc::sockets::sockaddrs addrs;
 				memset(&addrs, 0, sizeof(addrs));
@@ -196,27 +199,27 @@ class Packet final
 			{
 				record.rdata = this->UnpackName(input, input_size, pos);
 				if (!InspIRCd::IsHost(record.rdata))
-					throw Exception("Invalid name in CNAME/PTR resource record");
+					throw Exception(creator, "Invalid name in CNAME/PTR resource record");
 
 				break;
 			}
 			case QUERY_TXT:
 			{
 				if (pos + rdlength > input_size)
-					throw Exception("Unable to unpack TXT resource record");
+					throw Exception(creator, "Unable to unpack TXT resource record");
 
 				record.rdata = std::string(reinterpret_cast<const char *>(input + pos), rdlength);
 				pos += rdlength;
 
 				if (record.rdata.find_first_of("\r\n\0", 0, 3) != std::string::npos)
-					throw Exception("Invalid character in TXT resource record");
+					throw Exception(creator, "Invalid character in TXT resource record");
 
 				break;
 			}
 			case QUERY_SRV:
 			{
 				if (rdlength < 6 || pos + rdlength > input_size)
-					throw Exception("Unable to unpack SRV resource record");
+					throw Exception(creator, "Unable to unpack SRV resource record");
 
 				auto srv = std::make_shared<Record::SRV>();
 
@@ -231,7 +234,7 @@ class Packet final
 
 				srv->host = this->UnpackName(input, input_size, pos);
 				if (!InspIRCd::IsHost(srv->host))
-					throw Exception("Invalid name in SRV resource record");
+					throw Exception(creator, "Invalid name in SRV resource record");
 
 				record.rdata = InspIRCd::Format("%u %u %u %s", srv->priority, srv->weight, srv->port, srv->host.c_str());
 				record.rdataobj = srv;
@@ -240,7 +243,7 @@ class Packet final
 			default:
 			{
 				if (pos + rdlength > input_size)
-					throw Exception("Unable to skip resource record");
+					throw Exception(creator, "Unable to skip resource record");
 
 				pos += rdlength;
 				break;
@@ -264,10 +267,15 @@ class Packet final
 	/* Flags on the packet */
 	unsigned short flags = 0;
 
+	Packet(const Module* mod)
+		: creator(mod)
+	{
+	}
+
 	void Fill(const unsigned char* input, const unsigned short len)
 	{
 		if (len < HEADER_LENGTH)
-			throw Exception("Unable to fill packet");
+			throw Exception(creator, "Unable to fill packet");
 
 		unsigned short packet_pos = 0;
 
@@ -292,7 +300,7 @@ class Packet final
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "qdcount: " + ConvToStr(qdcount) + " ancount: " + ConvToStr(ancount) + " nscount: " + ConvToStr(nscount) + " arcount: " + ConvToStr(arcount));
 
 		if (qdcount != 1)
-			throw Exception("Question count != 1 in incoming packet");
+			throw Exception(creator, "Question count != 1 in incoming packet");
 
 		this->question = this->UnpackQuestion(input, len, packet_pos);
 
@@ -303,7 +311,7 @@ class Packet final
 	unsigned short Pack(unsigned char* output, unsigned short output_size)
 	{
 		if (output_size < HEADER_LENGTH)
-			throw Exception("Unable to pack oversized packet header");
+			throw Exception(creator, "Unable to pack oversized packet header");
 
 		unsigned short pos = 0;
 
@@ -327,7 +335,7 @@ class Packet final
 			{
 				irc::sockets::sockaddrs ip;
 				if (!irc::sockets::aptosa(q.name, 0, ip))
-					throw Exception("Unable to pack packet with malformed IP for PTR lookup");
+					throw Exception(creator, "Unable to pack packet with malformed IP for PTR lookup");
 
 				if (q.name.find(':') != std::string::npos)
 				{
@@ -358,7 +366,7 @@ class Packet final
 			this->PackName(output, output_size, pos, q.name);
 
 			if (pos + 4 >= output_size)
-				throw Exception("Unable to pack oversized packet body");
+				throw Exception(creator, "Unable to pack oversized packet body");
 
 			short s = htons(q.type);
 			memcpy(&output[pos], &s, 2);
@@ -493,7 +501,7 @@ class MyManager final
 	void Process(DNS::Request* req) override
 	{
 		if ((unloading) || (req->creator->dying))
-			throw Exception("Module is being unloaded");
+			throw Exception(creator, "Module is being unloaded");
 
 		if (!HasFd())
 		{
@@ -527,7 +535,7 @@ class MyManager final
 				}
 
 				if (id == -1)
-					throw Exception("DNS: All ids are in use");
+					throw Exception(creator, "DNS: All ids are in use");
 
 				break;
 			}
@@ -537,7 +545,7 @@ class MyManager final
 		req->id = id;
 		this->requests[req->id] = req;
 
-		Packet p;
+		Packet p(creator);
 		p.flags = QUERYFLAGS_RD;
 		p.id = req->id;
 		p.question = req->question;
@@ -559,7 +567,7 @@ class MyManager final
 		req->question.name = p.question.name;
 
 		if (SocketEngine::SendTo(this, buffer, len, 0, this->myserver) != len)
-			throw Exception("DNS: Unable to send query");
+			throw Exception(creator, "DNS: Unable to send query");
 
 		// Add timer for timeout
 		ServerInstance->Timers.AddTimer(req);
@@ -647,7 +655,7 @@ class MyManager final
 			return;
 		}
 
-		Packet recv_packet;
+		Packet recv_packet(creator);
 		bool valid = false;
 
 		try

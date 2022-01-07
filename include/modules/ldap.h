@@ -20,13 +20,15 @@
 
 typedef int LDAPQuery;
 
+// XXX: This should be using ModuleException.
 class LDAPException final
-	: public ModuleException
+	: public CoreException
 {
  public:
-	LDAPException(const std::string& reason) : ModuleException(reason) { }
-
-	virtual ~LDAPException() noexcept = default;
+	LDAPException(const std::string& msg)
+		: CoreException(msg)
+	{
+	}
 };
 
 struct LDAPModification final

@@ -79,10 +79,14 @@ namespace DNS
 
 	const int PORT = 53;
 
-	class Exception : public ModuleException
+	class Exception final
+		: public ModuleException
 	{
 	 public:
-		Exception(const std::string& message) : ModuleException(message) { }
+		Exception(const Module* mod, const std::string& message)
+			: ModuleException(mod, message)
+		{
+		}
 	};
 
 	struct Question

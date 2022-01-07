@@ -35,7 +35,7 @@ class POSIXPattern final
 	regex_t regex;
 
  public:
-	POSIXPattern(const std::string& pattern, uint8_t options)
+	POSIXPattern(const Module* mod, const std::string& pattern, uint8_t options)
 		: Regex::Pattern(pattern, options)
 	{
 		int flags = REG_EXTENDED | REG_NOSUB;
@@ -54,7 +54,7 @@ class POSIXPattern final
 		regerror(error, &regex, &errormsg[0], errormsg.size());
 		regfree(&regex);
 
-		throw Regex::Exception(pattern, std::string(&errormsg[0], errormsg.size()));
+		throw Regex::Exception(mod, pattern, std::string(&errormsg[0], errormsg.size()));
 	}
 
 	~POSIXPattern() override

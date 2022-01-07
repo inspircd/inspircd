@@ -81,8 +81,10 @@ namespace GnuTLS
 		: public ModuleException
 	{
 	 public:
-		Exception(const std::string& reason)
-			: ModuleException(reason) { }
+		Exception(const std::string& msg)
+			: ModuleException(thismod, msg)
+		{
+		}
 	};
 
 	void ThrowOnError(int errcode, const char* msg)
@@ -1108,7 +1110,7 @@ class ModuleSSLGnuTLS final
 
 		auto tags = ServerInstance->Config->ConfTags("sslprofile");
 		if (tags.empty())
-			throw ModuleException("You have not specified any <sslprofile> tags that are usable by this module!");
+			throw ModuleException(this, "You have not specified any <sslprofile> tags that are usable by this module!");
 
 		for (const auto& [_, tag] : tags)
 		{
@@ -1133,7 +1135,7 @@ class ModuleSSLGnuTLS final
 			}
 			catch (CoreException& ex)
 			{
-				throw ModuleException("Error while initializing TLS profile \"" + name + "\" at " + tag->source.str() + " - " + ex.GetReason());
+				throw ModuleException(this, "Error while initializing TLS profile \"" + name + "\" at " + tag->source.str() + " - " + ex.GetReason());
 			}
 
 			newprofiles.push_back(prov);

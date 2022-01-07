@@ -109,13 +109,14 @@ class IdentRequestSocket final
 	time_t age;
 	bool done;			/* True if lookup is finished */
 
-	IdentRequestSocket(LocalUser* u) : user(u)
+	IdentRequestSocket(const Module* mod, LocalUser* luser)
+		: user(luser)
 	{
 		age = ServerInstance->Time();
 
 		SetFd(socket(user->server_sa.family(), SOCK_STREAM, 0));
 		if (!HasFd())
-			throw ModuleException("Could not create socket");
+			throw ModuleException(mod, "Could not create socket");
 
 		done = false;
 
@@ -140,7 +141,7 @@ class IdentRequestSocket final
 		if (SocketEngine::Bind(GetFd(), bindaddr) < 0)
 		{
 			this->Close();
-			throw ModuleException("failed to bind()");
+			throw ModuleException(mod, "failed to bind()");
 		}
 
 		SocketEngine::NonBlocking(GetFd());
@@ -149,14 +150,14 @@ class IdentRequestSocket final
 		if (SocketEngine::Connect(this, connaddr) == -1 && errno != EINPROGRESS)
 		{
 			this->Close();
-			throw ModuleException("connect() failed");
+			throw ModuleException(mod, "connect() failed");
 		}
 
 		/* Add fd to socket engine */
 		if (!SocketEngine::AddFd(this, FD_WANT_NO_READ | FD_WANT_POLL_WRITE))
 		{
 			this->Close();
-			throw ModuleException("out of fds");
+			throw ModuleException(mod, "out of fds");
 		}
 	}
 
@@ -343,7 +344,7 @@ class ModuleIdent final
 
 		try
 		{
-			isock = new IdentRequestSocket(user);
+			isock = new IdentRequestSocket(this, user);
 			socket.Set(user, isock);
 		}
 		catch (ModuleException &e)

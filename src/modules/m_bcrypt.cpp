@@ -37,7 +37,7 @@ class BCryptProvider final
 
 		char salt[32];
 		if (!_crypt_gensalt_blowfish_rn("$2a$", rounds, entropy, sizeof(entropy), salt, sizeof(salt)))
-			throw ModuleException("Could not generate salt - this should never happen");
+			throw ModuleException(creator, "Could not generate salt - this should never happen");
 
 		return salt;
 	}

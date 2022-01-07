@@ -103,15 +103,15 @@ public:
 	// If action is set to gline, kline, or zline then the duration for an X-line to last for.
 	unsigned long xlineduration;
 
-	DNSBLEntry(std::shared_ptr<ConfigTag> tag)
+	DNSBLEntry(const Module* mod, std::shared_ptr<ConfigTag> tag)
 	{
 		name = tag->getString("name");
 		if (name.empty())
-			throw ModuleException("<dnsbl:name> can not be empty at " + tag->source.str());
+			throw ModuleException(mod, "<dnsbl:name> can not be empty at " + tag->source.str());
 
 		domain = tag->getString("domain");
 		if (domain.empty())
-			throw ModuleException("<dnsbl:domain> can not be empty at " + tag->source.str());
+			throw ModuleException(mod, "<dnsbl:domain> can not be empty at " + tag->source.str());
 
 		action = tag->getEnum("action", Action::KILL, {
 			{ "gline", Action::GLINE },
@@ -137,14 +137,14 @@ public:
 			for (long record = 0; (record = recordrange.GetToken()); )
 			{
 				if (record < 0 || record > UCHAR_MAX)
-					throw ModuleException("<dnsbl:records> can only hold records between 0 and 255 at " + tag->source.str());
+					throw ModuleException(mod, "<dnsbl:records> can only hold records between 0 and 255 at " + tag->source.str());
 
 				records.set(record);
 			}
 		}
 		else
 		{
-			throw ModuleException(typestr + " is an invalid value for <dnsbl:type>; acceptable values are 'bitmask' or 'records' at "
+			throw ModuleException(mod, typestr + " is an invalid value for <dnsbl:type>; acceptable values are 'bitmask' or 'records' at "
 				+ tag->source.str());
 		}
 
@@ -387,7 +387,7 @@ class ModuleDNSBL final
 		DNSBLEntries newdnsbls;
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("dnsbl"))
 		{
-			auto entry = std::make_shared<DNSBLEntry>(tag);
+			auto entry = std::make_shared<DNSBLEntry>(this, tag);
 			newdnsbls.push_back(entry);
 		}
 		dnsbls.swap(newdnsbls);

@@ -51,7 +51,7 @@ class ModuleChanLog final
 			std::string snomasks = tag->getString("snomasks");
 			if (channel.empty() || snomasks.empty())
 			{
-				throw ModuleException("Malformed chanlog tag at " + tag->source.str());
+				throw ModuleException(this, "Malformed chanlog tag at " + tag->source.str());
 			}
 
 			for (const auto& snomask : snomasks)

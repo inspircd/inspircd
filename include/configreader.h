@@ -92,7 +92,7 @@ public:
 
 		std::vector<const char*> enumkeys;
 		std::transform(enumvals.begin(), enumvals.end(), std::back_inserter(enumkeys), [](const std::pair<const char*, TReturn>& ev) { return ev.first; });
-		throw ModuleException(val + " is an invalid value for <" + name + ":" + key + ">; acceptable values are " +
+		throw CoreException(val + " is an invalid value for <" + name + ":" + key + ">; acceptable values are " +
 			stdalgo::string::join(enumkeys, ' ') + ", at " + source.str());
 	}
 

@@ -28,7 +28,7 @@ class ProtocolException final
 {
  public:
 	ProtocolException(const std::string& msg)
-		: ModuleException("Protocol violation: " + msg)
+		: ModuleException((Module*)Utils->Creator, "Protocol violation: " + msg)
 	{
 	}
 };
