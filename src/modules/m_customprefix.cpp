@@ -101,7 +101,7 @@ class ModuleCustomPrefix final
 				modes.push_back(mh);
 				ServerInstance->Modules.AddService(*mh);
 			}
-			catch (ModuleException& e)
+			catch (const ModuleException& e)
 			{
 				throw ModuleException(this, e.GetReason() + " (while creating mode from " + tag->source.str() + ")");
 			}

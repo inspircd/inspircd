@@ -447,7 +447,7 @@ class ModuleDNSBL final
 			{
 				this->DNS->Process(r);
 			}
-			catch (DNS::Exception &ex)
+			catch (const DNS::Exception& ex)
 			{
 				delete r;
 				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, ex.GetReason());

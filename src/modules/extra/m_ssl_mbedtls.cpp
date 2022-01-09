@@ -957,7 +957,7 @@ class ModuleSSLmbedTLS final
 			ReadProfiles();
 			ServerInstance->SNO.WriteToSnoMask('r', "mbedTLS TLS profiles have been reloaded.");
 		}
-		catch (ModuleException& ex)
+		catch (const ModuleException& ex)
 		{
 			ServerInstance->SNO.WriteToSnoMask('r', "Failed to reload the mbedTLS TLS profiles. " + ex.GetReason());
 		}

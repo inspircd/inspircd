@@ -47,7 +47,7 @@ CmdResult CommandAddLine::Handle(User* usr, Params& params)
 	{
 		xl = xlf->Generate(ServerInstance->Time(), ConvToNum<unsigned long>(params[4]), params[2], params[5], params[1]);
 	}
-	catch (ModuleException &e)
+	catch (const ModuleException& e)
 	{
 		ServerInstance->SNO.WriteToSnoMask('x', "Unable to ADDLINE type %s from %s: %s", params[0].c_str(), setter.c_str(), e.GetReason().c_str());
 		return CmdResult::FAILURE;

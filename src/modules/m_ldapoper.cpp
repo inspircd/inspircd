@@ -119,7 +119,7 @@ class SearchInterface final
 
 			LDAP->Bind(new BindInterface(this->creator, uid, opername, password), bindDn, password);
 		}
-		catch (LDAPException& ex)
+		catch (const LDAPException& ex)
 		{
 			ServerInstance->SNO.WriteToSnoMask('a', "Error searching LDAP server: " + ex.GetReason());
 		}
@@ -173,7 +173,7 @@ class AdminBindInterface final
 			{
 				LDAP->Search(new SearchInterface(this->creator, provider, user, opername, password), base, what);
 			}
-			catch (LDAPException& ex)
+			catch (const LDAPException& ex)
 			{
 				ServerInstance->SNO.WriteToSnoMask('a', "Error searching LDAP server: " + ex.GetReason());
 			}
@@ -240,7 +240,7 @@ class ModuleLDAPOper final
 				LDAP->BindAsManager(new AdminBindInterface(this, LDAP.GetProvider(), user->uuid, opername, password, base, what));
 				return MOD_RES_DENY;
 			}
-			catch (LDAPException& ex)
+			catch (const LDAPException& ex)
 			{
 				ServerInstance->SNO.WriteToSnoMask('a', "LDAP exception: " + ex.GetReason());
 			}

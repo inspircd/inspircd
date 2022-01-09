@@ -222,7 +222,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 			{
 				this->Creator->DNS->Process(sr);
 			}
-			catch (DNS::Exception &)
+			catch (const DNS::Exception&)
 			{
 				delete sr;
 			}

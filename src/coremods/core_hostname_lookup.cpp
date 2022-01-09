@@ -228,7 +228,7 @@ class ModuleHostnameLookup final
 			this->dnsLookup.Set(user);
 			this->DNS->Process(res_reverse);
 		}
-		catch (DNS::Exception& e)
+		catch (const DNS::Exception& e)
 		{
 			this->dnsLookup.Unset(user);
 			delete res_reverse;

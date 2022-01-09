@@ -269,7 +269,7 @@ void ModuleSpanningTree::ConnectServer(std::shared_ptr<Link> x, std::shared_ptr<
 		{
 			DNS->Process(snr);
 		}
-		catch (DNS::Exception& e)
+		catch (const DNS::Exception& e)
 		{
 			delete snr;
 			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(), e.GetReason().c_str());
@@ -676,7 +676,7 @@ void ModuleSpanningTree::ReadConfig(ConfigStatus& status)
 	{
 		Utils->ReadConfiguration();
 	}
-	catch (ModuleException& e)
+	catch (const ModuleException& e)
 	{
 		// Refresh the IP cache anyway, so servers read before the error will be allowed to connect
 		Utils->RefreshIPCache();

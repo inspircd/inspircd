@@ -155,7 +155,7 @@ class CommandRLine final
 			{
 				r = factory.Generate(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
 			}
-			catch (ModuleException &e)
+			catch (const ModuleException& e)
 			{
 				ServerInstance->SNO.WriteToSnoMask('a', "Could not add R-line: " + e.GetReason());
 			}

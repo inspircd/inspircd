@@ -347,7 +347,7 @@ class ModuleIdent final
 			isock = new IdentRequestSocket(this, user);
 			socket.Set(user, isock);
 		}
-		catch (ModuleException &e)
+		catch (const ModuleException& e)
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Ident exception: " + e.GetReason());
 		}

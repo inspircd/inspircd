@@ -747,7 +747,7 @@ void ModuleFilter::OnDecodeMetaData(Extensible* target, const std::string &extna
 			FilterResult data = DecodeFilter(extdata);
 			this->AddFilter(data.freeform, data.action, data.reason, data.duration, data.GetFlags());
 		}
-		catch (ModuleException& e)
+		catch (const ModuleException& e)
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Error when unserializing filter: " + e.GetReason());
 		}
@@ -807,7 +807,7 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string& freeform
 		filters.emplace_back(RegexEngine, freeform, reason, type, duration, flgs, config);
 		dirty = true;
 	}
-	catch (ModuleException &e)
+	catch (const ModuleException& e)
 	{
 		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Error in regular expression '%s': %s", freeform.c_str(), e.GetReason().c_str());
 		return std::make_pair(false, e.GetReason());

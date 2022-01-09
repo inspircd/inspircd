@@ -167,7 +167,7 @@ class BindInterface final
 				LDAP->Compare(this, DN, attr, val);
 				++attrCount;
 			}
-			catch (LDAPException &ex)
+			catch (const LDAPException& ex)
 			{
 				if (verbose)
 					ServerInstance->SNO.WriteToSnoMask('c', "Unable to compare attributes %s=%s: %s", attr.c_str(), val.c_str(), ex.GetReason().c_str());
@@ -244,7 +244,7 @@ class SearchInterface final
 
 			LDAP->Bind(new BindInterface(this->creator, provider, uid, bindDn), bindDn, user->password);
 		}
-		catch (LDAPException& ex)
+		catch (const LDAPException& ex)
 		{
 			ServerInstance->SNO.WriteToSnoMask('a', "Error searching LDAP server: " + ex.GetReason());
 		}
@@ -284,7 +284,7 @@ class AdminBindInterface final
 			{
 				LDAP->Search(new SearchInterface(this->creator, provider, uuid), base, what);
 			}
-			catch (LDAPException& ex)
+			catch (const LDAPException& ex)
 			{
 				ServerInstance->SNO.WriteToSnoMask('a', "Error searching LDAP server: " + ex.GetReason());
 			}
@@ -428,7 +428,7 @@ public:
 		{
 			LDAP->BindAsManager(new AdminBindInterface(this, LDAP.GetProvider(), user->uuid, base, what));
 		}
-		catch (LDAPException &ex)
+		catch (const LDAPException& ex)
 		{
 			ServerInstance->SNO.WriteToSnoMask('a', "LDAP exception: " + ex.GetReason());
 			ServerInstance->Users.QuitUser(user, killreason);

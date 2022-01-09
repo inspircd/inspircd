@@ -97,7 +97,7 @@ void ServernameResolver::OnError(const DNS::Query *r)
 			this->manager->Process(snr);
 			return;
 		}
-		catch (DNS::Exception &)
+		catch (const DNS::Exception&)
 		{
 			delete snr;
 		}

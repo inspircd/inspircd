@@ -663,7 +663,7 @@ class MyManager final
 			recv_packet.Fill(buffer, length);
 			valid = true;
 		}
-		catch (Exception& ex)
+		catch (const Exception& ex)
 		{
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, ex.GetReason());
 		}
