@@ -612,7 +612,7 @@ class OpenSSLIOHook final
 		X509_free(cert);
 	}
 
-	static void GetDNString(const X509_NAME* x509name, std::string& out)
+	static void GetDNString(X509_NAME* x509name, std::string& out)
 	{
 		char buf[512];
 		X509_NAME_oneline(x509name, buf, sizeof(buf));

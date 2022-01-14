@@ -415,7 +415,7 @@ class ModuleHttpStats final
 
 	ModResult HandleRequest(HTTPRequest* http)
 	{
-		if (http->GetPath() != "/stats")
+		if (http->GetPath().compare(0, 6, "/stats"))
 			return MOD_RES_PASSTHRU;
 
 		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Handling HTTP request for %s", http->GetPath().c_str());
