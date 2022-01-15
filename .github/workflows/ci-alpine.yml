@@ -1,4 +1,4 @@
-name: Ubuntu CI
+name: Alpine CI
 on:
   pull_request:
   push:
@@ -6,8 +6,9 @@ on:
     - cron: '0 0 * * 0'
 jobs:
   build:
-    if: "!contains(github.event.head_commit.message, '[skip ubuntu ci]')"
-    runs-on: ubuntu-18.04
+    if: "!contains(github.event.head_commit.message, '[skip alpine ci]')"
+    container: alpine:edge
+    runs-on: ubuntu-latest
     env:
       CXXFLAGS: -std=${{ matrix.standard }}
       TEST_BUILD_MODULES: argon2 geo_maxmind ldap mysql pgsql regex_pcre regex_posix regex_re2 regex_stdlib regex_tre sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal
@@ -16,25 +17,27 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get update --assume-yes
-          sudo apt-get install --assume-yes --no-install-recommends \
+          echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+          apk update
+          apk add \
+            argon2-dev \
             clang \
             g++ \
             git \
-            libargon2-dev \
-            libgnutls28-dev \
-            libldap2-dev \
+            gnutls-dev \
             libmaxminddb-dev \
-            libmbedtls-dev \
-            libmysqlclient-dev \
-            libpcre3-dev \
             libpq-dev \
-            libre2-dev \
-            libsqlite3-dev \
-            libssl-dev \
-            libtre-dev \
             make \
-            pkg-config
+            mariadb-dev \
+            mbedtls-dev \
+            openldap-dev \
+            openssl-dev \
+            pcre-dev \
+            perl \
+            pkgconf \
+            re2-dev \
+            sqlite-dev \
+            tre-dev
 
       - name: Run test-build
         run: |
