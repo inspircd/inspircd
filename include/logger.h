@@ -220,5 +220,5 @@ class CoreExport LogManager final
 	 * @param loglevel Log message level (LOG_DEBUG, LOG_VERBOSE, LOG_DEFAULT, LOG_SPARSE, LOG_NONE)
 	 * @param fmt The format of the message to be logged. See your C manual on printf() for details.
 	 */
-	void Log(const std::string &type, LogLevel loglevel, const char *fmt, ...) CUSTOM_PRINTF(4, 5);
+	void Log(const std::string &type, LogLevel loglevel, const char *fmt, ...) ATTR_PRINTF(4, 5);
 };

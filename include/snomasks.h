@@ -102,7 +102,7 @@ class CoreExport SnomaskManager final
 	 * @param text A format string containing text to send
 	 * @param ... Format arguments
 	 */
-	void WriteToSnoMask(char letter, const char* text, ...) CUSTOM_PRINTF(3, 4);
+	void WriteToSnoMask(char letter, const char* text, ...) ATTR_PRINTF(3, 4);
 
 	/** Write to all users with a given snomask (sent globally)
 	 * @param letter The snomask letter to write to
@@ -115,7 +115,7 @@ class CoreExport SnomaskManager final
 	 * @param text A format string containing text to send
 	 * @param ... Format arguments
 	 */
-	void WriteGlobalSno(char letter, const char* text, ...) CUSTOM_PRINTF(3, 4);
+	void WriteGlobalSno(char letter, const char* text, ...) ATTR_PRINTF(3, 4);
 
 	/** Called once per 5 seconds from the mainloop, this flushes any cached
 	 * snotices. The way the caching works is as follows:

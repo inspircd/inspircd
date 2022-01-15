@@ -64,7 +64,7 @@ class ModuleDisable final
 		}
 	}
 
-	void WriteLog(const char* message, ...) CUSTOM_PRINTF(2, 3)
+	void WriteLog(const char* message, ...) ATTR_PRINTF(2, 3)
 	{
 		std::string buffer;
 		VAFORMAT(buffer, message, message);

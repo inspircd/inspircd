@@ -188,7 +188,7 @@ class CoreExport UserManager final
 	 * @param text The text format string to send
 	 * @param ... The format arguments
 	 */
-	void ServerNoticeAll(const char* text, ...) CUSTOM_PRINTF(2, 3);
+	void ServerNoticeAll(const char* text, ...) ATTR_PRINTF(2, 3);
 
 	/** Retrieves the next already sent id, guaranteed to be not equal to any user's already_sent field
 	 * @return Next already_sent id

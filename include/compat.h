@@ -21,14 +21,15 @@
 #pragma once
 
 /**
- * This macro enables the compile-time checking of printf format strings. This
- * makes the compiler show a warning if the format of a printf arguments are
- * incorrect.
+ * @def ATTR_PRINTF(STRINGPOS, FIRSTPOS)
+ * Enables the compile-time checking of printf format strings. If a function
+ * is marked with this attribute then the compiler will warn if a malformed
+ * format string is passed to it.
  */
-#if defined __clang__ || defined __GNUC__
-# define CUSTOM_PRINTF(stringpos, firstpos) __attribute__((format(printf, stringpos, firstpos)))
+#if defined __GNUC__
+# define ATTR_PRINTF(STRINGPOS, FIRSTPOS) __attribute__((format(printf, STRINGPOS, FIRSTPOS)))
 #else
-# define CUSTOM_PRINTF(stringpos, firstpos)
+# define ATTR_PRINTF(STRINGPOS, FIRSTPOS)
 #endif
 
 /**
