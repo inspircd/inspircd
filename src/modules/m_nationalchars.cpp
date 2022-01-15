@@ -275,7 +275,7 @@ class ModuleNationalChars final
 	{
 		auto tag = ServerInstance->Config->ConfValue("nationalchars");
 		charset = tag->getString("file");
-		std::string casemapping = tag->getString("casemapping", std::filesystem::path(charset).filename(), 1);
+		std::string casemapping = tag->getString("casemapping", std::filesystem::path(charset).filename().string(), 1);
 		if (casemapping.find(' ') != std::string::npos)
 			throw ModuleException(this, "<nationalchars:casemapping> must not contain any spaces!");
 		ServerInstance->Config->CaseMapping = std::move(casemapping);

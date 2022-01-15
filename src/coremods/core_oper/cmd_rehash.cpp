@@ -72,7 +72,7 @@ CmdResult CommandRehash::Handle(User* user, const Params& parameters)
 	// Rehash for me. Try to start the rehash thread
 	if (!ServerInstance->ConfigThread)
 	{
-		const std::string configfile = std::filesystem::path(ServerInstance->ConfigFileName).filename();
+		const std::string configfile = std::filesystem::path(ServerInstance->ConfigFileName).filename().string();
 		user->WriteRemoteNumeric(RPL_REHASHING, configfile, "Rehashing " + ServerInstance->Config->ServerName);
 		ServerInstance->SNO.WriteGlobalSno('r', "%s is rehashing %s on %s", user->nick.c_str(),
 			configfile.c_str(), ServerInstance->Config->ServerName.c_str());

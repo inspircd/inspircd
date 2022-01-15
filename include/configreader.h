@@ -257,7 +257,7 @@ class CoreExport ServerConfig final
 		BUT_RESTRICT_NOTIFY
 	};
 
-	class ServerPaths
+	class CoreExport ServerPaths
 	{
 	 private:
 		/** Expands a path fragment to a full path.
