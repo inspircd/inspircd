@@ -1,4 +1,4 @@
-name: Ubuntu CI
+name: Alpine CI
 on:
   pull_request:
   push:
@@ -6,8 +6,9 @@ on:
     - cron: '0 0 * * 0'
 jobs:
   build:
-    if: "!contains(github.event.head_commit.message, '[skip ubuntu ci]')"
-    runs-on: ubuntu-20.04
+    if: "!contains(github.event.head_commit.message, '[skip alpine ci]')"
+    container: alpine:3.15
+    runs-on: ubuntu-latest
     env:
       CXX: ${{ matrix.compiler }}
       INSPIRCD_DEBUG: 3
@@ -17,37 +18,38 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get update --assume-yes
-          sudo apt-get install --assume-yes --no-install-recommends \
+          apk update
+          apk add \
+            argon2-dev \
             clang \
             g++ \
             git \
-            libargon2-dev \
-            libgnutls28-dev \
-            libldap2-dev \
+            gnutls-dev \
             libmaxminddb-dev \
-            libmbedtls-dev \
-            libmysqlclient-dev \
-            libpcre2-dev \
             libpq-dev \
-            libre2-dev \
-            libsqlite3-dev \
-            libssl-dev \
             make \
-            pkg-config
+            mariadb-dev \
+            mbedtls-dev \
+            openldap-dev \
+            openssl-dev \
+            pcre2-dev \
+            perl \
+            pkgconf \
+            re2-dev \
+            sqlite-dev
 
       - name: Run configure
         run: |
           ./configure --enable-extras "argon2 geo_maxmind ldap mysql pgsql regex_pcre regex_posix regex_re2 sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal"
-          ./configure --development --disable-auto-extras --socketengine ${{ matrix.socketengine }}
+          ./configure --development --disable-auto-extras --disable-ownership --socketengine ${{ matrix.socketengine }}
 
       - name: Build core
         run: |
-          INSPIRCD_TARGET=inspircd make --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))
+          INSPIRCD_TARGET=inspircd make --jobs $(($(sysctl -n hw.activecpu) + 1))
 
       - name: Build modules
         run: |
-          INSPIRCD_TARGET=modules make --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))
+          INSPIRCD_TARGET=modules make --jobs $(($(sysctl -n hw.activecpu) + 1))
 
       - name: Install
         run: |
@@ -55,8 +57,8 @@ jobs:
 
       - name: Run
         run: |
-          touch ${{ github.workspace }}/run/conf/inspircd.conf
-          ${{ github.workspace }}/run/inspircd start
+          touch ./run/conf/inspircd.conf
+          ./run/inspircd start --runasroot
     strategy:
       fail-fast: false
       matrix:

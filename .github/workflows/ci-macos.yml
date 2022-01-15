@@ -6,13 +6,12 @@ on:
     - cron: '0 0 * * 0'
 jobs:
   build:
+    if: "!contains(github.event.head_commit.message, '[skip macos ci]')"
     runs-on: macos-latest
     env:
-      CXXFLAGS: -I/usr/local/opt/openssl@1.1/include -Wno-error=deprecated-declarations
+      CXXFLAGS: -Wno-error=deprecated-declarations
       INSPIRCD_DEBUG: 3
       INSPIRCD_VERBOSE: 1
-      LDFLAGS: -L/usr/local/opt/openssl@1.1/lib
-      PKG_CONFIG_PATH: /usr/local/opt/openssl@1.1/lib/pkgconfig:/usr/local/opt/sqlite/lib/pkgconfig
     steps:
       - uses: actions/checkout@v2
 
@@ -22,9 +21,19 @@ jobs:
           for PACKAGE in pkg-config argon2 gnutls libmaxminddb libpq mbedtls mysql-client openssl@1.1 pcre2 re2 sqlite;
           do
             brew install $PACKAGE || brew upgrade $PACKAGE
+
+            BREW_PREFIX=$(brew --prefix $PACKAGE)
+            if [ -d "$BREW_PREFIX/bin" ]
+            then
+              export PATH="$PATH:$BREW_PREFIX/bin"
+            fi
+            if [ -d "$BREW_PREFIX/lib/pkgconfig" ]
+            then
+              export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$BREW_PREFIX/lib/pkgconfig"
+            fi
           done
-          brew link --force --overwrite libpq
-          brew link --force --overwrite mysql-client
+          echo "PATH=$PATH" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
 
       - name: Run configure
         run: |

@@ -25,7 +25,7 @@
 
 #include "inspircd.h"
 
-#include <sys/poll.h>
+#include <poll.h>
 #include <sys/resource.h>
 
 /** A specialisation of the SocketEngine class, designed to use poll().

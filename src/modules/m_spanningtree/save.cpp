@@ -27,6 +27,8 @@
 #include "treesocket.h"
 #include "commands.h"
 
+const time_t CommandSave::SavedTimestamp = 100;
+
 /**
  * SAVE command - force nick change to UID on timestamp match
  */
