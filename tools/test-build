@@ -49,6 +49,7 @@ for my $compiler (@compilers) {
 	for my $socketengine (@socketengines) {
 		say "Attempting to build using the $compiler compiler and the $socketengine socket engine...";
 		my @configure_flags;
+		push @configure_flags, '--disable-ownership' unless $>;
 		if (defined $ENV{TEST_BUILD_MODULES}) {
 			execute "$root/configure", '--enable-extras', $ENV{TEST_BUILD_MODULES};
 			push @configure_flags, '--disable-auto-extras';
