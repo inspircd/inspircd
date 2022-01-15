@@ -40,7 +40,8 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 	const std::string filename = ExpandModName(modname);
 	const std::string moduleFile = ServerInstance->Config->Paths.PrependModule(filename);
 
-	if (!FileSystem::FileExists(moduleFile))
+	std::error_code ec;
+	if (!std::filesystem::is_regular_file(moduleFile, ec))
 	{
 		LastModuleError = "Module file could not be found: " + filename;
 		ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, LastModuleError);

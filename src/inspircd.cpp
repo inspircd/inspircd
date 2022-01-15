@@ -32,7 +32,14 @@
  */
 
 
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+
 #include "inspircd.h"
+#include "exitcodes.h"
+#include "xline.h"
+
 #include <signal.h>
 
 #ifndef _WIN32
@@ -48,11 +55,6 @@
 	/** Manages formatting lines written to stdout on Windows. */
 	WindowsStream StandardOutput(STD_OUTPUT_HANDLE);
 #endif
-
-#include <fstream>
-#include <iostream>
-#include "xline.h"
-#include "exitcodes.h"
 
 InspIRCd* ServerInstance = NULL;
 
@@ -204,14 +206,15 @@ namespace
 	// Locates a config file on the file system.
 	bool FindConfigFile(std::string& path)
 	{
-		if (FileSystem::FileExists(path))
+		std::error_code ec;
+		if (std::filesystem::is_regular_file(path, ec))
 			return true;
 
 #ifdef _WIN32
 		// Windows hides file extensions by default so try appending .txt to the path
 		// to help users who have that feature enabled and can't create .conf files.
 		const std::string txtpath = path + ".txt";
-		if (FileSystem::FileExists(txtpath))
+		if (std::filesystem::is_regular_file(txtpath, ec))
 		{
 			path.assign(txtpath);
 			return true;

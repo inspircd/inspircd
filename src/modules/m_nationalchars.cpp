@@ -32,8 +32,10 @@
    Changed at 2008-06-15 - 2009-02-11
    by Chernov-Phoenix Alexey (Phoenix@RusNet) mailto:phoenix /email address separator/ pravmail.ru */
 
-#include "inspircd.h"
+#include <filesystem>
 #include <fstream>
+
+#include "inspircd.h"
 
 class lwbNickHandler final
 {
@@ -273,17 +275,18 @@ class ModuleNationalChars final
 	{
 		auto tag = ServerInstance->Config->ConfValue("nationalchars");
 		charset = tag->getString("file");
-		std::string casemapping = tag->getString("casemapping", FileSystem::GetFileName(charset), 1);
+		std::string casemapping = tag->getString("casemapping", std::filesystem::path(charset).filename(), 1);
 		if (casemapping.find(' ') != std::string::npos)
 			throw ModuleException(this, "<nationalchars:casemapping> must not contain any spaces!");
 		ServerInstance->Config->CaseMapping = std::move(casemapping);
+		if (!std::filesystem::path(charset).is_absolute())
+		{
 #if defined _WIN32
-		if (!FileSystem::StartsWithWindowsDriveLetter(charset))
 			charset.insert(0, "./locales/");
 #else
-		if(charset[0] != '/')
 			charset.insert(0, "../locales/");
 #endif
+		}
 		unsigned char* tables[8] = { m_additional, m_additionalMB, m_additionalUp, m_lower, m_upper, m_additionalUtf8, m_additionalUtf8range, m_additionalUtf8interval };
 		if (!loadtables(charset, tables, 8, 5))
 			throw ModuleException(this, "The locale file failed to load. Check your log file for more information.");

@@ -31,12 +31,14 @@
  */
 
 
+#include <filesystem>
+#include <iostream>
+
 #include "inspircd.h"
 #include "xline.h"
 #include "listmode.h"
 #include "exitcodes.h"
 #include "configparser.h"
-#include <iostream>
 
 ServerLimits::ServerLimits(std::shared_ptr<ConfigTag> tag)
 	: MaxLine(tag->getUInt("maxline", 512, 512))
@@ -60,6 +62,23 @@ ServerConfig::ServerPaths::ServerPaths(std::shared_ptr<ConfigTag> tag)
 	, Module(tag->getString("moduledir", INSPIRCD_MODULE_PATH, 1))
 	, Runtime(tag->getString("runtimedir", INSPIRCD_RUNTIME_PATH, 1))
 {
+}
+
+std::string ServerConfig::ServerPaths::ExpandPath(const std::string& base, const std::string& fragment)
+{
+	// The fragment is an absolute path, don't modify it.
+	if (std::filesystem::path(fragment).is_absolute())
+		return fragment;
+
+	// The fragment is relative to a home directory, expand that.
+	if (!fragment.compare(0, 2, "~/", 2))
+	{
+		const char* homedir = getenv("HOME");
+		if (homedir && *homedir)
+			return std::string(homedir) + '/' + fragment.substr(2);
+	}
+
+	return base + '/' + fragment;
 }
 
 ServerConfig::ServerConfig()

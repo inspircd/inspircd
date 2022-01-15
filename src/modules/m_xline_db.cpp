@@ -27,9 +27,11 @@
  */
 
 
+#include <filesystem>
+#include <fstream>
+
 #include "inspircd.h"
 #include "xline.h"
-#include <fstream>
 
 class ModuleXLineDB final
 	: public Module
@@ -169,7 +171,8 @@ class ModuleXLineDB final
 	bool ReadDatabase()
 	{
 		// If the xline database doesn't exist then we don't need to load it.
-		if (!FileSystem::FileExists(xlinedbpath))
+		std::error_code ec;
+		if (!std::filesystem::is_regular_file(xlinedbpath, ec))
 			return true;
 
 		std::ifstream stream(xlinedbpath);

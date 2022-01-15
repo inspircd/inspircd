@@ -259,6 +259,13 @@ class CoreExport ServerConfig final
 
 	class ServerPaths
 	{
+	 private:
+		/** Expands a path fragment to a full path.
+		 * @param base The base path to expand from
+		 * @param fragment The path fragment to expand on top of base.
+		 */
+		static std::string ExpandPath(const std::string& base, const std::string& fragment);
+
 	 public:
 		/** Config path */
 		std::string Config;
@@ -277,11 +284,11 @@ class CoreExport ServerConfig final
 
 		ServerPaths(std::shared_ptr<ConfigTag> tag);
 
-		std::string PrependConfig(const std::string& fn) const { return FileSystem::ExpandPath(Config, fn); }
-		std::string PrependData(const std::string& fn) const { return FileSystem::ExpandPath(Data, fn); }
-		std::string PrependLog(const std::string& fn) const { return FileSystem::ExpandPath(Log, fn); }
-		std::string PrependModule(const std::string& fn) const { return FileSystem::ExpandPath(Module, fn); }
-		std::string PrependRuntime(const std::string& fn) const { return FileSystem::ExpandPath(Runtime, fn); }
+		inline std::string PrependConfig(const std::string& fn) const { return ExpandPath(Config, fn); }
+		inline std::string PrependData(const std::string& fn) const { return ExpandPath(Data, fn); }
+		inline std::string PrependLog(const std::string& fn) const { return ExpandPath(Log, fn); }
+		inline std::string PrependModule(const std::string& fn) const { return ExpandPath(Module, fn); }
+		inline std::string PrependRuntime(const std::string& fn) const { return ExpandPath(Runtime, fn); }
 	};
 
 	/** Holds a complete list of all connect blocks
