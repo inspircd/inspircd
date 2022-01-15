@@ -21,6 +21,18 @@
 #pragma once
 
 /**
+ * @def ATTR_NOT_NULL(...)
+ * Enables the compile-time checking of arguments that must never be be null. If
+ * a function is marked with this attribute then the compiler will warnif a null
+ * pointer is passed to any of the specified arguments.
+ */
+#if defined __GNUC__
+# define ATTR_NOT_NULL(...) __attribute__((nonnull(__VA_ARGS__)))
+#else
+# define ATTR_NOT_NULL(...)
+#endif
+
+/**
  * @def ATTR_PRINTF(STRINGPOS, FIRSTPOS)
  * Enables the compile-time checking of printf format strings. If a function
  * is marked with this attribute then the compiler will warn if a malformed
