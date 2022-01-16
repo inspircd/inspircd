@@ -225,7 +225,7 @@ class CoreModChannel final
 		tokens["MAXLIST"] = stdalgo::string::join(limits, ',');
 	}
 
-	void OnBuildClassISupport(std::shared_ptr<ConnectClass> klass, ISupport::TokenMap& tokens) override
+	void OnBuildClassISupport(ConnectClass::Ptr klass, ISupport::TokenMap& tokens) override
 	{
 		tokens["CHANLIMIT"] = InspIRCd::Format("#:%lu", klass->maxchans);
 	}

@@ -151,7 +151,7 @@ ModResult	Module::OnChannelPreDelete(Channel*) { DetachEvent(I_OnChannelPreDelet
 void		Module::OnChannelDelete(Channel*) { DetachEvent(I_OnChannelDelete); }
 void		Module::OnBuildNeighborList(User*, IncludeChanList&, std::map<User*,bool>&) { DetachEvent(I_OnBuildNeighborList); }
 void		Module::OnGarbageCollect() { DetachEvent(I_OnGarbageCollect); }
-ModResult	Module::OnSetConnectClass(LocalUser* user, std::shared_ptr<ConnectClass> myclass) { DetachEvent(I_OnSetConnectClass); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnSetConnectClass(LocalUser* user, ConnectClass::Ptr myclass) { DetachEvent(I_OnSetConnectClass); return MOD_RES_PASSTHRU; }
 void		Module::OnUserMessage(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserMessage); }
 ModResult	Module::OnNumeric(User*, const Numeric::Numeric&) { DetachEvent(I_OnNumeric); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { DetachEvent(I_OnAcceptConnection); return MOD_RES_PASSTHRU; }

@@ -293,7 +293,7 @@ class CoreExport ServerConfig final
 
 	/** Holds a complete list of all connect blocks
 	 */
-	typedef std::vector<std::shared_ptr<ConnectClass>> ClassVector;
+	typedef std::vector<ConnectClass::Ptr> ClassVector;
 
 	/** Index of valid oper blocks and types
 	 */

@@ -173,7 +173,7 @@ void ServerConfig::CrossCheckOperClassType()
 
 void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 {
-	typedef std::map<std::pair<std::string, ConnectClass::Type>, std::shared_ptr<ConnectClass>> ClassMap;
+	typedef std::map<std::pair<std::string, ConnectClass::Type>, ConnectClass::Ptr> ClassMap;
 	ClassMap oldBlocksByMask;
 	if (current)
 	{
@@ -219,7 +219,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 				continue;
 			}
 
-			std::shared_ptr<ConnectClass> parent;
+			ConnectClass::Ptr parent;
 			std::string parentName = tag->getString("parent");
 			if (!parentName.empty())
 			{
@@ -271,7 +271,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			ClassMap::iterator oldMask = oldBlocksByMask.find(std::make_pair(mask, me->type));
 			if (oldMask != oldBlocksByMask.end())
 			{
-				std::shared_ptr<ConnectClass> old = oldMask->second;
+				ConnectClass::Ptr old = oldMask->second;
 				oldBlocksByMask.erase(oldMask);
 				old->Update(me);
 				me = old;

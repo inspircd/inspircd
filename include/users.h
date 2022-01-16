@@ -59,6 +59,9 @@ class CoreExport ConnectClass final
 	: public Extensible
 {
 public:
+	/** A shared pointer to a connect class. */
+	typedef std::shared_ptr<ConnectClass> Ptr;
+
 	/** An enumeration of possible types of connect class. */
 	enum Type : uint8_t
 	{
@@ -142,13 +145,13 @@ public:
 	ConnectClass(std::shared_ptr<ConfigTag> tag, Type type, const std::vector<std::string>& masks);
 
 	/** Creates a new connect class with a parent from a config tag. */
-	ConnectClass(std::shared_ptr<ConfigTag> tag, Type type, const std::vector<std::string>& masks, std::shared_ptr<ConnectClass> parent);
+	ConnectClass(std::shared_ptr<ConfigTag> tag, Type type, const std::vector<std::string>& masks, ConnectClass::Ptr parent);
 
 	/** Configures this connect class using the config from the specified tag. */
 	void Configure(const std::string& classname, std::shared_ptr<ConfigTag> tag);
 
 	/** Update the settings in this block to match the given class */
-	void Update(const std::shared_ptr<ConnectClass> klass);
+	void Update(const ConnectClass::Ptr klass);
 
 	/** Retrieves the name of this connect class. */
 	const std::string& GetName() const { return name; }
@@ -658,7 +661,7 @@ class CoreExport LocalUser final
 {
  private:
 	/** The connect class this user is in. */
-	std::shared_ptr<ConnectClass> connectclass;
+	ConnectClass::Ptr connectclass;
 
 	/** Message list, can be passed to the two parameter Send(). */
 	static ClientProtocol::MessageList sendmsglist;
@@ -712,7 +715,7 @@ class CoreExport LocalUser final
 	/** Get the connect class which this user belongs to.
 	 * @return A pointer to this user's connect class.
 	 */
-	std::shared_ptr<ConnectClass> GetClass() const { return connectclass; }
+	ConnectClass::Ptr GetClass() const { return connectclass; }
 
 	/** Call this method to find the matching \<connect> for a user, and to check them against it.
 	 */

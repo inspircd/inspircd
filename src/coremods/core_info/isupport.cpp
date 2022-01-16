@@ -92,7 +92,7 @@ void ISupportManager::Build()
 	};
 	isupportevprov.Call(&ISupport::EventListener::OnBuildISupport, tokens);
 
-	insp::flat_map<std::shared_ptr<ConnectClass>, std::vector<Numeric::Numeric>> diffnumerics;
+	insp::flat_map<ConnectClass::Ptr, std::vector<Numeric::Numeric>> diffnumerics;
 	for (const auto& klass : ServerInstance->Config->Classes)
 	{
 		ISupport::TokenMap classtokens = tokens;

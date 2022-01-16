@@ -483,7 +483,7 @@ void User::UnOper()
  */
 void LocalUser::CheckClass(bool clone_count)
 {
-	std::shared_ptr<ConnectClass> a = GetClass();
+	ConnectClass::Ptr a = GetClass();
 
 	if (!a)
 	{
@@ -1084,7 +1084,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 	ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Setting connect class for %s (%s) ...",
 		this->uuid.c_str(), this->GetFullRealHost().c_str());
 
-	std::shared_ptr<ConnectClass> found;
+	ConnectClass::Ptr found;
 	if (!explicit_name.empty())
 	{
 		for (const auto& c : ServerInstance->Config->Classes)
@@ -1236,7 +1236,7 @@ ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, Type t, const std::ve
 {
 }
 
-ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, Type t, const std::vector<std::string>& masks, std::shared_ptr<ConnectClass> parent)
+ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, Type t, const std::vector<std::string>& masks, ConnectClass::Ptr parent)
 {
 	Update(parent);
 	name = "unnamed";
@@ -1298,7 +1298,7 @@ void ConnectClass::Configure(const std::string& classname, std::shared_ptr<Confi
 	uniqueusername = tag->getBool("uniqueusername", uniqueusername);
 }
 
-void ConnectClass::Update(const std::shared_ptr<ConnectClass> src)
+void ConnectClass::Update(const ConnectClass::Ptr src)
 {
 	ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Updating %s from %s", name.c_str(), src->name.c_str());
 	commandrate = src->commandrate;
