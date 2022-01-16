@@ -40,6 +40,7 @@ our @EXPORT = qw(command
 my %FORMAT_CODES = (
 	DEFAULT   => "\e[0m",
 	BOLD      => "\e[1m",
+	ITALIC    => "\e[3m",
 	UNDERLINE => "\e[4m",
 
 	RED    => "\e[1;31m",
