@@ -150,6 +150,10 @@ void ExtensionItem::Sync(const Extensible* container, void* item)
 		case ExtensionType::USER:
 			ServerInstance->PI->SendMetaData(static_cast<const User*>(container), name, networkstr);
 			break;
+
+		case ExtensionType::CONNECT_CLASS:
+			// We don't sync extensions for connect classes.
+			break;
 	}
 }
 

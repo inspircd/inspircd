@@ -693,9 +693,7 @@ class CoreExport Module
 	/** Called before the module is unloaded to clean up extensibles.
 	 * This method is called once for every channel, membership, and user.
 	 * so that you can clear up any data relating to the specified extensible.
-	 * @param type The type of extensible being cleaned up. If this is EXT_CHANNEL
-	 *             then item is a Channel*, EXT_MEMBERSHIP then item is a Membership*,
-	 *             and EXT_USER then item is a User*.
+	 * @param type The type of extensible being cleaned up.
 	 * @param item A pointer to the extensible which is being cleaned up.
 	 */
 	virtual void OnCleanup(ExtensionType type, Extensible* item);

@@ -429,6 +429,12 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		user->UnhookExtensions(items);
 	}
 
+	for (const auto& klass : ServerInstance->Config->Classes)
+	{
+		mod->OnCleanup(ExtensionType::CONNECT_CLASS, klass.get());
+		klass->UnhookExtensions(items);
+	}
+
 	for (DataProviderMap::iterator i = DataProviders.begin(); i != DataProviders.end(); )
 	{
 		DataProviderMap::iterator curr = i++;
