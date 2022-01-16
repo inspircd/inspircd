@@ -56,7 +56,6 @@ enum RegistrationState {
 
 /** Represents \<connect> class tags from the server config */
 class CoreExport ConnectClass final
-	: public Extensible
 {
 public:
 	/** A shared pointer to a connect class. */

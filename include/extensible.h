@@ -33,9 +33,6 @@ enum class ExtensionType : uint8_t
 
 	/** The ExtensionItem applies to a Membership object. */
 	MEMBERSHIP = 2,
-
-	/** The ExtensionItem applies to a ConnectClass object. */
-	CONNECT_CLASS = 3,
 };
 
 /** Base class for logic that extends an Extensible object. */
