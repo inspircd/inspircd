@@ -40,7 +40,8 @@ class ISupport::EventListener
 	}
 
  public:
-	virtual void OnBuildISupport(TokenMap& tokens) = 0;
+	virtual void OnBuildISupport(TokenMap& tokens) { }
+	virtual void OnBuildClassISupport(std::shared_ptr<ConnectClass> klass, TokenMap& tokens) { }
 };
 
 class ISupport::EventProvider final

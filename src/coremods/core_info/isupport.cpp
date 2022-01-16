@@ -44,7 +44,9 @@ namespace
 }
 
 ISupportManager::ISupportManager(Module* mod)
-	: isupportevprov(mod)
+	: cachednumerics(mod, "cached-numerics", ExtensionType::CONNECT_CLASS)
+	, cachedtokens(mod, "cached-tokens", ExtensionType::CONNECT_CLASS)
+	, isupportevprov(mod)
 {
 }
 
@@ -90,29 +92,46 @@ void ISupportManager::Build()
 	};
 	isupportevprov.Call(&ISupport::EventListener::OnBuildISupport, tokens);
 
-	// Transform the map into a list of numerics ready to be sent to clients.
-	std::vector<Numeric::Numeric> numerics;
-	BuildNumerics(tokens, numerics);
-
-	// Extract the tokens which have been updated
-	ISupport::TokenMap difftokens;
-	TokenDifference(difftokens, cachedtokens, tokens);
-
-	// Send the updated numerics to users.
-	std::vector<Numeric::Numeric> diffnumerics;
-	BuildNumerics(difftokens, diffnumerics);
-	for (LocalUser* user : ServerInstance->Users.GetLocalUsers())
+	insp::flat_map<std::shared_ptr<ConnectClass>, std::vector<Numeric::Numeric>> diffnumerics;
+	for (const auto& klass : ServerInstance->Config->Classes)
 	{
-		if (user->registered & REG_ALL)
+		ISupport::TokenMap classtokens = tokens;
+		isupportevprov.Call(&ISupport::EventListener::OnBuildClassISupport, klass, classtokens);
+
+		// Transform the map into a list of numerics ready to be sent to clients.
+		std::vector<Numeric::Numeric> numerics;
+		BuildNumerics(classtokens, numerics);
+
+		// Extract the tokens which have been updated.
+		ISupport::TokenMap* oldtokens = cachedtokens.Get(klass.get());
+		if (oldtokens)
 		{
-			for (const auto& diffnumeric : diffnumerics)
-				user->WriteNumeric(diffnumeric);
+			// Build the updated numeric diff to send to to existing users.
+			ISupport::TokenMap difftokens;
+			TokenDifference(difftokens, *oldtokens, classtokens);
+			BuildNumerics(difftokens, diffnumerics[klass]);
 		}
+
+		// Apply the new ISUPPORT values.
+		cachednumerics.Set(klass.get(), numerics);
+		cachedtokens.Set(klass.get(), classtokens);
 	}
 
-	// Apply the new ISUPPORT values.
-	std::swap(numerics, cachednumerics);
-	std::swap(tokens, cachedtokens);
+	if (!diffnumerics.empty())
+	{
+		for (LocalUser* user : ServerInstance->Users.GetLocalUsers())
+		{
+			if (!(user->registered & REG_ALL))
+				continue; // User hasn't received 005 yet.
+
+			auto numerics = diffnumerics.find(user->GetClass());
+			if (numerics == diffnumerics.end())
+				continue; // Should never happen.
+
+			for (const auto& numeric : numerics->second)
+				user->WriteNumeric(numeric);
+		}
+	}
 }
 
 void ISupportManager::BuildNumerics(ISupport::TokenMap& tokens, std::vector<Numeric::Numeric>& numerics)
@@ -137,6 +156,10 @@ void ISupportManager::BuildNumerics(ISupport::TokenMap& tokens, std::vector<Nume
 
 void ISupportManager::SendTo(LocalUser* user)
 {
-	for (const auto& cachednumeric : cachednumerics)
-		user->WriteNumeric(cachednumeric);
+	auto numerics = cachednumerics.Get(user->GetClass().get());
+	if (!numerics)
+		return; // Should never happen.
+
+	for (const auto& numeric : *numerics)
+		user->WriteNumeric(numeric);
 }

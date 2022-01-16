@@ -223,16 +223,11 @@ class CoreModChannel final
 
 		std::sort(limits.begin(), limits.end());
 		tokens["MAXLIST"] = stdalgo::string::join(limits, ',');
+	}
 
-		// Generate the CHANLIMIT token.
-		unsigned int maxchans = 20;
-		for (const auto& klass : ServerInstance->Config->Classes)
-		{
-			// This cast is safe as we start from 20 above and count down.
-			if (klass->maxchans < maxchans)
-				maxchans = static_cast<unsigned int>(klass->maxchans);
-		}
-		tokens["CHANLIMIT"] = InspIRCd::Format("#:%u", maxchans);
+	void OnBuildClassISupport(std::shared_ptr<ConnectClass> klass, ISupport::TokenMap& tokens) override
+	{
+		tokens["CHANLIMIT"] = InspIRCd::Format("#:%lu", klass->maxchans);
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override

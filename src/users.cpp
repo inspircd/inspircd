@@ -1300,6 +1300,7 @@ void ConnectClass::Configure(const std::string& classname, std::shared_ptr<Confi
 
 void ConnectClass::Update(const std::shared_ptr<ConnectClass> src)
 {
+	ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Updating %s from %s", name.c_str(), src->name.c_str());
 	commandrate = src->commandrate;
 	config = src->config;
 	fakelag = src->fakelag;
