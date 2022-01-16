@@ -699,6 +699,8 @@
          #  - stripcolor      Channel mode +S - strips formatting codes from
          #                    messages (requires the stripcolor module).
          #  - topiclock       Channel mode +t - limits changing the topic to (half)ops
+         #  - delaymsg        Channel mode +d - blocks sending messages until specified
+         #                    seconds have passed since user join
          # You can also configure this on a per-channel basis with a channel mode and
          # even negate the configured exemptions below.
          # See exemptchanops in modules.conf.example for more details.

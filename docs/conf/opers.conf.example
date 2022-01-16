@@ -30,6 +30,7 @@
      #   - channels/ignore-noctcp: allows opers with this priv to send a CTCP to a +C channel.
      #   - channels/ignore-nonicks: allows opers with this priv to change their nick when on a +N channel.
      #   - channels/ignore-repeat: allows opers with this priv to be immune to repeat punishment on a +E channel.
+     #   - channels/ignore-delaymsg: allows opers with this priv to be immune to delaymsg restriction on a +d channel.
      #   - channels/restricted-create: allows opers with this priv to create channels if the restrictchans module is loaded.
      #   - users/flood/increased-buffers: allows opers with this priv to send and receive data without worrying about being disconnected for exceeding limits (*NOTE).
      #   - users/flood/no-fakelag: prevents opers from being penalized with fake lag for flooding (*NOTE).
