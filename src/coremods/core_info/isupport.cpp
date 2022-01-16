@@ -44,9 +44,7 @@ namespace
 }
 
 ISupportManager::ISupportManager(Module* mod)
-	: cachednumerics(mod, "cached-numerics", ExtensionType::CONNECT_CLASS)
-	, cachedtokens(mod, "cached-tokens", ExtensionType::CONNECT_CLASS)
-	, isupportevprov(mod)
+	: isupportevprov(mod)
 {
 }
 
@@ -92,7 +90,9 @@ void ISupportManager::Build()
 	};
 	isupportevprov.Call(&ISupport::EventListener::OnBuildISupport, tokens);
 
-	insp::flat_map<ConnectClass::Ptr, std::vector<Numeric::Numeric>> diffnumerics;
+	NumericMap diffnumerics;
+	NumericMap newnumerics;
+	TokenMap newtokens;
 	for (const auto& klass : ServerInstance->Config->Classes)
 	{
 		ISupport::TokenMap classtokens = tokens;
@@ -103,19 +103,23 @@ void ISupportManager::Build()
 		BuildNumerics(classtokens, numerics);
 
 		// Extract the tokens which have been updated.
-		ISupport::TokenMap* oldtokens = cachedtokens.Get(klass.get());
-		if (oldtokens)
+		auto oldtokens = cachedtokens.find(klass);
+		if (oldtokens != cachedtokens.end())
 		{
 			// Build the updated numeric diff to send to to existing users.
 			ISupport::TokenMap difftokens;
-			TokenDifference(difftokens, *oldtokens, classtokens);
+			TokenDifference(difftokens, oldtokens->second, classtokens);
 			BuildNumerics(difftokens, diffnumerics[klass]);
 		}
 
-		// Apply the new ISUPPORT values.
-		cachednumerics.Set(klass.get(), numerics);
-		cachedtokens.Set(klass.get(), classtokens);
+		// Store the new ISUPPORT values.
+		newnumerics[klass] = numerics;
+		newtokens[klass] = classtokens;
 	}
+
+	// Apply the new ISUPPORT values.
+	cachednumerics.swap(newnumerics);
+	cachedtokens.swap(newtokens);
 
 	if (!diffnumerics.empty())
 	{
@@ -156,10 +160,10 @@ void ISupportManager::BuildNumerics(ISupport::TokenMap& tokens, std::vector<Nume
 
 void ISupportManager::SendTo(LocalUser* user)
 {
-	auto numerics = cachednumerics.Get(user->GetClass().get());
-	if (!numerics)
+	auto numerics = cachednumerics.find(user->GetClass());
+	if (numerics == cachednumerics.end())
 		return; // Should never happen.
 
-	for (const auto& numeric : *numerics)
+	for (const auto& numeric : numerics->second)
 		user->WriteNumeric(numeric);
 }
