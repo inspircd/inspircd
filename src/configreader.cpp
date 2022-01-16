@@ -312,7 +312,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 					me->ports.insert(port);
 			}
 
-			ClassMap::iterator oldMask = oldBlocksByMask.find(std::make_pair(me->name, me->type));
+			ClassMap::iterator oldMask = oldBlocksByMask.find(std::make_pair(mask, me->type));
 			if (oldMask != oldBlocksByMask.end())
 			{
 				ConnectClass* old = oldMask->second;
