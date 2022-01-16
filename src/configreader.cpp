@@ -268,7 +268,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 
 			me->Configure(name, tag);
 
-			ClassMap::iterator oldMask = oldBlocksByMask.find(std::make_pair(me->name, me->type));
+			ClassMap::iterator oldMask = oldBlocksByMask.find(std::make_pair(mask, me->type));
 			if (oldMask != oldBlocksByMask.end())
 			{
 				std::shared_ptr<ConnectClass> old = oldMask->second;
