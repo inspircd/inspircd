@@ -85,6 +85,11 @@ sub __environment {
 	return $prefix . uc $suffix;
 }
 
+sub __env_or_unset {
+	my $name = shift;
+	return $ENV{$name} || '<|ITALIC unset|>';
+};
+
 sub __error {
 	my ($file, @message) = @_;
 	push @message, '';
@@ -119,10 +124,16 @@ sub __error {
 		}
 	} else {
 		push @message, 'If you believe this error to be a bug then you can file a bug report';
-		push @message, 'at https://github.com/inspircd/inspircd/issues';
+		push @message, 'at https://github.com/inspircd/inspircd/issues. Please include the';
+		push @message, 'following data in your report:';
+		push @message, " * CPPFLAGS:        ${\__env_or_unset 'CPPFLAGS'}";
+		push @message, " * CXXFLAGS:        ${\__env_or_unset 'CXXFLAGS'}";
+		push @message, " * LDFLAGS:         ${\__env_or_unset 'LDFLAGS'}";
+		push @message, " * PATH:            ${\__env_or_unset 'PATH'}";
+		push @message, " * PKG_CONFIG_PATH: ${\__env_or_unset 'PKG_CONFIG_PATH'}";
 		push @message, '';
 		push @message, 'You can also refer to the documentation page for this module at';
-		push @message, "https://docs.inspircd.org/3/modules/${\module_shrink $file}";
+		push @message, "https://docs.inspircd.org/3/modules/${\module_shrink $file}.";
 	}
 	push @message, '';
 
