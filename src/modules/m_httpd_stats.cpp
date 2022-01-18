@@ -39,22 +39,12 @@ static ISupport::EventProvider* isevprov;
 
 namespace Stats
 {
-	struct Entities final
-	{
-		static const insp::flat_map<char, char const*>& entities;
+	static const insp::flat_map<char, char const*>& xmlentities = {
+		{ '<', "lt"   },
+		{ '>', "gt"   },
+		{ '&', "amp"  },
+		{ '"', "quot" },
 	};
-
-	static const insp::flat_map<char, char const*>& init_entities()
-	{
-		static insp::flat_map<char, char const*> entities;
-		entities['<'] = "lt";
-		entities['>'] = "gt";
-		entities['&'] = "amp";
-		entities['"'] = "quot";
-		return entities;
-	}
-
-	const insp::flat_map<char, char const*>& Entities::entities = init_entities();
 
 	std::string Sanitize(const std::string& str)
 	{
@@ -63,8 +53,8 @@ namespace Stats
 
 		for (const auto& chr : str)
 		{
-			insp::flat_map<char, char const*>::const_iterator it = Entities::entities.find(chr);
-			if (it != Entities::entities.end())
+			insp::flat_map<char, char const*>::const_iterator it = xmlentities.find(chr);
+			if (it != xmlentities.end())
 			{
 				ret += '&';
 				ret += it->second;
