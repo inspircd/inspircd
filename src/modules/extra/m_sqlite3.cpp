@@ -111,7 +111,7 @@ public:
 			// Even in case of an error conn must be closed
 			sqlite3_close(conn);
 			conn = NULL;
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "WARNING: Could not open DB with id: " + tag->getString("id"));
+			ServerInstance->Logs.Normal(MODNAME, "WARNING: Could not open DB with id: " + tag->getString("id"));
 		}
 	}
 
@@ -174,7 +174,7 @@ public:
 
 	void Submit(SQL::Query* query, const std::string& q) override
 	{
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Executing SQLite3 query: " + q);
+		ServerInstance->Logs.Debug(MODNAME, "Executing SQLite3 query: " + q);
 		Query(query, q);
 		delete query;
 	}

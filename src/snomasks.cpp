@@ -124,7 +124,7 @@ void Snomask::Flush()
 
 void Snomask::Send(char letter, const std::string& desc, const std::string& msg)
 {
-	ServerInstance->Logs.Log(desc, LOG_DEFAULT, msg);
+	ServerInstance->Logs.Normal(desc, msg);
 	const std::string finalmsg = InspIRCd::Format("*** %s: %s", desc.c_str(), msg.c_str());
 
 	/* Only opers can receive snotices, so we iterate the oper list */

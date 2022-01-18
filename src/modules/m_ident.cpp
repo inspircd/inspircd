@@ -190,7 +190,7 @@ public:
 		 */
 		if (HasFd())
 		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Close ident socket %d", GetFd());
+			ServerInstance->Logs.Debug(MODNAME, "Close ident socket %d", GetFd());
 			SocketEngine::Close(this);
 		}
 	}
@@ -220,7 +220,7 @@ public:
 		if (recvresult < 3)
 			return;
 
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "ReadResponse()");
+		ServerInstance->Logs.Debug(MODNAME, "ReadResponse()");
 
 		/* Truncate at the first null character, but first make sure
 		 * there is at least one null char (at the end of the buffer).
@@ -349,7 +349,7 @@ public:
 		}
 		catch (const ModuleException& e)
 		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Ident exception: " + e.GetReason());
+			ServerInstance->Logs.Debug(MODNAME, "Ident exception: " + e.GetReason());
 		}
 	}
 
@@ -410,7 +410,7 @@ public:
 	{
 		if (myclass->config->getBool("requireident") && state.Get(user) != IDENT_FOUND)
 		{
-			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as it requires an identd response",
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires an identd response",
 				myclass->GetName().c_str());
 			return MOD_RES_DENY;
 		}

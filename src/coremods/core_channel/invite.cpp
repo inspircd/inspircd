@@ -96,7 +96,7 @@ void Invite::APIImpl::Create(LocalUser* user, Channel* chan, time_t timeout)
 		// Expired, don't bother
 		return;
 
-	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Invite::APIImpl::Create(): user=%s chan=%s timeout=%lu",
+	ServerInstance->Logs.Debug(MODNAME, "Invite::APIImpl::Create(): user=%s chan=%s timeout=%lu",
 		user->uuid.c_str(), chan->name.c_str(), static_cast<unsigned long>(timeout));
 
 	Invite* inv = Find(user, chan);
@@ -106,7 +106,7 @@ void Invite::APIImpl::Create(LocalUser* user, Channel* chan, time_t timeout)
 		if (!inv->IsTimed())
 			return;
 
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Invite::APIImpl::Create(): changing expiration in %p",
+		ServerInstance->Logs.Debug(MODNAME, "Invite::APIImpl::Create(): changing expiration in %p",
 			static_cast<void*>(inv));
 		if (timeout == 0)
 		{
@@ -131,7 +131,7 @@ void Invite::APIImpl::Create(LocalUser* user, Channel* chan, time_t timeout)
 
 		userext.Get(user, true)->invites.push_front(inv);
 		chanext.Get(chan, true)->invites.push_front(inv);
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Invite::APIImpl::Create(): created new Invite %p",
+		ServerInstance->Logs.Debug(MODNAME, "Invite::APIImpl::Create(): created new Invite %p",
 			static_cast<void*>(inv));
 	}
 }
@@ -179,7 +179,7 @@ Invite::Invite::Invite(LocalUser* u, Channel* c)
 Invite::Invite::~Invite()
 {
 	delete expiretimer;
-	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Invite::~ %p", static_cast<void*>(this));
+	ServerInstance->Logs.Debug(MODNAME, "Invite::~ %p", static_cast<void*>(this));
 }
 
 void Invite::Invite::Serialize(bool human, bool show_chans, std::string& out)
@@ -205,7 +205,7 @@ InviteExpireTimer::InviteExpireTimer(Invite::Invite* invite, time_t timeout)
 
 bool InviteExpireTimer::Tick()
 {
-	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "InviteExpireTimer::Tick(): expired %p", static_cast<void*>(inv));
+	ServerInstance->Logs.Debug(MODNAME, "InviteExpireTimer::Tick(): expired %p", static_cast<void*>(inv));
 	apiimpl->Destruct(inv);
 	return false;
 }

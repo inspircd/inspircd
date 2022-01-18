@@ -191,7 +191,7 @@ bool TreeSocket::CheckDuplicate(const std::string& sname, const std::string& sid
 	}
 
 	// Check if the id is not in use by a server that's already fully connected
-	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Looking for dupe SID %s", sid.c_str());
+	ServerInstance->Logs.Debug(MODNAME, "Looking for dupe SID %s", sid.c_str());
 	CheckDupe = Utils->FindServerID(sid);
 
 	if (CheckDupe)

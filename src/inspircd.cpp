@@ -156,20 +156,20 @@ namespace
 			errno = 0;
 			if (setgroups(0, NULL) == -1)
 			{
-				ServerInstance->Logs.Log("STARTUP", LOG_DEFAULT, "setgroups() failed (wtf?): %s", strerror(errno));
+				ServerInstance->Logs.Normal("STARTUP", "setgroups() failed (wtf?): %s", strerror(errno));
 				exit(EXIT_STATUS_CONFIG);
 			}
 
 			struct group* g = getgrnam(SetGroup.c_str());
 			if (!g)
 			{
-				ServerInstance->Logs.Log("STARTUP", LOG_DEFAULT, "getgrnam(%s) failed (wrong group?): %s", SetGroup.c_str(), strerror(errno));
+				ServerInstance->Logs.Normal("STARTUP", "getgrnam(%s) failed (wrong group?): %s", SetGroup.c_str(), strerror(errno));
 				exit(EXIT_STATUS_CONFIG);
 			}
 
 			if (setgid(g->gr_gid) == -1)
 			{
-				ServerInstance->Logs.Log("STARTUP", LOG_DEFAULT, "setgid(%d) failed (wrong group?): %s", g->gr_gid, strerror(errno));
+				ServerInstance->Logs.Normal("STARTUP", "setgid(%d) failed (wrong group?): %s", g->gr_gid, strerror(errno));
 				exit(EXIT_STATUS_CONFIG);
 			}
 		}
@@ -181,13 +181,13 @@ namespace
 			struct passwd* u = getpwnam(SetUser.c_str());
 			if (!u)
 			{
-				ServerInstance->Logs.Log("STARTUP", LOG_DEFAULT, "getpwnam(%s) failed (wrong user?): %s", SetUser.c_str(), strerror(errno));
+				ServerInstance->Logs.Normal("STARTUP", "getpwnam(%s) failed (wrong user?): %s", SetUser.c_str(), strerror(errno));
 				exit(EXIT_STATUS_CONFIG);
 			}
 
 			if (setuid(u->pw_uid) == -1)
 			{
-				ServerInstance->Logs.Log("STARTUP", LOG_DEFAULT, "setuid(%d) failed (wrong user?): %s", u->pw_uid, strerror(errno));
+				ServerInstance->Logs.Normal("STARTUP", "setuid(%d) failed (wrong user?): %s", u->pw_uid, strerror(errno));
 				exit(EXIT_STATUS_CONFIG);
 			}
 		}
@@ -241,7 +241,7 @@ namespace
 		int childpid = fork();
 		if (childpid < 0)
 		{
-			ServerInstance->Logs.Log("STARTUP", LOG_DEFAULT, "fork() failed: %s", strerror(errno));
+			ServerInstance->Logs.Normal("STARTUP", "fork() failed: %s", strerror(errno));
 			std::cout << rang::style::bold << rang::fg::red << "Error:" << rang::style::reset << " unable to fork into background: " << strerror(errno);
 			ServerInstance->Exit(EXIT_STATUS_FORK);
 		}
@@ -272,13 +272,13 @@ namespace
 		rlimit rl;
 		if (getrlimit(RLIMIT_CORE, &rl) == -1)
 		{
-			ServerInstance->Logs.Log("STARTUP", LOG_DEFAULT, "Unable to increase core dump size: getrlimit(RLIMIT_CORE) failed: %s", strerror(errno));
+			ServerInstance->Logs.Normal("STARTUP", "Unable to increase core dump size: getrlimit(RLIMIT_CORE) failed: %s", strerror(errno));
 			return;
 		}
 
 		rl.rlim_cur = rl.rlim_max;
 		if (setrlimit(RLIMIT_CORE, &rl) == -1)
-			ServerInstance->Logs.Log("STARTUP", LOG_DEFAULT, "Unable to increase core dump size: setrlimit(RLIMIT_CORE) failed: %s", strerror(errno));
+			ServerInstance->Logs.Normal("STARTUP", "Unable to increase core dump size: setrlimit(RLIMIT_CORE) failed: %s", strerror(errno));
 #endif
 	}
 
@@ -444,7 +444,7 @@ void InspIRCd::WritePID()
 {
 	if (!ServerInstance->Config->cmdline.writepid)
 	{
-		this->Logs.Log("STARTUP", LOG_DEFAULT, "--nopid specified on command line; PID file not written.");
+		this->Logs.Normal("STARTUP", "--nopid specified on command line; PID file not written.");
 		return;
 	}
 
@@ -458,7 +458,7 @@ void InspIRCd::WritePID()
 	else
 	{
 		std::cout << "Failed to write PID-file '" << pidfile << "', exiting." << std::endl;
-		this->Logs.Log("STARTUP", LOG_DEFAULT, "Failed to write PID-file '%s', exiting.", pidfile.c_str());
+		this->Logs.Normal("STARTUP", "Failed to write PID-file '%s', exiting.", pidfile.c_str());
 		Exit(EXIT_STATUS_PID);
 	}
 }
@@ -506,7 +506,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	if (!FindConfigFile(ConfigFileName))
 	{
-		this->Logs.Log("STARTUP", LOG_DEFAULT, "Unable to open config file %s", ConfigFileName.c_str());
+		this->Logs.Normal("STARTUP", "Unable to open config file %s", ConfigFileName.c_str());
 		std::cout << "ERROR: Cannot open config file: " << ConfigFileName << std::endl << "Exiting..." << std::endl;
 		Exit(EXIT_STATUS_CONFIG);
 	}
@@ -574,7 +574,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		if (kill(getppid(), SIGTERM) == -1)
 		{
 			std::cout << "Error killing parent process: " << strerror(errno) << std::endl;
-			Logs.Log("STARTUP", LOG_DEFAULT, "Error killing parent process: %s",strerror(errno));
+			Logs.Normal("STARTUP", "Error killing parent process: %s",strerror(errno));
 		}
 	}
 
@@ -597,16 +597,16 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		fclose(stdout);
 
 		if (dup2(fd, STDIN_FILENO) < 0)
-			Logs.Log("STARTUP", LOG_DEFAULT, "Failed to dup /dev/null to stdin.");
+			Logs.Normal("STARTUP", "Failed to dup /dev/null to stdin.");
 		if (dup2(fd, STDOUT_FILENO) < 0)
-			Logs.Log("STARTUP", LOG_DEFAULT, "Failed to dup /dev/null to stdout.");
+			Logs.Normal("STARTUP", "Failed to dup /dev/null to stdout.");
 		if (dup2(fd, STDERR_FILENO) < 0)
-			Logs.Log("STARTUP", LOG_DEFAULT, "Failed to dup /dev/null to stderr.");
+			Logs.Normal("STARTUP", "Failed to dup /dev/null to stderr.");
 		close(fd);
 	}
 	else
 	{
-		Logs.Log("STARTUP", LOG_DEFAULT, "Keeping pseudo-tty open as we are running in the foreground.");
+		Logs.Normal("STARTUP", "Keeping pseudo-tty open as we are running in the foreground.");
 	}
 #else
 	/* Set win32 service as running, if we are running as a service */
@@ -624,7 +624,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	WritePID();
 	DropRoot();
 
-	Logs.Log("STARTUP", LOG_DEFAULT, "Startup complete as '%s'[%s], %lu max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SocketEngine::GetMaxFds());
+	Logs.Normal("STARTUP", "Startup complete as '%s'[%s], %lu max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SocketEngine::GetMaxFds());
 }
 
 void InspIRCd::UpdateTime()
@@ -657,7 +657,7 @@ void InspIRCd::Run()
 		if (this->ConfigThread && this->ConfigThread->IsDone())
 		{
 			/* Rehash has completed */
-			this->Logs.Log("CONFIG", LOG_DEBUG, "New configuration has been read, applying...");
+			this->Logs.Debug("CONFIG", "New configuration has been read, applying...");
 			ConfigThread->Stop();
 			stdalgo::delete_zero(ConfigThread);
 		}

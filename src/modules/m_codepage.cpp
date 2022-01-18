@@ -282,7 +282,7 @@ public:
 				switch (newcodepage->AllowCharacter(static_cast<uint32_t>(pos), front))
 				{
 					case Codepage::ACR_OKAY:
-						ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Marked %lu (%.4s) as allowed (front: %s)",
+						ServerInstance->Logs.Debug(MODNAME, "Marked %lu (%.4s) as allowed (front: %s)",
 							pos, reinterpret_cast<unsigned char*>(&pos), front ? "yes" : "no");
 						break;
 
@@ -310,7 +310,7 @@ public:
 			if (!newcodepage->Map(upper, lower))
 				throw ModuleException(this, "Malformed <cpcase> tag at " + tag->source.str());
 
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Marked %lu (%.4s) as the lower case version of %lu (%.4s)",
+			ServerInstance->Logs.Debug(MODNAME, "Marked %lu (%.4s) as the lower case version of %lu (%.4s)",
 				lower, reinterpret_cast<unsigned char*>(&lower), upper, reinterpret_cast<unsigned char*>(&upper));
 		}
 

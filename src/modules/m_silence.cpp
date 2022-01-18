@@ -214,7 +214,7 @@ public:
 			// Check we have space for another entry.
 			if (list->size() >= maxsilence)
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Oversized silence list received for %s: %s",
+				ServerInstance->Logs.Debug(MODNAME, "Oversized silence list received for %s: %s",
 					user->uuid.c_str(), value.c_str());
 				delete list;
 				return;
@@ -225,7 +225,7 @@ public:
 			std::string flagstr;
 			if (!ts.GetToken(mask) || !ts.GetToken(flagstr))
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Malformed silence list received for %s: %s",
+				ServerInstance->Logs.Debug(MODNAME, "Malformed silence list received for %s: %s",
 					user->uuid.c_str(), value.c_str());
 				delete list;
 				return;
@@ -235,7 +235,7 @@ public:
 			uint32_t flags;
 			if (!SilenceEntry::FlagsToBits(flagstr, flags))
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Malformed silence flags received for %s: %s",
+				ServerInstance->Logs.Debug(MODNAME, "Malformed silence flags received for %s: %s",
 					user->uuid.c_str(), flagstr.c_str());
 				delete list;
 				return;

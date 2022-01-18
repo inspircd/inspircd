@@ -87,7 +87,7 @@ User::User(const std::string& uid, Server* srv, Type type)
 {
 	client_sa.sa.sa_family = AF_UNSPEC;
 
-	ServerInstance->Logs.Log("USERS", LOG_DEBUG, "New UUID for user: %s", uuid.c_str());
+	ServerInstance->Logs.Debug("USERS", "New UUID for user: %s", uuid.c_str());
 
 	if (srv->IsService())
 		ServerInstance->Users.all_services.push_back(this);
@@ -418,7 +418,7 @@ namespace
 			else if (ModeParser::IsModeChar(chr))
 				modeset.set(ModeParser::GetModeIndex(chr));
 			else
-				ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "'%c' is not a valid value for <class:%s>, ignoring...", chr, field.c_str());
+				ServerInstance->Logs.Normal("CONFIG", "'%c' is not a valid value for <class:%s>, ignoring...", chr, field.c_str());
 		}
 	}
 }
@@ -578,7 +578,7 @@ void LocalUser::FullConnect()
 
 	ServerInstance->SNO.WriteToSnoMask('c',"Client connecting on port %d (class %s): %s (%s) [%s\x0F]",
 		this->server_sa.port(), this->GetClass()->name.c_str(), GetFullRealHost().c_str(), this->GetIPString().c_str(), this->GetRealName().c_str());
-	ServerInstance->Logs.Log("BANCACHE", LOG_DEBUG, "BanCache: Adding NEGATIVE hit for " + this->GetIPString());
+	ServerInstance->Logs.Debug("BANCACHE", "BanCache: Adding NEGATIVE hit for " + this->GetIPString());
 	ServerInstance->BanCache.AddHit(this->GetIPString(), "", "");
 	// reset the flood penalty (which could have been raised due to things like auto +x)
 	CommandFloodPenalty = 0;
@@ -598,7 +598,7 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 {
 	if (quitting)
 	{
-		ServerInstance->Logs.Log("USERS", LOG_DEFAULT, "ERROR: Attempted to change nick of a quitting user: " + this->nick);
+		ServerInstance->Logs.Normal("USERS", "ERROR: Attempted to change nick of a quitting user: " + this->nick);
 		return false;
 	}
 
@@ -792,7 +792,7 @@ void LocalUser::Write(const ClientProtocol::SerializedMessage& text)
 		if (nlpos == std::string::npos)
 			nlpos = text.length(); // TODO is this ok, test it
 
-		ServerInstance->Logs.Log("USEROUTPUT", LOG_RAWIO, "C[%s] O %.*s", uuid.c_str(), static_cast<int>(nlpos), text.c_str());
+		ServerInstance->Logs.RawIO("USEROUTPUT", "C[%s] O %.*s", uuid.c_str(), static_cast<int>(nlpos), text.c_str());
 	}
 
 	eh.AddWriteBuf(text);
@@ -807,7 +807,7 @@ void LocalUser::Send(ClientProtocol::Event& protoev)
 {
 	if (!serializer)
 	{
-		ServerInstance->Logs.Log("USERS", LOG_DEBUG, "BUG: LocalUser::Send() called on %s who does not have a serializer!",
+		ServerInstance->Logs.Debug("USERS", "BUG: LocalUser::Send() called on %s who does not have a serializer!",
 			GetFullRealHost().c_str());
 		return;
 	}
@@ -1080,7 +1080,7 @@ bool User::ChangeIdent(const std::string& newident)
  */
 void LocalUser::SetClass(const std::string &explicit_name)
 {
-	ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Setting connect class for %s (%s) ...",
+	ServerInstance->Logs.Debug("CONNECTCLASS", "Setting connect class for %s (%s) ...",
 		this->uuid.c_str(), this->GetFullRealHost().c_str());
 
 	ConnectClass::Ptr found;
@@ -1090,7 +1090,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 		{
 			if (explicit_name == c->name)
 			{
-				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Connect class explicitly set to %s",
+				ServerInstance->Logs.Debug("CONNECTCLASS", "Connect class explicitly set to %s",
 					explicit_name.c_str());
 				found = c;
 			}
@@ -1100,7 +1100,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 	{
 		for (const auto& c : ServerInstance->Config->Classes)
 		{
-			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Checking the %s connect class ...",
+			ServerInstance->Logs.Debug("CONNECTCLASS", "Checking the %s connect class ...",
 					c->GetName().c_str());
 
 			ModResult MOD_RESULT;
@@ -1110,7 +1110,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 
 			if (MOD_RESULT == MOD_RES_ALLOW)
 			{
-				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class was explicitly chosen by a module",
+				ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class was explicitly chosen by a module",
 					c->GetName().c_str());
 				found = c;
 				break;
@@ -1118,7 +1118,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 
 			if (c->type == ConnectClass::NAMED)
 			{
-				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as neither <connect:allow> nor <connect:deny> are set",
+				ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as neither <connect:allow> nor <connect:deny> are set",
 						c->GetName().c_str());
 				continue;
 			}
@@ -1126,7 +1126,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			bool regdone = (registered != REG_NONE);
 			if (c->config->getBool("registered", regdone) != regdone)
 			{
-				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as it requires that the user is %s",
+				ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires that the user is %s",
 						c->GetName().c_str(), regdone ? "not fully connected" : "fully connected");
 				continue;
 			}
@@ -1143,7 +1143,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			if (!hostmatches)
 			{
 				const std::string hosts = stdalgo::string::join(c->GetHosts());
-				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as neither the host (%s) nor the IP (%s) matches %s",
+				ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as neither the host (%s) nor the IP (%s) matches %s",
 					c->GetName().c_str(), this->GetRealHost().c_str(), this->GetIPString().c_str(), hosts.c_str());
 				continue;
 			}
@@ -1155,7 +1155,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			if (c->limit && (c.use_count() >= static_cast<long>(c->limit)))
 			{
 				// HACK: using use_count() is awful and should be removed before v4 is released.
-				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as it has reached its user limit (%lu)",
+				ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it has reached its user limit (%lu)",
 						c->GetName().c_str(), c->limit);
 				continue;
 			}
@@ -1163,20 +1163,20 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			/* if it requires a port and our port doesn't match, fail */
 			if (!c->ports.empty() && !c->ports.count(this->server_sa.port()))
 			{
-				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as the connection port (%d) is not any of %s",
+				ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as the connection port (%d) is not any of %s",
 					c->GetName().c_str(), this->server_sa.port(), stdalgo::string::join(c->ports).c_str());
 				continue;
 			}
 
 			if (regdone && !c->password.empty() && !ServerInstance->PassCompare(this, c->password, password, c->passwordhash))
 			{
-				ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as requires a password and %s",
+				ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as requires a password and %s",
 					c->GetName().c_str(), password.empty() ? "one was not provided" : "the provided password was incorrect");
 				continue;
 			}
 
 			/* we stop at the first class that meets ALL criteria. */
-			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is suitable for %s (%s)",
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is suitable for %s (%s)",
 				c->GetName().c_str(), this->uuid.c_str(), this->GetFullRealHost().c_str());
 			found = c;
 			break;
@@ -1272,7 +1272,7 @@ void ConnectClass::Configure(const std::string& classname, std::shared_ptr<Confi
 	passwordhash = tag->getString("hash", passwordhash);
 	if (!password.empty() && (passwordhash.empty() || stdalgo::string::equalsci(passwordhash, "plaintext")))
 	{
-		ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEFAULT, "<connect> tag '%s' at %s contains an plain text password, this is insecure!",
+		ServerInstance->Logs.Normal("CONNECTCLASS", "<connect> tag '%s' at %s contains an plain text password, this is insecure!",
 			name.c_str(), tag->source.str().c_str());
 	}
 
@@ -1299,7 +1299,7 @@ void ConnectClass::Configure(const std::string& classname, std::shared_ptr<Confi
 
 void ConnectClass::Update(const ConnectClass::Ptr src)
 {
-	ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "Updating %s from %s", name.c_str(), src->name.c_str());
+	ServerInstance->Logs.Debug("CONNECTCLASS", "Updating %s from %s", name.c_str(), src->name.c_str());
 	commandrate = src->commandrate;
 	config = src->config;
 	fakelag = src->fakelag;

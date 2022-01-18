@@ -273,7 +273,7 @@ public:
 
 	bool HandleConnectError(const char* reason)
 	{
-		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Could not connect to the \"%s\" database: %s",
+		ServerInstance->Logs.Normal(MODNAME, "Could not connect to the \"%s\" database: %s",
 			GetId().c_str(), reason);
 		return false;
 	}
@@ -419,7 +419,7 @@ restart:
 
 	void Submit(SQL::Query *req, const std::string& q) override
 	{
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Executing PostgreSQL query: " + q);
+		ServerInstance->Logs.Debug(MODNAME, "Executing PostgreSQL query: " + q);
 		if (qinprog.q.empty())
 		{
 			DoQuery(QueueItem(req,q));
@@ -448,7 +448,7 @@ restart:
 					int error;
 					size_t escapedsize = PQescapeStringConn(sql, &buffer[0], parm.data(), parm.length(), &error);
 					if (error)
-						ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "BUG: Apparently PQescapeStringConn() failed");
+						ServerInstance->Logs.Debug(MODNAME, "BUG: Apparently PQescapeStringConn() failed");
 					res.append(&buffer[0], escapedsize);
 				}
 			}
@@ -479,7 +479,7 @@ restart:
 					int error;
 					size_t escapedsize = PQescapeStringConn(sql, &buffer[0], parm.data(), parm.length(), &error);
 					if (error)
-						ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "BUG: Apparently PQescapeStringConn() failed");
+						ServerInstance->Logs.Debug(MODNAME, "BUG: Apparently PQescapeStringConn() failed");
 					res.append(&buffer[0], escapedsize);
 				}
 			}

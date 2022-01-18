@@ -130,7 +130,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 		time_t ourTS = chan->age;
 		if (TS != ourTS)
 		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Merge FJOIN received for %s, ourTS: %lu, TS: %lu, difference: %ld",
+			ServerInstance->Logs.Debug(MODNAME, "Merge FJOIN received for %s, ourTS: %lu, TS: %lu, difference: %ld",
 				chan->name.c_str(), (unsigned long)ourTS, (unsigned long)TS, (long)(ourTS - TS));
 			/* If our TS is less than theirs, we dont accept their modes */
 			if (ourTS < TS)
@@ -140,7 +140,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 				// Servers behind us won't react this way because the forwarded FJOIN will have the correct TS.
 				if (!sourceserver->IsBursting())
 				{
-					ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Server %s recreated channel %s with higher TS, resyncing", sourceserver->GetName().c_str(), chan->name.c_str());
+					ServerInstance->Logs.Debug(MODNAME, "Server %s recreated channel %s with higher TS, resyncing", sourceserver->GetName().c_str(), chan->name.c_str());
 					sourceserver->GetSocket()->SyncChannel(chan);
 				}
 				apply_other_sides_modes = false;

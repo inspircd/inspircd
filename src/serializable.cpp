@@ -24,12 +24,12 @@ Serializable::Data& Serializable::Data::Load(const std::string& key, std::string
 	EntryMap::iterator iter = this->entries.find(key);
 	if (iter == this->entries.end())
 	{
-		ServerInstance->Logs.Log("SERIALIZE", LOG_DEBUG, "Unable to load missing kv %s!", key.c_str());
+		ServerInstance->Logs.Debug("SERIALIZE", "Unable to load missing kv %s!", key.c_str());
 	}
 	else
 	{
 		out = iter->second;
-		ServerInstance->Logs.Log("SERIALIZE", LOG_DEBUG, "Loaded kv %s: %s", key.c_str(), out.c_str());
+		ServerInstance->Logs.Debug("SERIALIZE", "Loaded kv %s: %s", key.c_str(), out.c_str());
 	}
 	return *this;
 }
@@ -39,26 +39,26 @@ Serializable::Data& Serializable::Data::Load(const std::string& key, Serializabl
 	ChildMap::iterator iter = this->children.find(key);
 	if (iter == this->children.end())
 	{
-		ServerInstance->Logs.Log("SERIALIZE", LOG_DEBUG, "Unable to load missing data %s!", key.c_str());
+		ServerInstance->Logs.Debug("SERIALIZE", "Unable to load missing data %s!", key.c_str());
 	}
 	else
 	{
 		out = iter->second;
-		ServerInstance->Logs.Log("SERIALIZE", LOG_DEBUG, "Loaded data: %s", key.c_str());
+		ServerInstance->Logs.Debug("SERIALIZE", "Loaded data: %s", key.c_str());
 	}
 	return *this;
 }
 
 Serializable::Data& Serializable::Data::Store(const std::string& key, const std::string& value)
 {
-	ServerInstance->Logs.Log("SERIALIZE", LOG_DEBUG, "Stored kv %s: %s", key.c_str(), value.c_str());
+	ServerInstance->Logs.Debug("SERIALIZE", "Stored kv %s: %s", key.c_str(), value.c_str());
 	this->entries[key] = value;
 	return *this;
 }
 
 Serializable::Data& Serializable::Data::Store(const std::string& key, const Serializable::Data& value)
 {
-	ServerInstance->Logs.Log("SERIALIZE", LOG_DEBUG, "Stored data: %s", key.c_str());
+	ServerInstance->Logs.Debug("SERIALIZE", "Stored data: %s", key.c_str());
 	this->children[key] = value;
 	return *this;
 }
@@ -78,7 +78,7 @@ bool Extensible::Deserialize(Serializable::Data& data)
 			continue;
 		}
 
-		ServerInstance->Logs.Log("SERIALIZE", LOG_DEBUG, "Tried to deserialize the %s extension item but it doesn't exist",
+		ServerInstance->Logs.Debug("SERIALIZE", "Tried to deserialize the %s extension item but it doesn't exist",
 			name.c_str());
 	}
 	return true;
@@ -89,7 +89,7 @@ bool Extensible::Serialize(Serializable::Data& data)
 	// If the extensible has been culled then it shouldn't be serialized.
 	if (culled)
 	{
-		ServerInstance->Logs.Log("SERIALIZE", LOG_DEBUG, "Tried to serialize an extensible which has been culled");
+		ServerInstance->Logs.Debug("SERIALIZE", "Tried to serialize an extensible which has been culled");
 		return false;
 	}
 
@@ -107,7 +107,7 @@ bool User::Deserialize(Serializable::Data& data)
 	// If the user is quitting they shouldn't be deserialized.
 	if (quitting)
 	{
-		ServerInstance->Logs.Log("SERIALIZE", LOG_DEBUG, "Tried to deserialize %s who is in the process of quitting",
+		ServerInstance->Logs.Debug("SERIALIZE", "Tried to deserialize %s who is in the process of quitting",
 			uuid.c_str());
 		return false;
 	}
@@ -117,7 +117,7 @@ bool User::Deserialize(Serializable::Data& data)
 	data.Load("uuid", client_uuid);
 	if (!client_uuid.empty() && client_uuid != uuid)
 	{
-		ServerInstance->Logs.Log("SERIALIZE", LOG_DEBUG, "Tried to deserialize %s into %s",
+		ServerInstance->Logs.Debug("SERIALIZE", "Tried to deserialize %s into %s",
 			client_uuid.c_str(), uuid.c_str());
 		return false;
 	}
@@ -176,7 +176,7 @@ bool User::Serialize(Serializable::Data& data)
 	// If the user is quitting they shouldn't be serialized.
 	if (quitting)
 	{
-		ServerInstance->Logs.Log("SERIALIZE", LOG_DEBUG, "Tried to serialize %s who is in the process of quitting",
+		ServerInstance->Logs.Debug("SERIALIZE", "Tried to serialize %s who is in the process of quitting",
 			uuid.c_str());
 		return false;
 	}

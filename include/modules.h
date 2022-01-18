@@ -142,7 +142,7 @@ public:
 		} \
 		catch (CoreException& modexcept) \
 		{ \
-			ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, "Exception caught: " + modexcept.GetReason()); \
+			ServerInstance->Logs.Normal("MODULE", "Exception caught: " + modexcept.GetReason()); \
 		} \
 	} \
 } while (0)
@@ -168,7 +168,7 @@ do { \
 		} \
 		catch (CoreException& except_ ## n) \
 		{ \
-			ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, "Exception caught: " + (except_ ## n).GetReason()); \
+			ServerInstance->Logs.Normal("MODULE", "Exception caught: " + (except_ ## n).GetReason()); \
 		} \
 	} \
 } while(0)

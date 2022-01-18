@@ -58,7 +58,7 @@ public:
 				if (tosnomask)
 					ServerInstance->SNO.WriteGlobalSno('o', msg);
 				else
-					ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, msg);
+					ServerInstance->Logs.Normal(MODNAME, msg);
 			}
 		}
 

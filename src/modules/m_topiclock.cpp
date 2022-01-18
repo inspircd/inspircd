@@ -53,7 +53,7 @@ public:
 			time_t topicts = ConvToNum<time_t>(parameters[1]);
 			if (!topicts)
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Received SVSTOPIC with a 0 topicts, dropped.");
+				ServerInstance->Logs.Normal(MODNAME, "Received SVSTOPIC with a 0 topicts, dropped.");
 				return CmdResult::INVALID;
 			}
 

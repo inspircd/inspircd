@@ -67,7 +67,7 @@ TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const s
 	, UserCount(0)
 	, Hidden(Hide)
 {
-	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "New server %s behind_bursting %u", GetName().c_str(), behind_bursting);
+	ServerInstance->Logs.Debug(MODNAME, "New server %s behind_bursting %u", GetName().c_str(), behind_bursting);
 	CheckService();
 
 	ServerInstance->Timers.AddTimer(&pingtimer);
@@ -138,7 +138,7 @@ void TreeServer::BeginBurst(uint64_t startms)
 	if ((!startms) || (startms > now))
 		startms = now;
 	this->StartBurst = startms;
-	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Server %s started bursting at time %s behind_bursting %u", GetId().c_str(), ConvToStr(startms).c_str(), behind_bursting);
+	ServerInstance->Logs.Debug(MODNAME, "Server %s started bursting at time %s behind_bursting %u", GetId().c_str(), ConvToStr(startms).c_str(), behind_bursting);
 }
 
 void TreeServer::FinishBurstInternal()
@@ -147,7 +147,7 @@ void TreeServer::FinishBurstInternal()
 	// introduced during a netburst may later send ENDBURST which would normally decrease this counter
 	if (behind_bursting > 0)
 		behind_bursting--;
-	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "FinishBurstInternal() %s behind_bursting %u", GetName().c_str(), behind_bursting);
+	ServerInstance->Logs.Debug(MODNAME, "FinishBurstInternal() %s behind_bursting %u", GetName().c_str(), behind_bursting);
 
 	for (const auto& child : Children)
 		child->FinishBurstInternal();
@@ -204,7 +204,7 @@ void TreeServer::SQuitInternal(unsigned int& num_lost_servers, bool error)
 	if (isdead)
 		return;
 
-	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Server %s lost in split", GetName().c_str());
+	ServerInstance->Logs.Debug(MODNAME, "Server %s lost in split", GetName().c_str());
 
 	for (const auto& server : Children)
 		server->SQuitInternal(num_lost_servers, error);
@@ -247,7 +247,7 @@ void TreeServer::CheckService()
 		{
 			if (this->IsRoot())
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Servers should not mark themselves as a service (at " + tag->source.str() + ")");
+				ServerInstance->Logs.Normal(MODNAME, "Servers should not mark themselves as a service (at " + tag->source.str() + ")");
 				return;
 			}
 

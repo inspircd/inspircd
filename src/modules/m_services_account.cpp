@@ -310,7 +310,7 @@ public:
 	{
 		if (myclass->config->getBool("requireaccount") && !accountname.Get(user))
 		{
-			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as it requires the user to be logged into an account",
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires the user to be logged into an account",
 				myclass->GetName().c_str());
 			return MOD_RES_DENY;
 		}

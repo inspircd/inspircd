@@ -161,7 +161,7 @@ public:
 		for (const auto& [attr, val] : requiredattributes)
 		{
 			// Note that only one of these has to match for it to be success
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "LDAP compare: %s=%s", attr.c_str(), val.c_str());
+			ServerInstance->Logs.Debug(MODNAME, "LDAP compare: %s=%s", attr.c_str(), val.c_str());
 			try
 			{
 				LDAP->Compare(this, DN, attr, val);

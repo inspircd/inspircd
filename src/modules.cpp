@@ -360,7 +360,7 @@ bool ModuleManager::PrioritizeHooks()
 			break;
 		if (tries == 19)
 		{
-			ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, "Hook priority dependency loop detected");
+			ServerInstance->Logs.Normal("MODULE", "Hook priority dependency loop detected");
 			return false;
 		}
 	}
@@ -374,7 +374,7 @@ bool ModuleManager::CanUnload(Module* mod)
 	if ((modfind == Modules.end()) || (modfind->second != mod) || (mod->dying))
 	{
 		LastModuleError = "Module " + mod->ModuleSourceFile + " is not loaded, cannot unload it!";
-		ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, LastModuleError);
+		ServerInstance->Logs.Normal("MODULE", LastModuleError);
 		return false;
 	}
 
@@ -451,7 +451,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	Modules.erase(modfind);
 	ServerInstance->GlobalCulls.AddItem(mod);
 
-	ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, "The %s module was unloaded", mod->ModuleSourceFile.c_str());
+	ServerInstance->Logs.Normal("MODULE", "The %s module was unloaded", mod->ModuleSourceFile.c_str());
 }
 
 void ModuleManager::UnloadAll()
@@ -522,7 +522,7 @@ void ModuleManager::LoadAll()
 		std::cout << "[" << rang::style::bold << rang::fg::green << "*" << rang::style::reset << "] Loading module:\t" << rang::style::bold << rang::fg::green << name << rang::style::reset << std::endl;
 		if (!this->Load(name, true))
 		{
-			ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, this->LastError());
+			ServerInstance->Logs.Normal("MODULE", this->LastError());
 			std::cout << std::endl << "[" << rang::style::bold << rang::fg::red << "*" << rang::style::reset << "] " << this->LastError() << std::endl << std::endl;
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
@@ -533,7 +533,7 @@ void ModuleManager::LoadAll()
 	{
 		try
 		{
-			ServerInstance->Logs.Log("MODULE", LOG_DEBUG, "Initializing %s", modname.c_str());
+			ServerInstance->Logs.Debug("MODULE", "Initializing %s", modname.c_str());
 			AttachAll(mod);
 			AddServices(servicemap[modname]);
 			mod->init();
@@ -541,7 +541,7 @@ void ModuleManager::LoadAll()
 		catch (CoreException& modexcept)
 		{
 			LastModuleError = "Unable to initialize " + modname + ": " + modexcept.GetReason();
-			ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, LastModuleError);
+			ServerInstance->Logs.Normal("MODULE", LastModuleError);
 			std::cout << std::endl << "[" << rang::style::bold << rang::fg::red << "*" << rang::style::reset << "] " << LastModuleError << std::endl << std::endl;
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
@@ -557,13 +557,13 @@ void ModuleManager::LoadAll()
 	{
 		try
 		{
-			ServerInstance->Logs.Log("MODULE", LOG_DEBUG, "Reading configuration for %s", modname.c_str());
+			ServerInstance->Logs.Debug("MODULE", "Reading configuration for %s", modname.c_str());
 			mod->ReadConfig(confstatus);
 		}
 		catch (CoreException& modexcept)
 		{
 			LastModuleError = "Unable to read the configuration for " + modname + ": " + modexcept.GetReason();
-			ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, LastModuleError);
+			ServerInstance->Logs.Normal("MODULE", LastModuleError);
 			std::cout << std::endl << "[" << rang::style::bold << rang::fg::red << "*" << rang::style::reset << "] " << LastModuleError << std::endl << std::endl;
 			ServerInstance->Exit(EXIT_STATUS_CONFIG);
 		}
@@ -586,7 +586,7 @@ void ModuleManager::AddServices(const ServiceList& list)
 
 void ModuleManager::AddService(ServiceProvider& item)
 {
-	ServerInstance->Logs.Log("SERVICE", LOG_DEBUG, "Adding %s %s provided by %s", item.name.c_str(),
+	ServerInstance->Logs.Debug("SERVICE", "Adding %s %s provided by %s", item.name.c_str(),
 		item.GetTypeString(), item.creator ? item.creator->ModuleSourceFile.c_str() : "the core");
 	switch (item.service)
 	{
@@ -616,7 +616,7 @@ void ModuleManager::AddService(ServiceProvider& item)
 
 void ModuleManager::DelService(ServiceProvider& item)
 {
-	ServerInstance->Logs.Log("SERVICE", LOG_DEBUG, "Deleting %s %s provided by %s", item.name.c_str(),
+	ServerInstance->Logs.Debug("SERVICE", "Deleting %s %s provided by %s", item.name.c_str(),
 		item.GetTypeString(), item.creator ? item.creator->ModuleSourceFile.c_str() : "the core");
 	switch (item.service)
 	{

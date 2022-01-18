@@ -82,7 +82,7 @@ private:
 	{
 		if (!messagecomplete)
 		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "HTTP socket %d timed out", GetFd());
+			ServerInstance->Logs.Debug(MODNAME, "HTTP socket %d timed out", GetFd());
 			Close();
 			return false;
 		}
@@ -216,7 +216,7 @@ public:
 			// IOHook may have errored
 			if (!GetError().empty())
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "HTTP socket %d encountered a hook error: %s",
+				ServerInstance->Logs.Debug(MODNAME, "HTTP socket %d encountered a hook error: %s",
 					GetFd(), GetError().c_str());
 				Close();
 				return;
@@ -245,7 +245,7 @@ public:
 
 	void OnError(BufferedSocketError err) override
 	{
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "HTTP socket %d encountered an error: %d - %s",
+		ServerInstance->Logs.Debug(MODNAME, "HTTP socket %d encountered an error: %d - %s",
 			GetFd(), err, GetError().c_str());
 		Close();
 	}
@@ -255,7 +255,7 @@ public:
 		if (!errstr)
 			errstr = http_status_str((http_status)response);
 
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Sending HTTP error %u: %s", response, errstr);
+		ServerInstance->Logs.Debug(MODNAME, "Sending HTTP error %u: %s", response, errstr);
 		static HTTPHeaders empty;
 		std::string data = InspIRCd::Format(
 			"<html><head></head><body style='font-family: sans-serif; text-align: center'>"

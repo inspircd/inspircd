@@ -47,7 +47,7 @@ private:
 				return ARGON2_VERSION_13;
 		}
 
-		ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, "Unknown Argon2 version (%lu) specified; assuming 13",
+		ServerInstance->Logs.Normal("MODULE", "Unknown Argon2 version (%lu) specified; assuming 13",
 			version);
 		return ARGON2_VERSION_13;
 	}

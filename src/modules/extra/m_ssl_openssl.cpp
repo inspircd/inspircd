@@ -359,9 +359,9 @@ namespace OpenSSL
 			if (!setoptions && !clearoptions)
 				return; // Nothing to do
 
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Setting %s %s context options, default: %ld set: %ld clear: %ld", name.c_str(), ctxname.c_str(), ctx.GetDefaultContextOptions(), setoptions, clearoptions);
+			ServerInstance->Logs.Debug(MODNAME, "Setting %s %s context options, default: %ld set: %ld clear: %ld", name.c_str(), ctxname.c_str(), ctx.GetDefaultContextOptions(), setoptions, clearoptions);
 			long final = context.SetRawContextOptions(setoptions, clearoptions);
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "%s %s context options: %ld", name.c_str(), ctxname.c_str(), final);
+			ServerInstance->Logs.Normal(MODNAME, "%s %s context options: %ld", name.c_str(), ctxname.c_str(), final);
 		}
 
 	public:
@@ -405,7 +405,7 @@ namespace OpenSSL
 					throw Exception("Can't set ciphersuite list to \"" + ciphersuites + "\" " + lasterr);
 				}
 #else
-				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "You have configured <sslprofile:ciphersuites> but your version of OpenSSL does not support TLSv1.3+");
+				ServerInstance->Logs.Debug(MODNAME, "You have configured <sslprofile:ciphersuites> but your version of OpenSSL does not support TLSv1.3+");
 #endif
 			}
 
@@ -440,7 +440,7 @@ namespace OpenSSL
 			if ((!ctx.SetCA(filename)) || (!clientctx.SetCA(filename)))
 			{
 				ERR_print_errors_cb(error_callback, this);
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Can't read CA list from %s. This is only a problem if you want to verify client certificates, otherwise it's safe to ignore this message. Error: %s", filename.c_str(), lasterr.c_str());
+				ServerInstance->Logs.Normal(MODNAME, "Can't read CA list from %s. This is only a problem if you want to verify client certificates, otherwise it's safe to ignore this message. Error: %s", filename.c_str(), lasterr.c_str());
 			}
 
 			// Load the CRLs.
@@ -663,7 +663,7 @@ private:
 		if (status != STATUS_NONE)
 			return true;
 
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Session %p killed, attempted to renegotiate", (void*)sess);
+		ServerInstance->Logs.Debug(MODNAME, "Session %p killed, attempted to renegotiate", (void*)sess);
 		CloseSession();
 		sock->SetError("Renegotiation is not allowed");
 		return false;
@@ -959,14 +959,14 @@ class ModuleSSLOpenSSL final
 		{
 			if (!stdalgo::string::equalsci(tag->getString("provider"), "openssl"))
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring non-OpenSSL <sslprofile> tag at " + tag->source.str());
+				ServerInstance->Logs.Normal(MODNAME, "Ignoring non-OpenSSL <sslprofile> tag at " + tag->source.str());
 				continue;
 			}
 
 			std::string name = tag->getString("name");
 			if (name.empty())
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring <sslprofile> tag without name at " + tag->source.str());
+				ServerInstance->Logs.Normal(MODNAME, "Ignoring <sslprofile> tag without name at " + tag->source.str());
 				continue;
 			}
 
@@ -1007,7 +1007,7 @@ public:
 
 	void init() override
 	{
-		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "OpenSSL lib version \"%s\" module was compiled for \"" OPENSSL_VERSION_TEXT "\"", OpenSSL_version(OPENSSL_VERSION));
+		ServerInstance->Logs.Normal(MODNAME, "OpenSSL lib version \"%s\" module was compiled for \"" OPENSSL_VERSION_TEXT "\"", OpenSSL_version(OPENSSL_VERSION));
 
 		// Register application specific data
 		char exdatastr[] = "inspircd";

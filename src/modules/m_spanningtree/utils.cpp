@@ -204,7 +204,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 	{
 		if (!L->Port)
 		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring a link block without a port.");
+			ServerInstance->Logs.Normal(MODNAME, "Ignoring a link block without a port.");
 			/* Invalid link block */
 			continue;
 		}
@@ -293,11 +293,11 @@ void SpanningTreeUtilities::ReadConfiguration()
 		if (L->IPAddr.empty())
 		{
 			L->IPAddr = "*";
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Configuration warning: Link block '" + L->Name + "' has no IP defined! This will allow any IP to connect as this server, and MAY not be what you want.");
+			ServerInstance->Logs.Normal(MODNAME, "Configuration warning: Link block '" + L->Name + "' has no IP defined! This will allow any IP to connect as this server, and MAY not be what you want.");
 		}
 
 		if (!L->Port && L->IPAddr.find('/') == std::string::npos)
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Configuration warning: Link block '" + L->Name + "' has no port defined, you will not be able to /connect it.");
+			ServerInstance->Logs.Normal(MODNAME, "Configuration warning: Link block '" + L->Name + "' has no port defined, you will not be able to /connect it.");
 
 		L->Fingerprint.erase(std::remove(L->Fingerprint.begin(), L->Fingerprint.end(), ':'), L->Fingerprint.end());
 		LinkBlocks.push_back(L);

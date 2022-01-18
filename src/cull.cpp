@@ -34,7 +34,7 @@ Cullable::Cullable()
 #ifdef INSPIRCD_ENABLE_RTTI
 	if (ServerInstance)
 	{
-		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "Cullable::+%s @%p",
+		ServerInstance->Logs.Debug("CULLLIST", "Cullable::+%s @%p",
 				typeid(*this).name(), static_cast<void*>(this));
 	}
 #endif
@@ -45,7 +45,7 @@ Cullable::~Cullable()
 #ifdef INSPIRCD_ENABLE_RTTI
 	if (ServerInstance)
 	{
-		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "Cullable::~%s @%p",
+		ServerInstance->Logs.Debug("CULLLIST", "Cullable::~%s @%p",
 			typeid(*this).name(), static_cast<void*>(this));
 	}
 #endif
@@ -56,7 +56,7 @@ Cullable::Result Cullable::Cull()
 #ifdef INSPIRCD_ENABLE_RTTI
 	if (ServerInstance)
 	{
-		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "Cullable::-%s @%p",
+		ServerInstance->Logs.Debug("CULLLIST", "Cullable::-%s @%p",
 			typeid(*this).name(), static_cast<void*>(this));
 	}
 #endif
@@ -86,17 +86,17 @@ void CullList::Apply()
 		if (gone.insert(c).second)
 		{
 #ifdef INSPIRCD_ENABLE_RTTI
-			ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "Deleting %s @%p", typeid(*c).name(),
+			ServerInstance->Logs.Debug("CULLLIST", "Deleting %s @%p", typeid(*c).name(),
 				static_cast<void*>(c));
 #else
-			ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "Deleting @%p", static_cast<void*>(c));
+			ServerInstance->Logs.Debug("CULLLIST", "Deleting @%p", static_cast<void*>(c));
 #endif
 			c->Cull();
 			queue.push_back(c);
 		}
 		else
 		{
-			ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "WARNING: Object @%p culled twice!",
+			ServerInstance->Logs.Debug("CULLLIST", "WARNING: Object @%p culled twice!",
 				static_cast<void*>(c));
 		}
 	}
@@ -108,7 +108,7 @@ void CullList::Apply()
 	}
 	if (!list.empty())
 	{
-		ServerInstance->Logs.Log("CULLLIST", LOG_DEBUG, "WARNING: Objects added to cull list in a destructor");
+		ServerInstance->Logs.Debug("CULLLIST", "WARNING: Objects added to cull list in a destructor");
 		Apply();
 	}
 }

@@ -152,7 +152,7 @@ public:
 
 	void SetCertificate(User* user, ssl_cert* cert) override
 	{
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Setting TLS client certificate for %s: %s",
+		ServerInstance->Logs.Debug(MODNAME, "Setting TLS client certificate for %s: %s",
 			user->GetFullHost().c_str(), sslext.ToNetwork(user, cert).c_str());
 		sslext.Set(user, cert);
 	}
@@ -416,7 +416,7 @@ public:
 
 		if (error)
 		{
-			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as it requires %s",
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires %s",
 				myclass->GetName().c_str(), error);
 			return MOD_RES_DENY;
 		}

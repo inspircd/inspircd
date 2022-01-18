@@ -392,7 +392,7 @@ public:
 
 				if (!password.empty() && stdalgo::string::equalsci(passwordhash, "plaintext"))
 				{
-					ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "<%s> tag at %s contains an plain text password, this is insecure!",
+					ServerInstance->Logs.Normal(MODNAME, "<%s> tag at %s contains an plain text password, this is insecure!",
 						tag->name.c_str(), tag->source.str().c_str());
 				}
 
@@ -421,7 +421,7 @@ public:
 		const std::string* gateway = cmdwebirc.extban.gateway.Get(user);
 		if (!gateway)
 		{
-			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as it requires a connection via a WebIRC gateway",
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires a connection via a WebIRC gateway",
 					myclass->GetName().c_str());
 			return MOD_RES_DENY;
 		}
@@ -430,7 +430,7 @@ public:
 		// allow the check to continue. Otherwise, reject it.
 		if (!InspIRCd::Match(*gateway, webirc))
 		{
-			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as the WebIRC gateway name (%s) does not match %s",
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as the WebIRC gateway name (%s) does not match %s",
 					myclass->GetName().c_str(), gateway->c_str(), webirc.c_str());
 			return MOD_RES_DENY;
 		}
@@ -497,7 +497,7 @@ public:
 
 					default:
 						// If we have reached this point then we have encountered a bug.
-						ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "BUG: OnWebIRCAuth(%s): socket type %d is unknown!",
+						ServerInstance->Logs.Debug(MODNAME, "BUG: OnWebIRCAuth(%s): socket type %d is unknown!",
 							user->uuid.c_str(), user->client_sa.family());
 						return;
 				}
@@ -523,7 +523,7 @@ public:
 
 					default:
 						// If we have reached this point then we have encountered a bug.
-						ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "BUG: OnWebIRCAuth(%s): socket type %d is unknown!",
+						ServerInstance->Logs.Debug(MODNAME, "BUG: OnWebIRCAuth(%s): socket type %d is unknown!",
 							user->uuid.c_str(), user->server_sa.family());
 						return;
 				}

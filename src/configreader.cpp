@@ -471,7 +471,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 
 	if (!valid)
 	{
-		ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "There were errors in your configuration file:");
+		ServerInstance->Logs.Normal("CONFIG", "There were errors in your configuration file:");
 		Classes.clear();
 	}
 
@@ -589,7 +589,7 @@ std::shared_ptr<ConfigTag> ServerConfig::ConfValue(const std::string& tag, std::
 
 	if (tags.count() > 1)
 	{
-		ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "Multiple (%zu) <%s> tags found; only the first will be used (first at %s, last at %s)",
+		ServerInstance->Logs.Normal("CONFIG", "Multiple (%zu) <%s> tags found; only the first will be used (first at %s, last at %s)",
 			tags.count(), tag.c_str(), tags.begin()->second->source.str().c_str(), std::prev(tags.end())->second->source.str().c_str());
 	}
 	return tags.begin()->second;
@@ -633,7 +633,7 @@ void ConfigReaderThread::OnStart()
 void ConfigReaderThread::OnStop()
 {
 	ServerConfig* old = ServerInstance->Config;
-	ServerInstance->Logs.Log("CONFIG", LOG_DEBUG, "Switching to new configuration...");
+	ServerInstance->Logs.Debug("CONFIG", "Switching to new configuration...");
 	ServerInstance->Config = this->Config;
 	Config->Apply(old, UUID);
 
@@ -656,12 +656,12 @@ void ConfigReaderThread::OnStop()
 		{
 			try
 			{
-				ServerInstance->Logs.Log("MODULE", LOG_DEBUG, "Rehashing " + modname);
+				ServerInstance->Logs.Debug("MODULE", "Rehashing " + modname);
 				mod->ReadConfig(status);
 			}
 			catch (CoreException& modex)
 			{
-				ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, "Exception caught: " + modex.GetReason());
+				ServerInstance->Logs.Normal("MODULE", "Exception caught: " + modex.GetReason());
 				if (user)
 					user->WriteNotice(modname + ": " + modex.GetReason());
 			}

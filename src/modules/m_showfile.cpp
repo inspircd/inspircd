@@ -159,7 +159,7 @@ public:
 			}
 			catch (CoreException& ex)
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Error: " + ex.GetReason() + " at " + tag->source.str());
+				ServerInstance->Logs.Normal(MODNAME, "Error: " + ex.GetReason() + " at " + tag->source.str());
 			}
 		}
 

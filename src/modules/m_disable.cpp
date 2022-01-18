@@ -58,7 +58,7 @@ private:
 					chr, field.c_str(), tag->source.str().c_str()));
 
 			// Disable the mode.
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "The %c (%s) %s mode has been disabled",
+			ServerInstance->Logs.Debug(MODNAME, "The %c (%s) %s mode has been disabled",
 				mh->GetModeChar(), mh->name.c_str(), type == MODETYPE_CHANNEL ? "channel" : "user");
 			status.set(ModeParser::GetModeIndex(chr));
 		}
@@ -72,7 +72,7 @@ private:
 		if (notifyopers)
 			ServerInstance->SNO.WriteToSnoMask('a', buffer);
 		else
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, buffer);
+			ServerInstance->Logs.Normal(MODNAME, buffer);
 	}
 
 public:
@@ -101,7 +101,7 @@ public:
 				continue;
 
 			// Disable the command.
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "The %s command has been disabled", handler->name.c_str());
+			ServerInstance->Logs.Debug(MODNAME, "The %s command has been disabled", handler->name.c_str());
 			newcommands.push_back(handler->name);
 		}
 

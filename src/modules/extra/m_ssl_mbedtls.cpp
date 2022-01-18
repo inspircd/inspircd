@@ -278,7 +278,7 @@ namespace mbedTLS
 			size_t len = strlen(msg);
 			if ((len > 0) && (msg[len-1] == '\n'))
 				len--;
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "%s:%d %.*s", file, line, len, msg);
+			ServerInstance->Logs.Debug(MODNAME, "%s:%d %.*s", file, line, len, msg);
 		}
 #endif
 
@@ -890,14 +890,14 @@ private:
 		{
 			if (!stdalgo::string::equalsci(tag->getString("provider"), "mbedtls"))
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring non-mbedTLS <sslprofile> tag at " + tag->source.str());
+				ServerInstance->Logs.Normal(MODNAME, "Ignoring non-mbedTLS <sslprofile> tag at " + tag->source.str());
 				continue;
 			}
 
 			std::string name = tag->getString("name");
 			if (name.empty())
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Ignoring <sslprofile> tag without name at " + tag->source.str());
+				ServerInstance->Logs.Normal(MODNAME, "Ignoring <sslprofile> tag without name at " + tag->source.str());
 				continue;
 			}
 
@@ -934,7 +934,7 @@ public:
 	{
 		char verbuf[16]; // Should be at least 9 bytes in size
 		mbedtls_version_get_string(verbuf);
-		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "mbedTLS lib version %s module was compiled for " MBEDTLS_VERSION_STRING, verbuf);
+		ServerInstance->Logs.Normal(MODNAME, "mbedTLS lib version %s module was compiled for " MBEDTLS_VERSION_STRING, verbuf);
 
 		if (!ctr_drbg.Seed(entropy))
 			throw ModuleException(this, "CTR DRBG seed failed");

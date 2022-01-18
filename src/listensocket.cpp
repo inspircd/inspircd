@@ -136,14 +136,14 @@ ListenSocket::~ListenSocket()
 {
 	if (this->HasFd())
 	{
-		ServerInstance->Logs.Log("SOCKET", LOG_DEBUG, "Shut down listener on fd %d", this->fd);
+		ServerInstance->Logs.Debug("SOCKET", "Shut down listener on fd %d", this->fd);
 		SocketEngine::Shutdown(this, 2);
 
 		if (SocketEngine::Close(this) != 0)
-			ServerInstance->Logs.Log("SOCKET", LOG_DEBUG, "Failed to cancel listener: %s", strerror(errno));
+			ServerInstance->Logs.Debug("SOCKET", "Failed to cancel listener: %s", strerror(errno));
 
 		if (bind_sa.family() == AF_UNIX && unlink(bind_sa.un.sun_path))
-			ServerInstance->Logs.Log("SOCKET", LOG_DEBUG, "Failed to unlink UNIX socket: %s", strerror(errno));
+			ServerInstance->Logs.Debug("SOCKET", "Failed to unlink UNIX socket: %s", strerror(errno));
 	}
 }
 
@@ -155,7 +155,7 @@ void ListenSocket::OnEventHandlerRead()
 	socklen_t length = sizeof(client);
 	int incomingSockfd = SocketEngine::Accept(this, &client.sa, &length);
 
-	ServerInstance->Logs.Log("SOCKET", LOG_DEBUG, "Accepting connection on socket %s fd %d", bind_sa.str().c_str(), incomingSockfd);
+	ServerInstance->Logs.Debug("SOCKET", "Accepting connection on socket %s fd %d", bind_sa.str().c_str(), incomingSockfd);
 	if (incomingSockfd < 0)
 	{
 		ServerInstance->stats.Refused++;
@@ -165,7 +165,7 @@ void ListenSocket::OnEventHandlerRead()
 	socklen_t sz = sizeof(server);
 	if (getsockname(incomingSockfd, &server.sa, &sz))
 	{
-		ServerInstance->Logs.Log("SOCKET", LOG_DEBUG, "Can't get peername: %s", strerror(errno));
+		ServerInstance->Logs.Debug("SOCKET", "Can't get peername: %s", strerror(errno));
 	}
 
 	if (client.family() == AF_INET6)
@@ -217,7 +217,7 @@ void ListenSocket::OnEventHandlerRead()
 	}
 
 	ServerInstance->stats.Refused++;
-	ServerInstance->Logs.Log("SOCKET", LOG_DEFAULT, "Refusing connection on %s - %s", bind_sa.str().c_str(),
+	ServerInstance->Logs.Normal("SOCKET", "Refusing connection on %s - %s", bind_sa.str().c_str(),
 		res == MOD_RES_DENY ? "Connection refused by module" : "Module for this port not found");
 	SocketEngine::Close(incomingSockfd);
 }

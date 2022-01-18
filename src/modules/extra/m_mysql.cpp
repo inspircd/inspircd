@@ -328,7 +328,7 @@ public:
 		unsigned int port = static_cast<unsigned int>(config->getUInt("port", 3306, 1, 65535));
 		if (!mysql_real_connect(connection, host.c_str(), user.c_str(), pass.c_str(), dbname.c_str(), port, NULL, CLIENT_IGNORE_SIGPIPE))
 		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Unable to connect to the %s MySQL server: %s",
+			ServerInstance->Logs.Normal(MODNAME, "Unable to connect to the %s MySQL server: %s",
 				GetId().c_str(), mysql_error(connection));
 			return false;
 		}
@@ -337,7 +337,7 @@ public:
 		const std::string charset = config->getString("charset");
 		if (!charset.empty() && mysql_set_character_set(connection, charset.c_str()))
 		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Could not set character set for %s to \"%s\": %s",
+			ServerInstance->Logs.Normal(MODNAME, "Could not set character set for %s to \"%s\": %s",
 				GetId().c_str(), charset.c_str(), mysql_error(connection));
 			return false;
 		}
@@ -346,7 +346,7 @@ public:
 		const std::string initialquery = config->getString("initialquery");
 		if (!initialquery.empty() && mysql_real_query(connection, initialquery.data(), initialquery.length()))
 		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Could not execute initial query \"%s\" for %s: %s",
+			ServerInstance->Logs.Normal(MODNAME, "Could not execute initial query \"%s\" for %s: %s",
 				initialquery.c_str(), name.c_str(), mysql_error(connection));
 			return false;
 		}
@@ -388,7 +388,7 @@ public:
 
 	void Submit(SQL::Query* q, const std::string& qs) override
 	{
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Executing MySQL query: " + qs);
+		ServerInstance->Logs.Debug(MODNAME, "Executing MySQL query: " + qs);
 		Parent()->Dispatcher->LockQueue();
 		Parent()->qq.emplace_back(q, qs, this);
 		Parent()->Dispatcher->UnlockQueueWakeup();

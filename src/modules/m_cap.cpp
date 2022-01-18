@@ -88,7 +88,7 @@ class Cap::ManagerImpl final
 
 	void OnReloadModuleSave(Module* mod, ReloadModule::CustomData& cd) override
 	{
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "OnReloadModuleSave()");
+		ServerInstance->Logs.Debug(MODNAME, "OnReloadModuleSave()");
 		if (mod == creator)
 			return;
 
@@ -101,7 +101,7 @@ class Cap::ManagerImpl final
 			if (cap->creator != mod)
 				continue;
 
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Module being reloaded implements cap %s, saving cap users", cap->GetName().c_str());
+			ServerInstance->Logs.Debug(MODNAME, "Module being reloaded implements cap %s, saving cap users", cap->GetName().c_str());
 			capmoddata->caps.emplace_back(cap);
 			CapModData::Data& capdata = capmoddata->caps.back();
 
@@ -122,7 +122,7 @@ class Cap::ManagerImpl final
 			Capability* cap = ManagerImpl::Find(capdata.name);
 			if (!cap)
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Cap %s is no longer available after reload", capdata.name.c_str());
+				ServerInstance->Logs.Debug(MODNAME, "Cap %s is no longer available after reload", capdata.name.c_str());
 				continue;
 			}
 
@@ -132,7 +132,7 @@ class Cap::ManagerImpl final
 				User* user = ServerInstance->Users.FindUUID(uuid);
 				if (!user)
 				{
-					ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "User %s is gone when trying to restore cap %s", uuid.c_str(), capdata.name.c_str());
+					ServerInstance->Logs.Debug(MODNAME, "User %s is gone when trying to restore cap %s", uuid.c_str(), capdata.name.c_str());
 					continue;
 				}
 
@@ -165,7 +165,7 @@ public:
 		if (cap->IsRegistered())
 			return;
 
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Registering cap %s", cap->GetName().c_str());
+		ServerInstance->Logs.Debug(MODNAME, "Registering cap %s", cap->GetName().c_str());
 		cap->bit = AllocateBit();
 		cap->extitem = &capext;
 		caps.emplace(cap->GetName(), cap);
@@ -180,7 +180,7 @@ public:
 		if (!cap->IsRegistered())
 			return;
 
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Unregistering cap %s", cap->GetName().c_str());
+		ServerInstance->Logs.Debug(MODNAME, "Unregistering cap %s", cap->GetName().c_str());
 
 		// Fire the event first so modules can still see who is using the cap which is being unregistered
 		evprov.Call(&Cap::EventListener::OnCapAddDel, cap, false);
@@ -204,7 +204,7 @@ public:
 
 	void NotifyValueChange(Capability* cap) override
 	{
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Cap %s changed value", cap->GetName().c_str());
+		ServerInstance->Logs.Debug(MODNAME, "Cap %s changed value", cap->GetName().c_str());
 		evprov.Call(&Cap::EventListener::OnCapValueChange, cap);
 	}
 

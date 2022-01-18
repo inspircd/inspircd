@@ -60,7 +60,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 			sdest = FindRouteTarget(routing.target);
 			if (!sdest)
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Trying to route %s%s to nonexistent server %s", (encap ? "ENCAP " : ""), command.c_str(), routing.target.c_str());
+				ServerInstance->Logs.Normal(MODNAME, "Trying to route %s%s to nonexistent server %s", (encap ? "ENCAP " : ""), command.c_str(), routing.target.c_str());
 				return;
 			}
 		}
@@ -76,7 +76,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 		Module* srcmodule = thiscmd->creator;
 		if (!(srcmodule->properties & (VF_COMMON | VF_CORE)) && srcmodule != Creator)
 		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Routed command %s from non-VF_COMMON module %s",
+			ServerInstance->Logs.Normal(MODNAME, "Routed command %s from non-VF_COMMON module %s",
 				command.c_str(), srcmodule->ModuleSourceFile.c_str());
 			return;
 		}

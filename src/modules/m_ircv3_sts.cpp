@@ -100,21 +100,21 @@ public:
 		bool changed = false;
 		if (!irc::equals(host, newhost))
 		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Changing STS SNI hostname from \"%s\" to \"%s\"", host.c_str(), newhost.c_str());
+			ServerInstance->Logs.Debug(MODNAME, "Changing STS SNI hostname from \"%s\" to \"%s\"", host.c_str(), newhost.c_str());
 			host = newhost;
 			changed = true;
 		}
 
 		if (plaintextpolicy != newplaintextpolicy)
 		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Changing plaintext STS policy from \"%s\" to \"%s\"", plaintextpolicy.c_str(), newplaintextpolicy.c_str());
+			ServerInstance->Logs.Debug(MODNAME, "Changing plaintext STS policy from \"%s\" to \"%s\"", plaintextpolicy.c_str(), newplaintextpolicy.c_str());
 			plaintextpolicy.swap(newplaintextpolicy);
 			changed = true;
 		}
 
 		if (securepolicy != newsecurepolicy)
 		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Changing secure STS policy from \"%s\" to \"%s\"", securepolicy.c_str(), newsecurepolicy.c_str());
+			ServerInstance->Logs.Debug(MODNAME, "Changing secure STS policy from \"%s\" to \"%s\"", securepolicy.c_str(), newsecurepolicy.c_str());
 			securepolicy.swap(newsecurepolicy);
 			changed = true;
 		}

@@ -80,7 +80,7 @@ bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 	if (fd > MaxFD)
 		MaxFD = fd;
 
-	ServerInstance->Logs.Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
+	ServerInstance->Logs.Debug("SOCKET", "New file descriptor: %d", fd);
 	return true;
 }
 
@@ -102,7 +102,7 @@ void SocketEngine::DelFd(EventHandler* eh)
 	if (fd == MaxFD)
 		--MaxFD;
 
-	ServerInstance->Logs.Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d", fd);
+	ServerInstance->Logs.Debug("SOCKET", "Remove file descriptor: %d", fd);
 }
 
 void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)

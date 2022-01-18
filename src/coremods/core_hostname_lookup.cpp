@@ -62,7 +62,7 @@ protected:
 	/** Logs the result of a DNS lookup. */
 	inline void LogLookup(const DNS::ResourceRecord& rr, bool cached) const
 	{
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "DNS %s result for %s: '%s' -> '%s'%s",
+		ServerInstance->Logs.Debug(MODNAME, "DNS %s result for %s: '%s' -> '%s'%s",
 			manager->GetTypeStr(question.type).c_str(), uuid.c_str(), rr.name.c_str(),
 			rr.rdata.c_str(), cached ? " (cached)" : "");
 	}
@@ -187,7 +187,7 @@ public:
 		catch (const DNS::Exception& e)
 		{
 			delete res_forward;
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Error in resolver: " + e.GetReason());
+			ServerInstance->Logs.Debug(MODNAME, "Error in resolver: " + e.GetReason());
 
 			HandleError(user, "There was an internal error resolving your host");
 		}
@@ -236,7 +236,7 @@ public:
 		{
 			this->dnsLookup.Unset(user);
 			delete res_reverse;
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Error in resolver: " + e.GetReason());
+			ServerInstance->Logs.Debug(MODNAME, "Error in resolver: " + e.GetReason());
 		}
 	}
 

@@ -125,7 +125,7 @@ Membership* Channel::GetUser(User* user)
 
 void Channel::SetDefaultModes()
 {
-	ServerInstance->Logs.Log("CHANNELS", LOG_DEBUG, "SetDefaultModes %s",
+	ServerInstance->Logs.Debug("CHANNELS", "SetDefaultModes %s",
 		ServerInstance->Config->DefaultModes.c_str());
 	irc::spacesepstream list(ServerInstance->Config->DefaultModes);
 	std::string modeseq;
@@ -167,7 +167,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 {
 	if (user->registered != REG_ALL)
 	{
-		ServerInstance->Logs.Log("CHANNELS", LOG_DEBUG, "Attempted to join unregistered user " + user->uuid + " to channel " + cname);
+		ServerInstance->Logs.Debug("CHANNELS", "Attempted to join unregistered user " + user->uuid + " to channel " + cname);
 		return NULL;
 	}
 
@@ -240,7 +240,7 @@ Membership* Channel::ForceJoin(User* user, const std::string* privs, bool bursti
 {
 	if (IS_SERVER(user))
 	{
-		ServerInstance->Logs.Log("CHANNELS", LOG_DEBUG, "Attempted to join server user " + user->uuid + " to channel " + this->name);
+		ServerInstance->Logs.Debug("CHANNELS", "Attempted to join server user " + user->uuid + " to channel " + this->name);
 		return NULL;
 	}
 

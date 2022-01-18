@@ -166,7 +166,7 @@ public:
 				}
 				catch (CoreException& modexcept)
 				{
-					ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Exception caught when generating cloak: " + modexcept.GetReason());
+					ServerInstance->Logs.Normal(MODNAME, "Exception caught when generating cloak: " + modexcept.GetReason());
 					return MODEACTION_DENY;
 				}
 			}

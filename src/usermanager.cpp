@@ -125,7 +125,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	LocalUser* const New = new LocalUser(socket, client, server);
 	UserIOHandler* eh = &New->eh;
 
-	ServerInstance->Logs.Log("USERS", LOG_DEBUG, "New user fd: %d", socket);
+	ServerInstance->Logs.Debug("USERS", "New user fd: %d", socket);
 
 	this->unregistered_count++;
 	this->clientlist[New->nick] = New;
@@ -135,7 +135,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 
 	if (!SocketEngine::AddFd(eh, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE))
 	{
-		ServerInstance->Logs.Log("USERS", LOG_DEBUG, "Internal error on new connection");
+		ServerInstance->Logs.Debug("USERS", "Internal error on new connection");
 		this->QuitUser(New, "Internal error handling connection");
 		return;
 	}
@@ -148,7 +148,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		{
 			if (!iohookprovref.GetProvider().empty())
 			{
-				ServerInstance->Logs.Log("USERS", LOG_DEBUG, "Non-existent I/O hook '%s' in <bind:%s> tag at %s",
+				ServerInstance->Logs.Debug("USERS", "Non-existent I/O hook '%s' in <bind:%s> tag at %s",
 					iohookprovref.GetProvider().c_str(),
 					i == via->iohookprovs.begin() ? "hook" : "sslprofile",
 					via->bind_tag->source.str().c_str());
@@ -196,7 +196,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		if (!b->Type.empty() && !New->exempt)
 		{
 			/* user banned */
-			ServerInstance->Logs.Log("BANCACHE", LOG_DEBUG, "BanCache: Positive hit for " + New->GetIPString());
+			ServerInstance->Logs.Debug("BANCACHE", "BanCache: Positive hit for " + New->GetIPString());
 			if (!ServerInstance->Config->XLineMessage.empty())
 				New->WriteNumeric(ERR_YOUREBANNEDCREEP, ServerInstance->Config->XLineMessage);
 
@@ -208,7 +208,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		}
 		else
 		{
-			ServerInstance->Logs.Log("BANCACHE", LOG_DEBUG, "BanCache: Negative hit for " + New->GetIPString());
+			ServerInstance->Logs.Debug("BANCACHE", "BanCache: Negative hit for " + New->GetIPString());
 		}
 	}
 	else
@@ -237,13 +237,13 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 {
 	if (user->quitting)
 	{
-		ServerInstance->Logs.Log("USERS", LOG_DEFAULT, "ERROR: Tried to quit quitting user: " + user->nick);
+		ServerInstance->Logs.Normal("USERS", "ERROR: Tried to quit quitting user: " + user->nick);
 		return;
 	}
 
 	if (IS_SERVER(user))
 	{
-		ServerInstance->Logs.Log("USERS", LOG_DEFAULT, "ERROR: Tried to quit server user: " + user->nick);
+		ServerInstance->Logs.Normal("USERS", "ERROR: Tried to quit server user: " + user->nick);
 		return;
 	}
 
@@ -270,7 +270,7 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 		operquitmsg.erase(ServerInstance->Config->Limits.MaxQuit + 1);
 
 	user->quitting = true;
-	ServerInstance->Logs.Log("USERS", LOG_DEBUG, "QuitUser: %s=%s '%s'", user->uuid.c_str(), user->nick.c_str(), quitmessage.c_str());
+	ServerInstance->Logs.Debug("USERS", "QuitUser: %s=%s '%s'", user->uuid.c_str(), user->nick.c_str(), quitmessage.c_str());
 	if (localuser)
 	{
 		ClientProtocol::Messages::Error errormsg(InspIRCd::Format("Closing link: (%s) [%s]", user->MakeHost().c_str(), operquitmsg.c_str()));
@@ -299,7 +299,7 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 	}
 
 	if (!clientlist.erase(user->nick))
-		ServerInstance->Logs.Log("USERS", LOG_DEFAULT, "ERROR: Nick not found in clientlist, cannot remove: " + user->nick);
+		ServerInstance->Logs.Normal("USERS", "ERROR: Nick not found in clientlist, cannot remove: " + user->nick);
 
 	uuidlist.erase(user->uuid);
 	user->PurgeEmptyChannels();

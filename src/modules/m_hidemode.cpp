@@ -52,7 +52,7 @@ public:
 			if (!rank)
 				throw ModuleException(mod, "<hidemode:rank> must be greater than 0 at " + tag->source.str());
 
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Hiding the %s mode from users below rank %lu", modename.c_str(), rank);
+			ServerInstance->Logs.Debug(MODNAME, "Hiding the %s mode from users below rank %lu", modename.c_str(), rank);
 			newranks.emplace(modename, rank);
 		}
 		rankstosee.swap(newranks);

@@ -96,7 +96,7 @@ BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& 
 	this->Timeout = new SocketTimeout(this->GetFd(), this, timeout);
 	ServerInstance->Timers.AddTimer(this->Timeout);
 
-	ServerInstance->Logs.Log("SOCKET", LOG_DEBUG, "BufferedSocket::DoConnect success");
+	ServerInstance->Logs.Debug("SOCKET", "BufferedSocket::DoConnect success");
 	return I_ERR_NONE;
 }
 
@@ -227,7 +227,7 @@ void StreamSocket::DoWrite()
 	}
 	if (!error.empty() || !HasFd())
 	{
-		ServerInstance->Logs.Log("SOCKET", LOG_DEBUG, "DoWrite on errored or closed socket");
+		ServerInstance->Logs.Debug("SOCKET", "DoWrite on errored or closed socket");
 		return;
 	}
 
@@ -363,7 +363,7 @@ void StreamSocket::WriteData(const std::string &data)
 {
 	if (!HasFd())
 	{
-		ServerInstance->Logs.Log("SOCKET", LOG_DEBUG, "Attempt to write data to dead socket: %s",
+		ServerInstance->Logs.Debug("SOCKET", "Attempt to write data to dead socket: %s",
 			data.c_str());
 		return;
 	}
@@ -376,7 +376,7 @@ void StreamSocket::WriteData(const std::string &data)
 
 bool SocketTimeout::Tick()
 {
-	ServerInstance->Logs.Log("SOCKET", LOG_DEBUG, "SocketTimeout::Tick");
+	ServerInstance->Logs.Debug("SOCKET", "SocketTimeout::Tick");
 
 	if (SocketEngine::GetRef(this->sfd) != this->sock)
 	{
@@ -468,7 +468,7 @@ void StreamSocket::OnEventHandlerRead()
 	}
 	catch (CoreException& ex)
 	{
-		ServerInstance->Logs.Log("SOCKET", LOG_DEFAULT, "Caught exception in socket processing on FD %d - '%s'", fd, ex.GetReason().c_str());
+		ServerInstance->Logs.Normal("SOCKET", "Caught exception in socket processing on FD %d - '%s'", fd, ex.GetReason().c_str());
 		SetError(ex.GetReason());
 	}
 	CheckError(I_ERR_OTHER);
@@ -487,7 +487,7 @@ void StreamSocket::CheckError(BufferedSocketError errcode)
 {
 	if (!error.empty())
 	{
-		ServerInstance->Logs.Log("SOCKET", LOG_DEBUG, "Error on FD %d - '%s'", fd, error.c_str());
+		ServerInstance->Logs.Debug("SOCKET", "Error on FD %d - '%s'", fd, error.c_str());
 		OnError(errcode);
 	}
 }

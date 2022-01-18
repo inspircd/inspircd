@@ -190,13 +190,13 @@ public:
 			Geolocation::Location* location = iter->second;
 			if (location->GetUseCount())
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Preserving geolocation data for %s (%s) with use count %u... ",
+				ServerInstance->Logs.Debug(MODNAME, "Preserving geolocation data for %s (%s) with use count %u... ",
 					location->GetName().c_str(), location->GetCode().c_str(), location->GetUseCount());
 				iter++;
 			}
 			else
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Deleting unused geolocation data for %s (%s)",
+				ServerInstance->Logs.Debug(MODNAME, "Deleting unused geolocation data for %s (%s)",
 					location->GetName().c_str(), location->GetCode().c_str());
 				delete location;
 				iter = geoapi.locations.erase(iter);

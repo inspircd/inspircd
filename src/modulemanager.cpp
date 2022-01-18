@@ -48,14 +48,14 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 	if (!std::filesystem::is_regular_file(moduleFile, ec))
 	{
 		LastModuleError = "Module file could not be found: " + filename;
-		ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, LastModuleError);
+		ServerInstance->Logs.Normal("MODULE", LastModuleError);
 		return false;
 	}
 
 	if (Modules.find(filename) != Modules.end())
 	{
 		LastModuleError = "Module " + filename + " is already loaded, cannot load a module twice!";
-		ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, LastModuleError);
+		ServerInstance->Logs.Normal("MODULE", LastModuleError);
 		return false;
 	}
 
@@ -90,14 +90,14 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 			if (!version)
 				version = "unknown";
 
-			ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, "New module introduced: %s (version %s, properties %s)",
+			ServerInstance->Logs.Normal("MODULE", "New module introduced: %s (version %s, properties %s)",
 				filename.c_str(), version, newmod->GetPropertyString().c_str());
 
 		}
 		else
 		{
 			LastModuleError = "Unable to load " + filename + ": " + newhandle->LastError();
-			ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, LastModuleError);
+			ServerInstance->Logs.Normal("MODULE", LastModuleError);
 			delete newhandle;
 			return false;
 		}
@@ -115,7 +115,7 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 		else
 			delete newhandle;
 		LastModuleError = "Unable to load " + filename + ": " + modexcept.GetReason();
-		ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, LastModuleError);
+		ServerInstance->Logs.Normal("MODULE", LastModuleError);
 		return false;
 	}
 
@@ -148,7 +148,7 @@ void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicem
 
 			if (!Load(name, true))
 			{
-				ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, this->LastError());
+				ServerInstance->Logs.Normal("MODULE", this->LastError());
 				std::cout << std::endl << "[" << rang::style::bold << rang::fg::red << "*" << rang::style::reset << "] " << this->LastError() << std::endl << std::endl;
 				ServerInstance->Exit(EXIT_STATUS_MODULE);
 			}

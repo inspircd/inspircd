@@ -408,7 +408,7 @@ public:
 		if (http->GetPath().compare(0, 6, "/stats"))
 			return MOD_RES_PASSTHRU;
 
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Handling HTTP request for %s", http->GetPath().c_str());
+		ServerInstance->Logs.Debug(MODNAME, "Handling HTTP request for %s", http->GetPath().c_str());
 
 		bool found = true;
 		std::stringstream data;

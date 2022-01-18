@@ -114,7 +114,7 @@ public:
 
 			if (hp->IsKDF())
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Tried to use HMAC with %s, which does not support HMAC", type.c_str());
+				ServerInstance->Logs.Normal(MODNAME, "Tried to use HMAC with %s, which does not support HMAC", type.c_str());
 				return MOD_RES_DENY;
 			}
 

@@ -504,7 +504,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 				delete zl;
 		}
 
-		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, user->nick + " had their message filtered, target was " + msgtarget.GetName() + ": " + f->reason + " Action: " + ModuleFilter::FilterActionToString(f->action));
+		ServerInstance->Logs.Normal(MODNAME, user->nick + " had their message filtered, target was " + msgtarget.GetName() + ": " + f->reason + " Action: " + ModuleFilter::FilterActionToString(f->action));
 		return MOD_RES_DENY;
 	}
 	return MOD_RES_PASSTHRU;
@@ -749,7 +749,7 @@ void ModuleFilter::OnDecodeMetaData(Extensible* target, const std::string &extna
 		}
 		catch (const ModuleException& e)
 		{
-			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Error when unserializing filter: " + e.GetReason());
+			ServerInstance->Logs.Debug(MODNAME, "Error when unserializing filter: " + e.GetReason());
 		}
 	}
 }
@@ -809,7 +809,7 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string& freeform
 	}
 	catch (const ModuleException& e)
 	{
-		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Error in regular expression '%s': %s", freeform.c_str(), e.GetReason().c_str());
+		ServerInstance->Logs.Normal(MODNAME, "Error in regular expression '%s': %s", freeform.c_str(), e.GetReason().c_str());
 		return std::make_pair(false, e.GetReason());
 	}
 	return std::make_pair(true, "");
@@ -888,7 +888,7 @@ void ModuleFilter::ReadFilters()
 		if (result.first)
 			removedfilters.erase(pattern);
 		else
-			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "Filter '%s' could not be added: %s", pattern.c_str(), result.second.c_str());
+			ServerInstance->Logs.Normal(MODNAME, "Filter '%s' could not be added: %s", pattern.c_str(), result.second.c_str());
 	}
 
 	if (!removedfilters.empty())

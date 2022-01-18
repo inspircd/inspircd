@@ -111,7 +111,7 @@ public:
 			const std::string hash = tag->getString("hash", "plaintext", 1);
 			if (stdalgo::string::equalsci(hash, "plaintext"))
 			{
-				ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "<vhost> tag for %s at %s contains an plain text password, this is insecure!",
+				ServerInstance->Logs.Normal(MODNAME, "<vhost> tag for %s at %s contains an plain text password, this is insecure!",
 					username.c_str(), tag->source.str().c_str());
 			}
 

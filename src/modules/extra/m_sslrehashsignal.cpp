@@ -54,7 +54,7 @@ public:
 
 		const std::string feedbackmsg = "Got SIGUSR1, reloading TLS credentials";
 		ServerInstance->SNO.WriteGlobalSno('r', feedbackmsg);
-		ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, feedbackmsg);
+		ServerInstance->Logs.Normal(MODNAME, feedbackmsg);
 
 		const std::string str = "tls";
 		FOREACH_MOD(OnModuleRehash, (NULL, str));

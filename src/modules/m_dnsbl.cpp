@@ -437,7 +437,7 @@ public:
 		else
 			return;
 
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Reversed IP %s -> %s", user->GetIPString().c_str(), reversedip.c_str());
+		ServerInstance->Logs.Debug(MODNAME, "Reversed IP %s -> %s", user->GetIPString().c_str(), reversedip.c_str());
 
 		countExt.Set(user, dnsbls.size());
 
@@ -456,7 +456,7 @@ public:
 			catch (const DNS::Exception& ex)
 			{
 				delete r;
-				ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, ex.GetReason());
+				ServerInstance->Logs.Debug(MODNAME, ex.GetReason());
 			}
 
 			if (user->quitting)
@@ -473,14 +473,14 @@ public:
 		std::string* match = nameExt.Get(user);
 		if (!match)
 		{
-			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as it requires a DNSBL mark",
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires a DNSBL mark",
 					myclass->GetName().c_str());
 			return MOD_RES_DENY;
 		}
 
 		if (!InspIRCd::Match(*match, dnsbl))
 		{
-			ServerInstance->Logs.Log("CONNECTCLASS", LOG_DEBUG, "The %s connect class is not suitable as the DNSBL mark (%s) does not match %s",
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as the DNSBL mark (%s) does not match %s",
 					myclass->GetName().c_str(), match->c_str(), dnsbl.c_str());
 			return MOD_RES_DENY;
 		}

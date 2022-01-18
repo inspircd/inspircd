@@ -32,7 +32,7 @@ CmdResult CommandIJoin::HandleRemote(RemoteUser* user, Params& params)
 	{
 		// Desync detected, recover
 		// Ignore the join and send RESYNC, this will result in the remote server sending all channel data to us
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Received IJOIN for nonexistent channel: " + params[0]);
+		ServerInstance->Logs.Debug(MODNAME, "Received IJOIN for nonexistent channel: " + params[0]);
 
 		CmdBuilder("RESYNC").push(params[0]).Unicast(user);
 
@@ -59,12 +59,12 @@ CmdResult CommandIJoin::HandleRemote(RemoteUser* user, Params& params)
 
 CmdResult CommandResync::HandleServer(TreeServer* server, CommandBase::Params& params)
 {
-	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Resyncing " + params[0]);
+	ServerInstance->Logs.Debug(MODNAME, "Resyncing " + params[0]);
 	Channel* chan = ServerInstance->Channels.Find(params[0]);
 	if (!chan)
 	{
 		// This can happen for a number of reasons, safe to ignore
-		ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Channel does not exist");
+		ServerInstance->Logs.Debug(MODNAME, "Channel does not exist");
 		return CmdResult::FAILURE;
 	}
 
