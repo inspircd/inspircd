@@ -31,6 +31,7 @@ use make::configure;
 use make::console;
 
 use constant DIRECTIVE_ERROR_PIPE => $ENV{INSPIRCD_VERBOSE} ? '' : '2>/dev/null';
+use constant PKG_CONFIG           => $ENV{PKG_CONFIG} || 'pkg-config';
 use constant VENDOR_DIRECTORY     => catdir(dirname(dirname(__FILE__)), 'vendor');
 
 our @EXPORT = qw(get_directive
@@ -130,6 +131,7 @@ sub __error {
 		push @message, " * CXXFLAGS:        ${\__env_or_unset 'CXXFLAGS'}";
 		push @message, " * LDFLAGS:         ${\__env_or_unset 'LDFLAGS'}";
 		push @message, " * PATH:            ${\__env_or_unset 'PATH'}";
+		push @message, " * PKG_CONFIG:      ${\__env_or_unset 'PKG_CONFIG'}";
 		push @message, " * PKG_CONFIG_PATH: ${\__env_or_unset 'PKG_CONFIG_PATH'}";
 		push @message, '';
 		push @message, 'You can also refer to the documentation page for this module at';
@@ -183,7 +185,7 @@ sub __function_find_compiler_flags {
 	my ($file, $name, $defaults) = @_;
 
 	# Try to look up the compiler flags with pkg-config...
-	chomp(my $flags = `pkg-config --cflags $name ${\DIRECTIVE_ERROR_PIPE}`);
+	chomp(my $flags = `${\PKG_CONFIG} --cflags $name ${\DIRECTIVE_ERROR_PIPE}`);
 	unless ($?) {
 		say console_format "Found the <|GREEN $name|> compiler flags for <|GREEN ${\module_shrink $file}|> using pkg-config: <|BOLD $flags|>";
 		return $flags;
@@ -210,7 +212,7 @@ sub __function_find_linker_flags {
 	my ($file, $name, $defaults) = @_;
 
 	# Try to look up the linker flags with pkg-config...
-	chomp(my $flags = `pkg-config --libs $name ${\DIRECTIVE_ERROR_PIPE}`);
+	chomp(my $flags = `${\PKG_CONFIG} --libs $name ${\DIRECTIVE_ERROR_PIPE}`);
 	unless ($?) {
 		say console_format "Found the <|GREEN $name|> linker flags for <|GREEN ${\module_shrink $file}|> using pkg-config: <|BOLD $flags|>";
 		return $flags;
