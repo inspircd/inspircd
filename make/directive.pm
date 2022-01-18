@@ -79,6 +79,19 @@ sub execute_functions($$$) {
 	return $line;
 }
 
+sub __clean_flags($) {
+	my $flags = shift;
+
+	# It causes problems if a dependency tries to force a specific C++ version
+	# so we strip it and handle it ourselves.
+	$flags =~ s/(?:^|\s+)-std=(?:c|gnu)\+\+[A-Za-z0-9]+(?:\$|\s+)/ /g;
+
+	# Strip any whitespace our changes have left behind.
+	$flags =~ s/^\s+|\s+$//g;
+
+	return $flags;
+}
+
 sub __environment {
 	my ($prefix, $suffix) = @_;
 	$suffix =~ s/[-.]/_/g;
@@ -158,6 +171,7 @@ sub __function_execute {
 	# Try to execute the command...
 	chomp(my $result = `$command ${\DIRECTIVE_ERROR_PIPE}`);
 	unless ($?) {
+		$result = __clean_flags $result;
 		say console_format "Execution of `<|GREEN $command|>` succeeded: <|BOLD $result|>";
 		return $result;
 	}
@@ -187,6 +201,7 @@ sub __function_find_compiler_flags {
 	# Try to look up the compiler flags with pkg-config...
 	chomp(my $flags = `${\PKG_CONFIG} --cflags $name ${\DIRECTIVE_ERROR_PIPE}`);
 	unless ($?) {
+		$flags = __clean_flags $flags;
 		say console_format "Found the <|GREEN $name|> compiler flags for <|GREEN ${\module_shrink $file}|> using pkg-config: <|BOLD $flags|>";
 		return $flags;
 	}
@@ -214,6 +229,7 @@ sub __function_find_linker_flags {
 	# Try to look up the linker flags with pkg-config...
 	chomp(my $flags = `${\PKG_CONFIG} --libs $name ${\DIRECTIVE_ERROR_PIPE}`);
 	unless ($?) {
+		$flags = __clean_flags $flags;
 		say console_format "Found the <|GREEN $name|> linker flags for <|GREEN ${\module_shrink $file}|> using pkg-config: <|BOLD $flags|>";
 		return $flags;
 	}
