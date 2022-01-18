@@ -500,13 +500,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		<< "See " << rang::style::bold << rang::fg::green << "/INFO" << rang::style::reset << " for contributors & authors" << std::endl
 		<< std::endl;
 
+	Logs.RegisterServices();
 	if (Config->cmdline.forcedebug)
-	{
-		FILE* newstdout = fdopen(dup(STDOUT_FILENO), "w");
-		FileWriter* fw = new FileWriter(newstdout, 1);
-		FileLogStream* fls = new FileLogStream(LOG_RAWIO, fw);
-		Logs.AddLogTypes("*", fls, true);
-	}
+		Logs.EnableDebugMode();
 
 	if (!FindConfigFile(ConfigFileName))
 	{
@@ -528,7 +524,17 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	 */
 	this->Config->Read();
 	this->Config->Apply(NULL, "");
-	Logs.OpenFileLogs();
+
+	try
+	{
+		Logs.CloseLogs();
+		Logs.OpenLogs(false);
+	}
+	catch (const CoreException& ex)
+	{
+		std::cout << "ERROR: Cannot open log files: " << ex.GetReason() << std::endl << "Exiting..." << std::endl;
+		Exit(EXIT_STATUS_LOG);
+	}
 
 	// If we don't have a SID, generate one based on the server name and the server description
 	if (Config->sid.empty())
@@ -548,6 +554,17 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	TryBindPorts();
 
 	this->Modules.LoadAll();
+	try
+	{
+		// We reopen logs again after modules to allow module loggers to have a chance to register.
+		Logs.CloseLogs();
+		Logs.OpenLogs(true);
+	}
+	catch (const CoreException& ex)
+	{
+		std::cout << "ERROR: Cannot open log files: " << ex.GetReason() << std::endl << "Exiting..." << std::endl;
+		Exit(EXIT_STATUS_LOG);
+	}
 
 	std::cout << "InspIRCd is now running as '" << Config->ServerName << "'[" << Config->GetSID() << "] with " << SocketEngine::GetMaxFds() << " max open sockets" << std::endl;
 

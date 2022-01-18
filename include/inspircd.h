@@ -103,6 +103,7 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "inspstring.h"
 #include "protocol.h"
 #include "bancache.h"
+#include "logging.h"
 
 /** This class contains various STATS counters
  * It is used by the InspIRCd class, which internally
@@ -226,7 +227,7 @@ public:
 
 	/** LogManager handles logging.
 	 */
-	LogManager Logs;
+	Log::Manager Logs;
 
 	/** ModuleManager contains everything related to loading/unloading
 	 * modules.

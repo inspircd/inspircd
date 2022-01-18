@@ -1367,6 +1367,32 @@
 # not loaded the oper accounts are still protected by a password.     #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SQL logging module: Allows writing messages to an SQL database..    #
+#<module name="log_sql">
+#
+# This module adds the following fields to the <log> tag:
+#
+# dbid - The id for the <database> tag that defines your database
+#        connection details.
+# query - A custom query to use when inserting logs into the database.
+#
+#<log method="sql"
+#     level="normal"
+#     type="* -USERINPUT -USEROUTPUT"
+#     dbid="sql-log"
+#     query="INSERT INTO ircd_log (time, type, message) VALUES (FROM_UNIXTIME($time), '$type', '$message');">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Syslog logging module: Allows writing messages to the system log.   #
+# This module is in extras. Re-run configure with:                    #
+# ./configure --enable-extras log_syslog
+#<module name="log_syslog">
+#
+#<log method="syslog"
+#     level="normal"
+#     type="* -USERINPUT -USEROUTPUT">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Map hiding module: replaces /MAP and /LINKS output to users with a  #
 # message to see a website, set by maphide="https://test.org/map" in  #
 # the <security> tag, instead.                                        #

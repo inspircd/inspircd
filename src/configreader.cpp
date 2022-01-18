@@ -670,8 +670,17 @@ void ConfigReaderThread::OnStop()
 		// The description of this server may have changed - update it for WHOIS etc.
 		ServerInstance->FakeClient->server->description = Config->ServerDesc;
 
-		ServerInstance->Logs.CloseLogs();
-		ServerInstance->Logs.OpenFileLogs();
+		try
+		{
+			ServerInstance->Logs.CloseLogs();
+			ServerInstance->Logs.OpenLogs(true);
+		}
+		catch (CoreException& ex)
+		{
+			ServerInstance->Logs.Normal("LOG", "Cannot open log files: " + ex.GetReason());
+			if (user)
+				user->WriteNotice("Cannot open log files: " + ex.GetReason());
+		}
 
 		if (Config->RawLog && !old->RawLog)
 			ServerInstance->Users.ServerNoticeAll("*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");

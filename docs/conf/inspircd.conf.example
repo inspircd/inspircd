@@ -865,56 +865,39 @@
 # where you do not have the ability to set build time configuration.  #
 #<path configdir="conf" datadir="data" logdir="logs" moduledir="modules">
 
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Logging
-# -------
-#
-# Logging is covered with the <log> tag, which you may use to change
-# the behaviour of the logging of the IRCd.
-#
-# An example log tag would be:
-#  <log method="file" type="OPER" level="default" target="opers.log">
-# which would log all information on /OPER (failed and successful) to
-# a file called opers.log.
-#
-# There are many different types which may be used, and modules may
-# generate their own. A list of useful types:
-#  - USERS - information relating to user connection and disconnection
-#  - OPER - successful and failed oper attempts
-#  - KILL - kill related messages
-#  - FILTER - messages related to filter matches (filter module)
-#  - CONFIG - configuration related messages
-#  - COMMAND - die and restart messages, and messages related to unknown user types
-#  - SOCKET - socket engine informational/error messages
-#  - MODULE - module related messages
-#  - STARTUP - messages related to starting up the server
-#
-# You may also log *everything* by using a type of *, and subtract things out
-# of that by using -TYPE - for example "* -USERINPUT -USEROUTPUT".
-#
-# Useful levels are:
-#  - default (general messages, including errors)
-#  - sparse (misc error messages)
-#  - debug (debug messages)
-#
-# Some types only produce output in the debug level, those are:
-#  - BANCACHE - ban cache debug messages
-#  - CHANNELS - information relating to joining/creating channels
-#  - CULLLIST - debug messages related to issues with removing users
-#  - RESOLVER - DNS related debug messages
-#  - CONNECTCLASS - Connection class debug messages
-#  - USERINPUT
-#  - USEROUTPUT
-#
-# If your server is producing a high levels of log messages you can also set the
-# flush="[positive number]" attribute to specify how many log messages should be
-# buffered before flushing to disk. You should probably not specify this unless
-# you are having problems.
-#
-# The following log tag is highly default and uncustomised. It is recommended you
-# sort out your own log tags. This is just here so you get some output.
+#-#-#-#-#-#-#-#-#-#-#-# LOGGING CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# The <log> tag allows you to define a list of targets to write log   #
+# messages to.                                                        #
+#                                                                     #
+# method - The method to use when logging. This can be set to "file"  #
+#          to log to a file, "stderr" to log to the standard error    #
+#          stream, or "stdout" to log to the standard output stream.  #
+#          You can also set it to a log method provided by a module.  #
+#                                                                     #
+# level - The level of messages to write to this logger. Can be set   #
+#         to "error", "warning", "normal", or "debug".                #
+#                                                                     #
+# type - A space-delimited list of log types to write to this logger. #
+#        See https://docs.inspircd.org/4/configuration/#log for a     #
+#        full list of log types. You can also use * to include every  #
+#        log type and then -TYPE to exclude specific unwanted types.  #
+#                                                                     #
+# target - If the method is set to "file" then the name of the file   #
+#          to write log messages to.                                  #
 
-<log method="file" type="* -USERINPUT -USEROUTPUT" level="default" target="ircd.log">
+<log method="file"
+     level="normal"
+     type="* -USERINPUT -USEROUTPUT"
+     target="inspircd.log">
+
+#<log method="stderr"
+#     level="normal"
+#     type="* -USERINPUT -USEROUTPUT">
+
+#<log method="stdout"
+#     level="normal"
+#     type="* -USERINPUT -USEROUTPUT">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-  WHOWAS OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
