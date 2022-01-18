@@ -428,7 +428,7 @@ class CoreExport InspIRCd final
 	/** Parses color codes from string values to actual color codes
 	 * @param input The data to process
 	 */
-	static void ProcessColors(file_cache& input);
+	static void ProcessColors(std::vector<std::string>& input);
 
 	/** Rehash the local server
 	 * @param uuid The uuid of the user who started the rehash, can be empty

@@ -99,7 +99,7 @@ void InspIRCd::StripColor(std::string &sentence)
 	}
 }
 
-void InspIRCd::ProcessColors(file_cache& input)
+void InspIRCd::ProcessColors(std::vector<std::string>& input)
 {
 	/*
 	 * Replace all color codes from the special[] array to actual
@@ -127,9 +127,8 @@ void InspIRCd::ProcessColors(file_cache& input)
 		special_chars("", "")
 	};
 
-	for(file_cache::iterator it = input.begin(), it_end = input.end(); it != it_end; it++)
+	for (auto& ret : input)
 	{
-		std::string ret = *it;
 		for(int i = 0; special[i].character.empty() == false; ++i)
 		{
 			std::string::size_type pos = ret.find(special[i].character);
@@ -154,7 +153,6 @@ void InspIRCd::ProcessColors(file_cache& input)
 			ret = ret.substr(0, pos) + "\\" + ret.substr(pos + 2);
 			pos = ret.find("\\\\", pos + 1);
 		}
-		*it = ret;
 	}
 }
 
