@@ -324,6 +324,18 @@ struct Parser final
 	}
 };
 
+FilePosition::FilePosition(const std::string& Name, unsigned long Line, unsigned long Column)
+	: name(Name)
+	, line(Line)
+	, column(Column)
+{
+}
+
+std::string FilePosition::str() const
+{
+	return name + ":" + ConvToStr(line) + ":" + ConvToStr(column);
+}
+
 void ParseStack::DoInclude(std::shared_ptr<ConfigTag> tag, int flags)
 {
 	if (flags & FLAG_NO_INC)
