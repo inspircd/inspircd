@@ -266,7 +266,7 @@ class CommandMonitor final
 {
 	typedef Numeric::Builder<> ReplyBuilder;
 	// Additional penalty for the /MONITOR L and /MONITOR S commands that request a list from the server
-	static const unsigned int ListPenalty = 3000;
+	static constexpr unsigned int ListPenalty = 3000;
 
 	IRCv3::Monitor::Manager& manager;
 

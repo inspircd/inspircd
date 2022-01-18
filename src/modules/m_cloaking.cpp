@@ -44,10 +44,10 @@ enum CloakMode
 };
 
 // lowercase-only encoding similar to base64, used for hash output
-static const char base32[] = "0123456789abcdefghijklmnopqrstuv";
+static constexpr char base32[] = "0123456789abcdefghijklmnopqrstuv";
 
 // The minimum length of a cloak key.
-static const size_t minkeylen = 30;
+static constexpr size_t minkeylen = 30;
 
 struct CloakInfo final
 {

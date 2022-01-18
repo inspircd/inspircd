@@ -129,7 +129,7 @@ class HAProxyHookProvider final
 };
 
 // The signature for a HAProxy PROXY protocol header.
-static const char proxy_signature[13] = "\x0D\x0A\x0D\x0A\x00\x0D\x0A\x51\x55\x49\x54\x0A";
+static constexpr char proxy_signature[13] = "\x0D\x0A\x0D\x0A\x00\x0D\x0A\x51\x55\x49\x54\x0A";
 
 class HAProxyHook final
 	: public IOHookMiddle

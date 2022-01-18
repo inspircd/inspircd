@@ -41,7 +41,7 @@
 namespace Base64
 {
 	/** The default table used when handling Base64-encoded strings. */
-	inline const char* TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	inline constexpr const char* TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 	/** Decodes a Base64-encoded byte array.
 	 * @param data The byte array to decode from.
@@ -85,10 +85,10 @@ namespace Base64
 namespace Hex
 {
 	/** The table used for encoding as a lower-case hexadecimal string. */
-	inline const char* TABLE_LOWER = "0123456789abcdef";
+	inline constexpr const char* TABLE_LOWER = "0123456789abcdef";
 
 	/** The table used for encoding as an upper-case hexadecimal string. */
-	inline const char* TABLE_UPPER = "0123456789ABCDEF";
+	inline constexpr const char* TABLE_UPPER = "0123456789ABCDEF";
 
 	/** Encodes a byte array using hexadecimal encoding.
 	 * @param data The byte array to encode from.
@@ -114,7 +114,7 @@ namespace Hex
 namespace Percent
 {
 	/** The table used to determine what characters are safe within a percent-encoded string. */
-	inline const char* TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~";
+	inline constexpr const char* TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~";
 
 	/** Decodes a percent-encoded byte array.
 	 * @param data The byte array to decode from.

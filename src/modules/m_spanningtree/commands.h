@@ -175,8 +175,8 @@ class CommandFJoin final
 		/** Maximum possible Membership::Id length in decimal digits, used for determining whether a user will fit into
 		 * a message or not
 		 */
-		static const size_t membid_max_digits = 20;
-		static const size_t maxline = 510;
+		static constexpr size_t membid_max_digits = 20;
+		static constexpr size_t maxline = 510;
 		std::string::size_type pos;
 
 	protected:
@@ -365,7 +365,7 @@ class DllExport CommandSave final
  public:
 	/** Timestamp of the uuid nick of all users who collided and got their nick changed to uuid
 	 */
-	static const time_t SavedTimestamp;
+	static constexpr time_t SavedTimestamp = 100;
 
 	CommandSave(Module* Creator) : ServerCommand(Creator, "SAVE", 2) { }
 	CmdResult Handle(User* user, Params& parameters) override;

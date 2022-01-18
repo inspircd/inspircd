@@ -35,7 +35,7 @@ namespace IRCv3
 		class API;
 		class CapReference;
 
-		static const unsigned int MAX_BATCHES = (sizeof(intptr_t) * 8) - 1;
+		static constexpr unsigned int MAX_BATCHES = (sizeof(intptr_t) * 8) - 1;
 	}
 }
 

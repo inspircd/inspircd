@@ -38,7 +38,7 @@
 class FModeBuilder final
 	: public CmdBuilder
 {
-	static const size_t maxline = 480;
+	static constexpr size_t maxline = 480;
 	std::string params;
 	unsigned int modes = 0;
 	std::string::size_type startpos;

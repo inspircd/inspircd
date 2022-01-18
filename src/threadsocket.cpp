@@ -96,7 +96,7 @@ class ThreadSignalSocket final
 
 	void Notify()
 	{
-		static const char dummy = '*';
+		static constexpr char dummy = '*';
 		write(send_fd, &dummy, 1);
 	}
 

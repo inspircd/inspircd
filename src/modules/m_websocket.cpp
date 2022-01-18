@@ -28,9 +28,9 @@
 #define UTF_CPP_CPLUSPLUS 199711L
 #include <unchecked.h>
 
-static const char MagicGUID[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-static const char newline[] = "\r\n";
-static const char whitespace[] = " \t";
+static constexpr char MagicGUID[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+static constexpr char newline[] = "\r\n";
+static constexpr char whitespace[] = " \t";
 static dynamic_reference_nocheck<HashProvider>* sha1;
 
 struct WebSocketConfig final
@@ -138,16 +138,16 @@ class WebSocketHook final
 		STATE_ESTABLISHED
 	};
 
-	static const unsigned char WS_MASKBIT = (1 << 7);
-	static const unsigned char WS_FINBIT = (1 << 7);
-	static const unsigned char WS_PAYLOAD_LENGTH_MAGIC_LARGE = 126;
-	static const unsigned char WS_PAYLOAD_LENGTH_MAGIC_HUGE = 127;
-	static const size_t WS_MAX_PAYLOAD_LENGTH_SMALL = 125;
-	static const size_t WS_MAX_PAYLOAD_LENGTH_LARGE = 65535;
-	static const size_t MAXHEADERSIZE = sizeof(uint64_t) + 2;
+	static constexpr unsigned char WS_MASKBIT = (1 << 7);
+	static constexpr unsigned char WS_FINBIT = (1 << 7);
+	static constexpr unsigned char WS_PAYLOAD_LENGTH_MAGIC_LARGE = 126;
+	static constexpr unsigned char WS_PAYLOAD_LENGTH_MAGIC_HUGE = 127;
+	static constexpr size_t WS_MAX_PAYLOAD_LENGTH_SMALL = 125;
+	static constexpr size_t WS_MAX_PAYLOAD_LENGTH_LARGE = 65535;
+	static constexpr size_t MAXHEADERSIZE = sizeof(uint64_t) + 2;
 
 	// Clients sending ping or pong frames faster than this are killed
-	static const time_t MINPINGPONGDELAY = 10;
+	static constexpr time_t MINPINGPONGDELAY = 10;
 
 	State state = STATE_HTTPREQ;
 	time_t lastpingpong = 0;

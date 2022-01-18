@@ -562,10 +562,10 @@ class CoreExport ModeParser final
 {
  public:
 	/** The maximum number of modes which can be created. */
-	static const ModeHandler::Id MODEID_MAX = 64;
+	static constexpr ModeHandler::Id MODEID_MAX = 64;
 
 	/** The maximum length of a mode parameter. */
-	static const size_t MODE_PARAM_MAX = 250;
+	static constexpr size_t MODE_PARAM_MAX = 250;
 
 	/** Type of the container that maps mode names to ModeHandlers
 	 */
@@ -578,7 +578,7 @@ class CoreExport ModeParser final
 
 	/** Last item in the ModeType enum
 	 */
-	static const unsigned int MODETYPE_LAST = 2;
+	static constexpr unsigned int MODETYPE_LAST = 2;
 
 	/** Mode handlers for each mode, to access a handler subtract
 	 * 65 from the ascii value of the mode letter.

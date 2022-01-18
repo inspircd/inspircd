@@ -181,7 +181,7 @@ void ListenSocket::OnEventHandlerRead()
 		 * Big, big thanks to danieldg for his work on this.
 		 * -- w00t
 		 */
-		static const unsigned char prefix4in6[12] = { 0,0,0,0, 0,0,0,0, 0,0,0xFF,0xFF };
+		static constexpr unsigned char prefix4in6[12] = { 0,0,0,0, 0,0,0,0, 0,0,0xFF,0xFF };
 		if (!memcmp(prefix4in6, &client.in6.sin6_addr, 12))
 		{
 			// recreate as a sockaddr_in using the IPv4 IP

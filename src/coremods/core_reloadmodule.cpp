@@ -177,7 +177,7 @@ class DataKeeper final
 	struct UserData final
 		: public OwnedModesExts
 	{
-		static const size_t UNUSED_INDEX = SIZE_MAX;
+		static constexpr size_t UNUSED_INDEX = SIZE_MAX;
 		size_t serializerindex;
 
 		UserData(User* user, size_t serializeridx)

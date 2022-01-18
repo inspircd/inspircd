@@ -214,7 +214,7 @@ long StreamSocket::ReadToRecvQ(std::string& rq)
 }
 
 /* Don't try to prepare huge blobs of data to send to a blocked socket */
-static const int MYIOV_MAX = IOV_MAX < 128 ? IOV_MAX : 128;
+static constexpr int MYIOV_MAX = IOV_MAX < 128 ? IOV_MAX : 128;
 
 void StreamSocket::DoWrite()
 {

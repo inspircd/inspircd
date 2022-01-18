@@ -311,7 +311,7 @@ class CommandAuthenticate final
 {
  private:
 	// The maximum length of an AUTHENTICATE request.
-	static const size_t MAX_AUTHENTICATE_SIZE = 400;
+	static constexpr size_t MAX_AUTHENTICATE_SIZE = 400;
 
  public:
 	SimpleExtItem<SaslAuthenticator>& authExt;

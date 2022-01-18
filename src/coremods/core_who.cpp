@@ -41,8 +41,8 @@ enum
 	RPL_WHOSPCRPL = 354
 };
 
-static const char whox_field_order[] = "tcuihsnfdlaor";
-static const char who_field_order[] = "cuhsnf";
+static constexpr char whox_field_order[] = "tcuihsnfdlaor";
+static constexpr char who_field_order[] = "cuhsnf";
 
 struct WhoData final
 	: public Who::Request

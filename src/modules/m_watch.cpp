@@ -48,7 +48,7 @@ class CommandWatch final
 	: public SplitCommand
 {
 	// Additional penalty for /WATCH commands that request a list from the server
-	static const unsigned int ListPenalty = 4000;
+	static constexpr unsigned int ListPenalty = 4000;
 
 	IRCv3::Monitor::Manager& manager;
 

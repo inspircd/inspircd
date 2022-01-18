@@ -24,9 +24,9 @@
 
 namespace Cap
 {
-	static const unsigned int MAX_CAPS = (sizeof(intptr_t) * 8) - 1;
-	static const intptr_t CAP_302_BIT = (intptr_t)1 << MAX_CAPS;
-	static const unsigned int MAX_VALUE_LENGTH = 100;
+	static constexpr unsigned int MAX_CAPS = (sizeof(intptr_t) * 8) - 1;
+	static constexpr intptr_t CAP_302_BIT = (intptr_t)1 << MAX_CAPS;
+	static constexpr unsigned int MAX_VALUE_LENGTH = 100;
 
 	typedef intptr_t Ext;
 	class ExtItem : public IntExtItem

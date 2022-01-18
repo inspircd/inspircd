@@ -150,7 +150,7 @@ class Events::ModuleEventListener
 	}
 
  public:
-	static const unsigned int DefaultPriority = 100;
+	static constexpr unsigned int DefaultPriority = 100;
 
 	/** Constructor
 	 * @param mod Module subscribing

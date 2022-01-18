@@ -257,9 +257,9 @@ class Packet final
 	}
 
  public:
-	static const int POINTER = 0xC0;
-	static const int LABEL = 0x3F;
-	static const int HEADER_LENGTH = 12;
+	static constexpr int POINTER = 0xC0;
+	static constexpr int LABEL = 0x3F;
+	static constexpr int HEADER_LENGTH = 12;
 
 	/* ID for this packet */
 	RequestId id = 0;
@@ -339,14 +339,13 @@ class Packet final
 
 				if (q.name.find(':') != std::string::npos)
 				{
-					static const char* const hex = "0123456789abcdef";
 					char reverse_ip[128];
 					unsigned reverse_ip_count = 0;
 					for (int j = 15; j >= 0; --j)
 					{
-						reverse_ip[reverse_ip_count++] = hex[ip.in6.sin6_addr.s6_addr[j] & 0xF];
+						reverse_ip[reverse_ip_count++] = Hex::TABLE_LOWER[ip.in6.sin6_addr.s6_addr[j] & 0xF];
 						reverse_ip[reverse_ip_count++] = '.';
-						reverse_ip[reverse_ip_count++] = hex[ip.in6.sin6_addr.s6_addr[j] >> 4];
+						reverse_ip[reverse_ip_count++] = Hex::TABLE_LOWER[ip.in6.sin6_addr.s6_addr[j] >> 4];
 						reverse_ip[reverse_ip_count++] = '.';
 					}
 					reverse_ip[reverse_ip_count++] = 0;
@@ -394,7 +393,7 @@ class MyManager final
 
 	/** Maximum number of entries in cache
 	 */
-	static const unsigned int MAX_CACHE_SIZE = 1000;
+	static constexpr unsigned int MAX_CACHE_SIZE = 1000;
 
 	static bool IsExpired(const Query& record)
 	{

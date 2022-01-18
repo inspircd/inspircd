@@ -134,7 +134,7 @@ std::string Base64::Encode(const void* data, size_t length, const char* table, c
 		buffer.push_back(table[(triple >> 0 * 6) & 63]);
 	}
 
-	static const size_t padding_count[] = { 0, 2, 1 };
+	static constexpr size_t padding_count[] = { 0, 2, 1 };
 	if (padding)
 	{
 		// Replace any trailing characters with padding.
