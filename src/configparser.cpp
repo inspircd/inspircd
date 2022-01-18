@@ -44,56 +44,21 @@ enum ParseFlags
 	FLAG_MISSING_OKAY = 16
 };
 
-// RAII wrapper for FILE* which closes the file when it goes out of scope.
-class FileWrapper final
-{
- private:
-	// Whether this file handle should be closed with pclose.
-	bool close_with_pclose;
-
-	// The file handle which is being wrapped.
-	FILE* const file;
-
- public:
-	FileWrapper(FILE* File, bool CloseWithPClose = false)
-		: close_with_pclose(CloseWithPClose)
-		, file(File)
-	{
-	}
-
-	// Operator which determines whether the file is open.
-	operator bool() { return (file != NULL); }
-
-	// Operator which retrieves the underlying FILE pointer.
-	operator FILE*() { return file; }
-
-	~FileWrapper()
-	{
-		if (!file)
-			return;
-
-		if (close_with_pclose)
-			pclose(file);
-		else
-			fclose(file);
-	}
-};
-
 struct Parser final
 {
 	ParseStack& stack;
 	int flags;
-	FILE* const file;
+	FilePtr file;
 	FilePosition current;
 	FilePosition last_tag;
 	std::shared_ptr<ConfigTag> tag;
 	int ungot;
 	std::string mandatory_tag;
 
-	Parser(ParseStack& me, int myflags, FILE* conf, const std::string& name, const std::string& mandatorytag)
+	Parser(ParseStack& me, int myflags, FilePtr conf, const std::string& name, const std::string& mandatorytag)
 		: stack(me)
 		, flags(myflags)
-		, file(conf)
+		, file(std::move(conf))
 		, current(name, 1, 0)
 		, last_tag(name, 0, 0)
 		, ungot(-1)
@@ -109,7 +74,7 @@ struct Parser final
 			ungot = -1;
 			return ch;
 		}
-		int ch = fgetc(file);
+		int ch = fgetc(file.get());
 		if (ch == EOF && !eof_ok)
 		{
 			throw CoreException("Unexpected end-of-file");
@@ -434,6 +399,17 @@ void ParseStack::DoInclude(std::shared_ptr<ConfigTag> tag, int flags)
 	}
 }
 
+FilePtr ParseStack::DoOpenFile(const std::string& name, bool isexec)
+{
+	ServerInstance->Logs.Log("CONFIG", LOG_DEBUG, "Opening %s: %s",
+		isexec ? "file" : "executable", name.c_str());
+
+	if (isexec)
+		return FilePtr(popen(name.c_str(), "r"), pclose);
+	else
+		return FilePtr(fopen(name.c_str(), "r"), fclose);
+}
+
 void ParseStack::DoReadFile(const std::string& key, const std::string& name, int flags, bool exec)
 {
 	if (flags & FLAG_NO_INC)
@@ -441,16 +417,22 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 	if (exec && (flags & FLAG_NO_EXEC))
 		throw CoreException("Invalid <execfiles> tag in file included with noexec=\"yes\"");
 
-	std::string path = ServerInstance->Config->Paths.PrependConfig(name);
-	FileWrapper file(exec ? popen(name.c_str(), "r") : fopen(path.c_str(), "r"), exec);
+	std::string path = name;
+	if (!exec)
+		path = ServerInstance->Config->Paths.PrependConfig(name);
+
+	auto file = DoOpenFile(path, exec);
 	if (!file)
-		throw CoreException("Could not read \"" + path + "\" for \"" + key + "\" file");
+	{
+		throw CoreException(InspIRCd::Format("Could not read \"%s\" for %s: %s",
+			path.c_str(), key.c_str(), strerror(errno)));
+	}
 
 	file_cache& cache = FilesOutput[key];
 	cache.clear();
 
 	char linebuf[5120];
-	while (fgets(linebuf, sizeof(linebuf), file))
+	while (fgets(linebuf, sizeof(linebuf), file.get()))
 	{
 		size_t len = strlen(linebuf);
 		if (len)
@@ -501,23 +483,23 @@ ParseStack::ParseStack(ServerConfig* conf)
 
 bool ParseStack::ParseFile(const std::string& path, int flags, const std::string& mandatory_tag, bool isexec)
 {
-	ServerInstance->Logs.Log("CONFIG", LOG_DEBUG, "Reading (isexec=%d) %s", isexec, path.c_str());
 	if (stdalgo::isin(reading, path))
 		throw CoreException((isexec ? "Executable " : "File ") + path + " is included recursively (looped inclusion)");
 
 	/* It's not already included, add it to the list of files we've loaded */
 
-	FileWrapper file((isexec ? popen(path.c_str(), "r") : fopen(path.c_str(), "r")), isexec);
+	FilePtr file = DoOpenFile(path, isexec);
 	if (!file)
 	{
 		if (flags & FLAG_MISSING_OKAY)
 			return true;
 
-		throw CoreException("Could not read \"" + path + "\" for include");
+		throw CoreException(InspIRCd::Format("Could not read \"%s\" for include: %s",
+			path.c_str(), strerror(errno)));
 	}
 
 	reading.push_back(path);
-	Parser p(*this, flags, file, path, mandatory_tag);
+	Parser p(*this, flags, std::move(file), path, mandatory_tag);
 	bool ok = p.outer_parse();
 	reading.pop_back();
 	return ok;
