@@ -201,6 +201,11 @@ bool InspIRCd::TimingSafeCompare(const std::string& one, const std::string& two)
 	return (diff == 0);
 }
 
+TokenList::TokenList(const std::string& tokenlist)
+{
+	AddList(tokenlist);
+}
+
 void TokenList::AddList(const std::string& tokenlist)
 {
 	std::string token;

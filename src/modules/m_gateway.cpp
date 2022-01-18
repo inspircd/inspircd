@@ -90,8 +90,8 @@ class WebIRCHost final
 		, fingerprint(fp)
 		, password(pass)
 		, passhash(hash)
+		, trustedflags(flags)
 	{
-		trustedflags.AddList(flags);
 	}
 
 	bool IsFlagTrusted(const std::string& flag) const

@@ -31,6 +31,12 @@ class CoreExport TokenList final
 	insp::flat_set<std::string, irc::insensitive_swo> tokens;
 
  public:
+	/** Creates a new empty token list. */
+	TokenList() = default;
+
+	/** Creates a new token list from a list of tokens. */
+	TokenList(const std::string& tokenlist);
+
 	/** Adds a space-delimited list of tokens to the token list.
 	 * @param tokenlist The list of space-delimited tokens to add.
 	 */
