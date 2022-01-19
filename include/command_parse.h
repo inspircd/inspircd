@@ -37,13 +37,6 @@ class CoreExport CommandParser final
 	typedef std::unordered_map<std::string, Command*, irc::insensitive, irc::StrHashComp> CommandMap;
 
  private:
-	/** Process a command from a user.
-	 * @param user The user to parse the command for.
-	 * @param command The name of the command.
-	 * @param parameters The parameters to the command.
-	 */
-	void ProcessCommand(LocalUser* user, std::string& command, CommandBase::Params& parameters);
-
 	/** Command list, a hash_map of command names to Command*
 	 */
 	CommandMap cmdlist;
@@ -118,6 +111,13 @@ class CoreExport CommandParser final
 	 * @param user The user to whom this line belongs
 	 */
 	void ProcessBuffer(LocalUser* user, const std::string& buffer);
+
+	/** Process a command from a user.
+	 * @param user The user to parse the command for.
+	 * @param command The name of the command.
+	 * @param parameters The parameters to the command.
+	 */
+	void ProcessCommand(LocalUser* user, std::string& command, CommandBase::Params& parameters);
 
 	/** Add a new command to the commands hash
 	 * @param f The new Command to add to the list

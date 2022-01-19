@@ -203,13 +203,18 @@ class ModuleAlias final
 
 	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) override
 	{
+		// Don't allow aliases to trigger other aliases.
+		if (active)
+			return;
+
 		if ((target.type != MessageTarget::TYPE_CHANNEL) || (details.type != MSG_PRIVMSG))
 		{
 			return;
 		}
 
 		// fcommands are only for local users. Spanningtree will send them back out as their original cmd.
-		if (!IS_LOCAL(user))
+		LocalUser* luser = IS_LOCAL(user);
+		if (!luser)
 		{
 			return;
 		}
@@ -255,13 +260,13 @@ class ModuleAlias final
 			if (alias.ChannelCommand)
 			{
 				// We use substr here to remove the fantasy prefix
-				if (DoAlias(user, c, alias, compare, details.text.substr(fprefix.size())))
+				if (DoAlias(luser, c, alias, compare, details.text.substr(fprefix.size())))
 					return;
 			}
 		}
 	}
 
-	int DoAlias(User *user, Channel *c, const Alias& a, const std::string& compare, const std::string& safe)
+	int DoAlias(LocalUser* user, Channel* c, const Alias& a, const std::string& compare, const std::string& safe)
 	{
 		std::string stripped(compare);
 		if (a.StripColor)
@@ -316,7 +321,7 @@ class ModuleAlias final
 		}
 	}
 
-	void DoCommand(const std::string& newline, User* user, Channel *chan, const std::string& original_line, const Alias& a)
+	void DoCommand(const std::string& newline, LocalUser* user, Channel* chan, const std::string& original_line, const Alias& a)
 	{
 		std::string result;
 		result.reserve(newline.length());
@@ -381,7 +386,7 @@ class ModuleAlias final
 		}
 
 		active = true;
-		ServerInstance->Parser.CallHandler(command, pars, user);
+		ServerInstance->Parser.ProcessCommand(user, command, pars);
 		active = false;
 	}
 
