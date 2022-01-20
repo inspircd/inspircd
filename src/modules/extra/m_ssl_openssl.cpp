@@ -102,6 +102,9 @@
 
 #else
 # define INSPIRCD_OPENSSL_OPAQUE_BIO
+# if OPENSSL_VERSION_NUMBER > 0x30000000L
+#  define INSPIRCD_OPENSSL_AUTO_DH
+# endif
 #endif
 
 static bool SelfSigned = false;
@@ -124,6 +127,7 @@ namespace OpenSSL
 			: ModuleException(reason) { }
 	};
 
+#ifndef INSPIRCD_OPENSSL_AUTO_DH
 	class DHParams
 	{
 		DH* dh;
@@ -152,6 +156,7 @@ namespace OpenSSL
 			return dh;
 		}
 	};
+#endif
 
 	class Context
 	{
@@ -190,11 +195,13 @@ namespace OpenSSL
 			SSL_CTX_free(ctx);
 		}
 
+#ifndef INSPIRCD_OPENSSL_AUTO_DH
 		bool SetDH(DHParams& dh)
 		{
 			ERR_clear_error();
 			return (SSL_CTX_set_tmp_dh(ctx, dh.get()) >= 0);
 		}
+#endif
 
 #ifndef OPENSSL_NO_ECDH
 		void SetECDH(const std::string& curvename)
@@ -329,9 +336,11 @@ namespace OpenSSL
 		 */
 		const std::string name;
 
+#ifndef INSPIRCD_OPENSSL_AUTO_DH
 		/** DH parameters in use
 		 */
 		DHParams dh;
+#endif
 
 		/** OpenSSL makes us have two contexts, one for servers and one for clients
 		 */
@@ -404,14 +413,18 @@ namespace OpenSSL
 	 public:
 		Profile(const std::string& profilename, ConfigTag* tag)
 			: name(profilename)
+#ifndef INSPIRCD_OPENSSL_AUTO_DH
 			, dh(ServerInstance->Config->Paths.PrependConfig(tag->getString("dhfile", "dhparams.pem", 1)))
+#endif
 			, ctx(SSL_CTX_new(SSLv23_server_method()))
 			, clientctx(SSL_CTX_new(SSLv23_client_method()))
 			, allowrenego(tag->getBool("renegotiation")) // Disallow by default
 			, outrecsize(tag->getUInt("outrecsize", 2048, 512, 16384))
 		{
+#ifndef INSPIRCD_OPENSSL_AUTO_DH
 			if ((!ctx.SetDH(dh)) || (!clientctx.SetDH(dh)))
 				throw Exception("Couldn't set DH parameters");
+#endif
 
 			const std::string hash = tag->getString("hash", "md5", 1);
 			digest = EVP_get_digestbyname(hash.c_str());
