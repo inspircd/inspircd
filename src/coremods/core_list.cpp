@@ -95,46 +95,49 @@ CmdResult CommandList::Handle(User* user, const Params& parameters)
 	size_t minusers = 0;
 	size_t maxusers = 0;
 
-	for (Params::const_iterator iter = parameters.begin(); iter != parameters.end(); ++iter)
+	if (!parameters.empty())
 	{
-		const std::string& constraint = *iter;
-		if (constraint[0] == '<')
+		irc::commasepstream constraints(parameters[0]);
+		for (std::string constraint; constraints.GetToken(constraint); )
 		{
-			maxusers = ConvToNum<size_t>(constraint.c_str() + 1);
-		}
-		else if (constraint[0] == '>')
-		{
-			minusers = ConvToNum<size_t>(constraint.c_str() + 1);
-		}
-		else if (!constraint.compare(0, 2, "C<", 2) || !constraint.compare(0, 2, "c<", 2))
-		{
-			mincreationtime = ParseMinutes(constraint);
-		}
-		else if (!constraint.compare(0, 2, "C>", 2) || !constraint.compare(0, 2, "c>", 2))
-		{
-			maxcreationtime = ParseMinutes(constraint);
-		}
-		else if (!constraint.compare(0, 2, "T<", 2) || !constraint.compare(0, 2, "t<", 2))
-		{
-			mintopictime = ParseMinutes(constraint);
-		}
-		else if (!constraint.compare(0, 2, "T>", 2) || !constraint.compare(0, 2, "t>", 2))
-		{
-			maxtopictime = ParseMinutes(constraint);
-		}
-		else
-		{
-			// If the glob is prefixed with ! it is inverted.
-			match = constraint.c_str();
-			if (match[0] == '!')
+			if (constraint[0] == '<')
 			{
-				match_inverted = true;
-				match += 1;
+				maxusers = ConvToNum<size_t>(constraint.c_str() + 1);
 			}
+			else if (constraint[0] == '>')
+			{
+				minusers = ConvToNum<size_t>(constraint.c_str() + 1);
+			}
+			else if (!constraint.compare(0, 2, "C<", 2) || !constraint.compare(0, 2, "c<", 2))
+			{
+				mincreationtime = ParseMinutes(constraint);
+			}
+			else if (!constraint.compare(0, 2, "C>", 2) || !constraint.compare(0, 2, "c>", 2))
+			{
+				maxcreationtime = ParseMinutes(constraint);
+			}
+			else if (!constraint.compare(0, 2, "T<", 2) || !constraint.compare(0, 2, "t<", 2))
+			{
+				mintopictime = ParseMinutes(constraint);
+			}
+			else if (!constraint.compare(0, 2, "T>", 2) || !constraint.compare(0, 2, "t>", 2))
+			{
+				maxtopictime = ParseMinutes(constraint);
+			}
+			else
+			{
+				// If the glob is prefixed with ! it is inverted.
+				match = constraint.c_str();
+				if (match[0] == '!')
+				{
+					match_inverted = true;
+					match += 1;
+				}
 
-			// Ensure that the user didn't just run "LIST !".
-			if (match[0])
-				match_name_topic = true;
+				// Ensure that the user didn't just run "LIST !".
+				if (match[0])
+					match_name_topic = true;
+			}
 		}
 	}
 
