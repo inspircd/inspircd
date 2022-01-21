@@ -97,7 +97,7 @@ class MsgFlood final
 			return MODEACTION_DENY;
 		}
 
-		ext.Set(channel, ban, nsecs, nlines);
+		ext.SetFwd(channel, ban, nsecs, nlines);
 		return MODEACTION_ALLOW;
 	}
 

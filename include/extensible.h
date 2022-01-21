@@ -191,14 +191,20 @@ template <typename T, typename Del = std::default_delete<T>>
 class SimpleExtItem
 	: public ExtensionItem
 {
+ protected:
+	/** Whether to sync this StringExtItem across the network. */
+	bool synced;
+
  public:
 	/** Initializes an instance of the SimpleExtItem class.
 	 * @param parent The module which created this SimpleExtItem.
 	 * @param Key The name of the extension item (e.g. foo_bar).
 	 * @param exttype The type of Extensible that this SimpleExtItem applies to.
+	 * @param sync Whether this SimpleExtItem should be broadcast to other servers.
 	 */
-	SimpleExtItem(Module* parent, const std::string& Key, ExtensionType exttype)
+	SimpleExtItem(Module* parent, const std::string& Key, ExtensionType exttype, bool sync = false)
 		: ExtensionItem(parent, Key, exttype)
+		, synced(sync)
 	{
 	}
 
@@ -211,20 +217,28 @@ class SimpleExtItem
 	{
 		T* old = static_cast<T*>(SetRaw(container, value));
 		Delete(container, old);
-		if (sync)
+		if (sync && synced)
 			Sync(container, value);
 	}
 
-	template <typename... Args>
-	inline void Set(Extensible* container, Args&&... args)
+	inline void Set(Extensible* container, const T& value, bool sync = true)
 	{
-		Set(container, new T(std::forward<Args>(args)...));
+		Set(container, new T(value), sync);
+	}
+
+	template <typename... Args>
+	inline void SetFwd(Extensible* container, Args&&... args)
+	{
+		// Forwarded arguments are for complex types which are assumed to not
+		// be synced across the network. You can manually call Sync() if this
+		// is not the case.
+		Set(container, new T(std::forward<Args>(args)...), false);
 	}
 
 	inline void Unset(Extensible* container, bool sync = true)
 	{
 		Delete(container, UnsetRaw(container));
-		if (sync)
+		if (synced && sync)
 			Sync(container, nullptr);
 	}
 
@@ -239,10 +253,6 @@ class SimpleExtItem
 class CoreExport StringExtItem
 	: public SimpleExtItem<std::string>
 {
- protected:
-	/** Whether to sync this StringExtItem across the network. */
-	bool synced;
-
  public:
 	/** Initializes an instance of the StringExtItem class.
 	 * @param owner The module which created this StringExtItem.
@@ -300,7 +310,7 @@ class CoreExport IntExtItem
 	/** Sets a value for this IntExtItem.
 	 * @param container A container that the IntExtItem should be set on.
 	 * @param value The new value for this IntExtItem.
-	 * @param sync Whether to sync this value to other servers.
+	 * @param sync If syncable then whether to sync this value to other servers.
 	 */
 	void Set(Extensible* container, intptr_t value, bool sync = true);
 
@@ -312,7 +322,7 @@ class CoreExport IntExtItem
 
 	/** Removes the value for this IntExtItem.
 	 * @param container A container the ExtensionItem should be removed from.
-	 * @param sync Whether to sync this unset to the network.
+	 * @param sync If syncable then whether to sync this unset to the network.
 	 */
 	void Unset(Extensible* container, bool sync = true);
 };
@@ -360,13 +370,13 @@ class CoreExport BoolExtItem
 
 	/** Sets a value for this BoolExtItem.
 	 * @param container A container that the BoolExtItem should be set on.
-	 * @param sync Whether to sync this set to the network.
+	 * @param sync If syncable then whether to sync this set to the network.
 	 */
 	void Set(Extensible* container, bool sync = true);
 
 	/** Removes the value for this BoolExtItem.
 	 * @param container A container the ExtensionItem should be removed from.
-	 * @param sync Whether to sync this unset to the network.
+	 * @param sync If syncable then whether to sync this unset to the network.
 	 */
 	void Unset(Extensible* container, bool sync = true);
 };

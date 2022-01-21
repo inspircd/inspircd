@@ -125,7 +125,7 @@ class HistoryMode final
 		}
 		else
 		{
-			ext.Set(channel, len, time);
+			ext.SetFwd(channel, len, time);
 		}
 		return MODEACTION_ALLOW;
 	}

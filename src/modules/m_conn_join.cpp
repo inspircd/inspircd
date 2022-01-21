@@ -112,7 +112,7 @@ class ModuleConnJoin final
 		if (!chandelay)
 			JoinChannels(localuser, chanlist);
 		else
-			ext.Set(localuser, localuser, ext, chanlist, chandelay);
+			ext.SetFwd(localuser, localuser, ext, chanlist, chandelay);
 	}
 };
 

@@ -232,14 +232,14 @@ bool BoolExtItem::Get(const Extensible* container) const
 void BoolExtItem::Set(Extensible* container, bool sync)
 {
 	SetRaw(container, reinterpret_cast<void*>(1));
-	if (sync)
+	if (sync && synced)
 		Sync(container, reinterpret_cast<void*>(1));
 }
 
 void BoolExtItem::Unset(Extensible* container, bool sync)
 {
 	UnsetRaw(container);
-	if (sync)
+	if (sync && synced)
 		Sync(container, reinterpret_cast<void*>(0));
 }
 
@@ -299,8 +299,7 @@ void IntExtItem::Unset(Extensible* container, bool sync)
 }
 
 StringExtItem::StringExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync)
-	: SimpleExtItem(owner, key, exttype)
-	, synced(sync)
+	: SimpleExtItem(owner, key, exttype, sync)
 {
 }
 

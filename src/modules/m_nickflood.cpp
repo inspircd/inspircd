@@ -112,7 +112,7 @@ class NickFlood final
 			return MODEACTION_DENY;
 		}
 
-		ext.Set(channel, nsecs, nnicks);
+		ext.SetFwd(channel, nsecs, nnicks);
 		return MODEACTION_ALLOW;
 	}
 

@@ -345,7 +345,7 @@ class CommandAuthenticate final
 
 			SaslAuthenticator *sasl = authExt.Get(user);
 			if (!sasl)
-				authExt.Set(user, user, parameters[0], sslapi);
+				authExt.SetFwd(user, user, parameters[0], sslapi);
 			else if (sasl->SendClientMessage(parameters) == false)	// IAL abort extension --nenolod
 			{
 				sasl->AnnounceState();

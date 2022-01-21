@@ -123,7 +123,7 @@ class JoinFlood final
 			return MODEACTION_DENY;
 		}
 
-		ext.Set(channel, nsecs, njoins);
+		ext.SetFwd(channel, nsecs, njoins);
 		return MODEACTION_ALLOW;
 	}
 

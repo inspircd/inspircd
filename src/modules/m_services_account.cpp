@@ -103,11 +103,6 @@ class AccountExtItemImpl final
 	{
 	}
 
-	void FromInternal(Extensible* container, const std::string& value) noexcept override
-	{
-		StringExtItem::FromInternal(container, value);
-	}
-
 	void FromNetwork(Extensible* container, const std::string& value) noexcept override
 	{
 		StringExtItem::FromNetwork(container, value);
@@ -201,7 +196,7 @@ class ModuleServicesAccount final
 		, regdeafmode(this, "regdeaf", 'R')
 		, chanregmode(this)
 		, userregmode(this)
-		, accountid(this, "accountid", ExtensionType::USER)
+		, accountid(this, "accountid", ExtensionType::USER, true)
 		, accountname(this)
 		, accountextban(this, accountname)
 		, unauthedextban(this, accountname)

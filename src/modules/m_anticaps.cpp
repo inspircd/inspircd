@@ -120,7 +120,7 @@ class AntiCapsMode final
 			return MODEACTION_DENY;
 		}
 
-		ext.Set(channel, method, minlen, percent);
+		ext.SetFwd(channel, method, minlen, percent);
 		return MODEACTION_ALLOW;
 	}
 
