@@ -75,7 +75,7 @@ bad-target:
 all: inspircd modules
 
 END
-	my(@core_deps, @modlist);
+	my(@core_deps, @coremodlist, @modlist);
 	for my $file (<*.cpp>, "socketengines/$ENV{SOCKETENGINE}.cpp") {
 		my $out = find_output $file;
 		dep_cpp $file, $out, 'gen-o';
@@ -90,6 +90,7 @@ END
 
 	for my $directory (qw(coremods modules)) {
 		opendir(my $moddir, $directory);
+		my $mlist = $directory eq 'coremods' ? \@coremodlist : \@modlist;
 		for my $file (sort readdir $moddir) {
 			next if $file =~ /^\./;
 			if ($directory eq 'modules' && -e "modules/extra/$file" && !-l "modules/$file") {
@@ -100,16 +101,17 @@ END
 			}
 			if ($file =~ /^(?:core|m)_/ && -d "$directory/$file" && dep_dir "$directory/$file", "modules/$file") {
 				mkdir "${\BUILDPATH}/obj/$file";
-				push @modlist, "modules/$file${\DLL_EXT}";
+				push @$mlist, "modules/$file${\DLL_EXT}";
 			}
 			if ($file =~ /^.*\.cpp$/) {
 				my $out = dep_so "$directory/$file";
-				push @modlist, $out;
+				push @$mlist, $out;
 			}
 		}
 	}
 
 	my $core_mk = join ' ', @core_deps;
+	my $coremods = join ' ', @coremodlist;
 	my $mods = join ' ', @modlist;
 	print MAKE <<END;
 
@@ -118,9 +120,11 @@ bin/inspircd: $core_mk
 
 inspircd: bin/inspircd
 
+coremods: $coremods
+
 modules: $mods
 
-.PHONY: all bad-target inspircd modules
+.PHONY: all bad-target inspircd coremods modules
 
 END
 }
