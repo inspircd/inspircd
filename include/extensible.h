@@ -22,197 +22,228 @@
 
 #pragma once
 
-/** Types of Extensible that an ExtensionItem can apply to. */
-enum class ExtensionType : uint8_t
+/** Types of extensible that an extension can extend. */
+enum class ExtensionType
+	: uint8_t
 {
-	/** The ExtensionItem applies to a User object. */
+	/** The extension extends the User class. */
 	USER = 0,
 
-	/** The ExtensionItem applies to a Channel object. */
+	/** The extension extends the Channel class. */
 	CHANNEL = 1,
 
-	/** The ExtensionItem applies to a Membership object. */
+	/** The extension extends the Membership class. */
 	MEMBERSHIP = 2,
 };
 
-/** Base class for logic that extends an Extensible object. */
+/** Base class for types that extend an extensible. */
 class CoreExport ExtensionItem
 	: public ServiceProvider
 {
  public:
-	/** The type of Extensible that this ExtensionItem applies to. */
+	/** The type of extensible that this extension extends. */
 	const ExtensionType type;
 
-	/** Initializes an instance of the ExtensionItem class.
-	 * @param owner The module which created this ExtensionItem.
-	 * @param key The name of the extension item (e.g. foo_bar).
-	 * @param exttype The type of Extensible that this ExtensionItem applies to.
+	/** Deletes a \p value which is set on \p container.
+	 * @param container The container that this extension is set on.
+	 * @param item The item to delete.
 	 */
-	ExtensionItem(Module* owner, const std::string& key, ExtensionType exttype);
+	virtual void Delete(Extensible* container, void* item) = 0;
 
-	/** Sets an ExtensionItem using a value in the internal format.
-	 * @param container A container the ExtensionItem should be set on.
+	/** Deserialises a value for this extension of the specified container from the internal format.
+	 * @param container A container this extension should be set on.
 	 * @param value A value in the internal format.
 	 */
 	virtual void FromInternal(Extensible* container, const std::string& value) noexcept;
 
-	/** Sets an ExtensionItem using a value in the network format.
-	 * @param container A container the ExtensionItem should be set on.
+	/** Deserialises a value for this extension of the specified container from the network format.
+	 * @param container A container this extension should be set on.
 	 * @param value A value in the network format.
 	 */
 	virtual void FromNetwork(Extensible* container, const std::string& value) noexcept;
 
-	/** Gets an ExtensionItem's value in a human-readable format.
-	 * @param container The container the ExtensionItem is set on.
-	 * @param item The value to convert to a human-readable format.
-	 * @return The value specified in \p item in a human readable format.
+	/** @copydoc ServiceProvider::RegisterService */
+	void RegisterService() override;
+
+	/** Serialises a value for this extension of the specified container to the human-readable
+	 *  format.
+	 * @param container The container that this extension is set on.
+	 * @param item The value to convert to the human-readable format.
+	 * @return The value specified in \p item in the human-readable format.
 	 */
 	virtual std::string ToHuman(const Extensible* container, void* item) const noexcept;
 
-	/** Gets an ExtensionItem's value in the internal format.
-	 * @param container The container the ExtensionItem is set on.
+	/** Serialises a value for this extension of the specified container to the internal format.
+	 * @param container The container that this extension is set on.
 	 * @param item The value to convert to the internal format.
 	 * @return The value specified in \p item in the internal format.
 	 */
 	virtual std::string ToInternal(const Extensible* container, void* item) const noexcept;
 
-	/** Gets an ExtensionItem's value in the network format.
-	 * @param container The container the ExtensionItem is set on.
+	/** Serialises a value for this extension of the specified container to the network format.
+	 * @param container The container that this extension is set on.
 	 * @param item The value to convert to the network format.
 	 * @return The value specified in \p item in the network format.
 	 */
 	virtual std::string ToNetwork(const Extensible* container, void* item) const noexcept;
 
-	/** Deallocates the specified ExtensionItem value.
-	 * @param container The container that the ExtensionItem is set on.
-	 * @param item The item to deallocate.
-	 */
-	virtual void Delete(Extensible* container, void* item) = 0;
-
-	/** Registers this object with the ExtensionManager. */
-	void RegisterService() override;
-
  protected:
-	/** Retrieves the value for this ExtensionItem from the internal map.
-	 * @param container The container that the ExtensionItem is set on.
-	 * @return Either the value of this ExtensionItem or NULL if it is not set.
+	/** Initializes an instance of the ExtensionItem class.
+	 * @param owner The module which created the extension.
+	 * @param key The name of the extension (e.g. foo-bar).
+	 * @param exttype The type of extensible that the extension applies to.
+	 */
+	ExtensionItem(Module* owner, const std::string& key, ExtensionType exttype);
+
+	/** Retrieves the value for this extension of the specified container from the internal map.
+	 * @param container The container that this extension is set on.
+	 * @return Either the value of this extension or nullptr if it does not exist.
 	 */
 	void* GetRaw(const Extensible* container) const;
 
-	/** Stores a value for this ExtensionItem in the internal map and returns the old value if one was set.
-	 * @param container A container the ExtensionItem should be set on.
-	 * @param value The value to set on the specified container.
-	 * @return Either the old value or NULL if one is not set.
+	/** Sets a value for this extension of the specified container in the internal map and
+	 *  returns the old value if one was set
+	 * @param container The container that this extension should be set on.
+	 * @param value The new value to set for this extension. Will NOT be copied.
+	 * @return Either the old value or nullptr if one is not set.
 	 */
 	void* SetRaw(Extensible* container, void* value);
 
-	/** Removes the value for this ExtensionItem from the internal map and returns it.
-	 * @param container A container the ExtensionItem should be removed from.
-	 * @return Either the old value or NULL if one is not set.
-	*/
-	void* UnsetRaw(Extensible* container);
-
-	/** Syncs the value of this ExtensionItem across the network.
-	 * @param container The container this ExtensionItem is set on.
-	 * @param item The value of this ExtensionItem.
+	/** Syncs the value of this extension of the specified container across the network. Does
+	 *   nothing if an inheritor does not implement ExtensionItem::ToNetwork.
+	 * @param container The container that this extension is set on.
+	 * @param item The value of this extension.
 	 */
 	void Sync(const Extensible* container, void* item);
+
+	/** Removes this extension from the specified container and returns it.
+	 * @param container The container that this extension should be removed from.
+	 * @return Either the old value of this extension or nullptr if it was not set.
+	 */
+	void* UnsetRaw(Extensible* container);
 };
 
-/** class Extensible is the parent class of many classes such as User and Channel.
- * class Extensible implements a system which allows modules to 'extend' the class by attaching data within
- * a map associated with the object. In this way modules can store their own custom information within user
- * objects, channel objects and server objects, without breaking other modules (this is more sensible than using
- * a flags variable, and each module defining bits within the flag as 'theirs' as it is less prone to conflict and
- * supports arbitrary data storage).
- */
+/** Base class for types which can be extended with additional data. */
 class CoreExport Extensible
 	: public Cullable
 	, public Serializable
 {
  public:
+	/** The container which extension values are stored in. */
 	typedef insp::flat_map<ExtensionItem*, void*> ExtensibleStore;
 
-	// Friend access for the protected getter/setter
+	/** Allows extensions to access the extension store. */
 	friend class ExtensionItem;
- private:
-	/** Private data store.
-	 * Holds all extensible metadata for the class.
-	 */
-	ExtensibleStore extensions;
 
-	/** True if this Extensible has been culled.
-	 * A warning is generated if false on destruction.
-	 */
-	unsigned int culled:1;
- public:
-	/**
-	 * Get the extension items for iteration (i.e. for metadata sync during netburst)
-	 */
-	inline const ExtensibleStore& GetExtList() const { return extensions; }
-
-	Extensible();
-	Cullable::Result Cull() override;
 	~Extensible() override;
-	void UnhookExtensions(const std::vector<ExtensionItem*>& toRemove);
 
-	/**
-	 * Free all extension items attached to this Extensible
-	 */
-	void FreeAllExtItems();
+	/** @copydoc Cullable::Cull */
+	Cullable::Result Cull() override;
 
 	/** @copydoc Serializable::Deserialize */
 	bool Deserialize(Data& data) override;
 
+	/** Frees all extensions attached to this extensible. */
+	void FreeAllExtItems();
+
+	/** Retrieves the values for extensions which are set on this extensible. */
+	const ExtensibleStore& GetExtList() const { return extensions; }
+
 	/** @copydoc Serializable::Deserialize */
 	bool Serialize(Serializable::Data& data) override;
+
+	/** Unhooks the specifies extensions from this extensible.
+	 * @param items The items to unhook.
+	 */
+	void UnhookExtensions(const std::vector<ExtensionItem*>& items);
+
+ protected:
+	Extensible();
+
+ private:
+	/** The values for extensions which are set on this extensible. */
+	ExtensibleStore extensions;
+
+	/** Whether this extensible has been culled yet. */
+	bool culled:1;
 };
 
+/** Manager for the extension system */
 class CoreExport ExtensionManager final
 {
  public:
+	/** The container which registered extensions are stored in. */
 	typedef std::map<std::string, ExtensionItem*> ExtMap;
 
-	bool Register(ExtensionItem* item);
-	void BeginUnregister(Module* module, std::vector<ExtensionItem*>& list);
-	ExtensionItem* GetItem(const std::string& name);
-
-	/** Get all registered extensions keyed by their names
-	 * @return Const map of ExtensionItem pointers keyed by their names
+	/** Begins unregistering extensions belonging to the specified module.
+	 * @param module The module to unregister extensions for.
+	 * @param list The list to add unregistered extensions to.
 	 */
+	void BeginUnregister(Module* module, std::vector<ExtensionItem*>& list);
+
+	/** Retrieves registered extensions keyed by their names. */
 	const ExtMap& GetExts() const { return types; }
 
+	/** Retrieves an extension by name.
+	 * @param name The name of the extension to retrieve.
+	 * @return Either the value of this extension or nullptr if it does not exist.
+	 */
+	ExtensionItem* GetItem(const std::string& name);
+
+	/** Registers an extension with the manager.
+	 * @return Either true if the extension was registered or false if an extension with the same
+	 *         name already exists.
+	 */
+	bool Register(ExtensionItem* item);
+
  private:
+	/** Registered extensions keyed by their names. */
 	ExtMap types;
 };
 
-/** Represents a simple ExtensionItem. */
+/** An extension which has a simple (usually POD) value. */
 template <typename T, typename Del = std::default_delete<T>>
 class SimpleExtItem
 	: public ExtensionItem
 {
  protected:
-	/** Whether to sync this StringExtItem across the network. */
+	/** Whether to sync this extension across the network. */
 	bool synced;
 
  public:
-	/** Initializes an instance of the SimpleExtItem class.
-	 * @param parent The module which created this SimpleExtItem.
-	 * @param Key The name of the extension item (e.g. foo_bar).
-	 * @param exttype The type of Extensible that this SimpleExtItem applies to.
-	 * @param sync Whether this SimpleExtItem should be broadcast to other servers.
+	/** Initializes an instance of the SimpleExtItem<T,Del> class.
+	 * @param owner The module which created the extension.
+	 * @param key The name of the extension (e.g. foo-bar).
+	 * @param exttype The type of extensible that the extension applies to.
+	 * @param sync Whether this extension should be broadcast to other servers.
 	 */
-	SimpleExtItem(Module* parent, const std::string& Key, ExtensionType exttype, bool sync = false)
-		: ExtensionItem(parent, Key, exttype)
+	SimpleExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync = false)
+		: ExtensionItem(owner, key, exttype)
 		, synced(sync)
 	{
 	}
 
+	/** @copydoc ExtensionItem::Delete */
+	void Delete(Extensible* container, void* item) override
+	{
+		Del del;
+		del(static_cast<T*>(item));
+	}
+
+	/** Retrieves the value for this extension of the specified container.
+	 * @param container The container that this extension is set on.
+	 * @return Either the value of this extension or nullptr if it is not set.
+	 */
 	inline T* Get(const Extensible* container) const
 	{
 		return static_cast<T*>(GetRaw(container));
 	}
 
+	/** Sets a value for this extension of the specified container.
+	 * @param container The container that this extension should be set on.
+	 * @param value The new value to set for this extension. Will NOT be copied.
+	 * @param sync If syncable then whether to sync this set to the network.
+	 */
 	inline void Set(Extensible* container, T* value, bool sync = true)
 	{
 		T* old = static_cast<T*>(SetRaw(container, value));
@@ -221,11 +252,20 @@ class SimpleExtItem
 			Sync(container, value);
 	}
 
+	/** Sets a value for this extension of the specified container.
+	 * @param container The container that this extension should be set on.
+	 * @param value The new value to set for this extension. Will be copied.
+	 * @param sync If syncable then whether to sync this set to the network.
+	 */
 	inline void Set(Extensible* container, const T& value, bool sync = true)
 	{
 		Set(container, new T(value), sync);
 	}
 
+	/** Sets a forwarded value for this extension of the specified container.
+	 * @param container The container that this extension should be set on.
+	 * @param args The arguments to forward to the constructor of \p T.
+	 */
 	template <typename... Args>
 	inline void SetFwd(Extensible* container, Args&&... args)
 	{
@@ -235,30 +275,28 @@ class SimpleExtItem
 		Set(container, new T(std::forward<Args>(args)...), false);
 	}
 
+	/** Removes this extension from the specified container.
+	 * @param container The container that this extension should be removed from.
+	 * @param sync If syncable then whether to sync this unset to the network.
+	 */
 	inline void Unset(Extensible* container, bool sync = true)
 	{
 		Delete(container, UnsetRaw(container));
 		if (synced && sync)
 			Sync(container, nullptr);
 	}
-
-	void Delete(Extensible* container, void* item) override
-	{
-		Del del;
-		del(static_cast<T*>(item));
-	}
 };
 
-/** Encapsulates an ExtensionItem which has a string value. */
+/** An extension which has a string value. */
 class CoreExport StringExtItem
 	: public SimpleExtItem<std::string>
 {
  public:
 	/** Initializes an instance of the StringExtItem class.
-	 * @param owner The module which created this StringExtItem.
-	 * @param key The name of the extension item (e.g. foo_bar).
-	 * @param exttype The type of Extensible that this IntExtItem applies to.
-	 * @param sync Whether this StringExtItem should be broadcast to other servers.
+	 * @param owner The module which created the extension.
+	 * @param key The name of the extension (e.g. foo-bar).
+	 * @param exttype The type of extensible that the extension applies to.
+	 * @param sync Whether this extension should be broadcast to other servers.
 	 */
 	StringExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync = false);
 
@@ -275,29 +313,29 @@ class CoreExport StringExtItem
 	std::string ToNetwork(const Extensible* container, void* item) const noexcept override;
 };
 
-/** Encapsulates an ExtensionItem which has a integer value. */
+/** An extension which has an integer value. */
 class CoreExport IntExtItem
 	: public ExtensionItem
 {
  protected:
-	/** Whether to sync this IntExtItem across the network. */
+	/** Whether to sync this extension across the network. */
 	bool synced;
 
  public:
 	/** Initializes an instance of the IntExtItem class.
-	 * @param owner The module which created this IntExtItem.
-	 * @param key The name of the extension item (e.g. foo_bar).
-	 * @param exttype The type of Extensible that this IntExtItem applies to.
-	 * @param sync Whether this IntExtItem should be broadcast to other servers.
+	 * @param owner The module which created the extension.
+	 * @param key The name of the extension (e.g. foo-bar).
+	 * @param exttype The type of extensible that the extension applies to.
+	 * @param sync Whether this extension should be broadcast to other servers.
 	 */
 	IntExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync = false);
 
 	/** @copydoc ExtensionItem::Delete */
 	void Delete(Extensible* container, void* item) override;
 
-	/** Retrieves the value for this IntExtItem.
-	 * @param container The container that the IntExtItem is set on.
-	 * @return Either the value of this IntExtItem or NULL if it is not set.
+	/** Retrieves the value for this extension of the specified container.
+	 * @param container The container that this extension is set on.
+	 * @return Either the value of this extension or 0 if it is not set.
 	 */
 	intptr_t Get(const Extensible* container) const;
 
@@ -307,10 +345,10 @@ class CoreExport IntExtItem
 	/** @copydoc ExtensionItem::FromNetwork */
 	void FromNetwork(Extensible* container, const std::string& value) noexcept override;
 
-	/** Sets a value for this IntExtItem.
-	 * @param container A container that the IntExtItem should be set on.
-	 * @param value The new value for this IntExtItem.
-	 * @param sync If syncable then whether to sync this value to other servers.
+	/** Sets a value for this extension of the specified container.
+	 * @param container The container that this extension should be set on.
+	 * @param value The new value to set for this extension.
+	 * @param sync If syncable then whether to sync this set to the network.
 	 */
 	void Set(Extensible* container, intptr_t value, bool sync = true);
 
@@ -320,38 +358,50 @@ class CoreExport IntExtItem
 	/** @copydoc ExtensionItem::ToNetwork */
 	std::string ToNetwork(const Extensible* container, void* item) const noexcept override;
 
-	/** Removes the value for this IntExtItem.
-	 * @param container A container the ExtensionItem should be removed from.
+	/** Removes this extension from the specified container.
+	 * @param container The container that this extension should be removed from.
 	 * @param sync If syncable then whether to sync this unset to the network.
 	 */
 	void Unset(Extensible* container, bool sync = true);
 };
 
-/** Encapsulates an ExtensionItem which has a boolean value. */
+/** An extension which has a boolean value. */
 class CoreExport BoolExtItem
 	: public ExtensionItem
 {
  protected:
-	/** Whether to sync this BoolExtItem across the network. */
+	/** Whether to sync this extension across the network. */
 	bool synced;
 
  public:
 	/** Initializes an instance of the BoolExtItem class.
-	 * @param owner The module which created this BoolExtItem.
-	 * @param key The name of the extension item (e.g. foo_bar).
-	 * @param exttype The type of Extensible that this BoolExtItem applies to.
-	 * @param sync Whether this BoolExtItem should be broadcast to other servers.
+	 * @param owner The module which created the extension.
+	 * @param key The name of the extension (e.g. foo-bar).
+	 * @param exttype The type of extensible that the extension applies to.
+	 * @param sync Whether this extension should be broadcast to other servers.
 	 */
 	BoolExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync = false);
 
 	/** @copydoc ExtensionItem::Delete */
 	void Delete(Extensible* container, void* item) override;
 
+	/** Retrieves the value for this extension of the specified container.
+	 * @param container The container that this extension is set on.
+	 * @return Either the value of this extension or false if it is not set.
+	 */
+	bool Get(const Extensible* container) const;
+
 	/** @copydoc ExtensionItem::FromInternal */
 	void FromInternal(Extensible* container, const std::string& value) noexcept override;
 
 	/** @copydoc ExtensionItem::FromNetwork */
 	void FromNetwork(Extensible* container, const std::string& value) noexcept override;
+
+	/** Sets a value for this extension of the specified container.
+	 * @param container The container that this extension should be set on.
+	 * @param sync If syncable then whether to sync this set to the network.
+	 */
+	void Set(Extensible* container, bool sync = true);
 
 	/** @copydoc ExtensionItem::ToHuman */
 	std::string ToHuman(const Extensible* container, void* item) const noexcept override;
@@ -362,20 +412,8 @@ class CoreExport BoolExtItem
 	/** @copydoc ExtensionItem::ToNetwork */
 	std::string ToNetwork(const Extensible* container, void* item) const noexcept override;
 
-	/** Retrieves the value for this BoolExtItem.
-	 * @param container The container that the BoolExtItem is set on.
-	 * @return Either the value of this BoolExtItem or NULL if it is not set.
-	 */
-	bool Get(const Extensible* container) const;
-
-	/** Sets a value for this BoolExtItem.
-	 * @param container A container that the BoolExtItem should be set on.
-	 * @param sync If syncable then whether to sync this set to the network.
-	 */
-	void Set(Extensible* container, bool sync = true);
-
-	/** Removes the value for this BoolExtItem.
-	 * @param container A container the ExtensionItem should be removed from.
+	/** Removes this extension from the specified container.
+	 * @param container The container that this extension should be removed from.
 	 * @param sync If syncable then whether to sync this unset to the network.
 	 */
 	void Unset(Extensible* container, bool sync = true);
