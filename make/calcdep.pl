@@ -72,7 +72,7 @@ bad-target:
 	\@echo "in order to set the correct environment variables"
 	\@exit 1
 
-all: inspircd modules
+all: inspircd coremods modules
 
 END
 	my(@core_deps, @coremodlist, @modlist);
