@@ -626,7 +626,7 @@ class CoreExport ModeParser final
 	ModeAction TryMode(User* user, User* usertarget, Channel* chantarget, Modes::Change& mcitem, bool skipacl);
 
 	/** Allocates an unused id for the given mode type, throws a ModuleException if out of ids.
-	 * @param mt The type of the mode to allocate the id for
+	 * @param mh The mode to allocate the id for
 	 * @return The id
 	 */
 	ModeHandler::Id AllocateModeId(ModeHandler* mh);

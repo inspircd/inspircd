@@ -125,7 +125,6 @@ namespace Percent
 
 	/** Decodes a percent-encoded string.
 	 * @param data The string to decode from.
-	 * @param table The index table to use for decoding.
 	 * @return The decoded form of the specified data.
 	 */
 	inline std::string Decode(const std::string& data)
