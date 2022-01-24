@@ -71,10 +71,10 @@ CmdResult CommandList::Handle(User* user, const Params& parameters)
 	time_t maxcreationtime = 0;
 
 	// M: Searching based on mask.
+	std::string match;
+
 	// N: Searching based on !mask.
-	bool match_name_topic = false;
-	bool match_inverted = false;
-	const char* match = NULL;
+	std::string notmatch;
 
 	// T: Searching based on topic time, via the "T<val" and "T>val" modifiers to
 	// search for a topic time that is lower or higher than val respectively.
@@ -87,45 +87,45 @@ CmdResult CommandList::Handle(User* user, const Params& parameters)
 	size_t minusers = 0;
 	size_t maxusers = 0;
 
-	for (const auto& constraint : parameters)
+	if (!parameters.empty())
 	{
-		if (constraint[0] == '<')
+		irc::commasepstream constraints(parameters[0]);
+		for (std::string constraint; constraints.GetToken(constraint); )
 		{
-			maxusers = ConvToNum<size_t>(constraint.c_str() + 1);
-		}
-		else if (constraint[0] == '>')
-		{
-			minusers = ConvToNum<size_t>(constraint.c_str() + 1);
-		}
-		else if (!constraint.compare(0, 2, "C<", 2) || !constraint.compare(0, 2, "c<", 2))
-		{
-			mincreationtime = ParseMinutes(constraint);
-		}
-		else if (!constraint.compare(0, 2, "C>", 2) || !constraint.compare(0, 2, "c>", 2))
-		{
-			maxcreationtime = ParseMinutes(constraint);
-		}
-		else if (!constraint.compare(0, 2, "T<", 2) || !constraint.compare(0, 2, "t<", 2))
-		{
-			mintopictime = ParseMinutes(constraint);
-		}
-		else if (!constraint.compare(0, 2, "T>", 2) || !constraint.compare(0, 2, "t>", 2))
-		{
-			maxtopictime = ParseMinutes(constraint);
-		}
-		else
-		{
-			// If the glob is prefixed with ! it is inverted.
-			match = constraint.c_str();
-			if (match[0] == '!')
+			if (constraint[0] == '<')
 			{
-				match_inverted = true;
-				match += 1;
+				maxusers = ConvToNum<size_t>(constraint.c_str() + 1);
 			}
-
-			// Ensure that the user didn't just run "LIST !".
-			if (match[0])
-				match_name_topic = true;
+			else if (constraint[0] == '>')
+			{
+				minusers = ConvToNum<size_t>(constraint.c_str() + 1);
+			}
+			else if (!constraint.compare(0, 2, "C<", 2) || !constraint.compare(0, 2, "c<", 2))
+			{
+				mincreationtime = ParseMinutes(constraint);
+			}
+			else if (!constraint.compare(0, 2, "C>", 2) || !constraint.compare(0, 2, "c>", 2))
+			{
+				maxcreationtime = ParseMinutes(constraint);
+			}
+			else if (!constraint.compare(0, 2, "T<", 2) || !constraint.compare(0, 2, "t<", 2))
+			{
+				mintopictime = ParseMinutes(constraint);
+			}
+			else if (!constraint.compare(0, 2, "T>", 2) || !constraint.compare(0, 2, "t>", 2))
+			{
+				maxtopictime = ParseMinutes(constraint);
+			}
+			else if (constraint[0] == '!')
+			{
+				// Ensure that the user didn't just run "LIST !".
+				if (constraint.length() > 2)
+					notmatch = constraint.substr(1);
+			}
+			else
+			{
+				match = constraint;
+			}
 		}
 	}
 
@@ -151,18 +151,12 @@ CmdResult CommandList::Handle(User* user, const Params& parameters)
 			continue;
 
 		// Attempt to match a glob pattern.
-		if (match_name_topic)
-		{
-			bool matches = InspIRCd::Match(chan->name, match) || InspIRCd::Match(chan->topic, match);
+		if (!match.empty() && !InspIRCd::Match(chan->name, match) && !InspIRCd::Match(chan->topic, match))
+			continue;
 
-			// The user specified an match that we did not match.
-			if (!matches && !match_inverted)
-				continue;
-
-			// The user specified an inverted match that we did match.
-			if (matches && match_inverted)
-				continue;
-		}
+		// Attempt to match an inverted glob pattern.
+		if (!notmatch.empty() && (InspIRCd::Match(chan->name, notmatch) || InspIRCd::Match(chan->topic, notmatch)))
+			continue;
 
 		// if the channel is not private/secret, OR the user is on the channel anyway
 		bool n = (has_privs || chan->HasUser(user));
