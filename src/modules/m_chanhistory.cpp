@@ -78,7 +78,7 @@ struct HistoryList final
 class HistoryMode final
 	: public ParamMode<HistoryMode, SimpleExtItem<HistoryList>>
 {
- public:
+public:
 	unsigned long maxlines;
 	HistoryMode(Module* Creator)
 		: ParamMode<HistoryMode, SimpleExtItem<HistoryList> >(Creator, "history", 'H')
@@ -142,7 +142,7 @@ class ModuleChanHistory final
 	: public Module
 	, public ServerProtocol::BroadcastEventListener
 {
- private:
+private:
 	HistoryMode historymode;
 	SimpleUserMode nohistorymode;
 	bool prefixmsg;
@@ -191,7 +191,7 @@ class ModuleChanHistory final
 			batchmanager->End(batch);
 	}
 
- public:
+public:
 	ModuleChanHistory()
 		: Module(VF_VENDOR, "Adds channel mode H (history) which allows message history to be viewed on joining the channel.")
 		, ServerProtocol::BroadcastEventListener(this)

@@ -28,7 +28,7 @@ static std::bitset<256> allowedmap;
 
 class NewIsChannelHandler final
 {
- public:
+public:
 	static bool Call(const std::string&);
 };
 
@@ -53,7 +53,7 @@ class ModuleChannelNames final
 	bool badchan = false;
 	ChanModeReference permchannelmode;
 
- public:
+public:
 	ModuleChannelNames()
 		: Module(VF_VENDOR, "Allows the server administrator to define what characters are allowed in channel names.")
 		, rememberer(ServerInstance->Channels.IsChannel)

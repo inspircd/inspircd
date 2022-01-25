@@ -22,9 +22,9 @@
 class CoreModClients final
 	: public Module
 {
- private:
+private:
 
- public:
+public:
 	CoreModClients()
 		: Module(VF_CORE | VF_VENDOR, "Accepts connections to the server.")
 	{

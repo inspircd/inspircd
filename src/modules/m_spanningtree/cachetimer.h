@@ -29,7 +29,7 @@
 class CacheRefreshTimer final
 	: public Timer
 {
- public:
+public:
 	CacheRefreshTimer();
 	bool Tick() override;
 };

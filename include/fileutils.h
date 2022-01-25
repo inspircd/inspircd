@@ -29,7 +29,7 @@ class CoreExport FileReader final
 	/** File size in bytes. */
 	unsigned long totalSize = 0;
 
- public:
+public:
 	/** Initializes a new file reader. */
 	FileReader() = default;
 

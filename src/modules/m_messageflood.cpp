@@ -32,7 +32,7 @@
  */
 class floodsettings final
 {
- public:
+public:
 	bool ban;
 	unsigned int secs;
 	unsigned int lines;
@@ -70,7 +70,7 @@ class floodsettings final
 class MsgFlood final
 	: public ParamMode<MsgFlood, SimpleExtItem<floodsettings>>
 {
- public:
+public:
 	MsgFlood(Module* Creator)
 		: ParamMode<MsgFlood, SimpleExtItem<floodsettings> >(Creator, "flood", 'f')
 	{
@@ -122,7 +122,7 @@ private:
 	double privmsg;
 	double tagmsg;
 
- public:
+public:
 	ModuleMsgFlood()
 		: Module(VF_VENDOR, "Adds channel mode f (flood) which helps protect against spammers which mass-message channels.")
 		, CTCTags::EventListener(this)

@@ -32,7 +32,7 @@
 class FwdFJoinBuilder final
 	: public CommandFJoin::Builder
 {
- public:
+public:
 	FwdFJoinBuilder(Channel* chan, TreeServer* server)
 		: CommandFJoin::Builder(chan, server)
 	{

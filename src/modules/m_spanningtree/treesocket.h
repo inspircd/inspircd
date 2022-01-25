@@ -180,7 +180,7 @@ class TreeSocket final
 	 */
 	void WriteLineInternal(const std::string& line);
 
- public:
+public:
 	const time_t age;
 
 	// The protocol version which has been negotiated with the remote server.

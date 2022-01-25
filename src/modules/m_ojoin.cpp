@@ -27,7 +27,7 @@
 class CommandOjoin final
 	: public SplitCommand
 {
- public:
+public:
 	bool active;
 	bool notice;
 	bool op;
@@ -87,7 +87,7 @@ class CommandOjoin final
 class NetworkPrefix final
 	: public PrefixMode
 {
- public:
+public:
 	NetworkPrefix(Module* parent, char NPrefix)
 		: PrefixMode(parent, "official-join", 'Y', NETWORK_VALUE, NPrefix)
 	{
@@ -108,11 +108,11 @@ class NetworkPrefix final
 class ModuleOjoin final
 	: public Module
 {
- private:
+private:
 	NetworkPrefix np;
 	CommandOjoin mycommand;
 
- public:
+public:
 
 	ModuleOjoin()
 		: Module(VF_VENDOR, "Adds the /OJOIN command which allows server operators to join a channel and receive the server operator-only Y (official-join) channel prefix mode.")

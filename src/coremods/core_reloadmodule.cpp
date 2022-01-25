@@ -42,7 +42,7 @@ class DummySerializer final
 		return ClientProtocol::SerializedMessage();
 	}
 
- public:
+public:
 	DummySerializer(Module* mod)
 		: ClientProtocol::Serializer(mod, "dummy")
 	{
@@ -55,7 +55,7 @@ class CommandReloadmodule final
 	Events::ModuleEventProvider evprov;
 	DummySerializer dummyser;
 
- public:
+public:
 	CommandReloadmodule(Module* parent)
 		: Command(parent, "RELOADMODULE", 1)
 		, evprov(parent, "event/reloadmodule")
@@ -293,7 +293,7 @@ class DataKeeper final
 	 */
 	void VerifyServiceProvider(const ProviderInfo& service, const char* type);
 
- public:
+public:
 	/** Save module state
 	 * @param currmod Module whose data to save
 	 */
@@ -676,7 +676,7 @@ class ReloadAction final
 	const std::string uuid;
 	const std::string passedname;
 
- public:
+public:
 	ReloadAction(Module* m, const std::string& uid, const std::string& passedmodname)
 		: mod(m)
 		, uuid(uid)
@@ -746,10 +746,10 @@ CmdResult CommandReloadmodule::Handle(User* user, const Params& parameters)
 class CoreModReloadmodule final
 	: public Module
 {
- private:
+private:
 	CommandReloadmodule cmd;
 
- public:
+public:
 	CoreModReloadmodule()
 		: Module(VF_CORE | VF_VENDOR, "Provides the RELOADMODULE command")
 		, cmd(this)

@@ -27,11 +27,11 @@ class ModuleIRCv3EchoMessage final
 	: public Module
 	, public CTCTags::EventListener
 {
- private:
+private:
 	Cap::Capability cap;
 	ClientProtocol::EventProvider tagmsgprov;
 
- public:
+public:
 	ModuleIRCv3EchoMessage()
 		: Module(VF_VENDOR, "Provides the IRCv3 echo-message client capability.")
 		, CTCTags::EventListener(this)

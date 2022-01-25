@@ -52,7 +52,7 @@ class CoreExport Timer
 	 */
 	bool repeat;
 
- public:
+public:
 	/** Default constructor, initializes the triggering time
 	 * @param secs_from_now The number of seconds from now to trigger the timer
 	 * @param repeating Repeat this timer every secs_from_now seconds if set to true
@@ -127,7 +127,7 @@ class CoreExport TimerManager final
 	 */
 	TimerMap Timers;
 
- public:
+public:
 	/** Tick all pending Timers
 	 */
 	void TickTimers();

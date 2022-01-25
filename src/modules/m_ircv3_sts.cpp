@@ -25,7 +25,7 @@
 class STSCap final
 	: public Cap::Capability
 {
- private:
+private:
 	std::string host;
 	std::string plaintextpolicy;
 	std::string securepolicy;
@@ -68,7 +68,7 @@ class STSCap final
 		return SSLIOHook::IsSSL(&user->eh) ? &securepolicy : &plaintextpolicy;
 	}
 
- public:
+public:
 	STSCap(Module* mod)
 		: Cap::Capability(mod, "sts")
 	{
@@ -128,7 +128,7 @@ class STSCap final
 class ModuleIRCv3STS final
 	: public Module
 {
- private:
+private:
 	STSCap cap;
 
 	// The IRCv3 STS specification requires that the server is listening using TLS using a valid certificate.
@@ -151,7 +151,7 @@ class ModuleIRCv3STS final
 		return false;
 	}
 
- public:
+public:
 	ModuleIRCv3STS()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds support for the IRCv3 Strict Transport Security specification.")
 		, cap(this)

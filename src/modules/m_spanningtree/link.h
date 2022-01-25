@@ -28,7 +28,7 @@
 
 class Link final
 {
- public:
+public:
 	std::shared_ptr<ConfigTag> tag;
 	std::string Name;
 	std::string IPAddr;
@@ -50,7 +50,7 @@ class Link final
 
 class Autoconnect final
 {
- public:
+public:
 	std::shared_ptr<ConfigTag> tag;
 	std::vector<std::string> servers;
 	unsigned long Period;

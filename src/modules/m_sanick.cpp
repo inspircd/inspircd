@@ -28,7 +28,7 @@
 class CommandSanick final
 	: public Command
 {
- public:
+public:
 	CommandSanick(Module* Creator) : Command(Creator,"SANICK", 2)
 	{
 		allow_empty_last_param = false;
@@ -90,10 +90,10 @@ class CommandSanick final
 class ModuleSanick final
 	: public Module
 {
- private:
+private:
 	CommandSanick cmd;
 
- public:
+public:
 	ModuleSanick()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SANICK command which allows server operators to change the nickname of a user.")
 		, cmd(this)

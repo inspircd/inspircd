@@ -40,13 +40,13 @@ namespace CheckExemption
 class CheckExemption::EventListener
 	: public Events::ModuleEventListener
 {
- protected:
+protected:
 	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
 		: ModuleEventListener(mod, "event/exemption", eventprio)
 	{
 	}
 
- public:
+public:
 	/** Called when checking if a user is exempt from something.
 	 * @param user The user to check exemption for.
 	 * @param chan The channel to check exemption on.
@@ -60,7 +60,7 @@ class CheckExemption::EventListener
 class CheckExemption::EventProvider final
 	: public Events::ModuleEventProvider
 {
- public:
+public:
 	EventProvider(Module* mod)
 		: ModuleEventProvider(mod, "event/exemption")
 	{

@@ -47,7 +47,7 @@ static std::string sasl_target;
 class ServerTracker final
 	: public ServerProtocol::LinkEventListener
 {
- private:
+private:
 	bool online;
 
 	void Update(const Server* server, bool linked)
@@ -72,7 +72,7 @@ class ServerTracker final
 		Update(server, false);
 	}
 
- public:
+public:
 	ServerTracker(Module* mod)
 		: ServerProtocol::LinkEventListener(mod)
 	{
@@ -107,7 +107,7 @@ class ServerTracker final
 class SASLCap final
 	: public Cap::Capability
 {
- private:
+private:
 	std::string mechlist;
 	const ServerTracker& servertracker;
 	UserCertificateAPI sslapi;
@@ -137,7 +137,7 @@ class SASLCap final
 		return &mechlist;
 	}
 
- public:
+public:
 	bool requiressl;
 	SASLCap(Module* mod, const ServerTracker& tracker)
 		: Cap::Capability(mod, "sasl")
@@ -176,7 +176,7 @@ static ClientProtocol::EventProvider* g_protoev;
  */
 class SaslAuthenticator final
 {
- private:
+private:
 	std::string agent;
 	LocalUser* user;
 	SaslState state = SASL_INIT;
@@ -194,7 +194,7 @@ class SaslAuthenticator final
 		SendSASL(user, "*", 'H', params);
 	}
 
- public:
+public:
 	SaslAuthenticator(LocalUser* user_, const std::string& method, UserCertificateAPI& sslapi)
 		: user(user_)
 	{
@@ -309,11 +309,11 @@ class SaslAuthenticator final
 class CommandAuthenticate final
 	: public SplitCommand
 {
- private:
+private:
 	// The maximum length of an AUTHENTICATE request.
 	static constexpr size_t MAX_AUTHENTICATE_SIZE = 400;
 
- public:
+public:
 	SimpleExtItem<SaslAuthenticator>& authExt;
 	Cap::Capability& cap;
 	UserCertificateAPI sslapi;
@@ -359,7 +359,7 @@ class CommandAuthenticate final
 class CommandSASL final
 	: public Command
 {
- public:
+public:
 	SimpleExtItem<SaslAuthenticator>& authExt;
 	CommandSASL(Module* Creator, SimpleExtItem<SaslAuthenticator>& ext) : Command(Creator, "SASL", 2), authExt(ext)
 	{
@@ -397,7 +397,7 @@ class CommandSASL final
 class ModuleSASL final
 	: public Module
 {
- private:
+private:
 	SimpleExtItem<SaslAuthenticator> authExt;
 	ServerTracker servertracker;
 	SASLCap cap;
@@ -405,7 +405,7 @@ class ModuleSASL final
 	CommandSASL sasl;
 	ClientProtocol::EventProvider protoev;
 
- public:
+public:
 	ModuleSASL()
 		: Module(VF_VENDOR, "Provides the IRCv3 sasl client capability.")
 		, authExt(this, "sasl-state", ExtensionType::USER)

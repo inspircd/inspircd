@@ -29,7 +29,7 @@ class Settings final
 	typedef insp::flat_map<std::string, unsigned int> RanksToSeeMap;
 	RanksToSeeMap rankstosee;
 
- public:
+public:
 	unsigned int GetRequiredRank(const ModeHandler& mh) const
 	{
 		RanksToSeeMap::const_iterator it = rankstosee.find(mh.name);
@@ -172,7 +172,7 @@ class ModeHook final
 		return HandleResult(finalmsgplist, messagelist);
 	}
 
- public:
+public:
 	Settings settings;
 
 	ModeHook(Module* mod)
@@ -185,10 +185,10 @@ class ModeHook final
 class ModuleHideMode final
 	: public Module
 {
- private:
+private:
 	ModeHook modehook;
 
- public:
+public:
 	ModuleHideMode()
 		: Module(VF_VENDOR, "Allows mode changes to be hidden from users without a prefix mode ranked equal to or higher than a defined level.")
 		, modehook(this)

@@ -46,7 +46,7 @@ namespace
 			user->Send(user->IsOper() ? operquitevent : quitevent);
 		}
 
-	 public:
+	public:
 		WriteCommonQuit(User* user, const std::string& msg, const std::string& opermsg)
 			: quitmsg(user, msg)
 			, quitevent(ServerInstance->GetRFCEvents().quit, quitmsg)

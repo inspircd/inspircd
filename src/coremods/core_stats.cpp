@@ -41,7 +41,7 @@ class CommandStats final
 	Events::ModuleEventProvider statsevprov;
 	void DoStats(Stats::Context& stats);
 
- public:
+public:
 	/** STATS characters which non-opers can request. */
 	std::string userstats;
 
@@ -393,10 +393,10 @@ CmdResult CommandStats::Handle(User* user, const Params& parameters)
 class CoreModStats final
 	: public Module
 {
- private:
+private:
 	CommandStats cmd;
 
- public:
+public:
 	CoreModStats()
 		: Module(VF_CORE | VF_VENDOR, "Provides the STATS command")
 		, cmd(this)

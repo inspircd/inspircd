@@ -29,7 +29,7 @@
 class CommandAlltime final
 	: public Command
 {
- public:
+public:
 	CommandAlltime(Module* Creator) : Command(Creator, "ALLTIME", 0)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -56,10 +56,10 @@ class CommandAlltime final
 class Modulealltime final
 	: public Module
 {
- private:
+private:
 	CommandAlltime mycommand;
 
- public:
+public:
 	Modulealltime()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /ALLTIME command which allows server operators to see the current UTC time on all of the servers on the network.")
 		, mycommand(this)

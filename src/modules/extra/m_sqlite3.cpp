@@ -49,7 +49,7 @@ typedef insp::flat_map<std::string, SQLConn*> ConnMap;
 class SQLite3Result final
 	: public SQL::Result
 {
- public:
+public:
 	int currentrow = 0;
 	int rows = 0;
 	std::vector<std::string> columns;
@@ -100,7 +100,7 @@ class SQLConn final
 	sqlite3* conn;
 	std::shared_ptr<ConfigTag> config;
 
- public:
+public:
 	SQLConn(Module* Parent, std::shared_ptr<ConfigTag> tag)
 		: SQL::Provider(Parent, tag->getString("id"))
 		, config(tag)
@@ -231,10 +231,10 @@ class SQLConn final
 class ModuleSQLite3 final
 	: public Module
 {
- private:
+private:
 	ConnMap conns;
 
- public:
+public:
 	ModuleSQLite3()
 		: Module(VF_VENDOR, "Provides the ability for SQL modules to query a SQLite 3 database.")
 	{

@@ -39,7 +39,7 @@ class RFCSerializer final
 
 	static void SerializeTags(const ClientProtocol::TagMap& tags, const ClientProtocol::TagSelection& tagwl, std::string& line);
 
- public:
+public:
 	RFCSerializer(Module* mod)
 		: ClientProtocol::Serializer(mod, "rfc")
 	{
@@ -230,7 +230,7 @@ class ModuleCoreRFCSerializer final
 {
 	RFCSerializer rfcserializer;
 
- public:
+public:
 	ModuleCoreRFCSerializer()
 		: Module(VF_CORE | VF_VENDOR, "RFC client protocol serializer and unserializer")
 		, rfcserializer(this)

@@ -34,7 +34,7 @@
 class PermChannel final
 	: public SimpleChannelMode
 {
- public:
+public:
 	PermChannel(Module* Creator)
 		: SimpleChannelMode(Creator, "permanent", 'P', true)
 	{

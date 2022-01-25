@@ -41,7 +41,7 @@ class CapNotify final
 		return true;
 	}
 
- public:
+public:
 	CapNotify(Module* mod)
 		: Cap::Capability(mod, "cap-notify")
 	{
@@ -51,7 +51,7 @@ class CapNotify final
 class CapNotifyMessage final
 	: public Cap::MessageBase
 {
- public:
+public:
 	CapNotifyMessage(bool add, const std::string& capname)
 		: Cap::MessageBase((add ? "NEW" : "DEL"))
 	{
@@ -65,7 +65,7 @@ class CapNotifyValueMessage final
 	std::string s;
 	const std::string::size_type pos;
 
- public:
+public:
 	CapNotifyValueMessage(const std::string& capname)
 		: Cap::MessageBase("NEW")
 		, s(capname)
@@ -127,7 +127,7 @@ class ModuleIRCv3CapNotify final
 		}
 	}
 
- public:
+public:
 	ModuleIRCv3CapNotify()
 		: Module(VF_VENDOR, "Provides the IRCv3 cap-notify client capability.")
 		, Cap::EventListener(this)

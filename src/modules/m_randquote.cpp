@@ -27,12 +27,12 @@
 class ModuleRandQuote final
 	: public Module
 {
- private:
+private:
 	std::string prefix;
 	std::string suffix;
 	std::vector<std::string> quotes;
 
- public:
+public:
 	ModuleRandQuote()
 		: Module(VF_VENDOR, "Allows random quotes to be sent to users when they connect to the server.")
 	{

@@ -47,7 +47,7 @@ class IRCv3::Batch::Manager
 	: public DataProvider
 	, public ClientProtocol::MessageTagProvider
 {
- public:
+public:
 	/** Constructor.
 	 * @param mod Module that owns the Manager.
 	 */
@@ -104,7 +104,7 @@ class IRCv3::Batch::Batch final
 	unsigned int GetId() const { return bit; }
 	intptr_t GetBit() const { return reftag; }
 
- public:
+public:
 	/** Constructor.
 	 * The batch is initially stopped. To start it, pass it to Manager::Start().
 	 * @param Type Batch type string, used to indicate what kind of grouping the batch does. May be empty.
@@ -176,7 +176,7 @@ class IRCv3::Batch::Batch final
 class IRCv3::Batch::API final
 	: public dynamic_reference_nocheck<Manager>
 {
- public:
+public:
 	API(Module* mod)
 		: dynamic_reference_nocheck<Manager>(mod, "batchapi")
 	{
@@ -189,7 +189,7 @@ class IRCv3::Batch::API final
 class IRCv3::Batch::CapReference final
 	: public Cap::Reference
 {
- public:
+public:
 	CapReference(Module* mod)
 		: Cap::Reference(mod, "batch")
 	{

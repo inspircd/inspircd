@@ -39,10 +39,10 @@
 class PCREPattern final
 	: public Regex::Pattern
 {
- private:
+private:
 	pcre2_code* regex;
 
- public:
+public:
 	PCREPattern(const Module* mod, const std::string& pattern, uint8_t options)
 		: Regex::Pattern(pattern, options)
 	{
@@ -78,10 +78,10 @@ class PCREPattern final
 class ModuleRegexPCRE final
 	: public Module
 {
- private:
+private:
 	Regex::SimpleEngine<PCREPattern> regex;
 
- public:
+public:
 	ModuleRegexPCRE()
 		: Module(VF_VENDOR, "Provides the pcre regular expression engine which uses the PCRE library.")
 		, regex(this, "pcre")

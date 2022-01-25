@@ -122,7 +122,7 @@ class CommandWatch final
 		user->WriteNumeric(RPL_ENDOFWATCHLIST, "End of WATCH S");
 	}
 
- public:
+public:
 	unsigned long maxwatch;
 
 	CommandWatch(Module* mod, IRCv3::Monitor::Manager& managerref)
@@ -181,7 +181,7 @@ class ModuleWatch final
 	, public Away::EventListener
 	, public ISupport::EventListener
 {
- private:
+private:
 	IRCv3::Monitor::Manager manager;
 	CommandWatch cmd;
 
@@ -207,7 +207,7 @@ class ModuleWatch final
 		SendAlert(user, nick, RPL_LOGOFF, "went offline", user->age);
 	}
 
- public:
+public:
 	ModuleWatch()
 		: Module(VF_VENDOR, "Adds the /WATCH command which allows users to find out when their friends are connected to the server.")
 		, Away::EventListener(this)

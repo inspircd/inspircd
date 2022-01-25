@@ -40,7 +40,7 @@ enum LogLevel
  */
 class CoreExport FileWriter final
 {
- protected:
+protected:
 	/** The log file (fd is inside this somewhere,
 	 * we get it out with fileno())
 	 */
@@ -54,7 +54,7 @@ class CoreExport FileWriter final
 	 */
 	unsigned int writeops = 0;
 
- public:
+public:
 	/** The constructor takes an already opened logfile.
 	 */
 	FileWriter(FILE* logfile, unsigned int flushcount);
@@ -94,9 +94,9 @@ class CoreExport FileWriter final
 class CoreExport LogStream
 	: public Cullable
 {
- protected:
+protected:
 	LogLevel loglvl;
- public:
+public:
 	static const char LogHeader[];
 
 	LogStream(LogLevel loglevel) : loglvl(loglevel)
@@ -119,7 +119,7 @@ typedef std::map<FileWriter*, int> FileLogMap;
 
 class CoreExport LogManager final
 {
- private:
+private:
 	/** Lock variable, set to true when a log is in progress, which prevents further logging from happening and creating a loop.
 	 */
 	bool Logging = false;
@@ -141,7 +141,7 @@ class CoreExport LogManager final
 	 */
 	FileLogMap FileLogs;
 
- public:
+public:
 	/** Adds a FileWriter instance to LogManager, or increments the reference count of an existing instance.
 	 * Used for file-stream sharing for FileLogStreams.
 	 */

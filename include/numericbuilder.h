@@ -42,7 +42,7 @@ class Numeric::WriteNumericSink final
 {
 	LocalUser* const user;
 
- public:
+public:
 	WriteNumericSink(LocalUser* u)
 		: user(u)
 	{
@@ -58,7 +58,7 @@ class Numeric::WriteRemoteNumericSink final
 {
 	User* const user;
 
- public:
+public:
 	WriteRemoteNumericSink(User* u)
 		: user(u)
 	{
@@ -82,7 +82,7 @@ class Numeric::GenericBuilder
 		return (numeric.GetParams().back().size() + additional <= max);
 	}
 
- public:
+public:
 	GenericBuilder(Sink s, unsigned int num, bool addparam = true, size_t additionalsize = 0)
 		: sink(s)
 		, numeric(num)
@@ -132,7 +132,7 @@ template <char Sep, bool SendEmpty>
 class Numeric::Builder
 	: public GenericBuilder<Sep, SendEmpty, WriteNumericSink>
 {
- public:
+public:
 	Builder(LocalUser* user, unsigned int num, bool addparam = true, size_t additionalsize = 0)
 		: ::Numeric::GenericBuilder<Sep, SendEmpty, WriteNumericSink>(WriteNumericSink(user), num, addparam, additionalsize + user->nick.size())
 	{
@@ -152,7 +152,7 @@ class Numeric::GenericParamBuilder
 		return (currlen + additional <= max);
 	}
 
- public:
+public:
 	GenericParamBuilder(Sink s, unsigned int num, size_t additionalsize)
 		: sink(s)
 		, numeric(num)
@@ -192,7 +192,7 @@ template <unsigned int NumStaticParams, bool SendEmpty>
 class Numeric::ParamBuilder
 	: public GenericParamBuilder<NumStaticParams, SendEmpty, WriteNumericSink>
 {
- public:
+public:
 	ParamBuilder(LocalUser* user, unsigned int num)
 		: ::Numeric::GenericParamBuilder<NumStaticParams, SendEmpty, WriteNumericSink>(WriteNumericSink(user), num, user->nick.size())
 	{
@@ -211,7 +211,7 @@ namespace Numerics
 class Numerics::CannotSendTo final
 	: public Numeric::Numeric
 {
- public:
+public:
 	CannotSendTo(Channel* chan, const std::string& message)
 		: Numeric(ERR_CANNOTSENDTOCHAN)
 	{
@@ -255,7 +255,7 @@ class Numerics::CannotSendTo final
 class Numerics::InvalidModeParameter final
 	: public Numeric::Numeric
 {
- private:
+private:
 	void push_message(ModeHandler* mode, const std::string& message)
 	{
 		if (!message.empty())
@@ -278,7 +278,7 @@ class Numerics::InvalidModeParameter final
 		}
 	}
 
- public:
+public:
 	InvalidModeParameter(Channel* chan, ModeHandler* mode, const std::string& parameter, const std::string& message = "")
 		: Numeric(ERR_INVALIDMODEPARAM)
 	{
@@ -302,7 +302,7 @@ class Numerics::InvalidModeParameter final
 class Numerics::NoSuchChannel final
 	: public Numeric::Numeric
 {
- public:
+public:
 	NoSuchChannel(const std::string& chan)
 		: Numeric(ERR_NOSUCHCHANNEL)
 	{
@@ -315,7 +315,7 @@ class Numerics::NoSuchChannel final
 class Numerics::NoSuchNick final
 	: public Numeric::Numeric
 {
- public:
+public:
 	NoSuchNick(const std::string& nick)
 		: Numeric(ERR_NOSUCHNICK)
 	{

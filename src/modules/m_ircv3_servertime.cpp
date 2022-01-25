@@ -46,7 +46,7 @@ class ServerTimeTag final
 		}
 	}
 
- public:
+public:
 	ServerTimeTag(Module* mod)
 		: IRCv3::ServerTime::Manager(mod)
 		, IRCv3::CapTag<ServerTimeTag>(mod, "server-time", "time")
@@ -74,10 +74,10 @@ class ServerTimeTag final
 class ModuleIRCv3ServerTime final
 	: public Module
 {
- private:
+private:
 	ServerTimeTag tag;
 
- public:
+public:
 	ModuleIRCv3ServerTime()
 		: Module(VF_VENDOR, "Provides the IRCv3 server-time client capability.")
 		, tag(this)

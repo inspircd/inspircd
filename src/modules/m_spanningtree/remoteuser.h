@@ -27,7 +27,7 @@ namespace SpanningTree
 class SpanningTree::RemoteUser final
 	: public ::RemoteUser
 {
- public:
+public:
 	RemoteUser(const std::string& uid, Server* srv);
 	void WriteRemoteNumeric(const Numeric::Numeric& numeric) override;
 };

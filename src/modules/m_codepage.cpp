@@ -22,7 +22,7 @@
 
 class Codepage
 {
- public:
+public:
 	enum AllowCharacterResult
 	{
 		// The character is allowed in a nick.
@@ -87,7 +87,7 @@ class Codepage
 class SingleByteCodepage final
 	: public Codepage
 {
- private:
+private:
 	typedef std::bitset<UCHAR_MAX + 1> AllowedChars;
 
 	// The characters which are allowed in nicknames.
@@ -96,7 +96,7 @@ class SingleByteCodepage final
 	// The characters which are allowed at the front of a nickname.
 	AllowedChars allowedfrontchars;
 
- public:
+public:
 	AllowCharacterResult AllowCharacter(uint32_t character, bool front) override
 	{
 		// Single byte codepage can, as their name suggests, only be one byte in size.
@@ -173,7 +173,7 @@ class ModuleCodepage final
 	: public Module
 	, public ISupport::EventListener
 {
- private:
+private:
 	// The currently active codepage.
 	std::unique_ptr<Codepage> codepage;
 
@@ -233,7 +233,7 @@ class ModuleCodepage final
 		RehashHashmap(ServerInstance->Channels.GetChans());
 	}
 
- public:
+public:
 	ModuleCodepage()
 		: Module(VF_VENDOR | VF_COMMON, "Allows the server administrator to define what characters are allowed in nicknames and how characters should be compared in a case insensitive way.")
 		, ISupport::EventListener(this)

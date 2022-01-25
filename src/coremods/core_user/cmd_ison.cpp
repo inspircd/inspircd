@@ -28,7 +28,7 @@
 class IsonReplyBuilder final
 	: public Numeric::Builder<' ', true>
 {
- public:
+public:
 	IsonReplyBuilder(LocalUser* user)
 		: Numeric::Builder<' ', true>(user, RPL_ISON)
 	{

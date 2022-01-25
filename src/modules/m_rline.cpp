@@ -37,7 +37,7 @@ static bool added_zline = false;
 class RLine final
 	: public XLine
 {
- public:
+public:
 	RLine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& regexs, Regex::EngineReference& rxfactory)
 		: XLine(s_time, d, src, re, "R")
 		, matchtext(regexs)
@@ -97,11 +97,11 @@ class RLine final
 class RLineFactory final
 	: public XLineFactory
 {
- private:
+private:
 	const Module* creator;
 	Regex::EngineReference& rxfactory;
 
- public:
+public:
 	RLineFactory(const Module* mod, Regex::EngineReference& rx)
 		: XLineFactory("R")
 		, creator(mod)
@@ -129,7 +129,7 @@ class CommandRLine final
 	std::string rxengine;
 	RLineFactory& factory;
 
- public:
+public:
 	CommandRLine(Module* Creator, RLineFactory& rlf) : Command(Creator,"RLINE", 1, 3), factory(rlf)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -206,7 +206,7 @@ class ModuleRLine final
 	: public Module
 	, public Stats::EventListener
 {
- private:
+private:
 	Regex::EngineReference rxfactory;
 	RLineFactory f;
 	CommandRLine r;
@@ -214,7 +214,7 @@ class ModuleRLine final
 	bool initing = true;
 	Regex::Engine* factory;
 
- public:
+public:
 	ModuleRLine()
 		: Module(VF_VENDOR | VF_COMMON, "Adds the /RLINE command which allows server operators to prevent users matching a nickname!username@hostname+realname regular expression from connecting to the server.")
 		, Stats::EventListener(this)

@@ -32,7 +32,7 @@ namespace IRCv3
 class IRCv3::WriteNeighborsWithCap final
 	: public User::ForEachNeighborHandler
 {
- private:
+private:
 	const Cap::Capability& cap;
 	ClientProtocol::Event& protoev;
 	uint64_t sentid;
@@ -43,7 +43,7 @@ class IRCv3::WriteNeighborsWithCap final
 			user->Send(protoev);
 	}
 
- public:
+public:
 	WriteNeighborsWithCap(User* user, ClientProtocol::Event& ev, const Cap::Capability& capability, bool include_self = false)
 		: cap(capability)
 		, protoev(ev)
@@ -74,7 +74,7 @@ template <typename T>
 class IRCv3::CapTag
 	: public ClientProtocol::MessageTagProvider
 {
- protected:
+protected:
 	Cap::Capability cap;
 	const std::string tagname;
 
@@ -91,7 +91,7 @@ class IRCv3::CapTag
 			msg.AddTag(tagname, this, *val);
 	}
 
- public:
+public:
 	/** Constructor.
 	 * @param mod Module that owns the tag.
 	 * @param capname Name of the client capability.

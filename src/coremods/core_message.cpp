@@ -96,7 +96,7 @@ public:
 class CommandMessage final
 	: public Command
 {
- private:
+private:
 	const MessageType msgtype;
 
 	bool FirePreEvents(User* source, MessageTarget& msgtarget, MessageDetails& msgdetails)
@@ -264,7 +264,7 @@ class CommandMessage final
 		return FirePostEvent(source, msgtarget, msgdetails);
 	}
 
- public:
+public:
 	CommandMessage(Module* parent, MessageType mt)
 		: Command(parent, ClientProtocol::Messages::Privmsg::CommandStrFromMsgType(mt), 2, 2)
 		, msgtype(mt)
@@ -326,7 +326,7 @@ class CommandMessage final
 class CommandSQuery final
 	: public Command
 {
- public:
+public:
 	CommandSQuery(Module* Creator)
 		: Command(Creator, "SQUERY", 2, 2)
 	{
@@ -389,14 +389,14 @@ class CommandSQuery final
 class ModuleCoreMessage final
 	: public Module
 {
- private:
+private:
 	CommandMessage cmdprivmsg;
 	CommandMessage cmdnotice;
 	CommandSQuery cmdsquery;
 	ChanModeReference moderatedmode;
 	ChanModeReference noextmsgmode;
 
- public:
+public:
 	ModuleCoreMessage()
 		: Module(VF_CORE | VF_VENDOR, "Provides the NOTICE, PRIVMSG, and SQUERY commands")
 		, cmdprivmsg(this, MSG_PRIVMSG)

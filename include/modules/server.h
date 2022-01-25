@@ -36,7 +36,7 @@ namespace ServerProtocol
 class ServerProtocol::BroadcastEventListener
 	: public Events::ModuleEventListener
 {
- public:
+public:
 	BroadcastEventListener(Module* mod)
 		: ModuleEventListener(mod, "event/server-broadcast")
 	{
@@ -54,7 +54,7 @@ class ServerProtocol::BroadcastEventListener
 class ServerProtocol::LinkEventListener
 	: public Events::ModuleEventListener
 {
- public:
+public:
 	LinkEventListener(Module* mod)
 		: ModuleEventListener(mod, "event/server-link")
 	{
@@ -80,7 +80,7 @@ class ServerProtocol::LinkEventListener
 class ServerProtocol::MessageEventListener
 	: public Events::ModuleEventListener
 {
- public:
+public:
 	MessageEventListener(Module* mod)
 		: ModuleEventListener(mod, "event/server-message")
 	{
@@ -104,7 +104,7 @@ class ServerProtocol::MessageEventListener
 class ServerProtocol::SyncEventListener
 	: public Events::ModuleEventListener
 {
- public:
+public:
 	SyncEventListener(Module* mod)
 		: ModuleEventListener(mod, "event/server-sync")
 	{

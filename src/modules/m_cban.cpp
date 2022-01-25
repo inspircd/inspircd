@@ -74,7 +74,7 @@ public:
 class CBanFactory final
 	: public XLineFactory
 {
- public:
+public:
 	CBanFactory() : XLineFactory("CBAN") { }
 
 	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
@@ -91,7 +91,7 @@ class CBanFactory final
 class CommandCBan final
 	: public Command
 {
- public:
+public:
 	CommandCBan(Module* Creator) : Command(Creator, "CBAN", 1, 3)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -160,7 +160,7 @@ class ModuleCBan final
 	CommandCBan mycommand;
 	CBanFactory f;
 
- public:
+public:
 	ModuleCBan()
 		: Module(VF_VENDOR | VF_COMMON, "Adds the /CBAN command which allows server operators to prevent channels matching a glob from being created.")
 		, Stats::EventListener(this)

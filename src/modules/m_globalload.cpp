@@ -29,7 +29,7 @@
 class CommandGLoadModule final
 	: public Command
 {
- public:
+public:
 	CommandGLoadModule(Module* Creator)
 		: Command(Creator,"GLOADMODULE", 1)
 	{
@@ -69,7 +69,7 @@ class CommandGLoadModule final
 class CommandGUnloadModule final
 	: public Command
 {
- public:
+public:
 	CommandGUnloadModule(Module* Creator)
 		: Command(Creator,"GUNLOADMODULE", 1)
 	{
@@ -121,7 +121,7 @@ class CommandGUnloadModule final
 class CommandGReloadModule final
 	: public Command
 {
- public:
+public:
 	CommandGReloadModule(Module* Creator)
 		: Command(Creator, "GRELOADMODULE", 1)
 	{
@@ -163,12 +163,12 @@ class CommandGReloadModule final
 class ModuleGlobalLoad final
 	: public Module
 {
- private:
+private:
 	CommandGLoadModule cmdgloadmodule;
 	CommandGUnloadModule cmdgunloadmodule;
 	CommandGReloadModule cmdgreloadmodule;
 
- public:
+public:
 	ModuleGlobalLoad()
 		: Module(VF_VENDOR | VF_COMMON, "Adds the /GLOADMODULE, /GRELOADMODULE, and /GUNLOADMODULE commands which allows server operators to load, reload, and unload modules on remote servers.")
 		, cmdgloadmodule(this)

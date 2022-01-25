@@ -91,7 +91,7 @@ class ModuleHostCycle final
 		}
 	}
 
- public:
+public:
 	ModuleHostCycle()
 		: Module(VF_VENDOR, "Sends a fake disconnection and reconnection when a user's username (ident) or hostname changes to allow clients to update their internal caches.")
 		, chghostcap(this, "chghost")

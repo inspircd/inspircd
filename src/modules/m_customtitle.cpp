@@ -62,7 +62,7 @@ typedef std::multimap<std::string, CustomTitle> CustomVhostMap;
 class CommandTitle final
 	: public Command
 {
- public:
+public:
 	StringExtItem ctitle;
 	CustomVhostMap configs;
 
@@ -100,10 +100,10 @@ class ModuleCustomTitle final
 	: public Module
 	, public Whois::LineEventListener
 {
- private:
+private:
 	CommandTitle cmd;
 
- public:
+public:
 	ModuleCustomTitle()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Allows the server administrator to define accounts which can grant a custom title in /WHOIS and an optional virtual host.")
 		, Whois::LineEventListener(this)

@@ -31,7 +31,7 @@ class CommandWallops final
 	SimpleUserMode wallopsmode;
 	ClientProtocol::EventProvider protoevprov;
 
- public:
+public:
 	CommandWallops(Module* parent)
 		: Command(parent, "WALLOPS", 1, 1)
 		, wallopsmode(parent, "wallops", 'w')
@@ -73,10 +73,10 @@ CmdResult CommandWallops::Handle(User* user, const Params& parameters)
 class CoreModWallops final
 	: public Module
 {
- private:
+private:
 	CommandWallops cmd;
 
- public:
+public:
 	CoreModWallops()
 		: Module(VF_CORE | VF_VENDOR, "Provides the WALLOPS command")
 		, cmd(this)

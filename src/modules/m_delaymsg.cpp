@@ -26,7 +26,7 @@
 class DelayMsgMode final
 	: public ParamMode<DelayMsgMode, IntExtItem>
 {
- public:
+public:
 	IntExtItem jointime;
 	DelayMsgMode(Module* Parent)
 		: ParamMode<DelayMsgMode, IntExtItem>(Parent, "delaymsg", 'd')
@@ -54,12 +54,12 @@ class ModuleDelayMsg final
 	: public Module
 	, public CTCTags::EventListener
 {
- private:
+private:
 	DelayMsgMode djm;
 	bool allownotice;
 	ModResult HandleMessage(User* user, const MessageTarget& target, bool notice);
 
- public:
+public:
 	ModuleDelayMsg()
 		: Module(VF_VENDOR, "Adds channel mode d (delaymsg) which prevents newly joined users from speaking until the specified number of seconds have passed.")
 		, CTCTags::EventListener(this)

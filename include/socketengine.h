@@ -153,13 +153,13 @@ enum EventMask
 class CoreExport EventHandler
 	: public Cullable
 {
- private:
+private:
 	/** Private state maintained by socket engine */
 	int event_mask;
 
 	void SetEventMask(int mask) { event_mask = mask; }
 
- protected:
+protected:
 	/** File descriptor.
 	 * All events which can be handled must have a file descriptor.  This
 	 * allows you to add events for sockets, fifo's, pipes, and various
@@ -168,7 +168,7 @@ class CoreExport EventHandler
 	 */
 	int fd;
 
- public:
+public:
 	/** Get the current file descriptor
 	 * @return The file descriptor of this handler
 	 */
@@ -218,7 +218,7 @@ class CoreExport EventHandler
  */
 class CoreExport SocketEngine final
 {
- public:
+public:
 	/** Socket engine statistics: count of various events, bandwidth usage
 	 */
 	class Statistics
@@ -231,7 +231,7 @@ class CoreExport SocketEngine final
 		 */
 		void CheckFlush() const;
 
-	 public:
+	public:
 		/** Update counters for network data received.
 		 * This should be called after every read-type syscall.
 		 * @param len_in Number of bytes received, or -1 for error, as typically
@@ -259,7 +259,7 @@ class CoreExport SocketEngine final
 		unsigned long ErrorEvents = 0;
 	};
 
- private:
+private:
 	/** Reference table, contains all current handlers
 	 **/
 	static std::vector<EventHandler*> ref;

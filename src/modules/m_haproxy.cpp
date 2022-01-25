@@ -110,10 +110,10 @@ struct HAProxyHeader final
 class HAProxyHookProvider final
 	: public IOHookProvider
 {
- private:
+private:
 	UserCertificateAPI sslapi;
 
- public:
+public:
 	HAProxyHookProvider(Module* mod)
 		: IOHookProvider(mod, "haproxy", IOHookProvider::IOH_UNKNOWN, true)
 		, sslapi(mod)
@@ -134,7 +134,7 @@ static constexpr char proxy_signature[13] = "\x0D\x0A\x0D\x0A\x00\x0D\x0A\x51\x5
 class HAProxyHook final
 	: public IOHookMiddle
 {
- private:
+private:
 	// The length of the address section.
 	uint16_t address_length;
 
@@ -376,7 +376,7 @@ class HAProxyHook final
 		return ReadProxyAddress(sock, destrecvq);
 	}
 
- public:
+public:
 	HAProxyHook(std::shared_ptr<IOHookProvider> Prov, StreamSocket* sock, UserCertificateAPI& api)
 		: IOHookMiddle(Prov)
 		, address_length(0)
@@ -430,10 +430,10 @@ void HAProxyHookProvider::OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* 
 class ModuleHAProxy final
 	: public Module
 {
- private:
+private:
 	std::shared_ptr<HAProxyHookProvider> hookprov;
 
- public:
+public:
 	ModuleHAProxy()
 		: Module(VF_VENDOR, "Allows IRC connections to be made using reverse proxies that implement the HAProxy PROXY protocol.")
 		, hookprov(std::make_shared<HAProxyHookProvider>(this))

@@ -229,7 +229,7 @@ public:
 class CoreExport User
 	: public Extensible
 {
- private:
+private:
 	/** Cached nick!ident\@dhost value using the displayed hostname
 	 */
 	std::string cached_fullhost;
@@ -267,13 +267,13 @@ class CoreExport User
 	 */
 	std::bitset<ModeParser::MODEID_MAX> modes;
 
- public:
+public:
 	/** To execute a function for each local neighbor of a user, inherit from this class and
 	 * pass an instance of it to User::ForEachNeighbor().
 	 */
 	class ForEachNeighborHandler
 	{
-	 public:
+	public:
 		/** Method to execute for each local neighbor of a user.
 		 * Derived classes must implement this.
 		 * @param user Current neighbor
@@ -631,9 +631,9 @@ class CoreExport User
 class CoreExport UserIOHandler final
 	: public StreamSocket
 {
- private:
+private:
 	size_t checked_until;
- public:
+public:
 	LocalUser* const user;
 	UserIOHandler(LocalUser* me)
 		: StreamSocket(StreamSocket::SS_USER)
@@ -658,7 +658,7 @@ class CoreExport LocalUser final
 	: public User
 	, public insp::intrusive_list_node<LocalUser>
 {
- private:
+private:
 	/** The connect class this user is in. */
 	ConnectClass::Ptr connectclass;
 
@@ -677,7 +677,7 @@ class CoreExport LocalUser final
 	 */
 	void Send(ClientProtocol::Event& protoev, ClientProtocol::MessageList& msglist);
 
- public:
+public:
 	LocalUser(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 	LocalUser(int fd, const std::string& uuid, Serializable::Data& data);
 
@@ -833,7 +833,7 @@ class CoreExport LocalUser final
 class RemoteUser
 	: public User
 {
- public:
+public:
 	RemoteUser(const std::string& uid, Server* srv)
 		: User(uid, srv, TYPE_REMOTE)
 	{
@@ -843,7 +843,7 @@ class RemoteUser
 class CoreExport FakeUser final
 	: public User
 {
- public:
+public:
 	FakeUser(const std::string& uid, Server* srv)
 		: User(uid, srv, TYPE_SERVER)
 	{

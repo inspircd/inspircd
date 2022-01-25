@@ -39,7 +39,7 @@ class CommandUninvite final
 	: public Command
 {
 	Invite::API invapi;
- public:
+public:
 	CommandUninvite(Module* Creator)
 		: Command(Creator, "UNINVITE", 2)
 		, invapi(Creator)
@@ -120,10 +120,10 @@ class CommandUninvite final
 class ModuleUninvite final
 	: public Module
 {
- private:
+private:
 	CommandUninvite cmd;
 
- public:
+public:
 	ModuleUninvite()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /UNINVITE command which allows users who have invited another user to a channel to withdraw their invite.")
 		, cmd(this)

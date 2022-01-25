@@ -23,7 +23,7 @@
 
 class CoreExport Thread
 {
- private:
+private:
 	/** Whether this thread is in the process of stopping. */
 	std::atomic_bool stopping = { false };
 
@@ -35,7 +35,7 @@ class CoreExport Thread
 	 */
 	static void StartInternal(Thread* thread);
 
- protected:
+protected:
 	/** Callback which is executed on this thread after it has started. */
 	virtual void OnStart() = 0;
 
@@ -45,7 +45,7 @@ class CoreExport Thread
 	/** Initialises an instance of the Thread class. */
 	Thread() = default;
 
- public:
+public:
 	/** Destroys an instance of the Thread class. */
 	virtual ~Thread() = default;
 

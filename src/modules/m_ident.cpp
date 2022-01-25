@@ -103,7 +103,7 @@ enum
 class IdentRequestSocket final
 	: public EventHandler
 {
- public:
+public:
 	LocalUser *user;			/* User we are attached to */
 	std::string result;		/* Holds the ident string if done */
 	time_t age;
@@ -276,7 +276,7 @@ class IdentRequestSocket final
 class ModuleIdent final
 	: public Module
 {
- private:
+private:
 	unsigned long timeout;
 	bool prefixunqueried;
 	SimpleExtItem<IdentRequestSocket, stdalgo::cull_delete> socket;
@@ -300,7 +300,7 @@ class ModuleIdent final
 		user->ChangeIdent(newident);
 	}
 
- public:
+public:
 	ModuleIdent()
 		: Module(VF_VENDOR, "Allows the usernames (idents) of users to be looked up using the RFC 1413 Identification Protocol.")
 		, socket(this, "ident-socket", ExtensionType::USER)

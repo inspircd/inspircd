@@ -25,7 +25,7 @@
 class CoreModOper final
 	: public Module
 {
- private:
+private:
 	CommandDie cmddie;
 	CommandKill cmdkill;
 	CommandOper cmdoper;
@@ -34,7 +34,7 @@ class CoreModOper final
 	ModeUserOperator operatormode;
 	ModeUserServerNoticeMask snomaskmode;
 
- public:
+public:
 	CoreModOper()
 		: Module(VF_CORE | VF_VENDOR, "Provides the DIE, KILL, OPER, REHASH, and RESTART commands")
 		, cmddie(this)

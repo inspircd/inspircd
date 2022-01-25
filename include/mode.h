@@ -99,7 +99,7 @@ class ParamModeBase;
 class CoreExport ModeHandler
 	: public ServiceProvider
 {
- public:
+public:
 	typedef size_t Id;
 
 	enum Class
@@ -110,12 +110,12 @@ class CoreExport ModeHandler
 		MC_OTHER
 	};
 
- private:
+private:
 	/** The opaque id of this mode assigned by the mode parser
 	 */
 	Id modeid;
 
- protected:
+protected:
 	/** What kind of parameters does the mode take?
 	 */
 	ParamSpec parameters_taken;
@@ -162,7 +162,7 @@ class CoreExport ModeHandler
 	/** If non-empty then the syntax of the parameter for this mode. */
 	std::string syntax;
 
- public:
+public:
 	/**
 	 * The constructor for ModeHandler initializes the mode handler.
 	 * The constructor of any class you derive from ModeHandler should
@@ -362,7 +362,7 @@ class CoreExport ModeHandler
 class CoreExport PrefixMode
 	: public ModeHandler
 {
- protected:
+protected:
 	/** The prefix character granted by this mode. '@' for op, '+' for voice, etc.
 	 * If 0, this mode does not have a visible prefix character.
 	 */
@@ -376,7 +376,7 @@ class CoreExport PrefixMode
 	/** Whether a client with this prefix can remove it from themself. */
 	bool selfremove = true;
 
- public:
+public:
 	/**
 	 * Constructor
 	 * @param Creator The module creating this mode
@@ -456,7 +456,7 @@ class CoreExport PrefixMode
 class CoreExport SimpleUserMode
 	: public ModeHandler
 {
- public:
+public:
 	SimpleUserMode(Module* Creator, const std::string& Name, char modeletter, bool operonly = false)
 		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_USER)
 	{
@@ -474,7 +474,7 @@ class CoreExport SimpleUserMode
 class CoreExport SimpleChannelMode
 	: public ModeHandler
 {
- public:
+public:
 
 	SimpleChannelMode(Module* Creator, const std::string& Name, char modeletter, bool operonly = false)
 		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_CHANNEL)
@@ -494,7 +494,7 @@ class CoreExport SimpleChannelMode
 class CoreExport ModeWatcher
 	: public Cullable
 {
- private:
+private:
 	/**
 	 * The mode name this class is watching
 	 */
@@ -505,7 +505,7 @@ class CoreExport ModeWatcher
 	 */
 	ModeType m_type;
 
- public:
+public:
 	ModuleRef creator;
 
 	/**
@@ -560,7 +560,7 @@ class CoreExport ModeWatcher
  */
 class CoreExport ModeParser final
 {
- public:
+public:
 	/** The maximum number of modes which can be created. */
 	static constexpr ModeHandler::Id MODEID_MAX = 64;
 
@@ -571,7 +571,7 @@ class CoreExport ModeParser final
 	 */
 	typedef std::unordered_map<std::string, ModeHandler*, irc::insensitive, irc::StrHashComp> ModeHandlerMap;
 
- private:
+private:
 	/** Type of the container that maps mode names to ModeWatchers
 	 */
 	typedef insp::flat_multimap<std::string, ModeWatcher*> ModeWatcherMap;
@@ -631,7 +631,7 @@ class CoreExport ModeParser final
 	 */
 	ModeHandler::Id AllocateModeId(ModeHandler* mh);
 
- public:
+public:
 	typedef std::vector<ListModeBase*> ListModeList;
 	typedef std::vector<PrefixMode*> PrefixModeList;
 

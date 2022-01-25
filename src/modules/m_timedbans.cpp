@@ -36,7 +36,7 @@
 // Holds a timed ban
 class TimedBan final
 {
- public:
+public:
 	std::string mask;
 	std::string setter;
 	time_t expire;
@@ -70,7 +70,7 @@ class CommandTban final
 		return false;
 	}
 
- public:
+public:
 	bool sendnotice;
 
 	CommandTban(Module* Creator)
@@ -169,7 +169,7 @@ class CommandTban final
 class BanWatcher final
 	: public ModeWatcher
 {
- public:
+public:
 	BanWatcher(Module* parent)
 		: ModeWatcher(parent, "ban", MODETYPE_CHANNEL)
 	{
@@ -199,7 +199,7 @@ class ChannelMatcher final
 {
 	Channel* const chan;
 
- public:
+public:
 	ChannelMatcher(Channel* ch)
 		: chan(ch)
 	{
@@ -214,12 +214,12 @@ class ChannelMatcher final
 class ModuleTimedBans final
 	: public Module
 {
- private:
+private:
 	ChanModeReference banmode;
 	CommandTban cmd;
 	BanWatcher banwatcher;
 
- public:
+public:
 	ModuleTimedBans()
 		: Module(VF_VENDOR | VF_COMMON, "Adds the /TBAN command which allows channel operators to add bans which will be expired after the specified period.")
 		, banmode(this, "ban")

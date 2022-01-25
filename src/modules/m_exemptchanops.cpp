@@ -34,7 +34,7 @@ enum
 class ExemptChanOps final
 	: public ListModeBase
 {
- public:
+public:
 	ExemptChanOps(Module* Creator)
 		: ListModeBase(Creator, "exemptchanops", 'X', "End of channel exemptchanops list", RPL_EXEMPTIONLIST, RPL_ENDOFEXEMPTIONLIST, false)
 	{
@@ -116,7 +116,7 @@ class ExemptChanOps final
 class ExemptHandler final
 	: public CheckExemption::EventListener
 {
- public:
+public:
 	ExemptChanOps ec;
 	ExemptHandler(Module* me)
 		: CheckExemption::EventListener(me)
@@ -157,10 +157,10 @@ class ExemptHandler final
 class ModuleExemptChanOps final
 	: public Module
 {
- private:
+private:
 	ExemptHandler eh;
 
- public:
+public:
 	ModuleExemptChanOps()
 		: Module(VF_VENDOR, "Adds channel mode X (exemptchanops) which allows channel operators to grant exemptions to various channel-level restrictions.")
 		, eh(this)

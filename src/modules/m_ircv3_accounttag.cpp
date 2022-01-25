@@ -26,7 +26,7 @@
 class AccountTag final
 	: public IRCv3::CapTag<AccountTag>
 {
- public:
+public:
 	const std::string* GetValue(const ClientProtocol::Message& msg) const
 	{
 		User* const user = msg.GetSourceUser();
@@ -49,11 +49,11 @@ class AccountTag final
 class AccountIdTag final
 	: public ClientProtocol::MessageTagProvider
 {
- private:
+private:
 	AccountTag& acctag;
 	CTCTags::CapReference ctctagcap;
 
- public:
+public:
 	AccountIdTag(Module* mod, AccountTag& tag)
 		: ClientProtocol::MessageTagProvider(mod)
 		, acctag(tag)
@@ -79,11 +79,11 @@ class AccountIdTag final
 class ModuleIRCv3AccountTag final
 	: public Module
 {
- private:
+private:
 	AccountTag tag;
 	AccountIdTag idtag;
 
- public:
+public:
 	ModuleIRCv3AccountTag()
 		: Module(VF_VENDOR, "Provides the IRCv3 account-tag client capability.")
 		, tag(this)

@@ -81,7 +81,7 @@ class BufferedSocket;
 class CoreExport SocketTimeout final
 	: public Timer
 {
- private:
+private:
 	/** BufferedSocket the class is attached to
 	 */
 	BufferedSocket* sock;
@@ -90,7 +90,7 @@ class CoreExport SocketTimeout final
 	 */
 	int sfd;
 
- public:
+public:
 	/** Create a socket timeout class
 	 * @param fd File descriptor of BufferedSocket
 	 * @param thesock BufferedSocket to attach to
@@ -115,12 +115,12 @@ class CoreExport SocketTimeout final
 class CoreExport StreamSocket
 	: public EventHandler
 {
- public:
+public:
 	/** Socket send queue
 	 */
 	class SendQueue
 	{
-	 public:
+	public:
 		/** One element of the queue, a continuous buffer
 		 */
 		typedef std::string Element;
@@ -215,7 +215,7 @@ class CoreExport StreamSocket
 			other.clear();
 		}
 
-	 private:
+	private:
 		/** Private send queue. Note that individual strings may be shared.
 		 */
 		Container data;
@@ -232,7 +232,7 @@ class CoreExport StreamSocket
 		SS_USER
 	};
 
- private:
+private:
 	/** Whether this socket should close once its sendq is empty */
 	bool closeonempty = false;
 
@@ -280,11 +280,11 @@ class CoreExport StreamSocket
 	 */
 	long HookChainRead(IOHook* hook, std::string& rq);
 
- protected:
+protected:
 	/** The data which has been received from the socket. */
 	std::string recvq;
 
- public:
+public:
 	const Type type;
 	StreamSocket(Type sstype = SS_UNKNOWN)
 		: type(sstype)
@@ -376,7 +376,7 @@ class CoreExport StreamSocket
 class CoreExport BufferedSocket
 	: public StreamSocket
 {
- public:
+public:
 	/** Timeout object or NULL
 	 */
 	SocketTimeout* Timeout;
@@ -431,7 +431,7 @@ class CoreExport BufferedSocket
 	 */
 	virtual void OnTimeout();
 
- protected:
+protected:
 	void OnEventHandlerWrite() override;
 	BufferedSocketError BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long timeout);
 };

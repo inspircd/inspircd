@@ -45,7 +45,7 @@ class RemoveBase
 	bool& supportnokicks;
 	ChanModeReference& nokicksmode;
 
- public:
+public:
 	unsigned long protectedrank;
 
 	RemoveBase(Module* Creator, bool& snk, ChanModeReference& nkm, const char* cmdn)
@@ -168,7 +168,7 @@ class RemoveBase
 class CommandRemove final
 	: public RemoveBase
 {
- public:
+public:
 	CommandRemove(Module* Creator, bool& snk, ChanModeReference& nkm)
 		: RemoveBase(Creator, snk, nkm, "REMOVE")
 	{
@@ -185,7 +185,7 @@ class CommandRemove final
 class CommandFpart final
 	: public RemoveBase
 {
- public:
+public:
 	CommandFpart(Module* Creator, bool& snk, ChanModeReference& nkm)
 		: RemoveBase(Creator, snk, nkm, "FPART")
 	{
@@ -203,13 +203,13 @@ class ModuleRemove final
 	: public Module
 	, public ISupport::EventListener
 {
- private:
+private:
 	ChanModeReference nokicksmode;
 	CommandRemove cmd1;
 	CommandFpart cmd2;
 	bool supportnokicks;
 
- public:
+public:
 	ModuleRemove()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /FPART and /REMOVE commands which allows channel operators to force part users from a channel.")
 		, ISupport::EventListener(this)

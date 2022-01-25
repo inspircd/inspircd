@@ -31,7 +31,7 @@ namespace Who
 class Who::EventListener
 	: public Events::ModuleEventListener
 {
- public:
+public:
 	EventListener(Module* mod)
 		: ModuleEventListener(mod, "event/who")
 	{
@@ -51,7 +51,7 @@ class Who::EventListener
 
 class Who::Request
 {
- public:
+public:
 	typedef std::bitset<UCHAR_MAX + 1> CharState;
 
 	/** The flags for matching users to include. */
@@ -86,6 +86,6 @@ class Who::Request
 	 */
 	virtual bool GetFieldIndex(char flag, size_t& out) const = 0;
 
- protected:
+protected:
 	Request() = default;
 };

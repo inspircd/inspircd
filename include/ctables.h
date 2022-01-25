@@ -89,7 +89,7 @@ enum class RouteType : uint8_t
 /** Describes the routing of an IRC message. */
 class RouteDescriptor final
 {
- public:
+public:
 	/** The target of the message in question. */
 	const std::string target;
 
@@ -138,15 +138,15 @@ class RouteDescriptor final
 class CoreExport CommandBase
 	: public ServiceProvider
 {
- public:
+public:
 	/** Encapsulates parameters to a command. */
 	class Params : public std::vector<std::string>
 	{
-	 private:
+	private:
 		/* IRCv3 message tags. */
 		ClientProtocol::TagMap tags;
 
-	 public:
+	public:
 		/** Initializes a new instance from parameter and tag references.
 		 * @param paramsref Message parameters.
 		 * @param tagsref IRCv3 message tags.
@@ -223,7 +223,7 @@ class CoreExport CommandBase
 class CoreExport Command
 	: public CommandBase
 {
- protected:
+protected:
 	/** Initializes a new instance of the Command class.
 	 * @param me The module which created this instance.
 	 * @param cmd The name of the command.
@@ -232,7 +232,7 @@ class CoreExport Command
 	 */
 	Command(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0);
 
- public:
+public:
 	/** Unregisters this command from the command parser. */
 	~Command() override;
 
@@ -290,7 +290,7 @@ protected:
 	 */
 	SplitCommand(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0);
 
- public:
+public:
 	/** @copydoc Command::Handle */
 	CmdResult Handle(User* user, const Params& parameters) override;
 

@@ -44,7 +44,7 @@ class intrusive_list_node
 		ptr_next = ptr_prev = NULL;
 	}
 
- public:
+public:
 	friend class intrusive_list<T, Tag>;
 	friend class intrusive_list_tail<T, Tag>;
 };

@@ -39,7 +39,7 @@
 
 class lwbNickHandler final
 {
- public:
+public:
 	static bool Call(const std::string&);
 };
 
@@ -253,7 +253,7 @@ class ModuleNationalChars final
 		RehashHashmap(ServerInstance->Channels.GetChans());
 	}
 
- public:
+public:
 	ModuleNationalChars()
 		: Module(VF_VENDOR | VF_COMMON, "Allows the server administrator to define what characters are allowed in nicknames and channel names and how those characters should be compared in a case insensitive way.")
 		, rememberer(ServerInstance->IsNick)

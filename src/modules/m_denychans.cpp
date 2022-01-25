@@ -55,13 +55,13 @@ typedef std::vector<std::string> GoodChannels;
 class ModuleDenyChannels final
 	: public Module
 {
- private:
+private:
 	BadChannels badchannels;
 	GoodChannels goodchannels;
 	UserModeReference antiredirectmode;
 	ChanModeReference redirectmode;
 
- public:
+public:
 	ModuleDenyChannels()
 		: Module(VF_VENDOR, "Allows the server administrator to prevent users from joining channels matching a glob.")
 		, antiredirectmode(this, "antiredirect")

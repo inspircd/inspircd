@@ -44,7 +44,7 @@ typedef unsigned char byte;
  */
 class MD5Context final
 {
- public:
+public:
 	word32 buf[4];
 	word32 bytes[2];
 	word32 in[16];
@@ -237,7 +237,7 @@ class MD5Provider final
 		MD5Final((unsigned char*)dest, &context);
 	}
 
- public:
+public:
 	std::string GenerateRaw(const std::string& data) override
 	{
 		char res[16];
@@ -251,10 +251,10 @@ class MD5Provider final
 class ModuleMD5 final
 	: public Module
 {
- private:
+private:
 	MD5Provider md5;
 
- public:
+public:
 	ModuleMD5()
 		: Module(VF_VENDOR, "Allows other modules to generate MD5 hashes.")
 		, md5(this)

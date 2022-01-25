@@ -116,7 +116,7 @@ struct WhoData final
 class CommandWho final
 	: public SplitCommand
 {
- private:
+private:
 	ChanModeReference secretmode;
 	ChanModeReference privatemode;
 	UserModeReference hidechansmode;
@@ -168,7 +168,7 @@ class CommandWho final
 	template<typename T>
 	void WhoUsers(LocalUser* source, const std::vector<std::string>& parameters, const T& users, WhoData& data);
 
- public:
+public:
 	CommandWho(Module* parent)
 		: SplitCommand(parent, "WHO", 1, 3)
 		, secretmode(parent, "secret")
@@ -584,10 +584,10 @@ class CoreModWho final
 	: public Module
 	, public ISupport::EventListener
 {
- private:
+private:
 	CommandWho cmd;
 
- public:
+public:
 	CoreModWho()
 		: Module(VF_CORE | VF_VENDOR, "Provides the WHO command")
 		, ISupport::EventListener(this)

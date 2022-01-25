@@ -23,14 +23,14 @@
 
 class CoreExport TokenList final
 {
- private:
+private:
 	/** Whether this list includes all tokens by default. */
 	bool permissive = false;
 
 	/** Either the tokens to exclude if in permissive mode or the tokens to include if in strict mode. */
 	insp::flat_set<std::string, irc::insensitive_swo> tokens;
 
- public:
+public:
 	/** Creates a new empty token list. */
 	TokenList() = default;
 

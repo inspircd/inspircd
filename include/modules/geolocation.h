@@ -29,7 +29,7 @@ namespace Geolocation
 class Geolocation::APIBase
 	: public DataProvider
 {
- public:
+public:
 	APIBase(Module* parent)
 		: DataProvider(parent, "geolocationapi")
 	{
@@ -51,7 +51,7 @@ class Geolocation::APIBase
 class Geolocation::API final
 	: public dynamic_reference<Geolocation::APIBase>
 {
- public:
+public:
 	API(Module* parent)
 		: dynamic_reference<Geolocation::APIBase>(parent, "geolocationapi")
 	{
@@ -68,7 +68,7 @@ private:
 	/** The country name for this location. */
 	std::string name;
 
- public:
+public:
 	Location(const std::string& Code, const std::string& Name)
 		: code(Code)
 		, name(Name)

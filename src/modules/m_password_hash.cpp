@@ -30,7 +30,7 @@
 class CommandMkpasswd final
 	: public Command
 {
- public:
+public:
 	CommandMkpasswd(Module* Creator) : Command(Creator, "MKPASSWD", 2)
 	{
 		syntax = { "<hashtype> <plaintext>" };
@@ -87,10 +87,10 @@ class CommandMkpasswd final
 class ModulePasswordHash final
 	: public Module
 {
- private:
+private:
 	CommandMkpasswd cmd;
 
- public:
+public:
 	ModulePasswordHash()
 		: Module(VF_VENDOR, "Allows passwords to be hashed and adds the /MKPASSWD command which allows the generation of hashed passwords for use in the server configuration.")
 		, cmd(this)

@@ -34,7 +34,7 @@ namespace DieRestart
 class CommandDie final
 	: public Command
 {
- public:
+public:
 	CommandDie(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
@@ -46,7 +46,7 @@ class CommandKill final
 	std::string killreason;
 	ClientProtocol::EventProvider protoev;
 
- public:
+public:
 	/** Set to a non empty string to obfuscate nicknames prepended to a KILL. */
 	std::string hidenick;
 
@@ -62,7 +62,7 @@ class CommandKill final
 class CommandOper final
 	: public SplitCommand
 {
- public:
+public:
 	CommandOper(Module* parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
@@ -70,7 +70,7 @@ class CommandOper final
 class CommandRehash final
 	: public Command
 {
- public:
+public:
 	CommandRehash(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
@@ -78,7 +78,7 @@ class CommandRehash final
 class CommandRestart final
 	: public Command
 {
- public:
+public:
 	CommandRestart(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
@@ -86,7 +86,7 @@ class CommandRestart final
 class ModeUserServerNoticeMask final
 	: public ModeHandler
 {
- private:
+private:
 	/** Process a snomask modifier string, e.g. +abc-de
 	 * @param user The target user
 	 * @param input A sequence of notice mask characters
@@ -96,7 +96,7 @@ class ModeUserServerNoticeMask final
 	 */
 	std::string ProcessNoticeMasks(User* user, const std::string& input);
 
- public:
+public:
 	ModeUserServerNoticeMask(Module* Creator);
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 
@@ -110,7 +110,7 @@ class ModeUserServerNoticeMask final
 class ModeUserOperator final
 	: public SimpleUserMode
 {
- public:
+public:
 	ModeUserOperator(Module* Creator);
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 };

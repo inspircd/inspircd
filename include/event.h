@@ -38,7 +38,7 @@ class Events::ModuleEventProvider
 	: public ServiceProvider
 	, private dynamic_reference_base::CaptureHook
 {
- public:
+public:
 	struct Comp
 	{
 		bool operator()(ModuleEventListener* lhs, ModuleEventListener* rhs) const;
@@ -99,7 +99,7 @@ class Events::ModuleEventProvider
 	template<typename Class, typename... FunArgs, typename... FwdArgs>
 	inline ModResult FirstResult(ModResult (Class::*function)(FunArgs...), FwdArgs&&... args) const;
 
- private:
+private:
 	void OnCapture() override
 	{
 		// If someone else holds the list from now on, clear mine. See below for more info.
@@ -149,7 +149,7 @@ class Events::ModuleEventListener
 		prov->Subscribe(this);
 	}
 
- public:
+public:
 	static constexpr unsigned int DefaultPriority = 100;
 
 	/** Constructor

@@ -33,7 +33,7 @@ namespace CTCTags
 class CTCTags::CapReference final
 	: public Cap::Reference
 {
- public:
+public:
 	CapReference(Module* mod)
 		: Cap::Reference(mod, "message-tags")
 	{
@@ -56,7 +56,7 @@ private:
 			PushParam(target);
 	}
 
- public:
+public:
 	TagMessage(User* source, const Channel* targetchan, const ClientProtocol::TagMap& Tags, char status = 0)
 		: ClientProtocol::Message("TAGMSG", source)
 	{
@@ -91,7 +91,7 @@ private:
 
 class CTCTags::TagMessageDetails final
 {
- public:
+public:
 	/** Whether to echo the tags at all. */
 	bool echo = true;
 
@@ -119,13 +119,13 @@ class CTCTags::TagMessageDetails final
 class CTCTags::EventListener
 	: public Events::ModuleEventListener
 {
- protected:
+protected:
 	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
 		: ModuleEventListener(mod, "event/tagmsg", eventprio)
 	{
 	}
 
- public:
+public:
 	/** Called before a user sends a tag message to a channel, a user, or a server glob mask.
 	 * @param user The user sending the message.
 	 * @param target The target of the message. This can either be a channel, a user, or a server

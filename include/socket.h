@@ -172,13 +172,13 @@ typedef std::vector<FailedPort> FailedPortList;
 class CoreExport ListenSocket final
 	: public EventHandler
 {
- public:
+public:
 	std::shared_ptr<ConfigTag> bind_tag;
 	const irc::sockets::sockaddrs bind_sa;
 
 	class IOHookProvRef : public dynamic_reference_nocheck<IOHookProvider>
 	{
-	 public:
+	public:
 		IOHookProvRef()
 			: dynamic_reference_nocheck<IOHookProvider>(NULL, std::string())
 		{

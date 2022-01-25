@@ -49,7 +49,7 @@ enum
 class RegisteredChannel final
 	: public SimpleChannelMode
 {
- public:
+public:
 	RegisteredChannel(Module* Creator)
 		: SimpleChannelMode(Creator, "c_registered", 'r')
 	{
@@ -73,7 +73,7 @@ class RegisteredUser final
 	: public SimpleUserMode
 {
 
- public:
+public:
 	RegisteredUser(Module* Creator)
 		: SimpleUserMode(Creator, "u_registered", 'r')
 	{
@@ -96,7 +96,7 @@ class AccountExtItemImpl final
 {
 	Events::ModuleEventProvider eventprov;
 
- public:
+public:
 	AccountExtItemImpl(Module* mod)
 		: AccountExtItem(mod, "accountname", ExtensionType::USER, true)
 		, eventprov(mod, "event/account")
@@ -132,7 +132,7 @@ class AccountExtBan final
 private:
 	AccountExtItemImpl& accountext;
 
- public:
+public:
 	AccountExtBan(Module* Creator, AccountExtItemImpl& AccountExt)
 		: ExtBan::MatchingBase(Creator, "account", 'R')
 		, accountext(AccountExt)
@@ -152,7 +152,7 @@ class UnauthedExtBan final
 private:
 	AccountExtItemImpl& accountext;
 
- public:
+public:
 	UnauthedExtBan(Module* Creator, AccountExtItemImpl& AccountExt)
 		: ExtBan::MatchingBase(Creator, "unauthed", 'U')
 		, accountext(AccountExt)
@@ -171,7 +171,7 @@ class ModuleServicesAccount final
 	, public CTCTags::EventListener
 	, public Whois::EventListener
 {
- private:
+private:
 	CallerID::API calleridapi;
 	CheckExemption::EventProvider exemptionprov;
 	SimpleChannelMode reginvitemode;
@@ -184,7 +184,7 @@ class ModuleServicesAccount final
 	AccountExtBan accountextban;
 	UnauthedExtBan unauthedextban;
 
- public:
+public:
 	ModuleServicesAccount()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds various channel and user modes relating to services accounts.")
 		, CTCTags::EventListener(this)

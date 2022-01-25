@@ -27,7 +27,7 @@ class TreeServer;
 
 class CmdBuilder
 {
- protected:
+protected:
 	/** The raw message contents. */
 	std::string content;
 
@@ -46,7 +46,7 @@ class CmdBuilder
 	/** Updates the tag string within the buffer. */
 	void UpdateTags();
 
- public:
+public:
 	CmdBuilder(const char* cmd)
 		: content(1, ':')
 	{

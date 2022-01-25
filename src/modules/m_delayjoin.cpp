@@ -33,11 +33,11 @@
 class DelayJoinMode final
 	: public SimpleChannelMode
 {
- private:
+private:
 	IntExtItem& unjoined;
 	IRCv3::ServerTime::API servertime;
 
- public:
+public:
 	DelayJoinMode(Module* Parent, IntExtItem& ext)
 		: SimpleChannelMode(Parent, "delayjoin", 'D')
 		, unjoined(ext)
@@ -75,10 +75,10 @@ namespace
 class JoinHook final
 	: public ClientProtocol::EventHook
 {
- private:
+private:
 	const IntExtItem& unjoined;
 
- public:
+public:
 	JoinHook(Module* mod, const IntExtItem& unjoinedref)
 		: ClientProtocol::EventHook(mod, "JOIN", 10)
 		, unjoined(unjoinedref)
@@ -104,7 +104,7 @@ class ModuleDelayJoin final
 	, public Names::EventListener
 	, public Who::EventListener
 {
- private:
+private:
 	IntExtItem unjoined;
 	JoinHook joinhook;
 	DelayJoinMode djm;
@@ -122,7 +122,7 @@ class ModuleDelayJoin final
 		}
 	}
 
- public:
+public:
 	ModuleDelayJoin()
 		: Module(VF_VENDOR, "Adds channel mode D (delayjoin) which hides JOIN messages from users until they speak.")
 		, CTCTags::EventListener(this)

@@ -40,7 +40,7 @@ CommandKill::CommandKill(Module* parent)
 class KillMessage final
 	: public ClientProtocol::Message
 {
- public:
+public:
 	KillMessage(ClientProtocol::EventProvider& protoev, User* user, LocalUser* target, const std::string& text, const std::string& hidenick)
 		: ClientProtocol::Message("KILL", NULL)
 	{

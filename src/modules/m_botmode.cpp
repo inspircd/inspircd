@@ -32,11 +32,11 @@
 class BotTag final
 	: public ClientProtocol::MessageTagProvider
 {
- private:
+private:
 	SimpleUserMode& botmode;
 	CTCTags::CapReference ctctagcap;
 
- public:
+public:
 	BotTag(Module* mod, SimpleUserMode& bm)
 		: ClientProtocol::MessageTagProvider(mod)
 		, botmode(bm)
@@ -63,12 +63,12 @@ class ModuleBotMode final
 	, public Who::EventListener
 	, public Whois::EventListener
 {
- private:
+private:
 	SimpleUserMode bm;
 	BotTag tag;
 	bool forcenotice;
 
- public:
+public:
 	ModuleBotMode()
 		: Module(VF_VENDOR, "Adds user mode B (bot) which marks users with it set as bots in their /WHOIS response.")
 		, ISupport::EventListener(this)

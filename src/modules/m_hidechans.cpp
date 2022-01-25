@@ -31,7 +31,7 @@
 class HideChans final
 	: public SimpleUserMode
 {
- public:
+public:
 	HideChans(Module* Creator)
 		: SimpleUserMode(Creator, "hidechans", 'I')
 	{
@@ -42,11 +42,11 @@ class ModuleHideChans final
 	: public Module
 	, public Whois::LineEventListener
 {
- private:
+private:
 	bool AffectsOpers;
 	HideChans hm;
 
- public:
+public:
 	ModuleHideChans()
 		: Module(VF_VENDOR, "Adds user mode I (hidechans) which hides the channels users with it set are in from their /WHOIS response.")
 		, Whois::LineEventListener(this)

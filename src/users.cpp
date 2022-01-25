@@ -882,7 +882,7 @@ namespace
 			user->Send(ev);
 		}
 
-	 public:
+	public:
 		WriteCommonRawHandler(ClientProtocol::Event& protoev)
 			: ev(protoev)
 		{

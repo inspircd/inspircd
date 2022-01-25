@@ -31,7 +31,7 @@
 class AuditoriumMode final
 	: public SimpleChannelMode
 {
- public:
+public:
 	AuditoriumMode(Module* Creator)
 		: SimpleChannelMode(Creator, "auditorium", 'u')
 	{
@@ -55,7 +55,7 @@ class JoinHook final
 	ModuleAuditorium* const parentmod;
 	bool active;
 
- public:
+public:
 	JoinHook(ModuleAuditorium* mod);
 	void OnEventInit(const ClientProtocol::Event& ev) override;
 	ModResult OnPreEventSend(LocalUser* user, const ClientProtocol::Event& ev, ClientProtocol::MessageList& messagelist) override;
@@ -75,7 +75,7 @@ class ModuleAuditorium final
 	bool OperCanSee;
 	JoinHook joinhook;
 
- public:
+public:
 	ModuleAuditorium()
 		: Module(VF_VENDOR, "Adds channel mode u (auditorium) which hides unprivileged users in a channel from each other.")
 		, Names::EventListener(this)

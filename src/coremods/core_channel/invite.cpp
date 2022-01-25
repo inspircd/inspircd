@@ -29,7 +29,7 @@ class InviteExpireTimer final
 
 	bool Tick() override;
 
- public:
+public:
 	InviteExpireTimer(Invite::Invite* invite, time_t timeout);
 };
 

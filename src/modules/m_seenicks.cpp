@@ -26,7 +26,7 @@
 class ModuleSeeNicks final
 	: public Module
 {
- public:
+public:
 	ModuleSeeNicks()
 		: Module(VF_VENDOR, "Sends a notice to snomasks n (local) and N (remote) when a user changes their nickname.")
 	{

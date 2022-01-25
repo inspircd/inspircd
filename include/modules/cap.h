@@ -31,7 +31,7 @@ namespace Cap
 	typedef intptr_t Ext;
 	class ExtItem : public IntExtItem
 	{
-	 public:
+	public:
 		ExtItem(Module* mod);
 		void FromInternal(Extensible* container, const std::string& value) noexcept override;
 		std::string ToHuman(const Extensible* container, void* item) const noexcept override;
@@ -53,7 +53,7 @@ namespace Cap
 
 	class EventListener : public Events::ModuleEventListener
 	{
-	 public:
+	public:
 		EventListener(Module* mod)
 			: ModuleEventListener(mod, "event/cap")
 		{
@@ -73,7 +73,7 @@ namespace Cap
 
 	class Manager : public DataProvider
 	{
-	 public:
+	public:
 		Manager(Module* mod)
 			: DataProvider(mod, "capmanager")
 		{
@@ -154,7 +154,7 @@ namespace Cap
 
 		friend class ManagerImpl;
 
-	 protected:
+	protected:
 		/** Notify the manager that the value of the capability changed.
 		 * Must be called if the value of the cap changes for any reason.
 		 */
@@ -164,7 +164,7 @@ namespace Cap
 				manager->NotifyValueChange(this);
 		}
 
-	 public:
+	public:
 		/** Constructor, initializes the capability.
 		 * Caps are active by default.
 		 * @param mod Module providing the cap
@@ -293,7 +293,7 @@ namespace Cap
 	{
 		dynamic_reference_nocheck<Capability> ref;
 
-	 public:
+	public:
 		/** Constructor, initializes the capability reference
 		 * @param mod Module creating this object
 		 * @param Name Raw name of the cap as used in the protocol (CAP LS, etc.)
@@ -334,7 +334,7 @@ namespace Cap
 
 	class MessageBase : public ClientProtocol::Message
 	{
-	 public:
+	public:
 		MessageBase(const std::string& subcmd)
 			: ClientProtocol::Message("CAP", ServerInstance->Config->GetServerName())
 		{

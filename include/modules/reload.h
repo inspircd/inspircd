@@ -39,7 +39,7 @@ namespace ReloadModule
 		typedef std::vector<Data> List;
 		List list;
 
-	 public:
+	public:
 		/** Add data to the saved state of a module.
 		 * The provided handler's OnReloadModuleRestore() method will be called when the reload is done with the pointer
 		 * provided.
@@ -57,7 +57,7 @@ namespace ReloadModule
 
 	class EventListener : public Events::ModuleEventListener
 	{
-	 public:
+	public:
 		EventListener(Module* mod)
 			: ModuleEventListener(mod, "event/reloadmodule")
 		{

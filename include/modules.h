@@ -70,11 +70,11 @@ enum ModuleFlags
 /** Represents the result of a module event. */
 class ModResult final
 {
- private:
+private:
 	/** The underlying result value. */
 	char result = 0;
 
- public:
+public:
 	/** Creates a new instance of the ModResult class which defaults to MOD_RES_PASSTHRU. */
 	ModResult() = default;
 
@@ -193,7 +193,7 @@ do { \
 class CoreExport DataProvider
 	: public ServiceProvider
 {
- public:
+public:
 	DataProvider(Module* Creator, const std::string& Name)
 		: ServiceProvider(Creator, Name, SERVICE_DATA) {}
 };
@@ -288,7 +288,7 @@ class CoreExport Module
 	: public Cullable
 	, public usecountbase
 {
- protected:
+protected:
 	/** Initializes a new instance of the Module class.
 	 * @param mprops The properties of this module.
 	 * @param mdesc A description of this module.
@@ -300,7 +300,7 @@ class CoreExport Module
 	 */
 	void DetachEvent(Implementation i);
 
- public:
+public:
 	/** Data which is synchronised between servers on link. */
 	typedef std::map<std::string, std::string, irc::insensitive_swo> LinkData;
 
@@ -1020,11 +1020,11 @@ class CoreExport Module
  */
 class CoreExport ModuleManager final
 {
- public:
+public:
 	typedef std::multimap<std::string, ServiceProvider*, irc::insensitive_swo> DataProviderMap;
 	typedef std::vector<ServiceProvider*> ServiceList;
 
- private:
+private:
 	/** Holds a string describing the last module error to occur
 	 */
 	std::string LastModuleError;
@@ -1055,7 +1055,7 @@ class CoreExport ModuleManager final
 	 */
 	void UnregisterModes(Module* mod, ModeType modetype);
 
- public:
+public:
 	typedef std::map<std::string, Module*> ModuleMap;
 
 	/** Event handler hooks.

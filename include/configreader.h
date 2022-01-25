@@ -36,7 +36,7 @@
 /** Represents the position within a file. */
 class CoreExport FilePosition final
 {
- public:
+public:
 	/** The name of the file that the position points to. */
 	std::string name;
 
@@ -64,10 +64,10 @@ public:
 	/** A mapping of configuration keys to their assigned values. */
 	typedef insp::flat_map<std::string, std::string, irc::insensitive_swo> Items;
 
- private:
+private:
 	Items items;
 
- public:
+public:
 	/** The name of the configuration tag (e.g. "foo" for \<foo bar="baz">). */
 	const std::string name;
 
@@ -138,7 +138,7 @@ public:
  */
 class ServerLimits final
 {
- public:
+public:
 	/** Maximum line length */
 	size_t MaxLine;
 	/** Maximum nickname length */
@@ -222,7 +222,7 @@ struct CommandLineConf final
 
 class CoreExport OperInfo final
 {
- public:
+public:
 	TokenList AllowedOperCommands;
 	TokenList AllowedPrivs;
 
@@ -261,13 +261,13 @@ class CoreExport OperInfo final
  */
 class CoreExport ServerConfig final
 {
- private:
+private:
 	void ApplyModules(User* user);
 	void CrossCheckConnectBlocks(ServerConfig* current);
 	void CrossCheckOperClassType();
 	void Fill();
 
- public:
+public:
 	/** How to treat a user in a channel who is banned. */
 	enum BannedUserTreatment
 	{
@@ -283,14 +283,14 @@ class CoreExport ServerConfig final
 
 	class CoreExport ServerPaths
 	{
-	 private:
+	private:
 		/** Expands a path fragment to a full path.
 		 * @param base The base path to expand from
 		 * @param fragment The path fragment to expand on top of base.
 		 */
 		static std::string ExpandPath(const std::string& base, const std::string& fragment);
 
-	 public:
+	public:
 		/** Config path */
 		std::string Config;
 
@@ -533,21 +533,21 @@ class CoreExport ServerConfig final
 class CoreExport ConfigReaderThread final
 	: public Thread
 {
- private:
+private:
 	/** The new server configuration. */
 	ServerConfig* Config = new ServerConfig();
 
 	/** Whether the config has been read yet. */
 	std::atomic_bool done = { false };
 
- protected:
+protected:
 	/** @copydoc Thread::OnStart */
 	void OnStart() override;
 
 	/** @copydoc Thread::OnStop */
 	void OnStop() override;
 
- public:
+public:
 	const std::string UUID;
 
 	ConfigReaderThread(const std::string& uuid)
@@ -567,7 +567,7 @@ class CoreExport ConfigReaderThread final
 /** Represents the status of a config load. */
 class CoreExport ConfigStatus final
 {
- public:
+public:
 	/** Whether this is the initial config load. */
 	bool const initial;
 

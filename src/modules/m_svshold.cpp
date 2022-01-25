@@ -81,7 +81,7 @@ public:
 class SVSHoldFactory final
 	: public XLineFactory
 {
- public:
+public:
 	SVSHoldFactory() : XLineFactory("SVSHOLD") { }
 
 	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
@@ -98,7 +98,7 @@ class SVSHoldFactory final
 class CommandSvshold final
 	: public Command
 {
- public:
+public:
 	CommandSvshold(Module* Creator) : Command(Creator, "SVSHOLD", 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -179,11 +179,11 @@ class ModuleSVSHold final
 	: public Module
 	, public Stats::EventListener
 {
- private:
+private:
 	CommandSvshold cmd;
 	SVSHoldFactory s;
 
- public:
+public:
 	ModuleSVSHold()
 		: Module(VF_VENDOR | VF_COMMON, "Adds the /SVSHOLD command which allows services to reserve nicknames.")
 		, Stats::EventListener(this)

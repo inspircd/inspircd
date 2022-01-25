@@ -126,7 +126,7 @@ typedef std::deque<ResultQueueItem> ResultQueue;
 class ModuleSQL final
 	: public Module
 {
- public:
+public:
 	DispatcherThread* Dispatcher = nullptr;
 	QueryQueue qq;       // MUST HOLD MUTEX
 	ResultQueue rq;      // MUST HOLD MUTEX
@@ -142,9 +142,9 @@ class ModuleSQL final
 class DispatcherThread final
 	: public SocketThread
 {
- private:
+private:
 	ModuleSQL* const Parent;
- public:
+public:
 	DispatcherThread(ModuleSQL* CreatorModule) : Parent(CreatorModule) { }
 	void OnStart() override;
 	void OnNotify() override;
@@ -155,7 +155,7 @@ class DispatcherThread final
 class MySQLresult final
 	: public SQL::Result
 {
- public:
+public:
 	SQL::Error err;
 	int currentrow = 0;
 	int rows = 0;
@@ -265,7 +265,7 @@ class MySQLresult final
 class SQLConnection final
 	: public SQL::Provider
 {
- private:
+private:
 	bool EscapeString(SQL::Query* query, const std::string& in, std::string& out)
 	{
 		// In the worst case each character may need to be encoded as using two bytes and one
@@ -290,7 +290,7 @@ class SQLConnection final
 		return true;
 	}
 
- public:
+public:
 	std::shared_ptr<ConfigTag> config;
 	MYSQL* connection = nullptr;
 	std::mutex lock;

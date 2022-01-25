@@ -58,7 +58,7 @@ static void DisplayList(LocalUser* user, Channel* channel)
 class CommandProp final
 	: public SplitCommand
 {
- public:
+public:
 	CommandProp(Module* parent)
 		: SplitCommand(parent, "PROP", 1)
 	{
@@ -110,7 +110,7 @@ class CommandProp final
 class DummyZ final
 	: public ModeHandler
 {
- public:
+public:
 	DummyZ(Module* parent) : ModeHandler(parent, "namebase", 'Z', PARAM_ALWAYS, MODETYPE_CHANNEL)
 	{
 		list = true;
@@ -128,11 +128,11 @@ class DummyZ final
 class ModuleNamedModes final
 	: public Module
 {
- private:
+private:
 	CommandProp cmd;
 	DummyZ dummyZ;
 
- public:
+public:
 	ModuleNamedModes()
 		: Module(VF_VENDOR, "Provides support for adding and removing modes via their long names.")
 		, cmd(this)

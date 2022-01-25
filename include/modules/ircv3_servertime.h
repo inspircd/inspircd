@@ -49,10 +49,10 @@ namespace IRCv3
 class IRCv3::ServerTime::Manager
 	: public DataProvider
 {
- protected:
+protected:
 	ClientProtocol::MessageTagProvider* tagprov;
 
- public:
+public:
 	/** Constructor.
 	 * @param mod Module that owns the Manager.
 	 */
@@ -86,7 +86,7 @@ class IRCv3::ServerTime::Manager
 class IRCv3::ServerTime::API final
 	: public dynamic_reference_nocheck<Manager>
 {
- public:
+public:
 	API(Module* mod)
 		: dynamic_reference_nocheck<Manager>(mod, "servertimeapi")
 	{

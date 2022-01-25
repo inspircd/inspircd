@@ -47,7 +47,7 @@ template<typename T, ExtensionType ExtType>
 class Invite::ExtItem final
 	: public ExtensionItem
 {
- private:
+private:
 	static std::string ToString(void* item, bool human)
 	{
 		std::string ret;
@@ -61,7 +61,7 @@ class Invite::ExtItem final
 		return ret;
 	}
 
- public:
+public:
 	ExtItem(Module* owner, const char* extname)
 		: ExtensionItem(owner, extname, ExtType)
 	{
@@ -122,7 +122,7 @@ class Invite::APIImpl final
 	ExtItem<LocalUser, ExtensionType::USER> userext;
 	ExtItem<Channel, ExtensionType::CHANNEL> chanext;
 
- public:
+public:
 	APIImpl(Module* owner);
 
 	void Create(LocalUser* user, Channel* chan, time_t timeout) override;

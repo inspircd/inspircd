@@ -58,10 +58,10 @@ struct LusersCounters final
 class CommandLusers final
 	: public Command
 {
- private:
+private:
 	LusersCounters& counters;
 
- public:
+public:
 	CommandLusers(Module* parent, LusersCounters& Counters)
 		: Command(parent,"LUSERS",0,0)
 		, counters(Counters)
@@ -141,7 +141,7 @@ class ModuleLusers final
 	CommandLusers cmd;
 	InvisibleWatcher mw;
 
- public:
+public:
 	ModuleLusers()
 		: Module(VF_CORE | VF_VENDOR, "Provides the LUSERS command")
 		, invisiblemode(this, "invisible")

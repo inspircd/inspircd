@@ -26,13 +26,13 @@
 class SpanningTreeProtocolInterface final
 	: public ProtocolInterface
 {
- public:
+public:
 	class Server final
 		: public ProtocolInterface::Server
 	{
 		TreeSocket* const sock;
 
-	 public:
+	public:
 		Server(TreeSocket* s) : sock(s) { }
 		void SendMetaData(const std::string& key, const std::string& data) override;
 	};

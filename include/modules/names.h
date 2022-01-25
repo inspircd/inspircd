@@ -29,7 +29,7 @@ namespace Names
 class Names::EventListener
 	: public Events::ModuleEventListener
 {
- public:
+public:
 	EventListener(Module* mod)
 		: ModuleEventListener(mod, "event/names")
 	{

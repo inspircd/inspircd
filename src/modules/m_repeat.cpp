@@ -30,7 +30,7 @@
 
 class ChannelSettings final
 {
- public:
+public:
 	enum RepeatAction
 	{
 		ACT_KICK,
@@ -69,7 +69,7 @@ class ChannelSettings final
 class RepeatMode final
 	: public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings>>
 {
- private:
+private:
 	struct RepeatItem final
 	{
 		time_t ts;
@@ -126,7 +126,7 @@ class RepeatMode final
 		return mx[0][l2];
 	}
 
- public:
+public:
 	ModuleSettings ms;
 	SimpleExtItem<MemberInfo> MemberInfoExt;
 
@@ -265,7 +265,7 @@ class RepeatMode final
 		chset->serialize(out);
 	}
 
- private:
+private:
 	bool ParseSettings(User* source, std::string& parameter, ChannelSettings& settings)
 	{
 		irc::sepstream stream(parameter, ':');
@@ -357,12 +357,12 @@ class RepeatMode final
 class RepeatModule final
 	: public Module
 {
- private:
+private:
 	ChanModeReference banmode;
 	CheckExemption::EventProvider exemptionprov;
 	RepeatMode rm;
 
- public:
+public:
 	RepeatModule()
 		: Module(VF_VENDOR | VF_COMMON, "Adds channel mode E (repeat) which helps protect against spammers which spam the same message repeatedly.")
 		, banmode(this, "ban")

@@ -33,13 +33,13 @@ namespace ISupport
 class ISupport::EventListener
 	: public Events::ModuleEventListener
 {
- protected:
+protected:
 	EventListener(Module* mod)
 		: ModuleEventListener(mod, "event/isupport")
 	{
 	}
 
- public:
+public:
 	virtual void OnBuildISupport(TokenMap& tokens) { }
 	virtual void OnBuildClassISupport(ConnectClass::Ptr klass, TokenMap& tokens) { }
 };
@@ -47,7 +47,7 @@ class ISupport::EventListener
 class ISupport::EventProvider final
 	: public Events::ModuleEventProvider
 {
- public:
+public:
 	EventProvider(Module* mod)
 		: Events::ModuleEventProvider(mod, "event/isupport")
 	{

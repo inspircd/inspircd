@@ -73,7 +73,7 @@ namespace OpenSSL
 	class Exception final
 		: public ModuleException
 	{
-	 public:
+	public:
 		Exception(const std::string& msg)
 			: ModuleException(thismod, msg)
 		{
@@ -85,7 +85,7 @@ namespace OpenSSL
 	{
 		DH* dh;
 
-	 public:
+	public:
 		DHParams(const std::string& filename)
 		{
 			BIO* dhpfile = BIO_new_file(filename.c_str(), "r");
@@ -116,7 +116,7 @@ namespace OpenSSL
 		SSL_CTX* const ctx;
 		long ctx_options;
 
-	 public:
+	public:
 		Context(SSL_CTX* context)
 			: ctx(context)
 		{
@@ -358,7 +358,7 @@ namespace OpenSSL
 			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, "%s %s context options: %ld", name.c_str(), ctxname.c_str(), final);
 		}
 
-	 public:
+	public:
 		Profile(const std::string& profilename, std::shared_ptr<ConfigTag> tag)
 			: name(profilename)
 #ifndef INSPIRCD_OPENSSL_AUTO_DH
@@ -516,7 +516,7 @@ static int OnVerify(int preverify_ok, X509_STORE_CTX *ctx)
 class OpenSSLIOHook final
 	: public SSLIOHook
 {
- private:
+private:
 	SSL* sess;
 	bool data_to_write = false;
 
@@ -681,7 +681,7 @@ class OpenSSLIOHook final
 	// Calls our private SSLInfoCallback()
 	friend void StaticSSLInfoCallback(const SSL* ssl, int where, int rc);
 
- public:
+public:
 	OpenSSLIOHook(std::shared_ptr<IOHookProvider> hookprov, StreamSocket* sock, SSL* session)
 		: SSLIOHook(hookprov)
 		, sess(session)
@@ -904,7 +904,7 @@ class OpenSSLIOHookProvider final
 {
 	OpenSSL::Profile profile;
 
- public:
+public:
 	OpenSSLIOHookProvider(Module* mod, const std::string& profilename, std::shared_ptr<ConfigTag> tag)
 		: SSLIOHookProvider(mod, profilename)
 		, profile(profilename, tag)
@@ -983,7 +983,7 @@ class ModuleSSLOpenSSL final
 		profiles.swap(newprofiles);
 	}
 
- public:
+public:
 	ModuleSSLOpenSSL()
 		: Module(VF_VENDOR, "Allows TLS encrypted connections using the OpenSSL library.")
 	{

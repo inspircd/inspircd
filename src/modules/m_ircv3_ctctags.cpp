@@ -26,7 +26,7 @@
 class CommandTagMsg final
 	: public Command
 {
- private:
+private:
 	Cap::Capability& cap;
 	Events::ModuleEventProvider tagevprov;
 	ClientProtocol::EventProvider msgevprov;
@@ -202,7 +202,7 @@ class CommandTagMsg final
 		return FirePostEvent(source, msgtarget, msgdetails);
 	}
 
- public:
+public:
 	CommandTagMsg(Module* Creator, Cap::Capability& Cap)
 		: Command(Creator, "TAGMSG", 1)
 		, cap(Cap)
@@ -270,10 +270,10 @@ class CommandTagMsg final
 class C2CTags final
 	: public ClientProtocol::MessageTagProvider
 {
- private:
+private:
 	Cap::Capability& cap;
 
- public:
+public:
 	bool allowclientonlytags;
 	C2CTags(Module* Creator, Cap::Capability& Cap)
 		: ClientProtocol::MessageTagProvider(Creator)
@@ -309,7 +309,7 @@ class ModuleIRCv3CTCTags final
 	, public CTCTags::EventListener
 	, public ISupport::EventListener
 {
- private:
+private:
 	Cap::Capability cap;
 	CommandTagMsg cmd;
 	C2CTags c2ctags;
@@ -327,7 +327,7 @@ class ModuleIRCv3CTCTags final
 		return MOD_RES_PASSTHRU;
 	}
 
- public:
+public:
 	ModuleIRCv3CTCTags()
 		: Module(VF_VENDOR | VF_COMMON, "Provides the IRCv3 message-tags client capability.")
 		, CTCTags::EventListener(this)

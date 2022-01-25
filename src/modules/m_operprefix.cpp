@@ -49,7 +49,7 @@ class HideOperWatcher final
 {
 	ModuleOperPrefixMode* parentmod;
 
- public:
+public:
 	HideOperWatcher(ModuleOperPrefixMode* parent);
 	void AfterMode(User* source, User* dest, Channel* channel, const Modes::Change& change) override;
 };
@@ -57,12 +57,12 @@ class HideOperWatcher final
 class ModuleOperPrefixMode final
 	: public Module
 {
- private:
+private:
 	OperPrefixMode opm;
 	HideOperWatcher hideoperwatcher;
 	UserModeReference hideopermode;
 
- public:
+public:
 	ModuleOperPrefixMode()
 		: Module(VF_VENDOR, "Adds the server operator-only y (operprefix) channel prefix mode.")
 		, opm(this)

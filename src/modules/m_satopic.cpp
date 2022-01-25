@@ -29,7 +29,7 @@
 class CommandSATopic final
 	: public Command
 {
- public:
+public:
 	CommandSATopic(Module* Creator) : Command(Creator,"SATOPIC", 2, 2)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -68,10 +68,10 @@ class CommandSATopic final
 class ModuleSATopic final
 	: public Module
 {
- private:
+private:
 	CommandSATopic cmd;
 
- public:
+public:
 	ModuleSATopic()
 		: Module(VF_VENDOR, "Adds the /SATOPIC command which allows server operators to change the topic of a channel that they would not otherwise have the privileges to change.")
 		, cmd(this)

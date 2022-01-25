@@ -24,7 +24,7 @@
 class ServerTags final
     : public ClientProtocol::MessageTagProvider
 {
- public:
+public:
 	ServerTags(Module* Creator);
 	ModResult OnProcessTag(User* user, const std::string& tagname, std::string& tagvalue) override;
 	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override;
@@ -33,10 +33,10 @@ class ServerTags final
 class ServiceTag final
     : public ClientProtocol::MessageTagProvider
 {
- private:
+private:
 	CTCTags::CapReference ctctagcap;
 
- public:
+public:
 	ServiceTag(Module* mod);
 	void OnPopulateTags(ClientProtocol::Message& msg) override;
 	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override;

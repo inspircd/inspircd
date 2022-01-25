@@ -44,7 +44,7 @@ inline AccountExtItem* GetAccountIdExtItem()
 class AccountEventListener
 	: public Events::ModuleEventListener
 {
- public:
+public:
 	AccountEventListener(Module* mod)
 		: ModuleEventListener(mod, "event/account")
 	{

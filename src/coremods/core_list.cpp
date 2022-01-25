@@ -30,7 +30,7 @@
 class CommandList final
 	: public Command
 {
- private:
+private:
 	ChanModeReference secretmode;
 	ChanModeReference privatemode;
 
@@ -46,7 +46,7 @@ class CommandList final
 		return ServerInstance->Time() - (minutes * 60);
 	}
 
- public:
+public:
 	// Whether to show modes in the LIST response.
 	bool showmodes;
 
@@ -190,10 +190,10 @@ class CoreModList final
 	: public Module
 	, public ISupport::EventListener
 {
- private:
+private:
 	CommandList cmd;
 
- public:
+public:
 	CoreModList()
 		: Module(VF_CORE | VF_VENDOR, "Provides the LIST command")
 		, ISupport::EventListener(this)

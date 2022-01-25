@@ -36,7 +36,7 @@ class MessageWrapper final
 	std::string suffix;
 	bool fixed;
 
- public:
+public:
 	/**
 	 * Wrap the given message according to the config rules
 	 * @param message The message to wrap
@@ -57,10 +57,10 @@ class MessageWrapper final
 class CommandAway final
 	: public Command
 {
- private:
+private:
 	Away::EventProvider awayevprov;
 
- public:
+public:
 	CommandAway(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
@@ -69,7 +69,7 @@ class CommandAway final
 class CommandIson final
 	: public SplitCommand
 {
- public:
+public:
 	CommandIson(Module* parent)
 		: SplitCommand(parent, "ISON", 1)
 	{
@@ -83,7 +83,7 @@ class CommandIson final
 class CommandNick final
 	: public SplitCommand
 {
- public:
+public:
 	CommandNick(Module* parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
@@ -91,7 +91,7 @@ class CommandNick final
 class CommandPart final
 	: public Command
 {
- public:
+public:
 	MessageWrapper msgwrap;
 
 	CommandPart(Module* parent);
@@ -102,10 +102,10 @@ class CommandPart final
 class CommandQuit final
 	: public Command
 {
- private:
+private:
 	StringExtItem operquit;
 
- public:
+public:
 	MessageWrapper msgwrap;
 
 	CommandQuit(Module* parent);
@@ -116,7 +116,7 @@ class CommandQuit final
 class CommandUser final
 	: public SplitCommand
 {
- public:
+public:
 	CommandUser(Module* parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 
@@ -133,10 +133,10 @@ class CommandUser final
 class CommandUserhost final
 	: public Command
 {
- private:
+private:
 	UserModeReference hideopermode;
 
- public:
+public:
 	CommandUserhost(Module* parent)
 		: Command(parent,"USERHOST", 1)
 		, hideopermode(parent, "hideoper")

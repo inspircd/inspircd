@@ -26,7 +26,7 @@
 /** This class manages the generation and transmission of ISUPPORT. */
 class ISupportManager final
 {
- private:
+private:
 	/** The generated numerics which are sent to clients. */
 	typedef insp::flat_map<ConnectClass::Ptr, std::vector<Numeric::Numeric>> NumericMap;
 	NumericMap cachednumerics;
@@ -50,7 +50,7 @@ class ISupportManager final
 	 */
 	void BuildNumerics(ISupport::TokenMap& tokens, std::vector<Numeric::Numeric>& numerics);
 
- public:
+public:
 	ISupportManager(Module* mod);
 
 	/** (Re)build the ISUPPORT vector.
@@ -70,7 +70,7 @@ class ISupportManager final
 class ServerTargetCommand
 	: public Command
 {
- public:
+public:
 	ServerTargetCommand(Module* mod, const std::string& Name)
 		: Command(mod, Name)
 	{
@@ -82,7 +82,7 @@ class ServerTargetCommand
 class CommandAdmin final
 	: public ServerTargetCommand
 {
- public:
+public:
 	std::string adminname;
 	std::string admindesc;
 	std::string adminemail;
@@ -93,7 +93,7 @@ class CommandAdmin final
 class CommandCommands final
 	: public SplitCommand
 {
- public:
+public:
 	CommandCommands(Module* parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
@@ -101,7 +101,7 @@ class CommandCommands final
 class CommandInfo final
 	: public SplitCommand
 {
- public:
+public:
 	CommandInfo(Module* parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
@@ -109,7 +109,7 @@ class CommandInfo final
 class CommandModules final
 	: public ServerTargetCommand
 {
- public:
+public:
 	CommandModules(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
@@ -117,7 +117,7 @@ class CommandModules final
 class CommandMotd final
 	: public ServerTargetCommand
 {
- public:
+public:
 	ConfigFileCache motds;
 
 	CommandMotd(Module* parent);
@@ -127,10 +127,10 @@ class CommandMotd final
 class CommandServList final
 	: public SplitCommand
 {
- private:
+private:
 	UserModeReference invisiblemode;
 
- public:
+public:
 	CommandServList(Module* parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
@@ -138,7 +138,7 @@ class CommandServList final
 class CommandTime final
 	: public ServerTargetCommand
 {
- public:
+public:
 	CommandTime(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
@@ -146,10 +146,10 @@ class CommandTime final
 class CommandVersion final
 	: public Command
 {
- private:
+private:
 	ISupportManager& isupport;
 
- public:
+public:
 	CommandVersion(Module* parent, ISupportManager& isupportmgr);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };

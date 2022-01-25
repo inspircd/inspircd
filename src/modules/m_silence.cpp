@@ -37,7 +37,7 @@ enum
 
 class SilenceEntry final
 {
- public:
+public:
 	enum SilenceFlags
 	{
 		// Does nothing; for internal use only.
@@ -187,7 +187,7 @@ typedef insp::flat_set<SilenceEntry> SilenceList;
 class SilenceExtItem final
 	: public SimpleExtItem<SilenceList>
 {
- public:
+public:
 	unsigned long maxsilence;
 
 	SilenceExtItem(Module* Creator)
@@ -266,7 +266,7 @@ class SilenceExtItem final
 class SilenceMessage final
 	: public ClientProtocol::Message
 {
- public:
+public:
 	SilenceMessage(const std::string& mask, const std::string& flags)
 		: ClientProtocol::Message("SILENCE")
 	{
@@ -278,7 +278,7 @@ class SilenceMessage final
 class CommandSilence final
 	: public SplitCommand
 {
- private:
+private:
 	ClientProtocol::EventProvider msgprov;
 
 	CmdResult AddSilence(LocalUser* user, const std::string& mask, uint32_t flags)
@@ -340,7 +340,7 @@ class CommandSilence final
 		return CmdResult::SUCCESS;
 	}
 
- public:
+public:
 	SilenceExtItem ext;
 
 	CommandSilence(Module* Creator)
@@ -396,7 +396,7 @@ class ModuleSilence final
 	, public CTCTags::EventListener
 	, public ISupport::EventListener
 {
- private:
+private:
 	bool exemptservice;
 	CommandSilence cmd;
 
@@ -435,7 +435,7 @@ class ModuleSilence final
 		return true;
 	}
 
- public:
+public:
 	ModuleSilence()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SILENCE command which allows users to ignore other users on server-side.")
 		, CTCTags::EventListener(this)

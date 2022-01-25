@@ -24,11 +24,11 @@
 class ClassExtBan final
 	: public ExtBan::MatchingBase
 {
- private:
+private:
 	std::string space;
 	std::string underscore;
 
- public:
+public:
 	ClassExtBan(Module* Creator)
 		: ExtBan::MatchingBase(Creator, "class", 'n')
 		, space(" ")
@@ -52,10 +52,10 @@ class ClassExtBan final
 class ModuleClassBan final
 	: public Module
 {
- private:
+private:
 	ClassExtBan extban;
 
- public:
+public:
 	ModuleClassBan()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban n: (class) which check whether users are in a connect class matching the specified glob pattern.")
 		, extban(this)

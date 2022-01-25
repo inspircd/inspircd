@@ -55,7 +55,7 @@ class ClientProtocol::TagSelection final
 {
 	std::bitset<64> selection;
 
- public:
+public:
 	/** Check if a tag is selected.
 	 * @param tags TagMap the tag is in. The TagMap must contain the same tags as it had when the tag
 	 * was selected with Select(), otherwise the result is not meaningful.
@@ -95,7 +95,7 @@ class ClientProtocol::MessageSource
 	User* sourceuser;
 	const std::string* sourcestr;
 
- public:
+public:
 	/** Constructor, sets the source to be the full host of a user or sets it to be nothing.
 	 * The actual source string when serializing will be obtained from User::GetFullHost() if the user is non-NULL.
 	 * @param Sourceuser User to set as source of the message. If NULL, the message won't have a source when serialized.
@@ -181,7 +181,7 @@ class ClientProtocol::MessageSource
 class ClientProtocol::Message
 	: public ClientProtocol::MessageSource
 {
- public:
+public:
 	/** Contains information required to identify a specific version of a serialized message.
 	 */
 	struct SerializedInfo
@@ -224,7 +224,7 @@ class ClientProtocol::Message
 				ptr = other.ptr;
 		}
 
-	 public:
+	public:
 		operator const std::string&() const { return (owned ? *str : *ptr); }
 
 		Param()
@@ -282,7 +282,7 @@ class ClientProtocol::Message
 
 	typedef std::vector<Param> ParamList;
 
- private:
+private:
 	typedef std::vector<std::pair<SerializedInfo, SerializedMessage> > SerializedList;
 
 	ParamList params;
@@ -292,7 +292,7 @@ class ClientProtocol::Message
 	mutable SerializedList serlist;
 	bool sideeffect = false;
 
- protected:
+protected:
 	/** Set command string.
 	 * @param cmd Command string to set.
 	 */
@@ -303,7 +303,7 @@ class ClientProtocol::Message
 			command = cmd;
 	}
 
- public:
+public:
 	/** Constructor.
 	 * @param cmd Command name, e.g. "JOIN", "NICK". May be NULL. If NULL, the command must be set
 	 * with SetCommand() before the message is serialized.
@@ -474,7 +474,7 @@ class ClientProtocol::Event
 	const MessageList* initialmsglist = nullptr;
 	bool eventinit_done = false;
 
- public:
+public:
 	/** Constructor.
 	 * @param protoeventprov Protocol event provider the event is an instance of.
 	 */
@@ -522,7 +522,7 @@ class ClientProtocol::Event
 class ClientProtocol::MessageTagEvent
 	: public Events::ModuleEventProvider
 {
- public:
+public:
 	MessageTagEvent(Module* mod)
 		: ModuleEventProvider(mod, "event/messagetag")
 	{
@@ -537,7 +537,7 @@ class ClientProtocol::MessageTagEvent
 class ClientProtocol::MessageTagProvider
 	: public Events::ModuleEventListener
 {
- public:
+public:
 	/** Constructor.
 	 * @param mod Module owning the provider.
 	 */
@@ -585,7 +585,7 @@ class ClientProtocol::MessageTagProvider
 class ClientProtocol::EventHook
 	: public Events::ModuleEventListener
 {
- public:
+public:
 	static std::string GetEventName(const std::string& name)
 	{
 		return "event/protoevent_" + name;
@@ -630,7 +630,7 @@ class ClientProtocol::EventHook
 class ClientProtocol::EventProvider final
 	: public Events::ModuleEventProvider
 {
- public:
+public:
 	/** Constructor.
 	 * @param Mod Module that owns the event provider.
 	 * @param eventname Name of the event this provider is for, e.g. "JOIN", "PART", "NUMERIC".
@@ -685,7 +685,7 @@ struct ClientProtocol::RFCEvents final
 class CoreExport ClientProtocol::Serializer
 	: public DataProvider
 {
- private:
+private:
 	ClientProtocol::MessageTagEvent evprov;
 
 	/** Make a white list containing which tags a user should get.
@@ -695,7 +695,7 @@ class CoreExport ClientProtocol::Serializer
 	 */
 	TagSelection MakeTagWhitelist(LocalUser* user, const TagMap& tagmap) const;
 
- public:
+public:
 	/** Constructor.
 	 * @param mod Module owning the serializer.
 	 * @param Name Name of the serializer, e.g. "rfc".

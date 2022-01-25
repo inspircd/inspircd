@@ -31,7 +31,7 @@ class ModulePassForward final
 {
 	std::string nickrequired, forwardmsg, forwardcmd;
 
- public:
+public:
 	ModulePassForward()
 		: Module(VF_VENDOR, "Allows an account password to be forwarded to a services pseudoclient such as NickServ.")
 	{

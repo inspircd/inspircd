@@ -29,7 +29,7 @@
 class HashProvider
 	: public DataProvider
 {
- public:
+public:
 	const unsigned int out_size;
 	const unsigned int block_size;
 	HashProvider(Module* mod, const std::string& Name, unsigned int osiz = 0, unsigned int bsiz = 0)

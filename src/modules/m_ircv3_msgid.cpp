@@ -23,10 +23,10 @@
 class MsgIdTag final
 	: public ClientProtocol::MessageTagProvider
 {
- private:
+private:
 	CTCTags::CapReference ctctagcap;
 
- public:
+public:
 	MsgIdTag(Module* mod)
 		: ClientProtocol::MessageTagProvider(mod)
 		, ctctagcap(mod)
@@ -54,7 +54,7 @@ class MsgIdGenerator final
 	std::string strid;
 	const std::string::size_type baselen;
 
- public:
+public:
 	MsgIdGenerator()
 		: strid(InspIRCd::Format("%s~%lu~", ServerInstance->Config->GetSID().c_str(), ServerInstance->startup_time))
 		, baselen(strid.length())
@@ -73,7 +73,7 @@ class ModuleMsgId final
 	: public Module
 	, public CTCTags::EventListener
 {
- private:
+private:
 	MsgIdTag tag;
 	MsgIdGenerator generator;
 
@@ -93,7 +93,7 @@ class ModuleMsgId final
 		return MOD_RES_PASSTHRU;
 	}
 
- public:
+public:
 	ModuleMsgId()
 		: Module(VF_VENDOR, "Provides support for the IRCv3 Message IDs specification.")
 		, CTCTags::EventListener(this)

@@ -63,7 +63,7 @@ class ClientProtocol::Messages::Numeric
 			PushParamRef(param);
 	}
 
- public:
+public:
 	/** Constructor, target is a User.
 	 * @param num Numeric object to send. Must remain valid as long as this object is alive and must not be modified.
 	 * @param user User to send the numeric to. May be unregistered, must remain valid as long as this object is alive.
@@ -108,7 +108,7 @@ class ClientProtocol::Messages::Join
 {
 	Membership* memb;
 
- public:
+public:
 	/** Constructor. Does not populate parameters, call SetParams() before sending the message.
 	 */
 	Join()
@@ -290,7 +290,7 @@ class ClientProtocol::Messages::Mode
 		}
 	}
 
- public:
+public:
 	/** Convert an entire mode change list into mode letters and '+' and '-' characters.
 	 * @param changelist Mode change list to convert into mode letters.
 	 * @return Mode letters.
@@ -438,7 +438,7 @@ class ClientProtocol::Messages::Privmsg
 			PushParam("*");
 	}
 
- public:
+public:
 	/** Used to differentiate constructors that copy the text from constructors that do not.
 	 */
 	enum NoCopy { nocopy };

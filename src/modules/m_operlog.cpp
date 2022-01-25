@@ -29,10 +29,10 @@
 class ModuleOperLog final
 	: public Module
 {
- private:
+private:
 	bool tosnomask;
 
- public:
+public:
 	ModuleOperLog()
 		: Module(VF_VENDOR, "Allows the server administrator to make the server log when a server operator-only command is executed.")
 	{

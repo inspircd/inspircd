@@ -25,7 +25,7 @@
 class BatchMessage final
 	: public ClientProtocol::Message
 {
- public:
+public:
 	BatchMessage(const IRCv3::Batch::Batch& batch, bool start)
 		: ClientProtocol::Message("BATCH", ServerInstance->Config->GetServerName())
 	{
@@ -97,7 +97,7 @@ class IRCv3::Batch::ManagerImpl final
 		return active_batches.back()->GetId()+1;
 	}
 
- public:
+public:
 	ManagerImpl(Module* mod)
 		: Manager(mod)
 		, cap(mod, "batch")
@@ -183,10 +183,10 @@ class IRCv3::Batch::ManagerImpl final
 class ModuleIRCv3Batch final
 	: public Module
 {
- private:
+private:
 	IRCv3::Batch::ManagerImpl manager;
 
- public:
+public:
 	ModuleIRCv3Batch()
 		: Module(VF_VENDOR, "Provides the IRCv3 batch client capability.")
 		, manager(this)

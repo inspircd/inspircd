@@ -24,7 +24,7 @@ typedef int LDAPQuery;
 class LDAPException final
 	: public CoreException
 {
- public:
+public:
 	LDAPException(const std::string& msg)
 		: CoreException(msg)
 	{
@@ -130,7 +130,7 @@ struct LDAPResult final
 
 class LDAPInterface
 {
- public:
+public:
 	ModuleRef creator;
 
 	LDAPInterface(Module* m) : creator(m) { }
@@ -143,7 +143,7 @@ class LDAPInterface
 class LDAPProvider
 	: public DataProvider
 {
- public:
+public:
 	LDAPProvider(Module* Creator, const std::string& Name)
 		: DataProvider(Creator, Name) { }
 

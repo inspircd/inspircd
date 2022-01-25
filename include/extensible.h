@@ -40,7 +40,7 @@ enum class ExtensionType
 class CoreExport ExtensionItem
 	: public ServiceProvider
 {
- public:
+public:
 	/** The type of extensible that this extension extends. */
 	const ExtensionType type;
 
@@ -87,7 +87,7 @@ class CoreExport ExtensionItem
 	 */
 	virtual std::string ToNetwork(const Extensible* container, void* item) const noexcept;
 
- protected:
+protected:
 	/** Initializes an instance of the ExtensionItem class.
 	 * @param owner The module which created the extension.
 	 * @param key The name of the extension (e.g. foo-bar).
@@ -128,7 +128,7 @@ class CoreExport Extensible
 	: public Cullable
 	, public Serializable
 {
- public:
+public:
 	/** The container which extension values are stored in. */
 	typedef insp::flat_map<ExtensionItem*, void*> ExtensibleStore;
 
@@ -157,10 +157,10 @@ class CoreExport Extensible
 	 */
 	void UnhookExtensions(const std::vector<ExtensionItem*>& items);
 
- protected:
+protected:
 	Extensible();
 
- private:
+private:
 	/** The values for extensions which are set on this extensible. */
 	ExtensibleStore extensions;
 
@@ -171,7 +171,7 @@ class CoreExport Extensible
 /** Manager for the extension system */
 class CoreExport ExtensionManager final
 {
- public:
+public:
 	/** The container which registered extensions are stored in. */
 	typedef std::map<std::string, ExtensionItem*> ExtMap;
 
@@ -196,7 +196,7 @@ class CoreExport ExtensionManager final
 	 */
 	bool Register(ExtensionItem* item);
 
- private:
+private:
 	/** Registered extensions keyed by their names. */
 	ExtMap types;
 };
@@ -206,11 +206,11 @@ template <typename T, typename Del = std::default_delete<T>>
 class SimpleExtItem
 	: public ExtensionItem
 {
- protected:
+protected:
 	/** Whether to sync this extension across the network. */
 	bool synced;
 
- public:
+public:
 	/** Initializes an instance of the SimpleExtItem<T,Del> class.
 	 * @param owner The module which created the extension.
 	 * @param key The name of the extension (e.g. foo-bar).
@@ -291,7 +291,7 @@ class SimpleExtItem
 class CoreExport StringExtItem
 	: public SimpleExtItem<std::string>
 {
- public:
+public:
 	/** Initializes an instance of the StringExtItem class.
 	 * @param owner The module which created the extension.
 	 * @param key The name of the extension (e.g. foo-bar).
@@ -317,11 +317,11 @@ class CoreExport StringExtItem
 class CoreExport IntExtItem
 	: public ExtensionItem
 {
- protected:
+protected:
 	/** Whether to sync this extension across the network. */
 	bool synced;
 
- public:
+public:
 	/** Initializes an instance of the IntExtItem class.
 	 * @param owner The module which created the extension.
 	 * @param key The name of the extension (e.g. foo-bar).
@@ -369,11 +369,11 @@ class CoreExport IntExtItem
 class CoreExport BoolExtItem
 	: public ExtensionItem
 {
- protected:
+protected:
 	/** Whether to sync this extension across the network. */
 	bool synced;
 
- public:
+public:
 	/** Initializes an instance of the BoolExtItem class.
 	 * @param owner The module which created the extension.
 	 * @param key The name of the extension (e.g. foo-bar).

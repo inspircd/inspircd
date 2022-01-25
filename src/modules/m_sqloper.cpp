@@ -31,7 +31,7 @@
 class OperQuery final
 	: public SQL::Query
 {
- public:
+public:
 	// This variable will store all the OPER blocks from the DB
 	std::vector<std::string>& my_blocks;
 	/** We want to store the username and password if this is called during an /OPER, as we're responsible for /OPER post-DB fetch
@@ -162,7 +162,7 @@ class OperQuery final
 class ModuleSQLOper final
 	: public Module
 {
- private:
+private:
 	// Whether OperQuery is running
 	bool active = false;
 	std::string query;

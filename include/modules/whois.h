@@ -65,7 +65,7 @@ enum
 class Whois::EventListener
 	: public Events::ModuleEventListener
 {
- public:
+public:
 	EventListener(Module* mod)
 		: ModuleEventListener(mod, "event/whois")
 	{
@@ -80,7 +80,7 @@ class Whois::EventListener
 class Whois::LineEventListener
 	: public Events::ModuleEventListener
 {
- public:
+public:
 	LineEventListener(Module* mod)
 		: ModuleEventListener(mod, "event/whoisline")
 	{
@@ -100,7 +100,7 @@ class Whois::LineEventListener
 
 class Whois::Context
 {
- protected:
+protected:
 	/** User doing the WHOIS
 	 */
 	LocalUser* const source;
@@ -109,7 +109,7 @@ class Whois::Context
 	 */
 	User* const target;
 
- public:
+public:
 	Context(LocalUser* sourceuser, User* targetuser)
 		: source(sourceuser)
 		, target(targetuser)

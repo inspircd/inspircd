@@ -35,7 +35,7 @@
 class CoreExport XLine
 	: public Cullable
 {
- protected:
+protected:
 
 	/** Default 'apply' action. Quits the user.
 	 * @param u User to apply the line against
@@ -44,7 +44,7 @@ class CoreExport XLine
 	 */
 	void DefaultApply(User* u, const std::string &line, bool bancache);
 
- public:
+public:
 
 	/** Create an XLine.
 	 * @param s_time The set time
@@ -157,7 +157,7 @@ class CoreExport XLine
 class CoreExport KLine final
 	: public XLine
 {
-  public:
+public:
 
 	/** Create a K-line.
 	 * @param s_time The set time
@@ -199,7 +199,7 @@ class CoreExport KLine final
 class CoreExport GLine final
 	: public XLine
 {
-  public:
+public:
 	/** Create a G-line.
 	 * @param s_time The set time
 	 * @param d The duration of the xline
@@ -238,7 +238,7 @@ class CoreExport GLine final
 class CoreExport ELine final
 	: public XLine
 {
-  public:
+public:
 	/** Create an E-line.
 	 * @param s_time The set time
 	 * @param d The duration of the xline
@@ -279,7 +279,7 @@ class CoreExport ELine final
 class CoreExport ZLine final
 	: public XLine
 {
-  public:
+public:
 	/** Create a Z-line.
 	 * @param s_time The set time
 	 * @param d The duration of the xline
@@ -310,7 +310,7 @@ class CoreExport ZLine final
 class CoreExport QLine final
 	: public XLine
 {
-  public:
+public:
 	/** Create a Q-line.
 	 * @param s_time The set time
 	 * @param d The duration of the xline
@@ -345,11 +345,11 @@ class CoreExport QLine final
  */
 class CoreExport XLineFactory
 {
- protected:
+protected:
 
 	std::string type;
 
- public:
+public:
 
 	/** Create an XLine factory
 	 * @param t Type of XLine this factory generates
@@ -384,7 +384,7 @@ class CoreExport XLineFactory
  */
 class CoreExport XLineManager final
 {
- protected:
+protected:
 	/** Used to hold XLines which have not yet been applied.
 	 */
 	std::vector<XLine *> pending_lines;
@@ -400,7 +400,7 @@ class CoreExport XLineManager final
 	 */
 	XLineContainer lookup_lines;
 
- public:
+public:
 
 	/** Constructor
 	 */

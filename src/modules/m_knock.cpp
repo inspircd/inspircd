@@ -60,7 +60,7 @@ class CommandKnock final
 	SimpleChannelMode& noknockmode;
 	ChanModeReference inviteonlymode;
 
- public:
+public:
 	int notify;
 
 	CommandKnock(Module* Creator, SimpleChannelMode& Noknockmode)
@@ -131,7 +131,7 @@ class ModuleKnock final
 	SimpleChannelMode kn;
 	CommandKnock cmd;
 
- public:
+public:
 	ModuleKnock()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /KNOCK command which allows users to request access to an invite-only channel and channel mode K (noknock) which allows channels to disable usage of this command.")
 		, kn(this, "noknock", 'K')

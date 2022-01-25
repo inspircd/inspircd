@@ -33,7 +33,7 @@ class CommandSetName final
 private:
 	IRCv3::Replies::Fail fail;
 
- public:
+public:
 	Cap::Capability cap;
 	bool notifyopers;
 
@@ -70,11 +70,11 @@ private:
 class ModuleSetName final
 	: public Module
 {
- private:
+private:
 	CommandSetName cmd;
 	ClientProtocol::EventProvider setnameevprov;
 
- public:
+public:
 	ModuleSetName()
 		: Module(VF_VENDOR, "Adds the /SETNAME command which allows users to change their real name.")
 		, cmd(this)

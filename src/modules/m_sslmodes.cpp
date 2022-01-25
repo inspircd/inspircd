@@ -43,10 +43,10 @@ enum
 class SSLFPExtBan final
 	: public ExtBan::MatchingBase
 {
- private:
+private:
 	UserCertificateAPI& sslapi;
 
- public:
+public:
 	SSLFPExtBan(Module* Creator, UserCertificateAPI& api)
 		: ExtBan::MatchingBase(Creator, "sslfp", 'z')
 		, sslapi(api)
@@ -65,10 +65,10 @@ class SSLFPExtBan final
 class SSLMode final
 	: public ModeHandler
 {
- private:
+private:
 	UserCertificateAPI& API;
 
- public:
+public:
 	SSLMode(Module* Creator, UserCertificateAPI& api)
 		: ModeHandler(Creator, "sslonly", 'z', PARAM_NONE, MODETYPE_CHANNEL)
 		, API(api)
@@ -130,10 +130,10 @@ class SSLMode final
 class SSLModeUser final
 	: public ModeHandler
 {
- private:
+private:
 	UserCertificateAPI& API;
 
- public:
+public:
 	SSLModeUser(Module* Creator, UserCertificateAPI& api)
 		: ModeHandler(Creator, "sslqueries", 'z', PARAM_NONE, MODETYPE_USER)
 		, API(api)
@@ -157,13 +157,13 @@ class ModuleSSLModes final
 	: public Module
 	, public CTCTags::EventListener
 {
- private:
+private:
 	UserCertificateAPI api;
 	SSLMode sslm;
 	SSLModeUser sslquery;
 	SSLFPExtBan sslfp;
 
- public:
+public:
 	ModuleSSLModes()
 		: Module(VF_VENDOR, "Adds channel mode z (sslonly) which prevents users who are not connecting using TLS from joining the channel and user mode z (sslqueries) to prevent messages from non-TLS users.")
 		, CTCTags::EventListener(this)

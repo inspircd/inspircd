@@ -24,10 +24,10 @@
 class LabeledResponseTag final
 	: public ClientProtocol::MessageTagProvider
 {
- private:
+private:
 	const Cap::Capability& cap;
 
- public:
+public:
 	LocalUser* labeluser = nullptr;
 	std::string label;
 	const std::string labeltag;
@@ -68,7 +68,7 @@ class LabeledResponseTag final
 class ModuleIRCv3LabeledResponse final
 	: public Module
 {
- private:
+private:
 	Cap::Capability cap;
 	LabeledResponseTag tag;
 	IRCv3::Batch::API batchmanager;
@@ -87,7 +87,7 @@ class ModuleIRCv3LabeledResponse final
 		firstmsg->~Message();
 	}
 
- public:
+public:
 	ModuleIRCv3LabeledResponse()
 		: Module(VF_VENDOR, "Provides support for the IRCv3 Labeled Response specification.")
 		, cap(this, "labeled-response")

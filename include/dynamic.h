@@ -40,7 +40,7 @@
 class CoreExport DLLManager final
 	: public Cullable
 {
- private:
+private:
 	/** The last error string. */
 	std::string err;
 
@@ -57,7 +57,7 @@ class CoreExport DLLManager final
 	/** Sets the last error string. */
 	void RetrieveLastError();
 
- public:
+public:
 	/** Attempts to load the specified module.
 	 * @param name The name of the library to load.
 	 */

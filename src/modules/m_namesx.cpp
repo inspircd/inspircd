@@ -35,10 +35,10 @@ class ModuleNamesX final
 	, public Who::EventListener
 	, public Whois::LineEventListener
 {
- private:
+private:
 	Cap::Capability cap;
 
- public:
+public:
 	ModuleNamesX()
 		: Module(VF_VENDOR, "Provides the IRCv3 multi-prefix client capability.")
 		, Names::EventListener(this)

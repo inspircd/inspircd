@@ -23,12 +23,12 @@ namespace insp
 template <typename T, typename Tag>
 class INSPIRCD_INTRUSIVE_LIST_NAME
 {
- public:
+public:
 	class iterator : public std::iterator<std::bidirectional_iterator_tag, T*>
 	{
 		T* curr;
 
-	 public:
+	public:
 		iterator(T* i = NULL)
 			: curr(i)
 		{
@@ -152,7 +152,7 @@ class INSPIRCD_INTRUSIVE_LIST_NAME
 		listsize--;
 	}
 
- private:
+private:
 	T* listhead = nullptr;
 #ifdef INSPIRCD_INTRUSIVE_LIST_HAS_TAIL
 	T* listtail = nullptr;

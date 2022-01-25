@@ -34,7 +34,7 @@
  */
 class CoreExport BanCacheHit final
 {
- public:
+public:
 	/** Type of cached ban
 	 */
 	std::string Type;
@@ -61,7 +61,7 @@ class CoreExport BanCacheManager final
 	BanCacheHash BanHash;
 	bool RemoveIfExpired(BanCacheHash::iterator& it);
 
- public:
+public:
 
 	/** Creates and adds a Ban Cache item.
 	 * @param ip The IP the item is for.

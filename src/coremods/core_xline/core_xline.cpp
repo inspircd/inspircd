@@ -63,7 +63,7 @@ class CoreModXLine final
 	CommandQline cmdqline;
 	CommandZline cmdzline;
 
- public:
+public:
 	CoreModXLine()
 		: Module(VF_CORE | VF_VENDOR, "Provides the ELINE, GLINE, KLINE, QLINE, and ZLINE commands")
 		, cmdeline(this)

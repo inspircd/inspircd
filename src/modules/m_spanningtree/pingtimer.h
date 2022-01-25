@@ -65,7 +65,7 @@ class PingTimer final
 	 */
 	bool Tick() override;
 
- public:
+public:
 	/** Construct the timer. This doesn't schedule the timer.
 	 * @param server TreeServer to interact with
 	 */

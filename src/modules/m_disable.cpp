@@ -35,7 +35,7 @@ typedef std::bitset<64> ModeStatus;
 class ModuleDisable final
 	: public Module
 {
- private:
+private:
 	CommandList commands;
 	ModeStatus chanmodes;
 	bool fakenonexistent;
@@ -75,7 +75,7 @@ class ModuleDisable final
 			ServerInstance->Logs.Log(MODNAME, LOG_DEFAULT, buffer);
 	}
 
- public:
+public:
 	ModuleDisable()
 		: Module(VF_VENDOR, "Allows commands, channel modes, and user modes to be disabled.")
 	{

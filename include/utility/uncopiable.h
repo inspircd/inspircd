@@ -27,14 +27,14 @@ namespace insp
 /** Prevents instances of an inheriting type from being copied. */
 class insp::uncopiable
 {
- private:
+private:
 	/** Prevents copying via the copy constructor. */
 	uncopiable(const uncopiable&) = delete;
 
 	/** Prevents copying via the assignment operator. */
 	uncopiable& operator=(const uncopiable&) = delete;
 
- protected:
+protected:
 	/** Default constructor for the uncopiable class. */
 	uncopiable() = default;
 

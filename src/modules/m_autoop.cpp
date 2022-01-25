@@ -34,7 +34,7 @@ enum
 class AutoOpList final
 	: public ListModeBase
 {
- public:
+public:
 	AutoOpList(Module* Creator)
 		: ListModeBase(Creator, "autoop", 'w', "End of Channel Access List", RPL_ACCESSLIST, RPL_ENDOFACCESSLIST, true)
 	{
@@ -89,7 +89,7 @@ class ModuleAutoOp final
 {
 	AutoOpList mh;
 
- public:
+public:
 	ModuleAutoOp()
 		: Module(VF_VENDOR, "Adds channel mode w (autoop) which allows channel operators to define an access list which gives status ranks to users on join.")
 		, mh(this)

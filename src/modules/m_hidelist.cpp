@@ -27,7 +27,7 @@ class ListWatcher final
 	// Minimum rank required to view the list
 	const unsigned int minrank;
 
- public:
+public:
 	ListWatcher(Module* mod, const std::string& modename, unsigned int rank)
 		: ModeWatcher(mod, modename, MODETYPE_CHANNEL)
 		, minrank(rank)
@@ -59,7 +59,7 @@ class ModuleHideList final
 {
 	std::vector<ListWatcher*> watchers;
 
- public:
+public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		std::vector<std::pair<std::string, unsigned int>> newconfigs;

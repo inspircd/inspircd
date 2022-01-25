@@ -31,7 +31,7 @@ typedef insp::flat_set<std::string, irc::insensitive_swo> AllowChans;
 class ModuleRestrictChans final
 	: public Module
 {
- private:
+private:
 	AllowChans allowchans;
 	bool allowregistered = false;
 
@@ -53,7 +53,7 @@ class ModuleRestrictChans final
 		return false;
 	}
 
- public:
+public:
 	ModuleRestrictChans()
 		: Module(VF_VENDOR, "Prevents unprivileged users from creating new channels.")
 	{

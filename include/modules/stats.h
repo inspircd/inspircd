@@ -38,7 +38,7 @@ enum
 class Stats::EventListener
 	: public Events::ModuleEventListener
 {
- public:
+public:
 	EventListener(Module* mod)
 		: ModuleEventListener(mod, "event/stats")
 	{
@@ -54,7 +54,7 @@ class Stats::EventListener
 class Stats::Row final
 	: public Numeric::Numeric
 {
- public:
+public:
 	Row(unsigned int num)
 		: Numeric(num)
 	{
@@ -75,7 +75,7 @@ class Stats::Context final
 	 */
 	const char symbol;
 
- public:
+public:
 	/** Constructor
 	 * @param src Source user of the STATS request, can be a local or remote user
 	 * @param sym Symbol (letter) indicating the type of the request

@@ -24,7 +24,7 @@
 class CoreExport Server
 	: public Cullable
 {
- protected:
+protected:
 	/** The unique identifier for this server. */
 	const std::string id;
 
@@ -47,7 +47,7 @@ class CoreExport Server
 	 */
 	friend class ConfigReaderThread;
 
- public:
+public:
 	Server(const std::string& srvid, const std::string& srvname, const std::string& srvdesc)
 		: id(srvid)
 		, name(srvname)

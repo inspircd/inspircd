@@ -39,7 +39,7 @@ class ModuleOverride final
 	: public Module
 	, public ISupport::EventListener
 {
- private:
+private:
 	bool RequireKey;
 	bool NoisyOverride;
 	SimpleUserMode ou;
@@ -74,7 +74,7 @@ class ModuleOverride final
 		return MOD_RES_ALLOW;
 	}
 
- public:
+public:
 	ModuleOverride()
 		: Module(VF_VENDOR, "Allows server operators to be given privileges that allow them to ignore various channel-level restrictions.")
 		, ISupport::EventListener(this)

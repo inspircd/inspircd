@@ -72,7 +72,7 @@ namespace SQL
 class SQL::Result
 	: public Cullable
 {
- public:
+public:
 	/**
 	 * Return the number of rows in the result.
 	 *
@@ -111,11 +111,11 @@ class SQL::Result
  */
 class SQL::Error final
 {
- private:
+private:
 	/** The custom error message if one has been specified. */
 	const std::string message;
 
- public:
+public:
 	/** The code which represents this error. */
 	const ErrorCode code;
 
@@ -170,14 +170,14 @@ class SQL::Error final
 class SQL::Query
 	: public Cullable
 {
- protected:
+protected:
 	/** Creates a new SQL query. */
 	Query(Module* Creator)
 		: creator(Creator)
 	{
 	}
 
- public:
+public:
 	const ModuleRef creator;
 
 	/* Destroys this Query instance. */
@@ -200,11 +200,11 @@ class SQL::Query
 class SQL::Provider
 	: public DataProvider
 {
- private:
+private:
 	/** The name of the database tag in the config. */
 	const std::string dbid;
 
- public:
+public:
 	Provider(Module* Creator, const std::string& Name)
 		: DataProvider(Creator, "SQL/" + Name)
 	{

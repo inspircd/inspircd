@@ -58,10 +58,10 @@ typedef std::map<std::string, HelpTopic, irc::insensitive_swo> HelpMap;
 class CommandHelpop final
 	: public Command
 {
- private:
+private:
 	const std::string startkey;
 
- public:
+public:
 	HelpMap help;
 	std::string nohelp;
 
@@ -95,7 +95,7 @@ class ModuleHelpop final
 	: public Module
 	, public Whois::EventListener
 {
- private:
+private:
 		CommandHelpop cmd;
 		SimpleUserMode ho;
 

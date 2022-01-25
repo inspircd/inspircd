@@ -57,7 +57,7 @@ class ClientProtocol::Events::Mode
 	std::vector<Message*> modemsgplist;
 	const Modes::ChangeList& modechanges;
 
- public:
+public:
 	static void BuildMessages(User* source, Channel* Chantarget, User* Usertarget, const Modes::ChangeList& changelist, std::list<ClientProtocol::Messages::Mode>& modelist, std::vector<Message*>& modemsgplist)
 	{
 		// Build as many MODEs as necessary

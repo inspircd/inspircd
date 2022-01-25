@@ -40,7 +40,7 @@ class ModuleIRCv3ChgHost final
 		IRCv3::WriteNeighborsWithCap(user, protoev, cap, true);
 	}
 
- public:
+public:
 	ModuleIRCv3ChgHost()
 		: Module(VF_VENDOR, "Provides the IRCv3 chghost client capability.")
 		, cap(this, "chghost")

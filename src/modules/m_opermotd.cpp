@@ -40,7 +40,7 @@ enum
 class CommandOpermotd final
 	: public Command
 {
- public:
+public:
 	file_cache opermotd;
 
 	CommandOpermotd(Module* Creator) : Command(Creator,"OPERMOTD", 0, 1)
@@ -82,11 +82,11 @@ class CommandOpermotd final
 class ModuleOpermotd final
 	: public Module
 {
- private:
+private:
 	CommandOpermotd cmd;
 	bool onoper;
 
- public:
+public:
 	ModuleOpermotd()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /OPERMOTD command which adds a special message of the day for server operators.")
 		, cmd(this)

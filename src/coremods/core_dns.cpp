@@ -45,7 +45,7 @@ using namespace DNS;
 class Packet final
 	: public Query
 {
- private:
+private:
 	const Module* creator;
 
 	void PackName(unsigned char* output, unsigned short output_size, unsigned short& pos, const std::string& name)
@@ -256,7 +256,7 @@ class Packet final
 		return record;
 	}
 
- public:
+public:
 	static constexpr int POINTER = 0xC0;
 	static constexpr int LABEL = 0x3F;
 	static constexpr int HEADER_LENGTH = 12;
@@ -449,7 +449,7 @@ class MyManager final
 		this->cache[r.question] = r;
 	}
 
- public:
+public:
 	DNS::Request* requests[MAX_REQUEST_ID+1];
 	size_t stats_total = 0;
 	size_t stats_success = 0;
@@ -888,7 +888,7 @@ class ModuleDNS final
 		DNSServer = "127.0.0.1";
 	}
 
- public:
+public:
 	ModuleDNS()
 		: Module(VF_CORE | VF_VENDOR, "Provides support for DNS lookups")
 		, Stats::EventListener(this)

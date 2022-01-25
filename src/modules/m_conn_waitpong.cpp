@@ -33,7 +33,7 @@ class ModuleWaitPong final
 	bool killonbadreply;
 	StringExtItem ext;
 
- public:
+public:
 	ModuleWaitPong()
 		: Module(VF_VENDOR, "Requires all clients to respond to a PING request before they can fully connect.")
 		, ext(this, "waitpong-cookie", ExtensionType::USER)

@@ -159,7 +159,7 @@ public:
 class DNSBLResolver final
 	: public DNS::Request
 {
- private:
+private:
 	irc::sockets::sockaddrs theirsa;
 	std::string theiruid;
 	StringExtItem& nameExt;
@@ -183,7 +183,7 @@ class DNSBLResolver final
 		ServerInstance->XLines->ApplyLines();
 	}
 
- public:
+public:
 	DNSBLResolver(DNS::Manager *mgr, Module *me, StringExtItem& match, IntExtItem& ctr, const std::string &hostname, LocalUser* u, std::shared_ptr<DNSBLEntry> conf)
 		: DNS::Request(mgr, me, hostname, DNS::QUERY_A, true, conf->timeout)
 		, theirsa(u->client_sa)
@@ -355,13 +355,13 @@ class ModuleDNSBL final
 	: public Module
 	, public Stats::EventListener
 {
- private:
+private:
 	dynamic_reference<DNS::Manager> DNS;
 	DNSBLEntries dnsbls;
 	StringExtItem nameExt;
 	IntExtItem countExt;
 
- public:
+public:
 	ModuleDNSBL()
 		: Module(VF_VENDOR, "Allows the server administrator to check the IP address of connecting users against a DNSBL.")
 		, Stats::EventListener(this)

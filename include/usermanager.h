@@ -30,7 +30,7 @@
 
 class CoreExport UserManager final
 {
- public:
+public:
 	struct CloneCounts
 	{
 		unsigned int global = 0;
@@ -52,7 +52,7 @@ class CoreExport UserManager final
 	*/
 	typedef insp::intrusive_list<LocalUser> LocalList;
 
- private:
+private:
 	/** Map of IP addresses for clone counting
 	 */
 	CloneMap clonemap;
@@ -70,7 +70,7 @@ class CoreExport UserManager final
 	 */
 	uint64_t already_sent_id;
 
- public:
+public:
 	/** Constructor, initializes variables
 	 */
 	UserManager();

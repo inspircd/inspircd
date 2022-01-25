@@ -66,7 +66,7 @@ static Module* thismod;
 
 class FilterResult final
 {
- public:
+public:
 	Regex::PatternPtr regex;
 	std::string freeform;
 	std::string reason;
@@ -172,7 +172,7 @@ class FilterResult final
 class CommandFilter final
 	: public Command
 {
- public:
+public:
 	CommandFilter(Module* f)
 		: Command(f, "FILTER", 1, 5)
 	{
@@ -204,7 +204,7 @@ class ModuleFilter final
 	Regex::Engine* factory;
 	void FreeFilters();
 
- public:
+public:
 	CommandFilter filtcommand;
 	Regex::EngineReference RegexEngine;
 

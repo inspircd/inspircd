@@ -30,7 +30,7 @@ class ModuleRestrictMsg final
 	: public Module
 	, public CTCTags::EventListener
 {
- private:
+private:
 	ModResult HandleMessage(User* user, const MessageTarget& target)
 	{
 		if ((target.type == MessageTarget::TYPE_USER) && (IS_LOCAL(user)))
@@ -53,7 +53,7 @@ class ModuleRestrictMsg final
 		return MOD_RES_PASSTHRU;
 	}
 
- public:
+public:
 	ModuleRestrictMsg()
 		: Module(VF_VENDOR, "Prevents users who are not server operators from messaging each other.")
 		, CTCTags::EventListener(this)

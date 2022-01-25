@@ -32,7 +32,7 @@ static unsigned int duration;
  */
 class nickfloodsettings final
 {
- public:
+public:
 	unsigned int secs;
 	unsigned int nicks;
 	time_t reset;
@@ -86,7 +86,7 @@ class nickfloodsettings final
 class NickFlood final
 	: public ParamMode<NickFlood, SimpleExtItem<nickfloodsettings>>
 {
- public:
+public:
 	NickFlood(Module* Creator)
 		: ParamMode<NickFlood, SimpleExtItem<nickfloodsettings> >(Creator, "nickflood", 'F')
 	{
@@ -126,11 +126,11 @@ class NickFlood final
 class ModuleNickFlood final
 	: public Module
 {
- private:
+private:
 	CheckExemption::EventProvider exemptionprov;
 	NickFlood nf;
 
- public:
+public:
 	ModuleNickFlood()
 		: Module(VF_VENDOR, "Adds channel mode F (nickflood) which helps protect against spammers which mass-change nicknames.")
 		, exemptionprov(this)

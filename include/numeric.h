@@ -41,7 +41,7 @@ class Numeric::Numeric
 	 */
 	Server* sourceserver = nullptr;
 
- public:
+public:
 	/** Constructor
 	 * @param num Numeric number (RPL_*, ERR_*)
 	 */

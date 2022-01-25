@@ -35,11 +35,11 @@ enum
 class OperExtBan final
 	: public ExtBan::MatchingBase
 {
- private:
+private:
 	std::string space;
 	std::string underscore;
 
- public:
+public:
 	OperExtBan(Module* Creator)
 		: ExtBan::MatchingBase(Creator, "oper", 'O')
 		, space(" ")
@@ -63,11 +63,11 @@ class OperExtBan final
 class ModuleOperChans final
 	: public Module
 {
- private:
+private:
 	SimpleChannelMode oc;
 	OperExtBan extban;
 
- public:
+public:
 	ModuleOperChans()
 		: Module(VF_VENDOR, "Adds channel mode O (operonly) which prevents non-server operators from joining the channel.")
 		, oc(this, "operonly", 'O', true)

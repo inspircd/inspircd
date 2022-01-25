@@ -76,7 +76,7 @@ namespace GnuTLS
 
 	class Init final
 	{
-	 public:
+	public:
 		Init() { gnutls_global_init(); }
 		~Init() { gnutls_global_deinit(); }
 	};
@@ -84,7 +84,7 @@ namespace GnuTLS
 	class Exception final
 		: public ModuleException
 	{
-	 public:
+	public:
 		Exception(const std::string& msg)
 			: ModuleException(thismod, msg)
 		{
@@ -107,7 +107,7 @@ namespace GnuTLS
 	{
 		gnutls_datum_t datum;
 
-	 public:
+	public:
 		Datum(const std::string& dat)
 		{
 			datum.data = (unsigned char*)dat.data();
@@ -121,7 +121,7 @@ namespace GnuTLS
 	{
 		gnutls_digest_algorithm_t hash;
 
-	 public:
+	public:
 		// Nothing to deallocate, constructor may throw freely
 		Hash(const std::string& hashname)
 		{
@@ -151,7 +151,7 @@ namespace GnuTLS
 			ThrowOnError(gnutls_dh_params_init(&dh_params), "gnutls_dh_params_init() failed");
 		}
 
-	 public:
+	public:
 		/** Import */
 		static std::shared_ptr<DHParams> Import(const std::string& dhstr)
 		{
@@ -176,7 +176,7 @@ namespace GnuTLS
 		 */
 		class RAIIKey final
 		{
-		 public:
+		public:
 			gnutls_x509_privkey_t key;
 
 			RAIIKey()
@@ -190,7 +190,7 @@ namespace GnuTLS
 			}
 		} key;
 
-	 public:
+	public:
 		/** Import */
 		X509Key(const std::string& keystr)
 		{
@@ -205,7 +205,7 @@ namespace GnuTLS
 	{
 		std::vector<gnutls_x509_crt_t> certs;
 
-	 public:
+	public:
 		/** Import */
 		X509CertList(const std::string& certstr)
 		{
@@ -243,7 +243,7 @@ namespace GnuTLS
 	{
 		class RAIICRL final
 		{
-		 public:
+		public:
 			gnutls_x509_crl_t crl;
 
 			RAIICRL()
@@ -257,7 +257,7 @@ namespace GnuTLS
 			}
 		} crl;
 
-	 public:
+	public:
 		/** Import */
 		X509CRL(const std::string& crlstr)
 		{
@@ -272,7 +272,7 @@ namespace GnuTLS
 	{
 		gnutls_priority_t priority;
 
-	 public:
+	public:
 		Priority(const std::string& priorities)
 		{
 			// Try to set the priorities for ciphers, kex methods etc. to the user supplied string
@@ -341,10 +341,10 @@ namespace GnuTLS
 		std::shared_ptr<DHParams> dh;
 #endif
 
-	 protected:
+	protected:
 		gnutls_certificate_credentials_t cred;
 
-	 public:
+	public:
 		CertCredentials()
 		{
 			ThrowOnError(gnutls_certificate_allocate_credentials(&cred), "Cannot allocate certificate credentials");
@@ -394,7 +394,7 @@ namespace GnuTLS
 
 		static int cert_callback(gnutls_session_t session, const gnutls_datum_t* req_ca_rdn, int nreqs, const gnutls_pk_algorithm_t* sign_algos, int sign_algos_length, gnutls_retr2_st* st);
 
-	 public:
+	public:
 		X509Credentials(const std::string& certstr, const std::string& keystr)
 			: key(keystr)
 			, certs(certstr)
@@ -435,7 +435,7 @@ namespace GnuTLS
 #ifdef INSPIRCD_GNUTLS_HAS_RECV_PACKET
 		gnutls_packet_t packet;
 
-	 public:
+	public:
 		DataReader(gnutls_session_t sess)
 		{
 			// Using the packet API avoids the final copy of the data which GnuTLS does if we supply
@@ -456,7 +456,7 @@ namespace GnuTLS
 #else
 		char* const buffer;
 
-	 public:
+	public:
 		DataReader(gnutls_session_t sess)
 			: buffer(ServerInstance->GetReadBuffer())
 		{
@@ -538,7 +538,7 @@ namespace GnuTLS
 			return priostr;
 		}
 
-	 public:
+	public:
 		struct Config final
 		{
 			std::string name;
@@ -628,7 +628,7 @@ namespace GnuTLS
 class GnuTLSIOHook final
 	: public SSLIOHook
 {
- private:
+private:
 	gnutls_session_t sess = nullptr;
 #ifdef INSPIRCD_GNUTLS_HAS_CORK
 	size_t gbuffersize = 0;
@@ -904,7 +904,7 @@ info_done_dealloc:
 		return ret;
 	}
 
- public:
+public:
 	GnuTLSIOHook(std::shared_ptr<IOHookProvider> hookprov, StreamSocket* sock, unsigned int flags)
 		: SSLIOHook(hookprov)
 	{
@@ -1077,7 +1077,7 @@ class GnuTLSIOHookProvider final
 {
 	GnuTLS::Profile profile;
 
- public:
+public:
 	GnuTLSIOHookProvider(Module* mod, GnuTLS::Profile::Config& config)
 		: SSLIOHookProvider(mod, config.name)
 		, profile(config)
@@ -1165,7 +1165,7 @@ class ModuleSSLGnuTLS final
 		profiles.swap(newprofiles);
 	}
 
- public:
+public:
 	ModuleSSLGnuTLS()
 		: Module(VF_VENDOR, "Allows TLS encrypted connections using the GnuTLS library.")
 	{

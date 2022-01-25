@@ -28,7 +28,7 @@
 
 class HTTPACL final
 {
- public:
+public:
 	std::string path;
 	std::string username;
 	std::string password;
@@ -45,11 +45,11 @@ class ModuleHTTPAccessList final
 	: public Module
 	, public HTTPACLEventListener
 {
- private:
+private:
 	std::vector<HTTPACL> acl_list;
 	HTTPdAPI API;
 
- public:
+public:
 	ModuleHTTPAccessList()
 		: Module(VF_VENDOR, "Allows the server administrator to control who can access resources served over HTTP with the httpd module.")
 		, HTTPACLEventListener(this)

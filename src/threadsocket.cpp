@@ -29,7 +29,7 @@ class ThreadSignalSocket final
 	: public EventHandler
 {
 	SocketThread* parent;
- public:
+public:
 	ThreadSignalSocket(SocketThread* p, int newfd) : parent(p)
 	{
 		SetFd(newfd);
@@ -79,7 +79,7 @@ class ThreadSignalSocket final
 {
 	SocketThread* parent;
 	int send_fd;
- public:
+public:
 	ThreadSignalSocket(SocketThread* p, int recvfd, int sendfd) :
 		parent(p), send_fd(sendfd)
 	{

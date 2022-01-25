@@ -27,7 +27,7 @@
 class Shun final
 	: public XLine
 {
-  public:
+public:
 	/** Create a Shun.
 	 * @param s_time The set time
 	 * @param d The duration of the xline
@@ -66,7 +66,7 @@ class Shun final
 		return matchtext;
 	}
 
-  private:
+private:
 	/** Matching mask **/
 	std::string matchtext;
 };

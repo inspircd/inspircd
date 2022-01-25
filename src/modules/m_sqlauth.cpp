@@ -38,7 +38,7 @@ enum AuthState {
 class AuthQuery final
 	: public SQL::Query
 {
- public:
+public:
 	const std::string uid;
 	IntExtItem& pendingExt;
 	bool verbose;
@@ -135,7 +135,7 @@ class ModuleSQLAuth final
 	std::string kdf;
 	std::string pwcolumn;
 
- public:
+public:
 	ModuleSQLAuth()
 		: Module(VF_VENDOR, "Allows connecting users to be authenticated against an arbitrary SQL table.")
 		, pendingExt(this, "sqlauth-wait", ExtensionType::USER)

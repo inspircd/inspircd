@@ -27,7 +27,7 @@
 class CommandMode final
 	: public Command
 {
- private:
+private:
 	unsigned int sent[256];
 	unsigned int seq = 0;
 	ChanModeReference secretmode;
@@ -59,7 +59,7 @@ class CommandMode final
 		return !chan->IsModeSet(secretmode) && !chan->IsModeSet(privatemode);
 	}
 
- public:
+public:
 	CommandMode(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
@@ -269,7 +269,7 @@ class CoreModMode final
 	: public Module
 	, public ISupport::EventListener
 {
- private:
+private:
 	CommandMode cmdmode;
 
 	std::string GenerateModeList(ModeType mt)
@@ -353,7 +353,7 @@ class CoreModMode final
 		return includemodechars ? "(" + modechars + ")" + prefixchars : prefixchars;
 	}
 
- public:
+public:
 	CoreModMode()
 		: Module(VF_CORE | VF_VENDOR, "Provides the MODE command")
 		, ISupport::EventListener(this)

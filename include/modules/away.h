@@ -30,13 +30,13 @@ namespace Away
 class Away::EventListener
 	: public Events::ModuleEventListener
 {
- protected:
+protected:
 	EventListener(Module* mod)
 		: ModuleEventListener(mod, "event/away")
 	{
 	}
 
- public:
+public:
 	/** Called when a user wishes to mark themselves as away.
 	 * @param user The user who is going away.
 	 * @param message The away message that the user set.
@@ -74,7 +74,7 @@ class Away::EventListener
 class Away::EventProvider final
 	: public Events::ModuleEventProvider
 {
- public:
+public:
 	EventProvider(Module* mod)
 		: ModuleEventProvider(mod, "event/away")
 	{

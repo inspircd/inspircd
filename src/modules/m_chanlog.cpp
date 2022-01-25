@@ -36,7 +36,7 @@ class ModuleChanLog final
 	typedef insp::flat_multimap<char, std::string> ChanLogTargets;
 	ChanLogTargets logstreams;
 
- public:
+public:
 	ModuleChanLog()
 		: Module(VF_VENDOR, "Allows messages sent to snomasks to be logged to a channel.")
 	{

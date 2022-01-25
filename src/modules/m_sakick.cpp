@@ -27,7 +27,7 @@
 class CommandSakick final
 	: public Command
 {
- public:
+public:
 	CommandSakick(Module* Creator) : Command(Creator,"SAKICK", 2, 3)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -86,10 +86,10 @@ class CommandSakick final
 class ModuleSakick final
 	: public Module
 {
- private:
+private:
 	CommandSakick cmd;
 
- public:
+public:
 	ModuleSakick()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SAKICK command which allows server operators to kick users from a channel without having any privileges in the channel.")
 		, cmd(this)

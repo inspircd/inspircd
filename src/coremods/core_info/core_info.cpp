@@ -87,7 +87,7 @@ class CoreModInfo final
 		numeric004.push(CreateModeList(MODETYPE_CHANNEL));
 		numeric004.push(CreateModeList(MODETYPE_CHANNEL, true));
 	}
- public:
+public:
 	CoreModInfo()
 		: Module(VF_CORE | VF_VENDOR, "Provides the ADMIN, COMMANDS, INFO, MODULES, MOTD, TIME, SERVLIST, and VERSION commands")
 		, cmdadmin(this)

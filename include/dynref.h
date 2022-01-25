@@ -25,24 +25,24 @@
 class CoreExport dynamic_reference_base
 	: public insp::intrusive_list_node<dynamic_reference_base>
 {
- public:
+public:
 	class CaptureHook
 	{
-	 public:
+	public:
 		/** Called when the target of the dynamic_reference has been acquired
 		 */
 		virtual void OnCapture() = 0;
 	};
 
- private:
+private:
 	std::string name;
 	CaptureHook* hook = nullptr;
 	void resolve();
 	static void* operator new(std::size_t) = delete;
 	static void* operator new[](std::size_t) = delete;
- protected:
+protected:
 	ServiceProvider* value = nullptr;
- public:
+public:
 	ModuleRef creator;
 	dynamic_reference_base(Module* Creator, const std::string& Name);
 	~dynamic_reference_base();
@@ -69,7 +69,7 @@ template<typename T>
 class dynamic_reference
 	: public dynamic_reference_base
 {
- public:
+public:
 	dynamic_reference(Module* Creator, const std::string& Name)
 		: dynamic_reference_base(Creator, Name) {}
 
@@ -99,7 +99,7 @@ template<typename T>
 class dynamic_reference_nocheck
 	: public dynamic_reference_base
 {
- public:
+public:
 	dynamic_reference_nocheck(Module* Creator, const std::string& Name)
 		: dynamic_reference_base(Creator, Name) {}
 
@@ -128,7 +128,7 @@ class ModeHandler;
 class ChanModeReference final
 	: public dynamic_reference_nocheck<ModeHandler>
 {
- public:
+public:
 	ChanModeReference(Module* mod, const std::string& modename)
 		: dynamic_reference_nocheck<ModeHandler>(mod, "mode/" + modename) {}
 };
@@ -136,7 +136,7 @@ class ChanModeReference final
 class UserModeReference final
 	: public dynamic_reference_nocheck<ModeHandler>
 {
- public:
+public:
 	UserModeReference(Module* mod, const std::string& modename)
 		: dynamic_reference_nocheck<ModeHandler>(mod, "umode/" + modename) {}
 };

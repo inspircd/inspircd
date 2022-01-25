@@ -33,15 +33,15 @@
  */
 class CoreExport CommandParser final
 {
- public:
+public:
 	typedef std::unordered_map<std::string, Command*, irc::insensitive, irc::StrHashComp> CommandMap;
 
- private:
+private:
 	/** Command list, a hash_map of command names to Command*
 	 */
 	CommandMap cmdlist;
 
- public:
+public:
 	/** Get a command name -> Command* map containing all client to server commands
 	 * @return A map of command handlers keyed by command names
 	 */

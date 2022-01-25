@@ -32,9 +32,9 @@
 class CoreExport FileLogStream final
 	: public LogStream
 {
- private:
+private:
 	FileWriter *f;
- public:
+public:
 	FileLogStream(LogLevel loglevel, FileWriter *fw);
 
 	~FileLogStream() override;

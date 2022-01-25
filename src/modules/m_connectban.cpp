@@ -34,7 +34,7 @@ class ModuleConnectBan final
 	, public ServerProtocol::LinkEventListener
 	, public WebIRC::EventListener
 {
- private:
+private:
 	typedef std::map<irc::sockets::cidr_mask, unsigned int> ConnectMap;
 
 	ConnectMap connects;
@@ -78,7 +78,7 @@ class ModuleConnectBan final
 		return user->GetClass() && !user->GetClass()->config->getBool("useconnectban", true);
 	}
 
- public:
+public:
 	// Stop GCC warnings about the deprecated OnServerSplit event.
 	using ServerProtocol::LinkEventListener::OnServerSplit;
 

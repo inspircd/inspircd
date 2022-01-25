@@ -28,7 +28,7 @@
 class ModuleChanCreate final
 	: public Module
 {
- public:
+public:
 	ModuleChanCreate()
 		: Module(VF_VENDOR, "Sends a notice to snomasks j (local) and J (remote) when a channel is created.")
 	{

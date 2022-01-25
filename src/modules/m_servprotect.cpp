@@ -34,7 +34,7 @@ enum
 class ServProtectMode final
 	: public SimpleUserMode
 {
- public:
+public:
 	ServProtectMode(Module* Creator)
 		: SimpleUserMode(Creator, "servprotect", 'k', true)
 	{
@@ -58,10 +58,10 @@ class ModuleServProtectMode final
 	: public Module
 	, public Whois::LineEventListener
 {
- private:
+private:
 	ServProtectMode bm;
 
- public:
+public:
 	ModuleServProtectMode()
 		: Module(VF_VENDOR, "Adds user mode k (servprotect) which protects services pseudoclients from being kicked, being killed, or having their channel prefix modes changed.")
 		, Whois::LineEventListener(this)

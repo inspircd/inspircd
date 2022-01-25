@@ -47,7 +47,7 @@ class CommandShowFile final
 	file_cache contents;
 	Method method;
 
- public:
+public:
 	CommandShowFile(Module* parent, const std::string& cmdname)
 		: Command(parent, cmdname)
 	{
@@ -101,7 +101,7 @@ class CommandShowFile final
 class ModuleShowFile final
 	: public Module
 {
- private:
+private:
 	std::vector<CommandShowFile*> cmds;
 
 	void ReadTag(std::shared_ptr<ConfigTag> tag, std::vector<CommandShowFile*>& newcmds)
@@ -141,7 +141,7 @@ class ModuleShowFile final
 		newcmds.push_back(sfcmd);
 	}
 
- public:
+public:
 	ModuleShowFile()
 		: Module(VF_VENDOR, "Adds support for showing the contents of files to users when they execute a command.")
 	{

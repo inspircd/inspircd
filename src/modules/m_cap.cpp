@@ -142,7 +142,7 @@ class Cap::ManagerImpl final
 		delete capmoddata;
 	}
 
- public:
+public:
 	ManagerImpl(Module* mod, Events::ModuleEventProvider& evprovref)
 		: Cap::Manager(mod)
 		, ReloadModule::EventListener(mod)
@@ -346,7 +346,7 @@ void Cap::ExtItem::FromInternal(Extensible* container, const std::string& value)
 class CapMessage final
 	: public Cap::MessageBase
 {
- public:
+public:
 	CapMessage(LocalUser* user, const std::string& subcmd, const std::string& result, bool asterisk)
 		: Cap::MessageBase(subcmd)
 	{
@@ -360,7 +360,7 @@ class CapMessage final
 class CommandCap final
 	: public SplitCommand
 {
- private:
+private:
 	Events::ModuleEventProvider evprov;
 	Cap::ManagerImpl manager;
 	ClientProtocol::EventProvider protoevprov;
@@ -392,7 +392,7 @@ class CommandCap final
 		user->Send(ev);
 	}
 
- public:
+public:
 	BoolExtItem holdext;
 
 	CommandCap(Module* mod)
@@ -461,7 +461,7 @@ class CommandCap final
 class PoisonCap final
 	: public Cap::Capability
 {
- public:
+public:
 	PoisonCap(Module* mod)
 		: Cap::Capability(mod, "inspircd.org/poison")
 	{
@@ -477,12 +477,12 @@ class PoisonCap final
 class ModuleCap final
 	: public Module
 {
- private:
+private:
 	CommandCap cmd;
 	PoisonCap poisoncap;
 	Cap::Capability stdrplcap;
 
- public:
+public:
 	ModuleCap()
 		: Module(VF_VENDOR, "Implements support for the IRCv3 Client Capability Negotiation extension.")
 		, cmd(this)

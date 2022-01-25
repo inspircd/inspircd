@@ -30,7 +30,7 @@
 class CommandUserip final
 	: public Command
 {
- public:
+public:
 	CommandUserip(Module* Creator) : Command(Creator,"USERIP", 1)
 	{
 		syntax = { "<nick> [<nick>]+" };
@@ -85,10 +85,10 @@ class ModuleUserIP final
 	: public Module
 	, public ISupport::EventListener
 {
- private:
+private:
 	CommandUserip cmd;
 
- public:
+public:
 	ModuleUserIP()
 		: Module(VF_VENDOR, "Adds the /USERIP command which allows users to find out the IP address of one or more connected users.")
 		, ISupport::EventListener(this)

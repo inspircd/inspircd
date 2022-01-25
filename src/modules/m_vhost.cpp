@@ -52,7 +52,7 @@ typedef std::multimap<std::string, CustomVhost> CustomVhostMap;
 class CommandVhost final
 	: public Command
 {
- public:
+public:
 	CustomVhostMap vhosts;
 
 	CommandVhost(Module* Creator)
@@ -81,10 +81,10 @@ class CommandVhost final
 class ModuleVHost final
 	: public Module
 {
- private:
+private:
 	CommandVhost cmd;
 
- public:
+public:
 	ModuleVHost()
 		: Module(VF_VENDOR, "Allows the server administrator to define accounts which can grant a custom virtual host.")
 		, cmd(this)

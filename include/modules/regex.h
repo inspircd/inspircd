@@ -53,7 +53,7 @@ namespace Regex
 class Regex::Engine
 	: public DataProvider
 {
- protected:
+protected:
 	/** Initializes a new instance of the Regex::Engine class.
 	 * @param Creator The module which created this instance.
 	 * @param Name The name of this regular expression engine.
@@ -63,7 +63,7 @@ class Regex::Engine
 	{
 	}
 
- public:
+public:
 	/** Compiles a regular expression pattern.
 	 * @param pattern The pattern to compile.
 	 * @param options One or more options to use when matching the pattern.
@@ -83,7 +83,7 @@ template<typename PatternClass>
 class Regex::SimpleEngine final
 	: public Regex::Engine
 {
- public:
+public:
 	/** @copydoc Regex::Engine::Engine */
 	SimpleEngine(Module* Creator, const std::string& Name)
 		: Regex::Engine(Creator, Name)
@@ -101,7 +101,7 @@ class Regex::SimpleEngine final
 class Regex::EngineReference final
 	: public dynamic_reference_nocheck<Engine>
 {
- public:
+public:
 	/** Initializes a new instance of the Regex::EngineReference class.
 	 * @param Creator The module which created this instance.
 	 * @param Name The name of the regular expression engine to reference.
@@ -124,7 +124,7 @@ class Regex::EngineReference final
 class Regex::Exception final
 	: public ModuleException
 {
- public:
+public:
 	/** Initializes a new instance of the Regex::Exception class.
 	 * @param mod The module which caused this exception to be thrown.
 	 * @param regex A regular expression which failed to compile.
@@ -150,14 +150,14 @@ class Regex::Exception final
 /** Represents a compiled regular expression pattern. */
 class Regex::Pattern
 {
- private:
+private:
 	/** The options used when matching this pattern. */
 	const uint8_t optionflags;
 
 	/** The pattern as a string. */
 	const std::string patternstr;
 
- protected:
+protected:
 	/** Initializes a new instance of the Pattern class.
 	 * @param pattern The pattern as a string.
 	 * @param options The options used when matching this pattern.
@@ -168,7 +168,7 @@ class Regex::Pattern
 	{
 	}
 
- public:
+public:
 	/** Destroys an instance of the Pattern class. */
 	virtual ~Pattern() = default;
 

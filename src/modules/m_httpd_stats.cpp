@@ -378,12 +378,12 @@ class ModuleHttpStats final
 	: public Module
 	, public HTTPRequestEventListener
 {
- private:
+private:
 	HTTPdAPI API;
 	ISupport::EventProvider isupportevprov;
 	bool enableparams = false;
 
- public:
+public:
 	ModuleHttpStats()
 		: Module(VF_VENDOR, "Provides XML-serialised statistics about the server, channels, and users over HTTP via the /stats path.")
 		, HTTPRequestEventListener(this)

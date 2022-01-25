@@ -36,7 +36,7 @@ enum
 class InviteException final
 	: public ListModeBase
 {
- public:
+public:
 	InviteException(Module* Creator)
 		: ListModeBase(Creator, "invex", 'I', "End of Channel Invite Exception List", RPL_INVEXLIST, RPL_ENDOFINVEXLIST, true)
 	{
@@ -48,11 +48,11 @@ class ModuleInviteException final
 	: public Module
 	, public ISupport::EventListener
 {
- private:
+private:
 	bool invite_bypass_key;
 	InviteException ie;
 
- public:
+public:
 	ModuleInviteException()
 		: Module(VF_VENDOR, "Adds channel mode I (invex) which allows channel operators to exempt user masks from channel mode i (inviteonly).")
 		, ISupport::EventListener(this)

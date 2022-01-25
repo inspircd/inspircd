@@ -74,14 +74,14 @@ static const char* const helptext[] =
 
 class BannedFileList final
 {
- public:
+public:
 	std::string filemask;
 	std::string action;
 };
 
 class DCCAllow final
 {
- public:
+public:
 	std::string nickname;
 	std::string hostmask;
 	time_t set_on;
@@ -108,7 +108,7 @@ bannedfilelist bfl;
 class DCCAllowExt final
 	: public SimpleExtItem<dccallowlist>
 {
- public:
+public:
 	unsigned long maxentries;
 
 	DCCAllowExt(Module* Creator)
@@ -183,7 +183,7 @@ class DCCAllowExt final
 class CommandDccallow final
 	: public Command
 {
- public:
+public:
 	DCCAllowExt& ext;
 	unsigned long defaultlength;
 	CommandDccallow(Module* parent, DCCAllowExt& Ext)
@@ -375,13 +375,13 @@ class CommandDccallow final
 class ModuleDCCAllow final
 	: public Module
 {
- private:
+private:
 	DCCAllowExt ext;
 	CommandDccallow cmd;
 	bool blockchat = false;
 	std::string defaultaction;
 
- public:
+public:
 	ModuleDCCAllow()
 		: Module(VF_VENDOR | VF_COMMON, "Allows the server administrator to configure what files are allowed to be sent via DCC SEND and allows users to configure who can send them DCC CHAT and DCC SEND requests.")
 		, ext(this)

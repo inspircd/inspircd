@@ -28,12 +28,12 @@ class ThreadSignalSocket;
 class CoreExport SocketThread
 	: public Thread
 {
- private:
+private:
 	std::mutex mutex;
 	std::condition_variable_any condvar;
 	ThreadSignalSocket* socket;
 
- protected:
+protected:
 	/** Waits for an enqueue operation to complete
 	 * You MUST hold the queue lock when you call this.
 	 * It will be unlocked while you wait, and will be relocked
@@ -43,7 +43,7 @@ class CoreExport SocketThread
 	{
 		condvar.wait(mutex);
 	}
- public:
+public:
 	/** Notifies parent by making the SignalFD ready to read
 	 * No requirements on locking
 	 */

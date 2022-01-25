@@ -25,13 +25,13 @@ static volatile sig_atomic_t signaled;
 class ModuleSSLRehashSignal final
 	: public Module
 {
- private:
+private:
 	static void SignalHandler(int)
 	{
 		signaled = 1;
 	}
 
- public:
+public:
 	 ModuleSSLRehashSignal()
 		: Module(VF_VENDOR, "Allows the SIGUSR1 signal to be sent to the server to reload TLS certificates.")
 	{

@@ -85,7 +85,7 @@ typedef std::vector<std::string> CloakList;
 class CloakExtItem final
 	: public SimpleExtItem<CloakList>
 {
- public:
+public:
 	CloakExtItem(Module* Creator)
 		: SimpleExtItem(Creator, "cloaks", ExtensionType::USER)
 	{
@@ -100,7 +100,7 @@ class CloakExtItem final
 class CloakUser final
 	: public ModeHandler
 {
- public:
+public:
 	bool active = false;
 	CloakExtItem ext;
 	std::string debounce_uid;
@@ -196,7 +196,7 @@ class CloakUser final
 class CommandCloak final
 	: public Command
 {
- public:
+public:
 	CommandCloak(Module* Creator) : Command(Creator, "CLOAK", 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -209,7 +209,7 @@ class CommandCloak final
 class ModuleCloaking final
 	: public Module
 {
- public:
+public:
 	CloakUser cu;
 	CommandCloak ck;
 	std::vector<CloakInfo> cloaks;

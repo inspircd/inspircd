@@ -62,10 +62,10 @@ enum
 class CommandInvite final
 	: public Command
 {
- private:
+private:
 	Invite::APIImpl& invapi;
 
- public:
+public:
 	Invite::AnnounceState announceinvites;
 
 	CommandInvite(Module* parent, Invite::APIImpl& invapiimpl);
@@ -76,7 +76,7 @@ class CommandInvite final
 class CommandJoin final
 	: public SplitCommand
 {
- public:
+public:
 	CommandJoin(Module* parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
@@ -84,12 +84,12 @@ class CommandJoin final
 class CommandTopic final
 	: public SplitCommand
 {
- private:
+private:
 	CheckExemption::EventProvider exemptionprov;
 	ChanModeReference secretmode;
 	ChanModeReference topiclockmode;
 
- public:
+public:
 	CommandTopic(Module* parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
@@ -97,13 +97,13 @@ class CommandTopic final
 class CommandNames final
 	: public SplitCommand
 {
- private:
+private:
 	ChanModeReference secretmode;
 	ChanModeReference privatemode;
 	UserModeReference invisiblemode;
 	Events::ModuleEventProvider namesevprov;
 
- public:
+public:
 	CommandNames(Module* parent);
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
@@ -119,7 +119,7 @@ class CommandNames final
 class CommandKick final
 	: public Command
 {
- public:
+public:
 	CommandKick(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
@@ -130,7 +130,7 @@ class CommandKick final
 class ModeChannelBan final
 	: public ListModeBase
 {
- public:
+public:
 	ModeChannelBan(Module* Creator)
 		: ListModeBase(Creator, "ban", 'b', "End of channel ban list", RPL_BANLIST, RPL_ENDOFBANLIST, true)
 	{
@@ -143,7 +143,7 @@ class ModeChannelBan final
 class ModeChannelKey final
 	: public ParamMode<ModeChannelKey, StringExtItem>
 {
- public:
+public:
 	std::string::size_type maxkeylen;
 	ModeChannelKey(Module* Creator);
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
@@ -157,7 +157,7 @@ class ModeChannelKey final
 class ModeChannelLimit final
 	: public ParamMode<ModeChannelLimit, IntExtItem>
 {
- public:
+public:
 	ModeChannelLimit(Module* Creator);
 	bool ResolveModeConflict(const std::string& their_param, const std::string& our_param, Channel* channel) override;
 	void SerializeParam(Channel* chan, intptr_t n, std::string& out);
@@ -169,7 +169,7 @@ class ModeChannelLimit final
 class ModeChannelOp final
 	: public PrefixMode
 {
- public:
+public:
 	ModeChannelOp(Module* Creator)
 		: PrefixMode(Creator, "op", 'o', OP_VALUE, '@')
 	{
@@ -182,7 +182,7 @@ class ModeChannelOp final
 class ModeChannelVoice final
 	: public PrefixMode
 {
- public:
+public:
 	ModeChannelVoice(Module* Creator)
 		: PrefixMode(Creator, "voice", 'v', VOICE_VALUE, '+')
 	{
@@ -194,13 +194,13 @@ class ModeChannelVoice final
 class ExtBanManager final
 	: public ExtBan::Manager
 {
- private:
+private:
 	ModeChannelBan& banmode;
 	Events::ModuleEventProvider evprov;
 	LetterMap byletter;
 	NameMap byname;
 
- public:
+public:
 	ExtBanManager(Module* Creator, ModeChannelBan& bm)
 		: ExtBan::Manager(Creator)
 		, banmode(bm)

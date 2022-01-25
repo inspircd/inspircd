@@ -50,7 +50,7 @@ class SpanningTreeUtilities final
 {
 	CacheRefreshTimer RefreshTimer;
 
- public:
+public:
 	typedef std::set<TreeSocket*> TreeSocketSet;
 	typedef std::map<TreeSocket*, std::pair<std::string, unsigned int> > TimeoutList;
 

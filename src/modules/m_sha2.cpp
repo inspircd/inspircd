@@ -45,7 +45,7 @@ template<void (*SHA)(const unsigned char*, unsigned int, unsigned char*)>
 class HashSHA2 final
 	: public HashProvider
 {
- public:
+public:
 	HashSHA2(Module* parent, const std::string& Name, unsigned int osize, unsigned int bsize)
 		: HashProvider(parent, Name, osize, bsize)
 	{
@@ -62,13 +62,13 @@ class HashSHA2 final
 class ModuleSHA2 final
 	: public Module
 {
- private:
+private:
 	HashSHA2<sha224> sha224algo;
 	HashSHA2<sha256> sha256algo;
 	HashSHA2<sha384> sha384algo;
 	HashSHA2<sha512> sha512algo;
 
- public:
+public:
 	ModuleSHA2()
 		: Module(VF_VENDOR, "Allows other modules to generate SHA-2 hashes.")
 		, sha224algo(this, "sha224", SHA224_DIGEST_SIZE, SHA224_BLOCK_SIZE)

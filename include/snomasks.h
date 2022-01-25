@@ -48,7 +48,7 @@ class Snomask final
 	 */
 	static void Send(char letter, const std::string& desc, const std::string& msg);
 
- public:
+public:
 	/** Sends a message to all opers with this snomask.
 	 * @param message The message to send
 	 * @param letter The snomask character to send the message to.
@@ -77,7 +77,7 @@ class CoreExport SnomaskManager final
 {
 	Snomask	masks[26];
 
- public:
+public:
 	/** Create a new SnomaskManager
 	 */
 	SnomaskManager();

@@ -34,7 +34,7 @@ class ModuleSecureList final
 	: public Module
 	, public ISupport::EventListener
 {
- private:
+private:
 	AllowList allowlist;
 	bool exemptregistered;
 	unsigned long fakechans;
@@ -43,7 +43,7 @@ class ModuleSecureList final
 	bool showmsg;
 	unsigned long waittime;
 
- public:
+public:
 	ModuleSecureList()
 		: Module(VF_VENDOR, "Prevents users from using the /LIST command until a predefined period has passed.")
 		, ISupport::EventListener(this)

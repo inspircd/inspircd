@@ -45,7 +45,7 @@ enum
 
 class callerid_data final
 {
- public:
+public:
 	typedef insp::flat_set<User*> UserSet;
 	typedef std::vector<callerid_data*> CallerIdDataSet;
 
@@ -333,10 +333,10 @@ public:
 class CallerIDAPIImpl final
 	: public CallerID::APIBase
 {
- private:
+private:
 	CallerIDExtInfo& ext;
 
- public:
+public:
 	CallerIDAPIImpl(Module* Creator, CallerIDExtInfo& Ext)
 		: CallerID::APIBase(Creator)
 		, ext(Ext)
@@ -355,7 +355,7 @@ class ModuleCallerID final
 	, public CTCTags::EventListener
 	, public ISupport::EventListener
 {
- private:
+private:
 	CommandAccept cmd;
 	CallerIDAPIImpl api;
 	SimpleUserMode myumode;

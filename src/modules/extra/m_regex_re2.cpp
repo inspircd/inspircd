@@ -34,7 +34,7 @@
 class RE2Pattern final
 	: public Regex::Pattern
 {
- private:
+private:
 	RE2 regex;
 
 	RE2::Options BuildOptions(uint8_t options)
@@ -45,7 +45,7 @@ class RE2Pattern final
 		return re2options;
 	}
 
- public:
+public:
 	RE2Pattern(const Module* mod, const std::string& pattern, uint8_t options)
 		: Regex::Pattern(pattern, options)
 		, regex(pattern, BuildOptions(options))
@@ -63,10 +63,10 @@ class RE2Pattern final
 class ModuleRegexRE2 final
 	: public Module
 {
- private:
+private:
 	Regex::SimpleEngine<RE2Pattern> regex;
 
- public:
+public:
 	ModuleRegexRE2()
 		: Module(VF_VENDOR, "Provides the re2 regular expression engine which uses the RE2 library.")
 		, regex(this, "re2")

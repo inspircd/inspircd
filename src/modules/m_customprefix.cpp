@@ -25,7 +25,7 @@
 class CustomPrefixMode final
 	: public PrefixMode
 {
- public:
+public:
 	std::shared_ptr<ConfigTag> tag;
 
 	CustomPrefixMode(Module* parent, const std::string& Name, char Letter, char Prefix, std::shared_ptr<ConfigTag> Tag)
@@ -46,10 +46,10 @@ class CustomPrefixMode final
 class ModuleCustomPrefix final
 	: public Module
 {
- private:
+private:
 	std::vector<CustomPrefixMode*> modes;
 
- public:
+public:
 	ModuleCustomPrefix()
 		: Module(VF_VENDOR, "Allows the server administrator to configure custom channel prefix modes.")
 	{

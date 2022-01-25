@@ -26,7 +26,7 @@
 class CoreExport ListModeBase
 	: public ModeHandler
 {
- public:
+public:
 	/** An item in a listmode's list
 	 */
 	struct ListItem
@@ -42,7 +42,7 @@ class CoreExport ListModeBase
 	 */
 	typedef std::vector<ListItem> ModeList;
 
- private:
+private:
 	class ChanData
 	{
 	public:
@@ -85,7 +85,7 @@ class CoreExport ListModeBase
 	 */
 	unsigned long GetLimitInternal(const std::string& channame, ChanData* cd);
 
- protected:
+protected:
 	/** Numeric to use when outputting the list
 	 */
 	unsigned int listnumeric;
@@ -111,7 +111,7 @@ class CoreExport ListModeBase
 	 */
 	SimpleExtItem<ChanData> extItem;
 
- public:
+public:
 	/** Constructor.
 	 * @param Creator The creator of this class
 	 * @param Name Mode name

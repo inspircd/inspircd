@@ -58,7 +58,7 @@ namespace mbedTLS
 	class Exception final
 		: public ModuleException
 	{
-	 public:
+	public:
 		Exception(const std::string& msg)
 			: ModuleException(thismod, msg)
 		{
@@ -87,7 +87,7 @@ namespace mbedTLS
 	{
 		T obj;
 
-	 public:
+	public:
 		RAIIObj()
 		{
 			init(&obj);
@@ -107,7 +107,7 @@ namespace mbedTLS
 	class CTRDRBG final
 		: private RAIIObj<mbedtls_ctr_drbg_context, mbedtls_ctr_drbg_init, mbedtls_ctr_drbg_free>
 	{
-	 public:
+	public:
 		bool Seed(Entropy& entropy)
 		{
 			return (mbedtls_ctr_drbg_seed(get(), mbedtls_entropy_func, entropy.get(), NULL, 0) == 0);
@@ -122,7 +122,7 @@ namespace mbedTLS
 	class DHParams final
 		: public RAIIObj<mbedtls_dhm_context, mbedtls_dhm_init, mbedtls_dhm_free>
 	{
-	 public:
+	public:
 		void set(const std::string& dhstr)
 		{
 			// Last parameter is buffer size, must include the terminating null
@@ -134,7 +134,7 @@ namespace mbedTLS
 	class X509Key final
 		: public RAIIObj<mbedtls_pk_context, mbedtls_pk_init, mbedtls_pk_free>
 	{
-	 public:
+	public:
 		/** Import */
 		X509Key(const std::string& keystr)
 		{
@@ -153,7 +153,7 @@ namespace mbedTLS
 	{
 		std::vector<int> list;
 
-	 public:
+	public:
 		Ciphersuites(const std::string& str)
 		{
 			// mbedTLS uses the ciphersuite format "TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256" internally.
@@ -181,7 +181,7 @@ namespace mbedTLS
 	{
 		std::vector<mbedtls_ecp_group_id> list;
 
-	 public:
+	public:
 		Curves(const std::string& str)
 		{
 			irc::sepstream ss(str, ':');
@@ -202,7 +202,7 @@ namespace mbedTLS
 	class X509CertList final
 		: public RAIIObj<mbedtls_x509_crt, mbedtls_x509_crt_init, mbedtls_x509_crt_free>
 	{
-	 public:
+	public:
 		/** Import or create empty */
 		X509CertList(const std::string& certstr, bool allowempty = false)
 		{
@@ -218,7 +218,7 @@ namespace mbedTLS
 	class X509CRL final
 		: public RAIIObj<mbedtls_x509_crl, mbedtls_x509_crl_init, mbedtls_x509_crl_free>
 	{
-	 public:
+	public:
 		X509CRL(const std::string& crlstr)
 		{
 			if (crlstr.empty())
@@ -238,7 +238,7 @@ namespace mbedTLS
 		 */
 		X509CertList certs;
 
-	 public:
+	public:
 		X509Credentials(const std::string& certstr, const std::string& keystr)
 			: key(keystr)
 			, certs(certstr)
@@ -282,7 +282,7 @@ namespace mbedTLS
 		}
 #endif
 
-	 public:
+	public:
 		Context(CTRDRBG& ctrdrbg, unsigned int endpoint)
 		{
 			mbedtls_ssl_config_init(&conf);
@@ -355,7 +355,7 @@ namespace mbedTLS
 		 */
 		mutable std::vector<unsigned char> buf;
 
-	 public:
+	public:
 		Hash(std::string hashstr)
 		{
 			std::transform(hashstr.begin(), hashstr.end(), hashstr.begin(), ::toupper);
@@ -406,7 +406,7 @@ namespace mbedTLS
 		 */
 		const unsigned int outrecsize;
 
-	 public:
+	public:
 		struct Config final
 		{
 			const std::string name;
@@ -534,7 +534,7 @@ namespace mbedTLS
 class mbedTLSIOHook final
 	: public SSLIOHook
 {
- private:
+private:
 	mbedtls_ssl_context sess;
 
 	void CloseSession()
@@ -688,7 +688,7 @@ class mbedTLSIOHook final
 		return int(ret);
 	}
 
- public:
+public:
 	mbedTLSIOHook(std::shared_ptr<IOHookProvider> hookprov, StreamSocket* sock, bool isserver)
 		: SSLIOHook(hookprov)
 	{
@@ -834,7 +834,7 @@ class mbedTLSIOHookProvider final
 {
 	mbedTLS::Profile profile;
 
- public:
+public:
 	mbedTLSIOHookProvider(Module* mod, mbedTLS::Profile::Config& config)
 		: SSLIOHookProvider(mod, config.name)
 		, profile(config)
@@ -868,7 +868,7 @@ mbedTLS::Profile& mbedTLSIOHook::GetProfile()
 class ModuleSSLmbedTLS final
 	: public Module
 {
- private:
+private:
 	typedef std::vector<std::shared_ptr<mbedTLSIOHookProvider>> ProfileList;
 
 	mbedTLS::Entropy entropy;
@@ -923,7 +923,7 @@ class ModuleSSLmbedTLS final
 		profiles.swap(newprofiles);
 	}
 
- public:
+public:
 	ModuleSSLmbedTLS()
 		: Module(VF_VENDOR, "Allows TLS encrypted connections using the mbedTLS library.")
 	{

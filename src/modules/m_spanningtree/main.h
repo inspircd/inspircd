@@ -90,7 +90,7 @@ class ModuleSpanningTree final
 	 */
 	Membership::Id currmembid = 0;
 
- public:
+public:
 	/** The specialized ProtocolInterface that is assigned to ServerInstance->PI on load
 	 */
 	SpanningTreeProtocolInterface protocolinterface;

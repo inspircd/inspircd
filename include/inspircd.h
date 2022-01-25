@@ -114,7 +114,7 @@ CoreExport extern InspIRCd* ServerInstance;
  */
 class serverstats final
 {
-  public:
+public:
 	/** Number of accepted connections
 	 */
 	unsigned long Accept = 0;
@@ -174,7 +174,7 @@ class serverstats final
  */
 class CoreExport InspIRCd final
 {
- private:
+private:
 	/** The current time, updated in the mainloop
 	 */
 	struct timespec TIME;
@@ -186,7 +186,7 @@ class CoreExport InspIRCd final
 
 	ClientProtocol::RFCEvents rfcevents;
 
- public:
+public:
 
 	UIDGenerator UIDGen;
 

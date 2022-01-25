@@ -28,7 +28,7 @@
 class BCryptProvider final
 	: public HashProvider
 {
- private:
+private:
 	std::string Salt()
 	{
 		char entropy[16];
@@ -42,7 +42,7 @@ class BCryptProvider final
 		return salt;
 	}
 
- public:
+public:
 	unsigned long rounds = 10;
 
 	std::string Generate(const std::string& data, const std::string& salt)
@@ -76,10 +76,10 @@ class BCryptProvider final
 class ModuleBCrypt final
 	: public Module
 {
- private:
+private:
 	BCryptProvider bcrypt;
 
- public:
+public:
 	ModuleBCrypt()
 		: Module(VF_VENDOR, "Allows other modules to generate bcrypt hashes.")
 		, bcrypt(this)

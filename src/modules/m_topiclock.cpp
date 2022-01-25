@@ -28,7 +28,7 @@ enum
 class CommandSVSTOPIC final
 	: public Command
 {
- public:
+public:
 	CommandSVSTOPIC(Module* Creator)
 		: Command(Creator, "SVSTOPIC", 1, 4)
 	{
@@ -78,11 +78,11 @@ class CommandSVSTOPIC final
 class ModuleTopicLock final
 	: public Module
 {
- private:
+private:
 	CommandSVSTOPIC cmd;
 	BoolExtItem topiclock;
 
- public:
+public:
 	ModuleTopicLock()
 		: Module(VF_VENDOR | VF_COMMON, "Allows services to lock the channel topic so that it can not be changed.")
 		, cmd(this)

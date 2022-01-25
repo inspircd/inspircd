@@ -28,7 +28,7 @@ class User;
 
 class ProtocolServer
 {
- public:
+public:
 	/** Send metadata related to this server to the target server
 	 * @param key The 'key' of the data
 	 * @param data The string representation of the data
@@ -38,12 +38,12 @@ class ProtocolServer
 
 class CoreExport ProtocolInterface
 {
- public:
+public:
 	typedef ProtocolServer Server;
 
 	class ServerInfo
 	{
-	 public:
+	public:
 		std::string servername;
 		std::string parentname;
 		std::string description;

@@ -42,12 +42,12 @@ static void JoinChannels(LocalUser* u, const std::string& chanlist)
 class JoinTimer final
 	: public Timer
 {
- private:
+private:
 	LocalUser* const user;
 	const std::string channels;
 	SimpleExtItem<JoinTimer>& ext;
 
- public:
+public:
 	JoinTimer(LocalUser* u, SimpleExtItem<JoinTimer>& ex, const std::string& chans, unsigned int delay)
 		: Timer(delay, false)
 		, user(u), channels(chans), ext(ex)
@@ -68,12 +68,12 @@ class JoinTimer final
 class ModuleConnJoin final
 	: public Module
 {
- private:
+private:
 	SimpleExtItem<JoinTimer> ext;
 	std::string defchans;
 	unsigned int defdelay;
 
- public:
+public:
 	ModuleConnJoin()
 		: Module(VF_VENDOR, "Allows the server administrator to force users to join one or more channels on connect.")
 		, ext(this, "join-timer", ExtensionType::USER)

@@ -28,7 +28,7 @@ class ModuleCommonChans final
 	: public Module
 	, public CTCTags::EventListener
 {
- private:
+private:
 	SimpleUserMode mode;
 
 	ModResult HandleMessage(User* user, const MessageTarget& target)
@@ -47,7 +47,7 @@ class ModuleCommonChans final
 		return MOD_RES_DENY;
 	}
 
- public:
+public:
 	ModuleCommonChans()
 		: Module(VF_VENDOR, "Adds user mode c (deaf_commonchan) which requires users to have a common channel before they can privately message each other.")
 		, CTCTags::EventListener(this)

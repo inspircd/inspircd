@@ -63,7 +63,7 @@ class HttpServerSocket final
 	, public Timer
 	, public insp::intrusive_list_node<HttpServerSocket>
 {
- private:
+private:
 	friend class ModuleHttpServer;
 
 	http_parser parser;
@@ -206,7 +206,7 @@ class HttpServerSocket final
 		return 0;
 	}
 
- public:
+public:
 	HttpServerSocket(int newfd, const std::string& IP, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server, unsigned long timeoutsec)
 		: BufferedSocket(newfd)
 		, Timer(timeoutsec)
@@ -394,7 +394,7 @@ class HttpServerSocket final
 class HTTPdAPIImpl final
 	: public HTTPdAPIBase
 {
- public:
+public:
 	HTTPdAPIImpl(Module* parent)
 		: HTTPdAPIBase(parent)
 	{
@@ -409,13 +409,13 @@ class HTTPdAPIImpl final
 class ModuleHttpServer final
 	: public Module
 {
- private:
+private:
 	HTTPdAPIImpl APIImpl;
 	unsigned long timeoutsec;
 	Events::ModuleEventProvider acleventprov;
 	Events::ModuleEventProvider reqeventprov;
 
- public:
+public:
 	ModuleHttpServer()
 		: Module(VF_VENDOR, "Allows the server administrator to serve various useful resources over HTTP.")
 		, APIImpl(this)

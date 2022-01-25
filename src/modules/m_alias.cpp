@@ -31,7 +31,7 @@
  */
 class Alias final
 {
- public:
+public:
 	/** The text of the alias command */
 	std::string AliasedCommand;
 
@@ -80,7 +80,7 @@ class ModuleAlias final
 	// Whether we are actively executing an alias.
 	bool active = false;
 
- public:
+public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		AliasMap newAliases;

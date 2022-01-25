@@ -25,7 +25,7 @@ class ModuleOpModerated final
 	: public Module
 	, public CTCTags::EventListener
 {
- private:
+private:
 	CheckExemption::EventProvider exemptionprov;
 	ExtBan::Acting extban;
 	SimpleChannelMode mode;
@@ -66,7 +66,7 @@ class ModuleOpModerated final
 		return MOD_RES_PASSTHRU;
 	}
 
- public:
+public:
 	ModuleOpModerated()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the ability for IRC gateways to forward the real IP address of users connecting through them.")
 		, CTCTags::EventListener(this)

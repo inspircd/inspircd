@@ -27,10 +27,10 @@
 class ModuleMapHide final
 	: public Module
 {
- private:
+private:
 	std::string url;
 
- public:
+public:
 	ModuleMapHide()
 		: Module(VF_VENDOR, "Allows the server administrator to replace the output of a /MAP and /LINKS with an URL.")
 	{

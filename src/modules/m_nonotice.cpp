@@ -32,12 +32,12 @@
 class ModuleNoNotice final
 	: public Module
 {
- private:
+private:
 	ExtBan::Acting extban;
 	CheckExemption::EventProvider exemptionprov;
 	SimpleChannelMode nt;
 
- public:
+public:
 	ModuleNoNotice()
 		: Module(VF_VENDOR, "Adds channel mode T (nonotice) which allows channels to block messages sent with the /NOTICE command.")
 		, extban(this, "nonotice", 'T')

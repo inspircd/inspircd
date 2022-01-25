@@ -31,7 +31,7 @@ namespace
 class LDAPOperBase
 	: public LDAPInterface
 {
- protected:
+protected:
 	const std::string uid;
 	const std::string opername;
 	const std::string password;
@@ -58,7 +58,7 @@ class LDAPOperBase
 		Fallback(user);
 	}
 
- public:
+public:
 	LDAPOperBase(Module* mod, const std::string& uuid, const std::string& oper, const std::string& pass)
 		: LDAPInterface(mod)
 		, uid(uuid), opername(oper), password(pass)
@@ -76,7 +76,7 @@ class LDAPOperBase
 class BindInterface final
 	: public LDAPOperBase
 {
- public:
+public:
 	BindInterface(Module* mod, const std::string& uuid, const std::string& oper, const std::string& pass)
 		: LDAPOperBase(mod, uuid, oper, pass)
 	{
@@ -127,7 +127,7 @@ class SearchInterface final
 		return true;
 	}
 
- public:
+public:
 	SearchInterface(Module* mod, const std::string& prov, const std::string &uuid, const std::string& oper, const std::string& pass)
 		: LDAPOperBase(mod, uuid, oper, pass)
 		, provider(prov)
@@ -152,7 +152,7 @@ class AdminBindInterface final
 	const std::string base;
 	const std::string what;
 
- public:
+public:
 	AdminBindInterface(Module* c, const std::string& p, const std::string& u, const std::string& o, const std::string& pa, const std::string& b, const std::string& w)
 		: LDAPInterface(c)
 		, provider(p)
@@ -195,7 +195,7 @@ class ModuleLDAPOper final
 	std::string base;
 	std::string attribute;
 
- public:
+public:
 	ModuleLDAPOper()
 		: Module(VF_VENDOR, "Allows server operators to be authenticated against an LDAP database.")
 		, LDAP(this, "LDAP")

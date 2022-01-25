@@ -31,12 +31,12 @@ namespace WebIRC
 class WebIRC::EventListener
 	: public Events::ModuleEventListener
 {
- protected:
+protected:
 	EventListener(Module* mod)
 		: ModuleEventListener(mod, "event/webirc")
 	{
 	}
 
- public:
+public:
 	virtual void OnWebIRCAuth(LocalUser* user, const FlagMap* flags) = 0;
 };

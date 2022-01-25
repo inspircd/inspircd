@@ -108,7 +108,7 @@ class SHA1Context final
 		this->state[4] += e;
 	}
 
- public:
+public:
 	SHA1Context()
 	{
 		for (int i = 0; i < 5; ++i)
@@ -166,7 +166,7 @@ class SHA1Context final
 class SHA1HashProvider final
 	: public HashProvider
 {
- public:
+public:
 	SHA1HashProvider(Module* mod)
 		: HashProvider(mod, "sha1", 20, 64)
 	{
@@ -184,10 +184,10 @@ class SHA1HashProvider final
 class ModuleSHA1 final
 	: public Module
 {
- private:
+private:
 	SHA1HashProvider sha1;
 
- public:
+public:
 	ModuleSHA1()
 		: Module(VF_VENDOR, "Allows other modules to generate SHA-1 hashes.")
 		, sha1(this)

@@ -24,11 +24,11 @@ typedef std::unordered_map<std::string, Channel*, irc::insensitive, irc::StrHash
 /** Manages state relating to channels. */
 class CoreExport ChannelManager final
 {
- private:
+private:
 	/** A map of channel names to the channel object. */
 	ChannelMap channels;
 
- public:
+public:
 	/** Determines whether an channel name is valid. */
 	std::function<bool(const std::string&)> IsChannel = DefaultIsChannel;
 

@@ -28,11 +28,11 @@ namespace insp
 template <typename T>
 class insp::aligned_storage final
 {
- private:
+private:
 	/** The underlying aligned storage block. */
 	mutable typename std::aligned_storage<sizeof(T), std::alignment_of<T>::value>::type data;
 
- public:
+public:
 	/** Default constructor for the aligned_storage class. */
 	aligned_storage() = default;
 

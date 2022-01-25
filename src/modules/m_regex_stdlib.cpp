@@ -28,10 +28,10 @@
 class StdLibPattern final
 	: public Regex::Pattern
 {
- private:
+private:
 	std::regex regex;
 
- public:
+public:
 	StdLibPattern(const Module* mod, const std::string& pattern, uint8_t options, std::regex::flag_type type)
 		: Regex::Pattern(pattern, options)
 	{
@@ -59,7 +59,7 @@ class StdLibPattern final
 class StdLibEngine final
 	: public Regex::Engine
 {
- public:
+public:
 	std::regex::flag_type regextype;
 
 	StdLibEngine(Module* Creator)
@@ -76,10 +76,10 @@ class StdLibEngine final
 class ModuleRegexStdLib final
 	: public Module
 {
- private:
+private:
 	StdLibEngine regex;
 
- public:
+public:
 	ModuleRegexStdLib()
 		: Module(VF_VENDOR, "Provides the stdregex regular expression engine which uses the C++11 std::regex regular expression matching system.")
 		, regex(this)

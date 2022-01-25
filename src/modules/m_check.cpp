@@ -36,7 +36,7 @@ enum
 
 class CheckContext final
 {
- private:
+private:
 	User* const user;
 	const std::string& target;
 
@@ -48,7 +48,7 @@ class CheckContext final
 		return timestr;
 	}
 
- public:
+public:
 	CheckContext(User* u, const std::string& targetstr)
 		: user(u)
 		, target(targetstr)
@@ -108,7 +108,7 @@ class CheckContext final
 	class List final
 		: public Numeric::GenericBuilder<' ', false, Numeric::WriteRemoteNumericSink>
 	{
-	 public:
+	public:
 		List(CheckContext& context, const char* checktype)
 			: Numeric::GenericBuilder<' ', false, Numeric::WriteRemoteNumericSink>(Numeric::WriteRemoteNumericSink(context.GetUser()), RPL_CHECK, false, (IS_LOCAL(context.GetUser()) ? context.GetUser()->nick.length() : ServerInstance->Config->Limits.MaxNick) + strlen(checktype) + 1)
 		{
@@ -153,7 +153,7 @@ class CommandCheck final
 		return ret;
 	}
 
- public:
+public:
 	CommandCheck(Module* parent)
 		: Command(parent,"CHECK", 1)
 		, snomaskmode(parent, "snomask")
@@ -330,10 +330,10 @@ class CommandCheck final
 class ModuleCheck final
 	: public Module
 {
- private:
+private:
 	CommandCheck cmd;
 
- public:
+public:
 	ModuleCheck()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /CHECK command which allows server operators to look up details about a channel, user, IP address, or hostname.")
 		, cmd(this)

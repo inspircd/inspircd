@@ -32,7 +32,7 @@
 class DeafMode final
 	: public SimpleUserMode
 {
- public:
+public:
 	DeafMode(Module* Creator)
 		: SimpleUserMode(Creator, "deaf", 'd')
 	{
@@ -54,7 +54,7 @@ class DeafMode final
 class PrivDeafMode final
 	: public SimpleUserMode
 {
- public:
+public:
 	PrivDeafMode(Module* Creator)
 		: SimpleUserMode(Creator, "privdeaf", 'D')
 	{
@@ -76,7 +76,7 @@ class ModuleDeaf final
 	: public Module
 	, public CTCTags::EventListener
 {
- private:
+private:
 	DeafMode deafmode;
 	PrivDeafMode privdeafmode;
 	std::string deaf_bypasschars;
@@ -124,7 +124,7 @@ class ModuleDeaf final
 		return MOD_RES_ALLOW;
 	}
 
- public:
+public:
 	ModuleDeaf()
 		: Module(VF_VENDOR, "Adds user mode d (deaf) which prevents users from receiving channel messages.")
 		, CTCTags::EventListener(this)

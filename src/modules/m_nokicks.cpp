@@ -31,11 +31,11 @@
 class ModuleNoKicks final
 	: public Module
 {
- private:
+private:
 	ExtBan::Acting extban;
 	SimpleChannelMode nk;
 
- public:
+public:
 	ModuleNoKicks()
 		: Module(VF_VENDOR, "Adds channel mode Q (nokick) which prevents privileged users from using the /KICK command.")
 		, extban(this, "nokick", 'Q')

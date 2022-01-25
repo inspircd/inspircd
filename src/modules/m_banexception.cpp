@@ -39,7 +39,7 @@ enum
 class BanException final
 	: public ListModeBase
 {
- public:
+public:
 	BanException(Module* Creator)
 		: ListModeBase(Creator, "banexception", 'e', "End of Channel Exception List", RPL_EXCEPTLIST, RPL_ENDOFEXCEPTLIST, true)
 	{
@@ -52,10 +52,10 @@ class ModuleBanException final
 	, public ExtBan::EventListener
 	, public ISupport::EventListener
 {
- private:
+private:
 	BanException be;
 
- public:
+public:
 	ModuleBanException()
 		: Module(VF_VENDOR, "Adds channel mode e (banexception) which allows channel operators to exempt user masks from channel mode b (ban).")
 		, ExtBan::EventListener(this)

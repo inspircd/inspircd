@@ -34,12 +34,12 @@
 class ModuleBlockColor final
 	: public Module
 {
- private:
+private:
 	ExtBan::Acting extban;
 	CheckExemption::EventProvider exemptionprov;
 	SimpleChannelMode bc;
 
- public:
+public:
 	ModuleBlockColor()
 		: Module(VF_VENDOR, "Adds channel mode c (blockcolor) which allows channels to block messages which contain IRC formatting codes.")
 		, extban(this, "blockcolor", 'c')

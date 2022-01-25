@@ -31,7 +31,7 @@ enum
 class CommandCapab final
 	: public Command
 {
- public:
+public:
 	CommandCapab(Module* parent)
 		: Command(parent, "CAPAB")
 	{
@@ -56,7 +56,7 @@ class CommandCapab final
 class CommandConnect final
 	: public Command
 {
- public:
+public:
 	CommandConnect(Module* parent)
 		: Command(parent, "CONNECT", 1)
 	{
@@ -77,7 +77,7 @@ class CommandConnect final
 class CommandLinks final
 	: public Command
 {
- public:
+public:
 	CommandLinks(Module* parent)
 		: Command(parent, "LINKS", 0, 0)
 	{
@@ -94,7 +94,7 @@ class CommandLinks final
 class CommandSquit final
 	: public Command
 {
- public:
+public:
 	CommandSquit(Module* parent)
 		: Command(parent, "SQUIT", 1, 2)
 	{
@@ -112,7 +112,7 @@ class CommandSquit final
 class CommandSummon final
 	: public SplitCommand
 {
- public:
+public:
 	CommandSummon(Module* Creator)
 		: SplitCommand(Creator, "SUMMON", 1)
 	{
@@ -128,7 +128,7 @@ class CommandSummon final
 class CommandUsers final
 	: public SplitCommand
 {
- public:
+public:
 	CommandUsers(Module* Creator)
 		: SplitCommand(Creator, "USERS")
 	{
@@ -144,7 +144,7 @@ class CommandUsers final
 class CoreModStub final
 	: public Module
 {
- private:
+private:
 	CommandCapab cmdcapab;
 	CommandConnect cmdconnect;
 	CommandLinks cmdlinks;
@@ -152,7 +152,7 @@ class CoreModStub final
 	CommandSummon cmdsummon;
 	CommandUsers cmdusers;
 
- public:
+public:
 	CoreModStub()
 		: Module(VF_CORE | VF_VENDOR, "Provides stubs for unimplemented commands")
 		, cmdcapab(this)

@@ -37,7 +37,7 @@ namespace IRCv3
 class IRCv3::Replies::CapReference final
 	: public Cap::Reference
 {
- public:
+public:
 	CapReference(Module* mod)
 		: Cap::Reference(mod, "inspircd.org/standard-replies")
 	{
@@ -47,7 +47,7 @@ class IRCv3::Replies::CapReference final
 /** Base class for standard replies. */
 class IRCv3::Replies::Reply
 {
- private:
+private:
 	/** The name of the command for this reply. */
 	const std::string cmd;
 
@@ -72,7 +72,7 @@ class IRCv3::Replies::Reply
 			user->WriteNotice(InspIRCd::Format("*** %s", description.c_str()));
 	}
 
- protected:
+protected:
 	/** Initializes a new instance of the Reply class.
 	 * @param Creator The module which created this instance.
 	 * @param Cmd The name of the command to reply with.
@@ -83,7 +83,7 @@ class IRCv3::Replies::Reply
 	{
 	}
 
- public:
+public:
 	/**
 	 * Sends a standard reply to the specified user.
 	 * @param user The user to send the reply to.

@@ -39,7 +39,7 @@ static unsigned int duration;
  */
 class joinfloodsettings final
 {
- public:
+public:
 	unsigned int secs;
 	unsigned int joins;
 	time_t reset;
@@ -98,7 +98,7 @@ class joinfloodsettings final
 class JoinFlood final
 	: public ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings>>
 {
- public:
+public:
 	JoinFlood(Module* Creator)
 		: ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings> >(Creator, "joinflood", 'j')
 	{
@@ -138,13 +138,13 @@ class ModuleJoinFlood final
 	: public Module
 	, public ServerProtocol::LinkEventListener
 {
- private:
+private:
 	JoinFlood jf;
 	time_t ignoreuntil;
 	unsigned long bootwait;
 	unsigned long splitwait;
 
- public:
+public:
 	ModuleJoinFlood()
 		: Module(VF_VENDOR, "Adds channel mode j (joinflood) which helps protect against spammers which mass-join channels.")
 		, ServerProtocol::LinkEventListener(this)

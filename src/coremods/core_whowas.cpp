@@ -90,7 +90,7 @@ namespace WhoWas
 
 	class Manager final
 	{
-	 public:
+	public:
 		struct Stats final
 		{
 			/** Number of currently existing WhoWas::Entry objects */
@@ -133,7 +133,7 @@ namespace WhoWas
 		/** Destructor */
 		~Manager();
 
-	 private:
+	private:
 		/** Order in which the users were added into the map, used to remove oldest nick */
 		typedef insp::intrusive_list_tail<Nick> FIFO;
 
@@ -175,7 +175,7 @@ namespace WhoWas
 class CommandWhowas final
 	: public Command
 {
-  public:
+public:
 	// Manager handling all whowas database related tasks
 	WhoWas::Manager manager;
 
@@ -402,7 +402,7 @@ class ModuleWhoWas final
 {
 	CommandWhowas cmd;
 
- public:
+public:
 	ModuleWhoWas()
 		: Module(VF_CORE | VF_VENDOR, "Provides the WHOWAS command")
 		, Stats::EventListener(this)

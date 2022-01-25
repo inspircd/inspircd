@@ -48,14 +48,14 @@ namespace insp
 template <typename Iterator>
 class insp::iterator_range final
 {
- private:
+private:
 	/** An iterator which points to the start of the range. */
 	const Iterator begini;
 
 	/* An iterator which points to one past the end of the range. */
 	const Iterator endi;
 
- public:
+public:
 	/** Initialises a new iterator range with the specified iterators.
 	 * @param begin An iterator which points to the start of the range.
 	 * @param end An iterator which points to one past the end of the range.

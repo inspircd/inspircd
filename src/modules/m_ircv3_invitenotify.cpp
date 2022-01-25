@@ -26,7 +26,7 @@ class ModuleIRCv3InviteNotify final
 {
 	Cap::Capability cap;
 
- public:
+public:
 	ModuleIRCv3InviteNotify()
 		: Module(VF_VENDOR, "Provides the IRCv3 invite-notify client capability.")
 		, cap(this, "invite-notify")

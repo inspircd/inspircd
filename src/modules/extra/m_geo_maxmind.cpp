@@ -38,7 +38,7 @@
 class GeolocationExtItem final
 	: public ExtensionItem
 {
- public:
+public:
 	GeolocationExtItem(Module* parent)
 		: ExtensionItem(parent, "geolocation", ExtensionType::USER)
 	{
@@ -79,7 +79,7 @@ typedef insp::flat_map<std::string, Geolocation::Location*> LocationMap;
 class GeolocationAPIImpl final
 	: public Geolocation::APIBase
 {
- public:
+public:
 	GeolocationExtItem ext;
 	LocationMap locations;
 	MMDB_s mmdb;
@@ -148,10 +148,10 @@ class GeolocationAPIImpl final
 class ModuleGeoMaxMind final
 	: public Module
 {
- private:
+private:
 	GeolocationAPIImpl geoapi;
 
- public:
+public:
 	ModuleGeoMaxMind()
 		: Module(VF_VENDOR, "Allows the server to perform geolocation lookups on both IP addresses and users.")
 		, geoapi(this)

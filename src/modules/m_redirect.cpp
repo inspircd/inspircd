@@ -33,7 +33,7 @@
 class Redirect final
 	: public ParamMode<Redirect, StringExtItem>
 {
- public:
+public:
 	Redirect(Module* Creator)
 		: ParamMode<Redirect, StringExtItem>(Creator, "redirect", 'L')
 	{
@@ -83,12 +83,12 @@ class Redirect final
 class ModuleRedirect final
 	: public Module
 {
- private:
+private:
 	Redirect re;
 	SimpleUserMode antiredirectmode;
 	ChanModeReference limitmode;
 
- public:
+public:
 	ModuleRedirect()
 		: Module(VF_VENDOR, "Allows users to be redirected to another channel when the user limit is reached.")
 		, re(this)

@@ -23,10 +23,10 @@
 class CoreExport ParamModeBase
 	: public ModeHandler
 {
- private:
+private:
 	virtual void OnUnsetInternal(User* source, Channel* chan) = 0;
 
- public:
+public:
 	ParamModeBase(Module* Creator, const std::string& Name, char modeletter, ParamSpec ps)
 		: ModeHandler(Creator, Name, modeletter, ps, MODETYPE_CHANNEL, MC_PARAM) { }
 
@@ -49,7 +49,7 @@ template <typename T, typename ExtItemT>
 class ParamMode
 	: public ParamModeBase
 {
- public:
+public:
 	ExtItemT ext;
 
 	/**

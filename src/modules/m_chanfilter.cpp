@@ -38,7 +38,7 @@ enum
 class ChanFilter final
 	: public ListModeBase
 {
- public:
+public:
 	unsigned long maxlen;
 
 	ChanFilter(Module* Creator)
@@ -86,7 +86,7 @@ class ModuleChanFilter final
 		return NULL;
 	}
 
- public:
+public:
 
 	ModuleChanFilter()
 		: Module(VF_VENDOR, "Adds channel mode g (filter) which allows channel operators to define glob patterns for inappropriate phrases that are not allowed to be used in the channel.")

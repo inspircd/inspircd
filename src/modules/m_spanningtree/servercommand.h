@@ -26,7 +26,7 @@
 class ProtocolException final
 	: public ModuleException
 {
- public:
+public:
 	ProtocolException(const std::string& msg)
 		: ModuleException((Module*)Utils->Creator, "Protocol violation: " + msg)
 	{
@@ -38,7 +38,7 @@ class ProtocolException final
 class ServerCommand
 	: public CommandBase
 {
- public:
+public:
 	ServerCommand(Module* Creator, const std::string& Name, unsigned int MinPara = 0, unsigned int MaxPara = 0);
 
 	/** Register this object in the ServerCommandManager
@@ -65,7 +65,7 @@ template <class T>
 class UserOnlyServerCommand
 	: public ServerCommand
 {
- public:
+public:
 	UserOnlyServerCommand(Module* Creator, const std::string& Name, unsigned int MinPara = 0, unsigned int MaxPara = 0)
 		: ServerCommand(Creator, Name, MinPara, MaxPara) { }
 
@@ -85,7 +85,7 @@ template <class T>
 class ServerOnlyServerCommand
 	: public ServerCommand
 {
- public:
+public:
 	ServerOnlyServerCommand(Module* Creator, const std::string& Name, unsigned int MinPara = 0, unsigned int MaxPara = 0)
 		: ServerCommand(Creator, Name, MinPara, MaxPara) { }
 
@@ -103,7 +103,7 @@ class ServerCommandManager final
 	typedef std::unordered_map<std::string, ServerCommand*> ServerCommandMap;
 	ServerCommandMap commands;
 
- public:
+public:
 	ServerCommand* GetHandler(const std::string& command) const;
 	bool AddCommand(ServerCommand* cmd);
 };

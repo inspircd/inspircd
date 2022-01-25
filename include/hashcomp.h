@@ -108,7 +108,7 @@ namespace irc
 	 */
 	class CoreExport sepstream
 	{
-	 protected:
+	protected:
 		/** Original string.
 		 */
 		std::string tokens;
@@ -121,7 +121,7 @@ namespace irc
 		/** If set then GetToken() can return an empty string
 		 */
 		bool allow_empty;
-	 public:
+	public:
 		/** Create a sepstream and fill it with the provided data
 		 */
 		sepstream(const std::string &source, char separator, bool allowempty = false);
@@ -168,7 +168,7 @@ namespace irc
 	 */
 	class CoreExport commasepstream : public sepstream
 	{
-	 public:
+	public:
 		/** Initialize with comma separator
 		 */
 		commasepstream(const std::string &source, bool allowempty = false) : sepstream(source, ',', allowempty)
@@ -180,7 +180,7 @@ namespace irc
 	 */
 	class CoreExport spacesepstream : public sepstream
 	{
-	 public:
+	public:
 		/** Initialize with space separator
 		 */
 		spacesepstream(const std::string &source, bool allowempty = false) : sepstream(source, ' ', allowempty)
@@ -209,7 +209,7 @@ namespace irc
 		/** The current position within the message. */
 		size_t position = 0;
 
-	 public:
+	public:
 		/** Create a tokenstream and fill it with the provided data. */
 		tokenstream(const std::string& msg, size_t start = 0, size_t end = std::string::npos);
 
@@ -239,7 +239,7 @@ namespace irc
 	 */
 	class CoreExport portparser
 	{
-	 private:
+	private:
 
 		/** Used to split on commas
 		 */
@@ -269,7 +269,7 @@ namespace irc
 		/** Returns true if val overlaps an existing range
 		 */
 		bool Overlaps(long val);
-	 public:
+	public:
 
 		/** Create a portparser and fill it with the provided data
 		 * @param source The source text to parse from

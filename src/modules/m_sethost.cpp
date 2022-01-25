@@ -28,7 +28,7 @@
 class CommandSethost final
 	: public Command
 {
- public:
+public:
 	std::bitset<UCHAR_MAX + 1> hostmap;
 
 	CommandSethost(Module* Creator)
@@ -69,10 +69,10 @@ class CommandSethost final
 class ModuleSetHost final
 	: public Module
 {
- private:
+private:
 	CommandSethost cmd;
 
- public:
+public:
 	ModuleSetHost()
 		: Module(VF_VENDOR, "Adds the /SETHOST command which allows server operators to change their displayed hostname.")
 		, cmd(this)

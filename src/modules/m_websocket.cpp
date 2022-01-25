@@ -63,7 +63,7 @@ struct WebSocketConfig final
 class WebSocketHookProvider final
 	: public IOHookProvider
 {
- public:
+public:
 	WebSocketConfig config;
 	WebSocketHookProvider(Module* mod)
 		: IOHookProvider(mod, "websocket", IOHookProvider::IOH_UNKNOWN, true)
@@ -82,11 +82,11 @@ class WebSocketHook final
 {
 	class HTTPHeaderFinder final
 	{
-	 private:
+	private:
 		std::string::size_type bpos;
 		std::string::size_type len;
 
-	 public:
+	public:
 		bool Find(const std::string& req, const char* header, std::string::size_type headerlen, std::string::size_type maxpos)
 		{
 			// Skip the GET /wibble HTTP/1.1 line.
@@ -480,7 +480,7 @@ class WebSocketHook final
 		return 1;
 	}
 
- public:
+public:
 	WebSocketHook(std::shared_ptr<IOHookProvider> Prov, StreamSocket* sock, WebSocketConfig& cfg)
 		: IOHookMiddle(Prov)
 		, config(cfg)
@@ -577,11 +577,11 @@ void WebSocketHookProvider::OnAccept(StreamSocket* sock, irc::sockets::sockaddrs
 class ModuleWebSocket final
 	: public Module
 {
- private:
+private:
 	dynamic_reference_nocheck<HashProvider> hash;
 	std::shared_ptr<WebSocketHookProvider> hookprov;
 
- public:
+public:
 	ModuleWebSocket()
 		: Module(VF_VENDOR, "Allows WebSocket clients to connect to the IRC server.")
 		, hash(this, "hash/sha1")

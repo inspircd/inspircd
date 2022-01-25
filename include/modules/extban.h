@@ -53,7 +53,7 @@ namespace ExtBan
 class ExtBan::Manager
 	: public DataProvider
 {
- protected:
+protected:
 	/** Initializes an instance of the ExtBan::Base class.
 	 * @param Creator The module which created this instance.
 	 */
@@ -62,7 +62,7 @@ class ExtBan::Manager
 	{
 	}
 
- public:
+public:
 	/** A mapping of extban letters to their associated object. */
 	typedef std::unordered_map<unsigned char, ExtBan::Base*> LetterMap;
 
@@ -110,7 +110,7 @@ class ExtBan::Base
 	: public ServiceProvider
 	, private dynamic_reference_base::CaptureHook
 {
- private:
+private:
 	/** Whether this ExtBan is currently enabled. */
 	bool active = false;
 
@@ -127,7 +127,7 @@ class ExtBan::Base
 			SetActive(true);
 	}
 
- protected:
+protected:
 	/** Initializes an instance of the ExtBan::Base class.
 	 * @param Creator The module which created this instance.
 	 * @param Name The name used in bans to signify this extban.
@@ -140,7 +140,7 @@ class ExtBan::Base
 	{
 	}
 
- public:
+public:
 	/** Retrieves the character used in bans to signify this extban. */
 	unsigned char GetLetter() const { return letter; }
 
@@ -191,7 +191,7 @@ class ExtBan::Base
 class ExtBan::Acting final
 	: public Base
 {
- public:
+public:
 	/** Initializes an instance of the ExtBan::Acting class.
 	 * @param Creator The module which created this instance.
 	 * @param Name The name used in bans to signify this extban.
@@ -224,7 +224,7 @@ class ExtBan::Acting final
 class ExtBan::MatchingBase
 	: public Base
 {
- protected:
+protected:
 	/** Initializes an instance of the ExtBan::MatchingBase class.
 	 * @param Creator The module which created this instance.
 	 * @param Name The name used in bans to signify this extban.
@@ -235,7 +235,7 @@ class ExtBan::MatchingBase
 	{
 	}
 
- public:
+public:
 	/** @copydoc ExtBan::Base::GetType */
 	Type GetType() const override { return ExtBan::Type::MATCHING; }
 
@@ -247,13 +247,13 @@ class ExtBan::MatchingBase
 class ExtBan::EventListener
 	: public Events::ModuleEventListener
 {
- protected:
+protected:
 	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
 		: ModuleEventListener(mod, "event/extban", eventprio)
 	{
 	}
 
- public:
+public:
 	/** Called when an extban is being checked.
 	 * @param user The user which the extban is being checked against.
 	 * @param chan The channel which the extban is set on.

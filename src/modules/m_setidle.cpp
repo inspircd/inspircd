@@ -37,7 +37,7 @@ enum
 class CommandSetidle final
 	: public SplitCommand
 {
- public:
+public:
 	CommandSetidle(Module* Creator) : SplitCommand(Creator,"SETIDLE", 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -66,10 +66,10 @@ class CommandSetidle final
 class ModuleSetIdle final
 	: public Module
 {
- private:
+private:
 	CommandSetidle cmd;
 
- public:
+public:
 	ModuleSetIdle()
 		: Module(VF_VENDOR, "Adds the /SETIDLE command which allows server operators to change their idle time.")
 		, cmd(this)

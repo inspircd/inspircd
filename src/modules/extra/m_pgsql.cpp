@@ -76,9 +76,9 @@ enum SQLstatus
 class ReconnectTimer final
 	: public Timer
 {
- private:
+private:
 	ModulePgSQL* mod;
- public:
+public:
 	ReconnectTimer(ModulePgSQL* m) : Timer(5, false), mod(m)
 	{
 	}
@@ -115,7 +115,7 @@ class PgSQLresult final
 			colnames[i] = PQfname(res, i);
 		}
 	}
- public:
+public:
 	PgSQLresult(PGresult* result)
 		: res(result)
 	{
@@ -188,7 +188,7 @@ class SQLConn final
 	: public SQL::Provider
 	, public EventHandler
 {
- public:
+public:
 	std::shared_ptr<ConfigTag> conf; /* The <database> entry */
 	std::deque<QueueItem> queue;
 	PGconn* sql = nullptr; /* PgSQL database connection handle */
@@ -528,7 +528,7 @@ restart:
 class ModulePgSQL final
 	: public Module
 {
- public:
+public:
 	ConnMap connections;
 	ReconnectTimer* retimer = nullptr;
 

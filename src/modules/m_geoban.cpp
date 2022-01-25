@@ -26,10 +26,10 @@
 class CountryExtBan final
 	: public ExtBan::MatchingBase
 {
- private:
+private:
 	Geolocation::API& geoapi;
 
- public:
+public:
 	CountryExtBan(Module* Creator, Geolocation::API& api)
 		: ExtBan::MatchingBase(Creator, "country", 'G')
 		, geoapi(api)
@@ -50,11 +50,11 @@ class ModuleGeoBan final
 	: public Module
 	, public Whois::EventListener
 {
- private:
+private:
 	Geolocation::API geoapi;
 	CountryExtBan extban;
 
- public:
+public:
 	ModuleGeoBan()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban G: (country) which matches against two letter country codes.")
 		, Whois::EventListener(this)

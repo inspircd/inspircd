@@ -30,7 +30,7 @@
 class CommandSajoin final
 	: public Command
 {
- public:
+public:
 	CommandSajoin(Module* Creator) : Command(Creator,"SAJOIN", 1)
 	{
 		allow_empty_last_param = false;
@@ -116,10 +116,10 @@ class CommandSajoin final
 class ModuleSajoin final
 	: public Module
 {
- private:
+private:
 	CommandSajoin cmd;
 
- public:
+public:
 	ModuleSajoin()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SAJOIN command which allows server operators to force users to join one or more channels.")
 		, cmd(this)

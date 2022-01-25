@@ -28,7 +28,7 @@ namespace CallerID
 class CallerID::APIBase
 	: public DataProvider
 {
- public:
+public:
 	APIBase(Module* parent)
 		: DataProvider(parent, "m_callerid_api")
 	{
@@ -45,7 +45,7 @@ class CallerID::APIBase
 class CallerID::API final
 	: public dynamic_reference<CallerID::APIBase>
 {
- public:
+public:
 	API(Module* parent)
 		: dynamic_reference<CallerID::APIBase>(parent, "m_callerid_api")
 	{

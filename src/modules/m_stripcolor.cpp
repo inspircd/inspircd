@@ -33,13 +33,13 @@
 class ModuleStripColor final
 	: public Module
 {
- private:
+private:
 	CheckExemption::EventProvider exemptionprov;
 	ExtBan::Acting extban;
 	SimpleChannelMode csc;
 	SimpleUserMode usc;
 
- public:
+public:
 	ModuleStripColor()
 		: Module(VF_VENDOR, "Adds channel mode S (stripcolor) which allows channels to strip IRC formatting codes from messages.")
 		, exemptionprov(this)

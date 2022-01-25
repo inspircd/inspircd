@@ -29,7 +29,7 @@
 // 10200:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA:BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 class PBKDF2Hash final
 {
- public:
+public:
 	unsigned long iterations;
 	size_t length;
 	std::string salt;
@@ -75,7 +75,7 @@ class PBKDF2Hash final
 class PBKDF2Provider final
 	: public HashProvider
 {
- public:
+public:
 	HashProvider* provider;
 	unsigned long iterations;
 	size_t dkey_length;
@@ -202,7 +202,7 @@ class ModulePBKDF2 final
 		ConfigureProviders();
 	}
 
- public:
+public:
 	ModulePBKDF2()
 		: Module(VF_VENDOR, "Allows other modules to generate PBKDF2 hashes.")
 	{

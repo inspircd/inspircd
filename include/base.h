@@ -51,7 +51,7 @@ class CoreExport refcountbase
 	: private insp::uncopiable
 {
 	mutable unsigned int refcount = 0;
- public:
+public:
 	refcountbase();
 	virtual ~refcountbase();
 	inline unsigned int GetReferenceCount() const { return refcount; }
@@ -71,7 +71,7 @@ class CoreExport usecountbase
 	: private insp::uncopiable
 {
 	mutable unsigned int usecount = 0;
- public:
+public:
 	usecountbase() = default;
 	~usecountbase();
 	inline unsigned int GetUseCount() const { return usecount; }
@@ -83,7 +83,7 @@ template <typename T>
 class reference final
 {
 	T* value = nullptr;
- public:
+public:
 	reference() = default;
 	reference(T* v) : value(v) { if (value) value->refcount_inc(); }
 	reference(const reference<T>& v) : value(v.value) { if (value) value->refcount_inc(); }
@@ -123,7 +123,7 @@ class reference final
 	inline bool operator<(const reference<T>& other) const { return value < other.value; }
 	inline bool operator>(const reference<T>& other) const { return value > other.value; }
 	static inline void* operator new(size_t, void* m) { return m; }
- private:
+private:
 #ifndef _WIN32
 	static void* operator new(size_t);
 	static void operator delete(void*);
@@ -151,7 +151,7 @@ enum ServiceType {
 class CoreExport ServiceProvider
 	: public Cullable
 {
- public:
+public:
 	/** Module that is providing this service */
 	ModuleRef creator;
 	/** Name of the service being provided */

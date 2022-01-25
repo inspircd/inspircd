@@ -25,7 +25,7 @@
 class CommandClearChan final
 	: public Command
 {
- public:
+public:
 	Channel* activechan;
 
 	CommandClearChan(Module* Creator)
@@ -146,10 +146,10 @@ class CommandClearChan final
 class ModuleClearChan final
 	: public Module
 {
- private:
+private:
 	CommandClearChan cmd;
 
- public:
+public:
 	ModuleClearChan()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /CLEARCHAN command which allows server operators to mass-punish the members of a channel.")
 		, cmd(this)

@@ -27,7 +27,7 @@
 class AwayMessage final
 	: public ClientProtocol::Message
 {
- public:
+public:
 	AwayMessage(User* user)
 		: ClientProtocol::Message("AWAY", user)
 	{
@@ -53,7 +53,7 @@ class JoinHook final
 {
 	ClientProtocol::Events::Join extendedjoinmsg;
 
- public:
+public:
 	const std::string asterisk;
 	ClientProtocol::EventProvider awayprotoev;
 	AwayMessage awaymsg;
@@ -118,12 +118,12 @@ class ModuleIRCv3 final
 	, public AccountEventListener
 	, public Away::EventListener
 {
- private:
+private:
 	Cap::Capability cap_accountnotify;
 	JoinHook joinhook;
 	ClientProtocol::EventProvider accountprotoev;
 
- public:
+public:
 	ModuleIRCv3()
 		: Module(VF_VENDOR, "Provides the IRCv3 account-notify, away-notify, and extended-join client capabilities.")
 		, AccountEventListener(this)

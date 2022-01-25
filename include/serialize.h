@@ -22,10 +22,10 @@
 /** Base class for serializable elements. */
 class CoreExport Serializable
 {
- protected:
+protected:
 	Serializable() = default;
 
- public:
+public:
 	/** Encapsulates a chunk of serialised data. */
 	class CoreExport Data
 	{
@@ -43,7 +43,7 @@ class CoreExport Serializable
 		/** A mapping of keys to values. */
 		EntryMap entries;
 
-	 public:
+	public:
 		/** Retrieves the child elements. */
 		const ChildMap& GetChildren() const { return children; }
 		ChildMap& GetChildren() { return children; }

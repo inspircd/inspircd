@@ -29,7 +29,7 @@
 class CommandLoadmodule final
 	: public Command
 {
- public:
+public:
 	CommandLoadmodule(Module* parent)
 		: Command(parent,"LOADMODULE", 1, 1)
 	{
@@ -58,7 +58,7 @@ CmdResult CommandLoadmodule::Handle(User* user, const Params& parameters)
 class CommandUnloadmodule final
 	: public Command
 {
- public:
+public:
 	CommandUnloadmodule(Module* parent)
 		: Command(parent, "UNLOADMODULE", 1)
 	{
@@ -104,7 +104,7 @@ class CoreModLoadModule final
 	CommandLoadmodule cmdloadmod;
 	CommandUnloadmodule cmdunloadmod;
 
- public:
+public:
 	CoreModLoadModule()
 		: Module(VF_CORE | VF_VENDOR, "Provides the LOADMODULE and UNLOADMODULE commands")
 		, cmdloadmod(this)

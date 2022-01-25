@@ -37,7 +37,7 @@ enum
 class CommandNicklock final
 	: public Command
 {
- public:
+public:
 	BoolExtItem& locked;
 	CommandNicklock (Module* Creator, BoolExtItem& ext) : Command(Creator,"NICKLOCK", 2),
 		locked(ext)
@@ -96,7 +96,7 @@ class CommandNicklock final
 class CommandNickunlock final
 	: public Command
 {
- public:
+public:
 	BoolExtItem& locked;
 	CommandNickunlock (Module* Creator, BoolExtItem& ext) : Command(Creator,"NICKUNLOCK", 1),
 		locked(ext)
@@ -143,12 +143,12 @@ class CommandNickunlock final
 class ModuleNickLock final
 	: public Module
 {
- private:
+private:
 	BoolExtItem locked;
 	CommandNicklock cmd1;
 	CommandNickunlock cmd2;
 
- public:
+public:
 	ModuleNickLock()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /NICKLOCK command which allows server operators to change a user's nickname and prevent them from changing it again until they disconnect.")
 		, locked(this, "nick-locked", ExtensionType::USER)

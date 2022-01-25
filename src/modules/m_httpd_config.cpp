@@ -29,10 +29,10 @@ class ModuleHttpConfig final
 	: public Module
 	, public HTTPRequestEventListener
 {
- private:
+private:
 	HTTPdAPI API;
 
- public:
+public:
 	ModuleHttpConfig()
 		: Module(VF_VENDOR, "Allows the server configuration to be viewed over HTTP via the /config path.")
 		, HTTPRequestEventListener(this)

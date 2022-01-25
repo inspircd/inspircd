@@ -37,7 +37,7 @@ enum BlockAction { IBLOCK_KILL, IBLOCK_KILLOPERS, IBLOCK_NOTICE, IBLOCK_NOTICEOP
  */
 class BlockedMessage final
 {
- public:
+public:
 	std::string message;
 	std::string target;
 	time_t sent;
@@ -55,7 +55,7 @@ class ModuleBlockAmsg final
 	BlockAction action;
 	SimpleExtItem<BlockedMessage> blockamsg;
 
- public:
+public:
 	ModuleBlockAmsg()
 		: Module(VF_VENDOR, "Blocks mass messages sent using the /AME and /AMSG commands that exist in clients such as mIRC and HexChat.")
 		, blockamsg(this, "blockamsg", ExtensionType::USER)

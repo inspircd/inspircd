@@ -31,7 +31,7 @@
 class CommandCycle final
 	: public SplitCommand
 {
- public:
+public:
 	CommandCycle(Module* Creator)
 		: SplitCommand(Creator, "CYCLE", 1)
 	{
@@ -82,10 +82,10 @@ class CommandCycle final
 class ModuleCycle final
 	: public Module
 {
- private:
+private:
 	CommandCycle cmd;
 
- public:
+public:
 	ModuleCycle()
 		: Module(VF_VENDOR, "Allows channel members to part and rejoin a channel without needing to worry about channel modes such as +i (inviteonly) which might prevent rejoining.")
 		, cmd(this)

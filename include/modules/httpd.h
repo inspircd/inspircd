@@ -36,7 +36,7 @@
 class HTTPQueryParameters final
 	: public insp::flat_multimap<std::string, std::string>
 {
- public:
+public:
 	bool get(const std::string& key, std::string& value) const
 	{
 		const_iterator it = find(key);
@@ -92,9 +92,9 @@ struct HTTPRequestURI final
  */
 class HTTPHeaders final
 {
- protected:
+protected:
 	std::map<std::string,std::string> headers;
- public:
+public:
 
 	/** Set the value of a header
 	 * Sets the value of the named header. If the header is already present, it will be replaced
@@ -166,13 +166,13 @@ class HttpServerSocket;
  */
 class HTTPRequest final
 {
- protected:
+protected:
 	std::string type;
 	std::string ipaddr;
 	std::string postdata;
 	HTTPRequestURI parseduri;
 
- public:
+public:
 
 	HTTPHeaders *headers;
 	int errorcode;
@@ -248,7 +248,7 @@ class HTTPRequest final
  */
 class HTTPDocumentResponse final
 {
- public:
+public:
 	/** Module that generated this reply
 	 */
 	Module* const module;
@@ -278,7 +278,7 @@ class HTTPDocumentResponse final
 class HTTPdAPIBase
 	: public DataProvider
 {
- public:
+public:
 	HTTPdAPIBase(Module* parent)
 		: DataProvider(parent, "m_httpd_api")
 	{
@@ -296,7 +296,7 @@ class HTTPdAPIBase
 class HTTPdAPI final
 	: public dynamic_reference<HTTPdAPIBase>
 {
- public:
+public:
 	HTTPdAPI(Module* parent)
 		: dynamic_reference<HTTPdAPIBase>(parent, "m_httpd_api")
 	{
@@ -306,7 +306,7 @@ class HTTPdAPI final
 class HTTPACLEventListener
 	: public Events::ModuleEventListener
 {
- public:
+public:
 	HTTPACLEventListener(Module* mod)
 		: ModuleEventListener(mod, "event/http-acl")
 	{
@@ -318,7 +318,7 @@ class HTTPACLEventListener
 class HTTPRequestEventListener
 	: public Events::ModuleEventListener
 {
- public:
+public:
 	HTTPRequestEventListener(Module* mod)
 		: ModuleEventListener(mod, "event/http-request")
 	{

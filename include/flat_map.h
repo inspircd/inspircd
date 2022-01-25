@@ -35,7 +35,7 @@ class map_pair_compare final
 	typedef T value_type;
 	typedef typename value_type::first_type key_type;
 
- public:
+public:
 	bool operator()(const value_type& x, const value_type& y) const
 	{
 		return Comp::operator()(x.first, y.first);
@@ -55,7 +55,7 @@ class map_pair_compare final
 template <typename Val, typename Comp>
 class map_value_compare
 {
- public:
+public:
 	bool operator()(const Val& x, const Val& y) const
 	{
 		Comp c;
@@ -66,11 +66,11 @@ class map_value_compare
 template <typename T, typename Comp, typename Key = T, typename ElementComp = Comp>
 class flat_map_base
 {
- protected:
+protected:
 	typedef std::vector<T> storage_type;
 	storage_type vect;
 
- public:
+public:
 	typedef typename storage_type::iterator iterator;
 	typedef typename storage_type::const_iterator const_iterator;
 	typedef typename storage_type::reverse_iterator reverse_iterator;
@@ -178,7 +178,7 @@ class flat_map_base
 		return std::distance(itpair.first, itpair.second);
 	}
 
- protected:
+protected:
 	std::pair<iterator, bool> insert_single(const value_type& x)
 	{
 		bool inserted = false;
@@ -208,7 +208,7 @@ class flat_set
 {
 	typedef detail::flat_map_base<T, Comp, T, ElementComp> base_type;
 
- public:
+public:
 	typedef typename base_type::iterator iterator;
 	typedef typename base_type::value_type value_type;
 
@@ -263,7 +263,7 @@ class flat_multiset
 {
 	typedef detail::flat_map_base<T, Comp, T, ElementComp> base_type;
 
- public:
+public:
 	typedef typename base_type::iterator iterator;
 	typedef typename base_type::value_type value_type;
 
@@ -318,7 +318,7 @@ class flat_map
 {
 	typedef detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp> > base_type;
 
- public:
+public:
 	typedef typename base_type::iterator iterator;
 	typedef typename base_type::key_type key_type;
 	typedef typename base_type::value_type value_type;
@@ -386,7 +386,7 @@ class flat_multimap
 {
 	typedef detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp> > base_type;
 
- public:
+public:
 	typedef typename base_type::iterator iterator;
 	typedef typename base_type::value_type value_type;
 	typedef U mapped_type;

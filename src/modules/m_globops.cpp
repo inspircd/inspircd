@@ -31,7 +31,7 @@
 class CommandGlobops final
 	: public Command
 {
- public:
+public:
 	CommandGlobops(Module* Creator) : Command(Creator,"GLOBOPS", 1,1)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -54,10 +54,10 @@ class CommandGlobops final
 class ModuleGlobops final
 	: public Module
 {
- private:
+private:
 	CommandGlobops cmd;
 
- public:
+public:
 	ModuleGlobops()
 		: Module(VF_VENDOR, "Adds the /GLOBOPS command which allows server operators to send messages to all server operators with the g (globops) snomask.")
 		, cmd(this)

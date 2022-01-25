@@ -32,7 +32,7 @@ namespace Invite
 class Invite::APIBase
 	: public DataProvider
 {
- public:
+public:
 	APIBase(Module* parent);
 
 	/** Create or extend an Invite.
@@ -76,7 +76,7 @@ class Invite::APIBase
 class Invite::API final
 	: public dynamic_reference<APIBase>
 {
- public:
+public:
 	API(Module* parent)
 		: dynamic_reference<APIBase>(parent, "core_channel_invite")
 	{
@@ -90,7 +90,7 @@ class Invite::API final
 class Invite::Invite final
 	: public insp::intrusive_list_node<Invite, LocalUser>, public insp::intrusive_list_node<Invite, Channel>
 {
- public:
+public:
 	/** User the invite is for
 	 */
 	LocalUser* const user;
@@ -113,7 +113,7 @@ class Invite::Invite final
 
 	friend class APIImpl;
 
- private:
+private:
 	/** Timer handling expiration. If NULL this invite doesn't expire.
 	 */
 	Timer* expiretimer = nullptr;

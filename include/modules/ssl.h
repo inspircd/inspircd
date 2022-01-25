@@ -42,7 +42,7 @@
 class ssl_cert final
 	: public refcountbase
 {
- public:
+public:
 	std::string dn;
 	std::string issuer;
 	std::string error;
@@ -155,7 +155,7 @@ public:
 class SSLIOHook
 	: public IOHook
 {
- protected:
+protected:
 	/** An enumeration of possible TLS socket states. */
 	enum Status
 	{
@@ -201,7 +201,7 @@ class SSLIOHook
 		sendq.push_front(tmp);
 	}
 
- public:
+public:
 	static SSLIOHook* IsSSL(StreamSocket* sock)
 	{
 		IOHook* const lasthook = sock->GetLastHook();
@@ -259,7 +259,7 @@ class SSLIOHook
  */
 class SSLClientCert final
 {
- public:
+public:
 	/**
 	 * Get the client certificate from a socket
 	 * @param sock The socket to get the certificate from, the socket does not have to use TLS
@@ -293,7 +293,7 @@ class SSLClientCert final
 class UserCertificateAPIBase
 	: public DataProvider
 {
- public:
+public:
 	UserCertificateAPIBase(Module* parent)
 		: DataProvider(parent, "m_sslinfo_api")
 	{
@@ -332,7 +332,7 @@ class UserCertificateAPIBase
 class UserCertificateAPI final
 	: public dynamic_reference<UserCertificateAPIBase>
 {
- public:
+public:
 	UserCertificateAPI(Module* parent)
 		: dynamic_reference<UserCertificateAPIBase>(parent, "m_sslinfo_api")
 	{

@@ -40,7 +40,7 @@
 class ShunFactory final
 	: public XLineFactory
 {
- public:
+public:
 	ShunFactory() : XLineFactory("SHUN") { }
 
 	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
@@ -57,7 +57,7 @@ class ShunFactory final
 class CommandShun final
 	: public Command
 {
- public:
+public:
 	CommandShun(Module* Creator) : Command(Creator, "SHUN", 1, 3)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -143,7 +143,7 @@ class ModuleShun final
 	: public Module
 	, public Stats::EventListener
 {
- private:
+private:
 	CommandShun cmd;
 	ShunFactory shun;
 	insp::flat_set<std::string, irc::insensitive_swo> cleanedcommands;
@@ -166,7 +166,7 @@ class ModuleShun final
 		return ServerInstance->XLines->MatchesLine("SHUN", user);
 	}
 
- public:
+public:
 	ModuleShun()
 		: Module(VF_VENDOR | VF_COMMON, "Adds the /SHUN command which allows server operators to prevent users from executing commands.")
 		, Stats::EventListener(this)

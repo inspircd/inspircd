@@ -37,7 +37,7 @@
 
 class BanRedirectEntry final
 {
- public:
+public:
 	std::string targetchan;
 	std::string banmask;
 
@@ -52,7 +52,7 @@ typedef std::vector<BanRedirectEntry> BanRedirectList;
 class BanRedirect final
 	: public ModeWatcher
 {
- public:
+public:
 	ChanModeReference banmode;
 	SimpleExtItem<BanRedirectList> redirectlist;
 
@@ -250,13 +250,13 @@ class BanRedirect final
 class ModuleBanRedirect final
 	: public Module
 {
- private:
+private:
 	BanRedirect banwatcher;
 	bool nofollow = false;
 	ChanModeReference limitmode;
 	ChanModeReference redirectmode;
 
- public:
+public:
 	ModuleBanRedirect()
 		: Module(VF_VENDOR | VF_COMMON, "Allows specifying a channel to redirect a banned user to in the ban mask.")
 		, banwatcher(this)

@@ -30,11 +30,11 @@ class ModuleQuietBan final
 	: public Module
 	, public CTCTags::EventListener
 {
- private:
+private:
 	ExtBan::Acting extban;
 	bool notifyuser;
 
- public:
+public:
 	ModuleQuietBan()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban m: (mute) which bans specific masks from speaking in a channel.")
 		, CTCTags::EventListener(this)

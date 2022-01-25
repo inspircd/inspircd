@@ -36,7 +36,7 @@ class CoreExport Membership final
 	: public Extensible
 	, public insp::intrusive_list_node<Membership>
 {
- public:
+public:
 	/** Type of the Membership id
 	 */
 	typedef uint64_t Id;

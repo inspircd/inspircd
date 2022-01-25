@@ -30,7 +30,7 @@ namespace
 class UserResolver
 	: public DNS::Request
 {
- protected:
+protected:
 	// The socket address that the associated user was connected from at the time of lookup.
 	const irc::sockets::sockaddrs sa;
 
@@ -63,7 +63,7 @@ class UserResolver
 			rr.rdata.c_str(), cached ? " (cached)" : "");
 	}
 
- public:
+public:
 	void OnError(const DNS::Query* query) override
 	{
 		LocalUser* user = IS_LOCAL(ServerInstance->Users.FindUUID(uuid));
@@ -76,7 +76,7 @@ class UserResolver
 class UserIPResolver final
 	: public UserResolver
 {
- public:
+public:
 	UserIPResolver(DNS::Manager* mgr, Module* me, LocalUser* user, const std::string& host)
 		: UserResolver(mgr, me, user, host, user->client_sa.family() == AF_INET6 ? DNS::QUERY_AAAA : DNS::QUERY_A)
 	{
@@ -153,7 +153,7 @@ class UserIPResolver final
 class UserHostResolver final
 	: public UserResolver
 {
- public:
+public:
 	UserHostResolver(DNS::Manager* mgr, Module* me, LocalUser* user)
 		: UserResolver(mgr, me, user, user->GetIPString(), DNS::QUERY_PTR)
 	{
@@ -193,11 +193,11 @@ class UserHostResolver final
 class ModuleHostnameLookup final
 	: public Module
 {
- private:
+private:
 	BoolExtItem dnsLookup;
 	dynamic_reference<DNS::Manager> DNS;
 
- public:
+public:
 	ModuleHostnameLookup()
 		: Module(VF_CORE | VF_VENDOR, "Provides support for DNS lookups on connecting clients")
 		, dnsLookup(this, "dns-lookup", ExtensionType::USER)

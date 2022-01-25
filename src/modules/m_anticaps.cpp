@@ -32,7 +32,7 @@ enum AntiCapsMethod
 
 class AntiCapsSettings final
 {
- public:
+public:
 	const AntiCapsMethod method;
 	const uint16_t minlen;
 	const uint8_t percent;
@@ -48,7 +48,7 @@ class AntiCapsSettings final
 class AntiCapsMode final
 	: public ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettings>>
 {
- private:
+private:
 	bool ParseMethod(irc::sepstream& stream, AntiCapsMethod& method)
 	{
 		std::string methodstr;
@@ -99,7 +99,7 @@ class AntiCapsMode final
 		return true;
 	}
 
- public:
+public:
 	AntiCapsMode(Module* Creator)
 		: ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettings> >(Creator, "anticaps", 'B')
 	{
@@ -154,7 +154,7 @@ class AntiCapsMode final
 class ModuleAntiCaps final
 	: public Module
 {
- private:
+private:
 	ChanModeReference banmode;
 	CheckExemption::EventProvider exemptionprov;
 	std::bitset<UCHAR_MAX + 1> uppercase;
@@ -178,7 +178,7 @@ class ModuleAntiCaps final
 		user->WriteNumeric(Numerics::CannotSendTo(channel, message + " and was blocked."));
 	}
 
- public:
+public:
 	ModuleAntiCaps()
 		: Module(VF_VENDOR | VF_COMMON, "Adds channel mode B (anticaps) which allows channels to block messages which are excessively capitalised.")
 		, banmode(this, "ban")

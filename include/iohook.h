@@ -29,7 +29,7 @@ class IOHookProvider
 {
 	const bool middlehook;
 
- public:
+public:
 	enum Type
 	{
 		IOH_UNKNOWN,
@@ -70,7 +70,7 @@ class IOHookProvider
 class IOHook
 	: public Cullable
 {
- public:
+public:
 	/** The IOHookProvider for this hook, contains information about the hook,
 	 * such as the module providing it and the hook type.
 	 */
@@ -125,7 +125,7 @@ class IOHookMiddle
 	 */
 	IOHook* nexthook = nullptr;
 
- protected:
+protected:
 	/** Get all queued up data which has not yet been passed up the hook chain
 	 * @return RecvQ containing the data
 	 */
@@ -136,7 +136,7 @@ class IOHookMiddle
 	 */
 	StreamSocket::SendQueue& GetSendQ() { return sendq; }
 
- public:
+public:
 	/** Constructor
 	 * @param provider IOHookProvider that creates this object
 	 */

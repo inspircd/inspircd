@@ -63,7 +63,7 @@ class IRCv3::Monitor::Manager final
 	{
 		Manager& manager;
 
-	 public:
+	public:
 		ExtItem(Module* mod, const std::string& extname, Manager& managerref)
 			: ExtensionItem(mod, extname, ExtensionType::USER)
 			, manager(managerref)
@@ -105,7 +105,7 @@ class IRCv3::Monitor::Manager final
 		}
 	};
 
- public:
+public:
 	Manager(Module* mod, const std::string& extname)
 		: ext(mod, extname, *this)
 	{
@@ -188,7 +188,7 @@ class IRCv3::Monitor::Manager final
 		return NULL;
 	}
 
- private:
+private:
 	typedef std::unordered_map<std::string, Entry, irc::insensitive, irc::StrHashComp> NickHash;
 
 	Entry* Find(const std::string& nick)
@@ -302,7 +302,7 @@ class CommandMonitor final
 			manager.Unwatch(user, nick);
 	}
 
- public:
+public:
 	unsigned long maxmonitor;
 
 	CommandMonitor(Module* mod, IRCv3::Monitor::Manager& managerref)
@@ -368,7 +368,7 @@ class ModuleMonitor final
 	: public Module
 	, public ISupport::EventListener
 {
- private:
+private:
 	IRCv3::Monitor::Manager manager;
 	CommandMonitor cmd;
 
@@ -382,7 +382,7 @@ class ModuleMonitor final
 			curr->WriteNumeric(numeric, nick);
 	}
 
- public:
+public:
 	ModuleMonitor()
 		: Module(VF_VENDOR, "Adds the /MONITOR command which allows users to find out when their friends are connected to the server.")
 		, ISupport::EventListener(this)

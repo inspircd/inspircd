@@ -30,7 +30,7 @@
 class CommandSaquit final
 	: public Command
 {
- public:
+public:
 	CommandSaquit(Module* Creator) : Command(Creator, "SAQUIT", 2, 2)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -74,10 +74,10 @@ class CommandSaquit final
 class ModuleSaquit final
 	: public Module
 {
- private:
+private:
 	CommandSaquit cmd;
 
- public:
+public:
 	ModuleSaquit()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SAQUIT command which allows server operators to disconnect users from the server.")
 		, cmd(this)

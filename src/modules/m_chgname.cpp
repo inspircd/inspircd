@@ -29,7 +29,7 @@
 class CommandChgname final
 	: public Command
 {
- public:
+public:
 	CommandChgname(Module* Creator) : Command(Creator,"CHGNAME", 2, 2)
 	{
 		allow_empty_last_param = false;
@@ -78,10 +78,10 @@ class CommandChgname final
 class ModuleChgName final
 	: public Module
 {
- private:
+private:
 	CommandChgname cmd;
 
- public:
+public:
 	ModuleChgName()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /CHGNAME command which allows server operators to change the real name of a user.")
 		, cmd(this)

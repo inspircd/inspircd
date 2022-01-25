@@ -30,7 +30,7 @@
 class CommandSwhois final
 	: public Command
 {
- public:
+public:
 	BoolExtItem operblock;
 	StringExtItem swhois;
 	CommandSwhois(Module* Creator)
@@ -82,11 +82,11 @@ class ModuleSWhois final
 	: public Module
 	, public Whois::LineEventListener
 {
- private:
+private:
 	CommandSwhois cmd;
 	UserModeReference hideopermode;
 
- public:
+public:
 	ModuleSWhois()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SWHOIS command which adds custom lines to a user's WHOIS response.")
 		, Whois::LineEventListener(this)

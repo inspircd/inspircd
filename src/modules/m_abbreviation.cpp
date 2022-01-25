@@ -32,7 +32,7 @@ enum
 class ModuleAbbreviation final
 	: public Module
 {
- public:
+public:
 	ModuleAbbreviation()
 		: Module(VF_VENDOR, "Allows commands to be abbreviated by appending a full stop.")
 	{

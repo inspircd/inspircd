@@ -33,7 +33,7 @@
 
 class ProviderConfig final
 {
- private:
+private:
 	static Argon2_version SanitizeArgon2Version(unsigned long version)
 	{
 		// Note, 10 is 0x10, and 13 is 0x13. Referring to it as
@@ -52,7 +52,7 @@ class ProviderConfig final
 		return ARGON2_VERSION_13;
 	}
 
- public:
+public:
 	uint32_t iterations;
 	uint32_t lanes;
 	uint32_t memory;
@@ -96,10 +96,10 @@ class ProviderConfig final
 class HashArgon2 final
 	: public HashProvider
 {
- private:
+private:
 	const Argon2_type argon2Type;
 
- public:
+public:
 	ProviderConfig config;
 
 	bool Compare(const std::string& input, const std::string& hash) override
@@ -170,12 +170,12 @@ class HashArgon2 final
 class ModuleArgon2 final
 	: public Module
 {
- private:
+private:
 	HashArgon2 argon2i;
 	HashArgon2 argon2d;
 	HashArgon2 argon2id;
 
- public:
+public:
 	ModuleArgon2()
 		: Module(VF_VENDOR, "Allows other modules to generate Argon2 hashes.")
 		, argon2i(this, "argon2i", Argon2_i)

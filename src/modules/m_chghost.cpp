@@ -28,7 +28,7 @@
 class CommandChghost final
 	: public Command
 {
- public:
+public:
 	std::bitset<UCHAR_MAX + 1> hostmap;
 
 	CommandChghost(Module* Creator)
@@ -86,10 +86,10 @@ class CommandChghost final
 class ModuleChgHost final
 	: public Module
 {
- private:
+private:
 	CommandChghost cmd;
 
- public:
+public:
 	ModuleChgHost()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /CHGHOST command which allows server operators to change the displayed hostname of a user.")
 		, cmd(this)

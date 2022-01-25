@@ -36,7 +36,7 @@
 class GLineFactory final
 	: public XLineFactory
 {
- public:
+public:
 	GLineFactory() : XLineFactory("G") { }
 
 	/** Generate a GLine
@@ -53,7 +53,7 @@ class GLineFactory final
 class ELineFactory final
 	: public XLineFactory
 {
- public:
+public:
 	ELineFactory() : XLineFactory("E") { }
 
 	/** Generate an ELine
@@ -70,7 +70,7 @@ class ELineFactory final
 class KLineFactory final
 	: public XLineFactory
 {
- public:
+public:
 	KLineFactory() : XLineFactory("K") { }
 
 	/** Generate a KLine
@@ -87,7 +87,7 @@ class KLineFactory final
 class QLineFactory final
 	: public XLineFactory
 {
- public:
+public:
 	QLineFactory() : XLineFactory("Q") { }
 
 	/** Generate a QLine
@@ -103,7 +103,7 @@ class QLineFactory final
 class ZLineFactory final
 	: public XLineFactory
 {
- public:
+public:
 	ZLineFactory() : XLineFactory("Z") { }
 
 	/** Generate a ZLine

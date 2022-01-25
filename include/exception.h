@@ -23,11 +23,11 @@
 class CoreException
 	: public std::exception
 {
- private:
+private:
  	/** The reason this exception was thrown. */
 	const std::string reason;
 
- public:
+public:
 	/** Creates a new instance of the CoreException class with the specified reason.
 	 * @param message A message that contains the reason this exception was thrown.
 	 */
@@ -49,11 +49,11 @@ class Module;
 class CoreExport ModuleException
 	: public CoreException
 {
- private:
+private:
 	/* The module which threw this exception. */
 	const Module* module;
 
- public:
+public:
 	/** Creates a new instance of the ModuleException class with the specified module instance and reason.
 	 * @param mod The module which threw this exception.
 	 * @param message A message that contains the reason this exception was thrown.

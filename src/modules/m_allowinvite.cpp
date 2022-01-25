@@ -29,11 +29,11 @@
 class ModuleAllowInvite final
 	: public Module
 {
- private:
+private:
 	ExtBan::Acting extban;
 	SimpleChannelMode ni;
 
- public:
+public:
 	ModuleAllowInvite()
 		: Module(VF_VENDOR, "Adds channel mode A (allowinvite) which allows unprivileged users to use the /INVITE command and extended ban A: (blockinvite) which bans specific masks from using the /INVITE command.")
 		, extban(this, "blockinvite", 'A')

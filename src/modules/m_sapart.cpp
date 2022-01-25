@@ -28,7 +28,7 @@
 class CommandSapart final
 	: public Command
 {
- public:
+public:
 	CommandSapart(Module* Creator) : Command(Creator,"SAPART", 2, 3)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -91,10 +91,10 @@ class CommandSapart final
 class ModuleSapart final
 	: public Module
 {
- private:
+private:
 	CommandSapart cmd;
 
- public:
+public:
 	ModuleSapart()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SAPART command which allows server operators to force part users from one or more channels without having any privileges in these channels.")
 		, cmd(this)

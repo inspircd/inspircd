@@ -40,12 +40,12 @@
 class CoreExport Channel final
 	: public Extensible
 {
- public:
+public:
 	/** A map of Memberships on a channel keyed by User pointers
 	 */
 	typedef std::map<User*, insp::aligned_storage<Membership> > MemberMap;
 
- private:
+private:
 	/** Set default modes for the channel on creation
 	 */
 	void SetDefaultModes();
@@ -65,7 +65,7 @@ class CoreExport Channel final
 	 */
 	void DelUser(const MemberMap::iterator& membiter);
 
- public:
+public:
 	/** Creates a channel record and initialises it with default values
 	 * @param name The name of the channel
 	 * @param ts The creation time of the channel

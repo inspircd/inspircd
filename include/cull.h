@@ -28,15 +28,15 @@
 class CoreExport Cullable
 	: private insp::uncopiable
 {
- protected:
+protected:
 	/** Default constructor for the Cullable class. */
 	Cullable();
 
- public:
+public:
 	/** Dummy class to help ensure all superclasses get culled. */
 	class Result final
 	{
-	 public:
+	public:
 		/** Default constructor for the Cullable::Result class. */
 		Result() = default;
 	};
@@ -58,7 +58,7 @@ class CoreExport CullList final
 	std::vector<Cullable*> list;
 	std::vector<LocalUser*> SQlist;
 
- public:
+public:
 	/** Adds an item to the cull list
 	 */
 	void AddItem(Cullable* item) { list.push_back(item); }
@@ -73,7 +73,7 @@ class CoreExport CullList final
 class CoreExport ActionBase
 	: public Cullable
 {
- public:
+public:
 	/** Executes this action. */
 	virtual void Call() = 0;
 };
@@ -82,7 +82,7 @@ class CoreExport ActionList
 {
 	std::vector<ActionBase*> list;
 
- public:
+public:
 	/** Adds an item to the list
 	 */
 	void AddAction(ActionBase* item) { list.push_back(item); }

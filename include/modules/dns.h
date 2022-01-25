@@ -82,7 +82,7 @@ namespace DNS
 	class Exception final
 		: public ModuleException
 	{
-	 public:
+	public:
 		Exception(const Module* mod, const std::string& message)
 			: ModuleException(mod, message)
 		{
@@ -172,7 +172,7 @@ namespace DNS
 	 */
 	class Manager : public DataProvider
 	{
-	 public:
+	public:
 		Manager(Module* mod) : DataProvider(mod, "DNS") { }
 
 		virtual void Process(Request* req) = 0;
@@ -185,9 +185,9 @@ namespace DNS
 	 */
 	class Request : public Timer
 	{
-	 protected:
+	protected:
 		Manager* const manager;
-	 public:
+	public:
 		Question question;
 		/* Use result cache if available */
 		bool use_cache;

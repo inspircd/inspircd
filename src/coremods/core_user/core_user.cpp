@@ -24,7 +24,7 @@
 class CommandPass final
 	: public SplitCommand
 {
- public:
+public:
 	CommandPass(Module* parent)
 		: SplitCommand(parent, "PASS", 1, 1)
 	{
@@ -51,7 +51,7 @@ class CommandPass final
 class CommandPing final
 	: public SplitCommand
 {
- public:
+public:
 	CommandPing(Module* parent)
 		: SplitCommand(parent, "PING", 1)
 	{
@@ -76,7 +76,7 @@ class CommandPing final
 class CommandPong final
 	: public Command
 {
- public:
+public:
 	CommandPong(Module* parent)
 		: Command(parent, "PONG", 1)
 	{
@@ -142,7 +142,7 @@ class CoreModUser final
 	CommandUserhost cmduserhost;
 	SimpleUserMode invisiblemode;
 
- public:
+public:
 	CoreModUser()
 		: Module(VF_CORE | VF_VENDOR, "Provides the AWAY, ISON, NICK, PART, PASS, PING, PONG, QUIT, USERHOST, and USER commands")
 		, cmdaway(this)

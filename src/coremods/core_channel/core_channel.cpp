@@ -40,7 +40,7 @@ class JoinHook final
 	Modes::ChangeList modechangelist;
 	const User* joininguser;
 
- public:
+public:
 	/** If true, MODE changes after JOIN will be sourced from the user, rather than the server
 	 */
 	bool modefromuser;
@@ -130,7 +130,7 @@ class CoreModChannel final
 		return MOD_RES_PASSTHRU;
 	}
 
- public:
+public:
 	CoreModChannel()
 		: Module(VF_CORE | VF_VENDOR, "Provides the INVITE, JOIN, KICK, NAMES, and TOPIC commands")
 		, CheckExemption::EventListener(this, UINT_MAX)

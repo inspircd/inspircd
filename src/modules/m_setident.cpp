@@ -30,7 +30,7 @@
 class CommandSetident final
 	: public Command
 {
- public:
+public:
  CommandSetident(Module* Creator) : Command(Creator,"SETIDENT", 1)
 	{
 		allow_empty_last_param = false;
@@ -62,10 +62,10 @@ class CommandSetident final
 class ModuleSetIdent final
 	: public Module
 {
- private:
+private:
 	CommandSetident cmd;
 
- public:
+public:
 	ModuleSetIdent()
 		: Module(VF_VENDOR, "Adds the /SETIDENT command which allows server operators to change their username (ident).")
 		, cmd(this)

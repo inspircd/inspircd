@@ -29,7 +29,7 @@
 // Holds information about a <hostchange> rule.
 class HostRule final
 {
- public:
+public:
 	enum HostChangeAction
 	{
 		// Add the user's account name to their hostname.
@@ -42,7 +42,7 @@ class HostRule final
 		HCA_SET
 	};
 
- private:
+private:
 	HostChangeAction action;
 	std::string host;
 	std::string klass;
@@ -66,7 +66,7 @@ class HostRule final
 		}
 	}
 
- public:
+public:
 	HostRule(std::shared_ptr<ConfigTag> tag, const std::string& Mask, const std::string& Host)
 		: action(HCA_SET)
 		, host(Host)
@@ -141,7 +141,7 @@ private:
 		return buffer;
 	}
 
- public:
+public:
 	ModuleHostChange()
 		: Module(VF_VENDOR, "Allows the server administrator to define custom rules for applying hostnames to users.")
 	{

@@ -31,7 +31,7 @@ class CommandSamode final
 {
 	bool logged;
 
- public:
+public:
 	bool active;
 	CommandSamode(Module* Creator) : Command(Creator,"SAMODE", 2)
 	{
@@ -92,10 +92,10 @@ class CommandSamode final
 class ModuleSaMode final
 	: public Module
 {
- private:
+private:
 	CommandSamode cmd;
 
- public:
+public:
 	ModuleSaMode()
 		: Module(VF_VENDOR, "Adds the /SAMODE command which allows server operators to change the modes of a target (channel, user) that they would not otherwise have the privileges to change.")
 		, cmd(this)

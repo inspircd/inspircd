@@ -25,10 +25,10 @@ class ModuleGeoClass final
 	: public Module
 	, public Stats::EventListener
 {
- private:
+private:
 	Geolocation::API geoapi;
 
- public:
+public:
 	ModuleGeoClass()
 		: Module(VF_VENDOR, "Allows the server administrator to assign users to connect classes by the country they are connecting from.")
 		, Stats::EventListener(this)

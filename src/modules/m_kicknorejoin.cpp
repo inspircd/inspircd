@@ -53,7 +53,7 @@ class KickRejoinData final
 
 	mutable KickedList kicked;
 
- public:
+public:
 	const unsigned int delay;
 
 	KickRejoinData(unsigned int Delay) : delay(Delay) { }
@@ -94,7 +94,7 @@ class KickRejoinData final
 class KickRejoin final
 	: public ParamMode<KickRejoin, SimpleExtItem<KickRejoinData>>
 {
- public:
+public:
 	const unsigned int max = 60;
 
 	KickRejoin(Module* Creator)

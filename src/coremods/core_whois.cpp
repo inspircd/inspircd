@@ -47,7 +47,7 @@ class WhoisContextImpl final
 {
 	Events::ModuleEventProvider& lineevprov;
 
- public:
+public:
 	WhoisContextImpl(LocalUser* sourceuser, User* targetuser, Events::ModuleEventProvider& evprov)
 		: Whois::Context(sourceuser, targetuser)
 		, lineevprov(evprov)
@@ -77,7 +77,7 @@ class CommandWhois final
 	void DoWhois(LocalUser* user, User* dest, time_t signon, unsigned long idle);
 	void SendChanList(WhoisContextImpl& whois);
 
- public:
+public:
 	/** If true then all opers are shown with a generic 'is a server operator' line rather than the oper type. */
 	bool genericoper;
 
@@ -103,7 +103,7 @@ class CommandWhois final
 class WhoisNumericSink final
 {
 	WhoisContextImpl& whois;
- public:
+public:
 	WhoisNumericSink(WhoisContextImpl& whoisref)
 		: whois(whoisref)
 	{
@@ -118,7 +118,7 @@ class WhoisNumericSink final
 class WhoisChanListNumericBuilder final
 	: public Numeric::GenericBuilder<' ', false, WhoisNumericSink>
 {
- public:
+public:
 	WhoisChanListNumericBuilder(WhoisContextImpl& whois)
 		: Numeric::GenericBuilder<' ', false, WhoisNumericSink>(WhoisNumericSink(whois), RPL_WHOISCHANNELS, false, whois.GetSource()->nick.size() + whois.GetTarget()->nick.size() + 1)
 	{
@@ -142,7 +142,7 @@ class WhoisChanList final
 		out.Add(prefixstr, memb->chan->name);
 	}
 
- public:
+public:
 	WhoisChanList(WhoisContextImpl& whois, const SplitWhoisState& sws)
 		: splitwhois(sws)
 		, num(whois)
@@ -326,10 +326,10 @@ CmdResult CommandWhois::HandleLocal(LocalUser* user, const Params& parameters)
 class CoreModWhois final
 	: public Module
 {
- private:
+private:
 	CommandWhois cmd;
 
- public:
+public:
 	CoreModWhois()
 		: Module(VF_CORE | VF_VENDOR, "Provides the WHOIS command")
 		, cmd(this)

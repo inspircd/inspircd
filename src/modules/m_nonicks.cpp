@@ -32,12 +32,12 @@
 class ModuleNoNickChange final
 	: public Module
 {
- private:
+private:
 	CheckExemption::EventProvider exemptionprov;
 	ExtBan::Acting extban;
 	SimpleChannelMode nn;
 
- public:
+public:
 	ModuleNoNickChange()
 		: Module(VF_VENDOR, "Adds channel mode N (nonick) which prevents users from changing their nickname whilst in the channel.")
 		, exemptionprov(this)

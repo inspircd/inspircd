@@ -43,7 +43,7 @@ class FModeBuilder final
 	unsigned int modes = 0;
 	std::string::size_type startpos;
 
- public:
+public:
 	FModeBuilder(Channel* chan)
 		: CmdBuilder("FMODE")
 	{

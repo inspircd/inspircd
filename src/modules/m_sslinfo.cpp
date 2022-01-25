@@ -35,7 +35,7 @@
 class SSLCertExt final
 	: public ExtensionItem
 {
- public:
+public:
 	SSLCertExt(Module* parent)
 		: ExtensionItem(parent, "ssl_cert", ExtensionType::USER)
 	{
@@ -118,7 +118,7 @@ class SSLCertExt final
 class UserCertificateAPIImpl final
 	: public UserCertificateAPIBase
 {
- public:
+public:
 	BoolExtItem nosslext;
 	SSLCertExt sslext;
 
@@ -158,7 +158,7 @@ class UserCertificateAPIImpl final
 class CommandSSLInfo final
 	: public SplitCommand
 {
- private:
+private:
 	ChanModeReference sslonlymode;
 
 	void HandleUserInternal(LocalUser* source, User* target, bool verbose)
@@ -242,7 +242,7 @@ class CommandSSLInfo final
 		return CmdResult::SUCCESS;
 	}
 
- public:
+public:
 	UserCertificateAPIImpl sslapi;
 	bool operonlyfp;
 
@@ -270,7 +270,7 @@ class ModuleSSLInfo final
 	, public Whois::EventListener
 	, public Who::EventListener
 {
- private:
+private:
 	CommandSSLInfo cmd;
 	std::string hash;
 
@@ -279,7 +279,7 @@ class ModuleSSLInfo final
 		return irc::spacesepstream(fp).Contains(cert->GetFingerprint());
 	}
 
- public:
+public:
 	ModuleSSLInfo()
 		: Module(VF_VENDOR, "Adds user facing TLS information, various TLS configuration options, and the /SSLINFO command to look up TLS certificate information for other users.")
 		, WebIRC::EventListener(this)

@@ -26,7 +26,7 @@
 class CommandRMode final
 	: public Command
 {
- public:
+public:
 	CommandRMode(Module* Creator) : Command(Creator,"RMODE", 2, 3)
 	{
 		allow_empty_last_param = false;
@@ -98,10 +98,10 @@ class CommandRMode final
 class ModuleRMode final
 	: public Module
 {
- private:
+private:
 	CommandRMode cmd;
 
- public:
+public:
 	ModuleRMode()
 		: Module(VF_VENDOR, "Allows removal of channel list modes using glob patterns.")
 		, cmd(this)

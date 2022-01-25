@@ -26,10 +26,10 @@
 
 class InsaneBan final
 {
- public:
+public:
 	class MatcherBase
 	{
-	 public:
+	public:
 		virtual long Run(const std::string& mask) = 0;
 	};
 
@@ -37,7 +37,7 @@ class InsaneBan final
 	class Matcher
 		: public MatcherBase
 	{
-	 public:
+	public:
 		long Run(const std::string& mask) override
 		{
 			long matches = 0;
@@ -54,7 +54,7 @@ class InsaneBan final
 	class IPHostMatcher final
 		: public Matcher<IPHostMatcher>
 	{
-	 public:
+	public:
 		bool Check(User* user, const std::string& mask) const;
 	};
 
@@ -72,7 +72,7 @@ class InsaneBan final
 class CommandEline final
 	: public Command
 {
- public:
+public:
 	CommandEline(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
@@ -80,7 +80,7 @@ class CommandEline final
 class CommandGline final
 	: public Command
 {
- public:
+public:
 	CommandGline(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
@@ -88,7 +88,7 @@ class CommandGline final
 class CommandKline final
 	: public Command
 {
- public:
+public:
 	CommandKline(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
@@ -96,15 +96,15 @@ class CommandKline final
 class CommandQline final
 	: public Command
 {
- private:
+private:
 	class NickMatcher final
 		: public InsaneBan::Matcher<NickMatcher>
 	{
-	 public:
+	public:
 		bool Check(User* user, const std::string& mask) const;
 	};
 
- public:
+public:
 	CommandQline(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
@@ -112,15 +112,15 @@ class CommandQline final
 class CommandZline final
 	: public Command
 {
- private:
+private:
 	class IPMatcher final
 		: public InsaneBan::Matcher<IPMatcher>
 	{
-	 public:
+	public:
 		bool Check(User* user, const std::string& mask) const;
 	};
 
- public:
+public:
 	CommandZline(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };

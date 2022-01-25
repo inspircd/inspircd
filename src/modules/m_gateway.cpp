@@ -40,11 +40,11 @@ typedef std::vector<std::string> MaskList;
 // Encapsulates information about an ident host.
 class IdentHost final
 {
- private:
+private:
 	MaskList hostmasks;
 	std::string newident;
 
- public:
+public:
 	IdentHost(const MaskList& masks, const std::string& ident)
 		: hostmasks(masks)
 		, newident(ident)
@@ -77,14 +77,14 @@ class IdentHost final
 // Encapsulates information about a WebIRC host.
 class WebIRCHost final
 {
- private:
+private:
 	MaskList hostmasks;
 	std::string fingerprint;
 	std::string password;
 	std::string passhash;
 	TokenList trustedflags;
 
- public:
+public:
 	WebIRCHost(const MaskList& masks, const std::string& fp, const std::string& pass, const std::string& hash, const std::string& flags)
 		: hostmasks(masks)
 		, fingerprint(fp)
@@ -129,7 +129,7 @@ class WebIRCHost final
 class CommandHexIP final
 	: public SplitCommand
 {
- public:
+public:
 	CommandHexIP(Module* Creator)
 		: SplitCommand(Creator, "HEXIP", 1)
 	{
@@ -212,7 +212,7 @@ class CommandHexIP final
 class GatewayExtBan final
 	: public ExtBan::MatchingBase
 {
- public:
+public:
 	StringExtItem gateway;
 
 	GatewayExtBan(Module* Creator)
@@ -231,7 +231,7 @@ class GatewayExtBan final
 class CommandWebIRC final
 	: public SplitCommand
 {
- public:
+public:
 	std::vector<WebIRCHost> hosts;
 	GatewayExtBan extban;
 	StringExtItem realhost;
@@ -334,12 +334,12 @@ class ModuleGateway final
 	, public WebIRC::EventListener
 	, public Whois::EventListener
 {
- private:
+private:
 	CommandHexIP cmdhexip;
 	CommandWebIRC cmdwebirc;
 	std::vector<IdentHost> hosts;
 
- public:
+public:
 	ModuleGateway()
 		: Module(VF_VENDOR, "Adds the ability for IRC gateways to forward the real IP address of users connecting through them.")
 		, WebIRC::EventListener(this)

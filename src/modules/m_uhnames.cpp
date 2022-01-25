@@ -31,10 +31,10 @@ class ModuleUHNames final
 	: public Module
 	, public Names::EventListener
 {
- private:
+private:
 	Cap::Capability cap;
 
- public:
+public:
 	ModuleUHNames()
 		: Module(VF_VENDOR, "Provides the IRCv3 userhost-in-names client capability.")
 		, Names::EventListener(this)

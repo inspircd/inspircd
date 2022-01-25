@@ -28,7 +28,7 @@
 class ModuleConnFlood final
 	: public Module
 {
- private:
+private:
 	unsigned long seconds;
 	unsigned long timeout;
 	unsigned long boot_wait;
@@ -48,7 +48,7 @@ class ModuleConnFlood final
 		return user->GetClass() && !user->GetClass()->config->getBool("useconnflood", true);
 	}
 
- public:
+public:
 	ModuleConnFlood()
 		: Module(VF_VENDOR, "Throttles excessive connections to the server.")
 	{

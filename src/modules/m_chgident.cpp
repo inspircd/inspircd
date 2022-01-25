@@ -31,7 +31,7 @@
 class CommandChgident final
 	: public Command
 {
- public:
+public:
 	CommandChgident(Module* Creator) : Command(Creator,"CHGIDENT", 2)
 	{
 		allow_empty_last_param = false;
@@ -82,10 +82,10 @@ class CommandChgident final
 class ModuleChgIdent final
 	: public Module
 {
- private:
+private:
 	CommandChgident cmd;
 
- public:
+public:
 	ModuleChgIdent()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /CHGIDENT command which allows server operators to change the username (ident) of a user.")
 		, cmd(this)

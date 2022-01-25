@@ -69,7 +69,7 @@ struct Modes::Change final
  */
 class Modes::ChangeList final
 {
- public:
+public:
 	typedef std::vector<Change> List;
 
 	/** Add a new mode to be changed to this ChangeList
@@ -138,6 +138,6 @@ class Modes::ChangeList final
 	 */
 	List& getlist() { return items; }
 
- private:
+private:
 	List items;
 };

@@ -56,7 +56,7 @@ class LDAPService;
 
 class LDAPRequest
 {
- public:
+public:
 	LDAPService* service;
 	LDAPInterface* inter;
 	LDAPMessage* message = nullptr; /* message returned by ldap_ */
@@ -91,7 +91,7 @@ class LDAPBind final
 {
 	std::string who, pass;
 
- public:
+public:
 	LDAPBind(LDAPService* s, LDAPInterface* i, const std::string& w, const std::string& p)
 		: LDAPRequest(s, i, LDAP_SUCCESS)
 		, who(w)
@@ -111,7 +111,7 @@ class LDAPSearch final
 	int searchscope;
 	std::string filter;
 
- public:
+public:
 	LDAPSearch(LDAPService* s, LDAPInterface* i, const std::string& b, int se, const std::string& f)
 		: LDAPRequest(s, i, LDAP_SUCCESS)
 		, base(b)
@@ -131,7 +131,7 @@ class LDAPAdd final
 	std::string dn;
 	LDAPMods attributes;
 
- public:
+public:
 	LDAPAdd(LDAPService* s, LDAPInterface* i, const std::string& d, const LDAPMods& attr)
 		: LDAPRequest(s, i, LDAP_SUCCESS)
 		, dn(d)
@@ -149,7 +149,7 @@ class LDAPDel final
 {
 	std::string dn;
 
- public:
+public:
 	LDAPDel(LDAPService* s, LDAPInterface* i, const std::string& d)
 		: LDAPRequest(s, i, LDAP_SUCCESS)
 		, dn(d)
@@ -167,7 +167,7 @@ class LDAPModify final
 	std::string base;
 	LDAPMods attributes;
 
- public:
+public:
 	LDAPModify(LDAPService* s, LDAPInterface* i, const std::string& b, const LDAPMods& attr)
 		: LDAPRequest(s, i, LDAP_SUCCESS)
 		, base(b)
@@ -185,7 +185,7 @@ class LDAPCompare final
 {
 	std::string dn, attr, val;
 
- public:
+public:
 	LDAPCompare(LDAPService* s, LDAPInterface* i, const std::string& d, const std::string& a, const std::string& v)
 		: LDAPRequest(s, i, LDAP_COMPARE_TRUE)
 		, dn(d)
@@ -209,7 +209,7 @@ class LDAPService final
 	int searchscope;
 	time_t timeout;
 
- public:
+public:
 	static LDAPMod** BuildMods(const LDAPMods& attributes)
 	{
 		LDAPMod** mods = new LDAPMod*[attributes.size() + 1];
@@ -258,7 +258,7 @@ class LDAPService final
 		delete[] mods;
 	}
 
- private:
+private:
 	void Reconnect()
 	{
 		// Only try one connect a minute. It is an expensive blocking operation
@@ -288,7 +288,7 @@ class LDAPService final
 		this->UnlockQueueWakeup();
 	}
 
- public:
+public:
 	typedef std::vector<LDAPRequest*> query_queue;
 	query_queue queries, results;
 	std::mutex process_mutex; /* held when processing requests not in either queue */
@@ -408,7 +408,7 @@ class LDAPService final
 		QueueRequest(comp);
 	}
 
- private:
+private:
 	void BuildReply(int res, LDAPRequest* req)
 	{
 		LDAPResult* ldap_result = req->result = new LDAPResult();
@@ -507,7 +507,7 @@ class LDAPService final
 		process_mutex.unlock();
 	}
 
- public:
+public:
 	void OnStart() override
 	{
 		while (!this->IsStopping())
@@ -556,7 +556,7 @@ class ModuleLDAP final
 	typedef insp::flat_map<std::string, LDAPService*> ServiceMap;
 	ServiceMap LDAPServices;
 
- public:
+public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		ServiceMap conns;

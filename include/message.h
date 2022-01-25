@@ -32,7 +32,7 @@ enum MessageType
 
 class CoreExport MessageDetails
 {
- public:
+public:
 	/** Whether to echo the message at all. */
 	bool echo = true;
 
@@ -77,7 +77,7 @@ class CoreExport MessageDetails
 	/** Determines whether the specified message is a CTCP. */
 	virtual bool IsCTCP() const = 0;
 
- protected:
+protected:
 	MessageDetails(MessageType mt, const std::string& msg, const ClientProtocol::TagMap& tags)
 		: original_text(msg)
 		, tags_in(tags)
@@ -90,7 +90,7 @@ class CoreExport MessageDetails
 /** Represents the target of a message (NOTICE, PRIVMSG, etc). */
 class CoreExport MessageTarget final
 {
- public:
+public:
 	/** An enumeration of possible message target types. */
 	enum TargetType
 	{
@@ -104,11 +104,11 @@ class CoreExport MessageTarget final
 		TYPE_SERVER
 	};
 
- private:
+private:
 	/** The target of the message. */
 	void* dest;
 
- public:
+public:
 	/** If type is TYPE_CHANNEL and the user specified a status rank. */
 	char status = 0;
 
