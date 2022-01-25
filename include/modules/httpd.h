@@ -26,13 +26,6 @@
 
 #pragma once
 
-#include "base.h"
-#include "event.h"
-
-#include <string>
-#include <sstream>
-#include <map>
-
 class HTTPQueryParameters final
 	: public insp::flat_multimap<std::string, std::string>
 {

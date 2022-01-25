@@ -28,7 +28,6 @@
 
 #pragma once
 
-#include <string>
 #include "iohook.h"
 
 /** ssl_cert is a class which abstracts TLS certificate

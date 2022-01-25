@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "event.h"
 #include "modules/cap.h"
 
 namespace CTCTags

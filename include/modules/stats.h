@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "event.h"
-
 namespace Stats
 {
 	class Context;

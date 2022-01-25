@@ -20,7 +20,6 @@
 
 #pragma once
 
-// For CapReference
 #include "modules/cap.h"
 
 namespace IRCv3

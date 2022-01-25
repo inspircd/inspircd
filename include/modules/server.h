@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include "event.h"
-
 namespace ServerProtocol
 {
 	class BroadcastEventListener;

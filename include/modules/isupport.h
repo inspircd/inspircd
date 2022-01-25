@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include "event.h"
-
 namespace ISupport
 {
 	class EventListener;

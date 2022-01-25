@@ -24,11 +24,6 @@
 
 #pragma once
 
-#include <map>
-#include <string>
-
-#include "event.h"
-
 typedef StringExtItem AccountExtItem;
 
 inline AccountExtItem* GetAccountExtItem()

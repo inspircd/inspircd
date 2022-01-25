@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "event.h"
-
 namespace Regex
 {
 	class Engine;

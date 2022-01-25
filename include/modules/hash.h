@@ -24,8 +24,6 @@
 
 #pragma once
 
-#include "modules.h"
-
 class HashProvider
 	: public DataProvider
 {
