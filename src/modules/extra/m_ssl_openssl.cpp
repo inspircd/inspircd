@@ -52,7 +52,7 @@
 # pragma comment(lib, "libeay32.lib")
 #endif
 
-#if OPENSSL_VERSION_NUMBER > 0x30000000L
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
 # define INSPIRCD_OPENSSL_AUTO_DH
 #endif
 
@@ -160,9 +160,14 @@ namespace OpenSSL
 		void SetECDH(const std::string& curvename)
 		{
 			int nid = OBJ_sn2nid(curvename.c_str());
-			if (nid == 0)
+			if (nid == NID_undef)
 				throw Exception("Unknown curve: " + curvename);
 
+# if OPENSSL_VERSION_NUMBER >= 0x10101000L
+			ERR_clear_error();
+			if (!SSL_CTX_set1_groups(ctx, &nid, 1))
+				throw Exception("Couldn't set ECDH curve");
+# else
 			EC_KEY* eckey = EC_KEY_new_by_curve_name(nid);
 			if (!eckey)
 				throw Exception("Unable to create EC key object");
@@ -172,6 +177,7 @@ namespace OpenSSL
 			EC_KEY_free(eckey);
 			if (!ret)
 				throw Exception("Couldn't set ECDH parameters");
+# endif
 		}
 #endif
 
@@ -404,7 +410,7 @@ namespace OpenSSL
 			}
 
 #ifndef OPENSSL_NO_ECDH
-			const std::string curvename = tag->getString("ecdhcurve", "prime256v1", 1);
+			const std::string curvename = tag->getString("ecdhcurve", "prime256v1");
 			if (!curvename.empty())
 				ctx.SetECDH(curvename);
 #endif
