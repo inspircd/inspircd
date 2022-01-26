@@ -34,8 +34,10 @@
 #include <iostream>
 
 #include "inspircd.h"
-#include "consolecolors.h"
 #include "exitcodes.h"
+
+// Needs to be included after inspircd.h to avoid reincluding winsock.
+#include <rang/rang.hpp>
 
 static insp::intrusive_list<dynamic_reference_base>* dynrefs = NULL;
 
@@ -516,11 +518,11 @@ void ModuleManager::LoadAll()
 			continue;
 
 		this->NewServices = &servicemap[name];
-		std::cout << "[" << con_green << "*" << con_reset << "] Loading module:\t" << con_green << name << con_reset << std::endl;
+		std::cout << "[" << rang::style::bold << rang::fg::green << "*" << rang::style::reset << "] Loading module:\t" << rang::style::bold << rang::fg::green << name << rang::style::reset << std::endl;
 		if (!this->Load(name, true))
 		{
 			ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, this->LastError());
-			std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << this->LastError() << std::endl << std::endl;
+			std::cout << std::endl << "[" << rang::style::bold << rang::fg::red << "*" << rang::style::reset << "] " << this->LastError() << std::endl << std::endl;
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
 	}
@@ -539,7 +541,7 @@ void ModuleManager::LoadAll()
 		{
 			LastModuleError = "Unable to initialize " + modname + ": " + modexcept.GetReason();
 			ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, LastModuleError);
-			std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << LastModuleError << std::endl << std::endl;
+			std::cout << std::endl << "[" << rang::style::bold << rang::fg::red << "*" << rang::style::reset << "] " << LastModuleError << std::endl << std::endl;
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
 	}
@@ -561,7 +563,7 @@ void ModuleManager::LoadAll()
 		{
 			LastModuleError = "Unable to read the configuration for " + modname + ": " + modexcept.GetReason();
 			ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, LastModuleError);
-			std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << LastModuleError << std::endl << std::endl;
+			std::cout << std::endl << "[" << rang::style::bold << rang::fg::red << "*" << rang::style::reset << "] " << LastModuleError << std::endl << std::endl;
 			ServerInstance->Exit(EXIT_STATUS_CONFIG);
 		}
 	}

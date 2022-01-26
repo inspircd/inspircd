@@ -13,6 +13,13 @@ files   = "http_parser.[ch]"
 git     = "https://github.com/nodejs/http-parser"
 license = "MIT License"
 
+[rang]
+author  = "Abhinav Gauniyal"
+depth   = 1
+files   = "include/rang.hpp"
+git     = "https://github.com/agauniyal/rang/"
+license = "Unlicense"
+
 [sha2]
 author  = "Olivier Gay"
 email   = "olivier.gay@a3.epfl.ch"

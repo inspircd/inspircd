@@ -29,8 +29,10 @@
 #include <iostream>
 
 #include "inspircd.h"
-#include "consolecolors.h"
 #include "exitcodes.h"
+
+// Needs to be included after inspircd.h to avoid reincluding winsock.
+#include <rang/rang.hpp>
 
 /** Reference table, contains all current handlers
  **/
@@ -71,7 +73,7 @@ void EventHandler::OnEventHandlerError(int errornum)
 
 void SocketEngine::InitError()
 {
-	std::cerr << con_red << "FATAL ERROR!" << con_reset << " Socket engine initialization failed. " << strerror(errno) << '.' << std::endl;
+	std::cerr << rang::style::bold << rang::fg::red << "FATAL ERROR!" << rang::style::reset << " Socket engine initialization failed. " << strerror(errno) << '.' << std::endl;
 	exit(EXIT_STATUS_SOCKETENGINE);
 }
 

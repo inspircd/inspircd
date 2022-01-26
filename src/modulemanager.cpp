@@ -27,8 +27,10 @@
 #include <iostream>
 
 #include "inspircd.h"
-#include "consolecolors.h"
 #include "exitcodes.h"
+
+// Needs to be included after inspircd.h to avoid reincluding winsock.
+#include <rang/rang.hpp>
 
 bool ModuleManager::Load(const std::string& modname, bool defer)
 {
@@ -147,7 +149,7 @@ void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicem
 			if (!Load(name, true))
 			{
 				ServerInstance->Logs.Log("MODULE", LOG_DEFAULT, this->LastError());
-				std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << this->LastError() << std::endl << std::endl;
+				std::cout << std::endl << "[" << rang::style::bold << rang::fg::red << "*" << rang::style::reset << "] " << this->LastError() << std::endl << std::endl;
 				ServerInstance->Exit(EXIT_STATUS_MODULE);
 			}
 		}

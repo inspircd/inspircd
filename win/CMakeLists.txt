@@ -60,7 +60,7 @@ foreach(INSPIRCD_VENDOR ${INSPIRCD_VENDORS})
 	endif()
 endforeach()
 
-include_directories("${INSPIRCD_BASE}/win" "${INSPIRCD_BASE}/include")
+include_directories("${INSPIRCD_BASE}/win" "${INSPIRCD_BASE}/include" "${INSPIRCD_BASE}/vendor")
 
 include_directories(${EXTRA_INCLUDES})
 link_directories(${EXTRA_LIBS})

@@ -190,11 +190,3 @@ struct sockaddr_un final
 	ADDRESS_FAMILY sun_family;
 	char sun_path[6];
 };
-
-struct WindowsStream final
-{
-	WORD BackgroundColor;
-	WORD ForegroundColor;
-	HANDLE Handle;
-	WindowsStream(DWORD handle);
-};

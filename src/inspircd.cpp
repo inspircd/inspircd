@@ -37,18 +37,14 @@
 #include <iostream>
 
 #include "inspircd.h"
-#include "consolecolors.h"
 #include "exitcodes.h"
 #include "xline.h"
 
+// Needs to be included after inspircd.h to avoid reincluding winsock.
+#include <rang/rang.hpp>
+
 #ifdef _WIN32
 # include <ya_getopt.h>
-
-// Manages formatting lines written to stderr on Windows.
-WindowsStream StandardError(STD_ERROR_HANDLE);
-
-// Manages formatting lines written to stdout on Windows.
-WindowsStream StandardOutput(STD_OUTPUT_HANDLE);
 #else
 # include <getopt.h>
 # include <grp.h>
@@ -78,19 +74,19 @@ namespace
 		if (getegid() != 0 && geteuid() != 0)
 			return;
 
-		std::cout << con_red << "Warning!" << con_reset << " You have started as root. Running as root is generally not required" << std::endl
+		std::cout << rang::style::bold << rang::fg::red << "Warning!" << rang::style::reset << " You have started as root. Running as root is generally not required" << std::endl
 			<< "and may allow an attacker to gain access to your system if they find a way to" << std::endl
 			<< "exploit your IRC server." << std::endl
 			<< std::endl;
 		if (isatty(fileno(stdout)))
 		{
 			std::cout << "InspIRCd will start in 30 seconds. If you are sure that you need to run as root" << std::endl
-				<< "then you can pass the " << con_bright << "--runasroot" << con_reset << " option to disable this wait." << std::endl;
+				<< "then you can pass the " << rang::style::bold << "--runasroot" << rang::style::reset << " option to disable this wait." << std::endl;
 			sleep(30);
 		}
 		else
 		{
-			std::cout << "If you are sure that you need to run as root then you can pass the " << con_bright << "--runasroot" << con_reset << std::endl
+			std::cout << "If you are sure that you need to run as root then you can pass the " << rang::style::bold << "--runasroot" << rang::style::reset << std::endl
 				<< "option to disable this error." << std::endl;
 				ServerInstance->Exit(EXIT_STATUS_ROOT);
 		}
@@ -236,7 +232,7 @@ namespace
 		if (childpid < 0)
 		{
 			ServerInstance->Logs.Log("STARTUP", LOG_DEFAULT, "fork() failed: %s", strerror(errno));
-			std::cout << con_red << "Error:" << con_reset << " unable to fork into background: " << strerror(errno);
+			std::cout << rang::style::bold << rang::fg::red << "Error:" << rang::style::reset << " unable to fork into background: " << strerror(errno);
 			ServerInstance->Exit(EXIT_STATUS_FORK);
 		}
 		else if (childpid > 0)
@@ -310,8 +306,8 @@ namespace
 
 				default:
 					// An unknown option was specified.
-					std::cout << con_red << "Error:" <<  con_reset << " unknown option '" << argv[optind-1] << "'." << std::endl
-						<< con_bright << "Usage: " << con_reset << argv[0] << " [--config <file>] [--debug] [--nofork] [--nolog]" << std::endl
+					std::cout << rang::style::bold << rang::fg::red << "Error:" <<  rang::style::reset << " unknown option '" << argv[optind-1] << "'." << std::endl
+						<< rang::style::bold << "Usage: " << rang::style::reset << argv[0] << " [--config <file>] [--debug] [--nofork] [--nolog]" << std::endl
 						<< std::string(strlen(argv[0]) + 8, ' ') << "[--nopid] [--runasroot] [--version]" << std::endl;
 					ServerInstance->Exit(EXIT_STATUS_ARGV);
 			}
@@ -362,17 +358,17 @@ namespace
 
 		if (!pl.empty())
 		{
-			std::cout << con_red << "Warning!" << con_reset << " Some of your listener" << (pl.size() == 1 ? "s" : "") << " failed to bind:" << std::endl
+			std::cout << rang::style::bold << rang::fg::red << "Warning!" << rang::style::reset << " Some of your listener" << (pl.size() == 1 ? "s" : "") << " failed to bind:" << std::endl
 				<< std::endl;
 
 			for (const auto& fp : pl)
 			{
-				std::cout << "  " << con_bright << fp.sa.str() << con_reset << ": " << strerror(fp.error) << '.' << std::endl
+				std::cout << "  " << rang::style::bold << fp.sa.str() << rang::style::reset << ": " << strerror(fp.error) << '.' << std::endl
 					<< "  " << "Created from <bind> tag at " << fp.tag->source.str() << std::endl
 					<< std::endl;
 			}
 
-			std::cout << con_bright << "Hints:" << con_reset << std::endl
+			std::cout << rang::style::bold << "Hints:" << rang::style::reset << std::endl
 				<< "- For TCP/IP listeners try using a public IP address in <bind:address> instead" << std::endl
 				<< "  of * or leaving it blank." << std::endl
 				<< "- For UNIX socket listeners try enabling <bind:rewrite> to replace old sockets." << std::endl;
@@ -482,8 +478,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		Modules.AddServices(provs, sizeof(provs)/sizeof(provs[0]));
 	}
 
-	std::cout << con_green << "InspIRCd - Internet Relay Chat Daemon" << con_reset << std::endl
-		<< "See " << con_green << "/INFO" << con_reset << " for contributors & authors" << std::endl
+	std::cout << rang::style::bold << rang::fg::green << "InspIRCd - Internet Relay Chat Daemon" << rang::style::reset << std::endl
+		<< "See " << rang::style::bold << rang::fg::green << "/INFO" << rang::style::reset << " for contributors & authors" << std::endl
 		<< std::endl;
 
 	if (Config->cmdline.forcedebug)
@@ -507,7 +503,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	if (!Config->cmdline.nofork)
 		ForkIntoBackground();
 
-	std::cout << "InspIRCd Process ID: " << con_green << getpid() << con_reset << std::endl;
+	std::cout << "InspIRCd Process ID: " << rang::style::bold << rang::fg::green << getpid() << rang::style::reset << std::endl;
 
 	/* During startup we read the configuration now, not in
 	 * a separate thread
