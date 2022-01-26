@@ -26,8 +26,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: -isystem vendor_directory("http_parser")
-
 
 #include "inspircd.h"
 #include "iohook.h"
@@ -42,7 +40,7 @@
 # pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
-#include <http_parser.c>
+#include <http_parser/http_parser.c>
 
 #ifdef __GNUC__
 # pragma GCC diagnostic pop

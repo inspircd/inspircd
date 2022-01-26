@@ -17,13 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: -isystem vendor_directory("bcrypt")
-
 
 #include "inspircd.h"
 #include "modules/hash.h"
 
-#include <crypt_blowfish.c>
+#include <bcrypt/crypt_blowfish.c>
 
 class BCryptProvider final
 	: public HashProvider

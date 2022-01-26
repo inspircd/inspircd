@@ -18,15 +18,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: -isystem vendor_directory("utfcpp")
-
 
 #include "inspircd.h"
 #include "iohook.h"
 #include "modules/hash.h"
 
 #define UTF_CPP_CPLUSPLUS 199711L
-#include <unchecked.h>
+#include <utfcpp/unchecked.h>
 
 static constexpr char MagicGUID[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 static constexpr char newline[] = "\r\n";

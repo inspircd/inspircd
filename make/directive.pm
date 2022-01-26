@@ -33,7 +33,6 @@ use make::console;
 
 use constant DIRECTIVE_ERROR_PIPE => $ENV{INSPIRCD_VERBOSE} ? '' : '2>/dev/null';
 use constant PKG_CONFIG           => $ENV{PKG_CONFIG} || 'pkg-config';
-use constant VENDOR_DIRECTORY     => catdir(dirname(dirname(__FILE__)), 'vendor');
 
 our @EXPORT = qw(
 	get_directives
@@ -315,26 +314,6 @@ sub __function_require_version {
 
 	# Requirement directives don't change anything directly.
 	return "";
-}
-
-sub __function_vendor_directory {
-	my ($file, $name) = @_;
-
-	# Try to look the directory up in the environment...
-	my $key = __environment 'INSPIRCD_VENDOR_', $name;
-	if (defined $ENV{$key}) {
-		say console_format "Found the <|GREEN $name|> vendor directory for <|GREEN ${\module_shrink $file}|> using the environment: <|BOLD $ENV{$key}|>";
-		return $ENV{$key};
-	}
-
-	my $directory = catdir(VENDOR_DIRECTORY, $name);
-	if (-d $directory) {
-		say console_format "Using the default <|GREEN $name|> vendor directory for <|GREEN ${\module_shrink $file}|>: <|BOLD $directory|>";
-		return $directory;
-	}
-
-	# We can't find it via the environment or via the filesystem so give up.
-	__error $file, "unable to find the <|GREEN $name|> vendor directory for <|GREEN ${\module_shrink $file}|>!";
 }
 
 sub __function_warning {

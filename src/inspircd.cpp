@@ -44,7 +44,7 @@
 #include <rang/rang.hpp>
 
 #ifdef _WIN32
-# include <ya_getopt.h>
+# include <ya_getopt/ya_getopt.h>
 #else
 # include <getopt.h>
 # include <grp.h>

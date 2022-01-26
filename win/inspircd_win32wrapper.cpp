@@ -27,7 +27,7 @@
 #include "inspircd_win32wrapper.h"
 #include "inspircd.h"
 
-#include <ya_getopt.c>
+#include <ya_getopt/ya_getopt.c>
 
 CWin32Exception::CWin32Exception() : exception()
 {
