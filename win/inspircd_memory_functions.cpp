@@ -24,10 +24,10 @@
  */
 
 
-#include <windows.h>
 #include <exception>
 #include <new>
-#include <new.h>
+
+#include <windows.h>
 
 /** On windows, all dll files and executables have their own private heap,
  * whereas on POSIX systems, shared objects loaded into an executable share

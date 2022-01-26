@@ -23,11 +23,10 @@
 
 #include "inspircd.h"
 #include "exitcodes.h"
-#include <windows.h>
-#include <cstdlib>
-#include <cstring>
-#include <cstdio>
+
 #include <iostream>
+
+#include <windows.h>
 
 static SERVICE_STATUS_HANDLE g_ServiceStatusHandle;
 static SERVICE_STATUS g_ServiceStatus;

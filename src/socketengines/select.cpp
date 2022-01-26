@@ -24,12 +24,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "inspircd.h"
-
 #ifndef _WIN32
 #include <sys/select.h>
 #endif // _WIN32
+
+#include "inspircd.h"
 
 /** A specialisation of the SocketEngine class, designed to use traditional select().
  */

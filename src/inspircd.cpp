@@ -37,23 +37,23 @@
 #include <iostream>
 
 #include "inspircd.h"
+#include "consolecolors.h"
 #include "exitcodes.h"
 #include "xline.h"
 
-#include <signal.h>
+#ifdef _WIN32
+# include <ya_getopt.h>
 
-#ifndef _WIN32
-	#include <unistd.h>
-	#include <sys/resource.h>
-	#include <getopt.h>
-	#include <pwd.h> // setuid
-	#include <grp.h> // setgid
+// Manages formatting lines written to stderr on Windows.
+WindowsStream StandardError(STD_ERROR_HANDLE);
+
+// Manages formatting lines written to stdout on Windows.
+WindowsStream StandardOutput(STD_OUTPUT_HANDLE);
 #else
-	/** Manages formatting lines written to stderr on Windows. */
-	WindowsStream StandardError(STD_ERROR_HANDLE);
-
-	/** Manages formatting lines written to stdout on Windows. */
-	WindowsStream StandardOutput(STD_OUTPUT_HANDLE);
+# include <getopt.h>
+# include <grp.h>
+# include <pwd.h>
+# include <sys/resource.h>
 #endif
 
 InspIRCd* ServerInstance = NULL;

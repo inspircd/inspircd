@@ -73,9 +73,6 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
-// Windows doesn't support getopt_long so we use ya_getopt instead.
-#include "ya_getopt.h"
-
 /* Normal windows (platform-specific) includes */
 #include <winsock2.h>
 #pragma comment(lib, "Ws2_32.lib")

@@ -23,10 +23,12 @@
  */
 
 
-#include "inspircd.h"
-#include "exitcodes.h"
 #include <filesystem>
 #include <iostream>
+
+#include "inspircd.h"
+#include "consolecolors.h"
+#include "exitcodes.h"
 
 bool ModuleManager::Load(const std::string& modname, bool defer)
 {

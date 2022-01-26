@@ -38,8 +38,11 @@
 
 
 #include "inspircd.h"
-#include <mysql.h>
+#include "threadsocket.h"
 #include "modules/sql.h"
+
+// Needs to be included after inspircd.h to avoid reincluding winsock.
+#include <mysql.h>
 
 #ifdef _WIN32
 # pragma comment(lib, "mysqlclient.lib")

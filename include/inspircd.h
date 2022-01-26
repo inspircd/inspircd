@@ -33,13 +33,10 @@
 
 #include <cfloat>
 #include <climits>
-#include <cmath>
 #include <csignal>
 #include <cstdarg>
 #include <cstdint>
-#include <cstdio>
 #include <cstring>
-#include <ctime>
 
 #include <algorithm>
 #include <array>
@@ -55,7 +52,6 @@
 #include <sstream>
 #include <string>
 #include <string_view>
-#include <type_traits>
 #include <unordered_map>
 #include <vector>
 
@@ -75,7 +71,6 @@ CoreExport extern InspIRCd* ServerInstance;
 
 #include "config.h"
 #include "dynref.h"
-#include "consolecolors.h"
 #include "cull.h"
 #include "serialize.h"
 #include "extensible.h"
@@ -102,7 +97,6 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "modules.h"
 #include "clientprotocol.h"
 #include "thread.h"
-#include "threadsocket.h"
 #include "configreader.h"
 #include "inspstring.h"
 #include "protocol.h"

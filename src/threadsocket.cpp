@@ -21,6 +21,7 @@
 
 
 #include "inspircd.h"
+#include "threadsocket.h"
 
 #if __has_include(<sys/eventfd.h>)
 #include <sys/eventfd.h>

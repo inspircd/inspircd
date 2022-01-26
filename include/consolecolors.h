@@ -21,8 +21,8 @@
 
 #pragma once
 
+#include <cstdio>
 #include <ostream>
-#include <stdio.h>
 
 #ifdef _WIN32
 # include <iostream>

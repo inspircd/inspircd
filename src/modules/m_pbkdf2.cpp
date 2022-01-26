@@ -20,6 +20,8 @@
  */
 
 
+#include <cmath>
+
 #include "inspircd.h"
 #include "modules/hash.h"
 

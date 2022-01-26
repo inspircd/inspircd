@@ -18,6 +18,8 @@
  */
 
 
+#include <cmath>
+
 #include "inspircd.h"
 #include "modules/exemption.h"
 

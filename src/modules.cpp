@@ -31,9 +31,11 @@
  */
 
 
-#include "inspircd.h"
-#include "exitcodes.h"
 #include <iostream>
+
+#include "inspircd.h"
+#include "consolecolors.h"
+#include "exitcodes.h"
 
 static insp::intrusive_list<dynamic_reference_base>* dynrefs = NULL;
 

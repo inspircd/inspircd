@@ -37,9 +37,9 @@
 /// $PackageInfo: require_system("ubuntu") libpq-dev
 
 
-#include "inspircd.h"
-#include <cstdlib>
 #include <libpq-fe.h>
+
+#include "inspircd.h"
 #include "modules/sql.h"
 
 /* SQLConn rewritten by peavey to

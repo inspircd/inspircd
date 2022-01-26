@@ -26,10 +26,11 @@
  */
 
 
-#include "exitcodes.h"
-#include "inspircd.h"
-
 #include <iostream>
+
+#include "inspircd.h"
+#include "consolecolors.h"
+#include "exitcodes.h"
 
 /** Reference table, contains all current handlers
  **/

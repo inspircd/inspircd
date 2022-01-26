@@ -29,6 +29,7 @@
 /// $PackageInfo: require_system("ubuntu") libldap2-dev
 
 #include "inspircd.h"
+#include "threadsocket.h"
 #include "modules/ldap.h"
 
 #if defined LDAP_API_FEATURE_X_OPENLDAP_REENTRANT && !LDAP_API_FEATURE_X_OPENLDAP_REENTRANT
