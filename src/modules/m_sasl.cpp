@@ -267,6 +267,12 @@ public:
 		return this->state;
 	}
 
+	void Abort()
+	{
+		this->state = SASL_DONE;
+		this->result = SASL_ABORT;
+	}
+
 	bool SendClientMessage(const std::vector<std::string>& parameters)
 	{
 		if (this->state != SASL_COMM)
@@ -276,15 +282,14 @@ public:
 
 		if (parameters[0].c_str()[0] == '*')
 		{
-			this->state = SASL_DONE;
-			this->result = SASL_ABORT;
+			this->Abort();
 			return false;
 		}
 
 		return true;
 	}
 
-	void AnnounceState(void)
+	void AnnounceState()
 	{
 		if (this->state_announced)
 			return;
@@ -435,6 +440,21 @@ public:
 		cap.requiressl = tag->getBool("requiressl");
 		sasl_target = target;
 		servertracker.Reset();
+	}
+
+	void OnUserConnect(LocalUser* user) override
+	{
+		// If the client completes registration (with CAP END, NICK, USER and
+		// any other necessary messages) while the SASL authentication is still
+		// in progress, the server SHOULD abort it and send a 906 numeric, then
+		// register the client without authentication.
+		SaslAuthenticator* saslauth = authExt.Get(user);
+		if (saslauth)
+		{
+			saslauth->Abort();
+			saslauth->AnnounceState();
+			authExt.Unset(user);
+		}
 	}
 
 	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata) override
