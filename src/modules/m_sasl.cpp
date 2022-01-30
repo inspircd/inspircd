@@ -280,7 +280,7 @@ public:
 
 		SendSASL(this->user, this->agent, 'C', parameters);
 
-		if (parameters[0].c_str()[0] == '*')
+		if (parameters.empty() || parameters[0] == "*")
 		{
 			this->Abort();
 			return false;

@@ -142,16 +142,15 @@ void Channel::SetDefaultModes()
 
 			if (mode->NeedsParam(true))
 			{
-				list.GetToken(parameter);
-				// If the parameter begins with a ':' then it's invalid
-				if (parameter.c_str()[0] == ':')
+				// If the parameter is missing or begins with a ':' then it's invalid
+				if (!list.GetToken(parameter) || parameter[0] == ':')
 					continue;
 			}
 			else
+			{
+				// The mode does not take a parameter.
 				parameter.clear();
-
-			if ((mode->NeedsParam(true)) && (parameter.empty()))
-				continue;
+			}
 
 			Modes::Change modechange(mode, true, parameter);
 			mode->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, this, modechange);
@@ -457,15 +456,13 @@ char Membership::GetPrefixChar() const
 
 unsigned int Membership::getRank()
 {
-	char mchar = modes.c_str()[0];
-	unsigned int rv = 0;
-	if (mchar)
+	if (!modes.empty())
 	{
-		PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(mchar);
+		PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(modes[0]);
 		if (mh)
-			rv = mh->GetPrefixRank();
+			return mh->GetPrefixRank();
 	}
-	return rv;
+	return 0;
 }
 
 std::string Membership::GetAllPrefixChars() const

@@ -155,7 +155,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 bool irc::sockets::aptosa(const std::string& addr, int port, irc::sockets::sockaddrs& sa)
 {
 	memset(&sa, 0, sizeof(sa));
-	if (addr.empty() || addr.c_str()[0] == '*')
+	if (addr.empty() || addr == "*")
 	{
 		if (ServerInstance->Config->WildcardIPv6)
 		{
