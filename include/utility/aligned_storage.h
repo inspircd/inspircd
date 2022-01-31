@@ -24,13 +24,13 @@ namespace insp
 	template <typename T> class aligned_storage;
 }
 
-/** */
+/** A block of preallocated memory which an object can be created into. */
 template <typename T>
 class insp::aligned_storage final
 {
 private:
 	/** The underlying aligned storage block. */
-	mutable typename std::aligned_storage<sizeof(T), std::alignment_of<T>::value>::type data;
+	mutable typename std::aligned_storage<sizeof(T), std::alignment_of_v<T>>::type data;
 
 public:
 	/** Default constructor for the aligned_storage class. */
