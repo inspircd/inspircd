@@ -22,6 +22,16 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **Website** &mdash; [https://github.com/nodejs/http-parser](https://github.com/nodejs/http-parser)
 
+## md5
+
+**Author** &mdash; [Solar Designer](mailto:solar@openwall.com)
+
+**License** &mdash; Cut-down BSD License
+
+**Version** &mdash; v2.0
+
+**Website** &mdash; [https://openwall.info/wiki/people/solar/software/public-domain-source-code/md5](https://openwall.info/wiki/people/solar/software/public-domain-source-code/md5)
+
 ## rang
 
 **Author** &mdash; Abhinav Gauniyal
