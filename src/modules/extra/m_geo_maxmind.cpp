@@ -57,20 +57,20 @@ public:
 			old->refcount_dec();
 	}
 
-	Geolocation::Location* Get(const Extensible* item) const
+	Geolocation::Location* Get(const User* user) const
 	{
-		return static_cast<Geolocation::Location*>(GetRaw(item));
+		return static_cast<Geolocation::Location*>(GetRaw(user));
 	}
 
-	void Set(Extensible* item, Geolocation::Location* value)
+	void Set(User* user, Geolocation::Location* value)
 	{
 		value->refcount_inc();
-		Delete(item, SetRaw(item, value));
+		Delete(user, SetRaw(user, value));
 	}
 
-	void Unset(Extensible* container)
+	void Unset(User* user)
 	{
-		Delete(container, UnsetRaw(container));
+		Delete(user, UnsetRaw(user));
 	}
 };
 

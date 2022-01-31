@@ -70,20 +70,20 @@ class IRCv3::Monitor::Manager final
 		{
 		}
 
-		ExtData* Get(Extensible* container, bool create = false)
+		ExtData* Get(User* user, bool create = false)
 		{
-			ExtData* extdata = static_cast<ExtData*>(GetRaw(container));
+			ExtData* extdata = static_cast<ExtData*>(GetRaw(user));
 			if ((!extdata) && (create))
 			{
 				extdata = new ExtData;
-				SetRaw(container, extdata);
+				SetRaw(user, extdata);
 			}
 			return extdata;
 		}
 
-		void Unset(Extensible* container)
+		void Unset(User* user)
 		{
-			Delete(container, UnsetRaw(container));
+			Delete(user, UnsetRaw(user));
 		}
 
 		std::string ToInternal(const Extensible* container, void* item) const noexcept override

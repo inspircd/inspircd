@@ -41,25 +41,25 @@ public:
 	{
 	}
 
-	ssl_cert* Get(const Extensible* item) const
+	ssl_cert* Get(const User* user) const
 	{
-		return static_cast<ssl_cert*>(GetRaw(item));
+		return static_cast<ssl_cert*>(GetRaw(user));
 	}
 
-	void Set(Extensible* item, ssl_cert* value, bool sync = true)
+	void Set(User* user, ssl_cert* value, bool sync = true)
 	{
 		value->refcount_inc();
-		ssl_cert* old = static_cast<ssl_cert*>(SetRaw(item, value));
+		ssl_cert* old = static_cast<ssl_cert*>(SetRaw(user, value));
 		if (old && old->refcount_dec())
 			delete old;
 
 		if (sync)
-			Sync(item, value);
+			Sync(user, value);
 	}
 
-	void Unset(Extensible* container)
+	void Unset(User* user)
 	{
-		Delete(container, UnsetRaw(container));
+		Delete(user, UnsetRaw(user));
 	}
 
 	std::string ToNetwork(const Extensible* container, void* item) const noexcept override
@@ -88,7 +88,7 @@ public:
 			return;
 
 		ssl_cert* cert = new ssl_cert;
-		Set(container, cert, false);
+		Set(static_cast<User*>(container), cert, false);
 
 		std::stringstream s(value);
 		std::string v;
