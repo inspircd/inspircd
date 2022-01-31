@@ -329,6 +329,9 @@ std::string Cap::ExtItem::ToInternal(const Extensible* container, void* item) co
 
 void Cap::ExtItem::FromInternal(Extensible* container, const std::string& value) noexcept
 {
+	if (container->extype != this->extype)
+		return;
+
 	LocalUser* user = IS_LOCAL(static_cast<User*>(container));
 	if (!user)
 		return; // Can't happen

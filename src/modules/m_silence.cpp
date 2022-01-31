@@ -197,6 +197,9 @@ public:
 
 	void FromInternal(Extensible* container, const std::string& value) noexcept override
 	{
+		if (container->extype != this->extype)
+			return;
+
 		LocalUser* user = IS_LOCAL(static_cast<User*>(container));
 		if (!user)
 			return;

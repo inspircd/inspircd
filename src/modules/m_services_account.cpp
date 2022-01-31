@@ -105,6 +105,9 @@ public:
 
 	void FromNetwork(Extensible* container, const std::string& value) noexcept override
 	{
+		if (container->extype != this->extype)
+			return;
+
 		StringExtItem::FromNetwork(container, value);
 
 		User* user = static_cast<User*>(container);

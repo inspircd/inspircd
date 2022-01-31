@@ -84,6 +84,9 @@ public:
 
 	void FromNetwork(Extensible* container, const std::string& value) noexcept override
 	{
+		if (container->extype != this->extype)
+			return;
+
 		ssl_cert* cert = new ssl_cert;
 		Set(container, cert, false);
 

@@ -245,6 +245,9 @@ private:
 
 void IRCv3::Monitor::Manager::ExtItem::FromInternal(Extensible* container, const std::string& value) noexcept
 {
+	if (container->extype != this->extype)
+		return;
+
 	irc::spacesepstream ss(value);
 	for (std::string nick; ss.GetToken(nick); )
 		manager.Watch(static_cast<LocalUser*>(container), nick, UINT_MAX);

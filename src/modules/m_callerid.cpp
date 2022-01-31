@@ -96,6 +96,9 @@ struct CallerIDExtInfo final
 
 	void FromInternal(Extensible* container, const std::string& value) noexcept override
 	{
+		if (container->extype != this->extype)
+			return;
+
 		void* old = GetRaw(container);
 		if (old)
 			this->Delete(NULL, old);

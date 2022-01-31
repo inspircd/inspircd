@@ -249,6 +249,9 @@ public:
 	 */
 	inline void Set(Extensible* container, T* value, bool sync = true)
 	{
+		if (container->extype != this->extype)
+			return;
+
 		T* old = static_cast<T*>(SetRaw(container, value));
 		Delete(container, old);
 		if (sync && synced)
@@ -262,7 +265,8 @@ public:
 	 */
 	inline void Set(Extensible* container, const T& value, bool sync = true)
 	{
-		Set(container, new T(value), sync);
+		if (container->extype == this->extype)
+			Set(container, new T(value), sync);
 	}
 
 	/** Sets a forwarded value for this extension of the specified container.
@@ -275,7 +279,8 @@ public:
 		// Forwarded arguments are for complex types which are assumed to not
 		// be synced across the network. You can manually call Sync() if this
 		// is not the case.
-		Set(container, new T(std::forward<Args>(args)...), false);
+		if (container->extype == this->extype)
+			Set(container, new T(std::forward<Args>(args)...), false);
 	}
 
 	/** Removes this extension from the specified container.
@@ -284,6 +289,9 @@ public:
 	 */
 	inline void Unset(Extensible* container, bool sync = true)
 	{
+		if (container->extype != this->extype)
+			return;
+
 		Delete(container, UnsetRaw(container));
 		if (synced && sync)
 			Sync(container, nullptr);

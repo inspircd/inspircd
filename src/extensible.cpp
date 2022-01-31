@@ -232,6 +232,9 @@ bool BoolExtItem::Get(const Extensible* container) const
 
 void BoolExtItem::Set(Extensible* container, bool sync)
 {
+	if (container->extype != this->extype)
+		return;
+
 	SetRaw(container, reinterpret_cast<void*>(1));
 	if (sync && synced)
 		Sync(container, reinterpret_cast<void*>(1));
@@ -239,6 +242,9 @@ void BoolExtItem::Set(Extensible* container, bool sync)
 
 void BoolExtItem::Unset(Extensible* container, bool sync)
 {
+	if (container->extype != this->extype)
+		return;
+
 	UnsetRaw(container);
 	if (sync && synced)
 		Sync(container, reinterpret_cast<void*>(0));
@@ -273,6 +279,9 @@ intptr_t IntExtItem::Get(const Extensible* container) const
 
 void IntExtItem::Set(Extensible* container, intptr_t value, bool sync)
 {
+	if (container->extype != this->extype)
+		return;
+
 	if (value)
 		SetRaw(container, reinterpret_cast<void*>(value));
 	else
@@ -294,6 +303,9 @@ std::string IntExtItem::ToNetwork(const Extensible* container, void* item) const
 
 void IntExtItem::Unset(Extensible* container, bool sync)
 {
+	if (container->extype != this->extype)
+		return;
+
 	UnsetRaw(container);
 	if (sync && synced)
 		Sync(container, nullptr);
