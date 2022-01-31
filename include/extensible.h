@@ -135,6 +135,9 @@ public:
 	/** Allows extensions to access the extension store. */
 	friend class ExtensionItem;
 
+	/** The type of extensible that this is. */
+	const ExtensionType extype:2;
+
 	~Extensible() override;
 
 	/** @copydoc Cullable::Cull */
@@ -158,7 +161,7 @@ public:
 	void UnhookExtensions(const std::vector<ExtensionItem*>& items);
 
 protected:
-	Extensible();
+	Extensible(ExtensionType exttype);
 
 private:
 	/** The values for extensions which are set on this extensible. */

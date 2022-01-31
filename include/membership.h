@@ -73,7 +73,12 @@ public:
 	 * Call Channel::JoinUser() or ForceJoin() to make a user join a channel instead of constructing
 	 * Membership objects directly.
 	 */
-	Membership(User* u, Channel* c) : user(u), chan(c) {}
+	Membership(User* u, Channel* c)
+		: Extensible(ExtensionType::MEMBERSHIP)
+		, user(u)
+		, chan(c)
+	{
+	}
 
 	/** Check if this member has a given prefix mode set
 	 * @param pm Prefix mode to check

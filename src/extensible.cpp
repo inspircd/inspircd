@@ -47,8 +47,9 @@ ExtensionItem* ExtensionManager::GetItem(const std::string& name)
 	return iter->second;
 }
 
-Extensible::Extensible()
-	: culled(false)
+Extensible::Extensible(ExtensionType exttype)
+	: extype(exttype)
+	, culled(false)
 {
 }
 

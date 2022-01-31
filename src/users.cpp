@@ -77,7 +77,8 @@ std::string User::GetModeLetters(bool includeparams) const
 }
 
 User::User(const std::string& uid, Server* srv, Type type)
-	: age(ServerInstance->Time())
+	: Extensible(ExtensionType::USER)
+	, age(ServerInstance->Time())
 	, uuid(uid)
 	, server(srv)
 	, registered(REG_NONE)

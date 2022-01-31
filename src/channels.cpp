@@ -34,7 +34,8 @@ namespace
 }
 
 Channel::Channel(const std::string &cname, time_t ts)
-	: name(cname)
+	: Extensible(ExtensionType::CHANNEL)
+	, name(cname)
 	, age(ts)
 {
 	if (!ServerInstance->Channels.GetChans().emplace(cname, this).second)

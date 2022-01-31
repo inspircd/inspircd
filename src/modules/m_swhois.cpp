@@ -143,9 +143,8 @@ public:
 
 	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string&) override
 	{
-		User* dest = static_cast<User*>(target);
-		if (dest && (extname == "swhois"))
-			cmd.operblock.Unset(dest);
+		if (target->extype == ExtensionType::USER && irc::equals(extname, "swhois"))
+			cmd.operblock.Unset(static_cast<User*>(target));
 	}
 };
 

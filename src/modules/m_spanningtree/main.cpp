@@ -851,9 +851,8 @@ void ModuleSpanningTree::OnShutdown(const std::string& reason)
 void ModuleSpanningTree::OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata)
 {
 	// HACK: this should use automatically synced user metadata in v4.
-	User* dest = static_cast<User*>(target);
-	if (dest && (extname == "uniqueusername"))
-		dest->uniqueusername = (extdata != "0");
+	if (target->extype == ExtensionType::USER && irc::equals(extname, "uniqueusername"))
+		static_cast<User*>(target)->uniqueusername = (extdata != "0");
 }
 
 Cullable::Result ModuleSpanningTree::Cull()
