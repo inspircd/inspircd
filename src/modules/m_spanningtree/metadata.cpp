@@ -110,31 +110,37 @@ CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 	return CmdResult::SUCCESS;
 }
 
-CommandMetadata::Builder::Builder(const User* user, const std::string& key, const std::string& val)
+CommandMetadata::Builder::Builder(const Extensible* ext, const std::string& key, const std::string& val)
 	: CmdBuilder("METADATA")
 {
-	push(user->uuid);
-	push(key);
-	push_last(val);
-}
+	switch (ext->extype)
+	{
+		case ExtensionType::CHANNEL:
+		{
+			const Channel* chan = static_cast<const Channel*>(ext);
+			push(chan->name);
+			push_int(chan->age);
+			break;
+		}
 
-CommandMetadata::Builder::Builder(const Channel* chan, const std::string& key, const std::string& val)
-	: CmdBuilder("METADATA")
-{
-	push(chan->name);
-	push_int(chan->age);
-	push(key);
-	push_last(val);
-}
+		case ExtensionType::MEMBERSHIP:
+		{
+			const Membership* memb = static_cast<const Membership*>(ext);
+			push_raw("@");
+			push(memb->user->uuid);
+			push_raw(memb->chan->name);
+			push_int(memb->chan->age);
+			push_int(memb->id);
+			break;
+		}
 
-CommandMetadata::Builder::Builder(const Membership* memb, const std::string& key, const std::string& val)
-	: CmdBuilder("METADATA")
-{
-	push_raw("@");
-	push(memb->user->uuid);
-	push_raw(memb->chan->name);
-	push_int(memb->chan->age);
-	push_int(memb->id);
+		case ExtensionType::USER:
+		{
+			const User* user = static_cast<const User*>(ext);
+			push(user->uuid);
+			break;
+		}
+	}
 	push(key);
 	push_last(val);
 }

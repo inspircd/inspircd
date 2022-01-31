@@ -108,9 +108,7 @@ public:
 		: public CmdBuilder
 	{
 	public:
-		Builder(const User* user, const std::string& key, const std::string& val);
-		Builder(const Channel* chan, const std::string& key, const std::string& val);
-		Builder(const Membership* memb, const std::string& key, const std::string& val);
+		Builder(const Extensible* ext, const std::string& key, const std::string& val);
 		Builder(const std::string& key, const std::string& val);
 	};
 };

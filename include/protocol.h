@@ -78,26 +78,12 @@ public:
 	 */
 	virtual void BroadcastEncap(const std::string& cmd, const CommandBase::Params& params, User* source = NULL, User* omit = NULL) { }
 
-	/** Send metadata for a channel to other linked servers.
-	 * @param chan The channel to send metadata for
+	/** Send metadata for an extensible to other linked servers.
+	 * @param ext The extensible to send metadata for
 	 * @param key The 'key' of the data, e.g. "swhois" for swhois desc on a user
 	 * @param data The string representation of the data
 	 */
-	virtual void SendMetaData(const Channel* chan, const std::string& key, const std::string& data) { }
-
-	/** Send metadata for a user to other linked servers.
-	 * @param user The user to send metadata for
-	 * @param key The 'key' of the data, e.g. "swhois" for swhois desc on a user
-	 * @param data The string representation of the data
-	 */
-	virtual void SendMetaData(const User* user, const std::string& key, const std::string& data) { }
-
-	/** Send metadata for a user to other linked servers.
-	 * @param memb The membership to send metadata for
-	 * @param key The 'key' of the data, e.g. "swhois" for swhois desc on a user
-	 * @param data The string representation of the data
-	 */
-	virtual void SendMetaData(const Membership* memb, const std::string& key, const std::string& data) { }
+	virtual void SendMetaData(const Extensible* ext, const std::string& key, const std::string& data) { }
 
 	/** Send metadata related to the server to other linked servers.
 	 * @param key The 'key' of the data

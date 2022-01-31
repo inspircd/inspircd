@@ -135,23 +135,8 @@ void* ExtensionItem::UnsetRaw(Extensible* container)
 void ExtensionItem::Sync(const Extensible* container, void* item)
 {
 	const std::string networkstr = ToNetwork(container, item);
-	if (networkstr.empty())
-		return;
-
-	switch (extype)
-	{
-		case ExtensionType::CHANNEL:
-			ServerInstance->PI->SendMetaData(static_cast<const Channel*>(container), name, networkstr);
-			break;
-
-		case ExtensionType::MEMBERSHIP:
-			ServerInstance->PI->SendMetaData(static_cast<const Membership*>(container), name, networkstr);
-			break;
-
-		case ExtensionType::USER:
-			ServerInstance->PI->SendMetaData(static_cast<const User*>(container), name, networkstr);
-			break;
-	}
+	if (!networkstr.empty())
+		ServerInstance->PI->SendMetaData(container, name, networkstr);
 }
 
 void ExtensionItem::FromInternal(Extensible* container, const std::string& value) noexcept
