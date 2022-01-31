@@ -90,7 +90,7 @@ void Extensible::UnhookExtensions(const std::vector<ExtensionItem*>& items)
 
 ExtensionItem::ExtensionItem(Module* mod, const std::string& Key, ExtensionType exttype)
 	: ServiceProvider(mod, Key, SERVICE_METADATA)
-	, type(exttype)
+	, extype(exttype)
 {
 }
 
@@ -137,7 +137,7 @@ void ExtensionItem::Sync(const Extensible* container, void* item)
 	if (networkstr.empty())
 		return;
 
-	switch (type)
+	switch (extype)
 	{
 		case ExtensionType::CHANNEL:
 			ServerInstance->PI->SendMetaData(static_cast<const Channel*>(container), name, networkstr);

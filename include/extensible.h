@@ -42,7 +42,7 @@ class CoreExport ExtensionItem
 {
 public:
 	/** The type of extensible that this extension extends. */
-	const ExtensionType type;
+	const ExtensionType extype:2;
 
 	/** Deletes a \p value which is set on \p container.
 	 * @param container The container that this extension is set on.
