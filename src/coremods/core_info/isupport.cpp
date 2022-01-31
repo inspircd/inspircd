@@ -18,6 +18,8 @@
 
 
 #include "inspircd.h"
+#include "utility/map.h"
+
 #include "core_info.h"
 
 namespace
@@ -25,7 +27,7 @@ namespace
 	void TokenDifference(ISupport::TokenMap& tokendiff, const ISupport::TokenMap& oldtokens, const ISupport::TokenMap& newtokens)
 	{
 		std::map<std::string, std::pair<std::optional<std::string>, std::optional<std::string>>, irc::insensitive_swo> changedtokens;
-		stdalgo::map::difference(oldtokens, newtokens, changedtokens);
+		insp::map::difference(oldtokens, newtokens, changedtokens);
 		for (const auto& [name, values] : changedtokens)
 		{
 			if (values.first && !values.second)

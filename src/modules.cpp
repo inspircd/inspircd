@@ -35,6 +35,7 @@
 
 #include "inspircd.h"
 #include "exitcodes.h"
+#include "utility/map.h"
 
 // Needs to be included after inspircd.h to avoid reincluding winsock.
 #include <rang/rang.hpp>
@@ -68,7 +69,7 @@ void Module::CompareLinkData(const LinkData& otherdata, LinkDataDiff& diffs)
 	std::string unused;
 	LinkData data;
 	this->GetLinkData(data, unused);
-	stdalgo::map::difference(data, otherdata, diffs);
+	insp::map::difference(data, otherdata, diffs);
 }
 
 std::string Module::GetPropertyString() const

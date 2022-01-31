@@ -26,12 +26,13 @@
 
 
 #include "inspircd.h"
+#include "modules/extban.h"
+#include "utility/map.h"
 
 #include "treeserver.h"
 #include "utils.h"
 #include "link.h"
 #include "main.h"
-#include "modules/extban.h"
 
 namespace
 {
@@ -114,7 +115,7 @@ namespace
 		// Retrieve the local module list and compare to the remote.
 		CapabData::ModuleMap mymodules = BuildModuleList(property, PROTO_INSPIRCD_3);
 		TokenDiff modulediff;
-		stdalgo::map::difference(mymodules, remote, modulediff);
+		insp::map::difference(mymodules, remote, modulediff);
 
 		for (const auto& [module, values] : modulediff)
 		{
