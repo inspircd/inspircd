@@ -140,12 +140,12 @@ class ModeHook final
 			return MOD_RES_PASSTHRU;
 
 		// Check cache first
-		const FilteredModeMap::const_iterator it = cache.find(memb->getRank());
+		const FilteredModeMap::const_iterator it = cache.find(memb->GetRank());
 		if (it != cache.end())
 			return HandleResult(it->second, messagelist);
 
 		// Message for this rank isn't cached, generate it now
-		const Modes::ChangeList* const filteredchangelist = FilterModeChangeList(mode, memb->getRank());
+		const Modes::ChangeList* const filteredchangelist = FilterModeChangeList(mode, memb->GetRank());
 
 		// If no new change list was generated (above method returned NULL) it means the member and everyone else
 		// with the same rank can see everything in the original change list.
@@ -168,7 +168,7 @@ class ModeHook final
 		}
 
 		// Cache the result in all cases so it can be reused for further members with the same rank
-		cache.emplace(memb->getRank(), finalmsgplist);
+		cache.emplace(memb->GetRank(), finalmsgplist);
 		return HandleResult(finalmsgplist, messagelist);
 	}
 

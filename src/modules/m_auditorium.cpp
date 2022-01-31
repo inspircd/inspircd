@@ -101,7 +101,7 @@ public:
 			return true;
 
 		ModResult res = CheckExemption::Call(exemptionprov, memb->user, memb->chan, "auditorium-vis");
-		return res.check(OpsVisible && memb->getRank() >= OP_VALUE);
+		return res.check(OpsVisible && memb->GetRank() >= OP_VALUE);
 	}
 
 	/* Can they see this specific membership? */

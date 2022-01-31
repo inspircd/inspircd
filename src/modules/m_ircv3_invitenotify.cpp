@@ -44,7 +44,7 @@ public:
 				continue;
 
 			// Check whether the member has a high enough rank to see the notification
-			if (memb->getRank() < notifyrank)
+			if (memb->GetRank() < notifyrank)
 				continue;
 
 			// Caps are only set on local users

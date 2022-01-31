@@ -43,7 +43,7 @@ public:
 		// If the user requesting the list is a member of the channel see if they have the
 		// rank required to view the list
 		Membership* memb = chan->GetUser(user);
-		if ((memb) && (memb->getRank() >= minrank))
+		if ((memb) && (memb->GetRank() >= minrank))
 			return true;
 
 		if (user->HasPrivPermission("channels/auspex"))

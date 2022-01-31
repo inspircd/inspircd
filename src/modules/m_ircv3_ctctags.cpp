@@ -95,7 +95,7 @@ private:
 				continue;
 
 			// Don't send to unprivileged or exempt users.
-			if (memb->getRank() < minrank || msgdetails.exemptions.count(luser))
+			if (memb->GetRank() < minrank || msgdetails.exemptions.count(luser))
 				continue;
 
 			// Send to users if they have the capability.

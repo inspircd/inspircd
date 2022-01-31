@@ -110,7 +110,7 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 
 		if (res == MOD_RES_PASSTHRU)
 		{
-			unsigned int them = srcmemb->getRank();
+			unsigned int them = srcmemb->GetRank();
 			unsigned int req = HALFOP_VALUE;
 			for (std::string::size_type i = 0; i < memb->modes.length(); i++)
 			{

@@ -58,7 +58,7 @@ private:
 			// Add any unprivileged users to the exemption list.
 			for (const auto& [u, memb] : chan->GetUsers())
 			{
-				if (memb->getRank() < OP_VALUE)
+				if (memb->GetRank() < OP_VALUE)
 					exemptions.insert(u);
 			}
 		}

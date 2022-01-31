@@ -89,7 +89,7 @@ public:
 	 * member has. See the PrefixMode class description for more info.
 	 * @return The rank of the member
 	 */
-	unsigned int getRank();
+	unsigned int GetRank();
 
 	/** Add a prefix character to a user.
 	 * Only the core should call this method, usually from

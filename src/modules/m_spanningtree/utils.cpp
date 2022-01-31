@@ -151,7 +151,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet
 		if (IS_LOCAL(user))
 			continue;
 
-		if (minrank && memb->getRank() < minrank)
+		if (minrank && memb->GetRank() < minrank)
 			continue;
 
 		if (exempt_list.find(user) == exempt_list.end())

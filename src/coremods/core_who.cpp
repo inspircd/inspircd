@@ -495,7 +495,7 @@ void CommandWho::SendWhoLine(LocalUser* source, const std::vector<std::string>& 
 
 		// Include the user's operator rank level.
 		if (data.whox_fields['o'])
-			wholine.push(memb ? ConvToStr(memb->getRank()) : "0");
+			wholine.push(memb ? ConvToStr(memb->GetRank()) : "0");
 
 		// Include the user's real name.
 		if (data.whox_fields['r'])

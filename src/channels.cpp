@@ -380,7 +380,7 @@ void Channel::Write(ClientProtocol::Event& protoev, char status, const CUList& e
 		if ((user) && (!except_list.count(user)))
 		{
 			/* User doesn't have the status we're after */
-			if (minrank && memb->getRank() < minrank)
+			if (minrank && memb->GetRank() < minrank)
 				continue;
 
 			user->Send(protoev);
@@ -454,7 +454,7 @@ char Membership::GetPrefixChar() const
 	return pf;
 }
 
-unsigned int Membership::getRank()
+unsigned int Membership::GetRank()
 {
 	if (!modes.empty())
 	{
@@ -483,7 +483,7 @@ unsigned int Channel::GetPrefixValue(User* user)
 	MemberMap::iterator m = userlist.find(user);
 	if (m == userlist.end())
 		return 0;
-	return m->second->getRank();
+	return m->second->GetRank();
 }
 
 bool Membership::SetPrefix(PrefixMode* delta_mh, bool adding)

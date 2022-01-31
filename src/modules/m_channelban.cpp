@@ -49,7 +49,7 @@ public:
 		{
 			if (!InspIRCd::Match(memb->chan->name, target))
 				continue;
-			if (!status || memb->getRank() >= mh->GetPrefixRank())
+			if (!status || memb->GetRank() >= mh->GetPrefixRank())
 				return true;
 		}
 		return false;
