@@ -176,7 +176,7 @@ class CoreExport ExtensionManager final
 {
 public:
 	/** The container which registered extensions are stored in. */
-	typedef std::map<std::string, ExtensionItem*> ExtMap;
+	typedef std::map<std::string, ExtensionItem*, irc::insensitive_swo> ExtMap;
 
 	/** Begins unregistering extensions belonging to the specified module.
 	 * @param module The module to unregister extensions for.

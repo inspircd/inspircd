@@ -740,7 +740,7 @@ void ModuleFilter::OnSyncNetwork(ProtocolInterface::Server& server)
 
 void ModuleFilter::OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
 {
-	if ((!target) && (extname == "filter"))
+	if (!target && irc::equals(extname, "filter"))
 	{
 		try
 		{
