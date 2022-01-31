@@ -1425,24 +1425,6 @@
 #<module name="namesx">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# National characters module:
-# 1) Allows using national characters in nicknames.
-# 2) Allows using custom (national) casemapping over the network.
-#
-# This module is incredibly poorly written and documented. You should
-# probably use the codepage module instead for 8-bit codepages.
-#<module name="nationalchars">
-#
-# file - Location of the file which contains casemapping rules. If this
-#        is a relative path then it is relative to "<PWD>/../locales"
-#        on UNIX and "<PWD>/locales" on Windows.
-# casemapping - The name of the casemapping sent to clients in the 005
-#               numeric. If this is not set then it defaults to the name
-#               of the casemapping file unless the file name contains a
-#               space in which case you will have to specify it manually.
-#<nationalchars file="bynets/russian-w1251-charlink" casemapping="ru_RU.cp1251-charlink">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Nickchange flood protection module: Provides channel mode +F X:Y
 # which allows up to X nick changes in Y seconds.
 #<module name="nickflood">
