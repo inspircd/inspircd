@@ -9,14 +9,14 @@ website = "https://www.openwall.com/crypt/"
 
 [http_parser]
 author  = "Joyent, Inc. and other Node contributors"
-files   = "http_parser.[ch]"
+files   = "{http_parser.[ch],LICENSE-MIT}"
 git     = "https://github.com/nodejs/http-parser"
 license = "MIT License"
 
 [rang]
 author  = "Abhinav Gauniyal"
 depth   = 1
-files   = "include/rang.hpp"
+files   = "{include/rang.hpp,LICENSE}"
 git     = "https://github.com/agauniyal/rang/"
 license = "Unlicense"
 
@@ -32,7 +32,7 @@ website = "http://www.ouah.org/ogay/sha2/"
 [utfcpp]
 author  = "Nemanja Trifunovic"
 depth   = 2
-files   = "source/utf8/{core,unchecked}.h"
+files   = "{LICENSE,source/utf8/{core,unchecked}.h}"
 git     = "https://github.com/nemtrif/utfcpp"
 license = "Boost Software License"
 
