@@ -200,6 +200,10 @@ void TreeServer::SQuitChild(TreeServer* server, const std::string& reason, bool 
 
 void TreeServer::SQuitInternal(unsigned int& num_lost_servers, bool error)
 {
+	// Don't squit a server which is already dead.
+	if (isdead)
+		return;
+
 	ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "Server %s lost in split", GetName().c_str());
 
 	for (const auto& server : Children)

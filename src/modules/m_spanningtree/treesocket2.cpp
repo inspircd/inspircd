@@ -410,10 +410,10 @@ void TreeSocket::Close()
 	// Connection closed.
 	// If the connection is fully up (state CONNECTED)
 	// then propagate a netsplit to all peers.
-	if (MyRoot)
+	if (MyRoot && !MyRoot->IsDead())
 		MyRoot->SQuit(GetError(), true);
-
-	ServerInstance->SNO.WriteGlobalSno('l', "Connection to '\002%s\002' failed.", linkID.c_str());
+	else
+		ServerInstance->SNO.WriteGlobalSno('l', "Connection to '\002%s\002' failed.", linkID.c_str());
 
 	time_t server_uptime = ServerInstance->Time() - this->age;
 	if (server_uptime)
