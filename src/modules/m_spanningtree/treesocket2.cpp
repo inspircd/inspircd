@@ -419,8 +419,8 @@ void TreeSocket::Close()
 	// then propagate a netsplit to all peers.
 	if (MyRoot)
 		MyRoot->SQuit(getError(), true);
-
-	ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\002%s\002' failed.", linkID.c_str());
+	else
+		ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\002%s\002' failed.", linkID.c_str());
 
 	time_t server_uptime = ServerInstance->Time() - this->age;
 	if (server_uptime)
