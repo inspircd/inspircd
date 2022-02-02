@@ -1,6 +1,6 @@
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = InspIRCd
-PROJECT_NUMBER         = 3.0
+PROJECT_NUMBER         = v3
 PROJECT_BRIEF          =
 PROJECT_LOGO           =
 OUTPUT_DIRECTORY       = docs/doxygen
@@ -239,6 +239,7 @@ SEARCH_INCLUDES        = YES
 INCLUDE_PATH           =
 INCLUDE_FILE_PATTERNS  =
 PREDEFINED             = CoreExport=/**/ \
+                         DEPRECATED_METHOD(X)=X \
                          INSPIRCD_INTRUSIVE_LIST_NAME=intrusive_list
 EXPAND_AS_DEFINED      =
 SKIP_FUNCTION_MACROS   = YES
