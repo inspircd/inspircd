@@ -26,47 +26,34 @@
 
 #include "inspircd.h"
 
-class ModuleModesOnOper final
+class ModuleOperModes final
 	: public Module
 {
 public:
-	ModuleModesOnOper()
+	ModuleOperModes()
 		: Module(VF_VENDOR, "Allows the server administrator to set user modes on server operators when they log into their server operator account.")
 	{
 	}
 
-	void OnPostOper(User* user, const std::string &opertype, const std::string &opername) override
+	void OnPostOper(User* user, const std::string&, const std::string&) override
 	{
 		if (!IS_LOCAL(user))
-			return;
+			return; // We don't handle remote users.
 
-		// whenever a user opers, go through the oper types, find their <type:modes>,
-		// and if they have one apply their modes. The mode string can contain +modes
-		// to add modes to the user or -modes to take modes from the user.
-		std::string ThisOpersModes = user->oper->getConfig("modes");
-		if (!ThisOpersModes.empty())
-		{
-			ApplyModes(user, ThisOpersModes);
-		}
-	}
+		const std::string opermodes = user->oper->getConfig("modes");
+		if (opermodes.empty())
+			return; // We don't have any modes to set.
 
-	void ApplyModes(User *u, std::string &smodes)
-	{
-		char first = *(smodes.c_str());
-		if ((first != '+') && (first != '-'))
-			smodes = "+" + smodes;
+		CommandBase::Params modeparams;
+		modeparams.push_back(user->nick);
 
-		std::string buf;
-		irc::spacesepstream ss(smodes);
-		CommandBase::Params modes;
+		irc::spacesepstream modestream(opermodes);
+		for (std::string modeparam; modestream.GetToken(modeparam); )
+			modeparams.push_back(modeparam);
 
-		modes.push_back(u->nick);
-		// split into modes and mode params
-		while (ss.GetToken(buf))
-			modes.push_back(buf);
-
-		ServerInstance->Parser.CallHandler("MODE", modes, u);
+		if (modeparams.size() > 1)
+			ServerInstance->Parser.CallHandler("MODE", modeparams, user);
 	}
 };
 
-MODULE_INIT(ModuleModesOnOper)
+MODULE_INIT(ModuleOperModes)
