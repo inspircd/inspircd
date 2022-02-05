@@ -1787,9 +1787,14 @@
 #
 # 'saveperiod' determines how often to check if the database needs to be
 # saved to disk. Defaults to every five seconds.
+#
+# 'operonly' determines whether a server operator or services server is
+# needed to enable the permchannels mode. You should generally keep this
+# set to yes unless you know what you are doing.
 #<permchanneldb filename="permchannels.conf"
 #               listmodes="yes"
-#               saveperiod="5s">
+#               saveperiod="5s"
+#               operonly="yes">
 #<include file="permchannels.conf" missingokay="yes">
 #
 # You may also create channels on startup by using the <permchannels> block.

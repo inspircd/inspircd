@@ -52,6 +52,11 @@ class PermChannel : public ModeHandler
 
 		return MODEACTION_ALLOW;
 	}
+
+	void SetOperOnly(bool value)
+	{
+		oper = value;
+	}
 };
 
 // Not in a class due to circular dependency hell.
@@ -190,6 +195,7 @@ public:
 		ConfigTag* tag = ServerInstance->Config->ConfValue("permchanneldb");
 		permchannelsconf = tag->getString("filename");
 		save_listmodes = tag->getBool("listmodes", true);
+		p.SetOperOnly(tag->getBool("operonly", true));
 		SetInterval(tag->getDuration("saveperiod", 5));
 
 		if (!permchannelsconf.empty())
