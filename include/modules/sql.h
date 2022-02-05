@@ -162,7 +162,7 @@ class SQL::Error
 	 * @param c A code which represents this error.
 	 * @param m A custom error message.
 	 */
-	Error(ErrorCode c, const std::string m)
+	Error(ErrorCode c, const std::string& m)
 		: message(m)
 		, code(c)
 	{
