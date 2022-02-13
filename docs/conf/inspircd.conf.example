@@ -682,6 +682,8 @@
          #                    (requires the blockcolor module).
          #  - censor          Channel mode +G - censors messages based on the network
          #                    configuration (requires the censor module).
+         #  - delaymsg        Channel mode +d - blocks sending messages until specified
+         #                    seconds have passed since user join
          #  - filter          Channel mode +g - blocks messages containing the given
          #                    glob mask (requires the chanfilter module).
          #  - flood           Channel mode +f - kicks (and bans) on text flood of a
