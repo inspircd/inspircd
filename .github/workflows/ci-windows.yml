@@ -20,7 +20,7 @@ jobs:
       - name: Install libraries
         working-directory: ${{ github.workspace }}/win/build
         run: |
-          conan install ..
+          conan install .. --build=missing
 
       - name: Run CMake
         working-directory: ${{ github.workspace }}/win/build
