@@ -8,20 +8,20 @@
 argon2/20190702
 # libmaxminddb/1.6.0
 libpq/13.4
-# mbedtls/3.0.0
+# mbedtls/3.1.0
 mysql-connector-c/6.1.11
-# openssl/3.0.0
+# openssl/3.0.1
 pcre/8.45
-re2/20210901
-sqlite3/3.36.0
+re2/20211101
+sqlite3/3.37.2
 
 [options]
 argon2:shared=True
-# libmaxminddb:shared=True
+libmaxminddb:shared=True
 libpq:shared=True
 # mbedtls:shared=True
 mysql-connector:shared=True
-# openssl:shared=True
+openssl:shared=True
 pcre:shared=True
 re2:shared=True
 sqlite3:shared=True
