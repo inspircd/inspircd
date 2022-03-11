@@ -61,11 +61,6 @@ class ModuleChannelNames : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->IsChannel = NewIsChannelHandler::Call;
-	}
-
 	void ValidateChans()
 	{
 		Modes::ChangeList removepermchan;
@@ -130,6 +125,7 @@ class ModuleChannelNames : public Module
 		allowedmap[0x20] = false; // ' '
 		allowedmap[0x2C] = false; // ','
 
+		ServerInstance->IsChannel = NewIsChannelHandler::Call;
 		ValidateChans();
 	}
 
