@@ -22,6 +22,7 @@
 
 #include "inspircd.h"
 #include "modules/ctctags.h"
+#include "modules/exemption.h"
 
 class DelayMsgMode final
 	: public ParamMode<DelayMsgMode, IntExtItem>
@@ -57,6 +58,7 @@ class ModuleDelayMsg final
 private:
 	DelayMsgMode djm;
 	bool allownotice;
+	CheckExemption::EventProvider exemptionprov;
 	ModResult HandleMessage(User* user, const MessageTarget& target, bool notice);
 
 public:
@@ -64,6 +66,7 @@ public:
 		: Module(VF_VENDOR, "Adds channel mode d (delaymsg) which prevents newly joined users from speaking until the specified number of seconds have passed.")
 		, CTCTags::EventListener(this)
 		, djm(this)
+		, exemptionprov(this)
 	{
 	}
 
@@ -131,12 +134,16 @@ ModResult ModuleDelayMsg::HandleMessage(User* user, const MessageTarget& target,
 
 	if ((ts + len) > ServerInstance->Time())
 	{
-		if (channel->GetPrefixValue(user) < VOICE_VALUE)
-		{
-			const std::string message = InspIRCd::Format("You cannot send messages to this channel until you have been a member for %ld seconds.", len);
-			user->WriteNumeric(Numerics::CannotSendTo(channel, message));
-			return MOD_RES_DENY;
-		}
+		ModResult res = CheckExemption::Call(exemptionprov, user, channel, "delaymsg");
+		if (res == MOD_RES_ALLOW)
+			return MOD_RES_PASSTHRU;
+
+		if (user->HasPrivPermission("channels/ignore-delaymsg"))
+			return MOD_RES_PASSTHRU;
+
+		const std::string message = InspIRCd::Format("You cannot send messages to this channel until you have been a member for %ld seconds.", len);
+		user->WriteNumeric(Numerics::CannotSendTo(channel, message));
+		return MOD_RES_DENY;
 	}
 	else
 	{

@@ -649,6 +649,8 @@
          #                    letters (requires the blockcaps module).
          #  - blockcolor      Channel mode +c - blocks messages with formatting codes
          #                    (requires the blockcolor module).
+         #  - delaymsg        Channel mode +d - blocks sending messages until specified
+         #                    seconds have passed since user join
          #  - filter          Channel mode +g - blocks messages containing the given
          #                    glob mask (requires the chanfilter module).
          #  - flood           Channel mode +f - kicks (and bans) on text flood of a

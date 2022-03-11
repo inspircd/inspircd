@@ -137,7 +137,6 @@ public:
 	{
 		return IsUsable() && trusted && !unknownsigner;
 	}
-
 };
 
 /** I/O hook provider for TLS modules. */

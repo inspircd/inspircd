@@ -65,7 +65,8 @@ enum TranslateType
 };
 
 /** The type of routes that a message can take. */
-enum class RouteType : uint8_t
+enum class RouteType
+	: uint8_t
 {
 	/** The message is only routed to the local server. */
 	LOCAL,

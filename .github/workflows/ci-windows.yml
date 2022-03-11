@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     if: "!contains(github.event.head_commit.message, '[skip windows ci]')"
-    runs-on: windows-latest
+    runs-on: windows-2019
     steps:
       - uses: actions/checkout@v2
 
@@ -20,7 +20,7 @@ jobs:
       - name: Install libraries
         working-directory: ${{ github.workspace }}/win/build
         run: |
-          conan install ..
+          conan install .. --build=missing
 
       - name: Run CMake
         working-directory: ${{ github.workspace }}/win/build

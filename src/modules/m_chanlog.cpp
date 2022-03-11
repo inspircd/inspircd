@@ -47,12 +47,13 @@ public:
 		ChanLogTargets newlogs;
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("chanlog"))
 		{
-			std::string channel = tag->getString("channel");
-			std::string snomasks = tag->getString("snomasks");
-			if (channel.empty() || snomasks.empty())
-			{
-				throw ModuleException(this, "Malformed chanlog tag at " + tag->source.str());
-			}
+			const std::string channel = tag->getString("channel");
+			if (!ServerInstance->Channels.IsChannel(channel))
+				throw ModuleException(this, "<chanlog:channel> must be set to a channel name, at " + tag->source.str());
+
+			const std::string snomasks = tag->getString("snomasks");
+			if (snomasks.empty())
+				throw ModuleException(this, "<chanlog:snomasks> must not be empty, at " + tag->source.str());
 
 			for (const auto& snomask : snomasks)
 			{
@@ -61,7 +62,6 @@ public:
 			}
 		}
 		logstreams.swap(newlogs);
-
 	}
 
 	ModResult OnSendSnotice(char &sno, std::string &desc, const std::string &msg) override

@@ -1,6 +1,6 @@
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = InspIRCd
-PROJECT_NUMBER         = 4.0
+PROJECT_NUMBER         = v4
 PROJECT_BRIEF          =
 PROJECT_LOGO           =
 OUTPUT_DIRECTORY       = docs/doxygen

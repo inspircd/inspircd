@@ -126,7 +126,7 @@ public:
 };
 
 /**
- * This #define allows us to call a method in all
+ * This \#define allows us to call a method in all
  * loaded modules in a readable simple way, e.g.:
  * 'FOREACH_MOD(OnConnect,(user));'
  */
