@@ -187,7 +187,7 @@ class CommandWhowas : public Command
 CommandWhowas::CommandWhowas( Module* parent)
 	: Command(parent, "WHOWAS", 1)
 {
-	syntax = "<nick>";
+	syntax = "<nick> [<count>]";
 	Penalty = 2;
 }
 
@@ -200,6 +200,13 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 		return CMD_FAILURE;
 	}
 
+	unsigned int count = UINT_MAX;
+	if (parameters.size() > 1) {
+		count = ConvToNum<unsigned int>(parameters[1]);
+		if (count == 0)
+			count = UINT_MAX;
+	}
+
 	const WhoWas::Nick* const nick = manager.FindNick(parameters[0]);
 	if (!nick)
 	{
@@ -208,7 +215,7 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 	else
 	{
 		const WhoWas::Nick::List& list = nick->entries;
-		for (WhoWas::Nick::List::const_reverse_iterator i = list.rbegin(); i != list.rend(); ++i)
+		for (WhoWas::Nick::List::const_reverse_iterator i = list.rbegin(); i != list.rend() && count >= 1; ++i, count--)
 		{
 			WhoWas::Entry* u = *i;
 
