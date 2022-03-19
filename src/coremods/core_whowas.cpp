@@ -208,7 +208,7 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 	else
 	{
 		const WhoWas::Nick::List& list = nick->entries;
-		for (WhoWas::Nick::List::const_iterator i = list.begin(); i != list.end(); ++i)
+		for (WhoWas::Nick::List::const_reverse_iterator i = list.rbegin(); i != list.rend(); ++i)
 		{
 			WhoWas::Entry* u = *i;
 
