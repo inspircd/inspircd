@@ -200,13 +200,6 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 		return CMD_FAILURE;
 	}
 
-	unsigned int count = UINT_MAX;
-	if (parameters.size() > 1) {
-		count = ConvToNum<unsigned int>(parameters[1]);
-		if (count == 0)
-			count = UINT_MAX;
-	}
-
 	const WhoWas::Nick* const nick = manager.FindNick(parameters[0]);
 	if (!nick)
 	{
@@ -215,7 +208,15 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 	else
 	{
 		const WhoWas::Nick::List& list = nick->entries;
-		for (WhoWas::Nick::List::const_reverse_iterator i = list.rbegin(); i != list.rend() && count >= 1; ++i, count--)
+		WhoWas::Nick::List::const_reverse_iterator last = list.rend();
+		if (parameters.size() > 1)
+		{
+			size_t count = ConvToNum<size_t>(parameters[1]);
+			if (count > 0 && (size_t) std::distance(list.rbegin(), last) > count)
+				last = list.rbegin() + count;
+		}
+
+		for (WhoWas::Nick::List::const_reverse_iterator i = list.rbegin(); i != last; ++i)
 		{
 			WhoWas::Entry* u = *i;
 
