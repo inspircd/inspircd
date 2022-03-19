@@ -419,9 +419,11 @@ server.
 You should not use it during an established connection.
 ">
 
-<helpop key="whowas" title="/WHOWAS <nick>" value="
+<helpop key="whowas" title="/WHOWAS <nick> [<count>]" value="
 Returns a list of times the user was seen recently on IRC along with
 the time they were last seen and their server.
+
+If <count> is given, only return the <count> most recent entries.
 ">
 
 <helpop key="links" title="/LINKS" value="
