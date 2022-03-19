@@ -187,7 +187,7 @@ class CommandWhowas : public Command
 CommandWhowas::CommandWhowas( Module* parent)
 	: Command(parent, "WHOWAS", 1)
 {
-	syntax = "<nick>";
+	syntax = "<nick> [<count>]";
 	Penalty = 2;
 }
 
@@ -208,7 +208,15 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 	else
 	{
 		const WhoWas::Nick::List& list = nick->entries;
-		for (WhoWas::Nick::List::const_reverse_iterator i = list.rbegin(); i != list.rend(); ++i)
+		WhoWas::Nick::List::const_reverse_iterator last = list.rend();
+		if (parameters.size() > 1)
+		{
+			size_t count = ConvToNum<size_t>(parameters[1]);
+			if (count > 0 && (size_t) std::distance(list.rbegin(), last) > count)
+				last = list.rbegin() + count;
+		}
+
+		for (WhoWas::Nick::List::const_reverse_iterator i = list.rbegin(); i != last; ++i)
 		{
 			WhoWas::Entry* u = *i;
 
