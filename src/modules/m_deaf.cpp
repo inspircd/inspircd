@@ -122,7 +122,7 @@ class ModuleDeaf
 		if (!source->HasPrivPermission("users/ignore-privdeaf"))
 			return MOD_RES_DENY;
 
-		return MOD_RES_ALLOW;
+		return MOD_RES_PASSTHRU;
 	}
 
  public:
