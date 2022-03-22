@@ -120,6 +120,33 @@ class CommandWho : public SplitCommand
 	UserModeReference invisiblemode;
 	Events::ModuleEventProvider whoevprov;
 
+	void BuildOpLevels()
+	{
+		// Build a map of prefixes ordered descending by their rank.
+		std::multimap<unsigned int, const PrefixMode*, std::greater<unsigned int> > ranks;
+		const ModeParser::PrefixModeList& modes = ServerInstance->Modes.GetPrefixModes();
+		for (ModeParser::PrefixModeList::const_iterator iter = modes.begin(); iter != modes.end(); ++iter)
+		{
+			const PrefixMode* pm = *iter;
+			ranks.insert(std::make_pair(pm->GetPrefixRank(), pm));
+		}
+
+		// Now we have the ranks ordered we can assign them levels.
+		unsigned int lastrank;
+		unsigned int oplevel = 0;
+		for (std::multimap<unsigned int, const PrefixMode*>::const_iterator iter = ranks.begin(); iter != ranks.end(); ++iter)
+		{
+			const PrefixMode* pm = iter->second;
+			if (iter != ranks.begin() && pm->GetPrefixRank() != lastrank)
+				oplevel++; // Keep the same op level for modes with the same prefix rank.
+
+			lastrank = pm->GetPrefixRank();
+			oplevels[pm->GetModeChar()] = ConvToStr(oplevel);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Assigned oplevel %u to the %c (%s) prefix mode.",
+				oplevel, pm->GetModeChar(), pm->name.c_str());
+		}
+	}
+
 	/** Determines whether a user can view the users of a channel. */
 	bool CanView(Channel* chan, User* user)
 	{
@@ -168,6 +195,8 @@ class CommandWho : public SplitCommand
 	void WhoUsers(LocalUser* source, const std::vector<std::string>& parameters, const T& users, WhoData& data);
 
  public:
+	insp::flat_map<char, std::string> oplevels;
+
 	CommandWho(Module* parent)
 		: SplitCommand(parent, "WHO", 1, 3)
 		, secretmode(parent, "secret")
@@ -496,7 +525,14 @@ void CommandWho::SendWhoLine(LocalUser* source, const std::vector<std::string>& 
 
 		// Include the user's operator rank level.
 		if (data.whox_fields['o'])
-			wholine.push(memb ? ConvToStr(memb->getRank()) : "0");
+		{
+			// If we haven't built a table to convert from InspIRCd member
+			// ranks to WHOX oplevels yet we need to do that here.
+			if (oplevels.empty())
+				BuildOpLevels();
+
+			wholine.push(memb && memb->getRank() ? oplevels[memb->GetPrefixChar()] : "n/a");
+		}
 
 		// Include the user's real name.
 		if (data.whox_fields['r'])
@@ -596,6 +632,18 @@ class CoreModWho : public Module
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["WHOX"];
+	}
+
+	void OnServiceAdd(ServiceProvider& provider) CXX11_OVERRIDE
+	{
+		// If the service is a prefix mode we need to rebuild the oplevel map.
+		if (provider.service == SERVICE_MODE && static_cast<ModeHandler&>(provider).IsPrefixMode())
+			cmd.oplevels.clear();
+	}
+
+	void OnServiceDel(ServiceProvider& provider) CXX11_OVERRIDE
+	{
+		this->OnServiceAdd(provider);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
