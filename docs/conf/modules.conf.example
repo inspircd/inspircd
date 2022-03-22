@@ -688,7 +688,7 @@
 #<module name="connectban">
 #
 # threshold - The number of connections which are allowed before a user
-#             is connectbnaned. Defaults to 10.
+#             is connectbanned. Defaults to 10.
 #
 # banmessage - The message to give users when Z-lining them for connecting
 #              too much.
