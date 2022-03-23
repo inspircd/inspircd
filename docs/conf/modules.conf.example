@@ -632,6 +632,10 @@
 # that users must share a common channel with you to PRIVMSG or NOTICE
 # you.
 #<module name="commonchans">
+#
+# You can also require a common channel for inviting to another channel
+# by uncommenting this:
+# <commonchans invite="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Auto join on connect module: Allows you to force users to join one

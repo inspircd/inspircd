@@ -30,6 +30,18 @@ class ModuleCommonChans
 {
  private:
 	SimpleUserModeHandler mode;
+	bool invite;
+
+	bool IsExempt(User* source, User* target)
+	{
+		if (!target->IsModeSet(mode) || source->SharesChannelWith(target))
+			return true; // Target doesn't have mode set or shares a common channel.
+
+		if (source->HasPrivPermission("users/ignore-commonchans") || source->server->IsULine())
+			return true; // Source is an oper or a uline.
+
+		return false;
+	}
 
 	ModResult HandleMessage(User* user, const MessageTarget& target)
 	{
@@ -37,10 +49,7 @@ class ModuleCommonChans
 			return MOD_RES_PASSTHRU;
 
 		User* targetuser = target.Get<User>();
-		if (!targetuser->IsModeSet(mode) || user->SharesChannelWith(targetuser))
-			return MOD_RES_PASSTHRU;
-
-		if (user->HasPrivPermission("users/ignore-commonchans") || user->server->IsULine())
+		if (IsExempt(user, targetuser))
 			return MOD_RES_PASSTHRU;
 
 		user->WriteNumeric(Numerics::CannotSendTo(targetuser, "messages", &mode));
@@ -57,6 +66,21 @@ class ModuleCommonChans
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Adds user mode c (deaf_commonchan) which requires users to have a common channel before they can privately message each other.", VF_VENDOR);
+	}
+
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("commonchans");
+		invite = tag->getBool("invite");
+	}
+
+	ModResult OnUserPreInvite(User* source, User* dest, Channel* channel, time_t timeout) CXX11_OVERRIDE
+	{
+		if (!invite || IsExempt(source, dest))
+			return MOD_RES_PASSTHRU;
+
+		source->WriteNumeric(Numerics::CannotSendTo(dest, "invites", &mode));
+		return MOD_RES_DENY;
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
