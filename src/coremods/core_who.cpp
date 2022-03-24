@@ -119,6 +119,7 @@ class CommandWho : public SplitCommand
 	UserModeReference hidechansmode;
 	UserModeReference invisiblemode;
 	Events::ModuleEventProvider whoevprov;
+	Events::ModuleEventProvider whomatchevprov;
 
 	void BuildOpLevels()
 	{
@@ -181,7 +182,7 @@ class CommandWho : public SplitCommand
 	bool MatchChannel(LocalUser* source, Membership* memb, WhoData& data);
 
 	/** Determines whether WHO flags match a specific user. */
-	static bool MatchUser(LocalUser* source, User* target, WhoData& data);
+	bool MatchUser(LocalUser* source, User* target, WhoData& data);
 
 	/** Performs a WHO request on a channel. */
 	void WhoChannel(LocalUser* source, const std::vector<std::string>& parameters, Channel* c, WhoData& data);
@@ -204,6 +205,7 @@ class CommandWho : public SplitCommand
 		, hidechansmode(parent, "hidechans")
 		, invisiblemode(parent, "invisible")
 		, whoevprov(parent, "event/who")
+		, whomatchevprov(parent, "event/who-match")
 	{
 		allow_empty_last_param = false;
 		syntax = "<server>|<nick>|<channel>|<realname>|<host>|0 [[Aafhilmnoprstux][%acdfhilnorstu] <server>|<nick>|<channel>|<realname>|<host>|0]";
@@ -266,6 +268,15 @@ bool CommandWho::MatchUser(LocalUser* source, User* user, WhoData& data)
 	//   (2) The source is local to the current server.
 	if (data.flags['l'] && source_can_see_server && !lu)
 		return false;
+
+	// Let a module handle this first if it wants to.
+	ModResult res;
+	FIRST_MOD_RESULT_CUSTOM(whomatchevprov, Who::MatchEventListener, OnWhoMatch, res, (data, source, user));
+	if (res == MOD_RES_ALLOW)
+		return true; // Module explicitly matched.
+
+	else if (res == MOD_RES_DENY)
+		return false; // Module explicitly rejected.
 
 	// The source wants to match against users' away messages.
 	bool match = false;
