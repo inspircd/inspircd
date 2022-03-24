@@ -20,10 +20,12 @@
 
 #include "inspircd.h"
 #include "modules/geolocation.h"
+#include "modules/who.h"
 #include "modules/whois.h"
 
 class ModuleGeoBan
 	: public Module
+	, public Who::MatchEventListener
 	, public Whois::EventListener
 {
  private:
@@ -31,7 +33,8 @@ class ModuleGeoBan
 
  public:
 	ModuleGeoBan()
-		: Whois::EventListener(this)
+		: Who::MatchEventListener(this)
+		, Whois::EventListener(this)
 		, geoapi(this)
 	{
 	}
@@ -58,6 +61,16 @@ class ModuleGeoBan
 				return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnWhoMatch(const Who::Request& request, LocalUser* source, User* user) CXX11_OVERRIDE
+	{
+		if (!request.flags['G'])
+			return MOD_RES_PASSTHRU;
+
+		Geolocation::Location* location = geoapi ? geoapi->GetLocation(user) : NULL;
+		const std::string code = location ? location->GetCode() : "XX";
+		return InspIRCd::Match(code, request.matchtext, ascii_case_insensitive_map) ? MOD_RES_ALLOW : MOD_RES_DENY;
 	}
 
 	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
