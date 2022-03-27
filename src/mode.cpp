@@ -600,7 +600,7 @@ void ModeParser::AddMode(ModeHandler* mh)
 		}
 	}
 
-	ModeHandler*& slot = modehandlers[mh->GetModeType()][mh->GetModeChar()-65];
+	ModeHandler*& slot = modehandlers[mh->GetModeType()][ModeParser::GetModeIndex(mh->GetModeChar())];
 	if (slot)
 	{
 		throw ModuleException(mh->creator, InspIRCd::Format("Mode letter for %s already used by %s from %s: %c",
@@ -647,7 +647,7 @@ bool ModeParser::DelMode(ModeHandler* mh)
 	if ((mhmapit == mhmap.end()) || (mhmapit->second != mh))
 		return false;
 
-	ModeHandler*& slot = modehandlers[mh->GetModeType()][mh->GetModeChar()-65];
+	ModeHandler*& slot = modehandlers[mh->GetModeType()][ModeParser::GetModeIndex(mh->GetModeChar())];
 	if (slot != mh)
 		return false;
 
@@ -710,7 +710,7 @@ ModeHandler* ModeParser::FindMode(unsigned char modeletter, ModeType mt)
 	if (!ModeParser::IsModeChar(modeletter))
 		return NULL;
 
-	return modehandlers[mt][modeletter-65];
+	return modehandlers[mt][ModeParser::GetModeIndex(modeletter)];
 }
 
 PrefixMode* ModeParser::FindPrefixMode(unsigned char modeletter)
@@ -785,7 +785,25 @@ void PrefixMode::RemoveMode(Channel* chan, Modes::ChangeList& changelist)
 
 bool ModeParser::IsModeChar(char chr)
 {
-	return ((chr >= 'A' && chr <= 'Z') || (chr >= 'a' && chr <= 'z'));
+	return ((chr >= '0' && chr <= '9') || (chr >= 'A' && chr <= 'Z') || (chr >= 'a' && chr <= 'z'));
+}
+
+size_t ModeParser::GetModeIndex(char chr)
+{
+	// Bitset layout:
+	//   0123456789                 = 10 [0-9]
+	//   ABCDEFGHIJKLMNOPQRSTUVWXYZ = 26 [10-35]
+	//   abcdefghijklmnopqrstuvwxyz = 26 [36-61]
+	if (chr >= '0' && chr <= '9')
+		return chr - '0';
+
+	if (chr >= 'A' && chr <= 'Z')
+		return chr - 'A' + 10; // [0-9] = 10
+
+	if (chr >= 'a' && chr <= 'z')
+		return chr - 'a' + 36; // [0-9]+[A-Z] = 10+26 = 36
+
+	return ModeParser::MODEID_MAX;
 }
 
 ModeParser::ModeParser()

@@ -198,11 +198,11 @@ namespace
 		size_t modepos = num.push("+").GetParams().size() - 1;
 		std::string modes;
 		std::string param;
-		for (unsigned char chr = 65; chr < 123; ++chr)
+
+		for (const auto& [_, mh] : ServerInstance->Modes.GetModes(MODETYPE_CHANNEL))
 		{
-			// Check that the mode exists and is set.
-			ModeHandler* mh = ServerInstance->Modes.FindMode(chr, MODETYPE_CHANNEL);
-			if (!mh || !chan->IsModeSet(mh))
+			// Check that the mode is set.
+			if (!chan->IsModeSet(mh))
 				continue;
 
 			// Add the mode to the set list.

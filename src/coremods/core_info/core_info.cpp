@@ -62,11 +62,10 @@ class CoreModInfo final
 	static std::string CreateModeList(ModeType mt, bool needparam = false)
 	{
 		std::string modestr;
-		for (unsigned char mode = 'A'; mode <= 'z'; mode++)
+		for (const auto& [_, mh] : ServerInstance->Modes.GetModes(mt))
 		{
-			ModeHandler* mh = ServerInstance->Modes.FindMode(mode, mt);
-			if ((mh) && ((!needparam) || (mh->NeedsParam(true))))
-				modestr.push_back(mode);
+			if (!needparam || mh->NeedsParam(true))
+				modestr.push_back(mh->GetModeChar());
 		}
 		return modestr;
 	}

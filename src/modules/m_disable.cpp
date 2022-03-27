@@ -57,7 +57,7 @@ private:
 			// Disable the mode.
 			ServerInstance->Logs.Log(MODNAME, LOG_DEBUG, "The %c (%s) %s mode has been disabled",
 				mh->GetModeChar(), mh->name.c_str(), type == MODETYPE_CHANNEL ? "channel" : "user");
-			status.set(chr - 'A');
+			status.set(ModeParser::GetModeIndex(chr));
 		}
 	}
 
@@ -158,7 +158,7 @@ public:
 
 		// If the mode is not disabled or the user has the servers/use-disabled-modes priv we do nothing.
 		const ModeParser::ModeStatus& disabled = (change.mh->GetModeType() == MODETYPE_CHANNEL) ? chanmodes : usermodes;
-		if (!disabled.test(change.mh->GetModeChar() - 'A') || user->HasPrivPermission("servers/use-disabled-modes"))
+		if (!disabled.test(ModeParser::GetModeIndex(change.mh->GetModeChar())) || user->HasPrivPermission("servers/use-disabled-modes"))
 			return MOD_RES_PASSTHRU;
 
 		// The user has tried to change a disabled mode!

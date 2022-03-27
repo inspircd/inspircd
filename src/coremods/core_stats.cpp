@@ -328,17 +328,21 @@ void CommandStats::DoStats(Stats::Context& stats)
 			for (const auto& [_, tag] : ServerInstance->Config->OperTypes)
 			{
 				tag->init();
+
 				std::string umodes;
-				std::string cmodes;
-				for(char c='A'; c <= 'z'; c++)
+				for (const auto& [__, mh] : ServerInstance->Modes.GetModes(MODETYPE_USER))
 				{
-					ModeHandler* mh = ServerInstance->Modes.FindMode(c, MODETYPE_USER);
-					if (mh && mh->NeedsOper() && tag->AllowedUserModes[c - 'A'])
-						umodes.push_back(c);
-					mh = ServerInstance->Modes.FindMode(c, MODETYPE_CHANNEL);
-					if (mh && mh->NeedsOper() && tag->AllowedChanModes[c - 'A'])
-						cmodes.push_back(c);
+					if (mh->NeedsOper() && tag->AllowedUserModes[ModeParser::GetModeIndex(mh->GetModeChar())])
+						umodes.push_back(mh->GetModeChar());
 				}
+
+				std::string cmodes;
+				for (const auto& [__, mh] : ServerInstance->Modes.GetModes(MODETYPE_CHANNEL))
+				{
+					if (mh->NeedsOper() && tag->AllowedUserModes[ModeParser::GetModeIndex(mh->GetModeChar())])
+						cmodes.push_back(mh->GetModeChar());
+				}
+
 				stats.AddRow(243, 'O', tag->name, umodes, cmodes);
 			}
 		}

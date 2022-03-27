@@ -671,7 +671,11 @@ public:
 
 	ModeParser();
 
+	/** Determines whether the specified character is a valid mode. */
 	static bool IsModeChar(char chr);
+
+	/** Retrieves the index of the specified mode char within a mode bitset. */
+	static size_t GetModeIndex(char chr);
 
 	/** Tidy a banmask. This makes a banmask 'acceptable' if fields are left out.
 	 * E.g.

@@ -57,10 +57,9 @@ std::string User::GetModeLetters(bool includeparams) const
 	std::string ret(1, '+');
 	std::string params;
 
-	for (unsigned char i = 'A'; i <= 'z'; i++)
+	for (const auto& [_, mh] : ServerInstance->Modes.GetModes(MODETYPE_USER))
 	{
-		const ModeHandler* const mh = ServerInstance->Modes.FindMode(i, MODETYPE_USER);
-		if ((!mh) || (!IsModeSet(mh)))
+		if (!IsModeSet(mh))
 			continue;
 
 		ret.push_back(mh->GetModeChar());
@@ -176,7 +175,7 @@ bool LocalUser::HasModePermission(const ModeHandler* mh) const
 	if (!ModeParser::IsModeChar(mode))
 		return false;
 
-	return ((mh->GetModeType() == MODETYPE_USER ? oper->AllowedUserModes : oper->AllowedChanModes))[(mode - 'A')];
+	return ((mh->GetModeType() == MODETYPE_USER ? oper->AllowedUserModes : oper->AllowedChanModes))[ModeParser::GetModeIndex(mode)];
 
 }
 /*
@@ -417,7 +416,7 @@ namespace
 			if (chr == '*')
 				modeset.set();
 			else if (ModeParser::IsModeChar(chr))
-				modeset.set(chr - 'A');
+				modeset.set(ModeParser::GetModeIndex(chr));
 			else
 				ServerInstance->Logs.Log("CONFIG", LOG_DEFAULT, "'%c' is not a valid value for <class:%s>, ignoring...", chr, field.c_str());
 		}
@@ -431,7 +430,6 @@ void OperInfo::init()
 	AllowedUserModes.reset();
 	AllowedChanModes.reset();
 	AllowedSnomasks.reset();
-	AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
 
 	for (const auto& tag : class_blocks)
 	{
