@@ -24,7 +24,7 @@
 
 #include "inspircd.h"
 
-static bool MatchInternal(const unsigned char* str, const unsigned char* mask, unsigned const char* map)
+static bool MatchInternal(const unsigned char* str, const unsigned char* mask, const unsigned char* map)
 {
 	const unsigned char* cp = nullptr;
 	const unsigned char* mp = nullptr;
@@ -76,7 +76,7 @@ static bool MatchInternal(const unsigned char* str, const unsigned char* mask, u
 
 // Below here is all wrappers around MatchInternal
 
-bool InspIRCd::Match(const std::string& str, const std::string& mask, unsigned const char* map)
+bool InspIRCd::Match(const std::string& str, const std::string& mask, const unsigned char* map)
 {
 	if (!map)
 		map = national_case_insensitive_map;
@@ -84,7 +84,7 @@ bool InspIRCd::Match(const std::string& str, const std::string& mask, unsigned c
 	return MatchInternal(reinterpret_cast<const unsigned char*>(str.c_str()), reinterpret_cast<const unsigned char*>(mask.c_str()), map);
 }
 
-bool InspIRCd::Match(const char* str, const char* mask, unsigned const char* map)
+bool InspIRCd::Match(const char* str, const char* mask, const unsigned char* map)
 {
 	if (!map)
 		map = national_case_insensitive_map;
@@ -92,7 +92,7 @@ bool InspIRCd::Match(const char* str, const char* mask, unsigned const char* map
 	return MatchInternal(reinterpret_cast<const unsigned char*>(str), reinterpret_cast<const unsigned char*>(mask), map);
 }
 
-bool InspIRCd::MatchCIDR(const std::string& str, const std::string& mask, unsigned const char* map)
+bool InspIRCd::MatchCIDR(const std::string& str, const std::string& mask, const unsigned char* map)
 {
 	if (irc::sockets::MatchCIDR(str, mask, true))
 		return true;
@@ -101,7 +101,7 @@ bool InspIRCd::MatchCIDR(const std::string& str, const std::string& mask, unsign
 	return InspIRCd::Match(str, mask, map);
 }
 
-bool InspIRCd::MatchCIDR(const char* str, const char* mask, unsigned const char* map)
+bool InspIRCd::MatchCIDR(const char* str, const char* mask, const unsigned char* map)
 {
 	if (irc::sockets::MatchCIDR(str, mask, true))
 		return true;

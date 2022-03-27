@@ -705,7 +705,7 @@ ModeHandler* ModeParser::FindMode(const std::string& modename, ModeType mt)
 	return NULL;
 }
 
-ModeHandler* ModeParser::FindMode(unsigned const char modeletter, ModeType mt)
+ModeHandler* ModeParser::FindMode(unsigned char modeletter, ModeType mt)
 {
 	if (!ModeParser::IsModeChar(modeletter))
 		return NULL;
@@ -721,7 +721,7 @@ PrefixMode* ModeParser::FindPrefixMode(unsigned char modeletter)
 	return mh->IsPrefixMode();
 }
 
-PrefixMode* ModeParser::FindPrefix(unsigned const char pfxletter)
+PrefixMode* ModeParser::FindPrefix(unsigned char pfxletter)
 {
 	for (const auto& pm : GetPrefixModes())
 	{

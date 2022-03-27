@@ -53,7 +53,7 @@ public:
 
 	/** Add a mode to the message
 	 */
-	void push_mode(const char modeletter, const std::string& mask)
+	void push_mode(char modeletter, const std::string& mask)
 	{
 		push_raw(modeletter);
 		params.push_back(' ');

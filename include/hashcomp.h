@@ -49,13 +49,13 @@
  * This is provided as a pointer so that modules can change it to their custom mapping tables,
  * e.g. for national character support.
  */
-CoreExport extern unsigned const char *national_case_insensitive_map;
+CoreExport extern const unsigned char* national_case_insensitive_map;
 
 /** Case insensitive map, ASCII rules.
  * That is;
  * [ != {, but A == a.
  */
-CoreExport extern unsigned const char ascii_case_insensitive_map[256];
+CoreExport extern const unsigned char ascii_case_insensitive_map[256];
 
 /** The irc namespace contains a number of helper classes.
  */

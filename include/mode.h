@@ -775,7 +775,7 @@ public:
 	 * @param mt type of mode to search for, user or channel
 	 * @returns a pointer to a ModeHandler class, or NULL of there isn't a handler for the given mode
 	 */
-	ModeHandler* FindMode(unsigned const char modeletter, ModeType mt);
+	ModeHandler* FindMode(unsigned char modeletter, ModeType mt);
 
 	/** Find the mode handler for the given prefix mode
 	 * @param modeletter The mode letter to search for
@@ -788,7 +788,7 @@ public:
 	 * @param pfxletter The prefix to find, e.g. '@'
 	 * @return The mode handler which handles this prefix, or NULL if there is none.
 	 */
-	PrefixMode* FindPrefix(unsigned const char pfxletter);
+	PrefixMode* FindPrefix(unsigned char pfxletter);
 
 	/** Get a list of all mode handlers that inherit from ListModeBase
 	 * @return A list containing ListModeBase modes

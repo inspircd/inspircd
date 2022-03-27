@@ -272,7 +272,7 @@ public:
 	{
 	}
 
-	void Fill(const unsigned char* input, const unsigned short len)
+	void Fill(const unsigned char* input, unsigned short len)
 	{
 		if (len < HEADER_LENGTH)
 			throw Exception(creator, "Unable to fill packet");
