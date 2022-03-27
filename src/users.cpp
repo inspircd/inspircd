@@ -578,7 +578,7 @@ void LocalUser::FullConnect()
 
 	FOREACH_MOD(OnPostConnect, (this));
 
-	ServerInstance->SNO.WriteToSnoMask('c',"Client connecting on port %d (class %s): %s (%s) [%s]",
+	ServerInstance->SNO.WriteToSnoMask('c',"Client connecting on port %d (class %s): %s (%s) [%s\x0F]",
 		this->server_sa.port(), this->GetClass()->name.c_str(), GetFullRealHost().c_str(), this->GetIPString().c_str(), this->GetRealName().c_str());
 	ServerInstance->Logs.Log("BANCACHE", LOG_DEBUG, "BanCache: Adding NEGATIVE hit for " + this->GetIPString());
 	ServerInstance->BanCache.AddHit(this->GetIPString(), "", "");

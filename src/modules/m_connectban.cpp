@@ -105,7 +105,7 @@ public:
 		threshold = tag->getUInt("threshold", 10, 1);
 		bootwait = tag->getDuration("bootwait", 60*2);
 		splitwait = tag->getDuration("splitwait", 60*2);
-		banduration = tag->getDuration("duration", 10*60, 1);
+		banduration = tag->getDuration("banduration", 10*60, 1);
 		banmessage = tag->getString("banmessage", "Your IP range has been attempting to connect too many times in too short a duration. Wait a while, and you will be able to connect.");
 
 		if (status.initial)

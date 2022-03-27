@@ -35,7 +35,7 @@
 bool ModuleManager::Load(const std::string& modname, bool defer)
 {
 	/* Don't allow people to specify paths for modules, it doesn't work as expected */
-	if (modname.find('/') != std::string::npos)
+	if (modname.find_first_of("\\/") != std::string::npos)
 	{
 		LastModuleError = "You can't load modules with a path: " + modname;
 		return false;

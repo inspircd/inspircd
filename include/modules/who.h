@@ -23,6 +23,7 @@
 namespace Who
 {
 	class EventListener;
+	class MatchEventListener;
 	class Request;
 }
 
@@ -45,6 +46,25 @@ public:
 	 *         response, or MOD_RES_PASSTHRU to let another module handle the event.
 	 */
 	virtual ModResult OnWhoLine(const Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) = 0;
+};
+
+class Who::MatchEventListener
+	: public Events::ModuleEventListener
+{
+public:
+	MatchEventListener(Module* mod)
+		: ModuleEventListener(mod, "event/who-match")
+	{
+	}
+
+	/** Called when a WHO request needs to check if a user matches it.
+	 * @param request Details about the WHO request which caused this match attempt.
+	 * @param source The user who initiated this WHO request.
+	 * @param user The user to attempt to match the WHO request against.
+	 * @return MOD_RES_ALLOW to explicitly allow the match, MOD_RES_DENY to explicitly deny the
+	 *         match, or MOD_RES_PASSTHRU to let another module handle the event.
+	 */
+	virtual ModResult OnWhoMatch(const Request& request, LocalUser* source, User* user) = 0;
 };
 
 class Who::Request

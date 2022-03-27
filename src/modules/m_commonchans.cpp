@@ -31,16 +31,24 @@ class ModuleCommonChans final
 private:
 	SimpleUserMode mode;
 
+	bool IsExempt(User* source, User* target)
+	{
+		if (!target->IsModeSet(mode) || source->SharesChannelWith(target))
+			return true; // Target doesn't have mode set or shares a common channel.
+
+		if (source->HasPrivPermission("users/ignore-commonchans") || source->server->IsService())
+			return true; // Source is an oper or a service.
+
+		return false;
+	}
+
 	ModResult HandleMessage(User* user, const MessageTarget& target)
 	{
 		if (target.type != MessageTarget::TYPE_USER)
 			return MOD_RES_PASSTHRU;
 
 		User* targetuser = target.Get<User>();
-		if (!targetuser->IsModeSet(mode) || user->SharesChannelWith(targetuser))
-			return MOD_RES_PASSTHRU;
-
-		if (user->HasPrivPermission("users/ignore-commonchans") || user->server->IsService())
+		if (IsExempt(user, targetuser))
 			return MOD_RES_PASSTHRU;
 
 		user->WriteNumeric(Numerics::CannotSendTo(targetuser, "messages", &mode));
@@ -53,6 +61,15 @@ public:
 		, CTCTags::EventListener(this)
 		, mode(this, "deaf_commonchan", 'c')
 	{
+	}
+
+	ModResult OnUserPreInvite(User* source, User* dest, Channel* channel, time_t timeout) override
+	{
+		if (IsExempt(source, dest))
+			return MOD_RES_PASSTHRU;
+
+		source->WriteNumeric(Numerics::CannotSendTo(dest, "invites", &mode));
+		return MOD_RES_DENY;
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override

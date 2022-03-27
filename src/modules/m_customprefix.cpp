@@ -32,7 +32,7 @@ public:
 		: PrefixMode(parent, Name, Letter, 0, Prefix)
 		, tag(Tag)
 	{
-		unsigned int rank = static_cast<unsigned int>(tag->getUInt("rank", 0, 0, UINT_MAX));
+		unsigned int rank = static_cast<unsigned int>(tag->getUInt("rank", 1, 1, UINT_MAX));
 		unsigned int setrank = static_cast<unsigned int>(tag->getUInt("ranktoset", prefixrank, rank, UINT_MAX));
 		unsigned int unsetrank = static_cast<unsigned int>(tag->getUInt("ranktounset", setrank, setrank, UINT_MAX));
 		bool depriv = tag->getBool("depriv", true);
