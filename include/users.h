@@ -265,7 +265,7 @@ private:
 	 * For example, to work out if mode +i is set, we check the field
 	 * User::modes[invisiblemode->modeid] == true.
 	 */
-	std::bitset<ModeParser::MODEID_MAX> modes;
+	ModeParser::ModeStatus modes;
 
 public:
 	/** To execute a function for each local neighbor of a user, inherit from this class and

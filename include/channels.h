@@ -54,7 +54,7 @@ private:
 	 * It is a bitset where each item in it represents if a mode is set.
 	 * To see if a mode is set, inspect modes[mh->modeid]
 	 */
-	std::bitset<ModeParser::MODEID_MAX> modes;
+	ModeParser::ModeStatus modes;
 
 	/** Remove the given membership from the channel's internal map of
 	 * memberships and destroy the Membership object.

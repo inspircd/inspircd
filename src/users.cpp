@@ -410,7 +410,7 @@ void User::Oper(std::shared_ptr<OperInfo> info)
 
 namespace
 {
-	void ParseModeList(std::bitset<64>& modeset, std::shared_ptr<ConfigTag> tag, const std::string& field)
+	void ParseModeList(ModeParser::ModeStatus& modeset, std::shared_ptr<ConfigTag> tag, const std::string& field)
 	{
 		for (const auto& chr : tag->getString(field))
 		{

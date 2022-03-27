@@ -153,7 +153,7 @@ bool User::Deserialize(Serializable::Data& data)
 		.Load("uniqueusername", user_uniqueusername);
 
 	// Apply the rest of the members.
-	modes = std::bitset<ModeParser::MODEID_MAX>(user_modes);
+	modes = ModeParser::ModeStatus(user_modes);
 	snomasks = std::bitset<64>(user_snomasks);
 	uniqueusername = user_uniqueusername;
 

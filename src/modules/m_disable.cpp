@@ -29,20 +29,17 @@ enum
 // Holds a list of disabled commands.
 typedef std::vector<std::string> CommandList;
 
-// Holds whether modes are disabled or not.
-typedef std::bitset<64> ModeStatus;
-
 class ModuleDisable final
 	: public Module
 {
 private:
 	CommandList commands;
-	ModeStatus chanmodes;
+	ModeParser::ModeStatus chanmodes;
 	bool fakenonexistent;
 	bool notifyopers;
-	ModeStatus usermodes;
+	ModeParser::ModeStatus usermodes;
 
-	void ReadModes(std::shared_ptr<ConfigTag> tag, const std::string& field, ModeType type, ModeStatus& status)
+	void ReadModes(std::shared_ptr<ConfigTag> tag, const std::string& field, ModeType type, ModeParser::ModeStatus& status)
 	{
 		for (const auto& chr : tag->getString(field))
 		{
@@ -106,11 +103,11 @@ public:
 		}
 
 		// Parse the disabled channel modes.
-		ModeStatus newchanmodes;
+		ModeParser::ModeStatus newchanmodes;
 		ReadModes(tag, "chanmodes", MODETYPE_CHANNEL, newchanmodes);
 
 		// Parse the disabled user modes.
-		ModeStatus newusermodes;
+		ModeParser::ModeStatus newusermodes;
 		ReadModes(tag, "usermodes", MODETYPE_USER, newusermodes);
 
 		// The server config was valid so we can use these now.
@@ -160,7 +157,7 @@ public:
 			return MOD_RES_PASSTHRU;
 
 		// If the mode is not disabled or the user has the servers/use-disabled-modes priv we do nothing.
-		const std::bitset<64>& disabled = (change.mh->GetModeType() == MODETYPE_CHANNEL) ? chanmodes : usermodes;
+		const ModeParser::ModeStatus& disabled = (change.mh->GetModeType() == MODETYPE_CHANNEL) ? chanmodes : usermodes;
 		if (!disabled.test(change.mh->GetModeChar() - 'A') || user->HasPrivPermission("servers/use-disabled-modes"))
 			return MOD_RES_PASSTHRU;
 

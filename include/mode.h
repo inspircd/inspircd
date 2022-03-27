@@ -571,6 +571,9 @@ public:
 	 */
 	typedef std::unordered_map<std::string, ModeHandler*, irc::insensitive, irc::StrHashComp> ModeHandlerMap;
 
+	/** Type of the container that contains whether a mode is set. */
+	typedef std::bitset<MODEID_MAX> ModeStatus;
+
 private:
 	/** Type of the container that maps mode names to ModeWatchers
 	 */

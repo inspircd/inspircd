@@ -227,10 +227,10 @@ public:
 	TokenList AllowedPrivs;
 
 	/** Allowed user modes from oper classes. */
-	std::bitset<64> AllowedUserModes;
+	ModeParser::ModeStatus AllowedUserModes;
 
 	/** Allowed channel modes from oper classes. */
-	std::bitset<64> AllowedChanModes;
+	ModeParser::ModeStatus AllowedChanModes;
 
 	/** Allowed snomasks from oper classes. */
 	std::bitset<64> AllowedSnomasks;
