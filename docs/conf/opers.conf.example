@@ -27,6 +27,7 @@
      #   - users/mass-message: allows opers with this priv to PRIVMSG and NOTICE to a server mask (e.g. NOTICE $*).
      #   - users/samode-usermodes: allows opers with this priv to change the user modes of any other user using /SAMODE.
      #  PERMISSIONS:
+     #   - channels/ignore-chanfilter: allows opers with this priv to be immune to channel filters.
      #   - channels/ignore-delaymsg: allows opers with this priv to be immune to delaymsg restriction on a +d channel.
      #   - channels/ignore-noctcp: allows opers with this priv to send a CTCP to a +C channel.
      #   - channels/ignore-nonicks: allows opers with this priv to change their nick when on a +N channel.
