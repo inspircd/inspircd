@@ -23,7 +23,10 @@
 enum
 {
 	// From ircu.
-	ERR_DISABLED = 517
+	ERR_DISABLED = 517,
+
+	// InspIRCd-specific.
+	RPL_COMMANDS = 700
 };
 
 // Holds a list of disabled commands.
@@ -120,6 +123,20 @@ public:
 
 		// Whether to notify server operators via snomask `a` about the attempted use of disabled commands/modes.
 		notifyopers = tag->getBool("notifyopers");
+	}
+
+	ModResult OnNumeric(User* user, const Numeric::Numeric& numeric) override
+	{
+		if (numeric.GetNumeric() != RPL_COMMANDS || numeric.GetParams().size() < 1)
+			return MOD_RES_PASSTHRU; // The numeric isn't the one we care about.
+
+		if (!fakenonexistent || !IS_LOCAL(user))
+			return MOD_RES_PASSTHRU; // We're not hiding the numeric OR the user is remote.
+
+		if (!stdalgo::isin(commands, numeric.GetParams()[0]) || user->HasPrivPermission("servers/use-disabled-commands"))
+			return MOD_RES_PASSTHRU; // Wrong command or the user is is an exempt oper.
+
+		return MOD_RES_DENY;
 	}
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
