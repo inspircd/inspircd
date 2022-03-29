@@ -64,7 +64,7 @@ CmdResult CommandModules::Handle(User* user, const Params& parameters)
 	{
 		const char* version = has_priv ? mod->ModuleDLLManager->GetVersion() : "*";
 		const std::string props = has_priv ? mod->GetPropertyString() : "*";
-		user->WriteRemoteNumeric(RPL_MODLIST, modname, version, props, mod->description);
+		user->WriteRemoteNumeric(RPL_MODLIST, ModuleManager::ShrinkModName(modname), version, props, mod->description);
 	}
 	user->WriteRemoteNumeric(RPL_ENDOFMODLIST, "End of MODULES list");
 
