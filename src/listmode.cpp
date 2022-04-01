@@ -36,11 +36,15 @@ ListModeBase::ListModeBase(Module* Creator, const std::string& Name, char modech
 void ListModeBase::DisplayList(User* user, Channel* channel)
 {
 	ChanData* cd = extItem.Get(channel);
-	if (cd)
+	if (!cd || cd->list.empty())
 	{
-		for (const auto& item : cd->list)
-			user->WriteNumeric(listnumeric, channel->name, item.mask, item.setter, item.time);
+		this->DisplayEmptyList(user, channel);
+		return;
 	}
+
+	for (const auto& item : cd->list)
+		user->WriteNumeric(listnumeric, channel->name, item.mask, item.setter, item.time);
+
 	user->WriteNumeric(endoflistnumeric, channel->name, endofliststring);
 }
 
