@@ -132,7 +132,7 @@ class ModeChannelBan final
 {
 public:
 	ModeChannelBan(Module* Creator)
-		: ListModeBase(Creator, "ban", 'b', "End of channel ban list", RPL_BANLIST, RPL_ENDOFBANLIST, true)
+		: ListModeBase(Creator, "ban", 'b', RPL_BANLIST, RPL_ENDOFBANLIST, true)
 	{
 		syntax = "<mask>";
 	}

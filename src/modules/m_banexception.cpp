@@ -41,7 +41,7 @@ class BanException final
 {
 public:
 	BanException(Module* Creator)
-		: ListModeBase(Creator, "banexception", 'e', "End of Channel Exception List", RPL_EXCEPTLIST, RPL_ENDOFEXCEPTLIST, true)
+		: ListModeBase(Creator, "banexception", 'e', RPL_EXCEPTLIST, RPL_ENDOFEXCEPTLIST, true)
 	{
 		syntax = "<mask>";
 	}

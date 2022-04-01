@@ -94,10 +94,6 @@ protected:
 	 */
 	unsigned int endoflistnumeric;
 
-	/** String to send for end of list
-	 */
-	std::string endofliststring;
-
 	/** Automatically tidy up entries
 	 */
 	bool tidy;
@@ -116,12 +112,11 @@ public:
 	 * @param Creator The creator of this class
 	 * @param Name Mode name
 	 * @param modechar Mode character
-	 * @param eolstr End of list string
 	 * @param lnum List numeric
 	 * @param eolnum End of list numeric
 	 * @param autotidy Automatically tidy list entries on add
 	 */
-	ListModeBase(Module* Creator, const std::string& Name, char modechar, const std::string& eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy);
+	ListModeBase(Module* Creator, const std::string& Name, char modechar, unsigned int lnum, unsigned int eolnum, bool autotidy);
 
 	/** Determines whether some channels have longer lists than others. */
 	bool HasVariableLength() const { return chanlimits.size() > 1; }

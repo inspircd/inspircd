@@ -36,7 +36,7 @@ class AutoOpList final
 {
 public:
 	AutoOpList(Module* Creator)
-		: ListModeBase(Creator, "autoop", 'w', "End of Channel Access List", RPL_ACCESSLIST, RPL_ENDOFACCESSLIST, true)
+		: ListModeBase(Creator, "autoop", 'w', RPL_ACCESSLIST, RPL_ENDOFACCESSLIST, true)
 	{
 		ranktoset = ranktounset = OP_VALUE;
 		syntax = "<prefix>:<mask>";

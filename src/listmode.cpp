@@ -22,11 +22,10 @@
 #include "inspircd.h"
 #include "listmode.h"
 
-ListModeBase::ListModeBase(Module* Creator, const std::string& Name, char modechar, const std::string& eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy)
+ListModeBase::ListModeBase(Module* Creator, const std::string& Name, char modechar, unsigned int lnum, unsigned int eolnum, bool autotidy)
 	: ModeHandler(Creator, Name, modechar, PARAM_ALWAYS, MODETYPE_CHANNEL, MC_LIST)
 	, listnumeric(lnum)
 	, endoflistnumeric(eolnum)
-	, endofliststring(eolstr)
 	, tidy(autotidy)
 	, extItem(Creator, "list-mode-" + name, ExtensionType::CHANNEL)
 {
@@ -45,12 +44,12 @@ void ListModeBase::DisplayList(User* user, Channel* channel)
 	for (const auto& item : cd->list)
 		user->WriteNumeric(listnumeric, channel->name, item.mask, item.setter, item.time);
 
-	user->WriteNumeric(endoflistnumeric, channel->name, endofliststring);
+	user->WriteNumeric(endoflistnumeric, channel->name, InspIRCd::Format("End of channel %s list.", name.c_str()));
 }
 
 void ListModeBase::DisplayEmptyList(User* user, Channel* channel)
 {
-	user->WriteNumeric(endoflistnumeric, channel->name, endofliststring);
+	user->WriteNumeric(endoflistnumeric, channel->name, InspIRCd::Format("Channel %s list is empty.", name.c_str()));
 }
 
 void ListModeBase::RemoveMode(Channel* channel, Modes::ChangeList& changelist)

@@ -36,7 +36,7 @@ class ExemptChanOps final
 {
 public:
 	ExemptChanOps(Module* Creator)
-		: ListModeBase(Creator, "exemptchanops", 'X', "End of channel exemptchanops list", RPL_EXEMPTIONLIST, RPL_ENDOFEXEMPTIONLIST, false)
+		: ListModeBase(Creator, "exemptchanops", 'X', RPL_EXEMPTIONLIST, RPL_ENDOFEXEMPTIONLIST, false)
 	{
 		syntax = "<restriction>:<prefix>";
 	}

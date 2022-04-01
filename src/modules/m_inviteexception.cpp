@@ -38,7 +38,7 @@ class InviteException final
 {
 public:
 	InviteException(Module* Creator)
-		: ListModeBase(Creator, "invex", 'I', "End of Channel Invite Exception List", RPL_INVEXLIST, RPL_ENDOFINVEXLIST, true)
+		: ListModeBase(Creator, "invex", 'I', RPL_INVEXLIST, RPL_ENDOFINVEXLIST, true)
 	{
 		syntax = "<mask>";
 	}
