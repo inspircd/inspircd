@@ -283,11 +283,6 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 		if (MOD_RESULT == MOD_RES_PASSTHRU)
 		{
 			unsigned int neededrank = mh->GetLevelRequired(adding);
-			/* Compare our rank on the channel against the rank of the required prefix,
-			 * allow if >= ours. Because mIRC and xchat throw a tizz if the modes shown
-			 * in NAMES(X) are not in rank order, we know the most powerful mode is listed
-			 * first, so we don't need to iterate, we just look up the first instead.
-			 */
 			unsigned int ourrank = chan->GetPrefixValue(user);
 			if (ourrank < neededrank)
 			{
