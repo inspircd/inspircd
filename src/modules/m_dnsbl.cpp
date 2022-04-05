@@ -185,9 +185,9 @@ class DNSBLResolver : public DNS::Request
 							them->GetBanIdent(), them->GetIPString());
 					if (ServerInstance->XLines->AddLine(kl,NULL))
 					{
-						ServerInstance->SNO->WriteToSnoMask('x', "K-line added due to DNSBL match on %s to expire in %s (on %s): %s",
-							kl->Displayable().c_str(), InspIRCd::DurationString(kl->duration).c_str(),
-							InspIRCd::TimeString(kl->expiry).c_str(), reason.c_str());
+						ServerInstance->SNO->WriteToSnoMask('x', "%s added a timed K-line on %s, expires in %s (on %s): %s",
+							kl->source.c_str(), kl->Displayable().c_str(), InspIRCd::DurationString(kl->duration).c_str(),
+							InspIRCd::TimeString(kl->expiry).c_str(), kl->reason.c_str());
 						ServerInstance->XLines->ApplyLines();
 					}
 					else
@@ -203,9 +203,9 @@ class DNSBLResolver : public DNS::Request
 							them->GetBanIdent(), them->GetIPString());
 					if (ServerInstance->XLines->AddLine(gl,NULL))
 					{
-						ServerInstance->SNO->WriteToSnoMask('x', "G-line added due to DNSBL match on %s to expire in %s (on %s): %s",
-							gl->Displayable().c_str(), InspIRCd::DurationString(gl->duration).c_str(),
-							InspIRCd::TimeString(gl->expiry).c_str(), reason.c_str());
+						ServerInstance->SNO->WriteToSnoMask('x', "%s added a timed G-line on %s, expires in %s (on %s): %s",
+							gl->source.c_str(), gl->Displayable().c_str(), InspIRCd::DurationString(gl->duration).c_str(),
+							InspIRCd::TimeString(gl->expiry).c_str(), gl->reason.c_str());
 						ServerInstance->XLines->ApplyLines();
 					}
 					else
@@ -221,9 +221,9 @@ class DNSBLResolver : public DNS::Request
 							them->GetIPString());
 					if (ServerInstance->XLines->AddLine(zl,NULL))
 					{
-						ServerInstance->SNO->WriteToSnoMask('x', "Z-line added due to DNSBL match on %s to expire in %s (on %s): %s",
-							them->GetIPString().c_str(), InspIRCd::DurationString(zl->duration).c_str(),
-							InspIRCd::TimeString(zl->expiry).c_str(), reason.c_str());
+						ServerInstance->SNO->WriteToSnoMask('x', "%s added a timed Z-line on %s, expires in %s (on %s): %s",
+							zl->source.c_str(), zl->Displayable().c_str(), InspIRCd::DurationString(zl->duration).c_str(),
+							InspIRCd::TimeString(zl->expiry).c_str(), zl->reason.c_str());
 						ServerInstance->XLines->ApplyLines();
 					}
 					else
