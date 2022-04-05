@@ -151,7 +151,7 @@ class ModuleConnectBan CXX11_FINAL
 			if (i->second >= threshold)
 			{
 				// Create Z-line for set duration.
-				ZLine* zl = new ZLine(ServerInstance->Time(), banduration, ServerInstance->Config->ServerName, banmessage, mask.str());
+				ZLine* zl = new ZLine(ServerInstance->Time(), banduration, MODNAME "@" + ServerInstance->Config->ServerName, banmessage, mask.str());
 				if (!ServerInstance->XLines->AddLine(zl, NULL))
 				{
 					delete zl;

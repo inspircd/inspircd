@@ -72,7 +72,7 @@ class RLine : public XLine
 	{
 		if (ZlineOnMatch)
 		{
-			ZLine* zl = new ZLine(ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, ServerInstance->Config->ServerName.c_str(), reason.c_str(), u->GetIPString());
+			ZLine* zl = new ZLine(ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, MODNAME "@" + ServerInstance->Config->ServerName, reason.c_str(), u->GetIPString());
 			if (ServerInstance->XLines->AddLine(zl, NULL))
 			{
 				std::string expirystr = zl->duration ? InspIRCd::Format(" to expire in %s (on %s)", InspIRCd::DurationString(zl->duration).c_str(), InspIRCd::TimeString(zl->expiry).c_str()) : "";
