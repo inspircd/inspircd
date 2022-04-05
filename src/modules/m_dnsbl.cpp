@@ -181,7 +181,7 @@ class DNSBLResolver : public DNS::Request
 				}
 				case DNSBLConfEntry::I_KLINE:
 				{
-					KLine* kl = new KLine(ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName.c_str(), reason.c_str(),
+					KLine* kl = new KLine(ServerInstance->Time(), ConfEntry->duration, MODNAME "@" + ServerInstance->Config->ServerName, reason,
 							them->GetBanIdent(), them->GetIPString());
 					if (ServerInstance->XLines->AddLine(kl,NULL))
 					{
@@ -199,7 +199,7 @@ class DNSBLResolver : public DNS::Request
 				}
 				case DNSBLConfEntry::I_GLINE:
 				{
-					GLine* gl = new GLine(ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName.c_str(), reason.c_str(),
+					GLine* gl = new GLine(ServerInstance->Time(), ConfEntry->duration, MODNAME "@" + ServerInstance->Config->ServerName, reason,
 							them->GetBanIdent(), them->GetIPString());
 					if (ServerInstance->XLines->AddLine(gl,NULL))
 					{
@@ -217,7 +217,7 @@ class DNSBLResolver : public DNS::Request
 				}
 				case DNSBLConfEntry::I_ZLINE:
 				{
-					ZLine* zl = new ZLine(ServerInstance->Time(), ConfEntry->duration, ServerInstance->Config->ServerName.c_str(), reason.c_str(),
+					ZLine* zl = new ZLine(ServerInstance->Time(), ConfEntry->duration, MODNAME "@" + ServerInstance->Config->ServerName, reason,
 							them->GetIPString());
 					if (ServerInstance->XLines->AddLine(zl,NULL))
 					{
