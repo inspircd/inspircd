@@ -425,7 +425,7 @@ const char* Channel::ChanModes(bool showsecret)
 void Channel::WriteNotice(const std::string& text, char status)
 {
 	ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, this, text, MSG_NOTICE, status);
-	Write(ServerInstance->GetRFCEvents().privmsg, privmsg);
+	Write(ServerInstance->GetRFCEvents().privmsg, privmsg, status);
 }
 
 void Channel::WriteRemoteNotice(const std::string& text, char status)

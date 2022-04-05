@@ -649,7 +649,7 @@
 #
 #<connectban threshold="10"
 #            banmessage="Your IP range has been attempting to connect too many times in too short a duration. Wait a while, and you will be able to connect."
-#            banduration="10m"
+#            banduration="6h"
 #            ipv4cidr="32"
 #            ipv6cidr="128"
 #            bootwait="2m"

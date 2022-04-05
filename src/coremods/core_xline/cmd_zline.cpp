@@ -81,11 +81,11 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "%s added permanent Z-line for %s: %s", user->nick.c_str(), ipaddr, parameters[2].c_str());
+				ServerInstance->SNO.WriteToSnoMask('x', "%s added a permanent Z-line on %s: %s", user->nick.c_str(), ipaddr, parameters[2].c_str());
 			}
 			else
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "%s added timed Z-line for %s, expires in %s (on %s): %s",
+				ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed Z-line on %s, expires in %s (on %s): %s",
 					user->nick.c_str(), ipaddr, InspIRCd::DurationString(duration).c_str(),
 					InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), parameters[2].c_str());
 			}

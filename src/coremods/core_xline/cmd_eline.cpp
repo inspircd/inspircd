@@ -74,11 +74,11 @@ CmdResult CommandEline::Handle(User* user, const Params& parameters)
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "%s added permanent E-line for %s: %s", user->nick.c_str(), target.c_str(), parameters[2].c_str());
+				ServerInstance->SNO.WriteToSnoMask('x', "%s added a permanent E-line on %s: %s", user->nick.c_str(), target.c_str(), parameters[2].c_str());
 			}
 			else
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "%s added timed E-line for %s, expires in %s (on %s): %s",
+				ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed E-line on %s, expires in %s (on %s): %s",
 					user->nick.c_str(), target.c_str(), InspIRCd::DurationString(duration).c_str(),
 					InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), parameters[2].c_str());
 			}

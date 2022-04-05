@@ -170,16 +170,16 @@ private:
 	template <typename Line, typename... Extra>
 	void AddLine(const char* type, const std::string& reason, unsigned long duration, Extra&&... extra)
 	{
-		auto line = new Line(ServerInstance->Time(), duration, ServerInstance->Config->ServerName, reason, std::forward<Extra>(extra)...);
+		auto line = new Line(ServerInstance->Time(), duration, MODNAME "@" + ServerInstance->Config->ServerName, reason, std::forward<Extra>(extra)...);
 		if (!ServerInstance->XLines->AddLine(line, nullptr))
 		{
 			delete line;
 			return;
 		}
 
-		ServerInstance->SNO.WriteToSnoMask('x', "%s added due to DNSBL match on %s to expire in %s (on %s): %s",
-			type, line->Displayable().c_str(), InspIRCd::DurationString(line->duration).c_str(),
-			InspIRCd::TimeString(line->expiry).c_str(), reason.c_str());
+		ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed %s on %s, expires in %s (on %s): %s",
+			line->source.c_str(), type, line->Displayable().c_str(), InspIRCd::DurationString(line->duration).c_str(),
+			InspIRCd::TimeString(line->expiry).c_str(), line->reason.c_str());
 		ServerInstance->XLines->ApplyLines();
 	}
 

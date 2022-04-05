@@ -57,14 +57,14 @@ CmdResult CommandAddLine::Handle(User* usr, Params& params)
 	{
 		if (xl->duration)
 		{
-			ServerInstance->SNO.WriteToSnoMask('X', "%s added timed %s%s for %s, expires in %s (on %s): %s",
+			ServerInstance->SNO.WriteToSnoMask('X', "%s added a timed %s%s on %s, expires in %s (on %s): %s",
 				setter.c_str(), params[0].c_str(), params[0].length() == 1 ? "-line" : "",
 				params[1].c_str(), InspIRCd::DurationString(xl->duration).c_str(),
 				InspIRCd::TimeString(xl->expiry).c_str(), params[5].c_str());
 		}
 		else
 		{
-			ServerInstance->SNO.WriteToSnoMask('X', "%s added permanent %s%s on %s: %s",
+			ServerInstance->SNO.WriteToSnoMask('X', "%s added a permanent %s%s on %s: %s",
 				setter.c_str(), params[0].c_str(), params[0].length() == 1 ? "-line" : "",
 				params[1].c_str(), params[5].c_str());
 		}

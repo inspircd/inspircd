@@ -109,7 +109,7 @@ public:
 
 			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "CBAN", reason, user))
 			{
-				ServerInstance->SNO.WriteGlobalSno('x', "%s removed CBan on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason.c_str());
+				ServerInstance->SNO.WriteToSnoMask('x', "%s removed CBan on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason.c_str());
 			}
 			else
 			{
@@ -133,11 +133,11 @@ public:
 			{
 				if (!duration)
 				{
-					ServerInstance->SNO.WriteGlobalSno('x', "%s added permanent CBan for %s: %s", user->nick.c_str(), parameters[0].c_str(), reason);
+					ServerInstance->SNO.WriteToSnoMask('x', "%s added a permanent CBan on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason);
 				}
 				else
 				{
-					ServerInstance->SNO.WriteGlobalSno('x', "%s added timed CBan for %s, expires in %s (on %s): %s",
+					ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed CBan on %s, expires in %s (on %s): %s",
 						user->nick.c_str(), parameters[0].c_str(), InspIRCd::DurationString(duration).c_str(),
 						InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), reason);
 				}

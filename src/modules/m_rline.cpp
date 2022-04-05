@@ -68,12 +68,20 @@ public:
 	{
 		if (ZlineOnMatch)
 		{
-			ZLine* zl = new ZLine(ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, ServerInstance->Config->ServerName.c_str(), reason.c_str(), u->GetIPString());
+			ZLine* zl = new ZLine(ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, MODNAME "@" + ServerInstance->Config->ServerName, reason.c_str(), u->GetIPString());
 			if (ServerInstance->XLines->AddLine(zl, NULL))
 			{
-				std::string expirystr = zl->duration ? InspIRCd::Format(" to expire in %s (on %s)", InspIRCd::DurationString(zl->duration).c_str(), InspIRCd::TimeString(zl->expiry).c_str()) : "";
-				ServerInstance->SNO.WriteToSnoMask('x', "Z-line added due to R-line match on %s%s: %s",
-					zl->ipaddr.c_str(), expirystr.c_str(), zl->reason.c_str());
+				if (!duration)
+				{
+					ServerInstance->SNO.WriteToSnoMask('x', "%s added a permanent Z-line on %s: %s",
+						zl->source.c_str(), u->GetIPString().c_str(), zl->reason.c_str());
+				}
+				else
+				{
+					ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed Z-line on %s, expires in %s (on %s): %s",
+						zl->source.c_str(), u->GetIPString().c_str(), InspIRCd::DurationString(zl->duration).c_str(),
+						InspIRCd::TimeString(zl->duration).c_str(), zl->reason.c_str());
+				}
 				added_zline = true;
 			}
 			else
@@ -166,11 +174,11 @@ public:
 				{
 					if (!duration)
 					{
-						ServerInstance->SNO.WriteToSnoMask('x', "%s added permanent R-line for %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
+						ServerInstance->SNO.WriteToSnoMask('x', "%s added a permanent R-line on %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
 					}
 					else
 					{
-						ServerInstance->SNO.WriteToSnoMask('x', "%s added timed R-line for %s, expires in %s (on %s): %s",
+						ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed R-line on %s, expires in %s (on %s): %s",
 							user->nick.c_str(), parameters[0].c_str(), InspIRCd::DurationString(duration).c_str(),
 							InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), parameters[2].c_str());
 					}

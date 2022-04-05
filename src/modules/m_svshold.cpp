@@ -64,10 +64,7 @@ public:
 	void DisplayExpiry() override
 	{
 		if (!silent)
-		{
-			ServerInstance->SNO.WriteToSnoMask('x', "Removing expired SVSHOLD %s (set by %s %s ago): %s",
-				nickname.c_str(), source.c_str(), InspIRCd::DurationString(ServerInstance->Time() - set_time).c_str(), reason.c_str());
-		}
+			XLine::DisplayExpiry();
 	}
 
 	const std::string& Displayable() override
@@ -150,11 +147,11 @@ public:
 
 				if (!duration)
 				{
-					ServerInstance->SNO.WriteToSnoMask('x', "%s added permanent SVSHOLD for %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
+					ServerInstance->SNO.WriteToSnoMask('x', "%s added a permanent SVSHOLD on %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
 				}
 				else
 				{
-					ServerInstance->SNO.WriteToSnoMask('x', "%s added timed SVSHOLD for %s, expires in %s (on %s): %s",
+					ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed SVSHOLD on %s, expires in %s (on %s): %s",
 						user->nick.c_str(), parameters[0].c_str(), InspIRCd::DurationString(duration).c_str(),
 						InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), parameters[2].c_str());
 				}
