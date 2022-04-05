@@ -63,10 +63,7 @@ public:
 	void DisplayExpiry() CXX11_OVERRIDE
 	{
 		if (!silent)
-		{
-			ServerInstance->SNO->WriteToSnoMask('x', "Removing expired SVSHOLD %s (set by %s %s ago): %s",
-				nickname.c_str(), source.c_str(), InspIRCd::DurationString(ServerInstance->Time() - set_time).c_str(), reason.c_str());
-		}
+			XLine::DisplayExpiry();
 	}
 
 	const std::string& Displayable() CXX11_OVERRIDE
