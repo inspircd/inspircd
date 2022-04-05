@@ -24,11 +24,14 @@
 class CoreExport TokenList
 {
  private:
+	/** The underlying type of the token list. */
+	typedef insp::flat_set<std::string, irc::insensitive_swo> TokenMap;
+
 	/** Whether this list includes all tokens by default. */
 	bool permissive;
 
 	/** Either the tokens to exclude if in permissive mode or the tokens to include if in strict mode. */
-	insp::flat_set<std::string, irc::insensitive_swo> tokens;
+	TokenMap tokens;
 
  public:
 	TokenList()
