@@ -63,11 +63,11 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO->WriteToSnoMask('x', "%s added permanent Q-line for %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
+				ServerInstance->SNO->WriteToSnoMask('x', "%s added a permanent Q-line on %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
 			}
 			else
 			{
-				ServerInstance->SNO->WriteToSnoMask('x', "%s added timed Q-line for %s, expires in %s (on %s): %s",
+				ServerInstance->SNO->WriteToSnoMask('x', "%s added a timed Q-line on %s, expires in %s (on %s): %s",
 					user->nick.c_str(), parameters[0].c_str(), InspIRCd::DurationString(duration).c_str(),
 					InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), parameters[2].c_str());
 			}
