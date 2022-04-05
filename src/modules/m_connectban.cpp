@@ -104,8 +104,8 @@ class ModuleConnectBan CXX11_FINAL
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("connectban");
 
-		ipv4_cidr = tag->getUInt("ipv4cidr", 32, 1, 32);
-		ipv6_cidr = tag->getUInt("ipv6cidr", 128, 1, 128);
+		ipv4_cidr = tag->getUInt("ipv4cidr", ServerInstance->Config->c_ipv4_range, 1, 32);
+		ipv6_cidr = tag->getUInt("ipv6cidr", ServerInstance->Config->c_ipv6_range, 1, 128);
 		threshold = tag->getUInt("threshold", 10, 1);
 		bootwait = tag->getDuration("bootwait", 60*2);
 		splitwait = tag->getDuration("splitwait", 60*2);
