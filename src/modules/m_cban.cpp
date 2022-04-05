@@ -141,11 +141,11 @@ class CommandCBan : public Command
 			{
 				if (!duration)
 				{
-					ServerInstance->SNO->WriteGlobalSno('x', "%s added permanent CBan for %s: %s", user->nick.c_str(), parameters[0].c_str(), reason);
+					ServerInstance->SNO->WriteGlobalSno('x', "%s added a permanent CBan on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason);
 				}
 				else
 				{
-					ServerInstance->SNO->WriteGlobalSno('x', "%s added timed CBan for %s, expires in %s (on %s): %s",
+					ServerInstance->SNO->WriteGlobalSno('x', "%s added a timed CBan on %s, expires in %s (on %s): %s",
 						user->nick.c_str(), parameters[0].c_str(), InspIRCd::DurationString(duration).c_str(),
 						InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), reason);
 				}

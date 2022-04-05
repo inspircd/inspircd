@@ -119,12 +119,12 @@ class CommandShun : public Command
 			{
 				if (!duration)
 				{
-					ServerInstance->SNO->WriteToSnoMask('x', "%s added permanent SHUN for %s: %s",
+					ServerInstance->SNO->WriteToSnoMask('x', "%s added a permanent SHUN on %s: %s",
 						user->nick.c_str(), target.c_str(), expr.c_str());
 				}
 				else
 				{
-					ServerInstance->SNO->WriteToSnoMask('x', "%s added timed SHUN for %s, expires in %s (on %s): %s",
+					ServerInstance->SNO->WriteToSnoMask('x', "%s added a timed SHUN on %s, expires in %s (on %s): %s",
 						user->nick.c_str(), target.c_str(), InspIRCd::DurationString(duration).c_str(),
 						InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), expr.c_str());
 				}
