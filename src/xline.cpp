@@ -741,7 +741,7 @@ void ELine::OnAdd()
 void XLine::DisplayExpiry()
 {
 	bool onechar = (type.length() == 1);
-	ServerInstance->SNO->WriteToSnoMask('x', "Removing expired %s%s %s (set by %s %s ago): %s",
+	ServerInstance->SNO->WriteToSnoMask('x', "Removing an expired %s%s on %s (set by %s %s ago): %s",
 		type.c_str(), (onechar ? "-line" : ""), Displayable().c_str(), source.c_str(), InspIRCd::DurationString(ServerInstance->Time() - set_time).c_str(), reason.c_str());
 }
 
