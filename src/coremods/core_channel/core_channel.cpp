@@ -192,7 +192,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 		// In 2.0 we allowed limits of 0 to be set. This is non-standard behaviour
 		// and will be removed in the next major release.
 		limitmode.minlimit = optionstag->getBool("allowzerolimit", true) ? 0 : 1;;
-		cmdinvite.announceinvites = newannouncestate;
+		invapi.announceinvites = newannouncestate;
 		joinhook.modefromuser = optionstag->getBool("cyclehostsfromuser");
 
 		Implementation events[] = { I_OnCheckKey, I_OnCheckLimit, I_OnCheckChannelBan };
