@@ -153,7 +153,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 
 		char prefix = 0;
 		unsigned int minrank = 0;
-		switch (announceinvites)
+		switch (invapi.announceinvites)
 		{
 			case Invite::ANNOUNCE_OPS:
 			{
@@ -179,7 +179,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 		CUList excepts;
 		FOREACH_MOD(OnUserInvite, (user, u, c, timeout, minrank, excepts));
 
-		if (announceinvites != Invite::ANNOUNCE_NONE)
+		if (invapi.announceinvites != Invite::ANNOUNCE_NONE)
 		{
 			excepts.insert(user);
 			ClientProtocol::Messages::Privmsg privmsg(ServerInstance->FakeClient, c, InspIRCd::Format("*** %s invited %s into the channel", user->nick.c_str(), u->nick.c_str()), MSG_NOTICE);
