@@ -161,6 +161,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 				minrank = OP_VALUE;
 				break;
 			}
+
 			case Invite::ANNOUNCE_DYNAMIC:
 			{
 				PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
@@ -169,11 +170,16 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 					prefix = mh->GetPrefix();
 					minrank = mh->GetPrefixRank();
 				}
+				else
+				{
+					prefix = '@';
+					minrank = OP_VALUE;
+				}
 				break;
 			}
+
 			default:
-			{
-			}
+				break;
 		}
 
 		CUList excepts;
