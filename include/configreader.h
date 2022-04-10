@@ -54,6 +54,8 @@ class CoreExport ConfigTag : public refcountbase
 	double getFloat(const std::string& key, double def, double min = DBL_MIN, double max = DBL_MAX);
 	/** Get the value of an option, using def if it does not exist */
 	bool getBool(const std::string& key, bool def = false);
+	/** Get the value of an option, using def if it does not exist */
+	unsigned char getCharacter(const std::string& key, unsigned char def = '\0');
 
 	/** Get the value in seconds of a duration that is in the user-friendly "1h2m3s" format,
 	 * using a default value if it does not exist or is out of bounds.

@@ -755,6 +755,16 @@ bool ConfigTag::getBool(const std::string &key, bool def)
 	return def;
 }
 
+unsigned char ConfigTag::getCharacter(const std::string &key, unsigned char def)
+{
+	std::string result;
+	if (!readString(key, result) || result.size() != 1)
+		return def;
+
+	return result[0];
+}
+
+
 std::string ConfigTag::getTagLocation()
 {
 	return src_name + ":" + ConvToStr(src_line);
