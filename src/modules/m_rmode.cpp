@@ -36,26 +36,28 @@ class CommandRMode : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
-		ModeHandler* mh;
 		Channel* chan = ServerInstance->FindChan(parameters[0]);
-		char modeletter = parameters[1][0];
-
 		if (chan == NULL)
 		{
-			user->WriteNotice("The channel " + parameters[0] + " does not exist.");
+			user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
 			return CMD_FAILURE;
 		}
 
-		mh = ServerInstance->Modes->FindMode(modeletter, MODETYPE_CHANNEL);
+		unsigned char modeletter = parameters[1][0];
+		ModeHandler* mh = ServerInstance->Modes->FindMode(modeletter, MODETYPE_CHANNEL);
 		if (mh == NULL || parameters[1].size() > 1)
 		{
-			user->WriteNotice(parameters[1] + " is not a valid channel mode.");
+			user->WriteNumeric(ERR_UNKNOWNMODE, parameters[0], "is not a recognised channel mode.");
 			return CMD_FAILURE;
 		}
 
 		if (chan->GetPrefixValue(user) < mh->GetLevelRequired(false))
 		{
-			user->WriteNotice("You do not have access to unset " + ConvToStr(modeletter) + " on " +  chan->name + ".");
+			const PrefixMode* neededmh = ServerInstance->Modes.FindNearestPrefixMode(mh->GetLevelRequired(false));
+			if (neededmh)
+				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, InspIRCd::Format("You must have channel %s access or above to unset channel mode %c", neededmh->name.c_str(), mh->GetModeChar()));
+			else
+				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, InspIRCd::Format("You cannot unset channel mode %c", mh->GetModeChar()));
 			return CMD_FAILURE;
 		}
 
