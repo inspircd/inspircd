@@ -99,7 +99,7 @@ class RemoveBase : public Command
 
 		if (target->server->IsULine())
 		{
-			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, channame, "Only a U-line may remove a U-line from a channel.");
+			user->WriteNumeric(ERR_RESTRICTED, channame, "Only a U-line may remove a U-line from a channel.");
 			return CMD_FAILURE;
 		}
 
