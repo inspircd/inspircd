@@ -48,7 +48,7 @@ class ModuleAllowInvite : public Module
 			if (res == MOD_RES_DENY)
 			{
 				// Matching extban, explicitly deny /invite
-				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, channel->name, "You are banned from using INVITE");
+				user->WriteNumeric(ERR_RESTRICTED, channel->name, "You are banned from using INVITE");
 				return res;
 			}
 			if (channel->IsModeSet(ni) || res == MOD_RES_ALLOW)
