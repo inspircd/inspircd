@@ -376,7 +376,7 @@ ModResult ModuleSpanningTree::OnPreTopicChange(User* user, Channel* chan, const 
 	// other servers will drop our FTOPIC. This restriction will be removed when the protocol is updated.
 	if ((chan->topicset >= ServerInstance->Time()) && (Utils->serverlist.size() > 1))
 	{
-		user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, "Retry topic change later");
+		user->WriteNumeric(ERR_UNAVAILRESOURCE, chan->name, "Retry topic change later");
 		return MOD_RES_DENY;
 	}
 	return MOD_RES_PASSTHRU;
