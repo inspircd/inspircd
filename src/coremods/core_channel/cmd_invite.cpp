@@ -161,8 +161,8 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 
 			case Invite::ANNOUNCE_DYNAMIC:
 			{
-				PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
-				if ((mh) && (mh->name == "halfop"))
+				PrefixMode* mh = ServerInstance->Modes.FindNearestPrefixMode(HALFOP_VALUE);
+				if (mh)
 				{
 					prefix = mh->GetPrefix();
 					minrank = mh->GetPrefixRank();
