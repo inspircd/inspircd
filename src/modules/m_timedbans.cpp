@@ -152,8 +152,8 @@ class CommandTban : public Command
 			const std::string message = InspIRCd::Format("Timed ban %s added by %s on %s lasting for %s.",
 			mask.c_str(), user->nick.c_str(), channel->name.c_str(), InspIRCd::DurationString(duration).c_str());
 			// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
-			PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
-			char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
+			PrefixMode* mh = ServerInstance->Modes.FindNearestPrefixMode(HALFOP_VALUE);
+			char pfxchar = mh ? mh->GetPrefix() : '@';
 
 			channel->WriteRemoteNotice(message, pfxchar);
 		}
@@ -256,8 +256,8 @@ class ModuleTimedBans : public Module
 				const std::string message = InspIRCd::Format("Timed ban %s set by %s on %s has expired.",
 				mask.c_str(), i->setter.c_str(), cr->name.c_str());
 				// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
-				PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
-				char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
+				PrefixMode* mh = ServerInstance->Modes.FindNearestPrefixMode(HALFOP_VALUE);
+				char pfxchar = mh ? mh->GetPrefix() : '@';
 
 				cr->WriteRemoteNotice(message, pfxchar);
 			}
