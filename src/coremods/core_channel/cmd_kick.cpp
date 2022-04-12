@@ -123,8 +123,7 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 
 			if (them < req)
 			{
-				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, InspIRCd::Format("You must be a channel %soperator",
-					req > HALFOP_VALUE ? "" : "half-"));
+				user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(memb->chan, req, "kick a more privileged user"));
 				return CMD_FAILURE;
 			}
 		}
