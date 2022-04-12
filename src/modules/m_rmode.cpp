@@ -53,11 +53,8 @@ class CommandRMode : public Command
 
 		if (chan->GetPrefixValue(user) < mh->GetLevelRequired(false))
 		{
-			const PrefixMode* neededmh = ServerInstance->Modes.FindNearestPrefixMode(mh->GetLevelRequired(false));
-			if (neededmh)
-				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, InspIRCd::Format("You must have channel %s access or above to unset channel mode %c", neededmh->name.c_str(), mh->GetModeChar()));
-			else
-				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, InspIRCd::Format("You cannot unset channel mode %c", mh->GetModeChar()));
+			user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, mh->GetLevelRequired(false), InspIRCd::Format("unset channel mode %c (%s)",
+				mh->GetModeChar(), mh->name.c_str())));
 			return CMD_FAILURE;
 		}
 

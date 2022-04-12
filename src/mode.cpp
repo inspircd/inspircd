@@ -286,12 +286,8 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 			unsigned int ourrank = chan->GetPrefixValue(user);
 			if (ourrank < neededrank)
 			{
-				const PrefixMode* neededmh = FindNearestPrefixMode(neededrank);
-				if (neededmh)
-					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, InspIRCd::Format("You must have channel %s access or above to %sset channel mode %c",
-						neededmh->name.c_str(), adding ? "" : "un", modechar));
-				else
-					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, InspIRCd::Format("You cannot %sset channel mode %c", (adding ? "" : "un"), modechar));
+				user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, neededrank, InspIRCd::Format("%s channel mode %c (%s)",
+					adding ? "set" : "unset", mh->GetModeChar(), mh->name.c_str())));
 				return MODEACTION_DENY;
 			}
 		}
