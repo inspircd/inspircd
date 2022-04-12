@@ -1774,8 +1774,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Remove module: Adds the /REMOVE command which is a peaceful
-# alternative to /KICK. It also provides the /FPART command which works
-# in the same way as /REMOVE.
+# alternative to /KICK.
 #<module name="remove">
 #
 # supportnokicks: If yes, /REMOVE is not allowed on channels where the

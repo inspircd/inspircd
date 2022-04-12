@@ -31,55 +31,40 @@
 #include "inspircd.h"
 #include "modules/isupport.h"
 
-/*
- * This module supports the use of the +q and +a usermodes, but should work without them too.
- * Usage of the command is restricted to +hoaq, and you cannot remove a user with a "higher" level than yourself.
- * eg: +h can remove +hv and users with no modes. +a can remove +aohv and users with no modes.
-*/
-
-/** Base class for /FPART and /REMOVE
- */
-class RemoveBase
+class CommandRemove final
 	: public Command
 {
-	bool& supportnokicks;
-	ChanModeReference& nokicksmode;
+private:
+	ChanModeReference nokicksmode;
 
 public:
 	unsigned long protectedrank;
+	bool supportnokicks;
 
-	RemoveBase(Module* Creator, bool& snk, ChanModeReference& nkm, const char* cmdn)
-		: Command(Creator, cmdn, 2, 3)
-		, supportnokicks(snk)
-		, nokicksmode(nkm)
+	CommandRemove(Module* Creator)
+		: Command(Creator, "REMOVE", 2, 3)
+		, nokicksmode(Creator, "nokick")
 	{
+		syntax = { "<channel> <nick> [:<reason>]" };
+		translation = { TR_TEXT, TR_NICK, TR_TEXT };
 	}
 
-	CmdResult HandleRMB(User* user, const CommandBase::Params& parameters,  bool fpart)
+	CmdResult Handle(User* user, const CommandBase::Params& parameters) override
 	{
-		User* target;
-		Channel* channel;
-		std::string reason;
-
-		// If the command is a /REMOVE then detect the parameter order
-		bool neworder = (fpart || ServerInstance->Channels.IsPrefix(parameters[0][0]));
-
-		/* Set these to the parameters needed, the new version of this module switches it's parameters around
-		 * supplying a new command with the new order while keeping the old /remove with the older order.
-		 * /remove <nick> <channel> [reason ...]
-		 * /fpart <channel> <nick> [reason ...]
-		 */
+		// Keep compatibility with v3 servers by allowing them to send removes with the old order.
+		bool neworder = !IS_LOCAL(user) && ServerInstance->Channels.IsPrefix(parameters[0][0]);
 		const std::string& channame = parameters[neworder ? 0 : 1];
 		const std::string& username = parameters[neworder ? 1 : 0];
 
 		/* Look up the user we're meant to be removing from the channel */
+		User* target;
 		if (IS_LOCAL(user))
 			target = ServerInstance->Users.FindNick(username);
 		else
 			target = ServerInstance->Users.Find(username);
 
 		/* And the channel we're meant to be removing them from */
-		channel = ServerInstance->Channels.Find(channame);
+		Channel* channel = ServerInstance->Channels.Find(channame);
 
 		/* Fix by brain - someone needs to learn to validate their input! */
 		if (!channel)
@@ -120,11 +105,9 @@ public:
 				// REMOVE will be sent to the target's server and it will reply with a PART (or do nothing if it doesn't understand the command)
 				if (!IS_LOCAL(target))
 				{
-					// Send an ENCAP REMOVE with parameters being in the old <user> <chan> order which is
-					// compatible with both 2.0 and 3.0. This also turns FPART into REMOVE.
 					CommandBase::Params p;
-					p.push_back(target->uuid);
 					p.push_back(channel->name);
+					p.push_back(target->uuid);
 					if (parameters.size() > 2)
 						p.push_back(":" + parameters[2]);
 					ServerInstance->PI->SendEncapsulatedData(target->server->GetName(), "REMOVE", p, user);
@@ -141,7 +124,7 @@ public:
 					reasonparam = "No reason given";
 
 				/* Build up the part reason string. */
-				reason = "Removed by " + user->nick + ": " + reasonparam;
+				std::string reason = "Removed by " + user->nick + ": " + reasonparam;
 
 				channel->WriteRemoteNotice(InspIRCd::Format("%s removed %s from the channel", user->nick.c_str(), target->nick.c_str()));
 				target->WriteNotice("*** " + user->nick + " removed you from " + channel->name + " with the message: " + reasonparam);
@@ -165,57 +148,18 @@ public:
 	}
 };
 
-class CommandRemove final
-	: public RemoveBase
-{
-public:
-	CommandRemove(Module* Creator, bool& snk, ChanModeReference& nkm)
-		: RemoveBase(Creator, snk, nkm, "REMOVE")
-	{
-		syntax = { "<channel> <nick> [:<reason>]" };
-		translation = { TR_NICK, TR_TEXT, TR_TEXT };
-	}
-
-	CmdResult Handle(User* user, const Params& parameters) override
-	{
-		return HandleRMB(user, parameters, false);
-	}
-};
-
-class CommandFpart final
-	: public RemoveBase
-{
-public:
-	CommandFpart(Module* Creator, bool& snk, ChanModeReference& nkm)
-		: RemoveBase(Creator, snk, nkm, "FPART")
-	{
-		syntax = { "<channel> <nick> [:<reason>]" };
-		translation = { TR_TEXT, TR_NICK, TR_TEXT };
-	}
-
-	CmdResult Handle(User* user, const Params& parameters) override
-	{
-		return HandleRMB(user, parameters, true);
-	}
-};
-
 class ModuleRemove final
 	: public Module
 	, public ISupport::EventListener
 {
 private:
-	ChanModeReference nokicksmode;
-	CommandRemove cmd1;
-	CommandFpart cmd2;
-	bool supportnokicks;
+	CommandRemove cmd;
 
 public:
 	ModuleRemove()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /FPART and /REMOVE commands which allows channel operators to force part users from a channel.")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /REMOVE command which allows channel operators to force part users from a channel.")
 		, ISupport::EventListener(this)
-		, nokicksmode(this, "nokick")
-		, cmd1(this, supportnokicks, nokicksmode)
-		, cmd2(this, supportnokicks, nokicksmode)
+		, cmd(this)
 	{
 	}
 
@@ -227,8 +171,8 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		auto tag = ServerInstance->Config->ConfValue("remove");
-		supportnokicks = tag->getBool("supportnokicks");
-		cmd1.protectedrank = cmd2.protectedrank = tag->getUInt("protectedrank", 50000);
+		cmd.supportnokicks = tag->getBool("supportnokicks");
+		cmd.protectedrank = tag->getUInt("protectedrank", 50000);
 	}
 };
 
