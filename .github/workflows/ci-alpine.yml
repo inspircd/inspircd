@@ -45,15 +45,15 @@ jobs:
 
       - name: Build core
         run: |
-          INSPIRCD_TARGET=inspircd make --jobs $(($(sysctl -n hw.activecpu) + 1))
+          INSPIRCD_TARGET=inspircd make --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))
 
       - name: Build core modules
         run: |
-          INSPIRCD_TARGET=coremods make --jobs $(($(sysctl -n hw.activecpu) + 1))
+          INSPIRCD_TARGET=coremods make --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))
 
       - name: Build modules
         run: |
-          INSPIRCD_TARGET=modules make --jobs $(($(sysctl -n hw.activecpu) + 1))
+          INSPIRCD_TARGET=modules make --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))
 
       - name: Install
         run: |
