@@ -507,34 +507,44 @@ void ModeParser::ShowListModeList(User* user, Channel* chan, ModeHandler* mh)
 
 void ModeParser::CleanMask(std::string &mask)
 {
-	std::string::size_type pos_of_pling = mask.find_first_of('!');
-	std::string::size_type pos_of_at = mask.find_first_of('@');
-	std::string::size_type pos_of_dot = mask.find_first_of('.');
-	std::string::size_type pos_of_colons = mask.find("::"); /* Because ipv6 addresses are colon delimited -- double so it treats extban as nick */
+	auto pos_of_pling    = mask.find_first_of('!');
+	auto pos_of_at       = mask.find_first_of('@',  pos_of_pling == std::string::npos ? 0 : pos_of_pling);
+	auto pos_of_hostchar = mask.find_first_of(":.", pos_of_at    == std::string::npos ? 0 : pos_of_at);
 
-	if ((pos_of_pling == std::string::npos) && (pos_of_at == std::string::npos))
+	if (pos_of_pling == mask.length()-1 || pos_of_at == mask.length()-1)
 	{
-		/* Just a nick, or just a host - or clearly ipv6 (starting with :) */
-		if ((pos_of_dot == std::string::npos) && (pos_of_colons == std::string::npos) && mask[0] != ':')
-		{
-			/* It has no '.' in it, it must be a nick. */
-			mask.append("!*@*");
-		}
+		// Malformed mask; needs * after the ! or @.
+		mask.append("*");
+	}
+
+	if (pos_of_pling == 0 || pos_of_at == 0)
+	{
+		// Malformed mask; needs * before the ! or @.
+		mask.insert(0, "*");
+	}
+
+	if (pos_of_pling == std::string::npos && pos_of_at == std::string::npos)
+	{
+		if (pos_of_hostchar == std::string::npos)
+			mask.append("!*@*"); // The mask looks like "nick".
 		else
-		{
-			/* Got a dot in it? Has to be a host */
-			mask = "*!*@" + mask;
-		}
+			mask.insert(0, "*!*@"); // The mask looks like "host".
 	}
-	else if ((pos_of_pling == std::string::npos) && (pos_of_at != std::string::npos))
+	else if (pos_of_pling == std::string::npos && pos_of_at != std::string::npos)
 	{
-		/* Has an @ but no !, its a user@host */
-		mask = "*!" + mask;
+		// The mask looks like "user@host".
+		mask.insert(0, "*!");
+
 	}
-	else if ((pos_of_pling != std::string::npos) && (pos_of_at == std::string::npos))
+	else if (pos_of_pling != std::string::npos && pos_of_at == std::string::npos)
 	{
-		/* Has a ! but no @, it must be a nick!ident */
+		// The mask looks like "nick!user".
 		mask.append("@*");
+	}
+	else if (pos_of_at-pos_of_pling == 1)
+	{
+		// The mask looks like "nick!@host".
+		mask.insert(pos_of_at, "*");
 	}
 }
 
