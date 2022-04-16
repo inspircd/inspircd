@@ -125,21 +125,13 @@ public:
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-/** Channel mode +b
- */
 class ModeChannelBan final
 	: public ListModeBase
 {
 public:
-	ModeChannelBan(Module* Creator)
-		: ListModeBase(Creator, "ban", 'b', RPL_BANLIST, RPL_ENDOFBANLIST, true)
-	{
-		syntax = "<mask>";
-	}
+	ModeChannelBan(Module* Creator);
 };
 
-/** Channel mode +k
- */
 class ModeChannelKey final
 	: public ParamMode<ModeChannelKey, StringExtItem>
 {
@@ -152,8 +144,6 @@ public:
 	bool IsParameterSecret() override;
 };
 
-/** Channel mode +l
- */
 class ModeChannelLimit final
 	: public ParamMode<ModeChannelLimit, IntExtItem>
 {
@@ -164,31 +154,18 @@ public:
 	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override;
 };
 
-/** Channel mode +o
- */
 class ModeChannelOp final
 	: public PrefixMode
 {
 public:
-	ModeChannelOp(Module* Creator)
-		: PrefixMode(Creator, "op", 'o', OP_VALUE, '@')
-	{
-		ranktoset = ranktounset = OP_VALUE;
-	}
+	ModeChannelOp(Module* Creator);
 };
 
-/** Channel mode +v
- */
 class ModeChannelVoice final
 	: public PrefixMode
 {
 public:
-	ModeChannelVoice(Module* Creator)
-		: PrefixMode(Creator, "voice", 'v', VOICE_VALUE, '+')
-	{
-		selfremove = false;
-		ranktoset = ranktounset = HALFOP_VALUE;
-	}
+	ModeChannelVoice(Module* Creator);
 };
 
 class ExtBanManager final

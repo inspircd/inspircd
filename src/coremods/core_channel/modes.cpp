@@ -1,12 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2017, 2019, 2021 Sadie Powell <sadie@witchery.services>
- *   Copyright (C) 2014 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
- *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
- *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
- *   Copyright (C) 2006, 2010 Craig Edwards <brain@inspircd.org>
+ *   Copyright (C) 2022 Sadie Powell <sadie@witchery.services>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -25,15 +20,21 @@
 #include "inspircd.h"
 #include "core_channel.h"
 
+ModeChannelBan::ModeChannelBan(Module* Creator)
+	: ListModeBase(Creator, "ban", 'b', RPL_BANLIST, RPL_ENDOFBANLIST, true)
+{
+	syntax = "<mask>";
+}
+
 ModeChannelLimit::ModeChannelLimit(Module* Creator)
 	: ParamMode<ModeChannelLimit, IntExtItem>(Creator, "limit", 'l')
 {
 	syntax = "<limit>";
 }
 
-bool ModeChannelLimit::ResolveModeConflict(const std::string& their_param, const std::string& our_param, Channel*)
+bool ModeChannelLimit::ResolveModeConflict(const std::string& their_param, const std::string& our_param, Channel* channel)
 {
-	/* When TS is equal, the higher channel limit wins */
+	// When the timestamps are equal the higher channel limit wins.
 	return ConvToNum<intptr_t>(their_param) < ConvToNum<intptr_t>(our_param);
 }
 
@@ -60,7 +61,20 @@ ModeAction ModeChannelLimit::OnSet(User* user, Channel* chan, std::string& param
 	return MODEACTION_ALLOW;
 }
 
-void ModeChannelLimit::SerializeParam(Channel* chan, intptr_t n, std::string& out)
+void ModeChannelLimit::SerializeParam(Channel* chan, intptr_t limit, std::string& out)
 {
-	out += ConvToStr(static_cast<size_t>(n));
+	out += ConvToStr(static_cast<size_t>(limit));
+}
+
+ModeChannelOp::ModeChannelOp(Module* Creator)
+	: PrefixMode(Creator, "op", 'o', OP_VALUE, '@')
+{
+	ranktoset = ranktounset = OP_VALUE;
+}
+
+ModeChannelVoice::ModeChannelVoice(Module* Creator)
+	: PrefixMode(Creator, "voice", 'v', VOICE_VALUE, '+')
+{
+	selfremove = false;
+	ranktoset = ranktounset = HALFOP_VALUE;
 }
