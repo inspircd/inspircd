@@ -81,13 +81,13 @@ public:
 		return MOD_RES_DENY;
 	}
 
-	bool ValidateParam(User* user, Channel* chan, std::string& word) override
+	bool ValidateParam(User* user, Channel* chan, const std::string& parameter) override
 	{
 		std::string restriction;
 		std::string prefix;
-		if (!ParseEntry(word, restriction, prefix))
+		if (!ParseEntry(parameter, restriction, prefix))
 		{
-			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word));
+			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, parameter));
 			return false;
 		}
 
@@ -99,13 +99,13 @@ public:
 
 		if (!ServerInstance->Modes.FindMode(restriction, MODETYPE_CHANNEL))
 		{
-			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word, "Unknown restriction."));
+			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, parameter, "Unknown restriction."));
 			return false;
 		}
 
 		if (prefix != "*" && !FindMode(prefix))
 		{
-			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word, "Unknown prefix mode."));
+			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, parameter, "Unknown prefix mode."));
 			return false;
 		}
 

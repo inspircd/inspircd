@@ -230,7 +230,7 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, Mod
 	}
 }
 
-bool ListModeBase::ValidateParam(User*, Channel*, std::string&)
+bool ListModeBase::ValidateParam(User* user, Channel* channel, const std::string& parameter)
 {
 	return true;
 }

@@ -47,11 +47,11 @@ public:
 		syntax = "<pattern>";
 	}
 
-	bool ValidateParam(User* user, Channel* chan, std::string& word) override
+	bool ValidateParam(User* user, Channel* chan, const std::string& parameter) override
 	{
-		if (word.length() > maxlen)
+		if (parameter.length() > maxlen)
 		{
-			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word, "Word is too long for the spamfilter list."));
+			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, parameter, "Entry is too long for the spamfilter list."));
 			return false;
 		}
 

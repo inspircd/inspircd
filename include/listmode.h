@@ -177,7 +177,7 @@ public:
 	 * @param parameter The actual parameter being added
 	 * @return true if the parameter is valid
 	 */
-	virtual bool ValidateParam(User* user, Channel* channel, std::string& parameter);
+	virtual bool ValidateParam(User* user, Channel* channel, const std::string& parameter);
 
 	/** In the event that the mode should be given a parameter, and no parameter was provided, this method is called.
 	 * This allows you to give special information to the user, or handle this any way you like.
