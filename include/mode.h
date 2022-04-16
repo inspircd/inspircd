@@ -387,27 +387,10 @@ public:
 	 */
 	PrefixMode(Module* Creator, const std::string& Name, char ModeLetter, unsigned int Rank = 0, char PrefixChar = 0);
 
-	/**
-	 * Called when a channel mode change access check for your mode occurs.
-	 * @param source Contains the user setting the mode.
-	 * @param channel contains the destination channel the modes are being set on.
-	 * @param change Information regarding the mode change.
-	 * @return allow, deny, or passthru to check against the required level
-	 */
+	/** @copydoc ModeHandler::AccessCheck */
 	ModResult AccessCheck(User* source, Channel* channel, Modes::Change& change) override;
 
-	/**
-	 * Handles setting and unsetting the prefix mode.
-	 * Finds the given member of the given channel, if it's not found an error message is sent to 'source'
-	 * and MODEACTION_DENY is returned. Otherwise the mode change is attempted.
-	 * @param source Source of the mode change, an error message is sent to this user if the target is not found
-	 * @param dest Unused
-	 * @param channel The channel the mode change is happening on
-	 * @param change Information regarding the mode change.
-	 * @return MODEACTION_ALLOW if the change happened, MODEACTION_DENY if no change happened
-	 * The latter occurs either when the member cannot be found or when the member already has this prefix set
-	 * (when setting) or doesn't have this prefix set (when unsetting).
-	 */
+	/** @copydoc ModeHandler::OnModeChange */
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 
 	/**
@@ -419,11 +402,7 @@ public:
 	 */
 	void Update(unsigned int rank, unsigned int setrank, unsigned int unsetrank, bool selfrm);
 
-	/**
-	 * Removes this prefix mode from all users on the given channel
-	 * @param channel The channel which the server wants to remove your mode from
-	 * @param changelist Mode change list to populate with the removal of this mode
-	 */
+	/** @copydoc ModeHandler::RemoveMode */
 	void RemoveMode(Channel* channel, Modes::ChangeList& changelist) override;
 
 	/**
@@ -463,6 +442,7 @@ public:
 		oper = operonly;
 	}
 
+	/** @copydoc ModeHandler::OnModeChange */
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 };
 
@@ -482,6 +462,7 @@ public:
 		oper = operonly;
 	}
 
+	/** @copydoc ModeHandler::OnModeChange */
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 };
 

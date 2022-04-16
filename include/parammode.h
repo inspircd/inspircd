@@ -30,6 +30,7 @@ public:
 	ParamModeBase(Module* Creator, const std::string& Name, char modeletter, ParamSpec ps)
 		: ModeHandler(Creator, Name, modeletter, ps, MODETYPE_CHANNEL, MC_PARAM) { }
 
+	/** @copydoc ModeHandler::OnModeChange */
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 
 	// Does nothing by default

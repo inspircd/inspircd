@@ -137,37 +137,20 @@ public:
 	 */
 	ModeList* GetList(Channel* channel);
 
-	/** Display the list for this mode
-	 * See mode.h
-	 * @param user The user to send the list to
-	 * @param channel The channel the user is requesting the list for
-	 */
+	/** @copydoc ModeHandler::DisplayList */
 	void DisplayList(User* user, Channel* channel) override;
 
-	/** Tell a user that a list contains no elements.
-	 * Sends 'eolnum' numeric with text 'eolstr', unless overridden (see constructor)
-	 * @param user The user issuing the command
-	 * @param channel The channel that has the empty list
-	 * See mode.h
-	 */
+	/** @copydoc ModeHandler::DisplayEmptyList */
 	void DisplayEmptyList(User* user, Channel* channel) override;
 
-	/** Remove all instances of the mode from a channel.
-	 * Populates the given modestack with modes that remove every instance of
-	 * this mode from the channel.
-	 * See mode.h for more details.
-	 * @param channel The channel to remove all instances of the mode from
-	 * @param changelist Mode change list to populate with the removal of this mode
-	 */
+	/** @copydoc ModeHandler::RemoveMode */
 	void RemoveMode(Channel* channel, Modes::ChangeList& changelist) override;
 
 	/** Perform a rehash of this mode's configuration data
 	 */
 	void DoRehash();
 
-	/** Handle the list mode.
-	 * See mode.h
-	 */
+	/** @copydoc ModeHandler::OnModeChange */
 	ModeAction OnModeChange(User* source, User*, Channel* channel, Modes::Change& change) override;
 
 	/** Validate parameters.
@@ -179,14 +162,8 @@ public:
 	 */
 	virtual bool ValidateParam(User* user, Channel* channel, const std::string& parameter);
 
-	/** In the event that the mode should be given a parameter, and no parameter was provided, this method is called.
-	 * This allows you to give special information to the user, or handle this any way you like.
-	 * @param user The user issuing the mode change
-	 * @param dest For user mode changes, the target of the mode. For channel mode changes, NULL.
-	 * @param channel For channel mode changes, the target of the mode. For user mode changes, NULL.
-	 * See mode.h
-	 */
-	virtual void OnParameterMissing(User* user, User* dest, Channel* channel) override;
+	/** @copydoc ModeHandler::OnParameterMissing */
+	void OnParameterMissing(User* user, User* dest, Channel* channel) override;
 
 	/** Tell the user the list is too long.
 	 * Overridden by implementing module.
