@@ -278,7 +278,7 @@ std::string TreeSocket::BuildModeList(ModeType mtype)
 
 bool TreeSocket::BuildExtBanList(std::string& out)
 {
-	dynamic_reference_nocheck<ExtBan::Manager> extbanmgr(Utils->Creator, "extbanmanager");
+	ExtBan::ManagerRef extbanmgr(Utils->Creator);
 	if (!extbanmgr)
 		return false;
 
@@ -341,7 +341,7 @@ void TreeSocket::SendCapabilities(int phase)
 	if (proto_version <= PROTO_INSPIRCD_3)
 	{
 		// 1205 HACK: Allow services to know what extbans exist.
-		dynamic_reference_nocheck<ExtBan::Manager> extbanmgr(Utils->Creator, "extbanmanager");
+		ExtBan::ManagerRef extbanmgr(Utils->Creator);
 		if (extbanmgr)
 		{
 			std::string extbans;

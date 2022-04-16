@@ -26,6 +26,7 @@ namespace ExtBan
 	class EventListener;
 	class MatchingBase;
 	class Manager;
+	class ManagerRef;
 
 	/** All possible types of extban. */
 	enum class Type
@@ -101,6 +102,17 @@ public:
 	 * @param name The name of the extban to find.
 	 */
 	virtual Base* FindName(const std::string& name) const = 0;
+};
+
+/** Dynamic reference to the extban manager class. */
+class ExtBan::ManagerRef final
+	: public dynamic_reference_nocheck<ExtBan::Manager>
+{
+public:
+	ManagerRef(Module* Creator)
+		: dynamic_reference_nocheck<ExtBan::Manager>(Creator, "extbanmanager")
+	{
+	}
 };
 
 /** Base class for types of extban. */
