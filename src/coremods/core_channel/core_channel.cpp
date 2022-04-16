@@ -192,7 +192,7 @@ public:
 		banmode.DoRehash();
 
 		exemptions.swap(exempts);
-		cmdinvite.announceinvites = newannouncestate;
+		invapi.announceinvites = newannouncestate;
 		joinhook.modefromuser = optionstag->getBool("cyclehostsfromuser");
 
 		Implementation events[] = { I_OnCheckKey, I_OnCheckLimit, I_OnCheckChannelBan };

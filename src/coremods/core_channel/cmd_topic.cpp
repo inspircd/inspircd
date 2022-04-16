@@ -84,7 +84,7 @@ CmdResult CommandTopic::HandleLocal(LocalUser* user, const Params& parameters)
 			ModResult MOD_RESULT = CheckExemption::Call(exemptionprov, user, c, "topiclock");
 			if (!MOD_RESULT.check(c->GetPrefixValue(user) >= HALFOP_VALUE))
 			{
-				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, "You do not have access to change the topic on this channel");
+				user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(c, HALFOP_VALUE, "change the topic"));
 				return CmdResult::FAILURE;
 			}
 		}

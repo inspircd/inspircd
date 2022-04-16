@@ -29,12 +29,6 @@
 #include "inspircd.h"
 #include "modules/invite.h"
 
-enum
-{
-	// From RFC 2182.
-	ERR_UNAVAILRESOURCE = 437
-};
-
 class KickRejoinData final
 {
 	struct KickedUser final

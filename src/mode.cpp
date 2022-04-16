@@ -274,22 +274,8 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 			unsigned int ourrank = chan->GetPrefixValue(user);
 			if (ourrank < neededrank)
 			{
-				const PrefixMode* neededmh = NULL;
-				const PrefixModeList& prefixmodes = GetPrefixModes();
-				for (const auto& privmh : prefixmodes)
-				{
-					if (privmh->GetPrefixRank() >= neededrank)
-					{
-						// this mode is sufficient to allow this action
-						if (!neededmh || privmh->GetPrefixRank() < neededmh->GetPrefixRank())
-							neededmh = privmh;
-					}
-				}
-				if (neededmh)
-					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, InspIRCd::Format("You must have channel %s access or above to %sset channel mode %c",
-						neededmh->name.c_str(), mcitem.adding ? "" : "un", modechar));
-				else
-					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, InspIRCd::Format("You cannot %sset channel mode %c", (mcitem.adding ? "" : "un"), modechar));
+				user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, neededrank, InspIRCd::Format("%s channel mode %c (%s)",
+					mcitem.adding ? "set" : "unset", mh->GetModeChar(), mh->name.c_str())));
 				return MODEACTION_DENY;
 			}
 		}
@@ -711,6 +697,23 @@ PrefixMode* ModeParser::FindPrefixMode(unsigned char modeletter)
 	if (!mh)
 		return NULL;
 	return mh->IsPrefixMode();
+}
+
+
+PrefixMode* ModeParser::FindNearestPrefixMode(unsigned int rank)
+{
+	PrefixMode* pm = nullptr;
+	for (const auto& thispm : GetPrefixModes())
+	{
+		if (thispm->GetPrefixRank() < rank)
+			continue; // Not ranked high enough.
+
+		// Is it lower than the last checked mode?
+		if (!pm || thispm->GetPrefixRank() < pm->GetPrefixRank())
+			pm = thispm;
+
+	}
+	return pm;
 }
 
 PrefixMode* ModeParser::FindPrefix(unsigned char pfxletter)

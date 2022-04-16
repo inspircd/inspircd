@@ -33,22 +33,6 @@ namespace Topic
 namespace Invite
 {
 	class APIImpl;
-
-	/** Used to indicate who we announce invites to on a channel. */
-	enum AnnounceState
-	{
-		/** Don't send invite announcements. */
-		ANNOUNCE_NONE,
-
-		/** Send invite announcements to all users. */
-		ANNOUNCE_ALL,
-
-		/** Send invite announcements to channel operators and higher. */
-		ANNOUNCE_OPS,
-
-		/** Send invite announcements to channel half-operators (if available) and higher. */
-		ANNOUNCE_DYNAMIC
-	};
 }
 
 enum
@@ -66,8 +50,6 @@ private:
 	Invite::APIImpl& invapi;
 
 public:
-	Invite::AnnounceState announceinvites;
-
 	CommandInvite(Module* parent, Invite::APIImpl& invapiimpl);
 	CmdResult Handle(User* user, const Params& parameters) override;
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;

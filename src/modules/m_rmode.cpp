@@ -35,26 +35,25 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		ModeHandler* mh;
 		Channel* chan = ServerInstance->Channels.Find(parameters[0]);
-		char modeletter = parameters[1][0];
-
 		if (!chan)
 		{
-			user->WriteNotice("The channel " + parameters[0] + " does not exist.");
+			user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
 			return CmdResult::FAILURE;
 		}
 
-		mh = ServerInstance->Modes.FindMode(modeletter, MODETYPE_CHANNEL);
+		unsigned char modeletter = parameters[1][0];
+		ModeHandler* mh = ServerInstance->Modes.FindMode(modeletter, MODETYPE_CHANNEL);
 		if (!mh || parameters[1].size() > 1)
 		{
-			user->WriteNotice(parameters[1] + " is not a valid channel mode.");
+			user->WriteNumeric(ERR_UNKNOWNMODE, parameters[0], "is not a recognised channel mode.");
 			return CmdResult::FAILURE;
 		}
 
 		if (chan->GetPrefixValue(user) < mh->GetLevelRequired(false))
 		{
-			user->WriteNotice("You do not have access to unset " + ConvToStr(modeletter) + " on " +  chan->name + ".");
+			user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, mh->GetLevelRequired(false), InspIRCd::Format("unset channel mode %c (%s)",
+				mh->GetModeChar(), mh->name.c_str())));
 			return CmdResult::FAILURE;
 		}
 

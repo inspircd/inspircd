@@ -202,6 +202,7 @@ public:
 namespace Numerics
 {
 	class CannotSendTo;
+	class ChannelPrivilegesNeeded;
 	class InvalidModeParameter;
 	class NoSuchChannel;
 	class NoSuchNick;
@@ -248,6 +249,23 @@ public:
 		push(user->registered & REG_NICK ? user->nick : "*");
 		push(InspIRCd::Format("You cannot send %s to this user whilst %s have the +%c (%s) mode set.",
 			what.c_str(), self ? "you" : "they", mh->GetModeChar(), mh->name.c_str()));
+	}
+};
+
+/* Builder for the ERR_CHANOPRIVSNEEDED numeric. */
+class Numerics::ChannelPrivilegesNeeded : public Numeric::Numeric
+{
+ public:
+	ChannelPrivilegesNeeded(Channel* chan, unsigned int rank, const std::string& message)
+		: Numeric(ERR_CHANOPRIVSNEEDED)
+	{
+		push(chan->name);
+
+		const PrefixMode* pm = ServerInstance->Modes.FindNearestPrefixMode(rank);
+		if (pm)
+			push(InspIRCd::Format("You must be a channel %s or higher to %s.", pm->name.c_str(), message.c_str()));
+		else
+			push(InspIRCd::Format("You do not have the required channel privileges to %s.", message.c_str()));
 	}
 };
 

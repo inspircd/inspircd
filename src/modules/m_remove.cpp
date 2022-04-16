@@ -86,7 +86,7 @@ public:
 
 		if (target->server->IsService())
 		{
-			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, channame, "Only a service may remove a service from a channel.");
+			user->WriteNumeric(ERR_RESTRICTED, channame, "Only a service may remove a service from a channel.");
 			return CmdResult::FAILURE;
 		}
 

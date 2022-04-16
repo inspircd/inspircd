@@ -225,7 +225,7 @@ private:
 
 		if (!source->IsOper() && chan->GetPrefixValue(source) < OP_VALUE)
 		{
-			source->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, "You must be a channel operator.");
+			source->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, OP_VALUE, "view TLS (SSL) client certificate information"));
 			return CmdResult::FAILURE;
 		}
 

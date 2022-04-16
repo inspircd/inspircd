@@ -119,16 +119,19 @@ public:
 class Invite::APIImpl final
 	: public APIBase
 {
+private:
 	ExtItem<LocalUser, ExtensionType::USER> userext;
 	ExtItem<Channel, ExtensionType::CHANNEL> chanext;
 
 public:
-	APIImpl(Module* owner);
+	AnnounceState announceinvites;
 
+	APIImpl(Module* owner);
 	void Create(LocalUser* user, Channel* chan, time_t timeout) override;
 	Invite* Find(LocalUser* user, Channel* chan) override;
 	bool Remove(LocalUser* user, Channel* chan) override;
 	const List* GetList(LocalUser* user) override;
+	AnnounceState GetAnnounceState() const override { return announceinvites; }
 
 	void RemoveAll(LocalUser* user) { userext.Unset(user); }
 	void RemoveAll(Channel* chan) { chanext.Unset(chan); }

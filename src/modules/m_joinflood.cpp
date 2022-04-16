@@ -26,12 +26,6 @@
 #include "inspircd.h"
 #include "modules/server.h"
 
-enum
-{
-	// From RFC 2182.
-	ERR_UNAVAILRESOURCE = 437
-};
-
 // The number of seconds the channel will be closed for.
 static unsigned int duration;
 

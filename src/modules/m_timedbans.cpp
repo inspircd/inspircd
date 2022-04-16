@@ -92,7 +92,7 @@ public:
 		unsigned int cm = channel->GetPrefixValue(user);
 		if (cm < HALFOP_VALUE)
 		{
-			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, channel->name, "You do not have permission to set bans on this channel");
+			user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(channel, HALFOP_VALUE, "set timed bans"));
 			return CmdResult::FAILURE;
 		}
 
@@ -151,8 +151,8 @@ public:
 			mask.c_str(), user->nick.c_str(), channel->name.c_str(), InspIRCd::DurationString(duration).c_str());
 
 			// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
-			PrefixMode* mh = ServerInstance->Modes.FindPrefixMode('h');
-			char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
+			PrefixMode* mh = ServerInstance->Modes.FindNearestPrefixMode(HALFOP_VALUE);
+			char pfxchar = mh ? mh->GetPrefix() : '@';
 
 			channel->WriteRemoteNotice(message, pfxchar);
 		}
@@ -256,8 +256,8 @@ public:
 				timedban.mask.c_str(), timedban.setter.c_str(), timedban.chan->name.c_str());
 
 				// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
-				PrefixMode* mh = ServerInstance->Modes.FindPrefixMode('h');
-				char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
+				PrefixMode* mh = ServerInstance->Modes.FindNearestPrefixMode(HALFOP_VALUE);
+				char pfxchar = mh ? mh->GetPrefix() : '@';
 
 				timedban.chan->WriteRemoteNotice(message, pfxchar);
 			}

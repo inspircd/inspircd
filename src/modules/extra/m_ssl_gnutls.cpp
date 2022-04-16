@@ -49,7 +49,7 @@
 // Check if the GnuTLS library is at least version major.minor.patch
 #define INSPIRCD_GNUTLS_HAS_VERSION(major, minor, patch) (GNUTLS_VERSION_NUMBER >= ((major << 16) | (minor << 8) | patch))
 
-#if INSPIRCD_GNUTLS_HAS_VERSION(3, 5, 6)
+#if INSPIRCD_GNUTLS_HAS_VERSION(3, 6, 0)
 # define GNUTLS_AUTO_DH
 #endif
 

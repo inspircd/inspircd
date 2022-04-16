@@ -49,7 +49,7 @@ public:
 		if (user->HasPrivPermission("channels/auspex"))
 			return true;
 
-		user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, InspIRCd::Format("You do not have access to view the %s list", GetModeName().c_str()));
+		user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, minrank, InspIRCd::Format("view the channel %s list", GetModeName().c_str())));
 		return false;
 	}
 };

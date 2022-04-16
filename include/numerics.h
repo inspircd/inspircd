@@ -117,6 +117,7 @@ enum
 	ERR_NONICKNAMEGIVEN             = 431,
 	ERR_ERRONEUSNICKNAME            = 432,
 	ERR_NICKNAMEINUSE               = 433,
+	ERR_UNAVAILRESOURCE             = 437, // From RFC 2182.
 	ERR_USERNOTINCHANNEL            = 441,
 	ERR_NOTONCHANNEL                = 442,
 	ERR_USERONCHANNEL               = 443,

@@ -38,7 +38,7 @@ class OperPrefixMode final
 		OperPrefixMode(Module* Creator)
 			: PrefixMode(Creator, "operprefix", 'y', OPERPREFIX_VALUE)
 		{
-			prefix = ServerInstance->Config->ConfValue("operprefix")->getString("prefix", "!", 1, 1)[0];
+			prefix = ServerInstance->Config->ConfValue("operprefix")->getCharacter("prefix", '!');
 			ranktoset = ranktounset = UINT_MAX;
 		}
 };

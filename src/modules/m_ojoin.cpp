@@ -116,7 +116,7 @@ public:
 
 	ModuleOjoin()
 		: Module(VF_VENDOR, "Adds the /OJOIN command which allows server operators to join a channel and receive the server operator-only Y (official-join) channel prefix mode.")
-		, np(this, ServerInstance->Config->ConfValue("ojoin")->getString("prefix", "\0", 1, 1)[0])
+		, np(this, ServerInstance->Config->ConfValue("ojoin")->getCharacter("prefix"))
 		, mycommand(this, np)
 	{
 	}

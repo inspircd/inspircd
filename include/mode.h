@@ -771,6 +771,12 @@ public:
 	 */
 	PrefixMode* FindPrefixMode(unsigned char modeletter);
 
+	/** Find the mode handler for the prefix mode nearest the given rank.
+	 * @param rank The rank to search for prefix modes near.
+	 * @return A pointer to the PrefixMode or NULL if a prefix mode wasn't found.
+	 */
+	PrefixMode* FindNearestPrefixMode(unsigned int rank);
+
 	/** Find a mode handler by its prefix.
 	 * If there is no mode handler with the given prefix, NULL will be returned.
 	 * @param pfxletter The prefix to find, e.g. '@'

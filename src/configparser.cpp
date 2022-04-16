@@ -713,6 +713,15 @@ bool ConfigTag::getBool(const std::string& key, bool def) const
 	return def;
 }
 
+unsigned char ConfigTag::getCharacter(const std::string &key, unsigned char def) const
+{
+	std::string result;
+	if (!readString(key, result) || result.size() != 1)
+		return def;
+
+	return result[0];
+}
+
 ConfigTag::ConfigTag(const std::string& Name, const FilePosition& Source)
 	: name(Name)
 	, source(Source)

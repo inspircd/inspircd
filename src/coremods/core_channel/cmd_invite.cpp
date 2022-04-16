@@ -125,10 +125,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 				unsigned int rank = c->GetPrefixValue(user);
 				if (rank < HALFOP_VALUE)
 				{
-					// Check whether halfop mode is available and phrase error message accordingly
-					ModeHandler* mh = ServerInstance->Modes.FindMode('h', MODETYPE_CHANNEL);
-					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, InspIRCd::Format("You must be a channel %soperator",
-						(mh && mh->name == "halfop" ? "half-" : "")));
+					user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(c, HALFOP_VALUE, "send an invite"));
 					return CmdResult::FAILURE;
 				}
 			}
@@ -151,7 +148,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 
 		char prefix = 0;
 		unsigned int minrank = 0;
-		switch (announceinvites)
+		switch (invapi.announceinvites)
 		{
 			case Invite::ANNOUNCE_OPS:
 			{
@@ -159,25 +156,31 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 				minrank = OP_VALUE;
 				break;
 			}
+
 			case Invite::ANNOUNCE_DYNAMIC:
 			{
-				PrefixMode* mh = ServerInstance->Modes.FindPrefixMode('h');
-				if ((mh) && (mh->name == "halfop"))
+				PrefixMode* mh = ServerInstance->Modes.FindNearestPrefixMode(HALFOP_VALUE);
+				if (mh)
 				{
 					prefix = mh->GetPrefix();
 					minrank = mh->GetPrefixRank();
 				}
+				else
+				{
+					prefix = '@';
+					minrank = OP_VALUE;
+				}
 				break;
 			}
+
 			default:
-			{
-			}
+				break;
 		}
 
 		CUList excepts;
 		FOREACH_MOD(OnUserInvite, (user, u, c, timeout, minrank, excepts));
 
-		if (announceinvites != Invite::ANNOUNCE_NONE)
+		if (invapi.announceinvites != Invite::ANNOUNCE_NONE)
 		{
 			excepts.insert(user);
 			ClientProtocol::Messages::Privmsg privmsg(ServerInstance->FakeClient, c, InspIRCd::Format("*** %s invited %s into the channel", user->nick.c_str(), u->nick.c_str()), MSG_NOTICE);
