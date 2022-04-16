@@ -73,6 +73,12 @@ public:
 	 */
 	virtual void AddExtBan(Base* extban) = 0;
 
+	/** Canonicalises a list mode entry if it is an extban.
+	 * @param text The list mode entry to canonicalize.
+	 * @return True if the text was a valid extban and was canonicalised. Otherwise, false.
+	 */
+	virtual bool Canonicalize(std::string& text) const = 0;
+
 	/** Unregisters an extban from the manager.
 	 * @param extban The extban instance to unregister.
 	 */
@@ -151,6 +157,11 @@ protected:
 	}
 
 public:
+	/** Canonicalises a value for this extban.
+	 * @param text The value to canonicalize.
+	 */
+	virtual void Canonicalize(std::string& text) { }
+
 	/** Retrieves the character used in bans to signify this extban. */
 	unsigned char GetLetter() const { return letter; }
 
@@ -210,6 +221,13 @@ public:
 	Acting(Module* Creator, const std::string& Name, unsigned char Letter)
 		: Base(Creator, Name, Letter)
 	{
+	}
+
+	/** @copydoc ExtBan::Base::Canonicalize */
+	void Canonicalize(std::string& text) override
+	{
+		if (!GetManager() || !GetManager()->Canonicalize(text))
+			ModeParser::CleanMask(text);
 	}
 
 	/** @copydoc ExtBan::Base::GetType */

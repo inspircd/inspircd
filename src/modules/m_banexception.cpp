@@ -39,11 +39,22 @@ enum
 class BanException final
 	: public ListModeBase
 {
+private:
+	ExtBan::ManagerRef extbanmgr;
+
 public:
 	BanException(Module* Creator)
-		: ListModeBase(Creator, "banexception", 'e', RPL_EXCEPTLIST, RPL_ENDOFEXCEPTLIST, true)
+		: ListModeBase(Creator, "banexception", 'e', RPL_EXCEPTLIST, RPL_ENDOFEXCEPTLIST)
+		, extbanmgr(Creator)
 	{
 		syntax = "<mask>";
+	}
+
+	bool CanonicalizeParam(LocalUser* user, Channel* channel, std::string& parameter) override
+	{
+		if (!extbanmgr || !extbanmgr->Canonicalize(parameter))
+			ModeParser::CleanMask(parameter);
+		return true;
 	}
 };
 

@@ -26,6 +26,26 @@ void ExtBanManager::AddExtBan(ExtBan::Base* extban)
 	byname.emplace(extban->GetName(), extban);
 }
 
+bool ExtBanManager::Canonicalize(std::string& text) const
+{
+	bool inverted; // Intentionally unused
+	std::string xbname, xbvalue;
+	if (!ExtBan::Parse(text, xbname, xbvalue, inverted))
+		return false; // Not an extban.
+
+	ExtBan::Base* extban = nullptr;
+	if (xbname.size() == 1)
+		extban = FindLetter(xbname[0]);
+	else
+		extban = FindName(xbname);
+
+	if (!extban)
+		return false; // Looks like an extban but it isn't.
+
+	extban->Canonicalize(xbvalue);
+	return true;
+}
+
 void ExtBanManager::BuildISupport(std::string& out)
 {
 	for (const LetterMap::value_type& extban : byletter)

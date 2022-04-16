@@ -42,7 +42,7 @@ public:
 	unsigned long maxlen;
 
 	ChanFilter(Module* Creator)
-		: ListModeBase(Creator, "filter", 'g', RPL_SPAMFILTER, RPL_ENDOFSPAMFILTER, false)
+		: ListModeBase(Creator, "filter", 'g', RPL_SPAMFILTER, RPL_ENDOFSPAMFILTER)
 	{
 		syntax = "<pattern>";
 	}

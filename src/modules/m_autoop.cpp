@@ -36,11 +36,10 @@ class AutoOpList final
 {
 public:
 	AutoOpList(Module* Creator)
-		: ListModeBase(Creator, "autoop", 'w', RPL_ACCESSLIST, RPL_ENDOFACCESSLIST, true)
+		: ListModeBase(Creator, "autoop", 'w', RPL_ACCESSLIST, RPL_ENDOFACCESSLIST)
 	{
 		ranktoset = ranktounset = OP_VALUE;
 		syntax = "<prefix>:<mask>";
-		tidy = false;
 	}
 
 	PrefixMode* FindMode(const std::string& mid)

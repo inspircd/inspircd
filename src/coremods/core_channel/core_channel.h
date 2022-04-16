@@ -128,8 +128,11 @@ public:
 class ModeChannelBan final
 	: public ListModeBase
 {
+private:
+	ExtBan::ManagerRef extbanmgr;
 public:
 	ModeChannelBan(Module* Creator);
+	bool CanonicalizeParam(LocalUser* user, Channel* channel, std::string& parameter) override;
 };
 
 class ModeChannelKey final
@@ -186,6 +189,7 @@ public:
 	}
 
 	void AddExtBan(ExtBan::Base* extban) override;
+	bool Canonicalize(std::string& text) const override;
 	void DelExtBan(ExtBan::Base* extban) override;
 	const LetterMap& GetLetterMap() const override { return byletter; }
 	const NameMap& GetNameMap() const override { return byname; }

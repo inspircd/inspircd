@@ -21,9 +21,17 @@
 #include "core_channel.h"
 
 ModeChannelBan::ModeChannelBan(Module* Creator)
-	: ListModeBase(Creator, "ban", 'b', RPL_BANLIST, RPL_ENDOFBANLIST, true)
+	: ListModeBase(Creator, "ban", 'b', RPL_BANLIST, RPL_ENDOFBANLIST)
+	, extbanmgr(Creator)
 {
 	syntax = "<mask>";
+}
+
+bool ModeChannelBan::CanonicalizeParam(LocalUser* user, Channel* channel, std::string& parameter)
+{
+	if (!extbanmgr || !extbanmgr->Canonicalize(parameter))
+		ModeParser::CleanMask(parameter);
+	return true;
 }
 
 ModeChannelLimit::ModeChannelLimit(Module* Creator)

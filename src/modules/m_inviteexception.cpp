@@ -24,6 +24,7 @@
 
 #include "inspircd.h"
 #include "listmode.h"
+#include "modules/extban.h"
 #include "modules/isupport.h"
 
 enum
@@ -36,11 +37,22 @@ enum
 class InviteException final
 	: public ListModeBase
 {
+private:
+	ExtBan::ManagerRef extbanmgr;
+
 public:
 	InviteException(Module* Creator)
-		: ListModeBase(Creator, "invex", 'I', RPL_INVEXLIST, RPL_ENDOFINVEXLIST, true)
+		: ListModeBase(Creator, "invex", 'I', RPL_INVEXLIST, RPL_ENDOFINVEXLIST)
+		, extbanmgr(Creator)
 	{
 		syntax = "<mask>";
+	}
+
+	bool CanonicalizeParam(LocalUser* user, Channel* channel, std::string& parameter) override
+	{
+		if (!extbanmgr || !extbanmgr->Canonicalize(parameter))
+			ModeParser::CleanMask(parameter);
+		return true;
 	}
 };
 

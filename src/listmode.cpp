@@ -22,11 +22,10 @@
 #include "inspircd.h"
 #include "listmode.h"
 
-ListModeBase::ListModeBase(Module* Creator, const std::string& Name, char modechar, unsigned int lnum, unsigned int eolnum, bool autotidy)
+ListModeBase::ListModeBase(Module* Creator, const std::string& Name, char modechar, unsigned int lnum, unsigned int eolnum)
 	: ModeHandler(Creator, Name, modechar, PARAM_ALWAYS, MODETYPE_CHANNEL, MC_LIST)
 	, listnumeric(lnum)
 	, endoflistnumeric(eolnum)
-	, tidy(autotidy)
 	, extItem(Creator, "list-mode-" + name, ExtensionType::CHANNEL)
 {
 	list = true;
@@ -156,8 +155,10 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, Mod
 
 	if (change.adding)
 	{
-		if (tidy)
-			ModeParser::CleanMask(change.param);
+		// Try to canonicalise the parameter locally.
+		LocalUser* lsource = IS_LOCAL(source);
+		if (lsource && !CanonicalizeParam(lsource, channel, change.param))
+			return MODEACTION_DENY;
 
 		// If there was no list
 		if (!cd)
@@ -228,6 +229,11 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, Mod
 		TellNotSet(source, channel, change.param);
 		return MODEACTION_DENY;
 	}
+}
+
+bool ListModeBase::CanonicalizeParam(LocalUser* user, Channel* channel, std::string& parameter)
+{
+	return true;
 }
 
 bool ListModeBase::ValidateParam(User* user, Channel* channel, const std::string& parameter)

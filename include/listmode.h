@@ -94,10 +94,6 @@ protected:
 	 */
 	unsigned int endoflistnumeric;
 
-	/** Automatically tidy up entries
-	 */
-	bool tidy;
-
 	/** Limits on a per-channel basis read from the \<listmode>
 	 * config tag.
 	 */
@@ -114,9 +110,8 @@ public:
 	 * @param modechar Mode character
 	 * @param lnum List numeric
 	 * @param eolnum End of list numeric
-	 * @param autotidy Automatically tidy list entries on add
 	 */
-	ListModeBase(Module* Creator, const std::string& Name, char modechar, unsigned int lnum, unsigned int eolnum, bool autotidy);
+	ListModeBase(Module* Creator, const std::string& Name, char modechar, unsigned int lnum, unsigned int eolnum);
 
 	/** Determines whether some channels have longer lists than others. */
 	bool HasVariableLength() const { return chanlimits.size() > 1; }
@@ -152,6 +147,16 @@ public:
 
 	/** @copydoc ModeHandler::OnModeChange */
 	ModeAction OnModeChange(User* source, User*, Channel* channel, Modes::Change& change) override;
+
+	/** Canonicalize the parameter for this list mode. This is only for tweaking
+	 * the parameter locally. You should use ValidateParam to check whether a
+	 * remote-sent parameter is unacceptably malformed without changing it.
+	 * @param user The local user which sent the list mode change.
+	 * @param channel The channel the mode is being changed on.
+	 * @param parameter The parameter that the user specified.
+	 * @return True if the parameter is valid; otherwise, false.
+	 */
+	virtual bool CanonicalizeParam(LocalUser* user, Channel* channel, std::string& parameter);
 
 	/** Validate parameters.
 	 * Overridden by implementing module.
