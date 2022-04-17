@@ -223,17 +223,17 @@ void ListModeBase::OnParameterMissing(User* source, User* dest, Channel* channel
 	// Intentionally left blank.
 }
 
-void ListModeBase::TellListTooLong(LocalUser* source, Channel* channel, std::string& parameter)
+void ListModeBase::TellListTooLong(LocalUser* source, Channel* channel, const std::string& parameter)
 {
 	source->WriteNumeric(ERR_BANLISTFULL, channel->name, parameter, mode, InspIRCd::Format("Channel %s list is full", name.c_str()));
 }
 
-void ListModeBase::TellAlreadyOnList(LocalUser* source, Channel* channel, std::string& parameter)
+void ListModeBase::TellAlreadyOnList(LocalUser* source, Channel* channel, const std::string& parameter)
 {
 	source->WriteNumeric(ERR_LISTMODEALREADYSET, channel->name, parameter, mode, InspIRCd::Format("Channel %s list already contains %s", name.c_str(), parameter.c_str()));
 }
 
-void ListModeBase::TellNotSet(LocalUser* source, Channel* channel, std::string& parameter)
+void ListModeBase::TellNotSet(LocalUser* source, Channel* channel, const std::string& parameter)
 {
 	source->WriteNumeric(ERR_LISTMODENOTSET, channel->name, parameter, mode, InspIRCd::Format("Channel %s list does not contain %s", name.c_str(), parameter.c_str()));
 }

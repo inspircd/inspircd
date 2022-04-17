@@ -167,7 +167,7 @@ public:
 	 * @param channel Channel the parameter is being added to
 	 * @param parameter The actual parameter being added
 	 */
-	virtual void TellListTooLong(LocalUser* source, Channel* channel, std::string& parameter);
+	virtual void TellListTooLong(LocalUser* source, Channel* channel, const std::string& parameter);
 
 	/** Tell the user an item is already on the list.
 	 * Overridden by implementing module.
@@ -175,7 +175,7 @@ public:
 	 * @param channel Channel the parameter is being added to
 	 * @param parameter The actual parameter being added
 	 */
-	virtual void TellAlreadyOnList(LocalUser* source, Channel* channel, std::string& parameter);
+	virtual void TellAlreadyOnList(LocalUser* source, Channel* channel, const std::string& parameter);
 
 	/** Tell the user that the parameter is not in the list.
 	 * Overridden by implementing module.
@@ -183,7 +183,7 @@ public:
 	 * @param channel Channel the parameter is being removed from
 	 * @param parameter The actual parameter being removed
 	 */
-	virtual void TellNotSet(LocalUser* source, Channel* channel, std::string& parameter);
+	virtual void TellNotSet(LocalUser* source, Channel* channel, const std::string& parameter);
 };
 
 inline ListModeBase::ModeList* ListModeBase::GetList(Channel* channel)
