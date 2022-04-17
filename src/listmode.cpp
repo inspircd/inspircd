@@ -150,64 +150,65 @@ unsigned long ListModeBase::GetLowerLimit()
 
 ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, Modes::Change& change)
 {
-	// Try and grab the list
-	ChanData* cd = extItem.Get(channel);
-
+	LocalUser* lsource = IS_LOCAL(source);
 	if (change.adding)
 	{
 		// Try to canonicalise the parameter locally.
-		LocalUser* lsource = IS_LOCAL(source);
 		if (lsource && !ValidateParam(lsource, channel, change.param))
 			return MODEACTION_DENY;
 
-		// If there was no list
-		if (!cd)
+		ChanData* cd = extItem.Get(channel);
+		if (cd)
 		{
-			// Make one
+			// Check if the item already exists in the list
+			for (const auto& entry : cd->list)
+			{
+				if (change.param != entry.mask)
+					continue; // Doesn't match the proposed addition.
+
+				if (lsource)
+					TellAlreadyOnList(lsource, channel, change.param);
+
+				return MODEACTION_DENY;
+			}
+		}
+		else
+		{
+			// There's no channel list currently; create one.
 			cd = new ChanData;
 			extItem.Set(channel, cd);
 		}
 
-		// Check if the item already exists in the list
-		for (const auto& entry : cd->list)
+		if (lsource && cd->list.size() >= GetLimitInternal(channel->name, cd))
 		{
-			if (change.param == entry.mask)
-			{
-				/* Give a subclass a chance to error about this */
-				TellAlreadyOnList(source, channel, change.param);
-
-				// it does, deny the change
-				return MODEACTION_DENY;
-			}
-		}
-
-		if ((IS_LOCAL(source)) && (cd->list.size() >= GetLimitInternal(channel->name, cd)))
-		{
-			/* List is full, give subclass a chance to send a custom message */
-			TellListTooLong(source, channel, change.param);
+			// The list size might be 0 so we have to check even if just created.
+			TellListTooLong(lsource, channel, change.param);
 			return MODEACTION_DENY;
 		}
 
+		// Add the new entry to the list.
 		cd->list.emplace_back(change.param, change.set_by.value_or(source->nick), change.set_at.value_or(ServerInstance->Time()));
 		return MODEACTION_ALLOW;
 	}
 	else
 	{
-		// We're taking the mode off
+		ChanData* cd = extItem.Get(channel);
 		if (cd)
 		{
+			// We have a list and we're removing; is the entry in it?
 			for (ModeList::iterator it = cd->list.begin(); it != cd->list.end(); ++it)
 			{
-				if (change.param == it->mask)
-				{
-					stdalgo::vector::swaperase(cd->list, it);
-					return MODEACTION_ALLOW;
-				}
+				if (change.param != it->mask)
+					continue; // Doesn't match the proposed removal.
+
+				stdalgo::vector::swaperase(cd->list, it);
+				return MODEACTION_ALLOW;
 			}
 		}
 
-		/* Tried to remove something that wasn't set */
-		TellNotSet(source, channel, change.param);
+		if (lsource)
+			TellNotSet(lsource, channel, change.param);
+
 		return MODEACTION_DENY;
 	}
 }
@@ -217,22 +218,22 @@ bool ListModeBase::ValidateParam(LocalUser* user, Channel* channel, std::string&
 	return true;
 }
 
-void ListModeBase::OnParameterMissing(User*, User*, Channel*)
+void ListModeBase::OnParameterMissing(User* source, User* dest, Channel* channel)
 {
 	// Intentionally left blank.
 }
 
-void ListModeBase::TellListTooLong(User* source, Channel* channel, std::string& parameter)
+void ListModeBase::TellListTooLong(LocalUser* source, Channel* channel, std::string& parameter)
 {
 	source->WriteNumeric(ERR_BANLISTFULL, channel->name, parameter, mode, InspIRCd::Format("Channel %s list is full", name.c_str()));
 }
 
-void ListModeBase::TellAlreadyOnList(User* source, Channel* channel, std::string& parameter)
+void ListModeBase::TellAlreadyOnList(LocalUser* source, Channel* channel, std::string& parameter)
 {
 	source->WriteNumeric(ERR_LISTMODEALREADYSET, channel->name, parameter, mode, InspIRCd::Format("Channel %s list already contains %s", name.c_str(), parameter.c_str()));
 }
 
-void ListModeBase::TellNotSet(User* source, Channel* channel, std::string& parameter)
+void ListModeBase::TellNotSet(LocalUser* source, Channel* channel, std::string& parameter)
 {
 	source->WriteNumeric(ERR_LISTMODENOTSET, channel->name, parameter, mode, InspIRCd::Format("Channel %s list does not contain %s", name.c_str(), parameter.c_str()));
 }
