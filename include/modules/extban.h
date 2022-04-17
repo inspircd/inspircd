@@ -254,6 +254,12 @@ public:
 		return channel->CheckBan(user, text);
 	}
 
+	/** Determines whether the specified user matches this acting extban on the specified channel.
+	 * @param user The user to check.
+	 * @param channel The channel to check on.
+	 * @return MOD_RES_ALLOW to explicitly allow their action, MOD_RES_DENY to expicitly deny their
+	 *         action, or MOD_RES_PASSTHRU to let the default behaviour apply.
+	 */
 	ModResult GetStatus(User* user, Channel* channel)
 	{
 		if (!GetManager())
