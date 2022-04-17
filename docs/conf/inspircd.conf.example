@@ -637,6 +637,15 @@
          # in the /LIST response. Defaults to yes.
          modesinlist="no"
 
+         # extbanformat: The method to use for normalising extbans. Can be set
+         # to one of:
+         #  - any     Do not perform any extban normalisation.
+         #  - name    Normalise extbans to use their name.
+         #  - letter  Normalise extbans to use their letter. This is useful for
+         #            if you need to keep compatibility with v3.
+         # Defaults to "any" if not set.
+         extbanformat="name"
+
          # exemptchanops: Allows users with with a status mode to be exempt
          # from various channel restrictions. Possible restrictions are:
          #  - anticaps        Channel mode +B - blocks messages with too many capital

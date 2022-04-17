@@ -178,6 +178,12 @@ public:
 			exempts[restriction] = prefix;
 		}
 
+		ExtBan::Format newformat = optionstag->getEnum("extbanformat", ExtBan::Format::ANY, {
+			{ "any",    ExtBan::Format::ANY },
+			{ "name",   ExtBan::Format::NAME },
+			{ "letter", ExtBan::Format::LETTER },
+		});
+
 		auto securitytag = ServerInstance->Config->ConfValue("security");
 		Invite::AnnounceState newannouncestate = securitytag->getEnum("announceinvites", Invite::ANNOUNCE_DYNAMIC, {
 			{ "all",     Invite::ANNOUNCE_ALL },
@@ -192,6 +198,7 @@ public:
 		banmode.DoRehash();
 
 		exemptions.swap(exempts);
+		extbanmgr.format = newformat;
 		invapi.announceinvites = newannouncestate;
 		joinhook.modefromuser = optionstag->getBool("cyclehostsfromuser");
 

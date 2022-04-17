@@ -28,6 +28,18 @@ namespace ExtBan
 	class Manager;
 	class ManagerRef;
 
+	enum class Format
+	{
+		/** Do not perform any normalisation of extbans. */
+		ANY,
+
+		/** Normalise extbans to use their name (e.g. mute). */
+		NAME,
+
+		/** Normalise extbans to use their letter (e.g. m). */
+		LETTER,
+	};
+
 	/** All possible types of extban. */
 	enum class Type
 	{
@@ -83,6 +95,9 @@ public:
 	 * @param extban The extban instance to unregister.
 	 */
 	virtual void DelExtBan(Base* extban) = 0;
+
+	/** Retrieves the method used for normalising extbans. */
+	virtual Format GetFormat() const = 0;
 
 	/** Retrieves a mapping of extban letters to their associated object. */
 	virtual const LetterMap& GetLetterMap() const = 0;

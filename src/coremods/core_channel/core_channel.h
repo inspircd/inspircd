@@ -163,6 +163,8 @@ private:
 	NameMap byname;
 
 public:
+	ExtBan::Format format;
+
 	ExtBanManager(Module* Creator, ModeChannelBan& bm)
 		: ExtBan::Manager(Creator)
 		, banmode(bm)
@@ -173,6 +175,7 @@ public:
 	void AddExtBan(ExtBan::Base* extban) override;
 	bool Canonicalize(std::string& text) const override;
 	void DelExtBan(ExtBan::Base* extban) override;
+	ExtBan::Format GetFormat() const override { return format; }
 	const LetterMap& GetLetterMap() const override { return byletter; }
 	const NameMap& GetNameMap() const override { return byname; }
 	ModResult GetStatus(ExtBan::Acting* extban, User* user, Channel* channel) const override;

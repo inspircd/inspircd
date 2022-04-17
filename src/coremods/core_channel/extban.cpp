@@ -42,7 +42,27 @@ bool ExtBanManager::Canonicalize(std::string& text) const
 	if (!extban)
 		return false; // Looks like an extban but it isn't.
 
+	// Canonicalize the extban.
+	text.assign(inverted ? "!" : "");
+
+	switch (format)
+	{
+		case ExtBan::Format::NAME:
+			text.append(extban->GetName());
+			break;
+
+		case ExtBan::Format::LETTER:
+			text.append(1, extban->GetLetter());
+			break;
+
+		default:
+			text.append(xbname);
+			break;
+	}
+
 	extban->Canonicalize(xbvalue);
+	text.append(":").append(xbvalue);
+
 	return true;
 }
 
