@@ -47,8 +47,9 @@ public:
 		syntax = "<pattern>";
 	}
 
-	bool ValidateParam(User* user, Channel* chan, const std::string& parameter) override
+	bool ValidateParam(LocalUser* user, Channel* chan, std::string& parameter) override
 	{
+		// We only enforce the length restriction against local users to avoid causing a desync.
 		if (parameter.length() > maxlen)
 		{
 			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, parameter, "Entry is too long for the spamfilter list."));

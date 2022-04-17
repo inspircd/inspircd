@@ -157,7 +157,7 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, Mod
 	{
 		// Try to canonicalise the parameter locally.
 		LocalUser* lsource = IS_LOCAL(source);
-		if (lsource && !CanonicalizeParam(lsource, channel, change.param))
+		if (lsource && !ValidateParam(lsource, channel, change.param))
 			return MODEACTION_DENY;
 
 		// If there was no list
@@ -188,27 +188,8 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, Mod
 			return MODEACTION_DENY;
 		}
 
-		/* Ok, it *could* be allowed, now give someone subclassing us
-		 * a chance to validate the parameter.
-		 * The param is passed by reference, so they can both modify it
-		 * and tell us if we allow it or not.
-		 *
-		 * eg, the subclass could:
-		 * 1) allow
-		 * 2) 'fix' parameter and then allow
-		 * 3) deny
-		 */
-		if (ValidateParam(source, channel, change.param))
-		{
-			// And now add the mask onto the list...
-			cd->list.emplace_back(change.param, change.set_by.value_or(source->nick), change.set_at.value_or(ServerInstance->Time()));
-			return MODEACTION_ALLOW;
-		}
-		else
-		{
-			/* If they deny it they have the job of giving an error message */
-			return MODEACTION_DENY;
-		}
+		cd->list.emplace_back(change.param, change.set_by.value_or(source->nick), change.set_at.value_or(ServerInstance->Time()));
+		return MODEACTION_ALLOW;
 	}
 	else
 	{
@@ -231,12 +212,7 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, Mod
 	}
 }
 
-bool ListModeBase::CanonicalizeParam(LocalUser* user, Channel* channel, std::string& parameter)
-{
-	return true;
-}
-
-bool ListModeBase::ValidateParam(User* user, Channel* channel, const std::string& parameter)
+bool ListModeBase::ValidateParam(LocalUser* user, Channel* channel, std::string& parameter)
 {
 	return true;
 }

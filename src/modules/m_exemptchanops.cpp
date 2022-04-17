@@ -81,8 +81,9 @@ public:
 		return MOD_RES_DENY;
 	}
 
-	bool ValidateParam(User* user, Channel* chan, const std::string& parameter) override
+	bool ValidateParam(LocalUser* user, Channel* chan, std::string& parameter) override
 	{
+		// We only enforce the format restriction against local users to avoid causing a desync.
 		std::string restriction;
 		std::string prefix;
 		if (!ParseEntry(parameter, restriction, prefix))

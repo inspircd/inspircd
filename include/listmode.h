@@ -156,16 +156,7 @@ public:
 	 * @param parameter The parameter that the user specified.
 	 * @return True if the parameter is valid; otherwise, false.
 	 */
-	virtual bool CanonicalizeParam(LocalUser* user, Channel* channel, std::string& parameter);
-
-	/** Validate parameters.
-	 * Overridden by implementing module.
-	 * @param user Source user adding the parameter
-	 * @param channel Channel the parameter is being added to
-	 * @param parameter The actual parameter being added
-	 * @return true if the parameter is valid
-	 */
-	virtual bool ValidateParam(User* user, Channel* channel, const std::string& parameter);
+	virtual bool ValidateParam(LocalUser* user, Channel* channel, std::string& parameter);
 
 	/** @copydoc ModeHandler::OnParameterMissing */
 	void OnParameterMissing(User* user, User* dest, Channel* channel) override;

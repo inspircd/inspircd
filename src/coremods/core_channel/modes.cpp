@@ -27,7 +27,7 @@ ModeChannelBan::ModeChannelBan(Module* Creator)
 	syntax = "<mask>";
 }
 
-bool ModeChannelBan::CanonicalizeParam(LocalUser* user, Channel* channel, std::string& parameter)
+bool ModeChannelBan::ValidateParam(LocalUser* user, Channel* channel, std::string& parameter)
 {
 	if (!extbanmgr || !extbanmgr->Canonicalize(parameter))
 		ModeParser::CleanMask(parameter);

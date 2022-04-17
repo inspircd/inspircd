@@ -48,7 +48,7 @@ public:
 		syntax = "<mask>";
 	}
 
-	bool CanonicalizeParam(LocalUser* user, Channel* channel, std::string& parameter) override
+	bool ValidateParam(LocalUser* user, Channel* channel, std::string& parameter) override
 	{
 		if (!extbanmgr || !extbanmgr->Canonicalize(parameter))
 			ModeParser::CleanMask(parameter);
