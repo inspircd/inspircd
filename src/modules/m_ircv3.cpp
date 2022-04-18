@@ -150,7 +150,7 @@ class ModuleIRCv3
 		const std::string& param = (newaccount.empty() ? joinhook.asterisk : newaccount);
 		msg.PushParamRef(param);
 		ClientProtocol::Event accountevent(accountprotoev, msg);
-		IRCv3::WriteNeighborsWithCap(user, accountevent, cap_accountnotify);
+		IRCv3::WriteNeighborsWithCap(user, accountevent, cap_accountnotify, true);
 	}
 
 	void OnUserAway(User* user) CXX11_OVERRIDE
