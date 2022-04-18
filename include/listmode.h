@@ -148,9 +148,9 @@ public:
 	/** @copydoc ModeHandler::OnModeChange */
 	ModeAction OnModeChange(User* source, User*, Channel* channel, Modes::Change& change) override;
 
-	/** Canonicalize the parameter for this list mode. This is only for tweaking
-	 * the parameter locally. You should use ValidateParam to check whether a
-	 * remote-sent parameter is unacceptably malformed without changing it.
+	/** Validate a potential entry for this list mode. This is only for local validation, you
+	 * should be prepared to handle malformed entries from remote servers as there is no good
+	 * way to prevent them from being set without causing a desync.
 	 * @param user The local user which sent the list mode change.
 	 * @param channel The channel the mode is being changed on.
 	 * @param parameter The parameter that the user specified.
