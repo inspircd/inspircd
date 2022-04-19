@@ -36,6 +36,15 @@
 #include <fstream>
 #include <iostream>
 
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wshadow"
+#endif
+#include <lyra/lyra.hpp>
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
+
 #include "inspircd.h"
 #include "exitcodes.h"
 #include "xline.h"
@@ -43,10 +52,7 @@
 // Needs to be included after inspircd.h to avoid reincluding winsock.
 #include <rang/rang.hpp>
 
-#ifdef _WIN32
-# include <ya_getopt/ya_getopt.h>
-#else
-# include <getopt.h>
+#ifndef _WIN32
 # include <grp.h>
 # include <pwd.h>
 # include <sys/resource.h>
@@ -275,42 +281,52 @@ namespace
 	// Parses the command line options.
 	void ParseOptions()
 	{
-		int do_debug = 0, do_nofork = 0,    do_nolog = 0;
-		int do_nopid = 0, do_runasroot = 0, do_version = 0;
-		struct option longopts[] =
+		std::string config;
+		bool do_debug = false;
+		bool do_help = false;
+		bool do_nofork = false;
+		bool do_nolog = false;
+		bool do_nopid = false;
+		bool do_runasroot = false;
+		bool do_version = false;
+
+		auto cli = lyra::cli()
+			| lyra::opt(config, "FILE")
+				["-c"]["--config"]
+				("The location of the main config file.")
+			| lyra::opt(do_debug)
+				["-d"]["--debug"]
+				("Start in debug mode.")
+			| lyra::opt(do_nofork)
+				["-F"]["--nofork"]
+				("Disable forking into the background.")
+			| lyra::opt(do_help)
+				["-h"]["--help"]
+				("Show help and exit.")
+			| lyra::opt(do_nolog)
+				["-L"]["--nolog"]
+				("Disable writing logs to disk.")
+			| lyra::opt(do_nopid)
+				["-P"]["--nopid"]
+				("Disable writing the pid file.")
+			| lyra::opt(do_runasroot)
+				["-r"]["--runasroot"]
+				("Allow starting as root (not recommended).")
+			| lyra::opt(do_version)
+				["-v"]["--version"]
+				("Show version and exit.");
+
+		auto result = cli.parse({ServerInstance->Config->cmdline.argc, ServerInstance->Config->cmdline.argv});
+		if (!result)
 		{
-			{ "config",    required_argument, NULL,          'c' },
-			{ "debug",     no_argument,       &do_debug,     1 },
-			{ "nofork",    no_argument,       &do_nofork,    1 },
-			{ "nolog",     no_argument,       &do_nolog,     1 },
-			{ "nopid",     no_argument,       &do_nopid,     1 },
-			{ "runasroot", no_argument,       &do_runasroot, 1 },
-			{ "version",   no_argument,       &do_version,   1 },
-			{ 0, 0, 0, 0 }
-		};
+			std::cerr << rang::style::bold << rang::fg::red << "Error: " << rang::style::reset << result.message() << '.' << std::endl;
+			ServerInstance->Exit(EXIT_STATUS_ARGV);
+		}
 
-		char** argv = ServerInstance->Config->cmdline.argv;
-		int ret;
-		while ((ret = getopt_long(ServerInstance->Config->cmdline.argc, argv, ":c:", longopts, NULL)) != -1)
+		if (do_help)
 		{
-			switch (ret)
-			{
-				case 0:
-					// A long option was specified.
-					break;
-
-				case 'c':
-					// The -c option was specified.
-					ServerInstance->ConfigFileName = ExpandPath(optarg);
-					break;
-
-				default:
-					// An unknown option was specified.
-					std::cout << rang::style::bold << rang::fg::red << "Error:" <<  rang::style::reset << " unknown option '" << argv[optind-1] << "'." << std::endl
-						<< rang::style::bold << "Usage: " << rang::style::reset << argv[0] << " [--config <file>] [--debug] [--nofork] [--nolog]" << std::endl
-						<< std::string(strlen(argv[0]) + 8, ' ') << "[--nopid] [--runasroot] [--version]" << std::endl;
-					ServerInstance->Exit(EXIT_STATUS_ARGV);
-			}
+			std::cout << cli << std::endl;
+			ServerInstance->Exit(EXIT_STATUS_NOERROR);
 		}
 
 		if (do_version)
@@ -320,9 +336,11 @@ namespace
 		}
 
 		// Store the relevant parsed arguments
-		ServerInstance->Config->cmdline.forcedebug = !!do_debug;
-		ServerInstance->Config->cmdline.nofork = !!do_nofork;
-		ServerInstance->Config->cmdline.runasroot = !!do_runasroot;
+		if (!config.empty())
+			ServerInstance->ConfigFileName = ExpandPath(config.c_str());
+		ServerInstance->Config->cmdline.forcedebug = do_debug;
+		ServerInstance->Config->cmdline.nofork = do_nofork;
+		ServerInstance->Config->cmdline.runasroot = do_runasroot;
 		ServerInstance->Config->cmdline.writelog = !do_nolog;
 		ServerInstance->Config->cmdline.writepid = !do_nopid;
 	}

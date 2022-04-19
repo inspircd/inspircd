@@ -13,6 +13,13 @@ files   = "{http_parser.[ch],LICENSE-MIT}"
 git     = "https://github.com/nodejs/http-parser"
 license = "MIT License"
 
+[lyra]
+author  = "Build Frameworks Group"
+depth   = 3
+files   = "{data/single_include/lyra/lyra.hpp,LICENSE.txt}"
+git     = "https://github.com/bfgroup/Lyra"
+license = "Boost Software License"
+
 [md5]
 author  = "Solar Designer"
 depth   = 1
@@ -45,9 +52,3 @@ depth   = 2
 files   = "{LICENSE,source/utf8/{core,unchecked}.h}"
 git     = "https://github.com/nemtrif/utfcpp"
 license = "Boost Software License"
-
-[ya_getopt]
-author  = "Kubo Takehiro"
-files   = "ya_getopt.[ch]"
-git     = "https://github.com/kubo/ya_getopt"
-license = "2-clause BSD License"

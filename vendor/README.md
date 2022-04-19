@@ -22,6 +22,16 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **Website** &mdash; [https://github.com/nodejs/http-parser](https://github.com/nodejs/http-parser)
 
+## lyra
+
+**Author** &mdash; Build Frameworks Group
+
+**License** &mdash; Boost Software License
+
+**Version** &mdash; 1.6
+
+**Website** &mdash; [https://github.com/bfgroup/Lyra](https://github.com/bfgroup/Lyra)
+
 ## md5
 
 **Author** &mdash; [Solar Designer](mailto:solar@openwall.com)
@@ -61,13 +71,3 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 **Version** &mdash; v3.2.1
 
 **Website** &mdash; [https://github.com/nemtrif/utfcpp](https://github.com/nemtrif/utfcpp)
-
-## ya_getopt
-
-**Author** &mdash; Kubo Takehiro
-
-**License** &mdash; 2-clause BSD License
-
-**Version** &mdash; 6ce4310
-
-**Website** &mdash; [https://github.com/kubo/ya_getopt](https://github.com/kubo/ya_getopt)
