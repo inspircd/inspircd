@@ -192,7 +192,7 @@ class CoreExport InspIRCd
 	struct timespec TIME;
 
 	/** A 64k buffer used to read socket data into
-	 * NOTE: update ValidateNetBufferSize if you change this
+	 * Update the range of <performance:netbuffersize> if you change this
 	 */
 	char ReadBuffer[65535];
 
