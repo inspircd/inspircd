@@ -510,10 +510,8 @@ public:
 	 */
 	static bool TimingSafeCompare(const std::string& one, const std::string& two);
 
-	/** Begin execution of the server.
-	 * NOTE: this function NEVER returns. Internally,
-	 * it will repeatedly loop.
-	 */
+	/** Starts the execution of the server main loop. */
+	[[noreturn]]
 	void Run();
 
 	char* GetReadBuffer()
