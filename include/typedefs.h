@@ -33,7 +33,6 @@ class ConfigTag;
 class Extensible;
 class FakeUser;
 class InspIRCd;
-class Invitation;
 class IOHookProvider;
 class LocalUser;
 class Membership;
