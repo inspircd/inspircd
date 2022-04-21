@@ -255,7 +255,7 @@ public:
 /* Builder for the ERR_CHANOPRIVSNEEDED numeric. */
 class Numerics::ChannelPrivilegesNeeded : public Numeric::Numeric
 {
- public:
+public:
 	ChannelPrivilegesNeeded(Channel* chan, unsigned int rank, const std::string& message)
 		: Numeric(ERR_CHANOPRIVSNEEDED)
 	{

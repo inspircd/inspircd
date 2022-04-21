@@ -35,6 +35,56 @@
 #include "modules/invite.h"
 #include "modules/isupport.h"
 
+class UnsetTimer final
+	: public Timer
+{
+private:
+	ModeHandler& overridemode;
+	LocalUser* user;
+
+public:
+	UnsetTimer(LocalUser* u, unsigned long timeout, ModeHandler& om)
+		: Timer(timeout, false)
+		, overridemode(om)
+		, user(u)
+	{
+		ServerInstance->Timers.AddTimer(this);
+	}
+
+	bool Tick() override
+	{
+		if (!user->quitting && user->IsModeSet(overridemode))
+		{
+			Modes::ChangeList changelist;
+			changelist.push_remove(&overridemode);
+			ServerInstance->Modes.Process(ServerInstance->FakeClient, nullptr, user, changelist);
+		}
+		return false;
+	}
+};
+
+class Override final
+	: public SimpleUserMode
+{
+public:
+	SimpleExtItem<UnsetTimer> ext;
+	unsigned long timeout;
+
+	Override(Module* Creator)
+		: SimpleUserMode(Creator, "override", 'O', true)
+		, ext(Creator, "override-timer", ExtensionType::USER)
+	{
+	}
+
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change)
+	{
+		ModeAction res = SimpleUserMode::OnModeChange(source, dest, channel, change);
+		if (change.adding && res == MODEACTION_ALLOW && IS_LOCAL(dest) && timeout)
+			ext.Set(dest, new UnsetTimer(IS_LOCAL(dest), timeout, *this));
+		return res;
+	}
+};
+
 class ModuleOverride final
 	: public Module
 	, public ISupport::EventListener
@@ -42,7 +92,7 @@ class ModuleOverride final
 private:
 	bool RequireKey;
 	bool NoisyOverride;
-	SimpleUserMode ou;
+	Override ou;
 	ChanModeReference topiclock;
 	ChanModeReference inviteonly;
 	ChanModeReference key;
@@ -78,7 +128,7 @@ public:
 	ModuleOverride()
 		: Module(VF_VENDOR, "Allows server operators to be given privileges that allow them to ignore various channel-level restrictions.")
 		, ISupport::EventListener(this)
-		, ou(this, "override", 'O')
+		, ou(this)
 		, topiclock(this, "topiclock")
 		, inviteonly(this, "inviteonly")
 		, key(this, "key")
@@ -98,6 +148,7 @@ public:
 		auto tag = ServerInstance->Config->ConfValue("override");
 		NoisyOverride = tag->getBool("noisy");
 		RequireKey = tag->getBool("requirekey");
+		ou.timeout = tag->getDuration("timeout", 0);
 	}
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override

@@ -110,6 +110,7 @@ public:
 	 * Sends a standard reply to the specified user if they have the specified cap
 	 * or a notice if they do not.
 	 * @param user The user to send the reply to.
+	 * @param cap The capability that determines the type of message to send.
 	 * @param command The command that the reply relates to.
 	 * @param code A machine readable code for this reply.
 	 * @param args A variable number of context parameters and a human readable description of this reply.

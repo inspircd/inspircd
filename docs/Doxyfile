@@ -102,8 +102,7 @@ EXCLUDE                =
 EXCLUDE_SYMLINKS       = YES
 EXCLUDE_PATTERNS       = */.git/* \
                          */doxygen/* \
-                         */coremods/* \
-                         */modules/* \
+                         */src/* \
                          */vendor/*
 EXCLUDE_SYMBOLS        =
 EXAMPLE_PATH           =
