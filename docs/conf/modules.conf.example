@@ -1688,9 +1688,16 @@
 # requirekey    - If enabled, overriding on join requires a channel   #
 #                 key of "override" to be specified.                  #
 #                                                                     #
+# timeout:        The time period after which to automatically remove #
+#                 the override user mode. If not set then it will not #
+#                 be removed automatically.                           #
+#                                                                     #
 # enableumode   - If enabled, user mode +O is required for override.  #
 #                                                                     #
-#<override noisy="yes" requirekey="no" enableumode="yes">
+#<override noisy="yes"
+#          requirekey="no"
+#          timeout="30m"
+#          enableumode="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper levels module: Gives each oper a level and prevents actions
