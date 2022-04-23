@@ -473,9 +473,8 @@ public:
 	std::string GetVersionString(bool getFullVersion = false);
 
 	/** Attempt to write the process id to a given file
-	 * @param exitonfail If true and the PID fail cannot be written log to stdout and exit, otherwise only log on failure
 	 */
-	void WritePID(bool exitonfail);
+	void WritePID();
 
 	/** This constructor initialises all the subsystems and reads the config file.
 	 * @param argc The argument count passed to main()

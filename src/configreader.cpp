@@ -448,10 +448,6 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	// Check errors before dealing with failed binds, since continuing on failed bind is wanted in some circumstances.
 	valid = errstr.str().empty();
 
-	// write once here, to try it out and make sure its ok
-	if (valid)
-		ServerInstance->WritePID(!old);
-
 	auto binds = ConfTags("bind");
 	if (binds.empty())
 		errstr << "Possible configuration error: you have not defined any <bind> blocks." << std::endl
