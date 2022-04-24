@@ -15,10 +15,13 @@ if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
 	endfunction()
 
 	enable_extra("argon2" "ARGON2")
+	enable_extra("geo_maxmind" "LIBMAXMINDDB")
 	enable_extra("mysql" "LIBMYSQLCLIENT")
 	enable_extra("pgsql" "LIBPQ")
 	enable_extra("regex_pcre" "PCRE")
 	enable_extra("regex_re2" "RE2")
+	enable_extra("ssl_mbedtls" "MBEDTLS")
+	enable_extra("ssl_openssl" "OPENSSL")
 	enable_extra("sqlite3" "SQLITE3")
 
 	link_directories("${CMAKE_BINARY_DIR}/extradll" "${CMAKE_BINARY_DIR}/extralib")

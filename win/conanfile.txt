@@ -1,4 +1,4 @@
-# Last updated: 2022-04-05
+# Last updated: 2022-04-24
 #
 # Modules we can't legally ship: geo_maxmind, ssl_mbedtls, ssl_openssl
 # Modules which don't apply to Windows: regex_posix, sslrehashsignal
@@ -10,7 +10,7 @@ argon2/20190702
 libmysqlclient/8.0.25
 libpq/14.2
 # mbedtls/3.1.0
-# openssl/3.0.2
+# openssl/1.1.1n # unable to upgrade yet because of dependency issues
 pcre/8.45
 re2/20220201
 sqlite3/3.38.1
