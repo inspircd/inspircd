@@ -2,11 +2,11 @@ Building InspIRCd for Windows:
 
 Prerequisites:
 	Visual Studio 2015 or newer (https://www.visualstudio.com)
-	CMake 2.8 or newer (https://cmake.org)
+	CMake 3.8 or newer (https://cmake.org)
 	If building the installer, NSIS (https://nsis.sourceforge.io)
 
 Configuring:
-	First copy any extra modules from extras (such as m_mysql) to the modules directory that you want to build.
+	First edit conanfile.txt to contain the dependencies for any third-party modules that you want to build and run `conan install [PATH-TO-WIN-DIR] --build-missing
 
 	Run CMake to generate build files. This can be done using the CMake GUI by setting the source code path to "win",
 	and the binary path to "win/build", followed by pressing "Configure". Modify any variables you need, such as install
