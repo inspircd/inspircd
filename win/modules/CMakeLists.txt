@@ -3,16 +3,25 @@
 file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_regex_stdlib.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
 
 if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-	file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_argon2.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
-	file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_pgsql.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
-	file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_mysql.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
-	file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_regex_pcre.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
-	file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_regex_re2.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
-	file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_sqlite3.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
-
 	include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-	link_directories("${CMAKE_BINARY_DIR}/extradll" "${CMAKE_BINARY_DIR}/extralib")
 
+	function(enable_extra NAME PACKAGE)
+		if(DEFINED "CONAN_${PACKAGE}_ROOT")
+			message("Enabling the ${NAME} module")
+			file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_${NAME}.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
+		else()
+			message("Unable to enable the ${NAME} module (missing library)")
+		endif()
+	endfunction()
+
+	enable_extra("argon2" "ARGON2")
+	enable_extra("mysql" "LIBMYSQLCLIENT")
+	enable_extra("pgsql" "LIBPQ")
+	enable_extra("regex_pcre" "PCRE")
+	enable_extra("regex_re2" "RE2")
+	enable_extra("sqlite3" "SQLITE3")
+
+	link_directories("${CMAKE_BINARY_DIR}/extradll" "${CMAKE_BINARY_DIR}/extralib")
 	file(GLOB EXTRA_DLLS "${CMAKE_BINARY_DIR}/extradll/*.dll")
 	install(FILES ${EXTRA_DLLS} DESTINATION .)
 
