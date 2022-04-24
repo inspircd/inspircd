@@ -21,7 +21,6 @@ argon2:shared=True
 libmaxminddb:shared=True
 libmysqlclient:shared=True
 libpq:shared=True
-mbedtls:shared=True
 openssl:shared=True
 pcre:shared=True
 re2:shared=True
