@@ -77,8 +77,8 @@
 #endif
 
 #ifdef _WIN32
-# pragma comment(lib, "ssleay32.lib")
-# pragma comment(lib, "libeay32.lib")
+# pragma comment(lib, "libcrypto.lib")
+# pragma comment(lib, "libssl.lib")
 #endif
 
 // Compatibility layer to allow OpenSSL 1.0 to use the 1.1 API.
