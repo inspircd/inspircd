@@ -20,6 +20,7 @@ jobs:
       - name: Install libraries
         working-directory: ${{ github.workspace }}/win/build
         run: |
+          (Get-Content ../conanfile.txt).replace('##', '') | Set-Content ../conanfile.txt
           conan install .. --build=missing
 
       - name: Run CMake

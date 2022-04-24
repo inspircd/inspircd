@@ -6,11 +6,11 @@
 
 [requires]
 argon2/20190702
-# libmaxminddb/1.6.0
+## libmaxminddb/1.6.0
 libmysqlclient/8.0.25
 libpq/14.2
-# mbedtls/3.1.0
-# openssl/1.1.1n # unable to upgrade yet because of dependency issues
+## mbedtls/3.1.0
+## openssl/1.1.1n # unable to upgrade yet because of dependency issues
 pcre/8.45
 re2/20220201
 sqlite3/3.38.1
