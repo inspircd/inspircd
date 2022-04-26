@@ -48,8 +48,8 @@
 #include <openssl/dh.h>
 
 #ifdef _WIN32
-# pragma comment(lib, "ssleay32.lib")
-# pragma comment(lib, "libeay32.lib")
+# pragma comment(lib, "libcrypto.lib")
+# pragma comment(lib, "libssl.lib")
 #endif
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L

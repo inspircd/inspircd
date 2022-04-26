@@ -26,6 +26,7 @@
 
 
 #include "inspircd.h"
+#include "modules/invite.h"
 
 enum
 {
@@ -57,8 +58,10 @@ enum KnockNotify : uint8_t
 class CommandKnock final
 	: public Command
 {
+private:
 	SimpleChannelMode& noknockmode;
 	ChanModeReference inviteonlymode;
+	Invite::API inviteapi;
 
 public:
 	int notify;
@@ -67,6 +70,7 @@ public:
 		: Command(Creator,"KNOCK", 2, 2)
 		, noknockmode(Noknockmode)
 		, inviteonlymode(Creator, "inviteonly")
+		, inviteapi(Creator)
 	{
 		syntax = { "<channel> :<reason>" };
 		Penalty = 5;
@@ -99,9 +103,33 @@ public:
 			return CmdResult::FAILURE;
 		}
 
+		// Work out who we should send the knock to.
+		char status;
+		switch (inviteapi->GetAnnounceState())
+		{
+			case Invite::ANNOUNCE_ALL:
+			{
+				status = 0;
+				break;
+			}
+
+			case Invite::ANNOUNCE_DYNAMIC:
+			{
+				PrefixMode* mh = ServerInstance->Modes.FindNearestPrefixMode(HALFOP_VALUE);
+				status = mh->GetPrefix() ? mh->GetPrefix() : '@';
+				break;
+			}
+
+			default:
+			{
+				status = '@';
+				break;
+			}
+		}
+
 		if (notify & KN_SEND_NOTICE)
 		{
-			c->WriteNotice(InspIRCd::Format("User %s is KNOCKing on %s (%s)", user->nick.c_str(), c->name.c_str(), parameters[1].c_str()));
+			c->WriteNotice(InspIRCd::Format("User %s is KNOCKing on %s (%s)", user->nick.c_str(), c->name.c_str(), parameters[1].c_str()), status);
 			user->WriteNotice("KNOCKing on " + c->name);
 		}
 
@@ -111,7 +139,7 @@ public:
 			numeric.push(c->name).push(user->GetFullHost()).push("is KNOCKing: " + parameters[1]);
 
 			ClientProtocol::Messages::Numeric numericmsg(numeric, c->name);
-			c->Write(ServerInstance->GetRFCEvents().numeric, numericmsg);
+			c->Write(ServerInstance->GetRFCEvents().numeric, numericmsg, status);
 
 			user->WriteNumeric(RPL_KNOCKDLVR, c->name, "KNOCKing on channel");
 		}

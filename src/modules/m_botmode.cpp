@@ -48,7 +48,7 @@ public:
 	{
 		User* const user = msg.GetSourceUser();
 		if (user && user->IsModeSet(botmode))
-			msg.AddTag("inspircd.org/bot", this, "");
+			msg.AddTag("bot", this, "");
 	}
 
 	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override

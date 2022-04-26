@@ -12,7 +12,7 @@ InspIRCd is supported on the following platforms:
 
 - The most recent three major releases of macOS using the AppleClang 10, Clang 5+, or GCC 7+ (*not* LLVM-GCC) compilers and the GNU toolchain.
 
-- Windows 7 or newer using the MSVC 19.15+ (Visual Studio 15.8 2017) compiler and CMake 2.8+.
+- Windows 10 or newer using the MSVC 19.15+ (Visual Studio 15.8 2017) compiler and CMake 3.8 or newer.
 
 Alternate platforms and toolchains may also work but are not officially supported by the InspIRCd team. Generally speaking if you are using a reasonably modern UNIX-like system you should be able to build InspIRCd on it.
 

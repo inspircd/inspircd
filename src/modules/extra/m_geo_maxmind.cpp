@@ -28,7 +28,7 @@
 /// $PackageInfo: require_system("ubuntu" "16.04") libmaxminddb-dev pkg-config
 
 #ifdef _WIN32
-# pragma comment(lib, "libmaxminddb.lib")
+# pragma comment(lib, "maxminddb.lib")
 #endif
 
 #include "inspircd.h"

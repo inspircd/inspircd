@@ -1,4 +1,4 @@
-# Last updated: 2022-04-05
+# Last updated: 2022-04-24
 #
 # Modules we can't legally ship: geo_maxmind, ssl_mbedtls, ssl_openssl
 # Modules which don't apply to Windows: regex_posix, sslrehashsignal
@@ -6,12 +6,12 @@
 
 [requires]
 argon2/20190702
-# libmaxminddb/1.6.0
+## libmaxminddb/1.6.0
 libmysqlclient/8.0.25
 libpq/14.2
-# mbedtls/3.1.0
-# openssl/3.0.2
-pcre2/10.39
+## mbedtls/3.1.0
+## openssl/1.1.1n # unable to upgrade yet because of dependency issues
+pcre2/10.40
 re2/20220201
 sqlite3/3.38.1
 zlib/1.2.12 # force override to fix a conflict between libmysqlclient and pcre
@@ -21,7 +21,6 @@ argon2:shared=True
 libmaxminddb:shared=True
 libmysqlclient:shared=True
 libpq:shared=True
-mbedtls:shared=True
 openssl:shared=True
 pcre2:shared=True
 re2:shared=True

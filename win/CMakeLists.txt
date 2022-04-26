@@ -44,7 +44,7 @@ if(MSVC)
 	set(CMAKE_MODULE_LINKER_FLAGS_MINSIZEREL "${CMAKE_MODULE_LINKER_FLAGS_MINSIZEREL} /SAFESEH:NO")
 	set(CMAKE_MODULE_LINKER_FLAGS_RELEASE "${CMAKE_MODULE_LINKER_FLAGS_RELEASE} /SAFESEH:NO")
 	set(CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO} /SAFESEH:NO")
-endif(MSVC)
+endif()
 
 file(GLOB INSPIRCD_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
 "${INSPIRCD_BASE}/win/inspircd_win32wrapper.cpp"
@@ -60,7 +60,7 @@ link_directories(${EXTRA_LIBS})
 
 if(MSVC)
 	add_library(win32_memory STATIC "${INSPIRCD_BASE}/win/inspircd_memory_functions.cpp")
-endif(MSVC)
+endif()
 
 configure_file("${INSPIRCD_BASE}/win/inspircd.rc.cmake" "${INSPIRCD_BASE}/win/inspircd.rc")
 configure_file("${INSPIRCD_BASE}/make/template/config.h" "${INSPIRCD_BASE}/include/config.h")
@@ -77,8 +77,8 @@ file(GLOB EXTRA_DLLS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${INSPIRCD_BASE}/win/
 install(FILES ${EXTRA_DLLS} DESTINATION .)
 
 # Install example configs
-file(GLOB_RECURSE EXAMPLE_CONFIGS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${INSPIRCD_BASE}/docs/conf/*.example")
-install(FILES ${EXAMPLE_CONFIGS} DESTINATION conf)
+install(DIRECTORY "${INSPIRCD_BASE}/docs/conf/" DESTINATION "${CONFIG_DIR}/examples")
+install(DIRECTORY "${INSPIRCD_BASE}/docs/sql/" DESTINATION "${CONFIG_DIR}/sql")
 
 # Create an empty data and logs directory and install them
 file(MAKE_DIRECTORY ${DATA_DIR})
@@ -109,4 +109,4 @@ if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
 	set(CPACK_NSIS_COMPRESSOR "/SOLID zlib")
 
 	include(CPack)
-endif(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
+endif()
