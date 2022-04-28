@@ -298,6 +298,8 @@ The following flags use <pattern> to match against the specified user data:
 
  A     Show users who have an away message matching <pattern>.
  a     Show users who have an account name matching <pattern>.
+ G     Show users who are connecting from a country code matching <pattern>.
+       Requires the geoban module.
  h     Show users who have a hostname matching <pattern>. If the 'x' modifier
        is specified then this will match against the real hostname instead of
        the display hostname.
