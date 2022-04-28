@@ -1,4 +1,4 @@
-Since the first commit in January 2003 102 people have submitted patches,
+Since the first commit in January 2003 103 people have submitted patches,
 commits, and other useful contributions to InspIRCd. These people, ordered by
 the number of contributions they have made, are:
 
@@ -33,10 +33,11 @@ the number of contributions they have made, are:
   * blitmap <blitternet@gmail.com>
   * jamie
   * Justin Crawford <Justasic@Gmail.com>
+  * iwalkalone <iwalkalone69@gmail.com>
   * katsklaw
   * Dylan Frank <b00mx0r@aureus.pw>
-  * iwalkalone <iwalkalone69@gmail.com>
   * Steven Van Acker <steven@singularity.be>
+  * Val Lorentz <progval+git@progval.net>
   * Dan Parsons <dparsons@nyip.net>
   * Googolplexed <googol@googolplexed.net>
   * Mantas Mikulėnas <grawity@gmail.com>
@@ -58,7 +59,6 @@ the number of contributions they have made, are:
   * Michael Hazell <michaelhazell@hotmail.com>
   * Molly Miller
   * PhilSliderS
-  * Valentin Lorentz <progval+git@progval.net>
   * eggy
   * md_5 <git@md-5.net>
   * satmd <satmd@satmd.de>
@@ -81,6 +81,7 @@ the number of contributions they have made, are:
   * Florian Praden <florian@praden.eu>
   * Garrett Holmstrom <gholms@fedoraproject.org>
   * Herman <GermanAizek@yandex.ru>
+  * James Wheare <james@wheare.org>
   * Joel Sing <joel@sing.id.au>
   * Jordyn/The Linux Geek <onlinecloud1@gmail.com>
   * Josh Soref
