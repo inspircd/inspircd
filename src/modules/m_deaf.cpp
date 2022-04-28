@@ -190,7 +190,7 @@ class ModuleDeaf
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Adds user mode d (deaf) which prevents users from receiving channel messages.", VF_VENDOR);
+		return Version("Adds user modes d (deaf) and D (privdeaf) which prevents users from receiving channel (deaf) or private (privdeaf) messages.", VF_VENDOR);
 	}
 };
 
