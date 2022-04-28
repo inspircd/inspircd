@@ -59,7 +59,7 @@ for my $path (@paths) {
 	my ($copyright, $indent, @lines);
 	for my $line (<$fh>) {
 		chomp $line;
-		if ($line =~ /^([^0-9A-Za-z]+\s)Copyright\s+\(C\)\s+[^<]+\s+<[^>]+>$/) {
+		if ($line =~ /^([^0-9A-Za-z]+\s)Copyright\s+\(C\)\s+[^<]+(\s+<[^>]+>)?$/) {
 			$copyright = scalar @lines;
 			$indent = $1;
 		} else {
