@@ -33,6 +33,7 @@ use make::console;
 my %authors;
 for my $author (split /\n+/, `git log --pretty='%aN <%aE>' HEAD`) {
 	$author = $1 if $author =~ /^(.+) <(?:unknown\@email.invalid|\S+\@users.noreply.github.com)>$/;
+	next if $author =~ /\[bot\]$/;
 
 	$authors{$author} ||= 0;
 	$authors{$author} += 1;
