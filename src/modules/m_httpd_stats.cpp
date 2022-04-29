@@ -6,7 +6,7 @@
  *   Copyright (C) 2018 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2016 Johanna A
  *   Copyright (C) 2013-2016 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2013, 2017, 2019-2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017, 2019-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>

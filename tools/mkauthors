@@ -2,7 +2,7 @@
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
-#   Copyright (C) 2021 Sadie Powell <sadie@witchery.services>
+#   Copyright (C) 2021-2022 Sadie Powell <sadie@witchery.services>
 #
 # This file is part of InspIRCd.  InspIRCd is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -33,6 +33,7 @@ use make::console;
 my %authors;
 for my $author (split /\n+/, `git log --pretty='%aN <%aE>' HEAD`) {
 	$author = $1 if $author =~ /^(.+) <(?:unknown\@email.invalid|\S+\@users.noreply.github.com)>$/;
+	next if $author =~ /\[bot\]$/;
 
 	$authors{$author} ||= 0;
 	$authors{$author} += 1;

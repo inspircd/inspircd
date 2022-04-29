@@ -1,4 +1,4 @@
-# Last updated: 2022-04-24
+# Last updated: 2022-04-27
 #
 # Modules we can't legally ship: geo_maxmind, ssl_mbedtls, ssl_openssl
 # Modules which don't apply to Windows: regex_posix, sslrehashsignal
@@ -14,7 +14,6 @@ libpq/14.2
 pcre2/10.40
 re2/20220201
 sqlite3/3.38.1
-zlib/1.2.12 # force override to fix a conflict between libmysqlclient and pcre
 
 [options]
 argon2:shared=True
