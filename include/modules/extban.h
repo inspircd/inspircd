@@ -28,7 +28,9 @@ namespace ExtBan
 	class Manager;
 	class ManagerRef;
 
+	/** All possible extban formats. */
 	enum class Format
+		: uint8_t
 	{
 		/** Do not perform any normalisation of extbans. */
 		ANY,
@@ -42,6 +44,7 @@ namespace ExtBan
 
 	/** All possible types of extban. */
 	enum class Type
+		: uint8_t
 	{
 		/** The extban takes action against specific behaviour (e.g. nokicks). */
 		ACTING,
