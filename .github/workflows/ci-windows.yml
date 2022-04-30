@@ -31,4 +31,4 @@ jobs:
       - name: Build InspIRCd
         working-directory: ${{ github.workspace }}/win/build
         run: |
-          msbuild InspIRCd.sln /M:3 /P:Configuration=Release /P:Platform=x64 /T:ALL_BUILD /VERBOSITY:MINIMAL
+          msbuild PACKAGE.vcxproj /M:3 /P:Configuration=Release /P:Platform=x64 /VERBOSITY:MINIMAL
