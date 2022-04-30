@@ -63,6 +63,7 @@ foreach(MODULE_NAME ${INSPIRCD_MODULES})
 
 	set_target_properties(${BASE_NAME} PROPERTIES
 		PREFIX ""
+		FOLDER "Modules"
 		COMPILE_DEFINITIONS "MODNAME=\"${BASE_NAME}\""
 	)
 

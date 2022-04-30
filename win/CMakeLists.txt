@@ -23,6 +23,9 @@ set(CMAKE-CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD "17")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Put modules in their own folder
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 # Grab version info from version.sh
 file(STRINGS "${INSPIRCD_BASE}/src/version.sh" VERSIONSH)
 string(REGEX REPLACE ".*InspIRCd-([0-9]*).*" "\\1" VERSION_MAJOR "${VERSIONSH}")
