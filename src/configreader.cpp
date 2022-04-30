@@ -284,7 +284,6 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 
 static std::string GetServerHost()
 {
-#ifndef _WIN32
 	char hostname[256];
 	if (gethostname(hostname, sizeof(hostname)) == 0)
 	{
@@ -295,7 +294,6 @@ static std::string GetServerHost()
 		if (name.length() <= ServerInstance->Config->Limits.MaxHost && InspIRCd::IsHost(name))
 			return name;
 	}
-#endif
 	return "irc.example.com";
 }
 
