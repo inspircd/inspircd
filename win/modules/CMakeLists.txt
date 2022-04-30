@@ -40,34 +40,32 @@ foreach(MODULE_NAME ${INSPIRCD_MODULES})
 	else()
 		string(REGEX REPLACE "^.*[/\\](.*).cpp$" "\\1" BASE_NAME ${MODULE_NAME})
 	endif()
-	set(SO_NAME "${BASE_NAME}.dll")
 
 	if(IS_DIRECTORY "${MODULE_NAME}")
 		file(GLOB MODULES_SUBDIR_SRCS "${MODULE_NAME}/*.cpp")
 		list(SORT MODULES_SUBDIR_SRCS)
-		add_library(${SO_NAME} MODULE ${MODULES_SUBDIR_SRCS})
+		add_library(${BASE_NAME} MODULE ${MODULES_SUBDIR_SRCS})
 	else()
-		add_library(${SO_NAME} MODULE ${MODULE_NAME})
+		add_library(${BASE_NAME} MODULE ${MODULE_NAME})
 	endif()
 
 	# Generate the module and set its linker flags, also set it to depend on the main executable to be built beforehand
-	target_link_libraries(${SO_NAME} inspircd)
-	add_dependencies(${SO_NAME} inspircd)
+	target_link_libraries(${BASE_NAME} inspircd)
+	add_dependencies(${BASE_NAME} inspircd)
 	if(MSVC)
-		target_link_libraries(${SO_NAME} win32_memory)
-		add_dependencies(${SO_NAME} win32_memory)
+		target_link_libraries(${BASE_NAME} win32_memory)
+		add_dependencies(${BASE_NAME} win32_memory)
 	endif()
 
 	if(CONAN_CXX_FLAGS)
-		conan_target_link_libraries("${SO_NAME}")
+		conan_target_link_libraries(${BASE_NAME})
 	endif()
 
-	set_target_properties(${SO_NAME} PROPERTIES
+	set_target_properties(${BASE_NAME} PROPERTIES
 		PREFIX ""
-		SUFFIX ""
 		COMPILE_DEFINITIONS "MODNAME=\"${BASE_NAME}\""
 	)
 
 	# Set the module to be installed to the module directory
-	install(TARGETS ${SO_NAME} DESTINATION ${MODULE_DIR})
+	install(TARGETS ${BASE_NAME} DESTINATION ${MODULE_DIR})
 endforeach()
