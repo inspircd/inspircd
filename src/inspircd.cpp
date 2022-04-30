@@ -438,7 +438,6 @@ void InspIRCd::Cleanup()
 
 void InspIRCd::WritePID()
 {
-#ifndef _WIN32
 	if (!ServerInstance->Config->cmdline.writepid)
 	{
 		this->Logs.Log("STARTUP", LOG_DEFAULT, "--nopid specified on command line; PID file not written.");
@@ -458,7 +457,6 @@ void InspIRCd::WritePID()
 		this->Logs.Log("STARTUP", LOG_DEFAULT, "Failed to write PID-file '%s', exiting.", pidfile.c_str());
 		Exit(EXIT_STATUS_PID);
 	}
-#endif
 }
 
 InspIRCd::InspIRCd(int argc, char** argv)
