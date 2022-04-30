@@ -43,9 +43,7 @@
 #include <netdb.h>
 
 #else
-
-#include "inspircd_win32wrapper.h"
-
+# include <afunix.h>
 #endif
 
 #include <cerrno>

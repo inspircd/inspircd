@@ -182,11 +182,3 @@ inline ssize_t writev(int fd, const WindowsIOVec* iov, int count)
 		return sent;
 	return -1;
 }
-
-// This wrapper is just so we don't need to do #ifdef _WIN32 everywhere in the socket code. It is
-// not actually used and does not need to be the same size as sockaddr_un on UNIX systems.
-struct sockaddr_un final
-{
-	ADDRESS_FAMILY sun_family;
-	char sun_path[6];
-};

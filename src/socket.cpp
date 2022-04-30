@@ -96,7 +96,6 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 			continue;
 		}
 
-#ifndef _WIN32
 		// Are we creating a UNIX listener?
 		const std::string path = tag->getString("path");
 		if (!path.empty())
@@ -127,7 +126,6 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 			else
 				bound++;
 		}
-#endif
 	}
 
 	std::vector<ListenSocket*>::iterator n = ports.begin();
