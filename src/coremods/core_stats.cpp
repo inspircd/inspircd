@@ -33,6 +33,8 @@
 #ifdef _WIN32
 #include <psapi.h>
 #pragma comment(lib, "psapi.lib") // For GetProcessMemoryInfo()
+#else
+# include <sys/resource.h>
 #endif
 
 class CommandStats final

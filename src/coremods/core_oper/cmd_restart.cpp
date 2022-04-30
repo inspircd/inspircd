@@ -25,6 +25,12 @@
  */
 
 
+#ifdef _WIN32
+# include <process.h>
+#else
+# include <fcntl.h>
+#endif
+
 #include "inspircd.h"
 #include "core_oper.h"
 

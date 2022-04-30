@@ -29,7 +29,6 @@
 
 #include <sys/types.h>
 #include <sys/event.h>
-#include <sys/time.h>
 #include <sys/sysctl.h>
 
 /** A specialisation of the SocketEngine class, designed to use BSD kqueue().

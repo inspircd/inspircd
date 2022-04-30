@@ -55,6 +55,10 @@
 #include <unordered_map>
 #include <vector>
 
+#ifndef _WIN32
+# include <sys/time.h>
+#endif
+
 #include "utility/aligned_storage.h"
 #include "utility/iterator_range.h"
 #include "utility/string_view.h"

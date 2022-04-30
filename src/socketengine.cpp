@@ -28,6 +28,11 @@
 
 #include <iostream>
 
+#ifndef _WIN32
+# include <fcntl.h>
+# include <sys/resource.h>
+#endif
+
 #include "inspircd.h"
 #include "exitcodes.h"
 

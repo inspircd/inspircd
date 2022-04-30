@@ -75,6 +75,10 @@ SocketThread::SocketThread()
 }
 #else
 
+# ifdef _WIN32
+#  define pipe(fd) _pipe(fd, 1, 0)
+# endif
+
 class ThreadSignalSocket final
 	: public EventHandler
 {

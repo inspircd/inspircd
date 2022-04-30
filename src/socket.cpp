@@ -27,6 +27,10 @@
  */
 
 
+#ifndef _WIN32
+# include <arpa/inet.h>
+#endif
+
 #include "inspircd.h"
 
 bool InspIRCd::BindPort(std::shared_ptr<ConfigTag> tag, const irc::sockets::sockaddrs& sa, std::vector<ListenSocket*>& old_ports)

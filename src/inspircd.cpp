@@ -53,9 +53,13 @@
 #include <rang/rang.hpp>
 
 #ifndef _WIN32
+# include <fcntl.h>
 # include <grp.h>
 # include <pwd.h>
 # include <sys/resource.h>
+#else
+# define fdopen _fdopen
+# include <process.h>
 #endif
 
 InspIRCd* ServerInstance = NULL;

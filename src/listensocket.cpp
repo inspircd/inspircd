@@ -31,7 +31,8 @@
 #include "iohook.h"
 
 #ifndef _WIN32
-#include <netinet/tcp.h>
+# include <netinet/tcp.h>
+# include <sys/stat.h>
 #endif
 
 ListenSocket::ListenSocket(std::shared_ptr<ConfigTag> tag, const irc::sockets::sockaddrs& bind_to)

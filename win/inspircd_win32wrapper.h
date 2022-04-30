@@ -78,10 +78,6 @@
 #pragma comment(lib, "Ws2_32.lib")
 #include <windows.h>
 #include <ws2tcpip.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <direct.h>
-#include <process.h>
 #include <io.h>
 
 // Windows defines these already.
@@ -94,14 +90,6 @@
 #define strncasecmp _strnicmp
 
 typedef SSIZE_T ssize_t;
-
-/* _popen, _pclose */
-#define popen _popen
-#define pclose _pclose
-#define getpid _getpid
-#define dup _dup
-#define fdopen _fdopen
-#define pipe(fd) _pipe(fd, 1, 0)
 
 // warning: 'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'
 // Normally, this is a huge problem, but due to our new/delete remap, we can ignore it.

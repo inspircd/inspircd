@@ -19,6 +19,10 @@
  */
 
 
+#ifndef _WIN32
+# include <arpa/inet.h>
+#endif
+
 #include "inspircd.h"
 #include "modules/dns.h"
 

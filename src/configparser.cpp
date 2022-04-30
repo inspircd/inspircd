@@ -29,6 +29,11 @@
 #include "inspircd.h"
 #include "configparser.h"
 
+#ifdef _WIN32
+# define pclose _pclose
+# define popen _popen
+#endif
+
 enum ParseFlags
 {
 	// Executable includes are disabled.
