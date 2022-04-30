@@ -27,7 +27,8 @@
 #pragma once
 
 /** Used to indicate the type of a command. */
-enum class CmdAccess : uint8_t
+enum class CmdAccess
+	: uint8_t
 {
 	/* The command has no special attributes. */
 	NORMAL = 0,
@@ -40,7 +41,8 @@ enum class CmdAccess : uint8_t
 };
 
 /** Used to indicate the result of trying to execute a command. */
-enum class CmdResult : uint8_t
+enum class CmdResult
+	: uint8_t
 {
 	/** The command exists and its execution succeeded. */
 	SUCCESS = 0,

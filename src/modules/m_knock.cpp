@@ -41,7 +41,8 @@ enum
 };
 
 // Actions which can be taken when a user knocks on a channel.
-enum KnockNotify : uint8_t
+enum KnockNotify
+	: uint8_t
 {
 	// Send a notice when a user knocks on a channel.
 	KN_SEND_NOTICE = 1,

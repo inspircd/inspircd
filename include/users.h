@@ -62,7 +62,8 @@ public:
 	typedef std::shared_ptr<ConnectClass> Ptr;
 
 	/** An enumeration of possible types of connect class. */
-	enum Type : uint8_t
+	enum Type
+		: uint8_t
 	{
 		/** The class defines who is allowed to connect to the server. */
 		ALLOW = 0,
@@ -282,7 +283,8 @@ public:
 	};
 
 	/** An enumeration of all possible types of user. */
-	enum Type : uint8_t
+	enum Type
+		: uint8_t
 	{
 		/** The user is connected to the local server. */
 		TYPE_LOCAL = 0,

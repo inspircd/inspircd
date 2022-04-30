@@ -37,7 +37,8 @@ namespace Regex
 	typedef std::shared_ptr<Pattern> PatternPtr;
 
 	/** The options to use when matching a pattern. */
-	enum PatternOptions : uint8_t
+	enum PatternOptions
+		: uint8_t
 	{
 		/** No special matching options apply. */
 		OPT_NONE = 0,

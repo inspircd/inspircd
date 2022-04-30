@@ -34,7 +34,8 @@
 class DNSBLEntry final
 {
 public:
-	enum class Action : uint8_t
+	enum class Action
+		: uint8_t
 	{
 		// G-line users who's IP address is in the DNSBL.
 		GLINE,
@@ -52,7 +53,8 @@ public:
 		ZLINE,
 	};
 
-	enum class Type : uint8_t
+	enum class Type
+		: uint8_t
 	{
 		// DNSBL results will be compared against the specified bit mask.
 		BITMASK,
