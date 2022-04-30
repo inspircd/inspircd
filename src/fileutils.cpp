@@ -22,10 +22,6 @@
 
 #include <fstream>
 
-#ifndef _WIN32
-# include <dirent.h>
-#endif
-
 FileReader::FileReader(const std::string& filename)
 {
 	Load(filename);
