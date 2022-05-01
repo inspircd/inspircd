@@ -180,7 +180,7 @@ private:
 		/** The engine which created this logger. */
 		const Engine* engine;
 
-		Info(Level l, TokenList t, MethodPtr m, bool c, const Engine* e);
+		Info(Level l, TokenList t, MethodPtr m, bool c, const Engine* e) ATTR_NOT_NULL(6);
 	};
 
 	/** The log messages we have cached for modules. */
@@ -237,7 +237,7 @@ public:
 	/** Unloads all loggers that are provided by the specified engine.
 	 * @param engine The engine to unload the loggers of.
 	 */
-	void UnloadEngine(const Engine* engine);
+	void UnloadEngine(const Engine* engine) ATTR_NOT_NULL(2);
 
 	/** Writes an error message to the server log.
 	 * @param type The type of message that is being logged.
