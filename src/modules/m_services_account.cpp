@@ -31,6 +31,7 @@
 #include "modules/callerid.h"
 #include "modules/ctctags.h"
 #include "modules/exemption.h"
+#include "modules/who.h"
 #include "modules/whois.h"
 
 enum
@@ -137,6 +138,7 @@ class AccountExtItemImpl : public AccountExtItem
 
 class ModuleServicesAccount
 	: public Module
+	, public Who::EventListener
 	, public Whois::EventListener
 	, public CTCTags::EventListener
 {
@@ -154,7 +156,8 @@ class ModuleServicesAccount
 
  public:
 	ModuleServicesAccount()
-		: Whois::EventListener(this)
+		: Who::EventListener(this)
+		, Whois::EventListener(this)
 		, CTCTags::EventListener(this)
 		, calleridapi(this)
 		, exemptionprov(this)
@@ -173,6 +176,18 @@ class ModuleServicesAccount
 	{
 		tokens["EXTBAN"].push_back('R');
 		tokens["EXTBAN"].push_back('U');
+	}
+
+	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) CXX11_OVERRIDE
+	{
+		size_t flag_index;
+		if (!request.GetFieldIndex('f', flag_index))
+			return MOD_RES_PASSTHRU;
+
+		if (user->IsModeSet(userregmode))
+			numeric.GetParams()[flag_index].push_back('r');
+
+		return MOD_RES_PASSTHRU;
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
