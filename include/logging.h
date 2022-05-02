@@ -80,6 +80,7 @@ public:
 /** A logger that writes to a file stream. */
 class CoreExport Log::FileMethod final
 	: public Method
+	, public Timer
 {
 private:
 	/** Whether to autoclose the file on exit. */
@@ -103,6 +104,9 @@ public:
 
 	/** @copydoc Log::Method::AcceptsCachedMessages */
 	bool AcceptsCachedMessages() const override { return false; }
+
+	/** @copydoc Timer::Tick */
+	bool Tick() override;
 
 	/** @copydoc Log::Method::OnLog */
 	void OnLog(Level level, const std::string& type, const std::string& message) override;

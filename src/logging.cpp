@@ -44,12 +44,16 @@ const char* Log::LevelToString(Log::Level level)
 }
 
 Log::FileMethod::FileMethod(const std::string& n, FILE* fh, unsigned long fl, bool ac)
-	: autoclose(ac)
+	: Timer(15*60)
+	, autoclose(ac)
 	, file(fh)
 	, flush(fl)
 	, name(n)
 {
+	if (flush > 1)
+		ServerInstance->Timers.AddTimer(this);
 }
+
 Log::FileMethod::~FileMethod()
 {
 	if (autoclose)
@@ -82,6 +86,12 @@ void Log::FileMethod::OnLog(Level level, const std::string& type, const std::str
 
 	if (ferror(file))
 		throw CoreException(InspIRCd::Format("Unable to write to %s: %s", name.c_str(), strerror(errno)));
+}
+
+bool Log::FileMethod::Tick()
+{
+	fflush(file);
+	return true;
 }
 
 Log::Engine::Engine(Module* Creator, const std::string& Name)

@@ -26,6 +26,7 @@
 
 class JSONMethod final
 	: public Log::Method
+	, public Timer
 {
 private:
 	// The file to which the log is written.
@@ -45,10 +46,13 @@ public:
 	typedef char Ch;
 
 	JSONMethod(const std::string& n, FILE* fh, unsigned long fl) ATTR_NOT_NULL(3)
-		: file(fh)
+		: Timer(15*60)
+		, file(fh)
 		, flush(fl)
 		, name(n)
 	{
+		if (flush > 1)
+			ServerInstance->Timers.AddTimer(this);
 	}
 
 	~JSONMethod()
@@ -104,6 +108,12 @@ public:
 	void Put(Ch c)
 	{
 		fputc(c, file);
+	}
+
+	bool Tick() override
+	{
+		fflush(file);
+		return true;
 	}
 };
 
