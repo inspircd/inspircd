@@ -30,8 +30,10 @@ namespace Log
 
 	class Manager;
 
+	/** A shared pointer to a log method. */
 	typedef std::shared_ptr<Method> MethodPtr;
 
+	/** Levels at which messages can be logged. */
 	enum class Level
 		: uint8_t
 	{
@@ -50,6 +52,11 @@ namespace Log
 		/** A sensitive message that we should not store lightly. */
 		RAWIO = 4,
 	};
+
+	/** Converts a log level to a string.
+	 * @param level The log level to convert.
+	 */
+	CoreExport const char* LevelToString(Level level);
 }
 
 /** Base class for logging methods. */

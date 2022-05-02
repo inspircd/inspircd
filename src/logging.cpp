@@ -19,6 +19,30 @@
 
 #include "inspircd.h"
 
+const char* Log::LevelToString(Log::Level level)
+{
+	switch (level)
+	{
+		case Log::Level::ERROR:
+			return "error";
+
+		case Log::Level::WARNING:
+			return "warning";
+
+		case Log::Level::NORMAL:
+			return "normal";
+
+		case Log::Level::DEBUG:
+			return "debug";
+
+		case Log::Level::RAWIO:
+			return "rawio";
+	}
+
+	// Should never happen.
+	return "unknown";
+}
+
 Log::FileMethod::FileMethod(const std::string& n, FILE* fh, unsigned long fl, bool ac)
 	: autoclose(ac)
 	, file(fh)

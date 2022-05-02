@@ -68,10 +68,11 @@ public:
 		}
 
 		SQL::ParamMap params = {
-			{ "level",   ConvToStr(static_cast<uint8_t>(level)) },
-			{ "message", message                                },
-			{ "time",    ConvToStr(ServerInstance->Time())      },
-			{ "type",    type                                   },
+			{ "level",    ConvToStr(static_cast<uint8_t>(level)) },
+			{ "levelstr", Log::LevelToString(level)              },
+			{ "message",  message                                },
+			{ "time",     ConvToStr(ServerInstance->Time())      },
+			{ "type",     type                                   },
 		};
 		sql->Submit(new SQLQuery(thismod), query, params);
 	}
