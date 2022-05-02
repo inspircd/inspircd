@@ -59,7 +59,7 @@ class SyslogEngine final
 	: public Log::Engine
 {
 public:
-	SyslogEngine(Module* Creator)
+	SyslogEngine(Module* Creator) ATTR_NOT_NULL(2)
 		: Log::Engine(Creator, "syslog")
 	{
 	}

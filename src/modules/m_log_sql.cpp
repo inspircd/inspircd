@@ -29,7 +29,7 @@ class SQLQuery final
 	: public SQL::Query
 {
 public:
-	SQLQuery(Module* mod)
+	SQLQuery(Module* mod) ATTR_NOT_NULL(2)
 		: SQL::Query(mod)
 	{
 	}
@@ -82,7 +82,7 @@ class SQLEngine final
 	: public Log::Engine
 {
 public:
-	SQLEngine(Module* Creator)
+	SQLEngine(Module* Creator) ATTR_NOT_NULL(2)
 		: Log::Engine(Creator, "sql")
 	{
 	}
