@@ -34,11 +34,12 @@ jobs:
             libsqlite3-dev \
             libssl-dev \
             make \
-            pkg-config
+            pkg-config \
+            rapidjson-dev
 
       - name: Run configure
         run: |
-          ./configure --enable-extras "argon2 geo_maxmind ldap log_syslog mysql pgsql regex_pcre regex_posix regex_re2 sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal"
+          ./configure --enable-extras "argon2 geo_maxmind ldap log_json log_syslog mysql pgsql regex_pcre regex_posix regex_re2 sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal"
           ./configure --development --disable-auto-extras --socketengine ${{ matrix.socketengine }}
 
       - name: Build core

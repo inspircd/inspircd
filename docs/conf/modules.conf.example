@@ -1367,6 +1367,17 @@
 # not loaded the oper accounts are still protected by a password.     #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# JSON logging module: Allows writing messages to the system log.     #
+# This module is in extras. Re-run configure with:                    #
+# ./configure --enable-extras log_json
+#<module name="log_json">
+#
+#<log method="json"
+#     target="inspircd.json"
+#     level="normal"
+#     type="* -USERINPUT -USEROUTPUT">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQL logging module: Allows writing messages to an SQL database..    #
 #<module name="log_sql">
 #

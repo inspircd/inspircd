@@ -12,6 +12,7 @@ libpq/14.2
 ## mbedtls/3.1.0
 ## openssl/1.1.1n # unable to upgrade yet because of dependency issues
 pcre2/10.40
+rapidjson/cci.20211112
 re2/20220201
 sqlite3/3.38.1
 

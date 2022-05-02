@@ -395,6 +395,7 @@ if (prompt_bool $interactive, $question, 0) {
 		'm_mysql.cpp'           => 'mysql_config --version',
 		'm_pgsql.cpp'           => 'pg_config --version',
 		'm_ldap.cpp'            => "echo '#include <ldap.h>' | $config{CXX} -E -",
+		'm_log_json.cpp'        => 'pkg-config --exists RapidJSON',
 		'm_log_syslog.cpp'      => undef,
 		'm_regex_pcre.cpp'      => 'pkg-config --exists libpcre2-8',
 		'm_regex_posix.cpp'     => undef,
