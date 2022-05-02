@@ -256,7 +256,8 @@ install: target
 	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(EXAPATH)/codepages
 	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(EXAPATH)/providers
 	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(EXAPATH)/services
-	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(EXAPATH)/sql
+	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(EXAPATH)/sql/log_sql
+	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(EXAPATH)/sql/sqloper
 	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(LOGPATH)
 	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(MANPATH)
 	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(MODPATH)
@@ -280,7 +281,8 @@ endif
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/codepages/*.example $(EXAPATH)/codepages
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/providers/*.example $(EXAPATH)/providers
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/services/*.example $(EXAPATH)/services
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/sql/*.sql $(EXAPATH)/sql
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/sql/log_sql/*.sql $(EXAPATH)/sql/log_sql
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/sql/sqloper/*.sql $(EXAPATH)/sql/sqloper
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/help.txt $(CONPATH)
 	@echo ""
 	@echo "*************************************"
