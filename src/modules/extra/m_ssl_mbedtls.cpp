@@ -40,10 +40,6 @@
 # endif
 #endif
 
-// Temporary fix for mbedTLS v3 not allowing access to grp_id without any
-// replacement API.
-#define MBEDTLS_ALLOW_PRIVATE_ACCESS
-
 #include <mbedtls/ctr_drbg.h>
 #include <mbedtls/dhm.h>
 #include <mbedtls/ecp.h>
@@ -182,7 +178,11 @@ namespace mbedTLS
 
 	class Curves
 	{
+#if MBEDTLS_VERSION_MAJOR >= 3
+		std::vector<uint16_t> list;
+#else
 		std::vector<mbedtls_ecp_group_id> list;
+#endif
 
 	 public:
 		Curves(const std::string& str)
@@ -193,12 +193,21 @@ namespace mbedTLS
 				const mbedtls_ecp_curve_info* curve = mbedtls_ecp_curve_info_from_name(token.c_str());
 				if (!curve)
 					throw Exception("Unknown curve " + token);
+#if MBEDTLS_VERSION_MAJOR >= 3
+				list.push_back(curve->tls_id);
+#else
 				list.push_back(curve->grp_id);
+#endif
 			}
 			list.push_back(MBEDTLS_ECP_DP_NONE);
 		}
 
+#if MBEDTLS_VERSION_MAJOR >= 3
+		const uint16_t* get() const { return &list.front(); }
+#else
 		const mbedtls_ecp_group_id* get() const { return &list.front(); }
+#endif
+
 		bool empty() const { return (list.size() <= 1); }
 	};
 
@@ -248,12 +257,10 @@ namespace mbedTLS
 			bool found = false;
 			for (mbedtls_x509_crt* cert = certs.get(); cert; cert = cert->next)
 			{
-
 #if MBEDTLS_VERSION_MAJOR >= 3
 				if (mbedtls_pk_check_pair(&cert->pk, key.get(), mbedtls_ctr_drbg_random, 0) == 0)
 #else
 				if (mbedtls_pk_check_pair(&cert->pk, key.get()) == 0)
-
 #endif
 				{
 					found = true;
@@ -324,7 +331,11 @@ namespace mbedTLS
 
 		void SetCurves(const Curves& curves)
 		{
+#if MBEDTLS_VERSION_MAJOR >= 3
+			mbedtls_ssl_conf_groups(&conf, curves.get());
+#else
 			mbedtls_ssl_conf_curves(&conf, curves.get());
+#endif
 		}
 
 		void SetVersion(int minver, int maxver)
