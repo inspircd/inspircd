@@ -32,6 +32,7 @@
 #include "modules/ctctags.h"
 #include "modules/extban.h"
 #include "modules/exemption.h"
+#include "modules/who.h"
 #include "modules/whois.h"
 
 enum
@@ -172,6 +173,7 @@ public:
 class ModuleServicesAccount final
 	: public Module
 	, public CTCTags::EventListener
+	, public Who::EventListener
 	, public Whois::EventListener
 {
 private:
@@ -191,6 +193,7 @@ public:
 	ModuleServicesAccount()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds various channel and user modes relating to services accounts.")
 		, CTCTags::EventListener(this)
+		, Who::EventListener(this)
 		, Whois::EventListener(this)
 		, calleridapi(this)
 		, exemptionprov(this)
@@ -204,6 +207,19 @@ public:
 		, accountextban(this, accountname)
 		, unauthedextban(this, accountname)
 	{
+	}
+
+
+	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) override
+	{
+		size_t flag_index;
+		if (!request.GetFieldIndex('f', flag_index))
+			return MOD_RES_PASSTHRU;
+
+		if (user->IsModeSet(userregmode))
+			numeric.GetParams()[flag_index].push_back('r');
+
+		return MOD_RES_PASSTHRU;
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
