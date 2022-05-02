@@ -402,7 +402,7 @@ public:
 	 */
 	void Update(unsigned int rank, unsigned int setrank, unsigned int unsetrank, bool selfrm);
 
-	/** @copydoc ModeHandler::RemoveMode */
+	/** @copydoc ModeHandler::RemoveMode(Channel*,Modes::ChangeList&) */
 	void RemoveMode(Channel* channel, Modes::ChangeList& changelist) override;
 
 	/**

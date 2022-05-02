@@ -252,15 +252,14 @@ public:
 
 	/** Writes an error message to the server log.
 	 * @param type The type of message that is being logged.
-	 * @param format A format string to format and then log.
-	 * */
+	 * @param message The message to log.
+	 */
 	inline void Error(const std::string& type, const std::string& message)
 	{
 		Write(Level::ERROR, type, message);
 	}
 
 	/** Writes an error message to the server log.
-	 * @param level The level to log at.
 	 * @param type The type of message that is being logged.
 	 * @param format A format string to format and then log.
 	 * */
@@ -274,7 +273,7 @@ public:
 
 	/** Writes a warning message to the server log.
 	 * @param type The type of message that is being logged.
-	 * @param format A format string to format and then log.
+	 * @param message The message to log.
 	 * */
 	inline void Warning(const std::string& type, const std::string& message)
 	{
@@ -282,7 +281,6 @@ public:
 	}
 
 	/** Writes a warning message to the server log.
-	 * @param level The level to log at.
 	 * @param type The type of message that is being logged.
 	 * @param format A format string to format and then log.
 	 * */
@@ -296,7 +294,7 @@ public:
 
 	/** Writes a normal message to the server log.
 	 * @param type The type of message that is being logged.
-	 * @param format A format string to format and then log.
+	 * @param message The message to log.
 	 * */
 	inline void Normal(const std::string& type, const std::string& message)
 	{
@@ -304,7 +302,6 @@ public:
 	}
 
 	/** Writes a normal message to the server log.
-	 * @param level The level to log at.
 	 * @param type The type of message that is being logged.
 	 * @param format A format string to format and then log.
 	 * */
@@ -318,14 +315,13 @@ public:
 
 	/** Writes a debug message to the server log.
 	 * @param type The type of message that is being logged.
-	 * @param format A format string to format and then log.
+	 * @param message The message to log.
 	 * */
 	inline void Debug(const std::string& type, const std::string& message)
 	{
 		Write(Level::DEBUG, type, message);
 	}
 	/** Writes a debug message to the server log.
-	 * @param level The level to log at.
 	 * @param type The type of message that is being logged.
 	 * @param format A format string to format and then log.
 	 * */
@@ -339,7 +335,7 @@ public:
 
 	/** Writes a raw I/O message to the server log.
 	 * @param type The type of message that is being logged.
-	 * @param format A format string to format and then log.
+	 * @param message The message to log.
 	 * */
 	inline void RawIO(const std::string& type, const std::string& message)
 	{
@@ -347,7 +343,6 @@ public:
 	}
 
 	/** Writes a raw I/O message to the server log.
-	 * @param level The level to log at.
 	 * @param type The type of message that is being logged.
 	 * @param format A format string to format and then log.
 	 * */

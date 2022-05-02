@@ -138,7 +138,7 @@ public:
 	/** @copydoc ModeHandler::DisplayEmptyList */
 	void DisplayEmptyList(User* user, Channel* channel) override;
 
-	/** @copydoc ModeHandler::RemoveMode */
+	/** @copydoc ModeHandler::RemoveMode(Channel*,Modes::ChangeList&) */
 	void RemoveMode(Channel* channel, Modes::ChangeList& changelist) override;
 
 	/** Perform a rehash of this mode's configuration data
@@ -146,7 +146,7 @@ public:
 	void DoRehash();
 
 	/** @copydoc ModeHandler::OnModeChange */
-	ModeAction OnModeChange(User* source, User*, Channel* channel, Modes::Change& change) override;
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 
 	/** Validate a potential entry for this list mode. This is only for local validation, you
 	 * should be prepared to handle malformed entries from remote servers as there is no good
