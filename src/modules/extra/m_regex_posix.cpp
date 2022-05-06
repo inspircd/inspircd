@@ -54,7 +54,7 @@ public:
 		regerror(error, &regex, &errormsg[0], errormsg.size());
 		regfree(&regex);
 
-		throw Regex::Exception(mod, pattern, std::string(&errormsg[0], errormsg.size()));
+		throw Regex::Exception(mod, pattern, std::string(&errormsg[0], errormsg.size() - 1));
 	}
 
 	~POSIXPattern() override
