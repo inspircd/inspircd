@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: find_compiler_flags("libargon2" "")
-/// $LinkerFlags: find_linker_flags("libargon2" "-largon2")
+/// $CompilerFlags: find_compiler_flags("libargon2")
+/// $LinkerFlags: find_linker_flags("libargon2")
 
 /// $PackageInfo: require_system("arch") argon2 pkgconf
 /// $PackageInfo: require_system("darwin") argon2 pkg-config

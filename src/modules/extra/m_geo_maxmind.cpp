@@ -17,10 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: require_version("libmaxminddb" "0" "1.2.1") warning("The version of libmaxminddb you are using may cause a segmentation fault if given a corrupt database file!")
-/// $CompilerFlags: find_compiler_flags("libmaxminddb" "")
-
-/// $LinkerFlags: find_linker_flags("libmaxminddb" "-lmaxminddb")
+/// $CompilerFlags: find_compiler_flags("libmaxminddb")
+/// $LinkerFlags: find_linker_flags("libmaxminddb")
 
 /// $PackageInfo: require_system("arch") libmaxminddb pkgconf
 /// $PackageInfo: require_system("darwin") libmaxminddb pkg-config

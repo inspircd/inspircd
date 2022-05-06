@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: find_compiler_flags("re2" "")
-/// $LinkerFlags: find_linker_flags("re2" "-lre2")
+/// $CompilerFlags: find_compiler_flags("re2")
+/// $LinkerFlags: find_linker_flags("re2")
 
 /// $PackageInfo: require_system("arch") pkgconf re2
 /// $PackageInfo: require_system("darwin") pkg-config re2

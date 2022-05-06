@@ -26,6 +26,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 /// $CompilerFlags: execute("mysql_config --include" "MYSQL_CXXFLAGS")
 /// $LinkerFlags: execute("mysql_config --libs_r" "MYSQL_LDFLAGS" "-lmysqlclient")
 
