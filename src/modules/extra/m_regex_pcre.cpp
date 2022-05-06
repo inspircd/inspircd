@@ -48,7 +48,7 @@ public:
 	{
 		int flags = 0;
 		if (options & Regex::OPT_CASE_INSENSITIVE)
-			flags &= PCRE2_CASELESS;
+			flags |= PCRE2_CASELESS;
 
 		int errorcode;
 		PCRE2_SIZE erroroffset;

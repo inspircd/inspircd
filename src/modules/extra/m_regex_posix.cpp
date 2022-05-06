@@ -40,7 +40,7 @@ public:
 	{
 		int flags = REG_EXTENDED | REG_NOSUB;
 		if (options & Regex::OPT_CASE_INSENSITIVE)
-			flags &= REG_ICASE;
+			flags |= REG_ICASE;
 
 		int error = regcomp(&regex, pattern.c_str(), flags);
 		if (!error)
