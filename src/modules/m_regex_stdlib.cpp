@@ -54,6 +54,22 @@ public:
 	{
 		return std::regex_search(text, regex);
 	}
+
+	std::optional<Regex::MatchCollection> Matches(const std::string& text) override
+	{
+		std::smatch matches;
+		if (!std::regex_search(text, matches, regex))
+			return std::nullopt;
+
+		Regex::Captures captures(matches.size());
+		for (const auto& match : matches)
+			captures.push_back(match);
+
+		// The stdregex engine does not support named captures.
+		static const Regex::NamedCaptures unusednc;
+
+		return Regex::MatchCollection(std::move(captures), unusednc);
+	}
 };
 
 class StdLibEngine final

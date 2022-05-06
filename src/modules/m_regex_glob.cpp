@@ -39,6 +39,18 @@ public:
 	{
 		return InspIRCd::Match(text, GetPattern());
 	}
+
+	std::optional<Regex::MatchCollection> Matches(const std::string& text) override
+	{
+		if (!InspIRCd::Match(text, GetPattern()))
+			return std::nullopt;
+
+		// The glob engine does not support any kind of capture.
+		static const Regex::Captures unusedc;
+		static const Regex::NamedCaptures unusednc;
+
+		return Regex::MatchCollection(unusedc, unusednc);
+	}
 };
 
 class ModuleRegexGlob final

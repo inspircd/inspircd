@@ -58,6 +58,27 @@ public:
 	{
 		return RE2::FullMatch(text, regex);
 	}
+
+	std::optional<Regex::MatchCollection> Matches(const std::string& text) override
+	{
+		std::vector<re2::StringPiece> re2captures(regex.NumberOfCapturingGroups() + 1);
+		bool result = regex.Match(text, 0, text.length(), RE2::ANCHOR_BOTH, &re2captures[0], static_cast<int>(re2captures.size()));
+		if (!result)
+			return std::nullopt;
+
+		Regex::Captures captures;
+		Regex::NamedCaptures namedcaptures;
+		for (size_t idx = 0; idx < re2captures.size(); ++idx)
+		{
+			captures.emplace_back(re2captures[idx]);
+
+			auto iter = regex.CapturingGroupNames().find(static_cast<int>(idx));
+			if (iter != regex.CapturingGroupNames().end())
+				namedcaptures.emplace(iter->second, re2captures[idx]);
+		}
+
+		return Regex::MatchCollection(captures, namedcaptures);
+	}
 };
 
 class ModuleRegexRE2 final

@@ -68,10 +68,55 @@ public:
 
 	bool IsMatch(const std::string& text) override
 	{
-		pcre2_match_data* unused = pcre2_match_data_create(1, nullptr);
+		pcre2_match_data* unused = pcre2_match_data_create_from_pattern(regex, nullptr);
 		int result = pcre2_match(regex, reinterpret_cast<PCRE2_SPTR8>(text.c_str()), text.length(), 0, 0, unused, nullptr);
 		pcre2_match_data_free(unused);
 		return result >= 0;
+	}
+
+	std::optional<Regex::MatchCollection> Matches(const std::string& text) override
+	{
+		pcre2_match_data* data = pcre2_match_data_create_from_pattern(regex, nullptr);
+		int result = pcre2_match(regex, reinterpret_cast<PCRE2_SPTR8>(text.c_str()), text.length(), 0, 0, data, nullptr);
+		if (result < 0)
+			return std::nullopt;
+
+		PCRE2_SIZE* ovector = pcre2_get_ovector_pointer(data);
+
+		uint32_t capturecount;
+		Regex::Captures captures;
+		if (!pcre2_pattern_info(regex, PCRE2_INFO_CAPTURECOUNT, &capturecount) && capturecount)
+		{
+			for (uint32_t idx = 0; idx <= capturecount; ++idx)
+			{
+				PCRE2_UCHAR* bufferptr;
+				PCRE2_SIZE bufferlen;
+				if (!pcre2_substring_get_bynumber(data, idx, &bufferptr, &bufferlen))
+					captures.emplace_back(reinterpret_cast<const char*>(bufferptr), bufferlen);
+			}
+		}
+
+		uint32_t namedcapturecount;
+		Regex::NamedCaptures namedcaptures;
+		if (!pcre2_pattern_info(regex, PCRE2_INFO_NAMECOUNT, &namedcapturecount) && namedcapturecount)
+		{
+			uint32_t nameentrysize;
+			PCRE2_SPTR nametable;
+			if (!pcre2_pattern_info(regex, PCRE2_INFO_NAMEENTRYSIZE, &nameentrysize)
+				&& !pcre2_pattern_info(regex, PCRE2_INFO_NAMETABLE, &nametable))
+			{
+				for (uint32_t idx = 0; idx < namedcapturecount; ++idx)
+				{
+					int matchidx = (nametable[0] << 8) | nametable[1];
+					const std::string matchname(reinterpret_cast<const char*>(nametable + 2), nameentrysize - 3);
+					const std::string matchvalue(text.c_str() + ovector[2 * matchidx], ovector[ 2 * matchidx + 1] - ovector[2 * matchidx]);
+					namedcaptures.emplace(std::move(matchname), std::move(matchvalue));
+					nametable += nameentrysize;
+				}
+			}
+		}
+
+		return Regex::MatchCollection(std::move(captures), std::move(namedcaptures));
 	}
 };
 

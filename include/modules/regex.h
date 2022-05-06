@@ -30,8 +30,15 @@ namespace Regex
 	class Engine;
 	class EngineReference;
 	class Exception;
+	class MatchCollection;
 	class Pattern;
 	template<typename> class SimpleEngine;
+
+	/** A list of matches that were captured by index. */
+	typedef std::vector<std::string> Captures;
+
+	/** A list of matches that were captured by name. */
+	typedef insp::flat_map<std::string, std::string> NamedCaptures;
 
 	/** A shared pointer to a regex pattern. */
 	typedef std::shared_ptr<Pattern> PatternPtr;
@@ -146,6 +153,34 @@ public:
 	}
 };
 
+
+class Regex::MatchCollection
+{
+private:
+	/** The substrings that were captured. */
+	const Captures captures;
+
+	/** The substrings that were captured by name. */
+	const NamedCaptures namedcaptures;
+
+public:
+	/** Initializes a new instance of the Regex::MatchCollection class.
+	 * @param c The substrings that were captured.
+	 * @param nc The substrings that were captured by name.
+	 */
+	MatchCollection(const Captures& c, const NamedCaptures& nc)
+		: captures(c)
+		, namedcaptures(nc)
+	{
+	}
+
+	/** Retrieves the substrings that were captured. */
+	const Captures& GetCaptures() const { return captures; }
+
+	/** Retrieves the substrings that were captured by name. */
+	const NamedCaptures& GetNamedCaptures() const { return namedcaptures; }
+};
+
 /** Represents a compiled regular expression pattern. */
 class Regex::Pattern
 {
@@ -182,6 +217,12 @@ public:
 	 * @return If the text matched the pattern then true; otherwise, false.
 	 */
 	virtual bool IsMatch(const std::string& text) = 0;
+
+	/** Attempts to extract this pattern's match groups from the specified text.
+	 * @param text The text to extract match groups from..
+	 * @return If the text matched the pattern then a match collection; otherwise, std::nullopt.
+	 */
+	virtual std::optional<MatchCollection> Matches(const std::string& text) = 0;
 };
 
 inline Regex::PatternPtr Regex::Engine::CreateHuman(const std::string& pattern) const

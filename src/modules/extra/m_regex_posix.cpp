@@ -38,7 +38,7 @@ public:
 	POSIXPattern(const Module* mod, const std::string& pattern, uint8_t options)
 		: Regex::Pattern(pattern, options)
 	{
-		int flags = REG_EXTENDED | REG_NOSUB;
+		int flags = REG_EXTENDED;
 		if (options & Regex::OPT_CASE_INSENSITIVE)
 			flags |= REG_ICASE;
 
@@ -65,6 +65,29 @@ public:
 	bool IsMatch(const std::string& text) override
 	{
 		return !regexec(&regex, text.c_str(), 0, NULL, 0);
+	}
+
+	std::optional<Regex::MatchCollection> Matches(const std::string& text) override
+	{
+		std::vector<regmatch_t> matches(32);
+		int result = regexec(&regex, text.c_str(), matches.size(), &matches[0], 0);
+		if (result)
+			return std::nullopt;
+
+		Regex::Captures captures;
+		for (const auto& match : matches)
+		{
+			if (match.rm_so == -1 || match.rm_eo == -1)
+				break;
+
+			captures.emplace_back(text.c_str() + match.rm_so, match.rm_eo - match.rm_so);
+		}
+		captures.shrink_to_fit();
+
+		// The posix engine does not support named captures.
+		static const Regex::NamedCaptures unusednc;
+
+		return Regex::MatchCollection(std::move(captures), unusednc);
 	}
 };
 
