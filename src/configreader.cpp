@@ -34,6 +34,10 @@
 #include <filesystem>
 #include <iostream>
 
+#ifndef _WIN32
+# include <unistd.h>
+#endif
+
 #include "inspircd.h"
 #include "xline.h"
 #include "listmode.h"

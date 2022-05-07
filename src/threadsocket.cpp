@@ -77,6 +77,8 @@ SocketThread::SocketThread()
 
 # ifdef _WIN32
 #  define pipe(fd) _pipe(fd, 1, 0)
+# else
+#  include <unistd.h>
 # endif
 
 class ThreadSignalSocket final
@@ -95,7 +97,7 @@ public:
 
 	~ThreadSignalSocket()
 	{
-		close(send_fd);
+		SocketEngine::Close(send_fd);
 		SocketEngine::Close(this);
 	}
 

@@ -33,6 +33,7 @@
 #ifndef _WIN32
 # include <netinet/tcp.h>
 # include <sys/stat.h>
+# include <unistd.h>
 #endif
 
 ListenSocket::ListenSocket(std::shared_ptr<ConfigTag> tag, const irc::sockets::sockaddrs& bind_to)

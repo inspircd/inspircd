@@ -29,6 +29,7 @@
 # include <process.h>
 #else
 # include <fcntl.h>
+# include <unistd.h>
 #endif
 
 #include "inspircd.h"

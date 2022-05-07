@@ -53,5 +53,4 @@
 #else
 # define DllExport __attribute__ ((visibility ("default")))
 # define CoreExport __attribute__ ((visibility ("default")))
-# include <unistd.h>
 #endif
