@@ -202,7 +202,8 @@ void SpanningTreeUtilities::RefreshIPCache()
 	ValidIPs.clear();
 	for (std::shared_ptr<Link> L : LinkBlocks)
 	{
-		if (!L->Port)
+		bool isunix = L->IPAddr.find('/') != std::string::npos;
+		if (!L->Port && !isunix)
 		{
 			ServerInstance->Logs.Normal(MODNAME, "Ignoring a link block without a port.");
 			/* Invalid link block */
@@ -213,7 +214,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 
 		irc::sockets::sockaddrs dummy;
 		bool ipvalid = irc::sockets::aptosa(L->IPAddr, L->Port, dummy);
-		if ((L->IPAddr == "*") || (ipvalid))
+		if ((L->IPAddr == "*") || (isunix) || (ipvalid))
 			ValidIPs.push_back(L->IPAddr);
 		else if (this->Creator->DNS)
 		{
@@ -257,9 +258,19 @@ void SpanningTreeUtilities::ReadConfiguration()
 		for (std::string s; sep.GetToken(s);)
 			L->AllowMasks.push_back(s);
 
+		const std::string path = tag->getString("path");
+		if (path.empty())
+		{
+			L->IPAddr = tag->getString("ipaddr");
+			L->Port = static_cast<unsigned int>(tag->getUInt("port", 0, 0, UINT16_MAX));
+		}
+		else
+		{
+			L->IPAddr = ServerInstance->Config->Paths.PrependData(path);
+			L->Port = 0;
+		}
+
 		L->Name = tag->getString("name");
-		L->IPAddr = tag->getString("ipaddr");
-		L->Port = static_cast<unsigned int>(tag->getUInt("port", 0, 0, UINT16_MAX));
 		L->SendPass = tag->getString("sendpass", tag->getString("password"));
 		L->RecvPass = tag->getString("recvpass", tag->getString("password"));
 		L->Fingerprint = tag->getString("fingerprint");

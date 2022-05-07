@@ -138,7 +138,7 @@ std::shared_ptr<Link> TreeSocket::AuthRemote(const CommandBase::Params& params)
 			ssliohook->GetCiphersuite(ciphersuite);
 			ServerInstance->SNO.WriteToSnoMask('l', "Negotiated ciphersuite %s on link %s", ciphersuite.c_str(), x->Name.c_str());
 		}
-		else if (!irc::sockets::cidr_mask("127.0.0.0/8").match(capab->remotesa) && !irc::sockets::cidr_mask("::1/128").match(capab->remotesa))
+		else if (capab->remotesa.family() != AF_UNIX && !irc::sockets::cidr_mask("127.0.0.0/8").match(capab->remotesa) && !irc::sockets::cidr_mask("::1/128").match(capab->remotesa))
 		{
 			this->SendError("Non-local server connections MUST be linked with SSL!");
 			return NULL;

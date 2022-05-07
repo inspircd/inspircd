@@ -216,7 +216,7 @@ if (defined $opt_portable) {
 	$config{SCRIPT_DIR}  = $opt_script_dir  // $config{BASE_DIR};
 } elsif (defined $opt_system) {
 	$config{BASE_DIR}    = $opt_prefix      // '/';
-	$config{BINARY_DIR}  = $opt_binary_dir  // catdir $config{BASE_DIR}, 'usr/sbin';
+	$config{BINARY_DIR}  = $opt_binary_dir  // catdir $config{BASE_DIR}, 'usr/bin';
 	$config{CONFIG_DIR}  = $opt_config_dir  // catdir $config{BASE_DIR}, 'etc/inspircd';
 	$config{DATA_DIR}    = $opt_data_dir    // catdir $config{BASE_DIR}, 'var/lib/inspircd';
 	$config{EXAMPLE_DIR} = $opt_example_dir // catdir $config{BASE_DIR}, 'usr/share/doc/inspircd';

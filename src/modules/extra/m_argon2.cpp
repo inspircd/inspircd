@@ -22,7 +22,7 @@
 
 /// $PackageInfo: require_system("arch") argon2 pkgconf
 /// $PackageInfo: require_system("darwin") argon2 pkg-config
-/// $PackageInfo: require_system("debian" "9.0") libargon2-0 pkg-config
+/// $PackageInfo: require_system("debian" "10.0") libargon2-dev pkg-config
 /// $PackageInfo: require_system("ubuntu" "18.04") libargon2-0-dev pkg-config
 
 
