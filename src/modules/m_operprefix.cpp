@@ -104,7 +104,7 @@ public:
 			ServerInstance->Modes.Process(ServerInstance->FakeClient, memb->chan, NULL, changelist);
 	}
 
-	void OnPostOper(User* user, const std::string& opername, const std::string& opertype) override
+	void OnPostOper(User* user) override
 	{
 		if (IS_LOCAL(user) && (!user->IsModeSet(hideopermode)))
 			SetOperPrefix(user, true);

@@ -768,7 +768,7 @@ restart:
 	}
 }
 
-void ModuleSpanningTree::OnOper(User* user, const std::string &opertype)
+void ModuleSpanningTree::OnOper(User* user)
 {
 	if (user->registered != REG_ALL || !IS_LOCAL(user))
 		return;

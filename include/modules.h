@@ -514,19 +514,16 @@ public:
 	 * The User will contain the oper mode 'o' as this function is called after any modifications
 	 * are made to the user's structure by the core.
 	 * @param user The user who is opering up
-	 * @param opertype The opers type name
 	 */
-	virtual void OnOper(User* user, const std::string &opertype);
+	virtual void OnOper(User* user);
 
 	/** Called after a user opers locally.
 	 * This is identical to Module::OnOper(), except it is called after OnOper so that other modules
 	 * can be guaranteed to already have processed the oper-up, for example m_spanningtree has sent
 	 * out the OPERTYPE, etc.
 	 * @param user The user who is opering up
-	 * @param opername The name of the oper that the user is opering up to. Only valid locally. Empty string otherwise.
-	 * @param opertype The opers type name
 	 */
-	virtual void OnPostOper(User* user, const std::string &opername, const std::string &opertype);
+	virtual void OnPostOper(User* user);
 
 	/** Called after a user deopers locally.
 	 * @param user The user who has deopered.

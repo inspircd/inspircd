@@ -54,7 +54,7 @@ public:
 		cmdkill.hideservicekills = security->getBool("hideservicekills", security->getBool("hideulinekills"));
 	}
 
-	void OnPostOper(User* user, const std::string&, const std::string&) override
+	void OnPostOper(User* user) override
 	{
 		LocalUser* luser = IS_LOCAL(user);
 		if (!luser)

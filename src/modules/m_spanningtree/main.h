@@ -196,7 +196,7 @@ public:
 	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts) override;
 	void OnPreRehash(User* user, const std::string &parameter) override;
 	void ReadConfig(ConfigStatus& status) override;
-	void OnOper(User* user, const std::string &opertype) override;
+	void OnOper(User* user) override;
 	void OnAddLine(User *u, XLine *x) override;
 	void OnDelLine(User *u, XLine *x) override;
 	ModResult OnStats(Stats::Context& stats) override;

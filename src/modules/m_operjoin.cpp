@@ -52,7 +52,7 @@ class ModuleOperjoin final
 				operChans.push_back(channame);
 		}
 
-		void OnPostOper(User* user, const std::string &opertype, const std::string &opername) override
+		void OnPostOper(User* user) override
 		{
 			LocalUser* localuser = IS_LOCAL(user);
 			if (!localuser)

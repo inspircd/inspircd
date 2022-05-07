@@ -388,7 +388,7 @@ void User::Oper(std::shared_ptr<OperInfo> info)
 		localuser->Send(modemsg);
 	}
 
-	FOREACH_MOD(OnOper, (this, info->name));
+	FOREACH_MOD(OnOper, (this));
 
 	std::string opername;
 	if (info->oper_block)
@@ -404,7 +404,7 @@ void User::Oper(std::shared_ptr<OperInfo> info)
 	if (localuser)
 		oper->init();
 
-	FOREACH_MOD(OnPostOper, (this, oper->name, opername));
+	FOREACH_MOD(OnPostOper, (this));
 }
 
 namespace

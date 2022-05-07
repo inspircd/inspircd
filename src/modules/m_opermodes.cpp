@@ -35,7 +35,7 @@ public:
 	{
 	}
 
-	void OnPostOper(User* user, const std::string&, const std::string&) override
+	void OnPostOper(User* user) override
 	{
 		if (!IS_LOCAL(user))
 			return; // We don't handle remote users.

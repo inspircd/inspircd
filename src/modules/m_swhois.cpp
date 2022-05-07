@@ -114,7 +114,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnPostOper(User* user, const std::string &opertype, const std::string &opername) override
+	void OnPostOper(User* user) override
 	{
 		if (!IS_LOCAL(user))
 			return;

@@ -93,7 +93,7 @@ public:
 	{
 	}
 
-	void OnOper(User* user, const std::string &opertype) override
+	void OnOper(User* user) override
 	{
 		if (onoper && IS_LOCAL(user))
 			cmd.ShowOperMOTD(user, false);
