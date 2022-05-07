@@ -524,8 +524,6 @@ public:
 	ClientProtocol::RFCEvents& GetRFCEvents() { return rfcevents; }
 };
 
-ENTRYPOINT;
-
 inline void stdalgo::cull_delete::operator()(Cullable* item)
 {
 	if (item)

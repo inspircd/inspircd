@@ -24,6 +24,9 @@
 
 #ifdef _WIN32
 
+/* Redirect main() through a different method in win32service.cpp, to intercept service startup */
+int smain(int argc, char** argv);
+
 /* Hook for win32service.cpp to exit properly with the service specific error code */
 void SetServiceStopped(unsigned long dwStatus);
 

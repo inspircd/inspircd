@@ -51,7 +51,6 @@
 #if defined _WIN32
 # include "inspircd_win32wrapper.h"
 #else
-# define ENTRYPOINT int main(int argc, char** argv)
 # define DllExport __attribute__ ((visibility ("default")))
 # define CoreExport __attribute__ ((visibility ("default")))
 # include <unistd.h>
