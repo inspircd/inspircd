@@ -28,8 +28,13 @@
 class CommandSapart final
 	: public Command
 {
+private:
+	UserModeReference servprotectmode;
+
 public:
-	CommandSapart(Module* Creator) : Command(Creator,"SAPART", 2, 3)
+	CommandSapart(Module* Creator)
+		: Command(Creator,"SAPART", 2, 3)
+		, servprotectmode(Creator, "servprotect")
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick> <channel>[,<channel>]+ [:<reason>]" };
@@ -50,7 +55,7 @@ public:
 			if (parameters.size() > 2)
 				reason = parameters[2];
 
-			if (dest->server->IsService())
+			if (dest->IsModeSet(servprotectmode))
 			{
 				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a service");
 				return CmdResult::FAILURE;

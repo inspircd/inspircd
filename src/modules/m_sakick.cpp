@@ -27,8 +27,13 @@
 class CommandSakick final
 	: public Command
 {
+private:
+	UserModeReference servprotectmode;
+
 public:
-	CommandSakick(Module* Creator) : Command(Creator,"SAKICK", 2, 3)
+	CommandSakick(Module* Creator)
+		: Command(Creator,"SAKICK", 2, 3)
+		, servprotectmode(Creator, "servprotect")
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<channel> <nick> [:<reason>]" };
@@ -44,7 +49,7 @@ public:
 		{
 			const std::string& reason = (parameters.size() > 2) ? parameters[2] : dest->nick;
 
-			if (dest->server->IsService())
+			if (dest->IsModeSet(servprotectmode))
 			{
 				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a service");
 				return CmdResult::FAILURE;

@@ -30,8 +30,13 @@
 class CommandSajoin final
 	: public Command
 {
+private:
+	UserModeReference servprotectmode;
+
 public:
-	CommandSajoin(Module* Creator) : Command(Creator,"SAJOIN", 1)
+	CommandSajoin(Module* Creator)
+		: Command(Creator,"SAJOIN", 1)
+		, servprotectmode(Creator, "servprotect")
 	{
 		allow_empty_last_param = false;
 		access_needed = CmdAccess::OPERATOR;
@@ -57,7 +62,7 @@ public:
 				return CmdResult::FAILURE;
 			}
 
-			if (dest->server->IsService())
+			if (dest->IsModeSet(servprotectmode))
 			{
 				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a service");
 				return CmdResult::FAILURE;

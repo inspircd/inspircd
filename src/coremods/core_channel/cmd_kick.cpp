@@ -68,12 +68,6 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 			user->WriteNumeric(ERR_NOTONCHANNEL, parameters[0], "You're not on that channel!");
 			return CmdResult::FAILURE;
 		}
-
-		if (u->server->IsService())
-		{
-			user->WriteNumeric(ERR_RESTRICTED, c->name, "You may not kick a service");
-			return CmdResult::FAILURE;
-		}
 	}
 
 	const Channel::MemberMap::iterator victimiter = c->userlist.find(u);

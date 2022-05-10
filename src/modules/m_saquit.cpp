@@ -30,8 +30,13 @@
 class CommandSaquit final
 	: public Command
 {
+private:
+	UserModeReference servprotectmode;
+
 public:
-	CommandSaquit(Module* Creator) : Command(Creator, "SAQUIT", 2, 2)
+	CommandSaquit(Module* Creator)
+		: Command(Creator, "SAQUIT", 2, 2)
+		, servprotectmode(Creator, "servprotect")
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick> :<reason>" };
@@ -43,7 +48,7 @@ public:
 		User* dest = ServerInstance->Users.Find(parameters[0]);
 		if ((dest) && (dest->registered == REG_ALL))
 		{
-			if (dest->server->IsService())
+			if (dest->IsModeSet(servprotectmode))
 			{
 				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a service");
 				return CmdResult::FAILURE;

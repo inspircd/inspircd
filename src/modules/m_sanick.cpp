@@ -28,8 +28,13 @@
 class CommandSanick final
 	: public Command
 {
+private:
+	UserModeReference servprotectmode;
+
 public:
-	CommandSanick(Module* Creator) : Command(Creator,"SANICK", 2)
+	CommandSanick(Module* Creator)
+		: Command(Creator,"SANICK", 2)
+		, servprotectmode(Creator, "servprotect")
 	{
 		allow_empty_last_param = false;
 		access_needed = CmdAccess::OPERATOR;
@@ -44,7 +49,7 @@ public:
 		/* Do local sanity checks and bails */
 		if (IS_LOCAL(user))
 		{
-			if (target && target->server->IsService())
+			if (target && target->IsModeSet(servprotectmode))
 			{
 				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a service");
 				return CmdResult::FAILURE;

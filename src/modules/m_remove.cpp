@@ -36,6 +36,7 @@ class CommandRemove final
 {
 private:
 	ChanModeReference nokicksmode;
+	UserModeReference servprotectmode;
 
 public:
 	unsigned long protectedrank;
@@ -44,6 +45,7 @@ public:
 	CommandRemove(Module* Creator)
 		: Command(Creator, "REMOVE", 2, 3)
 		, nokicksmode(Creator, "nokick")
+		, servprotectmode(Creator, "servprotect")
 	{
 		syntax = { "<channel> <nick> [:<reason>]" };
 		translation = { TR_TEXT, TR_NICK, TR_TEXT };
@@ -84,7 +86,7 @@ public:
 			return CmdResult::FAILURE;
 		}
 
-		if (target->server->IsService())
+		if (target->IsModeSet(servprotectmode))
 		{
 			user->WriteNumeric(ERR_RESTRICTED, channame, "Only a service may remove a service from a channel.");
 			return CmdResult::FAILURE;
