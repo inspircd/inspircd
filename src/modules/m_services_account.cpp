@@ -93,13 +93,13 @@ public:
 };
 
 class AccountExtItemImpl final
-	: public AccountExtItem
+	: public StringExtItem
 {
 	Events::ModuleEventProvider eventprov;
 
 public:
 	AccountExtItemImpl(Module* mod)
-		: AccountExtItem(mod, "accountname", ExtensionType::USER, true)
+		: StringExtItem(mod, "accountname", ExtensionType::USER, true)
 		, eventprov(mod, "event/account")
 	{
 	}
@@ -126,7 +126,33 @@ public:
 			}
 		}
 
-		eventprov.Call(&AccountEventListener::OnAccountChange, user, value);
+		eventprov.Call(&Account::EventListener::OnAccountChange, user, value);
+	}
+};
+
+class AccountAPIImpl final
+	: public Account::APIBase
+{
+private:
+	AccountExtItemImpl accountext;
+	StringExtItem accountidext;
+
+public:
+	AccountAPIImpl(Module* mod)
+		: Account::APIBase(mod)
+		, accountext(mod)
+		, accountidext(mod, "accountid", ExtensionType::USER, true)
+	{
+	}
+
+	std::string* GetAccountId(const User* user) const override
+	{
+		return accountidext.Get(user);
+	}
+
+	std::string* GetAccountName(const User* user) const override
+	{
+		return accountext.Get(user);
 	}
 };
 
@@ -134,18 +160,18 @@ class AccountExtBan final
 	: public ExtBan::MatchingBase
 {
 private:
-	AccountExtItemImpl& accountext;
+	AccountAPIImpl& accountapi;
 
 public:
-	AccountExtBan(Module* Creator, AccountExtItemImpl& AccountExt)
+	AccountExtBan(Module* Creator, AccountAPIImpl& AccountAPI)
 		: ExtBan::MatchingBase(Creator, "account", 'R')
-		, accountext(AccountExt)
+		, accountapi(AccountAPI)
 	{
 	}
 
 	bool IsMatch(User* user, Channel* channel, const std::string& text) override
 	{
-		const std::string* account = accountext.Get(user);
+		const std::string* account = accountapi.GetAccountName(user);
 		return account && InspIRCd::Match(*account, text);
 	}
 };
@@ -154,18 +180,18 @@ class UnauthedExtBan final
 	: public ExtBan::MatchingBase
 {
 private:
-	AccountExtItemImpl& accountext;
+	AccountAPIImpl& accountapi;
 
 public:
-	UnauthedExtBan(Module* Creator, AccountExtItemImpl& AccountExt)
+	UnauthedExtBan(Module* Creator, AccountAPIImpl& AccountAPI)
 		: ExtBan::MatchingBase(Creator, "unauthed", 'U')
-		, accountext(AccountExt)
+		, accountapi(AccountAPI)
 	{
 	}
 
 	bool IsMatch(User* user, Channel* channel, const std::string& text) override
 	{
-		const std::string* account = accountext.Get(user);
+		const std::string* account = accountapi.GetAccountName(user);
 		return !account && channel->CheckBan(user, text);
 	}
 };
@@ -184,8 +210,7 @@ private:
 	SimpleUserMode regdeafmode;
 	RegisteredChannel chanregmode;
 	RegisteredUser userregmode;
-	AccountExtItem accountid;
-	AccountExtItemImpl accountname;
+	AccountAPIImpl accountapi;
 	AccountExtBan accountextban;
 	UnauthedExtBan unauthedextban;
 
@@ -202,10 +227,9 @@ public:
 		, regdeafmode(this, "regdeaf", 'R')
 		, chanregmode(this)
 		, userregmode(this)
-		, accountid(this, "accountid", ExtensionType::USER, true)
-		, accountname(this)
-		, accountextban(this, accountname)
-		, unauthedextban(this, accountname)
+		, accountapi(this)
+		, accountextban(this, accountapi)
+		, unauthedextban(this, accountapi)
 	{
 	}
 
@@ -225,8 +249,7 @@ public:
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
 	void OnWhois(Whois::Context& whois) override
 	{
-		std::string* account = accountname.Get(whois.GetTarget());
-
+		const std::string* account = accountapi.GetAccountName(whois.GetTarget());
 		if (account)
 		{
 			whois.SendLine(RPL_WHOISACCOUNT, *account, "is logged in as");
@@ -251,7 +274,8 @@ public:
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
 
-		std::string *account = accountname.Get(user);
+
+		const std::string* account = accountapi.GetAccountName(user);
 		bool is_registered = account && !account->empty();
 
 		switch (target.type)
@@ -304,7 +328,8 @@ public:
 		if (override)
 			return MOD_RES_PASSTHRU;
 
-		std::string *account = accountname.Get(user);
+
+		const std::string* account = accountapi.GetAccountName(user);
 		bool is_registered = account && !account->empty();
 
 		if (chan)
@@ -324,7 +349,7 @@ public:
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass::Ptr myclass) override
 	{
-		if (myclass->config->getBool("requireaccount") && !accountname.Get(user))
+		if (myclass->config->getBool("requireaccount") && !accountapi.GetAccountName(user))
 		{
 			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires the user to be logged into an account",
 				myclass->GetName().c_str());

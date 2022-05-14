@@ -51,6 +51,8 @@ public:
 class JoinHook final
 	: public ClientProtocol::EventHook
 {
+private:
+	Account::API accountapi;
 	ClientProtocol::Events::Join extendedjoinmsg;
 
 public:
@@ -62,6 +64,7 @@ public:
 
 	JoinHook(Module* mod)
 		: ClientProtocol::EventHook(mod, "JOIN")
+		, accountapi(mod)
 		, asterisk(1, '*')
 		, awayprotoev(mod, "AWAY")
 		, extendedjoincap(mod, "extended-join")
@@ -79,10 +82,9 @@ public:
 
 		Membership* const memb = join.GetMember();
 		const std::string* account = &asterisk;
-		const AccountExtItem* const accountext = GetAccountExtItem();
-		if (accountext)
+		if (accountapi)
 		{
-			const std::string* accountname = accountext->Get(memb->user);
+			const std::string* accountname = accountapi->GetAccountName(memb->user);
 			if (accountname)
 				account = accountname;
 		}
@@ -115,7 +117,7 @@ public:
 
 class ModuleIRCv3 final
 	: public Module
-	, public AccountEventListener
+	, public Account::EventListener
 	, public Away::EventListener
 {
 private:
@@ -126,7 +128,7 @@ private:
 public:
 	ModuleIRCv3()
 		: Module(VF_VENDOR, "Provides the IRCv3 account-notify, away-notify, and extended-join client capabilities.")
-		, AccountEventListener(this)
+		, Account::EventListener(this)
 		, Away::EventListener(this)
 		, cap_accountnotify(this, "account-notify")
 		, joinhook(this)

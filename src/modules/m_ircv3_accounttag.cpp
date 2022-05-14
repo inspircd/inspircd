@@ -26,22 +26,22 @@
 class AccountTag final
 	: public IRCv3::CapTag<AccountTag>
 {
+private:
+	Account::API accountapi;
+
 public:
 	const std::string* GetValue(const ClientProtocol::Message& msg) const
 	{
 		User* const user = msg.GetSourceUser();
-		if (!user)
-			return NULL;
+		if (!user || !accountapi)
+			return nullptr;
 
-		AccountExtItem* const accextitem = GetAccountExtItem();
-		if (!accextitem)
-			return NULL;
-
-		return accextitem->Get(user);
+		return accountapi->GetAccountName(user);
 	}
 
 	AccountTag(Module* mod)
 		: IRCv3::CapTag<AccountTag>(mod, "account-tag", "account")
+		, accountapi(mod)
 	{
 	}
 };
@@ -50,12 +50,14 @@ class AccountIdTag final
 	: public ClientProtocol::MessageTagProvider
 {
 private:
+	Account::API accountapi;
 	AccountTag& acctag;
 	CTCTags::CapReference ctctagcap;
 
 public:
 	AccountIdTag(Module* mod, AccountTag& tag)
 		: ClientProtocol::MessageTagProvider(mod)
+		, accountapi(mod)
 		, acctag(tag)
 		, ctctagcap(mod)
 	{
@@ -64,8 +66,7 @@ public:
 	void OnPopulateTags(ClientProtocol::Message& msg) override
 	{
 		const User* user = msg.GetSourceUser();
-		const AccountExtItem* accextitem = user ? GetAccountIdExtItem() : nullptr;
-		const std::string* accountid = accextitem ? accextitem->Get(user) : nullptr;
+		const std::string* accountid = accountapi ? accountapi->GetAccountId(user) : nullptr;
 		if (accountid)
 			msg.AddTag("inspircd.org/account-id", this, *accountid);
 	}

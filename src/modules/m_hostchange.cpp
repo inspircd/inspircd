@@ -126,6 +126,7 @@ class ModuleHostChange final
 	: public Module
 {
 private:
+	Account::API accountapi;
 	std::bitset<UCHAR_MAX + 1> hostmap;
 	HostRules hostrules;
 
@@ -144,6 +145,7 @@ private:
 public:
 	ModuleHostChange()
 		: Module(VF_VENDOR, "Allows the server administrator to define custom rules for applying hostnames to users.")
+		, accountapi(this)
 	{
 	}
 
@@ -207,8 +209,7 @@ public:
 			if (rule.GetAction() == HostRule::HCA_ADDACCOUNT)
 			{
 				// Retrieve the account name.
-				const AccountExtItem* accountext = GetAccountExtItem();
-				const std::string* accountptr = accountext ? accountext->Get(user) : NULL;
+				const std::string* accountptr = accountapi ? accountapi->GetAccountName(user) : nullptr;
 				if (!accountptr)
 					continue;
 

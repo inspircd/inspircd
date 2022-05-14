@@ -194,8 +194,10 @@ class ModuleFilter final
 	, public Stats::EventListener
 	, public Timer
 {
+private:
 	typedef insp::flat_set<std::string, irc::insensitive_swo> ExemptTargetSet;
 
+	Account::API accountapi;
 	bool initing = true;
 	bool notifyuser;
 	bool warnonselfmsg;
@@ -336,11 +338,9 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 
 bool ModuleFilter::AppliesToMe(User* user, const FilterResult& filter, int iflags)
 {
-	const AccountExtItem* accountext = GetAccountExtItem();
-
 	if ((filter.flag_no_opers) && user->IsOper())
 		return false;
-	if ((filter.flag_no_registered) && accountext && accountext->Get(user))
+	if ((filter.flag_no_registered) && accountapi && accountapi->GetAccountName(user))
 		return false;
 	if ((iflags & FLAG_PRIVMSG) && (!filter.flag_privmsg))
 		return false;
@@ -358,6 +358,7 @@ ModuleFilter::ModuleFilter()
 	, ServerProtocol::SyncEventListener(this)
 	, Stats::EventListener(this)
 	, Timer(0, true)
+	, accountapi(this)
 	, filtcommand(this)
 	, RegexEngine(this)
 {

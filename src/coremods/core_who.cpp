@@ -117,6 +117,7 @@ class CommandWho final
 	: public SplitCommand
 {
 private:
+	Account::API accountapi;
 	ChanModeReference secretmode;
 	ChanModeReference privatemode;
 	UserModeReference hidechansmode;
@@ -196,6 +197,7 @@ public:
 
 	CommandWho(Module* parent)
 		: SplitCommand(parent, "WHO", 1, 3)
+		, accountapi(parent)
 		, secretmode(parent, "secret")
 		, privatemode(parent, "private")
 		, hidechansmode(parent, "hidechans")
@@ -284,8 +286,7 @@ bool CommandWho::MatchUser(LocalUser* source, User* user, WhoData& data)
 	// The source wants to match against users' account names.
 	else if (data.flags['a'])
 	{
-		const AccountExtItem* accountext = GetAccountExtItem();
-		const std::string* account = accountext ? accountext->Get(user) : NULL;
+		const std::string* account = accountapi ? accountapi->GetAccountName(user) : nullptr;
 		match = account && InspIRCd::Match(*account, data.matchtext);
 	}
 
@@ -522,8 +523,7 @@ void CommandWho::SendWhoLine(LocalUser* source, const std::vector<std::string>& 
 		// Include the user's account name.
 		if (data.whox_fields['a'])
 		{
-			const AccountExtItem* accountext = GetAccountExtItem();
-			const std::string* account = accountext ? accountext->Get(user) : NULL;
+			const std::string* account = accountapi ? accountapi->GetAccountName(user) : nullptr;
 			wholine.push(account ? *account : "0");
 		}
 

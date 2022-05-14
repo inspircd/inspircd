@@ -32,13 +32,13 @@ class ModuleRestrictChans final
 	: public Module
 {
 private:
+	Account::API accountapi;
 	AllowChans allowchans;
 	bool allowregistered = false;
 
 	bool CanCreateChannel(LocalUser* user, const std::string& name)
 	{
-		const AccountExtItem* accountext = GetAccountExtItem();
-		if (allowregistered && accountext && accountext->Get(user))
+		if (allowregistered && accountapi && accountapi->GetAccountName(user))
 			return true;
 
 		if (user->HasPrivPermission("channels/restricted-create"))
@@ -56,6 +56,7 @@ private:
 public:
 	ModuleRestrictChans()
 		: Module(VF_VENDOR, "Prevents unprivileged users from creating new channels.")
+		, accountapi(this)
 	{
 	}
 

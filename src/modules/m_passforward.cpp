@@ -29,11 +29,14 @@
 class ModulePassForward final
 	: public Module
 {
+private:
+	Account::API accountapi;
 	std::string nickrequired, forwardmsg, forwardcmd;
 
 public:
 	ModulePassForward()
 		: Module(VF_VENDOR, "Allows an account password to be forwarded to a services pseudoclient such as NickServ.")
+		, accountapi(this)
 	{
 	}
 
@@ -90,8 +93,7 @@ public:
 		if (!user->GetClass()->config->getString("password").empty())
 			return;
 
-		AccountExtItem* actext = GetAccountExtItem();
-		if (actext && actext->Get(user))
+		if (accountapi && accountapi->GetAccountName(user))
 		{
 			// User is logged in already (probably via SASL) don't forward the password
 			return;

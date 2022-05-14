@@ -35,6 +35,7 @@ class ModuleSecureList final
 	, public ISupport::EventListener
 {
 private:
+	Account::API accountapi;
 	AllowList allowlist;
 	bool exemptregistered;
 	unsigned long fakechans;
@@ -47,6 +48,7 @@ public:
 	ModuleSecureList()
 		: Module(VF_VENDOR, "Prevents users from using the /LIST command until a predefined period has passed.")
 		, ISupport::EventListener(this)
+		, accountapi(this)
 	{
 	}
 
@@ -95,8 +97,7 @@ public:
 		}
 
 		// Allow if the source is logged in and <securelist:exemptregistered> is set.
-		const AccountExtItem* ext = GetAccountExtItem();
-		if (exemptregistered && ext && ext->Get(user))
+		if (exemptregistered && accountapi && accountapi->GetAccountName(user))
 			return MOD_RES_PASSTHRU;
 
 		// If <securehost:showmsg> is set then tell the user that they need to wait.
