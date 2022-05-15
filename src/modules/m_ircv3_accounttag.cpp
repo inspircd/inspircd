@@ -66,7 +66,10 @@ public:
 	void OnPopulateTags(ClientProtocol::Message& msg) override
 	{
 		const User* user = msg.GetSourceUser();
-		const std::string* accountid = accountapi ? accountapi->GetAccountId(user) : nullptr;
+		if (!user || !accountapi)
+			return;
+
+		const std::string* accountid = accountapi->GetAccountId(user);
 		if (accountid)
 			msg.AddTag("inspircd.org/account-id", this, *accountid);
 	}
