@@ -850,7 +850,7 @@ bool ModeParser::DelModeWatcher(ModeWatcher* mw)
 void ModeHandler::RemoveMode(User* user)
 {
 	// Remove the mode if it's set on the user
-	if (user->IsModeSet(this->GetModeChar()))
+	if (user->IsModeSet(this))
 	{
 		Modes::ChangeList changelist;
 		changelist.push_remove(this);
