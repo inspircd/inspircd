@@ -39,6 +39,23 @@ RouteDescriptor ServerTargetCommand::GetRouting(User* user, const Params& parame
 	return ROUTE_LOCALONLY;
 }
 
+struct ISupportAction final
+	: public ActionBase
+{
+	ISupportManager& isupport;
+
+	ISupportAction(ISupportManager& i)
+		: isupport(i)
+	{
+	}
+
+	void Call() override
+	{
+		isupport.Build();
+		ServerInstance->GlobalCulls.AddItem(this);
+	}
+};
+
 class CoreModInfo final
 	: public Module
 {
@@ -132,7 +149,7 @@ public:
 		cmdadmin.admindesc = tag->getString("description");
 		cmdadmin.adminemail = tag->getString("email", "noreply@" + ServerInstance->Config->GetServerName(), 1);
 
-		isupport.Build();
+		ServerInstance->AtomicActions.AddAction(new ISupportAction(isupport));
 	}
 
 	void OnUserConnect(LocalUser* user) override
