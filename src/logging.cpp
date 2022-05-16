@@ -164,7 +164,6 @@ Log::Manager::Manager()
 
 void Log::Manager::CloseLogs()
 {
-	size_t logger_count = loggers.size();
 	loggers.erase(std::remove_if(loggers.begin(), loggers.end(), [](const Info& info) { return info.config; }), loggers.end());
 }
 
