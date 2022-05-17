@@ -63,8 +63,7 @@ public:
 	 */
 	virtual ~Timer();
 
-	/** Retrieve the current triggering time
-	 */
+	/** Retrieves the time at which this timer will tick next. If the timer is not active then 0 will be returned. */
 	time_t GetTrigger() const
 	{
 		return trigger;

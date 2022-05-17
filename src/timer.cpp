@@ -35,7 +35,7 @@ void Timer::SetInterval(unsigned long newinterval)
 }
 
 Timer::Timer(unsigned long secs_from_now, bool repeating)
-	: trigger(ServerInstance->Time() + secs_from_now)
+	: trigger(0)
 	, secs(secs_from_now)
 	, repeat(repeating)
 {
@@ -43,7 +43,8 @@ Timer::Timer(unsigned long secs_from_now, bool repeating)
 
 Timer::~Timer()
 {
-	ServerInstance->Timers.DelTimer(this);
+	if (GetTrigger())
+		ServerInstance->Timers.DelTimer(this);
 }
 
 void TimerManager::TickTimers()
@@ -76,6 +77,7 @@ void TimerManager::DelTimer(Timer* t)
 	{
 		if (i->second == t)
 		{
+			t->SetTrigger(0);
 			Timers.erase(i);
 			break;
 		}
@@ -84,5 +86,7 @@ void TimerManager::DelTimer(Timer* t)
 
 void TimerManager::AddTimer(Timer* t)
 {
-	Timers.emplace(t->GetTrigger(), t);
+	time_t trigger = ServerInstance->Time() + t->GetInterval();
+	t->SetTrigger(trigger);
+	Timers.emplace(trigger, t);
 }
