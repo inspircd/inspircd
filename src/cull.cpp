@@ -96,8 +96,13 @@ void CullList::Apply()
 		}
 		else
 		{
+#ifdef INSPIRCD_ENABLE_RTTI
+			ServerInstance->Logs.Debug("CULLLIST", "WARNING: Object %s @%p culled twice!",
+				typeid(*c).name(), static_cast<void*>(c));
+#else
 			ServerInstance->Logs.Debug("CULLLIST", "WARNING: Object @%p culled twice!",
 				static_cast<void*>(c));
+#endif
 		}
 	}
 	list.clear();
