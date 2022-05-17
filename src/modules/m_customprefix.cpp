@@ -32,14 +32,15 @@ public:
 		: PrefixMode(parent, Name, Letter, 0, Prefix)
 		, tag(Tag)
 	{
-		unsigned int rank = static_cast<unsigned int>(tag->getUInt("rank", 1, 1, UINT_MAX));
-		unsigned int setrank = static_cast<unsigned int>(tag->getUInt("ranktoset", prefixrank, rank, UINT_MAX));
-		unsigned int unsetrank = static_cast<unsigned int>(tag->getUInt("ranktounset", setrank, setrank, UINT_MAX));
+		ModeHandler::Rank rank = static_cast<ModeHandler::Rank>(tag->getUInt("rank", 1, 1, std::numeric_limits<ModeHandler::Rank>::max()));
+		ModeHandler::Rank setrank = static_cast<ModeHandler::Rank>(tag->getUInt("ranktoset", prefixrank, rank, std::numeric_limits<ModeHandler::Rank>::max()));
+		ModeHandler::Rank unsetrank = static_cast<ModeHandler::Rank>(tag->getUInt("ranktounset", setrank, setrank, std::numeric_limits<ModeHandler::Rank>::max()));
 		bool depriv = tag->getBool("depriv", true);
 		this->Update(rank, setrank, unsetrank, depriv);
 
-		ServerInstance->Logs.Debug(MODNAME, "Created the %s prefix: letter=%c prefix=%c rank=%u ranktoset=%u ranktounset=%i depriv=%d",
-			name.c_str(), GetModeChar(), GetPrefix(), GetPrefixRank(), GetLevelRequired(true), GetLevelRequired(false), CanSelfRemove());
+		ServerInstance->Logs.Debug(MODNAME, "Created the %s prefix: letter=%c prefix=%c rank=%lu ranktoset=%lu ranktounset=%lu depriv=%s",
+			name.c_str(), GetModeChar(), GetPrefix(), GetPrefixRank(), GetLevelRequired(true), GetLevelRequired(false),
+			CanSelfRemove() ? "yes" : "no");
 	}
 };
 
@@ -76,14 +77,15 @@ public:
 				if (!pm)
 					throw ModuleException(this, "<customprefix:change> specified for a non-prefix mode at " + tag->source.str());
 
-				unsigned int rank = static_cast<unsigned int>(tag->getUInt("rank", pm->GetPrefixRank(), 0, UINT_MAX));
-				unsigned int setrank = static_cast<unsigned int>(tag->getUInt("ranktoset", pm->GetLevelRequired(true), rank, UINT_MAX));
-				unsigned int unsetrank = static_cast<unsigned int>(tag->getUInt("ranktounset", pm->GetLevelRequired(false), setrank, UINT_MAX));
+				ModeHandler::Rank rank = static_cast<ModeHandler::Rank>(tag->getUInt("rank", pm->GetPrefixRank(), 1, std::numeric_limits<ModeHandler::Rank>::max()));
+				ModeHandler::Rank setrank = static_cast<ModeHandler::Rank>(tag->getUInt("ranktoset", pm->GetLevelRequired(true), rank, std::numeric_limits<ModeHandler::Rank>::max()));
+				ModeHandler::Rank unsetrank = static_cast<ModeHandler::Rank>(tag->getUInt("ranktounset", pm->GetLevelRequired(false), setrank, std::numeric_limits<ModeHandler::Rank>::max()));
 				bool depriv = tag->getBool("depriv", pm->CanSelfRemove());
 				pm->Update(rank, setrank, unsetrank, depriv);
 
-				ServerInstance->Logs.Debug(MODNAME, "Changed the %s prefix: depriv=%u rank=%u ranktoset=%u ranktounset=%u",
-					pm->name.c_str(), pm->CanSelfRemove(), pm->GetPrefixRank(), pm->GetLevelRequired(true), pm->GetLevelRequired(false));
+				ServerInstance->Logs.Debug(MODNAME, "Changed the %s prefix: letter=%c prefix=%c rank=%lu ranktoset=%lu ranktounset=%lu depriv=%s",
+					name.c_str(), pm->GetModeChar(), pm->GetPrefix(), pm->GetPrefixRank(), pm->GetLevelRequired(true),
+					pm->GetLevelRequired(false), pm->CanSelfRemove() ? "yes" : "no");
 				continue;
 			}
 

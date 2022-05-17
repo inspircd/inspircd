@@ -99,7 +99,7 @@ private:
 	ChanModeReference limit;
 	Invite::API invapi;
 
-	static bool IsOverride(unsigned int userlevel, const Modes::ChangeList::List& list)
+	static bool IsOverride(ModeHandler::Rank userlevel, const Modes::ChangeList::List& list)
 	{
 		for (const auto& change : list)
 		{
@@ -206,7 +206,7 @@ public:
 			return MOD_RES_PASSTHRU;
 
 		const Modes::ChangeList::List& list = modes.getlist();
-		unsigned int mode = channel->GetPrefixValue(source);
+		ModeHandler::Rank mode = channel->GetPrefixValue(source);
 
 		if (!IsOverride(mode, list))
 			return MOD_RES_PASSTHRU;

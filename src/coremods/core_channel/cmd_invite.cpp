@@ -122,7 +122,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 		{
 			if (IS_LOCAL(user))
 			{
-				unsigned int rank = c->GetPrefixValue(user);
+				ModeHandler::Rank rank = c->GetPrefixValue(user);
 				if (rank < HALFOP_VALUE)
 				{
 					user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(c, HALFOP_VALUE, "send an invite"));
@@ -147,7 +147,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 		}
 
 		char prefix = 0;
-		unsigned int minrank = 0;
+		ModeHandler::Rank minrank = 0;
 		switch (invapi.announceinvites)
 		{
 			case Invite::ANNOUNCE_OPS:

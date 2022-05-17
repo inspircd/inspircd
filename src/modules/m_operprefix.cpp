@@ -39,7 +39,7 @@ class OperPrefixMode final
 			: PrefixMode(Creator, "operprefix", 'y', OPERPREFIX_VALUE)
 		{
 			prefix = ServerInstance->Config->ConfValue("operprefix")->getCharacter("prefix", '!');
-			ranktoset = ranktounset = UINT_MAX;
+			ranktoset = ranktounset = std::numeric_limits<ModeHandler::Rank>::max();
 		}
 };
 

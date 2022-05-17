@@ -100,6 +100,10 @@ class CoreExport ModeHandler
 	: public ServiceProvider
 {
 public:
+	/** The underlying type of a mode rank. */
+	typedef unsigned long Rank;
+
+	/** The underlying type of a mode id. */
 	typedef size_t Id;
 
 	enum Class
@@ -154,10 +158,10 @@ protected:
 	const Class type_id;
 
 	/** The prefix rank required to set this mode on channels. */
-	unsigned int ranktoset = HALFOP_VALUE;
+	Rank ranktoset = HALFOP_VALUE;
 
 	/** The prefix rank required to unset this mode on channels. */
-	unsigned int ranktounset = HALFOP_VALUE;
+	Rank ranktounset = HALFOP_VALUE;
 
 	/** If non-empty then the syntax of the parameter for this mode. */
 	std::string syntax;
@@ -334,7 +338,7 @@ public:
 	/** Retrieves the level required to modify this mode.
 	 * @param adding Whether the mode is being added or removed.
 	 */
-	inline unsigned int GetLevelRequired(bool adding) const
+	inline Rank GetLevelRequired(bool adding) const
 	{
 		return adding ? ranktoset : ranktounset;
 	}
@@ -371,7 +375,7 @@ protected:
 	/** The prefix rank of this mode, used to compare prefix
 	 * modes
 	 */
-	unsigned int prefixrank;
+	Rank prefixrank;
 
 	/** Whether a client with this prefix can remove it from themself. */
 	bool selfremove = true;
@@ -391,10 +395,10 @@ public:
 	 * @param Creator The module creating this mode
 	 * @param Name The user-friendly one word name of the prefix mode, e.g.: "op", "voice"
 	 * @param ModeLetter The mode letter of this mode
-	 * @param Rank Rank given by this prefix mode, see explanation above
+	 * @param PrefixRank Rank given by this prefix mode, see explanation above
 	 * @param PrefixChar Prefix character, or 0 if the mode has no prefix character
 	 */
-	PrefixMode(Module* Creator, const std::string& Name, char ModeLetter, unsigned int Rank = 0, char PrefixChar = 0);
+	PrefixMode(Module* Creator, const std::string& Name, char ModeLetter, Rank PrefixRank = 0, char PrefixChar = 0);
 
 	/** @copydoc ModeHandler::AccessCheck */
 	ModResult AccessCheck(User* source, Channel* channel, Modes::Change& change) override;
@@ -409,7 +413,7 @@ public:
 	 * @param unsetrank The prefix rank required to set this unmode on channels.
 	 * @param selfrm Whether a client with this prefix can remove it from themself.
 	 */
-	void Update(unsigned int rank, unsigned int setrank, unsigned int unsetrank, bool selfrm);
+	void Update(Rank rank, Rank setrank, Rank unsetrank, bool selfrm);
 
 	/** @copydoc ModeHandler::RemoveMode(Channel*,Modes::ChangeList&) */
 	void RemoveMode(Channel* channel, Modes::ChangeList& changelist) override;
@@ -433,7 +437,7 @@ public:
 	 * PrefixModeValue enum and Channel::GetPrefixValue() for
 	 * more information.
 	 */
-	unsigned int GetPrefixRank() const { return prefixrank; }
+	Rank GetPrefixRank() const { return prefixrank; }
 };
 
 /** A prebuilt mode handler which handles a simple user mode, e.g. no parameters, usable by any user, with no extra
@@ -784,7 +788,7 @@ public:
 	 * @param rank The rank to search for prefix modes near.
 	 * @return A pointer to the PrefixMode or NULL if a prefix mode wasn't found.
 	 */
-	PrefixMode* FindNearestPrefixMode(unsigned int rank);
+	PrefixMode* FindNearestPrefixMode(ModeHandler::Rank rank);
 
 	/** Find a mode handler by its prefix.
 	 * If there is no mode handler with the given prefix, NULL will be returned.

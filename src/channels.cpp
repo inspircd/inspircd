@@ -367,7 +367,7 @@ void Channel::KickUser(User* src, const MemberMap::iterator& victimiter, const s
 
 void Channel::Write(ClientProtocol::Event& protoev, char status, const CUList& except_list)
 {
-	unsigned int minrank = 0;
+	ModeHandler::Rank minrank = 0;
 	if (status)
 	{
 		PrefixMode* mh = ServerInstance->Modes.FindPrefix(status);
@@ -441,7 +441,7 @@ void Channel::WriteRemoteNotice(const std::string& text, char status)
 char Membership::GetPrefixChar() const
 {
 	char pf = 0;
-	unsigned int bestrank = 0;
+	ModeHandler::Rank bestrank = 0;
 
 	for (const auto& mh : modes)
 	{
@@ -478,7 +478,7 @@ std::string Membership::GetAllPrefixModes() const
 	return ret;
 }
 
-unsigned int Channel::GetPrefixValue(User* user)
+ModeHandler::Rank Channel::GetPrefixValue(User* user)
 {
 	MemberMap::iterator m = userlist.find(user);
 	if (m == userlist.end())

@@ -256,7 +256,7 @@ public:
 class Numerics::ChannelPrivilegesNeeded : public Numeric::Numeric
 {
 public:
-	ChannelPrivilegesNeeded(Channel* chan, unsigned int rank, const std::string& message)
+	ChannelPrivilegesNeeded(Channel* chan, ModeHandler::Rank rank, const std::string& message)
 		: Numeric(ERR_CHANOPRIVSNEEDED)
 	{
 		push(chan->name);

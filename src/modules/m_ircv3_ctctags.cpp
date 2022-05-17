@@ -82,7 +82,7 @@ private:
 		if (!FirePreEvents(source, msgtarget, msgdetails))
 			return CmdResult::FAILURE;
 
-		unsigned int minrank = pm ? pm->GetPrefixRank() : 0;
+		ModeHandler::Rank minrank = pm ? pm->GetPrefixRank() : 0;
 		CTCTags::TagMessage message(source, chan, msgdetails.tags_out, msgtarget.status);
 		message.SetSideEffect(true);
 

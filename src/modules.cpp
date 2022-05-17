@@ -140,7 +140,7 @@ ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, con
 void		Module::OnPostConnect(User*) { DetachEvent(I_OnPostConnect); }
 void		Module::OnUserPostMessage(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserPostMessage); }
 void		Module::OnUserMessageBlocked(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserMessageBlocked); }
-void		Module::OnUserInvite(User*, User*, Channel*, time_t, unsigned int, CUList&) { DetachEvent(I_OnUserInvite); }
+void		Module::OnUserInvite(User*, User*, Channel*, time_t, ModeHandler::Rank, CUList&) { DetachEvent(I_OnUserInvite); }
 void		Module::OnPostTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPostTopicChange); }
 void		Module::OnDecodeMetaData(Extensible*, const std::string&, const std::string&) { DetachEvent(I_OnDecodeMetaData); }
 void		Module::OnChangeHost(User*, const std::string&) { DetachEvent(I_OnChangeHost); }

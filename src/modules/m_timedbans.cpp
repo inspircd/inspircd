@@ -89,7 +89,7 @@ public:
 			return CmdResult::FAILURE;
 		}
 
-		unsigned int cm = channel->GetPrefixValue(user);
+		ModeHandler::Rank cm = channel->GetPrefixValue(user);
 		if (cm < HALFOP_VALUE)
 		{
 			user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(channel, HALFOP_VALUE, "set timed bans"));

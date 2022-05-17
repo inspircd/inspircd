@@ -374,7 +374,7 @@ ModResult ModuleSpanningTree::HandleConnect(const CommandBase::Params& parameter
 	return MOD_RES_DENY;
 }
 
-void ModuleSpanningTree::OnUserInvite(User* source, User* dest, Channel* channel, time_t expiry, unsigned int notifyrank, CUList& notifyexcepts)
+void ModuleSpanningTree::OnUserInvite(User* source, User* dest, Channel* channel, time_t expiry, ModeHandler::Rank notifyrank, CUList& notifyexcepts)
 {
 	if (IS_LOCAL(source))
 	{

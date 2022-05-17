@@ -363,7 +363,7 @@ public:
 		if (!exemptions.count(restriction))
 			return MOD_RES_PASSTHRU;
 
-		unsigned int mypfx = chan->GetPrefixValue(user);
+		ModeHandler::Rank mypfx = chan->GetPrefixValue(user);
 		char minmode = exemptions[restriction];
 
 		PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(minmode);

@@ -127,7 +127,7 @@ public:
 
 	ModResult OnCheckExemption(User* user, Channel* chan, const std::string& restriction) override
 	{
-		unsigned int mypfx = chan->GetPrefixValue(user);
+		ModeHandler::Rank mypfx = chan->GetPrefixValue(user);
 		std::string minmode;
 
 		ListModeBase::ModeList* list = ec.GetList(chan);

@@ -137,7 +137,7 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 // Returns a list of DIRECT servers for a specific channel
 void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet& list, char status, const CUList& exempt_list)
 {
-	unsigned int minrank = 0;
+	ModeHandler::Rank minrank = 0;
 	if (status)
 	{
 		PrefixMode* mh = ServerInstance->Modes.FindPrefix(status);

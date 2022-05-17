@@ -128,12 +128,12 @@ private:
 	void BuildOpLevels()
 	{
 		// Build a map of prefixes ordered descending by their rank.
-		std::multimap<unsigned int, const PrefixMode*, std::greater<>> ranks;
+		std::multimap<ModeHandler::Rank, const PrefixMode*, std::greater<>> ranks;
 		for (const auto& pm : ServerInstance->Modes.GetPrefixModes())
 			ranks.insert(std::make_pair(pm->GetPrefixRank(), pm));
 
 		// Now we have the ranks ordered we can assign them levels.
-		unsigned int lastrank = 0;
+		ModeHandler::Rank lastrank = 0;
 		unsigned int oplevel = 0;
 		for (const auto& [_, pm] : ranks)
 		{

@@ -39,7 +39,7 @@ private:
 	UserModeReference servprotectmode;
 
 public:
-	unsigned long protectedrank;
+	ModeHandler::Rank protectedrank;
 	bool supportnokicks;
 
 	CommandRemove(Module* Creator)
@@ -100,8 +100,8 @@ public:
 			 * a services target will get a higher level than it's possible for a /remover to get..so they're safe.
 			 * Nobody may remove people with >= protectedrank rank.
 			 */
-			unsigned int ulevel = channel->GetPrefixValue(user);
-			unsigned int tlevel = channel->GetPrefixValue(target);
+			ModeHandler::Rank ulevel = channel->GetPrefixValue(user);
+			ModeHandler::Rank tlevel = channel->GetPrefixValue(target);
 			if ((!IS_LOCAL(user)) || ((ulevel > VOICE_VALUE) && (ulevel >= tlevel) && ((protectedrank == 0) || (tlevel < protectedrank))))
 			{
 				// REMOVE will be sent to the target's server and it will reply with a PART (or do nothing if it doesn't understand the command)

@@ -62,7 +62,7 @@ public:
 class ModeHook final
 	: public ClientProtocol::EventHook
 {
-	typedef insp::flat_map<unsigned int, const ClientProtocol::MessageList*> FilteredModeMap;
+	typedef insp::flat_map<ModeHandler::Rank, const ClientProtocol::MessageList*> FilteredModeMap;
 
 	std::vector<Modes::ChangeList> modechangelists;
 	std::list<ClientProtocol::Messages::Mode> filteredmodelist;
@@ -82,7 +82,7 @@ class ModeHook final
 		return MOD_RES_PASSTHRU;
 	}
 
-	Modes::ChangeList* FilterModeChangeList(const ClientProtocol::Events::Mode& mode, unsigned int rank)
+	Modes::ChangeList* FilterModeChangeList(const ClientProtocol::Events::Mode& mode, ModeHandler::Rank rank)
 	{
 		Modes::ChangeList* modechangelist = NULL;
 		for (Modes::ChangeList::List::const_iterator i = mode.GetChangeList().getlist().begin(); i != mode.GetChangeList().getlist().end(); ++i)

@@ -91,7 +91,7 @@ public:
 	NetworkPrefix(Module* parent, char NPrefix)
 		: PrefixMode(parent, "official-join", 'Y', NETWORK_VALUE, NPrefix)
 	{
-		ranktoset = ranktounset = UINT_MAX;
+		ranktoset = ranktounset = std::numeric_limits<ModeHandler::Rank>::max();
 	}
 
 	ModResult AccessCheck(User* source, Channel* channel, Modes::Change& change) override

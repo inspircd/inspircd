@@ -57,7 +57,7 @@ public:
 		if (pos == 0 || pos == std::string::npos)
 			return change.adding ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 
-		unsigned int mylevel = channel->GetPrefixValue(source);
+		ModeHandler::Rank mylevel = channel->GetPrefixValue(source);
 		std::string mid(change.param, 0, pos);
 		PrefixMode* mh = FindMode(mid);
 

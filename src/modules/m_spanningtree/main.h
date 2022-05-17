@@ -179,7 +179,7 @@ public:
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override;
 	void OnPostCommand(Command*, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, bool loop) override;
 	void OnUserConnect(LocalUser* source) override;
-	void OnUserInvite(User* source, User* dest, Channel* channel, time_t timeout, unsigned int notifyrank, CUList& notifyexcepts) override;
+	void OnUserInvite(User* source, User* dest, Channel* channel, time_t timeout, ModeHandler::Rank notifyrank, CUList& notifyexcepts) override;
 	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string& topic) override;
 	void OnPostTopicChange(User* user, Channel* chan, const std::string &topic) override;
 	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) override;

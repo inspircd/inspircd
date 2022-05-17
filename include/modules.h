@@ -552,7 +552,7 @@ public:
 	 * @param notifyrank Rank required to get an invite announcement (if enabled)
 	 * @param notifyexcepts List of users to not send the default NOTICE invite announcement to
 	 */
-	virtual void OnUserInvite(User* source, User* dest, Channel* channel, time_t timeout, unsigned int notifyrank, CUList& notifyexcepts);
+	virtual void OnUserInvite(User* source, User* dest, Channel* channel, time_t timeout, ModeHandler::Rank notifyrank, CUList& notifyexcepts);
 
 	/** Called before a user sends a message to a channel, a user, or a server glob mask.
 	 * @param user The user sending the message.

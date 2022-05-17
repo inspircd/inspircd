@@ -171,10 +171,10 @@ void ModeWatcher::AfterMode(User*, User*, Channel*, const Modes::Change&)
 {
 }
 
-PrefixMode::PrefixMode(Module* Creator, const std::string& Name, char ModeLetter, unsigned int Rank, char PrefixChar)
+PrefixMode::PrefixMode(Module* Creator, const std::string& Name, char ModeLetter, Rank PrefixRank, char PrefixChar)
 	: ModeHandler(Creator, Name, ModeLetter, PARAM_ALWAYS, MODETYPE_CHANNEL, MC_PREFIX)
 	, prefix(PrefixChar)
-	, prefixrank(Rank)
+	, prefixrank(PrefixRank)
 {
 	list = true;
 	syntax = "<nick>";
@@ -209,7 +209,7 @@ ModeAction PrefixMode::OnModeChange(User* source, User*, Channel* chan, Modes::C
 	return (memb->SetPrefix(this, change.adding) ? MODEACTION_ALLOW : MODEACTION_DENY);
 }
 
-void PrefixMode::Update(unsigned int rank, unsigned int setrank, unsigned int unsetrank, bool selfrm)
+void PrefixMode::Update(ModeHandler::Rank rank, ModeHandler::Rank setrank, ModeHandler::Rank unsetrank, bool selfrm)
 {
 	prefixrank = rank;
 	ranktoset = setrank;
@@ -270,8 +270,8 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 			return MODEACTION_DENY;
 		if (MOD_RESULT == MOD_RES_PASSTHRU)
 		{
-			unsigned int neededrank = mh->GetLevelRequired(mcitem.adding);
-			unsigned int ourrank = chan->GetPrefixValue(user);
+			ModeHandler::Rank neededrank = mh->GetLevelRequired(mcitem.adding);
+			ModeHandler::Rank ourrank = chan->GetPrefixValue(user);
 			if (ourrank < neededrank)
 			{
 				user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, neededrank, InspIRCd::Format("%s channel mode %c (%s)",
@@ -710,7 +710,7 @@ PrefixMode* ModeParser::FindPrefixMode(unsigned char modeletter)
 }
 
 
-PrefixMode* ModeParser::FindNearestPrefixMode(unsigned int rank)
+PrefixMode* ModeParser::FindNearestPrefixMode(ModeHandler::Rank rank)
 {
 	PrefixMode* pm = nullptr;
 	for (const auto& thispm : GetPrefixModes())

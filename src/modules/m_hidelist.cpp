@@ -25,10 +25,10 @@ class ListWatcher final
 	: public ModeWatcher
 {
 	// Minimum rank required to view the list
-	const unsigned int minrank;
+	const ModeHandler::Rank minrank;
 
 public:
-	ListWatcher(Module* mod, const std::string& modename, unsigned int rank)
+	ListWatcher(Module* mod, const std::string& modename, ModeHandler::Rank rank)
 		: ModeWatcher(mod, modename, MODETYPE_CHANNEL)
 		, minrank(rank)
 	{
@@ -70,7 +70,7 @@ public:
 				throw ModuleException(this, "Empty <hidelist:mode> at " + tag->source.str());
 			// If rank is set to 0 everyone inside the channel can view the list,
 			// but non-members may not
-			unsigned long rank = tag->getUInt("rank", HALFOP_VALUE);
+			ModeHandler::Rank rank = tag->getUInt("rank", HALFOP_VALUE);
 			newconfigs.push_back(std::make_pair(modename, rank));
 		}
 

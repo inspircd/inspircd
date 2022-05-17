@@ -104,8 +104,8 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 
 		if (res == MOD_RES_PASSTHRU)
 		{
-			unsigned int them = srcmemb->GetRank();
-			unsigned int req = HALFOP_VALUE;
+			ModeHandler::Rank them = srcmemb->GetRank();
+			ModeHandler::Rank req = HALFOP_VALUE;
 			for (const auto& mh : memb->modes)
 			{
 				if (mh->GetLevelRequired(true) > req)

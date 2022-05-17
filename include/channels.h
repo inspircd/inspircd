@@ -268,7 +268,7 @@ public:
 	 * is a prefix of greater 'worth' than ops, and a value less than
 	 * VOICE_VALUE is of lesser 'worth' than a voice.
 	 */
-	unsigned int GetPrefixValue(User* user);
+	ModeHandler::Rank GetPrefixValue(User* user);
 
 	/** Check if a user is banned on this channel
 	 * @param user A user to check against the banlist

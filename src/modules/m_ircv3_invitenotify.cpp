@@ -33,7 +33,7 @@ public:
 	{
 	}
 
-	void OnUserInvite(User* source, User* dest, Channel* chan, time_t expiry, unsigned int notifyrank, CUList& notifyexcepts) override
+	void OnUserInvite(User* source, User* dest, Channel* chan, time_t expiry, ModeHandler::Rank notifyrank, CUList& notifyexcepts) override
 	{
 		ClientProtocol::Messages::Invite invitemsg(source, dest, chan);
 		ClientProtocol::Event inviteevent(ServerInstance->GetRFCEvents().invite, invitemsg);
