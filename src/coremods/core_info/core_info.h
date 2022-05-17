@@ -148,8 +148,11 @@ class CommandVersion final
 {
 private:
 	ISupportManager& isupport;
+	Numeric::Numeric operversion;
+	Numeric::Numeric version;
 
 public:
 	CommandVersion(Module* parent, ISupportManager& isupportmgr);
+	void BuildNumerics();
 	CmdResult Handle(User* user, const Params& parameters) override;
 };

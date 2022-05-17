@@ -29,27 +29,28 @@
 CommandVersion::CommandVersion(Module* parent, ISupportManager& isupportmgr)
 	: Command(parent, "VERSION", 0, 0)
 	, isupport(isupportmgr)
+	, operversion(RPL_VERSION)
+	, version(RPL_VERSION)
 {
 	syntax = { "[<servername>]" };
 }
 
+void CommandVersion::BuildNumerics()
+{
+	version.GetParams().clear();
+	version.push(INSPIRCD_BRANCH ".");
+	version.push(ServerInstance->Config->GetServerName());
+	version.push(ServerInstance->Config->CustomVersion);
+
+	operversion.GetParams().clear();
+	operversion.push(INSPIRCD_VERSION ".");
+	operversion.push(ServerInstance->Config->ServerName);
+	operversion.push("[" + ServerInstance->Config->GetSID() + "] " + ServerInstance->Config->CustomVersion);
+}
+
 CmdResult CommandVersion::Handle(User* user, const Params& parameters)
 {
-	Numeric::Numeric numeric(RPL_VERSION);
-	if (user->IsOper())
-	{
-		numeric.push(INSPIRCD_VERSION ".");
-		numeric.push(ServerInstance->Config->ServerName);
-		numeric.push("[" + ServerInstance->Config->GetSID() + "] " + ServerInstance->Config->CustomVersion);
-	}
-	else
-	{
-		numeric.push(INSPIRCD_BRANCH ".");
-		numeric.push(ServerInstance->Config->GetServerName());
-		numeric.push(ServerInstance->Config->CustomVersion);
-	}
-	user->WriteNumeric(numeric);
-
+	user->WriteNumeric(user->IsOper() ? operversion : version);
 	LocalUser* luser = IS_LOCAL(user);
 	if (luser)
 		isupport.SendTo(luser);

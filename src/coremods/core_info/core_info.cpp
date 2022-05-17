@@ -149,6 +149,7 @@ public:
 		cmdadmin.admindesc = tag->getString("description");
 		cmdadmin.adminemail = tag->getString("email", "noreply@" + ServerInstance->Config->GetServerName(), 1);
 
+		cmdversion.BuildNumerics();
 		ServerInstance->AtomicActions.AddAction(new ISupportAction(isupport));
 	}
 
