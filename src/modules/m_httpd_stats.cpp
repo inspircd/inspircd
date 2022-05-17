@@ -97,9 +97,11 @@ namespace Stats
 
 	std::ostream& ServerInfo(std::ostream& data)
 	{
-		return data << "<server><name>" << ServerInstance->Config->ServerName << "</name><description>"
-			<< Sanitize(ServerInstance->Config->ServerDesc) << "</description><version>"
-			<< Sanitize(ServerInstance->GetVersionString(true)) << "</version></server>";
+		return data << "<server><name>" << ServerInstance->Config->ServerName << "</name><id>"
+			<< ServerInstance->Config->GetSID() << "</id><description>"
+			<< Sanitize(ServerInstance->Config->ServerDesc) << "</description><customversion>"
+			<< Sanitize(ServerInstance->Config->CustomVersion) << "</customversion><version>"
+			<< Sanitize(INSPIRCD_VERSION) << "</version></server>";
 	}
 
 	std::ostream& ISupport(std::ostream& data)
