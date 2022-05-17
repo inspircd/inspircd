@@ -44,7 +44,7 @@ const char* Log::LevelToString(Log::Level level)
 }
 
 Log::FileMethod::FileMethod(const std::string& n, FILE* fh, unsigned long fl, bool ac)
-	: Timer(15*60)
+	: Timer(15*60, true)
 	, autoclose(ac)
 	, file(fh)
 	, flush(fl)

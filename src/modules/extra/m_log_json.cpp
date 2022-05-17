@@ -46,7 +46,7 @@ public:
 	typedef char Ch;
 
 	JSONMethod(const std::string& n, FILE* fh, unsigned long fl) ATTR_NOT_NULL(3)
-		: Timer(15*60)
+		: Timer(15*60, true)
 		, file(fh)
 		, flush(fl)
 		, name(n)
