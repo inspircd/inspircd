@@ -28,24 +28,55 @@ CmdResult CommandSInfo::HandleServer(TreeServer* server, CommandBase::Params& pa
 	const std::string& key = params.front();
 	const std::string& value = params.back();
 
-	if (key == "fullversion")
+	if (irc::equals(key, "customversion"))
 	{
-		server->SetFullVersion(value);
+		server->customversion = value;
 	}
-	else if (key == "version")
-	{
-		server->SetVersion(value);
-	}
-	else if (key == "rawversion")
-	{
-		server->SetRawVersion(value);
-	}
-	else if (key == "desc")
+	else if (irc::equals(key,  "desc"))
 	{
 		// Only sent when the description of a server changes because of a rehash; not sent on burst
 		ServerInstance->Logs.Normal(MODNAME, "Server description of " + server->GetName() + " changed: " + value);
 		server->SetDesc(value);
 	}
+	else if (irc::equals(key,  "rawbranch"))
+	{
+		server->rawbranch = value;
+	}
+	else if (irc::equals(key,  "rawversion"))
+	{
+		server->rawversion = value;
+	}
+
+	// BEGIN DEPRECATED KEYS
+	else if (irc::equals(key,  "fullversion"))
+	{
+		// InspIRCd-4.0.0-a10. sadie.testnet.inspircd.org :[597] Test
+		// version             server                       uid  custom-version
+		std::string unused;
+		irc::spacesepstream versionstream(value);
+		versionstream.GetToken(server->rawversion);
+		server->rawversion.pop_back();
+		versionstream.GetToken(unused);
+		versionstream.GetToken(unused);
+		server->customversion = versionstream.GetRemaining();
+
+		ServerInstance->Logs.Debug(MODNAME, "Extracted entries from fullversion key: rawversion=%s customversion=%s",
+			server->rawversion.c_str(), server->customversion.c_str());
+	}
+	else if (irc::equals(key,  "version"))
+	{
+		// InspIRCd-4. testnet.inspircd.org :Test
+		std::string unused;
+		irc::spacesepstream versionstream(value);
+		versionstream.GetToken(server->rawbranch);
+		server->rawbranch.pop_back();
+		versionstream.GetToken(unused);
+		server->customversion = versionstream.GetRemaining();
+
+		ServerInstance->Logs.Debug(MODNAME, "Extracted entries from version key: rawbranch=%s customversion=%s",
+			server->rawbranch.c_str(), server->customversion.c_str());
+	}
+	// END DEPRECATED KEYS
 
 	return CmdResult::SUCCESS;
 }

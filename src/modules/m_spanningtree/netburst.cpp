@@ -124,14 +124,17 @@ void TreeSocket::DoBurst(TreeServer* s)
 
 void TreeSocket::SendServerInfo(TreeServer* from)
 {
-	// Send public version string
-	this->WriteLine(CommandSInfo::Builder(from, "version", from->GetVersion()));
+	this->WriteLine(CommandSInfo::Builder(from, "customversion", from->customversion));
+	this->WriteLine(CommandSInfo::Builder(from, "rawbranch", from->rawbranch));
+	this->WriteLine(CommandSInfo::Builder(from, "rawversion", from->rawversion));
 
-	// Send full version string that contains more information and is shown to opers
-	this->WriteLine(CommandSInfo::Builder(from, "fullversion", from->GetFullVersion()));
-
-	// Send the raw version string that just contains the base info
-	this->WriteLine(CommandSInfo::Builder(from, "rawversion", from->GetRawVersion()));
+	if (proto_version < PROTO_INSPIRCD_4)
+	{
+		this->WriteLine(CommandSInfo::Builder(from, "version", InspIRCd::Format("%s. %s :%s", from->rawbranch.c_str(),
+			from->GetPublicName().c_str(), from->customversion.c_str())));
+		this->WriteLine(CommandSInfo::Builder(from, "fullversion", InspIRCd::Format("%s. %s :[%s] %s", from->rawversion.c_str(),
+			from->GetName().c_str(), from->GetId().c_str(), from->customversion.c_str())));
+	}
 }
 
 /** Recursively send the server tree.

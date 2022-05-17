@@ -49,13 +49,6 @@ class TreeServer final
 	TreeServer* Parent;			/* Parent entry */
 	TreeServer* Route;			/* Route entry */
 	std::vector<TreeServer*> Children;	/* List of child objects */
-	std::string VersionString;		/* Version string or empty string */
-
-	/** Full version string including patch version and other info
-	 */
-	std::string fullversion;
-	std::string rawversion;
-
 	TreeSocket* Socket;			/* Socket used to communicate with this server */
 
 	/** Counter counting how many servers are bursting in front of this server, including
@@ -93,6 +86,10 @@ public:
 
 	size_t UserCount;			/* How many users are on this server? [note: doesn't care about +i] */
 	size_t OperCount = 0;			/* How many opers are on this server? */
+
+	std::string customversion;
+	std::string rawbranch;
+	std::string rawversion;
 
 	/** We use this constructor only to create the 'root' item, Utils->TreeRoot, which
 	 * represents our own server. Therefore, it has no route, no parent, and
@@ -143,19 +140,6 @@ public:
 	 */
 	bool IsDead() const { return isdead; }
 
-	/** Get server version string
-	 */
-	const std::string& GetVersion() const { return VersionString; }
-
-	/** Get the full version string of this server
-	 * @return The full version string of this server, including patch version and other info
-	 */
-	const std::string& GetFullVersion() const { return fullversion; }
-
-	/** Get the raw version string of this server
-	 */
-	const std::string& GetRawVersion() const { return rawversion; }
-
 	/** Round trip time of last ping
 	 */
 	unsigned long rtt = 0;
@@ -177,19 +161,6 @@ public:
 	 * For the root node, this returns NULL.
 	 */
 	TreeServer* GetParent() const { return Parent; }
-
-	/** Set the server version string
-	 */
-	void SetVersion(const std::string& verstr) { VersionString = verstr; }
-
-	/** Set the full version string
-	 * @param verstr The version string to set
-	 */
-	void SetFullVersion(const std::string& verstr) { fullversion = verstr; }
-
-	/** Set the raw version string
-	 */
-	void SetRawVersion(const std::string& verstr) { rawversion = verstr; }
 
 	/** Sets the description of this server. Called when the description of a remote server changes
 	 * and we are notified about it.

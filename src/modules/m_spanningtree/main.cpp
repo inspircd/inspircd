@@ -325,16 +325,19 @@ ModResult ModuleSpanningTree::HandleVersion(const CommandBase::Params& parameter
 			return MOD_RES_PASSTHRU;
 		}
 
-		// If an oper wants to see the version then show the full version string instead of the normal,
-		// but only if it is non-empty.
-		// If it's empty it might be that the server is still syncing (full version hasn't arrived yet)
-		// or the server is a 2.0 server and does not send a full version.
-		bool showfull = ((user->IsOper()) && (!found->GetFullVersion().empty()));
-
 		Numeric::Numeric numeric(RPL_VERSION);
-		irc::tokenstream tokens(showfull ? found->GetFullVersion() : found->GetVersion());
-		for (std::string token; tokens.GetTrailing(token); )
-			numeric.push(token);
+		if (user->IsOper())
+		{
+			numeric.push(found->rawversion + ".");
+			numeric.push(found->GetName());
+			numeric.push("[" + found->GetId() + "] " + found->customversion);
+		}
+		else
+		{
+			numeric.push(found->rawbranch + ".");
+			numeric.push(found->GetPublicName());
+			numeric.push(found->customversion);
+		}
 		user->WriteNumeric(numeric);
 	}
 	else

@@ -63,8 +63,8 @@ static void GetDepthAndLen(TreeServer* current, unsigned int depth, unsigned int
 	if (current->GetName().length() > max_len)
 		max_len = current->GetName().length();
 
-	if (current->GetRawVersion().length() > max_version)
-		max_version = current->GetRawVersion().length();
+	if (current->rawversion.length() > max_version)
+		max_version = current->rawversion.length();
 
 	for (const auto& child : current->GetChildren())
 		GetDepthAndLen(child, depth + 1, max_depth, max_len, max_version);
@@ -86,13 +86,12 @@ static std::vector<std::string> GetMap(User* user, TreeServer* current, size_t m
 	{
 		buffer += " (" + current->GetId();
 
-		const std::string& cur_vers = current->GetRawVersion();
-		if (!cur_vers.empty())
-			buffer += " " + cur_vers;
+		if (!current->rawversion.empty())
+			buffer += " " + current->rawversion;
 
 		buffer += ")";
 
-		buffer.append(max_version_len - current->GetRawVersion().length(), ' ');
+		buffer.append(max_version_len - current->rawversion.length(), ' ');
 	}
 
 	// Pad with spaces until its at max len, max_len must always be >= my names length
