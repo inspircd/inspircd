@@ -457,24 +457,24 @@ char Membership::GetPrefixChar() const
 std::string Membership::GetAllPrefixChars() const
 {
 	std::string ret;
+	ret.reserve(modes.size());
 	for (const auto& mh : modes)
 	{
 		if (mh->GetPrefix())
 			ret.push_back(mh->GetPrefix());
 	}
-
 	return ret;
 }
 
 std::string Membership::GetAllPrefixModes() const
 {
 	std::string ret;
+	ret.reserve(modes.size());
 	for (const auto& mh : modes)
 	{
 		if (mh->GetModeChar())
 			ret.push_back(mh->GetModeChar());
 	}
-
 	return ret;
 }
 
