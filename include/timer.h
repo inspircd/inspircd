@@ -57,7 +57,7 @@ public:
 	 * @param secs_from_now The number of seconds from now to trigger the timer
 	 * @param repeating Repeat this timer every secs_from_now seconds if set to true
 	 */
-	Timer(unsigned long secs_from_now, bool repeating = false);
+	Timer(unsigned long secs_from_now, bool repeating);
 
 	/** Default destructor, removes the timer from the timer manager
 	 */

@@ -207,7 +207,7 @@ private:
 public:
 	HttpServerSocket(int newfd, const std::string& IP, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server, unsigned long timeoutsec)
 		: BufferedSocket(newfd)
-		, Timer(timeoutsec)
+		, Timer(timeoutsec, false)
 		, ip(IP)
 	{
 		if ((!via->iohookprovs.empty()) && (via->iohookprovs.back()))

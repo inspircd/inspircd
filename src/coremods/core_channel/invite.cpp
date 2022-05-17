@@ -198,7 +198,7 @@ void Invite::Invite::Serialize(bool human, bool show_chans, std::string& out)
 }
 
 InviteExpireTimer::InviteExpireTimer(Invite::Invite* invite, time_t timeout)
-	: Timer(timeout)
+	: Timer(timeout, false)
 	, inv(invite)
 {
 }

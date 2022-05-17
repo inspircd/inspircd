@@ -97,7 +97,7 @@ public:
 	 * @param secs_from_now Seconds from now to time out
 	 */
 	SocketTimeout(int fd, BufferedSocket* thesock, unsigned long secs_from_now)
-		: Timer(secs_from_now)
+		: Timer(secs_from_now, false)
 		, sock(thesock)
 		, sfd(fd)
 	{

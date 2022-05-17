@@ -25,7 +25,7 @@
 #include "commandbuilder.h"
 
 PingTimer::PingTimer(TreeServer* ts)
-	: Timer(Utils->PingFreq)
+	: Timer(Utils->PingFreq, false)
 	, server(ts)
 	, state(PS_SENDPING)
 {
