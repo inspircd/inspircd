@@ -443,10 +443,9 @@ char Membership::GetPrefixChar() const
 	char pf = 0;
 	unsigned int bestrank = 0;
 
-	for (const auto& modechr : modes)
+	for (const auto& mh : modes)
 	{
-		PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(modechr);
-		if (mh && mh->GetPrefixRank() > bestrank && mh->GetPrefix())
+		if (mh->GetPrefixRank() > bestrank && mh->GetPrefix())
 		{
 			bestrank = mh->GetPrefixRank();
 			pf = mh->GetPrefix();
@@ -455,25 +454,25 @@ char Membership::GetPrefixChar() const
 	return pf;
 }
 
-unsigned int Membership::GetRank()
-{
-	if (!modes.empty())
-	{
-		PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(modes[0]);
-		if (mh)
-			return mh->GetPrefixRank();
-	}
-	return 0;
-}
-
 std::string Membership::GetAllPrefixChars() const
 {
 	std::string ret;
-	for (const auto& modechr : modes)
+	for (const auto& mh : modes)
 	{
-		PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(modechr);
-		if (mh && mh->GetPrefix())
+		if (mh->GetPrefix())
 			ret.push_back(mh->GetPrefix());
+	}
+
+	return ret;
+}
+
+std::string Membership::GetAllPrefixModes() const
+{
+	std::string ret;
+	for (const auto& mh : modes)
+	{
+		if (mh->GetModeChar())
+			ret.push_back(mh->GetModeChar());
 	}
 
 	return ret;
@@ -489,22 +488,10 @@ unsigned int Channel::GetPrefixValue(User* user)
 
 bool Membership::SetPrefix(PrefixMode* delta_mh, bool adding)
 {
-	char prefix = delta_mh->GetModeChar();
-	for (unsigned int i = 0; i < modes.length(); i++)
-	{
-		char mchar = modes[i];
-		PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(mchar);
-		if (mh && mh->GetPrefixRank() <= delta_mh->GetPrefixRank())
-		{
-			modes = modes.substr(0,i) +
-				(adding ? std::string(1, prefix) : "") +
-				modes.substr(mchar == prefix ? i+1 : i);
-			return adding != (mchar == prefix);
-		}
-	}
 	if (adding)
-		modes.push_back(prefix);
-	return adding;
+		return modes.insert(delta_mh).second;
+	else
+		return modes.erase(delta_mh);
 }
 
 void Membership::WriteNotice(const std::string& text) const

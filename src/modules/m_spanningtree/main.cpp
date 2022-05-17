@@ -538,7 +538,7 @@ void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by
 		if (!memb->modes.empty())
 		{
 			params.push(ConvToStr(memb->chan->age));
-			params.push(memb->modes);
+			params.push(memb->GetAllPrefixModes());
 		}
 		params.Broadcast();
 	}

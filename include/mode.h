@@ -377,6 +377,15 @@ protected:
 	bool selfremove = true;
 
 public:
+	/** Sorts a container of PrefixMode* objects descending by their rank. */
+	struct Sorter
+	{
+		bool operator()(const PrefixMode* lhs, const PrefixMode* rhs) const
+		{
+			return lhs->GetPrefixRank() > rhs->GetPrefixRank();
+		}
+	};
+
 	/**
 	 * Constructor
 	 * @param Creator The module creating this mode

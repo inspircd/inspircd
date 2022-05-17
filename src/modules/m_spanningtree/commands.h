@@ -185,7 +185,8 @@ public:
 
 		void add(Membership* memb)
 		{
-			add(memb, memb->modes.begin(), memb->modes.end());
+			const std::string modes = memb->GetAllPrefixModes();
+			add(memb, modes.begin(), modes.end());
 		}
 
 		void clear();

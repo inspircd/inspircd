@@ -106,10 +106,9 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 		{
 			unsigned int them = srcmemb->GetRank();
 			unsigned int req = HALFOP_VALUE;
-			for (std::string::size_type i = 0; i < memb->modes.length(); i++)
+			for (const auto& mh : memb->modes)
 			{
-				ModeHandler* mh = ServerInstance->Modes.FindMode(memb->modes[i], MODETYPE_CHANNEL);
-				if (mh && mh->GetLevelRequired(true) > req)
+				if (mh->GetLevelRequired(true) > req)
 					req = mh->GetLevelRequired(true);
 			}
 

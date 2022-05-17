@@ -183,7 +183,7 @@ namespace Stats
 			{
 				data << "<channelmember><uid>" << memb->user->uuid << "</uid><privs>"
 					<< Sanitize(memb->GetAllPrefixChars()) << "</privs><modes>"
-					<< memb->modes << "</modes>";
+					<< memb->GetAllPrefixModes() << "</modes>";
 				DumpMeta(data, memb);
 				data << "</channelmember>";
 			}

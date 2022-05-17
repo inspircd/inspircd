@@ -52,7 +52,7 @@ public:
 	/** List of prefix mode letters this member has,
 	 * sorted by prefix rank, highest first
 	 */
-	std::string modes;
+	std::set<PrefixMode*, PrefixMode::Sorter> modes;
 
 	/** Id of this Membership, set by the protocol module, other components should never read or
 	 * write this field.
@@ -86,15 +86,18 @@ public:
 	 */
 	bool HasMode(const PrefixMode* pm) const
 	{
-		return (modes.find(pm->GetModeChar()) != std::string::npos);
+		return std::find(modes.begin(), modes.end(), pm) != modes.end();
 	}
+
+	/** Returns the highest prefix mode for this membership or nullptr if no prefix mode is set. */
+	PrefixMode* GetMode() const { return modes.empty() ? nullptr : *modes.begin(); }
 
 	/** Returns the rank of this member.
 	 * The rank of a member is defined as the rank given by the 'strongest' prefix mode a
 	 * member has. See the PrefixMode class description for more info.
 	 * @return The rank of the member
 	 */
-	unsigned int GetRank();
+	unsigned int GetRank() { return modes.empty() ? 0 : (*modes.begin())->GetPrefixRank(); }
 
 	/** Add a prefix character to a user.
 	 * Only the core should call this method, usually from
@@ -115,12 +118,18 @@ public:
 	 */
 	char GetPrefixChar() const;
 
+	/** Get the mode character of the highest prefix mode this user has on the channel or 0 if no prefix modes are set. */
+	char GetModeChar() const { return modes.empty() ? 0 : (*modes.begin())->GetModeChar(); }
+
 	/** Return all prefix chars this member has.
 	 * @return A list of all prefix characters. The prefixes will always
 	 * be in rank order, greatest first, as certain IRC clients require
 	 * this when multiple prefixes are used names lists.
 	 */
 	std::string GetAllPrefixChars() const;
+
+	/** Returns all prefix modes this member has ordered descending by rank. */
+	std::string GetAllPrefixModes() const;
 
 	/** Sends a server notice to this user in the context of this channel.
 	 * @param text The contents of the message to send.

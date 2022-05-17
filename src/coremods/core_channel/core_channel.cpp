@@ -57,12 +57,7 @@ public:
 
 		modechangelist.clear();
 		for (const auto& mode : memb.modes)
-		{
-			PrefixMode* const pm = ServerInstance->Modes.FindPrefixMode(mode);
-			if (!pm)
-				continue; // Shouldn't happen
-			modechangelist.push_add(pm, memb.user->nick);
-		}
+			modechangelist.push_add(mode, memb.user->nick);
 
 		if (modechangelist.empty())
 		{

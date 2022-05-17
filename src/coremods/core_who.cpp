@@ -535,7 +535,7 @@ void CommandWho::SendWhoLine(LocalUser* source, const std::vector<std::string>& 
 			if (oplevels.empty())
 				BuildOpLevels();
 
-			wholine.push(memb && !memb->modes.empty() ? oplevels[memb->modes.front()] : "n/a");
+			wholine.push(memb && memb->GetModeChar() ? oplevels[memb->GetModeChar()] : "n/a");
 		}
 
 		// Include the user's real name.
