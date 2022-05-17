@@ -38,13 +38,13 @@ CmdResult CommandVersion::Handle(User* user, const Params& parameters)
 	Numeric::Numeric numeric(RPL_VERSION);
 	if (user->IsOper())
 	{
-		numeric.push(INSPIRCD_VERSION);
+		numeric.push(INSPIRCD_VERSION ".");
 		numeric.push(ServerInstance->Config->ServerName);
 		numeric.push("[" + ServerInstance->Config->GetSID() + "] " + ServerInstance->Config->CustomVersion);
 	}
 	else
 	{
-		numeric.push(INSPIRCD_BRANCH);
+		numeric.push(INSPIRCD_BRANCH ".");
 		numeric.push(ServerInstance->Config->GetServerName());
 		numeric.push(ServerInstance->Config->CustomVersion);
 	}
