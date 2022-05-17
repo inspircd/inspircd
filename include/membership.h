@@ -97,7 +97,7 @@ public:
 	 * member has. See the PrefixMode class description for more info.
 	 * @return The rank of the member
 	 */
-	ModeHandler::Rank GetRank() { return modes.empty() ? 0 : (*modes.begin())->GetPrefixRank(); }
+	ModeHandler::Rank GetRank() const { return modes.empty() ? 0 : (*modes.begin())->GetPrefixRank(); }
 
 	/** Add a prefix character to a user.
 	 * Only the core should call this method, usually from
