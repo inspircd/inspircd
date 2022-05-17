@@ -36,9 +36,18 @@ CommandVersion::CommandVersion(Module* parent, ISupportManager& isupportmgr)
 CmdResult CommandVersion::Handle(User* user, const Params& parameters)
 {
 	Numeric::Numeric numeric(RPL_VERSION);
-	irc::tokenstream tokens(ServerInstance->GetVersionString(user->IsOper()));
-	for (std::string token; tokens.GetTrailing(token); )
-		numeric.push(token);
+	if (user->IsOper())
+	{
+		numeric.push(INSPIRCD_VERSION);
+		numeric.push(ServerInstance->Config->ServerName);
+		numeric.push("[" + ServerInstance->Config->GetSID() + "] " + ServerInstance->Config->CustomVersion);
+	}
+	else
+	{
+		numeric.push(INSPIRCD_BRANCH);
+		numeric.push(ServerInstance->Config->GetServerName());
+		numeric.push(ServerInstance->Config->CustomVersion);
+	}
 	user->WriteNumeric(numeric);
 
 	LocalUser* luser = IS_LOCAL(user);

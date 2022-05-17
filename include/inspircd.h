@@ -470,11 +470,6 @@ public:
 	 */
 	bool PassCompare(Extensible* ex, const std::string& data, const std::string& input, const std::string& hashtype);
 
-	/** Returns the full version string of this ircd
-	 * @return The version string
-	 */
-	std::string GetVersionString(bool getFullVersion = false);
-
 	/** Attempt to write the process id to a given file
 	 */
 	void WritePID();
