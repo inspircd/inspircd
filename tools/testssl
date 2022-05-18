@@ -73,7 +73,7 @@ It seems like the server endpoint you specified is not reachable! Make sure that
   * If you are using a firewall incoming connections on TCP port $port are allowed.
   * The endpoint your server is listening on is not local or private.
 
-See https://docs.inspircd.org/3/configuration/#ltbindgt for more information.
+See https://docs.inspircd.org/4/configuration/#ltbindgt for more information.
 EOM
 	exit 1;
 }
@@ -91,7 +91,7 @@ It seems like the server dropped the connection before sending anything! Make su
   * The endpoint you specified is actually your IRC server.
   * If you are using a firewall incoming data on TCP port $port are allowed.
 
-See https://docs.inspircd.org/3/configuration/#ltbindgt for more information.
+See https://docs.inspircd.org/4/configuration/#ltbindgt for more information.
 EOM
 	exit 1;
 } elsif ($data =~ /[A-Z:@]/) {
@@ -116,9 +116,9 @@ It appears that the server endpoint is using plaintext! Make sure that:
 
 See the following links for more information:
 
-  https://docs.inspircd.org/3/modules/ssl_gnutls/#configuration
-  https://docs.inspircd.org/3/modules/ssl_mbedtls/#configuration
-  https://docs.inspircd.org/3/modules/ssl_openssl/#configuration
+  https://docs.inspircd.org/4/modules/ssl_gnutls/#configuration
+  https://docs.inspircd.org/4/modules/ssl_mbedtls/#configuration
+  https://docs.inspircd.org/4/modules/ssl_openssl/#configuration
 EOM
 	exit 1;
 }

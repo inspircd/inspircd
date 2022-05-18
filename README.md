@@ -1,4 +1,4 @@
-### Important Notice
+## Important Notice
 
 The `master` branch contains the latest unstable development code. If you are running a server then you probably want to use a v3 release for now. You can obtain this from [the releases page](https://github.com/inspircd/inspircd/releases/latest) or by running `git checkout $(git describe --abbrev=0 --tags insp3)` if you are installing from Git.
 
@@ -24,7 +24,7 @@ If you encounter any bugs then [please file an issue](https://github.com/inspirc
 
 ## Installation
 
-Most InspIRCd users running a UNIX-like system build from source. A guide about how to do this is available on [the InspIRCd docs site](https://docs.inspircd.org/3/installation/source).
+Most InspIRCd users running a UNIX-like system build from source. A guide about how to do this is available on [the InspIRCd docs site](https://docs.inspircd.org/4/installation/source).
 
 Building from source on Windows is generally not recommended but [a guide is available](https://github.com/inspircd/inspircd/blob/master/win/README.txt) if you wish to do this.
 
