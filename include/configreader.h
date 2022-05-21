@@ -31,7 +31,7 @@
 #pragma once
 
 #include "inspircd.h"
-#include "token_list.h"
+#include "inspstring.h"
 
 /** Represents the position within a file. */
 class CoreExport FilePosition final
