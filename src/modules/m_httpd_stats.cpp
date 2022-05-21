@@ -412,10 +412,8 @@ public:
 
 		ServerInstance->Logs.Debug(MODNAME, "Handling HTTP request for %s", http->GetPath().c_str());
 
-		bool found = true;
 		std::stringstream data;
 		data << "<inspircdstats>";
-
 		if (http->GetPath() == "/stats")
 		{
 			data << Stats::ServerInfo << Stats::General
@@ -436,21 +434,12 @@ public:
 		}
 		else
 		{
-			found = false;
+			return MOD_RES_PASSTHRU;
 		}
-
-		if (found)
-		{
-			data << "</inspircdstats>";
-		}
-		else
-		{
-			data.clear();
-			data.str(std::string());
-		}
+		data << "</inspircdstats>";
 
 		/* Send the document back to m_httpd */
-		HTTPDocumentResponse response(this, *http, &data, found ? 200 : 404);
+		HTTPDocumentResponse response(this, *http, &data, 200);
 		response.headers.SetHeader("X-Powered-By", MODNAME);
 		response.headers.SetHeader("Content-Type", "text/xml");
 		API->SendResponse(response);

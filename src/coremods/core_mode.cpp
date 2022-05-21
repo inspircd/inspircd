@@ -32,6 +32,7 @@ private:
 	unsigned int seq = 0;
 	ChanModeReference secretmode;
 	ChanModeReference privatemode;
+	UserModeReference snomaskmode;
 
 	/** Show the list of one or more list modes to a user.
 	 * @param user User to send to.
@@ -59,6 +60,8 @@ private:
 		return !chan->IsModeSet(secretmode) && !chan->IsModeSet(privatemode);
 	}
 
+	std::string GetSnomasks(const User* user);
+
 public:
 	CommandMode(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
@@ -69,6 +72,7 @@ CommandMode::CommandMode(Module* parent)
 	: Command(parent, "MODE", 1)
 	, secretmode(creator, "secret")
 	, privatemode(creator, "private")
+	, snomaskmode(creator, "snomask")
 {
 	syntax = { "<target> [[(+|-)]<modes> [<mode-parameters>]]" };
 	memset(&sent, 0, sizeof(sent));
@@ -176,10 +180,9 @@ void CommandMode::DisplayListModes(User* user, Channel* chan, const std::string&
 	}
 }
 
-static std::string GetSnomasks(const User* user)
+std::string CommandMode::GetSnomasks(const User* user)
 {
-	ModeHandler* const snomask = ServerInstance->Modes.FindMode('s', MODETYPE_USER);
-	std::string snomaskstr = snomask->GetUserParameter(user);
+	std::string snomaskstr = snomaskmode->GetUserParameter(user);
 	// snomaskstr is empty if the snomask mode isn't set, otherwise it begins with a '+'.
 	// In the former case output a "+", not an empty string.
 	if (snomaskstr.empty())

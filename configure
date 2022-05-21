@@ -240,12 +240,11 @@ if (defined $opt_portable) {
 
 # Parse --gid=123 or --gid=foo and extract the group id.
 my @group;
-if (defined $opt_disable_ownership) {
-	@group = qw(insert-group-here . -1);
-	print_error 'you can not use --disable-ownership and --gid at the same time!' if defined $opt_gid;
-} elsif (defined $opt_gid) {
+if (defined $opt_gid) {
 	@group = $opt_gid =~ /^\d+$/ ? getgrgid($opt_gid) : getgrnam($opt_gid);
 	print_error "there is no '$opt_gid' group on this system!" unless @group;
+} elsif (defined $opt_disable_ownership) {
+	@group = qw(insert-group-here . -1);
 } else {
 	@group = $opt_system ? getgrnam('irc') : getgrgid($config{GID} // getgid());
 	print_error "you need to specify a group to run as using '--gid [id|name]'!" unless @group;
@@ -270,12 +269,11 @@ $config{GID}   = $group[2];
 
 # Parse --uid=123 or --uid=foo and extract the user id.
 my @user;
-if (defined $opt_disable_ownership) {
-	@user = qw(insert-user-here . -1);
-	print_error 'you can not use --disable-ownership and --uid at the same time!' if defined $opt_uid;
-} elsif (defined $opt_uid) {
+if (defined $opt_uid) {
 	@user = $opt_uid =~ /^\d+$/ ? getpwuid($opt_uid) : getpwnam($opt_uid);
 	print_error "there is no '$opt_uid' user on this system!" unless @user;
+} elsif (defined $opt_disable_ownership) {
+	@user = qw(insert-user-here . -1);
 } else {
 	@user = $opt_system ? getpwnam('irc') : getpwuid($config{UID} // getuid());
 	print_error "you need to specify a user to run as using '--uid [id|name]'!" unless @user;
