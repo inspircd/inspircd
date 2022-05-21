@@ -35,11 +35,13 @@
 #include "modules/httpd.h"
 #include "xline.h"
 
+#include <stack>
+
 static ISupport::EventProvider* isevprov;
 
 namespace Stats
 {
-	static const insp::flat_map<char, char const*>& xmlentities = {
+	static const insp::flat_map<char, char const*> xmlentities = {
 		{ '<', "lt"   },
 		{ '>', "gt"   },
 		{ '&', "amp"  },
@@ -81,62 +83,103 @@ namespace Stats
 		return ret;
 	}
 
-	void DumpMeta(std::ostream& data, Extensible* ext)
+	class XMLSerializer final
 	{
-		data << "<metadata>";
+	private:
+		std::stack<const char*> blocks;
+		std::stringstream data;
+
+	public:
+		XMLSerializer& Attribute(const char* name, const std::string& value)
+		{
+			data << '<' << name << '>' << value << "</" << Sanitize(name) << '>';
+			return *this;
+		}
+
+		template<typename Numeric>
+		std::enable_if_t<std::is_arithmetic_v<Numeric>, XMLSerializer&> Attribute(const char* name, const Numeric& value)
+		{
+			return Attribute(name, ConvToStr(value));
+		}
+
+		std::stringstream* GetData() { return &data; }
+
+		XMLSerializer& BeginBlock(const char* name)
+		{
+			blocks.push(name);
+			data << '<' << name << '>';
+			return *this;
+		}
+
+		XMLSerializer& EndBlock()
+		{
+			const char* name = blocks.top();
+			data << "</" << name << '>';
+			blocks.pop();
+			return *this;
+		}
+	};
+
+	void DumpMeta(XMLSerializer& serializer, Extensible* ext)
+	{
+		serializer.BeginBlock("metadata");
 		for (const auto& [item, obj] : ext->GetExtList())
 		{
+			serializer.BeginBlock("meta")
+				.Attribute("name", item->name);
+
 			const std::string value = item->ToHuman(ext, obj);
-			if (!value.empty())
-				data << "<meta name=\"" << item->name << "\">" << Sanitize(value) << "</meta>";
-			else if (!item->name.empty())
-				data << "<meta name=\"" << item->name << "\"/>";
+			serializer.Attribute("value", value.empty() ? value.c_str() : nullptr);
 		}
-		data << "</metadata>";
+		serializer.EndBlock();
 	}
 
-	std::ostream& ServerInfo(std::ostream& data)
+	void ServerInfo(XMLSerializer& serializer)
 	{
-		return data << "<server><name>" << ServerInstance->Config->ServerName << "</name><id>"
-			<< ServerInstance->Config->GetSID() << "</id><description>"
-			<< Sanitize(ServerInstance->Config->ServerDesc) << "</description><customversion>"
-			<< Sanitize(ServerInstance->Config->CustomVersion) << "</customversion><version>"
-			<< Sanitize(INSPIRCD_VERSION) << "</version></server>";
+		serializer.BeginBlock("server")
+			.Attribute("id", ServerInstance->Config->GetSID())
+			.Attribute("name", ServerInstance->Config->ServerName)
+			.Attribute("description", ServerInstance->Config->ServerDesc)
+			.Attribute("customversion", ServerInstance->Config->CustomVersion)
+			.Attribute("version", INSPIRCD_VERSION)
+			.EndBlock();
 	}
 
-	std::ostream& ISupport(std::ostream& data)
+	void ISupport(XMLSerializer& serializer)
 	{
-		data << "<isupport>";
-
 		ISupport::TokenMap tokens;
 		isevprov->Call(&ISupport::EventListener::OnBuildISupport, tokens);
+
+		serializer.BeginBlock("isupport");
 		for (const auto& [key, value] : tokens)
 		{
-			data << "<token><name>" << Sanitize(key)
-				<< "</name><value>" << Sanitize(value)
-				<< "</value></token>";
+			serializer.BeginBlock("token")
+				.Attribute("name", key)
+				.Attribute("value", value)
+				.EndBlock();
 		}
-		return data << "</isupport>";
+		serializer.EndBlock();
 	}
 
-	std::ostream& General(std::ostream& data)
+	void General(XMLSerializer& serializer)
 	{
-		data << "<general>";
-		data << "<usercount>" << ServerInstance->Users.GetUsers().size() << "</usercount>";
-		data << "<localusercount>" << ServerInstance->Users.GetLocalUsers().size() << "</localusercount>";
-		data << "<channelcount>" << ServerInstance->Channels.GetChans().size() << "</channelcount>";
-		data << "<opercount>" << ServerInstance->Users.all_opers.size() << "</opercount>";
-		data << "<socketcount>" << (SocketEngine::GetUsedFds()) << "</socketcount><socketmax>" << SocketEngine::GetMaxFds() << "</socketmax>";
-		data << "<uptime><boot_time_t>" << ServerInstance->startup_time << "</boot_time_t></uptime>";
-		data << "<currenttime>" << ServerInstance->Time() << "</currenttime>";
+		serializer.BeginBlock("general")
+			.Attribute("usercount", ServerInstance->Users.GetUsers().size())
+			.Attribute("localusercount", ServerInstance->Users.GetLocalUsers().size())
+			.Attribute("channelcount", ServerInstance->Channels.GetChans().size())
+			.Attribute("opercount", ServerInstance->Users.all_opers.size())
+			.Attribute("socketcount", SocketEngine::GetUsedFds())
+			.Attribute("socketmax", SocketEngine::GetMaxFds())
+			.Attribute("boottime", ServerInstance->startup_time)
+			.Attribute("currenttime", ServerInstance->Time());
 
-		data << ISupport;
-		return data << "</general>";
+		ISupport(serializer);
+		serializer.EndBlock();
 	}
 
-	std::ostream& XLines(std::ostream& data)
+	void XLines(XMLSerializer& serializer)
 	{
-		data << "<xlines>";
+		serializer.BeginBlock("xlines");
 		for (const auto& xltype : ServerInstance->XLines->GetAllTypes())
 		{
 			XLineLookup* lookup = ServerInstance->XLines->GetAll(xltype);
@@ -145,134 +188,148 @@ namespace Stats
 
 			for (const auto& [_, xline] : *lookup)
 			{
-				data << "<xline type=\"" << xltype << "\"><mask>"
-					<< Sanitize(xline->Displayable()) << "</mask><settime>"
-					<< xline->set_time << "</settime><duration>" << xline->duration
-					<< "</duration><reason>" << Sanitize(xline->reason)
-					<< "</reason></xline>";
+				serializer.BeginBlock("xline")
+					.Attribute("type", xltype)
+					.Attribute("mask", xline->Displayable())
+					.Attribute("settime", xline->set_time)
+					.Attribute("duration", xline->duration)
+					.Attribute("reason", xline->reason)
+					.EndBlock();
 			}
 		}
-		return data << "</xlines>";
+		serializer.EndBlock();
 	}
 
-	std::ostream& Modules(std::ostream& data)
+	void Modules(XMLSerializer& serializer)
 	{
-		data << "<modulelist>";
+		serializer.BeginBlock("modulelist");
 		for (const auto& [modname, mod] : ServerInstance->Modules.GetModules())
 		{
-			data << "<module><name>" << modname << "</name><description>"
-				<< Sanitize(mod->description) << "</description></module>";
+			serializer.BeginBlock("module")
+				.Attribute("name", modname)
+				.Attribute("description", mod->description)
+				.EndBlock();
 		}
-		return data << "</modulelist>";
+		serializer.EndBlock();
 	}
 
-	std::ostream& Channels(std::ostream& data)
+	void Channels(XMLSerializer& serializer)
 	{
-		data << "<channellist>";
-
+		serializer.BeginBlock("channellist");
 		for (const auto& [_, c] : ServerInstance->Channels.GetChans())
 		{
-			data << "<channel>";
-			data << "<usercount>" << c->GetUsers().size() << "</usercount><channelname>" << Sanitize(c->name) << "</channelname>";
-			data << "<channeltopic>";
-			data << "<topictext>" << Sanitize(c->topic) << "</topictext>";
-			data << "<setby>" << Sanitize(c->setby) << "</setby>";
-			data << "<settime>" << c->topicset << "</settime>";
-			data << "</channeltopic>";
-			data << "<channelmodes>" << Sanitize(c->ChanModes(true)) << "</channelmodes>";
+			serializer.BeginBlock("channel")
+				.Attribute("channelname", c->name)
+				.Attribute("usercount", c->GetUserCounter())
+				.Attribute("channelmodes",c->ChanModes(true));
+
+			if (!c->topic.empty())
+			{
+				serializer.BeginBlock("channeltopic")
+					.Attribute("topictext", c->topic)
+					.Attribute("setby", c->setby)
+					.Attribute("settime", c->topicset)
+					.EndBlock();
+			}
 
 			for (const auto& [__, memb] : c->GetUsers())
 			{
-				data << "<channelmember><uid>" << memb->user->uuid << "</uid><privs>"
-					<< Sanitize(memb->GetAllPrefixChars()) << "</privs><modes>"
-					<< memb->GetAllPrefixModes() << "</modes>";
-				DumpMeta(data, memb);
-				data << "</channelmember>";
+				serializer.BeginBlock("channelmember")
+					.Attribute("uid", memb->user->uuid)
+					.Attribute("privs", memb->GetAllPrefixChars())
+					.Attribute("modes", memb->GetAllPrefixModes());
+
+				DumpMeta(serializer, memb);
+				serializer.EndBlock();
 			}
 
-			DumpMeta(data, c);
-
-			data << "</channel>";
+			DumpMeta(serializer, c);
+			serializer.EndBlock();
 		}
-
-		return data << "</channellist>";
+		serializer.EndBlock();
 	}
 
-	std::ostream& DumpUser(std::ostream& data, User* u)
+	void DumpUser(XMLSerializer& serializer, User* u)
 	{
-		data << "<user>";
-		data << "<nickname>" << u->nick << "</nickname><uuid>" << u->uuid << "</uuid><realhost>"
-			<< Sanitize(u->GetRealHost()) << "</realhost><displayhost>" << Sanitize(u->GetDisplayedHost()) << "</displayhost><realname>"
-			<< Sanitize(u->GetRealName()) << "</realname><server>" << u->server->GetName() << "</server><signon>"
-			<< u->signon << "</signon><age>" << u->age << "</age>";
+		serializer.BeginBlock("user")
+			.Attribute("nickname", u->nick)
+			.Attribute("uuid", u->uuid)
+			.Attribute("realhost", u->GetRealHost())
+			.Attribute("displayhost", u->GetDisplayedHost())
+			.Attribute("realname", u->GetRealName())
+			.Attribute("server", u->server->GetName())
+			.Attribute("signon", u->signon)
+			.Attribute("age", u->age)
+			.Attribute("modes", u->GetModeLetters().substr(1))
+			.Attribute("ident", u->ident)
+			.Attribute("ipaddress", u->GetIPString());
 
 		if (u->IsAway())
-			data << "<away>" << Sanitize(u->awaymsg) << "</away><awaytime>" << u->awaytime << "</awaytime>";
+		{
+			serializer.Attribute("away", u->awaymsg)
+				.Attribute("awaytime", u->awaytime);
+		}
 
 		if (u->IsOper())
-			data << "<opertype>" << Sanitize(u->oper->name) << "</opertype>";
-
-		data << "<modes>" << u->GetModeLetters().substr(1) << "</modes><ident>" << Sanitize(u->ident) << "</ident>";
+			serializer.Attribute("opertype", u->oper->name);
 
 		LocalUser* lu = IS_LOCAL(u);
 		if (lu)
-			data << "<local/><port>" << lu->server_sa.port() << "</port><servaddr>"
-				<< lu->server_sa.str() << "</servaddr><connectclass>"
-				<< lu->GetClass()->GetName() << "</connectclass><lastmsg>"
-				<< lu->idle_lastmsg << "</lastmsg>";
+		{
+			serializer.Attribute("port", lu->server_sa.port())
+				.Attribute("servaddr", lu->server_sa.addr())
+				.Attribute("connectclass", lu->GetClass()->GetName())
+				.Attribute("lastmsg", lu->idle_lastmsg);
+		}
 
-		data << "<ipaddress>" << Sanitize(u->GetIPString()) << "</ipaddress>";
-
-		DumpMeta(data, u);
-
-		data << "</user>";
-		return data;
+		DumpMeta(serializer, u);
+		serializer.EndBlock();
 	}
 
-	std::ostream& Users(std::ostream& data)
+	void Users(XMLSerializer& serializer)
 	{
-		data << "<userlist>";
+		serializer.BeginBlock("userlist");
 		for (const auto& [_, u] : ServerInstance->Users.GetUsers())
 		{
 			if (u->registered != REG_ALL)
 				continue;
 
-			DumpUser(data, u);
+			DumpUser(serializer, u);
 		}
-		return data << "</userlist>";
+		serializer.EndBlock();
 	}
 
-	std::ostream& Servers(std::ostream& data)
+	void Servers(XMLSerializer& serializer)
 	{
-		data << "<serverlist>";
-
 		ProtocolInterface::ServerList sl;
 		ServerInstance->PI->GetServerList(sl);
 
+		serializer.BeginBlock("serverlist");
 		for (const auto& server : sl)
 		{
-			data << "<server>";
-			data << "<servername>" << server.servername << "</servername>";
-			data << "<parentname>" << server.parentname << "</parentname>";
-			data << "<description>" << Sanitize(server.description) << "</description>";
-			data << "<usercount>" << server.usercount << "</usercount>";
-			data << "<opercount>" << server.opercount << "</opercount>";
-			data << "<lagmillisecs>" << server.latencyms << "</lagmillisecs>";
-			data << "</server>";
+			serializer.BeginBlock("server")
+				.Attribute("servername", server.servername)
+				.Attribute("parentname", server.parentname)
+				.Attribute("description", server.description)
+				.Attribute("usercount", server.usercount)
+				.Attribute("opercount", server.opercount)
+				.Attribute("lagmillisecs", server.latencyms)
+				.EndBlock();
 		}
-
-		return data << "</serverlist>";
+		serializer.EndBlock();
 	}
 
-	std::ostream& Commands(std::ostream& data)
+	void Commands(XMLSerializer& serializer)
 	{
-		data << "<commandlist>";
-
+		serializer.BeginBlock("commandlist");
 		for (const auto& [cmdname, cmd] : ServerInstance->Parser.GetCommands())
 		{
-			data << "<command><name>" << cmdname << "</name><usecount>" << cmd->use_count << "</usecount></command>";
+			serializer.BeginBlock("command")
+				.Attribute("name", cmdname)
+				.Attribute("usecount", cmd->use_count)
+				.EndBlock();
 		}
-		return data << "</commandlist>";
+		serializer.EndBlock();
 	}
 
 	enum OrderBy
@@ -310,12 +367,15 @@ namespace Stats
 		}
 	};
 
-	std::ostream& ListUsers(std::ostream& data, const HTTPQueryParameters& params)
+	void ListUsers(XMLSerializer& serializer, const HTTPQueryParameters& params)
 	{
 		if (params.empty())
-			return Users(data);
+		{
+			Users(serializer);
+			return;
+		}
 
-		data << "<userlist>";
+		serializer.BeginBlock("userlist");
 
 		// Filters
 		size_t limit = params.getNum<size_t>("limit");
@@ -369,10 +429,9 @@ namespace Stats
 
 		size_t count = 0;
 		for (NewUserList::const_iterator i = user_list.begin(); i != user_list.end() && (!limit || count < limit); ++i, ++count)
-			DumpUser(data, *i);
+			DumpUser(serializer, *i);
 
-		data << "</userlist>";
-		return data;
+		serializer.EndBlock();
 	}
 }
 
@@ -412,34 +471,39 @@ public:
 
 		ServerInstance->Logs.Debug(MODNAME, "Handling HTTP request for %s", http->GetPath().c_str());
 
-		std::stringstream data;
-		data << "<inspircdstats>";
+
+		Stats::XMLSerializer serializer;
+		serializer.BeginBlock("inspircdstats");
 		if (http->GetPath() == "/stats")
 		{
-			data << Stats::ServerInfo << Stats::General
-				<< Stats::XLines << Stats::Modules
-				<< Stats::Channels << Stats::Users
-				<< Stats::Servers << Stats::Commands;
+			Stats::ServerInfo(serializer);
+			Stats::General(serializer);
+			Stats::XLines(serializer);
+			Stats::Modules(serializer);
+			Stats::Channels(serializer);
+			Stats::Users(serializer);
+			Stats::Servers(serializer);
+			Stats::Commands(serializer);
 		}
 		else if (http->GetPath() == "/stats/general")
 		{
-			data << Stats::General;
+			Stats::General(serializer);
 		}
 		else if (http->GetPath() == "/stats/users")
 		{
 			if (enableparams)
-				Stats::ListUsers(data, http->GetParsedURI().query_params);
+				Stats::ListUsers(serializer, http->GetParsedURI().query_params);
 			else
-				data << Stats::Users;
+				Stats::Users(serializer);
 		}
 		else
 		{
 			return MOD_RES_PASSTHRU;
 		}
-		data << "</inspircdstats>";
+		serializer.EndBlock();
 
 		/* Send the document back to m_httpd */
-		HTTPDocumentResponse response(this, *http, &data, 200);
+		HTTPDocumentResponse response(this, *http, serializer.GetData(), 200);
 		response.headers.SetHeader("X-Powered-By", MODNAME);
 		response.headers.SetHeader("Content-Type", "text/xml");
 		API->SendResponse(response);
