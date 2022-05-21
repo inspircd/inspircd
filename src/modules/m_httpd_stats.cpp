@@ -464,17 +464,16 @@ public:
 		enableparams = conf->getBool("enableparams");
 	}
 
-	ModResult HandleRequest(HTTPRequest* http)
+	ModResult OnHTTPRequest(HTTPRequest& request) override
 	{
-		if (http->GetPath().compare(0, 6, "/stats"))
+		if (request.GetPath().compare(0, 6, "/stats"))
 			return MOD_RES_PASSTHRU;
 
-		ServerInstance->Logs.Debug(MODNAME, "Handling HTTP request for %s", http->GetPath().c_str());
-
+		ServerInstance->Logs.Debug(MODNAME, "Handling HTTP request for %s", request.GetPath().c_str());
 
 		Stats::XMLSerializer serializer;
 		serializer.BeginBlock("inspircdstats");
-		if (http->GetPath() == "/stats")
+		if (request.GetPath() == "/stats")
 		{
 			Stats::ServerInfo(serializer);
 			Stats::General(serializer);
@@ -485,14 +484,14 @@ public:
 			Stats::Servers(serializer);
 			Stats::Commands(serializer);
 		}
-		else if (http->GetPath() == "/stats/general")
+		else if (request.GetPath() == "/stats/general")
 		{
 			Stats::General(serializer);
 		}
-		else if (http->GetPath() == "/stats/users")
+		else if (request.GetPath() == "/stats/users")
 		{
 			if (enableparams)
-				Stats::ListUsers(serializer, http->GetParsedURI().query_params);
+				Stats::ListUsers(serializer, request.GetParsedURI().query_params);
 			else
 				Stats::Users(serializer);
 		}
@@ -503,16 +502,11 @@ public:
 		serializer.EndBlock();
 
 		/* Send the document back to m_httpd */
-		HTTPDocumentResponse response(this, *http, serializer.GetData(), 200);
+		HTTPDocumentResponse response(this, request, serializer.GetData(), 200);
 		response.headers.SetHeader("X-Powered-By", MODNAME);
 		response.headers.SetHeader("Content-Type", "text/xml");
 		API->SendResponse(response);
 		return MOD_RES_DENY; // Handled
-	}
-
-	ModResult OnHTTPRequest(HTTPRequest& req) override
-	{
-		return HandleRequest(&req);
 	}
 };
 
