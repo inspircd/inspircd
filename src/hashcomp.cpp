@@ -103,7 +103,7 @@ bool irc::equals(const std::string_view& s1, const std::string_view& s2)
 	return true;
 }
 
-size_t irc::find(const std::string& haystack, const std::string& needle)
+size_t irc::find(const std::string_view& haystack, const std::string_view& needle)
 {
 	// The haystack can't contain the needle if it is smaller than it.
 	if (needle.length() > haystack.length())

@@ -75,7 +75,7 @@ namespace irc
 	 * @param needle The string to search for.
 	 * @return Either the index at which \p needle was found or std::string::npos.
 	 */
-	CoreExport size_t find(const std::string& haystack, const std::string& needle);
+	CoreExport size_t find(const std::string_view& haystack, const std::string_view& needle);
 
 	/** This class returns true if two strings match.
 	 * Case sensitivity is ignored, and the RFC 'character set'
