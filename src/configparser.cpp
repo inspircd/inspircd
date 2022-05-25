@@ -567,7 +567,7 @@ std::string ConfigTag::getString(const std::string& key, const std::string& def,
 
 	if (res.length() < minlen || res.length() > maxlen)
 	{
-		ServerInstance->Logs.Normal("CONFIG", "WARNING: The length of <%s:%s> is not between %ld and %ld; value set to %s.",
+		ServerInstance->Logs.Normal("CONFIG", "WARNING: The length of <%s:%s> is not between %zu and %zu; value set to %s.",
 			name.c_str(), key.c_str(), minlen, maxlen, def.c_str());
 		return def;
 	}

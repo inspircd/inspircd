@@ -76,12 +76,11 @@ public:
 			return MOD_RES_PASSTHRU;
 
 		time_t next = ServerInstance->Time();
-
-		if (time_t(ServerInstance->startup_time + boot_wait) > next)
+		if ((time_t)(ServerInstance->startup_time + boot_wait) > next)
 			return MOD_RES_PASSTHRU;
 
 		/* time difference between first and latest connection */
-		time_t tdiff = next - first;
+		unsigned long tdiff = next - first;
 
 		/* increase connection count */
 		conns++;

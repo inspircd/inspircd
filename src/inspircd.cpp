@@ -624,7 +624,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	WritePID();
 	DropRoot();
 
-	Logs.Normal("STARTUP", "Startup complete as '%s'[%s], %lu max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SocketEngine::GetMaxFds());
+	Logs.Normal("STARTUP", "Startup complete as '%s'[%s], %zu max open sockets", Config->ServerName.c_str(),
+		Config->GetSID().c_str(), SocketEngine::GetMaxFds());
 }
 
 void InspIRCd::UpdateTime()

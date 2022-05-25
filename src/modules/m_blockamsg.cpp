@@ -113,7 +113,7 @@ public:
 			if ((m && (m->message == parameters[1]) &&
 					(!irc::equals(m->target, parameters[0])) &&
 					ForgetDelay &&
-					(m->sent >= ServerInstance->Time()-(long)ForgetDelay)) ||
+					(m->sent >= ServerInstance->Time()-(time_t)ForgetDelay)) ||
 				((targets > 1) && (targets == user->chans.size())))
 			{
 				// Block it...
