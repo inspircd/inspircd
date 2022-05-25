@@ -619,7 +619,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	WritePID(Config->PID);
 	DropRoot();
 
-	Logs->Log("STARTUP", LOG_DEFAULT, "Startup complete as '%s'[%s], %lu max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SocketEngine::GetMaxFds());
+	Logs->Log("STARTUP", LOG_DEFAULT, "Startup complete as '%s'[%s], %lu max open sockets", Config->ServerName.c_str(),
+		Config->GetSID().c_str(), (unsigned long)SocketEngine::GetMaxFds());
 }
 
 void InspIRCd::UpdateTime()
