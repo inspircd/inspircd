@@ -87,7 +87,7 @@ public:
 
 		if (throttled)
 		{
-			if (tdiff > time_t(seconds + timeout))
+			if (tdiff > (seconds + timeout))
 			{
 				/* expire throttle */
 				throttled = false;
@@ -99,7 +99,7 @@ public:
 			return MOD_RES_DENY;
 		}
 
-		if (tdiff <= time_t(seconds))
+		if (tdiff <= seconds)
 		{
 			if (conns >= maxconns)
 			{
