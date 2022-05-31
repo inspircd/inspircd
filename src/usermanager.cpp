@@ -146,16 +146,14 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		ListenSocket::IOHookProvRef& iohookprovref = *i;
 		if (!iohookprovref)
 		{
-			if (!iohookprovref.GetProvider().empty())
-			{
-				ServerInstance->Logs.Debug("USERS", "Non-existent I/O hook '%s' in <bind:%s> tag at %s",
-					iohookprovref.GetProvider().c_str(),
-					i == via->iohookprovs.begin() ? "hook" : "sslprofile",
-					via->bind_tag->source.str().c_str());
-				this->QuitUser(New, "Internal error handling connection");
-				return;
-			}
-			continue;
+			if (iohookprovref.GetProvider().empty())
+				continue;
+
+			const char* hooktype = i == via->iohookprovs.begin() ? "hook" : "sslprofile";
+			ServerInstance->Logs.Normal("USERS", "Non-existent I/O hook '%s' in <bind:%s> tag at %s",
+				iohookprovref.GetProvider().c_str(), hooktype, via->bind_tag->source.str().c_str());
+			this->QuitUser(New, InspIRCd::Format("Internal error handling connection (misconfigured %s)", hooktype));
+			return;
 		}
 
 		iohookprovref->OnAccept(eh, client, server);
