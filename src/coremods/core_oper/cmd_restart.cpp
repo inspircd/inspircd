@@ -45,14 +45,14 @@ CmdResult CommandRestart::Handle(User* user, const Params& parameters)
 
 		DieRestart::SendError("Server restarting.");
 
-#ifndef _WIN32
+#ifdef FD_CLOEXEC
 		/* XXX: This hack sets FD_CLOEXEC on all possible file descriptors, so they're closed if the execvp() below succeeds.
 		 * Certainly, this is not a nice way to do things and it's slow when the fd limit is high.
 		 *
 		 * A better solution would be to set the close-on-exec flag for each fd we create (or create them with O_CLOEXEC),
 		 * however there is no guarantee that third party libs will do the same.
 		 */
-		for (int i = getdtablesize(); --i > 2;)
+		for (int i = SocketEngine::GetMaxFds(); --i > 2;)
 		{
 			int flags = fcntl(i, F_GETFD);
 			if (flags != -1)
