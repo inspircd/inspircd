@@ -745,7 +745,7 @@ public:
 	 * the element with this index are ignored.
 	 * @return Number of mode changes processed from changelist.
 	 */
-	unsigned int ProcessSingle(User* user, Channel* targetchannel, User* targetuser, Modes::ChangeList& changelist, ModeProcessFlag flags = MODE_NONE, unsigned int beginindex = 0);
+	size_t ProcessSingle(User* user, Channel* targetchannel, User* targetuser, Modes::ChangeList& changelist, ModeProcessFlag flags = MODE_NONE, size_t beginindex = 0);
 
 	/** Turn a list of parameters compatible with the format of the MODE command into
 	 * Modes::ChangeList form. All modes are processed, regardless of max modes. Unknown modes

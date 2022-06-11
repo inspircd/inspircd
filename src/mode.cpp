@@ -399,20 +399,19 @@ void ModeParser::Process(User* user, Channel* targetchannel, User* targetuser, M
 {
 	// Call ProcessSingle until the entire list is processed, but at least once to ensure
 	// LastParse and LastChangeList are cleared
-	unsigned int processed = 0;
+	size_t processed = 0;
 	do
 	{
-		unsigned int n = ProcessSingle(user, targetchannel, targetuser, changelist, flags, processed);
-		processed += n;
+		processed += ProcessSingle(user, targetchannel, targetuser, changelist, flags, processed);
 	}
 	while (processed < changelist.size());
 }
 
-unsigned int ModeParser::ProcessSingle(User* user, Channel* targetchannel, User* targetuser, Modes::ChangeList& changelist, ModeProcessFlag flags, unsigned int beginindex)
+size_t ModeParser::ProcessSingle(User* user, Channel* targetchannel, User* targetuser, Modes::ChangeList& changelist, ModeProcessFlag flags, size_t beginindex)
 {
 	LastChangeList.clear();
 
-	unsigned int modes_processed = 0;
+	size_t modes_processed = 0;
 	Modes::ChangeList::List& list = changelist.getlist();
 
 	for (auto& item : insp::iterator_range(list.begin() + beginindex, list.end()))
