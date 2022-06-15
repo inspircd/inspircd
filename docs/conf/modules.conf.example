@@ -1928,7 +1928,7 @@
 # Repeat module: Allows to block, kick or ban upon similar messages
 # being uttered several times. Provides channel mode +E.
 #
-# Syntax: [~|*]<lines>:<sec>[:<difference>][:<backlog>]
+# Syntax: [~|*]<lines>:<duration>[:<difference>][:<backlog>]
 #         ~ is to block, * is to ban, default is kick.
 # lines      - In mode 1, the amount of lines that has to match consecutively.
 #              In mode 2, the size of the backlog to keep for matching.
