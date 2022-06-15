@@ -185,6 +185,48 @@ std::string Base64::Decode(const void* data, size_t length, const char* table)
 	return buffer;
 }
 
+std::string Template::Replace(const std::string& str, const insp::flat_map<std::string, std::string>& vars)
+{
+	std::string out;
+	out.reserve(str.length());
+
+	for (size_t idx = 0; idx < str.size(); ++idx)
+	{
+		if (str[idx] != '%')
+		{
+			out.push_back(str[idx]);
+			continue;
+		}
+
+		for (size_t endidx = idx + 1; endidx < str.size(); ++endidx)
+		{
+			if (str[endidx] == '%')
+			{
+				if (endidx - idx == 1)
+				{
+					// foo%%bar is an escape of foo%bar
+					out.push_back('%');
+					idx = endidx;
+					break;
+				}
+
+				auto var = vars.find(str.substr(idx + 1, endidx - idx - 1));
+				if (var != vars.end())
+				{
+					// We have a variable, replace it in the string.
+					out.append(var->second);
+				}
+
+				idx = endidx;
+				break;
+			}
+		}
+	}
+
+	return out;
+}
+
+
 bool InspIRCd::TimingSafeCompare(const std::string& one, const std::string& two)
 {
 	if (one.length() != two.length())

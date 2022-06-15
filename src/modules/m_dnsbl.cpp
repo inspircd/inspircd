@@ -154,7 +154,7 @@ public:
 				+ tag->source.str());
 		}
 
-		reason = tag->getString("reason", "Your IP (%ip%) has been blacklisted by a DNSBL.", 1, ServerInstance->Config->Limits.MaxLine);
+		reason = tag->getString("reason", "Your IP (%ip%) has been blacklisted by the %dnsbl% DNSBL.", 1, ServerInstance->Config->Limits.MaxLine);
 		timeout = static_cast<unsigned int>(tag->getDuration("timeout", 0, 1, 60));
 		markident = tag->getString("ident");
 		markhost = tag->getString("host");
@@ -264,14 +264,11 @@ public:
 
 		if (match)
 		{
-			std::string reason = ConfEntry->reason;
-			std::string::size_type x = reason.find("%ip%");
-			while (x != std::string::npos)
-			{
-				reason.erase(x, 4);
-				reason.insert(x, them->GetIPString());
-				x = reason.find("%ip%");
-			}
+			const std::string reason = Template::Replace(ConfEntry->reason, {
+				{ "dnsbl",  ConfEntry->name     },
+				{ "ip",     them->GetIPString() },
+				{ "result", ConvToStr(result)   },
+			});
 
 			ConfEntry->stats_hits++;
 

@@ -153,6 +153,16 @@ namespace Percent
 	}
 }
 
+namespace Template
+{
+	/** Replaces template variables like %foo% within a string.
+	 * @param str The string to template from.
+	 * @param vars The variables to replace within the string.
+	 * @return The specified string with all variables replaced within it.
+	 */
+	CoreExport std::string Replace(const std::string& str, const insp::flat_map<std::string, std::string>& vars);
+}
+
 /** Encapsulates a list of tokens in the format "* -FOO -BAR".*/
 class CoreExport TokenList final
 {
