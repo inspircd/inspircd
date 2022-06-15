@@ -121,6 +121,7 @@ private:
 	double notice;
 	double privmsg;
 	double tagmsg;
+	std::string kickmessage;
 
 public:
 	ModuleMsgFlood()
@@ -138,6 +139,7 @@ public:
 		notice = tag->getFloat("notice", 1.0);
 		privmsg = tag->getFloat("privmsg", 1.0);
 		tagmsg = tag->getFloat("tagmsg", 0.2);
+		kickmessage = tag->getString("kickmessage", "Message flood (trigger is %lines% messages in %duration%)", 1);
 	}
 
 	ModResult HandleMessage(User* user, const MessageTarget& target, double weight)
@@ -167,10 +169,12 @@ public:
 					ServerInstance->Modes.Process(ServerInstance->FakeClient, dest, nullptr, changelist);
 				}
 
-				const std::string kickMessage = "Channel flood triggered (trigger is " + ConvToStr(f->lines) +
-					" lines in " + ConvToStr(f->secs) + " secs)";
-
-				dest->KickUser(ServerInstance->FakeClient, user, kickMessage);
+				const std::string kickmsg = Template::Replace(kickmessage, {
+					{ "duration", InspIRCd::DurationString(f->secs) },
+					{ "lines",    ConvToStr(f->lines)               },
+					{ "seconds",  ConvToStr(f->secs)                },
+				});
+				dest->KickUser(ServerInstance->FakeClient, user, kickmsg);
 
 				return MOD_RES_DENY;
 			}
