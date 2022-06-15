@@ -252,12 +252,7 @@ public:
 			newsize = ServerInstance->Config->Limits.MaxLine;
 		Resize(newsize);
 
-		ms.KickMessage = conf->getString("kickmessage", "Repeat flood");
-	}
-
-	std::string GetKickMessage() const
-	{
-		return ms.KickMessage;
+		ms.KickMessage = conf->getString("kickmessage", "Repeat flood (trigger is %lines% messages in %duration%)", 1);
 	}
 
 	void SerializeParam(Channel* chan, const ChannelSettings* chset, std::string& out)
@@ -412,7 +407,13 @@ public:
 				ServerInstance->Modes.Process(ServerInstance->FakeClient, chan, nullptr, changelist);
 			}
 
-			memb->chan->KickUser(ServerInstance->FakeClient, user, rm.GetKickMessage());
+			const std::string kickmsg = Template::Replace(rm.ms.KickMessage, {
+				{ "diff",     ConvToStr(settings->Diff)                   },
+				{ "duration", InspIRCd::DurationString(settings->Seconds) },
+				{ "lines",    ConvToStr(settings->Lines)                  },
+				{ "seconds",  ConvToStr(settings->Seconds)                },
+			});
+			memb->chan->KickUser(ServerInstance->FakeClient, user, kickmsg);
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
