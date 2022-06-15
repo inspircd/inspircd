@@ -1647,14 +1647,14 @@
 	# forwardmsg: Message to send to users when forwarding their
 	# password. You can use the following variables in this message:
 	#
-	# $nick          The nickname of the authenticating user.
-	# $nickrequired  The nickname of the service to forward to (see above).
-	# $pass          The password to forward to services.
-	# $user          The username (ident) of the authenticating user.
-	forwardmsg="NOTICE $nick :*** Forwarding password to $nickrequired"
+	# %nick%          The nickname of the authenticating user.
+	# %nickrequired%  The nickname of the service to forward to (see above).
+	# %pass%          The password to forward to services.
+	# %user%          The username (ident) of the authenticating user.
+	forwardmsg="NOTICE %nick% :*** Forwarding password to %nickrequired%"
 
 	# cmd: The message to send to forward passwords to services.
-	cmd="SQUERY $nickrequired :IDENTIFY $nick $pass">
+	cmd="SQUERY %nickrequired% :IDENTIFY %nick% %pass%">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Password hash module: Allows hashed passwords to be used.

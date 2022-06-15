@@ -44,43 +44,18 @@ public:
 	{
 		auto tag = ServerInstance->Config->ConfValue("passforward");
 		nickrequired = tag->getString("nick", "NickServ");
-		forwardmsg = tag->getString("forwardmsg", "NOTICE $nick :*** Forwarding password to $nickrequired");
-		forwardcmd = tag->getString("cmd", "SQUERY $nickrequired :IDENTIFY $nick $pass", 1);
+		forwardmsg = tag->getString("forwardmsg", "NOTICE %nick% :*** Forwarding password to %nickrequired%");
+		forwardcmd = tag->getString("cmd", "SQUERY %nickrequired% :IDENTIFY %nick% %pass%", 1);
 	}
 
-	void FormatStr(const LocalUser* user, const std::string& format, const std::string& pass, std::string& result)
+	std::string FormatStr(const LocalUser* user, const std::string& format, const std::string& pass)
 	{
-		for (unsigned int i = 0; i < format.length(); i++)
-		{
-			char c = format[i];
-			if (c == '$')
-			{
-				if (!format.compare(i, 13, "$nickrequired", 13))
-				{
-					result.append(nickrequired);
-					i += 12;
-				}
-				else if (!format.compare(i, 5, "$nick", 5))
-				{
-					result.append(user->nick);
-					i += 4;
-				}
-				else if (!format.compare(i, 5, "$user", 5))
-				{
-					result.append(user->ident);
-					i += 4;
-				}
-				else if (!format.compare(i, 5, "$pass", 5))
-				{
-					result.append(pass);
-					i += 4;
-				}
-				else
-					result.push_back(c);
-			}
-			else
-				result.push_back(c);
-		}
+		return Template::Replace(format, {
+			{ "nick",         user->nick,   },
+			{ "nickrequired", nickrequired, },
+			{ "pass",         pass,         },
+			{ "user",         user->ident,  },
+		});
 	}
 
 	void OnPostConnect(User* ruser) override
@@ -118,16 +93,10 @@ public:
 				return;
 		}
 
-		std::string tmp;
 		if (!forwardmsg.empty())
-		{
-			FormatStr(user, forwardmsg, pass, tmp);
-			ServerInstance->Parser.ProcessBuffer(user, tmp);
-			tmp.clear();
-		}
+			ServerInstance->Parser.ProcessBuffer(user, FormatStr(user, forwardmsg, pass));
 
-		FormatStr(user, forwardcmd, pass, tmp);
-		ServerInstance->Parser.ProcessBuffer(user, tmp);
+		ServerInstance->Parser.ProcessBuffer(user, FormatStr(user, forwardcmd, pass));
 	}
 };
 
