@@ -1307,7 +1307,7 @@
 #                a server splits. This allows users to reconnect without
 #                being throttled by joinflood.
 #
-# denymessage:   Message to display to the user when join is denied.
+# denymessage:   Message to display to the user when a join is denied.
 #
 # notifymessage: Notice message to display in the channel when this is
 #                temporary closed.
