@@ -135,6 +135,7 @@ class ModuleJoinFlood
 	time_t ignoreuntil;
 	unsigned long bootwait;
 	unsigned long splitwait;
+	std::string denymessage;
 
  public:
 	// Stop GCC warnings about the deprecated OnServerSplit event.
@@ -153,6 +154,7 @@ class ModuleJoinFlood
 		duration = tag->getDuration("duration", 60, 10, 600);
 		bootwait = tag->getDuration("bootwait", 30);
 		splitwait = tag->getDuration("splitwait", 30);
+		denymessage = tag->getString("denymessage", "This channel is temporarily unavailable (+j is set). Please try again later.");
 
 		if (status.initial)
 			ignoreuntil = ServerInstance->startup_time + bootwait;
@@ -171,7 +173,7 @@ class ModuleJoinFlood
 			joinfloodsettings *f = jf.ext.get(chan);
 			if (f && f->islocked())
 			{
-				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan->name, "This channel is temporarily unavailable (+j is set). Please try again later.");
+				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan->name, denymessage);
 				return MOD_RES_DENY;
 			}
 		}
