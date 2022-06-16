@@ -1333,14 +1333,10 @@
 #
 # denymessage:   Message to display to the user when a join is denied.
 #
-# notifymessage: Notice message to display in the channel when this is
-#                temporary closed.
-#
 #<joinflood duration="1m"
 #           bootwait="30s"
 #           splitwait="30s"
-#           denymessage="This channel is temporarily unavailable (+j is set). Please try again later."
-#           noticemessage="This channel has been closed to new users for %u seconds because there have been more than %d joins in %d seconds.">
+#           denymessage="This channel is temporarily unavailable (+j is set). Please try again later.">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Anti auto rejoin: Adds support for prevention of auto-rejoin (+J).
