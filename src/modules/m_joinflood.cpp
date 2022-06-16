@@ -161,7 +161,7 @@ class ModuleJoinFlood
 		duration = tag->getDuration("duration", 60, 10, 600);
 		bootwait = tag->getDuration("bootwait", 30);
 		splitwait = tag->getDuration("splitwait", 30);
-		denymessage = tag->getString("denymessage", "This channel is temporarily unavailable (+j is set). Please try again later.");
+		denymessage = tag->getString("denymessage", "This channel is temporarily unavailable (+j is set). Please try again later.", 1);
 		notifymessage = tag->getString("notifymessage", "This channel has been closed to new users for %u seconds because there have been more than %d joins in %d seconds.");
 
 		ignoreuntil = ServerInstance->startup_time + bootwait;
