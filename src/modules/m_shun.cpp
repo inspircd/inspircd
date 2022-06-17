@@ -146,10 +146,10 @@ class ModuleShun final
 private:
 	CommandShun cmd;
 	ShunFactory shun;
-	insp::flat_set<std::string, irc::insensitive_swo> cleanedcommands;
-	insp::flat_set<std::string, irc::insensitive_swo> enabledcommands;
 	bool allowconnect;
 	bool allowtags;
+	TokenList cleanedcommands;
+	TokenList enabledcommands;
 	bool notifyuser;
 
 	bool IsShunned(LocalUser* user)
@@ -202,20 +202,14 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
+		cleanedcommands.Clear();
+		enabledcommands.Clear();
+
 		auto tag = ServerInstance->Config->ConfValue("shun");
-
-		cleanedcommands.clear();
-		irc::spacesepstream cleanedcmds(tag->getString("cleanedcommands", "AWAY PART QUIT"));
-		for (std::string cleanedcmd; cleanedcmds.GetToken(cleanedcmd); )
-			cleanedcommands.insert(cleanedcmd);
-
-		enabledcommands.clear();
-		irc::spacesepstream enabledcmds(tag->getString("enabledcommands", "ADMIN OPER PING PONG QUIT", 1));
-		for (std::string enabledcmd; enabledcmds.GetToken(enabledcmd); )
-			enabledcommands.insert(enabledcmd);
-
-		allowtags = tag->getBool("allowtags");
 		allowconnect = tag->getBool("allowconnect");
+		allowtags = tag->getBool("allowtags");
+		cleanedcommands.AddList(tag->getString("cleanedcommands", "AWAY PART QUIT"));
+		enabledcommands.AddList(tag->getString("enabledcommands", "ADMIN OPER PING PONG QUIT"));
 		notifyuser = tag->getBool("notifyuser", true);
 	}
 
@@ -224,7 +218,7 @@ public:
 		if (validated || !IsShunned(user))
 			return MOD_RES_PASSTHRU;
 
-		if (!enabledcommands.count(command))
+		if (!enabledcommands.Contains(command))
 		{
 			if (notifyuser)
 				user->WriteNotice("*** " + command + " command not processed as you have been blocked from issuing commands.");
@@ -244,7 +238,7 @@ public:
 			}
 		}
 
-		if (!cleanedcommands.count(command))
+		if (!cleanedcommands.Contains(command))
 			return MOD_RES_PASSTHRU;
 
 		switch (parameters.size())
