@@ -366,6 +366,7 @@
          # used in your MOTD:
          # Bold:          \b
          # Color:         \c<fg>[,<bg>]
+         # Hex Color:     \h<fg>[,<bg>]
          # Italic:        \i
          # Monospace:     \m  (not widely supported)
          # Reset:         \x
