@@ -531,6 +531,8 @@ ParseStack::ParseStack(ServerConfig* conf)
 	vars["irc.bold"]          = "\x02";
 	vars["irc.color"]         = "\x03";
 	vars["irc.colour"]        = "\x03";
+	vars["irc.hexcolor"]      = "\x04";
+	vars["irc.hexcolour"]     = "\x04";
 	vars["irc.italic"]        = "\x1D";
 	vars["irc.monospace"]     = "\x11";
 	vars["irc.reset"]         = "\x0F";
