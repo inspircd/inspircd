@@ -134,7 +134,7 @@ public:
 		: ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >(Creator, "repeat", 'E')
 		, MemberInfoExt(Creator, "repeat", ExtensionType::MEMBERSHIP)
 	{
-		syntax = "[~|*]<lines>:<sec>[:<difference>][:<backlog>]";
+		syntax = "[~|*]<lines>:<duration>[:<difference>][:<backlog>]";
 	}
 
 	void OnUnset(User* source, Channel* chan) override

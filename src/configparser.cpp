@@ -487,6 +487,8 @@ ParseStack::ParseStack(ServerConfig* conf)
 		{ "irc.bold",          "\x02" },
 		{ "irc.color",         "\x03" },
 		{ "irc.colour",        "\x03" },
+		{ "irc.hexcolor",      "\x04" },
+		{ "irc.hexcolour",     "\x04" },
 		{ "irc.italic",        "\x1D" },
 		{ "irc.monospace",     "\x11" },
 		{ "irc.reset",         "\x0F" },

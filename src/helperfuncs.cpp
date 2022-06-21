@@ -118,6 +118,7 @@ void InspIRCd::ProcessColors(std::vector<std::string>& input)
 	} special[] = {
 		special_chars("\\b", "\x02"), // Bold
 		special_chars("\\c", "\x03"), // Color
+		special_chars("\\h", "\x04"), // Hex Color
 		special_chars("\\i", "\x1D"), // Italic
 		special_chars("\\m", "\x11"), // Monospace
 		special_chars("\\r", "\x16"), // Reverse
