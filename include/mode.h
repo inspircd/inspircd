@@ -577,12 +577,9 @@ private:
 	 */
 	static constexpr unsigned int MODETYPE_LAST = 2;
 
-	/** Mode handlers for each mode, to access a handler subtract
-	 * 65 from the ascii value of the mode letter.
-	 * The upper bit of the value indicates if its a usermode
-	 * or a channel mode, so we have 256 of them not 64.
+	/** Mode handlers for each mode indexed by the mode index
 	 */
-	ModeHandler* modehandlers[MODETYPE_LAST][128];
+	ModeHandler* modehandlers[MODETYPE_LAST][MODEID_MAX];
 
 	/** An array of mode handlers indexed by the mode id
 	 */
