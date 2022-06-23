@@ -33,17 +33,18 @@ class CommandUserip : public Command
  public:
 	CommandUserip(Module* Creator) : Command(Creator,"USERIP", 1)
 	{
+		allow_empty_last_param = false;
 		syntax = "<nick> [<nick>]+";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		std::string retbuf;
-		int nicks = 0;
 		bool checked_privs = false;
 		bool has_privs = false;
 
-		for (size_t i = 0; i < parameters.size(); i++)
+		size_t paramcount = std::min<size_t>(parameters.size(), 5);
+		for (size_t i = 0; i < paramcount; ++i)
 		{
 			User *u = ServerInstance->FindNickOnly(parameters[i]);
 			if ((u) && (u->registered == REG_ALL))
@@ -70,12 +71,10 @@ class CommandUserip : public Command
 				else
 					retbuf += "+";
 				retbuf += u->ident + "@" + u->GetIPString() + " ";
-				nicks++;
 			}
 		}
 
-		if (nicks != 0)
-			user->WriteNumeric(RPL_USERIP, retbuf);
+		user->WriteNumeric(RPL_USERIP, retbuf);
 
 		return CMD_SUCCESS;
 	}
