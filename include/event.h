@@ -191,7 +191,7 @@ inline bool Events::ModuleEventProvider::ElementComp::operator()(Events::ModuleE
 		return true;
 	if (lhs->GetPriority() > rhs->GetPriority())
 		return false;
-	return std::less<ModuleEventListener*>()(lhs, rhs);
+	return std::less<>()(lhs, rhs);
 }
 
 template<typename Class, typename... FunArgs, typename... FwdArgs>

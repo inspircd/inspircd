@@ -92,7 +92,7 @@ public:
 	const unsigned int max = 60;
 
 	KickRejoin(Module* Creator)
-		: ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >(Creator, "kicknorejoin", 'J')
+		: ParamMode<KickRejoin, SimpleExtItem<KickRejoinData>>(Creator, "kicknorejoin", 'J')
 	{
 		syntax = "<seconds>";
 	}

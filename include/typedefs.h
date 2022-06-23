@@ -77,7 +77,7 @@ namespace ClientProtocol
 	 * Sorted in descending order to ensure tag names beginning with symbols (such as '+') come later when iterating
 	 * the container than tags with a normal name.
 	 */
-	typedef insp::flat_map<std::string, MessageTagData, std::greater<std::string> > TagMap;
+	typedef insp::flat_map<std::string, MessageTagData, std::greater<>> TagMap;
 }
 
 #include "hashcomp.h"

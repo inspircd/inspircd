@@ -94,7 +94,7 @@ class JoinFlood final
 {
 public:
 	JoinFlood(Module* Creator)
-		: ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings> >(Creator, "joinflood", 'j')
+		: ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings>>(Creator, "joinflood", 'j')
 	{
 		syntax = "<joins>:<seconds>";
 	}

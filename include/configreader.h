@@ -242,7 +242,7 @@ public:
 	/** \<type> block used for this oper-up. Valid for local users, may be NULL on remote */
 	std::shared_ptr<ConfigTag> type_block;
 	/** \<class> blocks referenced from the \<type> block. These define individual permissions */
-	std::vector<std::shared_ptr<ConfigTag> > class_blocks;
+	std::vector<std::shared_ptr<ConfigTag>> class_blocks;
 	/** Name of the oper type; i.e. the one shown in WHOIS */
 	std::string name;
 

@@ -72,7 +72,7 @@ class MsgFlood final
 {
 public:
 	MsgFlood(Module* Creator)
-		: ParamMode<MsgFlood, SimpleExtItem<floodsettings> >(Creator, "flood", 'f')
+		: ParamMode<MsgFlood, SimpleExtItem<floodsettings>>(Creator, "flood", 'f')
 	{
 		syntax = "[*]<messages>:<seconds>";
 	}

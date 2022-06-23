@@ -81,7 +81,7 @@ class HistoryMode final
 public:
 	unsigned long maxlines;
 	HistoryMode(Module* Creator)
-		: ParamMode<HistoryMode, SimpleExtItem<HistoryList> >(Creator, "history", 'H')
+		: ParamMode<HistoryMode, SimpleExtItem<HistoryList>>(Creator, "history", 'H')
 	{
 		syntax = "<max-messages>:<max-duration>";
 	}

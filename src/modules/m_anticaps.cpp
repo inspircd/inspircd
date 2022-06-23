@@ -103,7 +103,7 @@ private:
 
 public:
 	AntiCapsMode(Module* Creator)
-		: ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettings> >(Creator, "anticaps", 'B')
+		: ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettings>>(Creator, "anticaps", 'B')
 	{
 		syntax = "{ban|block|mute|kick|kickban}:<minlen>:<percent>";
 	}

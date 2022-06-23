@@ -33,7 +33,7 @@ namespace
 	bool verbose;
 	std::string vhost;
 	StringExtItem* vhosts;
-	std::vector<std::pair<std::string, std::string> > requiredattributes;
+	std::vector<std::pair<std::string, std::string>> requiredattributes;
 }
 
 class BindInterface final

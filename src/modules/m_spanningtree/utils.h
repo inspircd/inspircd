@@ -52,7 +52,7 @@ class SpanningTreeUtilities final
 
 public:
 	typedef std::set<TreeSocket*> TreeSocketSet;
-	typedef std::map<TreeSocket*, std::pair<std::string, unsigned int> > TimeoutList;
+	typedef std::map<TreeSocket*, std::pair<std::string, unsigned int>> TimeoutList;
 
 	/** Creator module
 	 */

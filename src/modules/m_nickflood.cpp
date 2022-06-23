@@ -88,7 +88,7 @@ class NickFlood final
 {
 public:
 	NickFlood(Module* Creator)
-		: ParamMode<NickFlood, SimpleExtItem<nickfloodsettings> >(Creator, "nickflood", 'F')
+		: ParamMode<NickFlood, SimpleExtItem<nickfloodsettings>>(Creator, "nickflood", 'F')
 	{
 		syntax = "<nick-changes>:<seconds>";
 	}

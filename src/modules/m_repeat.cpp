@@ -131,7 +131,7 @@ public:
 	SimpleExtItem<MemberInfo> MemberInfoExt;
 
 	RepeatMode(Module* Creator)
-		: ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >(Creator, "repeat", 'E')
+		: ParamMode<RepeatMode, SimpleExtItem<ChannelSettings>>(Creator, "repeat", 'E')
 		, MemberInfoExt(Creator, "repeat", ExtensionType::MEMBERSHIP)
 	{
 		syntax = "[~|*]<lines>:<duration>[:<difference>][:<backlog>]";

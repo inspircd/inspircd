@@ -48,7 +48,7 @@ struct LDAPModification final
 typedef std::vector<LDAPModification> LDAPMods;
 
 struct LDAPAttributes final
-	: public std::map<std::string, std::vector<std::string> >
+	: public std::map<std::string, std::vector<std::string>>
 {
 	size_t size(const std::string& attr) const
 	{

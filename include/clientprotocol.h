@@ -283,7 +283,7 @@ public:
 	typedef std::vector<Param> ParamList;
 
 private:
-	typedef std::vector<std::pair<SerializedInfo, SerializedMessage> > SerializedList;
+	typedef std::vector<std::pair<SerializedInfo, SerializedMessage>> SerializedList;
 
 	ParamList params;
 	TagMap tags;
