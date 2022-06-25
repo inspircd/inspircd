@@ -112,14 +112,24 @@ public:
 		if (val.empty())
 			return def;
 
-		for (const std::pair<const char*, TReturn>& enumval : enumvals)
-			if (stdalgo::string::equalsci(val, enumval.first))
-				return enumval.second;
+		for (const auto& [enumkey, enumval] : enumvals)
+			if (stdalgo::string::equalsci(val, enumkey))
+				return enumval;
 
-		std::vector<const char*> enumkeys;
-		std::transform(enumvals.begin(), enumvals.end(), std::back_inserter(enumkeys), [](const std::pair<const char*, TReturn>& ev) { return ev.first; });
-		throw CoreException(val + " is an invalid value for <" + name + ":" + key + ">; acceptable values are " +
-			stdalgo::string::join(enumkeys, ' ') + ", at " + source.str());
+		// Unfortunately we have to iterate this twice.
+		std::string enumdef = "(unknown)";
+		std::string enumkeys;
+		for (const auto& [enumkey, enumval] : enumvals)
+		{
+			enumkeys.append(enumkey).append(", ");
+			if (enumval == def)
+				enumdef = enumkey;
+		}
+		if (!enumkeys.empty())
+			enumkeys.erase(enumkeys.length() - 2);
+
+		LogMalformed(key, val, enumdef, "not one of " +  enumkeys);
+		return def;
 	}
 
 	/** Get the value of an option
