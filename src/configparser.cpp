@@ -418,7 +418,7 @@ void ParseStack::DoInclude(std::shared_ptr<ConfigTag> tag, int flags)
 
 FilePtr ParseStack::DoOpenFile(const std::string& name, bool isexec)
 {
-	ServerInstance->Logs.Debug("CONFIG", "Opening %s: %s", isexec ? "file" : "executable", name.c_str());
+	ServerInstance->Logs.Debug("CONFIG", "Opening %s: %s", isexec ? "executable" : "file", name.c_str());
 	if (isexec)
 		return FilePtr(popen(name.c_str(), "r"), pclose);
 	else
