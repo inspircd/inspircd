@@ -133,6 +133,9 @@ public:
 	/** Retrieves the underlying map of config entries. */
 	inline const Items& GetItems() const { return items; }
 	inline Items& GetItems() { return items; }
+
+	/** @internal Logs that the value of a config field is malformed. */
+	void LogMalformed(const std::string& key, const std::string& val, const std::string& def, const std::string& reason) const;
 };
 
 /** Defines the server's length limits on various length-limited

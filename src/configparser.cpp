@@ -522,6 +522,12 @@ bool ParseStack::ParseFile(const std::string& path, int flags, const std::string
 	return ok;
 }
 
+void ConfigTag::LogMalformed(const std::string& key, const std::string& val, const std::string& def, const std::string& reason) const
+{
+	ServerInstance->Logs.Normal("CONFIG", "The value of <%s:%s> at %s (%s) is %s; using the default (%s) instead.",
+		name.c_str(), key.c_str(), source.str().c_str(), val.c_str(), reason.c_str(), def.c_str());
+}
+
 bool ConfigTag::readString(const std::string& key, std::string& value, bool allow_lf) const
 {
 	for (const auto& [ikey, ivalue] : items)
@@ -554,8 +560,7 @@ std::string ConfigTag::getString(const std::string& key, const std::string& def,
 
 	if (!validator(res))
 	{
-		ServerInstance->Logs.Normal("CONFIG", "WARNING: The value of <%s:%s> is not valid; value set to %s.",
-			name.c_str(), key.c_str(), def.c_str());
+		LogMalformed(key, res, def, "not valid");
 		return def;
 	}
 	return res;
@@ -569,8 +574,7 @@ std::string ConfigTag::getString(const std::string& key, const std::string& def,
 
 	if (res.length() < minlen || res.length() > maxlen)
 	{
-		ServerInstance->Logs.Normal("CONFIG", "WARNING: The length of <%s:%s> is not between %zu and %zu; value set to %s.",
-			name.c_str(), key.c_str(), minlen, maxlen, def.c_str());
+		LogMalformed(key, res, def, "not between " + ConvToStr(minlen) + " and " + ConvToStr(maxlen)  + " characters in length");
 		return def;
 	}
 	return res;
@@ -589,7 +593,7 @@ namespace
 	 * @param tail The location in the config value at which the magnifier is located.
 	 */
 	template <typename Numeric>
-	void CheckMagnitude(const std::string& tag, const std::string& key, const std::string& val, Numeric& num, Numeric def, const char* tail)
+	void CheckMagnitude(const ConfigTag* tag, const std::string& key, const std::string& val, Numeric& num, Numeric def, const char* tail)
 	{
 		// If this is NULL then no magnitude specifier was given.
 		if (!*tail)
@@ -608,12 +612,12 @@ namespace
 			case 'G':
 				num *= 1024 * 1024 * 1024;
 				return;
-		}
 
-		const std::string message = "WARNING: <" + tag + ":" + key + "> value of " + val + " contains an invalid magnitude specifier '"
-			+ tail + "'; value set to " + ConvToStr(def) + ".";
-		ServerInstance->Logs.Normal("CONFIG", message);
-		num = def;
+			default:
+				num = def;
+				tag->LogMalformed(key, val, ConvToStr(def), "contains an invalid magnitude specifier (" + ConvToStr(*tail) +")");
+				return;
+		}
 	}
 
 	/** Check for an out of range value. If the value falls outside the boundaries a warning is
@@ -626,14 +630,12 @@ namespace
 	 * @param max Maximum accepted value for \p res.
 	 */
 	template <typename Numeric>
-	void CheckRange(const std::string& tag, const std::string& key, Numeric& num, Numeric def, Numeric min, Numeric max)
+	void CheckRange(const ConfigTag* tag, const std::string& key, Numeric& num, Numeric def, Numeric min, Numeric max)
 	{
 		if (num >= min && num <= max)
 			return;
 
-		const std::string message = "WARNING: <" + tag + ":" + key + "> value of " + ConvToStr(num) + " is not between "
-			+ ConvToStr(min) + " and " + ConvToStr(max) + "; value set to " + ConvToStr(def) + ".";
-		ServerInstance->Logs.Normal("CONFIG", message);
+		tag->LogMalformed(key, ConvToStr(num), ConvToStr(def), "not between " + ConvToStr(min) + " and " + ConvToStr(max));
 		num = def;
 	}
 }
@@ -650,8 +652,8 @@ long ConfigTag::getInt(const std::string& key, long def, long min, long max) con
 	if (res_tail == res_cstr)
 		return def;
 
-	CheckMagnitude(key, key, result, res, def, res_tail);
-	CheckRange(key, key, res, def, min, max);
+	CheckMagnitude(this, key, result, res, def, res_tail);
+	CheckRange(this, key, res, def, min, max);
 	return res;
 }
 
@@ -667,8 +669,8 @@ unsigned long ConfigTag::getUInt(const std::string& key, unsigned long def, unsi
 	if (res_tail == res_cstr)
 		return def;
 
-	CheckMagnitude(key, key, result, res, def, res_tail);
-	CheckRange(key, key, res, def, min, max);
+	CheckMagnitude(this, key, result, res, def, res_tail);
+	CheckRange(this, key, res, def, min, max);
 	return res;
 }
 
@@ -681,12 +683,11 @@ unsigned long ConfigTag::getDuration(const std::string& key, unsigned long def, 
 	unsigned long ret;
 	if (!InspIRCd::Duration(duration, ret))
 	{
-		ServerInstance->Logs.Normal("CONFIG", "Value of <" + name + ":" + key + "> at " + source.str() +
-			" is not a duration; value set to " + ConvToStr(def) + ".");
+		LogMalformed(key, duration, ConvToStr(def), "is not a duration");
 		return def;
 	}
 
-	CheckRange(name, key, ret, def, min, max);
+	CheckRange(this, key, ret, def, min, max);
 	return ret;
 }
 
@@ -697,7 +698,7 @@ double ConfigTag::getFloat(const std::string& key, double def, double min, doubl
 		return def;
 
 	double res = strtod(result.c_str(), NULL);
-	CheckRange(name, key, res, def, min, max);
+	CheckRange(this, key, res, def, min, max);
 	return res;
 }
 
@@ -713,8 +714,7 @@ bool ConfigTag::getBool(const std::string& key, bool def) const
 	if (stdalgo::string::equalsci(result, "no") || stdalgo::string::equalsci(result, "false") || stdalgo::string::equalsci(result, "off"))
 		return false;
 
-	ServerInstance->Logs.Normal("CONFIG", "Value of <" + name + ":" + key + "> at " + source.str() +
-		" is not valid, ignoring");
+	LogMalformed(key, result, def ? "yes" : "no", "is not a boolean");
 	return def;
 }
 
