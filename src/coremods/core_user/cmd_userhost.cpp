@@ -32,12 +32,8 @@ CmdResult CommandUserhost::Handle(User* user, const Params& parameters)
 
 	std::string retbuf;
 
-	size_t max = parameters.size();
-	if (max > 5)
-		max = 5;
-
-	// This cast is safe thanks to the above clamp.
-	for (unsigned int i = 0; i < static_cast<unsigned int>(max); i++)
+	size_t paramcount = std::min<size_t>(parameters.size(), 5);
+	for (size_t i = 0; i < paramcount; ++i)
 	{
 		User *u = ServerInstance->Users.FindNick(parameters[i]);
 
