@@ -57,11 +57,39 @@ bool InsaneBan::IPHostMatcher::Check(User* user, const std::string& mask) const
 class CoreModXLine final
 	: public Module
 {
+private:
 	CommandEline cmdeline;
 	CommandGline cmdgline;
 	CommandKline cmdkline;
 	CommandQline cmdqline;
 	CommandZline cmdzline;
+
+	static void ReadXLine(const std::string& tag, const std::string& key, const std::string& type)
+	{
+		XLineFactory* make = ServerInstance->XLines->GetFactory(type);
+		if (!make)
+			throw CoreException("BUG: Unable to find the %s-line factory!");
+
+		insp::flat_set<std::string> configlines;
+		for (const auto& [_, ctag] : ServerInstance->Config->ConfTags(tag))
+		{
+			const std::string mask = ctag->getString(key);
+			if (mask.empty())
+				throw CoreException("<" + tag + ":" + key + "> missing at " + ctag->source.str());
+
+			const std::string reason = ctag->getString("reason");
+			if (reason.empty())
+				throw CoreException("<" + tag + ":reason> missing at " + ctag->source.str());
+
+			XLine* xl = make->Generate(ServerInstance->Time(), 0, ServerInstance->Config->ServerName, reason, mask);
+			xl->from_config = true;
+			configlines.insert(xl->Displayable());
+			if (!ServerInstance->XLines->AddLine(xl, NULL))
+				delete xl;
+		}
+
+		ServerInstance->XLines->ExpireRemovedConfigLines(make->GetType(), configlines);
+	}
 
 public:
 	CoreModXLine()
@@ -77,6 +105,17 @@ public:
 	void init() override
 	{
 		ServerInstance->SNO.EnableSnomask('x', "XLINE");
+	}
+
+	void ReadConfig(ConfigStatus& status) override
+	{
+		ReadXLine("badip", "ipmask", "Z");
+		ReadXLine("badnick", "nick", "Q");
+		ReadXLine("badhost", "host", "K");
+		ReadXLine("exception", "host", "E");
+
+		ServerInstance->XLines->CheckELines();
+		ServerInstance->XLines->ApplyLines();
 	}
 
 	void OnSetUserIP(LocalUser* user) override

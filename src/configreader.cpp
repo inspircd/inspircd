@@ -41,7 +41,6 @@
 #include "inspircd.h"
 #include "configparser.h"
 #include "exitcodes.h"
-#include "xline.h"
 
 ServerLimits::ServerLimits(std::shared_ptr<ConfigTag> tag)
 	: MaxLine(tag->getUInt("maxline", 512, 512))
@@ -90,30 +89,6 @@ ServerConfig::ServerConfig()
 	, Paths(EmptyTag)
 	, CaseMapping("ascii")
 {
-}
-
-static void ReadXLine(ServerConfig* conf, const std::string& tag, const std::string& key, XLineFactory* make)
-{
-	insp::flat_set<std::string> configlines;
-
-	for (const auto& [_, ctag] : conf->ConfTags(tag))
-	{
-		const std::string mask = ctag->getString(key);
-		if (mask.empty())
-			throw CoreException("<" + tag + ":" + key + "> missing at " + ctag->source.str());
-
-		const std::string reason = ctag->getString("reason");
-		if (reason.empty())
-			throw CoreException("<" + tag + ":reason> missing at " + ctag->source.str());
-
-		XLine* xl = make->Generate(ServerInstance->Time(), 0, ServerInstance->Config->ServerName, reason, mask);
-		xl->from_config = true;
-		configlines.insert(xl->Displayable());
-		if (!ServerInstance->XLines->AddLine(xl, NULL))
-			delete xl;
-	}
-
-	ServerInstance->XLines->ExpireRemovedConfigLines(make->GetType(), configlines);
 }
 
 typedef std::map<std::string, std::shared_ptr<ConfigTag>> LocalIndex;
@@ -362,11 +337,6 @@ void ServerConfig::Fill()
 		else
 			SocketEngine::Close(socktest);
 	}
-
-	ReadXLine(this, "badip", "ipmask", ServerInstance->XLines->GetFactory("Z"));
-	ReadXLine(this, "badnick", "nick", ServerInstance->XLines->GetFactory("Q"));
-	ReadXLine(this, "badhost", "host", ServerInstance->XLines->GetFactory("K"));
-	ReadXLine(this, "exception", "host", ServerInstance->XLines->GetFactory("E"));
 
 	const std::string restrictbannedusers = options->getString("restrictbannedusers", "yes", 1);
 	if (stdalgo::string::equalsci(restrictbannedusers, "no"))
@@ -649,8 +619,6 @@ void ConfigReaderThread::OnStop()
 		 * thoroughly!!!
 		 */
 		ServerInstance->Users.RehashCloneCounts();
-		ServerInstance->XLines->CheckELines();
-		ServerInstance->XLines->ApplyLines();
 
 		User* user = ServerInstance->Users.FindUUID(UUID);
 		ConfigStatus status(user);
