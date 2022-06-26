@@ -29,6 +29,7 @@
 #include "inspircd.h"
 #include "modules/exemption.h"
 #include "modules/extban.h"
+#include "numerichelper.h"
 
 class ModuleNoCTCP final
 	: public Module

@@ -23,6 +23,7 @@
 
 #include "inspircd.h"
 #include "modules/ctctags.h"
+#include "numerichelper.h"
 
 class ModuleCommonChans final
 	: public Module

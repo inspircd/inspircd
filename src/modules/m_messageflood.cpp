@@ -27,6 +27,7 @@
 #include "inspircd.h"
 #include "modules/ctctags.h"
 #include "modules/exemption.h"
+#include "numerichelper.h"
 
 /** Holds flood settings and state for mode +f
  */

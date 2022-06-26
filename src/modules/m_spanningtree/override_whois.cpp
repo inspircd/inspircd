@@ -23,6 +23,7 @@
 
 #include "inspircd.h"
 #include "modules/whois.h"
+#include "numerichelper.h"
 
 #include "main.h"
 #include "commandbuilder.h"

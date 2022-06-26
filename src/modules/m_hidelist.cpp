@@ -20,6 +20,7 @@
 
 
 #include "inspircd.h"
+#include "numerichelper.h"
 
 class ListWatcher final
 	: public ModeWatcher

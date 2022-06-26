@@ -25,6 +25,7 @@
 #include "inspircd.h"
 #include "modules/ctctags.h"
 #include "modules/extban.h"
+#include "numerichelper.h"
 
 class ModuleQuietBan final
 	: public Module

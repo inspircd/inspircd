@@ -27,6 +27,8 @@
 
 
 #include "inspircd.h"
+#include "numerichelper.h"
+
 #include "core_channel.h"
 
 enum

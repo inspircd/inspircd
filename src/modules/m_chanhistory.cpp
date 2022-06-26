@@ -24,9 +24,10 @@
 
 
 #include "inspircd.h"
-#include "modules/ircv3_servertime.h"
 #include "modules/ircv3_batch.h"
+#include "modules/ircv3_servertime.h"
 #include "modules/server.h"
+#include "numerichelper.h"
 
 typedef insp::flat_map<std::string, std::string> HistoryTagMap;
 

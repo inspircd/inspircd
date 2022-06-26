@@ -24,6 +24,7 @@
 
 
 #include "inspircd.h"
+#include "numerichelper.h"
 
 class CommandChghost final
 	: public Command

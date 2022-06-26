@@ -24,6 +24,7 @@
 
 #include "inspircd.h"
 #include "modules/exemption.h"
+#include "numerichelper.h"
 
 // The number of seconds nickname changing will be blocked for.
 static unsigned int duration;

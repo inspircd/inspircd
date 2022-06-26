@@ -30,6 +30,7 @@
 #include "inspircd.h"
 #include "modules/exemption.h"
 #include "modules/extban.h"
+#include "numerichelper.h"
 
 class ModuleBlockColor final
 	: public Module

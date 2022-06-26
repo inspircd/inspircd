@@ -33,12 +33,13 @@
 
 
 #include "inspircd.h"
-#include "xline.h"
+#include "modules/account.h"
 #include "modules/regex.h"
 #include "modules/server.h"
 #include "modules/shun.h"
 #include "modules/stats.h"
-#include "modules/account.h"
+#include "numerichelper.h"
+#include "xline.h"
 
 #include <fstream>
 

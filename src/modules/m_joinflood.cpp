@@ -25,6 +25,7 @@
 
 #include "inspircd.h"
 #include "modules/server.h"
+#include "numerichelper.h"
 
 // The number of seconds the channel will be closed for.
 static unsigned int duration;

@@ -26,6 +26,8 @@
 
 
 #include "inspircd.h"
+#include "numerichelper.h"
+
 #include "core_oper.h"
 
 CommandKill::CommandKill(Module* parent)

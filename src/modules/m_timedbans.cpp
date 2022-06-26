@@ -32,6 +32,7 @@
 
 #include "inspircd.h"
 #include "listmode.h"
+#include "numerichelper.h"
 
 // Holds a timed ban
 class TimedBan final

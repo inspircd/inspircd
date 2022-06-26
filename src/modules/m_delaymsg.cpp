@@ -24,6 +24,7 @@
 #include "inspircd.h"
 #include "modules/ctctags.h"
 #include "modules/exemption.h"
+#include "numerichelper.h"
 
 class DelayMsgMode final
 	: public ParamMode<DelayMsgMode, IntExtItem>

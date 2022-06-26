@@ -27,6 +27,7 @@
 
 #include "inspircd.h"
 #include "modules/exemption.h"
+#include "numerichelper.h"
 
 class ChannelSettings final
 {

@@ -27,6 +27,7 @@
 #include "inspircd.h"
 #include "listmode.h"
 #include "modules/exemption.h"
+#include "numerichelper.h"
 
 enum
 {

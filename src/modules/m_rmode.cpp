@@ -22,6 +22,7 @@
 
 #include "inspircd.h"
 #include "listmode.h"
+#include "numerichelper.h"
 
 class CommandRMode final
 	: public Command

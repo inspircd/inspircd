@@ -29,8 +29,9 @@
 #include "inspircd.h"
 #include "modules/ssl.h"
 #include "modules/webirc.h"
-#include "modules/whois.h"
 #include "modules/who.h"
+#include "modules/whois.h"
+#include "numerichelper.h"
 
 class SSLCertExt final
 	: public ExtensionItem

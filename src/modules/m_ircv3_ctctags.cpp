@@ -22,6 +22,7 @@
 #include "modules/cap.h"
 #include "modules/ctctags.h"
 #include "modules/isupport.h"
+#include "numerichelper.h"
 
 class CommandTagMsg final
 	: public Command

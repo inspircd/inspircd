@@ -27,6 +27,7 @@
 
 
 #include "inspircd.h"
+#include "numerichelper.h"
 
 class CommandCycle final
 	: public SplitCommand

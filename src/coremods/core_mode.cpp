@@ -23,6 +23,7 @@
 
 #include "inspircd.h"
 #include "modules/isupport.h"
+#include "numerichelper.h"
 
 enum
 {

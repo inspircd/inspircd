@@ -27,9 +27,10 @@
 
 
 #include "inspircd.h"
-#include "modules/extban.h"
 #include "modules/ctctags.h"
+#include "modules/extban.h"
 #include "modules/ssl.h"
+#include "numerichelper.h"
 
 enum
 {

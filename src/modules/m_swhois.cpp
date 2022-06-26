@@ -26,6 +26,7 @@
 
 #include "inspircd.h"
 #include "modules/whois.h"
+#include "numerichelper.h"
 
 class CommandSwhois final
 	: public Command

@@ -26,6 +26,8 @@
 
 
 #include "inspircd.h"
+#include "numerichelper.h"
+
 #include "core_user.h"
 
 CommandPart::CommandPart(Module* parent)

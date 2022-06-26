@@ -26,6 +26,7 @@
 
 #include "inspircd.h"
 #include "modules/invite.h"
+#include "numerichelper.h"
 
 enum
 {

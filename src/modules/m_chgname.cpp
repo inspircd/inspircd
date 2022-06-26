@@ -25,6 +25,7 @@
 
 
 #include "inspircd.h"
+#include "numerichelper.h"
 
 class CommandChgname final
 	: public Command
