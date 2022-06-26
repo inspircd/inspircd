@@ -27,6 +27,7 @@
 #include <iostream>
 
 #include "inspircd.h"
+#include "dynamic.h"
 #include "exitcodes.h"
 
 // Needs to be included after inspircd.h to avoid reincluding winsock.

@@ -96,6 +96,7 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "snomasks.h"
 #include "message.h"
 #include "modules.h"
+#include "moduledefs.h"
 #include "clientprotocol.h"
 #include "thread.h"
 #include "configreader.h"

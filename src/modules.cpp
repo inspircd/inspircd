@@ -35,6 +35,7 @@
 
 #include "inspircd.h"
 #include "exitcodes.h"
+#include "dynamic.h"
 #include "utility/map.h"
 
 // Needs to be included after inspircd.h to avoid reincluding winsock.

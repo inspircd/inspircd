@@ -25,6 +25,8 @@
 
 
 #include "inspircd.h"
+#include "dynamic.h"
+
 #include "core_info.h"
 
 enum

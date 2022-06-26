@@ -32,12 +32,7 @@
 
 #pragma once
 
-#include "moduledefs.h"
-#include "dynamic.h"
-#include "base.h"
-#include "ctables.h"
-#include "inspsocket.h"
-#include "mode.h"
+class DLLManager;
 
 /** Used to specify the behaviour of a module. */
 enum ModuleFlags

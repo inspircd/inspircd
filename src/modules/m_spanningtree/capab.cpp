@@ -26,6 +26,7 @@
 
 
 #include "inspircd.h"
+#include "dynamic.h"
 #include "modules/extban.h"
 #include "utility/map.h"
 

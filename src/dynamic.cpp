@@ -27,6 +27,8 @@
 
 
 #include "inspircd.h"
+#include "dynamic.h"
+
 #ifndef _WIN32
 # include <dlfcn.h>
 #endif
