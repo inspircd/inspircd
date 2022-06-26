@@ -21,6 +21,7 @@
 
 #include "inspircd.h"
 #include "modules/isupport.h"
+#include "numericbuilder.h"
 
 namespace IRCv3
 {

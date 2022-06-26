@@ -19,6 +19,7 @@
  */
 
 #include "inspircd.h"
+#include "clientprotocolevent.h"
 #include "modules/account.h"
 #include "modules/away.h"
 #include "modules/cap.h"

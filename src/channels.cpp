@@ -26,6 +26,7 @@
 
 
 #include "inspircd.h"
+#include "clientprotocolevent.h"
 #include "listmode.h"
 
 enum

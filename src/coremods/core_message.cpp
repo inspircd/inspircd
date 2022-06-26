@@ -23,6 +23,8 @@
 
 
 #include "inspircd.h"
+#include "clientprotocolmsg.h"
+#include "numericbuilder.h"
 #include "numerichelper.h"
 
 class MessageDetailsImpl final

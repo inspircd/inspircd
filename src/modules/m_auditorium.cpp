@@ -24,6 +24,7 @@
 
 
 #include "inspircd.h"
+#include "clientprotocolevent.h"
 #include "modules/exemption.h"
 #include "modules/names.h"
 #include "modules/who.h"

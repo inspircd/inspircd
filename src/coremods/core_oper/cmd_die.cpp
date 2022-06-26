@@ -26,7 +26,10 @@
 
 
 #include "inspircd.h"
+#include "clientprotocolmsg.h"
 #include "exitcodes.h"
+
+
 #include "core_oper.h"
 
 CommandDie::CommandDie(Module* parent)

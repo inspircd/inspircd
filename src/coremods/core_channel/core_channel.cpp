@@ -22,10 +22,12 @@
 
 
 #include "inspircd.h"
-#include "core_channel.h"
-#include "invite.h"
+#include "clientprotocolevent.h"
 #include "listmode.h"
 #include "modules/isupport.h"
+
+#include "core_channel.h"
+#include "invite.h"
 
 enum
 {

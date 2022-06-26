@@ -29,6 +29,7 @@
 
 #include "inspircd.h"
 #include "modules/whois.h"
+#include "numericbuilder.h"
 #include "numerichelper.h"
 
 enum SplitWhoisState

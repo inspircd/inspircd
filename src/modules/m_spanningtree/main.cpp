@@ -28,18 +28,19 @@
 
 
 #include "inspircd.h"
+#include "clientprotocolmsg.h"
+#include "iohook.h"
 #include "socket.h"
 #include "xline.h"
-#include "iohook.h"
 
-#include "resolvers.h"
-#include "main.h"
-#include "utils.h"
-#include "treeserver.h"
-#include "link.h"
-#include "treesocket.h"
 #include "commands.h"
+#include "link.h"
+#include "main.h"
+#include "resolvers.h"
 #include "translate.h"
+#include "treeserver.h"
+#include "treesocket.h"
+#include "utils.h"
 
 ModuleSpanningTree::ModuleSpanningTree()
 	: Module(VF_VENDOR, "Allows linking multiple servers together as part of one network.")

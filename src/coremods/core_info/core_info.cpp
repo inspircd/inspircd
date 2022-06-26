@@ -20,6 +20,8 @@
 
 
 #include "inspircd.h"
+#include "clientprotocolmsg.h"
+
 #include "core_info.h"
 
 enum

@@ -19,6 +19,7 @@
 
 
 #include "inspircd.h"
+#include "clientprotocolevent.h"
 #include "modules/cap.h"
 
 class ModuleHostCycle final

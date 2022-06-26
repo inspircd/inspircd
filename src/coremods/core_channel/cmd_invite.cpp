@@ -28,6 +28,7 @@
 
 
 #include "inspircd.h"
+#include "clientprotocolmsg.h"
 #include "numerichelper.h"
 
 #include "core_channel.h"

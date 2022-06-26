@@ -25,6 +25,7 @@
 
 
 #include "inspircd.h"
+#include "clientprotocolmsg.h"
 #include "numerichelper.h"
 
 class CommandSamode final

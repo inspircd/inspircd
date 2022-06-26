@@ -23,6 +23,8 @@
 
 
 #include "inspircd.h"
+#include "numericbuilder.h"
+
 #include "core_user.h"
 
 enum

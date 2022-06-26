@@ -29,6 +29,7 @@
 
 
 #include "inspircd.h"
+#include "clientprotocolevent.h"
 #include "numerichelper.h"
 
 ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modeletter, ParamSpec Params, ModeType type, Class mclass)

@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "clientprotocolmsg.h"
+
 namespace ClientProtocol
 {
 	namespace Events

@@ -26,6 +26,7 @@
 
 
 #include "inspircd.h"
+#include "clientprotocolmsg.h"
 
 class ModuleChanLog final
 	: public Module

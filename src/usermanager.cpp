@@ -28,8 +28,9 @@
 
 
 #include "inspircd.h"
-#include "xline.h"
+#include "clientprotocolmsg.h"
 #include "iohook.h"
+#include "xline.h"
 
 namespace
 {

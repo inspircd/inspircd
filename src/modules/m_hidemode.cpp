@@ -21,6 +21,7 @@
 
 
 #include "inspircd.h"
+#include "clientprotocolevent.h"
 
 namespace
 {

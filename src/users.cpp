@@ -35,6 +35,7 @@
 
 
 #include "inspircd.h"
+#include "clientprotocolevent.h"
 #include "xline.h"
 
 enum

@@ -25,6 +25,7 @@
 
 
 #include "inspircd.h"
+#include "clientprotocolevent.h"
 #include "modules/ctctags.h"
 #include "modules/ircv3_servertime.h"
 #include "modules/names.h"

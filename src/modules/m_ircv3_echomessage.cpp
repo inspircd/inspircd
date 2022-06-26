@@ -20,6 +20,7 @@
 
 
 #include "inspircd.h"
+#include "clientprotocolmsg.h"
 #include "modules/cap.h"
 #include "modules/ctctags.h"
 

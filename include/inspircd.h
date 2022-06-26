@@ -535,7 +535,3 @@ inline void LocalUser::Send(ClientProtocol::EventProvider& protoevprov, ClientPr
 	ClientProtocol::Event event(protoevprov, msg);
 	Send(event);
 }
-
-#include "numericbuilder.h"
-#include "clientprotocolmsg.h"
-#include "clientprotocolevent.h"

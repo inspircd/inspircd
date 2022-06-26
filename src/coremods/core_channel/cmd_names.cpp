@@ -27,8 +27,10 @@
 
 
 #include "inspircd.h"
-#include "core_channel.h"
 #include "modules/names.h"
+#include "numericbuilder.h"
+
+#include "core_channel.h"
 
 enum
 {

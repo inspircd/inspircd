@@ -28,6 +28,7 @@
 
 #include "inspircd.h"
 #include "listmode.h"
+#include "numericbuilder.h"
 
 enum
 {

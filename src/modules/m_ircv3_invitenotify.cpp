@@ -19,6 +19,7 @@
 
 
 #include "inspircd.h"
+#include "clientprotocolmsg.h"
 #include "modules/cap.h"
 
 class ModuleIRCv3InviteNotify final

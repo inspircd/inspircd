@@ -25,6 +25,7 @@
 
 
 #include "inspircd.h"
+#include "clientprotocolmsg.h"
 #include "listmode.h"
 #include "modules/exemption.h"
 #include "numerichelper.h"
