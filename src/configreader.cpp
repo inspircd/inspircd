@@ -39,10 +39,9 @@
 #endif
 
 #include "inspircd.h"
-#include "xline.h"
-#include "listmode.h"
-#include "exitcodes.h"
 #include "configparser.h"
+#include "exitcodes.h"
+#include "xline.h"
 
 ServerLimits::ServerLimits(std::shared_ptr<ConfigTag> tag)
 	: MaxLine(tag->getUInt("maxline", 512, 512))
@@ -541,7 +540,7 @@ void ServerConfig::ApplyModules(User* user)
 	for (const auto& [modname, mod] : removed_modules)
 	{
 		// Don't remove core_*, just remove m_*
-		if (InspIRCd::Match(modname, "core_*" DLL_EXTENSION, ascii_case_insensitive_map))
+		if (InspIRCd::Match(modname, "core_*", ascii_case_insensitive_map))
 			continue;
 		if (ServerInstance->Modules.Unload(mod))
 		{

@@ -671,7 +671,7 @@ std::string ModuleManager::ShrinkModName(const std::string& modname)
 {
 	const static size_t extlen = strlen(DLL_EXTENSION);
 	size_t startpos = modname.compare(0, 2, "m_", 2) ? 0 : 2;
-	size_t endpos = modname.length() < extlen || modname.compare(modname.length() - extlen, extlen, ".so", extlen) ? 0 : extlen;
+	size_t endpos = modname.length() < extlen || modname.compare(modname.length() - extlen, extlen, DLL_EXTENSION, extlen) ? 0 : extlen;
 	return modname.substr(startpos, modname.length() - endpos - startpos);
 }
 
