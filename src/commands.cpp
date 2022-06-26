@@ -24,6 +24,16 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From RFC 1459.
+	ERR_NOTREGISTERED = 451,
+	ERR_NEEDMOREPARAMS = 461,
+
+	// InspIRCd-specific.
+	RPL_SYNTAX = 650,
+};
+
 CommandBase::CommandBase(Module* mod, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
 	: ServiceProvider(mod, cmd, SERVICE_COMMAND)
 	, min_params(minpara)

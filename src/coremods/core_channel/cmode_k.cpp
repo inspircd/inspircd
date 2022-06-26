@@ -27,6 +27,12 @@
 #include "inspircd.h"
 #include "core_channel.h"
 
+enum
+{
+	// From RFC 1459.
+	ERR_KEYSET = 467,
+};
+
 ModeChannelKey::ModeChannelKey(Module* Creator)
 	: ParamMode<ModeChannelKey, StringExtItem>(Creator, "key", 'k', PARAM_ALWAYS)
 {

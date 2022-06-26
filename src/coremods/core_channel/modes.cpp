@@ -20,6 +20,13 @@
 #include "inspircd.h"
 #include "core_channel.h"
 
+enum
+{
+	// From RFC 1459.
+	RPL_BANLIST = 367,
+	RPL_ENDOFBANLIST = 368,
+};
+
 ModeChannelBan::ModeChannelBan(Module* Creator)
 	: ListModeBase(Creator, "ban", 'b', RPL_BANLIST, RPL_ENDOFBANLIST)
 	, extbanmgr(Creator)

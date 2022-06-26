@@ -26,6 +26,13 @@
 #include "inspircd.h"
 #include "core_info.h"
 
+enum
+{
+	// From RFC 1459
+	RPL_INFO = 371,
+	RPL_ENDOFINFO = 374,
+};
+
 CommandInfo::CommandInfo(Module* parent)
 	: SplitCommand(parent, "INFO")
 {

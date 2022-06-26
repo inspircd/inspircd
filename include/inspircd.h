@@ -80,7 +80,6 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "extensible.h"
 #include "fileutils.h"
 #include "ctables.h"
-#include "numerics.h"
 #include "numeric.h"
 #include "uid.h"
 #include "server.h"

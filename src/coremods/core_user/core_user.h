@@ -27,7 +27,7 @@
 enum
 {
 	// From RFC 1459.
-	ERR_NOORIGIN = 409
+	ERR_ALREADYREGISTERED = 462,
 };
 
 class MessageWrapper final

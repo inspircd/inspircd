@@ -29,6 +29,12 @@
 #include "inspircd.h"
 #include "core_channel.h"
 
+enum
+{
+	// From RFC 1459.
+	ERR_USERNOTINCHANNEL = 441,
+};
+
 CommandKick::CommandKick(Module* parent)
 	: Command(parent, "KICK", 2, 3)
 {

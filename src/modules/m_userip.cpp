@@ -27,6 +27,12 @@
 #include "inspircd.h"
 #include "modules/isupport.h"
 
+enum
+{
+	// From UnrealIRCd.
+	RPL_USERIP = 340,
+};
+
 class CommandUserip final
 	: public Command
 {

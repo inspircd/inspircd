@@ -24,6 +24,24 @@
 #include "inspircd.h"
 #include "modules/isupport.h"
 
+enum
+{
+	// From RFC 1459.
+	RPL_UMODEIS = 221,
+	RPL_CHANNELMODEIS = 324,
+	ERR_USERSDONTMATCH = 502,
+
+	// From ircu?
+	RPL_CHANNELCREATED = 329,
+
+	// From UnrealIRCd.
+	RPL_SNOMASKIS = 8,
+
+	// InspIRCd-specific.
+	RPL_OTHERUMODEIS = 803,
+	RPL_OTHERSNOMASKIS = 804,
+};
+
 class CommandMode final
 	: public Command
 {

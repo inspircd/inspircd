@@ -28,6 +28,12 @@
 #include "inspircd.h"
 #include "core_user.h"
 
+enum
+{
+	// From RFC 1459.
+	ERR_NONICKNAMEGIVEN = 431,
+};
+
 CommandNick::CommandNick(Module* parent)
 	: SplitCommand(parent, "NICK", 1)
 {

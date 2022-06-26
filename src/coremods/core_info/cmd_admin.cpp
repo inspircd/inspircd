@@ -26,6 +26,15 @@
 #include "inspircd.h"
 #include "core_info.h"
 
+enum
+{
+	// From RFC 1459.
+	RPL_ADMINME = 256,
+	RPL_ADMINLOC1 = 257,
+	RPL_ADMINLOC2  = 258,
+	RPL_ADMINEMAIL = 259,
+};
+
 CommandAdmin::CommandAdmin(Module* parent)
 	: ServerTargetCommand(parent, "ADMIN")
 {

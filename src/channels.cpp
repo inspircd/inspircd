@@ -28,6 +28,12 @@
 #include "inspircd.h"
 #include "listmode.h"
 
+enum
+{
+	// From RFC 1459.
+	ERR_TOOMANYCHANNELS = 405,
+};
+
 namespace
 {
 	ChanModeReference ban(NULL, "ban");

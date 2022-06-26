@@ -28,6 +28,16 @@
 #include "inspircd.h"
 #include "core_channel.h"
 
+enum
+{
+	// From RFC 1459.
+	RPL_NOTOPICSET = 331,
+	RPL_TOPIC = 332,
+
+	// From ircu.
+	RPL_TOPICTIME = 333,
+};
+
 CommandTopic::CommandTopic(Module* parent)
 	: SplitCommand(parent, "TOPIC", 1, 2)
 	, exemptionprov(parent)

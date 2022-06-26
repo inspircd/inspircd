@@ -25,6 +25,12 @@
 #include "inspircd.h"
 #include "core_user.h"
 
+enum
+{
+	// From RFC 1459.
+	RPL_ISON = 303,
+};
+
 class IsonReplyBuilder final
 	: public Numeric::Builder<' ', true>
 {

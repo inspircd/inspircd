@@ -30,6 +30,12 @@
 #include "inspircd.h"
 #include "core_oper.h"
 
+enum
+{
+	// From RFC 1459.
+	RPL_REHASHING = 382,
+};
+
 CommandRehash::CommandRehash(Module* parent)
 	: Command(parent, "REHASH", 0)
 {

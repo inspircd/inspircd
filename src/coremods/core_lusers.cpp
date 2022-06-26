@@ -26,6 +26,19 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From RFC 1459.
+	RPL_LUSERCLIENT = 251,
+	RPL_LUSERUNKNOWN = 253,
+	RPL_LUSERCHANNELS = 254,
+	RPL_LUSERME = 255,
+
+	// From ircd-ratbox?
+	RPL_LOCALUSERS = 265,
+	RPL_GLOBALUSERS = 266,
+};
+
 struct LusersCounters final
 {
 	size_t max_local;

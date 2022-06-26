@@ -21,6 +21,12 @@
 #include "inspircd.h"
 #include "core_user.h"
 
+enum
+{
+	// From RFC 1459.
+	ERR_NOORIGIN = 409,
+};
+
 class CommandPass final
 	: public SplitCommand
 {

@@ -31,6 +31,16 @@ namespace ServerProtocol
 	class SyncEventListener;
 }
 
+enum
+{
+	// From ircu.
+	RPL_MAP = 15,
+	RPL_ENDMAP = 17,
+
+	// InspIRCd-specific.
+	RPL_MAPUSERS = 18,
+};
+
 class ServerProtocol::BroadcastEventListener
 	: public Events::ModuleEventListener
 {

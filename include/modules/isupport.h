@@ -28,6 +28,12 @@ namespace ISupport
 	typedef std::map<std::string, std::string, irc::insensitive_swo> TokenMap;
 }
 
+enum
+{
+	// From draft-brocklesby-irc-isupport-03.
+	RPL_ISUPPORT = 5,
+};
+
 class ISupport::EventListener
 	: public Events::ModuleEventListener
 {

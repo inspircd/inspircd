@@ -26,6 +26,12 @@
 #include "inspircd.h"
 #include "core_info.h"
 
+enum
+{
+	// From RFC 1459.
+	RPL_TIME = 391,
+};
+
 CommandTime::CommandTime(Module* parent)
 	: ServerTargetCommand(parent, "TIME")
 {

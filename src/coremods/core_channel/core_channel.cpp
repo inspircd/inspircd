@@ -27,6 +27,14 @@
 #include "listmode.h"
 #include "modules/isupport.h"
 
+enum
+{
+	// From RFC 1459.
+	ERR_CHANNELISFULL = 471,
+	ERR_INVITEONLYCHAN = 473,
+	ERR_BADCHANNELKEY = 475,
+};
+
 namespace
 {
 /** Hook that sends a MODE after a JOIN if the user in the JOIN has some modes prefix set.

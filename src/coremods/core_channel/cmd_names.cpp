@@ -30,6 +30,13 @@
 #include "core_channel.h"
 #include "modules/names.h"
 
+enum
+{
+	// From RFC 1459.
+	RPL_NAMREPLY = 353,
+	RPL_ENDOFNAMES = 366,
+};
+
 CommandNames::CommandNames(Module* parent)
 	: SplitCommand(parent, "NAMES", 0, 0)
 	, secretmode(parent, "secret")

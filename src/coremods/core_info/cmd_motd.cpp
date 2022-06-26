@@ -25,6 +25,15 @@
 #include "inspircd.h"
 #include "core_info.h"
 
+enum
+{
+	// From RFC 1459
+	RPL_MOTD = 372,
+	RPL_MOTDSTART = 375,
+	RPL_ENDOFMOTD = 376,
+	ERR_NOMOTD = 422,
+};
+
 CommandMotd::CommandMotd(Module* parent)
 	: ServerTargetCommand(parent, "MOTD")
 {

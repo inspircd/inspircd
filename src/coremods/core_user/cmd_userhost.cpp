@@ -26,6 +26,12 @@
 #include "inspircd.h"
 #include "core_user.h"
 
+enum
+{
+	// From RFC 1459.
+	RPL_USERHOST = 302,
+};
+
 CmdResult CommandUserhost::Handle(User* user, const Params& parameters)
 {
 	const bool has_privs = user->HasPrivPermission("users/auspex");
