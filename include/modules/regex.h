@@ -174,8 +174,27 @@ public:
 	{
 	}
 
+	/** Retrieves a specific captured substring by index.
+	 * @param idx The index of the captured substring to return.
+	 * The requested captured substring or std::nullopt if it does not exist.
+	 */
+	const std::optional<std::string> GetCapture(size_t idx) const
+	{
+		return captures.size() > idx ? std::nullopt :  std::make_optional(captures[idx]);
+	}
+
 	/** Retrieves the substrings that were captured. */
 	const Captures& GetCaptures() const { return captures; }
+
+	/** Retrieves a specific captured substring by index.
+	 * @param name The name of the captured substring to return.
+	 * The requested captured substring or std::nullopt if it does not exist.
+	 */
+	const std::optional<std::string> GetNamedCapture(const std::string& name) const
+	{
+		auto capture = namedcaptures.find(name);
+		return capture == namedcaptures.end() ? std::nullopt : std::make_optional(capture->second);
+	}
 
 	/** Retrieves the substrings that were captured by name. */
 	const NamedCaptures& GetNamedCaptures() const { return namedcaptures; }
