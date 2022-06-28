@@ -2356,12 +2356,6 @@
 #<module name="uninvite">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Userip module: Adds the /USERIP command.
-# Allows users to query their own IP, also allows opers to query the IP
-# of anyone else.
-#<module name="userip">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Vhost module: Adds the VHOST command which allows for adding virtual
 # hosts which are accessible using a username and password in the config.
 #<module name="vhost">

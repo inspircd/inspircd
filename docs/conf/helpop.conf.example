@@ -463,11 +463,7 @@ RCONNECT       REHASH         RELOADMODULE   RESTART        RLINE
 RSQUIT         SAJOIN         SAKICK         SAMODE         SANICK
 SAPART         SAQUIT         SATOPIC        SETHOST        SETIDENT
 SETIDLE        SHUN           SQUIT          SWHOIS         TLINE
-UNLOADMODULE   USERIP         WALLOPS        ZLINE
-">
-
-<helpop key="userip" title="/USERIP <nick> [<nick>]+" value="
-Returns the IP address and nickname of the given user(s).
+UNLOADMODULE   WALLOPS        ZLINE
 ">
 
 <helpop key="tline" title="/TLINE <mask>" value="
