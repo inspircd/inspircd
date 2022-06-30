@@ -49,20 +49,14 @@
 // Check if the GnuTLS library is at least version major.minor.patch
 #define INSPIRCD_GNUTLS_HAS_VERSION(major, minor, patch) (GNUTLS_VERSION_NUMBER >= ((major << 16) | (minor << 8) | patch))
 
-#if INSPIRCD_GNUTLS_HAS_VERSION(3, 6, 0)
+#if !INSPIRCD_GNUTLS_HAS_VERSION(3, 3, 5)
+# error GnuTLS 3.3.5 or newer is required by the ssl_openssl module.
+#elif INSPIRCD_GNUTLS_HAS_VERSION(3, 6, 0)
 # define GNUTLS_AUTO_DH
 #endif
 
 #ifdef _WIN32
 # pragma comment(lib, "libgnutls-30.lib")
-#endif
-
-#if INSPIRCD_GNUTLS_HAS_VERSION(3, 3, 5)
-#define INSPIRCD_GNUTLS_HAS_RECV_PACKET
-#endif
-
-#if INSPIRCD_GNUTLS_HAS_VERSION(3, 1, 9)
-#define INSPIRCD_GNUTLS_HAS_CORK
 #endif
 
 static Module* thismod;
@@ -432,7 +426,6 @@ namespace GnuTLS
 	class DataReader final
 	{
 		ssize_t retval;
-#ifdef INSPIRCD_GNUTLS_HAS_RECV_PACKET
 		gnutls_packet_t packet;
 
 	public:
@@ -453,23 +446,6 @@ namespace GnuTLS
 
 			gnutls_packet_deinit(packet);
 		}
-#else
-		char* const buffer;
-
-	public:
-		DataReader(gnutls_session_t sess)
-			: buffer(ServerInstance->GetReadBuffer())
-		{
-			// Read data from GnuTLS buffers into ReadBuffer
-			retval = gnutls_record_recv(sess, buffer, ServerInstance->Config->NetBufferSize);
-		}
-
-		void appendto(std::string& recvq)
-		{
-			// Copy data from ReadBuffer to recvq
-			recvq.append(buffer, retval);
-		}
-#endif
 
 		ssize_t ret() const { return retval; }
 	};
@@ -582,12 +558,7 @@ namespace GnuTLS
 						crl.reset(new X509CRL(ReadFile(filename)));
 				}
 
-#ifdef INSPIRCD_GNUTLS_HAS_CORK
-				// If cork support is available outrecsize represents the (rough) max amount of data we give GnuTLS while corked
 				outrecsize = static_cast<unsigned int>(tag->getUInt("outrecsize", 2048, 512, UINT32_MAX));
-#else
-				outrecsize = static_cast<unsigned int>(tag->getUInt("outrecsize", 2048, 512, 16384));
-#endif
 			}
 		};
 
@@ -630,9 +601,7 @@ class GnuTLSIOHook final
 {
 private:
 	gnutls_session_t sess = nullptr;
-#ifdef INSPIRCD_GNUTLS_HAS_CORK
 	size_t gbuffersize = 0;
-#endif
 
 	void CloseSession()
 	{
@@ -793,7 +762,6 @@ info_done_dealloc:
 		return -1;
 	}
 
-#ifdef INSPIRCD_GNUTLS_HAS_CORK
 	int FlushBuffer(StreamSocket* sock)
 	{
 		// If GnuTLS has some data buffered, write it
@@ -801,20 +769,17 @@ info_done_dealloc:
 			return HandleWriteRet(sock, gnutls_record_uncork(this->sess, 0));
 		return 1;
 	}
-#endif
 
 	int HandleWriteRet(StreamSocket* sock, int ret)
 	{
 		if (ret > 0)
 		{
-#ifdef INSPIRCD_GNUTLS_HAS_CORK
 			gbuffersize -= ret;
 			if (gbuffersize)
 			{
 				SocketEngine::ChangeEventMask(sock, FD_WANT_SINGLE_WRITE);
 				return 0;
 			}
-#endif
 			return ret;
 		}
 		else if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED || ret == 0)
@@ -970,7 +935,6 @@ public:
 
 		// Session is ready for transferring application data
 
-#ifdef INSPIRCD_GNUTLS_HAS_CORK
 		while (true)
 		{
 			// If there is something in the GnuTLS buffer try to send() it
@@ -997,28 +961,6 @@ public:
 				sendq.pop_front();
 			}
 		}
-#else
-		int ret = 0;
-
-		while (!sendq.empty())
-		{
-			FlattenSendQueue(sendq, GetProfile().GetOutgoingRecordSize());
-			const StreamSocket::SendQueue::Element& buffer = sendq.front();
-			ret = HandleWriteRet(user, gnutls_record_send(this->sess, buffer.data(), buffer.length()));
-
-			if (ret <= 0)
-				return ret;
-			else if (ret < (int)buffer.length())
-			{
-				sendq.erase_front(ret);
-				SocketEngine::ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
-				return 0;
-			}
-
-			// Wrote entire record, continue sending
-			sendq.pop_front();
-		}
-#endif
 
 		SocketEngine::ChangeEventMask(user, FD_WANT_NO_WRITE);
 		return 1;
