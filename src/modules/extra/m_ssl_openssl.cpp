@@ -52,7 +52,9 @@
 # pragma comment(lib, "libssl.lib")
 #endif
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if OPENSSL_VERSION_NUMBER < 0x10101000L
+# error OpenSSL 1.1.1 or newer is required by the ssl_openssl module.
+#elif OPENSSL_VERSION_NUMBER >= 0x30000000L
 # define INSPIRCD_OPENSSL_AUTO_DH
 #endif
 
@@ -163,21 +165,9 @@ namespace OpenSSL
 			if (nid == NID_undef)
 				throw Exception("Unknown curve: " + curvename);
 
-# if OPENSSL_VERSION_NUMBER >= 0x10101000L
 			ERR_clear_error();
 			if (!SSL_CTX_set1_groups(ctx, &nid, 1))
 				throw Exception("Couldn't set ECDH curve");
-# else
-			EC_KEY* eckey = EC_KEY_new_by_curve_name(nid);
-			if (!eckey)
-				throw Exception("Unable to create EC key object");
-
-			ERR_clear_error();
-			bool ret = (SSL_CTX_set_tmp_ecdh(ctx, eckey) >= 0);
-			EC_KEY_free(eckey);
-			if (!ret)
-				throw Exception("Couldn't set ECDH parameters");
-# endif
 		}
 #endif
 
@@ -188,14 +178,12 @@ namespace OpenSSL
 			return SSL_CTX_set_cipher_list(ctx, ciphers.c_str());
 		}
 
-#if OPENSSL_VERSION_NUMBER >= 0x10101000L
 		bool SetCiphersuites(const std::string& ciphers)
 		{
 			// TLSv1.3+ ciphers.
 			ERR_clear_error();
 			return SSL_CTX_set_ciphersuites(ctx, ciphers.c_str());
 		}
-#endif
 
 		bool SetCerts(const std::string& filename)
 		{
@@ -398,15 +386,11 @@ namespace OpenSSL
 			const std::string ciphersuites = tag->getString("ciphersuites");
 			if (!ciphersuites.empty())
 			{
-#if OPENSSL_VERSION_NUMBER >= 0x10101000L
 				if ((!ctx.SetCiphersuites(ciphersuites)) || (!clientctx.SetCiphersuites(ciphersuites)))
 				{
 					ERR_print_errors_cb(error_callback, this);
 					throw Exception("Can't set ciphersuite list to \"" + ciphersuites + "\" " + lasterr);
 				}
-#else
-				ServerInstance->Logs.Debug(MODNAME, "You have configured <sslprofile:ciphersuites> but your version of OpenSSL does not support TLSv1.3+");
-#endif
 			}
 
 #ifndef OPENSSL_NO_ECDH
