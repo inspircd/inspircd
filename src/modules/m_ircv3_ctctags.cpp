@@ -193,8 +193,13 @@ private:
 		LocalUser* const localtarget = IS_LOCAL(target);
 		if (localtarget && cap.IsEnabled(localtarget))
 		{
+			// Servers can fake the target of a message when it is sent to an individual user.
+			auto context_tag = parameters.GetTags().find("~context");
+			const std::string& msgcontext = context_tag == parameters.GetTags().end()
+				? localtarget->nick : context_tag->second.value;
+
 			// Send to the target if they have the capability and are a local user.
-			CTCTags::TagMessage message(source, localtarget, msgdetails.tags_out);
+			CTCTags::TagMessage message(source, msgcontext.c_str(), msgdetails.tags_out);
 			message.SetSideEffect(true);
 			localtarget->Send(msgevprov, message);
 		}

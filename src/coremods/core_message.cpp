@@ -256,8 +256,13 @@ private:
 		LocalUser* const localtarget = IS_LOCAL(target);
 		if (localtarget)
 		{
+			// Servers can fake the target of a message when it is sent to an individual user.
+			auto context_tag = parameters.GetTags().find("~context");
+			const std::string& msgcontext = context_tag == parameters.GetTags().end()
+				? localtarget->nick : context_tag->second.value;
+
 			// Send to the target if they are a local user.
-			ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, source, localtarget->nick, msgdetails.text, msgdetails.type);
+			ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, source, msgcontext, msgdetails.text, msgdetails.type);
 			privmsg.AddTags(msgdetails.tags_out);
 			privmsg.SetSideEffect(true);
 			localtarget->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
