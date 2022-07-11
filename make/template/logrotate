@@ -18,7 +18,7 @@
 
 # To use this file move it to /etc/logrotate.d/inspircd
 
-@LOG_DIR@/* {
+@LOG_DIR@/*.log {
 	compress
 	create 0644 @USER@ @GROUP@
 	dateext
