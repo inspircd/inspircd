@@ -56,7 +56,13 @@ void InspIRCd::Exit(int status)
 	this->Cleanup();
 	ServerInstance = NULL;
 	delete this;
-	exit (status);
+
+#ifdef INSPIRCD_BINARY_EXIT
+	// Some init systems handle non-binary exit statuses weirdly.
+	exit(status ? EXIT_FAILURE : EXIT_SUCCESS);
+#else
+	exit(status);
+#endif
 }
 
 void InspIRCd::Rehash(const std::string& uuid)
