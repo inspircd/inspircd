@@ -79,7 +79,7 @@ void EventHandler::OnEventHandlerError(int errornum)
 void SocketEngine::InitError()
 {
 	std::cerr << rang::style::bold << rang::fg::red << "FATAL ERROR!" << rang::style::reset << " Socket engine initialization failed. " << strerror(errno) << '.' << std::endl;
-	exit(EXIT_STATUS_SOCKETENGINE);
+	InspIRCd::QuickExit(EXIT_STATUS_SOCKETENGINE);
 }
 
 void SocketEngine::LookupMaxFds()

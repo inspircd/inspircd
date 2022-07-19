@@ -18,7 +18,7 @@
 
 # To use this file move it to /etc/logrotate.d/inspircd
 
-@LOG_DIR@/* {
+@LOG_DIR@/*.log {
 	compress
 	create 0644 @USER@ @GROUP@
 	dateext
@@ -28,7 +28,10 @@
 	rotate 8
 	weekly
 	postrotate
-		if [ -d /lib/systemd ]
+		if [ -r "@RUNTIME_DIR@/inspircd.pid" ]
+		then
+			kill -HUP $(cat "@RUNTIME_DIR@/inspircd.pid")
+		elif [ -d /lib/systemd ]
 		then
 			if systemctl --quiet is-active inspircd
 			then

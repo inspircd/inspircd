@@ -357,6 +357,14 @@ public:
 	[[noreturn]]
 	void Exit(int status);
 
+	 /** Causes the server to exit immediately.
+	 *
+	 * @param status The exit code to give to the operating system
+	 * (See the ExitStatus enum for valid values)
+	 */
+	[[noreturn]]
+	static void QuickExit(int status);
+
 	/** Formats the input string with the specified arguments.
 	* @param formatString The string to format
 	* @param ... A variable number of format arguments.
