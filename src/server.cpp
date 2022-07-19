@@ -56,7 +56,11 @@ void InspIRCd::Exit(int status)
 	this->Cleanup();
 	ServerInstance = NULL;
 	delete this;
+	QuickExit(status);
+}
 
+void InspIRCd::QuickExit(int status)
+{
 #ifdef INSPIRCD_BINARY_EXIT
 	// Some init systems handle non-binary exit statuses weirdly.
 	exit(status ? EXIT_FAILURE : EXIT_SUCCESS);

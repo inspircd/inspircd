@@ -167,20 +167,20 @@ namespace
 			if (setgroups(0, NULL) == -1)
 			{
 				ServerInstance->Logs->Log("STARTUP", LOG_DEFAULT, "setgroups() failed (wtf?): %s", strerror(errno));
-				exit(EXIT_STATUS_CONFIG);
+				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
 			}
 
 			struct group* g = getgrnam(SetGroup.c_str());
 			if (!g)
 			{
 				ServerInstance->Logs->Log("STARTUP", LOG_DEFAULT, "getgrnam(%s) failed (wrong group?): %s", SetGroup.c_str(), strerror(errno));
-				exit(EXIT_STATUS_CONFIG);
+				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
 			}
 
 			if (setgid(g->gr_gid) == -1)
 			{
 				ServerInstance->Logs->Log("STARTUP", LOG_DEFAULT, "setgid(%d) failed (wrong group?): %s", g->gr_gid, strerror(errno));
-				exit(EXIT_STATUS_CONFIG);
+				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
 			}
 		}
 
@@ -192,13 +192,13 @@ namespace
 			if (!u)
 			{
 				ServerInstance->Logs->Log("STARTUP", LOG_DEFAULT, "getpwnam(%s) failed (wrong user?): %s", SetUser.c_str(), strerror(errno));
-				exit(EXIT_STATUS_CONFIG);
+				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
 			}
 
 			if (setuid(u->pw_uid) == -1)
 			{
 				ServerInstance->Logs->Log("STARTUP", LOG_DEFAULT, "setuid(%d) failed (wrong user?): %s", u->pw_uid, strerror(errno));
-				exit(EXIT_STATUS_CONFIG);
+				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
 			}
 		}
 #endif
@@ -262,7 +262,7 @@ namespace
 			// happened and the parent should exit.
 			while (kill(childpid, 0) != -1)
 				sleep(1);
-			exit(EXIT_STATUS_NOERROR);
+			InspIRCd::QuickExit(EXIT_STATUS_NOERROR);
 		}
 		else
 		{
@@ -399,7 +399,7 @@ namespace
 	// Required for returning the proper value of EXIT_SUCCESS for the parent process.
 	void VoidSignalHandler(int)
 	{
-		exit(EXIT_STATUS_NOERROR);
+		InspIRCd::QuickExit(EXIT_STATUS_NOERROR);
 	}
 }
 
