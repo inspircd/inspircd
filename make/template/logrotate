@@ -28,7 +28,10 @@
 	rotate 8
 	weekly
 	postrotate
-		if [ -d /lib/systemd ]
+		if [ -r "@RUNTIME_DIR@/inspircd.pid" ]
+		then
+			kill -HUP $(cat "@RUNTIME_DIR@/inspircd.pid")
+		elif [ -d /lib/systemd ]
 		then
 			if systemctl --quiet is-active inspircd
 			then
