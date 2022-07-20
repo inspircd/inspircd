@@ -31,7 +31,7 @@ use make::common;
 use make::console;
 
 my %authors;
-for my $author (split /\n+/, `git log --pretty='%aN <%aE>' HEAD`) {
+for my $author (split /\n+/, `git log --pretty='%aN <%aE>%n%(trailers:key=Co-Authored-By,valueonly)' HEAD`) {
 	$author = $1 if $author =~ /^(.+) <(?:unknown\@email.invalid|\S+\@users.noreply.github.com)>$/;
 	next if $author =~ /\[bot\]$/;
 
@@ -45,7 +45,6 @@ say $fh <<"EOH";
 Since the first commit in January 2003 ${\scalar %authors} people have submitted patches,
 commits, and other useful contributions to InspIRCd. These people, ordered by
 the number of contributions they have made, are:
-
 EOH
 
 for my $author (sort { $authors{$b} <=> $authors{$a} or $a cmp $b } keys %authors) {
