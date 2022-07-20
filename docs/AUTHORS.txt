@@ -1,11 +1,10 @@
-Since the first commit in January 2003 103 people have submitted patches,
+Since the first commit in January 2003 104 people have submitted patches,
 commits, and other useful contributions to InspIRCd. These people, ordered by
 the number of contributions they have made, are:
 
-
   * Craig Edwards <brain@inspircd.org>
-  * Attila Molnar <attilamolnar@hush.com>
   * Sadie Powell <sadie@witchery.services>
+  * Attila Molnar <attilamolnar@hush.com>
   * Robin Burchell <robin+git@viroteck.net>
   * Daniel De Graaf <danieldg@inspircd.org>
   * Dennis Friis <peavey@inspircd.org>
@@ -25,8 +24,8 @@ the number of contributions they have made, are:
   * burlex
   * jackmcbarn <jackmcbarn@inspircd.org>
   * Uli Schlachter <psychon@inspircd.org>
-  * ChrisTX <xpipe@hotmail.de>
   * B00mX0r <b00mx0r@aureus.pw>
+  * ChrisTX <xpipe@hotmail.de>
   * fez
   * Shawn Smith <ShawnSmith0828@gmail.com>
   * DjSlash <djslash@djslash.org>
@@ -37,13 +36,13 @@ the number of contributions they have made, are:
   * katsklaw
   * Dylan Frank <b00mx0r@aureus.pw>
   * Steven Van Acker <steven@singularity.be>
+  * Wade Cline <wadecline@hotmail.com>
   * Val Lorentz <progval+git@progval.net>
   * Dan Parsons <dparsons@nyip.net>
   * Googolplexed <googol@googolplexed.net>
   * Mantas Mikulėnas <grawity@gmail.com>
   * Renegade334 <contact.caaeed4f@renegade334.me.uk>
   * Sheogorath <sheogorath@shivering-isles.com>
-  * Wade Cline <wadecline@hotmail.com>
   * typobox43
   * Anatole Denis <natolumin@rezel.net>
   * Ben Harris <ben@tilde.team>
@@ -88,6 +87,7 @@ the number of contributions they have made, are:
   * Julien Vehent <julien@linuxwall.info>
   * JustArchi <JustArchi@JustArchi.net>
   * Matthew Martin <phy1729@gmail.com>
+  * Nicole Kleinhoff <ilbelkyr@shalture.org>
   * Pierre Carrier <pierre@spotify.com>
   * Puck Meerburg <puck@puckipedia.com>
   * R-V6
