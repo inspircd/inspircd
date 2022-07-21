@@ -2133,13 +2133,8 @@
 # This module is oper-only by default.
 #<module name="showwhois">
 #
-# If you wish, you may also let users set this mode. Only opers with the
-# users/auspex priv will see real hosts of people, though.
-#<showwhois opersonly="yes"
-#
-# You may also set whether or not users should receive whois notices,
-# should they be /WHOIS'd by an oper.
-#showfromopers="yes">
+# If you wish, you may also let users set this mode.
+#<showwhois opersonly="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Shun module: Provides the /SHUN command, which stops a user from

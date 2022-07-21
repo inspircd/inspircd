@@ -98,17 +98,16 @@ public:
 		auto tag = ServerInstance->Config->ConfValue("showwhois");
 
 		sw.SetOperOnly(tag->getBool("opersonly", true));
-		ShowWhoisFromOpers = tag->getBool("showfromopers", true);
 	}
 
 	void OnWhois(Whois::Context& whois) override
 	{
-		User* const source = whois.GetSource();
 		User* const dest = whois.GetTarget();
 		if (!dest->IsModeSet(sw) || whois.IsSelfWhois())
 			return;
 
-		if (!ShowWhoisFromOpers && source->IsOper())
+		User* const source = whois.GetSource();
+		if (source->HasPrivPermission("users/secret-whois"))
 			return;
 
 		if (IS_LOCAL(dest))
