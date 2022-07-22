@@ -243,21 +243,21 @@ void UserIOHandler::OnDataReady()
 	if (user->quitting)
 		return;
 
-	if (recvq.length() > user->GetClass()->GetRecvqMax() && !user->HasPrivPermission("users/flood/increased-buffers"))
+	if (recvq.length() > user->GetClass()->recvqmax && !user->HasPrivPermission("users/flood/increased-buffers"))
 	{
 		ServerInstance->Users.QuitUser(user, "RecvQ exceeded");
 		ServerInstance->SNO.WriteToSnoMask('a', "User %s RecvQ of %zu exceeds connect class maximum of %lu",
-			user->nick.c_str(), recvq.length(), user->GetClass()->GetRecvqMax());
+			user->nick.c_str(), recvq.length(), user->GetClass()->recvqmax);
 		return;
 	}
 
 	unsigned long sendqmax = ULONG_MAX;
 	if (!user->HasPrivPermission("users/flood/increased-buffers"))
-		sendqmax = user->GetClass()->GetSendqSoftMax();
+		sendqmax = user->GetClass()->softsendqmax;
 
 	unsigned long penaltymax = ULONG_MAX;
 	if (!user->HasPrivPermission("users/flood/no-fakelag"))
-		penaltymax = user->GetClass()->GetPenaltyThreshold() * 1000;
+		penaltymax = user->GetClass()->penaltythreshold * 1000;
 
 	// The cleaned message sent by the user or empty if not found yet.
 	std::string line;
@@ -320,7 +320,8 @@ void UserIOHandler::AddWriteBuf(const std::string &data)
 {
 	if (user->quitting_sendq)
 		return;
-	if (!user->quitting && GetSendQSize() + data.length() > user->GetClass()->GetSendqHardMax() &&
+
+	if (!user->quitting && GetSendQSize() + data.length() > user->GetClass()->hardsendqmax &&
 		!user->HasPrivPermission("users/flood/increased-buffers"))
 	{
 		user->quitting_sendq = true;
@@ -508,29 +509,29 @@ void LocalUser::CheckClass(bool clone_count)
 	else if (clone_count)
 	{
 		const UserManager::CloneCounts& clonecounts = ServerInstance->Users.GetCloneCounts(this);
-		if ((a->GetMaxLocal()) && (clonecounts.local > a->GetMaxLocal()))
+		if (a->maxlocal && clonecounts.local > a->maxlocal)
 		{
 			ServerInstance->Users.QuitUser(this, "No more connections allowed from your host via this connect class (local)");
 			if (a->maxconnwarn)
 			{
 				ServerInstance->SNO.WriteToSnoMask('a', "WARNING: maximum local connections for the %s class (%ld) exceeded by %s",
-					a->name.c_str(), a->GetMaxLocal(), this->GetIPString().c_str());
+					a->name.c_str(), a->maxlocal, this->GetIPString().c_str());
 			}
 			return;
 		}
-		else if ((a->GetMaxGlobal()) && (clonecounts.global > a->GetMaxGlobal()))
+		else if (a->maxglobal && clonecounts.global > a->maxglobal)
 		{
 			ServerInstance->Users.QuitUser(this, "No more connections allowed from your host via this connect class (global)");
 			if (a->maxconnwarn)
 			{
 				ServerInstance->SNO.WriteToSnoMask('a', "WARNING: maximum global connections for the %s class (%ld) exceeded by %s",
-				a->name.c_str(), a->GetMaxGlobal(), this->GetIPString().c_str());
+				a->name.c_str(), a->maxglobal, this->GetIPString().c_str());
 			}
 			return;
 		}
 	}
 
-	this->nextping = ServerInstance->Time() + a->GetPingTime();
+	this->nextping = ServerInstance->Time() + a->pingtime;
 	this->uniqueusername = a->uniqueusername;
 }
 

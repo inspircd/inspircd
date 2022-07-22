@@ -158,68 +158,6 @@ public:
 
 	/** Retrieves the hosts for this connect class. */
 	const std::vector<std::string>& GetHosts() const { return hosts; }
-
-	/** Returns the registration timeout
-	 */
-	time_t GetRegTimeout()
-	{
-		return registration_timeout;
-	}
-
-	/** Returns the ping frequency
-	 */
-	unsigned long GetPingTime()
-	{
-		return pingtime;
-	}
-
-	/** Returns the maximum sendq value (soft limit)
-	 * Note that this is in addition to internal OS buffers
-	 */
-	unsigned long GetSendqSoftMax()
-	{
-		return softsendqmax;
-	}
-
-	/** Returns the maximum sendq value (hard limit)
-	 */
-	unsigned long GetSendqHardMax()
-	{
-		return hardsendqmax;
-	}
-
-	/** Returns the maximum recvq value
-	 */
-	unsigned long GetRecvqMax()
-	{
-		return recvqmax;
-	}
-
-	/** Returns the penalty threshold value
-	 */
-	unsigned long GetPenaltyThreshold()
-	{
-		return penaltythreshold;
-	}
-
-	unsigned long GetCommandRate()
-	{
-		return commandrate;
-	}
-
-	/** Return the maximum number of local sessions
-	 */
-	unsigned long GetMaxLocal()
-	{
-		return maxlocal;
-	}
-
-	/** Returns the maximum number of global sessions
-	 */
-	unsigned long GetMaxGlobal()
-	{
-		return maxglobal;
-	}
 };
 
 /** Holds all information about a user

@@ -67,7 +67,7 @@ namespace
 		// This user didn't answer the last ping, remove them.
 		if (!user->lastping)
 		{
-			time_t secs = ServerInstance->Time() - (user->nextping - user->GetClass()->GetPingTime());
+			time_t secs = ServerInstance->Time() - (user->nextping - user->GetClass()->pingtime);
 			const std::string message = "Ping timeout: " + ConvToStr(secs) + (secs != 1 ? " seconds" : " second");
 			ServerInstance->Users.QuitUser(user, message);
 			return;
@@ -77,12 +77,12 @@ namespace
 		ClientProtocol::Messages::Ping ping;
 		user->Send(ServerInstance->GetRFCEvents().ping, ping);
 		user->lastping = 0;
-		user->nextping = ServerInstance->Time() + user->GetClass()->GetPingTime();
+		user->nextping = ServerInstance->Time() + user->GetClass()->pingtime;
 	}
 
 	void CheckRegistrationTimeout(LocalUser* user)
 	{
-		if (user->GetClass() && (ServerInstance->Time() > (user->signon + user->GetClass()->GetRegTimeout())))
+		if (user->GetClass() && (ServerInstance->Time() > static_cast<time_t>(user->signon + user->GetClass()->registration_timeout)))
 		{
 			// Either the user did not send NICK/USER or a module blocked registration in
 			// OnCheckReady until the client timed out.
@@ -375,7 +375,7 @@ void UserManager::DoBackgroundUserStuff()
 
 		if (curr->CommandFloodPenalty || curr->eh.GetSendQSize())
 		{
-			unsigned long rate = curr->GetClass()->GetCommandRate();
+			unsigned long rate = curr->GetClass()->commandrate;
 			if (curr->CommandFloodPenalty > rate)
 				curr->CommandFloodPenalty -= rate;
 			else

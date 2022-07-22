@@ -144,9 +144,9 @@ void CommandStats::DoStats(Stats::Context& stats)
 					param.append(stdalgo::string::join(c->GetHosts(), ','));
 
 				row.push(param).push(c->config->getString("port", "*", 1));
-				row.push(ConvToStr(c->GetRecvqMax())).push(ConvToStr(c->GetSendqSoftMax())).push(ConvToStr(c->GetSendqHardMax())).push(ConvToStr(c->GetCommandRate()));
+				row.push(c->recvqmax).push(c->softsendqmax).push(c->hardsendqmax).push(c->commandrate);
 
-				param = ConvToStr(c->GetPenaltyThreshold());
+				param = ConvToStr(c->penaltythreshold);
 				if (c->fakelag)
 					param.push_back('*');
 				row.push(param);
@@ -163,7 +163,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 			{
 				for (const auto& host : c->GetHosts())
 					stats.AddRow(215, 'i', "NOMATCH", '*', host, (c->limit ? c->limit : SocketEngine::GetMaxFds()), idx, ServerInstance->Config->ServerName, '*');
-				stats.AddRow(218, 'Y', idx, c->GetPingTime(), '0', c->GetSendqHardMax(), ConvToStr(c->GetRecvqMax())+" "+ConvToStr(c->GetRegTimeout()));
+				stats.AddRow(218, 'Y', idx, c->pingtime, '0', c->hardsendqmax, ConvToStr(c->recvqmax) + " " + ConvToStr(c->registration_timeout));
 				idx++;
 			}
 		}
