@@ -79,7 +79,6 @@ class ModuleShowwhois final
 	, public Whois::EventListener
 {
 private:
-	bool ShowWhoisFromOpers;
 	SeeWhois sw;
 	WhoisNoticeCmd cmd;
 
