@@ -21,14 +21,20 @@ namespace insp
 {
 
 template <typename T, typename Tag>
-class INSPIRCD_INTRUSIVE_LIST_NAME
+class INSPIRCD_INTRUSIVE_LIST_NAME final
 {
 public:
-	class iterator : public std::iterator<std::bidirectional_iterator_tag, T*>
+	class iterator final
 	{
 		T* curr;
 
 	public:
+		using difference_type = std::ptrdiff_t;
+		using iterator_category = std::bidirectional_iterator_tag;
+		using pointer = T*;
+		using reference = T&;
+		using value_type = T;
+
 		iterator(T* i = nullptr)
 			: curr(i)
 		{
