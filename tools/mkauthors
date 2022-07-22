@@ -35,6 +35,7 @@ for my $author (split /\n+/, `git log --pretty='%aN <%aE>%n%(trailers:key=Co-Aut
 	$author = $1 if $author =~ /^(.+) <(?:unknown\@email.invalid|\S+\@users.noreply.github.com)>$/;
 	next if $author =~ /\[bot\]$/;
 
+	$author =~ s/\.$//g;
 	$authors{$author} ||= 0;
 	$authors{$author} += 1;
 }
