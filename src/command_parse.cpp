@@ -359,15 +359,9 @@ void CommandParser::ProcessBuffer(LocalUser* user, const std::string& buffer)
 	ProcessCommand(user, command, parameters);
 }
 
-bool CommandParser::AddCommand(Command *f)
+bool CommandParser::AddCommand(Command* cmd)
 {
-	/* create the command and push it onto the table */
-	if (cmdlist.find(f->name) == cmdlist.end())
-	{
-		cmdlist[f->name] = f;
-		return true;
-	}
-	return false;
+	return cmdlist.emplace(cmd->name, cmd).second;
 }
 
 std::string CommandParser::TranslateUIDs(const std::vector<TranslateType>& to, const CommandBase::Params& source, bool prefix_final, CommandBase* custom_translator)
