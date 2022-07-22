@@ -1,7 +1,6 @@
-Since the first commit in January 2003 105 people have submitted patches,
+Since the first commit in January 2003 107 people have submitted patches,
 commits, and other useful contributions to InspIRCd. These people, ordered by
 the number of contributions they have made, are:
-
 
   * Craig Edwards <brain@inspircd.org>
   * Sadie Powell <sadie@witchery.services>
@@ -25,8 +24,8 @@ the number of contributions they have made, are:
   * burlex
   * jackmcbarn <jackmcbarn@inspircd.org>
   * Uli Schlachter <psychon@inspircd.org>
-  * ChrisTX <xpipe@hotmail.de>
   * B00mX0r <b00mx0r@aureus.pw>
+  * ChrisTX <xpipe@hotmail.de>
   * fez
   * Shawn Smith <ShawnSmith0828@gmail.com>
   * DjSlash <djslash@djslash.org>
@@ -38,15 +37,16 @@ the number of contributions they have made, are:
   * Dylan Frank <b00mx0r@aureus.pw>
   * Steven Van Acker <steven@singularity.be>
   * Val Lorentz <progval+git@progval.net>
+  * Wade Cline <wadecline@hotmail.com>
   * Dan Parsons <dparsons@nyip.net>
   * Googolplexed <googol@googolplexed.net>
   * Herman <GermanAizek@yandex.ru>
   * Mantas Mikulėnas <grawity@gmail.com>
   * Renegade334 <contact.caaeed4f@renegade334.me.uk>
   * Sheogorath <sheogorath@shivering-isles.com>
-  * Wade Cline <wadecline@hotmail.com>
   * typobox43
   * Anatole Denis <natolumin@rezel.net>
+  * Andrio Celos
   * Ben Harris <ben@tilde.team>
   * Chin Lee <kwangchin@gmail.com>
   * Christopher 'm4z' Holm <them4z@gmail.com>
@@ -68,13 +68,13 @@ the number of contributions they have made, are:
   * Adrien Bustany <adrien@bustany.org>
   * Akinwale Ariwodola <akinwale@gmail.com>
   * Alyx <alyx@malkier.net>
-  * Andrio Celos
   * Boleslaw Tokarski <boleslaw.tokarski@tieto.com>
   * Chew
   * Chris Novakovic
   * Christian Höltje <docwhat@gerf.org>
   * Christoph Egger <christoph@debian.org>
   * Christos Triantafyllidis
+  * Daniel De Graaf <danieldg@inspircd.org>.
   * David Lamont <del6597@rit.edu>
   * David Schultz <me@zpld.me>
   * Dominic Hamon
@@ -90,6 +90,7 @@ the number of contributions they have made, are:
   * Julien Vehent <julien@linuxwall.info>
   * JustArchi <JustArchi@JustArchi.net>
   * Matthew Martin <phy1729@gmail.com>
+  * Nicole Kleinhoff <ilbelkyr@shalture.org>
   * Pierre Carrier <pierre@spotify.com>
   * Puck Meerburg <puck@puckipedia.com>
   * R-V6
