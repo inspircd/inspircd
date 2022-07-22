@@ -60,7 +60,7 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 		return false;
 	}
 
-	Module* newmod = NULL;
+	Module* newmod = nullptr;
 	DLLManager* newhandle = new DLLManager(moduleFile.c_str());
 	ServiceList newservices;
 	if (!defer)
@@ -69,7 +69,7 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 	try
 	{
 		newmod = newhandle->CallInit();
-		this->NewServices = NULL;
+		this->NewServices = nullptr;
 
 		if (newmod)
 		{
@@ -105,7 +105,7 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 	}
 	catch (CoreException& modexcept)
 	{
-		this->NewServices = NULL;
+		this->NewServices = nullptr;
 
 		// failure in module constructor
 		if (newmod)

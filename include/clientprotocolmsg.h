@@ -69,7 +69,7 @@ public:
 	 * @param user User to send the numeric to. May be unregistered, must remain valid as long as this object is alive.
 	 */
 	Numeric(const ::Numeric::Numeric& num, User* user)
-		: ClientProtocol::Message(NULL, (num.GetServer() ? num.GetServer() : ServerInstance->FakeClient->server)->GetPublicName())
+		: ClientProtocol::Message(nullptr, (num.GetServer() ? num.GetServer() : ServerInstance->FakeClient->server)->GetPublicName())
 	{
 		if (user->registered & REG_NICK)
 			PushParamRef(user->nick);
@@ -83,7 +83,7 @@ public:
 	 * @param target Target string, must stay valid as long as this object is alive.
 	 */
 	Numeric(const ::Numeric::Numeric& num, const std::string& target)
-		: ClientProtocol::Message(NULL, (num.GetServer() ? num.GetServer() : ServerInstance->FakeClient->server)->GetPublicName())
+		: ClientProtocol::Message(nullptr, (num.GetServer() ? num.GetServer() : ServerInstance->FakeClient->server)->GetPublicName())
 	{
 		PushParamRef(target);
 		InitFromNumeric(num);
@@ -93,7 +93,7 @@ public:
 	 * @param num Numeric number.
 	 */
 	Numeric(unsigned int num)
-		: ClientProtocol::Message(NULL, ServerInstance->Config->GetServerName())
+		: ClientProtocol::Message(nullptr, ServerInstance->Config->GetServerName())
 	{
 		InitCommand(num);
 		PushParam("*");
@@ -113,7 +113,7 @@ public:
 	 */
 	Join()
 		: ClientProtocol::Message("JOIN")
-		, memb(NULL)
+		, memb(nullptr)
 	{
 	}
 
@@ -342,8 +342,8 @@ public:
 	 */
 	Mode()
 		: ClientProtocol::Message("MODE", ServerInstance->FakeClient)
-		, chantarget(NULL)
-		, usertarget(NULL)
+		, chantarget(nullptr)
+		, usertarget(nullptr)
 	{
 	}
 

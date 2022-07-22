@@ -34,7 +34,7 @@
 #include "resolvers.h"
 #include "commandbuilder.h"
 
-SpanningTreeUtilities* Utils = NULL;
+SpanningTreeUtilities* Utils = nullptr;
 
 ModResult ModuleSpanningTree::OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 {
@@ -67,7 +67,7 @@ TreeServer* SpanningTreeUtilities::FindServer(const std::string &ServerName)
 	}
 	else
 	{
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -81,7 +81,7 @@ TreeServer* SpanningTreeUtilities::FindServerMask(const std::string &ServerName)
 		if (InspIRCd::Match(name, ServerName))
 			return server;
 	}
-	return NULL;
+	return nullptr;
 }
 
 TreeServer* SpanningTreeUtilities::FindServerID(const std::string &id)
@@ -90,7 +90,7 @@ TreeServer* SpanningTreeUtilities::FindServerID(const std::string &id)
 	if (iter != sidlist.end())
 		return iter->second;
 	else
-		return NULL;
+		return nullptr;
 }
 
 TreeServer* SpanningTreeUtilities::FindRouteTarget(const std::string& target)
@@ -103,7 +103,7 @@ TreeServer* SpanningTreeUtilities::FindRouteTarget(const std::string& target)
 	if (user)
 		return TreeServer::Get(user);
 
-	return NULL;
+	return nullptr;
 }
 
 SpanningTreeUtilities::SpanningTreeUtilities(ModuleSpanningTree* C)
@@ -350,7 +350,7 @@ std::shared_ptr<Link> SpanningTreeUtilities::FindLink(const std::string& name)
 			return x;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 void SpanningTreeUtilities::SendChannelMessage(User* source, Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const CUList& exempt_list, const char* message_type, TreeSocket* omit)

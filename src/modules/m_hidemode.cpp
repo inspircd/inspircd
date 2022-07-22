@@ -85,7 +85,7 @@ class ModeHook final
 
 	Modes::ChangeList* FilterModeChangeList(const ClientProtocol::Events::Mode& mode, ModeHandler::Rank rank)
 	{
-		Modes::ChangeList* modechangelist = NULL;
+		Modes::ChangeList* modechangelist = nullptr;
 		for (Modes::ChangeList::List::const_iterator i = mode.GetChangeList().getlist().begin(); i != mode.GetChangeList().getlist().end(); ++i)
 		{
 			const Modes::Change& curr = *i;
@@ -156,14 +156,14 @@ class ModeHook final
 			if (filteredchangelist->empty())
 			{
 				// This rank cannot see any mode changes in the original change list
-				finalmsgplist = NULL;
+				finalmsgplist = nullptr;
 			}
 			else
 			{
 				// This rank can see some of the mode changes in the filtered mode change list.
 				// Create and store a new protocol message from it.
 				filteredmsgplists.emplace_back();
-				ClientProtocol::Events::Mode::BuildMessages(mode.GetMessages().front().GetSourceUser(), chan, NULL, *filteredchangelist, filteredmodelist, filteredmsgplists.back());
+				ClientProtocol::Events::Mode::BuildMessages(mode.GetMessages().front().GetSourceUser(), chan, nullptr, *filteredchangelist, filteredmodelist, filteredmsgplists.back());
 				finalmsgplist = &filteredmsgplists.back();
 			}
 		}

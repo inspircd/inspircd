@@ -68,13 +68,13 @@ DLLManager::~DLLManager()
 Module* DLLManager::CallInit()
 {
 	if (!lib)
-		return NULL;
+		return nullptr;
 
 	const unsigned long* abi = GetSymbol<const unsigned long>(MODULE_STR_ABI);
 	if (!abi)
 	{
 		err.assign(libname + " is not a module (no ABI symbol)");
-		return NULL;
+		return nullptr;
 	}
 	else if (*abi != MODULE_ABI)
 	{
@@ -82,7 +82,7 @@ Module* DLLManager::CallInit()
 		err.assign(InspIRCd::Format("%s was built against %s (%lu) which is too %s to use with %s (%lu).",
 			libname.c_str(), version ? version : "an unknown version", *abi,
 			*abi < MODULE_ABI ? "old" : "new", INSPIRCD_VERSION, MODULE_ABI));
-		return NULL;
+		return nullptr;
 	}
 
 	union
@@ -95,7 +95,7 @@ Module* DLLManager::CallInit()
 	if (!vptr)
 	{
 		err.assign(libname + " is not a module (no init symbol)");
-		return NULL;
+		return nullptr;
 	}
 
 	return (*fptr)();
@@ -104,7 +104,7 @@ Module* DLLManager::CallInit()
 void* DLLManager::GetSymbol(const char* name) const
 {
 	if (!lib)
-		return NULL;
+		return nullptr;
 
 #if defined _WIN32
 	return GetProcAddress(lib, name);
@@ -118,7 +118,7 @@ void DLLManager::RetrieveLastError()
 #if defined _WIN32
 	char errmsg[500];
 	DWORD dwErrorCode = GetLastError();
-	if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, dwErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)errmsg, _countof(errmsg), NULL) == 0)
+	if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, dwErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)errmsg, _countof(errmsg), nullptr) == 0)
 		sprintf_s(errmsg, _countof(errmsg), "Error code: %u", dwErrorCode);
 	SetLastError(ERROR_SUCCESS);
 	err = errmsg;

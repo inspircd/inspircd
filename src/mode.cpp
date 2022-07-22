@@ -490,7 +490,7 @@ void ModeParser::ShowListModeList(User* user, Channel* chan, ModeHandler* mh)
 		{
 			if (mw->GetModeType() == MODETYPE_CHANNEL)
 			{
-				if (!mw->BeforeMode(user, NULL, chan, modechange))
+				if (!mw->BeforeMode(user, nullptr, chan, modechange))
 				{
 					// A mode watcher doesn't want us to show the list
 					display = false;
@@ -667,7 +667,7 @@ bool ModeParser::DelMode(ModeHandler* mh)
 
 				Modes::ChangeList changelist;
 				mh->RemoveMode(chan, changelist);
-				this->Process(ServerInstance->FakeClient, chan, NULL, changelist, MODE_LOCALONLY);
+				this->Process(ServerInstance->FakeClient, chan, nullptr, changelist, MODE_LOCALONLY);
 			}
 		}
 		break;
@@ -675,8 +675,8 @@ bool ModeParser::DelMode(ModeHandler* mh)
 
 	mhmap.erase(mhmapit);
 	if (mh->GetId() != MODEID_MAX)
-		modehandlersbyid[mh->GetModeType()][mh->GetId()] = NULL;
-	slot = NULL;
+		modehandlersbyid[mh->GetModeType()][mh->GetId()] = nullptr;
+	slot = nullptr;
 	if (mh->IsPrefixMode())
 		mhlist.prefix.erase(std::find(mhlist.prefix.begin(), mhlist.prefix.end(), mh->IsPrefixMode()));
 	else if (mh->IsListModeBase())
@@ -691,13 +691,13 @@ ModeHandler* ModeParser::FindMode(const std::string& modename, ModeType mt)
 	if (it != mhmap.end())
 		return it->second;
 
-	return NULL;
+	return nullptr;
 }
 
 ModeHandler* ModeParser::FindMode(unsigned char modeletter, ModeType mt)
 {
 	if (!ModeParser::IsModeChar(modeletter))
-		return NULL;
+		return nullptr;
 
 	return modehandlers[mt][ModeParser::GetModeIndex(modeletter)];
 }
@@ -706,7 +706,7 @@ PrefixMode* ModeParser::FindPrefixMode(unsigned char modeletter)
 {
 	ModeHandler* mh = FindMode(modeletter, MODETYPE_CHANNEL);
 	if (!mh)
-		return NULL;
+		return nullptr;
 	return mh->IsPrefixMode();
 }
 
@@ -734,7 +734,7 @@ PrefixMode* ModeParser::FindPrefix(unsigned char pfxletter)
 		if (pm->GetPrefix() == pfxletter)
 			return pm;
 	}
-	return NULL;
+	return nullptr;
 }
 
 void ModeParser::AddModeWatcher(ModeWatcher* mw)
@@ -764,7 +764,7 @@ void ModeHandler::RemoveMode(User* user)
 	{
 		Modes::ChangeList changelist;
 		changelist.push_remove(this);
-		ServerInstance->Modes.Process(ServerInstance->FakeClient, NULL, user, changelist, ModeParser::MODE_LOCALONLY);
+		ServerInstance->Modes.Process(ServerInstance->FakeClient, nullptr, user, changelist, ModeParser::MODE_LOCALONLY);
 	}
 }
 

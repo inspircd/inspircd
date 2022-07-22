@@ -199,7 +199,7 @@ public:
 		CapMap::const_iterator it = caps.find(capname);
 		if (it != caps.end())
 			return it->second;
-		return NULL;
+		return nullptr;
 	}
 
 	void NotifyValueChange(Capability* cap) override

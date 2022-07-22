@@ -29,7 +29,7 @@ public:
 		T* curr;
 
 	public:
-		iterator(T* i = NULL)
+		iterator(T* i = nullptr)
 			: curr(i)
 		{
 		}

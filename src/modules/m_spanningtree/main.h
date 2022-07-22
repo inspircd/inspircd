@@ -154,7 +154,7 @@ public:
 
 	/** Connect a server locally
 	 */
-	void ConnectServer(std::shared_ptr<Link> x, std::shared_ptr<Autoconnect> y = NULL);
+	void ConnectServer(std::shared_ptr<Link> x, std::shared_ptr<Autoconnect> y = nullptr);
 
 	/** Connect the next autoconnect server
 	 */

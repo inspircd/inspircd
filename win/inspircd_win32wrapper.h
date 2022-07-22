@@ -162,7 +162,7 @@ struct WindowsIOVec final
 inline ssize_t writev(int fd, const WindowsIOVec* iov, int count)
 {
 	DWORD sent;
-	int ret = WSASend(fd, reinterpret_cast<LPWSABUF>(const_cast<WindowsIOVec*>(iov)), count, &sent, 0, NULL, NULL);
+	int ret = WSASend(fd, reinterpret_cast<LPWSABUF>(const_cast<WindowsIOVec*>(iov)), count, &sent, 0, nullptr, nullptr);
 	if (ret == 0)
 		return sent;
 	return -1;

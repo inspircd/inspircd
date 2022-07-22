@@ -593,7 +593,7 @@ public:
 	 * @param user The user who initiated the config load or NULL if not initiated by a user.
 	 * @param isinitial Whether this is the initial config load.
 	 */
-	ConfigStatus(User* user = NULL, bool isinitial = false)
+	ConfigStatus(User* user = nullptr, bool isinitial = false)
 		: initial(isinitial)
 		, srcuser(user)
 	{

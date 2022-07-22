@@ -116,7 +116,7 @@ public:
 		return *this;
 	}
 
-	inline operator bool() const { return (value != NULL); }
+	inline operator bool() const { return (value != nullptr); }
 	inline operator T*() const { return value; }
 	inline T* operator->() const { return value; }
 	inline T& operator*() const { return *value; }

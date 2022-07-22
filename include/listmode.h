@@ -190,7 +190,7 @@ inline ListModeBase::ModeList* ListModeBase::GetList(Channel* channel)
 {
 	ChanData* cd = extItem.Get(channel);
 	if (!cd)
-		return NULL;
+		return nullptr;
 
 	return &cd->list;
 }

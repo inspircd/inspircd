@@ -34,8 +34,8 @@ BanCacheHit::BanCacheHit(const std::string& type, const std::string& reason, tim
 BanCacheHit *BanCacheManager::AddHit(const std::string &ip, const std::string &type, const std::string &reason, time_t seconds)
 {
 	BanCacheHit*& b = BanHash[ip];
-	if (b != NULL) // can't have two cache entries on the same IP, sorry..
-		return NULL;
+	if (b != nullptr) // can't have two cache entries on the same IP, sorry..
+		return nullptr;
 
 	b = new BanCacheHit(type, reason, (seconds ? seconds : 86400));
 	return b;
@@ -46,10 +46,10 @@ BanCacheHit *BanCacheManager::GetHit(const std::string &ip)
 	BanCacheHash::iterator i = this->BanHash.find(ip);
 
 	if (i == this->BanHash.end())
-		return NULL; // free and safe
+		return nullptr; // free and safe
 
 	if (RemoveIfExpired(i))
-		return NULL; // expired
+		return nullptr; // expired
 
 	return i->second; // hit.
 }

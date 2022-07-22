@@ -411,7 +411,7 @@ public:
 
 			Modes::ChangeList modechangelist;
 			modechangelist.push_remove(&cu);
-			ClientProtocol::Events::Mode modeevent(ServerInstance->FakeClient, NULL, u, modechangelist);
+			ClientProtocol::Events::Mode modeevent(ServerInstance->FakeClient, nullptr, u, modechangelist);
 			luser->Send(modeevent);
 		}
 		cu.active = false;

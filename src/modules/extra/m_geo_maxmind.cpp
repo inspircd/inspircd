@@ -98,7 +98,7 @@ public:
 		// Attempt to locate this user.
 		location = GetLocation(user->client_sa);
 		if (!location)
-			return NULL;
+			return nullptr;
 
 		// We found the user. Cache their location for future use.
 		ext.Set(user, location);
@@ -109,19 +109,19 @@ public:
 	{
 		// Skip trying to look up a UNIX socket.
 		if (sa.family() != AF_INET && sa.family() != AF_INET6)
-			return NULL;
+			return nullptr;
 
 		// Attempt to look up the socket address.
 		int result;
 		MMDB_lookup_result_s lookup = MMDB_lookup_sockaddr(&mmdb, &sa.sa, &result);
 		if (result != MMDB_SUCCESS || !lookup.found_entry)
-			return NULL;
+			return nullptr;
 
 		// Attempt to retrieve the country code.
 		MMDB_entry_data_s country_code;
-		result = MMDB_get_value(&lookup.entry, &country_code, "country", "iso_code", NULL);
+		result = MMDB_get_value(&lookup.entry, &country_code, "country", "iso_code", nullptr);
 		if (result != MMDB_SUCCESS || !country_code.has_data || country_code.type != MMDB_DATA_TYPE_UTF8_STRING || country_code.data_size != 2)
-			return NULL;
+			return nullptr;
 
 		// If the country has been seen before then use our cached Location object.
 		const std::string code(country_code.utf8_string, country_code.data_size);
@@ -131,9 +131,9 @@ public:
 
 		// Attempt to retrieve the country name.
 		MMDB_entry_data_s country_name;
-		result = MMDB_get_value(&lookup.entry, &country_name, "country", "names", "en", NULL);
+		result = MMDB_get_value(&lookup.entry, &country_name, "country", "names", "en", nullptr);
 		if (result != MMDB_SUCCESS || !country_name.has_data || country_name.type != MMDB_DATA_TYPE_UTF8_STRING)
-			return NULL;
+			return nullptr;
 
 		// Create a Location object and cache it.
 		const std::string cname(country_name.utf8_string, country_name.data_size);

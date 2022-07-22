@@ -69,7 +69,7 @@ public:
 		if (ZlineOnMatch)
 		{
 			ZLine* zl = new ZLine(ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, MODNAME "@" + ServerInstance->Config->ServerName, reason.c_str(), u->GetIPString());
-			if (ServerInstance->XLines->AddLine(zl, NULL))
+			if (ServerInstance->XLines->AddLine(zl, nullptr))
 			{
 				if (!duration)
 				{
@@ -157,7 +157,7 @@ public:
 				user->WriteNotice("*** Invalid duration for R-line.");
 				return CmdResult::FAILURE;
 			}
-			XLine *r = NULL;
+			XLine *r = nullptr;
 
 			try
 			{
@@ -273,7 +273,7 @@ public:
 		ZlineOnMatch = tag->getBool("zlineonmatch");
 		std::string newrxengine = tag->getString("engine");
 
-		factory = rxfactory ? (rxfactory.operator->()) : NULL;
+		factory = rxfactory ? (rxfactory.operator->()) : nullptr;
 
 		rxfactory.SetEngine(newrxengine);
 		if (!rxfactory)

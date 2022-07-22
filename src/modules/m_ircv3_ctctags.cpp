@@ -163,7 +163,7 @@ private:
 				// The target is a user on a specific server (e.g. jto@tolsun.oulu.fi).
 				target = ServerInstance->Users.FindNick(parameters[0].substr(0, targetserver - parameters[0].c_str()));
 				if (target && strcasecmp(target->server->GetPublicName().c_str(), targetserver + 1))
-					target = NULL;
+					target = nullptr;
 			}
 			else
 			{
@@ -240,7 +240,7 @@ public:
 
 		// If the message begins with one or more status characters then look them up.
 		const char* target = parameters[0].c_str();
-		PrefixMode* targetpfx = NULL;
+		PrefixMode* targetpfx = nullptr;
 		for (PrefixMode* pfx; (pfx = ServerInstance->Modes.FindPrefix(target[0])); ++target)
 		{
 			// We want the lowest ranked prefix specified.

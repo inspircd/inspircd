@@ -52,7 +52,7 @@ ServerCommand* ServerCommandManager::GetHandler(const std::string& command) cons
 	ServerCommandMap::const_iterator it = commands.find(command);
 	if (it != commands.end())
 		return it->second;
-	return NULL;
+	return nullptr;
 }
 
 bool ServerCommandManager::AddCommand(ServerCommand* cmd)

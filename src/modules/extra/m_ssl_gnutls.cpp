@@ -129,7 +129,7 @@ namespace GnuTLS
 			gnutls_hash_hd_t is_digest;
 			if (gnutls_hash_init(&is_digest, hash) < 0)
 				throw Exception("Unknown hash type " + hashname);
-			gnutls_hash_deinit(is_digest, NULL);
+			gnutls_hash_deinit(is_digest, nullptr);
 		}
 
 		gnutls_digest_algorithm_t get() const { return hash; }
@@ -311,7 +311,7 @@ namespace GnuTLS
 				ret.append(token);
 
 				gnutls_priority_t test;
-				if (gnutls_priority_init(&test, ret.c_str(), NULL) < 0)
+				if (gnutls_priority_init(&test, ret.c_str(), nullptr) < 0)
 				{
 					// The new token broke the priority string, revert to the previously working one
 					ServerInstance->Logs.Debug(MODNAME, "Priority string token not recognized: \"%s\"", token.c_str());
@@ -441,7 +441,7 @@ namespace GnuTLS
 		{
 			// Copy data from GnuTLS buffers to recvq
 			gnutls_datum_t datum;
-			gnutls_packet_get(packet, &datum, NULL);
+			gnutls_packet_get(packet, &datum, nullptr);
 			recvq.append(reinterpret_cast<const char*>(datum.data), datum.size);
 
 			gnutls_packet_deinit(packet);
@@ -610,8 +610,8 @@ private:
 			gnutls_bye(this->sess, GNUTLS_SHUT_WR);
 			gnutls_deinit(this->sess);
 		}
-		sess = NULL;
-		certificate = NULL;
+		sess = nullptr;
+		certificate = nullptr;
 		status = STATUS_NONE;
 	}
 
@@ -1116,7 +1116,7 @@ public:
 
 	void init() override
 	{
-		ServerInstance->Logs.Normal(MODNAME, "GnuTLS lib version %s module was compiled for " GNUTLS_VERSION, gnutls_check_version(NULL));
+		ServerInstance->Logs.Normal(MODNAME, "GnuTLS lib version %s module was compiled for " GNUTLS_VERSION, gnutls_check_version(nullptr));
 		ServerInstance->GenRandom = GnuTLS::GenRandom;
 	}
 

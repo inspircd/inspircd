@@ -76,7 +76,7 @@ public:
 					changelist.push_remove(mh, u->nick);
 			}
 		}
-		else if ((lm = mh->IsListModeBase()) && ((ml = lm->GetList(chan)) != NULL))
+		else if ((lm = mh->IsListModeBase()) && ((ml = lm->GetList(chan)) != nullptr))
 		{
 			for (const auto& entry : *ml)
 			{
@@ -90,7 +90,7 @@ public:
 				changelist.push_remove(mh);
 		}
 
-		ServerInstance->Modes.Process(user, chan, NULL, changelist);
+		ServerInstance->Modes.Process(user, chan, nullptr, changelist);
 		return CmdResult::SUCCESS;
 	}
 };

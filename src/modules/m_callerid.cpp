@@ -102,7 +102,7 @@ struct CallerIDExtInfo final
 
 		void* old = GetRaw(container);
 		if (old)
-			this->Delete(NULL, old);
+			this->Delete(nullptr, old);
 		callerid_data* dat = new callerid_data;
 		SetRaw(container, dat);
 
@@ -164,7 +164,7 @@ class CommandAccept final
 	 */
 	typedef std::pair<User*, bool> ACCEPTAction;
 
-	static ACCEPTAction GetTargetAndAction(std::string& tok, User* cmdfrom = NULL)
+	static ACCEPTAction GetTargetAndAction(std::string& tok, User* cmdfrom = nullptr)
 	{
 		bool remove = (tok[0] == '-');
 		if ((remove) || (tok[0] == '+'))
@@ -177,7 +177,7 @@ class CommandAccept final
 			target = ServerInstance->Users.FindNick(tok);
 
 		if ((!target) || (target->registered != REG_ALL) || (target->quitting))
-			target = NULL;
+			target = nullptr;
 
 		return std::make_pair(target, !remove);
 	}

@@ -70,7 +70,7 @@ namespace ClientProtocol
 		std::string value;
 		void* provdata;
 
-		MessageTagData(MessageTagProvider* prov, const std::string& val, void* data = NULL);
+		MessageTagData(MessageTagProvider* prov, const std::string& val, void* data = nullptr);
 	};
 
 	/** Map of message tag values and providers keyed by their name.

@@ -177,7 +177,7 @@ namespace stdalgo
 	void delete_zero(T*& pr)
 	{
 		T* p = pr;
-		pr = NULL;
+		pr = nullptr;
 		delete p;
 	}
 

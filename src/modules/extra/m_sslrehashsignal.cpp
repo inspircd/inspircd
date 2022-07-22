@@ -57,7 +57,7 @@ public:
 		ServerInstance->Logs.Normal(MODNAME, feedbackmsg);
 
 		const std::string str = "tls";
-		FOREACH_MOD(OnModuleRehash, (NULL, str));
+		FOREACH_MOD(OnModuleRehash, (nullptr, str));
 		signaled = 0;
 	}
 };

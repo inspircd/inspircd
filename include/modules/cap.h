@@ -143,7 +143,7 @@ namespace Cap
 		void Unregister()
 		{
 			bit = 0;
-			extitem = NULL;
+			extitem = nullptr;
 		}
 
 		Ext AddToMask(Ext mask) const { return (mask | GetMask()); }
@@ -243,7 +243,7 @@ namespace Cap
 		 * The cap must be active and the manager must be available for a cap to be registered.
 		 * @return True if the cap is registered in the manager, false otherwise
 		 */
-		bool IsRegistered() const { return (extitem != NULL); }
+		bool IsRegistered() const { return (extitem != nullptr); }
 
 		/** Get the CAP negotiation protocol version of a user.
 		 * The cap must be registered for this to return anything other than CAP_LEGACY.
@@ -281,7 +281,7 @@ namespace Cap
 		 */
 		virtual const std::string* GetValue(LocalUser* user) const
 		{
-			return NULL;
+			return nullptr;
 		}
 	};
 
@@ -304,7 +304,7 @@ namespace Cap
 		/** Retrieves the underlying cap. */
 		operator const Cap::Capability*() const
 		{
-			return ref ? *ref : NULL;
+			return ref ? *ref : nullptr;
 		}
 
 		/** Check whether a user has the referenced capability turned on.

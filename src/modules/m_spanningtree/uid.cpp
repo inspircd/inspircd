@@ -112,12 +112,12 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 			 * yourself.
 			 */
 			Modes::Change modechange(mh, true, params[paramptr++]);
-			mh->OnModeChange(_new, _new, NULL, modechange);
+			mh->OnModeChange(_new, _new, nullptr, modechange);
 		}
 		else
 		{
 			Modes::Change modechange(mh, true, "");
-			mh->OnModeChange(_new, _new, NULL, modechange);
+			mh->OnModeChange(_new, _new, nullptr, modechange);
 		}
 		_new->SetMode(mh, true);
 	}

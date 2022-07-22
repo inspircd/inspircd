@@ -67,7 +67,7 @@ public:
 
 SocketThread::SocketThread()
 {
-	socket = NULL;
+	socket = nullptr;
 	int fd = eventfd(0, EFD_NONBLOCK);
 	if (fd < 0)
 		throw CoreException("Could not create pipe " + std::string(strerror(errno)));
@@ -127,7 +127,7 @@ public:
 
 SocketThread::SocketThread()
 {
-	socket = NULL;
+	socket = nullptr;
 	int fds[2];
 	if (pipe(fds))
 		throw CoreException("Could not create pipe " + std::string(strerror(errno)));

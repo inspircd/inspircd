@@ -55,7 +55,7 @@ public:
 			std::transform(method.begin(), method.end(), method.begin(), ::toupper);
 		}
 
-		XLineFactory* xlf = NULL;
+		XLineFactory* xlf = nullptr;
 		bool kick = (method == "KICK");
 		if ((!kick) && (method != "KILL"))
 		{

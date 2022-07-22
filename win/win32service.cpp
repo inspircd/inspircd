@@ -111,7 +111,7 @@ VOID ServiceMain(DWORD argc, LPCSTR *argv)
 		return;
 
 	char szModuleName[MAX_PATH];
-	if(GetModuleFileNameA(NULL, szModuleName, MAX_PATH))
+	if(GetModuleFileNameA(nullptr, szModuleName, MAX_PATH))
 	{
 		if(!argc)
 			argc = 1;
@@ -134,11 +134,11 @@ VOID ServiceMain(DWORD argc, LPCSTR *argv)
 				strcpy_s(g_ServiceData.argv[i], allocsize, argv[i]);
 			}
 
-			*(strrchr(szModuleName, '\\') + 1) = NULL;
+			*(strrchr(szModuleName, '\\') + 1) = '\0';
 			SetCurrentDirectoryA(szModuleName);
 
-			HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)WorkerThread, NULL, 0, NULL);
-			if (hThread != NULL)
+			HANDLE hThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)WorkerThread, nullptr, 0, nullptr);
+			if (hThread != nullptr)
 			{
 				WaitForSingleObject(hThread, INFINITE);
 				CloseHandle(hThread);
@@ -166,7 +166,7 @@ void InstallService()
 
 	try {
 		TCHAR tszBinaryPath[MAX_PATH];
-		if(!GetModuleFileName(NULL, tszBinaryPath, _countof(tszBinaryPath)))
+		if(!GetModuleFileName(nullptr, tszBinaryPath, _countof(tszBinaryPath)))
 		{
 			throw CWin32Exception();
 		}
@@ -178,7 +178,7 @@ void InstallService()
 		}
 
 		InspServiceHandle = CreateService(SCMHandle, TEXT("InspIRCd"),TEXT("InspIRCd Daemon"), SERVICE_CHANGE_CONFIG, SERVICE_WIN32_OWN_PROCESS,
-			SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, tszBinaryPath, 0, 0, 0, TEXT("NT AUTHORITY\\NetworkService"), NULL);
+			SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, tszBinaryPath, 0, 0, 0, TEXT("NT AUTHORITY\\NetworkService"), nullptr);
 
 		if (!InspServiceHandle)
 		{
@@ -215,7 +215,7 @@ void UninstallService()
 
 	try
 	{
-		SCMHandle = OpenSCManager(NULL, SERVICES_ACTIVE_DATABASE, DELETE);
+		SCMHandle = OpenSCManager(nullptr, SERVICES_ACTIVE_DATABASE, DELETE);
 		if (!SCMHandle)
 			throw CWin32Exception();
 
@@ -268,7 +268,7 @@ int main(int argc, char* argv[])
 	SERVICE_TABLE_ENTRY serviceTable[] =
 	{
 		{ TEXT("InspIRCd"), (LPSERVICE_MAIN_FUNCTION)ServiceMain },
-		{ NULL, NULL }
+		{ nullptr, nullptr }
 	};
 
 	g_bRunningAsService = true;

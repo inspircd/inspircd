@@ -198,7 +198,7 @@ public:
 	SQLConn(Module* Creator, std::shared_ptr<ConfigTag> tag)
 		: SQL::Provider(Creator, tag->getString("id"))
 		, conf(tag)
-		, qinprog(NULL, "")
+		, qinprog(nullptr, "")
 	{
 		if (!DoConnect())
 			DelayReconnect();
@@ -384,7 +384,7 @@ restart:
 				}
 
 				delete qinprog.c;
-				qinprog = QueueItem(NULL, "");
+				qinprog = QueueItem(nullptr, "");
 				goto restart;
 			}
 			else
@@ -520,7 +520,7 @@ restart:
 		if(sql)
 		{
 			PQfinish(sql);
-			sql = NULL;
+			sql = nullptr;
 		}
 	}
 };
@@ -599,7 +599,7 @@ public:
 			{
 				conn->qinprog.c->OnError(err);
 				delete conn->qinprog.c;
-				conn->qinprog.c = NULL;
+				conn->qinprog.c = nullptr;
 			}
 			std::deque<QueueItem>::iterator j = conn->queue.begin();
 			while (j != conn->queue.end())
@@ -620,7 +620,7 @@ public:
 
 bool ReconnectTimer::Tick()
 {
-	mod->retimer = NULL;
+	mod->retimer = nullptr;
 	mod->ReadConf();
 	delete this;
 	return false;

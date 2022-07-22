@@ -141,11 +141,11 @@ public:
 
 		LocalUser* luser = IS_LOCAL(user);
 		if (!luser || nosslext.Get(luser))
-			return NULL;
+			return nullptr;
 
 		cert = SSLClientCert::GetCertificate(&luser->eh);
 		if (!cert)
-			return NULL;
+			return nullptr;
 
 		SetCertificate(user, cert);
 		return cert;
@@ -402,7 +402,7 @@ public:
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass::Ptr myclass) override
 	{
 		ssl_cert* cert = cmd.sslapi.GetCertificate(user);
-		const char* error = NULL;
+		const char* error = nullptr;
 		const std::string requiressl = myclass->config->getString("requiressl");
 		if (stdalgo::string::equalsci(requiressl, "trusted"))
 		{

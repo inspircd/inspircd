@@ -439,7 +439,7 @@ void CommandWho::WhoUsers(LocalUser* source, const std::vector<std::string>& par
 		if (!MatchUser(source, user, data))
 			continue;
 
-		SendWhoLine(source, parameters, NULL, user, data);
+		SendWhoLine(source, parameters, nullptr, user, data);
 	}
 }
 

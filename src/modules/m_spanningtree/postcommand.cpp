@@ -30,7 +30,7 @@
 void ModuleSpanningTree::OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, bool loop)
 {
 	if (result == CmdResult::SUCCESS)
-		Utils->RouteCommand(NULL, command, parameters, user);
+		Utils->RouteCommand(nullptr, command, parameters, user);
 }
 
 void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscmd, const CommandBase::Params& parameters, User* user)
@@ -105,7 +105,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 			std::string message;
 			if (parameters.size() >= 2)
 				message.assign(parameters[1]);
-			SendChannelMessage(user, c, message, pfx, parameters.GetTags(), exempts, command.c_str(), origin ? origin->GetSocket() : NULL);
+			SendChannelMessage(user, c, message, pfx, parameters.GetTags(), exempts, command.c_str(), origin ? origin->GetSocket() : nullptr);
 		}
 		else if (dest[0] == '$')
 		{

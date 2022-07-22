@@ -164,7 +164,7 @@ public:
 			return;
 		reloadedmod = mod->ModuleSourceFile;
 		// Request callback when reload is complete
-		cd.add(this, NULL);
+		cd.add(this, nullptr);
 	}
 
 	void OnReloadModuleRestore(Module* mod, void* data) override
@@ -178,7 +178,7 @@ public:
 			for (const auto& capname : reloadedcaps)
 			{
 				if (!capmanager->Find(capname))
-					Send(capname, NULL, false);
+					Send(capname, nullptr, false);
 			}
 		}
 		reloadedmod.clear();

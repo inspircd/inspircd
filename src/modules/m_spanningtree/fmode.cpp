@@ -54,7 +54,7 @@ CmdResult CommandFMode::Handle(User* who, Params& params)
 	if ((TS == ourTS) && IS_SERVER(who))
 		flags |= ModeParser::MODE_MERGE;
 
-	ServerInstance->Modes.Process(who, chan, NULL, changelist, flags);
+	ServerInstance->Modes.Process(who, chan, nullptr, changelist, flags);
 	return CmdResult::SUCCESS;
 }
 
@@ -97,6 +97,6 @@ CmdResult CommandLMode::Handle(User* who, Params& params)
 	if (chants == chan->age && IS_SERVER(who))
 		flags |= ModeParser::MODE_MERGE;
 
-	ServerInstance->Modes.Process(who, chan, NULL, changelist, flags);
+	ServerInstance->Modes.Process(who, chan, nullptr, changelist, flags);
 	return CmdResult::SUCCESS;
 }

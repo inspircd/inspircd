@@ -84,7 +84,7 @@ private:
 			XLine* xl = make->Generate(ServerInstance->Time(), 0, ServerInstance->Config->ServerName, reason, mask);
 			xl->from_config = true;
 			configlines.insert(xl->Displayable());
-			if (!ServerInstance->XLines->AddLine(xl, NULL))
+			if (!ServerInstance->XLines->AddLine(xl, nullptr))
 				delete xl;
 		}
 
@@ -123,7 +123,7 @@ public:
 		if (user->quitting)
 			return;
 
-		user->exempt = (ServerInstance->XLines->MatchesLine("E", user) != NULL);
+		user->exempt = (ServerInstance->XLines->MatchesLine("E", user) != nullptr);
 		user->CheckLines(true);
 	}
 
@@ -133,7 +133,7 @@ public:
 		if (!luser || luser->quitting)
 			return;
 
-		luser->exempt = (ServerInstance->XLines->MatchesLine("E", user) != NULL);
+		luser->exempt = (ServerInstance->XLines->MatchesLine("E", user) != nullptr);
 		luser->CheckLines(false);
 	}
 

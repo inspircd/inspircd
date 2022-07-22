@@ -41,7 +41,7 @@
 // Needs to be included after inspircd.h to avoid reincluding winsock.
 #include <rang/rang.hpp>
 
-static insp::intrusive_list<dynamic_reference_base>* dynrefs = NULL;
+static insp::intrusive_list<dynamic_reference_base>* dynrefs = nullptr;
 
 void dynamic_reference_base::reset_all()
 {
@@ -548,8 +548,8 @@ void ModuleManager::LoadAll()
 		}
 	}
 
-	this->NewServices = NULL;
-	ConfigStatus confstatus(NULL, true);
+	this->NewServices = nullptr;
+	ConfigStatus confstatus(nullptr, true);
 
 	// Step 3: Read the configuration for the modules. This must be done as part of
 	// its own step so that services provided by modules can be registered before
@@ -648,7 +648,7 @@ ServiceProvider* ModuleManager::FindService(ServiceType type, const std::string&
 			DataProviderMap::iterator i = DataProviders.find(name);
 			if (i != DataProviders.end() && i->second->service == type)
 				return i->second;
-			return NULL;
+			return nullptr;
 		}
 		// TODO implement finding of the other types
 		default:
@@ -695,7 +695,7 @@ dynamic_reference_base::~dynamic_reference_base()
 	if (dynrefs->empty())
 	{
 		delete dynrefs;
-		dynrefs = NULL;
+		dynrefs = nullptr;
 	}
 }
 
@@ -721,7 +721,7 @@ void dynamic_reference_base::resolve()
 		}
 	}
 	else
-		value = NULL;
+		value = nullptr;
 }
 
 Module* ModuleManager::Find(const std::string &name)
@@ -729,7 +729,7 @@ Module* ModuleManager::Find(const std::string &name)
 	std::map<std::string, Module*>::const_iterator modfind = Modules.find(ExpandModName(name));
 
 	if (modfind == Modules.end())
-		return NULL;
+		return nullptr;
 	else
 		return modfind->second;
 }

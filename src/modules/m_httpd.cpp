@@ -250,7 +250,7 @@ public:
 		Close();
 	}
 
-	void SendHTTPError(unsigned int response, const char* errstr = NULL)
+	void SendHTTPError(unsigned int response, const char* errstr = nullptr)
 	{
 		if (!errstr)
 			errstr = http_status_str((http_status)response);

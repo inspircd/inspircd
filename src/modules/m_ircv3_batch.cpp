@@ -163,7 +163,7 @@ public:
 			return;
 
 		// Mark batch as stopped
-		batch.manager = NULL;
+		batch.manager = nullptr;
 
 		BatchInfo& batchinfo = *batch.batchinfo;
 		// Send end batch message to all users who got the batch start message and unset bit so it can be reused
@@ -176,7 +176,7 @@ public:
 		// erase() not swaperase because the reftag generation logic depends on the order of the elements
 		stdalgo::erase(active_batches, &batch);
 		delete batch.batchinfo;
-		batch.batchinfo = NULL;
+		batch.batchinfo = nullptr;
 	}
 };
 

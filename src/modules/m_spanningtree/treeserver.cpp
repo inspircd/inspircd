@@ -37,8 +37,8 @@
  */
 TreeServer::TreeServer()
 	: Server(ServerInstance->Config->GetSID(), ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc)
-	, Parent(NULL), Route(NULL)
-	, Socket(NULL)
+	, Parent(nullptr), Route(nullptr)
+	, Socket(nullptr)
 	, behind_bursting(0)
 	, pingtimer(this)
 	, ServerUser(ServerInstance->FakeClient)

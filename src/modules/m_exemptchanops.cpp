@@ -48,7 +48,7 @@ public:
 			return ServerInstance->Modes.FindPrefixMode(pmode[0]);
 
 		ModeHandler* mh = ServerInstance->Modes.FindMode(pmode, MODETYPE_CHANNEL);
-		return mh ? mh->IsPrefixMode() : NULL;
+		return mh ? mh->IsPrefixMode() : nullptr;
 	}
 
 	static bool ParseEntry(const std::string& entry, std::string& restriction, std::string& prefix)

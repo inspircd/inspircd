@@ -437,4 +437,4 @@ protected:
 };
 
 inline IOHook* StreamSocket::GetIOHook() const { return iohook; }
-inline void StreamSocket::DelIOHook() { iohook = NULL; }
+inline void StreamSocket::DelIOHook() { iohook = nullptr; }

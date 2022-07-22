@@ -62,7 +62,7 @@
 # include <process.h>
 #endif
 
-InspIRCd* ServerInstance = NULL;
+InspIRCd* ServerInstance = nullptr;
 
 /** Separate from the other casemap tables so that code *can* still exclusively rely on RFC casemapping
  * if it must.
@@ -154,7 +154,7 @@ namespace
 		if (!SetGroup.empty())
 		{
 			errno = 0;
-			if (setgroups(0, NULL) == -1)
+			if (setgroups(0, nullptr) == -1)
 			{
 				ServerInstance->Logs.Normal("STARTUP", "setgroups() failed (wtf?): %s", strerror(errno));
 				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
@@ -199,7 +199,7 @@ namespace
 	{
 #ifdef _WIN32
 		TCHAR configPath[MAX_PATH + 1];
-		if (GetFullPathName(path, MAX_PATH, configPath, NULL) > 0)
+		if (GetFullPathName(path, MAX_PATH, configPath, nullptr) > 0)
 			return configPath;
 #else
 		char configPath[PATH_MAX + 1];
@@ -523,7 +523,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	 * a separate thread
 	 */
 	this->Config->Read();
-	this->Config->Apply(NULL, "");
+	this->Config->Apply(nullptr, "");
 
 	try
 	{
@@ -636,11 +636,11 @@ void InspIRCd::UpdateTime()
 	SYSTEMTIME st;
 	GetSystemTime(&st);
 
-	TIME.tv_sec = time(NULL);
+	TIME.tv_sec = time(nullptr);
 	TIME.tv_nsec = st.wMilliseconds;
 #else
 	struct timeval tv;
-	gettimeofday(&tv, NULL);
+	gettimeofday(&tv, nullptr);
 
 	TIME.tv_sec = tv.tv_sec;
 	TIME.tv_nsec = tv.tv_usec * 1000;

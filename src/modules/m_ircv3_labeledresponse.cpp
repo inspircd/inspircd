@@ -171,7 +171,7 @@ public:
 			}
 		}
 
-		tag.labeluser = NULL;
+		tag.labeluser = nullptr;
 		msgcount = 0;
 	}
 

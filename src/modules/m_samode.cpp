@@ -64,7 +64,7 @@ public:
 
 		// XXX: Make ModeParser clear LastParse
 		Modes::ChangeList emptychangelist;
-		ServerInstance->Modes.ProcessSingle(ServerInstance->FakeClient, NULL, ServerInstance->FakeClient, emptychangelist);
+		ServerInstance->Modes.ProcessSingle(ServerInstance->FakeClient, nullptr, ServerInstance->FakeClient, emptychangelist);
 
 		logged = false;
 		this->active = true;

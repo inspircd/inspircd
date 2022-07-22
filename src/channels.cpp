@@ -37,7 +37,7 @@ enum
 
 namespace
 {
-	ChanModeReference ban(NULL, "ban");
+	ChanModeReference ban(nullptr, "ban");
 }
 
 Channel::Channel(const std::string &cname, time_t ts)
@@ -78,7 +78,7 @@ Membership* Channel::AddUser(User* user)
 {
 	std::pair<MemberMap::iterator, bool> ret = userlist.emplace(user, insp::aligned_storage<Membership>());
 	if (!ret.second)
-		return NULL;
+		return nullptr;
 
 	Membership* memb = new(ret.first->second) Membership(user, this);
 	return memb;
@@ -126,7 +126,7 @@ Membership* Channel::GetUser(User* user)
 {
 	MemberMap::iterator i = userlist.find(user);
 	if (i == userlist.end())
-		return NULL;
+		return nullptr;
 	return i->second;
 }
 
@@ -175,7 +175,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 	if (user->registered != REG_ALL)
 	{
 		ServerInstance->Logs.Debug("CHANNELS", "Attempted to join unregistered user " + user->uuid + " to channel " + cname);
-		return NULL;
+		return nullptr;
 	}
 
 	/*
@@ -196,7 +196,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 		if (user->chans.size() >= maxchans)
 		{
 			user->WriteNumeric(ERR_TOOMANYCHANNELS, cname, "You are on too many channels");
-			return NULL;
+			return nullptr;
 		}
 	}
 
@@ -214,7 +214,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 
 		// Ask the modules whether they're ok with the join, pass NULL as Channel* as the channel is yet to be created
 		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, NULL, cname, privs, key, override));
+		FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, nullptr, cname, privs, key, override));
 		if (!override && MOD_RESULT == MOD_RES_DENY)
 			return nullptr; // A module wasn't happy with the join, abort
 
@@ -248,12 +248,12 @@ Membership* Channel::ForceJoin(User* user, const std::string* privs, bool bursti
 	if (IS_SERVER(user))
 	{
 		ServerInstance->Logs.Debug("CHANNELS", "Attempted to join server user " + user->uuid + " to channel " + this->name);
-		return NULL;
+		return nullptr;
 	}
 
 	Membership* memb = this->AddUser(user);
 	if (!memb)
-		return NULL; // Already on the channel
+		return nullptr; // Already on the channel
 
 	user->chans.push_front(memb);
 
@@ -268,7 +268,7 @@ Membership* Channel::ForceJoin(User* user, const std::string* privs, bool bursti
 			{
 				// Set the mode on the user.
 				Modes::Change modechange(mh, true, user->nick);
-				mh->OnModeChange(ServerInstance->FakeClient, NULL, this, modechange);
+				mh->OnModeChange(ServerInstance->FakeClient, nullptr, this, modechange);
 			}
 		}
 	}
@@ -321,12 +321,12 @@ bool Channel::CheckBan(User* user, const std::string& mask)
 
 	const std::string nickIdent = user->nick + "!" + user->ident;
 	std::string prefix(mask, 0, at);
-	if (InspIRCd::Match(nickIdent, prefix, NULL))
+	if (InspIRCd::Match(nickIdent, prefix, nullptr))
 	{
 		std::string suffix(mask, at + 1);
-		if (InspIRCd::Match(user->GetRealHost(), suffix, NULL) ||
-			InspIRCd::Match(user->GetDisplayedHost(), suffix, NULL) ||
-			InspIRCd::MatchCIDR(user->GetIPString(), suffix, NULL))
+		if (InspIRCd::Match(user->GetRealHost(), suffix, nullptr) ||
+			InspIRCd::Match(user->GetDisplayedHost(), suffix, nullptr) ||
+			InspIRCd::MatchCIDR(user->GetIPString(), suffix, nullptr))
 			return true;
 	}
 	return false;

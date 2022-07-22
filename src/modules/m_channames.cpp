@@ -79,7 +79,7 @@ public:
 			{
 				removepermchan.clear();
 				removepermchan.push_remove(*permchannelmode);
-				ServerInstance->Modes.Process(ServerInstance->FakeClient, c, NULL, removepermchan);
+				ServerInstance->Modes.Process(ServerInstance->FakeClient, c, nullptr, removepermchan);
 			}
 
 			Channel::MemberMap& users = c->userlist;

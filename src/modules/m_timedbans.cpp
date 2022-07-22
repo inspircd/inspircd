@@ -122,7 +122,7 @@ public:
 
 		// Pass the user (instead of ServerInstance->FakeClient) to ModeHandler::Process() to
 		// make it so that the user sets the mode themselves
-		ServerInstance->Modes.Process(user, channel, NULL, setban);
+		ServerInstance->Modes.Process(user, channel, nullptr, setban);
 		if (ServerInstance->Modes.GetLastChangeList().empty())
 		{
 			user->WriteNotice("Invalid ban mask");

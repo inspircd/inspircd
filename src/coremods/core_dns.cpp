@@ -460,7 +460,7 @@ public:
 		, Timer(5*60, true)
 	{
 		for (unsigned int i = 0; i <= MAX_REQUEST_ID; ++i)
-			requests[i] = NULL;
+			requests[i] = nullptr;
 		ServerInstance->Timers.AddTimer(this);
 	}
 
@@ -575,7 +575,7 @@ public:
 	void RemoveRequest(DNS::Request* req) override
 	{
 		if (requests[req->id] == req)
-			requests[req->id] = NULL;
+			requests[req->id] = nullptr;
 	}
 
 	std::string GetErrorStr(Error e) override

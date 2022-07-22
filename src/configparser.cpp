@@ -280,7 +280,7 @@ struct Parser final
 			stack.output.emplace(name, tag);
 		}
 		// this is not a leak; shared_ptr takes care of the delete
-		tag = NULL;
+		tag = nullptr;
 	}
 
 	bool outer_parse()
@@ -647,7 +647,7 @@ long ConfigTag::getInt(const std::string& key, long def, long min, long max) con
 		return def;
 
 	const char* res_cstr = result.c_str();
-	char* res_tail = NULL;
+	char* res_tail = nullptr;
 	long res = strtol(res_cstr, &res_tail, 0);
 	if (res_tail == res_cstr)
 		return def;
@@ -664,7 +664,7 @@ unsigned long ConfigTag::getUInt(const std::string& key, unsigned long def, unsi
 		return def;
 
 	const char* res_cstr = result.c_str();
-	char* res_tail = NULL;
+	char* res_tail = nullptr;
 	unsigned long res = strtoul(res_cstr, &res_tail, 0);
 	if (res_tail == res_cstr)
 		return def;
@@ -697,7 +697,7 @@ double ConfigTag::getFloat(const std::string& key, double def, double min, doubl
 	if (!readString(key, result))
 		return def;
 
-	double res = strtod(result.c_str(), NULL);
+	double res = strtod(result.c_str(), nullptr);
 	CheckRange(this, key, res, def, min, max);
 	return res;
 }

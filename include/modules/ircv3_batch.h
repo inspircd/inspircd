@@ -147,7 +147,7 @@ public:
 	 * Batches can be started with Manager::Start() and stopped with Manager::End().
 	 * @return True if the batch is running, false otherwise.
 	 */
-	bool IsRunning() const { return (manager != NULL); }
+	bool IsRunning() const { return (manager != nullptr); }
 
 	/** Get the batch start client protocol message.
 	 * The returned message object can be manipulated to add extra parameters or labels to the message. The first

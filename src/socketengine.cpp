@@ -163,20 +163,20 @@ void SocketEngine::DelFdRef(EventHandler *eh)
 	int fd = eh->GetFd();
 	if (GetRef(fd) == eh)
 	{
-		ref[fd] = NULL;
+		ref[fd] = nullptr;
 		CurrentSetSize--;
 	}
 }
 
 bool SocketEngine::HasFd(int fd)
 {
-	return GetRef(fd) != NULL;
+	return GetRef(fd) != nullptr;
 }
 
 EventHandler* SocketEngine::GetRef(int fd)
 {
 	if (fd < 0 || static_cast<unsigned int>(fd) >= ref.size())
-		return NULL;
+		return nullptr;
 	return ref[fd];
 }
 
@@ -369,7 +369,7 @@ std::string SocketEngine::LastError()
 #else
 	char szErrorString[500];
 	DWORD dwErrorCode = WSAGetLastError();
-	if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, dwErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)szErrorString, _countof(szErrorString), NULL) == 0)
+	if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, dwErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)szErrorString, _countof(szErrorString), nullptr) == 0)
 		sprintf_s(szErrorString, _countof(szErrorString), "Error code: %u", dwErrorCode);
 
 	std::string::size_type p;

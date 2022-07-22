@@ -83,7 +83,7 @@ public:
 	 * @param chan Channel to check
 	 * @return True if the user is invited to the channel, false otherwise
 	 */
-	bool IsInvited(LocalUser* user, Channel* chan) { return (Find(user, chan) != NULL); }
+	bool IsInvited(LocalUser* user, Channel* chan) { return (Find(user, chan) != nullptr); }
 
 	/** Removes an Invite if it exists
 	 * @param user User whose invite to remove
@@ -122,7 +122,7 @@ public:
 	/** Check whether the invite will expire or not
 	 * @return True if the invite is timed, false if it doesn't expire
 	 */
-	bool IsTimed() const { return (expiretimer != NULL); }
+	bool IsTimed() const { return (expiretimer != nullptr); }
 
 	/** Serialize this object
 	 * @param human Whether to serialize for human consumption or not.

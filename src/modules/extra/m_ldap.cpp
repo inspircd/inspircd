@@ -79,7 +79,7 @@ public:
 	virtual ~LDAPRequest()
 	{
 		delete result;
-		if (message != NULL)
+		if (message != nullptr)
 			ldap_msgfree(message);
 	}
 
@@ -244,14 +244,14 @@ public:
 
 	static void FreeMods(LDAPMod** mods)
 	{
-		for (unsigned int i = 0; mods[i] != NULL; ++i)
+		for (unsigned int i = 0; mods[i] != nullptr; ++i)
 		{
 			LDAPMod* mod = mods[i];
-			if (mod->mod_type != NULL)
+			if (mod->mod_type != nullptr)
 				free(mod->mod_type);
-			if (mod->mod_values != NULL)
+			if (mod->mod_values != nullptr)
 			{
-				for (unsigned int j = 0; mod->mod_values[j] != NULL; ++j)
+				for (unsigned int j = 0; mod->mod_values[j] != nullptr; ++j)
 					free(mod->mod_values[j]);
 				delete[] mod->mod_values;
 			}
@@ -267,7 +267,7 @@ private:
 			throw LDAPException("Unable to connect to LDAP service " + this->name + ": reconnecting too fast");
 		last_connect = ServerInstance->Time();
 
-		ldap_unbind_ext(this->con, NULL, NULL);
+		ldap_unbind_ext(this->con, nullptr, nullptr);
 		Connect();
 	}
 
@@ -276,8 +276,8 @@ private:
 		int ret = ldap_set_option(this->con, option, value);
 		if (ret != LDAP_OPT_SUCCESS)
 		{
-			ldap_unbind_ext(this->con, NULL, NULL);
-			this->con = NULL;
+			ldap_unbind_ext(this->con, nullptr, nullptr);
+			this->con = nullptr;
 		}
 		return ret;
 	}
@@ -342,7 +342,7 @@ public:
 
 		this->UnlockQueue();
 
-		ldap_unbind_ext(this->con, NULL, NULL);
+		ldap_unbind_ext(this->con, nullptr, nullptr);
 	}
 
 	void Connect()
@@ -433,14 +433,14 @@ private:
 			LDAPAttributes attributes;
 
 			char* dn = ldap_get_dn(this->con, cur);
-			if (dn != NULL)
+			if (dn != nullptr)
 			{
 				attributes["dn"].push_back(dn);
 				ldap_memfree(dn);
-				dn = NULL;
+				dn = nullptr;
 			}
 
-			BerElement* ber = NULL;
+			BerElement* ber = nullptr;
 
 			for (char* attr = ldap_first_attribute(this->con, cur, &ber); attr; attr = ldap_next_attribute(this->con, cur, ber))
 			{
@@ -455,7 +455,7 @@ private:
 				ldap_value_free_len(vals);
 				ldap_memfree(attr);
 			}
-			if (ber != NULL)
+			if (ber != nullptr)
 				ber_free(ber, 0);
 
 			ldap_result->messages.push_back(attributes);
@@ -656,7 +656,7 @@ int LDAPBind::run()
 	cred.bv_val = strdup(pass.c_str());
 	cred.bv_len = pass.length();
 
-	int i = ldap_sasl_bind_s(service->GetConnection(), who.c_str(), LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL);
+	int i = ldap_sasl_bind_s(service->GetConnection(), who.c_str(), LDAP_SASL_SIMPLE, &cred, nullptr, nullptr, nullptr);
 
 	free(cred.bv_val);
 
@@ -670,7 +670,7 @@ std::string LDAPBind::info()
 
 int LDAPSearch::run()
 {
-	return ldap_search_ext_s(service->GetConnection(), base.c_str(), searchscope, filter.c_str(), NULL, 0, NULL, NULL, &tv, 0, &message);
+	return ldap_search_ext_s(service->GetConnection(), base.c_str(), searchscope, filter.c_str(), nullptr, 0, nullptr, nullptr, &tv, 0, &message);
 }
 
 std::string LDAPSearch::info()
@@ -681,7 +681,7 @@ std::string LDAPSearch::info()
 int LDAPAdd::run()
 {
 	LDAPMod** mods = LDAPService::BuildMods(attributes);
-	int i = ldap_add_ext_s(service->GetConnection(), dn.c_str(), mods, NULL, NULL);
+	int i = ldap_add_ext_s(service->GetConnection(), dn.c_str(), mods, nullptr, nullptr);
 	LDAPService::FreeMods(mods);
 	return i;
 }
@@ -693,7 +693,7 @@ std::string LDAPAdd::info()
 
 int LDAPDel::run()
 {
-	return ldap_delete_ext_s(service->GetConnection(), dn.c_str(), NULL, NULL);
+	return ldap_delete_ext_s(service->GetConnection(), dn.c_str(), nullptr, nullptr);
 }
 
 std::string LDAPDel::info()
@@ -704,7 +704,7 @@ std::string LDAPDel::info()
 int LDAPModify::run()
 {
 	LDAPMod** mods = LDAPService::BuildMods(attributes);
-	int i = ldap_modify_ext_s(service->GetConnection(), base.c_str(), mods, NULL, NULL);
+	int i = ldap_modify_ext_s(service->GetConnection(), base.c_str(), mods, nullptr, nullptr);
 	LDAPService::FreeMods(mods);
 	return i;
 }
@@ -720,7 +720,7 @@ int LDAPCompare::run()
 	cred.bv_val = strdup(val.c_str());
 	cred.bv_len = val.length();
 
-	int ret = ldap_compare_ext_s(service->GetConnection(), dn.c_str(), attr.c_str(), &cred, NULL, NULL);
+	int ret = ldap_compare_ext_s(service->GetConnection(), dn.c_str(), attr.c_str(), &cred, nullptr, nullptr);
 
 	free(cred.bv_val);
 

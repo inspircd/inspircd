@@ -146,7 +146,7 @@ public:
 	 * @param setter Setter string, may be used when the original setter is no longer online.
 	 * If omitted or NULL, the setter string is obtained from the user.
 	 */
-	void SetTopic(User* user, const std::string& topic, time_t topicts, const std::string* setter = NULL);
+	void SetTopic(User* user, const std::string& topic, time_t topicts, const std::string* setter = nullptr);
 
 	/** Obtain the channel "user counter"
 	 * This returns the number of users on this channel
@@ -233,7 +233,7 @@ public:
 	 * @param created_by_local True if this channel was just created by a local user (passed to modules in the OnUserJoin hook)
 	 * @return A newly created Membership object, or NULL if the user was already inside the channel or if the user is a server user
 	 */
-	Membership* ForceJoin(User* user, const std::string* privs = NULL, bool bursting = false, bool created_by_local = false);
+	Membership* ForceJoin(User* user, const std::string* privs = nullptr, bool bursting = false, bool created_by_local = false);
 
 	/** Write to all users on a channel except some users
 	 * @param protoev Event to send, may contain any number of messages.

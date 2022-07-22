@@ -76,7 +76,7 @@ public:
 		 */
 		user->eh.DoWrite();
 
-		ssl->OnAccept(&user->eh, NULL, NULL);
+		ssl->OnAccept(&user->eh, nullptr, nullptr);
 
 		return CmdResult::SUCCESS;
 	}

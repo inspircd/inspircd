@@ -76,7 +76,7 @@ public:
 			changelist.push_add(npmh, user->nick);
 			if (op && opmode)
 				changelist.push_add(*opmode, user->nick);
-			ServerInstance->Modes.Process(ServerInstance->FakeClient, channel, NULL, changelist);
+			ServerInstance->Modes.Process(ServerInstance->FakeClient, channel, nullptr, changelist);
 		}
 		return CmdResult::SUCCESS;
 	}

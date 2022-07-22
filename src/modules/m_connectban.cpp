@@ -148,7 +148,7 @@ public:
 			{
 				// Create Z-line for set duration.
 				ZLine* zl = new ZLine(ServerInstance->Time(), banduration, MODNAME "@" + ServerInstance->Config->ServerName, banmessage, mask.str());
-				if (!ServerInstance->XLines->AddLine(zl, NULL))
+				if (!ServerInstance->XLines->AddLine(zl, nullptr))
 				{
 					delete zl;
 					return;

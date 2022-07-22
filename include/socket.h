@@ -169,7 +169,7 @@ public:
 	{
 	public:
 		IOHookProvRef()
-			: dynamic_reference_nocheck<IOHookProvider>(NULL, std::string())
+			: dynamic_reference_nocheck<IOHookProvider>(nullptr, std::string())
 		{
 		}
 	};

@@ -399,8 +399,8 @@ public:
 	 * @param mask The glob pattern to match against.
 	 * @param map The character map to use when matching.
 	 */
-	static bool Match(const std::string& str, const std::string& mask, const unsigned char* map = NULL);
-	static bool Match(const char* str, const char* mask, const unsigned char* map = NULL);
+	static bool Match(const std::string& str, const std::string& mask, const unsigned char* map = nullptr);
+	static bool Match(const char* str, const char* mask, const unsigned char* map = nullptr);
 
 	/** Match two strings using pattern matching, optionally, with a map
 	 * to check case against (may be NULL). If map is null, match will be case insensitive.
@@ -409,8 +409,8 @@ public:
 	 * @param mask The glob or CIDR pattern to match against.
 	 * @param map The character map to use when matching.
 	 */
-	static bool MatchCIDR(const std::string& str, const std::string& mask, const unsigned char* map = NULL);
-	static bool MatchCIDR(const char* str, const char* mask, const unsigned char* map = NULL);
+	static bool MatchCIDR(const std::string& str, const std::string& mask, const unsigned char* map = nullptr);
+	static bool MatchCIDR(const char* str, const char* mask, const unsigned char* map = nullptr);
 
 	/** Matches a hostname and IP against a space delimited list of hostmasks.
 	 * @param masks The space delimited masks to match against.
@@ -504,7 +504,7 @@ public:
 	 * @param utc True to convert the time to string as-is, false to convert it to local time first.
 	 * @return A string representing the given date/time.
 	 */
-	static std::string TimeString(time_t curtime, const char* format = NULL, bool utc = false);
+	static std::string TimeString(time_t curtime, const char* format = nullptr, bool utc = false);
 
 	/** Compare two strings in a timing-safe way. If the lengths of the strings differ, the function
 	 * returns false immediately (leaking information about the length), otherwise it compares each

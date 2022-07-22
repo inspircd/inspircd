@@ -101,7 +101,7 @@ std::shared_ptr<Link> TreeSocket::AuthRemote(const CommandBase::Params& params)
 	if (params.size() < 5)
 	{
 		SendError("Protocol error - Not enough parameters for SERVER command");
-		return NULL;
+		return nullptr;
 	}
 
 	const std::string& sname = params[0];
@@ -114,7 +114,7 @@ std::shared_ptr<Link> TreeSocket::AuthRemote(const CommandBase::Params& params)
 	if (!ServerInstance->IsSID(sid))
 	{
 		this->SendError("Invalid format server ID: "+sid+"!");
-		return NULL;
+		return nullptr;
 	}
 
 	for (std::shared_ptr<Link> x : Utils->LinkBlocks)
@@ -129,7 +129,7 @@ std::shared_ptr<Link> TreeSocket::AuthRemote(const CommandBase::Params& params)
 		}
 
 		if (!CheckDuplicate(sname, sid))
-			return NULL;
+			return nullptr;
 
 		const SSLIOHook* const ssliohook = SSLIOHook::IsSSL(this);
 		if (ssliohook)
@@ -141,7 +141,7 @@ std::shared_ptr<Link> TreeSocket::AuthRemote(const CommandBase::Params& params)
 		else if (capab->remotesa.family() != AF_UNIX && !irc::sockets::cidr_mask("127.0.0.0/8").match(capab->remotesa) && !irc::sockets::cidr_mask("::1/128").match(capab->remotesa))
 		{
 			this->SendError("Non-local server connections MUST be linked with SSL!");
-			return NULL;
+			return nullptr;
 		}
 
 		ServerInstance->SNO.WriteToSnoMask('l', "Verified server connection " + linkID + " ("+description+")");
@@ -150,7 +150,7 @@ std::shared_ptr<Link> TreeSocket::AuthRemote(const CommandBase::Params& params)
 
 	this->SendError("Mismatched server name or password (check the other server's snomask output for details - e.g. user mode +s +Ll)");
 	ServerInstance->SNO.WriteToSnoMask('l', "Server connection from \002"+sname+"\002 denied, invalid link credentials");
-	return NULL;
+	return nullptr;
 }
 
 /*

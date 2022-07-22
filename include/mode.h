@@ -820,30 +820,30 @@ public:
 
 inline PrefixMode* ModeHandler::IsPrefixMode()
 {
-	return (this->type_id == MC_PREFIX ? static_cast<PrefixMode*>(this) : NULL);
+	return (this->type_id == MC_PREFIX ? static_cast<PrefixMode*>(this) : nullptr);
 }
 
 inline const PrefixMode* ModeHandler::IsPrefixMode() const
 {
-	return (this->type_id == MC_PREFIX ? static_cast<const PrefixMode*>(this) : NULL);
+	return (this->type_id == MC_PREFIX ? static_cast<const PrefixMode*>(this) : nullptr);
 }
 
 inline ListModeBase* ModeHandler::IsListModeBase()
 {
-	return (this->type_id == MC_LIST ? reinterpret_cast<ListModeBase*>(this) : NULL);
+	return (this->type_id == MC_LIST ? reinterpret_cast<ListModeBase*>(this) : nullptr);
 }
 
 inline const ListModeBase* ModeHandler::IsListModeBase() const
 {
-	return (this->type_id == MC_LIST ? reinterpret_cast<const ListModeBase*>(this) : NULL);
+	return (this->type_id == MC_LIST ? reinterpret_cast<const ListModeBase*>(this) : nullptr);
 }
 
 inline ParamModeBase* ModeHandler::IsParameterMode()
 {
-	return (this->type_id == MC_PARAM ? reinterpret_cast<ParamModeBase*>(this) : NULL);
+	return (this->type_id == MC_PARAM ? reinterpret_cast<ParamModeBase*>(this) : nullptr);
 }
 
 inline const ParamModeBase* ModeHandler::IsParameterMode() const
 {
-	return (this->type_id == MC_PARAM ? reinterpret_cast<const ParamModeBase*>(this) : NULL);
+	return (this->type_id == MC_PARAM ? reinterpret_cast<const ParamModeBase*>(this) : nullptr);
 }

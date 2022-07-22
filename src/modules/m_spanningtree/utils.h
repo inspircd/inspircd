@@ -172,7 +172,7 @@ public:
 
 	/** Sends a PRIVMSG or a NOTICE to a channel obeying an exempt list and an optional prefix
 	 */
-	void SendChannelMessage(User* source, Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const CUList& exempt_list, const char* message_type, TreeSocket* omit = NULL);
+	void SendChannelMessage(User* source, Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const CUList& exempt_list, const char* message_type, TreeSocket* omit = nullptr);
 
 	// Builds link data to be sent to another server.
 	std::string BuildLinkString(uint16_t protocol, Module* mod);

@@ -106,11 +106,11 @@ public:
 		, config(tag)
 	{
 		std::string host = tag->getString("hostname");
-		if (sqlite3_open_v2(host.c_str(), &conn, SQLITE_OPEN_READWRITE, 0) != SQLITE_OK)
+		if (sqlite3_open_v2(host.c_str(), &conn, SQLITE_OPEN_READWRITE, nullptr) != SQLITE_OK)
 		{
 			// Even in case of an error conn must be closed
 			sqlite3_close(conn);
-			conn = NULL;
+			conn = nullptr;
 			ServerInstance->Logs.Normal(MODNAME, "WARNING: Could not open DB with id: " + tag->getString("id"));
 		}
 	}
@@ -128,7 +128,7 @@ public:
 	{
 		SQLite3Result res;
 		sqlite3_stmt *stmt;
-		int err = sqlite3_prepare_v2(conn, q.c_str(), static_cast<int>(q.length()), &stmt, NULL);
+		int err = sqlite3_prepare_v2(conn, q.c_str(), static_cast<int>(q.length()), &stmt, nullptr);
 		if (err != SQLITE_OK)
 		{
 			SQL::Error error(SQL::QSEND_FAIL, sqlite3_errmsg(conn));

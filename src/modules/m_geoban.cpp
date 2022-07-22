@@ -39,7 +39,7 @@ public:
 
 	bool IsMatch(User* user, Channel* channel, const std::string& text) override
 	{
-		Geolocation::Location* location = geoapi ? geoapi->GetLocation(user) : NULL;
+		Geolocation::Location* location = geoapi ? geoapi->GetLocation(user) : nullptr;
 		const std::string code = location ? location->GetCode() : "XX";
 
 		// Does this user match against the ban?
@@ -71,7 +71,7 @@ public:
 		if (!request.flags['G'])
 			return MOD_RES_PASSTHRU;
 
-		Geolocation::Location* location = geoapi ? geoapi->GetLocation(user) : NULL;
+		Geolocation::Location* location = geoapi ? geoapi->GetLocation(user) : nullptr;
 		const std::string code = location ? location->GetCode() : "XX";
 		return InspIRCd::Match(code, request.matchtext, ascii_case_insensitive_map) ? MOD_RES_ALLOW : MOD_RES_DENY;
 	}
@@ -81,7 +81,7 @@ public:
 		if (whois.GetTarget()->server->IsService())
 			return;
 
-		Geolocation::Location* location = geoapi ? geoapi->GetLocation(whois.GetTarget()) : NULL;
+		Geolocation::Location* location = geoapi ? geoapi->GetLocation(whois.GetTarget()) : nullptr;
 		if (location)
 			whois.SendLine(RPL_WHOISCOUNTRY, location->GetCode(), "is connecting from " + location->GetName());
 		else

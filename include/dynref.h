@@ -55,7 +55,7 @@ public:
 	void SetCaptureHook(CaptureHook* h) { hook = h; }
 
 	void check();
-	operator bool() const { return (value != NULL); }
+	operator bool() const { return (value != nullptr); }
 	static void reset_all();
 };
 

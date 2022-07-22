@@ -44,7 +44,7 @@ class KillMessage final
 {
 public:
 	KillMessage(ClientProtocol::EventProvider& protoev, User* user, LocalUser* target, const std::string& text, const std::string& hidenick)
-		: ClientProtocol::Message("KILL", NULL)
+		: ClientProtocol::Message("KILL", nullptr)
 	{
 		if (hidenick.empty())
 			SetSourceUser(user);

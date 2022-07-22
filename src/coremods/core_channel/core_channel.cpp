@@ -72,14 +72,14 @@ public:
 		if (modechangelist.empty())
 		{
 			// Member got no modes on join
-			joininguser = NULL;
+			joininguser = nullptr;
 			return;
 		}
 
 		joininguser = memb.user;
 
 		// Prepare a mode protocol event that we can append to the message list in OnPreEventSend()
-		modemsg.SetParams(memb.chan, NULL, modechangelist);
+		modemsg.SetParams(memb.chan, nullptr, modechangelist);
 		if (modefromuser)
 			modemsg.SetSource(join);
 		else
@@ -355,7 +355,7 @@ public:
 		if (!ExtBan::Parse(mask, name, value, inverted))
 			return MOD_RES_PASSTHRU;
 
-		ExtBan::Base* extban = NULL;
+		ExtBan::Base* extban = nullptr;
 		if (name.size() == 1)
 			extban = extbanmgr.FindLetter(name[0]);
 		else

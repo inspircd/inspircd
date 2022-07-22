@@ -186,7 +186,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ProviderConfig defaultConfig("argon2", NULL);
+		ProviderConfig defaultConfig("argon2", nullptr);
 		argon2i.config = ProviderConfig("argon2i", &defaultConfig);
 		argon2d.config = ProviderConfig("argon2d", &defaultConfig);
 		argon2id.config = ProviderConfig("argon2id", &defaultConfig);

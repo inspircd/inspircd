@@ -170,7 +170,7 @@ public:
 
 	static bool ParseIP(const std::string& in, irc::sockets::sockaddrs& out)
 	{
-		const char* ident = NULL;
+		const char* ident = nullptr;
 		if (in.length() == 8)
 		{
 			// The ident is an IPv4 address encoded in hexadecimal with two characters
@@ -195,7 +195,7 @@ public:
 		// Try to convert the IP address to a string. If this fails then the user
 		// does not have an IPv4 address in their ident.
 		errno = 0;
-		unsigned long address = strtoul(ident, NULL, 16);
+		unsigned long address = strtoul(ident, nullptr, 16);
 		if (errno)
 			return false;
 

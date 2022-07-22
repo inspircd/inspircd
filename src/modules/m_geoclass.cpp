@@ -44,7 +44,7 @@ public:
 
 		// If we can't find the location of this user then we can't assign
 		// them to a location-specific connect class.
-		Geolocation::Location* location = geoapi ? geoapi->GetLocation(user) : NULL;
+		Geolocation::Location* location = geoapi ? geoapi->GetLocation(user) : nullptr;
 		const std::string code = location ? location->GetCode() : "XX";
 
 		irc::spacesepstream codes(country);

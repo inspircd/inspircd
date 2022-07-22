@@ -187,7 +187,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	 * besides that, if we get a positive bancache hit, we still won't fuck
 	 * them over if they are exempt. -- w00t
 	 */
-	New->exempt = (ServerInstance->XLines->MatchesLine("E",New) != NULL);
+	New->exempt = (ServerInstance->XLines->MatchesLine("E",New) != nullptr);
 
 	BanCacheHit* const b = ServerInstance->BanCache.GetHit(New->GetIPString());
 	if (b)

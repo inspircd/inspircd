@@ -53,7 +53,7 @@ public:
 				return CmdResult::SUCCESS;
 			}
 
-			target->SetTopic(user, newTopic, ServerInstance->Time(), NULL);
+			target->SetTopic(user, newTopic, ServerInstance->Time(), nullptr);
 			ServerInstance->SNO.WriteGlobalSno('a', user->nick + " used SATOPIC on " + target->name + ", new topic: " + newTopic);
 
 			return CmdResult::SUCCESS;

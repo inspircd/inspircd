@@ -43,7 +43,7 @@ CmdResult CommandEncap::Handle(User* user, Params& params)
 			return CmdResult::SUCCESS;
 		}
 
-		Command* cmd = NULL;
+		Command* cmd = nullptr;
 		ServerInstance->Parser.CallHandler(params[1], plist, user, &cmd);
 		// Discard return value, ENCAP shall succeed even if the command does not exist
 

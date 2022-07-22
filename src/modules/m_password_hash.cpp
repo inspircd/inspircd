@@ -57,7 +57,7 @@ public:
 
 			std::string salt = ServerInstance->GenRandomStr(hp->out_size, false);
 			std::string target = hp->hmac(salt, parameters[1]);
-			std::string str = Base64::Encode(salt) + "$" + Base64::Encode(target, NULL, 0);
+			std::string str = Base64::Encode(salt) + "$" + Base64::Encode(target, nullptr, 0);
 
 			user->WriteNotice(parameters[0] + " hashed password for " + parameters[1] + " is " + str);
 			return CmdResult::SUCCESS;

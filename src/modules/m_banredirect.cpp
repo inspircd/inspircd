@@ -282,7 +282,7 @@ public:
 				for (const auto& redirect : *redirects)
 					changelist.push_add(*banwatcher.banmode, redirect.banmask);
 
-				ServerInstance->Modes.Process(ServerInstance->FakeClient, chan, NULL, changelist, ModeParser::MODE_LOCALONLY);
+				ServerInstance->Modes.Process(ServerInstance->FakeClient, chan, nullptr, changelist, ModeParser::MODE_LOCALONLY);
 			}
 		}
 	}

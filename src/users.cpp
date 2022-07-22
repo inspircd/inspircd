@@ -395,7 +395,7 @@ void User::Oper(std::shared_ptr<OperInfo> info)
 	{
 		Modes::ChangeList changelist;
 		changelist.push_add(opermh);
-		ClientProtocol::Events::Mode modemsg(ServerInstance->FakeClient, NULL, localuser, changelist);
+		ClientProtocol::Events::Mode modemsg(ServerInstance->FakeClient, nullptr, localuser, changelist);
 		localuser->Send(modemsg);
 	}
 
@@ -462,7 +462,7 @@ void User::UnOper()
 	 * note, order is important - this must come before modes as -o attempts
 	 * to call UnOper. -- w00t
 	 */
-	oper = NULL;
+	oper = nullptr;
 
 	// Remove the user from the oper list
 	stdalgo::vector::swaperase(ServerInstance->Users.all_opers, this);
@@ -480,7 +480,7 @@ void User::UnOper()
 			changelist.push_remove(mh);
 	}
 
-	ServerInstance->Modes.Process(this, NULL, this, changelist);
+	ServerInstance->Modes.Process(this, nullptr, this, changelist);
 
 	ModeHandler* opermh = ServerInstance->Modes.FindMode('o', MODETYPE_USER);
 	if (opermh)
@@ -536,7 +536,7 @@ void LocalUser::CheckClass(bool clone_count)
 
 bool LocalUser::CheckLines(bool doZline)
 {
-	const char* check[] = { "G" , "K", (doZline) ? "Z" : NULL, NULL };
+	const char* check[] = { "G" , "K", (doZline) ? "Z" : nullptr, nullptr };
 
 	if (!this->exempt)
 	{
@@ -566,7 +566,7 @@ void LocalUser::FullConnect()
 	 * may put the user into a totally separate class with different restrictions! so we *must* check again.
 	 * Don't remove this! -- w00t
 	 */
-	connectclass = NULL;
+	connectclass = nullptr;
 	SetClass();
 	CheckClass();
 	CheckLines();
@@ -781,7 +781,7 @@ void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa)
 	ServerInstance->Users.AddClone(this);
 
 	// Recheck the connect class.
-	this->connectclass = NULL;
+	this->connectclass = nullptr;
 	this->SetClass();
 	this->CheckClass();
 

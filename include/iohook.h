@@ -168,7 +168,7 @@ public:
 	{
 		if (hook->prov->IsMiddle())
 			return static_cast<IOHookMiddle*>(hook);
-		return NULL;
+		return nullptr;
 	}
 
 	friend class StreamSocket;

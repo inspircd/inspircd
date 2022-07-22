@@ -27,7 +27,7 @@
 #include "base.h"
 
 // This trick detects heap allocations of refcountbase objects
-static void* last_heap = NULL;
+static void* last_heap = nullptr;
 
 void* refcountbase::operator new(size_t size)
 {
@@ -38,7 +38,7 @@ void* refcountbase::operator new(size_t size)
 void refcountbase::operator delete(void* obj)
 {
 	if (last_heap == obj)
-		last_heap = NULL;
+		last_heap = nullptr;
 	::operator delete(obj);
 }
 

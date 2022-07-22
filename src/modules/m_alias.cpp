@@ -181,7 +181,7 @@ public:
 		{
 			if (alias.UserCommand)
 			{
-				if (DoAlias(user, NULL, alias, compare, original_line))
+				if (DoAlias(user, nullptr, alias, compare, original_line))
 				{
 					return MOD_RES_DENY;
 				}

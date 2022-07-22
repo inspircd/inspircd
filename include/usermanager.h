@@ -123,7 +123,7 @@ public:
 	 * @param quitreason The quit reason to show to normal users
 	 * @param operreason The quit reason to show to opers, can be NULL if same as quitreason
 	 */
-	void QuitUser(User* user, const std::string& quitreason, const std::string* operreason = NULL);
+	void QuitUser(User* user, const std::string& quitreason, const std::string* operreason = nullptr);
 
 	/** Add a user to the clone map
 	 * @param user The user to add

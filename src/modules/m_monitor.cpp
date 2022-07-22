@@ -178,7 +178,7 @@ public:
 		Entry* entry = Find(nick);
 		if (entry)
 			return &entry->watchers;
-		return NULL;
+		return nullptr;
 	}
 
 	static User* FindNick(const std::string& nick)
@@ -186,7 +186,7 @@ public:
 		User* user = ServerInstance->Users.FindNick(nick);
 		if ((user) && (user->registered == REG_ALL))
 			return user;
-		return NULL;
+		return nullptr;
 	}
 
 private:
@@ -197,7 +197,7 @@ private:
 		NickHash::iterator it = nicks.find(nick);
 		if (it != nicks.end())
 			return &it->second;
-		return NULL;
+		return nullptr;
 	}
 
 	Entry* AddWatcher(const std::string& nick, LocalUser* user)
@@ -235,7 +235,7 @@ private:
 	{
 		ExtData* extdata = ext.Get(user, create);
 		if (!extdata)
-			return NULL;
+			return nullptr;
 		return &extdata->list;
 	}
 

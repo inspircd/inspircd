@@ -67,7 +67,7 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 		return CmdResult::FAILURE;
 	}
 
-	Membership* srcmemb = NULL;
+	Membership* srcmemb = nullptr;
 	if (IS_LOCAL(user))
 	{
 		srcmemb = c->GetUser(user);

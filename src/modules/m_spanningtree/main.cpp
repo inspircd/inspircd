@@ -532,7 +532,7 @@ void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by
 		params.add(memb);
 		params.finalize();
 		params.Broadcast();
-		Utils->SendListLimits(memb->chan, NULL);
+		Utils->SendListLimits(memb->chan, nullptr);
 	}
 	else
 	{
@@ -659,7 +659,7 @@ void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
 	{
 		CmdBuilder params(user ? user : ServerInstance->FakeClient, "REHASH");
 		params.push(parameter);
-		params.Forward(user ? TreeServer::Get(user)->GetRoute() : NULL);
+		params.Forward(user ? TreeServer::Get(user)->GetRoute() : nullptr);
 	}
 }
 

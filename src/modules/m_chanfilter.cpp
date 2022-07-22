@@ -73,17 +73,17 @@ class ModuleChanFilter final
 	const ChanFilter::ListItem* Match(User* user, Channel* chan, const std::string& text)
 	{
 		if (!IS_LOCAL(user))
-			return NULL; // We don't handle remote users.
+			return nullptr; // We don't handle remote users.
 
 		if (user->HasPrivPermission("channels/ignore-chanfilter"))
-			return NULL; // The source is an exempt server operator.
+			return nullptr; // The source is an exempt server operator.
 
 		if (CheckExemption::Call(exemptionprov, user, chan, "filter") == MOD_RES_ALLOW)
-			return NULL; // The source matches an exemptchanops entry.
+			return nullptr; // The source matches an exemptchanops entry.
 
 		ListModeBase::ModeList* list = cf.GetList(chan);
 		if (!list)
-			return NULL;
+			return nullptr;
 
 		for (const auto& entry : *list)
 		{
@@ -91,7 +91,7 @@ class ModuleChanFilter final
 				return &entry;
 		}
 
-		return NULL;
+		return nullptr;
 	}
 
 public:

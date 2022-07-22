@@ -48,7 +48,7 @@ public:
 			return ServerInstance->Modes.FindPrefixMode(mid[0]);
 
 		ModeHandler* mh = ServerInstance->Modes.FindMode(mid, MODETYPE_CHANNEL);
-		return mh ? mh->IsPrefixMode() : NULL;
+		return mh ? mh->IsPrefixMode() : nullptr;
 	}
 
 	ModResult AccessCheck(User* source, Channel* channel, Modes::Change& change) override
@@ -117,7 +117,7 @@ public:
 						changelist.push_add(given, memb->user->nick);
 				}
 			}
-			ServerInstance->Modes.Process(ServerInstance->FakeClient, memb->chan, NULL, changelist);
+			ServerInstance->Modes.Process(ServerInstance->FakeClient, memb->chan, nullptr, changelist);
 		}
 	}
 

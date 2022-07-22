@@ -237,7 +237,7 @@ const WhoWas::Nick* WhoWas::Manager::FindNick(const std::string& nickname) const
 {
 	whowas_users::const_iterator it = whowas.find(nickname);
 	if (it == whowas.end())
-		return NULL;
+		return nullptr;
 	return it->second;
 }
 

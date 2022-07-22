@@ -465,7 +465,7 @@ class WebSocketHook final
 		key.append(MagicGUID);
 
 		std::string reply = "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ";
-		reply.append(Base64::Encode((*sha1)->GenerateRaw(key), NULL, '=')).append(newline);
+		reply.append(Base64::Encode((*sha1)->GenerateRaw(key), nullptr, '=')).append(newline);
 		if (!selectedproto.empty())
 			reply.append("Sec-WebSocket-Protocol: ").append(selectedproto).append(newline);
 		reply.append(newline);

@@ -117,7 +117,7 @@ class TreeSocket final
 	std::unique_ptr<CapabData> capab;	/* Link setup data (held until burst is sent) */
 
 	/* The server we are talking to */
-	TreeServer* MyRoot = NULL;
+	TreeServer* MyRoot = nullptr;
 
 	/** Checks if the given servername and sid are both free
 	 */

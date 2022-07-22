@@ -224,7 +224,7 @@ public:
 				XLine* xl = xlf->Generate(ServerInstance->Time(), ConvToNum<unsigned long>(command_p[5]), command_p[3], command_p[6], command_p[2]);
 				xl->SetCreateTime(ConvToNum<time_t>(command_p[4]));
 
-				if (ServerInstance->XLines->AddLine(xl, NULL))
+				if (ServerInstance->XLines->AddLine(xl, nullptr))
 				{
 					ServerInstance->SNO.WriteToSnoMask('x', "database: Added a line of type %s", command_p[1].c_str());
 				}

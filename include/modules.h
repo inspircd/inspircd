@@ -1098,7 +1098,7 @@ public:
 	 * then this contains a the module that your module must be placed before
 	 * or after.
 	 */
-	bool SetPriority(Module* mod, Implementation i, Priority s, Module* which = NULL);
+	bool SetPriority(Module* mod, Implementation i, Priority s, Module* which = nullptr);
 
 	/** Change the priority of all events in a module.
 	 * @param mod The module to set the priority of

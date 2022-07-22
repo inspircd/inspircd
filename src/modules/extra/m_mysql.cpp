@@ -327,7 +327,7 @@ public:
 		const std::string pass = config->getString("pass");
 		const std::string dbname = config->getString("name");
 		unsigned int port = static_cast<unsigned int>(config->getUInt("port", 3306, 1, 65535));
-		if (!mysql_real_connect(connection, host.c_str(), user.c_str(), pass.c_str(), dbname.c_str(), port, NULL, CLIENT_IGNORE_SIGPIPE))
+		if (!mysql_real_connect(connection, host.c_str(), user.c_str(), pass.c_str(), dbname.c_str(), port, nullptr, CLIENT_IGNORE_SIGPIPE))
 		{
 			ServerInstance->Logs.Normal(MODNAME, "Unable to connect to the %s MySQL server: %s",
 				GetId().c_str(), mysql_error(connection));
@@ -435,7 +435,7 @@ public:
 
 void ModuleSQL::init()
 {
-	if (mysql_library_init(0, NULL, NULL))
+	if (mysql_library_init(0, nullptr, nullptr))
 		throw ModuleException(this, "Unable to initialise the MySQL library!");
 
 	Dispatcher = new DispatcherThread(this);

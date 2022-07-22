@@ -168,7 +168,7 @@ public:
 
 			// If there is no redirect chan, the user has enabled the antiredirect mode, or
 			// the target channel redirects elsewhere we just tell the user and deny the join.
-			Channel* target = NULL;
+			Channel* target = nullptr;
 			if (badchan.redirect.empty() || user->IsModeSet(antiredirectmode)
 				|| ((target = ServerInstance->Channels.Find(badchan.redirect)) && target->IsModeSet(redirectmode)))
 			{

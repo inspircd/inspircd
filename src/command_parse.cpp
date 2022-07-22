@@ -116,7 +116,7 @@ Command* CommandParser::GetHandler(const std::string &commandname)
 	if (n != cmdlist.end())
 		return n->second;
 
-	return NULL;
+	return nullptr;
 }
 
 // calls a handler function for a command

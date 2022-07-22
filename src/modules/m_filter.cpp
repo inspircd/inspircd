@@ -470,7 +470,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 				user->nick.c_str(), sh->Displayable().c_str(), InspIRCd::DurationString(f->duration).c_str(),
 				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
 				msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str()));
-			if (ServerInstance->XLines->AddLine(sh, NULL))
+			if (ServerInstance->XLines->AddLine(sh, nullptr))
 			{
 				ServerInstance->XLines->ApplyLines();
 			}
@@ -484,7 +484,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 				user->nick.c_str(), gl->Displayable().c_str(), InspIRCd::DurationString(f->duration).c_str(),
 				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
 				msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str()));
-			if (ServerInstance->XLines->AddLine(gl,NULL))
+			if (ServerInstance->XLines->AddLine(gl, nullptr))
 			{
 				ServerInstance->XLines->ApplyLines();
 			}
@@ -498,7 +498,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 				user->nick.c_str(), zl->Displayable().c_str(), InspIRCd::DurationString(f->duration).c_str(),
 				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
 				msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str()));
-			if (ServerInstance->XLines->AddLine(zl,NULL))
+			if (ServerInstance->XLines->AddLine(zl, nullptr))
 			{
 				ServerInstance->XLines->ApplyLines();
 			}
@@ -577,7 +577,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 					InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
 					command.c_str(), f->freeform.c_str(), f->reason.c_str()));
 
-				if (ServerInstance->XLines->AddLine(gl,NULL))
+				if (ServerInstance->XLines->AddLine(gl, nullptr))
 				{
 					ServerInstance->XLines->ApplyLines();
 				}
@@ -593,7 +593,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 					InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
 					command.c_str(), f->freeform.c_str(), f->reason.c_str()));
 
-				if (ServerInstance->XLines->AddLine(zl,NULL))
+				if (ServerInstance->XLines->AddLine(zl, nullptr))
 				{
 					ServerInstance->XLines->ApplyLines();
 				}
@@ -610,7 +610,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 					InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
 					command.c_str(), f->freeform.c_str(), f->reason.c_str()));
 
-				if (ServerInstance->XLines->AddLine(sh, NULL))
+				if (ServerInstance->XLines->AddLine(sh, nullptr))
 				{
 					ServerInstance->XLines->ApplyLines();
 				}
@@ -649,7 +649,7 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 		filterconf = ServerInstance->Config->Paths.PrependConfig(filterconf);
 	SetInterval(tag->getDuration("saveperiod", 5));
 
-	factory = RegexEngine ? (RegexEngine.operator->()) : NULL;
+	factory = RegexEngine ? (RegexEngine.operator->()) : nullptr;
 
 	RegexEngine.SetEngine(newrxengine);
 	if (!RegexEngine)
@@ -776,7 +776,7 @@ const FilterResult* ModuleFilter::FilterMatch(User* user, const std::string &tex
 		if (filter.regex->IsMatch(filter.flag_strip_color ? stripped_text : text))
 			return &filter;
 	}
-	return NULL;
+	return nullptr;
 }
 
 bool ModuleFilter::DeleteFilter(const std::string& freeform, std::string& reason)

@@ -101,7 +101,7 @@ public:
 	 * @param Sourceuser User to set as source of the message. If NULL, the message won't have a source when serialized.
 	 * Optional, defaults to NULL.
 	 */
-	MessageSource(User* Sourceuser = NULL)
+	MessageSource(User* Sourceuser = nullptr)
 	{
 		SetSourceUser(Sourceuser);
 	}
@@ -113,7 +113,7 @@ public:
 	 * if provided it may be used internally, for example to create message tags.
 	 * Useful when the source string is synthesized but it is still related to a User.
 	 */
-	MessageSource(const std::string& Sourcestr, User* Sourceuser = NULL)
+	MessageSource(const std::string& Sourcestr, User* Sourceuser = nullptr)
 	{
 		SetSource(Sourcestr, Sourceuser);
 	}
@@ -128,7 +128,7 @@ public:
 			return sourcestr;
 		if (sourceuser)
 			return &sourceuser->GetFullHost();
-		return NULL;
+		return nullptr;
 	}
 
 	/** Get the source User.
@@ -144,7 +144,7 @@ public:
 	void SetSourceUser(User* Sourceuser)
 	{
 		sourceuser = Sourceuser;
-		sourcestr = NULL;
+		sourcestr = nullptr;
 	}
 
 	/** Set the source string and optionally source user.
@@ -153,7 +153,7 @@ public:
 	 * as this object is alive.
 	 * @param Sourceuser Source user to set, optional.
 	 */
-	void SetSource(const std::string& Sourcestr, User* Sourceuser = NULL)
+	void SetSource(const std::string& Sourcestr, User* Sourceuser = nullptr)
 	{
 		sourcestr = &Sourcestr;
 		sourceuser = Sourceuser;
@@ -240,14 +240,14 @@ public:
 		}
 
 		Param(int, const char* s)
-			: ptr(NULL)
+			: ptr(nullptr)
 			, owned(true)
 		{
 			new(str) std::string(s);
 		}
 
 		Param(int, const std::string& s)
-			: ptr(NULL)
+			: ptr(nullptr)
 			, owned(true)
 		{
 			new(str) std::string(s);
@@ -309,7 +309,7 @@ public:
 	 * with SetCommand() before the message is serialized.
 	 * @param Sourceuser See the one parameter constructor of MessageSource for description.
 	 */
-	Message(const char* cmd, User* Sourceuser = NULL)
+	Message(const char* cmd, User* Sourceuser = nullptr)
 		: ClientProtocol::MessageSource(Sourceuser)
 		, command(cmd ? cmd : std::string())
 	{
@@ -324,7 +324,7 @@ public:
 	 * Must remain valid as long as this object is alive.
 	 * @param Sourceuser See the two parameter constructor of MessageSource for description.
 	 */
-	Message(const char* cmd, const std::string& Sourcestr, User* Sourceuser = NULL)
+	Message(const char* cmd, const std::string& Sourcestr, User* Sourceuser = nullptr)
 		: ClientProtocol::MessageSource(Sourcestr, Sourceuser)
 		, command(cmd ? cmd : std::string())
 	{
@@ -403,7 +403,7 @@ public:
 	 * @param val Tag value. If empty no value will be sent with the tag.
 	 * @param tagdata Tag provider specific data, will be passed to MessageTagProvider::ShouldSendTag(). Optional, defaults to NULL.
 	 */
-	void AddTag(const std::string& tagname, MessageTagProvider* tagprov, const std::string& val, void* tagdata = NULL)
+	void AddTag(const std::string& tagname, MessageTagProvider* tagprov, const std::string& val, void* tagdata = nullptr)
 	{
 		tags.emplace(tagname, MessageTagData(tagprov, val, tagdata));
 	}
@@ -499,7 +499,7 @@ public:
 	void SetMessage(Message* msg)
 	{
 		initialmsg = msg;
-		initialmsglist = NULL;
+		initialmsglist = nullptr;
 	}
 
 	/** Set a list of messages as the initial messages in the event.
@@ -507,7 +507,7 @@ public:
 	 */
 	void SetMessageList(const MessageList& msglist)
 	{
-		initialmsg = NULL;
+		initialmsg = nullptr;
 		initialmsglist = &msglist;
 	}
 
@@ -662,19 +662,19 @@ struct ClientProtocol::RFCEvents final
 	EventProvider error;
 
 	RFCEvents()
-		: numeric(NULL, "NUMERIC")
-		, join(NULL, "JOIN")
-		, part(NULL, "PART")
-		, kick(NULL, "KICK")
-		, quit(NULL, "QUIT")
-		, nick(NULL, "NICK")
-		, mode(NULL, "MODE")
-		, topic(NULL, "TOPIC")
-		, privmsg(NULL, "PRIVMSG")
-		, invite(NULL, "INVITE")
-		, ping(NULL, "PING")
-		, pong(NULL, "PONG")
-		, error(NULL, "ERROR")
+		: numeric(nullptr, "NUMERIC")
+		, join(nullptr, "JOIN")
+		, part(nullptr, "PART")
+		, kick(nullptr, "KICK")
+		, quit(nullptr, "QUIT")
+		, nick(nullptr, "NICK")
+		, mode(nullptr, "MODE")
+		, topic(nullptr, "TOPIC")
+		, privmsg(nullptr, "PRIVMSG")
+		, invite(nullptr, "INVITE")
+		, ping(nullptr, "PING")
+		, pong(nullptr, "PONG")
+		, error(nullptr, "ERROR")
 	{
 	}
 };

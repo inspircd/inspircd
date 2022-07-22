@@ -93,7 +93,7 @@ public:
 		// The user was force joined and OnUserPreJoin() did not run. Set the operprefix now.
 		Modes::ChangeList changelist;
 		changelist.push_add(&opm, memb->user->nick);
-		ServerInstance->Modes.Process(ServerInstance->FakeClient, memb->chan, NULL, changelist);
+		ServerInstance->Modes.Process(ServerInstance->FakeClient, memb->chan, nullptr, changelist);
 	}
 
 	void SetOperPrefix(User* user, bool add)
@@ -101,7 +101,7 @@ public:
 		Modes::ChangeList changelist;
 		changelist.push(&opm, add, user->nick);
 		for (const auto* memb : user->chans)
-			ServerInstance->Modes.Process(ServerInstance->FakeClient, memb->chan, NULL, changelist);
+			ServerInstance->Modes.Process(ServerInstance->FakeClient, memb->chan, nullptr, changelist);
 	}
 
 	void OnPostOper(User* user) override

@@ -161,7 +161,7 @@ namespace DNS
 					return &rr;
 			}
 
-			return NULL;
+			return nullptr;
 		}
 	};
 

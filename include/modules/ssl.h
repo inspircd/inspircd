@@ -206,7 +206,7 @@ public:
 		if (lasthook && (lasthook->prov->type == IOHookProvider::IOH_SSL))
 			return static_cast<SSLIOHook*>(lasthook);
 
-		return NULL;
+		return nullptr;
 	}
 
 	SSLIOHook(std::shared_ptr<IOHookProvider> hookprov)
@@ -267,7 +267,7 @@ public:
 	{
 		SSLIOHook* ssliohook = SSLIOHook::IsSSL(sock);
 		if (!ssliohook)
-			return NULL;
+			return nullptr;
 
 		return ssliohook->GetCertificate();
 	}

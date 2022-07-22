@@ -106,7 +106,7 @@ namespace mbedTLS
 	public:
 		bool Seed(Entropy& entropy)
 		{
-			return (mbedtls_ctr_drbg_seed(get(), mbedtls_entropy_func, entropy.get(), NULL, 0) == 0);
+			return (mbedtls_ctr_drbg_seed(get(), mbedtls_entropy_func, entropy.get(), nullptr, 0) == 0);
 		}
 
 		void SetupConf(mbedtls_ssl_config* conf)
@@ -136,10 +136,10 @@ namespace mbedTLS
 		{
 #if MBEDTLS_VERSION_MAJOR >= 3
 			int ret = mbedtls_pk_parse_key(get(), reinterpret_cast<const unsigned char*>(keystr.c_str()),
-				keystr.size() + 1, NULL, 0, mbedtls_ctr_drbg_random, 0);
+				keystr.size() + 1, nullptr, 0, mbedtls_ctr_drbg_random, 0);
 #else
 			int ret = mbedtls_pk_parse_key(get(), reinterpret_cast<const unsigned char*>(keystr.c_str()),
-				keystr.size() + 1, NULL, 0);
+				keystr.size() + 1, nullptr, 0);
 #endif
 			ThrowOnError(ret, "Unable to import private key");
 		}
@@ -221,7 +221,7 @@ namespace mbedTLS
 			ThrowOnError(ret, "Unable to load certificates");
 		}
 
-		bool empty() const { return (get()->raw.p != NULL); }
+		bool empty() const { return (get()->raw.p != nullptr); }
 	};
 
 	class X509CRL final
@@ -295,7 +295,7 @@ namespace mbedTLS
 			mbedtls_ssl_config_init(&conf);
 #ifdef INSPIRCD_MBEDTLS_LIBRARY_DEBUG
 			mbedtls_debug_set_threshold(INT_MAX);
-			mbedtls_ssl_conf_dbg(&conf, DebugLogFunc, NULL);
+			mbedtls_ssl_conf_dbg(&conf, DebugLogFunc, nullptr);
 #endif
 
 			// TODO: check ret of mbedtls_ssl_config_defaults
@@ -555,7 +555,7 @@ private:
 
 		mbedtls_ssl_close_notify(&sess);
 		mbedtls_ssl_free(&sess);
-		certificate = NULL;
+		certificate = nullptr;
 		status = STATUS_NONE;
 	}
 
@@ -709,7 +709,7 @@ public:
 		else
 			GetProfile().SetupClientSession(&sess);
 
-		mbedtls_ssl_set_bio(&sess, reinterpret_cast<void*>(sock), Push, Pull, NULL);
+		mbedtls_ssl_set_bio(&sess, reinterpret_cast<void*>(sock), Push, Pull, nullptr);
 
 		sock->AddIOHook(this);
 		Handshake(sock);
