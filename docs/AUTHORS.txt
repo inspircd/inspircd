@@ -1,4 +1,4 @@
-Since the first commit in January 2003 107 people have submitted patches,
+Since the first commit in January 2003 106 people have submitted patches,
 commits, and other useful contributions to InspIRCd. These people, ordered by
 the number of contributions they have made, are:
 
@@ -74,7 +74,6 @@ the number of contributions they have made, are:
   * Christian Höltje <docwhat@gerf.org>
   * Christoph Egger <christoph@debian.org>
   * Christos Triantafyllidis
-  * Daniel De Graaf <danieldg@inspircd.org>.
   * David Lamont <del6597@rit.edu>
   * David Schultz <me@zpld.me>
   * Dominic Hamon
