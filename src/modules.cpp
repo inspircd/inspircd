@@ -705,6 +705,12 @@ void dynamic_reference_base::SetProvider(const std::string& newname)
 	resolve();
 }
 
+void dynamic_reference_base::ClearProvider()
+{
+	name.clear();
+	value = nullptr;
+}
+
 void dynamic_reference_base::resolve()
 {
 	// Because find() may return any element with a matching key in case count(key) > 1 use lower_bound()

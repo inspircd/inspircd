@@ -233,7 +233,7 @@ void ListenSocket::ResetIOHookProvider()
 		IOHookProvRef& curr = *i;
 		// Ignore if cannot be in the middle
 		if ((curr) && (!curr->IsMiddle()))
-			curr.SetProvider(std::string());
+			curr.ClearProvider();
 	}
 
 	std::string provname = bind_tag->getString("sslprofile");

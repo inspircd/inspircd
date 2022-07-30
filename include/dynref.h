@@ -47,6 +47,7 @@ public:
 	dynamic_reference_base(Module* Creator, const std::string& Name);
 	~dynamic_reference_base();
 	inline const std::string& GetProvider() const { return name; }
+	void ClearProvider();
 	void SetProvider(const std::string& newname);
 
 	/** Set handler to call when the target object becomes available
