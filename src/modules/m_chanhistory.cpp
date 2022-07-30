@@ -158,10 +158,9 @@ private:
 
 	void AddTag(ClientProtocol::Message& msg, const std::string& tagkey, std::string& tagval)
 	{
-		const Events::ModuleEventProvider::SubscriberList& list = tagevent.GetSubscribers();
-		for (Events::ModuleEventProvider::SubscriberList::const_iterator i = list.begin(); i != list.end(); ++i)
+		for (const auto& subscriber : tagevent.GetSubscribers())
 		{
-			ClientProtocol::MessageTagProvider* const tagprov = static_cast<ClientProtocol::MessageTagProvider*>(*i);
+			ClientProtocol::MessageTagProvider* const tagprov = static_cast<ClientProtocol::MessageTagProvider*>(subscriber);
 			const ModResult res = tagprov->OnProcessTag(ServerInstance->FakeClient, tagkey, tagval);
 			if (res == MOD_RES_ALLOW)
 				msg.AddTag(tagkey, tagprov, tagval);

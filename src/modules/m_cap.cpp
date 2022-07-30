@@ -286,7 +286,7 @@ namespace
 		// XXX: Cast away the const because IS_LOCAL() doesn't handle it
 		LocalUser* user = IS_LOCAL(const_cast<User*>(static_cast<const User*>(container)));
 		if (!user)
-			return std::string();
+			return {};
 
 		// List requested caps
 		std::vector<std::string> result;

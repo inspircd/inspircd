@@ -35,7 +35,7 @@ static bool MatchInternal(const unsigned char* str, const unsigned char* mask, c
 	{
 		if ((map[*wild] != map[*string]) && (*wild != '?'))
 		{
-			return 0;
+			return false;
 		}
 		wild++;
 		string++;
@@ -47,7 +47,7 @@ static bool MatchInternal(const unsigned char* str, const unsigned char* mask, c
 		{
 			if (!*++wild)
 			{
-				return 1;
+				return true;
 			}
 			mp = wild;
 			cp = string+1;

@@ -39,7 +39,7 @@ class DummySerializer final
 
 	ClientProtocol::SerializedMessage Serialize(const ClientProtocol::Message& msg, const ClientProtocol::TagSelection& tagwl) const override
 	{
-		return ClientProtocol::SerializedMessage();
+		return {};
 	}
 
 public:
@@ -320,7 +320,7 @@ void DataKeeper::DoSaveUsers()
 		{
 			ModeHandler* mh = handledmodes[MODETYPE_USER][j].mh;
 			if (user->IsModeSet(mh))
-				currdata.modelist.push_back(InstanceData(j, mh->GetUserParameter(user)));
+				currdata.modelist.emplace_back(j, mh->GetUserParameter(user));
 		}
 
 		// Serialize all extensions attached to the User
@@ -333,7 +333,7 @@ void DataKeeper::DoSaveUsers()
 		// have to do anything with this user when restoring
 		if ((!currdata.empty()) || (serializerindex != UserData::UNUSED_INDEX))
 		{
-			userdatalist.push_back(UserData(user, serializerindex));
+			userdatalist.emplace_back(user, serializerindex);
 			userdatalist.back().swap(currdata);
 		}
 	}
@@ -347,7 +347,7 @@ size_t DataKeeper::GetSerializerIndex(ClientProtocol::Serializer* serializer)
 			return i;
 	}
 
-	handledserializers.push_back(ProviderInfo(serializer));
+	handledserializers.emplace_back(serializer);
 	return handledserializers.size()-1;
 }
 
@@ -380,7 +380,7 @@ void DataKeeper::SaveExtensions(Extensible* extensible, std::vector<InstanceData
 		std::string value = item->ToInternal(extensible, it->second);
 		// If the serialized value is empty the extension won't be saved and restored
 		if (!value.empty())
-			extdata.push_back(InstanceData(index, value));
+			extdata.emplace_back(index, value);
 	}
 }
 
@@ -391,7 +391,7 @@ void DataKeeper::SaveListModes(Channel* chan, ListModeBase* lm, size_t index, Mo
 		return;
 
 	for (const auto& listitem : *list)
-		currdata.modelist.push_back(InstanceData(index, listitem.mask));
+		currdata.modelist.emplace_back(index, listitem.mask);
 }
 
 void DataKeeper::DoSaveChans()
@@ -409,7 +409,7 @@ void DataKeeper::DoSaveChans()
 			if (lm)
 				SaveListModes(chan, lm, j, currdata);
 			else if (chan->IsModeSet(mh))
-				currdata.modelist.push_back(InstanceData(j, chan->GetModeParameter(mh)));
+				currdata.modelist.emplace_back(j, chan->GetModeParameter(mh));
 		}
 
 		// Serialize all extensions attached to the Channel
@@ -421,7 +421,7 @@ void DataKeeper::DoSaveChans()
 		// Same logic as in DoSaveUsers() plus we consider the modes and extensions of all members
 		if ((!currdata.empty()) || (!currmemberdata.empty()))
 		{
-			chandatalist.push_back(ChanData(chan));
+			chandatalist.emplace_back(chan);
 			chandatalist.back().swap(currdata);
 			chandatalist.back().memberdatalist.swap(currmemberdata);
 		}
@@ -438,7 +438,7 @@ void DataKeeper::SaveMemberData(Channel* chan, std::vector<OwnedModesExts>& memb
 			ModeHandler* mh = handledmodes[MODETYPE_CHANNEL][j].mh;
 			const PrefixMode* const pm = mh->IsPrefixMode();
 			if ((pm) && (memb->HasMode(pm)))
-				currdata.modelist.push_back(InstanceData(j, memb->user->uuid)); // Need to pass the user's uuid to the mode parser to set the mode later
+				currdata.modelist.emplace_back(j, memb->user->uuid); // Need to pass the user's uuid to the mode parser to set the mode later
 		}
 
 		SaveExtensions(memb, currdata.extlist);
@@ -446,7 +446,7 @@ void DataKeeper::SaveMemberData(Channel* chan, std::vector<OwnedModesExts>& memb
 		// Same logic as in DoSaveUsers()
 		if (!currdata.empty())
 		{
-			memberdatalist.push_back(OwnedModesExts(memb->user->uuid));
+			memberdatalist.emplace_back(memb->user->uuid);
 			memberdatalist.back().swap(currdata);
 		}
 	}
@@ -479,7 +479,7 @@ void DataKeeper::CreateModeList(ModeType modetype)
 	for (const auto& [_, mh] : ServerInstance->Modes.GetModes(modetype))
 	{
 		if (mh->creator == mod)
-			handledmodes[modetype].push_back(ProviderInfo(mh));
+			handledmodes[modetype].emplace_back(mh);
 	}
 }
 
@@ -490,7 +490,7 @@ void DataKeeper::Save(Module* currmod)
 	for (const auto& [_, ext] : ServerInstance->Extensions.GetExts())
 	{
 		if (ext->creator == mod)
-			handledexts.push_back(ProviderInfo(ext));
+			handledexts.emplace_back(ext);
 	}
 
 	CreateModeList(MODETYPE_USER);

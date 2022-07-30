@@ -44,7 +44,7 @@ CWin32Exception::CWin32Exception(const CWin32Exception& other)
 	strcpy_s(szErrorString, _countof(szErrorString), other.szErrorString);
 }
 
-const char* CWin32Exception::what() const throw()
+const char* CWin32Exception::what() const noexcept
 {
 	return szErrorString;
 }

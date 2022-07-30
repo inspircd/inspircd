@@ -108,10 +108,8 @@ public:
 				if (user->HasPrivPermission("users/ignore-noctcp"))
 					return MOD_RES_PASSTHRU;
 
-				const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-				for (UserManager::LocalList::const_iterator iter = list.begin(); iter != list.end(); ++iter)
+				for (auto* u : ServerInstance->Users.GetLocalUsers())
 				{
-					LocalUser* u = *iter;
 					if (u->IsModeSet(ncu))
 						details.exemptions.insert(u);
 				}

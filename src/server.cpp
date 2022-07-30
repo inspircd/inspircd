@@ -29,7 +29,6 @@
 
 #include "inspircd.h"
 #include "exitcodes.h"
-#include <signal.h>
 
 void InspIRCd::SignalHandler(int signal)
 {
@@ -150,7 +149,7 @@ void UIDGenerator::init(const std::string& sid)
  */
 std::string UIDGenerator::GetUID()
 {
-	while (1)
+	while (true)
 	{
 		// Add one to the last UID
 		this->IncrementUID(UUID_LENGTH - 1);

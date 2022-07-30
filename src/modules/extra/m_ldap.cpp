@@ -314,10 +314,8 @@ public:
 	{
 		this->LockQueue();
 
-		for (unsigned int i = 0; i < this->queries.size(); ++i)
+		for (auto& req : this->queries)
 		{
-			LDAPRequest* req = this->queries[i];
-
 			/* queries have no results yet */
 			req->result = new LDAPResult();
 			req->result->type = req->type;
@@ -328,10 +326,8 @@ public:
 		}
 		this->queries.clear();
 
-		for (unsigned int i = 0; i < this->results.size(); ++i)
+		for (auto& req : this->results)
 		{
-			LDAPRequest* req = this->results[i];
-
 			/* even though this may have already finished successfully we return that it didn't */
 			req->result->error = "LDAP Interface is going away";
 			req->inter->OnError(*req->result);
@@ -449,7 +445,7 @@ private:
 
 				std::vector<std::string> attrs;
 				for (int j = 0; j < count; ++j)
-					attrs.push_back(vals[j]->bv_val);
+					attrs.emplace_back(vals[j]->bv_val);
 				attributes[attr] = attrs;
 
 				ldap_value_free_len(vals);
@@ -477,9 +473,8 @@ private:
 			return;
 		}
 
-		for (unsigned int i = 0; i < q.size(); ++i)
+		for (auto& req : q)
 		{
-			LDAPRequest* req = q[i];
 			int ret = req->run();
 
 			if (ret == LDAP_SERVER_DOWN || ret == LDAP_TIMEOUT)
@@ -530,9 +525,8 @@ public:
 		this->results.swap(r);
 		this->UnlockQueue();
 
-		for (unsigned int i = 0; i < r.size(); ++i)
+		for (auto& req : r)
 		{
-			LDAPRequest* req = r[i];
 			LDAPInterface* li = req->inter;
 			LDAPResult* res = req->result;
 
@@ -585,9 +579,8 @@ public:
 			}
 		}
 
-		for (ServiceMap::iterator i = LDAPServices.begin(); i != LDAPServices.end(); ++i)
+		for (auto& [_, conn] : LDAPServices)
 		{
-			LDAPService* conn = i->second;
 			ServerInstance->Modules.DelService(*conn);
 			conn->Stop();
 			conn->OnNotify();
@@ -640,9 +633,8 @@ public:
 
 	~ModuleLDAP() override
 	{
-		for (ServiceMap::iterator i = LDAPServices.begin(); i != LDAPServices.end(); ++i)
+		for (auto& [_, conn] : LDAPServices)
 		{
-			LDAPService* conn = i->second;
 			conn->Stop();
 			conn->OnNotify();
 			delete conn;

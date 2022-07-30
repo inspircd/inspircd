@@ -407,10 +407,10 @@ namespace
 void InspIRCd::Cleanup()
 {
 	// Close all listening sockets
-	for (unsigned int i = 0; i < ports.size(); i++)
+	for (auto& port : ports)
 	{
-		ports[i]->Cull();
-		delete ports[i];
+		port->Cull();
+		delete port;
 	}
 	ports.clear();
 

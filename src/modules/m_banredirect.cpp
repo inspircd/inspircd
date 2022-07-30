@@ -312,9 +312,9 @@ public:
 				std::string ipmask(user->nick);
 				ipmask.append(1, '!').append(user->MakeHostIP());
 
-				for(BanRedirectList::iterator redir = redirects->begin(); redir != redirects->end(); redir++)
+				for (const auto& redirect : *redirects)
 				{
-					if(InspIRCd::Match(user->GetFullRealHost(), redir->banmask) || InspIRCd::Match(user->GetFullHost(), redir->banmask) || InspIRCd::MatchCIDR(ipmask, redir->banmask))
+					if(InspIRCd::Match(user->GetFullRealHost(), redirect.banmask) || InspIRCd::Match(user->GetFullHost(), redirect.banmask) || InspIRCd::MatchCIDR(ipmask, redirect.banmask))
 					{
 						/* This prevents recursion when a user sets multiple ban redirects in a chain
 						 * (thanks Potter)
@@ -327,7 +327,7 @@ public:
 							return MOD_RES_DENY;
 
 						/* tell them they're banned and are being transferred */
-						Channel* destchan = ServerInstance->Channels.Find(redir->targetchan);
+						Channel* destchan = ServerInstance->Channels.Find(redirect.targetchan);
 						std::string destlimit;
 
 						if (destchan)
@@ -341,9 +341,9 @@ public:
 						else
 						{
 							user->WriteNumeric(ERR_BANNEDFROMCHAN, chan->name, "Cannot join channel (you're banned)");
-							user->WriteNumeric(470, chan->name, redir->targetchan, "You are banned from this channel, so you are automatically being transferred to the redirected channel.");
+							user->WriteNumeric(470, chan->name, redirect.targetchan, "You are banned from this channel, so you are automatically being transferred to the redirected channel.");
 							nofollow = true;
-							Channel::JoinUser(user, redir->targetchan);
+							Channel::JoinUser(user, redirect.targetchan);
 							nofollow = false;
 							return MOD_RES_DENY;
 						}

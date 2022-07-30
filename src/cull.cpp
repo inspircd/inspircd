@@ -60,7 +60,7 @@ Cullable::Result Cullable::Cull()
 			typeid(*this).name(), static_cast<void*>(this));
 	}
 #endif
-	return Result();
+	return {};
 }
 
 void CullList::Apply()
@@ -77,12 +77,12 @@ void CullList::Apply()
 		}
 		working.clear();
 	}
+
 	std::set<Cullable*> gone;
 	std::vector<Cullable*> queue;
 	queue.reserve(list.size() + 32);
-	for(unsigned int i=0; i < list.size(); i++)
+	for (auto& c : list)
 	{
-		Cullable* c = list[i];
 		if (gone.insert(c).second)
 		{
 #ifdef INSPIRCD_ENABLE_RTTI
@@ -106,11 +106,10 @@ void CullList::Apply()
 		}
 	}
 	list.clear();
-	for(unsigned int i=0; i < queue.size(); i++)
-	{
-		Cullable* c = queue[i];
+
+	for (auto& c : queue)
 		delete c;
-	}
+
 	if (!list.empty())
 	{
 		ServerInstance->Logs.Debug("CULLLIST", "WARNING: Objects added to cull list in a destructor");
@@ -120,9 +119,7 @@ void CullList::Apply()
 
 void ActionList::Run()
 {
-	for(unsigned int i=0; i < list.size(); i++)
-	{
-		list[i]->Call();
-	}
+	for (auto& action : list)
+		action->Call();
 	list.clear();
 }

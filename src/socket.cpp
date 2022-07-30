@@ -133,9 +133,9 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 	}
 
 	std::vector<ListenSocket*>::iterator n = ports.begin();
-	for (std::vector<ListenSocket*>::iterator o = old_ports.begin(); o != old_ports.end(); ++o)
+	for (auto& old_port : old_ports)
 	{
-		while (n != ports.end() && *n != *o)
+		while (n != ports.end() && *n != old_port)
 			n++;
 		if (n == ports.end())
 		{

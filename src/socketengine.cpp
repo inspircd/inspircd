@@ -130,12 +130,12 @@ void SocketEngine::DispatchTrialWrites()
 	working_list.reserve(trials.size());
 	working_list.assign(trials.begin(), trials.end());
 	trials.clear();
-	for(unsigned int i=0; i < working_list.size(); i++)
+	for(int fd : working_list)
 	{
-		int fd = working_list[i];
 		EventHandler* eh = GetRef(fd);
 		if (!eh)
 			continue;
+
 		int mask = eh->event_mask;
 		eh->event_mask &= ~(FD_ADD_TRIAL_READ | FD_ADD_TRIAL_WRITE);
 		if ((mask & (FD_ADD_TRIAL_READ | FD_READ_WILL_BLOCK)) == FD_ADD_TRIAL_READ)

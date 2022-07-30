@@ -44,7 +44,7 @@ private:
 	unsigned int ipv6_cidr;
 	unsigned long bootwait;
 	unsigned long splitwait;
-	time_t ignoreuntil;
+	time_t ignoreuntil = 0;
 	std::string banmessage;
 
 	unsigned char GetRange(LocalUser* user)
@@ -86,7 +86,6 @@ public:
 		: Module(VF_VENDOR, "Z-lines IP addresses which make excessive connections to the server.")
 		, ServerProtocol::LinkEventListener(this)
 		, WebIRC::EventListener(this)
-		, ignoreuntil(0)
 	{
 	}
 

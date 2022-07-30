@@ -347,8 +347,8 @@ public:
 	void DisplayHelp(User* user)
 	{
 		user->WriteNumeric(RPL_HELPSTART, "*", "DCCALLOW [(+|-)<nick> [<time>]]|[LIST|HELP]");
-		for (size_t i = 0; i < sizeof(helptext)/sizeof(helptext[0]); i++)
-			user->WriteNumeric(RPL_HELPTXT, "*", helptext[i]);
+		for (const auto& helpline : helptext)
+			user->WriteNumeric(RPL_HELPTXT, "*", helpline);
 		user->WriteNumeric(RPL_ENDOFHELP, "*", "End of DCCALLOW HELP");
 
 		LocalUser* localuser = IS_LOCAL(user);
@@ -479,12 +479,12 @@ public:
 						std::string filename = buf.substr(first, s);
 
 						bool found = false;
-						for (unsigned int i = 0; i < bfl.size(); i++)
+						for (auto& bf : bfl)
 						{
-							if (InspIRCd::Match(filename, bfl[i].filemask, ascii_case_insensitive_map))
+							if (InspIRCd::Match(filename, bf.filemask, ascii_case_insensitive_map))
 							{
 								/* We have a matching badfile entry, override whatever the default action is */
-								if (stdalgo::string::equalsci(bfl[i].action, "allow"))
+								if (stdalgo::string::equalsci(bf.action, "allow"))
 									return MOD_RES_PASSTHRU;
 								else
 								{

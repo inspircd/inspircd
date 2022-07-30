@@ -324,11 +324,11 @@ private:
 
 	ModResult CopyClientTags(const ClientProtocol::TagMap& tags_in, ClientProtocol::TagMap& tags_out)
 	{
-		for (ClientProtocol::TagMap::const_iterator i = tags_in.begin(); i != tags_in.end(); ++i)
+		for (const auto& tag_in : tags_in)
 		{
-			const ClientProtocol::MessageTagData& tagdata = i->second;
+			const ClientProtocol::MessageTagData& tagdata = tag_in.second;
 			if (tagdata.tagprov == &c2ctags)
-				tags_out.insert(*i);
+				tags_out.insert(tag_in);
 		}
 		return MOD_RES_PASSTHRU;
 	}

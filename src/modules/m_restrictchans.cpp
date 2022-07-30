@@ -44,9 +44,9 @@ private:
 		if (user->HasPrivPermission("channels/restricted-create"))
 			return true;
 
-		for (AllowChans::const_iterator it = allowchans.begin(), it_end = allowchans.end(); it != it_end; ++it)
+		for (const auto& allowchan : allowchans)
 		{
-			if (InspIRCd::Match(name, *it))
+			if (InspIRCd::Match(name, allowchan))
 				return true;
 		}
 

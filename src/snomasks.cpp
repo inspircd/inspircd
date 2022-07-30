@@ -31,8 +31,8 @@
 
 void SnomaskManager::FlushSnotices()
 {
-	for (int i=0; i < 26; i++)
-		masks[i].Flush();
+	for (auto& mask : masks)
+		mask.Flush();
 }
 
 void SnomaskManager::EnableSnomask(char letter, const std::string &type)

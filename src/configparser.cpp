@@ -57,7 +57,7 @@ struct Parser final
 	FilePosition current;
 	FilePosition last_tag;
 	std::shared_ptr<ConfigTag> tag;
-	int ungot;
+	int ungot = -1;
 	std::string mandatory_tag;
 
 	Parser(ParseStack& me, int myflags, FilePtr conf, const std::string& name, const std::string& mandatorytag)
@@ -66,7 +66,6 @@ struct Parser final
 		, file(std::move(conf))
 		, current(name, 1, 0)
 		, last_tag(name, 0, 0)
-		, ungot(-1)
 		, mandatory_tag(mandatorytag)
 	{
 	}
@@ -105,7 +104,7 @@ struct Parser final
 
 	void comment()
 	{
-		while (1)
+		while (true)
 		{
 			int ch = next();
 			if (ch == '\n')
@@ -159,13 +158,13 @@ struct Parser final
 		{
 			throw CoreException("Invalid character in value of <" + tag->name + ":" + key + ">");
 		}
-		while (1)
+		while (true)
 		{
 			ch = next();
 			if (ch == '&')
 			{
 				std::string varname;
-				while (1)
+				while (true)
 				{
 					ch = next();
 					if (wordchar(ch) || (varname.empty() && ch == '#'))
@@ -287,7 +286,7 @@ struct Parser final
 	{
 		try
 		{
-			while (1)
+			while (true)
 			{
 				int ch = next(true);
 				switch (ch)

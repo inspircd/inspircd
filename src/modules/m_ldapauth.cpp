@@ -353,7 +353,7 @@ public:
 			const std::string val = rtag->getString("value");
 
 			if (!attr.empty() && !val.empty())
-				requiredattributes.push_back(make_pair(attr, val));
+				requiredattributes.emplace_back(attr, val);
 		}
 
 		std::string allowpattern = tag->getString("allowpattern");
@@ -380,7 +380,7 @@ public:
 		{
 			if (InspIRCd::Match(user->nick, allowpattern))
 			{
-				ldapAuthed.Set(user,1);
+				ldapAuthed.Set(user, true);
 				return MOD_RES_PASSTHRU;
 			}
 		}
@@ -389,7 +389,7 @@ public:
 		{
 			if (InspIRCd::MatchCIDR(user->GetIPString(), whitelistedcidr, ascii_case_insensitive_map))
 			{
-				ldapAuthed.Set(user,1);
+				ldapAuthed.Set(user, true);
 				return MOD_RES_PASSTHRU;
 			}
 		}

@@ -399,10 +399,10 @@ public:
 	{
 		std::string res;
 		unsigned int param = 0;
-		for(std::string::size_type i = 0; i < q.length(); i++)
+		for (const auto chr : q)
 		{
-			if (q[i] != '?')
-				res.push_back(q[i]);
+			if (chr != '?')
+				res.push_back(chr);
 			else if (param < p.size() && !EscapeString(call, p[param++], res))
 				return;
 		}

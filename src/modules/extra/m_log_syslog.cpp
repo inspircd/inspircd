@@ -84,7 +84,7 @@ public:
 		openlog("inspircd", LOG_NDELAY|LOG_PID, LOG_USER);
 	}
 
-	~ModuleLogSyslog()
+	~ModuleLogSyslog() override
 	{
 		closelog();
 	}

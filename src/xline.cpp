@@ -524,10 +524,9 @@ XLineManager::XLineManager()
 
 XLineManager::~XLineManager()
 {
-	const char gekqz[] = "GEKQZ";
-	for(unsigned int i=0; i < sizeof(gekqz); i++)
+	for(const char line : "GEKQZ")
 	{
-		XLineFactory* xlf = GetFactory(std::string(1, gekqz[i]));
+		XLineFactory* xlf = GetFactory(std::string(1, line));
 		delete xlf;
 	}
 

@@ -30,8 +30,8 @@ private:
 	std::string Salt()
 	{
 		char entropy[16];
-		for (unsigned int i = 0; i < sizeof(entropy); ++i)
-			entropy[i] = ServerInstance->GenRandomInt(0xFF);
+		for (char& chr : entropy)
+			chr = ServerInstance->GenRandomInt(0xFF);
 
 		char salt[32];
 		if (!_crypt_gensalt_blowfish_rn("$2a$", rounds, entropy, sizeof(entropy), salt, sizeof(salt)))

@@ -55,7 +55,7 @@ public:
 			ServerInstance->Timers.AddTimer(this);
 	}
 
-	~JSONMethod()
+	~JSONMethod() override
 	{
 		fclose(file);
 	}

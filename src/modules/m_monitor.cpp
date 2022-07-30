@@ -23,18 +23,15 @@
 #include "modules/isupport.h"
 #include "numericbuilder.h"
 
-namespace IRCv3
+namespace IRCv3::Monitor
 {
-	namespace Monitor
-	{
-		class ExtItem;
-		struct Entry;
-		class Manager;
-		class ManagerInternal;
+	class ExtItem;
+	struct Entry;
+	class Manager;
+	class ManagerInternal;
 
-		typedef std::vector<Entry*> WatchedList;
-		typedef std::vector<LocalUser*> WatcherList;
-	}
+	typedef std::vector<Entry*> WatchedList;
+	typedef std::vector<LocalUser*> WatcherList;
 }
 
 struct IRCv3::Monitor::Entry final

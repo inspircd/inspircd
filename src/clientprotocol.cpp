@@ -32,10 +32,9 @@ bool ClientProtocol::Serializer::HandleTag(LocalUser* user, const std::string& t
 	if (tagname.empty())
 		return false;
 
-	const ::Events::ModuleEventProvider::SubscriberList& list = evprov.GetSubscribers();
-	for (::Events::ModuleEventProvider::SubscriberList::const_iterator i = list.begin(); i != list.end(); ++i)
+	for (const auto& subscriber : evprov.GetSubscribers())
 	{
-		MessageTagProvider* const tagprov = static_cast<MessageTagProvider*>(*i);
+		MessageTagProvider* const tagprov = static_cast<MessageTagProvider*>(subscriber);
 		const ModResult res = tagprov->OnProcessTag(user, tagname, tagvalue);
 		if (res == MOD_RES_ALLOW)
 			return tags.emplace(tagname, MessageTagData(tagprov, tagvalue)).second;

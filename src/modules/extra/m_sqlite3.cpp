@@ -141,7 +141,7 @@ public:
 		{
 			res.columns[i] = sqlite3_column_name(stmt, i);
 		}
-		while (1)
+		while (true)
 		{
 			err = sqlite3_step(stmt);
 			if (err == SQLITE_ROW)
@@ -183,10 +183,10 @@ public:
 	{
 		std::string res;
 		unsigned int param = 0;
-		for(std::string::size_type i = 0; i < q.length(); i++)
+		for (const auto chr : q)
 		{
-			if (q[i] != '?')
-				res.push_back(q[i]);
+			if (chr != '?')
+				res.push_back(chr);
 			else
 			{
 				if (param < p.size())

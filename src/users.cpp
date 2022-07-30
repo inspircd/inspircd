@@ -844,9 +844,9 @@ void LocalUser::Send(ClientProtocol::Event& protoev, ClientProtocol::MessageList
 {
 	// Modules can personalize the messages sent per user for the event
 	protoev.GetMessagesForUser(this, msglist);
-	for (ClientProtocol::MessageList::const_iterator i = msglist.begin(); i != msglist.end(); ++i)
+	for (const auto& msg : msglist)
 	{
-		ClientProtocol::Message& curr = **i;
+		ClientProtocol::Message& curr = *msg;
 		ModResult res;
 		FIRST_MOD_RESULT(OnUserWrite, res, (this, curr));
 		if (res != MOD_RES_DENY)

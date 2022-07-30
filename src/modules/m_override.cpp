@@ -76,7 +76,7 @@ public:
 	{
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
 		ModeAction res = SimpleUserMode::OnModeChange(source, dest, channel, change);
 		if (change.adding && res == MODEACTION_ALLOW && IS_LOCAL(dest) && timeout)

@@ -291,10 +291,9 @@ void TreeSocket::ProcessTag(User* source, const std::string& tag, ClientProtocol
 		tagkey.assign(tag);
 	}
 
-	const Events::ModuleEventProvider::SubscriberList& list = Utils->Creator->tagevprov.GetSubscribers();
-	for (Events::ModuleEventProvider::SubscriberList::const_iterator i = list.begin(); i != list.end(); ++i)
+	for (const auto& subscriber : Utils->Creator->tagevprov.GetSubscribers())
 	{
-		ClientProtocol::MessageTagProvider* const tagprov = static_cast<ClientProtocol::MessageTagProvider*>(*i);
+		ClientProtocol::MessageTagProvider* const tagprov = static_cast<ClientProtocol::MessageTagProvider*>(subscriber);
 		const ModResult res = tagprov->OnProcessTag(source, tagkey, tagval);
 		if (res == MOD_RES_ALLOW)
 			tags.emplace(tagkey, ClientProtocol::MessageTagData(tagprov, tagval));

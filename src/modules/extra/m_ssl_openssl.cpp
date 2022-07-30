@@ -675,7 +675,6 @@ public:
 	OpenSSLIOHook(std::shared_ptr<IOHookProvider> hookprov, StreamSocket* sock, SSL* session)
 		: SSLIOHook(hookprov)
 		, sess(session)
-		, data_to_write(false)
 	{
 		// Create BIO instance and store a pointer to the socket in it which will be used by the read and write functions
 		BIO* bio = BIO_new(biomethods);

@@ -167,7 +167,7 @@ std::string ExtensionItem::ToInternal(const Extensible* container, void* item) c
 
 std::string ExtensionItem::ToNetwork(const Extensible* container, void* item) const noexcept
 {
-	return std::string();
+	return {};
 }
 
 BoolExtItem::BoolExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync)

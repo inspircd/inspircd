@@ -135,7 +135,7 @@ class ModuleJoinFlood final
 {
 private:
 	JoinFlood jf;
-	time_t ignoreuntil;
+	time_t ignoreuntil = 0;
 	unsigned long bootwait;
 	unsigned long splitwait;
 
@@ -144,7 +144,6 @@ public:
 		: Module(VF_VENDOR, "Adds channel mode j (joinflood) which helps protect against spammers which mass-join channels.")
 		, ServerProtocol::LinkEventListener(this)
 		, jf(this)
-		, ignoreuntil(0)
 	{
 	}
 

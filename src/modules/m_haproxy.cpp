@@ -136,7 +136,7 @@ class HAProxyHook final
 {
 private:
 	// The length of the address section.
-	uint16_t address_length;
+	uint16_t address_length = 0;
 
 	// The endpoint the client is connecting from.
 	irc::sockets::sockaddrs client;
@@ -151,7 +151,7 @@ private:
 	UserCertificateAPI& sslapi;
 
 	// The current state of the PROXY parser.
-	HAProxyState state;
+	HAProxyState state = HPS_WAITING_FOR_HEADER;
 
 	size_t ReadProxyTLV(StreamSocket* sock, size_t start_index, uint16_t buffer_length)
 	{
@@ -379,9 +379,7 @@ private:
 public:
 	HAProxyHook(std::shared_ptr<IOHookProvider> Prov, StreamSocket* sock, UserCertificateAPI& api)
 		: IOHookMiddle(Prov)
-		, address_length(0)
 		, sslapi(api)
-		, state(HPS_WAITING_FOR_HEADER)
 	{
 		sock->AddIOHook(this);
 	}
