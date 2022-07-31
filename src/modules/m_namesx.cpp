@@ -62,8 +62,7 @@ public:
 			return MOD_RES_PASSTHRU;
 
 		// Don't do anything if the user has only one prefix
-		std::string prefixes = memb->GetAllPrefixChars();
-		if (prefixes.length() <= 1)
+		if (memb->modes.size() <= 1)
 			return MOD_RES_PASSTHRU;
 
 		size_t flag_index;
@@ -74,7 +73,7 @@ public:
 		if (numeric.GetParams().size() <= flag_index)
 			return MOD_RES_PASSTHRU;
 
-		numeric.GetParams()[flag_index].append(prefixes, 1, std::string::npos);
+		numeric.GetParams()[flag_index].append(memb->GetAllPrefixChars(), 1, std::string::npos);
 		return MOD_RES_PASSTHRU;
 	}
 
