@@ -2478,7 +2478,7 @@
 #<watch maxwatch="32">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# WebSocket module: Adds HTML5 WebSocket support.
+# WebSocket module: Adds WebSocket support.
 # Specify hook="websocket" in a <bind> tag to make that port accept
 # WebSocket connections. Compatible with TLS (SSL).
 # Requires SHA-1 hash support available in the sha1 module.

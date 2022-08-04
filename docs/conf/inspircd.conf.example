@@ -203,7 +203,7 @@
     #replace="yes">
 
 
-# Listener accepting HTML5 WebSocket connections.
+# Listener accepting WebSocket connections.
 # Requires the websocket module and SHA-1 hashing support (provided by the sha1
 # module).
 #<bind address="" port="7002" type="clients" hook="websocket">
