@@ -124,7 +124,7 @@ class WebSocketHook : public IOHookMiddle
 	{
 		CLOSE_PROTOCOL_ERROR = 1002,
 		CLOSE_POLICY_VIOLATION = 1008,
-		CLOSE_TOO_LARGE = 1009,
+		CLOSE_TOO_LARGE = 1009
 	};
 
 	enum OpCode
