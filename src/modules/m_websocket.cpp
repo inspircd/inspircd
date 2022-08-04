@@ -120,6 +120,13 @@ class WebSocketHook : public IOHookMiddle
 		}
 	};
 
+	enum CloseCode
+	{
+		CLOSE_PROTOCOL_ERROR = 1002,
+		CLOSE_POLICY_VIOLATION = 1008,
+		CLOSE_TOO_LARGE = 1009,
+	};
+
 	enum OpCode
 	{
 		OP_CONTINUATION = 0x00,
@@ -197,7 +204,7 @@ class WebSocketHook : public IOHookMiddle
 		unsigned char len1 = (unsigned char)cmyrecvq[1];
 		if (!(len1 & WS_MASKBIT))
 		{
-			sock->SetError("WebSocket protocol violation: unmasked client frame");
+			CloseConnection(sock, CLOSE_PROTOCOL_ERROR, "WebSocket protocol violation: unmasked client frame");
 			return -1;
 		}
 
@@ -213,7 +220,7 @@ class WebSocketHook : public IOHookMiddle
 			// allowlarge is false for control frames according to the RFC meaning large pings, etc. are not allowed
 			if (!allowlarge)
 			{
-				sock->SetError("WebSocket protocol violation: large control frame");
+				CloseConnection(sock, CLOSE_PROTOCOL_ERROR, "WebSocket protocol violation: large control frame");
 				return -1;
 			}
 
@@ -228,7 +235,7 @@ class WebSocketHook : public IOHookMiddle
 
 			if (len <= WS_MAX_PAYLOAD_LENGTH_SMALL)
 			{
-				sock->SetError("WebSocket protocol violation: non-minimal length encoding used");
+				CloseConnection(sock, CLOSE_PROTOCOL_ERROR, "WebSocket protocol violation: non-minimal length encoding used");
 				return -1;
 			}
 
@@ -237,7 +244,7 @@ class WebSocketHook : public IOHookMiddle
 		}
 		else if (len1 == WS_PAYLOAD_LENGTH_MAGIC_HUGE)
 		{
-			sock->SetError("WebSocket: Huge frames are not supported");
+			CloseConnection(sock, CLOSE_TOO_LARGE, "WebSocket: Huge frames are not supported");
 			return -1;
 		}
 
@@ -261,7 +268,7 @@ class WebSocketHook : public IOHookMiddle
 	{
 		if (lastpingpong + MINPINGPONGDELAY >= ServerInstance->Time())
 		{
-			sock->SetError("WebSocket: Ping/pong flood");
+			CloseConnection(sock, CLOSE_POLICY_VIOLATION, "WebSocket: Ping/pong flood");
 			return -1;
 		}
 
@@ -332,10 +339,24 @@ class WebSocketHook : public IOHookMiddle
 
 			default:
 			{
-				sock->SetError("WebSocket: Invalid opcode");
+				CloseConnection(sock, CLOSE_PROTOCOL_ERROR, "WebSocket: Invalid opcode");
 				return -1;
 			}
 		}
+	}
+
+	void CloseConnection(StreamSocket* sock, CloseCode closecode, const std::string& reason)
+	{
+		uint16_t netcode = htons(closecode);
+		std::string packedcode;
+		packedcode.push_back(netcode & 0x00FF);
+		packedcode.push_back(netcode >> 8);
+
+		GetSendQ().push_back(PrepareSendQElem(reason.length() + 2, OP_CLOSE));
+		GetSendQ().push_back(packedcode);
+		GetSendQ().push_back(reason);
+		sock->DoWrite();
+		sock->SetError(reason);
 	}
 
 	void FailHandshake(StreamSocket* sock, const char* httpreply, const char* sockerror)
