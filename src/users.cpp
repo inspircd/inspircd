@@ -343,7 +343,7 @@ bool UserIOHandler::OnSetLocalEndPoint(const irc::sockets::sockaddrs& ep)
 
 bool UserIOHandler::OnSetRemoteEndPoint(const irc::sockets::sockaddrs& ep)
 {
-	user->SetClientIP(ep);
+	user->ChangeRemoteAddress(ep);
 	return !user->quitting;
 }
 
@@ -739,7 +739,7 @@ irc::sockets::cidr_mask User::GetCIDRMask()
 	return irc::sockets::cidr_mask(client_sa, range);
 }
 
-void User::SetClientIP(const irc::sockets::sockaddrs& sa)
+void User::ChangeRemoteAddress(const irc::sockets::sockaddrs& sa)
 {
 	const std::string oldip(client_sa.family() == AF_UNSPEC ? "" : GetIPString());
 	memcpy(&client_sa, &sa, sizeof(irc::sockets::sockaddrs));
@@ -752,13 +752,13 @@ void User::SetClientIP(const irc::sockets::sockaddrs& sa)
 		ChangeDisplayedHost(GetIPString());
 }
 
-void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa)
+void LocalUser::ChangeRemoteAddress(const irc::sockets::sockaddrs& sa)
 {
 	if (sa == client_sa)
 		return;
 
 	ServerInstance->Users.RemoveCloneCounts(this);
-	User::SetClientIP(sa);
+	User::ChangeRemoteAddress(sa);
 	ServerInstance->Users.AddClone(this);
 
 	// Recheck the connect class.

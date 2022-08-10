@@ -249,7 +249,7 @@ public:
 	time_t signon = 0;
 
 	/** Client address that the user is connected from.
-	 * Do not modify this value directly, use SetClientIP() to change it.
+	 * Do not modify this value directly, use ChangeRemoteAddress() to change it.
 	 * Port is not valid for remote users.
 	 */
 	irc::sockets::sockaddrs client_sa;
@@ -342,10 +342,10 @@ public:
 	 */
 	irc::sockets::cidr_mask GetCIDRMask();
 
-	/** Sets the client IP for this user
-	 * @return true if the conversion was successful
+	/** Changes the remote socket address for this user.
+	 * @param sa The new socket address.
 	 */
-	virtual void SetClientIP(const irc::sockets::sockaddrs& sa);
+	virtual void ChangeRemoteAddress(const irc::sockets::sockaddrs& sa);
 
 	/** Constructor
 	 * @throw CoreException if the UID allocated to the user already exists
@@ -706,8 +706,8 @@ public:
 	 */
 	void SetClass(const std::string &explicit_name = "");
 
-	/** @copydoc User::SetClientIP */
-	void SetClientIP(const irc::sockets::sockaddrs& sa) override;
+	/** @copydoc User::ChangeRemoteAddress */
+	void ChangeRemoteAddress(const irc::sockets::sockaddrs& sa) override;
 
 	/** Send a NOTICE message from the local server to the user.
 	 * The message will be sent even if the user is connected to a remote server.

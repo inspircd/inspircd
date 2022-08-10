@@ -318,7 +318,7 @@ public:
 
 			// Set the IP address sent via WEBIRC. We ignore the hostname and lookup
 			// instead do our own DNS lookups because of unreliable gateways.
-			user->SetClientIP(ipaddr);
+			user->ChangeRemoteAddress(ipaddr);
 			return CmdResult::SUCCESS;
 		}
 
@@ -465,7 +465,7 @@ public:
 				user->uuid.c_str(), user->GetIPString().c_str(), address.addr().c_str(), user->ident.c_str(), newident.c_str());
 
 			user->ChangeIdent(newident);
-			user->SetClientIP(address);
+			user->ChangeRemoteAddress(address);
 			break;
 		}
 		return MOD_RES_PASSTHRU;

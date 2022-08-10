@@ -87,7 +87,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	_new->ChangeRealHost(params[3], false);
 	_new->ChangeDisplayedHost(params[4]);
 	_new->ident = params[5];
-	_new->SetClientIP(sa);
+	_new->ChangeRemoteAddress(sa);
 	_new->ChangeRealName(params.back());
 	_new->registered = REG_ALL;
 	_new->signon = signon;
