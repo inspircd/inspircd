@@ -80,6 +80,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	_new->ChangeRealHost(params[3], false);
 	_new->ChangeDisplayedHost(params[4]);
 	_new->ident = params[5];
+	_new->SetClientIP(params[6]);
 	_new->ChangeRealName(params.back());
 	_new->registered = REG_ALL;
 	_new->signon = signon;
@@ -118,8 +119,6 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 			mh->OnModeChange(_new, _new, NULL, empty, true);
 		_new->SetMode(mh, true);
 	}
-
-	_new->SetClientIP(params[6]);
 
 	ServerInstance->Users->AddClone(_new);
 	remoteserver->UserCount++;

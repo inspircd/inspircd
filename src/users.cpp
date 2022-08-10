@@ -765,7 +765,7 @@ irc::sockets::cidr_mask User::GetCIDRMask()
 bool User::SetClientIP(const std::string& address)
 {
 	irc::sockets::sockaddrs sa;
-	if (!irc::sockets::aptosa(address, client_sa.port(), sa))
+	if (!irc::sockets::aptosa(address, client_sa.family() == AF_UNSPEC ? 0 : client_sa.port(), sa))
 		return false;
 
 	User::SetClientIP(sa);
@@ -774,7 +774,7 @@ bool User::SetClientIP(const std::string& address)
 
 void User::SetClientIP(const irc::sockets::sockaddrs& sa)
 {
-	const std::string oldip(GetIPString());
+	const std::string oldip(client_sa.family() == AF_UNSPEC ? "" : GetIPString());
 	memcpy(&client_sa, &sa, sizeof(irc::sockets::sockaddrs));
 	this->InvalidateCache();
 
