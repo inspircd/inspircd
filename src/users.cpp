@@ -739,19 +739,9 @@ irc::sockets::cidr_mask User::GetCIDRMask()
 	return irc::sockets::cidr_mask(client_sa, range);
 }
 
-bool User::SetClientIP(const std::string& address)
-{
-	irc::sockets::sockaddrs sa;
-	if (!irc::sockets::aptosa(address, client_sa.port(), sa))
-		return false;
-
-	User::SetClientIP(sa);
-	return true;
-}
-
 void User::SetClientIP(const irc::sockets::sockaddrs& sa)
 {
-	const std::string oldip(GetIPString());
+	const std::string oldip(client_sa.family() == AF_UNSPEC ? "" : GetIPString());
 	memcpy(&client_sa, &sa, sizeof(irc::sockets::sockaddrs));
 	this->InvalidateCache();
 
@@ -760,16 +750,6 @@ void User::SetClientIP(const irc::sockets::sockaddrs& sa)
 		ChangeRealHost(GetIPString(), false);
 	if (GetDisplayedHost() == oldip)
 		ChangeDisplayedHost(GetIPString());
-}
-
-bool LocalUser::SetClientIP(const std::string& address)
-{
-	irc::sockets::sockaddrs sa;
-	if (!irc::sockets::aptosa(address, client_sa.port(), sa))
-		return false;
-
-	LocalUser::SetClientIP(sa);
-	return true;
 }
 
 void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa)

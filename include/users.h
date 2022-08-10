@@ -345,8 +345,6 @@ public:
 	/** Sets the client IP for this user
 	 * @return true if the conversion was successful
 	 */
-	virtual bool SetClientIP(const std::string& address);
-
 	virtual void SetClientIP(const irc::sockets::sockaddrs& sa);
 
 	/** Constructor
@@ -708,8 +706,7 @@ public:
 	 */
 	void SetClass(const std::string &explicit_name = "");
 
-	bool SetClientIP(const std::string& address) override;
-
+	/** @copydoc User::SetClientIP */
 	void SetClientIP(const irc::sockets::sockaddrs& sa) override;
 
 	/** Send a NOTICE message from the local server to the user.
