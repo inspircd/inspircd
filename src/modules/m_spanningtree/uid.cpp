@@ -71,6 +71,14 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 		}
 	}
 
+	irc::sockets::sockaddrs sa;
+	if (params[6].find('/') != std::string::npos)
+		irc::sockets::untosa(params[6], sa);
+	else
+		irc::sockets::aptosa(params[6], 0, sa);
+	if (sa.family() == AF_UNSPEC)
+		throw ProtocolException("Invalid IP address or UNIX socket path");
+
 	/* For remote users, we pass the UUID they sent to the constructor.
 	 * If the UUID already exists User::User() throws an exception which causes this connection to be closed.
 	 */
@@ -80,14 +88,13 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	_new->ChangeRealHost(params[3], false);
 	_new->ChangeDisplayedHost(params[4]);
 	_new->ident = params[5];
-	_new->SetClientIP(params[6]);
+	_new->SetClientIP(sa);
 	_new->ChangeRealName(params.back());
 	_new->registered = REG_ALL;
 	_new->signon = signon;
 	_new->age = age_t;
 
 	unsigned int paramptr = 9;
-
 	for (std::string::const_iterator v = modestr.begin(); v != modestr.end(); ++v)
 	{
 		// Accept more '+' chars, for now
