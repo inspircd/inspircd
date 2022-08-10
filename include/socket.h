@@ -48,22 +48,30 @@ namespace irc
 	 */
 	namespace sockets
 	{
+		/** Represents a socket address. This can be an IP/port pair or a UNIX socket path. */
 		union CoreExport sockaddrs
 		{
 			struct sockaddr sa;
 			struct sockaddr_in in4;
 			struct sockaddr_in6 in6;
 			struct sockaddr_un un;
-			/** Return the family of the socket (e.g. AF_INET). */
-			int family() const;
-			/** Return the size of the structure for syscall passing */
-			socklen_t sa_size() const;
-			/** Return port number or -1 if invalid */
-			int port() const;
-			/** Return IP only */
+
+			/** Returns the address segment of the socket address as a string. */
 			std::string addr() const;
-			/** Return human-readable IP/port pair */
+
+			/** Returns the family of the socket address (e.g. AF_INET). */
+			int family() const;
+
+			/** Returns the TCP port number of the socket address or 0 if not relevant to this family. */
+			int port() const;
+
+			/** Returns the size of the structure for use in networking syscalls. */
+			socklen_t sa_size() const;
+
+			/** Returns the whole socket address as a string. */
 			std::string str() const;
+
+			/** Determines if this socket address refers to the same endpoint as another socket address. */
 			bool operator==(const sockaddrs& other) const;
 			inline bool operator!=(const sockaddrs& other) const { return !(*this == other); }
 		};
