@@ -202,7 +202,7 @@ public:
 		}
 	}
 
-	void OnSetUserIP(LocalUser* user) override
+	void OnChangeRemoteAddress(LocalUser* user) override
 	{
 		// Unset the extension so that the location of this user is looked
 		// up again next time it is requested.

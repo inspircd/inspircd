@@ -529,7 +529,7 @@ public:
 		return chost;
 	}
 
-	void OnSetUserIP(LocalUser* user) override
+	void OnChangeRemoteAddress(LocalUser* user) override
 	{
 		// Connecting users are handled in OnUserConnect not here.
 		if (user->registered != REG_ALL || user->quitting)

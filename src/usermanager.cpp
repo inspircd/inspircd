@@ -227,7 +227,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	if (ServerInstance->Config->RawLog)
 		New->WriteNotice("*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");
 
-	FOREACH_MOD(OnSetUserIP, (New));
+	FOREACH_MOD(OnChangeRemoteAddress, (New));
 	if (!New->quitting)
 		FOREACH_MOD(OnUserPostInit, (New));
 }

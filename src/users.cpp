@@ -767,7 +767,7 @@ void LocalUser::ChangeRemoteAddress(const irc::sockets::sockaddrs& sa)
 	this->CheckClass();
 
 	if (!quitting)
-		FOREACH_MOD(OnSetUserIP, (this));
+		FOREACH_MOD(OnChangeRemoteAddress, (this));
 }
 
 void LocalUser::Write(const ClientProtocol::SerializedMessage& text)

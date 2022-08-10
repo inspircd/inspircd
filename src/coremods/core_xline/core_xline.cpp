@@ -118,7 +118,7 @@ public:
 		ServerInstance->XLines->ApplyLines();
 	}
 
-	void OnSetUserIP(LocalUser* user) override
+	void OnChangeRemoteAddress(LocalUser* user) override
 	{
 		if (user->quitting)
 			return;

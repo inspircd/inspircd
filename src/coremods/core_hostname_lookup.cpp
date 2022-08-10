@@ -210,7 +210,7 @@ public:
 		dl = &dnsLookup;
 	}
 
-	void OnSetUserIP(LocalUser* user) override
+	void OnChangeRemoteAddress(LocalUser* user) override
 	{
 		// If core_dns is not loaded or hostname resolution is disabled for the user's
 		// connect class then the logic in this function does not apply.

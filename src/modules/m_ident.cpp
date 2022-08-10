@@ -315,7 +315,7 @@ public:
 		prefixunqueried = tag->getBool("prefixunqueried");
 	}
 
-	void OnSetUserIP(LocalUser* user) override
+	void OnChangeRemoteAddress(LocalUser* user) override
 	{
 		IdentRequestSocket* isock = socket.Get(user);
 		if (isock)

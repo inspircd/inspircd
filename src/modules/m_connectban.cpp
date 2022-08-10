@@ -92,7 +92,7 @@ public:
 	void Prioritize() override
 	{
 		Module* corexline = ServerInstance->Modules.Find("core_xline");
-		ServerInstance->Modules.SetPriority(this, I_OnSetUserIP, PRIORITY_AFTER, corexline);
+		ServerInstance->Modules.SetPriority(this, I_OnChangeRemoteAddress, PRIORITY_AFTER, corexline);
 	}
 
 	void ReadConfig(ConfigStatus& status) override
@@ -118,7 +118,7 @@ public:
 
 		// HACK: Lower the connection attempts for the gateway IP address. The user
 		// will be rechecked for connect spamming shortly after when their IP address
-		// is changed and OnSetUserIP is called.
+		// is changed and OnChangeRemoteAddress is called.
 		irc::sockets::cidr_mask mask(user->client_sa, GetRange(user));
 		ConnectMap::iterator iter = connects.find(mask);
 		if (iter != connects.end() && iter->second)
@@ -131,7 +131,7 @@ public:
 			ignoreuntil = std::max<time_t>(ignoreuntil, ServerInstance->Time() + splitwait);
 	}
 
-	void OnSetUserIP(LocalUser* u) override
+	void OnChangeRemoteAddress(LocalUser* u) override
 	{
 		if (IsExempt(u) || ignoreuntil > ServerInstance->Time())
 			return;

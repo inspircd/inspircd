@@ -382,7 +382,7 @@ public:
 	void Prioritize() override
 	{
 		Module* corexline = ServerInstance->Modules.Find("core_xline");
-		ServerInstance->Modules.SetPriority(this, I_OnSetUserIP, PRIORITY_AFTER, corexline);
+		ServerInstance->Modules.SetPriority(this, I_OnChangeRemoteAddress, PRIORITY_AFTER, corexline);
 	}
 
 	void ReadConfig(ConfigStatus& status) override
@@ -396,7 +396,7 @@ public:
 		dnsbls.swap(newdnsbls);
 	}
 
-	void OnSetUserIP(LocalUser* user) override
+	void OnChangeRemoteAddress(LocalUser* user) override
 	{
 		if (user->exempt || user->quitting || !DNS || !user->GetClass())
 			return;

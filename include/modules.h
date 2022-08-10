@@ -209,6 +209,7 @@ enum Implementation
 	I_OnChangeIdent,
 	I_OnChangeRealHost,
 	I_OnChangeRealName,
+	I_OnChangeRemoteAddress,
 	I_OnChannelDelete,
 	I_OnChannelPreDelete,
 	I_OnCheckBan,
@@ -247,7 +248,6 @@ enum Implementation
 	I_OnServiceAdd,
 	I_OnServiceDel,
 	I_OnSetConnectClass,
-	I_OnSetUserIP,
 	I_OnShutdown,
 	I_OnUnloadModule,
 	I_OnUserConnect,
@@ -978,10 +978,10 @@ public:
 
 	virtual ModResult OnNumeric(User* user, const Numeric::Numeric& numeric);
 
-	/** Called whenever a local user's IP is set or changed.
-	 * @param user The user whose IP is being set
+	/** Called whenever a local user's remote address is set or changed.
+	 * @param user The user whose remote address is being set or changed.
 	 */
-	virtual void OnSetUserIP(LocalUser* user);
+	virtual void OnChangeRemoteAddress(LocalUser* user);
 
 	/** Called whenever a ServiceProvider is registered.
 	 * @param service ServiceProvider being registered.
