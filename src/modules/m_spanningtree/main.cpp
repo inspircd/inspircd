@@ -223,7 +223,7 @@ void ModuleSpanningTree::ConnectServer(std::shared_ptr<Link> x, std::shared_ptr<
 	irc::sockets::sockaddrs sa;
 	if (x->IPAddr.find('/') != std::string::npos)
 	{
-		if (!irc::sockets::isunix(x->IPAddr) || !irc::sockets::untosa(x->IPAddr, sa))
+		if (!irc::sockets::isunix(x->IPAddr) || !sa.from_unix(x->IPAddr))
 		{
 			// We don't use the family() != AF_UNSPEC check below for UNIX sockets as
 			// that results in a DNS lookup.
@@ -235,7 +235,7 @@ void ModuleSpanningTree::ConnectServer(std::shared_ptr<Link> x, std::shared_ptr<
 	else
 	{
 		// If this fails then the IP sa will be AF_UNSPEC.
-		irc::sockets::aptosa(x->IPAddr, x->Port, sa);
+		sa.from_ip_port(x->IPAddr, x->Port);
 	}
 
 	/* Do we already have an IP? If so, no need to resolve it. */
@@ -259,7 +259,7 @@ void ModuleSpanningTree::ConnectServer(std::shared_ptr<Link> x, std::shared_ptr<
 		// Guess start_type from bindip aftype
 		DNS::QueryType start_type = DNS::QUERY_AAAA;
 		irc::sockets::sockaddrs bind;
-		if ((!x->Bind.empty()) && (irc::sockets::aptosa(x->Bind, 0, bind)))
+		if (!x->Bind.empty() && bind.from_ip(x->Bind))
 		{
 			if (bind.family() == AF_INET)
 				start_type = DNS::QUERY_A;

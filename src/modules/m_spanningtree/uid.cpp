@@ -70,12 +70,8 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 		}
 	}
 
-	irc::sockets::sockaddrs sa;
-	if (params[6].find('/') != std::string::npos)
-		irc::sockets::untosa(params[6], sa);
-	else
-		irc::sockets::aptosa(params[6], 0, sa);
-	if (sa.family() == AF_UNSPEC)
+	irc::sockets::sockaddrs sa(false);
+	if (!sa.from(params[6]))
 		throw ProtocolException("Invalid IP address or UNIX socket path");
 
 	/* For remote users, we pass the UUID they sent to the constructor.

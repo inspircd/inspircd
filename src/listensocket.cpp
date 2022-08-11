@@ -150,7 +150,7 @@ ListenSocket::~ListenSocket()
 
 void ListenSocket::OnEventHandlerRead()
 {
-	irc::sockets::sockaddrs client;
+	irc::sockets::sockaddrs client(false);
 	irc::sockets::sockaddrs server(bind_sa);
 
 	socklen_t length = sizeof(client);

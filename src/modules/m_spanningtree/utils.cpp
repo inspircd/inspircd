@@ -212,8 +212,8 @@ void SpanningTreeUtilities::RefreshIPCache()
 
 		ValidIPs.insert(ValidIPs.end(), L->AllowMasks.begin(), L->AllowMasks.end());
 
-		irc::sockets::sockaddrs dummy;
-		bool ipvalid = irc::sockets::aptosa(L->IPAddr, L->Port, dummy);
+		irc::sockets::sockaddrs dummy(false);
+		bool ipvalid = dummy.from_ip_port(L->IPAddr, L->Port);
 		if ((L->IPAddr == "*") || (isunix) || (ipvalid))
 			ValidIPs.push_back(L->IPAddr);
 		else if (this->Creator->DNS)

@@ -509,8 +509,8 @@ public:
 	{
 		std::string chost;
 
-		irc::sockets::sockaddrs hostip;
-		bool host_is_ip = irc::sockets::aptosa(host, ip.port(), hostip) && hostip == ip;
+		irc::sockets::sockaddrs hostip(false);
+		bool host_is_ip = hostip.from_ip_port(host, ip.port()) && hostip == ip;
 
 		switch (info.mode)
 		{
@@ -569,7 +569,7 @@ CmdResult CommandCloak::Handle(User* user, const Params& parameters)
 
 	// If we're cloaking an IP address we pass it in the IP field too.
 	irc::sockets::sockaddrs sa;
-	const char* ipaddr = irc::sockets::aptosa(parameters[0], 0, sa) ? parameters[0].c_str() : "";
+	const char* ipaddr = sa.from_ip(parameters[0]) ? parameters[0].c_str() : "";
 
 	unsigned int id = 0;
 	for (const auto& info : mod->cloaks)

@@ -163,8 +163,8 @@ bool User::Deserialize(Serializable::Data& data)
 	else
 		oper = std::make_shared<OperInfo>(user_oper);
 
-	irc::sockets::sockaddrs sa;
-	if (irc::sockets::aptosa(client_addr, client_port, sa) || irc::sockets::untosa(client_addr, sa))
+	irc::sockets::sockaddrs sa(false);
+	if (sa.from_ip_port(client_addr, client_port) || sa.from_unix(client_addr))
 		client_sa = sa;
 
 	InvalidateCache();
@@ -246,8 +246,8 @@ bool LocalUser::Deserialize(Serializable::Data& data)
 		.Load("server_sa.port", server_port);
 
 	// Apply the rest of the members.
-	irc::sockets::sockaddrs sa;
-	if (irc::sockets::aptosa(server_addr, server_port, sa) || irc::sockets::untosa(server_addr, sa))
+	irc::sockets::sockaddrs sa(false);
+	if (sa.from_ip_port(server_addr, server_port) || sa.from_unix(server_addr))
 		server_sa = sa;
 
 	// These are bitfields so we need to ensure they only get the appropriate bits.

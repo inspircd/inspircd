@@ -48,10 +48,9 @@ TreeSocket::TreeSocket(std::shared_ptr<Link> link, std::shared_ptr<Autoconnect> 
 	capab->ac = myac;
 
 	irc::sockets::sockaddrs bind;
-	memset(&bind, 0, sizeof(bind));
 	if (!link->Bind.empty() && (dest.family() == AF_INET || dest.family() == AF_INET6))
 	{
-		if (!irc::sockets::aptosa(link->Bind, 0, bind))
+		if (!bind.from_ip(link->Bind))
 		{
 			state = I_ERROR;
 			SetError("Bind address '" + link->Bind + "' is not a valid IPv4 or IPv6 address");

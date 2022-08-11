@@ -168,8 +168,6 @@ private:
 					throw Exception(creator, "Unable to unpack A resource record");
 
 				irc::sockets::sockaddrs addrs;
-				memset(&addrs, 0, sizeof(addrs));
-
 				addrs.in4.sin_family = AF_INET;
 				addrs.in4.sin_addr.s_addr = input[pos] | (input[pos + 1] << 8) | (input[pos + 2] << 16)  | (input[pos + 3] << 24);
 				pos += 4;
@@ -183,8 +181,6 @@ private:
 					throw Exception(creator, "Unable to unpack AAAA resource record");
 
 				irc::sockets::sockaddrs addrs;
-				memset(&addrs, 0, sizeof(addrs));
-
 				addrs.in6.sin6_family = AF_INET6;
 				for (int j = 0; j < 16; ++j)
 					addrs.in6.sin6_addr.s6_addr[j] = input[pos + j];
@@ -333,8 +329,8 @@ public:
 
 			if (q.type == QUERY_PTR)
 			{
-				irc::sockets::sockaddrs ip;
-				if (!irc::sockets::aptosa(q.name, 0, ip))
+				irc::sockets::sockaddrs ip(false);
+				if (!ip.from_ip(q.name))
 					throw Exception(creator, "Unable to pack packet with malformed IP for PTR lookup");
 
 				if (q.name.find(':') != std::string::npos)
@@ -637,7 +633,7 @@ public:
 	void OnEventHandlerRead() override
 	{
 		unsigned char buffer[524];
-		irc::sockets::sockaddrs from;
+		irc::sockets::sockaddrs from(false);
 		socklen_t x = sizeof(from);
 
 		ssize_t length = SocketEngine::RecvFrom(this, buffer, sizeof(buffer), 0, &from.sa, &x);
@@ -773,7 +769,7 @@ public:
 
 	void Rehash(const std::string& dnsserver, std::string sourceaddr, unsigned int sourceport)
 	{
-		irc::sockets::aptosa(dnsserver, DNS::PORT, myserver);
+		myserver.from_ip_port(dnsserver, DNS::PORT);
 
 		/* Initialize mastersocket */
 		Close();
@@ -786,16 +782,17 @@ public:
 			SocketEngine::SetReuse(s);
 			SocketEngine::NonBlocking(s);
 
-			irc::sockets::sockaddrs bindto;
 			if (sourceaddr.empty())
 			{
-				// set a sourceaddr for irc::sockets::aptosa() based on the servers af type
+				// set a sourceaddr based on the servers af type
 				if (myserver.family() == AF_INET)
 					sourceaddr = "0.0.0.0";
 				else if (myserver.family() == AF_INET6)
 					sourceaddr = "::";
 			}
-			irc::sockets::aptosa(sourceaddr, sourceport, bindto);
+
+			irc::sockets::sockaddrs bindto;
+			bindto.from_ip_port(sourceaddr, sourceport);
 
 			if (SocketEngine::Bind(this->GetFd(), bindto) < 0)
 			{

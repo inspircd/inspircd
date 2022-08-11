@@ -56,11 +56,39 @@ namespace irc
 			struct sockaddr_in6 in6;
 			struct sockaddr_un un;
 
+			/** Initializes this sockaddrs optionally as an unspecified socket address. */
+			explicit sockaddrs(bool initialize = true);
+
 			/** Returns the address segment of the socket address as a string. */
 			std::string addr() const;
 
 			/** Returns the family of the socket address (e.g. AF_INET). */
 			int family() const;
+
+			/** Store an IP address or UNIX socket path in this socket address.
+			 * @param addr An IPv4 address, IPv6 address, or UNIX socket path.
+			 * @return True if the IP address or UNIX socket paht was stored in this socket address; otherwise, false.
+			 */
+			inline bool from(const std::string& addr) { return addr.find('/') == std::string::npos ? from_ip(addr) : from_unix(addr); }
+
+			/** Store an IP address in this socket address.
+			 * @param addr An IPv4 or IPv6 address.
+			 * @return True if the IP was stored in this socket address; otherwise, false.
+			 */
+			inline bool from_ip(const std::string& addr) { return from_ip_port(addr, 0); }
+
+			/** Store an IP address and TCP port pair in this socket address.
+			 * @param addr An IPv4 or IPv6 address.
+			 * @param port A TCP port.
+			 * @return True if the IP/port was stored in this socket address; otherwise, false.
+			 */
+			bool from_ip_port(const std::string& addr, int port);
+
+			/** Store a UNIX socket path in this socket address.
+			 * @param path A path to a UNIX socket.
+			 * @return True if the UNIX socket path was stored in this socket address; otherwise, false.
+			 */
+			bool from_unix(const std::string& path);
 
 			/** Returns the TCP port number of the socket address or 0 if not relevant to this family. */
 			int port() const;
@@ -113,21 +141,6 @@ namespace irc
 		 * @return True if the mask matches the address
 		 */
 		CoreExport bool MatchCIDR(const std::string &address, const std::string &cidr_mask, bool match_with_username);
-
-		/** Convert an address-port pair into a binary sockaddr
-		 * @param addr The IP address, IPv4 or IPv6
-		 * @param port The port, 0 for unspecified
-		 * @param sa The structure to place the result in. Will be zeroed prior to conversion
-		 * @return true if the conversion was successful, false if not.
-		 */
-		CoreExport bool aptosa(const std::string& addr, int port, irc::sockets::sockaddrs& sa);
-
-		/** Convert a UNIX socket path to a binary sockaddr.
-		 * @param path The path to the UNIX socket.
-		 * @param sa The structure to place the result in. Will be zeroed prior to conversion.
-		 * @return True if the conversion was successful; otherwise, false.
-		 */
-		CoreExport bool untosa(const std::string& path, irc::sockets::sockaddrs& sa);
 
 		/** Determines whether the specified file is a UNIX socket.
 		 * @param file The path to the file to check.

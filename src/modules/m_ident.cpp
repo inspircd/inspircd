@@ -120,11 +120,8 @@ public:
 
 		done = false;
 
-		irc::sockets::sockaddrs bindaddr;
-		irc::sockets::sockaddrs connaddr;
-
-		memcpy(&bindaddr, &user->server_sa, sizeof(bindaddr));
-		memcpy(&connaddr, &user->client_sa, sizeof(connaddr));
+		irc::sockets::sockaddrs bindaddr(user->server_sa);
+		irc::sockets::sockaddrs connaddr(user->client_sa);
 
 		if (connaddr.family() == AF_INET6)
 		{

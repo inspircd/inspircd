@@ -88,8 +88,8 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 			irc::portparser portrange(portlist, false);
 			for (int port; (port = static_cast<int>(portrange.GetToken())); )
 			{
-				irc::sockets::sockaddrs bindspec;
-				if (!irc::sockets::aptosa(address, port, bindspec))
+				irc::sockets::sockaddrs bindspec(false);
+				if (!bindspec.from_ip_port(address, port))
 					continue;
 
 				if (!BindPort(tag, bindspec, old_ports))
@@ -124,7 +124,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 				continue;
 			}
 
-			irc::sockets::untosa(fullpath, bindspec);
+			bindspec.from_unix(fullpath);
 			if (!BindPort(tag, bindspec, old_ports))
 				failed_ports.emplace_back(errno, bindspec, tag);
 			else
@@ -154,46 +154,52 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 	return bound;
 }
 
-bool irc::sockets::aptosa(const std::string& addr, int port, irc::sockets::sockaddrs& sa)
+irc::sockets::sockaddrs::sockaddrs(bool initialize)
 {
-	memset(&sa, 0, sizeof(sa));
+	if (initialize)
+		memset(this, 0, sizeof(*this));
+}
+
+bool irc::sockets::sockaddrs::from_ip_port(const std::string& addr, int port)
+{
 	if (addr.empty() || addr == "*")
 	{
 		if (ServerInstance->Config->WildcardIPv6)
 		{
-			sa.in6.sin6_family = AF_INET6;
-			sa.in6.sin6_port = htons(port);
+			memset(&in6.sin6_addr, 0, sizeof(in6.sin6_addr));
+			in6.sin6_family = AF_INET6;
+			in6.sin6_port = htons(port);
 		}
 		else
 		{
-			sa.in4.sin_family = AF_INET;
-			sa.in4.sin_port = htons(port);
+			memset(&in4.sin_addr, 0, sizeof(in4.sin_addr));
+			in4.sin_family = AF_INET;
+			in4.sin_port = htons(port);
 		}
 		return true;
 	}
-	else if (inet_pton(AF_INET, addr.c_str(), &sa.in4.sin_addr) > 0)
+	else if (inet_pton(AF_INET, addr.c_str(), &in4.sin_addr) > 0)
 	{
-		sa.in4.sin_family = AF_INET;
-		sa.in4.sin_port = htons(port);
+		in4.sin_family = AF_INET;
+		in4.sin_port = htons(port);
 		return true;
 	}
-	else if (inet_pton(AF_INET6, addr.c_str(), &sa.in6.sin6_addr) > 0)
+	else if (inet_pton(AF_INET6, addr.c_str(), &in6.sin6_addr) > 0)
 	{
-		sa.in6.sin6_family = AF_INET6;
-		sa.in6.sin6_port = htons(port);
+		in6.sin6_family = AF_INET6;
+		in6.sin6_port = htons(port);
 		return true;
 	}
 	return false;
 }
 
-bool irc::sockets::untosa(const std::string& path, irc::sockets::sockaddrs& sa)
+bool irc::sockets::sockaddrs::from_unix(const std::string& path)
 {
-	memset(&sa, 0, sizeof(sa));
-	if (path.length() >= sizeof(sa.un.sun_path))
+	if (path.length() >= sizeof(un.sun_path))
 		return false;
 
-	sa.un.sun_family = AF_UNIX;
-	memcpy(&sa.un.sun_path, path.c_str(), path.length() + 1);
+	un.sun_family = AF_UNIX;
+	memcpy(&un.sun_path, path.c_str(), path.length() + 1);
 	return true;
 }
 
@@ -382,13 +388,13 @@ irc::sockets::cidr_mask::cidr_mask(const std::string& mask)
 
 	if (bits_chars == std::string::npos)
 	{
-		irc::sockets::aptosa(mask, 0, sa);
+		sa.from_ip(mask);
 		sa2cidr(*this, sa, 128);
 	}
 	else
 	{
 		unsigned char range = ConvToNum<unsigned char>(mask.substr(bits_chars + 1));
-		irc::sockets::aptosa(mask.substr(0, bits_chars), 0, sa);
+		sa.from_ip(mask.substr(0, bits_chars));
 		sa2cidr(*this, sa, range);
 	}
 }

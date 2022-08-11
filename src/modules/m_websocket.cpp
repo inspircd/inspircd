@@ -408,7 +408,12 @@ class WebSocketHook final
 			if (proxyheader.Find(recvq, "X-Real-IP:", 10, reqend) || proxyheader.Find(recvq, "X-Forwarded-For:", 16, reqend))
 			{
 				// Attempt to parse the proxy HTTP header.
-				irc::sockets::aptosa(proxyheader.ExtractValue(recvq), realsa.port(), realsa);
+				if (!realsa.from_ip_port(proxyheader.ExtractValue(recvq), realsa.port()))
+				{
+					// The proxy header value contains a malformed value.
+					FailHandshake(sock, "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n", "WebSocket: Received a proxied HTTP request that sent a malformed real IP address");
+					return -1;
+				}
 			}
 			else
 			{
@@ -416,14 +421,6 @@ class WebSocketHook final
 				FailHandshake(sock, "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n", "WebSocket: Received a proxied HTTP request that did not send a real IP address header");
 				return -1;
 			}
-
-			if (realsa.family() == AF_UNSPEC)
-			{
-				// The proxy header value contains a malformed value.
-				FailHandshake(sock, "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n", "WebSocket: Received a proxied HTTP request that sent a malformed real IP address");
-				return -1;
-			}
-
 			for (const auto& proxyrange : config.proxyranges)
 			{
 				if (InspIRCd::MatchCIDR(luser->GetIPString(), proxyrange, ascii_case_insensitive_map))

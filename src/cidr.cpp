@@ -76,8 +76,8 @@ bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr
 		return false;
 	}
 
-	irc::sockets::sockaddrs addr;
-	if (!irc::sockets::aptosa(address_copy, 0, addr))
+	irc::sockets::sockaddrs addr(false);
+	if (!addr.from_ip(address_copy))
 	{
 		// The address could not be parsed.
 		return false;

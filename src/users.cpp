@@ -96,8 +96,6 @@ User::User(const std::string& uid, Server* srv, Type type)
 	, uniqueusername(false)
 	, usertype(type)
 {
-	client_sa.sa.sa_family = AF_UNSPEC;
-
 	ServerInstance->Logs.Debug("USERS", "New UUID for user: %s", uuid.c_str());
 
 	if (srv->IsService())
@@ -114,6 +112,7 @@ User::User(const std::string& uid, Server* srv, Type type)
 LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* servaddr)
 	: User(ServerInstance->UIDGen.GetUID(), ServerInstance->FakeClient->server, User::TYPE_LOCAL)
 	, eh(this)
+	, server_sa(*servaddr)
 	, quitting_sendq(false)
 	, lastping(true)
 	, exempt(false)
@@ -124,7 +123,6 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 	ident = uuid;
 	eh.SetFd(myfd);
 	memcpy(&client_sa, client, sizeof(irc::sockets::sockaddrs));
-	memcpy(&server_sa, servaddr, sizeof(irc::sockets::sockaddrs));
 	ChangeRealHost(GetIPString(), true);
 }
 

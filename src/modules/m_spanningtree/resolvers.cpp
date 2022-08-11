@@ -55,8 +55,8 @@ void ServernameResolver::OnLookupComplete(const DNS::Query *r)
 		return;
 	}
 
-	irc::sockets::sockaddrs sa;
-	if (!irc::sockets::aptosa(ans_record->rdata, MyLink->Port, sa))
+	irc::sockets::sockaddrs sa(false);
+	if (!sa.from_ip_port(ans_record->rdata, MyLink->Port))
 	{
 		// We had a result but it wasn't a valid IPv4/IPv6.
 		OnError(r);

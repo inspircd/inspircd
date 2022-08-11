@@ -140,8 +140,8 @@ public:
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
-		irc::sockets::sockaddrs sa;
-		if (irc::sockets::aptosa(parameters[0], 0, sa))
+		irc::sockets::sockaddrs sa(false);
+		if (sa.from_ip(parameters[0]))
 		{
 			if (sa.family() != AF_INET)
 			{
@@ -263,8 +263,8 @@ public:
 			if (!host.Matches(user, parameters[0], sslapi))
 				continue;
 
-			irc::sockets::sockaddrs ipaddr;
-			if (!irc::sockets::aptosa(parameters[3], user->client_sa.port(), ipaddr))
+			irc::sockets::sockaddrs ipaddr(false);
+			if (!ipaddr.from_ip_port(parameters[3], user->client_sa.port()))
 			{
 				ServerInstance->SNO.WriteGlobalSno('w', "Connecting user %s (%s) tried to use WEBIRC but gave an invalid IP address.",
 					user->uuid.c_str(), user->GetIPString().c_str());
