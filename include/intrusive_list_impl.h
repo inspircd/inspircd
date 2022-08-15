@@ -24,11 +24,17 @@ template <typename T, typename Tag>
 class INSPIRCD_INTRUSIVE_LIST_NAME
 {
  public:
-	class iterator : public std::iterator<std::bidirectional_iterator_tag, T*>
+	class iterator
 	{
 		T* curr;
 
 	 public:
+		typedef std::ptrdiff_t difference_type;
+		typedef std::bidirectional_iterator_tag iterator_category;
+		typedef T** pointer;
+		typedef T*& reference;
+		typedef T* value_type;
+
 		iterator(T* i = NULL)
 			: curr(i)
 		{

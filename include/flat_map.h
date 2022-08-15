@@ -52,7 +52,7 @@ class map_pair_compare : public Comp
 };
 
 template <typename Val, typename Comp>
-class map_value_compare : public std::binary_function<Val, Val, bool>
+class map_value_compare
 {
  public:
 	// Constructor should be private
