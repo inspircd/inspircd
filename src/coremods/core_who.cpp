@@ -124,7 +124,8 @@ class CommandWho : public SplitCommand
 	void BuildOpLevels()
 	{
 		// Build a map of prefixes ordered descending by their rank.
-		std::multimap<unsigned int, const PrefixMode*, std::greater<unsigned int> > ranks;
+		typedef std::multimap<unsigned int, const PrefixMode*, std::greater<unsigned int> > RankMap;
+		RankMap ranks;
 		const ModeParser::PrefixModeList& modes = ServerInstance->Modes.GetPrefixModes();
 		for (ModeParser::PrefixModeList::const_iterator iter = modes.begin(); iter != modes.end(); ++iter)
 		{
@@ -133,9 +134,9 @@ class CommandWho : public SplitCommand
 		}
 
 		// Now we have the ranks ordered we can assign them levels.
-		unsigned int lastrank;
+		unsigned int lastrank = 0;
 		unsigned int oplevel = 0;
-		for (std::multimap<unsigned int, const PrefixMode*>::const_iterator iter = ranks.begin(); iter != ranks.end(); ++iter)
+		for (RankMap::const_iterator iter = ranks.begin(); iter != ranks.end(); ++iter)
 		{
 			const PrefixMode* pm = iter->second;
 			if (iter != ranks.begin() && pm->GetPrefixRank() != lastrank)
