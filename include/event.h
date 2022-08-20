@@ -93,8 +93,8 @@ public:
 	inline void Call(void (Class::*function)(FunArgs...), FwdArgs&&... args) const;
 
 	/**
-	 * Run the given hook provided by a module until some module returns MOD_RES_ALLOW or MOD_RES_DENY.
-	 * If no module does that, result is set to MOD_RES_PASSTHRU.
+	 * Run the given hook provided by a module until some module returns MOD_RES_ALLOW or
+	 * MOD_RES_DENY. If no module does that the result is set to MOD_RES_PASSTHRU.
 	 */
 	template<typename Class, typename... FunArgs, typename... FwdArgs>
 	inline ModResult FirstResult(ModResult (Class::*function)(FunArgs...), FwdArgs&&... args) const;

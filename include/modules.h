@@ -120,71 +120,6 @@ public:
 	}
 };
 
-/**
- * This \#define allows us to call a method in all
- * loaded modules in a readable simple way, e.g.:
- * 'FOREACH_MOD(OnConnect,(user));'
- */
-#define FOREACH_MOD(y,x) do { \
-	const Module::List& _handlers = ServerInstance->Modules.EventHandlers[I_ ## y]; \
-	for (Module::List::const_reverse_iterator _i = _handlers.rbegin(), _next; _i != _handlers.rend(); _i = _next) \
-	{ \
-		_next = _i+1; \
-		try \
-		{ \
-			if (!(*_i)->dying) \
-				(*_i)->y x ; \
-		} \
-		catch (CoreException& modexcept) \
-		{ \
-			ServerInstance->Logs.Normal("MODULE", "Exception caught: " + modexcept.GetReason()); \
-		} \
-	} \
-} while (0)
-
-/**
- * Custom module result handling loop. This is a paired macro, and should only
- * be used with while_each_hook.
- *
- * See src/channels.cpp for an example of use.
- */
-#define DO_EACH_HOOK(n,v,args) \
-do { \
-	const Module::List& _handlers = ServerInstance->Modules.EventHandlers[I_ ## n]; \
-	for (Module::List::const_reverse_iterator _i = _handlers.rbegin(), _next; _i != _handlers.rend(); _i = _next) \
-	{ \
-		_next = _i+1; \
-		try \
-		{ \
-			if (!(*_i)->dying) \
-				v = (*_i)->n args;
-
-#define WHILE_EACH_HOOK(n) \
-		} \
-		catch (CoreException& except_ ## n) \
-		{ \
-			ServerInstance->Logs.Normal("MODULE", "Exception caught: " + (except_ ## n).GetReason()); \
-		} \
-	} \
-} while(0)
-
-/**
- * Module result iterator
- * Runs the given hook until some module returns a useful result.
- *
- * Example: ModResult result;
- * FIRST_MOD_RESULT(OnUserPreNick, result, (user, newnick))
- */
-#define FIRST_MOD_RESULT(n,v,args) do { \
-	v = MOD_RES_PASSTHRU; \
-	DO_EACH_HOOK(n,v,args) \
-	{ \
-		if (v != MOD_RES_PASSTHRU) \
-			break; \
-	} \
-	WHILE_EACH_HOOK(n); \
-} while (0)
-
 class CoreExport DataProvider
 	: public ServiceProvider
 {
@@ -1236,3 +1171,52 @@ public:
 	 */
 	void DelReferent(ServiceProvider* service);
 };
+
+/** @def FOREACH_MOD(EVENT, ARGS)
+ * Run the given hook.
+ */
+#define FOREACH_MOD(EVENT, ARGS) \
+	do \
+		{ \
+		const Module::List& _handlers = ServerInstance->Modules.EventHandlers[I_ ## EVENT]; \
+		for (Module::List::const_reverse_iterator _handler = _handlers.rbegin(); _handler != _handlers.rend(); ) \
+		{ \
+			Module* _mod = *_handler++; \
+			try \
+			{ \
+				if (!_mod->dying) \
+					_mod->EVENT ARGS; \
+			} \
+			catch (const CoreException& _exception_ ## EVENT) \
+			{ \
+				ServerInstance->Logs.Normal("MODULE", _mod->ModuleSourceFile + " threw an exception in " # EVENT ": " + (_exception_ ## EVENT).GetReason()); \
+			} \
+		} \
+	} while (false)
+
+/** @def FIRST_MOD_RESULT(EVENT, RESULT, ARGS)
+ * Run the given hook until some module returns MOD_RES_ALLOW or MOD_RES_DENY. If no module does
+ * that the result is set to MOD_RES_PASSTHRU.
+ */
+#define FIRST_MOD_RESULT(EVENT, RESULT, ARGS) \
+	do \
+	{ \
+		RESULT = MOD_RES_PASSTHRU; \
+		const Module::List& _handlers = ServerInstance->Modules.EventHandlers[I_ ## EVENT]; \
+		for (Module::List::const_reverse_iterator _handler = _handlers.rbegin(); _handler != _handlers.rend(); ) \
+		{ \
+			Module* _mod = *_handler++; \
+			try \
+			{ \
+				if (_mod->dying) \
+					continue; \
+				RESULT = _mod->EVENT ARGS; \
+				if (RESULT != MOD_RES_PASSTHRU) \
+					break; \
+			} \
+			catch (const CoreException& _exception_ ## EVENT) \
+			{ \
+				ServerInstance->Logs.Normal("MODULE", _mod->ModuleSourceFile + " threw an exception in " # EVENT ": " + (_exception_ ## EVENT).GetReason()); \
+			} \
+		} \
+	} while (false)
