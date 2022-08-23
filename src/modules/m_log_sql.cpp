@@ -59,7 +59,7 @@ public:
 	{
 	}
 
-	void OnLog(Log::Level level, const std::string& type, const std::string& message) override
+	void OnLog(time_t time, Log::Level level, const std::string& type, const std::string& message) override
 	{
 		if (!sql)
 		{
@@ -71,7 +71,7 @@ public:
 			{ "level",    ConvToStr(static_cast<uint8_t>(level)) },
 			{ "levelstr", Log::LevelToString(level)              },
 			{ "message",  message                                },
-			{ "time",     ConvToStr(ServerInstance->Time())      },
+			{ "time",     ConvToStr(time)                        },
 			{ "type",     type                                   },
 		};
 		sql->Submit(new SQLQuery(thismod), query, params);

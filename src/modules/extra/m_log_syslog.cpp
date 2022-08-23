@@ -49,7 +49,7 @@ private:
 	}
 
 public:
-	void OnLog(Log::Level level, const std::string& type, const std::string& message) override
+	void OnLog(time_t time, Log::Level level, const std::string& type, const std::string& message) override
 	{
 		syslog(LevelToPriority(level), "%s: %s", type.c_str(), message.c_str());
 	}

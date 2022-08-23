@@ -60,13 +60,13 @@ Log::FileMethod::~FileMethod()
 		fclose(file);
 }
 
-void Log::FileMethod::OnLog(Level level, const std::string& type, const std::string& message)
+void Log::FileMethod::OnLog(time_t time, Level level, const std::string& type, const std::string& message)
 {
 	static time_t prevtime = 0;
 	static std::string timestr;
-	if (prevtime != ServerInstance->Time())
+	if (prevtime != time)
 	{
-		prevtime = ServerInstance->Time();
+		prevtime = time;
 		timestr = InspIRCd::TimeString(prevtime);
 	}
 
@@ -139,8 +139,9 @@ Log::MethodPtr Log::StreamEngine::Create(std::shared_ptr<ConfigTag> tag)
 	return std::make_shared<FileMethod>(name, file, 1, false);
 }
 
-Log::Manager::CachedMessage::CachedMessage(Level l, const std::string& t, const std::string& m)
-	: level(l)
+Log::Manager::CachedMessage::CachedMessage(time_t ts, Level l, const std::string& t, const std::string& m)
+	: time(ts)
+	, level(l)
 	, type(t)
 	, message(m)
 {
@@ -234,7 +235,7 @@ void Log::Manager::OpenLogs(bool requiremethods)
 			for (const auto& message : cache)
 			{
 				if (logger.level >= message.level && logger.types.Contains(message.type))
-					logger.method->OnLog(message.level, message.type, message.message);
+					logger.method->OnLog(message.time, message.level, message.type, message.message);
 			}
 		}
 
@@ -266,14 +267,15 @@ void Log::Manager::Write(Level level, const std::string& type, const std::string
 		return; // Avoid log loops.
 
 	logging = true;
+	time_t time = ServerInstance->Time();
 	for (const auto& logger : loggers)
 	{
 		if (logger.level >= level && logger.types.Contains(type))
-			logger.method->OnLog(level, type, message);
+			logger.method->OnLog(time, level, type, message);
 	}
 
 	if (caching)
-		cache.emplace_back(level, type, message);
+		cache.emplace_back(time, level, type, message);
 	logging = false;
 }
 

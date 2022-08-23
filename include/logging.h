@@ -70,11 +70,12 @@ public:
 	virtual bool AcceptsCachedMessages() const { return true; }
 
 	/** Writes a message to the logger.
+	 * @param time The time at which the message was logged.
 	 * @param level The level at which the log message was written.
 	 * @param type The component which wrote the log message.
 	 * @param message The message which was written to the log.
 	 */
-	virtual void OnLog(Level level, const std::string& type, const std::string& message) = 0;
+	virtual void OnLog(time_t time, Level level, const std::string& type, const std::string& message) = 0;
 };
 
 /** A logger that writes to a file stream. */
@@ -109,7 +110,7 @@ public:
 	bool Tick() override;
 
 	/** @copydoc Log::Method::OnLog */
-	void OnLog(Level level, const std::string& type, const std::string& message) override;
+	void OnLog(time_t time, Level level, const std::string& type, const std::string& message) override;
 };
 
 /** Base class for logging engines. */
@@ -161,6 +162,9 @@ private:
 	/** A log message which has been cached until modules load. */
 	struct CachedMessage final
 	{
+		/** The time the message was logged at. */
+		time_t time;
+
 		/** The level the message was logged at. */
 		Level level;
 
@@ -170,7 +174,7 @@ private:
 		/** The message that was logged. */
 		std::string message;
 
-		CachedMessage(Level l, const std::string& t, const std::string& m);
+		CachedMessage(time_t ts, Level l, const std::string& t, const std::string& m);
 	};
 
 	/** Encapsulates information about a logger. */

@@ -63,13 +63,13 @@ public:
 	// RapidJSON API: We implement our own flushing in OnLog.
 	void Flush() { }
 
-	void OnLog(Log::Level level, const std::string& type, const std::string& message) override
+	void OnLog(time_t time, Log::Level level, const std::string& type, const std::string& message) override
 	{
 		static time_t prevtime = 0;
 		static std::string timestr;
-		if (prevtime != ServerInstance->Time())
+		if (prevtime != time)
 		{
-			prevtime = ServerInstance->Time();
+			prevtime = time;
 			timestr = InspIRCd::TimeString(prevtime, "%Y-%m-%dT%H:%M:%S%z");
 		}
 
