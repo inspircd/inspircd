@@ -21,8 +21,6 @@ jobs:
         ^./.mailmap
         ^./vendor
         ^./make/directive.pm:.*:atleast
-        ^./src/modules/m_disable.cpp:119:existant
-        ^.*\.\(cpp\|h\).*eiter$
         ALLTIME$
         alltime$
         Alltime$\
