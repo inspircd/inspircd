@@ -29,6 +29,9 @@ class JSONMethod final
 	, public Timer
 {
 private:
+	// Whether to autoclose the file on exit.
+	bool autoclose;
+
 	// The file to which the log is written.
 	FILE* file;
 
@@ -45,8 +48,9 @@ public:
 	// RapidJSON API: The type of character that this writer accepts.
 	typedef char Ch;
 
-	JSONMethod(const std::string& n, FILE* fh, unsigned long fl) ATTR_NOT_NULL(3)
+	JSONMethod(const std::string& n, FILE* fh, unsigned long fl, bool ac) ATTR_NOT_NULL(3)
 		: Timer(15*60, true)
+		, autoclose(ac)
 		, file(fh)
 		, flush(fl)
 		, name(n)
@@ -57,7 +61,8 @@ public:
 
 	~JSONMethod() override
 	{
-		fclose(file);
+		if (autoclose)
+			fclose(file);
 	}
 
 	// RapidJSON API: We implement our own flushing in OnLog.
@@ -117,11 +122,11 @@ public:
 	}
 };
 
-class JSONEngine final
+class JSONFileEngine final
 	: public Log::Engine
 {
 public:
-	JSONEngine(Module* Creator) ATTR_NOT_NULL(2)
+	JSONFileEngine(Module* Creator) ATTR_NOT_NULL(2)
 		: Log::Engine(Creator, "json")
 	{
 	}
@@ -141,7 +146,26 @@ public:
 		}
 
 		const unsigned long flush = tag->getUInt("flush", 20, 1);
-		return std::make_shared<JSONMethod>(fulltarget, fh, flush);
+		return std::make_shared<JSONMethod>(fulltarget, fh, flush, true);
+	}
+};
+
+class JSONStreamEngine final
+	: public Log::Engine
+{
+private:
+	FILE* file;
+
+public:
+	JSONStreamEngine(Module* Creator, const std::string& Name, FILE* fh) ATTR_NOT_NULL(2, 4)
+		: Log::Engine(Creator, Name)
+		, file(fh)
+	{
+	}
+
+	Log::MethodPtr Create(std::shared_ptr<ConfigTag> tag) override
+	{
+		return std::make_shared<JSONMethod>(name, file, 1, false);
 	}
 };
 
@@ -149,12 +173,16 @@ class ModuleLogJSON final
 	: public Module
 {
 private:
-	JSONEngine engine;
+	JSONFileEngine log;
+	JSONStreamEngine stderrlog;
+	JSONStreamEngine stdoutlog;
 
 public:
 	ModuleLogJSON()
-		: Module(VF_VENDOR, "Provides the ability to write logs to syslog.")
-		, engine(this)
+		: Module(VF_VENDOR, "Provides the ability to write logs to a JSON file.")
+		, log(this)
+		, stderrlog(this, "json-stderr", stderr)
+		, stdoutlog(this, "json-stdout", stdout)
 	{
 	}
 };
