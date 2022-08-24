@@ -136,7 +136,7 @@ CmdResult CommandList::Handle(User* user, const Params& parameters)
 	for (const auto& [_, chan] : ServerInstance->Channels.GetChans())
 	{
 		// Check the user count if a search has been specified.
-		const size_t users = chan->GetUserCounter();
+		const size_t users = chan->GetUsers().size();
 		if ((minusers && users <= minusers) || (maxusers && users >= maxusers))
 			continue;
 

@@ -256,7 +256,7 @@ public:
 			}
 
 			context.Write("modes", targetchan->ChanModes(true));
-			context.Write("membercount", ConvToStr(targetchan->GetUserCounter()));
+			context.Write("membercount", ConvToStr(targetchan->GetUsers().size()));
 
 			for (const auto& [u, memb] : targetchan->GetUsers())
 			{

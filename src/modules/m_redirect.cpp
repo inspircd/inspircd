@@ -104,7 +104,7 @@ public:
 		{
 			if (chan->IsModeSet(re) && chan->IsModeSet(limitmode))
 			{
-				if (chan->GetUserCounter() >= ConvToNum<size_t>(chan->GetModeParameter(limitmode)))
+				if (chan->GetUsers().size() >= ConvToNum<size_t>(chan->GetModeParameter(limitmode)))
 				{
 					const std::string& channel = *re.ext.Get(chan);
 

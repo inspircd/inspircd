@@ -278,7 +278,7 @@ public:
 		{
 			ModResult MOD_RESULT;
 			FIRST_MOD_RESULT(OnCheckLimit, MOD_RESULT, (user, chan));
-			if (!MOD_RESULT.check(chan->GetUserCounter() < static_cast<size_t>(limitmode.ext.Get(chan))))
+			if (!MOD_RESULT.check(chan->GetUsers().size() < static_cast<size_t>(limitmode.ext.Get(chan))))
 			{
 				user->WriteNumeric(ERR_CHANNELISFULL, chan->name, "Cannot join channel (channel is full)");
 				return MOD_RES_DENY;

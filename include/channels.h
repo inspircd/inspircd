@@ -148,13 +148,6 @@ public:
 	 */
 	void SetTopic(User* user, const std::string& topic, time_t topicts, const std::string* setter = nullptr);
 
-	/** Obtain the channel "user counter"
-	 * This returns the number of users on this channel
-	 *
-	 * @return The number of users on this channel
-	 */
-	size_t GetUserCounter() const { return userlist.size(); }
-
 	/** Add a user pointer to the internal reference list
 	 * @param user The user to add
 	 *

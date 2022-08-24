@@ -75,7 +75,7 @@ public:
 			if (ServerInstance->Channels.IsChannel(c->name))
 				continue; // The name of this channel is still valid
 
-			if (c->IsModeSet(permchannelmode) && c->GetUserCounter())
+			if (c->IsModeSet(permchannelmode) && !c->GetUsers().empty())
 			{
 				removepermchan.clear();
 				removepermchan.push_remove(*permchannelmode);

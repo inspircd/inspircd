@@ -220,7 +220,7 @@ namespace Stats
 		{
 			serializer.BeginBlock("channel")
 				.Attribute("channelname", c->name)
-				.Attribute("usercount", c->GetUserCounter())
+				.Attribute("usercount", c->GetUsers().size())
 				.Attribute("channelmodes",c->ChanModes(true));
 
 			if (!c->topic.empty())

@@ -255,7 +255,7 @@ public:
 				if (chan->IsModeSet(key) && (CanOverride(user,"KEY")) && keygiven != chan->GetModeParameter(key))
 					return HandleJoinOverride(user, chan, keygiven, "the channel key", "+k");
 
-				if (chan->IsModeSet(limit) && (chan->GetUserCounter() >= ConvToNum<size_t>(chan->GetModeParameter(limit))) && (CanOverride(user,"LIMIT")))
+				if (chan->IsModeSet(limit) && (chan->GetUsers().size() >= ConvToNum<size_t>(chan->GetModeParameter(limit))) && (CanOverride(user,"LIMIT")))
 					return HandleJoinOverride(user, chan, keygiven, "the channel limit", "+l");
 
 				if (chan->IsBanned(user) && CanOverride(user,"BANWALK"))
