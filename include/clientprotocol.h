@@ -695,7 +695,7 @@ class CoreExport ClientProtocol::Serializer : public DataProvider
 	 * @param mod Module owning the serializer.
 	 * @param Name Name of the serializer, e.g. "rfc".
 	 */
-	Serializer(Module* mod, const char* Name);
+	Serializer(Module* mod, const std::string& Name);
 
 	/** Handle a tag in a message being parsed. Call this method for each parsed tag.
 	 * @param user User sending the tag.

@@ -20,8 +20,8 @@
 
 #include "inspircd.h"
 
-ClientProtocol::Serializer::Serializer(Module* mod, const char* Name)
-	: DataProvider(mod, std::string("serializer/") + Name)
+ClientProtocol::Serializer::Serializer(Module* mod, const std::string& Name)
+	: DataProvider(mod, "serializer/" + Name)
 	, evprov(mod)
 {
 }
