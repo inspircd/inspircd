@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2018-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018-2020, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2018 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -700,7 +700,7 @@ public:
 	 * @param mod Module owning the serializer.
 	 * @param Name Name of the serializer, e.g. "rfc".
 	 */
-	Serializer(Module* mod, const char* Name);
+	Serializer(Module* mod, const std::string& Name);
 
 	/** Handle a tag in a message being parsed. Call this method for each parsed tag.
 	 * @param user User sending the tag.
