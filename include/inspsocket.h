@@ -320,17 +320,17 @@ public:
 	/** Called when the socket gets an error from socket engine or I/O hook. */
 	virtual void OnError(BufferedSocketError e) = 0;
 
-	/** Called when the local endpoint address is changed.
-	 * @param ep The new local endpoint.
+	/** Called when the local socket address address is changed.
+	 * @param sa The new local socket address.
 	 * @return true if the connection is still open, false if it has been closed
 	 */
-	virtual bool OnSetLocalEndPoint(const irc::sockets::sockaddrs& ep) { return true; }
+	virtual bool OnChangeLocalSocketAddress(const irc::sockets::sockaddrs& sa) { return true; }
 
-	/** Called when the remote endpoint address is changed.
-	 * @param ep The new remote endpoint.
+	/** Called when the remote socket address address is changed.
+	 * @param sa The new remote socket address.
 	 * @return true if the connection is still open, false if it has been closed
 	 */
-	virtual bool OnSetRemoteEndPoint(const irc::sockets::sockaddrs& ep) { return true; }
+	virtual bool OnChangeRemoteSocketAddress(const irc::sockets::sockaddrs& sa) { return true; }
 
 	/** Send the given data out the socket, either now or when writes unblock
 	 */

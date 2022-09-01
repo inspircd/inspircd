@@ -274,7 +274,7 @@ private:
 						break;
 				}
 
-				if (!sock->OnSetLocalEndPoint(server) || !sock->OnSetRemoteEndPoint(client))
+				if (!sock->OnChangeLocalSocketAddress(server) || !sock->OnChangeRemoteSocketAddress(client))
 					return -1;
 
 				// Parse any available TLVs.

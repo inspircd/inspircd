@@ -333,15 +333,15 @@ void UserIOHandler::AddWriteBuf(const std::string &data)
 	WriteData(data);
 }
 
-bool UserIOHandler::OnSetLocalEndPoint(const irc::sockets::sockaddrs& ep)
+bool UserIOHandler::OnChangeLocalSocketAddress(const irc::sockets::sockaddrs& sa)
 {
-	memcpy(&user->server_sa, &ep, sizeof(irc::sockets::sockaddrs));
+	memcpy(&user->server_sa, &sa, sizeof(irc::sockets::sockaddrs));
 	return true;
 }
 
-bool UserIOHandler::OnSetRemoteEndPoint(const irc::sockets::sockaddrs& ep)
+bool UserIOHandler::OnChangeRemoteSocketAddress(const irc::sockets::sockaddrs& sa)
 {
-	user->ChangeRemoteAddress(ep);
+	user->ChangeRemoteAddress(sa);
 	return !user->quitting;
 }
 

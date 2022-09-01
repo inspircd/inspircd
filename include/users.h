@@ -580,8 +580,8 @@ public:
 	{
 	}
 	void OnDataReady() override;
-	bool OnSetLocalEndPoint(const irc::sockets::sockaddrs& ep) override;
-	bool OnSetRemoteEndPoint(const irc::sockets::sockaddrs& ep) override;
+	bool OnChangeLocalSocketAddress(const irc::sockets::sockaddrs& sa) override;
+	bool OnChangeRemoteSocketAddress(const irc::sockets::sockaddrs& sa) override;
 	void OnError(BufferedSocketError error) override;
 
 	/** Adds to the user's write buffer.
