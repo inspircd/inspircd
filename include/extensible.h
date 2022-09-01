@@ -126,7 +126,6 @@ protected:
 /** Base class for types which can be extended with additional data. */
 class CoreExport Extensible
 	: public Cullable
-	, public Serializable
 {
 public:
 	/** The container which extension values are stored in. */
@@ -143,17 +142,11 @@ public:
 	/** @copydoc Cullable::Cull */
 	Cullable::Result Cull() override;
 
-	/** @copydoc Serializable::Deserialize */
-	bool Deserialize(Data& data) override;
-
 	/** Frees all extensions attached to this extensible. */
 	void FreeAllExtItems();
 
 	/** Retrieves the values for extensions which are set on this extensible. */
 	const ExtensibleStore& GetExtList() const { return extensions; }
-
-	/** @copydoc Serializable::Deserialize */
-	bool Serialize(Serializable::Data& data) override;
 
 	/** Unhooks the specifies extensions from this extensible.
 	 * @param items The items to unhook.

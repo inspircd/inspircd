@@ -126,14 +126,6 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 	ChangeRealHost(GetIPString(), true);
 }
 
-LocalUser::LocalUser(int myfd, const std::string& uid, Serializable::Data& data)
-	: User(uid, ServerInstance->FakeClient->server, User::TYPE_LOCAL)
-	, eh(this)
-{
-	eh.SetFd(myfd);
-	Deserialize(data);
-}
-
 const std::string& User::MakeHost()
 {
 	if (!this->cached_makehost.empty())

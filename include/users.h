@@ -558,12 +558,6 @@ public:
 	void PurgeEmptyChannels();
 
 	Cullable::Result Cull() override;
-
-	/** @copydoc Serializable::Deserialize */
-	bool Deserialize(Data& data) override;
-
-	/** @copydoc Serializable::Deserialize */
-	bool Serialize(Serializable::Data& data) override;
 };
 
 class CoreExport UserIOHandler final
@@ -617,7 +611,6 @@ private:
 
 public:
 	LocalUser(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
-	LocalUser(int fd, const std::string& uuid, Serializable::Data& data);
 
 	Cullable::Result Cull() override;
 
@@ -759,12 +752,6 @@ public:
 	 * @param msg Message to send.
 	 */
 	void Send(ClientProtocol::EventProvider& protoevprov, ClientProtocol::Message& msg);
-
-	/** @copydoc Serializable::Deserialize */
-	bool Deserialize(Data& data) override;
-
-	/** @copydoc Serializable::Deserialize */
-	bool Serialize(Serializable::Data& data) override;
 };
 
 class RemoteUser

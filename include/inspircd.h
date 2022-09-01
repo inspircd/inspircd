@@ -76,7 +76,6 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "config.h"
 #include "dynref.h"
 #include "cull.h"
-#include "serialize.h"
 #include "extensible.h"
 #include "fileutils.h"
 #include "ctables.h"
