@@ -29,27 +29,11 @@
 
 #pragma once
 
-/* Windows Port
-   Wrapper Functions/Definitions
-   By Burlex */
-/*
- * Starting with PSAPI version 2 for Windows 7 and Windows Server 2008 R2, this function is defined as K32GetProcessMemoryInfo in Psapi.h and exported
- * in Kernel32.lib and Kernel32.dll. However, you should always call this function as GetProcessMemoryInfo. To ensure correct resolution of symbols
- * for programs that will run on earlier versions of Windows, add Psapi.lib to the TARGETLIBS macro and compile the program with PSAPI_VERSION=1.
- *
- * We do this before anything to make sure it's done.
- */
-#define PSAPI_VERSION 1
-
 #include "win32service.h"
 
 /* This defaults to 64, way too small for an ircd! */
 
 #define FD_SETSIZE 24000
-
-/* Make builds smaller, leaner and faster */
-#define VC_EXTRALEAN
-#define WIN32_LEAN_AND_MEAN
 
 /* Macros for exporting symbols - dependent on what is being compiled */
 

@@ -38,12 +38,11 @@
 /// $PackageInfo: require_system("ubuntu") libmysqlclient-dev
 
 
+#include <mysql.h>
+
 #include "inspircd.h"
 #include "threadsocket.h"
 #include "modules/sql.h"
-
-// Needs to be included after inspircd.h to avoid reincluding winsock.
-#include <mysql.h>
 
 #ifdef _WIN32
 # pragma comment(lib, "mysqlclient.lib")

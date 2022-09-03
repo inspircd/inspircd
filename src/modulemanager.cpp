@@ -26,12 +26,11 @@
 #include <filesystem>
 #include <iostream>
 
+#include <rang/rang.hpp>
+
 #include "inspircd.h"
 #include "dynamic.h"
 #include "exitcodes.h"
-
-// Needs to be included after inspircd.h to avoid reincluding winsock.
-#include <rang/rang.hpp>
 
 bool ModuleManager::Load(const std::string& modname, bool defer)
 {

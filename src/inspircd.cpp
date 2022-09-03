@@ -44,13 +44,11 @@
 #ifdef __GNUC__
 # pragma GCC diagnostic pop
 #endif
+#include <rang/rang.hpp>
 
 #include "inspircd.h"
 #include "exitcodes.h"
 #include "xline.h"
-
-// Needs to be included after inspircd.h to avoid reincluding winsock.
-#include <rang/rang.hpp>
 
 #ifndef _WIN32
 # include <fcntl.h>

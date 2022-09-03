@@ -31,8 +31,7 @@
 #include "modules/stats.h"
 
 #ifdef _WIN32
-#include <psapi.h>
-#pragma comment(lib, "psapi.lib") // For GetProcessMemoryInfo()
+# include <psapi.h>
 #else
 # include <sys/resource.h>
 #endif

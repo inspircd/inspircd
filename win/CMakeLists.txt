@@ -7,9 +7,6 @@ set(MODULE_DIR "modules" CACHE PATH "Module path")
 set(DATA_DIR "data" CACHE PATH "Data path")
 set(LOG_DIR "logs" CACHE PATH "Log file path")
 
-set(EXTRA_INCLUDES "" CACHE PATH "Extra include paths")
-set(EXTRA_LIBS "" CACHE PATH "Extra library paths")
-
 set(INSPIRCD_BASE "${CMAKE_CURRENT_SOURCE_DIR}/../")
 
 # Build with multiple processes
@@ -26,6 +23,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Put modules in their own folder
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+add_compile_definitions(
+	"_WIN32_WINNT=0x0A00"      # Set the minimum OS to Windows 10
+	"NTDDI_VERSION=0x0A000005" # Set the minimum OS to Windows 10 1803 "Redstone 4"
+	"WIN32_LEAN_AND_MEAN"      # Trim down the size of the included headers.
+)
+
 # Grab version info from version.sh
 file(STRINGS "${INSPIRCD_BASE}/src/version.sh" VERSIONSH)
 string(REGEX REPLACE ".*InspIRCd-([0-9]*).*" "\\1" VERSION_MAJOR "${VERSIONSH}")
@@ -33,33 +36,15 @@ string(REGEX REPLACE ".*InspIRCd-[0-9]*\\.([0-9]*).*" "\\1" VERSION_MINOR "${VER
 string(REGEX REPLACE ".*InspIRCd-[0-9]*\\.[0-9]*\\.([0-9]*).*" "\\1" VERSION_PATCH "${VERSIONSH}")
 string(REGEX REPLACE ".*InspIRCd-([^\"]+).*" "\\1" VERSION_FULL "${VERSIONSH}")
 
-if(MSVC)
-	# Without /SAFESEH:NO old libraries compiled with VS 2010 or older won't link correctly to VS2012 (eg, extra module libs)
-	set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /SAFESEH:NO")
-	set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} /SAFESEH:NO")
-	set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /SAFESEH:NO")
-	set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /SAFESEH:NO")
-	set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} /SAFESEH:NO")
-	set(CMAKE_SHARED_LINKER_FLAGS_MINSIZEREL "${CMAKE_SHARED_LINKER_FLAGS_MINSIZEREL} /SAFESEH:NO")
-	set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /SAFESEH:NO")
-	set(CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO} /SAFESEH:NO")
-	set(CMAKE_MODULE_LINKER_FLAGS_DEBUG "${CMAKE_MODULE_LINKER_FLAGS_DEBUG} /SAFESEH:NO")
-	set(CMAKE_MODULE_LINKER_FLAGS_MINSIZEREL "${CMAKE_MODULE_LINKER_FLAGS_MINSIZEREL} /SAFESEH:NO")
-	set(CMAKE_MODULE_LINKER_FLAGS_RELEASE "${CMAKE_MODULE_LINKER_FLAGS_RELEASE} /SAFESEH:NO")
-	set(CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO} /SAFESEH:NO")
-endif()
-
 file(GLOB INSPIRCD_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-"${INSPIRCD_BASE}/win/inspircd_win32wrapper.cpp"
-"${INSPIRCD_BASE}/win/win32service.cpp" "${INSPIRCD_BASE}/src/*.cpp"
-"${INSPIRCD_BASE}/src/socketengines/select.cpp"
+	"${INSPIRCD_BASE}/src/*.cpp"
+	"${INSPIRCD_BASE}/src/socketengines/select.cpp"
+	"${INSPIRCD_BASE}/win/inspircd_win32wrapper.cpp"
+	"${INSPIRCD_BASE}/win/win32service.cpp"
 )
 list(SORT INSPIRCD_SOURCES)
 
 include_directories("${INSPIRCD_BASE}/win" "${INSPIRCD_BASE}/include" "${INSPIRCD_BASE}/vendor")
-
-include_directories(${EXTRA_INCLUDES})
-link_directories(${EXTRA_LIBS})
 
 if(MSVC)
 	add_library(win32_memory STATIC "${INSPIRCD_BASE}/win/inspircd_memory_functions.cpp")

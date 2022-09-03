@@ -28,6 +28,8 @@
 
 #include <iostream>
 
+#include <rang/rang.hpp>
+
 #ifndef _WIN32
 # include <fcntl.h>
 # include <sys/resource.h>
@@ -35,9 +37,6 @@
 
 #include "inspircd.h"
 #include "exitcodes.h"
-
-// Needs to be included after inspircd.h to avoid reincluding winsock.
-#include <rang/rang.hpp>
 
 /** Reference table, contains all current handlers
  **/
