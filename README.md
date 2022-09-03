@@ -14,7 +14,7 @@ InspIRCd is supported on the following platforms:
 
 - Windows 7 or newer using the MSVC 14 (Visual Studio 2015) compiler and CMake 3.8 or newer.
 
-Alternate platforms and toolchains may also work but are not officially supported by the InspIRCd team. Generally speaking if you are using a reasonably modern UNIX-like system you should be able to build InspIRCd on it.
+Other platforms and toolchains may also work but are not officially supported by the InspIRCd team. Generally speaking if you are using a reasonably modern UNIX-like system you should be able to build InspIRCd on it. If you can not and you wish to submit a patch we are happy to accept it as long as it is not extremely large.
 
 If you encounter any bugs then [please file an issue](https://github.com/inspircd/inspircd/issues/new/choose).
 
