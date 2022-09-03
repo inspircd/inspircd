@@ -9,7 +9,7 @@ jobs:
     if: "!contains(github.event.head_commit.message, '[skip macos ci]')"
     runs-on: macos-12
     env:
-      CXXFLAGS: -Wno-error=deprecated-declarations
+      HOMEBREW_NO_INSTALL_CLEANUP: 1
       INSPIRCD_DEBUG: 3
       INSPIRCD_VERBOSE: 1
     steps:
@@ -18,7 +18,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew update || true
-          for PACKAGE in pkg-config argon2 gnutls libmaxminddb libpq mbedtls mysql-client openssl@3 pcre2 re2 rapidjson sqlite;
+          for PACKAGE in pkg-config argon2 gnutls libmaxminddb libpq mbedtls mysql-client openssl@3 openldap pcre2 re2 rapidjson sqlite
           do
             brew install $PACKAGE || brew upgrade $PACKAGE
 
