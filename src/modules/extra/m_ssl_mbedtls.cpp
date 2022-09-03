@@ -826,7 +826,7 @@ public:
 		const char* const ciphersuitestr = mbedtls_ssl_get_ciphersuite(&sess);
 		const char prefix[] = "TLS-";
 		unsigned int skip = sizeof(prefix)-1;
-		if (strncmp(ciphersuitestr, prefix, sizeof(prefix)-1))
+		if (strncmp(ciphersuitestr, prefix, sizeof(prefix)-1) != 0)
 			skip = 0;
 		out.append(ciphersuitestr + skip);
 	}
