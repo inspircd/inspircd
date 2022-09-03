@@ -349,7 +349,7 @@ const UserManager::CloneCounts& UserManager::GetCloneCounts(User* user) const
 		return zeroclonecounts;
 }
 
-void UserManager::ServerNoticeAll(const char* text, ...)
+void UserManager::ServerNoticeAll(const char* text, ...) const
 {
 	std::string message;
 	VAFORMAT(message, text, text);

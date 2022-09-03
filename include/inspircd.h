@@ -298,11 +298,11 @@ public:
 	 * @param printable if false, the string will use characters 0-255; otherwise,
 	 * it will be limited to 0x30-0x7E ('0'-'~', nonspace printable characters)
 	 */
-	std::string GenRandomStr(size_t length, bool printable = true);
+	std::string GenRandomStr(size_t length, bool printable = true) const;
 	/** Generate a random integer.
 	 * This is generally more secure than rand()
 	 */
-	unsigned long GenRandomInt(unsigned long max);
+	unsigned long GenRandomInt(unsigned long max) const;
 
 	/** Fill a buffer with random bits */
 	std::function<void(char*, size_t)> GenRandom;
@@ -475,7 +475,7 @@ public:
 	 * @param hashtype The hash from the config file
 	 * @return True if the strings match, false if they do not
 	 */
-	bool PassCompare(Extensible* ex, const std::string& data, const std::string& input, const std::string& hashtype);
+	static bool PassCompare(Extensible* ex, const std::string& data, const std::string& input, const std::string& hashtype);
 
 	/** Attempt to write the process id to a given file
 	 */

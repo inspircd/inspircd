@@ -111,7 +111,7 @@ std::shared_ptr<Link> TreeSocket::AuthRemote(const CommandBase::Params& params)
 
 	this->SendCapabilities(2);
 
-	if (!ServerInstance->IsSID(sid))
+	if (!InspIRCd::IsSID(sid))
 	{
 		this->SendError("Invalid format server ID: "+sid+"!");
 		return nullptr;

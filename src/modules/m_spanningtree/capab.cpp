@@ -201,7 +201,9 @@ namespace
 			return true;
 
 		bool okay;
-		std::ostringstream diffconfig, localmissing, remotemissing;
+		std::ostringstream diffconfig;
+		std::ostringstream localmissing;
+		std::ostringstream remotemissing;
 		if (protocol <= PROTO_INSPIRCD_3)
 			okay = CompareModulesOld(property, *remote, diffconfig, localmissing, remotemissing);
 		else
@@ -418,7 +420,7 @@ void TreeSocket::ListDifference(const std::string &one, const std::string &two, 
 
 bool TreeSocket::Capab(const CommandBase::Params& params)
 {
-	if (params.size() < 1)
+	if (params.empty())
 	{
 		this->SendError("Invalid number of parameters for CAPAB - Mismatched version");
 		return false;
@@ -471,7 +473,8 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 		{
 			if (capab->ChanModes != BuildModeList(MODETYPE_CHANNEL))
 			{
-				std::string diffIneed, diffUneed;
+				std::string diffIneed;
+				std::string diffUneed;
 				ListDifference(capab->ChanModes, BuildModeList(MODETYPE_CHANNEL), ' ', diffIneed, diffUneed);
 				if (diffIneed.length() || diffUneed.length())
 				{
@@ -489,7 +492,8 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 		{
 			if (capab->UserModes != BuildModeList(MODETYPE_USER))
 			{
-				std::string diffIneed, diffUneed;
+				std::string diffIneed;
+				std::string diffUneed;
 				ListDifference(capab->UserModes, BuildModeList(MODETYPE_USER), ' ', diffIneed, diffUneed);
 				if (diffIneed.length() || diffUneed.length())
 				{

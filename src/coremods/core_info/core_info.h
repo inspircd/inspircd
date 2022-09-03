@@ -42,7 +42,7 @@ private:
 	 * @param buffer The buffer to append to.
 	 * @param value An ISUPPORT token value.
 	 */
-	void AppendValue(std::string& buffer, const std::string& value);
+	static void AppendValue(std::string& buffer, const std::string& value);
 
 	/** Builds the ISUPPORT numerics from a list of tokens.
 	 * @param tokens The tokens to build from.

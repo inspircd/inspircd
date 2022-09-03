@@ -127,11 +127,11 @@ public:
 
 	/** Send a message from this server to one other local or remote
 	 */
-	void DoOneToOne(const CmdBuilder& params, Server* target);
+	static void DoOneToOne(const CmdBuilder& params, Server* target);
 
 	/** Send a message from this server to all but one other, local or remote
 	 */
-	void DoOneToAllButSender(const CmdBuilder& params, TreeServer* omit);
+	void DoOneToAllButSender(const CmdBuilder& params, TreeServer* omit) const;
 
 	/** Read the spanningtree module's tags from the config file
 	 */
@@ -139,11 +139,11 @@ public:
 
 	/** Handle nick collision
 	 */
-	bool DoCollision(User* u, TreeServer* server, time_t remotets, const std::string& remoteident, const std::string& remoteip, const std::string& remoteuid, const char* collidecmd);
+	static bool DoCollision(User* u, TreeServer* server, time_t remotets, const std::string& remoteident, const std::string& remoteip, const std::string& remoteuid, const char* collidecmd);
 
 	/** Compile a list of servers which contain members of channel c
 	 */
-	void GetListOfServersForChannel(Channel* c, TreeSocketSet& list, char status, const CUList& exempt_list);
+	void GetListOfServersForChannel(Channel* c, TreeSocketSet& list, char status, const CUList& exempt_list) const;
 
 	/** Find a server by name or SID
 	 */
@@ -175,9 +175,9 @@ public:
 	void SendChannelMessage(User* source, Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const CUList& exempt_list, const char* message_type, TreeSocket* omit = nullptr);
 
 	// Builds link data to be sent to another server.
-	std::string BuildLinkString(uint16_t protocol, Module* mod);
+	static std::string BuildLinkString(uint16_t protocol, Module* mod);
 
 	/** Send the channel list mode limits to either the specified server or all servers if nullptr. */
-	void SendListLimits(Channel* chan, TreeSocket* sock = nullptr);
+	static void SendListLimits(Channel* chan, TreeSocket* sock = nullptr);
 };
 

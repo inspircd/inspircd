@@ -693,7 +693,7 @@ private:
 	 * @param tagmap Tag map that contains all possible tags.
 	 * @return Whitelist of tags to send to the user.
 	 */
-	TagSelection MakeTagWhitelist(LocalUser* user, const TagMap& tagmap) const;
+	static TagSelection MakeTagWhitelist(LocalUser* user, const TagMap& tagmap);
 
 public:
 	/** Constructor.

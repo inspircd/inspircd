@@ -69,7 +69,7 @@ CmdResult CommandEline::Handle(User* user, const Params& parameters)
 			user->WriteNotice("*** Invalid duration for E-line.");
 			return CmdResult::FAILURE;
 		}
-		ELine* el = new ELine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
+		ELine* el = new ELine(ServerInstance->Time(), duration, user->nick, parameters[2], ih.first, ih.second);
 		if (ServerInstance->XLines->AddLine(el, user))
 		{
 			if (!duration)

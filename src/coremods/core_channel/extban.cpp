@@ -29,7 +29,8 @@ void ExtBanManager::AddExtBan(ExtBan::Base* extban)
 bool ExtBanManager::Canonicalize(std::string& text) const
 {
 	bool inverted; // Intentionally unused
-	std::string xbname, xbvalue;
+	std::string xbname;
+	std::string xbvalue;
 	if (!ExtBan::Parse(text, xbname, xbvalue, inverted))
 		return false; // Not an extban.
 
@@ -88,7 +89,8 @@ ModResult ExtBanManager::GetStatus(ExtBan::Acting* extban, User* user, Channel* 
 	for (const ListModeBase::ListItem& ban : *list)
 	{
 		bool inverted;
-		std::string xbname, xbvalue;
+		std::string xbname;
+		std::string xbvalue;
 		if (!ExtBan::Parse(ban.mask, xbname, xbvalue, inverted))
 			continue;
 

@@ -28,9 +28,7 @@ class CapNotify final
 	bool OnRequest(LocalUser* user, bool add) override
 	{
 		// Users using the negotiation protocol v3.2 or newer may not turn off cap-notify
-		if ((!add) && (GetProtocol(user) != Cap::CAP_LEGACY))
-			return false;
-		return true;
+		return add || GetProtocol(user) == Cap::CAP_LEGACY;
 	}
 
 	bool OnList(LocalUser* user) override

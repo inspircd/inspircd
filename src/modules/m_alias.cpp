@@ -119,7 +119,7 @@ public:
 	{
 	}
 
-	std::string GetVar(std::string varname, const std::string &original_line)
+	static std::string GetVar(std::string varname, const std::string &original_line)
 	{
 		irc::spacesepstream ss(original_line);
 		varname.erase(varname.begin());
@@ -144,7 +144,7 @@ public:
 		return word;
 	}
 
-	std::string CreateRFCMessage(const std::string& command, CommandBase::Params& parameters)
+	static std::string CreateRFCMessage(const std::string& command, CommandBase::Params& parameters)
 	{
 		std::string message(command);
 		for (CommandBase::Params::const_iterator iter = parameters.begin(); iter != parameters.end();)
@@ -377,7 +377,8 @@ public:
 
 		irc::tokenstream ss(result);
 		CommandBase::Params pars;
-		std::string command, token;
+		std::string command;
+		std::string token;
 
 		ss.GetMiddle(command);
 		while (ss.GetTrailing(token))

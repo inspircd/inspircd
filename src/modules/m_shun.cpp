@@ -113,7 +113,7 @@ public:
 				expr = parameters[1];
 			}
 
-			Shun* r = new Shun(ServerInstance->Time(), duration, user->nick.c_str(), expr.c_str(), target.c_str());
+			Shun* r = new Shun(ServerInstance->Time(), duration, user->nick, expr, target);
 			if (ServerInstance->XLines->AddLine(r, user))
 			{
 				if (!duration)
@@ -152,7 +152,7 @@ private:
 	TokenList enabledcommands;
 	bool notifyuser;
 
-	bool IsShunned(LocalUser* user)
+	bool IsShunned(LocalUser* user) const
 	{
 		// Exempt the user if they are not fully connected and allowconnect is enabled.
 		if (allowconnect && user->registered != REG_ALL)

@@ -349,14 +349,14 @@ public:
 	 * @param def The value to return if the tag doesn't exist.
 	 * @returns Either a tag from the config or EmptyTag.
 	 */
-	std::shared_ptr<ConfigTag> ConfValue(const std::string& tag, std::shared_ptr<ConfigTag> def = nullptr);
+	std::shared_ptr<ConfigTag> ConfValue(const std::string& tag, std::shared_ptr<ConfigTag> def = nullptr) const;
 
 	/** Get a list of configuration tags by name.
 	 * @param tag The name of the tags to get.
 	 * @param def The value to return if the tag doesn't exist.
 	 * @returns Either a list of tags from the config or an empty TagList.
 	 */
-	TagList ConfTags(const std::string& tag, std::optional<TagList> def = std::nullopt);
+	TagList ConfTags(const std::string& tag, std::optional<TagList> def = std::nullopt) const;
 
 	/** An empty configuration tag. */
 	std::shared_ptr<ConfigTag> EmptyTag;

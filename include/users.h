@@ -340,7 +340,7 @@ public:
 
 	/** Get CIDR mask, using default range, for this user
 	 */
-	irc::sockets::cidr_mask GetCIDRMask();
+	irc::sockets::cidr_mask GetCIDRMask() const;
 
 	/** Changes the remote socket address for this user.
 	 * @param sa The new socket address.

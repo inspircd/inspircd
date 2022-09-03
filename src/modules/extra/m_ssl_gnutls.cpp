@@ -229,7 +229,7 @@ namespace GnuTLS
 				gnutls_x509_crt_deinit(cert);
 		}
 
-		gnutls_x509_crt_t* raw() { return &certs[0]; }
+		gnutls_x509_crt_t* raw() { return certs.data(); }
 		size_t size() const { return certs.size(); }
 	};
 
@@ -983,15 +983,15 @@ public:
 		unsigned int nameType = GNUTLS_NAME_DNS;
 
 		// First, determine the size of the hostname.
-		if (gnutls_server_name_get(sess, &nameBuffer[0], &nameLength, &nameType, 0) != GNUTLS_E_SHORT_MEMORY_BUFFER)
+		if (gnutls_server_name_get(sess, nameBuffer.data(), &nameLength, &nameType, 0) != GNUTLS_E_SHORT_MEMORY_BUFFER)
 			return false;
 
 		// Then retrieve the hostname.
 		nameBuffer.resize(nameLength);
-		if (gnutls_server_name_get(sess, &nameBuffer[0], &nameLength, &nameType, 0) != GNUTLS_E_SUCCESS)
+		if (gnutls_server_name_get(sess, nameBuffer.data(), &nameLength, &nameType, 0) != GNUTLS_E_SUCCESS)
 			return false;
 
-		out.append(&nameBuffer[0]);
+		out.append(nameBuffer.data());
 		return true;
 	}
 

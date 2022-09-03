@@ -58,7 +58,7 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 			user->WriteNotice("*** Invalid duration for Q-line.");
 			return CmdResult::FAILURE;
 		}
-		QLine* ql = new QLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
+		QLine* ql = new QLine(ServerInstance->Time(), duration, user->nick, parameters[2], parameters[0]);
 		if (ServerInstance->XLines->AddLine(ql,user))
 		{
 			if (!duration)

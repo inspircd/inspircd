@@ -66,11 +66,9 @@ public:
 		return ConvToStr(this->iterations) + ":" + Base64::Encode(this->hash) + ":" + Base64::Encode(this->salt);
 	}
 
-	bool IsValid()
+	bool IsValid() const
 	{
-		if (!this->iterations || !this->length || this->salt.empty() || this->hash.empty())
-			return false;
-		return true;
+		return this->iterations && this->length && !this->salt.empty() && !this->hash.empty();
 	}
 };
 
@@ -82,7 +80,7 @@ public:
 	unsigned long iterations;
 	size_t dkey_length;
 
-	std::string PBKDF2(const std::string& pass, const std::string& salt, unsigned long itr = 0, size_t dkl = 0)
+	std::string PBKDF2(const std::string& pass, const std::string& salt, unsigned long itr = 0, size_t dkl = 0) const
 	{
 		size_t blocks = std::ceil((double)dkl / provider->out_size);
 

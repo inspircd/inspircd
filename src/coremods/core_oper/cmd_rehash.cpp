@@ -46,8 +46,7 @@ CommandRehash::CommandRehash(Module* parent)
 
 CmdResult CommandRehash::Handle(User* user, const Params& parameters)
 {
-	std::string param = parameters.size() ? parameters[0] : "";
-
+	std::string param = parameters.empty() ? "" : parameters[0];
 	FOREACH_MOD(OnPreRehash, (user, param));
 
 	if (param.empty())

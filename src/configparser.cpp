@@ -112,7 +112,7 @@ struct Parser final
 		}
 	}
 
-	bool wordchar(char ch)
+	static bool wordchar(char ch)
 	{
 		return isalnum(ch)
 			|| ch == '-'

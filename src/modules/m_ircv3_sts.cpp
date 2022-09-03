@@ -132,7 +132,7 @@ private:
 	STSCap cap;
 
 	// The IRCv3 STS specification requires that the server is listening using TLS using a valid certificate.
-	bool HasValidSSLPort(unsigned int port)
+	static bool HasValidSSLPort(unsigned int port)
 	{
 		for (const auto& ls : ServerInstance->ports)
 		{

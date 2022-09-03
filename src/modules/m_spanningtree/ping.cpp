@@ -27,7 +27,6 @@
 #include "utils.h"
 #include "treeserver.h"
 #include "commands.h"
-#include "utils.h"
 
 CmdResult CommandPing::Handle(User* user, Params& params)
 {

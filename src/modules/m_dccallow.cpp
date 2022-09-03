@@ -194,6 +194,7 @@ public:
 		: Command(parent, "DCCALLOW", 0)
 		, ext(Ext)
 	{
+		allow_empty_last_param = false;
 		syntax = { "[(+|-)<nick> [<time>]]", "LIST", "HELP" };
 		/* XXX we need to fix this so it can work with translation stuff (i.e. move +- into a seperate param */
 	}
@@ -201,15 +202,15 @@ public:
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		/* syntax: DCCALLOW [(+|-)<nick> [<time>]]|[LIST|HELP] */
-		if (!parameters.size())
+		if (parameters.empty())
 		{
 			// display current DCCALLOW list
 			DisplayDCCAllowList(user);
 			return CmdResult::FAILURE;
 		}
-		else if (parameters.size() > 0)
+		else
 		{
-			char action = *parameters[0].c_str();
+			char action = parameters[0][0];
 
 			// if they didn't specify an action, this is probably a command
 			if (action != '+' && action != '-')
@@ -344,7 +345,7 @@ public:
 		return ROUTE_BROADCAST;
 	}
 
-	void DisplayHelp(User* user)
+	static void DisplayHelp(User* user)
 	{
 		user->WriteNumeric(RPL_HELPSTART, "*", "DCCALLOW [(+|-)<nick> [<time>]]|[LIST|HELP]");
 		for (const auto& helpline : helptext)
@@ -436,7 +437,7 @@ public:
 				if (irc::equals(ctcpname, "DCC") && !ctcpbody.empty())
 				{
 					dl = ext.Get(u);
-					if (dl && dl->size())
+					if (dl && !dl->empty())
 					{
 						for (const auto& dccallow : *dl)
 						{
@@ -524,7 +525,7 @@ public:
 			dl = ext.Get(u);
 			if (dl)
 			{
-				if (dl->size())
+				if (!dl->empty())
 				{
 					dccallowlist::iterator iter2 = dl->begin();
 					while (iter2 != dl->end())
@@ -559,7 +560,7 @@ public:
 			dl = ext.Get(u);
 			if (dl)
 			{
-				if (dl->size())
+				if (!dl->empty())
 				{
 					for (dccallowlist::iterator i = dl->begin(); i != dl->end(); ++i)
 					{
@@ -582,7 +583,7 @@ public:
 		}
 	}
 
-	void RemoveFromUserlist(User *user)
+	static void RemoveFromUserlist(User *user)
 	{
 		// remove user from userlist
 		for (userlist::iterator j = ul.begin(); j != ul.end(); ++j)

@@ -130,7 +130,7 @@ void InspIRCd::ProcessColors(std::vector<std::string>& input)
 
 	for (auto& ret : input)
 	{
-		for(int i = 0; special[i].character.empty() == false; ++i)
+		for(int i = 0; !special[i].character.empty(); ++i)
 		{
 			std::string::size_type pos = ret.find(special[i].character);
 			if(pos == std::string::npos) // Couldn't find the character, skip this line
@@ -400,7 +400,7 @@ std::string InspIRCd::Format(va_list& vaList, const char* formatString)
 		va_list dst;
 		va_copy(dst, vaList);
 
-		int vsnret = vsnprintf(&formatBuffer[0], formatBuffer.size(), formatString, dst);
+		int vsnret = vsnprintf(formatBuffer.data(), formatBuffer.size(), formatString, dst);
 		va_end(dst);
 
 		if (vsnret > 0 && static_cast<unsigned>(vsnret) < formatBuffer.size())
@@ -411,7 +411,7 @@ std::string InspIRCd::Format(va_list& vaList, const char* formatString)
 		formatBuffer.resize(formatBuffer.size() * 2);
 	}
 
-	return std::string(&formatBuffer[0]);
+	return std::string(formatBuffer.data());
 }
 
 std::string InspIRCd::Format(const char* formatString, ...)
@@ -453,19 +453,19 @@ std::string InspIRCd::TimeString(time_t curtime, const char* format, bool utc)
 	return buffer;
 }
 
-std::string InspIRCd::GenRandomStr(size_t length, bool printable)
+std::string InspIRCd::GenRandomStr(size_t length, bool printable) const
 {
 	std::vector<char> str(length);
-	GenRandom(&str[0], length);
+	GenRandom(str.data(), length);
 	if (printable)
 		for (size_t i = 0; i < length; i++)
 			str[i] = 0x3F + (str[i] & 0x3F);
-	return std::string(&str[0], str.size());
+	return std::string(str.data(), str.size());
 }
 
 // NOTE: this has a slight bias for lower values if max is not a power of 2.
 // Don't use it if that matters.
-unsigned long InspIRCd::GenRandomInt(unsigned long max)
+unsigned long InspIRCd::GenRandomInt(unsigned long max) const
 {
 	unsigned long rv;
 	GenRandom(reinterpret_cast<char*>(&rv), sizeof(rv));

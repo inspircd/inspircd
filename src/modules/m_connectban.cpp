@@ -47,7 +47,7 @@ private:
 	time_t ignoreuntil = 0;
 	std::string banmessage;
 
-	unsigned char GetRange(LocalUser* user)
+	unsigned char GetRange(LocalUser* user) const
 	{
 		int family = user->client_sa.family();
 		switch (family)

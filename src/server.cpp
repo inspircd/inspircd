@@ -70,10 +70,10 @@ void InspIRCd::QuickExit(int status)
 
 void InspIRCd::Rehash(const std::string& uuid)
 {
-	if (!ServerInstance->ConfigThread)
+	if (!ConfigThread)
 	{
-		ServerInstance->ConfigThread = new ConfigReaderThread(uuid);
-		ServerInstance->ConfigThread->Start();
+		ConfigThread = new ConfigReaderThread(uuid);
+		ConfigThread->Start();
 	}
 }
 

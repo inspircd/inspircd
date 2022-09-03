@@ -785,14 +785,14 @@ public:
 	 * @param rank The rank to search for prefix modes near.
 	 * @return A pointer to the PrefixMode or NULL if a prefix mode wasn't found.
 	 */
-	PrefixMode* FindNearestPrefixMode(ModeHandler::Rank rank);
+	PrefixMode* FindNearestPrefixMode(ModeHandler::Rank rank) const;
 
 	/** Find a mode handler by its prefix.
 	 * If there is no mode handler with the given prefix, NULL will be returned.
 	 * @param pfxletter The prefix to find, e.g. '@'
 	 * @return The mode handler which handles this prefix, or NULL if there is none.
 	 */
-	PrefixMode* FindPrefix(unsigned char pfxletter);
+	PrefixMode* FindPrefix(unsigned char pfxletter) const;
 
 	/** Get a list of all mode handlers that inherit from ListModeBase
 	 * @return A list containing ListModeBase modes

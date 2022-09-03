@@ -26,7 +26,7 @@ class SyslogMethod final
 {
 private:
 	// Converts an InspIRCd log level to syslog priority.
-	int LevelToPriority(Log::Level level)
+	static int LevelToPriority(Log::Level level)
 	{
 		switch (level)
 		{

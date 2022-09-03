@@ -51,10 +51,10 @@ public:
 		std::vector<char> errormsg(errorsize);
 
 		// Retrieve the error message and free the buffer.
-		regerror(error, &regex, &errormsg[0], errormsg.size());
+		regerror(error, &regex, errormsg.data(), errormsg.size());
 		regfree(&regex);
 
-		throw Regex::Exception(mod, pattern, std::string(&errormsg[0], errormsg.size() - 1));
+		throw Regex::Exception(mod, pattern, std::string(errormsg.data(), errormsg.size() - 1));
 	}
 
 	~POSIXPattern() override
@@ -70,7 +70,7 @@ public:
 	std::optional<Regex::MatchCollection> Matches(const std::string& text) override
 	{
 		std::vector<regmatch_t> matches(32);
-		int result = regexec(&regex, text.c_str(), matches.size(), &matches[0], 0);
+		int result = regexec(&regex, text.c_str(), matches.size(), matches.data(), 0);
 		if (result)
 			return std::nullopt;
 

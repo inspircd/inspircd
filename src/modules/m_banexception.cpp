@@ -89,7 +89,8 @@ public:
 		for (const ListModeBase::ListItem& ban : *list)
 		{
 			bool inverted;
-			std::string name, value;
+			std::string name;
+			std::string value;
 			if (!ExtBan::Parse(ban.mask, name, value, inverted))
 				continue;
 

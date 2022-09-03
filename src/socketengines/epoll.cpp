@@ -161,7 +161,7 @@ void SocketEngine::DelFd(EventHandler* eh)
 
 int SocketEngine::DispatchEvents()
 {
-	int i = epoll_wait(EngineHandle, &events[0], static_cast<int>(events.size()), 1000);
+	int i = epoll_wait(EngineHandle, events.data(), static_cast<int>(events.size()), 1000);
 	ServerInstance->UpdateTime();
 
 	stats.TotalEvents += i;

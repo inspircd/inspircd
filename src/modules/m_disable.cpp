@@ -64,7 +64,7 @@ private:
 		}
 	}
 
-	void WriteLog(const char* message, ...) ATTR_PRINTF(2, 3)
+	void WriteLog(const char* message, ...) const ATTR_PRINTF(2, 3)
 	{
 		std::string buffer;
 		VAFORMAT(buffer, message, message);
@@ -127,7 +127,7 @@ public:
 
 	ModResult OnNumeric(User* user, const Numeric::Numeric& numeric) override
 	{
-		if (numeric.GetNumeric() != RPL_COMMANDS || numeric.GetParams().size() < 1)
+		if (numeric.GetNumeric() != RPL_COMMANDS || numeric.GetParams().empty())
 			return MOD_RES_PASSTHRU; // The numeric isn't the one we care about.
 
 		if (!fakenonexistent || !IS_LOCAL(user))

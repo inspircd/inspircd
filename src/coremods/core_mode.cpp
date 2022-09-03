@@ -294,7 +294,7 @@ class CoreModMode final
 private:
 	CommandMode cmdmode;
 
-	std::string GenerateModeList(ModeType mt)
+	static std::string GenerateModeList(ModeType mt)
 	{
 		// Type A: Modes that add or remove an address to or from a list. These
 		// modes MUST always have a parameter when sent from the server to a
@@ -351,7 +351,7 @@ private:
 		return InspIRCd::Format("%s,%s,%s,%s", type1.c_str(), type2.c_str(), type3.c_str(), type4.c_str());
 	}
 
-	std::string GeneratePrefixList(bool includemodechars)
+	static std::string GeneratePrefixList(bool includemodechars)
 	{
 		std::vector<PrefixMode*> prefixes;
 		for (const auto& pm : ServerInstance->Modes.GetPrefixModes())

@@ -109,7 +109,7 @@ private:
 		return false;
 	}
 
-	ModResult HandleJoinOverride(LocalUser* user, Channel* chan, const std::string& keygiven, const char* bypasswhat, const char* mode)
+	ModResult HandleJoinOverride(LocalUser* user, Channel* chan, const std::string& keygiven, const char* bypasswhat, const char* mode) const
 	{
 		if (RequireKey && keygiven != "override")
 		{

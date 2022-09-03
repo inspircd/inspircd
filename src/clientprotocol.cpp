@@ -46,7 +46,7 @@ bool ClientProtocol::Serializer::HandleTag(LocalUser* user, const std::string& t
 	return true;
 }
 
-ClientProtocol::TagSelection ClientProtocol::Serializer::MakeTagWhitelist(LocalUser* user, const TagMap& tagmap) const
+ClientProtocol::TagSelection ClientProtocol::Serializer::MakeTagWhitelist(LocalUser* user, const TagMap& tagmap)
 {
 	TagSelection tagwl;
 	for (TagMap::const_iterator i = tagmap.begin(); i != tagmap.end(); ++i)

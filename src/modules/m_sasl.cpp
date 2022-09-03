@@ -210,7 +210,7 @@ public:
 		SendSASL(user, "*", 'S', params);
 	}
 
-	SaslResult GetSaslResult(const std::string &result_)
+	static SaslResult GetSaslResult(const std::string &result_)
 	{
 		if (result_ == "F")
 			return SASL_FAIL;
@@ -351,7 +351,7 @@ public:
 			SaslAuthenticator *sasl = authExt.Get(user);
 			if (!sasl)
 				authExt.SetFwd(user, user, parameters[0], sslapi);
-			else if (sasl->SendClientMessage(parameters) == false)	// IAL abort extension --nenolod
+			else if (!sasl->SendClientMessage(parameters))
 			{
 				sasl->AnnounceState();
 				authExt.Unset(user);

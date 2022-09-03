@@ -32,7 +32,7 @@ class ModuleRestrictMsg final
 	, public CTCTags::EventListener
 {
 private:
-	ModResult HandleMessage(User* user, const MessageTarget& target)
+	static ModResult HandleMessage(User* user, const MessageTarget& target)
 	{
 		if ((target.type == MessageTarget::TYPE_USER) && (IS_LOCAL(user)))
 		{

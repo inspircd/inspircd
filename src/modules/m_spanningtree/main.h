@@ -146,11 +146,11 @@ public:
 
 	/** Handle SQUIT
 	 */
-	ModResult HandleSquit(const CommandBase::Params& parameters, User* user);
+	static ModResult HandleSquit(const CommandBase::Params& parameters, User* user);
 
 	/** Handle remote WHOIS
 	 */
-	ModResult HandleRemoteWhois(const CommandBase::Params& parameters, User* user);
+	static ModResult HandleRemoteWhois(const CommandBase::Params& parameters, User* user);
 
 	/** Connect a server locally
 	 */
@@ -166,11 +166,11 @@ public:
 
 	/** Check if any connecting servers should timeout
 	 */
-	void DoConnectTimeout(time_t curtime);
+	static void DoConnectTimeout(time_t curtime);
 
 	/** Handle remote VERSION
 	 */
-	ModResult HandleVersion(const CommandBase::Params& parameters, User* user);
+	static ModResult HandleVersion(const CommandBase::Params& parameters, User* user);
 
 	/** Handle CONNECT
 	 */

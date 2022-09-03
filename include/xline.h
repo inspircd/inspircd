@@ -413,7 +413,7 @@ public:
 	/** Split an ident and host into two separate strings.
 	 * This allows for faster matching.
 	 */
-	IdentHostPair IdentSplit(const std::string &ident_and_host);
+	static IdentHostPair IdentSplit(const std::string &ident_and_host);
 
 	/** Checks what users match E-lines and sets their ban exempt flag accordingly.
 	 */

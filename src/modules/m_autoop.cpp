@@ -42,7 +42,7 @@ public:
 		syntax = "<prefix>:<mask>";
 	}
 
-	PrefixMode* FindMode(const std::string& mid)
+	static PrefixMode* FindMode(const std::string& mid)
 	{
 		if (mid.length() == 1)
 			return ServerInstance->Modes.FindPrefixMode(mid[0]);

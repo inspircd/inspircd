@@ -60,5 +60,4 @@ void TreeSocket::WriteLine(const std::string& original_line)
 	}
 
 	WriteLineInternal(line);
-	return;
 }

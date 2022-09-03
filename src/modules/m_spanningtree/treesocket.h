@@ -232,7 +232,7 @@ public:
 	/** Construct a password, optionally hashed with the other side's
 	 * challenge string
 	 */
-	std::string MakePass(const std::string &password, const std::string &challenge);
+	static std::string MakePass(const std::string &password, const std::string &challenge);
 
 	/** When an outbound connection finishes connecting, we receive
 	 * this event, and must send our SERVER string to the other
@@ -260,20 +260,20 @@ public:
 	/** Returns mode list as a string, filtered by type.
 	 * @param type The type of modes to return.
 	 */
-	std::string BuildModeList(ModeType type);
+	static std::string BuildModeList(ModeType type);
 
 	/** If the extban manager exists then build an extban list.
 	 * @param out The buffer to put the extban list in.
 	 * @return True if the extban manager exists; otherwise, false.
 	 */
-	bool BuildExtBanList(std::string& out);
+	static bool BuildExtBanList(std::string& out);
 
 	/** Send my capabilities to the remote side
 	 */
 	void SendCapabilities(int phase);
 
 	/* Isolate and return the elements that are different between two lists */
-	void ListDifference(const std::string &one, const std::string &two, char sep,
+	static void ListDifference(const std::string &one, const std::string &two, char sep,
 		std::string& mleft, std::string& mright);
 
 	bool Capab(const CommandBase::Params& params);
@@ -326,7 +326,7 @@ public:
 	void ProcessLine(std::string &line);
 
 	/** Process message tags received from a remote server. */
-	void ProcessTag(User* source, const std::string& tag, ClientProtocol::TagMap& tags);
+	static void ProcessTag(User* source, const std::string& tag, ClientProtocol::TagMap& tags);
 
 	/** Process a message for a fully connected server. */
 	void ProcessConnectedLine(std::string& tags, std::string& prefix, std::string& command, CommandBase::Params& params);

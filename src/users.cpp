@@ -714,7 +714,7 @@ const std::string& User::GetRealName() const
 	return realname;
 }
 
-irc::sockets::cidr_mask User::GetCIDRMask()
+irc::sockets::cidr_mask User::GetCIDRMask() const
 {
 	unsigned char range = 0;
 	switch (client_sa.family())

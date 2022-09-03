@@ -269,7 +269,7 @@ class SQLConnection final
 	: public SQL::Provider
 {
 private:
-	bool EscapeString(SQL::Query* query, const std::string& in, std::string& out)
+	bool EscapeString(SQL::Query* query, const std::string& in, std::string& out) const
 	{
 		// In the worst case each character may need to be encoded as using two bytes and one
 		// byte is the NUL terminator.
@@ -281,7 +281,7 @@ private:
 		// Unfortunately, someone genius decided that mysql_escape_string should return an
 		// unsigned type even though -1 is returned on error so checking whether an error
 		// happened is a bit cursed.
-		unsigned long escapedsize = mysql_escape_string(&buffer[0], in.c_str(), in.length());
+		unsigned long escapedsize = mysql_escape_string(buffer.data(), in.c_str(), in.length());
 		if (escapedsize == static_cast<unsigned long>(-1))
 		{
 			SQL::Error err(SQL::QSEND_FAIL, InspIRCd::Format("%u: %s", mysql_errno(connection), mysql_error(connection)));
@@ -289,7 +289,7 @@ private:
 			return false;
 		}
 
-		out.append(&buffer[0], escapedsize);
+		out.append(buffer.data(), escapedsize);
 		return true;
 	}
 

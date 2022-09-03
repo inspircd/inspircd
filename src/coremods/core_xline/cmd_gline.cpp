@@ -76,7 +76,7 @@ CmdResult CommandGline::Handle(User* user, const Params& parameters)
 			user->WriteNotice("*** Invalid duration for G-line.");
 			return CmdResult::FAILURE;
 		}
-		GLine* gl = new GLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
+		GLine* gl = new GLine(ServerInstance->Time(), duration, user->nick, parameters[2], ih.first, ih.second);
 		if (ServerInstance->XLines->AddLine(gl, user))
 		{
 			if (!duration)

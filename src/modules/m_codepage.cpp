@@ -198,7 +198,7 @@ private:
 		hashmap.swap(newhash);
 	}
 
-	void CheckDuplicateNick()
+	static void CheckDuplicateNick()
 	{
 		insp::flat_set<std::string, irc::insensitive_swo> duplicates;
 		for (auto* user : ServerInstance->Users.GetLocalUsers())
@@ -211,7 +211,7 @@ private:
 		}
 	}
 
-	void CheckInvalidNick()
+	static void CheckInvalidNick()
 	{
 		for (auto* user : ServerInstance->Users.GetLocalUsers())
 		{

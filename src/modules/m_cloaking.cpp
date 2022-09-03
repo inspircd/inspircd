@@ -241,7 +241,7 @@ public:
 	 * @param domainparts The number of domain labels that should be visible.
 	 * @return The visible segment of the hostname.
 	 */
-	std::string VisibleDomainParts(const std::string& host, unsigned int domainparts)
+	static std::string VisibleDomainParts(const std::string& host, unsigned int domainparts)
 	{
 		// The position at which we found the last dot.
 		std::string::const_reverse_iterator dotpos;
@@ -302,8 +302,11 @@ public:
 	std::string SegmentIP(const CloakInfo& info, const irc::sockets::sockaddrs& ip, bool full)
 	{
 		std::string bindata;
-		size_t hop1, hop2, hop3;
-		size_t len1, len2;
+		size_t hop1;
+		size_t hop2;
+		size_t hop3;
+		size_t len1;
+		size_t len2;
 		std::string rv;
 		if (ip.family() == AF_INET6)
 		{

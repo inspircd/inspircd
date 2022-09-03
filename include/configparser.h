@@ -36,5 +36,5 @@ struct ParseStack final
 	bool ParseFile(const std::string& name, int flags, const std::string& mandatory_tag = std::string(), bool isexec = false);
 	void DoInclude(std::shared_ptr<ConfigTag> includeTag, int flags);
 	void DoReadFile(const std::string& key, const std::string& file, int flags, bool exec);
-	FilePtr DoOpenFile(const std::string& name, bool isexec);
+	static FilePtr DoOpenFile(const std::string& name, bool isexec);
 };

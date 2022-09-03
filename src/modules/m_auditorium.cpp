@@ -118,10 +118,7 @@ public:
 
 		// Can you see the list by permission?
 		ModResult res = CheckExemption::Call(exemptionprov, issuer, memb->chan, "auditorium-see");
-		if (res.check(OpsCanSee && memb->chan->GetPrefixValue(issuer) >= OP_VALUE))
-			return true;
-
-		return false;
+		return res.check(OpsCanSee && memb->chan->GetPrefixValue(issuer) >= OP_VALUE);
 	}
 
 	ModResult OnNamesListItem(LocalUser* issuer, Membership* memb, std::string& prefixes, std::string& nick) override

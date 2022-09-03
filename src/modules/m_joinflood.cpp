@@ -59,7 +59,7 @@ public:
 			counter++;
 	}
 
-	bool shouldlock()
+	bool shouldlock() const
 	{
 		return (counter >= this->joins);
 	}

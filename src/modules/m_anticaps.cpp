@@ -52,7 +52,7 @@ class AntiCapsMode final
 	: public ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettings>>
 {
 private:
-	bool ParseMethod(irc::sepstream& stream, AntiCapsMethod& method)
+	static bool ParseMethod(irc::sepstream& stream, AntiCapsMethod& method)
 	{
 		std::string methodstr;
 		if (!stream.GetToken(methodstr))
@@ -74,7 +74,7 @@ private:
 		return true;
 	}
 
-	bool ParseMinimumLength(irc::sepstream& stream, uint16_t& minlen)
+	static bool ParseMinimumLength(irc::sepstream& stream, uint16_t& minlen)
 	{
 		std::string minlenstr;
 		if (!stream.GetToken(minlenstr))
@@ -88,7 +88,7 @@ private:
 		return true;
 	}
 
-	bool ParsePercent(irc::sepstream& stream, uint8_t& percent)
+	static bool ParsePercent(irc::sepstream& stream, uint8_t& percent)
 	{
 		std::string percentstr;
 		if (!stream.GetToken(percentstr))
@@ -176,7 +176,7 @@ private:
 		ServerInstance->Modes.Process(ServerInstance->FakeClient, channel, nullptr, changelist);
 	}
 
-	void InformUser(Channel* channel, User* user, const std::string& message)
+	static void InformUser(Channel* channel, User* user, const std::string& message)
 	{
 		user->WriteNumeric(Numerics::CannotSendTo(channel, message + " and was blocked."));
 	}

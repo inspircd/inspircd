@@ -38,7 +38,7 @@ private:
 	 * @param value The parameter containing a minute count.
 	 * @return The UNIX time at \p value minutes ago.
 	 */
-	time_t ParseMinutes(const std::string& value)
+	static time_t ParseMinutes(const std::string& value)
 	{
 		time_t minutes = ConvToNum<time_t>(value.c_str() + 2);
 		if (!minutes)

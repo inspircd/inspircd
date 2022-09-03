@@ -135,7 +135,7 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 }
 
 // Returns a list of DIRECT servers for a specific channel
-void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet& list, char status, const CUList& exempt_list)
+void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet& list, char status, const CUList& exempt_list) const
 {
 	ModeHandler::Rank minrank = 0;
 	if (status)
@@ -175,7 +175,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet
 	}
 }
 
-void SpanningTreeUtilities::DoOneToAllButSender(const CmdBuilder& params, TreeServer* omitroute)
+void SpanningTreeUtilities::DoOneToAllButSender(const CmdBuilder& params, TreeServer* omitroute) const
 {
 	const std::string& FullLine = params.str();
 

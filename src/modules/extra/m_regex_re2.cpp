@@ -37,7 +37,7 @@ class RE2Pattern final
 private:
 	RE2 regex;
 
-	RE2::Options BuildOptions(uint8_t options)
+	static RE2::Options BuildOptions(uint8_t options)
 	{
 		RE2::Options re2options;
 		re2options.set_case_sensitive(!(options & Regex::OPT_CASE_INSENSITIVE));
@@ -62,7 +62,7 @@ public:
 	std::optional<Regex::MatchCollection> Matches(const std::string& text) override
 	{
 		std::vector<re2::StringPiece> re2captures(regex.NumberOfCapturingGroups() + 1);
-		bool result = regex.Match(text, 0, text.length(), RE2::ANCHOR_BOTH, &re2captures[0], static_cast<int>(re2captures.size()));
+		bool result = regex.Match(text, 0, text.length(), RE2::ANCHOR_BOTH, re2captures.data(), static_cast<int>(re2captures.size()));
 		if (!result)
 			return std::nullopt;
 

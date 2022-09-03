@@ -71,7 +71,8 @@ private:
 	std::string UnpackName(const unsigned char* input, unsigned short input_size, unsigned short& pos)
 	{
 		std::string name;
-		unsigned short pos_ptr = pos, lowest_ptr = input_size;
+		unsigned short pos_ptr = pos;
+		unsigned short lowest_ptr = input_size;
 		bool compressed = false;
 
 		if (pos_ptr >= input_size)
@@ -89,7 +90,7 @@ private:
 					throw Exception(creator, "Unable to unpack name - bogus compression header");
 
 				/* Place pos at the second byte of the first (farthest) compression pointer */
-				if (compressed == false)
+				if (!compressed)
 				{
 					++pos;
 					compressed = true;
@@ -112,7 +113,7 @@ private:
 					name += input[pos_ptr + i];
 
 				pos_ptr += offset + 1;
-				if (compressed == false)
+				if (!compressed)
 					/* Move up pos */
 					pos = pos_ptr;
 			}

@@ -51,9 +51,7 @@ public:
 
 	bool Matches(User* u) override
 	{
-		if (u->nick == nickname)
-			return true;
-		return false;
+		return u->nick == nickname;
 	}
 
 	bool Matches(const std::string& s) override
@@ -138,7 +136,7 @@ public:
 				user->WriteNotice("*** Invalid duration for SVSHOLD.");
 				return CmdResult::FAILURE;
 			}
-			SVSHold* r = new SVSHold(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
+			SVSHold* r = new SVSHold(ServerInstance->Time(), duration, user->nick, parameters[2], parameters[0]);
 
 			if (ServerInstance->XLines->AddLine(r, user))
 			{

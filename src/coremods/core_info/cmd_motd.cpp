@@ -42,7 +42,7 @@ CommandMotd::CommandMotd(Module* parent)
 
 CmdResult CommandMotd::Handle(User* user, const Params& parameters)
 {
-	if (parameters.size() > 0 && !irc::equals(parameters[0], ServerInstance->Config->ServerName))
+	if (!parameters.empty() && !irc::equals(parameters[0], ServerInstance->Config->ServerName))
 	{
 		// Give extra penalty if a non-oper queries the /MOTD of a remote server
 		LocalUser* localuser = IS_LOCAL(user);

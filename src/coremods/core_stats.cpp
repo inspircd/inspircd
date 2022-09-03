@@ -232,7 +232,9 @@ void CommandStats::DoStats(Stats::Context& stats)
 			stats.AddRow(249, "Channels: "+ConvToStr(ServerInstance->Channels.GetChans().size()));
 			stats.AddRow(249, "Commands: "+ConvToStr(ServerInstance->Parser.GetCommands().size()));
 
-			float kbitpersec_in, kbitpersec_out, kbitpersec_total;
+			float kbitpersec_in;
+			float kbitpersec_out;
+			float kbitpersec_total;
 			SocketEngine::GetStats().GetBandwidth(kbitpersec_in, kbitpersec_out, kbitpersec_total);
 
 			stats.AddRow(249, InspIRCd::Format("Bandwidth total:  %03.5f kilobits/sec", kbitpersec_total));
@@ -372,7 +374,6 @@ void CommandStats::DoStats(Stats::Context& stats)
 	stats.AddRow(219, statschar, "End of /STATS report");
 	ServerInstance->SNO.WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",
 		(IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(), user->ident.c_str(), user->GetRealHost().c_str());
-	return;
 }
 
 CmdResult CommandStats::Handle(User* user, const Params& parameters)

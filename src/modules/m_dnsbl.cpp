@@ -411,11 +411,10 @@ public:
 		std::string reversedip;
 		if (user->client_sa.family() == AF_INET)
 		{
-			unsigned int a, b, c, d;
-			d = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 24) & 0xFF;
-			c = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 16) & 0xFF;
-			b = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 8) & 0xFF;
-			a = (unsigned int) user->client_sa.in4.sin_addr.s_addr & 0xFF;
+			unsigned int a = (unsigned int) user->client_sa.in4.sin_addr.s_addr & 0xFF;
+			unsigned int b = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 8) & 0xFF;
+			unsigned int c = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 16) & 0xFF;
+			unsigned int d = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 24) & 0xFF;
 
 			reversedip = ConvToStr(d) + "." + ConvToStr(c) + "." + ConvToStr(b) + "." + ConvToStr(a);
 		}

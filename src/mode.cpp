@@ -711,7 +711,7 @@ PrefixMode* ModeParser::FindPrefixMode(unsigned char modeletter)
 }
 
 
-PrefixMode* ModeParser::FindNearestPrefixMode(ModeHandler::Rank rank)
+PrefixMode* ModeParser::FindNearestPrefixMode(ModeHandler::Rank rank) const
 {
 	PrefixMode* pm = nullptr;
 	for (const auto& thispm : GetPrefixModes())
@@ -727,7 +727,7 @@ PrefixMode* ModeParser::FindNearestPrefixMode(ModeHandler::Rank rank)
 	return pm;
 }
 
-PrefixMode* ModeParser::FindPrefix(unsigned char pfxletter)
+PrefixMode* ModeParser::FindPrefix(unsigned char pfxletter) const
 {
 	for (const auto& pm : GetPrefixModes())
 	{

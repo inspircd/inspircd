@@ -51,7 +51,8 @@ public:
 
 		/* Look for any command that starts with the same characters, if it does, replace the command string with it */
 		size_t clen = command.length() - 1;
-		std::string foundcommand, matchlist;
+		std::string foundcommand;
+		std::string matchlist;
 		bool foundmatch = false;
 		for (const auto& [cmdname, _] : ServerInstance->Parser.GetCommands())
 		{

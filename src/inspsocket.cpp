@@ -403,7 +403,7 @@ bool SocketTimeout::Tick()
 }
 
 void BufferedSocket::OnConnected() { }
-void BufferedSocket::OnTimeout() { return; }
+void BufferedSocket::OnTimeout() { }
 
 void BufferedSocket::OnEventHandlerWrite()
 {

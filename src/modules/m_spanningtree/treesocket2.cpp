@@ -37,7 +37,7 @@
 /* Handle ERROR command */
 void TreeSocket::Error(CommandBase::Params& params)
 {
-	std::string msg = params.size() ? params[0] : "";
+	const std::string msg = params.empty() ? "" : params[0];
 	SetError("received ERROR " + msg);
 }
 

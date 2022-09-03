@@ -58,7 +58,7 @@ public:
 			counter++;
 	}
 
-	bool shouldlock()
+	bool shouldlock() const
 	{
 		return ((ServerInstance->Time() <= reset) && (counter == this->nicks));
 	}

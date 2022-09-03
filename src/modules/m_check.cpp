@@ -41,7 +41,7 @@ private:
 	User* const user;
 	const std::string& target;
 
-	std::string FormatTime(time_t ts)
+	static std::string FormatTime(time_t ts)
 	{
 		std::string timestr(InspIRCd::TimeString(ts, "%Y-%m-%d %H:%M:%S UTC (", true));
 		timestr.append(ConvToStr(ts));

@@ -87,7 +87,6 @@ public:
 	{
 	}
 
-public:
 	Log::MethodPtr Create(std::shared_ptr<ConfigTag> tag) override
 	{
 		dynamic_reference<SQL::Provider> sql(creator, "SQL");

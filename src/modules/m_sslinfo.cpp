@@ -278,7 +278,7 @@ private:
 	CommandSSLInfo cmd;
 	std::string hash;
 
-	bool MatchFP(ssl_cert* const cert, const std::string& fp) const
+	static bool MatchFP(ssl_cert* const cert, const std::string& fp)
 	{
 		return irc::spacesepstream(fp).Contains(cert->GetFingerprint());
 	}

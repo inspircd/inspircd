@@ -40,7 +40,7 @@ CommandTime::CommandTime(Module* parent)
 
 CmdResult CommandTime::Handle(User* user, const Params& parameters)
 {
-	if (parameters.size() > 0 && !irc::equals(parameters[0], ServerInstance->Config->ServerName))
+	if (!parameters.empty() && !irc::equals(parameters[0], ServerInstance->Config->ServerName))
 		return CmdResult::SUCCESS;
 
 	user->WriteRemoteNumeric(RPL_TIME, ServerInstance->Config->GetServerName(), InspIRCd::TimeString(ServerInstance->Time()));

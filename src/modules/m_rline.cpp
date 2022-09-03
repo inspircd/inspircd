@@ -68,7 +68,7 @@ public:
 	{
 		if (ZlineOnMatch)
 		{
-			ZLine* zl = new ZLine(ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, MODNAME "@" + ServerInstance->Config->ServerName, reason.c_str(), u->GetIPString());
+			ZLine* zl = new ZLine(ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, MODNAME "@" + ServerInstance->Config->ServerName, reason, u->GetIPString());
 			if (ServerInstance->XLines->AddLine(zl, nullptr))
 			{
 				if (!duration)
@@ -161,7 +161,7 @@ public:
 
 			try
 			{
-				r = factory.Generate(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
+				r = factory.Generate(ServerInstance->Time(), duration, user->nick, parameters[2], parameters[0]);
 			}
 			catch (const ModuleException& e)
 			{

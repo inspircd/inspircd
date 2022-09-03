@@ -179,7 +179,7 @@ static std::vector<std::string> GetMap(User* user, TreeServer* current, size_t m
 
 CmdResult CommandMap::Handle(User* user, const Params& parameters)
 {
-	if (parameters.size() > 0)
+	if (!parameters.empty())
 	{
 		// Remote MAP, the target server is the 1st parameter
 		TreeServer* s = Utils->FindServerMask(parameters[0]);

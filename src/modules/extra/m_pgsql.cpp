@@ -446,10 +446,10 @@ restart:
 					std::string parm = p[param++];
 					std::vector<char> buffer(parm.length() * 2 + 1);
 					int error;
-					size_t escapedsize = PQescapeStringConn(sql, &buffer[0], parm.data(), parm.length(), &error);
+					size_t escapedsize = PQescapeStringConn(sql, buffer.data(), parm.data(), parm.length(), &error);
 					if (error)
 						ServerInstance->Logs.Debug(MODNAME, "BUG: Apparently PQescapeStringConn() failed");
-					res.append(&buffer[0], escapedsize);
+					res.append(buffer.data(), escapedsize);
 				}
 			}
 		}
@@ -477,10 +477,10 @@ restart:
 					std::string parm = it->second;
 					std::vector<char> buffer(parm.length() * 2 + 1);
 					int error;
-					size_t escapedsize = PQescapeStringConn(sql, &buffer[0], parm.data(), parm.length(), &error);
+					size_t escapedsize = PQescapeStringConn(sql, buffer.data(), parm.data(), parm.length(), &error);
 					if (error)
 						ServerInstance->Logs.Debug(MODNAME, "BUG: Apparently PQescapeStringConn() failed");
-					res.append(&buffer[0], escapedsize);
+					res.append(buffer.data(), escapedsize);
 				}
 			}
 		}

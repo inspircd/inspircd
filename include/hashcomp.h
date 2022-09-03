@@ -150,7 +150,7 @@ namespace irc
 		/** Fetch the entire remaining stream, without tokenizing
 		 * @return The remaining part of the stream
 		 */
-		const std::string GetRemaining();
+		std::string GetRemaining();
 
 		/** Returns true if the end of the stream has been reached
 		 * @return True if the end of the stream has been reached, otherwise false

@@ -351,7 +351,8 @@ public:
 	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask) override
 	{
 		bool inverted;
-		std::string name, value;
+		std::string name;
+		std::string value;
 		if (!ExtBan::Parse(mask, name, value, inverted))
 			return MOD_RES_PASSTHRU;
 

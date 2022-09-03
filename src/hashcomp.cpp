@@ -253,7 +253,7 @@ bool irc::sepstream::GetToken(std::string &token)
 	return true;
 }
 
-const std::string irc::sepstream::GetRemaining()
+std::string irc::sepstream::GetRemaining()
 {
 	return !this->StreamEnd() ? this->tokens.substr(this->pos) : "";
 }

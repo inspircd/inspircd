@@ -42,9 +42,9 @@ public:
 	{
 		std::string servername = parameters.size() > 1 ? parameters[1] : "*";
 
-		if (InspIRCd::Match(ServerInstance->Config->ServerName.c_str(), servername))
+		if (InspIRCd::Match(ServerInstance->Config->ServerName, servername))
 		{
-			if (ServerInstance->Modules.Load(parameters[0].c_str()))
+			if (ServerInstance->Modules.Load(parameters[0]))
 			{
 				ServerInstance->SNO.WriteToSnoMask('a', "NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
 				user->WriteRemoteNumeric(RPL_LOADEDMODULE, parameters[0], "Module successfully loaded.");
@@ -88,7 +88,7 @@ public:
 
 		std::string servername = parameters.size() > 1 ? parameters[1] : "*";
 
-		if (InspIRCd::Match(ServerInstance->Config->ServerName.c_str(), servername))
+		if (InspIRCd::Match(ServerInstance->Config->ServerName, servername))
 		{
 			Module* m = ServerInstance->Modules.Find(parameters[0]);
 			if (m)
@@ -134,7 +134,7 @@ public:
 	{
 		std::string servername = parameters.size() > 1 ? parameters[1] : "*";
 
-		if (InspIRCd::Match(ServerInstance->Config->ServerName.c_str(), servername))
+		if (InspIRCd::Match(ServerInstance->Config->ServerName, servername))
 		{
 			Module* m = ServerInstance->Modules.Find(parameters[0]);
 			if (m)

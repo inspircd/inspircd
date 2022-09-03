@@ -176,7 +176,7 @@ private:
 	}
 
 	/** Determines whether WHO flags match a specific channel user. */
-	bool MatchChannel(LocalUser* source, Membership* memb, WhoData& data);
+	static bool MatchChannel(LocalUser* source, Membership* memb, WhoData& data);
 
 	/** Determines whether WHO flags match a specific user. */
 	bool MatchUser(LocalUser* source, User* target, WhoData& data);

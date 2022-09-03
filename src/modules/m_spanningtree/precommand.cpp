@@ -52,7 +52,7 @@ ModResult ModuleSpanningTree::OnPreCommand(std::string &command, CommandBase::Pa
 			return this->HandleRemoteWhois(parameters,user);
 		}
 	}
-	else if ((command == "VERSION") && (parameters.size() > 0))
+	else if ((command == "VERSION") && (!parameters.empty()))
 	{
 		return this->HandleVersion(parameters,user);
 	}

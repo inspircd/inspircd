@@ -102,7 +102,7 @@ class CommandMessage final
 private:
 	const MessageType msgtype;
 
-	bool FirePreEvents(User* source, MessageTarget& msgtarget, MessageDetails& msgdetails)
+	static bool FirePreEvents(User* source, MessageTarget& msgtarget, MessageDetails& msgdetails)
 	{
 		// Inform modules that a message wants to be sent.
 		ModResult modres;
@@ -126,7 +126,7 @@ private:
 		return true;
 	}
 
-	CmdResult FirePostEvent(User* source, const MessageTarget& msgtarget, const MessageDetails& msgdetails)
+	static CmdResult FirePostEvent(User* source, const MessageTarget& msgtarget, const MessageDetails& msgdetails)
 	{
 		// If the source is local and was not sending a CTCP reply then update their idle time.
 		LocalUser* lsource = IS_LOCAL(source);

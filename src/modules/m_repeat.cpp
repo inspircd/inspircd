@@ -262,7 +262,7 @@ public:
 	}
 
 private:
-	bool ParseSettings(User* source, std::string& parameter, ChannelSettings& settings)
+	static bool ParseSettings(User* source, std::string& parameter, ChannelSettings& settings)
 	{
 		irc::sepstream stream(parameter, ':');
 		std::string	item;

@@ -43,8 +43,8 @@ public:
 		MD5_Update(&context, reinterpret_cast<const unsigned char*>(data.data()), data.length());
 
 		std::vector<unsigned char> bytes(16);
-		MD5_Final(&bytes[0], &context);
-		return std::string(reinterpret_cast<const char*>(&bytes[0]), bytes.size());
+		MD5_Final(bytes.data(), &context);
+		return std::string(reinterpret_cast<const char*>(bytes.data()), bytes.size());
 	}
 
 	MD5Provider(Module* parent)

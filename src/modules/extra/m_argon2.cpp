@@ -137,9 +137,9 @@ public:
 			data.length(),
 			salt.c_str(),
 			salt.length(),
-			&raw_data[0],
+			raw_data.data(),
 			raw_data.size(),
-			&encoded_data[0],
+			encoded_data.data(),
 			encoded_data.size(),
 			argon2Type,
 			config.version);
@@ -152,7 +152,7 @@ public:
 		// to do anything useful with them if we don't encode them.
 		// So we pretend this is the raw version, and instead make
 		// ToPrintable return its input.
-		return std::string(&encoded_data[0], encoded_data.size());
+		return std::string(encoded_data.data(), encoded_data.size());
 	}
 
 	std::string ToPrintable(const std::string& raw) override

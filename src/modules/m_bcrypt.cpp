@@ -43,7 +43,7 @@ private:
 public:
 	unsigned long rounds = 10;
 
-	std::string Generate(const std::string& data, const std::string& salt)
+	static std::string Generate(const std::string& data, const std::string& salt)
 	{
 		char hash[64];
 		_crypt_blowfish_rn(data.c_str(), salt.c_str(), hash, sizeof(hash));

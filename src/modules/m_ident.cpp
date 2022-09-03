@@ -192,7 +192,7 @@ public:
 		}
 	}
 
-	bool HasResult()
+	bool HasResult() const
 	{
 		return done;
 	}
