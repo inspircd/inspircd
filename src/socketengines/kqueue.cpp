@@ -182,14 +182,11 @@ int SocketEngine::DispatchEvents()
 		// This can't be a static_cast because udata is intptr_t on NetBSD.
 		struct kevent& kev = ke_list[j];
 		EventHandler* eh = reinterpret_cast<EventHandler*>(kev.udata);
-		if (!eh)
+		if (!eh || !eh->HasFd())
 			continue;
 
-		// Copy these in case the vector gets resized and kev invalidated
-		const int fd = eh->GetFd();
+		// Copy this in case the vector gets resized and kev invalidated
 		const short filter = kev.filter;
-		if (fd < 0)
-			continue;
 
 		if (kev.flags & EV_EOF)
 		{
