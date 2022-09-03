@@ -175,7 +175,7 @@ class ModuleCodepage final
 {
 private:
 	// The currently active codepage.
-	std::unique_ptr<Codepage> codepage;
+	std::unique_ptr<Codepage> codepage = nullptr;
 
 	// The character map which was set before this module was loaded.
 	const unsigned char* origcasemap;
@@ -237,7 +237,6 @@ public:
 	ModuleCodepage()
 		: Module(VF_VENDOR | VF_COMMON, "Allows the server administrator to define what characters are allowed in nicknames and how characters should be compared in a case insensitive way.")
 		, ISupport::EventListener(this)
-		, codepage(nullptr)
 		, origcasemap(national_case_insensitive_map)
 		, origcasemapname(ServerInstance->Config->CaseMapping)
 		, origisnick(ServerInstance->IsNick)

@@ -29,7 +29,9 @@
 class ThreadSignalSocket final
 	: public EventHandler
 {
-	SocketThread* parent;
+private:
+	SocketThread* parent = nullptr;
+
 public:
 	ThreadSignalSocket(SocketThread* p, int newfd) : parent(p)
 	{
@@ -67,10 +69,10 @@ public:
 
 SocketThread::SocketThread()
 {
-	socket = nullptr;
 	int fd = eventfd(0, EFD_NONBLOCK);
 	if (fd < 0)
 		throw CoreException("Could not create pipe " + std::string(strerror(errno)));
+
 	socket = new ThreadSignalSocket(this, fd);
 }
 #else
