@@ -264,7 +264,7 @@ void WhoWas::Manager::Add(User* user)
 	if (ret.second) // If inserted
 	{
 		// This nick is new, create a list for it and add the first record to it
-		WhoWas::Nick* nick = new WhoWas::Nick(ret.first->first);
+		auto nick = new WhoWas::Nick(ret.first->first);
 		nick->entries.push_back(new Entry(user));
 		ret.first->second = nick;
 

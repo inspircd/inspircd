@@ -218,7 +218,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 			ValidIPs.push_back(L->IPAddr);
 		else if (this->Creator->DNS)
 		{
-			SecurityIPResolver* sr = new SecurityIPResolver(Creator, *this->Creator->DNS, L->IPAddr, L, DNS::QUERY_AAAA);
+			auto sr = new SecurityIPResolver(Creator, *this->Creator->DNS, L->IPAddr, L, DNS::QUERY_AAAA);
 			try
 			{
 				this->Creator->DNS->Process(sr);

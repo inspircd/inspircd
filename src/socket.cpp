@@ -50,7 +50,7 @@ bool InspIRCd::BindPort(std::shared_ptr<ConfigTag> tag, const irc::sockets::sock
 		}
 	}
 
-	ListenSocket* ll = new ListenSocket(tag, sa);
+	auto ll = new ListenSocket(tag, sa);
 	if (!ll->HasFd())
 	{
 		ServerInstance->Logs.Normal("SOCKET", "Failed to listen on %s from tag at %s: %s",

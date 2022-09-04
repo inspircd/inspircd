@@ -146,7 +146,7 @@ public:
 			if (i->second >= threshold)
 			{
 				// Create Z-line for set duration.
-				ZLine* zl = new ZLine(ServerInstance->Time(), banduration, MODNAME "@" + ServerInstance->Config->ServerName, banmessage, mask.str());
+				auto zl = new ZLine(ServerInstance->Time(), banduration, MODNAME "@" + ServerInstance->Config->ServerName, banmessage, mask.str());
 				if (!ServerInstance->XLines->AddLine(zl, nullptr))
 				{
 					delete zl;

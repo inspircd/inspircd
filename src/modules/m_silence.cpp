@@ -206,7 +206,7 @@ public:
 
 		// Remove the old list and create a new one.
 		Unset(user, false);
-		SilenceList* list = new SilenceList();
+		auto list = new SilenceList();
 
 		irc::spacesepstream ts(value);
 		while (!ts.StreamEnd())

@@ -242,7 +242,7 @@ void ModuleSpanningTree::ConnectServer(std::shared_ptr<Link> x, std::shared_ptr<
 	if (sa.family() != AF_UNSPEC)
 	{
 		// Create a TreeServer object that will start connecting immediately in the background
-		TreeSocket* newsocket = new TreeSocket(x, y, sa);
+		auto newsocket = new TreeSocket(x, y, sa);
 		if (!newsocket->HasFd())
 		{
 			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",
@@ -265,7 +265,7 @@ void ModuleSpanningTree::ConnectServer(std::shared_ptr<Link> x, std::shared_ptr<
 				start_type = DNS::QUERY_A;
 		}
 
-		ServernameResolver* snr = new ServernameResolver(*DNS, x->IPAddr, x, start_type, y);
+		auto snr = new ServernameResolver(*DNS, x->IPAddr, x, start_type, y);
 		try
 		{
 			DNS->Process(snr);
@@ -870,7 +870,7 @@ ModuleSpanningTree::~ModuleSpanningTree()
 {
 	ServerInstance->PI = &ServerInstance->DefaultProtocolInterface;
 
-	Server* newsrv = new Server(ServerInstance->Config->GetSID(), ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
+	auto newsrv = new Server(ServerInstance->Config->GetSID(), ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
 	SetLocalUsersServer(newsrv);
 
 	delete Utils;

@@ -88,7 +88,7 @@ public:
 		if (container->extype != this->extype)
 			return;
 
-		ssl_cert* cert = new ssl_cert;
+		auto cert = new ssl_cert();
 		Set(static_cast<User*>(container), cert, false);
 
 		std::stringstream s(value);
@@ -448,7 +448,7 @@ public:
 		}
 
 		// Create a fake ssl_cert for the user.
-		ssl_cert* cert = new ssl_cert;
+		auto cert = new ssl_cert();
 		if (!hash.empty())
 		{
 			iter = flags->find("certfp-" + hash);

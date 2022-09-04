@@ -76,7 +76,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 			user->WriteNotice("*** Invalid duration for Z-line.");
 			return CmdResult::FAILURE;
 		}
-		ZLine* zl = new ZLine(ServerInstance->Time(), duration, user->nick, parameters[2], ipaddr);
+		auto zl = new ZLine(ServerInstance->Time(), duration, user->nick, parameters[2], ipaddr);
 		if (ServerInstance->XLines->AddLine(zl,user))
 		{
 			if (!duration)

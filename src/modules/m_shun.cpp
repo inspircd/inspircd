@@ -113,7 +113,7 @@ public:
 				expr = parameters[1];
 			}
 
-			Shun* r = new Shun(ServerInstance->Time(), duration, user->nick, expr, target);
+			auto r = new Shun(ServerInstance->Time(), duration, user->nick, expr, target);
 			if (ServerInstance->XLines->AddLine(r, user))
 			{
 				if (!duration)

@@ -70,7 +70,7 @@ void ServernameResolver::OnLookupComplete(const DNS::Query *r)
 	TreeServer* CheckDupe = Utils->FindServer(MyLink->Name);
 	if (!CheckDupe) /* Check that nobody tried to connect it successfully while we were resolving */
 	{
-		TreeSocket* newsocket = new TreeSocket(MyLink, myautoconnect, sa);
+		auto newsocket = new TreeSocket(MyLink, myautoconnect, sa);
 		if (!newsocket->HasFd())
 		{
 			/* Something barfed, show the opers */
@@ -91,7 +91,7 @@ void ServernameResolver::OnError(const DNS::Query *r)
 
 	if (query == DNS::QUERY_AAAA)
 	{
-		ServernameResolver* snr = new ServernameResolver(this->manager, host, MyLink, DNS::QUERY_A, myautoconnect);
+		auto snr = new ServernameResolver(this->manager, host, MyLink, DNS::QUERY_A, myautoconnect);
 		try
 		{
 			this->manager->Process(snr);
@@ -119,7 +119,7 @@ bool SecurityIPResolver::CheckIPv4()
 	if (query != DNS::QUERY_AAAA)
 		return false;
 
-	SecurityIPResolver* res = new SecurityIPResolver(mine, this->manager, host, MyLink, DNS::QUERY_A);
+	auto res = new SecurityIPResolver(mine, this->manager, host, MyLink, DNS::QUERY_A);
 	try
 	{
 		this->manager->Process(res);

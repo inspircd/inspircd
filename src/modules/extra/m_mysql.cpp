@@ -474,7 +474,7 @@ void ModuleSQL::ReadConfig(ConfigStatus& status)
 		ConnMap::iterator curr = connections.find(id);
 		if (curr == connections.end())
 		{
-			SQLConnection* conn = new SQLConnection(this, tag);
+			auto conn = new SQLConnection(this, tag);
 			conns.emplace(id, conn);
 			ServerInstance->Modules.AddService(*conn);
 		}

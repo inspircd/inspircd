@@ -210,7 +210,7 @@ private:
 		// Create a fake ssl_cert for the user. Ideally we should use the user's
 		// TLS client certificate here but as of 2018-10-16 this is not forwarded
 		// by HAProxy.
-		ssl_cert* cert = new ssl_cert;
+		auto cert = new ssl_cert();
 		cert->error = "HAProxy does not forward client TLS certificates";
 		cert->invalid = true;
 		cert->revoked = true;

@@ -92,7 +92,7 @@ class Cap::ManagerImpl final
 		if (mod == creator)
 			return;
 
-		CapModData* capmoddata = new CapModData;
+		auto capmoddata = new CapModData();
 		cd.add(this, capmoddata);
 
 		for (const auto& [_, cap] : caps)

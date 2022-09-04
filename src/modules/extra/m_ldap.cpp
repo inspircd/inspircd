@@ -218,7 +218,7 @@ public:
 		for (unsigned int x = 0; x < attributes.size(); ++x)
 		{
 			const LDAPModification& l = attributes[x];
-			LDAPMod* mod = new LDAPMod;
+			auto mod = new LDAPMod();
 			mods[x] = mod;
 
 			if (l.op == LDAPModification::LDAP_ADD)
@@ -368,8 +368,7 @@ public:
 
 	void Bind(LDAPInterface* i, const std::string& who, const std::string& pass) override
 	{
-		LDAPBind* b = new LDAPBind(this, i, who, pass);
-		QueueRequest(b);
+		QueueRequest(new LDAPBind(this, i, who, pass));
 	}
 
 	void Search(LDAPInterface* i, const std::string& base, const std::string& filter) override
@@ -377,32 +376,27 @@ public:
 		if (!i)
 			throw LDAPException("No interface");
 
-		LDAPSearch* s = new LDAPSearch(this, i, base, searchscope, filter);
-		QueueRequest(s);
+		QueueRequest(new LDAPSearch(this, i, base, searchscope, filter));
 	}
 
 	void Add(LDAPInterface* i, const std::string& dn, LDAPMods& attributes) override
 	{
-		LDAPAdd* add = new LDAPAdd(this, i, dn, attributes);
-		QueueRequest(add);
+		QueueRequest(new LDAPAdd(this, i, dn, attributes));
 	}
 
 	void Del(LDAPInterface* i, const std::string& dn) override
 	{
-		LDAPDel* del = new LDAPDel(this, i, dn);
-		QueueRequest(del);
+		QueueRequest(new LDAPDel(this, i, dn));
 	}
 
 	void Modify(LDAPInterface* i, const std::string& base, LDAPMods& attributes) override
 	{
-		LDAPModify* mod = new LDAPModify(this, i, base, attributes);
-		QueueRequest(mod);
+		QueueRequest(new LDAPModify(this, i, base, attributes));
 	}
 
 	void Compare(LDAPInterface* i, const std::string& dn, const std::string& attr, const std::string& val) override
 	{
-		LDAPCompare* comp = new LDAPCompare(this, i, dn, attr, val);
-		QueueRequest(comp);
+		QueueRequest(new LDAPCompare(this, i, dn, attr, val));
 	}
 
 private:
@@ -566,7 +560,7 @@ public:
 			ServiceMap::iterator curr = LDAPServices.find(id);
 			if (curr == LDAPServices.end())
 			{
-				LDAPService* conn = new LDAPService(this, tag);
+				auto conn = new LDAPService(this, tag);
 				conns[id] = conn;
 
 				ServerInstance->Modules.AddService(*conn);

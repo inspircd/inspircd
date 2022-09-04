@@ -230,7 +230,7 @@ public:
 		if (hp->IsKDF())
 			return;
 
-		PBKDF2Provider* prov = new PBKDF2Provider(this, hp);
+		auto prov = new PBKDF2Provider(this, hp);
 		providers.push_back(prov);
 		ServerInstance->Modules.AddService(*prov);
 

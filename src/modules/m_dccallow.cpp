@@ -128,7 +128,7 @@ public:
 
 		// Remove the old list and create a new one.
 		Unset(user, false);
-		dccallowlist* list = new dccallowlist();
+		auto list = new dccallowlist();
 
 		irc::spacesepstream ts(value);
 		while (!ts.StreamEnd())

@@ -127,8 +127,7 @@ public:
 				return CmdResult::FAILURE;
 			}
 			const char *reason = (parameters.size() > 2) ? parameters[2].c_str() : "No reason supplied";
-			CBan* r = new CBan(ServerInstance->Time(), duration, user->nick, reason, parameters[0]);
-
+			auto r = new CBan(ServerInstance->Time(), duration, user->nick, reason, parameters[0]);
 			if (ServerInstance->XLines->AddLine(r, user))
 			{
 				if (!duration)

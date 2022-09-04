@@ -663,7 +663,7 @@ private:
 
 	void VerifyCertificate()
 	{
-		ssl_cert* certinfo = new ssl_cert;
+		auto certinfo = new ssl_cert();
 		this->certificate = certinfo;
 
 		unsigned int certstatus;

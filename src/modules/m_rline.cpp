@@ -68,7 +68,7 @@ public:
 	{
 		if (ZlineOnMatch)
 		{
-			ZLine* zl = new ZLine(ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, MODNAME "@" + ServerInstance->Config->ServerName, reason, u->GetIPString());
+			auto zl = new ZLine(ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, MODNAME "@" + ServerInstance->Config->ServerName, reason, u->GetIPString());
 			if (ServerInstance->XLines->AddLine(zl, nullptr))
 			{
 				if (!duration)

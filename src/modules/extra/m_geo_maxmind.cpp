@@ -137,7 +137,7 @@ public:
 
 		// Create a Location object and cache it.
 		const std::string cname(country_name.utf8_string, country_name.data_size);
-		Geolocation::Location* location = new Geolocation::Location(code, cname);
+		auto location = new Geolocation::Location(code, cname);
 		locations[code] = location;
 		return location;
 	}

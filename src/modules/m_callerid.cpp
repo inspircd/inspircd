@@ -103,7 +103,7 @@ struct CallerIDExtInfo final
 		void* old = GetRaw(container);
 		if (old)
 			this->Delete(nullptr, old);
-		callerid_data* dat = new callerid_data;
+		auto dat = new callerid_data();
 		SetRaw(container, dat);
 
 		irc::commasepstream s(value);

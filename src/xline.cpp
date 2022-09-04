@@ -300,7 +300,6 @@ bool XLineManager::AddLine(XLine* line, User* user)
 		}
 	}
 
-	/*ELine* item = new ELine(ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());*/
 	XLineFactory* xlf = GetFactory(line->type);
 	if (!xlf)
 		return false;
