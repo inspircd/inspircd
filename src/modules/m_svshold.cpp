@@ -138,7 +138,7 @@ class CommandSvshold : public Command
 				user->WriteNotice("*** Invalid duration for SVSHOLD.");
 				return CMD_FAILURE;
 			}
-			SVSHold* r = new SVSHold(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
+			SVSHold* r = new SVSHold(ServerInstance->Time(), duration, user->nick, parameters[2], parameters[0]);
 
 			if (ServerInstance->XLines->AddLine(r, user))
 			{

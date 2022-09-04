@@ -718,7 +718,7 @@ bool ELine::Matches(const std::string &str)
 
 bool KLine::Matches(const std::string &str)
 {
-	return (InspIRCd::MatchCIDR(str.c_str(), matchtext));
+	return (InspIRCd::MatchCIDR(str, matchtext));
 }
 
 bool GLine::Matches(const std::string &str)
