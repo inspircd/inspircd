@@ -954,7 +954,7 @@ bool ModuleFilter::Tick(time_t)
 			return true;
 		}
 
-		const std::string newfilterconf = filterconf + ".tmp";
+		const std::string newfilterconf = filterconf + ".new." + ConvToStr(ServerInstance->Time());
 		std::ofstream stream(newfilterconf.c_str());
 		if (!stream.is_open()) // Filesystem probably not writable.
 		{

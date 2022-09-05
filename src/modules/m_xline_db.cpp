@@ -103,7 +103,7 @@ class ModuleXLineDB
 		 *     -- w00t
 		 */
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Opening temporary database");
-		std::string xlinenewdbpath = xlinedbpath + ".new";
+		const std::string xlinenewdbpath = xlinedbpath + ".new." + ConvToStr(ServerInstance->Time());
 		std::ofstream stream(xlinenewdbpath.c_str());
 		if (!stream.is_open())
 		{
