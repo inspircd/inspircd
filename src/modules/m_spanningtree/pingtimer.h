@@ -61,7 +61,6 @@ class PingTimer final
 	State TickInternal();
 
 	/** Called by the TimerManager when the timer expires
-	 * @param currtime Time now
 	 */
 	bool Tick() override;
 

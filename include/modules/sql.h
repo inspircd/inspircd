@@ -180,9 +180,6 @@ protected:
 public:
 	const ModuleRef creator;
 
-	/* Destroys this Query instance. */
-	virtual ~Query() = default;
-
 	/** Called when an SQL error happens.
 	 * @param error The error that occurred.
 	 */

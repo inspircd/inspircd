@@ -68,7 +68,7 @@ private:
 	{
 		XLineFactory* make = ServerInstance->XLines->GetFactory(type);
 		if (!make)
-			throw CoreException("BUG: Unable to find the %s-line factory!");
+			throw CoreException("BUG: Unable to find the " + type + "-line factory!");
 
 		insp::flat_set<std::string> configlines;
 		for (const auto& [_, ctag] : ServerInstance->Config->ConfTags(tag))

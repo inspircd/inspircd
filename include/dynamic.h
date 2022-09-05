@@ -64,7 +64,7 @@ public:
 	DLLManager(const std::string& name);
 
 	/** Unloads the module if one was loaded. */
-	~DLLManager();
+	~DLLManager() override;
 
 	/** Attempts to create a new module instance from this shared library.
 	 * @return Either a new instance of the Module class or NULL on error.

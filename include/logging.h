@@ -64,8 +64,6 @@ class CoreExport Log::Method
 	: public Cullable
 {
 public:
-	virtual ~Method() = default;
-
 	/** Determines whether this logging method accepts cached messages. */
 	virtual bool AcceptsCachedMessages() const { return true; }
 
@@ -121,7 +119,7 @@ protected:
 	Engine(Module* Creator, const std::string& Name);
 
 public:
-	virtual ~Engine();
+	virtual ~Engine() override;
 
 	/** Creates a new logger from the specified config.
 	 * @param tag The config tag to configure the logger with.

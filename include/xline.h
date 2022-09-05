@@ -63,10 +63,6 @@ public:
 		expiry = set_time + duration;
 	}
 
-	/** Destructor
-	 */
-	virtual ~XLine() = default;
-
 	/** Change creation time of an xline. Updates expiry
 	 * to be after the creation time.
 	 */

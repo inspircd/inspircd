@@ -219,8 +219,6 @@ public:
 	 * @param index The parameter index (0 == first parameter).
 	 */
 	virtual void EncodeParameter(std::string& parameter, unsigned int index);
-
-	virtual ~CommandBase() = default;
 };
 
 class CoreExport Command
