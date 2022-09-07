@@ -205,7 +205,6 @@ public:
 		, whoevprov(parent, "event/who")
 		, whomatchevprov(parent, "event/who-match")
 	{
-		allow_empty_last_param = false;
 		syntax = {
 			"<server>|<nick>|<channel>|<realname>|<host>|0 [Aafhilmnoprstux]%[acdfhilnorstu]",
 			"<unused> [Aafhilmnoprstux]%[acdfhilnorstu] :<server>|<nick>|<channel>|<realname>|<host>|0]"

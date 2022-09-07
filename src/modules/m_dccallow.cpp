@@ -194,7 +194,6 @@ public:
 		: Command(parent, "DCCALLOW", 0)
 		, ext(Ext)
 	{
-		allow_empty_last_param = false;
 		syntax = { "[(+|-)<nick> [<time>]]", "LIST", "HELP" };
 		/* XXX we need to fix this so it can work with translation stuff (i.e. move +- into a seperate param */
 	}

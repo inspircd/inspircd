@@ -37,6 +37,7 @@ enum
 CommandNick::CommandNick(Module* parent)
 	: SplitCommand(parent, "NICK", 1)
 {
+	allow_empty_last_param = true;
 	works_before_reg = true;
 	syntax = { "<newnick>" };
 	Penalty = 0;

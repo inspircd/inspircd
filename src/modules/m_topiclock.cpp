@@ -33,6 +33,7 @@ public:
 		: Command(Creator, "SVSTOPIC", 1, 4)
 	{
 		access_needed = CmdAccess::SERVER;
+		allow_empty_last_param = true;
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

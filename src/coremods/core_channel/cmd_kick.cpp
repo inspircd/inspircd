@@ -40,6 +40,7 @@ enum
 CommandKick::CommandKick(Module* parent)
 	: Command(parent, "KICK", 2, 3)
 {
+	allow_empty_last_param = true;
 	syntax = { "<channel> <nick>[,<nick>]+ [:<reason>]" };
 }
 

@@ -129,7 +129,6 @@ public:
 		: SplitCommand(mod, "WATCH")
 		, manager(managerref)
 	{
-		allow_empty_last_param = false;
 		syntax = { "C", "L", "l", "S", "(+|-)<nick> [(+|-)<nick>]+" };
 	}
 

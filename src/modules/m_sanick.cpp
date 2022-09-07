@@ -36,7 +36,6 @@ public:
 		: Command(Creator,"SANICK", 2)
 		, servprotectmode(Creator, "servprotect")
 	{
-		allow_empty_last_param = false;
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick> <newnick>" };
 		translation = { TR_NICK, TR_TEXT };

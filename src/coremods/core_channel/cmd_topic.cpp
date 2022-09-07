@@ -46,6 +46,7 @@ CommandTopic::CommandTopic(Module* parent)
 	, secretmode(parent, "secret")
 	, topiclockmode(parent, "topiclock")
 {
+	allow_empty_last_param = true;
 	syntax = { "<channel> [:<topic>]" };
 	Penalty = 2;
 }

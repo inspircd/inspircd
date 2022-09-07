@@ -311,7 +311,6 @@ public:
 		, manager(managerref)
 	{
 		Penalty = 2;
-		allow_empty_last_param = false;
 		syntax = { "C", "L", "S", "(+|-) <nick>[,<nick>]+" };
 	}
 

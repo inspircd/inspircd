@@ -30,7 +30,6 @@ class CommandRMode final
 public:
 	CommandRMode(Module* Creator) : Command(Creator,"RMODE", 2, 3)
 	{
-		allow_empty_last_param = false;
 		syntax = { "<channel> <mode> [<pattern>]" };
 	}
 

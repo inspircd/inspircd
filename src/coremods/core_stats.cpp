@@ -50,7 +50,6 @@ public:
 		: Command(Creator, "STATS", 1, 2)
 		, statsevprov(Creator, "event/stats")
 	{
-		allow_empty_last_param = false;
 		syntax = { "<symbol> [<servername>]" };
 	}
 

@@ -34,6 +34,7 @@ public:
 	CommandSATopic(Module* Creator) : Command(Creator,"SATOPIC", 2, 2)
 	{
 		access_needed = CmdAccess::OPERATOR;
+		allow_empty_last_param = true;
 		syntax = { "<channel> :<topic>" };
 	}
 

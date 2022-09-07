@@ -34,7 +34,6 @@ public:
 		: Command(Creator,"GLOADMODULE", 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
-		allow_empty_last_param = false;
 		syntax = { "<modulename> [<servermask>]" };
 	}
 
@@ -74,7 +73,6 @@ public:
 		: Command(Creator,"GUNLOADMODULE", 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
-		allow_empty_last_param = false;
 		syntax = { "<modulename> [<servermask>]" };
 	}
 
@@ -126,7 +124,6 @@ public:
 		: Command(Creator, "GRELOADMODULE", 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
-		allow_empty_last_param = false;
 		syntax = { "<modulename> [<servermask>]" };
 	}
 

@@ -35,6 +35,7 @@ public:
 	CommandGlobops(Module* Creator) : Command(Creator,"GLOBOPS", 1,1)
 	{
 		access_needed = CmdAccess::OPERATOR;
+		allow_empty_last_param = true;
 		syntax = { ":<message>" };
 	}
 

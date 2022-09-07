@@ -351,7 +351,6 @@ public:
 		, msgprov(Creator, "SILENCE")
 		, ext(Creator)
 	{
-		allow_empty_last_param = false;
 		syntax = { "[(+|-)<mask> [CcdiNnPpTtx]]" };
 	}
 

@@ -33,7 +33,6 @@ class CommandChgname final
 public:
 	CommandChgname(Module* Creator) : Command(Creator,"CHGNAME", 2, 2)
 	{
-		allow_empty_last_param = false;
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick> :<realname>" };
 		translation = { TR_NICK, TR_TEXT };

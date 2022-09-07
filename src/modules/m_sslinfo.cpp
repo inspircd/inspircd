@@ -255,7 +255,6 @@ public:
 		, sslonlymode(Creator, "sslonly")
 		, sslapi(Creator)
 	{
-		allow_empty_last_param = false;
 		syntax = { "<channel|nick>" };
 	}
 

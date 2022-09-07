@@ -38,6 +38,7 @@ public:
 		, protoevprov(parent, name)
 	{
 		access_needed = CmdAccess::OPERATOR;
+		allow_empty_last_param = true;
 		syntax = { ":<message>" };
 	}
 

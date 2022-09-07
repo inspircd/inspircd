@@ -38,7 +38,6 @@ public:
 		: Command(Creator,"SAJOIN", 1)
 		, servprotectmode(Creator, "servprotect")
 	{
-		allow_empty_last_param = false;
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "[<nick>] <channel>[,<channel>]+" };
 		translation = { TR_NICK, TR_TEXT };

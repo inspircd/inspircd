@@ -215,7 +215,6 @@ public:
 		, tagevprov(Creator, "event/tagmsg")
 		, msgevprov(Creator, "TAGMSG")
 	{
-		allow_empty_last_param = false;
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

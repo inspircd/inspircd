@@ -42,7 +42,6 @@ public:
 		, fail(Creator)
 		, cap(Creator, "setname")
 	{
-		allow_empty_last_param = false;
 		syntax = { ":<realname>" };
 	}
 

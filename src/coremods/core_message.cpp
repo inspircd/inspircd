@@ -277,6 +277,7 @@ public:
 		: Command(parent, ClientProtocol::Messages::Privmsg::CommandStrFromMsgType(mt), 2, 2)
 		, msgtype(mt)
 	{
+		allow_empty_last_param = true;
 		syntax = { "<target>[,<target>]+ :<message>" };
 	}
 
@@ -338,6 +339,7 @@ public:
 	CommandSQuery(Module* Creator)
 		: Command(Creator, "SQUERY", 2, 2)
 	{
+		allow_empty_last_param = true;
 		syntax = { "<service> :<message>" };
 		translation = { TR_NICK, TR_TEXT };
 	}

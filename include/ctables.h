@@ -193,9 +193,8 @@ public:
 	 * checking there are enough params, etc. (i.e. the handler won't
 	 * be called if there aren't enough params after popping the empty
 	 * param).
-	 * True by default
 	 */
-	bool allow_empty_last_param = true;
+	bool allow_empty_last_param = false;
 
 	/** Translation type list for possible parameters, used to tokenize
 	 * parameters into UIDs and SIDs etc.

@@ -330,7 +330,6 @@ public:
 		, sslapi(Creator)
 	{
 		works_before_reg = true;
-		allow_empty_last_param = false;
 	}
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override

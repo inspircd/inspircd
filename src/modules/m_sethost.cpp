@@ -34,7 +34,6 @@ public:
 	CommandSethost(Module* Creator)
 		: Command(Creator,"SETHOST", 1)
 	{
-		allow_empty_last_param = false;
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<host>" };
 	}

@@ -35,7 +35,6 @@ public:
 	CommandChghost(Module* Creator)
 		: Command(Creator,"CHGHOST", 2)
 	{
-		allow_empty_last_param = false;
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick> <host>" };
 		translation = { TR_NICK, TR_TEXT };

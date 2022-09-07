@@ -32,7 +32,6 @@ CommandServList::CommandServList(Module* parent)
 	: SplitCommand(parent, "SERVLIST")
 	, invisiblemode(parent, "invisible")
 {
-	allow_empty_last_param = false;
 	syntax = { "[<nick> [<oper-type>]]" };
 }
 

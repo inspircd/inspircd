@@ -133,7 +133,6 @@ public:
 	CommandHexIP(Module* Creator)
 		: SplitCommand(Creator, "HEXIP", 1)
 	{
-		allow_empty_last_param = false;
 		Penalty = 2;
 		syntax = { "<hex-ip|raw-ip>" };
 	}
@@ -247,7 +246,6 @@ public:
 		, sslapi(Creator)
 		, webircevprov(Creator, "event/webirc")
 	{
-		allow_empty_last_param = false;
 		works_before_reg = true;
 		syntax = { "<password> <gateway> <hostname> <ip> [<flags>]" };
 	}

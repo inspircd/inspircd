@@ -36,6 +36,7 @@ public:
 		, servprotectmode(Creator, "servprotect")
 	{
 		access_needed = CmdAccess::OPERATOR;
+		allow_empty_last_param = true;
 		syntax = { "<channel> <nick> [:<reason>]" };
 		translation = { TR_TEXT, TR_NICK, TR_TEXT };
 	}

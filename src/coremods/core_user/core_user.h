@@ -73,7 +73,6 @@ public:
 	CommandIson(Module* parent)
 		: SplitCommand(parent, "ISON", 1)
 	{
-		allow_empty_last_param = false;
 		syntax = { "<nick> [<nick>]+" };
 	}
 
@@ -141,7 +140,6 @@ public:
 		: Command(parent,"USERHOST", 1)
 		, hideopermode(parent, "hideoper")
 	{
-		allow_empty_last_param = false;
 		syntax = { "<nick> [<nick>]+" };
 	}
 

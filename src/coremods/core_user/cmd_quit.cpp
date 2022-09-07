@@ -30,6 +30,7 @@ CommandQuit::CommandQuit(Module* parent)
 	: Command(parent, "QUIT", 0, 1)
 	, operquit(parent, "operquit", ExtensionType::USER, true)
 {
+	allow_empty_last_param = true;
 	works_before_reg = true;
 	syntax = { "[:<message>]" };
 }

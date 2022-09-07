@@ -40,6 +40,7 @@ public:
 		, swhois(Creator, "swhois", ExtensionType::USER, true)
 	{
 		access_needed = CmdAccess::OPERATOR;
+		allow_empty_last_param = true;
 		syntax = { "<nick> :<swhois>" };
 		translation = { TR_NICK, TR_TEXT };
 	}

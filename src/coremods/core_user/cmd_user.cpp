@@ -36,7 +36,6 @@ enum
 CommandUser::CommandUser(Module* parent)
 	: SplitCommand(parent, "USER", 4, 4)
 {
-	allow_empty_last_param = false;
 	works_before_reg = true;
 	Penalty = 0;
 	syntax = { "<username> <unused> <unused> :<realname>" };

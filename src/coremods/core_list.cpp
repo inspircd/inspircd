@@ -55,7 +55,6 @@ public:
 		, secretmode(creator, "secret")
 		, privatemode(creator, "private")
 	{
-		allow_empty_last_param = false;
 		Penalty = 5;
 	}
 

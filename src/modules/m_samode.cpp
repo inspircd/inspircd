@@ -37,7 +37,6 @@ public:
 	bool active;
 	CommandSamode(Module* Creator) : Command(Creator,"SAMODE", 2)
 	{
-		allow_empty_last_param = false;
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<target> (+|-)<modes> [<mode-parameters>]" };
 		active = false;
