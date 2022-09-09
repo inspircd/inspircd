@@ -49,7 +49,7 @@ CommandInvite::CommandInvite(Module* parent, Invite::APIImpl& invapiimpl)
 	: Command(parent, "INVITE", 0, 0)
 	, invapi(invapiimpl)
 {
-	Penalty = 4;
+	penalty = 4000;
 	syntax = { "[<nick> <channel> [<time>]]" };
 }
 

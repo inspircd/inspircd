@@ -38,7 +38,7 @@ enum
 CommandAdmin::CommandAdmin(Module* parent)
 	: ServerTargetCommand(parent, "ADMIN")
 {
-	Penalty = 2;
+	penalty = 2000;
 	syntax = { "[<servername>]" };
 }
 

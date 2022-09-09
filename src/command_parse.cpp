@@ -181,10 +181,10 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 	if (!user->HasPrivPermission("users/flood/no-throttle"))
 	{
 		// If it *doesn't* exist, give it a slightly heftier penalty than normal to deter flooding us crap
-		unsigned int penalty = (handler ? handler->Penalty * 1000 : 2000);
+		unsigned int penalty = handler ? handler->penalty : 2000;
 		user->CommandFloodPenalty += penalty;
 
-		// Increase their penalty later if we fail and the command has 0 penalty by default (i.e. in Command::Penalty) to
+		// Increase their penalty later if we fail and the command has 0 penalty by default (i.e. in Command::penalty) to
 		// throttle sending ERR_* from the command parser. If the command does have a non-zero penalty then this is not
 		// needed because we've increased their penalty above.
 		if (penalty == 0)

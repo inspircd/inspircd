@@ -94,7 +94,7 @@ public:
 		, evprov(parent, "event/whois")
 		, lineevprov(parent, "event/whoisline")
 	{
-		Penalty = 2;
+		penalty = 2000;
 		syntax = { "[<servername>] <nick>[,<nick>]+" };
 	}
 

@@ -37,7 +37,7 @@ enum
 CommandCommands::CommandCommands(Module* parent)
 	: SplitCommand(parent, "COMMANDS")
 {
-	Penalty = 3;
+	penalty = 3000;
 }
 
 CmdResult CommandCommands::HandleLocal(LocalUser* user, const Params& parameters)
@@ -77,7 +77,7 @@ CmdResult CommandCommands::HandleLocal(LocalUser* user, const Params& parameters
 			numeric.push("*");
 		else
 			numeric.push(command->max_params);
-		numeric.push(command->Penalty);
+		numeric.push(command->penalty);
 		numerics.push_back(numeric);
 	}
 

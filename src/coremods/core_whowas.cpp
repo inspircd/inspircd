@@ -188,8 +188,8 @@ public:
 CommandWhowas::CommandWhowas( Module* parent)
 	: Command(parent, "WHOWAS", 1)
 {
+	penalty = 2000;
 	syntax = { "<nick> [<count>]" };
-	Penalty = 2;
 }
 
 CmdResult CommandWhowas::Handle(User* user, const Params& parameters)

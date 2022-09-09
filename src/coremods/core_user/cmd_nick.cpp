@@ -38,9 +38,9 @@ CommandNick::CommandNick(Module* parent)
 	: SplitCommand(parent, "NICK", 1)
 {
 	allow_empty_last_param = true;
-	works_before_reg = true;
+	penalty = 0;
 	syntax = { "<newnick>" };
-	Penalty = 0;
+	works_before_reg = true;
 }
 
 /** Handle nick changes from users.

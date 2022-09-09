@@ -36,9 +36,9 @@ enum
 CommandUser::CommandUser(Module* parent)
 	: SplitCommand(parent, "USER", 4, 4)
 {
-	works_before_reg = true;
-	Penalty = 0;
+	penalty = 0;
 	syntax = { "<username> <unused> <unused> :<realname>" };
+	works_before_reg = true;
 }
 
 CmdResult CommandUser::HandleLocal(LocalUser* user, const Params& parameters)

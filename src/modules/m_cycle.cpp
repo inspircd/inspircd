@@ -36,7 +36,7 @@ public:
 	CommandCycle(Module* Creator)
 		: SplitCommand(Creator, "CYCLE", 1)
 	{
-		Penalty = 3;
+		penalty = 3000;
 		syntax = { "<channel> [:<reason>]" };
 	}
 

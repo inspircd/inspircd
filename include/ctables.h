@@ -242,8 +242,8 @@ public:
 	/** Whether the command will not be forwarded by the linking module even if it comes via ENCAP. */
 	bool force_manual_route = false;
 
-	/** The number of seconds worth of penalty that executing this command gives. */
-	unsigned int Penalty = 1;
+	/** The number of milliseconds worth of penalty that executing this command gives. */
+	unsigned int penalty = 1000;
 
 	/** The number of times this command has been executed. */
 	unsigned long use_count = 0;

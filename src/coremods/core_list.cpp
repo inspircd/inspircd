@@ -55,7 +55,7 @@ public:
 		, secretmode(creator, "secret")
 		, privatemode(creator, "private")
 	{
-		Penalty = 5;
+		penalty = 5000;
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override;

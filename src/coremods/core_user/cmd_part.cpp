@@ -34,7 +34,7 @@ CommandPart::CommandPart(Module* parent)
 	: Command(parent, "PART", 1, 2)
 {
 	allow_empty_last_param = true;
-	Penalty = 5;
+	penalty = 5000;
 	syntax = { "<channel>[,<channel>]+ [:<reason>]" };
 }
 

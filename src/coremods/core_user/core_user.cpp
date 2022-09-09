@@ -36,9 +36,9 @@ public:
 	CommandPass(Module* parent)
 		: SplitCommand(parent, "PASS", 1, 1)
 	{
-		works_before_reg = true;
-		Penalty = 0;
+		penalty = 0;
 		syntax = { "<password>" };
+		works_before_reg = true;
 	}
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
@@ -88,7 +88,7 @@ public:
 	CommandPong(Module* parent)
 		: Command(parent, "PONG", 1)
 	{
-		Penalty = 0;
+		penalty = 0;
 		syntax = { "<cookie> [<servername>]" };
 	}
 

@@ -36,7 +36,7 @@ enum
 CommandInfo::CommandInfo(Module* parent)
 	: SplitCommand(parent, "INFO")
 {
-	Penalty = 3;
+	penalty = 3000;
 }
 
 static const char* const lines[] = {

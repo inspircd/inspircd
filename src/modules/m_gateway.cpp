@@ -133,7 +133,7 @@ public:
 	CommandHexIP(Module* Creator)
 		: SplitCommand(Creator, "HEXIP", 1)
 	{
-		Penalty = 2;
+		penalty = 2000;
 		syntax = { "<hex-ip|raw-ip>" };
 	}
 

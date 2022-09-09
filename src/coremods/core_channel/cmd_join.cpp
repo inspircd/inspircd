@@ -29,8 +29,8 @@
 CommandJoin::CommandJoin(Module* parent)
 	: SplitCommand(parent, "JOIN", 1, 2)
 {
+	penalty = 2000;
 	syntax = { "<channel>[,<channel>]+ [<key>[,<key>]+]" };
-	Penalty = 2;
 }
 
 CmdResult CommandJoin::HandleLocal(LocalUser* user, const Params& parameters)

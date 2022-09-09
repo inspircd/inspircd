@@ -47,8 +47,8 @@ CommandTopic::CommandTopic(Module* parent)
 	, topiclockmode(parent, "topiclock")
 {
 	allow_empty_last_param = true;
+	penalty = 2000;
 	syntax = { "<channel> [:<topic>]" };
-	Penalty = 2;
 }
 
 CmdResult CommandTopic::HandleLocal(LocalUser* user, const Params& parameters)

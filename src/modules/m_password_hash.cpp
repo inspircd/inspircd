@@ -33,8 +33,8 @@ class CommandMkpasswd final
 public:
 	CommandMkpasswd(Module* Creator) : Command(Creator, "MKPASSWD", 2)
 	{
+		penalty = 5000;
 		syntax = { "<hashtype> <plaintext>" };
-		Penalty = 5;
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

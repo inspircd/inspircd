@@ -39,7 +39,7 @@ enum
 CommandModules::CommandModules(Module* parent)
 	: ServerTargetCommand(parent, "MODULES")
 {
-	Penalty = 4;
+	penalty = 4000;
 	syntax = { "[<servername>]" };
 }
 

@@ -37,7 +37,7 @@
 CommandMap::CommandMap(Module* Creator)
 	: Command(Creator, "MAP", 0, 1)
 {
-	Penalty = 2;
+	penalty = 2000;
 }
 
 static inline bool IsHidden(User* user, TreeServer* server)

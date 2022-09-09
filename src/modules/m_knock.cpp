@@ -75,8 +75,8 @@ public:
 		, inviteonlymode(Creator, "inviteonly")
 		, inviteapi(Creator)
 	{
+		penalty = 5000;
 		syntax = { "<channel> :<reason>" };
-		Penalty = 5;
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

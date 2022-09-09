@@ -310,7 +310,7 @@ public:
 		: SplitCommand(mod, "MONITOR", 1)
 		, manager(managerref)
 	{
-		Penalty = 2;
+		penalty = 2000;
 		syntax = { "C", "L", "S", "(+|-) <nick>[,<nick>]+" };
 	}
 
