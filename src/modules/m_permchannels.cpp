@@ -73,7 +73,7 @@ static bool WriteDatabase(PermChannel& permchanmode, Module* mod, bool save_list
 	if (permchannelsconf.empty())
 		return true;
 
-	std::string permchannelsnewconf = permchannelsconf + ".tmp";
+	const std::string permchannelsnewconf = permchannelsconf + ".new." + ConvToStr(ServerInstance->Time());
 	std::ofstream stream(permchannelsnewconf);
 	if (!stream.is_open())
 	{

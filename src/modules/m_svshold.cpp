@@ -136,8 +136,8 @@ public:
 				user->WriteNotice("*** Invalid duration for SVSHOLD.");
 				return CmdResult::FAILURE;
 			}
-			auto r = new SVSHold(ServerInstance->Time(), duration, user->nick, parameters[2], parameters[0]);
 
+			auto r = new SVSHold(ServerInstance->Time(), duration, user->nick, parameters[2], parameters[0]);
 			if (ServerInstance->XLines->AddLine(r, user))
 			{
 				if (silent)

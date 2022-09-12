@@ -76,6 +76,7 @@ CmdResult CommandKline::Handle(User* user, const Params& parameters)
 			user->WriteNotice("*** Invalid duration for K-line.");
 			return CmdResult::FAILURE;
 		}
+
 		auto kl = new KLine(ServerInstance->Time(), duration, user->nick, parameters[2], ih.first, ih.second);
 		if (ServerInstance->XLines->AddLine(kl,user))
 		{

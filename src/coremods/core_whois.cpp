@@ -293,8 +293,13 @@ CmdResult CommandWhois::HandleLocal(LocalUser* user, const Params& parameters)
 	if (parameters.size() > 1)
 		userindex = 1;
 
-	dest = ServerInstance->Users.FindNick(parameters[userindex]);
+	if (parameters[userindex].empty())
+	{
+		user->WriteNumeric(ERR_NONICKNAMEGIVEN, "No nickname given");
+		return CmdResult::FAILURE;
+	}
 
+	dest = ServerInstance->Users.FindNick(parameters[userindex]);
 	if ((dest) && (dest->registered == REG_ALL))
 	{
 		/*
@@ -317,8 +322,8 @@ CmdResult CommandWhois::HandleLocal(LocalUser* user, const Params& parameters)
 	else
 	{
 		/* no such nick/channel */
-		user->WriteNumeric(Numerics::NoSuchNick(!parameters[userindex].empty() ? parameters[userindex] : "*"));
-		user->WriteNumeric(RPL_ENDOFWHOIS, (!parameters[userindex].empty() ? parameters[userindex] : "*"), "End of /WHOIS list.");
+		user->WriteNumeric(Numerics::NoSuchNick(parameters[userindex]));
+		user->WriteNumeric(RPL_ENDOFWHOIS, parameters[userindex], "End of /WHOIS list.");
 		return CmdResult::FAILURE;
 	}
 
