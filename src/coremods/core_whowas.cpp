@@ -201,6 +201,12 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 		return CMD_FAILURE;
 	}
 
+	if (parameters[0].empty())
+	{
+		user->WriteNumeric(ERR_NONICKNAMEGIVEN, "No nickname given");
+		return CMD_FAILURE;
+	}
+
 	const WhoWas::Nick* const nick = manager.FindNick(parameters[0]);
 	if (!nick)
 	{
