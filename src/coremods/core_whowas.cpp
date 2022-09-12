@@ -188,6 +188,7 @@ public:
 CommandWhowas::CommandWhowas( Module* parent)
 	: Command(parent, "WHOWAS", 1)
 {
+	allow_empty_last_param = true;
 	penalty = 2000;
 	syntax = { "<nick> [<count>]" };
 }
