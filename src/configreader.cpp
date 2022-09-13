@@ -512,21 +512,22 @@ void ServerConfig::ApplyModules(User* user)
 		// Don't remove core_*, just remove m_*
 		if (InspIRCd::Match(modname, "core_*", ascii_case_insensitive_map))
 			continue;
+
 		if (ServerInstance->Modules.Unload(mod))
 		{
-			ServerInstance->SNO.WriteGlobalSno('r', "*** REHASH UNLOADED MODULE: %s", modname.c_str());
-
+			const std::string message = InspIRCd::Format("The %s module was unloaded.", modname.c_str());
 			if (user)
-				user->WriteNumeric(RPL_UNLOADEDMODULE, modname, InspIRCd::Format("The %s module was unloaded.", modname.c_str()));
-			else
-				ServerInstance->SNO.WriteGlobalSno('r', "The %s module was unloaded.", modname.c_str());
+				user->WriteNumeric(RPL_UNLOADEDMODULE, modname, message);
+
+			ServerInstance->SNO.WriteGlobalSno('r', message);
 		}
 		else
 		{
+			const std::string message = InspIRCd::Format("Failed to unload the %s module: %s", modname.c_str(), ServerInstance->Modules.LastError().c_str());
 			if (user)
-				user->WriteNumeric(ERR_CANTUNLOADMODULE, modname, InspIRCd::Format("Failed to unload the %s module: %s", modname.c_str(), ServerInstance->Modules.LastError().c_str()));
-			else
-				ServerInstance->SNO.WriteGlobalSno('r', "Failed to unload the %s module: %s", modname.c_str(), ServerInstance->Modules.LastError().c_str());
+				user->WriteNumeric(ERR_CANTUNLOADMODULE, modname, message);
+
+			ServerInstance->SNO.WriteGlobalSno('r', message);
 		}
 	}
 
@@ -538,18 +539,19 @@ void ServerConfig::ApplyModules(User* user)
 
 		if (ServerInstance->Modules.Load(modname))
 		{
-			ServerInstance->SNO.WriteGlobalSno('r', "*** REHASH LOADED MODULE: %s", modname.c_str());
+			const std::string message = InspIRCd::Format("The %s module was loaded.", modname.c_str());
 			if (user)
-				user->WriteNumeric(RPL_LOADEDMODULE, modname, InspIRCd::Format("The %s module was loaded.", modname.c_str()));
-			else
-				ServerInstance->SNO.WriteGlobalSno('r', "The %s module was loaded.", modname.c_str());
+				user->WriteNumeric(RPL_LOADEDMODULE, modname, message);
+
+			ServerInstance->SNO.WriteGlobalSno('r', message);
 		}
 		else
 		{
+			const std::string message = InspIRCd::Format("Failed to load the %s module: %s", modname.c_str(), ServerInstance->Modules.LastError().c_str());
 			if (user)
-				user->WriteNumeric(ERR_CANTLOADMODULE, modname, InspIRCd::Format("Failed to load the %s module: %s", modname.c_str(), ServerInstance->Modules.LastError().c_str()));
-			else
-				ServerInstance->SNO.WriteGlobalSno('r', "Failed to load the %s module: %s", modname.c_str(), ServerInstance->Modules.LastError().c_str());
+				user->WriteNumeric(ERR_CANTLOADMODULE, modname, message);
+
+			ServerInstance->SNO.WriteGlobalSno('r', message);
 		}
 	}
 }
