@@ -57,6 +57,7 @@ class ClientProtocol::Messages::Numeric : public ClientProtocol::Message
 
 	void InitFromNumeric(const ::Numeric::Numeric& numeric)
 	{
+		AddTags(numeric.GetParams().GetTags());
 		InitCommand(numeric.GetNumeric());
 		for (std::vector<std::string>::const_iterator i = numeric.GetParams().begin(); i != numeric.GetParams().end(); ++i)
 			PushParamRef(*i);
