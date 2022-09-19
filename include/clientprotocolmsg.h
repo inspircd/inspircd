@@ -58,6 +58,7 @@ class ClientProtocol::Messages::Numeric
 
 	void InitFromNumeric(const ::Numeric::Numeric& numeric)
 	{
+		AddTags(numeric.GetParams().GetTags());
 		InitCommand(numeric.GetNumeric());
 		for (const auto& param : numeric.GetParams())
 			PushParamRef(param);
