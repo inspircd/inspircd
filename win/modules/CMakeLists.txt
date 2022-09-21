@@ -1,5 +1,6 @@
-# m_regex_stdlib is supported by every version of Visual Studio we support,
+# These modules are supported by every version of Visual Studio we support,
 # so copy the file out of extra/
+file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_ldap.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
 file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_regex_stdlib.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
 
 if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")

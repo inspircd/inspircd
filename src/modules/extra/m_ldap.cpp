@@ -41,15 +41,27 @@
 # pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-#include <ldap.h>
+#ifdef _WIN32
+# include <Winldap.h>
+# include <WinBer.h>
+# include "http_parser.c"
+# define LDAP_OPT_SUCCESS LDAP_SUCCESS
+# define LDAP_OPT_NETWORK_TIMEOUT LDAP_OPT_SEND_TIMEOUT
+# define LDAP_STR(X) const_cast<PSTR>((X).c_str())
+# define LDAP_SASL_SIMPLE static_cast<PSTR>(0)
+# define LDAP_TIME(X) reinterpret_cast<PLDAP_TIMEVAL>(&(X))
+# define ldap_first_message ldap_first_entry
+# define ldap_next_message ldap_next_entry
+# define ldap_unbind_ext(LDAP, UNUSED1, UNUSED2) ldap_unbind(LDAP)
+# pragma comment(lib, "Wldap32.lib")
+#else
+# include <ldap.h>
+# define LDAP_STR(X) ((X).c_str())
+# define LDAP_TIME(X) (&(X))
+#endif
 
 #ifdef __APPLE__
 # pragma GCC diagnostic pop
-#endif
-
-#ifdef _WIN32
-# pragma comment(lib, "libldap_r.lib")
-# pragma comment(lib, "liblber.lib")
 #endif
 
 class LDAPService;
@@ -105,14 +117,14 @@ class LDAPBind : public LDAPRequest
 	std::string info() CXX11_OVERRIDE;
 };
 
-class LDAPSearch : public LDAPRequest
+class LDAPSearchRequest : public LDAPRequest
 {
 	std::string base;
 	int searchscope;
 	std::string filter;
 
  public:
-	LDAPSearch(LDAPService* s, LDAPInterface* i, const std::string& b, int se, const std::string& f)
+	LDAPSearchRequest(LDAPService* s, LDAPInterface* i, const std::string& b, int se, const std::string& f)
 		: LDAPRequest(s, i, LDAP_SUCCESS)
 		, base(b)
 		, searchscope(se)
@@ -197,11 +209,54 @@ class LDAPCompare : public LDAPRequest
 
 class LDAPService : public LDAPProvider, public SocketThread
 {
+ private:
 	LDAP* con;
 	reference<ConfigTag> config;
 	time_t last_connect;
 	int searchscope;
 	time_t timeout;
+
+#ifdef _WIN32
+	// Windows LDAP does not implement this so we need to do it.
+	int ldap_initialize(LDAP** ldap, const char* url)
+	{
+		http_parser_url up;
+		http_parser_url_init(&up);
+		if (http_parser_parse_url(url, strlen(url), 0, &up) != 0)
+			return LDAP_CONNECT_ERROR; // Malformed url.
+
+		if (!(up.field_set & (1 << UF_HOST)))
+			return LDAP_CONNECT_ERROR; // Missing the host.
+
+		unsigned long port = 389; // Default plaintext port.
+		bool secure = false; // LDAP defaults to plaintext.
+		if (up.field_set & (1 << UF_SCHEMA))
+		{
+			const std::string schema(url, up.field_data[UF_SCHEMA].off, up.field_data[UF_SCHEMA].len);
+			if (stdalgo::string::equalsci(schema, "ldaps"))
+			{
+				port = 636; // Default encrypted port.
+				secure = true;
+			}
+			else if (!stdalgo::string::equalsci(schema, "ldap"))
+				return LDAP_CONNECT_ERROR; // Invalid protocol.
+		}
+
+		if (up.field_set & (1 << UF_PORT))
+		{
+			const std::string portstr(url, up.field_data[UF_PORT].off, up.field_data[UF_PORT].len);
+			port = ConvToNum<unsigned long>(portstr);
+		}
+
+		const std::string host(url, up.field_data[UF_HOST].off, up.field_data[UF_HOST].len);
+		*ldap = ldap_sslinit(LDAP_STR(host), port, secure);
+		if (!*ldap)
+			return LdapGetLastError(); // Something went wrong, find out what.
+
+		// We're connected to the LDAP server!
+		return LDAP_SUCCESS;
+	}
+#endif
 
  public:
 	static LDAPMod** BuildMods(const LDAPMods& attributes)
@@ -374,7 +429,7 @@ class LDAPService : public LDAPProvider, public SocketThread
 		if (i == NULL)
 			throw LDAPException("No interface");
 
-		LDAPSearch* s = new LDAPSearch(this, i, base, searchscope, filter);
+		LDAPSearchRequest* s = new LDAPSearchRequest(this, i, base, searchscope, filter);
 		QueueRequest(s);
 	}
 
@@ -653,7 +708,7 @@ int LDAPBind::run()
 	cred.bv_val = strdup(pass.c_str());
 	cred.bv_len = pass.length();
 
-	int i = ldap_sasl_bind_s(service->GetConnection(), who.c_str(), LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL);
+	int i = ldap_sasl_bind_s(service->GetConnection(), LDAP_STR(who), LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL);
 
 	free(cred.bv_val);
 
@@ -665,12 +720,12 @@ std::string LDAPBind::info()
 	return "bind dn=" + who;
 }
 
-int LDAPSearch::run()
+int LDAPSearchRequest::run()
 {
-	return ldap_search_ext_s(service->GetConnection(), base.c_str(), searchscope, filter.c_str(), NULL, 0, NULL, NULL, &tv, 0, &message);
+	return ldap_search_ext_s(service->GetConnection(), LDAP_STR(base), searchscope, LDAP_STR(filter), NULL, 0, NULL, NULL, LDAP_TIME(tv), 0, &message);
 }
 
-std::string LDAPSearch::info()
+std::string LDAPSearchRequest::info()
 {
 	return "search base=" + base + " filter=" + filter;
 }
@@ -678,7 +733,7 @@ std::string LDAPSearch::info()
 int LDAPAdd::run()
 {
 	LDAPMod** mods = LDAPService::BuildMods(attributes);
-	int i = ldap_add_ext_s(service->GetConnection(), dn.c_str(), mods, NULL, NULL);
+	int i = ldap_add_ext_s(service->GetConnection(), LDAP_STR(dn), mods, NULL, NULL);
 	LDAPService::FreeMods(mods);
 	return i;
 }
@@ -690,7 +745,7 @@ std::string LDAPAdd::info()
 
 int LDAPDel::run()
 {
-	return ldap_delete_ext_s(service->GetConnection(), dn.c_str(), NULL, NULL);
+	return ldap_delete_ext_s(service->GetConnection(), LDAP_STR(dn), NULL, NULL);
 }
 
 std::string LDAPDel::info()
@@ -701,7 +756,7 @@ std::string LDAPDel::info()
 int LDAPModify::run()
 {
 	LDAPMod** mods = LDAPService::BuildMods(attributes);
-	int i = ldap_modify_ext_s(service->GetConnection(), base.c_str(), mods, NULL, NULL);
+	int i = ldap_modify_ext_s(service->GetConnection(), LDAP_STR(base), mods, NULL, NULL);
 	LDAPService::FreeMods(mods);
 	return i;
 }
@@ -717,7 +772,11 @@ int LDAPCompare::run()
 	cred.bv_val = strdup(val.c_str());
 	cred.bv_len = val.length();
 
+#ifdef _WIN32
+	int ret = ldap_compare_ext_s(service->GetConnection(), LDAP_STR(dn), LDAP_STR(attr), NULL, &cred, NULL, NULL);
+#else
 	int ret = ldap_compare_ext_s(service->GetConnection(), dn.c_str(), attr.c_str(), &cred, NULL, NULL);
+#endif
 
 	free(cred.bv_val);
 
