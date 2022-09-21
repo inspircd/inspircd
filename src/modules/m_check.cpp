@@ -231,6 +231,7 @@ public:
 					context.Write("connectclass", classname);
 
 				context.Write("exempt", localtarget->exempt ? "yes" : "no");
+				context.Write("serializer", localtarget->serializer->name.substr(11));
 			}
 			else
 				context.Write("onip", targetuser->GetIPString());

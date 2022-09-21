@@ -25,8 +25,13 @@
 #include "inspircd.h"
 #include "modules/regex.h"
 
-#include <regex.h>
-#include <sys/types.h>
+#ifdef _WIN32
+# include "pcre2posix.h"
+# pragma comment(lib, "pcre2-posix.lib")
+#else
+# include <regex.h>
+# include <sys/types.h>
+#endif
 
 class POSIXPattern final
 	: public Regex::Pattern

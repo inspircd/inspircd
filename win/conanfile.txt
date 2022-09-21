@@ -1,8 +1,8 @@
 # Last updated: 2022-08-04
 #
 # Modules we can't legally ship: geo_maxmind, ssl_mbedtls, ssl_openssl
-# Modules which don't apply to Windows: regex_posix, sslrehashsignal
-# Modules without packages: ldap, ssl_gnutls
+# Modules which don't apply to Windows: sslrehashsignal
+# Modules without packages: ssl_gnutls
 
 [requires]
 argon2/20190702

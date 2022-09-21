@@ -1,3 +1,6 @@
+# This module is supported by every version of Windows that we support.
+file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_ldap.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
+
 if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
 	include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
 
@@ -16,6 +19,7 @@ if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
 	enable_extra("mysql" "LIBMYSQLCLIENT")
 	enable_extra("pgsql" "LIBPQ")
 	enable_extra("regex_pcre" "PCRE2")
+	enable_extra("regex_posix" "PCRE2")
 	enable_extra("regex_re2" "RE2")
 	enable_extra("ssl_mbedtls" "MBEDTLS")
 	enable_extra("ssl_openssl" "OPENSSL")
@@ -69,5 +73,5 @@ foreach(MODULE_NAME ${INSPIRCD_MODULES})
 	)
 
 	# Set the module to be installed to the module directory
-	install(TARGETS ${BASE_NAME} DESTINATION ${MODULE_DIR})
+	install(TARGETS ${BASE_NAME} LIBRARY DESTINATION ${MODULE_DIR})
 endforeach()
