@@ -1,7 +1,7 @@
 # Last updated: 2022-08-04
 #
 # Modules we can't legally ship: geo_maxmind, ssl_mbedtls, ssl_openssl
-# Modules which don't apply to Windows: regex_posix, sslrehashsignal
+# Modules which don't apply to Windows: sslrehashsignal
 # Modules without packages: regex_tre, ssl_gnutls
 
 [requires]
