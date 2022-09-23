@@ -19,6 +19,10 @@
 
 #pragma once
 
+#ifdef _WIN32
+# undef ERROR // Defined by WinGDI.h
+#endif
+
 namespace Log
 {
 	class Method;

@@ -61,11 +61,6 @@
 #include <ws2tcpip.h>
 #include <io.h>
 
-// Windows defines these already.
-#undef ERROR
-#undef min
-#undef max
-
 /* strcasecmp is not defined on windows by default */
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
