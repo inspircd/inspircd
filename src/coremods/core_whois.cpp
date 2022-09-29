@@ -279,7 +279,7 @@ CmdResult CommandWhois::HandleRemote(RemoteUser* target, const Params& parameter
 
 CmdResult CommandWhois::HandleLocal(LocalUser* user, const Params& parameters)
 {
-	User *dest;
+	User* dest;
 	unsigned int userindex = 0;
 	unsigned long idle = 0;
 	time_t signon = 0;

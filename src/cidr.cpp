@@ -30,7 +30,7 @@
  * This will also attempt to match any leading usernames or nicknames on the mask, using
  * match(), when match_with_username is true.
  */
-bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr_mask, bool match_with_username)
+bool irc::sockets::MatchCIDR(const std::string& address, const std::string& cidr_mask, bool match_with_username)
 {
 	std::string address_copy;
 	std::string cidr_copy;

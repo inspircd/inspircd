@@ -140,7 +140,7 @@ namespace irc
 		 * @param match_with_username Does the  mask include a nickname segment?
 		 * @return True if the mask matches the address
 		 */
-		CoreExport bool MatchCIDR(const std::string &address, const std::string &cidr_mask, bool match_with_username);
+		CoreExport bool MatchCIDR(const std::string& address, const std::string& cidr_mask, bool match_with_username);
 
 		/** Determines whether the specified file is a UNIX socket.
 		 * @param file The path to the file to check.

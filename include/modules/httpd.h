@@ -92,7 +92,7 @@ public:
 	/** Set the value of a header
 	 * Sets the value of the named header. If the header is already present, it will be replaced
 	 */
-	void SetHeader(const std::string &name, const std::string &data)
+	void SetHeader(const std::string& name, const std::string& data)
 	{
 		headers[name] = data;
 	}
@@ -100,7 +100,7 @@ public:
 	/** Set the value of a header, only if it doesn't exist already
 	 * Sets the value of the named header. If the header is already present, it will NOT be updated
 	 */
-	void CreateHeader(const std::string &name, const std::string &data)
+	void CreateHeader(const std::string& name, const std::string& data)
 	{
 		if (!IsSet(name))
 			SetHeader(name, data);
@@ -108,7 +108,7 @@ public:
 
 	/** Remove the named header
 	 */
-	void RemoveHeader(const std::string &name)
+	void RemoveHeader(const std::string& name)
 	{
 		headers.erase(name);
 	}
@@ -123,7 +123,7 @@ public:
 	/** Get the value of a header
 	 * @return The value of the header, or an empty string
 	 */
-	std::string GetHeader(const std::string &name)
+	std::string GetHeader(const std::string& name)
 	{
 		std::map<std::string,std::string>::iterator it = headers.find(name);
 		if (it == headers.end())
@@ -135,7 +135,7 @@ public:
 	/** Check if the given header is specified
 	 * @return true if the header is specified
 	 */
-	bool IsSet(const std::string &name)
+	bool IsSet(const std::string& name)
 	{
 		std::map<std::string,std::string>::iterator it = headers.find(name);
 		return (it != headers.end());
@@ -167,7 +167,7 @@ protected:
 
 public:
 
-	HTTPHeaders *headers;
+	HTTPHeaders* headers;
 	int errorcode;
 
 	/** A socket pointer, which you must return in your HTTPDocument class

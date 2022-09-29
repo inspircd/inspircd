@@ -157,7 +157,7 @@ bool SocketEngine::AddFdRef(EventHandler* eh)
 	return true;
 }
 
-void SocketEngine::DelFdRef(EventHandler *eh)
+void SocketEngine::DelFdRef(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 	if (GetRef(fd) == eh)
@@ -184,7 +184,7 @@ bool SocketEngine::BoundsCheckFd(EventHandler* eh)
 	return eh && eh->HasFd();
 }
 
-int SocketEngine::Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen)
+int SocketEngine::Accept(EventHandler* fd, sockaddr* addr, socklen_t* addrlen)
 {
 	return accept(fd->GetFd(), addr, addrlen);
 }
@@ -234,21 +234,21 @@ void SocketEngine::SetReuse(int fd)
 	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&on), sizeof(on));
 }
 
-ssize_t SocketEngine::RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen)
+ssize_t SocketEngine::RecvFrom(EventHandler* fd, void* buf, size_t len, int flags, sockaddr* from, socklen_t* fromlen)
 {
 	ssize_t nbRecvd = recvfrom(fd->GetFd(), static_cast<char*>(buf), len, flags, from, fromlen);
 	stats.UpdateReadCounters(nbRecvd);
 	return nbRecvd;
 }
 
-ssize_t SocketEngine::Send(EventHandler* fd, const void *buf, size_t len, int flags)
+ssize_t SocketEngine::Send(EventHandler* fd, const void* buf, size_t len, int flags)
 {
 	ssize_t nbSent = send(fd->GetFd(), static_cast<const char*>(buf), len, flags);
 	stats.UpdateWriteCounters(nbSent);
 	return nbSent;
 }
 
-ssize_t SocketEngine::Recv(EventHandler* fd, void *buf, size_t len, int flags)
+ssize_t SocketEngine::Recv(EventHandler* fd, void* buf, size_t len, int flags)
 {
 	ssize_t nbRecvd = recv(fd->GetFd(), static_cast<char*>(buf), len, flags);
 	stats.UpdateReadCounters(nbRecvd);

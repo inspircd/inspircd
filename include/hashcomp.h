@@ -93,7 +93,7 @@ namespace irc
 
 	struct insensitive
 	{
-		size_t CoreExport operator()(const std::string &s) const;
+		size_t CoreExport operator()(const std::string& s) const;
 	};
 
 	struct insensitive_swo
@@ -124,7 +124,7 @@ namespace irc
 	public:
 		/** Create a sepstream and fill it with the provided data
 		 */
-		sepstream(const std::string &source, char separator, bool allowempty = false);
+		sepstream(const std::string& source, char separator, bool allowempty = false);
 
 		/** Fetch the next token from the stream
 		 * @param token The next token from the stream is placed here
@@ -171,7 +171,7 @@ namespace irc
 	public:
 		/** Initialize with comma separator
 		 */
-		commasepstream(const std::string &source, bool allowempty = false) : sepstream(source, ',', allowempty)
+		commasepstream(const std::string& source, bool allowempty = false) : sepstream(source, ',', allowempty)
 		{
 		}
 	};
@@ -183,7 +183,7 @@ namespace irc
 	public:
 		/** Initialize with space separator
 		 */
-		spacesepstream(const std::string &source, bool allowempty = false) : sepstream(source, ' ', allowempty)
+		spacesepstream(const std::string& source, bool allowempty = false) : sepstream(source, ' ', allowempty)
 		{
 		}
 	};
@@ -275,7 +275,7 @@ namespace irc
 		 * @param source The source text to parse from
 		 * @param allow_overlapped Allow overlapped ranges
 		 */
-		portparser(const std::string &source, bool allow_overlapped = true);
+		portparser(const std::string& source, bool allow_overlapped = true);
 
 		/** Fetch the next token from the stream
 		 * @return The next port number is returned, or 0 if none remain

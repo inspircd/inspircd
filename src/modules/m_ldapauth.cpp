@@ -364,7 +364,7 @@ public:
 		}
 	}
 
-	void OnUserConnect(LocalUser *user) override
+	void OnUserConnect(LocalUser* user) override
 	{
 		std::string* cc = ldapVhost.Get(user);
 		if (cc)

@@ -113,7 +113,7 @@ struct CallerIDExtInfo final
 
 		while (s.GetToken(tok))
 		{
-			User *u = ServerInstance->Users.Find(tok);
+			User* u = ServerInstance->Users.Find(tok);
 			if ((u) && (u->registered == REG_ALL) && (!u->quitting))
 			{
 				if (dat->accepting.insert(u).second)
@@ -317,7 +317,7 @@ public:
 		}
 
 		// Look up their list to remove me.
-		callerid_data *dat2 = extInfo.Get(whotoremove, false);
+		callerid_data* dat2 = extInfo.Get(whotoremove, false);
 		if (!dat2)
 		{
 			// How the fuck is this possible.
@@ -373,7 +373,7 @@ private:
 	void RemoveFromAllAccepts(User* who)
 	{
 		// First, find the list of people who have me on accept
-		callerid_data *userdata = cmd.extInfo.Get(who, false);
+		callerid_data* userdata = cmd.extInfo.Get(who, false);
 		if (!userdata)
 			return;
 

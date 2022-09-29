@@ -91,7 +91,7 @@ public:
 	{
 	}
 
-	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string &topic) override
+	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string& topic) override
 	{
 		// Only fired for local users currently, but added a check anyway
 		if ((IS_LOCAL(user)) && (topiclock.Get(chan)))

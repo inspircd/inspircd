@@ -313,7 +313,7 @@ void UserManager::AddClone(User* user)
 		counts.local++;
 }
 
-void UserManager::RemoveCloneCounts(User *user)
+void UserManager::RemoveCloneCounts(User* user)
 {
 	CloneMap::iterator it = clonemap.find(user->GetCIDRMask());
 	if (it != clonemap.end())

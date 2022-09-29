@@ -40,7 +40,7 @@ CommandRSQuit::CommandRSQuit(Module* Creator)
 
 CmdResult CommandRSQuit::Handle(User* user, const Params& parameters)
 {
-	TreeServer *server_target; // Server to squit
+	TreeServer* server_target; // Server to squit
 
 	server_target = Utils->FindServerMask(parameters[0]);
 	if (!server_target)

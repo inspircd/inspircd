@@ -104,7 +104,7 @@ class IdentRequestSocket final
 	: public EventHandler
 {
 public:
-	LocalUser *user;			/* User we are attached to */
+	LocalUser* user;			/* User we are attached to */
 	std::string result;		/* Holds the ident string if done */
 	time_t age;
 	bool done;			/* True if lookup is finished */
@@ -354,7 +354,7 @@ public:
 	 * creating a Timer object and especially better than creating a
 	 * Timer per ident lookup!
 	 */
-	ModResult OnCheckReady(LocalUser *user) override
+	ModResult OnCheckReady(LocalUser* user) override
 	{
 		/* Does user have an ident socket attached at all? */
 		IdentRequestSocket* isock = socket.Get(user);

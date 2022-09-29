@@ -274,7 +274,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnPostTopicChange(User*, Channel *c, const std::string&) override
+	void OnPostTopicChange(User*, Channel* c, const std::string&) override
 	{
 		if (c->IsModeSet(p))
 			dirty = true;
@@ -318,7 +318,7 @@ public:
 		}
 	}
 
-	ModResult OnChannelPreDelete(Channel *c) override
+	ModResult OnChannelPreDelete(Channel* c) override
 	{
 		if (c->IsModeSet(p))
 			return MOD_RES_DENY;

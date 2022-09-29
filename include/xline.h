@@ -42,7 +42,7 @@ protected:
 	 * @param line The line typed, used for display purposes in the quit message
 	 * @param bancache If true, the user will be added to the bancache if they match. Else not.
 	 */
-	void DefaultApply(User* u, const std::string &line, bool bancache);
+	void DefaultApply(User* u, const std::string& line, bool bancache);
 
 public:
 
@@ -77,7 +77,7 @@ public:
 	 * are defined by the derived class.
 	 * @return True if there is a match.
 	 */
-	virtual bool Matches(User *u) = 0;
+	virtual bool Matches(User* u) = 0;
 
 	/** Returns true whether or not the given string is covered by this line.
 	 * @param str The string to match against. The details of what must be
@@ -85,7 +85,7 @@ public:
 	 * derived class.
 	 * @return True if there is a match
 	 */
-	virtual bool Matches(const std::string &str) = 0;
+	virtual bool Matches(const std::string& str) = 0;
 
 	/** Apply a line against a user. The mechanics of what occurs when
 	 * the line is applied are specific to the derived class.
@@ -350,7 +350,7 @@ public:
 	/** Create an XLine factory
 	 * @param t Type of XLine this factory generates
 	 */
-	XLineFactory(const std::string &t) : type(t) { }
+	XLineFactory(const std::string& t) : type(t) { }
 
 	/** Return the type of XLine this factory generates
 	 * @return The type of XLine this factory generates
@@ -409,7 +409,7 @@ public:
 	/** Split an ident and host into two separate strings.
 	 * This allows for faster matching.
 	 */
-	static IdentHostPair IdentSplit(const std::string &ident_and_host);
+	static IdentHostPair IdentSplit(const std::string& ident_and_host);
 
 	/** Checks what users match E-lines and sets their ban exempt flag accordingly.
 	 */
@@ -421,11 +421,11 @@ public:
 	 * @param type The type to look up
 	 * @return A list of all XLines of the given type.
 	 */
-	XLineLookup* GetAll(const std::string &type);
+	XLineLookup* GetAll(const std::string& type);
 
 	/** Remove all lines of a certain type.
 	 */
-	void DelAll(const std::string &type);
+	void DelAll(const std::string& type);
 
 	/** Return all known types of line currently stored by the XLineManager.
 	 * @return A vector containing all known line types currently stored in the main list.
@@ -471,21 +471,21 @@ public:
 	 * Returns NULL if there is no known handler for this xline type.
 	 * @param type The type of XLine you require the XLineFactory for
 	 */
-	XLineFactory* GetFactory(const std::string &type);
+	XLineFactory* GetFactory(const std::string& type);
 
 	/** Check if a user matches an XLine
 	 * @param type The type of line to look up
 	 * @param user The user to match against (what is checked is specific to the xline type)
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	XLine* MatchesLine(const std::string &type, User* user);
+	XLine* MatchesLine(const std::string& type, User* user);
 
 	/** Check if a pattern matches an XLine
 	 * @param type The type of line to look up
 	 * @param pattern A pattern string specific to the xline type
 	 * @return The matching XLine if there is a match, or NULL if there is no match
 	 */
-	XLine* MatchesLine(const std::string &type, const std::string &pattern);
+	XLine* MatchesLine(const std::string& type, const std::string& pattern);
 
 	/** Expire a line given two iterators which identify it in the main map.
 	 * @param container Iterator to the first level of entries the map

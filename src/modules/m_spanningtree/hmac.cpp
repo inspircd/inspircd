@@ -37,7 +37,7 @@ const std::string& TreeSocket::GetOurChallenge()
 	return capab->ourchallenge;
 }
 
-void TreeSocket::SetOurChallenge(const std::string &c)
+void TreeSocket::SetOurChallenge(const std::string& c)
 {
 	capab->ourchallenge = c;
 }
@@ -47,12 +47,12 @@ const std::string& TreeSocket::GetTheirChallenge()
 	return capab->theirchallenge;
 }
 
-void TreeSocket::SetTheirChallenge(const std::string &c)
+void TreeSocket::SetTheirChallenge(const std::string& c)
 {
 	capab->theirchallenge = c;
 }
 
-std::string TreeSocket::MakePass(const std::string &password, const std::string &challenge)
+std::string TreeSocket::MakePass(const std::string& password, const std::string& challenge)
 {
 	/* This is a simple (maybe a bit hacky?) HMAC algorithm, thanks to jilles for
 	 * suggesting the use of HMAC to secure the password against various attacks.
@@ -70,7 +70,7 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 	return password;
 }
 
-bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
+bool TreeSocket::ComparePass(const Link& link, const std::string& theirs)
 {
 	capab->auth_fingerprint = !link.Fingerprint.empty();
 	capab->auth_challenge = !capab->ourchallenge.empty() && !capab->theirchallenge.empty();

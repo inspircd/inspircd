@@ -294,13 +294,13 @@ public:
 	virtual void Prioritize();
 
 	/** Called when a user connects.
-	 * The details of the connecting user are available to you in the parameter User *user
+	 * The details of the connecting user are available to you in the parameter User* user
 	 * @param user The user who is connecting
 	 */
 	virtual void OnUserConnect(LocalUser* user);
 
 	/** Called when before a user quits.
-	 * The details of the exiting user are available to you in the parameter User *user
+	 * The details of the exiting user are available to you in the parameter User* user
 	 * This event is only called when the user is fully registered when they quit. To catch
 	 * raw disconnections, use the OnUserDisconnect method.
 	 * @param user The user who is quitting
@@ -310,17 +310,17 @@ public:
 	virtual ModResult OnUserPreQuit(LocalUser* user, std::string& message, std::string& oper_message);
 
 	/** Called when a user quits.
-	 * The details of the exiting user are available to you in the parameter User *user
+	 * The details of the exiting user are available to you in the parameter User* user
 	 * This event is only called when the user is fully registered when they quit. To catch
 	 * raw disconnections, use the OnUserDisconnect method.
 	 * @param user The user who is quitting
 	 * @param message The user's quit message (as seen by non-opers)
 	 * @param oper_message The user's quit message (as seen by opers)
 	 */
-	virtual void OnUserQuit(User* user, const std::string &message, const std::string &oper_message);
+	virtual void OnUserQuit(User* user, const std::string& message, const std::string& oper_message);
 
 	/** Called whenever a user's socket is closed.
-	 * The details of the exiting user are available to you in the parameter User *user
+	 * The details of the exiting user are available to you in the parameter User* user
 	 * This event is called for all users, registered or not, as a cleanup method for modules
 	 * which might assign resources to user, such as dns lookups, objects and sockets.
 	 * @param user The user who is disconnecting
@@ -331,7 +331,7 @@ public:
 	 * @param chan The channel being deleted
 	 * @return An integer specifying whether or not the channel may be deleted. 0 for yes, 1 for no.
 	 */
-	virtual ModResult OnChannelPreDelete(Channel *chan);
+	virtual ModResult OnChannelPreDelete(Channel* chan);
 
 	/** Called whenever a channel is deleted, either by QUIT, KICK or PART.
 	 * @param chan The channel being deleted
@@ -339,8 +339,8 @@ public:
 	virtual void OnChannelDelete(Channel* chan);
 
 	/** Called when a user joins a channel.
-	 * The details of the joining user are available to you in the parameter User *user,
-	 * and the details of the channel they have joined is available in the variable Channel *channel
+	 * The details of the joining user are available to you in the parameter User* user,
+	 * and the details of the channel they have joined is available in the variable Channel* channel
 	 * @param memb The channel membership being created
 	 * @param sync This is set to true if the JOIN is the result of a network sync and the remote user is being introduced
 	 * to a channel due to the network sync.
@@ -357,13 +357,13 @@ public:
 	virtual void OnPostJoin(Membership* memb);
 
 	/** Called when a user parts a channel.
-	 * The details of the leaving user are available to you in the parameter User *user,
-	 * and the details of the channel they have left is available in the variable Channel *channel
+	 * The details of the leaving user are available to you in the parameter User* user,
+	 * and the details of the channel they have left is available in the variable Channel* channel
 	 * @param memb The channel membership being destroyed
 	 * @param partmessage The part message, or an empty string (may be modified)
 	 * @param except_list A list of users to not send to.
 	 */
-	virtual void OnUserPart(Membership* memb, std::string &partmessage, CUList& except_list);
+	virtual void OnUserPart(Membership* memb, std::string& partmessage, CUList& except_list);
 
 	/** Called on rehash.
 	 * This method is called prior to a /REHASH or when a SIGHUP is received from the operating
@@ -375,7 +375,7 @@ public:
 	 * @param parameter The (optional) parameter given to REHASH from the user. Empty when server
 	 * initiated.
 	 */
-	virtual void OnPreRehash(User* user, const std::string &parameter);
+	virtual void OnPreRehash(User* user, const std::string& parameter);
 
 	/** Called on rehash.
 	 * This method is called when a user initiates a module-specific rehash. This can be used to do
@@ -385,7 +385,7 @@ public:
 	 * @param user The user performing the rehash.
 	 * @param parameter The parameter given to REHASH
 	 */
-	virtual void OnModuleRehash(User* user, const std::string &parameter);
+	virtual void OnModuleRehash(User* user, const std::string& parameter);
 
 	/** Called whenever a snotice is about to be sent to a snomask.
 	 * snomask and type may both be modified; the message may not.
@@ -394,7 +394,7 @@ public:
 	 * @param message The text message to be sent via snotice
 	 * @return 1 to block the snotice from being sent entirely, 0 else.
 	 */
-	virtual ModResult OnSendSnotice(char &snomask, std::string &type, const std::string &message);
+	virtual ModResult OnSendSnotice(char& snomask, std::string& type, const std::string& message);
 
 	/** Called whenever a user is about to join a channel, before any processing is done.
 	 * Returning a value of 1 from this function stops the process immediately, causing no
@@ -428,7 +428,7 @@ public:
 	 * @param reason The kick reason
 	 * @return 1 to prevent the kick, 0 to continue normally, -1 to explicitly allow the kick regardless of normal operation
 	 */
-	virtual ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason);
+	virtual ModResult OnUserPreKick(User* source, Membership* memb, const std::string& reason);
 
 	/** Called whenever a user is kicked.
 	 * If this method is called, the kick is already underway and cannot be prevented, so
@@ -438,7 +438,7 @@ public:
 	 * @param reason The kick reason
 	 * @param except_list A list of users to not send to.
 	 */
-	virtual void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& except_list);
+	virtual void OnUserKick(User* source, Membership* memb, const std::string& reason, CUList& except_list);
 
 	/** Called whenever a user opers locally.
 	 * The User will contain the oper mode 'o' as this function is called after any modifications
@@ -561,14 +561,14 @@ public:
 	 * @param extname The extension name which is being sent
 	 * @param extdata The extension data, encoded at the other end by an identical module
 	 */
-	virtual void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata);
+	virtual void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata);
 
 	/** Called whenever a user's hostname is changed.
 	 * This event triggers after the host has been set.
 	 * @param user The user whose host is being changed
 	 * @param newhost The new hostname being set
 	 */
-	virtual void OnChangeHost(User* user, const std::string &newhost);
+	virtual void OnChangeHost(User* user, const std::string& newhost);
 
 	/** Called whenever a user's real hostname is changed.
 	 * This event triggers before the host has been set.
@@ -595,7 +595,7 @@ public:
 	 * @param user The user who's IDENT is being changed
 	 * @param ident The new IDENT being set on the user
 	 */
-	virtual void OnChangeIdent(User* user, const std::string &ident);
+	virtual void OnChangeIdent(User* user, const std::string& ident);
 
 	/** Called whenever an xline is added by a local user.
 	 * This method is triggered after the line is added.
@@ -615,7 +615,7 @@ public:
 	 * This method is triggered after the line is deleted.
 	 * @param line The line being deleted.
 	 */
-	virtual void OnExpireLine(XLine *line);
+	virtual void OnExpireLine(XLine* line);
 
 	/** Called before the module is unloaded to clean up extensibles.
 	 * This method is called once for every channel, membership, and user.
@@ -634,7 +634,7 @@ public:
 	 * @param user The user changing their nick
 	 * @param oldnick The old nickname of the user before the nickchange
 	 */
-	virtual void OnUserPostNick(User* user, const std::string &oldnick);
+	virtual void OnUserPostNick(User* user, const std::string& oldnick);
 
 	/** Called before a mode change via the MODE command, to allow a single access check for
 	 * a full mode change (use OnRawMode to check individual modes)
@@ -662,7 +662,7 @@ public:
 	 * @param reason The kill reason
 	 * @return 1 to prevent the kill, 0 to allow
 	 */
-	virtual ModResult OnKill(User* source, User* dest, const std::string &reason);
+	virtual ModResult OnKill(User* source, User* dest, const std::string& reason);
 
 	/** Called whenever a module is loaded.
 	 * mod will contain a pointer to the module, and string will contain its name,
@@ -804,7 +804,7 @@ public:
 	 * @param keygiven The key given on joining the channel.
 	 * @return 1 to explicitly allow the join, 0 to proceed as normal
 	 */
-	virtual ModResult OnCheckKey(User* user, Channel* chan, const std::string &keygiven);
+	virtual ModResult OnCheckKey(User* user, Channel* chan, const std::string& keygiven);
 
 	/** Called whenever a user joins a channel, to determine if channel limit checks should go ahead or not.
 	 * This method will always be called for each join, whether or not the channel is actually +l, and
@@ -841,7 +841,7 @@ public:
 	 * @param newhost The new hostname
 	 * @return 1 to deny the host change, 0 to allow
 	 */
-	virtual ModResult OnPreChangeHost(LocalUser* user, const std::string &newhost);
+	virtual ModResult OnPreChangeHost(LocalUser* user, const std::string& newhost);
 
 	/** Called whenever a change of a local users real name is attempted.
 	 * return MOD_RES_DENY to deny the name change, or MOD_RES_ALLOW to allow it.
@@ -849,7 +849,7 @@ public:
 	 * @param newhost The new real name.
 	 * @return MOD_RES_DENY to deny the real name change, MOD_RES_ALLOW to allow
 	 */
-	virtual ModResult OnPreChangeRealName(LocalUser* user, const std::string &newhost);
+	virtual ModResult OnPreChangeRealName(LocalUser* user, const std::string& newhost);
 
 	/** Called before a topic is changed.
 	 * Return 1 to deny the topic change, 0 to check details on the change, -1 to let it through with no checks
@@ -859,7 +859,7 @@ public:
 	 * @param topic The actual topic text
 	 * @return 1 to block the topic change, 0 to allow
 	 */
-	virtual ModResult OnPreTopicChange(User* user, Channel* chan, const std::string &topic);
+	virtual ModResult OnPreTopicChange(User* user, Channel* chan, const std::string& topic);
 
 	/** Called whenever a topic has been changed.
 	 * To block topic changes you must use OnPreTopicChange instead.
@@ -867,7 +867,7 @@ public:
 	 * @param chan The channels who's topic is being changed
 	 * @param topic The actual topic text
 	 */
-	virtual void OnPostTopicChange(User* user, Channel* chan, const std::string &topic);
+	virtual void OnPostTopicChange(User* user, Channel* chan, const std::string& topic);
 
 	/** Called whenever a password check is to be made. Replaces the old OldOperCompare API.
 	 * The password field (from the config file) is in 'password' and is to be compared against
@@ -879,7 +879,7 @@ public:
 	 * @param hashtype The hash value from the config
 	 * @return 0 to do nothing (pass on to next module/default), 1 == password is OK, -1 == password is not OK
 	 */
-	virtual ModResult OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype);
+	virtual ModResult OnPassCompare(Extensible* ex, const std::string& password, const std::string& input, const std::string& hashtype);
 
 	/** Called after a user has fully connected and all modules have executed OnUserConnect
 	 * This event is informational only. You should not change any user information in this
@@ -1126,7 +1126,7 @@ public:
 	 * @param name The module name to look up
 	 * @return A pointer to the module, or NULL if the module cannot be found
 	 */
-	Module* Find(const std::string &name);
+	Module* Find(const std::string& name);
 
 	/** Register a service provided by a module */
 	void AddService(ServiceProvider&);

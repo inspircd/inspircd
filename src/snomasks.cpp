@@ -35,13 +35,13 @@ void SnomaskManager::FlushSnotices()
 		mask.Flush();
 }
 
-void SnomaskManager::EnableSnomask(char letter, const std::string &type)
+void SnomaskManager::EnableSnomask(char letter, const std::string& type)
 {
 	if (letter >= 'a' && letter <= 'z')
 		masks[letter - 'a'].Description = type;
 }
 
-void SnomaskManager::WriteToSnoMask(char letter, const std::string &text)
+void SnomaskManager::WriteToSnoMask(char letter, const std::string& text)
 {
 	if (letter >= 'a' && letter <= 'z')
 		masks[letter - 'a'].SendMessage(text, letter);

@@ -82,7 +82,7 @@ public:
 
 			/* Check if the parameter is a valid nick/uuid
 			 */
-			User *u = ServerInstance->Users.Find(change.param);
+			User* u = ServerInstance->Users.Find(change.param);
 			if (u)
 			{
 				Membership* memb = chan->GetUser(u);
@@ -102,7 +102,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnKill(User* src, User* dst, const std::string &reason) override
+	ModResult OnKill(User* src, User* dst, const std::string& reason) override
 	{
 		if (!src)
 			return MOD_RES_PASSTHRU;
@@ -116,7 +116,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreKick(User *src, Membership* memb, const std::string &reason) override
+	ModResult OnUserPreKick(User* src, Membership* memb, const std::string& reason) override
 	{
 		if (memb->user->IsModeSet(bm))
 		{

@@ -516,7 +516,7 @@ public:
 	 * @param other The other user to compare the channel list against
 	 * @return True if the given user shares at least one channel with this user
 	 */
-	bool SharesChannelWith(User *other);
+	bool SharesChannelWith(User* other);
 
 	/** Change the displayed hostname of this user.
 	 * @param host The new displayed hostname of this user.
@@ -583,7 +583,7 @@ public:
 	 * sendq value, the user will be removed, and further buffer adds will be dropped.
 	 * @param data The data to add to the write buffer
 	 */
-	void AddWriteBuf(const std::string &data);
+	void AddWriteBuf(const std::string& data);
 };
 
 class CoreExport LocalUser final
@@ -697,7 +697,7 @@ public:
 	/** Set the connect class to which this user belongs to.
 	 * @param explicit_name Set this string to tie the user to a specific class name. Otherwise, the class is fitted by checking \<connect> tags from the configuration file.
 	 */
-	void SetClass(const std::string &explicit_name = "");
+	void SetClass(const std::string& explicit_name = "");
 
 	/** @copydoc User::ChangeRemoteAddress */
 	void ChangeRemoteAddress(const irc::sockets::sockaddrs& sa) override;

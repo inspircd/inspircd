@@ -65,7 +65,7 @@ public:
 		logstreams.swap(newlogs);
 	}
 
-	ModResult OnSendSnotice(char &sno, std::string &desc, const std::string &msg) override
+	ModResult OnSendSnotice(char& sno, std::string& desc, const std::string& msg) override
 	{
 		auto channels = insp::equal_range(logstreams, sno);
 		if (channels.empty())

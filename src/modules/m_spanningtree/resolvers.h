@@ -44,8 +44,8 @@ private:
 	bool CheckIPv4();
 public:
 	SecurityIPResolver(Module* me, DNS::Manager* mgr, const std::string& hostname, std::shared_ptr<Link> x, DNS::QueryType qt);
-	void OnLookupComplete(const DNS::Query *r) override;
-	void OnError(const DNS::Query *q) override;
+	void OnLookupComplete(const DNS::Query* r) override;
+	void OnError(const DNS::Query* q) override;
 };
 
 /** This class is used to resolve server hostnames during /connect and autoconnect.
@@ -64,6 +64,6 @@ private:
 	std::shared_ptr<Autoconnect> myautoconnect;
 public:
 	ServernameResolver(DNS::Manager* mgr, const std::string& hostname, std::shared_ptr<Link> x, DNS::QueryType qt, std::shared_ptr<Autoconnect> myac);
-	void OnLookupComplete(const DNS::Query *r) override;
-	void OnError(const DNS::Query *q) override;
+	void OnLookupComplete(const DNS::Query* r) override;
+	void OnError(const DNS::Query* q) override;
 };

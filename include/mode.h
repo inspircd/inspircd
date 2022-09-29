@@ -89,7 +89,7 @@ class ParamModeBase;
  * set by a user, the virtual function OnModeChange is
  * called. If you specify a value greater than 0 for
  * parameters_on or parameters_off, then when the mode is
- * set or unset respectively, std::string &parameter will
+ * set or unset respectively, std::string& parameter will
  * contain the parameter given by the user, else it will
  * contain an empty string. You may alter this parameter
  * string, and if you alter it to an empty string, and your
@@ -681,7 +681,7 @@ public:
 	 *
 	 * This method can be used on both IPV4 and IPV6 user masks.
 	 */
-	static void CleanMask(std::string &mask);
+	static void CleanMask(std::string& mask);
 
 	/** Gets the last mode change to be processed. */
 	const Modes::ChangeList& GetLastChangeList() const { return LastChangeList; }

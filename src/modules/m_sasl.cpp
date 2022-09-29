@@ -210,7 +210,7 @@ public:
 		SendSASL(user, "*", 'S', params);
 	}
 
-	static SaslResult GetSaslResult(const std::string &result_)
+	static SaslResult GetSaslResult(const std::string& result_)
 	{
 		if (result_ == "F")
 			return SASL_FAIL;
@@ -347,7 +347,7 @@ public:
 				return CmdResult::FAILURE;
 			}
 
-			SaslAuthenticator *sasl = authExt.Get(user);
+			SaslAuthenticator* sasl = authExt.Get(user);
 			if (!sasl)
 				authExt.SetFwd(user, user, parameters[0], sslapi);
 			else if (!sasl->SendClientMessage(parameters))
@@ -379,7 +379,7 @@ public:
 			return CmdResult::FAILURE;
 		}
 
-		SaslAuthenticator *sasl = authExt.Get(target);
+		SaslAuthenticator* sasl = authExt.Get(target);
 		if (!sasl)
 			return CmdResult::FAILURE;
 

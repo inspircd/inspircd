@@ -71,7 +71,7 @@ public:
 	 * @param ts The creation time of the channel
 	 * @throw CoreException if this channel name is in use
 	 */
-	Channel(const std::string &name, time_t ts);
+	Channel(const std::string& name, time_t ts);
 
 	/** Checks whether the channel should be destroyed, and if yes, begins
 	 * the teardown procedure.

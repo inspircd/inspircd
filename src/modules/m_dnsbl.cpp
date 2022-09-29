@@ -190,7 +190,7 @@ private:
 	}
 
 public:
-	DNSBLResolver(DNS::Manager *mgr, Module *me, StringExtItem& match, IntExtItem& ctr, const std::string &hostname, LocalUser* u, std::shared_ptr<DNSBLEntry> conf)
+	DNSBLResolver(DNS::Manager* mgr, Module* me, StringExtItem& match, IntExtItem& ctr, const std::string& hostname, LocalUser* u, std::shared_ptr<DNSBLEntry> conf)
 		: DNS::Request(mgr, me, hostname, DNS::QUERY_A, true, conf->timeout)
 		, theirsa(u->client_sa)
 		, theiruid(u->uuid)
@@ -201,7 +201,7 @@ public:
 	}
 
 	/* Note: This may be called multiple times for multiple A record results */
-	void OnLookupComplete(const DNS::Query *r) override
+	void OnLookupComplete(const DNS::Query* r) override
 	{
 		/* Check the user still exists */
 		LocalUser* them = IS_LOCAL(ServerInstance->Users.FindUUID(theiruid));
@@ -320,7 +320,7 @@ public:
 			ConfEntry->stats_misses++;
 	}
 
-	void OnError(const DNS::Query *q) override
+	void OnError(const DNS::Query* q) override
 	{
 		bool is_miss = true;
 		switch (q->error)
@@ -444,7 +444,7 @@ public:
 			std::string hostname = reversedip + "." + dnsbl->domain;
 
 			/* now we'd need to fire off lookups for `hostname'. */
-			DNSBLResolver *r = new DNSBLResolver(*this->DNS, this, nameExt, countExt, hostname, user, dnsbl);
+			DNSBLResolver* r = new DNSBLResolver(*this->DNS, this, nameExt, countExt, hostname, user, dnsbl);
 			try
 			{
 				this->DNS->Process(r);
@@ -484,7 +484,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckReady(LocalUser *user) override
+	ModResult OnCheckReady(LocalUser* user) override
 	{
 		if (countExt.Get(user))
 			return MOD_RES_DENY;

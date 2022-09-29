@@ -87,7 +87,7 @@ public:
 	unsigned long PingWarnTime;
 	/** This variable represents the root of the server tree
 	 */
-	TreeServer *TreeRoot = nullptr;
+	TreeServer* TreeRoot = nullptr;
 	/** IPs allowed to link to us
 	 */
 	std::vector<std::string> ValidIPs;
@@ -147,11 +147,11 @@ public:
 
 	/** Find a server by name or SID
 	 */
-	TreeServer* FindServer(const std::string &ServerName);
+	TreeServer* FindServer(const std::string& ServerName);
 
 	/** Find server by SID
 	 */
-	TreeServer* FindServerID(const std::string &id);
+	TreeServer* FindServerID(const std::string& id);
 
 	/** Find a server based on a target string.
 	 * @param target Target string where a command should be routed to. May be a server name, a sid, a nickname or a uuid.
@@ -160,7 +160,7 @@ public:
 
 	/** Find a server by glob mask
 	 */
-	TreeServer* FindServerMask(const std::string &ServerName);
+	TreeServer* FindServerMask(const std::string& ServerName);
 
 	/** Find a link tag from a server name
 	 */

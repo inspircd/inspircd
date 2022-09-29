@@ -146,12 +146,12 @@ public:
 		}
 	}
 
-	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts) override
+	void OnUserPart(Membership* memb, std::string& partmessage, CUList& excepts) override
 	{
 		BuildExcept(memb, excepts);
 	}
 
-	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts) override
+	void OnUserKick(User* source, Membership* memb, const std::string& reason, CUList& excepts) override
 	{
 		BuildExcept(memb, excepts);
 	}

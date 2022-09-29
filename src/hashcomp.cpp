@@ -154,7 +154,7 @@ bool irc::insensitive_swo::operator()(const std::string& a, const std::string& b
 	return (asize < bsize);
 }
 
-size_t irc::insensitive::operator()(const std::string &s) const
+size_t irc::insensitive::operator()(const std::string& s) const
 {
 	/* XXX: NO DATA COPIES! :)
 	 * The hash function here is practically
@@ -224,7 +224,7 @@ irc::sepstream::sepstream(const std::string& source, char separator, bool allowe
 {
 }
 
-bool irc::sepstream::GetToken(std::string &token)
+bool irc::sepstream::GetToken(std::string& token)
 {
 	if (this->StreamEnd())
 	{
@@ -273,7 +273,7 @@ bool irc::sepstream::Contains(const std::string& value)
 	return false;
 }
 
-irc::portparser::portparser(const std::string &source, bool allow_overlapped)
+irc::portparser::portparser(const std::string& source, bool allow_overlapped)
 	: sep(source), in_range(0), range_begin(0), range_end(0), overlapped(allow_overlapped)
 {
 }

@@ -95,7 +95,7 @@ public:
 	{
 	}
 
-	void OnPostJoin(Membership *memb) override
+	void OnPostJoin(Membership* memb) override
 	{
 		if (!IS_LOCAL(memb->user))
 			return;

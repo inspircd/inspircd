@@ -129,7 +129,7 @@ public:
 		ValidateChans();
 	}
 
-	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& except_list) override
+	void OnUserKick(User* source, Membership* memb, const std::string& reason, CUList& except_list) override
 	{
 		if (badchan)
 		{

@@ -94,7 +94,7 @@ void Module::DetachEvent(Implementation i)
 void		Module::GetLinkData(LinkData&, std::string&) { }
 void		Module::Prioritize() { }
 void		Module::ReadConfig(ConfigStatus& status) { }
-ModResult	Module::OnSendSnotice(char &snomask, std::string &type, const std::string &message) { DetachEvent(I_OnSendSnotice); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnSendSnotice(char& snomask, std::string& type, const std::string& message) { DetachEvent(I_OnSendSnotice); return MOD_RES_PASSTHRU; }
 void		Module::OnUserConnect(LocalUser*) { DetachEvent(I_OnUserConnect); }
 ModResult	Module::OnUserPreQuit(LocalUser*, std::string&, std::string&) { DetachEvent(I_OnUserPreQuit); return MOD_RES_PASSTHRU; }
 void		Module::OnUserQuit(User*, const std::string&, const std::string&) { DetachEvent(I_OnUserQuit); }
@@ -136,7 +136,7 @@ ModResult	Module::OnCheckBan(User*, Channel*, const std::string&) { DetachEvent(
 ModResult	Module::OnPreChangeHost(LocalUser*, const std::string&) { DetachEvent(I_OnPreChangeHost); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnPreChangeRealName(LocalUser*, const std::string&) { DetachEvent(I_OnPreChangeRealName); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnPreTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPreTopicChange); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { DetachEvent(I_OnPassCompare); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnPassCompare(Extensible* ex, const std::string& password, const std::string& input, const std::string& hashtype) { DetachEvent(I_OnPassCompare); return MOD_RES_PASSTHRU; }
 void		Module::OnPostConnect(User*) { DetachEvent(I_OnPostConnect); }
 void		Module::OnUserPostMessage(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserPostMessage); }
 void		Module::OnUserMessageBlocked(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserMessageBlocked); }
@@ -729,7 +729,7 @@ void dynamic_reference_base::resolve()
 		value = nullptr;
 }
 
-Module* ModuleManager::Find(const std::string &name)
+Module* ModuleManager::Find(const std::string& name)
 {
 	std::map<std::string, Module*>::const_iterator modfind = Modules.find(ExpandModName(name));
 

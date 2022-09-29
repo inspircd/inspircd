@@ -133,7 +133,7 @@ public:
 		Module* disable = ServerInstance->Modules.Find("disable");
 		ServerInstance->Modules.SetPriority(this, I_OnRawMode, PRIORITY_BEFORE, disable);
 
-		Module *override = ServerInstance->Modules.Find("override");
+		Module* override = ServerInstance->Modules.Find("override");
 		ServerInstance->Modules.SetPriority(this, I_OnPreMode, PRIORITY_BEFORE, override);
 	}
 };

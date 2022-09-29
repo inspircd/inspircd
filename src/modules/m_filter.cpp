@@ -224,15 +224,15 @@ public:
 	void init() override;
 	Cullable::Result Cull() override;
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override;
-	const FilterResult* FilterMatch(User* user, const std::string &text, int flags);
+	const FilterResult* FilterMatch(User* user, const std::string& text, int flags);
 	bool DeleteFilter(const std::string& freeform, std::string& reason);
 	std::pair<bool, std::string> AddFilter(const std::string& freeform, FilterAction type, const std::string& reason, unsigned long duration, const std::string& flags, bool config = false);
 	void ReadConfig(ConfigStatus& status) override;
 	void GetLinkData(LinkData& data, std::string& compatdata) override;
 	static std::string EncodeFilter(const FilterResult& filter);
-	FilterResult DecodeFilter(const std::string &data);
+	FilterResult DecodeFilter(const std::string& data);
 	void OnSyncNetwork(ProtocolInterface::Server& server) override;
-	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata) override;
+	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata) override;
 	ModResult OnStats(Stats::Context& stats) override;
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override;
 	void OnUnloadModule(Module* mod) override;
@@ -698,7 +698,7 @@ std::string ModuleFilter::EncodeFilter(const FilterResult& filter)
 	return stream.str();
 }
 
-FilterResult ModuleFilter::DecodeFilter(const std::string &data)
+FilterResult ModuleFilter::DecodeFilter(const std::string& data)
 {
 	std::string filteraction;
 	FilterResult res;
@@ -740,7 +740,7 @@ void ModuleFilter::OnSyncNetwork(ProtocolInterface::Server& server)
 	}
 }
 
-void ModuleFilter::OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
+void ModuleFilter::OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata)
 {
 	if (!target && irc::equals(extname, "filter"))
 	{
@@ -756,7 +756,7 @@ void ModuleFilter::OnDecodeMetaData(Extensible* target, const std::string &extna
 	}
 }
 
-const FilterResult* ModuleFilter::FilterMatch(User* user, const std::string &text, int flgs)
+const FilterResult* ModuleFilter::FilterMatch(User* user, const std::string& text, int flgs)
 {
 	static std::string stripped_text;
 	stripped_text.clear();

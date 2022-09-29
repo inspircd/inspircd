@@ -290,7 +290,7 @@ public:
 	 * @param type The type of message that is being logged.
 	 * @param format A format string to format and then log.
 	 * */
-	inline void Warning(const std::string& type, const char *format, ...) ATTR_NOT_NULL(3) ATTR_PRINTF(3, 4)
+	inline void Warning(const std::string& type, const char* format, ...) ATTR_NOT_NULL(3) ATTR_PRINTF(3, 4)
 	{
 		va_list args;
 		va_start(args, format);
@@ -311,7 +311,7 @@ public:
 	 * @param type The type of message that is being logged.
 	 * @param format A format string to format and then log.
 	 * */
-	inline void Normal(const std::string& type, const char *format, ...) ATTR_NOT_NULL(3) ATTR_PRINTF(3, 4)
+	inline void Normal(const std::string& type, const char* format, ...) ATTR_NOT_NULL(3) ATTR_PRINTF(3, 4)
 	{
 		va_list args;
 		va_start(args, format);
@@ -331,7 +331,7 @@ public:
 	 * @param type The type of message that is being logged.
 	 * @param format A format string to format and then log.
 	 * */
-	inline void Debug(const std::string& type, const char *format, ...) ATTR_NOT_NULL(3) ATTR_PRINTF(3, 4)
+	inline void Debug(const std::string& type, const char* format, ...) ATTR_NOT_NULL(3) ATTR_PRINTF(3, 4)
 	{
 		va_list args;
 		va_start(args, format);
@@ -352,7 +352,7 @@ public:
 	 * @param type The type of message that is being logged.
 	 * @param format A format string to format and then log.
 	 * */
-	inline void RawIO(const std::string& type, const char *format, ...) ATTR_NOT_NULL(3) ATTR_PRINTF(3, 4)
+	inline void RawIO(const std::string& type, const char* format, ...) ATTR_NOT_NULL(3) ATTR_PRINTF(3, 4)
 	{
 		va_list args;
 		va_start(args, format);

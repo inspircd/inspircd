@@ -135,7 +135,7 @@ public:
 	 * after they have registered.
 	 * @param user The user to remove
 	 */
-	void RemoveCloneCounts(User *user);
+	void RemoveCloneCounts(User* user);
 
 	/** Rebuild clone counts. Required when \<cidr> settings change.
 	 */

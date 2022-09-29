@@ -392,7 +392,7 @@ void TreeSocket::SendCapabilities(int phase)
 }
 
 /* Isolate and return the elements that are different between two comma separated lists */
-void TreeSocket::ListDifference(const std::string &one, const std::string &two, char sep,
+void TreeSocket::ListDifference(const std::string& one, const std::string& two, char sep,
 		std::string& mleft, std::string& mright)
 {
 	std::set<std::string> values;

@@ -55,7 +55,7 @@ ModResult ModuleSpanningTree::OnAcceptConnection(int newsock, ListenSocket* from
 	return MOD_RES_DENY;
 }
 
-TreeServer* SpanningTreeUtilities::FindServer(const std::string &ServerName)
+TreeServer* SpanningTreeUtilities::FindServer(const std::string& ServerName)
 {
 	if (InspIRCd::IsSID(ServerName))
 		return this->FindServerID(ServerName);
@@ -74,7 +74,7 @@ TreeServer* SpanningTreeUtilities::FindServer(const std::string &ServerName)
 /** Find the first server matching a given glob mask.
  * We iterate over the list and match each one until we get a hit.
  */
-TreeServer* SpanningTreeUtilities::FindServerMask(const std::string &ServerName)
+TreeServer* SpanningTreeUtilities::FindServerMask(const std::string& ServerName)
 {
 	for (const auto& [name, server] : serverlist)
 	{
@@ -84,7 +84,7 @@ TreeServer* SpanningTreeUtilities::FindServerMask(const std::string &ServerName)
 	return nullptr;
 }
 
-TreeServer* SpanningTreeUtilities::FindServerID(const std::string &id)
+TreeServer* SpanningTreeUtilities::FindServerID(const std::string& id)
 {
 	server_hash::iterator iter = sidlist.find(id);
 	if (iter != sidlist.end())

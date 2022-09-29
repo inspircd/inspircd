@@ -717,7 +717,7 @@ bool ConfigTag::getBool(const std::string& key, bool def) const
 	return def;
 }
 
-unsigned char ConfigTag::getCharacter(const std::string &key, unsigned char def) const
+unsigned char ConfigTag::getCharacter(const std::string& key, unsigned char def) const
 {
 	std::string result;
 	if (!readString(key, result) || result.size() != 1)

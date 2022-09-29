@@ -146,7 +146,7 @@ public:
  *  bans. :)
  */
 
-bool XLine::Matches(User *u)
+bool XLine::Matches(User* u)
 {
 	return false;
 }
@@ -178,7 +178,7 @@ void XLineManager::CheckELines()
 			safei = i;
 			safei++;
 
-			XLine *e = i->second;
+			XLine* e = i->second;
 			if ((!e->duration || ServerInstance->Time() < e->expiry) && e->Matches(u))
 				u->exempt = true;
 
@@ -187,7 +187,7 @@ void XLineManager::CheckELines()
 	}
 }
 
-XLineLookup* XLineManager::GetAll(const std::string &type)
+XLineLookup* XLineManager::GetAll(const std::string& type)
 {
 	ContainerIter n = lookup_lines.find(type);
 
@@ -212,7 +212,7 @@ XLineLookup* XLineManager::GetAll(const std::string &type)
 	return &(n->second);
 }
 
-void XLineManager::DelAll(const std::string &type)
+void XLineManager::DelAll(const std::string& type)
 {
 	ContainerIter n = lookup_lines.find(type);
 
@@ -236,7 +236,7 @@ std::vector<std::string> XLineManager::GetAllTypes()
 	return items;
 }
 
-IdentHostPair XLineManager::IdentSplit(const std::string &ident_and_host)
+IdentHostPair XLineManager::IdentSplit(const std::string& ident_and_host)
 {
 	IdentHostPair n = std::make_pair<std::string,std::string>("*","*");
 	std::string::size_type x = ident_and_host.find('@');
@@ -357,7 +357,7 @@ void ELine::Unset()
 
 // returns a pointer to the reason if a nickname matches a Q-line, NULL if it didn't match
 
-XLine* XLineManager::MatchesLine(const std::string &type, User* user)
+XLine* XLineManager::MatchesLine(const std::string& type, User* user)
 {
 	ContainerIter x = lookup_lines.find(type);
 
@@ -391,7 +391,7 @@ XLine* XLineManager::MatchesLine(const std::string &type, User* user)
 	return nullptr;
 }
 
-XLine* XLineManager::MatchesLine(const std::string &type, const std::string &pattern)
+XLine* XLineManager::MatchesLine(const std::string& type, const std::string& pattern)
 {
 	ContainerIter x = lookup_lines.find(type);
 
@@ -546,7 +546,7 @@ bool XLine::IsBurstable()
 	return !from_config;
 }
 
-void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
+void XLine::DefaultApply(User* u, const std::string& line, bool bancache)
 {
 	const std::string banReason = line + "-lined: " + reason;
 
@@ -565,7 +565,7 @@ void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 	}
 }
 
-bool KLine::Matches(User *u)
+bool KLine::Matches(User* u)
 {
 	LocalUser* lu = IS_LOCAL(u);
 	if (lu && lu->exempt)
@@ -588,7 +588,7 @@ void KLine::Apply(User* u)
 	DefaultApply(u, "K", this->identmask ==  "*");
 }
 
-bool GLine::Matches(User *u)
+bool GLine::Matches(User* u)
 {
 	LocalUser* lu = IS_LOCAL(u);
 	if (lu && lu->exempt)
@@ -611,7 +611,7 @@ void GLine::Apply(User* u)
 	DefaultApply(u, "G", this->identmask == "*");
 }
 
-bool ELine::Matches(User *u)
+bool ELine::Matches(User* u)
 {
 	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
 	{
@@ -625,7 +625,7 @@ bool ELine::Matches(User *u)
 	return false;
 }
 
-bool ZLine::Matches(User *u)
+bool ZLine::Matches(User* u)
 {
 	LocalUser* lu = IS_LOCAL(u);
 	if (lu && lu->exempt)
@@ -639,7 +639,7 @@ void ZLine::Apply(User* u)
 	DefaultApply(u, "Z", true);
 }
 
-bool QLine::Matches(User *u)
+bool QLine::Matches(User* u)
 {
 	return InspIRCd::Match(u->nick, this->nick);
 }
@@ -651,27 +651,27 @@ void QLine::Apply(User* u)
 	u->ChangeNick(u->uuid);
 }
 
-bool ZLine::Matches(const std::string &str)
+bool ZLine::Matches(const std::string& str)
 {
 	return InspIRCd::MatchCIDR(str, this->ipaddr);
 }
 
-bool QLine::Matches(const std::string &str)
+bool QLine::Matches(const std::string& str)
 {
 	return InspIRCd::Match(str, this->nick);
 }
 
-bool ELine::Matches(const std::string &str)
+bool ELine::Matches(const std::string& str)
 {
 	return InspIRCd::MatchCIDR(str, matchtext);
 }
 
-bool KLine::Matches(const std::string &str)
+bool KLine::Matches(const std::string& str)
 {
 	return InspIRCd::MatchCIDR(str, matchtext);
 }
 
-bool GLine::Matches(const std::string &str)
+bool GLine::Matches(const std::string& str)
 {
 	return InspIRCd::MatchCIDR(str, matchtext);
 }
@@ -747,7 +747,7 @@ bool XLineManager::UnregisterFactory(XLineFactory* xlf)
 	return true;
 }
 
-XLineFactory* XLineManager::GetFactory(const std::string &type)
+XLineFactory* XLineManager::GetFactory(const std::string& type)
 {
 	XLineFactMap::iterator n = line_factory.find(type);
 

@@ -139,8 +139,8 @@ public:
 	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) override;
 	void OnUserJoin(Membership*, bool, bool, CUList&) override;
 	void CleanUser(User* user);
-	void OnUserPart(Membership*, std::string &partmessage, CUList&) override;
-	void OnUserKick(User* source, Membership*, const std::string &reason, CUList&) override;
+	void OnUserPart(Membership*, std::string& partmessage, CUList&) override;
+	void OnUserKick(User* source, Membership*, const std::string& reason, CUList&) override;
 	void OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception) override;
 	void OnUserMessage(User* user, const MessageTarget& target, const MessageDetails& details) override;
 	void OnUserTagMessage(User* user, const MessageTarget& target, const CTCTags::TagMessageDetails& details) override;
@@ -183,12 +183,12 @@ void ModuleDelayJoin::OnUserJoin(Membership* memb, bool sync, bool created, CULi
 		unjoined.Set(memb, ServerInstance->Time());
 }
 
-void ModuleDelayJoin::OnUserPart(Membership* memb, std::string &partmessage, CUList& except)
+void ModuleDelayJoin::OnUserPart(Membership* memb, std::string& partmessage, CUList& except)
 {
 	PopulateExcepts(except, memb);
 }
 
-void ModuleDelayJoin::OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& except)
+void ModuleDelayJoin::OnUserKick(User* source, Membership* memb, const std::string& reason, CUList& except)
 {
 	PopulateExcepts(except, memb);
 }

@@ -156,7 +156,7 @@ public:
 		if (res == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 
-		floodsettings *f = mf.ext.Get(dest);
+		floodsettings* f = mf.ext.Get(dest);
 		if (f)
 		{
 			if (f->addmessage(user, weight))

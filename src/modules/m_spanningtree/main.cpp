@@ -403,7 +403,7 @@ ModResult ModuleSpanningTree::OnPreTopicChange(User* user, Channel* chan, const 
 	return MOD_RES_PASSTHRU;
 }
 
-void ModuleSpanningTree::OnPostTopicChange(User* user, Channel* chan, const std::string &topic)
+void ModuleSpanningTree::OnPostTopicChange(User* user, Channel* chan, const std::string& topic)
 {
 	// Drop remote events on the floor.
 	if (!IS_LOCAL(user))
@@ -572,7 +572,7 @@ void ModuleSpanningTree::OnChangeRealName(User* user, const std::string& real)
 	CmdBuilder(user, "FNAME").push_last(real).Broadcast();
 }
 
-void ModuleSpanningTree::OnChangeIdent(User* user, const std::string &ident)
+void ModuleSpanningTree::OnChangeIdent(User* user, const std::string& ident)
 {
 	if ((user->registered != REG_ALL) || (!IS_LOCAL(user)))
 		return;
@@ -580,7 +580,7 @@ void ModuleSpanningTree::OnChangeIdent(User* user, const std::string &ident)
 	CmdBuilder(user, "FIDENT").push(ident).Broadcast();
 }
 
-void ModuleSpanningTree::OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts)
+void ModuleSpanningTree::OnUserPart(Membership* memb, std::string& partmessage, CUList& excepts)
 {
 	if (IS_LOCAL(memb->user))
 	{
@@ -592,7 +592,7 @@ void ModuleSpanningTree::OnUserPart(Membership* memb, std::string &partmessage, 
 	}
 }
 
-void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
+void ModuleSpanningTree::OnUserQuit(User* user, const std::string& reason, const std::string& oper_message)
 {
 	if (IS_LOCAL(user))
 	{
@@ -619,7 +619,7 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const
 	TreeServer::Get(user)->UserCount--;
 }
 
-void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
+void ModuleSpanningTree::OnUserPostNick(User* user, const std::string& oldnick)
 {
 	if (IS_LOCAL(user))
 	{
@@ -635,7 +635,7 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 	}
 }
 
-void ModuleSpanningTree::OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts)
+void ModuleSpanningTree::OnUserKick(User* source, Membership* memb, const std::string& reason, CUList& excepts)
 {
 	if ((!IS_LOCAL(source)) && (source != ServerInstance->FakeClient))
 		return;
@@ -650,7 +650,7 @@ void ModuleSpanningTree::OnUserKick(User* source, Membership* memb, const std::s
 	params.Broadcast();
 }
 
-void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
+void ModuleSpanningTree::OnPreRehash(User* user, const std::string& parameter)
 {
 	ServerInstance->Logs.Debug(MODNAME, "OnPreRehash called with param %s", parameter.c_str());
 
@@ -782,7 +782,7 @@ void ModuleSpanningTree::OnOper(User* user)
 	CommandOpertype::Builder(user).Broadcast();
 }
 
-void ModuleSpanningTree::OnAddLine(User* user, XLine *x)
+void ModuleSpanningTree::OnAddLine(User* user, XLine* x)
 {
 	if (!x->IsBurstable() || loopCall || (user && !IS_LOCAL(user)))
 		return;
@@ -793,7 +793,7 @@ void ModuleSpanningTree::OnAddLine(User* user, XLine *x)
 	CommandAddLine::Builder(x, user).Broadcast();
 }
 
-void ModuleSpanningTree::OnDelLine(User* user, XLine *x)
+void ModuleSpanningTree::OnDelLine(User* user, XLine* x)
 {
 	if (!x->IsBurstable() || loopCall || (user && !IS_LOCAL(user)))
 		return;

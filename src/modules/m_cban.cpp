@@ -127,7 +127,7 @@ public:
 				return CmdResult::FAILURE;
 			}
 
-			const char *reason = (parameters.size() > 2) ? parameters[2].c_str() : "No reason supplied";
+			const char* reason = (parameters.size() > 2) ? parameters[2].c_str() : "No reason supplied";
 			auto r = new CBan(ServerInstance->Time(), duration, user->nick, reason, parameters[0]);
 			if (ServerInstance->XLines->AddLine(r, user))
 			{
@@ -193,7 +193,7 @@ public:
 		if (override)
 			return MOD_RES_PASSTHRU;
 
-		XLine *rl = ServerInstance->XLines->MatchesLine("CBAN", cname);
+		XLine* rl = ServerInstance->XLines->MatchesLine("CBAN", cname);
 		if (rl)
 		{
 			// Channel is banned.

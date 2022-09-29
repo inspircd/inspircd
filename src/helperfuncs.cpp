@@ -36,7 +36,7 @@
 #include "inspircd.h"
 #include "xline.h"
 
-bool InspIRCd::IsValidMask(const std::string &mask)
+bool InspIRCd::IsValidMask(const std::string& mask)
 {
 	const char* dest = mask.c_str();
 	int exclamation = 0;
@@ -71,7 +71,7 @@ bool InspIRCd::IsValidMask(const std::string &mask)
 	return true;
 }
 
-void InspIRCd::StripColor(std::string &sentence)
+void InspIRCd::StripColor(std::string& sentence)
 {
 	/* refactor this completely due to SQUIT bug since the old code would strip last char and replace with \0 --peavey */
 	int seq = 0;
@@ -263,7 +263,7 @@ bool InspIRCd::IsHost(const std::string& host)
 	return numdots;
 }
 
-bool InspIRCd::IsSID(const std::string &str)
+bool InspIRCd::IsSID(const std::string& str)
 {
 	/* Returns true if the string given is exactly 3 characters long,
 	 * starts with a digit, and the other two characters are A-Z or digits

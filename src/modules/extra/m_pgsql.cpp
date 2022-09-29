@@ -417,7 +417,7 @@ restart:
 		}
 	}
 
-	void Submit(SQL::Query *req, const std::string& q) override
+	void Submit(SQL::Query* req, const std::string& q) override
 	{
 		ServerInstance->Logs.Debug(MODNAME, "Executing PostgreSQL query: " + q);
 		if (qinprog.q.empty())
@@ -431,7 +431,7 @@ restart:
 		}
 	}
 
-	void Submit(SQL::Query *req, const std::string& q, const SQL::ParamList& p) override
+	void Submit(SQL::Query* req, const std::string& q, const SQL::ParamList& p) override
 	{
 		std::string res;
 		unsigned int param = 0;
@@ -456,7 +456,7 @@ restart:
 		Submit(req, res);
 	}
 
-	void Submit(SQL::Query *req, const std::string& q, const SQL::ParamMap& p) override
+	void Submit(SQL::Query* req, const std::string& q, const SQL::ParamMap& p) override
 	{
 		std::string res;
 		for(std::string::size_type i = 0; i < q.length(); i++)

@@ -36,7 +36,7 @@ class ModuleOperLevels final
 		{
 		}
 
-		ModResult OnKill(User* source, User* dest, const std::string &reason) override
+		ModResult OnKill(User* source, User* dest, const std::string& reason) override
 		{
 			// oper killing an oper?
 			if (dest->IsOper() && source->IsOper())

@@ -41,7 +41,7 @@ public:
 	std::string targetchan;
 	std::string banmask;
 
-	BanRedirectEntry(const std::string &target = "", const std::string &mask = "")
+	BanRedirectEntry(const std::string& target = "", const std::string& mask = "")
 	: targetchan(target), banmask(mask)
 	{
 	}

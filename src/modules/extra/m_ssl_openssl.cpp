@@ -489,7 +489,7 @@ namespace OpenSSL
 
 static BIO_METHOD* biomethods;
 
-static int OnVerify(int preverify_ok, X509_STORE_CTX *ctx)
+static int OnVerify(int preverify_ok, X509_STORE_CTX* ctx)
 {
 	/* XXX: This will allow self signed certificates.
 	 * In the future if we want an option to not allow this,
@@ -1006,7 +1006,7 @@ public:
 			ReadProfiles();
 	}
 
-	void OnModuleRehash(User* user, const std::string &param) override
+	void OnModuleRehash(User* user, const std::string& param) override
 	{
 		if (!irc::equals(param, "tls") && !irc::equals(param, "ssl"))
 			return;

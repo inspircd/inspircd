@@ -65,7 +65,7 @@ public:
 	 * @param commandname The command required. Always use uppercase for this parameter.
 	 * @return a pointer to the command handler, or NULL
 	 */
-	Command* GetHandler(const std::string &commandname);
+	Command* GetHandler(const std::string& commandname);
 
 	/** LoopCall is used to call a command handler repeatedly based on the contents of a comma separated list.
 	 * There are two ways to call this method, either with one potential list or with two potential lists.
@@ -123,7 +123,7 @@ public:
 	 * @param f The new Command to add to the list
 	 * @return True if the command was added
 	 */
-	bool AddCommand(Command *f);
+	bool AddCommand(Command* f);
 
 	/** Removes a command.
 	 */

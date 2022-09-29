@@ -234,7 +234,7 @@ public:
 			}
 
 			std::string nick(parameters[0], 1);
-			User *target = ServerInstance->Users.FindNick(nick);
+			User* target = ServerInstance->Users.FindNick(nick);
 
 			if ((target) && (!target->quitting) && (target->registered == REG_ALL))
 			{
@@ -393,7 +393,7 @@ public:
 	{
 	}
 
-	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message) override
+	void OnUserQuit(User* user, const std::string& reason, const std::string& oper_message) override
 	{
 		dccallowlist* udl = ext.Get(user);
 
@@ -406,7 +406,7 @@ public:
 		RemoveNick(user);
 	}
 
-	void OnUserPostNick(User* user, const std::string &oldnick) override
+	void OnUserPostNick(User* user, const std::string& oldnick) override
 	{
 		RemoveNick(user);
 	}
@@ -555,7 +555,7 @@ public:
 		/* Iterate through all DCCALLOW lists and remove user */
 		for (userlist::iterator iter = ul.begin(); iter != ul.end();)
 		{
-			User *u = (User*)(*iter);
+			User* u = (User*)(*iter);
 			dl = ext.Get(u);
 			if (dl)
 			{
@@ -582,7 +582,7 @@ public:
 		}
 	}
 
-	static void RemoveFromUserlist(User *user)
+	static void RemoveFromUserlist(User* user)
 	{
 		// remove user from userlist
 		for (userlist::iterator j = ul.begin(); j != ul.end(); ++j)

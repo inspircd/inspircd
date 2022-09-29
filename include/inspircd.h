@@ -324,7 +324,7 @@ public:
 	/** Bind all ports specified in the configuration file.
 	 * @return The number of ports bound without error
 	 */
-	size_t BindPorts(FailedPortList &failed_ports);
+	size_t BindPorts(FailedPortList& failed_ports);
 
 	/** Determines whether a hostname is valid according to RFC 5891 rules.
 	 * @param host The hostname to validate.
@@ -427,7 +427,7 @@ public:
 	/** Strips all color and control codes except 001 from the given string
 	 * @param sentence The string to strip from
 	 */
-	static void StripColor(std::string &sentence);
+	static void StripColor(std::string& sentence);
 
 	/** Parses color codes from string values to actual color codes
 	 * @param input The data to process

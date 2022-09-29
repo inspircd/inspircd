@@ -119,7 +119,7 @@ public:
 	{
 	}
 
-	static std::string GetVar(std::string varname, const std::string &original_line)
+	static std::string GetVar(std::string varname, const std::string& original_line)
 	{
 		irc::spacesepstream ss(original_line);
 		varname.erase(varname.begin());
@@ -225,7 +225,7 @@ public:
 			return;
 		}
 
-		Channel *c = target.Get<Channel>();
+		Channel* c = target.Get<Channel>();
 		std::string scommand;
 
 		// text is like "!moo cows bite me", we want "!moo" first

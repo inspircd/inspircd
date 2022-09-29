@@ -149,7 +149,7 @@ public:
 	{
 		for (const auto* memb : user->chans)
 		{
-			nickfloodsettings *f = nf.ext.Get(memb->chan);
+			nickfloodsettings* f = nf.ext.Get(memb->chan);
 			if (f)
 			{
 				ModResult res = CheckExemption::Call(exemptionprov, user, memb->chan, "nickflood");
@@ -180,14 +180,14 @@ public:
 	/*
 	 * XXX: HACK: We do the increment on the *POST* event here (instead of all together) because we have no way of knowing whether other modules would block a nickchange.
 	 */
-	void OnUserPostNick(User* user, const std::string &oldnick) override
+	void OnUserPostNick(User* user, const std::string& oldnick) override
 	{
 		if (isdigit(user->nick[0])) /* allow switches to UID */
 			return;
 
 		for (const auto* memb : user->chans)
 		{
-			nickfloodsettings *f = nf.ext.Get(memb->chan);
+			nickfloodsettings* f = nf.ext.Get(memb->chan);
 			if (f)
 			{
 				ModResult res = CheckExemption::Call(exemptionprov, user, memb->chan, "nickflood");

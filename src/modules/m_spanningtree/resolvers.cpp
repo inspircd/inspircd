@@ -46,7 +46,7 @@ ServernameResolver::ServernameResolver(DNS::Manager* mgr, const std::string& hos
 {
 }
 
-void ServernameResolver::OnLookupComplete(const DNS::Query *r)
+void ServernameResolver::OnLookupComplete(const DNS::Query* r)
 {
 	const DNS::ResourceRecord* const ans_record = r->FindAnswerOfType(this->question.type);
 	if (!ans_record)
@@ -81,7 +81,7 @@ void ServernameResolver::OnLookupComplete(const DNS::Query *r)
 	}
 }
 
-void ServernameResolver::OnError(const DNS::Query *r)
+void ServernameResolver::OnError(const DNS::Query* r)
 {
 	if (r->error == DNS::ERROR_UNLOADED)
 	{
@@ -132,7 +132,7 @@ bool SecurityIPResolver::CheckIPv4()
 	}
 }
 
-void SecurityIPResolver::OnLookupComplete(const DNS::Query *r)
+void SecurityIPResolver::OnLookupComplete(const DNS::Query* r)
 {
 	for (std::shared_ptr<Link> L : Utils->LinkBlocks)
 	{
@@ -154,7 +154,7 @@ void SecurityIPResolver::OnLookupComplete(const DNS::Query *r)
 	CheckIPv4();
 }
 
-void SecurityIPResolver::OnError(const DNS::Query *r)
+void SecurityIPResolver::OnError(const DNS::Query* r)
 {
 	// This can be called because of us being unloaded but we don't have to do anything differently
 	if (CheckIPv4())

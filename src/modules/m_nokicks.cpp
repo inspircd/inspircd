@@ -43,7 +43,7 @@ public:
 	{
 	}
 
-	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason) override
+	ModResult OnUserPreKick(User* source, Membership* memb, const std::string& reason) override
 	{
 		bool modeset = memb->chan->IsModeSet(nk);
 		if (!extban.GetStatus(source, memb->chan).check(!modeset))

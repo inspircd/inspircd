@@ -128,7 +128,7 @@ class SearchInterface final
 	}
 
 public:
-	SearchInterface(Module* mod, const std::string& prov, const std::string &uuid, const std::string& oper, const std::string& pass)
+	SearchInterface(Module* mod, const std::string& prov, const std::string& uuid, const std::string& oper, const std::string& pass)
 		: LDAPOperBase(mod, uuid, oper, pass)
 		, provider(prov)
 	{

@@ -306,7 +306,7 @@ void UserIOHandler::OnDataReady()
 		ServerInstance->Users.QuitUser(user, "Excess Flood");
 }
 
-void UserIOHandler::AddWriteBuf(const std::string &data)
+void UserIOHandler::AddWriteBuf(const std::string& data)
 {
 	if (user->quitting_sendq)
 		return;
@@ -533,7 +533,7 @@ bool LocalUser::CheckLines(bool doZline)
 	{
 		for (int n = 0; check[n]; ++n)
 		{
-			XLine *r = ServerInstance->XLines->MatchesLine(check[n], this);
+			XLine* r = ServerInstance->XLines->MatchesLine(check[n], this);
 
 			if (r)
 			{
@@ -947,7 +947,7 @@ void User::WriteRemoteNumeric(const Numeric::Numeric& numeric)
  * Don't quote me on the maths as i am not a mathematician or computer scientist,
  * but i believe this algorithm is now x+(log y) maximum iterations instead.
  */
-bool User::SharesChannelWith(User *other)
+bool User::SharesChannelWith(User* other)
 {
 	for (const auto* memb : chans)
 	{
@@ -1060,7 +1060,7 @@ bool User::ChangeIdent(const std::string& newident)
  * then their ip will be taken as 'priority' anyway, so for example,
  * <connect allow="127.0.0.1"> will match joe!bloggs@localhost
  */
-void LocalUser::SetClass(const std::string &explicit_name)
+void LocalUser::SetClass(const std::string& explicit_name)
 {
 	ServerInstance->Logs.Debug("CONNECTCLASS", "Setting connect class for %s (%s) ...",
 		this->uuid.c_str(), this->GetFullRealHost().c_str());

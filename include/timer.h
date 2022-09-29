@@ -134,7 +134,7 @@ public:
 	/** Add an Timer
 	 * @param T an Timer derived class to add
 	 */
-	void AddTimer(Timer *T);
+	void AddTimer(Timer* T);
 
 	/** Remove a Timer
 	 * @param T an Timer derived class to remove

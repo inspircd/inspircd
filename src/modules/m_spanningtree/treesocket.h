@@ -209,7 +209,7 @@ public:
 
 	/** Get challenge set in our CAPAB for challenge/response
 	 */
-	void SetOurChallenge(const std::string &c);
+	void SetOurChallenge(const std::string& c);
 
 	/** Get challenge set in their CAPAB for challenge/response
 	 */
@@ -217,11 +217,11 @@ public:
 
 	/** Get challenge set in their CAPAB for challenge/response
 	 */
-	void SetTheirChallenge(const std::string &c);
+	void SetTheirChallenge(const std::string& c);
 
 	/** Compare two passwords based on authentication scheme
 	 */
-	bool ComparePass(const Link& link, const std::string &theirs);
+	bool ComparePass(const Link& link, const std::string& theirs);
 
 	/** Clean up information used only during server negotiation
 	 */
@@ -232,7 +232,7 @@ public:
 	/** Construct a password, optionally hashed with the other side's
 	 * challenge string
 	 */
-	static std::string MakePass(const std::string &password, const std::string &challenge);
+	static std::string MakePass(const std::string& password, const std::string& challenge);
 
 	/** When an outbound connection finishes connecting, we receive
 	 * this event, and must send our SERVER string to the other
@@ -249,7 +249,7 @@ public:
 	/** Sends an error to the remote server, and displays it locally to show
 	 * that it was sent.
 	 */
-	void SendError(const std::string &errormessage);
+	void SendError(const std::string& errormessage);
 
 	/** Recursively send the server tree with distances as hops.
 	 * This is used during network burst to inform the other server
@@ -273,7 +273,7 @@ public:
 	void SendCapabilities(int phase);
 
 	/* Isolate and return the elements that are different between two lists */
-	static void ListDifference(const std::string &one, const std::string &two, char sep,
+	static void ListDifference(const std::string& one, const std::string& two, char sep,
 		std::string& mleft, std::string& mright);
 
 	bool Capab(const CommandBase::Params& params);
@@ -323,7 +323,7 @@ public:
 
 	/** Process complete line from buffer
 	 */
-	void ProcessLine(std::string &line);
+	void ProcessLine(std::string& line);
 
 	/** Process message tags received from a remote server. */
 	static void ProcessTag(User* source, const std::string& tag, ClientProtocol::TagMap& tags);

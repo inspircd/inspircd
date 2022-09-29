@@ -69,8 +69,8 @@ public:
 	 * @param reason The reason for the ban. Left .empty() if it's a negative match.
 	 * @param seconds Number of seconds before nuking the bancache entry, the default is a day. This might seem long, but entries will be removed as G-lines/etc expire.
 	 */
-	BanCacheHit *AddHit(const std::string &ip, const std::string &type, const std::string &reason, time_t seconds = 0);
-	BanCacheHit *GetHit(const std::string &ip);
+	BanCacheHit* AddHit(const std::string& ip, const std::string& type, const std::string& reason, time_t seconds = 0);
+	BanCacheHit* GetHit(const std::string& ip);
 
 	/** Removes all entries of a given type, either positive or negative. Returns the number of hits removed.
 	 * @param type The type of bancache entries to remove (e.g. 'G')

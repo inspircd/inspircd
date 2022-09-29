@@ -347,7 +347,7 @@ void ModeParser::ModeParamsToChangeList(User* user, ModeType type, const std::ve
 			continue;
 		}
 
-		ModeHandler *mh = this->FindMode(modechar, type);
+		ModeHandler* mh = this->FindMode(modechar, type);
 		if (!mh)
 		{
 			/* No mode handler? Unknown mode character then. */
@@ -506,7 +506,7 @@ void ModeParser::ShowListModeList(User* user, Channel* chan, ModeHandler* mh)
 	}
 }
 
-void ModeParser::CleanMask(std::string &mask)
+void ModeParser::CleanMask(std::string& mask)
 {
 	auto pos_of_pling    = mask.find_first_of('!');
 	auto pos_of_at       = mask.find_first_of('@',  pos_of_pling == std::string::npos ? 0 : pos_of_pling);

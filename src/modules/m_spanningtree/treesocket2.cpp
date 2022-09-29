@@ -86,7 +86,7 @@ void TreeSocket::Split(const std::string& line, std::string& tags, std::string& 
 		params.push_back(token);
 }
 
-void TreeSocket::ProcessLine(std::string &line)
+void TreeSocket::ProcessLine(std::string& line)
 {
 	std::string tags;
 	std::string prefix;

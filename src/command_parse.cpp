@@ -110,7 +110,7 @@ bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Pa
 	return true;
 }
 
-Command* CommandParser::GetHandler(const std::string &commandname)
+Command* CommandParser::GetHandler(const std::string& commandname)
 {
 	CommandMap::iterator n = cmdlist.find(commandname);
 	if (n != cmdlist.end())

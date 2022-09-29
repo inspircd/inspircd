@@ -66,7 +66,7 @@ ListenSocket::ListenSocket(std::shared_ptr<ConfigTag> tag, const irc::sockets::s
 		/* This must be >= sizeof(DWORD) on Windows */
 		const int enable = (addr.empty() || addr == "*") ? 0 : 1;
 		/* This must be before bind() */
-		setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<const char *>(&enable), sizeof(enable));
+		setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<const char* >(&enable), sizeof(enable));
 		// errors ignored intentionally
 	}
 #endif

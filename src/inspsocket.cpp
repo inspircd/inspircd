@@ -359,7 +359,7 @@ void StreamSocket::FlushSendQ(SendQueue& sq)
 		}
 }
 
-void StreamSocket::WriteData(const std::string &data)
+void StreamSocket::WriteData(const std::string& data)
 {
 	if (!HasFd())
 	{

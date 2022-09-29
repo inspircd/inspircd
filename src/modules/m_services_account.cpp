@@ -262,7 +262,7 @@ public:
 		}
 	}
 
-	void OnUserPostNick(User* user, const std::string &oldnick) override
+	void OnUserPostNick(User* user, const std::string& oldnick) override
 	{
 		/* On nickchange, if they have +r, remove it */
 		if ((user->IsModeSet(userregmode)) && (ServerInstance->Users.FindNick(oldnick) != user))

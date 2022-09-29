@@ -367,7 +367,7 @@ void ServerConfig::Read()
 	}
 }
 
-void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
+void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
 {
 	valid = true;
 	if (old)
@@ -411,7 +411,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		CrossCheckOperClassType();
 		CrossCheckConnectBlocks(old);
 	}
-	catch (CoreException &ce)
+	catch (CoreException& ce)
 	{
 		errstr << ce.GetReason() << std::endl;
 	}

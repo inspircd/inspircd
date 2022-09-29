@@ -48,7 +48,7 @@ public:
 		if (!IS_LOCAL(source))
 			return MOD_RES_PASSTHRU;
 
-		std::string *mlock_str = mlock.Get(channel);
+		std::string* mlock_str = mlock.Get(channel);
 		if (!mlock_str)
 			return MOD_RES_PASSTHRU;
 

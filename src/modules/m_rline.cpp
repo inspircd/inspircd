@@ -157,7 +157,7 @@ public:
 				user->WriteNotice("*** Invalid duration for R-line.");
 				return CmdResult::FAILURE;
 			}
-			XLine *r = nullptr;
+			XLine* r = nullptr;
 
 			try
 			{
@@ -254,7 +254,7 @@ public:
 	ModResult OnUserRegister(LocalUser* user) override
 	{
 		// Apply lines on user connect
-		XLine *rl = ServerInstance->XLines->MatchesLine("R", user);
+		XLine* rl = ServerInstance->XLines->MatchesLine("R", user);
 
 		if (rl)
 		{
@@ -303,7 +303,7 @@ public:
 		return MOD_RES_DENY;
 	}
 
-	void OnUserPostNick(User *user, const std::string &oldnick) override
+	void OnUserPostNick(User* user, const std::string& oldnick) override
 	{
 		if (!IS_LOCAL(user))
 			return;
@@ -311,7 +311,7 @@ public:
 		if (!MatchOnNickChange)
 			return;
 
-		XLine *rl = ServerInstance->XLines->MatchesLine("R", user);
+		XLine* rl = ServerInstance->XLines->MatchesLine("R", user);
 
 		if (rl)
 		{

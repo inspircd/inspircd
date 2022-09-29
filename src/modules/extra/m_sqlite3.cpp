@@ -127,7 +127,7 @@ public:
 	void Query(SQL::Query* query, const std::string& q)
 	{
 		SQLite3Result res;
-		sqlite3_stmt *stmt;
+		sqlite3_stmt* stmt;
 		int err = sqlite3_prepare_v2(conn, q.c_str(), static_cast<int>(q.length()), &stmt, nullptr);
 		if (err != SQLITE_OK)
 		{

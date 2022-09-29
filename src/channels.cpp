@@ -40,7 +40,7 @@ namespace
 	ChanModeReference ban(nullptr, "ban");
 }
 
-Channel::Channel(const std::string &cname, time_t ts)
+Channel::Channel(const std::string& cname, time_t ts)
 	: Extensible(ExtensionType::CHANNEL)
 	, name(cname)
 	, age(ts)

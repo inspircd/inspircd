@@ -141,7 +141,7 @@ public:
 		mycommand.op = Conf->getBool("op", true);
 	}
 
-	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason) override
+	ModResult OnUserPreKick(User* source, Membership* memb, const std::string& reason) override
 	{
 		// Don't do anything if they're not +Y
 		if (!memb->HasMode(&np))

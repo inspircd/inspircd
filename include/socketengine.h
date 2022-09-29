@@ -407,7 +407,7 @@ public:
 	 * @param addrlen The size of the sockaddr parameter.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static int Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen);
+	static int Accept(EventHandler* fd, sockaddr* addr, socklen_t* addrlen);
 
 	/** Close the underlying fd of an event handler, remove it from the socket engine and set the fd to -1.
 	 * @param eh The EventHandler to close.
@@ -430,7 +430,7 @@ public:
 	 * @param flags A flag value that controls the sending of the data.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static ssize_t Send(EventHandler* fd, const void *buf, size_t len, int flags);
+	static ssize_t Send(EventHandler* fd, const void* buf, size_t len, int flags);
 
 	/** Abstraction for vector write function writev().
 	 * This function should emulate its namesake system call exactly.
@@ -461,7 +461,7 @@ public:
 	 * @param flags A flag value that controls the reception of the data.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static ssize_t Recv(EventHandler* fd, void *buf, size_t len, int flags);
+	static ssize_t Recv(EventHandler* fd, void* buf, size_t len, int flags);
 
 	/** Abstraction for BSD sockets recvfrom(2).
 	 * This function should emulate its namesake system call exactly.
@@ -473,7 +473,7 @@ public:
 	 * @param fromlen The size of the from parameter.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static ssize_t RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen);
+	static ssize_t RecvFrom(EventHandler* fd, void* buf, size_t len, int flags, sockaddr* from, socklen_t* fromlen);
 
 	/** Abstraction for BSD sockets sendto(2).
 	 * This function should emulate its namesake system call exactly.

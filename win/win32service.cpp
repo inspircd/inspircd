@@ -34,7 +34,7 @@ static bool g_bRunningAsService;
 
 struct Service_Data {
 	DWORD argc;
-	LPSTR *argv;
+	LPSTR* argv;
 };
 
 static Service_Data g_ServiceData;
@@ -94,7 +94,7 @@ VOID ServiceCtrlHandler(DWORD controlCode)
 }
 
 /** This callback is called by windows when the service is started */
-VOID ServiceMain(DWORD argc, LPCSTR *argv)
+VOID ServiceMain(DWORD argc, LPCSTR* argv)
 {
 	g_ServiceStatusHandle = RegisterServiceCtrlHandler(TEXT("InspIRCd"), (LPHANDLER_FUNCTION)ServiceCtrlHandler);
 	if( !g_ServiceStatusHandle )

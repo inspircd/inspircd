@@ -266,7 +266,7 @@ public:
 		Page(data, response, &empty);
 	}
 
-	void SendHeaders(unsigned long size, unsigned int response, HTTPHeaders &rheaders)
+	void SendHeaders(unsigned long size, unsigned int response, HTTPHeaders& rheaders)
 	{
 		WriteData(InspIRCd::Format("HTTP/%u.%u %u %s\r\n", parser.http_major ? parser.http_major : 1, parser.http_major ? parser.http_minor : 1, response, http_status_str((http_status)response)));
 

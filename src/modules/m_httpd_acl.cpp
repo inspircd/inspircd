@@ -35,8 +35,8 @@ public:
 	std::string whitelist;
 	std::string blacklist;
 
-	HTTPACL(const std::string &set_path, const std::string &set_username, const std::string &set_password,
-		const std::string &set_whitelist, const std::string &set_blacklist)
+	HTTPACL(const std::string& set_path, const std::string& set_username, const std::string& set_password,
+		const std::string& set_whitelist, const std::string& set_blacklist)
 		: path(set_path), username(set_username), password(set_password), whitelist(set_whitelist),
 		blacklist(set_blacklist) { }
 };
@@ -100,7 +100,7 @@ public:
 		acl_list.swap(new_acls);
 	}
 
-	void BlockAccess(HTTPRequest* http, unsigned int returnval, const std::string &extraheaderkey = "", const std::string &extraheaderval="")
+	void BlockAccess(HTTPRequest* http, unsigned int returnval, const std::string& extraheaderkey = "", const std::string& extraheaderval="")
 	{
 		ServerInstance->Logs.Debug(MODNAME, "BlockAccess (%u)", returnval);
 

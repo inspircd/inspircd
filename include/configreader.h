@@ -530,7 +530,7 @@ public:
 
 	/** Apply configuration changes from the old configuration.
 	 */
-	void Apply(ServerConfig* old, const std::string &useruid);
+	void Apply(ServerConfig* old, const std::string& useruid);
 
 	/** Escapes a value for storage in a configuration key.
 	 * @param str The string to escape.

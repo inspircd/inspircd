@@ -533,7 +533,7 @@ private:
 				{
 					Reconnect();
 				}
-				catch (const LDAPException &)
+				catch (const LDAPException&)
 				{
 				}
 

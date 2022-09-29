@@ -205,7 +205,7 @@ private:
 				if (pos + rdlength > input_size)
 					throw Exception(creator, "Unable to unpack TXT resource record");
 
-				record.rdata = std::string(reinterpret_cast<const char *>(input + pos), rdlength);
+				record.rdata = std::string(reinterpret_cast<const char* >(input + pos), rdlength);
 				pos += rdlength;
 
 				if (record.rdata.find_first_of("\r\n\0", 0, 3) != std::string::npos)

@@ -89,13 +89,13 @@ public:
 	 * @param description The descriptive text sent along with any
 	 * server notices, at the start of the notice, e.g. "GLOBOPS".
 	 */
-	void EnableSnomask(char letter, const std::string &description);
+	void EnableSnomask(char letter, const std::string& description);
 
 	/** Write to all users with a given snomask (local server only)
 	 * @param letter The snomask letter to write to
 	 * @param text The text to send to the users
 	 */
-	void WriteToSnoMask(char letter, const std::string &text);
+	void WriteToSnoMask(char letter, const std::string& text);
 
 	/** Write to all users with a given snomask (local server only)
 	 * @param letter The snomask letter to write to
@@ -108,7 +108,7 @@ public:
 	 * @param letter The snomask letter to write to
 	 * @param text The text to send to the users
 	 */
-	void WriteGlobalSno(char letter, const std::string &text);
+	void WriteGlobalSno(char letter, const std::string& text);
 
 	/** Write to all users with a given snomask (sent globally)
 	 * @param letter The snomask letter to write to

@@ -150,7 +150,7 @@ void TreeSocket::OnError(BufferedSocketError e)
 	Close();
 }
 
-void TreeSocket::SendError(const std::string &errormessage)
+void TreeSocket::SendError(const std::string& errormessage)
 {
 	WriteLine("ERROR :"+errormessage);
 	DoWrite();

@@ -169,7 +169,7 @@ public:
 
 	void Prioritize() override
 	{
-		Module *nflood = ServerInstance->Modules.Find("nickflood");
+		Module* nflood = ServerInstance->Modules.Find("nickflood");
 		ServerInstance->Modules.SetPriority(this, I_OnUserPreNick, PRIORITY_BEFORE, nflood);
 	}
 };

@@ -39,7 +39,7 @@ public:
 	{
 	}
 
-	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts) override
+	void OnUserPart(Membership* memb, std::string& partmessage, CUList& excepts) override
 	{
 		if (!IS_LOCAL(memb->user))
 			return;

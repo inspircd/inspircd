@@ -167,7 +167,7 @@ public:
 		return ((tokenlist.find(token, 0) != std::string::npos) || (tokenlist.find('*', 0) != std::string::npos));
 	}
 
-	ModResult OnPreTopicChange(User *source, Channel *channel, const std::string &topic) override
+	ModResult OnPreTopicChange(User* source, Channel* channel, const std::string& topic) override
 	{
 		if (IS_LOCAL(source) && source->IsOper() && CanOverride(source, "TOPIC"))
 		{
@@ -183,7 +183,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason) override
+	ModResult OnUserPreKick(User* source, Membership* memb, const std::string& reason) override
 	{
 		if (source->IsOper() && CanOverride(source,"KICK"))
 		{
