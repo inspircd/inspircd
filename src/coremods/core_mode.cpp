@@ -100,7 +100,7 @@ CommandMode::CommandMode(Module* parent)
 CmdResult CommandMode::Handle(User* user, const Params& parameters)
 {
 	const std::string& target = parameters[0];
-	Channel* targetchannel = ServerInstance->Channels.Find(target);
+	auto targetchannel = ServerInstance->Channels.Find(target);
 	User* targetuser = nullptr;
 	if (!targetchannel)
 	{

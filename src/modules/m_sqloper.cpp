@@ -126,7 +126,7 @@ public:
 	// Call /oper after placing all blocks from the SQL table into the config->oper_blocks list.
 	void OperExec()
 	{
-		User* user = ServerInstance->Users.Find(uid);
+		auto user = ServerInstance->Users.Find(uid);
 		LocalUser* localuser = IS_LOCAL(user);
 		// This should never be true
 		if (!localuser)

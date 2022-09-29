@@ -444,7 +444,7 @@ public:
 			std::string hostname = reversedip + "." + dnsbl->domain;
 
 			/* now we'd need to fire off lookups for `hostname'. */
-			DNSBLResolver* r = new DNSBLResolver(*this->DNS, this, nameExt, countExt, hostname, user, dnsbl);
+			auto r = new DNSBLResolver(*this->DNS, this, nameExt, countExt, hostname, user, dnsbl);
 			try
 			{
 				this->DNS->Process(r);

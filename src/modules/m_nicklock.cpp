@@ -49,7 +49,7 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		User* target = ServerInstance->Users.Find(parameters[0]);
+		auto target = ServerInstance->Users.Find(parameters[0]);
 
 		if ((!target) || (target->registered != REG_ALL))
 		{
@@ -108,7 +108,7 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		User* target = ServerInstance->Users.Find(parameters[0]);
+		auto target = ServerInstance->Users.Find(parameters[0]);
 
 		if (!target)
 		{

@@ -61,11 +61,11 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		User* dest = ServerInstance->Users.Find(parameters[0]);
+		auto dest = ServerInstance->Users.Find(parameters[0]);
 		if (!dest)
 			return CmdResult::FAILURE;
 
-		User* source = ServerInstance->Users.Find(parameters[1]);
+		auto source = ServerInstance->Users.Find(parameters[1]);
 
 		if (IS_LOCAL(dest) && source)
 			HandleFast(dest, source);

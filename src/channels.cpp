@@ -204,7 +204,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 	if (cname.length() > ServerInstance->Config->Limits.MaxChannel)
 		cname.resize(ServerInstance->Config->Limits.MaxChannel);
 
-	Channel* chan = ServerInstance->Channels.Find(cname);
+	auto chan = ServerInstance->Channels.Find(cname);
 	bool created_by_local = !chan; // Flag that will be passed to ForceJoin later
 	std::string privs; // Prefix mode(letter)s to give to the joining user
 

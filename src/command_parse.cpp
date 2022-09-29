@@ -400,7 +400,7 @@ void CommandParser::TranslateSingleParam(TranslateType to, const std::string& it
 		case TR_NICK:
 		{
 			/* Translate single nickname */
-			User* user = ServerInstance->Users.Find(item);
+			auto user = ServerInstance->Users.Find(item);
 			if (user)
 				dest.append(user->uuid);
 			else

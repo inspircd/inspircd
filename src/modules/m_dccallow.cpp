@@ -234,7 +234,7 @@ public:
 			}
 
 			std::string nick(parameters[0], 1);
-			User* target = ServerInstance->Users.FindNick(nick);
+			auto target = ServerInstance->Users.FindNick(nick);
 
 			if ((target) && (!target->quitting) && (target->registered == REG_ALL))
 			{

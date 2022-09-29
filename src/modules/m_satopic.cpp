@@ -43,7 +43,7 @@ public:
 		/*
 		 * Handles a SATOPIC request. Notifies all +s users.
 		 */
-		Channel* target = ServerInstance->Channels.Find(parameters[0]);
+		auto target = ServerInstance->Channels.Find(parameters[0]);
 
 		if(target)
 		{

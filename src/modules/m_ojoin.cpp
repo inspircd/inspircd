@@ -96,7 +96,7 @@ public:
 
 	ModResult AccessCheck(User* source, Channel* channel, Modes::Change& change) override
 	{
-		User* theuser = ServerInstance->Users.Find(change.param);
+		auto theuser = ServerInstance->Users.Find(change.param);
 		// remove own privs?
 		if (source == theuser && !change.adding)
 			return MOD_RES_ALLOW;

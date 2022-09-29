@@ -176,7 +176,7 @@ namespace stdalgo
 	template<typename T>
 	void delete_zero(T*& pr)
 	{
-		T* p = pr;
+		auto p = pr;
 		pr = nullptr;
 		delete p;
 	}

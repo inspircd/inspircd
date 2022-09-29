@@ -46,7 +46,7 @@ CommandKick::CommandKick(Module* parent)
 
 CmdResult CommandKick::Handle(User* user, const Params& parameters)
 {
-	Channel* c = ServerInstance->Channels.Find(parameters[0]);
+	auto c = ServerInstance->Channels.Find(parameters[0]);
 	User* u;
 
 	if (CommandParser::LoopCall(user, this, parameters, 1))

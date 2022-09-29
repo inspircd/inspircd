@@ -46,7 +46,7 @@ public:
 	{
 		if (!ServerInstance->Channels.IsPrefix(parameters[0][0]))
 		{
-			User* target = ServerInstance->Users.FindNick(parameters[0]);
+			auto target = ServerInstance->Users.FindNick(parameters[0]);
 			if ((!target) || (target->registered != REG_ALL))
 			{
 				user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));

@@ -50,7 +50,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 			return CmdResult::FAILURE;
 		}
 
-		User* u = ServerInstance->Users.Find(target);
+		auto u = ServerInstance->Users.Find(target);
 
 		if ((u) && (u->registered == REG_ALL))
 		{

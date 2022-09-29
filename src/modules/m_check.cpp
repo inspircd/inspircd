@@ -171,8 +171,8 @@ public:
 		if (parameters.size() > 1 && !irc::equals(parameters[1], ServerInstance->Config->ServerName))
 			return CmdResult::SUCCESS;
 
-		User* targetuser = ServerInstance->Users.FindNick(parameters[0]);
-		Channel* targetchan = ServerInstance->Channels.Find(parameters[0]);
+		auto targetuser = ServerInstance->Users.FindNick(parameters[0]);
+		auto targetchan = ServerInstance->Channels.Find(parameters[0]);
 
 		/*
 		 * Syntax of a /check reply:

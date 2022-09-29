@@ -82,7 +82,7 @@ public:
 
 			/* Check if the parameter is a valid nick/uuid
 			 */
-			User* u = ServerInstance->Users.Find(change.param);
+			auto u = ServerInstance->Users.Find(change.param);
 			if (u)
 			{
 				Membership* memb = chan->GetUser(u);

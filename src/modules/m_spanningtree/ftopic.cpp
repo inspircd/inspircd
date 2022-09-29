@@ -28,7 +28,7 @@
 /** FTOPIC command */
 CmdResult CommandFTopic::Handle(User* user, Params& params)
 {
-	Channel* c = ServerInstance->Channels.Find(params[0]);
+	auto c = ServerInstance->Channels.Find(params[0]);
 	if (!c)
 		return CmdResult::FAILURE;
 

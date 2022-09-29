@@ -245,7 +245,7 @@ public:
 		if (container->extype != this->extype)
 			return;
 
-		T* old = static_cast<T*>(SetRaw(container, value));
+		auto old = static_cast<T*>(SetRaw(container, value));
 		Delete(container, old);
 		if (sync && synced)
 			Sync(container, value);

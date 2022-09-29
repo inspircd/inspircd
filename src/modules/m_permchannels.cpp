@@ -211,7 +211,7 @@ public:
 				continue;
 			}
 
-			Channel* c = ServerInstance->Channels.Find(channel);
+			auto c = ServerInstance->Channels.Find(channel);
 			if (!c)
 			{
 				time_t TS = tag->getInt("ts", ServerInstance->Time(), 1);

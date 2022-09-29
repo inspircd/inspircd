@@ -43,7 +43,7 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		User* target = ServerInstance->Users.Find(parameters[0]);
+		auto target = ServerInstance->Users.Find(parameters[0]);
 
 		/* Do local sanity checks and bails */
 		if (IS_LOCAL(user))

@@ -113,7 +113,7 @@ struct CallerIDExtInfo final
 
 		while (s.GetToken(tok))
 		{
-			User* u = ServerInstance->Users.Find(tok);
+			auto u = ServerInstance->Users.Find(tok);
 			if ((u) && (u->registered == REG_ALL) && (!u->quitting))
 			{
 				if (dat->accepting.insert(u).second)

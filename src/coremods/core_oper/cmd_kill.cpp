@@ -66,7 +66,7 @@ CmdResult CommandKill::Handle(User* user, const Params& parameters)
 		return CmdResult::FAILURE;
 	}
 
-	User* target = ServerInstance->Users.Find(parameters[0]);
+	auto target = ServerInstance->Users.Find(parameters[0]);
 	if (!target)
 	{
 		user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));

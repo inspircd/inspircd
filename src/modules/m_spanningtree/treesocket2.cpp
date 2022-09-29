@@ -242,7 +242,7 @@ User* TreeSocket::FindSource(const std::string& prefix, const std::string& comma
 	else
 	{
 		// If the prefix string is a uuid FindUUID() returns the appropriate User object
-		User* user = ServerInstance->Users.FindUUID(prefix);
+		auto user = ServerInstance->Users.FindUUID(prefix);
 		if (user)
 			return user;
 	}

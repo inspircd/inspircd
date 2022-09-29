@@ -42,7 +42,7 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		User* dest = ServerInstance->Users.Find(parameters[0]);
+		auto dest = ServerInstance->Users.Find(parameters[0]);
 
 		if ((!dest) || (dest->registered != REG_ALL))
 		{

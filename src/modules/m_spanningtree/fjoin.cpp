@@ -117,7 +117,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 	time_t TS = ServerCommand::ExtractTS(params[1]);
 
 	const std::string& channel = params[0];
-	Channel* chan = ServerInstance->Channels.Find(channel);
+	auto chan = ServerInstance->Channels.Find(channel);
 	bool apply_other_sides_modes = true;
 	TreeServer* const sourceserver = TreeServer::Get(srcuser);
 
@@ -201,7 +201,7 @@ void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sour
 	// Comma not required anymore if the user has no modes
 	const std::string::size_type ubegin = (comma == std::string::npos ? 0 : comma+1);
 	std::string uuid(item, ubegin, UIDGenerator::UUID_LENGTH);
-	User* who = ServerInstance->Users.FindUUID(uuid);
+	auto who = ServerInstance->Users.FindUUID(uuid);
 	if (!who)
 	{
 		// Probably KILLed, ignore

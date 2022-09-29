@@ -180,7 +180,7 @@ public:
 
 	static User* FindNick(const std::string& nick)
 	{
-		User* user = ServerInstance->Users.FindNick(nick);
+		auto user = ServerInstance->Users.FindNick(nick);
 		if ((user) && (user->registered == REG_ALL))
 			return user;
 		return nullptr;

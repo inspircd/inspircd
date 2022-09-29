@@ -65,7 +65,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 		else
 			u = ServerInstance->Users.Find(parameters[0]);
 
-		Channel* c = ServerInstance->Channels.Find(parameters[1]);
+		auto c = ServerInstance->Channels.Find(parameters[1]);
 		time_t timeout = 0;
 		if (parameters.size() >= 3)
 		{

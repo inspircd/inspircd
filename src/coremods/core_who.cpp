@@ -598,7 +598,7 @@ CmdResult CommandWho::HandleLocal(LocalUser* user, const Params& parameters)
 	WhoData data(parameters);
 
 	// Is the source running a WHO on a channel?
-	Channel* chan = ServerInstance->Channels.Find(data.matchtext);
+	auto chan = ServerInstance->Channels.Find(data.matchtext);
 	if (chan)
 		WhoChannel(user, parameters, chan, data);
 

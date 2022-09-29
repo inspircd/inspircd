@@ -47,11 +47,11 @@ CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 		if (params.size() < 6)
 			throw ProtocolException("Insufficient parameters for channel METADATA");
 
-		User* u = ServerInstance->Users.FindUUID(params[1]);
+		auto u = ServerInstance->Users.FindUUID(params[1]);
 		if (!u)
 			return CmdResult::FAILURE; // User does not exist.
 
-		Channel* c = ServerInstance->Channels.Find(params[2]);
+		auto c = ServerInstance->Channels.Find(params[2]);
 		if (!c)
 			return CmdResult::FAILURE; // Channel does not exist.
 
@@ -77,7 +77,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 		if (params.size() < 3)
 			throw ProtocolException("Insufficient parameters for channel METADATA");
 
-		Channel* c = ServerInstance->Channels.Find(params[0]);
+		auto c = ServerInstance->Channels.Find(params[0]);
 		if (!c)
 			return CmdResult::FAILURE;
 
@@ -95,7 +95,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 	}
 	else
 	{
-		User* u = ServerInstance->Users.FindUUID(params[0]);
+		auto u = ServerInstance->Users.FindUUID(params[0]);
 		if (u)
 		{
 			ExtensionItem* item = ServerInstance->Extensions.GetItem(params[1]);

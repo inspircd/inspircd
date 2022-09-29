@@ -192,7 +192,7 @@ private:
 
 	CmdResult HandleUser(LocalUser* source, const std::string& nick)
 	{
-		User* target = ServerInstance->Users.FindNick(nick);
+		auto target = ServerInstance->Users.FindNick(nick);
 		if (!target || target->registered != REG_ALL)
 		{
 			source->WriteNumeric(Numerics::NoSuchNick(nick));
@@ -211,7 +211,7 @@ private:
 
 	CmdResult HandleChannel(LocalUser* source, const std::string& channel)
 	{
-		Channel* chan = ServerInstance->Channels.Find(channel);
+		auto chan = ServerInstance->Channels.Find(channel);
 		if (!chan)
 		{
 			source->WriteNumeric(Numerics::NoSuchChannel(channel));

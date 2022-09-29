@@ -47,8 +47,8 @@ public:
 		if (CommandParser::LoopCall(user, this, parameters, 1))
 			return CmdResult::FAILURE;
 
-		User* dest = ServerInstance->Users.Find(parameters[0]);
-		Channel* channel = ServerInstance->Channels.Find(parameters[1]);
+		auto dest = ServerInstance->Users.Find(parameters[0]);
+		auto channel = ServerInstance->Channels.Find(parameters[1]);
 		std::string reason;
 
 		if ((dest) && (dest->registered == REG_ALL) && (channel))

@@ -41,7 +41,7 @@ public:
 		long Run(const std::string& mask) override
 		{
 			long matches = 0;
-			const T* c = static_cast<T*>(this);
+			auto c = static_cast<T*>(this);
 			for (const auto& [_, user] : ServerInstance->Users.GetUsers())
 			{
 				if (c->Check(user, mask))

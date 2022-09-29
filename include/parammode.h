@@ -73,7 +73,7 @@ public:
 
 	void GetParameter(Channel* chan, std::string& out) override
 	{
-		T* mh = static_cast<T*>(this);
+		auto mh = static_cast<T*>(this);
 		mh->SerializeParam(chan, ext.Get(chan), out);
 	}
 };

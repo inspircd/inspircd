@@ -43,7 +43,7 @@ CmdResult CommandEline::Handle(User* user, const Params& parameters)
 	if (parameters.size() >= 3)
 	{
 		IdentHostPair ih;
-		User* find = ServerInstance->Users.Find(target);
+		auto find = ServerInstance->Users.Find(target);
 		if ((find) && (find->registered == REG_ALL))
 		{
 			ih.first = find->GetBanIdent();

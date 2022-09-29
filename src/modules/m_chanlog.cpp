@@ -74,7 +74,7 @@ public:
 		const std::string snotice = "\002" + desc + "\002: " + msg;
 		for (const auto& [_, channel] : channels)
 		{
-			Channel* c = ServerInstance->Channels.Find(channel);
+			auto c = ServerInstance->Channels.Find(channel);
 			if (c)
 			{
 				ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->Config->ServerName, c, snotice);

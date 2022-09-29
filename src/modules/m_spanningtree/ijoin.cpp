@@ -27,7 +27,7 @@
 
 CmdResult CommandIJoin::HandleRemote(RemoteUser* user, Params& params)
 {
-	Channel* chan = ServerInstance->Channels.Find(params[0]);
+	auto chan = ServerInstance->Channels.Find(params[0]);
 	if (!chan)
 	{
 		// Desync detected, recover
@@ -60,7 +60,7 @@ CmdResult CommandIJoin::HandleRemote(RemoteUser* user, Params& params)
 CmdResult CommandResync::HandleServer(TreeServer* server, CommandBase::Params& params)
 {
 	ServerInstance->Logs.Debug(MODNAME, "Resyncing " + params[0]);
-	Channel* chan = ServerInstance->Channels.Find(params[0]);
+	auto chan = ServerInstance->Channels.Find(params[0]);
 	if (!chan)
 	{
 		// This can happen for a number of reasons, safe to ignore

@@ -43,8 +43,8 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		User* dest = ServerInstance->Users.Find(parameters[1]);
-		Channel* channel = ServerInstance->Channels.Find(parameters[0]);
+		auto dest = ServerInstance->Users.Find(parameters[1]);
+		auto channel = ServerInstance->Channels.Find(parameters[0]);
 
 		if ((dest) && (dest->registered == REG_ALL) && (channel))
 		{

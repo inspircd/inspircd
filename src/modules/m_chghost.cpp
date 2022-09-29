@@ -57,7 +57,7 @@ public:
 			}
 		}
 
-		User* dest = ServerInstance->Users.Find(parameters[0]);
+		auto dest = ServerInstance->Users.Find(parameters[0]);
 
 		// Allow services to change the host of unregistered users
 		if ((!dest) || ((dest->registered != REG_ALL) && (!user->server->IsService())))
