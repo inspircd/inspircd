@@ -184,12 +184,6 @@ public:
 	 */
 	const LocalList& GetLocalUsers() const { return local_users; }
 
-	/** Send a server notice to all local users
-	 * @param text The text format string to send
-	 * @param ... The format arguments
-	 */
-	void ServerNoticeAll(const char* text, ...) const ATTR_PRINTF(2, 3);
-
 	/** Retrieves the next already sent id, guaranteed to be not equal to any user's already_sent field
 	 * @return Next already_sent id
 	 */

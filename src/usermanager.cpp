@@ -349,17 +349,6 @@ const UserManager::CloneCounts& UserManager::GetCloneCounts(User* user) const
 		return zeroclonecounts;
 }
 
-void UserManager::ServerNoticeAll(const char* text, ...) const
-{
-	std::string message;
-	VAFORMAT(message, text, text);
-	ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, ServerInstance->Config->GetServerName(), message, MSG_NOTICE);
-	ClientProtocol::Event msgevent(ServerInstance->GetRFCEvents().privmsg, msg);
-
-	for (auto* user : GetLocalUsers())
-		user->Send(msgevent);
-}
-
 /**
  * This function is called once a second from the mainloop.
  * It is intended to do background checking on all the users, e.g. do
