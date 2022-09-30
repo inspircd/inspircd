@@ -101,9 +101,15 @@ public:
 		auto tag = ServerInstance->Config->ConfValue("hostname");
 		const std::string hmap = tag->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789", 1);
 
-		cmd.hostmap.reset();
+		CharState newhostmap;
 		for (const auto& chr : hmap)
-			cmd.hostmap.set(static_cast<unsigned char>(chr));
+		{
+			// A hostname can not contain NUL, LF, CR, or SPACE.
+			if (chr == 0x00 || chr == 0x0A || chr == 0x0D || chr == 0x20)
+				throw ModuleException(this, InspIRCd::Format("<hostname:charmap> can not contain character 0x%02X (%c)", chr, chr));
+			newhostmap.set(static_cast<unsigned char>(chr));
+		}
+		std::swap(newhostmap, cmd.hostmap);
 	}
 };
 
