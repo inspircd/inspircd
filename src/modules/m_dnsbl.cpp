@@ -86,7 +86,7 @@ public:
 	std::string name;
 
 	// A range of DNSBL result types to match against.
-	std::bitset<UCHAR_MAX + 1> records;
+	CharState records;
 
 	// The message to send to users who's IP address is in a DNSBL.
 	std::string reason;

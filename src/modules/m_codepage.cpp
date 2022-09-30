@@ -88,13 +88,11 @@ class SingleByteCodepage final
 	: public Codepage
 {
 private:
-	typedef std::bitset<UCHAR_MAX + 1> AllowedChars;
-
 	// The characters which are allowed in nicknames.
-	AllowedChars allowedchars;
+	CharState allowedchars;
 
 	// The characters which are allowed at the front of a nickname.
-	AllowedChars allowedfrontchars;
+	CharState allowedfrontchars;
 
 public:
 	AllowCharacterResult AllowCharacter(uint32_t character, bool front) override

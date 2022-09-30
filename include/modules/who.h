@@ -70,8 +70,6 @@ public:
 class Who::Request
 {
 public:
-	typedef std::bitset<UCHAR_MAX + 1> CharState;
-
 	/** The flags for matching users to include. */
 	CharState flags;
 

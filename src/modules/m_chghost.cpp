@@ -30,7 +30,7 @@ class CommandChghost final
 	: public Command
 {
 public:
-	std::bitset<UCHAR_MAX + 1> hostmap;
+	CharState hostmap;
 
 	CommandChghost(Module* Creator)
 		: Command(Creator,"CHGHOST", 2)

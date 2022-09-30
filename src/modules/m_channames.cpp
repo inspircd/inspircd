@@ -24,7 +24,7 @@
 
 #include "inspircd.h"
 
-static std::bitset<UCHAR_MAX + 1> allowedmap;
+static CharState allowedmap;
 
 class NewIsChannelHandler final
 {

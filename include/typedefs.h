@@ -123,6 +123,9 @@ typedef XLineContainer::iterator ContainerIter;
  */
 typedef XLineLookup::iterator LookupIter;
 
+/** A bitset of characters which are enabled/set. */
+typedef std::bitset<UCHAR_MAX + 1> CharState;
+
 namespace Stats
 {
 	class Context;

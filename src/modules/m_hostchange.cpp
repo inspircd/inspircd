@@ -127,7 +127,7 @@ class ModuleHostChange final
 {
 private:
 	Account::API accountapi;
-	std::bitset<UCHAR_MAX + 1> hostmap;
+	CharState hostmap;
 	HostRules hostrules;
 
 	std::string CleanName(const std::string& name)
