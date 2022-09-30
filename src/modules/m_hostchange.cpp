@@ -251,6 +251,13 @@ public:
 			}
 		}
 	}
+
+	void GetLinkData(Module::LinkData& data, std::string& compatdata) override
+	{
+		for (size_t i = 0; i < hostmap.size(); ++i)
+			if (hostmap[i])
+				data["hostchars"].push_back(static_cast<unsigned char>(i));
+	}
 };
 
 MODULE_INIT(ModuleHostChange)

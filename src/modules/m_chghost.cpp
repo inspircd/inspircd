@@ -111,6 +111,13 @@ public:
 		}
 		std::swap(newhostmap, cmd.hostmap);
 	}
+
+	void GetLinkData(Module::LinkData& data, std::string& compatdata) override
+	{
+		for (size_t i = 0; i < cmd.hostmap.size(); ++i)
+			if (cmd.hostmap[i])
+				data["hostchars"].push_back(static_cast<unsigned char>(i));
+	}
 };
 
 MODULE_INIT(ModuleChgHost)
