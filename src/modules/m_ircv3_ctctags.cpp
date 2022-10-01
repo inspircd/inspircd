@@ -169,6 +169,12 @@ private:
 			{
 				// If the source is a local user then we only look up the target by nick.
 				target = ServerInstance->Users.FindNick(parameters[0]);
+
+				// Drop attempts to send a tag message to a server. This usually happens when the
+				// server is started in debug mode and a client tries to send a typing notification
+				// to a query window created by the debug message.
+				if (!target && irc::equals(parameters[0], ServerInstance->FakeClient->GetFullHost()))
+					return CmdResult::FAILURE;
 			}
 		}
 		else
