@@ -59,8 +59,8 @@ struct LDAPAttributes final
 	const std::vector<std::string> keys() const
 	{
 		std::vector<std::string> k;
-		for (const_iterator it = this->begin(), it_end = this->end(); it != it_end; ++it)
-			k.push_back(it->first);
+		for (const auto& [key, _] : *this)
+			k.push_back(key);
 		return k;
 	}
 
