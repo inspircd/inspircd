@@ -42,7 +42,7 @@ public:
 			return false;
 
 		size_t end_of_name = text.find(' ', 2);
-		size_t end_of_ctcp = *text.rbegin() == '\x1' ? 1 : 0;
+		size_t end_of_ctcp = text.back() == '\x1' ? 1 : 0;
 		if (end_of_name == std::string::npos)
 		{
 			// The CTCP only contains a name.
@@ -76,7 +76,7 @@ public:
 		if (end_of_name == std::string::npos)
 		{
 			// The CTCP only contains a name.
-			size_t end_of_ctcp = *text.rbegin() == '\x1' ? 1 : 0;
+			size_t end_of_ctcp = text.back() == '\x1' ? 1 : 0;
 			name = insp::substring_view(text, text.begin() + 1, text.end() - end_of_ctcp);
 			return true;
 		}

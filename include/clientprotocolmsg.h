@@ -266,8 +266,7 @@ class ClientProtocol::Messages::Mode
 			if (ret.length() + 1 + paramlength > maxlinelen)
 			{
 				// Mode sequence is getting too long
-				const char c = *ret.rbegin();
-				if ((c == '+') || (c == '-'))
+				if ((ret.back() == '+') || (ret.back() == '-'))
 					ret.erase(ret.size()-1);
 				break;
 			}

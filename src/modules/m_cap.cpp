@@ -337,8 +337,7 @@ void Cap::ExtItem::FromInternal(Extensible* container, const std::string& value)
 		return; // Can't happen
 
 	// Process the cap protocol version which is a single character at the end of the serialized string
-	const char verchar = *value.rbegin();
-	if (verchar == '2')
+	if (value.back() == '2')
 		managerimpl->Set302Protocol(user);
 
 	// Remove the version indicator from the string passed to HandleReq

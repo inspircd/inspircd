@@ -46,7 +46,7 @@ public:
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
 	{
 		/* Command is already validated, has a length of 0, or last character is not a . */
-		if (validated || command.empty() || *command.rbegin() != '.')
+		if (validated || command.empty() || command.back() != '.')
 			return MOD_RES_PASSTHRU;
 
 		/* Look for any command that starts with the same characters, if it does, replace the command string with it */
