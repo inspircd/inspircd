@@ -91,7 +91,7 @@ class IRCv3::Monitor::Manager final
 			for (const auto& entry : extdata->list)
 				ret.append(entry->GetNick()).push_back(' ');
 			if (!ret.empty())
-				ret.erase(ret.size()-1);
+				ret.pop_back();
 			return ret;
 		}
 

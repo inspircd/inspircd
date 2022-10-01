@@ -315,7 +315,7 @@ void CommandFJoin::Builder::clear()
 const std::string& CommandFJoin::Builder::finalize()
 {
 	if (content.back() == ' ')
-		content.erase(content.size()-1);
+		content.pop_back();
 	return str();
 }
 

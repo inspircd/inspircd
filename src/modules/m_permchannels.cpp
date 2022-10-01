@@ -118,7 +118,7 @@ static bool WriteDatabase(PermChannel& permchanmode, Module* mod, bool save_list
 			if (!params.empty())
 			{
 				// Remove the last space
-				params.erase(params.end()-1);
+				params.pop_back();
 
 				// If there is at least a space in chanmodes (that is, a non-listmode has a parameter)
 				// insert the listmode mode letters before the space. Otherwise just append them.

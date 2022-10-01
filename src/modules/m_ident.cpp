@@ -251,7 +251,7 @@ public:
 			result += chr;
 			if (!ServerInstance->IsIdent(result))
 			{
-				result.erase(result.end()-1);
+				result.pop_back();
 				break;
 			}
 		}

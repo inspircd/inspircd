@@ -404,7 +404,7 @@ void SpanningTreeUtilities::SendListLimits(Channel* chan, TreeSocket* sock)
 	if (bufferstr.empty())
 		return; // Should never happen.
 
-	bufferstr.erase(bufferstr.end() - 1);
+	bufferstr.pop_back();
 	if (sock)
 		sock->WriteLine(CommandMetadata::Builder(chan, "maxlist", bufferstr));
 	else

@@ -118,7 +118,7 @@ public:
 		}
 		else
 		{
-			data.erase(data.size()-1);
+			data.pop_back();
 		}
 
 		sink(numeric);

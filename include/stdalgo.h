@@ -111,7 +111,7 @@ namespace stdalgo
 			for (const auto& element : sequence)
 				joined.append(ConvToStr(element)).push_back(separator);
 
-			joined.erase(joined.end() - 1);
+			joined.pop_back();
 			return joined;
 		}
 

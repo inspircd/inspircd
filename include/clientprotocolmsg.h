@@ -267,7 +267,7 @@ class ClientProtocol::Messages::Mode
 			{
 				// Mode sequence is getting too long
 				if ((ret.back() == '+') || (ret.back() == '-'))
-					ret.erase(ret.size()-1);
+					ret.pop_back();
 				break;
 			}
 
