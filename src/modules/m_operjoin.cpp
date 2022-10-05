@@ -30,47 +30,47 @@
 class ModuleOperjoin final
 	: public Module
 {
-	private:
-		std::vector<std::string> operChans;
-		bool override;
+private:
+	std::vector<std::string> operChans;
+	bool override;
 
-	public:
-		ModuleOperjoin()
-			: Module(VF_VENDOR, "Allows the server administrator to force server operators to join one or more channels when logging into their server operator account.")
+public:
+	ModuleOperjoin()
+		: Module(VF_VENDOR, "Allows the server administrator to force server operators to join one or more channels when logging into their server operator account.")
+	{
+	}
+
+	void ReadConfig(ConfigStatus& status) override
+	{
+		auto tag = ServerInstance->Config->ConfValue("operjoin");
+
+		override = tag->getBool("override", false);
+		irc::commasepstream ss(tag->getString("channel"));
+		operChans.clear();
+
+		for (std::string channame; ss.GetToken(channame); )
+			operChans.push_back(channame);
+	}
+
+	void OnPostOper(User* user) override
+	{
+		LocalUser* localuser = IS_LOCAL(user);
+		if (!localuser)
+			return;
+
+		for (const auto& operchan : operChans)
 		{
+			if (ServerInstance->Channels.IsChannel(operchan))
+				Channel::JoinUser(localuser, operchan, override);
 		}
 
-		void ReadConfig(ConfigStatus& status) override
+		irc::commasepstream ss(localuser->oper->getConfig("autojoin"));
+		for (std::string channame; ss.GetToken(channame); )
 		{
-			auto tag = ServerInstance->Config->ConfValue("operjoin");
-
-			override = tag->getBool("override", false);
-			irc::commasepstream ss(tag->getString("channel"));
-			operChans.clear();
-
-			for (std::string channame; ss.GetToken(channame); )
-				operChans.push_back(channame);
+			if (ServerInstance->Channels.IsChannel(channame))
+				Channel::JoinUser(localuser, channame, override);
 		}
-
-		void OnPostOper(User* user) override
-		{
-			LocalUser* localuser = IS_LOCAL(user);
-			if (!localuser)
-				return;
-
-			for (const auto& operchan : operChans)
-			{
-				if (ServerInstance->Channels.IsChannel(operchan))
-					Channel::JoinUser(localuser, operchan, override);
-			}
-
-			irc::commasepstream ss(localuser->oper->getConfig("autojoin"));
-			for (std::string channame; ss.GetToken(channame); )
-			{
-				if (ServerInstance->Channels.IsChannel(channame))
-					Channel::JoinUser(localuser, channame, override);
-			}
-		}
+	}
 };
 
 MODULE_INIT(ModuleOperjoin)

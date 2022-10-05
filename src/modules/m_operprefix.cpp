@@ -34,13 +34,13 @@
 class OperPrefixMode final
 	: public PrefixMode
 {
-	public:
-		OperPrefixMode(Module* Creator)
-			: PrefixMode(Creator, "operprefix", 'y', OPERPREFIX_VALUE)
-		{
-			prefix = ServerInstance->Config->ConfValue("operprefix")->getCharacter("prefix", '!');
-			ranktoset = ranktounset = std::numeric_limits<ModeHandler::Rank>::max();
-		}
+public:
+	OperPrefixMode(Module* Creator)
+		: PrefixMode(Creator, "operprefix", 'y', OPERPREFIX_VALUE)
+	{
+		prefix = ServerInstance->Config->ConfValue("operprefix")->getCharacter("prefix", '!');
+		ranktoset = ranktounset = std::numeric_limits<ModeHandler::Rank>::max();
+	}
 };
 
 class ModuleOperPrefixMode;

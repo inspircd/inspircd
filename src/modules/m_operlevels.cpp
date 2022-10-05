@@ -30,34 +30,34 @@
 class ModuleOperLevels final
 	: public Module
 {
-	public:
-		ModuleOperLevels()
-			: Module(VF_VENDOR, "Allows the server administrator to define ranks for server operators which prevent lower ranked server operators from using /KILL on higher ranked server operators.")
-		{
-		}
+public:
+	ModuleOperLevels()
+		: Module(VF_VENDOR, "Allows the server administrator to define ranks for server operators which prevent lower ranked server operators from using /KILL on higher ranked server operators.")
+	{
+	}
 
-		ModResult OnKill(User* source, User* dest, const std::string& reason) override
+	ModResult OnKill(User* source, User* dest, const std::string &reason) override
+	{
+		// oper killing an oper?
+		if (dest->IsOper() && source->IsOper())
 		{
-			// oper killing an oper?
-			if (dest->IsOper() && source->IsOper())
+			unsigned long dest_level = ConvToNum<unsigned long>(dest->oper->getConfig("level"));
+			unsigned long source_level = ConvToNum<unsigned long>(source->oper->getConfig("level"));
+
+			if (dest_level > source_level)
 			{
-				unsigned long dest_level = ConvToNum<unsigned long>(dest->oper->getConfig("level"));
-				unsigned long source_level = ConvToNum<unsigned long>(source->oper->getConfig("level"));
-
-				if (dest_level > source_level)
+				if (IS_LOCAL(source))
 				{
-					if (IS_LOCAL(source))
-					{
-						ServerInstance->SNO.WriteGlobalSno('a', "Oper %s (level %lu) attempted to /KILL a higher level oper: %s (level %lu), reason: %s",
-							source->nick.c_str(), source_level, dest->nick.c_str(), dest_level, reason.c_str());
-					}
-					dest->WriteNotice("*** Oper " + source->nick + " attempted to /KILL you!");
-					source->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper %s is a higher level than you", dest->nick.c_str()));
-					return MOD_RES_DENY;
+					ServerInstance->SNO.WriteGlobalSno('a', "Oper %s (level %lu) attempted to /KILL a higher level oper: %s (level %lu), reason: %s",
+						source->nick.c_str(), source_level, dest->nick.c_str(), dest_level, reason.c_str());
 				}
+				dest->WriteNotice("*** Oper " + source->nick + " attempted to /KILL you!");
+				source->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper %s is a higher level than you", dest->nick.c_str()));
+				return MOD_RES_DENY;
 			}
-			return MOD_RES_PASSTHRU;
 		}
+		return MOD_RES_PASSTHRU;
+	}
 };
 
 MODULE_INIT(ModuleOperLevels)

@@ -96,89 +96,89 @@ class ModuleHelpop final
 	, public Whois::EventListener
 {
 private:
-		CommandHelpop cmd;
-		SimpleUserMode ho;
+	CommandHelpop cmd;
+	SimpleUserMode ho;
 
-	public:
-		ModuleHelpop()
-			: Module(VF_VENDOR, "Adds the /HELPOP command which allows users to view help on various topics and user mode h (helpop) which marks a server operator as being available for help.")
-			, Whois::EventListener(this)
-			, cmd(this)
-			, ho(this, "helpop", 'h', true)
+public:
+	ModuleHelpop()
+		: Module(VF_VENDOR, "Adds the /HELPOP command which allows users to view help on various topics and user mode h (helpop) which marks a server operator as being available for help.")
+		, Whois::EventListener(this)
+		, cmd(this)
+		, ho(this, "helpop", 'h', true)
+	{
+	}
+
+	void ReadConfig(ConfigStatus& status) override
+	{
+		size_t longestkey = 0;
+
+		HelpMap newhelp;
+		auto tags = ServerInstance->Config->ConfTags("helpop");
+		if (tags.empty())
+			throw ModuleException(this, "You have loaded the helpop module but not configured any help topics!");
+
+		for (const auto& [_, tag] : tags)
 		{
-		}
+			// Attempt to read the help key.
+			const std::string key = tag->getString("key");
+			if (key.empty())
+				throw ModuleException(this, InspIRCd::Format("<helpop:key> is empty at %s", tag->source.str().c_str()));
+			else if (irc::equals(key, "index"))
+				throw ModuleException(this, InspIRCd::Format("<helpop:key> is set to \"index\" which is reserved at %s", tag->source.str().c_str()));
+			else if (key.length() > longestkey)
+				longestkey = key.length();
 
-		void ReadConfig(ConfigStatus& status) override
-		{
-			size_t longestkey = 0;
+			// Attempt to read the help value.
+			std::string value;
+			if (!tag->readString("value", value, true) || value.empty())
+				throw ModuleException(this, InspIRCd::Format("<helpop:value> is empty at %s", tag->source.str().c_str()));
 
-			HelpMap newhelp;
-			auto tags = ServerInstance->Config->ConfTags("helpop");
-			if (tags.empty())
-				throw ModuleException(this, "You have loaded the helpop module but not configured any help topics!");
+			// Parse the help body. Empty lines are replaced with a single
+			// space because some clients are unable to show blank lines.
+			HelpMessage helpmsg;
+			irc::sepstream linestream(value, '\n', true);
+			for (std::string line; linestream.GetToken(line); )
+				helpmsg.push_back(line.empty() ? " " : line);
 
-			for (const auto& [_, tag] : tags)
+			// Read the help title and store the topic.
+			const std::string title = tag->getString("title", InspIRCd::Format("*** Help for %s", key.c_str()), 1);
+			if (!newhelp.emplace(key, HelpTopic(helpmsg, title)).second)
 			{
-				// Attempt to read the help key.
-				const std::string key = tag->getString("key");
-				if (key.empty())
-					throw ModuleException(this, InspIRCd::Format("<helpop:key> is empty at %s", tag->source.str().c_str()));
-				else if (irc::equals(key, "index"))
-					throw ModuleException(this, InspIRCd::Format("<helpop:key> is set to \"index\" which is reserved at %s", tag->source.str().c_str()));
-				else if (key.length() > longestkey)
-					longestkey = key.length();
-
-				// Attempt to read the help value.
-				std::string value;
-				if (!tag->readString("value", value, true) || value.empty())
-					throw ModuleException(this, InspIRCd::Format("<helpop:value> is empty at %s", tag->source.str().c_str()));
-
-				// Parse the help body. Empty lines are replaced with a single
-				// space because some clients are unable to show blank lines.
-				HelpMessage helpmsg;
-				irc::sepstream linestream(value, '\n', true);
-				for (std::string line; linestream.GetToken(line); )
-					helpmsg.push_back(line.empty() ? " " : line);
-
-				// Read the help title and store the topic.
-				const std::string title = tag->getString("title", InspIRCd::Format("*** Help for %s", key.c_str()), 1);
-				if (!newhelp.emplace(key, HelpTopic(helpmsg, title)).second)
-				{
-					throw ModuleException(this, InspIRCd::Format("<helpop> tag with duplicate key '%s' at %s",
-						key.c_str(), tag->source.str().c_str()));
-				}
+				throw ModuleException(this, InspIRCd::Format("<helpop> tag with duplicate key '%s' at %s",
+					key.c_str(), tag->source.str().c_str()));
 			}
-
-			// The number of items we can fit on a page.
-			HelpMessage indexmsg;
-			size_t maxcolumns = 80 / (longestkey + 2);
-			for (HelpMap::iterator iter = newhelp.begin(); iter != newhelp.end(); )
-			{
-				std::string indexline;
-				for (size_t column = 0; column != maxcolumns; )
-				{
-					if (iter == newhelp.end())
-						break;
-
-					indexline.append(iter->first);
-					if (++column != maxcolumns)
-						indexline.append(longestkey - iter->first.length() + 2, ' ');
-					iter++;
-				}
-				indexmsg.push_back(indexline);
-			}
-			newhelp.emplace("index", HelpTopic(indexmsg, "List of help topics"));
-			cmd.help.swap(newhelp);
-
-			auto tag = ServerInstance->Config->ConfValue("helpmsg");
-			cmd.nohelp = tag->getString("nohelp", "There is no help for the topic you searched for. Please try again.", 1);
 		}
 
-		void OnWhois(Whois::Context& whois) override
+		// The number of items we can fit on a page.
+		HelpMessage indexmsg;
+		size_t maxcolumns = 80 / (longestkey + 2);
+		for (HelpMap::iterator iter = newhelp.begin(); iter != newhelp.end(); )
 		{
-			if (whois.GetTarget()->IsModeSet(ho))
-				whois.SendLine(RPL_WHOISHELPOP, "is available for help.");
+			std::string indexline;
+			for (size_t column = 0; column != maxcolumns; )
+			{
+				if (iter == newhelp.end())
+					break;
+
+				indexline.append(iter->first);
+				if (++column != maxcolumns)
+					indexline.append(longestkey - iter->first.length() + 2, ' ');
+				iter++;
+			}
+			indexmsg.push_back(indexline);
 		}
+		newhelp.emplace("index", HelpTopic(indexmsg, "List of help topics"));
+		cmd.help.swap(newhelp);
+
+		auto tag = ServerInstance->Config->ConfValue("helpmsg");
+		cmd.nohelp = tag->getString("nohelp", "There is no help for the topic you searched for. Please try again.", 1);
+	}
+
+	void OnWhois(Whois::Context& whois) override
+	{
+		if (whois.GetTarget()->IsModeSet(ho))
+			whois.SendLine(RPL_WHOISHELPOP, "is available for help.");
+	}
 };
 
 MODULE_INIT(ModuleHelpop)
