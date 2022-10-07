@@ -26,6 +26,7 @@ namespace Who
 {
 	class EventListener;
 	class MatchEventListener;
+	class VisibleEventListener;
 	class Request;
 }
 
@@ -41,7 +42,7 @@ class Who::EventListener : public Events::ModuleEventListener
 	 * @param request Details about the WHO request which caused this response.
 	 * @param source The user who initiated this WHO request.
 	 * @param user The user that this line of the WHO request is about.
-	 * @param memb The channel membership of the user or NULL if not targeted at a channel.
+	 * @param memb The channel membership of the user or the first visible membership if not targeted at a channel.
 	 * @param numeric The numeric which will be sent in response to the request.
 	 * @return MOD_RES_ALLOW to explicitly allow the response, MOD_RES_DENY to explicitly deny the
 	 *         response, or MOD_RES_PASSTHRU to let another module handle the event.
@@ -66,6 +67,25 @@ class Who::MatchEventListener
 	 *         match, or MOD_RES_PASSTHRU to let another module handle the event.
 	 */
 	virtual ModResult OnWhoMatch(const Request& request, LocalUser* source, User* user) = 0;
+};
+
+class Who::VisibleEventListener
+	: public Events::ModuleEventListener
+{
+ public:
+	VisibleEventListener(Module* mod)
+		: ModuleEventListener(mod, "event/who-visible")
+	{
+	}
+
+	/** Called when a WHO request needs to check if a channel is visible.
+	 * @param request Details about the WHO request which caused this match attempt.
+	 * @param source The user who initiated this WHO request.
+	 * @param memb The channel membership of the user to check the visibility of.
+	 * @return MOD_RES_ALLOW to explicitly allow the match, MOD_RES_DENY to explicitly deny the
+	 *         match, or MOD_RES_PASSTHRU to let another module handle the event.
+	 */
+	virtual ModResult OnWhoVisible(const Request& request, LocalUser* source, Membership* memb) = 0;
 };
 
 class Who::Request

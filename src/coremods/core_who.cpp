@@ -116,10 +116,10 @@ class CommandWho : public SplitCommand
  private:
 	ChanModeReference secretmode;
 	ChanModeReference privatemode;
-	UserModeReference hidechansmode;
 	UserModeReference invisiblemode;
 	Events::ModuleEventProvider whoevprov;
 	Events::ModuleEventProvider whomatchevprov;
+	Events::ModuleEventProvider whovisibleevprov;
 
 	void BuildOpLevels()
 	{
@@ -165,15 +165,23 @@ class CommandWho : public SplitCommand
 	}
 
 	/** Gets the first channel which is visible between the source and the target users. */
-	Membership* GetFirstVisibleChannel(LocalUser* source, User* user)
+	Membership* GetFirstVisibleChannel(const WhoData& data, LocalUser* source, User* user)
 	{
 		for (User::ChanList::iterator iter = user->chans.begin(); iter != user->chans.end(); ++iter)
 		{
 			Membership* memb = *iter;
 
-			// TODO: move the +I check into m_hidechans.
-			bool has_modes = memb->chan->IsModeSet(secretmode) || memb->chan->IsModeSet(privatemode) || user->IsModeSet(hidechansmode);
-			if (source == user || !has_modes || memb->chan->HasUser(source))
+			// Let a module handle this first if it wants to.
+			ModResult res;
+			FIRST_MOD_RESULT_CUSTOM(whovisibleevprov, Who::VisibleEventListener, OnWhoVisible, res, (data, source, memb));
+			if (res == MOD_RES_ALLOW)
+				return memb; // Module explicitly picked this chan.
+
+			if (res == MOD_RES_DENY)
+				continue; // Module explicitly rejected this chan.
+
+			// A module didn't specify either way so use the default behaviour.
+			if (source == user || !memb->chan->IsModeSet(secretmode) || !memb->chan->IsModeSet(privatemode) || memb->chan->HasUser(source))
 				return memb;
 		}
 		return NULL;
@@ -203,10 +211,10 @@ class CommandWho : public SplitCommand
 		: SplitCommand(parent, "WHO", 1, 3)
 		, secretmode(parent, "secret")
 		, privatemode(parent, "private")
-		, hidechansmode(parent, "hidechans")
 		, invisiblemode(parent, "invisible")
 		, whoevprov(parent, "event/who")
 		, whomatchevprov(parent, "event/who-match")
+		, whovisibleevprov(parent, "event/who-visible")
 	{
 		allow_empty_last_param = false;
 		syntax = "<server>|<nick>|<channel>|<realname>|<host>|0 [[Aafhilmnoprstux][%acdfhilnorstu] <server>|<nick>|<channel>|<realname>|<host>|0]";
@@ -453,7 +461,7 @@ void CommandWho::WhoUsers(LocalUser* source, const std::vector<std::string>& par
 void CommandWho::SendWhoLine(LocalUser* source, const std::vector<std::string>& parameters, Membership* memb, User* user, WhoData& data)
 {
 	if (!memb)
-		memb = GetFirstVisibleChannel(source, user);
+		memb = GetFirstVisibleChannel(data, source, user);
 
 	bool source_can_see_target = source == user || source->HasPrivPermission("users/auspex");
 	Numeric::Numeric wholine(data.whox ? RPL_WHOSPCRPL : RPL_WHOREPLY);

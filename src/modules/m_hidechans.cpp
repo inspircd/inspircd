@@ -24,6 +24,7 @@
 
 
 #include "inspircd.h"
+#include "modules/who.h"
 #include "modules/whois.h"
 
 /** Handles user mode +I
@@ -34,13 +35,33 @@ class HideChans : public SimpleUserModeHandler
 	HideChans(Module* Creator) : SimpleUserModeHandler(Creator, "hidechans", 'I') { }
 };
 
-class ModuleHideChans : public Module, public Whois::LineEventListener
+class ModuleHideChans CXX11_FINAL
+	: public Module
+	, public Who::VisibleEventListener
+	, public Whois::LineEventListener
 {
+ private:
 	bool AffectsOpers;
 	HideChans hm;
+
+	ModResult ShouldHideChans(LocalUser* source, User* target)
+	{
+		if (source == target)
+			return MOD_RES_PASSTHRU; // User is targeting themself.
+
+		if (!target->IsModeSet(hm))
+			return MOD_RES_PASSTHRU; // Mode not set on the target.
+
+		if (!AffectsOpers && source->HasPrivPermission("users/auspex"))
+			return MOD_RES_PASSTHRU; // Opers aren't exempt or the oper doesn't have the right priv.
+
+		return MOD_RES_DENY;
+	}
+
  public:
 	ModuleHideChans()
-		: Whois::LineEventListener(this)
+		: Who::VisibleEventListener(this)
+		, Whois::LineEventListener(this)
 		, hm(this)
 	{
 	}
@@ -55,30 +76,17 @@ class ModuleHideChans : public Module, public Whois::LineEventListener
 		AffectsOpers = ServerInstance->Config->ConfValue("hidechans")->getBool("affectsopers");
 	}
 
+	ModResult OnWhoVisible(const Who::Request& request, LocalUser* source, Membership* memb) CXX11_OVERRIDE
+	{
+		return ShouldHideChans(source, memb->user);
+	}
+
 	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) CXX11_OVERRIDE
 	{
-		/* always show to self */
-		if (whois.IsSelfWhois())
-			return MOD_RES_PASSTHRU;
-
-		/* don't touch anything except 319 */
 		if (numeric.GetNumeric() != RPL_WHOISCHANNELS)
 			return MOD_RES_PASSTHRU;
 
-		/* don't touch if -I */
-		if (!whois.GetTarget()->IsModeSet(hm))
-			return MOD_RES_PASSTHRU;
-
-		/* if it affects opers, we don't care if they are opered */
-		if (AffectsOpers)
-			return MOD_RES_DENY;
-
-		/* doesn't affect opers, sender is opered */
-		if (whois.GetSource()->HasPrivPermission("users/auspex"))
-			return MOD_RES_PASSTHRU;
-
-		/* user must be opered, boned. */
-		return MOD_RES_DENY;
+		return ShouldHideChans(whois.GetSource(), whois.GetTarget());
 	}
 };
 
