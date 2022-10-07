@@ -82,6 +82,9 @@ class Who::Request
 	/** The text to match against. */
 	std::string matchtext;
 
+	/** If the target was a channel then the matched channel */
+	Channel* matchchan;
+
 	/** The WHO/WHOX responses we will send to the source. */
 	std::vector<Numeric::Numeric> results;
 
@@ -108,6 +111,7 @@ class Who::Request
  protected:
 	Request()
 		: fuzzy_match(false)
+		, matchchan(NULL)
 		, whox(false)
 	{
 	}

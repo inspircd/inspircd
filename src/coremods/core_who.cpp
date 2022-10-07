@@ -608,9 +608,9 @@ CmdResult CommandWho::HandleLocal(LocalUser* user, const Params& parameters)
 	WhoData data(parameters);
 
 	// Is the source running a WHO on a channel?
-	Channel* chan = ServerInstance->FindChan(data.matchtext);
-	if (chan)
-		WhoChannel(user, parameters, chan, data);
+	data.matchchan = ServerInstance->FindChan(data.matchtext);
+	if (data.matchchan)
+		WhoChannel(user, parameters, data.matchchan, data);
 
 	// If we only want to match against opers we only have to iterate the oper list.
 	else if (data.flags['o'])
