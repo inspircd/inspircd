@@ -419,7 +419,7 @@ public:
 	 * @param command A command (should be all CAPS)
 	 * @return True if this user can execute the command
 	 */
-	virtual bool HasCommandPermission(const std::string& command);
+	virtual bool HasCommandPermission(const std::string& command) const;
 
 	/** Returns true if a user has a given permission.
 	 * This is used to check whether or not users may perform certain actions which admins may not wish to give to
@@ -428,7 +428,7 @@ public:
 	 * @param privstr The priv to check, e.g. "users/override/topic". These are loaded free-form from the config file.
 	 * @return True if this user has the permission in question.
 	 */
-	virtual bool HasPrivPermission(const std::string& privstr);
+	virtual bool HasPrivPermission(const std::string& privstr) const;
 
 	/** Returns true or false if a user can set a privileged user or channel mode.
 	 * This is done by looking up their oper type from User::oper, then referencing
@@ -714,7 +714,7 @@ public:
 	 * @param command A command (should be all CAPS)
 	 * @return True if this user can execute the command
 	 */
-	bool HasCommandPermission(const std::string& command) override;
+	bool HasCommandPermission(const std::string& command) const override;
 
 	/** Returns true if a user has a given permission.
 	 * This is used to check whether or not users may perform certain actions which admins may not wish to give to
@@ -723,7 +723,7 @@ public:
 	 * @param privstr The priv to check, e.g. "users/override/topic". These are loaded free-form from the config file.
 	 * @return True if this user has the permission in question.
 	 */
-	bool HasPrivPermission(const std::string& privstr) override;
+	bool HasPrivPermission(const std::string& privstr) const override;
 
 	/** Returns true or false if a user can set a privileged user or channel mode.
 	 * This is done by looking up their oper type from User::oper, then referencing

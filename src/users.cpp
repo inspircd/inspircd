@@ -186,12 +186,12 @@ bool LocalUser::HasModePermission(const ModeHandler* mh) const
  * allowing remote kills, etc - but if they have access to the src, they most likely have
  * access to the conf - so it's an end to a means either way.
  */
-bool User::HasCommandPermission(const std::string&)
+bool User::HasCommandPermission(const std::string& command) const
 {
 	return true;
 }
 
-bool LocalUser::HasCommandPermission(const std::string& command)
+bool LocalUser::HasCommandPermission(const std::string& command) const
 {
 	// are they even an oper at all?
 	if (!this->IsOper())
@@ -202,12 +202,12 @@ bool LocalUser::HasCommandPermission(const std::string& command)
 	return oper->AllowedOperCommands.Contains(command);
 }
 
-bool User::HasPrivPermission(const std::string& privstr)
+bool User::HasPrivPermission(const std::string& privstr) const
 {
 	return true;
 }
 
-bool LocalUser::HasPrivPermission(const std::string& privstr)
+bool LocalUser::HasPrivPermission(const std::string& privstr) const
 {
 	if (!this->IsOper())
 		return false;
