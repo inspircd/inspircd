@@ -64,6 +64,7 @@ class ModuleAuditorium
 	: public Module
 	, public Names::EventListener
 	, public Who::EventListener
+	, public Who::VisibleEventListener
 {
 	CheckExemption::EventProvider exemptionprov;
 	AuditoriumMode aum;
@@ -76,6 +77,7 @@ class ModuleAuditorium
 	ModuleAuditorium()
 		: Names::EventListener(this)
 		, Who::EventListener(this)
+		, Who::VisibleEventListener(this)
 		, exemptionprov(this)
 		, aum(this)
 		, joinhook(this)
@@ -192,6 +194,12 @@ class ModuleAuditorium
 		if (CanSee(source, memb))
 			return MOD_RES_PASSTHRU;
 		return MOD_RES_DENY;
+	}
+
+	ModResult OnWhoVisible(const Who::Request& request, LocalUser* source, Membership* memb) CXX11_OVERRIDE
+	{
+		// Never pick a channel as the first visible one if the channel is in auditorium mode.
+		return IsVisible(memb) || CanSee(source, memb) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
 	}
 };
 
