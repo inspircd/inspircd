@@ -218,7 +218,7 @@ public:
 };
 
 template<> User* CommandWho::GetUser(UserManager::OperList::const_iterator& t) { return *t; }
-template<> User* CommandWho::GetUser(user_hash::const_iterator& t) { return t->second; }
+template<> User* CommandWho::GetUser(UserMap::const_iterator& t) { return t->second; }
 
 bool CommandWho::MatchChannel(LocalUser* source, Membership* memb, WhoData& data)
 {

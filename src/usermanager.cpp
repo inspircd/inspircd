@@ -417,7 +417,7 @@ User* UserManager::FindNick(const std::string& nick)
 	if (nick.empty())
 		return nullptr;
 
-	user_hash::iterator uiter = this->clientlist.find(nick);
+	UserMap::iterator uiter = this->clientlist.find(nick);
 	if (uiter == this->clientlist.end())
 		return nullptr;
 
@@ -429,7 +429,7 @@ User* UserManager::FindUUID(const std::string& uuid)
 	if (uuid.empty())
 		return nullptr;
 
-	user_hash::iterator uiter = this->uuidlist.find(uuid);
+	UserMap::iterator uiter = this->uuidlist.find(uuid);
 	if (uiter == this->uuidlist.end())
 		return nullptr;
 

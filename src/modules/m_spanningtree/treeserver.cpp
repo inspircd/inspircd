@@ -222,9 +222,9 @@ size_t TreeServer::QuitUsers(const std::string& reason)
 {
 	std::string publicreason = Utils->HideSplits ? "*.net *.split" : reason;
 
-	const user_hash& users = ServerInstance->Users.GetUsers();
+	const UserMap& users = ServerInstance->Users.GetUsers();
 	size_t original_size = users.size();
-	for (user_hash::const_iterator i = users.begin(); i != users.end(); )
+	for (UserMap::const_iterator i = users.begin(); i != users.end(); )
 	{
 		User* user = i->second;
 		// Increment the iterator now because QuitUser() removes the user from the container

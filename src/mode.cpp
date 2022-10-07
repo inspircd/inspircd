@@ -647,8 +647,8 @@ bool ModeParser::DelMode(ModeHandler* mh)
 	{
 		case MODETYPE_USER:
 		{
-			const user_hash& users = ServerInstance->Users.GetUsers();
-			for (user_hash::const_iterator i = users.begin(); i != users.end(); )
+			const UserMap& users = ServerInstance->Users.GetUsers();
+			for (UserMap::const_iterator i = users.begin(); i != users.end(); )
 			{
 				User* user = i->second;
 				++i;

@@ -424,8 +424,8 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		}
 	}
 
-	const user_hash& users = ServerInstance->Users.GetUsers();
-	for (user_hash::const_iterator u = users.begin(); u != users.end(); )
+	const UserMap& users = ServerInstance->Users.GetUsers();
+	for (UserMap::const_iterator u = users.begin(); u != users.end(); )
 	{
 		User* user = u->second;
 		// The module may quit the user (e.g. TLS mod unloading) and that will remove it from the container

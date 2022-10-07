@@ -19,6 +19,7 @@
 
 #pragma once
 
+/** A mapping of channel names to their Channel object. */
 typedef std::unordered_map<std::string, Channel*, irc::insensitive, irc::StrHashComp> ChannelMap;
 
 /** Manages state relating to channels. */

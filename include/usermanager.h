@@ -28,6 +28,9 @@
 
 #include <list>
 
+/** A mapping of user nicks or uuids to their User object. */
+typedef std::unordered_map<std::string, User*, irc::insensitive, irc::StrHashComp> UserMap;
+
 class CoreExport UserManager final
 {
 public:
@@ -81,11 +84,11 @@ public:
 
 	/** Nickname string -> User* map. Contains all users, including unregistered ones.
 	 */
-	user_hash clientlist;
+	UserMap clientlist;
 
 	/** UUID -> User* map. Contains all users, including unregistered ones.
 	 */
-	user_hash uuidlist;
+	UserMap uuidlist;
 
 	/** Oper list, a vector containing all local and remote opered users
 	 */
@@ -177,7 +180,7 @@ public:
 	/** Get a hash map containing all users, keyed by their nickname
 	 * @return A hash map mapping nicknames to User pointers
 	 */
-	user_hash& GetUsers() { return clientlist; }
+	UserMap& GetUsers() { return clientlist; }
 
 	/** Get a list containing all local users
 	 * @return A const list of local users

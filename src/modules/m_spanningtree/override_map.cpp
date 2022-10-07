@@ -73,7 +73,7 @@ static std::vector<std::string> GetMap(User* user, TreeServer* current, size_t m
 {
 	float percent = 0;
 
-	const user_hash& users = ServerInstance->Users.GetUsers();
+	const UserMap& users = ServerInstance->Users.GetUsers();
 	if (!users.empty())
 	{
 		// If there are no users, WHO THE HELL DID THE /MAP?!?!?!
