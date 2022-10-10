@@ -92,7 +92,10 @@ namespace Stats
 	public:
 		XMLSerializer& Attribute(const char* name, const std::string& value)
 		{
-			data << '<' << name << '>' << value << "</" << Sanitize(name) << '>';
+			if (value.empty())
+				data << '<' << name << "/>";
+			else
+				data << '<' << name << '>' << Sanitize(value) << "</" << name << '>';
 			return *this;
 		}
 
@@ -129,7 +132,7 @@ namespace Stats
 				.Attribute("name", item->name);
 
 			const std::string value = item->ToHuman(ext, obj);
-			serializer.Attribute("value", value.empty() ? value.c_str() : nullptr);
+			serializer.Attribute("value", value);
 		}
 		serializer.EndBlock();
 	}
