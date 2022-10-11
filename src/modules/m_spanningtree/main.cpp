@@ -626,12 +626,12 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string& oldnick)
 		// The nick TS is updated by the core, we don't do it
 		CmdBuilder params(user, "NICK");
 		params.push(user->nick);
-		params.push(ConvToStr(user->age));
+		params.push(ConvToStr(user->nickchanged));
 		params.Broadcast();
 	}
 	else if (!loopCall)
 	{
-		ServerInstance->Logs.Normal(MODNAME, "WARNING: Changed nick of remote user %s from %s to %s TS %lu by ourselves!", user->uuid.c_str(), oldnick.c_str(), user->nick.c_str(), (unsigned long) user->age);
+		ServerInstance->Logs.Normal(MODNAME, "WARNING: Changed nick of remote user %s from %s to %s TS %lu by ourselves!", user->uuid.c_str(), oldnick.c_str(), user->nick.c_str(), (unsigned long) user->nickchanged);
 	}
 }
 

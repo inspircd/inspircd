@@ -238,9 +238,8 @@ public:
 	 */
 	typedef insp::intrusive_list<Membership> ChanList;
 
-	/** Time that the object was instantiated (used for TS calculation etc)
-	*/
-	time_t age;
+	/** The time at which this user's nickname was last changed. */
+	time_t nickchanged;
 
 	/** Time the connection was created, set in the constructor. This
 	 * may be different from the time the user's Cullable object was

@@ -262,7 +262,7 @@ namespace Stats
 			.Attribute("realname", u->GetRealName())
 			.Attribute("server", u->server->GetName())
 			.Attribute("signon", u->signon)
-			.Attribute("age", u->age)
+			.Attribute("nickchanged", u->nickchanged)
 			.Attribute("modes", u->GetModeLetters().substr(1))
 			.Attribute("ident", u->ident)
 			.Attribute("ipaddress", u->GetIPString());

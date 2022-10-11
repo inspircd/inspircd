@@ -59,9 +59,9 @@ class CommandWatch final
 		{
 			// The away state should only be sent if the client requests away notifications for a nick but 2.0 always sends them so we do that too
 			if (target->IsAway())
-				user->WriteNumeric(RPL_NOWISAWAY, target->nick, target->ident, target->GetDisplayedHost(), (unsigned long)target->awaytime, "is away");
+				user->WriteNumeric(RPL_NOWISAWAY, target->nick, target->ident, target->GetDisplayedHost(), target->awaytime, "is away");
 			else
-				user->WriteNumeric(RPL_NOWON, target->nick, target->ident, target->GetDisplayedHost(), (unsigned long)target->age, "is online");
+				user->WriteNumeric(RPL_NOWON, target->nick, target->ident, target->GetDisplayedHost(), target->nickchanged, "is online");
 		}
 		else if (show_offline)
 			user->WriteNumeric(RPL_NOWOFF, nick, "*", "*", "0", "is offline");
@@ -94,7 +94,7 @@ class CommandWatch final
 
 		User* target = IRCv3::Monitor::Manager::FindNick(nick);
 		if (target)
-			user->WriteNumeric(RPL_WATCHOFF, target->nick, target->ident, target->GetDisplayedHost(), (unsigned long)target->age, "stopped watching");
+			user->WriteNumeric(RPL_WATCHOFF, target->nick, target->ident, target->GetDisplayedHost(), target->nickchanged, "stopped watching");
 		else
 			user->WriteNumeric(RPL_WATCHOFF, nick, "*", "*", "0", "stopped watching");
 	}
@@ -198,12 +198,12 @@ private:
 
 	void Online(User* user)
 	{
-		SendAlert(user, user->nick, RPL_LOGON, "arrived online", user->age);
+		SendAlert(user, user->nick, RPL_LOGON, "arrived online", user->nickchanged);
 	}
 
 	void Offline(User* user, const std::string& nick)
 	{
-		SendAlert(user, nick, RPL_LOGOFF, "went offline", user->age);
+		SendAlert(user, nick, RPL_LOGOFF, "went offline", user->nickchanged);
 	}
 
 public:

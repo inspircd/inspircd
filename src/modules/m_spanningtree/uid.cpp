@@ -33,10 +33,10 @@
 CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params& params)
 {
 	/**
-	 *      0    1    2    3    4    5        6        7     8        9       (n-1)
-	 * UID uuid age nick host dhost ident ip.string signon +modes (modepara) :real
+	 *     0    1           2    3    4     5     6         7      8      9       (n-1)
+	 * UID uuid nickchanged nick host dhost ident ip.string signon +modes (modepara) :real
 	 */
-	time_t age_ts = ServerCommand::ExtractTS(params[1]);
+	time_t nickchanged = ServerCommand::ExtractTS(params[1]);
 	time_t signon = ServerCommand::ExtractTS(params[7]);
 	const std::string& modestr = params[8];
 
@@ -59,12 +59,12 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	else if (collideswith)
 	{
 		// The user on this side is registered, handle the collision
-		bool they_change = Utils->DoCollision(collideswith, remoteserver, age_ts, params[5], params[6], params[0], "UID");
+		bool they_change = Utils->DoCollision(collideswith, remoteserver, nickchanged, params[5], params[6], params[0], "UID");
 		if (they_change)
 		{
 			// The client being introduced needs to change nick to uuid, change the nick in the message before
 			// processing/forwarding it. Also change the nick TS to CommandSave::SavedTimestamp.
-			age_ts = CommandSave::SavedTimestamp;
+			nickchanged = CommandSave::SavedTimestamp;
 			params[1] = ConvToStr(CommandSave::SavedTimestamp);
 			params[2] = params[0];
 		}
@@ -87,7 +87,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	_new->ChangeRealName(params.back());
 	_new->registered = REG_ALL;
 	_new->signon = signon;
-	_new->age = age_ts;
+	_new->nickchanged = nickchanged;
 
 	size_t paramptr = 9;
 	for (const auto& modechr : modestr)
@@ -171,7 +171,7 @@ CommandUID::Builder::Builder(User* user)
 	: CmdBuilder(TreeServer::Get(user), "UID")
 {
 	push(user->uuid);
-	push_int(user->age);
+	push_int(user->nickchanged);
 	push(user->nick);
 	push(user->GetRealHost());
 	push(user->GetDisplayedHost());

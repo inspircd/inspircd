@@ -65,7 +65,7 @@ bool SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remo
 
 	// If the timestamps are not equal only one of the users has to change nick,
 	// otherwise both have to change
-	const time_t localts = u->age;
+	const time_t localts = u->nickchanged;
 	if (remotets != localts)
 	{
 		/* first, let's see if ident@host matches. */
@@ -113,7 +113,7 @@ bool SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remo
 		 */
 		CmdBuilder params("SAVE");
 		params.push(u->uuid);
-		params.push(ConvToStr(u->age));
+		params.push(ConvToStr(u->nickchanged));
 		params.Broadcast();
 
 		u->ChangeNick(u->uuid, CommandSave::SavedTimestamp);

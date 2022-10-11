@@ -196,7 +196,7 @@ public:
 			context.Write("server", targetuser->server->GetName());
 			context.Write("uid", targetuser->uuid);
 			context.Write("signon", targetuser->signon);
-			context.Write("nickts", targetuser->age);
+			context.Write("nickchanged", targetuser->nickchanged);
 			if (localtarget)
 				context.Write("lastmsg", localtarget->idle_lastmsg);
 

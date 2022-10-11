@@ -52,7 +52,7 @@ CmdResult CommandSVSNick::Handle(User* user, Params& parameters)
 		if (parameters.size() > 3)
 		{
 			time_t ExpectedTS = ServerCommand::ExtractTS(parameters[3]);
-			if (u->age != ExpectedTS)
+			if (u->nickchanged != ExpectedTS)
 				return CmdResult::FAILURE; // Ignore SVSNICK
 		}
 

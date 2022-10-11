@@ -88,7 +88,7 @@ std::string User::GetModeLetters(bool includeparams) const
 
 User::User(const std::string& uid, Server* srv, Type type)
 	: Extensible(ExtensionType::USER)
-	, age(ServerInstance->Time())
+	, nickchanged(ServerInstance->Time())
 	, uuid(uid)
 	, server(srv)
 	, registered(REG_NONE)
@@ -640,7 +640,7 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 			}
 		}
 
-		age = newts ? newts : ServerInstance->Time();
+		nickchanged = newts ? newts : ServerInstance->Time();
 	}
 
 	if (this->registered == REG_ALL)
