@@ -42,10 +42,11 @@
 #include <mbedtls/x509.h>
 #include <mbedtls/x509_crt.h>
 #include <mbedtls/x509_crl.h>
-
 #ifdef INSPIRCD_MBEDTLS_LIBRARY_DEBUG
 #include <mbedtls/debug.h>
 #endif
+
+#include <fstream>
 
 static Module* thismod;
 
@@ -516,11 +517,11 @@ namespace mbedTLS
 
 		static std::string ReadFile(const std::string& filename)
 		{
-			FileReader reader(filename);
-			std::string ret = reader.GetString();
-			if (ret.empty())
+			std::ifstream stream(ServerInstance->Config->Paths.PrependConfig(filename));
+			if (!stream.is_open())
 				throw Exception("Cannot read file " + filename);
-			return ret;
+
+			return std::string((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
 		}
 
 		/** Set up the given session with the settings in this profile
