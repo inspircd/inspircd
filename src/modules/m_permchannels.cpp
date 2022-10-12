@@ -61,7 +61,7 @@ public:
 
 // Not in a class due to circular dependency hell.
 static std::string permchannelsconf;
-static bool WriteDatabase(PermChannel& permchanmode, Module* mod, bool save_listmodes)
+static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes)
 {
 	/*
 	 * We need to perform an atomic write so as not to fuck things up.
@@ -283,7 +283,7 @@ public:
 	bool Tick() override
 	{
 		if (dirty)
-			WriteDatabase(p, this, save_listmodes);
+			WriteDatabase(p, save_listmodes);
 		dirty = false;
 		return true;
 	}

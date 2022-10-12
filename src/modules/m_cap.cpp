@@ -281,7 +281,7 @@ public:
 
 namespace
 {
-	std::string SerializeCaps(const Extensible* container, void* item, bool human)
+	std::string SerializeCaps(const Extensible* container, bool human)
 	{
 		// XXX: Cast away the const because IS_LOCAL() doesn't handle it
 		LocalUser* user = IS_LOCAL(const_cast<User*>(static_cast<const User*>(container)));
@@ -319,12 +319,12 @@ Cap::ExtItem::ExtItem(Module* mod)
 
 std::string Cap::ExtItem::ToHuman(const Extensible* container, void* item) const noexcept
 {
-	return SerializeCaps(container, item, true);
+	return SerializeCaps(container, true);
 }
 
 std::string Cap::ExtItem::ToInternal(const Extensible* container, void* item) const noexcept
 {
-	return SerializeCaps(container, item, false);
+	return SerializeCaps(container, false);
 }
 
 void Cap::ExtItem::FromInternal(Extensible* container, const std::string& value) noexcept
