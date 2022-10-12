@@ -45,7 +45,7 @@ class CommandShowFile final
 	unsigned int intronumeric;
 	unsigned int textnumeric;
 	unsigned int endnumeric;
-	file_cache contents;
+	std::vector<std::string> contents;
 	Method method;
 
 public:

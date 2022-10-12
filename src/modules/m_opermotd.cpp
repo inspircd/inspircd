@@ -41,7 +41,7 @@ class CommandOpermotd final
 	: public Command
 {
 public:
-	file_cache opermotd;
+	std::vector<std::string> opermotd;
 
 	CommandOpermotd(Module* Creator) : Command(Creator,"OPERMOTD", 0, 1)
 	{
