@@ -63,11 +63,10 @@ void SocketEngine::RecoverFromFork()
 
 bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 {
-	int fd = eh->GetFd();
-
-	if (fd < 0)
+	if (!eh->HasFd())
 		return false;
 
+	int fd = eh->GetFd();
 	if (static_cast<size_t>(fd) >= GetMaxFds())
 		return false;
 
@@ -86,11 +85,10 @@ bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 
 void SocketEngine::DelFd(EventHandler* eh)
 {
-	int fd = eh->GetFd();
-
-	if (fd < 0)
+	if (!eh->HasFd())
 		return;
 
+	int fd = eh->GetFd();
 	if (static_cast<size_t>(fd) >= GetMaxFds())
 		return;
 

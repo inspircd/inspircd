@@ -66,7 +66,7 @@ static int mask_to_poll(int event_mask)
 bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
-	if (fd < 0)
+	if (!eh->HasFd())
 	{
 		ServerInstance->Logs.Debug("SOCKET", "AddFd out of range: (fd: %d)", fd);
 		return false;
@@ -102,7 +102,7 @@ bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 {
 	int fd = eh->GetFd();
-	if (fd < 0 || static_cast<unsigned int>(fd) >= fd_mappings.size() || fd_mappings[fd] == -1)
+	if (!eh->HasFd() || static_cast<unsigned int>(fd) >= fd_mappings.size() || fd_mappings[fd] == -1)
 	{
 		ServerInstance->Logs.Debug("SOCKET", "SetEvents() on unknown fd: %d", eh->GetFd());
 		return;
@@ -114,7 +114,7 @@ void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 void SocketEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
-	if (fd < 0)
+	if (!eh->HasFd())
 	{
 		ServerInstance->Logs.Debug("SOCKET", "DelFd out of range: (fd: %d)", fd);
 		return;

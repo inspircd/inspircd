@@ -41,16 +41,14 @@ static IOHook* GetNextHook(IOHook* hook)
 }
 
 BufferedSocket::BufferedSocket()
+	: state(I_ERROR)
 {
-	Timeout = nullptr;
-	state = I_ERROR;
 }
 
 BufferedSocket::BufferedSocket(int newfd)
+	: state(I_CONNECTED)
 {
-	Timeout = nullptr;
-	this->fd = newfd;
-	this->state = I_CONNECTED;
+	SetFd(newfd);
 	if (HasFd())
 		SocketEngine::AddFd(this, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE);
 }
@@ -69,18 +67,18 @@ void BufferedSocket::DoConnect(const irc::sockets::sockaddrs& dest, const irc::s
 BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long timeout)
 {
 	if (!HasFd())
-		fd = socket(dest.family(), SOCK_STREAM, 0);
+		SetFd(socket(dest.family(), SOCK_STREAM, 0));
 
 	if (!HasFd())
 		return I_ERR_SOCKET;
 
 	if (bind.family() != 0)
 	{
-		if (SocketEngine::Bind(fd, bind) < 0)
+		if (SocketEngine::Bind(GetFd(), bind) < 0)
 			return I_ERR_BIND;
 	}
 
-	SocketEngine::NonBlocking(fd);
+	SocketEngine::NonBlocking(GetFd());
 
 	if (SocketEngine::Connect(this, dest) == -1)
 	{
@@ -468,7 +466,8 @@ void StreamSocket::OnEventHandlerRead()
 	}
 	catch (CoreException& ex)
 	{
-		ServerInstance->Logs.Normal("SOCKET", "Caught exception in socket processing on FD %d - '%s'", fd, ex.GetReason().c_str());
+		ServerInstance->Logs.Normal("SOCKET", "Caught exception in socket processing on FD %d - '%s'",
+			GetFd(), ex.GetReason().c_str());
 		SetError(ex.GetReason());
 	}
 	CheckError(I_ERR_OTHER);
@@ -487,7 +486,7 @@ void StreamSocket::CheckError(BufferedSocketError errcode)
 {
 	if (!error.empty())
 	{
-		ServerInstance->Logs.Debug("SOCKET", "Error on FD %d - '%s'", fd, error.c_str());
+		ServerInstance->Logs.Debug("SOCKET", "Error on FD %d - '%s'", GetFd(), error.c_str());
 		OnError(errcode);
 	}
 }

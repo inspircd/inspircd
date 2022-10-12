@@ -96,15 +96,14 @@ static struct kevent* GetChangeKE()
 
 bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 {
-	int fd = eh->GetFd();
-
-	if (fd < 0)
+	if (!eh->HasFd())
 		return false;
 
 	if (!SocketEngine::AddFdRef(eh))
 		return false;
 
 	// We always want to read from the socket...
+	int fd = eh->GetFd();
 	struct kevent* ke = GetChangeKE();
 	EV_SET(ke, fd, EVFILT_READ, EV_ADD, 0, 0, udata_cast(eh));
 
@@ -120,8 +119,7 @@ bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 void SocketEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
-
-	if (fd < 0)
+	if (!eh->HasFd())
 	{
 		ServerInstance->Logs.Normal("SOCKET", "DelFd() on invalid fd: %d", fd);
 		return;

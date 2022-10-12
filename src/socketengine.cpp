@@ -56,12 +56,6 @@ size_t SocketEngine::MaxSetSize = 0;
  */
 SocketEngine::Statistics SocketEngine::stats;
 
-EventHandler::EventHandler()
-{
-	fd = -1;
-	event_mask = 0;
-}
-
 void EventHandler::SetFd(int FD)
 {
 	this->fd = FD;

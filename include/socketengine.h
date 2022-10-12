@@ -155,18 +155,17 @@ class CoreExport EventHandler
 {
 private:
 	/** Private state maintained by socket engine */
-	int event_mask;
+	int event_mask = 0;
 
 	void SetEventMask(int mask) { event_mask = mask; }
 
-protected:
 	/** File descriptor.
 	 * All events which can be handled must have a file descriptor.  This
 	 * allows you to add events for sockets, fifo's, pipes, and various
 	 * other forms of IPC.  Do not change this while the object is
 	 * registered with the SocketEngine
 	 */
-	int fd;
+	int fd = -1;
 
 public:
 	/** Get the current file descriptor
@@ -185,10 +184,6 @@ public:
 	 * added it to a SocketEngine instance.
 	 */
 	void SetFd(int FD);
-
-	/** Constructor
-	 */
-	EventHandler();
 
 	/** Called by the socket engine in case of a read event
 	 */

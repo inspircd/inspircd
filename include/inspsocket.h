@@ -379,7 +379,7 @@ class CoreExport BufferedSocket
 public:
 	/** Timeout object or NULL
 	 */
-	SocketTimeout* Timeout;
+	SocketTimeout* Timeout = nullptr;
 
 	/**
 	 * The state for this socket, either

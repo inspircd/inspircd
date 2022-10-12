@@ -88,7 +88,7 @@ static unsigned mask_to_epoll(int event_mask)
 bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
-	if (fd < 0)
+	if (!eh->HasFd())
 	{
 		ServerInstance->Logs.Debug("SOCKET", "AddFd out of range: (fd: %d)", fd);
 		return false;
@@ -137,7 +137,7 @@ void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 void SocketEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
-	if (fd < 0)
+	if (!eh->HasFd())
 	{
 		ServerInstance->Logs.Debug("SOCKET", "DelFd out of range: (fd: %d)", fd);
 		return;
@@ -172,10 +172,10 @@ int SocketEngine::DispatchEvents()
 		const epoll_event ev = events[j];
 
 		EventHandler* const eh = static_cast<EventHandler*>(ev.data.ptr);
-		const int fd = eh->GetFd();
-		if (fd < 0)
+		if (!eh->HasFd())
 			continue;
 
+		const int fd = eh->GetFd();
 		if (ev.events & EPOLLHUP)
 		{
 			stats.ErrorEvents++;

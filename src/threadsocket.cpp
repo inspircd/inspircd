@@ -46,13 +46,13 @@ public:
 
 	void Notify()
 	{
-		eventfd_write(fd, 1);
+		eventfd_write(GetFd(), 1);
 	}
 
 	void OnEventHandlerRead() override
 	{
 		eventfd_t dummy;
-		eventfd_read(fd, &dummy);
+		eventfd_read(GetFd(), &dummy);
 		parent->OnNotify();
 	}
 
@@ -86,14 +86,17 @@ SocketThread::SocketThread()
 class ThreadSignalSocket final
 	: public EventHandler
 {
+private:
 	SocketThread* parent;
 	int send_fd;
+
 public:
-	ThreadSignalSocket(SocketThread* p, int recvfd, int sendfd) :
-		parent(p), send_fd(sendfd)
+	ThreadSignalSocket(SocketThread* p, int recvfd, int sendfd)
+		: parent(p)
+		, send_fd(sendfd)
 	{
 		SetFd(recvfd);
-		SocketEngine::NonBlocking(fd);
+		SocketEngine::NonBlocking(GetFd());
 		SocketEngine::AddFd(this, FD_WANT_FAST_READ | FD_WANT_NO_WRITE);
 	}
 
@@ -112,7 +115,7 @@ public:
 	void OnEventHandlerRead() override
 	{
 		char dummy[128];
-		read(fd, dummy, 128);
+		read(GetFd(), dummy, 128);
 		parent->OnNotify();
 	}
 

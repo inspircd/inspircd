@@ -49,7 +49,7 @@ ListenSocket::ListenSocket(std::shared_ptr<ConfigTag> tag, const irc::sockets::s
 			unlink(bind_to.str().c_str());
 	}
 
-	fd = socket(bind_to.family(), SOCK_STREAM, 0);
+	SetFd(socket(bind_to.family(), SOCK_STREAM, 0));
 	if (!HasFd())
 		return;
 
@@ -66,7 +66,7 @@ ListenSocket::ListenSocket(std::shared_ptr<ConfigTag> tag, const irc::sockets::s
 		/* This must be >= sizeof(DWORD) on Windows */
 		const int enable = (addr.empty() || addr == "*") ? 0 : 1;
 		/* This must be before bind() */
-		setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<const char* >(&enable), sizeof(enable));
+		setsockopt(GetFd(), IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<const char* >(&enable), sizeof(enable));
 		// errors ignored intentionally
 	}
 #endif
@@ -75,20 +75,20 @@ ListenSocket::ListenSocket(std::shared_ptr<ConfigTag> tag, const irc::sockets::s
 	{
 		socklen_t enable = 1;
 #if defined IP_FREEBIND // Linux 2.4+
-		setsockopt(fd, SOL_IP, IP_FREEBIND, &enable, sizeof(enable));
+		setsockopt(GetFd(), SOL_IP, IP_FREEBIND, &enable, sizeof(enable));
 #elif defined IP_BINDANY // FreeBSD
-		setsockopt(fd, IPPROTO_IP, IP_BINDANY, &enable, sizeof(enable));
+		setsockopt(GetFd(), IPPROTO_IP, IP_BINDANY, &enable, sizeof(enable));
 #elif defined SO_BINDANY // NetBSD/OpenBSD
-		setsockopt(fd, SOL_SOCKET, SO_BINDANY, &enable, sizeof(enable));
+		setsockopt(GetFd(), SOL_SOCKET, SO_BINDANY, &enable, sizeof(enable));
 #else
 		(void)enable;
 #endif
 	}
 
-	SocketEngine::SetReuse(fd);
-	int rv = SocketEngine::Bind(this->fd, bind_to);
+	SocketEngine::SetReuse(GetFd());
+	int rv = SocketEngine::Bind(GetFd(), bind_to);
 	if (rv >= 0)
-		rv = SocketEngine::Listen(this->fd, ServerInstance->Config->MaxConn);
+		rv = SocketEngine::Listen(GetFd(), ServerInstance->Config->MaxConn);
 
 	if (bind_to.family() == AF_UNIX)
 	{
@@ -107,12 +107,12 @@ ListenSocket::ListenSocket(std::shared_ptr<ConfigTag> tag, const irc::sockets::s
 	if (timeout && !rv)
 	{
 #if defined TCP_DEFER_ACCEPT
-		setsockopt(fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, &timeout, sizeof(timeout));
+		setsockopt(GetFd(), IPPROTO_TCP, TCP_DEFER_ACCEPT, &timeout, sizeof(timeout));
 #elif defined SO_ACCEPTFILTER
 		struct accept_filter_arg afa;
 		memset(&afa, 0, sizeof(afa));
 		strcpy(afa.af_name, "dataready");
-		setsockopt(fd, SOL_SOCKET, SO_ACCEPTFILTER, &afa, sizeof(afa));
+		setsockopt(GetFd(), SOL_SOCKET, SO_ACCEPTFILTER, &afa, sizeof(afa));
 #endif
 	}
 
@@ -120,13 +120,13 @@ ListenSocket::ListenSocket(std::shared_ptr<ConfigTag> tag, const irc::sockets::s
 	{
 		int errstore = errno;
 		SocketEngine::Shutdown(this, 2);
-		SocketEngine::Close(this->GetFd());
-		this->fd = -1;
+		SocketEngine::Close(GetFd());
+		SetFd(-1);
 		errno = errstore;
 	}
 	else
 	{
-		SocketEngine::NonBlocking(this->fd);
+		SocketEngine::NonBlocking(GetFd());
 		SocketEngine::AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 
 		this->ResetIOHookProvider();
@@ -137,7 +137,7 @@ ListenSocket::~ListenSocket()
 {
 	if (this->HasFd())
 	{
-		ServerInstance->Logs.Debug("SOCKET", "Shut down listener on fd %d", this->fd);
+		ServerInstance->Logs.Debug("SOCKET", "Shut down listener on fd %d", this->GetFd());
 		SocketEngine::Shutdown(this, 2);
 
 		if (SocketEngine::Close(this) != 0)
