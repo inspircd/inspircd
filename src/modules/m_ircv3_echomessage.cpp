@@ -24,26 +24,53 @@
 #include "modules/cap.h"
 #include "modules/ctctags.h"
 
+class EchoTag final
+	: public ClientProtocol::MessageTagProvider
+{
+private:
+	CTCTags::CapReference stdrplcap;
+
+public:
+	Cap::Capability echomsgcap;
+
+	EchoTag(Module* Creator)
+		: ClientProtocol::MessageTagProvider(Creator)
+		, stdrplcap(Creator)
+		, echomsgcap(Creator, "echo-message")
+	{
+	}
+
+	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) final
+	{
+		return stdrplcap.IsEnabled(user) && echomsgcap.IsEnabled(user);
+	}
+};
+
 class ModuleIRCv3EchoMessage final
 	: public Module
 	, public CTCTags::EventListener
 {
 private:
-	Cap::Capability cap;
+	EchoTag echotag;
 	ClientProtocol::EventProvider tagmsgprov;
+
+	void AddEchoTag(ClientProtocol::Message& msg)
+	{
+		msg.AddTag("inspircd.org/echo", &echotag, "");
+	}
 
 public:
 	ModuleIRCv3EchoMessage()
 		: Module(VF_VENDOR, "Provides the IRCv3 echo-message client capability.")
 		, CTCTags::EventListener(this)
-		, cap(this, "echo-message")
+		, echotag(this)
 		, tagmsgprov(this, "TAGMSG")
 	{
 	}
 
 	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) override
 	{
-		if (!cap.IsEnabled(user) || !details.echo)
+		if (!echotag.echomsgcap.IsEnabled(user) || !details.echo)
 			return;
 
 		// Caps are only set on local users
@@ -58,6 +85,7 @@ public:
 				User* destuser = target.Get<User>();
 				ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, destuser, text, details.type);
 				privmsg.AddTags(tags);
+				AddEchoTag(privmsg);
 				localuser->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
 				break;
 			}
@@ -66,6 +94,7 @@ public:
 				Channel* chan = target.Get<Channel>();
 				ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, chan, text, details.type, target.status);
 				privmsg.AddTags(tags);
+				AddEchoTag(privmsg);
 				localuser->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
 				break;
 			}
@@ -74,6 +103,7 @@ public:
 				const std::string* servername = target.Get<std::string>();
 				ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, *servername, text, details.type);
 				privmsg.AddTags(tags);
+				AddEchoTag(privmsg);
 				localuser->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
 				break;
 			}
@@ -82,7 +112,7 @@ public:
 
 	void OnUserPostTagMessage(User* user, const MessageTarget& target, const CTCTags::TagMessageDetails& details) override
 	{
-		if (!cap.IsEnabled(user) || !details.echo)
+		if (!echotag.echomsgcap.IsEnabled(user) || !details.echo)
 			return;
 
 		// Caps are only set on local users
@@ -95,6 +125,7 @@ public:
 			{
 				User* destuser = target.Get<User>();
 				CTCTags::TagMessage message(user, destuser, tags);
+				AddEchoTag(message);
 				localuser->Send(tagmsgprov, message);
 				break;
 			}
@@ -102,6 +133,7 @@ public:
 			{
 				Channel* chan = target.Get<Channel>();
 				CTCTags::TagMessage message(user, chan, tags, target.status);
+				AddEchoTag(message);
 				localuser->Send(tagmsgprov, message);
 				break;
 			}
@@ -109,6 +141,7 @@ public:
 			{
 				const std::string* servername = target.Get<std::string>();
 				CTCTags::TagMessage message(user, servername->c_str(), tags);
+				AddEchoTag(message);
 				localuser->Send(tagmsgprov, message);
 				break;
 			}

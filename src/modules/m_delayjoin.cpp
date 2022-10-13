@@ -104,6 +104,7 @@ class ModuleDelayJoin final
 	, public CTCTags::EventListener
 	, public Names::EventListener
 	, public Who::EventListener
+	, public Who::VisibleEventListener
 {
 private:
 	IntExtItem unjoined;
@@ -129,6 +130,7 @@ public:
 		, CTCTags::EventListener(this)
 		, Names::EventListener(this)
 		, Who::EventListener(this)
+		, Who::VisibleEventListener(this)
 		, unjoined(this, "delayjoin", ExtensionType::MEMBERSHIP)
 		, joinhook(this, unjoined)
 		, djm(this, unjoined)
@@ -137,6 +139,7 @@ public:
 
 	ModResult OnNamesListItem(LocalUser* issuer, Membership*, std::string& prefixes, std::string& nick) override;
 	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) override;
+	ModResult OnWhoVisible(const Who::Request& request, LocalUser* source, Membership* memb) override;
 	void OnUserJoin(Membership*, bool, bool, CUList&) override;
 	void CleanUser(User* user);
 	void OnUserPart(Membership*, std::string& partmessage, CUList&) override;
@@ -175,6 +178,15 @@ ModResult ModuleDelayJoin::OnWhoLine(const Who::Request& request, LocalUser* sou
 	if (request.GetFieldIndex('f', flag_index))
 		numeric.GetParams()[flag_index].push_back('<');
 	return MOD_RES_PASSTHRU;
+}
+
+ModResult ModuleDelayJoin::OnWhoVisible(const Who::Request& request, LocalUser* source, Membership* memb)
+{
+	// A WHO request is visible if:
+	// 1. The source is the user.
+	// 2. The user specified the delayjoin `d` flag.
+	// 3. The user is not delayjoined.
+	return source == memb->user || request.flags['d'] || !unjoined.Get(memb) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
 }
 
 void ModuleDelayJoin::OnUserJoin(Membership* memb, bool sync, bool created, CUList& except)

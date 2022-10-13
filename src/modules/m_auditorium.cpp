@@ -68,6 +68,7 @@ class ModuleAuditorium final
 	: public Module
 	, public Names::EventListener
 	, public Who::EventListener
+	, public Who::VisibleEventListener
 {
 	CheckExemption::EventProvider exemptionprov;
 	AuditoriumMode aum;
@@ -81,6 +82,7 @@ public:
 		: Module(VF_VENDOR, "Adds channel mode u (auditorium) which hides unprivileged users in a channel from each other.")
 		, Names::EventListener(this)
 		, Who::EventListener(this)
+		, Who::VisibleEventListener(this)
 		, exemptionprov(this)
 		, aum(this)
 		, joinhook(this)
@@ -187,6 +189,12 @@ public:
 		if (CanSee(source, memb))
 			return MOD_RES_PASSTHRU;
 		return MOD_RES_DENY;
+	}
+
+	ModResult OnWhoVisible(const Who::Request& request, LocalUser* source, Membership* memb) override
+	{
+		// Never pick a channel as the first visible one if the channel is in auditorium mode.
+		return IsVisible(memb) || CanSee(source, memb) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
 	}
 };
 
