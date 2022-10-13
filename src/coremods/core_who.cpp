@@ -180,8 +180,11 @@ class CommandWho : public SplitCommand
 			if (res == MOD_RES_DENY)
 				continue; // Module explicitly rejected this chan.
 
-			// A module didn't specify either way so use the default behaviour.
-			if (source == user || !memb->chan->IsModeSet(secretmode) || !memb->chan->IsModeSet(privatemode) || memb->chan->HasUser(source))
+			// A module didn't specify either way so use the default behaviour:
+			// 1. The requesting user is getting a WHO response for themself.
+			// 2. The +s (secret) and +p (private) channel modes are not set.
+			// 3. The requesting user is a member of the channel.
+			if (source == user || (!memb->chan->IsModeSet(secretmode) && !memb->chan->IsModeSet(privatemode)) || memb->chan->HasUser(source))
 				return memb;
 		}
 		return NULL;
