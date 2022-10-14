@@ -759,7 +759,7 @@ public:
 	 * @param endindex Index of the first element that is not part of the MODE list. By default,
 	 * the entire container is considered part of the MODE list.
 	 */
-	void ModeParamsToChangeList(User* user, ModeType type, const std::vector<std::string>& parameters, Modes::ChangeList& changelist, size_t beginindex = 1, size_t endindex = UINT_MAX);
+	void ModeParamsToChangeList(User* user, ModeType type, const std::vector<std::string>& parameters, Modes::ChangeList& changelist, size_t beginindex = 1, size_t endindex = SIZE_MAX);
 
 	/** Find the mode handler for a given mode name and type.
 	 * @param modename The mode name to search for.

@@ -70,7 +70,7 @@ public:
 		fakechanprefix = tag->getString("fakechanprefix", "#", 1, ServerInstance->Config->Limits.MaxChannel - 1);
 		fakechantopic = tag->getString("fakechantopic", "Fake channel for confusing spambots", 1, ServerInstance->Config->Limits.MaxTopic - 1);
 		showmsg = tag->getBool("showmsg", true);
-		waittime = tag->getDuration("waittime", 60, 1, UINT_MAX);
+		waittime = tag->getDuration("waittime", 60, 1, 60*60*24);
 
 		allowlist.swap(newallows);
 	}

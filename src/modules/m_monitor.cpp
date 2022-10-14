@@ -248,7 +248,7 @@ void IRCv3::Monitor::Manager::ExtItem::FromInternal(Extensible* container, const
 
 	irc::spacesepstream ss(value);
 	for (std::string nick; ss.GetToken(nick); )
-		manager.Watch(static_cast<LocalUser*>(container), nick, UINT_MAX);
+		manager.Watch(static_cast<LocalUser*>(container), nick, ULONG_MAX);
 }
 
 #ifndef INSPIRCD_MONITOR_MANAGER_ONLY

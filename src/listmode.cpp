@@ -146,7 +146,7 @@ unsigned long ListModeBase::GetLowerLimit()
 	if (chanlimits.empty())
 		return DEFAULT_LIST_SIZE;
 
-	unsigned long limit = UINT_MAX;
+	unsigned long limit = ULONG_MAX;
 	for (const auto& chanlimit : chanlimits)
 	{
 		if (chanlimit.limit < limit)
