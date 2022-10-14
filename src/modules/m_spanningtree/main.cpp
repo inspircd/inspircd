@@ -265,7 +265,7 @@ void ModuleSpanningTree::ConnectServer(std::shared_ptr<Link> x, std::shared_ptr<
 				start_type = DNS::QUERY_A;
 		}
 
-		auto snr = new ServernameResolver(*DNS, x->IPAddr, x, start_type, y);
+		auto snr = new ServerNameResolver(*DNS, x->IPAddr, x, start_type, y);
 		try
 		{
 			DNS->Process(snr);

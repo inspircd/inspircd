@@ -31,39 +31,30 @@
 #include "utils.h"
 #include "link.h"
 
-/** Handle resolving of server IPs for the cache
- */
+// Handles resolving whitelisted hostnames for the inbound connection whitelist.
 class SecurityIPResolver final
 	: public DNS::Request
 {
 private:
-	std::shared_ptr<Link> MyLink;
-	Module* mine;
-	std::string host;
-	DNS::QueryType query;
+	std::shared_ptr<Link> link;
 	bool CheckIPv4();
+
 public:
-	SecurityIPResolver(Module* me, DNS::Manager* mgr, const std::string& hostname, std::shared_ptr<Link> x, DNS::QueryType qt);
+	SecurityIPResolver(Module* mod, DNS::Manager* mgr, const std::string& hostname, std::shared_ptr<Link> l, DNS::QueryType qt);
 	void OnLookupComplete(const DNS::Query* r) override;
 	void OnError(const DNS::Query* q) override;
 };
 
-/** This class is used to resolve server hostnames during /connect and autoconnect.
- * As of 1.1, the resolver system is separated out from BufferedSocket, so we must do this
- * resolver step first ourselves if we need it. This is totally nonblocking, and will
- * callback to OnLookupComplete or OnError when completed. Once it has completed we
- * will have an IP address which we can then use to continue our connection.
- */
-class ServernameResolver final
+// Handles resolving server hostnames when making an outbound connection.
+class ServerNameResolver final
 	: public DNS::Request
 {
 private:
-	DNS::QueryType query;
-	std::string host;
-	std::shared_ptr<Link> MyLink;
-	std::shared_ptr<Autoconnect> myautoconnect;
+	std::shared_ptr<Autoconnect> autoconnect;
+	std::shared_ptr<Link> link;
+
 public:
-	ServernameResolver(DNS::Manager* mgr, const std::string& hostname, std::shared_ptr<Link> x, DNS::QueryType qt, std::shared_ptr<Autoconnect> myac);
+	ServerNameResolver(DNS::Manager* mgr, const std::string& hostname, std::shared_ptr<Link> l, DNS::QueryType qt, std::shared_ptr<Autoconnect> a);
 	void OnLookupComplete(const DNS::Query* r) override;
 	void OnError(const DNS::Query* q) override;
 };
