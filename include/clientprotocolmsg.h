@@ -297,9 +297,9 @@ public:
 	 */
 	static std::string ToModeLetters(const Modes::ChangeList& changelist)
 	{
-		// TODO: This assumes that std::string::max_size() >= UINT_MAX
+		std::string dummystr;
 		Modes::ChangeList::List::const_iterator dummy;
-		return ToModeLetters(changelist.getlist(), UINT_MAX, changelist.getlist().begin(), dummy);
+		return ToModeLetters(changelist.getlist(), dummystr.max_size(), changelist.getlist().begin(), dummy);
 	}
 
 	/** Constructor, populate parameters starting from a given position in a mode change list.
