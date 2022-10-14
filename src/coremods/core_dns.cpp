@@ -307,6 +307,7 @@ class Packet : public Query
 
 				if (q.name.find(':') != std::string::npos)
 				{
+					// ::1 => 1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa
 					static const char* const hex = "0123456789abcdef";
 					char reverse_ip[128];
 					unsigned reverse_ip_count = 0;
@@ -324,6 +325,7 @@ class Packet : public Query
 				}
 				else
 				{
+					// 127.0.0.1 => 1.0.0.127.in-addr.arpa
 					unsigned long forward = ip.in4.sin_addr.s_addr;
 					ip.in4.sin_addr.s_addr = forward << 24 | (forward & 0xFF00) << 8 | (forward & 0xFF0000) >> 8 | forward >> 24;
 
@@ -525,7 +527,8 @@ class MyManager : public Manager, public Timer, public EventHandler
 			return;
 		}
 
-		// Update name in the original request so question checking works for PTR queries
+		// For PTR lookups we rewrite the original name to use the special in-addr.arpa/ip6.arpa
+		// domains so we need to update the original request so that question checking works.
 		req->question.name = p.question.name;
 
 		if (SocketEngine::SendTo(this, buffer, len, 0, this->myserver) != len)
