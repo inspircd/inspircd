@@ -430,6 +430,7 @@ XLine* XLineManager::MatchesLine(const std::string &type, const std::string &pat
 // removes lines that have expired
 void XLineManager::ExpireLine(ContainerIter container, LookupIter item, bool silent)
 {
+	ServerInstance->BanCache.RemoveEntries(item->second->type, true);
 	FOREACH_MOD(OnExpireLine, (item->second));
 
 	if (!silent)
