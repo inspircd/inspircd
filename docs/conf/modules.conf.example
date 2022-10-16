@@ -2052,15 +2052,22 @@
 # This module implements the 'identified' state via account names,
 # and is similar in operation to the way asuka and ircu handle services.
 #
-# At the same time, this offers +r for users and channels to mark them
-# as identified separately from the idea of a master account, which
-# can be useful for services which are heavily nick-as-account centric.
-#
 # Also of note is that this module implements two extbans:
 # +b R: (stop matching account names from joining)
 # +b U:n!u@h (blocks matching unregistered users)
 #
 #<module name="services_account">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Services integration module: Adds various features which enable
+# integrating with a third-party services pseudoserver like Anope or
+# Atheme.
+#<module name="services">
+#
+# If your services server has support for InspIRCd v4 then you can disable
+# the legacy modes that were previously used for marking a user or channel
+# as being registered:
+# <services disablemodes="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Sethost module: Adds the /SETHOST command.

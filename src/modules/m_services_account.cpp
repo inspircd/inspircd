@@ -45,53 +45,6 @@ enum
 	RPL_LOGGEDOUT = 901
 };
 
-/** Channel mode +r - mark a channel as identified
- */
-class RegisteredChannel final
-	: public SimpleChannelMode
-{
-public:
-	RegisteredChannel(Module* Creator)
-		: SimpleChannelMode(Creator, "c_registered", 'r')
-	{
-	}
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
-	{
-		if (IS_LOCAL(source))
-		{
-			source->WriteNumeric(ERR_NOPRIVILEGES, "Only a server may modify the +r channel mode");
-			return MODEACTION_DENY;
-		}
-
-		return SimpleChannelMode::OnModeChange(source, dest, channel, change);
-	}
-};
-
-/** User mode +r - mark a user as identified
- */
-class RegisteredUser final
-	: public SimpleUserMode
-{
-
-public:
-	RegisteredUser(Module* Creator)
-		: SimpleUserMode(Creator, "u_registered", 'r')
-	{
-	}
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
-	{
-		if (IS_LOCAL(source))
-		{
-			source->WriteNumeric(ERR_NOPRIVILEGES, "Only a server may modify the +r channel mode");
-			return MODEACTION_DENY;
-		}
-
-		return SimpleUserMode::OnModeChange(source, dest, channel, change);
-	}
-};
-
 class AccountExtItemImpl final
 	: public StringExtItem
 {
@@ -268,8 +221,6 @@ private:
 	SimpleChannelMode reginvitemode;
 	SimpleChannelMode regmoderatedmode;
 	SimpleUserMode regdeafmode;
-	RegisteredChannel chanregmode;
-	RegisteredUser userregmode;
 	AccountAPIImpl accountapi;
 	AccountExtBan accountextban;
 	UnauthedExtBan unauthedextban;
@@ -285,8 +236,6 @@ public:
 		, reginvitemode(this, "reginvite", 'R')
 		, regmoderatedmode(this, "regmoderated", 'M')
 		, regdeafmode(this, "regdeaf", 'R')
-		, chanregmode(this)
-		, userregmode(this)
 		, accountapi(this)
 		, accountextban(this, accountapi)
 		, unauthedextban(this, accountapi)
@@ -314,13 +263,6 @@ public:
 
 		if (accountapi.IsIdentifiedToNick(whois.GetTarget()))
 			whois.SendLine(RPL_WHOISREGNICK, "is a registered nick");
-	}
-
-	void OnUserPostNick(User* user, const std::string& oldnick) override
-	{
-		/* On nickchange, if they have +r, remove it */
-		if ((user->IsModeSet(userregmode)) && (ServerInstance->Users.FindNick(oldnick) != user))
-			userregmode.RemoveMode(user);
 	}
 
 	ModResult HandleMessage(User* user, const MessageTarget& target)
