@@ -507,12 +507,8 @@ void ModuleManager::LoadAll()
 	LoadCoreModules(servicemap);
 
 	// Step 1: load all of the modules.
-	for (const auto& [_, tag] : ServerInstance->Config->ConfTags("module"))
+	for (const auto& shortname : ServerInstance->Config->GetModules())
 	{
-		const std::string shortname = tag->getString("name");
-		if (shortname.empty())
-			continue; // Skip malformed module tags.
-
 		// Skip modules which are already loaded.
 		const std::string name = ExpandModName(shortname);
 		if (Modules.find(name) != Modules.end())

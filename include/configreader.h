@@ -537,6 +537,9 @@ public:
 	 */
 	static std::string Escape(const std::string& str);
 
+	/** Retrieves the list of modules that were specified in the config. */
+	std::vector<std::string> GetModules() const;
+
 	/** If this value is true, snotices will not stack when repeats are sent
 	 */
 	bool NoSnoticeStack = false;

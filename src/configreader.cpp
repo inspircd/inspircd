@@ -494,17 +494,14 @@ void ServerConfig::ApplyModules(User* user)
 	std::vector<std::string> added_modules;
 	ModuleManager::ModuleMap removed_modules = ServerInstance->Modules.GetModules();
 
-	for (const auto& [_, tag] : ConfTags("module"))
+	for (const auto& module : GetModules())
 	{
-		std::string name;
-		if (tag->readString("name", name))
-		{
-			name = ModuleManager::ExpandModName(name);
-			// if this module is already loaded, the erase will succeed, so we need do nothing
-			// otherwise, we need to add the module (which will be done later)
-			if (removed_modules.erase(name) == 0)
-				added_modules.push_back(name);
-		}
+		const std::string name = ModuleManager::ExpandModName(module);
+
+		// if this module is already loaded, the erase will succeed, so we need do nothing
+		// otherwise, we need to add the module (which will be done later)
+		if (removed_modules.erase(name) == 0)
+			added_modules.push_back(name);
 	}
 
 	for (const auto& [modname, mod] : removed_modules)
@@ -597,6 +594,41 @@ std::string ServerConfig::Escape(const std::string& str)
 		}
 	}
 	return escaped.str();
+}
+
+std::vector<std::string> ServerConfig::GetModules() const
+{
+	auto tags = ConfTags("module");
+	std::vector<std::string> modules;
+	modules.reserve(tags.count());
+	for (const auto& [_, tag] : tags)
+	{
+		const std::string shortname = ModuleManager::ShrinkModName(tag->getString("name"));
+		if (shortname.empty())
+		{
+			ServerInstance->Logs.Normal("CONFIG", "Malformed <module> tag at " + tag->source.str() + "; skipping ...");
+			continue;
+		}
+
+		// Rewrite the old names of renamed modules.
+		if (stdalgo::string::equalsci(shortname, "cgiirc"))
+			modules.push_back("gateway");
+		else if (stdalgo::string::equalsci(shortname, "gecosban"))
+			modules.push_back("realnameban");
+		else if (stdalgo::string::equalsci(shortname, "sha256"))
+			modules.push_back("sha2");
+		else if (stdalgo::string::equalsci(shortname, "services_account"))
+		{
+			modules.push_back("account");
+			modules.push_back("services");
+		}
+		else
+		{
+			// No need to rewrite this module name.
+			modules.push_back(shortname);
+		}
+	}
+	return modules;
 }
 
 void ConfigReaderThread::OnStart()
