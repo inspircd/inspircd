@@ -209,7 +209,7 @@ public:
 	}
 };
 
-class ModuleServicesAccount final
+class ModuleAccount final
 	: public Module
 	, public CTCTags::EventListener
 	, public Who::EventListener
@@ -226,8 +226,8 @@ private:
 	UnauthedExtBan unauthedextban;
 
 public:
-	ModuleServicesAccount()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds various channel and user modes relating to services accounts.")
+	ModuleAccount()
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds various channel and user modes relating to accounts.")
 		, CTCTags::EventListener(this)
 		, Who::EventListener(this)
 		, Whois::EventListener(this)
@@ -241,7 +241,6 @@ public:
 		, unauthedextban(this, accountapi)
 	{
 	}
-
 
 	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) override
 	{
@@ -351,4 +350,4 @@ public:
 	}
 };
 
-MODULE_INIT(ModuleServicesAccount)
+MODULE_INIT(ModuleAccount)

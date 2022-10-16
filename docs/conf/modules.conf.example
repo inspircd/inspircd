@@ -54,6 +54,11 @@
 #<module name="abbreviation">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Account support module: Adds support for user accounts as well as
+# several several modes relating to accounts.
+#<module name="account">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Alias module: Allows you to define server-side command aliases.
 #<module name="alias">
 #
@@ -2046,17 +2051,6 @@
 # This module is oper-only.
 # To use, SETIDLE must be in one of your oper class blocks.
 #<module name="setidle">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Services support module: Adds several user modes such as +R and +M.
-# This module implements the 'identified' state via account names,
-# and is similar in operation to the way asuka and ircu handle services.
-#
-# Also of note is that this module implements two extbans:
-# +b R: (stop matching account names from joining)
-# +b U:n!u@h (blocks matching unregistered users)
-#
-#<module name="services_account">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Services integration module: Adds various features which enable

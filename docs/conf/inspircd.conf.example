@@ -339,7 +339,7 @@
          # NOTE: You must complete the signon prior to full connection. Currently,
          # this is only possible by using SASL authentication; passforward
          # and PRIVMSG NickServ happen after your final connect block has been found.
-         # Requires the services_account module to be loaded.
+         # Requires the account module to be loaded.
          #requireaccount="yes"
 
          # Alternate MOTD file for this connect class. The contents of this file are

@@ -466,7 +466,7 @@ public:
 
 	void Prioritize() override
 	{
-		// Want to be after modules like silence or services_account
+		// Want to be after modules like account or silence
 		ServerInstance->Modules.SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
 	}
 };
