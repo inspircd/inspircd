@@ -26,6 +26,9 @@ namespace Account
 	class API;
 	class APIBase;
 	class EventListener;
+
+	/** Encapsulates a list of nicknames associated with an account. */
+	typedef insp::flat_set<std::string, irc::insensitive_swo> NickList;
 }
 
 /** Defines the interface for the account API. */
@@ -49,6 +52,18 @@ public:
 	 * @return If the user is logged in to an account then the account name; otherwise, nullptr.
 	 */
 	virtual std::string* GetAccountName(const User* user) const = 0;
+
+	/** Retrieves the account nicks of the specified user.
+	 * @param user The user to retrieve the account nicks of.
+	 * @return If the user is logged in to an account then the account nicks; otherwise, nullptr.
+	 */
+	virtual NickList* GetAccountNicks(const User* user) const = 0;
+
+	/** Determines whether a user is identified to their nickname.
+	* @param user The user to check the identification status of.
+	* @return If the user is identified to their nickname then true; otherwise, false.
+	*/
+	virtual bool IsIdentifiedToNick(const User* user) = 0;
 };
 
 /** Allows modules to access information regarding user accounts. */

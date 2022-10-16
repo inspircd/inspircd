@@ -130,18 +130,63 @@ public:
 	}
 };
 
+
+class AccountNicksExtItem final
+	: public SimpleExtItem<Account::NickList>
+{
+public:
+	AccountNicksExtItem(Module* mod)
+		: SimpleExtItem<Account::NickList>(mod, "accountnicks", ExtensionType::USER, true)
+	{
+	}
+
+	void FromInternal(Extensible* container, const std::string& value) noexcept override
+	{
+		if (container->extype != this->extype)
+			return;
+
+		auto list = new Account::NickList();
+		irc::spacesepstream nickstream(value);
+		for (std::string nick; nickstream.GetToken(nick); )
+			list->insert(nick);
+
+		if (list->empty())
+		{
+			// The remote sent an empty list of nicknames for some reason.
+			delete list;
+			Unset(container);
+		}
+		else
+		{
+			// The remote sent a non-zero list of nicks; set it.
+			Set(container, list);
+		}
+	}
+
+	std::string ToInternal(const Extensible* container, void* item) const noexcept override
+	{
+		auto list = static_cast<Account::NickList*>(item);
+		return stdalgo::string::join(*list);
+	}
+};
+
+
 class AccountAPIImpl final
 	: public Account::APIBase
 {
 private:
 	AccountExtItemImpl accountext;
 	StringExtItem accountidext;
+	AccountNicksExtItem accountnicksext;
+	UserModeReference identifiedmode;
 
 public:
 	AccountAPIImpl(Module* mod)
 		: Account::APIBase(mod)
 		, accountext(mod)
 		, accountidext(mod, "accountid", ExtensionType::USER, true)
+		, accountnicksext(mod)
+		, identifiedmode(mod, "u_registered")
 	{
 	}
 
@@ -153,6 +198,21 @@ public:
 	std::string* GetAccountName(const User* user) const override
 	{
 		return accountext.Get(user);
+	}
+
+	Account::NickList* GetAccountNicks(const User* user) const override
+	{
+		return accountnicksext.Get(user);
+	}
+
+	bool IsIdentifiedToNick(const User* user) override
+	{
+		if (user->IsModeSet(identifiedmode))
+			return true; // User has +r set.
+
+		// Check whether their current nick is in their nick list.
+		Account::NickList* nicks = accountnicksext.Get(user);
+		return nicks && stdalgo::isin(*nicks, user->nick);
 	}
 };
 
@@ -240,26 +300,20 @@ public:
 		if (!request.GetFieldIndex('f', flag_index))
 			return MOD_RES_PASSTHRU;
 
-		if (user->IsModeSet(userregmode))
+		if (accountapi.IsIdentifiedToNick(user))
 			numeric.GetParams()[flag_index].push_back('r');
 
 		return MOD_RES_PASSTHRU;
 	}
 
-	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
 	void OnWhois(Whois::Context& whois) override
 	{
 		const std::string* account = accountapi.GetAccountName(whois.GetTarget());
 		if (account)
-		{
 			whois.SendLine(RPL_WHOISACCOUNT, *account, "is logged in as");
-		}
 
-		if (whois.GetTarget()->IsModeSet(userregmode))
-		{
-			/* user is registered */
+		if (accountapi.IsIdentifiedToNick(whois.GetTarget()))
 			whois.SendLine(RPL_WHOISREGNICK, "is a registered nick");
-		}
 	}
 
 	void OnUserPostNick(User* user, const std::string& oldnick) override
