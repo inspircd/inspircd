@@ -276,15 +276,13 @@ public:
 
 
 		const std::string* account = accountapi.GetAccountName(user);
-		bool is_registered = account && !account->empty();
-
 		switch (target.type)
 		{
 			case MessageTarget::TYPE_CHANNEL:
 			{
 				Channel* targetchan = target.Get<Channel>();
 
-				if (!targetchan->IsModeSet(regmoderatedmode) || is_registered)
+				if (!targetchan->IsModeSet(regmoderatedmode) || account)
 					return MOD_RES_PASSTHRU;
 
 				if (CheckExemption::Call(exemptionprov, user, targetchan, "regmoderated") == MOD_RES_ALLOW)
@@ -297,7 +295,7 @@ public:
 			case MessageTarget::TYPE_USER:
 			{
 				User* targetuser = target.Get<User>();
-				if (!targetuser->IsModeSet(regdeafmode)  || is_registered)
+				if (!targetuser->IsModeSet(regdeafmode)  || account)
 					return MOD_RES_PASSTHRU;
 
 				if (calleridapi && calleridapi->IsOnAcceptList(user, targetuser))
@@ -330,13 +328,11 @@ public:
 
 
 		const std::string* account = accountapi.GetAccountName(user);
-		bool is_registered = account && !account->empty();
-
 		if (chan)
 		{
 			if (chan->IsModeSet(reginvitemode))
 			{
-				if (!is_registered)
+				if (!account)
 				{
 					// joining a +R channel and not identified
 					user->WriteNumeric(ERR_NEEDREGGEDNICK, chan->name, "You need to be identified to a registered account to join this channel");
