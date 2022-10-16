@@ -55,6 +55,12 @@ namespace
 			{
 				// Replace m_foo.dylib with m_foo.so
 				modname.append(name.substr(0, endpos)).append(".so");
+
+				// Handle renamed modules.
+				if (stdalgo::string::equalsci(modname, "m_realnameban.so"))
+					modname = "m_gecosban.so";
+				else if (stdalgo::string::equalsci(modname, "m_account.so") && ServerInstance->Modules.Find("services"))
+					modname = "m_services_account.so";
 			}
 			else
 			{
