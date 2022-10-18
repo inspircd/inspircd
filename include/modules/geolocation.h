@@ -76,8 +76,8 @@ public:
 	}
 
 	/** Retrieves the two character country code for this location. */
-	std::string GetCode() const { return code; }
+	const std::string& GetCode() const { return code; }
 
 	/** Retrieves the country name for this location. */
-	std::string GetName() const { return name; }
+	const std::string& GetName() const { return name; }
 };
