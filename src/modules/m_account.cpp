@@ -165,7 +165,7 @@ public:
 
 		// Check whether their current nick is in their nick list.
 		Account::NickList* nicks = accountnicksext.Get(user);
-		return nicks && stdalgo::isin(*nicks, user->nick);
+		return nicks && nicks->find(user->nick) != nicks->end();
 	}
 };
 
