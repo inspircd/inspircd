@@ -340,10 +340,22 @@ public:
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass::Ptr myclass) override
 	{
-		if (myclass->config->getBool("requireaccount") && !accountapi.GetAccountName(user))
+		const char* error = nullptr;
+		if (stdalgo::string::equalsci(myclass->config->getString("requireaccount"), "nick"))
 		{
-			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires the user to be logged into an account",
-				myclass->GetName().c_str());
+			if (!accountapi.GetAccountName(user) && !accountapi.IsIdentifiedToNick(user))
+				error = "an account matching their current nickname";
+		}
+		else if (myclass->config->getBool("requireaccount"))
+		{
+			if (!accountapi.GetAccountName(user))
+				error = "an account";
+		}
+
+		if (error)
+		{
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires the user to be logged into %s",
+				myclass->GetName().c_str(), error);
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
