@@ -1,9 +1,9 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013, 2017-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2013 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
+ *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2007-2008 Dennis Friis <peavey@inspircd.org>
@@ -106,7 +106,7 @@ class ModuleBanException : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Adds channel mode e (banexception) which allows channel operators to exempt user masks from the b (ban) channel mode.", VF_VENDOR);
+		return Version("Adds channel mode e (banexception) which allows channel operators to exempt user masks from channel mode b (ban).", VF_VENDOR);
 	}
 };
 

@@ -279,7 +279,7 @@ class Packet : public Query
 	unsigned short Pack(unsigned char* output, unsigned short output_size)
 	{
 		if (output_size < HEADER_LENGTH)
-			throw Exception("Unable to pack packet");
+			throw Exception("Unable to pack oversized packet header");
 
 		unsigned short pos = 0;
 
@@ -302,10 +302,12 @@ class Packet : public Query
 			if (q.type == QUERY_PTR)
 			{
 				irc::sockets::sockaddrs ip;
-				irc::sockets::aptosa(q.name, 0, ip);
+				if (!irc::sockets::aptosa(q.name, 0, ip))
+					throw Exception("Unable to pack packet with malformed IP for PTR lookup");
 
 				if (q.name.find(':') != std::string::npos)
 				{
+					// ::1 => 1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa
 					static const char* const hex = "0123456789abcdef";
 					char reverse_ip[128];
 					unsigned reverse_ip_count = 0;
@@ -323,6 +325,7 @@ class Packet : public Query
 				}
 				else
 				{
+					// 127.0.0.1 => 1.0.0.127.in-addr.arpa
 					unsigned long forward = ip.in4.sin_addr.s_addr;
 					ip.in4.sin_addr.s_addr = forward << 24 | (forward & 0xFF00) << 8 | (forward & 0xFF0000) >> 8 | forward >> 24;
 
@@ -333,7 +336,7 @@ class Packet : public Query
 			this->PackName(output, output_size, pos, q.name);
 
 			if (pos + 4 >= output_size)
-				throw Exception("Unable to pack packet");
+				throw Exception("Unable to pack oversized packet body");
 
 			short s = htons(q.type);
 			memcpy(&output[pos], &s, 2);
@@ -524,7 +527,8 @@ class MyManager : public Manager, public Timer, public EventHandler
 			return;
 		}
 
-		// Update name in the original request so question checking works for PTR queries
+		// For PTR lookups we rewrite the original name to use the special in-addr.arpa/ip6.arpa
+		// domains so we need to update the original request so that question checking works.
 		req->question.name = p.question.name;
 
 		if (SocketEngine::SendTo(this, buffer, len, 0, this->myserver) != len)

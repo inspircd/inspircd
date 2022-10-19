@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013, 2017 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Craig Edwards <brain@inspircd.org>
@@ -37,7 +37,7 @@ class OperPrefixMode : public PrefixMode
 		OperPrefixMode(Module* Creator)
 			: PrefixMode(Creator, "operprefix", 'y', OPERPREFIX_VALUE)
 		{
-			prefix = ServerInstance->Config->ConfValue("operprefix")->getString("prefix", "!", 1, 1)[0];
+			prefix = ServerInstance->Config->ConfValue("operprefix")->getCharacter("prefix", '!');
 			ranktoset = ranktounset = UINT_MAX;
 		}
 };

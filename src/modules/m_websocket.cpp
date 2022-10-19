@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2019 iwalkalone <iwalkalone69@gmail.com>
- *   Copyright (C) 2017-2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2017-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2016-2017 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -29,22 +29,35 @@
 #include <unchecked.h>
 
 static const char MagicGUID[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-static const char whitespace[] = " \t\r\n";
+static const char newline[] = "\r\n";
+static const char whitespace[] = " \t";
 static dynamic_reference_nocheck<HashProvider>* sha1;
 
 struct WebSocketConfig
 {
+	enum DefaultMode
+	{
+		// Reject connections if a subprotocol is not requested.
+		DM_REJECT,
+
+		// Use binary frames if a subprotocol is not requested.
+		DM_BINARY,
+
+		// Use UTF-8 text frames if a subprotocol is not requested.
+		DM_TEXT
+	};
+
 	typedef std::vector<std::string> OriginList;
 	typedef std::vector<std::string> ProxyRanges;
 
 	// The HTTP origins that can connect to the server.
 	OriginList allowedorigins;
 
+	// The method to use if a subprotocol is not negotiated.
+	DefaultMode defaultmode;
+
 	// The IP ranges which send trustworthy X-Real-IP or X-Forwarded-For headers.
 	ProxyRanges proxyranges;
-
-	// Whether to send as UTF-8 text instead of binary data.
-	bool sendastext;
 };
 
 class WebSocketHookProvider : public IOHookProvider
@@ -67,32 +80,51 @@ class WebSocketHook : public IOHookMiddle
 {
 	class HTTPHeaderFinder
 	{
+	 private:
 		std::string::size_type bpos;
 		std::string::size_type len;
 
 	 public:
 		bool Find(const std::string& req, const char* header, std::string::size_type headerlen, std::string::size_type maxpos)
 		{
-			std::string::size_type keybegin = req.find(header);
-			if ((keybegin == std::string::npos) || (keybegin > maxpos) || (keybegin == 0) || (req[keybegin-1] != '\n'))
-				return false;
+			// Skip the GET /wibble HTTP/1.1 line.
+			size_t startpos = req.find(newline) + sizeof(newline) - 1;
+			while (startpos < maxpos)
+			{
+				size_t endpos = req.find(newline, startpos);
+				if (strncasecmp(req.c_str() + startpos, header, headerlen) != 0)
+				{
+					startpos = endpos + sizeof(newline) - 1;
+					continue; // Incorrect header.
+				}
 
-			keybegin += headerlen;
+				bpos = req.find_first_not_of(whitespace, startpos + headerlen);
+				if (bpos >= endpos)
+					return false; // Empty value.
 
-			bpos = req.find_first_not_of(whitespace, keybegin, sizeof(whitespace)-1);
-			if ((bpos == std::string::npos) || (bpos > maxpos))
-				return false;
+				size_t epos = std::min(req.find_last_not_of(whitespace), endpos);
+				if (epos < bpos)
+					return false; // Should never happen.
 
-			const std::string::size_type epos = req.find_first_of(whitespace, bpos, sizeof(whitespace)-1);
-			len = epos - bpos;
+				len = epos - bpos;
+				return true;
+			}
 
-			return true;
+			// No header found.
+			return false;
 		}
 
 		std::string ExtractValue(const std::string& req) const
 		{
 			return std::string(req, bpos, len);
 		}
+	};
+
+	enum CloseCode
+	{
+		CLOSE_PROTOCOL_ERROR = 1002,
+		CLOSE_POLICY_VIOLATION = 1008,
+		CLOSE_TOO_LARGE = 1009
 	};
 
 	enum OpCode
@@ -125,6 +157,7 @@ class WebSocketHook : public IOHookMiddle
 	State state;
 	time_t lastpingpong;
 	WebSocketConfig& config;
+	bool sendastext;
 
 	static size_t FillHeader(unsigned char* outbuf, size_t sendlength, OpCode opcode)
 	{
@@ -171,7 +204,7 @@ class WebSocketHook : public IOHookMiddle
 		unsigned char len1 = (unsigned char)cmyrecvq[1];
 		if (!(len1 & WS_MASKBIT))
 		{
-			sock->SetError("WebSocket protocol violation: unmasked client frame");
+			CloseConnection(sock, CLOSE_PROTOCOL_ERROR, "WebSocket protocol violation: unmasked client frame");
 			return -1;
 		}
 
@@ -187,7 +220,7 @@ class WebSocketHook : public IOHookMiddle
 			// allowlarge is false for control frames according to the RFC meaning large pings, etc. are not allowed
 			if (!allowlarge)
 			{
-				sock->SetError("WebSocket protocol violation: large control frame");
+				CloseConnection(sock, CLOSE_PROTOCOL_ERROR, "WebSocket protocol violation: large control frame");
 				return -1;
 			}
 
@@ -202,7 +235,7 @@ class WebSocketHook : public IOHookMiddle
 
 			if (len <= WS_MAX_PAYLOAD_LENGTH_SMALL)
 			{
-				sock->SetError("WebSocket protocol violation: non-minimal length encoding used");
+				CloseConnection(sock, CLOSE_PROTOCOL_ERROR, "WebSocket protocol violation: non-minimal length encoding used");
 				return -1;
 			}
 
@@ -211,7 +244,7 @@ class WebSocketHook : public IOHookMiddle
 		}
 		else if (len1 == WS_PAYLOAD_LENGTH_MAGIC_HUGE)
 		{
-			sock->SetError("WebSocket: Huge frames are not supported");
+			CloseConnection(sock, CLOSE_TOO_LARGE, "WebSocket: Huge frames are not supported");
 			return -1;
 		}
 
@@ -235,7 +268,7 @@ class WebSocketHook : public IOHookMiddle
 	{
 		if (lastpingpong + MINPINGPONGDELAY >= ServerInstance->Time())
 		{
-			sock->SetError("WebSocket: Ping/pong flood");
+			CloseConnection(sock, CLOSE_POLICY_VIOLATION, "WebSocket: Ping/pong flood");
 			return -1;
 		}
 
@@ -306,10 +339,24 @@ class WebSocketHook : public IOHookMiddle
 
 			default:
 			{
-				sock->SetError("WebSocket: Invalid opcode");
+				CloseConnection(sock, CLOSE_PROTOCOL_ERROR, "WebSocket: Invalid opcode");
 				return -1;
 			}
 		}
+	}
+
+	void CloseConnection(StreamSocket* sock, CloseCode closecode, const std::string& reason)
+	{
+		uint16_t netcode = htons(closecode);
+		std::string packedcode;
+		packedcode.push_back(netcode & 0x00FF);
+		packedcode.push_back(netcode >> 8);
+
+		GetSendQ().push_back(PrepareSendQElem(reason.length() + 2, OP_CLOSE));
+		GetSendQ().push_back(packedcode);
+		GetSendQ().push_back(reason);
+		sock->DoWrite();
+		sock->SetError(reason);
 	}
 
 	void FailHandshake(StreamSocket* sock, const char* httpreply, const char* sockerror)
@@ -358,15 +405,23 @@ class WebSocketHook : public IOHookMiddle
 			irc::sockets::sockaddrs realsa(luser->client_sa);
 
 			HTTPHeaderFinder proxyheader;
-			if (proxyheader.Find(recvq, "X-Real-IP:", 10, reqend)
-				&& irc::sockets::aptosa(proxyheader.ExtractValue(recvq), realsa.port(), realsa))
+			if (proxyheader.Find(recvq, "X-Real-IP:", 10, reqend) || proxyheader.Find(recvq, "X-Forwarded-For:", 16, reqend))
 			{
-				// Nothing to do here.
+				// Attempt to parse the proxy HTTP header.
+				irc::sockets::aptosa(proxyheader.ExtractValue(recvq), realsa.port(), realsa);
 			}
-			else if (proxyheader.Find(recvq, "X-Forwarded-For:", 16, reqend)
-				&& irc::sockets::aptosa(proxyheader.ExtractValue(recvq), realsa.port(), realsa))
+			else
 			{
-				// Nothing to do here.
+				// The proxy header is missing.
+				FailHandshake(sock, "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n", "WebSocket: Received a proxied HTTP request that did not send a real IP address header");
+				return -1;
+			}
+
+			if (realsa.family() == AF_UNSPEC)
+			{
+				// The proxy header value contains a malformed value.
+				FailHandshake(sock, "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n", "WebSocket: Received a proxied HTTP request that sent a malformed real IP address");
+				return -1;
 			}
 
 			for (WebSocketConfig::ProxyRanges::const_iterator iter = config.proxyranges.begin(); iter != config.proxyranges.end(); ++iter)
@@ -385,6 +440,32 @@ class WebSocketHook : public IOHookMiddle
 			}
 		}
 
+		std::string selectedproto;
+		HTTPHeaderFinder protocolheader;
+		if (protocolheader.Find(recvq, "Sec-WebSocket-Protocol:", 23, reqend))
+		{
+			irc::commasepstream protostream(protocolheader.ExtractValue(recvq));
+			for (std::string proto; protostream.GetToken(proto); )
+			{
+				proto.erase(std::remove_if(proto.begin(), proto.end(), ::isspace), proto.end());
+
+				bool is_binary = stdalgo::string::equalsci(proto, "binary.inspircd.org");
+				bool is_text = stdalgo::string::equalsci(proto, "text.inspircd.org");
+
+				if (is_binary || is_text)
+				{
+					selectedproto = proto;
+					sendastext = is_text;
+					break;
+				}
+			}
+		}
+
+		if (selectedproto.empty() && config.defaultmode == WebSocketConfig::DM_REJECT)
+		{
+			FailHandshake(sock, "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n", "WebSocket: Received HTTP request that did not send the Sec-WebSocket-Protocol header");
+			return -1;
+		}
 
 		HTTPHeaderFinder keyheader;
 		if (!keyheader.Find(recvq, "Sec-WebSocket-Key:", 18, reqend))
@@ -405,7 +486,10 @@ class WebSocketHook : public IOHookMiddle
 		key.append(MagicGUID);
 
 		std::string reply = "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ";
-		reply.append(BinToBase64((*sha1)->GenerateRaw(key), NULL, '=')).append("\r\n\r\n");
+		reply.append(BinToBase64((*sha1)->GenerateRaw(key), NULL, '=')).append(newline);
+		if (!selectedproto.empty())
+			reply.append("Sec-WebSocket-Protocol: ").append(selectedproto).append(newline);
+		reply.append(newline);
 		GetSendQ().push_back(StreamSocket::SendQueue::Element(reply));
 
 		SocketEngine::ChangeEventMask(sock, FD_ADD_TRIAL_WRITE);
@@ -421,8 +505,14 @@ class WebSocketHook : public IOHookMiddle
 		, state(STATE_HTTPREQ)
 		, lastpingpong(0)
 		, config(cfg)
+		, sendastext(config.defaultmode != WebSocketConfig::DM_BINARY)
 	{
 		sock->AddIOHook(this);
+	}
+
+	bool IsHookReady() const CXX11_OVERRIDE
+	{
+		return state == STATE_ESTABLISHED;
 	}
 
 	int OnStreamSocketWrite(StreamSocket* sock, StreamSocket::SendQueue& uppersendq) CXX11_OVERRIDE
@@ -441,7 +531,7 @@ class WebSocketHook : public IOHookMiddle
 				if (*chr == '\n')
 				{
 					// We have found an entire message. Send it in its own frame.
-					if (config.sendastext)
+					if (sendastext)
 					{
 						// If we send messages as text then we need to ensure they are valid UTF-8.
 						std::string encoded;
@@ -538,7 +628,16 @@ class ModuleWebSocket : public Module
 		}
 
 		ConfigTag* tag = ServerInstance->Config->ConfValue("websocket");
-		config.sendastext = tag->getBool("sendastext", true);
+
+		const std::string defaultmodestr = tag->getString("defaultmode", tag->getBool("sendastext", true) ? "text" : "binary", 1);
+		if (stdalgo::string::equalsci(defaultmodestr, "reject"))
+			config.defaultmode = WebSocketConfig::DM_REJECT;
+		else if (stdalgo::string::equalsci(defaultmodestr, "binary"))
+			config.defaultmode = WebSocketConfig::DM_BINARY;
+		else if (stdalgo::string::equalsci(defaultmodestr, "text"))
+			config.defaultmode = WebSocketConfig::DM_TEXT;
+		else
+			throw ModuleException(defaultmodestr + " is an invalid value for <websocket:defaultmode>; acceptable values are 'binary', 'text' and 'reject', at " + tag->getTagLocation());
 
 		irc::spacesepstream proxyranges(tag->getString("proxyranges"));
 		for (std::string proxyrange; proxyranges.GetToken(proxyrange); )

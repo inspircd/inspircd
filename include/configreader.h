@@ -2,10 +2,10 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
- *   Copyright (C) 2018 Chris Novakovic <chrisnovakovic@users.noreply.github.com>
+ *   Copyright (C) 2018 Chris Novakovic
  *   Copyright (C) 2013-2014, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
- *   Copyright (C) 2012-2014, 2016-2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012-2014, 2016-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008 Thomas Stagner <aquanight@inspircd.org>
@@ -54,6 +54,8 @@ class CoreExport ConfigTag : public refcountbase
 	double getFloat(const std::string& key, double def, double min = DBL_MIN, double max = DBL_MAX);
 	/** Get the value of an option, using def if it does not exist */
 	bool getBool(const std::string& key, bool def = false);
+	/** Get the value of an option, using def if it does not exist */
+	unsigned char getCharacter(const std::string& key, unsigned char def = '\0');
 
 	/** Get the value in seconds of a duration that is in the user-friendly "1h2m3s" format,
 	 * using a default value if it does not exist or is out of bounds.
@@ -453,7 +455,7 @@ class CoreExport ServerConfig
 	const std::string& GetServerName() const { return HideServer.empty() ? ServerName : HideServer; }
 
 	/** Retrieves the server description which should be shown to users. */
-	const std::string& GetServerDesc() const { return HideServer.empty() ? ServerDesc : HideServer; }
+	const std::string& GetServerDesc() const { return HideServer.empty() ? ServerDesc : Network; }
 
 	/** Read the entire configuration into memory
 	 * and initialize this class. All other methods

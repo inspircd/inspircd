@@ -22,13 +22,14 @@ use v5.10.0;
 use strict;
 use warnings FATAL => qw(all);
 
+use CommonMark              ();
 use File::Basename          qw(basename dirname);
 use File::Spec::Functions   qw(catdir catfile rel2abs);
 use FindBin                 qw($RealDir);
 use HTML::FormatText        ();
 use HTML::TreeBuilder       ();
-use Text::Markdown::Hoedown qw(HOEDOWN_HTML_SKIP_HTML markdown);
 use Text::Sentence          qw(split_sentences);
+use YAML                    qw(LoadFile);
 
 use lib dirname $RealDir;
 use make::common;
@@ -46,15 +47,14 @@ print_error "unable to find the module directory at $docdir!" unless -d $docdir;
 my $root = dirname $RealDir;
 for my $module (<$root/src/modules/extra/m_*.cpp>, <$root/src/modules/m_*.cpp>, <$root/src/modules/m_*/main.cpp>) {
 	print_error "unable to extract module name from $module!" unless $module =~ /m_(\w+)[.\/]/;
-	my $docfile = catfile $docdir, "$1.md";
+	my $docfile = catfile $docdir, "$1.yml";
 	print_error "unable to find the module documentation at $docfile!" unless -f $docfile;
 
-	open(my $dh, $docfile) or print_error "unable to read from $docfile: $!";
-	my $docdata = do { local $/; <$dh> };
-	close $dh;
-	print_error "unable to find the module description in $docfile!" unless $docdata =~ /\#\#\# Description\n\n(?:This module )?([^\n]+)/;
+	my ($docdata, undef, undef) = LoadFile($docfile) or print_error "unable to read from $docfile: $!";
+	print_error "unable to find the module description in $docfile!" unless $docdata->{description};
 
-	my $docrendered = markdown ucfirst $1, extensions => HOEDOWN_HTML_SKIP_HTML;
+	my $docraw = $docdata->{description} =~ s/^(?:This module )//r;
+	my $docrendered = CommonMark->markdown_to_html(ucfirst $docraw);
 	my $docplain = HTML::FormatText->new(leftmargin => 0, rightmargin => ~0)->format(HTML::TreeBuilder->new->parse($docrendered));
 
 	my $description = (split_sentences $docplain)[0] =~ s/"/\\"/gr;

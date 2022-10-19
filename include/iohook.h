@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2013, 2016-2017 Attila Molnar <attilamolnar@hush.com>
  *
@@ -77,6 +78,9 @@ class IOHook : public classbase
 	 */
 	IOHook(IOHookProvider* provider)
 		: prov(provider) { }
+
+	/** Determines whether this I/O hook is ready to send and receive data. */
+	virtual bool IsHookReady() const { return true; }
 
 	/**
 	 * Called when the hooked socket has data to write, or when the socket engine returns it as writable

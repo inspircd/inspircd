@@ -1,7 +1,7 @@
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
-#   Copyright (C) 2016-2021 Sadie Powell <sadie@witchery.services>
+#   Copyright (C) 2016-2022 Sadie Powell <sadie@witchery.services>
 #
 # This file is part of InspIRCd.  InspIRCd is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -31,6 +31,7 @@ use make::configure;
 use make::console;
 
 use constant DIRECTIVE_ERROR_PIPE => $ENV{INSPIRCD_VERBOSE} ? '' : '2>/dev/null';
+use constant PKG_CONFIG           => $ENV{PKG_CONFIG} || 'pkg-config';
 use constant VENDOR_DIRECTORY     => catdir(dirname(dirname(__FILE__)), 'vendor');
 
 our @EXPORT = qw(get_directive
@@ -78,12 +79,30 @@ sub execute_functions($$$) {
 	return $line;
 }
 
+sub __clean_flags($) {
+	my $flags = shift;
+
+	# It causes problems if a dependency tries to force a specific C++ version
+	# so we strip it and handle it ourselves.
+	$flags =~ s/(?:^|\s+)-std=(?:c|gnu)\+\+[A-Za-z0-9]+(?:\$|\s+)/ /g;
+
+	# Strip any whitespace our changes have left behind.
+	$flags =~ s/^\s+|\s+$//g;
+
+	return $flags;
+}
+
 sub __environment {
 	my ($prefix, $suffix) = @_;
 	$suffix =~ s/[-.]/_/g;
 	$suffix =~ s/[^A-Za-z0-9_]//g;
 	return $prefix . uc $suffix;
 }
+
+sub __env_or_unset {
+	my $name = shift;
+	return $ENV{$name} || '<|ITALIC unset|>';
+};
 
 sub __error {
 	my ($file, @message) = @_;
@@ -119,10 +138,17 @@ sub __error {
 		}
 	} else {
 		push @message, 'If you believe this error to be a bug then you can file a bug report';
-		push @message, 'at https://github.com/inspircd/inspircd/issues';
+		push @message, 'at https://github.com/inspircd/inspircd/issues. Please include the';
+		push @message, 'following data in your report:';
+		push @message, " * CPPFLAGS:        ${\__env_or_unset 'CPPFLAGS'}";
+		push @message, " * CXXFLAGS:        ${\__env_or_unset 'CXXFLAGS'}";
+		push @message, " * LDFLAGS:         ${\__env_or_unset 'LDFLAGS'}";
+		push @message, " * PATH:            ${\__env_or_unset 'PATH'}";
+		push @message, " * PKG_CONFIG:      ${\__env_or_unset 'PKG_CONFIG'}";
+		push @message, " * PKG_CONFIG_PATH: ${\__env_or_unset 'PKG_CONFIG_PATH'}";
 		push @message, '';
 		push @message, 'You can also refer to the documentation page for this module at';
-		push @message, "https://docs.inspircd.org/3/modules/${\module_shrink $file}";
+		push @message, "https://docs.inspircd.org/3/modules/${\module_shrink $file}.";
 	}
 	push @message, '';
 
@@ -145,6 +171,7 @@ sub __function_execute {
 	# Try to execute the command...
 	chomp(my $result = `$command ${\DIRECTIVE_ERROR_PIPE}`);
 	unless ($?) {
+		$result = __clean_flags $result;
 		say console_format "Execution of `<|GREEN $command|>` succeeded: <|BOLD $result|>";
 		return $result;
 	}
@@ -172,8 +199,9 @@ sub __function_find_compiler_flags {
 	my ($file, $name, $defaults) = @_;
 
 	# Try to look up the compiler flags with pkg-config...
-	chomp(my $flags = `pkg-config --cflags $name ${\DIRECTIVE_ERROR_PIPE}`);
+	chomp(my $flags = `${\PKG_CONFIG} --cflags $name ${\DIRECTIVE_ERROR_PIPE}`);
 	unless ($?) {
+		$flags = __clean_flags $flags;
 		say console_format "Found the <|GREEN $name|> compiler flags for <|GREEN ${\module_shrink $file}|> using pkg-config: <|BOLD $flags|>";
 		return $flags;
 	}
@@ -199,8 +227,9 @@ sub __function_find_linker_flags {
 	my ($file, $name, $defaults) = @_;
 
 	# Try to look up the linker flags with pkg-config...
-	chomp(my $flags = `pkg-config --libs $name ${\DIRECTIVE_ERROR_PIPE}`);
+	chomp(my $flags = `${\PKG_CONFIG} --libs $name ${\DIRECTIVE_ERROR_PIPE}`);
 	unless ($?) {
+		$flags = __clean_flags $flags;
 		say console_format "Found the <|GREEN $name|> linker flags for <|GREEN ${\module_shrink $file}|> using pkg-config: <|BOLD $flags|>";
 		return $flags;
 	}

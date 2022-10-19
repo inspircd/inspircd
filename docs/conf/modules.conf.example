@@ -632,6 +632,10 @@
 # that users must share a common channel with you to PRIVMSG or NOTICE
 # you.
 #<module name="commonchans">
+#
+# You can also require a common channel for inviting to another channel
+# by uncommenting this:
+# <commonchans invite="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Auto join on connect module: Allows you to force users to join one
@@ -688,13 +692,13 @@
 #<module name="connectban">
 #
 # threshold - The number of connections which are allowed before a user
-#             is connectbnaned. Defaults to 10.
+#             is connectbanned. Defaults to 10.
 #
 # banmessage - The message to give users when Z-lining them for connecting
 #              too much.
 #
-# duration - The time period to ban users who connect to much for. Defaults
-#            to 10 minutes.
+# banduration - The time period to ban users who connect to much for. Defaults
+#               to 10 minutes.
 #
 # ipv4cidr - The IPv4 CIDR mask (1-32) to treat connecting users as coming
 #            from the same host. Defaults to 32.
@@ -710,7 +714,7 @@
 #
 #<connectban threshold="10"
 #            banmessage="Your IP range has been attempting to connect too many times in too short a duration. Wait a while, and you will be able to connect."
-#            duration="10m"
+#            banduration="6h"
 #            ipv4cidr="32"
 #            ipv6cidr="128"
 #            bootwait="2m"
@@ -1684,9 +1688,16 @@
 # requirekey    - If enabled, overriding on join requires a channel   #
 #                 key of "override" to be specified.                  #
 #                                                                     #
+# timeout:        The time period after which to automatically remove #
+#                 the override user mode. If not set then it will not #
+#                 be removed automatically.                           #
+#                                                                     #
 # enableumode   - If enabled, user mode +O is required for override.  #
 #                                                                     #
-#<override noisy="yes" requirekey="no" enableumode="yes">
+#<override noisy="yes"
+#          requirekey="no"
+#          timeout="30m"
+#          enableumode="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper levels module: Gives each oper a level and prevents actions
@@ -1704,25 +1715,28 @@
 #<module name="opermodes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Password forwarding module: Forwards a password users can send on
-# connect to the specified client below. The client is usually NickServ
-# and this module is usually used to authenticate users with NickServ
-# using their connect password.
+# Password forwarding module: Allows forwarding passwords to services to
+# automatically log users into their account. The password can either be
+# specified as the server password or as a second parameter to the /NICK
+# command.
 #<module name="passforward">
 
 <passforward
-		# nick: nick to forward connect passwords to.
-		nick="NickServ"
 
-		# forwardmsg: Message to send to users using a connect password.
-		# $nick will be the users' nick, $nickrequired will be the nick
-		# of where the password is going (the nick above).
-		# You can also use $user for the user ident string.
-		forwardmsg="NOTICE $nick :*** Forwarding PASS to $nickrequired"
+	# nick: The nick of the service to forward passwords to.
+	nick="NickServ"
 
-		# cmd: Command for the user to run when it receives a connect
-		# password.
-		cmd="SQUERY $nickrequired :IDENTIFY $pass">
+	# forwardmsg: Message to send to users when forwarding their
+	# password. You can use the following variables in this message:
+	#
+	# $nick          The nickname of the authenticating user.
+	# $nickrequired  The nickname of the service to forward to (see above).
+	# $pass          The password to forward to services.
+	# $user          The username (ident) of the authenticating user.
+	forwardmsg="NOTICE $nick :*** Forwarding password to $nickrequired"
+
+	# cmd: The message to send to forward passwords to services.
+	cmd="SQUERY $nickrequired :IDENTIFY $nick $pass">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Password hash module: Allows hashed passwords to be used.
@@ -1784,9 +1798,14 @@
 #
 # 'saveperiod' determines how often to check if the database needs to be
 # saved to disk. Defaults to every five seconds.
+#
+# 'operonly' determines whether a server operator or services server is
+# needed to enable the permchannels mode. You should generally keep this
+# set to yes unless you know what you are doing.
 #<permchanneldb filename="permchannels.conf"
 #               listmodes="yes"
-#               saveperiod="5s">
+#               saveperiod="5s"
+#               operonly="yes">
 #<include file="permchannels.conf" missingokay="yes">
 #
 # You may also create channels on startup by using the <permchannels> block.
@@ -1902,7 +1921,7 @@
 # Repeat module: Allows to block, kick or ban upon similar messages
 # being uttered several times. Provides channel mode +E.
 #
-# Syntax: [~|*]<lines>:<sec>[:<difference>][:<backlog>]
+# Syntax: [~|*]<lines>:<duration>[:<difference>][:<backlog>]
 #         ~ is to block, * is to ban, default is kick.
 # lines      - In mode 1, the amount of lines that has to match consecutively.
 #              In mode 2, the size of the backlog to keep for matching.
@@ -2287,8 +2306,11 @@
 #<module name="sslinfo">
 #
 # If you want to prevent users from viewing TLS (SSL) certificate information
-# and fingerprints of other users, set operonly to yes.
-#<sslinfo operonly="no">
+# and fingerprints of other users, set operonly to yes. You can also set hash
+# to an IANA Hash Function Textual Name to use the SSL fingerprint sent by a
+# WebIRC gateway (requires the cgiirc module).
+#<sslinfo operonly="no"
+#         hash="sha-256">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # mbedTLS TLS (SSL) module: Adds support for TLS (SSL) connections using mbedTLS.
@@ -2456,24 +2478,25 @@
 #<watch maxwatch="32">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# WebSocket module: Adds HTML5 WebSocket support.
+# WebSocket module: Adds WebSocket support.
 # Specify hook="websocket" in a <bind> tag to make that port accept
 # WebSocket connections. Compatible with TLS (SSL).
 # Requires SHA-1 hash support available in the sha1 module.
 #<module name="websocket">
 #
+# defaultmode: The default frame mode if a client does not send a
+#              WebSocket subprotocol. Potential values are "text" to
+#              encode messages as UTF-8 text frames, "binary" to send
+#              messages as raw binary frames, or "reject" to close
+#              connections which do not request a subprotocol. Defaults
+#              to "text".
 # proxyranges: A space-delimited list of glob or CIDR matches to trust
 #              the X-Real-IP or X-Forwarded-For headers from. If enabled
 #              the server will use the IP address specified by those HTTP
 #              headers. You should NOT enable this unless you are using
 #              a HTTP proxy like nginx as it will allow IP spoofing.
-# sendastext: Whether to re-encode messages as UTF-8 before sending to
-#             WebSocket clients. This is recommended as the WebSocket
-#             protocol requires all text frames to be sent as UTF-8.
-#             If you do not have this enabled messages will be sent as
-#             binary frames instead.
-#<websocket proxyranges="192.0.2.0/24 198.51.100.*"
-#           sendastext="yes">
+#<websocket defaultmode="text"
+#           proxyranges="192.0.2.0/24 198.51.100.*">
 #
 # If you use the websocket module you MUST specify one or more origins
 # which are allowed to connect to the server. You should set this as

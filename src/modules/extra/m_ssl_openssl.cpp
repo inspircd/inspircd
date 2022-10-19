@@ -4,9 +4,9 @@
  *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2017 Wade Cline <wadecline@hotmail.com>
- *   Copyright (C) 2014, 2016 Adam <Adam@anope.org>
+ *   Copyright (C) 2016 Adam <Adam@anope.org>
  *   Copyright (C) 2014 Julien Vehent <julien@linuxwall.info>
- *   Copyright (C) 2013-2014, 2016-2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013-2014, 2016-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2017 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>
@@ -56,7 +56,9 @@
 // to support. Support for it was removed in the master branch at the same time that
 // support for OpenSSL pre-1.1 was.
 #if defined __GNUC__ && defined LIBRESSL_VERSION_NUMBER
-# warning LibreSSL support will be discontinued in the future. Consider using the ssl_gnutls or ssl_mbedtls modules instead.
+# undef OPENSSL_VERSION_NUMBER
+# define OPENSSL_VERSION_NUMBER 0x10000000L
+# warning LibreSSL support will be removed in v4. Consider using the ssl_gnutls or ssl_mbedtls modules instead if you can not use OpenSSL.
 #endif
 
 // Fix warnings about the use of `long long` on C++03.
@@ -75,12 +77,12 @@
 #endif
 
 #ifdef _WIN32
-# pragma comment(lib, "ssleay32.lib")
-# pragma comment(lib, "libeay32.lib")
+# pragma comment(lib, "libcrypto.lib")
+# pragma comment(lib, "libssl.lib")
 #endif
 
 // Compatibility layer to allow OpenSSL 1.0 to use the 1.1 API.
-#if ((defined LIBRESSL_VERSION_NUMBER) || (OPENSSL_VERSION_NUMBER < 0x10100000L))
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 
 // BIO is opaque in OpenSSL 1.1 but the access API does not exist in 1.0.
 # define BIO_get_data(BIO) BIO->ptr
@@ -100,9 +102,10 @@
 
 #else
 # define INSPIRCD_OPENSSL_OPAQUE_BIO
+# if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#  define INSPIRCD_OPENSSL_AUTO_DH
+# endif
 #endif
-
-enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_OPEN };
 
 static bool SelfSigned = false;
 static int exdataindex;
@@ -124,6 +127,7 @@ namespace OpenSSL
 			: ModuleException(reason) { }
 	};
 
+#ifndef INSPIRCD_OPENSSL_AUTO_DH
 	class DHParams
 	{
 		DH* dh;
@@ -152,6 +156,7 @@ namespace OpenSSL
 			return dh;
 		}
 	};
+#endif
 
 	class Context
 	{
@@ -190,19 +195,26 @@ namespace OpenSSL
 			SSL_CTX_free(ctx);
 		}
 
+#ifndef INSPIRCD_OPENSSL_AUTO_DH
 		bool SetDH(DHParams& dh)
 		{
 			ERR_clear_error();
 			return (SSL_CTX_set_tmp_dh(ctx, dh.get()) >= 0);
 		}
+#endif
 
 #ifndef OPENSSL_NO_ECDH
 		void SetECDH(const std::string& curvename)
 		{
 			int nid = OBJ_sn2nid(curvename.c_str());
-			if (nid == 0)
+			if (nid == NID_undef)
 				throw Exception("Unknown curve: " + curvename);
 
+# if OPENSSL_VERSION_NUMBER >= 0x10101000L
+			ERR_clear_error();
+			if (!SSL_CTX_set1_groups(ctx, &nid, 1))
+				throw Exception("Couldn't set ECDH curve");
+# else
 			EC_KEY* eckey = EC_KEY_new_by_curve_name(nid);
 			if (!eckey)
 				throw Exception("Unable to create EC key object");
@@ -212,6 +224,7 @@ namespace OpenSSL
 			EC_KEY_free(eckey);
 			if (!ret)
 				throw Exception("Couldn't set ECDH parameters");
+# endif
 		}
 #endif
 
@@ -329,9 +342,11 @@ namespace OpenSSL
 		 */
 		const std::string name;
 
+#ifndef INSPIRCD_OPENSSL_AUTO_DH
 		/** DH parameters in use
 		 */
 		DHParams dh;
+#endif
 
 		/** OpenSSL makes us have two contexts, one for servers and one for clients
 		 */
@@ -404,14 +419,18 @@ namespace OpenSSL
 	 public:
 		Profile(const std::string& profilename, ConfigTag* tag)
 			: name(profilename)
+#ifndef INSPIRCD_OPENSSL_AUTO_DH
 			, dh(ServerInstance->Config->Paths.PrependConfig(tag->getString("dhfile", "dhparams.pem", 1)))
+#endif
 			, ctx(SSL_CTX_new(SSLv23_server_method()))
 			, clientctx(SSL_CTX_new(SSLv23_client_method()))
 			, allowrenego(tag->getBool("renegotiation")) // Disallow by default
 			, outrecsize(tag->getUInt("outrecsize", 2048, 512, 16384))
 		{
+#ifndef INSPIRCD_OPENSSL_AUTO_DH
 			if ((!ctx.SetDH(dh)) || (!clientctx.SetDH(dh)))
 				throw Exception("Couldn't set DH parameters");
+#endif
 
 			const std::string hash = tag->getString("hash", "md5", 1);
 			digest = EVP_get_digestbyname(hash.c_str());
@@ -443,7 +462,7 @@ namespace OpenSSL
 			}
 
 #ifndef OPENSSL_NO_ECDH
-			const std::string curvename = tag->getString("ecdhcurve", "prime256v1", 1);
+			const std::string curvename = tag->getString("ecdhcurve", "prime256v1");
 			if (!curvename.empty())
 				ctx.SetECDH(curvename);
 #endif
@@ -574,7 +593,6 @@ class OpenSSLIOHook : public SSLIOHook
 {
  private:
 	SSL* sess;
-	issl_status status;
 	bool data_to_write;
 
 	// Returns 1 if handshake succeeded, 0 if it is still in progress, -1 if it failed
@@ -589,13 +607,13 @@ class OpenSSLIOHook : public SSLIOHook
 			if (err == SSL_ERROR_WANT_READ)
 			{
 				SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
-				this->status = ISSL_HANDSHAKING;
+				this->status = STATUS_HANDSHAKING;
 				return 0;
 			}
 			else if (err == SSL_ERROR_WANT_WRITE)
 			{
 				SocketEngine::ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
-				this->status = ISSL_HANDSHAKING;
+				this->status = STATUS_HANDSHAKING;
 				return 0;
 			}
 			else
@@ -609,7 +627,7 @@ class OpenSSLIOHook : public SSLIOHook
 			// Handshake complete.
 			VerifyCertificate();
 
-			status = ISSL_OPEN;
+			status = STATUS_OPEN;
 
 			SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE | FD_ADD_TRIAL_WRITE);
 
@@ -631,7 +649,7 @@ class OpenSSLIOHook : public SSLIOHook
 		}
 		sess = NULL;
 		certificate = NULL;
-		status = ISSL_NONE;
+		status = STATUS_NONE;
 	}
 
 	void VerifyCertificate()
@@ -663,17 +681,8 @@ class OpenSSLIOHook : public SSLIOHook
 			certinfo->trusted = false;
 		}
 
-		char buf[512];
-		X509_NAME_oneline(X509_get_subject_name(cert), buf, sizeof(buf));
-		certinfo->dn = buf;
-		// Make sure there are no chars in the string that we consider invalid
-		if (certinfo->dn.find_first_of("\r\n") != std::string::npos)
-			certinfo->dn.clear();
-
-		X509_NAME_oneline(X509_get_issuer_name(cert), buf, sizeof(buf));
-		certinfo->issuer = buf;
-		if (certinfo->issuer.find_first_of("\r\n") != std::string::npos)
-			certinfo->issuer.clear();
+		GetDNString(X509_get_subject_name(cert), certinfo->dn);
+		GetDNString(X509_get_issuer_name(cert), certinfo->issuer);
 
 		if (!X509_digest(cert, GetProfile().GetDigest(), md, &n))
 		{
@@ -692,16 +701,26 @@ class OpenSSLIOHook : public SSLIOHook
 		X509_free(cert);
 	}
 
+	static void GetDNString(X509_NAME* x509name, std::string& out)
+	{
+		char buf[512];
+		X509_NAME_oneline(x509name, buf, sizeof(buf));
+
+		out.assign(buf);
+		for (size_t pos = 0; ((pos = out.find_first_of("\r\n", pos)) != std::string::npos); )
+			out[pos] = ' ';
+	}
+
 	void SSLInfoCallback(int where, int rc)
 	{
-		if ((where & SSL_CB_HANDSHAKE_START) && (status == ISSL_OPEN))
+		if ((where & SSL_CB_HANDSHAKE_START) && (status == STATUS_OPEN))
 		{
 			if (GetProfile().AllowRenegotiation())
 				return;
 
 			// The other side is trying to renegotiate, kill the connection and change status
-			// to ISSL_NONE so CheckRenego() closes the session
-			status = ISSL_NONE;
+			// to STATUS_NONE so CheckRenego() closes the session
+			status = STATUS_NONE;
 			BIO* bio = SSL_get_rbio(sess);
 			EventHandler* eh = static_cast<StreamSocket*>(BIO_get_data(bio));
 			SocketEngine::Shutdown(eh, 2);
@@ -710,7 +729,7 @@ class OpenSSLIOHook : public SSLIOHook
 
 	bool CheckRenego(StreamSocket* sock)
 	{
-		if (status != ISSL_NONE)
+		if (status != STATUS_NONE)
 			return true;
 
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Session %p killed, attempted to renegotiate", (void*)sess);
@@ -722,9 +741,9 @@ class OpenSSLIOHook : public SSLIOHook
 	// Returns 1 if application I/O should proceed, 0 if it must wait for the underlying protocol to progress, -1 on fatal error
 	int PrepareIO(StreamSocket* sock)
 	{
-		if (status == ISSL_OPEN)
+		if (status == STATUS_OPEN)
 			return 1;
-		else if (status == ISSL_HANDSHAKING)
+		else if (status == STATUS_HANDSHAKING)
 		{
 			// The handshake isn't finished, try to finish it
 			return Handshake(sock);
@@ -741,7 +760,6 @@ class OpenSSLIOHook : public SSLIOHook
 	OpenSSLIOHook(IOHookProvider* hookprov, StreamSocket* sock, SSL* session)
 		: SSLIOHook(hookprov)
 		, sess(session)
-		, status(ISSL_NONE)
 		, data_to_write(false)
 	{
 		// Create BIO instance and store a pointer to the socket in it which will be used by the read and write functions
@@ -770,7 +788,7 @@ class OpenSSLIOHook : public SSLIOHook
 		if (prepret <= 0)
 			return prepret;
 
-		// If we resumed the handshake then this->status will be ISSL_OPEN
+		// If we resumed the handshake then this->status will be STATUS_OPEN
 		{
 			ERR_clear_error();
 			char* buffer = ServerInstance->GetReadBuffer();
@@ -888,7 +906,7 @@ class OpenSSLIOHook : public SSLIOHook
 
 	void GetCiphersuite(std::string& out) const CXX11_OVERRIDE
 	{
-		if (!IsHandshakeDone())
+		if (!IsHookReady())
 			return;
 		out.append(SSL_get_version(sess)).push_back('-');
 		out.append(SSL_get_cipher(sess));
@@ -904,7 +922,6 @@ class OpenSSLIOHook : public SSLIOHook
 		return true;
 	}
 
-	bool IsHandshakeDone() const { return (status == ISSL_OPEN); }
 	OpenSSL::Profile& GetProfile();
 };
 
@@ -1109,7 +1126,7 @@ class ModuleSSLOpenSSL : public Module
 		}
 		catch (ModuleException& ex)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, ex.GetReason() + " Not applying settings.");
+			ServerInstance->SNO->WriteToSnoMask('a', "Failed to reload the OpenSSL TLS (SSL) profiles. " + ex.GetReason());
 		}
 	}
 
@@ -1131,7 +1148,7 @@ class ModuleSSLOpenSSL : public Module
 	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
 	{
 		const OpenSSLIOHook* const iohook = static_cast<OpenSSLIOHook*>(user->eh.GetModHook(this));
-		if ((iohook) && (!iohook->IsHandshakeDone()))
+		if ((iohook) && (!iohook->IsHookReady()))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}

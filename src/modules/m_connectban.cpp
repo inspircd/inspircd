@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2014 Googolplexed <googol@googolplexed.net>
- *   Copyright (C) 2013, 2017-2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2014 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -104,12 +104,12 @@ class ModuleConnectBan CXX11_FINAL
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("connectban");
 
-		ipv4_cidr = tag->getUInt("ipv4cidr", 32, 1, 32);
-		ipv6_cidr = tag->getUInt("ipv6cidr", 128, 1, 128);
+		ipv4_cidr = tag->getUInt("ipv4cidr", ServerInstance->Config->c_ipv4_range, 1, 32);
+		ipv6_cidr = tag->getUInt("ipv6cidr", ServerInstance->Config->c_ipv6_range, 1, 128);
 		threshold = tag->getUInt("threshold", 10, 1);
 		bootwait = tag->getDuration("bootwait", 60*2);
 		splitwait = tag->getDuration("splitwait", 60*2);
-		banduration = tag->getDuration("duration", 10*60, 1);
+		banduration = tag->getDuration("banduration", tag->getDuration("duration", 6*60*60), 1);
 		banmessage = tag->getString("banmessage", "Your IP range has been attempting to connect too many times in too short a duration. Wait a while, and you will be able to connect.");
 
 		if (status.initial)
@@ -151,18 +151,19 @@ class ModuleConnectBan CXX11_FINAL
 			if (i->second >= threshold)
 			{
 				// Create Z-line for set duration.
-				ZLine* zl = new ZLine(ServerInstance->Time(), banduration, ServerInstance->Config->ServerName, banmessage, mask.str());
+				ZLine* zl = new ZLine(ServerInstance->Time(), banduration, MODNAME "@" + ServerInstance->Config->ServerName, banmessage, mask.str());
 				if (!ServerInstance->XLines->AddLine(zl, NULL))
 				{
 					delete zl;
 					return;
 				}
-				ServerInstance->XLines->ApplyLines();
 				std::string maskstr = mask.str();
-				ServerInstance->SNO->WriteGlobalSno('x', "Z-line added by module m_connectban on %s to expire in %s (on %s): Connect flooding",
-					maskstr.c_str(), InspIRCd::DurationString(zl->duration).c_str(), InspIRCd::TimeString(zl->expiry).c_str());
+				ServerInstance->SNO->WriteToSnoMask('x', "%s added a timed Z-line on %s, expires in %s (on %s): %s",
+					zl->source.c_str(), maskstr.c_str(), InspIRCd::DurationString(zl->duration).c_str(),
+					InspIRCd::TimeString(zl->expiry).c_str(), zl->reason.c_str());
 				ServerInstance->SNO->WriteGlobalSno('a', "Connect flooding from IP range %s (%d)", maskstr.c_str(), threshold);
 				connects.erase(i);
+				ServerInstance->XLines->ApplyLines();
 			}
 		}
 		else

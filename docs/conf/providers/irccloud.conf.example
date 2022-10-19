@@ -13,10 +13,11 @@
 
 <connect name="IRCCloud (IPv4)"
          parent="IRCCloud"
-         allow="5.254.36.56/29 192.184.8.103 192.184.9.108 192.184.9.112 192.184.10.118 192.184.10.9">
+         allow="5.254.36.56/29 5.254.36.104/29"
+         uniqueusername="yes">
 
 # This is not typically needed as each user has their own IPv6 but if you have
 # <cidr:ipv6clone> set to a value lower than 128 you will need to enable it.
 #<connect name="IRCCloud (IPv6)"
 #         parent="IRCCloud"
-#         allow="2001:67c:2f08::/48 2a03:5180:f::/62 2a03:5180:f:4::/63 2a03:5180:f:6::/64">
+#         allow="2a03:5180:f::/62 2a03:5180:f:4::/63 2a03:5180:f:6::/64">

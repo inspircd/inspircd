@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2018, 2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018, 2020-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2014, 2016, 2018 Attila Molnar <attilamolnar@hush.com>
  *
@@ -97,7 +97,7 @@ class CoreModInfo : public Module
 		, cmdversion(this)
 		, numeric004(RPL_MYINFO)
 	{
-		numeric004.push(ServerInstance->Config->ServerName);
+		numeric004.push(ServerInstance->Config->GetServerName());
 		numeric004.push(INSPIRCD_BRANCH);
 	}
 

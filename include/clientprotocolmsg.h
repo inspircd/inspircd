@@ -57,6 +57,7 @@ class ClientProtocol::Messages::Numeric : public ClientProtocol::Message
 
 	void InitFromNumeric(const ::Numeric::Numeric& numeric)
 	{
+		AddTags(numeric.GetParams().GetTags());
 		InitCommand(numeric.GetNumeric());
 		for (std::vector<std::string>::const_iterator i = numeric.GetParams().begin(); i != numeric.GetParams().end(); ++i)
 			PushParamRef(*i);
@@ -68,7 +69,7 @@ class ClientProtocol::Messages::Numeric : public ClientProtocol::Message
 	 * @param user User to send the numeric to. May be unregistered, must remain valid as long as this object is alive.
 	 */
 	Numeric(const ::Numeric::Numeric& num, User* user)
-		: ClientProtocol::Message(NULL, (num.GetServer() ? num.GetServer() : ServerInstance->FakeClient->server)->GetName())
+		: ClientProtocol::Message(NULL, (num.GetServer() ? num.GetServer() : ServerInstance->FakeClient->server)->GetPublicName())
 	{
 		if (user->registered & REG_NICK)
 			PushParamRef(user->nick);
@@ -82,7 +83,7 @@ class ClientProtocol::Messages::Numeric : public ClientProtocol::Message
 	 * @param target Target string, must stay valid as long as this object is alive.
 	 */
 	Numeric(const ::Numeric::Numeric& num, const std::string& target)
-		: ClientProtocol::Message(NULL, (num.GetServer() ? num.GetServer() : ServerInstance->FakeClient->server)->GetName())
+		: ClientProtocol::Message(NULL, (num.GetServer() ? num.GetServer() : ServerInstance->FakeClient->server)->GetPublicName())
 	{
 		PushParamRef(target);
 		InitFromNumeric(num);

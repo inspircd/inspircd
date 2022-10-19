@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2013-2014, 2016 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2013, 2017-2018 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2018, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -36,26 +36,25 @@ class CommandRMode : public Command
 
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
-		ModeHandler* mh;
 		Channel* chan = ServerInstance->FindChan(parameters[0]);
-		char modeletter = parameters[1][0];
-
 		if (chan == NULL)
 		{
-			user->WriteNotice("The channel " + parameters[0] + " does not exist.");
+			user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
 			return CMD_FAILURE;
 		}
 
-		mh = ServerInstance->Modes->FindMode(modeletter, MODETYPE_CHANNEL);
+		unsigned char modeletter = parameters[1][0];
+		ModeHandler* mh = ServerInstance->Modes->FindMode(modeletter, MODETYPE_CHANNEL);
 		if (mh == NULL || parameters[1].size() > 1)
 		{
-			user->WriteNotice(parameters[1] + " is not a valid channel mode.");
+			user->WriteNumeric(ERR_UNKNOWNMODE, parameters[0], "is not a recognised channel mode.");
 			return CMD_FAILURE;
 		}
 
 		if (chan->GetPrefixValue(user) < mh->GetLevelRequired(false))
 		{
-			user->WriteNotice("You do not have access to unset " + ConvToStr(modeletter) + " on " +  chan->name + ".");
+			user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, mh->GetLevelRequired(false), InspIRCd::Format("unset channel mode %c (%s)",
+				mh->GetModeChar(), mh->name.c_str())));
 			return CMD_FAILURE;
 		}
 

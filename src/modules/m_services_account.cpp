@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2013, 2017-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2015 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 Shawn Smith <ShawnSmith0828@gmail.com>
@@ -31,6 +31,7 @@
 #include "modules/callerid.h"
 #include "modules/ctctags.h"
 #include "modules/exemption.h"
+#include "modules/who.h"
 #include "modules/whois.h"
 
 enum
@@ -137,6 +138,7 @@ class AccountExtItemImpl : public AccountExtItem
 
 class ModuleServicesAccount
 	: public Module
+	, public Who::EventListener
 	, public Whois::EventListener
 	, public CTCTags::EventListener
 {
@@ -148,12 +150,14 @@ class ModuleServicesAccount
 	SimpleUserModeHandler regdeafmode;
 	Channel_r chanregmode;
 	User_r userregmode;
+	AccountExtItem accountid;
 	AccountExtItemImpl accountname;
 	bool checking_ban;
 
  public:
 	ModuleServicesAccount()
-		: Whois::EventListener(this)
+		: Who::EventListener(this)
+		, Whois::EventListener(this)
 		, CTCTags::EventListener(this)
 		, calleridapi(this)
 		, exemptionprov(this)
@@ -162,6 +166,7 @@ class ModuleServicesAccount
 		, regdeafmode(this, "regdeaf", 'R')
 		, chanregmode(this)
 		, userregmode(this)
+		, accountid("accountid", ExtensionItem::EXT_USER, this)
 		, accountname(this)
 		, checking_ban(false)
 	{
@@ -171,6 +176,18 @@ class ModuleServicesAccount
 	{
 		tokens["EXTBAN"].push_back('R');
 		tokens["EXTBAN"].push_back('U');
+	}
+
+	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) CXX11_OVERRIDE
+	{
+		size_t flag_index;
+		if (!request.GetFieldIndex('f', flag_index))
+			return MOD_RES_PASSTHRU;
+
+		if (user->IsModeSet(userregmode))
+			numeric.GetParams()[flag_index].push_back('r');
+
+		return MOD_RES_PASSTHRU;
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */

@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2014 Justin Crawford <Justasic@Gmail.com>
- *   Copyright (C) 2013-2014, 2017-2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013-2014, 2017-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013-2014, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012, 2014 Adam <Adam@anope.org>
@@ -52,6 +52,11 @@ class PermChannel : public ModeHandler
 
 		return MODEACTION_ALLOW;
 	}
+
+	void SetOperOnly(bool value)
+	{
+		oper = value;
+	}
 };
 
 // Not in a class due to circular dependency hell.
@@ -68,7 +73,8 @@ static bool WriteDatabase(PermChannel& permchanmode, Module* mod, bool save_list
 	if (permchannelsconf.empty())
 		return true;
 
-	std::string permchannelsnewconf = permchannelsconf + ".tmp";
+
+	const std::string permchannelsnewconf = permchannelsconf + ".new." + ConvToStr(ServerInstance->Time());
 	std::ofstream stream(permchannelsnewconf.c_str());
 	if (!stream.is_open())
 	{
@@ -190,6 +196,7 @@ public:
 		ConfigTag* tag = ServerInstance->Config->ConfValue("permchanneldb");
 		permchannelsconf = tag->getString("filename");
 		save_listmodes = tag->getBool("listmodes", true);
+		p.SetOperOnly(tag->getBool("operonly", true));
 		SetInterval(tag->getDuration("saveperiod", 5));
 
 		if (!permchannelsconf.empty())

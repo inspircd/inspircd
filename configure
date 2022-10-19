@@ -5,7 +5,7 @@
 #   Copyright (C) 2020 Nicole Kleinhoff <ilbelkyr@shalture.org>
 #   Copyright (C) 2020 Daniel Vassdal <shutter@canternet.org>
 #   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
-#   Copyright (C) 2013-2021 Sadie Powell <sadie@witchery.services>
+#   Copyright (C) 2013-2022 Sadie Powell <sadie@witchery.services>
 #   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
 #   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>
 #   Copyright (C) 2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -32,6 +32,7 @@ use v5.10.0;
 use strict;
 use warnings FATAL => qw(all);
 
+use Config                qw(%Config);
 use Cwd                   qw(getcwd);
 use File::Basename        qw(basename);
 use File::Copy            ();
@@ -143,7 +144,8 @@ our $interactive = !(
 );
 
 my %version = get_version $opt_distribution_label;
-say console_format "<|BOLD Configuring InspIRCd $version{FULL} on $^O.|>";
+chomp(my $platform = `uname -mrs 2>/dev/null` || "$Config{osname} $Config{osvers} $Config{archname}");
+say console_format "Configuring <|GREEN InspIRCd $version{FULL}|> on <|GREEN $platform|>.";
 
 my %config;
 if ($interactive) {
@@ -156,6 +158,15 @@ if ($interactive) {
 		%config = ('VERSION', CONFIGURE_CACHE_VERSION);
 	}
 }
+
+unless (run_test $RealDir, -w $RealDir, 'writable') {
+	print_error <<"EOE";
+the source directory is not writable. This most likely means that you
+downloaded InspIRCd as root but tried to build as an unprivileged user. To
+fix this issue redownload the source as the user you want to build as or fix
+the permissions of <|GREEN $RealDir|>.
+EOE
+};
 
 $config{CXX} = find_compiler($config{CXX} // $ENV{CXX});
 unless ($config{CXX}) {
@@ -206,7 +217,7 @@ if (defined $opt_portable) {
 	$config{SCRIPT_DIR}  = $opt_script_dir  // $config{BASE_DIR};
 } elsif (defined $opt_system) {
 	$config{BASE_DIR}    = $opt_prefix      // '/';
-	$config{BINARY_DIR}  = $opt_binary_dir  // catdir $config{BASE_DIR}, 'usr/sbin';
+	$config{BINARY_DIR}  = $opt_binary_dir  // catdir $config{BASE_DIR}, 'usr/bin';
 	$config{CONFIG_DIR}  = $opt_config_dir  // catdir $config{BASE_DIR}, 'etc/inspircd';
 	$config{DATA_DIR}    = $opt_data_dir    // catdir $config{BASE_DIR}, 'var/lib/inspircd';
 	$config{EXAMPLE_DIR} = $opt_example_dir // catdir $config{BASE_DIR}, 'usr/share/doc/inspircd';
@@ -230,12 +241,11 @@ if (defined $opt_portable) {
 
 # Parse --gid=123 or --gid=foo and extract the group id.
 my @group;
-if (defined $opt_disable_ownership) {
-	@group = qw(insert-group-here . -1);
-	print_error 'you can not use --disable-ownership and --gid at the same time!' if defined $opt_gid;
-} elsif (defined $opt_gid) {
+if (defined $opt_gid) {
 	@group = $opt_gid =~ /^\d+$/ ? getgrgid($opt_gid) : getgrnam($opt_gid);
 	print_error "there is no '$opt_gid' group on this system!" unless @group;
+} elsif (defined $opt_disable_ownership) {
+	@group = qw(insert-group-here . -1);
 } else {
 	@group = $opt_system ? getgrnam('irc') : getgrgid($config{GID} // getgid());
 	print_error "you need to specify a group to run as using '--gid [id|name]'!" unless @group;
@@ -260,12 +270,11 @@ $config{GID}   = $group[2];
 
 # Parse --uid=123 or --uid=foo and extract the user id.
 my @user;
-if (defined $opt_disable_ownership) {
-	@user = qw(insert-user-here . -1);
-	print_error 'you can not use --disable-ownership and --uid at the same time!' if defined $opt_uid;
-} elsif (defined $opt_uid) {
+if (defined $opt_uid) {
 	@user = $opt_uid =~ /^\d+$/ ? getpwuid($opt_uid) : getpwnam($opt_uid);
 	print_error "there is no '$opt_uid' user on this system!" unless @user;
+} elsif (defined $opt_disable_ownership) {
+	@user = qw(insert-user-here . -1);
 } else {
 	@user = $opt_system ? getpwnam('irc') : getpwuid($config{UID} // getuid());
 	print_error "you need to specify a user to run as using '--uid [id|name]'!" unless @user;
@@ -326,6 +335,16 @@ if (exists $future_compilers{$compiler{NAME}} && $compiler{VERSION} lt $future_c
 You are building InspIRCd with $compiler{NAME} v$compiler{VERSION}. This is very old and
 will not be supported by the next major version of InspIRCd. Please consider
 updating to $compiler{NAME} v$future_compilers{$compiler{NAME}} or newer.
+EOW
+}
+
+# Warn about how quirky musl's libdl implementation is.
+chomp(my $machine = `$config{CXX} -dumpmachine 2>/dev/null`);
+if ($machine =~ /-musl$/) {
+	print_warning <<'EOW';
+You are building InspIRCd with musl. This libc does not have a useful
+dlclose() implementation which causes problems with unloading and reloading
+modules. Please complain to the musl maintainers if this is an issue for you.
 EOW
 }
 

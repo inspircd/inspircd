@@ -1,7 +1,7 @@
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
-#   Copyright (C) 2014-2017, 2019-2021 Sadie Powell <sadie@witchery.services>
+#   Copyright (C) 2014-2017, 2019-2022 Sadie Powell <sadie@witchery.services>
 #
 # This file is part of InspIRCd.  InspIRCd is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -40,6 +40,7 @@ our @EXPORT = qw(command
 my %FORMAT_CODES = (
 	DEFAULT   => "\e[0m",
 	BOLD      => "\e[1m",
+	ITALIC    => "\e[3m",
 	UNDERLINE => "\e[4m",
 
 	RED    => "\e[1;31m",

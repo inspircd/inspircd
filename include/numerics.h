@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2017 B00mX0r <b00mx0r@aureus.pw>
  *   Copyright (C) 2016 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2013, 2015-2018, 2020-2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2015-2018, 2020-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Adam <Adam@anope.org>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
@@ -118,6 +118,7 @@ enum
 	ERR_NONICKNAMEGIVEN             = 431,
 	ERR_ERRONEUSNICKNAME            = 432,
 	ERR_NICKNAMEINUSE               = 433,
+	ERR_UNAVAILRESOURCE             = 437, // From RFC 2182.
 	ERR_USERNOTINCHANNEL            = 441,
 	ERR_NOTONCHANNEL                = 442,
 	ERR_USERONCHANNEL               = 443,

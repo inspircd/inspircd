@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013, 2017-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2019, 2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2014, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
@@ -114,6 +114,7 @@ class ModuleMsgFlood
 	, public CTCTags::EventListener
 {
 private:
+	ChanModeReference banmode;
 	CheckExemption::EventProvider exemptionprov;
 	MsgFlood mf;
 	double notice;
@@ -123,6 +124,7 @@ private:
  public:
 	ModuleMsgFlood()
 		: CTCTags::EventListener(this)
+		, banmode(this, "ban")
 		, exemptionprov(this)
 		, mf(this)
 	{
@@ -159,7 +161,7 @@ private:
 				if (f->ban)
 				{
 					Modes::ChangeList changelist;
-					changelist.push_add(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), "*!*@" + user->GetDisplayedHost());
+					changelist.push_add(*banmode, "*!" + user->GetBanIdent() + "@" + user->GetDisplayedHost());
 					ServerInstance->Modes->Process(ServerInstance->FakeClient, dest, NULL, changelist);
 				}
 

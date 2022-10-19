@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2018 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018, 2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2018 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -19,6 +19,7 @@
 
 
 #include "inspircd.h"
+#include "modules/ctctags.h"
 #include "modules/ircv3.h"
 #include "modules/account.h"
 
@@ -44,13 +45,45 @@ class AccountTag : public IRCv3::CapTag<AccountTag>
 	}
 };
 
+class AccountIdTag : public ClientProtocol::MessageTagProvider
+{
+ private:
+	AccountTag& acctag;
+	CTCTags::CapReference ctctagcap;
+
+ public:
+	AccountIdTag(Module* mod, AccountTag& tag)
+		: ClientProtocol::MessageTagProvider(mod)
+		, acctag(tag)
+		, ctctagcap(mod)
+	{
+	}
+
+	void OnPopulateTags(ClientProtocol::Message& msg) CXX11_OVERRIDE
+	{
+		const User* user = msg.GetSourceUser();
+		const AccountExtItem* accextitem = user ? GetAccountIdExtItem() : NULL;
+		const std::string* accountid = accextitem ? accextitem->get(user) : NULL;
+		if (accountid)
+			msg.AddTag("inspircd.org/account-id", this, *accountid);
+	}
+
+	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) CXX11_OVERRIDE
+	{
+		return acctag.GetCap().get(user) && ctctagcap.get(user);
+	}
+};
+
 class ModuleIRCv3AccountTag : public Module
 {
+ private:
 	AccountTag tag;
+	AccountIdTag idtag;
 
  public:
 	ModuleIRCv3AccountTag()
 		: tag(this)
+		, idtag(this, tag)
 	{
 	}
 

@@ -60,4 +60,5 @@ CommandNum::Builder::Builder(SpanningTree::RemoteUser* target, const Numeric::Nu
 			push(*i);
 		push_last(params.back());
 	}
+	push_tags(params.GetTags());
 }

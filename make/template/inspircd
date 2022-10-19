@@ -6,7 +6,7 @@
 #   Copyright (C) 2015 Steven Van Acker <steven@singularity.be>
 #   Copyright (C) 2015 Attila Molnar <attilamolnar@hush.com>
 #   Copyright (C) 2014 Dan Parsons <dparsons@nyip.net>
-#   Copyright (C) 2013-2014, 2016-2021 Sadie Powell <sadie@witchery.services>
+#   Copyright (C) 2013-2014, 2016-2017, 2019-2021 Sadie Powell <sadie@witchery.services>
 #   Copyright (C) 2012 Robby <robby@chatbelgie.be>
 #   Copyright (C) 2011 DjSlash <djslash@djslash.org>
 #   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -67,7 +67,6 @@ my $runtimedir = "@RUNTIME_DIR@";
 my $valgrindlogpath = "@LOG_DIR@/valgrind";
 my $executable	=	"inspircd";
 my $version	=	"@VERSION_FULL@";
-my $uid = "@UID@";
 
 my @gdbargs = (
 	'--eval-command', 'handle SIGPIPE pass nostop noprint',
@@ -82,22 +81,6 @@ sub expand_fragment($$) {
 		return $fragment;
 	} else {
 		return "$base/$fragment";
-	}
-}
-
-if (!(grep { $_ eq '--runasroot' } @ARGV) && ($< == 0 || $> == 0)) {
-	if ($uid !~ /^\d+$/) {
-		# Named UID, look it up
-		$uid = getpwnam $uid;
-	}
-	if (!$uid) {
-		die "Cannot find a valid UID to change to";
-	}
-	# drop root if we were configured with an ircd UID
-	$< = $uid;
-	$> = $uid;
-	if ($< == 0 || $> == 0) {
-		die "Could not drop root: $!";
 	}
 }
 

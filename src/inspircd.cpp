@@ -1,9 +1,10 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2021 Val Lorentz <progval+git@progval.net>
  *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
- *   Copyright (C) 2018 Chris Novakovic <chrisnovakovic@users.noreply.github.com>
- *   Copyright (C) 2013, 2017-2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018 Chris Novakovic
+ *   Copyright (C) 2013, 2017-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Adam <Adam@anope.org>
  *   Copyright (C) 2012-2014, 2016, 2018 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012-2013 ChrisTX <xpipe@hotmail.de>
@@ -166,20 +167,20 @@ namespace
 			if (setgroups(0, NULL) == -1)
 			{
 				ServerInstance->Logs->Log("STARTUP", LOG_DEFAULT, "setgroups() failed (wtf?): %s", strerror(errno));
-				exit(EXIT_STATUS_CONFIG);
+				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
 			}
 
 			struct group* g = getgrnam(SetGroup.c_str());
 			if (!g)
 			{
 				ServerInstance->Logs->Log("STARTUP", LOG_DEFAULT, "getgrnam(%s) failed (wrong group?): %s", SetGroup.c_str(), strerror(errno));
-				exit(EXIT_STATUS_CONFIG);
+				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
 			}
 
 			if (setgid(g->gr_gid) == -1)
 			{
 				ServerInstance->Logs->Log("STARTUP", LOG_DEFAULT, "setgid(%d) failed (wrong group?): %s", g->gr_gid, strerror(errno));
-				exit(EXIT_STATUS_CONFIG);
+				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
 			}
 		}
 
@@ -191,13 +192,13 @@ namespace
 			if (!u)
 			{
 				ServerInstance->Logs->Log("STARTUP", LOG_DEFAULT, "getpwnam(%s) failed (wrong user?): %s", SetUser.c_str(), strerror(errno));
-				exit(EXIT_STATUS_CONFIG);
+				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
 			}
 
 			if (setuid(u->pw_uid) == -1)
 			{
 				ServerInstance->Logs->Log("STARTUP", LOG_DEFAULT, "setuid(%d) failed (wrong user?): %s", u->pw_uid, strerror(errno));
-				exit(EXIT_STATUS_CONFIG);
+				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
 			}
 		}
 #endif
@@ -261,7 +262,7 @@ namespace
 			// happened and the parent should exit.
 			while (kill(childpid, 0) != -1)
 				sleep(1);
-			exit(EXIT_STATUS_NOERROR);
+			InspIRCd::QuickExit(EXIT_STATUS_NOERROR);
 		}
 		else
 		{
@@ -324,7 +325,7 @@ namespace
 
 				default:
 					// An unknown option was specified.
-					std::cout << con_red << "Error:" <<  con_reset << " unknown option '" << argv[optind] << "'." << std::endl
+					std::cout << con_red << "Error:" <<  con_reset << " unknown option '" << argv[optind-1] << "'." << std::endl
 						<< con_bright << "Usage: " << con_reset << argv[0] << " [--config <file>] [--debug] [--nofork] [--nolog]" << std::endl
 						<< std::string(strlen(argv[0]) + 8, ' ') << "[--nopid] [--runasroot] [--version]" << std::endl;
 					ServerInstance->Exit(EXIT_STATUS_ARGV);
@@ -398,7 +399,7 @@ namespace
 	// Required for returning the proper value of EXIT_SUCCESS for the parent process.
 	void VoidSignalHandler(int)
 	{
-		exit(EXIT_STATUS_NOERROR);
+		InspIRCd::QuickExit(EXIT_STATUS_NOERROR);
 	}
 }
 
@@ -618,7 +619,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	WritePID(Config->PID);
 	DropRoot();
 
-	Logs->Log("STARTUP", LOG_DEFAULT, "Startup complete as '%s'[%s], %lu max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SocketEngine::GetMaxFds());
+	Logs->Log("STARTUP", LOG_DEFAULT, "Startup complete as '%s'[%s], %lu max open sockets", Config->ServerName.c_str(),
+		Config->GetSID().c_str(), (unsigned long)SocketEngine::GetMaxFds());
 }
 
 void InspIRCd::UpdateTime()

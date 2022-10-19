@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2013, 2018-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2018-2020, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Adam <Adam@anope.org>
  *   Copyright (C) 2012-2016, 2018 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
@@ -417,10 +417,10 @@ void TreeSocket::Close()
 	// Connection closed.
 	// If the connection is fully up (state CONNECTED)
 	// then propagate a netsplit to all peers.
-	if (MyRoot)
+	if (MyRoot && !MyRoot->IsDead())
 		MyRoot->SQuit(getError(), true);
-
-	ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\002%s\002' failed.", linkID.c_str());
+	else
+		ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\002%s\002' failed.", linkID.c_str());
 
 	time_t server_uptime = ServerInstance->Time() - this->age;
 	if (server_uptime)

@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2013-2016 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2012-2013, 2017-2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012-2013, 2017-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008 Thomas Stagner <aquanight@inspircd.org>
@@ -788,6 +788,12 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 * @return A pointer to the PrefixMode or NULL if the mode wasn't found or it isn't a prefix mode
 	 */
 	PrefixMode* FindPrefixMode(unsigned char modeletter);
+
+	/** Find the mode handler for the prefix mode nearest the given rank.
+	 * @param rank The rank to search for prefix modes near.
+	 * @return A pointer to the PrefixMode or NULL if a prefix mode wasn't found.
+	 */
+	PrefixMode* FindNearestPrefixMode(unsigned int rank);
 
 	/** Find a mode handler by its prefix.
 	 * If there is no mode handler with the given prefix, NULL will be returned.

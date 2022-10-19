@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2018 B00mX0r <b00mx0r@aureus.pw>
- *   Copyright (C) 2017-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2017-2019, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013-2014, 2016 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -36,12 +36,15 @@ ListModeBase::ListModeBase(Module* Creator, const std::string& Name, char modech
 void ListModeBase::DisplayList(User* user, Channel* channel)
 {
 	ChanData* cd = extItem.get(channel);
-	if (cd)
+	if (!cd || cd->list.empty())
 	{
-		for (ModeList::const_iterator it = cd->list.begin(); it != cd->list.end(); ++it)
-		{
-			user->WriteNumeric(listnumeric, channel->name, it->mask, it->setter, (unsigned long) it->time);
-		}
+		this->DisplayEmptyList(user, channel);
+		return;
+	}
+
+	for (ModeList::const_iterator it = cd->list.begin(); it != cd->list.end(); ++it)
+	{
+		user->WriteNumeric(listnumeric, channel->name, it->mask, it->setter, it->time);
 	}
 	user->WriteNumeric(endoflistnumeric, channel->name, endofliststring);
 }

@@ -24,8 +24,14 @@
 
 #include "inspircd.h"
 #include "modules/regex.h"
-#include <sys/types.h>
-#include <regex.h>
+
+#ifdef _WIN32
+# include "pcreposix.h"
+# pragma comment(lib, "pcreposix.lib")
+#else
+# include <sys/types.h>
+# include <regex.h>
+#endif
 
 class POSIXRegex : public Regex
 {

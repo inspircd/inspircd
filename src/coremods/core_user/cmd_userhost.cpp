@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2017-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2017-2019, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -32,11 +32,8 @@ CmdResult CommandUserhost::Handle(User* user, const Params& parameters)
 
 	std::string retbuf;
 
-	unsigned int max = parameters.size();
-	if (max > 5)
-		max = 5;
-
-	for (unsigned int i = 0; i < max; i++)
+	size_t paramcount = std::min<size_t>(parameters.size(), 5);
+	for (size_t i = 0; i < paramcount; ++i)
 	{
 		User *u = ServerInstance->FindNickOnly(parameters[i]);
 

@@ -2,7 +2,7 @@
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
-#   Copyright (C) 2020-2021 Sadie Powell <sadie@witchery.services>
+#   Copyright (C) 2020-2022 Sadie Powell <sadie@witchery.services>
 #
 # This file is part of InspIRCd.  InspIRCd is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -44,4 +44,8 @@
 
 	# Required by the mysql module:
 	#include <abstractions/mysql>
+
+	# Required by the ssl_gnutls, ssl_mbedtls, and ssl_openssl modules:
+	#include <abstractions/ssl_certs>
+	#include <abstractions/ssl_keys>
 }

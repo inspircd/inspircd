@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2020-2021 Sadie Powell <sadie@witchery.services>
- *   Copyright (C) 2016 Johanna A <johanna-a@users.noreply.github.com>
+ *   Copyright (C) 2016 Johanna A
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -55,7 +55,7 @@ class ModuleClassBan : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Adds extended ban n: which check whether users are in a connect class matching the specified glob pattern.", VF_VENDOR | VF_OPTCOMMON);
+		return Version("Adds extended ban n: (class) which check whether users are in a connect class matching the specified glob pattern.", VF_VENDOR | VF_OPTCOMMON);
 	}
 };
 

@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2017 B00mX0r <b00mx0r@aureus.pw>
- *   Copyright (C) 2013-2014, 2016-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013-2014, 2016-2020, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Adam <Adam@anope.org>
  *   Copyright (C) 2012-2016, 2018 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
@@ -186,7 +186,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 			// If not set, use 2.0's <channels:opers>, if that's not set either, use limit from CC
 			if (!opermaxchans && user->HasPrivPermission("channels/high-join-limit"))
 				opermaxchans = ServerInstance->Config->OperMaxChans;
-			if (opermaxchans)
+			if (opermaxchans > maxchans)
 				maxchans = opermaxchans;
 		}
 		if (user->chans.size() >= maxchans)
@@ -478,7 +478,7 @@ const char* Channel::ChanModes(bool showsecret)
 void Channel::WriteNotice(const std::string& text, char status)
 {
 	ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, this, text, MSG_NOTICE, status);
-	Write(ServerInstance->GetRFCEvents().privmsg, privmsg);
+	Write(ServerInstance->GetRFCEvents().privmsg, privmsg, status);
 }
 
 void Channel::WriteRemoteNotice(const std::string& text, char status)

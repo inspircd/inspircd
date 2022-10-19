@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2013-2014, 2016-2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013-2014, 2016-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2012-2014 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
@@ -504,6 +504,43 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 	}
 }
 
+ParseStack::ParseStack(ServerConfig* conf)
+	: output(conf->config_data)
+	, FilesOutput(conf->Files)
+	, errstr(conf->errstr)
+{
+	// Special character escapes.
+	vars["newline"] = "\n";
+	vars["nl"]      = "\n";
+
+	// XML escapes.
+	vars["amp"]  = "&";
+	vars["apos"] = "'";
+	vars["gt"]   = ">";
+	vars["lt"]   = "<";
+	vars["quot"] = "\"";
+
+	// Directories that were set at build time.
+	vars["dir.config"]  = INSPIRCD_CONFIG_PATH;
+	vars["dir.data"]    = INSPIRCD_DATA_PATH;
+	vars["dir.log"]     = INSPIRCD_LOG_PATH;
+	vars["dir.module"]  = INSPIRCD_MODULE_PATH;
+	vars["dir.runtime"] = INSPIRCD_RUNTIME_PATH;
+
+	// IRC formatting codes.
+	vars["irc.bold"]          = "\x02";
+	vars["irc.color"]         = "\x03";
+	vars["irc.colour"]        = "\x03";
+	vars["irc.hexcolor"]      = "\x04";
+	vars["irc.hexcolour"]     = "\x04";
+	vars["irc.italic"]        = "\x1D";
+	vars["irc.monospace"]     = "\x11";
+	vars["irc.reset"]         = "\x0F";
+	vars["irc.reverse"]       = "\x16";
+	vars["irc.strikethrough"] = "\x1E";
+	vars["irc.underline"]     = "\x1F";
+}
+
 bool ParseStack::ParseFile(const std::string& path, int flags, const std::string& mandatory_tag, bool isexec)
 {
 	ServerInstance->Logs->Log("CONFIG", LOG_DEBUG, "Reading (isexec=%d) %s", isexec, path.c_str());
@@ -572,7 +609,7 @@ std::string ConfigTag::getString(const std::string& key, const std::string& def,
 	if (res.length() < minlen || res.length() > maxlen)
 	{
 		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "WARNING: The length of <%s:%s> is not between %ld and %ld; value set to %s.",
-			tag.c_str(), key.c_str(), minlen, maxlen, def.c_str());
+			tag.c_str(), key.c_str(), (unsigned long)minlen, (unsigned long)maxlen, def.c_str());
 		return def;
 	}
 	return res;
@@ -719,6 +756,16 @@ bool ConfigTag::getBool(const std::string &key, bool def)
 		" is not valid, ignoring");
 	return def;
 }
+
+unsigned char ConfigTag::getCharacter(const std::string &key, unsigned char def)
+{
+	std::string result;
+	if (!readString(key, result) || result.size() != 1)
+		return def;
+
+	return result[0];
+}
+
 
 std::string ConfigTag::getTagLocation()
 {

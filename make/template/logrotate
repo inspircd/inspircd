@@ -1,6 +1,7 @@
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
+#   Copyright (C) 2022 Wade Cline <wadecline@hotmail.com>
 #   Copyright (C) 2020 Sadie Powell <sadie@witchery.services>
 #
 # This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -18,7 +19,7 @@
 
 # To use this file move it to /etc/logrotate.d/inspircd
 
-@LOG_DIR@/* {
+@LOG_DIR@/*.log {
 	compress
 	create 0644 @USER@ @GROUP@
 	dateext
@@ -28,7 +29,10 @@
 	rotate 8
 	weekly
 	postrotate
-		if [ -d /lib/systemd ]
+		if [ -r "@RUNTIME_DIR@/inspircd.pid" ]
+		then
+			kill -HUP $(cat "@RUNTIME_DIR@/inspircd.pid")
+		elif [ -d /lib/systemd ]
 		then
 			if systemctl --quiet is-active inspircd
 			then

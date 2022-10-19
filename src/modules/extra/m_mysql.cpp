@@ -2,10 +2,10 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
+ *   Copyright (C) 2016 Adam <Adam@anope.org>
  *   Copyright (C) 2015 Daniel Vassdal <shutter@canternet.org>
- *   Copyright (C) 2014, 2016 Adam <Adam@anope.org>
  *   Copyright (C) 2013-2014 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2013, 2016-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2016-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -40,11 +40,18 @@
 # pragma GCC diagnostic push
 #endif
 
-// Fix warnings about the use of `long long` on C++03.
+// Fix warnings about the use of commas at end of enumerator lists and long long
+// on C++03.
 #if defined __clang__
+# pragma clang diagnostic ignored "-Wc++11-extensions"
 # pragma clang diagnostic ignored "-Wc++11-long-long"
 #elif defined __GNUC__
 # pragma GCC diagnostic ignored "-Wlong-long"
+# if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 8))
+#  pragma GCC diagnostic ignored "-Wpedantic"
+# else
+#  pragma GCC diagnostic ignored "-pedantic"
+# endif
 #endif
 
 #include "inspircd.h"

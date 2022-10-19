@@ -1,8 +1,8 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013, 2016, 2018, 2020 Sadie Powell <sadie@witchery.services>
- *   Copyright (C) 2012-2014, 2016, 2018 Attila Molnar <attilamolnar@hush.com>
+ *   Copyright (C) 2013-2014, 2016, 2018 Attila Molnar <attilamolnar@hush.com>
+ *   Copyright (C) 2013, 2016, 2018, 2020-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
@@ -33,7 +33,6 @@ class ConfigTag;
 class Extensible;
 class FakeUser;
 class InspIRCd;
-class Invitation;
 class IOHookProvider;
 class LocalUser;
 class Membership;
@@ -49,7 +48,7 @@ class User;
 class XLine;
 class XLineManager;
 class XLineFactory;
-struct ConnectClass;
+class ConnectClass;
 class ModResult;
 
 namespace ClientProtocol

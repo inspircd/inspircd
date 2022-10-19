@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2021 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2020-2021 Sadie Powell <sadie@witchery.services>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -51,7 +52,7 @@ CmdResult CommandServList::HandleLocal(LocalUser* user, const Params& parameters
 		Numeric::Numeric numeric(RPL_SERVLIST);
 		numeric
 			.push(uline->nick)
-			.push(uline->server->GetName())
+			.push(uline->server->GetPublicName())
 			.push("*")
 			.push(uline->IsOper() ? uline->oper->name : "*")
 			.push(0)

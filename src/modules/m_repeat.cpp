@@ -2,10 +2,11 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2021 iwalkalone <iwalkalone69@gmail.com>
+ *   Copyright (C) 2021 David Schultz <me@zpld.me>
  *   Copyright (C) 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2018-2019 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2018 Matt Schatz <genius3000@g3k.solutions>
- *   Copyright (C) 2017-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2017-2019, 2021-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2015 James Lu <GLolol@overdrivenetworks.com>
  *   Copyright (C) 2013-2015 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
@@ -133,7 +134,7 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 		: ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >(Creator, "repeat", 'E')
 		, MemberInfoExt("repeat_memb", ExtensionItem::EXT_MEMBERSHIP, Creator)
 	{
-		syntax = "[~|*]<lines>:<sec>[:<difference>][:<backlog>]";
+		syntax = "[~|*]<lines>:<duration>[:<difference>][:<backlog>]";
 	}
 
 	void OnUnset(User* source, Channel* chan) CXX11_OVERRIDE
@@ -363,12 +364,15 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 
 class RepeatModule : public Module
 {
+ private:
+	ChanModeReference banmode;
 	CheckExemption::EventProvider exemptionprov;
 	RepeatMode rm;
 
  public:
 	RepeatModule()
-		: exemptionprov(this)
+		: banmode(this, "ban")
+		, exemptionprov(this)
 		, rm(this)
 	{
 	}
@@ -396,6 +400,9 @@ class RepeatModule : public Module
 		if (res == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 
+		if (user->HasPrivPermission("channels/ignore-repeat"))
+			return MOD_RES_PASSTHRU;
+
 		if (rm.MatchLine(memb, settings, details.text))
 		{
 			if (settings->Action == ChannelSettings::ACT_BLOCK)
@@ -407,7 +414,7 @@ class RepeatModule : public Module
 			if (settings->Action == ChannelSettings::ACT_BAN)
 			{
 				Modes::ChangeList changelist;
-				changelist.push_add(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), "*!*@" + user->GetDisplayedHost());
+				changelist.push_add(*banmode, "*!" + user->GetBanIdent() + "@" + user->GetDisplayedHost());
 				ServerInstance->Modes->Process(ServerInstance->FakeClient, chan, NULL, changelist);
 			}
 

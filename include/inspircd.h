@@ -5,7 +5,7 @@
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
  *   Copyright (C) 2012-2016, 2018 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2012-2014, 2017-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012-2014, 2017-2019, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -192,7 +192,7 @@ class CoreExport InspIRCd
 	struct timespec TIME;
 
 	/** A 64k buffer used to read socket data into
-	 * NOTE: update ValidateNetBufferSize if you change this
+	 * Update the range of <performance:netbuffersize> if you change this
 	 */
 	char ReadBuffer[65535];
 
@@ -416,6 +416,14 @@ class CoreExport InspIRCd
 	 * (See the ExitStatus enum for valid values)
 	 */
 	void Exit(int status);
+
+	 /** Causes the server to exit immediately.
+	 *
+	 * @param status The exit code to give to the operating system
+	 * (See the ExitStatus enum for valid values)
+	 */
+	 static void QuickExit(int status);
+
 
 	/** Formats the input string with the specified arguments.
 	* @param formatString The string to format

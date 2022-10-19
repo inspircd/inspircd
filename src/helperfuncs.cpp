@@ -6,7 +6,7 @@
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
  *   Copyright (C) 2013 Adam <Adam@anope.org>
  *   Copyright (C) 2012-2015 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2012-2014, 2017-2018, 2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012-2014, 2017-2018, 2020, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012, 2018 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -158,6 +158,7 @@ void InspIRCd::ProcessColors(file_cache& input)
 	} special[] = {
 		special_chars("\\b", "\x02"), // Bold
 		special_chars("\\c", "\x03"), // Color
+		special_chars("\\h", "\x04"), // Hex Color
 		special_chars("\\i", "\x1D"), // Italic
 		special_chars("\\m", "\x11"), // Monospace
 		special_chars("\\r", "\x16"), // Reverse
@@ -426,25 +427,34 @@ std::string InspIRCd::DurationString(time_t duration)
 	if (duration == 0)
 		return "0s";
 
-	time_t years = duration / 31449600;
-	time_t weeks = (duration / 604800) % 52;
-	time_t days = (duration / 86400) % 7;
-	time_t hours = (duration / 3600) % 24;
-	time_t minutes = (duration / 60) % 60;
-	time_t seconds = duration % 60;
-
 	std::string ret;
+	if (duration < 0)
+	{
+		ret = "-";
+		duration = std::abs(duration);
+	}
 
+	time_t years = duration / 31449600;
 	if (years)
-		ret = ConvToStr(years) + "y";
+		ret += ConvToStr(years) + "y";
+
+	time_t weeks = (duration / 604800) % 52;
 	if (weeks)
 		ret += ConvToStr(weeks) + "w";
+
+	time_t days = (duration / 86400) % 7;
 	if (days)
 		ret += ConvToStr(days) + "d";
+
+	time_t hours = (duration / 3600) % 24;
 	if (hours)
 		ret += ConvToStr(hours) + "h";
+
+	time_t minutes = (duration / 60) % 60;
 	if (minutes)
 		ret += ConvToStr(minutes) + "m";
+
+	time_t seconds = duration % 60;
 	if (seconds)
 		ret += ConvToStr(seconds) + "s";
 

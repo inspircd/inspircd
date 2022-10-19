@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2018-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018-2020, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2018 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -95,7 +95,7 @@ class IRCv3::Batch::Batch
 	void Setup(unsigned int b)
 	{
 		bit = b;
-		reftag = (1 << bit);
+		reftag = (static_cast<RefTag>(1) << bit);
 		reftagstr = ConvToStr(reftag);
 	}
 

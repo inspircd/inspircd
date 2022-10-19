@@ -4,7 +4,7 @@
  *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2019 B00mX0r <b00mx0r@aureus.pw>
  *   Copyright (C) 2018 Dylan Frank <b00mx0r@aureus.pw>
- *   Copyright (C) 2013, 2017-2019, 2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2019, 2021-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013, 2015-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>
@@ -53,7 +53,7 @@ class ssl_cert : public refcountbase
 	/** Get certificate distinguished name
 	 * @return Certificate DN
 	 */
-	const std::string& GetDN()
+	const std::string& GetDN() const
 	{
 		return dn;
 	}
@@ -61,7 +61,7 @@ class ssl_cert : public refcountbase
 	/** Get Certificate issuer
 	 * @return Certificate issuer
 	 */
-	const std::string& GetIssuer()
+	const std::string& GetIssuer() const
 	{
 		return issuer;
 	}
@@ -70,7 +70,7 @@ class ssl_cert : public refcountbase
 	 * @return The error associated with this users certificate,
 	 * or an empty string if there is no error.
 	 */
-	const std::string& GetError()
+	const std::string& GetError() const
 	{
 		return error;
 	}
@@ -78,7 +78,7 @@ class ssl_cert : public refcountbase
 	/** Get key fingerprint.
 	 * @return The key fingerprint as a hex string.
 	 */
-	const std::string& GetFingerprint()
+	const std::string& GetFingerprint() const
 	{
 		return fingerprint;
 	}
@@ -87,7 +87,7 @@ class ssl_cert : public refcountbase
 	 * @return True if this is a trusted certificate
 	 * (the certificate chain validates)
 	 */
-	bool IsTrusted()
+	bool IsTrusted() const
 	{
 		return trusted;
 	}
@@ -96,7 +96,7 @@ class ssl_cert : public refcountbase
 	 * @return True if the certificate itself is
 	 * correctly formed.
 	 */
-	bool IsInvalid()
+	bool IsInvalid() const
 	{
 		return invalid;
 	}
@@ -105,7 +105,7 @@ class ssl_cert : public refcountbase
 	 * @return True if the certificate appears to be
 	 * self-signed.
 	 */
-	bool IsUnknownSigner()
+	bool IsUnknownSigner() const
 	{
 		return unknownsigner;
 	}
@@ -115,7 +115,7 @@ class ssl_cert : public refcountbase
 	 * Note that this only works properly for GnuTLS
 	 * right now.
 	 */
-	bool IsRevoked()
+	bool IsRevoked() const
 	{
 		return revoked;
 	}
@@ -123,7 +123,7 @@ class ssl_cert : public refcountbase
 	/** Get certificate usability
 	* @return True if the certificate is not expired nor revoked
 	*/
-	bool IsUsable()
+	bool IsUsable() const
 	{
 		return !invalid && !revoked && error.empty();
 	}
@@ -132,12 +132,12 @@ class ssl_cert : public refcountbase
 	* @return True if the certificate is issued by a CA
 	* and valid.
 	*/
-	bool IsCAVerified()
+	bool IsCAVerified() const
 	{
 		return IsUsable() && trusted && !unknownsigner;
 	}
 
-	std::string GetMetaLine()
+	std::string GetMetaLine() const
 	{
 		std::stringstream value;
 		bool hasError = !error.empty();
@@ -164,9 +164,25 @@ public:
 class SSLIOHook : public IOHook
 {
  protected:
+	/** An enumeration of possible TLS (SSL) socket states. */
+	enum Status
+	{
+		/** The SSL socket has just been opened or has been closed. */
+		STATUS_NONE,
+
+		/** The SSL socket is currently handshaking. */
+		STATUS_HANDSHAKING,
+
+		/** The SSL handshake has completed and data can be sent. */
+		STATUS_OPEN
+	};
+
 	/** Peer TLS (SSL) certificate, set by the TLS (SSL) module
 	 */
 	reference<ssl_cert> certificate;
+
+	/** The status of the TLS (SSL) connection. */
+	Status status;
 
 	/** Reduce elements in a send queue by appending later elements to the first element until there are no more
 	 * elements to append or a desired length is reached
@@ -242,6 +258,9 @@ class SSLIOHook : public IOHook
 	 * returns True if the server name was retrieved; otherwise, false.
 	 */
 	virtual bool GetServerName(std::string& out) const = 0;
+
+	/** @copydoc IOHook::IsHookReady */
+	bool IsHookReady() const CXX11_OVERRIDE { return status == STATUS_OPEN; }
 };
 
 /** Helper functions for obtaining TLS (SSL) client certificates and key fingerprints

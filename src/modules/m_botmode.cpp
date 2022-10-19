@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013, 2017-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012, 2015 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Shawn Smith <ShawnSmith0828@gmail.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
@@ -45,8 +45,12 @@ class BotTag : public ClientProtocol::MessageTagProvider
 	void OnPopulateTags(ClientProtocol::Message& msg) CXX11_OVERRIDE
 	{
 		User* const user = msg.GetSourceUser();
-		if (user && user->IsModeSet(botmode))
-			msg.AddTag("inspircd.org/bot", this, "");
+		if (!user || !user->IsModeSet(botmode))
+			return;
+
+		// TODO: remove inspircd.org/bot in v4.
+		msg.AddTag("bot", this, "");
+		msg.AddTag("inspircd.org/bot", this, "");
 	}
 
 	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) CXX11_OVERRIDE

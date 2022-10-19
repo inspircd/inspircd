@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2019-2020 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2018-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018-2019, 2021 Sadie Powell <sadie@witchery.services>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -382,6 +382,11 @@ class HAProxyHook : public IOHookMiddle
 		, state(HPS_WAITING_FOR_HEADER)
 	{
 		sock->AddIOHook(this);
+	}
+
+	bool IsHookReady() const CXX11_OVERRIDE
+	{
+		return state == HPS_CONNECTED;
 	}
 
 	int OnStreamSocketWrite(StreamSocket* sock, StreamSocket::SendQueue& uppersendq) CXX11_OVERRIDE

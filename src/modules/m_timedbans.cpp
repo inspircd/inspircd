@@ -2,10 +2,10 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2020 iwalkalone <iwalkalone69@gmail.com>
- *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2017 B00mX0r <b00mx0r@aureus.pw>
- *   Copyright (C) 2013, 2017-2018, 2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2016, 2019 Matt Schatz <genius3000@g3k.solutions>
+ *   Copyright (C) 2013, 2017-2018, 2020-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
  *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
@@ -93,7 +93,7 @@ class CommandTban : public Command
 		unsigned int cm = channel->GetPrefixValue(user);
 		if (cm < HALFOP_VALUE)
 		{
-			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, channel->name, "You do not have permission to set bans on this channel");
+			user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(channel, HALFOP_VALUE, "set timed bans"));
 			return CMD_FAILURE;
 		}
 
@@ -152,8 +152,8 @@ class CommandTban : public Command
 			const std::string message = InspIRCd::Format("Timed ban %s added by %s on %s lasting for %s.",
 			mask.c_str(), user->nick.c_str(), channel->name.c_str(), InspIRCd::DurationString(duration).c_str());
 			// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
-			PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
-			char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
+			PrefixMode* mh = ServerInstance->Modes.FindNearestPrefixMode(HALFOP_VALUE);
+			char pfxchar = mh ? mh->GetPrefix() : '@';
 
 			channel->WriteRemoteNotice(message, pfxchar);
 		}
@@ -213,12 +213,15 @@ class ChannelMatcher
 
 class ModuleTimedBans : public Module
 {
+ private:
+	ChanModeReference banmode;
 	CommandTban cmd;
 	BanWatcher banwatcher;
 
  public:
 	ModuleTimedBans()
-		: cmd(this)
+		: banmode(this, "ban")
+		, cmd(this)
 		, banwatcher(this)
 	{
 	}
@@ -253,14 +256,14 @@ class ModuleTimedBans : public Module
 				const std::string message = InspIRCd::Format("Timed ban %s set by %s on %s has expired.",
 				mask.c_str(), i->setter.c_str(), cr->name.c_str());
 				// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
-				PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
-				char pfxchar = (mh && mh->name == "halfop") ? mh->GetPrefix() : '@';
+				PrefixMode* mh = ServerInstance->Modes.FindNearestPrefixMode(HALFOP_VALUE);
+				char pfxchar = mh ? mh->GetPrefix() : '@';
 
 				cr->WriteRemoteNotice(message, pfxchar);
 			}
 
 			Modes::ChangeList setban;
-			setban.push_remove(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), mask);
+			setban.push_remove(*banmode, mask);
 			ServerInstance->Modes->Process(ServerInstance->FakeClient, cr, NULL, setban);
 		}
 	}

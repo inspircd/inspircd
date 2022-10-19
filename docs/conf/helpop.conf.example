@@ -53,9 +53,12 @@ match against the nickname of the network service and the oper type of
 the network service.
 ">
 
-<helpop key="sslinfo" title="/SSLINFO <nick>" value="
-Displays information on the TLS (SSL) connection and certificate of the
-target user.
+<helpop key="sslinfo" title="/SSLINFO <chan>|<nick>" value="
+If a channel is specified then display TLS (SSL) connection information
+for users in the specified channel.
+
+If a user is specified then display information on the TLS (SSL)
+connection and certificate of the specified user.
 ">
 
 <helpop key="uninvite" title="/UNINVITE <nick> <channel>" value="
@@ -295,6 +298,8 @@ The following flags use <pattern> to match against the specified user data:
 
  A     Show users who have an away message matching <pattern>.
  a     Show users who have an account name matching <pattern>.
+ G     Show users who are connecting from a country code matching <pattern>.
+       Requires the geoban module.
  h     Show users who have a hostname matching <pattern>. If the 'x' modifier
        is specified then this will match against the real hostname instead of
        the display hostname.
@@ -416,9 +421,11 @@ server.
 You should not use it during an established connection.
 ">
 
-<helpop key="whowas" title="/WHOWAS <nick>" value="
+<helpop key="whowas" title="/WHOWAS <nick> [<count>]" value="
 Returns a list of times the user was seen recently on IRC along with
 the time they were last seen and their server.
+
+If <count> is given, only return the <count> most recent entries.
 ">
 
 <helpop key="links" title="/LINKS" value="
@@ -1117,8 +1124,10 @@ Matching extbans:
                gecosban module).
  s:<server>    Matches users on a matching server (requires the
                serverban module).
- z:<certfp>    Matches users having the given TLS (SSL) certificate
+ z:<sslfp>     Matches users having the given TLS (SSL) certificate
                fingerprint (requires the sslmodes module).
+ w:<gateway>   Matches users who are connecting via a WebIRC gateway that
+               matches <gateway>.
  O:<opertype>  Matches server operators of a matching type, mostly
                useful as an invite exception (requires the
                operchans module).

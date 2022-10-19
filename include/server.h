@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2019-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2019-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2018 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2014 Attila Molnar <attilamolnar@hush.com>
  *
@@ -74,6 +74,9 @@ class CoreExport Server : public classbase
 	 * @return The name of this server, for example "irc.inspircd.org".
 	 */
 	const std::string& GetName() const { return name; }
+
+	/** Returns the public name of this server respecting <security:hideserver> if set. */
+	const std::string& GetPublicName() const;
 
 	/** Returns the description of this server
 	 * @return The description of this server

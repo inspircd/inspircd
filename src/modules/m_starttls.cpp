@@ -3,9 +3,9 @@
  *
  *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2019 Robby <robby@chatbelgie.be>
- *   Copyright (C) 2018 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018, 2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2014 Adam <Adam@anope.org>
- *   Copyright (C) 2013, 2015-2016 Attila Molnar <attilamolnar@hush.com>
+ *   Copyright (C) 2013, 2016 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -81,16 +81,39 @@ class CommandStartTLS : public SplitCommand
 	}
 };
 
+class TLSCap : public Cap::Capability
+{
+ private:
+	dynamic_reference_nocheck<IOHookProvider>& sslref;
+
+	bool OnList(LocalUser* user) CXX11_OVERRIDE
+	{
+		return sslref;
+	}
+
+	bool OnRequest(LocalUser* user, bool adding) CXX11_OVERRIDE
+	{
+		return sslref;
+	}
+
+ public:
+	TLSCap(Module* mod, dynamic_reference_nocheck<IOHookProvider>& ssl)
+		: Cap::Capability(mod, "tls")
+		, sslref(ssl)
+	{
+	}
+};
+
 class ModuleStartTLS : public Module
 {
 	CommandStartTLS starttls;
-	Cap::Capability tls;
+	TLSCap tls;
 	dynamic_reference_nocheck<IOHookProvider> ssl;
 
  public:
 	ModuleStartTLS()
 		: starttls(this, ssl)
-		, tls(this, "tls")
+		, tls(this, ssl)
 		, ssl(this, "ssl")
 	{
 	}

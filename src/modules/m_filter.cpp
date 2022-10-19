@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2021 Herman <GermanAizek@yandex.ru>
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2019 Filippo Cortigiani <simos@simosnap.org>
  *   Copyright (C) 2018-2019 linuxdaemon <linuxdaemon.irc@gmail.com>
@@ -464,7 +465,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		}
 		else if (f->action == FA_SHUN && (ServerInstance->XLines->GetFactory("SHUN")))
 		{
-			Shun* sh = new Shun(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), user->GetIPString());
+			Shun* sh = new Shun(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
 			ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s (%s) was shunned for %s (expires on %s) because their message to %s matched %s (%s)",
 				user->nick.c_str(), sh->Displayable().c_str(), InspIRCd::DurationString(f->duration).c_str(),
 				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
@@ -478,7 +479,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		}
 		else if (f->action == FA_GLINE)
 		{
-			GLine* gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), "*", user->GetIPString());
+			GLine* gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, "*", user->GetIPString());
 			ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s (%s) was G-lined for %s (expires on %s) because their message to %s matched %s (%s)",
 				user->nick.c_str(), gl->Displayable().c_str(), InspIRCd::DurationString(f->duration).c_str(),
 				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
@@ -492,7 +493,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		}
 		else if (f->action == FA_ZLINE)
 		{
-			ZLine* zl = new ZLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), user->GetIPString());
+			ZLine* zl = new ZLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
 			ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s (%s) was Z-lined for %s (expires on %s) because their message to %s matched %s (%s)",
 				user->nick.c_str(), zl->Displayable().c_str(), InspIRCd::DurationString(f->duration).c_str(),
 				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
@@ -569,7 +570,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 			if (f->action == FA_GLINE)
 			{
 				/* Note: We G-line *@IP so that if their host doesn't resolve the G-line still applies. */
-				GLine* gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), "*", user->GetIPString());
+				GLine* gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, "*", user->GetIPString());
 				ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s (%s) was G-lined for %s (expires on %s) because their %s message matched %s (%s)",
 					user->nick.c_str(), gl->Displayable().c_str(),
 					InspIRCd::DurationString(f->duration).c_str(),
@@ -585,7 +586,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 			}
 			if (f->action == FA_ZLINE)
 			{
-				ZLine* zl = new ZLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), user->GetIPString());
+				ZLine* zl = new ZLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
 				ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s (%s) was Z-lined for %s (expires on %s) because their %s message matched %s (%s)",
 					user->nick.c_str(), zl->Displayable().c_str(),
 					InspIRCd::DurationString(f->duration).c_str(),
@@ -602,7 +603,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 			else if (f->action == FA_SHUN && (ServerInstance->XLines->GetFactory("SHUN")))
 			{
 				/* Note: We shun *!*@IP so that if their host doesnt resolve the shun still applies. */
-				Shun* sh = new Shun(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), user->GetIPString());
+				Shun* sh = new Shun(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
 				ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s (%s) was shunned for %s (expires on %s) because their %s message matched %s (%s)",
 					user->nick.c_str(), sh->Displayable().c_str(),
 					InspIRCd::DurationString(f->duration).c_str(),
@@ -953,7 +954,7 @@ bool ModuleFilter::Tick(time_t)
 			return true;
 		}
 
-		const std::string newfilterconf = filterconf + ".tmp";
+		const std::string newfilterconf = filterconf + ".new." + ConvToStr(ServerInstance->Time());
 		std::ofstream stream(newfilterconf.c_str());
 		if (!stream.is_open()) // Filesystem probably not writable.
 		{

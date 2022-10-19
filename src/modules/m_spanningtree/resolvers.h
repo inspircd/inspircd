@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2013 Adam <Adam@anope.org>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
@@ -40,6 +40,7 @@ class SecurityIPResolver : public DNS::Request
 	Module* mine;
 	std::string host;
 	DNS::QueryType query;
+	bool CheckIPv4();
  public:
 	SecurityIPResolver(Module* me, DNS::Manager* mgr, const std::string& hostname, Link* x, DNS::QueryType qt);
 	void OnLookupComplete(const DNS::Query *r) CXX11_OVERRIDE;

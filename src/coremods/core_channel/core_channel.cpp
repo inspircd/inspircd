@@ -4,7 +4,7 @@
  *   Copyright (C) 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2018 Dylan Frank <b00mx0r@aureus.pw>
- *   Copyright (C) 2017-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2017-2020, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2014-2015, 2018 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -192,7 +192,7 @@ class CoreModChannel : public Module, public CheckExemption::EventListener
 		// In 2.0 we allowed limits of 0 to be set. This is non-standard behaviour
 		// and will be removed in the next major release.
 		limitmode.minlimit = optionstag->getBool("allowzerolimit", true) ? 0 : 1;;
-		cmdinvite.announceinvites = newannouncestate;
+		invapi.announceinvites = newannouncestate;
 		joinhook.modefromuser = optionstag->getBool("cyclehostsfromuser");
 
 		Implementation events[] = { I_OnCheckKey, I_OnCheckLimit, I_OnCheckChannelBan };

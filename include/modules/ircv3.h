@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2018-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2015, 2018 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -130,4 +130,7 @@ class IRCv3::CapTag : public ClientProtocol::MessageTagProvider
 		, tagname(Tagname)
 	{
 	}
+
+	/** Retrieves the underlying capability. */
+	const Cap::Capability& GetCap() const { return cap; }
 };

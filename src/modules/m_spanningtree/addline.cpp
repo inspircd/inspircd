@@ -2,9 +2,9 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
- *   Copyright (C) 2018 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013-2014 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
+ *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008, 2010 Craig Edwards <brain@inspircd.org>
@@ -57,14 +57,14 @@ CmdResult CommandAddLine::Handle(User* usr, Params& params)
 	{
 		if (xl->duration)
 		{
-			ServerInstance->SNO->WriteToSnoMask('X', "%s added timed %s%s for %s, expires in %s (on %s): %s",
+			ServerInstance->SNO->WriteToSnoMask('X', "%s added a timed %s%s on %s, expires in %s (on %s): %s",
 				setter.c_str(), params[0].c_str(), params[0].length() == 1 ? "-line" : "",
 				params[1].c_str(), InspIRCd::DurationString(xl->duration).c_str(),
 				InspIRCd::TimeString(xl->expiry).c_str(), params[5].c_str());
 		}
 		else
 		{
-			ServerInstance->SNO->WriteToSnoMask('X', "%s added permanent %s%s on %s: %s",
+			ServerInstance->SNO->WriteToSnoMask('X', "%s added a permanent %s%s on %s: %s",
 				setter.c_str(), params[0].c_str(), params[0].length() == 1 ? "-line" : "",
 				params[1].c_str(), params[5].c_str());
 		}

@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2017-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2017-2019, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Adam <Adam@anope.org>
  *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
@@ -71,6 +71,14 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 		}
 	}
 
+	irc::sockets::sockaddrs sa;
+	if (params[6].find('/') != std::string::npos)
+		irc::sockets::untosa(params[6], sa);
+	else
+		irc::sockets::aptosa(params[6], 0, sa);
+	if (sa.family() == AF_UNSPEC)
+		throw ProtocolException("Invalid IP address or UNIX socket path");
+
 	/* For remote users, we pass the UUID they sent to the constructor.
 	 * If the UUID already exists User::User() throws an exception which causes this connection to be closed.
 	 */
@@ -80,13 +88,13 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	_new->ChangeRealHost(params[3], false);
 	_new->ChangeDisplayedHost(params[4]);
 	_new->ident = params[5];
+	_new->SetClientIP(sa);
 	_new->ChangeRealName(params.back());
 	_new->registered = REG_ALL;
 	_new->signon = signon;
 	_new->age = age_t;
 
 	unsigned int paramptr = 9;
-
 	for (std::string::const_iterator v = modestr.begin(); v != modestr.end(); ++v)
 	{
 		// Accept more '+' chars, for now
@@ -119,8 +127,6 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 		_new->SetMode(mh, true);
 	}
 
-	_new->SetClientIP(params[6]);
-
 	ServerInstance->Users->AddClone(_new);
 	remoteserver->UserCount++;
 
@@ -130,7 +136,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 		dosend = false;
 
 	if (dosend)
-		ServerInstance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s (%s) [%s]", remoteserver->GetName().c_str(), _new->GetFullRealHost().c_str(), _new->GetIPString().c_str(), _new->GetRealName().c_str());
+		ServerInstance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s (%s) [%s\x0F]", remoteserver->GetName().c_str(), _new->GetFullRealHost().c_str(), _new->GetIPString().c_str(), _new->GetRealName().c_str());
 
 	FOREACH_MOD(OnPostConnect, (_new));
 

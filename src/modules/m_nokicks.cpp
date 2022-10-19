@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
- *   Copyright (C) 2013, 2017 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017, 2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -48,7 +48,7 @@ class ModuleNoKicks : public Module
 		if (!memb->chan->GetExtBanStatus(source, 'Q').check(!modeset))
 		{
 			// Can't kick with Q in place, not even opers with override, and founders
-			source->WriteNumeric(ERR_CHANOPRIVSNEEDED, memb->chan->name, InspIRCd::Format("Can't kick user %s from channel (%s)",
+			source->WriteNumeric(ERR_RESTRICTED, memb->chan->name, InspIRCd::Format("Can't kick user %s from channel (%s)",
 				memb->user->nick.c_str(), modeset ? "+Q is set" : "you're extbanned"));
 			return MOD_RES_DENY;
 		}

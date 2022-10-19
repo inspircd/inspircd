@@ -13,7 +13,7 @@
  *   Copyright (C) 2008 John Brooks <special@inspircd.org>
  *   Copyright (C) 2007-2008 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2007-2008 Dennis Friis <peavey@inspircd.org>
- *   Copyright (C) 2006 jamie <jamie@e03df62e-2008-0410-955e-edbf42e46eb7>
+ *   Copyright (C) 2006 jamie
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -599,7 +599,7 @@ class ModuleDCCAllow : public Module
 		bfl.swap(newbfl);
 
 		ConfigTag* tag = ServerInstance->Config->ConfValue("dccallow");
-		cmd.ext.maxentries = tag->getUInt("maxentries", 20);
+		cmd.ext.maxentries = tag->getUInt("maxentries", 20, 1);
 		cmd.defaultlength = tag->getDuration("length", 0);
 		blockchat = tag->getBool("blockchat");
 		defaultaction = tag->getString("action");

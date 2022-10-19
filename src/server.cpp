@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2019 nia <nia@netbsd.org>
  *   Copyright (C) 2013-2014, 2016 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2013, 2016-2017, 2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2016-2017, 2020-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Adam <Adam@anope.org>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>
@@ -56,7 +56,17 @@ void InspIRCd::Exit(int status)
 	this->Cleanup();
 	ServerInstance = NULL;
 	delete this;
-	exit (status);
+	QuickExit(status);
+}
+
+void InspIRCd::QuickExit(int status)
+{
+#ifdef INSPIRCD_BINARY_EXIT
+	// Some init systems handle non-binary exit statuses weirdly.
+	exit(status ? EXIT_FAILURE : EXIT_SUCCESS);
+#else
+	exit(status);
+#endif
 }
 
 void InspIRCd::Rehash(const std::string& uuid)
@@ -160,6 +170,13 @@ std::string UIDGenerator::GetUID()
 	}
 
 	return current_uid;
+}
+
+const std::string& Server::GetPublicName() const
+{
+	if (!ServerInstance->Config->HideServer.empty())
+		return ServerInstance->Config->HideServer;
+	return GetName();
 }
 
 void ISupportManager::AppendValue(std::string& buffer, const std::string& value)

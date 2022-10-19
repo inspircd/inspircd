@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2022 iwalkalone <iwalkalone69@gmail.com>
  *   Copyright (C) 2013, 2017-2020 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2015 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
@@ -22,6 +23,7 @@
 
 #include "inspircd.h"
 #include "modules/ctctags.h"
+#include "modules/exemption.h"
 
 class DelayMsgMode : public ParamMode<DelayMsgMode, LocalIntExt>
 {
@@ -56,12 +58,14 @@ class ModuleDelayMsg
  private:
 	DelayMsgMode djm;
 	bool allownotice;
+	CheckExemption::EventProvider exemptionprov;
 	ModResult HandleMessage(User* user, const MessageTarget& target, bool notice);
 
  public:
 	ModuleDelayMsg()
 		: CTCTags::EventListener(this)
 		, djm(this)
+		, exemptionprov(this)
 	{
 	}
 
@@ -139,12 +143,16 @@ ModResult ModuleDelayMsg::HandleMessage(User* user, const MessageTarget& target,
 
 	if ((ts + len) > ServerInstance->Time())
 	{
-		if (channel->GetPrefixValue(user) < VOICE_VALUE)
-		{
-			const std::string message = InspIRCd::Format("You cannot send messages to this channel until you have been a member for %d seconds.", len);
-			user->WriteNumeric(Numerics::CannotSendTo(channel, message));
-			return MOD_RES_DENY;
-		}
+		ModResult res = CheckExemption::Call(exemptionprov, user, channel, "delaymsg");
+		if (res == MOD_RES_ALLOW)
+			return MOD_RES_PASSTHRU;
+
+		if (user->HasPrivPermission("channels/ignore-delaymsg"))
+			return MOD_RES_PASSTHRU;
+
+		const std::string message = InspIRCd::Format("You cannot send messages to this channel until you have been a member for %d seconds.", len);
+		user->WriteNumeric(Numerics::CannotSendTo(channel, message));
+		return MOD_RES_DENY;
 	}
 	else
 	{

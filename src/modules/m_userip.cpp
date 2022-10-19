@@ -1,13 +1,13 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013, 2017-2018 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2018, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2014, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
- *   Copyright (C) 2007-2009 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2007-2008 Dennis Friis <peavey@inspircd.org>
+ *   Copyright (C) 2007 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2005-2007 Craig Edwards <brain@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -30,52 +30,49 @@
  */
 class CommandUserip : public Command
 {
+ private:
+	UserModeReference hideopermode;
+
  public:
-	CommandUserip(Module* Creator) : Command(Creator,"USERIP", 1)
+	CommandUserip(Module* Creator)
+		: Command(Creator,"USERIP", 1)
+		, hideopermode(Creator, "hideoper")
 	{
+		allow_empty_last_param = false;
 		syntax = "<nick> [<nick>]+";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
-		std::string retbuf;
-		int nicks = 0;
-		bool checked_privs = false;
-		bool has_privs = false;
+		const bool has_privs = user->HasPrivPermission("users/auspex");
 
-		for (size_t i = 0; i < parameters.size(); i++)
+		std::string retbuf;
+
+		size_t paramcount = std::min<size_t>(parameters.size(), 5);
+		for (size_t i = 0; i < paramcount; ++i)
 		{
 			User *u = ServerInstance->FindNickOnly(parameters[i]);
 			if ((u) && (u->registered == REG_ALL))
 			{
-				// Anyone may query their own IP
-				if (u != user)
-				{
-					if (!checked_privs)
-					{
-						// Do not trigger the insufficient privileges message more than once
-						checked_privs = true;
-						has_privs = user->HasPrivPermission("users/auspex");
-						if (!has_privs)
-							user->WriteNumeric(ERR_NOPRIVILEGES, "Permission Denied - You do not have the required operator privileges");
-					}
+				retbuf += u->nick;
 
-					if (!has_privs)
-						continue;
+				if (u->IsOper())
+				{
+					// XXX: +H hidden opers must not be shown as opers
+					if ((u == user) || (has_privs) || (!u->IsModeSet(hideopermode)))
+						retbuf += '*';
 				}
 
-				retbuf = retbuf + u->nick + (u->IsOper() ? "*" : "") + "=";
-				if (u->IsAway())
-					retbuf += "-";
-				else
-					retbuf += "+";
-				retbuf += u->ident + "@" + u->GetIPString() + " ";
-				nicks++;
+				retbuf += '=';
+				retbuf += (u->IsAway() ? '-' : '+');
+				retbuf += u->ident;
+				retbuf += '@';
+				retbuf += (u == user || has_privs ? u->GetIPString() : "255.255.255.255");
+				retbuf += ' ';
 			}
 		}
 
-		if (nicks != 0)
-			user->WriteNumeric(RPL_USERIP, retbuf);
+		user->WriteNumeric(RPL_USERIP, retbuf);
 
 		return CMD_SUCCESS;
 	}

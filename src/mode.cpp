@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2017 B00mX0r <b00mx0r@aureus.pw>
- *   Copyright (C) 2016-2019, 2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2016-2019, 2021-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2016, 2018 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 Shawn Smith <ShawnSmith0828@gmail.com>
@@ -283,31 +283,11 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 		if (MOD_RESULT == MOD_RES_PASSTHRU)
 		{
 			unsigned int neededrank = mh->GetLevelRequired(adding);
-			/* Compare our rank on the channel against the rank of the required prefix,
-			 * allow if >= ours. Because mIRC and xchat throw a tizz if the modes shown
-			 * in NAMES(X) are not in rank order, we know the most powerful mode is listed
-			 * first, so we don't need to iterate, we just look up the first instead.
-			 */
 			unsigned int ourrank = chan->GetPrefixValue(user);
 			if (ourrank < neededrank)
 			{
-				const PrefixMode* neededmh = NULL;
-				const PrefixModeList& prefixmodes = GetPrefixModes();
-				for (PrefixModeList::const_iterator i = prefixmodes.begin(); i != prefixmodes.end(); ++i)
-				{
-					const PrefixMode* const privmh = *i;
-					if (privmh->GetPrefixRank() >= neededrank)
-					{
-						// this mode is sufficient to allow this action
-						if (!neededmh || privmh->GetPrefixRank() < neededmh->GetPrefixRank())
-							neededmh = privmh;
-					}
-				}
-				if (neededmh)
-					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, InspIRCd::Format("You must have channel %s access or above to %sset channel mode %c",
-						neededmh->name.c_str(), adding ? "" : "un", modechar));
-				else
-					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, InspIRCd::Format("You cannot %sset channel mode %c", (adding ? "" : "un"), modechar));
+				user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, neededrank, InspIRCd::Format("%s channel mode %c (%s)",
+					adding ? "set" : "unset", mh->GetModeChar(), mh->name.c_str())));
 				return MODEACTION_DENY;
 			}
 		}
@@ -737,6 +717,24 @@ PrefixMode* ModeParser::FindPrefixMode(unsigned char modeletter)
 	return mh->IsPrefixMode();
 }
 
+PrefixMode* ModeParser::FindNearestPrefixMode(unsigned int rank)
+{
+	PrefixMode* pm = NULL;
+	const PrefixModeList& prefixmodes = GetPrefixModes();
+	for (PrefixModeList::const_iterator i = prefixmodes.begin(); i != prefixmodes.end(); ++i)
+	{
+		PrefixMode* thispm = *i;
+		if (thispm->GetPrefixRank() < rank)
+			continue; // Not ranked high enough.
+
+		// Is it lower than the last checked mode?
+		if (!pm || thispm->GetPrefixRank() < pm->GetPrefixRank())
+			pm = thispm;
+
+	}
+	return pm;
+}
+
 PrefixMode* ModeParser::FindPrefix(unsigned const char pfxletter)
 {
 	const PrefixModeList& list = GetPrefixModes();
@@ -852,7 +850,7 @@ bool ModeParser::DelModeWatcher(ModeWatcher* mw)
 void ModeHandler::RemoveMode(User* user)
 {
 	// Remove the mode if it's set on the user
-	if (user->IsModeSet(this->GetModeChar()))
+	if (user->IsModeSet(this))
 	{
 		Modes::ChangeList changelist;
 		changelist.push_remove(this);

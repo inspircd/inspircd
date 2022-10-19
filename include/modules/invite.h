@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2019, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2015 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -25,6 +25,23 @@ namespace Invite
 	class APIBase;
 	class API;
 	class Invite;
+
+
+	/** Used to indicate who we announce invites to on a channel. */
+	enum AnnounceState
+	{
+		/** Don't send invite announcements. */
+		ANNOUNCE_NONE,
+
+		/** Send invite announcements to all users. */
+		ANNOUNCE_ALL,
+
+		/** Send invite announcements to channel operators and higher. */
+		ANNOUNCE_OPS,
+
+		/** Send invite announcements to channel half-operators (if available) and higher. */
+		ANNOUNCE_DYNAMIC
+	};
 
 	typedef insp::intrusive_list<Invite, LocalUser> List;
 }
@@ -50,6 +67,9 @@ class Invite::APIBase : public DataProvider
 	 * @return Invite object for the given (channel, user) pair if it exists, NULL otherwise
 	 */
 	virtual Invite* Find(LocalUser* user, Channel* chan) = 0;
+
+	/** Returns the announcement behaviour for invites from <security:announceinvites>. */
+	virtual AnnounceState GetAnnounceState() const = 0;
 
 	/** Returns the list of channels a user has been invited to but has not yet joined.
 	 * @param user User whose invite list to retrieve

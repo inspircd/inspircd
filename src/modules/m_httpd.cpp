@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2018 edef <edef@edef.eu>
- *   Copyright (C) 2013-2014, 2017-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013-2014, 2017-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
@@ -123,6 +123,8 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		parser_settings.on_message_begin = Callback<&HttpServerSocket::OnMessageBegin>;
 		parser_settings.on_url = DataCallback<&HttpServerSocket::OnUrl>;
 		parser_settings.on_header_field = DataCallback<&HttpServerSocket::OnHeaderField>;
+		parser_settings.on_header_value = DataCallback<&HttpServerSocket::OnHeaderValue>;
+		parser_settings.on_headers_complete = Callback<&HttpServerSocket::OnHeadersComplete>;
 		parser_settings.on_body = DataCallback<&HttpServerSocket::OnBody>;
 		parser_settings.on_message_complete = Callback<&HttpServerSocket::OnMessageComplete>;
 	}

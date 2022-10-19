@@ -1,10 +1,11 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2021 Herman <GermanAizek@yandex.ru>
  *   Copyright (C) 2016 Adam <Adam@anope.org>
  *   Copyright (C) 2014 Mantas Mikulėnas <grawity@gmail.com>
  *   Copyright (C) 2013-2016, 2018 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2013, 2017-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2020, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -280,6 +281,12 @@ class SaslAuthenticator
 		return this->state;
 	}
 
+	void Abort()
+	{
+		this->state = SASL_DONE;
+		this->result = SASL_ABORT;
+	}
+
 	bool SendClientMessage(const std::vector<std::string>& parameters)
 	{
 		if (this->state != SASL_COMM)
@@ -289,15 +296,14 @@ class SaslAuthenticator
 
 		if (parameters[0].c_str()[0] == '*')
 		{
-			this->state = SASL_DONE;
-			this->result = SASL_ABORT;
+			this->Abort();
 			return false;
 		}
 
 		return true;
 	}
 
-	void AnnounceState(void)
+	void AnnounceState()
 	{
 		if (this->state_announced)
 			return;
@@ -448,6 +454,21 @@ class ModuleSASL : public Module
 		cap.requiressl = tag->getBool("requiressl");
 		sasl_target = target;
 		servertracker.Reset();
+	}
+
+	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
+	{
+		// If the client completes registration (with CAP END, NICK, USER and
+		// any other necessary messages) while the SASL authentication is still
+		// in progress, the server SHOULD abort it and send a 906 numeric, then
+		// register the client without authentication.
+		SaslAuthenticator* saslauth = authExt.get(user);
+		if (saslauth)
+		{
+			saslauth->Abort();
+			saslauth->AnnounceState();
+			authExt.unset(user);
+		}
 	}
 
 	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata) CXX11_OVERRIDE

@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013, 2017 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
  *   Copyright (C) 2012-2014 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
@@ -24,7 +24,7 @@
 
 #include "inspircd.h"
 
-static std::bitset<256> allowedmap;
+static std::bitset<UCHAR_MAX + 1> allowedmap;
 
 class NewIsChannelHandler
 {
@@ -39,7 +39,7 @@ bool NewIsChannelHandler::Call(const std::string& channame)
 
 	for (std::string::const_iterator c = channame.begin(); c != channame.end(); ++c)
 	{
-		unsigned int i = *c & 0xFF;
+		unsigned char i = static_cast<unsigned char>(*c);
 		if (!allowedmap[i])
 			return false;
 	}
@@ -59,11 +59,6 @@ class ModuleChannelNames : public Module
 		, badchan(false)
 		, permchannelmode(this, "permanent")
 	{
-	}
-
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->IsChannel = NewIsChannelHandler::Call;
 	}
 
 	void ValidateChans()
@@ -119,17 +114,18 @@ class ModuleChannelNames : public Module
 		irc::portparser denyrange(denyToken, false);
 		int denyno = -1;
 		while (0 != (denyno = denyrange.GetToken()))
-			allowedmap[denyno & 0xFF] = false;
+			allowedmap[denyno & UCHAR_MAX] = false;
 
 		irc::portparser allowrange(allowToken, false);
 		int allowno = -1;
 		while (0 != (allowno = allowrange.GetToken()))
-			allowedmap[allowno & 0xFF] = true;
+			allowedmap[allowno & UCHAR_MAX] = true;
 
 		allowedmap[0x07] = false; // BEL
 		allowedmap[0x20] = false; // ' '
 		allowedmap[0x2C] = false; // ','
 
+		ServerInstance->IsChannel = NewIsChannelHandler::Call;
 		ValidateChans();
 	}
 

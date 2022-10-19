@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2019-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2019-2020, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2014 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -52,7 +52,7 @@ class map_pair_compare : public Comp
 };
 
 template <typename Val, typename Comp>
-class map_value_compare : public std::binary_function<Val, Val, bool>
+class map_value_compare
 {
  public:
 	// Constructor should be private

@@ -4,7 +4,7 @@
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2018 systocrat <systocrat@outlook.com>
  *   Copyright (C) 2018 Dylan Frank <b00mx0r@aureus.pw>
- *   Copyright (C) 2013, 2016-2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2016-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
  *   Copyright (C) 2013 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2013 Adam <Adam@anope.org>
@@ -83,6 +83,7 @@ User::User(const std::string& uid, Server* srv, UserType type)
 	, server(srv)
 	, registered(REG_NONE)
 	, quitting(false)
+	, uniqueusername(false)
 	, usertype(type)
 {
 	client_sa.sa.sa_family = AF_UNSPEC;
@@ -554,6 +555,7 @@ void LocalUser::CheckClass(bool clone_count)
 	}
 
 	this->nextping = ServerInstance->Time() + a->GetPingTime();
+	this->uniqueusername = a->uniqueusername;
 }
 
 bool LocalUser::CheckLines(bool doZline)
@@ -609,7 +611,7 @@ void LocalUser::FullConnect()
 
 	FOREACH_MOD(OnPostConnect, (this));
 
-	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d (class %s): %s (%s) [%s]",
+	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d (class %s): %s (%s) [%s\x0F]",
 		this->server_sa.port(), this->MyClass->name.c_str(), GetFullRealHost().c_str(), this->GetIPString().c_str(), this->GetRealName().c_str());
 	ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCache: Adding NEGATIVE hit for " + this->GetIPString());
 	ServerInstance->BanCache.AddHit(this->GetIPString(), "", "");
@@ -719,6 +721,12 @@ const std::string& User::GetIPString()
 	return cachedip;
 }
 
+const std::string& User::GetBanIdent() const
+{
+	static const std::string wildcard = "*";
+	return uniqueusername ? ident : wildcard;
+}
+
 const std::string& User::GetHost(bool uncloak) const
 {
 	return uncloak ? GetRealHost() : GetDisplayedHost();
@@ -757,7 +765,7 @@ irc::sockets::cidr_mask User::GetCIDRMask()
 bool User::SetClientIP(const std::string& address)
 {
 	irc::sockets::sockaddrs sa;
-	if (!irc::sockets::aptosa(address, client_sa.port(), sa))
+	if (!irc::sockets::aptosa(address, client_sa.family() == AF_UNSPEC ? 0 : client_sa.port(), sa))
 		return false;
 
 	User::SetClientIP(sa);
@@ -766,7 +774,7 @@ bool User::SetClientIP(const std::string& address)
 
 void User::SetClientIP(const irc::sockets::sockaddrs& sa)
 {
-	const std::string oldip(GetIPString());
+	const std::string oldip(client_sa.family() == AF_UNSPEC ? "" : GetIPString());
 	memcpy(&client_sa, &sa, sizeof(irc::sockets::sockaddrs));
 	this->InvalidateCache();
 
@@ -1248,35 +1256,34 @@ void User::WriteNotice(const std::string& text)
 
 const std::string& FakeUser::GetFullHost()
 {
-	if (!ServerInstance->Config->HideServer.empty())
-		return ServerInstance->Config->HideServer;
-	return server->GetName();
+	return server->GetPublicName();
 }
 
 const std::string& FakeUser::GetFullRealHost()
 {
-	return GetFullHost();
+	return server->GetPublicName();
 }
 
 ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask)
 	: config(tag)
+	, host(mask)
+	, name("unnamed")
 	, type(t)
 	, fakelag(true)
-	, name("unnamed")
-	, registration_timeout(0)
-	, host(mask)
-	, pingtime(0)
-	, softsendqmax(0)
-	, hardsendqmax(0)
-	, recvqmax(0)
-	, penaltythreshold(0)
-	, commandrate(0)
-	, maxlocal(0)
-	, maxglobal(0)
 	, maxconnwarn(true)
-	, maxchans(0)
-	, limit(0)
 	, resolvehostnames(true)
+	, uniqueusername(false)
+	, maxchans(0)
+	, penaltythreshold(0)
+	, pingtime(0)
+	, registration_timeout(0)
+	, commandrate(0)
+	, hardsendqmax(0)
+	, limit(0)
+	, maxglobal(0)
+	, maxlocal(0)
+	, recvqmax(0)
+	, softsendqmax(0)
 {
 	irc::spacesepstream hoststream(host);
 	for (std::string hostentry; hoststream.GetToken(hostentry); )
@@ -1323,25 +1330,26 @@ ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask, cons
 void ConnectClass::Update(const ConnectClass* src)
 {
 	config = src->config;
-	type = src->type;
-	fakelag = src->fakelag;
-	name = src->name;
-	registration_timeout = src->registration_timeout;
 	host = src->host;
 	hosts = src->hosts;
-	pingtime = src->pingtime;
-	softsendqmax = src->softsendqmax;
-	hardsendqmax = src->hardsendqmax;
-	recvqmax = src->recvqmax;
-	penaltythreshold = src->penaltythreshold;
-	commandrate = src->commandrate;
-	maxlocal = src->maxlocal;
-	maxglobal = src->maxglobal;
-	maxconnwarn = src->maxconnwarn;
-	maxchans = src->maxchans;
-	limit = src->limit;
-	resolvehostnames = src->resolvehostnames;
-	ports = src->ports;
+	name = src->name;
 	password = src->password;
 	passwordhash = src->passwordhash;
+	ports = src->ports;
+	type = src->type;
+	fakelag = src->fakelag;
+	maxconnwarn = src->maxconnwarn;
+	resolvehostnames = src->resolvehostnames;
+	uniqueusername = src->uniqueusername;
+	maxchans = src->maxchans;
+	penaltythreshold = src->penaltythreshold;
+	pingtime = src->pingtime;
+	registration_timeout = src->registration_timeout;
+	commandrate = src->commandrate;
+	hardsendqmax = src->hardsendqmax;
+	limit = src->limit;
+	maxglobal = src->maxglobal;
+	maxlocal = src->maxlocal;
+	recvqmax = src->recvqmax;
+	softsendqmax = src->softsendqmax;
 }

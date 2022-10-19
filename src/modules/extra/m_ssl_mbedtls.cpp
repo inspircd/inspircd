@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
- *   Copyright (C) 2016-2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2016-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2016-2017 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -39,10 +39,6 @@
 #  pragma GCC diagnostic ignored "-pedantic"
 # endif
 #endif
-
-// Temporary fix for mbedTLS v3 not allowing access to grp_id without any
-// replacement API.
-#define MBEDTLS_ALLOW_PRIVATE_ACCESS
 
 #include <mbedtls/ctr_drbg.h>
 #include <mbedtls/dhm.h>
@@ -182,7 +178,11 @@ namespace mbedTLS
 
 	class Curves
 	{
+#if MBEDTLS_VERSION_MAJOR >= 3
+		std::vector<uint16_t> list;
+#else
 		std::vector<mbedtls_ecp_group_id> list;
+#endif
 
 	 public:
 		Curves(const std::string& str)
@@ -193,12 +193,21 @@ namespace mbedTLS
 				const mbedtls_ecp_curve_info* curve = mbedtls_ecp_curve_info_from_name(token.c_str());
 				if (!curve)
 					throw Exception("Unknown curve " + token);
+#if MBEDTLS_VERSION_MAJOR >= 3
+				list.push_back(curve->tls_id);
+#else
 				list.push_back(curve->grp_id);
+#endif
 			}
 			list.push_back(MBEDTLS_ECP_DP_NONE);
 		}
 
+#if MBEDTLS_VERSION_MAJOR >= 3
+		const uint16_t* get() const { return &list.front(); }
+#else
 		const mbedtls_ecp_group_id* get() const { return &list.front(); }
+#endif
+
 		bool empty() const { return (list.size() <= 1); }
 	};
 
@@ -248,12 +257,10 @@ namespace mbedTLS
 			bool found = false;
 			for (mbedtls_x509_crt* cert = certs.get(); cert; cert = cert->next)
 			{
-
 #if MBEDTLS_VERSION_MAJOR >= 3
 				if (mbedtls_pk_check_pair(&cert->pk, key.get(), mbedtls_ctr_drbg_random, 0) == 0)
 #else
 				if (mbedtls_pk_check_pair(&cert->pk, key.get()) == 0)
-
 #endif
 				{
 					found = true;
@@ -324,7 +331,11 @@ namespace mbedTLS
 
 		void SetCurves(const Curves& curves)
 		{
+#if MBEDTLS_VERSION_MAJOR >= 3
+			mbedtls_ssl_conf_groups(&conf, curves.get());
+#else
 			mbedtls_ssl_conf_curves(&conf, curves.get());
+#endif
 		}
 
 		void SetVersion(int minver, int maxver)
@@ -535,25 +546,18 @@ namespace mbedTLS
 
 class mbedTLSIOHook : public SSLIOHook
 {
-	enum Status
-	{
-		ISSL_NONE,
-		ISSL_HANDSHAKING,
-		ISSL_HANDSHAKEN
-	};
-
+ private:
 	mbedtls_ssl_context sess;
-	Status status;
 
 	void CloseSession()
 	{
-		if (status == ISSL_NONE)
+		if (status == STATUS_NONE)
 			return;
 
 		mbedtls_ssl_close_notify(&sess);
 		mbedtls_ssl_free(&sess);
 		certificate = NULL;
-		status = ISSL_NONE;
+		status = STATUS_NONE;
 	}
 
 	// Returns 1 if handshake succeeded, 0 if it is still in progress, -1 if it failed
@@ -563,7 +567,7 @@ class mbedTLSIOHook : public SSLIOHook
 		if (ret == 0)
 		{
 			// Change the session state
-			this->status = ISSL_HANDSHAKEN;
+			this->status = STATUS_OPEN;
 
 			VerifyCertificate();
 
@@ -573,7 +577,7 @@ class mbedTLSIOHook : public SSLIOHook
 			return 1;
 		}
 
-		this->status = ISSL_HANDSHAKING;
+		this->status = STATUS_HANDSHAKING;
 		if (ret == MBEDTLS_ERR_SSL_WANT_READ)
 		{
 			SocketEngine::ChangeEventMask(sock, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
@@ -593,9 +597,9 @@ class mbedTLSIOHook : public SSLIOHook
 	// Returns 1 if application I/O should proceed, 0 if it must wait for the underlying protocol to progress, -1 on fatal error
 	int PrepareIO(StreamSocket* sock)
 	{
-		if (status == ISSL_HANDSHAKEN)
+		if (status == STATUS_OPEN)
 			return 1;
-		else if (status == ISSL_HANDSHAKING)
+		else if (status == STATUS_HANDSHAKING)
 		{
 			// The handshake isn't finished, try to finish it
 			return Handshake(sock);
@@ -656,6 +660,8 @@ class mbedTLSIOHook : public SSLIOHook
 			return;
 
 		out.assign(buf, ret);
+		for (size_t pos = 0; ((pos = out.find_first_of("\r\n", pos)) != std::string::npos); )
+			out[pos] = ' ';
 	}
 
 	static int Pull(void* userptr, unsigned char* buffer, size_t size)
@@ -693,7 +699,6 @@ class mbedTLSIOHook : public SSLIOHook
  public:
 	mbedTLSIOHook(IOHookProvider* hookprov, StreamSocket* sock, bool isserver)
 		: SSLIOHook(hookprov)
-		, status(ISSL_NONE)
 	{
 		mbedtls_ssl_init(&sess);
 		if (isserver)
@@ -719,7 +724,7 @@ class mbedTLSIOHook : public SSLIOHook
 		if (prepret <= 0)
 			return prepret;
 
-		// If we resumed the handshake then this->status will be ISSL_HANDSHAKEN.
+		// If we resumed the handshake then this->status will be STATUS_OPEN.
 		char* const readbuf = ServerInstance->GetReadBuffer();
 		const size_t readbufsize = ServerInstance->Config->NetBufferSize;
 		int ret = mbedtls_ssl_read(&sess, reinterpret_cast<unsigned char*>(readbuf), readbufsize);
@@ -810,7 +815,7 @@ class mbedTLSIOHook : public SSLIOHook
 
 	void GetCiphersuite(std::string& out) const CXX11_OVERRIDE
 	{
-		if (!IsHandshakeDone())
+		if (!IsHookReady())
 			return;
 		out.append(mbedtls_ssl_get_version(&sess)).push_back('-');
 
@@ -830,7 +835,6 @@ class mbedTLSIOHook : public SSLIOHook
 	}
 
 	mbedTLS::Profile& GetProfile();
-	bool IsHandshakeDone() const { return (status == ISSL_HANDSHAKEN); }
 };
 
 class mbedTLSIOHookProvider : public SSLIOHookProvider
@@ -977,7 +981,7 @@ class ModuleSSLmbedTLS : public Module
 		}
 		catch (ModuleException& ex)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, ex.GetReason() + " Not applying settings.");
+			ServerInstance->SNO->WriteToSnoMask('a', "Failed to reload the mbedTLS TLS (SSL) profiles. " + ex.GetReason());
 		}
 	}
 
@@ -998,7 +1002,7 @@ class ModuleSSLmbedTLS : public Module
 	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
 	{
 		const mbedTLSIOHook* const iohook = static_cast<mbedTLSIOHook*>(user->eh.GetModHook(this));
-		if ((iohook) && (!iohook->IsHandshakeDone()))
+		if ((iohook) && (!iohook->IsHookReady()))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}

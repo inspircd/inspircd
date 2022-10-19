@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2019-2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2019-2022 Sadie Powell <sadie@witchery.services>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -191,6 +191,7 @@ class IRCv3::Replies::Reply
 	 * Sends a standard reply to the specified user if they have the specified cap
 	 * or a notice if they do not.
 	 * @param user The user to send the reply to.
+	 * @param cap The capability that determines the type of message to send.
 	 * @param command The command that the reply relates to.
 	 * @param code A machine readable code for this reply.
 	 * @param description A human readable description of this reply.

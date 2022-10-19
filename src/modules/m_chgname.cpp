@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2018 Matt Schatz <genius3000@g3k.solutions>
- *   Copyright (C) 2013, 2018 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2018, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2013, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
@@ -64,7 +64,7 @@ class CommandChgname : public Command
 		if (IS_LOCAL(dest))
 		{
 			dest->ChangeRealName(parameters[1]);
-			ServerInstance->SNO->WriteGlobalSno('a', "%s used CHGNAME to change %s's real name to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->GetRealName().c_str());
+			ServerInstance->SNO->WriteGlobalSno('a', "%s used CHGNAME to change %s's real name to '%s\x0F'", user->nick.c_str(), dest->nick.c_str(), dest->GetRealName().c_str());
 		}
 
 		return CMD_SUCCESS;

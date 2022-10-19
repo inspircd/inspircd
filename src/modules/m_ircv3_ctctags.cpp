@@ -163,13 +163,19 @@ class CommandTagMsg : public Command
 			{
 				// The target is a user on a specific server (e.g. jto@tolsun.oulu.fi).
 				target = ServerInstance->FindNickOnly(parameters[0].substr(0, targetserver - parameters[0].c_str()));
-				if (target && strcasecmp(target->server->GetName().c_str(), targetserver + 1))
+				if (target && strcasecmp(target->server->GetPublicName().c_str(), targetserver + 1))
 					target = NULL;
 			}
 			else
 			{
 				// If the source is a local user then we only look up the target by nick.
 				target = ServerInstance->FindNickOnly(parameters[0]);
+
+				// Drop attempts to send a tag message to a server. This usually happens when the
+				// server is started in debug mode and a client tries to send a typing notification
+				// to a query window created by the debug message.
+				if (!target && irc::equals(parameters[0], ServerInstance->FakeClient->GetFullHost()))
+					return CMD_FAILURE;
 			}
 		}
 		else

@@ -1,9 +1,10 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2021 Herman <GermanAizek@yandex.ru>
  *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2013, 2017-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013, 2016 Adam <Adam@anope.org>
  *   Copyright (C) 2012-2016, 2018 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
@@ -285,7 +286,7 @@ void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 			Utils->timeoutlist.erase(me);
 			s->Close();
 		}
-		else if (curtime > s->age + p.second)
+		else if (curtime > s->age + (time_t)p.second)
 		{
 			ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002 (timeout of %u seconds)",p.first.c_str(),p.second);
 			Utils->timeoutlist.erase(me);
@@ -375,7 +376,7 @@ ModResult ModuleSpanningTree::OnPreTopicChange(User* user, Channel* chan, const 
 	// other servers will drop our FTOPIC. This restriction will be removed when the protocol is updated.
 	if ((chan->topicset >= ServerInstance->Time()) && (Utils->serverlist.size() > 1))
 	{
-		user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, "Retry topic change later");
+		user->WriteNumeric(ERR_UNAVAILRESOURCE, chan->name, "Retry topic change later");
 		return MOD_RES_DENY;
 	}
 	return MOD_RES_PASSTHRU;
@@ -800,6 +801,14 @@ void ModuleSpanningTree::OnShutdown(const std::string& reason)
 	const TreeServer::ChildServers& children = Utils->TreeRoot->GetChildren();
 	while (!children.empty())
 		children.front()->SQuit(reason, true);
+}
+
+void ModuleSpanningTree::OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata)
+{
+	// HACK: this should use automatically synced user metadata in v4.
+	User* dest = static_cast<User*>(target);
+	if (dest && (extname == "uniqueusername"))
+		dest->uniqueusername = (extdata != "0");
 }
 
 CullResult ModuleSpanningTree::cull()

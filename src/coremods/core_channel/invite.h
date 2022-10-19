@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2018-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018-2019, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2015 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -122,12 +122,14 @@ class Invite::APIImpl : public APIBase
 	ExtItem<Channel, ExtensionItem::EXT_CHANNEL> chanext;
 
  public:
+	AnnounceState announceinvites;
 	APIImpl(Module* owner);
 
 	void Create(LocalUser* user, Channel* chan, time_t timeout) CXX11_OVERRIDE;
 	Invite* Find(LocalUser* user, Channel* chan) CXX11_OVERRIDE;
 	bool Remove(LocalUser* user, Channel* chan) CXX11_OVERRIDE;
 	const List* GetList(LocalUser* user) CXX11_OVERRIDE;
+	AnnounceState GetAnnounceState() const CXX11_OVERRIDE { return announceinvites; }
 
 	void RemoveAll(LocalUser* user) { userext.unset(user); }
 	void RemoveAll(Channel* chan) { chanext.unset(chan); }

@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2018-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018-2019, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2018 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -29,7 +29,7 @@ namespace IRCv3
 
 		/** Format a unix timestamp into the format used by server-time.
 		 * @param secs UNIX timestamp to format.
-		 * @params millisecs Number of milliseconds to format.
+		 * @param millisecs Number of milliseconds to format.
 		 * @return Time in server-time format, as a string.
 		 */
 		inline std::string FormatTime(time_t secs, long millisecs = 0)

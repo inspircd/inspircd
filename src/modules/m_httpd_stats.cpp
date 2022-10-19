@@ -1,11 +1,12 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2021 Herman <GermanAizek@yandex.ru>
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2018 Matt Schatz <genius3000@g3k.solutions>
- *   Copyright (C) 2016 Johanna A <johanna-a@users.noreply.github.com>
+ *   Copyright (C) 2016 Johanna A
  *   Copyright (C) 2013-2016 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2013, 2017, 2019-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017, 2019-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
@@ -215,7 +216,7 @@ namespace Stats
 	{
 		data << "<user>";
 		data << "<nickname>" << u->nick << "</nickname><uuid>" << u->uuid << "</uuid><realhost>"
-			<< u->GetRealHost() << "</realhost><displayhost>" << u->GetDisplayedHost() << "</displayhost><realname>"
+			<< Sanitize(u->GetRealHost()) << "</realhost><displayhost>" << Sanitize(u->GetDisplayedHost()) << "</displayhost><realname>"
 			<< Sanitize(u->GetRealName()) << "</realname><server>" << u->server->GetName() << "</server><signon>"
 			<< u->signon << "</signon><age>" << u->age << "</age>";
 
@@ -234,7 +235,7 @@ namespace Stats
 				<< lu->GetClass()->GetName() << "</connectclass><lastmsg>"
 				<< lu->idle_lastmsg << "</lastmsg>";
 
-		data << "<ipaddress>" << u->GetIPString() << "</ipaddress>";
+		data << "<ipaddress>" << Sanitize(u->GetIPString()) << "</ipaddress>";
 
 		DumpMeta(data, u);
 
@@ -424,15 +425,13 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 
 	ModResult HandleRequest(HTTPRequest* http)
 	{
-		if (http->GetPath() != "/stats")
+		if (http->GetPath().compare(0, 6, "/stats"))
 			return MOD_RES_PASSTHRU;
 
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling HTTP request for %s", http->GetPath().c_str());
 
-		bool found = true;
 		std::stringstream data;
 		data << "<inspircdstats>";
-
 		if (http->GetPath() == "/stats")
 		{
 			data << Stats::ServerInfo << Stats::General
@@ -453,21 +452,12 @@ class ModuleHttpStats : public Module, public HTTPRequestEventListener
 		}
 		else
 		{
-			found = false;
+			return MOD_RES_PASSTHRU;
 		}
-
-		if (found)
-		{
-			data << "</inspircdstats>";
-		}
-		else
-		{
-			data.clear();
-			data.str(std::string());
-		}
+		data << "</inspircdstats>";
 
 		/* Send the document back to m_httpd */
-		HTTPDocumentResponse response(this, *http, &data, found ? 200 : 404);
+		HTTPDocumentResponse response(this, *http, &data, 200);
 		response.headers.SetHeader("X-Powered-By", MODNAME);
 		response.headers.SetHeader("Content-Type", "text/xml");
 		API->SendResponse(response);

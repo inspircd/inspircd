@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013, 2019-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2019-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013, 2016 Adam <Adam@anope.org>
  *   Copyright (C) 2012-2014, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
@@ -113,6 +113,25 @@ SecurityIPResolver::SecurityIPResolver(Module* me, DNS::Manager* mgr, const std:
 {
 }
 
+bool SecurityIPResolver::CheckIPv4()
+{
+	// We only check IPv4 addresses if we have checked IPv6.
+	if (query != DNS::QUERY_AAAA)
+		return false;
+
+	SecurityIPResolver* res = new SecurityIPResolver(mine, this->manager, host, MyLink, DNS::QUERY_A);
+	try
+	{
+		this->manager->Process(res);
+		return true;
+	}
+	catch (const DNS::Exception&)
+	{
+		delete res;
+		return false;
+	}
+}
+
 void SecurityIPResolver::OnLookupComplete(const DNS::Query *r)
 {
 	for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i != Utils->LinkBlocks.end(); ++i)
@@ -123,31 +142,27 @@ void SecurityIPResolver::OnLookupComplete(const DNS::Query *r)
 			for (std::vector<DNS::ResourceRecord>::const_iterator j = r->answers.begin(); j != r->answers.end(); ++j)
 			{
 				const DNS::ResourceRecord& ans_record = *j;
-				if (ans_record.type == this->question.type)
-					Utils->ValidIPs.push_back(ans_record.rdata);
+				if (ans_record.type != this->question.type)
+					continue;
+
+				Utils->ValidIPs.push_back(ans_record.rdata);
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Resolved '%s' as a valid IP address for link '%s'",
+					ans_record.rdata.c_str(), MyLink->Name.c_str());
 			}
 			break;
 		}
 	}
+
+	CheckIPv4();
 }
 
 void SecurityIPResolver::OnError(const DNS::Query *r)
 {
 	// This can be called because of us being unloaded but we don't have to do anything differently
-	if (query == DNS::QUERY_AAAA)
-	{
-		SecurityIPResolver* res = new SecurityIPResolver(mine, this->manager, host, MyLink, DNS::QUERY_A);
-		try
-		{
-			this->manager->Process(res);
-			return;
-		}
-		catch (DNS::Exception &)
-		{
-			delete res;
-		}
-	}
-	ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Could not resolve IP associated with Link '%s': %s",
+	if (CheckIPv4())
+		return;
+
+	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Could not resolve IP associated with link '%s': %s",
 		MyLink->Name.c_str(), this->manager->GetErrorStr(r->error).c_str());
 }
 

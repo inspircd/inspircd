@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2012-2015, 2018 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2012-2013, 2017-2018, 2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012-2013, 2017-2018, 2020, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008 Thomas Stagner <aquanight@inspircd.org>
@@ -56,7 +56,7 @@ enum TranslateType
 
 /** Routing types for a command. Any command which is created defaults
  * to having its command broadcasted on success. This behaviour may be
- * overridden to one of the route types shown below (see the #defines
+ * overridden to one of the route types shown below (see the \#defines
  * below for more information on each one's behaviour)
  */
 enum RouteType
@@ -100,7 +100,7 @@ struct RouteDescriptor
 #define ROUTE_BROADCAST (RouteDescriptor(ROUTE_TYPE_BROADCAST, ""))
 /** Route this command to a single server (do nothing if own server name specified) */
 #define ROUTE_UNICAST(x) (RouteDescriptor(ROUTE_TYPE_UNICAST, x))
-/** Route this command as a message with the given target (any of user, #channel, @#channel, $servermask) */
+/** Route this command as a message with the given target (any of user, \#channel, @#channel, $servermask) */
 #define ROUTE_MESSAGE(x) (RouteDescriptor(ROUTE_TYPE_MESSAGE, x))
 /** Route this command to all servers wrapped via ENCAP, so ignored if not understood */
 #define ROUTE_OPT_BCAST (RouteDescriptor(ROUTE_TYPE_OPT_BCAST, ""))

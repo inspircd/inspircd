@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2017-2018 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2017, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013-2014 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2010 Craig Edwards <brain@inspircd.org>
@@ -210,9 +210,19 @@ void TokenList::Remove(const std::string& token)
 
 std::string TokenList::ToString() const
 {
-	std::string buffer(permissive ? "* " : "-* ");
-	buffer.append(stdalgo::string::join(tokens));
-	return buffer;
+	if (permissive)
+	{
+		// If the token list is in permissive mode then the tokens are a list
+		// of disallowed tokens.
+		std::string buffer("*");
+		for (TokenMap::const_iterator it = tokens.begin(); it != tokens.end(); ++it)
+			buffer.append(" -").append(*it);
+		return buffer;
+	}
+
+	// If the token list is not in permissive mode then the token list is just
+	// a list of allowed tokens.
+	return stdalgo::string::join(tokens);
 }
 
 bool TokenList::operator==(const TokenList& other) const

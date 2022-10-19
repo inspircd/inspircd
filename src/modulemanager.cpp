@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013, 2015, 2019-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2015, 2019-2020, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Adam <Adam@anope.org>
  *   Copyright (C) 2012-2013, 2015 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
@@ -30,7 +30,7 @@
 bool ModuleManager::Load(const std::string& modname, bool defer)
 {
 	/* Don't allow people to specify paths for modules, it doesn't work as expected */
-	if (modname.find('/') != std::string::npos)
+	if (modname.find_first_of("\\/") != std::string::npos)
 	{
 		LastModuleError = "You can't load modules with a path: " + modname;
 		return false;
@@ -54,7 +54,7 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 	}
 
 	Module* newmod = NULL;
-	DLLManager* newhandle = new DLLManager(moduleFile.c_str());
+	DLLManager* newhandle = new DLLManager(moduleFile);
 	ServiceList newservices;
 	if (!defer)
 		this->NewServices = &newservices;

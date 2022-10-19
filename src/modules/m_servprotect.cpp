@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013, 2017-2018, 2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2018, 2020-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
@@ -93,7 +93,7 @@ class ModuleServProtectMode CXX11_FINAL
 				if ((u->IsModeSet(bm)) && (memb) && (memb->HasMode(pm)))
 				{
 					/* BZZZT, Denied! */
-					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, chan->name, InspIRCd::Format("You are not permitted to remove privileges from %s services", ServerInstance->Config->Network.c_str()));
+					user->WriteNumeric(ERR_RESTRICTED, chan->name, InspIRCd::Format("You are not permitted to remove privileges from %s services", ServerInstance->Config->Network.c_str()));
 					return MOD_RES_DENY;
 				}
 			}

@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013, 2018-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2018-2019, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -329,7 +329,7 @@ class DllExport CommandSave : public ServerCommand
  public:
 	/** Timestamp of the uuid nick of all users who collided and got their nick changed to uuid
 	 */
-	static const time_t SavedTimestamp = 100;
+	static const time_t SavedTimestamp;
 
 	CommandSave(Module* Creator) : ServerCommand(Creator, "SAVE", 2) { }
 	CmdResult Handle(User* user, Params& parameters) CXX11_OVERRIDE;

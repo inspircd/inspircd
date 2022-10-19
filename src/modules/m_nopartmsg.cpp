@@ -30,7 +30,7 @@ class ModulePartMsgBan : public Module
  public:
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Adds extended ban p: which blocks the part message of matching users.", VF_OPTCOMMON|VF_VENDOR);
+		return Version("Adds extended ban p: (partmsg) which blocks the part message of matching users.", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts) CXX11_OVERRIDE

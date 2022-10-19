@@ -3,12 +3,13 @@
  *
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2017-2018 B00mX0r <b00mx0r@aureus.pw>
- *   Copyright (C) 2013, 2017-2018, 2020-2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2017 B00mX0r <b00mx0r@aureus.pw>
+ *   Copyright (C) 2013, 2017-2018, 2020-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2013, 2015-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 Jens Voss <DukePyrolator@anope.org>
  *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
+ *   Copyright (C) 2009 John Brooks <special@inspircd.org>
  *   Copyright (C) 2009 Dennis Friis <peavey@inspircd.org>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008-2010 Craig Edwards <brain@inspircd.org>
@@ -73,7 +74,7 @@ class CommandShun : public Command
 
 		User *find = ServerInstance->FindNick(target);
 		if ((find) && (find->registered == REG_ALL))
-			target = std::string("*!*@") + find->GetIPString();
+			target = "*!" + find->GetBanIdent() + "@" + find->GetIPString();
 
 		if (parameters.size() == 1)
 		{
@@ -113,17 +114,17 @@ class CommandShun : public Command
 				expr = parameters[1];
 			}
 
-			Shun* r = new Shun(ServerInstance->Time(), duration, user->nick.c_str(), expr.c_str(), target.c_str());
+			Shun* r = new Shun(ServerInstance->Time(), duration, user->nick, expr, target);
 			if (ServerInstance->XLines->AddLine(r, user))
 			{
 				if (!duration)
 				{
-					ServerInstance->SNO->WriteToSnoMask('x', "%s added permanent SHUN for %s: %s",
+					ServerInstance->SNO->WriteToSnoMask('x', "%s added a permanent SHUN on %s: %s",
 						user->nick.c_str(), target.c_str(), expr.c_str());
 				}
 				else
 				{
-					ServerInstance->SNO->WriteToSnoMask('x', "%s added timed SHUN for %s, expires in %s (on %s): %s",
+					ServerInstance->SNO->WriteToSnoMask('x', "%s added a timed SHUN on %s, expires in %s (on %s): %s",
 						user->nick.c_str(), target.c_str(), InspIRCd::DurationString(duration).c_str(),
 						InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), expr.c_str());
 				}
@@ -255,22 +256,22 @@ class ModuleShun : public Module, public Stats::EventListener
 			}
 		}
 
-		if (cleanedcommands.count(command))
+		if (!cleanedcommands.count(command))
+			return MOD_RES_PASSTHRU;
+
+		switch (parameters.size())
 		{
-			if (command == "AWAY" && !parameters.empty())
+			case 0:
 			{
-				// Allow away but only for unsetting.
-				parameters.clear();
+				if (command == "AWAY" || command == "QUIT")
+					parameters.clear();
+				break;
 			}
-			else if (command == "PART" && parameters.size() > 1)
+			case 1:
 			{
-				// Allow part but strip the message.
-				parameters.pop_back();
-			}
-			else if (command == "QUIT" && !parameters.empty())
-			{
-				// Allow quit but strip the message.
-				parameters.clear();
+				if (command == "CYCLE" || command == "KNOCK" || command == "PART")
+					parameters.resize(1);
+				break;
 			}
 		}
 

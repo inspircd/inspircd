@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2017-2018 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2017-2018, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012, 2014 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
@@ -76,16 +76,16 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 			user->WriteNotice("*** Invalid duration for Z-line.");
 			return CMD_FAILURE;
 		}
-		ZLine* zl = new ZLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ipaddr);
+		ZLine* zl = new ZLine(ServerInstance->Time(), duration, user->nick, parameters[2], ipaddr);
 		if (ServerInstance->XLines->AddLine(zl,user))
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO->WriteToSnoMask('x', "%s added permanent Z-line for %s: %s", user->nick.c_str(), ipaddr, parameters[2].c_str());
+				ServerInstance->SNO->WriteToSnoMask('x', "%s added a permanent Z-line on %s: %s", user->nick.c_str(), ipaddr, parameters[2].c_str());
 			}
 			else
 			{
-				ServerInstance->SNO->WriteToSnoMask('x', "%s added timed Z-line for %s, expires in %s (on %s): %s",
+				ServerInstance->SNO->WriteToSnoMask('x', "%s added a timed Z-line on %s, expires in %s (on %s): %s",
 					user->nick.c_str(), ipaddr, InspIRCd::DurationString(duration).c_str(),
 					InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), parameters[2].c_str());
 			}

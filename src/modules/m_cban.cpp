@@ -4,7 +4,7 @@
  *   Copyright (C) 2020 Michael <michaelhazell@hotmail.com>
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2013, 2017-2018, 2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2018, 2020, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2013, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 John Brooks <special@inspircd.org>
@@ -117,7 +117,7 @@ class CommandCBan : public Command
 
 			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "CBAN", reason, user))
 			{
-				ServerInstance->SNO->WriteGlobalSno('x', "%s removed CBan on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason.c_str());
+				ServerInstance->SNO->WriteToSnoMask('x', "%s removed CBan on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason.c_str());
 			}
 			else
 			{
@@ -135,17 +135,17 @@ class CommandCBan : public Command
 				return CMD_FAILURE;
 			}
 			const char *reason = (parameters.size() > 2) ? parameters[2].c_str() : "No reason supplied";
-			CBan* r = new CBan(ServerInstance->Time(), duration, user->nick.c_str(), reason, parameters[0].c_str());
+			CBan* r = new CBan(ServerInstance->Time(), duration, user->nick, reason, parameters[0]);
 
 			if (ServerInstance->XLines->AddLine(r, user))
 			{
 				if (!duration)
 				{
-					ServerInstance->SNO->WriteGlobalSno('x', "%s added permanent CBan for %s: %s", user->nick.c_str(), parameters[0].c_str(), reason);
+					ServerInstance->SNO->WriteToSnoMask('x', "%s added a permanent CBan on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason);
 				}
 				else
 				{
-					ServerInstance->SNO->WriteGlobalSno('x', "%s added timed CBan for %s, expires in %s (on %s): %s",
+					ServerInstance->SNO->WriteToSnoMask('x', "%s added a timed CBan on %s, expires in %s (on %s): %s",
 						user->nick.c_str(), parameters[0].c_str(), InspIRCd::DurationString(duration).c_str(),
 						InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), reason);
 				}

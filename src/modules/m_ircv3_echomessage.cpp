@@ -23,25 +23,52 @@
 #include "modules/cap.h"
 #include "modules/ctctags.h"
 
+class EchoTag CXX11_FINAL
+	: public ClientProtocol::MessageTagProvider
+{
+ private:
+	CTCTags::CapReference stdrplcap;
+
+ public:
+	Cap::Capability echomsgcap;
+
+	EchoTag(Module* Creator)
+		: ClientProtocol::MessageTagProvider(Creator)
+		, stdrplcap(Creator)
+		, echomsgcap(Creator, "echo-message")
+	{
+	}
+
+	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) CXX11_OVERRIDE
+	{
+		return stdrplcap.get(user) && echomsgcap.get(user);
+	}
+};
+
 class ModuleIRCv3EchoMessage
 	: public Module
 	, public CTCTags::EventListener
 {
  private:
-	Cap::Capability cap;
+	EchoTag echotag;
 	ClientProtocol::EventProvider tagmsgprov;
+
+	void AddEchoTag(ClientProtocol::Message& msg)
+	{
+		msg.AddTag("inspircd.org/echo", &echotag, "");
+	}
 
  public:
 	ModuleIRCv3EchoMessage()
 		: CTCTags::EventListener(this)
-		, cap(this, "echo-message")
+		, echotag(this)
 		, tagmsgprov(this, "TAGMSG")
 	{
 	}
 
 	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
 	{
-		if (!cap.get(user) || !details.echo)
+		if (!echotag.echomsgcap.get(user) || !details.echo)
 			return;
 
 		// Caps are only set on local users
@@ -56,6 +83,7 @@ class ModuleIRCv3EchoMessage
 				User* destuser = target.Get<User>();
 				ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, destuser, text, details.type);
 				privmsg.AddTags(tags);
+				AddEchoTag(privmsg);
 				localuser->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
 				break;
 			}
@@ -64,6 +92,7 @@ class ModuleIRCv3EchoMessage
 				Channel* chan = target.Get<Channel>();
 				ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, chan, text, details.type, target.status);
 				privmsg.AddTags(tags);
+				AddEchoTag(privmsg);
 				localuser->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
 				break;
 			}
@@ -72,6 +101,7 @@ class ModuleIRCv3EchoMessage
 				const std::string* servername = target.Get<std::string>();
 				ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, *servername, text, details.type);
 				privmsg.AddTags(tags);
+				AddEchoTag(privmsg);
 				localuser->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
 				break;
 			}
@@ -80,7 +110,7 @@ class ModuleIRCv3EchoMessage
 
 	void OnUserPostTagMessage(User* user, const MessageTarget& target, const CTCTags::TagMessageDetails& details) CXX11_OVERRIDE
 	{
-		if (!cap.get(user) || !details.echo)
+		if (!echotag.echomsgcap.get(user) || !details.echo)
 			return;
 
 		// Caps are only set on local users
@@ -93,6 +123,7 @@ class ModuleIRCv3EchoMessage
 			{
 				User* destuser = target.Get<User>();
 				CTCTags::TagMessage message(user, destuser, tags);
+				AddEchoTag(message);
 				localuser->Send(tagmsgprov, message);
 				break;
 			}
@@ -100,6 +131,7 @@ class ModuleIRCv3EchoMessage
 			{
 				Channel* chan = target.Get<Channel>();
 				CTCTags::TagMessage message(user, chan, tags, target.status);
+				AddEchoTag(message);
 				localuser->Send(tagmsgprov, message);
 				break;
 			}
@@ -107,6 +139,7 @@ class ModuleIRCv3EchoMessage
 			{
 				const std::string* servername = target.Get<std::string>();
 				CTCTags::TagMessage message(user, servername->c_str(), tags);
+				AddEchoTag(message);
 				localuser->Send(tagmsgprov, message);
 				break;
 			}

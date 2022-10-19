@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2013-2016 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2013-2014, 2016-2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013-2014, 2016-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 Justin Crawford <Justasic@Gmail.com>
@@ -294,6 +294,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			me->maxconnwarn = tag->getBool("maxconnwarn", me->maxconnwarn);
 			me->limit = tag->getUInt("limit", me->limit);
 			me->resolvehostnames = tag->getBool("resolvehostnames", me->resolvehostnames);
+			me->uniqueusername = tag->getBool("uniqueusername", me->uniqueusername);
 			me->password = tag->getString("password", me->password);
 
 			me->passwordhash = tag->getString("hash", me->passwordhash);
@@ -311,7 +312,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 					me->ports.insert(port);
 			}
 
-			ClassMap::iterator oldMask = oldBlocksByMask.find(std::make_pair(me->name, me->type));
+			ClassMap::iterator oldMask = oldBlocksByMask.find(std::make_pair(mask, me->type));
 			if (oldMask != oldBlocksByMask.end())
 			{
 				ConnectClass* old = oldMask->second;
@@ -333,7 +334,7 @@ static std::string GetServerHost()
 	{
 		std::string name(hostname);
 		if (name.find('.') == std::string::npos)
-			name.push_back('.');
+			name.append(".local");
 
 		if (name.length() <= ServerInstance->Config->Limits.MaxHost && InspIRCd::IsHost(name))
 			return name;

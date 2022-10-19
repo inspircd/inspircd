@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2019 Robby <robby@chatbelgie.be>
- *   Copyright (C) 2018-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018-2020, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2017 B00mX0r <b00mx0r@aureus.pw>
  *   Copyright (C) 2014-2016 Attila Molnar <attilamolnar@hush.com>
  *
@@ -30,6 +30,7 @@ class CommandMode : public Command
 	unsigned int seq;
 	ChanModeReference secretmode;
 	ChanModeReference privatemode;
+	UserModeReference snomaskmode;
 
 	/** Show the list of one or more list modes to a user.
 	 * @param user User to send to.
@@ -57,6 +58,8 @@ class CommandMode : public Command
 		return !chan->IsModeSet(secretmode) && !chan->IsModeSet(privatemode);
 	}
 
+	std::string GetSnomasks(const User* user);
+
  public:
 	/** Constructor for mode.
 	 */
@@ -77,6 +80,7 @@ CommandMode::CommandMode(Module* parent)
 	, seq(0)
 	, secretmode(creator, "secret")
 	, privatemode(creator, "private")
+	, snomaskmode(creator, "snomask")
 {
 	syntax = "<target> [[(+|-)]<modes> [<mode-parameters>]]";
 	memset(&sent, 0, sizeof(sent));
@@ -185,10 +189,9 @@ void CommandMode::DisplayListModes(User* user, Channel* chan, const std::string&
 	}
 }
 
-static std::string GetSnomasks(const User* user)
+std::string CommandMode::GetSnomasks(const User* user)
 {
-	ModeHandler* const snomask = ServerInstance->Modes.FindMode('s', MODETYPE_USER);
-	std::string snomaskstr = snomask->GetUserParameter(user);
+	std::string snomaskstr = snomaskmode->GetUserParameter(user);
 	// snomaskstr is empty if the snomask mode isn't set, otherwise it begins with a '+'.
 	// In the former case output a "+", not an empty string.
 	if (snomaskstr.empty())

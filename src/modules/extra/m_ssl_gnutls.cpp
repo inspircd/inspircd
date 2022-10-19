@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2013-2014, 2016-2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013-2014, 2016-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
  *   Copyright (C) 2012-2017 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012-2013, 2016 Adam <Adam@anope.org>
@@ -68,8 +68,12 @@
 # pragma GCC diagnostic pop
 #endif
 
-// Fix warnings about using std::auto_ptr on C++11 or newer.
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+// C++98 compilers can't use shared_ptr and C++17 compilers can't use auto_ptr.
+#if defined _LIBCPP_VERSION || defined _WIN32 || __cplusplus >= 201103L
+# define SMART_PTR std::shared_ptr
+#else
+# define SMART_PTR std::auto_ptr
+#endif
 
 #ifndef GNUTLS_VERSION_NUMBER
 #define GNUTLS_VERSION_NUMBER LIBGNUTLS_VERSION_NUMBER
@@ -90,6 +94,10 @@
 # include <gcrypt.h>
 #endif
 
+#if INSPIRCD_GNUTLS_HAS_VERSION(3, 6, 0)
+# define GNUTLS_AUTO_DH
+#endif
+
 #ifdef _WIN32
 # pragma comment(lib, "libgnutls-30.lib")
 #endif
@@ -98,8 +106,6 @@
 #if INSPIRCD_GNUTLS_HAS_VERSION(2, 1, 7)
 #define GNUTLS_NEW_PRIO_API
 #endif
-
-enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_HANDSHAKEN };
 
 #if INSPIRCD_GNUTLS_HAS_VERSION(2, 12, 0)
 #define INSPIRCD_GNUTLS_HAS_VECTOR_PUSH
@@ -218,6 +224,7 @@ namespace GnuTLS
 		gnutls_digest_algorithm_t get() const { return hash; }
 	};
 
+#ifndef GNUTLS_AUTO_DH
 	class DHParams
 	{
 		gnutls_dh_params_t dh_params;
@@ -229,9 +236,9 @@ namespace GnuTLS
 
 	 public:
 		/** Import */
-		static std::auto_ptr<DHParams> Import(const std::string& dhstr)
+		static SMART_PTR<DHParams> Import(const std::string& dhstr)
 		{
-			std::auto_ptr<DHParams> dh(new DHParams);
+			SMART_PTR<DHParams> dh(new DHParams);
 			int ret = gnutls_dh_params_import_pkcs3(dh->dh_params, Datum(dhstr).get(), GNUTLS_X509_FMT_PEM);
 			ThrowOnError(ret, "Unable to import DH params");
 			return dh;
@@ -244,6 +251,7 @@ namespace GnuTLS
 
 		const gnutls_dh_params_t& get() const { return dh_params; }
 	};
+#endif
 
 	class X509Key
 	{
@@ -441,9 +449,11 @@ namespace GnuTLS
 
 	class CertCredentials
 	{
+#ifndef GNUTLS_AUTO_DH
 		/** DH parameters associated with these credentials
 		 */
-		std::auto_ptr<DHParams> dh;
+		SMART_PTR<DHParams> dh;
+#endif
 
 	 protected:
 		gnutls_certificate_credentials_t cred;
@@ -466,13 +476,15 @@ namespace GnuTLS
 			gnutls_credentials_set(sess, GNUTLS_CRD_CERTIFICATE, cred);
 		}
 
+#ifndef GNUTLS_AUTO_DH
 		/** Set the given DH parameters to be used with these credentials
 		 */
-		void SetDH(std::auto_ptr<DHParams>& DH)
+		void SetDH(SMART_PTR<DHParams>& DH)
 		{
 			dh = DH;
 			gnutls_certificate_set_dh_params(cred, dh->get());
 		}
+#endif
 	};
 
 	class X509Credentials : public CertCredentials
@@ -487,11 +499,11 @@ namespace GnuTLS
 
 		/** Trusted CA, may be NULL
 		 */
-		std::auto_ptr<X509CertList> trustedca;
+		SMART_PTR<X509CertList> trustedca;
 
 		/** Certificate revocation list, may be NULL
 		 */
-		std::auto_ptr<X509CRL> crl;
+		SMART_PTR<X509CRL> crl;
 
 		static int cert_callback(gnutls_session_t session, const gnutls_datum_t* req_ca_rdn, int nreqs, const gnutls_pk_algorithm_t* sign_algos, int sign_algos_length, cert_cb_last_param_type* st);
 
@@ -514,7 +526,7 @@ namespace GnuTLS
 		/** Sets the trusted CA and the certificate revocation list
 		 * to use when verifying certificates
 		 */
-		void SetCA(std::auto_ptr<X509CertList>& certlist, std::auto_ptr<X509CRL>& CRL)
+		void SetCA(SMART_PTR<X509CertList>& certlist, SMART_PTR<X509CRL>& CRL)
 		{
 			// Do nothing if certlist is NULL
 			if (certlist.get())
@@ -648,13 +660,15 @@ namespace GnuTLS
 		{
 			std::string name;
 
-			std::auto_ptr<X509CertList> ca;
-			std::auto_ptr<X509CRL> crl;
+			SMART_PTR<X509CertList> ca;
+			SMART_PTR<X509CRL> crl;
 
 			std::string certstr;
 			std::string keystr;
-			std::auto_ptr<DHParams> dh;
 
+#ifndef GNUTLS_AUTO_DH
+			SMART_PTR<DHParams> dh;
+#endif
 			std::string priostr;
 			unsigned int mindh;
 			std::string hashstr;
@@ -666,7 +680,9 @@ namespace GnuTLS
 				: name(profilename)
 				, certstr(ReadFile(tag->getString("certfile", "cert.pem", 1)))
 				, keystr(ReadFile(tag->getString("keyfile", "key.pem", 1)))
+#ifndef GNUTLS_AUTO_DH
 				, dh(DHParams::Import(ReadFile(tag->getString("dhfile", "dhparams.pem", 1))))
+#endif
 				, priostr(GetPrioStr(profilename, tag))
 				, mindh(tag->getUInt("mindhbits", 1024))
 				, hashstr(tag->getString("hash", "md5", 1))
@@ -701,7 +717,9 @@ namespace GnuTLS
 			, outrecsize(config.outrecsize)
 			, requestclientcert(config.requestclientcert)
 		{
+#ifndef GNUTLS_AUTO_DH
 			x509cred.SetDH(config.dh);
+#endif
 			x509cred.SetCA(config.ca, config.crl);
 		}
 		/** Set up the given session with the settings in this profile
@@ -728,7 +746,6 @@ class GnuTLSIOHook : public SSLIOHook
 {
  private:
 	gnutls_session_t sess;
-	issl_status status;
 #ifdef INSPIRCD_GNUTLS_HAS_CORK
 	size_t gbuffersize;
 #endif
@@ -742,7 +759,7 @@ class GnuTLSIOHook : public SSLIOHook
 		}
 		sess = NULL;
 		certificate = NULL;
-		status = ISSL_NONE;
+		status = STATUS_NONE;
 	}
 
 	// Returns 1 if handshake succeeded, 0 if it is still in progress, -1 if it failed
@@ -755,7 +772,7 @@ class GnuTLSIOHook : public SSLIOHook
 			if(ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
 			{
 				// Handshake needs resuming later, read() or write() would have blocked.
-				this->status = ISSL_HANDSHAKING;
+				this->status = STATUS_HANDSHAKING;
 
 				if (gnutls_record_get_direction(this->sess) == 0)
 				{
@@ -780,7 +797,7 @@ class GnuTLSIOHook : public SSLIOHook
 		else
 		{
 			// Change the session state
-			this->status = ISSL_HANDSHAKEN;
+			this->status = STATUS_OPEN;
 
 			VerifyCertificate();
 
@@ -842,21 +859,11 @@ class GnuTLSIOHook : public SSLIOHook
 		}
 
 		if (gnutls_x509_crt_get_dn(cert, buffer, &buffer_size) == 0)
-		{
-			// Make sure there are no chars in the string that we consider invalid.
-			certinfo->dn = buffer;
-			if (certinfo->dn.find_first_of("\r\n") != std::string::npos)
-				certinfo->dn.clear();
-		}
+			ProcessDNString(buffer, buffer_size, certinfo->dn);
 
 		buffer_size = sizeof(buffer);
 		if (gnutls_x509_crt_get_issuer_dn(cert, buffer, &buffer_size) == 0)
-		{
-			// Make sure there are no chars in the string that we consider invalid.
-			certinfo->issuer = buffer;
-			if (certinfo->issuer.find_first_of("\r\n") != std::string::npos)
-				certinfo->issuer.clear();
-		}
+			ProcessDNString(buffer, buffer_size, certinfo->issuer);
 
 		buffer_size = sizeof(buffer);
 		if ((ret = gnutls_x509_crt_get_fingerprint(cert, GetProfile().GetHash(), buffer, &buffer_size)) < 0)
@@ -879,12 +886,19 @@ info_done_dealloc:
 		gnutls_x509_crt_deinit(cert);
 	}
 
+	static void ProcessDNString(const char* buffer, size_t buffer_size, std::string& out)
+	{
+		out.assign(buffer, buffer_size);
+		for (size_t pos = 0; ((pos = out.find_first_of("\r\n", pos)) != std::string::npos); )
+			out[pos] = ' ';
+	}
+
 	// Returns 1 if application I/O should proceed, 0 if it must wait for the underlying protocol to progress, -1 on fatal error
 	int PrepareIO(StreamSocket* sock)
 	{
-		if (status == ISSL_HANDSHAKEN)
+		if (status == STATUS_OPEN)
 			return 1;
-		else if (status == ISSL_HANDSHAKING)
+		else if (status == STATUS_HANDSHAKING)
 		{
 			// The handshake isn't finished, try to finish it
 			return Handshake(sock);
@@ -1050,7 +1064,6 @@ info_done_dealloc:
 	GnuTLSIOHook(IOHookProvider* hookprov, StreamSocket* sock, inspircd_gnutls_session_init_flags_t flags)
 		: SSLIOHook(hookprov)
 		, sess(NULL)
-		, status(ISSL_NONE)
 #ifdef INSPIRCD_GNUTLS_HAS_CORK
 		, gbuffersize(0)
 #endif
@@ -1081,7 +1094,7 @@ info_done_dealloc:
 		if (prepret <= 0)
 			return prepret;
 
-		// If we resumed the handshake then this->status will be ISSL_HANDSHAKEN.
+		// If we resumed the handshake then this->status will be STATUS_OPEN.
 		{
 			GnuTLS::DataReader reader(sess);
 			int ret = reader.ret();
@@ -1177,7 +1190,7 @@ info_done_dealloc:
 
 	void GetCiphersuite(std::string& out) const CXX11_OVERRIDE
 	{
-		if (!IsHandshakeDone())
+		if (!IsHookReady())
 			return;
 		out.append(UnknownIfNULL(gnutls_protocol_get_name(gnutls_protocol_get_version(sess)))).push_back('-');
 		out.append(UnknownIfNULL(gnutls_kx_get_name(gnutls_kx_get(sess)))).push_back('-');
@@ -1205,7 +1218,6 @@ info_done_dealloc:
 	}
 
 	GnuTLS::Profile& GetProfile();
-	bool IsHandshakeDone() const { return (status == ISSL_HANDSHAKEN); }
 };
 
 int GnuTLS::X509Credentials::cert_callback(gnutls_session_t sess, const gnutls_datum_t* req_ca_rdn, int nreqs, const gnutls_pk_algorithm_t* sign_algos, int sign_algos_length, cert_cb_last_param_type* st)
@@ -1375,7 +1387,7 @@ class ModuleSSLGnuTLS : public Module
 		}
 		catch (ModuleException& ex)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, ex.GetReason() + " Not applying settings.");
+			ServerInstance->SNO->WriteToSnoMask('a', "Failed to reload the GnuTLS TLS (SSL) profiles. " + ex.GetReason());
 		}
 	}
 
@@ -1407,7 +1419,7 @@ class ModuleSSLGnuTLS : public Module
 	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
 	{
 		const GnuTLSIOHook* const iohook = static_cast<GnuTLSIOHook*>(user->eh.GetModHook(this));
-		if ((iohook) && (!iohook->IsHandshakeDone()))
+		if ((iohook) && (!iohook->IsHookReady()))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}

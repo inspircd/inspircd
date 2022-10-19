@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2019-2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2019-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -28,7 +28,7 @@
 /// $PackageInfo: require_system("ubuntu" "16.04") libmaxminddb-dev pkg-config
 
 #ifdef _WIN32
-# pragma comment(lib, "libmaxminddb.lib")
+# pragma comment(lib, "maxminddb.lib")
 #endif
 
 #include "inspircd.h"

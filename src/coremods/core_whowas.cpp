@@ -1,9 +1,10 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013, 2017-2018, 2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2022 Val Lorentz <progval+git@progval.net>
+ *   Copyright (C) 2013, 2017-2018, 2020-2021 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
+ *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2010 Craig Edwards <brain@inspircd.org>
  *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
@@ -187,7 +188,7 @@ class CommandWhowas : public Command
 CommandWhowas::CommandWhowas( Module* parent)
 	: Command(parent, "WHOWAS", 1)
 {
-	syntax = "<nick>";
+	syntax = "<nick> [<count>]";
 	Penalty = 2;
 }
 
@@ -200,6 +201,12 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 		return CMD_FAILURE;
 	}
 
+	if (parameters[0].empty())
+	{
+		user->WriteNumeric(ERR_NONICKNAMEGIVEN, "No nickname given");
+		return CMD_FAILURE;
+	}
+
 	const WhoWas::Nick* const nick = manager.FindNick(parameters[0]);
 	if (!nick)
 	{
@@ -208,7 +215,15 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 	else
 	{
 		const WhoWas::Nick::List& list = nick->entries;
-		for (WhoWas::Nick::List::const_iterator i = list.begin(); i != list.end(); ++i)
+		WhoWas::Nick::List::const_reverse_iterator last = list.rend();
+		if (parameters.size() > 1)
+		{
+			size_t count = ConvToNum<size_t>(parameters[1]);
+			if (count > 0 && (size_t) std::distance(list.rbegin(), last) > count)
+				last = list.rbegin() + count;
+		}
+
+		for (WhoWas::Nick::List::const_reverse_iterator i = list.rbegin(); i != last; ++i)
 		{
 			WhoWas::Entry* u = *i;
 
@@ -394,7 +409,7 @@ WhoWas::Entry::Entry(User* user)
 	: host(user->GetRealHost())
 	, dhost(user->GetDisplayedHost())
 	, ident(user->ident)
-	, server(user->server->GetName())
+	, server(user->server->GetPublicName())
 	, real(user->GetRealName())
 	, signon(user->signon)
 {

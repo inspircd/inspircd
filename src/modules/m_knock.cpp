@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2017 B00mX0r <b00mx0r@aureus.pw>
- *   Copyright (C) 2013, 2018, 2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2018, 2020, 2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2013, 2016, 2018 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -26,6 +26,7 @@
 
 
 #include "inspircd.h"
+#include "modules/invite.h"
 
 enum
 {
@@ -43,8 +44,10 @@ enum
  */
 class CommandKnock : public Command
 {
+ private:
 	SimpleChannelModeHandler& noknockmode;
 	ChanModeReference inviteonlymode;
+	Invite::API inviteapi;
 
  public:
 	bool sendnotice;
@@ -53,6 +56,7 @@ class CommandKnock : public Command
 		: Command(Creator,"KNOCK", 2, 2)
 		, noknockmode(Noknockmode)
 		, inviteonlymode(Creator, "inviteonly")
+		, inviteapi(Creator)
 	{
 		syntax = "<channel> :<reason>";
 		Penalty = 5;
@@ -85,9 +89,33 @@ class CommandKnock : public Command
 			return CMD_FAILURE;
 		}
 
+		// Work out who we should send the knock to.
+		char status;
+		switch (inviteapi->GetAnnounceState())
+		{
+			case Invite::ANNOUNCE_ALL:
+			{
+				status = 0;
+				break;
+			}
+
+			case Invite::ANNOUNCE_DYNAMIC:
+			{
+				PrefixMode* mh = ServerInstance->Modes.FindNearestPrefixMode(HALFOP_VALUE);
+				status = mh->GetPrefix() ? mh->GetPrefix() : '@';
+				break;
+			}
+
+			default:
+			{
+				status = '@';
+				break;
+			}
+		}
+
 		if (sendnotice)
 		{
-			c->WriteNotice(InspIRCd::Format("User %s is KNOCKing on %s (%s)", user->nick.c_str(), c->name.c_str(), parameters[1].c_str()));
+			c->WriteNotice(InspIRCd::Format("User %s is KNOCKing on %s (%s)", user->nick.c_str(), c->name.c_str(), parameters[1].c_str()), status);
 			user->WriteNotice("KNOCKing on " + c->name);
 		}
 
@@ -97,7 +125,7 @@ class CommandKnock : public Command
 			numeric.push(c->name).push(user->GetFullHost()).push("is KNOCKing: " + parameters[1]);
 
 			ClientProtocol::Messages::Numeric numericmsg(numeric, c->name);
-			c->Write(ServerInstance->GetRFCEvents().numeric, numericmsg);
+			c->Write(ServerInstance->GetRFCEvents().numeric, numericmsg, status);
 
 			user->WriteNumeric(RPL_KNOCKDLVR, c->name, "KNOCKing on channel");
 		}

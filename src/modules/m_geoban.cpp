@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
- *   Copyright (C) 2019, 2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2019, 2021-2022 Sadie Powell <sadie@witchery.services>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -20,10 +20,12 @@
 
 #include "inspircd.h"
 #include "modules/geolocation.h"
+#include "modules/who.h"
 #include "modules/whois.h"
 
 class ModuleGeoBan
 	: public Module
+	, public Who::MatchEventListener
 	, public Whois::EventListener
 {
  private:
@@ -31,14 +33,15 @@ class ModuleGeoBan
 
  public:
 	ModuleGeoBan()
-		: Whois::EventListener(this)
+		: Who::MatchEventListener(this)
+		, Whois::EventListener(this)
 		, geoapi(this)
 	{
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Adds extended ban G: which matches against two letter country codes.", VF_OPTCOMMON|VF_VENDOR);
+		return Version("Adds extended ban G: (country) which matches against two letter country codes.", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
@@ -58,6 +61,16 @@ class ModuleGeoBan
 				return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnWhoMatch(const Who::Request& request, LocalUser* source, User* user) CXX11_OVERRIDE
+	{
+		if (!request.flags['G'])
+			return MOD_RES_PASSTHRU;
+
+		Geolocation::Location* location = geoapi ? geoapi->GetLocation(user) : NULL;
+		const std::string code = location ? location->GetCode() : "XX";
+		return InspIRCd::Match(code, request.matchtext, ascii_case_insensitive_map) ? MOD_RES_ALLOW : MOD_RES_DENY;
 	}
 
 	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE

@@ -156,19 +156,11 @@ sub gendep($) {
 	while (<$in>) {
 		if (/^\s*#\s*include\s*"([^"]+)"/) {
 			my $inc = $1;
-			next if $inc eq 'config.h' && $f eq '../include/inspircd.h';
-			my $found = 0;
 			for my $loc ("$basedir/$inc", "../include/$inc") {
 				next unless -e $loc;
-				$found++;
 				$dep{$_}++ for split / /, gendep $loc;
 				$loc =~ s#^\.\./##;
 				$dep{$loc}++;
-			}
-			if ($found == 0 && $inc ne 'inspircd_win32wrapper.h') {
-				print STDERR "WARNING: could not find header $inc for $f\n";
-			} elsif ($found > 1 && $basedir ne '../include') {
-				print STDERR "WARNING: ambiguous include $inc in $f\n";
 			}
 		}
 	}
