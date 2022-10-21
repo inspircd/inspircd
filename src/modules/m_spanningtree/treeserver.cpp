@@ -37,9 +37,6 @@
  */
 TreeServer::TreeServer()
 	: Server(ServerInstance->Config->GetSID(), ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc)
-	, Parent(nullptr), Route(nullptr)
-	, Socket(nullptr)
-	, behind_bursting(0)
 	, pingtimer(this)
 	, ServerUser(ServerInstance->FakeClient)
 	, age(ServerInstance->Time())
@@ -47,7 +44,6 @@ TreeServer::TreeServer()
 	, customversion(ServerInstance->Config->CustomVersion)
 	, rawbranch(INSPIRCD_BRANCH)
 	, rawversion(INSPIRCD_VERSION)
-	, Hidden(false)
 {
 	AddHashEntry();
 }
@@ -64,7 +60,6 @@ TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const s
 	, pingtimer(this)
 	, ServerUser(new FakeUser(id, this))
 	, age(ServerInstance->Time())
-	, UserCount(0)
 	, Hidden(Hide)
 {
 	ServerInstance->Logs.Debug(MODNAME, "New server %s behind_bursting %u", GetName().c_str(), behind_bursting);

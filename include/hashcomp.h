@@ -247,15 +247,15 @@ namespace irc
 
 		/** Current position in a range of ports
 		 */
-		long in_range;
+		long in_range = 0;
 
 		/** Starting port in a range of ports
 		 */
-		long range_begin;
+		long range_begin = 0;
 
 		/** Ending port in a range of ports
 		 */
-		long range_end;
+		long range_end = 0;
 
 		/** Allow overlapped port ranges
 		 */

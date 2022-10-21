@@ -563,12 +563,11 @@ class CoreExport UserIOHandler final
 	: public StreamSocket
 {
 private:
-	size_t checked_until;
+	size_t checked_until = 0;
 public:
 	LocalUser* const user;
 	UserIOHandler(LocalUser* me)
 		: StreamSocket(StreamSocket::SS_USER)
-		, checked_until(0)
 		, user(me)
 	{
 	}

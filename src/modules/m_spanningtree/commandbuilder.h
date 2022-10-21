@@ -29,7 +29,7 @@ class CmdBuilder
 {
 protected:
 	/** The raw message contents. */
-	std::string content;
+	std::string content = ":";
 
 	/** Tags which have been added to this message. */
 	ClientProtocol::TagMap tags;
@@ -48,7 +48,6 @@ protected:
 
 public:
 	CmdBuilder(const char* cmd)
-		: content(1, ':')
 	{
 		content.append(ServerInstance->Config->GetSID());
 		push(cmd);
@@ -56,7 +55,6 @@ public:
 	}
 
 	CmdBuilder(TreeServer* src, const char* cmd)
-		: content(1, ':')
 	{
 		content.append(src->GetId());
 		push(cmd);
@@ -64,7 +62,6 @@ public:
 	}
 
 	CmdBuilder(User* src, const char* cmd)
-		: content(1, ':')
 	{
 		content.append(src->uuid);
 		push(cmd);

@@ -108,12 +108,6 @@ namespace
 	}
 }
 
-UserManager::UserManager()
-	: already_sent_id(0)
-	, unregistered_count(0)
-{
-}
-
 UserManager::~UserManager()
 {
 	for (const auto& [_, client] : clientlist)

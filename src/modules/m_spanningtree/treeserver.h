@@ -46,17 +46,17 @@
 class TreeServer final
 	: public Server
 {
-	TreeServer* Parent;			/* Parent entry */
-	TreeServer* Route;			/* Route entry */
+	TreeServer* Parent = nullptr;		/* Parent entry */
+	TreeServer* Route = nullptr;		/* Route entry */
 	std::vector<TreeServer*> Children;	/* List of child objects */
-	TreeSocket* Socket;			/* Socket used to communicate with this server */
+	TreeSocket* Socket = nullptr;		/* Socket used to communicate with this server */
 
 	/** Counter counting how many servers are bursting in front of this server, including
 	 * this server. Set to parents' value on construction then it is increased if the
 	 * server itself starts bursting. Decreased when a server on the path to this server
 	 * finishes burst.
 	 */
-	unsigned int behind_bursting;
+	unsigned int behind_bursting = 0;
 
 	/** True if this server has been lost in a split and is awaiting destruction
 	 */
@@ -84,7 +84,7 @@ public:
 	FakeUser* const ServerUser;		/* User representing this server */
 	const time_t age;
 
-	size_t UserCount;			/* How many users are on this server? [note: doesn't care about +i] */
+	size_t UserCount = 0;			/* How many users are on this server? [note: doesn't care about +i] */
 	size_t OperCount = 0;			/* How many opers are on this server? */
 
 	std::string customversion;
@@ -150,7 +150,7 @@ public:
 
 	/** True if this server is hidden
 	 */
-	bool Hidden;
+	bool Hidden = false;
 
 	/** Get the TreeSocket pointer for local servers.
 	 * For remote servers, this returns NULL.

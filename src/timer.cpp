@@ -35,8 +35,7 @@ void Timer::SetInterval(unsigned long newinterval)
 }
 
 Timer::Timer(unsigned long secs_from_now, bool repeating)
-	: trigger(0)
-	, secs(secs_from_now)
+	: secs(secs_from_now)
 	, repeat(repeating)
 {
 }

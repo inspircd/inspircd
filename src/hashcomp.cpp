@@ -274,7 +274,8 @@ bool irc::sepstream::Contains(const std::string& value)
 }
 
 irc::portparser::portparser(const std::string& source, bool allow_overlapped)
-	: sep(source), in_range(0), range_begin(0), range_end(0), overlapped(allow_overlapped)
+	: sep(source)
+	, overlapped(allow_overlapped)
 {
 }
 

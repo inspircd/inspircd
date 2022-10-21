@@ -57,7 +57,7 @@ private:
 	ClientProtocol::Events::Join extendedjoinmsg;
 
 public:
-	const std::string asterisk;
+	const std::string asterisk = "*";
 	ClientProtocol::EventProvider awayprotoev;
 	AwayMessage awaymsg;
 	Cap::Capability extendedjoincap;
@@ -66,7 +66,6 @@ public:
 	JoinHook(Module* mod)
 		: ClientProtocol::EventHook(mod, "JOIN")
 		, accountapi(mod)
-		, asterisk(1, '*')
 		, awayprotoev(mod, "AWAY")
 		, extendedjoincap(mod, "extended-join")
 		, awaycap(mod, "away-notify")

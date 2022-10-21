@@ -71,13 +71,9 @@ private:
 	/** Last used already sent id, used when sending messages to neighbors to help determine whether the message has
 	 * been sent to a particular user or not. See User::ForEachNeighbor() for more info.
 	 */
-	uint64_t already_sent_id;
+	uint64_t already_sent_id = 0;
 
 public:
-	/** Constructor, initializes variables
-	 */
-	UserManager();
-
 	/** Destructor, destroys all users in clientlist
 	 */
 	~UserManager();
@@ -100,7 +96,7 @@ public:
 	/** Number of unregistered users online right now.
 	 * (Unregistered means before USER/NICK/dns)
 	 */
-	size_t unregistered_count;
+	size_t unregistered_count = 0;
 
 	/** Perform background user events for all local users such as PING checks, registration timeouts,
 	 * penalty management and recvq processing for users who have data in their recvq due to throttling.

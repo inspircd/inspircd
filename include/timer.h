@@ -42,7 +42,7 @@ class CoreExport Timer
 {
 	/** The triggering time
 	 */
-	time_t trigger;
+	time_t trigger = 0;
 
 	/** Number of seconds between triggers
 	 */
