@@ -51,6 +51,7 @@ class SQLMethod final
 private:
 	std::string query;
 	dynamic_reference<SQL::Provider> sql;
+	time_t lastwarning = 0;
 
 public:
 	SQLMethod(const dynamic_reference<SQL::Provider>& s, const std::string& q)
@@ -63,7 +64,12 @@ public:
 	{
 		if (!sql)
 		{
-			ServerInstance->SNO.WriteGlobalSno('a', "Unable to write to SQL log (database %s not available).", sql->GetId().c_str());
+			// Only give a warning every 5 minutes to avoid log spam.
+			if (ServerInstance->Time() - lastwarning > 300)
+			{
+				lastwarning = ServerInstance->Time();
+				ServerInstance->SNO.WriteGlobalSno('a', "Unable to write to SQL log (database %s not available).", sql->GetId().c_str());
+			}
 			return;
 		}
 
