@@ -112,7 +112,7 @@ public:
 		}
 	}
 
-	void OnError(SQL::Error& error) override
+	void OnError(const SQL::Error& error) override
 	{
 		ServerInstance->Logs.Normal(MODNAME, "query failed (%s)", error.ToString());
 		ServerInstance->SNO.WriteGlobalSno('a', "m_sqloper: Failed to update blocks from database");

@@ -919,7 +919,7 @@ private:
 				mbedTLS::Profile::Config profileconfig(name, tag, ctr_drbg);
 				prov = std::make_shared<mbedTLSIOHookProvider>(this, profileconfig);
 			}
-			catch (CoreException& ex)
+			catch (const CoreException& ex)
 			{
 				throw ModuleException(this, "Error while initializing TLS profile \"" + name + "\" at " + tag->source.str() + " - " + ex.GetReason());
 			}

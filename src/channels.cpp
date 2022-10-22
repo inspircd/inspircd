@@ -49,7 +49,7 @@ Channel::Channel(const std::string& cname, time_t ts)
 		throw CoreException("Cannot create duplicate channel " + cname);
 }
 
-void Channel::SetMode(ModeHandler* mh, bool on)
+void Channel::SetMode(const ModeHandler* mh, bool on)
 {
 	if (mh && mh->GetId() != ModeParser::MODEID_MAX)
 		modes[mh->GetId()] = on;

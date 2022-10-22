@@ -183,7 +183,7 @@ public:
 	/** Called when an SQL error happens.
 	 * @param error The error that occurred.
 	 */
-	virtual void OnError(SQL::Error& error) = 0;
+	virtual void OnError(const SQL::Error& error) = 0;
 
 	/** Called when a SQL result is received.
 	 * @param result The result of the SQL query.

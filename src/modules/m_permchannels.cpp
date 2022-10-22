@@ -311,7 +311,7 @@ public:
 			{
 				LoadDatabase();
 			}
-			catch (CoreException& e)
+			catch (const CoreException& e)
 			{
 				ServerInstance->Logs.Normal(MODNAME, "Error loading permchannels database: " + std::string(e.GetReason()));
 			}

@@ -958,7 +958,7 @@ class ModuleSSLOpenSSL final
 			{
 				prov = std::make_shared<OpenSSLIOHookProvider>(this, name, tag);
 			}
-			catch (CoreException& ex)
+			catch (const CoreException& ex)
 			{
 				throw ModuleException(this, "Error while initializing TLS profile \"" + name + "\" at " + tag->source.str() + " - " + ex.GetReason());
 			}

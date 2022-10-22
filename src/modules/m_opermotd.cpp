@@ -111,7 +111,7 @@ public:
 			cmd.opermotd = reader.GetVector();
 			InspIRCd::ProcessColors(cmd.opermotd);
 		}
-		catch (CoreException&)
+		catch (const CoreException&)
 		{
 			// Nothing happens here as we do the error handling in ShowOperMOTD.
 		}

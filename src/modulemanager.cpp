@@ -102,7 +102,7 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 			return false;
 		}
 	}
-	catch (CoreException& modexcept)
+	catch (const CoreException& modexcept)
 	{
 		this->NewServices = nullptr;
 

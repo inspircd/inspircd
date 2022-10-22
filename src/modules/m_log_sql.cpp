@@ -39,7 +39,7 @@ public:
 		// Nothing to do here.
 	}
 
-	void OnError(SQL::Error& error) override
+	void OnError(const SQL::Error& error) override
 	{
 		ServerInstance->SNO.WriteGlobalSno('a', "Unable to write to SQL log (query error: %s).", error.ToString());
 	}

@@ -360,7 +360,7 @@ void ServerConfig::Read()
 	{
 		valid = stack.ParseFile(ServerInstance->ConfigFileName, 0);
 	}
-	catch (CoreException& err)
+	catch (const CoreException& err)
 	{
 		valid = false;
 		errstr << err.GetReason() << std::endl;
@@ -411,7 +411,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
 		CrossCheckOperClassType();
 		CrossCheckConnectBlocks(old);
 	}
-	catch (CoreException& ce)
+	catch (const CoreException& ce)
 	{
 		errstr << ce.GetReason() << std::endl;
 	}
@@ -664,7 +664,7 @@ void ConfigReaderThread::OnStop()
 				ServerInstance->Logs.Debug("MODULE", "Rehashing " + modname);
 				mod->ReadConfig(status);
 			}
-			catch (CoreException& modex)
+			catch (const CoreException& modex)
 			{
 				ServerInstance->Logs.Normal("MODULE", "Exception caught: " + modex.GetReason());
 				if (user)
@@ -680,7 +680,7 @@ void ConfigReaderThread::OnStop()
 			ServerInstance->Logs.CloseLogs();
 			ServerInstance->Logs.OpenLogs(true);
 		}
-		catch (CoreException& ex)
+		catch (const CoreException& ex)
 		{
 			ServerInstance->Logs.Normal("LOG", "Cannot open log files: " + ex.GetReason());
 			if (user)

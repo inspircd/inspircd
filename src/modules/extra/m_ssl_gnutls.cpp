@@ -1091,7 +1091,7 @@ class ModuleSSLGnuTLS final
 				GnuTLS::Profile::Config profileconfig(name, tag);
 				prov = std::make_shared<GnuTLSIOHookProvider>(this, profileconfig);
 			}
-			catch (CoreException& ex)
+			catch (const CoreException& ex)
 			{
 				throw ModuleException(this, "Error while initializing TLS profile \"" + name + "\" at " + tag->source.str() + " - " + ex.GetReason());
 			}

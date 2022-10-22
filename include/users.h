@@ -403,14 +403,14 @@ public:
 	bool IsModeSet(unsigned char m) const;
 	bool IsModeSet(const ModeHandler* mh) const;
 	bool IsModeSet(const ModeHandler& mh) const { return IsModeSet(&mh); }
-	bool IsModeSet(UserModeReference& moderef) const;
+	bool IsModeSet(const UserModeReference& moderef) const;
 
 	/** Set a specific usermode to on or off
 	 * @param mh The user mode
 	 * @param value On or off setting of the mode
 	 */
-	void SetMode(ModeHandler* mh, bool value);
-	void SetMode(ModeHandler& mh, bool value) { SetMode(&mh, value); }
+	void SetMode(const ModeHandler* mh, bool value);
+	void SetMode(const ModeHandler& mh, bool value) { SetMode(&mh, value); }
 
 	/** Returns true or false for if a user can execute a privileged oper command.
 	 * This is done by looking up their oper type from User::oper, then referencing
@@ -805,14 +805,14 @@ inline bool User::IsModeSet(const ModeHandler* mh) const
 	return ((mh->GetId() != ModeParser::MODEID_MAX) && (modes[mh->GetId()]));
 }
 
-inline bool User::IsModeSet(UserModeReference& moderef) const
+inline bool User::IsModeSet(const UserModeReference& moderef) const
 {
 	if (!moderef)
 		return false;
 	return IsModeSet(*moderef);
 }
 
-inline void User::SetMode(ModeHandler* mh, bool value)
+inline void User::SetMode(const ModeHandler* mh, bool value)
 {
 	if (mh && mh->GetId() != ModeParser::MODEID_MAX)
 		modes[mh->GetId()] = value;

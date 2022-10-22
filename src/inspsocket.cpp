@@ -464,7 +464,7 @@ void StreamSocket::OnEventHandlerRead()
 	{
 		DoRead();
 	}
-	catch (CoreException& ex)
+	catch (const CoreException& ex)
 	{
 		ServerInstance->Logs.Normal("SOCKET", "Caught exception in socket processing on FD %d - '%s'",
 			GetFd(), ex.GetReason().c_str());

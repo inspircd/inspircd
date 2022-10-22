@@ -1059,7 +1059,7 @@ public:
 	 * @param mod Module to attach events to
 	 * @param sz The size of the implementation array
 	 */
-	void Attach(Implementation* i, Module* mod, size_t sz);
+	void Attach(const Implementation* i, Module* mod, size_t sz);
 
 	/** Attach all events to a module (used on module load)
 	 * @param mod Module to attach to all events
@@ -1082,7 +1082,7 @@ public:
 	 * @param mod Module to detach events from
 	 * @param sz The size of the implementation array
 	 */
-	void Detach(Implementation* i, Module* mod, size_t sz);
+	void Detach(const Implementation* i, Module* mod, size_t sz);
 
 	/** Detach all events from a module (used on unload)
 	 * @param mod Module to detach from

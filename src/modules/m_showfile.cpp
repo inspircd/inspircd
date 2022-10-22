@@ -158,7 +158,7 @@ public:
 			{
 				ReadTag(tag, newcmds);
 			}
-			catch (CoreException& ex)
+			catch (const CoreException& ex)
 			{
 				ServerInstance->Logs.Normal(MODNAME, "Error: " + ex.GetReason() + " at " + tag->source.str());
 			}

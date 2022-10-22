@@ -109,7 +109,7 @@ public:
 		}
 	}
 
-	void OnError(SQL::Error& error) override
+	void OnError(const SQL::Error& error) override
 	{
 		auto user = ServerInstance->Users.Find(uid);
 		if (!user)

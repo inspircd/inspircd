@@ -316,7 +316,7 @@ struct Parser final
 				}
 			}
 		}
-		catch (CoreException& err)
+		catch (const CoreException& err)
 		{
 			stack.errstr << err.GetReason() << " at " << current.str();
 			if (tag)

@@ -165,7 +165,7 @@ public:
 					creator->OnUserConnect(user);
 					cloaks = ext.Get(user);
 				}
-				catch (CoreException& modexcept)
+				catch (const CoreException& modexcept)
 				{
 					ServerInstance->Logs.Normal(MODNAME, "Exception caught when generating cloak: " + modexcept.GetReason());
 					return MODEACTION_DENY;

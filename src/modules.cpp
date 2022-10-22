@@ -213,13 +213,13 @@ bool ModuleManager::Detach(Implementation i, Module* mod)
 	return stdalgo::erase(EventHandlers[i], mod);
 }
 
-void ModuleManager::Attach(Implementation* i, Module* mod, size_t sz)
+void ModuleManager::Attach(const Implementation* i, Module* mod, size_t sz)
 {
 	for (size_t n = 0; n < sz; ++n)
 		Attach(i[n], mod);
 }
 
-void ModuleManager::Detach(Implementation* i, Module* mod, size_t sz)
+void ModuleManager::Detach(const Implementation* i, Module* mod, size_t sz)
 {
 	for (size_t n = 0; n < sz; ++n)
 		Detach(i[n], mod);
@@ -534,7 +534,7 @@ void ModuleManager::LoadAll()
 			AddServices(servicemap[modname]);
 			mod->init();
 		}
-		catch (CoreException& modexcept)
+		catch (const CoreException& modexcept)
 		{
 			LastModuleError = "Unable to initialize " + modname + ": " + modexcept.GetReason();
 			ServerInstance->Logs.Normal("MODULE", LastModuleError);
@@ -556,7 +556,7 @@ void ModuleManager::LoadAll()
 			ServerInstance->Logs.Debug("MODULE", "Reading configuration for %s", modname.c_str());
 			mod->ReadConfig(confstatus);
 		}
-		catch (CoreException& modexcept)
+		catch (const CoreException& modexcept)
 		{
 			LastModuleError = "Unable to read the configuration for " + modname + ": " + modexcept.GetReason();
 			ServerInstance->Logs.Normal("MODULE", LastModuleError);

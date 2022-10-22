@@ -115,15 +115,16 @@ public:
 	 * @param mode The mode character to set or unset
 	 * @param value True if you want to set the mode or false if you want to remove it
 	 */
-	void SetMode(ModeHandler* mode, bool value);
+	void SetMode(const ModeHandler* mode, bool value);
+	void SetMode(const ModeHandler& mh, bool value) { SetMode(&mh, value); }
 
 	/** Returns true if a mode is set on a channel
 	 * @param mode The mode character you wish to query
 	 * @return True if the custom mode is set, false if otherwise
 	 */
-	bool IsModeSet(ModeHandler* mode) { return ((mode->GetId() != ModeParser::MODEID_MAX) && (modes[mode->GetId()])); }
-	bool IsModeSet(ModeHandler& mode) { return IsModeSet(&mode); }
-	bool IsModeSet(ChanModeReference& mode);
+	bool IsModeSet(const ModeHandler* mode) { return ((mode->GetId() != ModeParser::MODEID_MAX) && (modes[mode->GetId()])); }
+	bool IsModeSet(const ModeHandler& mode) { return IsModeSet(&mode); }
+	bool IsModeSet(const ChanModeReference& mode);
 
 	/** Returns the parameter for a custom mode on a channel.
 	 * @param mode The mode character you wish to query
@@ -310,7 +311,7 @@ inline std::string Channel::GetModeParameter(ParamModeBase* pm)
 	return out;
 }
 
-inline bool Channel::IsModeSet(ChanModeReference& mode)
+inline bool Channel::IsModeSet(const ChanModeReference& mode)
 {
 	if (!mode)
 		return false;

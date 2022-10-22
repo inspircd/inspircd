@@ -217,7 +217,7 @@ void TreeSocket::OnDataReady()
 		{
 			ProcessLine(line);
 		}
-		catch (CoreException& ex)
+		catch (const CoreException& ex)
 		{
 			ServerInstance->Logs.Normal(MODNAME, "Error while processing: " + line);
 			ServerInstance->Logs.Normal(MODNAME, ex.GetReason());
