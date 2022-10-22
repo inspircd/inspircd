@@ -15,6 +15,7 @@ pcre2/10.40
 rapidjson/cci.20220822
 re2/20220601
 sqlite3/3.39.4
+zlib/1.2.13 # force override to fix a conflict between libmysqlclient and pcre2
 
 [options]
 argon2:shared=True
