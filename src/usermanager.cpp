@@ -108,6 +108,11 @@ namespace
 	}
 }
 
+UserManager::UserManager()
+{
+	// We need to define a constructor here to work around a Clang bug.
+}
+
 UserManager::~UserManager()
 {
 	for (const auto& [_, client] : clientlist)

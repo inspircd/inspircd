@@ -74,6 +74,10 @@ private:
 	uint64_t already_sent_id = 0;
 
 public:
+	/** Constructor, initializes variables
+	 */
+	UserManager();
+
 	/** Destructor, destroys all users in clientlist
 	 */
 	~UserManager();
