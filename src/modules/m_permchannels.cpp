@@ -142,11 +142,15 @@ static bool WriteDatabase(PermChannel& permchanmode, Module* mod, bool save_list
 		}
 
 		stream << "<permchannels channel=\"" << ServerConfig::Escape(chan->name)
-			<< "\" ts=\"" << chan->age
-			<< "\" topic=\"" << ServerConfig::Escape(chan->topic)
-			<< "\" topicts=\"" << chan->topicset
-			<< "\" topicsetby=\"" << ServerConfig::Escape(chan->setby)
-			<< "\" modes=\"" << ServerConfig::Escape(chanmodes)
+			<< "\" ts=\"" << chan->age;
+		if (!chan->topic.empty())
+		{
+			// Only store the topic if one is set.
+			stream << "\" topic=\"" << ServerConfig::Escape(chan->topic)
+				<< "\" topicts=\"" << chan->topicset
+				<< "\" topicsetby=\"" << ServerConfig::Escape(chan->setby);
+		}
+		stream << "\" modes=\"" << ServerConfig::Escape(chanmodes)
 			<< "\">" << std::endl;
 	}
 
