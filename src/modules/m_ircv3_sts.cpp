@@ -28,6 +28,7 @@ class STSCap : public Cap::Capability
 	std::string host;
 	std::string plaintextpolicy;
 	std::string securepolicy;
+	mutable UserCertificateAPI sslapi;
 
 	bool OnList(LocalUser* user) CXX11_OVERRIDE
 	{
@@ -64,12 +65,19 @@ class STSCap : public Cap::Capability
 
 	const std::string* GetValue(LocalUser* user) const CXX11_OVERRIDE
 	{
-		return SSLIOHook::IsSSL(&user->eh) ? &securepolicy : &plaintextpolicy;
+		if (SSLIOHook::IsSSL(&user->eh))
+			return &securepolicy; // Normal SSL connection.
+
+		if (sslapi && sslapi->GetCertificate(user))
+			return &securepolicy; // Proxied SSL connection.
+
+		return &plaintextpolicy; // Plain text connection.
 	}
 
  public:
 	STSCap(Module* mod)
 		: Cap::Capability(mod, "sts")
+		, sslapi(mod)
 	{
 		DisableAutoRegister();
 	}
@@ -135,6 +143,10 @@ class ModuleIRCv3STS : public Module
 		for (std::vector<ListenSocket*>::const_iterator iter = ServerInstance->ports.begin(); iter != ServerInstance->ports.end(); ++iter)
 		{
 			ListenSocket* ls = *iter;
+
+			// Is this listener marked as providing SSL over HAProxy?
+			if (!ls->bind_tag->getString("hook").empty() && ls->bind_tag->getBool("sslhook"))
+				return true;
 
 			// Is this listener on the right port?
 			unsigned int saport = ls->bind_sa.port();
