@@ -97,34 +97,6 @@ typedef std::map<std::string, file_cache> ConfigFileCache;
 /** Generic user list, used for exceptions */
 typedef std::set<User*> CUList;
 
-/** Contains an ident and host split into two strings
- */
-typedef std::pair<std::string, std::string> IdentHostPair;
-
-/** A map of xline factories
- */
-typedef std::map<std::string, XLineFactory*> XLineFactMap;
-
-/** A map of XLines indexed by string
- */
-typedef std::map<std::string, XLine*, irc::insensitive_swo> XLineLookup;
-
-/** A map of XLineLookup maps indexed by string
- */
-typedef std::map<std::string, XLineLookup > XLineContainer;
-
-/** An iterator in an XLineContainer
- */
-typedef XLineContainer::iterator ContainerIter;
-
-/** An iterator in an XLineLookup
- */
-typedef XLineLookup::iterator LookupIter;
-
 /** A bitset of characters which are enabled/set. */
 typedef std::bitset<UCHAR_MAX + 1> CharState;
 
-namespace Stats
-{
-	class Context;
-}
