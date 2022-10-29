@@ -144,7 +144,7 @@ public:
 	void CleanUser(User* user);
 	void OnUserPart(Membership*, std::string& partmessage, CUList&) override;
 	void OnUserKick(User* source, Membership*, const std::string& reason, CUList&) override;
-	void OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception) override;
+	void OnBuildNeighborList(User* source, User::NeighborList& include, User::NeighborExceptions& exception) override;
 	void OnUserMessage(User* user, const MessageTarget& target, const MessageDetails& details) override;
 	void OnUserTagMessage(User* user, const MessageTarget& target, const CTCTags::TagMessageDetails& details) override;
 	ModResult OnRawMode(User* user, Channel* channel, const Modes::Change& change) override;
@@ -205,9 +205,9 @@ void ModuleDelayJoin::OnUserKick(User* source, Membership* memb, const std::stri
 	PopulateExcepts(except, memb);
 }
 
-void ModuleDelayJoin::OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception)
+void ModuleDelayJoin::OnBuildNeighborList(User* source, User::NeighborList& include, User::NeighborExceptions& exception)
 {
-	for (IncludeChanList::iterator i = include.begin(); i != include.end(); )
+	for (User::NeighborList::iterator i = include.begin(); i != include.end(); )
 	{
 		Membership* memb = *i;
 		if (unjoined.Get(memb))

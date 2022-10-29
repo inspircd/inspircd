@@ -40,8 +40,8 @@ class ModuleHostCycle final
 		uint64_t silent_id = ServerInstance->Users.NextAlreadySentId();
 		uint64_t seen_id = ServerInstance->Users.NextAlreadySentId();
 
-		IncludeChanList include_chans(user->chans.begin(), user->chans.end());
-		std::map<User*,bool> exceptions;
+		User::NeighborList include_chans(user->chans.begin(), user->chans.end());
+		User::NeighborExceptions exceptions;
 
 		FOREACH_MOD(OnBuildNeighborList, (user, include_chans, exceptions));
 

@@ -158,9 +158,9 @@ public:
 		BuildExcept(memb, excepts);
 	}
 
-	void OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception) override
+	void OnBuildNeighborList(User* source, User::NeighborList& include, User::NeighborExceptions& exception) override
 	{
-		for (IncludeChanList::iterator i = include.begin(); i != include.end(); )
+		for (User::NeighborList::iterator i = include.begin(); i != include.end(); )
 		{
 			Membership* memb = *i;
 			if (IsVisible(memb))

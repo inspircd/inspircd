@@ -889,8 +889,8 @@ uint64_t User::ForEachNeighbor(ForEachNeighborHandler& handler, bool include_sel
 
 	// Ask modules to build a list of exceptions.
 	// Mods may also exclude entire channels by erasing them from include_chans.
-	IncludeChanList include_chans(chans.begin(), chans.end());
-	std::map<User*, bool> exceptions;
+	User::NeighborList include_chans(chans.begin(), chans.end());
+	User::NeighborExceptions exceptions;
 	exceptions[this] = include_self;
 	FOREACH_MOD(OnBuildNeighborList, (this, include_chans, exceptions));
 
@@ -898,7 +898,7 @@ uint64_t User::ForEachNeighbor(ForEachNeighborHandler& handler, bool include_sel
 	const uint64_t newid = ServerInstance->Users.NextAlreadySentId();
 
 	// Handle exceptions first
-	for (std::map<User*, bool>::const_iterator i = exceptions.begin(); i != exceptions.end(); ++i)
+	for (NeighborExceptions::const_iterator i = exceptions.begin(); i != exceptions.end(); ++i)
 	{
 		LocalUser* curr = IS_LOCAL(i->first);
 		if (curr)

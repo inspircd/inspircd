@@ -499,12 +499,12 @@ public:
 	 * that is, all users that share a common channel. This is used in
 	 * commands such as NICK, QUIT, etc.
 	 * @param source The source of the message
-	 * @param include_c Channels to scan for users to include
+	 * @param include Memberships to scan for users to include
 	 * @param exceptions Map of user->bool that overrides the inclusion decision
 	 *
 	 * Set exceptions[user] = true to include, exceptions[user] = false to exclude
 	 */
-	virtual void OnBuildNeighborList(User* source, IncludeChanList& include_c, std::map<User*, bool>& exceptions);
+	virtual void OnBuildNeighborList(User* source, User::NeighborList& include, User::NeighborExceptions& exceptions);
 
 	/** Called before local nickname changes. This can be used to implement Q-lines etc.
 	 * If your method returns nonzero, the nickchange is silently forbidden, and it is down to your

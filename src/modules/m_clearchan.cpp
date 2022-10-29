@@ -163,10 +163,10 @@ public:
 		ServerInstance->Modules.Detach(events, this, sizeof(events)/sizeof(Implementation));
 	}
 
-	void OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception) override
+	void OnBuildNeighborList(User* source, User::NeighborList& include, User::NeighborExceptions& exception) override
 	{
 		bool found = false;
-		for (IncludeChanList::iterator i = include.begin(); i != include.end(); ++i)
+		for (User::NeighborList::iterator i = include.begin(); i != include.end(); ++i)
 		{
 			if ((*i)->chan == cmd.activechan)
 			{

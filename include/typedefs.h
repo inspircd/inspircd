@@ -83,10 +83,6 @@ namespace ClientProtocol
 #include "hashcomp.h"
 #include "base.h"
 
-/** List of channels to consider when building the neighbor list of a user
- */
-typedef std::vector<Membership*> IncludeChanList;
-
 /** A cached text file stored with its contents as lines
  */
 typedef std::vector<std::string> file_cache;

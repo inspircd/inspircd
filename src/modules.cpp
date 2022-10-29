@@ -154,7 +154,7 @@ void		Module::OnExpireLine(XLine*) { DetachEvent(I_OnExpireLine); }
 void		Module::OnCleanup(ExtensionType, Extensible*) { }
 ModResult	Module::OnChannelPreDelete(Channel*) { DetachEvent(I_OnChannelPreDelete); return MOD_RES_PASSTHRU; }
 void		Module::OnChannelDelete(Channel*) { DetachEvent(I_OnChannelDelete); }
-void		Module::OnBuildNeighborList(User*, IncludeChanList&, std::map<User*,bool>&) { DetachEvent(I_OnBuildNeighborList); }
+void		Module::OnBuildNeighborList(User*, User::NeighborList&, User::NeighborExceptions&) { DetachEvent(I_OnBuildNeighborList); }
 void		Module::OnGarbageCollect() { DetachEvent(I_OnGarbageCollect); }
 ModResult	Module::OnSetConnectClass(LocalUser* user, ConnectClass::Ptr myclass) { DetachEvent(I_OnSetConnectClass); return MOD_RES_PASSTHRU; }
 void		Module::OnUserMessage(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserMessage); }

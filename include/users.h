@@ -243,6 +243,12 @@ public:
 	 */
 	typedef insp::intrusive_list<Membership> ChanList;
 
+	/** A list of memberships to consider when discovering the neighbors of a user. */
+	typedef std::vector<Membership*> NeighborList;
+
+	/** A list of exceptions to the memberships that are considered when discovering the neighbours of a user. */
+	typedef std::unordered_map<User*, bool> NeighborExceptions;
+
 	/** The time at which this user's nickname was last changed. */
 	time_t nickchanged;
 
