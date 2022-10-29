@@ -46,7 +46,7 @@ void DieRestart::SendError(const std::string& message)
 
 	for (auto* user : ServerInstance->Users.GetLocalUsers())
 	{
-		if (user->registered == REG_ALL)
+		if (user->IsFullyConnected())
 		{
 			user->WriteNotice(message);
 		}

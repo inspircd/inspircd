@@ -252,7 +252,7 @@ public:
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
-		if (user->registered == REG_ALL || realhost.Get(user))
+		if (user->IsFullyConnected() || realhost.Get(user))
 			return CmdResult::FAILURE;
 
 		for (const auto& host : hosts)

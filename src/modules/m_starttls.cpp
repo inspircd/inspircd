@@ -53,7 +53,7 @@ public:
 			return CmdResult::FAILURE;
 		}
 
-		if (user->registered == REG_ALL)
+		if (user->IsFullyConnected())
 		{
 			user->WriteNumeric(ERR_STARTTLS, "STARTTLS is not permitted after client registration is complete");
 			return CmdResult::FAILURE;

@@ -294,7 +294,7 @@ namespace Stats
 		serializer.BeginBlock("userlist");
 		for (const auto& [_, u] : ServerInstance->Users.GetUsers())
 		{
-			if (u->registered != REG_ALL)
+			if (!u->IsFullyConnected())
 				continue;
 
 			DumpUser(serializer, u);
@@ -413,7 +413,7 @@ namespace Stats
 		NewUserList user_list;
 		for (const auto& [_, u] : ServerInstance->Users.GetUsers())
 		{
-			if (!showunreg && u->registered != REG_ALL)
+			if (!showunreg && !u->IsFullyConnected())
 				continue;
 
 			LocalUser* lu = IS_LOCAL(u);

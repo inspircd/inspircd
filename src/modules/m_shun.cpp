@@ -155,7 +155,7 @@ private:
 	bool IsShunned(LocalUser* user) const
 	{
 		// Exempt the user if they are not fully connected and allowconnect is enabled.
-		if (allowconnect && user->registered != REG_ALL)
+		if (allowconnect && !user->IsFullyConnected())
 			return false;
 
 		// Exempt the user from shuns if they are an oper with the servers/ignore-shun privilege.

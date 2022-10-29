@@ -78,7 +78,7 @@ public:
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
 	{
 		// Don't do anything with unregistered users
-		if (user->registered != REG_ALL)
+		if (!user->IsFullyConnected())
 			return MOD_RES_PASSTHRU;
 
 		if ((validated) && (parameters.size() >= 2) && ((command == "PRIVMSG") || (command == "NOTICE")))

@@ -409,7 +409,7 @@ public:
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
-		if (user->registered != REG_ALL)
+		if (!user->IsFullyConnected())
 			holdext.Set(user);
 
 		const std::string& subcommand = parameters[0];

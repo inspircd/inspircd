@@ -107,7 +107,7 @@ public:
 			return MOD_RES_PASSTHRU;
 
 		// We only care about registered users with the labeled-response and batch caps.
-		if (user->registered != REG_ALL || !cap.IsEnabled(user) || !batchcap.IsEnabled(user))
+		if (!user->IsFullyConnected() || !cap.IsEnabled(user) || !batchcap.IsEnabled(user))
 			return MOD_RES_PASSTHRU;
 
 		const ClientProtocol::TagMap& tagmap = parameters.GetTags();

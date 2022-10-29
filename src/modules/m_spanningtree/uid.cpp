@@ -49,7 +49,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 
 	// See if there is a nick collision
 	auto collideswith = ServerInstance->Users.FindNick(params[2]);
-	if ((collideswith) && (collideswith->registered != REG_ALL))
+	if (collideswith && !collideswith->IsFullyConnected())
 	{
 		// User that the incoming user is colliding with is not fully registered, we force nick change the
 		// unregistered user to their uuid and tell them what happened

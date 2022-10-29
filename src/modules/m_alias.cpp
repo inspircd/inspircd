@@ -163,7 +163,7 @@ public:
 		/* If they're not registered yet, we dont want
 		 * to know.
 		 */
-		if (user->registered != REG_ALL)
+		if (!user->IsFullyConnected())
 			return MOD_RES_PASSTHRU;
 
 		/* We dont have any commands looking like this? Stop processing. */

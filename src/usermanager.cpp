@@ -277,7 +277,7 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 
 	ServerInstance->GlobalCulls.AddItem(user);
 
-	if (user->registered == REG_ALL)
+	if (user->IsFullyConnected())
 	{
 		FOREACH_MOD(OnUserQuit, (user, quitmsg, operquitmsg));
 		WriteCommonQuit(user, quitmsg, operquitmsg);
@@ -291,7 +291,7 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 		FOREACH_MOD(OnUserDisconnect, (lu));
 		lu->eh.Close();
 
-		if (lu->registered == REG_ALL)
+		if (lu->IsFullyConnected())
 			ServerInstance->SNO.WriteToSnoMask('q',"Client exiting: %s (%s) [%s]", user->GetFullRealHost().c_str(), user->GetIPString().c_str(), operquitmsg.c_str());
 		local_users.erase(lu);
 	}

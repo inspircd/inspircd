@@ -276,7 +276,7 @@ void TreeSocket::SendUsers(BurstState& bs)
 {
 	for (const auto& [_, user] : ServerInstance->Users.GetUsers())
 	{
-		if (user->registered != REG_ALL)
+		if (!user->IsFullyConnected())
 			continue;
 
 		this->WriteLine(CommandUID::Builder(user));

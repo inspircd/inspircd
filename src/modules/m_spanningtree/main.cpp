@@ -550,7 +550,7 @@ void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by
 
 void ModuleSpanningTree::OnChangeHost(User* user, const std::string& newhost)
 {
-	if (user->registered != REG_ALL || !IS_LOCAL(user))
+	if (!user->IsFullyConnected() || !IS_LOCAL(user))
 		return;
 
 	CmdBuilder(user, "FHOST").push(newhost).Broadcast();
@@ -558,7 +558,7 @@ void ModuleSpanningTree::OnChangeHost(User* user, const std::string& newhost)
 
 void ModuleSpanningTree::OnChangeRealHost(User* user, const std::string& newhost)
 {
-	if (user->registered != REG_ALL || !IS_LOCAL(user))
+	if (!user->IsFullyConnected() || !IS_LOCAL(user))
 		return;
 
 	CmdBuilder(user, "FRHOST").push(newhost).Broadcast();
@@ -566,7 +566,7 @@ void ModuleSpanningTree::OnChangeRealHost(User* user, const std::string& newhost
 
 void ModuleSpanningTree::OnChangeRealName(User* user, const std::string& real)
 {
-	if (user->registered != REG_ALL || !IS_LOCAL(user))
+	if (!user->IsFullyConnected() || !IS_LOCAL(user))
 		return;
 
 	CmdBuilder(user, "FNAME").push_last(real).Broadcast();
@@ -574,7 +574,7 @@ void ModuleSpanningTree::OnChangeRealName(User* user, const std::string& real)
 
 void ModuleSpanningTree::OnChangeIdent(User* user, const std::string& ident)
 {
-	if ((user->registered != REG_ALL) || (!IS_LOCAL(user)))
+	if (!user->IsFullyConnected() || !IS_LOCAL(user))
 		return;
 
 	CmdBuilder(user, "FIDENT").push(ident).Broadcast();
@@ -774,7 +774,7 @@ restart:
 
 void ModuleSpanningTree::OnOper(User* user)
 {
-	if (user->registered != REG_ALL || !IS_LOCAL(user))
+	if (!user->IsFullyConnected() || !IS_LOCAL(user))
 		return;
 
 	// Note: The protocol does not allow direct umode +o;
@@ -825,7 +825,7 @@ void ModuleSpanningTree::OnMode(User* source, User* u, Channel* c, const Modes::
 
 	if (u)
 	{
-		if (u->registered != REG_ALL)
+		if (!u->IsFullyConnected())
 			return;
 
 		CmdBuilder params(source, "MODE");

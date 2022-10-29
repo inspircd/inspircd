@@ -626,7 +626,7 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 		 */
 		if (InUse)
 		{
-			if (InUse->registered != REG_ALL)
+			if (!InUse->IsFullyConnected())
 			{
 				/* force the camper to their UUID, and ask them to re-send a NICK. */
 				LocalUser* const localuser = static_cast<LocalUser*>(InUse);
@@ -643,7 +643,7 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 		nickchanged = newts ? newts : ServerInstance->Time();
 	}
 
-	if (this->registered == REG_ALL)
+	if (IsFullyConnected())
 	{
 		ClientProtocol::Messages::Nick nickmsg(this, newnick);
 		ClientProtocol::Event nickevent(ServerInstance->GetRFCEvents().nick, nickmsg);
@@ -656,7 +656,7 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 	ServerInstance->Users.clientlist.erase(oldnick);
 	ServerInstance->Users.clientlist[newnick] = this;
 
-	if (registered == REG_ALL)
+	if (IsFullyConnected())
 		FOREACH_MOD(OnUserPostNick, (this,oldnick));
 
 	return true;

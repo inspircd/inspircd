@@ -197,7 +197,7 @@ private:
 			for (auto* luser : ServerInstance->Users.GetLocalUsers())
 			{
 				// Don't send to unregistered users or the user who is the source.
-				if (luser->registered != REG_ALL || luser == source)
+				if (!luser->IsFullyConnected() || luser == source)
 					continue;
 
 				// Only send to non-exempt users.

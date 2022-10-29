@@ -133,7 +133,7 @@ public:
 
 	void AfterMode(User* source, User* dest, Channel* channel, const Modes::Change& change) override
 	{
-		if (dest->registered != REG_ALL)
+		if (!dest->IsFullyConnected())
 			return;
 
 		if (dest->server->IsService())

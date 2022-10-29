@@ -142,7 +142,7 @@ public:
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
 	{
 		// If a command is unvalidated or the source is not registered we do nothing.
-		if (!validated || user->registered != REG_ALL)
+		if (!validated || !user->IsFullyConnected())
 			return MOD_RES_PASSTHRU;
 
 		// If the command is not disabled or the user has the servers/use-disabled-commands priv we do nothing.
@@ -170,7 +170,7 @@ public:
 	ModResult OnRawMode(User* user, Channel* chan, const Modes::Change& change) override
 	{
 		// If a mode change is remote or the source is not registered we do nothing.
-		if (!IS_LOCAL(user) || user->registered != REG_ALL)
+		if (!IS_LOCAL(user) || !user->IsFullyConnected())
 			return MOD_RES_PASSTHRU;
 
 		// If the mode is not disabled or the user has the servers/use-disabled-modes priv we do nothing.

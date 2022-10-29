@@ -153,7 +153,7 @@ public:
 		if (change.adding)
 		{
 			// assume this is more correct
-			if (user->registered != REG_ALL && user->GetRealHost() != user->GetDisplayedHost())
+			if (!user->IsFullyConnected() && user->GetRealHost() != user->GetDisplayedHost())
 				return MODEACTION_DENY;
 
 			CloakList* cloaks = ext.Get(user);
@@ -535,7 +535,7 @@ public:
 	void OnChangeRemoteAddress(LocalUser* user) override
 	{
 		// Connecting users are handled in OnUserConnect not here.
-		if (user->registered != REG_ALL || user->quitting)
+		if (!user->IsFullyConnected() || user->quitting)
 			return;
 
 		// Remove the cloaks and generate new ones.

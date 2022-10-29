@@ -211,7 +211,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		handler = GetHandler(command);
 		if (!handler)
 		{
-			if (user->registered == REG_ALL)
+			if (user->IsFullyConnected())
 				user->WriteNumeric(ERR_UNKNOWNCOMMAND, command, "Unknown command");
 
 			ServerInstance->stats.Unknown++;
@@ -290,7 +290,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 
 		case CmdAccess::SERVER:
 		{
-			if (user->registered == REG_ALL)
+			if (user->IsFullyConnected())
 				user->WriteNumeric(ERR_UNKNOWNCOMMAND, command, "Unknown command");
 
 			ServerInstance->stats.Unknown++;
@@ -311,7 +311,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		return;
 	}
 
-	if ((user->registered != REG_ALL) && (!handler->works_before_reg))
+	if (!user->IsFullyConnected() && !handler->works_before_reg)
 	{
 		user->CommandFloodPenalty += failpenalty;
 		handler->TellNotRegistered(user, command_p);

@@ -172,7 +172,7 @@ void Channel::SetDefaultModes()
  */
 Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, const std::string& key)
 {
-	if (user->registered != REG_ALL)
+	if (!user->IsFullyConnected())
 	{
 		ServerInstance->Logs.Debug("CHANNELS", "Attempted to join unregistered user " + user->uuid + " to channel " + cname);
 		return nullptr;

@@ -327,7 +327,7 @@ public:
 			return;
 
 		// We don't want to look this up once the user has connected.
-		if (user->registered == REG_ALL || user->quitting)
+		if (user->IsFullyConnected() || user->quitting)
 			return;
 
 		std::shared_ptr<ConfigTag> tag = user->GetClass()->config;

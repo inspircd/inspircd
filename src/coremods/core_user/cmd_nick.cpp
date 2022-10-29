@@ -47,7 +47,7 @@ CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 	std::string newnick = parameters[0];
 
 	// anything except the initial NICK gets a flood penalty
-	if (user->registered == REG_ALL)
+	if (user->IsFullyConnected())
 		user->CommandFloodPenalty += 4000;
 
 	if (newnick.empty())
