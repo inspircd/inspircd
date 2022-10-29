@@ -29,6 +29,7 @@ private:
 	std::string host;
 	std::string plaintextpolicy;
 	std::string securepolicy;
+	mutable UserCertificateAPI sslapi;
 
 	bool OnList(LocalUser* user) override
 	{
@@ -65,12 +66,19 @@ private:
 
 	const std::string* GetValue(LocalUser* user) const override
 	{
-		return SSLIOHook::IsSSL(&user->eh) ? &securepolicy : &plaintextpolicy;
+		if (SSLIOHook::IsSSL(&user->eh))
+			return &securepolicy; // Normal SSL connection.
+
+		if (sslapi && sslapi->GetCertificate(user))
+			return &securepolicy; // Proxied SSL connection.
+
+		return &plaintextpolicy; // Plain text connection.
 	}
 
 public:
 	STSCap(Module* mod)
 		: Cap::Capability(mod, "sts")
+		, sslapi(mod)
 	{
 		DisableAutoRegister();
 	}
@@ -136,6 +144,10 @@ private:
 	{
 		for (const auto& ls : ServerInstance->ports)
 		{
+			// Is this listener marked as providing SSL over HAProxy?
+			if (!ls->bind_tag->getString("hook").empty() && ls->bind_tag->getBool("sslhook"))
+				return true;
+
 			// Is this listener on the right port?
 			unsigned int saport = ls->bind_sa.port();
 			if (saport != port)

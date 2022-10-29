@@ -628,8 +628,8 @@
          # 'splitmsg' - the same as split but also send a message explaining the split.
          splitwhois="no"
 
-         # defaultmodes: What modes are set on a empty channel when a user
-         # joins it and it is unregistered.
+         # defaultmodes: What modes are set on a new channel when a user creates it. Any
+         # prefix modes will be set on the creating user.
          defaultmodes="not"
 
          # xlinemessage: This is the text that is sent to a user when they are
