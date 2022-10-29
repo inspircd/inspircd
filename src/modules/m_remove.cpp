@@ -62,9 +62,9 @@ public:
 		/* Look up the user we're meant to be removing from the channel */
 		User* target;
 		if (IS_LOCAL(user))
-			target = ServerInstance->Users.FindNick(username);
+			target = ServerInstance->Users.FindNick(username, true);
 		else
-			target = ServerInstance->Users.Find(username);
+			target = ServerInstance->Users.Find(username, true);
 
 		/* And the channel we're meant to be removing them from */
 		auto channel = ServerInstance->Channels.Find(channame);
@@ -75,7 +75,7 @@ public:
 			user->WriteNumeric(Numerics::NoSuchChannel(channame));
 			return CmdResult::FAILURE;
 		}
-		if ((!target) || (target->registered != REG_ALL))
+		if (!target)
 		{
 			user->WriteNumeric(Numerics::NoSuchNick(username));
 			return CmdResult::FAILURE;

@@ -71,8 +71,8 @@ public:
 
 		std::string target = parameters[0];
 
-		auto find = ServerInstance->Users.Find(target);
-		if ((find) && (find->registered == REG_ALL))
+		auto find = ServerInstance->Users.Find(target, true);
+		if (find)
 			target = "*!" + find->GetBanIdent() + "@" + find->GetIPString();
 
 		if (parameters.size() == 1)

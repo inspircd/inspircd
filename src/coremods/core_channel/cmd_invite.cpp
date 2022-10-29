@@ -61,9 +61,9 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 	{
 		User* u;
 		if (IS_LOCAL(user))
-			u = ServerInstance->Users.FindNick(parameters[0]);
+			u = ServerInstance->Users.FindNick(parameters[0], true);
 		else
-			u = ServerInstance->Users.Find(parameters[0]);
+			u = ServerInstance->Users.Find(parameters[0], true);
 
 		auto c = ServerInstance->Channels.Find(parameters[1]);
 		time_t timeout = 0;
@@ -88,7 +88,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 			user->WriteNumeric(Numerics::NoSuchChannel(parameters[1]));
 			return CmdResult::FAILURE;
 		}
-		if ((!u) || (u->registered != REG_ALL))
+		if (!u)
 		{
 			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			return CmdResult::FAILURE;

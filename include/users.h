@@ -556,7 +556,11 @@ public:
 	 */
 	void PurgeEmptyChannels();
 
+	/** @copydoc Cullable::Cull */
 	Cullable::Result Cull() override;
+
+	/** Determines whether this user is fully connected to the server .*/
+	inline bool IsFullyConnected() const { return registered == REG_ALL; }
 };
 
 class CoreExport UserIOHandler final

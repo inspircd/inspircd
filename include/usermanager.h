@@ -195,19 +195,22 @@ public:
 	/** Find a user by their nickname or UUID.
 	 * IMPORTANT: You probably want to use FindNick or FindUUID instead of this.
 	 * @param nickuuid The nickname or UUID of the user to find.
+	 * @param fullyconnected Whether to only return users who are fully connected to the server.
 	 * @return If the user was found then a pointer to a User object; otherwise, nullptr.
 	 */
-	User* Find(const std::string& nickuuid);
+	User* Find(const std::string& nickuuid, bool fullyconnected = false);
 
 	/** Find a user by their nickname.
 	 * @param nick The nickname of the user to find.
+	 * @param fullyconnected Whether to only return users who are fully connected to the server.
 	 * @return If the user was found then a pointer to a User object; otherwise, nullptr.
 	 */
-	User* FindNick(const std::string& nick);
+	User* FindNick(const std::string& nick, bool fullyconnected = false);
 
 	/** Find a user by their UUID.
 	 * @param uuid The UUID of the user to find.
+	 * @param fullyconnected Whether to only return users who are fully connected to the server.
 	 * @return If the user was found then a pointer to a User object; otherwise, nullptr.
 	 */
-	User* FindUUID(const std::string& uuid);
+	User* FindUUID(const std::string& uuid, bool fullyconnected = false);
 };

@@ -52,8 +52,8 @@ public:
 		const std::string& channel = parameters[channelindex];
 		const std::string& nickname = parameters.size() > 1 ? parameters[0] : user->nick;
 
-		auto dest = ServerInstance->Users.Find(nickname);
-		if ((dest) && (dest->registered == REG_ALL))
+		auto dest = ServerInstance->Users.Find(nickname, true);
+		if (dest)
 		{
 			if (user != dest && !user->HasPrivPermission("users/sajoin-others"))
 			{

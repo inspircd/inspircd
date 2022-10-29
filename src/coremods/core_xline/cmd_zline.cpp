@@ -50,9 +50,8 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 			return CmdResult::FAILURE;
 		}
 
-		auto u = ServerInstance->Users.Find(target);
-
-		if ((u) && (u->registered == REG_ALL))
+		auto u = ServerInstance->Users.Find(target, true);
+		if (u)
 		{
 			target = u->GetIPString();
 		}

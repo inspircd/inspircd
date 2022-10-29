@@ -43,10 +43,9 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		auto dest = ServerInstance->Users.Find(parameters[1]);
 		auto channel = ServerInstance->Channels.Find(parameters[0]);
-
-		if ((dest) && (dest->registered == REG_ALL) && (channel))
+		auto dest = ServerInstance->Users.Find(parameters[1], true);
+		if (channel && dest)
 		{
 			const std::string& reason = (parameters.size() > 2) ? parameters[2] : dest->nick;
 

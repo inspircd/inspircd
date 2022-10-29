@@ -300,8 +300,8 @@ CmdResult CommandWhois::HandleLocal(LocalUser* user, const Params& parameters)
 		return CmdResult::FAILURE;
 	}
 
-	dest = ServerInstance->Users.FindNick(parameters[userindex]);
-	if ((dest) && (dest->registered == REG_ALL))
+	dest = ServerInstance->Users.FindNick(parameters[userindex], true);
+	if (dest)
 	{
 		/*
 		 * Okay. Umpteenth attempt at doing this, so let's re-comment...

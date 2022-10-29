@@ -44,8 +44,8 @@ CmdResult CommandKline::Handle(User* user, const Params& parameters)
 	if (parameters.size() >= 3)
 	{
 		IdentHostPair ih;
-		auto find = ServerInstance->Users.Find(target);
-		if ((find) && (find->registered == REG_ALL))
+		auto find = ServerInstance->Users.Find(target, true);
+		if (find)
 		{
 			ih.first = find->GetBanIdent();
 			ih.second = find->GetIPString();

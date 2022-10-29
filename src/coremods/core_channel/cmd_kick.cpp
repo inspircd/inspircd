@@ -53,16 +53,16 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 		return CmdResult::SUCCESS;
 
 	if (IS_LOCAL(user))
-		u = ServerInstance->Users.FindNick(parameters[1]);
+		u = ServerInstance->Users.FindNick(parameters[1], true);
 	else
-		u = ServerInstance->Users.Find(parameters[1]);
+		u = ServerInstance->Users.Find(parameters[1], true);
 
 	if (!c)
 	{
 		user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
 		return CmdResult::FAILURE;
 	}
-	if ((!u) || (u->registered != REG_ALL))
+	if (!u)
 	{
 		user->WriteNumeric(Numerics::NoSuchNick(parameters[1]));
 		return CmdResult::FAILURE;

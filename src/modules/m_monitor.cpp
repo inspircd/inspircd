@@ -178,14 +178,6 @@ public:
 		return nullptr;
 	}
 
-	static User* FindNick(const std::string& nick)
-	{
-		auto user = ServerInstance->Users.FindNick(nick);
-		if ((user) && (user->registered == REG_ALL))
-			return user;
-		return nullptr;
-	}
-
 private:
 	typedef std::unordered_map<std::string, Entry, irc::insensitive, irc::StrHashComp> NickHash;
 
@@ -288,7 +280,7 @@ class CommandMonitor final
 			else if (result != IRCv3::Monitor::Manager::WR_OK)
 				continue; // Already added or invalid nick
 
-			ReplyBuilder& out = (IRCv3::Monitor::Manager::FindNick(nick) ? online : offline);
+			ReplyBuilder& out = (ServerInstance->Users.FindNick(nick, true) ? online : offline);
 			out.Add(nick);
 		}
 
@@ -350,7 +342,7 @@ public:
 
 			for (const auto& entry : manager.GetWatched(user))
 			{
-				ReplyBuilder& out = (IRCv3::Monitor::Manager::FindNick(entry->GetNick()) ? online : offline);
+				ReplyBuilder& out = (ServerInstance->Users.FindNick(entry->GetNick(), true) ? online : offline);
 				out.Add(entry->GetNick());
 			}
 

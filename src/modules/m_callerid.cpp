@@ -113,8 +113,8 @@ struct CallerIDExtInfo final
 
 		while (s.GetToken(tok))
 		{
-			auto u = ServerInstance->Users.Find(tok);
-			if ((u) && (u->registered == REG_ALL) && (!u->quitting))
+			auto u = ServerInstance->Users.Find(tok, true);
+			if (u && !u->quitting)
 			{
 				if (dat->accepting.insert(u).second)
 				{
@@ -172,11 +172,11 @@ class CommandAccept final
 
 		User* target;
 		if (!cmdfrom || !IS_LOCAL(cmdfrom))
-			target = ServerInstance->Users.Find(tok);
+			target = ServerInstance->Users.Find(tok, true);
 		else
-			target = ServerInstance->Users.FindNick(tok);
+			target = ServerInstance->Users.FindNick(tok, true);
 
-		if ((!target) || (target->registered != REG_ALL) || (target->quitting))
+		if (target && target->quitting)
 			target = nullptr;
 
 		return std::make_pair(target, !remove);

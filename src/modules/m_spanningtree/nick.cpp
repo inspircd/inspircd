@@ -37,8 +37,8 @@ CmdResult CommandNick::HandleRemote(::RemoteUser* user, Params& params)
 	 * On nick messages, check that the nick doesn't already exist here.
 	 * If it does, perform collision logic.
 	 */
-	auto x = ServerInstance->Users.FindNick(params[0]);
-	if ((x) && (x != user) && (x->registered == REG_ALL))
+	auto x = ServerInstance->Users.FindNick(params[0], true);
+	if (x && x != user)
 	{
 		// 'x' is the already existing user using the same nick as params[0]
 		// 'user' is the user trying to change nick to the in use nick

@@ -192,8 +192,8 @@ private:
 
 	CmdResult HandleUser(LocalUser* source, const std::string& nick)
 	{
-		auto target = ServerInstance->Users.FindNick(nick);
-		if (!target || target->registered != REG_ALL)
+		auto target = ServerInstance->Users.FindNick(nick, true);
+		if (!target)
 		{
 			source->WriteNumeric(Numerics::NoSuchNick(nick));
 			return CmdResult::FAILURE;

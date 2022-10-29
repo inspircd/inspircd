@@ -44,8 +44,8 @@ public:
 
 	void AddNick(const std::string& nickname)
 	{
-		User* const user = ServerInstance->Users.FindNick(nickname);
-		if ((user) && (user->registered == REG_ALL))
+		User* const user = ServerInstance->Users.FindNick(nickname, true);
+		if (user)
 			Add(user->nick);
 	}
 };

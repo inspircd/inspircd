@@ -40,9 +40,8 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		auto dest = ServerInstance->Users.Find(parameters[0]);
-
-		if ((!dest) || (dest->registered != REG_ALL))
+		auto dest = ServerInstance->Users.Find(parameters[0], true);
+		if (!dest)
 		{
 			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			return CmdResult::FAILURE;

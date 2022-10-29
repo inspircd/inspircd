@@ -54,7 +54,7 @@ class CommandWatch final
 
 	static void SendOnlineOffline(LocalUser* user, const std::string& nick, bool show_offline = true)
 	{
-		User* target = IRCv3::Monitor::Manager::FindNick(nick);
+		User* target = ServerInstance->Users.FindNick(nick, true);
 		if (target)
 		{
 			// The away state should only be sent if the client requests away notifications for a nick but 2.0 always sends them so we do that too
@@ -92,7 +92,7 @@ class CommandWatch final
 		if (!manager.Unwatch(user, nick))
 			return;
 
-		User* target = IRCv3::Monitor::Manager::FindNick(nick);
+		User* target = ServerInstance->Users.FindNick(nick, true);
 		if (target)
 			user->WriteNumeric(RPL_WATCHOFF, target->nick, target->ident, target->GetDisplayedHost(), target->nickchanged, "stopped watching");
 		else

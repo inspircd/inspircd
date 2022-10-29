@@ -220,23 +220,23 @@ private:
 			if (targetserver)
 			{
 				// The target is a user on a specific server (e.g. jto@tolsun.oulu.fi).
-				target = ServerInstance->Users.FindNick(parameters[0].substr(0, targetserver - parameters[0].c_str()));
+				target = ServerInstance->Users.FindNick(parameters[0].substr(0, targetserver - parameters[0].c_str()), true);
 				if (target && strcasecmp(target->server->GetPublicName().c_str(), targetserver + 1) != 0)
 					target = nullptr;
 			}
 			else
 			{
 				// If the source is a local user then we only look up the target by nick.
-				target = ServerInstance->Users.FindNick(parameters[0]);
+				target = ServerInstance->Users.FindNick(parameters[0], true);
 			}
 		}
 		else
 		{
 			// Remote users can only specify a nick or UUID as the target.
-			target = ServerInstance->Users.Find(parameters[0]);
+			target = ServerInstance->Users.Find(parameters[0], true);
 		}
 
-		if (!target || target->registered != REG_ALL)
+		if (!target)
 		{
 			// The target user does not exist or is not fully registered.
 			source->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
@@ -361,23 +361,23 @@ public:
 			if (targetserver)
 			{
 				// The target is a user on a specific server (e.g. jto@tolsun.oulu.fi).
-				target = ServerInstance->Users.FindNick(parameters[0].substr(0, targetserver - parameters[0].c_str()));
+				target = ServerInstance->Users.FindNick(parameters[0].substr(0, targetserver - parameters[0].c_str()), true);
 				if (target && strcasecmp(target->server->GetPublicName().c_str(), targetserver + 1) != 0)
 					target = nullptr;
 			}
 			else
 			{
 				// If the source is a local user then we only look up the target by nick.
-				target = ServerInstance->Users.FindNick(parameters[0]);
+				target = ServerInstance->Users.FindNick(parameters[0], true);
 			}
 		}
 		else
 		{
 			// Remote users can only specify a nick or UUID as the target.
-			target = ServerInstance->Users.Find(parameters[0]);
+			target = ServerInstance->Users.Find(parameters[0], true);
 		}
 
-		if (!target || target->registered != REG_ALL || !target->server->IsService())
+		if (!target || !target->server->IsService())
 		{
 			// The target user does not exist, is not fully registered, or is not a service.
 			user->WriteRemoteNumeric(ERR_NOSUCHSERVICE, parameters[0], "No such service");

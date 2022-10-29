@@ -53,13 +53,13 @@ public:
 	{
 		User* u;
 		if (IS_LOCAL(user))
-			u = ServerInstance->Users.FindNick(parameters[0]);
+			u = ServerInstance->Users.FindNick(parameters[0], true);
 		else
 			u = ServerInstance->Users.Find(parameters[0]);
 
 		auto c = ServerInstance->Channels.Find(parameters[1]);
 
-		if ((!c) || (!u) || (u->registered != REG_ALL))
+		if (!c || !u)
 		{
 			if (!c)
 			{

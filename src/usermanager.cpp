@@ -400,18 +400,18 @@ uint64_t UserManager::NextAlreadySentId()
 	return already_sent_id;
 }
 
-User* UserManager::Find(const std::string& nickuuid)
+User* UserManager::Find(const std::string& nickuuid, bool fullyconnected)
 {
 	if (nickuuid.empty())
 		return nullptr;
 
 	if (isdigit(nickuuid[0]))
-		return FindUUID(nickuuid);
+		return FindUUID(nickuuid, fullyconnected);
 
-	return FindNick(nickuuid);
+	return FindNick(nickuuid, fullyconnected);
 }
 
-User* UserManager::FindNick(const std::string& nick)
+User* UserManager::FindNick(const std::string& nick, bool fullyconnected)
 {
 	if (nick.empty())
 		return nullptr;
@@ -420,10 +420,14 @@ User* UserManager::FindNick(const std::string& nick)
 	if (uiter == this->clientlist.end())
 		return nullptr;
 
-	return uiter->second;
+	User* user = uiter->second;
+	if (fullyconnected && !user->IsFullyConnected())
+		return nullptr;
+
+	return user;
 }
 
-User* UserManager::FindUUID(const std::string& uuid)
+User* UserManager::FindUUID(const std::string& uuid, bool fullyconnected)
 {
 	if (uuid.empty())
 		return nullptr;
@@ -432,5 +436,9 @@ User* UserManager::FindUUID(const std::string& uuid)
 	if (uiter == this->uuidlist.end())
 		return nullptr;
 
-	return uiter->second;
+	User* user = uiter->second;
+	if (fullyconnected && !user->IsFullyConnected())
+		return nullptr;
+
+	return user;
 }

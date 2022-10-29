@@ -39,8 +39,8 @@ CmdResult CommandIdle::HandleRemote(RemoteUser* issuer, Params& params)
 	 * the number of seconds 'issuer' has been idle.
 	 */
 
-	auto target = ServerInstance->Users.FindUUID(params[0]);
-	if ((!target) || (target->registered != REG_ALL))
+	auto target = ServerInstance->Users.FindUUID(params[0], true);
+	if (!target)
 		return CmdResult::FAILURE;
 
 	LocalUser* localtarget = IS_LOCAL(target);

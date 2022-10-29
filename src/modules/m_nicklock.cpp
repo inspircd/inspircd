@@ -49,9 +49,8 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		auto target = ServerInstance->Users.Find(parameters[0]);
-
-		if ((!target) || (target->registered != REG_ALL))
+		auto target = ServerInstance->Users.Find(parameters[0], true);
+		if (!target)
 		{
 			user->WriteNotice("*** No such nickname: '" + parameters[0] + "'");
 			return CmdResult::FAILURE;
