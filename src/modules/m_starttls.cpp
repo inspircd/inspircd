@@ -55,7 +55,7 @@ public:
 
 		if (user->IsFullyConnected())
 		{
-			user->WriteNumeric(ERR_STARTTLS, "STARTTLS is not permitted after client registration is complete");
+			user->WriteNumeric(ERR_STARTTLS, "STARTTLS is not permitted once you are fully connected");
 			return CmdResult::FAILURE;
 		}
 
@@ -70,7 +70,7 @@ public:
 		 * otherwise we'll be sending this line inside the TLS session - which
 		 * won't start its handshake until the client gets this line. Currently,
 		 * we assume the write will not block here; this is usually safe, as
-		 * STARTTLS is sent very early on in the registration phase, where the
+		 * STARTTLS is sent very early on in the connection phase, where the
 		 * user hasn't built up much sendq. Handling a blocked write here would
 		 * be very annoying.
 		 */

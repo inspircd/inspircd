@@ -95,7 +95,7 @@ public:
 
 	void OnChangeRealName(User* user, const std::string& real) override
 	{
-		if (!(user->registered & REG_NICKUSER))
+		if (!(user->connected & User::CONN_NICKUSER))
 			return;
 
 		ClientProtocol::Message msg("SETNAME", user);

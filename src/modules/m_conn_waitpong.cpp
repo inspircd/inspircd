@@ -57,7 +57,7 @@ public:
 		}
 
 		if(sendsnotice)
-			user->WriteNotice("*** If you are having problems connecting due to registration timeouts type /quote PONG " + pingrpl + " or /raw PONG " + pingrpl + " now.");
+			user->WriteNotice("*** If you are having problems connecting due to connection timeouts type /quote PONG " + pingrpl + " or /raw PONG " + pingrpl + " now.");
 
 		ext.Set(user, pingrpl);
 		return MOD_RES_PASSTHRU;
@@ -79,7 +79,7 @@ public:
 				else
 				{
 					if(killonbadreply)
-						ServerInstance->Users.QuitUser(user, "Incorrect ping reply for registration");
+						ServerInstance->Users.QuitUser(user, "Incorrect ping reply for connection");
 					return MOD_RES_DENY;
 				}
 			}

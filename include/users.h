@@ -39,21 +39,6 @@
 #include "mode.h"
 #include "membership.h"
 
-/** Registration state of a user, e.g.
- * have they sent USER, NICK, PASS yet?
- */
-enum RegistrationState {
-
-#ifndef _WIN32   // Burlex: This is already defined in win32, luckily it is still 0.
-	REG_NONE = 0,		/* Has sent nothing */
-#endif
-
-	REG_USER = 1,		/* Has sent USER */
-	REG_NICK = 2,		/* Has sent NICK */
-	REG_NICKUSER = 3,	/* Bitwise combination of REG_NICK and REG_USER */
-	REG_ALL = 7			/* REG_NICKUSER plus next bit along */
-};
-
 /** Represents \<connect> class tags from the server config */
 class CoreExport ConnectClass final
 {
@@ -135,8 +120,8 @@ public:
 	/** The maximum number of bytes that users in this class can have in their receive queue before they are disconnected. */
 	unsigned long recvqmax = 4096UL;
 
-	/** The number of seconds that connecting users have to register within in this class. */
-	unsigned long registration_timeout = 90UL;
+	/** The number of seconds that connecting users have to fully connect within in this class. */
+	unsigned long connection_timeout = 90UL;
 
 	/** The maximum number of bytes that users in this class can have in their send queue before their commands stop being processed. */
 	unsigned long softsendqmax = 4096UL;
@@ -220,6 +205,26 @@ public:
 		virtual void Execute(LocalUser* user) = 0;
 	};
 
+	/** Represents the state of a connection to the server. */
+	enum ConnectionState
+		: uint8_t
+	{
+		/** The user has not sent any commands. */
+		CONN_NONE = 0,
+
+		/** The user has sent the NICK command. */
+		CONN_NICK = 1,
+
+		/** The user has sent the USER command. */
+		CONN_USER = 2,
+
+		/** The user has sent both the NICK and USER commands and is waiting to be fully connected. */
+		CONN_NICKUSER = CONN_NICK | CONN_USER,
+
+		/** The user has sent both the NICK and USER commands and is fully connected */
+		CONN_FULL = 7,
+	};
+
 	/** An enumeration of all possible types of user. */
 	enum Type
 		: uint8_t
@@ -254,7 +259,6 @@ public:
 	irc::sockets::sockaddrs client_sa;
 
 	/** The users nickname.
-	 * An invalid nickname indicates an unregistered connection prior to the NICK command.
 	 * Use InspIRCd::IsNick() to validate nicknames.
 	 */
 	std::string nick;
@@ -296,11 +300,8 @@ public:
 	 */
 	std::shared_ptr<OperInfo> oper;
 
-	/** Used by User to indicate the registration status of the connection
-	 * It is a bitfield of the REG_NICK, REG_USER and REG_ALL bits to indicate
-	 * the connection state.
-	 */
-	unsigned int registered:3;
+	/** The connection state of the user. */
+	unsigned int connected:3;
 
 	/** If this is set to true, then all socket operations for the user
 	 * are dropped into the bit-bucket.
@@ -560,7 +561,7 @@ public:
 	Cullable::Result Cull() override;
 
 	/** Determines whether this user is fully connected to the server .*/
-	inline bool IsFullyConnected() const { return registered == REG_ALL; }
+	inline bool IsFullyConnected() const { return connected == CONN_FULL; }
 };
 
 class CoreExport UserIOHandler final
@@ -638,7 +639,7 @@ public:
 	 */
 	unsigned int cmds_out = 0;
 
-	/** Password specified by the user when they registered (if any).
+	/** Password specified by the user when they connected (if any).
 	 * This is stored even if the \<connect> block doesnt need a password, so that
 	 * modules may check it.
 	 */
@@ -738,9 +739,9 @@ public:
 	/** @copydoc User::HasSnomaskPermission */
 	bool HasSnomaskPermission(char chr) const override;
 
-	/** Change nick to uuid, unset REG_NICK and send a nickname overruled numeric.
+	/** Change nick to uuid, unset CONN_NICK and send a nickname overruled numeric.
 	 * This is called when another user (either local or remote) needs the nick of this user and this user
-	 * isn't registered.
+	 * isn't fully connected.
 	 */
 	void OverruleNick();
 

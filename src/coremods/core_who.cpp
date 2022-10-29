@@ -258,7 +258,7 @@ bool CommandWho::MatchChannel(LocalUser* source, Membership* memb, WhoData& data
 
 bool CommandWho::MatchUser(LocalUser* source, User* user, WhoData& data)
 {
-	// Users who are not fully registered can never match.
+	// Users who are not fully connected can never match.
 	if (!user->IsFullyConnected())
 		return false;
 

@@ -271,11 +271,11 @@ public:
 	 */
 	virtual void TellNotEnoughParameters(LocalUser* user, const Params& parameters);
 
-	/** Tells the user they need to be registered to execute this command.
+	/** Tells the user they need to be fully connected to execute this command.
 	 * @param user The user who issued the command.
 	 * @param parameters The parameters for the command.
 	 */
-	virtual void TellNotRegistered(LocalUser* user, const Params& parameters);
+	virtual void TellNotFullyConnected(LocalUser* user, const Params& parameters);
 };
 
 class CoreExport SplitCommand

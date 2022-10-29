@@ -66,7 +66,7 @@ public:
 	TagMessage(User* source, const User* targetuser, const ClientProtocol::TagMap& Tags)
 		: ClientProtocol::Message("TAGMSG", source)
 	{
-		if (targetuser->registered & REG_NICK)
+		if (targetuser->connected & User::CONN_NICK)
 			PushParamRef(targetuser->nick);
 		else
 			PushParam("*");

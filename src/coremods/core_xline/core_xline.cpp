@@ -145,7 +145,7 @@ public:
 		if (!xline)
 			return MOD_RES_PASSTHRU; // No match
 
-		// A Q-line matched the new nick, tell opers if the user is registered
+		// A Q-line matched the new nick, tell opers if the user is fully connected
 		if (user->IsFullyConnected())
 		{
 			ServerInstance->SNO.WriteGlobalSno('x', "Q-lined nickname %s from %s: %s",

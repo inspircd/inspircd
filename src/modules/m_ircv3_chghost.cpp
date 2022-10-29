@@ -30,7 +30,7 @@ class ModuleIRCv3ChgHost final
 
 	void DoChgHost(User* user, const std::string& ident, const std::string& host)
 	{
-		if (!(user->registered & REG_NICKUSER))
+		if (!(user->connected & User::CONN_NICKUSER))
 			return;
 
 		ClientProtocol::Message msg("CHGHOST", user);

@@ -160,9 +160,7 @@ public:
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
 	{
-		/* If they're not registered yet, we dont want
-		 * to know.
-		 */
+		// If they're not fully connected yet, we dont want to know.
 		if (!user->IsFullyConnected())
 			return MOD_RES_PASSTHRU;
 

@@ -43,11 +43,10 @@ public:
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
-		// Check to make sure they haven't registered -- Fix by FCS
 		if (user->IsFullyConnected())
 		{
 			user->CommandFloodPenalty += 1000;
-			user->WriteNumeric(ERR_ALREADYREGISTERED, "You may not reregister");
+			user->WriteNumeric(ERR_ALREADYREGISTERED, "You may not resend the PASS command");
 			return CmdResult::FAILURE;
 		}
 		user->password = parameters[0];

@@ -59,7 +59,7 @@ public:
 
 		auto dest = ServerInstance->Users.Find(parameters[0]);
 
-		// Allow services to change the host of unregistered users
+		// Allow services to change the host of partially connected users.
 		if (!dest || (!dest->IsFullyConnected() && !user->server->IsService()))
 		{
 			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));

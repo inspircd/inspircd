@@ -91,7 +91,7 @@ User::User(const std::string& uid, Server* srv, Type type)
 	, nickchanged(ServerInstance->Time())
 	, uuid(uid)
 	, server(srv)
-	, registered(REG_NONE)
+	, connected(CONN_NONE)
 	, quitting(false)
 	, uniqueusername(false)
 	, usertype(type)
@@ -566,15 +566,15 @@ void LocalUser::FullConnect()
 		return;
 
 	/*
-	 * We don't set REG_ALL until triggering OnUserConnect, so some module events don't spew out stuff
+	 * We don't set CONN_FULL until triggering OnUserConnect, so some module events don't spew out stuff
 	 * for a user that doesn't exist yet.
 	 */
 	FOREACH_MOD(OnUserConnect, (this));
 
-	/* Now registered */
-	if (ServerInstance->Users.unregistered_count)
-		ServerInstance->Users.unregistered_count--;
-	this->registered = REG_ALL;
+	// The user is now fully connected.
+	if (ServerInstance->Users.unknown_count)
+		ServerInstance->Users.unknown_count--;
+	this->connected = CONN_FULL;
 
 	FOREACH_MOD(OnPostConnect, (this));
 
@@ -671,7 +671,7 @@ void LocalUser::OverruleNick()
 	this->WriteNumeric(ERR_NICKNAMEINUSE, this->nick, "Nickname overruled.");
 
 	// Clear the bit before calling ChangeNick() to make it NOT run the OnUserPostNick() hook
-	this->registered &= ~REG_NICK;
+	this->connected &= ~CONN_NICK;
 	this->ChangeNick(this->uuid);
 }
 
@@ -998,7 +998,7 @@ bool User::ChangeDisplayedHost(const std::string& shost)
 
 	this->InvalidateCache();
 
-	if (IS_LOCAL(this) && this->registered != REG_NONE)
+	if (IS_LOCAL(this) && connected != User::CONN_NONE)
 		this->WriteNumeric(RPL_YOURDISPLAYEDHOST, this->GetDisplayedHost(), "is now your displayed host");
 
 	return true;
@@ -1105,11 +1105,11 @@ void LocalUser::SetClass(const std::string& explicit_name)
 				continue;
 			}
 
-			bool regdone = (registered != REG_NONE);
-			if (c->config->getBool("registered", regdone) != regdone)
+			bool conndone = connected != User::CONN_NONE;
+			if (c->config->getBool("connected", c->config->getBool("registered", conndone)) != conndone)
 			{
 				ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires that the user is %s",
-						c->GetName().c_str(), regdone ? "not fully connected" : "fully connected");
+						c->GetName().c_str(), conndone ? "not fully connected" : "fully connected");
 				continue;
 			}
 
@@ -1150,7 +1150,7 @@ void LocalUser::SetClass(const std::string& explicit_name)
 				continue;
 			}
 
-			if (regdone && !c->password.empty() && !ServerInstance->PassCompare(this, c->password, password, c->passwordhash))
+			if (conndone && !c->password.empty() && !ServerInstance->PassCompare(this, c->password, password, c->passwordhash))
 			{
 				ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as requires a password and %s",
 					c->GetName().c_str(), password.empty() ? "one was not provided" : "the provided password was incorrect");
@@ -1273,7 +1273,7 @@ void ConnectClass::Configure(const std::string& classname, std::shared_ptr<Confi
 	penaltythreshold = tag->getUInt("threshold", penaltythreshold, 1);
 	pingtime = tag->getDuration("pingfreq", pingtime);
 	recvqmax = tag->getUInt("recvq", recvqmax, ServerInstance->Config->Limits.MaxLine);
-	registration_timeout = tag->getDuration("timeout", registration_timeout);
+	connection_timeout = tag->getDuration("timeout", connection_timeout);
 	resolvehostnames = tag->getBool("resolvehostnames", resolvehostnames);
 	softsendqmax = tag->getUInt("softsendq", softsendqmax, ServerInstance->Config->Limits.MaxLine);
 	uniqueusername = tag->getBool("uniqueusername", uniqueusername);
@@ -1299,7 +1299,7 @@ void ConnectClass::Update(const ConnectClass::Ptr src)
 	pingtime = src->pingtime;
 	ports = src->ports;
 	recvqmax = src->recvqmax;
-	registration_timeout = src->registration_timeout;
+	connection_timeout = src->connection_timeout;
 	resolvehostnames = src->resolvehostnames;
 	softsendqmax = src->softsendqmax;
 	type = src->type;

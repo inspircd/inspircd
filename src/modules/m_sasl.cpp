@@ -443,7 +443,7 @@ public:
 
 	void OnUserConnect(LocalUser* user) override
 	{
-		// If the client completes registration (with CAP END, NICK, USER and
+		// If the client completes connection (with CAP END, NICK, USER and
 		// any other necessary messages) while the SASL authentication is still
 		// in progress, the server SHOULD abort it and send a 906 numeric, then
 		// register the client without authentication.

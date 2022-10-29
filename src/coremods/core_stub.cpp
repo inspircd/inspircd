@@ -40,7 +40,7 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		if (user->registered == REG_NONE)
+		if (user->connected == User::CONN_NONE)
 		{
 			// The CAPAB command is used in the server protocol for negotiating
 			// the protocol version when initiating a server connection. There

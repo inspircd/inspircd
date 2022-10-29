@@ -25,7 +25,7 @@
 
 namespace DieRestart
 {
-	/** Send an ERROR to unregistered users and a NOTICE to all registered local users
+	/** Send an ERROR to partially connected users and a NOTICE to fully connected users
 	 * @param message Message to send
 	 */
 	void SendError(const std::string& message);

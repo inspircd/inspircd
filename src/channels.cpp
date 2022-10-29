@@ -174,7 +174,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 {
 	if (!user->IsFullyConnected())
 	{
-		ServerInstance->Logs.Debug("CHANNELS", "Attempted to join unregistered user " + user->uuid + " to channel " + cname);
+		ServerInstance->Logs.Debug("CHANNELS", "Attempted to join partially connected user " + user->uuid + " to channel " + cname);
 		return nullptr;
 	}
 

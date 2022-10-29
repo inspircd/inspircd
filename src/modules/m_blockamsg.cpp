@@ -77,7 +77,7 @@ public:
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
 	{
-		// Don't do anything with unregistered users
+		// Don't do anything with partially connected users
 		if (!user->IsFullyConnected())
 			return MOD_RES_PASSTHRU;
 

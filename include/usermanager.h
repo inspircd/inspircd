@@ -82,11 +82,11 @@ public:
 	 */
 	~UserManager();
 
-	/** Nickname string -> User* map. Contains all users, including unregistered ones.
+	/** Nickname string -> User* map. Contains all users, including partially connected ones.
 	 */
 	UserMap clientlist;
 
-	/** UUID -> User* map. Contains all users, including unregistered ones.
+	/** UUID -> User* map. Contains all users, including partially connected ones.
 	 */
 	UserMap uuidlist;
 
@@ -97,19 +97,17 @@ public:
 	/** A list of users on services servers. */
 	ServiceList all_services;
 
-	/** Number of unregistered users online right now.
-	 * (Unregistered means before USER/NICK/dns)
-	 */
-	size_t unregistered_count = 0;
+	/** Number of local unknown (not fully connected) users. */
+	size_t unknown_count = 0;
 
-	/** Perform background user events for all local users such as PING checks, registration timeouts,
+	/** Perform background user events for all local users such as PING checks, connection timeouts,
 	 * penalty management and recvq processing for users who have data in their recvq due to throttling.
 	 */
 	void DoBackgroundUserStuff();
 
 	/** Handle a client connection.
 	 * Creates a new LocalUser object, inserts it into the appropriate containers,
-	 * initializes it as not yet registered, and adds it to the socket engine.
+	 * initializes it as not fully connected, and adds it to the socket engine.
 	 *
 	 * The new user may immediately be quit after being created, for example if the user limit
 	 * is reached or if the user is banned.
@@ -135,7 +133,7 @@ public:
 
 	/** Remove all clone counts from the user, you should
 	 * use this if you change the user's IP address
-	 * after they have registered.
+	 * after they have fully connected.
 	 * @param user The user to remove
 	 */
 	void RemoveCloneCounts(User* user);
@@ -157,25 +155,25 @@ public:
 	 */
 	const CloneMap& GetCloneMap() const { return clonemap; }
 
-	/** Return a count of fully registered connections on the network
-	 * @return The number of registered users on the network
+	/** Return a count of local unknown (not fully connected) users.
+	 * @return The number of local unknown (not fully connected) users.
 	 */
-	size_t RegisteredUserCount() { return this->clientlist.size() - this->UnregisteredUserCount() - this->ServiceCount(); }
-
-	/** Return a count of local unregistered (before NICK/USER) users
-	 * @return The number of local unregistered (unknown) connections
-	 */
-	size_t UnregisteredUserCount() const { return this->unregistered_count; }
+	size_t UnknownUserCount() const { return this->unknown_count; }
 
 	/** Return a count of users on a services servers.
 	 * @return The number of users on services servers.
 	 */
 	size_t ServiceCount() const { return this->all_services.size(); }
 
-	/** Return a count of local registered users
-	 * @return The number of registered local users
+	/** Return a count of fully connected connections on this server.
+	 * @return The number of fully connected users on this server.
 	 */
-	size_t LocalUserCount() const { return (this->local_users.size() - this->UnregisteredUserCount()); }
+	size_t LocalUserCount() const { return this->local_users.size() - this->UnknownUserCount(); }
+
+	/** Return a count of fully connected connections on the network.
+	 * @return The number of fully connected users on the network.
+	 */
+	size_t GlobalUserCount() const { return this->clientlist.size() - this->UnknownUserCount() - this->ServiceCount(); }
 
 	/** Get a hash map containing all users, keyed by their nickname
 	 * @return A hash map mapping nicknames to User pointers

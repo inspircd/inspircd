@@ -314,7 +314,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 	if (!user->IsFullyConnected() && !handler->works_before_reg)
 	{
 		user->CommandFloodPenalty += failpenalty;
-		handler->TellNotRegistered(user, command_p);
+		handler->TellNotFullyConnected(user, command_p);
 		FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 	}
 	else

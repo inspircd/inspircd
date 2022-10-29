@@ -119,7 +119,7 @@ public:
 	CommandUser(Module* parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 
-	/** Run the OnUserRegister hook if the user has sent both NICK and USER. Called after an unregistered user
+	/** Run the OnUserRegister hook if the user has sent both NICK and USER. Called after a partially connected user
 	 * successfully executes the USER or the NICK command.
 	 * @param user User to inspect and possibly pass to the OnUserRegister hook
 	 * @return CmdResult::FAILURE if OnUserRegister was called and it returned MOD_RES_DENY, CmdResult::SUCCESS in every other case

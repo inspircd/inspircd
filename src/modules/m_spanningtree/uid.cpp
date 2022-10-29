@@ -51,14 +51,14 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	auto collideswith = ServerInstance->Users.FindNick(params[2]);
 	if (collideswith && !collideswith->IsFullyConnected())
 	{
-		// User that the incoming user is colliding with is not fully registered, we force nick change the
-		// unregistered user to their uuid and tell them what happened
+		// User that the incoming user is colliding with is not fully connected, we force nick change the
+		// partially connected user to their uuid and tell them what happened
 		LocalUser* const localuser = static_cast<LocalUser*>(collideswith);
 		localuser->OverruleNick();
 	}
 	else if (collideswith)
 	{
-		// The user on this side is registered, handle the collision
+		// The user on this side is fully connected, handle the collision
 		bool they_change = Utils->DoCollision(collideswith, remoteserver, nickchanged, params[5], params[6], params[0], "UID");
 		if (they_change)
 		{
@@ -85,7 +85,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	_new->ident = params[5];
 	_new->ChangeRemoteAddress(sa);
 	_new->ChangeRealName(params.back());
-	_new->registered = REG_ALL;
+	_new->connected = User::CONN_FULL;
 	_new->signon = signon;
 	_new->nickchanged = nickchanged;
 

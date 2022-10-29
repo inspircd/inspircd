@@ -47,7 +47,7 @@ struct LusersCounters final
 
 	LusersCounters(UserModeReference& invisiblemode)
 		: max_local(ServerInstance->Users.LocalUserCount())
-		, max_global(ServerInstance->Users.RegisteredUserCount())
+		, max_global(ServerInstance->Users.GlobalUserCount())
 	{
 		for (const auto& [_, u] : ServerInstance->Users.GetUsers())
 		{
@@ -62,7 +62,7 @@ struct LusersCounters final
 		if (current > max_local)
 			max_local = current;
 
-		current = ServerInstance->Users.RegisteredUserCount();
+		current = ServerInstance->Users.GlobalUserCount();
 		if (current > max_global)
 			max_global = current;
 	}
@@ -86,7 +86,7 @@ public:
 
 CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 {
-	size_t n_users = ServerInstance->Users.RegisteredUserCount();
+	size_t n_users = ServerInstance->Users.GlobalUserCount();
 	ProtocolInterface::ServerList serverlist;
 	ServerInstance->PI->GetServerList(serverlist);
 	size_t n_serv = serverlist.size();
@@ -110,8 +110,8 @@ CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 	if (opercount)
 		user->WriteNumeric(RPL_LUSEROP, opercount, "operator(s) online");
 
-	if (ServerInstance->Users.UnregisteredUserCount())
-		user->WriteNumeric(RPL_LUSERUNKNOWN, ServerInstance->Users.UnregisteredUserCount(), "unknown connections");
+	if (ServerInstance->Users.UnknownUserCount())
+		user->WriteNumeric(RPL_LUSERUNKNOWN, ServerInstance->Users.UnknownUserCount(), "unknown connections");
 
 	user->WriteNumeric(RPL_LUSERCHANNELS, ServerInstance->Channels.GetChans().size(), "channels formed");
 	user->WriteNumeric(RPL_LUSERME, InspIRCd::Format("I have %zu clients and %zu servers", ServerInstance->Users.LocalUserCount(), n_local_servs));

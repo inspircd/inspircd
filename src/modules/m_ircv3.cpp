@@ -146,7 +146,7 @@ public:
 
 	void OnAccountChange(User* user, const std::string& newaccount) override
 	{
-		if (!(user->registered & REG_NICKUSER))
+		if (!(user->connected & User::CONN_NICKUSER))
 			return;
 
 		// Logged in: 1 parameter which is the account name

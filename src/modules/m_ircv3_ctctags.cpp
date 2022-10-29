@@ -133,7 +133,7 @@ private:
 			message.SetSideEffect(true);
 			for (auto* luser : ServerInstance->Users.GetLocalUsers())
 			{
-				// Don't send to unregistered users or the user who is the source.
+				// Don't send to partially connected users or the user who is the source.
 				if (!luser->IsFullyConnected() || luser == source)
 					continue;
 
@@ -185,7 +185,7 @@ private:
 
 		if (!target)
 		{
-			// The target user does not exist or is not fully registered.
+			// The target user does not exist or is not fully connected.
 			source->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			return CmdResult::FAILURE;
 		}

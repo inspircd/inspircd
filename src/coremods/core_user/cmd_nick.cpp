@@ -92,9 +92,9 @@ CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 	if (!user->ChangeNick(newnick))
 		return CmdResult::FAILURE;
 
-	if (user->registered < REG_NICKUSER)
+	if (user->connected < User::CONN_NICKUSER)
 	{
-		user->registered = (user->registered | REG_NICK);
+		user->connected |= User::CONN_NICK;
 		return CommandUser::CheckRegister(user);
 	}
 

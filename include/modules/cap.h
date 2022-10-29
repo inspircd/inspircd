@@ -342,7 +342,7 @@ namespace Cap
 
 		void SetUser(LocalUser* user)
 		{
-			if (user->registered & REG_NICK)
+			if (user->connected & User::CONN_NICK)
 				ReplaceParamRef(0, user->nick);
 			else
 				ReplaceParam(0, "*");

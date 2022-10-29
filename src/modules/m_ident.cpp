@@ -28,7 +28,7 @@
 
 enum
 {
-	// Either the ident lookup has not started yet or the user is registered.
+	// Either the ident lookup has not started yet or the user is fully connected.
 	IDENT_UNKNOWN = 0,
 
 	// Ident lookups are not enabled and a user has been marked as being skipped.
@@ -380,7 +380,7 @@ public:
 		}
 		else if (!isock->HasResult())
 		{
-			// time still good, no result yet... hold the registration
+			// time still good, no result yet... hold the connection
 			return MOD_RES_DENY;
 		}
 

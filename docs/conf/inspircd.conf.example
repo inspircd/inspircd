@@ -221,11 +221,11 @@
 #                                                                     #
 # Connect blocks are searched twice for each user - once when the TCP #
 # connection is accepted, and once when the user completes their      #
-# registration. Most of the information (hostname, ident response,    #
+# connection. Most of the information (hostname, ident response,      #
 # password, TLS when using STARTTLS, etc) is only available during    #
 # the second search. If you are trying to make a closed server you    #
-# will probably need a connect block just for user registration. This #
-# can be done by using <connect registered="no">                      #
+# will probably need a connect block just for user connection. This   #
+# can be done by using <connect connected="no">                       #
 
 # To enable IRCCloud on your network uncomment this:
 #<include file="examples/providers/irccloud.conf.example">

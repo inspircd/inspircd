@@ -127,7 +127,7 @@ void ISupportManager::Build()
 	{
 		for (LocalUser* user : ServerInstance->Users.GetLocalUsers())
 		{
-			if (!(user->registered & REG_ALL))
+			if (!(user->connected & User::CONN_FULL))
 				continue; // User hasn't received 005 yet.
 
 			auto numerics = diffnumerics.find(user->GetClass());

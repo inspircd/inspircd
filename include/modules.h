@@ -301,7 +301,7 @@ public:
 
 	/** Called when before a user quits.
 	 * The details of the exiting user are available to you in the parameter User* user
-	 * This event is only called when the user is fully registered when they quit. To catch
+	 * This event is only called when the user is fully connected when they quit. To catch
 	 * raw disconnections, use the OnUserDisconnect method.
 	 * @param user The user who is quitting
 	 * @param message The user's quit message (as seen by non-opers)
@@ -311,7 +311,7 @@ public:
 
 	/** Called when a user quits.
 	 * The details of the exiting user are available to you in the parameter User* user
-	 * This event is only called when the user is fully registered when they quit. To catch
+	 * This event is only called when the user is fully connected when they quit. To catch
 	 * raw disconnections, use the OnUserDisconnect method.
 	 * @param user The user who is quitting
 	 * @param message The user's quit message (as seen by non-opers)
@@ -754,7 +754,7 @@ public:
 	 * If any modules return false for this function, the user is held in the waiting
 	 * state until all modules return true. For example a module which implements ident
 	 * lookups will continue to return false for a user until their ident lookup is completed.
-	 * Note that the registration timeout for a user overrides these checks, if the registration
+	 * Note that the connection timeout for a user overrides these checks, if the connection
 	 * timeout is reached, the user is disconnected even if modules report that the user is
 	 * not ready to connect.
 	 * @param user The user to check

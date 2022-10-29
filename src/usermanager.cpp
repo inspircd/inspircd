@@ -80,13 +80,13 @@ namespace
 		user->nextping = ServerInstance->Time() + user->GetClass()->pingtime;
 	}
 
-	void CheckRegistrationTimeout(LocalUser* user)
+	void CheckConnectionTimeout(LocalUser* user)
 	{
-		if (user->GetClass() && (ServerInstance->Time() > static_cast<time_t>(user->signon + user->GetClass()->registration_timeout)))
+		if (user->GetClass() && (ServerInstance->Time() > static_cast<time_t>(user->signon + user->GetClass()->connection_timeout)))
 		{
-			// Either the user did not send NICK/USER or a module blocked registration in
+			// Either the user did not send NICK/USER or a module blocked connection in
 			// OnCheckReady until the client timed out.
-			ServerInstance->Users.QuitUser(user, "Registration timeout");
+			ServerInstance->Users.QuitUser(user, "Connection timeout");
 		}
 	}
 
@@ -104,7 +104,7 @@ namespace
 		// If the user has been quit in OnCheckReady then we shouldn't quit
 		// them again for having a registration timeout.
 		if (!user->quitting)
-			CheckRegistrationTimeout(user);
+			CheckConnectionTimeout(user);
 	}
 }
 
@@ -127,7 +127,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 
 	ServerInstance->Logs.Debug("USERS", "New user fd: %d", socket);
 
-	this->unregistered_count++;
+	this->unknown_count++;
 	this->clientlist[New->nick] = New;
 	this->AddClone(New);
 	this->local_users.push_front(New);
@@ -283,7 +283,7 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 		WriteCommonQuit(user, quitmsg, operquitmsg);
 	}
 	else
-		unregistered_count--;
+		unknown_count--;
 
 	if (IS_LOCAL(user))
 	{
@@ -351,7 +351,7 @@ const UserManager::CloneCounts& UserManager::GetCloneCounts(User* user) const
 /**
  * This function is called once a second from the mainloop.
  * It is intended to do background checking on all the users, e.g. do
- * ping checks, registration timeouts, etc.
+ * ping checks, connection timeouts, etc.
  */
 void UserManager::DoBackgroundUserStuff()
 {
@@ -371,18 +371,18 @@ void UserManager::DoBackgroundUserStuff()
 			curr->eh.OnDataReady();
 		}
 
-		switch (curr->registered)
+		switch (curr->connected)
 		{
-			case REG_ALL:
+			case User::CONN_FULL:
 				CheckPingTimeout(curr);
 				break;
 
-			case REG_NICKUSER:
+			case User::CONN_NICKUSER:
 				CheckModulesReady(curr);
 				break;
 
 			default:
-				CheckRegistrationTimeout(curr);
+				CheckConnectionTimeout(curr);
 				break;
 		}
 	}

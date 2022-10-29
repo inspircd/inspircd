@@ -52,7 +52,7 @@ void DieRestart::SendError(const std::string& message)
 		}
 		else
 		{
-			// Unregistered connections receive ERROR, not a NOTICE
+			// Partially connected users receive ERROR, not a NOTICE
 			user->Send(errorevent);
 		}
 	}

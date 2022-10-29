@@ -44,7 +44,7 @@ CommandUser::CommandUser(Module* parent)
 CmdResult CommandUser::HandleLocal(LocalUser* user, const Params& parameters)
 {
 	/* A user may only send the USER command once */
-	if (!(user->registered & REG_USER))
+	if (!(user->connected & User::CONN_USER))
 	{
 		if (!ServerInstance->IsIdent(parameters[0]))
 		{
@@ -55,12 +55,12 @@ CmdResult CommandUser::HandleLocal(LocalUser* user, const Params& parameters)
 		{
 			user->ChangeIdent(parameters[0]);
 			user->ChangeRealName(parameters[3]);
-			user->registered = (user->registered | REG_USER);
+			user->connected |= User::CONN_USER;
 		}
 	}
 	else
 	{
-		user->WriteNumeric(ERR_ALREADYREGISTERED, "You may not reregister");
+		user->WriteNumeric(ERR_ALREADYREGISTERED, "You may not resend the USER command");
 		user->CommandFloodPenalty += 1000;
 		return CmdResult::FAILURE;
 	}
@@ -71,9 +71,10 @@ CmdResult CommandUser::HandleLocal(LocalUser* user, const Params& parameters)
 
 CmdResult CommandUser::CheckRegister(LocalUser* user)
 {
-	// If the user is registered, return CmdResult::SUCCESS/CmdResult::FAILURE depending on what modules say, otherwise just
-	// return CmdResult::SUCCESS without doing anything, knowing the other handler will call us again
-	if (user->registered == REG_NICKUSER)
+	// If the user is fully connected, return CmdResult::SUCCESS/CmdResult::FAILURE depending on
+	// what modules say, otherwise just return CmdResult::SUCCESS without doing anything, knowing
+	// the other handler will call us again
+	if (user->connected == User::CONN_NICKUSER)
 	{
 		ModResult MOD_RESULT;
 		FIRST_MOD_RESULT(OnUserRegister, MOD_RESULT, (user));

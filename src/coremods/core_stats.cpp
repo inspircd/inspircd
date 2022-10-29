@@ -161,7 +161,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 			{
 				for (const auto& host : c->GetHosts())
 					stats.AddRow(215, 'i', "NOMATCH", '*', host, (c->limit ? c->limit : SocketEngine::GetMaxFds()), idx, ServerInstance->Config->ServerName, '*');
-				stats.AddRow(218, 'Y', idx, c->pingtime, '0', c->hardsendqmax, ConvToStr(c->recvqmax) + " " + ConvToStr(c->registration_timeout));
+				stats.AddRow(218, 'Y', idx, c->pingtime, '0', c->hardsendqmax, ConvToStr(c->recvqmax) + " " + ConvToStr(c->connection_timeout));
 				idx++;
 			}
 		}

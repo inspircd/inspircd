@@ -76,9 +76,9 @@ void Command::TellNotEnoughParameters(LocalUser* user, const Params& parameters)
 	}
 }
 
-void Command::TellNotRegistered(LocalUser* user, const Params& parameters)
+void Command::TellNotFullyConnected(LocalUser* user, const Params& parameters)
 {
-	user->WriteNumeric(ERR_NOTREGISTERED, name, "You have not registered.");
+	user->WriteNumeric(ERR_NOTREGISTERED, name, "You must be fully connected to use this command.");
 }
 
 SplitCommand::SplitCommand(Module* me, const std::string& cmd, unsigned int minpara, unsigned int maxpara)

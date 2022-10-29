@@ -196,7 +196,7 @@ private:
 
 			for (auto* luser : ServerInstance->Users.GetLocalUsers())
 			{
-				// Don't send to unregistered users or the user who is the source.
+				// Don't send to partially connected users or the user who is the source.
 				if (!luser->IsFullyConnected() || luser == source)
 					continue;
 
@@ -238,7 +238,7 @@ private:
 
 		if (!target)
 		{
-			// The target user does not exist or is not fully registered.
+			// The target user does not exist or is not fully connected.
 			source->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			return CmdResult::FAILURE;
 		}
@@ -379,7 +379,7 @@ public:
 
 		if (!target || !target->server->IsService())
 		{
-			// The target user does not exist, is not fully registered, or is not a service.
+			// The target user does not exist, is not fully connected, or is not a service.
 			user->WriteRemoteNumeric(ERR_NOSUCHSERVICE, parameters[0], "No such service");
 			return CmdResult::FAILURE;
 		}

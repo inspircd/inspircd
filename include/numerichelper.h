@@ -69,14 +69,14 @@ public:
 	CannotSendTo(User* user, const std::string& message)
 		: Numeric(ERR_CANNOTSENDTOUSER)
 	{
-		push(user->registered & REG_NICK ? user->nick : "*");
+		push(user->connected & User::CONN_NICK ? user->nick : "*");
 		push(message);
 	}
 
 	CannotSendTo(User* user, const std::string& what, ModeHandler* mh, bool self = false)
 		: Numeric(ERR_CANNOTSENDTOUSER)
 	{
-		push(user->registered & REG_NICK ? user->nick : "*");
+		push(user->connected & User::CONN_NICK ? user->nick : "*");
 		push(InspIRCd::Format("You cannot send %s to this user whilst %s have the +%c (%s) mode set.",
 			what.c_str(), self ? "you" : "they", mh->GetModeChar(), mh->name.c_str()));
 	}
@@ -139,7 +139,7 @@ public:
 	InvalidModeParameter(User* user, ModeHandler* mode, const std::string& parameter, const std::string& message = "")
 		: Numeric(ERR_INVALIDMODEPARAM)
 	{
-		push(user->registered & REG_NICK ? user->nick : "*");
+		push(user->connected & User::CONN_NICK ? user->nick : "*");
 		push(mode->GetModeChar());
 		push(parameter);
 		push_message(mode, message);

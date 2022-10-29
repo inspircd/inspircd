@@ -67,12 +67,12 @@ class ClientProtocol::Messages::Numeric
 public:
 	/** Constructor, target is a User.
 	 * @param num Numeric object to send. Must remain valid as long as this object is alive and must not be modified.
-	 * @param user User to send the numeric to. May be unregistered, must remain valid as long as this object is alive.
+	 * @param user User to send the numeric to. May be partially connected, must remain valid as long as this object is alive.
 	 */
 	Numeric(const ::Numeric::Numeric& num, User* user)
 		: ClientProtocol::Message(nullptr, (num.GetServer() ? num.GetServer() : ServerInstance->FakeClient->server)->GetPublicName())
 	{
-		if (user->registered & REG_NICK)
+		if (user->connected & User::CONN_NICK)
 			PushParamRef(user->nick);
 		else
 			PushParam("*");
@@ -432,7 +432,7 @@ class ClientProtocol::Messages::Privmsg
 
 	void PushTargetUser(const User* targetuser)
 	{
-		if (targetuser->registered & REG_NICK)
+		if (targetuser->connected & User::CONN_NICK)
 			PushParamRef(targetuser->nick);
 		else
 			PushParam("*");
