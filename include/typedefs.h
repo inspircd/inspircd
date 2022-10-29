@@ -24,10 +24,7 @@
 
 #pragma once
 
-class BanCacheManager;
-class BufferedSocket;
 class Channel;
-class Command;
 class ConfigStatus;
 class ConfigTag;
 class Extensible;
@@ -35,21 +32,15 @@ class FakeUser;
 class InspIRCd;
 class IOHookProvider;
 class LocalUser;
-class Membership;
+class ModResult;
 class Module;
 class OperInfo;
-class ProtocolServer;
 class RemoteUser;
 class Server;
-class ServerConfig;
-class ServerLimits;
-class Thread;
 class User;
 class XLine;
-class XLineManager;
 class XLineFactory;
-class ConnectClass;
-class ModResult;
+class XLineManager;
 
 namespace ClientProtocol
 {
