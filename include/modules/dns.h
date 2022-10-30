@@ -99,7 +99,7 @@ namespace DNS
 		bool operator==(const Question& other) const { return ((name == other.name) && (type == other.type)); }
 		bool operator!=(const Question& other) const { return (!(*this == other)); }
 
-		struct hash
+		struct hash final
 		{
 			size_t operator()(const Question& question) const
 			{
@@ -110,7 +110,7 @@ namespace DNS
 
 	namespace Record
 	{
-		struct SRV
+		struct SRV final
 		{
 			uint16_t priority = UINT16_MAX;
 			uint16_t weight = 0;

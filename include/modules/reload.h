@@ -28,7 +28,7 @@ namespace ReloadModule
 	 */
 	class CustomData
 	{
-		struct Data
+		struct Data final
 		{
 			EventListener* handler;
 			void* data;

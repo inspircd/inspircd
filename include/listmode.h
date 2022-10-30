@@ -29,7 +29,7 @@ class CoreExport ListModeBase
 public:
 	/** An item in a listmode's list
 	 */
-	struct ListItem
+	struct ListItem final
 	{
 		std::string setter;
 		std::string mask;
@@ -43,7 +43,7 @@ public:
 	typedef std::vector<ListItem> ModeList;
 
 private:
-	class ChanData
+	class ChanData final
 	{
 	public:
 		ModeList list;
@@ -54,7 +54,7 @@ private:
 
 	/** The number of items a listmode's list may contain
 	 */
-	struct ListLimit
+	struct ListLimit final
 	{
 		std::string mask;
 		unsigned long limit;

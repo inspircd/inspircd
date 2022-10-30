@@ -34,7 +34,7 @@ typedef std::unordered_map<std::string, User*, irc::insensitive, irc::StrHashCom
 class CoreExport UserManager final
 {
 public:
-	struct CloneCounts
+	struct CloneCounts final
 	{
 		unsigned int global = 0;
 		unsigned int local = 0;

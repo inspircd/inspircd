@@ -118,7 +118,7 @@ class CoreExport StreamSocket
 public:
 	/** Socket send queue
 	 */
-	class SendQueue
+	class SendQueue final
 	{
 	public:
 		/** One element of the queue, a continuous buffer

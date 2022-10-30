@@ -39,12 +39,12 @@ class Events::ModuleEventProvider
 	, private dynamic_reference_base::CaptureHook
 {
 public:
-	struct Comp
+	struct Comp final
 	{
 		bool operator()(ModuleEventListener* lhs, ModuleEventListener* rhs) const;
 	};
 
-	struct ElementComp
+	struct ElementComp final
 	{
 		bool operator()(ModuleEventListener* lhs, ModuleEventListener* rhs) const;
 	};

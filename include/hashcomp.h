@@ -81,7 +81,7 @@ namespace irc
 	 * Case sensitivity is ignored, and the RFC 'character set'
 	 * is adhered to
 	 */
-	struct StrHashComp
+	struct StrHashComp final
 	{
 		/** The operator () does the actual comparison in hash_map
 		 */
@@ -91,7 +91,7 @@ namespace irc
 		}
 	};
 
-	struct insensitive
+	struct insensitive final
 	{
 		size_t CoreExport operator()(const std::string& s) const;
 	};

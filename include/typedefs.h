@@ -55,7 +55,7 @@ namespace ClientProtocol
 	typedef std::vector<std::string> ParamList;
 	typedef std::string SerializedMessage;
 
-	struct MessageTagData
+	struct MessageTagData final
 	{
 		MessageTagProvider* tagprov;
 		std::string value;
@@ -86,4 +86,3 @@ typedef std::set<User*> CUList;
 
 /** A bitset of characters which are enabled/set. */
 typedef std::bitset<UCHAR_MAX + 1> CharState;
-

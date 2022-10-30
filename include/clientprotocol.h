@@ -184,7 +184,7 @@ class ClientProtocol::Message
 public:
 	/** Contains information required to identify a specific version of a serialized message.
 	 */
-	struct SerializedInfo
+	struct SerializedInfo final
 	{
 		const Serializer* serializer;
 		TagSelection tagwl;
@@ -209,7 +209,7 @@ public:
 		}
 	};
 
-	class Param
+	class Param final
 	{
 		const std::string* ptr;
 		insp::aligned_storage<std::string> str;

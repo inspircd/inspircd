@@ -382,7 +382,7 @@ protected:
 
 public:
 	/** Sorts a container of PrefixMode* objects descending by their rank. */
-	struct Sorter
+	struct Sorter final
 	{
 		bool operator()(const PrefixMode* lhs, const PrefixMode* rhs) const
 		{

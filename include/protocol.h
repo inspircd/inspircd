@@ -41,7 +41,7 @@ class CoreExport ProtocolInterface
 public:
 	typedef ProtocolServer Server;
 
-	class ServerInfo
+	class ServerInfo final
 	{
 	public:
 		std::string servername;
