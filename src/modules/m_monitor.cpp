@@ -397,7 +397,7 @@ class ModuleMonitor
 		: Monitor::APIBase(this)
 		, manager(this, "monitor")
 		, cmd(this, manager)
-		, extendedcap(this, "draft/extended-monitor")
+		, extendedcap(this, "extended-monitor")
 	{
 	}
 
