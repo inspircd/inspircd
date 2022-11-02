@@ -21,6 +21,7 @@
 #include "inspircd.h"
 #include "modules/cap.h"
 #include "modules/ircv3.h"
+#include "modules/monitor.h"
 
 class ModuleIRCv3ChgHost : public Module
 {

@@ -371,7 +371,9 @@ class CommandMonitor : public SplitCommand
 	}
 };
 
-class ModuleMonitor : public Module, public Monitor::APIBase
+class ModuleMonitor
+	: public Module
+	, public Monitor::APIBase
 {
 	IRCv3::Monitor::Manager manager;
 	CommandMonitor cmd;

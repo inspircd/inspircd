@@ -23,6 +23,7 @@
 #include "modules/away.h"
 #include "modules/cap.h"
 #include "modules/ircv3.h"
+#include "modules/monitor.h"
 
 class AwayMessage : public ClientProtocol::Message
 {

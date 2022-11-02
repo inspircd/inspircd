@@ -26,6 +26,7 @@
 #include "inspircd.h"
 #include "modules/ircv3.h"
 #include "modules/ircv3_replies.h"
+#include "modules/monitor.h"
 
 class CommandSetName : public SplitCommand
 {

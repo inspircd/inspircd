@@ -80,9 +80,9 @@ class Monitor::WriteWatchersWithCap
 	}
 
  public:
-	WriteWatchersWithCap(Monitor::API& monitorapi, User* user, ClientProtocol::Event& ev, const Cap::Capability& capability, already_sent_t id)
+	WriteWatchersWithCap(Monitor::API& monitorapi, User* user, ClientProtocol::Event& event, const Cap::Capability& capability, already_sent_t id)
 		: cap(capability)
-		, ev(ev)
+		, ev(event)
 		, sentid(id)
 	{
 		if (monitorapi)
