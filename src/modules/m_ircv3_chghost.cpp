@@ -21,11 +21,13 @@
 #include "inspircd.h"
 #include "modules/cap.h"
 #include "modules/ircv3.h"
+#include "modules/monitor.h"
 
 class ModuleIRCv3ChgHost : public Module
 {
 	Cap::Capability cap;
 	ClientProtocol::EventProvider protoevprov;
+	Monitor::API monitorapi;
 
 	void DoChgHost(User* user, const std::string& ident, const std::string& host)
 	{
@@ -36,13 +38,15 @@ class ModuleIRCv3ChgHost : public Module
 		msg.PushParamRef(ident);
 		msg.PushParamRef(host);
 		ClientProtocol::Event protoev(protoevprov, msg);
-		IRCv3::WriteNeighborsWithCap(user, protoev, cap, true);
+		IRCv3::WriteNeighborsWithCap res(user, protoev, cap, true);
+		Monitor::WriteWatchersWithCap(monitorapi, user, protoev, cap, res.GetAlreadySentId());
 	}
 
  public:
 	ModuleIRCv3ChgHost()
 		: cap(this, "chghost")
 		, protoevprov(this, "CHGHOST")
+		, monitorapi(this)
 	{
 	}
 

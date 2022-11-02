@@ -26,6 +26,7 @@
 #include "inspircd.h"
 #include "modules/ircv3.h"
 #include "modules/ircv3_replies.h"
+#include "modules/monitor.h"
 
 class CommandSetName : public SplitCommand
 {
@@ -71,11 +72,13 @@ class ModuleSetName : public Module
  private:
 	CommandSetName cmd;
 	ClientProtocol::EventProvider setnameevprov;
+	Monitor::API monitorapi;
 
  public:
 	ModuleSetName()
 		: cmd(this)
 		, setnameevprov(this, "SETNAME")
+		, monitorapi(this)
 	{
 	}
 
@@ -99,7 +102,8 @@ class ModuleSetName : public Module
 		ClientProtocol::Message msg("SETNAME", user);
 		msg.PushParamRef(real);
 		ClientProtocol::Event protoev(setnameevprov, msg);
-		IRCv3::WriteNeighborsWithCap(user, protoev, cmd.cap, true);
+		IRCv3::WriteNeighborsWithCap res(user, protoev, cmd.cap, true);
+		Monitor::WriteWatchersWithCap(monitorapi, user, protoev, cmd.cap, res.GetAlreadySentId());
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

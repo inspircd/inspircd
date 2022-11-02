@@ -20,6 +20,8 @@
 
 
 #include "inspircd.h"
+#include "modules/cap.h"
+#include "modules/monitor.h"
 
 namespace IRCv3
 {
@@ -369,10 +371,13 @@ class CommandMonitor : public SplitCommand
 	}
 };
 
-class ModuleMonitor : public Module
+class ModuleMonitor
+	: public Module
+	, public Monitor::APIBase
 {
 	IRCv3::Monitor::Manager manager;
 	CommandMonitor cmd;
+	Cap::Capability extendedcap;
 
 	void SendAlert(unsigned int numeric, const std::string& nick)
 	{
@@ -389,8 +394,10 @@ class ModuleMonitor : public Module
 
  public:
 	ModuleMonitor()
-		: manager(this, "monitor")
+		: Monitor::APIBase(this)
+		, manager(this, "monitor")
 		, cmd(this, manager)
+		, extendedcap(this, "draft/extended-monitor")
 	{
 	}
 
@@ -426,6 +433,20 @@ class ModuleMonitor : public Module
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["MONITOR"] = ConvToStr(cmd.maxmonitor);
+	}
+
+	void ForEachWatcher(User* user, Monitor::ForEachHandler& handler, bool extended_only) CXX11_OVERRIDE
+	{
+		const IRCv3::Monitor::WatcherList* list = manager.GetWatcherList(user->nick);
+		if (!list)
+			return;
+
+		for (IRCv3::Monitor::WatcherList::const_iterator i = list->begin(); i != list->end(); ++i)
+		{
+			LocalUser* curr = *i;
+			if(!extended_only || extendedcap.get(curr))
+				handler.Execute(curr);
+		}
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
