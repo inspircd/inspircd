@@ -120,7 +120,7 @@ class ModuleIRCv3
 	JoinHook joinhook;
 
 	ClientProtocol::EventProvider accountprotoev;
-	MonitorForEachWatcher::API monitorapi;
+	Monitor::API monitorapi;
 
  public:
 	ModuleIRCv3()

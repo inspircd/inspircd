@@ -19,7 +19,7 @@
 
 #pragma once
 
-namespace MonitorForEachWatcher
+namespace Monitor
 {
 	class APIBase;
 	class API;
@@ -35,11 +35,12 @@ namespace MonitorForEachWatcher
 	};
 }
 
-class MonitorForEachWatcher::APIBase : public DataProvider
+class Monitor::APIBase
+	: public DataProvider
 {
  public:
 	APIBase(Module* parent)
-	  : DataProvider(parent, "monitorforeachwatcher")
+	  : DataProvider(parent, "monitor")
 	{
 	}
 
@@ -51,11 +52,12 @@ class MonitorForEachWatcher::APIBase : public DataProvider
 	virtual void ForEachWatcher(User* user, ForEachWatcherHandler& handler, bool extended_only = true) = 0;
 };
 
-class MonitorForEachWatcher::API : public dynamic_reference<MonitorForEachWatcher::APIBase>
+class Monitor::API CXX11_FINAL
+	: public dynamic_reference<Monitor::APIBase>
 {
  public:
 	API(Module* parent)
-	: dynamic_reference<MonitorForEachWatcher::APIBase>(parent, "monitorforeachwatcher")
+	: dynamic_reference<Monitor::APIBase>(parent, "monitor")
 	{
 	}
 };

@@ -371,7 +371,7 @@ class CommandMonitor : public SplitCommand
 	}
 };
 
-class ModuleMonitor : public Module, public MonitorForEachWatcher::APIBase
+class ModuleMonitor : public Module, public Monitor::APIBase
 {
 	IRCv3::Monitor::Manager manager;
 	CommandMonitor cmd;
@@ -392,7 +392,7 @@ class ModuleMonitor : public Module, public MonitorForEachWatcher::APIBase
 
  public:
 	ModuleMonitor()
-		: MonitorForEachWatcher::APIBase(this)
+		: Monitor::APIBase(this)
 		, manager(this, "monitor")
 		, cmd(this, manager)
 		, extendedcap(this, "draft/extended-monitor")
@@ -433,7 +433,7 @@ class ModuleMonitor : public Module, public MonitorForEachWatcher::APIBase
 		tokens["MONITOR"] = ConvToStr(cmd.maxmonitor);
 	}
 
-	void ForEachWatcher(User* user, MonitorForEachWatcher::ForEachWatcherHandler& handler, bool extended_only) CXX11_OVERRIDE
+	void ForEachWatcher(User* user, Monitor::ForEachWatcherHandler& handler, bool extended_only) CXX11_OVERRIDE
 	{
 		const IRCv3::Monitor::WatcherList* list = manager.GetWatcherList(user->nick);
 		if (!list)

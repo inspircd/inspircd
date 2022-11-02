@@ -71,7 +71,7 @@ class ModuleSetName : public Module
  private:
 	CommandSetName cmd;
 	ClientProtocol::EventProvider setnameevprov;
-	MonitorForEachWatcher::API monitorapi;
+	Monitor::API monitorapi;
 
  public:
 	ModuleSetName()

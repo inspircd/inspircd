@@ -26,7 +26,7 @@ class ModuleIRCv3ChgHost : public Module
 {
 	Cap::Capability cap;
 	ClientProtocol::EventProvider protoevprov;
-	MonitorForEachWatcher::API monitorapi;
+	Monitor::API monitorapi;
 
 	void DoChgHost(User* user, const std::string& ident, const std::string& host)
 	{

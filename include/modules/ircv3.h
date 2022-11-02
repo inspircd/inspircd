@@ -55,7 +55,8 @@ class IRCv3::WriteNeighborsWithCap : public User::ForEachNeighborHandler
 	already_sent_t GetAlreadySentId() const { return sentid; }
 };
 
-class IRCv3::WriteWatchersWithCap : public MonitorForEachWatcher::ForEachWatcherHandler
+class IRCv3::WriteWatchersWithCap
+	: public Monitor::ForEachWatcherHandler
 {
  private:
 	const Cap::Capability& cap;
@@ -69,7 +70,7 @@ class IRCv3::WriteWatchersWithCap : public MonitorForEachWatcher::ForEachWatcher
 	}
 
  public:
-	WriteWatchersWithCap(MonitorForEachWatcher::API& monitorapi, User* user, ClientProtocol::Event& ev, const Cap::Capability& capability, already_sent_t sentid)
+	WriteWatchersWithCap(Monitor::API& monitorapi, User* user, ClientProtocol::Event& ev, const Cap::Capability& capability, already_sent_t sentid)
 		: cap(capability)
 		, ev(ev)
 		, sentid(sentid)
