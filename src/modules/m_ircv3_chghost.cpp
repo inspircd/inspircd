@@ -38,7 +38,7 @@ class ModuleIRCv3ChgHost : public Module
 		msg.PushParamRef(host);
 		ClientProtocol::Event protoev(protoevprov, msg);
 		IRCv3::WriteNeighborsWithCap res(user, protoev, cap, true);
-		IRCv3::WriteWatchersWithCap(monitorapi, user, protoev, cap, res.GetAlreadySentId());
+		Monitor::WriteWatchersWithCap(monitorapi, user, protoev, cap, res.GetAlreadySentId());
 	}
 
  public:

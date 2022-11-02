@@ -24,6 +24,7 @@ namespace Monitor
 	class APIBase;
 	class API;
 	class ForEachHandler;
+	class WriteWatchersWithCap;
 }
 
 class Monitor::APIBase
@@ -61,4 +62,30 @@ class Monitor::ForEachHandler
 	 * @param user Current watcher of the user
 	 */
 	virtual void Execute(LocalUser* user) = 0;
+};
+
+
+class Monitor::WriteWatchersWithCap
+	: public Monitor::ForEachHandler
+{
+ private:
+	const Cap::Capability& cap;
+	ClientProtocol::Event& ev;
+	already_sent_t sentid;
+
+	void Execute(LocalUser* user) CXX11_OVERRIDE
+	{
+		if (user->already_sent != sentid && cap.get(user))
+			user->Send(ev);
+	}
+
+ public:
+	WriteWatchersWithCap(Monitor::API& monitorapi, User* user, ClientProtocol::Event& ev, const Cap::Capability& capability, already_sent_t id)
+		: cap(capability)
+		, ev(ev)
+		, sentid(id)
+	{
+		if (monitorapi)
+			monitorapi->ForEachWatcher(user, *this);
+	}
 };

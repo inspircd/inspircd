@@ -102,7 +102,7 @@ class ModuleSetName : public Module
 		msg.PushParamRef(real);
 		ClientProtocol::Event protoev(setnameevprov, msg);
 		IRCv3::WriteNeighborsWithCap res(user, protoev, cmd.cap, true);
-		IRCv3::WriteWatchersWithCap(monitorapi, user, protoev, cmd.cap, res.GetAlreadySentId());
+		Monitor::WriteWatchersWithCap(monitorapi, user, protoev, cmd.cap, res.GetAlreadySentId());
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
