@@ -23,16 +23,7 @@ namespace Monitor
 {
 	class APIBase;
 	class API;
-
-	class ForEachWatcherHandler
-	{
-	public:
-	/** Method to execute for each watcher of a user.
-	 * Derived classes must implement this.
-	 * @param user Current watcher of the user
-	 */
-	virtual void Execute(LocalUser* user) = 0;
-	};
+	class ForEachHandler;
 }
 
 class Monitor::APIBase
@@ -40,7 +31,7 @@ class Monitor::APIBase
 {
  public:
 	APIBase(Module* parent)
-	  : DataProvider(parent, "monitor")
+		: DataProvider(parent, "monitor")
 	{
 	}
 
@@ -49,7 +40,7 @@ class Monitor::APIBase
 	* @param handler The handler to execute for each watcher of that event.
 	* @param extended_only Whether to only run the handler for watchers using the extended-notify cap.
 	*/
-	virtual void ForEachWatcher(User* user, ForEachWatcherHandler& handler, bool extended_only = true) = 0;
+	virtual void ForEachWatcher(User* user, ForEachHandler& handler, bool extended_only = true) = 0;
 };
 
 class Monitor::API CXX11_FINAL
@@ -57,7 +48,17 @@ class Monitor::API CXX11_FINAL
 {
  public:
 	API(Module* parent)
-	: dynamic_reference<Monitor::APIBase>(parent, "monitor")
+		: dynamic_reference<Monitor::APIBase>(parent, "monitor")
 	{
 	}
+};
+
+class Monitor::ForEachHandler
+{
+ public:
+	/** Method to execute for each watcher of a user.
+	 * Derived classes must implement this.
+	 * @param user Current watcher of the user
+	 */
+	virtual void Execute(LocalUser* user) = 0;
 };

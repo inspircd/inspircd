@@ -56,7 +56,7 @@ class IRCv3::WriteNeighborsWithCap : public User::ForEachNeighborHandler
 };
 
 class IRCv3::WriteWatchersWithCap
-	: public Monitor::ForEachWatcherHandler
+	: public Monitor::ForEachHandler
 {
  private:
 	const Cap::Capability& cap;
@@ -70,10 +70,10 @@ class IRCv3::WriteWatchersWithCap
 	}
 
  public:
-	WriteWatchersWithCap(Monitor::API& monitorapi, User* user, ClientProtocol::Event& ev, const Cap::Capability& capability, already_sent_t sentid)
+	WriteWatchersWithCap(Monitor::API& monitorapi, User* user, ClientProtocol::Event& ev, const Cap::Capability& capability, already_sent_t id)
 		: cap(capability)
 		, ev(ev)
-		, sentid(sentid)
+		, sentid(id)
 	{
 		if (monitorapi)
 			monitorapi->ForEachWatcher(user, *this);

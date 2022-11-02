@@ -433,7 +433,7 @@ class ModuleMonitor : public Module, public Monitor::APIBase
 		tokens["MONITOR"] = ConvToStr(cmd.maxmonitor);
 	}
 
-	void ForEachWatcher(User* user, Monitor::ForEachWatcherHandler& handler, bool extended_only) CXX11_OVERRIDE
+	void ForEachWatcher(User* user, Monitor::ForEachHandler& handler, bool extended_only) CXX11_OVERRIDE
 	{
 		const IRCv3::Monitor::WatcherList* list = manager.GetWatcherList(user->nick);
 		if (!list)
