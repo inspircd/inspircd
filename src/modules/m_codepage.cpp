@@ -79,10 +79,61 @@ class ModuleCodepage
 		hashmap.swap(newhash);
 	}
 
+	void DestroyChannel(Channel* chan)
+	{
+		// Remove all of the users from the channel. Using KICK here will mean
+		// the user's client will probably attempt to rejoin and will enter the
+		// succeeding channel. Unfortunately this is the best we can do for now.
+		while (!chan->userlist.empty())
+			chan->KickUser(ServerInstance->FakeClient, chan->userlist.begin(), "This channel does not exist anymore.");
+
+		// Remove all modes from the channel just in case one of them keeps the channel open.
+		Modes::ChangeList changelist;
+		const ModeParser::ModeHandlerMap& chanmodes = ServerInstance->Modes->GetModes(MODETYPE_CHANNEL);
+		for (ModeParser::ModeHandlerMap::const_iterator i = chanmodes.begin(); i != chanmodes.end(); ++i)
+			i->second->RemoveMode(chan, changelist);
+		ServerInstance->Modes->Process(ServerInstance->FakeClient, chan, NULL, changelist, ModeParser::MODE_LOCALONLY);
+
+		// The channel will be destroyed automatically by CheckDestroy.
+	}
+
 	void ChangeNick(User* user, const std::string& message)
 	{
 		user->WriteNumeric(RPL_SAVENICK, user->uuid, message);
 		user->ChangeNick(user->uuid);
+	}
+
+	void CheckDuplicateChan()
+	{
+		chan_hash duplicates;
+		const chan_hash& chans = ServerInstance->GetChans();
+		for (chan_hash::const_iterator iter = chans.begin(); iter != chans.end(); ++iter)
+		{
+			Channel* chan = iter->second;
+			std::pair<chan_hash::iterator, bool> check = duplicates.insert(std::make_pair(chan->name, chan));
+			if (check.second)
+				continue; // No duplicate.
+
+			Channel* otherchan = check.first->second;
+			if (otherchan->age < chan->age)
+			{
+				// The other channel was created first.
+				DestroyChannel(chan);
+			}
+			else if (otherchan->age > chan->age)
+			{
+				// The other channel was created last.
+				DestroyChannel(otherchan);
+				check.first->second = chan;
+			}
+			else
+			{
+				// Both created at the same time.
+				DestroyChannel(chan);
+				DestroyChannel(otherchan);
+				duplicates.erase(check.first);
+			}
+		}
 	}
 
 	void CheckDuplicateNick()
@@ -157,6 +208,7 @@ class ModuleCodepage
 
 		ServerInstance->Config->CaseMapping = origcasemapname;
 		national_case_insensitive_map = origcasemap;
+		CheckDuplicateChan();
 		CheckDuplicateNick();
 		CheckRehash(casemap);
 
@@ -239,6 +291,7 @@ class ModuleCodepage
 
 		ServerInstance->Config->CaseMapping = name;
 		national_case_insensitive_map = casemap;
+		CheckDuplicateChan();
 		CheckDuplicateNick();
 		CheckRehash(newcasemap);
 
