@@ -476,6 +476,28 @@ void ParseStack::DoInclude(ConfigTag* tag, int flags)
 	}
 }
 
+namespace
+{
+	void CheckOwnership(const std::string& path)
+	{
+		struct stat pathinfo;
+		if (stat(path.c_str(), &pathinfo))
+			return; // Will be handled when fopen fails.
+
+		if (getegid() != pathinfo.st_gid)
+		{
+			ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Possible configuration error: %s is owned by group %u but the server is running as group %u.",
+				path.c_str(), getegid(), pathinfo.st_gid);
+		}
+
+		if (geteuid() != pathinfo.st_uid)
+		{
+			ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Possible configuration error: %s is owned by user %u but the server is running as user %u.",
+				path.c_str(), geteuid(), pathinfo.st_uid);
+		}
+	}
+}
+
 void ParseStack::DoReadFile(const std::string& key, const std::string& name, int flags, bool exec)
 {
 	if (flags & FLAG_NO_INC)
@@ -483,7 +505,10 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 	if (exec && (flags & FLAG_NO_EXEC))
 		throw CoreException("Invalid <execfiles> tag in file included with noexec=\"yes\"");
 
-	std::string path = ServerInstance->Config->Paths.PrependConfig(name);
+	const std::string path = ServerInstance->Config->Paths.PrependConfig(name);
+	if (!exec)
+		CheckOwnership(path);
+
 	FileWrapper file(exec ? popen(name.c_str(), "r") : fopen(path.c_str(), "r"), exec);
 	if (!file)
 		throw CoreException("Could not read \"" + path + "\" for \"" + key + "\" file");
@@ -547,8 +572,10 @@ bool ParseStack::ParseFile(const std::string& path, int flags, const std::string
 	if (stdalgo::isin(reading, path))
 		throw CoreException((isexec ? "Executable " : "File ") + path + " is included recursively (looped inclusion)");
 
-	/* It's not already included, add it to the list of files we've loaded */
+	if (!isexec)
+		CheckOwnership(path);
 
+	/* It's not already included, add it to the list of files we've loaded */
 	FileWrapper file((isexec ? popen(path.c_str(), "r") : fopen(path.c_str(), "r")), isexec);
 	if (!file)
 	{
