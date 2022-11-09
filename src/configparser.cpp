@@ -480,6 +480,7 @@ namespace
 {
 	void CheckOwnership(const std::string& path)
 	{
+#ifndef _WIN32
 		struct stat pathinfo;
 		if (stat(path.c_str(), &pathinfo))
 			return; // Will be handled when fopen fails.
@@ -487,14 +488,15 @@ namespace
 		if (getegid() != pathinfo.st_gid)
 		{
 			ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Possible configuration error: %s is owned by group %u but the server is running as group %u.",
-				path.c_str(), getegid(), pathinfo.st_gid);
+				path.c_str(), pathinfo.st_gid, getegid());
 		}
 
 		if (geteuid() != pathinfo.st_uid)
 		{
 			ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Possible configuration error: %s is owned by user %u but the server is running as user %u.",
-				path.c_str(), geteuid(), pathinfo.st_uid);
+				path.c_str(), pathinfo.st_uid, geteuid());
 		}
+#endif
 	}
 }
 
