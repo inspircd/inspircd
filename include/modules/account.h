@@ -26,6 +26,8 @@ namespace Account
 	class API;
 	class APIBase;
 	class EventListener;
+	class ProviderAPI;
+	class ProviderAPIBase;
 
 	/** Encapsulates a list of nicknames associated with an account. */
 	typedef insp::flat_set<std::string, irc::insensitive_swo> NickList;
@@ -75,7 +77,6 @@ public:
 		: dynamic_reference<Account::APIBase>(parent, "accountapi")
 	{
 	}
-
 };
 
 /** Provides handlers for events relating to accounts. */
@@ -93,4 +94,26 @@ public:
 	 * @param account The name of the account if logging in or empty if logging out.
 	 */
 	virtual void OnAccountChange(User* user, const std::string& account) = 0;
+};
+
+/** Defines the interface for the account provider API. */
+class Account::ProviderAPIBase
+	: public DataProvider
+{
+public:
+	ProviderAPIBase(Module* mod)
+		: DataProvider(mod, "accountproviderapi")
+	{
+	}
+};
+
+/** Allows modules to provide backend support for accounts. */
+class Account::ProviderAPI final
+	: public dynamic_reference<Account::ProviderAPIBase>
+{
+public:
+	ProviderAPI(Module* mod)
+		: dynamic_reference<Account::ProviderAPIBase>(mod, "accountproviderapi")
+	{
+	}
 };

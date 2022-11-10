@@ -26,6 +26,74 @@
 #include "timeutils.h"
 #include "xline.h"
 
+class ServicesAccountProvider final
+	: public Account::ProviderAPIBase
+	, public ServerProtocol::LinkEventListener
+{
+private:
+	std::string target;
+
+	void OnServerLink(const Server* server) override
+	{
+		UpdateStatus(server, true);
+	}
+
+	void OnServerSplit(const Server* server, bool error) override
+	{
+		UpdateStatus(server, false);
+	}
+
+	void SetAvailable(bool online)
+	{
+		auto api = ServerInstance->Modules.FindService(SERVICE_DATA, "accountproviderapi");
+		if (online && api != this)
+			ServerInstance->Modules.AddService(*this);
+		else if (!online && api == this)
+			ServerInstance->Modules.DelService(*this);
+	}
+
+	void UpdateStatus(const Server* server, bool online)
+	{
+		if (irc::equals(target, server->GetName()))
+		{
+			ServerInstance->Logs.Debug(MODNAME, "Services server %s (%s) %s.", server->GetName().c_str(),
+				server->GetId().c_str(), online ? "came online" : "went offline");
+			SetAvailable(online);
+		}
+	}
+
+public:
+	ServicesAccountProvider(Module* mod)
+		: Account::ProviderAPIBase(mod)
+		, ServerProtocol::LinkEventListener(mod)
+	{
+	}
+
+	void SetTarget(const std::string& newtarget)
+	{
+		if (target == newtarget)
+			return; // Nothing has changed.
+
+		target = newtarget;
+		ProtocolInterface::ServerList servers;
+		ServerInstance->PI->GetServerList(servers);
+		for (const auto& server : servers)
+		{
+			if (irc::equals(target, server.servername))
+			{
+				ServerInstance->Logs.Debug(MODNAME, "Changed the services server to %s.",
+					server.servername.c_str());
+				SetAvailable(true);
+				return;
+			}
+		}
+
+		ServerInstance->Logs.Debug(MODNAME, "The services server (%s) is currently unavailable.",
+			target.c_str());
+		SetAvailable(false);
+	}
+};
+
 enum
 {
 	// From UnrealIRCd.
@@ -520,6 +588,7 @@ class ModuleServices final
 {
 private:
 	Account::API accountapi;
+	ServicesAccountProvider accountprovapi;
 	RegisteredChannel registeredcmode;
 	RegisteredUser registeredumode;
 	ServiceTag servicetag;
@@ -581,6 +650,7 @@ public:
 		, ServerProtocol::RouteEventListener(this)
 		, Stats::EventListener(this)
 		, accountapi(this)
+		, accountprovapi(this)
 		, registeredcmode(this)
 		, registeredumode(this)
 		, servicetag(this)
@@ -612,6 +682,12 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("servicesintegration");
+
+		const auto target = tag->getString("server", ServerInstance->Config->ConfValue("sasl")->getString("target"));
+		if (target.empty())
+			throw ModuleException(this, "<servicesintegration:server> must be set to the name of your services server!");
+
+		accountprovapi.SetTarget(target);
 		accountoverrideshold = tag->getBool("accountoverrideshold");
 	}
 
