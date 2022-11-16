@@ -32,6 +32,8 @@
 #ifdef _WIN32
 # define pclose _pclose
 # define popen _popen
+#else
+# include <unistd.h>
 #endif
 
 enum ParseFlags
