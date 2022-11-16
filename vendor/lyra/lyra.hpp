@@ -14,7 +14,7 @@
 
 #define LYRA_VERSION_MAJOR 1
 #define LYRA_VERSION_MINOR 6
-#define LYRA_VERSION_PATCH 0
+#define LYRA_VERSION_PATCH 1
 
 #define LYRA_VERSION \
 	(((LYRA_VERSION_MAJOR)*10000000) + ((LYRA_VERSION_MINOR)*100000) \
@@ -51,8 +51,8 @@ using std::to_string;
 
 struct print
 {
-	print(const char * scope = nullptr)
-		: scope(scope)
+	print(const char * scope_name = nullptr)
+		: scope(scope_name)
 	{
 		if (is_debug) print::depth() += 1;
 		if (scope) debug(scope, "...");
@@ -132,9 +132,9 @@ class args
 		, m_args(argv + 1, argv + argc)
 	{}
 
-	args(std::initializer_list<std::string> args)
-		: m_exeName(*args.begin())
-		, m_args(args.begin() + 1, args.end())
+	args(std::initializer_list<std::string> args_list)
+		: m_exeName(*args_list.begin())
+		, m_args(args_list.begin() + 1, args_list.end())
 	{}
 
 	template <typename It>
@@ -399,9 +399,9 @@ inline bool from_string(S const & source, LYRA_CONFIG_OPTIONAL_TYPE<T> & target)
 	else
 	{
 		T temp;
-		auto result = from_string(source, temp);
-		if (result) target = std::move(temp);
-		return result;
+		auto str_result = from_string(source, temp);
+		if (str_result) target = std::move(temp);
+		return str_result;
 	}
 }
 #endif // LYRA_CONFIG_OPTIONAL_TYPE
@@ -683,9 +683,9 @@ template <typename ArgType, typename L>
 inline parser_result invokeLambda(L const & lambda, std::string const & arg)
 {
 	ArgType temp {};
-	auto result = parse_string(arg, temp);
-	return !result
-		? result
+	auto p_result = parse_string(arg, temp);
+	return !p_result
+		? p_result
 		: LambdaInvoker<typename unary_lambda_traits<L>::ReturnType>::invoke(
 			lambda, temp);
 }
@@ -768,9 +768,9 @@ struct BoundValueRef<std::vector<T>> : BoundValueRefBase
 	auto setValue(std::string const & arg) -> parser_result override
 	{
 		T temp;
-		auto result = parse_string(arg, temp);
-		if (result) m_ref.push_back(temp);
-		return result;
+		auto str_result = parse_string(arg, temp);
+		if (str_result) m_ref.push_back(temp);
+		return str_result;
 	}
 
 	virtual size_t get_value_count() const override { return m_ref.size(); }
@@ -778,9 +778,9 @@ struct BoundValueRef<std::vector<T>> : BoundValueRefBase
 	{
 		if (i < m_ref.size())
 		{
-			std::string result;
-			detail::to_string(m_ref[i], result);
-			return result;
+			std::string str_result;
+			detail::to_string(m_ref[i], str_result);
+			return str_result;
 		}
 		return "";
 	}
@@ -980,8 +980,8 @@ struct choices_check : choices_base
 	Lambda checker;
 	using value_type = typename unary_lambda_traits<Lambda>::ArgType;
 
-	explicit choices_check(Lambda const & checker)
-		: checker(checker)
+	explicit choices_check(Lambda const & checker_function)
+		: checker(checker_function)
 	{}
 
 	parser_result contains_value(std::string const & val) const override
@@ -1055,16 +1055,16 @@ struct option_style
 	std::size_t short_option_size = 0;
 
 
-	option_style(std::string && value_delimiters,
-		std::string && long_option_prefix = {},
-		std::size_t long_option_size = 0,
-		std::string && short_option_prefix = {},
-		std::size_t short_option_size = 0)
-		: value_delimiters(std::move(value_delimiters))
-		, long_option_prefix(std::move(long_option_prefix))
-		, long_option_size(long_option_size)
-		, short_option_prefix(std::move(short_option_prefix))
-		, short_option_size(short_option_size)
+	option_style(std::string && value_delimiters_chars,
+		std::string && long_option_prefix_chars = {},
+		std::size_t long_option_prefix_size = 0,
+		std::string && short_option_prefix_chars = {},
+		std::size_t short_option_prefix_size = 0)
+		: value_delimiters(std::move(value_delimiters_chars))
+		, long_option_prefix(std::move(long_option_prefix_chars))
+		, long_option_size(long_option_prefix_size)
+		, short_option_prefix(std::move(short_option_prefix_chars))
+		, short_option_size(short_option_prefix_size)
 	{}
 
 
@@ -1912,24 +1912,24 @@ end::reference[] */
 [source]
 ----
 template <typename Derived>
-Derived& bound_parser<Derived>::help(std::string const& text);
+Derived& bound_parser<Derived>::help(std::string const& help_description_text);
 template <typename Derived>
-Derived& bound_parser<Derived>::operator()(std::string const& help);
+Derived& bound_parser<Derived>::operator()(std::string const& help_description_text);
 ----
 
 Defines the help description of an argument.
 
 end::reference[] */
 template <typename Derived>
-Derived & bound_parser<Derived>::help(const std::string & text)
+Derived & bound_parser<Derived>::help(const std::string & help_description_text)
 {
-	m_description = text;
+	m_description = help_description_text;
 	return static_cast<Derived &>(*this);
 }
 template <typename Derived>
-Derived & bound_parser<Derived>::operator()(std::string const & help_text)
+Derived & bound_parser<Derived>::operator()(std::string const & help_description_text)
 {
-	return this->help(help_text);
+	return this->help(help_description_text);
 }
 
 /* tag::reference[]
@@ -2179,11 +2179,11 @@ class arg : public bound_parser<arg>
 			}
 		}
 
-		auto result = valueRef->setValue(token.name);
-		if (!result)
+		auto set_result = valueRef->setValue(token.name);
+		if (!set_result)
 		{
 			LYRA_PRINT_DEBUG("(!)", get_usage_text(style), "!=", token.name);
-			return parse_result(result);
+			return parse_result(set_result);
 		}
 		else
 		{
@@ -2468,8 +2468,8 @@ class arguments : public parser
 	{
 		for (auto const & p : parsers)
 		{
-			auto result = p->validate();
-			if (!result) return result;
+			auto parse_valid = p->validate();
+			if (!parse_valid) return parse_valid;
 		}
 		return result::ok();
 	}
@@ -2505,11 +2505,11 @@ class arguments : public parser
 			for (auto const & p : parsers) parser_info[i++].parser_p = p.get();
 		}
 
-		auto result = parse_result::ok(
+		auto p_result = parse_result::ok(
 			detail::parse_state(parser_result_type::matched, tokens));
 		auto error_result = parse_result::ok(
 			detail::parse_state(parser_result_type::no_match, tokens));
-		while (result.value().remainingTokens())
+		while (p_result.value().remainingTokens())
 		{
 			bool token_parsed = false;
 
@@ -2520,11 +2520,11 @@ class arguments : public parser
 					|| parse_info.count < parser_cardinality.maximum)
 				{
 					auto subparse_result = parse_info.parser_p->parse(
-						result.value().remainingTokens(), style);
+						p_result.value().remainingTokens(), style);
 					if (!subparse_result)
 					{
 						LYRA_PRINT_DEBUG("(!)", get_usage_text(style), "!=",
-							result.value().remainingTokens().argument().name);
+							p_result.value().remainingTokens().argument().name);
 						if (subparse_result.has_value()
 							&& subparse_result.value().type()
 								== parser_result_type::short_circuit_all)
@@ -2537,9 +2537,9 @@ class arguments : public parser
 							!= parser_result_type::no_match)
 					{
 						LYRA_PRINT_DEBUG("(=)", get_usage_text(style), "==",
-							result.value().remainingTokens().argument().name,
+							p_result.value().remainingTokens().argument().name,
 							"==>", subparse_result.value().type());
-						result = parse_result(subparse_result);
+						p_result = parse_result(subparse_result);
 						token_parsed = true;
 						parse_info.count += 1;
 						break;
@@ -2547,8 +2547,8 @@ class arguments : public parser
 				}
 			}
 
-			if (result.value().type() == parser_result_type::short_circuit_all)
-				return result;
+			if (p_result.value().type() == parser_result_type::short_circuit_all)
+				return p_result;
 			if (!token_parsed && !error_result) return error_result;
 			if (!token_parsed) break;
 		}
@@ -2561,11 +2561,11 @@ class arguments : public parser
 				|| (parser_cardinality.is_required()
 					&& (parseInfo.count < parser_cardinality.minimum)))
 			{
-				return parse_result::error(result.value(),
+				return parse_result::error(p_result.value(),
 					"Expected: " + parseInfo.parser_p->get_usage_text(style));
 			}
 		}
-		return result;
+		return p_result;
 	}
 
 	parse_result parse_sequence(
@@ -2586,7 +2586,7 @@ class arguments : public parser
 			for (auto const & p : parsers) parser_info[i++].parser_p = p.get();
 		}
 
-		auto result = parse_result::ok(
+		auto p_result = parse_result::ok(
 			detail::parse_state(parser_result_type::matched, tokens));
 
 		for (std::size_t parser_i = 0; parser_i < parsers.size(); ++parser_i)
@@ -2596,7 +2596,7 @@ class arguments : public parser
 			do
 			{
 				auto subresult = parse_info.parser_p->parse(
-					result.value().remainingTokens(), style);
+					p_result.value().remainingTokens(), style);
 				if (!subresult)
 				{
 					break;
@@ -2609,15 +2609,15 @@ class arguments : public parser
 				if (subresult.value().type() != parser_result_type::no_match)
 				{
 					LYRA_PRINT_DEBUG("(=)", get_usage_text(style), "==",
-						result.value().remainingTokens()
-							? result.value().remainingTokens().argument().name
+						p_result.value().remainingTokens()
+							? p_result.value().remainingTokens().argument().name
 							: "",
 						"==>", subresult.value().type());
-					result = subresult;
+					p_result = subresult;
 					parse_info.count += 1;
 				}
 			}
-			while (result.value().have_tokens()
+			while (p_result.value().have_tokens()
 				&& (parser_cardinality.is_unbounded()
 					|| parse_info.count < parser_cardinality.maximum));
 			if ((parser_cardinality.is_bounded()
@@ -2626,11 +2626,11 @@ class arguments : public parser
 				|| (parser_cardinality.is_required()
 					&& (parse_info.count < parser_cardinality.minimum)))
 			{
-				return parse_result::error(result.value(),
+				return parse_result::error(p_result.value(),
 					"Expected: " + parse_info.parser_p->get_usage_text(style));
 			}
 		}
-		return result;
+		return p_result;
 	}
 
 	virtual std::unique_ptr<parser> clone() const override
@@ -2651,8 +2651,8 @@ class arguments : public parser
 	{
 		for (auto & p : parsers)
 		{
-			const parser * result = p->get_named(n);
-			if (result) return result;
+			const parser * p_result = p->get_named(n);
+			if (p_result) return p_result;
 		}
 		return nullptr;
 	}
@@ -2923,13 +2923,13 @@ class group : public arguments
 		LYRA_PRINT_SCOPE("group::parse");
 		LYRA_PRINT_DEBUG("(?)", get_usage_text(style),
 			"?=", tokens ? tokens.argument().name : "");
-		parse_result result = arguments::parse(tokens, style);
-		if (result && result.value().type() != parser_result_type::no_match
+		parse_result p_result = arguments::parse(tokens, style);
+		if (p_result && p_result.value().type() != parser_result_type::no_match
 			&& success_signal)
 		{
 			this->success_signal(*this);
 		}
-		if (!result)
+		if (!p_result)
 		{
 			LYRA_PRINT_DEBUG("(!)", get_usage_text(style),
 				"!=", tokens ? tokens.argument().name : "");
@@ -2938,9 +2938,9 @@ class group : public arguments
 		{
 			LYRA_PRINT_DEBUG("(=)", get_usage_text(style),
 				"==", tokens ? tokens.argument().name : "", "==>",
-				result.value().type());
+				p_result.value().type());
 		}
-		return result;
+		return p_result;
 	}
 
 	group & optional();
@@ -3154,28 +3154,28 @@ class cli : protected arguments
 				type * = nullptr>
 		operator T() const
 		{
-			typename detail::remove_cvref<T>::type result {};
+			typename detail::remove_cvref<T>::type converted_value {};
 			if (parser_ref)
 				detail::from_string<std::string,
 					typename detail::remove_cvref<T>::type>(
-					parser_ref->get_value(0), result);
-			return result;
+					parser_ref->get_value(0), converted_value);
+			return converted_value;
 		}
 
 		template <typename T>
 		operator std::vector<T>() const
 		{
-			std::vector<T> result;
+			std::vector<T> converted_value;
 			if (parser_ref)
 			{
 				for (size_t i = 0; i < parser_ref->get_value_count(); ++i)
 				{
 					T v;
 					if (detail::from_string(parser_ref->get_value(i), v))
-						result.push_back(v);
+						converted_value.push_back(v);
 				}
 			}
-			return result;
+			return converted_value;
 		}
 
 		operator std::string() const
@@ -3396,19 +3396,19 @@ inline parse_result cli::parse(
 	LYRA_PRINT_SCOPE("cli::parse");
 	m_exeName.set(args.exe_name());
 	detail::token_iterator args_tokens(args, style);
-	parse_result result = parse(args_tokens, style);
-	if (result
-		&& (result.value().type() == parser_result_type::no_match
-			|| result.value().type() == parser_result_type::matched))
+	parse_result p_result = parse(args_tokens, style);
+	if (p_result
+		&& (p_result.value().type() == parser_result_type::no_match
+			|| p_result.value().type() == parser_result_type::matched))
 	{
-		if (result.value().have_tokens())
+		if (p_result.value().have_tokens())
 		{
-			return parse_result::error(result.value(),
+			return parse_result::error(p_result.value(),
 				"Unrecognized token: "
-					+ result.value().remainingTokens().argument().name);
+					+ p_result.value().remainingTokens().argument().name);
 		}
 	}
-	return result;
+	return p_result;
 }
 
 /* tag::reference[]
@@ -3477,8 +3477,8 @@ class literal : public parser
 	public:
 	literal(std::string const & n);
 
-	literal & help(const std::string & text);
-	literal & operator()(std::string const & description);
+	literal & help(const std::string & help_description_text);
+	literal & operator()(std::string const & help_description_text);
 
 	virtual detail::parser_cardinality cardinality() const override
 	{
@@ -3574,21 +3574,21 @@ end::reference[] */
 
 [source]
 ----
-literal& literal::help(const std::string& text)
-literal& literal::operator()(std::string const& description)
+literal& literal::help(const std::string& help_description_text)
+literal& literal::operator()(std::string const& help_description_text)
 ----
 
 Specify a help description for the literal.
 
 end::reference[] */
-inline literal & literal::help(const std::string & text)
+inline literal & literal::help(const std::string & help_description_text)
 {
-	description = text;
+	description = help_description_text;
 	return *this;
 }
-inline literal & literal::operator()(std::string const & description)
+inline literal & literal::operator()(std::string const & help_description_text)
 {
-	return this->help(description);
+	return this->help(help_description_text);
 }
 
 } // namespace lyra
@@ -3642,7 +3642,7 @@ class command : public group
 	template <typename P>
 	command & add_argument(P const & p);
 	template <typename P>
-	command & operator|=(parser const & p);
+	command & operator|=(P const & p);
 
 	virtual std::unique_ptr<parser> clone() const override
 	{
@@ -3723,7 +3723,7 @@ inline command & command::operator()(std::string const & description)
 template <typename P>
 command & command::add_argument(P const & p);
 template <typename P>
-command & command::operator|=(parser const & p);
+command & command::operator|=(P const & p);
 ----
 
 Adds the given argument parser to the considered arguments for this `comand`.
@@ -3738,7 +3738,7 @@ command & command::add_argument(P const & p)
 	return *this;
 }
 template <typename P>
-command & command::operator|=(parser const & p)
+command & command::operator|=(P const & p)
 {
 	return this->add_argument(p);
 }
@@ -3822,27 +3822,27 @@ class opt : public bound_parser<opt>
 	virtual std::string get_usage_text(
 		const option_style & style) const override
 	{
-		std::string result;
+		std::string usage;
 		for (std::size_t o = 0; o < opt_names.size(); ++o)
 		{
-			if (o > 0) result += "|";
-			result += format_opt(opt_names[o], style);
+			if (o > 0) usage += "|";
+			usage += format_opt(opt_names[o], style);
 		}
-		if (!m_hint.empty()) result += " <" + m_hint + ">";
-		return result;
+		if (!m_hint.empty()) usage += " <" + m_hint + ">";
+		return usage;
 	}
 
 	virtual help_text get_help_text(const option_style & style) const override
 	{
 		std::ostringstream oss;
 		bool first = true;
-		for (auto const & opt : opt_names)
+		for (auto const & opt_name : opt_names)
 		{
 			if (first)
 				first = false;
 			else
 				oss << ", ";
-			oss << format_opt(opt, style);
+			oss << format_opt(opt_name, style);
 		}
 		if (!m_hint.empty()) oss << " <" << m_hint << ">";
 		return { { oss.str(), m_description } };
@@ -3883,13 +3883,13 @@ class opt : public bound_parser<opt>
 					remainingTokens.pop(token);
 					auto flagRef
 						= static_cast<detail::BoundFlagRefBase *>(m_ref.get());
-					auto result = flagRef->setFlag(true);
-					if (!result) return parse_result(result);
+					auto flag_result = flagRef->setFlag(true);
+					if (!flag_result) return parse_result(flag_result);
 					LYRA_PRINT_DEBUG(
 						"(=)", get_usage_text(style), "==", token.name);
-					if (result.value() == parser_result_type::short_circuit_all)
+					if (flag_result.value() == parser_result_type::short_circuit_all)
 						return parse_result::ok(detail::parse_state(
-							result.value(), remainingTokens));
+							flag_result.value(), remainingTokens));
 				}
 				else
 				{
@@ -3907,19 +3907,19 @@ class opt : public bound_parser<opt>
 							= value_choices->contains_value(argToken.name);
 						if (!choice_result) return parse_result(choice_result);
 					}
-					auto result = valueRef->setValue(argToken.name);
-					if (!result)
+					auto v_result = valueRef->setValue(argToken.name);
+					if (!v_result)
 					{
 						return parse_result::error(
 							{ parser_result_type::short_circuit_all,
 								remainingTokens },
-							result.message());
+							v_result.message());
 					}
 					LYRA_PRINT_DEBUG("(=)", get_usage_text(style),
 						"==", token.name, argToken.name);
-					if (result.value() == parser_result_type::short_circuit_all)
+					if (v_result.value() == parser_result_type::short_circuit_all)
 						return parse_result::ok(detail::parse_state(
-							result.value(), remainingTokens));
+							v_result.value(), remainingTokens));
 				}
 				return parse_result::ok(detail::parse_state(
 					parser_result_type::matched, remainingTokens));
@@ -3976,11 +3976,11 @@ class opt : public bound_parser<opt>
 	{
 		if (detail::token_iterator::is_prefixed(
 				style.short_option_prefix, style.short_option_size, opt_name))
-			return "-" + opt_name.substr(style.short_option_size);
+			return std::string("-") + opt_name.substr(style.short_option_size);
 
 		if (detail::token_iterator::is_prefixed(
 				style.long_option_prefix, style.long_option_size, opt_name))
-			return "--" + opt_name.substr(style.long_option_size);
+			return std::string("--") + opt_name.substr(style.long_option_size);
 
 		return opt_name;
 	}
@@ -4259,9 +4259,9 @@ inline main::main(const std::string & text)
 
 [source]
 ----
-template <typename T> main & main::operator()(const T & parser)
-template <typename T> main & main::add_argument(const T & parser)
-template <typename T> main & main::operator|=(const T & parser)
+template <typename T> main & main::operator()(const T & arg_parser)
+template <typename T> main & main::add_argument(const T & arg_parser)
+template <typename T> main & main::operator|=(const T & arg_parser)
 ----
 
 Adds a parser as an argument to the command line. These forward directly to the
@@ -4270,21 +4270,21 @@ like `lyra::opt` or `lyra::arg`.
 
 end::reference[] */
 template <typename T>
-main & main::operator()(const T & parser)
+main & main::operator()(const T & arg_parser)
 {
-	cli::add_argument(parser);
+	cli::add_argument(arg_parser);
 	return *this;
 }
 template <typename T>
-main & main::add_argument(const T & parser)
+main & main::add_argument(const T & arg_parser)
 {
-	cli::add_argument(parser);
+	cli::add_argument(arg_parser);
 	return *this;
 }
 template <typename T>
-main & main::operator|=(const T & parser)
+main & main::operator|=(const T & arg_parser)
 {
-	cli::operator|=(parser);
+	cli::operator|=(arg_parser);
 	return *this;
 }
 
@@ -4388,13 +4388,13 @@ end::reference[] */
 template <typename L>
 int main::operator()(const args & argv, L action)
 {
-	auto result = cli::parse(argv);
-	if (!result) std::cerr << result.message() << "\n\n";
-	if (show_help || !result)
+	auto cli_result = cli::parse(argv);
+	if (!cli_result) std::cerr << cli_result.message() << "\n\n";
+	if (show_help || !cli_result)
 		std::cout << *this << "\n";
 	else
 		return action(*this);
-	return result ? 0 : 1;
+	return cli_result ? 0 : 1;
 }
 template <typename L>
 int main::operator()(int argc, const char ** argv, L action)

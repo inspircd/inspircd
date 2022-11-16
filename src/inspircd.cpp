@@ -36,14 +36,7 @@
 #include <fstream>
 #include <iostream>
 
-#ifdef __GNUC__
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wshadow"
-#endif
 #include <lyra/lyra.hpp>
-#ifdef __GNUC__
-# pragma GCC diagnostic pop
-#endif
 #include <rang/rang.hpp>
 
 #include "inspircd.h"

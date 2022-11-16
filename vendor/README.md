@@ -28,7 +28,7 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **License** &mdash; Boost Software License
 
-**Version** &mdash; 1.6
+**Version** &mdash; 1.6.1
 
 **Website** &mdash; [https://github.com/bfgroup/Lyra](https://github.com/bfgroup/Lyra)
 
@@ -68,6 +68,6 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **License** &mdash; Boost Software License
 
-**Version** &mdash; v3.2.1
+**Version** &mdash; v3.2.2
 
 **Website** &mdash; [https://github.com/nemtrif/utfcpp](https://github.com/nemtrif/utfcpp)

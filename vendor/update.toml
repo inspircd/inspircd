@@ -18,6 +18,7 @@ author  = "Build Frameworks Group"
 depth   = 3
 files   = "{data/single_include/lyra/lyra.hpp,LICENSE.txt}"
 git     = "https://github.com/bfgroup/Lyra"
+branch  = "release"
 license = "Boost Software License"
 
 [md5]
