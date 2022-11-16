@@ -1,4 +1,4 @@
-# Last updated: 2022-10-22
+# Last updated: 2022-11-16
 #
 # Modules we can't legally ship: geo_maxmind, ssl_mbedtls, ssl_openssl
 # Modules which don't apply to Windows: sslrehashsignal
@@ -10,11 +10,10 @@ argon2/20190702
 libmysqlclient/8.0.30
 libpq/14.5
 ## mbedtls/3.2.1
-## openssl/1.1.1q # unable to upgrade to v3 yet because of dependency issues
+## openssl/1.1.1s # unable to upgrade to v3 yet because of dependency issues
 pcre/8.45
 re2/20220601
 sqlite3/3.39.4
-zlib/1.2.13 # force override to fix a conflict between libmysqlclient and pcre2
 
 [options]
 argon2:shared=True
