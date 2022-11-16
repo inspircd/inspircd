@@ -415,7 +415,8 @@ std::string irc::sockets::cidr_mask::str() const
 			break;
 
 		case AF_UNIX:
-			return sa.un.sun_path;
+			// TODO: make bits a vector<uint8_t> so we can return the actual path here.
+			return "/*";
 
 		default:
 			// If we have reached this point then we have encountered a bug.
