@@ -35,6 +35,7 @@
 # include <sys/un.h>
 #else
 # include <afunix.h>
+typedef u_short sa_family_t;
 #endif
 
 #include <cerrno>
@@ -63,7 +64,7 @@ namespace irc
 			std::string addr() const;
 
 			/** Returns the family of the socket address (e.g. AF_INET). */
-			int family() const;
+			sa_family_t family() const;
 
 			/** Store an IP address or UNIX socket path in this socket address.
 			 * @param addr An IPv4 address, IPv6 address, or UNIX socket path.
@@ -107,7 +108,7 @@ namespace irc
 		struct CoreExport cidr_mask
 		{
 			/** Type, AF_INET or AF_INET6 */
-			unsigned char type;
+			sa_family_t type;
 			/** Length of the mask in bits (0-128) */
 			unsigned char length;
 			/** Raw bits. Unused bits must be zero */

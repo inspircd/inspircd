@@ -495,7 +495,7 @@ public:
 
 					default:
 						// If we have reached this point then we have encountered a bug.
-						ServerInstance->Logs.Debug(MODNAME, "BUG: OnWebIRCAuth(%s): socket type %d is unknown!",
+						ServerInstance->Logs.Debug(MODNAME, "BUG: OnWebIRCAuth(%s): socket type %hu is unknown!",
 							user->uuid.c_str(), user->client_sa.family());
 						return;
 				}
@@ -521,7 +521,7 @@ public:
 
 					default:
 						// If we have reached this point then we have encountered a bug.
-						ServerInstance->Logs.Debug(MODNAME, "BUG: OnWebIRCAuth(%s): socket type %d is unknown!",
+						ServerInstance->Logs.Debug(MODNAME, "BUG: OnWebIRCAuth(%s): socket type %hu is unknown!",
 							user->uuid.c_str(), user->server_sa.family());
 						return;
 				}

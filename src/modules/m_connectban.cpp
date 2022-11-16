@@ -49,7 +49,7 @@ private:
 
 	unsigned char GetRange(LocalUser* user) const
 	{
-		int family = user->client_sa.family();
+		sa_family_t family = user->client_sa.family();
 		switch (family)
 		{
 			case AF_INET:
@@ -64,7 +64,7 @@ private:
 		}
 
 		// If we have reached this point then we have encountered a bug.
-		ServerInstance->Logs.Debug(MODNAME, "BUG: ModuleConnectBan::GetRange(): socket type %d is unknown!", family);
+		ServerInstance->Logs.Debug(MODNAME, "BUG: ModuleConnectBan::GetRange(): socket type %hu is unknown!", family);
 		return 0;
 	}
 

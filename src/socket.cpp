@@ -213,7 +213,7 @@ bool irc::sockets::isunix(const std::string& file)
 	return false;
 }
 
-int irc::sockets::sockaddrs::family() const
+sa_family_t irc::sockets::sockaddrs::family() const
 {
 	return sa.sa_family;
 }
@@ -233,7 +233,7 @@ int irc::sockets::sockaddrs::port() const
 	}
 
 	// If we have reached this point then we have encountered a bug.
-	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::port(): socket type %d is unknown!", family());
+	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::port(): socket type %hu is unknown!", family());
 	return 0;
 }
 
@@ -258,7 +258,7 @@ std::string irc::sockets::sockaddrs::addr() const
 	}
 
 	// If we have reached this point then we have encountered a bug.
-	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::addr(): socket type %d is unknown!", family());
+	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::addr(): socket type %hu is unknown!", family());
 	return "<unknown>";
 }
 
@@ -283,7 +283,7 @@ std::string irc::sockets::sockaddrs::str() const
 	}
 
 	// If we have reached this point then we have encountered a bug.
-	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::str(): socket type %d is unknown!", family());
+	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::str(): socket type %hu is unknown!", family());
 	return "<unknown>";
 }
 
@@ -302,7 +302,7 @@ socklen_t irc::sockets::sockaddrs::sa_size() const
 	}
 
 	// If we have reached this point then we have encountered a bug.
-	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::sa_size(): socket type %d is unknown!", family());
+	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::sa_size(): socket type %hu is unknown!", family());
 	return 0;
 }
 
@@ -324,7 +324,7 @@ bool irc::sockets::sockaddrs::operator==(const irc::sockets::sockaddrs& other) c
 	}
 
 	// If we have reached this point then we have encountered a bug.
-	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::operator==(): socket type %d is unknown!", family());
+	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::operator==(): socket type %hu is unknown!", family());
 	return !memcmp(this, &other, sizeof(*this));
 }
 
@@ -358,7 +358,7 @@ static void sa2cidr(irc::sockets::cidr_mask& cidr, const irc::sockets::sockaddrs
 
 		default:
 			// If we have reached this point then we have encountered a bug.
-			ServerInstance->Logs.Debug("SOCKET", "BUG: sa2cidr(): socket type %d is unknown!", cidr.type);
+			ServerInstance->Logs.Debug("SOCKET", "BUG: sa2cidr(): socket type %hu is unknown!", cidr.type);
 			cidr.length = 0;
 			return;
 	}
@@ -424,7 +424,7 @@ std::string irc::sockets::cidr_mask::str() const
 
 		default:
 			// If we have reached this point then we have encountered a bug.
-			ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::cidr_mask::str(): socket type %d is unknown!", type);
+			ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::cidr_mask::str(): socket type %hu is unknown!", type);
 			return "<unknown>";
 	}
 
