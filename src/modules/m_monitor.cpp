@@ -20,7 +20,9 @@
 
 
 #include "inspircd.h"
+#include "modules/cap.h"
 #include "modules/isupport.h"
+#include "modules/monitor.h"
 #include "numericbuilder.h"
 
 namespace IRCv3::Monitor
@@ -359,10 +361,12 @@ public:
 class ModuleMonitor final
 	: public Module
 	, public ISupport::EventListener
+	, public Monitor::APIBase
 {
 private:
 	IRCv3::Monitor::Manager manager;
 	CommandMonitor cmd;
+	Cap::Capability extendedcap;
 
 	void SendAlert(unsigned int numeric, const std::string& nick)
 	{
@@ -378,8 +382,10 @@ public:
 	ModuleMonitor()
 		: Module(VF_VENDOR, "Adds the /MONITOR command which allows users to find out when their friends are connected to the server.")
 		, ISupport::EventListener(this)
+		, Monitor::APIBase(this)
 		, manager(this, "monitor")
 		, cmd(this, manager)
+		, extendedcap(this, "extended-monitor")
 	{
 	}
 
@@ -415,6 +421,20 @@ public:
 	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
 		tokens["MONITOR"] = ConvToStr(cmd.maxmonitor);
+	}
+
+	void ForEachWatcher(User* user, Monitor::ForEachHandler& handler, bool extended_only) override
+	{
+		const IRCv3::Monitor::WatcherList* list = manager.GetWatcherList(user->nick);
+		if (!list)
+			return;
+
+		for (IRCv3::Monitor::WatcherList::const_iterator i = list->begin(); i != list->end(); ++i)
+		{
+			LocalUser* curr = *i;
+			if (!extended_only || extendedcap.IsEnabled(curr))
+				handler.Execute(curr);
+		}
 	}
 };
 

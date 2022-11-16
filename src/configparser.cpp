@@ -418,10 +418,27 @@ void ParseStack::DoInclude(std::shared_ptr<ConfigTag> tag, int flags)
 FilePtr ParseStack::DoOpenFile(const std::string& name, bool isexec)
 {
 	ServerInstance->Logs.Debug("CONFIG", "Opening %s: %s", isexec ? "executable" : "file", name.c_str());
+
 	if (isexec)
 		return FilePtr(popen(name.c_str(), "r"), pclose);
-	else
-		return FilePtr(fopen(name.c_str(), "r"), fclose);
+
+#ifndef _WIN32
+	struct stat pathinfo;
+	if (stat(name.c_str(), &pathinfo) == 0)
+	{
+		if (getegid() != pathinfo.st_gid)
+		{
+			ServerInstance->Logs.Normal("CONFIG", "Possible configuration error: %s is owned by group %u but the server is running as group %u.",
+				name.c_str(), pathinfo.st_gid, getegid());
+		}
+		if (geteuid() != pathinfo.st_uid)
+		{
+			ServerInstance->Logs.Normal("CONFIG", "Possible configuration error: %s is owned by user %u but the server is running as user %u.",
+				name.c_str(), pathinfo.st_uid, geteuid());
+		}
+	}
+#endif
+	return FilePtr(fopen(name.c_str(), "r"), fclose);
 }
 
 void ParseStack::DoReadFile(const std::string& key, const std::string& name, int flags, bool exec)

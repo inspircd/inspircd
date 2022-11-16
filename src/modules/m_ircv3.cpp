@@ -24,6 +24,7 @@
 #include "modules/away.h"
 #include "modules/cap.h"
 #include "modules/ircv3.h"
+#include "modules/monitor.h"
 
 class AwayMessage final
 	: public ClientProtocol::Message
@@ -124,6 +125,7 @@ private:
 	Cap::Capability cap_accountnotify;
 	JoinHook joinhook;
 	ClientProtocol::EventProvider accountprotoev;
+	Monitor::API monitorapi;
 
 public:
 	ModuleIRCv3()
@@ -133,6 +135,7 @@ public:
 		, cap_accountnotify(this, "account-notify")
 		, joinhook(this)
 		, accountprotoev(this, "ACCOUNT")
+		, monitorapi(this)
 	{
 	}
 
@@ -155,7 +158,8 @@ public:
 		const std::string& param = (newaccount.empty() ? joinhook.asterisk : newaccount);
 		msg.PushParamRef(param);
 		ClientProtocol::Event accountevent(accountprotoev, msg);
-		IRCv3::WriteNeighborsWithCap(user, accountevent, cap_accountnotify, true);
+		IRCv3::WriteNeighborsWithCap res(user, accountevent, cap_accountnotify, true);
+		Monitor::WriteWatchersWithCap(monitorapi, user, accountevent, cap_accountnotify, res.GetAlreadySentId());
 	}
 
 	void OnUserAway(User* user) override
@@ -166,7 +170,8 @@ public:
 		// Going away: n!u@h AWAY :reason
 		AwayMessage msg(user);
 		ClientProtocol::Event awayevent(joinhook.awayprotoev, msg);
-		IRCv3::WriteNeighborsWithCap(user, awayevent, joinhook.awaycap);
+		IRCv3::WriteNeighborsWithCap res(user, awayevent, joinhook.awaycap);
+		Monitor::WriteWatchersWithCap(monitorapi, user, awayevent, joinhook.awaycap, res.GetAlreadySentId());
 	}
 
 	void OnUserBack(User* user) override
