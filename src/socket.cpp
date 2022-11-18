@@ -402,16 +402,19 @@ std::string irc::sockets::cidr_mask::str() const
 
 	unsigned char* base;
 	size_t len;
+	unsigned char maxlen;
 	switch (type)
 	{
 		case AF_INET:
 			base = (unsigned char*)&sa.in4.sin_addr;
 			len = 4;
+			maxlen = 32;
 			break;
 
 		case AF_INET6:
 			base = (unsigned char*)&sa.in6.sin6_addr;
 			len = 16;
+			maxlen = 128;
 			break;
 
 		case AF_UNIX:
@@ -425,7 +428,14 @@ std::string irc::sockets::cidr_mask::str() const
 	}
 
 	memcpy(base, bits, len);
-	return sa.addr() + "/" + ConvToStr((int)length);
+
+	std::string value = sa.addr();
+	if (length < maxlen)
+	{
+		value.push_back('/');
+		value.append(ConvToStr(static_cast<uint16_t>(length)));
+	}
+	return value;
 }
 
 bool irc::sockets::cidr_mask::operator==(const cidr_mask& other) const
