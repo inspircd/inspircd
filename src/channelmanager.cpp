@@ -19,7 +19,7 @@
 
 #include "inspircd.h"
 
-bool ChannelManager::DefaultIsChannel(const std::string& channel)
+bool ChannelManager::DefaultIsChannel(const std::string_view& channel)
 {
 	if (channel.empty() || channel.length() > ServerInstance->Config->Limits.MaxChannel)
 		return false;

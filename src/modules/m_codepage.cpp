@@ -75,7 +75,7 @@ public:
 	}
 
 	// Determines whether a nickname is valid.
-	virtual bool IsValidNick(const std::string& nick) = 0;
+	virtual bool IsValidNick(const std::string_view& nick) = 0;
 
 	// Retrieves the link data for this codepage.
 	virtual void GetLinkData(Module::LinkData& data, std::string& compatdata) const = 0;
@@ -112,12 +112,12 @@ public:
 		return ACR_OKAY;
 	}
 
-	bool IsValidNick(const std::string& nick) override
+	bool IsValidNick(const std::string_view& nick) override
 	{
 		if (nick.empty() || nick.length() > ServerInstance->Config->Limits.MaxNick)
 			return false;
 
-		for (std::string::const_iterator iter = nick.begin(); iter != nick.end(); ++iter)
+		for (std::string_view::const_iterator iter = nick.begin(); iter != nick.end(); ++iter)
 		{
 			unsigned char chr = static_cast<unsigned char>(*iter);
 
@@ -182,7 +182,7 @@ private:
 	const std::string origcasemapname;
 
 	// The IsNick handler which was set before this module was loaded.
-	const std::function<bool(const std::string&)> origisnick;
+	const std::function<bool(const std::string_view&)> origisnick;
 
 	// The character set used for the codepage.
 	std::string charset;
@@ -313,7 +313,7 @@ public:
 
 		charset = codepagetag->getString("charset");
 		std::swap(codepage, newcodepage);
-		ServerInstance->IsNick = [this](const std::string& nick) { return codepage->IsValidNick(nick); };
+		ServerInstance->IsNick = [this](const std::string_view& nick) { return codepage->IsValidNick(nick); };
 		CheckInvalidNick();
 
 		ServerInstance->Config->CaseMapping = name;

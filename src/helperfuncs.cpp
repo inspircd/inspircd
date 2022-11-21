@@ -158,12 +158,12 @@ void InspIRCd::ProcessColors(std::vector<std::string>& input)
 }
 
 /* true for valid nickname, false else */
-bool InspIRCd::DefaultIsNick(const std::string& n)
+bool InspIRCd::DefaultIsNick(const std::string_view& n)
 {
 	if (n.empty() || n.length() > ServerInstance->Config->Limits.MaxNick)
 		return false;
 
-	for (std::string::const_iterator i = n.begin(); i != n.end(); ++i)
+	for (std::string_view::const_iterator i = n.begin(); i != n.end(); ++i)
 	{
 		if ((*i >= 'A') && (*i <= '}'))
 		{
@@ -185,7 +185,7 @@ bool InspIRCd::DefaultIsNick(const std::string& n)
 }
 
 /* return true for good ident, false else */
-bool InspIRCd::DefaultIsIdent(const std::string& n)
+bool InspIRCd::DefaultIsIdent(const std::string_view& n)
 {
 	if (n.empty())
 		return false;

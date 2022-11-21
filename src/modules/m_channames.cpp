@@ -29,10 +29,10 @@ static CharState allowedmap;
 class NewIsChannelHandler final
 {
 public:
-	static bool Call(const std::string&);
+	static bool Call(const std::string_view&);
 };
 
-bool NewIsChannelHandler::Call(const std::string& channame)
+bool NewIsChannelHandler::Call(const std::string_view& channame)
 {
 	if (channame.empty() || channame.length() > ServerInstance->Config->Limits.MaxChannel || !ServerInstance->Channels.IsPrefix(channame[0]))
 		return false;
@@ -49,7 +49,7 @@ bool NewIsChannelHandler::Call(const std::string& channame)
 class ModuleChannelNames final
 	: public Module
 {
-	std::function<bool(const std::string&)> rememberer;
+	std::function<bool(const std::string_view&)> rememberer;
 	bool badchan = false;
 	ChanModeReference permchannelmode;
 

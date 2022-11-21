@@ -373,24 +373,24 @@ public:
 	static std::string Format(va_list& vaList, const char* formatString) ATTR_PRINTF(2, 0);
 
 	/** Determines whether a nickname is valid. */
-	std::function<bool(const std::string&)> IsNick;
+	std::function<bool(const std::string_view&)> IsNick;
 
 	/** Determines whether a nickname is valid according to the RFC 1459 rules.
 	 * This is the default function for InspIRCd::IsNick.
 	 * @param nick The nickname to validate.
 	 * @return True if the nickname is valid according to RFC 1459 rules; otherwise, false.
 	 */
-	static bool DefaultIsNick(const std::string& nick);
+	static bool DefaultIsNick(const std::string_view& nick);
 
 	/** Determines whether an ident is valid. */
-	std::function<bool(const std::string&)> IsIdent;
+	std::function<bool(const std::string_view&)> IsIdent;
 
 	/** Determines whether a ident is valid according to the RFC 1459 rules.
 	 * This is the default function for InspIRCd::IsIdent.
 	 * @param ident The ident to validate.
 	 * @return True if the ident is valid according to RFC 1459 rules; otherwise, false.
 	*/
-	static bool DefaultIsIdent(const std::string& ident);
+	static bool DefaultIsIdent(const std::string_view& ident);
 
 	/** Match two strings using pattern matching, optionally, with a map
 	 * to check case against (may be NULL). If map is null, match will be case insensitive.

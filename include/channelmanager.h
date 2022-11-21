@@ -31,14 +31,14 @@ private:
 
 public:
 	/** Determines whether an channel name is valid. */
-	std::function<bool(const std::string&)> IsChannel = DefaultIsChannel;
+	std::function<bool(const std::string_view&)> IsChannel = DefaultIsChannel;
 
 	/** Determines whether a channel name is valid according to the RFC 1459 rules.
 	 * This is the default function for InspIRCd::IsChannel.
 	 * @param channel The channel name to validate.
 	 * @return True if the channel name is valid according to RFC 1459 rules; otherwise, false.
 	 */
-	static bool DefaultIsChannel(const std::string& channel);
+	static bool DefaultIsChannel(const std::string_view& channel);
 
 	/** Finds a channel by name.
 	 * @param channel The name of the channel to look up.
