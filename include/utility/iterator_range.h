@@ -85,5 +85,5 @@ public:
 	const Iterator& end() const { return endi; }
 
 	/** Retrieves the number of hops within the iterator range. */
-	typename Iterator::difference_type count() const { return std::distance(begini, endi); }
+	typename std::iterator_traits<Iterator>::difference_type count() const { return std::distance(begini, endi); }
 };
