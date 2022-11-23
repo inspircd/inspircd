@@ -105,7 +105,7 @@ class SilenceEntry
 	}
 
 	// Converts a flag list to a bitmask.
-	static bool FlagsToBits(const std::string& flags, uint32_t& out)
+	static bool FlagsToBits(const std::string& flags, uint32_t& out, bool strict)
 	{
 		out = SF_NONE;
 		for (std::string::const_iterator flag = flags.begin(); flag != flags.end(); ++flag)
@@ -146,6 +146,8 @@ class SilenceEntry
 					out |= SF_EXEMPT;
 					break;
 				default:
+					if (!strict)
+						continue;
 					out = SF_NONE;
 					return false;
 			}
@@ -228,7 +230,7 @@ class SilenceExtItem : public SimpleExtItem<SilenceList>
 
 			// Try to parse the flags.
 			uint32_t flags;
-			if (!SilenceEntry::FlagsToBits(flagstr, flags))
+			if (!SilenceEntry::FlagsToBits(flagstr, flags, false))
 			{
 				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Malformed silence flags received for %s: %s",
 					user->uuid.c_str(), flagstr.c_str());
@@ -373,7 +375,7 @@ class CommandSilence : public SplitCommand
 		uint32_t flags = SilenceEntry::SF_DEFAULT;
 		if (parameters.size() > 1)
 		{
-			if (!SilenceEntry::FlagsToBits(parameters[1], flags))
+			if (!SilenceEntry::FlagsToBits(parameters[1], flags, true))
 			{
 				user->WriteNumeric(ERR_SILENCE, mask, parameters[1], "You specified one or more invalid SILENCE flags");
 				return CMD_FAILURE;
