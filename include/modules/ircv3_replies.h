@@ -254,6 +254,53 @@ class IRCv3::Replies::Reply
 		else
 			SendNoticeInternal(user, command, description);
 	}
+
+	void SendIfCap(LocalUser* user, const Cap::Capability* cap, Command* command, const std::string& code,
+		const std::string& description)
+	{
+		if (cap)
+			SendIfCap(user, *cap, command, code, description);
+	}
+
+	template<typename T1>
+	void SendIfCap(LocalUser* user, const Cap::Capability* cap, Command* command, const std::string& code,
+		const T1& p1, const std::string& description)
+	{
+		if (cap)
+			SendIfCap(user, *cap, command, code, p1, description);
+	}
+
+	template<typename T1, typename T2>
+	void SendIfCap(LocalUser* user, const Cap::Capability* cap, Command* command, const std::string& code,
+		const T1& p1, const T2& p2, const std::string& description)
+	{
+		if (cap)
+			SendIfCap(user, *cap, command, code, p1, p2, description);
+	}
+
+	template<typename T1, typename T2, typename T3>
+	void SendIfCap(LocalUser* user, const Cap::Capability* cap, Command* command, const std::string& code,
+		const T1& p1, const T2& p2, const T3& p3, const std::string& description)
+	{
+		if (cap)
+			SendIfCap(user, *cap, command, code, p1, p2, p3, description);
+	}
+
+	template<typename T1, typename T2, typename T3, typename T4>
+	void SendIfCap(LocalUser* user, const Cap::Capability* cap, Command* command, const std::string& code,
+		const T1& p1, const T2& p2, const T3& p3, const T4& p4, const std::string& description)
+	{
+		if (cap)
+			SendIfCap(user, *cap, command, code, p1, p2, p3, p4, description);
+	}
+
+	template<typename T1, typename T2, typename T3, typename T4, typename T5>
+	void SendIfCap(LocalUser* user, const Cap::Capability* cap, Command* command, const std::string& code,
+		const T1& p1, const T2& p2, const T3& p3, const T4& p4, const T5& p5, const std::string& description)
+	{
+		if (cap)
+			SendIfCap(user, *cap, command, code, p1, p2, p3, p4, p5, description);
+	}
 };
 
 /** Sends a FAIL standard reply. */
