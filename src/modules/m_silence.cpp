@@ -106,7 +106,7 @@ public:
 	}
 
 	// Converts a flag list to a bitmask.
-	static bool FlagsToBits(const std::string& flags, uint32_t& out)
+	static bool FlagsToBits(const std::string& flags, uint32_t& out, bool strict)
 	{
 		out = SF_NONE;
 		for (const auto& flag : flags)
@@ -147,6 +147,8 @@ public:
 					out |= SF_EXEMPT;
 					break;
 				default:
+					if (!strict)
+						continue;
 					out = SF_NONE;
 					return false;
 			}
@@ -233,7 +235,7 @@ public:
 
 			// Try to parse the flags.
 			uint32_t flags;
-			if (!SilenceEntry::FlagsToBits(flagstr, flags))
+			if (!SilenceEntry::FlagsToBits(flagstr, flags, false))
 			{
 				ServerInstance->Logs.Debug(MODNAME, "Malformed silence flags received for %s: %s",
 					user->uuid.c_str(), flagstr.c_str());
@@ -377,7 +379,7 @@ public:
 		uint32_t flags = SilenceEntry::SF_DEFAULT;
 		if (parameters.size() > 1)
 		{
-			if (!SilenceEntry::FlagsToBits(parameters[1], flags))
+			if (!SilenceEntry::FlagsToBits(parameters[1], flags, true))
 			{
 				user->WriteNumeric(ERR_SILENCE, mask, parameters[1], "You specified one or more invalid SILENCE flags");
 				return CmdResult::FAILURE;

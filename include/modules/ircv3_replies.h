@@ -116,12 +116,12 @@ public:
 	 * @param args A variable number of context parameters and a human readable description of this reply.
 	 */
 	template<typename... Args>
-	void SendIfCap(LocalUser* user, const Cap::Capability& cap, Command* command, const std::string& code,
+	void SendIfCap(LocalUser* user, Cap::Capability* cap, Command* command, const std::string& code,
 		Args&&... args)
 	{
 		static_assert(sizeof...(Args) >= 1);
 
-		if (cap.IsEnabled(user))
+		if (cap && cap->IsEnabled(user))
 			Send(user, command, code, std::forward<Args>(args)...);
 		else
 			SendNoticeInternal(user, command, std::get<sizeof...(Args) - 1>(std::forward_as_tuple(args...)));

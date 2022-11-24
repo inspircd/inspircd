@@ -50,13 +50,13 @@ public:
 	{
 		if (parameters[0].size() > ServerInstance->Config->Limits.MaxReal)
 		{
-			fail.SendIfCap(user, cap, this, "INVALID_REALNAME", "Real name is too long");
+			fail.SendIfCap(user, &cap, this, "INVALID_REALNAME", "Real name is too long");
 			return CmdResult::FAILURE;
 		}
 
 		if (!user->ChangeRealName(parameters[0]))
 		{
-			fail.SendIfCap(user, cap, this, "CANNOT_CHANGE_REALNAME", "Unable to change your real name");
+			fail.SendIfCap(user, &cap, this, "CANNOT_CHANGE_REALNAME", "Unable to change your real name");
 			return CmdResult::FAILURE;
 		}
 
