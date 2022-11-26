@@ -73,7 +73,7 @@ It seems like the server endpoint you specified is not reachable! Make sure that
   * If you are using a firewall incoming connections on TCP port $port are allowed.
   * The endpoint your server is listening on is not local or private.
 
-See https://docs.inspircd.org/3/configuration/#ltbindgt for more information.
+See https://docs.inspircd.org/3/configuration/#bind for more information.
 EOM
 	exit 1;
 }
@@ -91,7 +91,7 @@ It seems like the server dropped the connection before sending anything! Make su
   * The endpoint you specified is actually your IRC server.
   * If you are using a firewall incoming data on TCP port $port are allowed.
 
-See https://docs.inspircd.org/3/configuration/#ltbindgt for more information.
+See https://docs.inspircd.org/3/configuration/#bind for more information.
 EOM
 	exit 1;
 } elsif ($data =~ /[A-Z:@]/) {
@@ -154,7 +154,6 @@ The error provided by the SSL library was:
 EOM
 	exit 1;
 }
-
 
 say <<"EOM";
 ${\CC_GREEN}yes${\CC_RESET}
