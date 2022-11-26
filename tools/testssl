@@ -42,6 +42,10 @@ if (scalar @ARGV < 2) {
 # needs so we disable it.
 STDOUT->autoflush(1);
 
+# If a server closes the connection whilst an SSL session is being initiated we
+# want EPIPE instead of SIGPIPE.
+$SIG{PIPE} = 'IGNORE';
+
 my $hostip = shift @ARGV;
 if ($hostip =~ /[^A-Za-z0-9.:-]/) {
 	say STDERR "Error: invalid hostname or IP address: $hostip";
@@ -73,6 +77,10 @@ It seems like the server endpoint you specified is not reachable! Make sure that
   * If you are using a firewall incoming connections on TCP port $port are allowed.
   * The endpoint your server is listening on is not local or private.
 
+The error provided by the socket library was:
+
+  $IO::Socket::errstr
+
 See https://docs.inspircd.org/3/configuration/#bind for more information.
 EOM
 	exit 1;
@@ -82,7 +90,7 @@ say "${\CC_GREEN}yes${\CC_RESET}";
 print "Checking whether ${\CC_BOLD}$hostip/$port${\CC_RESET} is using plaintext ... ";
 my $error = $sock->recv(my $data, 1);
 
-if ($error) {
+if (!defined $error || $data eq '') {
 	say <<"EOM";
 ${\CC_RED}error${\CC_RESET}
 
@@ -90,6 +98,7 @@ It seems like the server dropped the connection before sending anything! Make su
 
   * The endpoint you specified is actually your IRC server.
   * If you are using a firewall incoming data on TCP port $port are allowed.
+  * The IP address you are connecting from has not been banned from the server.
 
 See https://docs.inspircd.org/3/configuration/#bind for more information.
 EOM
