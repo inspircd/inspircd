@@ -505,7 +505,7 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 	CommandUID::Builder(user).Broadcast();
 
 	if (user->IsOper())
-		CommandOpertype::Builder(user).Broadcast();
+		CommandOpertype::Builder(user, user->oper).Broadcast();
 
 	for (const auto& [item, obj] : user->GetExtList())
 	{
@@ -772,14 +772,14 @@ restart:
 	}
 }
 
-void ModuleSpanningTree::OnOper(User* user)
+void ModuleSpanningTree::OnOperLogin(User* user, const std::shared_ptr<OperAccount>& oper)
 {
 	if (!user->IsFullyConnected() || !IS_LOCAL(user))
 		return;
 
 	// Note: The protocol does not allow direct umode +o;
 	// sending OPERTYPE infers +o modechange locally.
-	CommandOpertype::Builder(user).Broadcast();
+	CommandOpertype::Builder(user, oper).Broadcast();
 }
 
 void ModuleSpanningTree::OnAddLine(User* user, XLine* x)

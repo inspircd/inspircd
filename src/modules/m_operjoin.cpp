@@ -52,7 +52,7 @@ public:
 			operChans.push_back(channame);
 	}
 
-	void OnPostOper(User* user) override
+	void OnPostOperLogin(User* user) override
 	{
 		LocalUser* localuser = IS_LOCAL(user);
 		if (!localuser)
@@ -64,7 +64,7 @@ public:
 				Channel::JoinUser(localuser, operchan, override);
 		}
 
-		irc::commasepstream ss(localuser->oper->getConfig("autojoin"));
+		irc::commasepstream ss(localuser->oper->GetConfig()->getString("autojoin"));
 		for (std::string channame; ss.GetToken(channame); )
 		{
 			if (ServerInstance->Channels.IsChannel(channame))

@@ -162,9 +162,7 @@ public:
 		if (!source->IsModeSet(ou))
 			return false;
 
-		std::string tokenlist = source->oper->getConfig("override");
-		// its defined or * is set, return its value as a boolean for if the token is set
-		return ((tokenlist.find(token, 0) != std::string::npos) || (tokenlist.find('*', 0) != std::string::npos));
+		return TokenList(source->oper->GetConfig()->getString("override")).Contains(token);
 	}
 
 	ModResult OnPreTopicChange(User* source, Channel* channel, const std::string& topic) override

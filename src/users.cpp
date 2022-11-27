@@ -41,7 +41,6 @@
 enum
 {
 	// From RFC 1459.
-	RPL_YOUAREOPER = 381,
 	ERR_NICKNAMEINUSE = 433,
 
 	// From ircu.
@@ -169,15 +168,7 @@ bool User::HasModePermission(const ModeHandler* mh) const
 
 bool LocalUser::HasModePermission(const ModeHandler* mh) const
 {
-	if (!this->IsOper())
-		return false;
-
-	const unsigned char mode = mh->GetModeChar();
-	if (!ModeParser::IsModeChar(mode))
-		return false;
-
-	return ((mh->GetModeType() == MODETYPE_USER ? oper->AllowedUserModes : oper->AllowedChanModes))[ModeParser::GetModeIndex(mode)];
-
+	return IsOper() && oper->CanUseMode(mh);
 }
 /*
  * users on remote servers can completely bypass all permissions based checks.
@@ -193,13 +184,7 @@ bool User::HasCommandPermission(const std::string& command) const
 
 bool LocalUser::HasCommandPermission(const std::string& command) const
 {
-	// are they even an oper at all?
-	if (!this->IsOper())
-	{
-		return false;
-	}
-
-	return oper->AllowedOperCommands.Contains(command);
+	return IsOper() && oper->CanUseCommand(command);
 }
 
 bool User::HasPrivPermission(const std::string& privstr) const
@@ -209,10 +194,7 @@ bool User::HasPrivPermission(const std::string& privstr) const
 
 bool LocalUser::HasPrivPermission(const std::string& privstr) const
 {
-	if (!this->IsOper())
-		return false;
-
-	return oper->AllowedPrivs.Contains(privstr);
+	return IsOper() && oper->HasPrivilege(privstr);
 }
 
 bool User::HasSnomaskPermission(char chr) const
@@ -222,10 +204,7 @@ bool User::HasSnomaskPermission(char chr) const
 
 bool LocalUser::HasSnomaskPermission(char chr) const
 {
-	if (!this->IsOper() || !ModeParser::IsModeChar(chr))
-		return false;
-
-	return this->oper->AllowedSnomasks[chr - 'A'];
+	return IsOper() && oper->CanUseSnomask(chr);
 }
 
 void UserIOHandler::OnDataReady()
@@ -370,113 +349,80 @@ Cullable::Result FakeUser::Cull()
 	return User::Cull();
 }
 
-void User::Oper(std::shared_ptr<OperInfo> info)
+bool User::OperLogin(const std::shared_ptr<OperAccount>& account)
 {
-	ModeHandler* opermh = ServerInstance->Modes.FindMode('o', MODETYPE_USER);
+	LocalUser* luser = IS_LOCAL(this);
+	if (luser && !quitting)
+	{
+		ModResult modres;
+		FIRST_MOD_RESULT(OnPreOperLogin, modres, (luser, account));
+		if (modres == MOD_RES_DENY)
+			return false; // Module rejected the oper attempt.
+	}
+
+	// If this user is already logged in to an oper account then log them out.
+	if (IsOper())
+		OperLogout();
+
+	FOREACH_MOD(OnOperLogin, (this, account));
+
+	// When a user logs in we need to:
+	//   1. Set the operator account (this is what IsOper checks).
+	//   2. Set user mode o (oper) *WITHOUT* calling the mode handler.
+	//   3. Add the user to the operator list.
+	oper = account;
+	auto opermh = ServerInstance->Modes.FindMode('o', MODETYPE_USER);
 	if (opermh)
 	{
-		if (this->IsModeSet(opermh))
-			this->UnOper();
-		this->SetMode(opermh, true);
-	}
-	this->oper = info;
-
-	LocalUser* localuser = IS_LOCAL(this);
-	if (localuser)
-	{
-		Modes::ChangeList changelist;
-		changelist.push_add(opermh);
-		ClientProtocol::Events::Mode modemsg(ServerInstance->FakeClient, nullptr, localuser, changelist);
-		localuser->Send(modemsg);
-	}
-
-	FOREACH_MOD(OnOper, (this));
-
-	std::string opername;
-	if (info->oper_block)
-		opername = info->oper_block->getString("name");
-
-	ServerInstance->SNO.WriteToSnoMask('o', "%s (%s) is now a server operator of type %s (using oper '%s')",
-		nick.c_str(), MakeHost().c_str(), oper->name.c_str(), opername.c_str());
-	this->WriteNumeric(RPL_YOUAREOPER, InspIRCd::Format("You are now %s %s", strchr("aeiouAEIOU", oper->name[0]) ? "an" : "a", oper->name.c_str()));
-
-	ServerInstance->Users.all_opers.push_back(this);
-
-	// Expand permissions from config for faster lookup
-	if (localuser)
-		oper->init();
-
-	FOREACH_MOD(OnPostOper, (this));
-}
-
-namespace
-{
-	void ParseModeList(ModeParser::ModeStatus& modeset, std::shared_ptr<ConfigTag> tag, const std::string& field)
-	{
-		for (const auto& chr : tag->getString(field))
+		SetMode(opermh, true);
+		if (luser)
 		{
-			if (chr == '*')
-				modeset.set();
-			else if (ModeParser::IsModeChar(chr))
-				modeset.set(ModeParser::GetModeIndex(chr));
-			else
-				ServerInstance->Logs.Normal("CONFIG", "'%c' is not a valid value for <class:%s>, ignoring...", chr, field.c_str());
+			Modes::ChangeList changelist;
+			changelist.push_add(opermh);
+			ClientProtocol::Events::Mode modemsg(ServerInstance->FakeClient, nullptr, luser, changelist);
+			luser->Send(modemsg);
 		}
 	}
+	ServerInstance->Users.all_opers.push_back(this);
+
+	FOREACH_MOD(OnPostOperLogin, (this));
+	return true;
 }
 
-void OperInfo::init()
+void User::OperLogout()
 {
-	AllowedOperCommands.Clear();
-	AllowedPrivs.Clear();
-	AllowedUserModes.reset();
-	AllowedChanModes.reset();
-	AllowedSnomasks.reset();
-
-	for (const auto& tag : class_blocks)
-	{
-		AllowedOperCommands.AddList(tag->getString("commands"));
-		AllowedPrivs.AddList(tag->getString("privs"));
-		ParseModeList(AllowedChanModes, tag, "chanmodes");
-		ParseModeList(AllowedUserModes, tag, "usermodes");
-		ParseModeList(AllowedSnomasks, tag, "snomasks");
-	}
-}
-
-void User::UnOper()
-{
-	if (!this->IsOper())
+	if (!IsOper())
 		return;
 
-	/*
-	 * unset their oper type (what IS_OPER checks).
-	 * note, order is important - this must come before modes as -o attempts
-	 * to call UnOper. -- w00t
-	 */
-	oper = nullptr;
+	FOREACH_MOD(OnOperLogout, (this));
 
-	// Remove the user from the oper list
-	stdalgo::vector::swaperase(ServerInstance->Users.all_opers, this);
+	// When a user logs OUT we need to:
+	//   1. Unset the operator account (this is what IsOper checks).
+	//   2. Unset user mode o (oper) *WITHOUT* calling the mode handler.
+	//   3. Remove the user from the operator list.
+	auto account = oper;
+	oper = nullptr;
 
 	// If the user is quitting we shouldn't remove any modes as it results in
 	// mode messages being broadcast across the network.
-	if (quitting)
-		return;
-
-	/* Remove all oper only modes from the user when the deoper - Bug #466*/
-	Modes::ChangeList changelist;
-	for (const auto& [_, mh] : ServerInstance->Modes.GetModes(MODETYPE_USER))
+	if (!quitting)
 	{
-		if (mh->NeedsOper())
-			changelist.push_remove(mh);
+		// Remove any oper-only modes from the user.
+		Modes::ChangeList changelist;
+		for (const auto& [_, mh] : ServerInstance->Modes.GetModes(MODETYPE_USER))
+		{
+			if (mh->NeedsOper() && IsModeSet(mh))
+				changelist.push_remove(mh);
+		}
+		ServerInstance->Modes.Process(this, nullptr, this, changelist);
+
+		auto opermh = ServerInstance->Modes.FindMode('o', MODETYPE_USER);
+		if (opermh)
+			SetMode(opermh, false);
 	}
 
-	ServerInstance->Modes.Process(this, nullptr, this, changelist);
-
-	ModeHandler* opermh = ServerInstance->Modes.FindMode('o', MODETYPE_USER);
-	if (opermh)
-		this->SetMode(opermh, false);
-	FOREACH_MOD(OnPostDeoper, (this));
+	stdalgo::vector::swaperase(ServerInstance->Users.all_opers, this);
+	FOREACH_MOD(OnPostOperLogout, (this, account));
 }
 
 /*
@@ -1304,4 +1250,106 @@ void ConnectClass::Update(const ConnectClass::Ptr src)
 	softsendqmax = src->softsendqmax;
 	type = src->type;
 	uniqueusername = src->uniqueusername;
+}
+
+OperType::OperType(const std::string& n, const std::shared_ptr<ConfigTag>& t)
+	: config(std::make_shared<ConfigTag>("generated", FilePosition("<generated>", 0, 0)))
+	, name(n)
+{
+	if (t)
+		Configure(t, true);
+}
+
+void OperType::Configure(const std::shared_ptr<ConfigTag>& tag, bool merge)
+{
+	commands.AddList(tag->getString("commands"));
+	privileges.AddList(tag->getString("privs"));
+
+	auto modefn = [&tag](ModeParser::ModeStatus& modes, const std::string& key)
+	{
+		bool adding = true;
+		for (const auto& chr : tag->getString(key))
+		{
+			if (chr == '+' || chr == '-')
+				adding = (chr == '+');
+			else if (chr == '*' && adding)
+				modes.set();
+			else if (chr == '*' && !adding)
+				modes.reset();
+			else if (ModeParser::IsModeChar(chr))
+				modes.set(ModeParser::GetModeIndex(chr), adding);
+		}
+	};
+	modefn(chanmodes, "chanmodes");
+	modefn(usermodes, "usermodes");
+	modefn(snomasks, "snomasks");
+
+	if (merge)
+		MergeTag(tag);
+}
+
+bool OperType::CanUseCommand(const std::string& cmd) const
+{
+	return commands.Contains(cmd);
+}
+
+bool OperType::CanUseMode(const ModeHandler* mh) const
+{
+	const size_t index = ModeParser::GetModeIndex(mh->GetModeChar());
+	if (index == ModeParser::MODEID_MAX)
+		return false;
+
+	return (mh->GetModeType() == MODETYPE_USER ? usermodes : chanmodes)[index];
+}
+
+bool OperType::CanUseSnomask(unsigned char chr) const
+{
+	if ((chr >= 'A' && chr <= 'Z') || (chr >= 'a' && chr <= 'z'))
+		return snomasks[chr - 'A'];
+	return false;
+}
+
+bool OperType::HasPrivilege(const std::string& priv) const
+{
+	return privileges.Contains(priv);
+}
+
+void OperType::MergeTag(const std::shared_ptr<ConfigTag>& tag)
+{
+	for (const auto& [key, value] : tag->GetItems())
+	{
+		if (stdalgo::string::equalsci(key, "name") || stdalgo::string::equalsci(key, "type")
+			|| stdalgo::string::equalsci(key, "classes"))
+		{
+			// These are meta keys for linking the oper/type/class tags.
+			continue;
+		}
+
+		if (stdalgo::string::equalsci(key, "commands") || stdalgo::string::equalsci(key, "privs")
+			|| stdalgo::string::equalsci(key, "chanmodes") || stdalgo::string::equalsci(key, "usermodes")
+			|| stdalgo::string::equalsci(key, "snomasks"))
+		{
+			// These have already been parsed into the object.
+			continue;
+		}
+
+		config->GetItems()[key] = value;
+	}
+}
+
+OperAccount::OperAccount(const std::string& n, const std::shared_ptr<OperType>& o, const std::shared_ptr<ConfigTag>& t)
+	: OperType(n, nullptr)
+	, type(o ? o->GetName() : n)
+{
+	if (o)
+	{
+		chanmodes = o->chanmodes;
+		commands = o->commands;
+		privileges = o->privileges;
+		snomasks = o->snomasks;
+		usermodes = o->usermodes;
+		Configure(o->GetConfig(), true);
+	}
+	Configure(t, true);
+
 }

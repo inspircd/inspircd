@@ -35,12 +35,12 @@ public:
 	{
 	}
 
-	void OnPostOper(User* user) override
+	void OnPostOperLogin(User* user) override
 	{
 		if (!IS_LOCAL(user))
 			return; // We don't handle remote users.
 
-		const std::string opermodes = user->oper->getConfig("modes");
+		const std::string opermodes = user->oper->GetConfig()->getString("modes");
 		if (opermodes.empty())
 			return; // We don't have any modes to set.
 

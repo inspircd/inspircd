@@ -235,40 +235,6 @@ struct CommandLineConf final
 	char** argv;
 };
 
-class CoreExport OperInfo final
-{
-public:
-	TokenList AllowedOperCommands;
-	TokenList AllowedPrivs;
-
-	/** Allowed user modes from oper classes. */
-	ModeParser::ModeStatus AllowedUserModes;
-
-	/** Allowed channel modes from oper classes. */
-	ModeParser::ModeStatus AllowedChanModes;
-
-	/** Allowed snomasks from oper classes. */
-	std::bitset<64> AllowedSnomasks;
-
-	/** \<oper> block used for this oper-up. May be NULL. */
-	std::shared_ptr<ConfigTag> oper_block;
-	/** \<type> block used for this oper-up. Valid for local users, may be NULL on remote */
-	std::shared_ptr<ConfigTag> type_block;
-	/** \<class> blocks referenced from the \<type> block. These define individual permissions */
-	std::vector<std::shared_ptr<ConfigTag>> class_blocks;
-	/** Name of the oper type; i.e. the one shown in WHOIS */
-	std::string name;
-
-	/** Creates a new OperInfo with the specified oper type name.
-	 * @param Name The name of the oper type.
-	 */
-	OperInfo(const std::string& Name);
-
-	/** Get a configuration item, searching in the oper, type, and class blocks (in that order) */
-	std::string getConfig(const std::string& key);
-	void init();
-};
-
 /** This class holds the bulk of the runtime configuration for the ircd.
  * It allows for reading new config values, accessing configuration files,
  * and storage of the configuration data needed to run the ircd, such as
@@ -279,7 +245,7 @@ class CoreExport ServerConfig final
 private:
 	void ApplyModules(User* user);
 	void CrossCheckConnectBlocks(ServerConfig* current);
-	void CrossCheckOperClassType();
+	void CrossCheckOperBlocks();
 	void Fill();
 
 public:
@@ -334,9 +300,11 @@ public:
 	 */
 	typedef std::vector<ConnectClass::Ptr> ClassVector;
 
-	/** Index of valid oper blocks and types
-	 */
-	typedef insp::flat_map<std::string, std::shared_ptr<OperInfo>> OperIndex;
+	/** Holds the oper accounts from the server config. */
+	typedef insp::flat_map<std::string, std::shared_ptr<OperAccount>> OperAccountMap;
+
+	/** Holds the oper types from the server config. */
+	typedef insp::flat_map<std::string, std::shared_ptr<OperType>> OperTypeMap;
 
 	/** Holds the server config. */
 	typedef std::multimap<std::string, std::shared_ptr<ConfigTag>, irc::insensitive_swo> TagMap;
@@ -493,13 +461,11 @@ public:
 	 */
 	bool FullHostInTopic;
 
-	/** Oper blocks keyed by their name
-	 */
-	OperIndex oper_blocks;
+	/** Oper accounts keyed by their name. */
+	OperAccountMap OperAccounts;
 
-	/** Oper types keyed by their name
-	 */
-	OperIndex OperTypes;
+	/** Oper types keyed by their name. */
+	OperTypeMap OperTypes;
 
 	/** Unique server ID.
 	 * NOTE: 000...999 are usable for InspIRCd servers. This

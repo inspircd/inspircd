@@ -85,16 +85,16 @@ public:
 	void OnResult(const LDAPResult& r) override
 	{
 		auto user = ServerInstance->Users.FindUUID(uid);
-		ServerConfig::OperIndex::const_iterator iter = ServerInstance->Config->oper_blocks.find(opername);
+		auto iter = ServerInstance->Config->OperAccounts.find(opername);
 
-		if (!user || iter == ServerInstance->Config->oper_blocks.end())
+		if (!user || iter == ServerInstance->Config->OperAccounts.end())
 		{
 			Fallback();
 			delete this;
 			return;
 		}
 
-		user->Oper(iter->second);
+		user->OperLogin(iter->second);
 		delete this;
 	}
 };
@@ -219,15 +219,11 @@ public:
 			const std::string& opername = parameters[0];
 			const std::string& password = parameters[1];
 
-			ServerConfig::OperIndex::const_iterator it = ServerInstance->Config->oper_blocks.find(opername);
-			if (it == ServerInstance->Config->oper_blocks.end())
+			auto it = ServerInstance->Config->OperAccounts.find(opername);
+			if (it == ServerInstance->Config->OperAccounts.end())
 				return MOD_RES_PASSTHRU;
 
-			std::shared_ptr<ConfigTag> tag = it->second->oper_block;
-			if (!tag)
-				return MOD_RES_PASSTHRU;
-
-			std::string acceptedhosts = tag->getString("host");
+			std::string acceptedhosts = it->second->GetConfig()->getString("host");
 			if (!InspIRCd::MatchMask(acceptedhosts, user->MakeHost(), user->MakeHostIP()))
 				return MOD_RES_PASSTHRU;
 

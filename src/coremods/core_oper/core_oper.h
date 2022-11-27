@@ -23,6 +23,13 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From RFC 1459.
+	RPL_YOUAREOPER = 381,
+	ERR_NOOPERHOST = 491,
+};
+
 namespace DieRestart
 {
 	/** Send an ERROR to partially connected users and a NOTICE to fully connected users

@@ -318,10 +318,9 @@ void CommandStats::DoStats(Stats::Context& stats)
 		/* stats o */
 		case 'o':
 		{
-			for (const auto& [_, ifo] : ServerInstance->Config->oper_blocks)
+			for (const auto& [_, ifo] : ServerInstance->Config->OperAccounts)
 			{
-				std::shared_ptr<ConfigTag> tag = ifo->oper_block;
-				stats.AddRow(243, 'O', tag->getString("host"), '*', tag->getString("name"), tag->getString("type"), '0');
+				stats.AddRow(243, 'O', ifo->GetConfig()->getString("host"), '*', ifo->GetName(), ifo->GetType(), '0');
 			}
 		}
 		break;
@@ -329,23 +328,21 @@ void CommandStats::DoStats(Stats::Context& stats)
 		{
 			for (const auto& [_, tag] : ServerInstance->Config->OperTypes)
 			{
-				tag->init();
-
 				std::string umodes;
 				for (const auto& [__, mh] : ServerInstance->Modes.GetModes(MODETYPE_USER))
 				{
-					if (mh->NeedsOper() && tag->AllowedUserModes[ModeParser::GetModeIndex(mh->GetModeChar())])
+					if (mh->NeedsOper() && tag->CanUseMode(mh))
 						umodes.push_back(mh->GetModeChar());
 				}
 
 				std::string cmodes;
 				for (const auto& [__, mh] : ServerInstance->Modes.GetModes(MODETYPE_CHANNEL))
 				{
-					if (mh->NeedsOper() && tag->AllowedUserModes[ModeParser::GetModeIndex(mh->GetModeChar())])
+					if (mh->NeedsOper() && tag->CanUseMode(mh))
 						cmodes.push_back(mh->GetModeChar());
 				}
 
-				stats.AddRow(243, 'O', tag->name, umodes, cmodes);
+				stats.AddRow(243, 'O', tag->GetName(), umodes, cmodes);
 			}
 		}
 		break;

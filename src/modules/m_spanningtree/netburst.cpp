@@ -282,7 +282,7 @@ void TreeSocket::SendUsers(BurstState& bs)
 		this->WriteLine(CommandUID::Builder(user));
 
 		if (user->IsOper())
-			this->WriteLine(CommandOpertype::Builder(user));
+			this->WriteLine(CommandOpertype::Builder(user, user->oper));
 
 		if (user->IsAway())
 			this->WriteLine(CommandAway::Builder(user));

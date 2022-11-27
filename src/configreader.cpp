@@ -91,61 +91,63 @@ ServerConfig::ServerConfig()
 {
 }
 
-typedef std::map<std::string, std::shared_ptr<ConfigTag>> LocalIndex;
-void ServerConfig::CrossCheckOperClassType()
+void ServerConfig::CrossCheckOperBlocks()
 {
-	LocalIndex operclass;
+	std::unordered_map<std::string, std::shared_ptr<ConfigTag>> operclass;
 	for (const auto& [_, tag] : ConfTags("class"))
 	{
-		std::string name = tag->getString("name");
+		const std::string name = tag->getString("name");
 		if (name.empty())
 			throw CoreException("<class:name> missing from tag at " + tag->source.str());
-		if (operclass.find(name) != operclass.end())
+
+		if (!operclass.emplace(name, tag).second)
 			throw CoreException("Duplicate class block with name " + name + " at " + tag->source.str());
-		operclass[name] = tag;
 	}
 
 	for (const auto& [_, tag] : ConfTags("type"))
 	{
-		std::string name = tag->getString("name");
+		const std::string name = tag->getString("name");
 		if (name.empty())
 			throw CoreException("<type:name> is missing from tag at " + tag->source.str());
-		if (OperTypes.find(name) != OperTypes.end())
-			throw CoreException("Duplicate type block with name " + name + " at " + tag->source.str());
 
-		auto ifo = std::make_shared<OperInfo>(name);
-		OperTypes[name] = ifo;
-		ifo->type_block = tag;
+		auto type = std::make_shared<OperType>(name, nullptr);
 
-		std::string classname;
-		irc::spacesepstream str(tag->getString("classes"));
-		while (str.GetToken(classname))
+		// Copy the settings from the oper class.
+		irc::spacesepstream classlist(tag->getString("classes"));
+		for (std::string classname; classlist.GetToken(classname); )
 		{
-			LocalIndex::iterator cls = operclass.find(classname);
-			if (cls == operclass.end())
-				throw CoreException("Oper type " + name + " has missing class " + classname);
-			ifo->class_blocks.push_back(cls->second);
+			auto klass = operclass.find(classname);
+			if (klass == operclass.end())
+				throw CoreException("Oper type " + name + " has missing class " + classname + " at " + tag->source.str());
+
+			// Apply the settings from the class.
+			type->Configure(klass->second, false);
 		}
+
+		// Once the classes have been applied we can apply this.
+		type->Configure(tag, true);
+
+		if (!OperTypes.emplace(name, type).second)
+			throw CoreException("Duplicate type block with name " + name + " at " + tag->source.str());
 	}
 
 	for (const auto& [_, tag] : ConfTags("oper"))
 	{
-		std::string name = tag->getString("name");
+		const std::string name = tag->getString("name");
 		if (name.empty())
 			throw CoreException("<oper:name> missing from tag at " + tag->source.str());
 
-		std::string type = tag->getString("type");
-		OperIndex::iterator tblk = OperTypes.find(type);
-		if (tblk == OperTypes.end())
-			throw CoreException("Oper block " + name + " has missing type " + type);
-		if (oper_blocks.find(name) != oper_blocks.end())
-			throw CoreException("Duplicate oper block with name " + name + " at " + tag->source.str());
+		const std::string typestr = tag->getString("type");
+		if (typestr.empty())
+			throw CoreException("<oper:type> missing from tag at " + tag->source.str());
 
-		auto ifo = std::make_shared<OperInfo>(type);
-		ifo->oper_block = tag;
-		ifo->type_block = tblk->second->type_block;
-		ifo->class_blocks.assign(tblk->second->class_blocks.begin(), tblk->second->class_blocks.end());
-		oper_blocks[name] = ifo;
+		auto type = OperTypes.find(typestr);
+		if (type == OperTypes.end())
+			throw CoreException("Oper block " + name + " has missing type " + typestr + " at " + tag->source.str());
+
+		auto account = std::make_shared<OperAccount>(name, type->second, tag);
+		if (!OperAccounts.emplace(name, account).second)
+			throw CoreException("Duplicate oper block with name " + name + " at " + tag->source.str());
 	}
 }
 
@@ -408,7 +410,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
 		Fill();
 
 		// Handle special items
-		CrossCheckOperClassType();
+		CrossCheckOperBlocks();
 		CrossCheckConnectBlocks(old);
 	}
 	catch (const CoreException& ce)

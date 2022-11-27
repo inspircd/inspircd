@@ -54,7 +54,7 @@ public:
 			return false;
 
 		// Replace spaces with underscores as they're prohibited in mode parameters.
-		std::string opername(user->oper->name);
+		std::string opername(user->oper->GetType());
 		stdalgo::string::replace_all(opername, space, underscore);
 		return InspIRCd::Match(opername, text);
 	}

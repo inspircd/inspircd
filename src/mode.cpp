@@ -303,7 +303,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 		if (user->IsOper())
 		{
 			user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper type %s does not have access to %sset %s mode %c",
-				user->oper->name.c_str(), mcitem.adding ? "" : "un", type == MODETYPE_CHANNEL ? "channel" : "user", modechar));
+				user->oper->GetType().c_str(), mcitem.adding ? "" : "un", type == MODETYPE_CHANNEL ? "channel" : "user", modechar));
 		}
 		else
 		{

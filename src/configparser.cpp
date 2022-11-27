@@ -750,18 +750,3 @@ ConfigTag::ConfigTag(const std::string& Name, const FilePosition& Source)
 	, source(Source)
 {
 }
-
-OperInfo::OperInfo(const std::string& Name)
-	: name(Name)
-{
-}
-
-std::string OperInfo::getConfig(const std::string& key)
-{
-	std::string rv;
-	if (type_block)
-		type_block->readString(key, rv);
-	if (oper_block)
-		oper_block->readString(key, rv);
-	return rv;
-}

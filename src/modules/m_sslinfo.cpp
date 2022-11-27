@@ -323,36 +323,16 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
+	ModResult OnPreOperLogin(LocalUser* user, const std::shared_ptr<OperAccount>& oper) override
 	{
-		if ((command == "OPER") && (validated))
-		{
-			ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
-			if (i != ServerInstance->Config->oper_blocks.end())
-			{
-				std::shared_ptr<OperInfo> ifo = i->second;
-				ssl_cert* cert = cmd.sslapi.GetCertificate(user);
+		auto cert = cmd.sslapi.GetCertificate(user);
+		if (oper->GetConfig()->getBool("sslonly") && !cert)
+			return MOD_RES_DENY;
 
-				if (ifo->oper_block->getBool("sslonly") && !cert)
-				{
-					user->WriteNumeric(ERR_NOOPERHOST, "Invalid oper credentials");
-					user->CommandFloodPenalty += 10000;
-					ServerInstance->SNO.WriteGlobalSno('o', "WARNING! Failed oper attempt by %s using login '%s': a secure connection is required.", user->GetFullRealHost().c_str(), parameters[0].c_str());
-					return MOD_RES_DENY;
-				}
+		const std::string fingerprint = oper->GetConfig()->getString("fingerprint");
+		if (!fingerprint.empty() && (!cert || !MatchFP(cert, fingerprint)))
+			return MOD_RES_DENY;
 
-				std::string fingerprint;
-				if (ifo->oper_block->readString("fingerprint", fingerprint) && (!cert || !MatchFP(cert, fingerprint)))
-				{
-					user->WriteNumeric(ERR_NOOPERHOST, "Invalid oper credentials");
-					user->CommandFloodPenalty += 10000;
-					ServerInstance->SNO.WriteGlobalSno('o', "WARNING! Failed oper attempt by %s using login '%s': their TLS client certificate fingerprint does not match.", user->GetFullRealHost().c_str(), parameters[0].c_str());
-					return MOD_RES_DENY;
-				}
-			}
-		}
-
-		// Let core handle it for extra stuff
 		return MOD_RES_PASSTHRU;
 	}
 
@@ -382,19 +362,16 @@ public:
 			return;
 
 		// Find an auto-oper block for this user
-		for (const auto& [_, info] :  ServerInstance->Config->oper_blocks)
+		for (const auto& [_, info] :  ServerInstance->Config->OperAccounts)
 		{
-			auto oper = info->oper_block;
+			const auto& oper = info->GetConfig();
 			if (!oper->getBool("autologin"))
 				continue; // No autologin for this block.
 
 			if (!InspIRCd::MatchMask(oper->getString("host"), localuser->MakeHost(), localuser->MakeHostIP()))
 				continue; // Host doesn't match.
 
-			if (!MatchFP(cert, oper->getString("fingerprint")))
-				continue; // Fingerprint doesn't match.
-
-			user->Oper(info);
+			user->OperLogin(info);
 		}
 	}
 

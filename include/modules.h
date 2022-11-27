@@ -163,19 +163,21 @@ enum Implementation
 	I_OnMode,
 	I_OnModuleRehash,
 	I_OnNumeric,
-	I_OnOper,
+	I_OnOperLogin,
+	I_OnOperLogout,
 	I_OnPassCompare,
 	I_OnPostChangeRealHost,
 	I_OnPostCommand,
 	I_OnPostConnect,
-	I_OnPostDeoper,
 	I_OnPostJoin,
-	I_OnPostOper,
+	I_OnPostOperLogin,
+	I_OnPostOperLogout,
 	I_OnPostTopicChange,
 	I_OnPreChangeHost,
 	I_OnPreChangeRealName,
 	I_OnPreCommand,
 	I_OnPreMode,
+	I_OnPreOperLogin,
 	I_OnPreRehash,
 	I_OnPreTopicChange,
 	I_OnRawMode,
@@ -439,26 +441,6 @@ public:
 	 * @param except_list A list of users to not send to.
 	 */
 	virtual void OnUserKick(User* source, Membership* memb, const std::string& reason, CUList& except_list);
-
-	/** Called whenever a user opers locally.
-	 * The User will contain the oper mode 'o' as this function is called after any modifications
-	 * are made to the user's structure by the core.
-	 * @param user The user who is opering up
-	 */
-	virtual void OnOper(User* user);
-
-	/** Called after a user opers locally.
-	 * This is identical to Module::OnOper(), except it is called after OnOper so that other modules
-	 * can be guaranteed to already have processed the oper-up, for example m_spanningtree has sent
-	 * out the OPERTYPE, etc.
-	 * @param user The user who is opering up
-	 */
-	virtual void OnPostOper(User* user);
-
-	/** Called after a user deopers locally.
-	 * @param user The user who has deopered.
-	 */
-	virtual void OnPostDeoper(User* user);
 
 	/** Called whenever a user is about to invite another user into a channel, before any processing is done.
 	 * Returning 1 from this function stops the process immediately, causing no
@@ -940,6 +922,36 @@ public:
 	 * @param reason The reason the server is shutting down.
 	 */
 	virtual void OnShutdown(const std::string& reason);
+
+	/** Called when a local user is attempting to log in to an server operator account.
+	 * @param user The user who is attempting to log in.
+	 * @param oper The server operator account they are attempting to log in to.
+	 * @return MOD_RES_ALLOW to explicitly allow the login, MOD_RES_DENY to explicitly deny the
+	 *         login, or MOD_RES_PASSTHRU to let another module handle the event.
+	 */
+	virtual ModResult OnPreOperLogin(LocalUser* user, const std::shared_ptr<OperAccount>& oper);
+
+	/** Called when a user is about to be logged in to an server operator account.
+	 * @param user The user who is about to be logged in.
+	 * @param oper The server operator account they are logging in to.
+	 */
+	virtual void OnOperLogin(User* user, const std::shared_ptr<OperAccount>& oper);
+
+	/** Called after a user has been logged in to an server operator account.
+	 * @param user The user who has been logged in.
+	 */
+	virtual void OnPostOperLogin(User* user);
+
+	/** Called when a user is about to be logged out of an server operator account.
+	 * @param user The user who is about to be logged out.
+	 */
+	virtual void OnOperLogout(User* user);
+
+	/** Called after a user has been logged out of an server operator account.
+	 * @param user The user who has been logged out.
+	 * @param oper The server operator account they were logged out of.
+	 */
+	virtual void OnPostOperLogout(User* user, const std::shared_ptr<OperAccount>& oper);
 };
 
 /** ModuleManager takes care of all things module-related

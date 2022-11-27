@@ -54,17 +54,24 @@ public:
 		cmdkill.hideservicekills = security->getBool("hideservicekills", security->getBool("hideulinekills"));
 	}
 
-	void OnPostOper(User* user) override
+	void OnPostOperLogin(User* user) override
 	{
 		LocalUser* luser = IS_LOCAL(user);
 		if (!luser)
 			return;
 
-		const std::string vhost = luser->oper->getConfig("vhost");
-		if (!vhost.empty())
-			luser->ChangeDisplayedHost(vhost);
+		luser->WriteNumeric(RPL_YOUAREOPER, InspIRCd::Format("You are now %s %s",
+			user->oper->GetType()[0] ? "an" : "a", user->oper->GetType().c_str()));
 
-		const std::string klass = luser->oper->getConfig("class");
+		ServerInstance->SNO.WriteToSnoMask('o', "%s (%s) is now a server operator of type %s (using account %s)",
+			user->nick.c_str(), user->MakeHost().c_str(), user->oper->GetType().c_str(),
+			user->oper->GetName().c_str());
+
+		const std::string vhost = luser->oper->GetConfig()->getString("vhost");
+		if (!vhost.empty())
+			user->ChangeDisplayedHost(vhost);
+
+		const std::string klass = luser->oper->GetConfig()->getString("class");
 		if (!klass.empty())
 			luser->SetClass(klass);
 	}

@@ -106,9 +106,6 @@ void		Module::OnPreRehash(User*, const std::string&) { DetachEvent(I_OnPreRehash
 void		Module::OnModuleRehash(User*, const std::string&) { DetachEvent(I_OnModuleRehash); }
 ModResult	Module::OnUserPreJoin(LocalUser*, Channel*, const std::string&, std::string&, const std::string&, bool) { DetachEvent(I_OnUserPreJoin); return MOD_RES_PASSTHRU; }
 void		Module::OnMode(User*, User*, Channel*, const Modes::ChangeList&, ModeParser::ModeProcessFlag) { DetachEvent(I_OnMode); }
-void		Module::OnOper(User*) { DetachEvent(I_OnOper); }
-void		Module::OnPostOper(User*) { DetachEvent(I_OnPostOper); }
-void		Module::OnPostDeoper(User*) { DetachEvent(I_OnPostDeoper); }
 ModResult	Module::OnUserPreInvite(User*, User*, Channel*, time_t) { DetachEvent(I_OnUserPreInvite); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserPreMessage(User*, const MessageTarget&, MessageDetails&) { DetachEvent(I_OnUserPreMessage); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserPreNick(LocalUser*, const std::string&) { DetachEvent(I_OnUserPreNick); return MOD_RES_PASSTHRU; }
@@ -165,6 +162,11 @@ void		Module::OnServiceAdd(ServiceProvider&) { DetachEvent(I_OnServiceAdd); }
 void		Module::OnServiceDel(ServiceProvider&) { DetachEvent(I_OnServiceDel); }
 ModResult	Module::OnUserWrite(LocalUser*, ClientProtocol::Message&) { DetachEvent(I_OnUserWrite); return MOD_RES_PASSTHRU; }
 void		Module::OnShutdown(const std::string& reason) { DetachEvent(I_OnShutdown); }
+ModResult	Module::OnPreOperLogin(LocalUser*, const std::shared_ptr<OperAccount>&) { DetachEvent(I_OnPreOperLogin); return MOD_RES_PASSTHRU; }
+void		Module::OnOperLogin(User*, const std::shared_ptr<OperAccount>&) { DetachEvent(I_OnOperLogin); }
+void		Module::OnPostOperLogin(User*) { DetachEvent(I_OnPostOperLogin); }
+void		Module::OnOperLogout(User*) { DetachEvent(I_OnOperLogout); }
+void		Module::OnPostOperLogout(User*, const std::shared_ptr<OperAccount>&) { DetachEvent(I_OnPostOperLogout); }
 
 ServiceProvider::ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type)
 	: creator(Creator), name(Name), service(Type)

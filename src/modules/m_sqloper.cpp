@@ -54,11 +54,9 @@ public:
 
 	void OnResult(SQL::Result& res) override
 	{
-		ServerConfig::OperIndex& oper_blocks = ServerInstance->Config->oper_blocks;
-
-		// Remove our previous blocks from oper_blocks for a clean update
+		// Remove our previous blocks from the core for a clean update
 		for (const auto& block : my_blocks)
-			oper_blocks.erase(block);
+			ServerInstance->Config->OperAccounts.erase(block);
 		my_blocks.clear();
 
 		SQL::Row row;
@@ -82,11 +80,11 @@ public:
 			const std::string name = tag->getString("name");
 
 			// Skip both duplicate sqloper blocks and sqloper blocks that attempt to override conf blocks.
-			if (oper_blocks.find(name) != oper_blocks.end())
+			if (ServerInstance->Config->OperAccounts.find(name) != ServerInstance->Config->OperAccounts.end())
 				continue;
 
 			const std::string type = tag->getString("type");
-			ServerConfig::OperIndex::iterator tblk = ServerInstance->Config->OperTypes.find(type);
+			auto tblk = ServerInstance->Config->OperTypes.find(type);
 			if (tblk == ServerInstance->Config->OperTypes.end())
 			{
 				ServerInstance->Logs.Normal(MODNAME, "Sqloper block " + name + " has missing type " + type);
@@ -94,12 +92,7 @@ public:
 				continue;
 			}
 
-			auto ifo = std::make_shared<OperInfo>(type);
-
-			ifo->type_block = tblk->second->type_block;
-			ifo->oper_block = std::move(tag);
-			ifo->class_blocks.assign(tblk->second->class_blocks.begin(), tblk->second->class_blocks.end());
-			oper_blocks[name] = ifo;
+			ServerInstance->Config->OperAccounts[name] = std::make_shared<OperAccount>(name, tblk->second, tag);
 			my_blocks.push_back(name);
 			row.clear();
 		}
@@ -123,7 +116,7 @@ public:
 		}
 	}
 
-	// Call /oper after placing all blocks from the SQL table into the config->oper_blocks list.
+	// Call /oper after placing all blocks from the SQL table into the Config->OperAccounts list.
 	void OperExec()
 	{
 		auto user = ServerInstance->Users.Find(uid);
@@ -199,7 +192,7 @@ public:
 	{
 		// Remove all oper blocks that were from the DB
 		for (const auto& block : my_blocks)
-			ServerInstance->Config->oper_blocks.erase(block);
+			ServerInstance->Config->OperAccounts.erase(block);
 	}
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override

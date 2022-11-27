@@ -188,11 +188,8 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 	{
 		unsigned long maxchans = user->GetClass()->maxchans;
 		if (user->IsOper())
-		{
-			unsigned long opermaxchans = ConvToNum<unsigned int>(user->oper->getConfig("maxchans"));
-			if (opermaxchans > maxchans)
-				maxchans = opermaxchans;
-		}
+			maxchans = user->oper->GetConfig()->getUInt("maxchans", maxchans, maxchans);
+
 		if (user->chans.size() >= maxchans)
 		{
 			user->WriteNumeric(ERR_TOOMANYCHANNELS, cname, "You are on too many channels");

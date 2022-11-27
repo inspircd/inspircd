@@ -93,7 +93,7 @@ public:
 	{
 	}
 
-	void OnOper(User* user) override
+	void OnPostOperLogin(User* user) override
 	{
 		if (onoper && IS_LOCAL(user))
 			cmd.ShowOperMOTD(user, false);

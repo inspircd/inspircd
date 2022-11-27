@@ -134,6 +134,19 @@ class CommandCheck final
 		return ret;
 	}
 
+	static std::string GetAllowedOperOnlyCommands(LocalUser* user)
+	{
+		std::string ret;
+		for (const auto& [_, cmd] : ServerInstance->Parser.GetCommands())
+		{
+			if (cmd->access_needed == CmdAccess::OPERATOR && user->HasCommandPermission(cmd->name))
+				ret += cmd->name + " ";
+		}
+		if (!ret.empty())
+			ret.pop_back();
+		return ret;
+	}
+
 	static std::string GetAllowedOperOnlyModes(LocalUser* user, ModeType modetype)
 	{
 		std::string ret;
@@ -209,15 +222,15 @@ public:
 
 			if (targetuser->IsOper())
 			{
-				/* user is an oper of type ____ */
-				context.Write("opertype", targetuser->oper->name);
+				context.Write("oper", targetuser->oper->GetName());
+				context.Write("opertype", targetuser->oper->GetType());
 				if (localtarget)
 				{
 					context.Write("chanmodeperms", GetAllowedOperOnlyModes(localtarget, MODETYPE_CHANNEL));
 					context.Write("usermodeperms", GetAllowedOperOnlyModes(localtarget, MODETYPE_USER));
 					context.Write("snomaskperms", GetAllowedOperOnlySnomasks(localtarget));
-					context.Write("commandperms", targetuser->oper->AllowedOperCommands.ToString());
-					context.Write("permissions", targetuser->oper->AllowedPrivs.ToString());
+					context.Write("commandperms", GetAllowedOperOnlyCommands(localtarget));
+					context.Write("permissions", localtarget->oper->GetPrivileges());
 				}
 			}
 

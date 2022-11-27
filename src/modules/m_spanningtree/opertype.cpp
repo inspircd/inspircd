@@ -32,19 +32,11 @@
  */
 CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& params)
 {
-	const std::string& opertype = params[0];
-	if (!u->IsOper())
-		ServerInstance->Users.all_opers.push_back(u);
-
-	ModeHandler* opermh = ServerInstance->Modes.FindMode('o', MODETYPE_USER);
-	if (opermh)
-		u->SetMode(opermh, true);
-
-	ServerConfig::OperIndex::const_iterator iter = ServerInstance->Config->OperTypes.find(opertype);
-	if (iter != ServerInstance->Config->OperTypes.end())
-		u->oper = iter->second;
+	auto type = ServerInstance->Config->OperTypes.find(params[0]);
+	if (type != ServerInstance->Config->OperTypes.end())
+		u->OperLogin(std::make_shared<OperAccount>(type->first, type->second, ServerInstance->Config->EmptyTag));
 	else
-		u->oper = std::make_shared<OperInfo>(opertype);
+		u->OperLogin(std::make_shared<OperAccount>(params[0], nullptr, ServerInstance->Config->EmptyTag));
 
 	if (Utils->quiet_bursts)
 	{
@@ -57,13 +49,13 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& para
 			return CmdResult::SUCCESS;
 	}
 
-	ServerInstance->SNO.WriteToSnoMask('O', "From %s: User %s (%s) is now a server operator of type %s",
-		u->server->GetName().c_str(), u->nick.c_str(), u->MakeHost().c_str(), opertype.c_str());
+	ServerInstance->SNO.WriteToSnoMask('O', "From %s: %s (%s) is now a server operator of type %s",
+		u->server->GetName().c_str(), u->nick.c_str(), u->MakeHost().c_str(), u->oper->GetType().c_str());
 	return CmdResult::SUCCESS;
 }
 
-CommandOpertype::Builder::Builder(User* user)
+CommandOpertype::Builder::Builder(User* user, const std::shared_ptr<OperAccount>& oper)
 	: CmdBuilder(user, "OPERTYPE")
 {
-	push_last(user->oper->name);
+	push_last(oper->GetType());
 }

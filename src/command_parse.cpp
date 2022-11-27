@@ -281,7 +281,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 			{
 				user->CommandFloodPenalty += failpenalty;
 				user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper type %s does not have access to command %s",
-					user->oper->name.c_str(), command.c_str()));
+					user->oper->GetType().c_str(), command.c_str()));
 				FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 				return;
 			}

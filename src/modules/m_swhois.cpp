@@ -116,13 +116,12 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnPostOper(User* user) override
+	void OnPostOperLogin(User* user) override
 	{
 		if (!IS_LOCAL(user))
 			return;
 
-		std::string swhois = user->oper->getConfig("swhois");
-
+		const std::string swhois = user->oper->GetConfig()->getString("swhois");
 		if (!swhois.length())
 			return;
 
@@ -130,7 +129,7 @@ public:
 		cmd.swhois.Set(user, swhois);
 	}
 
-	void OnPostDeoper(User* user) override
+	void OnPostOperLogout(User* user, const std::shared_ptr<OperAccount>& oper) override
 	{
 		std::string* swhois = cmd.swhois.Get(user);
 		if (!swhois)

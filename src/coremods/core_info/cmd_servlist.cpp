@@ -44,7 +44,7 @@ CmdResult CommandServList::HandleLocal(LocalUser* user, const Params& parameters
 		if (serviceuser->IsModeSet(invisiblemode) || !InspIRCd::Match(serviceuser->nick, mask))
 			continue;
 
-		if (has_type && (!serviceuser->IsOper() || !InspIRCd::Match(serviceuser->oper->name, parameters[2])))
+		if (has_type && (!serviceuser->IsOper() || !InspIRCd::Match(serviceuser->oper->GetType(), parameters[2])))
 			continue;
 
 		Numeric::Numeric numeric(RPL_SERVLIST);
@@ -52,7 +52,7 @@ CmdResult CommandServList::HandleLocal(LocalUser* user, const Params& parameters
 			.push(serviceuser->nick)
 			.push(serviceuser->server->GetPublicName())
 			.push("*")
-			.push(serviceuser->IsOper() ? serviceuser->oper->name : "*")
+			.push(serviceuser->IsOper() ? serviceuser->oper->GetType() : "*")
 			.push(0)
 			.push(serviceuser->GetRealName());
 		user->WriteNumeric(numeric);

@@ -139,7 +139,7 @@ public:
 		: public CmdBuilder
 	{
 	public:
-		Builder(User* user);
+		Builder(User* user, const std::shared_ptr<OperAccount>& oper);
 	};
 };
 

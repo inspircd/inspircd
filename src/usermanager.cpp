@@ -301,7 +301,7 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 
 	uuidlist.erase(user->uuid);
 	user->PurgeEmptyChannels();
-	user->UnOper();
+	user->OperLogout();
 }
 
 void UserManager::AddClone(User* user)

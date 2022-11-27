@@ -114,7 +114,7 @@ std::string ModeUserServerNoticeMask::ProcessNoticeMasks(User* user, const std::
 					else if (!user->HasSnomaskPermission(snomask))
 					{
 						user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper type %s does not have access to snomask %c",
-							user->oper->name.c_str(), snomask));
+							user->oper->GetType().c_str(), snomask));
 						continue;
 					}
 				}

@@ -274,7 +274,7 @@ namespace Stats
 		}
 
 		if (u->IsOper())
-			serializer.Attribute("opertype", u->oper->name);
+			serializer.Attribute("opertype", u->oper->GetType());
 
 		LocalUser* lu = IS_LOCAL(u);
 		if (lu)

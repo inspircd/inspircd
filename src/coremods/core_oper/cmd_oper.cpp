@@ -40,18 +40,18 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 	bool match_pass = false;
 	bool match_hosts = false;
 
-	ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
-	if (i != ServerInstance->Config->oper_blocks.end())
+	auto i = ServerInstance->Config->OperAccounts.find(parameters[0]);
+	if (i != ServerInstance->Config->OperAccounts.end())
 	{
-		std::shared_ptr<OperInfo> ifo = i->second;
-		std::shared_ptr<ConfigTag> tag = ifo->oper_block;
+		std::shared_ptr<OperAccount> ifo = i->second;
+		std::shared_ptr<ConfigTag> tag = ifo->GetConfig();
 		match_user = true;
 		match_pass = ServerInstance->PassCompare(user, tag->getString("password"), parameters[1], tag->getString("hash"));
 		match_hosts = InspIRCd::MatchMask(tag->getString("host"), user->MakeHost(), user->MakeHostIP());
 
 		if (match_pass && match_hosts)
 		{
-			user->Oper(ifo);
+			user->OperLogin(ifo);
 			return CmdResult::SUCCESS;
 		}
 	}

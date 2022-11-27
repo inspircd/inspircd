@@ -145,6 +145,102 @@ public:
 	const std::vector<std::string>& GetHosts() const { return hosts; }
 };
 
+/** Represents an \<opertype> from the server config. */
+class CoreExport OperType
+	: public insp::uncopiable
+{
+protected:
+	friend class OperAccount;
+
+	/** Oper-only channel modes that an oper of this type can use. */
+	ModeParser::ModeStatus chanmodes;
+
+	/** Oper-only commands that an oper of this type can use. */
+	TokenList commands;
+
+	/** The config tag this oper type was created from. */
+	std::shared_ptr<ConfigTag> config;
+
+	/** The name of this oper type. */
+	const std::string name;
+
+	/** Oper privileges that an oper of this type has. */
+	TokenList privileges;
+
+	/** Oper snomasks that an oper of this type can use. */
+	ModeParser::ModeStatus snomasks;
+
+	/** Oper-only user modes that an oper of this type can use. */
+	ModeParser::ModeStatus usermodes;
+
+	/** Merges the specified config tag into this oper type's config.
+	 * @param tag The config tag to merge in.
+	 */
+	void MergeTag(const std::shared_ptr<ConfigTag>& tag);
+
+public:
+	/** Creates a new oper type with the specified name and config tag.
+	 * @param n The name of the oper type.
+	 * @param t The tag to configure the oper type from.
+	 */
+	OperType(const std::string& n, const std::shared_ptr<ConfigTag>& t);
+
+	/** Configures this oper type with settings from the specified tag.
+	 * @param tag The tag to configure from.
+	 * @param merge Whether to merge this tag into the synthetic tag.
+	 */
+	void Configure(const std::shared_ptr<ConfigTag>& tag, bool merge);
+
+	/** Retrieves the config tag this oper type was created from. */
+	const auto& GetConfig() const { return config; }
+
+	/** Retrieves the name of this oper type. */
+	const auto& GetName() const { return name; }
+
+	/** Retrieves the privileges that this oper type has access to. */
+	std::string GetPrivileges() const { return privileges.ToString(); }
+
+	/** Determines if this oper type can use the specified command.
+	 * @param cmd The command to check for.
+	 */
+	bool CanUseCommand(const std::string& cmd) const;
+
+	/** Determines if this oper type can use the specified mode.
+	 * @param mh The mode to check for.
+	 */
+	bool CanUseMode(const ModeHandler* mh) const;
+
+	/** Determines if this oper type can use the specified snomask.
+	 * @param chr The snomask to check for.
+	 */
+	bool CanUseSnomask(unsigned char chr) const;
+
+	/** Determines if this oper type has the specified privilege.
+	 * @param priv The privilege to check for.
+	 */
+	bool HasPrivilege(const std::string& priv) const;
+};
+
+/** Represents an \<oper> from the server config. */
+class CoreExport OperAccount final
+	: public OperType
+{
+private:
+	/** The name of the underlying oper type. */
+	const std::string type;
+
+public:
+	/** Creates a new oper account with the specified name, oper type, and config tag.
+	 * @param n The name of the oper account.
+	 * @param o The oper type that this account inherits settings from.
+	 * @param t The tag to configure the oper account from.
+	 */
+	OperAccount(const std::string& n, const std::shared_ptr<OperType>& o, const std::shared_ptr<ConfigTag>& t);
+
+	/** Retrieves the name of the underlying oper type. */
+	const auto& GetType() const { return type; }
+};
+
 /** Holds all information about a user
  * This class stores all information about a user connected to the irc server. Everything about a
  * connection is stored here primarily, from the user's socket ID (file descriptor) through to the
@@ -302,9 +398,8 @@ public:
 	 */
 	time_t awaytime;
 
-	/** The oper type they logged in as, if they are an oper.
-	 */
-	std::shared_ptr<OperInfo> oper;
+	/** If non-null then the oper account this user is logged in to. */
+	std::shared_ptr<OperAccount> oper;
 
 	/** The connection state of the user. */
 	unsigned int connected:3;
@@ -462,15 +557,14 @@ public:
 	 */
 	const std::string& MakeHostIP();
 
-	/** Oper up the user using the given opertype.
-	 * This will also give the +o usermode.
+	/** Logs this user into the specified server operator account.
+	 * @param account The account to log this user in to.
+	 * @return True if the user is logged into successfully; otherwise, false.
 	 */
-	void Oper(std::shared_ptr<OperInfo> info);
+	bool OperLogin(const std::shared_ptr<OperAccount>& account);
 
-	/** Oper down.
-	 * This will clear the +o usermode and unset the user's oper type
-	 */
-	void UnOper();
+	/** Logs this user out of their server operator account. Does nothing to non-operators. */
+	void OperLogout();
 
 	/** Sends a server notice to this user.
 	 * @param text The contents of the message to send.

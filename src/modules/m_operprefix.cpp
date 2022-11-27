@@ -104,7 +104,7 @@ public:
 			ServerInstance->Modes.Process(ServerInstance->FakeClient, memb->chan, nullptr, changelist);
 	}
 
-	void OnPostOper(User* user) override
+	void OnPostOperLogin(User* user) override
 	{
 		if (IS_LOCAL(user) && (!user->IsModeSet(hideopermode)))
 			SetOperPrefix(user, true);
@@ -114,7 +114,7 @@ public:
 	{
 		// m_opermodes may set +H on the oper to hide him, we don't want to set the oper prefix in that case
 		Module* opermodes = ServerInstance->Modules.Find("opermodes");
-		ServerInstance->Modules.SetPriority(this, I_OnPostOper, PRIORITY_AFTER, opermodes);
+		ServerInstance->Modules.SetPriority(this, I_OnPostOperLogin, PRIORITY_AFTER, opermodes);
 	}
 };
 
