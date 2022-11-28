@@ -1200,7 +1200,7 @@ info_done_dealloc:
 
 	bool GetServerName(std::string& out) const CXX11_OVERRIDE
 	{
-		std::vector<char> nameBuffer;
+		std::vector<char> nameBuffer(1);
 		size_t nameLength = 0;
 		unsigned int nameType = GNUTLS_NAME_DNS;
 
