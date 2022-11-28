@@ -399,7 +399,7 @@ void User::Oper(OperInfo* info)
 	this->oper = info;
 
 	LocalUser* localuser = IS_LOCAL(this);
-	if (localuser)
+	if (localuser && opermh)
 	{
 		Modes::ChangeList changelist;
 		changelist.push_add(opermh);
