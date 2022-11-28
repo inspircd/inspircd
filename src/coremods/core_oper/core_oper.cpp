@@ -70,7 +70,8 @@ public:
 			return;
 
 		luser->WriteNumeric(RPL_YOUAREOPER, InspIRCd::Format("You are now %s %s",
-			user->oper->GetType()[0] ? "an" : "a", user->oper->GetType().c_str()));
+			strchr("AEIOUaeiou", user->oper->GetType()[0]) ? "an" : "a",
+			user->oper->GetType().c_str()));
 
 		ServerInstance->SNO.WriteToSnoMask('o', "%s (%s) is now a server operator of type %s (using account %s)",
 			user->nick.c_str(), user->MakeHost().c_str(), user->oper->GetType().c_str(),
