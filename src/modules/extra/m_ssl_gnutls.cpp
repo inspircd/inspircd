@@ -198,9 +198,12 @@ namespace GnuTLS
 		{
 			// As older versions of gnutls can't do this, let's disable it where needed.
 #ifdef GNUTLS_HAS_MAC_GET_ID
+# if INSPIRCD_GNUTLS_HAS_VERSION(3, 2, 2)
+			hash = gnutls_digest_get_id(hashname.c_str());
+# else
 			// As gnutls_digest_algorithm_t and gnutls_mac_algorithm_t are mapped 1:1, we can do this
-			// There is no gnutls_dig_get_id() at the moment, but it may come later
 			hash = (gnutls_digest_algorithm_t)gnutls_mac_get_id(hashname.c_str());
+# endif
 			if (hash == GNUTLS_DIG_UNKNOWN)
 				throw Exception("Unknown hash type " + hashname);
 
