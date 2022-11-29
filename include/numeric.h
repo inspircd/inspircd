@@ -100,7 +100,7 @@ public:
 	 * @param args One or more arguments to the numeric.
 	 */
 	template <typename... Args>
-	Numeric& push(const Args&... args)
+	Numeric& push(Args&&... args)
 	{
 		(params.push_back(ConvToStr(args)), ...);
 		return *this;

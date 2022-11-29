@@ -132,7 +132,7 @@ public:
 	/** Send a line of WHOIS data to the source of the WHOIS
 	 */
 	template <typename... Param>
-	void SendLine(unsigned int numeric, Param... p)
+	void SendLine(unsigned int numeric, Param&&... p)
 	{
 		Numeric::Numeric n(numeric);
 		n.push(target->nick);

@@ -362,7 +362,7 @@ public:
 	 * @param args One or more parameters to add to the parameter list.
 	 */
 	template <typename... Args>
-	void PushParam(const Args&... args)
+	void PushParam(Args&&... args)
 	{
 		(PushParam(ConvToStr(args)), ...);
 	}

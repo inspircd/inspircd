@@ -590,7 +590,7 @@ public:
 	virtual void WriteRemoteNumeric(const Numeric::Numeric& numeric);
 
 	template <typename... Param>
-	void WriteRemoteNumeric(unsigned int numeric, Param... p)
+	void WriteRemoteNumeric(unsigned int numeric, Param&&... p)
 	{
 		Numeric::Numeric n(numeric);
 		n.push(std::forward<Param>(p)...);
@@ -600,7 +600,7 @@ public:
 	void WriteNumeric(const Numeric::Numeric& numeric);
 
 	template <typename... Param>
-	void WriteNumeric(unsigned int numeric, Param... p)
+	void WriteNumeric(unsigned int numeric, Param&&... p)
 	{
 		Numeric::Numeric n(numeric);
 		n.push(std::forward<Param>(p)...);

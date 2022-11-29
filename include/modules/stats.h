@@ -105,7 +105,7 @@ public:
 	void AddRow(const Row& row) { rows.push_back(row); }
 
 	template <typename... Param>
-	void AddRow(unsigned int numeric, Param... p)
+	void AddRow(unsigned int numeric, Param&&... p)
 	{
 		Row n(numeric);
 		n.push(std::forward<Param>(p)...);
@@ -116,7 +116,7 @@ public:
 	 * @param p One or more fields to add to the response.
 	 */
 	template <typename... Param>
-	void AddGenericRow(Param... p)
+	void AddGenericRow(Param&&... p)
 	{
 		Row n(RPL_STATS);
 		n.push(GetSymbol());
