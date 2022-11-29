@@ -27,6 +27,7 @@ namespace CTCTags
 	class EventListener;
 	class TagMessage;
 	class TagMessageDetails;
+	class TagProvider;
 }
 
 class CTCTags::CapReference final
@@ -162,4 +163,27 @@ public:
 	 *                TagMessageDetails class for more information.
 	 */
 	virtual void OnUserTagMessageBlocked(User* user, const MessageTarget& target, const TagMessageDetails& details) { }
+};
+
+class CTCTags::TagProvider
+	: public ClientProtocol::MessageTagProvider
+{
+private:
+	CapReference ctctagcap;
+
+public:
+	TagProvider(Module* mod)
+		: ClientProtocol::MessageTagProvider(mod)
+		, ctctagcap(mod)
+	{
+	}
+
+	/** Retrieves the underlying message-tags capability. */
+	const CapReference& GetCap() const  { return ctctagcap; }
+
+	/** @copydoc ClientProtocol::MessageTagProvider::ShouldSendTag */
+	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override
+	{
+		return ctctagcap.IsEnabled(user);
+	}
 };

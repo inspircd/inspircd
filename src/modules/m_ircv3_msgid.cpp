@@ -21,15 +21,11 @@
 #include "modules/ctctags.h"
 
 class MsgIdTag final
-	: public ClientProtocol::MessageTagProvider
+	: public CTCTags::TagProvider
 {
-private:
-	CTCTags::CapReference ctctagcap;
-
 public:
 	MsgIdTag(Module* mod)
-		: ClientProtocol::MessageTagProvider(mod)
-		, ctctagcap(mod)
+		: CTCTags::TagProvider(mod)
 	{
 	}
 
@@ -40,11 +36,6 @@ public:
 
 		// We should only allow this tag if it is added by a remote server.
 		return IS_LOCAL(user) ? MOD_RES_DENY : MOD_RES_ALLOW;
-	}
-
-	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override
-	{
-		return ctctagcap.IsEnabled(user);
 	}
 };
 

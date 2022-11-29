@@ -40,8 +40,7 @@ bool ServerTags::ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTag
 }
 
 ServiceTag::ServiceTag(Module* mod)
-	: ClientProtocol::MessageTagProvider(mod)
-	, ctctagcap(mod)
+	: CTCTags::TagProvider(mod)
 {
 }
 
@@ -50,9 +49,4 @@ void ServiceTag::OnPopulateTags(ClientProtocol::Message& msg)
 	User* const user = msg.GetSourceUser();
 	if (user && user->server->IsService())
 		msg.AddTag("inspircd.org/service", this, "");
-}
-
-bool ServiceTag::ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata)
-{
-	return ctctagcap.IsEnabled(user);
 }

@@ -30,17 +30,15 @@
 #include "modules/whois.h"
 
 class BotTag final
-	: public ClientProtocol::MessageTagProvider
+	: public CTCTags::TagProvider
 {
 private:
 	SimpleUserMode& botmode;
-	CTCTags::CapReference ctctagcap;
 
 public:
 	BotTag(Module* mod, SimpleUserMode& bm)
-		: ClientProtocol::MessageTagProvider(mod)
+		: CTCTags::TagProvider(mod)
 		, botmode(bm)
-		, ctctagcap(mod)
 	{
 	}
 
@@ -49,11 +47,6 @@ public:
 		User* const user = msg.GetSourceUser();
 		if (user && user->IsModeSet(botmode))
 			msg.AddTag("bot", this, "");
-	}
-
-	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override
-	{
-		return ctctagcap.IsEnabled(user);
 	}
 };
 
