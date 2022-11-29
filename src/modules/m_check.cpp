@@ -134,39 +134,6 @@ class CommandCheck final
 		return ret;
 	}
 
-	static std::string GetAllowedOperOnlyCommands(LocalUser* user)
-	{
-		std::string ret;
-		for (const auto& [_, cmd] : ServerInstance->Parser.GetCommands())
-		{
-			if (cmd->access_needed == CmdAccess::OPERATOR && user->HasCommandPermission(cmd->name))
-				ret += cmd->name + " ";
-		}
-		if (!ret.empty())
-			ret.pop_back();
-		return ret;
-	}
-
-	static std::string GetAllowedOperOnlyModes(LocalUser* user, ModeType modetype)
-	{
-		std::string ret;
-		for (const auto& [_, mh] : ServerInstance->Modes.GetModes(modetype))
-		{
-			if ((mh->NeedsOper()) && (user->HasModePermission(mh)))
-				ret.push_back(mh->GetModeChar());
-		}
-		return ret;
-	}
-
-	static std::string GetAllowedOperOnlySnomasks(LocalUser* user)
-	{
-		std::string ret;
-		for (unsigned char sno = 'A'; sno <= 'z'; ++sno)
-			if (ServerInstance->SNO.IsSnomaskUsable(sno) && user->HasSnomaskPermission(sno))
-				ret.push_back(sno);
-		return ret;
-	}
-
 public:
 	CommandCheck(Module* parent)
 		: Command(parent,"CHECK", 1)
@@ -226,10 +193,10 @@ public:
 				context.Write("opertype", targetuser->oper->GetType());
 				if (localtarget)
 				{
-					context.Write("chanmodeperms", GetAllowedOperOnlyModes(localtarget, MODETYPE_CHANNEL));
-					context.Write("usermodeperms", GetAllowedOperOnlyModes(localtarget, MODETYPE_USER));
-					context.Write("snomaskperms", GetAllowedOperOnlySnomasks(localtarget));
-					context.Write("commandperms", GetAllowedOperOnlyCommands(localtarget));
+					context.Write("chanmodeperms", localtarget->oper->GetModes(MODETYPE_CHANNEL));
+					context.Write("usermodeperms", localtarget->oper->GetModes(MODETYPE_USER));
+					context.Write("snomaskperms", localtarget->oper->GetSnomasks());
+					context.Write("commandperms", localtarget->oper->GetCommands());
 					context.Write("permissions", localtarget->oper->GetPrivileges());
 				}
 			}

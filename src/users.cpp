@@ -1288,6 +1288,42 @@ void OperType::Configure(const std::shared_ptr<ConfigTag>& tag, bool merge)
 		MergeTag(tag);
 }
 
+std::string OperType::GetCommands() const
+{
+	std::vector<std::string> ret;
+	for (const auto& [_, cmd] : ServerInstance->Parser.GetCommands())
+	{
+		if (cmd->access_needed == CmdAccess::OPERATOR && CanUseCommand(cmd->name))
+			ret.push_back(cmd->name);
+	}
+	std::sort(ret.begin(), ret.end());
+	return stdalgo::string::join(ret);
+}
+
+std::string OperType::GetModes(ModeType mt) const
+{
+	std::string ret;
+	for (const auto& [_, mh] : ServerInstance->Modes.GetModes(mt))
+	{
+		if (mh->NeedsOper() && CanUseMode(mh))
+			ret.push_back(mh->GetModeChar());
+	}
+	std::sort(ret.begin(), ret.end());
+	return ret;
+}
+
+std::string OperType::GetSnomasks() const
+{
+	std::string ret;
+	for (unsigned char sno = 'A'; sno <= 'z'; ++sno)
+	{
+		if (CanUseSnomask(sno))
+			ret.push_back(sno);
+	}
+	std::sort(ret.begin(), ret.end());
+	return ret;
+}
+
 bool OperType::CanUseCommand(const std::string& cmd) const
 {
 	return commands.Contains(cmd);

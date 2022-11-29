@@ -20,10 +20,13 @@
 
 
 #include "inspircd.h"
+#include "modules/stats.h"
+
 #include "core_oper.h"
 
 class CoreModOper final
 	: public Module
+	, public Stats::EventListener
 {
 private:
 	CommandDie cmddie;
@@ -34,9 +37,15 @@ private:
 	ModeUserOperator operatormode;
 	ModeUserServerNoticeMask snomaskmode;
 
+	static std::string NoneIfEmpty(const std::string& field)
+	{
+		return field.empty() ? "\x1Dnone\x1D" : field;
+	}
+
 public:
 	CoreModOper()
 		: Module(VF_CORE | VF_VENDOR, "Provides the DIE, KILL, OPER, REHASH, and RESTART commands")
+		, Stats::EventListener(this)
 		, cmddie(this)
 		, cmdkill(this)
 		, cmdoper(this)
@@ -74,6 +83,82 @@ public:
 		const std::string klass = luser->oper->GetConfig()->getString("class");
 		if (!klass.empty())
 			luser->SetClass(klass);
+	}
+
+	ModResult OnStats(Stats::Context& stats) override
+	{
+		switch (stats.GetSymbol())
+		{
+			case 'o':
+			{
+				// Server operator accounts.
+				for (const auto& [_, account] : ServerInstance->Config->OperAccounts)
+				{
+					const std::string hosts = NoneIfEmpty(account->GetConfig()->getString("host"));
+					const std::string chanmodes = NoneIfEmpty(account->GetModes(MODETYPE_CHANNEL));
+					const std::string usermodes = NoneIfEmpty(account->GetModes(MODETYPE_USER));
+					const std::string snomasks = NoneIfEmpty(account->GetSnomasks());
+					const std::string commands = NoneIfEmpty(account->GetCommands());
+					const std::string privileges = NoneIfEmpty(account->GetPrivileges());
+
+					stats.AddGenericRow(InspIRCd::Format(
+						"\x02%s\x02 (hosts: %s, type: %s, channel modes: %s, user modes: %s, snomasks: %s, commands: %s, privileges: %s)",
+						account->GetName().c_str(), hosts.c_str(), account->GetType().c_str(), chanmodes.c_str(),
+						usermodes.c_str(), snomasks.c_str(), commands.c_str(), privileges.c_str())
+					);
+				}
+				return MOD_RES_DENY;
+			}
+
+			case 'O':
+			{
+				// Server operator types.
+				for (const auto& [_, type] : ServerInstance->Config->OperTypes)
+				{
+					const std::string hosts = NoneIfEmpty(type->GetConfig()->getString("host"));
+					const std::string chanmodes = NoneIfEmpty(type->GetModes(MODETYPE_CHANNEL));
+					const std::string usermodes = NoneIfEmpty(type->GetModes(MODETYPE_USER));
+					const std::string snomasks = NoneIfEmpty(type->GetSnomasks());
+					const std::string commands = NoneIfEmpty(type->GetCommands());
+					const std::string privileges = NoneIfEmpty(type->GetPrivileges());
+
+					stats.AddGenericRow(InspIRCd::Format(
+						"\x02%s\02 (channel modes: %s, user modes: %s, snomasks: %s, commands: %s, privileges: %s)",
+						type->GetName().c_str(), chanmodes.c_str(),	usermodes.c_str(),
+						snomasks.c_str(), commands.c_str(), privileges.c_str())
+					);
+				}
+				return MOD_RES_DENY;
+			}
+
+			case 'P':
+			{
+				// Online server operators.
+				size_t opers = 0;
+				for (const auto& oper : ServerInstance->Users.all_opers)
+				{
+					if (oper->server->IsService())
+						continue;
+
+					opers++;
+					auto loper = IS_LOCAL(oper);
+					if (loper)
+					{
+						const std::string idleperiod = InspIRCd::DurationString(ServerInstance->Time() - loper->idle_lastmsg);
+						const std::string idletime = InspIRCd::TimeString(ServerInstance->Time());
+						stats.AddGenericRow(InspIRCd::Format("\x02%s\x02 (%s): idle for %s [since %s]", oper->nick.c_str(),
+							oper->MakeHost().c_str(), idleperiod.c_str(), idletime.c_str()));
+					}
+					else
+					{
+						stats.AddGenericRow(InspIRCd::Format("\x02%s\x02 (%s)", oper->nick.c_str(), oper->MakeHost().c_str()));
+					}
+				}
+				stats.AddGenericRow(InspIRCd::Format("%zu server operator%s total", opers, opers ? "s" : ""));
+				return MOD_RES_DENY;
+			}
+		}
+		return MOD_RES_PASSTHRU;
 	}
 };
 

@@ -197,8 +197,19 @@ public:
 	/** Retrieves the name of this oper type. */
 	const auto& GetName() const { return name; }
 
+	/** Retrieves the commands that this oper type has access to. */
+	std::string GetCommands() const;
+
+	/** Retrieves the modes that this oper type has access to.
+	 * @param mt The type of mode to retrieve.
+	 */
+	std::string GetModes(ModeType mt) const;
+
 	/** Retrieves the privileges that this oper type has access to. */
 	std::string GetPrivileges() const { return privileges.ToString(); }
+
+	/** Retrieves the snomasks that this oper type has access to. */
+	std::string GetSnomasks() const;
 
 	/** Determines if this oper type can use the specified command.
 	 * @param cmd The command to check for.

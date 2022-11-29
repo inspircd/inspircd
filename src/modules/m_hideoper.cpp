@@ -147,20 +147,27 @@ public:
 		if (stats.GetSymbol() != 'P')
 			return MOD_RES_PASSTHRU;
 
-		unsigned int count = 0;
+		size_t opers = 0;
 		for (const auto& oper : ServerInstance->Users.all_opers)
 		{
-			if (!oper->server->IsService() && (stats.GetSource()->IsOper() || !oper->IsModeSet(hm)))
+			if (oper->server->IsService())
+				continue;
+
+			opers++;
+			auto loper = IS_LOCAL(oper);
+			if (loper)
 			{
-				LocalUser* lu = IS_LOCAL(oper);
-				const std::string idle = lu ? InspIRCd::DurationString(ServerInstance->Time() - lu->idle_lastmsg) : "unavailable";
-				stats.AddRow(249, InspIRCd::Format("%s (%s@%s) Idle: %s", oper->nick.c_str(),
-					oper->ident.c_str(), oper->GetDisplayedHost().c_str(), idle.c_str()));
-				count++;
+				const std::string idleperiod = InspIRCd::DurationString(ServerInstance->Time() - loper->idle_lastmsg);
+				const std::string idletime = InspIRCd::TimeString(ServerInstance->Time());
+				stats.AddGenericRow(InspIRCd::Format("\x02%s\x02 (%s): idle for %s [since %s]", oper->nick.c_str(),
+					oper->MakeHost().c_str(), idleperiod.c_str(), idletime.c_str()));
+			}
+			else
+			{
+				stats.AddGenericRow(InspIRCd::Format("\x02%s\x02 (%s)", oper->nick.c_str(), oper->MakeHost().c_str()));
 			}
 		}
-		stats.AddRow(249, ConvToStr(count)+" OPER(s)");
-
+		stats.AddGenericRow(InspIRCd::Format("%zu server operator%s total", opers, opers ? "s" : ""));
 		return MOD_RES_DENY;
 	}
 };

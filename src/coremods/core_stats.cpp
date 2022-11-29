@@ -167,24 +167,6 @@ void CommandStats::DoStats(Stats::Context& stats)
 		}
 		break;
 
-		case 'P':
-		{
-			unsigned int idx = 0;
-			for (const auto& oper : ServerInstance->Users.all_opers)
-			{
-				if (!oper->server->IsService())
-				{
-					LocalUser* lu = IS_LOCAL(oper);
-					const std::string idle = lu ? InspIRCd::DurationString(ServerInstance->Time() - lu->idle_lastmsg) : "unavailable";
-					stats.AddRow(249, InspIRCd::Format("%s (%s@%s) Idle: %s", oper->nick.c_str(),
-						oper->ident.c_str(), oper->GetDisplayedHost().c_str(), idle.c_str()));
-					idx++;
-				}
-			}
-			stats.AddRow(249, ConvToStr(idx)+" OPER(s)");
-		}
-		break;
-
 		case 'k':
 			ServerInstance->XLines->InvokeStats("K", stats);
 		break;
@@ -312,38 +294,6 @@ void CommandStats::DoStats(Stats::Context& stats)
 			stats.AddRow(249, "connection count "+ConvToStr(ServerInstance->stats.Connects));
 			stats.AddRow(249, InspIRCd::Format("bytes sent %5.2fK recv %5.2fK",
 				ServerInstance->stats.Sent / 1024.0, ServerInstance->stats.Recv / 1024.0));
-		}
-		break;
-
-		/* stats o */
-		case 'o':
-		{
-			for (const auto& [_, ifo] : ServerInstance->Config->OperAccounts)
-			{
-				stats.AddRow(243, 'O', ifo->GetConfig()->getString("host"), '*', ifo->GetName(), ifo->GetType(), '0');
-			}
-		}
-		break;
-		case 'O':
-		{
-			for (const auto& [_, tag] : ServerInstance->Config->OperTypes)
-			{
-				std::string umodes;
-				for (const auto& [__, mh] : ServerInstance->Modes.GetModes(MODETYPE_USER))
-				{
-					if (mh->NeedsOper() && tag->CanUseMode(mh))
-						umodes.push_back(mh->GetModeChar());
-				}
-
-				std::string cmodes;
-				for (const auto& [__, mh] : ServerInstance->Modes.GetModes(MODETYPE_CHANNEL))
-				{
-					if (mh->NeedsOper() && tag->CanUseMode(mh))
-						cmodes.push_back(mh->GetModeChar());
-				}
-
-				stats.AddRow(243, 'O', tag->GetName(), umodes, cmodes);
-			}
 		}
 		break;
 
