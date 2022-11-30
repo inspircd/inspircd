@@ -28,6 +28,7 @@
 
 #include "inspircd.h"
 #include "xline.h"
+#include "modules/cap.h"
 #include "modules/stats.h"
 
 #ifdef _WIN32
@@ -36,10 +37,33 @@
 # include <sys/resource.h>
 #endif
 
+class StatsTagsProvider
+	: public ClientProtocol::MessageTagProvider
+{
+private:
+	Cap::Capability statscap;
+
+public:
+	StatsTagsProvider(Module* mod)
+		: ClientProtocol::MessageTagProvider(mod)
+		, statscap(mod, "inspircd.org/stats-tags")
+	{
+	}
+
+	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override
+	{
+		return statscap.IsEnabled(user);
+	}
+};
+
+
 class CommandStats final
 	: public Command
 {
+private:
 	Events::ModuleEventProvider statsevprov;
+	StatsTagsProvider statstags;
+
 	void DoStats(Stats::Context& stats);
 
 public:
@@ -49,6 +73,7 @@ public:
 	CommandStats(Module* Creator)
 		: Command(Creator, "STATS", 1, 2)
 		, statsevprov(Creator, "event/stats")
+		, statstags(Creator)
 	{
 		syntax = { "<symbol> [<servername>]" };
 	}
@@ -333,7 +358,7 @@ CmdResult CommandStats::Handle(User* user, const Params& parameters)
 		return CmdResult::SUCCESS;
 	}
 
-	Stats::Context stats(user, parameters[0][0]);
+	Stats::Context stats(statstags, user, parameters[0][0]);
 	DoStats(stats);
 
 	for (const auto& row : stats.GetRows())

@@ -57,6 +57,24 @@ public:
 		: Numeric(num)
 	{
 	}
+
+	/** Attaches a stats tag to the response.
+	 * @param stats The stats request that is being responded to.
+	 * @param name The name of the stats tag. Will be prefixed with `inspircd.org/stats-`.
+	 * @param value The value of the stats tag. Will be escaped before attaching.
+	 */
+	inline Row& AddTag(Stats::Context& stats, const std::string& name, const std::string& value);
+
+	/** Attaches multiple tags to the response.
+	 * @param stats The stats request that is being responded to.
+	 * @param tags An list of tags to attach. See AddTag for how this will be processed.
+	 */
+	inline Row& AddTags(Stats::Context& stats, std::initializer_list<std::pair<std::string, std::string>>&& tags)
+	{
+		for (const auto& [name, value] : tags)
+			AddTag(stats, name, value);
+		return *this;
+	}
 };
 
 class Stats::Context final
@@ -64,6 +82,9 @@ class Stats::Context final
 	/** Source user of the STATS request
 	 */
 	User* const source;
+
+	/** The provider for inspircd.org/stats-* tags. */
+	ClientProtocol::MessageTagProvider& tagprov;
 
 	/** List of reply rows
 	 */
@@ -78,11 +99,15 @@ public:
 	 * @param src Source user of the STATS request, can be a local or remote user
 	 * @param sym Symbol (letter) indicating the type of the request
 	 */
-	Context(User* src, char sym)
+	Context(ClientProtocol::MessageTagProvider& prov, User* src, char sym)
 		: source(src)
+		, tagprov(prov)
 		, symbol(sym)
 	{
 	}
+
+	/** Retrieves the provider of inspircd.org/stats-* tags. */
+	auto& GetTagProvider() const { return tagprov; }
 
 	/** Get the source user of the STATS request
 	 * @return Source user of the STATS request
@@ -102,25 +127,35 @@ public:
 	/** Add a row to the reply list
 	 * @param row Reply to add
 	 */
-	void AddRow(const Row& row) { rows.push_back(row); }
+	Row& AddRow(const Row& row)
+	{
+		rows.push_back(row);
+		return rows.back();
+	}
 
 	template <typename... Param>
-	void AddRow(unsigned int numeric, Param&&... p)
+	Row& AddRow(unsigned int numeric, Param&&... p)
 	{
 		Row n(numeric);
 		n.push(std::forward<Param>(p)...);
-		AddRow(n);
+		return AddRow(n);
 	}
 
 	/** Adds a row to the stats response using a generic numeric.
 	 * @param p One or more fields to add to the response.
 	 */
 	template <typename... Param>
-	void AddGenericRow(Param&&... p)
+	Row& AddGenericRow(Param&&... p)
 	{
 		Row n(RPL_STATS);
 		n.push(GetSymbol());
 		n.push(std::forward<Param>(p)...);
-		AddRow(n);
+		return AddRow(n);
 	}
 };
+
+inline Stats::Row& Stats::Row::AddTag(Stats::Context& stats, const std::string& name, const std::string& value)
+{
+	Numeric::Numeric::AddTag("inspircd.org/stats-" + name, &stats.GetTagProvider(), ClientProtocol::Message::EscapeTag(value));
+	return *this;
+}
