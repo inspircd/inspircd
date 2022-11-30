@@ -96,6 +96,27 @@ public:
 	{
 	}
 
+	/** Add a tag.
+	 * @param tagname Raw name of the tag to use in the protocol.
+	 * @param tagprov Provider of the tag.
+	 * @param val Tag value. If empty no value will be sent with the tag.
+	 * @param tagdata Tag provider specific data, will be passed to MessageTagProvider::ShouldSendTag(). Optional, defaults to NULL.
+	 */
+	Numeric& AddTag(const std::string& tagname, ClientProtocol::MessageTagProvider* tagprov, const std::string& val, void* tagdata = nullptr)
+	{
+		params.GetTags().emplace(tagname, ClientProtocol::MessageTagData(tagprov, val, tagdata));
+		return *this;
+	}
+
+	/** Add all tags in a TagMap to the tags in this message. Existing tags will not be overwritten.
+	 * @param newtags New tags to add.
+	 */
+	Numeric& AddTags(const ClientProtocol::TagMap& newtags)
+	{
+		params.GetTags().insert(newtags.begin(), newtags.end());
+		return *this;
+	}
+
 	/** Converts the given arguments to a string and adds them to the numeric.
 	 * @param args One or more arguments to the numeric.
 	 */
