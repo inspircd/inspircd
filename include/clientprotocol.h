@@ -281,6 +281,11 @@ class ClientProtocol::Message : public ClientProtocol::MessageSource
 
 	typedef std::vector<Param> ParamList;
 
+	/** Escapes a value for use in a tag value.
+	 * @param value The value to escape.
+	 */
+	static std::string EscapeTag(const std::string& value);
+
  private:
 	typedef std::vector<std::pair<SerializedInfo, SerializedMessage> > SerializedList;
 

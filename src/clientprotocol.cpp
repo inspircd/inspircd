@@ -69,6 +69,37 @@ const ClientProtocol::SerializedMessage& ClientProtocol::Serializer::SerializeFo
 	return msg.GetSerialized(Message::SerializedInfo(this, MakeTagWhitelist(user, msg.GetTags())));
 }
 
+std::string ClientProtocol::Message::EscapeTag(const std::string& value)
+{
+	std::string ret;
+	ret.reserve(value.size());
+	for (const char& chr : value)
+	{
+		switch (chr)
+		{
+			case ' ':
+				ret.append("\\s");
+				break;
+			case ';':
+				ret.append("\\;");
+				break;
+			case '\\':
+				ret.append("\\\\");
+				break;
+			case '\n':
+				ret.append("\\n");
+				break;
+			case '\r':
+				ret.append("\\r");
+				break;
+			default:
+				ret.push_back(chr);
+				break;
+		}
+	}
+	return ret;
+}
+
 const ClientProtocol::SerializedMessage& ClientProtocol::Message::GetSerialized(const SerializedInfo& serializeinfo) const
 {
 	// First check if the serialized line they're asking for is in the cache
