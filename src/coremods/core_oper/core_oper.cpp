@@ -95,18 +95,28 @@ public:
 				// Server operator accounts.
 				for (const auto& [_, account] : ServerInstance->Config->OperAccounts)
 				{
-					const std::string hosts = NoneIfEmpty(account->GetConfig()->getString("host"));
-					const std::string chanmodes = NoneIfEmpty(account->GetModes(MODETYPE_CHANNEL));
-					const std::string usermodes = NoneIfEmpty(account->GetModes(MODETYPE_USER));
-					const std::string snomasks = NoneIfEmpty(account->GetSnomasks());
-					const std::string commands = NoneIfEmpty(account->GetCommands());
-					const std::string privileges = NoneIfEmpty(account->GetPrivileges());
+					const std::string hosts = account->GetConfig()->getString("host");
+					const std::string chanmodes = account->GetModes(MODETYPE_CHANNEL);
+					const std::string usermodes = account->GetModes(MODETYPE_USER);
+					const std::string snomasks = account->GetSnomasks();
+					const std::string commands = account->GetCommands();
+					const std::string privileges = account->GetPrivileges();
 
 					stats.AddGenericRow(InspIRCd::Format(
 						"\x02%s\x02 (hosts: %s, type: %s, channel modes: %s, user modes: %s, snomasks: %s, commands: %s, privileges: %s)",
-						account->GetName().c_str(), hosts.c_str(), account->GetType().c_str(), chanmodes.c_str(),
-						usermodes.c_str(), snomasks.c_str(), commands.c_str(), privileges.c_str())
-					);
+						account->GetName().c_str(), NoneIfEmpty(hosts).c_str(), account->GetType().c_str(),
+						NoneIfEmpty(chanmodes).c_str(), NoneIfEmpty(usermodes).c_str(),
+						NoneIfEmpty(snomasks).c_str(), NoneIfEmpty(commands).c_str(),
+						NoneIfEmpty(privileges).c_str())
+					).AddTags(stats, {
+						{ "name",       account->GetName() },
+						{ "hosts",      hosts              },
+						{ "chan-modes", chanmodes          },
+						{ "user-modes", usermodes          },
+						{ "snomasks",   snomasks           },
+						{ "commands",   commands           },
+						{ "privileges", privileges         },
+					});
 				}
 				return MOD_RES_DENY;
 			}
@@ -116,18 +126,25 @@ public:
 				// Server operator types.
 				for (const auto& [_, type] : ServerInstance->Config->OperTypes)
 				{
-					const std::string hosts = NoneIfEmpty(type->GetConfig()->getString("host"));
-					const std::string chanmodes = NoneIfEmpty(type->GetModes(MODETYPE_CHANNEL));
-					const std::string usermodes = NoneIfEmpty(type->GetModes(MODETYPE_USER));
-					const std::string snomasks = NoneIfEmpty(type->GetSnomasks());
-					const std::string commands = NoneIfEmpty(type->GetCommands());
-					const std::string privileges = NoneIfEmpty(type->GetPrivileges());
+					const std::string chanmodes = type->GetModes(MODETYPE_CHANNEL);
+					const std::string usermodes = type->GetModes(MODETYPE_USER);
+					const std::string snomasks = type->GetSnomasks();
+					const std::string commands = type->GetCommands();
+					const std::string privileges = type->GetPrivileges();
 
 					stats.AddGenericRow(InspIRCd::Format(
 						"\x02%s\02 (channel modes: %s, user modes: %s, snomasks: %s, commands: %s, privileges: %s)",
-						type->GetName().c_str(), chanmodes.c_str(),	usermodes.c_str(),
-						snomasks.c_str(), commands.c_str(), privileges.c_str())
-					);
+						type->GetName().c_str(), NoneIfEmpty(chanmodes).c_str(),
+						NoneIfEmpty(usermodes).c_str(), NoneIfEmpty(snomasks).c_str(),
+						NoneIfEmpty(commands).c_str(), NoneIfEmpty(privileges).c_str())
+					).AddTags(stats, {
+						{ "name",       type->GetName()  },
+						{ "chan-modes", chanmodes        },
+						{ "user-modes", usermodes        },
+						{ "snomasks",   snomasks         },
+						{ "commands",   commands         },
+						{ "privileges", privileges       },
+					});
 				}
 				return MOD_RES_DENY;
 			}
