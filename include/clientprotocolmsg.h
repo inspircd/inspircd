@@ -45,7 +45,7 @@ namespace ClientProtocol
  * The first parameter is the target of the numeric which is almost always the nick of the user
  * the numeric will be sent to.
  */
-class ClientProtocol::Messages::Numeric
+class CoreExport ClientProtocol::Messages::Numeric
 	: public ClientProtocol::Message
 {
 	char numericstr[4];
@@ -104,7 +104,7 @@ public:
 /** JOIN message.
  * Sent when a user joins a channel.
  */
-class ClientProtocol::Messages::Join
+class CoreExport ClientProtocol::Messages::Join
 	: public ClientProtocol::Message
 {
 	Membership* memb;
@@ -155,7 +155,7 @@ public:
 /** PART message.
  * Sent when a user parts a channel.
  */
-struct ClientProtocol::Messages::Part
+struct CoreExport ClientProtocol::Messages::Part
 	: public ClientProtocol::Message
 {
 	/** Constructor.
@@ -174,7 +174,7 @@ struct ClientProtocol::Messages::Part
 /** KICK message.
  * Sent when a user is kicked from a channel.
  */
-struct ClientProtocol::Messages::Kick
+struct CoreExport ClientProtocol::Messages::Kick
 	: public ClientProtocol::Message
 {
 	/** Constructor.
@@ -194,7 +194,7 @@ struct ClientProtocol::Messages::Kick
 /** QUIT message.
  * Sent when a user quits.
  */
-struct ClientProtocol::Messages::Quit
+struct CoreExport ClientProtocol::Messages::Quit
 	: public ClientProtocol::Message
 {
 	/** Constructor.
@@ -212,7 +212,7 @@ struct ClientProtocol::Messages::Quit
 /** NICK message.
  * Sent when a user changes their nickname.
  */
-struct ClientProtocol::Messages::Nick
+struct CoreExport ClientProtocol::Messages::Nick
 	: public ClientProtocol::Message
 {
 	/** Constructor.
@@ -229,7 +229,7 @@ struct ClientProtocol::Messages::Nick
 /** MODE message.
  * Sent when modes are changed on a user or channel.
  */
-class ClientProtocol::Messages::Mode
+class CoreExport ClientProtocol::Messages::Mode
 	: public ClientProtocol::Message
 {
 	Channel* chantarget;
@@ -395,7 +395,7 @@ public:
 
 /** TOPIC message.
  */
-struct ClientProtocol::Messages::Topic
+struct CoreExport ClientProtocol::Messages::Topic
 	: public ClientProtocol::Message
 {
 	/** Constructor.
@@ -413,7 +413,7 @@ struct ClientProtocol::Messages::Topic
 
 /** PRIVMSG and NOTICE message.
  */
-class ClientProtocol::Messages::Privmsg
+class CoreExport ClientProtocol::Messages::Privmsg
 	: public ClientProtocol::Message
 {
 	void PushTargetChan(char status, const Channel* targetchan)
@@ -626,7 +626,7 @@ public:
 /** INVITE message.
  * Sent when a user is invited to join a channel.
  */
-struct ClientProtocol::Messages::Invite
+struct CoreExport ClientProtocol::Messages::Invite
 	: public ClientProtocol::Message
 {
 	/** Constructor.
@@ -645,7 +645,7 @@ struct ClientProtocol::Messages::Invite
 /** PING message.
  * Used to check if a connection is still alive.
  */
-struct ClientProtocol::Messages::Ping
+struct CoreExport ClientProtocol::Messages::Ping
 	: public ClientProtocol::Message
 {
 	/** Constructor.
@@ -670,7 +670,7 @@ struct ClientProtocol::Messages::Ping
 /** PONG message.
  * Sent as a reply to PING.
  */
-struct ClientProtocol::Messages::Pong
+struct CoreExport ClientProtocol::Messages::Pong
 	: public ClientProtocol::Message
 {
 	/** Constructor.
@@ -688,7 +688,7 @@ struct ClientProtocol::Messages::Pong
 /** ERROR message.
  * Sent to clients upon disconnection.
  */
-struct ClientProtocol::Messages::Error
+struct CoreExport ClientProtocol::Messages::Error
 	: public ClientProtocol::Message
 {
 	/** Constructor.
