@@ -1317,7 +1317,7 @@ std::string OperType::GetSnomasks() const
 	std::string ret;
 	for (unsigned char sno = 'A'; sno <= 'z'; ++sno)
 	{
-		if (CanUseSnomask(sno))
+		if (ServerInstance->SNO.IsSnomaskUsable(sno) && CanUseSnomask(sno))
 			ret.push_back(sno);
 	}
 	std::sort(ret.begin(), ret.end());
