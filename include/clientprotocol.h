@@ -285,7 +285,7 @@ public:
 	/** Escapes a value for use in a tag value.
 	 * @param value The value to escape.
 	 */
-	static std::string CoreExport EscapeTag(const std::string& value);
+	static std::string EscapeTag(const std::string& value);
 
 private:
 	typedef std::vector<std::pair<SerializedInfo, SerializedMessage>> SerializedList;

@@ -68,7 +68,7 @@ const ClientProtocol::SerializedMessage& ClientProtocol::Serializer::SerializeFo
 	return msg.GetSerialized(Message::SerializedInfo(this, MakeTagWhitelist(user, msg.GetTags())));
 }
 
-std::string CoreExport ClientProtocol::Message::EscapeTag(const std::string& value)
+std::string ClientProtocol::Message::EscapeTag(const std::string& value)
 {
 	std::string ret;
 	ret.reserve(value.size());
@@ -98,7 +98,6 @@ std::string CoreExport ClientProtocol::Message::EscapeTag(const std::string& val
 	}
 	return ret;
 }
-
 
 const ClientProtocol::SerializedMessage& ClientProtocol::Message::GetSerialized(const SerializedInfo& serializeinfo) const
 {

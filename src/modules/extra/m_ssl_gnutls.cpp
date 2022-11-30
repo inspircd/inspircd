@@ -119,9 +119,7 @@ namespace GnuTLS
 		// Nothing to deallocate, constructor may throw freely
 		Hash(const std::string& hashname)
 		{
-			// As gnutls_digest_algorithm_t and gnutls_mac_algorithm_t are mapped 1:1, we can do this
-			// There is no gnutls_dig_get_id() at the moment, but it may come later
-			hash = (gnutls_digest_algorithm_t)gnutls_mac_get_id(hashname.c_str());
+			hash = gnutls_digest_get_id(hashname.c_str());
 			if (hash == GNUTLS_DIG_UNKNOWN)
 				throw Exception("Unknown hash type " + hashname);
 
@@ -978,7 +976,7 @@ public:
 
 	bool GetServerName(std::string& out) const override
 	{
-		std::vector<char> nameBuffer;
+		std::vector<char> nameBuffer(1);
 		size_t nameLength = 0;
 		unsigned int nameType = GNUTLS_NAME_DNS;
 
