@@ -73,8 +73,9 @@ std::string ClientProtocol::Message::EscapeTag(const std::string& value)
 {
 	std::string ret;
 	ret.reserve(value.size());
-	for (const char& chr : value)
+	for (std::string::const_iterator it = value.begin(); it != value.end(); ++it)
 	{
+		const char chr = *it;
 		switch (chr)
 		{
 			case ' ':
