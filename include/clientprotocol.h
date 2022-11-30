@@ -34,7 +34,7 @@ namespace ClientProtocol
 /** Contains a message parsed from wire format.
  * Used by Serializer::Parse().
  */
-struct ClientProtocol::ParseOutput
+struct CoreExport ClientProtocol::ParseOutput
 {
 	/** Command name, must not be empty.
 	 */
@@ -51,7 +51,7 @@ struct ClientProtocol::ParseOutput
 
 /** A selection of zero or more tags in a TagMap.
  */
-class ClientProtocol::TagSelection
+class CoreExport ClientProtocol::TagSelection
 {
 	std::bitset<64> selection;
 
@@ -90,7 +90,7 @@ class ClientProtocol::TagSelection
 	}
 };
 
-class ClientProtocol::MessageSource
+class CoreExport ClientProtocol::MessageSource
 {
 	User* sourceuser;
 	const std::string* sourcestr;
@@ -178,7 +178,7 @@ class ClientProtocol::MessageSource
  * All messages have a command name, a list of parameters and a map of tags, the last two can be empty.
  * They also always have a source, see class MessageSource.
  */
-class ClientProtocol::Message : public ClientProtocol::MessageSource
+class CoreExport ClientProtocol::Message : public ClientProtocol::MessageSource
 {
  public:
 	/** Contains information required to identify a specific version of a serialized message.
@@ -466,7 +466,7 @@ class ClientProtocol::Message : public ClientProtocol::MessageSource
  *
  * Event hooks attached to a specific event can alter the messages sent for that event.
  */
-class ClientProtocol::Event
+class CoreExport ClientProtocol::Event
 {
 	EventProvider* event;
 	Message* initialmsg;
@@ -523,7 +523,7 @@ class ClientProtocol::Event
 	void GetMessagesForUser(LocalUser* user, MessageList& messagelist);
 };
 
-class ClientProtocol::MessageTagEvent
+class CoreExport ClientProtocol::MessageTagEvent
 	: public Events::ModuleEventProvider
 {
  public:
@@ -538,7 +538,7 @@ class ClientProtocol::MessageTagEvent
  * with tags before the message is sent and they have the job of determining whether a user should
  * get a message tag or be allowed to send one.
  */
-class ClientProtocol::MessageTagProvider : public Events::ModuleEventListener
+class CoreExport ClientProtocol::MessageTagProvider : public Events::ModuleEventListener
 {
  public:
 	/** Constructor.
@@ -585,7 +585,7 @@ class ClientProtocol::MessageTagProvider : public Events::ModuleEventListener
  * A protocol event hook is attached to a single event type. It has the ability to alter or block messages
  * sent to users which belong to the event the hook is attached to.
  */
-class ClientProtocol::EventHook : public Events::ModuleEventListener
+class CoreExport ClientProtocol::EventHook : public Events::ModuleEventListener
 {
  public:
 	static std::string GetEventName(const std::string& name)
@@ -629,7 +629,7 @@ class ClientProtocol::EventHook : public Events::ModuleEventListener
  * Protocol event hooks can be attached to the instances of these providers. The core has event
  * providers for most common IRC events defined in RFC1459.
  */
-class ClientProtocol::EventProvider : public Events::ModuleEventProvider
+class CoreExport ClientProtocol::EventProvider : public Events::ModuleEventProvider
 {
  public:
 	/** Constructor.
@@ -646,7 +646,7 @@ class ClientProtocol::EventProvider : public Events::ModuleEventProvider
 /** Commonly used client protocol events.
  * Available via InspIRCd::GetRFCEvents().
  */
-struct ClientProtocol::RFCEvents
+struct CoreExport ClientProtocol::RFCEvents
 {
 	EventProvider numeric;
 	EventProvider join;

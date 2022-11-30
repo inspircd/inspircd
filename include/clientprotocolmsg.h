@@ -45,7 +45,7 @@ namespace ClientProtocol
  * The first parameter is the target of the numeric which is almost always the nick of the user
  * the numeric will be sent to.
  */
-class ClientProtocol::Messages::Numeric : public ClientProtocol::Message
+class CoreExport ClientProtocol::Messages::Numeric : public ClientProtocol::Message
 {
 	char numericstr[4];
 
@@ -103,7 +103,7 @@ class ClientProtocol::Messages::Numeric : public ClientProtocol::Message
 /** JOIN message.
  * Sent when a user joins a channel.
  */
-class ClientProtocol::Messages::Join : public ClientProtocol::Message
+class CoreExport ClientProtocol::Messages::Join : public ClientProtocol::Message
 {
 	Membership* memb;
 
@@ -153,7 +153,7 @@ class ClientProtocol::Messages::Join : public ClientProtocol::Message
 /** PART message.
  * Sent when a user parts a channel.
  */
-struct ClientProtocol::Messages::Part : public ClientProtocol::Message
+struct CoreExport ClientProtocol::Messages::Part : public ClientProtocol::Message
 {
 	/** Constructor.
 	 * @param memb Member parting.
@@ -171,7 +171,7 @@ struct ClientProtocol::Messages::Part : public ClientProtocol::Message
 /** KICK message.
  * Sent when a user is kicked from a channel.
  */
-struct ClientProtocol::Messages::Kick : public ClientProtocol::Message
+struct CoreExport ClientProtocol::Messages::Kick : public ClientProtocol::Message
 {
 	/** Constructor.
 	 * @param source User that does the kick.
@@ -190,7 +190,7 @@ struct ClientProtocol::Messages::Kick : public ClientProtocol::Message
 /** QUIT message.
  * Sent when a user quits.
  */
-struct ClientProtocol::Messages::Quit : public ClientProtocol::Message
+struct CoreExport ClientProtocol::Messages::Quit : public ClientProtocol::Message
 {
 	/** Constructor.
 	 * @param source User quitting.
@@ -207,7 +207,7 @@ struct ClientProtocol::Messages::Quit : public ClientProtocol::Message
 /** NICK message.
  * Sent when a user changes their nickname.
  */
-struct ClientProtocol::Messages::Nick : public ClientProtocol::Message
+struct CoreExport ClientProtocol::Messages::Nick : public ClientProtocol::Message
 {
 	/** Constructor.
 	 * @param source User changing nicks.
@@ -223,7 +223,7 @@ struct ClientProtocol::Messages::Nick : public ClientProtocol::Message
 /** MODE message.
  * Sent when modes are changed on a user or channel.
  */
-class ClientProtocol::Messages::Mode : public ClientProtocol::Message
+class CoreExport ClientProtocol::Messages::Mode : public ClientProtocol::Message
 {
 	Channel* chantarget;
 	User* usertarget;
@@ -389,7 +389,7 @@ class ClientProtocol::Messages::Mode : public ClientProtocol::Message
 
 /** TOPIC message.
  */
-struct ClientProtocol::Messages::Topic : public ClientProtocol::Message
+struct CoreExport ClientProtocol::Messages::Topic : public ClientProtocol::Message
 {
 	/** Constructor.
 	 * @param source User changing the topic.
@@ -406,7 +406,7 @@ struct ClientProtocol::Messages::Topic : public ClientProtocol::Message
 
 /** PRIVMSG and NOTICE message.
  */
-class ClientProtocol::Messages::Privmsg : public ClientProtocol::Message
+class CoreExport ClientProtocol::Messages::Privmsg : public ClientProtocol::Message
 {
 	void PushTargetChan(char status, const Channel* targetchan)
 	{
@@ -618,7 +618,7 @@ class ClientProtocol::Messages::Privmsg : public ClientProtocol::Message
 /** INVITE message.
  * Sent when a user is invited to join a channel.
  */
-struct ClientProtocol::Messages::Invite : public ClientProtocol::Message
+struct CoreExport ClientProtocol::Messages::Invite : public ClientProtocol::Message
 {
 	/** Constructor.
 	 * @param source User inviting the target user.
@@ -636,7 +636,7 @@ struct ClientProtocol::Messages::Invite : public ClientProtocol::Message
 /** PING message.
  * Used to check if a connection is still alive.
  */
-struct ClientProtocol::Messages::Ping : public ClientProtocol::Message
+struct CoreExport ClientProtocol::Messages::Ping : public ClientProtocol::Message
 {
 	/** Constructor.
 	 * The ping cookie is the name of the local server.
@@ -660,7 +660,7 @@ struct ClientProtocol::Messages::Ping : public ClientProtocol::Message
 /** PONG message.
  * Sent as a reply to PING.
  */
-struct ClientProtocol::Messages::Pong : public ClientProtocol::Message
+struct CoreExport ClientProtocol::Messages::Pong : public ClientProtocol::Message
 {
 	/** Constructor.
 	 * @param cookie Ping cookie. Must remain valid as long as this object is alive.
@@ -680,7 +680,7 @@ struct ClientProtocol::Messages::Pong : public ClientProtocol::Message
 /** ERROR message.
  * Sent to clients upon disconnection.
  */
-struct ClientProtocol::Messages::Error : public ClientProtocol::Message
+struct CoreExport ClientProtocol::Messages::Error : public ClientProtocol::Message
 {
 	/** Constructor.
 	 * @param text Error text.
