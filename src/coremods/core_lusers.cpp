@@ -76,7 +76,7 @@ private:
 
 public:
 	CommandLusers(Module* parent, LusersCounters& Counters)
-		: Command(parent,"LUSERS",0,0)
+		: Command(parent, "LUSERS")
 		, counters(Counters)
 	{
 	}

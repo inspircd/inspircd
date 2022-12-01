@@ -27,7 +27,7 @@
 #include "core_info.h"
 
 CommandVersion::CommandVersion(Module* parent, ISupportManager& isupportmgr)
-	: Command(parent, "VERSION", 0, 0)
+	: Command(parent, "VERSION")
 	, isupport(isupportmgr)
 	, operversion(RPL_VERSION)
 	, version(RPL_VERSION)

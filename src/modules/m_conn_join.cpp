@@ -50,7 +50,9 @@ private:
 public:
 	JoinTimer(LocalUser* u, SimpleExtItem<JoinTimer>& ex, const std::string& chans, unsigned int delay)
 		: Timer(delay, false)
-		, user(u), channels(chans), ext(ex)
+		, user(u)
+		, channels(chans)
+		, ext(ex)
 	{
 		ServerInstance->Timers.AddTimer(this);
 	}

@@ -452,7 +452,7 @@ public:
 	 * @param timeout The time the invite will expire (0 == never)
 	 * @return 1 to deny the invite, 0 to check whether or not the user has permission to invite, -1 to explicitly allow the invite
 	 */
-	virtual ModResult OnUserPreInvite(User* source,User* dest,Channel* channel, time_t timeout);
+	virtual ModResult OnUserPreInvite(User* source, User* dest, Channel* channel, time_t timeout);
 
 	/** Called after a user has been successfully invited to a channel.
 	 * You cannot prevent the invite from occurring using this function, to do that,

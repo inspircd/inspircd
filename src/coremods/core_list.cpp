@@ -51,7 +51,7 @@ public:
 	bool showmodes;
 
 	CommandList(Module* parent)
-		: Command(parent,"LIST", 0, 0)
+		: Command(parent, "LIST")
 		, secretmode(creator, "secret")
 		, privatemode(creator, "private")
 	{

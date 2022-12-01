@@ -33,7 +33,8 @@ class CommandChgident final
 	: public Command
 {
 public:
-	CommandChgident(Module* Creator) : Command(Creator,"CHGIDENT", 2)
+	CommandChgident(Module* Creator)
+		: Command(Creator, "CHGIDENT", 2)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick> <ident>" };

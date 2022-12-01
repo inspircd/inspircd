@@ -171,7 +171,7 @@ public:
 		{
 			if (!channel->HasUser(source) || (channel->IsModeSet(topiclock) && channel->GetPrefixValue(source) < HALFOP_VALUE))
 			{
-				ServerInstance->SNO.WriteGlobalSno('v',source->nick+" used oper override to change a topic on "+channel->name);
+				ServerInstance->SNO.WriteGlobalSno('v', source->nick + " used oper override to change a topic on " + channel->name);
 			}
 
 			// Explicit allow
@@ -183,13 +183,13 @@ public:
 
 	ModResult OnUserPreKick(User* source, Membership* memb, const std::string& reason) override
 	{
-		if (source->IsOper() && CanOverride(source,"KICK"))
+		if (source->IsOper() && CanOverride(source, "KICK"))
 		{
 			// If the kicker's status is less than the target's,			or	the kicker's status is less than or equal to voice
 			if ((memb->chan->GetPrefixValue(source) < memb->GetRank()) || (memb->chan->GetPrefixValue(source) <= VOICE_VALUE) ||
 				(memb->chan->GetPrefixValue(source) == HALFOP_VALUE && memb->GetRank() == HALFOP_VALUE))
 			{
-				ServerInstance->SNO.WriteGlobalSno('v',source->nick+" used oper override to kick "+memb->user->nick+" on "+memb->chan->name+" ("+reason+")");
+				ServerInstance->SNO.WriteGlobalSno('v', source->nick + " used oper override to kick " + memb->user->nick + " on " + memb->chan->name + " (" + reason + ")");
 				return MOD_RES_ALLOW;
 			}
 		}
@@ -231,7 +231,7 @@ public:
 				msg += item.mh->GetModeChar();
 			}
 			msg += params;
-			ServerInstance->SNO.WriteGlobalSno('v',msg);
+			ServerInstance->SNO.WriteGlobalSno('v', msg);
 			return MOD_RES_ALLOW;
 		}
 		return MOD_RES_PASSTHRU;
@@ -243,20 +243,20 @@ public:
 		{
 			if (chan)
 			{
-				if (chan->IsModeSet(inviteonly) && (CanOverride(user,"INVITE")))
+				if (chan->IsModeSet(inviteonly) && (CanOverride(user, "INVITE")))
 				{
 					if (!invapi->IsInvited(user, chan))
 						return HandleJoinOverride(user, chan, keygiven, "invite-only", "+i");
 					return MOD_RES_ALLOW;
 				}
 
-				if (chan->IsModeSet(key) && (CanOverride(user,"KEY")) && keygiven != chan->GetModeParameter(key))
+				if (chan->IsModeSet(key) && (CanOverride(user, "KEY")) && keygiven != chan->GetModeParameter(key))
 					return HandleJoinOverride(user, chan, keygiven, "the channel key", "+k");
 
-				if (chan->IsModeSet(limit) && (chan->GetUsers().size() >= ConvToNum<size_t>(chan->GetModeParameter(limit))) && (CanOverride(user,"LIMIT")))
+				if (chan->IsModeSet(limit) && (chan->GetUsers().size() >= ConvToNum<size_t>(chan->GetModeParameter(limit))) && (CanOverride(user, "LIMIT")))
 					return HandleJoinOverride(user, chan, keygiven, "the channel limit", "+l");
 
-				if (chan->IsBanned(user) && CanOverride(user,"BANWALK"))
+				if (chan->IsBanned(user) && CanOverride(user, "BANWALK"))
 					return HandleJoinOverride(user, chan, keygiven, "channel ban", "channel ban");
 			}
 		}

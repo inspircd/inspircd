@@ -31,7 +31,8 @@ class CommandChgname final
 	: public Command
 {
 public:
-	CommandChgname(Module* Creator) : Command(Creator,"CHGNAME", 2, 2)
+	CommandChgname(Module* Creator)
+		: Command(Creator, "CHGNAME", 2, 2)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick> :<realname>" };

@@ -41,7 +41,8 @@ class ShunFactory final
 	: public XLineFactory
 {
 public:
-	ShunFactory() : XLineFactory("SHUN") { }
+	ShunFactory()
+		: XLineFactory("SHUN") { }
 
 	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
 	{
@@ -58,7 +59,8 @@ class CommandShun final
 	: public Command
 {
 public:
-	CommandShun(Module* Creator) : Command(Creator, "SHUN", 1, 3)
+	CommandShun(Module* Creator)
+		: Command(Creator, "SHUN", 1, 3)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick!user@host> [<duration> :<reason>]" };

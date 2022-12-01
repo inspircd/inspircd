@@ -30,7 +30,8 @@ class CommandAlltime final
 	: public Command
 {
 public:
-	CommandAlltime(Module* Creator) : Command(Creator, "ALLTIME", 0)
+	CommandAlltime(Module* Creator)
+		: Command(Creator, "ALLTIME", 0)
 	{
 		access_needed = CmdAccess::OPERATOR;
 	}

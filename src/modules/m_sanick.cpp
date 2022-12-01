@@ -33,7 +33,7 @@ private:
 
 public:
 	CommandSanick(Module* Creator)
-		: Command(Creator,"SANICK", 2)
+		: Command(Creator, "SANICK", 2)
 		, servprotectmode(Creator, "servprotect")
 	{
 		access_needed = CmdAccess::OPERATOR;

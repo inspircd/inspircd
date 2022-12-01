@@ -43,7 +43,8 @@ class CommandOpermotd final
 public:
 	std::vector<std::string> opermotd;
 
-	CommandOpermotd(Module* Creator) : Command(Creator,"OPERMOTD", 0, 1)
+	CommandOpermotd(Module* Creator)
+		: Command(Creator, "OPERMOTD")
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "[<servername>]" };

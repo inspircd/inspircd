@@ -173,7 +173,7 @@ public:
 		if (!tag->getBool("usesqlauth", true))
 			return MOD_RES_PASSTHRU;
 
-		if (!allowpattern.empty() && InspIRCd::Match(user->nick,allowpattern))
+		if (!allowpattern.empty() && InspIRCd::Match(user->nick, allowpattern))
 			return MOD_RES_PASSTHRU;
 
 		if (pendingExt.Get(user))

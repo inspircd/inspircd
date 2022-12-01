@@ -67,7 +67,7 @@ public:
 	CustomVhostMap configs;
 
 	CommandTitle(Module* Creator)
-		: Command(Creator,"TITLE", 2)
+		: Command(Creator, "TITLE", 2)
 		, ctitle(Creator, "ctitle", ExtensionType::USER, true)
 	{
 		syntax = { "<username> <password>" };

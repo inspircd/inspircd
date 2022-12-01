@@ -37,7 +37,10 @@ class GLineFactory final
 	: public XLineFactory
 {
 public:
-	GLineFactory() : XLineFactory("G") { }
+	GLineFactory()
+		: XLineFactory("G")
+	{
+	}
 
 	/** Generate a GLine
 	 */
@@ -54,7 +57,10 @@ class ELineFactory final
 	: public XLineFactory
 {
 public:
-	ELineFactory() : XLineFactory("E") { }
+	ELineFactory()
+		: XLineFactory("E")
+	{
+	}
 
 	/** Generate an ELine
 	 */
@@ -71,7 +77,10 @@ class KLineFactory final
 	: public XLineFactory
 {
 public:
-	KLineFactory() : XLineFactory("K") { }
+	KLineFactory()
+		: XLineFactory("K")
+	{
+	}
 
 	/** Generate a KLine
 	 */
@@ -88,7 +97,10 @@ class QLineFactory final
 	: public XLineFactory
 {
 public:
-	QLineFactory() : XLineFactory("Q") { }
+	QLineFactory()
+		: XLineFactory("Q")
+	{
+	}
 
 	/** Generate a QLine
 	 */
@@ -104,7 +116,10 @@ class ZLineFactory final
 	: public XLineFactory
 {
 public:
-	ZLineFactory() : XLineFactory("Z") { }
+	ZLineFactory()
+		: XLineFactory("Z")
+	{
+	}
 
 	/** Generate a ZLine
 	 */
@@ -238,11 +253,11 @@ std::vector<std::string> XLineManager::GetAllTypes()
 
 IdentHostPair XLineManager::IdentSplit(const std::string& ident_and_host)
 {
-	IdentHostPair n = std::make_pair<std::string,std::string>("*","*");
+	IdentHostPair n = std::make_pair<std::string, std::string>("*", "*");
 	std::string::size_type x = ident_and_host.find('@');
 	if (x != std::string::npos)
 	{
-		n.second = ident_and_host.substr(x + 1,ident_and_host.length());
+		n.second = ident_and_host.substr(x + 1, ident_and_host.length());
 		n.first = ident_and_host.substr(0, x);
 		if (!n.first.length())
 			n.first.assign("*");

@@ -137,7 +137,7 @@ private:
 
 public:
 	CommandUserhost(Module* parent)
-		: Command(parent,"USERHOST", 1)
+		: Command(parent, "USERHOST", 1)
 		, hideopermode(parent, "hideoper")
 	{
 		syntax = { "<nick> [<nick>]+" };

@@ -193,7 +193,9 @@ public:
 	 * @param host Host to match
 	 */
 	KLine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& ident, const std::string& host)
-		: XLine(s_time, d, src, re, "K"), identmask(ident), hostmask(host)
+		: XLine(s_time, d, src, re, "K")
+		, identmask(ident)
+		, hostmask(host)
 	{
 		matchtext = this->identmask;
 		matchtext.append("@").append(this->hostmask);
@@ -234,7 +236,9 @@ public:
 	 * @param host Host to match
 	 */
 	GLine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& ident, const std::string& host)
-		: XLine(s_time, d, src, re, "G"), identmask(ident), hostmask(host)
+		: XLine(s_time, d, src, re, "G")
+		, identmask(ident)
+		, hostmask(host)
 	{
 		matchtext = this->identmask;
 		matchtext.append("@").append(this->hostmask);
@@ -273,7 +277,9 @@ public:
 	 * @param host Host to match
 	 */
 	ELine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& ident, const std::string& host)
-		: XLine(s_time, d, src, re, "E"), identmask(ident), hostmask(host)
+		: XLine(s_time, d, src, re, "E")
+		, identmask(ident)
+		, hostmask(host)
 	{
 		matchtext = this->identmask;
 		matchtext.append("@").append(this->hostmask);
@@ -313,7 +319,8 @@ public:
 	 * @param ip IP to match
 	 */
 	ZLine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& ip)
-		: XLine(s_time, d, src, re, "Z"), ipaddr(ip)
+		: XLine(s_time, d, src, re, "Z")
+		, ipaddr(ip)
 	{
 	}
 
@@ -344,7 +351,8 @@ public:
 	 * @param nickname Nickname to match
 	 */
 	QLine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& nickname)
-		: XLine(s_time, d, src, re, "Q"), nick(nickname)
+		: XLine(s_time, d, src, re, "Q")
+		, nick(nickname)
 	{
 	}
 
@@ -379,7 +387,10 @@ public:
 	/** Create an XLine factory
 	 * @param t Type of XLine this factory generates
 	 */
-	XLineFactory(const std::string& t) : type(t) { }
+	XLineFactory(const std::string& t)
+		: type(t)
+	{
+	}
 
 	/** Return the type of XLine this factory generates
 	 * @return The type of XLine this factory generates

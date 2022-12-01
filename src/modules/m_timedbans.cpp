@@ -75,7 +75,7 @@ public:
 	bool sendnotice;
 
 	CommandTban(Module* Creator)
-		: Command(Creator,"TBAN", 3)
+		: Command(Creator, "TBAN", 3)
 		, banmode(Creator, "ban")
 	{
 		syntax = { "<channel> <duration> <banmask>" };

@@ -33,7 +33,10 @@ public:
 		TreeSocket* const sock;
 
 	public:
-		Server(TreeSocket* s) : sock(s) { }
+		Server(TreeSocket* s)
+			: sock(s)
+		{
+		}
 		void SendMetaData(const std::string& key, const std::string& data) override;
 	};
 

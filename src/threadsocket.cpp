@@ -33,7 +33,8 @@ private:
 	SocketThread* parent = nullptr;
 
 public:
-	ThreadSignalSocket(SocketThread* p, int newfd) : parent(p)
+	ThreadSignalSocket(SocketThread* p, int newfd)
+		: parent(p)
 	{
 		SetFd(newfd);
 		SocketEngine::AddFd(this, FD_WANT_FAST_READ | FD_WANT_NO_WRITE);

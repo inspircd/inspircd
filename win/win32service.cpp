@@ -177,7 +177,7 @@ void InstallService()
 			throw CWin32Exception();
 		}
 
-		InspServiceHandle = CreateService(SCMHandle, TEXT("InspIRCd"),TEXT("InspIRCd Daemon"), SERVICE_CHANGE_CONFIG, SERVICE_WIN32_OWN_PROCESS,
+		InspServiceHandle = CreateService(SCMHandle, TEXT("InspIRCd"), TEXT("InspIRCd Daemon"), SERVICE_CHANGE_CONFIG, SERVICE_WIN32_OWN_PROCESS,
 			SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, tszBinaryPath, 0, 0, 0, TEXT("NT AUTHORITY\\NetworkService"), nullptr);
 
 		if (!InspServiceHandle)

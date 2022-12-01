@@ -43,7 +43,9 @@ public:
 	time_t sent;
 
 	BlockedMessage(const std::string& msg, const std::string& tgt, time_t when)
-		: message(msg), target(tgt), sent(when)
+		: message(msg)
+		, target(tgt)
+		, sent(when)
 	{
 	}
 };

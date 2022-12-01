@@ -154,7 +154,9 @@ ModeAction SimpleChannelMode::OnModeChange(User* source, User* dest, Channel* ch
 }
 
 ModeWatcher::ModeWatcher(Module* Creator, const std::string& modename, ModeType type)
-	: mode(modename), m_type(type), creator(Creator)
+	: mode(modename)
+	, m_type(type)
+	, creator(Creator)
 {
 	ServerInstance->Modes.AddModeWatcher(this);
 }

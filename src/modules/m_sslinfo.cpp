@@ -93,7 +93,7 @@ public:
 
 		std::stringstream s(value);
 		std::string v;
-		getline(s,v,' ');
+		getline(s, v, ' ');
 
 		cert->invalid = (v.find('v') != std::string::npos);
 		cert->trusted = (v.find('T') != std::string::npos);
@@ -101,13 +101,13 @@ public:
 		cert->unknownsigner = (v.find('s') != std::string::npos);
 		if (v.find('E') != std::string::npos)
 		{
-			getline(s,cert->error,'\n');
+			getline(s, cert->error, '\n');
 		}
 		else
 		{
-			getline(s,cert->fingerprint,' ');
-			getline(s,cert->dn,' ');
-			getline(s,cert->issuer,'\n');
+			getline(s, cert->fingerprint, ' ');
+			getline(s, cert->dn, ' ');
+			getline(s, cert->issuer, '\n');
 		}
 	}
 

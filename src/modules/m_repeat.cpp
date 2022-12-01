@@ -75,7 +75,11 @@ private:
 	{
 		time_t ts;
 		std::string line;
-		RepeatItem(time_t TS, const std::string& Line) : ts(TS), line(Line) { }
+		RepeatItem(time_t TS, const std::string& Line)
+			: ts(TS)
+			, line(Line)
+		{
+		}
 	};
 
 	typedef std::deque<RepeatItem> RepeatItemList;

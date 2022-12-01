@@ -33,7 +33,7 @@ private:
 
 public:
 	CommandSapart(Module* Creator)
-		: Command(Creator,"SAPART", 2, 3)
+		: Command(Creator, "SAPART", 2, 3)
 		, servprotectmode(Creator, "servprotect")
 	{
 		access_needed = CmdAccess::OPERATOR;

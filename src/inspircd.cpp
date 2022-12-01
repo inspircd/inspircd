@@ -565,7 +565,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		if (kill(getppid(), SIGTERM) == -1)
 		{
 			std::cout << "Error killing parent process: " << strerror(errno) << std::endl;
-			Logs.Normal("STARTUP", "Error killing parent process: %s",strerror(errno));
+			Logs.Normal("STARTUP", "Error killing parent process: %s", strerror(errno));
 		}
 	}
 

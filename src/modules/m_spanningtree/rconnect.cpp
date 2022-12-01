@@ -47,10 +47,11 @@ CmdResult CommandRConnect::Handle(User* user, const Params& parameters)
 	}
 
 	/* Is this aimed at our server? */
-	if (InspIRCd::Match(ServerInstance->Config->ServerName,parameters[0]))
+	if (InspIRCd::Match(ServerInstance->Config->ServerName, parameters[0]))
 	{
 		/* Yes, initiate the given connect */
-		ServerInstance->SNO.WriteToSnoMask('l',"Remote CONNECT from %s matching \002%s\002, connecting server \002%s\002",user->nick.c_str(),parameters[0].c_str(),parameters[1].c_str());
+		ServerInstance->SNO.WriteToSnoMask('l', "Remote CONNECT from %s matching \002%s\002, connecting server \002%s\002",
+			user->nick.c_str(), parameters[0].c_str(), parameters[1].c_str());
 		CommandBase::Params para;
 		para.push_back(parameters[1]);
 		((ModuleSpanningTree*)(Module*)creator)->HandleConnect(para, user);

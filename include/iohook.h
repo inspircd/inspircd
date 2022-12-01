@@ -45,7 +45,11 @@ public:
 	 * @param middle True if the IOHook instances created by this hook are subclasses of IOHookMiddle, false otherwise
 	 */
 	IOHookProvider(Module* mod, const std::string& Name, Type hooktype = IOH_UNKNOWN, bool middle = false)
-		: ServiceProvider(mod, Name, SERVICE_IOHOOK), middlehook(middle), type(hooktype) { }
+		: ServiceProvider(mod, Name, SERVICE_IOHOOK)
+		, middlehook(middle)
+		, type(hooktype)
+	{
+	}
 
 	/** Check if the IOHook provided can appear in the non-last position of a hook chain.
 	 * That is the case if and only if the IOHook instances created are subclasses of IOHookMiddle.

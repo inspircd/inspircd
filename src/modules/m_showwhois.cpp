@@ -47,7 +47,8 @@ class WhoisNoticeCmd final
 	: public Command
 {
 public:
-	WhoisNoticeCmd(Module* Creator) : Command(Creator,"WHOISNOTICE", 2)
+	WhoisNoticeCmd(Module* Creator)
+		: Command(Creator, "WHOISNOTICE", 2)
 	{
 		access_needed = CmdAccess::SERVER;
 	}

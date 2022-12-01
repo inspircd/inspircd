@@ -44,7 +44,7 @@ ModResult ModuleSpanningTree::HandleSquit(const CommandBase::Params& parameters,
 
 		if (s->IsLocal())
 		{
-			ServerInstance->SNO.WriteToSnoMask('l',"SQUIT: Server \002%s\002 removed from network by %s",parameters[0].c_str(),user->nick.c_str());
+			ServerInstance->SNO.WriteToSnoMask('l', "SQUIT: Server \002%s\002 removed from network by %s", parameters[0].c_str(), user->nick.c_str());
 			s->SQuit("Server quit by " + user->GetFullRealHost());
 		}
 		else

@@ -365,7 +365,9 @@ class CommandSASL final
 {
 public:
 	SimpleExtItem<SaslAuthenticator>& authExt;
-	CommandSASL(Module* Creator, SimpleExtItem<SaslAuthenticator>& ext) : Command(Creator, "SASL", 2), authExt(ext)
+	CommandSASL(Module* Creator, SimpleExtItem<SaslAuthenticator>& ext)
+		: Command(Creator, "SASL", 2)
+		, authExt(ext)
 	{
 		this->access_needed = CmdAccess::SERVER; // should not be called by users
 	}

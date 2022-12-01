@@ -51,7 +51,10 @@ class KickRejoinData final
 public:
 	const unsigned int delay;
 
-	KickRejoinData(unsigned int Delay) : delay(Delay) { }
+	KickRejoinData(unsigned int Delay)
+		: delay(Delay)
+	{
+	}
 
 	bool canjoin(LocalUser* user) const
 	{

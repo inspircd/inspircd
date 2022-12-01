@@ -524,8 +524,9 @@ void LocalUser::FullConnect()
 
 	FOREACH_MOD(OnPostConnect, (this));
 
-	ServerInstance->SNO.WriteToSnoMask('c',"Client connecting on port %d (class %s): %s (%s) [%s\x0F]",
-		this->server_sa.port(), this->GetClass()->name.c_str(), GetFullRealHost().c_str(), this->GetIPString().c_str(), this->GetRealName().c_str());
+	ServerInstance->SNO.WriteToSnoMask('c', "Client connecting on port %d (class %s): %s (%s) [%s\x0F]",
+		this->server_sa.port(), this->GetClass()->name.c_str(), GetFullRealHost().c_str(),
+		this->GetIPString().c_str(), this->GetRealName().c_str());
 	ServerInstance->Logs.Debug("BANCACHE", "BanCache: Adding NEGATIVE hit for " + this->GetIPString());
 	ServerInstance->BanCache.AddHit(this->GetIPString(), "", "");
 	// reset the flood penalty (which could have been raised due to things like auto +x)
@@ -603,7 +604,7 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 	ServerInstance->Users.clientlist[newnick] = this;
 
 	if (IsFullyConnected())
-		FOREACH_MOD(OnUserPostNick, (this,oldnick));
+		FOREACH_MOD(OnUserPostNick, (this, oldnick));
 
 	return true;
 }
@@ -628,7 +629,7 @@ const std::string& User::GetIPString()
 		cachedip = client_sa.addr();
 		/* IP addresses starting with a : on irc are a Bad Thing (tm) */
 		if (cachedip[0] == ':')
-			cachedip.insert(cachedip.begin(),1,'0');
+			cachedip.insert(cachedip.begin(), 1, '0');
 	}
 
 	return cachedip;
@@ -935,7 +936,7 @@ bool User::ChangeDisplayedHost(const std::string& shost)
 			return false;
 	}
 
-	FOREACH_MOD(OnChangeHost, (this,shost));
+	FOREACH_MOD(OnChangeHost, (this, shost));
 
 	if (realhost == shost)
 		this->displayhost.clear();
@@ -991,7 +992,7 @@ bool User::ChangeIdent(const std::string& newident)
 	if (this->ident == newident)
 		return true;
 
-	FOREACH_MOD(OnChangeIdent, (this,newident));
+	FOREACH_MOD(OnChangeIdent, (this, newident));
 
 	this->ident.assign(newident, 0, ServerInstance->Config->Limits.MaxUser);
 	this->InvalidateCache();
@@ -1032,7 +1033,7 @@ void LocalUser::SetClass(const std::string& explicit_name)
 					c->GetName().c_str());
 
 			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnSetConnectClass, MOD_RESULT, (this,c));
+			FIRST_MOD_RESULT(OnSetConnectClass, MOD_RESULT, (this, c));
 			if (MOD_RESULT == MOD_RES_DENY)
 				continue;
 

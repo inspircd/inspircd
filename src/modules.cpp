@@ -169,7 +169,9 @@ void		Module::OnOperLogout(User*) { DetachEvent(I_OnOperLogout); }
 void		Module::OnPostOperLogout(User*, const std::shared_ptr<OperAccount>&) { DetachEvent(I_OnPostOperLogout); }
 
 ServiceProvider::ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type)
-	: creator(Creator), name(Name), service(Type)
+	: creator(Creator)
+	, name(Name)
+	, service(Type)
 {
 	if ((ServerInstance) && (ServerInstance->Modules.NewServices))
 		ServerInstance->Modules.NewServices->push_back(this);
@@ -485,7 +487,10 @@ namespace
 		: public ActionBase
 	{
 		Module* const mod;
-		UnloadAction(Module* m) : mod(m) {}
+		UnloadAction(Module* m)
+			: mod(m)
+		{
+		}
 		void Call() override
 		{
 			ServerInstance->Modules.DoSafeUnload(mod);

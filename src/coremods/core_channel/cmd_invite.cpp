@@ -46,7 +46,7 @@ enum
 };
 
 CommandInvite::CommandInvite(Module* parent, Invite::APIImpl& invapiimpl)
-	: Command(parent, "INVITE", 0, 0)
+	: Command(parent, "INVITE")
 	, invapi(invapiimpl)
 {
 	penalty = 4000;
@@ -119,7 +119,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 			return CmdResult::FAILURE;
 		}
 
-		FIRST_MOD_RESULT(OnUserPreInvite, MOD_RESULT, (user,u,c,timeout));
+		FIRST_MOD_RESULT(OnUserPreInvite, MOD_RESULT, (user, u, c, timeout));
 
 		if (MOD_RESULT == MOD_RES_DENY)
 		{

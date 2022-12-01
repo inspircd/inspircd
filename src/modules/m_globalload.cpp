@@ -31,7 +31,7 @@ class CommandGLoadModule final
 {
 public:
 	CommandGLoadModule(Module* Creator)
-		: Command(Creator,"GLOADMODULE", 1)
+		: Command(Creator, "GLOADMODULE", 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<modulename> [<servermask>]" };
@@ -45,7 +45,7 @@ public:
 		{
 			if (ServerInstance->Modules.Load(parameters[0]))
 			{
-				ServerInstance->SNO.WriteToSnoMask('a', "NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
+				ServerInstance->SNO.WriteToSnoMask('a', "NEW MODULE '%s' GLOBALLY LOADED BY '%s'", parameters[0].c_str(), user->nick.c_str());
 				user->WriteRemoteNumeric(RPL_LOADEDMODULE, parameters[0], "Module successfully loaded.");
 			}
 			else
@@ -54,7 +54,7 @@ public:
 			}
 		}
 		else
-			ServerInstance->SNO.WriteToSnoMask('a', "MODULE '%s' GLOBAL LOAD BY '%s' (not loaded here)",parameters[0].c_str(), user->nick.c_str());
+			ServerInstance->SNO.WriteToSnoMask('a', "MODULE '%s' GLOBAL LOAD BY '%s' (not loaded here)", parameters[0].c_str(), user->nick.c_str());
 
 		return CmdResult::SUCCESS;
 	}
@@ -70,7 +70,7 @@ class CommandGUnloadModule final
 {
 public:
 	CommandGUnloadModule(Module* Creator)
-		: Command(Creator,"GUNLOADMODULE", 1)
+		: Command(Creator, "GUNLOADMODULE", 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<modulename> [<servermask>]" };
@@ -93,7 +93,7 @@ public:
 			{
 				if (ServerInstance->Modules.Unload(m))
 				{
-					ServerInstance->SNO.WriteToSnoMask('a', "MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
+					ServerInstance->SNO.WriteToSnoMask('a', "MODULE '%s' GLOBALLY UNLOADED BY '%s'", parameters[0].c_str(), user->nick.c_str());
 					user->WriteRemoteNumeric(RPL_UNLOADEDMODULE, parameters[0], "Module successfully unloaded.");
 				}
 				else
@@ -105,7 +105,7 @@ public:
 				user->WriteRemoteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "No such module");
 		}
 		else
-			ServerInstance->SNO.WriteToSnoMask('a', "MODULE '%s' GLOBAL UNLOAD BY '%s' (not unloaded here)",parameters[0].c_str(), user->nick.c_str());
+			ServerInstance->SNO.WriteToSnoMask('a', "MODULE '%s' GLOBAL UNLOAD BY '%s' (not unloaded here)", parameters[0].c_str(), user->nick.c_str());
 
 		return CmdResult::SUCCESS;
 	}
@@ -146,7 +146,7 @@ public:
 			}
 		}
 		else
-			ServerInstance->SNO.WriteToSnoMask('a', "MODULE '%s' GLOBAL RELOAD BY '%s' (not reloaded here)",parameters[0].c_str(), user->nick.c_str());
+			ServerInstance->SNO.WriteToSnoMask('a', "MODULE '%s' GLOBAL RELOAD BY '%s' (not reloaded here)", parameters[0].c_str(), user->nick.c_str());
 
 		return CmdResult::SUCCESS;
 	}

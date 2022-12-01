@@ -75,7 +75,10 @@ class CBanFactory final
 	: public XLineFactory
 {
 public:
-	CBanFactory() : XLineFactory("CBAN") { }
+	CBanFactory()
+		: XLineFactory("CBAN")
+	{
+	}
 
 	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
 	{
@@ -92,7 +95,8 @@ class CommandCBan final
 	: public Command
 {
 public:
-	CommandCBan(Module* Creator) : Command(Creator, "CBAN", 1, 3)
+	CommandCBan(Module* Creator)
+		: Command(Creator, "CBAN", 1, 3)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<channelmask> [<duration> [:<reason>]]" };

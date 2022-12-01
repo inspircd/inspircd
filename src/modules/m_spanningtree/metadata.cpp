@@ -91,7 +91,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 		ExtensionItem* item = ServerInstance->Extensions.GetItem(params[2]);
 		if (item && item->extype == ExtensionType::CHANNEL)
 			item->FromNetwork(c, value);
-		FOREACH_MOD(OnDecodeMetaData, (c,params[2],value));
+		FOREACH_MOD(OnDecodeMetaData, (c, params[2], value));
 	}
 	else
 	{
@@ -103,7 +103,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 
 			if (item && item->extype == ExtensionType::USER)
 				item->FromNetwork(u, value);
-			FOREACH_MOD(OnDecodeMetaData, (u,params[1],value));
+			FOREACH_MOD(OnDecodeMetaData, (u, params[1], value));
 		}
 	}
 

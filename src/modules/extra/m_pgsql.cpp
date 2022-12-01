@@ -79,7 +79,9 @@ class ReconnectTimer final
 private:
 	ModulePgSQL* mod;
 public:
-	ReconnectTimer(ModulePgSQL* m) : Timer(5, false), mod(m)
+	ReconnectTimer(ModulePgSQL* m)
+		: Timer(5, false)
+		, mod(m)
 	{
 	}
 	bool Tick() override;
@@ -89,7 +91,11 @@ struct QueueItem final
 {
 	SQL::Query* c;
 	std::string q;
-	QueueItem(SQL::Query* C, const std::string& Q) : c(C), q(Q) {}
+	QueueItem(SQL::Query* C, const std::string& Q)
+		: c(C)
+		, q(Q)
+	{
+	}
 };
 
 /** PgSQLresult is a subclass of the mostly-pure-virtual class SQLresult.
@@ -422,7 +428,7 @@ restart:
 		ServerInstance->Logs.Debug(MODNAME, "Executing PostgreSQL query: " + q);
 		if (qinprog.q.empty())
 		{
-			DoQuery(QueueItem(req,q));
+			DoQuery(QueueItem(req, q));
 		}
 		else
 		{

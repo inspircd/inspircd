@@ -77,7 +77,10 @@ class SVSHoldFactory final
 	: public XLineFactory
 {
 public:
-	SVSHoldFactory() : XLineFactory("SVSHOLD") { }
+	SVSHoldFactory()
+		: XLineFactory("SVSHOLD")
+	{
+	}
 
 	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
 	{
@@ -94,7 +97,8 @@ class CommandSvshold final
 	: public Command
 {
 public:
-	CommandSvshold(Module* Creator) : Command(Creator, "SVSHOLD", 1)
+	CommandSvshold(Module* Creator)
+		: Command(Creator, "SVSHOLD", 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick> [<duration> :<reason>]" };

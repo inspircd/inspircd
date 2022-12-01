@@ -148,7 +148,10 @@ class DispatcherThread final
 private:
 	ModuleSQL* const Parent;
 public:
-	DispatcherThread(ModuleSQL* CreatorModule) : Parent(CreatorModule) { }
+	DispatcherThread(ModuleSQL* CreatorModule)
+		: Parent(CreatorModule)
+	{
+	}
 	void OnStart() override;
 	void OnNotify() override;
 };

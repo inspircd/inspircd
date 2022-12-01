@@ -185,8 +185,9 @@ class CommandAccept final
 public:
 	CallerIDExtInfo extInfo;
 	unsigned long maxaccepts;
-	CommandAccept(Module* Creator) : Command(Creator, "ACCEPT", 1),
-		extInfo(Creator)
+	CommandAccept(Module* Creator)
+		: Command(Creator, "ACCEPT", 1)
+		, extInfo(Creator)
 	{
 		syntax = { "*|(+|-)<nick>[,(+|-)<nick>]+" };
 		translation = { TR_CUSTOM };

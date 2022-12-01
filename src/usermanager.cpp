@@ -170,7 +170,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	if (this->local_users.size() > ServerInstance->Config->SoftLimit)
 	{
 		ServerInstance->SNO.WriteToSnoMask('a', "Warning: softlimit value has been reached: %lu clients", ServerInstance->Config->SoftLimit);
-		this->QuitUser(New,"No more connections allowed");
+		this->QuitUser(New, "No more connections allowed");
 		return;
 	}
 
@@ -186,7 +186,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	 * besides that, if we get a positive bancache hit, we still won't fuck
 	 * them over if they are exempt. -- w00t
 	 */
-	New->exempt = (ServerInstance->XLines->MatchesLine("E",New) != nullptr);
+	New->exempt = (ServerInstance->XLines->MatchesLine("E", New) != nullptr);
 
 	BanCacheHit* const b = ServerInstance->BanCache.GetHit(New->GetIPString());
 	if (b)
@@ -213,7 +213,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	{
 		if (!New->exempt)
 		{
-			XLine* r = ServerInstance->XLines->MatchesLine("Z",New);
+			XLine* r = ServerInstance->XLines->MatchesLine("Z", New);
 
 			if (r)
 			{
@@ -292,7 +292,10 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 		lu->eh.Close();
 
 		if (lu->IsFullyConnected())
-			ServerInstance->SNO.WriteToSnoMask('q',"Client exiting: %s (%s) [%s]", user->GetFullRealHost().c_str(), user->GetIPString().c_str(), operquitmsg.c_str());
+		{
+			ServerInstance->SNO.WriteToSnoMask('q', "Client exiting: %s (%s) [%s]", user->GetFullRealHost().c_str(),
+				user->GetIPString().c_str(), operquitmsg.c_str());
+		}
 		local_users.erase(lu);
 	}
 

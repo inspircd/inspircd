@@ -113,7 +113,8 @@ class DummyZ final
 	: public ModeHandler
 {
 public:
-	DummyZ(Module* parent) : ModeHandler(parent, "namebase", 'Z', PARAM_ALWAYS, MODETYPE_CHANNEL)
+	DummyZ(Module* parent)
+		: ModeHandler(parent, "namebase", 'Z', PARAM_ALWAYS, MODETYPE_CHANNEL)
 	{
 		list = true;
 	}

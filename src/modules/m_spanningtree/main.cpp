@@ -171,7 +171,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 
 void ModuleSpanningTree::HandleLinks(const CommandBase::Params& parameters, User* user)
 {
-	ShowLinks(Utils->TreeRoot,user,0);
+	ShowLinks(Utils->TreeRoot, user, 0);
 	user->WriteNumeric(RPL_ENDOFLINKS, '*', "End of /LINKS list.");
 }
 
@@ -273,7 +273,7 @@ void ModuleSpanningTree::ConnectServer(std::shared_ptr<Link> x, std::shared_ptr<
 		catch (const DNS::Exception& e)
 		{
 			delete snr;
-			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(), e.GetReason().c_str());
+			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.", x->Name.c_str(), e.GetReason().c_str());
 			ConnectServer(y, false);
 		}
 	}
@@ -307,7 +307,7 @@ void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 		}
 		else if (curtime > s->age + (time_t)p.second)
 		{
-			ServerInstance->SNO.WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002 (timeout of %u seconds)",p.first.c_str(),p.second);
+			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002 (timeout of %u seconds)", p.first.c_str(), p.second);
 			Utils->timeoutlist.erase(me);
 			s->Close();
 		}

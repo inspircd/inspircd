@@ -88,7 +88,10 @@ public:
 struct TreeSocket::BurstState final
 {
 	SpanningTreeProtocolInterface::Server server;
-	BurstState(TreeSocket* sock) : server(sock) { }
+	BurstState(TreeSocket* sock)
+		: server(sock)
+	{
+	}
 };
 
 /** This function is called when we want to send a netburst to a local
@@ -98,7 +101,7 @@ struct TreeSocket::BurstState final
  */
 void TreeSocket::DoBurst(TreeServer* s)
 {
-	ServerInstance->SNO.WriteToSnoMask('l',"Bursting to \002%s\002 (Authentication: %s%s).",
+	ServerInstance->SNO.WriteToSnoMask('l', "Bursting to \002%s\002 (Authentication: %s%s).",
 		s->GetName().c_str(),
 		capab->auth_fingerprint ? "TLS certificate fingerprint and " : "",
 		capab->auth_challenge ? "challenge-response" : "plaintext password");
@@ -119,7 +122,7 @@ void TreeSocket::DoBurst(TreeServer* s)
 	this->SendXLines();
 	Utils->Creator->synceventprov.Call(&ServerProtocol::SyncEventListener::OnSyncNetwork, bs.server);
 	this->WriteLine(CmdBuilder("ENDBURST"));
-	ServerInstance->SNO.WriteToSnoMask('l',"Finished bursting to \002"+ s->GetName()+"\002.");
+	ServerInstance->SNO.WriteToSnoMask('l', "Finished bursting to \002"+ s->GetName()+"\002.");
 }
 
 void TreeSocket::SendServerInfo(TreeServer* from)

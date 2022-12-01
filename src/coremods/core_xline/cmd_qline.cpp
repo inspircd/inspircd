@@ -60,7 +60,7 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 		}
 
 		auto ql = new QLine(ServerInstance->Time(), duration, user->nick, parameters[2], parameters[0]);
-		if (ServerInstance->XLines->AddLine(ql,user))
+		if (ServerInstance->XLines->AddLine(ql, user))
 		{
 			if (!duration)
 			{

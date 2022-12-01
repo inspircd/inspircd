@@ -27,7 +27,7 @@
 #include "inspircd_win32wrapper.h"
 #include "inspircd.h"
 
-CWin32Exception::CWin32Exception() : exception()
+CWin32Exception::CWin32Exception()
 {
 	dwErrorCode = GetLastError();
 	if( FormatMessageA( FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, dwErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)szErrorString, _countof(szErrorString), nullptr) == 0 )

@@ -97,13 +97,8 @@ struct LDAPResult final
 	std::vector<LDAPAttributes> messages;
 	std::string error;
 
-	QueryType type;
-	LDAPQuery id;
-
-	LDAPResult()
-		: type(QUERY_UNKNOWN), id(-1)
-	{
-	}
+	QueryType type = QUERY_UNKNOWN;
+	LDAPQuery id = -1;
 
 	size_t size() const
 	{
@@ -133,9 +128,11 @@ class LDAPInterface
 public:
 	ModuleRef creator;
 
-	LDAPInterface(Module* m) : creator(m) { }
+	LDAPInterface(Module* m)
+		: creator(m)
+	{
+	}
 	virtual ~LDAPInterface() = default;
-
 	virtual void OnResult(const LDAPResult& r) = 0;
 	virtual void OnError(const LDAPResult& err) = 0;
 };

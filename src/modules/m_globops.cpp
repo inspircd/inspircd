@@ -32,7 +32,8 @@ class CommandGlobops final
 	: public Command
 {
 public:
-	CommandGlobops(Module* Creator) : Command(Creator,"GLOBOPS", 1,1)
+	CommandGlobops(Module* Creator)
+		: Command(Creator, "GLOBOPS", 1, 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		allow_empty_last_param = true;
@@ -67,7 +68,7 @@ public:
 
 	void init() override
 	{
-		ServerInstance->SNO.EnableSnomask('g',"GLOBOPS");
+		ServerInstance->SNO.EnableSnomask('g', "GLOBOPS");
 	}
 
 };

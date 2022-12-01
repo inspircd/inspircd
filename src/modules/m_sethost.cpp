@@ -32,7 +32,7 @@ public:
 	CharState hostmap;
 
 	CommandSethost(Module* Creator)
-		: Command(Creator,"SETHOST", 1)
+		: Command(Creator, "SETHOST", 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<host>" };

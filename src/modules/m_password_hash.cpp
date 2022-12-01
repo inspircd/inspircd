@@ -31,7 +31,8 @@ class CommandMkpasswd final
 	: public Command
 {
 public:
-	CommandMkpasswd(Module* Creator) : Command(Creator, "MKPASSWD", 2)
+	CommandMkpasswd(Module* Creator)
+		: Command(Creator, "MKPASSWD", 2)
 	{
 		penalty = 5000;
 		syntax = { "<hashtype> <plaintext>" };

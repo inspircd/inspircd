@@ -82,7 +82,7 @@ struct CapabData final
 	std::string ChanModes;
 	std::string UserModes;
 	std::string ExtBans;
-	std::map<std::string,std::string> CapKeys;	/* CAPAB keys from other server */
+	std::map<std::string, std::string> CapKeys;	/* CAPAB keys from other server */
 	std::string ourchallenge;		/* Challenge sent for challenge/response */
 	std::string theirchallenge;		/* Challenge recv for challenge/response */
 	int capab_phase = 0;			/* Have sent CAPAB already */

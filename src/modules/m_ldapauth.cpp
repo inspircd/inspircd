@@ -215,7 +215,9 @@ class SearchInterface final
 
 public:
 	SearchInterface(Module* c, const std::string& p, const std::string& u)
-		: LDAPInterface(c), provider(p), uid(u)
+		: LDAPInterface(c)
+		, provider(p)
+		, uid(u)
 	{
 	}
 
@@ -271,7 +273,11 @@ class AdminBindInterface final
 
 public:
 	AdminBindInterface(Module* c, const std::string& p, const std::string& u, const std::string& b, const std::string& w)
-		: LDAPInterface(c), provider(p), uuid(u), base(b), what(w)
+		: LDAPInterface(c)
+		, provider(p)
+		, uuid(u)
+		, base(b)
+		, what(w)
 	{
 	}
 

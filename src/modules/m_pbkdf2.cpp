@@ -38,7 +38,10 @@ public:
 	std::string hash;
 
 	PBKDF2Hash(unsigned long itr, size_t dkl, const std::string& slt, const std::string& hsh = "")
-		: iterations(itr), length(dkl), salt(slt), hash(hsh)
+		: iterations(itr)
+		, length(dkl)
+		, salt(slt)
+		, hash(hsh)
 	{
 	}
 

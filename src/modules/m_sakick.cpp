@@ -32,7 +32,7 @@ private:
 
 public:
 	CommandSakick(Module* Creator)
-		: Command(Creator,"SAKICK", 2, 3)
+		: Command(Creator, "SAKICK", 2, 3)
 		, servprotectmode(Creator, "servprotect")
 	{
 		access_needed = CmdAccess::OPERATOR;

@@ -171,7 +171,8 @@ namespace irc
 	public:
 		/** Initialize with comma separator
 		 */
-		commasepstream(const std::string& source, bool allowempty = false) : sepstream(source, ',', allowempty)
+		commasepstream(const std::string& source, bool allowempty = false)
+			: sepstream(source, ',', allowempty)
 		{
 		}
 	};
@@ -183,7 +184,8 @@ namespace irc
 	public:
 		/** Initialize with space separator
 		 */
-		spacesepstream(const std::string& source, bool allowempty = false) : sepstream(source, ' ', allowempty)
+		spacesepstream(const std::string& source, bool allowempty = false)
+			: sepstream(source, ' ', allowempty)
 		{
 		}
 	};

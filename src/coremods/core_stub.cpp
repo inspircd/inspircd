@@ -79,7 +79,7 @@ class CommandLinks final
 {
 public:
 	CommandLinks(Module* parent)
-		: Command(parent, "LINKS", 0, 0)
+		: Command(parent, "LINKS")
 	{
 	}
 

@@ -198,7 +198,8 @@ class CommandCloak final
 	: public Command
 {
 public:
-	CommandCloak(Module* Creator) : Command(Creator, "CLOAK", 1)
+	CommandCloak(Module* Creator)
+		: Command(Creator, "CLOAK", 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<host>" };
@@ -288,7 +289,7 @@ public:
 		else
 			input.append(item);
 
-		std::string rv = Hash->GenerateRaw(input).substr(0,len);
+		std::string rv = Hash->GenerateRaw(input).substr(0, len);
 		for(size_t i = 0; i < len; i++)
 		{
 			// this discards 3 bits per byte. We have an

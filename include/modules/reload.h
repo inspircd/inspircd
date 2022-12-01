@@ -32,7 +32,11 @@ namespace ReloadModule
 		{
 			EventListener* handler;
 			void* data;
-			Data(EventListener* Handler, void* moddata) : handler(Handler), data(moddata) { }
+			Data(EventListener* Handler, void* moddata)
+				: handler(Handler)
+				, data(moddata)
+			{
+			}
 		};
 		typedef std::vector<Data> List;
 		List list;

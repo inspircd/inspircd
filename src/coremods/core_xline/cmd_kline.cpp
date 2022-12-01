@@ -78,7 +78,7 @@ CmdResult CommandKline::Handle(User* user, const Params& parameters)
 		}
 
 		auto kl = new KLine(ServerInstance->Time(), duration, user->nick, parameters[2], ih.first, ih.second);
-		if (ServerInstance->XLines->AddLine(kl,user))
+		if (ServerInstance->XLines->AddLine(kl, user))
 		{
 			if (!duration)
 			{

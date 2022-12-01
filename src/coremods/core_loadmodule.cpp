@@ -31,7 +31,7 @@ class CommandLoadmodule final
 {
 public:
 	CommandLoadmodule(Module* parent)
-		: Command(parent,"LOADMODULE", 1, 1)
+		: Command(parent, "LOADMODULE", 1, 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<modulename>" };
@@ -44,7 +44,7 @@ CmdResult CommandLoadmodule::Handle(User* user, const Params& parameters)
 {
 	if (ServerInstance->Modules.Load(parameters[0]))
 	{
-		ServerInstance->SNO.WriteGlobalSno('a', "NEW MODULE: %s loaded %s",user->nick.c_str(), parameters[0].c_str());
+		ServerInstance->SNO.WriteGlobalSno('a', "NEW MODULE: %s loaded %s", user->nick.c_str(), parameters[0].c_str());
 		user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "Module successfully loaded.");
 		return CmdResult::SUCCESS;
 	}

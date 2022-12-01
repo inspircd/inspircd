@@ -70,7 +70,7 @@ public:
 	int notify;
 
 	CommandKnock(Module* Creator, SimpleChannelMode& Noknockmode)
-		: Command(Creator,"KNOCK", 2, 2)
+		: Command(Creator, "KNOCK", 2, 2)
 		, noknockmode(Noknockmode)
 		, inviteonlymode(Creator, "inviteonly")
 		, inviteapi(Creator)

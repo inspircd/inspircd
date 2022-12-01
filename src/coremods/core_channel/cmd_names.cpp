@@ -40,7 +40,7 @@ enum
 };
 
 CommandNames::CommandNames(Module* parent)
-	: SplitCommand(parent, "NAMES", 0, 0)
+	: SplitCommand(parent, "NAMES")
 	, secretmode(parent, "secret")
 	, privatemode(parent, "private")
 	, invisiblemode(parent, "invisible")

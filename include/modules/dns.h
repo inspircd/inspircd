@@ -173,7 +173,10 @@ namespace DNS
 	class Manager : public DataProvider
 	{
 	public:
-		Manager(Module* mod) : DataProvider(mod, "DNS") { }
+		Manager(Module* mod)
+			: DataProvider(mod, "DNS")
+		{
+		}
 
 		virtual void Process(Request* req) = 0;
 		virtual void RemoveRequest(Request* req) = 0;

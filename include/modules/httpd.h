@@ -86,7 +86,7 @@ struct HTTPRequestURI final
 class HTTPHeaders final
 {
 protected:
-	std::map<std::string,std::string> headers;
+	std::map<std::string, std::string> headers;
 public:
 
 	/** Set the value of a header
@@ -125,7 +125,7 @@ public:
 	 */
 	std::string GetHeader(const std::string& name)
 	{
-		std::map<std::string,std::string>::iterator it = headers.find(name);
+		std::map<std::string, std::string>::iterator it = headers.find(name);
 		if (it == headers.end())
 			return std::string();
 
@@ -137,7 +137,7 @@ public:
 	 */
 	bool IsSet(const std::string& name)
 	{
-		std::map<std::string,std::string>::iterator it = headers.find(name);
+		std::map<std::string, std::string>::iterator it = headers.find(name);
 		return (it != headers.end());
 	}
 
@@ -263,7 +263,10 @@ public:
 	 * based upon the response code.
 	 */
 	HTTPDocumentResponse(Module* mod, HTTPRequest& req, std::stringstream* doc, unsigned int response)
-		: module(mod), document(doc), responsecode(response), src(req)
+		: module(mod)
+		, document(doc)
+		, responsecode(response)
+		, src(req)
 	{
 	}
 };

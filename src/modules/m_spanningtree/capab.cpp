@@ -558,7 +558,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 		}
 
 		/* Challenge response, store their challenge for our password */
-		std::map<std::string,std::string>::iterator n = this->capab->CapKeys.find("CHALLENGE");
+		std::map<std::string, std::string>::iterator n = this->capab->CapKeys.find("CHALLENGE");
 		if ((n != this->capab->CapKeys.end()) && (ServerInstance->Modules.FindService(SERVICE_DATA, "hash/sha256")))
 		{
 			/* Challenge-response is on now */

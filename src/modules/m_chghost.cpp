@@ -33,7 +33,7 @@ public:
 	CharState hostmap;
 
 	CommandChghost(Module* Creator)
-		: Command(Creator,"CHGHOST", 2)
+		: Command(Creator, "CHGHOST", 2)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick> <host>" };

@@ -35,7 +35,7 @@
 #include "commands.h"
 
 CommandMap::CommandMap(Module* Creator)
-	: Command(Creator, "MAP", 0, 1)
+	: Command(Creator, "MAP")
 {
 	penalty = 2000;
 }

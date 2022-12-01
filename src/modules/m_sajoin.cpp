@@ -35,7 +35,7 @@ private:
 
 public:
 	CommandSajoin(Module* Creator)
-		: Command(Creator,"SAJOIN", 1)
+		: Command(Creator, "SAJOIN", 1)
 		, servprotectmode(Creator, "servprotect")
 	{
 		access_needed = CmdAccess::OPERATOR;

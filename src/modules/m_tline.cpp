@@ -29,7 +29,8 @@ class CommandTline final
 	: public Command
 {
 public:
-	CommandTline(Module* Creator) : Command(Creator,"TLINE", 1)
+	CommandTline(Module* Creator)
+		: Command(Creator, "TLINE", 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<mask>" };
@@ -43,7 +44,7 @@ public:
 
 		for (const auto& [_, u] : ServerInstance->Users.GetUsers())
 		{
-			if (InspIRCd::Match(u->GetFullRealHost(),parameters[0]))
+			if (InspIRCd::Match(u->GetFullRealHost(), parameters[0]))
 			{
 				n_matched++;
 				n_match_host++;

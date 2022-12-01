@@ -61,7 +61,9 @@ protected:
 public:
 	LDAPOperBase(Module* mod, const std::string& uuid, const std::string& oper, const std::string& pass)
 		: LDAPInterface(mod)
-		, uid(uuid), opername(oper), password(pass)
+		, uid(uuid)
+		, opername(oper)
+		, password(pass)
 	{
 	}
 

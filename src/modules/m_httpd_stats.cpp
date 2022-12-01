@@ -224,7 +224,7 @@ namespace Stats
 			serializer.BeginBlock("channel")
 				.Attribute("channelname", c->name)
 				.Attribute("usercount", c->GetUsers().size())
-				.Attribute("channelmodes",c->ChanModes(true));
+				.Attribute("channelmodes", c->ChanModes(true));
 
 			if (!c->topic.empty())
 			{
@@ -348,7 +348,11 @@ namespace Stats
 		OrderBy order;
 		bool desc;
 
-		UserSorter(OrderBy Order, bool Desc = false) : order(Order), desc(Desc) {}
+		UserSorter(OrderBy Order, bool Desc = false)
+			: order(Order)
+			, desc(Desc)
+		{
+		}
 
 		template <typename T>
 		inline bool Compare(const T& a, const T& b)

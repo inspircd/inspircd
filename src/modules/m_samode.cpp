@@ -35,7 +35,8 @@ class CommandSamode final
 
 public:
 	bool active;
-	CommandSamode(Module* Creator) : Command(Creator,"SAMODE", 2)
+	CommandSamode(Module* Creator)
+		: Command(Creator, "SAMODE", 2)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<target> (+|-)<modes> [<mode-parameters>]" };

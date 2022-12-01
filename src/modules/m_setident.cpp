@@ -31,7 +31,8 @@ class CommandSetident final
 	: public Command
 {
 public:
- CommandSetident(Module* Creator) : Command(Creator,"SETIDENT", 1)
+	CommandSetident(Module* Creator)
+		: Command(Creator, "SETIDENT", 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<ident>" };

@@ -39,8 +39,9 @@ class CommandNicklock final
 {
 public:
 	BoolExtItem& locked;
-	CommandNicklock (Module* Creator, BoolExtItem& ext) : Command(Creator,"NICKLOCK", 2),
-		locked(ext)
+	CommandNicklock (Module* Creator, BoolExtItem& ext)
+		: Command(Creator, "NICKLOCK", 2)
+		, locked(ext)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick> <newnick>" };
@@ -97,8 +98,9 @@ class CommandNickunlock final
 {
 public:
 	BoolExtItem& locked;
-	CommandNickunlock (Module* Creator, BoolExtItem& ext) : Command(Creator,"NICKUNLOCK", 1),
-		locked(ext)
+	CommandNickunlock (Module* Creator, BoolExtItem& ext)
+		: Command(Creator, "NICKUNLOCK", 1)
+		, locked(ext)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick>" };

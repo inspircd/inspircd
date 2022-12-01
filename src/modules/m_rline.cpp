@@ -138,7 +138,9 @@ class CommandRLine final
 	RLineFactory& factory;
 
 public:
-	CommandRLine(Module* Creator, RLineFactory& rlf) : Command(Creator,"RLINE", 1, 3), factory(rlf)
+	CommandRLine(Module* Creator, RLineFactory& rlf)
+		: Command(Creator, "RLINE", 1, 3)
+		, factory(rlf)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<regex> [<duration> :<reason>]" };

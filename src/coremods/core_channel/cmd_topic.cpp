@@ -81,7 +81,7 @@ CmdResult CommandTopic::HandleLocal(LocalUser* user, const Params& parameters)
 
 	std::string t = parameters[1]; // needed, in case a module wants to change it
 	ModResult res;
-	FIRST_MOD_RESULT(OnPreTopicChange, res, (user,c,t));
+	FIRST_MOD_RESULT(OnPreTopicChange, res, (user, c, t));
 
 	if (res == MOD_RES_DENY)
 		return CmdResult::FAILURE;

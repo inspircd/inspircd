@@ -37,8 +37,13 @@ public:
 
 	HTTPACL(const std::string& set_path, const std::string& set_username, const std::string& set_password,
 		const std::string& set_whitelist, const std::string& set_blacklist)
-		: path(set_path), username(set_username), password(set_password), whitelist(set_whitelist),
-		blacklist(set_blacklist) { }
+		: path(set_path)
+		, username(set_username)
+		, password(set_password)
+		, whitelist(set_whitelist)
+		, blacklist(set_blacklist)
+	{
+	}
 };
 
 class ModuleHTTPAccessList final

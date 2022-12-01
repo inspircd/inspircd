@@ -136,7 +136,7 @@ class CommandCheck final
 
 public:
 	CommandCheck(Module* parent)
-		: Command(parent,"CHECK", 1)
+		: Command(parent, "CHECK", 1)
 		, snomaskmode(parent, "snomask")
 	{
 		access_needed = CmdAccess::OPERATOR;

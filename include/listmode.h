@@ -35,7 +35,11 @@ public:
 		std::string mask;
 		time_t time;
 		ListItem(const std::string& Mask, const std::string& Setter, time_t Time)
-			: setter(Setter), mask(Mask), time(Time) { }
+			: setter(Setter)
+			, mask(Mask)
+			, time(Time)
+		{
+		}
 	};
 
 	/** Items stored in the channel's list
@@ -47,9 +51,7 @@ private:
 	{
 	public:
 		ModeList list;
-		long maxitems;
-
-		ChanData() : maxitems(-1) { }
+		long maxitems = -1;
 	};
 
 	/** The number of items a listmode's list may contain
@@ -58,7 +60,12 @@ private:
 	{
 		std::string mask;
 		unsigned long limit;
-		ListLimit(const std::string& Mask, unsigned long Limit) : mask(Mask), limit(Limit) { }
+		ListLimit(const std::string& Mask, unsigned long Limit)
+			: mask(Mask)
+			, limit(Limit)
+		{
+		}
+
 		bool operator==(const ListLimit& other) const { return (this->mask == other.mask && this->limit == other.limit); }
 	};
 

@@ -28,7 +28,8 @@ class CommandRMode final
 	: public Command
 {
 public:
-	CommandRMode(Module* Creator) : Command(Creator,"RMODE", 2, 3)
+	CommandRMode(Module* Creator)
+		: Command(Creator, "RMODE", 2, 3)
 	{
 		syntax = { "<channel> <mode> [<pattern>]" };
 	}

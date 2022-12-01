@@ -58,7 +58,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 
 		const char* ipaddr = target.c_str();
 
-		if (strchr(ipaddr,'@'))
+		if (strchr(ipaddr, '@'))
 		{
 			while (*ipaddr != '@')
 				ipaddr++;
@@ -77,7 +77,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 		}
 
 		auto zl = new ZLine(ServerInstance->Time(), duration, user->nick, parameters[2], ipaddr);
-		if (ServerInstance->XLines->AddLine(zl,user))
+		if (ServerInstance->XLines->AddLine(zl, user))
 		{
 			if (!duration)
 			{

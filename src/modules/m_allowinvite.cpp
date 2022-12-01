@@ -41,7 +41,7 @@ public:
 	{
 	}
 
-	ModResult OnUserPreInvite(User* user,User* dest,Channel* channel, time_t timeout) override
+	ModResult OnUserPreInvite(User* user, User* dest, Channel* channel, time_t timeout) override
 	{
 		if (IS_LOCAL(user))
 		{

@@ -228,7 +228,7 @@ void CommandWhois::DoWhois(LocalUser* user, User* dest, time_t signon, unsigned 
 		if (genericoper)
 			whois.SendLine(RPL_WHOISOPERATOR, dest->server->IsService() ? "is a network service" : "is a server operator");
 		else
-			whois.SendLine(RPL_WHOISOPERATOR, InspIRCd::Format("is %s %s on %s", (strchr("AEIOUaeiou",dest->oper->GetType()[0]) ? "an" : "a"), dest->oper->GetType().c_str(), ServerInstance->Config->Network.c_str()));
+			whois.SendLine(RPL_WHOISOPERATOR, InspIRCd::Format("is %s %s on %s", (strchr("AEIOUaeiou", dest->oper->GetType()[0]) ? "an" : "a"), dest->oper->GetType().c_str(), ServerInstance->Config->Network.c_str()));
 	}
 
 	if (whois.IsSelfWhois() || user->HasPrivPermission("users/auspex"))
@@ -318,7 +318,7 @@ CmdResult CommandWhois::HandleLocal(LocalUser* user, const Params& parameters)
 			signon = dest->signon;
 		}
 
-		DoWhois(user,dest,signon,idle);
+		DoWhois(user, dest, signon, idle);
 	}
 	else
 	{
