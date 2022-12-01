@@ -45,7 +45,7 @@ protected:
 
 public:
 	virtual void OnBuildISupport(TokenMap& tokens) { }
-	virtual void OnBuildClassISupport(ConnectClass::Ptr klass, TokenMap& tokens) { }
+	virtual void OnBuildClassISupport(const ConnectClass::Ptr& klass, TokenMap& tokens) { }
 };
 
 class ISupport::EventProvider final

@@ -375,7 +375,7 @@ public:
 		}
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass::Ptr myclass) override
+	ModResult OnSetConnectClass(LocalUser* user, const ConnectClass::Ptr& myclass) override
 	{
 		ssl_cert* cert = cmd.sslapi.GetCertificate(user);
 		const char* error = nullptr;

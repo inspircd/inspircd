@@ -130,13 +130,13 @@ public:
 	ConnectClass(std::shared_ptr<ConfigTag> tag, Type type, const std::vector<std::string>& masks);
 
 	/** Creates a new connect class with a parent from a config tag. */
-	ConnectClass(std::shared_ptr<ConfigTag> tag, Type type, const std::vector<std::string>& masks, ConnectClass::Ptr parent);
+	ConnectClass(std::shared_ptr<ConfigTag> tag, Type type, const std::vector<std::string>& masks, const ConnectClass::Ptr& parent);
 
 	/** Configures this connect class using the config from the specified tag. */
 	void Configure(const std::string& classname, std::shared_ptr<ConfigTag> tag);
 
 	/** Update the settings in this block to match the given class */
-	void Update(const ConnectClass::Ptr klass);
+	void Update(const ConnectClass::Ptr& klass);
 
 	/** Retrieves the name of this connect class. */
 	const std::string& GetName() const { return name; }
@@ -759,7 +759,7 @@ public:
 	/** Get the connect class which this user belongs to.
 	 * @return A pointer to this user's connect class.
 	 */
-	ConnectClass::Ptr GetClass() const { return connectclass; }
+	const ConnectClass::Ptr& GetClass() const { return connectclass; }
 
 	/** Call this method to find the matching \<connect> for a user, and to check them against it.
 	 */

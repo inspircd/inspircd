@@ -460,7 +460,7 @@ public:
 		}
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass::Ptr myclass) override
+	ModResult OnSetConnectClass(LocalUser* user, const ConnectClass::Ptr& myclass) override
 	{
 		std::string dnsbl;
 		if (!myclass->config->readString("dnsbl", dnsbl))

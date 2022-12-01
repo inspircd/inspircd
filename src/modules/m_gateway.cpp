@@ -407,7 +407,7 @@ public:
 		cmdwebirc.hosts.swap(webirchosts);
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass::Ptr myclass) override
+	ModResult OnSetConnectClass(LocalUser* user, const ConnectClass::Ptr& myclass) override
 	{
 		// If <connect:webirc> is not set then we have nothing to do.
 		const std::string webirc = myclass->config->getString("webirc");

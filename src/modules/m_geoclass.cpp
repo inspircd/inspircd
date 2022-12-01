@@ -36,7 +36,7 @@ public:
 	{
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass::Ptr myclass) override
+	ModResult OnSetConnectClass(LocalUser* user, const ConnectClass::Ptr& myclass) override
 	{
 		const std::string country = myclass->config->getString("country");
 		if (country.empty())

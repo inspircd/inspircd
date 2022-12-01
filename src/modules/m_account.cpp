@@ -338,7 +338,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass::Ptr myclass) override
+	ModResult OnSetConnectClass(LocalUser* user, const ConnectClass::Ptr& myclass) override
 	{
 		const char* error = nullptr;
 		if (stdalgo::string::equalsci(myclass->config->getString("requireaccount"), "nick"))

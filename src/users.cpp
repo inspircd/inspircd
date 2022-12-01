@@ -430,8 +430,7 @@ void User::OperLogout()
  */
 void LocalUser::CheckClass(bool clone_count)
 {
-	ConnectClass::Ptr a = GetClass();
-
+	const ConnectClass::Ptr& a = GetClass();
 	if (!a)
 	{
 		ServerInstance->Users.QuitUser(this, "Access denied by configuration");
@@ -1164,7 +1163,7 @@ ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, Type t, const std::ve
 {
 }
 
-ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, Type t, const std::vector<std::string>& masks, ConnectClass::Ptr parent)
+ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, Type t, const std::vector<std::string>& masks, const ConnectClass::Ptr& parent)
 {
 	Update(parent);
 	name = "unnamed";
@@ -1226,7 +1225,7 @@ void ConnectClass::Configure(const std::string& classname, std::shared_ptr<Confi
 	uniqueusername = tag->getBool("uniqueusername", uniqueusername);
 }
 
-void ConnectClass::Update(const ConnectClass::Ptr src)
+void ConnectClass::Update(const ConnectClass::Ptr& src)
 {
 	ServerInstance->Logs.Debug("CONNECTCLASS", "Updating %s from %s", name.c_str(), src->name.c_str());
 	commandrate = src->commandrate;

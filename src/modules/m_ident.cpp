@@ -403,7 +403,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass::Ptr myclass) override
+	ModResult OnSetConnectClass(LocalUser* user, const ConnectClass::Ptr& myclass) override
 	{
 		if (myclass->config->getBool("requireident") && state.Get(user) != IDENT_FOUND)
 		{
