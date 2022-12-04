@@ -96,6 +96,7 @@ class Stats::Context final
 
 public:
 	/** Constructor
+	 * @param prov Provider for the inspircd.org/stats-* tags.
 	 * @param src Source user of the STATS request, can be a local or remote user
 	 * @param sym Symbol (letter) indicating the type of the request
 	 */
