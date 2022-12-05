@@ -26,8 +26,8 @@
 #include "modules/regex.h"
 
 #ifdef _WIN32
-# include "pcreposix.h"
-# pragma comment(lib, "pcreposix.lib")
+# include "pcre2posix.h"
+# pragma comment(lib, "pcre2-posix.lib")
 #else
 # include <sys/types.h>
 # include <regex.h>

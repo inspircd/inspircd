@@ -11,14 +11,14 @@ jobs:
     env:
       CXXFLAGS: -std=${{ matrix.standard }} -D_LIBCPP_DISABLE_DEPRECATION_WARNINGS
       HOMEBREW_NO_INSTALL_CLEANUP: 1
-      TEST_BUILD_MODULES: argon2 geo_maxmind ldap mysql pgsql regex_pcre regex_posix regex_re2 regex_stdlib regex_tre sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal
+      TEST_BUILD_MODULES: argon2 geo_maxmind ldap mysql pgsql regex_pcre regex_pcre2 regex_posix regex_re2 regex_stdlib regex_tre sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal
     steps:
       - uses: actions/checkout@v3
 
       - name: Install dependencies
         run: |
           brew update || true
-          for PACKAGE in pkg-config argon2 gnutls libmaxminddb libpq mbedtls mysql-client openssl@3 openldap pcre re2 sqlite tre;
+          for PACKAGE in pkg-config argon2 gnutls libmaxminddb libpq mbedtls mysql-client openssl@3 openldap pcre pcre2 re2 sqlite tre;
           do
             brew install $PACKAGE || brew upgrade $PACKAGE
 

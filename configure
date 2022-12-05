@@ -418,6 +418,7 @@ if (prompt_bool $interactive, $question, 0) {
 		'm_pgsql.cpp'           => 'pg_config --version',
 		'm_ldap.cpp'            => "echo '#include <ldap.h>' | $config{CXX} -E -",
 		'm_regex_pcre.cpp'      => 'pcre-config --version',
+		'm_regex_pcre2.cpp'     => 'pkg-config --exists libpcre2-8',
 		'm_regex_posix.cpp'     => undef,
 		'm_regex_re2.cpp'       => 'pkg-config --exists re2',
 		'm_regex_stdlib.cpp'    => "$config{CXX} -o /dev/null -std=c++11 $RealDir/make/test/compiler.cpp",

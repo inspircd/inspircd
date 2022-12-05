@@ -1869,6 +1869,13 @@
 #<module name="regex_pcre">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Regular expression provider for PCRE2 (Perl-Compatible Regular
+# Expressions). You need libpcre2 installed to compile and load this
+# module. You must have at least 1 provider loaded to use the filter or
+# R-line modules.
+#<module name="regex_pcre2">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Regular Expression Provider for RE2 Regular Expressions.
 # You need libre2 installed and in your include/library paths in order
 # to compile and load this module.
