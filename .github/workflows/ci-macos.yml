@@ -10,7 +10,9 @@ jobs:
     runs-on: macos-latest
     env:
       CXXFLAGS: -std=${{ matrix.standard }} -D_LIBCPP_DISABLE_DEPRECATION_WARNINGS
+      HOMEBREW_NO_AUTO_UPDATE: 1
       HOMEBREW_NO_INSTALL_CLEANUP: 1
+      HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
       TEST_BUILD_MODULES: argon2 geo_maxmind ldap mysql pgsql regex_pcre regex_pcre2 regex_posix regex_re2 regex_stdlib regex_tre sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal
     steps:
       - uses: actions/checkout@v3
