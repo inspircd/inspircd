@@ -148,24 +148,33 @@ public:
 			return MOD_RES_PASSTHRU;
 
 		size_t opers = 0;
+		bool source_has_priv = stats.GetSource()->HasPrivPermission("users/auspex");
 		for (const auto& oper : ServerInstance->Users.all_opers)
 		{
-			if (oper->server->IsService())
+			if (oper->server->IsService() || (oper->IsModeSet(hm) && !source_has_priv))
 				continue;
 
 			opers++;
+			std::string extra;
+			if (oper->IsAway())
+			{
+				const std::string awayperiod = InspIRCd::DurationString(ServerInstance->Time() - oper->awaytime);
+				const std::string awaytime = InspIRCd::TimeString(oper->awaytime);
+				extra += InspIRCd::Format(": away for %s [since %s] (%s)", awayperiod.c_str(),
+					awaytime.c_str(), oper->awaymsg.c_str());
+			}
+
 			auto loper = IS_LOCAL(oper);
 			if (loper)
 			{
 				const std::string idleperiod = InspIRCd::DurationString(ServerInstance->Time() - loper->idle_lastmsg);
-				const std::string idletime = InspIRCd::TimeString(ServerInstance->Time());
-				stats.AddGenericRow(InspIRCd::Format("\x02%s\x02 (%s): idle for %s [since %s]", oper->nick.c_str(),
-					oper->MakeHost().c_str(), idleperiod.c_str(), idletime.c_str()));
+				const std::string idletime = InspIRCd::TimeString(loper->idle_lastmsg);
+				extra += InspIRCd::Format("%c idle for %s [since %s]",  extra.empty() ? ':' : ',',
+					idleperiod.c_str(), idletime.c_str());
 			}
-			else
-			{
-				stats.AddGenericRow(InspIRCd::Format("\x02%s\x02 (%s)", oper->nick.c_str(), oper->MakeHost().c_str()));
-			}
+
+			stats.AddGenericRow(InspIRCd::Format("\x02%s\x02 (%s)%s", oper->nick.c_str(),
+				oper->MakeHost().c_str(), extra.c_str()));
 		}
 		stats.AddGenericRow(InspIRCd::Format("%zu server operator%s total", opers, opers ? "s" : ""));
 		return MOD_RES_DENY;
