@@ -64,7 +64,7 @@ private:
 		user->Send(ev);
 	}
 
-	void SendNoticeInternal(LocalUser* user, Command* command, const std::string& description)
+	void SendNoticeInternal(LocalUser* user, const Command* command, const std::string& description)
 	{
 		if (command)
 			user->WriteNotice(InspIRCd::Format("*** %s: %s", command->name.c_str(), description.c_str()));
@@ -92,7 +92,7 @@ public:
 	 * @param args A variable number of context parameters and a human readable description of this reply.
 	 */
 	template<typename... Args>
-	void Send(LocalUser* user, Command* command, const std::string& code, Args&&... args)
+	void Send(LocalUser* user, const Command* command, const std::string& code, Args&&... args)
 	{
 		static_assert(sizeof...(Args) >= 1);
 
@@ -116,7 +116,7 @@ public:
 	 * @param args A variable number of context parameters and a human readable description of this reply.
 	 */
 	template<typename... Args>
-	void SendIfCap(LocalUser* user, Cap::Capability* cap, Command* command, const std::string& code,
+	void SendIfCap(LocalUser* user, const Cap::Capability* cap, const Command* command, const std::string& code,
 		Args&&... args)
 	{
 		static_assert(sizeof...(Args) >= 1);
