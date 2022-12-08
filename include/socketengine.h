@@ -393,7 +393,7 @@ public:
 	/** Returns true if the file descriptors in the given event handler are
 	 * within sensible ranges which can be handled by the socket engine.
 	 */
-	static bool BoundsCheckFd(EventHandler* eh);
+	static bool BoundsCheckFd(const EventHandler* eh);
 
 	/** Abstraction for BSD sockets accept(2).
 	 * This function should emulate its namesake system call exactly.

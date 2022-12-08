@@ -49,7 +49,7 @@ void SpanningTreeProtocolInterface::GetServerList(ServerList& sl)
 	}
 }
 
-bool SpanningTreeProtocolInterface::SendEncapsulatedData(const std::string& targetmask, const std::string& cmd, const CommandBase::Params& params, User* source)
+bool SpanningTreeProtocolInterface::SendEncapsulatedData(const std::string& targetmask, const std::string& cmd, const CommandBase::Params& params, const User* source)
 {
 	if (!source)
 		source = ServerInstance->FakeClient;
@@ -76,7 +76,7 @@ bool SpanningTreeProtocolInterface::SendEncapsulatedData(const std::string& targ
 	return true;
 }
 
-void SpanningTreeProtocolInterface::BroadcastEncap(const std::string& cmd, const CommandBase::Params& params, User* source, User* omit)
+void SpanningTreeProtocolInterface::BroadcastEncap(const std::string& cmd, const CommandBase::Params& params, const User* source, const User* omit)
 {
 	if (!source)
 		source = ServerInstance->FakeClient;
@@ -107,7 +107,7 @@ void SpanningTreeProtocolInterface::SendSNONotice(char snomask, const std::strin
 	CmdBuilder("SNONOTICE").push(snomask).push_last(text).Broadcast();
 }
 
-void SpanningTreeProtocolInterface::SendMessage(Channel* target, char status, const std::string& text, MessageType msgtype)
+void SpanningTreeProtocolInterface::SendMessage(const Channel* target, char status, const std::string& text, MessageType msgtype)
 {
 	const char* cmd = (msgtype == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE");
 	CUList exempt_list;
@@ -115,7 +115,7 @@ void SpanningTreeProtocolInterface::SendMessage(Channel* target, char status, co
 	Utils->SendChannelMessage(ServerInstance->FakeClient, target, text, status, tags, exempt_list, cmd);
 }
 
-void SpanningTreeProtocolInterface::SendMessage(User* target, const std::string& text, MessageType msgtype)
+void SpanningTreeProtocolInterface::SendMessage(const User* target, const std::string& text, MessageType msgtype)
 {
 	CmdBuilder p(msgtype == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE");
 	p.push(target->uuid);

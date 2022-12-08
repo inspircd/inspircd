@@ -122,9 +122,9 @@ public:
 	 * @param mode The mode character you wish to query
 	 * @return True if the custom mode is set, false if otherwise
 	 */
-	bool IsModeSet(const ModeHandler* mode) { return ((mode->GetId() != ModeParser::MODEID_MAX) && (modes[mode->GetId()])); }
-	bool IsModeSet(const ModeHandler& mode) { return IsModeSet(&mode); }
-	bool IsModeSet(const ChanModeReference& mode);
+	bool IsModeSet(const ModeHandler* mode) const { return ((mode->GetId() != ModeParser::MODEID_MAX) && (modes[mode->GetId()])); }
+	bool IsModeSet(const ModeHandler& mode) const { return IsModeSet(&mode); }
+	bool IsModeSet(const ChanModeReference& mode) const;
 
 	/** Returns the parameter for a custom mode on a channel.
 	 * @param mode The mode character you wish to query
@@ -178,9 +178,9 @@ public:
 	 * @param user The user to look for
 	 * @return True if the user is on this channel
 	 */
-	bool HasUser(User* user);
+	bool HasUser(User* user) const;
 
-	Membership* GetUser(User* user);
+	Membership* GetUser(User* user) const;
 
 	/** Make src kick user from this channel with the given reason.
 	 * @param src The source of the kick
@@ -234,7 +234,7 @@ public:
 	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
 	 * @param except_list List of users not to send to
 	 */
-	void Write(ClientProtocol::Event& protoev, char status = 0, const CUList& except_list = CUList());
+	void Write(ClientProtocol::Event& protoev, char status = 0, const CUList& except_list = {}) const;
 
 	/** Write to all users on a channel except some users.
 	 * @param protoevprov Protocol event provider for the message.
@@ -242,7 +242,7 @@ public:
 	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
 	 * @param except_list List of users not to send to
 	 */
-	void Write(ClientProtocol::EventProvider& protoevprov, ClientProtocol::Message& msg, char status = 0, const CUList& except_list = CUList());
+	void Write(ClientProtocol::EventProvider& protoevprov, ClientProtocol::Message& msg, char status = 0, const CUList& except_list = {}) const;
 
 	/** Return the channel's modes with parameters.
 	 * @param showsecret If this is set to true, the value of secret parameters
@@ -262,7 +262,7 @@ public:
 	 * is a prefix of greater 'worth' than ops, and a value less than
 	 * VOICE_VALUE is of lesser 'worth' than a voice.
 	 */
-	ModeHandler::Rank GetPrefixValue(User* user);
+	ModeHandler::Rank GetPrefixValue(User* user) const;
 
 	/** Check if a user is banned on this channel
 	 * @param user A user to check against the banlist
@@ -278,11 +278,11 @@ public:
 	 * @param text Text to send
 	 * @param status The minimum status rank to send this message to.
 	 */
-	void WriteNotice(const std::string& text, char status = 0);
-	void WriteRemoteNotice(const std::string& text, char status = 0);
+	void WriteNotice(const std::string& text, char status = 0) const;
+	void WriteRemoteNotice(const std::string& text, char status = 0) const;
 };
 
-inline bool Channel::HasUser(User* user)
+inline bool Channel::HasUser(User* user) const
 {
 	return (userlist.find(user) != userlist.end());
 }
@@ -311,7 +311,7 @@ inline std::string Channel::GetModeParameter(ParamModeBase* pm)
 	return out;
 }
 
-inline bool Channel::IsModeSet(const ChanModeReference& mode)
+inline bool Channel::IsModeSet(const ChanModeReference& mode) const
 {
 	if (!mode)
 		return false;

@@ -135,7 +135,7 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 }
 
 // Returns a list of DIRECT servers for a specific channel
-void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet& list, char status, const CUList& exempt_list) const
+void SpanningTreeUtilities::GetListOfServersForChannel(const Channel* c, TreeSocketSet& list, char status, const CUList& exempt_list) const
 {
 	ModeHandler::Rank minrank = 0;
 	if (status)
@@ -175,7 +175,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet
 	}
 }
 
-void SpanningTreeUtilities::DoOneToAllButSender(const CmdBuilder& params, TreeServer* omitroute) const
+void SpanningTreeUtilities::DoOneToAllButSender(const CmdBuilder& params, const TreeServer* omitroute) const
 {
 	const std::string& FullLine = params.str();
 
@@ -189,9 +189,9 @@ void SpanningTreeUtilities::DoOneToAllButSender(const CmdBuilder& params, TreeSe
 	}
 }
 
-void SpanningTreeUtilities::DoOneToOne(const CmdBuilder& params, Server* server)
+void SpanningTreeUtilities::DoOneToOne(const CmdBuilder& params, const Server* server)
 {
-	TreeServer* ts = static_cast<TreeServer*>(server);
+	const TreeServer* ts = static_cast<const TreeServer*>(server);
 	TreeSocket* sock = ts->GetSocket();
 	if (sock)
 		sock->WriteLine(params);
@@ -353,7 +353,7 @@ std::shared_ptr<Link> SpanningTreeUtilities::FindLink(const std::string& name)
 	return nullptr;
 }
 
-void SpanningTreeUtilities::SendChannelMessage(User* source, Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const CUList& exempt_list, const char* message_type, TreeSocket* omit)
+void SpanningTreeUtilities::SendChannelMessage(const User* source, const Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const CUList& exempt_list, const char* message_type, const TreeSocket* omit)
 {
 	CmdBuilder msg(source, message_type);
 	msg.push_tags(tags);

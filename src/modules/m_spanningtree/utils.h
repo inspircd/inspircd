@@ -127,11 +127,11 @@ public:
 
 	/** Send a message from this server to one other local or remote
 	 */
-	static void DoOneToOne(const CmdBuilder& params, Server* target);
+	static void DoOneToOne(const CmdBuilder& params, const Server* target);
 
 	/** Send a message from this server to all but one other, local or remote
 	 */
-	void DoOneToAllButSender(const CmdBuilder& params, TreeServer* omit) const;
+	void DoOneToAllButSender(const CmdBuilder& params, const TreeServer* omit) const;
 
 	/** Read the spanningtree module's tags from the config file
 	 */
@@ -143,7 +143,7 @@ public:
 
 	/** Compile a list of servers which contain members of channel c
 	 */
-	void GetListOfServersForChannel(Channel* c, TreeSocketSet& list, char status, const CUList& exempt_list) const;
+	void GetListOfServersForChannel(const Channel* c, TreeSocketSet& list, char status, const CUList& exempt_list) const;
 
 	/** Find a server by name or SID
 	 */
@@ -172,7 +172,7 @@ public:
 
 	/** Sends a PRIVMSG or a NOTICE to a channel obeying an exempt list and an optional prefix
 	 */
-	void SendChannelMessage(User* source, Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const CUList& exempt_list, const char* message_type, TreeSocket* omit = nullptr);
+	void SendChannelMessage(const User* source, const Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const CUList& exempt_list, const char* message_type, const TreeSocket* omit = nullptr);
 
 	// Builds link data to be sent to another server.
 	static std::string BuildLinkString(uint16_t protocol, Module* mod);

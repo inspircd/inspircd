@@ -173,7 +173,7 @@ EventHandler* SocketEngine::GetRef(int fd)
 	return ref[fd];
 }
 
-bool SocketEngine::BoundsCheckFd(EventHandler* eh)
+bool SocketEngine::BoundsCheckFd(const EventHandler* eh)
 {
 	return eh && eh->HasFd();
 }

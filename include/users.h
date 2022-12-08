@@ -500,7 +500,7 @@ public:
 	 * @param sm A notice mask character to check
 	 * @return True if the notice mask is set
 	 */
-	bool IsNoticeMaskSet(unsigned char sm);
+	bool IsNoticeMaskSet(unsigned char sm) const;
 
 	/** Get the mode letters of modes set on the user as a string.
 	 * @param includeparams True to get the parameters of the modes as well. Defaults to false.
@@ -627,7 +627,7 @@ public:
 	 * @param other The other user to compare the channel list against
 	 * @return True if the given user shares at least one channel with this user
 	 */
-	bool SharesChannelWith(User* other);
+	bool SharesChannelWith(User* other) const;
 
 	/** Change the displayed hostname of this user.
 	 * @param host The new displayed hostname of this user.

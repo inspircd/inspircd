@@ -40,12 +40,12 @@ public:
 		void SendMetaData(const std::string& key, const std::string& data) override;
 	};
 
-	bool SendEncapsulatedData(const std::string& targetmask, const std::string& cmd, const CommandBase::Params& params, User* source) override;
-	void BroadcastEncap(const std::string& cmd, const CommandBase::Params& params, User* source, User* omit) override;
+	bool SendEncapsulatedData(const std::string& targetmask, const std::string& cmd, const CommandBase::Params& params, const User* source) override;
+	void BroadcastEncap(const std::string& cmd, const CommandBase::Params& params, const User* source, const User* omit) override;
 	void SendMetaData(const Extensible* ext, const std::string& key, const std::string& data) override;
 	void SendMetaData(const std::string& key, const std::string& data) override;
 	void SendSNONotice(char snomask, const std::string& text) override;
-	void SendMessage(Channel* target, char status, const std::string& text, MessageType msgtype) override;
-	void SendMessage(User* target, const std::string& text, MessageType msgtype) override;
+	void SendMessage(const Channel* target, char status, const std::string& text, MessageType msgtype) override;
+	void SendMessage(const User* target, const std::string& text, MessageType msgtype) override;
 	void GetServerList(ServerList& sl) override;
 };

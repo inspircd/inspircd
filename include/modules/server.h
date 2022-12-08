@@ -56,7 +56,7 @@ public:
 	 * @return Either MOD_RES_ALLOW to always send the message to the server, MOD_RES_DENY to never
 	 *         send the message to the server or MOD_RES_PASSTHRU if no module handled the event.
 	 */
-	virtual ModResult OnBroadcastMessage(Channel* channel, const Server* server) { return MOD_RES_PASSTHRU; }
+	virtual ModResult OnBroadcastMessage(const Channel* channel, const Server* server) { return MOD_RES_PASSTHRU; }
 };
 
 class ServerProtocol::LinkEventListener
@@ -99,14 +99,14 @@ public:
 	 * @param name The name of the command which was sent.
 	 * @param tags The tags which will be sent with the message.
 	 */
-	virtual void OnBuildUserMessage(User* source, const char* name, ClientProtocol::TagMap& tags) { }
+	virtual void OnBuildUserMessage(const User* source, const char* name, ClientProtocol::TagMap& tags) { }
 
 	/** Fired when a server message is being sent by a server.
 	 * @param source The server who sent the message.
 	 * @param name The name of the command which was sent.
 	 * @param tags The tags which will be sent with the message.
 	 */
-	virtual void OnBuildServerMessage(Server* source, const char* name, ClientProtocol::TagMap& tags) { }
+	virtual void OnBuildServerMessage(const Server* source, const char* name, ClientProtocol::TagMap& tags) { }
 };
 
 class ServerProtocol::SyncEventListener

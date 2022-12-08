@@ -122,9 +122,9 @@ void Channel::DelUser(const MemberMap::iterator& membiter)
 	CheckDestroy();
 }
 
-Membership* Channel::GetUser(User* user)
+Membership* Channel::GetUser(User* user) const
 {
-	MemberMap::iterator i = userlist.find(user);
+	MemberMap::const_iterator i = userlist.find(user);
 	if (i == userlist.end())
 		return nullptr;
 	return i->second;
@@ -369,7 +369,7 @@ void Channel::KickUser(User* src, const MemberMap::iterator& victimiter, const s
 	this->DelUser(victimiter);
 }
 
-void Channel::Write(ClientProtocol::Event& protoev, char status, const CUList& except_list)
+void Channel::Write(ClientProtocol::Event& protoev, char status, const CUList& except_list) const
 {
 	ModeHandler::Rank minrank = 0;
 	if (status)
@@ -426,13 +426,13 @@ const char* Channel::ChanModes(bool showsecret)
 	return scratch.c_str();
 }
 
-void Channel::WriteNotice(const std::string& text, char status)
+void Channel::WriteNotice(const std::string& text, char status) const
 {
 	ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, this, text, MSG_NOTICE, status);
 	Write(ServerInstance->GetRFCEvents().privmsg, privmsg, status);
 }
 
-void Channel::WriteRemoteNotice(const std::string& text, char status)
+void Channel::WriteRemoteNotice(const std::string& text, char status) const
 {
 	WriteNotice(text, status);
 	ServerInstance->PI->SendMessage(this, status, text, MSG_NOTICE);
@@ -482,9 +482,9 @@ std::string Membership::GetAllPrefixModes() const
 	return ret;
 }
 
-ModeHandler::Rank Channel::GetPrefixValue(User* user)
+ModeHandler::Rank Channel::GetPrefixValue(User* user) const
 {
-	MemberMap::iterator m = userlist.find(user);
+	MemberMap::const_iterator m = userlist.find(user);
 	if (m == userlist.end())
 		return 0;
 	return m->second->GetRank();

@@ -66,7 +66,7 @@ public:
 	 * and the message was sent, false if it was not found.
 	 * ENCAP (should) be used instead of creating new protocol messages for easier third party application support.
 	 */
-	virtual bool SendEncapsulatedData(const std::string& targetmask, const std::string& cmd, const CommandBase::Params& params, User* source = nullptr) { return false; }
+	virtual bool SendEncapsulatedData(const std::string& targetmask, const std::string& cmd, const CommandBase::Params& params, const User* source = nullptr) { return false; }
 
 	/** Send an ENCAP message to all servers.
 	 * See the protocol documentation for the purpose of ENCAP.
@@ -76,7 +76,7 @@ public:
 	 * or NULL which is equivalent to the local server
 	 * @param omit If non-NULL the message won't be sent in the direction of this server, useful for forwarding messages
 	 */
-	virtual void BroadcastEncap(const std::string& cmd, const CommandBase::Params& params, User* source = nullptr, User* omit = nullptr) { }
+	virtual void BroadcastEncap(const std::string& cmd, const CommandBase::Params& params, const User* source = nullptr, const User* omit = nullptr) { }
 
 	/** Send metadata for an extensible to other linked servers.
 	 * @param ext The extensible to send metadata for
@@ -103,14 +103,14 @@ public:
 	 * @param text The message to send.
 	 * @param type The message type (MSG_PRIVMSG or MSG_NOTICE)
 	 */
-	virtual void SendMessage(Channel* target, char status, const std::string& text, MessageType type = MSG_PRIVMSG) { }
+	virtual void SendMessage(const Channel* target, char status, const std::string& text, MessageType type = MSG_PRIVMSG) { }
 
 	/** Send a message to a user.
 	 * @param target The user to message.
 	 * @param text The message to send.
 	 * @param type The message type (MSG_PRIVMSG or MSG_NOTICE)
 	 */
-	virtual void SendMessage(User* target, const std::string& text, MessageType type = MSG_PRIVMSG) { }
+	virtual void SendMessage(const User* target, const std::string& text, MessageType type = MSG_PRIVMSG) { }
 
 	/** Fill a list of servers and information about them.
 	 * @param sl The list of servers to fill.

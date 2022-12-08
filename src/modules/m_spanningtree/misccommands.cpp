@@ -24,7 +24,7 @@
 #include "commands.h"
 #include "treeserver.h"
 
-void CmdBuilder::FireEvent(Server* target, const char* cmd, ClientProtocol::TagMap& taglist)
+void CmdBuilder::FireEvent(const Server* target, const char* cmd, ClientProtocol::TagMap& taglist)
 {
 	if (!Utils->Creator || Utils->Creator->dying)
 		return;
@@ -33,7 +33,7 @@ void CmdBuilder::FireEvent(Server* target, const char* cmd, ClientProtocol::TagM
 	UpdateTags();
 }
 
-void CmdBuilder::FireEvent(User* target, const char* cmd, ClientProtocol::TagMap& taglist)
+void CmdBuilder::FireEvent(const User* target, const char* cmd, ClientProtocol::TagMap& taglist)
 {
 	if (!Utils->Creator || Utils->Creator->dying)
 		return;

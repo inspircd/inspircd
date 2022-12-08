@@ -532,7 +532,7 @@ inline void stdalgo::cull_delete::operator()(Cullable* item)
 		ServerInstance->GlobalCulls.AddItem(item);
 }
 
-inline void Channel::Write(ClientProtocol::EventProvider& protoevprov, ClientProtocol::Message& msg, char status, const CUList& except_list)
+inline void Channel::Write(ClientProtocol::EventProvider& protoevprov, ClientProtocol::Message& msg, char status, const CUList& except_list) const
 {
 	ClientProtocol::Event event(protoevprov, msg);
 	Write(event, status, except_list);

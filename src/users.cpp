@@ -49,7 +49,7 @@ enum
 
 ClientProtocol::MessageList LocalUser::sendmsglist;
 
-bool User::IsNoticeMaskSet(unsigned char sm)
+bool User::IsNoticeMaskSet(unsigned char sm) const
 {
 	if (!isalpha(sm))
 		return false;
@@ -893,7 +893,7 @@ void User::WriteRemoteNumeric(const Numeric::Numeric& numeric)
  * Don't quote me on the maths as i am not a mathematician or computer scientist,
  * but i believe this algorithm is now x+(log y) maximum iterations instead.
  */
-bool User::SharesChannelWith(User* other)
+bool User::SharesChannelWith(User* other) const
 {
 	for (const auto* memb : chans)
 	{

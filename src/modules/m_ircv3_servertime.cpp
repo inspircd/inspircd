@@ -62,7 +62,7 @@ public:
 		return &lasttimestring;
 	}
 
-	void OnBuildUserMessage(User* source, const char* command, ClientProtocol::TagMap& tags) override
+	void OnBuildUserMessage(const User* source, const char* command, ClientProtocol::TagMap& tags) override
 	{
 		// Server protocol.
 		RefreshTimeString();

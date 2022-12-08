@@ -38,10 +38,10 @@ protected:
 	size_t tagsize = 0;
 
 	/** Fires the ServerProtocol::MessageEventListener::OnBuildServerMessage event. */
-	void FireEvent(Server* target, const char* cmd, ClientProtocol::TagMap& taglist);
+	void FireEvent(const Server* target, const char* cmd, ClientProtocol::TagMap& taglist);
 
 	/** Fires the ServerProtocol::MessageEventListener::OnBuildUserMessage. */
-	void FireEvent(User* target, const char* cmd, ClientProtocol::TagMap& taglist);
+	void FireEvent(const User* target, const char* cmd, ClientProtocol::TagMap& taglist);
 
 	/** Updates the tag string within the buffer. */
 	void UpdateTags();
@@ -54,14 +54,14 @@ public:
 		FireEvent(ServerInstance->FakeClient->server, cmd, tags);
 	}
 
-	CmdBuilder(TreeServer* src, const char* cmd)
+	CmdBuilder(const TreeServer* src, const char* cmd)
 	{
 		content.append(src->GetId());
 		push(cmd);
 		FireEvent(src, cmd, tags);
 	}
 
-	CmdBuilder(User* src, const char* cmd)
+	CmdBuilder(const User* src, const char* cmd)
 	{
 		content.append(src->uuid);
 		push(cmd);
@@ -165,12 +165,12 @@ public:
 		Utils->DoOneToAllButSender(*this, nullptr);
 	}
 
-	void Forward(TreeServer* omit) const
+	void Forward(const TreeServer* omit) const
 	{
 		Utils->DoOneToAllButSender(*this, omit);
 	}
 
-	void Unicast(User* target) const
+	void Unicast(const User* target) const
 	{
 		Utils->DoOneToOne(*this, target->server);
 	}

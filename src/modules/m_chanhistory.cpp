@@ -215,7 +215,7 @@ public:
 		dobots = tag->getBool("bots", true);
 	}
 
-	ModResult OnBroadcastMessage(Channel* channel, const Server* server) override
+	ModResult OnBroadcastMessage(const Channel* channel, const Server* server) override
 	{
 		return channel->IsModeSet(historymode) ? MOD_RES_ALLOW : MOD_RES_PASSTHRU;
 	}

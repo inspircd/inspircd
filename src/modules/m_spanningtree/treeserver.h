@@ -212,7 +212,7 @@ public:
 	 * @param user The user whose server to return
 	 * @return The TreeServer this user is connected to.
 	 */
-	static TreeServer* Get(User* user)
+	static TreeServer* Get(const User* user)
 	{
 		return static_cast<TreeServer*>(user->server);
 	}
