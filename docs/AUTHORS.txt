@@ -1,4 +1,4 @@
-Since the first commit in January 2003 104 people have submitted patches,
+Since the first commit in January 2003 105 people have submitted patches,
 commits, and other useful contributions to InspIRCd. These people, ordered by
 the number of contributions they have made, are:
 
@@ -48,18 +48,18 @@ the number of contributions they have made, are:
   * Ben Harris <ben@tilde.team>
   * Chin Lee <kwangchin@gmail.com>
   * Christopher 'm4z' Holm <them4z@gmail.com>
+  * eggy
   * Guillaume Delacour <gui@iroqwa.org>
-  * JD Horelick <jdhore1@gmail.com>
   * James Lu <GLolol@overdrivenetworks.com>
+  * JD Horelick <jdhore1@gmail.com>
   * Jens Voss <DukePyrolator@anope.org>
   * Johanna A
   * Kyle Fuller <inbox@kylefuller.co.uk>
+  * md_5 <git@md-5.net>
   * Michael <michaelhazell@hotmail.com>
   * Michael Hazell <michaelhazell@hotmail.com>
   * Molly Miller
   * PhilSliderS
-  * eggy
-  * md_5 <git@md-5.net>
   * satmd <satmd@satmd.de>
   * 0x277F <0x277F@gmail.com>
   * A_D
@@ -74,8 +74,11 @@ the number of contributions they have made, are:
   * Christos Triantafyllidis
   * David Lamont <del6597@rit.edu>
   * David Schultz <me@zpld.me>
+  * delthas
+  * edef <edef@edef.eu>
   * ElementalAlchemist <ElementAlchemist7@gmail.com>
   * Elizabeth Myers <elizabeth@interlinked.me>
+  * emerson <github@emersonveenstra.net>
   * Filippo Cortigiani <simos@simosnap.org>
   * Florian Praden <florian@praden.eu>
   * Garrett Holmstrom <gholms@fedoraproject.org>
@@ -87,11 +90,15 @@ the number of contributions they have made, are:
   * Julien Vehent <julien@linuxwall.info>
   * JustArchi <JustArchi@JustArchi.net>
   * Matthew Martin <phy1729@gmail.com>
+  * newuser1 <flirtex@gmail.com>
+  * nia <nia@netbsd.org>
   * Nicole Kleinhoff <ilbelkyr@shalture.org>
   * Pierre Carrier <pierre@spotify.com>
   * Puck Meerburg <puck@puckipedia.com>
   * R-V6
+  * randomdan
   * Richard Bradfield <bradfirj@fstab.me>
+  * systocrat <systocrat@outlook.com>
   * ThatOneRoadie <thatoneroadie+github@gmail.com>
   * The Aviator <aviator45003@gmail.com>
   * Thiago Crepaldi <thiago@thiagocrepaldi.com>
@@ -99,9 +106,3 @@ the number of contributions they have made, are:
   * Tim Heckman <t@heckman.io>
   * Vitor Luis <droider.pc@gmail.com>
   * WindowsUser
-  * edef <edef@edef.eu>
-  * emerson <github@emersonveenstra.net>
-  * newuser1 <flirtex@gmail.com>
-  * nia <nia@netbsd.org>
-  * randomdan
-  * systocrat <systocrat@outlook.com>
