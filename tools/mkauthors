@@ -47,7 +47,7 @@ commits, and other useful contributions to InspIRCd. These people, ordered by
 the number of contributions they have made, are:
 EOH
 
-for my $author (sort { $authors{$b} <=> $authors{$a} or $a cmp $b } keys %authors) {
+for my $author (sort { $authors{$b} <=> $authors{$a} or lc($a) cmp lc($b) } keys %authors) {
 	next if $author eq 'InspIRCd Robot <noreply@inspircd.org>';
 	say $fh "  * $author";
 }
