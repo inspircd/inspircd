@@ -1589,15 +1589,6 @@
 # on oper-up.
 # This module is oper-only.
 #<module name="opermotd">
-#
-#-#-#-#-#-#-#-#-#-#-#   OPERMOTD CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# If you are using the opermotd module, specify the motd file here.   #
-#                                                                     #
-# onoper        - If on, the message is sent on /OPER, otherwise it's #
-#                 only sent when /OPERMOTD is used.                   #
-#                                                                     #
-#<opermotd file="examples/opermotd.txt.example" onoper="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Override module: Adds support for oper override.

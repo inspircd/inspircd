@@ -87,6 +87,17 @@
     # maxchans: Maximum number of channels opers of this type can be in at once.
     maxchans="60"
 
+    # motd: The server operator MOTD that this should be shown to this
+    # operator type. This can be viewed with /OPERMOTD or automatically
+    # on login if automotd (see below) is enabled.
+    # Requires the opermotd module to be loaded.
+    motd="examples/opermotd.txt.example"
+
+    # automotd: Whether to send the server operator MOTD (see above)
+    # to operators of this type when they log in.
+    # Requires the opermotd module to be loaded.
+    automotd="yes"
+
     # modes: User modes besides +o that are set on an oper of this type
     # when they oper up. Used for snomasks and other things.
     # Requires the opermodes module to be loaded.

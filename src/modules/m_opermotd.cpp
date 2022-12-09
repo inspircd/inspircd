@@ -37,13 +37,16 @@ enum
 	RPL_ENDOFOMOTD = 722
 };
 
-class CommandOpermotd final
+typedef insp::flat_map<std::string, std::vector<std::string>> MOTDCache;
+
+class CommandOperMOTD final
 	: public Command
 {
 public:
-	std::vector<std::string> opermotd;
+	std::string file;
+	MOTDCache motds;
 
-	CommandOpermotd(Module* Creator)
+	CommandOperMOTD(Module* Creator)
 		: Command(Creator, "OPERMOTD")
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -52,8 +55,8 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		if ((parameters.empty()) || (irc::equals(parameters[0], ServerInstance->Config->ServerName)))
-			ShowOperMOTD(user, true);
+		if (parameters.empty() || irc::equals(parameters[0], ServerInstance->Config->ServerName))
+			return ShowOperMOTD(user, true);
 		return CmdResult::SUCCESS;
 	}
 
@@ -64,31 +67,70 @@ public:
 		return ROUTE_LOCALONLY;
 	}
 
-	void ShowOperMOTD(User* user, bool show_missing)
+	CmdResult ShowOperMOTD(User* user, bool showmissing)
 	{
-		if (opermotd.empty())
+		if (!user->IsOper())
+			return CmdResult::SUCCESS; // WTF?
+
+		auto motd = motds.find(user->oper->GetConfig()->getString("motd", file, 1));
+		if (motd == motds.end())
 		{
-			if (show_missing)
-				user->WriteRemoteNumeric(ERR_NOOPERMOTD, "OPERMOTD file is missing.");
-			return;
+			if (showmissing)
+				user->WriteRemoteNumeric(ERR_NOOPERMOTD, "There is no server operator MOTD.");
+			return CmdResult::SUCCESS;
 		}
 
-		user->WriteRemoteNumeric(RPL_OMOTDSTART, "Server operators message of the day");
-		for (const auto& line : opermotd)
+		user->WriteRemoteNumeric(RPL_OMOTDSTART, "Server operator MOTD:");
+		for (const auto& line : motd->second)
 			user->WriteRemoteNumeric(RPL_OMOTD, line);
-		user->WriteRemoteNumeric(RPL_ENDOFOMOTD, "End of OPERMOTD");
+		user->WriteRemoteNumeric(RPL_ENDOFOMOTD, "End of server operator MOTD.");
+
+		return CmdResult::SUCCESS;
 	}
 };
 
-class ModuleOpermotd final
+class ModuleOperMOTD final
 	: public Module
 {
 private:
-	CommandOpermotd cmd;
+	CommandOperMOTD cmd;
 	bool onoper;
 
+	void ProcessMOTD(MOTDCache& newmotds, const std::shared_ptr<OperType>& oper, const char* type)
+	{
+		// Don't process the file if it has already been processed.
+		const std::string motd = oper->GetConfig()->getString("motd", cmd.file);
+		if (motd.empty() || newmotds.find(motd) != newmotds.end())
+			return;
+
+		FileReader reader;
+		try
+		{
+			reader.Load(motd);
+		}
+		catch (const CoreException& ce)
+		{
+			// We can't process the file if it doesn't exist.
+			ServerInstance->Logs.Normal(MODNAME, "Unable to read server operator motd for oper %s \"%s\" at %s: %s",
+				type, oper->GetName().c_str(), oper->GetConfig()->source.str().c_str(), ce.GetReason().c_str());
+			return;
+		}
+
+		// Process the MOTD entry.
+		auto& newmotd = newmotds[motd];
+		newmotd.reserve(reader.GetVector().size());
+		for (const auto& line : reader.GetVector())
+		{
+			// Some clients can not handle receiving RPL_OMOTD with an empty
+			// trailing parameter so if a line is empty we replace it with
+			// a single space.
+			newmotd.push_back(line.empty() ? " " : line);
+		}
+		InspIRCd::ProcessColors(newmotd);
+	}
+
 public:
-	ModuleOpermotd()
+	ModuleOperMOTD()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /OPERMOTD command which adds a special message of the day for server operators.")
 		, cmd(this)
 	{
@@ -96,36 +138,25 @@ public:
 
 	void OnPostOperLogin(User* user) override
 	{
-		if (onoper && IS_LOCAL(user))
+		if (IS_LOCAL(user) && user->oper->GetConfig()->getBool("automotd", onoper))
 			cmd.ShowOperMOTD(user, false);
 	}
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		cmd.opermotd.clear();
-		auto conf = ServerInstance->Config->ConfValue("opermotd");
-		onoper = conf->getBool("onoper", true);
+		// Compatibility with the v3 config.
+		auto tag = ServerInstance->Config->ConfValue("opermotd");
+		cmd.file = tag->getString("file", "opermotd", 1);
+		onoper = tag->getBool("onoper", true);
 
-		try
-		{
-			FileReader reader(conf->getString("file", "opermotd", 1));
+		MOTDCache newmotds;
+		for (const auto& [_, account] : ServerInstance->Config->OperAccounts)
+			ProcessMOTD(newmotds, account, "account");
+		for (const auto& [_, type] : ServerInstance->Config->OperTypes)
+			ProcessMOTD(newmotds, type, "type");
+		cmd.motds.swap(newmotds);
 
-			// Process the MOTD entry.
-			cmd.opermotd.reserve(reader.GetVector().size());
-			for (const auto& line : reader.GetVector())
-			{
-				// Some clients can not handle receiving RPL_OMOTD with an empty
-				// trailing parameter so if a line is empty we replace it with
-				// a single space.
-				cmd.opermotd.push_back(line.empty() ? " " : line);
-			}
-			InspIRCd::ProcessColors(cmd.opermotd);
-		}
-		catch (const CoreException&)
-		{
-			// Nothing happens here as we do the error handling in ShowOperMOTD.
-		}
 	}
 };
 
-MODULE_INIT(ModuleOpermotd)
+MODULE_INIT(ModuleOperMOTD)
