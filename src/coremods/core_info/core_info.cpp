@@ -118,9 +118,20 @@ class CoreModInfo : public Module
 			if (file == ServerInstance->Config->Files.end())
 				continue;
 
-			// Process escape codes.
-			newmotds[file->first] = file->second;
-			InspIRCd::ProcessColors(newmotds[file->first]);
+			const file_cache& lines = file->second;
+
+			// Process the MOTD entry.
+			file_cache& newmotd = newmotds[file->first];
+			newmotd.reserve(lines.size());
+			for (file_cache::const_iterator it = lines.begin(); it != lines.end(); ++it)
+			{
+				// Some clients can not handle receiving RPL_MOTD with an empty
+				// trailing parameter so if a line is empty we replace it with
+				// a single space.
+				const std::string& line = *it;
+				newmotd.push_back(line.empty() ? " " : line);
+			}
+			InspIRCd::ProcessColors(newmotd);
 		}
 
 		cmdmotd.motds.swap(newmotds);

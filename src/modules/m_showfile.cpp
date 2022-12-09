@@ -60,7 +60,7 @@ class CommandShowFile : public Command
 				user->WriteRemoteNumeric(intronumeric, introtext);
 
 			for (file_cache::const_iterator i = contents.begin(); i != contents.end(); ++i)
-				user->WriteRemoteNumeric(textnumeric, InspIRCd::Format(" %s", i->c_str()));
+				user->WriteRemoteNumeric(textnumeric, *i);
 
 			if (!endtext.empty() && endnumeric)
 				user->WriteRemoteNumeric(endnumeric, endtext.c_str());
@@ -93,7 +93,17 @@ class CommandShowFile : public Command
 		else if (smethod == "notice")
 			method = SF_NOTICE;
 
-		contents = filecontents;
+		// Process the entry.
+		contents.clear();
+		contents.reserve(filecontents.size());
+		for (file_cache::const_iterator it = filecontents.begin(); it != filecontents.end(); ++it)
+		{
+			// Some clients can not handle receiving NOTICE/PRIVMSG/RPL_RULES
+			// with an empty trailing parameter so if a line is empty we
+			// replace it with a single space.
+			const std::string& line = *it;
+			contents.push_back(line.empty() ? " " : line);
+		}
 		InspIRCd::ProcessColors(contents);
 	}
 };
