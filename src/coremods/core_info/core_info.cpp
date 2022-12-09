@@ -108,20 +108,29 @@ class CoreModInfo : public Module
 		for (ServerConfig::ClassVector::const_iterator iter = ServerInstance->Config->Classes.begin(); iter != ServerInstance->Config->Classes.end(); ++iter)
 		{
 			ConfigTag* tag = (*iter)->config;
+
 			// Don't process the file if it has already been processed.
 			const std::string motd = tag->getString("motd", "motd");
 			if (newmotds.find(motd) != newmotds.end())
 				continue;
 
-			// We can't process the file if it doesn't exist.
-			ConfigFileCache::iterator file = ServerInstance->Config->Files.find(motd);
-			if (file == ServerInstance->Config->Files.end())
+			FileReader reader;
+			try
+			{
+				reader.Load(motd);
+			}
+			catch (const CoreException& ce)
+			{
+				// We can't process the file if it doesn't exist.
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Unable to read motd for connect class \"%s\" at %s: %s",
+					(*iter)->name.c_str(), tag->getTagLocation().c_str(), ce.GetReason().c_str());
 				continue;
+			}
 
-			const file_cache& lines = file->second;
+			const file_cache& lines = reader.GetVector();
 
 			// Process the MOTD entry.
-			file_cache& newmotd = newmotds[file->first];
+			file_cache& newmotd = newmotds[motd];
 			newmotd.reserve(lines.size());
 			for (file_cache::const_iterator it = lines.begin(); it != lines.end(); ++it)
 			{
