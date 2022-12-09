@@ -75,7 +75,7 @@ public:
 
 		user->WriteRemoteNumeric(RPL_OMOTDSTART, "Server operators message of the day");
 		for (const auto& line : opermotd)
-			user->WriteRemoteNumeric(RPL_OMOTD, InspIRCd::Format(" %s", line.c_str()));
+			user->WriteRemoteNumeric(RPL_OMOTD, line);
 		user->WriteRemoteNumeric(RPL_ENDOFOMOTD, "End of OPERMOTD");
 	}
 };
@@ -109,7 +109,16 @@ public:
 		try
 		{
 			FileReader reader(conf->getString("file", "opermotd", 1));
-			cmd.opermotd = reader.GetVector();
+
+			// Process the MOTD entry.
+			cmd.opermotd.reserve(reader.GetVector().size());
+			for (const auto& line : reader.GetVector())
+			{
+				// Some clients can not handle receiving RPL_OMOTD with an empty
+				// trailing parameter so if a line is empty we replace it with
+				// a single space.
+				cmd.opermotd.push_back(line.empty() ? " " : line);
+			}
 			InspIRCd::ProcessColors(cmd.opermotd);
 		}
 		catch (const CoreException&)

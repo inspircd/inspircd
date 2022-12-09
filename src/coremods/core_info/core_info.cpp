@@ -134,14 +134,30 @@ public:
 			if (newmotds.find(motd) != newmotds.end())
 				continue;
 
-			// We can't process the file if it doesn't exist.
-			ConfigFileCache::iterator file = ServerInstance->Config->Files.find(motd);
-			if (file == ServerInstance->Config->Files.end())
+			FileReader reader;
+			try
+			{
+				reader.Load(motd);
+			}
+			catch (const CoreException& ce)
+			{
+				// We can't process the file if it doesn't exist.
+				ServerInstance->Logs.Normal(MODNAME, "Unable to read motd for connect class \"%s\" at %s: %s",
+					klass->name.c_str(), klass->config->source.str().c_str(), ce.GetReason().c_str());
 				continue;
+			}
 
-			// Process escape codes.
-			newmotds[file->first] = file->second;
-			InspIRCd::ProcessColors(newmotds[file->first]);
+			// Process the MOTD entry.
+			file_cache& newmotd = newmotds[motd];
+			newmotd.reserve(reader.GetVector().size());
+			for (const auto& line : reader.GetVector())
+			{
+				// Some clients can not handle receiving RPL_MOTD with an empty
+				// trailing parameter so if a line is empty we replace it with
+				// a single space.
+				newmotd.push_back(line.empty() ? " " : line);
+			}
+			InspIRCd::ProcessColors(newmotd);
 		}
 
 		cmdmotd.motds.swap(newmotds);

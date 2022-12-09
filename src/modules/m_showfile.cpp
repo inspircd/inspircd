@@ -62,7 +62,7 @@ public:
 				user->WriteRemoteNumeric(intronumeric, introtext);
 
 			for (const auto& line : contents)
-				user->WriteRemoteNumeric(textnumeric, InspIRCd::Format(" %s", line.c_str()));
+				user->WriteRemoteNumeric(textnumeric, line);
 
 			if (!endtext.empty() && endnumeric)
 				user->WriteRemoteNumeric(endnumeric, endtext.c_str());
@@ -94,7 +94,16 @@ public:
 		else if (smethod == "notice")
 			method = SF_NOTICE;
 
-		contents = filecontents;
+		// Process the entry.
+		contents.clear();
+		contents.reserve(filecontents.size());
+		for (const auto& line : filecontents)
+		{
+			// Some clients can not handle receiving NOTICE/PRIVMSG/RPL_RULES
+			// with an empty trailing parameter so if a line is empty we
+			// replace it with a single space.
+			contents.push_back(line.empty() ? " " : line);
+		}
 		InspIRCd::ProcessColors(contents);
 	}
 };
