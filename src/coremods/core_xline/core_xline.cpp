@@ -25,7 +25,7 @@
 #include "xline.h"
 #include "core_xline.h"
 
-bool InsaneBan::MatchesEveryone(const std::string& mask, MatcherBase& test, User* user, const char* bantype, const char* confkey)
+bool InsaneBan::MatchesEveryone(const std::string& mask, MatcherBase& test, User* user, char bantype, const char* confkey)
 {
 	ConfigTag* insane = ServerInstance->Config->ConfValue("insane");
 
@@ -42,7 +42,11 @@ bool InsaneBan::MatchesEveryone(const std::string& mask, MatcherBase& test, User
 	float percent = ((float)matches / (float)ServerInstance->Users->GetUsers().size()) * 100;
 	if (percent > itrigger)
 	{
-		ServerInstance->SNO->WriteToSnoMask('a', "\002WARNING\002: %s tried to set a %s-line mask of %s, which covers %.2f%% of the network!", user->nick.c_str(), bantype, mask.c_str(), percent);
+		const char* article = strchr("AEIOUaeiou", bantype) ? "an" : "a";
+		ServerInstance->SNO->WriteToSnoMask('x', "\002WARNING\002: %s tried to set add %s %c-line on %s which covers %.2f%% of the network which is more than the maximum of %.2f%%!",
+			user->nick.c_str(), article, bantype, mask.c_str(), percent, itrigger);
+		user->WriteNotice(InspIRCd::Format("*** Unable to add %s %c-line on %s which covers %.2f%% of the network which is more than the maximum of %.2f%%!",
+			article, bantype, mask.c_str(), percent, itrigger));
 		return true;
 	}
 	return false;

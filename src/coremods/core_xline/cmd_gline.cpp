@@ -65,7 +65,7 @@ CmdResult CommandGline::Handle(User* user, const Params& parameters)
 		}
 
 		InsaneBan::IPHostMatcher matcher;
-		if (InsaneBan::MatchesEveryone(ih.first+"@"+ih.second, matcher, user, "G", "hostmasks"))
+		if (InsaneBan::MatchesEveryone(ih.first + "@" + ih.second, matcher, user, 'G', "hostmasks"))
 			return CMD_FAILURE;
 
 		else if (target.find('!') != std::string::npos)

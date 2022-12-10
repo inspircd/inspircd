@@ -69,7 +69,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 		}
 
 		IPMatcher matcher;
-		if (InsaneBan::MatchesEveryone(ipaddr, matcher, user, "Z", "ipmasks"))
+		if (InsaneBan::MatchesEveryone(ipaddr, matcher, user, 'Z', "ipmasks"))
 			return CMD_FAILURE;
 
 		unsigned long duration;

@@ -46,7 +46,7 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 	if (parameters.size() >= 3)
 	{
 		NickMatcher matcher;
-		if (InsaneBan::MatchesEveryone(parameters[0], matcher, user, "Q", "nickmasks"))
+		if (InsaneBan::MatchesEveryone(parameters[0], matcher, user, 'Q', "nickmasks"))
 			return CMD_FAILURE;
 
 		if (parameters[0].find('@') != std::string::npos || parameters[0].find('!') != std::string::npos || parameters[0].find('.') != std::string::npos)
