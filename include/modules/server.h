@@ -23,7 +23,9 @@
 
 #pragma once
 
-#ifdef __GNUC__
+#if defined __INTEL_COMPILER
+# pragma warning(disable:1478)
+#elif defined __GNUC__
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
@@ -155,7 +157,9 @@ class ServerEventListener
 	}
 };
 
-#ifdef __GNUC__
+#if defined __INTEL_COMPILER
+# pragma warning(enable:1478)
+#elif defined __GNUC__
 # pragma GCC diagnostic pop
 #endif
 

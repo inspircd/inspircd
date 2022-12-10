@@ -176,7 +176,7 @@ non-interactive configuration is started and any omitted values are defaulted.
 
   <|BOLD CXX=<NAME>|>                    Sets the C++ compiler to use when building the
                                 server. If not specified then the build system
-                                will search for c++, g++, clang++ or icpc.
+                                will search for c++, g++, clang++, icpx, or icpc.
   <|BOLD INSPIRCD_VERBOSE=<0|1>|>        Shows additional information for debugging.
 
 If you have any problems with configuring InspIRCd then visit our IRC channel
@@ -266,7 +266,7 @@ sub get_compiler_info($) {
 }
 
 sub find_compiler {
-	my @compilers = qw(c++ g++ clang++ icpc);
+	my @compilers = qw(c++ g++ clang++ icpx icpc);
 	for my $compiler (shift // @compilers) {
 		return $compiler if __test_compiler $compiler;
 		return "xcrun $compiler" if $^O eq 'darwin' && __test_compiler "xcrun $compiler";

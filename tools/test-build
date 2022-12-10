@@ -35,7 +35,7 @@ $ENV{INSPIRCD_VERBOSE} = 1;
 execute 'git', 'clean', '-dfx';
 
 my $root = dirname $RealDir;
-my @compilers = $#ARGV >= 0 ? @ARGV : qw(g++ clang++ icpc);
+my @compilers = $#ARGV >= 0 ? @ARGV : qw(g++ clang++ icpx icpc);
 for my $compiler (@compilers) {
 	if (system "$compiler -v > /dev/null 2>&1") {
 		say STDERR "Skipping $compiler as it is not installed on this system!";
