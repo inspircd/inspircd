@@ -63,6 +63,15 @@ public:
 		cmdkill.hideservicekills = security->getBool("hideservicekills", security->getBool("hideulinekills"));
 	}
 
+	ModResult OnPreOperLogin(LocalUser* user, const std::shared_ptr<OperAccount>& oper) override
+	{
+		const std::string hosts = oper->GetConfig()->getString("host");
+		if (InspIRCd::MatchMask(hosts, user->MakeHost(), user->MakeHostIP()))
+			return MOD_RES_PASSTHRU; // Host matches.
+
+		return MOD_RES_DENY; // Host does not match.
+	}
+
 	void OnPostOperLogin(User* user) override
 	{
 		LocalUser* luser = IS_LOCAL(user);

@@ -368,10 +368,8 @@ public:
 			if (!oper->getBool("autologin"))
 				continue; // No autologin for this block.
 
-			if (!InspIRCd::MatchMask(oper->getString("host"), localuser->MakeHost(), localuser->MakeHostIP()))
-				continue; // Host doesn't match.
-
-			user->OperLogin(info);
+			if (!user->OperLogin(info))
+				continue; // Some other field does not match.
 		}
 	}
 

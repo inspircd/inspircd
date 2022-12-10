@@ -38,7 +38,6 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 {
 	bool match_user = false;
 	bool match_pass = false;
-	bool match_hosts = false;
 
 	auto i = ServerInstance->Config->OperAccounts.find(parameters[0]);
 	if (i != ServerInstance->Config->OperAccounts.end())
@@ -47,9 +46,8 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 		std::shared_ptr<ConfigTag> tag = ifo->GetConfig();
 		match_user = true;
 		match_pass = ServerInstance->PassCompare(user, tag->getString("password"), parameters[1], tag->getString("hash"));
-		match_hosts = InspIRCd::MatchMask(tag->getString("host"), user->MakeHost(), user->MakeHostIP());
 
-		if (match_pass && match_hosts)
+		if (match_pass)
 		{
 			user->OperLogin(ifo);
 			return CmdResult::SUCCESS;
@@ -61,8 +59,6 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 		fields.append("username ");
 	if (!match_pass)
 		fields.append("password ");
-	if (!match_hosts)
-		fields.append("hosts ");
 	fields.erase(fields.length() - 1, 1);
 
 	// Tell them they failed (generically) and lag them up to help prevent brute-force attacks
