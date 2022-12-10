@@ -233,12 +233,18 @@ public:
 };
 
 /** Represents an \<oper> from the server config. */
-class CoreExport OperAccount final
+class CoreExport OperAccount
 	: public OperType
 {
 private:
+	/** The password to used to log into this oper account. */
+	std::string password;
+
+	/** The algorithm to used to hash the password of this oper account. */
+	std::string passwordhash;
+
 	/** The name of the underlying oper type. */
-	const std::string type;
+	std::string type;
 
 public:
 	/** Creates a new oper account with the specified name, oper type, and config tag.
@@ -247,6 +253,11 @@ public:
 	 * @param t The tag to configure the oper account from.
 	 */
 	OperAccount(const std::string& n, const std::shared_ptr<OperType>& o, const std::shared_ptr<ConfigTag>& t);
+
+	/** Check the specified password against the one from this oper account's password.
+	 * @param pw The password to check.
+	 */
+	bool CheckPassword(const std::string& pw) const;
 
 	/** Retrieves the name of the underlying oper type. */
 	const auto& GetType() const { return type; }

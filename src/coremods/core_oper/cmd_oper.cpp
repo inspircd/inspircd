@@ -43,9 +43,8 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 	if (i != ServerInstance->Config->OperAccounts.end())
 	{
 		std::shared_ptr<OperAccount> ifo = i->second;
-		std::shared_ptr<ConfigTag> tag = ifo->GetConfig();
 		match_user = true;
-		match_pass = ServerInstance->PassCompare(tag->getString("password"), parameters[1], tag->getString("hash"));
+		match_pass = ifo->CheckPassword(parameters[1]);
 
 		if (match_pass && user->OperLogin(ifo))
 			return CmdResult::SUCCESS;

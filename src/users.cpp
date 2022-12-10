@@ -1375,6 +1375,8 @@ void OperType::MergeTag(const std::shared_ptr<ConfigTag>& tag)
 
 OperAccount::OperAccount(const std::string& n, const std::shared_ptr<OperType>& o, const std::shared_ptr<ConfigTag>& t)
 	: OperType(n, nullptr)
+	, password(t->getString("password"))
+	, passwordhash(t->getString("hash", "plaintext", 1))
 	, type(o ? o->GetName() : n)
 {
 	if (o)
@@ -1387,5 +1389,9 @@ OperAccount::OperAccount(const std::string& n, const std::shared_ptr<OperType>& 
 		Configure(o->GetConfig(), true);
 	}
 	Configure(t, true);
+}
 
+bool OperAccount::CheckPassword(const std::string& pw) const
+{
+	return ServerInstance->PassCompare(password, pw, passwordhash);
 }
