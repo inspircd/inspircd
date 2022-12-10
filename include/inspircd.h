@@ -469,13 +469,12 @@ public:
 	/** Attempt to compare a password to a string from the config file.
 	 * This will be passed to handling modules which will compare the data
 	 * against possible hashed equivalents in the input string.
-	 * @param ex The object (user, server, whatever) causing the comparison.
 	 * @param data The data from the config file
 	 * @param input The data input by the oper
 	 * @param hashtype The hash from the config file
 	 * @return True if the strings match, false if they do not
 	 */
-	static bool PassCompare(Extensible* ex, const std::string& data, const std::string& input, const std::string& hashtype);
+	static bool PassCompare(const std::string& data, const std::string& input, const std::string& hashtype);
 
 	/** Attempt to write the process id to a given file
 	 */

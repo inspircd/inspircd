@@ -26,10 +26,10 @@
 
 #include "inspircd.h"
 
-bool InspIRCd::PassCompare(Extensible* ex, const std::string& data, const std::string& input, const std::string& hashtype)
+bool InspIRCd::PassCompare(const std::string& data, const std::string& input, const std::string& hashtype)
 {
 	ModResult res;
-	FIRST_MOD_RESULT(OnPassCompare, res, (ex, data, input, hashtype));
+	FIRST_MOD_RESULT(OnPassCompare, res, (data, input, hashtype));
 
 	/* Module matched */
 	if (res == MOD_RES_ALLOW)

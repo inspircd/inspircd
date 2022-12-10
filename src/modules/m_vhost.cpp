@@ -41,9 +41,9 @@ struct CustomVhost final
 	{
 	}
 
-	bool CheckPass(User* user, const std::string& pass) const
+	bool CheckPass(const std::string& pass) const
 	{
-		return ServerInstance->PassCompare(user, password, pass, hash);
+		return ServerInstance->PassCompare(password, pass, hash);
 	}
 };
 
@@ -65,7 +65,7 @@ public:
 	{
 		for (const auto& [_, config] : insp::equal_range(vhosts, parameters[0]))
 		{
-			if (config.CheckPass(user, parameters[1]))
+			if (config.CheckPass(parameters[1]))
 			{
 				user->WriteNotice("Setting your VHost: " + config.vhost);
 				user->ChangeDisplayedHost(config.vhost);

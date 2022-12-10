@@ -51,9 +51,9 @@ struct CustomTitle final
 		return InspIRCd::MatchMask(host, user->MakeHost(), user->MakeHostIP());
 	}
 
-	bool CheckPass(User* user, const std::string& pass) const
+	bool CheckPass(const std::string& pass) const
 	{
-		return ServerInstance->PassCompare(user, password, pass, hash);
+		return ServerInstance->PassCompare(password, pass, hash);
 	}
 };
 
@@ -77,7 +77,7 @@ public:
 	{
 		for (const auto& [_, config] : insp::equal_range(configs, parameters[0]))
 		{
-			if (config.MatchUser(user) && config.CheckPass(user, parameters[1]))
+			if (config.MatchUser(user) && config.CheckPass(parameters[1]))
 			{
 				ctitle.Set(user, config.title);
 

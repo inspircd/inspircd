@@ -1096,7 +1096,7 @@ void LocalUser::SetClass(const std::string& explicit_name)
 				continue;
 			}
 
-			if (conndone && !c->password.empty() && !ServerInstance->PassCompare(this, c->password, password, c->passwordhash))
+			if (conndone && !c->password.empty() && !ServerInstance->PassCompare(c->password, password, c->passwordhash))
 			{
 				ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as requires a password and %s",
 					c->GetName().c_str(), password.empty() ? "one was not provided" : "the provided password was incorrect");
