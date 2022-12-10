@@ -128,7 +128,11 @@
       # for security reasons.
       host="attila@inspircd.org *@2001:db8::/32"
 
-      # ** ADVANCED ** This option is disabled by default.
+      # account: A space delimited list of account names or account ids that are allowed
+      # to log into this account.
+      # Requires the account module.
+      account="Attila 1234567890"
+
       # fingerprint: When using the sslinfo module, you may specify a space separated
       # list of TLS client certificate fingerprints here. These can be obtained by using
       # the /SSLINFO command while the module is loaded, and is also noticed on connect.

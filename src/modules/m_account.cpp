@@ -338,6 +338,28 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
+	ModResult OnPreOperLogin(LocalUser* user, const std::shared_ptr<OperAccount>& oper) override
+	{
+		const std::string accountstr = oper->GetConfig()->getString("account");
+		if (accountstr.empty())
+			return MOD_RES_PASSTHRU;
+
+		const std::string* accountid = accountapi.GetAccountId(user);
+		const std::string* accountname = accountapi.GetAccountName(user);
+
+		irc::spacesepstream accountstream(accountstr);
+		for (std::string account; accountstream.GetToken(account); )
+		{
+			if (accountid && irc::equals(account, *accountid))
+				return MOD_RES_PASSTHRU; // Matches on account id.
+
+			if (accountname && irc::equals(account, *accountname))
+				return MOD_RES_PASSTHRU; // Matches on account name.
+		}
+
+		return MOD_RES_DENY; // Account required but it does not match.
+	}
+
 	ModResult OnSetConnectClass(LocalUser* user, const ConnectClass::Ptr& myclass) override
 	{
 		const char* error = nullptr;
