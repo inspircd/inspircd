@@ -349,10 +349,10 @@ Cullable::Result FakeUser::Cull()
 	return User::Cull();
 }
 
-bool User::OperLogin(const std::shared_ptr<OperAccount>& account)
+bool User::OperLogin(const std::shared_ptr<OperAccount>& account, bool force)
 {
 	LocalUser* luser = IS_LOCAL(this);
-	if (luser && !quitting)
+	if (luser && !quitting && !force)
 	{
 		ModResult modres;
 		FIRST_MOD_RESULT(OnPreOperLogin, modres, (luser, account));

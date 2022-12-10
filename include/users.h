@@ -570,9 +570,10 @@ public:
 
 	/** Logs this user into the specified server operator account.
 	 * @param account The account to log this user in to.
+	 * @param force Whether to ignore any checks from OnPreOperLogin.
 	 * @return True if the user is logged into successfully; otherwise, false.
 	 */
-	bool OperLogin(const std::shared_ptr<OperAccount>& account);
+	bool OperLogin(const std::shared_ptr<OperAccount>& account, bool force = false);
 
 	/** Logs this user out of their server operator account. Does nothing to non-operators. */
 	void OperLogout();
