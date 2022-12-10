@@ -408,6 +408,12 @@ namespace OpenSSL
 				setoptions |= SSL_OP_NO_TLSv1_2;
 #endif
 
+#ifdef SSL_OP_NO_TLSv1_3
+			// Enable TLSv1.3 by default.
+			if (!tag->getBool("tlsv13", true))
+				setoptions |= SSL_OP_NO_TLSv1_3;
+#endif
+
 			if (!setoptions && !clearoptions)
 				return; // Nothing to do
 
