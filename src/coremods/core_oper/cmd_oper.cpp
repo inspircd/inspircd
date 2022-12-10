@@ -47,11 +47,8 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 		match_user = true;
 		match_pass = ServerInstance->PassCompare(user, tag->getString("password"), parameters[1], tag->getString("hash"));
 
-		if (match_pass)
-		{
-			user->OperLogin(ifo);
+		if (match_pass && user->OperLogin(ifo))
 			return CmdResult::SUCCESS;
-		}
 	}
 
 	std::string fields;
@@ -59,6 +56,8 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 		fields.append("username ");
 	if (!match_pass)
 		fields.append("password ");
+	if (fields.empty())
+		fields.append("module ");
 	fields.erase(fields.length() - 1, 1);
 
 	// Tell them they failed (generically) and lag them up to help prevent brute-force attacks
