@@ -62,16 +62,17 @@ class CommandShun : public Command
 	CommandShun(Module* Creator) : Command(Creator, "SHUN", 1, 3)
 	{
 		flags_needed = 'o';
-		syntax = "<nick!user@host> [<duration> :<reason>]";
+		syntax = "<nick!user@host>[,<nick!user@host>]+ [<duration> :<reason>]";
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
 	{
 		/* syntax: SHUN nick!user@host time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
+		if (CommandParser::LoopCall(user, this, parameters, 0))
+			return CMD_SUCCESS;
 
 		std::string target = parameters[0];
-
 		User *find = ServerInstance->FindNick(target);
 		if ((find) && (find->registered == REG_ALL))
 			target = "*!" + find->GetBanIdent() + "@" + find->GetIPString();

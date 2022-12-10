@@ -35,11 +35,14 @@ CommandQline::CommandQline(Module* parent)
 	: Command(parent, "QLINE", 1, 3)
 {
 	flags_needed = 'o';
-	syntax = "<nickmask> [<duration> :<reason>]";
+	syntax = "<nickmask>[,<nickmask>]+ [<duration> :<reason>]";
 }
 
 CmdResult CommandQline::Handle(User* user, const Params& parameters)
 {
+	if (CommandParser::LoopCall(user, this, parameters, 0))
+		return CMD_SUCCESS;
+
 	if (parameters.size() >= 3)
 	{
 		NickMatcher matcher;

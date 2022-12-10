@@ -35,13 +35,15 @@ CommandZline::CommandZline(Module* parent)
 	: Command(parent, "ZLINE", 1, 3)
 {
 	flags_needed = 'o';
-	syntax = "<ipmask> [<duration> :<reason>]";
+	syntax = "<ipmask>[,<ipmask>]+ [<duration> :<reason>]";
 }
 
 CmdResult CommandZline::Handle(User* user, const Params& parameters)
 {
-	std::string target = parameters[0];
+	if (CommandParser::LoopCall(user, this, parameters, 0))
+		return CMD_SUCCESS;
 
+	std::string target = parameters[0];
 	if (parameters.size() >= 3)
 	{
 		if (target.find('!') != std::string::npos)

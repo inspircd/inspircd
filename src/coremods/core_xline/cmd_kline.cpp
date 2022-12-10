@@ -34,15 +34,17 @@ CommandKline::CommandKline(Module* parent)
 	: Command(parent, "KLINE", 1, 3)
 {
 	flags_needed = 'o';
-	syntax = "<user@host> [<duration> :<reason>]";
+	syntax = "<user@host>[,<user@host>]+ [<duration> :<reason>]";
 }
 
 /** Handle /KLINE
  */
 CmdResult CommandKline::Handle(User* user, const Params& parameters)
 {
-	std::string target = parameters[0];
+	if (CommandParser::LoopCall(user, this, parameters, 0))
+		return CMD_SUCCESS;
 
+	std::string target = parameters[0];
 	if (parameters.size() >= 3)
 	{
 		IdentHostPair ih;
