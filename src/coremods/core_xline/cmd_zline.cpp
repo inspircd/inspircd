@@ -35,13 +35,15 @@ CommandZline::CommandZline(Module* parent)
 	: Command(parent, "ZLINE", 1, 3)
 {
 	access_needed = CmdAccess::OPERATOR;
-	syntax = { "<ipmask> [<duration> :<reason>]" };
+	syntax = { "<ipmask>[,<ipmask>]+ [<duration> :<reason>]" };
 }
 
 CmdResult CommandZline::Handle(User* user, const Params& parameters)
 {
-	std::string target = parameters[0];
+	if (CommandParser::LoopCall(user, this, parameters, 0))
+		return CmdResult::SUCCESS;
 
+	std::string target = parameters[0];
 	if (parameters.size() >= 3)
 	{
 		if (target.find('!') != std::string::npos)
@@ -66,7 +68,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 		}
 
 		IPMatcher matcher;
-		if (InsaneBan::MatchesEveryone(ipaddr, matcher, user, "Z", "ipmasks"))
+		if (InsaneBan::MatchesEveryone(ipaddr, matcher, user, 'Z', "ipmasks"))
 			return CmdResult::FAILURE;
 
 		unsigned long duration;

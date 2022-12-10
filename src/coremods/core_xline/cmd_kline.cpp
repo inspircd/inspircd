@@ -34,13 +34,15 @@ CommandKline::CommandKline(Module* parent)
 	: Command(parent, "KLINE", 1, 3)
 {
 	access_needed = CmdAccess::OPERATOR;
-	syntax = { "<user@host> [<duration> :<reason>]" };
+	syntax = { "<user@host>[,<user@host>]+ [<duration> :<reason>]" };
 }
 
 CmdResult CommandKline::Handle(User* user, const Params& parameters)
 {
-	std::string target = parameters[0];
+	if (CommandParser::LoopCall(user, this, parameters, 0))
+		return CmdResult::SUCCESS;
 
+	std::string target = parameters[0];
 	if (parameters.size() >= 3)
 	{
 		IdentHostPair ih;
@@ -61,7 +63,7 @@ CmdResult CommandKline::Handle(User* user, const Params& parameters)
 		}
 
 		InsaneBan::IPHostMatcher matcher;
-		if (InsaneBan::MatchesEveryone(ih.first+"@"+ih.second, matcher, user, "K", "hostmasks"))
+		if (InsaneBan::MatchesEveryone(ih.first + "@" + ih.second, matcher, user, 'K', "hostmasks"))
 			return CmdResult::FAILURE;
 
 		if (target.find('!') != std::string::npos)

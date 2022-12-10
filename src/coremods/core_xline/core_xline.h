@@ -66,7 +66,7 @@ public:
 	 * @param confkey Name of the config key (inside the insane tag) which if false disables any checking
 	 * @return True if the given mask matches too many users, false if not
 	 */
-	static bool MatchesEveryone(const std::string& mask, MatcherBase& test, User* user, const char* bantype, const char* confkey);
+	static bool MatchesEveryone(const std::string& mask, MatcherBase& test, User* user, char bantype, const char* confkey);
 };
 
 class CommandEline final

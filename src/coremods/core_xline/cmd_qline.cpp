@@ -35,15 +35,18 @@ CommandQline::CommandQline(Module* parent)
 	: Command(parent, "QLINE", 1, 3)
 {
 	access_needed = CmdAccess::OPERATOR;
-	syntax = { "<nickmask> [<duration> :<reason>]" };
+	syntax = { "<nickmask>[,<nickmask>]+ [<duration> :<reason>]" };
 }
 
 CmdResult CommandQline::Handle(User* user, const Params& parameters)
 {
+	if (CommandParser::LoopCall(user, this, parameters, 0))
+		return CmdResult::SUCCESS;
+
 	if (parameters.size() >= 3)
 	{
 		NickMatcher matcher;
-		if (InsaneBan::MatchesEveryone(parameters[0], matcher, user, "Q", "nickmasks"))
+		if (InsaneBan::MatchesEveryone(parameters[0], matcher, user, 'Q', "nickmasks"))
 			return CmdResult::FAILURE;
 
 		if (parameters[0].find('@') != std::string::npos || parameters[0].find('!') != std::string::npos || parameters[0].find('.') != std::string::npos)

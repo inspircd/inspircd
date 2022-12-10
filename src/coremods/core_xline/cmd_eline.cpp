@@ -33,13 +33,15 @@ CommandEline::CommandEline(Module* parent)
 	: Command(parent, "ELINE", 1, 3)
 {
 	access_needed = CmdAccess::OPERATOR;
-	syntax = { "<user@host> [<duration> :<reason>]" };
+	syntax = { "<user@host>[,<user@host>]+ [<duration> :<reason>]" };
 }
 
 CmdResult CommandEline::Handle(User* user, const Params& parameters)
 {
-	std::string target = parameters[0];
+	if (CommandParser::LoopCall(user, this, parameters, 0))
+		return CmdResult::SUCCESS;
 
+	std::string target = parameters[0];
 	if (parameters.size() >= 3)
 	{
 		IdentHostPair ih;
@@ -60,7 +62,7 @@ CmdResult CommandEline::Handle(User* user, const Params& parameters)
 		}
 
 		InsaneBan::IPHostMatcher matcher;
-		if (InsaneBan::MatchesEveryone(ih.first+"@"+ih.second, matcher, user, "E", "hostmasks"))
+		if (InsaneBan::MatchesEveryone(ih.first + "@" + ih.second, matcher, user, 'E', "hostmasks"))
 			return CmdResult::FAILURE;
 
 		unsigned long duration;

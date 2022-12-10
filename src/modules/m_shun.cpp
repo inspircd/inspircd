@@ -63,13 +63,15 @@ public:
 		: Command(Creator, "SHUN", 1, 3)
 	{
 		access_needed = CmdAccess::OPERATOR;
-		syntax = { "<nick!user@host> [<duration> :<reason>]" };
+		syntax = { "<nick!user@host>[,<nick!user@host>]+ [<duration> :<reason>]" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		/* syntax: SHUN nick!user@host time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
+		if (CommandParser::LoopCall(user, this, parameters, 0))
+			return CmdResult::SUCCESS;
 
 		std::string target = parameters[0];
 
