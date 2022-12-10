@@ -90,7 +90,7 @@ ifeq ($(COMPILER), AppleClang)
 endif
 
 # Enable Clang-specific compiler warnings.
-ifeq ($(COMPILER), $(filter $(COMPILER), AppleClang Clang))
+ifeq ($(COMPILER), $(filter $(COMPILER), AppleClang IntelClang Clang))
   CORECXXFLAGS += -Wshadow-all -Wshorten-64-to-32
 endif
 
