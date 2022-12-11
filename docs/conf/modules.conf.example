@@ -1151,7 +1151,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # IRCv3 account-tag module. Adds the 'account' tag which contains the
-# services account name of the message sender.
+# user account name of the message sender.
 #<module name="ircv3_accounttag">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1999,7 +1999,7 @@
 #<securehost exception="*@*.netsplit.de">
 #                                                                     #
 # exemptregistered - Whether the waiting period applies to users who  #
-#                    are logged in to a services account.             #
+#                    are logged in to a user account.                 #
 #                    Defaults to no.                                  #
 #                                                                     #
 # fakechans - The number of fake channels to show in /LIST. This can  #

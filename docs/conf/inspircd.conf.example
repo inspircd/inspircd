@@ -335,7 +335,7 @@
          #requiressl="yes"
 
          # requireaccount: Require that users of this block have authenticated to a
-         # services account.
+         # user account.
          # NOTE: You must complete the signon prior to full connection. Currently,
          # this is only possible by using SASL authentication; passforward
          # and PRIVMSG NickServ happen after your final connect block has been found.
@@ -676,7 +676,7 @@
          #  - nonotice        Channel mode +T - blocks /NOTICEs to the channel
          #                    (requires the nonotice module).
          #  - regmoderated    Channel mode +M - blocks unregistered users from
-         #                    speaking (requires the services account module).
+         #                    speaking (requires the account module).
          #  - stripcolor      Channel mode +S - strips formatting codes from
          #                    messages (requires the stripcolor module).
          #  - topiclock       Channel mode +t - limits changing the topic to (half)ops

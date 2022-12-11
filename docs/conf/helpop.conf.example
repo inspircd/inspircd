@@ -831,7 +831,7 @@ using their cloak when they quit.
  s <mask>     Receives server notices specified by <mask>
               (server operators only).
  r            Marks as a having a registered nickname
-              (requires the services account module).
+              (requires the account module).
  w            Receives wallops messages.
  x            Gives a cloaked hostname (requires the cloaking module).
  z            Only allow private messages from TLS users (requires
@@ -850,7 +850,7 @@ using their cloak when they quit.
  O            Allows server operators to opt-in to overriding
               restrictions (requires the override module).
  R            Blocks private messages from unregistered users
-              (requires the services account module).
+              (requires the account module).
  S            Strips formatting codes out of private messages
               to the user (requires the stripcolor module).
  W            Receives notifications when a user uses WHOIS on them
@@ -901,7 +901,7 @@ using their cloak when they quit.
  p                  Make channel private, hiding it in users' whoises
                     and replacing it with * in /LIST.
  r                  Marks the channel as registered with Services
-                    (requires the services account module).
+                    (requires the account module).
  s                  Make channel secret, hiding it in users' whoises
                     and /LIST.
  t                  Prevents users without +h or +o from changing the
@@ -947,7 +947,7 @@ using their cloak when they quit.
                     redirect users to <channel> (requires the
                     redirect module).
  M                  Blocks unregistered users from speaking (requires
-                    the services account module).
+                    the account module).
  N                  Prevents users on the channel from changing nick
                     (requires the nonicks module).
  O                  Channel is server operators only (can only be set
@@ -959,7 +959,7 @@ using their cloak when they quit.
  Q                  Only services servers and their users can kick
                     (requires the nokicks module).
  R                  Blocks unregistered users from joining (requires
-                    the services account module).
+                    the account module).
  S                  Strips formatting codes from messages to the
                     channel (requires the stripcolor module).
  T                  Blocks /NOTICEs to the channel from users who are
@@ -1093,9 +1093,9 @@ Matching extbans:
                useful as an invite exception (requires the
                operchans module).
  R:<account>   Matches users logged into a matching account (requires
-               the services account module).
+               the account module).
  U:<banmask>   Matches unregistered users matching the given banmask.
-               (requires the services account module).
+               (requires the account module).
 
 Acting extbans:
 
