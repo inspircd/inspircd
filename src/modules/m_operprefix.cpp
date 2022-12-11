@@ -104,7 +104,7 @@ public:
 			ServerInstance->Modes.Process(ServerInstance->FakeClient, memb->chan, nullptr, changelist);
 	}
 
-	void OnPostOperLogin(User* user) override
+	void OnPostOperLogin(User* user, bool automatic) override
 	{
 		if (IS_LOCAL(user) && (!user->IsModeSet(hideopermode)))
 			SetOperPrefix(user, true);

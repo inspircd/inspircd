@@ -52,7 +52,7 @@ public:
 			operChans.push_back(channame);
 	}
 
-	void OnPostOperLogin(User* user) override
+	void OnPostOperLogin(User* user, bool automatic) override
 	{
 		LocalUser* localuser = IS_LOCAL(user);
 		if (!localuser)

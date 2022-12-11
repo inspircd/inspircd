@@ -236,7 +236,24 @@ public:
 class CoreExport OperAccount
 	: public OperType
 {
-private:
+protected:
+	/** Possible states for whether an oper account can be automatically logged into. */
+	enum class AutoLogin
+		: uint8_t
+	{
+		/** Users can automatically log in to this account if they match all fields and their nick matches the account name. */
+		STRICT,
+
+		/** Users can automatically log in to this account if they match all fields. */
+		RELAXED,
+
+		/** Users can not automatically log in to this account. */
+		NEVER,
+	};
+
+	/** Whether this oper account can be automatically logged into. */
+	AutoLogin autologin;
+
 	/** The password to used to log into this oper account. */
 	std::string password;
 
@@ -253,6 +270,9 @@ public:
 	 * @param t The tag to configure the oper account from.
 	 */
 	OperAccount(const std::string& n, const std::shared_ptr<OperType>& o, const std::shared_ptr<ConfigTag>& t);
+
+	/** Check whether this user can attempt to automatically log in to this account. */
+	bool CanAutoLogin(LocalUser* user) const;
 
 	/** Check the specified password against the one from this oper account's password.
 	 * @param pw The password to check.
@@ -581,10 +601,11 @@ public:
 
 	/** Logs this user into the specified server operator account.
 	 * @param account The account to log this user in to.
+	 * @param automatic Whether this is an automatic login attempt.
 	 * @param force Whether to ignore any checks from OnPreOperLogin.
 	 * @return True if the user is logged into successfully; otherwise, false.
 	 */
-	bool OperLogin(const std::shared_ptr<OperAccount>& account, bool force = false);
+	bool OperLogin(const std::shared_ptr<OperAccount>& account, bool automatic = false, bool force = false);
 
 	/** Logs this user out of their server operator account. Does nothing to non-operators. */
 	void OperLogout();

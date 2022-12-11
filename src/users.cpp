@@ -349,13 +349,13 @@ Cullable::Result FakeUser::Cull()
 	return User::Cull();
 }
 
-bool User::OperLogin(const std::shared_ptr<OperAccount>& account, bool force)
+bool User::OperLogin(const std::shared_ptr<OperAccount>& account, bool automatic, bool force)
 {
 	LocalUser* luser = IS_LOCAL(this);
 	if (luser && !quitting && !force)
 	{
 		ModResult modres;
-		FIRST_MOD_RESULT(OnPreOperLogin, modres, (luser, account));
+		FIRST_MOD_RESULT(OnPreOperLogin, modres, (luser, account, automatic));
 		if (modres == MOD_RES_DENY)
 			return false; // Module rejected the oper attempt.
 	}
@@ -364,7 +364,7 @@ bool User::OperLogin(const std::shared_ptr<OperAccount>& account, bool force)
 	if (IsOper())
 		OperLogout();
 
-	FOREACH_MOD(OnOperLogin, (this, account));
+	FOREACH_MOD(OnOperLogin, (this, account, automatic));
 
 	// When a user logs in we need to:
 	//   1. Set the operator account (this is what IsOper checks).
@@ -385,7 +385,7 @@ bool User::OperLogin(const std::shared_ptr<OperAccount>& account, bool force)
 	}
 	ServerInstance->Users.all_opers.push_back(this);
 
-	FOREACH_MOD(OnPostOperLogin, (this));
+	FOREACH_MOD(OnPostOperLogin, (this, automatic));
 	return true;
 }
 
@@ -1379,6 +1379,12 @@ OperAccount::OperAccount(const std::string& n, const std::shared_ptr<OperType>& 
 	, passwordhash(t->getString("hash", "plaintext", 1))
 	, type(o ? o->GetName() : n)
 {
+	autologin = t->getEnum("autologin", AutoLogin::NEVER, {
+		{ "strict",  AutoLogin::STRICT  },
+		{ "relaxed", AutoLogin::RELAXED },
+		{ "never",   AutoLogin::NEVER   },
+	});
+
 	if (o)
 	{
 		chanmodes = o->chanmodes;
@@ -1389,6 +1395,24 @@ OperAccount::OperAccount(const std::string& n, const std::shared_ptr<OperType>& 
 		Configure(o->GetConfig(), true);
 	}
 	Configure(t, true);
+}
+
+bool OperAccount::CanAutoLogin(LocalUser* user) const
+{
+	switch (autologin)
+	{
+		case AutoLogin::STRICT:
+			return user->nick == GetName();
+
+		case AutoLogin::RELAXED:
+			return true;
+
+		case AutoLogin::NEVER:
+			return false;
+	}
+
+	// Should never be reached.
+	return false;
 }
 
 bool OperAccount::CheckPassword(const std::string& pw) const

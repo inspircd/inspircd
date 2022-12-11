@@ -323,21 +323,27 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnPreOperLogin(LocalUser* user, const std::shared_ptr<OperAccount>& oper) override
+	ModResult OnPreOperLogin(LocalUser* user, const std::shared_ptr<OperAccount>& oper, bool automatic) override
 	{
 		auto cert = cmd.sslapi.GetCertificate(user);
 		if (oper->GetConfig()->getBool("sslonly") && !cert)
 		{
-			ServerInstance->SNO.WriteGlobalSno('o', "%s (%s) [%s] failed to log into the \x02%s\x02 oper account because they are not connected using TLS.",
-				user->nick.c_str(), user->MakeHost().c_str(), user->GetIPString().c_str(), oper->GetName().c_str());
+			if (!automatic)
+			{
+				ServerInstance->SNO.WriteGlobalSno('o', "%s (%s) [%s] failed to log into the \x02%s\x02 oper account because they are not connected using TLS.",
+					user->nick.c_str(), user->MakeHost().c_str(), user->GetIPString().c_str(), oper->GetName().c_str());
+			}
 			return MOD_RES_DENY;
 		}
 
 		const std::string fingerprint = oper->GetConfig()->getString("fingerprint");
 		if (!fingerprint.empty() && (!cert || !MatchFP(cert, fingerprint)))
 		{
-			ServerInstance->SNO.WriteGlobalSno('o', "%s (%s) [%s] failed to log into the \x02%s\x02 oper account because they are not using the correct TLS client certificate.",
-				user->nick.c_str(), user->MakeHost().c_str(), user->GetIPString().c_str(), oper->GetName().c_str());
+			if (!automatic)
+			{
+				ServerInstance->SNO.WriteGlobalSno('o', "%s (%s) [%s] failed to log into the \x02%s\x02 oper account because they are not using the correct TLS client certificate.",
+					user->nick.c_str(), user->MakeHost().c_str(), user->GetIPString().c_str(), oper->GetName().c_str());
+			}
 			return MOD_RES_DENY;
 		}
 
@@ -365,20 +371,6 @@ public:
 		if (cert && !cert->GetFingerprint().empty())
 			text.append(" and your TLS client certificate fingerprint is ").append(cert->GetFingerprint());
 		user->WriteNotice(text);
-
-		if (!cert)
-			return;
-
-		// Find an auto-oper block for this user
-		for (const auto& [_, info] :  ServerInstance->Config->OperAccounts)
-		{
-			const auto& oper = info->GetConfig();
-			if (!oper->getBool("autologin"))
-				continue; // No autologin for this block.
-
-			if (!user->OperLogin(info))
-				continue; // Some other field does not match.
-		}
 	}
 
 	ModResult OnSetConnectClass(LocalUser* user, const ConnectClass::Ptr& myclass) override

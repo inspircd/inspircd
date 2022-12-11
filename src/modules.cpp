@@ -162,9 +162,9 @@ void		Module::OnServiceAdd(ServiceProvider&) { DetachEvent(I_OnServiceAdd); }
 void		Module::OnServiceDel(ServiceProvider&) { DetachEvent(I_OnServiceDel); }
 ModResult	Module::OnUserWrite(LocalUser*, ClientProtocol::Message&) { DetachEvent(I_OnUserWrite); return MOD_RES_PASSTHRU; }
 void		Module::OnShutdown(const std::string& reason) { DetachEvent(I_OnShutdown); }
-ModResult	Module::OnPreOperLogin(LocalUser*, const std::shared_ptr<OperAccount>&) { DetachEvent(I_OnPreOperLogin); return MOD_RES_PASSTHRU; }
-void		Module::OnOperLogin(User*, const std::shared_ptr<OperAccount>&) { DetachEvent(I_OnOperLogin); }
-void		Module::OnPostOperLogin(User*) { DetachEvent(I_OnPostOperLogin); }
+ModResult	Module::OnPreOperLogin(LocalUser*, const std::shared_ptr<OperAccount>&, bool) { DetachEvent(I_OnPreOperLogin); return MOD_RES_PASSTHRU; }
+void		Module::OnOperLogin(User*, const std::shared_ptr<OperAccount>&, bool) { DetachEvent(I_OnOperLogin); }
+void		Module::OnPostOperLogin(User*, bool) { DetachEvent(I_OnPostOperLogin); }
 void		Module::OnOperLogout(User*) { DetachEvent(I_OnOperLogout); }
 void		Module::OnPostOperLogout(User*, const std::shared_ptr<OperAccount>&) { DetachEvent(I_OnPostOperLogout); }
 

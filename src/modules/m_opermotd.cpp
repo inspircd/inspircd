@@ -136,7 +136,7 @@ public:
 	{
 	}
 
-	void OnPostOperLogin(User* user) override
+	void OnPostOperLogin(User* user, bool automatic) override
 	{
 		if (IS_LOCAL(user) && user->oper->GetConfig()->getBool("automotd", onoper))
 			cmd.ShowOperMOTD(user, false);

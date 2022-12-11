@@ -196,7 +196,7 @@ public:
 	void OnUserKick(User* source, Membership* memb, const std::string& reason, CUList& excepts) override;
 	void OnPreRehash(User* user, const std::string& parameter) override;
 	void ReadConfig(ConfigStatus& status) override;
-	void OnOperLogin(User* user, const std::shared_ptr<OperAccount>& oper) override;
+	void OnOperLogin(User* user, const std::shared_ptr<OperAccount>& oper, bool automatic) override;
 	void OnAddLine(User* u, XLine* x) override;
 	void OnDelLine(User* u, XLine* x) override;
 	ModResult OnStats(Stats::Context& stats) override;

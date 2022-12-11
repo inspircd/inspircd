@@ -63,18 +63,38 @@ public:
 		cmdkill.hideservicekills = security->getBool("hideservicekills", security->getBool("hideulinekills"));
 	}
 
-	ModResult OnPreOperLogin(LocalUser* user, const std::shared_ptr<OperAccount>& oper) override
+	void OnPostConnect(User* user) override
+	{
+		LocalUser* luser = IS_LOCAL(user);
+		if (!luser)
+			return;
+
+		// Find an auto-oper block for this user.
+		for (const auto& [_, account] :  ServerInstance->Config->OperAccounts)
+		{
+			if (!account->CanAutoLogin(luser))
+				continue; // No autologin for this account.
+
+			if (user->OperLogin(account, true))
+				break; // Successfully logged in to the account.
+		}
+	}
+
+	ModResult OnPreOperLogin(LocalUser* user, const std::shared_ptr<OperAccount>& oper, bool automatic) override
 	{
 		const std::string hosts = oper->GetConfig()->getString("host");
 		if (InspIRCd::MatchMask(hosts, user->MakeHost(), user->MakeHostIP()))
 			return MOD_RES_PASSTHRU; // Host matches.
 
-		ServerInstance->SNO.WriteGlobalSno('o', "%s (%s) [%s] failed to log into the \x02%s\x02 oper account because they are connecting from the wrong user@host.",
-			user->nick.c_str(), user->MakeHost().c_str(), user->GetIPString().c_str(), oper->GetName().c_str());
+		if (!automatic)
+		{
+			ServerInstance->SNO.WriteGlobalSno('o', "%s (%s) [%s] failed to log into the \x02%s\x02 oper account because they are connecting from the wrong user@host.",
+				user->nick.c_str(), user->MakeHost().c_str(), user->GetIPString().c_str(), oper->GetName().c_str());
+		}
 		return MOD_RES_DENY; // Host does not match.
 	}
 
-	void OnPostOperLogin(User* user) override
+	void OnPostOperLogin(User* user, bool automatic) override
 	{
 		LocalUser* luser = IS_LOCAL(user);
 		if (!luser)
@@ -84,9 +104,9 @@ public:
 			strchr("AEIOUaeiou", user->oper->GetType()[0]) ? "an" : "a",
 			user->oper->GetType().c_str()));
 
-		ServerInstance->SNO.WriteToSnoMask('o', "%s (%s) is now a server operator of type %s (using account %s)",
-			user->nick.c_str(), user->MakeHost().c_str(), user->oper->GetType().c_str(),
-			user->oper->GetName().c_str());
+		ServerInstance->SNO.WriteToSnoMask('o', "%s (%s) [%s] is now a server operator of type \x02%s\x02 (%susing account \x02%s\x02).",
+			user->nick.c_str(), user->MakeHost().c_str(), user->GetIPString().c_str(), user->oper->GetType().c_str(),
+			automatic ? "automatically " : "", user->oper->GetName().c_str());
 
 		const std::string vhost = luser->oper->GetConfig()->getString("vhost");
 		if (!vhost.empty())

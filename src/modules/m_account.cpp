@@ -338,7 +338,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnPreOperLogin(LocalUser* user, const std::shared_ptr<OperAccount>& oper) override
+	ModResult OnPreOperLogin(LocalUser* user, const std::shared_ptr<OperAccount>& oper, bool automatic) override
 	{
 		const std::string accountstr = oper->GetConfig()->getString("account");
 		if (accountstr.empty())
@@ -357,8 +357,11 @@ public:
 				return MOD_RES_PASSTHRU; // Matches on account name.
 		}
 
-		ServerInstance->SNO.WriteGlobalSno('o', "%s (%s) [%s] failed to log into the \x02%s\x02 oper account because they are not logged into the correct user account.",
-			user->nick.c_str(), user->MakeHost().c_str(), user->GetIPString().c_str(), oper->GetName().c_str());
+		if (!automatic)
+		{
+			ServerInstance->SNO.WriteGlobalSno('o', "%s (%s) [%s] failed to log into the \x02%s\x02 oper account because they are not logged into the correct user account.",
+				user->nick.c_str(), user->MakeHost().c_str(), user->GetIPString().c_str(), oper->GetName().c_str());
+		}
 		return MOD_RES_DENY; // Account required but it does not match.
 	}
 

@@ -142,10 +142,18 @@
       # If the sslinfo module isn't loaded, this option will be ignored.
       #fingerprint="67cb9dc013248a829bb2171ed11becd4"
 
-      # autologin: If a TLS client certificate fingerprint for this oper is specified,
-      # you can have the oper block automatically log in if they match the fingerprint
-      # and host fields. Requires the sslinfo module.
-      #autologin="yes"
+      # autologin: Whether to automatically log this server operator in on connect if all
+      # of their details match the ones in this <oper> block. Can be set to "strict" to
+      # automatically log in if the user's nickname matches the oper account name and the
+      # account/host/sslonly/etc fields match, "relaxed" to automatically log in if the
+      # account/host/sslonly/etc fields match, and "never" to not allow automatically
+      # logging in to this oper account. Defaults to "never".
+      #
+      # IMPORTANT: As this option overrides the password field it should **NOT** be used
+      # unless you are certain that nobody other than the intended user will match the
+      # restrictions of this <oper> block. Failure to do this may result in your server
+      # being compromised.
+      #autologin="strict"
 
       # sslonly: If enabled, this oper can only oper up if they're using a TLS connection.
       # Setting this option adds a decent bit of security. Highly recommended

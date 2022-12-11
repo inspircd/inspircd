@@ -772,7 +772,7 @@ restart:
 	}
 }
 
-void ModuleSpanningTree::OnOperLogin(User* user, const std::shared_ptr<OperAccount>& oper)
+void ModuleSpanningTree::OnOperLogin(User* user, const std::shared_ptr<OperAccount>& oper, bool automatic)
 {
 	if (!user->IsFullyConnected() || !IS_LOCAL(user))
 		return;

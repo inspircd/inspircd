@@ -116,7 +116,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnPostOperLogin(User* user) override
+	void OnPostOperLogin(User* user, bool automatic) override
 	{
 		if (!IS_LOCAL(user))
 			return;

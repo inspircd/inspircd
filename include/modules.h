@@ -925,21 +925,24 @@ public:
 	/** Called when a local user is attempting to log in to an server operator account.
 	 * @param user The user who is attempting to log in.
 	 * @param oper The server operator account they are attempting to log in to.
+	 * @param automatic Whether the login attempt is being performed automatically.
 	 * @return MOD_RES_ALLOW to explicitly allow the login, MOD_RES_DENY to explicitly deny the
 	 *         login, or MOD_RES_PASSTHRU to let another module handle the event.
 	 */
-	virtual ModResult OnPreOperLogin(LocalUser* user, const std::shared_ptr<OperAccount>& oper);
+	virtual ModResult OnPreOperLogin(LocalUser* user, const std::shared_ptr<OperAccount>& oper, bool automatic);
 
 	/** Called when a user is about to be logged in to an server operator account.
 	 * @param user The user who is about to be logged in.
 	 * @param oper The server operator account they are logging in to.
+	 * @param automatic Whether the login was performed automatically.
 	 */
-	virtual void OnOperLogin(User* user, const std::shared_ptr<OperAccount>& oper);
+	virtual void OnOperLogin(User* user, const std::shared_ptr<OperAccount>& oper, bool automatic);
 
 	/** Called after a user has been logged in to an server operator account.
 	 * @param user The user who has been logged in.
+	 * @param automatic Whether the login was performed automatically.
 	 */
-	virtual void OnPostOperLogin(User* user);
+	virtual void OnPostOperLogin(User* user, bool automatic);
 
 	/** Called when a user is about to be logged out of an server operator account.
 	 * @param user The user who is about to be logged out.
