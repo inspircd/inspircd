@@ -69,6 +69,8 @@ public:
 		if (InspIRCd::MatchMask(hosts, user->MakeHost(), user->MakeHostIP()))
 			return MOD_RES_PASSTHRU; // Host matches.
 
+		ServerInstance->SNO.WriteGlobalSno('o', "%s (%s) [%s] failed to log into the \x02%s\x02 oper account because they are connecting from the wrong user@host.",
+			user->nick.c_str(), user->MakeHost().c_str(), user->GetIPString().c_str(), oper->GetName().c_str());
 		return MOD_RES_DENY; // Host does not match.
 	}
 

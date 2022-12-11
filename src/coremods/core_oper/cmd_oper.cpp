@@ -28,6 +28,17 @@
 #include "inspircd.h"
 #include "core_oper.h"
 
+namespace
+{
+	CmdResult FailedOper(LocalUser* user, const std::string& name)
+	{
+		user->WriteNumeric(ERR_NOOPERHOST, InspIRCd::Format("Failed to log into the \x02%s\x02 oper account (check the server log for details).",
+			name.c_str()));
+		user->CommandFloodPenalty += 10'000;
+		return CmdResult::FAILURE;
+	}
+}
+
 CommandOper::CommandOper(Module* parent)
 	: SplitCommand(parent, "OPER", 2, 2)
 {
@@ -36,33 +47,28 @@ CommandOper::CommandOper(Module* parent)
 
 CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 {
-	bool match_user = false;
-	bool match_pass = false;
-
-	auto i = ServerInstance->Config->OperAccounts.find(parameters[0]);
-	if (i != ServerInstance->Config->OperAccounts.end())
+	// Check whether the account exists.
+	auto it = ServerInstance->Config->OperAccounts.find(parameters[0]);
+	if (it == ServerInstance->Config->OperAccounts.end())
 	{
-		std::shared_ptr<OperAccount> ifo = i->second;
-		match_user = true;
-		match_pass = ifo->CheckPassword(parameters[1]);
-
-		if (match_pass && user->OperLogin(ifo))
-			return CmdResult::SUCCESS;
+		ServerInstance->SNO.WriteGlobalSno('o', "%s (%s) [%s] failed to log into the \x02%s\x02 oper account because no account with that name exists.",
+			user->nick.c_str(), user->MakeHost().c_str(), user->GetIPString().c_str(), parameters[0].c_str());
+		return FailedOper(user, parameters[0]);
 	}
 
-	std::string fields;
-	if (!match_user)
-		fields.append("username ");
-	if (!match_pass)
-		fields.append("password ");
-	if (fields.empty())
-		fields.append("module ");
-	fields.erase(fields.length() - 1, 1);
+	// Check whether the password is correct.
+	auto account = it->second;
+	if (!account->CheckPassword(parameters[1]))
+	{
+		ServerInstance->SNO.WriteGlobalSno('o', "%s (%s) [%s] failed to log into the \x02%s\x02 oper account because they specified the wrong password.",
+			user->nick.c_str(), user->MakeHost().c_str(), user->GetIPString().c_str(), parameters[0].c_str());
+		return FailedOper(user, parameters[0]);
+	}
 
-	// Tell them they failed (generically) and lag them up to help prevent brute-force attacks
-	user->WriteNumeric(ERR_NOOPERHOST, "Invalid oper credentials");
-	user->CommandFloodPenalty += 10000;
+	// Attempt to log the user into the account (modules will log if this fails).
+	if (!user->OperLogin(account))
+		return FailedOper(user, parameters[0]);
 
-	ServerInstance->SNO.WriteGlobalSno('o', "WARNING! Failed oper attempt by %s using login '%s': The following fields do not match: %s", user->GetFullRealHost().c_str(), parameters[0].c_str(), fields.c_str());
-	return CmdResult::FAILURE;
+	// If they have reached this point then the login succeeded,
+	return CmdResult::SUCCESS;
 }

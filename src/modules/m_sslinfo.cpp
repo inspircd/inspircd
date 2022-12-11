@@ -327,11 +327,19 @@ public:
 	{
 		auto cert = cmd.sslapi.GetCertificate(user);
 		if (oper->GetConfig()->getBool("sslonly") && !cert)
+		{
+			ServerInstance->SNO.WriteGlobalSno('o', "%s (%s) [%s] failed to log into the \x02%s\x02 oper account because they are not connected using TLS.",
+				user->nick.c_str(), user->MakeHost().c_str(), user->GetIPString().c_str(), oper->GetName().c_str());
 			return MOD_RES_DENY;
+		}
 
 		const std::string fingerprint = oper->GetConfig()->getString("fingerprint");
 		if (!fingerprint.empty() && (!cert || !MatchFP(cert, fingerprint)))
+		{
+			ServerInstance->SNO.WriteGlobalSno('o', "%s (%s) [%s] failed to log into the \x02%s\x02 oper account because they are not using the correct TLS client certificate.",
+				user->nick.c_str(), user->MakeHost().c_str(), user->GetIPString().c_str(), oper->GetName().c_str());
 			return MOD_RES_DENY;
+		}
 
 		return MOD_RES_PASSTHRU;
 	}
