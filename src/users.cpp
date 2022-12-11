@@ -1379,10 +1379,10 @@ OperAccount::OperAccount(const std::string& n, const std::shared_ptr<OperType>& 
 	, passwordhash(t->getString("hash", "plaintext", 1))
 	, type(o ? o->GetName() : n)
 {
-	autologin = t->getEnum("autologin", AutoLogin::NEVER, {
-		{ "strict",  AutoLogin::STRICT  },
-		{ "relaxed", AutoLogin::RELAXED },
-		{ "never",   AutoLogin::NEVER   },
+	autologin = t->getEnum("autologin", AL_NEVER, {
+		{ "strict",  AL_STRICT  },
+		{ "relaxed", AL_RELAXED },
+		{ "never",   AL_NEVER   },
 	});
 
 	if (o)
@@ -1401,13 +1401,13 @@ bool OperAccount::CanAutoLogin(LocalUser* user) const
 {
 	switch (autologin)
 	{
-		case AutoLogin::STRICT:
+		case AL_STRICT:
 			return user->nick == GetName();
 
-		case AutoLogin::RELAXED:
+		case AL_RELAXED:
 			return true;
 
-		case AutoLogin::NEVER:
+		case AL_NEVER:
 			return false;
 	}
 

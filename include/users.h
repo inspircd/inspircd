@@ -238,17 +238,17 @@ class CoreExport OperAccount
 {
 protected:
 	/** Possible states for whether an oper account can be automatically logged into. */
-	enum class AutoLogin
+	enum AutoLogin
 		: uint8_t
 	{
 		/** Users can automatically log in to this account if they match all fields and their nick matches the account name. */
-		STRICT,
+		AL_STRICT,
 
 		/** Users can automatically log in to this account if they match all fields. */
-		RELAXED,
+		AL_RELAXED,
 
 		/** Users can not automatically log in to this account. */
-		NEVER,
+		AL_NEVER,
 	};
 
 	/** Whether this oper account can be automatically logged into. */
