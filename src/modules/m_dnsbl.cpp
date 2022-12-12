@@ -76,10 +76,10 @@ public:
 	// The domain name of this DNSBL.
 	std::string domain;
 
-	// If action is set to mark then a new username (ident) to set on users who's IP address is in this DNSBL.
+	// If action is set to mark then a new hostname to set on users who's IP address is in this DNSBL.
 	std::string markhost;
 
-	// If action is set to mark then a new hostname to set on users who's IP address is in this DNSBL.
+	// If action is set to mark then a new username (ident) to set on users who's IP address is in this DNSBL.
 	std::string markident;
 
 	// The human readable name of this DNSBL.
