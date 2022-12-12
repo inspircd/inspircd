@@ -179,7 +179,7 @@ private:
 
 public:
 	ModuleLogJSON()
-		: Module(VF_VENDOR, "Provides the ability to write logs to a JSON file.")
+		: Module(VF_VENDOR, "Provides the ability to log to JSON.")
 		, log(this)
 		, stderrlog(this, "json-stderr", stderr)
 		, stdoutlog(this, "json-stdout", stdout)

@@ -68,7 +68,7 @@ private:
 
 public:
 	ModuleOpModerated()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the ability for IRC gateways to forward the real IP address of users connecting through them.")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds channel mode U (opmoderated) which hides the messages of unprivileged users from other unprivileged users.")
 		, CTCTags::EventListener(this)
 		, exemptionprov(this)
 		, extban(this, "opmoderated", 'u')

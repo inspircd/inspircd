@@ -486,7 +486,7 @@ private:
 
 public:
 	ModuleCap()
-		: Module(VF_VENDOR, "Implements support for the IRCv3 Client Capability Negotiation extension.")
+		: Module(VF_VENDOR, "Provides support for the IRCv3 Client Capability Negotiation extension.")
 		, cmd(this)
 		, poisoncap(this)
 		, stdrplcap(this, "inspircd.org/standard-replies")

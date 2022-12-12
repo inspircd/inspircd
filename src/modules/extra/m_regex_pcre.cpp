@@ -128,7 +128,7 @@ private:
 
 public:
 	ModuleRegexPCRE()
-		: Module(VF_VENDOR, "Provides the pcre regular expression engine which uses the PCRE library.")
+		: Module(VF_VENDOR, "Provides the pcre regular expression engine which uses the PCRE2 library.")
 		, regex(this, "pcre")
 	{
 	}

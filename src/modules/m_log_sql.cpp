@@ -113,7 +113,7 @@ private:
 
 public:
 	ModuleLogSQL()
-		: Module(VF_VENDOR, "Provides the ability to write logs to an SQL database.")
+		: Module(VF_VENDOR, "Provides the ability to log to a SQL database.")
 		, engine(this)
 	{
 		thismod = this;

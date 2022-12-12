@@ -126,7 +126,7 @@ private:
 
 public:
 	ModuleDeaf()
-		: Module(VF_VENDOR, "Adds user mode d (deaf) which prevents users from receiving channel messages.")
+		: Module(VF_VENDOR, "Adds user modes d (deaf) and D (privdeaf) which prevents users from receiving channel (deaf) or private (privdeaf) messages.")
 		, CTCTags::EventListener(this)
 		, deafmode(this)
 		, privdeafmode(this)

@@ -78,7 +78,7 @@ private:
 
 public:
 	ModuleLogSyslog()
-		: Module(VF_VENDOR, "Provides the ability to write logs to syslog.")
+		: Module(VF_VENDOR, "Provides the ability to log to syslog.")
 		, engine(this)
 	{
 		openlog("inspircd", LOG_NDELAY|LOG_PID, LOG_USER);

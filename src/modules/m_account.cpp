@@ -227,7 +227,7 @@ private:
 
 public:
 	ModuleAccount()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds various channel and user modes relating to accounts.")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds support for user accounts.")
 		, CTCTags::EventListener(this)
 		, Who::EventListener(this)
 		, Whois::EventListener(this)
