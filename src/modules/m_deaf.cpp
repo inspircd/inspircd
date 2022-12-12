@@ -137,8 +137,8 @@ public:
 	{
 		auto tag = ServerInstance->Config->ConfValue("deaf");
 		deaf_bypasschars = tag->getString("bypasschars");
-		deaf_bypasschars_service = tag->getString("servicebypasschars", tag->getString("bypasscharsservice"));
-		privdeafservice = tag->getBool("privdeafservice", tag->getBool("privdeafservice", true));
+		deaf_bypasschars_service = tag->getString("servicebypasschars", tag->getString("bypasscharsuline"));
+		privdeafservice = tag->getBool("privdeafservice", tag->getBool("privdeafuline", true));
 	}
 
 	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override
