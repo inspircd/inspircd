@@ -134,12 +134,9 @@ void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicem
 	if (!FileSystem::GetFileList(ServerInstance->Config->Paths.Module, files, "core_*.so"))
 	{
 #ifdef _WIN32
-		DWORD errcode = GetLastError();
-		char errmsg[500];
-		if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, errcode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)errmsg, _countof(errmsg), NULL) == 0)
-			sprintf_s(errmsg, _countof(errmsg), "Error code: %u", errcode);
+		const std::string errmsg = GetErrorMessage(GetLastError());
 #else
-		char* errmsg = strerror(errno);
+		const char* errmsg = strerror(errno);
 #endif
 		std::cout << "failed: " << errmsg << "!" << std::endl;
 		ServerInstance->Exit(EXIT_STATUS_MODULE);

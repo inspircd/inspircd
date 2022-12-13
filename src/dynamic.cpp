@@ -117,19 +117,14 @@ void* DLLManager::GetSymbol(const char* name) const
 
 void DLLManager::RetrieveLastError()
 {
-#if defined _WIN32
-	char errmsg[500];
-	DWORD dwErrorCode = GetLastError();
-	if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, dwErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)errmsg, _countof(errmsg), NULL) == 0)
-		sprintf_s(errmsg, _countof(errmsg), "Error code: %u", dwErrorCode);
+#ifdef _WIN32
+	err = GetErrorMessage(GetLastError());
 	SetLastError(ERROR_SUCCESS);
-	err = errmsg;
 #else
 	const char* errmsg = dlerror();
 	err = errmsg ? errmsg : "Unknown error";
 #endif
 
-	std::string::size_type p;
-	while ((p = err.find_last_of("\r\n")) != std::string::npos)
-		err.erase(p, 1);
+	for (size_t pos = 0; ((pos = err.find_first_of("\r\n", pos)) != std::string::npos); )
+		err[pos] = ' ';
 }
