@@ -133,7 +133,15 @@ void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicem
 	std::vector<std::string> files;
 	if (!FileSystem::GetFileList(ServerInstance->Config->Paths.Module, files, "core_*.so"))
 	{
-		std::cout << "failed!" << std::endl;
+#ifdef _WIN32
+		DWORD errcode = GetLastError();
+		char errmsg[500];
+		if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, errcode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)errmsg, _countof(errmsg), NULL) == 0)
+			sprintf_s(errmsg, _countof(errmsg), "Error code: %u", errcode);
+#else
+		char* errmsg = strerror(errno);
+#endif
+		std::cout << "failed: " << errmsg << "!" << std::endl;
 		ServerInstance->Exit(EXIT_STATUS_MODULE);
 	}
 
