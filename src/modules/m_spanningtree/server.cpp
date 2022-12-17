@@ -141,7 +141,8 @@ Link* TreeSocket::AuthRemote(const CommandBase::Params& params)
 			ssliohook->GetCiphersuite(ciphersuite);
 			ServerInstance->SNO->WriteToSnoMask('l', "Negotiated ciphersuite %s on link %s", ciphersuite.c_str(), x->Name.c_str());
 		}
-		else if (!irc::sockets::cidr_mask("127.0.0.0/8").match(capab->remotesa) && !irc::sockets::cidr_mask("::1/128").match(capab->remotesa))
+		else if ((capab->remotesa.family() == AF_INET && !irc::sockets::cidr_mask("127.0.0.0/8").match(capab->remotesa))
+			|| (capab->remotesa.family() == AF_INET6 && !irc::sockets::cidr_mask("::1/128").match(capab->remotesa)))
 		{
 			ServerInstance->SNO->WriteGlobalSno('l', "Server connection to %s is not using SSL (TLS). This is VERY INSECURE and will not be allowed in the next major version of InspIRCd.", x->Name.c_str());
 		}
