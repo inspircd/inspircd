@@ -76,7 +76,7 @@ public:
 	std::string passwordhash;
 
 	/** If non-empty then the server ports which a user has to be connecting on. */
-	insp::flat_set<int> ports;
+	insp::flat_set<in_port_t> ports;
 
 	/** The type of class this. */
 	Type type;

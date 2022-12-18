@@ -35,6 +35,7 @@
 # include <sys/un.h>
 #else
 # include <afunix.h>
+typedef USHORT in_port_t;
 typedef ADDRESS_FAMILY sa_family_t;
 #endif
 
@@ -83,7 +84,7 @@ namespace irc
 			 * @param port A TCP port.
 			 * @return True if the IP/port was stored in this socket address; otherwise, false.
 			 */
-			bool from_ip_port(const std::string& addr, int port);
+			bool from_ip_port(const std::string& addr, in_port_t port);
 
 			/** Store a UNIX socket path in this socket address.
 			 * @param path A path to a UNIX socket.
@@ -95,7 +96,7 @@ namespace irc
 			bool is_local() const;
 
 			/** Returns the TCP port number of the socket address or 0 if not relevant to this family. */
-			int port() const;
+			in_port_t port() const;
 
 			/** Returns the size of the structure for use in networking syscalls. */
 			socklen_t sa_size() const;

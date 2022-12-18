@@ -86,10 +86,13 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 					address.empty() ? "*" : address.c_str(), tag->source.str().c_str());
 
 			irc::portparser portrange(portlist, false);
-			for (int port; (port = static_cast<int>(portrange.GetToken())); )
+			while (long port = portrange.GetToken())
 			{
+				if (port <= std::numeric_limits<in_port_t>::min() || port > std::numeric_limits<in_port_t>::max())
+					continue;
+
 				irc::sockets::sockaddrs bindspec(false);
-				if (!bindspec.from_ip_port(address, port))
+				if (!bindspec.from_ip_port(address, static_cast<in_port_t>(port)))
 					continue;
 
 				if (!BindPort(tag, bindspec, old_ports))
@@ -160,7 +163,7 @@ irc::sockets::sockaddrs::sockaddrs(bool initialize)
 		memset(this, 0, sizeof(*this));
 }
 
-bool irc::sockets::sockaddrs::from_ip_port(const std::string& addr, int port)
+bool irc::sockets::sockaddrs::from_ip_port(const std::string& addr, in_port_t port)
 {
 	if (addr.empty() || addr == "*")
 	{
@@ -237,7 +240,7 @@ bool irc::sockets::sockaddrs::is_local() const
 	return false;
 }
 
-int irc::sockets::sockaddrs::port() const
+in_port_t irc::sockets::sockaddrs::port() const
 {
 	switch (family())
 	{

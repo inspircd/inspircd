@@ -523,7 +523,7 @@ void LocalUser::FullConnect()
 
 	FOREACH_MOD(OnPostConnect, (this));
 
-	ServerInstance->SNO.WriteToSnoMask('c', "Client connecting on port %d (class %s): %s (%s) [%s\x0F]",
+	ServerInstance->SNO.WriteToSnoMask('c', "Client connecting on port %hu (class %s): %s (%s) [%s\x0F]",
 		this->server_sa.port(), this->GetClass()->name.c_str(), GetFullRealHost().c_str(),
 		this->GetIPString().c_str(), this->GetRealName().c_str());
 	ServerInstance->Logs.Debug("BANCACHE", "BanCache: Adding NEGATIVE hit for " + this->GetIPString());
@@ -1091,7 +1091,7 @@ void LocalUser::SetClass(const std::string& explicit_name)
 			/* if it requires a port and our port doesn't match, fail */
 			if (!c->ports.empty() && !c->ports.count(this->server_sa.port()))
 			{
-				ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as the connection port (%d) is not any of %s",
+				ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as the connection port (%hu) is not any of %s",
 					c->GetName().c_str(), this->server_sa.port(), stdalgo::string::join(c->ports).c_str());
 				continue;
 			}
@@ -1206,7 +1206,10 @@ void ConnectClass::Configure(const std::string& classname, std::shared_ptr<Confi
 
 	irc::portparser portrange(tag->getString("port"), false);
 	while (long port = portrange.GetToken())
-		ports.insert(static_cast<int>(port));
+	{
+		if (port > std::numeric_limits<in_port_t>::min() && port <= std::numeric_limits<in_port_t>::max())
+			ports.insert(static_cast<in_port_t>(port));
+	}
 
 	commandrate = tag->getUInt("commandrate", commandrate, 1);
 	fakelag = tag->getBool("fakelag", fakelag);

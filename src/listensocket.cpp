@@ -187,7 +187,7 @@ void ListenSocket::OnEventHandlerRead()
 		if (!memcmp(prefix4in6, &client.in6.sin6_addr, 12))
 		{
 			// recreate as a sockaddr_in using the IPv4 IP
-			uint16_t sport = client.in6.sin6_port;
+			in_port_t sport = client.in6.sin6_port;
 			client.in4.sin_family = AF_INET;
 			client.in4.sin_port = sport;
 			memcpy(&client.in4.sin_addr.s_addr, client.in6.sin6_addr.s6_addr + 12, sizeof(uint32_t));

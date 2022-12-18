@@ -88,7 +88,7 @@ public:
 		// TODO: Send duration=0 when STS vanishes.
 	}
 
-	void SetPolicy(const std::string& newhost, unsigned long duration, unsigned int port, bool preload)
+	void SetPolicy(const std::string& newhost, unsigned long duration, in_port_t port, bool preload)
 	{
 		// To enforce an STS upgrade policy, servers MUST send this key to insecurely connected clients. Servers
 		// MAY send this key to securely connected clients, but it will be ignored.
@@ -140,7 +140,7 @@ private:
 	STSCap cap;
 
 	// The IRCv3 STS specification requires that the server is listening using TLS using a valid certificate.
-	static bool HasValidSSLPort(unsigned int port)
+	static bool HasValidSSLPort(in_port_t port)
 	{
 		for (const auto& ls : ServerInstance->ports)
 		{
@@ -149,7 +149,7 @@ private:
 				return true;
 
 			// Is this listener on the right port?
-			unsigned int saport = ls->bind_sa.port();
+			in_port_t saport = ls->bind_sa.port();
 			if (saport != port)
 				continue;
 
@@ -181,7 +181,7 @@ public:
 		if (host.empty())
 			throw ModuleException(this, "<sts:host> must contain a hostname, at " + tag->source.str());
 
-		unsigned int port = static_cast<unsigned int>(tag->getUInt("port", 0, 0, UINT16_MAX));
+		in_port_t port = static_cast<in_port_t>(tag->getUInt("port", 0, 0, UINT16_MAX));
 		if (!HasValidSSLPort(port))
 			throw ModuleException(this, "<sts:port> must be a TLS port, at " + tag->source.str());
 

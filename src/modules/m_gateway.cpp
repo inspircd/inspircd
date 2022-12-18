@@ -480,7 +480,7 @@ public:
 		if (cport != flags->end())
 		{
 			// If we can't parse the port then just give up.
-			uint16_t port = ConvToNum<uint16_t>(cport->second);
+			in_port_t port = ConvToNum<in_port_t>(cport->second);
 			if (port)
 			{
 				switch (user->client_sa.family())
@@ -506,7 +506,7 @@ public:
 		if (sport != flags->end())
 		{
 			// If we can't parse the port then just give up.
-			uint16_t port = ConvToNum<uint16_t>(sport->second);
+			in_port_t port = ConvToNum<in_port_t>(sport->second);
 			if (port)
 			{
 				switch (user->server_sa.family())

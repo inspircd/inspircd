@@ -47,7 +47,7 @@ private:
 	std::string host;
 	std::string klass;
 	std::string mask;
-	insp::flat_set<long> ports;
+	insp::flat_set<in_port_t> ports;
 	std::string prefix;
 	std::string suffix;
 
@@ -62,7 +62,10 @@ private:
 		{
 			irc::portparser portrange(portlist, false);
 			while (long port = portrange.GetToken())
-				ports.insert(port);
+			{
+				if (port > std::numeric_limits<in_port_t>::min() && port <= std::numeric_limits<in_port_t>::max())
+					ports.insert(static_cast<in_port_t>(port));
+			}
 		}
 	}
 
