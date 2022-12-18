@@ -91,6 +91,9 @@ namespace irc
 			 */
 			bool from_unix(const std::string& path);
 
+			/** Determines whether this socket address is a local endpoint. */
+			bool is_local() const;
+
 			/** Returns the TCP port number of the socket address or 0 if not relevant to this family. */
 			int port() const;
 

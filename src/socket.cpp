@@ -218,6 +218,25 @@ sa_family_t irc::sockets::sockaddrs::family() const
 	return sa.sa_family;
 }
 
+bool irc::sockets::sockaddrs::is_local() const
+{
+	switch (family())
+	{
+		case AF_INET:
+			return irc::sockets::cidr_mask("127.0.0.0/8").match(*this);
+
+		case AF_INET6:
+			return irc::sockets::cidr_mask("::1/128").match(*this);
+
+		case AF_UNIX:
+			return true;
+	}
+
+	// If we have reached this point then we have encountered a bug.
+	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::is_local(): socket type %hu is unknown!", family());
+	return false;
+}
+
 int irc::sockets::sockaddrs::port() const
 {
 	switch (family())
