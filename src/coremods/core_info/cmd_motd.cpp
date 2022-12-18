@@ -60,11 +60,11 @@ CmdResult CommandMotd::Handle(User* user, const Params& parameters)
 	ConfigFileCache::iterator motd = motds.find(motd_name);
 	if (motd == motds.end())
 	{
-		user->WriteRemoteNumeric(ERR_NOMOTD, "Message of the day file is missing.");
+		user->WriteRemoteNumeric(ERR_NOMOTD, "There is no message of the day.");
 		return CmdResult::SUCCESS;
 	}
 
-	user->WriteRemoteNumeric(RPL_MOTDSTART, InspIRCd::Format("%s message of the day", ServerInstance->Config->GetServerName().c_str()));
+	user->WriteRemoteNumeric(RPL_MOTDSTART, InspIRCd::Format("%s message of the day:", ServerInstance->Config->GetServerName().c_str()));
 	for (const auto& line : motd->second)
 		user->WriteRemoteNumeric(RPL_MOTD, line);
 	user->WriteRemoteNumeric(RPL_ENDOFMOTD, "End of message of the day.");
