@@ -342,8 +342,10 @@ class SQLConnection : public SQL::Provider
 		mysql_options(connection, MYSQL_OPT_CONNECT_TIMEOUT, &timeout);
 
 		// Enable SSL if requested.
+#if defined LIBMYSQL_VERSION_ID && LIBMYSQL_VERSION_ID > 80000
 		unsigned int ssl = config->getBool("ssl") ? SSL_MODE_REQUIRED : SSL_MODE_PREFERRED;
 		mysql_options(connection, MYSQL_OPT_SSL_MODE, &ssl);
+#endif
 
 		// Attempt to connect to the database.
 		const std::string host = config->getString("host");
