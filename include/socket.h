@@ -35,7 +35,7 @@
 # include <sys/un.h>
 #else
 # include <afunix.h>
-typedef u_short sa_family_t;
+typedef SOCKET_ADDRESS sa_family_t;
 #endif
 
 #include <cerrno>
