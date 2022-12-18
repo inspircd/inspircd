@@ -1509,7 +1509,7 @@
 # mysql is more complex than described here, see the docs for more    #
 # info: https://docs.inspircd.org/3/modules/mysql                     #
 #
-#<database module="mysql" name="mydb" user="myuser" pass="mypass" host="localhost" id="my_database2">
+#<database module="mysql" name="mydb" user="myuser" pass="mypass" host="localhost" id="my_database2" ssl="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Named modes module: Allows for the display and set/unset of channel

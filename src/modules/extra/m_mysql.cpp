@@ -341,6 +341,10 @@ class SQLConnection : public SQL::Provider
 		unsigned int timeout = config->getDuration("timeout", 5, 1, 30);
 		mysql_options(connection, MYSQL_OPT_CONNECT_TIMEOUT, &timeout);
 
+		// Enable SSL if requested.
+		unsigned int ssl = config->getBool("ssl") ? SSL_MODE_REQUIRED : SSL_MODE_PREFERRED;
+		mysql_options(connection, MYSQL_OPT_SSL_MODE, &ssl);
+
 		// Attempt to connect to the database.
 		const std::string host = config->getString("host");
 		const std::string user = config->getString("user");
