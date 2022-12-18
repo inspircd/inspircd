@@ -813,7 +813,7 @@ public:
 			}
 
 			if (bindto.family() != myserver.family())
-				ServerInstance->Logs.Error(MODNAME, "Nameserver address family differs from source address family - hostnames might not resolve");
+				ServerInstance->Logs.Warning(MODNAME, "Nameserver address family differs from source address family - hostnames might not resolve");
 		}
 		else
 		{
@@ -864,7 +864,7 @@ class ModuleDNS final
 			}
 		}
 
-		ServerInstance->Logs.Normal(MODNAME, "No viable nameserver found! Defaulting to nameserver '127.0.0.1'!");
+		ServerInstance->Logs.Warning(MODNAME, "No viable nameserver found! Defaulting to nameserver '127.0.0.1'!");
 #else
 		// attempt to look up their nameserver from /etc/resolv.conf
 		ServerInstance->Logs.Normal(MODNAME, "WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
@@ -884,7 +884,7 @@ class ModuleDNS final
 			}
 		}
 
-		ServerInstance->Logs.Normal(MODNAME, "/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
+		ServerInstance->Logs.Warning(MODNAME, "/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
 #endif
 		DNSServer = "127.0.0.1";
 	}

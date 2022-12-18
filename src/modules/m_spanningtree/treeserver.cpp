@@ -242,7 +242,7 @@ void TreeServer::CheckService()
 		{
 			if (this->IsRoot())
 			{
-				ServerInstance->Logs.Normal(MODNAME, "Servers should not mark themselves as a service (at " + tag->source.str() + ")");
+				ServerInstance->Logs.Warning(MODNAME, "Servers should not mark themselves as a service (at " + tag->source.str() + ")");
 				return;
 			}
 

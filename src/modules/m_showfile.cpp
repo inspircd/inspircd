@@ -169,7 +169,7 @@ public:
 			}
 			catch (const CoreException& ex)
 			{
-				ServerInstance->Logs.Normal(MODNAME, "Error: " + ex.GetReason() + " at " + tag->source.str());
+				ServerInstance->Logs.Warning(MODNAME, "Error: " + ex.GetReason() + " at " + tag->source.str());
 			}
 		}
 

@@ -93,7 +93,7 @@ void ListModeBase::DoRehash()
 	// If no default limit has been specified then insert one.
 	if (!seen_default)
 	{
-		ServerInstance->Logs.Debug("MODE", "No default <maxlist> entry was found for the %s mode; defaulting to %u",
+		ServerInstance->Logs.Warning("MODE", "No default <maxlist> entry was found for the %s mode; defaulting to %u",
 			name.c_str(), DEFAULT_LIST_SIZE);
 		newlimits.push_back(ListLimit("*", DEFAULT_LIST_SIZE));
 	}

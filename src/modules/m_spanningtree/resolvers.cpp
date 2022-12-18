@@ -156,7 +156,7 @@ void SecurityIPResolver::OnError(const DNS::Query* r)
 	if (CheckIPv4())
 		return;
 
-	ServerInstance->Logs.Debug(MODNAME, "Could not resolve IP associated with link '%s': %s",
+	ServerInstance->Logs.Warning(MODNAME, "Could not resolve IP associated with link '%s': %s",
 		link->Name.c_str(), this->manager->GetErrorStr(r->error).c_str());
 }
 

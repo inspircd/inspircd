@@ -364,7 +364,7 @@ bool ModuleManager::PrioritizeHooks()
 			break;
 		if (tries == 19)
 		{
-			ServerInstance->Logs.Normal("MODULE", "Hook priority dependency loop detected");
+			ServerInstance->Logs.Debug("MODULE", "Hook priority dependency loop detected");
 			return false;
 		}
 	}
@@ -378,7 +378,7 @@ bool ModuleManager::CanUnload(Module* mod)
 	if ((modfind == Modules.end()) || (modfind->second != mod) || (mod->dying))
 	{
 		LastModuleError = "Module " + mod->ModuleSourceFile + " is not loaded, cannot unload it!";
-		ServerInstance->Logs.Normal("MODULE", LastModuleError);
+		ServerInstance->Logs.Error("MODULE", LastModuleError);
 		return false;
 	}
 
@@ -525,7 +525,6 @@ void ModuleManager::LoadAll()
 		std::cout << "[" << rang::style::bold << rang::fg::green << "*" << rang::style::reset << "] Loading module:\t" << rang::style::bold << rang::fg::green << name << rang::style::reset << std::endl;
 		if (!this->Load(name, true))
 		{
-			ServerInstance->Logs.Normal("MODULE", this->LastError());
 			std::cout << std::endl << "[" << rang::style::bold << rang::fg::red << "*" << rang::style::reset << "] " << this->LastError() << std::endl << std::endl;
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
@@ -544,7 +543,7 @@ void ModuleManager::LoadAll()
 		catch (const CoreException& modexcept)
 		{
 			LastModuleError = "Unable to initialize " + modname + ": " + modexcept.GetReason();
-			ServerInstance->Logs.Normal("MODULE", LastModuleError);
+			ServerInstance->Logs.Error("MODULE", LastModuleError);
 			std::cout << std::endl << "[" << rang::style::bold << rang::fg::red << "*" << rang::style::reset << "] " << LastModuleError << std::endl << std::endl;
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
@@ -566,7 +565,7 @@ void ModuleManager::LoadAll()
 		catch (const CoreException& modexcept)
 		{
 			LastModuleError = "Unable to read the configuration for " + modname + ": " + modexcept.GetReason();
-			ServerInstance->Logs.Normal("MODULE", LastModuleError);
+			ServerInstance->Logs.Error("MODULE", LastModuleError);
 			std::cout << std::endl << "[" << rang::style::bold << rang::fg::red << "*" << rang::style::reset << "] " << LastModuleError << std::endl << std::endl;
 			ServerInstance->Exit(EXIT_STATUS_CONFIG);
 		}

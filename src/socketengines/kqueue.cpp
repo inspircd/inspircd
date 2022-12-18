@@ -121,7 +121,7 @@ void SocketEngine::DelFd(EventHandler* eh)
 	int fd = eh->GetFd();
 	if (!eh->HasFd())
 	{
-		ServerInstance->Logs.Normal("SOCKET", "DelFd() on invalid fd: %d", fd);
+		ServerInstance->Logs.Debug("SOCKET", "DelFd() on invalid fd: %d", fd);
 		return;
 	}
 

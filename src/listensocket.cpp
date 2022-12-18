@@ -141,10 +141,10 @@ ListenSocket::~ListenSocket()
 		SocketEngine::Shutdown(this, 2);
 
 		if (SocketEngine::Close(this) != 0)
-			ServerInstance->Logs.Debug("SOCKET", "Failed to cancel listener: %s", strerror(errno));
+			ServerInstance->Logs.Warning("SOCKET", "Failed to close listener: %s", strerror(errno));
 
 		if (bind_sa.family() == AF_UNIX && unlink(bind_sa.un.sun_path))
-			ServerInstance->Logs.Debug("SOCKET", "Failed to unlink UNIX socket: %s", strerror(errno));
+			ServerInstance->Logs.Warning("SOCKET", "Failed to unlink UNIX socket: %s", strerror(errno));
 	}
 }
 

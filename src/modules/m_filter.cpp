@@ -890,7 +890,7 @@ void ModuleFilter::ReadFilters()
 		if (result.first)
 			removedfilters.erase(pattern);
 		else
-			ServerInstance->Logs.Normal(MODNAME, "Filter '%s' could not be added: %s", pattern.c_str(), result.second.c_str());
+			ServerInstance->Logs.Warning(MODNAME, "Filter '%s' could not be added: %s", pattern.c_str(), result.second.c_str());
 	}
 
 	if (!removedfilters.empty())

@@ -279,7 +279,7 @@ public:
 
 	bool HandleConnectError(const char* reason)
 	{
-		ServerInstance->Logs.Normal(MODNAME, "Could not connect to the \"%s\" database: %s",
+		ServerInstance->Logs.Error(MODNAME, "Could not connect to the \"%s\" database: %s",
 			GetId().c_str(), reason);
 		return false;
 	}

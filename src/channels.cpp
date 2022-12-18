@@ -132,7 +132,7 @@ Membership* Channel::GetUser(User* user) const
 
 void Channel::SetDefaultModes()
 {
-	ServerInstance->Logs.Debug("CHANNELS", "SetDefaultModes %s",
+	ServerInstance->Logs.Debug("CHANNELS", "Setting default modes on %s: %s", name.c_str(),
 		ServerInstance->Config->DefaultModes.c_str());
 	irc::spacesepstream list(ServerInstance->Config->DefaultModes);
 	std::string modeseq;

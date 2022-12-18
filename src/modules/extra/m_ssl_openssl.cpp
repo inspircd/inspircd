@@ -948,14 +948,14 @@ class ModuleSSLOpenSSL final
 		{
 			if (!stdalgo::string::equalsci(tag->getString("provider"), "openssl"))
 			{
-				ServerInstance->Logs.Normal(MODNAME, "Ignoring non-OpenSSL <sslprofile> tag at " + tag->source.str());
+				ServerInstance->Logs.Debug(MODNAME, "Ignoring non-OpenSSL <sslprofile> tag at " + tag->source.str());
 				continue;
 			}
 
 			std::string name = tag->getString("name");
 			if (name.empty())
 			{
-				ServerInstance->Logs.Normal(MODNAME, "Ignoring <sslprofile> tag without name at " + tag->source.str());
+				ServerInstance->Logs.Warning(MODNAME, "Ignoring <sslprofile> tag without name at " + tag->source.str());
 				continue;
 			}
 

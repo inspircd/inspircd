@@ -546,7 +546,7 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 {
 	if (quitting)
 	{
-		ServerInstance->Logs.Normal("USERS", "ERROR: Attempted to change nick of a quitting user: " + this->nick);
+		ServerInstance->Logs.Debug("USERS", "ERROR: Attempted to change nick of a quitting user: " + this->nick);
 		return false;
 	}
 

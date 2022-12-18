@@ -48,14 +48,14 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 	if (!std::filesystem::is_regular_file(moduleFile, ec))
 	{
 		LastModuleError = "Module file could not be found: " + filename;
-		ServerInstance->Logs.Normal("MODULE", LastModuleError);
+		ServerInstance->Logs.Error("MODULE", LastModuleError);
 		return false;
 	}
 
 	if (Modules.find(filename) != Modules.end())
 	{
 		LastModuleError = "Module " + filename + " is already loaded, cannot load a module twice!";
-		ServerInstance->Logs.Normal("MODULE", LastModuleError);
+		ServerInstance->Logs.Error("MODULE", LastModuleError);
 		return false;
 	}
 
@@ -97,7 +97,7 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 		else
 		{
 			LastModuleError = "Unable to load " + filename + ": " + newhandle->LastError();
-			ServerInstance->Logs.Normal("MODULE", LastModuleError);
+			ServerInstance->Logs.Error("MODULE", LastModuleError);
 			delete newhandle;
 			return false;
 		}
@@ -115,7 +115,7 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 		else
 			delete newhandle;
 		LastModuleError = "Unable to load " + filename + ": " + modexcept.GetReason();
-		ServerInstance->Logs.Normal("MODULE", LastModuleError);
+		ServerInstance->Logs.Error("MODULE", LastModuleError);
 		return false;
 	}
 
@@ -148,7 +148,6 @@ void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicem
 
 			if (!Load(name, true))
 			{
-				ServerInstance->Logs.Normal("MODULE", this->LastError());
 				std::cout << std::endl << "[" << rang::style::bold << rang::fg::red << "*" << rang::style::reset << "] " << this->LastError() << std::endl << std::endl;
 				ServerInstance->Exit(EXIT_STATUS_MODULE);
 			}

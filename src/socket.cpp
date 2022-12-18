@@ -40,7 +40,7 @@ bool InspIRCd::BindPort(std::shared_ptr<ConfigTag> tag, const irc::sockets::sock
 		if ((**n).bind_sa == sa)
 		{
 			// Replace tag, we know addr and port match, but other info (type, ssl) may not.
-			ServerInstance->Logs.Normal("SOCKET", "Replacing listener on %s from old tag at %s with new tag from %s",
+			ServerInstance->Logs.Debug("SOCKET", "Replacing listener on %s from old tag at %s with new tag from %s",
 				sa.str().c_str(), (*n)->bind_tag->source.str().c_str(), tag->source.str().c_str());
 			(*n)->bind_tag = tag;
 			(*n)->ResetIOHookProvider();
@@ -59,7 +59,7 @@ bool InspIRCd::BindPort(std::shared_ptr<ConfigTag> tag, const irc::sockets::sock
 		return false;
 	}
 
-	ServerInstance->Logs.Normal("SOCKET", "Added a listener on %s from tag at %s", sa.str().c_str(), tag->source.str().c_str());
+	ServerInstance->Logs.Debug("SOCKET", "Added a listener on %s from tag at %s", sa.str().c_str(), tag->source.str().c_str());
 	ports.push_back(ll);
 	return true;
 }
@@ -78,11 +78,11 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 		{
 			// InspIRCd supports IPv4 and IPv6 natively; no 4in6 required.
 			if (strncasecmp(address.c_str(), "::ffff:", 7) == 0)
-				this->Logs.Normal("SOCKET", "Using 4in6 (::ffff:) isn't recommended. You should bind IPv4 addresses directly instead.");
+				this->Logs.Warning("SOCKET", "Using 4in6 (::ffff:) isn't recommended. You should bind IPv4 addresses directly instead.");
 
 			// A TCP listener with no ports is not very useful.
 			if (portlist.empty())
-				this->Logs.Normal("SOCKET", "TCP listener on %s at %s has no ports specified!",
+				this->Logs.Warning("SOCKET", "TCP listener on %s at %s has no ports specified!",
 					address.empty() ? "*" : address.c_str(), tag->source.str().c_str());
 
 			irc::portparser portrange(portlist, false);
@@ -111,7 +111,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 			irc::sockets::sockaddrs bindspec;
 			if (fullpath.length() > std::min(ServerInstance->Config->Limits.MaxHost, sizeof(bindspec.un.sun_path) - 1))
 			{
-				this->Logs.Normal("SOCKET", "UNIX listener on %s at %s specified a path that is too long!",
+				this->Logs.Warning("SOCKET", "UNIX listener on %s at %s specified a path that is too long!",
 					fullpath.c_str(), tag->source.str().c_str());
 				continue;
 			}
@@ -119,7 +119,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 			// Check for characters which are problematic in the IRC message format.
 			if (fullpath.find_first_of("\n\r\t!@: ") != std::string::npos)
 			{
-				this->Logs.Normal("SOCKET", "UNIX listener on %s at %s specified a path containing invalid characters!",
+				this->Logs.Warning("SOCKET", "UNIX listener on %s at %s specified a path containing invalid characters!",
 					fullpath.c_str(), tag->source.str().c_str());
 				continue;
 			}
@@ -139,11 +139,11 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 			n++;
 		if (n == ports.end())
 		{
-			this->Logs.Normal("SOCKET", "Port bindings slipped out of vector, aborting close!");
+			this->Logs.Warning("SOCKET", "Port bindings slipped out of vector, aborting close!");
 			break;
 		}
 
-		this->Logs.Normal("SOCKET", "Port binding %s was removed from the config file, closing.",
+		this->Logs.Debug("SOCKET", "Port binding %s was removed from the config file, closing.",
 			(**n).bind_sa.str().c_str());
 		delete *n;
 

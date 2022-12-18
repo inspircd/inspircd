@@ -150,7 +150,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 				continue;
 
 			const char* hooktype = i == via->iohookprovs.begin() ? "hook" : "sslprofile";
-			ServerInstance->Logs.Normal("USERS", "Non-existent I/O hook '%s' in <bind:%s> tag at %s",
+			ServerInstance->Logs.Warning("USERS", "Non-existent I/O hook '%s' in <bind:%s> tag at %s",
 				iohookprovref.GetProvider().c_str(), hooktype, via->bind_tag->source.str().c_str());
 			this->QuitUser(New, InspIRCd::Format("Internal error handling connection (misconfigured %s)", hooktype));
 			return;
@@ -235,13 +235,13 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 {
 	if (user->quitting)
 	{
-		ServerInstance->Logs.Normal("USERS", "ERROR: Tried to quit quitting user: " + user->nick);
+		ServerInstance->Logs.Debug("USERS", "ERROR: Tried to quit quitting user: " + user->nick);
 		return;
 	}
 
 	if (IS_SERVER(user))
 	{
-		ServerInstance->Logs.Normal("USERS", "ERROR: Tried to quit server user: " + user->nick);
+		ServerInstance->Logs.Debug("USERS", "ERROR: Tried to quit server user: " + user->nick);
 		return;
 	}
 
@@ -300,7 +300,7 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 	}
 
 	if (!clientlist.erase(user->nick))
-		ServerInstance->Logs.Normal("USERS", "ERROR: Nick not found in clientlist, cannot remove: " + user->nick);
+		ServerInstance->Logs.Debug("USERS", "ERROR: Nick not found in clientlist, cannot remove: " + user->nick);
 
 	uuidlist.erase(user->uuid);
 	user->PurgeEmptyChannels();

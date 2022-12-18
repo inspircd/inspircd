@@ -430,12 +430,12 @@ FilePtr ParseStack::DoOpenFile(const std::string& name, bool isexec)
 	{
 		if (getegid() != pathinfo.st_gid)
 		{
-			ServerInstance->Logs.Normal("CONFIG", "Possible configuration error: %s is owned by group %u but the server is running as group %u.",
+			ServerInstance->Logs.Warning("CONFIG", "Possible configuration error: %s is owned by group %u but the server is running as group %u.",
 				name.c_str(), pathinfo.st_gid, getegid());
 		}
 		if (geteuid() != pathinfo.st_uid)
 		{
-			ServerInstance->Logs.Normal("CONFIG", "Possible configuration error: %s is owned by user %u but the server is running as user %u.",
+			ServerInstance->Logs.Warning("CONFIG", "Possible configuration error: %s is owned by user %u but the server is running as user %u.",
 				name.c_str(), pathinfo.st_uid, geteuid());
 		}
 	}
@@ -542,7 +542,7 @@ bool ParseStack::ParseFile(const std::string& path, int flags, const std::string
 
 void ConfigTag::LogMalformed(const std::string& key, const std::string& val, const std::string& def, const std::string& reason) const
 {
-	ServerInstance->Logs.Normal("CONFIG", "The value of <%s:%s> at %s (%s) is %s; using the default (%s) instead.",
+	ServerInstance->Logs.Warning("CONFIG", "The value of <%s:%s> at %s (%s) is %s; using the default (%s) instead.",
 		name.c_str(), key.c_str(), source.str().c_str(), val.c_str(), reason.c_str(), def.c_str());
 }
 
@@ -556,7 +556,7 @@ bool ConfigTag::readString(const std::string& key, std::string& value, bool allo
 		value = ivalue;
 		if (!allow_lf && (value.find('\n') != std::string::npos))
 		{
-			ServerInstance->Logs.Normal("CONFIG", "Value of <" + name + ":" + key + "> at " + source.str() +
+			ServerInstance->Logs.Warning("CONFIG", "Value of <" + name + ":" + key + "> at " + source.str() +
 				" contains a linefeed, and linefeeds in this value are not permitted -- stripped to spaces.");
 
 			for (auto& chr : value)

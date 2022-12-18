@@ -505,7 +505,7 @@ namespace GnuTLS
 				else if ((found) && (stripped != priostr))
 				{
 					// Prio string was set in the config and we ended up with something that works but different
-					ServerInstance->Logs.Normal(MODNAME, "Priority string for profile \"%s\" contains unknown tokens, stripped to \"%s\"", profilename.c_str(), stripped.c_str());
+					ServerInstance->Logs.Warning(MODNAME, "Priority string for profile \"%s\" contains unknown tokens, stripped to \"%s\"", profilename.c_str(), stripped.c_str());
 				}
 				priostr.swap(stripped);
 			}
@@ -1072,14 +1072,14 @@ class ModuleSSLGnuTLS final
 		{
 			if (!stdalgo::string::equalsci(tag->getString("provider"), "gnutls"))
 			{
-				ServerInstance->Logs.Normal(MODNAME, "Ignoring non-GnuTLS <sslprofile> tag at " + tag->source.str());
+				ServerInstance->Logs.Debug(MODNAME, "Ignoring non-GnuTLS <sslprofile> tag at " + tag->source.str());
 				continue;
 			}
 
 			std::string name = tag->getString("name");
 			if (name.empty())
 			{
-				ServerInstance->Logs.Normal(MODNAME, "Ignoring <sslprofile> tag without name at " + tag->source.str());
+				ServerInstance->Logs.Warning(MODNAME, "Ignoring <sslprofile> tag without name at " + tag->source.str());
 				continue;
 			}
 

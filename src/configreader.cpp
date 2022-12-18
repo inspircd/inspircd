@@ -563,7 +563,7 @@ std::shared_ptr<ConfigTag> ServerConfig::ConfValue(const std::string& tag, std::
 
 	if (tags.count() > 1)
 	{
-		ServerInstance->Logs.Normal("CONFIG", "Multiple (%zu) <%s> tags found; only the first will be used (first at %s, last at %s)",
+		ServerInstance->Logs.Warning("CONFIG", "Multiple (%zu) <%s> tags found; only the first will be used (first at %s, last at %s)",
 			tags.count(), tag.c_str(), tags.begin()->second->source.str().c_str(), std::prev(tags.end())->second->source.str().c_str());
 	}
 	return tags.begin()->second;
@@ -608,7 +608,7 @@ std::vector<std::string> ServerConfig::GetModules() const
 		const std::string shortname = ModuleManager::ShrinkModName(tag->getString("name"));
 		if (shortname.empty())
 		{
-			ServerInstance->Logs.Normal("CONFIG", "Malformed <module> tag at " + tag->source.str() + "; skipping ...");
+			ServerInstance->Logs.Warning("CONFIG", "Malformed <module> tag at " + tag->source.str() + "; skipping ...");
 			continue;
 		}
 
@@ -644,7 +644,7 @@ void ConfigReaderThread::OnStart()
 void ConfigReaderThread::OnStop()
 {
 	ServerConfig* old = ServerInstance->Config;
-	ServerInstance->Logs.Debug("CONFIG", "Switching to new configuration...");
+	ServerInstance->Logs.Normal("CONFIG", "Switching to new configuration...");
 	ServerInstance->Config = this->Config;
 	Config->Apply(old, UUID);
 
@@ -670,7 +670,8 @@ void ConfigReaderThread::OnStop()
 			}
 			catch (const CoreException& modex)
 			{
-				ServerInstance->Logs.Normal("MODULE", "Exception caught: " + modex.GetReason());
+				ServerInstance->Logs.Error("MODULE", "Unable to read the configuration for %s: %s",
+					mod->ModuleSourceFile.c_str(), modex.what());
 				if (user)
 					user->WriteNotice(modname + ": " + modex.GetReason());
 			}
@@ -686,7 +687,7 @@ void ConfigReaderThread::OnStop()
 		}
 		catch (const CoreException& ex)
 		{
-			ServerInstance->Logs.Normal("LOG", "Cannot open log files: " + ex.GetReason());
+			ServerInstance->Logs.Error("LOG", "Cannot open log files: " + ex.GetReason());
 			if (user)
 				user->WriteNotice("Cannot open log files: " + ex.GetReason());
 		}

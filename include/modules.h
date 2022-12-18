@@ -1203,7 +1203,7 @@ public:
 			} \
 			catch (const CoreException& _exception_ ## EVENT) \
 			{ \
-				ServerInstance->Logs.Normal("MODULE", _mod->ModuleSourceFile + " threw an exception in " # EVENT ": " + (_exception_ ## EVENT).GetReason()); \
+				ServerInstance->Logs.Debug("MODULE", _mod->ModuleSourceFile + " threw an exception in " # EVENT ": " + (_exception_ ## EVENT).GetReason()); \
 			} \
 		} \
 	} while (false)
@@ -1230,7 +1230,7 @@ public:
 			} \
 			catch (const CoreException& _exception_ ## EVENT) \
 			{ \
-				ServerInstance->Logs.Normal("MODULE", _mod->ModuleSourceFile + " threw an exception in " # EVENT ": " + (_exception_ ## EVENT).GetReason()); \
+				ServerInstance->Logs.Debug("MODULE", _mod->ModuleSourceFile + " threw an exception in " # EVENT ": " + (_exception_ ## EVENT).GetReason()); \
 			} \
 		} \
 	} while (false)
