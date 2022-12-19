@@ -41,6 +41,7 @@
      #   - users/ignore-noctcp: allows opers with this priv to send a CTCP to a +T user.
      #   - users/ignore-privdeaf: allows opers with this priv to message users with +D set.
      #   - users/sajoin-others: allows opers with this priv to /SAJOIN users other than themselves.
+     #     servers/ignore-blockamsg: allows opers with this priv to use /AMSG and /AME.
      #   - servers/ignore-shun: allows opers with this priv to ignore shuns.
      #   - servers/use-disabled-commands: allows opers with this priv to use disabled commands.
      #   - servers/use-disabled-modes: allows opers with this priv to use disabled modes.
