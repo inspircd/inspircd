@@ -32,6 +32,7 @@
 
 
 #include "inspircd.h"
+#include "extension.h"
 #include "modules/invite.h"
 #include "modules/isupport.h"
 

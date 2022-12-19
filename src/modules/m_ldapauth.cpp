@@ -23,6 +23,7 @@
 
 
 #include "inspircd.h"
+#include "extension.h"
 #include "modules/ldap.h"
 
 namespace

@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "extension.h"
 #include "modules/invite.h"
 
 namespace Invite

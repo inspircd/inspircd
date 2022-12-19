@@ -31,6 +31,7 @@
 
 
 #include "inspircd.h"
+#include "extension.h"
 #include "modules/isupport.h"
 #include "modules/httpd.h"
 #include "xline.h"

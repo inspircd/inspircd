@@ -24,6 +24,7 @@
 
 
 #include "inspircd.h"
+#include "extension.h"
 #include "modules/server.h"
 #include "numerichelper.h"
 

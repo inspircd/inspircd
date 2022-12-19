@@ -24,6 +24,8 @@
 
 
 #include "inspircd.h"
+#include "extension.h"
+
 #include "commands.h"
 
 CmdResult CommandMetadata::Handle(User* srcuser, Params& params)

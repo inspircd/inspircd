@@ -18,6 +18,7 @@
  */
 
 #include "inspircd.h"
+#include "extension.h"
 
 enum
 {

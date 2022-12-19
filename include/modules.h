@@ -599,7 +599,7 @@ public:
 	 */
 	virtual void OnExpireLine(XLine* line);
 
-	/** Called before the module is unloaded to clean up extensibles.
+	/** Called before the module is unloaded to clean up extension.
 	 * This method is called once for every channel, membership, and user.
 	 * so that you can clear up any data relating to the specified extensible.
 	 * @param type The type of extensible being cleaned up.

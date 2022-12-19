@@ -26,6 +26,7 @@
 
 
 #include "inspircd.h"
+#include "extension.h"
 #include "modules/exemption.h"
 #include "numerichelper.h"
 

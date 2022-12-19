@@ -27,6 +27,7 @@
 
 
 #include "inspircd.h"
+#include "extension.h"
 #include "numerichelper.h"
 
 /** Handle channel mode +L

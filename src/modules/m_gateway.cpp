@@ -29,6 +29,7 @@
 
 
 #include "inspircd.h"
+#include "extension.h"
 #include "modules/extban.h"
 #include "modules/ssl.h"
 #include "modules/webirc.h"

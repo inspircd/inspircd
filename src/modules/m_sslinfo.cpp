@@ -27,6 +27,7 @@
 
 
 #include "inspircd.h"
+#include "extension.h"
 #include "modules/ssl.h"
 #include "modules/webirc.h"
 #include "modules/who.h"

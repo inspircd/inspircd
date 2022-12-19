@@ -24,6 +24,7 @@
 
 
 #include "inspircd.h"
+#include "extension.h"
 
 enum BlockAction { IBLOCK_KILL, IBLOCK_KILLOPERS, IBLOCK_NOTICE, IBLOCK_NOTICEOPERS, IBLOCK_SILENT };
 /*	IBLOCK_NOTICE		- Send a notice to the user informing them of what happened.

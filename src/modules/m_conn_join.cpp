@@ -26,6 +26,7 @@
 
 
 #include "inspircd.h"
+#include "extension.h"
 
 static void JoinChannels(LocalUser* u, const std::string& chanlist)
 {

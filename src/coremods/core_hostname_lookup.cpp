@@ -24,6 +24,7 @@
 #endif
 
 #include "inspircd.h"
+#include "extension.h"
 #include "modules/dns.h"
 
 namespace

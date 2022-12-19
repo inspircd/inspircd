@@ -33,6 +33,7 @@
 
 #include "inspircd.h"
 #include "clientprotocolevent.h"
+#include "extension.h"
 #include "modules/hash.h"
 
 enum CloakMode

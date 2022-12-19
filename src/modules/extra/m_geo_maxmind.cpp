@@ -29,9 +29,11 @@
 # pragma comment(lib, "maxminddb.lib")
 #endif
 
-#include "inspircd.h"
-#include "modules/geolocation.h"
 #include <maxminddb.h>
+
+#include "inspircd.h"
+#include "extension.h"
+#include "modules/geolocation.h"
 
 class GeolocationExtItem final
 	: public ExtensionItem

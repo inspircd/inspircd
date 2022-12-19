@@ -26,6 +26,7 @@
 
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
+#include "extension.h"
 
 class ModuleWaitPong final
 	: public Module

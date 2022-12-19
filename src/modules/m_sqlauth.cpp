@@ -25,6 +25,7 @@
 
 
 #include "inspircd.h"
+#include "extension.h"
 #include "modules/sql.h"
 #include "modules/hash.h"
 #include "modules/ssl.h"

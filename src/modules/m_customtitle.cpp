@@ -25,6 +25,7 @@
 
 
 #include "inspircd.h"
+#include "extension.h"
 #include "modules/whois.h"
 
 struct CustomTitle final

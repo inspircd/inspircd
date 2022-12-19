@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "extension.h"
+
 /** The base class for list modes, should be inherited.
  */
 class CoreExport ListModeBase

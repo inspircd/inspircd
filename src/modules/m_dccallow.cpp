@@ -30,6 +30,7 @@
 
 
 #include "inspircd.h"
+#include "extension.h"
 #include "numerichelper.h"
 
 enum

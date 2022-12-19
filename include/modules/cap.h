@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "extension.h"
+
 namespace Cap
 {
 	static constexpr unsigned int MAX_CAPS = (sizeof(intptr_t) * 8) - 1;

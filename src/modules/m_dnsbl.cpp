@@ -31,6 +31,7 @@
 #endif
 
 #include "inspircd.h"
+#include "extension.h"
 #include "xline.h"
 #include "modules/dns.h"
 #include "modules/stats.h"
