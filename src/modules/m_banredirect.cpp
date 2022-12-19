@@ -31,6 +31,7 @@
 
 #include "inspircd.h"
 #include "listmode.h"
+#include "modules/extban.h"
 
 /* Originally written by Om, January 2009
  */
@@ -55,11 +56,13 @@ class BanRedirect final
 {
 public:
 	ChanModeReference banmode;
+	ExtBan::ManagerRef extbanmgr;
 	SimpleExtItem<BanRedirectList> redirectlist;
 
 	BanRedirect(Module* parent)
 		: ModeWatcher(parent, "ban", MODETYPE_CHANNEL)
 		, banmode(parent, "ban")
+		, extbanmgr(parent)
 		, redirectlist(parent, "banredirect", ExtensionType::CHANNEL)
 	{
 	}
@@ -81,8 +84,9 @@ public:
 			enum { NICK, IDENT, HOST, CHAN } current = NICK;
 			std::string::iterator start_pos = change.param.begin();
 
-			if (change.param.length() >= 2 && change.param[1] == ':')
-				return true;
+			std::string unused = change.param;
+			if (extbanmgr && extbanmgr->Canonicalize(unused))
+				return true; // Skip extbans.
 
 			if (change.param.find('#') == std::string::npos)
 				return true;

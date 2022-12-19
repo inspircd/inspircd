@@ -32,6 +32,7 @@
 
 #include "inspircd.h"
 #include "listmode.h"
+#include "modules/extban.h"
 #include "numerichelper.h"
 
 // Holds a timed ban
@@ -50,7 +51,9 @@ timedbans TimedBanList;
 class CommandTban final
 	: public Command
 {
+private:
 	ChanModeReference banmode;
+	ExtBan::ManagerRef extbanmgr;
 
 	bool IsBanSet(Channel* chan, const std::string& mask)
 	{
@@ -77,6 +80,7 @@ public:
 	CommandTban(Module* Creator)
 		: Command(Creator, "TBAN", 3)
 		, banmode(Creator, "ban")
+		, extbanmgr(Creator)
 	{
 		syntax = { "<channel> <duration> <banmask>" };
 	}
@@ -107,9 +111,8 @@ public:
 		unsigned long expire = duration + ServerInstance->Time();
 
 		std::string mask = parameters[2];
-		bool isextban = ((mask.size() > 2) && (mask[1] == ':'));
-		if (!isextban && !InspIRCd::IsValidMask(mask))
-			mask.append("!*@*");
+		if (!extbanmgr || !extbanmgr->Canonicalize(mask))
+			ModeParser::CleanMask(mask);
 
 		if (IsBanSet(channel, mask))
 		{
