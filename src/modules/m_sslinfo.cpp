@@ -64,6 +64,11 @@ public:
 		Delete(user, UnsetRaw(user));
 	}
 
+	std::string ToInternal(const Extensible* container, void* item) const noexcept override
+	{
+		return ToNetwork(container, item);
+	}
+
 	std::string ToNetwork(const Extensible* container, void* item) const noexcept override
 	{
 		const ssl_cert* cert = static_cast<ssl_cert*>(item);
@@ -82,6 +87,11 @@ public:
 			value << cert->GetError();
 
 		return value.str();
+	}
+
+	void FromInternal(Extensible* container, const std::string& value) noexcept override
+	{
+		FromNetwork(container, value);
 	}
 
 	void FromNetwork(Extensible* container, const std::string& value) noexcept override

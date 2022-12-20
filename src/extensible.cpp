@@ -142,7 +142,6 @@ void ExtensionItem::Sync(const Extensible* container, void* item)
 
 void ExtensionItem::FromInternal(Extensible* container, const std::string& value) noexcept
 {
-	FromNetwork(container, value);
 }
 
 void ExtensionItem::FromNetwork(Extensible* container, const std::string& value) noexcept
@@ -163,7 +162,7 @@ std::string ExtensionItem::ToHuman(const Extensible* container, void* item) cons
 
 std::string ExtensionItem::ToInternal(const Extensible* container, void* item) const noexcept
 {
-	return ToNetwork(container, item);
+	return {};
 }
 
 std::string ExtensionItem::ToNetwork(const Extensible* container, void* item) const noexcept
