@@ -36,7 +36,7 @@ ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modelett
 	: ServiceProvider(Creator, Name, SERVICE_MODE)
 	, modeid(ModeParser::MODEID_MAX)
 	, parameters_taken(Params)
-	, mode(modeletter)
+	, mode(ServerInstance->Config->ConfValue("modes")->getCharacter(Name, modeletter))
 	, m_type(type)
 	, type_id(mclass)
 {

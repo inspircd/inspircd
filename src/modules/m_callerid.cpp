@@ -423,12 +423,12 @@ public:
 		{
 			time_t now = ServerInstance->Time();
 			/* +g and *not* accepted */
-			user->WriteNumeric(ERR_TARGUMODEG, dest->nick, "is in +g mode (server-side ignore).");
+			user->WriteNumeric(ERR_TARGUMODEG, dest->nick, InspIRCd::Format("is in +%c mode (server-side ignore).", myumode.GetModeChar()));
 			if (now > (dat->lastnotify + long(notify_cooldown)))
 			{
 				user->WriteNumeric(RPL_TARGNOTIFY, dest->nick, "has been informed that you messaged them.");
-				dest->WriteRemoteNumeric(RPL_UMODEGMSG, user->nick, InspIRCd::Format("%s@%s", user->ident.c_str(), user->GetDisplayedHost().c_str()), InspIRCd::Format("is messaging you, and you have user mode +g set. Use /ACCEPT +%s to allow.",
-						user->nick.c_str()));
+				dest->WriteRemoteNumeric(RPL_UMODEGMSG, user->nick, InspIRCd::Format("%s@%s", user->ident.c_str(), user->GetDisplayedHost().c_str()), InspIRCd::Format("is messaging you, and you have user mode +%c set. Use /ACCEPT +%s to allow.",
+						myumode.GetModeChar(), user->nick.c_str()));
 				dat->lastnotify = now;
 			}
 			return MOD_RES_DENY;

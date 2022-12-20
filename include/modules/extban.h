@@ -169,7 +169,7 @@ protected:
 	 */
 	Base(Module* Creator, const std::string& Name, unsigned char Letter)
 		: ServiceProvider(Creator, Name, SERVICE_CUSTOM)
-		, letter(Letter)
+		, letter(ServerInstance->Config->ConfValue("extbans")->getCharacter(Name, Letter))
 		, manager(Creator, "extbanmanager")
 	{
 	}
