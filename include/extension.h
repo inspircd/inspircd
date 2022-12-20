@@ -128,6 +128,19 @@ public:
 	{
 	}
 
+	/** @copydoc ExtensionItem::FromNetwork */
+	void FromNetwork(Extensible* container, const std::string& value) noexcept override
+	{
+		if (synced)
+			FromInternal(container, value);
+	}
+
+	/** @copydoc ExtensinItem::ToNetwork */
+	std::string ToNetwork(const Extensible* container, void* item) const noexcept override
+	{
+		return synced ? ToInternal(container, item) : std::string();
+	}
+
 	/** @copydoc ExtensionItem::Delete */
 	void Delete(Extensible* container, void* item) override
 	{
@@ -322,12 +335,6 @@ public:
 	/** @copydoc ExtensionItem::FromInternal */
 	void FromInternal(Extensible* container, const std::string& value) noexcept override;
 
-	/** @copydoc ExtensionItem::FromNetwork */
-	void FromNetwork(Extensible* container, const std::string& value) noexcept override;
-
 	/** @copydoc ExtensionItem::ToInternal */
 	std::string ToInternal(const Extensible* container, void* item) const noexcept override;
-
-	/** @copydoc ExtensionItem::ToNetwork */
-	std::string ToNetwork(const Extensible* container, void* item) const noexcept override;
 };

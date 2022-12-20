@@ -310,18 +310,9 @@ void StringExtItem::FromInternal(Extensible* container, const std::string& value
 		Set(container, value, false);
 }
 
-void StringExtItem::FromNetwork(Extensible* container, const std::string& value) noexcept
-{
-	if (synced)
-		FromInternal(container, value);
-}
 
 std::string StringExtItem::ToInternal(const Extensible* container, void* item) const noexcept
 {
 	return item ? *static_cast<std::string*>(item) : std::string();
 }
 
-std::string StringExtItem::ToNetwork(const Extensible* container, void* item) const noexcept
-{
-	return synced ? ToInternal(container, item) : std::string();
-}
