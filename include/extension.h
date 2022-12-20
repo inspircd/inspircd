@@ -135,7 +135,7 @@ public:
 			FromInternal(container, value);
 	}
 
-	/** @copydoc ExtensinItem::ToNetwork */
+	/** @copydoc ExtensionItem::ToNetwork */
 	std::string ToNetwork(const Extensible* container, void* item) const noexcept override
 	{
 		return synced ? ToInternal(container, item) : std::string();
