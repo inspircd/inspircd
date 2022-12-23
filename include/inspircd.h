@@ -61,7 +61,6 @@
 
 #include "utility/aligned_storage.h"
 #include "utility/iterator_range.h"
-#include "utility/string_view.h"
 
 #include "intrusive_list.h"
 #include "flat_map.h"
