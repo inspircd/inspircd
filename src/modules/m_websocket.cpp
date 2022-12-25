@@ -362,6 +362,7 @@ class WebSocketHook : public IOHookMiddle
 	void FailHandshake(StreamSocket* sock, const char* httpreply, const char* sockerror)
 	{
 		GetSendQ().push_back(StreamSocket::SendQueue::Element(httpreply));
+		GetSendQ().push_back(StreamSocket::SendQueue::Element(sockerror));
 		sock->DoWrite();
 		sock->SetError(sockerror);
 	}
