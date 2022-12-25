@@ -136,7 +136,7 @@ public:
 		}
 
 		/* Attempt to bind (ident requests must come from the ip the query is referring to */
-		if (SocketEngine::Bind(GetFd(), bindaddr) < 0)
+		if (SocketEngine::Bind(this, bindaddr) < 0)
 		{
 			this->Close();
 			throw ModuleException(mod, "failed to bind()");

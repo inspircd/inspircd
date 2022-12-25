@@ -280,13 +280,13 @@ private:
 	[[noreturn]]
 	static void InitError();
 
-	static void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
+	static void OnSetEvent(EventHandler* eh, int old_mask, int new_mask) ATTR_NOT_NULL(1);
 
 	/** Add an event handler to the base socket engine. AddFd(EventHandler*, int) should call this.
 	 */
-	static bool AddFdRef(EventHandler* eh);
+	static bool AddFdRef(EventHandler* eh) ATTR_NOT_NULL(1);
 
-	static void DelFdRef(EventHandler* eh);
+	static void DelFdRef(EventHandler* eh) ATTR_NOT_NULL(1);
 
 	template <typename T>
 	static void ResizeDouble(std::vector<T>& vect)
@@ -325,7 +325,7 @@ public:
 	 * @param eh An event handling object to add
 	 * @param event_mask The initial event mask for the object
 	 */
-	static bool AddFd(EventHandler* eh, int event_mask);
+	static bool AddFd(EventHandler* eh, int event_mask) ATTR_NOT_NULL(1);
 
 	/** If you call this function and pass it an
 	 * event handler, that event handler will
@@ -338,7 +338,7 @@ public:
 	 * @param eh The event handler to change
 	 * @param event_mask The changes to make to the wait state
 	 */
-	static void ChangeEventMask(EventHandler* eh, int event_mask);
+	static void ChangeEventMask(EventHandler* eh, int event_mask) ATTR_NOT_NULL(1);
 
 	/** Returns the number of file descriptors reported by the system this program may use
 	 * when it was started.
@@ -360,7 +360,7 @@ public:
 	 * required you must do this yourself.
 	 * @param eh The event handler object to remove
 	 */
-	static void DelFd(EventHandler* eh);
+	static void DelFd(EventHandler* eh) ATTR_NOT_NULL(1);
 
 	/** Returns true if a file descriptor exists in
 	 * the socket engine's list.
@@ -390,25 +390,20 @@ public:
 	 */
 	static void DispatchTrialWrites();
 
-	/** Returns true if the file descriptors in the given event handler are
-	 * within sensible ranges which can be handled by the socket engine.
-	 */
-	static bool BoundsCheckFd(const EventHandler* eh);
-
 	/** Abstraction for BSD sockets accept(2).
 	 * This function should emulate its namesake system call exactly.
-	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @param eh This version of the call takes an EventHandler instead of a bare file descriptor.
 	 * @param addr The client IP address and port
 	 * @param addrlen The size of the sockaddr parameter.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static int Accept(EventHandler* fd, sockaddr* addr, socklen_t* addrlen);
+	static int Accept(EventHandler* eh, sockaddr* addr, socklen_t* addrlen) ATTR_NOT_NULL(1, 2, 3);
 
 	/** Close the underlying fd of an event handler, remove it from the socket engine and set the fd to -1.
 	 * @param eh The EventHandler to close.
 	 * @return 0 on success, a negative value on error
 	 */
-	static int Close(EventHandler* eh);
+	static int Close(EventHandler* eh) ATTR_NOT_NULL(1);
 
 	/** Abstraction for BSD sockets close(2).
 	 * This function should emulate its namesake system call exactly.
@@ -419,48 +414,48 @@ public:
 
 	/** Abstraction for BSD sockets send(2).
 	 * This function should emulate its namesake system call exactly.
-	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @param eh This version of the call takes an EventHandler instead of a bare file descriptor.
 	 * @param buf The buffer in which the data that is sent is stored.
 	 * @param len The size of the buffer.
 	 * @param flags A flag value that controls the sending of the data.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static ssize_t Send(EventHandler* fd, const void* buf, size_t len, int flags);
+	static ssize_t Send(EventHandler* eh, const void* buf, size_t len, int flags) ATTR_NOT_NULL(1, 2);
 
 	/** Abstraction for vector write function writev().
 	 * This function should emulate its namesake system call exactly.
-	 * @param fd EventHandler to send data with
+	 * @param eh EventHandler to send data with
 	 * @param iov Array of IOVectors containing the buffers to send and their lengths in the platform's
 	 * native format.
 	 * @param count Number of elements in iov.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static ssize_t WriteV(EventHandler* fd, const IOVector* iov, int count);
+	static ssize_t WriteV(EventHandler* eh, const IOVector* iov, int count) ATTR_NOT_NULL(1, 2);
 
 #ifdef _WIN32
 	/** Abstraction for vector write function writev() that accepts a POSIX format iovec.
 	 * This function should emulate its namesake system call exactly.
-	 * @param fd EventHandler to send data with
+	 * @param eh EventHandler to send data with
 	 * @param iov Array of iovecs containing the buffers to send and their lengths in POSIX format.
 	 * @param count Number of elements in iov.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static int WriteV(EventHandler* fd, const iovec* iov, int count);
+	static int WriteV(EventHandler* eh, const iovec* iov, int count) ATTR_NOT_NULL(1, 2);
 #endif
 
 	/** Abstraction for BSD sockets recv(2).
 	 * This function should emulate its namesake system call exactly.
-	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @param eh This version of the call takes an EventHandler instead of a bare file descriptor.
 	 * @param buf The buffer in which the data that is read is stored.
 	 * @param len The size of the buffer.
 	 * @param flags A flag value that controls the reception of the data.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static ssize_t Recv(EventHandler* fd, void* buf, size_t len, int flags);
+	static ssize_t Recv(EventHandler* eh, void* buf, size_t len, int flags) ATTR_NOT_NULL(1);
 
 	/** Abstraction for BSD sockets recvfrom(2).
 	 * This function should emulate its namesake system call exactly.
-	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @param eh This version of the call takes an EventHandler instead of a bare file descriptor.
 	 * @param buf The buffer in which the data that is read is stored.
 	 * @param len The size of the buffer.
 	 * @param flags A flag value that controls the reception of the data.
@@ -468,26 +463,26 @@ public:
 	 * @param fromlen The size of the from parameter.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static ssize_t RecvFrom(EventHandler* fd, void* buf, size_t len, int flags, sockaddr* from, socklen_t* fromlen);
+	static ssize_t RecvFrom(EventHandler* eh, void* buf, size_t len, int flags, sockaddr* from, socklen_t* fromlen) ATTR_NOT_NULL(1, 2, 5, 6);
 
 	/** Abstraction for BSD sockets sendto(2).
 	 * This function should emulate its namesake system call exactly.
-	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @param eh This version of the call takes an EventHandler instead of a bare file descriptor.
 	 * @param buf The buffer in which the data that is sent is stored.
 	 * @param len The size of the buffer.
 	 * @param flags A flag value that controls the sending of the data.
 	 * @param address The remote IP address and port.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static ssize_t SendTo(EventHandler* fd, const void* buf, size_t len, int flags, const irc::sockets::sockaddrs& address);
+	static ssize_t SendTo(EventHandler* eh, const void* buf, size_t len, int flags, const irc::sockets::sockaddrs& address) ATTR_NOT_NULL(1, 2);
 
 	/** Abstraction for BSD sockets connect(2).
 	 * This function should emulate its namesake system call exactly.
-	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @param eh This version of the call takes an EventHandler instead of a bare file descriptor.
 	 * @param address The server IP address and port.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static int Connect(EventHandler* fd, const irc::sockets::sockaddrs& address);
+	static int Connect(EventHandler* eh, const irc::sockets::sockaddrs& address) ATTR_NOT_NULL(1);
 
 	/** Make a file descriptor blocking.
 	 * @param fd a file descriptor to set to blocking mode
@@ -503,29 +498,23 @@ public:
 
 	/** Abstraction for BSD sockets shutdown(2).
 	 * This function should emulate its namesake system call exactly.
-	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @param eh This version of the call takes an EventHandler instead of a bare file descriptor.
 	 * @param how What part of the socket to shut down
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static int Shutdown(EventHandler* fd, int how);
-
-	/** Abstraction for BSD sockets shutdown(2).
-	 * This function should emulate its namesake system call exactly.
-	 * @return This method should return exactly the same values as the system call it emulates.
-	 */
-	static int Shutdown(int fd, int how);
+	static int Shutdown(EventHandler* eh, int how) ATTR_NOT_NULL(1);
 
 	/** Abstraction for BSD sockets bind(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static int Bind(int fd, const irc::sockets::sockaddrs& addr);
+	static int Bind(EventHandler* eh, const irc::sockets::sockaddrs& addr) ATTR_NOT_NULL(1);
 
 	/** Abstraction for BSD sockets listen(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	static int Listen(int sockfd, int backlog);
+	static int Listen(EventHandler* eh, int backlog) ATTR_NOT_NULL(1);
 
 	/** Set SO_REUSEADDR and SO_LINGER on this file descriptor
 	 */

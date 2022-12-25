@@ -168,19 +168,14 @@ bool SocketEngine::HasFd(int fd)
 
 EventHandler* SocketEngine::GetRef(int fd)
 {
-	if (fd < 0 || static_cast<unsigned int>(fd) >= ref.size())
+	if (fd < 0 || static_cast<size_t>(fd) >= ref.size())
 		return nullptr;
 	return ref[fd];
 }
 
-bool SocketEngine::BoundsCheckFd(const EventHandler* eh)
+int SocketEngine::Accept(EventHandler* eh, sockaddr* addr, socklen_t* addrlen)
 {
-	return eh && eh->HasFd();
-}
-
-int SocketEngine::Accept(EventHandler* fd, sockaddr* addr, socklen_t* addrlen)
-{
-	return accept(fd->GetFd(), addr, addrlen);
+	return accept(eh->GetFd(), addr, addrlen);
 }
 
 int SocketEngine::Close(EventHandler* eh)
@@ -228,43 +223,43 @@ void SocketEngine::SetReuse(int fd)
 	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&on), sizeof(on));
 }
 
-ssize_t SocketEngine::RecvFrom(EventHandler* fd, void* buf, size_t len, int flags, sockaddr* from, socklen_t* fromlen)
+ssize_t SocketEngine::RecvFrom(EventHandler* eh, void* buf, size_t len, int flags, sockaddr* from, socklen_t* fromlen)
 {
-	ssize_t nbRecvd = recvfrom(fd->GetFd(), static_cast<char*>(buf), len, flags, from, fromlen);
+	ssize_t nbRecvd = recvfrom(eh->GetFd(), static_cast<char*>(buf), len, flags, from, fromlen);
 	stats.UpdateReadCounters(nbRecvd);
 	return nbRecvd;
 }
 
-ssize_t SocketEngine::Send(EventHandler* fd, const void* buf, size_t len, int flags)
+ssize_t SocketEngine::Send(EventHandler* eh, const void* buf, size_t len, int flags)
 {
-	ssize_t nbSent = send(fd->GetFd(), static_cast<const char*>(buf), len, flags);
+	ssize_t nbSent = send(eh->GetFd(), static_cast<const char*>(buf), len, flags);
 	stats.UpdateWriteCounters(nbSent);
 	return nbSent;
 }
 
-ssize_t SocketEngine::Recv(EventHandler* fd, void* buf, size_t len, int flags)
+ssize_t SocketEngine::Recv(EventHandler* eh, void* buf, size_t len, int flags)
 {
-	ssize_t nbRecvd = recv(fd->GetFd(), static_cast<char*>(buf), len, flags);
+	ssize_t nbRecvd = recv(eh->GetFd(), static_cast<char*>(buf), len, flags);
 	stats.UpdateReadCounters(nbRecvd);
 	return nbRecvd;
 }
 
-ssize_t SocketEngine::SendTo(EventHandler* fd, const void* buf, size_t len, int flags, const irc::sockets::sockaddrs& address)
+ssize_t SocketEngine::SendTo(EventHandler* eh, const void* buf, size_t len, int flags, const irc::sockets::sockaddrs& address)
 {
-	ssize_t nbSent = sendto(fd->GetFd(), static_cast<const char*>(buf), len, flags, &address.sa, address.sa_size());
+	ssize_t nbSent = sendto(eh->GetFd(), static_cast<const char*>(buf), len, flags, &address.sa, address.sa_size());
 	stats.UpdateWriteCounters(nbSent);
 	return nbSent;
 }
 
-ssize_t SocketEngine::WriteV(EventHandler* fd, const IOVector* iovec, int count)
+ssize_t SocketEngine::WriteV(EventHandler* eh, const IOVector* iovec, int count)
 {
-	ssize_t sent = writev(fd->GetFd(), iovec, count);
+	ssize_t sent = writev(eh->GetFd(), iovec, count);
 	stats.UpdateWriteCounters(sent);
 	return sent;
 }
 
 #ifdef _WIN32
-int SocketEngine::WriteV(EventHandler* fd, const iovec* iovec, int count)
+int SocketEngine::WriteV(EventHandler* eh, const iovec* iovec, int count)
 {
 	// On Windows the fields in iovec are not in the order required by the Winsock API; IOVector has
 	// the fields in the correct order.
@@ -278,13 +273,13 @@ int SocketEngine::WriteV(EventHandler* fd, const iovec* iovec, int count)
 		wiovec[i].iov_len = iovec[i].iov_len;
 		wiovec[i].iov_base = reinterpret_cast<char*>(iovec[i].iov_base);
 	}
-	return WriteV(fd, wiovec, count);
+	return WriteV(eh, wiovec, count);
 }
 #endif
 
-int SocketEngine::Connect(EventHandler* fd, const irc::sockets::sockaddrs& address)
+int SocketEngine::Connect(EventHandler* eh, const irc::sockets::sockaddrs& address)
 {
-	int ret = connect(fd->GetFd(), &address.sa, address.sa_size());
+	int ret = connect(eh->GetFd(), &address.sa, address.sa_size());
 #ifdef _WIN32
 	if ((ret == SOCKET_ERROR) && (WSAGetLastError() == WSAEWOULDBLOCK))
 		errno = EINPROGRESS;
@@ -292,24 +287,19 @@ int SocketEngine::Connect(EventHandler* fd, const irc::sockets::sockaddrs& addre
 	return ret;
 }
 
-int SocketEngine::Shutdown(EventHandler* fd, int how)
+int SocketEngine::Shutdown(EventHandler* eh, int how)
 {
-	return shutdown(fd->GetFd(), how);
+	return shutdown(eh->GetFd(), how);
 }
 
-int SocketEngine::Bind(int fd, const irc::sockets::sockaddrs& addr)
+int SocketEngine::Bind(EventHandler* eh, const irc::sockets::sockaddrs& addr)
 {
-	return bind(fd, &addr.sa, addr.sa_size());
+	return bind(eh->GetFd(), &addr.sa, addr.sa_size());
 }
 
-int SocketEngine::Listen(int sockfd, int backlog)
+int SocketEngine::Listen(EventHandler* eh, int backlog)
 {
-	return listen(sockfd, backlog);
-}
-
-int SocketEngine::Shutdown(int fd, int how)
-{
-	return shutdown(fd, how);
+	return listen(eh->GetFd(), backlog);
 }
 
 void SocketEngine::Statistics::UpdateReadCounters(ssize_t len_in)

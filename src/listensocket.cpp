@@ -86,9 +86,9 @@ ListenSocket::ListenSocket(std::shared_ptr<ConfigTag> tag, const irc::sockets::s
 	}
 
 	SocketEngine::SetReuse(GetFd());
-	int rv = SocketEngine::Bind(GetFd(), bind_to);
+	int rv = SocketEngine::Bind(this, bind_to);
 	if (rv >= 0)
-		rv = SocketEngine::Listen(GetFd(), ServerInstance->Config->MaxConn);
+		rv = SocketEngine::Listen(this, ServerInstance->Config->MaxConn);
 
 	if (bind_to.family() == AF_UNIX)
 	{

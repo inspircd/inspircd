@@ -74,7 +74,7 @@ BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& 
 
 	if (bind.family() != 0)
 	{
-		if (SocketEngine::Bind(GetFd(), bind) < 0)
+		if (SocketEngine::Bind(this, bind) < 0)
 			return I_ERR_BIND;
 	}
 

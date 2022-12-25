@@ -708,7 +708,7 @@ void LocalUser::ChangeRemoteAddress(const irc::sockets::sockaddrs& sa)
 
 void LocalUser::Write(const ClientProtocol::SerializedMessage& text)
 {
-	if (!SocketEngine::BoundsCheckFd(&eh))
+	if (!eh.HasFd())
 		return;
 
 	if (ServerInstance->Config->RawLog)

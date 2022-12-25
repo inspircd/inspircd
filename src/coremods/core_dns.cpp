@@ -798,7 +798,7 @@ public:
 			irc::sockets::sockaddrs bindto;
 			bindto.from_ip_port(sourceaddr, sourceport);
 
-			if (SocketEngine::Bind(this->GetFd(), bindto) < 0)
+			if (SocketEngine::Bind(this, bindto) < 0)
 			{
 				/* Failed to bind */
 				ServerInstance->Logs.Error(MODNAME, "Error binding dns socket - hostnames will NOT resolve");
