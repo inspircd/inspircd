@@ -116,7 +116,7 @@ public:
 	 * @param client The IP address and client port of the user
 	 * @param server The server IP address and port used by the user
 	 */
-	void AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
+	void AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) ATTR_NOT_NULL(3, 4, 5);
 
 	/** Disconnect a user gracefully.
 	 * When this method returns the user provided will be quit, but the User object will continue to be valid and will be deleted at the end of the current main loop iteration.
@@ -124,19 +124,19 @@ public:
 	 * @param quitreason The quit reason to show to normal users
 	 * @param operreason The quit reason to show to opers, can be NULL if same as quitreason
 	 */
-	void QuitUser(User* user, const std::string& quitreason, const std::string* operreason = nullptr);
+	void QuitUser(User* user, const std::string& quitreason, const std::string* operreason = nullptr) ATTR_NOT_NULL(2);
 
 	/** Add a user to the clone map
 	 * @param user The user to add
 	 */
-	void AddClone(User* user);
+	void AddClone(User* user) ATTR_NOT_NULL(2);
 
 	/** Remove all clone counts from the user, you should
 	 * use this if you change the user's IP address
 	 * after they have fully connected.
 	 * @param user The user to remove
 	 */
-	void RemoveCloneCounts(User* user);
+	void RemoveCloneCounts(User* user) ATTR_NOT_NULL(2);
 
 	/** Rebuild clone counts. Required when \<cidr> settings change.
 	 */
@@ -148,7 +148,7 @@ public:
 	 * must assume that it becomes invalid as soon as you call any function other than
 	 * your own.
 	 */
-	const CloneCounts& GetCloneCounts(User* user) const;
+	const CloneCounts& GetCloneCounts(User* user) const ATTR_NOT_NULL(2);
 
 	/** Return a map containing IP addresses and their clone counts
 	 * @return The clone count map
