@@ -196,7 +196,7 @@ public:
 	 * we must associate it with a socket without creating a new
 	 * connection. This constructor is used for this purpose.
 	 */
-	TreeSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
+	TreeSocket(int newfd, ListenSocket* via, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server);
 
 	/** Get link state
 	 */

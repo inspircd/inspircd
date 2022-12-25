@@ -204,7 +204,7 @@ public:
 	void OnUserBack(User* user) override;
 	void OnLoadModule(Module* mod) override;
 	void OnUnloadModule(Module* mod) override;
-	ModResult OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) override;
+	ModResult OnAcceptConnection(int newsock, ListenSocket* from, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server) override;
 	void OnMode(User* source, User* u, Channel* c, const Modes::ChangeList& modes, ModeParser::ModeProcessFlag processflags) override;
 	void OnShutdown(const std::string& reason) override;
 	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata) override;

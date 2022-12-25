@@ -877,7 +877,7 @@ public:
 	 * @param client The client IP address and port
 	 * @param server The server IP address and port
 	 */
-	virtual ModResult OnAcceptConnection(int fd, ListenSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
+	virtual ModResult OnAcceptConnection(int fd, ListenSocket* sock, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server);
 
 	/** Called at intervals for modules to garbage-collect any hashes etc.
 	 * Certain data types such as hash_map 'leak' buckets, which must be

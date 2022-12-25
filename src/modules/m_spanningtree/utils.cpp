@@ -36,15 +36,15 @@
 
 SpanningTreeUtilities* Utils = nullptr;
 
-ModResult ModuleSpanningTree::OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
+ModResult ModuleSpanningTree::OnAcceptConnection(int newsock, ListenSocket* from, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server)
 {
 	if (!stdalgo::string::equalsci(from->bind_tag->getString("type"), "servers"))
 		return MOD_RES_PASSTHRU;
 
-	const std::string incomingip = client->addr();
+	const std::string incomingip = client.addr();
 	for (const auto& validip : Utils->ValidIPs)
 	{
-		if (validip == "*" || validip == incomingip || irc::sockets::cidr_mask(validip).match(*client))
+		if (validip == "*" || validip == incomingip || irc::sockets::cidr_mask(validip).match(client))
 		{
 			/* we don't need to do anything with the pointer, creating it stores it in the necessary places */
 			new TreeSocket(newsock, from, client, server);

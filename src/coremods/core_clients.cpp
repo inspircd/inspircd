@@ -30,7 +30,7 @@ public:
 	{
 	}
 
-	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) override
+	ModResult OnAcceptConnection(int nfd, ListenSocket* from, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server) override
 	{
 		if (!stdalgo::string::equalsci(from->bind_tag->getString("type", "clients", 1), "clients"))
 			return MOD_RES_PASSTHRU;

@@ -73,11 +73,11 @@ TreeSocket::TreeSocket(std::shared_ptr<Link> link, std::shared_ptr<Autoconnect> 
 
 /** Constructor for incoming connections
  */
-TreeSocket::TreeSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
+TreeSocket::TreeSocket(int newfd, ListenSocket* via, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server)
 	: BufferedSocket(newfd)
-	, linkID("inbound from " + client->addr())
+	, linkID("inbound from " + client.addr())
 	, LinkState(WAIT_AUTH_1)
-	, capab(std::make_unique<CapabData>(*client))
+	, capab(std::make_unique<CapabData>(client))
 	, age(ServerInstance->Time())
 {
 	for (auto& iohookprovref : via->iohookprovs)

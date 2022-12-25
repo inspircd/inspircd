@@ -120,7 +120,7 @@ public:
 	{
 	}
 
-	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) override;
+	void OnAccept(StreamSocket* sock, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server) override;
 
 	void OnConnect(StreamSocket* sock) override
 	{
@@ -420,7 +420,7 @@ public:
 	}
 };
 
-void HAProxyHookProvider::OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
+void HAProxyHookProvider::OnAccept(StreamSocket* sock, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server)
 {
 	new HAProxyHook(shared_from_this(), sock, sslapi);
 }

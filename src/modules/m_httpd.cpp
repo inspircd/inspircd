@@ -205,7 +205,7 @@ private:
 	}
 
 public:
-	HttpServerSocket(int newfd, const std::string& IP, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server, unsigned long timeoutsec)
+	HttpServerSocket(int newfd, const std::string& IP, ListenSocket* via, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server, unsigned long timeoutsec)
 		: BufferedSocket(newfd)
 		, Timer(timeoutsec, false)
 		, ip(IP)
@@ -436,12 +436,12 @@ public:
 		timeoutsec = tag->getDuration("timeout", 10, 1);
 	}
 
-	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) override
+	ModResult OnAcceptConnection(int nfd, ListenSocket* from, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server) override
 	{
 		if (!stdalgo::string::equalsci(from->bind_tag->getString("type"), "httpd"))
 			return MOD_RES_PASSTHRU;
 
-		sockets.push_front(new HttpServerSocket(nfd, client->addr(), from, client, server, timeoutsec));
+		sockets.push_front(new HttpServerSocket(nfd, client.addr(), from, client, server, timeoutsec));
 		return MOD_RES_ALLOW;
 	}
 

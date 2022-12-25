@@ -108,10 +108,10 @@ User::User(const std::string& uid, Server* srv, Type type)
 	}
 }
 
-LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* servaddr)
+LocalUser::LocalUser(int myfd, const irc::sockets::sockaddrs& clientsa, const irc::sockets::sockaddrs& serversa)
 	: User(ServerInstance->UIDGen.GetUID(), ServerInstance->FakeClient->server, User::TYPE_LOCAL)
 	, eh(this)
-	, server_sa(*servaddr)
+	, server_sa(serversa)
 	, quitting_sendq(false)
 	, lastping(true)
 	, exempt(false)
@@ -121,7 +121,7 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 	nick = uuid;
 	ident = uuid;
 	eh.SetFd(myfd);
-	memcpy(&client_sa, client, sizeof(irc::sockets::sockaddrs));
+	memcpy(&client_sa, &clientsa, sizeof(irc::sockets::sockaddrs));
 	ChangeRealHost(GetIPString(), true);
 }
 

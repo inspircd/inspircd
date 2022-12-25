@@ -68,7 +68,7 @@ public:
 	{
 	}
 
-	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) override;
+	void OnAccept(StreamSocket* sock, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server) override;
 
 	void OnConnect(StreamSocket* sock) override
 	{
@@ -585,7 +585,7 @@ public:
 	}
 };
 
-void WebSocketHookProvider::OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
+void WebSocketHookProvider::OnAccept(StreamSocket* sock, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server)
 {
 	new WebSocketHook(shared_from_this(), sock, config);
 }

@@ -119,7 +119,7 @@ UserManager::~UserManager()
 		delete client;
 }
 
-void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
+void UserManager::AddUser(int socket, ListenSocket* via, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server)
 {
 	// User constructor allocates a new UUID for the user and inserts it into the uuidlist
 	LocalUser* const New = new LocalUser(socket, client, server);

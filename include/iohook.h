@@ -63,7 +63,7 @@ public:
 	 * @param client Client IP address and port
 	 * @param server Server IP address and port
 	 */
-	virtual void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) = 0;
+	virtual void OnAccept(StreamSocket* sock, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server) = 0;
 
 	/** Called when the provider should hook an outgoing connection and act as being on the client side of the connection.
 	 * @param sock Socket to hook

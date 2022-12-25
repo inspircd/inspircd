@@ -210,7 +210,7 @@ void ListenSocket::OnEventHandlerRead()
 	SocketEngine::NonBlocking(incomingSockfd);
 
 	ModResult res;
-	FIRST_MOD_RESULT(OnAcceptConnection, res, (incomingSockfd, this, &client, &server));
+	FIRST_MOD_RESULT(OnAcceptConnection, res, (incomingSockfd, this, client, server));
 	if (res == MOD_RES_ALLOW)
 	{
 		ServerInstance->stats.Accept++;

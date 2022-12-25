@@ -757,7 +757,7 @@ private:
 	void Send(ClientProtocol::Event& protoev, ClientProtocol::MessageList& msglist);
 
 public:
-	LocalUser(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
+	LocalUser(int fd, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server);
 
 	Cullable::Result Cull() override;
 
