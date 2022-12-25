@@ -151,22 +151,25 @@ ListenSocket::~ListenSocket()
 void ListenSocket::OnEventHandlerRead()
 {
 	irc::sockets::sockaddrs client(false);
-	irc::sockets::sockaddrs server(bind_sa);
-
 	socklen_t length = sizeof(client);
-	int incomingSockfd = SocketEngine::Accept(this, &client.sa, &length);
-
-	ServerInstance->Logs.Debug("SOCKET", "Accepting connection on socket %s fd %d", bind_sa.str().c_str(), incomingSockfd);
-	if (incomingSockfd < 0)
+	int incomingfd = SocketEngine::Accept(this, &client.sa, &length);
+	if (incomingfd < 0)
 	{
+		ServerInstance->Logs.Debug("SOCKET", "Refused connection to %s: %s",
+			bind_sa.str().c_str(), strerror(errno));
 		ServerInstance->stats.Refused++;
 		return;
 	}
 
-	socklen_t sz = sizeof(server);
-	if (getsockname(incomingSockfd, &server.sa, &sz))
+	ServerInstance->Logs.Debug("SOCKET", "Accepted connection to %s with fd %d",
+			bind_sa.str().c_str(), incomingfd);
+
+	irc::sockets::sockaddrs server(bind_sa);
+	length = sizeof(server);
+	if (getsockname(incomingfd, &server.sa, &length))
 	{
-		ServerInstance->Logs.Debug("SOCKET", "Can't get peername: %s", strerror(errno));
+		ServerInstance->Logs.Debug("SOCKET", "Unable to get peer name for fd %d: %s",
+			incomingfd, strerror(errno));
 	}
 
 	if (client.family() == AF_INET6)
@@ -207,10 +210,10 @@ void ListenSocket::OnEventHandlerRead()
 		strcpy(client.un.sun_path, server.un.sun_path);
 	}
 
-	SocketEngine::NonBlocking(incomingSockfd);
+	SocketEngine::NonBlocking(incomingfd);
 
 	ModResult res;
-	FIRST_MOD_RESULT(OnAcceptConnection, res, (incomingSockfd, this, client, server));
+	FIRST_MOD_RESULT(OnAcceptConnection, res, (incomingfd, this, client, server));
 	if (res == MOD_RES_ALLOW)
 	{
 		ServerInstance->stats.Accept++;
@@ -220,7 +223,7 @@ void ListenSocket::OnEventHandlerRead()
 	ServerInstance->stats.Refused++;
 	ServerInstance->Logs.Normal("SOCKET", "Refusing connection on %s - %s", bind_sa.str().c_str(),
 		res == MOD_RES_DENY ? "Connection refused by module" : "Module for this port not found");
-	SocketEngine::Close(incomingSockfd);
+	SocketEngine::Close(incomingfd);
 }
 
 void ListenSocket::ResetIOHookProvider()
