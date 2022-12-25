@@ -43,8 +43,8 @@ ListenSocket::ListenSocket(std::shared_ptr<ConfigTag> tag, const irc::sockets::s
 	// Are we creating a UNIX socket?
 	if (bind_to.family() == AF_UNIX)
 	{
-		// Is 'replace' enabled?
-		const bool replace = tag->getBool("replace");
+		// Should we replace the UNIX socket if it exists?
+		const bool replace = tag->getBool("replace", true);
 		if (replace && irc::sockets::isunix(bind_to.str()))
 			unlink(bind_to.str().c_str());
 	}
