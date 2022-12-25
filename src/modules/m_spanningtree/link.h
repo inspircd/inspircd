@@ -32,7 +32,7 @@ public:
 	std::shared_ptr<ConfigTag> tag;
 	std::string Name;
 	std::string IPAddr;
-	unsigned int Port;
+	in_port_t Port;
 	std::string SendPass;
 	std::string RecvPass;
 	std::string Fingerprint;

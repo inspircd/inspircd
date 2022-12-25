@@ -86,6 +86,9 @@ public:
 
 		if ((validated) && (parameters.size() >= 2) && ((command == "PRIVMSG") || (command == "NOTICE")))
 		{
+			if (user->HasPrivPermission("servers/ignore-blockamsg"))
+				return MOD_RES_PASSTHRU;
+
 			// parameters[0] is the target list, count how many channels are there
 			unsigned int targets = 0;
 			// Is the first target a channel?

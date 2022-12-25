@@ -363,7 +363,7 @@ ModResult ModuleSpanningTree::HandleConnect(const CommandBase::Params& parameter
 			TreeServer* CheckDupe = Utils->FindServer(x->Name);
 			if (!CheckDupe)
 			{
-				user->WriteRemoteNotice(InspIRCd::Format("*** CONNECT: Connecting to server: \002%s\002 (%s:%d)", x->Name.c_str(), (x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()), x->Port));
+				user->WriteRemoteNotice(InspIRCd::Format("*** CONNECT: Connecting to server: \002%s\002 (%s:%hu)", x->Name.c_str(), (x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()), x->Port));
 				ConnectServer(x);
 				return MOD_RES_DENY;
 			}

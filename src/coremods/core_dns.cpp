@@ -771,7 +771,7 @@ public:
 		return true;
 	}
 
-	void Rehash(const std::string& dnsserver, std::string sourceaddr, unsigned int sourceport)
+	void Rehash(const std::string& dnsserver, std::string sourceaddr, in_port_t sourceport)
 	{
 		myserver.from_ip_port(dnsserver, DNS::PORT);
 
@@ -829,7 +829,7 @@ class ModuleDNS final
 	MyManager manager;
 	std::string DNSServer;
 	std::string SourceIP;
-	unsigned int SourcePort = 0;
+	in_port_t SourcePort = 0;
 
 	void FindDNSServer()
 	{
@@ -917,8 +917,8 @@ public:
 		const std::string oldip = SourceIP;
 		SourceIP = tag->getString("sourceip");
 
-		const unsigned int oldport = SourcePort;
-		SourcePort = static_cast<unsigned int>(tag->getUInt("sourceport", 0, 0, UINT16_MAX));
+		const in_port_t oldport = SourcePort;
+		SourcePort = static_cast<in_port_t>(tag->getUInt("sourceport", 0, 0, 65535));
 
 		if (DNSServer.empty())
 			FindDNSServer();

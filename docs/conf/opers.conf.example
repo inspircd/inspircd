@@ -43,6 +43,7 @@
      #   - users/ignore-privdeaf: allows opers with this priv to message users with +D set.
      #   - users/sajoin-others: allows opers with this priv to /SAJOIN users other than themselves.
      #   - users/secret-whois: allows opers with this priv to /WHOIS +W users without them being notified.
+     #     servers/ignore-blockamsg: allows opers with this priv to use /AMSG and /AME.
      #   - servers/ignore-shun: allows opers with this priv to ignore shuns.
      #   - servers/ignore-securelist: allows opers with this priv to ignore securelist.
      #   - servers/use-disabled-commands: allows opers with this priv to use disabled commands.

@@ -181,7 +181,7 @@ public:
 		if (host.empty())
 			throw ModuleException(this, "<sts:host> must contain a hostname, at " + tag->source.str());
 
-		in_port_t port = static_cast<in_port_t>(tag->getUInt("port", 0, 0, UINT16_MAX));
+		in_port_t port = static_cast<in_port_t>(tag->getUInt("port", 6697, 1, 65535));
 		if (!HasValidSSLPort(port))
 			throw ModuleException(this, "<sts:port> must be a TLS port, at " + tag->source.str());
 

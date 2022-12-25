@@ -24,29 +24,25 @@
  */
 
 
-#include "inspircd_win32wrapper.h"
 #include "inspircd.h"
 
 CWin32Exception::CWin32Exception()
 {
 	dwErrorCode = GetLastError();
-	if( FormatMessageA( FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, dwErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)szErrorString, _countof(szErrorString), nullptr) == 0 )
-		sprintf_s(szErrorString, _countof(szErrorString), "Error code: %u", dwErrorCode);
-	for (size_t i = 0; i < _countof(szErrorString); i++)
-	{
-		if ((szErrorString[i] == '\r') || (szErrorString[i] == '\n'))
-			szErrorString[i] = 0;
-	}
+	szErrorString = GetErrorMessage(dwErrorCode);
+
+	for (size_t pos = 0; ((pos = szErrorString.find_first_of("\r\n", pos)) != std::string::npos); )
+		szErrorString[pos] = ' ';
 }
 
 CWin32Exception::CWin32Exception(const CWin32Exception& other)
+	: szErrorString(other.szErrorString)
 {
-	strcpy_s(szErrorString, _countof(szErrorString), other.szErrorString);
 }
 
 const char* CWin32Exception::what() const noexcept
 {
-	return szErrorString;
+	return szErrorString.c_str();
 }
 
 DWORD CWin32Exception::GetErrorCode()

@@ -323,6 +323,12 @@ public:
 		unsigned int timeout = static_cast<unsigned int>(config->getDuration("timeout", 5, 1, 30));
 		mysql_options(connection, MYSQL_OPT_CONNECT_TIMEOUT, &timeout);
 
+		// Enable SSL if requested.
+#if defined LIBMYSQL_VERSION_ID && LIBMYSQL_VERSION_ID > 80000
+		unsigned int ssl = config->getBool("ssl") ? SSL_MODE_REQUIRED : SSL_MODE_PREFERRED;
+		mysql_options(connection, MYSQL_OPT_SSL_MODE, &ssl);
+#endif
+
 		// Attempt to connect to the database.
 		const std::string host = config->getString("host");
 		const std::string user = config->getString("user");

@@ -262,7 +262,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 		if (path.empty())
 		{
 			L->IPAddr = tag->getString("ipaddr");
-			L->Port = static_cast<unsigned int>(tag->getUInt("port", 0, 0, UINT16_MAX));
+			L->Port = static_cast<in_port_t>(tag->getUInt("port", 0, 0, 65535));
 		}
 		else
 		{
