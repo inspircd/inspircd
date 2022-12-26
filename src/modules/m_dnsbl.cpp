@@ -57,7 +57,7 @@ class DNSBLConfEntry : public refcountbase
 		}
 };
 
-typedef SimpleExtItem<std::vector<std::string>> MarkExtItem;
+typedef SimpleExtItem<std::vector<std::string> > MarkExtItem;
 
 /** Resolver for CGI:IRC hostnames encoded in ident/real name
  */
