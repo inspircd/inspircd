@@ -152,15 +152,6 @@ namespace stdalgo
 	}
 
 	/**
-	 * Deleter that adds the item to the cull list, that is, queues it for
-	 * deletion at the end of the current mainloop iteration
-	 */
-	struct cull_delete
-	{
-		void operator()(Cullable* item);
-	};
-
-	/**
 	 * Deletes all elements in a container using operator delete
 	 * @param cont The container containing the elements to delete
 	 */

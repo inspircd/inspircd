@@ -33,6 +33,12 @@ protected:
 	Cullable();
 
 public:
+	/** Deleter that queues an object for deletion at the end of the current main loop iteration. */
+	struct Deleter final
+	{
+		void operator()(Cullable* item);
+	};
+
 	/** Dummy class to help ensure all superclasses get culled. */
 	class Result final
 	{

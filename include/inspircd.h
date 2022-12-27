@@ -524,7 +524,7 @@ public:
 	ClientProtocol::RFCEvents& GetRFCEvents() { return rfcevents; }
 };
 
-inline void stdalgo::cull_delete::operator()(Cullable* item)
+inline void Cullable::Deleter::operator()(Cullable* item)
 {
 	if (item)
 		ServerInstance->GlobalCulls.AddItem(item);
