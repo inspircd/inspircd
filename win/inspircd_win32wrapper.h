@@ -45,10 +45,6 @@
 #define DllExport __declspec(dllimport)
 #endif
 
-// File numbers for standard streams.
-#define STDIN_FILENO 0
-#define STDOUT_FILENO 1
-#define STDERR_FILENO 2
 
 /* Disable the deprecation warnings.. it spams :P */
 #define _CRT_SECURE_NO_DEPRECATE
