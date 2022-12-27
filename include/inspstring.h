@@ -135,21 +135,21 @@ namespace Percent
 	/** Encodes a byte array using percent encoding.
 	 * @param data The byte array to encode from.
 	 * @param length The length of the byte array.
-	 * @param table The index table to use for encoding.
-	 * @param padding If non-zero then the character to pad encoded strings with.
+	 * @param table The table of characters that do not require escaping.
+	 * @param upper Whether to use upper or lower case.
 	 * @return The encoded form of the specified data.
 	 */
-	CoreExport std::string Encode(const void* data, size_t length, const char* table = nullptr, char padding = 0);
+	CoreExport std::string Encode(const void* data, size_t length, const char* table = nullptr, bool upper = true);
 
 	/** Encodes a string using percent encoding.
 	 * @param data The string to encode from.
-	 * @param table The index table to use for encoding.
-	 * @param padding If non-zero then the character to pad encoded strings with.
+	 * @param table The table of characters that do not require escaping.
+	 * @param upper Whether to use upper or lower case.
 	 * @return The encoded form of the specified data.
 	 */
-	inline std::string Encode(const std::string& data, const char* table = nullptr, char padding = 0)
+	inline std::string Encode(const std::string& data, const char* table = nullptr, bool upper = true)
 	{
-		return Encode(data.c_str(), data.length(), table, padding);
+		return Encode(data.c_str(), data.length(), table, upper);
 	}
 }
 

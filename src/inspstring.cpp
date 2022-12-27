@@ -26,7 +26,7 @@
 
 #include "inspircd.h"
 
-std::string Percent::Encode(const void* data, size_t length, const char* table, char padding)
+std::string Percent::Encode(const void* data, size_t length, const char* table, bool upper)
 {
 	if (!table)
 		table = Percent::TABLE;
@@ -35,6 +35,7 @@ std::string Percent::Encode(const void* data, size_t length, const char* table, 
 	std::string buffer;
 	buffer.reserve(length * 3);
 
+	const char* hex_table = upper ? Hex::TABLE_UPPER : Hex::TABLE_LOWER;
 	const unsigned char* udata = reinterpret_cast<const unsigned char*>(data);
 	for (size_t idx = 0; idx < length; ++idx)
 	{
@@ -48,8 +49,8 @@ std::string Percent::Encode(const void* data, size_t length, const char* table, 
 		{
 			// The character is not on the safe list; percent encode it.
 			buffer.push_back('%');
-			buffer.push_back(Hex::TABLE_UPPER[chr >> 4]);
-			buffer.push_back(Hex::TABLE_UPPER[chr & 15]);
+			buffer.push_back(hex_table[chr >> 4]);
+			buffer.push_back(hex_table[chr & 15]);
 		}
 	}
 
