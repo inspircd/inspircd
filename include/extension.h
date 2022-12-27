@@ -283,9 +283,9 @@ public:
 };
 
 /** An extension which has a list value. */
-template<typename Container>
+template <typename Container, typename Del = std::default_delete<Container>>
 class ListExtItem
-	: public SimpleExtItem<Container>
+	: public SimpleExtItem<Container, Del>
 {
 public:
 	/** The underlying list type. */
