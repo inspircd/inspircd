@@ -163,13 +163,15 @@ public:
 	}
 };
 
+typedef SimpleExtItem<std::vector<std::string> > MarkExtItem;
+
 class DNSBLResolver final
 	: public DNS::Request
 {
 private:
 	irc::sockets::sockaddrs theirsa;
 	std::string theiruid;
-	StringExtItem& nameExt;
+	MarkExtItem& nameExt;
 	IntExtItem& countExt;
 	std::shared_ptr<DNSBLEntry> ConfEntry;
 
@@ -191,7 +193,7 @@ private:
 	}
 
 public:
-	DNSBLResolver(DNS::Manager* mgr, Module* me, StringExtItem& match, IntExtItem& ctr, const std::string& hostname, LocalUser* u, std::shared_ptr<DNSBLEntry> conf)
+	DNSBLResolver(DNS::Manager* mgr, Module* me, MarkExtItem& match, IntExtItem& ctr, const std::string& hostname, LocalUser* u, std::shared_ptr<DNSBLEntry> conf)
 		: DNS::Request(mgr, me, hostname, DNS::QUERY_A, true, conf->timeout)
 		, theirsa(u->client_sa)
 		, theiruid(u->uuid)
@@ -294,7 +296,13 @@ public:
 						them->ChangeDisplayedHost(ConfEntry->markhost);
 					}
 
-					nameExt.Set(them, ConfEntry->name);
+					std::vector<std::string>* marks = nameExt.Get(them);
+					if (!marks)
+					{
+						marks = new std::vector<std::string>();
+						nameExt.Set(them, marks);
+					}
+					marks->push_back(ConfEntry->name);
 					break;
 				}
 				case DNSBLEntry::Action::KLINE:
@@ -362,7 +370,7 @@ class ModuleDNSBL final
 private:
 	dynamic_reference<DNS::Manager> DNS;
 	DNSBLEntries dnsbls;
-	StringExtItem nameExt;
+	MarkExtItem nameExt;
 	IntExtItem countExt;
 
 public:
@@ -467,7 +475,7 @@ public:
 		if (!myclass->config->readString("dnsbl", dnsbl))
 			return MOD_RES_PASSTHRU;
 
-		std::string* match = nameExt.Get(user);
+		std::vector<std::string>* match = nameExt.Get(user);
 		if (!match)
 		{
 			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires a DNSBL mark",
@@ -475,14 +483,16 @@ public:
 			return MOD_RES_DENY;
 		}
 
-		if (!InspIRCd::Match(*match, dnsbl))
+		for (const auto& mark : *match)
 		{
-			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as the DNSBL mark (%s) does not match %s",
-					myclass->GetName().c_str(), match->c_str(), dnsbl.c_str());
-			return MOD_RES_DENY;
+			if (InspIRCd::Match(mark, dnsbl))
+				return MOD_RES_PASSTHRU;
 		}
 
-		return MOD_RES_PASSTHRU;
+		const std::string marks = stdalgo::string::join(dnsbl);
+		ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as the DNSBL marks (%s) do not match %s",
+				myclass->GetName().c_str(), marks.c_str(), dnsbl.c_str());
+		return MOD_RES_DENY;
 	}
 
 	ModResult OnCheckReady(LocalUser* user) override

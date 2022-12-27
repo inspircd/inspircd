@@ -42,6 +42,33 @@ my @ignored_revisions = (
 	'f2acdbc3820f0f4f5ef76a0a64e73d2a320df91f', # peavey fixing line endings
 );
 
+sub make_range($@) {
+	my ($separator, @nums) = @_;
+	my ($last_num, $start_num, @num_ranges);
+	for my $num (uniq sort { $a <=> $b } @nums) {
+		if (!defined $last_num) {
+			$start_num = $last_num = $num
+		} elsif ($num == $last_num + 1) {
+			$last_num = $num;
+		} else {
+			if ($last_num == $start_num) {
+				push @num_ranges, $last_num;
+			} else {
+				push @num_ranges, "$start_num$separator$last_num";
+			}
+			$start_num = $last_num = $num;
+		}
+	}
+	if (defined $last_num) {
+		if ($last_num == $start_num) {
+			push @num_ranges, $last_num;
+		} else {
+			push @num_ranges, "$start_num$separator$last_num";
+		}
+	}
+	return @num_ranges;
+}
+
 my @paths = File::Util->new->list_dir(dirname($RealDir) => { recurse => 1 });
 my @updated;
 for my $path (@paths) {
@@ -56,14 +83,16 @@ for my $path (@paths) {
 	}
 
 	open(my $fh, $path) or print_error "unable to read from $path: $!";
-	my ($copyright, $indent, @lines);
+	my ($copyright, $indent, $linenum, @linenums, @lines);
 	for my $line (<$fh>) {
+		$linenum += 1;
 		chomp $line;
 		if ($line =~ /^([^0-9A-Za-z]+\s)Copyright\s+\(C\)\s+[^<]+(\s+<[^>]+>)?$/) {
 			$copyright = scalar @lines;
 			$indent = $1;
 		} else {
 			push @lines, $line;
+			push @linenums, $linenum;
 		}
 	}
 	close $fh;
@@ -72,7 +101,8 @@ for my $path (@paths) {
 		say console_format "Updating copyright headers in <|GREEN $path|>." if defined $ENV{MKHEADERS_VERBOSE};
 		my (%authors, $commit, %commits);
 		my $ignored_args = join ' ', map { "--ignore-rev $_" } @ignored_revisions;
-		for my $line (split /\n+/, `git blame $ignored_args --incremental -M -w HEAD -- $path`) {
+		my $line_args = join ' ', map { "-L $_" } make_range ',', @linenums;
+		for my $line (split /\n+/, `git blame $ignored_args $line_args --incremental -M -w HEAD -- $path`) {
 			if ($line =~ /^([0-9a-f]{40})(?:\s\d+){3}$/) {
 				$commit = $1;
 				$commits{$commit} //= {};
@@ -103,29 +133,7 @@ for my $path (@paths) {
 		my @copyrights;
 		while (my ($display, $years) = each %authors) {
 			next if $display eq 'InspIRCd Robot <noreply@inspircd.org>';
-			my ($last_year, $start_year, @year_ranges);
-			for my $year (uniq sort @$years) {
-				if (!defined $last_year) {
-					$start_year = $last_year = $year
-				} elsif ($year == $last_year + 1) {
-					$last_year = $year;
-				} else {
-					if ($last_year == $start_year) {
-						push @year_ranges, $last_year;
-					} else {
-						push @year_ranges, "$start_year-$last_year";
-					}
-					$start_year = $last_year = $year;
-				}
-			}
-			if (defined $last_year) {
-				if ($last_year == $start_year) {
-					push @year_ranges, $last_year;
-				} else {
-					push @year_ranges, "$start_year-$last_year";
-				}
-			}
-
+			my @year_ranges = make_range '-', @$years;
 			my $joined_years = join ', ', @year_ranges;
 			push @copyrights, "${\$indent}Copyright (C) $joined_years $display";
 		}
