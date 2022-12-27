@@ -296,13 +296,7 @@ public:
 						them->ChangeDisplayedHost(ConfEntry->markhost);
 					}
 
-					MarkExtItem::List* marks = nameExt.Get(them);
-					if (!marks)
-					{
-						marks = new MarkExtItem::List();
-						nameExt.Set(them, marks);
-					}
-					marks->push_back(ConfEntry->name);
+					nameExt.GetRef(them).push_back(ConfEntry->name);
 					break;
 				}
 				case DNSBLEntry::Action::KLINE:

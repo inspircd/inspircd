@@ -150,11 +150,26 @@ public:
 
 	/** Retrieves the value for this extension of the specified container.
 	 * @param container The container that this extension is set on.
-	 * @return Either the value of this extension or nullptr if it is not set.
+	 * @return Either a pointer to the value of this extension or nullptr if it is not set.
 	 */
 	inline T* Get(const Extensible* container) const
 	{
 		return static_cast<T*>(GetRaw(container));
+	}
+
+	/** Retrieves the value for this extension of the specified container.
+	 * @param container The container that this extension is set on.
+	 * @return A reference to the value of this extension.
+	 */
+	inline T& GetRef(Extensible* container)
+	{
+		auto* value = Get(container);
+		if (!value)
+		{
+			value = new T();
+			Set(container, value, false);
+		}
+		return *value;
 	}
 
 	/** Sets a value for this extension of the specified container.
