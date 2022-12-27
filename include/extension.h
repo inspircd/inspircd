@@ -107,7 +107,7 @@ protected:
 };
 
 /** An extension which has a simple (usually POD) value. */
-template <typename T, typename Del = std::default_delete<T>>
+template <typename Value, typename Del = std::default_delete<Value>>
 class SimpleExtItem
 	: public ExtensionItem
 {
@@ -145,28 +145,28 @@ public:
 	void Delete(Extensible* container, void* item) override
 	{
 		Del del;
-		del(static_cast<T*>(item));
+		del(static_cast<Value*>(item));
 	}
 
 	/** Retrieves the value for this extension of the specified container.
 	 * @param container The container that this extension is set on.
 	 * @return Either a pointer to the value of this extension or nullptr if it is not set.
 	 */
-	inline T* Get(const Extensible* container) const
+	inline Value* Get(const Extensible* container) const
 	{
-		return static_cast<T*>(GetRaw(container));
+		return static_cast<Value*>(GetRaw(container));
 	}
 
 	/** Retrieves the value for this extension of the specified container.
 	 * @param container The container that this extension is set on.
 	 * @return A reference to the value of this extension.
 	 */
-	inline T& GetRef(Extensible* container)
+	inline Value& GetRef(Extensible* container)
 	{
 		auto* value = Get(container);
 		if (!value)
 		{
-			value = new T();
+			value = new Value();
 			Set(container, value, false);
 		}
 		return *value;
@@ -177,12 +177,12 @@ public:
 	 * @param value The new value to set for this extension. Will NOT be copied.
 	 * @param sync If syncable then whether to sync this set to the network.
 	 */
-	inline void Set(Extensible* container, T* value, bool sync = true)
+	inline void Set(Extensible* container, Value* value, bool sync = true)
 	{
 		if (container->extype != this->extype)
 			return;
 
-		auto old = static_cast<T*>(SetRaw(container, value));
+		auto old = static_cast<Value*>(SetRaw(container, value));
 		Delete(container, old);
 		if (sync && synced)
 			Sync(container, value);
@@ -193,10 +193,10 @@ public:
 	 * @param value The new value to set for this extension. Will be copied.
 	 * @param sync If syncable then whether to sync this set to the network.
 	 */
-	inline void Set(Extensible* container, const T& value, bool sync = true)
+	inline void Set(Extensible* container, const Value& value, bool sync = true)
 	{
 		if (container->extype == this->extype)
-			Set(container, new T(value), sync);
+			Set(container, new Value(value), sync);
 	}
 
 	/** Sets a forwarded value for this extension of the specified container.
@@ -210,7 +210,7 @@ public:
 		// be synced across the network. You can manually call Sync() if this
 		// is not the case.
 		if (container->extype == this->extype)
-			Set(container, new T(std::forward<Args>(args)...), false);
+			Set(container, new Value(std::forward<Args>(args)...), false);
 	}
 
 	/** Removes this extension from the specified container.
