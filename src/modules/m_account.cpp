@@ -83,54 +83,13 @@ public:
 	}
 };
 
-
-class AccountNicksExtItem final
-	: public SimpleExtItem<Account::NickList>
-{
-public:
-	AccountNicksExtItem(Module* mod)
-		: SimpleExtItem<Account::NickList>(mod, "accountnicks", ExtensionType::USER, true)
-	{
-	}
-
-	void FromInternal(Extensible* container, const std::string& value) noexcept override
-	{
-		if (container->extype != this->extype)
-			return;
-
-		auto list = new Account::NickList();
-		irc::spacesepstream nickstream(value);
-		for (std::string nick; nickstream.GetToken(nick); )
-			list->insert(nick);
-
-		if (list->empty())
-		{
-			// The remote sent an empty list of nicknames for some reason.
-			delete list;
-			Unset(container);
-		}
-		else
-		{
-			// The remote sent a non-zero list of nicks; set it.
-			Set(container, list);
-		}
-	}
-
-	std::string ToInternal(const Extensible* container, void* item) const noexcept override
-	{
-		auto list = static_cast<Account::NickList*>(item);
-		return stdalgo::string::join(*list);
-	}
-};
-
-
 class AccountAPIImpl final
 	: public Account::APIBase
 {
 private:
 	AccountExtItemImpl accountext;
 	StringExtItem accountidext;
-	AccountNicksExtItem accountnicksext;
+	ListExtItem<Account::NickList> accountnicksext;
 	UserModeReference identifiedmode;
 
 public:
@@ -138,7 +97,7 @@ public:
 		: Account::APIBase(mod)
 		, accountext(mod)
 		, accountidext(mod, "accountid", ExtensionType::USER, true)
-		, accountnicksext(mod)
+		, accountnicksext(mod, "accountnicks", ExtensionType::USER, true)
 		, identifiedmode(mod, "u_registered")
 	{
 	}

@@ -267,6 +267,82 @@ public:
 	void Unset(Extensible* container, bool sync = true);
 };
 
+/** An extension which has a list value. */
+template<typename Container>
+class ListExtItem
+	: public SimpleExtItem<Container>
+{
+public:
+	/** The underlying list type. */
+	typedef Container List;
+
+	/** Initializes an instance of the ListExtItem class.
+	 * @param owner The module which created the extension.
+	 * @param key The name of the extension (e.g. foo-bar).
+	 * @param exttype The type of extensible that the extension applies to.
+	 * @param sync Whether this extension should be broadcast to other servers.
+	 */
+	ListExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync = false)
+		: SimpleExtItem<List>(owner, key, exttype, sync)
+	{
+	}
+
+	/** @copydoc ExtensionItem::FromInternal */
+	void FromInternal(Extensible* container, const std::string& value) noexcept override
+	{
+		if (container->extype != this->extype)
+			return;
+
+		auto list = new List();
+		irc::spacesepstream stream(value);
+		for (std::string element; stream.GetToken(element); )
+		{
+			// Argh! Why doesn't vector<string> have an insert(value_type) method?
+			if constexpr (std::is_same_v<Container, std::vector<typename Container::value_type>>)
+				list->push_back(Percent::Decode(element));
+			else
+				list->insert(Percent::Decode(element));
+		}
+
+		if (list->empty())
+		{
+			// The remote sent an empty list.
+			delete list;
+			ListExtItem<List>::Unset(container);
+		}
+		else
+		{
+			// The remote sent a non-zero list.
+			ListExtItem<List>::Set(container, list);
+		}
+	}
+
+	/** @copydoc ExtensionItem::ToInternal */
+	std::string ToHuman(const Extensible* container, void* item) const noexcept override
+	{
+		auto list = static_cast<List*>(item);
+		if (list->empty())
+			return {};
+
+		return stdalgo::string::join(*list, ' ');
+	}
+
+	/** @copydoc ExtensionItem::ToInternal */
+	std::string ToInternal(const Extensible* container, void* item) const noexcept override
+	{
+		auto list = static_cast<List*>(item);
+		if (list->empty())
+			return {};
+
+		std::string value;
+		for (const auto& element : *list)
+			value.append(Percent::Encode(element)).push_back(' ');
+		value.pop_back();
+
+		return value;
+	}
+};
+
 /** An extension which has an integer value. */
 class CoreExport IntExtItem
 	: public ExtensionItem

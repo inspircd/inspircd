@@ -163,7 +163,7 @@ public:
 	}
 };
 
-typedef SimpleExtItem<std::vector<std::string> > MarkExtItem;
+typedef ListExtItem<std::vector<std::string>> MarkExtItem;
 
 class DNSBLResolver final
 	: public DNS::Request
@@ -296,10 +296,10 @@ public:
 						them->ChangeDisplayedHost(ConfEntry->markhost);
 					}
 
-					std::vector<std::string>* marks = nameExt.Get(them);
+					MarkExtItem::List* marks = nameExt.Get(them);
 					if (!marks)
 					{
-						marks = new std::vector<std::string>();
+						marks = new MarkExtItem::List();
 						nameExt.Set(them, marks);
 					}
 					marks->push_back(ConfEntry->name);
@@ -475,7 +475,7 @@ public:
 		if (!myclass->config->readString("dnsbl", dnsbl))
 			return MOD_RES_PASSTHRU;
 
-		std::vector<std::string>* match = nameExt.Get(user);
+		MarkExtItem::List* match = nameExt.Get(user);
 		if (!match)
 		{
 			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires a DNSBL mark",
