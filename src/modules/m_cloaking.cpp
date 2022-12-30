@@ -15,7 +15,7 @@
  *   Copyright (C) 2007-2008 Dennis Friis <peavey@inspircd.org>
  *   Copyright (C) 2007 John Brooks <special@inspircd.org>
  *   Copyright (C) 2006 Oliver Lupton <om@inspircd.org>
- *   Copyright (C) 2003, 2007-2008, 2010 Craig Edwards <brain@inspircd.org>
+ *   Copyright (C) 2003, 2007-2008 Craig Edwards <brain@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
