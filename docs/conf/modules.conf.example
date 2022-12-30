@@ -1225,7 +1225,10 @@
 # The following block can be used to control which extensions are
 # enabled. Note that extended-join can be incompatible with delayjoin
 # and host cycling.
-#<ircv3 accountnotify="yes" awaynotify="yes" extendedjoin="yes">
+#<ircv3 accountnotify="yes"
+#       awaynotify="yes"
+#       extendedjoin="yes"
+#       standardreplies="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # IRCv3 account-tag module. Adds the 'account' tag which contains the

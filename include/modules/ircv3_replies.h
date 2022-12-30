@@ -33,13 +33,13 @@ namespace IRCv3
 	}
 }
 
-/** Reference to the inspircd.org/standard-replies cap. */
+/** Reference to the standard-replies cap. */
 class IRCv3::Replies::CapReference
 	: public Cap::Reference
 {
  public:
 	CapReference(Module* mod)
-		: Cap::Reference(mod, "inspircd.org/standard-replies")
+		: Cap::Reference(mod, "standard-replies")
 	{
 	}
 };

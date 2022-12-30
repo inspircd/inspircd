@@ -123,6 +123,7 @@ class ModuleIRCv3
 
 	ClientProtocol::EventProvider accountprotoev;
 	Monitor::API monitorapi;
+	Cap::Capability stdrplcap;
 
  public:
 	ModuleIRCv3()
@@ -132,6 +133,7 @@ class ModuleIRCv3
 		, joinhook(this)
 		, accountprotoev(this, "ACCOUNT")
 		, monitorapi(this)
+		, stdrplcap(this, "standard-replies")
 	{
 	}
 
@@ -141,6 +143,7 @@ class ModuleIRCv3
 		cap_accountnotify.SetActive(conf->getBool("accountnotify", true));
 		joinhook.awaycap.SetActive(conf->getBool("awaynotify", true));
 		joinhook.extendedjoincap.SetActive(conf->getBool("extendedjoin", true));
+		stdrplcap.SetActive(conf->getBool("standardreplies", true));
 	}
 
 	void OnAccountChange(User* user, const std::string& newaccount) CXX11_OVERRIDE

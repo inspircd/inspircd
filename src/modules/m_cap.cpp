@@ -490,13 +490,11 @@ class ModuleCap : public Module
  private:
 	CommandCap cmd;
 	PoisonCap poisoncap;
-	Cap::Capability stdrplcap;
 
  public:
 	ModuleCap()
 		: cmd(this)
 		, poisoncap(this)
-		, stdrplcap(this, "inspircd.org/standard-replies")
 	{
 	}
 
