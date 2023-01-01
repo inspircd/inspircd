@@ -68,6 +68,6 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **License** &mdash; Boost Software License
 
-**Version** &mdash; v3.2.2
+**Version** &mdash; v3.2.3
 
 **Website** &mdash; [https://github.com/nemtrif/utfcpp](https://github.com/nemtrif/utfcpp)

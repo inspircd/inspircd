@@ -7,7 +7,7 @@
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
- *   Copyright (C) 2004, 2010 Craig Edwards <brain@inspircd.org>
+ *   Copyright (C) 2004 Craig Edwards <brain@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public

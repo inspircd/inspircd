@@ -6,7 +6,6 @@
  *   Copyright (C) 2013 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2012-2014 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
- *   Copyright (C) 2010 Craig Edwards <brain@inspircd.org>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -322,9 +321,10 @@ struct Parser final
 		{
 			stack.errstr << err.GetReason() << " at " << current.str();
 			if (tag)
-				stack.errstr << " (inside tag " << tag->name << " at line " << tag->source.line << ")\n";
-			else
-				stack.errstr << " (last tag was on line " << last_tag.line << ")\n";
+				stack.errstr << " (inside <" << tag->name << "> tag on line " << tag->source.line << ")";
+			else if (last_tag.line)
+				stack.errstr << " (last tag was on line " << last_tag.line << ")";
+			stack.errstr << '\n';
 		}
 		return false;
 	}

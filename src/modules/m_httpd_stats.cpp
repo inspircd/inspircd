@@ -8,13 +8,12 @@
  *   Copyright (C) 2013-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2013, 2017, 2019-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
- *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008-2009 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2008 Pippijn van Steenhoven <pip88nl@gmail.com>
  *   Copyright (C) 2007 John Brooks <special@inspircd.org>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
- *   Copyright (C) 2006-2008, 2010 Craig Edwards <brain@inspircd.org>
+ *   Copyright (C) 2006-2008 Craig Edwards <brain@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public

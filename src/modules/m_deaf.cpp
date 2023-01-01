@@ -7,7 +7,7 @@
  *   Copyright (C) 2012-2014, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
- *   Copyright (C) 2008, 2010 Craig Edwards <brain@inspircd.org>
+ *   Copyright (C) 2008 Craig Edwards <brain@inspircd.org>
  *   Copyright (C) 2007 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2006-2007 Dennis Friis <peavey@inspircd.org>
  *

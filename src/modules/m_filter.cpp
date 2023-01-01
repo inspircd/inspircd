@@ -8,7 +8,7 @@
  *   Copyright (C) 2018 Michael Hazell <michaelhazell@hotmail.com>
  *   Copyright (C) 2017 B00mX0r <b00mx0r@aureus.pw>
  *   Copyright (C) 2012-2014, 2016 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2012-2013, 2017-2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012-2013, 2017-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012, 2018-2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2011 Adam <Adam@anope.org>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -16,7 +16,7 @@
  *   Copyright (C) 2009 Matt Smith <dz@inspircd.org>
  *   Copyright (C) 2009 John Brooks <special@inspircd.org>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
- *   Copyright (C) 2006-2010 Craig Edwards <brain@inspircd.org>
+ *   Copyright (C) 2006-2009 Craig Edwards <brain@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
