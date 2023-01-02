@@ -160,52 +160,6 @@ const std::string& User::GetFullRealHost()
 	return this->cached_fullrealhost;
 }
 
-bool User::HasModePermission(const ModeHandler* mh) const
-{
-	return true;
-}
-
-bool LocalUser::HasModePermission(const ModeHandler* mh) const
-{
-	return IsOper() && oper->CanUseMode(mh);
-}
-/*
- * users on remote servers can completely bypass all permissions based checks.
- * This prevents desyncs when one server has different type/class tags to another.
- * That having been said, this does open things up to the possibility of source changes
- * allowing remote kills, etc - but if they have access to the src, they most likely have
- * access to the conf - so it's an end to a means either way.
- */
-bool User::HasCommandPermission(const std::string& command) const
-{
-	return true;
-}
-
-bool LocalUser::HasCommandPermission(const std::string& command) const
-{
-	return IsOper() && oper->CanUseCommand(command);
-}
-
-bool User::HasPrivPermission(const std::string& privstr) const
-{
-	return true;
-}
-
-bool LocalUser::HasPrivPermission(const std::string& privstr) const
-{
-	return IsOper() && oper->HasPrivilege(privstr);
-}
-
-bool User::HasSnomaskPermission(char chr) const
-{
-	return true;
-}
-
-bool LocalUser::HasSnomaskPermission(char chr) const
-{
-	return IsOper() && oper->CanUseSnomask(chr);
-}
-
 void UserIOHandler::OnDataReady()
 {
 	if (user->quitting)

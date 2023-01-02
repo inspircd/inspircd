@@ -577,7 +577,7 @@ public:
 	 * @param command A command (should be all CAPS)
 	 * @return True if this user can execute the command
 	 */
-	virtual bool HasCommandPermission(const std::string& command) const;
+	inline bool HasCommandPermission(const std::string& command) const { return IsOper() && oper->CanUseCommand(command); }
 
 	/** Returns true if a user has a given permission.
 	 * This is used to check whether or not users may perform certain actions which admins may not wish to give to
@@ -586,7 +586,7 @@ public:
 	 * @param privstr The priv to check, e.g. "users/override/topic". These are loaded free-form from the config file.
 	 * @return True if this user has the permission in question.
 	 */
-	virtual bool HasPrivPermission(const std::string& privstr) const;
+	inline bool HasPrivPermission(const std::string& privstr) const { return IsOper() && oper->HasPrivilege(privstr); }
 
 	/** Returns true or false if a user can set a privileged user or channel mode.
 	 * This is done by looking up their oper type from User::oper, then referencing
@@ -594,13 +594,13 @@ public:
 	 * @param mh Mode to check
 	 * @return True if the user can set or unset this mode.
 	 */
-	virtual bool HasModePermission(const ModeHandler* mh) const;
+	inline bool HasModePermission(const ModeHandler* mh) const { return IsOper() && oper->CanUseMode(mh); }
 
 	/** Determines whether this user can set the specified snomask.
 	 * @param chr The server notice mask character to look up.
 	 * @return True if the user can set the specified snomask; otherwise, false.
 	 */
-	virtual bool HasSnomaskPermission(char chr) const;
+	inline bool HasSnomaskPermission(char chr) const { return IsOper() && oper->CanUseSnomask(chr); }
 
 	/** Creates a usermask with real host.
 	 * Takes a buffer to use and fills the given buffer with the hostmask in the format user\@host
@@ -869,34 +869,6 @@ public:
 	 * @param text Text to send
 	 */
 	void WriteRemoteNotice(const std::string& text) override;
-
-	/** Returns true or false for if a user can execute a privileged oper command.
-	 * This is done by looking up their oper type from User::oper, then referencing
-	 * this to their oper classes and checking the commands they can execute.
-	 * @param command A command (should be all CAPS)
-	 * @return True if this user can execute the command
-	 */
-	bool HasCommandPermission(const std::string& command) const override;
-
-	/** Returns true if a user has a given permission.
-	 * This is used to check whether or not users may perform certain actions which admins may not wish to give to
-	 * all operators, yet are not commands. An example might be oper override, mass messaging (/notice $*), etc.
-	 *
-	 * @param privstr The priv to check, e.g. "users/override/topic". These are loaded free-form from the config file.
-	 * @return True if this user has the permission in question.
-	 */
-	bool HasPrivPermission(const std::string& privstr) const override;
-
-	/** Returns true or false if a user can set a privileged user or channel mode.
-	 * This is done by looking up their oper type from User::oper, then referencing
-	 * this to their oper classes, and checking the modes they can set.
-	 * @param mh Mode to check
-	 * @return True if the user can set or unset this mode.
-	 */
-	bool HasModePermission(const ModeHandler* mh) const override;
-
-	/** @copydoc User::HasSnomaskPermission */
-	bool HasSnomaskPermission(char chr) const override;
 
 	/** Change nick to uuid, unset CONN_NICK and send a nickname overruled numeric.
 	 * This is called when another user (either local or remote) needs the nick of this user and this user
