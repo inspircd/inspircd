@@ -161,7 +161,7 @@ protected:
 	std::shared_ptr<ConfigTag> config;
 
 	/** The name of this oper type. */
-	const std::string name;
+	std::string name;
 
 	/** Oper privileges that an oper of this type has. */
 	TokenList privileges;

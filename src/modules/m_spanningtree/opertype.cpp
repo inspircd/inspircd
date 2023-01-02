@@ -25,17 +25,68 @@
 #include "commands.h"
 #include "treeserver.h"
 #include "utils.h"
+#include "main.h"
 
-/** Because the core won't let users or even SERVERS set +o,
- * we use the OPERTYPE command to do this.
- */
+class RemoteOperAccount final
+	: public OperAccount
+{
+private:
+	void ReadModes(ModeParser::ModeStatus& modes, const ClientProtocol::TagMap& tags, const std::string& tag)
+	{
+		auto it = tags.find(tag);
+		if (it != tags.end())
+		{
+			for (const char& chr : ClientProtocol::Message::UnescapeTag(it->second.value))
+			{
+				size_t idx = ModeParser::GetModeIndex(chr);
+				if (idx != ModeParser::MODEID_MAX)
+					modes.set(idx);
+			}
+			return;
+		}
+
+		// Probably a legacy server.
+		modes.set();
+	}
+
+	void ReadTokens(TokenList& tokens, const ClientProtocol::TagMap& tags, const std::string& tag)
+	{
+		auto it = tags.find(tag);
+		if (it != tags.end())
+		{
+			tokens.AddList(ClientProtocol::Message::UnescapeTag(it->second.value));
+			return;
+		}
+
+		// Probably a legacy server.
+		tokens.Add("*");
+	}
+
+public:
+	RemoteOperAccount(const std::string& n, const ClientProtocol::TagMap& tags)
+		: OperAccount(n, nullptr, ServerInstance->Config->EmptyTag)
+	{
+		auto it = tags.find("~name");
+		if (it != tags.end())
+			name = ClientProtocol::Message::UnescapeTag(it->second.value);
+
+		ReadModes(chanmodes, tags, "~chanmodes");
+		ReadModes(usermodes, tags, "~usermodes");
+		ReadModes(snomasks, tags, "~snomasks");
+
+		ReadTokens(commands, tags, "~commands");
+		ReadTokens(privileges, tags, "~privileges");
+	}
+};
+
 CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& params)
 {
-	auto type = ServerInstance->Config->OperTypes.find(params[0]);
-	if (type != ServerInstance->Config->OperTypes.end())
-		u->OperLogin(std::make_shared<OperAccount>(type->first, type->second, ServerInstance->Config->EmptyTag));
-	else
-		u->OperLogin(std::make_shared<OperAccount>(params[0], nullptr, ServerInstance->Config->EmptyTag));
+	// Remote servers might be using entirely different oper privileges to us
+	// so instead of looking up the remote oper type we just create a new tag
+	// with the details sent by the remote. For legacy servers that don't send
+	// the oper details we instead just assume they have access to everything
+	// as was the default until 1206.
+	u->OperLogin(std::make_shared<RemoteOperAccount>(params.back(), params.GetTags()));
 
 	if (Utils->quiet_bursts)
 	{
@@ -57,5 +108,13 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& para
 CommandOpertype::Builder::Builder(User* user, const std::shared_ptr<OperAccount>& oper)
 	: CmdBuilder(user, "OPERTYPE")
 {
+	push_tags({
+		{ "~name",       { &Utils->Creator->servertags, ClientProtocol::Message::EscapeTag(oper->GetName())                        } },
+		{ "~chanmodes",  { &Utils->Creator->servertags, ClientProtocol::Message::EscapeTag(oper->GetModes(MODETYPE_CHANNEL, true)) } },
+		{ "~usermodes",  { &Utils->Creator->servertags, ClientProtocol::Message::EscapeTag(oper->GetModes(MODETYPE_USER, true))    } },
+		{ "~snomasks",   { &Utils->Creator->servertags, ClientProtocol::Message::EscapeTag(oper->GetSnomasks(true))                } },
+		{ "~commands",   { &Utils->Creator->servertags, ClientProtocol::Message::EscapeTag(oper->GetCommands(true))                } },
+		{ "~privileges", { &Utils->Creator->servertags, ClientProtocol::Message::EscapeTag(oper->GetPrivileges())                  } },
+	});
 	push_last(oper->GetType());
 }
