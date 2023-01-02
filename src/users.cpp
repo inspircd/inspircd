@@ -1290,8 +1290,11 @@ void OperType::Configure(const std::shared_ptr<ConfigTag>& tag, bool merge)
 		MergeTag(tag);
 }
 
-std::string OperType::GetCommands() const
+std::string OperType::GetCommands(bool all) const
 {
+	if (all)
+		return commands.ToString();
+
 	std::vector<std::string> ret;
 	for (const auto& [_, cmd] : ServerInstance->Parser.GetCommands())
 	{
@@ -1302,24 +1305,24 @@ std::string OperType::GetCommands() const
 	return stdalgo::string::join(ret);
 }
 
-std::string OperType::GetModes(ModeType mt) const
+std::string OperType::GetModes(ModeType mt, bool all) const
 {
 	std::string ret;
 	for (const auto& [_, mh] : ServerInstance->Modes.GetModes(mt))
 	{
-		if (mh->NeedsOper() && CanUseMode(mh))
+		if ((all || mh->NeedsOper()) && CanUseMode(mh))
 			ret.push_back(mh->GetModeChar());
 	}
 	std::sort(ret.begin(), ret.end());
 	return ret;
 }
 
-std::string OperType::GetSnomasks() const
+std::string OperType::GetSnomasks(bool all) const
 {
 	std::string ret;
 	for (unsigned char sno = 'A'; sno <= 'z'; ++sno)
 	{
-		if (ServerInstance->SNO.IsSnomaskUsable(sno) && CanUseSnomask(sno))
+		if ((all || ServerInstance->SNO.IsSnomaskUsable(sno)) && CanUseSnomask(sno))
 			ret.push_back(sno);
 	}
 	std::sort(ret.begin(), ret.end());

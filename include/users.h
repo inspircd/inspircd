@@ -196,19 +196,24 @@ public:
 	/** Retrieves the name of this oper type. */
 	const auto& GetName() const { return name; }
 
-	/** Retrieves the commands that this oper type has access to. */
-	std::string GetCommands() const;
+	/** Retrieves the commands that this oper type has access to.
+	 * @param all Whether to return all commands even if they don't currently exist.
+	 */
+	std::string GetCommands(bool all = false) const;
 
 	/** Retrieves the modes that this oper type has access to.
 	 * @param mt The type of mode to retrieve.
+	 * @param all Whether to return all commands even if they don't currently exist.
 	 */
-	std::string GetModes(ModeType mt) const;
+	std::string GetModes(ModeType mt, bool all = false) const;
 
 	/** Retrieves the privileges that this oper type has access to. */
 	std::string GetPrivileges() const { return privileges.ToString(); }
 
-	/** Retrieves the snomasks that this oper type has access to. */
-	std::string GetSnomasks() const;
+	/** Retrieves the snomasks that this oper type has access to.
+	 * @param all Whether to return all snomasks even if they don't currently exist.
+	 */
+	std::string GetSnomasks(bool all = false) const;
 
 	/** Determines if this oper type can use the specified command.
 	 * @param cmd The command to check for.
