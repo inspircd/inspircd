@@ -215,10 +215,21 @@ public:
 	 */
 	bool CanUseCommand(const std::string& cmd) const;
 
+	/** Determines if this oper type can use the specified command.
+	 * @param cmd The command to check for.
+	 */
+	inline bool CanUseCommand(const Command* cmd) const { return CanUseCommand(cmd->name); }
+
+	/** Determines if this oper type can use the specified mode.
+	 * @param mt The type of mode to check for.
+	 * @param chr The mode character to check for.
+	 */
+	bool CanUseMode(ModeType mt, unsigned char chr) const;
+
 	/** Determines if this oper type can use the specified mode.
 	 * @param mh The mode to check for.
 	 */
-	bool CanUseMode(const ModeHandler* mh) const;
+	inline bool CanUseMode(const ModeHandler* mh) const { return CanUseMode(mh->GetModeType(), mh->GetModeChar()); }
 
 	/** Determines if this oper type can use the specified snomask.
 	 * @param chr The snomask to check for.

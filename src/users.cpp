@@ -1331,13 +1331,13 @@ bool OperType::CanUseCommand(const std::string& cmd) const
 	return commands.Contains(cmd);
 }
 
-bool OperType::CanUseMode(const ModeHandler* mh) const
+bool OperType::CanUseMode(ModeType mt, unsigned char chr) const
 {
-	const size_t index = ModeParser::GetModeIndex(mh->GetModeChar());
+	const size_t index = ModeParser::GetModeIndex(chr);
 	if (index == ModeParser::MODEID_MAX)
 		return false;
 
-	return (mh->GetModeType() == MODETYPE_USER ? usermodes : chanmodes)[index];
+	return (mt == MODETYPE_USER ? usermodes : chanmodes)[index];
 }
 
 bool OperType::CanUseSnomask(unsigned char chr) const
