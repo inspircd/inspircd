@@ -99,6 +99,50 @@ std::string ClientProtocol::Message::EscapeTag(const std::string& value)
 	return ret;
 }
 
+std::string ClientProtocol::Message::UnescapeTag(const std::string& value)
+{
+	std::string ret;
+	ret.reserve(value.size());
+	for (std::string::const_iterator it = value.begin(); it != value.end(); ++it)
+	{
+		char chr = *it;
+		if (chr != '\\')
+		{
+			ret.push_back(chr);
+			continue;
+		}
+
+		it++;
+		if (it != value.end())
+		{
+			chr = *it;
+			switch (chr)
+			{
+				case 's':
+					ret.push_back(' ');
+					break;
+				case ':':
+					ret.push_back(';');
+					break;
+				case '\\':
+					ret.push_back('\\');
+					break;
+				case 'n':
+					ret.push_back('\n');
+					break;
+				case 'r':
+					ret.push_back('\r');
+					break;
+				default:
+					ret.push_back(chr);
+					break;
+			}
+		}
+	}
+	return ret;
+}
+
+
 const ClientProtocol::SerializedMessage& ClientProtocol::Message::GetSerialized(const SerializedInfo& serializeinfo) const
 {
 	// First check if the serialized line they're asking for is in the cache

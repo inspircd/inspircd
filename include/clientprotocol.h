@@ -282,10 +282,15 @@ public:
 
 	typedef std::vector<Param> ParamList;
 
-	/** Escapes a value for use in a tag value.
+	/** Escapes a value to the tag format.
 	 * @param value The value to escape.
 	 */
 	static std::string EscapeTag(const std::string& value);
+
+	/** Unescapes a value from the tag format.
+	 * @param value The value to unescape.
+	 */
+	static std::string UnescapeTag(const std::string& value);
 
 private:
 	typedef std::vector<std::pair<SerializedInfo, SerializedMessage>> SerializedList;
