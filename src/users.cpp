@@ -1305,7 +1305,7 @@ bool OperType::CanUseMode(ModeType mt, unsigned char chr) const
 bool OperType::CanUseSnomask(unsigned char chr) const
 {
 	if (SnomaskManager::IsSnomask(chr))
-		return snomasks[chr - 'A'];
+		return snomasks[ModeParser::GetModeIndex(chr)];
 	return false;
 }
 
