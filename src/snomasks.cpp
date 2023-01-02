@@ -79,9 +79,14 @@ SnomaskManager::SnomaskManager()
 	EnableSnomask('r', "REHASH");
 }
 
+bool SnomaskManager::IsSnomask(char ch)
+{
+	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
+}
+
 bool SnomaskManager::IsSnomaskUsable(char ch) const
 {
-	return ((isalpha(ch)) && (!masks[tolower(ch) - 'a'].Description.empty()));
+	return IsSnomask(ch) && !masks[tolower(ch) - 'a'].Description.empty();
 }
 
 void Snomask::SendMessage(const std::string& message, char letter)

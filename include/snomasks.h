@@ -126,6 +126,12 @@ public:
 	 */
 	void FlushSnotices();
 
+	/** Check whether a given character is a valid snomask.
+	 * @param ch The character to check
+	 * @return True if the given char is allowed to be set via +s.
+	 */
+	static bool IsSnomask(char ch);
+
 	/** Check whether a given character is an enabled (initialized) snomask.
 	 * Valid snomask chars are lower- or uppercase letters and have a description.
 	 * Snomasks are initialized with EnableSnomask().

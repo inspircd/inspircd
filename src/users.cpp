@@ -50,7 +50,7 @@ ClientProtocol::MessageList LocalUser::sendmsglist;
 
 bool User::IsNoticeMaskSet(unsigned char sm) const
 {
-	if (!isalpha(sm))
+	if (!SnomaskManager::IsSnomask(sm))
 		return false;
 	return (snomasks[sm-65]);
 }
@@ -1262,12 +1262,15 @@ std::string OperType::GetCommands(bool all) const
 std::string OperType::GetModes(ModeType mt, bool all) const
 {
 	std::string ret;
-	for (const auto& [_, mh] : ServerInstance->Modes.GetModes(mt))
+	for (unsigned char chr = '0'; chr <= 'z'; ++chr)
 	{
-		if ((all || mh->NeedsOper()) && CanUseMode(mh))
-			ret.push_back(mh->GetModeChar());
+		if (!ModeParser::IsModeChar(chr))
+			continue;
+
+		ModeHandler* mh = ServerInstance->Modes.FindMode(chr, mt);
+		if ((all || (mh && mh->NeedsOper())) && CanUseMode(mt, chr))
+			ret.push_back(chr);
 	}
-	std::sort(ret.begin(), ret.end());
 	return ret;
 }
 
@@ -1276,10 +1279,12 @@ std::string OperType::GetSnomasks(bool all) const
 	std::string ret;
 	for (unsigned char sno = 'A'; sno <= 'z'; ++sno)
 	{
+		if (!SnomaskManager::IsSnomask(sno))
+			continue;
+
 		if ((all || ServerInstance->SNO.IsSnomaskUsable(sno)) && CanUseSnomask(sno))
 			ret.push_back(sno);
 	}
-	std::sort(ret.begin(), ret.end());
 	return ret;
 }
 
@@ -1299,7 +1304,7 @@ bool OperType::CanUseMode(ModeType mt, unsigned char chr) const
 
 bool OperType::CanUseSnomask(unsigned char chr) const
 {
-	if ((chr >= 'A' && chr <= 'Z') || (chr >= 'a' && chr <= 'z'))
+	if (SnomaskManager::IsSnomask(chr))
 		return snomasks[chr - 'A'];
 	return false;
 }
