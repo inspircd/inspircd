@@ -86,7 +86,8 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& para
 	// with the details sent by the remote. For legacy servers that don't send
 	// the oper details we instead just assume they have access to everything
 	// as was the default until 1206.
-	u->OperLogin(std::make_shared<RemoteOperAccount>(params.back(), params.GetTags()));
+	bool automatic = params.GetTags().find("~automatic") != params.GetTags().end();
+	u->OperLogin(std::make_shared<RemoteOperAccount>(params.back(), params.GetTags()), true, automatic);
 
 	if (Utils->quiet_bursts)
 	{
@@ -99,13 +100,20 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& para
 			return CmdResult::SUCCESS;
 	}
 
-	ServerInstance->SNO.WriteToSnoMask('O', "From %s: %s (%s) [%s] is now a server operator of type \x02%s\x02.",
+	std::string extra;
+	if (params.GetTags().find("~name") != params.GetTags().end())
+	{
+		extra += InspIRCd::Format(" (%susing account \x02%s\x02)", automatic ? "automatically " : "",
+			u->oper->GetName().c_str());
+	}
+
+	ServerInstance->SNO.WriteToSnoMask('O', "From %s: %s (%s) [%s] is now a server operator of type \x02%s\x02%s.",
 		u->server->GetName().c_str(), u->nick.c_str(), u->MakeHost().c_str(), u->GetIPString().c_str(),
-		u->oper->GetType().c_str());
+		u->oper->GetType().c_str(), extra.c_str());
 	return CmdResult::SUCCESS;
 }
 
-CommandOpertype::Builder::Builder(User* user, const std::shared_ptr<OperAccount>& oper)
+CommandOpertype::Builder::Builder(User* user, const std::shared_ptr<OperAccount>& oper, bool automatic)
 	: CmdBuilder(user, "OPERTYPE")
 {
 	push_tags({
@@ -116,5 +124,12 @@ CommandOpertype::Builder::Builder(User* user, const std::shared_ptr<OperAccount>
 		{ "~commands",   { &Utils->Creator->servertags, ClientProtocol::Message::EscapeTag(oper->GetCommands(true))                } },
 		{ "~privileges", { &Utils->Creator->servertags, ClientProtocol::Message::EscapeTag(oper->GetPrivileges())                  } },
 	});
+
+	if (automatic)
+	{
+		push_tags({
+			{ "~automatic", { &Utils->Creator->servertags, "" } },
+		});
+	}
 	push_last(oper->GetType());
 }

@@ -779,7 +779,7 @@ void ModuleSpanningTree::OnOperLogin(User* user, const std::shared_ptr<OperAccou
 
 	// Note: The protocol does not allow direct umode +o;
 	// sending OPERTYPE infers +o modechange locally.
-	CommandOpertype::Builder(user, oper).Broadcast();
+	CommandOpertype::Builder(user, oper, automatic).Broadcast();
 }
 
 void ModuleSpanningTree::OnAddLine(User* user, XLine* x)

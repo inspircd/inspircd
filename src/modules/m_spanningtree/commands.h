@@ -156,7 +156,7 @@ public:
 		: public CmdBuilder
 	{
 	public:
-		Builder(User* user, const std::shared_ptr<OperAccount>& oper);
+		Builder(User* user, const std::shared_ptr<OperAccount>& oper, bool automatic = false);
 	};
 };
 
