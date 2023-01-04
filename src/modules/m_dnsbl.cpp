@@ -165,14 +165,34 @@ public:
 
 typedef ListExtItem<std::vector<std::string>> MarkExtItem;
 
+// Data which is shared with DNS lookup classes.
+class SharedData final
+{
+public:
+	// Reference to the DNS manager.
+	dynamic_reference<DNS::Manager> dns;
+
+	// Counts the number of DNSBL lookups waiting for this user.
+	IntExtItem countext;
+
+	// The DNSBL marks which are set on a user.
+	MarkExtItem markext;
+
+	SharedData(Module* mod)
+		: dns(mod, "DNS")
+		, countext(mod, "dnsbl-pending", ExtensionType::USER)
+		, markext(mod, "dnsbl-match", ExtensionType::USER)
+	{
+	}
+};
+
 class DNSBLResolver final
 	: public DNS::Request
 {
 private:
+	SharedData& data;
 	irc::sockets::sockaddrs theirsa;
 	std::string theiruid;
-	MarkExtItem& nameExt;
-	IntExtItem& countExt;
 	std::shared_ptr<DNSBLEntry> ConfEntry;
 
 
@@ -193,12 +213,11 @@ private:
 	}
 
 public:
-	DNSBLResolver(DNS::Manager* mgr, Module* me, MarkExtItem& match, IntExtItem& ctr, const std::string& hostname, LocalUser* u, std::shared_ptr<DNSBLEntry> conf)
-		: DNS::Request(mgr, me, hostname, DNS::QUERY_A, true, conf->timeout)
+	DNSBLResolver(Module* me, SharedData& sd, const std::string& hostname, LocalUser* u, std::shared_ptr<DNSBLEntry> conf)
+		: DNS::Request(*sd.dns, me, hostname, DNS::QUERY_A, true, conf->timeout)
+		, data(sd)
 		, theirsa(u->client_sa)
 		, theiruid(u->uuid)
-		, nameExt(match)
-		, countExt(ctr)
 		, ConfEntry(conf)
 	{
 	}
@@ -214,9 +233,9 @@ public:
 			return;
 		}
 
-		intptr_t i = countExt.Get(them);
+		intptr_t i = data.countext.Get(them);
 		if (i)
-			countExt.Set(them, i - 1);
+			data.countext.Set(them, i - 1);
 
 		// The DNSBL reply must contain an A result.
 		const DNS::ResourceRecord* const ans_record = r->FindAnswerOfType(DNS::QUERY_A);
@@ -296,7 +315,7 @@ public:
 						them->ChangeDisplayedHost(ConfEntry->markhost);
 					}
 
-					nameExt.GetRef(them).push_back(ConfEntry->name);
+					data.markext.GetRef(them).push_back(ConfEntry->name);
 					break;
 				}
 				case DNSBLEntry::Action::KLINE:
@@ -343,15 +362,15 @@ public:
 		if (!them || them->client_sa != theirsa)
 			return;
 
-		intptr_t i = countExt.Get(them);
+		intptr_t i = data.countext.Get(them);
 		if (i)
-			countExt.Set(them, i - 1);
+			data.countext.Set(them, i - 1);
 
 		if (is_miss)
 			return;
 
 		ServerInstance->SNO.WriteGlobalSno('d', "An error occurred whilst checking whether %s (%s) is on the '%s' DNS blacklist: %s",
-			them->GetFullRealHost().c_str(), them->GetIPString().c_str(), ConfEntry->name.c_str(), this->manager->GetErrorStr(q->error).c_str());
+			them->GetFullRealHost().c_str(), them->GetIPString().c_str(), ConfEntry->name.c_str(), data.dns->GetErrorStr(q->error).c_str());
 	}
 };
 
@@ -362,18 +381,14 @@ class ModuleDNSBL final
 	, public Stats::EventListener
 {
 private:
-	dynamic_reference<DNS::Manager> DNS;
+	SharedData data;
 	DNSBLEntries dnsbls;
-	MarkExtItem nameExt;
-	IntExtItem countExt;
 
 public:
 	ModuleDNSBL()
 		: Module(VF_VENDOR, "Allows the server administrator to check the IP address of connecting users against a DNSBL.")
 		, Stats::EventListener(this)
-		, DNS(this, "DNS")
-		, nameExt(this, "dnsbl-match", ExtensionType::USER)
-		, countExt(this, "dnsbl-pending", ExtensionType::USER)
+		, data(this)
 	{
 	}
 
@@ -401,7 +416,7 @@ public:
 
 	void OnChangeRemoteAddress(LocalUser* user) override
 	{
-		if (user->exempt || user->quitting || !DNS || !user->GetClass())
+		if (user->exempt || user->quitting || !data.dns || !user->GetClass())
 			return;
 
 		// Clients can't be in a DNSBL if they aren't connected via IPv4 or IPv6.
@@ -438,7 +453,7 @@ public:
 
 		ServerInstance->Logs.Debug(MODNAME, "Reversed IP %s -> %s", user->GetIPString().c_str(), reversedip.c_str());
 
-		countExt.Set(user, dnsbls.size());
+		data.countext.Set(user, dnsbls.size());
 
 		// For each DNSBL, we will run through this lookup
 		for (const auto& dnsbl : dnsbls)
@@ -447,10 +462,10 @@ public:
 			std::string hostname = reversedip + "." + dnsbl->domain;
 
 			/* now we'd need to fire off lookups for `hostname'. */
-			auto r = new DNSBLResolver(*this->DNS, this, nameExt, countExt, hostname, user, dnsbl);
+			auto r = new DNSBLResolver(this, data, hostname, user, dnsbl);
 			try
 			{
-				this->DNS->Process(r);
+				data.dns->Process(r);
 			}
 			catch (const DNS::Exception& ex)
 			{
@@ -469,7 +484,7 @@ public:
 		if (!myclass->config->readString("dnsbl", dnsbl))
 			return MOD_RES_PASSTHRU;
 
-		MarkExtItem::List* match = nameExt.Get(user);
+		MarkExtItem::List* match = data.markext.Get(user);
 		if (!match)
 		{
 			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires a DNSBL mark",
@@ -491,9 +506,8 @@ public:
 
 	ModResult OnCheckReady(LocalUser* user) override
 	{
-		if (countExt.Get(user))
-			return MOD_RES_DENY;
-		return MOD_RES_PASSTHRU;
+		// Block until all of the DNSBL lookups are complete.
+		return data.countext.Get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnStats(Stats::Context& stats) override
