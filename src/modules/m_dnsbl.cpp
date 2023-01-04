@@ -190,10 +190,10 @@ class DNSBLResolver final
 	: public DNS::Request
 {
 private:
+	std::shared_ptr<DNSBLEntry> config;
 	SharedData& data;
-	irc::sockets::sockaddrs theirsa;
-	std::string theiruid;
-	std::shared_ptr<DNSBLEntry> ConfEntry;
+	const irc::sockets::sockaddrs sa;
+	const std::string uuid;
 
 
 	template <typename Line, typename... Extra>
@@ -213,12 +213,12 @@ private:
 	}
 
 public:
-	DNSBLResolver(Module* me, SharedData& sd, const std::string& hostname, LocalUser* u, std::shared_ptr<DNSBLEntry> conf)
-		: DNS::Request(*sd.dns, me, hostname, DNS::QUERY_A, true, conf->timeout)
+	DNSBLResolver(Module* mod, SharedData& sd, const std::string& hostname, LocalUser* u, const std::shared_ptr<DNSBLEntry>& cfg)
+		: DNS::Request(*sd.dns, mod, hostname, DNS::QUERY_A, true, cfg->timeout)
+		, config(cfg)
 		, data(sd)
-		, theirsa(u->client_sa)
-		, theiruid(u->uuid)
-		, ConfEntry(conf)
+		, sa(u->client_sa)
+		, uuid(u->uuid)
 	{
 	}
 
@@ -226,10 +226,10 @@ public:
 	void OnLookupComplete(const DNS::Query* r) override
 	{
 		/* Check the user still exists */
-		LocalUser* them = IS_LOCAL(ServerInstance->Users.FindUUID(theiruid));
-		if (!them || them->client_sa != theirsa)
+		LocalUser* them = IS_LOCAL(ServerInstance->Users.FindUUID(uuid));
+		if (!them || them->client_sa != sa)
 		{
-			ConfEntry->stats_misses++;
+			config->stats_misses++;
 			return;
 		}
 
@@ -241,9 +241,9 @@ public:
 		const DNS::ResourceRecord* const ans_record = r->FindAnswerOfType(DNS::QUERY_A);
 		if (!ans_record)
 		{
-			ConfEntry->stats_errors++;
+			config->stats_errors++;
 			ServerInstance->SNO.WriteGlobalSno('d', "%s returned an result with no IPv4 address.",
-				ConfEntry->name.c_str());
+				config->name.c_str());
 			return;
 		}
 
@@ -251,50 +251,50 @@ public:
 		in_addr resultip;
 		if (inet_pton(AF_INET, ans_record->rdata.c_str(), &resultip) != 1)
 		{
-			ConfEntry->stats_errors++;
+			config->stats_errors++;
 			ServerInstance->SNO.WriteGlobalSno('d', "%s returned an invalid IPv4 address: %s",
-				ConfEntry->name.c_str(), ans_record->rdata.c_str());
+				config->name.c_str(), ans_record->rdata.c_str());
 			return;
 		}
 
 		// The DNSBL reply should be in the 127.0.0.0/8 range.
 		if ((resultip.s_addr & 0xFF) != 127)
 		{
-			ConfEntry->stats_errors++;
+			config->stats_errors++;
 			ServerInstance->SNO.WriteGlobalSno('d', "%s returned an IPv4 address which is outside of the 127.0.0.0/8 subnet: %s",
-				ConfEntry->name.c_str(), ans_record->rdata.c_str());
+				config->name.c_str(), ans_record->rdata.c_str());
 			return;
 		}
 
 		bool match = false;
 		unsigned int result = 0;
-		switch (ConfEntry->type)
+		switch (config->type)
 		{
 			case DNSBLEntry::Type::BITMASK:
 			{
-				result = (resultip.s_addr >> 24) & ConfEntry->bitmask;
+				result = (resultip.s_addr >> 24) & config->bitmask;
 				match = (result != 0);
 				break;
 			}
 			case DNSBLEntry::Type::RECORD:
 			{
 				result = resultip.s_addr >> 24;
-				match = (ConfEntry->records[result] == 1);
+				match = (config->records[result] == 1);
 				break;
 			}
 		}
 
 		if (match)
 		{
-			const std::string reason = Template::Replace(ConfEntry->reason, {
-				{ "dnsbl",  ConfEntry->name     },
+			const std::string reason = Template::Replace(config->reason, {
+				{ "dnsbl",  config->name     },
 				{ "ip",     them->GetIPString() },
 				{ "result", ConvToStr(result)   },
 			});
 
-			ConfEntry->stats_hits++;
+			config->stats_hits++;
 
-			switch (ConfEntry->action)
+			switch (config->action)
 			{
 				case DNSBLEntry::Action::KILL:
 				{
@@ -303,43 +303,43 @@ public:
 				}
 				case DNSBLEntry::Action::MARK:
 				{
-					if (!ConfEntry->markident.empty())
+					if (!config->markident.empty())
 					{
-						them->WriteNotice("Your ident has been set to " + ConfEntry->markident + " because you matched " + reason);
-						them->ChangeIdent(ConfEntry->markident);
+						them->WriteNotice("Your ident has been set to " + config->markident + " because you matched " + reason);
+						them->ChangeIdent(config->markident);
 					}
 
-					if (!ConfEntry->markhost.empty())
+					if (!config->markhost.empty())
 					{
-						them->WriteNotice("Your host has been set to " + ConfEntry->markhost + " because you matched " + reason);
-						them->ChangeDisplayedHost(ConfEntry->markhost);
+						them->WriteNotice("Your host has been set to " + config->markhost + " because you matched " + reason);
+						them->ChangeDisplayedHost(config->markhost);
 					}
 
-					data.markext.GetRef(them).push_back(ConfEntry->name);
+					data.markext.GetRef(them).push_back(config->name);
 					break;
 				}
 				case DNSBLEntry::Action::KLINE:
 				{
-					AddLine<KLine>("K-line", reason, ConfEntry->xlineduration, them->GetBanIdent(), them->GetIPString());
+					AddLine<KLine>("K-line", reason, config->xlineduration, them->GetBanIdent(), them->GetIPString());
 					break;
 				}
 				case DNSBLEntry::Action::GLINE:
 				{
-					AddLine<GLine>("G-line", reason, ConfEntry->xlineduration, them->GetBanIdent(), them->GetIPString());
+					AddLine<GLine>("G-line", reason, config->xlineduration, them->GetBanIdent(), them->GetIPString());
 					break;
 				}
 				case DNSBLEntry::Action::ZLINE:
 				{
-					AddLine<ZLine>("Z-line", reason, ConfEntry->xlineduration, them->GetIPString());
+					AddLine<ZLine>("Z-line", reason, config->xlineduration, them->GetIPString());
 					break;
 				}
 			}
 
 			ServerInstance->SNO.WriteGlobalSno('d', "Connecting user %s (%s) detected as being on the '%s' DNS blacklist with result %d",
-				them->GetFullRealHost().c_str(), them->GetIPString().c_str(), ConfEntry->name.c_str(), result);
+				them->GetFullRealHost().c_str(), them->GetIPString().c_str(), config->name.c_str(), result);
 		}
 		else
-			ConfEntry->stats_misses++;
+			config->stats_misses++;
 	}
 
 	void OnError(const DNS::Query* q) override
@@ -349,17 +349,17 @@ public:
 		{
 			case DNS::ERROR_NO_RECORDS:
 			case DNS::ERROR_DOMAIN_NOT_FOUND:
-				ConfEntry->stats_misses++;
+				config->stats_misses++;
 				break;
 
 			default:
-				ConfEntry->stats_errors++;
+				config->stats_errors++;
 				is_miss = false;
 				break;
 		}
 
-		LocalUser* them = IS_LOCAL(ServerInstance->Users.FindUUID(theiruid));
-		if (!them || them->client_sa != theirsa)
+		LocalUser* them = IS_LOCAL(ServerInstance->Users.FindUUID(uuid));
+		if (!them || them->client_sa != sa)
 			return;
 
 		intptr_t i = data.countext.Get(them);
@@ -370,7 +370,7 @@ public:
 			return;
 
 		ServerInstance->SNO.WriteGlobalSno('d', "An error occurred whilst checking whether %s (%s) is on the '%s' DNS blacklist: %s",
-			them->GetFullRealHost().c_str(), them->GetIPString().c_str(), ConfEntry->name.c_str(), data.dns->GetErrorStr(q->error).c_str());
+			them->GetFullRealHost().c_str(), them->GetIPString().c_str(), config->name.c_str(), data.dns->GetErrorStr(q->error).c_str());
 	}
 };
 
