@@ -63,11 +63,21 @@ public:
 
 	/** Set the server time on a message.
 	 * @param msg Message to set the time on. No-op if the message already has server time set.
-	 * @param t Unix timestamp to set.
+	 * @param ts Timestamp to set.
 	 */
-	void Set(ClientProtocol::Message& msg, time_t t)
+	void Set(ClientProtocol::Message& msg, const timespec& ts)
 	{
-		Set(msg, FormatTime(t));
+		Set(msg, FormatTime(ts.tv_sec, ts.tv_nsec / 1'000'000));
+	}
+
+	/** Set the server time on a message.
+	 * @param msg Message to set the time on. No-op if the message already has server time set.
+	 * @param secs UNIX timestamp to set.
+	 * @param millisecs Number of milliseconds to set.
+	 */
+	void Set(ClientProtocol::Message& msg, time_t secs, long millisecs = 0)
+	{
+		Set(msg, FormatTime(secs, millisecs));
 	}
 
 	/** Set the server time on a message.
