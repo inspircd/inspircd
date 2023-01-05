@@ -118,7 +118,7 @@ public:
 	ServiceTag servicetag;
 
 	/** The DNS manager service provided by core_dns. */
-	dynamic_reference<DNS::Manager> DNS;
+	DNS::ManagerRef DNS;
 
 	/** Event provider for message tags. */
 	ClientProtocol::MessageTagEvent tagevprov;

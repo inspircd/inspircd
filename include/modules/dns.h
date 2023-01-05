@@ -184,6 +184,17 @@ namespace DNS
 		virtual std::string GetTypeStr(QueryType) = 0;
 	};
 
+	/** Reference to the DNS manager. */
+	class ManagerRef final
+		: public dynamic_reference<DNS::Manager>
+	{
+	public:
+		ManagerRef(Module* mod)
+			: dynamic_reference<DNS::Manager>(mod, "DNS")
+		{
+		}
+	};
+
 	/** A DNS query.
 	 */
 	class Request : public Timer

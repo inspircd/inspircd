@@ -170,7 +170,7 @@ class SharedData final
 {
 public:
 	// Reference to the DNS manager.
-	dynamic_reference<DNS::Manager> dns;
+	DNS::ManagerRef dns;
 
 	// Counts the number of DNSBL lookups waiting for this user.
 	IntExtItem countext;
@@ -179,7 +179,7 @@ public:
 	MarkExtItem markext;
 
 	SharedData(Module* mod)
-		: dns(mod, "DNS")
+		: dns(mod)
 		, countext(mod, "dnsbl-pending", ExtensionType::USER)
 		, markext(mod, "dnsbl-match", ExtensionType::USER)
 	{

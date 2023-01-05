@@ -200,13 +200,13 @@ class ModuleHostnameLookup final
 {
 private:
 	BoolExtItem dnsLookup;
-	dynamic_reference<DNS::Manager> DNS;
+	DNS::ManagerRef DNS;
 
 public:
 	ModuleHostnameLookup()
 		: Module(VF_CORE | VF_VENDOR, "Provides support for DNS lookups on connecting clients")
 		, dnsLookup(this, "dns-lookup", ExtensionType::USER)
-		, DNS(this, "DNS")
+		, DNS(this)
 	{
 		dl = &dnsLookup;
 	}

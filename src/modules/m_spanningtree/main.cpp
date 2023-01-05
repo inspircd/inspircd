@@ -58,7 +58,7 @@ ModuleSpanningTree::ModuleSpanningTree()
 	, sslapi(this)
 	, servertags(this)
 	, servicetag(this)
-	, DNS(this, "DNS")
+	, DNS(this)
 	, tagevprov(this)
 {
 }
