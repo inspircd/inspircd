@@ -221,6 +221,7 @@ class SSLIOHook : public IOHook
 
 	SSLIOHook(IOHookProvider* hookprov)
 		: IOHook(hookprov)
+		, status(STATUS_NONE)
 	{
 	}
 
