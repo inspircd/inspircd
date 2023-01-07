@@ -57,6 +57,22 @@ class DNSBLConfEntry : public refcountbase
 		}
 };
 
+class DNSBLIdentHost
+{
+public:
+	std::string ident;
+	std::string host;
+	std::string reason;
+
+	DNSBLIdentHost(reference<DNSBLConfEntry> cfg, const std::string& msg)
+		: ident(cfg->ident)
+		, host(cfg->host)
+		, reason(msg)
+	{
+	}
+};
+
+typedef SimpleExtItem<DNSBLIdentHost> IdentHostExtItem;
 typedef SimpleExtItem<std::vector<std::string> > MarkExtItem;
 
 /** Resolver for CGI:IRC hostnames encoded in ident/real name
@@ -67,15 +83,17 @@ class DNSBLResolver : public DNS::Request
 	irc::sockets::sockaddrs theirsa;
 	std::string theiruid;
 	MarkExtItem& nameExt;
+	IdentHostExtItem& maskExt;
 	LocalIntExt& countExt;
 	reference<DNSBLConfEntry> ConfEntry;
 
  public:
-	DNSBLResolver(DNS::Manager *mgr, Module *me, MarkExtItem& match, LocalIntExt& ctr, const std::string &hostname, LocalUser* u, reference<DNSBLConfEntry> conf)
+	DNSBLResolver(DNS::Manager *mgr, Module *me, MarkExtItem& match, LocalIntExt& ctr, IdentHostExtItem& mask, const std::string &hostname, LocalUser* u, reference<DNSBLConfEntry> conf)
 		: DNS::Request(mgr, me, hostname, DNS::QUERY_A, true, conf->timeout)
 		, theirsa(u->client_sa)
 		, theiruid(u->uuid)
 		, nameExt(match)
+		, maskExt(mask)
 		, countExt(ctr)
 		, ConfEntry(conf)
 	{
@@ -165,16 +183,14 @@ class DNSBLResolver : public DNS::Request
 				}
 				case DNSBLConfEntry::I_MARK:
 				{
-					if (!ConfEntry->ident.empty())
+					if (!ConfEntry->ident.empty() || !ConfEntry->host.empty())
 					{
-						them->WriteNotice("Your ident has been set to " + ConfEntry->ident + " because you matched " + reason);
-						them->ChangeIdent(ConfEntry->ident);
-					}
+						// Store the u@h mask for later to avoid being overwritten by ident/hostname lookups.
+						maskExt.set(them, new DNSBLIdentHost(ConfEntry, reason));
 
-					if (!ConfEntry->host.empty())
-					{
-						them->WriteNotice("Your host has been set to " + ConfEntry->host + " because you matched " + reason);
-						them->ChangeDisplayedHost(ConfEntry->host);
+						// If the user is already connected we should just do this now.
+						if (them->registered == REG_ALL)
+							creator->OnUserConnect(them);
 					}
 
 					std::vector<std::string>* marks = nameExt.get(them);
@@ -292,6 +308,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 	dynamic_reference<DNS::Manager> DNS;
 	MarkExtItem nameExt;
 	LocalIntExt countExt;
+	IdentHostExtItem maskExt;
 
 	/*
 	 *	Convert a string to EnumBanaction
@@ -316,6 +333,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 		, DNS(this, "DNS")
 		, nameExt("dnsbl_match", ExtensionItem::EXT_USER, this)
 		, countExt("dnsbl_pending", ExtensionItem::EXT_USER, this)
+		, maskExt("dnsbl_mask", ExtensionItem::EXT_USER, this)
 	{
 	}
 
@@ -328,6 +346,9 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 	{
 		Module* corexline = ServerInstance->Modules->Find("core_xline");
 		ServerInstance->Modules->SetPriority(this, I_OnSetUserIP, PRIORITY_AFTER, corexline);
+
+		Module* hostchange = ServerInstance->Modules->Find("hostchange");
+		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_BEFORE, hostchange);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
@@ -458,7 +479,7 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 			std::string hostname = reversedip + "." + DNSBLConfEntries[i]->domain;
 
 			/* now we'd need to fire off lookups for `hostname'. */
-			DNSBLResolver *r = new DNSBLResolver(*this->DNS, this, nameExt, countExt, hostname, user, DNSBLConfEntries[i]);
+			DNSBLResolver *r = new DNSBLResolver(*this->DNS, this, nameExt, countExt, maskExt, hostname, user, DNSBLConfEntries[i]);
 			try
 			{
 				this->DNS->Process(r);
@@ -505,6 +526,27 @@ class ModuleDNSBL : public Module, public Stats::EventListener
 		if (countExt.get(user))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
+	}
+
+	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
+	{
+		DNSBLIdentHost* ih = maskExt.get(user);
+		if (ih)
+		{
+			if (!ih->ident.empty())
+			{
+				user->WriteNotice("Your ident has been set to " + ih->ident + " because you matched " + ih->reason);
+				user->ChangeIdent(ih->ident);
+			}
+
+			if (!ih->host.empty())
+			{
+				user->WriteNotice("Your host has been set to " + ih->host + " because you matched " + ih->reason);
+				user->ChangeDisplayedHost(ih->host);
+			}
+
+			maskExt.unset(user);
+		}
 	}
 
 	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
