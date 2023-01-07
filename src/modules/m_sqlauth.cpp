@@ -58,7 +58,7 @@ public:
 
 	void OnResult(SQL::Result& res) override
 	{
-		LocalUser* user = IS_LOCAL(ServerInstance->Users.FindUUID(uid));
+		LocalUser* user = ServerInstance->Users.FindUUID<LocalUser>(uid);
 		if (!user)
 			return;
 

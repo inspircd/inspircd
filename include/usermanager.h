@@ -197,6 +197,30 @@ public:
 	 */
 	User* Find(const std::string& nickuuid, bool fullyconnected = false);
 
+	/** Find a local user by their nickname or UUID.
+	 * IMPORTANT: You probably want to use FindNick or FindUUID instead of this.
+	 * @param nickuuid The nickname or UUID of the user to find.
+	 * @param fullyconnected Whether to only return users who are fully connected to the server.
+	 * @return If the user was found then a pointer to a User object; otherwise, nullptr.
+	 */
+	template<typename T>
+	std::enable_if_t<std::is_same_v<T, LocalUser>, T*> Find(const std::string& nickuuid, bool fullyconnected = false)
+	{
+		return IS_LOCAL(Find(nickuuid, fullyconnected));
+	}
+
+	/** Find a remote user by their nickname or UUID.
+	 * IMPORTANT: You probably want to use FindNick or FindUUID instead of this.
+	 * @param nickuuid The nickname or UUID of the user to find.
+	 * @param fullyconnected Whether to only return users who are fully connected to the server.
+	 * @return If the user was found then a pointer to a User object; otherwise, nullptr.
+	 */
+	template<typename T>
+	std::enable_if_t<std::is_same_v<T, RemoteUser>, T*> Find(const std::string& nickuuid, bool fullyconnected = false)
+	{
+		return IS_REMOTE(Find(nickuuid, fullyconnected));
+	}
+
 	/** Find a user by their nickname.
 	 * @param nick The nickname of the user to find.
 	 * @param fullyconnected Whether to only return users who are fully connected to the server.
@@ -204,10 +228,54 @@ public:
 	 */
 	User* FindNick(const std::string& nick, bool fullyconnected = false);
 
+	/** Find a local user by their nickname.
+	 * @param nick The nickname of the user to find.
+	 * @param fullyconnected Whether to only return users who are fully connected to the server.
+	 * @return If the user was found then a pointer to a User object; otherwise, nullptr.
+	 */
+	template<typename T>
+	std::enable_if_t<std::is_same_v<T, LocalUser>, T*> FindNick(const std::string& nick, bool fullyconnected = false)
+	{
+		return IS_LOCAL(FindNick(nick, fullyconnected));
+	}
+
+	/** Find a remote user by their nickname.
+	 * @param nick The nickname of the user to find.
+	 * @param fullyconnected Whether to only return users who are fully connected to the server.
+	 * @return If the user was found then a pointer to a User object; otherwise, nullptr.
+	 */
+	template<typename T>
+	std::enable_if_t<std::is_same_v<T, RemoteUser>, T*> FindNick(const std::string& nick, bool fullyconnected = false)
+	{
+		return IS_REMOTE(FindNick(nick, fullyconnected));
+	}
+
 	/** Find a user by their UUID.
 	 * @param uuid The UUID of the user to find.
 	 * @param fullyconnected Whether to only return users who are fully connected to the server.
 	 * @return If the user was found then a pointer to a User object; otherwise, nullptr.
 	 */
 	User* FindUUID(const std::string& uuid, bool fullyconnected = false);
+
+	/** Find a local user by their UUID.
+	 * @param uuid The UUID of the user to find.
+	 * @param fullyconnected Whether to only return users who are fully connected to the server.
+	 * @return If the user was found then a pointer to a User object; otherwise, nullptr.
+	 */
+	template<typename T>
+	std::enable_if_t<std::is_same_v<T, LocalUser>, T*> FindUUID(const std::string& uuid, bool fullyconnected = false)
+	{
+		return IS_LOCAL(FindUUID(uuid, fullyconnected));
+	}
+
+	/** Find a remote user by their UUID.
+	 * @param uuid The UUID of the user to find.
+	 * @param fullyconnected Whether to only return users who are fully connected to the server.
+	 * @return If the user was found then a pointer to a User object; otherwise, nullptr.
+	 */
+	template<typename T>
+	std::enable_if_t<std::is_same_v<T, RemoteUser>, T*> FindUUID(const std::string& uuid, bool fullyconnected = false)
+	{
+		return IS_REMOTE(FindUUID(uuid, fullyconnected));
+	}
 };

@@ -71,7 +71,7 @@ protected:
 public:
 	void OnError(const DNS::Query* query) override
 	{
-		LocalUser* user = IS_LOCAL(ServerInstance->Users.FindUUID(uuid));
+		LocalUser* user = ServerInstance->Users.FindUUID<LocalUser>(uuid);
 		if (user && user->client_sa == sa)
 			HandleError(user, "Could not resolve your hostname: " + this->manager->GetErrorStr(query->error));
 	}
@@ -89,7 +89,7 @@ public:
 
 	void OnLookupComplete(const DNS::Query* query) override
 	{
-		LocalUser* user = IS_LOCAL(ServerInstance->Users.FindUUID(uuid));
+		LocalUser* user = ServerInstance->Users.FindUUID<LocalUser>(uuid);
 		if (!user || user->client_sa != sa)
 			return;
 
@@ -166,7 +166,7 @@ public:
 
 	void OnLookupComplete(const DNS::Query* query) override
 	{
-		LocalUser* user = IS_LOCAL(ServerInstance->Users.FindUUID(uuid));
+		LocalUser* user = ServerInstance->Users.FindUUID<LocalUser>(uuid);
 		if (!user || user->client_sa != sa)
 			return;
 

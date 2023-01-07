@@ -226,7 +226,7 @@ public:
 	void OnLookupComplete(const DNS::Query* r) override
 	{
 		/* Check the user still exists */
-		LocalUser* them = IS_LOCAL(ServerInstance->Users.FindUUID(uuid));
+		LocalUser* them = ServerInstance->Users.FindUUID<LocalUser>(uuid);
 		if (!them || them->client_sa != sa)
 		{
 			config->stats_misses++;
@@ -358,7 +358,7 @@ public:
 				break;
 		}
 
-		LocalUser* them = IS_LOCAL(ServerInstance->Users.FindUUID(uuid));
+		LocalUser* them = ServerInstance->Users.FindUUID<LocalUser>(uuid);
 		if (!them || them->client_sa != sa)
 			return;
 

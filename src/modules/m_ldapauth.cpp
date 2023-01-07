@@ -224,7 +224,7 @@ public:
 
 	void OnResult(const LDAPResult& r) override
 	{
-		LocalUser* user = IS_LOCAL(ServerInstance->Users.FindUUID(uid));
+		LocalUser* user = ServerInstance->Users.FindUUID<LocalUser>(uid);
 		dynamic_reference<LDAPProvider> LDAP(me, provider);
 		if (!LDAP || r.empty() || !user)
 		{
