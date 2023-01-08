@@ -163,6 +163,27 @@ public:
 	}
 };
 
+class DNSBLIdentHost final
+{
+public:
+	// The ident to give a user because they were in a DNSBL (<dnsbl:ident>).
+	std::string ident;
+
+	// The hostname to give a user because they were in a DNSBL (<dnsbl:host>).
+	std::string host;
+
+	// The reason why the user was given this user@host (<dnsbl:reason>).
+	std::string reason;
+
+	DNSBLIdentHost(const std::shared_ptr<DNSBLEntry>& cfg, const std::string& msg)
+		: ident(cfg->markident)
+		, host(cfg->markhost)
+		, reason(msg)
+	{
+	}
+};
+
+typedef SimpleExtItem<DNSBLIdentHost> IdentHostExtItem;
 typedef ListExtItem<std::vector<std::string>> MarkExtItem;
 
 // Data which is shared with DNS lookup classes.
@@ -178,10 +199,14 @@ public:
 	// The DNSBL marks which are set on a user.
 	MarkExtItem markext;
 
+	// The ident@host to set on a marked user when they are connected.
+	IdentHostExtItem maskext;
+
 	SharedData(Module* mod)
 		: dns(mod)
 		, countext(mod, "dnsbl-pending", ExtensionType::USER)
 		, markext(mod, "dnsbl-match", ExtensionType::USER)
+		, maskext(mod, "dnsbl-mask", ExtensionType::USER)
 	{
 	}
 };
@@ -303,16 +328,14 @@ public:
 				}
 				case DNSBLEntry::Action::MARK:
 				{
-					if (!config->markident.empty())
+					if (!config->markident.empty() || !config->markhost.empty())
 					{
-						them->WriteNotice("Your ident has been set to " + config->markident + " because you matched " + reason);
-						them->ChangeIdent(config->markident);
-					}
+						// Store the u@h mask for later to avoid being overwritten by ident/hostname lookups.
+						data.maskext.SetFwd(them, config, reason);
 
-					if (!config->markhost.empty())
-					{
-						them->WriteNotice("Your host has been set to " + config->markhost + " because you matched " + reason);
-						them->ChangeDisplayedHost(config->markhost);
+						// If the user is already connected we should just do this now.
+						if (them->IsFullyConnected())
+							creator->OnUserConnect(them);
 					}
 
 					data.markext.GetRef(them).push_back(config->name);
@@ -401,6 +424,9 @@ public:
 	{
 		Module* corexline = ServerInstance->Modules.Find("core_xline");
 		ServerInstance->Modules.SetPriority(this, I_OnChangeRemoteAddress, PRIORITY_AFTER, corexline);
+
+		Module* hostchange = ServerInstance->Modules.Find("hostchange");
+		ServerInstance->Modules.SetPriority(this, I_OnUserConnect, PRIORITY_BEFORE, hostchange);
 	}
 
 	void ReadConfig(ConfigStatus& status) override
@@ -508,6 +534,27 @@ public:
 	{
 		// Block until all of the DNSBL lookups are complete.
 		return data.countext.Get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+	}
+
+	void OnUserConnect(LocalUser* user) override
+	{
+		DNSBLIdentHost* ih = data.maskext.Get(user);
+		if (ih)
+		{
+			if (!ih->ident.empty())
+			{
+				user->WriteNotice("Your ident has been set to " + ih->ident + " because you matched " + ih->reason);
+				user->ChangeIdent(ih->ident);
+			}
+
+			if (!ih->host.empty())
+			{
+				user->WriteNotice("Your host has been set to " + ih->host + " because you matched " + ih->reason);
+				user->ChangeDisplayedHost(ih->host);
+			}
+
+			data.maskext.Unset(user);
+		}
 	}
 
 	ModResult OnStats(Stats::Context& stats) override
