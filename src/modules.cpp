@@ -152,7 +152,6 @@ ModResult	Module::OnChannelPreDelete(Channel*) { DetachEvent(I_OnChannelPreDelet
 void		Module::OnChannelDelete(Channel*) { DetachEvent(I_OnChannelDelete); }
 void		Module::OnBuildNeighborList(User*, User::NeighborList&, User::NeighborExceptions&) { DetachEvent(I_OnBuildNeighborList); }
 void		Module::OnGarbageCollect() { DetachEvent(I_OnGarbageCollect); }
-ModResult	Module::OnSetConnectClass(LocalUser* user, const ConnectClass::Ptr& myclass) { DetachEvent(I_OnSetConnectClass); return MOD_RES_PASSTHRU; }
 void		Module::OnUserMessage(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserMessage); }
 ModResult	Module::OnNumeric(User*, const Numeric::Numeric&) { DetachEvent(I_OnNumeric); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnAcceptConnection(int, ListenSocket*, const irc::sockets::sockaddrs&, const irc::sockets::sockaddrs&) { DetachEvent(I_OnAcceptConnection); return MOD_RES_PASSTHRU; }
@@ -166,6 +165,9 @@ void		Module::OnOperLogin(User*, const std::shared_ptr<OperAccount>&, bool) { De
 void		Module::OnPostOperLogin(User*, bool) { DetachEvent(I_OnPostOperLogin); }
 void		Module::OnOperLogout(User*) { DetachEvent(I_OnOperLogout); }
 void		Module::OnPostOperLogout(User*, const std::shared_ptr<OperAccount>&) { DetachEvent(I_OnPostOperLogout); }
+ModResult	Module::OnPreChangeConnectClass(LocalUser*, const std::shared_ptr<ConnectClass>&) { DetachEvent(I_OnPreChangeConnectClass); return MOD_RES_PASSTHRU; }
+void		Module::OnChangeConnectClass(LocalUser*, const std::shared_ptr<ConnectClass>&, bool) { DetachEvent(I_OnChangeConnectClass); }
+void		Module::OnPostChangeConnectClass(LocalUser*, bool) { DetachEvent(I_OnPostChangeConnectClass); }
 
 ServiceProvider::ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type)
 	: creator(Creator)

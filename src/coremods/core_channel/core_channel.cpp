@@ -237,7 +237,7 @@ public:
 		tokens["MAXLIST"] = stdalgo::string::join(limits, ',');
 	}
 
-	void OnBuildClassISupport(const ConnectClass::Ptr& klass, ISupport::TokenMap& tokens) override
+	void OnBuildClassISupport(const std::shared_ptr<ConnectClass>& klass, ISupport::TokenMap& tokens) override
 	{
 		tokens["CHANLIMIT"] = InspIRCd::Format("#:%lu", klass->maxchans);
 	}

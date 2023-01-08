@@ -112,9 +112,18 @@ public:
 		if (!vhost.empty())
 			user->ChangeDisplayedHost(vhost);
 
-		const std::string klass = luser->oper->GetConfig()->getString("class");
-		if (!klass.empty())
-			luser->SetClass(klass);
+		const std::string klassname = luser->oper->GetConfig()->getString("class");
+		if (!klassname.empty())
+		{
+			for (const auto& klass : ServerInstance->Config->Classes)
+			{
+				if (klassname == klass->GetName())
+				{
+					luser->ChangeConnectClass(klass, true);
+					break;
+				}
+			}
+		}
 	}
 
 	ModResult OnStats(Stats::Context& stats) override

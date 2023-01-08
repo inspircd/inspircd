@@ -42,9 +42,6 @@
 class CoreExport ConnectClass final
 {
 public:
-	/** A shared pointer to a connect class. */
-	typedef std::shared_ptr<ConnectClass> Ptr;
-
 	/** An enumeration of possible types of connect class. */
 	enum Type
 		: uint8_t
@@ -125,17 +122,20 @@ public:
 	/** The maximum number of bytes that users in this class can have in their send queue before their commands stop being processed. */
 	unsigned long softsendqmax = 4096UL;
 
+	/** The number of users who are currently assigned to this class. */
+	unsigned long use_count = 0UL;
+
 	/** Creates a new connect class from a config tag. */
 	ConnectClass(std::shared_ptr<ConfigTag> tag, Type type, const std::vector<std::string>& masks);
 
 	/** Creates a new connect class with a parent from a config tag. */
-	ConnectClass(std::shared_ptr<ConfigTag> tag, Type type, const std::vector<std::string>& masks, const ConnectClass::Ptr& parent);
+	ConnectClass(std::shared_ptr<ConfigTag> tag, Type type, const std::vector<std::string>& masks, const std::shared_ptr<ConnectClass>& parent);
 
 	/** Configures this connect class using the config from the specified tag. */
 	void Configure(const std::string& classname, std::shared_ptr<ConfigTag> tag);
 
 	/** Update the settings in this block to match the given class */
-	void Update(const ConnectClass::Ptr& klass);
+	void Update(const std::shared_ptr<ConnectClass>& klass);
 
 	/** Retrieves the name of this connect class. */
 	const std::string& GetName() const { return name; }
@@ -754,7 +754,7 @@ class CoreExport LocalUser final
 {
 private:
 	/** The connect class this user is in. */
-	ConnectClass::Ptr connectclass;
+	std::shared_ptr<ConnectClass> connectclass;
 
 	/** Message list, can be passed to the two parameter Send(). */
 	static ClientProtocol::MessageList sendmsglist;
@@ -807,11 +807,7 @@ public:
 	/** Get the connect class which this user belongs to.
 	 * @return A pointer to this user's connect class.
 	 */
-	const ConnectClass::Ptr& GetClass() const { return connectclass; }
-
-	/** Call this method to find the matching \<connect> for a user, and to check them against it.
-	 */
-	void CheckClass(bool clone_count = true);
+	const std::shared_ptr<ConnectClass>& GetClass() const { return connectclass; }
 
 	/** Server address and port that this user is connected to.
 	 */
@@ -856,13 +852,19 @@ public:
 	 */
 	void FullConnect();
 
-	/** Set the connect class to which this user belongs to.
-	 * @param explicit_name Set this string to tie the user to a specific class name. Otherwise, the class is fitted by checking \<connect> tags from the configuration file.
-	 */
-	void SetClass(const std::string& explicit_name = "");
-
 	/** @copydoc User::ChangeRemoteAddress */
 	void ChangeRemoteAddress(const irc::sockets::sockaddrs& sa) override;
+
+	/** Change the connect class for this user.
+	 * @param klass The connect class the user should be assigned to.
+	 * @param force Whether the connect class was explicitly picked (e.g. via <oper:class>).
+	 */
+	void ChangeConnectClass(const std::shared_ptr<ConnectClass>& klass, bool force);
+
+	/** Find a new connect class for this user.
+	 * @return True if an allow-type connect class was found for the user. Otherwise, false.
+	 */
+	bool FindConnectClass();
 
 	/** Send a NOTICE message from the local server to the user.
 	 * The message will be sent even if the user is connected to a remote server.

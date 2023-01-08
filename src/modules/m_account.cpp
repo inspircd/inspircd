@@ -324,15 +324,15 @@ public:
 		return MOD_RES_DENY; // Account required but it does not match.
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, const ConnectClass::Ptr& myclass) override
+	ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass) override
 	{
 		const char* error = nullptr;
-		if (stdalgo::string::equalsci(myclass->config->getString("requireaccount"), "nick"))
+		if (stdalgo::string::equalsci(klass->config->getString("requireaccount"), "nick"))
 		{
 			if (!accountapi.GetAccountName(user) && !accountapi.IsIdentifiedToNick(user))
 				error = "an account matching their current nickname";
 		}
-		else if (myclass->config->getBool("requireaccount"))
+		else if (klass->config->getBool("requireaccount"))
 		{
 			if (!accountapi.GetAccountName(user))
 				error = "an account";
@@ -340,8 +340,8 @@ public:
 
 		if (error)
 		{
-			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires the user to be logged into %s",
-				myclass->GetName().c_str(), error);
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires the user to be logged into %s.",
+				klass->GetName().c_str(), error);
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

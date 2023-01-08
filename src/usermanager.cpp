@@ -173,12 +173,8 @@ void UserManager::AddUser(int socket, ListenSocket* via, const irc::sockets::soc
 		return;
 	}
 
-	// First class check. We do this again in LocalUser::FullConnect() after DNS is done, and NICK/USER is received.
-	New->SetClass();
-	// If the user doesn't have an acceptable connect class CheckClass() quits them
-	New->CheckClass(ServerInstance->Config->CCOnConnect);
-	if (New->quitting)
-		return;
+	if (!New->FindConnectClass())
+		return; // User does not match any connect classes.
 
 	/*
 	 * even with bancache, we still have to keep User::exempt current.
@@ -296,6 +292,8 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 				user->GetIPString().c_str(), operquitmsg.c_str());
 		}
 		local_users.erase(lu);
+		if (lu->GetClass())
+			lu->GetClass()->use_count--;
 	}
 
 	if (!clientlist.erase(user->nick))

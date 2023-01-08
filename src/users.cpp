@@ -378,51 +378,6 @@ void User::OperLogout()
 	FOREACH_MOD(OnPostOperLogout, (this, account));
 }
 
-/*
- * Check class restrictions
- */
-void LocalUser::CheckClass(bool clone_count)
-{
-	const ConnectClass::Ptr& a = GetClass();
-	if (!a)
-	{
-		ServerInstance->Users.QuitUser(this, "Access denied by configuration");
-		return;
-	}
-	else if (a->type == ConnectClass::DENY)
-	{
-		ServerInstance->Users.QuitUser(this, a->config->getString("reason", "Unauthorised connection", 1));
-		return;
-	}
-	else if (clone_count)
-	{
-		const UserManager::CloneCounts& clonecounts = ServerInstance->Users.GetCloneCounts(this);
-		if (a->maxlocal && clonecounts.local > a->maxlocal)
-		{
-			ServerInstance->Users.QuitUser(this, "No more connections allowed from your host via this connect class (local)");
-			if (a->maxconnwarn)
-			{
-				ServerInstance->SNO.WriteToSnoMask('a', "WARNING: maximum local connections for the %s class (%ld) exceeded by %s",
-					a->name.c_str(), a->maxlocal, this->GetIPString().c_str());
-			}
-			return;
-		}
-		else if (a->maxglobal && clonecounts.global > a->maxglobal)
-		{
-			ServerInstance->Users.QuitUser(this, "No more connections allowed from your host via this connect class (global)");
-			if (a->maxconnwarn)
-			{
-				ServerInstance->SNO.WriteToSnoMask('a', "WARNING: maximum global connections for the %s class (%ld) exceeded by %s",
-				a->name.c_str(), a->maxglobal, this->GetIPString().c_str());
-			}
-			return;
-		}
-	}
-
-	this->nextping = ServerInstance->Time() + a->pingtime;
-	this->uniqueusername = a->uniqueusername;
-}
-
 bool LocalUser::CheckLines(bool doZline)
 {
 	const char* check[] = { "G" , "K", (doZline) ? "Z" : nullptr, nullptr };
@@ -455,11 +410,10 @@ void LocalUser::FullConnect()
 	 * may put the user into a totally separate class with different restrictions! so we *must* check again.
 	 * Don't remove this! -- w00t
 	 */
-	connectclass = nullptr;
-	SetClass();
-	CheckClass();
-	CheckLines();
+	if (!FindConnectClass())
+		return; // User does not match any connect classes.
 
+	CheckLines();
 	if (quitting)
 		return;
 
@@ -651,12 +605,69 @@ void LocalUser::ChangeRemoteAddress(const irc::sockets::sockaddrs& sa)
 	ServerInstance->Users.AddClone(this);
 
 	// Recheck the connect class.
-	this->connectclass = nullptr;
-	this->SetClass();
-	this->CheckClass();
-
-	if (!quitting)
+	if (FindConnectClass())
 		FOREACH_MOD(OnChangeRemoteAddress, (this));
+}
+
+bool LocalUser::FindConnectClass()
+{
+	ServerInstance->Logs.Debug("CONNECTCLASS", "Finding a connect class for %s (%s) ...",
+		uuid.c_str(), GetFullRealHost().c_str());
+
+	for (const auto& klass : ServerInstance->Config->Classes)
+	{
+		ServerInstance->Logs.Debug("CONNECTCLASS", "Checking the %s connect class ...",
+			klass->GetName().c_str());
+
+		// Users can not be automatically assigned to a named class.
+		if (klass->type == ConnectClass::NAMED)
+		{
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as neither <connect:allow> nor <connect:deny> are set.",
+				klass->GetName().c_str());
+			continue;
+		}
+
+		ModResult modres;
+		FIRST_MOD_RESULT(OnPreChangeConnectClass, modres, (this, klass));
+		if (modres != MOD_RES_DENY)
+		{
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is suitable for %s (%s).",
+				klass->GetName().c_str(), uuid.c_str(), GetFullRealHost().c_str());
+
+			ChangeConnectClass(klass, false);
+			return !quitting;
+		}
+	}
+
+	// The user didn't match any connect classes.
+	if (connectclass)
+	{
+		connectclass->use_count--;
+		connectclass = nullptr;
+	}
+	ServerInstance->Users.QuitUser(this, "You are not allowed to connect to this server");
+	return false;
+}
+
+void LocalUser::ChangeConnectClass(const std::shared_ptr<ConnectClass>& klass, bool force)
+{
+	// Let modules know the class is about to be changed.
+	FOREACH_MOD(OnChangeConnectClass, (this, klass, force));
+	if (quitting)
+		return; // User hit some kind of restriction.
+
+	// Assign the new connect class.
+	if (connectclass)
+		connectclass->use_count--;
+	connectclass = klass;
+	connectclass->use_count++;
+
+	// Update the core user data that depends on connect class.
+	nextping = ServerInstance->Time() + klass->pingtime;
+	uniqueusername = klass->uniqueusername;
+
+	// Let modules know the class has been changed.
+	FOREACH_MOD(OnPostChangeConnectClass, (this, force));
 }
 
 void LocalUser::Write(const ClientProtocol::SerializedMessage& text)
@@ -952,126 +963,6 @@ bool User::ChangeIdent(const std::string& newident)
 	return true;
 }
 
-/*
- * Sets a user's connection class.
- * If the class name is provided, it will be used. Otherwise, the class will be guessed using host/ip/ident/etc.
- * NOTE: If the <ALLOW> or <DENY> tag specifies an ip, and this user resolves,
- * then their ip will be taken as 'priority' anyway, so for example,
- * <connect allow="127.0.0.1"> will match joe!bloggs@localhost
- */
-void LocalUser::SetClass(const std::string& explicit_name)
-{
-	ServerInstance->Logs.Debug("CONNECTCLASS", "Setting connect class for %s (%s) ...",
-		this->uuid.c_str(), this->GetFullRealHost().c_str());
-
-	ConnectClass::Ptr found;
-	if (!explicit_name.empty())
-	{
-		for (const auto& c : ServerInstance->Config->Classes)
-		{
-			if (explicit_name == c->name)
-			{
-				ServerInstance->Logs.Debug("CONNECTCLASS", "Connect class explicitly set to %s",
-					explicit_name.c_str());
-				found = c;
-			}
-		}
-	}
-	else
-	{
-		for (const auto& c : ServerInstance->Config->Classes)
-		{
-			ServerInstance->Logs.Debug("CONNECTCLASS", "Checking the %s connect class ...",
-					c->GetName().c_str());
-
-			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnSetConnectClass, MOD_RESULT, (this, c));
-			if (MOD_RESULT == MOD_RES_DENY)
-				continue;
-
-			if (MOD_RESULT == MOD_RES_ALLOW)
-			{
-				ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class was explicitly chosen by a module",
-					c->GetName().c_str());
-				found = c;
-				break;
-			}
-
-			if (c->type == ConnectClass::NAMED)
-			{
-				ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as neither <connect:allow> nor <connect:deny> are set",
-						c->GetName().c_str());
-				continue;
-			}
-
-			bool conndone = connected != User::CONN_NONE;
-			if (c->config->getBool("connected", c->config->getBool("registered", conndone)) != conndone)
-			{
-				ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires that the user is %s",
-						c->GetName().c_str(), conndone ? "not fully connected" : "fully connected");
-				continue;
-			}
-
-			bool hostmatches = false;
-			for (const auto& host : c->GetHosts())
-			{
-				if (InspIRCd::MatchCIDR(this->GetIPString(), host) || InspIRCd::MatchCIDR(this->GetRealHost(), host))
-				{
-					hostmatches = true;
-					break;
-				}
-			}
-			if (!hostmatches)
-			{
-				const std::string hosts = stdalgo::string::join(c->GetHosts());
-				ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as neither the host (%s) nor the IP (%s) matches %s",
-					c->GetName().c_str(), this->GetRealHost().c_str(), this->GetIPString().c_str(), hosts.c_str());
-				continue;
-			}
-
-			/*
-			 * deny change if change will take class over the limit check it HERE, not after we found a matching class,
-			 * because we should attempt to find another class if this one doesn't match us. -- w00t
-			 */
-			if (c->limit && (c.use_count() >= static_cast<long>(c->limit)))
-			{
-				// HACK: using use_count() is awful and should be removed before v4 is released.
-				ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it has reached its user limit (%lu)",
-						c->GetName().c_str(), c->limit);
-				continue;
-			}
-
-			/* if it requires a port and our port doesn't match, fail */
-			if (!c->ports.empty() && !c->ports.count(this->server_sa.port()))
-			{
-				ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as the connection port (%hu) is not any of %s",
-					c->GetName().c_str(), this->server_sa.port(), stdalgo::string::join(c->ports).c_str());
-				continue;
-			}
-
-			if (conndone && !c->password.empty() && !ServerInstance->PassCompare(c->password, password, c->passwordhash))
-			{
-				ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as requires a password and %s",
-					c->GetName().c_str(), password.empty() ? "one was not provided" : "the provided password was incorrect");
-				continue;
-			}
-
-			/* we stop at the first class that meets ALL criteria. */
-			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is suitable for %s (%s)",
-				c->GetName().c_str(), this->uuid.c_str(), this->GetFullRealHost().c_str());
-			found = c;
-			break;
-		}
-	}
-
-	/*
-	 * Okay, assuming we found a class that matches.. switch us into that class, keeping refcounts up to date.
-	 */
-	if (found)
-	{
-		connectclass = found;
-	}
-}
 
 void User::PurgeEmptyChannels()
 {
@@ -1116,7 +1007,7 @@ ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, Type t, const std::ve
 {
 }
 
-ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, Type t, const std::vector<std::string>& masks, const ConnectClass::Ptr& parent)
+ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, Type t, const std::vector<std::string>& masks, const std::shared_ptr<ConnectClass>& parent)
 {
 	Update(parent);
 	name = "unnamed";
@@ -1170,8 +1061,8 @@ void ConnectClass::Configure(const std::string& classname, std::shared_ptr<Confi
 	limit = tag->getUInt("limit", limit, 1);
 	maxchans = tag->getUInt("maxchans", maxchans);
 	maxconnwarn = tag->getBool("maxconnwarn", maxconnwarn);
-	maxglobal = tag->getUInt("globalmax", maxglobal, 1);
-	maxlocal = tag->getUInt("localmax", maxlocal, 1);
+	maxlocal = tag->getUInt("localmax", maxlocal);
+	maxglobal = tag->getUInt("globalmax", maxglobal, maxlocal);
 	penaltythreshold = tag->getUInt("threshold", penaltythreshold, 1);
 	pingtime = tag->getDuration("pingfreq", pingtime);
 	recvqmax = tag->getUInt("recvq", recvqmax, ServerInstance->Config->Limits.MaxLine);
@@ -1181,7 +1072,7 @@ void ConnectClass::Configure(const std::string& classname, std::shared_ptr<Confi
 	uniqueusername = tag->getBool("uniqueusername", uniqueusername);
 }
 
-void ConnectClass::Update(const ConnectClass::Ptr& src)
+void ConnectClass::Update(const std::shared_ptr<ConnectClass>& src)
 {
 	ServerInstance->Logs.Debug("CONNECTCLASS", "Updating %s from %s", name.c_str(), src->name.c_str());
 	commandrate = src->commandrate;

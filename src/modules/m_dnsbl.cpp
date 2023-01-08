@@ -504,17 +504,17 @@ public:
 		}
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, const ConnectClass::Ptr& myclass) override
+	ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass) override
 	{
-		std::string dnsbl;
-		if (!myclass->config->readString("dnsbl", dnsbl))
+		const std::string dnsbl = klass->config->getString("dnsbl");
+		if (!dnsbl.empty())
 			return MOD_RES_PASSTHRU;
 
 		MarkExtItem::List* match = data.markext.Get(user);
 		if (!match)
 		{
-			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires a DNSBL mark",
-					myclass->GetName().c_str());
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires a DNSBL mark.",
+				klass->GetName().c_str());
 			return MOD_RES_DENY;
 		}
 
@@ -525,8 +525,8 @@ public:
 		}
 
 		const std::string marks = stdalgo::string::join(dnsbl);
-		ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as the DNSBL marks (%s) do not match %s",
-				myclass->GetName().c_str(), marks.c_str(), dnsbl.c_str());
+		ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as the DNSBL marks (%s) do not match %s.",
+			klass->GetName().c_str(), marks.c_str(), dnsbl.c_str());
 		return MOD_RES_DENY;
 	}
 

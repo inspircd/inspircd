@@ -384,17 +384,17 @@ public:
 		user->WriteNotice(text);
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, const ConnectClass::Ptr& myclass) override
+	ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass) override
 	{
 		ssl_cert* cert = cmd.sslapi.GetCertificate(user);
 		const char* error = nullptr;
-		const std::string requiressl = myclass->config->getString("requiressl");
+		const std::string requiressl = klass->config->getString("requiressl");
 		if (stdalgo::string::equalsci(requiressl, "trusted"))
 		{
 			if (!cert || !cert->IsCAVerified())
 				error = "a trusted TLS client certificate";
 		}
-		else if (myclass->config->getBool("requiressl"))
+		else if (klass->config->getBool("requiressl"))
 		{
 			if (!cert)
 				error = "a TLS connection";
@@ -402,8 +402,8 @@ public:
 
 		if (error)
 		{
-			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires %s",
-				myclass->GetName().c_str(), error);
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires %s.",
+				klass->GetName().c_str(), error);
 			return MOD_RES_DENY;
 		}
 

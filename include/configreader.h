@@ -298,7 +298,7 @@ public:
 
 	/** Holds a complete list of all connect blocks
 	 */
-	typedef std::vector<ConnectClass::Ptr> ClassVector;
+	typedef std::vector<std::shared_ptr<ConnectClass>> ClassVector;
 
 	/** Holds the oper accounts from the server config. */
 	typedef insp::flat_map<std::string, std::shared_ptr<OperAccount>> OperAccountMap;
@@ -403,13 +403,6 @@ public:
 	 * As listen() expects a backlog to be `int` sized, so this must be.
 	 */
 	int MaxConn;
-
-	/** If we should check for clones during CheckClass() in AddUser()
-	 * Setting this to false allows to not trigger on maxclones for users
-	 * that may belong to another class after DNS-lookup is complete.
-	 * It does, however, make the server spend more time on users we may potentially not want.
-	 */
-	bool CCOnConnect;
 
 	/** The soft limit value assigned to the irc server.
 	 * The IRC server will not allow more than this

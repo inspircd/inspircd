@@ -139,6 +139,7 @@ enum Implementation
 	I_OnAddLine,
 	I_OnBackgroundTimer,
 	I_OnBuildNeighborList,
+	I_OnChangeConnectClass,
 	I_OnChangeHost,
 	I_OnChangeIdent,
 	I_OnChangeRealHost,
@@ -165,6 +166,7 @@ enum Implementation
 	I_OnOperLogin,
 	I_OnOperLogout,
 	I_OnPassCompare,
+	I_OnPostChangeConnectClass,
 	I_OnPostChangeRealHost,
 	I_OnPostCommand,
 	I_OnPostConnect,
@@ -172,6 +174,7 @@ enum Implementation
 	I_OnPostOperLogin,
 	I_OnPostOperLogout,
 	I_OnPostTopicChange,
+	I_OnPreChangeConnectClass,
 	I_OnPreChangeHost,
 	I_OnPreChangeRealName,
 	I_OnPreCommand,
@@ -183,7 +186,6 @@ enum Implementation
 	I_OnSendSnotice,
 	I_OnServiceAdd,
 	I_OnServiceDel,
-	I_OnSetConnectClass,
 	I_OnShutdown,
 	I_OnUnloadModule,
 	I_OnUserConnect,
@@ -885,12 +887,6 @@ public:
 	 */
 	virtual void OnGarbageCollect();
 
-	/** Called when a user's connect class is being matched
-	 * @return MOD_RES_ALLOW to force the class to match, MOD_RES_DENY to forbid it, or
-	 * MOD_RES_PASSTHRU to allow normal matching (by host/port).
-	 */
-	virtual ModResult OnSetConnectClass(LocalUser* user, const ConnectClass::Ptr& myclass);
-
 	virtual ModResult OnNumeric(User* user, const Numeric::Numeric& numeric);
 
 	/** Called whenever a local user's remote address is set or changed.
@@ -953,6 +949,27 @@ public:
 	 * @param oper The server operator account they were logged out of.
 	 */
 	virtual void OnPostOperLogout(User* user, const std::shared_ptr<OperAccount>& oper);
+
+	/** Called when trying to find a connect class for a user.
+	 * @param user The user that needs a new connect class.
+	 * @param klass The connect class to check the suitability of.
+	 * @return MOD_RES_ALLOW to select this connect class, MOD_RES_DENY to reject this connect
+	 *         class, or MOD_RES_PASSTHRU to let another module handle the event.
+	 */
+	virtual ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass);
+
+	/** Called when a user is about to be assigned to a connect class.
+	 * @param user The user that is being assigned to a connect class.
+	 * @param klass The connect class the user is being assigned to.
+	 * @param force Whether the connect class was explicitly picked (e.g. via <oper:class>).
+	 */
+	virtual void OnChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass, bool force);
+
+	/** Called when a user has bee assigned to a connect class.
+	 * @param user The user that was assigned to a connect class.
+	 * @param force Whether the connect class was explicitly picked (e.g. via <oper:class>).
+	 */
+	virtual void OnPostChangeConnectClass(LocalUser* user, bool force);
 };
 
 /** ModuleManager takes care of all things module-related

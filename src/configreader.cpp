@@ -152,7 +152,7 @@ void ServerConfig::CrossCheckOperBlocks()
 
 void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 {
-	typedef std::map<std::pair<std::string, ConnectClass::Type>, ConnectClass::Ptr> ClassMap;
+	typedef std::map<std::pair<std::string, ConnectClass::Type>, std::shared_ptr<ConnectClass>> ClassMap;
 	ClassMap oldBlocksByMask;
 	if (current)
 	{
@@ -198,7 +198,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 				continue;
 			}
 
-			ConnectClass::Ptr parent;
+			std::shared_ptr<ConnectClass> parent;
 			std::string parentName = tag->getString("parent");
 			if (!parentName.empty())
 			{
@@ -250,7 +250,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			ClassMap::iterator oldMask = oldBlocksByMask.find(std::make_pair(mask, me->type));
 			if (oldMask != oldBlocksByMask.end())
 			{
-				ConnectClass::Ptr old = oldMask->second;
+				std::shared_ptr<ConnectClass> old = oldMask->second;
 				oldBlocksByMask.erase(oldMask);
 				old->Update(me);
 				me = old;
@@ -300,7 +300,6 @@ void ServerConfig::Fill()
 			throw CoreException("You must restart to change the server id");
 	}
 	SoftLimit = ConfValue("performance")->getUInt("softlimit", (SocketEngine::GetMaxFds() > 0 ? SocketEngine::GetMaxFds() : LONG_MAX), 10);
-	CCOnConnect = ConfValue("performance")->getBool("clonesonconnect", true);
 	MaxConn = static_cast<int>(ConfValue("performance")->getUInt("somaxconn", SOMAXCONN));
 	TimeSkipWarn = ConfValue("performance")->getDuration("timeskipwarn", 2, 0, 30);
 	XLineMessage = options->getString("xlinemessage", "You're banned!", 1);

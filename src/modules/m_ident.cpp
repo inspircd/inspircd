@@ -404,12 +404,12 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, const ConnectClass::Ptr& myclass) override
+	ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass) override
 	{
-		if (myclass->config->getBool("requireident") && state.Get(user) != IDENT_FOUND)
+		if (klass->config->getBool("requireident") && state.Get(user) != IDENT_FOUND)
 		{
-			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires an identd response",
-				myclass->GetName().c_str());
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires an identd response.",
+				klass->GetName().c_str());
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

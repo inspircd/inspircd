@@ -408,10 +408,10 @@ public:
 		cmdwebirc.hosts.swap(webirchosts);
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, const ConnectClass::Ptr& myclass) override
+	ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass) override
 	{
 		// If <connect:webirc> is not set then we have nothing to do.
-		const std::string webirc = myclass->config->getString("webirc");
+		const std::string webirc = klass->config->getString("webirc");
 		if (webirc.empty())
 			return MOD_RES_PASSTHRU;
 
@@ -420,8 +420,8 @@ public:
 		const std::string* gateway = cmdwebirc.extban.gateway.Get(user);
 		if (!gateway)
 		{
-			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires a connection via a WebIRC gateway",
-					myclass->GetName().c_str());
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires a connection via a WebIRC gateway.",
+				klass->GetName().c_str());
 			return MOD_RES_DENY;
 		}
 
@@ -429,8 +429,8 @@ public:
 		// allow the check to continue. Otherwise, reject it.
 		if (!InspIRCd::Match(*gateway, webirc))
 		{
-			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as the WebIRC gateway name (%s) does not match %s",
-					myclass->GetName().c_str(), gateway->c_str(), webirc.c_str());
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as the WebIRC gateway name (%s) does not match %s.",
+				klass->GetName().c_str(), gateway->c_str(), webirc.c_str());
 			return MOD_RES_DENY;
 		}
 

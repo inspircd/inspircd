@@ -137,6 +137,7 @@ void MessageWrapper::ReadConfig(const char* prefixname, const char* suffixname, 
 class CoreModUser final
 	: public Module
 {
+private:
 	CommandAway cmdaway;
 	CommandNick cmdnick;
 	CommandPart cmdpart;
@@ -148,6 +149,7 @@ class CoreModUser final
 	CommandIson cmdison;
 	CommandUserhost cmduserhost;
 	SimpleUserMode invisiblemode;
+	bool clonesonconnect;
 
 public:
 	CoreModUser()
@@ -166,10 +168,102 @@ public:
 	{
 	}
 
+	ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass) override
+	{
+		bool conndone = user->connected != User::CONN_NONE;
+		if (klass->config->getBool("connected", klass->config->getBool("registered", conndone)) != conndone)
+		{
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires that the user is %s.",
+					klass->GetName().c_str(), conndone ? "not fully connected" : "fully connected");
+			return MOD_RES_DENY;
+		}
+
+		bool hostmatches = false;
+		for (const auto& host : klass->GetHosts())
+		{
+			if (InspIRCd::MatchCIDR(user->GetIPString(), host) || InspIRCd::MatchCIDR(user->GetRealHost(), host))
+			{
+				hostmatches = true;
+				break;
+			}
+		}
+		if (!hostmatches)
+		{
+			const std::string hosts = stdalgo::string::join(klass->GetHosts());
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as neither the host (%s) nor the IP (%s) matches %s.",
+				klass->GetName().c_str(), user->GetRealHost().c_str(), user->GetIPString().c_str(), hosts.c_str());
+			return MOD_RES_DENY;
+		}
+
+		if (klass->limit && klass->use_count >= klass->limit)
+		{
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it has reached its user limit (%lu/%lu).",
+				klass->GetName().c_str(), klass->use_count, klass->limit);
+			return MOD_RES_DENY;
+		}
+
+		if (conndone && !klass->password.empty() && !ServerInstance->PassCompare(klass->password, user->password, klass->passwordhash))
+		{
+			const char* error = user->password.empty() ? "one was not provided" : "the provided password was incorrect";
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as requires a password and %s.",
+				klass->GetName().c_str(), error);
+			return MOD_RES_DENY;
+		}
+
+		if (!klass->ports.empty() && !klass->ports.count(user->server_sa.port()))
+		{
+			const std::string portstr = stdalgo::string::join(klass->ports);
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as the connection port (%hu) is not any of %s.",
+				klass->GetName().c_str(), user->server_sa.port(), portstr.c_str());
+			return MOD_RES_DENY;
+		}
+
+		return MOD_RES_PASSTHRU;
+	}
+
+	void OnChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass, bool force) override
+	{
+		if (klass->type == ConnectClass::DENY)
+		{
+			ServerInstance->Users.QuitUser(user, klass->config->getString("reason", "You are not allowed to connect to this server", 1));
+			return;
+		}
+
+		// If a user wasn't forced into a class (e.g. via <oper:class>) then we need to check limits.
+		if (!force && (clonesonconnect || user->connected != User::CONN_NONE))
+		{
+			const UserManager::CloneCounts& clonecounts = ServerInstance->Users.GetCloneCounts(user);
+			if (klass->maxlocal && clonecounts.local > klass->maxlocal)
+			{
+				ServerInstance->Users.QuitUser(user, "No more local connections allowed from your host via this connect class.");
+				if (klass->maxconnwarn)
+				{
+					ServerInstance->SNO.WriteToSnoMask('a', "WARNING: maximum local connections for the %s class (%ld) exceeded by %s",
+						klass->GetName().c_str(), klass->maxlocal, user->GetIPString().c_str());
+				}
+				return;
+			}
+
+			if (klass->maxglobal && clonecounts.global > klass->maxglobal)
+			{
+				ServerInstance->Users.QuitUser(user, "No more global connections allowed from your host via this connect class.");
+				if (klass->maxconnwarn)
+				{
+					ServerInstance->SNO.WriteToSnoMask('a', "WARNING: maximum global connections for the %s class (%ld) exceeded by %s",
+						klass->name.c_str(), klass->maxglobal, user->GetIPString().c_str());
+				}
+				return;
+			}
+		}
+	}
+
 	void ReadConfig(ConfigStatus& status) override
 	{
 		cmdpart.msgwrap.ReadConfig("prefixpart", "suffixpart", "fixedpart");
 		cmdquit.msgwrap.ReadConfig("prefixquit", "suffixquit", "fixedquit");
+
+		auto performance = ServerInstance->Config->ConfValue("performance");
+		clonesonconnect = performance->getBool("clonesonconnect", true);
 	}
 };
 
