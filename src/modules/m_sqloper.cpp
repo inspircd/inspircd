@@ -119,11 +119,9 @@ public:
 	// Call /oper after placing all blocks from the SQL table into the Config->OperAccounts list.
 	void OperExec()
 	{
-		auto user = ServerInstance->Users.Find(uid);
-		LocalUser* localuser = IS_LOCAL(user);
-		// This should never be true
-		if (!localuser)
-			return;
+		auto user = ServerInstance->Users.Find<LocalUser>(uid);
+		if (!user)
+			return; // The user disconnected before the SQL query returned.
 
 		Command* oper_command = ServerInstance->Parser.GetHandler("OPER");
 
@@ -137,7 +135,7 @@ public:
 			ModResult MOD_RESULT;
 
 			std::string origin = "OPER";
-			FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (origin, params, localuser, true));
+			FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (origin, params, user, true));
 			if (MOD_RESULT == MOD_RES_DENY)
 				return;
 
