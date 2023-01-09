@@ -175,6 +175,7 @@ void Log::Manager::EnableDebugMode()
 	TokenList types = std::string("*");
 	MethodPtr method = stdoutlog.Create(ServerInstance->Config->EmptyTag);
 	loggers.emplace_back(Level::RAWIO, std::move(types), std::move(method), false, &stdoutlog);
+	ServerInstance->Config->RawLog = true;
 }
 
 void Log::Manager::OpenLogs(bool requiremethods)
@@ -183,7 +184,6 @@ void Log::Manager::OpenLogs(bool requiremethods)
 	if (ServerInstance->Config->cmdline.forcedebug)
 	{
 		Normal("LOG", "Not opening loggers because we were started with --debug");
-		ServerInstance->Config->RawLog = true;
 		return;
 	}
 
@@ -243,6 +243,11 @@ void Log::Manager::OpenLogs(bool requiremethods)
 		cache.shrink_to_fit();
 		caching = false;
 	}
+
+	// There might be a logger not from the config so we need to check this outside of the creation loop.
+	ServerInstance->Config->RawLog = std::any_of(loggers.begin(), loggers.end(), [](const auto& logger) {
+		return logger.level >= Level::RAWIO;
+	});
 }
 
 void Log::Manager::RegisterServices()
