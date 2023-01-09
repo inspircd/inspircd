@@ -69,8 +69,8 @@ my $executable	=	"inspircd";
 my $version	=	"@VERSION_FULL@";
 
 my @gdbargs = (
-	'--eval-command', 'handle SIGPIPE pass nostop noprint',
-	'--eval-command', 'handle SIGHUP pass nostop noprint',
+	'--eval-command', 'set pagination off',
+	'--eval-command', 'handle all nostop pass print',
 	'--eval-command', 'run',
 	'--args', "$binpath/$executable", qw(--nofork --nolog --debug)
 );
