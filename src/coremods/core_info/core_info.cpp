@@ -194,10 +194,7 @@ public:
 			ServerInstance->Parser.CallHandler(command, parameters, user);
 
 		if (ServerInstance->Config->RawLog)
-		{
-			ClientProtocol::Messages::Privmsg rawlogmsg(ServerInstance->FakeClient, user, "*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");
-			user->Send(ServerInstance->GetRFCEvents().privmsg, rawlogmsg);
-		}
+			ServerInstance->Logs.NotifyRawIO(user, MSG_PRIVMSG);
 	}
 
 	void OnLoadModule(Module* mod) override

@@ -219,7 +219,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, const irc::sockets::soc
 	}
 
 	if (ServerInstance->Config->RawLog)
-		New->WriteNotice("*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");
+		ServerInstance->Logs.NotifyRawIO(New, MSG_NOTICE);
 
 	FOREACH_MOD(OnChangeRemoteAddress, (New));
 	if (!New->quitting)

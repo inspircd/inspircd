@@ -245,6 +245,12 @@ public:
 	/** Enables writing rawio logs to the standard output stream. */
 	void EnableDebugMode();
 
+	/** Notify a user that raw I/O logging is enabled.
+	 * @param user The user to notify.
+	 * @param type The type of message to send.
+	 */
+	void NotifyRawIO(LocalUser* user, MessageType type);
+
 	/** Opens loggers that are specified in the config. */
 	void OpenLogs(bool requiremethods);
 

@@ -693,7 +693,7 @@ void ConfigReaderThread::OnStop()
 		if (Config->RawLog && !old->RawLog)
 		{
 			for (auto* luser : ServerInstance->Users.GetLocalUsers())
-				luser->WriteNotice("*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");
+				ServerInstance->Logs.NotifyRawIO(luser, MSG_PRIVMSG);
 		}
 
 		Config = old;
