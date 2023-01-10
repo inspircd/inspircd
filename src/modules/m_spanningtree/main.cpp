@@ -175,7 +175,7 @@ void ModuleSpanningTree::HandleLinks(const CommandBase::Params& parameters, User
 	user->WriteNumeric(RPL_ENDOFLINKS, '*', "End of /LINKS list.");
 }
 
-void ModuleSpanningTree::ConnectServer(std::shared_ptr<Autoconnect> a, bool on_timer)
+void ModuleSpanningTree::ConnectServer(const std::shared_ptr<Autoconnect>& a, bool on_timer)
 {
 	if (!a)
 		return;
@@ -212,7 +212,7 @@ void ModuleSpanningTree::ConnectServer(std::shared_ptr<Autoconnect> a, bool on_t
 	a->position = -1;
 }
 
-void ModuleSpanningTree::ConnectServer(std::shared_ptr<Link> x, std::shared_ptr<Autoconnect> y)
+void ModuleSpanningTree::ConnectServer(const std::shared_ptr<Link>& x, const std::shared_ptr<Autoconnect>& y)
 {
 	if (InspIRCd::Match(ServerInstance->Config->ServerName, x->Name, ascii_case_insensitive_map))
 	{
@@ -281,7 +281,7 @@ void ModuleSpanningTree::ConnectServer(std::shared_ptr<Link> x, std::shared_ptr<
 
 void ModuleSpanningTree::AutoConnectServers(time_t curtime)
 {
-	for (std::shared_ptr<Autoconnect> x : Utils->AutoconnectBlocks)
+	for (const auto& x : Utils->AutoconnectBlocks)
 	{
 		if (curtime >= x->NextConnectTime)
 		{
@@ -350,7 +350,7 @@ ModResult ModuleSpanningTree::HandleVersion(const CommandBase::Params& parameter
 
 ModResult ModuleSpanningTree::HandleConnect(const CommandBase::Params& parameters, User* user)
 {
-	for (std::shared_ptr<Link> x : Utils->LinkBlocks)
+	for (const auto& x : Utils->LinkBlocks)
 	{
 		if (InspIRCd::Match(x->Name, parameters[0], ascii_case_insensitive_map))
 		{

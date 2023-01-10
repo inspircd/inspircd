@@ -30,7 +30,7 @@ ModResult ModuleSpanningTree::OnStats(Stats::Context& stats)
 {
 	if ((stats.GetSymbol() == 'c') || (stats.GetSymbol() == 'n'))
 	{
-		for (std::shared_ptr<Link> L : Utils->LinkBlocks)
+		for (const auto& L : Utils->LinkBlocks)
 		{
 			std::string ipaddr = "*@";
 			if (L->HiddenFromStats)

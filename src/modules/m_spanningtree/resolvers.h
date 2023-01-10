@@ -40,7 +40,7 @@ private:
 	bool CheckIPv4();
 
 public:
-	SecurityIPResolver(Module* mod, DNS::Manager* mgr, const std::string& hostname, std::shared_ptr<Link> l, DNS::QueryType qt);
+	SecurityIPResolver(Module* mod, DNS::Manager* mgr, const std::string& hostname, const std::shared_ptr<Link>& l, DNS::QueryType qt);
 	void OnLookupComplete(const DNS::Query* r) override;
 	void OnError(const DNS::Query* q) override;
 };
@@ -54,7 +54,7 @@ private:
 	std::shared_ptr<Link> link;
 
 public:
-	ServerNameResolver(DNS::Manager* mgr, const std::string& hostname, std::shared_ptr<Link> l, DNS::QueryType qt, std::shared_ptr<Autoconnect> a);
+	ServerNameResolver(DNS::Manager* mgr, const std::string& hostname, const std::shared_ptr<Link>& l, DNS::QueryType qt, const std::shared_ptr<Autoconnect>& a);
 	void OnLookupComplete(const DNS::Query* r) override;
 	void OnError(const DNS::Query* q) override;
 };

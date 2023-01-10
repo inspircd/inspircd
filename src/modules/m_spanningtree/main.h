@@ -154,11 +154,11 @@ public:
 
 	/** Connect a server locally
 	 */
-	void ConnectServer(std::shared_ptr<Link> x, std::shared_ptr<Autoconnect> y = nullptr);
+	void ConnectServer(const std::shared_ptr<Link>& x, const std::shared_ptr<Autoconnect>& y = nullptr);
 
 	/** Connect the next autoconnect server
 	 */
-	void ConnectServer(std::shared_ptr<Autoconnect> y, bool on_timer);
+	void ConnectServer(const std::shared_ptr<Autoconnect>& y, bool on_timer);
 
 	/** Check if any servers are due to be autoconnected
 	 */

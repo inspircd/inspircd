@@ -356,7 +356,7 @@ namespace GnuTLS
 #ifndef GNUTLS_AUTO_DH
 		/** Set the given DH parameters to be used with these credentials
 		 */
-		void SetDH(std::shared_ptr<DHParams>& DH)
+		void SetDH(const std::shared_ptr<DHParams>& DH)
 		{
 			dh = DH;
 			gnutls_certificate_set_dh_params(cred, dh->get());
@@ -400,7 +400,7 @@ namespace GnuTLS
 		/** Sets the trusted CA and the certificate revocation list
 		 * to use when verifying certificates
 		 */
-		void SetCA(std::shared_ptr<X509CertList>& certlist, std::shared_ptr<X509CRL>& CRL)
+		void SetCA(const std::shared_ptr<X509CertList>& certlist, const std::shared_ptr<X509CRL>& CRL)
 		{
 			// Do nothing if certlist is NULL
 			if (certlist.get())

@@ -190,7 +190,7 @@ public:
 	 * most of the action, and append a few of our own values
 	 * to it.
 	 */
-	TreeSocket(std::shared_ptr<Link> link, std::shared_ptr<Autoconnect> myac, const irc::sockets::sockaddrs& sa);
+	TreeSocket(const std::shared_ptr<Link>& link, const std::shared_ptr<Autoconnect>& myac, const irc::sockets::sockaddrs& sa);
 
 	/** When a listening socket gives us a new file descriptor,
 	 * we must associate it with a socket without creating a new

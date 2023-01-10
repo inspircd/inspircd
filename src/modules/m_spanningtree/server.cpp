@@ -117,7 +117,7 @@ std::shared_ptr<Link> TreeSocket::AuthRemote(const CommandBase::Params& params)
 		return nullptr;
 	}
 
-	for (std::shared_ptr<Link> x : Utils->LinkBlocks)
+	for (const auto& x : Utils->LinkBlocks)
 	{
 		if (!InspIRCd::Match(sname, x->Name))
 			continue;

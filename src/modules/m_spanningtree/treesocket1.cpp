@@ -38,7 +38,7 @@
  * BufferedSocket, we just call DoConnect() for most of the action,
  * and only do minor initialization tasks ourselves.
  */
-TreeSocket::TreeSocket(std::shared_ptr<Link> link, std::shared_ptr<Autoconnect> myac, const irc::sockets::sockaddrs& dest)
+TreeSocket::TreeSocket(const std::shared_ptr<Link>& link, const std::shared_ptr<Autoconnect>& myac, const irc::sockets::sockaddrs& dest)
 	: linkID(link->Name)
 	, LinkState(CONNECTING)
 	, capab(std::make_unique<CapabData>(dest))

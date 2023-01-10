@@ -200,7 +200,7 @@ void SpanningTreeUtilities::DoOneToOne(const CmdBuilder& params, const Server* s
 void SpanningTreeUtilities::RefreshIPCache()
 {
 	ValidIPs.clear();
-	for (std::shared_ptr<Link> L : LinkBlocks)
+	for (const auto& L : LinkBlocks)
 	{
 		bool isunix = L->IPAddr.find('/') != std::string::npos;
 		if (!L->Port && !isunix)
@@ -343,7 +343,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 
 std::shared_ptr<Link> SpanningTreeUtilities::FindLink(const std::string& name)
 {
-	for (std::shared_ptr<Link> x : LinkBlocks)
+	for (const auto& x : LinkBlocks)
 	{
 		if (InspIRCd::Match(x->Name, name, ascii_case_insensitive_map))
 		{
