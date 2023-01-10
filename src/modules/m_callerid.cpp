@@ -63,7 +63,7 @@ public:
 	{
 		std::ostringstream oss;
 		oss << lastnotify;
-		for (const auto& u : accepting)
+		for (const auto* u : accepting)
 		{
 			if (human)
 				oss << ' ' << u->nick;
@@ -102,7 +102,7 @@ struct CallerIDExtInfo final
 		void* old = GetRaw(container);
 		if (old)
 			this->Delete(nullptr, old);
-		auto dat = new callerid_data();
+		auto* dat = new callerid_data();
 		SetRaw(container, dat);
 
 		irc::commasepstream s(value);
@@ -112,7 +112,7 @@ struct CallerIDExtInfo final
 
 		while (s.GetToken(tok))
 		{
-			auto u = ServerInstance->Users.Find(tok, true);
+			auto* u = ServerInstance->Users.Find(tok, true);
 			if (u && !u->quitting)
 			{
 				if (dat->accepting.insert(u).second)
@@ -140,7 +140,7 @@ struct CallerIDExtInfo final
 		callerid_data* dat = static_cast<callerid_data*>(item);
 
 		// We need to walk the list of users on our accept list, and remove ourselves from their wholistsme.
-		for (const auto& user : dat->accepting)
+		for (auto* user : dat->accepting)
 		{
 			callerid_data* target = this->Get(user, false);
 			if (!target)
@@ -272,7 +272,7 @@ public:
 		callerid_data* dat = extInfo.Get(user, false);
 		if (dat)
 		{
-			for (const auto& accepted : dat->accepting)
+			for (const auto* accepted : dat->accepting)
 				user->WriteNumeric(RPL_ACCEPTLIST, accepted->nick);
 		}
 		user->WriteNumeric(RPL_ENDOFACCEPT, "End of ACCEPT list");
@@ -378,7 +378,7 @@ private:
 			return;
 
 		// Iterate over the list of people who accept me, and remove all entries
-		for (const auto& dat : userdata->wholistsme)
+		for (auto* dat : userdata->wholistsme)
 		{
 			// Find me on their callerid list
 			if (!dat->accepting.erase(who))

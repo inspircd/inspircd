@@ -66,7 +66,7 @@ CmdResult CommandServer::HandleServer(TreeServer* ParentOfThis, Params& params)
 
 	TreeServer* route = ParentOfThis->GetRoute();
 	std::shared_ptr<Link> lnk = Utils->FindLink(route->GetName());
-	auto Node = new TreeServer(servername, description, sid, ParentOfThis, ParentOfThis->GetSocket(), lnk ? lnk->Hidden : false);
+	auto* Node = new TreeServer(servername, description, sid, ParentOfThis, ParentOfThis->GetSocket(), lnk ? lnk->Hidden : false);
 
 	HandleExtra(Node, params);
 

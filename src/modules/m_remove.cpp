@@ -67,7 +67,7 @@ public:
 			target = ServerInstance->Users.Find(username, true);
 
 		/* And the channel we're meant to be removing them from */
-		auto channel = ServerInstance->Channels.Find(channame);
+		auto* channel = ServerInstance->Channels.Find(channame);
 
 		/* Fix by brain - someone needs to learn to validate their input! */
 		if (!channel)

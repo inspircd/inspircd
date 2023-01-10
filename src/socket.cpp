@@ -49,7 +49,7 @@ bool InspIRCd::BindPort(const std::shared_ptr<ConfigTag>& tag, const irc::socket
 		}
 	}
 
-	auto ll = new ListenSocket(tag, sa);
+	auto* ll = new ListenSocket(tag, sa);
 	if (!ll->HasFd())
 	{
 		ServerInstance->Logs.Normal("SOCKET", "Failed to listen on %s from tag at %s: %s",
@@ -135,7 +135,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 	}
 
 	std::vector<ListenSocket*>::iterator n = ports.begin();
-	for (auto& old_port : old_ports)
+	for (auto* old_port : old_ports)
 	{
 		while (n != ports.end() && *n != old_port)
 			n++;

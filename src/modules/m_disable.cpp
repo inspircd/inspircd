@@ -44,7 +44,7 @@ private:
 
 	void ReadModes(const std::shared_ptr<ConfigTag>& tag, const std::string& field, ModeType type, ModeParser::ModeStatus& status)
 	{
-		for (const auto& chr : tag->getString(field))
+		for (const auto chr : tag->getString(field))
 		{
 			// Check that the character is a valid mode letter.
 			if (!ModeParser::IsModeChar(chr))

@@ -91,7 +91,7 @@ class IRCv3::Monitor::Manager final
 		{
 			std::string ret;
 			const ExtData* extdata = static_cast<ExtData*>(item);
-			for (const auto& entry : extdata->list)
+			for (const auto* entry : extdata->list)
 				ret.append(entry->GetNick()).push_back(' ');
 			if (!ret.empty())
 				ret.pop_back();
@@ -331,7 +331,7 @@ public:
 			user->CommandFloodPenalty += ListPenalty;
 			const IRCv3::Monitor::WatchedList& list = manager.GetWatched(user);
 			ReplyBuilder out(user, RPL_MONLIST);
-			for (const auto& entry : list)
+			for (const auto* entry : list)
 				out.Add(entry->GetNick());
 			out.Flush();
 			user->WriteNumeric(RPL_ENDOFMONLIST, "End of MONITOR list");
@@ -343,7 +343,7 @@ public:
 			ReplyBuilder online(user, RPL_MONONLINE);
 			ReplyBuilder offline(user, RPL_MONOFFLINE);
 
-			for (const auto& entry : manager.GetWatched(user))
+			for (const auto* entry : manager.GetWatched(user))
 			{
 				ReplyBuilder& out = (ServerInstance->Users.FindNick(entry->GetNick(), true) ? online : offline);
 				out.Add(entry->GetNick());

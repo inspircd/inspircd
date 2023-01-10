@@ -242,7 +242,7 @@ User* TreeSocket::FindSource(const std::string& prefix, const std::string& comma
 	else
 	{
 		// If the prefix string is a uuid FindUUID() returns the appropriate User object
-		auto user = ServerInstance->Users.FindUUID(prefix);
+		auto* user = ServerInstance->Users.FindUUID(prefix);
 		if (user)
 			return user;
 	}
@@ -291,7 +291,7 @@ void TreeSocket::ProcessTag(User* source, const std::string& tag, ClientProtocol
 		tagkey.assign(tag);
 	}
 
-	for (const auto& subscriber : Utils->Creator->tagevprov.GetSubscribers())
+	for (auto* subscriber : Utils->Creator->tagevprov.GetSubscribers())
 	{
 		ClientProtocol::MessageTagProvider* const tagprov = static_cast<ClientProtocol::MessageTagProvider*>(subscriber);
 		const ModResult res = tagprov->OnProcessTag(source, tagkey, tagval);

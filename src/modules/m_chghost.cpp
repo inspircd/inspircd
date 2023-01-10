@@ -48,7 +48,7 @@ public:
 			return CmdResult::FAILURE;
 		}
 
-		for (const auto& chr : parameters[1])
+		for (const auto chr : parameters[1])
 		{
 			if (!hostmap.test(static_cast<unsigned char>(chr)))
 			{
@@ -57,7 +57,7 @@ public:
 			}
 		}
 
-		auto dest = ServerInstance->Users.Find(parameters[0]);
+		auto* dest = ServerInstance->Users.Find(parameters[0]);
 
 		// Allow services to change the host of partially connected users.
 		if (!dest || (!dest->IsFullyConnected() && !user->server->IsService()))
@@ -102,7 +102,7 @@ public:
 		const std::string hmap = tag->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789", 1);
 
 		CharState newhostmap;
-		for (const auto& chr : hmap)
+		for (const auto chr : hmap)
 		{
 			// A hostname can not contain NUL, LF, CR, or SPACE.
 			if (chr == 0x00 || chr == 0x0A || chr == 0x0D || chr == 0x20)

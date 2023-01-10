@@ -112,7 +112,7 @@ public:
 
 	void OnError(const SQL::Error& error) override
 	{
-		auto user = ServerInstance->Users.Find(uid);
+		auto* user = ServerInstance->Users.Find(uid);
 		if (!user)
 			return;
 		pendingExt.Set(user, AUTH_STATE_FAIL);

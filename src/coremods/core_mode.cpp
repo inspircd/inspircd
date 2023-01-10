@@ -100,7 +100,7 @@ CommandMode::CommandMode(Module* parent)
 CmdResult CommandMode::Handle(User* user, const Params& parameters)
 {
 	const std::string& target = parameters[0];
-	auto targetchannel = ServerInstance->Channels.Find(target);
+	auto* targetchannel = ServerInstance->Channels.Find(target);
 	User* targetuser = nullptr;
 	if (!targetchannel)
 	{
@@ -179,7 +179,7 @@ void CommandMode::DisplayListModes(User* user, Channel* chan, const std::string&
 {
 	seq++;
 
-	for (const auto& mletter : mode_sequence)
+	for (const auto mletter : mode_sequence)
 	{
 		if (mletter == '+')
 			continue;
@@ -354,7 +354,7 @@ private:
 	static std::string GeneratePrefixList(bool includemodechars)
 	{
 		std::vector<PrefixMode*> prefixes;
-		for (const auto& pm : ServerInstance->Modes.GetPrefixModes())
+		for (auto* pm : ServerInstance->Modes.GetPrefixModes())
 		{
 			if (pm->GetPrefix())
 				prefixes.push_back(pm);
@@ -366,7 +366,7 @@ private:
 
 		std::string modechars;
 		std::string prefixchars;
-		for (const auto& pm : insp::iterator_range(prefixes.rbegin(), prefixes.rend()))
+		for (const auto* pm : insp::iterator_range(prefixes.rbegin(), prefixes.rend()))
 		{
 			modechars += pm->GetModeChar();
 			prefixchars += pm->GetPrefix();

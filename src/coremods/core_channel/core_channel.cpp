@@ -224,7 +224,7 @@ public:
 
 		std::vector<std::string> limits;
 		std::string vlist;
-		for (const auto& lm : ServerInstance->Modes.GetListModes())
+		for (auto* lm : ServerInstance->Modes.GetListModes())
 		{
 			limits.push_back(InspIRCd::Format("%c:%lu", lm->GetModeChar(), lm->GetLowerLimit()));
 			if (lm->HasVariableLength())

@@ -69,7 +69,7 @@ bool ExtBanManager::Canonicalize(std::string& text) const
 
 void ExtBanManager::BuildISupport(std::string& out)
 {
-	for (const LetterMap::value_type& extban : byletter)
+	for (const auto& extban : byletter)
 		out.push_back(extban.first);
 
 	std::sort(out.begin(), out.end());
@@ -86,7 +86,7 @@ ModResult ExtBanManager::GetStatus(ExtBan::Acting* extban, User* user, Channel* 
 	if (!list)
 		return MOD_RES_PASSTHRU;
 
-	for (const ListModeBase::ListItem& ban : *list)
+	for (const auto& ban : *list)
 	{
 		bool inverted;
 		std::string xbname;

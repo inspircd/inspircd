@@ -212,7 +212,7 @@ namespace stdalgo
 		template <char from, char to, char esc>
 		inline void escape(const std::string& str, std::string& out)
 		{
-			for (const auto& c : str)
+			for (const auto c : str)
 			{
 				if (c == esc)
 					out.append(2, esc);

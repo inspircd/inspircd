@@ -53,7 +53,7 @@ namespace Stats
 		std::string ret;
 		ret.reserve(str.length() * 2);
 
-		for (const auto& chr : str)
+		for (const auto chr : str)
 		{
 			insp::flat_map<char, char const*>::const_iterator it = xmlentities.find(chr);
 			if (it != xmlentities.end())

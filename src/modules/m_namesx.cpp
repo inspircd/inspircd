@@ -98,7 +98,7 @@ public:
 				continue;
 			}
 
-			auto chan = ServerInstance->Channels.Find(channel.substr(hashpos));
+			auto* chan = ServerInstance->Channels.Find(channel.substr(hashpos));
 			if (!chan)
 			{
 				// Should never happen.

@@ -36,7 +36,7 @@ private:
 		auto it = tags.find(tag);
 		if (it != tags.end())
 		{
-			for (const char& chr : ClientProtocol::Message::UnescapeTag(it->second.value))
+			for (const auto chr : ClientProtocol::Message::UnescapeTag(it->second.value))
 			{
 				size_t idx = ModeParser::GetModeIndex(chr);
 				if (idx != ModeParser::MODEID_MAX)

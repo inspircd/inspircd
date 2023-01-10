@@ -264,7 +264,7 @@ public:
 			if (!stdalgo::string::equalsci(tag->getString("module"), "sqlite"))
 				continue;
 
-			auto conn = new SQLConn(this, tag);
+			auto* conn = new SQLConn(this, tag);
 			conns.emplace(tag->getString("id"), conn);
 			ServerInstance->Modules.AddService(*conn);
 		}

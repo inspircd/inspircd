@@ -42,7 +42,7 @@ public:
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
-		auto channel = ServerInstance->Channels.Find(parameters[0]);
+		auto* channel = ServerInstance->Channels.Find(parameters[0]);
 		std::string reason = "Cycling";
 
 		if (parameters.size() > 1)

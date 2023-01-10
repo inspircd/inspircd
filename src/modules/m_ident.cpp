@@ -236,7 +236,7 @@ public:
 		std::string::size_type lastcolon = buf.rfind(':');
 
 		/* Truncate the ident at any characters we don't like, skip leading spaces */
-		for (const auto& chr : insp::iterator_range(buf.begin() + lastcolon + 1, buf.end()))
+		for (const auto chr : insp::iterator_range(buf.begin() + lastcolon + 1, buf.end()))
 		{
 			if (result.size() == ServerInstance->Config->Limits.MaxUser)
 				/* Ident is getting too long */

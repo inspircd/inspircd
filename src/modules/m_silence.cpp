@@ -109,7 +109,7 @@ public:
 	static bool FlagsToBits(const std::string& flags, uint32_t& out, bool strict)
 	{
 		out = SF_NONE;
-		for (const auto& flag : flags)
+		for (const auto flag : flags)
 		{
 			switch (flag)
 			{
@@ -208,7 +208,7 @@ public:
 
 		// Remove the old list and create a new one.
 		Unset(user, false);
-		auto list = new SilenceList();
+		auto* list = new SilenceList();
 
 		irc::spacesepstream ts(value);
 		while (!ts.StreamEnd())

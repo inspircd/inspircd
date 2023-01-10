@@ -149,8 +149,8 @@ public:
 		if (parameters.size() > 1 && !irc::equals(parameters[1], ServerInstance->Config->ServerName))
 			return CmdResult::SUCCESS;
 
-		auto targetuser = ServerInstance->Users.FindNick(parameters[0]);
-		auto targetchan = ServerInstance->Channels.Find(parameters[0]);
+		auto* targetuser = ServerInstance->Users.FindNick(parameters[0]);
+		auto* targetchan = ServerInstance->Channels.Find(parameters[0]);
 
 		/*
 		 * Syntax of a /check reply:
@@ -248,7 +248,7 @@ public:
 					u->GetRealName().c_str()));
 			}
 
-			for (const auto& lm : ServerInstance->Modes.GetListModes())
+			for (auto* lm : ServerInstance->Modes.GetListModes())
 				context.DumpListMode(lm, targetchan);
 
 			context.DumpExt(targetchan);

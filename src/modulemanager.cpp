@@ -59,7 +59,7 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 	}
 
 	Module* newmod = nullptr;
-	auto newhandle = new DLLManager(moduleFile);
+	auto* newhandle = new DLLManager(moduleFile);
 	ServiceList newservices;
 	if (!defer)
 		this->NewServices = &newservices;

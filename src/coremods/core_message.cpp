@@ -141,7 +141,7 @@ private:
 
 	CmdResult HandleChannelTarget(User* source, const Params& parameters, const char* target, PrefixMode* pm)
 	{
-		auto chan = ServerInstance->Channels.Find(target);
+		auto* chan = ServerInstance->Channels.Find(target);
 		if (!chan)
 		{
 			// The target channel does not exist.

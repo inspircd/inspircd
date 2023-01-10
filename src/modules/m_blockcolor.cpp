@@ -67,7 +67,7 @@ public:
 				if (!details.IsCTCP(ctcpname, message))
 					message = details.text;
 
-				for (const auto& chr : message)
+				for (const auto chr : message)
 				{
 					if (static_cast<unsigned char>(chr) < 32)
 					{

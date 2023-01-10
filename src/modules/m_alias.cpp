@@ -283,7 +283,7 @@ public:
 		if (!a.RequiredNick.empty())
 		{
 			int numeric = a.ServiceOnly ? ERR_NOSUCHSERVICE : ERR_NOSUCHNICK;
-			auto u = ServerInstance->Users.FindNick(a.RequiredNick);
+			auto* u = ServerInstance->Users.FindNick(a.RequiredNick);
 			if (!u)
 			{
 				user->WriteNumeric(numeric, a.RequiredNick, "is currently unavailable. Please try again later.");

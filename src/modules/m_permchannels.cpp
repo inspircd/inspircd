@@ -98,7 +98,7 @@ static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes)
 			std::string modes;
 			std::string params;
 
-			for (const auto& lm : ServerInstance->Modes.GetListModes())
+			for (auto* lm : ServerInstance->Modes.GetListModes())
 			{
 				ListModeBase::ModeList* list = lm->GetList(chan);
 				if (!list || list->empty())
@@ -215,7 +215,7 @@ public:
 				continue;
 			}
 
-			auto c = ServerInstance->Channels.Find(channel);
+			auto* c = ServerInstance->Channels.Find(channel);
 			if (!c)
 			{
 				time_t TS = tag->getInt("ts", ServerInstance->Time(), 1);
@@ -247,7 +247,7 @@ public:
 				list.GetToken(modeseq);
 
 				// XXX bleh, should we pass this to the mode parser instead? ugly. --w00t
-				for (const auto& modechr : modeseq)
+				for (const auto modechr : modeseq)
 				{
 					ModeHandler* mode = ServerInstance->Modes.FindMode(modechr, MODETYPE_CHANNEL);
 					if (mode)

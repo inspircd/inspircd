@@ -32,7 +32,7 @@ bool ClientProtocol::Serializer::HandleTag(LocalUser* user, const std::string& t
 	if (tagname.empty())
 		return false;
 
-	for (const auto& subscriber : evprov.GetSubscribers())
+	for (auto* subscriber : evprov.GetSubscribers())
 	{
 		MessageTagProvider* const tagprov = static_cast<MessageTagProvider*>(subscriber);
 		const ModResult res = tagprov->OnProcessTag(user, tagname, tagvalue);
@@ -72,7 +72,7 @@ std::string ClientProtocol::Message::EscapeTag(const std::string& value)
 {
 	std::string ret;
 	ret.reserve(value.size());
-	for (const char& chr : value)
+	for (const auto chr : value)
 	{
 		switch (chr)
 		{

@@ -80,10 +80,10 @@ std::string UIDGenerator::GenerateSID(const std::string& servername, const std::
 {
 	unsigned int sid = 0;
 
-	for (const auto& chr : servername)
+	for (const auto chr : servername)
 		sid = 5 * sid + chr;
 
-	for (const auto& chr : serverdesc)
+	for (const auto chr : serverdesc)
 		sid = 5 * sid + chr;
 
 	std::string sidstr = ConvToStr(sid % 1000);

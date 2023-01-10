@@ -162,7 +162,7 @@ size_t irc::insensitive::operator()(const std::string& s) const
 	 * This avoids a copy to use hash<const char*>
 	 */
 	size_t t = 0;
-	for (const auto& c : s)
+	for (const auto c : s)
 		t = 5 * t + national_case_insensitive_map[static_cast<unsigned char>(c)];
 	return t;
 }

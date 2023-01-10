@@ -45,7 +45,7 @@ CommandKick::CommandKick(Module* parent)
 
 CmdResult CommandKick::Handle(User* user, const Params& parameters)
 {
-	auto c = ServerInstance->Channels.Find(parameters[0]);
+	auto* c = ServerInstance->Channels.Find(parameters[0]);
 	User* u;
 
 	if (CommandParser::LoopCall(user, this, parameters, 1))
@@ -114,7 +114,7 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 		{
 			ModeHandler::Rank them = srcmemb->GetRank();
 			ModeHandler::Rank req = HALFOP_VALUE;
-			for (const auto& mh : memb->modes)
+			for (const auto* mh : memb->modes)
 			{
 				if (mh->GetLevelRequired(true) > req)
 					req = mh->GetLevelRequired(true);

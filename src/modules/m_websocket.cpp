@@ -306,7 +306,7 @@ class WebSocketHook final
 					return result;
 
 				// Strip out any CR+LF which may have been erroneously sent.
-				for (const auto& chr : appdata)
+				for (const auto chr : appdata)
 				{
 					if (chr != '\r' && chr != '\n')
 						destrecvq.push_back(chr);
@@ -522,7 +522,7 @@ public:
 		std::string message;
 		for (const auto& elem : uppersendq)
 		{
-			for (const auto& chr : elem)
+			for (const auto chr : elem)
 			{
 				if (chr == '\n')
 				{

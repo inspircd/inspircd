@@ -127,7 +127,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 		/* stats p (show listening ports) */
 		case 'p':
 		{
-			for (const auto& ls : ServerInstance->ports)
+			for (const auto* ls : ServerInstance->ports)
 			{
 				std::stringstream portentry;
 

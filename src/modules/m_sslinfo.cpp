@@ -99,7 +99,7 @@ public:
 		if (container->extype != this->extype)
 			return;
 
-		auto cert = new ssl_cert();
+		auto* cert = new ssl_cert();
 		Set(static_cast<User*>(container), cert, false);
 
 		std::stringstream s(value);
@@ -203,7 +203,7 @@ private:
 
 	CmdResult HandleUser(LocalUser* source, const std::string& nick)
 	{
-		auto target = ServerInstance->Users.FindNick(nick, true);
+		auto* target = ServerInstance->Users.FindNick(nick, true);
 		if (!target)
 		{
 			source->WriteNumeric(Numerics::NoSuchNick(nick));
@@ -222,7 +222,7 @@ private:
 
 	CmdResult HandleChannel(LocalUser* source, const std::string& channel)
 	{
-		auto chan = ServerInstance->Channels.Find(channel);
+		auto* chan = ServerInstance->Channels.Find(channel);
 		if (!chan)
 		{
 			source->WriteNumeric(Numerics::NoSuchChannel(channel));
@@ -336,7 +336,7 @@ public:
 
 	ModResult OnPreOperLogin(LocalUser* user, const std::shared_ptr<OperAccount>& oper, bool automatic) override
 	{
-		auto cert = cmd.sslapi.GetCertificate(user);
+		auto* cert = cmd.sslapi.GetCertificate(user);
 		if (oper->GetConfig()->getBool("sslonly") && !cert)
 		{
 			if (!automatic)
@@ -433,7 +433,7 @@ public:
 		}
 
 		// Create a fake ssl_cert for the user.
-		auto cert = new ssl_cert();
+		auto* cert = new ssl_cert();
 		if (!hash.empty())
 		{
 			iter = flags->find("certfp-" + hash);

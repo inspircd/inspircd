@@ -222,7 +222,7 @@ namespace GnuTLS
 
 		~X509CertList()
 		{
-			for (const auto& cert : certs)
+			for (auto* cert : certs)
 				gnutls_x509_crt_deinit(cert);
 		}
 
@@ -660,7 +660,7 @@ private:
 
 	void VerifyCertificate()
 	{
-		auto certinfo = new ssl_cert();
+		auto* certinfo = new ssl_cert();
 		this->certificate = certinfo;
 
 		unsigned int certstatus;

@@ -167,7 +167,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(const Channel* c, TreeSoc
 
 	// Check whether the servers which do not have users in the channel might need this message. This
 	// is used to keep the chanhistory module synchronised between servers.
-	for (const auto& child : children)
+	for (const auto* child : children)
 	{
 		ModResult result = Creator->broadcasteventprov.FirstResult(&ServerProtocol::BroadcastEventListener::OnBroadcastMessage, c, child);
 		if (result == MOD_RES_ALLOW)
@@ -179,7 +179,7 @@ void SpanningTreeUtilities::DoOneToAllButSender(const CmdBuilder& params, const 
 {
 	const std::string& FullLine = params.str();
 
-	for (const auto& Route : TreeRoot->GetChildren())
+	for (const auto* Route : TreeRoot->GetChildren())
 	{
 		// Send the line if the route isn't the path to the one to be omitted
 		if (Route != omitroute)
@@ -218,7 +218,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 			ValidIPs.push_back(L->IPAddr);
 		else if (this->Creator->DNS)
 		{
-			auto sr = new SecurityIPResolver(Creator, *this->Creator->DNS, L->IPAddr, L, DNS::QUERY_AAAA);
+			auto* sr = new SecurityIPResolver(Creator, *this->Creator->DNS, L->IPAddr, L, DNS::QUERY_AAAA);
 			try
 			{
 				this->Creator->DNS->Process(sr);
@@ -367,7 +367,7 @@ void SpanningTreeUtilities::SendChannelMessage(const User* source, const Channel
 	TreeSocketSet list;
 	this->GetListOfServersForChannel(target, list, status, exempt_list);
 
-	for (const auto& Sock : list)
+	for (auto* Sock : list)
 	{
 		if (Sock != omit)
 			Sock->WriteLine(msg);
@@ -397,7 +397,7 @@ std::string SpanningTreeUtilities::BuildLinkString(uint16_t proto, Module* mod)
 void SpanningTreeUtilities::SendListLimits(Channel* chan, TreeSocket* sock)
 {
 	std::stringstream buffer;
-	for (const auto& lm : ServerInstance->Modes.GetListModes())
+	for (auto* lm : ServerInstance->Modes.GetListModes())
 		buffer << lm->GetModeChar() << " " << lm->GetLimit(chan) << " ";
 
 	std::string bufferstr = buffer.str();

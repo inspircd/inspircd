@@ -76,7 +76,7 @@ std::string ModeUserServerNoticeMask::ProcessNoticeMasks(User* user, const std::
 	bool adding = true;
 	std::bitset<64> curr = user->snomasks;
 
-	for (const auto& snomask : input)
+	for (const auto snomask : input)
 	{
 		switch (snomask)
 		{

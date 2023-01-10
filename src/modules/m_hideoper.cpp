@@ -149,7 +149,7 @@ public:
 
 		size_t opers = 0;
 		bool source_has_priv = stats.GetSource()->HasPrivPermission("users/auspex");
-		for (const auto& oper : ServerInstance->Users.all_opers)
+		for (auto* oper : ServerInstance->Users.all_opers)
 		{
 			if (oper->server->IsService() || (oper->IsModeSet(hm) && !source_has_priv))
 				continue;
@@ -164,7 +164,7 @@ public:
 					awaytime.c_str(), oper->awaymsg.c_str());
 			}
 
-			auto loper = IS_LOCAL(oper);
+			auto* loper = IS_LOCAL(oper);
 			if (loper)
 			{
 				const std::string idleperiod = InspIRCd::DurationString(ServerInstance->Time() - loper->idle_lastmsg);

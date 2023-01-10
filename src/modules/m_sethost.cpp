@@ -46,7 +46,7 @@ public:
 			return CmdResult::FAILURE;
 		}
 
-		for (const auto& chr : parameters[0])
+		for (const auto chr : parameters[0])
 		{
 			if (!hostmap.test(static_cast<unsigned char>(chr)))
 			{
@@ -84,7 +84,7 @@ public:
 		const std::string hmap = tag->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789", 1);
 
 		CharState newhostmap;
-		for (const auto& chr : hmap)
+		for (const auto chr : hmap)
 		{
 			// A hostname can not contain NUL, LF, CR, or SPACE.
 			if (chr == 0x00 || chr == 0x0A || chr == 0x0D || chr == 0x20)

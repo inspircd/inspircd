@@ -79,7 +79,7 @@ void Extensible::FreeAllExtItems()
 
 void Extensible::UnhookExtensions(const std::vector<ExtensionItem*>& items)
 {
-	for (const auto& item : items)
+	for (auto* item : items)
 	{
 		ExtensibleStore::iterator iter = extensions.find(item);
 		if (iter != extensions.end())

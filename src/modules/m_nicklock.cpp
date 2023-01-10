@@ -50,7 +50,7 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		auto target = ServerInstance->Users.Find(parameters[0], true);
+		auto* target = ServerInstance->Users.Find(parameters[0], true);
 		if (!target)
 		{
 			user->WriteNotice("*** No such nickname: '" + parameters[0] + "'");
@@ -109,7 +109,7 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		auto target = ServerInstance->Users.Find(parameters[0]);
+		auto* target = ServerInstance->Users.Find(parameters[0]);
 
 		if (!target)
 		{

@@ -64,7 +64,7 @@ static void GetDepthAndLen(TreeServer* current, unsigned int depth, unsigned int
 	if (current->rawversion.length() > max_version)
 		max_version = current->rawversion.length();
 
-	for (const auto& child : current->GetChildren())
+	for (auto* child : current->GetChildren())
 		GetDepthAndLen(child, depth + 1, max_depth, max_len, max_version);
 }
 

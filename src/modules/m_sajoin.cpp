@@ -52,7 +52,7 @@ public:
 		const std::string& channel = parameters[channelindex];
 		const std::string& nickname = parameters.size() > 1 ? parameters[0] : user->nick;
 
-		auto dest = ServerInstance->Users.Find(nickname, true);
+		auto* dest = ServerInstance->Users.Find(nickname, true);
 		if (dest)
 		{
 			if (user != dest && !user->HasPrivPermission("users/sajoin-others"))
@@ -73,7 +73,7 @@ public:
 				return CmdResult::FAILURE;
 			}
 
-			auto chan = ServerInstance->Channels.Find(channel);
+			auto* chan = ServerInstance->Channels.Find(channel);
 			if ((chan) && (chan->HasUser(dest)))
 			{
 				user->WriteRemoteNotice("*** " + dest->nick + " is already on " + channel);

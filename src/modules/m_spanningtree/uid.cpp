@@ -48,7 +48,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 		throw ProtocolException("Invalid mode string");
 
 	// See if there is a nick collision
-	auto collideswith = ServerInstance->Users.FindNick(params[2]);
+	auto* collideswith = ServerInstance->Users.FindNick(params[2]);
 	if (collideswith && !collideswith->IsFullyConnected())
 	{
 		// User that the incoming user is colliding with is not fully connected, we force nick change the
@@ -77,7 +77,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	/* For remote users, we pass the UUID they sent to the constructor.
 	 * If the UUID already exists User::User() throws an exception which causes this connection to be closed.
 	 */
-	auto _new = new SpanningTree::RemoteUser(params[0], remoteserver);
+	auto* _new = new SpanningTree::RemoteUser(params[0], remoteserver);
 	ServerInstance->Users.clientlist[params[2]] = _new;
 	_new->nick = params[2];
 	_new->ChangeRealHost(params[3], false);

@@ -54,7 +54,7 @@ public:
 
 		if (IS_LOCAL(source) && !source->IsOper())
 		{
-			auto c = ServerInstance->Channels.Find(parameter);
+			auto* c = ServerInstance->Channels.Find(parameter);
 			if (!c)
 			{
 				source->WriteNumeric(690, InspIRCd::Format("Target channel %s must exist to be set as a redirect.", parameter.c_str()));
@@ -109,7 +109,7 @@ public:
 					const std::string& channel = *re.ext.Get(chan);
 
 					/* sometimes broken services can make circular or chained +L, avoid this */
-					auto destchan = ServerInstance->Channels.Find(channel);
+					auto* destchan = ServerInstance->Channels.Find(channel);
 					if (destchan && destchan->IsModeSet(re))
 					{
 						user->WriteNumeric(470, cname, '*', "You may not join this channel. A redirect is set, but you may not be redirected as it is a circular loop.");

@@ -68,7 +68,7 @@ void CullList::Apply()
 	while (!SQlist.empty())
 	{
 		working.swap(SQlist);
-		for (const auto& u : working)
+		for (auto* u : working)
 		{
 			ServerInstance->SNO.WriteGlobalSno('a', "User %s SendQ exceeds connect class maximum of %lu",
 				u->nick.c_str(), u->GetClass()->hardsendqmax);
@@ -80,7 +80,7 @@ void CullList::Apply()
 	std::set<Cullable*> gone;
 	std::vector<Cullable*> queue;
 	queue.reserve(list.size() + 32);
-	for (auto& c : list)
+	for (auto* c : list)
 	{
 		if (gone.insert(c).second)
 		{
@@ -106,7 +106,7 @@ void CullList::Apply()
 	}
 	list.clear();
 
-	for (auto& c : queue)
+	for (auto* c : queue)
 		delete c;
 
 	if (!list.empty())
@@ -118,7 +118,7 @@ void CullList::Apply()
 
 void ActionList::Run()
 {
-	for (auto& action : list)
+	for (auto* action : list)
 		action->Call();
 	list.clear();
 }

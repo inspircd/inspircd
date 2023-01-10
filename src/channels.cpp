@@ -140,7 +140,7 @@ void Channel::SetDefaultModes()
 
 	list.GetToken(modeseq);
 
-	for (const auto& modechr : modeseq)
+	for (const auto modechr : modeseq)
 	{
 		ModeHandler* mode = ServerInstance->Modes.FindMode(modechr, MODETYPE_CHANNEL);
 		if (mode)
@@ -201,7 +201,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 	if (cname.length() > ServerInstance->Config->Limits.MaxChannel)
 		cname.resize(ServerInstance->Config->Limits.MaxChannel);
 
-	auto chan = ServerInstance->Channels.Find(cname);
+	auto* chan = ServerInstance->Channels.Find(cname);
 	bool created_by_local = !chan; // Flag that will be passed to ForceJoin later
 	std::string privs; // Prefix mode(letter)s to give to the joining user
 
@@ -258,7 +258,7 @@ Membership* Channel::ForceJoin(User* user, const std::string* privs, bool bursti
 	{
 		// If the user was granted prefix modes (in the OnUserPreJoin hook, or they're a
 		// remote user and their own server set the modes), then set them internally now
-		for (const auto& priv : *privs)
+		for (const auto priv : *privs)
 		{
 			PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(priv);
 			if (mh)
@@ -447,7 +447,7 @@ char Membership::GetPrefixChar() const
 	char pf = 0;
 	ModeHandler::Rank bestrank = 0;
 
-	for (const auto& mh : modes)
+	for (const auto* mh : modes)
 	{
 		if (mh->GetPrefixRank() > bestrank && mh->GetPrefix())
 		{
@@ -462,7 +462,7 @@ std::string Membership::GetAllPrefixChars() const
 {
 	std::string ret;
 	ret.reserve(modes.size());
-	for (const auto& mh : modes)
+	for (const auto* mh : modes)
 	{
 		if (mh->GetPrefix())
 			ret.push_back(mh->GetPrefix());
@@ -474,7 +474,7 @@ std::string Membership::GetAllPrefixModes() const
 {
 	std::string ret;
 	ret.reserve(modes.size());
-	for (const auto& mh : modes)
+	for (const auto* mh : modes)
 	{
 		if (mh->GetModeChar())
 			ret.push_back(mh->GetModeChar());

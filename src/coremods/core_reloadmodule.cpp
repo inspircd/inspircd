@@ -706,7 +706,7 @@ public:
 			ServerInstance->SNO.WriteGlobalSno('a', "Failed to reload the %s module.", passedname.c_str());
 		}
 
-		auto user = ServerInstance->Users.FindUUID(uuid);
+		auto* user = ServerInstance->Users.FindUUID(uuid);
 		if (user)
 		{
 			if (result)

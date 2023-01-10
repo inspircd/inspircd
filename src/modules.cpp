@@ -583,7 +583,7 @@ std::string& ModuleManager::LastError()
 
 void ModuleManager::AddServices(const ServiceList& list)
 {
-	for (const auto& service : list)
+	for (auto* service : list)
 		AddService(*service);
 }
 

@@ -129,7 +129,7 @@ public:
 
 		// Remove the old list and create a new one.
 		Unset(user, false);
-		auto list = new dccallowlist();
+		auto* list = new dccallowlist();
 
 		irc::spacesepstream ts(value);
 		while (!ts.StreamEnd())
@@ -235,7 +235,7 @@ public:
 			}
 
 			std::string nick(parameters[0], 1);
-			auto target = ServerInstance->Users.FindNick(nick, true);
+			auto* target = ServerInstance->Users.FindNick(nick, true);
 			if (target && !target->quitting)
 			{
 				if (action == '-')
@@ -478,7 +478,7 @@ public:
 						std::string filename = buf.substr(first, s);
 
 						bool found = false;
-						for (auto& bf : bfl)
+						for (const auto& bf : bfl)
 						{
 							if (InspIRCd::Match(filename, bf.filemask, ascii_case_insensitive_map))
 							{

@@ -129,7 +129,7 @@ private:
 	{
 		// Build a map of prefixes ordered descending by their rank.
 		std::multimap<ModeHandler::Rank, const PrefixMode*, std::greater<>> ranks;
-		for (const auto& pm : ServerInstance->Modes.GetPrefixModes())
+		for (const auto* pm : ServerInstance->Modes.GetPrefixModes())
 			ranks.insert(std::make_pair(pm->GetPrefixRank(), pm));
 
 		// Now we have the ranks ordered we can assign them levels.
@@ -316,7 +316,7 @@ bool CommandWho::MatchUser(LocalUser* source, User* user, WhoData& data)
 		if (source_can_see_target)
 		{
 			bool set = true;
-			for (const auto& chr : data.matchtext)
+			for (const auto chr : data.matchtext)
 			{
 				switch (chr)
 				{

@@ -28,11 +28,11 @@
 
 CmdResult CommandSVSPart::Handle(User* user, Params& parameters)
 {
-	auto u = ServerInstance->Users.FindUUID(parameters[0]);
+	auto* u = ServerInstance->Users.FindUUID(parameters[0]);
 	if (!u)
 		return CmdResult::FAILURE;
 
-	auto c = ServerInstance->Channels.Find(parameters[1]);
+	auto* c = ServerInstance->Channels.Find(parameters[1]);
 	if (!c)
 		return CmdResult::FAILURE;
 

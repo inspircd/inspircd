@@ -190,7 +190,7 @@ bool InspIRCd::DefaultIsIdent(const std::string_view& n)
 	if (n.empty())
 		return false;
 
-	for (const auto& chr : n)
+	for (const auto chr : n)
 	{
 		if (chr >= 'A' && chr <= '}')
 			continue;
@@ -304,7 +304,7 @@ bool InspIRCd::Duration(const std::string& str, unsigned long& duration)
 	unsigned long subtotal = 0;
 
 	/* Iterate each item in the string, looking for number or multiplier */
-	for (const auto& chr : str)
+	for (const auto chr : str)
 	{
 		/* Found a number, queue it onto the current number */
 		if (chr >= '0' && chr <= '9')
@@ -341,7 +341,7 @@ unsigned long InspIRCd::Duration(const std::string& str)
 
 bool InspIRCd::IsValidDuration(const std::string& duration)
 {
-	for (const auto& c : duration)
+	for (const auto c : duration)
 	{
 		if (((c >= '0') && (c <= '9')))
 			continue;

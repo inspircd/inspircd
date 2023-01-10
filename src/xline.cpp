@@ -473,7 +473,7 @@ void XLineManager::ApplyLines()
 		if (u->exempt)
 			continue;
 
-		for (const auto& x : pending_lines)
+		for (auto* x : pending_lines)
 		{
 			if (x->Matches(u))
 			{

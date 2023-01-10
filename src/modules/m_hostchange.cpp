@@ -137,7 +137,7 @@ private:
 	{
 		std::string buffer;
 		buffer.reserve(name.length());
-		for (const auto& chr : name)
+		for (const auto chr : name)
 		{
 			if (hostmap.test(static_cast<unsigned char>(chr)))
 				buffer.push_back(chr);
@@ -196,7 +196,7 @@ public:
 		const std::string hmap = tag->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789", 1);
 
 		CharState newhostmap;
-		for (const auto& chr : hmap)
+		for (const auto chr : hmap)
 		{
 			// A hostname can not contain NUL, LF, CR, or SPACE.
 			if (chr == 0x00 || chr == 0x0A || chr == 0x0D || chr == 0x20)

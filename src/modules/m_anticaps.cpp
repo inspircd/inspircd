@@ -196,11 +196,11 @@ public:
 		const auto& tag = ServerInstance->Config->ConfValue("anticaps");
 
 		uppercase.reset();
-		for (const auto& chr : tag->getString("uppercase", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 1))
+		for (const auto chr : tag->getString("uppercase", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 1))
 			uppercase.set(static_cast<unsigned char>(chr));
 
 		lowercase.reset();
-		for (const auto& chr : tag->getString("lowercase", "abcdefghijklmnopqrstuvwxyz", 1))
+		for (const auto chr : tag->getString("lowercase", "abcdefghijklmnopqrstuvwxyz", 1))
 			lowercase.set(static_cast<unsigned char>(chr));
 	}
 
@@ -251,7 +251,7 @@ public:
 		// Count the characters to see how many upper case and
 		// ignored (non upper or lower) characters there are.
 		size_t upper = 0;
-		for (const auto& chr : msgbody)
+		for (const auto chr : msgbody)
 		{
 			if (uppercase.test(static_cast<unsigned char>(chr)))
 				upper += 1;

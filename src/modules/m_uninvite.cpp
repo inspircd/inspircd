@@ -57,7 +57,7 @@ public:
 		else
 			u = ServerInstance->Users.Find(parameters[0]);
 
-		auto c = ServerInstance->Channels.Find(parameters[1]);
+		auto* c = ServerInstance->Channels.Find(parameters[1]);
 
 		if (!c || !u)
 		{

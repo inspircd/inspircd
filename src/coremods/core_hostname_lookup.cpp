@@ -180,7 +180,7 @@ public:
 		}
 
 		LogLookup(*rr, query->cached);
-		auto res_forward = new UserIPResolver(this->manager, this->creator, user, rr->rdata);
+		auto* res_forward = new UserIPResolver(this->manager, this->creator, user, rr->rdata);
 		try
 		{
 			this->manager->Process(res_forward);
@@ -224,7 +224,7 @@ public:
 
 		user->WriteNotice("*** Looking up your hostname...");
 
-		auto res_reverse = new UserHostResolver(*this->DNS, this, user);
+		auto* res_reverse = new UserHostResolver(*this->DNS, this, user);
 		try
 		{
 			/* If both the reverse and forward queries are cached, the user will be able to pass DNS completely

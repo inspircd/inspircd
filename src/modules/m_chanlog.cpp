@@ -54,7 +54,7 @@ public:
 			if (snomasks.empty())
 				throw ModuleException(this, "<chanlog:snomasks> must not be empty, at " + tag->source.str());
 
-			for (const auto& snomask : snomasks)
+			for (const auto snomask : snomasks)
 			{
 				newlogs.emplace(snomask, channel);
 				ServerInstance->Logs.Normal(MODNAME, "Logging %c to %s", snomask, channel.c_str());
@@ -72,7 +72,7 @@ public:
 		const std::string snotice = "\002" + desc + "\002: " + msg;
 		for (const auto& [_, channel] : channels)
 		{
-			auto c = ServerInstance->Channels.Find(channel);
+			auto* c = ServerInstance->Channels.Find(channel);
 			if (c)
 			{
 				ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->Config->ServerName, c, snotice);

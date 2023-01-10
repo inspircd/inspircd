@@ -27,7 +27,7 @@ bool ChannelManager::DefaultIsChannel(const std::string_view& channel)
 	if (!ServerInstance->Channels.IsPrefix(channel[0]))
 		return false;
 
-	for (const auto& chr : insp::iterator_range(channel.begin() + 1, channel.end()))
+	for (const auto chr : insp::iterator_range(channel.begin() + 1, channel.end()))
 	{
 		switch (chr)
 		{

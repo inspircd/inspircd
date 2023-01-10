@@ -440,7 +440,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
 		}
 	}
 
-	auto user = ServerInstance->Users.FindUUID(useruid);
+	auto* user = ServerInstance->Users.FindUUID(useruid);
 
 	if (!valid)
 	{
@@ -576,7 +576,7 @@ ServerConfig::TagList ServerConfig::ConfTags(const std::string& tag, std::option
 std::string ServerConfig::Escape(const std::string& str)
 {
 	std::stringstream escaped;
-	for (const auto& chr : str)
+	for (const auto chr : str)
 	{
 		switch (chr)
 		{
@@ -656,7 +656,7 @@ void ConfigReaderThread::OnStop()
 		 */
 		ServerInstance->Users.RehashCloneCounts();
 
-		auto user = ServerInstance->Users.FindUUID(UUID);
+		auto* user = ServerInstance->Users.FindUUID(UUID);
 		ConfigStatus status(user);
 
 		for (const auto& [modname, mod] : ServerInstance->Modules.GetModules())

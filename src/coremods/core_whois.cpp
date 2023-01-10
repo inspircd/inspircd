@@ -261,7 +261,7 @@ CmdResult CommandWhois::HandleRemote(RemoteUser* target, const Params& parameter
 	if (parameters.size() < 2)
 		return CmdResult::FAILURE;
 
-	auto user = ServerInstance->Users.FindUUID(parameters[0]);
+	auto* user = ServerInstance->Users.FindUUID(parameters[0]);
 	if (!user)
 		return CmdResult::FAILURE;
 

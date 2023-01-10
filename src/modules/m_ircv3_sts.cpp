@@ -142,7 +142,7 @@ private:
 	// The IRCv3 STS specification requires that the server is listening using TLS using a valid certificate.
 	static bool HasValidSSLPort(in_port_t port)
 	{
-		for (const auto& ls : ServerInstance->ports)
+		for (const auto* ls : ServerInstance->ports)
 		{
 			// Is this listener marked as providing SSL over HAProxy?
 			if (!ls->bind_tag->getString("hook").empty() && ls->bind_tag->getBool("sslhook"))

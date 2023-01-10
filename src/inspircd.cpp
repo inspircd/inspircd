@@ -400,7 +400,7 @@ namespace
 void InspIRCd::Cleanup()
 {
 	// Close all listening sockets
-	for (auto& port : ports)
+	for (auto* port : ports)
 	{
 		port->Cull();
 		delete port;

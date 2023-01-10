@@ -36,7 +36,7 @@ bool NewIsChannelHandler::Call(const std::string_view& channame)
 	if (channame.empty() || channame.length() > ServerInstance->Config->Limits.MaxChannel || !ServerInstance->Channels.IsPrefix(channame[0]))
 		return false;
 
-	for (const auto& chr : channame)
+	for (const auto chr : channame)
 	{
 		if (!allowedmap[static_cast<unsigned char>(chr)])
 			return false;

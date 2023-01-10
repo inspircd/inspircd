@@ -138,7 +138,7 @@ public:
 			throw CoreException("<log:target> must be specified for JSON logger at " + tag->source.str());
 
 		const std::string fulltarget = ServerInstance->Config->Paths.PrependLog(InspIRCd::TimeString(ServerInstance->Time(), target.c_str()));
-		auto fh = fopen(fulltarget.c_str(), "a");
+		auto* fh = fopen(fulltarget.c_str(), "a");
 		if (!fh)
 		{
 			throw CoreException(InspIRCd::Format("Unable to open %s for JSON logger at %s: %s",

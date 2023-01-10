@@ -86,7 +86,7 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		auto channel = ServerInstance->Channels.Find(parameters[0]);
+		auto* channel = ServerInstance->Channels.Find(parameters[0]);
 		if (!channel)
 		{
 			user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));

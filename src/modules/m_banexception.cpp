@@ -86,7 +86,7 @@ public:
 		if (!list)
 			return MOD_RES_PASSTHRU;
 
-		for (const ListModeBase::ListItem& ban : *list)
+		for (const auto& ban : *list)
 		{
 			bool inverted;
 			std::string name;

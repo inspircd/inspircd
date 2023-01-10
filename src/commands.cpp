@@ -71,7 +71,7 @@ void Command::TellNotEnoughParameters(LocalUser* user, const Params& parameters)
 	user->WriteNumeric(ERR_NEEDMOREPARAMS, name, "Not enough parameters.");
 	if (ServerInstance->Config->SyntaxHints && user->IsFullyConnected())
 	{
-		for (const std::string& syntaxline : this->syntax)
+		for (const auto& syntaxline : this->syntax)
 			user->WriteNumeric(RPL_SYNTAX, name, syntaxline);
 	}
 }

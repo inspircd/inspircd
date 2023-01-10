@@ -101,7 +101,7 @@ public:
 		flag_no_opers = flag_part_message = flag_quit_message = flag_privmsg =
 			flag_notice = flag_strip_color = flag_no_registered = false;
 
-		for (const auto& flag : flags)
+		for (const auto flag : flags)
 		{
 			switch (flag)
 			{
@@ -465,7 +465,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		}
 		else if (f->action == FA_SHUN && (ServerInstance->XLines->GetFactory("SHUN")))
 		{
-			auto sh = new Shun(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
+			auto* sh = new Shun(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
 			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was shunned for %s (expires on %s) because their message to %s matched %s (%s)",
 				user->nick.c_str(), sh->Displayable().c_str(), InspIRCd::DurationString(f->duration).c_str(),
 				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
@@ -479,7 +479,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		}
 		else if (f->action == FA_GLINE)
 		{
-			auto gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, "*", user->GetIPString());
+			auto* gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, "*", user->GetIPString());
 			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was G-lined for %s (expires on %s) because their message to %s matched %s (%s)",
 				user->nick.c_str(), gl->Displayable().c_str(), InspIRCd::DurationString(f->duration).c_str(),
 				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
@@ -493,7 +493,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		}
 		else if (f->action == FA_ZLINE)
 		{
-			auto zl = new ZLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
+			auto* zl = new ZLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
 			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was Z-lined for %s (expires on %s) because their message to %s matched %s (%s)",
 				user->nick.c_str(), zl->Displayable().c_str(), InspIRCd::DurationString(f->duration).c_str(),
 				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
@@ -570,7 +570,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 			if (f->action == FA_GLINE)
 			{
 				/* Note: We G-line *@IP so that if their host doesn't resolve the G-line still applies. */
-				auto gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, "*", user->GetIPString());
+				auto* gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, "*", user->GetIPString());
 				ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was G-lined for %s (expires on %s) because their %s message matched %s (%s)",
 					user->nick.c_str(), gl->Displayable().c_str(),
 					InspIRCd::DurationString(f->duration).c_str(),
@@ -586,7 +586,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 			}
 			if (f->action == FA_ZLINE)
 			{
-				auto zl = new ZLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
+				auto* zl = new ZLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
 				ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was Z-lined for %s (expires on %s) because their %s message matched %s (%s)",
 					user->nick.c_str(), zl->Displayable().c_str(),
 					InspIRCd::DurationString(f->duration).c_str(),
@@ -603,7 +603,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 			else if (f->action == FA_SHUN && (ServerInstance->XLines->GetFactory("SHUN")))
 			{
 				/* Note: We shun *!*@IP so that if their host doesnt resolve the shun still applies. */
-				auto sh = new Shun(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
+				auto* sh = new Shun(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
 				ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was shunned for %s (expires on %s) because their %s message matched %s (%s)",
 					user->nick.c_str(), sh->Displayable().c_str(),
 					InspIRCd::DurationString(f->duration).c_str(),

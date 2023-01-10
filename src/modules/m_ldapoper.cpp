@@ -54,7 +54,7 @@ protected:
 
 	void Fallback()
 	{
-		auto user = ServerInstance->Users.FindUUID(uid);
+		auto* user = ServerInstance->Users.FindUUID(uid);
 		Fallback(user);
 	}
 
@@ -86,7 +86,7 @@ public:
 
 	void OnResult(const LDAPResult& r) override
 	{
-		auto user = ServerInstance->Users.FindUUID(uid);
+		auto* user = ServerInstance->Users.FindUUID(uid);
 		auto iter = ServerInstance->Config->OperAccounts.find(opername);
 
 		if (!user || iter == ServerInstance->Config->OperAccounts.end())

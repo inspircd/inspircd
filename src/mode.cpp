@@ -340,7 +340,7 @@ void ModeParser::ModeParamsToChangeList(User* user, ModeType type, const std::ve
 	bool adding = true;
 	size_t param_at = beginindex+1;
 
-	for (const auto& modechar : parameters[beginindex])
+	for (const auto modechar : parameters[beginindex])
 	{
 		if (modechar == '+' || modechar == '-')
 		{
@@ -715,7 +715,7 @@ PrefixMode* ModeParser::FindPrefixMode(unsigned char modeletter)
 PrefixMode* ModeParser::FindNearestPrefixMode(ModeHandler::Rank rank) const
 {
 	PrefixMode* pm = nullptr;
-	for (const auto& thispm : GetPrefixModes())
+	for (auto* thispm : GetPrefixModes())
 	{
 		if (thispm->GetPrefixRank() < rank)
 			continue; // Not ranked high enough.
@@ -730,7 +730,7 @@ PrefixMode* ModeParser::FindNearestPrefixMode(ModeHandler::Rank rank) const
 
 PrefixMode* ModeParser::FindPrefix(unsigned char pfxletter) const
 {
-	for (const auto& pm : GetPrefixModes())
+	for (auto* pm : GetPrefixModes())
 	{
 		if (pm->GetPrefix() == pfxletter)
 			return pm;

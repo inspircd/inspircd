@@ -168,7 +168,7 @@ public:
 						return false;
 					}
 
-					auto c = ServerInstance->Channels.Find(mask[CHAN]);
+					auto* c = ServerInstance->Channels.Find(mask[CHAN]);
 					if (!c)
 					{
 						source->WriteNumeric(690, InspIRCd::Format("Target channel %s must exist to be set as a redirect.", mask[CHAN].c_str()));
@@ -332,7 +332,7 @@ public:
 							return MOD_RES_DENY;
 
 						/* tell them they're banned and are being transferred */
-						auto destchan = ServerInstance->Channels.Find(redirect.targetchan);
+						auto* destchan = ServerInstance->Channels.Find(redirect.targetchan);
 						std::string destlimit;
 
 						if (destchan)

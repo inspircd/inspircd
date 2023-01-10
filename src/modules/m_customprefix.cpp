@@ -99,7 +99,7 @@ public:
 
 			try
 			{
-				auto mh = new CustomPrefixMode(this, name, letter[0], prefix[0], tag);
+				auto* mh = new CustomPrefixMode(this, name, letter[0], prefix[0], tag);
 				modes.push_back(mh);
 				ServerInstance->Modules.AddService(*mh);
 			}

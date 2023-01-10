@@ -111,7 +111,7 @@ public:
 
 	void OnResult(const LDAPResult& r) override
 	{
-		auto user = ServerInstance->Users.FindUUID(uid);
+		auto* user = ServerInstance->Users.FindUUID(uid);
 		dynamic_reference<LDAPProvider> LDAP(me, provider);
 
 		if (!user || !LDAP)
@@ -196,7 +196,7 @@ public:
 			return;
 		}
 
-		auto user = ServerInstance->Users.FindUUID(uid);
+		auto* user = ServerInstance->Users.FindUUID(uid);
 		if (user)
 		{
 			if (verbose)
@@ -257,7 +257,7 @@ public:
 	void OnError(const LDAPResult& err) override
 	{
 		ServerInstance->SNO.WriteToSnoMask('a', "Error searching LDAP server: %s", err.getError().c_str());
-		auto user = ServerInstance->Users.FindUUID(uid);
+		auto* user = ServerInstance->Users.FindUUID(uid);
 		if (user)
 			ServerInstance->Users.QuitUser(user, killreason);
 		delete this;

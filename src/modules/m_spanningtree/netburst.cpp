@@ -150,7 +150,7 @@ void TreeSocket::SendServers(TreeServer* Current, TreeServer* s)
 {
 	SendServerInfo(Current);
 
-	for (const auto& recursive_server : Current->GetChildren())
+	for (auto* recursive_server : Current->GetChildren())
 	{
 		if (recursive_server != s)
 		{
@@ -202,7 +202,7 @@ void TreeSocket::SendListModes(Channel* chan)
 		return;
 	}
 
-	for (const auto& mode : ServerInstance->Modes.GetListModes())
+	for (auto* mode : ServerInstance->Modes.GetListModes())
 	{
 		ListModeBase::ModeList* list = mode->GetList(chan);
 		if (!list || list->empty())
@@ -221,7 +221,7 @@ void TreeSocket::SendListModes(Channel* chan)
 void TreeSocket::SendLegacyListModes(Channel* chan)
 {
 	FModeBuilder fmode(chan);
-	for (const auto& mode : ServerInstance->Modes.GetListModes())
+	for (auto* mode : ServerInstance->Modes.GetListModes())
 	{
 		ListModeBase::ModeList* list = mode->GetList(chan);
 		if (!list)

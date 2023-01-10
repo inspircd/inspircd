@@ -45,7 +45,7 @@ public:
 			return CmdResult::FAILURE;
 		}
 
-		auto chan = ServerInstance->Channels.Find(parameters[0]);
+		auto* chan = ServerInstance->Channels.Find(parameters[0]);
 		if (!chan)
 			return CmdResult::FAILURE;
 

@@ -92,7 +92,7 @@ class Cap::ManagerImpl final
 		if (mod == creator)
 			return;
 
-		auto capmoddata = new CapModData();
+		auto* capmoddata = new CapModData();
 		cd.add(this, capmoddata);
 
 		for (const auto& [_, cap] : caps)
@@ -129,7 +129,7 @@ class Cap::ManagerImpl final
 			// Set back the cap for all users who were using it before the reload
 			for (const auto& uuid : capdata.users)
 			{
-				auto user = ServerInstance->Users.FindUUID(uuid);
+				auto* user = ServerInstance->Users.FindUUID(uuid);
 				if (!user)
 				{
 					ServerInstance->Logs.Debug(MODNAME, "User %s is gone when trying to restore cap %s", uuid.c_str(), capdata.name.c_str());

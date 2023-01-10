@@ -52,7 +52,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 			return CmdResult::FAILURE;
 		}
 
-		auto u = ServerInstance->Users.Find(target, true);
+		auto* u = ServerInstance->Users.Find(target, true);
 		if (u)
 		{
 			target = u->GetIPString();
@@ -78,7 +78,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 			return CmdResult::FAILURE;
 		}
 
-		auto zl = new ZLine(ServerInstance->Time(), duration, user->nick, parameters[2], ipaddr);
+		auto* zl = new ZLine(ServerInstance->Time(), duration, user->nick, parameters[2], ipaddr);
 		if (ServerInstance->XLines->AddLine(zl, user))
 		{
 			if (!duration)

@@ -45,7 +45,7 @@ CmdResult CommandEline::Handle(User* user, const Params& parameters)
 	if (parameters.size() >= 3)
 	{
 		IdentHostPair ih;
-		auto find = ServerInstance->Users.Find(target, true);
+		auto* find = ServerInstance->Users.Find(target, true);
 		if (find)
 		{
 			ih.first = find->GetBanIdent();
@@ -72,7 +72,7 @@ CmdResult CommandEline::Handle(User* user, const Params& parameters)
 			return CmdResult::FAILURE;
 		}
 
-		auto el = new ELine(ServerInstance->Time(), duration, user->nick, parameters[2], ih.first, ih.second);
+		auto* el = new ELine(ServerInstance->Time(), duration, user->nick, parameters[2], ih.first, ih.second);
 		if (ServerInstance->XLines->AddLine(el, user))
 		{
 			if (!duration)

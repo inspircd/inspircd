@@ -324,7 +324,7 @@ bool User::OperLogin(const std::shared_ptr<OperAccount>& account, bool automatic
 	//   2. Set user mode o (oper) *WITHOUT* calling the mode handler.
 	//   3. Add the user to the operator list.
 	oper = account;
-	auto opermh = ServerInstance->Modes.FindMode('o', MODETYPE_USER);
+	auto* opermh = ServerInstance->Modes.FindMode('o', MODETYPE_USER);
 	if (opermh)
 	{
 		SetMode(opermh, true);
@@ -369,7 +369,7 @@ void User::OperLogout()
 		}
 		ServerInstance->Modes.Process(this, nullptr, this, changelist);
 
-		auto opermh = ServerInstance->Modes.FindMode('o', MODETYPE_USER);
+		auto* opermh = ServerInstance->Modes.FindMode('o', MODETYPE_USER);
 		if (opermh)
 			SetMode(opermh, false);
 	}
@@ -724,7 +724,7 @@ void LocalUser::Send(ClientProtocol::Event& protoev, ClientProtocol::MessageList
 {
 	// Modules can personalize the messages sent per user for the event
 	protoev.GetMessagesForUser(this, msglist);
-	for (const auto& msg : msglist)
+	for (auto* msg : msglist)
 	{
 		ClientProtocol::Message& curr = *msg;
 		ModResult res;
@@ -1115,7 +1115,7 @@ void OperType::Configure(const std::shared_ptr<ConfigTag>& tag, bool merge)
 	auto modefn = [&tag](ModeParser::ModeStatus& modes, const std::string& key)
 	{
 		bool adding = true;
-		for (const auto& chr : tag->getString(key))
+		for (const auto chr : tag->getString(key))
 		{
 			if (chr == '+' || chr == '-')
 				adding = (chr == '+');

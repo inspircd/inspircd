@@ -132,7 +132,7 @@ void Snomask::Send(char letter, const std::string& desc, const std::string& msg)
 	const std::string finalmsg = InspIRCd::Format("*** %s: %s", desc.c_str(), msg.c_str());
 
 	/* Only opers can receive snotices, so we iterate the oper list */
-	for (const auto& user : ServerInstance->Users.all_opers)
+	for (auto* user : ServerInstance->Users.all_opers)
 	{
 		// IsNoticeMaskSet() returns false for opers who aren't +s, no need to check for it separately
 		if (IS_LOCAL(user) && user->IsNoticeMaskSet(letter))

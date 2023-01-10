@@ -97,7 +97,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 		}
 		if (ServerInstance->Channels.IsPrefix(dest[0]))
 		{
-			auto c = ServerInstance->Channels.Find(dest);
+			auto* c = ServerInstance->Channels.Find(dest);
 			if (!c)
 				return;
 			// TODO OnBuildExemptList hook was here
@@ -114,7 +114,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 		else
 		{
 			// user target?
-			auto d = ServerInstance->Users.Find(dest);
+			auto* d = ServerInstance->Users.Find(dest);
 			if (!d || IS_LOCAL(d))
 				return;
 			TreeServer* tsd = TreeServer::Get(d)->GetRoute();

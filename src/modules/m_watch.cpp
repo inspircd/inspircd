@@ -102,7 +102,7 @@ class CommandWatch final
 	void HandleList(LocalUser* user, bool show_offline)
 	{
 		user->CommandFloodPenalty += ListPenalty;
-		for (const auto& entry : manager.GetWatched(user))
+		for (const auto* entry : manager.GetWatched(user))
 			SendOnlineOffline(user, entry->GetNick(), show_offline);
 		user->WriteNumeric(RPL_ENDOFWATCHLIST, "End of WATCH list");
 	}
@@ -116,7 +116,7 @@ class CommandWatch final
 		user->WriteNumeric(RPL_WATCHSTAT, InspIRCd::Format("You have %lu and are on 0 WATCH entries", (unsigned long)list.size()));
 
 		Numeric::Builder<' '> out(user, RPL_WATCHLIST);
-		for (const auto& entry : list)
+		for (const auto* entry : list)
 			out.Add(entry->GetNick());
 		out.Flush();
 		user->WriteNumeric(RPL_ENDOFWATCHLIST, "End of WATCH S");

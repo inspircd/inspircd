@@ -252,7 +252,7 @@ inline Regex::PatternPtr Regex::Engine::CreateHuman(const std::string& pattern) 
 		throw Exception(creator, pattern, "Regex patterns must be terminated with a '/'!");
 
 	uint8_t options = Regex::OPT_NONE;
-	for (const auto& flag : insp::iterator_range(pattern.begin() + end + 1, pattern.end()))
+	for (const auto flag : insp::iterator_range(pattern.begin() + end + 1, pattern.end()))
 	{
 		switch (flag)
 		{

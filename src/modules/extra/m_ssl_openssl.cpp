@@ -576,7 +576,7 @@ private:
 	void VerifyCertificate()
 	{
 		X509* cert;
-		auto certinfo = new ssl_cert();
+		auto* certinfo = new ssl_cert();
 		this->certificate = certinfo;
 		unsigned int n;
 		unsigned char md[EVP_MAX_MD_SIZE];

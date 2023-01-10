@@ -566,7 +566,7 @@ public:
 			ConnMap::iterator curr = connections.find(id);
 			if (curr == connections.end())
 			{
-				auto conn = new SQLConn(this, tag);
+				auto* conn = new SQLConn(this, tag);
 				if (conn->status != DEAD)
 				{
 					conns.emplace(id, conn);

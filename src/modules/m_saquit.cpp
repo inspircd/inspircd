@@ -45,7 +45,7 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		auto dest = ServerInstance->Users.Find(parameters[0], true);
+		auto* dest = ServerInstance->Users.Find(parameters[0], true);
 		if (dest)
 		{
 			if (dest->IsModeSet(servprotectmode))

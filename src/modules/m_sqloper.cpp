@@ -119,7 +119,7 @@ public:
 	// Call /oper after placing all blocks from the SQL table into the Config->OperAccounts list.
 	void OperExec()
 	{
-		auto user = ServerInstance->Users.Find<LocalUser>(uid);
+		auto* user = ServerInstance->Users.Find<LocalUser>(uid);
 		if (!user)
 			return; // The user disconnected before the SQL query returned.
 

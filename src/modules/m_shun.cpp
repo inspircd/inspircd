@@ -74,7 +74,7 @@ public:
 
 		std::string target = parameters[0];
 
-		auto find = ServerInstance->Users.Find(target, true);
+		auto* find = ServerInstance->Users.Find(target, true);
 		if (find)
 			target = "*!" + find->GetBanIdent() + "@" + find->GetIPString();
 
@@ -116,7 +116,7 @@ public:
 				expr = parameters[1];
 			}
 
-			auto r = new Shun(ServerInstance->Time(), duration, user->nick, expr, target);
+			auto* r = new Shun(ServerInstance->Time(), duration, user->nick, expr, target);
 			if (ServerInstance->XLines->AddLine(r, user))
 			{
 				if (!duration)

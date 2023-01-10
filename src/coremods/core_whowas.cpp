@@ -222,7 +222,7 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 				last = nick->entries.rbegin() + count;
 		}
 
-		for (const auto& u : insp::iterator_range(nick->entries.rbegin(), last))
+		for (const auto* u : insp::iterator_range(nick->entries.rbegin(), last))
 		{
 			user->WriteNumeric(RPL_WHOWASUSER, parameters[0], u->ident, u->dhost, '*', u->real);
 
@@ -270,7 +270,7 @@ void WhoWas::Manager::Add(User* user)
 	if (ret.second) // If inserted
 	{
 		// This nick is new, create a list for it and add the first record to it
-		auto nick = new WhoWas::Nick(ret.first->first);
+		auto* nick = new WhoWas::Nick(ret.first->first);
 		nick->entries.push_back(new Entry(user));
 		ret.first->second = nick;
 

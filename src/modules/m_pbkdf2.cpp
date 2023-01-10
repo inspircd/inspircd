@@ -172,7 +172,7 @@ class ModulePBKDF2 final
 
 	void ConfigureProviders()
 	{
-		for (const auto& pi : providers)
+		for (auto* pi : providers)
 		{
 			ProviderConfig config = GetConfigForProvider(pi->name);
 			pi->iterations = config.iterations;
@@ -233,7 +233,7 @@ public:
 		if (hp->IsKDF())
 			return;
 
-		auto prov = new PBKDF2Provider(this, hp);
+		auto* prov = new PBKDF2Provider(this, hp);
 		providers.push_back(prov);
 		ServerInstance->Modules.AddService(*prov);
 

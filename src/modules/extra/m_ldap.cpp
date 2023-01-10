@@ -273,7 +273,7 @@ public:
 		for (unsigned int x = 0; x < attributes.size(); ++x)
 		{
 			const LDAPModification& l = attributes[x];
-			auto mod = new LDAPMod();
+			auto* mod = new LDAPMod();
 			mods[x] = mod;
 
 			if (l.op == LDAPModification::LDAP_ADD)
@@ -369,7 +369,7 @@ public:
 	{
 		this->LockQueue();
 
-		for (auto& req : this->queries)
+		for (auto* req : this->queries)
 		{
 			/* queries have no results yet */
 			req->result = new LDAPResult();
@@ -381,7 +381,7 @@ public:
 		}
 		this->queries.clear();
 
-		for (auto& req : this->results)
+		for (auto* req : this->results)
 		{
 			/* even though this may have already finished successfully we return that it didn't */
 			req->result->error = "LDAP Interface is going away";
@@ -522,7 +522,7 @@ private:
 			return;
 		}
 
-		for (auto& req : q)
+		for (auto* req : q)
 		{
 			int ret = req->run();
 
@@ -574,7 +574,7 @@ public:
 		this->results.swap(r);
 		this->UnlockQueue();
 
-		for (auto& req : r)
+		for (auto* req : r)
 		{
 			LDAPInterface* li = req->inter;
 			LDAPResult* res = req->result;
@@ -615,7 +615,7 @@ public:
 			ServiceMap::iterator curr = LDAPServices.find(id);
 			if (curr == LDAPServices.end())
 			{
-				auto conn = new LDAPService(this, tag);
+				auto* conn = new LDAPService(this, tag);
 				conns[id] = conn;
 
 				ServerInstance->Modules.AddService(*conn);

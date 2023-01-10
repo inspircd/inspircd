@@ -467,7 +467,7 @@ public:
 			const unsigned char* ip = user->client_sa.in6.sin6_addr.s6_addr;
 
 			const std::string buf = Hex::Encode(ip, 16);
-			for (const auto& chr : insp::reverse_range(buf))
+			for (const auto chr : insp::reverse_range(buf))
 			{
 				reversedip.push_back(chr);
 				reversedip.push_back('.');
@@ -488,7 +488,7 @@ public:
 			std::string hostname = reversedip + "." + dnsbl->domain;
 
 			/* now we'd need to fire off lookups for `hostname'. */
-			auto r = new DNSBLResolver(this, data, hostname, user, dnsbl);
+			auto* r = new DNSBLResolver(this, data, hostname, user, dnsbl);
 			try
 			{
 				data.dns->Process(r);

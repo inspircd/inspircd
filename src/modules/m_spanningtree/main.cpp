@@ -143,7 +143,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 		Parent = Current->GetParent()->GetName();
 	}
 
-	for (const auto& server : Current->GetChildren())
+	for (auto* server : Current->GetChildren())
 	{
 		if ((server->Hidden) || ((Utils->HideServices) && (server->IsService())))
 		{
@@ -242,7 +242,7 @@ void ModuleSpanningTree::ConnectServer(const std::shared_ptr<Link>& x, const std
 	if (sa.family() != AF_UNSPEC)
 	{
 		// Create a TreeServer object that will start connecting immediately in the background
-		auto newsocket = new TreeSocket(x, y, sa);
+		auto* newsocket = new TreeSocket(x, y, sa);
 		if (!newsocket->HasFd())
 		{
 			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",
@@ -265,7 +265,7 @@ void ModuleSpanningTree::ConnectServer(const std::shared_ptr<Link>& x, const std
 				start_type = DNS::QUERY_A;
 		}
 
-		auto snr = new ServerNameResolver(*DNS, x->IPAddr, x, start_type, y);
+		auto* snr = new ServerNameResolver(*DNS, x->IPAddr, x, start_type, y);
 		try
 		{
 			DNS->Process(snr);
@@ -714,7 +714,7 @@ namespace
 				compatbuffer << '=' << compatlinkstring;
 		}
 
-		for (const auto& child : Utils->TreeRoot->GetChildren())
+		for (const auto* child : Utils->TreeRoot->GetChildren())
 		{
 			if (!child->GetSocket())
 				continue; // Should never happen?
@@ -753,7 +753,7 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 
 restart:
 	// Close all connections which use an IO hook provided by this module
-	for (const auto& child : Utils->TreeRoot->GetChildren())
+	for (const auto* child : Utils->TreeRoot->GetChildren())
 	{
 		TreeSocket* sock = child->GetSocket();
 		if (sock->GetModHook(mod))
@@ -870,7 +870,7 @@ ModuleSpanningTree::~ModuleSpanningTree()
 {
 	ServerInstance->PI = &ServerInstance->DefaultProtocolInterface;
 
-	auto newsrv = new Server(ServerInstance->Config->GetSID(), ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
+	auto* newsrv = new Server(ServerInstance->Config->GetSID(), ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
 	SetLocalUsersServer(newsrv);
 
 	delete Utils;
