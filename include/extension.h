@@ -323,12 +323,12 @@ public:
 		{
 			// The remote sent an empty list.
 			delete list;
-			ListExtItem<List>::Unset(container);
+			SimpleExtItem<Container>::Unset(container);
 		}
 		else
 		{
 			// The remote sent a non-zero list.
-			ListExtItem<List>::Set(container, list);
+			SimpleExtItem<Container>::Set(container, list);
 		}
 	}
 
