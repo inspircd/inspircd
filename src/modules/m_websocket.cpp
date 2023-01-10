@@ -498,7 +498,7 @@ class WebSocketHook final
 	}
 
 public:
-	WebSocketHook(std::shared_ptr<IOHookProvider> Prov, StreamSocket* sock, WebSocketConfig& cfg)
+	WebSocketHook(const std::shared_ptr<IOHookProvider>& Prov, StreamSocket* sock, WebSocketConfig& cfg)
 		: IOHookMiddle(Prov)
 		, config(cfg)
 		, sendastext(config.defaultmode != WebSocketConfig::DM_BINARY)

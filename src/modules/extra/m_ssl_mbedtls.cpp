@@ -701,7 +701,7 @@ private:
 	}
 
 public:
-	mbedTLSIOHook(std::shared_ptr<IOHookProvider> hookprov, StreamSocket* sock, bool isserver)
+	mbedTLSIOHook(const std::shared_ptr<IOHookProvider>& hookprov, StreamSocket* sock, bool isserver)
 		: SSLIOHook(hookprov)
 	{
 		mbedtls_ssl_init(&sess);

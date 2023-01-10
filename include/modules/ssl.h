@@ -209,7 +209,7 @@ public:
 		return nullptr;
 	}
 
-	SSLIOHook(std::shared_ptr<IOHookProvider> hookprov)
+	SSLIOHook(const std::shared_ptr<IOHookProvider>& hookprov)
 		: IOHook(hookprov)
 	{
 	}

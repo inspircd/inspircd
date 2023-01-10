@@ -678,7 +678,7 @@ private:
 	friend void StaticSSLInfoCallback(const SSL* ssl, int where, int rc);
 
 public:
-	OpenSSLIOHook(std::shared_ptr<IOHookProvider> hookprov, StreamSocket* sock, SSL* session)
+	OpenSSLIOHook(const std::shared_ptr<IOHookProvider>& hookprov, StreamSocket* sock, SSL* session)
 		: SSLIOHook(hookprov)
 		, sess(session)
 	{

@@ -83,8 +83,10 @@ public:
 	/** Constructor
 	 * @param provider IOHookProvider that creates this object
 	 */
-	IOHook(std::shared_ptr<IOHookProvider> provider)
-		: prov(provider) { }
+	IOHook(const std::shared_ptr<IOHookProvider>& provider)
+		: prov(provider)
+	{
+	}
 
 	/** Determines whether this I/O hook is ready to send and receive data. */
 	virtual bool IsHookReady() const { return true; }
@@ -144,7 +146,7 @@ public:
 	/** Constructor
 	 * @param provider IOHookProvider that creates this object
 	 */
-	IOHookMiddle(std::shared_ptr<IOHookProvider> provider)
+	IOHookMiddle(const std::shared_ptr<IOHookProvider>& provider)
 		: IOHook(provider)
 	{
 	}

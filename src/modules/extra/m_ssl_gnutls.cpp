@@ -867,7 +867,7 @@ info_done_dealloc:
 	}
 
 public:
-	GnuTLSIOHook(std::shared_ptr<IOHookProvider> hookprov, StreamSocket* sock, unsigned int flags)
+	GnuTLSIOHook(const std::shared_ptr<IOHookProvider>& hookprov, StreamSocket* sock, unsigned int flags)
 		: SSLIOHook(hookprov)
 	{
 		gnutls_init(&sess, flags);

@@ -377,7 +377,7 @@ private:
 	}
 
 public:
-	HAProxyHook(std::shared_ptr<IOHookProvider> Prov, StreamSocket* sock, UserCertificateAPI& api)
+	HAProxyHook(const std::shared_ptr<IOHookProvider>& Prov, StreamSocket* sock, UserCertificateAPI& api)
 		: IOHookMiddle(Prov)
 		, sslapi(api)
 	{
