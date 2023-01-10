@@ -447,7 +447,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("whowas");
+		const auto& tag = ServerInstance->Config->ConfValue("whowas");
 		unsigned int NewGroupSize = static_cast<unsigned int>(tag->getUInt("groupsize", 10, 0, 10000));
 		unsigned int NewMaxGroups = static_cast<unsigned int>(tag->getUInt("maxgroups", 10240, 0, 1000000));
 		unsigned int NewMaxKeep = static_cast<unsigned int>(tag->getDuration("maxkeep", 3600, 3600));

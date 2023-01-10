@@ -126,13 +126,13 @@ public:
 	unsigned long use_count = 0UL;
 
 	/** Creates a new connect class from a config tag. */
-	ConnectClass(std::shared_ptr<ConfigTag> tag, Type type, const std::vector<std::string>& masks);
+	ConnectClass(const std::shared_ptr<ConfigTag>& tag, Type type, const std::vector<std::string>& masks);
 
 	/** Creates a new connect class with a parent from a config tag. */
-	ConnectClass(std::shared_ptr<ConfigTag> tag, Type type, const std::vector<std::string>& masks, const std::shared_ptr<ConnectClass>& parent);
+	ConnectClass(const std::shared_ptr<ConfigTag>& tag, Type type, const std::vector<std::string>& masks, const std::shared_ptr<ConnectClass>& parent);
 
 	/** Configures this connect class using the config from the specified tag. */
-	void Configure(const std::string& classname, std::shared_ptr<ConfigTag> tag);
+	void Configure(const std::string& classname, const std::shared_ptr<ConfigTag>& tag);
 
 	/** Update the settings in this block to match the given class */
 	void Update(const std::shared_ptr<ConnectClass>& klass);

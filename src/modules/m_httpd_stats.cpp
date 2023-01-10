@@ -463,7 +463,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto conf = ServerInstance->Config->ConfValue("httpstats");
+		const auto& conf = ServerInstance->Config->ConfValue("httpstats");
 
 		// Parameterized queries may cause a performance issue
 		// Due to the sheer volume of data

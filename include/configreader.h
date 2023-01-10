@@ -180,7 +180,7 @@ public:
 	/** Read all limits from a config tag. Limits which aren't specified in the tag are set to a default value.
 	 * @param tag Configuration tag to read the limits from
 	 */
-	ServerLimits(std::shared_ptr<ConfigTag> tag);
+	ServerLimits(const std::shared_ptr<ConfigTag>& tag);
 
 	/** Maximum length of a n!u\@h mask */
 	size_t GetMaxMask() const { return MaxNick + 1 + MaxUser + 1 + MaxHost; }
@@ -287,7 +287,7 @@ public:
 		/** Runtime path */
 		std::string Runtime;
 
-		ServerPaths(std::shared_ptr<ConfigTag> tag);
+		ServerPaths(const std::shared_ptr<ConfigTag>& tag);
 
 		inline std::string PrependConfig(const std::string& fn) const { return ExpandPath(Config, fn); }
 		inline std::string PrependData(const std::string& fn) const { return ExpandPath(Data, fn); }
@@ -317,7 +317,7 @@ public:
 	 * @param def The value to return if the tag doesn't exist.
 	 * @returns Either a tag from the config or EmptyTag.
 	 */
-	std::shared_ptr<ConfigTag> ConfValue(const std::string& tag, std::shared_ptr<ConfigTag> def = nullptr) const;
+	const std::shared_ptr<ConfigTag>& ConfValue(const std::string& tag, const std::shared_ptr<ConfigTag>& def = nullptr) const;
 
 	/** Get a list of configuration tags by name.
 	 * @param tag The name of the tags to get.

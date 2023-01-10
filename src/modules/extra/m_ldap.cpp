@@ -349,7 +349,7 @@ public:
 	query_queue queries, results;
 	std::mutex process_mutex; /* held when processing requests not in either queue */
 
-	LDAPService(Module* c, std::shared_ptr<ConfigTag> tag)
+	LDAPService(Module* c, const std::shared_ptr<ConfigTag>& tag)
 		: LDAPProvider(c, "LDAP/" + tag->getString("id"))
 		, config(tag)
 	{

@@ -165,7 +165,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto optionstag = ServerInstance->Config->ConfValue("options");
+		const auto& optionstag = ServerInstance->Config->ConfValue("options");
 
 		std::string current;
 		irc::spacesepstream defaultstream(optionstag->getString("exemptchanops"));
@@ -189,7 +189,7 @@ public:
 			{ "letter", ExtBan::Format::LETTER },
 		});
 
-		auto securitytag = ServerInstance->Config->ConfValue("security");
+		const auto& securitytag = ServerInstance->Config->ConfValue("security");
 		Invite::AnnounceState newannouncestate = securitytag->getEnum("announceinvites", Invite::ANNOUNCE_DYNAMIC, {
 			{ "all",     Invite::ANNOUNCE_ALL },
 			{ "dynamic", Invite::ANNOUNCE_DYNAMIC },
@@ -213,7 +213,7 @@ public:
 		else
 			ServerInstance->Modules.Detach(events, this, sizeof(events)/sizeof(Implementation));
 
-		auto limitstag = ServerInstance->Config->ConfValue("limits");
+		const auto& limitstag = ServerInstance->Config->ConfValue("limits");
 		keymode.maxkeylen = limitstag->getUInt("maxkey", 32, 1, ModeParser::MODE_PARAM_MAX);
 	}
 

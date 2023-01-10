@@ -131,7 +131,7 @@ public:
 	{
 	}
 
-	Log::MethodPtr Create(std::shared_ptr<ConfigTag> tag) override
+	Log::MethodPtr Create(const std::shared_ptr<ConfigTag>& tag) override
 	{
 		const std::string target = tag->getString("target");
 		if (target.empty())
@@ -163,7 +163,7 @@ public:
 	{
 	}
 
-	Log::MethodPtr Create(std::shared_ptr<ConfigTag> tag) override
+	Log::MethodPtr Create(const std::shared_ptr<ConfigTag>& tag) override
 	{
 		return std::make_shared<JSONMethod>(name, file, 1, false);
 	}

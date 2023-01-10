@@ -27,7 +27,7 @@
 
 bool InsaneBan::MatchesEveryone(const std::string& mask, MatcherBase& test, User* user, char bantype, const char* confkey)
 {
-	auto insane = ServerInstance->Config->ConfValue("insane");
+	const auto& insane = ServerInstance->Config->ConfValue("insane");
 
 	if (insane->getBool(confkey))
 		return false;

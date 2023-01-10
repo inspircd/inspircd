@@ -128,7 +128,7 @@ public:
 	/** Creates a new logger from the specified config.
 	 * @param tag The config tag to configure the logger with.
 	 */
-	virtual MethodPtr Create(std::shared_ptr<ConfigTag> tag) = 0;
+	virtual MethodPtr Create(const std::shared_ptr<ConfigTag>& tag) = 0;
 
 };
 
@@ -140,7 +140,7 @@ public:
 	FileEngine(Module* Creator);
 
 	/** @copydoc Log::Engine::Create */
-	MethodPtr Create(std::shared_ptr<ConfigTag> tag) override;
+	MethodPtr Create(const std::shared_ptr<ConfigTag>& tag) override;
 };
 
 /** A logger which writes to a stream. */
@@ -154,7 +154,7 @@ public:
 	StreamEngine(Module* Creator, const std::string& Name, FILE* fh);
 
 	/** @copydoc Log::Engine::Create */
-	MethodPtr Create(std::shared_ptr<ConfigTag> tag) override;
+	MethodPtr Create(const std::shared_ptr<ConfigTag>& tag) override;
 };
 
 /** Manager for the logging system. */

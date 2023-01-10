@@ -42,7 +42,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("passforward");
+		const auto& tag = ServerInstance->Config->ConfValue("passforward");
 		nickrequired = tag->getString("nick", "NickServ");
 		forwardmsg = tag->getString("forwardmsg", "NOTICE %nick% :*** Forwarding password to %nickrequired%");
 		forwardcmd = tag->getString("cmd", "SQUERY %nickrequired% :IDENTIFY %nick% %pass%", 1);

@@ -268,7 +268,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("rline");
+		const auto& tag = ServerInstance->Config->ConfValue("rline");
 
 		MatchOnNickChange = tag->getBool("matchonnickchange");
 		ZlineOnMatch = tag->getBool("zlineonmatch");

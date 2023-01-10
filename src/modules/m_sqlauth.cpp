@@ -147,7 +147,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto conf = ServerInstance->Config->ConfValue("sqlauth");
+		const auto& conf = ServerInstance->Config->ConfValue("sqlauth");
 		std::string dbid = conf->getString("dbid");
 		if (dbid.empty())
 			SQL.SetProvider("SQL");
@@ -170,8 +170,7 @@ public:
 	ModResult OnUserRegister(LocalUser* user) override
 	{
 		// Note this is their initial (unresolved) connect block
-		std::shared_ptr<ConfigTag> tag = user->GetClass()->config;
-		if (!tag->getBool("usesqlauth", true))
+		if (!user->GetClass()->config->getBool("usesqlauth", true))
 			return MOD_RES_PASSTHRU;
 
 		if (!allowpattern.empty() && InspIRCd::Match(user->nick, allowpattern))

@@ -218,7 +218,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("watch");
+		const auto& tag = ServerInstance->Config->ConfValue("watch");
 		cmd.maxwatch = tag->getUInt("maxwatch", 30, 1);
 	}
 

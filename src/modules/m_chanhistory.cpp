@@ -208,7 +208,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("chanhistory");
+		const auto& tag = ServerInstance->Config->ConfValue("chanhistory");
 		historymode.maxlines = tag->getUInt("maxlines", 50, 1);
 		prefixmsg = tag->getBool("prefixmsg", true);
 		dobots = tag->getBool("bots", true);

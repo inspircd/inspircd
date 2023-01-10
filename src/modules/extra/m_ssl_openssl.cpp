@@ -321,7 +321,7 @@ namespace OpenSSL
 		 * @param tag Config tag defining this profile
 		 * @param context Context object to manipulate
 		 */
-		void SetContextOptions(const std::string& ctxname, std::shared_ptr<ConfigTag> tag, Context& context)
+		void SetContextOptions(const std::string& ctxname, const std::shared_ptr<ConfigTag>& tag, Context& context)
 		{
 			long setoptions = tag->getInt(ctxname + "setoptions", 0);
 			long clearoptions = tag->getInt(ctxname + "clearoptions", 0);
@@ -359,7 +359,7 @@ namespace OpenSSL
 		}
 
 	public:
-		Profile(const std::string& profilename, std::shared_ptr<ConfigTag> tag)
+		Profile(const std::string& profilename, const std::shared_ptr<ConfigTag>& tag)
 			: name(profilename)
 #ifndef INSPIRCD_OPENSSL_AUTO_DH
 			, dh(ServerInstance->Config->Paths.PrependConfig(tag->getString("dhfile", "dhparams.pem", 1)))
@@ -900,7 +900,7 @@ class OpenSSLIOHookProvider final
 	OpenSSL::Profile profile;
 
 public:
-	OpenSSLIOHookProvider(Module* mod, const std::string& profilename, std::shared_ptr<ConfigTag> tag)
+	OpenSSLIOHookProvider(Module* mod, const std::string& profilename, const std::shared_ptr<ConfigTag>& tag)
 		: SSLIOHookProvider(mod, profilename)
 		, profile(profilename, tag)
 	{
@@ -1007,7 +1007,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("openssl");
+		const auto& tag = ServerInstance->Config->ConfValue("openssl");
 		if (status.initial || tag->getBool("onrehash", true))
 			ReadProfiles();
 	}

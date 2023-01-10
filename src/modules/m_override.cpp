@@ -145,7 +145,7 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		// re-read our config options
-		auto tag = ServerInstance->Config->ConfValue("override");
+		const auto& tag = ServerInstance->Config->ConfValue("override");
 		NoisyOverride = tag->getBool("noisy");
 		RequireKey = tag->getBool("requirekey");
 		ou.timeout = tag->getDuration("timeout", 0);

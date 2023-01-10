@@ -302,7 +302,7 @@ public:
 	std::mutex lock;
 
 	// This constructor creates an SQLConnection object with the given credentials, but does not connect yet.
-	SQLConnection(Module* p, std::shared_ptr<ConfigTag> tag)
+	SQLConnection(Module* p, const std::shared_ptr<ConfigTag>& tag)
 		: SQL::Provider(p, tag->getString("id"))
 		, config(tag)
 	{

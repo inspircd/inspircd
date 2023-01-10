@@ -57,7 +57,7 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		/* read configuration variables */
-		auto tag = ServerInstance->Config->ConfValue("connflood");
+		const auto& tag = ServerInstance->Config->ConfValue("connflood");
 		/* throttle configuration */
 		seconds = tag->getDuration("period", 30);
 		maxconns = tag->getUInt("maxconns", 3);

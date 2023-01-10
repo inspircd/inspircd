@@ -150,7 +150,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("joinflood");
+		const auto& tag = ServerInstance->Config->ConfValue("joinflood");
 		duration = static_cast<unsigned int>(tag->getDuration("duration", 60, 10, 600));
 		bootwait = tag->getDuration("bootwait", 30);
 		splitwait = tag->getDuration("splitwait", 30);

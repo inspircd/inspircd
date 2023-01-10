@@ -202,7 +202,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("options");
+		const auto& tag = ServerInstance->Config->ConfValue("options");
 		cmd.showmodes = tag->getBool("modesinlist");
 	}
 

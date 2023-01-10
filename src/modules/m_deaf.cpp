@@ -135,7 +135,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("deaf");
+		const auto& tag = ServerInstance->Config->ConfValue("deaf");
 		deaf_bypasschars = tag->getString("bypasschars");
 		deaf_bypasschars_service = tag->getString("servicebypasschars", tag->getString("bypasscharsuline"));
 		privdeafservice = tag->getBool("privdeafservice", tag->getBool("privdeafuline", true));

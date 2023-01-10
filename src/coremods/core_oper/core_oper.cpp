@@ -58,7 +58,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto security = ServerInstance->Config->ConfValue("security");
+		const auto& security = ServerInstance->Config->ConfValue("security");
 		cmdkill.hidenick = security->getString("hidekills");
 		cmdkill.hideservicekills = security->getBool("hideservicekills", security->getBool("hideulinekills"));
 	}

@@ -39,7 +39,7 @@ public:
 
 	void init() override
 	{
-		auto conf = ServerInstance->Config->ConfValue("randquote");
+		const auto& conf = ServerInstance->Config->ConfValue("randquote");
 		prefix = conf->getString("prefix");
 		suffix = conf->getString("suffix");
 		FileReader reader(conf->getString("file", "quotes", 1));

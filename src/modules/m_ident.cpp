@@ -308,7 +308,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("ident");
+		const auto& tag = ServerInstance->Config->ConfValue("ident");
 		timeout = tag->getDuration("timeout", 5, 1, 60);
 		prefixunqueried = tag->getBool("prefixunqueried");
 	}
@@ -331,8 +331,7 @@ public:
 		if (user->IsFullyConnected() || user->quitting)
 			return;
 
-		std::shared_ptr<ConfigTag> tag = user->GetClass()->config;
-		if (!tag->getBool("useident", true))
+		if (!user->GetClass()->config->getBool("useident", true))
 		{
 			state.Set(user, IDENT_SKIPPED);
 			return;

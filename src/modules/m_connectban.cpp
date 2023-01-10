@@ -97,7 +97,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("connectban");
+		const auto& tag = ServerInstance->Config->ConfValue("connectban");
 
 		ipv4_cidr = static_cast<unsigned int>(tag->getUInt("ipv4cidr", ServerInstance->Config->c_ipv4_range, 1, 32));
 		ipv6_cidr = static_cast<unsigned int>(tag->getUInt("ipv6cidr", ServerInstance->Config->c_ipv6_range, 1, 128));

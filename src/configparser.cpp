@@ -342,7 +342,7 @@ std::string FilePosition::str() const
 	return name + ":" + ConvToStr(line) + ":" + ConvToStr(column);
 }
 
-void ParseStack::DoInclude(std::shared_ptr<ConfigTag> tag, int flags)
+void ParseStack::DoInclude(const std::shared_ptr<ConfigTag>& tag, int flags)
 {
 	if (flags & FLAG_NO_INC)
 		throw CoreException("Invalid <include> tag in file included with noinclude=\"yes\"");

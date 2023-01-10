@@ -442,7 +442,7 @@ namespace mbedTLS
 			const unsigned int outrecsize;
 			const bool requestclientcert;
 
-			Config(const std::string& profilename, std::shared_ptr<ConfigTag> tag, CTRDRBG& ctr_drbg)
+			Config(const std::string& profilename, const std::shared_ptr<ConfigTag>& tag, CTRDRBG& ctr_drbg)
 				: name(profilename)
 				, ctrdrbg(ctr_drbg)
 				, certstr(ReadFile(tag->getString("certfile", "cert.pem", 1)))
@@ -954,7 +954,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("mbedtls");
+		const auto& tag = ServerInstance->Config->ConfValue("mbedtls");
 		if (status.initial || tag->getBool("onrehash", true))
 			ReadProfiles();
 	}

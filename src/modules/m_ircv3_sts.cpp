@@ -173,7 +173,7 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		// TODO: Multiple SNI profiles
-		auto tag = ServerInstance->Config->ConfValue("sts");
+		const auto& tag = ServerInstance->Config->ConfValue("sts");
 		if (tag == ServerInstance->Config->EmptyTag)
 			throw ModuleException(this, "You must define a STS policy!");
 

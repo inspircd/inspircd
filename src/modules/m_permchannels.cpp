@@ -189,7 +189,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("permchanneldb");
+		const auto& tag = ServerInstance->Config->ConfValue("permchanneldb");
 		permchannelsconf = tag->getString("filename");
 		save_listmodes = tag->getBool("listmodes", true);
 		p.SetOperOnly(tag->getBool("operonly", true));

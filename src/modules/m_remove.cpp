@@ -173,7 +173,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("remove");
+		const auto& tag = ServerInstance->Config->ConfValue("remove");
 		cmd.supportnokicks = tag->getBool("supportnokicks");
 		cmd.protectedrank = tag->getUInt("protectedrank", 50000);
 	}

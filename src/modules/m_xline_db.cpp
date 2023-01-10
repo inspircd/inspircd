@@ -55,7 +55,7 @@ public:
 		 *		Imagine a scenario where the new file already exists. Merging the current XLines with the existing database is likely a bad idea
 		 *		...and so is discarding all current in-memory XLines for the ones in the database.
 		 */
-		auto Conf = ServerInstance->Config->ConfValue("xlinedb");
+		const auto& Conf = ServerInstance->Config->ConfValue("xlinedb");
 		xlinedbpath = ServerInstance->Config->Paths.PrependData(Conf->getString("filename", "xline.db", 1));
 		SetInterval(Conf->getDuration("saveperiod", 5));
 

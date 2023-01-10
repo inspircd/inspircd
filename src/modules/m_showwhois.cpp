@@ -94,7 +94,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("showwhois");
+		const auto& tag = ServerInstance->Config->ConfValue("showwhois");
 
 		sw.SetOperOnly(tag->getBool("opersonly", true));
 	}

@@ -125,7 +125,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto conf = ServerInstance->Config->ConfValue("starttls");
+		const auto& conf = ServerInstance->Config->ConfValue("starttls");
 
 		std::string newprovider = conf->getString("provider");
 		if (newprovider.empty())

@@ -183,7 +183,7 @@ class ModulePBKDF2 final
 	void GetConfig()
 	{
 		// First set the common values
-		auto tag = ServerInstance->Config->ConfValue("pbkdf2");
+		const auto& tag = ServerInstance->Config->ConfValue("pbkdf2");
 		ProviderConfig newglobal;
 		newglobal.iterations = tag->getUInt("iterations", 12288, 1);
 		newglobal.dkey_length = tag->getUInt("length", 32, 1, 1024);

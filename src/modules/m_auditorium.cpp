@@ -91,7 +91,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("auditorium");
+		const auto& tag = ServerInstance->Config->ConfValue("auditorium");
 		OpsVisible = tag->getBool("opvisible");
 		OpsCanSee = tag->getBool("opcansee");
 		OperCanSee = tag->getBool("opercansee", true);

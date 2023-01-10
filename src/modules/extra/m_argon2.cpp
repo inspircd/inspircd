@@ -69,7 +69,7 @@ public:
 
 	ProviderConfig(const std::string& tagname, ProviderConfig* def)
 	{
-		auto tag = ServerInstance->Config->ConfValue(tagname);
+		const auto& tag = ServerInstance->Config->ConfValue(tagname);
 
 		uint32_t def_iterations = def ? def->iterations : 3;
 		this->iterations = static_cast<uint32_t>(tag->getUInt("iterations", def_iterations, 1, UINT32_MAX));

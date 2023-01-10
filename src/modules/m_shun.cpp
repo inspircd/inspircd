@@ -208,7 +208,7 @@ public:
 		cleanedcommands.Clear();
 		enabledcommands.Clear();
 
-		auto tag = ServerInstance->Config->ConfValue("shun");
+		const auto& tag = ServerInstance->Config->ConfValue("shun");
 		allowconnect = tag->getBool("allowconnect");
 		allowtags = tag->getBool("allowtags");
 		cleanedcommands.AddList(tag->getString("cleanedcommands", "AWAY PART QUIT"));

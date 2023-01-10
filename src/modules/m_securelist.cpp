@@ -64,7 +64,7 @@ public:
 			newallows.push_back(host);
 		}
 
-		auto tag = ServerInstance->Config->ConfValue("securelist");
+		const auto& tag = ServerInstance->Config->ConfValue("securelist");
 		exemptregistered = tag->getBool("exemptregistered", true);
 		fakechans = tag->getUInt("fakechans", 5, 0);
 		fakechanprefix = tag->getString("fakechanprefix", "#", 1, ServerInstance->Config->Limits.MaxChannel - 1);

@@ -41,7 +41,7 @@
 #include "configparser.h"
 #include "exitcodes.h"
 
-ServerLimits::ServerLimits(std::shared_ptr<ConfigTag> tag)
+ServerLimits::ServerLimits(const std::shared_ptr<ConfigTag>& tag)
 	: MaxLine(tag->getUInt("maxline", 512, 512))
 	, MaxNick(tag->getUInt("maxnick", 30, 1, MaxLine))
 	, MaxChannel(tag->getUInt("maxchan", 60, 1, MaxLine))
@@ -56,7 +56,7 @@ ServerLimits::ServerLimits(std::shared_ptr<ConfigTag> tag)
 {
 }
 
-ServerConfig::ServerPaths::ServerPaths(std::shared_ptr<ConfigTag> tag)
+ServerConfig::ServerPaths::ServerPaths(const std::shared_ptr<ConfigTag>& tag)
 	: Config(tag->getString("configdir", INSPIRCD_CONFIG_PATH, 1))
 	, Data(tag->getString("datadir", INSPIRCD_DATA_PATH, 1))
 	, Log(tag->getString("logdir", INSPIRCD_LOG_PATH, 1))
@@ -553,7 +553,7 @@ void ServerConfig::ApplyModules(User* user)
 	}
 }
 
-std::shared_ptr<ConfigTag> ServerConfig::ConfValue(const std::string& tag, std::shared_ptr<ConfigTag> def) const
+const std::shared_ptr<ConfigTag>& ServerConfig::ConfValue(const std::string& tag, const std::shared_ptr<ConfigTag>& def) const
 {
 	auto tags = insp::equal_range(config_data, tag);
 	if (tags.empty())

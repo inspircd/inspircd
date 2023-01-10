@@ -125,7 +125,7 @@ void MessageWrapper::Wrap(const std::string& message, std::string& out)
 
 void MessageWrapper::ReadConfig(const char* prefixname, const char* suffixname, const char* fixedname)
 {
-	auto tag = ServerInstance->Config->ConfValue("options");
+	const auto& tag = ServerInstance->Config->ConfValue("options");
 	fixed = tag->readString(fixedname, prefix);
 	if (!fixed)
 	{
@@ -262,7 +262,7 @@ public:
 		cmdpart.msgwrap.ReadConfig("prefixpart", "suffixpart", "fixedpart");
 		cmdquit.msgwrap.ReadConfig("prefixquit", "suffixquit", "fixedquit");
 
-		auto performance = ServerInstance->Config->ConfValue("performance");
+		const auto& performance = ServerInstance->Config->ConfValue("performance");
 		clonesonconnect = performance->getBool("clonesonconnect", true);
 	}
 };

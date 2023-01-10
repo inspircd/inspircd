@@ -608,7 +608,7 @@ public:
 		}
 		bfl.swap(newbfl);
 
-		auto tag = ServerInstance->Config->ConfValue("dccallow");
+		const auto& tag = ServerInstance->Config->ConfValue("dccallow");
 		cmd.ext.maxentries = tag->getUInt("maxentries", 20, 1);
 		cmd.defaultlength = tag->getDuration("length", 0);
 		blockchat = tag->getBool("blockchat");

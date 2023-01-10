@@ -995,7 +995,7 @@ const std::string& FakeUser::GetFullRealHost()
 	return server->GetPublicName();
 }
 
-ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, Type t, const std::vector<std::string>& masks)
+ConnectClass::ConnectClass(const std::shared_ptr<ConfigTag>& tag, Type t, const std::vector<std::string>& masks)
 	: config(tag)
 	, hosts(masks)
 	, name("unnamed")
@@ -1007,7 +1007,7 @@ ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, Type t, const std::ve
 {
 }
 
-ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, Type t, const std::vector<std::string>& masks, const std::shared_ptr<ConnectClass>& parent)
+ConnectClass::ConnectClass(const std::shared_ptr<ConfigTag>& tag, Type t, const std::vector<std::string>& masks, const std::shared_ptr<ConnectClass>& parent)
 {
 	Update(parent);
 	name = "unnamed";
@@ -1036,7 +1036,7 @@ ConnectClass::ConnectClass(std::shared_ptr<ConfigTag> tag, Type t, const std::ve
 	}
 }
 
-void ConnectClass::Configure(const std::string& classname, std::shared_ptr<ConfigTag> tag)
+void ConnectClass::Configure(const std::string& classname, const std::shared_ptr<ConfigTag>& tag)
 {
 	name = classname;
 

@@ -899,7 +899,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("dns");
+		const auto& tag = ServerInstance->Config->ConfValue("dns");
 		if (!tag->getBool("enabled", true))
 		{
 			// Clear these so they get reset if DNS is enabled again.

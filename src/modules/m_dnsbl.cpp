@@ -110,7 +110,7 @@ public:
 	// If action is set to gline, kline, or zline then the duration for an X-line to last for.
 	unsigned long xlineduration;
 
-	DNSBLEntry(const Module* mod, std::shared_ptr<ConfigTag> tag)
+	DNSBLEntry(const Module* mod, const std::shared_ptr<ConfigTag>& tag)
 	{
 		name = tag->getString("name");
 		if (name.empty())

@@ -44,7 +44,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("muteban");
+		const auto& tag = ServerInstance->Config->ConfValue("muteban");
 		notifyuser = tag->getBool("notifyuser", true);
 	}
 

@@ -432,7 +432,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("sasl");
+		const auto& tag = ServerInstance->Config->ConfValue("sasl");
 
 		const std::string target = tag->getString("target");
 		if (target.empty())

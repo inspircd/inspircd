@@ -233,7 +233,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("timedbans");
+		const auto& tag = ServerInstance->Config->ConfValue("timedbans");
 		cmd.sendnotice = tag->getBool("sendnotice", true);
 	}
 

@@ -74,7 +74,7 @@ public:
 		allowchans.swap(newallows);
 
 		// Global config
-		auto tag = ServerInstance->Config->ConfValue("restrictchans");
+		const auto& tag = ServerInstance->Config->ConfValue("restrictchans");
 		allowregistered = tag->getBool("allowregistered", false);
 	}
 

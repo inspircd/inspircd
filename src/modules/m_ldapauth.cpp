@@ -332,7 +332,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("ldapauth");
+		const auto& tag = ServerInstance->Config->ConfValue("ldapauth");
 		whitelistedcidrs.clear();
 		requiredattributes.clear();
 

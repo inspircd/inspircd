@@ -42,7 +42,7 @@ private:
 	bool notifyopers;
 	ModeParser::ModeStatus usermodes;
 
-	void ReadModes(std::shared_ptr<ConfigTag> tag, const std::string& field, ModeType type, ModeParser::ModeStatus& status)
+	void ReadModes(const std::shared_ptr<ConfigTag>& tag, const std::string& field, ModeType type, ModeParser::ModeStatus& status)
 	{
 		for (const auto& chr : tag->getString(field))
 		{
@@ -83,7 +83,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("disabled");
+		const auto& tag = ServerInstance->Config->ConfValue("disabled");
 
 		// Parse the disabled commands.
 		CommandList newcommands;

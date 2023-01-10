@@ -104,7 +104,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("stdregex");
+		const auto& tag = ServerInstance->Config->ConfValue("stdregex");
 		regex.regextype = tag->getEnum("type", std::regex::ECMAScript,
 		{
 			{ "awk",        std::regex::awk },

@@ -41,7 +41,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("operjoin");
+		const auto& tag = ServerInstance->Config->ConfValue("operjoin");
 
 		override = tag->getBool("override", false);
 		irc::commasepstream ss(tag->getString("channel"));

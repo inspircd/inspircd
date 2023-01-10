@@ -111,7 +111,7 @@ Log::FileEngine::FileEngine(Module* Creator)
 {
 }
 
-Log::MethodPtr Log::FileEngine::Create(std::shared_ptr<ConfigTag> tag)
+Log::MethodPtr Log::FileEngine::Create(const std::shared_ptr<ConfigTag>& tag)
 {
 	const std::string target = tag->getString("target");
 	if (target.empty())
@@ -135,7 +135,7 @@ Log::StreamEngine::StreamEngine(Module* Creator, const std::string& Name, FILE* 
 {
 }
 
-Log::MethodPtr Log::StreamEngine::Create(std::shared_ptr<ConfigTag> tag)
+Log::MethodPtr Log::StreamEngine::Create(const std::shared_ptr<ConfigTag>& tag)
 {
 	return std::make_shared<FileMethod>(name, file, 1, false);
 }

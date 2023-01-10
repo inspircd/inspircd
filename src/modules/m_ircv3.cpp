@@ -142,7 +142,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto conf = ServerInstance->Config->ConfValue("ircv3");
+		const auto& conf = ServerInstance->Config->ConfValue("ircv3");
 		cap_accountnotify.SetActive(conf->getBool("accountnotify", true));
 		joinhook.awaycap.SetActive(conf->getBool("awaynotify", true));
 		joinhook.extendedjoincap.SetActive(conf->getBool("extendedjoin", true));

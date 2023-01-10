@@ -193,7 +193,7 @@ public:
 
 	void ReadConfig(ConfigStatus&) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("anticaps");
+		const auto& tag = ServerInstance->Config->ConfValue("anticaps");
 
 		uppercase.reset();
 		for (const auto& chr : tag->getString("uppercase", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 1))

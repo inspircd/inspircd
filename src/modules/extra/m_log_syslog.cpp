@@ -64,7 +64,7 @@ public:
 	{
 	}
 
-	Log::MethodPtr Create(std::shared_ptr<ConfigTag> tag) override
+	Log::MethodPtr Create(const std::shared_ptr<ConfigTag>& tag) override
 	{
 		return std::make_shared<SyslogMethod>();
 	}

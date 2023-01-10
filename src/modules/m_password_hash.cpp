@@ -100,7 +100,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("mkpasswd");
+		const auto& tag = ServerInstance->Config->ConfValue("mkpasswd");
 		cmd.access_needed = tag->getBool("operonly") ? CmdAccess::OPERATOR : CmdAccess::NORMAL;
 	}
 

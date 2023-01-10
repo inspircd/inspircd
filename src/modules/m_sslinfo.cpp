@@ -305,7 +305,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("sslinfo");
+		const auto& tag = ServerInstance->Config->ConfValue("sslinfo");
 		cmd.operonlyfp = tag->getBool("operonly");
 		hash = tag->getString("hash");
 	}

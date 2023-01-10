@@ -32,7 +32,7 @@
 
 #include "inspircd.h"
 
-bool InspIRCd::BindPort(std::shared_ptr<ConfigTag> tag, const irc::sockets::sockaddrs& sa, std::vector<ListenSocket*>& old_ports)
+bool InspIRCd::BindPort(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& sa, std::vector<ListenSocket*>& old_ports)
 {
 	for (std::vector<ListenSocket*>::iterator n = old_ports.begin(); n != old_ports.end(); ++n)
 	{

@@ -345,14 +345,14 @@ public:
 
 	void ReadConfig(ConfigStatus&) override
 	{
-		auto options = ServerInstance->Config->ConfValue("options");
+		const auto& options = ServerInstance->Config->ConfValue("options");
 		cmd.splitwhois = options->getEnum("splitwhois", SPLITWHOIS_NONE, {
 			{ "no",       SPLITWHOIS_NONE },
 			{ "split",    SPLITWHOIS_SPLIT },
 			{ "splitmsg", SPLITWHOIS_SPLITMSG },
 		});
 
-		auto security = ServerInstance->Config->ConfValue("security");
+		const auto& security = ServerInstance->Config->ConfValue("security");
 		cmd.genericoper = security->getBool("genericoper");
 	}
 };

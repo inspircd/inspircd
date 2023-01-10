@@ -450,7 +450,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("silence");
+		const auto& tag = ServerInstance->Config->ConfValue("silence");
 		exemptservice = tag->getBool("exemptservice", tag->getBool("exemptuline", true));
 		cmd.ext.maxsilence = tag->getUInt("maxentries", 32, 1);
 	}

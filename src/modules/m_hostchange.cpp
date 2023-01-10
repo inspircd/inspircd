@@ -51,7 +51,7 @@ private:
 	std::string prefix;
 	std::string suffix;
 
-	void ReadConfig(std::shared_ptr<ConfigTag> tag)
+	void ReadConfig(const std::shared_ptr<ConfigTag>& tag)
 	{
 		// Parse <hostchange:class>.
 		klass = tag->getString("class");
@@ -70,7 +70,7 @@ private:
 	}
 
 public:
-	HostRule(std::shared_ptr<ConfigTag> tag, const std::string& Mask, const std::string& Host)
+	HostRule(const std::shared_ptr<ConfigTag>& tag, const std::string& Mask, const std::string& Host)
 		: action(HCA_SET)
 		, host(Host)
 		, mask(Mask)
@@ -78,7 +78,7 @@ public:
 		ReadConfig(tag);
 	}
 
-	HostRule(std::shared_ptr<ConfigTag> tag, HostChangeAction Action, const std::string& Mask, const std::string& Prefix, const std::string& Suffix)
+	HostRule(const std::shared_ptr<ConfigTag>& tag, HostChangeAction Action, const std::string& Mask, const std::string& Prefix, const std::string& Suffix)
 		: action(Action)
 		, mask(Mask)
 		, prefix(Prefix)
@@ -192,7 +192,7 @@ public:
 			}
 		}
 
-		auto tag = ServerInstance->Config->ConfValue("hostname");
+		const auto& tag = ServerInstance->Config->ConfValue("hostname");
 		const std::string hmap = tag->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789", 1);
 
 		CharState newhostmap;

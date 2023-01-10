@@ -87,7 +87,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("setname");
+		const auto& tag = ServerInstance->Config->ConfValue("setname");
 
 		// Whether the module should only be usable by server operators.
 		bool operonly = tag->getBool("operonly");

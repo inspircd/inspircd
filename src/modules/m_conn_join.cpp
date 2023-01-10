@@ -84,7 +84,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("autojoin");
+		const auto& tag = ServerInstance->Config->ConfValue("autojoin");
 		defchans = tag->getString("channel");
 		defdelay = static_cast<unsigned int>(tag->getDuration("delay", 0, 0, 60*15));
 	}

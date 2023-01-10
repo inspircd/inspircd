@@ -107,7 +107,7 @@ public:
 			newAliases.emplace(a.AliasedCommand, a);
 		}
 
-		auto fantasy = ServerInstance->Config->ConfValue("fantasy");
+		const auto& fantasy = ServerInstance->Config->ConfValue("fantasy");
 		AllowBots = fantasy->getBool("allowbots", false);
 		fprefix = fantasy->getString("prefix", "!", 1, ServerInstance->Config->Limits.MaxLine);
 		Aliases.swap(newAliases);

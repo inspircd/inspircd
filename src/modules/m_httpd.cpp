@@ -431,7 +431,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("httpd");
+		const auto& tag = ServerInstance->Config->ConfValue("httpd");
 		timeoutsec = tag->getDuration("timeout", 10, 1);
 	}
 

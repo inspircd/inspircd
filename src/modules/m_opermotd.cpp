@@ -145,7 +145,7 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		// Compatibility with the v3 config.
-		auto tag = ServerInstance->Config->ConfValue("opermotd");
+		const auto& tag = ServerInstance->Config->ConfValue("opermotd");
 		cmd.file = tag->getString("file", "opermotd", 1);
 		onoper = tag->getBool("onoper", true);
 

@@ -35,7 +35,7 @@
 # include <unistd.h>
 #endif
 
-ListenSocket::ListenSocket(std::shared_ptr<ConfigTag> tag, const irc::sockets::sockaddrs& bind_to)
+ListenSocket::ListenSocket(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& bind_to)
 	: bind_tag(tag)
 	, bind_sa(bind_to)
 {

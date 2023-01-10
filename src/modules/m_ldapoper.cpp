@@ -207,7 +207,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("ldapoper");
+		const auto& tag = ServerInstance->Config->ConfValue("ldapoper");
 
 		LDAP.SetProvider("LDAP/" + tag->getString("dbid"));
 		base = tag->getString("baserdn");

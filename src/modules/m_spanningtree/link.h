@@ -42,7 +42,7 @@ public:
 	unsigned long Timeout;
 	std::string Bind;
 	bool Hidden;
-	Link(std::shared_ptr<ConfigTag> Tag)
+	Link(const std::shared_ptr<ConfigTag>& Tag)
 		: tag(Tag)
 	{
 	}
@@ -57,7 +57,7 @@ public:
 	time_t NextConnectTime;
 	/** Negative == inactive */
 	int position;
-	Autoconnect(std::shared_ptr<ConfigTag> Tag)
+	Autoconnect(const std::shared_ptr<ConfigTag>& Tag)
 		: tag(Tag)
 	{
 	}

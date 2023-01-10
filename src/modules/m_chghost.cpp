@@ -98,7 +98,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("hostname");
+		const auto& tag = ServerInstance->Config->ConfValue("hostname");
 		const std::string hmap = tag->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789", 1);
 
 		CharState newhostmap;

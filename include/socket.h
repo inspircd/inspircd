@@ -167,7 +167,7 @@ struct CoreExport FailedPort final
 	/** The config tag that the listener was created from. */
 	std::shared_ptr<ConfigTag> tag;
 
-	FailedPort(int err, irc::sockets::sockaddrs& addr, std::shared_ptr<ConfigTag> cfg)
+	FailedPort(int err, irc::sockets::sockaddrs& addr, const std::shared_ptr<ConfigTag>& cfg)
 		: error(err)
 		, sa(addr)
 		, tag(cfg)
@@ -209,7 +209,7 @@ public:
 
 	/** Create a new listening socket
 	 */
-	ListenSocket(std::shared_ptr<ConfigTag> tag, const irc::sockets::sockaddrs& bind_to);
+	ListenSocket(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& bind_to);
 	/** Close the socket
 	 */
 	~ListenSocket() override;

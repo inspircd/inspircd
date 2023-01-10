@@ -66,7 +66,7 @@ public:
 	}
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("blockamsg");
+		const auto& tag = ServerInstance->Config->ConfValue("blockamsg");
 		action = tag->getEnum("action", IBLOCK_KILLOPERS, {
 			{ "kill",        IBLOCK_KILL },
 			{ "killopers",   IBLOCK_KILLOPERS },

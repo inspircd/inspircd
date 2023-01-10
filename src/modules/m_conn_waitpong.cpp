@@ -44,7 +44,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("waitpong");
+		const auto& tag = ServerInstance->Config->ConfValue("waitpong");
 		sendsnotice = tag->getBool("sendsnotice", false);
 		killonbadreply = tag->getBool("killonbadreply", true);
 	}

@@ -387,7 +387,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto security = ServerInstance->Config->ConfValue("security");
+		const auto& security = ServerInstance->Config->ConfValue("security");
 		cmd.userstats = security->getString("userstats", "Pu");
 	}
 

@@ -624,7 +624,7 @@ public:
 			config.allowedorigins.push_back(allow);
 		}
 
-		auto tag = ServerInstance->Config->ConfValue("websocket");
+		const auto& tag = ServerInstance->Config->ConfValue("websocket");
 
 		const std::string defaultmodestr = tag->getString("defaultmode", tag->getBool("sendastext", true) ? "text" : "binary", 1);
 		if (stdalgo::string::equalsci(defaultmodestr, "reject"))

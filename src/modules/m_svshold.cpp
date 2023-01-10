@@ -197,7 +197,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("svshold");
+		const auto& tag = ServerInstance->Config->ConfValue("svshold");
 		silent = tag->getBool("silent", true);
 	}
 

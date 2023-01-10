@@ -93,7 +93,7 @@ public:
 	{
 	}
 
-	Log::MethodPtr Create(std::shared_ptr<ConfigTag> tag) override
+	Log::MethodPtr Create(const std::shared_ptr<ConfigTag>& tag) override
 	{
 		dynamic_reference<SQL::Provider> sql(creator, "SQL");
 		const std::string dbid = tag->getString("dbid");

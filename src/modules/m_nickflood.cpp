@@ -141,7 +141,7 @@ public:
 
 	void ReadConfig(ConfigStatus&) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("nickflood");
+		const auto& tag = ServerInstance->Config->ConfValue("nickflood");
 		duration = static_cast<unsigned int>(tag->getDuration("duration", 60, 10, 600));
 	}
 

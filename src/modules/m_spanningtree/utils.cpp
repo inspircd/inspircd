@@ -233,8 +233,8 @@ void SpanningTreeUtilities::RefreshIPCache()
 
 void SpanningTreeUtilities::ReadConfiguration()
 {
-	auto security = ServerInstance->Config->ConfValue("security");
-	auto options = ServerInstance->Config->ConfValue("options");
+	const auto& security = ServerInstance->Config->ConfValue("security");
+	const auto& options = ServerInstance->Config->ConfValue("options");
 	FlatLinks = security->getBool("flatlinks");
 	HideServices = security->getBool("hideservices", security->getBool("hideulines"));
 	HideSplits = security->getBool("hidesplits");

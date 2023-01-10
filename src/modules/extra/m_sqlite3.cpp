@@ -101,7 +101,7 @@ class SQLConn final
 	std::shared_ptr<ConfigTag> config;
 
 public:
-	SQLConn(Module* Parent, std::shared_ptr<ConfigTag> tag)
+	SQLConn(Module* Parent, const std::shared_ptr<ConfigTag>& tag)
 		: SQL::Provider(Parent, tag->getString("id"))
 		, config(tag)
 	{

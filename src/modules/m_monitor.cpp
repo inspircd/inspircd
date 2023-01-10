@@ -392,7 +392,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tag = ServerInstance->Config->ConfValue("monitor");
+		const auto& tag = ServerInstance->Config->ConfValue("monitor");
 		cmd.maxmonitor = tag->getUInt("maxentries", 30, 1);
 	}
 

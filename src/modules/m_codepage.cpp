@@ -255,7 +255,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto codepagetag = ServerInstance->Config->ConfValue("codepage");
+		const auto& codepagetag = ServerInstance->Config->ConfValue("codepage");
 
 		const std::string name = codepagetag->getString("name");
 		if (name.empty())

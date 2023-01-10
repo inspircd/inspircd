@@ -200,7 +200,7 @@ public:
 	SQLstatus status = CWRITE; /* PgSQL database connection status */
 	QueueItem qinprog; /* If there is currently a query in progress */
 
-	SQLConn(Module* Creator, std::shared_ptr<ConfigTag> tag)
+	SQLConn(Module* Creator, const std::shared_ptr<ConfigTag>& tag)
 		: SQL::Provider(Creator, tag->getString("id"))
 		, conf(tag)
 		, qinprog(nullptr, "")

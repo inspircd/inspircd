@@ -136,7 +136,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto Conf = ServerInstance->Config->ConfValue("ojoin");
+		const auto& Conf = ServerInstance->Config->ConfValue("ojoin");
 		mycommand.notice = Conf->getBool("notice", true);
 		mycommand.op = Conf->getBool("op", true);
 	}

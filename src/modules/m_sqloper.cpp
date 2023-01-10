@@ -173,7 +173,7 @@ public:
 		// Clear list of our blocks, as ConfigReader just wiped them anyway
 		my_blocks.clear();
 
-		auto tag = ServerInstance->Config->ConfValue("sqloper");
+		const auto& tag = ServerInstance->Config->ConfValue("sqloper");
 
 		std::string dbid = tag->getString("dbid");
 		if (dbid.empty())
