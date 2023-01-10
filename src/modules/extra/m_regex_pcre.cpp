@@ -110,13 +110,13 @@ public:
 					int matchidx = (nametable[0] << 8) | nametable[1];
 					const std::string matchname(reinterpret_cast<const char*>(nametable + 2), nameentrysize - 3);
 					const std::string matchvalue(text.c_str() + ovector[2 * matchidx], ovector[ 2 * matchidx + 1] - ovector[2 * matchidx]);
-					namedcaptures.emplace(std::move(matchname), std::move(matchvalue));
+					namedcaptures.emplace(matchname, matchvalue);
 					nametable += nameentrysize;
 				}
 			}
 		}
 
-		return Regex::MatchCollection(std::move(captures), std::move(namedcaptures));
+		return Regex::MatchCollection(captures, namedcaptures);
 	}
 };
 

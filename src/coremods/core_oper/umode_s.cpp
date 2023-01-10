@@ -149,7 +149,7 @@ std::string ModeUserServerNoticeMask::ProcessNoticeMasks(User* user, const std::
 		output = std::move(plus);
 
 	if (minus.length() > 1)
-		output += std::move(minus);
+		output += minus;
 
 	// Unset the snomask usermode itself if every snomask was unset
 	if (user->snomasks.none())

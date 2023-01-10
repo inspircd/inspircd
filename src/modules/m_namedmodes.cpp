@@ -193,7 +193,7 @@ public:
 				}
 
 				// Put the actual ModeHandler in place of the namebase handler
-				curr.mh = std::move(mh);
+				curr.mh = mh;
 			}
 
 			++i;

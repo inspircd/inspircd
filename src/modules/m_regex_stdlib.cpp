@@ -68,7 +68,7 @@ public:
 		// The stdregex engine does not support named captures.
 		static const Regex::NamedCaptures unusednc;
 
-		return Regex::MatchCollection(std::move(captures), unusednc);
+		return Regex::MatchCollection(captures, unusednc);
 	}
 };
 
