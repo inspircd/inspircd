@@ -71,7 +71,7 @@ public:
 		if (target && IS_LOCAL(target))
 		{
 			const std::string oldnick = target->nick;
-			const std::string newnick = parameters[1];
+			const std::string& newnick = parameters[1];
 			if (!ServerInstance->Users.FindNick(newnick) && target->ChangeNick(newnick))
 			{
 				ServerInstance->SNO.WriteGlobalSno('a', user->nick + " used SANICK to change " + oldnick + " to " + newnick);

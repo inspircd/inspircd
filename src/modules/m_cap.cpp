@@ -367,7 +367,7 @@ private:
 	Cap::ManagerImpl manager;
 	ClientProtocol::EventProvider protoevprov;
 
-	void DisplayResult(LocalUser* user, const std::string& subcmd, std::vector<std::string> result, bool asterisk)
+	void DisplayResult(LocalUser* user, const std::string& subcmd, const std::vector<std::string>& result, bool asterisk)
 	{
 		size_t maxline = ServerInstance->Config->Limits.MaxLine - ServerInstance->Config->ServerName.size() - user->nick.length() - subcmd.length() - 11;
 		std::string line;

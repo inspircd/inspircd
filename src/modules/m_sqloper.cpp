@@ -221,7 +221,7 @@ public:
 	{
 		SQL->Submit(new OperQuery(this, my_blocks), query);
 	}
-	void GetOperBlocks(const std::string u, const std::string& un, const std::string& pw)
+	void GetOperBlocks(const std::string& u, const std::string& un, const std::string& pw)
 	{
 		active = true;
 		// Call to SQL query to fetch oper list from SQL table.
