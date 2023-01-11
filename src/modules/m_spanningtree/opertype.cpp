@@ -31,7 +31,7 @@ class RemoteOperAccount final
 	: public OperAccount
 {
 private:
-	void ReadModes(ModeParser::ModeStatus& modes, const ClientProtocol::TagMap& tags, const std::string& tag)
+	static void ReadModes(ModeParser::ModeStatus& modes, const ClientProtocol::TagMap& tags, const std::string& tag)
 	{
 		auto it = tags.find(tag);
 		if (it != tags.end())
@@ -49,7 +49,7 @@ private:
 		modes.set();
 	}
 
-	void ReadTokens(TokenList& tokens, const ClientProtocol::TagMap& tags, const std::string& tag)
+	static void ReadTokens(TokenList& tokens, const ClientProtocol::TagMap& tags, const std::string& tag)
 	{
 		auto it = tags.find(tag);
 		if (it != tags.end())

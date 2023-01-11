@@ -48,7 +48,7 @@ private:
 	 * @param tokens The tokens to build from.
 	 * @param numerics The location to store the built numeric lists.
 	 */
-	void BuildNumerics(ISupport::TokenMap& tokens, std::vector<Numeric::Numeric>& numerics);
+	static void BuildNumerics(ISupport::TokenMap& tokens, std::vector<Numeric::Numeric>& numerics);
 
 public:
 	ISupportManager(Module* mod);

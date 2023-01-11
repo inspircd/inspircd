@@ -249,7 +249,7 @@ public:
 	 * @param user The user to notify.
 	 * @param type The type of message to send.
 	 */
-	void NotifyRawIO(LocalUser* user, MessageType type);
+	static void NotifyRawIO(LocalUser* user, MessageType type);
 
 	/** Opens loggers that are specified in the config. */
 	void OpenLogs(bool requiremethods);
