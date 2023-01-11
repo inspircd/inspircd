@@ -62,7 +62,7 @@ public:
 		this->length = this->hash.length();
 	}
 
-	std::string ToString()
+	std::string ToString() const
 	{
 		if (!IsValid())
 			return "";

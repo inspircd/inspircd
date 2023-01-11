@@ -243,7 +243,7 @@ struct CommandLineConf final
 class CoreExport ServerConfig final
 {
 private:
-	void ApplyModules(User* user);
+	void ApplyModules(User* user) const;
 	void CrossCheckConnectBlocks(ServerConfig* current);
 	void CrossCheckOperBlocks();
 	void Fill();

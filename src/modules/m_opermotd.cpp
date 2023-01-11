@@ -96,7 +96,7 @@ private:
 	CommandOperMOTD cmd;
 	bool onoper;
 
-	void ProcessMOTD(MOTDCache& newmotds, const std::shared_ptr<OperType>& oper, const char* type)
+	void ProcessMOTD(MOTDCache& newmotds, const std::shared_ptr<OperType>& oper, const char* type) const
 	{
 		// Don't process the file if it has already been processed.
 		const std::string motd = oper->GetConfig()->getString("motd", cmd.file);

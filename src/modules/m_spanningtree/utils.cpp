@@ -353,7 +353,7 @@ std::shared_ptr<Link> SpanningTreeUtilities::FindLink(const std::string& name)
 	return nullptr;
 }
 
-void SpanningTreeUtilities::SendChannelMessage(const User* source, const Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const CUList& exempt_list, const char* message_type, const TreeSocket* omit)
+void SpanningTreeUtilities::SendChannelMessage(const User* source, const Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const CUList& exempt_list, const char* message_type, const TreeSocket* omit) const
 {
 	CmdBuilder msg(source, message_type);
 	msg.push_tags(tags);

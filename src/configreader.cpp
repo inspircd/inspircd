@@ -489,7 +489,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
 	ServerInstance->SNO.WriteGlobalSno('r', "*** Successfully rehashed server.");
 }
 
-void ServerConfig::ApplyModules(User* user)
+void ServerConfig::ApplyModules(User* user) const
 {
 	std::vector<std::string> added_modules;
 	ModuleManager::ModuleMap removed_modules = ServerInstance->Modules.GetModules();
@@ -693,7 +693,7 @@ void ConfigReaderThread::OnStop()
 		if (Config->RawLog && !old->RawLog)
 		{
 			for (auto* luser : ServerInstance->Users.GetLocalUsers())
-				ServerInstance->Logs.NotifyRawIO(luser, MSG_PRIVMSG);
+				Log::Manager::NotifyRawIO(luser, MSG_PRIVMSG);
 		}
 
 		Config = old;
