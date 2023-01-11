@@ -54,7 +54,7 @@ CmdResult CommandKline::Handle(User* user, const Params& parameters)
 			target = ih.first + "@" + ih.second;
 		}
 		else
-			ih = ServerInstance->XLines->IdentSplit(target);
+			ih = XLineManager::IdentSplit(target);
 
 		if (ih.first.empty())
 		{

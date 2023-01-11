@@ -245,7 +245,7 @@ void TreeSocket::SyncChannel(Channel* chan, BurstState& bs)
 	if (chan->topicset != 0)
 		this->WriteLine(CommandFTopic::Builder(chan));
 
-	Utils->SendListLimits(chan, this);
+	SpanningTreeUtilities::SendListLimits(chan, this);
 	SendListModes(chan);
 
 	for (const auto& [item, value] : chan->GetExtList())

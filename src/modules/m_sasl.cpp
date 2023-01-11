@@ -252,7 +252,7 @@ public:
 				else if (msg[2] == "D")
 				{
 					this->state = SASL_DONE;
-					this->result = this->GetSaslResult(msg[3]);
+					this->result = GetSaslResult(msg[3]);
 				}
 				else if (msg[2] == "M")
 					this->user->WriteNumeric(RPL_SASLMECHS, msg[3], "are available SASL mechanisms");

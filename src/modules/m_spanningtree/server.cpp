@@ -222,7 +222,7 @@ bool TreeSocket::Inbound_Server(CommandBase::Params& params)
 
 		// Send our details: Our server name and description and hopcount of 0,
 		// along with the sendpass from this block.
-		this->WriteLine("SERVER "+ServerInstance->Config->ServerName+" "+this->MakePass(x->SendPass, this->GetTheirChallenge())+" 0 "+ServerInstance->Config->GetSID()+" :"+ServerInstance->Config->ServerDesc);
+		this->WriteLine("SERVER " + ServerInstance->Config->ServerName + " " + TreeSocket::MakePass(x->SendPass, this->GetTheirChallenge()) + " 0 " + ServerInstance->Config->GetSID() + " :" + ServerInstance->Config->ServerDesc);
 
 		// move to the next state, we are now waiting for THEM.
 		this->LinkState = WAIT_AUTH_2;

@@ -37,7 +37,7 @@ ModResult ModuleSpanningTree::OnPreCommand(std::string& command, CommandBase::Pa
 	}
 	else if (command == "SQUIT")
 	{
-		return this->HandleSquit(parameters, user);
+		return HandleSquit(parameters, user);
 	}
 	else if (command == "LINKS")
 	{
@@ -49,12 +49,12 @@ ModResult ModuleSpanningTree::OnPreCommand(std::string& command, CommandBase::Pa
 		if (parameters.size() > 1)
 		{
 			// remote whois
-			return this->HandleRemoteWhois(parameters, user);
+			return HandleRemoteWhois(parameters, user);
 		}
 	}
 	else if ((command == "VERSION") && (!parameters.empty()))
 	{
-		return this->HandleVersion(parameters, user);
+		return HandleVersion(parameters, user);
 	}
 	return MOD_RES_PASSTHRU;
 }

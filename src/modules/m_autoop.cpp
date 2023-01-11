@@ -112,7 +112,7 @@ public:
 
 				if (memb->chan->CheckBan(memb->user, entry.mask.substr(colon + 1)))
 				{
-					PrefixMode* given = mh.FindMode(entry.mask.substr(0, colon));
+					PrefixMode* given = AutoOpList::FindMode(entry.mask.substr(0, colon));
 					if (given)
 						changelist.push_add(given, memb->user->nick);
 				}

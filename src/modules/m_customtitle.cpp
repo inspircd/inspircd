@@ -53,7 +53,7 @@ struct CustomTitle final
 
 	bool CheckPass(const std::string& pass) const
 	{
-		return ServerInstance->PassCompare(password, pass, hash);
+		return InspIRCd::PassCompare(password, pass, hash);
 	}
 };
 

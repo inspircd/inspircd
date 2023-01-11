@@ -69,7 +69,7 @@ namespace
 				modname.assign(name.substr(startpos, endpos - startpos));
 			}
 
-			modules[modname] = Utils->BuildLinkString(protocol, module);
+			modules[modname] = SpanningTreeUtilities::BuildLinkString(protocol, module);
 		}
 		return modules;
 	}
@@ -566,7 +566,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			if (!this->GetTheirChallenge().empty() && (this->LinkState == CONNECTING))
 			{
 				this->SendCapabilities(2);
-				this->WriteLine("SERVER "+ServerInstance->Config->ServerName+" "+this->MakePass(capab->link->SendPass, capab->theirchallenge)+" 0 "+ServerInstance->Config->GetSID()+" :"+ServerInstance->Config->ServerDesc);
+				this->WriteLine("SERVER " + ServerInstance->Config->ServerName + " " + TreeSocket::MakePass(capab->link->SendPass, capab->theirchallenge) + " 0 " + ServerInstance->Config->GetSID() + " :" + ServerInstance->Config->ServerDesc);
 			}
 		}
 		else

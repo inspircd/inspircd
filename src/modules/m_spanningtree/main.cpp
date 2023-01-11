@@ -532,7 +532,7 @@ void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by
 		params.add(memb);
 		params.finalize();
 		params.Broadcast();
-		Utils->SendListLimits(memb->chan, nullptr);
+		SpanningTreeUtilities::SendListLimits(memb->chan, nullptr);
 	}
 	else
 	{
@@ -705,11 +705,11 @@ namespace
 
 		if (loading)
 		{
-			const std::string linkstring = Utils->BuildLinkString(PROTO_INSPIRCD_4, mod);
+			const std::string linkstring = SpanningTreeUtilities::BuildLinkString(PROTO_INSPIRCD_4, mod);
 			if (!linkstring.empty())
 				buffer << '=' << linkstring;
 
-			const std::string compatlinkstring = Utils->BuildLinkString(PROTO_INSPIRCD_3, mod);
+			const std::string compatlinkstring = SpanningTreeUtilities::BuildLinkString(PROTO_INSPIRCD_3, mod);
 			if (!compatlinkstring.empty())
 				compatbuffer << '=' << compatlinkstring;
 		}

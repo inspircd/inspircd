@@ -45,7 +45,7 @@ public:
 	 */
 	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
 	{
-		IdentHostPair ih = ServerInstance->XLines->IdentSplit(xline_specific_mask);
+		IdentHostPair ih = XLineManager::IdentSplit(xline_specific_mask);
 		return new GLine(set_time, duration, source, reason, ih.first, ih.second);
 	}
 };
@@ -65,7 +65,7 @@ public:
 	 */
 	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
 	{
-		IdentHostPair ih = ServerInstance->XLines->IdentSplit(xline_specific_mask);
+		IdentHostPair ih = XLineManager::IdentSplit(xline_specific_mask);
 		return new ELine(set_time, duration, source, reason, ih.first, ih.second);
 	}
 };
@@ -85,7 +85,7 @@ public:
 	 */
 	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
 	{
-		IdentHostPair ih = ServerInstance->XLines->IdentSplit(xline_specific_mask);
+		IdentHostPair ih = XLineManager::IdentSplit(xline_specific_mask);
 		return new KLine(set_time, duration, source, reason, ih.first, ih.second);
 	}
 };

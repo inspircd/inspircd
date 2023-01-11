@@ -111,7 +111,7 @@ public:
 
 		if (IS_LOCAL(dest))
 		{
-			cmd.HandleFast(dest, source);
+			WhoisNoticeCmd::HandleFast(dest, source);
 		}
 		else
 		{
