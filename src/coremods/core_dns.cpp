@@ -192,7 +192,7 @@ class Packet : public Query
 			case QUERY_PTR:
 			{
 				record.rdata = this->UnpackName(input, input_size, pos);
-				if (!InspIRCd::IsHost(record.rdata))
+				if (!InspIRCd::IsHost2(record.rdata, true))
 					throw Exception("Invalid name"); // XXX: Causes the request to time out
 
 				break;
