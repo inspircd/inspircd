@@ -31,7 +31,7 @@
 # cryptographic uses and security.
 #
 # IMPORTANT:
-# Other modules such as cloaking and password_hash may rely on
+# Other modules such as cloak_md5 and password_hash may rely on
 # this module being loaded to function.
 #
 #<module name="md5">
@@ -518,21 +518,23 @@
 #<module name="cloak">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Cloaking module: Adds user mode +x and cloaking support.
-# Relies on the md5 module being loaded.
-# To cloak users when they connect, load the conn_umodes module and set
-# <connect:modes> to include the +x mode. The example <connect> tag
-# shows this. See the conn_umodes module for more information.
-#<module name="cloaking">
+# MD5 cloak module: Adds the "half" and "full" cloak methods. These
+# methods are obsolete and should only be used on a network which is
+# upgrading from v3 and wishes to keep ban compatibility. New networks
+# should should use the "hmac-sha256" method (see below) instead.
 #
-#-#-#-#-#-#-#-#-#-#-#- CLOAKING  CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
+# IMPORTANT: If you are using this module you should also load the md5
+# module. Failure to do so will result in users not being cloaked.
+#<module name="cloak_md5">
+#
+#-#-#-#-#-#-#-#-#-#-#- MD5 CLOAK CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# To use cloaking, you must define a cloak key, and optionally a      #
+# To use cloak_md5, you must define a cloak key, and optionally a     #
 # cloak prefix as shown below. The cloak key must be shared across    #
-# the network for consistent cloaking and must be at least thirty     #
+# the network for consistent hostnames and must be at least thirty    #
 # characters long.                                                    #
 #                                                                     #
-# There are two methods of cloaking:                                  #
+# There are two methods provided by this module:                      #
 #                                                                     #
 #   half           Cloak only the "unique" portion of a host; by      #
 #                  default show the last 2 parts of the domain,       #
@@ -549,17 +551,17 @@
 #                                                                     #
 # IMPORTANT: Changing these details will break all of your existing   #
 # bans. If you do not want this to happen you can define multiple     #
-# cloak tags. The first will be used for cloaking and the rest will   #
+# cloak tags. The first will be used for hostnames and the rest will  #
 # be used for checking if a user is banned in a channel.              #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #
-#<cloak mode="half"
+#<cloak method="half"
 #       key="changeme"
 #       domainparts="3"
 #       prefix="net-"
 #       ignorecase="no">
 #
-#<cloak mode="full"
+#<cloak method="full"
 #       key="changeme"
 #       prefix="net-"
 #       ignorecase="no">

@@ -613,6 +613,11 @@ std::vector<std::string> ServerConfig::GetModules() const
 		// Rewrite the old names of renamed modules.
 		if (stdalgo::string::equalsci(shortname, "cgiirc"))
 			modules.push_back("gateway");
+		else if (stdalgo::string::equalsci(shortname, "cloaking"))
+		{
+			modules.push_back("cloak");
+			modules.push_back("cloak_md5");
+		}
 		else if (stdalgo::string::equalsci(shortname, "gecosban"))
 			modules.push_back("realnameban");
 		else if (stdalgo::string::equalsci(shortname, "regex_pcre2"))

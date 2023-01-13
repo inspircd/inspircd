@@ -319,7 +319,7 @@
          # modes: User modes that are set on users in this block on connect.
          # Enabling this option requires that the conn_umodes module be loaded.
          # This entry is highly recommended to use for/with IP cloaking/masking.
-         # For the example to work, this also requires that the cloaking
+         # For the example to work, this also requires that the cloak
          # module be loaded as well.
          modes="+x"
 

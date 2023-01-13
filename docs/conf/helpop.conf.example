@@ -833,7 +833,7 @@ using their cloak when they quit.
  r            Marks as a having a registered nickname
               (requires the account module).
  w            Receives wallops messages.
- x            Gives a cloaked hostname (requires the cloaking module).
+ x            Gives a cloaked hostname (requires the cloak module).
  z            Only allow private messages from TLS users (requires
               the sslmodes module).
  B            Marks as a bot (requires the botmode module).

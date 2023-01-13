@@ -878,7 +878,7 @@ ModuleSpanningTree::~ModuleSpanningTree()
 
 /* It is IMPORTANT that m_spanningtree is the last module in the chain
  * so that any activity it sees is FINAL, e.g. we arent going to send out
- * a NICK message before m_cloaking has finished putting the +x on the user,
+ * a NICK message before the cloak module has finished putting the +x on the user,
  * etc etc.
  * Therefore, we set our priority to PRIORITY_LAST to make sure we end up at the END of
  * the module call queue.
