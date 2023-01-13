@@ -85,7 +85,7 @@ private:
 		const std::string beta  = Hash(InspIRCd::Format("%u.%u.%u", a, b, c));
 		const std::string gamma = Hash(InspIRCd::Format("%u.%u", a, b));
 
-		return Wrap(InspIRCd::Format("%s.%s.%s", alpha.c_str(), beta.c_str(), gamma.c_str()), ".");
+		return Wrap(InspIRCd::Format("%s.%s.%s", alpha.c_str(), beta.c_str(), gamma.c_str()), '.');
 	}
 
 	std::string CloakIPv6(const unsigned char* address)
@@ -109,7 +109,7 @@ private:
 		const std::string beta  = Hash(InspIRCd::Format("%x:%x:%x:%x:%x:%x:%x", a, b, c, d, e, f, g));
 		const std::string gamma = Hash(InspIRCd::Format("%x:%x:%x:%x", a, b, c, d));
 
-		return Wrap(InspIRCd::Format("%s:%s:%s", alpha.c_str(), beta.c_str(), gamma.c_str()), ":");
+		return Wrap(InspIRCd::Format("%s:%s:%s", alpha.c_str(), beta.c_str(), gamma.c_str()), ':');
 	}
 
 	std::string CloakHost(const std::string& host, char separator)
@@ -136,14 +136,14 @@ private:
 		return out;
 	}
 
-	std::string Wrap(const std::string& cloak, const char* separator)
+	std::string Wrap(const std::string& cloak, char separator)
 	{
 		std::string fullcloak;
 		if (!prefix.empty())
-			fullcloak.append(prefix).append(separator);
+			fullcloak.append(prefix).append(1, separator);
 		fullcloak.append(cloak);
 		if (!suffix.empty())
-			fullcloak.append(separator).append(suffix);
+			fullcloak.append(1, separator).append(suffix);
 		return fullcloak;
 	}
 
@@ -190,15 +190,11 @@ public:
 		// IMPORTANT: link data is sent over unauthenticated server links so we
 		// can't directly send the key here. Instead we use dummy cloaks that
 		// allow verification of or less the same thing.
-		irc::sockets::sockaddrs sa;
-		if (sa.from_ip("123.123.123.123"))
-			data["cloak-v4"] = sha256 ? CloakAddress(sa) : broken;
+		data["cloak-v4"]   = sha256 ? Generate("123.123.123.123")      : broken;
+		data["cloak-v6"]   = sha256 ? Generate("dead:beef:cafe::")     : broken;
+		data["cloak-host"] = sha256 ? Generate("cloak.inspircd.org")   : broken;
+		data["cloak-unix"] = sha256 ? Generate("/inspircd/cloak.sock") : broken;
 
-		if (sa.from_ip("dead:beef:cafe::"))
-			data["cloak-v6"] = sha256 ? CloakAddress(sa) : broken;
-
-		data["cloak-host"] = sha256 ? CloakHost("cloak.inspircd.org",   '.') : broken;
-		data["cloak-unix"] = sha256 ? CloakHost("/inspircd/cloak.sock", '/') : broken;
 		data["host-parts"] = ConvToStr(hostparts);
 		data["prefix"]     = prefix;
 		data["suffix"]     = suffix;

@@ -21,6 +21,7 @@
 #include "clientprotocolevent.h"
 #include "modules/cloak.h"
 #include "modules/ircv3_replies.h"
+#include "utility/map.h"
 
 typedef std::vector<Cloak::MethodPtr> CloakMethodList;
 
@@ -233,10 +234,30 @@ class ModuleCloakSHA256 final
 		cloakmethods.swap(newcloakmethods);
 	}
 
-	void GetLinkData(Module::LinkData& data, std::string& compatdata) override
+	void CompareLinkData(const LinkData& otherdata, LinkDataDiff& diffs)
 	{
-		if (!cloakmethods.empty())
-			cloakmethods.front()->GetLinkData(data, compatdata);
+		std::string unused;
+		LinkData data;
+		this->GetLinkData(data, unused);
+
+		// If the only difference is the method then just include that.
+		insp::map::difference(data, otherdata, diffs);
+		auto it = diffs.find("method");
+		if (it != diffs.end())
+			diffs = { *it };
+	}
+
+	void GetLinkData(LinkData& data, std::string& compatdata) override
+	{
+		if (cloakmethods.empty())
+			return;
+
+		auto& cloakmethod = cloakmethods.front();
+		cloakmethod->GetLinkData(data, compatdata);
+
+		data["method"] = cloakmethod->GetName();
+		if (compatdata.empty())
+			compatdata.assign(cloakmethod->GetName());
 	}
 
 	void Prioritize() override

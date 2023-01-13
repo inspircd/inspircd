@@ -102,6 +102,12 @@ public:
 	 */
 	virtual void GetLinkData(Module::LinkData& data, std::string& compatdata) = 0;
 
+	/** Retrieves the name of this cloaking method. */
+	std::string_view GetName() const
+	{
+		return std::string_view(provname.c_str() + 6);
+	}
+
 	/** Determines whether this method is provided by the specified service provider.
 	 * @param prov The service provider to check.
 	 */

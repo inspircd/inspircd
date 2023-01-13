@@ -209,15 +209,6 @@ struct CloakInfo final
 
 	void GetLinkData(Module::LinkData& data, std::string& compatdata) override
 	{
-		switch (mode)
-		{
-			case MODE_HALF_CLOAK:
-				data["mode"] = "half";
-				break;
-			case MODE_OPAQUE:
-				data["mode"] = "full";
-				break;
-		}
 		data["domain-parts"] = ConvToStr(domainparts);
 		data["ignore-case"] = ignorecase ? "yes" : "no";
 		data["prefix"] = prefix;
