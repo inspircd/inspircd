@@ -85,7 +85,7 @@ private:
 		const std::string beta  = Hash(InspIRCd::Format("%u.%u.%u", a, b, c));
 		const std::string gamma = Hash(InspIRCd::Format("%u.%u", a, b));
 
-		return Wrap(InspIRCd::Format("%s.%s.%s", alpha.c_str(), beta.c_str(), gamma.c_str()), '.');
+		return Wrap(InspIRCd::Format("%s.%s.%s", alpha.c_str(), beta.c_str(), gamma.c_str()), suffix, '.');
 	}
 
 	std::string CloakIPv6(const unsigned char* address)
@@ -109,7 +109,7 @@ private:
 		const std::string beta  = Hash(InspIRCd::Format("%x:%x:%x:%x:%x:%x:%x", a, b, c, d, e, f, g));
 		const std::string gamma = Hash(InspIRCd::Format("%x:%x:%x:%x", a, b, c, d));
 
-		return Wrap(InspIRCd::Format("%s:%s:%s", alpha.c_str(), beta.c_str(), gamma.c_str()), ':');
+		return Wrap(InspIRCd::Format("%s:%s:%s", alpha.c_str(), beta.c_str(), gamma.c_str()), suffix, ':');
 	}
 
 	std::string CloakHost(const std::string& host, char separator)
@@ -118,14 +118,8 @@ private:
 		std::string lowerhost(host.length(), '\0');
 		std::transform(host.begin(), host.end(), lowerhost.begin(), ::tolower);
 
-		std::string cloak;
-		cloak.append(prefix).append(1, separator).append(Hash(lowerhost));
-
 		const std::string visiblepart = Cloak::VisiblePart(host, hostparts, separator);
-		if (!visiblepart.empty())
-			cloak.append(1, separator).append(visiblepart);
-
-		return cloak;
+		return Wrap(Hash(lowerhost), visiblepart, separator);
 	}
 
 	std::string Hash(const std::string& str)
@@ -136,14 +130,14 @@ private:
 		return out;
 	}
 
-	std::string Wrap(const std::string& cloak, char separator)
+	std::string Wrap(const std::string& cloak, const std::string& cloaksuffix, char separator)
 	{
 		std::string fullcloak;
 		if (!prefix.empty())
 			fullcloak.append(prefix).append(1, separator);
 		fullcloak.append(cloak);
-		if (!suffix.empty())
-			fullcloak.append(1, separator).append(suffix);
+		if (!cloaksuffix.empty())
+			fullcloak.append(1, separator).append(cloaksuffix);
 		return fullcloak;
 	}
 
