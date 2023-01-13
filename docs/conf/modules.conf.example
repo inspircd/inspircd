@@ -586,6 +586,10 @@
 #                                                                     #
 #  suffix    - A freeform value to suffix IPv4/IPv6 cloaks with. This #
 #              must not contain spaces.                               #
+#                                                                     #
+#  case      - The case of the cloak table. Can be set to "upper" or  #
+#              "lower". Defaults to "lower".                          #
+#                                                                     #
 #  hostparts - The maximum number of hostname labels that should be   #
 #              visible on the end of a host. Defaults to 3.           #
 #                                                                     #
@@ -597,8 +601,9 @@
 #
 #<cloak mode="hmac-sha256"
 #       key="changeme"
-#       prefix=""
-#       suffix=""
+#       prefix="MyNet"
+#       suffix="ip"
+#       case="lower"
 #       hostparts="3">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
