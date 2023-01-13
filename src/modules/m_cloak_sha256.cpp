@@ -119,15 +119,11 @@ private:
 		std::transform(host.begin(), host.end(), lowerhost.begin(), ::tolower);
 
 		std::string cloak;
-		cloak.append(prefix);
-		cloak.append(Hash(lowerhost));
+		cloak.append(prefix).append(1, separator).append(Hash(lowerhost));
 
 		const std::string visiblepart = Cloak::VisiblePart(host, hostparts, separator);
 		if (!visiblepart.empty())
-		{
-			cloak.push_back(separator);
-			cloak.append(visiblepart);
-		}
+			cloak.append(1, separator).append(visiblepart);
 
 		return cloak;
 	}
