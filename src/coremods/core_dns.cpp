@@ -195,7 +195,7 @@ private:
 			case QUERY_PTR:
 			{
 				record.rdata = this->UnpackName(input, input_size, pos);
-				if (!InspIRCd::IsHost(record.rdata))
+				if (!InspIRCd::IsHost(record.rdata, true))
 					throw Exception(creator, "Invalid name in CNAME/PTR resource record");
 
 				break;
@@ -230,7 +230,7 @@ private:
 				pos += 2;
 
 				srv->host = this->UnpackName(input, input_size, pos);
-				if (!InspIRCd::IsHost(srv->host))
+				if (!InspIRCd::IsHost(srv->host, true))
 					throw Exception(creator, "Invalid name in SRV resource record");
 
 				record.rdata = InspIRCd::Format("%u %u %u %s", srv->priority, srv->weight, srv->port, srv->host.c_str());

@@ -204,7 +204,7 @@ bool InspIRCd::DefaultIsIdent(const std::string_view& n)
 	return true;
 }
 
-bool InspIRCd::IsHost(const std::string& host)
+bool InspIRCd::IsHost(const std::string& host, bool allowsimple)
 {
 	// Hostnames must be non-empty and shorter than the maximum hostname length.
 	if (host.empty() || host.length() > ServerInstance->Config->Limits.MaxHost)
@@ -260,7 +260,7 @@ bool InspIRCd::IsHost(const std::string& host)
 	// Whilst simple hostnames (e.g. localhost) are valid we do not allow the server to use
 	// them to prevent issues with clients that differentiate between short client and server
 	// prefixes by checking whether the nickname contains a dot.
-	return numdots;
+	return numdots || allowsimple;
 }
 
 bool InspIRCd::IsSID(const std::string& str)

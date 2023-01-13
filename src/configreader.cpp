@@ -270,7 +270,7 @@ static std::string GetServerHost()
 		if (name.find('.') == std::string::npos)
 			name.append(".local");
 
-		if (name.length() <= ServerInstance->Config->Limits.MaxHost && InspIRCd::IsHost(name))
+		if (name.length() <= ServerInstance->Config->Limits.MaxHost && InspIRCd::IsFQDN(name))
 			return name;
 	}
 	return "irc.example.com";
@@ -283,7 +283,7 @@ void ServerConfig::Fill()
 	auto server = ConfValue("server");
 	if (sid.empty())
 	{
-		ServerName = server->getString("name", GetServerHost(), InspIRCd::IsHost);
+		ServerName = server->getString("name", GetServerHost(), InspIRCd::IsFQDN);
 
 		sid = server->getString("id");
 		if (!sid.empty() && !InspIRCd::IsSID(sid))
@@ -308,7 +308,7 @@ void ServerConfig::Fill()
 	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240, 1024, 65534);
 	CustomVersion = security->getString("customversion");
 	HideBans = security->getBool("hidebans");
-	HideServer = security->getString("hideserver", "", InspIRCd::IsHost);
+	HideServer = security->getString("hideserver", "", InspIRCd::IsFQDN);
 	SyntaxHints = options->getBool("syntaxhints");
 	FullHostInTopic = options->getBool("hostintopic");
 	MaxTargets = security->getUInt("maxtargets", 20, 1, 31);
