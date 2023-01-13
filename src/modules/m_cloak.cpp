@@ -234,7 +234,7 @@ class ModuleCloakSHA256 final
 		cloakmethods.swap(newcloakmethods);
 	}
 
-	void CompareLinkData(const LinkData& otherdata, LinkDataDiff& diffs)
+	void CompareLinkData(const LinkData& otherdata, LinkDataDiff& diffs) override
 	{
 		std::string unused;
 		LinkData data;
