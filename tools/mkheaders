@@ -123,8 +123,10 @@ for my $path (@paths) {
 				push @{$authors{$display}}, $commits{$commit}->{YEAR};
 				my $details = `git rev-list --format=%B --max-count=1 $commit`;
 				while ($details =~ /co-authored-by: ([^<]+<[^>]+>)/gi) {
-					$authors{$1} //= [];
-					push @{$authors{$1}}, $commits{$commit}->{YEAR};
+					my $coauthor = $1;
+					my $year = $details =~ /co-authored-year: (\d+)/i ? $1 : $commits{$commit}->{YEAR};
+					$authors{$coauthor} //= [];
+					push @{$authors{$coauthor}}, $year;
 				}
 				undef $commit;
 			}
