@@ -567,6 +567,41 @@
 #       ignorecase="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# HMAC-SHA256 cloak module: Adds the "hmac-sha256" cloak method. This
+# is the recommended cloak method for new networks.
+#
+# IMPORTANT: If you are using this module you should also load the sha2
+# module. Failure to do so will result in users not being cloaked.
+#<module name="cloak_hmac_sha256">
+#
+#-#-#-#-#-#-#-#-#- HMAC-SHA256 CLOAK CONFIGURATION -#-#-#-#-#-#-#-#-#-#
+# To use the cloak_sha256 module you must define a <cloak> tag. This  #
+# tag can have the following fields.                                  #
+#                                                                     #
+#  key       -  The secret key to use when hashing hostnames. This    #
+#               MUST be at least 30 characters long.                  #
+#                                                                     #
+#  prefix    - A freeform value to prefix cloaks with. This must not  #
+#              contain spaces.                                        #
+#                                                                     #
+#  suffix    - A freeform value to suffix IPv4/IPv6 cloaks with. This #
+#              must not contain spaces.                               #
+#  hostparts - The maximum number of hostname labels that should be   #
+#              visible on the end of a host. Defaults to 3.           #
+#                                                                     #
+# IMPORTANT: Changing these details will break all of your existing   #
+# bans. If you do not want this to happen you can define multiple     #
+# cloak tags. The first will be used for hostnames and the rest will  #
+# be used for checking if a user is banned in a channel.              #
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#
+#<cloak mode="hmac-sha256"
+#       key="changeme"
+#       prefix=""
+#       suffix=""
+#       hostparts="3">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Codepage module: Allows using a custom 8-bit codepage for nicknames
 # and case mapping.
 #<module name="codepage">

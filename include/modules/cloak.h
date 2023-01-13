@@ -54,7 +54,7 @@ namespace Cloak
 }
 
 /** Base class for cloak engines. */
-class CoreExport Cloak::Engine
+class Cloak::Engine
 	: public DataProvider
 {
 protected:
