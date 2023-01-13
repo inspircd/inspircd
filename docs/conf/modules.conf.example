@@ -509,6 +509,15 @@
 #<module name="clearchan">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Cloak module: Adds user mode x (cloak) which allows user hostnames to
+# be hidden. This module does not provide any cloak methods by itself.
+# You should also load another module like cloak_md5 or cloak_sha256.
+#
+# In order to have users automatically cloaked on connect you should
+# load the conn_umodes module and add "x" to <connect:modes>.
+#<module name="cloak">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Cloaking module: Adds user mode +x and cloaking support.
 # Relies on the md5 module being loaded.
 # To cloak users when they connect, load the conn_umodes module and set
