@@ -32,6 +32,9 @@ private:
 	// The cloak engines from the config.
 	CloakMethodList& cloakmethods;
 
+	// API for sending a FAIL message.
+	IRCv3::Replies::Note failrpl;
+
 	// API for sending a NOTE message.
 	IRCv3::Replies::Note noterpl;
 
@@ -42,6 +45,7 @@ public:
 	CommandCloak(Module* Creator, CloakMethodList& ce)
 		: SplitCommand(Creator, "CLOAK", 1)
 		, cloakmethods(ce)
+		, failrpl(Creator)
 		, noterpl(Creator)
 		, stdrplcap(Creator)
 	{
@@ -58,9 +62,16 @@ public:
 			if (cloak.empty())
 				continue;
 
-			noterpl.SendIfCap(user, stdrplcap, this, "CLOAK_RESULT", parameters[0], cloak, InspIRCd::Format("Cloak #%zu for %s is %s",
-				++count, parameters[0].c_str(), cloak.c_str()));
+			noterpl.SendIfCap(user, stdrplcap, this, "CLOAK_RESULT", parameters[0], cloak, InspIRCd::Format("Cloak #%zu for %s is %s (type: %s)",
+				++count, parameters[0].c_str(), cloak.c_str(), cloakmethod->GetName()));
 		}
+
+		if (!count)
+		{
+			failrpl.SendIfCap(user, stdrplcap, this, "UNABLE_TO_CLOAK", parameters[0], InspIRCd::Format("There are no methods available for cloaking %s",
+				parameters[0].c_str()));
+		}
+
 		return CmdResult::SUCCESS;
 	}
 };
