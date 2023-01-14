@@ -239,25 +239,52 @@ class SQLConn : public SQL::Provider, public EventHandler
 		DelayReconnect();
 	}
 
+	std::string EscapeDSN(const std::string& str)
+	{
+		std::string out;
+		out.reserve(str.size());
+
+		for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
+		{
+			char chr = *it;
+			switch (chr)
+			{
+				case '\\':
+					out.append("\\\\");
+					break;
+
+				case '\'':
+					out.append("\\'");
+					break;
+
+				default:
+					out.push_back(chr);
+					break;
+			}
+		}
+
+		return out;
+	}
+
 	std::string GetDSN()
 	{
 		std::ostringstream conninfo("connect_timeout = '5'");
 		std::string item;
 
 		if (conf->readString("host", item))
-			conninfo << " host = '" << item << "'";
+			conninfo << " host = '" << EscapeDSN(item) << "'";
 
 		if (conf->readString("port", item))
-			conninfo << " port = '" << item << "'";
+			conninfo << " port = '" << EscapeDSN(item) << "'";
 
 		if (conf->readString("name", item))
-			conninfo << " dbname = '" << item << "'";
+			conninfo << " dbname = '" << EscapeDSN(item) << "'";
 
 		if (conf->readString("user", item))
-			conninfo << " user = '" << item << "'";
+			conninfo << " user = '" << EscapeDSN(item) << "'";
 
 		if (conf->readString("pass", item))
-			conninfo << " password = '" << item << "'";
+			conninfo << " password = '" << EscapeDSN(item) << "'";
 
 		if (conf->getBool("ssl"))
 			conninfo << " sslmode = 'require'";
