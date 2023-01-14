@@ -299,18 +299,19 @@ sub __function_require_system {
 	return "";
 }
 
-sub __function_require_version {
+sub __function_require_library {
 	my ($file, $name, $minimum, $maximum) = @_;
 
 	# If pkg-config isn't installed then we can't do anything here.
-	if (system "pkg-config --exists $name ${\DIRECTIVE_ERROR_PIPE}") {
+	if (system "${\PKG_CONFIG} --version 1>/dev/null 2>/dev/null") {
 		print_warning "unable to look up the version of <|GREEN $name|> using pkg-config!";
 		return undef;
 	}
 
 	# Check with pkg-config whether we have the required version.
-	return undef if defined $minimum && system "pkg-config --atleast-version $minimum $name";
-	return undef if defined $maximum && system "pkg-config --max-version $maximum $name";
+	return undef if system "${\PKG_CONFIG} --exists $name";
+	return undef if defined $minimum && system "${\PKG_CONFIG} --atleast-version $minimum $name";
+	return undef if defined $maximum && system "${\PKG_CONFIG} --max-version $maximum $name";
 
 	# Requirement directives don't change anything directly.
 	return "";
