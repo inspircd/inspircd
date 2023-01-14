@@ -92,7 +92,7 @@ public:
 	virtual std::string Generate(LocalUser* user) ATTR_NOT_NULL(2) = 0;
 
 	/** Generates a cloak for the specified hostname, IP address, or UNIX socket path.
-	 * @param user The hostname, IP address, or UNIX socket path to generate a cloak for.
+	 * @param hostip The hostname, IP address, or UNIX socket path to generate a cloak for.
 	 */
 	virtual std::string Generate(const std::string& hostip) = 0;
 
