@@ -39,6 +39,7 @@
 /// $PackageInfo: require_system("ubuntu") gnutls-bin libgnutls28-dev pkg-config
 
 #include "inspircd.h"
+#include "fileutils.h"
 #include "modules/ssl.h"
 
 #include <gnutls/gnutls.h>

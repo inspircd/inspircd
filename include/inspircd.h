@@ -44,7 +44,6 @@
 #include <bitset>
 #include <deque>
 #include <functional>
-#include <list>
 #include <memory>
 #include <map>
 #include <optional>
@@ -76,7 +75,6 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "dynref.h"
 #include "cull.h"
 #include "extensible.h"
-#include "fileutils.h"
 #include "ctables.h"
 #include "numeric.h"
 #include "uid.h"

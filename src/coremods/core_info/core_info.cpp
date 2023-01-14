@@ -21,6 +21,7 @@
 
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
+#include "fileutils.h"
 
 #include "core_info.h"
 

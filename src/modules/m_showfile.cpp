@@ -20,6 +20,7 @@
 
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
+#include "fileutils.h"
 
 enum
 {

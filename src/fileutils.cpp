@@ -19,6 +19,7 @@
 
 
 #include "inspircd.h"
+#include "fileutils.h"
 
 #include <fstream>
 

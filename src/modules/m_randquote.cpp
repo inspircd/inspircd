@@ -22,6 +22,7 @@
 
 
 #include "inspircd.h"
+#include "fileutils.h"
 
 class ModuleRandQuote final
 	: public Module

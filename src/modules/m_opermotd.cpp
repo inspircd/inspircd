@@ -25,6 +25,7 @@
 
 
 #include "inspircd.h"
+#include "fileutils.h"
 
 enum
 {
