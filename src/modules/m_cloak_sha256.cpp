@@ -271,10 +271,17 @@ public:
 			throw ModuleException(creator, "Your cloak key should be at least " + ConvToStr(minkeylen) + " characters long, at " + tag->source.str());
 
 		psl_ctx_t* psl = nullptr;
-		const std::string psldb = tag->getString("psl");
+		std::string psldb = tag->getString("psl");
 		if (!psldb.empty())
 		{
 #ifdef HAS_LIBPSL
+			if (stdalgo::string::equalsci(psldb, "system"))
+			{
+				psldb = psl_dist_filename();
+				if (psldb.empty())
+					throw ModuleException(creator, "You specified \"system\" in <cloak:psl> but libpsl was built without a system copy, at " + tag->source.str());
+			}
+
 			psl = psl_load_file(psldb.c_str());
 			if (!psl)
 				throw ModuleException(creator, "The database specified in <cloak:psl> (" + psldb + ") does not exist, at " + tag->source.str());
