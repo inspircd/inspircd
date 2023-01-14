@@ -240,6 +240,13 @@ public:
 		data["host-parts"] = ConvToStr(hostparts);
 		data["prefix"]     = prefix;
 		data["suffix"]     = suffix;
+
+#ifdef HAS_PSL
+		data["using-psl"] = psl ? "yes" : "no";
+#else
+		data["using-psl"] = "no";
+#endif
+
 	}
 };
 
