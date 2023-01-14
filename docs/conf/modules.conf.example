@@ -593,6 +593,11 @@
 #  hostparts - The maximum number of hostname labels that should be   #
 #              visible on the end of a host. Defaults to 3.           #
 #                                                                     #
+#  psl       - If non-empty then the path to a Mozilla Public Suffix  #
+#              List database to use for finding the visible part of a #
+#              hostname. This overrides the hostparts (above) field.  #
+#              Only available if libpsl was installed at build time.  #
+#                                                                     #
 # IMPORTANT: Changing these details will break all of your existing   #
 # bans. If you do not want this to happen you can define multiple     #
 # cloak tags. The first will be used for hostnames and the rest will  #
@@ -604,7 +609,8 @@
 #       prefix="MyNet"
 #       suffix="ip"
 #       case="lower"
-#       hostparts="3">
+#       hostparts="3"
+#       psl="/usr/share/publicsuffix/public_suffix_list.dafsa">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Codepage module: Allows using a custom 8-bit codepage for nicknames

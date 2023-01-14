@@ -27,6 +27,7 @@ jobs:
             gnutls-dev \
             libmaxminddb-dev \
             libpq-dev \
+            libpsl-dev \
             make \
             mariadb-dev \
             mbedtls-dev \

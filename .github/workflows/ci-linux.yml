@@ -30,6 +30,7 @@ jobs:
             libmysqlclient-dev \
             libpcre2-dev \
             libpq-dev \
+            libpsl-dev \
             libre2-dev \
             libsqlite3-dev \
             libssl-dev \

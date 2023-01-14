@@ -18,6 +18,23 @@
  */
 
 
+/// $CompilerFlags: require_library("libpsl") find_compiler_flags("libpsl") -DHAS_LIBPSL
+/// $LinkerFlags: require_library("libpsl") find_linker_flags("libpsl")
+
+/// $PackageInfo: require_system("arch") libpsl pkgconf
+/// $PackageInfo: require_system("darwin") libpsl pkg-config
+/// $PackageInfo: require_system("debian") libpsl-dev pkg-config
+/// $PackageInfo: require_system("ubuntu") libpsl-dev pkg-config
+
+#ifdef HAS_LIBPSL
+# include <libpsl.h>
+# ifdef _WIN32
+#  pragma comment(lib, "psl.lib")
+# endif
+#else
+typedef void psl_ctx_t;
+#endif
+
 #include "inspircd.h"
 #include "modules/cloak.h"
 #include "modules/hash.h"
@@ -43,6 +60,11 @@ private:
 
 	// The prefix for cloaks (e.g. MyNet).
 	std::string prefix;
+
+#ifdef HAS_LIBPSL
+	// Handle to the Public Suffix List library.
+	psl_ctx_t* psl;
+#endif
 
 	// Dynamic reference to the sha256 implementation.
 	dynamic_reference_nocheck<HashProvider> sha256;
@@ -114,11 +136,26 @@ private:
 
 	std::string CloakHost(const std::string& host, char separator)
 	{
+		// Attempt to divine the public part of the hostname.
+		std::string visiblepart;
+#ifdef HAS_LIBPSL
+		if (psl && separator == '.')
+		{
+			// Attempt to look up the suffix with libpsl.
+			const char* publicsuffix = psl_unregistrable_domain(psl, host.c_str());
+			if (publicsuffix && publicsuffix != host)
+				visiblepart = publicsuffix;
+		}
+#endif
+
+		// If libpsl failed to find a suffix or wasn't available fall back.
+		if (visiblepart.empty())
+			visiblepart = Cloak::VisiblePart(host, hostparts, separator);
+
 		// Convert the host to lowercase to avoid ban evasion.
 		std::string lowerhost(host.length(), '\0');
 		std::transform(host.begin(), host.end(), lowerhost.begin(), ::tolower);
 
-		const std::string visiblepart = Cloak::VisiblePart(host, hostparts, separator);
 		return Wrap(Hash(lowerhost), visiblepart, separator);
 	}
 
@@ -142,11 +179,14 @@ private:
 	}
 
 public:
-	SHA256Method(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const std::string& k) ATTR_NOT_NULL(2)
+	SHA256Method(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const std::string& k, psl_ctx_t* p) ATTR_NOT_NULL(2)
 		: Cloak::Method(engine)
 		, hostparts(tag->getUInt("hostparts", 3, 1, UINT_MAX))
 		, key(k)
 		, prefix(tag->getString("prefix"))
+#ifdef HAS_LIBPSL
+		, psl(p)
+#endif
 		, sha256(engine->creator, "hash/sha256")
 		, suffix(tag->getString("suffix", "ip"))
 	{
@@ -155,6 +195,14 @@ public:
 			{ "lower", base32lower }
 		});
 	}
+
+#ifdef HAS_PSL
+	~SHA256Method() override
+	{
+		if (psl)
+			psl_free(psl);
+	}
+#endif
 
 	std::string Generate(LocalUser* user) override ATTR_NOT_NULL(2)
 	{
@@ -215,7 +263,20 @@ public:
 		if (key.length() < minkeylen)
 			throw ModuleException(creator, "Your cloak key should be at least " + ConvToStr(minkeylen) + " characters long, at " + tag->source.str());
 
-		return std::make_shared<SHA256Method>(this, tag, key);
+		psl_ctx_t* psl = nullptr;
+		const std::string psldb = tag->getString("psl");
+		if (!psldb.empty())
+		{
+#ifdef HAS_LIBPSL
+			psl = psl_load_file(psldb.c_str());
+			if (!psl)
+				throw ModuleException(creator, "The database specified in <cloak:psl> (" + psldb + ") does not exist, at " + tag->source.str());
+#else
+			throw ModuleException(creator, "You specified <cloak:psl> but InspIRCd was built without libpsl, at " + tag->source.str());
+#endif
+		}
+
+		return std::make_shared<SHA256Method>(this, tag, key, psl);
 	}
 };
 
