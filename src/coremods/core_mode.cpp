@@ -366,7 +366,7 @@ private:
 
 		std::string modechars;
 		std::string prefixchars;
-		for (const auto* pm : insp::iterator_range(prefixes.rbegin(), prefixes.rend()))
+		for (const auto* pm : insp::reverse_range(prefixes))
 		{
 			modechars += pm->GetModeChar();
 			prefixchars += pm->GetPrefix();
