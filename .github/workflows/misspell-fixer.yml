@@ -24,6 +24,7 @@ jobs:
         ALLTIME$
         alltime$
         Alltime$\
+        setts
         " > ${{ runner.workspace }}/inspircd/.misspell-fixer.ignore
     - uses: sobolevn/misspell-fixer-action@master
       with:
