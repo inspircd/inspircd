@@ -196,7 +196,7 @@ public:
 		, ext(Ext)
 	{
 		syntax = { "[(+|-)<nick> [<time>]]", "LIST", "HELP" };
-		/* XXX we need to fix this so it can work with translation stuff (i.e. move +- into a seperate param */
+		/* XXX we need to fix this so it can work with translation stuff (i.e. move +- into a separate param */
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
