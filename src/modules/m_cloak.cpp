@@ -138,7 +138,7 @@ public:
 					cloaks->push_back(cloak);
 
 				ServerInstance->Logs.Debug(MODNAME, "Cloaked %s (%s/%s) as %s using the %s method.",
-					user->uuid.c_str(),	user->GetIPString().c_str(), user->GetRealHost().c_str(),
+					user->uuid.c_str(), user->GetIPString().c_str(), user->GetRealHost().c_str(),
 					cloak.c_str(), cloakmethod->GetName());
 			}
 			ext.Set(user, cloaks);

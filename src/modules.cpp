@@ -279,21 +279,27 @@ found_src:
 	// The modules registered for a hook are called in reverse order (to allow for easier removal
 	// of list entries while looping), meaning that the Priority given to us has the exact opposite effect
 	// on the list, e.g.: PRIORITY_BEFORE will actually put 'mod' after 'which', etc.
-	size_t swap_pos = my_pos;
+	size_t swap_pos;
 	switch (s)
 	{
 		case PRIORITY_LAST:
+		{
 			if (prioritizationState != PRIO_STATE_FIRST)
 				return true;
-			else
-				swap_pos = 0;
+
+			swap_pos = 0;
 			break;
+		}
+
 		case PRIORITY_FIRST:
+		{
 			if (prioritizationState != PRIO_STATE_FIRST)
 				return true;
-			else
-				swap_pos = EventHandlers[i].size() - 1;
+
+			swap_pos = EventHandlers[i].size() - 1;
 			break;
+		}
+
 		case PRIORITY_BEFORE:
 		{
 			/* Find the latest possible position, only searching AFTER our position */
@@ -308,6 +314,7 @@ found_src:
 			// didn't find it - either not loaded or we're already after
 			return true;
 		}
+
 		/* Place this module before a set of other modules */
 		case PRIORITY_AFTER:
 		{
@@ -322,6 +329,9 @@ found_src:
 			// didn't find it - either not loaded or we're already before
 			return true;
 		}
+
+		default:
+			return true; // Should never happen.
 	}
 
 swap_now:

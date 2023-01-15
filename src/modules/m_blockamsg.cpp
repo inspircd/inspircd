@@ -143,8 +143,7 @@ public:
 			}
 			else
 			{
-				m = new BlockedMessage(parameters[1], parameters[0], ServerInstance->Time());
-				blockamsg.Set(user, m);
+				blockamsg.SetFwd(user, parameters[1], parameters[0], ServerInstance->Time());
 			}
 		}
 		return MOD_RES_PASSTHRU;

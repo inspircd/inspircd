@@ -160,6 +160,13 @@ public:
 			list->push_back(dccallow);
 		}
 
+		// If we have an empty list then don't store it.
+		if (list->empty())
+		{
+			delete list;
+			return;
+		}
+
 		// The value was well formed.
 		Set(user, list);
 	}
