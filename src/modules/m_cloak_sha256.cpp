@@ -53,16 +53,16 @@ private:
 	static constexpr size_t segmentlen = 8;
 
 	// Whether to cloak the hostname if available.
-	bool cloakhost;
+	const bool cloakhost;
 
 	// The number of parts of the hostname shown.
-	unsigned long hostparts;
+	const unsigned long hostparts;
 
 	// The secret used for generating cloaks.
-	std::string key;
+	const std::string key;
 
 	// The prefix for cloaks (e.g. MyNet).
-	std::string prefix;
+	const std::string prefix;
 
 #ifdef HAS_LIBPSL
 	// Handle to the Public Suffix List library.
@@ -76,7 +76,7 @@ private:
 	const unsigned char* table;
 
 	// The suffix for IP cloaks (e.g. IP).
-	std::string suffix;
+	const std::string suffix;
 
 	std::string CloakAddress(const irc::sockets::sockaddrs& sa)
 	{
@@ -272,7 +272,7 @@ private:
 	static constexpr size_t minkeylen = 30;
 
 	// Whether to cloak the hostname if available.
-	bool cloakhost;
+	const bool cloakhost;
 
 public:
 	SHA256Engine(Module* Creator, const std::string& Name, bool ch)
