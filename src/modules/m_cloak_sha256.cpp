@@ -214,13 +214,10 @@ public:
 			return {};
 
 		irc::sockets::sockaddrs sa(false);
-		if (sa.from(user->GetRealHost()) && sa.addr() == user->client_sa.addr())
+		if (!cloakhost || (sa.from(user->GetRealHost()) && sa.addr() == user->client_sa.addr()))
 			return CloakAddress(user->client_sa);
 
-		if (cloakhost)
-			return CloakHost(user->GetRealHost(), '.');
-
-		return {}; // Only reachable on hmac-sha256-ip.
+		return CloakHost(user->GetRealHost(), '.');
 	}
 
 	std::string Generate(const std::string& hostip) override
