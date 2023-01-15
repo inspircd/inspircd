@@ -567,8 +567,9 @@
 #       ignorecase="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# HMAC-SHA256 cloak module: Adds the "hmac-sha256" cloak method. This
-# is the recommended cloak method for new networks.
+# HMAC-SHA256 cloak module: Adds the "hmac-sha256" (hostname or IP) and
+# "hmac-sha256-ip" (IP only) cloak methods. This is the recommended
+# cloak module for new networks.
 #
 # IMPORTANT: If you are using this module you should also load the sha2
 # module. Failure to do so will result in users not being cloaked.
@@ -590,8 +591,9 @@
 #  case      - The case of the cloak table. Can be set to "upper" or  #
 #              "lower". Defaults to "lower".                          #
 #                                                                     #
-#  hostparts - The maximum number of hostname labels that should be   #
-#              visible on the end of a host. Defaults to 3.           #
+#  hostparts - The maximum number of hostname labels or UNIX socket   #
+#              path segments that should be visible on the end of a   #
+#              host. Defaults to 3.                                   #
 #                                                                     #
 #  psl       - If non-empty then the path to a Mozilla Public Suffix  #
 #              List database to use for finding the visible part of a #
@@ -612,6 +614,13 @@
 #       case="lower"
 #       hostparts="3"
 #       psl="system">
+#
+#<cloak mode="hmac-sha256-ip"
+#       key="changeme"
+#       prefix="MyNet"
+#       suffix="ip"
+#       case="lower"
+#       hostparts="3">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Codepage module: Allows using a custom 8-bit codepage for nicknames

@@ -52,6 +52,9 @@ private:
 	// The number of bytes of the hash to use when downsampling.
 	static constexpr size_t segmentlen = 8;
 
+	// Whether to cloak the hostname if available.
+	bool cloakhost;
+
 	// The number of parts of the hostname shown.
 	unsigned long hostparts;
 
@@ -179,8 +182,9 @@ private:
 	}
 
 public:
-	SHA256Method(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const std::string& k, psl_ctx_t* p) ATTR_NOT_NULL(2)
+	SHA256Method(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const std::string& k, psl_ctx_t* p, bool ch) ATTR_NOT_NULL(2)
 		: Cloak::Method(engine)
+		, cloakhost(ch)
 		, hostparts(tag->getUInt("hostparts", 3, 1, UINT_MAX))
 		, key(k)
 		, prefix(tag->getString("prefix"))
@@ -212,7 +216,11 @@ public:
 		irc::sockets::sockaddrs sa(false);
 		if (sa.from(user->GetRealHost()) && sa.addr() == user->client_sa.addr())
 			return CloakAddress(user->client_sa);
-		return CloakHost(user->GetRealHost(), '.');
+
+		if (cloakhost)
+			return CloakHost(user->GetRealHost(), '.');
+
+		return {}; // Only reachable on hmac-sha256-ip.
 	}
 
 	std::string Generate(const std::string& hostip) override
@@ -221,7 +229,13 @@ public:
 			return {};
 
 		irc::sockets::sockaddrs sa(false);
-		return sa.from(hostip) ? CloakAddress(sa) : CloakHost(hostip, '.');
+		if (sa.from(hostip))
+			return CloakAddress(sa);
+
+		if (cloakhost)
+			return CloakHost(hostip, '.');
+
+		return {}; // Only reachable on hmac-sha256-ip.
 	}
 
 	void GetLinkData(Module::LinkData& data, std::string& compatdata) override
@@ -257,9 +271,13 @@ private:
 	// The minimum length of a cloak key.
 	static constexpr size_t minkeylen = 30;
 
+	// Whether to cloak the hostname if available.
+	bool cloakhost;
+
 public:
-	SHA256Engine(Module* Creator)
-		: Cloak::Engine(Creator, "hmac-sha256")
+	SHA256Engine(Module* Creator, const std::string& Name, bool ch)
+		: Cloak::Engine(Creator, Name)
+		, cloakhost(ch)
 	{
 	}
 
@@ -272,7 +290,7 @@ public:
 
 		psl_ctx_t* psl = nullptr;
 		std::string psldb = tag->getString("psl");
-		if (!psldb.empty())
+		if (cloakhost && !psldb.empty())
 		{
 #ifdef HAS_LIBPSL
 			if (stdalgo::string::equalsci(psldb, "system"))
@@ -290,7 +308,7 @@ public:
 #endif
 		}
 
-		return std::make_shared<SHA256Method>(this, tag, key, psl);
+		return std::make_shared<SHA256Method>(this, tag, key, psl, cloakhost);
 	}
 };
 
@@ -298,12 +316,14 @@ class ModuleCloakSHA256 final
 	: public Module
 {
 private:
-	SHA256Engine cloakengine;
+	SHA256Engine hostcloak;
+	SHA256Engine ipcloak;
 
 public:
 	ModuleCloakSHA256()
 		: Module(VF_VENDOR, "Provides the hmac-sha256 cloak engine.")
-		, cloakengine(this)
+		, hostcloak(this, "hmac-sha256", true)
+		, ipcloak(this, "hmac-sha256-ip", false)
 	{
 	}
 };
