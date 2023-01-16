@@ -86,7 +86,6 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 				this->Logs.Warning("SOCKET", "TCP listener on %s at %s has no ports specified!",
 					address.empty() ? "*" : address.c_str(), tag->source.str().c_str());
 
-
 			int protocol = 0;
 			if (tag->getBool("sctp"))
 			{
