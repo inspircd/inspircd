@@ -378,7 +378,7 @@ namespace
 
 			for (const auto& fp : pl)
 			{
-				std::cout << "  " << rang::style::bold << fp.sa.str() << rang::style::reset << ": " << strerror(fp.error) << '.' << std::endl
+				std::cout << "  " << rang::style::bold << fp.sa.str() << rang::style::reset << ": " << fp.error << '.' << std::endl
 					<< "  " << "Created from <bind> tag at " << fp.tag->source.str() << std::endl
 					<< std::endl;
 			}

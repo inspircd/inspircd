@@ -159,15 +159,15 @@ namespace irc
 struct CoreExport FailedPort final
 {
 	/** The error which happened during binding. */
-	int error;
+	const std::string error;
 
 	/** The endpoint on which we were attempting to bind. */
-	irc::sockets::sockaddrs sa;
+	const irc::sockets::sockaddrs sa;
 
 	/** The config tag that the listener was created from. */
-	std::shared_ptr<ConfigTag> tag;
+	const std::shared_ptr<ConfigTag> tag;
 
-	FailedPort(int err, irc::sockets::sockaddrs& addr, const std::shared_ptr<ConfigTag>& cfg)
+	FailedPort(const std::string& err, irc::sockets::sockaddrs& addr, const std::shared_ptr<ConfigTag>& cfg)
 		: error(err)
 		, sa(addr)
 		, tag(cfg)

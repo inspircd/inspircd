@@ -108,7 +108,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 					continue;
 
 				if (!BindPort(tag, bindspec, old_ports, protocol))
-					failed_ports.emplace_back(errno, bindspec, tag);
+					failed_ports.emplace_back(strerror(errno), bindspec, tag);
 				else
 					bound++;
 			}
@@ -141,7 +141,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 
 			bindspec.from_unix(fullpath);
 			if (!BindPort(tag, bindspec, old_ports, 0))
-				failed_ports.emplace_back(errno, bindspec, tag);
+				failed_ports.emplace_back(strerror(errno), bindspec, tag);
 			else
 				bound++;
 		}
