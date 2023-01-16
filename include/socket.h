@@ -190,6 +190,7 @@ class CoreExport ListenSocket final
 public:
 	std::shared_ptr<ConfigTag> bind_tag;
 	const irc::sockets::sockaddrs bind_sa;
+	const int bind_protocol;
 
 	class IOHookProvRef : public dynamic_reference_nocheck<IOHookProvider>
 	{
@@ -209,7 +210,7 @@ public:
 
 	/** Create a new listening socket
 	 */
-	ListenSocket(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& bind_to);
+	ListenSocket(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& bind_to, int protocol);
 	/** Close the socket
 	 */
 	~ListenSocket() override;

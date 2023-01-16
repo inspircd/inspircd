@@ -34,6 +34,7 @@
 #ifdef _WIN32
 # include <psapi.h>
 #else
+# include <netinet/in.h>
 # include <sys/resource.h>
 #endif
 
@@ -133,6 +134,19 @@ void CommandStats::DoStats(Stats::Context& stats)
 
 				const std::string type = ls->bind_tag->getString("type", "clients", 1);
 				portentry << ls->bind_sa.str() << " (type: " << type;
+
+				const char* protocol = nullptr;
+				if (ls->bind_sa.family() == AF_UNIX)
+					protocol = "unix";
+#ifdef IPPROTO_SCTP
+				else if (ls->bind_protocol == IPPROTO_SCTP)
+					protocol = "sctp";
+#endif
+				else if (ls->bind_sa.family() == AF_INET || ls->bind_sa.family() == AF_INET6)
+					protocol = "tcp";
+
+				if (protocol)
+					portentry << ", protocol: " << protocol;
 
 				const std::string hook = ls->bind_tag->getString("hook");
 				if (!hook.empty())
@@ -388,7 +402,7 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& security = ServerInstance->Config->ConfValue("security");
-		cmd.userstats = security->getString("userstats", "Pu");
+		cmd.userstats = security->getString("userstats", "Ppu");
 	}
 
 };

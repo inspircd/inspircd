@@ -28,19 +28,21 @@
 
 #ifndef _WIN32
 # include <arpa/inet.h>
+# include <netinet/in.h>
 #endif
 
 #include "inspircd.h"
 
-bool InspIRCd::BindPort(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& sa, std::vector<ListenSocket*>& old_ports)
+bool InspIRCd::BindPort(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& sa, std::vector<ListenSocket*>& old_ports, int protocol)
 {
 	for (std::vector<ListenSocket*>::iterator n = old_ports.begin(); n != old_ports.end(); ++n)
 	{
-		if ((**n).bind_sa == sa)
+		const ListenSocket* ls = *n;
+		if (ls->bind_sa == sa && protocol == ls->bind_protocol)
 		{
 			// Replace tag, we know addr and port match, but other info (type, ssl) may not.
 			ServerInstance->Logs.Debug("SOCKET", "Replacing listener on %s from old tag at %s with new tag from %s",
-				sa.str().c_str(), (*n)->bind_tag->source.str().c_str(), tag->source.str().c_str());
+				sa.str().c_str(), ls->bind_tag->source.str().c_str(), tag->source.str().c_str());
 			(*n)->bind_tag = tag;
 			(*n)->ResetIOHookProvider();
 
@@ -49,7 +51,7 @@ bool InspIRCd::BindPort(const std::shared_ptr<ConfigTag>& tag, const irc::socket
 		}
 	}
 
-	auto* ll = new ListenSocket(tag, sa);
+	auto* ll = new ListenSocket(tag, sa, protocol);
 	if (!ll->HasFd())
 	{
 		ServerInstance->Logs.Normal("SOCKET", "Failed to listen on %s from tag at %s: %s",
@@ -70,7 +72,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 
 	for (const auto& [_, tag] : ServerInstance->Config->ConfTags("bind"))
 	{
-		// Are we creating a TCP/IP listener?
+		// Are we creating a TCP/SCTP listener?
 		const std::string address = tag->getString("address");
 		const std::string portlist = tag->getString("port");
 		if (!address.empty() || !portlist.empty())
@@ -84,6 +86,18 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 				this->Logs.Warning("SOCKET", "TCP listener on %s at %s has no ports specified!",
 					address.empty() ? "*" : address.c_str(), tag->source.str().c_str());
 
+
+			int protocol = 0;
+			if (tag->getBool("sctp"))
+			{
+#ifdef IPPROTO_SCTP
+				protocol = IPPROTO_SCTP;
+#else
+				this->Logs.Warning("SOCKET", "Unable to create a SCTP listener as this platform does not support SCTP!");
+				continue;
+#endif
+			}
+
 			irc::portparser portrange(portlist, false);
 			while (long port = portrange.GetToken())
 			{
@@ -94,7 +108,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 				if (!bindspec.from_ip_port(address, static_cast<in_port_t>(port)))
 					continue;
 
-				if (!BindPort(tag, bindspec, old_ports))
+				if (!BindPort(tag, bindspec, old_ports, protocol))
 					failed_ports.emplace_back(errno, bindspec, tag);
 				else
 					bound++;
@@ -127,7 +141,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 			}
 
 			bindspec.from_unix(fullpath);
-			if (!BindPort(tag, bindspec, old_ports))
+			if (!BindPort(tag, bindspec, old_ports, 0))
 				failed_ports.emplace_back(errno, bindspec, tag);
 			else
 				bound++;

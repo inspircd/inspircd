@@ -35,9 +35,10 @@
 # include <unistd.h>
 #endif
 
-ListenSocket::ListenSocket(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& bind_to)
+ListenSocket::ListenSocket(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& bind_to, int protocol)
 	: bind_tag(tag)
 	, bind_sa(bind_to)
+	, bind_protocol(protocol)
 {
 	// Are we creating a UNIX socket?
 	if (bind_to.family() == AF_UNIX)
@@ -48,7 +49,7 @@ ListenSocket::ListenSocket(const std::shared_ptr<ConfigTag>& tag, const irc::soc
 			unlink(bind_to.str().c_str());
 	}
 
-	SetFd(socket(bind_to.family(), SOCK_STREAM, 0));
+	SetFd(socket(bind_to.family(), SOCK_STREAM, protocol));
 	if (!HasFd())
 		return;
 

@@ -316,7 +316,7 @@ public:
 	 * @param sa The endpoint to listen on.
 	 * @param old_ports Previously listening ports that may be on the same endpoint.
 	 */
-	bool BindPort(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& sa, std::vector<ListenSocket*>& old_ports);
+	bool BindPort(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& sa, std::vector<ListenSocket*>& old_ports, int protocol);
 
 	/** Bind all ports specified in the configuration file.
 	 * @return The number of ports bound without error
