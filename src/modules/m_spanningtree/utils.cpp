@@ -263,6 +263,14 @@ void SpanningTreeUtilities::ReadConfiguration()
 		{
 			L->IPAddr = tag->getString("ipaddr");
 			L->Port = static_cast<in_port_t>(tag->getUInt("port", 0, 0, 65535));
+			if (tag->getBool("sctp"))
+			{
+#ifdef IPPROTO_SCTP
+				L->Protocol = IPPROTO_SCTP;
+#else
+				throw ModuleException((Module*)Creator, "Unable to use SCTP listener as this platform does not support SCTP!");
+#endif
+			}
 		}
 		else
 		{

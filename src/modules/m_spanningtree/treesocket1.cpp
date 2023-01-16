@@ -66,7 +66,7 @@ TreeSocket::TreeSocket(const std::shared_ptr<Link>& link, const std::shared_ptr<
 		}
 	}
 
-	DoConnect(dest, bind, link->Timeout);
+	DoConnect(dest, bind, link->Timeout, link->Protocol);
 	Utils->timeoutlist[this] = std::pair<std::string, unsigned int>(linkID, link->Timeout);
 	SendCapabilities(1);
 }

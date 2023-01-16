@@ -42,6 +42,7 @@ public:
 	unsigned long Timeout;
 	std::string Bind;
 	bool Hidden;
+	int Protocol = 0;
 	Link(const std::shared_ptr<ConfigTag>& Tag)
 		: tag(Tag)
 	{

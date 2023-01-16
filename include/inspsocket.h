@@ -406,8 +406,9 @@ public:
 	 * @param dest Remote endpoint to connect to.
 	 * @param bind Local endpoint to connect from.
 	 * @param maxtime Time to wait for connection
+	 * @param protocol The protocol to use when connecting.
 	 */
-	void DoConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long maxtime);
+	void DoConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long maxtime, int protocol = 0);
 
 	/** This method is called when an outbound connection on your socket is
 	 * completed.
@@ -432,7 +433,7 @@ public:
 
 protected:
 	void OnEventHandlerWrite() override;
-	BufferedSocketError BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long timeout);
+	BufferedSocketError BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long timeout, int protocol);
 };
 
 inline IOHook* StreamSocket::GetIOHook() const { return iohook; }
