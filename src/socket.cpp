@@ -37,14 +37,14 @@ bool InspIRCd::BindPort(const std::shared_ptr<ConfigTag>& tag, const irc::socket
 {
 	for (std::vector<ListenSocket*>::iterator n = old_ports.begin(); n != old_ports.end(); ++n)
 	{
-		const ListenSocket* ls = *n;
+		ListenSocket* ls = *n;
 		if (ls->bind_sa == sa && protocol == ls->bind_protocol)
 		{
 			// Replace tag, we know addr and port match, but other info (type, ssl) may not.
 			ServerInstance->Logs.Debug("SOCKET", "Replacing listener on %s from old tag at %s with new tag from %s",
 				sa.str().c_str(), ls->bind_tag->source.str().c_str(), tag->source.str().c_str());
-			(*n)->bind_tag = tag;
-			(*n)->ResetIOHookProvider();
+			ls->bind_tag = tag;
+			ls->ResetIOHookProvider();
 
 			old_ports.erase(n);
 			return true;
@@ -81,31 +81,56 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 			if (strncasecmp(address.c_str(), "::ffff:", 7) == 0)
 				this->Logs.Warning("SOCKET", "Using 4in6 (::ffff:) isn't recommended. You should bind IPv4 addresses directly instead.");
 
-			// A TCP listener with no ports is not very useful.
-			if (portlist.empty())
-				this->Logs.Warning("SOCKET", "TCP listener on %s at %s has no ports specified!",
-					address.empty() ? "*" : address.c_str(), tag->source.str().c_str());
-
+			// Check whether this is a SCTP listener.
 			int protocol = 0;
 			if (tag->getBool("sctp"))
 			{
 #ifdef IPPROTO_SCTP
 				protocol = IPPROTO_SCTP;
 #else
-				this->Logs.Warning("SOCKET", "Unable to create a SCTP listener as this platform does not support SCTP!");
+				failed_ports.emplace_back("Platform does not support SCTP", tag);
 				continue;
 #endif
+			}
+
+			// Try to parse the bind address.
+			irc::sockets::sockaddrs bindspec(false);
+			if (!bindspec.from_ip(address))
+			{
+				failed_ports.emplace_back("Address is not valid: " + address, tag);
+				continue;
+			}
+
+			// A TCP listener with no ports is not very useful.
+			if (portlist.empty())
+			{
+				failed_ports.emplace_back("No ports specified", bindspec, tag);
+				continue;
 			}
 
 			irc::portparser portrange(portlist, false);
 			while (long port = portrange.GetToken())
 			{
+				// Check if the port is out of range.
 				if (port <= std::numeric_limits<in_port_t>::min() || port > std::numeric_limits<in_port_t>::max())
+				{
+					failed_ports.emplace_back("Port is not valid: " + ConvToStr(port), bindspec, tag);
 					continue;
+				}
 
-				irc::sockets::sockaddrs bindspec(false);
-				if (!bindspec.from_ip_port(address, static_cast<in_port_t>(port)))
-					continue;
+				switch (bindspec.family())
+				{
+					case AF_INET:
+						bindspec.in4.sin_port = htons(static_cast<in_port_t>(port));
+						break;
+
+					case AF_INET6:
+						bindspec.in6.sin6_port = htons(static_cast<in_port_t>(port));
+						break;
+
+					default:
+						continue; // Should never happen.
+				}
 
 				if (!BindPort(tag, bindspec, old_ports, protocol))
 					failed_ports.emplace_back(strerror(errno), bindspec, tag);
@@ -126,16 +151,14 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 			irc::sockets::sockaddrs bindspec;
 			if (fullpath.length() > std::min(ServerInstance->Config->Limits.MaxHost, sizeof(bindspec.un.sun_path) - 1))
 			{
-				this->Logs.Warning("SOCKET", "UNIX listener on %s at %s specified a path that is too long!",
-					fullpath.c_str(), tag->source.str().c_str());
+				failed_ports.emplace_back("Path is too long: " + fullpath, tag);
 				continue;
 			}
 
 			// Check for characters which are problematic in the IRC message format.
 			if (fullpath.find_first_of("\n\r\t!@: ") != std::string::npos)
 			{
-				this->Logs.Warning("SOCKET", "UNIX listener on %s at %s specified a path containing invalid characters!",
-					fullpath.c_str(), tag->source.str().c_str());
+				failed_ports.emplace_back("Path contains invalid characters: " + fullpath, tag);
 				continue;
 			}
 

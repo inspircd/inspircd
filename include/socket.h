@@ -173,6 +173,13 @@ struct CoreExport FailedPort final
 		, tag(cfg)
 	{
 	}
+
+	FailedPort(const std::string& err, const std::shared_ptr<ConfigTag>& cfg)
+		: error(err)
+		, sa(true)
+		, tag(cfg)
+	{
+	}
 };
 
 /** A list of failed port bindings, used for informational purposes on startup */

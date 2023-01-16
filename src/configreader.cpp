@@ -434,8 +434,10 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
 			errstr << "Warning! Some of your listener" << (pl.size() == 1 ? "s" : "") << " failed to bind:" << std::endl;
 			for (const auto& fp : pl)
 			{
-				errstr << "  " << fp.sa.str() << ": " << fp.error << std::endl
-					<< "  " << "Created from <bind> tag at " << fp.tag->source.str() << std::endl;
+				if (fp.sa.family() != AF_UNSPEC)
+					errstr << "  " << fp.sa.str() << ": ";
+
+				errstr << fp.error << std::endl << "  " << "Created from <bind> tag at " << fp.tag->source.str() << std::endl;
 			}
 		}
 	}
