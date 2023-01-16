@@ -26,20 +26,22 @@
 
 
 #include "inspircd.h"
-
-enum
-{
-	// InspIRCd-specific.
-	ERR_INVALIDIDLETIME = 948,
-	RPL_IDLETIMESET = 944
-};
+#include "modules/ircv3_replies.h"
 
 class CommandSetidle final
 	: public SplitCommand
 {
+private:
+	IRCv3::Replies::Fail failrpl;
+	IRCv3::Replies::Fail noterpl;
+	IRCv3::Replies::CapReference stdrplcap;
+
 public:
 	CommandSetidle(Module* Creator)
 		: SplitCommand(Creator, "SETIDLE", 1)
+		, failrpl(Creator)
+		, noterpl(Creator)
+		, stdrplcap(Creator)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<duration>" };
@@ -50,16 +52,17 @@ public:
 		unsigned long idle;
 		if (!InspIRCd::Duration(parameters[0], idle))
 		{
-			user->WriteNumeric(ERR_INVALIDIDLETIME, "Invalid idle time.");
+			failrpl.SendIfCap(user, stdrplcap, this, "INVALID_IDLE_TIME", parameters[0], "Invalid idle time.");
 			return CmdResult::FAILURE;
 		}
+
 		user->idle_lastmsg = (ServerInstance->Time() - idle);
 		// minor tweak - we cant have signon time shorter than our idle time!
 		if (user->signon > user->idle_lastmsg)
 			user->signon = user->idle_lastmsg;
-		ServerInstance->SNO.WriteToSnoMask('a', user->nick+" used SETIDLE to set their idle time to "+ConvToStr(idle)+" seconds");
-		user->WriteNumeric(RPL_IDLETIMESET, "Idle time set.");
 
+		ServerInstance->SNO.WriteToSnoMask('a', user->nick+" used SETIDLE to set their idle time to "+ConvToStr(idle)+" seconds");
+		noterpl.SendIfCap(user, stdrplcap, this, "IDLE_TIME_SET", user->idle_lastmsg, "Idle time set.");
 		return CmdResult::SUCCESS;
 	}
 };
