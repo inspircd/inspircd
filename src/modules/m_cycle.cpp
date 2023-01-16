@@ -62,7 +62,7 @@ class CommandCycle : public SplitCommand
 			if (channel->GetPrefixValue(user) < VOICE_VALUE && channel->IsBanned(user))
 			{
 				// User is banned, send an error and don't cycle them
-				user->WriteNotice("*** You may not cycle, as you are banned on channel " + channel->name);
+				user->WriteNumeric(ERR_BANNEDFROMCHAN, channel->name, "You may not cycle, as you are banned on channel " + channel->name);
 				return CMD_FAILURE;
 			}
 
