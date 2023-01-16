@@ -32,6 +32,7 @@
 enum
 {
 	// From RFC 1459.
+	ERR_TOOMANYCHANNELS = 405,
 	ERR_CHANNELISFULL = 471,
 	ERR_INVITEONLYCHAN = 473,
 	ERR_BADCHANNELKEY = 475,
@@ -244,8 +245,30 @@ public:
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
 	{
-		if (!chan || override)
+		if (override)
+		{
+			// Don't enforce limits on overrides.
 			return MOD_RES_PASSTHRU;
+		}
+		else
+		{
+			/* We don't restrict the number of channels that remote users or users that are override-joining may be in.
+			 * We restrict local users to <connect:maxchans> channels.
+			 * We restrict local operators to <oper:maxchans> channels.
+			 */
+			unsigned long maxchans = user->GetClass()->maxchans;
+			if (user->IsOper())
+				maxchans = user->oper->GetConfig()->getUInt("maxchans", maxchans, maxchans);
+
+			if (user->chans.size() >= maxchans)
+			{
+				user->WriteNumeric(ERR_TOOMANYCHANNELS, cname, "You are on too many channels");
+				return MOD_RES_DENY;
+			}
+		}
+
+		if (!chan)
+			return MOD_RES_PASSTHRU; // Can't have limits on a new channel.
 
 		// Check whether the channel key is correct.
 		const std::string ckey = chan->GetModeParameter(&keymode);

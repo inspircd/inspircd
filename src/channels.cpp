@@ -29,12 +29,6 @@
 #include "clientprotocolevent.h"
 #include "listmode.h"
 
-enum
-{
-	// From RFC 1459.
-	ERR_TOOMANYCHANNELS = 405,
-};
-
 namespace
 {
 	ChanModeReference ban(nullptr, "ban");
@@ -176,25 +170,6 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 	{
 		ServerInstance->Logs.Debug("CHANNELS", "Attempted to join partially connected user " + user->uuid + " to channel " + cname);
 		return nullptr;
-	}
-
-	/*
-	 * We don't restrict the number of channels that remote users or users that are override-joining may be in.
-	 * We restrict local users to <connect:maxchans> channels.
-	 * We restrict local operators to <oper:maxchans> channels.
-	 * This is a lot more logical than how it was formerly. -- w00t
-	 */
-	if (!override)
-	{
-		unsigned long maxchans = user->GetClass()->maxchans;
-		if (user->IsOper())
-			maxchans = user->oper->GetConfig()->getUInt("maxchans", maxchans, maxchans);
-
-		if (user->chans.size() >= maxchans)
-		{
-			user->WriteNumeric(ERR_TOOMANYCHANNELS, cname, "You are on too many channels");
-			return nullptr;
-		}
 	}
 
 	// Crop channel name if it's too long
