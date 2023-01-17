@@ -35,88 +35,121 @@
 # include <unistd.h>
 #endif
 
+namespace
+{
+	// Removes a dead UNIX socket so we can bind over it.
+	bool RemoveSocket(ListenSocket* ls)
+	{
+		const bool replace = ls->bind_tag->getBool("replace", true);
+		if (!replace || !irc::sockets::isunix(ls->bind_sa.str()))
+			return true;
+
+		return unlink(ls->bind_sa.str().c_str()) != -1;
+	}
+
+	int SetDeferAccept(ListenSocket* ls)
+	{
+		// Default defer to on for TLS listeners because in TLS the client always speaks first.
+		unsigned int timeoutdef = ls->bind_tag->getString("sslprofile").empty() ? 0 : 5;
+		int timeout = static_cast<int>(ls->bind_tag->getDuration("defer", timeoutdef, 0, 60));
+		if (!timeout)
+			return 0;
+
+#if defined TCP_DEFER_ACCEPT
+		return SocketEngine::SetOption(ls, IPPROTO_TCP, TCP_DEFER_ACCEPT, timeout);
+#elif defined SO_ACCEPTFILTER
+		struct accept_filter_arg afa = { 0 };
+		strcpy(afa.af_name, "dataready");
+		return SocketEngine::SetOption(ls, SOL_SOCKET, SO_ACCEPTFILTER, afa);
+#else
+		return 0;
+#endif
+	}
+
+	// Allows binding to an IP address which is not available yet.
+	int SetFreeBind(ListenSocket* ls)
+	{
+#if defined IP_FREEBIND // Linux 2.4+
+		return SocketEngine::SetOption<int>(ls, SOL_IP, IP_FREEBIND, 1);
+#elif defined IP_BINDANY // FreeBSD
+		return SocketEngine::SetOption<int>(ls, IPPROTO_IP, IP_BINDANY, 1);
+#elif defined SO_BINDANY // NetBSD, OpenBSD
+		return SocketEngine::SetOption<int>(ls, SOL_SOCKET, SO_BINDANY, 1);
+#else
+		return 0;
+#endif
+	}
+
+	// Sets the filesystem permissions for a UNIX socket.
+	int SetPermissions(ListenSocket* ls)
+	{
+		const std::string permissionstr = ls->bind_tag->getString("permissions");
+		unsigned long permissions = strtoul(permissionstr.c_str(), nullptr, 8);
+		if (!permissions || permissions > 07777)
+			return 0;
+
+		// This cast is safe thanks to the above check.
+		return chmod(ls->bind_sa.str().c_str(), static_cast<int>(permissions));
+	}
+
+	// Allow binding on IPv4 with an IPv6 socket.
+	void SetIPv6Only(ListenSocket* ls)
+	{
+#ifdef IPV6_V6ONLY
+		/* This OS supports IPv6 sockets that can also listen for IPv4
+		 * connections. If listening on all interfaces we enable both v4 and v6
+		 * to allow for simpler configuration on dual-stack hosts. Otherwise,
+		 * if it is "::" or an IPv6 address we disable support so that an IPv4
+		 * bind will work on the same port (by us or another application).
+		 */
+		const std::string address = ls->bind_tag->getString("address");
+
+		// IMPORTANT: This must be >= sizeof(DWORD) on Windows.
+		const int enable = (address.empty() || address == "*") ? 0 : 1;
+
+		// Intentionally ignore the result of this so we can fall back to default behaviour.
+		SocketEngine::SetOption(ls, IPPROTO_IPV6, IPV6_V6ONLY, enable);
+#endif
+	}
+}
+
 ListenSocket::ListenSocket(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& bind_to, int protocol)
 	: bind_tag(tag)
 	, bind_sa(bind_to)
 	, bind_protocol(protocol)
 {
-	// Are we creating a UNIX socket?
-	if (bind_to.family() == AF_UNIX)
-	{
-		// Should we replace the UNIX socket if it exists?
-		const bool replace = tag->getBool("replace", true);
-		if (replace && irc::sockets::isunix(bind_to.str()))
-			unlink(bind_to.str().c_str());
-	}
+	if (bind_to.family() == AF_UNIX && !RemoveSocket(this))
+		return;
 
 	SetFd(socket(bind_to.family(), SOCK_STREAM, protocol));
 	if (!HasFd())
 		return;
 
-#ifdef IPV6_V6ONLY
-	/* This OS supports IPv6 sockets that can also listen for IPv4
-	 * connections. If our address is "*" or empty, enable both v4 and v6 to
-	 * allow for simpler configuration on dual-stack hosts. Otherwise, if it
-	 * is "::" or an IPv6 address, disable support so that an IPv4 bind will
-	 * work on the port (by us or another application).
-	 */
+	// Its okay if these fails.
 	if (bind_to.family() == AF_INET6)
-	{
-		std::string addr = tag->getString("address");
-		/* This must be >= sizeof(DWORD) on Windows */
-		const int enable = (addr.empty() || addr == "*") ? 0 : 1;
-		/* This must be before bind() */
-		setsockopt(GetFd(), IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<const char* >(&enable), sizeof(enable));
-		// errors ignored intentionally
-	}
-#endif
+		SetIPv6Only(this);
+	SocketEngine::SetOption<int>(this, SOL_SOCKET, SO_REUSEADDR, 1);
 
-	if (tag->getBool("free"))
-	{
-		socklen_t enable = 1;
-#if defined IP_FREEBIND // Linux 2.4+
-		setsockopt(GetFd(), SOL_IP, IP_FREEBIND, &enable, sizeof(enable));
-#elif defined IP_BINDANY // FreeBSD
-		setsockopt(GetFd(), IPPROTO_IP, IP_BINDANY, &enable, sizeof(enable));
-#elif defined SO_BINDANY // NetBSD/OpenBSD
-		setsockopt(GetFd(), SOL_SOCKET, SO_BINDANY, &enable, sizeof(enable));
-#else
-		(void)enable;
-#endif
-	}
+	int rv = 0;
+	if (bind_to.is_ip() && tag->getBool("free"))
+		rv = SetFreeBind(this);
 
-	SocketEngine::SetOption<int>(GetFd(), SOL_SOCKET, SO_REUSEADDR, 1);
-	int rv = SocketEngine::Bind(this, bind_to);
-	if (rv >= 0)
+	if (rv != -1)
+		rv = SocketEngine::Bind(this, bind_to);
+
+	if (rv != -1)
 		rv = SocketEngine::Listen(this, ServerInstance->Config->MaxConn);
 
-	if (bind_to.family() == AF_UNIX)
+	if (rv != -1)
 	{
-		const std::string permissionstr = tag->getString("permissions");
-		unsigned long permissions = strtoul(permissionstr.c_str(), nullptr, 8);
-		if (permissions && permissions <= 07777)
-		{
-			// This cast is safe thanks to the above check.
-			chmod(bind_to.str().c_str(), static_cast<int>(permissions));
-		}
+		if (bind_to.family() == AF_UNIX)
+			rv = SetPermissions(this);
+
+		else if (bind_to.is_ip() && protocol == IPPROTO_TCP)
+			rv = SetDeferAccept(this);
 	}
 
-	// Default defer to on for TLS listeners because in TLS the client always speaks first
-	unsigned int timeoutdef = tag->getString("sslprofile").empty() ? 0 : 3;
-	int timeout = static_cast<int>(tag->getDuration("defer", timeoutdef, 0, 60));
-	if (timeout && !rv)
-	{
-#if defined TCP_DEFER_ACCEPT
-		setsockopt(GetFd(), IPPROTO_TCP, TCP_DEFER_ACCEPT, &timeout, sizeof(timeout));
-#elif defined SO_ACCEPTFILTER
-		struct accept_filter_arg afa;
-		memset(&afa, 0, sizeof(afa));
-		strcpy(afa.af_name, "dataready");
-		setsockopt(GetFd(), SOL_SOCKET, SO_ACCEPTFILTER, &afa, sizeof(afa));
-#endif
-	}
-
-	if (rv < 0)
+	if (rv == -1)
 	{
 		int errstore = errno;
 		SocketEngine::Shutdown(this, 2);
