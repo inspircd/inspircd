@@ -783,7 +783,7 @@ public:
 		/* Have we got a socket? */
 		if (this->HasFd())
 		{
-			SocketEngine::SetReuse(s);
+			SocketEngine::SetOption<int>(s, SOL_SOCKET, SO_REUSEADDR, 1);
 			SocketEngine::NonBlocking(s);
 
 			if (sourceaddr.empty())

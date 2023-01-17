@@ -515,9 +515,31 @@ public:
 	 */
 	static int Listen(EventHandler* eh, int backlog) ATTR_NOT_NULL(1);
 
-	/** Set SO_REUSEADDR and SO_LINGER on this file descriptor
+	/** Sets the value of a socket option.
+	 * @param fd The file descriptor to change the options of.
+	 * @param level The level at which to change the socket options.
+	 * @param name The option to change the value of.
+	 * @param value The value to set.
+	 * @return The system result of the socket operation.
 	 */
-	static void SetReuse(int sockfd);
+	template <typename Value>
+	static int SetOption(int fd, int level, int name, Value value)
+	{
+		return setsockopt(fd, level, name, reinterpret_cast<char*>(&value), sizeof(value));
+	}
+
+	/** Sets the value of a socket option.
+	 * @param fd The socket to change the options of.
+	 * @param level The level at which to change the socket options.
+	 * @param name The option to change the value of.
+	 * @param value The value to set.
+	 * @return The system result of the socket operation.
+	 */
+	template <typename Value>
+	static int SetOption(EventHandler* eh, int level, int name, Value value)
+	{
+		return SetOption<Value>(eh->GetFd(), level, name, value);
+	}
 
 	/** This function is called immediately after fork().
 	 * Some socket engines (notably kqueue) cannot have their

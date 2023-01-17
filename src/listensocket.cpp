@@ -85,7 +85,7 @@ ListenSocket::ListenSocket(const std::shared_ptr<ConfigTag>& tag, const irc::soc
 #endif
 	}
 
-	SocketEngine::SetReuse(GetFd());
+	SocketEngine::SetOption<int>(GetFd(), SOL_SOCKET, SO_REUSEADDR, 1);
 	int rv = SocketEngine::Bind(this, bind_to);
 	if (rv >= 0)
 		rv = SocketEngine::Listen(this, ServerInstance->Config->MaxConn);

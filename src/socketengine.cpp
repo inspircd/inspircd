@@ -217,12 +217,6 @@ int SocketEngine::NonBlocking(int fd)
 #endif
 }
 
-void SocketEngine::SetReuse(int fd)
-{
-	int on = 1;
-	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&on), sizeof(on));
-}
-
 ssize_t SocketEngine::RecvFrom(EventHandler* eh, void* buf, size_t len, int flags, sockaddr* from, socklen_t* fromlen)
 {
 	ssize_t nbRecvd = recvfrom(eh->GetFd(), static_cast<char*>(buf), len, flags, from, fromlen);
