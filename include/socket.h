@@ -95,6 +95,9 @@ namespace irc
 			/** Determines whether this socket address is a local endpoint. */
 			bool is_local() const;
 
+			/** Determines whether this socket address is an IPv4 or IPv6 address. */
+			inline bool is_ip() const { return family() == AF_INET || family() == AF_INET6; }
+
 			/** Returns the TCP port number of the socket address or 0 if not relevant to this family. */
 			in_port_t port() const;
 

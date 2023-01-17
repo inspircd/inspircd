@@ -324,7 +324,7 @@ public:
 		}
 
 		// The ident protocol requires that clients are connecting over a protocol with ports.
-		if (user->client_sa.family() != AF_INET && user->client_sa.family() != AF_INET6)
+		if (!user->client_sa.is_ip())
 			return;
 
 		// We don't want to look this up once the user has connected.

@@ -110,7 +110,7 @@ public:
 	Geolocation::Location* GetLocation(irc::sockets::sockaddrs& sa) override
 	{
 		// Skip trying to look up a UNIX socket.
-		if (sa.family() != AF_INET && sa.family() != AF_INET6)
+		if (!sa.is_ip())
 			return nullptr;
 
 		// Attempt to look up the socket address.

@@ -251,10 +251,7 @@ struct CloakInfo final
 
 	std::string Generate(LocalUser* user) override ATTR_NOT_NULL(2)
 	{
-		if (!Hash)
-			return {};
-
-		if (user->client_sa.family() != AF_INET && user->client_sa.family() != AF_INET6)
+		if (!Hash || !user->client_sa.is_ip())
 			return {};
 
 		return GenCloak(user->client_sa, user->GetIPString(), user->GetRealHost());

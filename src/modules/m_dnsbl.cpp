@@ -446,7 +446,7 @@ public:
 			return;
 
 		// Clients can't be in a DNSBL if they aren't connected via IPv4 or IPv6.
-		if (user->client_sa.family() != AF_INET && user->client_sa.family() != AF_INET6)
+		if (!user->client_sa.is_ip())
 			return;
 
 		if (!user->GetClass()->config->getBool("usednsbl", true))
