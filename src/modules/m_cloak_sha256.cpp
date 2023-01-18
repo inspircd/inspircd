@@ -155,7 +155,7 @@ private:
 #endif
 
 		// If libpsl failed to find a suffix or wasn't available fall back.
-		if (visiblepart.empty())
+		if (visiblepart.empty() && parts)
 			visiblepart = Cloak::VisiblePart(host, parts, separator);
 
 		// Convert the host to lowercase to avoid ban evasion.
@@ -188,9 +188,9 @@ public:
 	SHA256Method(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const std::string& k, psl_ctx_t* p, bool ch) ATTR_NOT_NULL(2)
 		: Cloak::Method(engine)
 		, cloakhost(ch)
-		, hostparts(tag->getUInt("hostparts", 3, 1, UINT_MAX))
+		, hostparts(tag->getUInt("hostparts", 3, 0, ServerInstance->Config->Limits.MaxHost / 2))
 		, key(k)
-		, pathparts(tag->getUInt("pathparts", 1, 1, ServerInstance->Config->Limits.MaxHost / 2))
+		, pathparts(tag->getUInt("pathparts", 1, 0, ServerInstance->Config->Limits.MaxHost / 2))
 		, prefix(tag->getString("prefix"))
 #ifdef HAS_LIBPSL
 		, psl(p)
