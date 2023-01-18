@@ -53,7 +53,7 @@ class CommandNicklock : public Command
 
 		if ((!target) || (target->registered != REG_ALL))
 		{
-			user->WriteNotice("*** No such nickname: '" + parameters[0] + "'");
+			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			return CMD_FAILURE;
 		}
 
@@ -113,7 +113,7 @@ class CommandNickunlock : public Command
 
 		if (!target)
 		{
-			user->WriteNotice("*** No such nickname: '" + parameters[0] + "'");
+			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			return CMD_FAILURE;
 		}
 
