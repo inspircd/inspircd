@@ -73,7 +73,6 @@ public:
 
 /** Base class for cloak methods. */
 class Cloak::Method
-	: public Cullable
 {
 private:
 	/** The name of the engine that created this method. */
@@ -86,6 +85,8 @@ protected:
 	}
 
 public:
+	virtual ~Method() = default;
+
 	/** Generates a cloak for the specified user.
 	 * @param user The user to generate a cloak for.
 	 */

@@ -65,9 +65,13 @@ namespace Log
 
 /** Base class for logging methods. */
 class CoreExport Log::Method
-	: public Cullable
 {
+protected:
+	Method() = default;
+
 public:
+	virtual ~Method() = default;
+
 	/** Determines whether this logging method accepts cached messages. */
 	virtual bool AcceptsCachedMessages() const { return true; }
 
