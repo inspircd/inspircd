@@ -591,9 +591,11 @@
 #  case      - The case of the cloak table. Can be set to "upper" or  #
 #              "lower". Defaults to "lower".                          #
 #                                                                     #
-#  hostparts - The maximum number of hostname labels or UNIX socket   #
-#              path segments that should be visible on the end of a   #
-#              host. Defaults to 3.                                   #
+#  hostparts - The maximum number of hostname labels that should be   #
+#              visible on the end of a host. Defaults to 3.           #
+#                                                                     #
+#  pathparts - The maximum number of UNIX socket path segments that   #
+#              should be visible on the end of a host. Defaults to 1. #
 #                                                                     #
 #  psl       - If non-empty then the path to a Mozilla Public Suffix  #
 #              List database to use for finding the visible part of a #
@@ -613,6 +615,7 @@
 #       suffix="ip"
 #       case="lower"
 #       hostparts="3"
+#       pathparts="1"
 #       psl="system">
 #
 #<cloak mode="hmac-sha256-ip"
@@ -620,7 +623,7 @@
 #       prefix="MyNet"
 #       suffix="ip"
 #       case="lower"
-#       hostparts="3">
+#       pathparts="1">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Codepage module: Allows using a custom 8-bit codepage for nicknames

@@ -61,6 +61,9 @@ private:
 	// The secret used for generating cloaks.
 	const std::string key;
 
+	// The number of parts of the UNIX socket path shown.
+	const unsigned long pathparts;
+
 	// The prefix for cloaks (e.g. MyNet).
 	const std::string prefix;
 
@@ -87,7 +90,7 @@ private:
 			case AF_INET6:
 				return CloakIPv6(sa.in6.sin6_addr.s6_addr);
 			case AF_UNIX:
-				return CloakHost(sa.un.sun_path, '/');
+				return CloakHost(sa.un.sun_path, '/', pathparts);
 		}
 
 		// Should never be reached.
@@ -137,7 +140,7 @@ private:
 		return Wrap(InspIRCd::Format("%s:%s:%s", alpha.c_str(), beta.c_str(), gamma.c_str()), suffix, ':');
 	}
 
-	std::string CloakHost(const std::string& host, char separator)
+	std::string CloakHost(const std::string& host, char separator, unsigned long parts)
 	{
 		// Attempt to divine the public part of the hostname.
 		std::string visiblepart;
@@ -153,7 +156,7 @@ private:
 
 		// If libpsl failed to find a suffix or wasn't available fall back.
 		if (visiblepart.empty())
-			visiblepart = Cloak::VisiblePart(host, hostparts, separator);
+			visiblepart = Cloak::VisiblePart(host, parts, separator);
 
 		// Convert the host to lowercase to avoid ban evasion.
 		std::string lowerhost(host.length(), '\0');
@@ -187,6 +190,7 @@ public:
 		, cloakhost(ch)
 		, hostparts(tag->getUInt("hostparts", 3, 1, UINT_MAX))
 		, key(k)
+		, pathparts(tag->getUInt("pathparts", 1, 1, ServerInstance->Config->Limits.MaxHost / 2))
 		, prefix(tag->getString("prefix"))
 #ifdef HAS_LIBPSL
 		, psl(p)
@@ -217,7 +221,7 @@ public:
 		if (!cloakhost || (sa.from(user->GetRealHost()) && sa.addr() == user->client_sa.addr()))
 			return CloakAddress(user->client_sa);
 
-		return CloakHost(user->GetRealHost(), '.');
+		return CloakHost(user->GetRealHost(), '.', hostparts);
 	}
 
 	std::string Generate(const std::string& hostip) override
@@ -230,7 +234,7 @@ public:
 			return CloakAddress(sa);
 
 		if (cloakhost)
-			return CloakHost(hostip, '.');
+			return CloakHost(hostip, '.', hostparts);
 
 		return {}; // Only reachable on hmac-sha256-ip.
 	}
