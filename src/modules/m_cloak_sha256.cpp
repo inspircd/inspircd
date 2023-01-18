@@ -275,15 +275,22 @@ private:
 	// Whether to cloak the hostname if available.
 	const bool cloakhost;
 
+	// Dynamic reference to the sha256 implementation.
+	dynamic_reference_nocheck<HashProvider> sha256;
+
 public:
 	SHA256Engine(Module* Creator, const std::string& Name, bool ch)
 		: Cloak::Engine(Creator, Name)
 		, cloakhost(ch)
+		, sha256(Creator, "hash/sha256")
 	{
 	}
 
 	Cloak::MethodPtr Create(const std::shared_ptr<ConfigTag>& tag, bool primary) override
 	{
+		if (!sha256)
+			throw ModuleException(creator, "Unable to create a " + name.substr(6) + " cloak without the sha2 module, at" + tag->source.str());
+
 		// Ensure that we have the <cloak:key> parameter.
 		const std::string key = tag->getString("key");
 		if (key.length() < minkeylen)

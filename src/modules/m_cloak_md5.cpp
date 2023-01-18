@@ -273,16 +273,22 @@ class MD5Engine final
 {
 private:
 	bool halfcloak;
+	dynamic_reference_nocheck<HashProvider> md5;
 
 public:
 	MD5Engine(Module* Creator, const std::string& Name, bool hc)
 		: Cloak::Engine(Creator, Name)
 		, halfcloak(hc)
+		, md5(Creator, "hash/md5")
 	{
 	}
 
 	Cloak::MethodPtr Create(const std::shared_ptr<ConfigTag>& tag, bool primary) override
 	{
+		// Check any dependent modules are loaded.
+		if (!md5)
+			throw ModuleException(creator, "Unable to create a " + name.substr(6) + " cloak without the md5 module, at" + tag->source.str());
+
 		// Ensure that we have the <cloak:key> parameter.
 		const std::string key = tag->getString("key");
 		if (key.empty())
