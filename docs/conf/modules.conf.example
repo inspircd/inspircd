@@ -609,7 +609,7 @@
 # be used for checking if a user is banned in a channel.              #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #
-#<cloak mode="hmac-sha256"
+#<cloak method="hmac-sha256"
 #       key="changeme"
 #       prefix="MyNet"
 #       suffix="ip"
@@ -618,7 +618,7 @@
 #       pathparts="1"
 #       psl="system">
 #
-#<cloak mode="hmac-sha256-ip"
+#<cloak method="hmac-sha256-ip"
 #       key="changeme"
 #       prefix="MyNet"
 #       suffix="ip"
