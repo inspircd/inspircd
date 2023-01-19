@@ -39,6 +39,7 @@
 
 
 #include <mysql.h>
+#include <mysql_version.h>
 
 #include "inspircd.h"
 #include "threadsocket.h"
@@ -445,6 +446,9 @@ void ModuleSQL::init()
 {
 	if (mysql_library_init(0, nullptr, nullptr))
 		throw ModuleException(this, "Unable to initialise the MySQL library!");
+
+	ServerInstance->Logs.Normal(MODNAME, "Module was compiled against MySQL version %d.%d.%d and is running against version %s",
+		MYSQL_VERSION_ID / 10000, MYSQL_VERSION_ID / 100 % 100, MYSQL_VERSION_ID % 100, mysql_get_client_info());
 
 	Dispatcher = new DispatcherThread(this);
 	Dispatcher->Start();

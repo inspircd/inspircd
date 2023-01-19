@@ -334,6 +334,14 @@ public:
 		, ipcloak(this, "hmac-sha256-ip", false)
 	{
 	}
+
+#ifdef HAS_LIBPSL
+	void init() override
+	{
+		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against libpsl version %s and is running against version %s",
+			PSL_VERSION, psl_get_version());
+	}
+#endif
 };
 
 MODULE_INIT(ModuleCloakSHA256)

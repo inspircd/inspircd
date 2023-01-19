@@ -946,7 +946,9 @@ public:
 	{
 		char verbuf[16]; // Should be at least 9 bytes in size
 		mbedtls_version_get_string(verbuf);
-		ServerInstance->Logs.Normal(MODNAME, "mbedTLS lib version %s module was compiled for " MBEDTLS_VERSION_STRING, verbuf);
+
+		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against mbedTLS version %s and is running against version %s",
+			MBEDTLS_VERSION_STRING, verbuf);
 
 		if (!ctr_drbg.Seed(entropy))
 			throw ModuleException(this, "CTR DRBG seed failed");

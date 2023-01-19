@@ -37,6 +37,7 @@
 
 
 #include <libpq-fe.h>
+#include <pg_config.h>
 
 #include "inspircd.h"
 #include "modules/sql.h"
@@ -573,6 +574,21 @@ public:
 	{
 		delete retimer;
 		ClearAllConnections();
+	}
+
+	void init() override
+	{
+		int version = PQlibVersion();
+		int minor = version / 100 % 100;
+		int revision = version % 100;
+		if (version >= 10'00'00)
+		{
+			// Ref: https://www.postgresql.org/docs/current/libpq-misc.html#LIBPQ-PQLIBVERSION
+			minor = revision;
+			revision = 0;
+		}
+		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against libpq version %s and is running against version %d.%d.%d",
+			PG_VERSION, version / 10000, minor, revision);
 	}
 
 	void ReadConfig(ConfigStatus& status) override

@@ -54,7 +54,10 @@
 
 #if OPENSSL_VERSION_NUMBER < 0x10101000L
 # error OpenSSL 1.1.1 or newer is required by the ssl_openssl module.
-#elif OPENSSL_VERSION_NUMBER >= 0x30000000L
+#elif OPENSSL_VERSION_NUMBER < 0x30000000L
+# define OPENSSL_VERSION_STR OPENSSL_VERSION_TEXT
+# define OPENSSL_VERSION_STRING OPENSSL_VERSION
+#else
 # define INSPIRCD_OPENSSL_AUTO_DH
 #endif
 
@@ -996,7 +999,8 @@ public:
 
 	void init() override
 	{
-		ServerInstance->Logs.Normal(MODNAME, "OpenSSL lib version \"%s\" module was compiled for \"" OPENSSL_VERSION_TEXT "\"", OpenSSL_version(OPENSSL_VERSION));
+		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against OpenSSL version %s and is running against version %s",
+			OPENSSL_VERSION_STR, OpenSSL_version(OPENSSL_VERSION_STRING));
 
 		// Register application specific data
 		char exdatastr[] = "inspircd";

@@ -245,6 +245,12 @@ public:
 		ClearConns();
 	}
 
+	void init() override
+	{
+		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against SQLite version %s and is running against version %s",
+			SQLITE_VERSION, sqlite3_libversion());
+	}
+
 	void ClearConns()
 	{
 		for (const auto& [_, conn] : conns)

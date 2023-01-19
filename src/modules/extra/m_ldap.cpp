@@ -51,6 +51,9 @@
 # define LDAP_STR(X) const_cast<PSTR>((X).c_str())
 # define LDAP_SASL_SIMPLE static_cast<PSTR>(0)
 # define LDAP_TIME(X) reinterpret_cast<PLDAP_TIMEVAL>(&(X))
+# define LDAP_VENDOR_VERSION_MAJOR (LDAP_VERSION / 100)
+# define LDAP_VENDOR_VERSION_MINOR (LDAP_VERSION / 10 % 10)
+# define LDAP_VENDOR_VERSION_PATCH (LDAP_VERSION / 10)
 # define ldap_first_message ldap_first_entry
 # define ldap_next_message ldap_next_entry
 # define ldap_unbind_ext(LDAP, UNUSED1, UNUSED2) ldap_unbind(LDAP)
@@ -601,6 +604,12 @@ class ModuleLDAP final
 	ServiceMap LDAPServices;
 
 public:
+	void init() override
+	{
+		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against LDAP (%s) version %d.%d.%d",
+			LDAP_VENDOR_NAME, LDAP_VENDOR_VERSION_MAJOR, LDAP_VENDOR_VERSION_MINOR,
+			LDAP_VENDOR_VERSION_PATCH);
+	}
 	void ReadConfig(ConfigStatus& status) override
 	{
 		ServiceMap conns;

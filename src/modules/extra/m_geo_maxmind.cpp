@@ -164,6 +164,13 @@ public:
 		MMDB_close(&geoapi.mmdb);
 	}
 
+	void init() override
+	{
+		ServerInstance->Logs.Normal(MODNAME, "%s is running against libmaxminddb version %s",
+			MODNAME, MMDB_lib_version());
+
+	}
+
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("maxmind");

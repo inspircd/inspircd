@@ -1114,7 +1114,9 @@ public:
 
 	void init() override
 	{
-		ServerInstance->Logs.Normal(MODNAME, "GnuTLS lib version %s module was compiled for " GNUTLS_VERSION, gnutls_check_version(nullptr));
+		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against GnuTLS version %s and is running against version %s",
+			GNUTLS_VERSION, gnutls_check_version(nullptr));
+
 		ServerInstance->GenRandom = GnuTLS::GenRandom;
 	}
 

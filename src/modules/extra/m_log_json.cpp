@@ -185,6 +185,12 @@ public:
 		, stdoutlog(this, "json-stdout", stdout)
 	{
 	}
+
+	void init() override
+	{
+		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against RapidJSON version %s",
+			RAPIDJSON_VERSION_STRING);
+	}
 };
 
 MODULE_INIT(ModuleLogJSON)
