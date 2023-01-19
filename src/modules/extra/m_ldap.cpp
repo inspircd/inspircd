@@ -26,6 +26,7 @@
 /// $PackageInfo: require_system("arch") libldap
 /// $PackageInfo: require_system("centos") openldap-devel
 /// $PackageInfo: require_system("debian") libldap2-dev
+/// $PackageInfo: require_system("rocky") openldap-devel
 /// $PackageInfo: require_system("ubuntu") libldap2-dev
 
 #include "inspircd.h"

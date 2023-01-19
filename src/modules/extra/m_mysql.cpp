@@ -30,10 +30,10 @@
 /// $LinkerFlags: execute("mysql_config --libs_r" "MYSQL_LDFLAGS" "-lmysqlclient")
 
 /// $PackageInfo: require_system("arch") mariadb-libs
-/// $PackageInfo: require_system("centos" "6.0" "6.99") mysql-devel
-/// $PackageInfo: require_system("centos" "7.0") mariadb-devel
-/// $PackageInfo: require_system("darwin") mysql-connector-c
+/// $PackageInfo: require_system("centos") mysql-devel
+/// $PackageInfo: require_system("darwin") mysql-client
 /// $PackageInfo: require_system("debian") libmysqlclient-dev
+/// $PackageInfo: require_system("rocky") mysql-devel
 /// $PackageInfo: require_system("ubuntu") libmysqlclient-dev
 
 #ifdef __GNUC__

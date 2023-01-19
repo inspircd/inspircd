@@ -28,6 +28,7 @@
 /// $PackageInfo: require_system("centos") pcre-devel
 /// $PackageInfo: require_system("darwin") pcre
 /// $PackageInfo: require_system("debian") libpcre3-dev
+/// $PackageInfo: require_system("rocky") pcre-devel
 /// $PackageInfo: require_system("ubuntu") libpcre3-dev
 
 

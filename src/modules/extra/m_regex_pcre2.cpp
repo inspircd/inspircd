@@ -24,6 +24,7 @@
 /// $PackageInfo: require_system("centos") pcre2-devel
 /// $PackageInfo: require_system("darwin") pcre2
 /// $PackageInfo: require_system("debian") libpcre2-dev
+/// $PackageInfo: require_system("rocky") pcre2-devel
 /// $PackageInfo: require_system("ubuntu") libpcre2-dev
 
 

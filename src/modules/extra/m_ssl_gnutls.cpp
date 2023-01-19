@@ -39,6 +39,7 @@
 /// $PackageInfo: require_system("centos") gnutls-devel pkgconfig
 /// $PackageInfo: require_system("darwin") gnutls pkg-config
 /// $PackageInfo: require_system("debian") gnutls-bin libgnutls28-dev pkg-config
+/// $PackageInfo: require_system("rocky") gnutls-devel pkgconfig
 /// $PackageInfo: require_system("ubuntu") gnutls-bin libgnutls28-dev pkg-config
 
 #include "inspircd.h"
