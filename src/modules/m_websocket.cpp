@@ -592,10 +592,6 @@ public:
 		return wsret;
 	}
 
-	void OnStreamSocketClose(StreamSocket* sock) override
-	{
-	}
-
 	bool Ping() override
 	{
 		if (!config.nativeping)

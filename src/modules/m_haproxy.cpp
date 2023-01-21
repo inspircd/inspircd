@@ -413,11 +413,6 @@ public:
 		// We should never reach this point.
 		return -1;
 	}
-
-	void OnStreamSocketClose(StreamSocket* sock) override
-	{
-		// We don't need to implement this.
-	}
 };
 
 void HAProxyHookProvider::OnAccept(StreamSocket* sock, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server)

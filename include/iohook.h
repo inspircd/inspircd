@@ -156,6 +156,9 @@ public:
 	{
 	}
 
+	/** @copydoc IOHook::OnStreamSocketClose */
+	void OnStreamSocketClose(StreamSocket* sock) override { }
+
 	/** Get all queued up data which is ready to go down the hook chain
 	 * @return SendQueue containing all data waiting to go down the hook chain
 	 */
