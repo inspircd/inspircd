@@ -529,7 +529,7 @@ public:
 	}
 
 	/** Sets the value of a socket option.
-	 * @param fd The socket to change the options of.
+	 * @param eh The socket to change the options of.
 	 * @param level The level at which to change the socket options.
 	 * @param name The option to change the value of.
 	 * @param value The value to set.

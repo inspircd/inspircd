@@ -315,6 +315,7 @@ public:
 	 * @param tag the tag that contains bind information.
 	 * @param sa The endpoint to listen on.
 	 * @param old_ports Previously listening ports that may be on the same endpoint.
+	 * @param protocol The protocol to bind with or 0 to determine from the endpoint.
 	 */
 	bool BindPort(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& sa, std::vector<ListenSocket*>& old_ports, int protocol);
 
