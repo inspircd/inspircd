@@ -2466,8 +2466,11 @@
 #              the server will use the IP address specified by those HTTP
 #              headers. You should NOT enable this unless you are using
 #              a HTTP proxy like nginx as it will allow IP spoofing.
+# nativeping:  Whether to check client connectivity using WebSocket ping
+#              messages instead of IRC ping messages. Defaults to yes.
 #<websocket defaultmode="text"
-#           proxyranges="192.0.2.0/24 198.51.100.*">
+#           proxyranges="192.0.2.0/24 198.51.100.*"
+#           nativeping="yes">
 #
 # If you use the websocket module you MUST specify one or more origins
 # which are allowed to connect to the server. You should set this as

@@ -114,6 +114,11 @@ public:
 	 *  socket is still connected), -1 if there was an error or close
 	 */
 	virtual int OnStreamSocketRead(StreamSocket* sock, std::string& recvq) = 0;
+
+	/** Sends a ping to the remote client to check whether it is still connected.
+	 * @return True if the client was pinged; otherwise, false.
+	 */
+	virtual bool Ping() { return false; }
 };
 
 class IOHookMiddle

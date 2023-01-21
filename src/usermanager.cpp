@@ -72,11 +72,24 @@ namespace
 			return;
 		}
 
-		// Send a ping to the client.
-		ClientProtocol::Messages::Ping ping;
-		user->Send(ServerInstance->GetRFCEvents().ping, ping);
 		user->lastping = 0;
 		user->nextping = ServerInstance->Time() + user->GetClass()->pingtime;
+
+		// If the user has an I/O hook that can handle pinging use that instead.
+		IOHook* hook = user->eh.GetIOHook();
+		while (hook)
+		{
+			if (hook->Ping())
+				return; // Client has been pinged.
+
+			IOHookMiddle* middlehook = IOHookMiddle::ToMiddleHook(hook);
+			hook = middlehook ? middlehook->GetNextHook() : nullptr;
+		}
+
+
+		// Send a ping to the client using an IRC message.
+		ClientProtocol::Messages::Ping ping;
+		user->Send(ServerInstance->GetRFCEvents().ping, ping);
 	}
 
 	void CheckConnectionTimeout(LocalUser* user)

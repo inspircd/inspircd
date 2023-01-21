@@ -56,6 +56,9 @@ struct WebSocketConfig final
 
 	// The IP ranges which send trustworthy X-Real-IP or X-Forwarded-For headers.
 	ProxyRanges proxyranges;
+
+	// Whether to send WebSocket ping messages instead of IRC ping messages.
+	bool nativeping;
 };
 
 class WebSocketHookProvider final
@@ -276,15 +279,23 @@ class WebSocketHook final
 
 		std::string appdata;
 		const int result = HandleAppData(sock, appdata, false);
-		// If it's a pong stop here regardless of the result so we won't generate a reply
-		if ((result <= 0) || (!isping))
+		if (result <= 0)
 			return result;
 
-		StreamSocket::SendQueue::Element elem = PrepareSendQElem(appdata.length(), OP_PONG);
-		elem.append(appdata);
-		GetSendQ().push_back(elem);
+		if (isping)
+		{
+			StreamSocket::SendQueue::Element elem = PrepareSendQElem(appdata.length(), OP_PONG);
+			elem.append(appdata);
+			GetSendQ().push_back(elem);
 
-		SocketEngine::ChangeEventMask(sock, FD_ADD_TRIAL_WRITE);
+			SocketEngine::ChangeEventMask(sock, FD_ADD_TRIAL_WRITE);
+		}
+		else if (sock->type == StreamSocket::SS_USER && config.nativeping)
+		{
+			// Pong reply on user socket; reset their idle time.
+			UserIOHandler* ioh = static_cast<UserIOHandler*>(sock);
+			ioh->user->lastping = 1;
+		}
 		return 1;
 	}
 
@@ -584,6 +595,20 @@ public:
 	void OnStreamSocketClose(StreamSocket* sock) override
 	{
 	}
+
+	bool Ping() override
+	{
+		if (!config.nativeping)
+			return false;
+
+		StreamSocket::SendQueue& mysendq = GetSendQ();
+
+		const std::string& message = ServerInstance->Config->GetServerName();
+		mysendq.push_back(PrepareSendQElem(message.length(), OP_PING));
+		mysendq.push_back(message);
+
+		return true;
+	}
 };
 
 void WebSocketHookProvider::OnAccept(StreamSocket* sock, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server)
@@ -639,6 +664,8 @@ public:
 		irc::spacesepstream proxyranges(tag->getString("proxyranges"));
 		for (std::string proxyrange; proxyranges.GetToken(proxyrange); )
 			config.proxyranges.push_back(proxyrange);
+
+		config.nativeping = tag->getBool("nativeping", true);
 
 		// Everything is okay; apply the new config.
 		hookprov->config = config;
