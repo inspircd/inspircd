@@ -30,16 +30,17 @@
 class HostRule final
 {
 public:
-	enum HostChangeAction
+	enum class HostChangeAction
+		: uint8_t
 	{
 		// Add the user's account name to their hostname.
-		HCA_ADDACCOUNT,
+		ADD_ACCOUNT,
 
 		// Add the user's nickname to their hostname.
-		HCA_ADDNICK,
+		ADD_NICK,
 
 		// Set the user's hostname to the specific value.
-		HCA_SET
+		SET,
 	};
 
 private:
@@ -71,7 +72,7 @@ private:
 
 public:
 	HostRule(const std::shared_ptr<ConfigTag>& tag, const std::string& Mask, const std::string& Host)
-		: action(HCA_SET)
+		: action(HostChangeAction::SET)
 		, host(Host)
 		, mask(Mask)
 	{
@@ -168,12 +169,12 @@ public:
 			if (stdalgo::string::equalsci(action, "addaccount"))
 			{
 				// The hostname is in the format [prefix]<account>[suffix].
-				rules.emplace_back(tag, HostRule::HCA_ADDACCOUNT, mask, tag->getString("prefix"), tag->getString("suffix"));
+				rules.emplace_back(tag, HostRule::HostChangeAction::ADD_ACCOUNT, mask, tag->getString("prefix"), tag->getString("suffix"));
 			}
 			else if (stdalgo::string::equalsci(action, "addnick"))
 			{
 				// The hostname is in the format [prefix]<nick>[suffix].
-				rules.emplace_back(tag, HostRule::HCA_ADDNICK, mask, tag->getString("prefix"), tag->getString("suffix"));
+				rules.emplace_back(tag, HostRule::HostChangeAction::ADD_NICK, mask, tag->getString("prefix"), tag->getString("suffix"));
 			}
 			else if (stdalgo::string::equalsci(action, "set"))
 			{
@@ -215,7 +216,7 @@ public:
 				continue;
 
 			std::string newhost;
-			if (rule.GetAction() == HostRule::HCA_ADDACCOUNT)
+			if (rule.GetAction() == HostRule::HostChangeAction::ADD_ACCOUNT)
 			{
 				// Retrieve the account name.
 				const std::string* accountptr = accountapi ? accountapi->GetAccountName(user) : nullptr;
@@ -230,7 +231,7 @@ public:
 				// Create the hostname.
 				rule.Wrap(accountname, newhost);
 			}
-			else if (rule.GetAction() == HostRule::HCA_ADDNICK)
+			else if (rule.GetAction() == HostRule::HostChangeAction::ADD_NICK)
 			{
 				// Remove invalid hostname characters.
 				const std::string nickname = CleanName(user->nick);
@@ -240,7 +241,7 @@ public:
 				// Create the hostname.
 				rule.Wrap(nickname, newhost);
 			}
-			else if (rule.GetAction() == HostRule::HCA_SET)
+			else if (rule.GetAction() == HostRule::HostChangeAction::SET)
 			{
 				newhost.assign(rule.GetHost());
 			}

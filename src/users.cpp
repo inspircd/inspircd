@@ -753,7 +753,7 @@ void User::WriteNumeric(const Numeric::Numeric& numeric)
 
 void User::WriteRemoteNotice(const std::string& text)
 {
-	ServerInstance->PI->SendMessage(this, text, MSG_NOTICE);
+	ServerInstance->PI->SendMessage(this, text, MessageType::NOTICE);
 }
 
 void LocalUser::WriteRemoteNotice(const std::string& text)
@@ -981,7 +981,7 @@ void User::WriteNotice(const std::string& text)
 	if (!localuser)
 		return;
 
-	ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, localuser, text, MSG_NOTICE);
+	ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, localuser, text, MessageType::NOTICE);
 	localuser->Send(ServerInstance->GetRFCEvents().privmsg, msg);
 }
 
@@ -1234,10 +1234,10 @@ OperAccount::OperAccount(const std::string& n, const std::shared_ptr<OperType>& 
 	, passwordhash(t->getString("hash", "plaintext", 1))
 	, type(o ? o->GetName() : n)
 {
-	autologin = t->getEnum("autologin", AL_NEVER, {
-		{ "strict",  AL_STRICT  },
-		{ "relaxed", AL_RELAXED },
-		{ "never",   AL_NEVER   },
+	autologin = t->getEnum("autologin", AutoLogin::NEVER, {
+		{ "strict",  AutoLogin::STRICT  },
+		{ "relaxed", AutoLogin::RELAXED },
+		{ "never",   AutoLogin::NEVER   },
 	});
 
 	if (o)
@@ -1256,13 +1256,13 @@ bool OperAccount::CanAutoLogin(LocalUser* user) const
 {
 	switch (autologin)
 	{
-		case AL_STRICT:
+		case AutoLogin::STRICT:
 			return user->nick == GetName();
 
-		case AL_RELAXED:
+		case AutoLogin::RELAXED:
 			return true;
 
-		case AL_NEVER:
+		case AutoLogin::NEVER:
 			return false;
 	}
 

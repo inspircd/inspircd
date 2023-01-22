@@ -25,13 +25,14 @@
 #include "modules/exemption.h"
 #include "numerichelper.h"
 
-enum AntiCapsMethod
+enum class AntiCapsMethod
+	: uint8_t
 {
-	ACM_BAN,
-	ACM_BLOCK,
-	ACM_MUTE,
-	ACM_KICK,
-	ACM_KICK_BAN
+	BAN,
+	BLOCK,
+	MUTE,
+	KICK,
+	KICK_BAN,
 };
 
 class AntiCapsSettings final
@@ -60,15 +61,15 @@ private:
 			return false;
 
 		if (irc::equals(methodstr, "ban"))
-			method = ACM_BAN;
+			method = AntiCapsMethod::BAN;
 		else if (irc::equals(methodstr, "block"))
-			method = ACM_BLOCK;
+			method = AntiCapsMethod::BLOCK;
 		else if (irc::equals(methodstr, "mute"))
-			method = ACM_MUTE;
+			method = AntiCapsMethod::MUTE;
 		else if (irc::equals(methodstr, "kick"))
-			method = ACM_KICK;
+			method = AntiCapsMethod::KICK;
 		else if (irc::equals(methodstr, "kickban"))
-			method = ACM_KICK_BAN;
+			method = AntiCapsMethod::KICK_BAN;
 		else
 			return false;
 
@@ -132,19 +133,19 @@ public:
 	{
 		switch (acs->method)
 		{
-			case ACM_BAN:
+			case AntiCapsMethod::BAN:
 				out.append("ban");
 				break;
-			case ACM_BLOCK:
+			case AntiCapsMethod::BLOCK:
 				out.append("block");
 				break;
-			case ACM_MUTE:
+			case AntiCapsMethod::MUTE:
 				out.append("mute");
 				break;
-			case ACM_KICK:
+			case AntiCapsMethod::KICK:
 				out.append("kick");
 				break;
-			case ACM_KICK_BAN:
+			case AntiCapsMethod::KICK_BAN:
 				out.append("kickban");
 				break;
 		}
@@ -274,25 +275,25 @@ public:
 
 		switch (config->method)
 		{
-			case ACM_BAN:
+			case AntiCapsMethod::BAN:
 				InformUser(channel, user, message);
 				CreateBan(channel, user, false);
 				break;
 
-			case ACM_BLOCK:
+			case AntiCapsMethod::BLOCK:
 				InformUser(channel, user, message);
 				break;
 
-			case ACM_MUTE:
+			case AntiCapsMethod::MUTE:
 				InformUser(channel, user, message);
 				CreateBan(channel, user, true);
 				break;
 
-			case ACM_KICK:
+			case AntiCapsMethod::KICK:
 				channel->KickUser(ServerInstance->FakeClient, user, message);
 				break;
 
-			case ACM_KICK_BAN:
+			case AntiCapsMethod::KICK_BAN:
 				CreateBan(channel, user, false);
 				channel->KickUser(ServerInstance->FakeClient, user, message);
 				break;

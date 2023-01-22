@@ -186,7 +186,7 @@ public:
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
-		return HandleMessage(user, target, (details.type == MSG_PRIVMSG ? privmsg : notice));
+		return HandleMessage(user, target, (details.type == MessageType::PRIVMSG ? privmsg : notice));
 	}
 
 	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override

@@ -105,7 +105,7 @@ void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CULis
 
 ModResult ModuleDelayMsg::OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details)
 {
-	return HandleMessage(user, target, details.type == MSG_NOTICE);
+	return HandleMessage(user, target, details.type == MessageType::NOTICE);
 }
 
 ModResult ModuleDelayMsg::OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details)

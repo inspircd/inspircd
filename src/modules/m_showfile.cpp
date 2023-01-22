@@ -73,7 +73,7 @@ public:
 			LocalUser* const localuser = IS_LOCAL(user);
 			for (const auto& line : contents)
 			{
-				ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, localuser, line, ((method == SF_MSG) ? MSG_PRIVMSG : MSG_NOTICE));
+				ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, localuser, line, ((method == SF_MSG) ? MessageType::PRIVMSG : MessageType::NOTICE));
 				localuser->Send(ServerInstance->GetRFCEvents().privmsg, msg);
 			}
 		}

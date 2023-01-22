@@ -85,7 +85,7 @@ public:
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
 		// Allow sending if forcenotice is off, the user is not a bot, or if the message is a notice.
-		if (!forcenotice || !user->IsModeSet(bm) || details.type == MSG_NOTICE)
+		if (!forcenotice || !user->IsModeSet(bm) || details.type == MessageType::NOTICE)
 			return MOD_RES_PASSTHRU;
 
 		// Allow sending PRIVMSGs to services pseudoclients.
@@ -93,7 +93,7 @@ public:
 			return MOD_RES_PASSTHRU;
 
 		// Force the message to be broadcast as a NOTICE.
-		details.type = MSG_NOTICE;
+		details.type = MessageType::NOTICE;
 		return MOD_RES_PASSTHRU;
 	}
 

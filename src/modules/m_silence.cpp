@@ -485,9 +485,9 @@ public:
 			{
 				if (is_ctcp)
 					flag = SilenceEntry::SF_CTCP_CHANNEL;
-				else if (details.type == MSG_NOTICE)
+				else if (details.type == MessageType::NOTICE)
 					flag = SilenceEntry::SF_NOTICE_CHANNEL;
-				else if (details.type == MSG_PRIVMSG)
+				else if (details.type == MessageType::PRIVMSG)
 					flag = SilenceEntry::SF_PRIVMSG_CHANNEL;
 
 				return BuildChannelExempts(user, target.Get<Channel>(), flag, details.exemptions);
@@ -496,9 +496,9 @@ public:
 			{
 				if (is_ctcp)
 					flag = SilenceEntry::SF_CTCP_USER;
-				else if (details.type == MSG_NOTICE)
+				else if (details.type == MessageType::NOTICE)
 					flag = SilenceEntry::SF_NOTICE_USER;
-				else if (details.type == MSG_PRIVMSG)
+				else if (details.type == MessageType::PRIVMSG)
 					flag = SilenceEntry::SF_PRIVMSG_USER;
 
 				if (!CanReceiveMessage(user, target.Get<User>(), flag))

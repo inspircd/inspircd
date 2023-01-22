@@ -49,7 +49,7 @@ public:
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
 	{
-		if ((details.type == MSG_NOTICE) && (target.type == MessageTarget::TYPE_CHANNEL) && (IS_LOCAL(user)))
+		if ((details.type == MessageType::NOTICE) && (target.type == MessageTarget::TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = target.Get<Channel>();
 

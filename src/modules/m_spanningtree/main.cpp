@@ -417,7 +417,7 @@ void ModuleSpanningTree::OnUserPostMessage(User* user, const MessageTarget& targ
 	if (!IS_LOCAL(user))
 		return;
 
-	const char* message_type = (details.type == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE");
+	const char* message_type = (details.type == MessageType::PRIVMSG ? "PRIVMSG" : "NOTICE");
 	switch (target.type)
 	{
 		case MessageTarget::TYPE_USER:

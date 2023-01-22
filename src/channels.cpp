@@ -403,14 +403,14 @@ const char* Channel::ChanModes(bool showsecret)
 
 void Channel::WriteNotice(const std::string& text, char status) const
 {
-	ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, this, text, MSG_NOTICE, status);
+	ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, this, text, MessageType::NOTICE, status);
 	Write(ServerInstance->GetRFCEvents().privmsg, privmsg, status);
 }
 
 void Channel::WriteRemoteNotice(const std::string& text, char status) const
 {
 	WriteNotice(text, status);
-	ServerInstance->PI->SendMessage(this, status, text, MSG_NOTICE);
+	ServerInstance->PI->SendMessage(this, status, text, MessageType::NOTICE);
 }
 
 /* returns the status character for a given user on a channel, e.g. @ for op,
@@ -479,6 +479,6 @@ void Membership::WriteNotice(const std::string& text) const
 	if (!localuser)
 		return;
 
-	ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, this->chan, text, MSG_NOTICE);
+	ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, this->chan, text, MessageType::NOTICE);
 	localuser->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
 }

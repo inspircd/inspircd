@@ -389,7 +389,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 	if (!IS_LOCAL(user))
 		return MOD_RES_PASSTHRU;
 
-	flags = (details.type == MSG_PRIVMSG) ? FLAG_PRIVMSG : FLAG_NOTICE;
+	flags = (details.type == MessageType::PRIVMSG) ? FLAG_PRIVMSG : FLAG_NOTICE;
 
 	const FilterResult* f = this->FilterMatch(user, details.text, flags);
 	if (f)

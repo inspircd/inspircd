@@ -23,16 +23,17 @@
 class Codepage
 {
 public:
-	enum AllowCharacterResult
+	enum class AllowCharacterResult
+		: uint8_t
 	{
 		// The character is allowed in a nick.
-		ACR_OKAY,
+		OKAY,
 
 		// The character is never valid in a nick.
-		ACR_NOT_VALID,
+		NOT_VALID,
 
 		// The character is not valid at the front of a nick.
-		ACR_NOT_VALID_AT_FRONT
+		NOT_VALID_AT_FRONT,
 	};
 
 	// The mapping of lower case characters to upper case characters.
@@ -56,22 +57,22 @@ public:
 			// Nicknames can not begin with a number as that would collide with
 			// a user identifier.
 			if (character >= '0' && character <= '9')
-				return ACR_NOT_VALID_AT_FRONT;
+				return AllowCharacterResult::NOT_VALID_AT_FRONT;
 
 			// Nicknames can not begin with a : as it has special meaning within
 			// the IRC message format.
 			if (character == ':')
-				return ACR_NOT_VALID_AT_FRONT;
+				return AllowCharacterResult::NOT_VALID_AT_FRONT;
 		}
 
 		// Nicknames can never contain NUL, CR, LF, or SPACE as they are either
 		// banned within an IRC message or have special meaning within the IRC
 		// message format.
 		if (!character || character == '\n' || character == '\r' || character == ' ')
-			return ACR_NOT_VALID;
+			return AllowCharacterResult::NOT_VALID;
 
 		// The character is probably okay?
-		return ACR_OKAY;
+		return AllowCharacterResult::OKAY;
 	}
 
 	// Determines whether a nickname is valid.
@@ -99,17 +100,17 @@ public:
 	{
 		// Single byte codepage can, as their name suggests, only be one byte in size.
 		if (character > UCHAR_MAX)
-			return ACR_NOT_VALID;
+			return AllowCharacterResult::NOT_VALID;
 
 		// Check the common allowed character rules.
 		AllowCharacterResult result = Codepage::AllowCharacter(character, front);
-		if (result != ACR_OKAY)
+		if (result != AllowCharacterResult::OKAY)
 			return result;
 
 		// The character is okay.
 		allowedchars.set(character);
 		allowedfrontchars.set(character, front);
-		return ACR_OKAY;
+		return AllowCharacterResult::OKAY;
 	}
 
 	bool IsValidNick(const std::string_view& nick) override
@@ -278,16 +279,16 @@ public:
 				// This cast could be unsafe but it's not obvious how to make it safe.
 				switch (newcodepage->AllowCharacter(static_cast<uint32_t>(pos), front))
 				{
-					case Codepage::ACR_OKAY:
+					case Codepage::AllowCharacterResult::OKAY:
 						ServerInstance->Logs.Debug(MODNAME, "Marked %lu (%.4s) as allowed (front: %s)",
 							pos, reinterpret_cast<unsigned char*>(&pos), front ? "yes" : "no");
 						break;
 
-					case Codepage::ACR_NOT_VALID:
+					case Codepage::AllowCharacterResult::NOT_VALID:
 						throw ModuleException(this, InspIRCd::Format("<cpchars> tag contains a forbidden character: %lu at %s",
 							pos, tag->source.str().c_str()));
 
-					case Codepage::ACR_NOT_VALID_AT_FRONT:
+					case Codepage::AllowCharacterResult::NOT_VALID_AT_FRONT:
 						throw ModuleException(this, InspIRCd::Format("<cpchars> tag contains a forbidden front character: %lu at %s",
 							pos, tag->source.str().c_str()));
 				}

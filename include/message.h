@@ -21,13 +21,14 @@
 #pragma once
 
 /** Whether message was a PRIVMSG or a NOTICE. */
-enum MessageType
+enum class MessageType
+	: uint8_t
 {
 	/** The message is a PRIVMSG. */
-	MSG_PRIVMSG,
+	PRIVMSG,
 
 	/** The message is a NOTICE. */
-	MSG_NOTICE
+	NOTICE,
 };
 
 class CoreExport MessageDetails

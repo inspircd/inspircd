@@ -101,16 +101,16 @@ public:
 	 * @param target The channel to message.
 	 * @param status The status character (e.g. %) required to receive.
 	 * @param text The message to send.
-	 * @param type The message type (MSG_PRIVMSG or MSG_NOTICE)
+	 * @param type The message type (MessageType::PRIVMSG or MessageType::NOTICE)
 	 */
-	virtual void SendMessage(const Channel* target, char status, const std::string& text, MessageType type = MSG_PRIVMSG) { }
+	virtual void SendMessage(const Channel* target, char status, const std::string& text, MessageType type = MessageType::PRIVMSG) { }
 
 	/** Send a message to a user.
 	 * @param target The user to message.
 	 * @param text The message to send.
-	 * @param type The message type (MSG_PRIVMSG or MSG_NOTICE)
+	 * @param type The message type (MessageType::PRIVMSG or MessageType::NOTICE)
 	 */
-	virtual void SendMessage(const User* target, const std::string& text, MessageType type = MSG_PRIVMSG) { }
+	virtual void SendMessage(const User* target, const std::string& text, MessageType type = MessageType::PRIVMSG) { }
 
 	/** Fill a list of servers and information about them.
 	 * @param sl The list of servers to fill.

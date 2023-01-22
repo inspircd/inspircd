@@ -247,23 +247,27 @@ public:
 	bool HasPrivilege(const std::string& priv) const;
 };
 
+#ifdef _WIN32
+# undef STRICT // Defined by Windows SDK.
+#endif
+
 /** Represents an \<oper> from the server config. */
 class CoreExport OperAccount
 	: public OperType
 {
 protected:
 	/** Possible states for whether an oper account can be automatically logged into. */
-	enum AutoLogin
+	enum class AutoLogin
 		: uint8_t
 	{
 		/** Users can automatically log in to this account if they match all fields and their nick matches the account name. */
-		AL_STRICT,
+		STRICT,
 
 		/** Users can automatically log in to this account if they match all fields. */
-		AL_RELAXED,
+		RELAXED,
 
 		/** Users can not automatically log in to this account. */
-		AL_NEVER,
+		NEVER,
 	};
 
 	/** Whether this oper account can be automatically logged into. */

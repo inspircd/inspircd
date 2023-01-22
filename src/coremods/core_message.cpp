@@ -131,7 +131,7 @@ private:
 	{
 		// If the source is local and was not sending a CTCP reply then update their idle time.
 		LocalUser* lsource = IS_LOCAL(source);
-		if (lsource && msgdetails.update_idle && (msgdetails.type != MSG_NOTICE || !msgdetails.IsCTCP()))
+		if (lsource && msgdetails.update_idle && (msgdetails.type != MessageType::NOTICE || !msgdetails.IsCTCP()))
 			lsource->idle_lastmsg = ServerInstance->Time();
 
 		// Inform modules that a message was sent.
@@ -251,7 +251,7 @@ private:
 			return CmdResult::FAILURE;
 
 		// If the target is away then inform the user.
-		if (target->IsAway() && msgdetails.type == MSG_PRIVMSG)
+		if (target->IsAway() && msgdetails.type == MessageType::PRIVMSG)
 			source->WriteNumeric(RPL_AWAY, target->nick, target->awaymsg);
 
 		LocalUser* const localtarget = IS_LOCAL(target);
@@ -410,8 +410,8 @@ private:
 public:
 	ModuleCoreMessage()
 		: Module(VF_CORE | VF_VENDOR, "Provides the NOTICE, PRIVMSG, and SQUERY commands")
-		, cmdprivmsg(this, MSG_PRIVMSG)
-		, cmdnotice(this, MSG_NOTICE)
+		, cmdprivmsg(this, MessageType::PRIVMSG)
+		, cmdnotice(this, MessageType::NOTICE)
 		, cmdsquery(this)
 		, moderatedmode(this, "moderated")
 		, noextmsgmode(this, "noextmsg")

@@ -700,7 +700,7 @@ void ConfigReaderThread::OnStop()
 		if (Config->RawLog && !old->RawLog)
 		{
 			for (auto* luser : ServerInstance->Users.GetLocalUsers())
-				Log::Manager::NotifyRawIO(luser, MSG_PRIVMSG);
+				Log::Manager::NotifyRawIO(luser, MessageType::PRIVMSG);
 		}
 
 		Config = old;

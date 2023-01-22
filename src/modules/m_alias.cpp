@@ -205,7 +205,7 @@ public:
 		if (active)
 			return;
 
-		if ((target.type != MessageTarget::TYPE_CHANNEL) || (details.type != MSG_PRIVMSG))
+		if ((target.type != MessageTarget::TYPE_CHANNEL) || (details.type != MessageType::PRIVMSG))
 		{
 			return;
 		}

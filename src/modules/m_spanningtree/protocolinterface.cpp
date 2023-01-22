@@ -109,7 +109,7 @@ void SpanningTreeProtocolInterface::SendSNONotice(char snomask, const std::strin
 
 void SpanningTreeProtocolInterface::SendMessage(const Channel* target, char status, const std::string& text, MessageType msgtype)
 {
-	const char* cmd = (msgtype == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE");
+	const char* cmd = (msgtype == MessageType::PRIVMSG ? "PRIVMSG" : "NOTICE");
 	CUList exempt_list;
 	ClientProtocol::TagMap tags;
 	Utils->SendChannelMessage(ServerInstance->FakeClient, target, text, status, tags, exempt_list, cmd);
@@ -117,7 +117,7 @@ void SpanningTreeProtocolInterface::SendMessage(const Channel* target, char stat
 
 void SpanningTreeProtocolInterface::SendMessage(const User* target, const std::string& text, MessageType msgtype)
 {
-	CmdBuilder p(msgtype == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE");
+	CmdBuilder p(msgtype == MessageType::PRIVMSG ? "PRIVMSG" : "NOTICE");
 	p.push(target->uuid);
 	p.push_last(text);
 	p.Unicast(target);
