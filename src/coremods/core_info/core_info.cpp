@@ -195,7 +195,7 @@ public:
 			ServerInstance->Parser.CallHandler(command, parameters, user);
 
 		if (ServerInstance->Config->RawLog)
-			Log::Manager::NotifyRawIO(user, MessageType::PRIVMSG);
+			Log::NotifyRawIO(user, MessageType::PRIVMSG);
 	}
 
 	void OnLoadModule(Module* mod) override

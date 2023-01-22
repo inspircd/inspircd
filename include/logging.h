@@ -61,6 +61,12 @@ namespace Log
 	 * @param level The log level to convert.
 	 */
 	CoreExport const char* LevelToString(Level level);
+
+	/** Notify a user that raw I/O logging is enabled.
+	 * @param user The user to notify.
+	 * @param type The type of message to send.
+	 */
+	CoreExport void NotifyRawIO(LocalUser* user, MessageType type);
 }
 
 /** Base class for logging methods. */
@@ -248,12 +254,6 @@ public:
 
 	/** Enables writing rawio logs to the standard output stream. */
 	void EnableDebugMode();
-
-	/** Notify a user that raw I/O logging is enabled.
-	 * @param user The user to notify.
-	 * @param type The type of message to send.
-	 */
-	static void NotifyRawIO(LocalUser* user, MessageType type);
 
 	/** Opens loggers that are specified in the config. */
 	void OpenLogs(bool requiremethods);

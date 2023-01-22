@@ -44,6 +44,12 @@ const char* Log::LevelToString(Log::Level level)
 	return "unknown";
 }
 
+void Log::NotifyRawIO(LocalUser* user, MessageType type)
+{
+	ClientProtocol::Messages::Privmsg msg(ServerInstance->FakeClient, user, "*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.", type);
+	user->Send(ServerInstance->GetRFCEvents().privmsg, msg);
+}
+
 Log::FileMethod::FileMethod(const std::string& n, FILE* fh, unsigned long fl, bool ac)
 	: Timer(15*60, true)
 	, autoclose(ac)
@@ -177,12 +183,6 @@ void Log::Manager::EnableDebugMode()
 	MethodPtr method = stdoutlog.Create(ServerInstance->Config->EmptyTag);
 	loggers.emplace_back(Level::RAWIO, std::move(types), std::move(method), false, &stdoutlog);
 	ServerInstance->Config->RawLog = true;
-}
-
-void Log::Manager::NotifyRawIO(LocalUser* user, MessageType type)
-{
-	ClientProtocol::Messages::Privmsg msg(ServerInstance->FakeClient, user, "*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.", type);
-	user->Send(ServerInstance->GetRFCEvents().privmsg, msg);
 }
 
 void Log::Manager::OpenLogs(bool requiremethods)

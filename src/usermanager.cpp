@@ -232,7 +232,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, const irc::sockets::soc
 	}
 
 	if (ServerInstance->Config->RawLog)
-		Log::Manager::NotifyRawIO(New, MessageType::NOTICE);
+		Log::NotifyRawIO(New, MessageType::NOTICE);
 
 	FOREACH_MOD(OnChangeRemoteAddress, (New));
 	if (!New->quitting)
