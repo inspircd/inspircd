@@ -146,7 +146,7 @@ public:
 		return cloaks->empty() ? nullptr : cloaks;
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
 		// For remote users blindly allow this
 		LocalUser* user = IS_LOCAL(dest);
@@ -155,12 +155,12 @@ public:
 			// Remote setters broadcast mode before host while local setters do the opposite.
 			active = IS_LOCAL(source) ? change.adding : !change.adding;
 			dest->SetMode(this, change.adding);
-			return MODEACTION_ALLOW;
+			return true;
 		}
 
 		// Don't allow the mode change if its a no-op or a spam change.
 		if (change.adding == user->IsModeSet(this) || CheckSpam(user))
-			return MODEACTION_DENY;
+			return false;
 
 		// Penalise changing the mode to avoid spam.
 		if (source == dest)
@@ -171,7 +171,7 @@ public:
 			// Remove the mode and restore their real host.
 			user->SetMode(this, false);
 			user->ChangeDisplayedHost(user->GetRealHost());
-			return MODEACTION_ALLOW;
+			return true;
 		}
 
 		// If a user is not fully connected and their displayed hostname is
@@ -179,7 +179,7 @@ public:
 		// them by services. We should avoid automatically setting cloak on
 		// them in this case.
 		if (!user->IsFullyConnected() && user->GetRealHost() != user->GetDisplayedHost())
-			return MODEACTION_DENY;
+			return false;
 
 		auto* cloaks = GetCloaks(user);
 		if (cloaks)
@@ -187,9 +187,9 @@ public:
 			// We were able to generate cloaks for this user.
 			user->ChangeDisplayedHost(cloaks->front());
 			user->SetMode(this, true);
-			return MODEACTION_ALLOW;
+			return true;
 		}
-		return MODEACTION_DENY;
+		return false;
 	}
 };
 

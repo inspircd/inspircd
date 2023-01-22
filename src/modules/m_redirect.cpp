@@ -41,14 +41,14 @@ public:
 		syntax = "<target>";
 	}
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override
+	bool OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
 		if (IS_LOCAL(source))
 		{
 			if (!ServerInstance->Channels.IsChannel(parameter))
 			{
 				source->WriteNumeric(Numerics::NoSuchChannel(parameter));
-				return MODEACTION_DENY;
+				return false;
 			}
 		}
 
@@ -58,12 +58,12 @@ public:
 			if (!c)
 			{
 				source->WriteNumeric(690, InspIRCd::Format("Target channel %s must exist to be set as a redirect.", parameter.c_str()));
-				return MODEACTION_DENY;
+				return false;
 			}
 			else if (c->GetPrefixValue(source) < OP_VALUE)
 			{
 				source->WriteNumeric(690, InspIRCd::Format("You must be opped on %s to set it as a redirect.", parameter.c_str()));
-				return MODEACTION_DENY;
+				return false;
 			}
 		}
 
@@ -72,7 +72,7 @@ public:
 		 * now catch +L looping in PreJoin. Remove it, since O(n) logic makes me sad, and we catch it anyway. :) -- w00t
 		 */
 		ext.Set(channel, parameter);
-		return MODEACTION_ALLOW;
+		return true;
 	}
 
 	void SerializeParam(Channel* chan, const std::string* str, std::string& out)

@@ -78,13 +78,13 @@ public:
 		syntax = "[*]<messages>:<seconds>";
 	}
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override
+	bool OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
 		std::string::size_type colon = parameter.find(':');
 		if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
+			return false;
 		}
 
 		/* Set up the flood parameters for this channel */
@@ -95,11 +95,11 @@ public:
 		if ((nlines<2) || (nsecs<1))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
+			return false;
 		}
 
 		ext.SetFwd(channel, ban, nsecs, nlines);
-		return MODEACTION_ALLOW;
+		return true;
 	}
 
 	void SerializeParam(Channel* chan, const floodsettings* fs, std::string& out)

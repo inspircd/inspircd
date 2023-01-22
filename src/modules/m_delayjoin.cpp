@@ -47,7 +47,7 @@ public:
 		ranktoset = ranktounset = OP_VALUE;
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
 		if (SimpleChannelMode::OnModeChange(source, dest, channel, change))
 		{
@@ -57,9 +57,9 @@ public:
 			 */
 			for (const auto& [member, _] : channel->GetUsers())
 				RevealUser(member, channel);
-			return MODEACTION_ALLOW;
+			return true;
 		}
-		return MODEACTION_DENY;
+		return false;
 	}
 
 	void RevealUser(User* user, Channel* chan);

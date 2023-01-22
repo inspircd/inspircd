@@ -76,7 +76,7 @@ public:
 	{
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
 		if (change.adding)
 		{
@@ -87,7 +87,7 @@ public:
 					if (!API)
 					{
 						source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, "Unable to determine whether all members of the channel are connected via TLS");
-						return MODEACTION_DENY;
+						return false;
 					}
 
 					size_t nonssl = 0;
@@ -102,15 +102,15 @@ public:
 					{
 						source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, InspIRCd::Format("All members of the channel must be connected via TLS (%zu/%zu are non-TLS)",
 							nonssl, channel->GetUsers().size()));
-						return MODEACTION_DENY;
+						return false;
 					}
 				}
 				channel->SetMode(this, true);
-				return MODEACTION_ALLOW;
+				return true;
 			}
 			else
 			{
-				return MODEACTION_DENY;
+				return false;
 			}
 		}
 		else
@@ -118,10 +118,10 @@ public:
 			if (channel->IsModeSet(this))
 			{
 				channel->SetMode(this, false);
-				return MODEACTION_ALLOW;
+				return true;
 			}
 
-			return MODEACTION_DENY;
+			return false;
 		}
 	}
 };
@@ -141,16 +141,16 @@ public:
 	{
 	}
 
-	ModeAction OnModeChange(User* user, User* dest, Channel* channel, Modes::Change& change) override
+	bool OnModeChange(User* user, User* dest, Channel* channel, Modes::Change& change) override
 	{
 		if (change.adding == dest->IsModeSet(this))
-			return MODEACTION_DENY;
+			return false;
 
 		if (change.adding && IS_LOCAL(user) && (!API || !API->GetCertificate(user)))
-			return MODEACTION_DENY;
+			return false;
 
 		dest->SetMode(this, change.adding);
-		return MODEACTION_ALLOW;
+		return true;
 	}
 };
 

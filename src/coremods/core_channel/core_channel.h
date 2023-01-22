@@ -115,9 +115,9 @@ class ModeChannelKey final
 public:
 	std::string::size_type maxkeylen;
 	ModeChannelKey(Module* Creator);
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 	void SerializeParam(Channel* chan, const std::string* key, std::string& out);
-	ModeAction OnSet(User* source, Channel* chan, std::string& param) override;
+	bool OnSet(User* source, Channel* chan, std::string& param) override;
 	bool IsParameterSecret() override;
 };
 
@@ -128,7 +128,7 @@ public:
 	ModeChannelLimit(Module* Creator);
 	bool ResolveModeConflict(const std::string& their_param, const std::string& our_param, Channel* channel) override;
 	void SerializeParam(Channel* chan, intptr_t n, std::string& out);
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override;
+	bool OnSet(User* source, Channel* channel, std::string& parameter) override;
 };
 
 class ModeChannelOp final

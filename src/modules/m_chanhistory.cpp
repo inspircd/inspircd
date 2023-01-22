@@ -87,20 +87,20 @@ public:
 		syntax = "<max-messages>:<max-duration>";
 	}
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override
+	bool OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
 		std::string::size_type colon = parameter.find(':');
 		if (colon == std::string::npos)
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
+			return false;
 		}
 
 		std::string duration(parameter, colon+1);
 		if ((IS_LOCAL(source)) && ((duration.length() > 10) || (!InspIRCd::IsValidDuration(duration))))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
+			return false;
 		}
 
 		unsigned long len = ConvToNum<unsigned long>(parameter.substr(0, colon));
@@ -108,7 +108,7 @@ public:
 		if (!InspIRCd::Duration(duration, time) || len == 0 || (len > maxlines && IS_LOCAL(source)))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
+			return false;
 		}
 		if (len > maxlines)
 			len = maxlines;
@@ -128,7 +128,7 @@ public:
 		{
 			ext.SetFwd(channel, len, time);
 		}
-		return MODEACTION_ALLOW;
+		return true;
 	}
 
 	void SerializeParam(Channel* chan, const HistoryList* history, std::string& out)

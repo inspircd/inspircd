@@ -40,17 +40,17 @@ public:
 	{
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
 		if (SimpleChannelMode::OnModeChange(source, dest, channel, change))
 		{
 			if (!change.adding)
 				channel->CheckDestroy();
 
-			return MODEACTION_ALLOW;
+			return true;
 		}
 
-		return MODEACTION_DENY;
+		return false;
 	}
 
 	void SetOperOnly(bool value)

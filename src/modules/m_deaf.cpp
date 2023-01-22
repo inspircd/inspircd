@@ -38,15 +38,15 @@ public:
 	{
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (SimpleUserMode::OnModeChange(source, dest, channel, change) == MODEACTION_ALLOW)
+		if (SimpleUserMode::OnModeChange(source, dest, channel, change) == true)
 		{
 			dest->WriteNotice("*** You have enabled user mode +d, deaf mode. This mode means you WILL NOT receive any messages from any channels you are in. If you did NOT mean to do this, use /mode " + dest->nick + " -d.");
-			return MODEACTION_ALLOW;
+			return true;
 		}
 
-		return MODEACTION_DENY;
+		return false;
 	}
 };
 
@@ -60,15 +60,15 @@ public:
 	{
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (SimpleUserMode::OnModeChange(source, dest, channel, change) == MODEACTION_ALLOW)
+		if (SimpleUserMode::OnModeChange(source, dest, channel, change) == true)
 		{
 			dest->WriteNotice("*** You have enabled user mode +D, private deaf mode. This mode means you WILL NOT receive any messages and notices from any nicks. If you did NOT mean to do this, use /mode " + dest->nick + " -D.");
-			return MODEACTION_ALLOW;
+			return true;
 		}
 
-		return MODEACTION_DENY;
+		return false;
 	}
 };
 

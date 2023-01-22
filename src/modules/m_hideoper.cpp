@@ -44,17 +44,17 @@ public:
 	{
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (SimpleUserMode::OnModeChange(source, dest, channel, change) == MODEACTION_DENY)
-			return MODEACTION_DENY;
+		if (SimpleUserMode::OnModeChange(source, dest, channel, change) == false)
+			return false;
 
 		if (change.adding)
 			opercount++;
 		else
 			opercount--;
 
-		return MODEACTION_ALLOW;
+		return true;
 	}
 };
 

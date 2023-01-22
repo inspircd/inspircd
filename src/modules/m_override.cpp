@@ -76,10 +76,10 @@ public:
 	{
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		ModeAction res = SimpleUserMode::OnModeChange(source, dest, channel, change);
-		if (change.adding && res == MODEACTION_ALLOW && IS_LOCAL(dest) && timeout)
+		bool res = SimpleUserMode::OnModeChange(source, dest, channel, change);
+		if (change.adding && res && IS_LOCAL(dest) && timeout)
 			ext.Set(dest, new UnsetTimer(IS_LOCAL(dest), timeout, *this));
 		return res;
 	}

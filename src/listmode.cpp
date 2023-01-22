@@ -155,14 +155,14 @@ unsigned long ListModeBase::GetLowerLimit()
 	return limit;
 }
 
-ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, Modes::Change& change)
+bool ListModeBase::OnModeChange(User* source, User*, Channel* channel, Modes::Change& change)
 {
 	LocalUser* lsource = IS_LOCAL(source);
 	if (change.adding)
 	{
 		// Try to canonicalise the parameter locally.
 		if (lsource && !ValidateParam(lsource, channel, change.param))
-			return MODEACTION_DENY;
+			return false;
 
 		ChanData* cd = extItem.Get(channel);
 		if (cd)
@@ -176,7 +176,7 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, Mod
 				if (lsource)
 					TellAlreadyOnList(lsource, channel, change.param);
 
-				return MODEACTION_DENY;
+				return false;
 			}
 		}
 		else
@@ -190,12 +190,12 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, Mod
 		{
 			// The list size might be 0 so we have to check even if just created.
 			TellListTooLong(lsource, channel, change.param);
-			return MODEACTION_DENY;
+			return false;
 		}
 
 		// Add the new entry to the list.
 		cd->list.emplace_back(change.param, change.set_by.value_or(source->nick), change.set_at.value_or(ServerInstance->Time()));
-		return MODEACTION_ALLOW;
+		return true;
 	}
 	else
 	{
@@ -209,14 +209,14 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, Mod
 					continue; // Doesn't match the proposed removal.
 
 				stdalgo::vector::swaperase(cd->list, it);
-				return MODEACTION_ALLOW;
+				return true;
 			}
 		}
 
 		if (lsource)
 			TellNotSet(lsource, channel, change.param);
 
-		return MODEACTION_DENY;
+		return false;
 	}
 }
 

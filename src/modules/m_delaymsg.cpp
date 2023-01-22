@@ -44,7 +44,7 @@ public:
 		return ConvToNum<intptr_t>(their_param) < ConvToNum<intptr_t>(our_param);
 	}
 
-	ModeAction OnSet(User* source, Channel* chan, std::string& parameter) override;
+	bool OnSet(User* source, Channel* chan, std::string& parameter) override;
 	void OnUnset(User* source, Channel* chan) override;
 
 	void SerializeParam(Channel* chan, intptr_t n, std::string& out)
@@ -78,7 +78,7 @@ public:
 	void ReadConfig(ConfigStatus& status) override;
 };
 
-ModeAction DelayMsgMode::OnSet(User* source, Channel* chan, std::string& parameter)
+bool DelayMsgMode::OnSet(User* source, Channel* chan, std::string& parameter)
 {
 	// Setting a new limit, sanity check
 	intptr_t limit = ConvToNum<intptr_t>(parameter);
@@ -86,7 +86,7 @@ ModeAction DelayMsgMode::OnSet(User* source, Channel* chan, std::string& paramet
 		limit = 1;
 
 	ext.Set(chan, limit);
-	return MODEACTION_ALLOW;
+	return true;
 }
 
 void DelayMsgMode::OnUnset(User* source, Channel* chan)

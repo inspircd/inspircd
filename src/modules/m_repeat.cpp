@@ -150,29 +150,29 @@ public:
 			MemberInfoExt.Unset(memb);
 	}
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override
+	bool OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
 		ChannelSettings settings;
 		if (!ParseSettings(source, parameter, settings))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
+			return false;
 		}
 
 		if ((settings.Backlog > 0) && (settings.Lines > settings.Backlog))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter,
 				"You can't set lines higher than backlog."));
-			return MODEACTION_DENY;
+			return false;
 		}
 
 		LocalUser* localsource = IS_LOCAL(source);
 		if ((localsource) && (!ValidateSettings(localsource, channel, parameter, settings)))
-			return MODEACTION_DENY;
+			return false;
 
 		ext.Set(channel, settings);
 
-		return MODEACTION_ALLOW;
+		return true;
 	}
 
 	bool MatchLine(Membership* memb, ChannelSettings* rs, std::string message)

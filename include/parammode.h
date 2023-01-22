@@ -31,12 +31,12 @@ public:
 		: ModeHandler(Creator, Name, modeletter, ps, MODETYPE_CHANNEL, MC_PARAM) { }
 
 	/** @copydoc ModeHandler::OnModeChange */
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 
 	// Does nothing by default
 	virtual bool IsParameterSecret() { return false; }
 	virtual void OnUnset(User* source, Channel* chan) { }
-	virtual ModeAction OnSet(User* source, Channel* chan, std::string& param) = 0;
+	virtual bool OnSet(User* source, Channel* chan, std::string& param) = 0;
 	virtual void GetParameter(Channel* chan, std::string& out) = 0;
 };
 

@@ -94,13 +94,13 @@ public:
 		syntax = "<nick-changes>:<seconds>";
 	}
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override
+	bool OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
 		std::string::size_type colon = parameter.find(':');
 		if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
+			return false;
 		}
 
 		/* Set up the flood parameters for this channel */
@@ -110,11 +110,11 @@ public:
 		if ((nnicks<1) || (nsecs<1))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
+			return false;
 		}
 
 		ext.SetFwd(channel, nsecs, nnicks);
-		return MODEACTION_ALLOW;
+		return true;
 	}
 
 	void SerializeParam(Channel* chan, const nickfloodsettings* nfs, std::string& out)

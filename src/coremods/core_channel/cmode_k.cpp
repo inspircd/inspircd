@@ -39,25 +39,25 @@ ModeChannelKey::ModeChannelKey(Module* Creator)
 	syntax = "<key>";
 }
 
-ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, Modes::Change& change)
+bool ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, Modes::Change& change)
 {
 	const std::string* key = ext.Get(channel);
 	bool exists = (key != nullptr);
 	if (IS_LOCAL(source))
 	{
 		if (exists == change.adding)
-			return MODEACTION_DENY;
+			return false;
 		if (exists && (change.param != *key))
 		{
 			/* Key is currently set and the correct key wasn't given */
 			source->WriteNumeric(ERR_KEYSET, channel->name, "Channel key already set");
-			return MODEACTION_DENY;
+			return false;
 		}
 	} else {
 		if (exists && change.adding && change.param == *key)
 		{
 			/* no-op, don't show */
-			return MODEACTION_DENY;
+			return false;
 		}
 	}
 
@@ -76,7 +76,7 @@ ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, M
 		// If the password is empty here then it only consisted of commas. This is not
 		// acceptable so we reject the mode change.
 		if (change.param.empty())
-			return MODEACTION_DENY;
+			return false;
 
 		ext.Set(channel, change.param);
 	}
@@ -84,7 +84,7 @@ ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, M
 		ext.Unset(channel);
 
 	channel->SetMode(this, change.adding);
-	return MODEACTION_ALLOW;
+	return true;
 }
 
 void ModeChannelKey::SerializeParam(Channel* chan, const std::string* key, std::string& out)
@@ -92,10 +92,10 @@ void ModeChannelKey::SerializeParam(Channel* chan, const std::string* key, std::
 	out += *key;
 }
 
-ModeAction ModeChannelKey::OnSet(User* source, Channel* chan, std::string& param)
+bool ModeChannelKey::OnSet(User* source, Channel* chan, std::string& param)
 {
 	// Dummy function, never called
-	return MODEACTION_DENY;
+	return false;
 }
 
 bool ModeChannelKey::IsParameterSecret()

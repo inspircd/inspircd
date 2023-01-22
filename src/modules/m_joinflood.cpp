@@ -101,13 +101,13 @@ public:
 		syntax = "<joins>:<seconds>";
 	}
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override
+	bool OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
 		std::string::size_type colon = parameter.find(':');
 		if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
+			return false;
 		}
 
 		/* Set up the flood parameters for this channel */
@@ -116,11 +116,11 @@ public:
 		if ((njoins<1) || (nsecs<1))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
+			return false;
 		}
 
 		ext.SetFwd(channel, nsecs, njoins);
-		return MODEACTION_ALLOW;
+		return true;
 	}
 
 	void SerializeParam(Channel* chan, const joinfloodsettings* jfs, std::string& out)

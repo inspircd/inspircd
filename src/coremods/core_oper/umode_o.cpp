@@ -31,15 +31,15 @@ ModeUserOperator::ModeUserOperator(Module* Creator)
 {
 }
 
-ModeAction ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, Modes::Change& change)
+bool ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, Modes::Change& change)
 {
 	/* Only opers can execute this class at all */
 	if (!source->server->IsService() && !source->IsOper())
-		return MODEACTION_DENY;
+		return false;
 
 	/* Not even opers can GIVE the +o mode, only take it away */
 	if (change.adding)
-		return MODEACTION_DENY;
+		return false;
 
 	/* Set the bitfields.
 	 * Note that oper status is only given in User::Oper()
@@ -51,5 +51,5 @@ ModeAction ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, Mo
 	ServerInstance->SNO.WriteToSnoMask(snomask, "User %s de-opered (by %s)", dest->nick.c_str(), source->nick.c_str());
 	dest->OperLogout();
 
-	return MODEACTION_ALLOW;
+	return true;
 }

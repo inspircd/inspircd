@@ -111,7 +111,7 @@ public:
 		syntax = "{ban|block|mute|kick|kickban}:<minlen>:<percent>";
 	}
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override
+	bool OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
 		irc::sepstream stream(parameter, ':');
 		AntiCapsMethod method;
@@ -122,11 +122,11 @@ public:
 		if (!ParseMethod(stream, method) || !ParseMinimumLength(stream, minlen) || !ParsePercent(stream, percent))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
+			return false;
 		}
 
 		ext.SetFwd(channel, method, minlen, percent);
-		return MODEACTION_ALLOW;
+		return true;
 	}
 
 	void SerializeParam(Channel* chan, const AntiCapsSettings* acs, std::string& out)

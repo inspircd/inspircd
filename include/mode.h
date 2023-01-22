@@ -42,15 +42,6 @@ enum ModeType
 };
 
 /**
- * Holds mode actions - modes can be allowed or denied.
- */
-enum ModeAction
-{
-	MODEACTION_DENY = 0, /* Drop the mode change, AND a parameter if its a parameterized mode */
-	MODEACTION_ALLOW = 1 /* Allow the mode */
-};
-
-/**
  * These fixed values can be used to proportionally compare module-defined prefixes to known values.
  * For example, if your module queries a Channel, and is told that user 'joebloggs' has the prefix
  * '$', and you dont know what $ means, then you can compare it to these three values to determine
@@ -94,7 +85,7 @@ class ParamModeBase;
  * contain an empty string. You may alter this parameter
  * string, and if you alter it to an empty string, and your
  * mode is expected to have a parameter, then this is
- * equivalent to returning MODEACTION_DENY.
+ * equivalent to returning false.
  */
 class CoreExport ModeHandler
 	: public ServiceProvider
@@ -269,9 +260,9 @@ public:
 	 * @param dest For usermodes, contains the destination user the mode is being set on. For channelmodes, this is an undefined value.
 	 * @param channel For channel modes, contains the destination channel the modes are being set on. For usermodes, this is an undefined value.
 	 * @param change Information regarding the mode change.
-	 * @return MODEACTION_ALLOW to allow the mode, or MODEACTION_DENY to prevent the mode, also see the description of 'parameter'.
+	 * @return true to allow the mode, or false to prevent the mode, also see the description of 'parameter'.
 	 */
-	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change);
+	virtual bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change);
 
 	/**
 	 * If your mode is a listmode, then this method will be called for displaying an item list, e.g. on MODE \#channel +modechar
@@ -404,7 +395,7 @@ public:
 	ModResult AccessCheck(User* source, Channel* channel, Modes::Change& change) override;
 
 	/** @copydoc ModeHandler::OnModeChange */
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 
 	/**
 	 * Updates the configuration of this prefix.
@@ -456,7 +447,7 @@ public:
 	}
 
 	/** @copydoc ModeHandler::OnModeChange */
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 };
 
 /** A prebuilt mode handler which handles a simple channel mode, e.g. no parameters, usable by any user, with no extra
@@ -476,7 +467,7 @@ public:
 	}
 
 	/** @copydoc ModeHandler::OnModeChange */
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 };
 
 /**
@@ -617,7 +608,7 @@ private:
 	 * @param mcitem The actual mode change to attempt.
 	 * @param skipacl Whether to skip access checks for the mode change.
 	 */
-	ModeAction TryMode(User* user, User* usertarget, Channel* chantarget, Modes::Change& mcitem, bool skipacl);
+	bool TryMode(User* user, User* usertarget, Channel* chantarget, Modes::Change& mcitem, bool skipacl);
 
 	/** Allocates an unused id for the given mode type, throws a ModuleException if out of ids.
 	 * @param mh The mode to allocate the id for

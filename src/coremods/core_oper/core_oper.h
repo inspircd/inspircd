@@ -105,7 +105,7 @@ private:
 
 public:
 	ModeUserServerNoticeMask(Module* Creator);
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 
 	/** Create a displayable mode string of the snomasks set on a given user
 	 * @param user The user whose notice masks to format
@@ -119,5 +119,5 @@ class ModeUserOperator final
 {
 public:
 	ModeUserOperator(Module* Creator);
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 };

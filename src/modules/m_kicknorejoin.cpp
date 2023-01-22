@@ -102,20 +102,20 @@ public:
 		syntax = "<seconds>";
 	}
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) override
+	bool OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
 		unsigned int v = ConvToNum<unsigned int>(parameter);
 		if (v <= 0)
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
+			return false;
 		}
 
 		if (IS_LOCAL(source) && v > max)
 			v = max;
 
 		ext.Set(channel, v);
-		return MODEACTION_ALLOW;
+		return true;
 	}
 
 	void SerializeParam(Channel* chan, const KickRejoinData* krd, std::string& out)

@@ -31,12 +31,12 @@ public:
 			DisableAutoRegister();
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
 		if (IS_LOCAL(source))
 		{
 			source->WriteNumeric(ERR_NOPRIVILEGES, "Only a server may modify the +r channel mode");
-			return MODEACTION_DENY;
+			return false;
 		}
 
 		return SimpleChannelMode::OnModeChange(source, dest, channel, change);
@@ -55,12 +55,12 @@ public:
 			DisableAutoRegister();
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
 		if (IS_LOCAL(source))
 		{
 			source->WriteNumeric(ERR_NOPRIVILEGES, "Only a server may modify the +r user mode");
-			return MODEACTION_DENY;
+			return false;
 		}
 
 		return SimpleUserMode::OnModeChange(source, dest, channel, change);

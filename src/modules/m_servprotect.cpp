@@ -40,9 +40,9 @@ public:
 	{
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		/* Because this returns MODEACTION_DENY all the time, there is only ONE
+		/* Because this returns false all the time, there is only ONE
 		 * way to add this mode and that is at client introduction in the UID command,
 		 * as this calls OnModeChange for each mode but disregards the return values.
 		 * The mode cannot be manually added or removed, not even by a server or by a remote
@@ -50,7 +50,7 @@ public:
 		 * I'm sure if someone really wants to do that they can make a copy of this module
 		 * that does the job. It won't be me though!
 		 */
-		return MODEACTION_DENY;
+		return false;
 	}
 };
 

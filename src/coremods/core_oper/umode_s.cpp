@@ -33,14 +33,14 @@ ModeUserServerNoticeMask::ModeUserServerNoticeMask(Module* Creator)
 	syntax = "(+|-)<snomasks>|*";
 }
 
-ModeAction ModeUserServerNoticeMask::OnModeChange(User* source, User* dest, Channel*, Modes::Change& change)
+bool ModeUserServerNoticeMask::OnModeChange(User* source, User* dest, Channel*, Modes::Change& change)
 {
 	if (change.adding)
 	{
 		dest->SetMode(this, true);
 		// Process the parameter (remove chars we don't understand, remove redundant chars, etc.)
 		change.param = ProcessNoticeMasks(dest, change.param);
-		return MODEACTION_ALLOW;
+		return true;
 	}
 	else
 	{
@@ -48,12 +48,12 @@ ModeAction ModeUserServerNoticeMask::OnModeChange(User* source, User* dest, Chan
 		{
 			dest->SetMode(this, false);
 			dest->snomasks.reset();
-			return MODEACTION_ALLOW;
+			return true;
 		}
 	}
 
 	// Mode not set and trying to unset, deny
-	return MODEACTION_DENY;
+	return false;
 }
 
 std::string ModeUserServerNoticeMask::GetUserParameter(const User* user) const

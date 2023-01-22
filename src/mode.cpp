@@ -72,9 +72,9 @@ ModResult ModeHandler::AccessCheck(User*, Channel*, Modes::Change&)
 	return MOD_RES_PASSTHRU;
 }
 
-ModeAction ModeHandler::OnModeChange(User*, User*, Channel*, Modes::Change&)
+bool ModeHandler::OnModeChange(User*, User*, Channel*, Modes::Change&)
 {
-	return MODEACTION_DENY;
+	return false;
 }
 
 void ModeHandler::DisplayList(User*, Channel*)
@@ -116,12 +116,12 @@ void ModeHandler::RegisterService()
 	ServerInstance->Modules.AddReferent((GetModeType() == MODETYPE_CHANNEL ? "mode/" : "umode/") + name, this);
 }
 
-ModeAction SimpleUserMode::OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change)
+bool SimpleUserMode::OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change)
 {
 	/* We're either trying to add a mode we already have or
 		remove a mode we don't have, deny. */
 	if (dest->IsModeSet(this) == change.adding)
-		return MODEACTION_DENY;
+		return false;
 
 	/* adding will be either true or false, depending on if we
 		are adding or removing the mode, since we already checked
@@ -131,15 +131,15 @@ ModeAction SimpleUserMode::OnModeChange(User* source, User* dest, Channel* chann
 		remove the mode */
 	dest->SetMode(this, change.adding);
 
-	return MODEACTION_ALLOW;
+	return true;
 }
 
-ModeAction SimpleChannelMode::OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change)
+bool SimpleChannelMode::OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change)
 {
 	/* We're either trying to add a mode we already have or
 		remove a mode we don't have, deny. */
 	if (channel->IsModeSet(this) == change.adding)
-		return MODEACTION_DENY;
+		return false;
 
 	/* adding will be either true or false, depending on if we
 		are adding or removing the mode, since we already checked
@@ -149,7 +149,7 @@ ModeAction SimpleChannelMode::OnModeChange(User* source, User* dest, Channel* ch
 		remove the mode */
 	channel->SetMode(this, change.adding);
 
-	return MODEACTION_ALLOW;
+	return true;
 }
 
 ModeWatcher::ModeWatcher(Module* Creator, const std::string& modename, ModeType type)
@@ -190,7 +190,7 @@ ModResult PrefixMode::AccessCheck(User* src, Channel*, Modes::Change& change)
 	return MOD_RES_PASSTHRU;
 }
 
-ModeAction PrefixMode::OnModeChange(User* source, User*, Channel* chan, Modes::Change& change)
+bool PrefixMode::OnModeChange(User* source, User*, Channel* chan, Modes::Change& change)
 {
 	User* target;
 	if (IS_LOCAL(source))
@@ -201,15 +201,15 @@ ModeAction PrefixMode::OnModeChange(User* source, User*, Channel* chan, Modes::C
 	if (!target)
 	{
 		source->WriteNumeric(Numerics::NoSuchNick(change.param));
-		return MODEACTION_DENY;
+		return false;
 	}
 
 	Membership* memb = chan->GetUser(target);
 	if (!memb)
-		return MODEACTION_DENY;
+		return false;
 
 	change.param = target->nick;
-	return (memb->SetPrefix(this, change.adding) ? MODEACTION_ALLOW : MODEACTION_DENY);
+	return memb->SetPrefix(this, change.adding);
 }
 
 void PrefixMode::Update(ModeHandler::Rank rank, ModeHandler::Rank setrank, ModeHandler::Rank unsetrank, bool selfrm)
@@ -220,15 +220,15 @@ void PrefixMode::Update(ModeHandler::Rank rank, ModeHandler::Rank setrank, ModeH
 	selfremove = selfrm;
 }
 
-ModeAction ParamModeBase::OnModeChange(User* source, User*, Channel* chan, Modes::Change& change)
+bool ParamModeBase::OnModeChange(User* source, User*, Channel* chan, Modes::Change& change)
 {
 	if (change.adding)
 	{
 		if (chan->GetModeParameter(this) == change.param)
-			return MODEACTION_DENY;
+			return false;
 
-		if (OnSet(source, chan, change.param) != MODEACTION_ALLOW)
-			return MODEACTION_DENY;
+		if (!OnSet(source, chan, change.param))
+			return false;
 
 		chan->SetMode(this, true);
 
@@ -239,14 +239,14 @@ ModeAction ParamModeBase::OnModeChange(User* source, User*, Channel* chan, Modes
 	else
 	{
 		if (!chan->IsModeSet(this))
-			return MODEACTION_DENY;
+			return false;
 		this->OnUnsetInternal(source, chan);
 		chan->SetMode(this, false);
 	}
-	return MODEACTION_ALLOW;
+	return true;
 }
 
-ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Modes::Change& mcitem, bool SkipACL)
+bool ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Modes::Change& mcitem, bool SkipACL)
 {
 	ModeType type = chan ? MODETYPE_CHANNEL : MODETYPE_USER;
 
@@ -261,7 +261,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 	FIRST_MOD_RESULT(OnRawMode, MOD_RESULT, (user, chan, mcitem));
 
 	if (IS_LOCAL(user) && (MOD_RESULT == MOD_RES_DENY))
-		return MODEACTION_DENY;
+		return false;
 
 	const char modechar = mh->GetModeChar();
 
@@ -270,7 +270,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 		MOD_RESULT = mh->AccessCheck(user, chan, mcitem);
 
 		if (MOD_RESULT == MOD_RES_DENY)
-			return MODEACTION_DENY;
+			return false;
 		if (MOD_RESULT == MOD_RES_PASSTHRU)
 		{
 			ModeHandler::Rank neededrank = mh->GetLevelRequired(mcitem.adding);
@@ -279,7 +279,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 			{
 				user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, neededrank, InspIRCd::Format("%s channel mode %c (%s)",
 					mcitem.adding ? "set" : "unset", mh->GetModeChar(), mh->name.c_str())));
-				return MODEACTION_DENY;
+				return false;
 			}
 		}
 	}
@@ -290,11 +290,11 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 		if (mw->GetModeType() == type)
 		{
 			if (!mw->BeforeMode(user, targetuser, chan, mcitem))
-				return MODEACTION_DENY;
+				return false;
 
 			// A module whacked the parameter completely, and there was one. Abort.
 			if ((needs_param) && (mcitem.param.empty()))
-				return MODEACTION_DENY;
+				return false;
 		}
 	}
 
@@ -311,17 +311,15 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 			user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Only operators may %sset %s mode %c",
 				mcitem.adding ? "" : "un", type == MODETYPE_CHANNEL ? "channel" : "user", modechar));
 		}
-		return MODEACTION_DENY;
+		return false;
 	}
 
 	/* Call the handler for the mode */
-	ModeAction ma = mh->OnModeChange(user, targetuser, chan, mcitem);
+	if (!mh->OnModeChange(user, targetuser, chan, mcitem))
+		return false;
 
 	if ((needs_param) && (mcitem.param.empty()))
-		return MODEACTION_DENY;
-
-	if (ma != MODEACTION_ALLOW)
-		return ma;
+		return false;
 
 	for (const auto& [_, mw] : insp::equal_range(modewatchermap, mh->name))
 	{
@@ -329,7 +327,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 			mw->AfterMode(user, targetuser, chan, mcitem);
 	}
 
-	return MODEACTION_ALLOW;
+	return true;
 }
 
 void ModeParser::ModeParamsToChangeList(User* user, ModeType type, const std::vector<std::string>& parameters, Modes::ChangeList& changelist, size_t beginindex, size_t endindex)
@@ -441,9 +439,7 @@ size_t ModeParser::ProcessSingle(User* user, Channel* targetchannel, User* targe
 				continue;
 		}
 
-		ModeAction ma = TryMode(user, targetuser, targetchannel, item, (!(flags & MODE_CHECKACCESS)));
-
-		if (ma != MODEACTION_ALLOW)
+		if (!TryMode(user, targetuser, targetchannel, item, (!(flags & MODE_CHECKACCESS))))
 			continue;
 
 		LastChangeList.push(mh, item.adding, item.param);

@@ -155,7 +155,7 @@ public:
 	void DoRehash();
 
 	/** @copydoc ModeHandler::OnModeChange */
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 
 	/** Validate a potential entry for this list mode. This is only for local validation, you
 	 * should be prepared to handle malformed entries from remote servers as there is no good
