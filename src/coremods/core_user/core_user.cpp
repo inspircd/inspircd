@@ -173,8 +173,8 @@ public:
 		bool conndone = user->connected != User::CONN_NONE;
 		if (klass->config->getBool("connected", klass->config->getBool("registered", conndone)) != conndone)
 		{
-			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires that the user is %s.",
-					klass->GetName().c_str(), conndone ? "not fully connected" : "fully connected");
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is not suitable as it requires that the user is {}.",
+				klass->GetName(), conndone ? "not fully connected" : "fully connected");
 			return MOD_RES_DENY;
 		}
 
@@ -190,31 +190,31 @@ public:
 		if (!hostmatches)
 		{
 			const std::string hosts = stdalgo::string::join(klass->GetHosts());
-			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as neither the host (%s) nor the IP (%s) matches %s.",
-				klass->GetName().c_str(), user->GetRealHost().c_str(), user->GetIPString().c_str(), hosts.c_str());
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is not suitable as neither the host ({}) nor the IP ({}) matches {}.",
+				klass->GetName(), user->GetRealHost(), user->GetIPString(), hosts);
 			return MOD_RES_DENY;
 		}
 
 		if (klass->limit && klass->use_count >= klass->limit)
 		{
-			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it has reached its user limit (%lu/%lu).",
-				klass->GetName().c_str(), klass->use_count, klass->limit);
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is not suitable as it has reached its user limit ({}/{}).",
+				klass->GetName(), klass->use_count, klass->limit);
 			return MOD_RES_DENY;
 		}
 
 		if (conndone && !klass->password.empty() && !InspIRCd::PassCompare(klass->password, user->password, klass->passwordhash))
 		{
 			const char* error = user->password.empty() ? "one was not provided" : "the provided password was incorrect";
-			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as requires a password and %s.",
-				klass->GetName().c_str(), error);
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is not suitable as requires a password and {}.",
+				klass->GetName(), error);
 			return MOD_RES_DENY;
 		}
 
 		if (!klass->ports.empty() && !klass->ports.count(user->server_sa.port()))
 		{
 			const std::string portstr = stdalgo::string::join(klass->ports);
-			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as the connection port (%hu) is not any of %s.",
-				klass->GetName().c_str(), user->server_sa.port(), portstr.c_str());
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is not suitable as the connection port ({}) is not any of {}.",
+				klass->GetName(), user->server_sa.port(), portstr);
 			return MOD_RES_DENY;
 		}
 

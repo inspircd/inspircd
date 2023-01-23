@@ -90,9 +90,9 @@ bool SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remo
 		}
 	}
 
-	ServerInstance->Logs.Debug(MODNAME, "Nick collision on \"%s\" caused by %s: %s/%lu/%s@%s %d <-> %s/%lu/%s@%s %d", u->nick.c_str(), collidecmd,
-		u->uuid.c_str(), (unsigned long)localts, u->ident.c_str(), u->GetIPString().c_str(), bChangeLocal,
-		remoteuid.c_str(), (unsigned long)remotets, remoteident.c_str(), remoteip.c_str(), bChangeRemote);
+	ServerInstance->Logs.Debug(MODNAME, "Nick collision on \"{}\" caused by {}: {}/{}/{}@{} {} <-> {}/{}/{}@{} {}", u->nick, collidecmd,
+		u->uuid, localts, u->ident, u->GetIPString(), bChangeLocal,
+		remoteuid, remotets, remoteident, remoteip, bChangeRemote);
 
 	/*
 	 * Send SAVE and accept the losing client with its UID (as we know the SAVE will

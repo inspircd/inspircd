@@ -37,7 +37,6 @@
 # include <fmt/core.h>
 # define INSP_FORMAT(FORMAT, ...) fmt::format(FMT_STRING(FORMAT), __VA_ARGS__)
 #endif
-#include <fmt/printf.h>
 
 namespace Base64
 {

@@ -50,15 +50,19 @@ refcountbase::refcountbase()
 refcountbase::~refcountbase()
 {
 	if (refcount && ServerInstance)
-		ServerInstance->Logs.Debug("CULLLIST", "refcountbase::~ @%p with refcount %d",
-			static_cast<void*>(this), refcount);
+	{
+		ServerInstance->Logs.Debug("CULLLIST", "refcountbase::~ @{} with refcount {}",
+			fmt::ptr(this), refcount);
+	}
 }
 
 usecountbase::~usecountbase()
 {
 	if (usecount && ServerInstance)
-		ServerInstance->Logs.Debug("CULLLIST", "usecountbase::~ @%p with refcount %d",
-			static_cast<void*>(this), usecount);
+	{
+		ServerInstance->Logs.Debug("CULLLIST", "usecountbase::~ @{} with refcount {}",
+			fmt::ptr(this), usecount);
+	}
 }
 
 void ServiceProvider::RegisterService()

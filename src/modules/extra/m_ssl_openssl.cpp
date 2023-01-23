@@ -356,9 +356,9 @@ namespace OpenSSL
 			if (!setoptions && !clearoptions)
 				return; // Nothing to do
 
-			ServerInstance->Logs.Debug(MODNAME, "Setting %s %s context options, default: %ld set: %ld clear: %ld", name.c_str(), ctxname.c_str(), ctx.GetDefaultContextOptions(), setoptions, clearoptions);
+			ServerInstance->Logs.Debug(MODNAME, "Setting {} {} context options, default: {} set: {} clear: {}", name, ctxname, ctx.GetDefaultContextOptions(), setoptions, clearoptions);
 			long final = context.SetRawContextOptions(setoptions, clearoptions);
-			ServerInstance->Logs.Normal(MODNAME, "%s %s context options: %ld", name.c_str(), ctxname.c_str(), final);
+			ServerInstance->Logs.Normal(MODNAME, "{} {} context options: {}", name, ctxname, final);
 		}
 
 	public:
@@ -433,7 +433,7 @@ namespace OpenSSL
 			if ((!ctx.SetCA(filename)) || (!clientctx.SetCA(filename)))
 			{
 				ERR_print_errors_cb(error_callback, this);
-				ServerInstance->Logs.Normal(MODNAME, "Can't read CA list from %s. This is only a problem if you want to verify client certificates, otherwise it's safe to ignore this message. Error: %s", filename.c_str(), lasterr.c_str());
+				ServerInstance->Logs.Normal(MODNAME, "Can't read CA list from {}. This is only a problem if you want to verify client certificates, otherwise it's safe to ignore this message. Error: {}", filename, lasterr);
 			}
 
 			// Load the CRLs.
@@ -656,7 +656,7 @@ private:
 		if (status != STATUS_NONE)
 			return true;
 
-		ServerInstance->Logs.Debug(MODNAME, "Session %p killed, attempted to renegotiate", (void*)sess);
+		ServerInstance->Logs.Debug(MODNAME, "Session {} killed, attempted to renegotiate", fmt::ptr(sess));
 		CloseSession();
 		sock->SetError("Renegotiation is not allowed");
 		return false;
@@ -999,7 +999,7 @@ public:
 
 	void init() override
 	{
-		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against OpenSSL version %s and is running against version %s",
+		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against OpenSSL version {} and is running against version {}",
 			OPENSSL_VERSION_STR, OpenSSL_version(OPENSSL_VERSION_STRING));
 
 		// Register application specific data

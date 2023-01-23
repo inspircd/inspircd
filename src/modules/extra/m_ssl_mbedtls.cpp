@@ -286,7 +286,8 @@ namespace mbedTLS
 			size_t len = strlen(msg);
 			if ((len > 0) && (msg[len-1] == '\n'))
 				len--;
-			ServerInstance->Logs.Debug(MODNAME, "%s:%d %.*s", file, line, len, msg);
+
+			ServerInstance->Logs.Debug(MODNAME, "{}:{} {}", file, line, std::string_view(msg, len));
 		}
 #endif
 
@@ -947,7 +948,7 @@ public:
 		char verbuf[16]; // Should be at least 9 bytes in size
 		mbedtls_version_get_string(verbuf);
 
-		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against mbedTLS version %s and is running against version %s",
+		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against mbedTLS version {} and is running against version {}",
 			MBEDTLS_VERSION_STRING, verbuf);
 
 		if (!ctr_drbg.Seed(entropy))

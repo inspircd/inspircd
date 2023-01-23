@@ -111,8 +111,8 @@ public:
 			const std::string hash = tag->getString("hash", "plaintext", 1);
 			if (stdalgo::string::equalsci(hash, "plaintext"))
 			{
-				ServerInstance->Logs.Warning(MODNAME, "<vhost> tag for %s at %s contains an plain text password, this is insecure!",
-					username.c_str(), tag->source.str().c_str());
+				ServerInstance->Logs.Warning(MODNAME, "<vhost> tag for {} at {} contains an plain text password, this is insecure!",
+					username, tag->source.str());
 			}
 
 			CustomVhost vhost(username, pass, hash, mask);

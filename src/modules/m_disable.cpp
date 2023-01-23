@@ -58,8 +58,8 @@ private:
 					chr, field, tag->source.str()));
 
 			// Disable the mode.
-			ServerInstance->Logs.Debug(MODNAME, "The %c (%s) %s mode has been disabled",
-				mh->GetModeChar(), mh->name.c_str(), type == MODETYPE_CHANNEL ? "channel" : "user");
+			ServerInstance->Logs.Debug(MODNAME, "The {} ({}) {} mode has been disabled",
+				mh->GetModeChar(), mh->name, type == MODETYPE_CHANNEL ? "channel" : "user");
 			status.set(ModeParser::GetModeIndex(chr));
 		}
 	}
@@ -99,7 +99,7 @@ public:
 				continue;
 
 			// Disable the command.
-			ServerInstance->Logs.Debug(MODNAME, "The %s command has been disabled", handler->name.c_str());
+			ServerInstance->Logs.Debug(MODNAME, "The {} command has been disabled", handler->name);
 			newcommands.push_back(handler->name);
 		}
 
@@ -149,7 +149,7 @@ public:
 
 		// The user has tried to execute a disabled command!
 		user->CommandFloodPenalty += 2000;
-		WriteLog("%s was blocked from executing the disabled %s command", user->GetFullRealHost().c_str(), command.c_str());
+		WriteLog("{} was blocked from executing the disabled {} command", user->GetFullRealHost(), command);
 
 		if (fakenonexistent)
 		{
@@ -178,7 +178,7 @@ public:
 
 		// The user has tried to change a disabled mode!
 		const char* what = change.mh->GetModeType() == MODETYPE_CHANNEL ? "channel" : "user";
-		WriteLog("%s was blocked from %ssetting the disabled %s mode %c (%s)",
+		WriteLog("{} was blocked from {}setting the disabled {} mode {} ({})",
 			user->GetFullRealHost().c_str(), change.adding ? "" : "un",
 			what, change.mh->GetModeChar(), change.mh->name.c_str());
 

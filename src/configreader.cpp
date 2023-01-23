@@ -562,8 +562,8 @@ const std::shared_ptr<ConfigTag>& ServerConfig::ConfValue(const std::string& tag
 
 	if (tags.count() > 1)
 	{
-		ServerInstance->Logs.Warning("CONFIG", "Multiple (%zu) <%s> tags found; only the first will be used (first at %s, last at %s)",
-			tags.count(), tag.c_str(), tags.begin()->second->source.str().c_str(), std::prev(tags.end())->second->source.str().c_str());
+		ServerInstance->Logs.Warning("CONFIG", "Multiple ({}) <{}> tags found; only the first will be used (first at {}, last at {})",
+			tags.count(), tag, tags.begin()->second->source.str(), std::prev(tags.end())->second->source.str());
 	}
 	return tags.begin()->second;
 }
@@ -674,8 +674,8 @@ void ConfigReaderThread::OnStop()
 			}
 			catch (const CoreException& modex)
 			{
-				ServerInstance->Logs.Error("MODULE", "Unable to read the configuration for %s: %s",
-					mod->ModuleSourceFile.c_str(), modex.what());
+				ServerInstance->Logs.Error("MODULE", "Unable to read the configuration for {}: {}",
+					mod->ModuleSourceFile, modex.what());
 				if (user)
 					user->WriteNotice(modname + ": " + modex.GetReason());
 			}

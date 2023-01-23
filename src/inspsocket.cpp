@@ -361,8 +361,8 @@ void StreamSocket::WriteData(const std::string& data)
 {
 	if (!HasFd())
 	{
-		ServerInstance->Logs.Debug("SOCKET", "Attempt to write data to dead socket: %s",
-			data.c_str());
+		ServerInstance->Logs.Debug("SOCKET", "Attempt to write data to dead socket: {}",
+			data);
 		return;
 	}
 
@@ -466,8 +466,8 @@ void StreamSocket::OnEventHandlerRead()
 	}
 	catch (const CoreException& ex)
 	{
-		ServerInstance->Logs.Normal("SOCKET", "Caught exception in socket processing on FD %d - '%s'",
-			GetFd(), ex.GetReason().c_str());
+		ServerInstance->Logs.Normal("SOCKET", "Caught exception in socket processing on FD {} - '{}'",
+			GetFd(), ex.GetReason());
 		SetError(ex.GetReason());
 	}
 	CheckError(I_ERR_OTHER);
@@ -486,7 +486,7 @@ void StreamSocket::CheckError(BufferedSocketError errcode)
 {
 	if (!error.empty())
 	{
-		ServerInstance->Logs.Debug("SOCKET", "Error on FD %d - '%s'", GetFd(), error.c_str());
+		ServerInstance->Logs.Debug("SOCKET", "Error on FD {} - '{}'", GetFd(), error);
 		OnError(errcode);
 	}
 }

@@ -94,7 +94,7 @@ void TreeSocket::ProcessLine(std::string& line)
 	std::string command;
 	CommandBase::Params params;
 
-	ServerInstance->Logs.RawIO(MODNAME, "S[%d] I %s", this->GetFd(), line.c_str());
+	ServerInstance->Logs.RawIO(MODNAME, "S[{}] I {}", GetFd(), line);
 
 	Split(line, tags, prefix, command, params);
 
@@ -308,7 +308,7 @@ void TreeSocket::ProcessConnectedLine(std::string& taglist, std::string& prefix,
 	User* who = FindSource(prefix, command);
 	if (!who)
 	{
-		ServerInstance->Logs.Debug(MODNAME, "Command '%s' from unknown prefix '%s'! Dropping entire command.", command.c_str(), prefix.c_str());
+		ServerInstance->Logs.Debug(MODNAME, "Command '{}' from unknown prefix '{}'! Dropping entire command.", command, prefix);
 		return;
 	}
 
@@ -331,7 +331,7 @@ void TreeSocket::ProcessConnectedLine(std::string& taglist, std::string& prefix,
 	TreeServer* const server = TreeServer::Get(who);
 	if (server->GetSocket() != this)
 	{
-		ServerInstance->Logs.Debug(MODNAME, "Protocol violation: Fake direction '%s' from connection '%s'", prefix.c_str(), linkID.c_str());
+		ServerInstance->Logs.Debug(MODNAME, "Protocol violation: Fake direction '{}' from connection '{}'", prefix, linkID);
 		return;
 	}
 

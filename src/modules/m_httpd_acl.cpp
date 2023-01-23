@@ -97,8 +97,8 @@ public:
 				}
 			}
 
-			ServerInstance->Logs.Debug(MODNAME, "Read ACL: path=%s pass=%s whitelist=%s blacklist=%s", path.c_str(),
-					password.c_str(), whitelist.c_str(), blacklist.c_str());
+			ServerInstance->Logs.Debug(MODNAME, "Read ACL: path={} pass={} whitelist={} blacklist={}", path,
+					password, whitelist, blacklist);
 
 			new_acls.emplace_back(path, username, password, whitelist, blacklist);
 		}
@@ -107,7 +107,7 @@ public:
 
 	void BlockAccess(HTTPRequest* http, unsigned int returnval, const std::string& extraheaderkey = "", const std::string& extraheaderval="")
 	{
-		ServerInstance->Logs.Debug(MODNAME, "BlockAccess (%u)", returnval);
+		ServerInstance->Logs.Debug(MODNAME, "BlockAccess ({})", returnval);
 
 		std::stringstream data;
 		data << "<html><head></head><body style='font-family: sans-serif; text-align: center'>"
@@ -142,8 +142,8 @@ public:
 						{
 							if (InspIRCd::Match(http->GetIP(), entry, ascii_case_insensitive_map))
 							{
-								ServerInstance->Logs.Debug(MODNAME, "Denying access to blacklisted resource %s (matched by pattern %s) from ip %s (matched by entry %s)",
-										http->GetPath().c_str(), acl.path.c_str(), http->GetIP().c_str(), entry.c_str());
+								ServerInstance->Logs.Debug(MODNAME, "Denying access to blacklisted resource {} (matched by pattern {}) from ip {} (matched by entry {})",
+										http->GetPath(), acl.path, http->GetIP(), entry);
 								BlockAccess(http, 403);
 								return false;
 							}
@@ -164,8 +164,8 @@ public:
 
 						if (!allow_access)
 						{
-							ServerInstance->Logs.Debug(MODNAME, "Denying access to whitelisted resource %s (matched by pattern %s) from ip %s (Not in whitelist)",
-									http->GetPath().c_str(), acl.path.c_str(), http->GetIP().c_str());
+							ServerInstance->Logs.Debug(MODNAME, "Denying access to whitelisted resource {} (matched by pattern {}) from ip {} (Not in whitelist)",
+									http->GetPath(), acl.path, http->GetIP());
 							BlockAccess(http, 403);
 							return false;
 						}
@@ -173,8 +173,8 @@ public:
 					if (!acl.password.empty() && !acl.username.empty())
 					{
 						/* Password auth, first look to see if we have a basic authentication header */
-						ServerInstance->Logs.Debug(MODNAME, "Checking HTTP auth password for resource %s (matched by pattern %s) from ip %s, against username %s",
-								http->GetPath().c_str(), acl.path.c_str(), http->GetIP().c_str(), acl.username.c_str());
+						ServerInstance->Logs.Debug(MODNAME, "Checking HTTP auth password for resource {} (matched by pattern {}) from ip {}, against username {}",
+								http->GetPath(), acl.path, http->GetIP(), acl.username);
 
 						if (http->headers->IsSet("Authorization"))
 						{
@@ -192,7 +192,7 @@ public:
 
 								sep.GetToken(base64);
 								std::string userpass = Base64::Decode(base64);
-								ServerInstance->Logs.Debug(MODNAME, "HTTP authorization: %s (%s)", userpass.c_str(), base64.c_str());
+								ServerInstance->Logs.Debug(MODNAME, "HTTP authorization: {} ({})", userpass, base64);
 
 								irc::sepstream userpasspair(userpass, ':');
 								if (userpasspair.GetToken(user))
@@ -222,7 +222,7 @@ public:
 							else
 							{
 								/* Unsupported authentication type */
-								ServerInstance->Logs.Debug(MODNAME, "HTTP authorization: unsupported auth type: %s", authtype.c_str());
+								ServerInstance->Logs.Debug(MODNAME, "HTTP authorization: unsupported auth type: {}", authtype);
 								BlockAccess(http, 401, "WWW-Authenticate", "Basic realm=\"Restricted Object\"");
 							}
 						}

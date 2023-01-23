@@ -312,7 +312,7 @@ namespace GnuTLS
 				if (gnutls_priority_init(&test, ret.c_str(), nullptr) < 0)
 				{
 					// The new token broke the priority string, revert to the previously working one
-					ServerInstance->Logs.Debug(MODNAME, "Priority string token not recognized: \"%s\"", token.c_str());
+					ServerInstance->Logs.Debug(MODNAME, "Priority string token not recognized: \"{}\"", token);
 					ret.erase(prevpos);
 				}
 				else
@@ -500,12 +500,12 @@ namespace GnuTLS
 				{
 					// Stripping failed, act as if a prio string wasn't set
 					stripped = GnuTLS::Priority::RemoveUnknownTokens(GnuTLS::Priority::GetDefault());
-					ServerInstance->Logs.Normal(MODNAME, "Priority string for profile \"%s\" contains unknown tokens and stripping it didn't yield a working one either, falling back to \"%s\"", profilename.c_str(), stripped.c_str());
+					ServerInstance->Logs.Normal(MODNAME, "Priority string for profile \"{}\" contains unknown tokens and stripping it didn't yield a working one either, falling back to \"{}\"", profilename, stripped);
 				}
 				else if ((found) && (stripped != priostr))
 				{
 					// Prio string was set in the config and we ended up with something that works but different
-					ServerInstance->Logs.Warning(MODNAME, "Priority string for profile \"%s\" contains unknown tokens, stripped to \"%s\"", profilename.c_str(), stripped.c_str());
+					ServerInstance->Logs.Warning(MODNAME, "Priority string for profile \"{}\" contains unknown tokens, stripped to \"{}\"", profilename, stripped);
 				}
 				priostr.swap(stripped);
 			}
@@ -1114,7 +1114,7 @@ public:
 
 	void init() override
 	{
-		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against GnuTLS version %s and is running against version %s",
+		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against GnuTLS version {} and is running against version {}",
 			GNUTLS_VERSION, gnutls_check_version(nullptr));
 
 		ServerInstance->GenRandom = GnuTLS::GenRandom;

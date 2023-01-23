@@ -109,7 +109,7 @@ public:
 		std::ofstream stream(xlinenewdbpath);
 		if (!stream.is_open())
 		{
-			ServerInstance->Logs.Error(MODNAME, "Cannot create database \"%s\"! %s (%d)", xlinenewdbpath.c_str(), strerror(errno), errno);
+			ServerInstance->Logs.Error(MODNAME, "Cannot create database \"{}\"! {} ({})", xlinenewdbpath, strerror(errno), errno);
 			ServerInstance->SNO.WriteToSnoMask('x', "database: cannot create new xline db \"{}\": {} ({})", xlinenewdbpath, strerror(errno), errno);
 			return false;
 		}
@@ -147,7 +147,7 @@ public:
 
 		if (stream.fail())
 		{
-			ServerInstance->Logs.Error(MODNAME, "Cannot write to new database \"%s\"! %s (%d)", xlinenewdbpath.c_str(), strerror(errno), errno);
+			ServerInstance->Logs.Error(MODNAME, "Cannot write to new database \"{}\"! {} ({})", xlinenewdbpath, strerror(errno), errno);
 			ServerInstance->SNO.WriteToSnoMask('x', "database: cannot write to new xline db \"{}\": {} ({})", xlinenewdbpath, strerror(errno), errno);
 			return false;
 		}
@@ -159,7 +159,7 @@ public:
 		// Use rename to move temporary to new db - this is guaranteed not to fuck up, even in case of a crash.
 		if (rename(xlinenewdbpath.c_str(), xlinedbpath.c_str()) < 0)
 		{
-			ServerInstance->Logs.Error(MODNAME, "Cannot replace old database \"%s\" with new database \"%s\"! %s (%d)", xlinedbpath.c_str(), xlinenewdbpath.c_str(), strerror(errno), errno);
+			ServerInstance->Logs.Error(MODNAME, "Cannot replace old database \"{}\" with new database \"{}\"! {} ({})", xlinedbpath, xlinenewdbpath, strerror(errno), errno);
 			ServerInstance->SNO.WriteToSnoMask('x', "database: cannot replace old xline db \"{}\" with new db \"{}\": {} ({})", xlinedbpath, xlinenewdbpath, strerror(errno), errno);
 			return false;
 		}
@@ -177,7 +177,7 @@ public:
 		std::ifstream stream(xlinedbpath);
 		if (!stream.is_open())
 		{
-			ServerInstance->Logs.Error(MODNAME, "Cannot read database \"%s\"! %s (%d)", xlinedbpath.c_str(), strerror(errno), errno);
+			ServerInstance->Logs.Error(MODNAME, "Cannot read database \"{}\"! {} ({})", xlinedbpath, strerror(errno), errno);
 			ServerInstance->SNO.WriteToSnoMask('x', "database: cannot read xline db \"{}\": {} ({})", xlinedbpath, strerror(errno), errno);
 			return false;
 		}
@@ -197,14 +197,14 @@ public:
 				items++;
 			}
 
-			ServerInstance->Logs.Debug(MODNAME, "Processing %s", line.c_str());
+			ServerInstance->Logs.Debug(MODNAME, "Processing {}", line);
 
 			if (command_p[0] == "VERSION")
 			{
 				if (command_p[1] != "1")
 				{
 					stream.close();
-					ServerInstance->Logs.Error(MODNAME, "I got database version %s - I don't understand it", command_p[1].c_str());
+					ServerInstance->Logs.Error(MODNAME, "I got database version {} - I don't understand it", command_p[1]);
 					ServerInstance->SNO.WriteToSnoMask('x', "database: I got a database version ({}) I don't understand", command_p[1]);
 					return false;
 				}

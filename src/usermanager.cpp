@@ -137,7 +137,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, const irc::sockets::soc
 	LocalUser* const New = new LocalUser(socket, client, server);
 	UserIOHandler* eh = &New->eh;
 
-	ServerInstance->Logs.Debug("USERS", "New user fd: %d", socket);
+	ServerInstance->Logs.Debug("USERS", "New user fd: {}", socket);
 
 	this->unknown_count++;
 	this->clientlist[New->nick] = New;
@@ -162,8 +162,8 @@ void UserManager::AddUser(int socket, ListenSocket* via, const irc::sockets::soc
 				continue;
 
 			const char* hooktype = i == via->iohookprovs.begin() ? "hook" : "sslprofile";
-			ServerInstance->Logs.Warning("USERS", "Non-existent I/O hook '%s' in <bind:%s> tag at %s",
-				iohookprovref.GetProvider().c_str(), hooktype, via->bind_tag->source.str().c_str());
+			ServerInstance->Logs.Warning("USERS", "Non-existent I/O hook '{}' in <bind:{}> tag at {}",
+				iohookprovref.GetProvider(), hooktype, via->bind_tag->source.str());
 			this->QuitUser(New, INSP_FORMAT("Internal error handling connection (misconfigured {})", hooktype));
 			return;
 		}
@@ -276,7 +276,7 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 		operquitmsg.erase(ServerInstance->Config->Limits.MaxQuit + 1);
 
 	user->quitting = true;
-	ServerInstance->Logs.Debug("USERS", "QuitUser: %s=%s '%s'", user->uuid.c_str(), user->nick.c_str(), quitmessage.c_str());
+	ServerInstance->Logs.Debug("USERS", "QuitUser: {}={} '{}'", user->uuid, user->nick, quitmessage);
 	if (localuser)
 	{
 		ClientProtocol::Messages::Error errormsg(INSP_FORMAT("Closing link: ({}) [{}]", user->MakeHost(), operquitmsg));

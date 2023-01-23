@@ -127,8 +127,8 @@ public:
 			const std::string hash = tag->getString("hash", "plaintext", 1);
 			if (stdalgo::string::equalsci(hash, "plaintext"))
 			{
-				ServerInstance->Logs.Normal(MODNAME, "<title> tag for %s at %s contains an plain text password, this is insecure!",
-					name.c_str(), tag->source.str().c_str());
+				ServerInstance->Logs.Normal(MODNAME, "<title> tag for {} at {} contains an plain text password, this is insecure!",
+					name, tag->source.str());
 			}
 
 			std::string host = tag->getString("host", "*@*", 1);

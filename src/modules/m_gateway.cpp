@@ -389,8 +389,8 @@ public:
 
 				if (!password.empty() && stdalgo::string::equalsci(passwordhash, "plaintext"))
 				{
-					ServerInstance->Logs.Normal(MODNAME, "<%s> tag at %s contains an plain text password, this is insecure!",
-						tag->name.c_str(), tag->source.str().c_str());
+					ServerInstance->Logs.Normal(MODNAME, "<{}> tag at {} contains an plain text password, this is insecure!",
+						tag->name, tag->source.str());
 				}
 
 				webirchosts.emplace_back(masks, fingerprint, password, passwordhash, trustedflags);
@@ -418,8 +418,8 @@ public:
 		const std::string* gateway = cmdwebirc.extban.gateway.Get(user);
 		if (!gateway)
 		{
-			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires a connection via a WebIRC gateway.",
-				klass->GetName().c_str());
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is not suitable as it requires a connection via a WebIRC gateway.",
+				klass->GetName());
 			return MOD_RES_DENY;
 		}
 
@@ -427,8 +427,8 @@ public:
 		// allow the check to continue. Otherwise, reject it.
 		if (!InspIRCd::Match(*gateway, webirc))
 		{
-			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as the WebIRC gateway name (%s) does not match %s.",
-				klass->GetName().c_str(), gateway->c_str(), webirc.c_str());
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is not suitable as the WebIRC gateway name ({}) does not match {}.",
+				klass->GetName(), *gateway, webirc);
 			return MOD_RES_DENY;
 		}
 
@@ -494,8 +494,8 @@ public:
 
 					default:
 						// If we have reached this point then we have encountered a bug.
-						ServerInstance->Logs.Debug(MODNAME, "BUG: OnWebIRCAuth(%s): socket type %hu is unknown!",
-							user->uuid.c_str(), user->client_sa.family());
+						ServerInstance->Logs.Debug(MODNAME, "BUG: OnWebIRCAuth({}): socket type {} is unknown!",
+							user->uuid, user->client_sa.family());
 						return;
 				}
 			}
@@ -520,8 +520,8 @@ public:
 
 					default:
 						// If we have reached this point then we have encountered a bug.
-						ServerInstance->Logs.Debug(MODNAME, "BUG: OnWebIRCAuth(%s): socket type %hu is unknown!",
-							user->uuid.c_str(), user->server_sa.family());
+						ServerInstance->Logs.Debug(MODNAME, "BUG: OnWebIRCAuth({}): socket type {} is unknown!",
+							user->uuid, user->server_sa.family());
 						return;
 				}
 			}

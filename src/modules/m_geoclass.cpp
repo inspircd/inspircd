@@ -58,8 +58,8 @@ public:
 
 		// A list of country codes were specified but the user didn't match
 		// any of them.
-		ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as the origin country (%s) is not any of %s.",
-			klass->GetName().c_str(), code.c_str(), country.c_str());
+		ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is not suitable as the origin country ({}) is not any of {}.",
+			klass->GetName(), code, country);
 		return MOD_RES_DENY;
 	}
 

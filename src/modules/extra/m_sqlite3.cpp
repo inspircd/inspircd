@@ -247,7 +247,7 @@ public:
 
 	void init() override
 	{
-		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against SQLite version %s and is running against version %s",
+		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against SQLite version {} and is running against version {}",
 			SQLITE_VERSION, sqlite3_libversion());
 	}
 

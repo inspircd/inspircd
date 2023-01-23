@@ -94,7 +94,7 @@ User::User(const std::string& uid, Server* srv, Type type)
 	, uniqueusername(false)
 	, usertype(type)
 {
-	ServerInstance->Logs.Debug("USERS", "New UUID for user: %s", uuid.c_str());
+	ServerInstance->Logs.Debug("USERS", "New UUID for user: {}", uuid);
 
 	if (srv->IsService())
 		ServerInstance->Users.all_services.push_back(this);
@@ -611,19 +611,19 @@ void LocalUser::ChangeRemoteAddress(const irc::sockets::sockaddrs& sa)
 
 bool LocalUser::FindConnectClass()
 {
-	ServerInstance->Logs.Debug("CONNECTCLASS", "Finding a connect class for %s (%s) ...",
-		uuid.c_str(), GetFullRealHost().c_str());
+	ServerInstance->Logs.Debug("CONNECTCLASS", "Finding a connect class for {} ({}) ...",
+		uuid, GetFullRealHost());
 
 	for (const auto& klass : ServerInstance->Config->Classes)
 	{
-		ServerInstance->Logs.Debug("CONNECTCLASS", "Checking the %s connect class ...",
-			klass->GetName().c_str());
+		ServerInstance->Logs.Debug("CONNECTCLASS", "Checking the {} connect class ...",
+			klass->GetName());
 
 		// Users can not be automatically assigned to a named class.
 		if (klass->type == ConnectClass::NAMED)
 		{
-			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as neither <connect:allow> nor <connect:deny> are set.",
-				klass->GetName().c_str());
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is not suitable as neither <connect:allow> nor <connect:deny> are set.",
+				klass->GetName());
 			continue;
 		}
 
@@ -631,8 +631,8 @@ bool LocalUser::FindConnectClass()
 		FIRST_MOD_RESULT(OnPreChangeConnectClass, modres, (this, klass));
 		if (modres != MOD_RES_DENY)
 		{
-			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is suitable for %s (%s).",
-				klass->GetName().c_str(), uuid.c_str(), GetFullRealHost().c_str());
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is suitable for {} ({}).",
+				klass->GetName(), uuid, GetFullRealHost());
 
 			ChangeConnectClass(klass, false);
 			return !quitting;
@@ -682,9 +682,9 @@ void LocalUser::Write(const ClientProtocol::SerializedMessage& text)
 
 		std::string::size_type nlpos = text.find_first_of("\r\n", 0, 2);
 		if (nlpos == std::string::npos)
-			nlpos = text.length(); // TODO is this ok, test it
+			nlpos = text.length();
 
-		ServerInstance->Logs.RawIO("USEROUTPUT", "C[%s] O %.*s", uuid.c_str(), static_cast<int>(nlpos), text.c_str());
+		ServerInstance->Logs.RawIO("USEROUTPUT", "C[{}] O {}", uuid, std::string_view(text.c_str(), nlpos));
 	}
 
 	eh.AddWriteBuf(text);
@@ -699,8 +699,8 @@ void LocalUser::Send(ClientProtocol::Event& protoev)
 {
 	if (!serializer)
 	{
-		ServerInstance->Logs.Debug("USERS", "BUG: LocalUser::Send() called on %s who does not have a serializer!",
-			GetFullRealHost().c_str());
+		ServerInstance->Logs.Debug("USERS", "BUG: LocalUser::Send() called on {} who does not have a serializer!",
+			GetFullRealHost());
 		return;
 	}
 
@@ -1044,8 +1044,8 @@ void ConnectClass::Configure(const std::string& classname, const std::shared_ptr
 	passwordhash = tag->getString("hash", passwordhash);
 	if (!password.empty() && (passwordhash.empty() || stdalgo::string::equalsci(passwordhash, "plaintext")))
 	{
-		ServerInstance->Logs.Normal("CONNECTCLASS", "<connect> tag '%s' at %s contains an plain text password, this is insecure!",
-			name.c_str(), tag->source.str().c_str());
+		ServerInstance->Logs.Normal("CONNECTCLASS", "<connect> tag '{}' at {} contains an plain text password, this is insecure!",
+			name, tag->source.str());
 	}
 
 	irc::portparser portrange(tag->getString("port"), false);
@@ -1074,7 +1074,7 @@ void ConnectClass::Configure(const std::string& classname, const std::shared_ptr
 
 void ConnectClass::Update(const std::shared_ptr<ConnectClass>& src)
 {
-	ServerInstance->Logs.Debug("CONNECTCLASS", "Updating %s from %s", name.c_str(), src->name.c_str());
+	ServerInstance->Logs.Debug("CONNECTCLASS", "Updating {} from {}", name, src->name);
 	commandrate = src->commandrate;
 	config = src->config;
 	fakelag = src->fakelag;

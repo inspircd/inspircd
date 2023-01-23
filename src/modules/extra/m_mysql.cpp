@@ -338,8 +338,8 @@ public:
 		unsigned int port = static_cast<unsigned int>(config->getUInt("port", 3306, 1, 65535));
 		if (!mysql_real_connect(connection, host.c_str(), user.c_str(), pass.c_str(), dbname.c_str(), port, nullptr, CLIENT_IGNORE_SIGPIPE))
 		{
-			ServerInstance->Logs.Error(MODNAME, "Unable to connect to the %s MySQL server: %s",
-				GetId().c_str(), mysql_error(connection));
+			ServerInstance->Logs.Error(MODNAME, "Unable to connect to the {} MySQL server: {}",
+				GetId(), mysql_error(connection));
 			return false;
 		}
 
@@ -347,8 +347,8 @@ public:
 		const std::string charset = config->getString("charset");
 		if (!charset.empty() && mysql_set_character_set(connection, charset.c_str()))
 		{
-			ServerInstance->Logs.Error(MODNAME, "Could not set character set for %s to \"%s\": %s",
-				GetId().c_str(), charset.c_str(), mysql_error(connection));
+			ServerInstance->Logs.Error(MODNAME, "Could not set character set for {} to \"{}\": {}",
+				GetId(), charset, mysql_error(connection));
 			return false;
 		}
 
@@ -356,8 +356,8 @@ public:
 		const std::string initialquery = config->getString("initialquery");
 		if (!initialquery.empty() && mysql_real_query(connection, initialquery.data(), initialquery.length()))
 		{
-			ServerInstance->Logs.Error(MODNAME, "Could not execute initial query \"%s\" for %s: %s",
-				initialquery.c_str(), name.c_str(), mysql_error(connection));
+			ServerInstance->Logs.Error(MODNAME, "Could not execute initial query \"{}\" for {}: {}",
+				initialquery, name, mysql_error(connection));
 			return false;
 		}
 
@@ -447,7 +447,7 @@ void ModuleSQL::init()
 	if (mysql_library_init(0, nullptr, nullptr))
 		throw ModuleException(this, "Unable to initialise the MySQL library!");
 
-	ServerInstance->Logs.Normal(MODNAME, "Module was compiled against MySQL version %d.%d.%d and is running against version %s",
+	ServerInstance->Logs.Normal(MODNAME, "Module was compiled against MySQL version {}.{}.{} and is running against version {}",
 		MYSQL_VERSION_ID / 10000, MYSQL_VERSION_ID / 100 % 100, MYSQL_VERSION_ID % 100, mysql_get_client_info());
 
 	Dispatcher = new DispatcherThread(this);

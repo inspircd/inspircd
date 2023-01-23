@@ -139,7 +139,7 @@ public:
 		if (pcre2_config(PCRE2_CONFIG_VERSION, version.data()) < 0)
 			return;
 
-		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against PCRE2 version %d.%d and is running against version %s",
+		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against PCRE2 version {}.{} and is running against version {}",
 			PCRE2_MAJOR, PCRE2_MINOR, version.data());
 	}
 };

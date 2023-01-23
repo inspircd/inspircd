@@ -166,7 +166,7 @@ public:
 
 	void init() override
 	{
-		ServerInstance->Logs.Normal(MODNAME, "%s is running against libmaxminddb version %s",
+		ServerInstance->Logs.Normal(MODNAME, "{} is running against libmaxminddb version {}",
 			MODNAME, MMDB_lib_version());
 
 	}
@@ -197,14 +197,14 @@ public:
 			Geolocation::Location* location = iter->second;
 			if (location->GetUseCount())
 			{
-				ServerInstance->Logs.Debug(MODNAME, "Preserving geolocation data for %s (%s) with use count %u... ",
-					location->GetName().c_str(), location->GetCode().c_str(), location->GetUseCount());
+				ServerInstance->Logs.Debug(MODNAME, "Preserving geolocation data for {} ({}) with use count {}... ",
+					location->GetName(), location->GetCode(), location->GetUseCount());
 				iter++;
 			}
 			else
 			{
-				ServerInstance->Logs.Debug(MODNAME, "Deleting unused geolocation data for %s (%s)",
-					location->GetName().c_str(), location->GetCode().c_str());
+				ServerInstance->Logs.Debug(MODNAME, "Deleting unused geolocation data for {} ({})",
+					location->GetName(), location->GetCode());
 				delete location;
 				iter = geoapi.locations.erase(iter);
 			}

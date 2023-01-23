@@ -420,7 +420,7 @@ void ParseStack::DoInclude(const std::shared_ptr<ConfigTag>& tag, int flags)
 
 FilePtr ParseStack::DoOpenFile(const std::string& name, bool isexec)
 {
-	ServerInstance->Logs.Debug("CONFIG", "Opening %s: %s", isexec ? "executable" : "file", name.c_str());
+	ServerInstance->Logs.Debug("CONFIG", "Opening {}: {}", isexec ? "executable" : "file", name);
 
 	if (isexec)
 		return FilePtr(popen(name.c_str(), "r"), pclose);
@@ -431,13 +431,13 @@ FilePtr ParseStack::DoOpenFile(const std::string& name, bool isexec)
 	{
 		if (getegid() != pathinfo.st_gid)
 		{
-			ServerInstance->Logs.Warning("CONFIG", "Possible configuration error: %s is owned by group %u but the server is running as group %u.",
-				name.c_str(), pathinfo.st_gid, getegid());
+			ServerInstance->Logs.Warning("CONFIG", "Possible configuration error: {} is owned by group {} but the server is running as group {}.",
+				name, pathinfo.st_gid, getegid());
 		}
 		if (geteuid() != pathinfo.st_uid)
 		{
-			ServerInstance->Logs.Warning("CONFIG", "Possible configuration error: %s is owned by user %u but the server is running as user %u.",
-				name.c_str(), pathinfo.st_uid, geteuid());
+			ServerInstance->Logs.Warning("CONFIG", "Possible configuration error: {} is owned by user {} but the server is running as user {}.",
+				name, pathinfo.st_uid, geteuid());
 		}
 	}
 #endif
@@ -539,8 +539,8 @@ bool ParseStack::ParseFile(const std::string& path, int flags, const std::string
 
 void ConfigTag::LogMalformed(const std::string& key, const std::string& val, const std::string& def, const std::string& reason) const
 {
-	ServerInstance->Logs.Warning("CONFIG", "The value of <%s:%s> at %s (%s) is %s; using the default (%s) instead.",
-		name.c_str(), key.c_str(), source.str().c_str(), val.c_str(), reason.c_str(), def.c_str());
+	ServerInstance->Logs.Warning("CONFIG", "The value of <{}:{}> at {} ({}) is {}; using the default ({}) instead.",
+		name, key, source.str(), val, reason, def);
 }
 
 bool ConfigTag::readString(const std::string& key, std::string& value, bool allow_lf) const

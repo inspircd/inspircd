@@ -650,8 +650,8 @@ public:
 		{
 			std::string server1 = from.str();
 			std::string server2 = myserver.str();
-			ServerInstance->Logs.Debug(MODNAME, "Got a result from the wrong server! Bad NAT or DNS forging attempt? '%s' != '%s'",
-				server1.c_str(), server2.c_str());
+			ServerInstance->Logs.Debug(MODNAME, "Got a result from the wrong server! Bad NAT or DNS forging attempt? '{}' != '{}'",
+				server1, server2);
 			return;
 		}
 
@@ -767,7 +767,7 @@ public:
 		}
 
 		if (expired)
-			ServerInstance->Logs.Debug(MODNAME, "cache: purged %lu expired DNS entries", expired);
+			ServerInstance->Logs.Debug(MODNAME, "cache: purged {} expired DNS entries", expired);
 
 		return true;
 	}
@@ -860,7 +860,7 @@ class ModuleDNS final
 
 			if (!DNSServer.empty())
 			{
-				ServerInstance->Logs.Normal(MODNAME, "<dns:server> set to '%s' as first active resolver in the system settings.", DNSServer.c_str());
+				ServerInstance->Logs.Normal(MODNAME, "<dns:server> set to '{}' as first active resolver in the system settings.", DNSServer);
 				return;
 			}
 		}
@@ -879,7 +879,7 @@ class ModuleDNS final
 				resolv >> DNSServer;
 				if (DNSServer.find_first_not_of("0123456789.") == std::string::npos || DNSServer.find_first_not_of("0123456789ABCDEFabcdef:") == std::string::npos)
 				{
-					ServerInstance->Logs.Normal(MODNAME, "<dns:server> set to '%s' as first resolver in /etc/resolv.conf.", DNSServer.c_str());
+					ServerInstance->Logs.Normal(MODNAME, "<dns:server> set to '{}' as first resolver in /etc/resolv.conf.", DNSServer);
 					return;
 				}
 			}

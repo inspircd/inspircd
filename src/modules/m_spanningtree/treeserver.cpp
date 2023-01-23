@@ -62,7 +62,7 @@ TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const s
 	, age(ServerInstance->Time())
 	, Hidden(Hide)
 {
-	ServerInstance->Logs.Debug(MODNAME, "New server %s behind_bursting %u", GetName().c_str(), behind_bursting);
+	ServerInstance->Logs.Debug(MODNAME, "New server {} behind_bursting {}", GetName(), behind_bursting);
 	CheckService();
 
 	ServerInstance->Timers.AddTimer(&pingtimer);
@@ -133,7 +133,7 @@ void TreeServer::BeginBurst(uint64_t startms)
 	if ((!startms) || (startms > now))
 		startms = now;
 	this->StartBurst = startms;
-	ServerInstance->Logs.Debug(MODNAME, "Server %s started bursting at time %s behind_bursting %u", GetId().c_str(), ConvToStr(startms).c_str(), behind_bursting);
+	ServerInstance->Logs.Debug(MODNAME, "Server {} started bursting at time {} behind_bursting {}", GetId(), startms, behind_bursting);
 }
 
 void TreeServer::FinishBurstInternal()
@@ -142,7 +142,7 @@ void TreeServer::FinishBurstInternal()
 	// introduced during a netburst may later send ENDBURST which would normally decrease this counter
 	if (behind_bursting > 0)
 		behind_bursting--;
-	ServerInstance->Logs.Debug(MODNAME, "FinishBurstInternal() %s behind_bursting %u", GetName().c_str(), behind_bursting);
+	ServerInstance->Logs.Debug(MODNAME, "FinishBurstInternal() {} behind_bursting {}", GetName(), behind_bursting);
 
 	for (auto* child : Children)
 		child->FinishBurstInternal();
@@ -199,7 +199,7 @@ void TreeServer::SQuitInternal(unsigned int& num_lost_servers, bool error)
 	if (isdead)
 		return;
 
-	ServerInstance->Logs.Debug(MODNAME, "Server %s lost in split", GetName().c_str());
+	ServerInstance->Logs.Debug(MODNAME, "Server {} lost in split", GetName());
 
 	for (auto* server : Children)
 		server->SQuitInternal(num_lost_servers, error);

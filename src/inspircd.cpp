@@ -149,20 +149,20 @@ namespace
 			errno = 0;
 			if (setgroups(0, nullptr) == -1)
 			{
-				ServerInstance->Logs.Error("STARTUP", "setgroups() failed (wtf?): %s", strerror(errno));
+				ServerInstance->Logs.Error("STARTUP", "setgroups() failed (wtf?): {}", strerror(errno));
 				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
 			}
 
 			struct group* g = getgrnam(SetGroup.c_str());
 			if (!g)
 			{
-				ServerInstance->Logs.Error("STARTUP", "getgrnam(%s) failed (wrong group?): %s", SetGroup.c_str(), strerror(errno));
+				ServerInstance->Logs.Error("STARTUP", "getgrnam({}) failed (wrong group?): {}", SetGroup, strerror(errno));
 				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
 			}
 
 			if (setgid(g->gr_gid) == -1)
 			{
-				ServerInstance->Logs.Error("STARTUP", "setgid(%d) failed (wrong group?): %s", g->gr_gid, strerror(errno));
+				ServerInstance->Logs.Error("STARTUP", "setgid({}) failed (wrong group?): {}", g->gr_gid, strerror(errno));
 				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
 			}
 		}
@@ -174,13 +174,13 @@ namespace
 			struct passwd* u = getpwnam(SetUser.c_str());
 			if (!u)
 			{
-				ServerInstance->Logs.Error("STARTUP", "getpwnam(%s) failed (wrong user?): %s", SetUser.c_str(), strerror(errno));
+				ServerInstance->Logs.Error("STARTUP", "getpwnam({}) failed (wrong user?): {}", SetUser, strerror(errno));
 				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
 			}
 
 			if (setuid(u->pw_uid) == -1)
 			{
-				ServerInstance->Logs.Error("STARTUP", "setuid(%d) failed (wrong user?): %s", u->pw_uid, strerror(errno));
+				ServerInstance->Logs.Error("STARTUP", "setuid({}) failed (wrong user?): {}", u->pw_uid, strerror(errno));
 				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
 			}
 		}
@@ -234,7 +234,7 @@ namespace
 		int childpid = fork();
 		if (childpid < 0)
 		{
-			ServerInstance->Logs.Error("STARTUP", "fork() failed: %s", strerror(errno));
+			ServerInstance->Logs.Error("STARTUP", "fork() failed: {}", strerror(errno));
 			std::cout << rang::style::bold << rang::fg::red << "Error:" << rang::style::reset << " unable to fork into background: " << strerror(errno);
 			ServerInstance->Exit(EXIT_STATUS_FORK);
 		}
@@ -265,13 +265,13 @@ namespace
 		rlimit rl;
 		if (getrlimit(RLIMIT_CORE, &rl) == -1)
 		{
-			ServerInstance->Logs.Warning("STARTUP", "Unable to increase core dump size: getrlimit(RLIMIT_CORE) failed: %s", strerror(errno));
+			ServerInstance->Logs.Warning("STARTUP", "Unable to increase core dump size: getrlimit(RLIMIT_CORE) failed: {}", strerror(errno));
 			return;
 		}
 
 		rl.rlim_cur = rl.rlim_max;
 		if (setrlimit(RLIMIT_CORE, &rl) == -1)
-			ServerInstance->Logs.Warning("STARTUP", "Unable to increase core dump size: setrlimit(RLIMIT_CORE) failed: %s", strerror(errno));
+			ServerInstance->Logs.Warning("STARTUP", "Unable to increase core dump size: setrlimit(RLIMIT_CORE) failed: {}", strerror(errno));
 #endif
 	}
 
@@ -455,7 +455,7 @@ void InspIRCd::WritePID()
 	else
 	{
 		std::cout << "Failed to write PID-file '" << pidfile << "', exiting." << std::endl;
-		this->Logs.Error("STARTUP", "Failed to write PID-file '%s', exiting.", pidfile.c_str());
+		this->Logs.Error("STARTUP", "Failed to write PID-file '{}', exiting.", pidfile);
 		Exit(EXIT_STATUS_PID);
 	}
 }
@@ -499,7 +499,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	if (!FindConfigFile(ConfigFileName))
 	{
-		this->Logs.Error("STARTUP", "Unable to open config file %s", ConfigFileName.c_str());
+		this->Logs.Error("STARTUP", "Unable to open config file {}", ConfigFileName);
 		std::cout << "ERROR: Cannot open config file: " << ConfigFileName << std::endl << "Exiting..." << std::endl;
 		Exit(EXIT_STATUS_CONFIG);
 	}
@@ -567,7 +567,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		if (kill(getppid(), SIGTERM) == -1)
 		{
 			std::cout << "Error killing parent process: " << strerror(errno) << std::endl;
-			Logs.Warning("STARTUP", "Error killing parent process: %s", strerror(errno));
+			Logs.Warning("STARTUP", "Error killing parent process: {}", strerror(errno));
 		}
 	}
 
@@ -617,8 +617,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	WritePID();
 	DropRoot();
 
-	Logs.Normal("STARTUP", "Startup complete as '%s'[%s], %zu max open sockets", Config->ServerName.c_str(),
-		Config->GetSID().c_str(), SocketEngine::GetMaxFds());
+	Logs.Normal("STARTUP", "Startup complete as '{}'[{}], {} max open sockets", Config->ServerName,
+		Config->GetSID(), SocketEngine::GetMaxFds());
 }
 
 void InspIRCd::UpdateTime()

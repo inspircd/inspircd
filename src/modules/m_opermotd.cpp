@@ -112,8 +112,8 @@ private:
 		catch (const CoreException& ce)
 		{
 			// We can't process the file if it doesn't exist.
-			ServerInstance->Logs.Normal(MODNAME, "Unable to read server operator motd for oper %s \"%s\" at %s: %s",
-				type, oper->GetName().c_str(), oper->GetConfig()->source.str().c_str(), ce.GetReason().c_str());
+			ServerInstance->Logs.Normal(MODNAME, "Unable to read server operator motd for oper {} \"{}\" at {}: {}",
+				type, oper->GetName(), oper->GetConfig()->source.str(), ce.GetReason());
 			return;
 		}
 

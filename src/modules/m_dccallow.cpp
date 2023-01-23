@@ -138,8 +138,8 @@ public:
 			// Check we have space for another entry.
 			if (list->size() >= maxentries)
 			{
-				ServerInstance->Logs.Debug(MODNAME, "Oversized DCC allow list received for %s: %s",
-					user->uuid.c_str(), value.c_str());
+				ServerInstance->Logs.Debug(MODNAME, "Oversized DCC allow list received for {}: {}",
+					user->uuid, value);
 				delete list;
 				return;
 			}
@@ -151,8 +151,8 @@ public:
 				!ts.GetNumericToken(dccallow.set_on) ||
 				!ts.GetNumericToken(dccallow.length))
 			{
-				ServerInstance->Logs.Debug(MODNAME, "Malformed DCC allow list received for %s: %s",
-					user->uuid.c_str(), value.c_str());
+				ServerInstance->Logs.Debug(MODNAME, "Malformed DCC allow list received for {}: {}",
+					user->uuid, value);
 				delete list;
 				return;
 			}

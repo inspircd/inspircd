@@ -279,8 +279,8 @@ public:
 				switch (newcodepage->AllowCharacter(static_cast<uint32_t>(pos), front))
 				{
 					case Codepage::AllowCharacterResult::OKAY:
-						ServerInstance->Logs.Debug(MODNAME, "Marked %lu (%.4s) as allowed (front: %s)",
-							pos, fmt::ptr(&pos), front ? "yes" : "no");
+						ServerInstance->Logs.Debug(MODNAME, "Marked {} ({:.4}) as allowed (front: {})",
+							pos, reinterpret_cast<const char*>(&pos), front ? "yes" : "no");
 						break;
 
 					case Codepage::AllowCharacterResult::NOT_VALID:
@@ -307,8 +307,8 @@ public:
 			if (!newcodepage->Map(upper, lower))
 				throw ModuleException(this, "Malformed <cpcase> tag at " + tag->source.str());
 
-			ServerInstance->Logs.Debug(MODNAME, "Marked %lu (%.4s) as the lower case version of %lu (%.4s)",
-				lower, fmt::ptr(&lower), upper, fmt::ptr(&upper));
+			ServerInstance->Logs.Debug(MODNAME, "Marked {} ({:.4}) as the lower case version of {} ({:.4})",
+				lower, reinterpret_cast<const char*>(&lower), upper, reinterpret_cast<const char*>(&upper));
 		}
 
 		charset = codepagetag->getString("charset");

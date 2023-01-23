@@ -63,9 +63,9 @@ protected:
 	/** Logs the result of a DNS lookup. */
 	inline void LogLookup(const DNS::ResourceRecord& rr, bool cached) const
 	{
-		ServerInstance->Logs.Debug(MODNAME, "DNS %s result for %s: '%s' -> '%s'%s",
-			manager->GetTypeStr(question.type).c_str(), uuid.c_str(), rr.name.c_str(),
-			rr.rdata.c_str(), cached ? " (cached)" : "");
+		ServerInstance->Logs.Debug(MODNAME, "DNS {} result for {}: '{}' -> '{}'{}",
+			manager->GetTypeStr(question.type), uuid, rr.name,
+			rr.rdata, cached ? " (cached)" : "");
 	}
 
 public:

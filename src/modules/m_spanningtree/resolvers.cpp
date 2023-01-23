@@ -140,8 +140,8 @@ void SecurityIPResolver::OnLookupComplete(const DNS::Query* r)
 					continue;
 
 				Utils->ValidIPs.push_back(ans_record.rdata);
-				ServerInstance->Logs.Normal(MODNAME, "Resolved '%s' as a valid IP address for link '%s'",
-					ans_record.rdata.c_str(), link->Name.c_str());
+				ServerInstance->Logs.Normal(MODNAME, "Resolved '{}' as a valid IP address for link '{}'",
+					ans_record.rdata, link->Name);
 			}
 			break;
 		}
@@ -156,7 +156,7 @@ void SecurityIPResolver::OnError(const DNS::Query* r)
 	if (CheckIPv4())
 		return;
 
-	ServerInstance->Logs.Warning(MODNAME, "Could not resolve IP associated with link '%s': %s",
+	ServerInstance->Logs.Warning(MODNAME, "Could not resolve IP associated with link '{}': {}",
 		link->Name.c_str(), this->manager->GetErrorStr(r->error).c_str());
 }
 

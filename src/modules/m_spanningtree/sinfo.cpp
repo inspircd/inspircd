@@ -60,8 +60,8 @@ CmdResult CommandSInfo::HandleServer(TreeServer* server, CommandBase::Params& pa
 		versionstream.GetToken(unused);
 		server->customversion = versionstream.GetRemaining();
 
-		ServerInstance->Logs.Debug(MODNAME, "Extracted entries from fullversion key: rawversion=%s customversion=%s",
-			server->rawversion.c_str(), server->customversion.c_str());
+		ServerInstance->Logs.Debug(MODNAME, "Extracted entries from fullversion key: rawversion={} customversion={}",
+			server->rawversion, server->customversion);
 	}
 	else if (irc::equals(key,  "version"))
 	{
@@ -73,8 +73,8 @@ CmdResult CommandSInfo::HandleServer(TreeServer* server, CommandBase::Params& pa
 		versionstream.GetToken(unused);
 		server->customversion = versionstream.GetRemaining();
 
-		ServerInstance->Logs.Debug(MODNAME, "Extracted entries from version key: rawbranch=%s customversion=%s",
-			server->rawbranch.c_str(), server->customversion.c_str());
+		ServerInstance->Logs.Debug(MODNAME, "Extracted entries from version key: rawbranch={} customversion={}",
+			server->rawbranch, server->customversion);
 	}
 	// END DEPRECATED KEYS
 

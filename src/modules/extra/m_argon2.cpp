@@ -48,7 +48,7 @@ private:
 				return ARGON2_VERSION_13;
 		}
 
-		ServerInstance->Logs.Warning(MODNAME, "Unknown Argon2 version (%lu) specified; assuming 13",
+		ServerInstance->Logs.Warning(MODNAME, "Unknown Argon2 version ({}) specified; assuming 13",
 			version);
 		return ARGON2_VERSION_13;
 	}

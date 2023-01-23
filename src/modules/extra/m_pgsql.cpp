@@ -306,8 +306,8 @@ public:
 
 	bool HandleConnectError(const char* reason)
 	{
-		ServerInstance->Logs.Error(MODNAME, "Could not connect to the \"%s\" database: %s",
-			GetId().c_str(), reason);
+		ServerInstance->Logs.Error(MODNAME, "Could not connect to the \"{}\" database: {}",
+			GetId(), reason);
 		return false;
 	}
 
@@ -587,7 +587,7 @@ public:
 			minor = revision;
 			revision = 0;
 		}
-		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against libpq version %s and is running against version %d.%d.%d",
+		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against libpq version {} and is running against version {}.{}.{}",
 			PG_VERSION, version / 10000, minor, revision);
 	}
 

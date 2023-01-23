@@ -170,14 +170,14 @@ ListenSocket::~ListenSocket()
 {
 	if (this->HasFd())
 	{
-		ServerInstance->Logs.Debug("SOCKET", "Shut down listener on fd %d", this->GetFd());
+		ServerInstance->Logs.Debug("SOCKET", "Shut down listener on fd {}", GetFd());
 		SocketEngine::Shutdown(this, 2);
 
 		if (SocketEngine::Close(this) != 0)
-			ServerInstance->Logs.Warning("SOCKET", "Failed to close listener: %s", strerror(errno));
+			ServerInstance->Logs.Warning("SOCKET", "Failed to close listener: {}", strerror(errno));
 
 		if (bind_sa.family() == AF_UNIX && unlink(bind_sa.un.sun_path))
-			ServerInstance->Logs.Warning("SOCKET", "Failed to unlink UNIX socket: %s", strerror(errno));
+			ServerInstance->Logs.Warning("SOCKET", "Failed to unlink UNIX socket: {}", strerror(errno));
 	}
 }
 
@@ -188,20 +188,20 @@ void ListenSocket::OnEventHandlerRead()
 	int incomingfd = SocketEngine::Accept(this, &client.sa, &length);
 	if (incomingfd < 0)
 	{
-		ServerInstance->Logs.Debug("SOCKET", "Refused connection to %s: %s",
-			bind_sa.str().c_str(), strerror(errno));
+		ServerInstance->Logs.Debug("SOCKET", "Refused connection to {}: {}",
+			bind_sa.str(), strerror(errno));
 		ServerInstance->stats.Refused++;
 		return;
 	}
 
-	ServerInstance->Logs.Debug("SOCKET", "Accepted connection to %s with fd %d",
-			bind_sa.str().c_str(), incomingfd);
+	ServerInstance->Logs.Debug("SOCKET", "Accepted connection to {} with fd {}",
+			bind_sa.str(), incomingfd);
 
 	irc::sockets::sockaddrs server(bind_sa);
 	length = sizeof(server);
 	if (getsockname(incomingfd, &server.sa, &length))
 	{
-		ServerInstance->Logs.Debug("SOCKET", "Unable to get peer name for fd %d: %s",
+		ServerInstance->Logs.Debug("SOCKET", "Unable to get peer name for fd {}: {}",
 			incomingfd, strerror(errno));
 	}
 
@@ -254,7 +254,7 @@ void ListenSocket::OnEventHandlerRead()
 	}
 
 	ServerInstance->stats.Refused++;
-	ServerInstance->Logs.Normal("SOCKET", "Refusing connection on %s - %s", bind_sa.str().c_str(),
+	ServerInstance->Logs.Normal("SOCKET", "Refusing connection on {} - {}", bind_sa.str(),
 		res == MOD_RES_DENY ? "Connection refused by module" : "Module for this port not found");
 	SocketEngine::Close(incomingfd);
 }

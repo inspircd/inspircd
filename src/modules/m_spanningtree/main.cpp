@@ -631,7 +631,7 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string& oldnick)
 	}
 	else if (!loopCall)
 	{
-		ServerInstance->Logs.Normal(MODNAME, "WARNING: Changed nick of remote user %s from %s to %s TS %lu by ourselves!", user->uuid.c_str(), oldnick.c_str(), user->nick.c_str(), (unsigned long) user->nickchanged);
+		ServerInstance->Logs.Normal(MODNAME, "WARNING: Changed nick of remote user {} from {} to {} TS {} by ourselves!", user->uuid, oldnick, user->nick, user->nickchanged);
 	}
 }
 
@@ -652,7 +652,7 @@ void ModuleSpanningTree::OnUserKick(User* source, Membership* memb, const std::s
 
 void ModuleSpanningTree::OnPreRehash(User* user, const std::string& parameter)
 {
-	ServerInstance->Logs.Debug(MODNAME, "OnPreRehash called with param %s", parameter.c_str());
+	ServerInstance->Logs.Debug(MODNAME, "OnPreRehash called with param {}", parameter);
 
 	// Send out to other servers
 	if (!parameter.empty() && parameter[0] != '-')

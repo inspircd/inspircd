@@ -57,7 +57,7 @@ public:
 			for (const auto snomask : snomasks)
 			{
 				newlogs.emplace(snomask, channel);
-				ServerInstance->Logs.Normal(MODNAME, "Logging %c to %s", snomask, channel.c_str());
+				ServerInstance->Logs.Normal(MODNAME, "Logging {} to {}", snomask, channel);
 			}
 		}
 		logstreams.swap(newlogs);

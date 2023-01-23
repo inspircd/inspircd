@@ -270,7 +270,7 @@ void Log::Manager::UnloadEngine(const Engine* engine)
 	loggers.erase(std::remove_if(loggers.begin(), loggers.end(), [&engine](const Info& info) { return info.engine == engine; }), loggers.end());
 	logging = false;
 
-	Normal("LOG", "The %s log engine is unloading; removed %zu/%zu loggers.", engine->name.c_str(), logger_count - loggers.size(), logger_count);
+	Normal("LOG", "The {} log engine is unloading; removed {}/{} loggers.", engine->name.c_str(), logger_count - loggers.size(), logger_count);
 }
 
 void Log::Manager::Write(Level level, const std::string& type, const std::string& message)

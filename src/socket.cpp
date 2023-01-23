@@ -41,8 +41,8 @@ bool InspIRCd::BindPort(const std::shared_ptr<ConfigTag>& tag, const irc::socket
 		if (ls->bind_sa == sa && protocol == ls->bind_protocol)
 		{
 			// Replace tag, we know addr and port match, but other info (type, ssl) may not.
-			ServerInstance->Logs.Debug("SOCKET", "Replacing listener on %s from old tag at %s with new tag from %s",
-				sa.str().c_str(), ls->bind_tag->source.str().c_str(), tag->source.str().c_str());
+			ServerInstance->Logs.Debug("SOCKET", "Replacing listener on {} from old tag at {} with new tag from {}",
+				sa.str(), ls->bind_tag->source.str(), tag->source.str());
 			ls->bind_tag = tag;
 			ls->ResetIOHookProvider();
 
@@ -54,13 +54,13 @@ bool InspIRCd::BindPort(const std::shared_ptr<ConfigTag>& tag, const irc::socket
 	auto* ll = new ListenSocket(tag, sa, protocol);
 	if (!ll->HasFd())
 	{
-		ServerInstance->Logs.Normal("SOCKET", "Failed to listen on %s from tag at %s: %s",
-			sa.str().c_str(), tag->source.str().c_str(), strerror(errno));
+		ServerInstance->Logs.Normal("SOCKET", "Failed to listen on {} from tag at {}: {}",
+			sa.str(), tag->source.str(), strerror(errno));
 		delete ll;
 		return false;
 	}
 
-	ServerInstance->Logs.Debug("SOCKET", "Added a listener on %s from tag at %s", sa.str().c_str(), tag->source.str().c_str());
+	ServerInstance->Logs.Debug("SOCKET", "Added a listener on {} from tag at {}", sa.str(), tag->source.str());
 	ports.push_back(ll);
 	return true;
 }
@@ -181,8 +181,8 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 			break;
 		}
 
-		this->Logs.Debug("SOCKET", "Port binding %s was removed from the config file, closing.",
-			(**n).bind_sa.str().c_str());
+		this->Logs.Debug("SOCKET", "Port binding {} was removed from the config file, closing.",
+			(**n).bind_sa.str());
 		delete *n;
 
 		// this keeps the iterator valid, pointing to the next element
@@ -271,7 +271,7 @@ bool irc::sockets::sockaddrs::is_local() const
 	}
 
 	// If we have reached this point then we have encountered a bug.
-	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::is_local(): socket type %hu is unknown!", family());
+	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::is_local(): socket type {} is unknown!", family());
 	return false;
 }
 
@@ -290,7 +290,7 @@ in_port_t irc::sockets::sockaddrs::port() const
 	}
 
 	// If we have reached this point then we have encountered a bug.
-	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::port(): socket type %hu is unknown!", family());
+	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::port(): socket type {} is unknown!", family());
 	return 0;
 }
 
@@ -315,7 +315,7 @@ std::string irc::sockets::sockaddrs::addr() const
 	}
 
 	// If we have reached this point then we have encountered a bug.
-	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::addr(): socket type %hu is unknown!", family());
+	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::addr(): socket type {} is unknown!", family());
 	return "<unknown>";
 }
 
@@ -340,7 +340,7 @@ std::string irc::sockets::sockaddrs::str() const
 	}
 
 	// If we have reached this point then we have encountered a bug.
-	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::str(): socket type %hu is unknown!", family());
+	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::str(): socket type {} is unknown!", family());
 	return "<unknown>";
 }
 
@@ -359,7 +359,7 @@ socklen_t irc::sockets::sockaddrs::sa_size() const
 	}
 
 	// If we have reached this point then we have encountered a bug.
-	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::sa_size(): socket type %hu is unknown!", family());
+	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::sa_size(): socket type {} is unknown!", family());
 	return 0;
 }
 
@@ -381,7 +381,7 @@ bool irc::sockets::sockaddrs::operator==(const irc::sockets::sockaddrs& other) c
 	}
 
 	// If we have reached this point then we have encountered a bug.
-	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::operator==(): socket type %hu is unknown!", family());
+	ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::sockaddrs::operator==(): socket type {} is unknown!", family());
 	return !memcmp(this, &other, sizeof(*this));
 }
 
@@ -415,7 +415,7 @@ static void sa2cidr(irc::sockets::cidr_mask& cidr, const irc::sockets::sockaddrs
 
 		default:
 			// If we have reached this point then we have encountered a bug.
-			ServerInstance->Logs.Debug("SOCKET", "BUG: sa2cidr(): socket type %hu is unknown!", cidr.type);
+			ServerInstance->Logs.Debug("SOCKET", "BUG: sa2cidr(): socket type {} is unknown!", cidr.type);
 			cidr.length = 0;
 			return;
 	}
@@ -484,7 +484,7 @@ std::string irc::sockets::cidr_mask::str() const
 
 		default:
 			// If we have reached this point then we have encountered a bug.
-			ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::cidr_mask::str(): socket type %hu is unknown!", type);
+			ServerInstance->Logs.Debug("SOCKET", "BUG: irc::sockets::cidr_mask::str(): socket type {} is unknown!", type);
 			return "<unknown>";
 	}
 

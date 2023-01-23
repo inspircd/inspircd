@@ -143,8 +143,8 @@ public:
 			catch (const CoreException& ce)
 			{
 				// We can't process the file if it doesn't exist.
-				ServerInstance->Logs.Warning(MODNAME, "Unable to read motd for connect class \"%s\" at %s: %s",
-					klass->name.c_str(), klass->config->source.str().c_str(), ce.GetReason().c_str());
+				ServerInstance->Logs.Warning(MODNAME, "Unable to read motd for connect class \"{}\" at {}: {}",
+					klass->GetName(), klass->config->source.str(), ce.GetReason());
 				continue;
 			}
 

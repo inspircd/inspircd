@@ -33,8 +33,8 @@ Cullable::Cullable()
 #ifdef INSPIRCD_ENABLE_RTTI
 	if (ServerInstance)
 	{
-		ServerInstance->Logs.Debug("CULLLIST", "Cullable::+%s @%p",
-				typeid(*this).name(), static_cast<void*>(this));
+		ServerInstance->Logs.Debug("CULLLIST", "Cullable::+{} @{}",
+			typeid(*this).name(), fmt::ptr(this));
 	}
 #endif
 }
@@ -44,8 +44,8 @@ Cullable::~Cullable()
 #ifdef INSPIRCD_ENABLE_RTTI
 	if (ServerInstance)
 	{
-		ServerInstance->Logs.Debug("CULLLIST", "Cullable::~%s @%p",
-			typeid(*this).name(), static_cast<void*>(this));
+		ServerInstance->Logs.Debug("CULLLIST", "Cullable::~{} @{}",
+			typeid(*this).name(), fmt::ptr(this));
 	}
 #endif
 }
@@ -55,8 +55,8 @@ Cullable::Result Cullable::Cull()
 #ifdef INSPIRCD_ENABLE_RTTI
 	if (ServerInstance)
 	{
-		ServerInstance->Logs.Debug("CULLLIST", "Cullable::-%s @%p",
-			typeid(*this).name(), static_cast<void*>(this));
+		ServerInstance->Logs.Debug("CULLLIST", "Cullable::-{} @{}",
+			typeid(*this).name(), fmt::ptr(this));
 	}
 #endif
 	return {};
@@ -85,10 +85,10 @@ void CullList::Apply()
 		if (gone.insert(c).second)
 		{
 #ifdef INSPIRCD_ENABLE_RTTI
-			ServerInstance->Logs.Debug("CULLLIST", "Deleting %s @%p", typeid(*c).name(),
-				static_cast<void*>(c));
+			ServerInstance->Logs.Debug("CULLLIST", "Deleting {} @{}", typeid(*c).name(),
+				fmt::ptr(c));
 #else
-			ServerInstance->Logs.Debug("CULLLIST", "Deleting @%p", static_cast<void*>(c));
+			ServerInstance->Logs.Debug("CULLLIST", "Deleting @{}", fmt::ptr(c));
 #endif
 			c->Cull();
 			queue.push_back(c);
@@ -96,11 +96,11 @@ void CullList::Apply()
 		else
 		{
 #ifdef INSPIRCD_ENABLE_RTTI
-			ServerInstance->Logs.Debug("CULLLIST", "WARNING: Object %s @%p culled twice!",
-				typeid(*c).name(), static_cast<void*>(c));
+			ServerInstance->Logs.Debug("CULLLIST", "WARNING: Object {} @{} culled twice!",
+				typeid(*c).name(), fmt::ptr(c));
 #else
-			ServerInstance->Logs.Debug("CULLLIST", "WARNING: Object @%p culled twice!",
-				static_cast<void*>(c));
+			ServerInstance->Logs.Debug("CULLLIST", "WARNING: Object @{} culled twice!",
+				fmt::ptr(c));
 #endif
 		}
 	}

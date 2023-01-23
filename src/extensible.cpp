@@ -58,8 +58,8 @@ Extensible::~Extensible()
 {
 	if ((!extensions.empty() || !culled) && ServerInstance)
 	{
-		ServerInstance->Logs.Debug("CULLLIST", "Extensible destructor called without cull @%p",
-			static_cast<void*>(this));
+		ServerInstance->Logs.Debug("CULLLIST", "Extensible destructor called without cull @{}",
+			fmt::ptr(this));
 	}
 }
 

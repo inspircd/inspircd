@@ -143,8 +143,8 @@ private:
 
 			lastrank = pm->GetPrefixRank();
 			oplevels[pm->GetModeChar()] = ConvToStr(oplevel);
-			ServerInstance->Logs.Debug(MODNAME, "Assigned oplevel %u to the %c (%s) prefix mode.",
-				oplevel, pm->GetModeChar(), pm->name.c_str());
+			ServerInstance->Logs.Debug(MODNAME, "Assigned oplevel {} to the {} ({}) prefix mode.",
+				oplevel, pm->GetModeChar(), pm->name);
 		}
 	}
 

@@ -69,7 +69,7 @@ CmdResult CommandDie::Handle(User* user, const Params& parameters)
 	}
 	else
 	{
-		ServerInstance->Logs.Error(MODNAME, "Failed /DIE command from %s", user->GetFullRealHost().c_str());
+		ServerInstance->Logs.Error(MODNAME, "Failed /DIE command from {}", user->GetFullRealHost());
 		ServerInstance->SNO.WriteGlobalSno('a', "Failed DIE command from {}.", user->GetFullRealHost());
 		return CmdResult::FAILURE;
 	}

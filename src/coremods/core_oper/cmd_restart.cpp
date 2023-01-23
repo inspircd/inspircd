@@ -44,7 +44,7 @@ CommandRestart::CommandRestart(Module* parent)
 
 CmdResult CommandRestart::Handle(User* user, const Params& parameters)
 {
-	ServerInstance->Logs.Normal(MODNAME, "Restart: %s", user->nick.c_str());
+	ServerInstance->Logs.Normal(MODNAME, "Restart: {}", user->nick);
 	if (irc::equals(parameters[0], ServerInstance->Config->ServerName))
 	{
 		ServerInstance->SNO.WriteGlobalSno('a', "RESTART command from {}, restarting server.", user->GetFullRealHost());

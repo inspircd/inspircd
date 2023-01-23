@@ -57,7 +57,7 @@ private:
 
 		if (InspIRCd::Match(server->GetName(), sasl_target))
 		{
-			ServerInstance->Logs.Debug(MODNAME, "SASL target server \"%s\" %s", sasl_target.c_str(), (linked ? "came online" : "went offline"));
+			ServerInstance->Logs.Debug(MODNAME, "SASL target server \"{}\" {}", sasl_target, (linked ? "came online" : "went offline"));
 			online = linked;
 		}
 	}
@@ -257,7 +257,7 @@ public:
 				else if (msg[2] == "M")
 					this->user->WriteNumeric(RPL_SASLMECHS, msg[3], "are available SASL mechanisms");
 				else
-					ServerInstance->Logs.Debug(MODNAME, "Services sent an unknown SASL message \"%s\" \"%s\"", msg[2].c_str(), msg[3].c_str());
+					ServerInstance->Logs.Debug(MODNAME, "Services sent an unknown SASL message \"{}\" \"{}\"", msg[2], msg[3]);
 				break;
 
 			case SASL_DONE:
@@ -377,7 +377,7 @@ public:
 		auto* target = ServerInstance->Users.FindUUID(parameters[1]);
 		if (!target)
 		{
-			ServerInstance->Logs.Debug(MODNAME, "User not found in sasl ENCAP event: %s", parameters[1].c_str());
+			ServerInstance->Logs.Debug(MODNAME, "User not found in sasl ENCAP event: {}", parameters[1]);
 			return CmdResult::FAILURE;
 		}
 

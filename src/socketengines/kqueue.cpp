@@ -107,7 +107,7 @@ bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 	struct kevent* ke = GetChangeKE();
 	EV_SET(ke, fd, EVFILT_READ, EV_ADD, 0, 0, udata_cast(eh));
 
-	ServerInstance->Logs.Debug("SOCKET", "New file descriptor: %d", fd);
+	ServerInstance->Logs.Debug("SOCKET", "New file descriptor: {}", fd);
 
 	eh->SetEventMask(event_mask);
 	OnSetEvent(eh, 0, event_mask);
@@ -121,7 +121,7 @@ void SocketEngine::DelFd(EventHandler* eh)
 	int fd = eh->GetFd();
 	if (!eh->HasFd())
 	{
-		ServerInstance->Logs.Debug("SOCKET", "DelFd() on invalid fd: %d", fd);
+		ServerInstance->Logs.Debug("SOCKET", "DelFd() on invalid fd: {}", fd);
 		return;
 	}
 
@@ -136,7 +136,7 @@ void SocketEngine::DelFd(EventHandler* eh)
 
 	SocketEngine::DelFdRef(eh);
 
-	ServerInstance->Logs.Debug("SOCKET", "Remove file descriptor: %d", fd);
+	ServerInstance->Logs.Debug("SOCKET", "Remove file descriptor: {}", fd);
 }
 
 void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)

@@ -188,7 +188,7 @@ public:
 		 */
 		if (HasFd())
 		{
-			ServerInstance->Logs.Debug(MODNAME, "Close ident socket %d", GetFd());
+			ServerInstance->Logs.Debug(MODNAME, "Close ident socket {}", GetFd());
 			SocketEngine::Close(this);
 		}
 	}
@@ -407,8 +407,8 @@ public:
 	{
 		if (klass->config->getBool("requireident") && state.Get(user) != IDENT_FOUND)
 		{
-			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires an identd response.",
-				klass->GetName().c_str());
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is not suitable as it requires an identd response.",
+				klass->GetName());
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

@@ -466,7 +466,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	Modules.erase(modfind);
 	ServerInstance->GlobalCulls.AddItem(mod);
 
-	ServerInstance->Logs.Normal("MODULE", "The %s module was unloaded", mod->ModuleSourceFile.c_str());
+	ServerInstance->Logs.Normal("MODULE", "The {} module was unloaded", mod->ModuleSourceFile);
 }
 
 void ModuleManager::UnloadAll()
@@ -546,7 +546,7 @@ void ModuleManager::LoadAll()
 	{
 		try
 		{
-			ServerInstance->Logs.Debug("MODULE", "Initializing %s", modname.c_str());
+			ServerInstance->Logs.Debug("MODULE", "Initializing {}", modname);
 			AttachAll(mod);
 			AddServices(servicemap[modname]);
 			mod->init();
@@ -570,7 +570,7 @@ void ModuleManager::LoadAll()
 	{
 		try
 		{
-			ServerInstance->Logs.Debug("MODULE", "Reading configuration for %s", modname.c_str());
+			ServerInstance->Logs.Debug("MODULE", "Reading configuration for {}", modname);
 			mod->ReadConfig(confstatus);
 		}
 		catch (const CoreException& modexcept)
@@ -599,8 +599,8 @@ void ModuleManager::AddServices(const ServiceList& list)
 
 void ModuleManager::AddService(ServiceProvider& item)
 {
-	ServerInstance->Logs.Debug("SERVICE", "Adding %s %s provided by %s", item.name.c_str(),
-		item.GetTypeString(), item.creator ? item.creator->ModuleSourceFile.c_str() : "the core");
+	ServerInstance->Logs.Debug("SERVICE", "Adding {} {} provided by {}", item.name,
+		item.GetTypeString(), item.creator ? item.creator->ModuleSourceFile : "the core");
 	switch (item.service)
 	{
 		case SERVICE_DATA:
@@ -629,8 +629,8 @@ void ModuleManager::AddService(ServiceProvider& item)
 
 void ModuleManager::DelService(ServiceProvider& item)
 {
-	ServerInstance->Logs.Debug("SERVICE", "Deleting %s %s provided by %s", item.name.c_str(),
-		item.GetTypeString(), item.creator ? item.creator->ModuleSourceFile.c_str() : "the core");
+	ServerInstance->Logs.Debug("SERVICE", "Deleting {} {} provided by {}", item.name,
+		item.GetTypeString(), item.creator ? item.creator->ModuleSourceFile : "the core");
 	switch (item.service)
 	{
 		case SERVICE_MODE:

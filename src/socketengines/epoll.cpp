@@ -90,13 +90,13 @@ bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 	int fd = eh->GetFd();
 	if (!eh->HasFd())
 	{
-		ServerInstance->Logs.Debug("SOCKET", "AddFd out of range: (fd: %d)", fd);
+		ServerInstance->Logs.Debug("SOCKET", "AddFd out of range: (fd: {})", fd);
 		return false;
 	}
 
 	if (!SocketEngine::AddFdRef(eh))
 	{
-		ServerInstance->Logs.Debug("SOCKET", "Attempt to add duplicate fd: %d", fd);
+		ServerInstance->Logs.Debug("SOCKET", "Attempt to add duplicate fd: {}", fd);
 		return false;
 	}
 
@@ -107,11 +107,11 @@ bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_ADD, fd, &ev);
 	if (i < 0)
 	{
-		ServerInstance->Logs.Debug("SOCKET", "Error adding fd: %d to socketengine: %s", fd, strerror(errno));
+		ServerInstance->Logs.Debug("SOCKET", "Error adding fd: {} to socketengine: {}", fd, strerror(errno));
 		return false;
 	}
 
-	ServerInstance->Logs.Debug("SOCKET", "New file descriptor: %d", fd);
+	ServerInstance->Logs.Debug("SOCKET", "New file descriptor: {}", fd);
 
 	eh->SetEventMask(event_mask);
 	ResizeDouble(events);
@@ -139,7 +139,7 @@ void SocketEngine::DelFd(EventHandler* eh)
 	int fd = eh->GetFd();
 	if (!eh->HasFd())
 	{
-		ServerInstance->Logs.Debug("SOCKET", "DelFd out of range: (fd: %d)", fd);
+		ServerInstance->Logs.Debug("SOCKET", "DelFd out of range: (fd: {})", fd);
 		return;
 	}
 
@@ -151,12 +151,12 @@ void SocketEngine::DelFd(EventHandler* eh)
 
 	if (i < 0)
 	{
-		ServerInstance->Logs.Debug("SOCKET", "epoll_ctl can't remove socket: %s", strerror(errno));
+		ServerInstance->Logs.Debug("SOCKET", "epoll_ctl can't remove socket: {}", strerror(errno));
 	}
 
 	SocketEngine::DelFdRef(eh);
 
-	ServerInstance->Logs.Debug("SOCKET", "Remove file descriptor: %d", fd);
+	ServerInstance->Logs.Debug("SOCKET", "Remove file descriptor: {}", fd);
 }
 
 int SocketEngine::DispatchEvents()

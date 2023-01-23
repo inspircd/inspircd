@@ -809,7 +809,7 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string& freeform
 	}
 	catch (const ModuleException& e)
 	{
-		ServerInstance->Logs.Normal(MODNAME, "Error in regular expression '%s': %s", freeform.c_str(), e.GetReason().c_str());
+		ServerInstance->Logs.Normal(MODNAME, "Error in regular expression '{}': {}", freeform, e.GetReason());
 		return std::make_pair(false, e.GetReason());
 	}
 	return std::make_pair(true, "");
@@ -888,7 +888,7 @@ void ModuleFilter::ReadFilters()
 		if (result.first)
 			removedfilters.erase(pattern);
 		else
-			ServerInstance->Logs.Warning(MODNAME, "Filter '%s' could not be added: %s", pattern.c_str(), result.second.c_str());
+			ServerInstance->Logs.Warning(MODNAME, "Filter '{}' could not be added: {}", pattern, result.second);
 	}
 
 	if (!removedfilters.empty())

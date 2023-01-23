@@ -89,9 +89,8 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 			if (!version)
 				version = "unknown";
 
-			ServerInstance->Logs.Normal("MODULE", "New module introduced: %s (version %s, properties %s)",
-				filename.c_str(), version, newmod->GetPropertyString().c_str());
-
+			ServerInstance->Logs.Normal("MODULE", "New module introduced: {} (version {}, properties {})",
+				filename, version, newmod->GetPropertyString());
 		}
 		else
 		{

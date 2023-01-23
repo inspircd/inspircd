@@ -100,8 +100,8 @@ CmdResult SplitCommand::Handle(User* user, const Params& parameters)
 			return HandleServer(static_cast<FakeUser*>(user), parameters);
 	}
 
-	ServerInstance->Logs.Debug("COMMAND", "Unknown user type %u in command (uuid=%s)!",
-		static_cast<unsigned int>(user->usertype), user->uuid.c_str());
+	ServerInstance->Logs.Debug("COMMAND", "Unknown user type {} in command (uuid={})!",
+		user->usertype, user->uuid);
 	return CmdResult::INVALID;
 }
 

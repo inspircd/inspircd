@@ -107,7 +107,7 @@ public:
 
 	void OnError(const SQL::Error& error) override
 	{
-		ServerInstance->Logs.Warning(MODNAME, "query failed (%s)", error.ToString());
+		ServerInstance->Logs.Warning(MODNAME, "query failed ({})", error.ToString());
 		ServerInstance->SNO.WriteGlobalSno('a', "m_sqloper: Failed to update blocks from database");
 		if (!uid.empty())
 		{
