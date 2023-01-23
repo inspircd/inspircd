@@ -64,15 +64,13 @@ private:
 		}
 	}
 
-	void WriteLog(const char* message, ...) const ATTR_PRINTF(2, 3)
+	template <typename... Args>
+	void WriteLog(const char* message, Args&&... args) const
 	{
-		std::string buffer;
-		VAFORMAT(buffer, message, message);
-
 		if (notifyopers)
-			ServerInstance->SNO.WriteToSnoMask('a', buffer);
+			ServerInstance->SNO.WriteToSnoMask('a', message, std::forward<Args>(args)...);
 		else
-			ServerInstance->Logs.Normal(MODNAME, buffer);
+			ServerInstance->Logs.Normal(MODNAME, message, std::forward<Args>(args)...);
 	}
 
 public:

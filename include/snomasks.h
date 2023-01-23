@@ -99,9 +99,13 @@ public:
 	/** Write to all users with a given snomask (local server only)
 	 * @param letter The snomask letter to write to
 	 * @param text A format string containing text to send
-	 * @param ... Format arguments
+	 * @param args Format arguments
 	 */
-	void WriteToSnoMask(char letter, const char* text, ...) ATTR_PRINTF(3, 4);
+	template <typename... Args>
+	void WriteToSnoMask(char letter, const char* text, Args&&... args)
+	{
+		WriteToSnoMask(letter, fmt::sprintf(text, std::forward<Args>(args)...));
+	}
 
 	/** Write to all users with a given snomask (sent globally)
 	 * @param letter The snomask letter to write to
@@ -112,9 +116,13 @@ public:
 	/** Write to all users with a given snomask (sent globally)
 	 * @param letter The snomask letter to write to
 	 * @param text A format string containing text to send
-	 * @param ... Format arguments
+	 * @param args Format arguments
 	 */
-	void WriteGlobalSno(char letter, const char* text, ...) ATTR_PRINTF(3, 4);
+	template <typename... Args>
+	void WriteGlobalSno(char letter, const char* text, Args&&... args)
+	{
+		WriteGlobalSno(letter, fmt::sprintf(text, std::forward<Args>(args)...));
+	}
 
 	/** Called once per 5 seconds from the mainloop, this flushes any cached
 	 * snotices. The way the caching works is as follows:

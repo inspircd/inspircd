@@ -387,29 +387,6 @@ std::string Duration::ToString(unsigned long duration)
 	return ret;
 }
 
-std::string InspIRCd::Format(va_list& vaList, const char* formatString)
-{
-	static std::vector<char> formatBuffer(1024);
-
-	while (true)
-	{
-		va_list dst;
-		va_copy(dst, vaList);
-
-		int vsnret = vsnprintf(formatBuffer.data(), formatBuffer.size(), formatString, dst);
-		va_end(dst);
-
-		if (vsnret > 0 && static_cast<unsigned>(vsnret) < formatBuffer.size())
-		{
-			break;
-		}
-
-		formatBuffer.resize(formatBuffer.size() * 2);
-	}
-
-	return std::string(formatBuffer.data());
-}
-
 std::string InspIRCd::TimeString(time_t curtime, const char* format, bool utc)
 {
 #ifdef _WIN32

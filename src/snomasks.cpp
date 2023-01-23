@@ -55,20 +55,6 @@ void SnomaskManager::WriteGlobalSno(char letter, const std::string& text)
 	ServerInstance->PI->SendSNONotice(letter, text);
 }
 
-void SnomaskManager::WriteToSnoMask(char letter, const char* text, ...)
-{
-	std::string textbuffer;
-	VAFORMAT(textbuffer, text, text);
-	this->WriteToSnoMask(letter, textbuffer);
-}
-
-void SnomaskManager::WriteGlobalSno(char letter, const char* text, ...)
-{
-	std::string textbuffer;
-	VAFORMAT(textbuffer, text, text);
-	this->WriteGlobalSno(letter, textbuffer);
-}
-
 SnomaskManager::SnomaskManager()
 {
 	EnableSnomask('a', "ANNOUNCEMENT");

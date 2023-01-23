@@ -235,16 +235,8 @@ private:
 	 * @param level The level to log at.
 	 * @param type The type of message that is being logged.
 	 * @param message The message to log.
-	 * */
+	 */
 	void Write(Level level, const std::string& type, const std::string& message);
-
-	/** Writes a message to the server logs.
-	 * @param level The level to log at.
-	 * @param type The type of message that is being logged.
-	 * @param format The message to format and then log.
-	 * @param args The arguments to use when formatting the log message
-	 * */
-	void Write(Level level, const std::string& type, const char* format, va_list& args) ATTR_NOT_NULL(4) ATTR_PRINTF(4, 0);
 
 public:
 	Manager();
@@ -278,19 +270,18 @@ public:
 	/** Writes an error message to the server log.
 	 * @param type The type of message that is being logged.
 	 * @param format A format string to format and then log.
-	 * */
-	inline void Error(const std::string& type, const char* format, ...) ATTR_NOT_NULL(3) ATTR_PRINTF(3, 4)
+	 * @param args One or more arguments to format the string with.
+	 */
+	template <typename... Args>
+	void Error(const std::string& type, const char* format, Args&&... args)
 	{
-		va_list args;
-		va_start(args, format);
-		Write(Level::ERROR, type, format, args);
-		va_end(args);
+		Write(Level::ERROR, type, fmt::sprintf(format, std::forward<Args>(args)...));
 	}
 
 	/** Writes a warning message to the server log.
 	 * @param type The type of message that is being logged.
 	 * @param message The message to log.
-	 * */
+	 */
 	inline void Warning(const std::string& type, const std::string& message)
 	{
 		Write(Level::WARNING, type, message);
@@ -299,19 +290,18 @@ public:
 	/** Writes a warning message to the server log.
 	 * @param type The type of message that is being logged.
 	 * @param format A format string to format and then log.
-	 * */
-	inline void Warning(const std::string& type, const char* format, ...) ATTR_NOT_NULL(3) ATTR_PRINTF(3, 4)
+	 * @param args One or more arguments to format the string with.
+	 */
+	template <typename... Args>
+	void Warning(const std::string& type, const char* format, Args&&... args)
 	{
-		va_list args;
-		va_start(args, format);
-		Write(Level::WARNING, type, format, args);
-		va_end(args);
+		Write(Level::WARNING, type, fmt::sprintf(format, std::forward<Args>(args)...));
 	}
 
 	/** Writes a normal message to the server log.
 	 * @param type The type of message that is being logged.
 	 * @param message The message to log.
-	 * */
+	 */
 	inline void Normal(const std::string& type, const std::string& message)
 	{
 		Write(Level::NORMAL, type, message);
@@ -320,19 +310,18 @@ public:
 	/** Writes a normal message to the server log.
 	 * @param type The type of message that is being logged.
 	 * @param format A format string to format and then log.
-	 * */
-	inline void Normal(const std::string& type, const char* format, ...) ATTR_NOT_NULL(3) ATTR_PRINTF(3, 4)
+	 * @param args One or more arguments to format the string with.
+	 */
+	template <typename... Args>
+	void Normal(const std::string& type, const char* format, Args&&... args)
 	{
-		va_list args;
-		va_start(args, format);
-		Write(Level::NORMAL, type, format, args);
-		va_end(args);
+		Write(Level::NORMAL, type, fmt::sprintf(format, std::forward<Args>(args)...));
 	}
 
 	/** Writes a debug message to the server log.
 	 * @param type The type of message that is being logged.
 	 * @param message The message to log.
-	 * */
+	 */
 	inline void Debug(const std::string& type, const std::string& message)
 	{
 		Write(Level::DEBUG, type, message);
@@ -340,19 +329,18 @@ public:
 	/** Writes a debug message to the server log.
 	 * @param type The type of message that is being logged.
 	 * @param format A format string to format and then log.
-	 * */
-	inline void Debug(const std::string& type, const char* format, ...) ATTR_NOT_NULL(3) ATTR_PRINTF(3, 4)
+	 * @param args One or more arguments to format the string with.
+	 */
+	template <typename... Args>
+	void Debug(const std::string& type, const char* format, Args&&... args)
 	{
-		va_list args;
-		va_start(args, format);
-		Write(Level::DEBUG, type, format, args);
-		va_end(args);
+		Write(Level::DEBUG, type, fmt::sprintf(format, std::forward<Args>(args)...));
 	}
 
 	/** Writes a raw I/O message to the server log.
 	 * @param type The type of message that is being logged.
 	 * @param message The message to log.
-	 * */
+	 */
 	inline void RawIO(const std::string& type, const std::string& message)
 	{
 		Write(Level::RAWIO, type, message);
@@ -361,12 +349,11 @@ public:
 	/** Writes a raw I/O message to the server log.
 	 * @param type The type of message that is being logged.
 	 * @param format A format string to format and then log.
-	 * */
-	inline void RawIO(const std::string& type, const char* format, ...) ATTR_NOT_NULL(3) ATTR_PRINTF(3, 4)
+	 * @param args One or more arguments to format the string with.
+	 */
+	template <typename... Args>
+	void RawIO(const std::string& type, const char* format, Args&&... args)
 	{
-		va_list args;
-		va_start(args, format);
-		Write(Level::RAWIO, type, format, args);
-		va_end(args);
+		Write(Level::RAWIO, type, fmt::sprintf(format, std::forward<Args>(args)...));
 	}
 };

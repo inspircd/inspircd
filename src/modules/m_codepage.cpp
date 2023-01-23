@@ -280,7 +280,7 @@ public:
 				{
 					case Codepage::AllowCharacterResult::OKAY:
 						ServerInstance->Logs.Debug(MODNAME, "Marked %lu (%.4s) as allowed (front: %s)",
-							pos, reinterpret_cast<unsigned char*>(&pos), front ? "yes" : "no");
+							pos, fmt::ptr(&pos), front ? "yes" : "no");
 						break;
 
 					case Codepage::AllowCharacterResult::NOT_VALID:
@@ -308,7 +308,7 @@ public:
 				throw ModuleException(this, "Malformed <cpcase> tag at " + tag->source.str());
 
 			ServerInstance->Logs.Debug(MODNAME, "Marked %lu (%.4s) as the lower case version of %lu (%.4s)",
-				lower, reinterpret_cast<unsigned char*>(&lower), upper, reinterpret_cast<unsigned char*>(&upper));
+				lower, fmt::ptr(&lower), upper, fmt::ptr(&upper));
 		}
 
 		charset = codepagetag->getString("charset");

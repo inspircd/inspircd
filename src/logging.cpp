@@ -290,8 +290,3 @@ void Log::Manager::Write(Level level, const std::string& type, const std::string
 		cache.emplace_back(time, level, type, message);
 	logging = false;
 }
-
-void Log::Manager::Write(Level level, const std::string& type, const char* format, va_list& args)
-{
-	Write(level, type, InspIRCd::Format(args, format));
-}

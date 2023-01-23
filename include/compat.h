@@ -33,18 +33,6 @@
 #endif
 
 /**
- * @def ATTR_PRINTF(STRINGPOS, FIRSTPOS)
- * Enables the compile-time checking of printf format strings. If a function
- * is marked with this attribute then the compiler will warn if a malformed
- * format string is passed to it.
- */
-#if defined __GNUC__
-# define ATTR_PRINTF(STRINGPOS, FIRSTPOS) __attribute__((format(printf, STRINGPOS, FIRSTPOS)))
-#else
-# define ATTR_PRINTF(STRINGPOS, FIRSTPOS)
-#endif
-
-/**
  * Windows is very different to UNIX so we have to wrap certain features in
  * order to build on Windows correctly.
  */

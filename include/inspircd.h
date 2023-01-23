@@ -369,13 +369,6 @@ public:
 	[[noreturn]]
 	static void QuickExit(int status);
 
-	/** Formats the input string with the specified arguments.
-	* @param formatString The string to format
-	* @param ... A variable number of format arguments.
-	* @return The formatted string
-	*/
-	static std::string Format(va_list& vaList, const char* formatString) ATTR_PRINTF(2, 0);
-
 	/** Determines whether a nickname is valid. */
 	std::function<bool(const std::string_view&)> IsNick = &DefaultIsNick;
 

@@ -26,17 +26,17 @@
  */
 
 
+#include "inspircd.h"
+#include "modules/cap.h"
+#include "modules/stats.h"
+#include "xline.h"
+
 #ifdef _WIN32
 # include <psapi.h>
 #else
 # include <netinet/in.h>
 # include <sys/resource.h>
 #endif
-
-#include "inspircd.h"
-#include "modules/cap.h"
-#include "modules/stats.h"
-#include "xline.h"
 
 class StatsTagsProvider
 	: public ClientProtocol::MessageTagProvider

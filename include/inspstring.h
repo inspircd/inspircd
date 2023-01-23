@@ -27,17 +27,6 @@
 
 #pragma once
 
-#include <cstring>
-
-/** Sets ret to the formatted string. last is the last parameter before ..., and format is the format in printf-style */
-#define VAFORMAT(ret, last, format) \
-	do { \
-	va_list _vaList; \
-	va_start(_vaList, last); \
-	ret.assign(InspIRCd::Format(_vaList, format)); \
-	va_end(_vaList); \
-	} while (false)
-
 /** @def INSP_FORMAT(FORMAT, ...)
  * Formats a string with format string checking.
  */
@@ -48,6 +37,7 @@
 # include <fmt/core.h>
 # define INSP_FORMAT(FORMAT, ...) fmt::format(FMT_STRING(FORMAT), __VA_ARGS__)
 #endif
+#include <fmt/printf.h>
 
 namespace Base64
 {
