@@ -30,9 +30,10 @@
 
 
 #include "inspircd.h"
-#include "xline.h"
+#include "duration.h"
 #include "modules/shun.h"
 #include "modules/stats.h"
+#include "xline.h"
 
 /** An XLineFactory specialized to generate shun pointers
  */
@@ -103,7 +104,7 @@ public:
 			std::string expr;
 			if (parameters.size() > 2)
 			{
-				if (!InspIRCd::Duration(parameters[1], duration))
+				if (!Duration::TryFrom(parameters[1], duration))
 				{
 					user->WriteNotice("*** Invalid duration for SHUN.");
 					return CmdResult::FAILURE;
@@ -127,7 +128,7 @@ public:
 				else
 				{
 					ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed SHUN on %s, expires in %s (on %s): %s",
-						user->nick.c_str(), target.c_str(), InspIRCd::DurationString(duration).c_str(),
+						user->nick.c_str(), target.c_str(), Duration::ToString(duration).c_str(),
 						InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), expr.c_str());
 				}
 			}

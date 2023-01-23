@@ -27,6 +27,7 @@
 
 
 #include "inspircd.h"
+#include "duration.h"
 #include "modules/account.h"
 #include "modules/isupport.h"
 #include "modules/who.h"
@@ -379,7 +380,7 @@ bool CommandWho::MatchUser(LocalUser* source, User* user, WhoData& data)
 	// The source wants to match against users' connection times.
 	else if (data.flags['t'])
 	{
-		time_t seconds = ServerInstance->Time() - InspIRCd::Duration(data.matchtext);
+		time_t seconds = ServerInstance->Time() - Duration::From(data.matchtext);
 		if (user->signon >= seconds)
 			match = true;
 	}

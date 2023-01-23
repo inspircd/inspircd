@@ -26,6 +26,7 @@
 
 
 #include "inspircd.h"
+#include "duration.h"
 #include "modules/ircv3_replies.h"
 
 class CommandSetidle final
@@ -50,7 +51,7 @@ public:
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
 		unsigned long idle;
-		if (!InspIRCd::Duration(parameters[0], idle))
+		if (!Duration::TryFrom(parameters[0], idle))
 		{
 			failrpl.SendIfCap(user, stdrplcap, this, "INVALID_IDLE_TIME", parameters[0], "Invalid idle time.");
 			return CmdResult::FAILURE;

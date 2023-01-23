@@ -23,6 +23,7 @@
 #pragma once
 
 #include "inspircd.h"
+#include "duration.h"
 
 class InsaneBan final
 {

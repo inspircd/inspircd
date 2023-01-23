@@ -24,6 +24,7 @@
 
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
+#include "duration.h"
 #include "modules/ircv3_batch.h"
 #include "modules/ircv3_servertime.h"
 #include "modules/server.h"
@@ -97,7 +98,7 @@ public:
 		}
 
 		std::string duration(parameter, colon+1);
-		if ((IS_LOCAL(source)) && ((duration.length() > 10) || (!InspIRCd::IsValidDuration(duration))))
+		if ((IS_LOCAL(source)) && ((duration.length() > 10) || (!Duration::IsValid(duration))))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
 			return false;
@@ -105,7 +106,7 @@ public:
 
 		unsigned long len = ConvToNum<unsigned long>(parameter.substr(0, colon));
 		unsigned long time;
-		if (!InspIRCd::Duration(duration, time) || len == 0 || (len > maxlines && IS_LOCAL(source)))
+		if (!Duration::TryFrom(duration, time) || len == 0 || (len > maxlines && IS_LOCAL(source)))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
 			return false;
@@ -135,7 +136,7 @@ public:
 	{
 		out.append(ConvToStr(history->maxlen));
 		out.append(":");
-		out.append(InspIRCd::DurationString(history->maxtime));
+		out.append(Duration::ToString(history->maxtime));
 	}
 };
 
@@ -257,7 +258,7 @@ public:
 		{
 			std::string message("Replaying up to " + ConvToStr(list->maxlen) + " lines of pre-join history");
 			if (list->maxtime > 0)
-				message.append(" from the last " + InspIRCd::DurationString(list->maxtime));
+				message.append(" from the last " + Duration::ToString(list->maxtime));
 			memb->WriteNotice(message);
 		}
 

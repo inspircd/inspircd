@@ -72,7 +72,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 			return CmdResult::FAILURE;
 
 		unsigned long duration;
-		if (!InspIRCd::Duration(parameters[1], duration))
+		if (!Duration::TryFrom(parameters[1], duration))
 		{
 			user->WriteNotice("*** Invalid duration for Z-line.");
 			return CmdResult::FAILURE;
@@ -88,7 +88,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 			else
 			{
 				ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed Z-line on %s, expires in %s (on %s): %s",
-					user->nick.c_str(), ipaddr, InspIRCd::DurationString(duration).c_str(),
+					user->nick.c_str(), ipaddr, Duration::ToString(duration).c_str(),
 					InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), parameters[2].c_str());
 			}
 			ServerInstance->XLines->ApplyLines();

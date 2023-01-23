@@ -444,33 +444,6 @@ public:
 	 */
 	void Rehash(const std::string& uuid = "");
 
-	/** Calculate a duration in seconds from a string in the form 1y2w3d4h6m5s
-	 * @param str A string containing a time in the form 1y2w3d4h6m5s
-	 * (one year, two weeks, three days, four hours, six minutes and five seconds)
-	 * @return The total number of seconds
-	 */
-	static unsigned long Duration(const std::string& str);
-
-	/** Calculate a duration in seconds from a string in the form 1y2w3d4h6m5s
-	 * @param str A string containing a time in the form 1y2w3d4h6m5s
-	 * (one year, two weeks, three days, four hours, six minutes and five seconds)
-	 * @param duration The location to place the parsed duration valur
-	 * @return Whether the duration was a valid format or not
-	 */
-	static bool Duration(const std::string& str, unsigned long& duration);
-
-	/** Determines whether a string contains a valid duration.
-	 * @param str A string containing a time in the form 1y2w3d4h6m5s
-	 * @return True if the string is a valid duration; otherwise, false.
-	 */
-	static bool IsValidDuration(const std::string& str);
-
-	/** Return a duration in seconds as a human-readable string.
-	 * @param duration The duration in seconds to convert to a human-readable string.
-	 * @return A string representing the given duration.
-	 */
-	static std::string DurationString(time_t duration);
-
 	/** Attempt to compare a password to a string from the config file.
 	 * This will be passed to handling modules which will compare the data
 	 * against possible hashed equivalents in the input string.

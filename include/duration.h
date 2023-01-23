@@ -1,0 +1,62 @@
+/*
+ * InspIRCd -- Internet Relay Chat Daemon
+ *
+ *   Copyright (C) 2023 Sadie Powell <sadie@witchery.services>
+ *
+ * This file is part of InspIRCd.  InspIRCd is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, version 2.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+#pragma once
+
+namespace Duration
+{
+	/** Converts a string containing a duration to the number of seconds it
+	 * represents returning 0 on error.
+	 *
+	 * The string should should be in the format 1y2w3d4h6m5s which represents
+	 * one year, two weeks, three days, four hours, six minutes, and five
+	 * seconds. If called with this duration 33,019,565 will be returned.
+	 * seconds being returned.
+	 *
+	 * @param str A string containing a duration.
+	 * @return Either the number of seconds in the duration or 0 on error.
+	 */
+	CoreExport unsigned long From(const std::string& str);
+
+	/** Determines whether a duration string is valid.
+	 * @param str The duration string to check.
+	 */
+	CoreExport bool IsValid(const std::string& str);
+
+	/** Converts a number of seconds to a duration string.
+	 *
+	 * e.g. 33,019,565 weill result in 1y2w3d4h6m5s which represents one year,
+	 * two weeks, three days, four hours, six minutes, and five seconds.
+	 */
+	CoreExport std::string ToString(unsigned long duration);
+
+	/** Attempts to converts a string containing a duration to the number of
+	 * seconds it represents returning whether the conversion succeeded.
+	 *
+	 * The string should should be in the format 1y2w3d4h6m5s which represents
+	 * one year, two weeks, three days, four hours, six minutes, and five
+	 * seconds. If called with this duration 33,019,565 will be returned.
+	 * seconds being returned.
+	 *
+	 * @param str A string containing a duration.
+	 * @param duration The location to store the resulting duration.
+	 * @return True if the conversion succeeded; otherwise, false.
+	 */
+	CoreExport bool TryFrom(const std::string& str, unsigned long& duration);
+}

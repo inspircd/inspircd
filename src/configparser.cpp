@@ -27,6 +27,7 @@
 
 #include "inspircd.h"
 #include "configparser.h"
+#include "duration.h"
 
 #ifdef _WIN32
 # define pclose _pclose
@@ -699,7 +700,7 @@ unsigned long ConfigTag::getDuration(const std::string& key, unsigned long def, 
 		return def;
 
 	unsigned long ret;
-	if (!InspIRCd::Duration(duration, ret))
+	if (!Duration::TryFrom(duration, ret))
 	{
 		LogMalformed(key, duration, ConvToStr(def), "is not a duration");
 		return def;

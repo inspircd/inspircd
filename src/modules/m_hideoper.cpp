@@ -27,6 +27,7 @@
 
 
 #include "inspircd.h"
+#include "duration.h"
 #include "modules/stats.h"
 #include "modules/who.h"
 #include "modules/whois.h"
@@ -158,7 +159,7 @@ public:
 			std::string extra;
 			if (oper->IsAway())
 			{
-				const std::string awayperiod = InspIRCd::DurationString(ServerInstance->Time() - oper->awaytime);
+				const std::string awayperiod = Duration::ToString(ServerInstance->Time() - oper->awaytime);
 				const std::string awaytime = InspIRCd::TimeString(oper->awaytime);
 				extra += InspIRCd::Format(": away for %s [since %s] (%s)", awayperiod.c_str(),
 					awaytime.c_str(), oper->awaymsg.c_str());
@@ -167,7 +168,7 @@ public:
 			auto* loper = IS_LOCAL(oper);
 			if (loper)
 			{
-				const std::string idleperiod = InspIRCd::DurationString(ServerInstance->Time() - loper->idle_lastmsg);
+				const std::string idleperiod = Duration::ToString(ServerInstance->Time() - loper->idle_lastmsg);
 				const std::string idletime = InspIRCd::TimeString(loper->idle_lastmsg);
 				extra += InspIRCd::Format("%c idle for %s [since %s]",  extra.empty() ? ':' : ',',
 					idleperiod.c_str(), idletime.c_str());

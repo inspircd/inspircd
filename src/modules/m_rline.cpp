@@ -26,6 +26,7 @@
 
 
 #include "inspircd.h"
+#include "duration.h"
 #include "modules/regex.h"
 #include "modules/stats.h"
 #include "xline.h"
@@ -78,7 +79,7 @@ public:
 				else
 				{
 					ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed Z-line on %s, expires in %s (on %s): %s",
-						zl->source.c_str(), u->GetIPString().c_str(), InspIRCd::DurationString(zl->duration).c_str(),
+						zl->source.c_str(), u->GetIPString().c_str(), Duration::ToString(zl->duration).c_str(),
 						InspIRCd::TimeString(zl->duration).c_str(), zl->reason.c_str());
 				}
 				added_zline = true;
@@ -153,7 +154,7 @@ public:
 			// Adding - XXX todo make this respect <insane> tag perhaps..
 
 			unsigned long duration;
-			if (!InspIRCd::Duration(parameters[1], duration))
+			if (!Duration::TryFrom(parameters[1], duration))
 			{
 				user->WriteNotice("*** Invalid duration for R-line.");
 				return CmdResult::FAILURE;
@@ -180,7 +181,7 @@ public:
 					else
 					{
 						ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed R-line on %s, expires in %s (on %s): %s",
-							user->nick.c_str(), parameters[0].c_str(), InspIRCd::DurationString(duration).c_str(),
+							user->nick.c_str(), parameters[0].c_str(), Duration::ToString(duration).c_str(),
 							InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), parameters[2].c_str());
 					}
 

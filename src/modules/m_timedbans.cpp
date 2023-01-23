@@ -30,6 +30,7 @@
 
 
 #include "inspircd.h"
+#include "duration.h"
 #include "listmode.h"
 #include "modules/extban.h"
 #include "numerichelper.h"
@@ -102,7 +103,7 @@ public:
 
 		TimedBan T;
 		unsigned long duration;
-		if (!InspIRCd::Duration(parameters[1], duration))
+		if (!Duration::TryFrom(parameters[1], duration))
 		{
 			user->WriteNotice("Invalid ban time");
 			return CmdResult::FAILURE;
@@ -151,7 +152,7 @@ public:
 		if (sendnotice)
 		{
 			const std::string message = InspIRCd::Format("Timed ban %s added by %s on %s lasting for %s.",
-			mask.c_str(), user->nick.c_str(), channel->name.c_str(), InspIRCd::DurationString(duration).c_str());
+			mask.c_str(), user->nick.c_str(), channel->name.c_str(), Duration::ToString(duration).c_str());
 
 			// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
 			PrefixMode* mh = ServerInstance->Modes.FindNearestPrefixMode(HALFOP_VALUE);

@@ -34,6 +34,7 @@
 #endif
 
 #include "inspircd.h"
+#include "duration.h"
 #include "xline.h"
 
 bool InspIRCd::IsValidMask(const std::string& mask)
@@ -274,7 +275,7 @@ bool InspIRCd::IsSID(const std::string& str)
 }
 
 /** A lookup table of values for multiplier characters used by
- * InspIRCd::Duration(). In this lookup table, the indexes for
+ * Duration::{Try,}From(). In this lookup table, the indexes for
  * the ascii values 'm' and 'M' have the value '60', the indexes
  * for the ascii values 'D' and 'd' have a value of '86400', etc.
  */
@@ -298,7 +299,7 @@ static constexpr unsigned int duration_multi[] =
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
-bool InspIRCd::Duration(const std::string& str, unsigned long& duration)
+bool Duration::TryFrom(const std::string& str, unsigned long& duration)
 {
 	unsigned long total = 0;
 	unsigned long subtotal = 0;
@@ -332,14 +333,14 @@ bool InspIRCd::Duration(const std::string& str, unsigned long& duration)
 	return true;
 }
 
-unsigned long InspIRCd::Duration(const std::string& str)
+unsigned long Duration::From(const std::string& str)
 {
 	unsigned long out = 0;
-	InspIRCd::Duration(str, out);
+	Duration::TryFrom(str, out);
 	return out;
 }
 
-bool InspIRCd::IsValidDuration(const std::string& duration)
+bool Duration::IsValid(const std::string& duration)
 {
 	for (const auto c : duration)
 	{
@@ -352,39 +353,34 @@ bool InspIRCd::IsValidDuration(const std::string& duration)
 	return true;
 }
 
-std::string InspIRCd::DurationString(time_t duration)
+std::string Duration::ToString(unsigned long duration)
 {
 	if (duration == 0)
 		return "0s";
 
 	std::string ret;
-	if (duration < 0)
-	{
-		ret = "-";
-		duration = std::abs(duration);
-	}
 
-	time_t years = duration / 31449600;
+	unsigned long years = duration / 31449600;
 	if (years)
 		ret += ConvToStr(years) + "y";
 
-	time_t weeks = (duration / 604800) % 52;
+	unsigned long weeks = (duration / 604800) % 52;
 	if (weeks)
 		ret += ConvToStr(weeks) + "w";
 
-	time_t days = (duration / 86400) % 7;
+	unsigned long days = (duration / 86400) % 7;
 	if (days)
 		ret += ConvToStr(days) + "d";
 
-	time_t hours = (duration / 3600) % 24;
+	unsigned long hours = (duration / 3600) % 24;
 	if (hours)
 		ret += ConvToStr(hours) + "h";
 
-	time_t minutes = (duration / 60) % 60;
+	unsigned long minutes = (duration / 60) % 60;
 	if (minutes)
 		ret += ConvToStr(minutes) + "m";
 
-	time_t seconds = duration % 60;
+	unsigned long seconds = duration % 60;
 	if (seconds)
 		ret += ConvToStr(seconds) + "s";
 

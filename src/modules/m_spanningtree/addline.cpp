@@ -25,6 +25,7 @@
 
 
 #include "inspircd.h"
+#include "duration.h"
 #include "xline.h"
 
 #include "treeserver.h"
@@ -59,7 +60,7 @@ CmdResult CommandAddLine::Handle(User* usr, Params& params)
 		{
 			ServerInstance->SNO.WriteToSnoMask('X', "%s added a timed %s%s on %s, expires in %s (on %s): %s",
 				setter.c_str(), params[0].c_str(), params[0].length() == 1 ? "-line" : "",
-				params[1].c_str(), InspIRCd::DurationString(xl->duration).c_str(),
+				params[1].c_str(), Duration::ToString(xl->duration).c_str(),
 				InspIRCd::TimeString(xl->expiry).c_str(), params[5].c_str());
 		}
 		else

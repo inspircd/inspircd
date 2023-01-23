@@ -27,8 +27,9 @@
 
 
 #include "inspircd.h"
-#include "xline.h"
+#include "duration.h"
 #include "modules/stats.h"
+#include "xline.h"
 
 namespace
 {
@@ -135,7 +136,7 @@ public:
 				return CmdResult::FAILURE;
 
 			unsigned long duration;
-			if (!InspIRCd::Duration(parameters[1], duration))
+			if (!Duration::TryFrom(parameters[1], duration))
 			{
 				user->WriteNotice("*** Invalid duration for SVSHOLD.");
 				return CmdResult::FAILURE;
@@ -154,7 +155,7 @@ public:
 				else
 				{
 					ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed SVSHOLD on %s, expires in %s (on %s): %s",
-						user->nick.c_str(), parameters[0].c_str(), InspIRCd::DurationString(duration).c_str(),
+						user->nick.c_str(), parameters[0].c_str(), Duration::ToString(duration).c_str(),
 						InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), parameters[2].c_str());
 				}
 			}

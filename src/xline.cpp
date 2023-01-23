@@ -27,8 +27,9 @@
 
 
 #include "inspircd.h"
-#include "xline.h"
+#include "duration.h"
 #include "modules/stats.h"
+#include "xline.h"
 
 /** An XLineFactory specialized to generate GLine* pointers
  */
@@ -705,7 +706,7 @@ void XLine::DisplayExpiry()
 {
 	bool onechar = (type.length() == 1);
 	ServerInstance->SNO.WriteToSnoMask('x', "Removing an expired %s%s on %s (set by %s %s ago): %s",
-		type.c_str(), (onechar ? "-line" : ""), Displayable().c_str(), source.c_str(), InspIRCd::DurationString(ServerInstance->Time() - set_time).c_str(), reason.c_str());
+		type.c_str(), (onechar ? "-line" : ""), Displayable().c_str(), source.c_str(), Duration::ToString(ServerInstance->Time() - set_time).c_str(), reason.c_str());
 }
 
 const std::string& ELine::Displayable()

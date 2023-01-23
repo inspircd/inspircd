@@ -26,6 +26,8 @@
 
 #pragma once
 
+#include "duration.h"
+
 class HTTPQueryParameters final
 	: public insp::flat_multimap<std::string, std::string>
 {
@@ -62,7 +64,7 @@ public:
 	unsigned long getDuration(const std::string& key, unsigned long def = 0) const
 	{
 		unsigned long value;
-		if (!InspIRCd::Duration(getString(key, "0"), value))
+		if (!Duration::TryFrom(getString(key, "0"), value))
 			return def;
 
 		return value;

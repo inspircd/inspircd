@@ -25,6 +25,7 @@
 
 
 #include "inspircd.h"
+#include "duration.h"
 #include "modules/account.h"
 #include "modules/isupport.h"
 
@@ -105,7 +106,7 @@ public:
 		{
 			user->WriteNotice(InspIRCd::Format("*** You cannot view the channel list right now. Please %stry again in %s.",
 				exemptregistered ? "log in to an account or " : "",
-				InspIRCd::DurationString(maxwaittime - ServerInstance->Time()).c_str()));
+				Duration::ToString(maxwaittime - ServerInstance->Time()).c_str()));
 		}
 
 		// The client might be waiting on a response to do something so send them an

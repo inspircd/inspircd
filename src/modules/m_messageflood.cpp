@@ -25,6 +25,7 @@
 
 
 #include "inspircd.h"
+#include "duration.h"
 #include "modules/ctctags.h"
 #include "modules/exemption.h"
 #include "numerichelper.h"
@@ -171,7 +172,7 @@ public:
 				}
 
 				const std::string kickmsg = Template::Replace(kickmessage, {
-					{ "duration", InspIRCd::DurationString(f->secs) },
+					{ "duration", Duration::ToString(f->secs) },
 					{ "lines",    ConvToStr(f->lines)               },
 					{ "seconds",  ConvToStr(f->secs)                },
 				});

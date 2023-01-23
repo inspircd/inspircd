@@ -33,6 +33,7 @@
 
 
 #include "inspircd.h"
+#include "duration.h"
 #include "modules/account.h"
 #include "modules/regex.h"
 #include "modules/server.h"
@@ -288,7 +289,7 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 			{
 				if (parameters.size() >= 5)
 				{
-					if (!InspIRCd::Duration(parameters[3], duration))
+					if (!Duration::TryFrom(parameters[3], duration))
 					{
 						user->WriteNotice("*** Invalid duration for filter");
 						return CmdResult::FAILURE;
@@ -313,7 +314,7 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 				const std::string message = InspIRCd::Format("'%s', type '%s'%s, flags '%s', reason: %s",
 					freeform.c_str(), parameters[1].c_str(),
 					(duration ? InspIRCd::Format(", duration '%s'",
-						InspIRCd::DurationString(duration).c_str()).c_str()
+						Duration::ToString(duration).c_str()).c_str()
 					: ""), flags.c_str(), parameters[reasonindex].c_str());
 
 				user->WriteNotice("*** Added filter " + message);
@@ -467,7 +468,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		{
 			auto* sh = new Shun(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
 			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was shunned for %s (expires on %s) because their message to %s matched %s (%s)",
-				user->nick.c_str(), sh->Displayable().c_str(), InspIRCd::DurationString(f->duration).c_str(),
+				user->nick.c_str(), sh->Displayable().c_str(), Duration::ToString(f->duration).c_str(),
 				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
 				msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str()));
 			if (ServerInstance->XLines->AddLine(sh, nullptr))
@@ -481,7 +482,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		{
 			auto* gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, "*", user->GetIPString());
 			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was G-lined for %s (expires on %s) because their message to %s matched %s (%s)",
-				user->nick.c_str(), gl->Displayable().c_str(), InspIRCd::DurationString(f->duration).c_str(),
+				user->nick.c_str(), gl->Displayable().c_str(), Duration::ToString(f->duration).c_str(),
 				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
 				msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str()));
 			if (ServerInstance->XLines->AddLine(gl, nullptr))
@@ -495,7 +496,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		{
 			auto* zl = new ZLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
 			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was Z-lined for %s (expires on %s) because their message to %s matched %s (%s)",
-				user->nick.c_str(), zl->Displayable().c_str(), InspIRCd::DurationString(f->duration).c_str(),
+				user->nick.c_str(), zl->Displayable().c_str(), Duration::ToString(f->duration).c_str(),
 				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
 				msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str()));
 			if (ServerInstance->XLines->AddLine(zl, nullptr))
@@ -573,7 +574,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 				auto* gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, "*", user->GetIPString());
 				ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was G-lined for %s (expires on %s) because their %s message matched %s (%s)",
 					user->nick.c_str(), gl->Displayable().c_str(),
-					InspIRCd::DurationString(f->duration).c_str(),
+					Duration::ToString(f->duration).c_str(),
 					InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
 					command.c_str(), f->freeform.c_str(), f->reason.c_str()));
 
@@ -589,7 +590,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 				auto* zl = new ZLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
 				ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was Z-lined for %s (expires on %s) because their %s message matched %s (%s)",
 					user->nick.c_str(), zl->Displayable().c_str(),
-					InspIRCd::DurationString(f->duration).c_str(),
+					Duration::ToString(f->duration).c_str(),
 					InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
 					command.c_str(), f->freeform.c_str(), f->reason.c_str()));
 
@@ -606,7 +607,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 				auto* sh = new Shun(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
 				ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was shunned for %s (expires on %s) because their %s message matched %s (%s)",
 					user->nick.c_str(), sh->Displayable().c_str(),
-					InspIRCd::DurationString(f->duration).c_str(),
+					Duration::ToString(f->duration).c_str(),
 					InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
 					command.c_str(), f->freeform.c_str(), f->reason.c_str()));
 
@@ -971,7 +972,7 @@ bool ModuleFilter::Tick()
 			<< "\" action=\"" << FilterActionToString(filter.action)
 			<< "\" flags=\"" << filter.GetFlags();
 			if (filter.duration)
-				stream << "\" duration=\"" << InspIRCd::DurationString(filter.duration);
+				stream << "\" duration=\"" << Duration::ToString(filter.duration);
 			stream << "\">" << std::endl;
 		}
 

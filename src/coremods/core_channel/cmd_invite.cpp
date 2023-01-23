@@ -28,6 +28,7 @@
 
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
+#include "duration.h"
 #include "numerichelper.h"
 
 #include "core_channel.h"
@@ -71,7 +72,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 			if (IS_LOCAL(user))
 			{
 				unsigned long duration;
-				if (!InspIRCd::Duration(parameters[2], duration))
+				if (!Duration::TryFrom(parameters[2], duration))
 				{
 					user->WriteNotice("*** Invalid duration for invite");
 					return CmdResult::FAILURE;

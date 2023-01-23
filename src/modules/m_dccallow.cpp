@@ -30,6 +30,7 @@
 
 
 #include "inspircd.h"
+#include "duration.h"
 #include "extension.h"
 #include "numerichelper.h"
 
@@ -301,14 +302,14 @@ public:
 					{
 						length = defaultlength;
 					}
-					else if (!InspIRCd::IsValidDuration(parameters[1]))
+					else if (!Duration::IsValid(parameters[1]))
 					{
 						user->WriteNumeric(ERR_DCCALLOWINVALID, user->nick, InspIRCd::Format("%s is not a valid DCCALLOW duration", parameters[1].c_str()));
 						return CmdResult::FAILURE;
 					}
 					else
 					{
-						if (!InspIRCd::Duration(parameters[1], length))
+						if (!Duration::TryFrom(parameters[1], length))
 						{
 							user->WriteNotice("*** Invalid duration for DCC allow");
 							return CmdResult::FAILURE;
@@ -324,7 +325,7 @@ public:
 
 					if (length > 0)
 					{
-						user->WriteNumeric(RPL_DCCALLOWTIMED, user->nick, InspIRCd::Format("Added %s to DCCALLOW list for %s", target->nick.c_str(), InspIRCd::DurationString(length).c_str()));
+						user->WriteNumeric(RPL_DCCALLOWTIMED, user->nick, InspIRCd::Format("Added %s to DCCALLOW list for %s", target->nick.c_str(), Duration::ToString(length).c_str()));
 					}
 					else
 					{

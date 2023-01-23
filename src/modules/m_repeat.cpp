@@ -26,6 +26,7 @@
 
 
 #include "inspircd.h"
+#include "duration.h"
 #include "extension.h"
 #include "modules/exemption.h"
 #include "numerichelper.h"
@@ -286,7 +287,7 @@ private:
 		if ((settings.Lines = ConvToNum<unsigned int>(item)) == 0)
 			return false;
 
-		if ((!stream.GetToken(item)) || !InspIRCd::Duration(item, settings.Seconds) || (settings.Seconds == 0))
+		if ((!stream.GetToken(item)) || !Duration::TryFrom(item, settings.Seconds) || (settings.Seconds == 0))
 			// Required parameter missing
 			return false;
 
@@ -415,7 +416,7 @@ public:
 
 			const std::string kickmsg = Template::Replace(rm.ms.KickMessage, {
 				{ "diff",     ConvToStr(settings->Diff)                   },
-				{ "duration", InspIRCd::DurationString(settings->Seconds) },
+				{ "duration", Duration::ToString(settings->Seconds) },
 				{ "lines",    ConvToStr(settings->Lines)                  },
 				{ "seconds",  ConvToStr(settings->Seconds)                },
 			});
