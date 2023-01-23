@@ -273,7 +273,7 @@ public:
 
 	/** Protocol interface, overridden by server protocol modules
 	 */
-	ProtocolInterface* PI;
+	ProtocolInterface* PI = &DefaultProtocolInterface;
 
 	/** Default implementation of the ProtocolInterface, does nothing
 	 */
@@ -302,7 +302,7 @@ public:
 	unsigned long GenRandomInt(unsigned long max) const;
 
 	/** Fill a buffer with random bits */
-	std::function<void(char*, size_t)> GenRandom;
+	std::function<void(char*, size_t)> GenRandom = &DefaultGenRandom;
 
 	/** Fills the output buffer with the specified number of random characters.
 	 * This is the default function for InspIRCd::GenRandom.
@@ -378,7 +378,7 @@ public:
 	static std::string Format(va_list& vaList, const char* formatString) ATTR_PRINTF(2, 0);
 
 	/** Determines whether a nickname is valid. */
-	std::function<bool(const std::string_view&)> IsNick;
+	std::function<bool(const std::string_view&)> IsNick = &DefaultIsNick;
 
 	/** Determines whether a nickname is valid according to the RFC 1459 rules.
 	 * This is the default function for InspIRCd::IsNick.
@@ -388,7 +388,7 @@ public:
 	static bool DefaultIsNick(const std::string_view& nick);
 
 	/** Determines whether an ident is valid. */
-	std::function<bool(const std::string_view&)> IsIdent;
+	std::function<bool(const std::string_view&)> IsIdent = &DefaultIsIdent;
 
 	/** Determines whether a ident is valid according to the RFC 1459 rules.
 	 * This is the default function for InspIRCd::IsIdent.

@@ -461,10 +461,6 @@ void InspIRCd::WritePID()
 }
 
 InspIRCd::InspIRCd(int argc, char** argv)
-	: PI(&DefaultProtocolInterface)
-	, GenRandom(&DefaultGenRandom)
-	, IsNick(&DefaultIsNick)
-	, IsIdent(&DefaultIsIdent)
 {
 	ServerInstance = this;
 
