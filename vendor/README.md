@@ -12,6 +12,16 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **Website** &mdash; [https://www.openwall.com/crypt/](https://www.openwall.com/crypt/)
 
+## fmt
+
+**Author** &mdash; Victor Zverovich and fmt contributors
+
+**License** &mdash; MIT License
+
+**Version** &mdash; 9.1.0
+
+**Website** &mdash; [https://github.com/fmtlib/fmt/](https://github.com/fmtlib/fmt/)
+
 ## http_parser
 
 **Author** &mdash; Joyent, Inc. and other Node contributors

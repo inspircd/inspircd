@@ -7,6 +7,13 @@ tarball = "https://www.openwall.com/crypt/crypt_blowfish-1.3.tar.gz"
 version = "v1.3"
 website = "https://www.openwall.com/crypt/"
 
+[fmt]
+author  = "Victor Zverovich and fmt contributors"
+depth   = 2
+files   = "{include/fmt/*.h,LICENSE.rst,src/format.cc}"
+git     = "https://github.com/fmtlib/fmt/"
+license = "MIT License"
+
 [http_parser]
 author  = "Joyent, Inc. and other Node contributors"
 files   = "{http_parser.[ch],LICENSE-MIT}"

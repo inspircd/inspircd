@@ -24,6 +24,7 @@
 
 
 #include <md5/md5.c>
+#undef F
 #ifdef _WIN32
 # undef OUT
 #endif
