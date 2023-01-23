@@ -48,7 +48,7 @@ bool ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, Modes::C
 	 * to your User!
 	 */
 	char snomask = IS_LOCAL(dest) ? 'o' : 'O';
-	ServerInstance->SNO.WriteToSnoMask(snomask, "User %s de-opered (by %s)", dest->nick.c_str(), source->nick.c_str());
+	ServerInstance->SNO.WriteToSnoMask(snomask, "User {} de-opered (by {})", dest->nick, source->nick);
 	dest->OperLogout();
 
 	return true;

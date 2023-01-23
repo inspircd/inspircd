@@ -109,9 +109,8 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& para
 			u->oper->GetName().c_str());
 	}
 
-	ServerInstance->SNO.WriteToSnoMask('O', "From %s: %s (%s) [%s] is now a server operator of type \x02%s\x02%s.",
-		u->server->GetName().c_str(), u->nick.c_str(), u->MakeHost().c_str(), u->GetIPString().c_str(),
-		u->oper->GetType().c_str(), extra.c_str());
+	ServerInstance->SNO.WriteToSnoMask('O', "From {}: {} ({}) [{}] is now a server operator of type \x02{}\x02{}.",
+		u->server->GetName(), u->nick, u->MakeHost(), u->GetIPString(), u->oper->GetType(), extra);
 	return CmdResult::SUCCESS;
 }
 

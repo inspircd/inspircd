@@ -79,8 +79,8 @@ CmdResult CommandRehash::Handle(User* user, const Params& parameters)
 	{
 		const std::string configfile = std::filesystem::path(ServerInstance->ConfigFileName).filename().string();
 		user->WriteRemoteNumeric(RPL_REHASHING, configfile, "Rehashing " + ServerInstance->Config->ServerName);
-		ServerInstance->SNO.WriteGlobalSno('r', "%s is rehashing %s on %s", user->nick.c_str(),
-			configfile.c_str(), ServerInstance->Config->ServerName.c_str());
+		ServerInstance->SNO.WriteGlobalSno('r', "{} is rehashing {} on {}", user->nick,
+			configfile, ServerInstance->Config->ServerName);
 
 		/* Don't do anything with the logs here -- logs are restarted
 		 * after the config thread has completed.

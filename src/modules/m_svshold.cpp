@@ -123,7 +123,7 @@ public:
 			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "SVSHOLD", reason, user))
 			{
 				if (!silent)
-					ServerInstance->SNO.WriteToSnoMask('x', "%s removed SVSHOLD on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason.c_str());
+					ServerInstance->SNO.WriteToSnoMask('x', "{} removed SVSHOLD on {}: {}", user->nick, parameters[0], reason);
 			}
 			else
 			{
@@ -150,13 +150,13 @@ public:
 
 				if (!duration)
 				{
-					ServerInstance->SNO.WriteToSnoMask('x', "%s added a permanent SVSHOLD on %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
+					ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent SVSHOLD on {}: {}", user->nick, parameters[0], parameters[2]);
 				}
 				else
 				{
-					ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed SVSHOLD on %s, expires in %s (on %s): %s",
-						user->nick.c_str(), parameters[0].c_str(), Duration::ToString(duration).c_str(),
-						InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), parameters[2].c_str());
+					ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed SVSHOLD on {}, expires in {} (on {}): {}",
+						user->nick, parameters[0], Duration::ToString(duration),
+						InspIRCd::TimeString(ServerInstance->Time() + duration), parameters[2]);
 				}
 			}
 			else

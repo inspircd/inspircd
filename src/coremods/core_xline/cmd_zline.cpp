@@ -83,13 +83,13 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "%s added a permanent Z-line on %s: %s", user->nick.c_str(), ipaddr, parameters[2].c_str());
+				ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent Z-line on {}: {}", user->nick, ipaddr, parameters[2]);
 			}
 			else
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed Z-line on %s, expires in %s (on %s): %s",
-					user->nick.c_str(), ipaddr, Duration::ToString(duration).c_str(),
-					InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), parameters[2].c_str());
+				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed Z-line on {}, expires in {} (on {}): {}",
+					user->nick, ipaddr, Duration::ToString(duration),
+					InspIRCd::TimeString(ServerInstance->Time() + duration), parameters[2]);
 			}
 			ServerInstance->XLines->ApplyLines();
 		}
@@ -105,7 +105,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 
 		if (ServerInstance->XLines->DelLine(target.c_str(), "Z", reason, user))
 		{
-			ServerInstance->SNO.WriteToSnoMask('x', "%s removed Z-line on %s: %s", user->nick.c_str(), target.c_str(), reason.c_str());
+			ServerInstance->SNO.WriteToSnoMask('x', "{} removed Z-line on {}: {}", user->nick, target, reason);
 		}
 		else
 		{

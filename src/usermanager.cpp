@@ -181,7 +181,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, const irc::sockets::soc
 
 	if (this->local_users.size() > ServerInstance->Config->SoftLimit)
 	{
-		ServerInstance->SNO.WriteToSnoMask('a', "Warning: softlimit value has been reached: %lu clients", ServerInstance->Config->SoftLimit);
+		ServerInstance->SNO.WriteToSnoMask('a', "Warning: softlimit value has been reached: {} clients", ServerInstance->Config->SoftLimit);
 		this->QuitUser(New, "No more connections allowed");
 		return;
 	}
@@ -301,8 +301,8 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 
 		if (lu->IsFullyConnected())
 		{
-			ServerInstance->SNO.WriteToSnoMask('q', "Client exiting: %s (%s) [%s]", user->GetFullRealHost().c_str(),
-				user->GetIPString().c_str(), operquitmsg.c_str());
+			ServerInstance->SNO.WriteToSnoMask('q', "Client exiting: {} ({}) [{}]", user->GetFullRealHost(),
+				user->GetIPString(), operquitmsg);
 		}
 		local_users.erase(lu);
 		if (lu->GetClass())

@@ -70,8 +70,8 @@ void CullList::Apply()
 		working.swap(SQlist);
 		for (auto* u : working)
 		{
-			ServerInstance->SNO.WriteGlobalSno('a', "User %s SendQ exceeds connect class maximum of %lu",
-				u->nick.c_str(), u->GetClass()->hardsendqmax);
+			ServerInstance->SNO.WriteGlobalSno('a', "User {} SendQ exceeds connect class maximum of {}",
+				u->nick, u->GetClass()->hardsendqmax);
 			ServerInstance->Users.QuitUser(u, "SendQ exceeded");
 		}
 		working.clear();

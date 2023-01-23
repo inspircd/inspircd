@@ -69,7 +69,7 @@ public:
 
 	void OnError(const LDAPResult& err) override
 	{
-		ServerInstance->SNO.WriteToSnoMask('a', "Error searching LDAP server: %s", err.getError().c_str());
+		ServerInstance->SNO.WriteToSnoMask('a', "Error searching LDAP server: {}", err.getError());
 		Fallback();
 		delete this;
 	}

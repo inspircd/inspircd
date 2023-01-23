@@ -44,7 +44,7 @@ CmdResult CommandLoadmodule::Handle(User* user, const Params& parameters)
 {
 	if (ServerInstance->Modules.Load(parameters[0]))
 	{
-		ServerInstance->SNO.WriteGlobalSno('a', "NEW MODULE: %s loaded %s", user->nick.c_str(), parameters[0].c_str());
+		ServerInstance->SNO.WriteGlobalSno('a', "NEW MODULE: {} loaded {}", user->nick, parameters[0]);
 		user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "Module successfully loaded.");
 		return CmdResult::SUCCESS;
 	}
@@ -86,7 +86,7 @@ CmdResult CommandUnloadmodule::Handle(User* user, const Params& parameters)
 
 	if (m && ServerInstance->Modules.Unload(m))
 	{
-		ServerInstance->SNO.WriteGlobalSno('a', "MODULE UNLOADED: %s unloaded %s", user->nick.c_str(), parameters[0].c_str());
+		ServerInstance->SNO.WriteGlobalSno('a', "MODULE UNLOADED: {} unloaded {}", user->nick, parameters[0]);
 		user->WriteNumeric(RPL_UNLOADEDMODULE, parameters[0], "Module successfully unloaded.");
 	}
 	else

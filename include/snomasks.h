@@ -104,7 +104,7 @@ public:
 	template <typename... Args>
 	void WriteToSnoMask(char letter, const char* text, Args&&... args)
 	{
-		WriteToSnoMask(letter, fmt::sprintf(text, std::forward<Args>(args)...));
+		WriteToSnoMask(letter, fmt::format(text, std::forward<Args>(args)...));
 	}
 
 	/** Write to all users with a given snomask (sent globally)
@@ -121,7 +121,7 @@ public:
 	template <typename... Args>
 	void WriteGlobalSno(char letter, const char* text, Args&&... args)
 	{
-		WriteGlobalSno(letter, fmt::sprintf(text, std::forward<Args>(args)...));
+		WriteGlobalSno(letter, fmt::format(text, std::forward<Args>(args)...));
 	}
 
 	/** Called once per 5 seconds from the mainloop, this flushes any cached

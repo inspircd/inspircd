@@ -124,7 +124,7 @@ public:
 		if (!checkingAttributes && requiredattributes.empty())
 		{
 			if (verbose)
-				ServerInstance->SNO.WriteToSnoMask('c', "Successful connection from %s (dn=%s)", user->GetFullRealHost().c_str(), DN.c_str());
+				ServerInstance->SNO.WriteToSnoMask('c', "Successful connection from {} (dn={})", user->GetFullRealHost(), DN);
 
 			// We're done, there are no attributes to check
 			SetVHost(user, DN);
@@ -143,7 +143,7 @@ public:
 				passed = true;
 
 				if (verbose)
-					ServerInstance->SNO.WriteToSnoMask('c', "Successful connection from %s (dn=%s)", user->GetFullRealHost().c_str(), DN.c_str());
+					ServerInstance->SNO.WriteToSnoMask('c', "Successful connection from {} (dn={})", user->GetFullRealHost(), DN);
 
 				SetVHost(user, DN);
 				authed->Set(user);
@@ -171,7 +171,7 @@ public:
 			catch (const LDAPException& ex)
 			{
 				if (verbose)
-					ServerInstance->SNO.WriteToSnoMask('c', "Unable to compare attributes %s=%s: %s", attr.c_str(), val.c_str(), ex.GetReason().c_str());
+					ServerInstance->SNO.WriteToSnoMask('c', "Unable to compare attributes {}={}: {}", attr, val, ex.GetReason());
 			}
 		}
 
@@ -179,7 +179,10 @@ public:
 		if (!attrCount)
 		{
 			if (verbose)
-				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from %s (dn=%s) (unable to validate attributes)", user->GetFullRealHost().c_str(), DN.c_str());
+			{
+				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from {} (dn={}) (unable to validate attributes)",
+					user->GetFullRealHost(), DN);
+			}
 			ServerInstance->Users.QuitUser(user, killreason);
 			delete this;
 		}
@@ -200,7 +203,10 @@ public:
 		if (user)
 		{
 			if (verbose)
-				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from %s (%s)", user->GetFullRealHost().c_str(), err.getError().c_str());
+			{
+				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from {} ({})",
+					user->GetFullRealHost(), err.getError());
+			}
 			ServerInstance->Users.QuitUser(user, killreason);
 		}
 
@@ -256,7 +262,7 @@ public:
 
 	void OnError(const LDAPResult& err) override
 	{
-		ServerInstance->SNO.WriteToSnoMask('a', "Error searching LDAP server: %s", err.getError().c_str());
+		ServerInstance->SNO.WriteToSnoMask('a', "Error searching LDAP server: {}", err.getError());
 		auto* user = ServerInstance->Users.FindUUID(uid);
 		if (user)
 			ServerInstance->Users.QuitUser(user, killreason);
@@ -404,7 +410,7 @@ public:
 		if (user->password.empty())
 		{
 			if (verbose)
-				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from %s (no password provided)", user->GetFullRealHost().c_str());
+				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from {} (no password provided)", user->GetFullRealHost());
 			ServerInstance->Users.QuitUser(user, killreason);
 			return MOD_RES_DENY;
 		}
@@ -412,7 +418,7 @@ public:
 		if (!LDAP)
 		{
 			if (verbose)
-				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from %s (unable to find LDAP provider)", user->GetFullRealHost().c_str());
+				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from {} (unable to find LDAP provider)", user->GetFullRealHost());
 			ServerInstance->Users.QuitUser(user, killreason);
 			return MOD_RES_DENY;
 		}

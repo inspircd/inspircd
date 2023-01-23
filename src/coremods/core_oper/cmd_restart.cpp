@@ -47,7 +47,7 @@ CmdResult CommandRestart::Handle(User* user, const Params& parameters)
 	ServerInstance->Logs.Normal(MODNAME, "Restart: %s", user->nick.c_str());
 	if (irc::equals(parameters[0], ServerInstance->Config->ServerName))
 	{
-		ServerInstance->SNO.WriteGlobalSno('a', "RESTART command from %s, restarting server.", user->GetFullRealHost().c_str());
+		ServerInstance->SNO.WriteGlobalSno('a', "RESTART command from {}, restarting server.", user->GetFullRealHost());
 
 		DieRestart::SendError("Server restarting.");
 
@@ -67,12 +67,12 @@ CmdResult CommandRestart::Handle(User* user, const Params& parameters)
 #endif
 
 		execvp(ServerInstance->Config->cmdline.argv[0], ServerInstance->Config->cmdline.argv);
-		ServerInstance->SNO.WriteGlobalSno('a', "Failed RESTART - could not execute '%s' (%s)",
+		ServerInstance->SNO.WriteGlobalSno('a', "Failed RESTART - could not execute '{}' ({})",
 			ServerInstance->Config->cmdline.argv[0], strerror(errno));
 	}
 	else
 	{
-		ServerInstance->SNO.WriteGlobalSno('a', "Failed RESTART Command from %s.", user->GetFullRealHost().c_str());
+		ServerInstance->SNO.WriteGlobalSno('a', "Failed RESTART Command from {}.", user->GetFullRealHost());
 	}
 	return CmdResult::FAILURE;
 }

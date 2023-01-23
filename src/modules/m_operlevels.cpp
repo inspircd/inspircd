@@ -47,8 +47,8 @@ public:
 			{
 				if (IS_LOCAL(source))
 				{
-					ServerInstance->SNO.WriteGlobalSno('a', "Oper %s (level %lu) attempted to /KILL a higher level oper: %s (level %lu), reason: %s",
-						source->nick.c_str(), source_level, dest->nick.c_str(), dest_level, reason.c_str());
+					ServerInstance->SNO.WriteGlobalSno('a', "Oper {} (level {}) attempted to /KILL a higher level oper: {} (level {}), reason: {}",
+						source->nick, source_level, dest->nick, dest_level, reason);
 				}
 				dest->WriteNotice("*** Oper " + source->nick + " attempted to /KILL you!");
 				source->WriteNumeric(ERR_NOPRIVILEGES, INSP_FORMAT("Permission Denied - Oper {} is a higher level than you", dest->nick));

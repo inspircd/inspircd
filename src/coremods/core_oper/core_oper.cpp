@@ -89,8 +89,8 @@ public:
 
 		if (!automatic)
 		{
-			ServerInstance->SNO.WriteGlobalSno('o', "%s (%s) [%s] failed to log into the \x02%s\x02 oper account because they are connecting from the wrong user@host.",
-				user->nick.c_str(), user->MakeHost().c_str(), user->GetIPString().c_str(), oper->GetName().c_str());
+			ServerInstance->SNO.WriteGlobalSno('o', "{} ({}) [{}] failed to log into the \x02{}\x02 oper account because they are connecting from the wrong user@host.",
+				user->nick, user->MakeHost(), user->GetIPString(), oper->GetName());
 		}
 		return MOD_RES_DENY; // Host does not match.
 	}
@@ -104,9 +104,9 @@ public:
 		luser->WriteNumeric(RPL_YOUAREOPER, INSP_FORMAT("You are now {} {}", strchr("AEIOUaeiou", user->oper->GetType()[0]) ? "an" : "a",
 			user->oper->GetType()));
 
-		ServerInstance->SNO.WriteToSnoMask('o', "%s (%s) [%s] is now a server operator of type \x02%s\x02 (%susing account \x02%s\x02).",
-			user->nick.c_str(), user->MakeHost().c_str(), user->GetIPString().c_str(), user->oper->GetType().c_str(),
-			automatic ? "automatically " : "", user->oper->GetName().c_str());
+		ServerInstance->SNO.WriteToSnoMask('o', "{} ({}) [{}] is now a server operator of type \x02{}\x02 ({}using account \x02{}\x02).",
+			user->nick, user->MakeHost(), user->GetIPString(), user->oper->GetType(),
+			automatic ? "automatically " : "", user->oper->GetName());
 
 		const std::string vhost = luser->oper->GetConfig()->getString("vhost");
 		if (!vhost.empty())

@@ -48,7 +48,7 @@ PingTimer::State PingTimer::TickInternal()
 	else if (state == PS_WARN)
 	{
 		// No pong arrived in PingWarnTime seconds, send a warning to opers
-		ServerInstance->SNO.WriteToSnoMask('l', "Server \002%s\002 has not responded to PING for %lu seconds, high latency.", server->GetName().c_str(), GetInterval());
+		ServerInstance->SNO.WriteToSnoMask('l', "Server \002{}\002 has not responded to PING for {} seconds, high latency.", server->GetName(), GetInterval());
 		return PS_TIMEOUT;
 	}
 	else // PS_TIMEOUT

@@ -52,7 +52,7 @@ public:
 		}
 
 		user->ChangeIdent(parameters[0]);
-		ServerInstance->SNO.WriteGlobalSno('a', "%s used SETIDENT to change their ident to '%s'", user->nick.c_str(), user->ident.c_str());
+		ServerInstance->SNO.WriteGlobalSno('a', "{} used SETIDENT to change their ident to '{}'", user->nick, user->ident);
 
 		return CmdResult::SUCCESS;
 	}

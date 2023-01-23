@@ -41,7 +41,7 @@ public:
 
 	void OnError(const SQL::Error& error) override
 	{
-		ServerInstance->SNO.WriteGlobalSno('a', "Unable to write to SQL log (query error: %s).", error.ToString());
+		ServerInstance->SNO.WriteGlobalSno('a', "Unable to write to SQL log (query error: {}).", error.ToString());
 	}
 };
 
@@ -68,7 +68,7 @@ public:
 			if (ServerInstance->Time() - lastwarning > 300)
 			{
 				lastwarning = ServerInstance->Time();
-				ServerInstance->SNO.WriteGlobalSno('a', "Unable to write to SQL log (database %s not available).", sql->GetId().c_str());
+				ServerInstance->SNO.WriteGlobalSno('a', "Unable to write to SQL log (database {} not available).", sql->GetId());
 			}
 			return;
 		}

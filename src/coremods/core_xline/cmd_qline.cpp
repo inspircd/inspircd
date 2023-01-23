@@ -66,13 +66,13 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "%s added a permanent Q-line on %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
+				ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent Q-line on {}: {}", user->nick, parameters[0], parameters[2]);
 			}
 			else
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed Q-line on %s, expires in %s (on %s): %s",
-					user->nick.c_str(), parameters[0].c_str(), Duration::ToString(duration).c_str(),
-					InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), parameters[2].c_str());
+				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed Q-line on {}, expires in {} (on {}): {}",
+					user->nick, parameters[0], Duration::ToString(duration),
+					InspIRCd::TimeString(ServerInstance->Time() + duration), parameters[2]);
 			}
 			ServerInstance->XLines->ApplyLines();
 		}
@@ -88,7 +88,7 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 
 		if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "Q", reason, user))
 		{
-			ServerInstance->SNO.WriteToSnoMask('x', "%s removed Q-line on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason.c_str());
+			ServerInstance->SNO.WriteToSnoMask('x', "{} removed Q-line on {}: {}", user->nick, parameters[0], reason);
 		}
 		else
 		{

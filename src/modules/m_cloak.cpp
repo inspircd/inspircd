@@ -355,8 +355,8 @@ class ModuleCloakSHA256 final
 
 		if (methods)
 		{
-			ServerInstance->SNO.WriteGlobalSno('a', "The %s hash provider was unloaded; removing %zu cloak methods until the next rehash.",
-				service.name.substr(6).c_str(), methods);
+			ServerInstance->SNO.WriteGlobalSno('a', "The {} hash provider was unloaded; removing {} cloak methods until the next rehash.",
+				service.name.substr(6), methods);
 		}
 	}
 

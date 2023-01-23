@@ -70,7 +70,7 @@ public:
 				if (!hashprov)
 				{
 					if (verbose)
-						ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from %s (a provider for %s was not loaded)", user->GetFullRealHost().c_str(), kdf.c_str());
+						ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from {} (a provider for {} was not loaded)", user->GetFullRealHost(), kdf);
 					pendingExt.Set(user, AUTH_STATE_FAIL);
 					return;
 				}
@@ -79,7 +79,7 @@ public:
 				if (!pwcolumn.empty() && !res.HasColumn(pwcolumn, colindex))
 				{
 					if (verbose)
-						ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from %s (the column specified (%s) was not returned)", user->GetFullRealHost().c_str(), pwcolumn.c_str());
+						ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from {} (the column specified ({}) was not returned)", user->GetFullRealHost(), pwcolumn);
 					pendingExt.Set(user, AUTH_STATE_FAIL);
 					return;
 				}
@@ -95,7 +95,7 @@ public:
 				}
 
 				if (verbose)
-					ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from %s (password from the SQL query did not match the user provided password)", user->GetFullRealHost().c_str());
+					ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from {} (password from the SQL query did not match the user provided password)", user->GetFullRealHost());
 				pendingExt.Set(user, AUTH_STATE_FAIL);
 				return;
 			}
@@ -105,7 +105,7 @@ public:
 		else
 		{
 			if (verbose)
-				ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from %s (SQL query returned no matches)", user->GetFullRealHost().c_str());
+				ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from {} (SQL query returned no matches)", user->GetFullRealHost());
 			pendingExt.Set(user, AUTH_STATE_FAIL);
 		}
 	}
@@ -117,7 +117,7 @@ public:
 			return;
 		pendingExt.Set(user, AUTH_STATE_FAIL);
 		if (verbose)
-			ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from %s (SQL query failed: %s)", user->GetFullRealHost().c_str(), error.ToString());
+			ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from {} (SQL query failed: {})", user->GetFullRealHost(), error.ToString());
 	}
 };
 
@@ -181,7 +181,7 @@ public:
 
 		if (!SQL)
 		{
-			ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from %s (SQL database not present)", user->GetFullRealHost().c_str());
+			ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from {} (SQL database not present)", user->GetFullRealHost());
 			ServerInstance->Users.QuitUser(user, killreason);
 			return MOD_RES_PASSTHRU;
 		}

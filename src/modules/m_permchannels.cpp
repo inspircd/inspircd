@@ -78,7 +78,7 @@ static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes)
 	if (!stream.is_open())
 	{
 		ServerInstance->Logs.Error(MODNAME, "Cannot create database \"%s\"! %s (%d)", permchannelsnewconf.c_str(), strerror(errno), errno);
-		ServerInstance->SNO.WriteToSnoMask('a', "database: cannot create new permchan db \"%s\": %s (%d)", permchannelsnewconf.c_str(), strerror(errno), errno);
+		ServerInstance->SNO.WriteToSnoMask('a', "database: cannot create new permchan db \"{}\": {} ({})", permchannelsnewconf, strerror(errno), errno);
 		return false;
 	}
 
@@ -150,7 +150,7 @@ static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes)
 	if (stream.fail())
 	{
 		ServerInstance->Logs.Error(MODNAME, "Cannot write to new database \"%s\"! %s (%d)", permchannelsnewconf.c_str(), strerror(errno), errno);
-		ServerInstance->SNO.WriteToSnoMask('a', "database: cannot write to new permchan db \"%s\": %s (%d)", permchannelsnewconf.c_str(), strerror(errno), errno);
+		ServerInstance->SNO.WriteToSnoMask('a', "database: cannot write to new permchan db \"{}\": {} ({})", permchannelsnewconf, strerror(errno), errno);
 		return false;
 	}
 	stream.close();
@@ -162,7 +162,7 @@ static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes)
 	if (rename(permchannelsnewconf.c_str(), permchannelsconf.c_str()) < 0)
 	{
 		ServerInstance->Logs.Error(MODNAME, "Cannot replace old database \"%s\" with new database \"%s\"! %s (%d)", permchannelsconf.c_str(), permchannelsnewconf.c_str(), strerror(errno), errno);
-		ServerInstance->SNO.WriteToSnoMask('a', "database: cannot replace old permchan db \"%s\" with new db \"%s\": %s (%d)", permchannelsconf.c_str(), permchannelsnewconf.c_str(), strerror(errno), errno);
+		ServerInstance->SNO.WriteToSnoMask('a', "database: cannot replace old permchan db \"{}\" with new db \"{}\": {} ({})", permchannelsconf, permchannelsnewconf, strerror(errno), errno);
 		return false;
 	}
 

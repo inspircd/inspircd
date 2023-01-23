@@ -114,7 +114,7 @@ public:
 
 			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "CBAN", reason, user))
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "%s removed CBan on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason.c_str());
+				ServerInstance->SNO.WriteToSnoMask('x', "{} removed CBan on {}: {}", user->nick, parameters[0], reason);
 			}
 			else
 			{
@@ -138,13 +138,13 @@ public:
 			{
 				if (!duration)
 				{
-					ServerInstance->SNO.WriteToSnoMask('x', "%s added a permanent CBan on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason);
+					ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent CBan on {}: {}", user->nick, parameters[0], reason);
 				}
 				else
 				{
-					ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed CBan on %s, expires in %s (on %s): %s",
-						user->nick.c_str(), parameters[0].c_str(), Duration::ToString(duration).c_str(),
-						InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), reason);
+					ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed CBan on {}, expires in {} (on {}): {}",
+						user->nick, parameters[0], Duration::ToString(duration),
+						InspIRCd::TimeString(ServerInstance->Time() + duration), reason);
 				}
 			}
 			else
@@ -203,8 +203,8 @@ public:
 		{
 			// Channel is banned.
 			user->WriteNumeric(ERR_BADCHANNEL, cname, INSP_FORMAT("Channel {} is CBANed: {}", cname, rl->reason));
-			ServerInstance->SNO.WriteGlobalSno('a', "%s tried to join %s which is CBANed (%s)",
-				user->nick.c_str(), cname.c_str(), rl->reason.c_str());
+			ServerInstance->SNO.WriteGlobalSno('a', "{} tried to join {} which is CBANed ({})",
+				user->nick, cname, rl->reason);
 			return MOD_RES_DENY;
 		}
 

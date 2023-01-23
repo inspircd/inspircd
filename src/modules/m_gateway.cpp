@@ -264,8 +264,8 @@ public:
 			irc::sockets::sockaddrs ipaddr(false);
 			if (!ipaddr.from_ip_port(parameters[3], user->client_sa.port()))
 			{
-				ServerInstance->SNO.WriteGlobalSno('w', "Connecting user %s (%s) tried to use WEBIRC but gave an invalid IP address.",
-					user->uuid.c_str(), user->GetIPString().c_str());
+				ServerInstance->SNO.WriteGlobalSno('w', "Connecting user {} ({}) tried to use WEBIRC but gave an invalid IP address.",
+					user->uuid, user->GetIPString());
 				ServerInstance->Users.QuitUser(user, "WEBIRC: IP address is invalid: " + parameters[3]);
 				return CmdResult::FAILURE;
 			}
@@ -275,9 +275,8 @@ public:
 			realhost.Set(user, user->GetRealHost());
 			realip.Set(user, user->GetIPString());
 
-			ServerInstance->SNO.WriteGlobalSno('w', "Connecting user %s is using the %s WebIRC gateway; changing their IP from %s to %s.",
-				user->uuid.c_str(), parameters[1].c_str(),
-				user->GetIPString().c_str(), parameters[3].c_str());
+			ServerInstance->SNO.WriteGlobalSno('w', "Connecting user {} is using the {} WebIRC gateway; changing their IP from {} to {}.",
+				user->uuid, parameters[1], user->GetIPString(), parameters[3]);
 
 			// If we have custom flags then deal with them.
 			WebIRC::FlagMap flags;
@@ -320,8 +319,8 @@ public:
 			return CmdResult::SUCCESS;
 		}
 
-		ServerInstance->SNO.WriteGlobalSno('w', "Connecting user %s (%s) tried to use WEBIRC but didn't match any configured WebIRC hosts.",
-			user->uuid.c_str(), user->GetIPString().c_str());
+		ServerInstance->SNO.WriteGlobalSno('w', "Connecting user {} ({}) tried to use WEBIRC but didn't match any configured WebIRC hosts.",
+			user->uuid, user->GetIPString());
 		ServerInstance->Users.QuitUser(user, "WEBIRC: you don't match any configured WebIRC hosts.");
 		return CmdResult::FAILURE;
 	}
@@ -459,8 +458,8 @@ public:
 			cmdwebirc.realip.Set(user, user->GetIPString());
 
 			const std::string& newident = host.GetIdent();
-			ServerInstance->SNO.WriteGlobalSno('w', "Connecting user %s is using an ident gateway; changing their IP from %s to %s and their ident from %s to %s.",
-				user->uuid.c_str(), user->GetIPString().c_str(), address.addr().c_str(), user->ident.c_str(), newident.c_str());
+			ServerInstance->SNO.WriteGlobalSno('w', "Connecting user {} is using an ident gateway; changing their IP from {} to {} and their ident from {} to {}.",
+				user->uuid, user->GetIPString(), address.addr(), user->ident, newident);
 
 			user->ChangeIdent(newident);
 			user->ChangeRemoteAddress(address);

@@ -58,7 +58,7 @@ CmdResult CommandRSQuit::Handle(User* user, const Params& parameters)
 	{
 		// We have been asked to remove server_target.
 		const char* reason = parameters.size() == 2 ? parameters[1].c_str() : "No reason";
-		ServerInstance->SNO.WriteToSnoMask('l', "RSQUIT: Server \002%s\002 removed from network by %s (%s)", parameters[0].c_str(), user->nick.c_str(), reason);
+		ServerInstance->SNO.WriteToSnoMask('l', "RSQUIT: Server \002{}\002 removed from network by {} ({})", parameters[0], user->nick, reason);
 		server_target->SQuit("Server quit by " + user->GetFullRealHost() + " (" + reason + ")");
 	}
 

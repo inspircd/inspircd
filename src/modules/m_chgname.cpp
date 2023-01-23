@@ -62,7 +62,7 @@ public:
 		if (IS_LOCAL(dest))
 		{
 			dest->ChangeRealName(parameters[1]);
-			ServerInstance->SNO.WriteGlobalSno('a', "%s used CHGNAME to change %s's real name to '%s\x0F'", user->nick.c_str(), dest->nick.c_str(), dest->GetRealName().c_str());
+			ServerInstance->SNO.WriteGlobalSno('a', "{} used CHGNAME to change {}'s real name to '{}\x0F'", user->nick, dest->nick, dest->GetRealName());
 		}
 
 		return CmdResult::SUCCESS;

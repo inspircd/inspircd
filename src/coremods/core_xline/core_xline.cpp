@@ -43,8 +43,8 @@ bool InsaneBan::MatchesEveryone(const std::string& mask, MatcherBase& test, User
 	if (percent > itrigger)
 	{
 		const char* article = strchr("AEIOUaeiou", bantype) ? "an" : "a";
-		ServerInstance->SNO.WriteToSnoMask('x', "\002WARNING\002: %s tried to set add %s %c-line on %s which covers %.2f%% of the network which is more than the maximum of %.2f%%!",
-			user->nick.c_str(), article, bantype, mask.c_str(), percent, itrigger);
+		ServerInstance->SNO.WriteToSnoMask('x', "\002WARNING\002: {} tried to set add {} {}-line on {} which covers {:.2}% of the network which is more than the maximum of {:.2}%!",
+			user->nick.c_str(), article, bantype, mask, percent, itrigger);
 		user->WriteNotice(INSP_FORMAT("*** Unable to add {} {}-line on {} which covers {:.2}% of the network which is more than the maximum of {:.2}%!",
 			article, bantype, mask, percent, itrigger));
 		return true;
@@ -152,8 +152,8 @@ public:
 		// A Q-line matched the new nick, tell opers if the user is fully connected
 		if (user->IsFullyConnected())
 		{
-			ServerInstance->SNO.WriteGlobalSno('x', "Q-lined nickname %s from %s: %s",
-				newnick.c_str(), user->GetFullRealHost().c_str(), xline->reason.c_str());
+			ServerInstance->SNO.WriteGlobalSno('x', "Q-lined nickname {} from {}: {}",
+				newnick, user->GetFullRealHost(), xline->reason);
 		}
 
 		// Send a numeric because if we deny then the core doesn't reply anything

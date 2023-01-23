@@ -238,8 +238,8 @@ public:
 				ServerInstance->Users.QuitUser(user, "No more local connections allowed from your host via this connect class.");
 				if (klass->maxconnwarn)
 				{
-					ServerInstance->SNO.WriteToSnoMask('a', "WARNING: maximum local connections for the %s class (%ld) exceeded by %s",
-						klass->GetName().c_str(), klass->maxlocal, user->GetIPString().c_str());
+					ServerInstance->SNO.WriteToSnoMask('a', "WARNING: maximum local connections for the {} class ({}) exceeded by {}",
+						klass->GetName(), klass->maxlocal, user->GetIPString());
 				}
 				return;
 			}
@@ -249,8 +249,8 @@ public:
 				ServerInstance->Users.QuitUser(user, "No more global connections allowed from your host via this connect class.");
 				if (klass->maxconnwarn)
 				{
-					ServerInstance->SNO.WriteToSnoMask('a', "WARNING: maximum global connections for the %s class (%ld) exceeded by %s",
-						klass->name.c_str(), klass->maxglobal, user->GetIPString().c_str());
+					ServerInstance->SNO.WriteToSnoMask('a', "WARNING: maximum global connections for the {} class ({}) exceeded by {}",
+						klass->GetName(), klass->maxglobal, user->GetIPString());
 				}
 				return;
 			}

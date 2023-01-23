@@ -101,8 +101,8 @@ struct TreeSocket::BurstState final
  */
 void TreeSocket::DoBurst(TreeServer* s)
 {
-	ServerInstance->SNO.WriteToSnoMask('l', "Bursting to \002%s\002 (Authentication: %s%s).",
-		s->GetName().c_str(),
+	ServerInstance->SNO.WriteToSnoMask('l', "Bursting to \002{}\002 (Authentication: {}{}).",
+		s->GetName(),
 		capab->auth_fingerprint ? "TLS certificate fingerprint and " : "",
 		capab->auth_challenge ? "challenge-response" : "plaintext password");
 	this->CleanNegotiationInfo();

@@ -39,7 +39,7 @@ CmdResult CommandAddLine::Handle(User* usr, Params& params)
 
 	if (!xlf)
 	{
-		ServerInstance->SNO.WriteToSnoMask('x', "%s sent me an unknown ADDLINE type (%s).", setter.c_str(), params[0].c_str());
+		ServerInstance->SNO.WriteToSnoMask('x', "{} sent me an unknown ADDLINE type ({}).", setter, params[0]);
 		return CmdResult::FAILURE;
 	}
 
@@ -50,7 +50,7 @@ CmdResult CommandAddLine::Handle(User* usr, Params& params)
 	}
 	catch (const ModuleException& e)
 	{
-		ServerInstance->SNO.WriteToSnoMask('x', "Unable to ADDLINE type %s from %s: %s", params[0].c_str(), setter.c_str(), e.GetReason().c_str());
+		ServerInstance->SNO.WriteToSnoMask('x', "Unable to ADDLINE type {} from {}: {}", params[0], setter, e.GetReason());
 		return CmdResult::FAILURE;
 	}
 	xl->SetCreateTime(ServerCommand::ExtractTS(params[3]));
@@ -58,16 +58,16 @@ CmdResult CommandAddLine::Handle(User* usr, Params& params)
 	{
 		if (xl->duration)
 		{
-			ServerInstance->SNO.WriteToSnoMask('X', "%s added a timed %s%s on %s, expires in %s (on %s): %s",
-				setter.c_str(), params[0].c_str(), params[0].length() == 1 ? "-line" : "",
-				params[1].c_str(), Duration::ToString(xl->duration).c_str(),
-				InspIRCd::TimeString(xl->expiry).c_str(), params[5].c_str());
+			ServerInstance->SNO.WriteToSnoMask('X', "{} added a timed {}{} on {}, expires in {} (on {}): {}",
+				setter, params[0], params[0].length() == 1 ? "-line" : "",
+				params[1], Duration::ToString(xl->duration),
+				InspIRCd::TimeString(xl->expiry), params[5]);
 		}
 		else
 		{
-			ServerInstance->SNO.WriteToSnoMask('X', "%s added a permanent %s%s on %s: %s",
-				setter.c_str(), params[0].c_str(), params[0].length() == 1 ? "-line" : "",
-				params[1].c_str(), params[5].c_str());
+			ServerInstance->SNO.WriteToSnoMask('X', "{} added a permanent {}{} on {}: {}",
+				setter, params[0], params[0].length() == 1 ? "-line" : "",
+				params[1], params[5]);
 		}
 
 		TreeServer* remoteserver = TreeServer::Get(usr);

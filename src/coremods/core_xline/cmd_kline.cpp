@@ -84,13 +84,13 @@ CmdResult CommandKline::Handle(User* user, const Params& parameters)
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "%s added a permanent K-line on %s: %s", user->nick.c_str(), target.c_str(), parameters[2].c_str());
+				ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent K-line on {}: {}", user->nick, target, parameters[2]);
 			}
 			else
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed K-line on %s, expires in %s (on %s): %s",
-					user->nick.c_str(), target.c_str(), Duration::ToString(duration).c_str(),
-					InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), parameters[2].c_str());
+				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed K-line on {}, expires in {} (on {}): {}",
+					user->nick, target, Duration::ToString(duration),
+					InspIRCd::TimeString(ServerInstance->Time() + duration), parameters[2]);
 			}
 
 			ServerInstance->XLines->ApplyLines();
@@ -107,7 +107,7 @@ CmdResult CommandKline::Handle(User* user, const Params& parameters)
 
 		if (ServerInstance->XLines->DelLine(target.c_str(), "K", reason, user))
 		{
-			ServerInstance->SNO.WriteToSnoMask('x', "%s removed K-line on %s: %s", user->nick.c_str(), target.c_str(), reason.c_str());
+			ServerInstance->SNO.WriteToSnoMask('x', "{} removed K-line on {}: {}", user->nick, target, reason);
 		}
 		else
 		{

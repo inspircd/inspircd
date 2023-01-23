@@ -698,12 +698,12 @@ public:
 		{
 			Module* newmod = ServerInstance->Modules.Find(name);
 			datakeeper.Restore(newmod);
-			ServerInstance->SNO.WriteGlobalSno('a', "The %s module was reloaded.", passedname.c_str());
+			ServerInstance->SNO.WriteGlobalSno('a', "The {} module was reloaded.", passedname);
 		}
 		else
 		{
 			datakeeper.Fail();
-			ServerInstance->SNO.WriteGlobalSno('a', "Failed to reload the %s module.", passedname.c_str());
+			ServerInstance->SNO.WriteGlobalSno('a', "Failed to reload the {} module.", passedname);
 		}
 
 		auto* user = ServerInstance->Users.FindUUID(uuid);

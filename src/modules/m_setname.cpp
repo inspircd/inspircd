@@ -62,8 +62,8 @@ public:
 		}
 
 		if (notifyopers)
-			ServerInstance->SNO.WriteGlobalSno('a', "%s used SETNAME to change their real name to '%s'",
-				user->nick.c_str(), parameters[0].c_str());
+			ServerInstance->SNO.WriteGlobalSno('a', "{} used SETNAME to change their real name to '{}'",
+				user->nick, parameters[0]);
 		return CmdResult::SUCCESS;
 	}
 };

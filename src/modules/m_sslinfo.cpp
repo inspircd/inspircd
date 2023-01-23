@@ -341,8 +341,8 @@ public:
 		{
 			if (!automatic)
 			{
-				ServerInstance->SNO.WriteGlobalSno('o', "%s (%s) [%s] failed to log into the \x02%s\x02 oper account because they are not connected using TLS.",
-					user->nick.c_str(), user->MakeHost().c_str(), user->GetIPString().c_str(), oper->GetName().c_str());
+				ServerInstance->SNO.WriteGlobalSno('o', "{} ({}) [{}] failed to log into the \x02{}\x02 oper account because they are not connected using TLS.",
+					user->nick, user->MakeHost(), user->GetIPString(), oper->GetName());
 			}
 			return MOD_RES_DENY;
 		}
@@ -352,8 +352,8 @@ public:
 		{
 			if (!automatic)
 			{
-				ServerInstance->SNO.WriteGlobalSno('o', "%s (%s) [%s] failed to log into the \x02%s\x02 oper account because they are not using the correct TLS client certificate.",
-					user->nick.c_str(), user->MakeHost().c_str(), user->GetIPString().c_str(), oper->GetName().c_str());
+				ServerInstance->SNO.WriteGlobalSno('o', "{} ({}) [{}] failed to log into the \x02{}\x02 oper account because they are not using the correct TLS client certificate.",
+					user->nick, user->MakeHost(), user->GetIPString(), oper->GetName());
 			}
 			return MOD_RES_DENY;
 		}

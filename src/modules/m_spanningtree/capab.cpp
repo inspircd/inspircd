@@ -528,9 +528,9 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 					if (Utils->AllowOptCommon)
 					{
 						ServerInstance->SNO.WriteToSnoMask('l',
-							"ExtBan lists do not match, some bans/exemptions may not work globally.%s%s%s%s",
-							missing_here.length() ? " Not loaded here:" : "", missing_here.c_str(),
-							missing_there.length() ? " Not loaded there:" : "", missing_there.c_str());
+							"ExtBan lists do not match, some bans/exemptions may not work globally.{}{}{}{}",
+							missing_here.length() ? " Not loaded here:" : "", missing_here,
+							missing_there.length() ? " Not loaded there:" : "", missing_there);
 					}
 					else
 					{

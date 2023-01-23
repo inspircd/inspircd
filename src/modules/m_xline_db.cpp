@@ -110,7 +110,7 @@ public:
 		if (!stream.is_open())
 		{
 			ServerInstance->Logs.Error(MODNAME, "Cannot create database \"%s\"! %s (%d)", xlinenewdbpath.c_str(), strerror(errno), errno);
-			ServerInstance->SNO.WriteToSnoMask('x', "database: cannot create new xline db \"%s\": %s (%d)", xlinenewdbpath.c_str(), strerror(errno), errno);
+			ServerInstance->SNO.WriteToSnoMask('x', "database: cannot create new xline db \"{}\": {} ({})", xlinenewdbpath, strerror(errno), errno);
 			return false;
 		}
 
@@ -148,7 +148,7 @@ public:
 		if (stream.fail())
 		{
 			ServerInstance->Logs.Error(MODNAME, "Cannot write to new database \"%s\"! %s (%d)", xlinenewdbpath.c_str(), strerror(errno), errno);
-			ServerInstance->SNO.WriteToSnoMask('x', "database: cannot write to new xline db \"%s\": %s (%d)", xlinenewdbpath.c_str(), strerror(errno), errno);
+			ServerInstance->SNO.WriteToSnoMask('x', "database: cannot write to new xline db \"{}\": {} ({})", xlinenewdbpath, strerror(errno), errno);
 			return false;
 		}
 		stream.close();
@@ -160,7 +160,7 @@ public:
 		if (rename(xlinenewdbpath.c_str(), xlinedbpath.c_str()) < 0)
 		{
 			ServerInstance->Logs.Error(MODNAME, "Cannot replace old database \"%s\" with new database \"%s\"! %s (%d)", xlinedbpath.c_str(), xlinenewdbpath.c_str(), strerror(errno), errno);
-			ServerInstance->SNO.WriteToSnoMask('x', "database: cannot replace old xline db \"%s\" with new db \"%s\": %s (%d)", xlinedbpath.c_str(), xlinenewdbpath.c_str(), strerror(errno), errno);
+			ServerInstance->SNO.WriteToSnoMask('x', "database: cannot replace old xline db \"{}\" with new db \"{}\": {} ({})", xlinedbpath, xlinenewdbpath, strerror(errno), errno);
 			return false;
 		}
 
@@ -178,7 +178,7 @@ public:
 		if (!stream.is_open())
 		{
 			ServerInstance->Logs.Error(MODNAME, "Cannot read database \"%s\"! %s (%d)", xlinedbpath.c_str(), strerror(errno), errno);
-			ServerInstance->SNO.WriteToSnoMask('x', "database: cannot read xline db \"%s\": %s (%d)", xlinedbpath.c_str(), strerror(errno), errno);
+			ServerInstance->SNO.WriteToSnoMask('x', "database: cannot read xline db \"{}\": {} ({})", xlinedbpath, strerror(errno), errno);
 			return false;
 		}
 
@@ -205,7 +205,7 @@ public:
 				{
 					stream.close();
 					ServerInstance->Logs.Error(MODNAME, "I got database version %s - I don't understand it", command_p[1].c_str());
-					ServerInstance->SNO.WriteToSnoMask('x', "database: I got a database version (%s) I don't understand", command_p[1].c_str());
+					ServerInstance->SNO.WriteToSnoMask('x', "database: I got a database version ({}) I don't understand", command_p[1]);
 					return false;
 				}
 			}
@@ -216,7 +216,7 @@ public:
 
 				if (!xlf)
 				{
-					ServerInstance->SNO.WriteToSnoMask('x', "database: Unknown line type (%s).", command_p[1].c_str());
+					ServerInstance->SNO.WriteToSnoMask('x', "database: Unknown line type ({}).", command_p[1]);
 					continue;
 				}
 
@@ -225,7 +225,7 @@ public:
 
 				if (ServerInstance->XLines->AddLine(xl, nullptr))
 				{
-					ServerInstance->SNO.WriteToSnoMask('x', "database: Added a line of type %s", command_p[1].c_str());
+					ServerInstance->SNO.WriteToSnoMask('x', "database: Added a line of type {}", command_p[1]);
 				}
 				else
 					delete xl;

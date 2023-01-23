@@ -201,7 +201,7 @@ void ModuleSpanningTree::ConnectServer(const std::shared_ptr<Autoconnect>& a, bo
 		std::shared_ptr<Link> x = Utils->FindLink(a->servers[a->position]);
 		if (x)
 		{
-			ServerInstance->SNO.WriteToSnoMask('l', "AUTOCONNECT: Auto-connecting server \002%s\002", x->Name.c_str());
+			ServerInstance->SNO.WriteToSnoMask('l', "AUTOCONNECT: Auto-connecting server \002{}\002", x->Name);
 			ConnectServer(x, a);
 			return;
 		}
@@ -227,8 +227,8 @@ void ModuleSpanningTree::ConnectServer(const std::shared_ptr<Link>& x, const std
 		{
 			// We don't use the family() != AF_UNSPEC check below for UNIX sockets as
 			// that results in a DNS lookup.
-			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s is not a UNIX socket!",
-				x->Name.c_str(), x->IPAddr.c_str());
+			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002{}\002: {} is not a UNIX socket!",
+				x->Name, x->IPAddr);
 			return;
 		}
 	}
@@ -245,14 +245,14 @@ void ModuleSpanningTree::ConnectServer(const std::shared_ptr<Link>& x, const std
 		auto* newsocket = new TreeSocket(x, y, sa);
 		if (!newsocket->HasFd())
 		{
-			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",
-				x->Name.c_str(), newsocket->GetError().c_str());
+			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002{}\002: {}.",
+				x->Name, newsocket->GetError());
 			ServerInstance->GlobalCulls.AddItem(newsocket);
 		}
 	}
 	else if (!DNS)
 	{
-		ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: Hostname given and core_dns is not loaded, unable to resolve.", x->Name.c_str());
+		ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002{}\002: Hostname given and core_dns is not loaded, unable to resolve.", x->Name);
 	}
 	else
 	{
@@ -273,7 +273,7 @@ void ModuleSpanningTree::ConnectServer(const std::shared_ptr<Link>& x, const std
 		catch (const DNS::Exception& e)
 		{
 			delete snr;
-			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.", x->Name.c_str(), e.GetReason().c_str());
+			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002{}\002: {}.", x->Name, e.GetReason());
 			ConnectServer(y, false);
 		}
 	}
@@ -307,7 +307,7 @@ void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 		}
 		else if (curtime > s->age + (time_t)p.second)
 		{
-			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002 (timeout of %u seconds)", p.first.c_str(), p.second);
+			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002{}\002 (timeout of {} seconds)", p.first, p.second);
 			Utils->timeoutlist.erase(me);
 			s->Close();
 		}
@@ -610,8 +610,8 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string& reason, const
 		bool hide = (((server->IsDead()) && (Utils->quiet_bursts)) || (server->IsSilentService()));
 		if (!hide)
 		{
-			ServerInstance->SNO.WriteToSnoMask('Q', "Client exiting on server %s: %s (%s) [%s]",
-				user->server->GetName().c_str(), user->GetFullRealHost().c_str(), user->GetIPString().c_str(), oper_message.c_str());
+			ServerInstance->SNO.WriteToSnoMask('Q', "Client exiting on server {}: {} ({}) [{}]", user->server->GetName(),
+				user->GetFullRealHost(), user->GetIPString(), oper_message);
 		}
 	}
 

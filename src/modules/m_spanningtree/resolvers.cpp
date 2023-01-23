@@ -69,8 +69,8 @@ void ServerNameResolver::OnLookupComplete(const DNS::Query* r)
 		if (!newsocket->HasFd())
 		{
 			/* Something barfed, show the opers */
-			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",
-				link->Name.c_str(), newsocket->GetError().c_str());
+			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002{}\002: {}.",
+				link->Name, newsocket->GetError());
 			ServerInstance->GlobalCulls.AddItem(newsocket);
 		}
 	}
@@ -98,8 +98,8 @@ void ServerNameResolver::OnError(const DNS::Query* r)
 		}
 	}
 
-	ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: Unable to resolve hostname - %s",
-		link->Name.c_str(), this->manager->GetErrorStr(r->error).c_str());
+	ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002{}\002: Unable to resolve hostname - {}",
+		link->Name, this->manager->GetErrorStr(r->error));
 	Utils->Creator->ConnectServer(autoconnect, false);
 }
 

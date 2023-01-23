@@ -136,16 +136,16 @@ void TreeSocket::OnConnected()
 			static_cast<IOHookProvider*>(prov)->OnConnect(this);
 		}
 
-		ServerInstance->SNO.WriteGlobalSno('l', "Connection to \002%s\002[%s] started.", linkID.c_str(),
-			(capab->link->HiddenFromStats ? "<hidden>" : capab->link->IPAddr.c_str()));
+		ServerInstance->SNO.WriteGlobalSno('l', "Connection to \002{}\002[{}] started.", linkID,
+			(capab->link->HiddenFromStats ? "<hidden>" : capab->link->IPAddr));
 		this->SendCapabilities(1);
 	}
 }
 
 void TreeSocket::OnError(BufferedSocketError e)
 {
-	ServerInstance->SNO.WriteGlobalSno('l', "Connection to '\002%s\002' failed with error: %s",
-		linkID.c_str(), GetError().c_str());
+	ServerInstance->SNO.WriteGlobalSno('l', "Connection to '\002{}\002' failed with error: {}",
+		linkID, GetError());
 	LinkState = DYING;
 	Close();
 }
@@ -236,7 +236,7 @@ static std::string newline("\n");
 
 void TreeSocket::WriteLineInternal(const std::string& line)
 {
-	ServerInstance->Logs.RawIO(MODNAME, "S[%d] O %s", this->GetFd(), line.c_str());
+	ServerInstance->Logs.RawIO(MODNAME, "S[{}] O {}", GetFd(), line);
 	this->WriteData(line);
 	this->WriteData(newline);
 }

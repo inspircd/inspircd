@@ -168,8 +168,8 @@ void UserIOHandler::OnDataReady()
 	if (recvq.length() > user->GetClass()->recvqmax && !user->HasPrivPermission("users/flood/increased-buffers"))
 	{
 		ServerInstance->Users.QuitUser(user, "RecvQ exceeded");
-		ServerInstance->SNO.WriteToSnoMask('a', "User %s RecvQ of %zu exceeds connect class maximum of %lu",
-			user->nick.c_str(), recvq.length(), user->GetClass()->recvqmax);
+		ServerInstance->SNO.WriteToSnoMask('a', "User {} RecvQ of {} exceeds connect class maximum of {}",
+			user->nick, recvq.length(), user->GetClass()->recvqmax);
 		return;
 	}
 
@@ -430,9 +430,9 @@ void LocalUser::FullConnect()
 
 	FOREACH_MOD(OnPostConnect, (this));
 
-	ServerInstance->SNO.WriteToSnoMask('c', "Client connecting on port %hu (class %s): %s (%s) [%s\x0F]",
-		this->server_sa.port(), this->GetClass()->name.c_str(), GetFullRealHost().c_str(),
-		this->GetIPString().c_str(), this->GetRealName().c_str());
+	ServerInstance->SNO.WriteToSnoMask('c', "Client connecting on port {} (class {}): {} ({}) [{}\x0F]",
+		server_sa.port(), GetClass()->GetName(), GetFullRealHost(), GetIPString(), GetRealName());
+
 	ServerInstance->Logs.Debug("BANCACHE", "BanCache: Adding NEGATIVE hit for " + this->GetIPString());
 	ServerInstance->BanCache.AddHit(this->GetIPString(), "", "");
 	// reset the flood penalty (which could have been raised due to things like auto +x)

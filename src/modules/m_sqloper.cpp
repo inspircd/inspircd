@@ -88,7 +88,7 @@ public:
 			if (tblk == ServerInstance->Config->OperTypes.end())
 			{
 				ServerInstance->Logs.Warning(MODNAME, "Sqloper block " + name + " has missing type " + type);
-				ServerInstance->SNO.WriteGlobalSno('a', "m_sqloper: Oper block %s has missing type %s", name.c_str(), type.c_str());
+				ServerInstance->SNO.WriteGlobalSno('a', "m_sqloper: Oper block {} has missing type {}", name, type);
 				continue;
 			}
 

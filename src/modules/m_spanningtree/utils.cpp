@@ -51,7 +51,7 @@ ModResult ModuleSpanningTree::OnAcceptConnection(int newsock, ListenSocket* from
 			return MOD_RES_ALLOW;
 		}
 	}
-	ServerInstance->SNO.WriteToSnoMask('l', "Server connection from %s denied (no link blocks with that IP address)", incomingip.c_str());
+	ServerInstance->SNO.WriteToSnoMask('l', "Server connection from {} denied (no link blocks with that IP address)", incomingip);
 	return MOD_RES_DENY;
 }
 

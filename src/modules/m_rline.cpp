@@ -73,14 +73,14 @@ public:
 			{
 				if (!duration)
 				{
-					ServerInstance->SNO.WriteToSnoMask('x', "%s added a permanent Z-line on %s: %s",
-						zl->source.c_str(), u->GetIPString().c_str(), zl->reason.c_str());
+					ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent Z-line on {}: {}",
+						zl->source, u->GetIPString(), zl->reason);
 				}
 				else
 				{
-					ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed Z-line on %s, expires in %s (on %s): %s",
-						zl->source.c_str(), u->GetIPString().c_str(), Duration::ToString(zl->duration).c_str(),
-						InspIRCd::TimeString(zl->duration).c_str(), zl->reason.c_str());
+					ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed Z-line on {}, expires in {} (on {}): {}",
+						zl->source, u->GetIPString(), Duration::ToString(zl->duration),
+						InspIRCd::TimeString(zl->duration), zl->reason);
 				}
 				added_zline = true;
 			}
@@ -176,13 +176,13 @@ public:
 				{
 					if (!duration)
 					{
-						ServerInstance->SNO.WriteToSnoMask('x', "%s added a permanent R-line on %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
+						ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent R-line on {}: {}", user->nick, parameters[0], parameters[2]);
 					}
 					else
 					{
-						ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed R-line on %s, expires in %s (on %s): %s",
-							user->nick.c_str(), parameters[0].c_str(), Duration::ToString(duration).c_str(),
-							InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), parameters[2].c_str());
+						ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed R-line on {}, expires in {} (on {}): {}",
+							user->nick, parameters[0], Duration::ToString(duration),
+							InspIRCd::TimeString(ServerInstance->Time() + duration), parameters[2]);
 					}
 
 					ServerInstance->XLines->ApplyLines();
@@ -200,7 +200,7 @@ public:
 
 			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "R", reason, user))
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "%s removed R-line on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason.c_str());
+				ServerInstance->SNO.WriteToSnoMask('x', "{} removed R-line on {}: {}", user->nick, parameters[0], reason);
 			}
 			else
 			{
@@ -283,7 +283,7 @@ public:
 			if (newrxengine.empty())
 				ServerInstance->SNO.WriteToSnoMask('r', "WARNING: No regex engine loaded - R-line functionality disabled until this is corrected.");
 			else
-				ServerInstance->SNO.WriteToSnoMask('r', "WARNING: Regex engine '%s' is not loaded - R-line functionality disabled until this is corrected.", newrxengine.c_str());
+				ServerInstance->SNO.WriteToSnoMask('r', "WARNING: Regex engine '{}' is not loaded - R-line functionality disabled until this is corrected.", newrxengine.c_str());
 
 			ServerInstance->XLines->DelAll(f.GetType());
 		}

@@ -124,7 +124,7 @@ std::shared_ptr<Link> TreeSocket::AuthRemote(const CommandBase::Params& params)
 
 		if (!ComparePass(*x, password))
 		{
-			ServerInstance->SNO.WriteToSnoMask('l', "Invalid password on link: %s", x->Name.c_str());
+			ServerInstance->SNO.WriteToSnoMask('l', "Invalid password on link: {}", x->Name);
 			continue;
 		}
 
@@ -136,7 +136,7 @@ std::shared_ptr<Link> TreeSocket::AuthRemote(const CommandBase::Params& params)
 		{
 			std::string ciphersuite;
 			ssliohook->GetCiphersuite(ciphersuite);
-			ServerInstance->SNO.WriteToSnoMask('l', "Negotiated ciphersuite %s on link %s", ciphersuite.c_str(), x->Name.c_str());
+			ServerInstance->SNO.WriteToSnoMask('l', "Negotiated ciphersuite {} on link {}", ciphersuite, x->Name);
 		}
 		else if (!capab->remotesa.is_local())
 		{

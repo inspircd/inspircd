@@ -232,9 +232,9 @@ private:
 			return;
 		}
 
-		ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed %s on %s, expires in %s (on %s): %s",
-			line->source.c_str(), type, line->Displayable().c_str(), Duration::ToString(line->duration).c_str(),
-			InspIRCd::TimeString(line->expiry).c_str(), line->reason.c_str());
+		ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed {} on {}, expires in {} (on {}): {}",
+			line->source, type, line->Displayable(), Duration::ToString(line->duration),
+			InspIRCd::TimeString(line->expiry), line->reason);
 		ServerInstance->XLines->ApplyLines();
 	}
 
@@ -268,8 +268,8 @@ public:
 		if (!ans_record)
 		{
 			config->stats_errors++;
-			ServerInstance->SNO.WriteGlobalSno('d', "%s returned an result with no IPv4 address.",
-				config->name.c_str());
+			ServerInstance->SNO.WriteGlobalSno('d', "{} returned an result with no IPv4 address.",
+				config->name);
 			return;
 		}
 
@@ -278,8 +278,8 @@ public:
 		if (inet_pton(AF_INET, ans_record->rdata.c_str(), &resultip) != 1)
 		{
 			config->stats_errors++;
-			ServerInstance->SNO.WriteGlobalSno('d', "%s returned an invalid IPv4 address: %s",
-				config->name.c_str(), ans_record->rdata.c_str());
+			ServerInstance->SNO.WriteGlobalSno('d', "{} returned an invalid IPv4 address: {}",
+				config->name, ans_record->rdata);
 			return;
 		}
 
@@ -287,8 +287,8 @@ public:
 		if ((resultip.s_addr & 0xFF) != 127)
 		{
 			config->stats_errors++;
-			ServerInstance->SNO.WriteGlobalSno('d', "%s returned an IPv4 address which is outside of the 127.0.0.0/8 subnet: %s",
-				config->name.c_str(), ans_record->rdata.c_str());
+			ServerInstance->SNO.WriteGlobalSno('d', "{} returned an IPv4 address which is outside of the 127.0.0.0/8 subnet: {}",
+				config->name, ans_record->rdata);
 			return;
 		}
 
@@ -359,8 +359,8 @@ public:
 				}
 			}
 
-			ServerInstance->SNO.WriteGlobalSno('d', "Connecting user %s (%s) detected as being on the '%s' DNS blacklist with result %d",
-				them->GetFullRealHost().c_str(), them->GetIPString().c_str(), config->name.c_str(), result);
+			ServerInstance->SNO.WriteGlobalSno('d', "Connecting user {} ({}) detected as being on the '{}' DNS blacklist with result {}",
+				them->GetFullRealHost(), them->GetIPString(), config->name, result);
 		}
 		else
 			config->stats_misses++;
@@ -393,8 +393,8 @@ public:
 		if (is_miss)
 			return;
 
-		ServerInstance->SNO.WriteGlobalSno('d', "An error occurred whilst checking whether %s (%s) is on the '%s' DNS blacklist: %s",
-			them->GetFullRealHost().c_str(), them->GetIPString().c_str(), config->name.c_str(), data.dns->GetErrorStr(q->error).c_str());
+		ServerInstance->SNO.WriteGlobalSno('d', "An error occurred whilst checking whether {} ({}) is on the '{}' DNS blacklist: {}",
+			them->GetFullRealHost(), them->GetIPString(), config->name, data.dns->GetErrorStr(q->error));
 	}
 };
 
@@ -478,7 +478,7 @@ public:
 		else
 			return;
 
-		ServerInstance->Logs.Debug(MODNAME, "Reversed IP %s -> %s", user->GetIPString().c_str(), reversedip.c_str());
+		ServerInstance->Logs.Debug(MODNAME, "Reversed IP {} -> {}", user->GetIPString(), reversedip);
 
 		data.countext.Set(user, dnsbls.size());
 
@@ -514,8 +514,8 @@ public:
 		MarkExtItem::List* match = data.markext.Get(user);
 		if (!match)
 		{
-			ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as it requires a DNSBL mark.",
-				klass->GetName().c_str());
+			ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is not suitable as it requires a DNSBL mark.",
+				klass->GetName());
 			return MOD_RES_DENY;
 		}
 
@@ -526,8 +526,8 @@ public:
 		}
 
 		const std::string marks = stdalgo::string::join(dnsbl);
-		ServerInstance->Logs.Debug("CONNECTCLASS", "The %s connect class is not suitable as the DNSBL marks (%s) do not match %s.",
-			klass->GetName().c_str(), marks.c_str(), dnsbl.c_str());
+		ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is not suitable as the DNSBL marks ({}) do not match {}.",
+			klass->GetName(), marks, dnsbl);
 		return MOD_RES_DENY;
 	}
 

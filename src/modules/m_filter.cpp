@@ -255,8 +255,8 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 		if (static_cast<ModuleFilter*>(me)->DeleteFilter(parameters[0], reason))
 		{
 			user->WriteNotice("*** Removed filter '" + parameters[0] + "': " + reason);
-			ServerInstance->SNO.WriteToSnoMask(IS_LOCAL(user) ? 'f' : 'F', "%s removed filter '%s': %s",
-				user->nick.c_str(), parameters[0].c_str(), reason.c_str());
+			ServerInstance->SNO.WriteToSnoMask(IS_LOCAL(user) ? 'f' : 'F', "{} removed filter '{}': {}",
+				user->nick, parameters[0], reason);
 			return CmdResult::SUCCESS;
 		}
 		else
@@ -316,8 +316,7 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 					flags, parameters[reasonindex]);
 
 				user->WriteNotice("*** Added filter " + message);
-				ServerInstance->SNO.WriteToSnoMask(IS_LOCAL(user) ? 'f' : 'F',
-					"%s added filter %s", user->nick.c_str(), message.c_str());
+				ServerInstance->SNO.WriteToSnoMask(IS_LOCAL(user) ? 'f' : 'F', "{} added filter {}", user->nick, message);
 
 				return CmdResult::SUCCESS;
 			}
@@ -420,20 +419,20 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 
 		if (is_selfmsg && warnonselfmsg)
 		{
-			ServerInstance->SNO.WriteGlobalSno('f', "WARNING: %s's self message matched %s (%s)",
-				user->nick.c_str(), f->freeform.c_str(), f->reason.c_str());
+			ServerInstance->SNO.WriteGlobalSno('f', "WARNING: {}'s self message matched {} ({})",
+				user->nick, f->freeform, f->reason);
 			return MOD_RES_PASSTHRU;
 		}
 		else if (f->action == FA_WARN)
 		{
-			ServerInstance->SNO.WriteGlobalSno('f', "WARNING: %s's message to %s matched %s (%s)",
-				user->nick.c_str(), msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str());
+			ServerInstance->SNO.WriteGlobalSno('f', "WARNING: {}'s message to {} matched {} ({})",
+				user->nick, msgtarget.GetName(), f->freeform, f->reason);
 			return MOD_RES_PASSTHRU;
 		}
 		else if (f->action == FA_BLOCK)
 		{
-			ServerInstance->SNO.WriteGlobalSno('f', "%s had their message to %s filtered as it matched %s (%s)",
-				user->nick.c_str(), msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str());
+			ServerInstance->SNO.WriteGlobalSno('f', "{} had their message to {} filtered as it matched {} ({})",
+				user->nick, msgtarget.GetName(), f->freeform, f->reason);
 			if (notifyuser)
 			{
 				if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
@@ -458,17 +457,17 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		}
 		else if (f->action == FA_KILL)
 		{
-			ServerInstance->SNO.WriteGlobalSno('f', "%s was killed because their message to %s matched %s (%s)",
-				user->nick.c_str(), msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str());
+			ServerInstance->SNO.WriteGlobalSno('f', "{} was killed because their message to {} matched {} ({})",
+				user->nick, msgtarget.GetName(), f->freeform, f->reason);
 			ServerInstance->Users.QuitUser(user, "Filtered: " + f->reason);
 		}
 		else if (f->action == FA_SHUN && (ServerInstance->XLines->GetFactory("SHUN")))
 		{
 			auto* sh = new Shun(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
-			ServerInstance->SNO.WriteGlobalSno('f', "%s (%s) was shunned for %s (expires on %s) because their message to %s matched %s (%s)",
-				user->nick.c_str(), sh->Displayable().c_str(), Duration::ToString(f->duration).c_str(),
-				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
-				msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str());
+			ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was shunned for {} (expires on {}) because their message to {} matched {} ({})",
+				user->nick, sh->Displayable(), Duration::ToString(f->duration),
+				InspIRCd::TimeString(ServerInstance->Time() + f->duration),
+				msgtarget.GetName(), f->freeform, f->reason);
 			if (ServerInstance->XLines->AddLine(sh, nullptr))
 			{
 				ServerInstance->XLines->ApplyLines();
@@ -479,10 +478,10 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		else if (f->action == FA_GLINE)
 		{
 			auto* gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, "*", user->GetIPString());
-			ServerInstance->SNO.WriteGlobalSno('f', "%s (%s) was G-lined for %s (expires on %s) because their message to %s matched %s (%s)",
-				user->nick.c_str(), gl->Displayable().c_str(), Duration::ToString(f->duration).c_str(),
-				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
-				msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str());
+			ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was G-lined for {} (expires on {}) because their message to {} matched {} ({})",
+				user->nick, gl->Displayable(), Duration::ToString(f->duration),
+				InspIRCd::TimeString(ServerInstance->Time() + f->duration),
+				msgtarget.GetName(), f->freeform, f->reason);
 			if (ServerInstance->XLines->AddLine(gl, nullptr))
 			{
 				ServerInstance->XLines->ApplyLines();
@@ -493,10 +492,10 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		else if (f->action == FA_ZLINE)
 		{
 			auto* zl = new ZLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
-			ServerInstance->SNO.WriteGlobalSno('f', "%s (%s) was Z-lined for %s (expires on %s) because their message to %s matched %s (%s)",
-				user->nick.c_str(), zl->Displayable().c_str(), Duration::ToString(f->duration).c_str(),
-				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
-				msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str());
+			ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was Z-lined for {} (expires on {}) because their message to {} matched {} ({})",
+				user->nick, zl->Displayable(), Duration::ToString(f->duration),
+				InspIRCd::TimeString(ServerInstance->Time() + f->duration),
+				msgtarget.GetName(), f->freeform, f->reason);
 			if (ServerInstance->XLines->AddLine(zl, nullptr))
 			{
 				ServerInstance->XLines->ApplyLines();
@@ -570,11 +569,11 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 			{
 				/* Note: We G-line *@IP so that if their host doesn't resolve the G-line still applies. */
 				auto* gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, "*", user->GetIPString());
-				ServerInstance->SNO.WriteGlobalSno('f', "%s (%s) was G-lined for %s (expires on %s) because their %s message matched %s (%s)",
-					user->nick.c_str(), gl->Displayable().c_str(),
-					Duration::ToString(f->duration).c_str(),
-					InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
-					command.c_str(), f->freeform.c_str(), f->reason.c_str());
+				ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was G-lined for {} (expires on {}) because their {} message matched {} ({})",
+					user->nick, gl->Displayable(),
+					Duration::ToString(f->duration),
+					InspIRCd::TimeString(ServerInstance->Time() + f->duration),
+					command, f->freeform, f->reason);
 
 				if (ServerInstance->XLines->AddLine(gl, nullptr))
 				{
@@ -586,11 +585,11 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 			if (f->action == FA_ZLINE)
 			{
 				auto* zl = new ZLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
-				ServerInstance->SNO.WriteGlobalSno('f', "%s (%s) was Z-lined for %s (expires on %s) because their %s message matched %s (%s)",
-					user->nick.c_str(), zl->Displayable().c_str(),
-					Duration::ToString(f->duration).c_str(),
-					InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
-					command.c_str(), f->freeform.c_str(), f->reason.c_str());
+				ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was Z-lined for {} (expires on {}) because their {} message matched {} ({})",
+					user->nick, zl->Displayable(),
+					Duration::ToString(f->duration),
+					InspIRCd::TimeString(ServerInstance->Time() + f->duration),
+					command, f->freeform, f->reason);
 
 				if (ServerInstance->XLines->AddLine(zl, nullptr))
 				{
@@ -603,11 +602,11 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 			{
 				/* Note: We shun *!*@IP so that if their host doesnt resolve the shun still applies. */
 				auto* sh = new Shun(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
-				ServerInstance->SNO.WriteGlobalSno('f', "%s (%s) was shunned for %s (expires on %s) because their %s message matched %s (%s)",
-					user->nick.c_str(), sh->Displayable().c_str(),
-					Duration::ToString(f->duration).c_str(),
-					InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
-					command.c_str(), f->freeform.c_str(), f->reason.c_str());
+				ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was shunned for {} (expires on {}) because their {} message matched {} ({})",
+					user->nick, sh->Displayable(),
+					Duration::ToString(f->duration),
+					InspIRCd::TimeString(ServerInstance->Time() + f->duration),
+					command, f->freeform, f->reason);
 
 				if (ServerInstance->XLines->AddLine(sh, nullptr))
 				{
@@ -656,7 +655,7 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 		if (newrxengine.empty())
 			ServerInstance->SNO.WriteGlobalSno('f', "WARNING: No regex engine loaded - Filter functionality disabled until this is corrected.");
 		else
-			ServerInstance->SNO.WriteGlobalSno('f', "WARNING: Regex engine '%s' is not loaded - Filter functionality disabled until this is corrected.", newrxengine.c_str());
+			ServerInstance->SNO.WriteGlobalSno('f', "WARNING: Regex engine '{}' is not loaded - Filter functionality disabled until this is corrected.", newrxengine);
 
 		initing = false;
 		FreeFilters();
@@ -948,8 +947,8 @@ bool ModuleFilter::Tick()
 		std::ofstream stream(newfilterconf.c_str());
 		if (!stream.is_open()) // Filesystem probably not writable.
 		{
-			ServerInstance->SNO.WriteToSnoMask('f', "Unable to save filters to \"%s\": %s (%d)",
-					newfilterconf.c_str(), strerror(errno), errno);
+			ServerInstance->SNO.WriteToSnoMask('f', "Unable to save filters to \"{}\": {} ({})",
+					newfilterconf, strerror(errno), errno);
 			return true;
 		}
 
@@ -976,8 +975,8 @@ bool ModuleFilter::Tick()
 
 		if (stream.fail()) // Filesystem probably not writable.
 		{
-			ServerInstance->SNO.WriteToSnoMask('f', "Unable to save filters to \"%s\": %s (%d)",
-				newfilterconf.c_str(), strerror(errno), errno);
+			ServerInstance->SNO.WriteToSnoMask('f', "Unable to save filters to \"{}\": {} ({})",
+				newfilterconf, strerror(errno), errno);
 			return true;
 		}
 		stream.close();
@@ -989,8 +988,8 @@ bool ModuleFilter::Tick()
 		// Use rename to move temporary to new db - this is guaranteed not to fuck up, even in case of a crash.
 		if (rename(newfilterconf.c_str(), filterconf.c_str()) < 0)
 		{
-			ServerInstance->SNO.WriteToSnoMask('f', "Unable to replace old filter config \"%s\" with \"%s\": %s (%d)",
-				filterconf.c_str(), newfilterconf.c_str(), strerror(errno), errno);
+			ServerInstance->SNO.WriteToSnoMask('f', "Unable to replace old filter config \"{}\" with \"{}\": {} ({})",
+				filterconf, newfilterconf, strerror(errno), errno);
 			return true;
 		}
 

@@ -153,8 +153,8 @@ void TreeServer::FinishBurst()
 	ServerInstance->XLines->ApplyLines();
 	uint64_t ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
 	unsigned long bursttime = ts - this->StartBurst;
-	ServerInstance->SNO.WriteToSnoMask(Parent == Utils->TreeRoot ? 'l' : 'L', "Received end of netburst from \002%s\002 (burst time: %lu %s)",
-		GetName().c_str(), (bursttime > 10000 ? bursttime / 1000 : bursttime), (bursttime > 10000 ? "secs" : "msecs"));
+	ServerInstance->SNO.WriteToSnoMask(Parent == Utils->TreeRoot ? 'l' : 'L', "Received end of netburst from \002{}\002 (burst time: {} {})",
+		GetName(), (bursttime > 10000 ? bursttime / 1000 : bursttime), (bursttime > 10000 ? "secs" : "msecs"));
 	Utils->Creator->linkeventprov.Call(&ServerProtocol::LinkEventListener::OnServerBurst, this);
 
 	StartBurst = 0;
@@ -182,7 +182,7 @@ void TreeServer::SQuitChild(TreeServer* server, const std::string& reason, bool 
 	const std::string quitreason = GetName() + " " + server->GetName();
 	size_t num_lost_users = QuitUsers(quitreason);
 
-	ServerInstance->SNO.WriteToSnoMask(IsRoot() ? 'l' : 'L', "Netsplit complete, lost \002%zu\002 user%s on \002%u\002 server%s.",
+	ServerInstance->SNO.WriteToSnoMask(IsRoot() ? 'l' : 'L', "Netsplit complete, lost \002{}\002 user{} on \002{}\002 server{}.",
 		num_lost_users, num_lost_users != 1 ? "s" : "", num_lost_servers, num_lost_servers != 1 ? "s" : "");
 
 	// No-op if the socket is already closed (i.e. it called us)

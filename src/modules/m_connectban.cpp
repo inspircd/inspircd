@@ -154,10 +154,10 @@ public:
 					return;
 				}
 				std::string maskstr = mask.str();
-				ServerInstance->SNO.WriteToSnoMask('x', "%s added a timed Z-line on %s, expires in %s (on %s): %s",
-					zl->source.c_str(), maskstr.c_str(), Duration::ToString(zl->duration).c_str(),
-					InspIRCd::TimeString(zl->expiry).c_str(), zl->reason.c_str());
-				ServerInstance->SNO.WriteGlobalSno('a', "Connect flooding from IP range %s (%lu)", maskstr.c_str(), threshold);
+				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed Z-line on {}, expires in {} (on {}): {}",
+					zl->source, maskstr, Duration::ToString(zl->duration),
+					InspIRCd::TimeString(zl->expiry), zl->reason);
+				ServerInstance->SNO.WriteGlobalSno('a', "Connect flooding from IP range {} ({})", maskstr, threshold);
 				connects.erase(i);
 				ServerInstance->XLines->ApplyLines();
 			}
