@@ -154,8 +154,7 @@ public:
 			data["map"].push_back(',');
 		}
 
-		compatdata = InspIRCd::Format("front=%s&middle=%s&map=%s", data["front"].c_str(),
-			data["middle"].c_str(), data["map"].c_str());
+		compatdata = INSP_FORMAT("front={}&middle={}&map={}", data["front"], data["middle"], data["map"]);
 	}
 
 	bool Map(unsigned long upper, unsigned long lower) override
@@ -285,12 +284,12 @@ public:
 						break;
 
 					case Codepage::AllowCharacterResult::NOT_VALID:
-						throw ModuleException(this, InspIRCd::Format("<cpchars> tag contains a forbidden character: %lu at %s",
-							pos, tag->source.str().c_str()));
+						throw ModuleException(this, INSP_FORMAT("<cpchars> tag contains a forbidden character: {} at {}",
+							pos, tag->source.str()));
 
 					case Codepage::AllowCharacterResult::NOT_VALID_AT_FRONT:
-						throw ModuleException(this, InspIRCd::Format("<cpchars> tag contains a forbidden front character: %lu at %s",
-							pos, tag->source.str().c_str()));
+						throw ModuleException(this, INSP_FORMAT("<cpchars> tag contains a forbidden front character: {} at {}",
+							pos, tag->source.str()));
 				}
 			}
 		}

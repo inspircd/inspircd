@@ -710,9 +710,9 @@ public:
 		if (user)
 		{
 			if (result)
-				user->WriteNumeric(RPL_LOADEDMODULE, passedname, InspIRCd::Format("The %s module was reloaded.", passedname.c_str()));
+				user->WriteNumeric(RPL_LOADEDMODULE, passedname, INSP_FORMAT("The {} module was reloaded.", passedname));
 			else
-				user->WriteNumeric(ERR_CANTUNLOADMODULE, passedname, InspIRCd::Format("Failed to reload the %s module.", passedname.c_str()));
+				user->WriteNumeric(ERR_CANTUNLOADMODULE, passedname, INSP_FORMAT("Failed to reload the {} module.", passedname));
 		}
 
 		ServerInstance->GlobalCulls.AddItem(this);

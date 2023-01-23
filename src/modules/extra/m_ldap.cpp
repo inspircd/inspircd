@@ -28,6 +28,7 @@
 /// $PackageInfo: require_system("debian") libldap2-dev
 /// $PackageInfo: require_system("ubuntu") libldap2-dev
 
+
 #include "inspircd.h"
 #include "threadsocket.h"
 #include "modules/ldap.h"
@@ -465,7 +466,7 @@ private:
 
 		if (res != req->success)
 		{
-			ldap_result->error = InspIRCd::Format("%s (%s)", ldap_err2string(res), req->info().c_str());
+			ldap_result->error = INSP_FORMAT("{} ({})", ldap_err2string(res), req->info());
 			return;
 		}
 

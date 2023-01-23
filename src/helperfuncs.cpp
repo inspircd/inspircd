@@ -410,13 +410,6 @@ std::string InspIRCd::Format(va_list& vaList, const char* formatString)
 	return std::string(formatBuffer.data());
 }
 
-std::string InspIRCd::Format(const char* formatString, ...)
-{
-	std::string ret;
-	VAFORMAT(ret, formatString, formatString);
-	return ret;
-}
-
 std::string InspIRCd::TimeString(time_t curtime, const char* format, bool utc)
 {
 #ifdef _WIN32

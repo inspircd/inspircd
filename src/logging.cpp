@@ -92,7 +92,7 @@ void Log::FileMethod::OnLog(time_t time, Level level, const std::string& type, c
 		fflush(file);
 
 	if (ferror(file))
-		throw CoreException(InspIRCd::Format("Unable to write to %s: %s", name.c_str(), strerror(errno)));
+		throw CoreException(INSP_FORMAT("Unable to write to {}: {}", name, strerror(errno)));
 }
 
 bool Log::FileMethod::Tick()
@@ -127,8 +127,8 @@ Log::MethodPtr Log::FileEngine::Create(const std::shared_ptr<ConfigTag>& tag)
 	auto* fh = fopen(fulltarget.c_str(), "a");
 	if (!fh)
 	{
-		throw CoreException(InspIRCd::Format("Unable to open %s for file logger at %s: %s",
-			fulltarget.c_str(), tag->source.str().c_str(), strerror(errno)));
+		throw CoreException(INSP_FORMAT("Unable to open {} for file logger at {}: {}", fulltarget,
+			tag->source.str(), strerror(errno)));
 	}
 
 	const unsigned long flush = tag->getUInt("flush", 20, 1);

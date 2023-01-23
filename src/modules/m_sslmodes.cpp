@@ -100,7 +100,7 @@ public:
 
 					if (nonssl)
 					{
-						source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, InspIRCd::Format("All members of the channel must be connected via TLS (%zu/%zu are non-TLS)",
+						source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, INSP_FORMAT("All members of the channel must be connected via TLS ({}/{} are non-TLS)",
 							nonssl, channel->GetUsers().size()));
 						return false;
 					}

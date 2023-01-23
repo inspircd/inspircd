@@ -101,9 +101,8 @@ public:
 		if (!luser)
 			return;
 
-		luser->WriteNumeric(RPL_YOUAREOPER, InspIRCd::Format("You are now %s %s",
-			strchr("AEIOUaeiou", user->oper->GetType()[0]) ? "an" : "a",
-			user->oper->GetType().c_str()));
+		luser->WriteNumeric(RPL_YOUAREOPER, INSP_FORMAT("You are now {} {}", strchr("AEIOUaeiou", user->oper->GetType()[0]) ? "an" : "a",
+			user->oper->GetType()));
 
 		ServerInstance->SNO.WriteToSnoMask('o', "%s (%s) [%s] is now a server operator of type \x02%s\x02 (%susing account \x02%s\x02).",
 			user->nick.c_str(), user->MakeHost().c_str(), user->GetIPString().c_str(), user->oper->GetType().c_str(),
@@ -143,13 +142,12 @@ public:
 					const std::string commands = account->GetCommands();
 					const std::string privileges = account->GetPrivileges();
 
-					stats.AddGenericRow(InspIRCd::Format(
-						"\x02%s\x02 (hosts: %s, type: %s, channel modes: %s, user modes: %s, snomasks: %s, commands: %s, privileges: %s)",
-						account->GetName().c_str(), NoneIfEmpty(hosts).c_str(), account->GetType().c_str(),
-						NoneIfEmpty(chanmodes).c_str(), NoneIfEmpty(usermodes).c_str(),
-						NoneIfEmpty(snomasks).c_str(), NoneIfEmpty(commands).c_str(),
-						NoneIfEmpty(privileges).c_str())
-					).AddTags(stats, {
+					stats.AddGenericRow(INSP_FORMAT(
+						"\x02{}\x02 (hosts: {}, type: {}, channel modes: {}, user modes: {}, snomasks: {}, commands: {}, privileges: {})",
+						account->GetName(), NoneIfEmpty(hosts), account->GetType(), NoneIfEmpty(chanmodes), NoneIfEmpty(usermodes),
+						NoneIfEmpty(snomasks), NoneIfEmpty(commands), NoneIfEmpty(privileges)
+					))
+					.AddTags(stats, {
 						{ "name",       account->GetName() },
 						{ "hosts",      hosts              },
 						{ "chan-modes", chanmodes          },
@@ -173,12 +171,12 @@ public:
 					const std::string commands = type->GetCommands();
 					const std::string privileges = type->GetPrivileges();
 
-					stats.AddGenericRow(InspIRCd::Format(
-						"\x02%s\02 (channel modes: %s, user modes: %s, snomasks: %s, commands: %s, privileges: %s)",
-						type->GetName().c_str(), NoneIfEmpty(chanmodes).c_str(),
-						NoneIfEmpty(usermodes).c_str(), NoneIfEmpty(snomasks).c_str(),
-						NoneIfEmpty(commands).c_str(), NoneIfEmpty(privileges).c_str())
-					).AddTags(stats, {
+					stats.AddGenericRow(INSP_FORMAT(
+						"\x02{}\02 (channel modes: {}, user modes: {}, snomasks: {}, commands: {}, privileges: {})",
+						type->GetName(), NoneIfEmpty(chanmodes), NoneIfEmpty(usermodes), NoneIfEmpty(snomasks),
+						NoneIfEmpty(commands), NoneIfEmpty(privileges)
+					))
+					.AddTags(stats, {
 						{ "name",       type->GetName()  },
 						{ "chan-modes", chanmodes        },
 						{ "user-modes", usermodes        },
@@ -205,8 +203,8 @@ public:
 					{
 						const std::string awayperiod = Duration::ToString(ServerInstance->Time() - oper->awaytime);
 						const std::string awaytime = InspIRCd::TimeString(oper->awaytime);
-						extra += InspIRCd::Format(": away for %s [since %s] (%s)", awayperiod.c_str(),
-							awaytime.c_str(), oper->awaymsg.c_str());
+
+						extra = INSP_FORMAT(": away for {} [since {}] ({})", awayperiod, awaytime, oper->awaymsg);
 					}
 
 					auto* loper = IS_LOCAL(oper);
@@ -214,14 +212,13 @@ public:
 					{
 						const std::string idleperiod = Duration::ToString(ServerInstance->Time() - loper->idle_lastmsg);
 						const std::string idletime = InspIRCd::TimeString(loper->idle_lastmsg);
-						extra += InspIRCd::Format("%c idle for %s [since %s]",  extra.empty() ? ':' : ',',
-							idleperiod.c_str(), idletime.c_str());
+
+						extra += INSP_FORMAT("{} idle for {} [since {}]",  extra.empty() ? ':' : ',', idleperiod, idletime);
 					}
 
-					stats.AddGenericRow(InspIRCd::Format("\x02%s\x02 (%s)%s", oper->nick.c_str(),
-						oper->MakeHost().c_str(), extra.c_str()));
+					stats.AddGenericRow(INSP_FORMAT("\x02{}\x02 ({}){}", oper->nick, oper->MakeHost(), extra));
 				}
-				stats.AddGenericRow(InspIRCd::Format("%zu server operator%s total", opers, opers ? "s" : ""));
+				stats.AddGenericRow(INSP_FORMAT("{} server operator{} total", opers, opers ? "s" : ""));
 				return MOD_RES_DENY;
 			}
 		}

@@ -45,7 +45,7 @@ bool InsaneBan::MatchesEveryone(const std::string& mask, MatcherBase& test, User
 		const char* article = strchr("AEIOUaeiou", bantype) ? "an" : "a";
 		ServerInstance->SNO.WriteToSnoMask('x', "\002WARNING\002: %s tried to set add %s %c-line on %s which covers %.2f%% of the network which is more than the maximum of %.2f%%!",
 			user->nick.c_str(), article, bantype, mask.c_str(), percent, itrigger);
-		user->WriteNotice(InspIRCd::Format("*** Unable to add %s %c-line on %s which covers %.2f%% of the network which is more than the maximum of %.2f%%!",
+		user->WriteNotice(INSP_FORMAT("*** Unable to add {} {}-line on {} which covers {:.2}% of the network which is more than the maximum of {:.2}%!",
 			article, bantype, mask.c_str(), percent, itrigger));
 		return true;
 	}
@@ -157,7 +157,7 @@ public:
 		}
 
 		// Send a numeric because if we deny then the core doesn't reply anything
-		user->WriteNumeric(ERR_ERRONEUSNICKNAME, newnick, InspIRCd::Format("Invalid nickname: %s", xline->reason.c_str()));
+		user->WriteNumeric(ERR_ERRONEUSNICKNAME, newnick, INSP_FORMAT("Invalid nickname: {}", xline->reason));
 		return MOD_RES_DENY;
 	}
 

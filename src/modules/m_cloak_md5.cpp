@@ -169,14 +169,15 @@ struct CloakInfo final
 		{
 			if (ip.family() == AF_INET6)
 			{
-				rv.append(InspIRCd::Format(".%02x%02x.%02x%02x%s",
+				rv.append(INSP_FORMAT(".{:02x}{:02x}.{:02x}{:02x}{}",
 					ip.in6.sin6_addr.s6_addr[2], ip.in6.sin6_addr.s6_addr[3],
-					ip.in6.sin6_addr.s6_addr[0], ip.in6.sin6_addr.s6_addr[1], suffix.c_str()));
+					ip.in6.sin6_addr.s6_addr[0], ip.in6.sin6_addr.s6_addr[1],
+					suffix));
 			}
 			else
 			{
 				const unsigned char* ip4 = (const unsigned char*)&ip.in4.sin_addr;
-				rv.append(InspIRCd::Format(".%d.%d%s", ip4[1], ip4[0], suffix.c_str()));
+				rv.append(INSP_FORMAT(".{}.{}{}", ip4[1], ip4[0], suffix));
 			}
 		}
 		return rv;

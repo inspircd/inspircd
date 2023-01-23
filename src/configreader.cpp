@@ -32,7 +32,6 @@
 
 #include <filesystem>
 #include <iostream>
-
 #ifndef _WIN32
 # include <unistd.h>
 #endif
@@ -461,7 +460,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
 			std::cout << line << std::endl;
 		// If a user is rehashing, tell them directly
 		if (user)
-			user->WriteRemoteNotice(InspIRCd::Format("*** %s", line.c_str()));
+			user->WriteRemoteNotice(INSP_FORMAT("*** {}", line));
 		// Also tell opers
 		ServerInstance->SNO.WriteGlobalSno('r', line);
 	}
@@ -514,7 +513,7 @@ void ServerConfig::ApplyModules(User* user) const
 
 		if (ServerInstance->Modules.Unload(mod))
 		{
-			const std::string message = InspIRCd::Format("The %s module was unloaded.", modname.c_str());
+			const std::string message = INSP_FORMAT("The {} module was unloaded.", modname);
 			if (user)
 				user->WriteNumeric(RPL_UNLOADEDMODULE, modname, message);
 
@@ -522,7 +521,7 @@ void ServerConfig::ApplyModules(User* user) const
 		}
 		else
 		{
-			const std::string message = InspIRCd::Format("Failed to unload the %s module: %s", modname.c_str(), ServerInstance->Modules.LastError().c_str());
+			const std::string message = INSP_FORMAT("Failed to unload the {} module: {}", modname, ServerInstance->Modules.LastError());
 			if (user)
 				user->WriteNumeric(ERR_CANTUNLOADMODULE, modname, message);
 
@@ -538,7 +537,7 @@ void ServerConfig::ApplyModules(User* user) const
 
 		if (ServerInstance->Modules.Load(modname))
 		{
-			const std::string message = InspIRCd::Format("The %s module was loaded.", modname.c_str());
+			const std::string message = INSP_FORMAT("The {} module was loaded.", modname);
 			if (user)
 				user->WriteNumeric(RPL_LOADEDMODULE, modname, message);
 
@@ -546,7 +545,7 @@ void ServerConfig::ApplyModules(User* user) const
 		}
 		else
 		{
-			const std::string message = InspIRCd::Format("Failed to load the %s module: %s", modname.c_str(), ServerInstance->Modules.LastError().c_str());
+			const std::string message = INSP_FORMAT("Failed to load the {} module: {}", modname, ServerInstance->Modules.LastError());
 			if (user)
 				user->WriteNumeric(ERR_CANTLOADMODULE, modname, message);
 

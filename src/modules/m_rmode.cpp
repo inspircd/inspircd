@@ -53,8 +53,8 @@ public:
 
 		if (chan->GetPrefixValue(user) < mh->GetLevelRequired(false))
 		{
-			user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, mh->GetLevelRequired(false), InspIRCd::Format("unset channel mode %c (%s)",
-				mh->GetModeChar(), mh->name.c_str())));
+			user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, mh->GetLevelRequired(false), INSP_FORMAT("unset channel mode {} ({})",
+				mh->GetModeChar(), mh->name)));
 			return CmdResult::FAILURE;
 		}
 

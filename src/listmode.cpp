@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "inspircd.h"
 #include "listmode.h"
 
@@ -50,12 +51,12 @@ void ListModeBase::DisplayList(User* user, Channel* channel)
 	for (const auto& item : cd->list)
 		user->WriteNumeric(listnumeric, channel->name, item.mask, item.setter, item.time);
 
-	user->WriteNumeric(endoflistnumeric, channel->name, InspIRCd::Format("End of channel %s list.", name.c_str()));
+	user->WriteNumeric(endoflistnumeric, channel->name, INSP_FORMAT("End of channel {} list.", name));
 }
 
 void ListModeBase::DisplayEmptyList(User* user, Channel* channel)
 {
-	user->WriteNumeric(endoflistnumeric, channel->name, InspIRCd::Format("Channel %s list is empty.", name.c_str()));
+	user->WriteNumeric(endoflistnumeric, channel->name, INSP_FORMAT("Channel {} list is empty.", name));
 }
 
 void ListModeBase::RemoveMode(Channel* channel, Modes::ChangeList& changelist)
@@ -82,7 +83,7 @@ void ListModeBase::DoRehash()
 		ListLimit limit(c->getString("chan", "*", 1), c->getUInt("limit", DEFAULT_LIST_SIZE));
 
 		if (limit.mask.empty())
-			throw ModuleException(creator, InspIRCd::Format("<maxlist:chan> is empty, at %s", c->source.str().c_str()));
+			throw ModuleException(creator, INSP_FORMAT("<maxlist:chan> is empty, at {}", c->source.str()));
 
 		if (limit.mask == "*" || limit.mask == "#*")
 			seen_default = true;
@@ -232,15 +233,15 @@ void ListModeBase::OnParameterMissing(User* source, User* dest, Channel* channel
 
 void ListModeBase::TellListTooLong(LocalUser* source, Channel* channel, const std::string& parameter)
 {
-	source->WriteNumeric(ERR_BANLISTFULL, channel->name, parameter, mode, InspIRCd::Format("Channel %s list is full", name.c_str()));
+	source->WriteNumeric(ERR_BANLISTFULL, channel->name, parameter, mode, INSP_FORMAT("Channel {} list is full", name));
 }
 
 void ListModeBase::TellAlreadyOnList(LocalUser* source, Channel* channel, const std::string& parameter)
 {
-	source->WriteNumeric(ERR_LISTMODEALREADYSET, channel->name, parameter, mode, InspIRCd::Format("Channel %s list already contains %s", name.c_str(), parameter.c_str()));
+	source->WriteNumeric(ERR_LISTMODEALREADYSET, channel->name, parameter, mode, INSP_FORMAT("Channel {} list already contains {}", name, parameter));
 }
 
 void ListModeBase::TellNotSet(LocalUser* source, Channel* channel, const std::string& parameter)
 {
-	source->WriteNumeric(ERR_LISTMODENOTSET, channel->name, parameter, mode, InspIRCd::Format("Channel %s list does not contain %s", name.c_str(), parameter.c_str()));
+	source->WriteNumeric(ERR_LISTMODENOTSET, channel->name, parameter, mode, INSP_FORMAT("Channel {} list does not contain {}", name, parameter));
 }

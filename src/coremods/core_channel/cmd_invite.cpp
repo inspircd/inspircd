@@ -190,7 +190,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 		if (invapi.announceinvites != Invite::ANNOUNCE_NONE)
 		{
 			excepts.insert(user);
-			ClientProtocol::Messages::Privmsg privmsg(ServerInstance->FakeClient, c, InspIRCd::Format("*** %s invited %s into the channel", user->nick.c_str(), u->nick.c_str()), MessageType::NOTICE);
+			ClientProtocol::Messages::Privmsg privmsg(ServerInstance->FakeClient, c, INSP_FORMAT("*** {} invited {} into the channel", user->nick, u->nick), MessageType::NOTICE);
 			c->Write(ServerInstance->GetRFCEvents().privmsg, privmsg, prefix, excepts);
 		}
 	}

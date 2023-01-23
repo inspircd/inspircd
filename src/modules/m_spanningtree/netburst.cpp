@@ -24,8 +24,8 @@
 
 
 #include "inspircd.h"
-#include "xline.h"
 #include "listmode.h"
+#include "xline.h"
 
 #include "treesocket.h"
 #include "treeserver.h"
@@ -133,10 +133,11 @@ void TreeSocket::SendServerInfo(TreeServer* from)
 
 	if (proto_version < PROTO_INSPIRCD_4)
 	{
-		this->WriteLine(CommandSInfo::Builder(from, "version", InspIRCd::Format("%s. %s :%s", from->rawbranch.c_str(),
-			from->GetPublicName().c_str(), from->customversion.c_str())));
-		this->WriteLine(CommandSInfo::Builder(from, "fullversion", InspIRCd::Format("%s. %s :[%s] %s", from->rawversion.c_str(),
-			from->GetName().c_str(), from->GetId().c_str(), from->customversion.c_str())));
+		this->WriteLine(CommandSInfo::Builder(from, "version", INSP_FORMAT("{}. {} :{}", from->rawbranch,
+			from->GetPublicName(), from->customversion)));
+
+		this->WriteLine(CommandSInfo::Builder(from, "fullversion", INSP_FORMAT("{}. {} :[{}] {}", from->rawversion,
+			from->GetName(), from->GetId(), from->customversion)));
 	}
 }
 

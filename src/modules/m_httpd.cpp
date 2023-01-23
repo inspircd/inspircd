@@ -256,9 +256,9 @@ public:
 
 		ServerInstance->Logs.Debug(MODNAME, "Sending HTTP error %u: %s", response, errstr);
 		static HTTPHeaders empty;
-		std::string data = InspIRCd::Format(
+		std::string data = INSP_FORMAT(
 			"<html><head></head><body style='font-family: sans-serif; text-align: center'>"
-			"<h1 style='font-size: 48pt'>Error %u</h1><h2 style='font-size: 24pt'>%s</h2><hr>"
+			"<h1 style='font-size: 48pt'>Error {}</h1><h2 style='font-size: 24pt'>{}</h2><hr>"
 			"<small>Powered by <a href='https://www.inspircd.org'>InspIRCd</a></small></body></html>",
 			response, errstr);
 
@@ -267,7 +267,7 @@ public:
 
 	void SendHeaders(unsigned long size, unsigned int response, HTTPHeaders& rheaders)
 	{
-		WriteData(InspIRCd::Format("HTTP/%u.%u %u %s\r\n", parser.http_major ? parser.http_major : 1, parser.http_major ? parser.http_minor : 1, response, http_status_str((http_status)response)));
+		WriteData(INSP_FORMAT("HTTP/{}.{} {} {}\r\n", parser.http_major ? parser.http_major : 1, parser.http_major ? parser.http_minor : 1, response, http_status_str((http_status)response)));
 
 		rheaders.CreateHeader("Date", InspIRCd::TimeString(ServerInstance->Time(), "%a, %d %b %Y %H:%M:%S GMT", true));
 		rheaders.CreateHeader("Server", INSPIRCD_BRANCH);

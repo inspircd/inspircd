@@ -4020,7 +4020,7 @@ auto join(Range&& range, string_view sep)
 
   **Example**::
 
-    #include <fmt/format.h>
+    #include <fmt/compile.h>
 
     std::string answer = fmt::to_string(42);
   \endrst

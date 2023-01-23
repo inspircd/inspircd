@@ -51,7 +51,7 @@ public:
 			const std::string newTopic(parameters[1], 0, ServerInstance->Config->Limits.MaxTopic);
 			if (target->topic == newTopic)
 			{
-				user->WriteNotice(InspIRCd::Format("The topic on %s is already what you are trying to change it to.", target->name.c_str()));
+				user->WriteNotice(INSP_FORMAT("The topic on {} is already what you are trying to change it to.", target->name));
 				return CmdResult::SUCCESS;
 			}
 

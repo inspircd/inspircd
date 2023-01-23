@@ -89,19 +89,19 @@ public:
 
 		if (c->HasUser(user))
 		{
-			user->WriteNumeric(ERR_KNOCKONCHAN, c->name, InspIRCd::Format("Can't KNOCK on %s, you are already on that channel.", c->name.c_str()));
+			user->WriteNumeric(ERR_KNOCKONCHAN, c->name, INSP_FORMAT("Can't KNOCK on {}, you are already on that channel.", c->name));
 			return CmdResult::FAILURE;
 		}
 
 		if (c->IsModeSet(noknockmode))
 		{
-			user->WriteNumeric(ERR_CANNOTKNOCK, InspIRCd::Format("Can't KNOCK on %s, +K is set.", c->name.c_str()));
+			user->WriteNumeric(ERR_CANNOTKNOCK, INSP_FORMAT("Can't KNOCK on {}, +K is set.", c->name));
 			return CmdResult::FAILURE;
 		}
 
 		if (!c->IsModeSet(inviteonlymode))
 		{
-			user->WriteNumeric(ERR_CHANOPEN, c->name, InspIRCd::Format("Can't KNOCK on %s, channel is not invite only so knocking is pointless!", c->name.c_str()));
+			user->WriteNumeric(ERR_CHANOPEN, c->name, INSP_FORMAT("Can't KNOCK on {}, channel is not invite only so knocking is pointless!", c->name));
 			return CmdResult::FAILURE;
 		}
 
@@ -131,7 +131,7 @@ public:
 
 		if (notify & KN_SEND_NOTICE)
 		{
-			c->WriteNotice(InspIRCd::Format("User %s is KNOCKing on %s (%s)", user->nick.c_str(), c->name.c_str(), parameters[1].c_str()), status);
+			c->WriteNotice(INSP_FORMAT("User {} is KNOCKing on {} ({})", user->nick, c->name, parameters[1]), status);
 			user->WriteNotice("KNOCKing on " + c->name);
 		}
 

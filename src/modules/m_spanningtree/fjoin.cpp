@@ -22,7 +22,9 @@
  */
 
 
+
 #include "inspircd.h"
+
 #include "commands.h"
 #include "treeserver.h"
 #include "treesocket.h"
@@ -272,8 +274,8 @@ void CommandFJoin::LowerTS(Channel* chan, time_t TS, const std::string& newname)
 	if (Utils->AnnounceTSChange)
 	{
 		// WriteRemoteNotice is not used here because the message only needs to go to the local server.
-		chan->WriteNotice(InspIRCd::Format("Creation time of %s changed from %s to %s", newname.c_str(),
-			InspIRCd::TimeString(chan->age).c_str(), InspIRCd::TimeString(TS).c_str()));
+		chan->WriteNotice(INSP_FORMAT("Creation time of {} changed from {} to {}", newname,
+			InspIRCd::TimeString(chan->age), InspIRCd::TimeString(TS)));
 	}
 
 	// While the name is equal in case-insensitive compare, it might differ in case; use the remote version

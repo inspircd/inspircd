@@ -121,16 +121,16 @@ public:
 			// Attempt to read the help key.
 			const std::string key = tag->getString("key");
 			if (key.empty())
-				throw ModuleException(this, InspIRCd::Format("<helpop:key> is empty at %s", tag->source.str().c_str()));
+				throw ModuleException(this, INSP_FORMAT("<helpop:key> is empty at {}", tag->source.str()));
 			else if (irc::equals(key, "index"))
-				throw ModuleException(this, InspIRCd::Format("<helpop:key> is set to \"index\" which is reserved at %s", tag->source.str().c_str()));
+				throw ModuleException(this, INSP_FORMAT("<helpop:key> is set to \"index\" which is reserved at {}", tag->source.str()));
 			else if (key.length() > longestkey)
 				longestkey = key.length();
 
 			// Attempt to read the help value.
 			std::string value;
 			if (!tag->readString("value", value, true) || value.empty())
-				throw ModuleException(this, InspIRCd::Format("<helpop:value> is empty at %s", tag->source.str().c_str()));
+				throw ModuleException(this, INSP_FORMAT("<helpop:value> is empty at {}", tag->source.str()));
 
 			// Parse the help body. Empty lines are replaced with a single
 			// space because some clients are unable to show blank lines.
@@ -140,11 +140,11 @@ public:
 				helpmsg.push_back(line.empty() ? " " : line);
 
 			// Read the help title and store the topic.
-			const std::string title = tag->getString("title", InspIRCd::Format("*** Help for %s", key.c_str()), 1);
+			const std::string title = tag->getString("title", INSP_FORMAT("*** Help for {}", key), 1);
 			if (!newhelp.emplace(key, HelpTopic(helpmsg, title)).second)
 			{
-				throw ModuleException(this, InspIRCd::Format("<helpop> tag with duplicate key '%s' at %s",
-					key.c_str(), tag->source.str().c_str()));
+				throw ModuleException(this, INSP_FORMAT("<helpop> tag with duplicate key '{}' at {}",
+					key, tag->source.str()));
 			}
 		}
 

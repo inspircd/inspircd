@@ -161,8 +161,8 @@ public:
 			{
 				const std::string awayperiod = Duration::ToString(ServerInstance->Time() - oper->awaytime);
 				const std::string awaytime = InspIRCd::TimeString(oper->awaytime);
-				extra += InspIRCd::Format(": away for %s [since %s] (%s)", awayperiod.c_str(),
-					awaytime.c_str(), oper->awaymsg.c_str());
+
+				extra = INSP_FORMAT(": away for {} [since {}] ({})", awayperiod, awaytime, oper->awaymsg);
 			}
 
 			auto* loper = IS_LOCAL(oper);
@@ -170,14 +170,13 @@ public:
 			{
 				const std::string idleperiod = Duration::ToString(ServerInstance->Time() - loper->idle_lastmsg);
 				const std::string idletime = InspIRCd::TimeString(loper->idle_lastmsg);
-				extra += InspIRCd::Format("%c idle for %s [since %s]",  extra.empty() ? ':' : ',',
-					idleperiod.c_str(), idletime.c_str());
+
+				extra += INSP_FORMAT("{} idle for {} [since {}]", extra.empty() ? ':' : ',', idleperiod, idletime);
 			}
 
-			stats.AddGenericRow(InspIRCd::Format("\x02%s\x02 (%s)%s", oper->nick.c_str(),
-				oper->MakeHost().c_str(), extra.c_str()));
+			stats.AddGenericRow(INSP_FORMAT("\x02{}\x02 ({}){}", oper->nick, oper->MakeHost(), extra));
 		}
-		stats.AddGenericRow(InspIRCd::Format("%zu server operator%s total", opers, opers ? "s" : ""));
+		stats.AddGenericRow(INSP_FORMAT("{} server operator{} total", opers, opers ? "s" : ""));
 		return MOD_RES_DENY;
 	}
 };

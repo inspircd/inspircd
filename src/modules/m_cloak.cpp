@@ -62,14 +62,14 @@ public:
 			if (cloak.empty())
 				continue;
 
-			noterpl.SendIfCap(user, stdrplcap, this, "CLOAK_RESULT", parameters[0], cloak, InspIRCd::Format("Cloak #%zu for %s is %s (type: %s)",
-				++count, parameters[0].c_str(), cloak.c_str(), cloakmethod->GetName()));
+			noterpl.SendIfCap(user, stdrplcap, this, "CLOAK_RESULT", parameters[0], cloak, INSP_FORMAT("Cloak #{} for {} is {} (method: {})",
+				++count, parameters[0], cloak, cloakmethod->GetName()));
 		}
 
 		if (!count)
 		{
-			failrpl.SendIfCap(user, stdrplcap, this, "UNABLE_TO_CLOAK", parameters[0], InspIRCd::Format("There are no methods available for cloaking %s",
-				parameters[0].c_str()));
+			failrpl.SendIfCap(user, stdrplcap, this, "UNABLE_TO_CLOAK", parameters[0], INSP_FORMAT("There are no methods available for cloaking {}",
+				parameters[0]));
 		}
 
 		return CmdResult::SUCCESS;

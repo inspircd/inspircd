@@ -318,15 +318,15 @@ private:
 	{
 		if (ms.MaxLines && settings.Lines > ms.MaxLines)
 		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, InspIRCd::Format(
-				"The line number you specified is too big. Maximum allowed is %lu.", ms.MaxLines)));
+			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, INSP_FORMAT(
+				"The line number you specified is too big. Maximum allowed is {}.", ms.MaxLines)));
 			return false;
 		}
 
 		if (ms.MaxSecs && settings.Seconds > ms.MaxSecs)
 		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, InspIRCd::Format(
-				"The seconds you specified are too big. Maximum allowed is %lu.", ms.MaxSecs)));
+			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, INSP_FORMAT(
+				"The seconds you specified are too big. Maximum allowed is {}.", ms.MaxSecs)));
 			return false;
 		}
 
@@ -336,8 +336,8 @@ private:
 				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter,
 					"The server administrator has disabled matching on edit distance."));
 			else
-				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, InspIRCd::Format(
-					"The distance you specified is too big. Maximum allowed is %u.", ms.MaxDiff)));
+				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, INSP_FORMAT(
+					"The distance you specified is too big. Maximum allowed is {}.", ms.MaxDiff)));
 			return false;
 		}
 
@@ -347,8 +347,8 @@ private:
 				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter,
 					"The server administrator has disabled backlog matching."));
 			else
-				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, InspIRCd::Format(
-					"The backlog you specified is too big. Maximum allowed is %lu.", ms.MaxBacklog)));
+				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, INSP_FORMAT(
+					"The backlog you specified is too big. Maximum allowed is {}.", ms.MaxBacklog)));
 			return false;
 		}
 
@@ -438,7 +438,7 @@ public:
 		data["max-diff"] = ConvToStr(rm.ms.MaxDiff);
 		data["max-backlog"] = ConvToStr(rm.ms.MaxBacklog);
 
-		compatdata = InspIRCd::Format("%lu:%lu:%u:%lu", rm.ms.MaxLines, rm.ms.MaxSecs,
+		compatdata = INSP_FORMAT("{}:{}:{}:{}", rm.ms.MaxLines, rm.ms.MaxSecs,
 			rm.ms.MaxDiff, rm.ms.MaxBacklog);
 	}
 };

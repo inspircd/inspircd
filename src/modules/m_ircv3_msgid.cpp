@@ -47,7 +47,7 @@ class MsgIdGenerator final
 
 public:
 	MsgIdGenerator()
-		: strid(InspIRCd::Format("%s~%lu~", ServerInstance->Config->GetSID().c_str(), ServerInstance->startup_time))
+		: strid(INSP_FORMAT("{}~{}~", ServerInstance->Config->GetSID(), ServerInstance->startup_time))
 		, baselen(strid.length())
 	{
 	}

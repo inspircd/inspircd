@@ -67,9 +67,9 @@ private:
 	void SendNoticeInternal(LocalUser* user, const Command* command, const std::string& description)
 	{
 		if (command)
-			user->WriteNotice(InspIRCd::Format("*** %s: %s", command->name.c_str(), description.c_str()));
+			user->WriteNotice(INSP_FORMAT("*** {}: {}", command->name, description));
 		else
-			user->WriteNotice(InspIRCd::Format("*** %s", description.c_str()));
+			user->WriteNotice(INSP_FORMAT("*** {}", description));
 	}
 
 protected:

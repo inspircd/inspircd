@@ -572,8 +572,8 @@ public:
 			total_misses += dnsbl->stats_misses;
 			total_errors += dnsbl->stats_errors;
 
-			stats.AddGenericRow(InspIRCd::Format("The \"%s\" DNSBL had %lu hits, %lu misses, and %lu errors",
-				dnsbl->name.c_str(), dnsbl->stats_hits, dnsbl->stats_misses, dnsbl->stats_errors));
+			stats.AddGenericRow(INSP_FORMAT("The \"{}\" DNSBL had {} hits, {} misses, and {} errors",
+				dnsbl->name, dnsbl->stats_hits, dnsbl->stats_misses, dnsbl->stats_errors));
 		}
 
 		stats.AddGenericRow("Total DNSBL hits: " + ConvToStr(total_hits));

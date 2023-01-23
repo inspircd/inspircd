@@ -457,10 +457,7 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 
 	auto file = DoOpenFile(path, exec);
 	if (!file)
-	{
-		throw CoreException(InspIRCd::Format("Could not read \"%s\" for %s: %s",
-			path.c_str(), key.c_str(), strerror(errno)));
-	}
+		throw CoreException(INSP_FORMAT("Could not read \"{}\" for {}: {}", path, key, strerror(errno)));
 
 	file_cache& cache = FilesOutput[key];
 	cache.clear();
@@ -530,8 +527,7 @@ bool ParseStack::ParseFile(const std::string& path, int flags, const std::string
 		if (flags & FLAG_MISSING_OKAY)
 			return true;
 
-		throw CoreException(InspIRCd::Format("Could not read \"%s\" for include: %s",
-			path.c_str(), strerror(errno)));
+		throw CoreException(INSP_FORMAT("Could not read \"{}\" for include: {}", path, strerror(errno)));
 	}
 
 	reading.push_back(path);

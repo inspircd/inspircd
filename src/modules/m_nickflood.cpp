@@ -158,8 +158,8 @@ public:
 
 				if (f->islocked())
 				{
-					user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("%s has been locked for nickchanges for %u seconds because there have been more than %u nick changes in %u seconds",
-							memb->chan->name.c_str(), duration, f->nicks, f->secs));
+					user->WriteNumeric(ERR_CANTCHANGENICK, INSP_FORMAT("{} has been locked for nickchanges for {} seconds because there have been more than {} nick changes in {} seconds",
+							memb->chan->name, duration, f->nicks, f->secs));
 					return MOD_RES_DENY;
 				}
 
@@ -167,7 +167,7 @@ public:
 				{
 					f->clear();
 					f->lock();
-					memb->chan->WriteNotice(InspIRCd::Format("No nick changes are allowed for %u seconds because there have been more than %u nick changes in %u seconds.",
+					memb->chan->WriteNotice(INSP_FORMAT("No nick changes are allowed for {} seconds because there have been more than {} nick changes in {} seconds.",
 						duration, f->nicks, f->secs));
 					return MOD_RES_DENY;
 				}

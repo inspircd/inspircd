@@ -348,7 +348,7 @@ private:
 		std::sort(type3.begin(), type3.end());
 		std::sort(type4.begin(), type4.end());
 
-		return InspIRCd::Format("%s,%s,%s,%s", type1.c_str(), type2.c_str(), type3.c_str(), type4.c_str());
+		return INSP_FORMAT("{},{},{},{}", type1, type2, type3, type4);
 	}
 
 	static std::string GeneratePrefixList(bool includemodechars)

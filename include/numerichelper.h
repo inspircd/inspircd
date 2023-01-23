@@ -54,16 +54,16 @@ public:
 		: Numeric(ERR_CANNOTSENDTOCHAN)
 	{
 		push(chan->name);
-		push(InspIRCd::Format("You cannot send %s to this channel whilst the +%c (%s) mode is set.",
-			what.c_str(), mh->GetModeChar(), mh->name.c_str()));
+		push(INSP_FORMAT("You cannot send {} to this channel whilst the +{} ({}) mode is set.",
+			what, mh->GetModeChar(), mh->name));
 	}
 
 	CannotSendTo(Channel* chan, const std::string& what, char extban, const std::string& extbandesc)
 		: Numeric(ERR_CANNOTSENDTOCHAN)
 	{
 		push(chan->name);
-		push(InspIRCd::Format("You cannot send %s to this channel whilst %s %c: (%s) extban is set matching you.",
-			what.c_str(), strchr("AEIOUaeiou", extban) ? "an" : "a", extban, extbandesc.c_str()));
+		push(INSP_FORMAT("You cannot send {} to this channel whilst {} {}: ({}) extban is set matching you.",
+			what, strchr("AEIOUaeiou", extban) ? "an" : "a", extban, extbandesc));
 	}
 
 	CannotSendTo(User* user, const std::string& message)
@@ -77,8 +77,8 @@ public:
 		: Numeric(ERR_CANNOTSENDTOUSER)
 	{
 		push(user->connected & User::CONN_NICK ? user->nick : "*");
-		push(InspIRCd::Format("You cannot send %s to this user whilst %s have the +%c (%s) mode set.",
-			what.c_str(), self ? "you" : "they", mh->GetModeChar(), mh->name.c_str()));
+		push(INSP_FORMAT("You cannot send {} to this user whilst {} have the +{} ({}) mode set.",
+			what, self ? "you" : "they", mh->GetModeChar(), mh->name));
 	}
 };
 
@@ -93,9 +93,9 @@ public:
 
 		const PrefixMode* pm = ServerInstance->Modes.FindNearestPrefixMode(rank);
 		if (pm)
-			push(InspIRCd::Format("You must be a channel %s or higher to %s.", pm->name.c_str(), message.c_str()));
+			push(INSP_FORMAT("You must be a channel {} or higher to {}.", pm->name, message));
 		else
-			push(InspIRCd::Format("You do not have the required channel privileges to %s.", message.c_str()));
+			push(INSP_FORMAT("You do not have the required channel privileges to {}.", message));
 	}
 };
 
@@ -117,12 +117,12 @@ private:
 		if (!syntax.empty())
 		{
 			// If the mode has a syntax hint we include it in the message.
-			push(InspIRCd::Format("Invalid %s mode parameter. Syntax: %s.", mode->name.c_str(), syntax.c_str()));
+			push(INSP_FORMAT("Invalid {} mode parameter. Syntax: {}.", mode->name, syntax));
 		}
 		else
 		{
 			// Otherwise, send it without.
-			push(InspIRCd::Format("Invalid %s mode parameter.", mode->name.c_str()));
+			push(INSP_FORMAT("Invalid {} mode parameter.", mode->name));
 		}
 	}
 

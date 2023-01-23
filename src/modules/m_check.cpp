@@ -243,9 +243,8 @@ public:
 				 * Unlike Asuka, I define a clone as coming from the same host. --w00t
 				 */
 				const UserManager::CloneCounts& clonecount = ServerInstance->Users.GetCloneCounts(u);
-				context.Write("member", InspIRCd::Format("%u %s%s (%s\x0F)", clonecount.global,
-					memb->GetAllPrefixChars().c_str(), u->GetFullHost().c_str(),
-					u->GetRealName().c_str()));
+				context.Write("member", INSP_FORMAT("{} {}{} ({}\x0F)", clonecount.global, memb->GetAllPrefixChars(),
+					u->GetFullHost(), u->GetRealName()));
 			}
 
 			for (auto* lm : ServerInstance->Modes.GetListModes())
@@ -285,9 +284,8 @@ public:
 				if (!matches.empty())
 				{
 					const std::string whatmatch = stdalgo::string::join(matches, ',');
-					context.Write("match", InspIRCd::Format("%ld %s %s %s %s %s %s :%s", ++x, whatmatch.c_str(),
-						u->nick.c_str(), u->ident.c_str(), u->GetRealHost().c_str(), u->GetDisplayedHost().c_str(),
-						u->GetIPString().c_str(), u->GetRealName().c_str()));
+					context.Write("match", INSP_FORMAT("{} {} {} {} {} {} {} :{}", ++x, whatmatch, u->nick, u->ident,
+						u->GetRealHost(), u->GetDisplayedHost(), u->GetIPString(), u->GetRealName()));
 					matches.clear();
 				}
 			}

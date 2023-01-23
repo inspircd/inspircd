@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "inspircd.h"
 #include "modules/dns.h"
 #include "modules/stats.h"
@@ -233,7 +234,7 @@ private:
 				if (!InspIRCd::IsHost(srv->host, true))
 					throw Exception(creator, "Invalid name in SRV resource record");
 
-				record.rdata = InspIRCd::Format("%u %u %u %s", srv->priority, srv->weight, srv->port, srv->host.c_str());
+				record.rdata = INSP_FORMAT("{} {} {} {}", srv->priority, srv->weight, srv->port, srv->host);
 				record.rdataobj = srv;
 				break;
 			}
@@ -931,7 +932,7 @@ public:
 	{
 		if (stats.GetSymbol() == 'T')
 		{
-			stats.AddGenericRow(InspIRCd::Format("DNS requests: %zu (%zu succeeded, %zu failed)",
+			stats.AddGenericRow(INSP_FORMAT("DNS requests: {} ({} succeeded, {} failed)",
 				manager.stats_total, manager.stats_success, manager.stats_failure));
 		}
 		return MOD_RES_PASSTHRU;

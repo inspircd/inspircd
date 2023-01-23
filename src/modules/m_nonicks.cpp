@@ -59,8 +59,8 @@ public:
 			bool modeset = memb->chan->IsModeSet(nn);
 			if (!extban.GetStatus(user, memb->chan).check(!modeset))
 			{
-				user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("Can't change nickname while on %s (%s)",
-					memb->chan->name.c_str(), modeset ? "+N is set" : "you're extbanned"));
+				user->WriteNumeric(ERR_CANTCHANGENICK, INSP_FORMAT("Can't change nickname while on {} ({})",
+					memb->chan->name, modeset ? "+N is set" : "you're extbanned"));
 				return MOD_RES_DENY;
 			}
 		}

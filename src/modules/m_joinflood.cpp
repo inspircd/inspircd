@@ -195,7 +195,8 @@ public:
 			{
 				f->clear();
 				f->lock();
-				memb->chan->WriteNotice(InspIRCd::Format("This channel has been closed to new users for %u seconds because there have been more than %d joins in %d seconds.", duration, f->joins, f->secs));
+				memb->chan->WriteNotice(INSP_FORMAT("This channel has been closed to new users for {} seconds because there have been more than {} joins in {} seconds.",
+					duration, f->joins, f->secs));
 			}
 		}
 	}

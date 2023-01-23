@@ -75,7 +75,7 @@ public:
 			else
 			{
 				// Logged in.
-				user->WriteNumeric(RPL_LOGGEDIN, user->GetFullHost(), value, InspIRCd::Format("You are now logged in as %s", value.c_str()));
+				user->WriteNumeric(RPL_LOGGEDIN, user->GetFullHost(), value, INSP_FORMAT("You are now logged in as {}", value));
 			}
 		}
 

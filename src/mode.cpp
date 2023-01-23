@@ -87,9 +87,9 @@ void ModeHandler::DisplayEmptyList(User*, Channel*)
 
 void ModeHandler::OnParameterMissing(User* user, User* dest, Channel* channel)
 {
-	std::string message = InspIRCd::Format("You must specify a parameter for the %s mode.", name.c_str());
+	std::string message = INSP_FORMAT("You must specify a parameter for the {} mode.", name);
 	if (!syntax.empty())
-		message.append(InspIRCd::Format(" Syntax: %s.", syntax.c_str()));
+		message.append(INSP_FORMAT(" Syntax: {}.", syntax));
 
 	if (channel)
 		user->WriteNumeric(Numerics::InvalidModeParameter(channel, this, "*", message));
@@ -277,8 +277,8 @@ bool ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Modes::Cha
 			ModeHandler::Rank ourrank = chan->GetPrefixValue(user);
 			if (ourrank < neededrank)
 			{
-				user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, neededrank, InspIRCd::Format("%s channel mode %c (%s)",
-					mcitem.adding ? "set" : "unset", mh->GetModeChar(), mh->name.c_str())));
+				user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, neededrank, INSP_FORMAT("{} channel mode {} ({})",
+					mcitem.adding ? "set" : "unset", mh->GetModeChar(), mh->name)));
 				return false;
 			}
 		}
@@ -303,13 +303,13 @@ bool ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Modes::Cha
 		/* It's an oper only mode, and they don't have access to it. */
 		if (user->IsOper())
 		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper type %s does not have access to %sset %s mode %c",
-				user->oper->GetType().c_str(), mcitem.adding ? "" : "un", type == MODETYPE_CHANNEL ? "channel" : "user", modechar));
+			user->WriteNumeric(ERR_NOPRIVILEGES, INSP_FORMAT("Permission Denied - Oper type {} does not have access to {} {} mode {}",
+				user->oper->GetType(), mcitem.adding ? "set" : "unset", type == MODETYPE_CHANNEL ? "channel" : "user", modechar));
 		}
 		else
 		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Only operators may %sset %s mode %c",
-				mcitem.adding ? "" : "un", type == MODETYPE_CHANNEL ? "channel" : "user", modechar));
+			user->WriteNumeric(ERR_NOPRIVILEGES, INSP_FORMAT("Permission Denied - Only operators may {} {} mode {}",
+				mcitem.adding ? "set" : "unset", type == MODETYPE_CHANNEL ? "channel" : "user", modechar));
 		}
 		return false;
 	}
@@ -352,7 +352,7 @@ void ModeParser::ModeParamsToChangeList(User* user, ModeType type, const std::ve
 			/* No mode handler? Unknown mode character then. */
 			int numeric = (type == MODETYPE_CHANNEL ? ERR_UNKNOWNMODE : ERR_UNKNOWNSNOMASK);
 			const char* typestr = (type == MODETYPE_CHANNEL ? "channel" : "user");
-			user->WriteNumeric(numeric, modechar, InspIRCd::Format("is not a recognised %s mode.", typestr));
+			user->WriteNumeric(numeric, modechar, INSP_FORMAT("is not a recognised {} mode.", typestr));
 			continue;
 		}
 
@@ -560,10 +560,7 @@ ModeHandler::Id ModeParser::AllocateModeId(ModeHandler* mh)
 void ModeParser::AddMode(ModeHandler* mh)
 {
 	if (!ModeParser::IsModeChar(mh->GetModeChar()))
-	{
-		throw ModuleException(mh->creator, InspIRCd::Format("Mode letter for %s is invalid: %c",
-			mh->name.c_str(), mh->GetModeChar()));
-	}
+		throw ModuleException(mh->creator, INSP_FORMAT("Mode letter for {} is invalid: {}", mh->name, mh->GetModeChar()));
 
 	/* A mode prefix of ',' is not acceptable, it would fuck up server to server.
 	 * A mode prefix of ':' will fuck up both server to server, and client to server.
@@ -573,24 +570,21 @@ void ModeParser::AddMode(ModeHandler* mh)
 	if (pm)
 	{
 		if ((pm->GetPrefix() > 126) || (pm->GetPrefix() == ',') || (pm->GetPrefix() == ':') || ServerInstance->Channels.IsPrefix(pm->GetPrefix()))
-		{
-			throw ModuleException(mh->creator, InspIRCd::Format("Mode prefix for %s is invalid: %c",
-				mh->name.c_str(), pm->GetPrefix()));
-		}
+			throw ModuleException(mh->creator, INSP_FORMAT("Mode prefix for {} is invalid: {}", mh->name, pm->GetPrefix()));
 
 		PrefixMode* otherpm = FindPrefix(pm->GetPrefix());
 		if (otherpm)
 		{
-			throw ModuleException(mh->creator, InspIRCd::Format("Mode prefix for %s already used by %s from %s: %c",
-				mh->name.c_str(), otherpm->name.c_str(), otherpm->creator->ModuleSourceFile.c_str(), pm->GetPrefix()));
+			throw ModuleException(mh->creator, INSP_FORMAT("Mode prefix for {} already used by {} from {}: {}",
+				mh->name, otherpm->name, otherpm->creator->ModuleSourceFile, pm->GetPrefix()));
 		}
 	}
 
 	ModeHandler*& slot = modehandlers[mh->GetModeType()][ModeParser::GetModeIndex(mh->GetModeChar())];
 	if (slot)
 	{
-		throw ModuleException(mh->creator, InspIRCd::Format("Mode letter for %s already used by %s from %s: %c",
-			mh->name.c_str(), slot->name.c_str(), slot->creator->ModuleSourceFile.c_str(), mh->GetModeChar()));
+		throw ModuleException(mh->creator, INSP_FORMAT("Mode letter for {} already used by {} from {}: {}",
+			mh->name, slot->name, slot->creator->ModuleSourceFile, mh->GetModeChar()));
 	}
 
 	// The mode needs an id if it is either a user mode, a simple mode (flag) or a parameter mode.
@@ -603,8 +597,8 @@ void ModeParser::AddMode(ModeHandler* mh)
 	if (!res.second)
 	{
 		ModeHandler* othermh = res.first->second;
-		throw ModuleException(mh->creator, InspIRCd::Format("Mode name %s already used by %c from %s",
-			mh->name.c_str(), othermh->GetModeChar(), othermh->creator->ModuleSourceFile.c_str()));
+		throw ModuleException(mh->creator, INSP_FORMAT("Mode name {} already used by {} from {}",
+			mh->name, othermh->GetModeChar(), othermh->creator->ModuleSourceFile));
 	}
 
 	// Everything is fine, add the mode

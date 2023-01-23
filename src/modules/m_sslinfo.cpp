@@ -181,17 +181,17 @@ private:
 		ssl_cert* cert = sslapi.GetCertificate(target);
 		if (!cert)
 		{
-			source->WriteNotice(InspIRCd::Format("*** %s is not connected using TLS.", target->nick.c_str()));
+			source->WriteNotice(INSP_FORMAT("*** {} is not connected using TLS.", target->nick));
 		}
 		else if (cert->GetError().length())
 		{
-			source->WriteNotice(InspIRCd::Format("*** %s is connected using TLS but has not specified a valid client certificate (%s).",
-				target->nick.c_str(), cert->GetError().c_str()));
+			source->WriteNotice(INSP_FORMAT("*** {} is connected using TLS but has not specified a valid client certificate ({}).",
+				target->nick, cert->GetError()));
 		}
 		else if (!verbose)
 		{
-			source->WriteNotice(InspIRCd::Format("*** %s is connected using TLS with a valid client certificate (%s).",
-				target->nick.c_str(), cert->GetFingerprint().c_str()));
+			source->WriteNotice(INSP_FORMAT("*** {} is connected using TLS with a valid client certificate ({}).",
+				target->nick, cert->GetFingerprint()));
 		}
 		else
 		{
@@ -243,9 +243,9 @@ private:
 
 		if (sslonlymode)
 		{
-			source->WriteNotice(InspIRCd::Format("*** %s %s have channel mode +%c (%s) set.",
-				chan->name.c_str(), chan->IsModeSet(sslonlymode) ? "does" : "does not",
-				sslonlymode->GetModeChar(), sslonlymode->name.c_str()));
+			source->WriteNotice(INSP_FORMAT("*** {} {} have channel mode +{} ({}) set.",
+				chan->name, chan->IsModeSet(sslonlymode) ? "does" : "does not",
+				sslonlymode->GetModeChar(), sslonlymode->name));
 		}
 
 		for (const auto& [u, _] : chan->GetUsers())
@@ -317,7 +317,7 @@ public:
 		{
 			whois.SendLine(RPL_WHOISSECURE, "is using a secure connection");
 			if ((!cmd.operonlyfp || whois.IsSelfWhois() || whois.GetSource()->IsOper()) && !cert->fingerprint.empty())
-				whois.SendLine(RPL_WHOISCERTFP, InspIRCd::Format("has TLS client certificate fingerprint %s", cert->fingerprint.c_str()));
+				whois.SendLine(RPL_WHOISCERTFP, INSP_FORMAT("has TLS client certificate fingerprint {}", cert->fingerprint));
 		}
 	}
 

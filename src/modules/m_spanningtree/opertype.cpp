@@ -21,7 +21,9 @@
  */
 
 
+
 #include "inspircd.h"
+
 #include "commands.h"
 #include "treeserver.h"
 #include "utils.h"
@@ -103,7 +105,7 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& para
 	std::string extra;
 	if (params.GetTags().find("~name") != params.GetTags().end())
 	{
-		extra += InspIRCd::Format(" (%susing account \x02%s\x02)", automatic ? "automatically " : "",
+		extra += INSP_FORMAT(" ({}using account \x02{}\x02)", automatic ? "automatically " : "",
 			u->oper->GetName().c_str());
 	}
 

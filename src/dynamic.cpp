@@ -25,13 +25,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "inspircd.h"
-#include "dynamic.h"
-
 #ifndef _WIN32
 # include <dlfcn.h>
 #endif
+
+#include "inspircd.h"
+#include "dynamic.h"
 
 DLLManager::DLLManager(const std::string& name)
 	: libname(name)
@@ -79,8 +78,8 @@ Module* DLLManager::CallInit()
 	else if (*abi != MODULE_ABI)
 	{
 		const char* version = GetVersion();
-		err.assign(InspIRCd::Format("%s was built against %s (%lu) which is too %s to use with %s (%lu).",
-			libname.c_str(), version ? version : "an unknown version", *abi,
+		err.assign(INSP_FORMAT("{} was built against {} ({}) which is too {} to use with {} ({}).",
+			libname, version ? version : "an unknown version", *abi,
 			*abi < MODULE_ABI ? "old" : "new", INSPIRCD_VERSION, MODULE_ABI));
 		return nullptr;
 	}

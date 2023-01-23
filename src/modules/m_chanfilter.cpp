@@ -143,8 +143,10 @@ public:
 		if (hidemask)
 			user->WriteNumeric(Numerics::CannotSendTo(chan, "Your part message contained a banned phrase and was blocked."));
 		else
-			user->WriteNumeric(Numerics::CannotSendTo(chan, InspIRCd::Format("Your part message contained a banned phrase (%s) and was blocked.",
-				match->mask.c_str())));
+		{
+			user->WriteNumeric(Numerics::CannotSendTo(chan, INSP_FORMAT("Your part message contained a banned phrase ({}) and was blocked.",
+				match->mask)));
+		}
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
@@ -165,8 +167,10 @@ public:
 			if (hidemask)
 				user->WriteNumeric(Numerics::CannotSendTo(chan, "Your message to this channel contained a banned phrase and was blocked."));
 			else
-				user->WriteNumeric(Numerics::CannotSendTo(chan, InspIRCd::Format("Your message to this channel contained a banned phrase (%s) and was blocked.",
-					match->mask.c_str())));
+			{
+				user->WriteNumeric(Numerics::CannotSendTo(chan, INSP_FORMAT("Your message to this channel contained a banned phrase ({}) and was blocked.",
+					match->mask)));
+			}
 
 			return MOD_RES_DENY;
 		}

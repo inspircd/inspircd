@@ -35,7 +35,7 @@ namespace IRCv3
 		inline std::string FormatTime(time_t secs, long millisecs = 0)
 		{
 			std::string timestr = InspIRCd::TimeString(secs, "%Y-%m-%dT%H:%M:%S.Z", true);
-			timestr.insert(20, InspIRCd::Format("%03ld", millisecs));
+			timestr.insert(20, INSP_FORMAT("{:03}", millisecs));
 			return timestr;
 		}
 	}

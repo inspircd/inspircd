@@ -202,7 +202,7 @@ public:
 		if (rl)
 		{
 			// Channel is banned.
-			user->WriteNumeric(ERR_BADCHANNEL, cname, InspIRCd::Format("Channel %s is CBANed: %s", cname.c_str(), rl->reason.c_str()));
+			user->WriteNumeric(ERR_BADCHANNEL, cname, INSP_FORMAT("Channel {} is CBANed: {}", cname, rl->reason));
 			ServerInstance->SNO.WriteGlobalSno('a', "%s tried to join %s which is CBANed (%s)",
 				user->nick.c_str(), cname.c_str(), rl->reason.c_str());
 			return MOD_RES_DENY;

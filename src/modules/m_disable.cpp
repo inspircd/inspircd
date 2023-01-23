@@ -48,14 +48,14 @@ private:
 		{
 			// Check that the character is a valid mode letter.
 			if (!ModeParser::IsModeChar(chr))
-				throw ModuleException(this, InspIRCd::Format("Invalid mode '%c' was specified in <disabled:%s> at %s",
-					chr, field.c_str(), tag->source.str().c_str()));
+				throw ModuleException(this, INSP_FORMAT("Invalid mode '{}' was specified in <disabled:{}> at {}",
+					chr, field, tag->source.str()));
 
 			// Check that the mode actually exists.
 			ModeHandler* mh = ServerInstance->Modes.FindMode(chr, type);
 			if (!mh)
-				throw ModuleException(this, InspIRCd::Format("Nonexistent mode '%c' was specified in <disabled:%s> at %s",
-					chr, field.c_str(), tag->source.str().c_str()));
+				throw ModuleException(this, INSP_FORMAT("Nonexistent mode '{}' was specified in <disabled:{}> at {}",
+					chr, field, tag->source.str()));
 
 			// Disable the mode.
 			ServerInstance->Logs.Debug(MODNAME, "The %c (%s) %s mode has been disabled",
@@ -93,8 +93,8 @@ public:
 			// Check that the command actually exists.
 			Command* handler = ServerInstance->Parser.GetHandler(command);
 			if (!handler)
-				throw ModuleException(this, InspIRCd::Format("Nonexistent command '%s' was specified in <disabled:commands> at %s",
-					command.c_str(), tag->source.str().c_str()));
+				throw ModuleException(this, INSP_FORMAT("Nonexistent command '{}' was specified in <disabled:commands> at {}",
+					command, tag->source.str()));
 
 			// Prevent admins from disabling MODULES for transparency reasons.
 			if (handler->name == "MODULES")
@@ -190,13 +190,13 @@ public:
 			// treated as if they do not exist.
 			int numeric = (change.mh->GetModeType() == MODETYPE_CHANNEL ? ERR_UNKNOWNMODE : ERR_UNKNOWNSNOMASK);
 			const char* typestr = (change.mh->GetModeType() == MODETYPE_CHANNEL ? "channel" : "user");
-			user->WriteNumeric(numeric, change.mh->GetModeChar(), InspIRCd::Format("is not a recognised %s mode.", typestr));
+			user->WriteNumeric(numeric, change.mh->GetModeChar(), INSP_FORMAT("is not a recognised {} mode.", typestr));
 			return MOD_RES_DENY;
 		}
 
 		// Inform the user that the mode they changed has been disabled.
-		user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - %s mode %c (%s) is disabled",
-			what, change.mh->GetModeChar(), change.mh->name.c_str()));
+		user->WriteNumeric(ERR_NOPRIVILEGES, INSP_FORMAT("Permission Denied - {} mode {} ({}) is disabled",
+			what, change.mh->GetModeChar(), change.mh->name));
 		return MOD_RES_DENY;
 	}
 };

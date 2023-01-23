@@ -119,7 +119,7 @@ private:
 		}
 
 		if (NoisyOverride)
-			chan->WriteRemoteNotice(InspIRCd::Format("%s used oper override to bypass %s", user->nick.c_str(), bypasswhat));
+			chan->WriteRemoteNotice(INSP_FORMAT("{} used oper override to bypass {}", user->nick, bypasswhat));
 		ServerInstance->SNO.WriteGlobalSno('v', user->nick+" used oper override to bypass " + mode + " on " + chan->name);
 		return MOD_RES_ALLOW;
 	}

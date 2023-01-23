@@ -164,7 +164,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, const irc::sockets::soc
 			const char* hooktype = i == via->iohookprovs.begin() ? "hook" : "sslprofile";
 			ServerInstance->Logs.Warning("USERS", "Non-existent I/O hook '%s' in <bind:%s> tag at %s",
 				iohookprovref.GetProvider().c_str(), hooktype, via->bind_tag->source.str().c_str());
-			this->QuitUser(New, InspIRCd::Format("Internal error handling connection (misconfigured %s)", hooktype));
+			this->QuitUser(New, INSP_FORMAT("Internal error handling connection (misconfigured {})", hooktype));
 			return;
 		}
 
@@ -279,7 +279,7 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 	ServerInstance->Logs.Debug("USERS", "QuitUser: %s=%s '%s'", user->uuid.c_str(), user->nick.c_str(), quitmessage.c_str());
 	if (localuser)
 	{
-		ClientProtocol::Messages::Error errormsg(InspIRCd::Format("Closing link: (%s) [%s]", user->MakeHost().c_str(), operquitmsg.c_str()));
+		ClientProtocol::Messages::Error errormsg(INSP_FORMAT("Closing link: ({}) [{}]", user->MakeHost(), operquitmsg));
 		localuser->Send(ServerInstance->GetRFCEvents().error, errormsg);
 	}
 

@@ -217,7 +217,7 @@ public:
 
 		if (rl)
 		{
-			user->WriteNumeric(ERR_ERRONEUSNICKNAME, newnick, InspIRCd::Format("Services reserved nickname: %s", rl->reason.c_str()));
+			user->WriteNumeric(ERR_ERRONEUSNICKNAME, newnick, INSP_FORMAT("Services reserved nickname: {}", rl->reason));
 			return MOD_RES_DENY;
 		}
 

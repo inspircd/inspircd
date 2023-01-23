@@ -19,10 +19,10 @@
 /// $CompilerFlags: find_compiler_flags("RapidJSON")
 
 
-#include "inspircd.h"
-
 #include <rapidjson/ostreamwrapper.h>
 #include <rapidjson/writer.h>
+
+#include "inspircd.h"
 
 class JSONMethod final
 	: public Log::Method
@@ -106,7 +106,7 @@ public:
 			fflush(file);
 
 		if (ferror(file))
-			throw CoreException(InspIRCd::Format("Unable to write to %s: %s", name.c_str(), strerror(errno)));
+			throw CoreException(INSP_FORMAT("Unable to write to {}: {}", name, strerror(errno)));
 	}
 
 	// RapidJSON API: Write a character to the file.
@@ -141,8 +141,8 @@ public:
 		auto* fh = fopen(fulltarget.c_str(), "a");
 		if (!fh)
 		{
-			throw CoreException(InspIRCd::Format("Unable to open %s for JSON logger at %s: %s",
-				fulltarget.c_str(), tag->source.str().c_str(), strerror(errno)));
+			throw CoreException(INSP_FORMAT("Unable to open {} for JSON logger at {}: {}",
+				fulltarget, tag->source.str(), strerror(errno)));
 		}
 
 		const unsigned long flush = tag->getUInt("flush", 20, 1);

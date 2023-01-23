@@ -109,11 +109,11 @@ private:
 		unsigned int c = (unsigned int)(address >> 16) & 0xFF;
 		unsigned int d = (unsigned int)(address >> 24) & 0xFF;
 
-		const std::string alpha = Hash(InspIRCd::Format("%u.%u.%u.%u", a, b, c, d));
-		const std::string beta  = Hash(InspIRCd::Format("%u.%u.%u", a, b, c));
-		const std::string gamma = Hash(InspIRCd::Format("%u.%u", a, b));
+		const std::string alpha = Hash(INSP_FORMAT("{}.{}.{}.{}", a, b, c, d));
+		const std::string beta  = Hash(INSP_FORMAT("{}.{}.{}", a, b, c));
+		const std::string gamma = Hash(INSP_FORMAT("{}.{}", a, b));
 
-		return Wrap(InspIRCd::Format("%s.%s.%s", alpha.c_str(), beta.c_str(), gamma.c_str()), suffix, '.');
+		return Wrap(INSP_FORMAT("{}.{}.{}", alpha, beta, gamma), suffix, '.');
 	}
 
 	std::string CloakIPv6(const unsigned char* address)
@@ -133,11 +133,11 @@ private:
 		unsigned int g = ntohs(address16[6]);
 		unsigned int h = ntohs(address16[7]);
 
-		const std::string alpha = Hash(InspIRCd::Format("%x:%x:%x:%x:%x:%x:%x:%x", a, b, c, d, e, f, g, h));
-		const std::string beta  = Hash(InspIRCd::Format("%x:%x:%x:%x:%x:%x:%x", a, b, c, d, e, f, g));
-		const std::string gamma = Hash(InspIRCd::Format("%x:%x:%x:%x", a, b, c, d));
+		const std::string alpha = Hash(INSP_FORMAT("{:x}:{:x}:{:x}:{:x}:{:x}:{:x}:{:x}:{:x}", a, b, c, d, e, f, g, h));
+		const std::string beta  = Hash(INSP_FORMAT("{:x}:{:x}:{:x}:{:x}:{:x}:{:x}:{:x}", a, b, c, d, e, f, g));
+		const std::string gamma = Hash(INSP_FORMAT("{:x}:{:x}:{:x}:{:x}", a, b, c, d));
 
-		return Wrap(InspIRCd::Format("%s:%s:%s", alpha.c_str(), beta.c_str(), gamma.c_str()), suffix, ':');
+		return Wrap(INSP_FORMAT("{}:{}:{}", alpha, beta, gamma), suffix, ':');
 	}
 
 	std::string CloakHost(const std::string& host, char separator, unsigned long parts)

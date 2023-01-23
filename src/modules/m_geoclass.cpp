@@ -85,12 +85,12 @@ public:
 
 		for (const auto& [location, count] : counts)
 		{
-			stats.AddGenericRow(InspIRCd::Format("%s (%s): %lu", location->GetName().c_str(),
-				location->GetCode().c_str(), count));
+			stats.AddGenericRow(INSP_FORMAT("{} ({}): {}", location->GetName(),
+				location->GetCode(), count));
 		}
 
 		if (unknown)
-			stats.AddGenericRow("Unknown Country: " + ConvToStr(unknown));
+			stats.AddGenericRow(INSP_FORMAT("Unknown Country: {}", unknown));
 
 		return MOD_RES_DENY;
 	}

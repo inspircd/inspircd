@@ -76,8 +76,8 @@ public:
 		if (channel->GetPrefixValue(source) >= pm->GetLevelRequired(change.adding))
 			return MOD_RES_PASSTHRU;
 
-		source->WriteNumeric(ERR_CHANOPRIVSNEEDED, channel->name, InspIRCd::Format("You must be able to %s mode %c (%s) to %s a restriction containing it",
-			change.adding ? "set" : "unset", pm->GetModeChar(), pm->name.c_str(), change.adding ? "add" : "remove"));
+		source->WriteNumeric(ERR_CHANOPRIVSNEEDED, channel->name, INSP_FORMAT("You must be able to {} mode {} ({}) to {} a restriction containing it",
+			change.adding ? "set" : "unset", pm->GetModeChar(), pm->name, change.adding ? "add" : "remove"));
 		return MOD_RES_DENY;
 	}
 

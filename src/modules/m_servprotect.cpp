@@ -93,7 +93,7 @@ public:
 				if ((u->IsModeSet(bm)) && (memb) && (memb->HasMode(pm)))
 				{
 					/* BZZZT, Denied! */
-					user->WriteNumeric(ERR_RESTRICTED, chan->name, InspIRCd::Format("You are not permitted to remove privileges from %s services", ServerInstance->Config->Network.c_str()));
+					user->WriteNumeric(ERR_RESTRICTED, chan->name, INSP_FORMAT("You are not permitted to remove privileges from {} services", ServerInstance->Config->Network));
 					return MOD_RES_DENY;
 				}
 			}
@@ -109,7 +109,7 @@ public:
 
 		if (dst->IsModeSet(bm))
 		{
-			src->WriteNumeric(ERR_KILLDENY, InspIRCd::Format("You are not permitted to kill %s services!", ServerInstance->Config->Network.c_str()));
+			src->WriteNumeric(ERR_KILLDENY, INSP_FORMAT("You are not permitted to kill {} services!", ServerInstance->Config->Network));
 			ServerInstance->SNO.WriteGlobalSno('a', src->nick+" tried to kill service "+dst->nick+" ("+reason+")");
 			return MOD_RES_DENY;
 		}

@@ -311,11 +311,9 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 			std::pair<bool, std::string> result = static_cast<ModuleFilter*>(me)->AddFilter(freeform, type, parameters[reasonindex], duration, flags);
 			if (result.first)
 			{
-				const std::string message = InspIRCd::Format("'%s', type '%s'%s, flags '%s', reason: %s",
-					freeform.c_str(), parameters[1].c_str(),
-					(duration ? InspIRCd::Format(", duration '%s'",
-						Duration::ToString(duration).c_str()).c_str()
-					: ""), flags.c_str(), parameters[reasonindex].c_str());
+				const std::string message = INSP_FORMAT("'{}', type '{}'{}, flags '{}', reason: {}", freeform, parameters[1],
+					(duration ? INSP_FORMAT(", duration '{}'", Duration::ToString(duration)) : ""),
+					flags, parameters[reasonindex]);
 
 				user->WriteNotice("*** Added filter " + message);
 				ServerInstance->SNO.WriteToSnoMask(IS_LOCAL(user) ? 'f' : 'F',
@@ -422,26 +420,26 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 
 		if (is_selfmsg && warnonselfmsg)
 		{
-			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("WARNING: %s's self message matched %s (%s)",
-				user->nick.c_str(), f->freeform.c_str(), f->reason.c_str()));
+			ServerInstance->SNO.WriteGlobalSno('f', "WARNING: %s's self message matched %s (%s)",
+				user->nick.c_str(), f->freeform.c_str(), f->reason.c_str());
 			return MOD_RES_PASSTHRU;
 		}
 		else if (f->action == FA_WARN)
 		{
-			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("WARNING: %s's message to %s matched %s (%s)",
-				user->nick.c_str(), msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str()));
+			ServerInstance->SNO.WriteGlobalSno('f', "WARNING: %s's message to %s matched %s (%s)",
+				user->nick.c_str(), msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str());
 			return MOD_RES_PASSTHRU;
 		}
 		else if (f->action == FA_BLOCK)
 		{
-			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s had their message to %s filtered as it matched %s (%s)",
-				user->nick.c_str(), msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str()));
+			ServerInstance->SNO.WriteGlobalSno('f', "%s had their message to %s filtered as it matched %s (%s)",
+				user->nick.c_str(), msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str());
 			if (notifyuser)
 			{
 				if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
-					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<Channel>(), InspIRCd::Format("Your message to this channel was blocked: %s.", f->reason.c_str())));
+					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<Channel>(), INSP_FORMAT("Your message to this channel was blocked: {}.", f->reason)));
 				else
-					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<User>(), InspIRCd::Format("Your message to this user was blocked: %s.", f->reason.c_str())));
+					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<User>(), INSP_FORMAT("Your message to this user was blocked: {}.", f->reason)));
 			}
 			else
 				details.echo_original = true;
@@ -451,26 +449,26 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 			if (notifyuser)
 			{
 				if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
-					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<Channel>(), InspIRCd::Format("Your message to this channel was blocked: %s.", f->reason.c_str())));
+					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<Channel>(), INSP_FORMAT("Your message to this channel was blocked: {}.", f->reason)));
 				else
-					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<User>(), InspIRCd::Format("Your message to this user was blocked: %s.", f->reason.c_str())));
+					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<User>(), INSP_FORMAT("Your message to this user was blocked: {}.", f->reason)));
 			}
 			else
 				details.echo_original = true;
 		}
 		else if (f->action == FA_KILL)
 		{
-			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s was killed because their message to %s matched %s (%s)",
-				user->nick.c_str(), msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str()));
+			ServerInstance->SNO.WriteGlobalSno('f', "%s was killed because their message to %s matched %s (%s)",
+				user->nick.c_str(), msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str());
 			ServerInstance->Users.QuitUser(user, "Filtered: " + f->reason);
 		}
 		else if (f->action == FA_SHUN && (ServerInstance->XLines->GetFactory("SHUN")))
 		{
 			auto* sh = new Shun(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
-			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was shunned for %s (expires on %s) because their message to %s matched %s (%s)",
+			ServerInstance->SNO.WriteGlobalSno('f', "%s (%s) was shunned for %s (expires on %s) because their message to %s matched %s (%s)",
 				user->nick.c_str(), sh->Displayable().c_str(), Duration::ToString(f->duration).c_str(),
 				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
-				msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str()));
+				msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str());
 			if (ServerInstance->XLines->AddLine(sh, nullptr))
 			{
 				ServerInstance->XLines->ApplyLines();
@@ -481,10 +479,10 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		else if (f->action == FA_GLINE)
 		{
 			auto* gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, "*", user->GetIPString());
-			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was G-lined for %s (expires on %s) because their message to %s matched %s (%s)",
+			ServerInstance->SNO.WriteGlobalSno('f', "%s (%s) was G-lined for %s (expires on %s) because their message to %s matched %s (%s)",
 				user->nick.c_str(), gl->Displayable().c_str(), Duration::ToString(f->duration).c_str(),
 				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
-				msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str()));
+				msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str());
 			if (ServerInstance->XLines->AddLine(gl, nullptr))
 			{
 				ServerInstance->XLines->ApplyLines();
@@ -495,10 +493,10 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		else if (f->action == FA_ZLINE)
 		{
 			auto* zl = new ZLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
-			ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was Z-lined for %s (expires on %s) because their message to %s matched %s (%s)",
+			ServerInstance->SNO.WriteGlobalSno('f', "%s (%s) was Z-lined for %s (expires on %s) because their message to %s matched %s (%s)",
 				user->nick.c_str(), zl->Displayable().c_str(), Duration::ToString(f->duration).c_str(),
 				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
-				msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str()));
+				msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str());
 			if (ServerInstance->XLines->AddLine(zl, nullptr))
 			{
 				ServerInstance->XLines->ApplyLines();
@@ -572,11 +570,11 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 			{
 				/* Note: We G-line *@IP so that if their host doesn't resolve the G-line still applies. */
 				auto* gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, "*", user->GetIPString());
-				ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was G-lined for %s (expires on %s) because their %s message matched %s (%s)",
+				ServerInstance->SNO.WriteGlobalSno('f', "%s (%s) was G-lined for %s (expires on %s) because their %s message matched %s (%s)",
 					user->nick.c_str(), gl->Displayable().c_str(),
 					Duration::ToString(f->duration).c_str(),
 					InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
-					command.c_str(), f->freeform.c_str(), f->reason.c_str()));
+					command.c_str(), f->freeform.c_str(), f->reason.c_str());
 
 				if (ServerInstance->XLines->AddLine(gl, nullptr))
 				{
@@ -588,11 +586,11 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 			if (f->action == FA_ZLINE)
 			{
 				auto* zl = new ZLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
-				ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was Z-lined for %s (expires on %s) because their %s message matched %s (%s)",
+				ServerInstance->SNO.WriteGlobalSno('f', "%s (%s) was Z-lined for %s (expires on %s) because their %s message matched %s (%s)",
 					user->nick.c_str(), zl->Displayable().c_str(),
 					Duration::ToString(f->duration).c_str(),
 					InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
-					command.c_str(), f->freeform.c_str(), f->reason.c_str()));
+					command.c_str(), f->freeform.c_str(), f->reason.c_str());
 
 				if (ServerInstance->XLines->AddLine(zl, nullptr))
 				{
@@ -605,11 +603,11 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 			{
 				/* Note: We shun *!*@IP so that if their host doesnt resolve the shun still applies. */
 				auto* sh = new Shun(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetIPString());
-				ServerInstance->SNO.WriteGlobalSno('f', InspIRCd::Format("%s (%s) was shunned for %s (expires on %s) because their %s message matched %s (%s)",
+				ServerInstance->SNO.WriteGlobalSno('f', "%s (%s) was shunned for %s (expires on %s) because their %s message matched %s (%s)",
 					user->nick.c_str(), sh->Displayable().c_str(),
 					Duration::ToString(f->duration).c_str(),
 					InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
-					command.c_str(), f->freeform.c_str(), f->reason.c_str()));
+					command.c_str(), f->freeform.c_str(), f->reason.c_str());
 
 				if (ServerInstance->XLines->AddLine(sh, nullptr))
 				{

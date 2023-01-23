@@ -63,10 +63,11 @@ public:
 		if (n_matched)
 		{
 			float p = (n_matched / (float)n_counted) * 100;
-			user->WriteNotice(InspIRCd::Format("*** TLINE: Counted %lu user(s). Matched '%s' against %u user(s) (%0.2f%% of the userbase). %u by hostname and %u by IP address.", n_counted, parameters[0].c_str(), n_matched, p, n_match_host, n_match_ip));
+			user->WriteNotice(INSP_FORMAT("*** TLINE: Counted {} user(s). Matched '{}' against {} user(s) ({:0.2}% of the userbase). {} by hostname and {} by IP address.",
+				n_counted, parameters[0], n_matched, p, n_match_host, n_match_ip));
 		}
 		else
-			user->WriteNotice(InspIRCd::Format("*** TLINE: Counted %lu user(s). Matched '%s' against no user(s).", n_counted, parameters[0].c_str()));
+			user->WriteNotice(INSP_FORMAT("*** TLINE: Counted {} user(s). Matched '{}' against no user(s).", n_counted, parameters[0]));
 
 		return CmdResult::SUCCESS;
 	}

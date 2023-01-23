@@ -104,9 +104,9 @@ public:
 		// If <securehost:showmsg> is set then tell the user that they need to wait.
 		if (showmsg)
 		{
-			user->WriteNotice(InspIRCd::Format("*** You cannot view the channel list right now. Please %stry again in %s.",
+			user->WriteNotice(INSP_FORMAT("*** You cannot view the channel list right now. Please {}try again in {}.",
 				exemptregistered ? "log in to an account or " : "",
-				Duration::ToString(maxwaittime - ServerInstance->Time()).c_str()));
+				Duration::ToString(maxwaittime - ServerInstance->Time())));
 		}
 
 		// The client might be waiting on a response to do something so send them an

@@ -51,7 +51,7 @@ public:
 						source->nick.c_str(), source_level, dest->nick.c_str(), dest_level, reason.c_str());
 				}
 				dest->WriteNotice("*** Oper " + source->nick + " attempted to /KILL you!");
-				source->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper %s is a higher level than you", dest->nick.c_str()));
+				source->WriteNumeric(ERR_NOPRIVILEGES, INSP_FORMAT("Permission Denied - Oper {} is a higher level than you", dest->nick));
 				return MOD_RES_DENY;
 			}
 		}

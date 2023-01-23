@@ -63,7 +63,7 @@ public:
 
 		if (change.adding && !mh)
 		{
-			source->WriteNumeric(ERR_UNKNOWNMODE, mid, InspIRCd::Format("Cannot find prefix mode '%s' for autoop", mid.c_str()));
+			source->WriteNumeric(ERR_UNKNOWNMODE, mid, INSP_FORMAT("Cannot find prefix mode '{}' for autoop", mid));
 			return MOD_RES_DENY;
 		}
 		else if (!mh)
@@ -75,8 +75,8 @@ public:
 
 		if (mh->GetLevelRequired(change.adding) > mylevel)
 		{
-			source->WriteNumeric(ERR_CHANOPRIVSNEEDED, channel->name, InspIRCd::Format("You must be able to %s mode %c (%s) to %s an autoop containing it",
-				change.adding ? "set" : "unset", mh->GetModeChar(), mh->name.c_str(), change.adding ? "add" : "remove"));
+			source->WriteNumeric(ERR_CHANOPRIVSNEEDED, channel->name, INSP_FORMAT("You must be able to {} mode {} ({}) to {} an autoop containing it",
+				change.adding ? "set" : "unset", mh->GetModeChar(), mh->name, change.adding ? "add" : "remove"));
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

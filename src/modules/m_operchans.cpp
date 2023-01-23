@@ -79,7 +79,7 @@ public:
 	{
 		if (!override && chan && chan->IsModeSet(oc) && !user->IsOper())
 		{
-			user->WriteNumeric(ERR_CANTJOINOPERSONLY, chan->name, InspIRCd::Format("Only server operators may join %s (+O is set)", chan->name.c_str()));
+			user->WriteNumeric(ERR_CANTJOINOPERSONLY, chan->name, INSP_FORMAT("Only server operators may join {} (+O is set)", chan->name));
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

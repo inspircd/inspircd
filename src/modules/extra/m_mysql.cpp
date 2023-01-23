@@ -42,8 +42,8 @@
 #include <mysql_version.h>
 
 #include "inspircd.h"
-#include "threadsocket.h"
 #include "modules/sql.h"
+#include "threadsocket.h"
 
 #ifdef _WIN32
 # pragma comment(lib, "mysqlclient.lib")
@@ -288,7 +288,7 @@ private:
 		unsigned long escapedsize = mysql_escape_string(buffer.data(), in.c_str(), in.length());
 		if (escapedsize == static_cast<unsigned long>(-1))
 		{
-			SQL::Error err(SQL::QSEND_FAIL, InspIRCd::Format("%u: %s", mysql_errno(connection), mysql_error(connection)));
+			SQL::Error err(SQL::QSEND_FAIL, INSP_FORMAT("{}: {}", mysql_errno(connection), mysql_error(connection)));
 			query->OnError(err);
 			return false;
 		}
@@ -384,7 +384,7 @@ public:
 		{
 			/* XXX: See /usr/include/mysql/mysqld_error.h for a list of
 			 * possible error numbers and error messages */
-			SQL::Error e(SQL::QREPLY_FAIL, InspIRCd::Format("%u: %s", mysql_errno(connection), mysql_error(connection)));
+			SQL::Error e(SQL::QREPLY_FAIL, INSP_FORMAT("{}: {}", mysql_errno(connection), mysql_error(connection)));
 			return new MySQLresult(e);
 		}
 	}
