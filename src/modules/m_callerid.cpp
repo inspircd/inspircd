@@ -426,8 +426,7 @@ public:
 			if (now > (dat->lastnotify + long(notify_cooldown)))
 			{
 				user->WriteNumeric(RPL_TARGNOTIFY, dest->nick, "has been informed that you messaged them.");
-				dest->WriteRemoteNumeric(RPL_UMODEGMSG, user->nick,
-					INSP_FORMAT("{}@{}", user->ident, user->GetDisplayedHost()),
+				dest->WriteRemoteNumeric(RPL_UMODEGMSG, user->nick, user->GetUserHost(),
 					INSP_FORMAT("is messaging you, and you have user mode +{} set. Use /ACCEPT +{} to allow.", myumode.GetModeChar(), user->nick)
 				);
 				dat->lastnotify = now;

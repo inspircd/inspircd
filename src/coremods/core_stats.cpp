@@ -94,7 +94,7 @@ static void GenerateStatsLl(Stats::Context& stats)
 	stats.AddRow(211, INSP_FORMAT("nick[ident@{}] sendq cmds_out bytes_out cmds_in bytes_in time_open", stats.GetSymbol() == 'l' ? "host" : "ip"));
 
 	for (auto* u : ServerInstance->Users.GetLocalUsers())
-		stats.AddRow(211, u->nick+"["+u->ident+"@"+(stats.GetSymbol() == 'l' ? u->GetDisplayedHost() : u->GetIPString())+"] "+ConvToStr(u->eh.GetSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "+ConvToStr(ServerInstance->Time() - u->signon));
+		stats.AddRow(211, u->nick+"["+u->ident+"@"+(stats.GetSymbol() == 'l' ? u->GetDisplayedHost() : u->GetAddress())+"] "+ConvToStr(u->eh.GetSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "+ConvToStr(ServerInstance->Time() - u->signon));
 }
 
 void CommandStats::DoStats(Stats::Context& stats)
@@ -109,7 +109,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 	if (!isPublic && !isRemoteOper && !isLocalOperWithPrivs)
 	{
 		const char* what = IS_LOCAL(user) ? "Stats" : "Remote stats";
-		ServerInstance->SNO.WriteToSnoMask('t', "{} '{}' denied for {} ({})", what, statschar, user->nick, user->MakeHost());
+		ServerInstance->SNO.WriteToSnoMask('t', "{} '{}' denied for {} ({})", what, statschar, user->nick, user->GetRealUserHost());
 		stats.AddRow(481, (std::string("Permission Denied - STATS ") + statschar + " requires the servers/auspex priv."));
 		return;
 	}
@@ -118,7 +118,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 	if (res == MOD_RES_DENY)
 	{
 		const char* what = IS_LOCAL(user) ? "Stats" : "Remote stats";
-		ServerInstance->SNO.WriteToSnoMask('t', "{} '{}' denied for {} ({})", what, statschar, user->nick, user->MakeHost());
+		ServerInstance->SNO.WriteToSnoMask('t', "{} '{}' denied for {} ({})", what, statschar, user->nick, user->GetRealUserHost());
 		stats.AddRow(219, statschar, "End of /STATS report");
 		return;
 	}

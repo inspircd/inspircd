@@ -181,7 +181,7 @@ public:
 		bool hostmatches = false;
 		for (const auto& host : klass->GetHosts())
 		{
-			if (InspIRCd::MatchCIDR(user->GetIPString(), host) || InspIRCd::MatchCIDR(user->GetRealHost(), host))
+			if (InspIRCd::MatchCIDR(user->GetAddress(), host) || InspIRCd::MatchCIDR(user->GetRealHost(), host))
 			{
 				hostmatches = true;
 				break;
@@ -191,7 +191,7 @@ public:
 		{
 			const std::string hosts = stdalgo::string::join(klass->GetHosts());
 			ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is not suitable as neither the host ({}) nor the IP ({}) matches {}.",
-				klass->GetName(), user->GetRealHost(), user->GetIPString(), hosts);
+				klass->GetName(), user->GetRealHost(), user->GetAddress(), hosts);
 			return MOD_RES_DENY;
 		}
 
@@ -239,7 +239,7 @@ public:
 				if (klass->maxconnwarn)
 				{
 					ServerInstance->SNO.WriteToSnoMask('a', "WARNING: maximum local connections for the {} class ({}) exceeded by {}",
-						klass->GetName(), klass->maxlocal, user->GetIPString());
+						klass->GetName(), klass->maxlocal, user->GetAddress());
 				}
 				return;
 			}
@@ -250,7 +250,7 @@ public:
 				if (klass->maxconnwarn)
 				{
 					ServerInstance->SNO.WriteToSnoMask('a', "WARNING: maximum global connections for the {} class ({}) exceeded by {}",
-						klass->GetName(), klass->maxglobal, user->GetIPString());
+						klass->GetName(), klass->maxglobal, user->GetAddress());
 				}
 				return;
 			}

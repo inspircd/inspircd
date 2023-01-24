@@ -77,7 +77,7 @@ public:
 
 		auto* find = ServerInstance->Users.Find(target, true);
 		if (find)
-			target = "*!" + find->GetBanIdent() + "@" + find->GetIPString();
+			target = "*!" + find->GetBanIdent() + "@" + find->GetAddress();
 
 		if (parameters.size() == 1)
 		{

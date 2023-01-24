@@ -309,7 +309,7 @@ bool CommandWho::MatchUser(LocalUser* source, User* user, WhoData& data)
 
 	// The source wants to match against users' IP addresses.
 	else if (data.flags['i'])
-		match = source_can_see_target && InspIRCd::MatchCIDR(user->GetIPString(), data.matchtext, ascii_case_insensitive_map);
+		match = source_can_see_target && InspIRCd::MatchCIDR(user->GetAddress(), data.matchtext, ascii_case_insensitive_map);
 
 	// The source wants to match against users' modes.
 	else if (data.flags['m'])
@@ -479,7 +479,7 @@ void CommandWho::SendWhoLine(LocalUser* source, const std::vector<std::string>& 
 
 		// Include the user's IP address.
 		if (data.whox_fields['i'])
-			wholine.push(source_can_see_target ? user->GetIPString() : "255.255.255.255");
+			wholine.push(source_can_see_target ? user->GetAddress() : "255.255.255.255");
 
 		// Include the user's hostname.
 		if (data.whox_fields['h'])

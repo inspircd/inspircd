@@ -47,10 +47,10 @@ public:
 		if (lu && lu->exempt)
 			return false;
 
-		if (InspIRCd::Match(u->GetFullHost(), matchtext) || InspIRCd::Match(u->GetFullRealHost(), matchtext) || InspIRCd::Match(u->nick+"!"+u->ident+"@"+u->GetIPString(), matchtext))
+		if (InspIRCd::Match(u->GetMask(), matchtext) || InspIRCd::Match(u->GetRealMask(), matchtext) || InspIRCd::Match(u->nick+"!"+u->ident+"@"+u->GetAddress(), matchtext))
 			return true;
 
-		if (InspIRCd::MatchCIDR(u->GetIPString(), matchtext, ascii_case_insensitive_map))
+		if (InspIRCd::MatchCIDR(u->GetAddress(), matchtext, ascii_case_insensitive_map))
 			return true;
 
 		return false;

@@ -127,7 +127,7 @@ public:
 		if (sourcestr)
 			return sourcestr;
 		if (sourceuser)
-			return &sourceuser->GetFullHost();
+			return &sourceuser->GetMask();
 		return nullptr;
 	}
 

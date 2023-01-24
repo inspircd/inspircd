@@ -611,7 +611,7 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string& reason, const
 		if (!hide)
 		{
 			ServerInstance->SNO.WriteToSnoMask('Q', "Client exiting on server {}: {} ({}) [{}]", user->server->GetName(),
-				user->GetFullRealHost(), user->GetIPString(), oper_message);
+				user->GetRealMask(), user->GetAddress(), oper_message);
 		}
 	}
 

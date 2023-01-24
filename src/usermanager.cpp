@@ -196,13 +196,13 @@ void UserManager::AddUser(int socket, ListenSocket* via, const irc::sockets::soc
 	 */
 	New->exempt = (ServerInstance->XLines->MatchesLine("E", New) != nullptr);
 
-	BanCacheHit* const b = ServerInstance->BanCache.GetHit(New->GetIPString());
+	BanCacheHit* const b = ServerInstance->BanCache.GetHit(New->GetAddress());
 	if (b)
 	{
 		if (!b->Type.empty() && !New->exempt)
 		{
 			/* user banned */
-			ServerInstance->Logs.Debug("BANCACHE", "BanCache: Positive hit for " + New->GetIPString());
+			ServerInstance->Logs.Debug("BANCACHE", "BanCache: Positive hit for " + New->GetAddress());
 			if (!ServerInstance->Config->XLineMessage.empty())
 				New->WriteNumeric(ERR_YOUREBANNEDCREEP, ServerInstance->Config->XLineMessage);
 
@@ -214,7 +214,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, const irc::sockets::soc
 		}
 		else
 		{
-			ServerInstance->Logs.Debug("BANCACHE", "BanCache: Negative hit for " + New->GetIPString());
+			ServerInstance->Logs.Debug("BANCACHE", "BanCache: Negative hit for " + New->GetAddress());
 		}
 	}
 	else
@@ -279,7 +279,7 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 	ServerInstance->Logs.Debug("USERS", "QuitUser: {}={} '{}'", user->uuid, user->nick, quitmessage);
 	if (localuser)
 	{
-		ClientProtocol::Messages::Error errormsg(INSP_FORMAT("Closing link: ({}) [{}]", user->MakeHost(), operquitmsg));
+		ClientProtocol::Messages::Error errormsg(INSP_FORMAT("Closing link: ({}) [{}]", user->GetRealUserHost(), operquitmsg));
 		localuser->Send(ServerInstance->GetRFCEvents().error, errormsg);
 	}
 
@@ -301,8 +301,8 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 
 		if (lu->IsFullyConnected())
 		{
-			ServerInstance->SNO.WriteToSnoMask('q', "Client exiting: {} ({}) [{}]", user->GetFullRealHost(),
-				user->GetIPString(), operquitmsg);
+			ServerInstance->SNO.WriteToSnoMask('q', "Client exiting: {} ({}) [{}]", user->GetRealMask(),
+				user->GetAddress(), operquitmsg);
 		}
 		local_users.erase(lu);
 		if (lu->GetClass())

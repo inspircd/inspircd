@@ -45,7 +45,7 @@ public:
 	ModResult OnNamesListItem(LocalUser* issuer, Membership* memb, std::string& prefixes, std::string& nick) override
 	{
 		if (cap.IsEnabled(issuer))
-			nick = memb->user->GetFullHost();
+			nick = memb->user->GetMask();
 
 		return MOD_RES_PASSTHRU;
 	}

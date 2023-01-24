@@ -173,7 +173,7 @@ private:
 				// Drop attempts to send a tag message to a server. This usually happens when the
 				// server is started in debug mode and a client tries to send a typing notification
 				// to a query window created by the debug message.
-				if (!target && irc::equals(parameters[0], ServerInstance->FakeClient->GetFullHost()))
+				if (!target && irc::equals(parameters[0], ServerInstance->FakeClient->GetMask()))
 					return CmdResult::FAILURE;
 			}
 		}

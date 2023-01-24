@@ -50,7 +50,7 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 	if (it == ServerInstance->Config->OperAccounts.end())
 	{
 		ServerInstance->SNO.WriteGlobalSno('o', "{} ({}) [{}] failed to log into the \x02{}\x02 oper account because no account with that name exists.",
-			user->nick, user->MakeHost(), user->GetIPString(), parameters[0]);
+			user->nick, user->GetRealUserHost(), user->GetAddress(), parameters[0]);
 		return FailedOper(user, parameters[0]);
 	}
 
@@ -59,7 +59,7 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 	if (!account->CheckPassword(parameters[1]))
 	{
 		ServerInstance->SNO.WriteGlobalSno('o', "{} ({}) [{}] failed to log into the \x02{}\x02 oper account because they specified the wrong password.",
-			user->nick, user->MakeHost(), user->GetIPString(), parameters[0]);
+			user->nick, user->GetRealUserHost(), user->GetAddress(), parameters[0]);
 		return FailedOper(user, parameters[0]);
 	}
 

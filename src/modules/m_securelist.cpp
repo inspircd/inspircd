@@ -90,10 +90,10 @@ public:
 		// Allow if the source matches an <securehost> entry.
 		for (const auto& allowhost : allowlist)
 		{
-			if (InspIRCd::Match(user->MakeHost(), allowhost, ascii_case_insensitive_map))
+			if (InspIRCd::Match(user->GetRealUserHost(), allowhost, ascii_case_insensitive_map))
 				return MOD_RES_PASSTHRU;
 
-			if (InspIRCd::Match(user->MakeHostIP(), allowhost, ascii_case_insensitive_map))
+			if (InspIRCd::Match(user->GetUserAddress(), allowhost, ascii_case_insensitive_map))
 				return MOD_RES_PASSTHRU;
 		}
 

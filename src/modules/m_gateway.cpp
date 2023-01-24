@@ -66,7 +66,7 @@ public:
 				return true;
 
 			// Does the user's IP address match this hostmask?
-			if (InspIRCd::MatchCIDR(user->GetIPString(), mask, ascii_case_insensitive_map))
+			if (InspIRCd::MatchCIDR(user->GetAddress(), mask, ascii_case_insensitive_map))
 				return true;
 		}
 
@@ -118,7 +118,7 @@ public:
 				return true;
 
 			// Does the user's IP address match this hostmask?
-			if (InspIRCd::MatchCIDR(user->GetIPString(), mask, ascii_case_insensitive_map))
+			if (InspIRCd::MatchCIDR(user->GetAddress(), mask, ascii_case_insensitive_map))
 				return true;
 		}
 
@@ -265,7 +265,7 @@ public:
 			if (!ipaddr.from_ip_port(parameters[3], user->client_sa.port()))
 			{
 				ServerInstance->SNO.WriteGlobalSno('w', "Connecting user {} ({}) tried to use WEBIRC but gave an invalid IP address.",
-					user->uuid, user->GetIPString());
+					user->uuid, user->GetAddress());
 				ServerInstance->Users.QuitUser(user, "WEBIRC: IP address is invalid: " + parameters[3]);
 				return CmdResult::FAILURE;
 			}
@@ -273,10 +273,10 @@ public:
 			// The user matched a WebIRC block!
 			extban.gateway.Set(user, parameters[1]);
 			realhost.Set(user, user->GetRealHost());
-			realip.Set(user, user->GetIPString());
+			realip.Set(user, user->GetAddress());
 
 			ServerInstance->SNO.WriteGlobalSno('w', "Connecting user {} is using the {} WebIRC gateway; changing their IP from {} to {}.",
-				user->uuid, parameters[1], user->GetIPString(), parameters[3]);
+				user->uuid, parameters[1], user->GetAddress(), parameters[3]);
 
 			// If we have custom flags then deal with them.
 			WebIRC::FlagMap flags;
@@ -320,7 +320,7 @@ public:
 		}
 
 		ServerInstance->SNO.WriteGlobalSno('w', "Connecting user {} ({}) tried to use WEBIRC but didn't match any configured WebIRC hosts.",
-			user->uuid, user->GetIPString());
+			user->uuid, user->GetAddress());
 		ServerInstance->Users.QuitUser(user, "WEBIRC: you don't match any configured WebIRC hosts.");
 		return CmdResult::FAILURE;
 	}
@@ -455,11 +455,11 @@ public:
 
 			// Store the hostname and IP of the gateway for later use.
 			cmdwebirc.realhost.Set(user, user->GetRealHost());
-			cmdwebirc.realip.Set(user, user->GetIPString());
+			cmdwebirc.realip.Set(user, user->GetAddress());
 
 			const std::string& newident = host.GetIdent();
 			ServerInstance->SNO.WriteGlobalSno('w', "Connecting user {} is using an ident gateway; changing their IP from {} to {} and their ident from {} to {}.",
-				user->uuid, user->GetIPString(), address.addr(), user->ident, newident);
+				user->uuid, user->GetAddress(), address.addr(), user->ident, newident);
 
 			user->ChangeIdent(newident);
 			user->ChangeRemoteAddress(address);

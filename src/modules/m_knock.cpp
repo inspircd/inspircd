@@ -138,7 +138,7 @@ public:
 		if (notify & KN_SEND_NUMERIC)
 		{
 			Numeric::Numeric numeric(RPL_KNOCK);
-			numeric.push(c->name).push(user->GetFullHost()).push("is KNOCKing: " + parameters[1]);
+			numeric.push(c->name).push(user->GetMask()).push("is KNOCKing: " + parameters[1]);
 
 			ClientProtocol::Messages::Numeric numericmsg(numeric, c->name);
 			c->Write(ServerInstance->GetRFCEvents().numeric, numericmsg, status);

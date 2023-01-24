@@ -84,13 +84,13 @@ public:
 	ModResult OnPreOperLogin(LocalUser* user, const std::shared_ptr<OperAccount>& oper, bool automatic) override
 	{
 		const std::string hosts = oper->GetConfig()->getString("host");
-		if (InspIRCd::MatchMask(hosts, user->MakeHost(), user->MakeHostIP()))
+		if (InspIRCd::MatchMask(hosts, user->GetRealUserHost(), user->GetUserAddress()))
 			return MOD_RES_PASSTHRU; // Host matches.
 
 		if (!automatic)
 		{
 			ServerInstance->SNO.WriteGlobalSno('o', "{} ({}) [{}] failed to log into the \x02{}\x02 oper account because they are connecting from the wrong user@host.",
-				user->nick, user->MakeHost(), user->GetIPString(), oper->GetName());
+				user->nick, user->GetRealUserHost(), user->GetAddress(), oper->GetName());
 		}
 		return MOD_RES_DENY; // Host does not match.
 	}
@@ -105,7 +105,7 @@ public:
 			user->oper->GetType()));
 
 		ServerInstance->SNO.WriteToSnoMask('o', "{} ({}) [{}] is now a server operator of type \x02{}\x02 ({}using account \x02{}\x02).",
-			user->nick, user->MakeHost(), user->GetIPString(), user->oper->GetType(),
+			user->nick, user->GetRealUserHost(), user->GetAddress(), user->oper->GetType(),
 			automatic ? "automatically " : "", user->oper->GetName());
 
 		const std::string vhost = luser->oper->GetConfig()->getString("vhost");
@@ -216,7 +216,7 @@ public:
 						extra += INSP_FORMAT("{} idle for {} [since {}]",  extra.empty() ? ':' : ',', idleperiod, idletime);
 					}
 
-					stats.AddGenericRow(INSP_FORMAT("\x02{}\x02 ({}){}", oper->nick, oper->MakeHost(), extra));
+					stats.AddGenericRow(INSP_FORMAT("\x02{}\x02 ({}){}", oper->nick, oper->GetRealUserHost(), extra));
 				}
 				stats.AddGenericRow(INSP_FORMAT("{} server operator{} total", opers, opers ? "s" : ""));
 				return MOD_RES_DENY;

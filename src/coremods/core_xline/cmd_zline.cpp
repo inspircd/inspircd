@@ -55,7 +55,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 		auto* u = ServerInstance->Users.Find(target, true);
 		if (u)
 		{
-			target = u->GetIPString();
+			target = u->GetAddress();
 		}
 
 		const char* ipaddr = target.c_str();
@@ -119,5 +119,5 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 
 bool CommandZline::IPMatcher::Check(User* user, const std::string& ip) const
 {
-	return InspIRCd::MatchCIDR(user->GetIPString(), ip, ascii_case_insensitive_map);
+	return InspIRCd::MatchCIDR(user->GetAddress(), ip, ascii_case_insensitive_map);
 }

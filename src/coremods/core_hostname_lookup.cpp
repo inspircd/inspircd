@@ -52,10 +52,10 @@ protected:
 	// Handles errors which happen during DNS resolution.
 	static void HandleError(LocalUser* user, const std::string& message)
 	{
-		user->WriteNotice("*** " + message + "; using your IP address (" + user->GetIPString() + ") instead.");
+		user->WriteNotice("*** " + message + "; using your IP address (" + user->GetAddress() + ") instead.");
 
 		bool display_is_real = user->GetDisplayedHost() == user->GetRealHost();
-		user->ChangeRealHost(user->GetIPString(), display_is_real);
+		user->ChangeRealHost(user->GetAddress(), display_is_real);
 
 		dl->Unset(user);
 	}
@@ -160,7 +160,7 @@ class UserHostResolver final
 {
 public:
 	UserHostResolver(DNS::Manager* mgr, Module* me, LocalUser* user)
-		: UserResolver(mgr, me, user, user->GetIPString(), DNS::QUERY_PTR)
+		: UserResolver(mgr, me, user, user->GetAddress(), DNS::QUERY_PTR)
 	{
 	}
 

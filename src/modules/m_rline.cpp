@@ -55,7 +55,7 @@ public:
 			return false;
 
 		const std::string host = u->nick + "!" + u->ident + "@" + u->GetRealHost() + " " + u->GetRealName();
-		const std::string ip = u->nick + "!" + u->ident + "@" + u->GetIPString() + " " + u->GetRealName();
+		const std::string ip = u->nick + "!" + u->ident + "@" + u->GetAddress() + " " + u->GetRealName();
 		return (regex->IsMatch(host) || regex->IsMatch(ip));
 	}
 
@@ -68,18 +68,18 @@ public:
 	{
 		if (ZlineOnMatch)
 		{
-			auto* zl = new ZLine(ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, MODNAME "@" + ServerInstance->Config->ServerName, reason, u->GetIPString());
+			auto* zl = new ZLine(ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, MODNAME "@" + ServerInstance->Config->ServerName, reason, u->GetAddress());
 			if (ServerInstance->XLines->AddLine(zl, nullptr))
 			{
 				if (!duration)
 				{
 					ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent Z-line on {}: {}",
-						zl->source, u->GetIPString(), zl->reason);
+						zl->source, u->GetAddress(), zl->reason);
 				}
 				else
 				{
 					ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed Z-line on {}, expires in {} (on {}): {}",
-						zl->source, u->GetIPString(), Duration::ToString(zl->duration),
+						zl->source, u->GetAddress(), Duration::ToString(zl->duration),
 						InspIRCd::TimeString(zl->duration), zl->reason);
 				}
 				added_zline = true;

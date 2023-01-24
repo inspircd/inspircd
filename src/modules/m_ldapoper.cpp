@@ -226,7 +226,7 @@ public:
 				return MOD_RES_PASSTHRU;
 
 			std::string acceptedhosts = it->second->GetConfig()->getString("host");
-			if (!InspIRCd::MatchMask(acceptedhosts, user->MakeHost(), user->MakeHostIP()))
+			if (!InspIRCd::MatchMask(acceptedhosts, user->GetRealUserHost(), user->GetUserAddress()))
 				return MOD_RES_PASSTHRU;
 
 			if (!LDAP)

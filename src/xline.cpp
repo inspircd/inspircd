@@ -576,8 +576,8 @@ void XLine::DefaultApply(User* u, const std::string& line, bool bancache)
 
 	if (bancache)
 	{
-		ServerInstance->Logs.Debug("BANCACHE", "BanCache: Adding positive hit (" + line + ") for " + u->GetIPString());
-		ServerInstance->BanCache.AddHit(u->GetIPString(), this->type, banReason, (this->duration > 0 ? (this->expiry - ServerInstance->Time()) : 0));
+		ServerInstance->Logs.Debug("BANCACHE", "BanCache: Adding positive hit (" + line + ") for " + u->GetAddress());
+		ServerInstance->BanCache.AddHit(u->GetAddress(), this->type, banReason, (this->duration > 0 ? (this->expiry - ServerInstance->Time()) : 0));
 	}
 }
 
@@ -590,7 +590,7 @@ bool KLine::Matches(User* u)
 	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
 	{
 		if (InspIRCd::MatchCIDR(u->GetRealHost(), this->hostmask, ascii_case_insensitive_map) ||
-			InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask, ascii_case_insensitive_map))
+			InspIRCd::MatchCIDR(u->GetAddress(), this->hostmask, ascii_case_insensitive_map))
 		{
 			return true;
 		}
@@ -613,7 +613,7 @@ bool GLine::Matches(User* u)
 	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
 	{
 		if (InspIRCd::MatchCIDR(u->GetRealHost(), this->hostmask, ascii_case_insensitive_map) ||
-			InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask, ascii_case_insensitive_map))
+			InspIRCd::MatchCIDR(u->GetAddress(), this->hostmask, ascii_case_insensitive_map))
 		{
 			return true;
 		}
@@ -632,7 +632,7 @@ bool ELine::Matches(User* u)
 	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
 	{
 		if (InspIRCd::MatchCIDR(u->GetRealHost(), this->hostmask, ascii_case_insensitive_map) ||
-			InspIRCd::MatchCIDR(u->GetIPString(), this->hostmask, ascii_case_insensitive_map))
+			InspIRCd::MatchCIDR(u->GetAddress(), this->hostmask, ascii_case_insensitive_map))
 		{
 			return true;
 		}
@@ -647,7 +647,7 @@ bool ZLine::Matches(User* u)
 	if (lu && lu->exempt)
 		return false;
 
-	return InspIRCd::MatchCIDR(u->GetIPString(), this->ipaddr);
+	return InspIRCd::MatchCIDR(u->GetAddress(), this->ipaddr);
 }
 
 void ZLine::Apply(User* u)

@@ -166,8 +166,8 @@ public:
 		{
 			LocalUser* localtarget = IS_LOCAL(targetuser);
 			/* /check on a user */
-			context.Write("nuh", targetuser->GetFullHost());
-			context.Write("realnuh", targetuser->GetFullRealHost());
+			context.Write("nuh", targetuser->GetMask());
+			context.Write("realnuh", targetuser->GetRealMask());
 			context.Write("realname", targetuser->GetRealName());
 			context.Write("modes", targetuser->GetModeLetters());
 			context.Write("snomasks", GetSnomasks(targetuser));
@@ -212,7 +212,7 @@ public:
 				context.Write("serializer", localtarget->serializer->name.substr(11));
 			}
 			else
-				context.Write("onip", targetuser->GetIPString());
+				context.Write("onip", targetuser->GetAddress());
 
 			CheckContext::List chanlist(context, "onchans");
 			for (const auto* memb : targetuser->chans)
@@ -244,7 +244,7 @@ public:
 				 */
 				const UserManager::CloneCounts& clonecount = ServerInstance->Users.GetCloneCounts(u);
 				context.Write("member", INSP_FORMAT("{} {}{} ({}\x0F)", clonecount.global, memb->GetAllPrefixChars(),
-					u->GetFullHost(), u->GetRealName()));
+					u->GetMask(), u->GetRealName()));
 			}
 
 			for (auto* lm : ServerInstance->Modes.GetListModes())
@@ -275,7 +275,7 @@ public:
 				if (InspIRCd::Match(u->GetDisplayedHost(), parameters[0], ascii_case_insensitive_map))
 					matches.push_back("dhost");
 
-				if (InspIRCd::MatchCIDR(u->GetIPString(), parameters[0]))
+				if (InspIRCd::MatchCIDR(u->GetAddress(), parameters[0]))
 					matches.push_back("ipaddr");
 
 				if (InspIRCd::MatchCIDR(u->GetRealName(), parameters[0]))
@@ -285,7 +285,7 @@ public:
 				{
 					const std::string whatmatch = stdalgo::string::join(matches, ',');
 					context.Write("match", INSP_FORMAT("{} {} {} {} {} {} {} :{}", ++x, whatmatch, u->nick, u->ident,
-						u->GetRealHost(), u->GetDisplayedHost(), u->GetIPString(), u->GetRealName()));
+						u->GetRealHost(), u->GetDisplayedHost(), u->GetAddress(), u->GetRealName()));
 					matches.clear();
 				}
 			}

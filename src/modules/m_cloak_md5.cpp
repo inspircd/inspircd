@@ -255,7 +255,7 @@ struct CloakInfo final
 		if (!Hash || !user->client_sa.is_ip())
 			return {};
 
-		return GenCloak(user->client_sa, user->GetIPString(), user->GetRealHost());
+		return GenCloak(user->client_sa, user->GetAddress(), user->GetRealHost());
 	}
 
 	std::string Generate(const std::string& hostip) override

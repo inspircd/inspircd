@@ -70,7 +70,7 @@ bool SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remo
 	{
 		/* first, let's see if ident@host matches. */
 		const std::string& localident = u->ident;
-		const std::string& localip = u->GetIPString();
+		const std::string& localip = u->GetAddress();
 		bool SamePerson = (localident == remoteident)
 				&& (localip == remoteip);
 
@@ -91,7 +91,7 @@ bool SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remo
 	}
 
 	ServerInstance->Logs.Debug(MODNAME, "Nick collision on \"{}\" caused by {}: {}/{}/{}@{} {} <-> {}/{}/{}@{} {}", u->nick, collidecmd,
-		u->uuid, localts, u->ident, u->GetIPString(), bChangeLocal,
+		u->uuid, localts, u->ident, u->GetAddress(), bChangeLocal,
 		remoteuid, remotets, remoteident, remoteip, bChangeRemote);
 
 	/*

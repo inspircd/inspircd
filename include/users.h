@@ -311,25 +311,23 @@ class CoreExport User
 	: public Extensible
 {
 private:
-	/** Cached nick!ident\@dhost value using the displayed hostname
-	 */
-	std::string cached_fullhost;
+	/** Cached value for GetAddress. */
+	std::string cached_address;
 
-	/** Cached ident\@ip value using the real IP address
-	 */
-	std::string cached_hostip;
+	/** Cached value for GetUserAddress. */
+	std::string cached_useraddress;
 
-	/** Cached ident\@realhost value using the real hostname
-	 */
-	std::string cached_makehost;
+	/** Cached value for GetUserHost. */
+	std::string cached_userhost;
 
-	/** Cached nick!ident\@realhost value using the real hostname
-	 */
-	std::string cached_fullrealhost;
+	/** Cached value for GetRealUserHost. */
+	std::string cached_realuserhost;
 
-	/** Set by GetIPString() to avoid constantly re-grabbing IP via sockets voodoo.
-	 */
-	std::string cachedip;
+	/** Cached value for GetMask. */
+	std::string cached_mask;
+
+	/** Cached value for GetRealMask. */
+	std::string cached_realmask;
 
 	/** If set then the hostname which is displayed to users. */
 	std::string displayhost;
@@ -478,11 +476,6 @@ public:
 	/** What type of user is this? */
 	const uint8_t usertype:2;
 
-	/** Get client IP string from sockaddr, using static internal buffer
-	 * @return The IP string
-	 */
-	const std::string& GetIPString();
-
 	/** Retrieves this user's hostname.
 	 * @param uncloak If true then return the real host; otherwise, the display host.
 	 */
@@ -504,6 +497,36 @@ public:
 	 */
 	irc::sockets::cidr_mask GetCIDRMask() const;
 
+	/** Retrieves the remote address (IPv4, IPv6, UNIX socket path) as a string.
+	 * If this method has not been called before then it will be cached.
+	 */
+	virtual const std::string& GetAddress();
+
+	/*** Retrieves the user@address mask for the user as a string.
+	 * If this method has not been called before then it will be cached.
+	 */
+	virtual const std::string& GetUserAddress();
+
+	/*** Retrieves the user@dhost mask for the user as a string.
+	 * If this method has not been called before then it will be cached.
+	 */
+	virtual const std::string& GetUserHost();
+
+	/*** Retrieves the user@rhost mask for the user as a string.
+	 * If this method has not been called before then it will be cached.
+	 */
+	virtual const std::string& GetRealUserHost();
+
+	/*** Retrieves the nick!user@dhost mask for the user as a string.
+	 * If this method has not been called before then it will be cached.
+	 */
+	virtual const std::string& GetMask();
+
+	/*** Retrieves the nick!user@dhost mask for the user as a string.
+	 * If this method has not been called before then it will be cached.
+	 */
+	virtual const std::string& GetRealMask();
+
 	/** Changes the remote socket address for this user.
 	 * @param sa The new socket address.
 	 */
@@ -513,21 +536,6 @@ public:
 	 * @throw CoreException if the UID allocated to the user already exists
 	 */
 	User(const std::string& uid, Server* srv, Type objtype);
-
-	/** Returns the full displayed host of the user
-	 * This member function returns the hostname of the user as seen by other users
-	 * on the server, in nick!ident\@host form.
-	 * @return The full masked host of the user
-	 */
-	virtual const std::string& GetFullHost();
-
-	/** Returns the full real host of the user
-	 * This member function returns the hostname of the user as seen by other users
-	 * on the server, in nick!ident\@host form. If any form of hostname cloaking is in operation,
-	 * e.g. through a module, then this method will ignore it and return the true hostname.
-	 * @return The full real host of the user
-	 */
-	virtual const std::string& GetFullRealHost();
 
 	/** This clears any cached results that are used for GetFullRealHost() etc.
 	 * The results of these calls are cached as generating them can be generally expensive.
@@ -605,18 +613,6 @@ public:
 	 * @return True if the user can set the specified snomask; otherwise, false.
 	 */
 	inline bool HasSnomaskPermission(char chr) const { return IsOper() && oper->CanUseSnomask(chr); }
-
-	/** Creates a usermask with real host.
-	 * Takes a buffer to use and fills the given buffer with the hostmask in the format user\@host
-	 * @return the usermask in the format user\@host
-	 */
-	const std::string& MakeHost();
-
-	/** Creates a usermask with real ip.
-	 * Takes a buffer to use and fills the given buffer with the ipmask in the format user\@ip
-	 * @return the usermask in the format user\@ip
-	 */
-	const std::string& MakeHostIP();
 
 	/** Logs this user into the specified server operator account.
 	 * @param account The account to log this user in to.
@@ -908,21 +904,27 @@ class CoreExport FakeUser final
 	: public User
 {
 public:
-	FakeUser(const std::string& uid, Server* srv)
-		: User(uid, srv, TYPE_SERVER)
-	{
-		nick = srv->GetName();
-	}
+	/** Creates a new fake user with the specified sid and server details.
+	 * @param sid A server id in the format [0-9][A-Z0-9][A-Z0-9].
+	 * @param srv The server instance to configure this fake user from.
+	 */
+	FakeUser(const std::string& sid, Server* srv);
 
-	FakeUser(const std::string& uid, const std::string& sname, const std::string& sdesc)
-		: User(uid, new Server(uid, sname, sdesc), TYPE_SERVER)
-	{
-		nick = sname;
-	}
+	/** Creates a new fake user with the specified sid, server name, and server description.
+	 * @param sid A server id in the format [0-9][A-Z0-9][A-Z0-9].
+	 * @param sname The name of the server.
+	 * @param sdesc The description of the server.
+	 */
+	FakeUser(const std::string& sid, const std::string& sname, const std::string& sdesc);
 
+	/** @copydoc Cullable::Cull. */
 	Cullable::Result Cull() override;
-	const std::string& GetFullHost() override;
-	const std::string& GetFullRealHost() override;
+
+	/** @copydoc User::GetMask. */
+	const std::string& GetMask() override;
+
+	/** @copydoc User::GetRealMask. */
+	const std::string& GetRealMask() override;
 };
 
 /* Faster than dynamic_cast */

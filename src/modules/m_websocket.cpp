@@ -435,7 +435,7 @@ class WebSocketHook final
 			}
 			for (const auto& proxyrange : config.proxyranges)
 			{
-				if (InspIRCd::MatchCIDR(luser->GetIPString(), proxyrange, ascii_case_insensitive_map))
+				if (InspIRCd::MatchCIDR(luser->GetAddress(), proxyrange, ascii_case_insensitive_map))
 				{
 					// Give the user their real IP address.
 					if (realsa != luser->client_sa)

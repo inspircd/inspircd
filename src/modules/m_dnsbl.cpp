@@ -314,7 +314,7 @@ public:
 		{
 			const std::string reason = Template::Replace(config->reason, {
 				{ "dnsbl",  config->name     },
-				{ "ip",     them->GetIPString() },
+				{ "ip",     them->GetAddress() },
 				{ "result", ConvToStr(result)   },
 			});
 
@@ -344,23 +344,23 @@ public:
 				}
 				case DNSBLEntry::Action::KLINE:
 				{
-					AddLine<KLine>("K-line", reason, config->xlineduration, them->GetBanIdent(), them->GetIPString());
+					AddLine<KLine>("K-line", reason, config->xlineduration, them->GetBanIdent(), them->GetAddress());
 					break;
 				}
 				case DNSBLEntry::Action::GLINE:
 				{
-					AddLine<GLine>("G-line", reason, config->xlineduration, them->GetBanIdent(), them->GetIPString());
+					AddLine<GLine>("G-line", reason, config->xlineduration, them->GetBanIdent(), them->GetAddress());
 					break;
 				}
 				case DNSBLEntry::Action::ZLINE:
 				{
-					AddLine<ZLine>("Z-line", reason, config->xlineduration, them->GetIPString());
+					AddLine<ZLine>("Z-line", reason, config->xlineduration, them->GetAddress());
 					break;
 				}
 			}
 
 			ServerInstance->SNO.WriteGlobalSno('d', "Connecting user {} ({}) detected as being on the '{}' DNS blacklist with result {}",
-				them->GetFullRealHost(), them->GetIPString(), config->name, result);
+				them->GetRealMask(), them->GetAddress(), config->name, result);
 		}
 		else
 			config->stats_misses++;
@@ -394,7 +394,7 @@ public:
 			return;
 
 		ServerInstance->SNO.WriteGlobalSno('d', "An error occurred whilst checking whether {} ({}) is on the '{}' DNS blacklist: {}",
-			them->GetFullRealHost(), them->GetIPString(), config->name, data.dns->GetErrorStr(q->error));
+			them->GetRealMask(), them->GetAddress(), config->name, data.dns->GetErrorStr(q->error));
 	}
 };
 
@@ -478,7 +478,7 @@ public:
 		else
 			return;
 
-		ServerInstance->Logs.Debug(MODNAME, "Reversed IP {} -> {}", user->GetIPString(), reversedip);
+		ServerInstance->Logs.Debug(MODNAME, "Reversed IP {} -> {}", user->GetAddress(), reversedip);
 
 		data.countext.Set(user, dnsbls.size());
 

@@ -149,7 +149,7 @@ public:
 
 		// The user has tried to execute a disabled command!
 		user->CommandFloodPenalty += 2000;
-		WriteLog("{} was blocked from executing the disabled {} command", user->GetFullRealHost(), command);
+		WriteLog("{} was blocked from executing the disabled {} command", user->GetRealMask(), command);
 
 		if (fakenonexistent)
 		{
@@ -179,7 +179,7 @@ public:
 		// The user has tried to change a disabled mode!
 		const char* what = change.mh->GetModeType() == MODETYPE_CHANNEL ? "channel" : "user";
 		WriteLog("{} was blocked from {}setting the disabled {} mode {} ({})",
-			user->GetFullRealHost().c_str(), change.adding ? "" : "un",
+			user->GetRealMask().c_str(), change.adding ? "" : "un",
 			what, change.mh->GetModeChar(), change.mh->name.c_str());
 
 		if (fakenonexistent)

@@ -439,7 +439,7 @@ private:
 			if (!(entry.flags & flag))
 				continue;
 
-			if (InspIRCd::Match(source->GetFullHost(), entry.mask))
+			if (InspIRCd::Match(source->GetMask(), entry.mask))
 				return entry.flags & SilenceEntry::SF_EXEMPT;
 		}
 

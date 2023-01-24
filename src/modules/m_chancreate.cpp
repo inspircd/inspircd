@@ -42,7 +42,7 @@ public:
 	{
 		if ((created) && (IS_LOCAL(memb->user)))
 		{
-			ServerInstance->SNO.WriteGlobalSno('j', "Channel {} created by {}", memb->chan->name, memb->user->GetFullRealHost());
+			ServerInstance->SNO.WriteGlobalSno('j', "Channel {} created by {}", memb->chan->name, memb->user->GetRealMask());
 		}
 	}
 };

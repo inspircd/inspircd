@@ -137,7 +137,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	if (dosend)
 	{
 		ServerInstance->SNO.WriteToSnoMask('C', "Client connecting at {}: {} ({}) [{}\x0F]", remoteserver->GetName(),
-			_new->GetFullRealHost(), _new->GetIPString(), _new->GetRealName());
+			_new->GetRealMask(), _new->GetAddress(), _new->GetRealName());
 	}
 
 	FOREACH_MOD(OnPostConnect, (_new));
@@ -179,7 +179,7 @@ CommandUID::Builder::Builder(User* user)
 	push(user->GetRealHost());
 	push(user->GetDisplayedHost());
 	push(user->ident);
-	push(user->GetIPString());
+	push(user->GetAddress());
 	push_int(user->signon);
 	push(user->GetModeLetters(true));
 	push_last(user->GetRealName());

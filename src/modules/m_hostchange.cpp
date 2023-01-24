@@ -106,10 +106,10 @@ public:
 		if (!ports.empty() && !ports.count(user->server_sa.port()))
 			return false;
 
-		if (InspIRCd::MatchCIDR(user->MakeHost(), mask))
+		if (InspIRCd::MatchCIDR(user->GetRealUserHost(), mask))
 			return true;
 
-		return InspIRCd::MatchCIDR(user->MakeHostIP(), mask);
+		return InspIRCd::MatchCIDR(user->GetUserAddress(), mask);
 	}
 
 	void Wrap(const std::string& value, std::string& out) const

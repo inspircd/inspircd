@@ -174,7 +174,7 @@ public:
 
 	void OnUserConnect(LocalUser* user) override
 	{
-		user->WriteNumeric(RPL_WELCOME, INSP_FORMAT("Welcome to the {} IRC Network {}", ServerInstance->Config->Network, user->GetFullRealHost()));
+		user->WriteNumeric(RPL_WELCOME, INSP_FORMAT("Welcome to the {} IRC Network {}", ServerInstance->Config->Network, user->GetRealMask()));
 		user->WriteNumeric(RPL_YOURHOST, INSP_FORMAT("Your host is {}, running version {}", ServerInstance->Config->GetServerName(), INSPIRCD_BRANCH));
 		user->WriteNumeric(RPL_CREATED, InspIRCd::TimeString(ServerInstance->startup_time, "This server was created %H:%M:%S %b %d %Y"));
 		user->WriteNumeric(numeric004);

@@ -44,7 +44,7 @@ struct HistoryItem final
 		: ts(ServerInstance->Time())
 		, text(details.text)
 		, type(details.type)
-		, sourcemask(source->GetFullHost())
+		, sourcemask(source->GetMask())
 	{
 		tags.reserve(details.tags_out.size());
 		for (const auto& [tagname, tagvalue] : details.tags_out)

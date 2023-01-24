@@ -165,7 +165,7 @@ public:
 	void SetCertificate(User* user, ssl_cert* cert) override
 	{
 		ServerInstance->Logs.Debug(MODNAME, "Setting TLS client certificate for {}: {}",
-			user->GetFullHost(), sslext.ToNetwork(user, cert));
+			user->GetMask(), sslext.ToNetwork(user, cert));
 		sslext.Set(user, cert);
 	}
 };
@@ -342,7 +342,7 @@ public:
 			if (!automatic)
 			{
 				ServerInstance->SNO.WriteGlobalSno('o', "{} ({}) [{}] failed to log into the \x02{}\x02 oper account because they are not connected using TLS.",
-					user->nick, user->MakeHost(), user->GetIPString(), oper->GetName());
+					user->nick, user->GetRealUserHost(), user->GetAddress(), oper->GetName());
 			}
 			return MOD_RES_DENY;
 		}
@@ -353,7 +353,7 @@ public:
 			if (!automatic)
 			{
 				ServerInstance->SNO.WriteGlobalSno('o', "{} ({}) [{}] failed to log into the \x02{}\x02 oper account because they are not using the correct TLS client certificate.",
-					user->nick, user->MakeHost(), user->GetIPString(), oper->GetName());
+					user->nick, user->GetRealUserHost(), user->GetAddress(), oper->GetName());
 			}
 			return MOD_RES_DENY;
 		}

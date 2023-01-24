@@ -61,7 +61,7 @@ void Channel::SetTopic(User* u, const std::string& ntopic, time_t topicts, const
 
 	// Always update setter and set time
 	if (!setter)
-		setter = ServerInstance->Config->FullHostInTopic ? &u->GetFullHost() : &u->nick;
+		setter = ServerInstance->Config->FullHostInTopic ? &u->GetMask() : &u->nick;
 	this->setby.assign(*setter, 0, ServerInstance->Config->Limits.GetMaxMask());
 	this->topicset = topicts;
 
@@ -298,7 +298,7 @@ bool Channel::CheckBan(User* user, const std::string& mask)
 		std::string suffix(mask, at + 1);
 		if (InspIRCd::Match(user->GetRealHost(), suffix, nullptr) ||
 			InspIRCd::Match(user->GetDisplayedHost(), suffix, nullptr) ||
-			InspIRCd::MatchCIDR(user->GetIPString(), suffix, nullptr))
+			InspIRCd::MatchCIDR(user->GetAddress(), suffix, nullptr))
 			return true;
 	}
 	return false;

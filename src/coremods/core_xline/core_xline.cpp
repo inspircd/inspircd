@@ -54,8 +54,8 @@ bool InsaneBan::MatchesEveryone(const std::string& mask, MatcherBase& test, User
 
 bool InsaneBan::IPHostMatcher::Check(User* user, const std::string& mask) const
 {
-	return ((InspIRCd::MatchCIDR(user->MakeHost(), mask, ascii_case_insensitive_map)) ||
-			(InspIRCd::MatchCIDR(user->MakeHostIP(), mask, ascii_case_insensitive_map)));
+	return ((InspIRCd::MatchCIDR(user->GetRealUserHost(), mask, ascii_case_insensitive_map)) ||
+			(InspIRCd::MatchCIDR(user->GetUserAddress(), mask, ascii_case_insensitive_map)));
 }
 
 class CoreModXLine final
@@ -153,7 +153,7 @@ public:
 		if (user->IsFullyConnected())
 		{
 			ServerInstance->SNO.WriteGlobalSno('x', "Q-lined nickname {} from {}: {}",
-				newnick, user->GetFullRealHost(), xline->reason);
+				newnick, user->GetRealMask(), xline->reason);
 		}
 
 		// Send a numeric because if we deny then the core doesn't reply anything

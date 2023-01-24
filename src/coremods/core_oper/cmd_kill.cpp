@@ -115,9 +115,9 @@ CmdResult CommandKill::Handle(User* user, const Params& parameters)
 	if ((!hideservicekills) || (!user->server->IsService()))
 	{
 		if (IS_LOCAL(user) && IS_LOCAL(target))
-			ServerInstance->SNO.WriteGlobalSno('k', "Local kill by {}: {} ({})", user->nick, target->GetFullRealHost(), parameters[1]);
+			ServerInstance->SNO.WriteGlobalSno('k', "Local kill by {}: {} ({})", user->nick, target->GetRealMask(), parameters[1]);
 		else
-			ServerInstance->SNO.WriteToSnoMask('K', "Remote kill by {}: {} ({})", user->nick, target->GetFullRealHost(), parameters[1]);
+			ServerInstance->SNO.WriteToSnoMask('K', "Remote kill by {}: {} ({})", user->nick, target->GetRealMask(), parameters[1]);
 	}
 
 	if (IS_LOCAL(target))

@@ -447,7 +447,7 @@ public:
 					{
 						for (const auto& dccallow : *dl)
 						{
-							if (InspIRCd::Match(user->GetFullHost(), dccallow.hostmask))
+							if (InspIRCd::Match(user->GetMask(), dccallow.hostmask))
 								return MOD_RES_PASSTHRU;
 						}
 					}

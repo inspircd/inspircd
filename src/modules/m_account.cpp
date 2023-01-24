@@ -70,12 +70,12 @@ public:
 			if (value.empty())
 			{
 				// Logged out.
-				user->WriteNumeric(RPL_LOGGEDOUT, user->GetFullHost(), "You are now logged out");
+				user->WriteNumeric(RPL_LOGGEDOUT, user->GetMask(), "You are now logged out");
 			}
 			else
 			{
 				// Logged in.
-				user->WriteNumeric(RPL_LOGGEDIN, user->GetFullHost(), value, INSP_FORMAT("You are now logged in as {}", value));
+				user->WriteNumeric(RPL_LOGGEDIN, user->GetMask(), value, INSP_FORMAT("You are now logged in as {}", value));
 			}
 		}
 
@@ -319,7 +319,7 @@ public:
 		if (!automatic)
 		{
 			ServerInstance->SNO.WriteGlobalSno('o', "{} ({}) [{}] failed to log into the \x02{}\x02 oper account because they are not logged into the correct user account.",
-				user->nick, user->MakeHost(), user->GetIPString(), oper->GetName());
+				user->nick, user->GetRealUserHost(), user->GetAddress(), oper->GetName());
 		}
 		return MOD_RES_DENY; // Account required but it does not match.
 	}

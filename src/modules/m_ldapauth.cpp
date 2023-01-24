@@ -124,7 +124,7 @@ public:
 		if (!checkingAttributes && requiredattributes.empty())
 		{
 			if (verbose)
-				ServerInstance->SNO.WriteToSnoMask('c', "Successful connection from {} (dn={})", user->GetFullRealHost(), DN);
+				ServerInstance->SNO.WriteToSnoMask('c', "Successful connection from {} (dn={})", user->GetRealMask(), DN);
 
 			// We're done, there are no attributes to check
 			SetVHost(user, DN);
@@ -143,7 +143,7 @@ public:
 				passed = true;
 
 				if (verbose)
-					ServerInstance->SNO.WriteToSnoMask('c', "Successful connection from {} (dn={})", user->GetFullRealHost(), DN);
+					ServerInstance->SNO.WriteToSnoMask('c', "Successful connection from {} (dn={})", user->GetRealMask(), DN);
 
 				SetVHost(user, DN);
 				authed->Set(user);
@@ -181,7 +181,7 @@ public:
 			if (verbose)
 			{
 				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from {} (dn={}) (unable to validate attributes)",
-					user->GetFullRealHost(), DN);
+					user->GetRealMask(), DN);
 			}
 			ServerInstance->Users.QuitUser(user, killreason);
 			delete this;
@@ -205,7 +205,7 @@ public:
 			if (verbose)
 			{
 				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from {} ({})",
-					user->GetFullRealHost(), err.getError());
+					user->GetRealMask(), err.getError());
 			}
 			ServerInstance->Users.QuitUser(user, killreason);
 		}
@@ -400,7 +400,7 @@ public:
 
 		for (const auto& whitelistedcidr : whitelistedcidrs)
 		{
-			if (InspIRCd::MatchCIDR(user->GetIPString(), whitelistedcidr, ascii_case_insensitive_map))
+			if (InspIRCd::MatchCIDR(user->GetAddress(), whitelistedcidr, ascii_case_insensitive_map))
 			{
 				ldapAuthed.Set(user, true);
 				return MOD_RES_PASSTHRU;
@@ -410,7 +410,7 @@ public:
 		if (user->password.empty())
 		{
 			if (verbose)
-				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from {} (no password provided)", user->GetFullRealHost());
+				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from {} (no password provided)", user->GetRealMask());
 			ServerInstance->Users.QuitUser(user, killreason);
 			return MOD_RES_DENY;
 		}
@@ -418,7 +418,7 @@ public:
 		if (!LDAP)
 		{
 			if (verbose)
-				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from {} (unable to find LDAP provider)", user->GetFullRealHost());
+				ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from {} (unable to find LDAP provider)", user->GetRealMask());
 			ServerInstance->Users.QuitUser(user, killreason);
 			return MOD_RES_DENY;
 		}

@@ -311,11 +311,11 @@ public:
 				}
 
 				std::string ipmask(user->nick);
-				ipmask.append(1, '!').append(user->MakeHostIP());
+				ipmask.append(1, '!').append(user->GetUserAddress());
 
 				for (const auto& redirect : *redirects)
 				{
-					if(InspIRCd::Match(user->GetFullRealHost(), redirect.banmask) || InspIRCd::Match(user->GetFullHost(), redirect.banmask) || InspIRCd::MatchCIDR(ipmask, redirect.banmask))
+					if (InspIRCd::Match(user->GetRealMask(), redirect.banmask) || InspIRCd::Match(user->GetMask(), redirect.banmask) || InspIRCd::MatchCIDR(ipmask, redirect.banmask))
 					{
 						/* This prevents recursion when a user sets multiple ban redirects in a chain
 						 * (thanks Potter)

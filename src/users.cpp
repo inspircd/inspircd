@@ -107,6 +107,78 @@ User::User(const std::string& uid, Server* srv, Type type)
 	}
 }
 
+const std::string& User::GetAddress()
+{
+	if (cached_address.empty())
+	{
+		cached_address = client_sa.addr();
+
+		// If the user is connecting from an IPv4 address like ::1 we
+		// need to partially expand the address to avoid issues with
+		// the IRC wire format.
+		if (cached_address[0] == ':')
+			cached_address.insert(cached_address.begin(), 1, 0);
+
+		cached_address.shrink_to_fit();
+	}
+
+	return cached_address;
+}
+
+const std::string& User::GetUserAddress()
+{
+	if (cached_useraddress.empty())
+	{
+		cached_useraddress = INSP_FORMAT("{}@{}", ident, GetAddress());
+		cached_address.shrink_to_fit();
+	}
+
+	return cached_useraddress;
+}
+const std::string& User::GetUserHost()
+{
+	if (cached_userhost.empty())
+	{
+		cached_userhost = INSP_FORMAT("{}@{}", ident, GetDisplayedHost());
+		cached_userhost.shrink_to_fit();
+	}
+
+	return cached_userhost;
+}
+
+const std::string& User::GetRealUserHost()
+{
+	if (cached_realuserhost.empty())
+	{
+		cached_realuserhost = INSP_FORMAT("{}@{}", ident, GetRealHost());
+		cached_realuserhost.shrink_to_fit();
+	}
+
+	return cached_realuserhost;
+}
+
+const std::string& User::GetMask()
+{
+	if (cached_mask.empty())
+	{
+		cached_mask = INSP_FORMAT("{}!{}@{}", nick, ident, GetDisplayedHost());
+		cached_mask.shrink_to_fit();
+	}
+
+	return cached_mask;
+}
+
+const std::string& User::GetRealMask()
+{
+	if (cached_realmask.empty())
+	{
+		cached_realmask = INSP_FORMAT("{}!{}@{}", nick, ident, GetRealHost());
+		cached_realmask.shrink_to_fit();
+	}
+
+	return cached_realmask;
+}
+
 LocalUser::LocalUser(int myfd, const irc::sockets::sockaddrs& clientsa, const irc::sockets::sockaddrs& serversa)
 	: User(ServerInstance->UIDGen.GetUID(), ServerInstance->FakeClient->server, User::TYPE_LOCAL)
 	, eh(this)
@@ -121,43 +193,29 @@ LocalUser::LocalUser(int myfd, const irc::sockets::sockaddrs& clientsa, const ir
 	ident = uuid;
 	eh.SetFd(myfd);
 	memcpy(&client_sa, &clientsa, sizeof(irc::sockets::sockaddrs));
-	ChangeRealHost(GetIPString(), true);
+	ChangeRealHost(GetAddress(), true);
 }
 
-const std::string& User::MakeHost()
+FakeUser::FakeUser(const std::string& uid, Server* srv)
+	: User(uid, srv, TYPE_SERVER)
 {
-	if (!this->cached_makehost.empty())
-		return this->cached_makehost;
-
-	this->cached_makehost = ident + "@" + GetRealHost();
-	return this->cached_makehost;
+	nick = srv->GetName();
 }
 
-const std::string& User::MakeHostIP()
+FakeUser::FakeUser(const std::string& uid, const std::string& sname, const std::string& sdesc)
+	: User(uid, new Server(uid, sname, sdesc), TYPE_SERVER)
 {
-	if (!this->cached_hostip.empty())
-		return this->cached_hostip;
-
-	this->cached_hostip = ident + "@" + this->GetIPString();
-	return this->cached_hostip;
+	nick = sname;
 }
 
-const std::string& User::GetFullHost()
+const std::string& FakeUser::GetMask()
 {
-	if (!this->cached_fullhost.empty())
-		return this->cached_fullhost;
-
-	this->cached_fullhost = nick + "!" + ident + "@" + GetDisplayedHost();
-	return this->cached_fullhost;
+	return server->GetPublicName();
 }
 
-const std::string& User::GetFullRealHost()
+const std::string& FakeUser::GetRealMask()
 {
-	if (!this->cached_fullrealhost.empty())
-		return this->cached_fullrealhost;
-
-	this->cached_fullrealhost = nick + "!" + ident + "@" + GetRealHost();
-	return this->cached_fullrealhost;
+	return server->GetPublicName();
 }
 
 void UserIOHandler::OnDataReady()
@@ -431,10 +489,10 @@ void LocalUser::FullConnect()
 	FOREACH_MOD(OnPostConnect, (this));
 
 	ServerInstance->SNO.WriteToSnoMask('c', "Client connecting on port {} (class {}): {} ({}) [{}\x0F]",
-		server_sa.port(), GetClass()->GetName(), GetFullRealHost(), GetIPString(), GetRealName());
+		server_sa.port(), GetClass()->GetName(), GetRealMask(), GetAddress(), GetRealName());
 
-	ServerInstance->Logs.Debug("BANCACHE", "BanCache: Adding NEGATIVE hit for " + this->GetIPString());
-	ServerInstance->BanCache.AddHit(this->GetIPString(), "", "");
+	ServerInstance->Logs.Debug("BANCACHE", "BanCache: Adding NEGATIVE hit for " + this->GetAddress());
+	ServerInstance->BanCache.AddHit(this->GetAddress(), "", "");
 	// reset the flood penalty (which could have been raised due to things like auto +x)
 	CommandFloodPenalty = 0;
 }
@@ -442,11 +500,12 @@ void LocalUser::FullConnect()
 void User::InvalidateCache()
 {
 	/* Invalidate cache */
-	cachedip.clear();
-	cached_fullhost.clear();
-	cached_hostip.clear();
-	cached_makehost.clear();
-	cached_fullrealhost.clear();
+	cached_address.clear();
+	cached_useraddress.clear();
+	cached_userhost.clear();
+	cached_realuserhost.clear();
+	cached_mask.clear();
+	cached_realmask.clear();
 }
 
 bool User::ChangeNick(const std::string& newnick, time_t newts)
@@ -528,19 +587,6 @@ void LocalUser::OverruleNick()
 	this->ChangeNick(this->uuid);
 }
 
-const std::string& User::GetIPString()
-{
-	if (cachedip.empty())
-	{
-		cachedip = client_sa.addr();
-		/* IP addresses starting with a : on irc are a Bad Thing (tm) */
-		if (cachedip[0] == ':')
-			cachedip.insert(cachedip.begin(), 1, '0');
-	}
-
-	return cachedip;
-}
-
 const std::string& User::GetBanIdent() const
 {
 	static const std::string wildcard = "*";
@@ -584,15 +630,15 @@ irc::sockets::cidr_mask User::GetCIDRMask() const
 
 void User::ChangeRemoteAddress(const irc::sockets::sockaddrs& sa)
 {
-	const std::string oldip(client_sa.family() == AF_UNSPEC ? "" : GetIPString());
+	const std::string oldip(client_sa.family() == AF_UNSPEC ? "" : GetAddress());
 	memcpy(&client_sa, &sa, sizeof(irc::sockets::sockaddrs));
 	this->InvalidateCache();
 
 	// If the users hostname was their IP then update it.
 	if (GetRealHost() == oldip)
-		ChangeRealHost(GetIPString(), false);
+		ChangeRealHost(GetAddress(), false);
 	if (GetDisplayedHost() == oldip)
-		ChangeDisplayedHost(GetIPString());
+		ChangeDisplayedHost(GetAddress());
 }
 
 void LocalUser::ChangeRemoteAddress(const irc::sockets::sockaddrs& sa)
@@ -612,7 +658,7 @@ void LocalUser::ChangeRemoteAddress(const irc::sockets::sockaddrs& sa)
 bool LocalUser::FindConnectClass()
 {
 	ServerInstance->Logs.Debug("CONNECTCLASS", "Finding a connect class for {} ({}) ...",
-		uuid, GetFullRealHost());
+		uuid, GetRealMask());
 
 	for (const auto& klass : ServerInstance->Config->Classes)
 	{
@@ -632,7 +678,7 @@ bool LocalUser::FindConnectClass()
 		if (modres != MOD_RES_DENY)
 		{
 			ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is suitable for {} ({}).",
-				klass->GetName(), uuid, GetFullRealHost());
+				klass->GetName(), uuid, GetRealMask());
 
 			ChangeConnectClass(klass, false);
 			return !quitting;
@@ -700,7 +746,7 @@ void LocalUser::Send(ClientProtocol::Event& protoev)
 	if (!serializer)
 	{
 		ServerInstance->Logs.Debug("USERS", "BUG: LocalUser::Send() called on {} who does not have a serializer!",
-			GetFullRealHost());
+			GetRealMask());
 		return;
 	}
 
@@ -983,16 +1029,6 @@ void User::WriteNotice(const std::string& text)
 
 	ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, localuser, text, MessageType::NOTICE);
 	localuser->Send(ServerInstance->GetRFCEvents().privmsg, msg);
-}
-
-const std::string& FakeUser::GetFullHost()
-{
-	return server->GetPublicName();
-}
-
-const std::string& FakeUser::GetFullRealHost()
-{
-	return server->GetPublicName();
 }
 
 ConnectClass::ConnectClass(const std::shared_ptr<ConfigTag>& tag, Type t, const std::vector<std::string>& masks)

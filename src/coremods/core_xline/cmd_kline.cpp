@@ -50,7 +50,7 @@ CmdResult CommandKline::Handle(User* user, const Params& parameters)
 		if (find)
 		{
 			ih.first = find->GetBanIdent();
-			ih.second = find->GetIPString();
+			ih.second = find->GetAddress();
 			target = ih.first + "@" + ih.second;
 		}
 		else

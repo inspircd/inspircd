@@ -188,7 +188,7 @@ private:
 		std::vector<std::string> params;
 		params.reserve(3);
 		params.push_back(user->GetRealHost());
-		params.push_back(user->GetIPString());
+		params.push_back(user->GetAddress());
 		params.emplace_back(sslapi && sslapi->GetCertificate(user) ? "S" : "P");
 
 		SendSASL(user, "*", 'H', params);
