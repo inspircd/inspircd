@@ -302,11 +302,6 @@ public:
 			if (redirects)
 			{
 				/* We actually had some ban redirects to check */
-
-				/* This was replaced with user->MakeHostIP() when I had a snprintf(), but MakeHostIP() doesn't seem to add the nick.
-				 * Maybe we should have a GetFullIPHost() or something to match GetFullHost() and GetFullRealHost?
-				 */
-
 				ModResult result;
 				FIRST_MOD_RESULT(OnCheckChannelBan, result, (user, chan));
 				if (result == MOD_RES_ALLOW)
