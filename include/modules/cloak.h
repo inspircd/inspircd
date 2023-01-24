@@ -47,7 +47,8 @@ namespace Cloak
 	 *   "/client.sock"                   =>  ""
 	 *
 	 * @param host The hostname to cloak.
-	 * @param domainparts The number of host labels that should be visible.
+	 * @param hostparts The number of host labels that should be visible.
+	 * @param separator The character that separates hostname segments.
 	 * @return The visible segment of the hostname.
 	 */
 	inline std::string VisiblePart(const std::string& host, size_t hostparts, char separator);
