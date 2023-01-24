@@ -541,7 +541,7 @@ namespace GnuTLS
 				, dh(DHParams::Import(ReadFile(tag->getString("dhfile", "dhparams.pem", 1))))
 #endif
 				, priostr(GetPrioStr(profilename, tag))
-				, mindh(static_cast<unsigned int>(tag->getUInt("mindhbits", 1024, 0, UINT32_MAX)))
+				, mindh(tag->getNum<unsigned int>("mindhbits", 1024))
 				, hashstr(tag->getString("hash", "sha256", 1))
 				, requestclientcert(tag->getBool("requestclientcert", true))
 			{
@@ -556,7 +556,7 @@ namespace GnuTLS
 						crl.reset(new X509CRL(ReadFile(filename)));
 				}
 
-				outrecsize = static_cast<unsigned int>(tag->getUInt("outrecsize", 2048, 512, UINT32_MAX));
+				outrecsize = tag->getNum<unsigned int>("outrecsize", 2048, 512);
 			}
 		};
 

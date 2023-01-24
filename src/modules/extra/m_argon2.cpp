@@ -34,25 +34,6 @@
 
 class ProviderConfig final
 {
-private:
-	static Argon2_version SanitizeArgon2Version(unsigned long version)
-	{
-		// Note, 10 is 0x10, and 13 is 0x13. Referring to it as
-		// dec 10 or 13 in the config file, for the name to
-		// match better.
-		switch (version)
-		{
-			case 10:
-				return ARGON2_VERSION_10;
-			case 13:
-				return ARGON2_VERSION_13;
-		}
-
-		ServerInstance->Logs.Warning(MODNAME, "Unknown Argon2 version ({}) specified; assuming 13",
-			version);
-		return ARGON2_VERSION_13;
-	}
-
 public:
 	uint32_t iterations;
 	uint32_t lanes;
@@ -72,25 +53,28 @@ public:
 		const auto& tag = ServerInstance->Config->ConfValue(tagname);
 
 		uint32_t def_iterations = def ? def->iterations : 3;
-		this->iterations = static_cast<uint32_t>(tag->getUInt("iterations", def_iterations, 1, UINT32_MAX));
+		this->iterations = tag->getNum<uint32_t>("iterations", def_iterations, 1);
 
 		uint32_t def_lanes = def ? def->lanes : 1;
-		this->lanes = static_cast<uint32_t>(tag->getUInt("lanes", def_lanes, ARGON2_MIN_LANES, ARGON2_MAX_LANES));
+		this->lanes = tag->getNum<uint32_t>("lanes", def_lanes, ARGON2_MIN_LANES, ARGON2_MAX_LANES);
 
 		uint32_t def_memory = def ? def->memory : 131072; // 128 MiB
-		this->memory = static_cast<uint32_t>(tag->getUInt("memory", def_memory, ARGON2_MIN_MEMORY, ARGON2_MAX_MEMORY));
+		this->memory = tag->getNum<uint32_t>("memory", def_memory, ARGON2_MIN_MEMORY, ARGON2_MAX_MEMORY);
 
 		uint32_t def_outlen = def ? def->outlen : 32;
-		this->outlen = static_cast<uint32_t>(tag->getUInt("length", def_outlen, ARGON2_MIN_OUTLEN, ARGON2_MAX_OUTLEN));
+		this->outlen = tag->getNum<int32_t>("length", def_outlen, ARGON2_MIN_OUTLEN, ARGON2_MAX_OUTLEN);
 
 		uint32_t def_saltlen = def ? def->saltlen : 16;
-		this->saltlen = static_cast<uint32_t>(tag->getUInt("saltlength", def_saltlen, ARGON2_MIN_SALT_LENGTH, ARGON2_MAX_SALT_LENGTH));
+		this->saltlen = tag->getNum<uint32_t>("saltlength", def_saltlen, ARGON2_MIN_SALT_LENGTH, ARGON2_MAX_SALT_LENGTH);
 
 		uint32_t def_threads = def ? def->threads : 1;
-		this->threads = static_cast<uint32_t>(tag->getUInt("threads", def_threads, ARGON2_MIN_THREADS, ARGON2_MAX_THREADS));
+		this->threads = tag->getNum<uint32_t>("threads", def_threads, ARGON2_MIN_THREADS, ARGON2_MAX_THREADS);
 
-		uint32_t def_version = def ? def->version : 13;
-		this->version = SanitizeArgon2Version(tag->getUInt("version", def_version));
+		Argon2_version def_version = def ? def->version : ARGON2_VERSION_13;
+		this->version = tag->getEnum("version", def_version, {
+			{ "10", ARGON2_VERSION_10 },
+			{ "13", ARGON2_VERSION_13 },
+		});
 	}
 };
 

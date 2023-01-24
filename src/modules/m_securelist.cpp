@@ -67,7 +67,7 @@ public:
 
 		const auto& tag = ServerInstance->Config->ConfValue("securelist");
 		exemptregistered = tag->getBool("exemptregistered", true);
-		fakechans = tag->getUInt("fakechans", 5, 0);
+		fakechans = tag->getNum<unsigned long>("fakechans", 5, 0);
 		fakechanprefix = tag->getString("fakechanprefix", "#", 1, ServerInstance->Config->Limits.MaxChannel - 1);
 		fakechantopic = tag->getString("fakechantopic", "Fake channel for confusing spambots", 1, ServerInstance->Config->Limits.MaxTopic - 1);
 		showmsg = tag->getBool("showmsg", true);

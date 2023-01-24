@@ -460,7 +460,7 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("callerid");
-		cmd.maxaccepts = tag->getUInt("maxaccepts", 30);
+		cmd.maxaccepts = tag->getNum<unsigned long>("maxaccepts", 30, 1);
 		tracknick = tag->getBool("tracknick");
 		notify_cooldown = tag->getDuration("cooldown", 60);
 	}

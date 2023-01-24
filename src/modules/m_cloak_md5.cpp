@@ -306,7 +306,7 @@ public:
 
 		if (halfcloak)
 		{
-			unsigned int domainparts = static_cast<unsigned int>(tag->getUInt("domainparts", 3, 1, 10));
+			unsigned int domainparts = tag->getNum<unsigned int>("domainparts", 3, 1, 10);
 			return std::make_shared<CloakInfo>(this, MODE_HALF_CLOAK, key, prefix, suffix, ignorecase, domainparts);
 		}
 		else

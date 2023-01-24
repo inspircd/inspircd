@@ -185,8 +185,8 @@ class ModulePBKDF2 final
 		// First set the common values
 		const auto& tag = ServerInstance->Config->ConfValue("pbkdf2");
 		ProviderConfig newglobal;
-		newglobal.iterations = tag->getUInt("iterations", 12288, 1);
-		newglobal.dkey_length = tag->getUInt("length", 32, 1, 1024);
+		newglobal.iterations = tag->getNum<unsigned long>("iterations", 12288, 1);
+		newglobal.dkey_length = tag->getNum<size_t>("length", 32, 1, 1024);
 
 		// Then the specific values
 		ProviderConfigMap newconfigs;
@@ -195,8 +195,8 @@ class ModulePBKDF2 final
 			std::string hash_name = "hash/" + ptag->getString("hash");
 			ProviderConfig& config = newconfigs[hash_name];
 
-			config.iterations = ptag->getUInt("iterations", newglobal.iterations, 1);
-			config.dkey_length = ptag->getUInt("length", newglobal.dkey_length, 1, 1024);
+			config.iterations = ptag->getNum<unsigned long>("iterations", newglobal.iterations, 1);
+			config.dkey_length = ptag->getNum<size_t>("length", newglobal.dkey_length, 1, 1024);
 		}
 
 		// Config is valid, apply it

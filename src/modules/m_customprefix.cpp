@@ -32,9 +32,9 @@ public:
 		: PrefixMode(parent, Name, Letter, 0, Prefix)
 		, tag(Tag)
 	{
-		ModeHandler::Rank rank = static_cast<ModeHandler::Rank>(tag->getUInt("rank", 1, 1, std::numeric_limits<ModeHandler::Rank>::max()));
-		ModeHandler::Rank setrank = static_cast<ModeHandler::Rank>(tag->getUInt("ranktoset", prefixrank, rank, std::numeric_limits<ModeHandler::Rank>::max()));
-		ModeHandler::Rank unsetrank = static_cast<ModeHandler::Rank>(tag->getUInt("ranktounset", setrank, setrank, std::numeric_limits<ModeHandler::Rank>::max()));
+		ModeHandler::Rank rank = tag->getNum<ModeHandler::Rank>("rank", 1, 1);
+		ModeHandler::Rank setrank = tag->getNum<ModeHandler::Rank>("ranktoset", prefixrank, rank);
+		ModeHandler::Rank unsetrank = tag->getNum<ModeHandler::Rank>("ranktounset", setrank, setrank);
 		bool depriv = tag->getBool("depriv", true);
 		this->Update(rank, setrank, unsetrank, depriv);
 
@@ -77,9 +77,9 @@ public:
 				if (!pm)
 					throw ModuleException(this, "<customprefix:change> specified for a non-prefix mode at " + tag->source.str());
 
-				ModeHandler::Rank rank = static_cast<ModeHandler::Rank>(tag->getUInt("rank", pm->GetPrefixRank(), 1, std::numeric_limits<ModeHandler::Rank>::max()));
-				ModeHandler::Rank setrank = static_cast<ModeHandler::Rank>(tag->getUInt("ranktoset", pm->GetLevelRequired(true), rank, std::numeric_limits<ModeHandler::Rank>::max()));
-				ModeHandler::Rank unsetrank = static_cast<ModeHandler::Rank>(tag->getUInt("ranktounset", pm->GetLevelRequired(false), setrank, std::numeric_limits<ModeHandler::Rank>::max()));
+				ModeHandler::Rank rank = tag->getNum<ModeHandler::Rank>("rank", pm->GetPrefixRank(), 1);
+				ModeHandler::Rank setrank = tag->getNum<ModeHandler::Rank>("ranktoset", pm->GetLevelRequired(true), rank);
+				ModeHandler::Rank unsetrank = tag->getNum<ModeHandler::Rank>("ranktounset", pm->GetLevelRequired(false), setrank);
 				bool depriv = tag->getBool("depriv", pm->CanSelfRemove());
 				pm->Update(rank, setrank, unsetrank, depriv);
 

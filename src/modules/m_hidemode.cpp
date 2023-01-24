@@ -27,11 +27,11 @@ namespace
 {
 class Settings final
 {
-	typedef insp::flat_map<std::string, unsigned int> RanksToSeeMap;
+	typedef insp::flat_map<std::string, ModeHandler::Rank> RanksToSeeMap;
 	RanksToSeeMap rankstosee;
 
 public:
-	unsigned int GetRequiredRank(const ModeHandler& mh) const
+	ModeHandler::Rank GetRequiredRank(const ModeHandler& mh) const
 	{
 		RanksToSeeMap::const_iterator it = rankstosee.find(mh.name);
 		if (it != rankstosee.end())
@@ -49,7 +49,7 @@ public:
 			if (modename.empty())
 				throw ModuleException(mod, "<hidemode:mode> is empty at " + tag->source.str());
 
-			unsigned long rank = tag->getUInt("rank", 0);
+			ModeHandler::Rank rank = tag->getNum<ModeHandler::Rank>("rank", 0);
 			if (!rank)
 				throw ModuleException(mod, "<hidemode:rank> must be greater than 0 at " + tag->source.str());
 

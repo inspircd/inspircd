@@ -60,7 +60,7 @@ public:
 		const auto& tag = ServerInstance->Config->ConfValue("connflood");
 		/* throttle configuration */
 		seconds = tag->getDuration("period", 30);
-		maxconns = tag->getUInt("maxconns", 3);
+		maxconns = tag->getNum<unsigned long>("maxconns", 3);
 		timeout = tag->getDuration("timeout", 30);
 		quitmsg = tag->getString("quitmsg");
 

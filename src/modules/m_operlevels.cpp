@@ -40,8 +40,8 @@ public:
 		// oper killing an oper?
 		if (dest->IsOper() && source->IsOper())
 		{
-			unsigned long dest_level = dest->oper->GetConfig()->getUInt("level", 0);
-			unsigned long source_level = source->oper->GetConfig()->getUInt("level", 0);
+			unsigned long dest_level = dest->oper->GetConfig()->getNum<unsigned long>("level", 0);
+			unsigned long source_level = source->oper->GetConfig()->getNum<unsigned long>("level", 0);
 
 			if (dest_level > source_level)
 			{

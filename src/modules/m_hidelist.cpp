@@ -71,7 +71,7 @@ public:
 				throw ModuleException(this, "Empty <hidelist:mode> at " + tag->source.str());
 			// If rank is set to 0 everyone inside the channel can view the list,
 			// but non-members may not
-			ModeHandler::Rank rank = tag->getUInt("rank", HALFOP_VALUE);
+			ModeHandler::Rank rank = tag->getNum<ModeHandler::Rank>("rank", HALFOP_VALUE);
 			newconfigs.emplace_back(modename, rank);
 		}
 

@@ -22,6 +22,7 @@
  */
 
 
+#include <cinttypes>
 #include <filesystem>
 #include <fstream>
 
@@ -655,7 +656,7 @@ namespace
 	}
 }
 
-long ConfigTag::getInt(const std::string& key, long def, long min, long max) const
+intmax_t ConfigTag::getSInt(const std::string& key, intmax_t def, intmax_t min, intmax_t max) const
 {
 	std::string result;
 	if(!readString(key, result) || result.empty())
@@ -663,7 +664,7 @@ long ConfigTag::getInt(const std::string& key, long def, long min, long max) con
 
 	const char* res_cstr = result.c_str();
 	char* res_tail = nullptr;
-	long res = strtol(res_cstr, &res_tail, 0);
+	intmax_t res = strtoimax(res_cstr, &res_tail, 0);
 	if (res_tail == res_cstr)
 		return def;
 
@@ -672,7 +673,7 @@ long ConfigTag::getInt(const std::string& key, long def, long min, long max) con
 	return res;
 }
 
-unsigned long ConfigTag::getUInt(const std::string& key, unsigned long def, unsigned long min, unsigned long max) const
+uintmax_t ConfigTag::getUInt(const std::string& key, uintmax_t def, uintmax_t min, uintmax_t max) const
 {
 	std::string result;
 	if (!readString(key, result) || result.empty())
@@ -680,7 +681,7 @@ unsigned long ConfigTag::getUInt(const std::string& key, unsigned long def, unsi
 
 	const char* res_cstr = result.c_str();
 	char* res_tail = nullptr;
-	unsigned long res = strtoul(res_cstr, &res_tail, 0);
+	uintmax_t res = strtoumax(res_cstr, &res_tail, 0);
 	if (res_tail == res_cstr)
 		return def;
 
@@ -706,13 +707,13 @@ unsigned long ConfigTag::getDuration(const std::string& key, unsigned long def, 
 	return ret;
 }
 
-double ConfigTag::getFloat(const std::string& key, double def, double min, double max) const
+long double ConfigTag::getFloat(const std::string& key, long double def, long double min, long double max) const
 {
 	std::string result;
 	if (!readString(key, result))
 		return def;
 
-	double res = strtod(result.c_str(), nullptr);
+	long double res = strtold(result.c_str(), nullptr);
 	CheckRange(this, key, res, def, min, max);
 	return res;
 }

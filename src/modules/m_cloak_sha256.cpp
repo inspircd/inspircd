@@ -188,9 +188,9 @@ public:
 	SHA256Method(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const std::string& k, psl_ctx_t* p, bool ch) ATTR_NOT_NULL(2)
 		: Cloak::Method(engine)
 		, cloakhost(ch)
-		, hostparts(tag->getUInt("hostparts", 3, 0, ServerInstance->Config->Limits.MaxHost / 2))
+		, hostparts(tag->getNum<unsigned long>("hostparts", 3, 0, ServerInstance->Config->Limits.MaxHost / 2))
 		, key(k)
-		, pathparts(tag->getUInt("pathparts", 1, 0, ServerInstance->Config->Limits.MaxHost / 2))
+		, pathparts(tag->getNum<unsigned long>("pathparts", 1, 0, ServerInstance->Config->Limits.MaxHost / 2))
 		, prefix(tag->getString("prefix"))
 #ifdef HAS_LIBPSL
 		, psl(p)

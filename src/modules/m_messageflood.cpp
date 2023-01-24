@@ -138,9 +138,9 @@ public:
 	void ReadConfig(ConfigStatus&) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("messageflood");
-		notice = tag->getFloat("notice", 1.0);
-		privmsg = tag->getFloat("privmsg", 1.0);
-		tagmsg = tag->getFloat("tagmsg", 0.2);
+		notice = tag->getNum<float>("notice", 1.0);
+		privmsg = tag->getNum<float>("privmsg", 1.0);
+		tagmsg = tag->getNum<float>("tagmsg", 0.2);
 		kickmessage = tag->getString("kickmessage", "Message flood (trigger is %lines% messages in %duration%)", 1);
 	}
 

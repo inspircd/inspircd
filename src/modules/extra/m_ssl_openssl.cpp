@@ -326,8 +326,8 @@ namespace OpenSSL
 		 */
 		void SetContextOptions(const std::string& ctxname, const std::shared_ptr<ConfigTag>& tag, Context& context)
 		{
-			long setoptions = tag->getInt(ctxname + "setoptions", 0);
-			long clearoptions = tag->getInt(ctxname + "clearoptions", 0);
+			long setoptions = tag->getNum<long>(ctxname + "setoptions", 0);
+			long clearoptions = tag->getNum<long>(ctxname + "clearoptions", 0);
 
 #ifdef SSL_OP_NO_COMPRESSION
 			// Disable compression by default
@@ -370,7 +370,7 @@ namespace OpenSSL
 			, ctx(SSL_CTX_new(TLS_server_method()))
 			, clientctx(SSL_CTX_new(TLS_client_method()))
 			, allowrenego(tag->getBool("renegotiation")) // Disallow by default
-			, outrecsize(static_cast<unsigned int>(tag->getUInt("outrecsize", 2048, 512, 16384)))
+			, outrecsize(tag->getNum<unsigned int>("outrecsize", 2048, 512, 16384))
 		{
 #ifndef INSPIRCD_OPENSSL_AUTO_DH
 			if ((!ctx.SetDH(dh)) || (!clientctx.SetDH(dh)))

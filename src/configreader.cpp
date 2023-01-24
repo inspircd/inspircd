@@ -41,17 +41,17 @@
 #include "exitcodes.h"
 
 ServerLimits::ServerLimits(const std::shared_ptr<ConfigTag>& tag)
-	: MaxLine(tag->getUInt("maxline", 512, 512))
-	, MaxNick(tag->getUInt("maxnick", 30, 1, MaxLine))
-	, MaxChannel(tag->getUInt("maxchan", 60, 1, MaxLine))
-	, MaxModes(tag->getUInt("maxmodes", 20, 1))
-	, MaxUser(tag->getUInt("maxident", 10, 1))
-	, MaxQuit(tag->getUInt("maxquit", 300, 0, MaxLine))
-	, MaxTopic(tag->getUInt("maxtopic", 330, 1, MaxLine))
-	, MaxKick(tag->getUInt("maxkick", 300, 1, MaxLine))
-	, MaxReal(tag->getUInt("maxreal", 130, 1, MaxLine))
-	, MaxAway(tag->getUInt("maxaway", 200, 1, MaxLine))
-	, MaxHost(tag->getUInt("maxhost", 64, 1, MaxLine))
+	: MaxLine(tag->getNum<size_t>("maxline", 512, 512))
+	, MaxNick(tag->getNum<size_t>("maxnick", 30, 1, MaxLine))
+	, MaxChannel(tag->getNum<size_t>("maxchan", 60, 1, MaxLine))
+	, MaxModes(tag->getNum<size_t>("maxmodes", 20, 1))
+	, MaxUser(tag->getNum<size_t>("maxident", 10, 1))
+	, MaxQuit(tag->getNum<size_t>("maxquit", 300, 0, MaxLine))
+	, MaxTopic(tag->getNum<size_t>("maxtopic", 330, 1, MaxLine))
+	, MaxKick(tag->getNum<size_t>("maxkick", 300, 1, MaxLine))
+	, MaxReal(tag->getNum<size_t>("maxreal", 130, 1, MaxLine))
+	, MaxAway(tag->getNum<size_t>("maxaway", 200, 1, MaxLine))
+	, MaxHost(tag->getNum<size_t>("maxhost", 64, 1, MaxLine))
 {
 }
 
@@ -298,22 +298,22 @@ void ServerConfig::Fill()
 		if (!nsid.empty() && nsid != sid)
 			throw CoreException("You must restart to change the server id");
 	}
-	SoftLimit = ConfValue("performance")->getUInt("softlimit", (SocketEngine::GetMaxFds() > 0 ? SocketEngine::GetMaxFds() : LONG_MAX), 10);
-	MaxConn = static_cast<int>(ConfValue("performance")->getUInt("somaxconn", SOMAXCONN));
+	SoftLimit = ConfValue("performance")->getNum<size_t>("softlimit", (SocketEngine::GetMaxFds() > 0 ? SocketEngine::GetMaxFds() : SIZE_MAX), 10);
+	MaxConn = ConfValue("performance")->getNum<int>("somaxconn", SOMAXCONN, 1);
 	TimeSkipWarn = ConfValue("performance")->getDuration("timeskipwarn", 2, 0, 30);
 	XLineMessage = options->getString("xlinemessage", "You're banned!", 1);
 	ServerDesc = server->getString("description", "Configure Me", 1);
 	Network = server->getString("network", "Network", 1);
-	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240, 1024, 65534);
+	NetBufferSize = ConfValue("performance")->getNum<size_t>("netbuffersize", 10240, 1024, 65534);
 	CustomVersion = security->getString("customversion");
 	HideBans = security->getBool("hidebans");
 	HideServer = security->getString("hideserver", "", InspIRCd::IsFQDN);
 	SyntaxHints = options->getBool("syntaxhints");
 	FullHostInTopic = options->getBool("hostintopic");
-	MaxTargets = security->getUInt("maxtargets", 20, 1, 31);
+	MaxTargets = security->getNum<unsigned long>("maxtargets", 5, 1, 50);
 	DefaultModes = options->getString("defaultmodes", "not");
-	c_ipv4_range = ConfValue("cidr")->getUInt("ipv4clone", 32, 1, 32);
-	c_ipv6_range = ConfValue("cidr")->getUInt("ipv6clone", 128, 1, 128);
+	c_ipv4_range = ConfValue("cidr")->getNum<unsigned char>("ipv4clone", 32, 1, 32);
+	c_ipv6_range = ConfValue("cidr")->getNum<unsigned char>("ipv6clone", 128, 1, 128);
 	Limits = ServerLimits(ConfValue("limits"));
 	Paths = ServerPaths(ConfValue("path"));
 	NoSnoticeStack = options->getBool("nosnoticestack", false);

@@ -175,7 +175,7 @@ public:
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("remove");
 		cmd.supportnokicks = tag->getBool("supportnokicks");
-		cmd.protectedrank = tag->getUInt("protectedrank", 50000);
+		cmd.protectedrank = tag->getNum<ModeHandler::Rank>("protectedrank", 50000, 1);
 	}
 };
 

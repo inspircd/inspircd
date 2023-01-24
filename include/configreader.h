@@ -67,6 +67,30 @@ public:
 private:
 	Items items;
 
+	/** Retrieves the value of a signed integer from the server config.
+	 * @param key The config key to retrieve.
+	 * @param def The default value to return if not set, empty, or out of range.
+	 * @param min The minimum valid value.
+	 * @param max The maximum valid value.
+	 */
+	long double getFloat(const std::string& key, long double def, long double min, long double max) const;
+
+	/** Retrieves the value of a signed integer from the server config.
+	 * @param key The config key to retrieve.
+	 * @param def The default value to return if not set, empty, or out of range.
+	 * @param min The minimum valid value.
+	 * @param max The maximum valid value.
+	 */
+	intmax_t getSInt(const std::string& key, intmax_t def, intmax_t min, intmax_t max) const;
+
+	/** Retrieves the value of an unsigned integer from the server config.
+	 * @param key The config key to retrieve.
+	 * @param def The default value to return if not set, empty, or out of range.
+	 * @param min The minimum valid value.
+	 * @param max The maximum valid value.
+	 */
+	uintmax_t getUInt(const std::string& key, uintmax_t def, uintmax_t min, uintmax_t max) const;
+
 public:
 	/** The name of the configuration tag (e.g. "foo" for \<foo bar="baz">). */
 	const std::string name;
@@ -80,16 +104,31 @@ public:
 	 */
 	ConfigTag(const std::string& Name, const FilePosition& Source);
 
+	/** @copydoc getFloat */
+	template<typename T>
+	std::enable_if_t<std::is_floating_point_v<T>, T> getNum(const std::string& key, T def, T min = std::numeric_limits<T>::min(), T max = std::numeric_limits<T>::max()) const
+	{
+		return static_cast<T>(getFloat(key, def, min, max));
+	}
+
+	/** @copydoc getSInt */
+	template<typename T>
+	std::enable_if_t<std::is_signed_v<T> && !std::is_floating_point_v<T>, T> getNum(const std::string& key, T def, T min = std::numeric_limits<T>::min(), T max = std::numeric_limits<T>::max()) const
+	{
+		return static_cast<T>(getSInt(key, def, min, max));
+	}
+
+	/** @copydoc getUInt */
+	template<typename T>
+	std::enable_if_t<std::is_unsigned_v<T> && !std::is_floating_point_v<T>, T> getNum(const std::string& key, T def, T min = std::numeric_limits<T>::min(), T max = std::numeric_limits<T>::max()) const
+	{
+		return static_cast<T>(getUInt(key, def, min, max));
+	}
+
 	/** Get the value of an option, using def if it does not exist */
 	std::string getString(const std::string& key, const std::string& def, const std::function<bool(const std::string&)>& validator) const;
 	/** Get the value of an option, using def if it does not exist */
 	std::string getString(const std::string& key, const std::string& def = "", size_t minlen = 0, size_t maxlen = UINT32_MAX) const;
-	/** Get the value of an option, using def if it does not exist */
-	long getInt(const std::string& key, long def, long min = LONG_MIN, long max = LONG_MAX) const;
-	/** Get the value of an option, using def if it does not exist */
-	unsigned long getUInt(const std::string& key, unsigned long def, unsigned long min = 0, unsigned long max = ULONG_MAX) const;
-	/** Get the value of an option, using def if it does not exist */
-	double getFloat(const std::string& key, double def, double min = DBL_MIN, double max = DBL_MAX) const;
 	/** Get the value of an option, using def if it does not exist */
 	bool getBool(const std::string& key, bool def = false) const;
 	/** Get the value of an option, using def if it does not exist */
@@ -408,7 +447,7 @@ public:
 	 * The IRC server will not allow more than this
 	 * number of local users.
 	 */
-	unsigned long SoftLimit;
+	size_t SoftLimit;
 
 	/** Maximum number of targets for a multi target command
 	 * such as PRIVMSG or KICK

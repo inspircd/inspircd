@@ -264,11 +264,11 @@ public:
 		std::unique_ptr<Codepage> newcodepage = std::make_unique<SingleByteCodepage>();
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("cpchars"))
 		{
-			unsigned long begin = tag->getUInt("begin", tag->getUInt("index", 0));
+			unsigned long begin = tag->getNum<unsigned long>("begin", tag->getNum<unsigned long>("index", 0));
 			if (!begin)
 				throw ModuleException(this, "<cpchars> tag without index or begin specified at " + tag->source.str());
 
-			unsigned long end = tag->getUInt("end", begin);
+			unsigned long end = tag->getNum<unsigned long>("end", begin);
 			if (begin > end)
 				throw ModuleException(this, "<cpchars:begin> must be lower than <cpchars:end> at " + tag->source.str());
 
@@ -296,11 +296,11 @@ public:
 
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("cpcase"))
 		{
-			unsigned long lower = tag->getUInt("lower", 0);
+			unsigned long lower = tag->getNum<unsigned long>("lower", 0);
 			if (!lower)
 				throw ModuleException(this, "<cpcase:lower> is required at " + tag->source.str());
 
-			unsigned long upper = tag->getUInt("upper", 0);
+			unsigned long upper = tag->getNum<unsigned long>("upper", 0);
 			if (!upper)
 				throw ModuleException(this, "<cpcase:upper> is required at " + tag->source.str());
 

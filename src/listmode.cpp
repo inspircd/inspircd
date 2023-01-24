@@ -80,7 +80,7 @@ void ListModeBase::DoRehash()
 		if (!mname.empty() && !stdalgo::string::equalsci(mname, name) && !(mname.length() == 1 && GetModeChar() == mname[0]))
 			continue;
 
-		ListLimit limit(c->getString("chan", "*", 1), c->getUInt("limit", DEFAULT_LIST_SIZE));
+		ListLimit limit(c->getString("chan", "*", 1), c->getNum<unsigned long>("limit", DEFAULT_LIST_SIZE));
 
 		if (limit.mask.empty())
 			throw ModuleException(creator, INSP_FORMAT("<maxlist:chan> is empty, at {}", c->source.str()));

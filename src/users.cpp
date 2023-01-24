@@ -1091,20 +1091,20 @@ void ConnectClass::Configure(const std::string& classname, const std::shared_ptr
 			ports.insert(static_cast<in_port_t>(port));
 	}
 
-	commandrate = tag->getUInt("commandrate", commandrate, 1);
+	commandrate = tag->getNum<unsigned long>("commandrate", commandrate, 1);
 	fakelag = tag->getBool("fakelag", fakelag);
-	hardsendqmax = tag->getUInt("hardsendq", hardsendqmax, ServerInstance->Config->Limits.MaxLine);
-	limit = tag->getUInt("limit", limit, 1);
-	maxchans = tag->getUInt("maxchans", maxchans);
+	hardsendqmax = tag->getNum<unsigned long>("hardsendq", hardsendqmax, ServerInstance->Config->Limits.MaxLine);
+	limit = tag->getNum<unsigned long>("limit", limit, 1);
+	maxchans = tag->getNum<unsigned long>("maxchans", maxchans);
 	maxconnwarn = tag->getBool("maxconnwarn", maxconnwarn);
-	maxlocal = tag->getUInt("localmax", maxlocal);
-	maxglobal = tag->getUInt("globalmax", maxglobal, maxlocal);
-	penaltythreshold = tag->getUInt("threshold", penaltythreshold, 1);
+	maxlocal = tag->getNum<unsigned long>("localmax", maxlocal);
+	maxglobal = tag->getNum<unsigned long>("globalmax", maxglobal, maxlocal);
+	penaltythreshold = tag->getNum<unsigned long>("threshold", penaltythreshold, 1);
 	pingtime = tag->getDuration("pingfreq", pingtime);
-	recvqmax = tag->getUInt("recvq", recvqmax, ServerInstance->Config->Limits.MaxLine);
+	recvqmax = tag->getNum<unsigned long>("recvq", recvqmax, ServerInstance->Config->Limits.MaxLine);
 	connection_timeout = tag->getDuration("timeout", connection_timeout);
 	resolvehostnames = tag->getBool("resolvehostnames", resolvehostnames);
-	softsendqmax = tag->getUInt("softsendq", softsendqmax, ServerInstance->Config->Limits.MaxLine);
+	softsendqmax = tag->getNum<unsigned long>("softsendq", softsendqmax, ServerInstance->Config->Limits.MaxLine);
 	uniqueusername = tag->getBool("uniqueusername", uniqueusername);
 }
 

@@ -134,7 +134,7 @@ public:
 		{
 			type = Type::BITMASK;
 
-			bitmask = static_cast<unsigned int>(tag->getUInt("bitmask", 0, 0, UINT_MAX));
+			bitmask = tag->getNum<unsigned int>("bitmask", 0);
 			records = 0;
 		}
 		else if (stdalgo::string::equalsci(typestr, "record"))

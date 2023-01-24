@@ -219,7 +219,7 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("watch");
-		cmd.maxwatch = tag->getUInt("maxwatch", 30, 1);
+		cmd.maxwatch = tag->getNum<unsigned long>("maxwatch", 30, 1);
 	}
 
 	void OnPostConnect(User* user) override

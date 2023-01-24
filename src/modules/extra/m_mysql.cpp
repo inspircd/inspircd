@@ -335,7 +335,7 @@ public:
 		const std::string user = config->getString("user");
 		const std::string pass = config->getString("pass");
 		const std::string dbname = config->getString("name");
-		unsigned int port = static_cast<unsigned int>(config->getUInt("port", 3306, 1, 65535));
+		unsigned int port = config->getNum<unsigned int>("port", 3306, 1, 65535);
 		if (!mysql_real_connect(connection, host.c_str(), user.c_str(), pass.c_str(), dbname.c_str(), port, nullptr, CLIENT_IGNORE_SIGPIPE))
 		{
 			ServerInstance->Logs.Error(MODNAME, "Unable to connect to the {} MySQL server: {}",

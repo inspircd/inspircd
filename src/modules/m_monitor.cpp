@@ -393,7 +393,7 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("monitor");
-		cmd.maxmonitor = tag->getUInt("maxentries", 30, 1);
+		cmd.maxmonitor = tag->getNum<unsigned long>("maxentries", 30, 1);
 	}
 
 	void OnPostConnect(User* user) override

@@ -919,7 +919,7 @@ public:
 		SourceIP = tag->getString("sourceip");
 
 		const in_port_t oldport = SourcePort;
-		SourcePort = static_cast<in_port_t>(tag->getUInt("sourceport", 0, 0, 65535));
+		SourcePort = tag->getNum<in_port_t>("sourceport", 0);
 
 		if (DNSServer.empty())
 			FindDNSServer();

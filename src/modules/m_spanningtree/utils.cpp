@@ -262,7 +262,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 		if (path.empty())
 		{
 			L->IPAddr = tag->getString("ipaddr");
-			L->Port = static_cast<in_port_t>(tag->getUInt("port", 0, 0, 65535));
+			L->Port = tag->getNum<in_port_t>("port", 0);
 			if (tag->getBool("sctp"))
 			{
 #ifdef IPPROTO_SCTP

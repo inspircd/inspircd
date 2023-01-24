@@ -218,10 +218,10 @@ public:
 			auto* c = ServerInstance->Channels.Find(channel);
 			if (!c)
 			{
-				time_t TS = tag->getInt("ts", ServerInstance->Time(), 1);
+				time_t TS = tag->getNum<time_t>("ts", ServerInstance->Time(), 1);
 				c = new Channel(channel, TS);
 
-				time_t topicset = tag->getInt("topicts", 0);
+				time_t topicset = tag->getNum<time_t>("topicts", 0);
 				std::string topic = tag->getString("topic");
 
 				if ((topicset != 0) || (!topic.empty()))

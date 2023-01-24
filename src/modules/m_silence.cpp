@@ -459,7 +459,7 @@ public:
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("silence");
 		exemptservice = tag->getBool("exemptservice", tag->getBool("exemptuline", true));
-		cmd.ext.maxsilence = tag->getUInt("maxentries", 32, 1);
+		cmd.ext.maxsilence = tag->getNum<unsigned long>("maxentries", 32, 1);
 	}
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override

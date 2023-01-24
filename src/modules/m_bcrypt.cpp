@@ -87,7 +87,7 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& conf = ServerInstance->Config->ConfValue("bcrypt");
-		bcrypt.rounds = conf->getUInt("rounds", 10, 1);
+		bcrypt.rounds = conf->getNum<unsigned long>("rounds", 10, 1);
 	}
 };
 

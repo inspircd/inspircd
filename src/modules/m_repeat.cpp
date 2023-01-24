@@ -248,13 +248,13 @@ public:
 	void ReadConfig()
 	{
 		const auto& conf = ServerInstance->Config->ConfValue("repeat");
-		ms.MaxLines = conf->getUInt("maxlines", 20);
-		ms.MaxBacklog = conf->getUInt("maxbacklog", 20);
+		ms.MaxLines = conf->getNum<unsigned long>("maxlines", 20);
+		ms.MaxBacklog = conf->getNum<unsigned long>("maxbacklog", 20);
 		ms.MaxSecs = conf->getDuration("maxtime", 0);
 
-		ms.MaxDiff = static_cast<unsigned int>(conf->getUInt("maxdistance", 50, 0, 100));
+		ms.MaxDiff = conf->getNum<unsigned int>("maxdistance", 50, 0, 100);
 
-		unsigned long newsize = conf->getUInt("size", 512);
+		size_t newsize = conf->getNum<size_t>("size", 512);
 		if (newsize > ServerInstance->Config->Limits.MaxLine)
 			newsize = ServerInstance->Config->Limits.MaxLine;
 		Resize(newsize);

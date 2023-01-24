@@ -215,7 +215,7 @@ public:
 			ServerInstance->Modules.Detach(events, this, sizeof(events)/sizeof(Implementation));
 
 		const auto& limitstag = ServerInstance->Config->ConfValue("limits");
-		keymode.maxkeylen = limitstag->getUInt("maxkey", 32, 1, ModeParser::MODE_PARAM_MAX);
+		keymode.maxkeylen = limitstag->getNum<size_t>("maxkey", 32, 1, ModeParser::MODE_PARAM_MAX);
 	}
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override
@@ -258,7 +258,7 @@ public:
 			 */
 			unsigned long maxchans = user->GetClass()->maxchans;
 			if (user->IsOper())
-				maxchans = user->oper->GetConfig()->getUInt("maxchans", maxchans, maxchans);
+				maxchans = user->oper->GetConfig()->getNum<unsigned long>("maxchans", maxchans, maxchans);
 
 			if (user->chans.size() >= maxchans)
 			{

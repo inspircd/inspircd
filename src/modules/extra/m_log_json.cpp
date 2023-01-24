@@ -145,7 +145,7 @@ public:
 				fulltarget, tag->source.str(), strerror(errno)));
 		}
 
-		const unsigned long flush = tag->getUInt("flush", 20, 1);
+		const unsigned long flush = tag->getNum<unsigned long>("flush", 20, 1);
 		return std::make_shared<JSONMethod>(fulltarget, fh, flush, true);
 	}
 };

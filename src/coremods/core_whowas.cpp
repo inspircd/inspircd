@@ -448,8 +448,8 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("whowas");
-		unsigned int NewGroupSize = static_cast<unsigned int>(tag->getUInt("groupsize", 10, 0, 10000));
-		unsigned int NewMaxGroups = static_cast<unsigned int>(tag->getUInt("maxgroups", 10240, 0, 1000000));
+		unsigned int NewGroupSize = tag->getNum<unsigned int>("groupsize", 10, 0, 10000);
+		unsigned int NewMaxGroups = tag->getNum<unsigned int>("maxgroups", 10240, 0, 1000000);
 		unsigned int NewMaxKeep = static_cast<unsigned int>(tag->getDuration("maxkeep", 3600, 3600));
 
 		cmd.manager.UpdateConfig(NewGroupSize, NewMaxGroups, NewMaxKeep);

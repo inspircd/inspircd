@@ -100,9 +100,9 @@ public:
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("connectban");
 
-		ipv4_cidr = static_cast<unsigned int>(tag->getUInt("ipv4cidr", ServerInstance->Config->c_ipv4_range, 1, 32));
-		ipv6_cidr = static_cast<unsigned int>(tag->getUInt("ipv6cidr", ServerInstance->Config->c_ipv6_range, 1, 128));
-		threshold = tag->getUInt("threshold", 10, 1);
+		ipv4_cidr = tag->getNum<unsigned int>("ipv4cidr", ServerInstance->Config->c_ipv4_range, 1, 32);
+		ipv6_cidr = tag->getNum<unsigned int>("ipv6cidr", ServerInstance->Config->c_ipv6_range, 1, 128);
+		threshold = tag->getNum<unsigned long>("threshold", 10, 1);
 		bootwait = tag->getDuration("bootwait", 60*2);
 		splitwait = tag->getDuration("splitwait", 60*2);
 		banduration = tag->getDuration("banduration", 6*60*60, 1);
