@@ -27,7 +27,6 @@ namespace Duration
 	 * The string should should be in the format 1y2w3d4h6m5s which represents
 	 * one year, two weeks, three days, four hours, six minutes, and five
 	 * seconds. If called with this duration 33,019,565 will be returned.
-	 * seconds being returned.
 	 *
 	 * @param str A string containing a duration.
 	 * @return Either the number of seconds in the duration or 0 on error.
@@ -52,7 +51,6 @@ namespace Duration
 	 * The string should should be in the format 1y2w3d4h6m5s which represents
 	 * one year, two weeks, three days, four hours, six minutes, and five
 	 * seconds. If called with this duration 33,019,565 will be returned.
-	 * seconds being returned.
 	 *
 	 * @param str A string containing a duration.
 	 * @param duration The location to store the resulting duration.
