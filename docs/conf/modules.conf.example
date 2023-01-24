@@ -1010,13 +1010,15 @@
 # MaxMindDB geolocation module: Provides geolocation information for  #
 # other modules that need it using the libMaxMindDB library.          #
 #                                                                     #
-# This module is in extras. Re-run configure with:                    #
-# ./configure --enable-extras geo_maxmind
-# and run make install, then uncomment this module to enable it.      #
+# This module depends on a third-party library (libmaxminddb) and may #
+# need to be manually enabled at build time. If you are building from #
+# source you can do this by installing this dependency and running:   #
 #                                                                     #
-# This module requires libMaxMindDB to be installed on your system.   #
-# Use your package manager to find the appropriate packages or check  #
-# the InspIRCd documentation page for this module.                    #
+#   ./configure --enable-extras geo_maxmind                           #
+#   make install                                                      #
+#                                                                     #
+# Users of binary packages should consult the documentation for their #
+# package to find out whether this module is available.               #
 #<module name="geo_maxmind">
 #                                                                     #
 # If you use the geo_maxmind module you MUST provide a database file  #
@@ -1347,11 +1349,18 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # LDAP module: Allows other SQL modules to access a LDAP database
 # through a unified API.
-# This modules is in extras. Re-run configure with:
-# ./configure --enable-extras ldap
-# and run make install, then uncomment this module to enable it.
 #
+# This module depends on a third-party library (OpenLDAP) and may need
+# to be manually enabled at build time. If you are building from source
+# you can do this by installing this dependency and running:
+#
+#   ./configure --enable-extras ldap
+#   make install
+#
+# Users of binary packages should consult the documentation for their
+# package to find out whether this module is available.
 #<module name="ldap">
+#
 #<database module="ldap" id="ldapdb" server="ldap://localhost" binddn="cn=Manager,dc=inspircd,dc=org" bindauth="mysecretpass" searchscope="subtree">
 # The server parameter indicates the LDAP server to connect to. The   #
 # ldap:// style scheme before the hostname proper is MANDATORY.       #
@@ -1443,8 +1452,16 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # JSON logging module: Allows writing messages to a JSON file.        #
-# This module is in extras. Re-run configure with:                    #
-# ./configure --enable-extras log_json
+#                                                                     #
+# This module depends on a third-party library (RapidJSON) and may    #
+# need to be manually enabled at build time. If you are building from #
+# source you can do this by installing this dependency and running:   #
+#                                                                     #
+#   ./configure --enable-extras log_json                              #
+#   make install                                                      #
+#                                                                     #
+# Users of binary packages should consult the documentation for their #
+# package to find out whether this module is available.               #
 #<module name="log_json">
 #
 #<log method="json"
@@ -1478,8 +1495,16 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Syslog logging module: Allows writing messages to the system log.   #
-# This module is in extras. Re-run configure with:                    #
-# ./configure --enable-extras log_syslog
+#                                                                     #
+# This module depends on a POSIX component (syslog) and may need to   #
+# be manually enabled at build time. If you are building from source  #
+# you can do this by running:                                         #
+#                                                                     #
+#   ./configure --enable-extras log_syslog                            #
+#   make install                                                      #
+#                                                                     #
+# Users of binary packages should consult the documentation for their #
+# package to find out whether this module is available.               #
 #<module name="log_syslog">
 #
 #<log method="syslog"
@@ -1520,9 +1545,16 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MySQL module: Allows other SQL modules to access MySQL databases
 # through a unified API.
-# This module is in extras. Re-run configure with:
-# ./configure --enable-extras mysql
-# and run make install, then uncomment this module to enable it.
+#
+# This module depends on a third-party library (libmysqlclient) and may
+# need to be manually enabled at build time. If you are building from
+# source you can do this by installing this dependency and running:
+#
+#   ./configure --enable-extras mysql
+#   make install
+#
+# Users of binary packages should consult the documentation for their
+# package to find out whether this module is available.
 #<module name="mysql">
 #
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1806,9 +1838,16 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # PostgreSQL module: Allows other SQL modules to access PgSQL databases
 # through a unified API.
-# This module is in extras. Re-run configure with:
-# ./configure --enable-extras pgsql
-# and run make install, then uncomment this module to enable it.
+#
+# This module depends on a third-party library (libpq) and may need to
+# be manually enabled at build time. If you are building from source
+# you can do this by installing this dependency and running:
+#
+#   ./configure --enable-extras pgsql
+#   make install
+#
+# Users of binary packages should consult the documentation for their
+# package to find out whether this module is available.
 #<module name="pgsql">
 #
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -2249,9 +2288,16 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # TLS rehash signal module: Allows the TLS modules to be rehashed by
 # sending SIGUSR1 to a running InspIRCd process.
-# This module is in extras. Re-run configure with:
-# ./configure --enable-extras sslrehashsignal
-# and run make install, then uncomment this module to enable it.
+#
+# This module depends on a POSIX component (SIGUSR1) and may need to be
+# manually enabled at build time. If you are building from source you
+# can do this by running:
+#
+#   ./configure --enable-extras sslrehashsignal
+#   make install
+#
+# Users of binary packages should consult the documentation for their
+# package to find out whether this module is available.
 #<module name="sslrehashsignal">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -2329,10 +2375,16 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQLite3 module: Allows other SQL modules to access SQLite3          #
 # databases through a unified API.                                    #
-# This module is in extras. Re-run configure with:                    #
-# ./configure --enable-extras sqlite3
-# and run make install, then uncomment this module to enable it.      #
-#
+#                                                                     #
+# This module depends on a third-party library (SQLite) and may need  #
+# to be manually enabled at build time. If you are building from      #
+# source you can do this by installing this dependency and running:   #
+#                                                                     #
+#   ./configure --enable-extras sqlite3                               #
+#   make install                                                      #
+#                                                                     #
+# Users of binary packages should consult the documentation for their #
+# package to find out whether this module is available.               #
 #<module name="sqlite3">
 #
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
