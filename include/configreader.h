@@ -397,7 +397,7 @@ public:
 	 * handling code, used to read data into a user's
 	 * recvQ.
 	 */
-	unsigned long NetBufferSize;
+	size_t NetBufferSize;
 
 	/** The value to be used for listen() backlogs as default.
 	 * As listen() expects a backlog to be `int` sized, so this must be.

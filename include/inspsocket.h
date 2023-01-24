@@ -267,7 +267,7 @@ private:
 	 * @param rq Receive queue to put incoming data into
 	 * @return < 0 on error or close, 0 if no new data is ready (but the socket is still connected), > 0 if data was read from the socket and put into the recvq
 	 */
-	long ReadToRecvQ(std::string& rq);
+	ssize_t ReadToRecvQ(std::string& rq);
 
 	/** Read data from a hook chain recursively, starting at 'hook'.
 	 * If 'hook' is NULL, the recvq is filled with data from SocketEngine::Recv(), otherwise it is filled with data from the
@@ -277,7 +277,7 @@ private:
 	 * @return < 0 on error or close, 0 if no new data is ready (but the socket is still connected), > 0 if data was read from
 	 * the socket and put into the recvq
 	 */
-	long HookChainRead(IOHook* hook, std::string& rq);
+	ssize_t HookChainRead(IOHook* hook, std::string& rq);
 
 protected:
 	/** The data which has been received from the socket. */

@@ -700,7 +700,7 @@ public:
 		CloseSession();
 	}
 
-	int OnStreamSocketRead(StreamSocket* user, std::string& recvq) override
+	ssize_t OnStreamSocketRead(StreamSocket* user, std::string& recvq) override
 	{
 		// Finish handshake if needed
 		int prepret = PrepareIO(user);
@@ -711,8 +711,7 @@ public:
 		{
 			ERR_clear_error();
 			char* buffer = ServerInstance->GetReadBuffer();
-			// This cast may be unsafe but an int is expected by SSL_read.
-			int bufsiz = static_cast<int>(ServerInstance->Config->NetBufferSize);
+			int bufsiz = static_cast<int>(std::max<size_t>(ServerInstance->Config->NetBufferSize, INT_MAX));
 			int ret = SSL_read(sess, buffer, bufsiz);
 
 			if (!CheckRenego(user))

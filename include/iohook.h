@@ -113,7 +113,7 @@ public:
 	 * @return 1 if new data has been read, 0 if no new data is ready (but the
 	 *  socket is still connected), -1 if there was an error or close
 	 */
-	virtual int OnStreamSocketRead(StreamSocket* sock, std::string& recvq) = 0;
+	virtual ssize_t OnStreamSocketRead(StreamSocket* sock, std::string& recvq) = 0;
 
 	/** Sends a ping to the remote client to check whether it is still connected.
 	 * @return True if the client was pinged; otherwise, false.

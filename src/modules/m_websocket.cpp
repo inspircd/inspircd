@@ -573,7 +573,7 @@ public:
 		return 1;
 	}
 
-	int OnStreamSocketRead(StreamSocket* sock, std::string& destrecvq) override
+	ssize_t OnStreamSocketRead(StreamSocket* sock, std::string& destrecvq) override
 	{
 		if (state == STATE_HTTPREQ)
 		{

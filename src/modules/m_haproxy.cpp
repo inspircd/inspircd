@@ -396,7 +396,7 @@ public:
 		return 1;
 	}
 
-	int OnStreamSocketRead(StreamSocket* sock, std::string& destrecvq) override
+	ssize_t OnStreamSocketRead(StreamSocket* sock, std::string& destrecvq) override
 	{
 		switch (state)
 		{

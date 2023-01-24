@@ -722,7 +722,7 @@ public:
 		CloseSession();
 	}
 
-	int OnStreamSocketRead(StreamSocket* sock, std::string& recvq) override
+	ssize_t OnStreamSocketRead(StreamSocket* sock, std::string& recvq) override
 	{
 		// Finish handshake if needed
 		int prepret = PrepareIO(sock);

@@ -137,7 +137,7 @@ Cullable::Result StreamSocket::Cull()
 	return EventHandler::Cull();
 }
 
-long StreamSocket::HookChainRead(IOHook* hook, std::string& rq)
+ssize_t StreamSocket::HookChainRead(IOHook* hook, std::string& rq)
 {
 	if (!hook)
 		return ReadToRecvQ(rq);
@@ -146,7 +146,7 @@ long StreamSocket::HookChainRead(IOHook* hook, std::string& rq)
 	if (iohm)
 	{
 		// Call the next hook to put data into the recvq of the current hook
-		const long ret = HookChainRead(iohm->GetNextHook(), iohm->GetRecvQ());
+		const ssize_t ret = HookChainRead(iohm->GetNextHook(), iohm->GetRecvQ());
 		if (ret <= 0)
 			return ret;
 	}
@@ -157,7 +157,7 @@ void StreamSocket::DoRead()
 {
 	const std::string::size_type prevrecvqsize = recvq.size();
 
-	const long result = HookChainRead(GetIOHook(), recvq);
+	const ssize_t result = HookChainRead(GetIOHook(), recvq);
 	if (result < 0)
 	{
 		SetError("Read Error"); // will not overwrite a better error message
@@ -168,13 +168,13 @@ void StreamSocket::DoRead()
 		OnDataReady();
 }
 
-long StreamSocket::ReadToRecvQ(std::string& rq)
+ssize_t StreamSocket::ReadToRecvQ(std::string& rq)
 {
 	char* ReadBuffer = ServerInstance->GetReadBuffer();
 	ssize_t n = SocketEngine::Recv(this, ReadBuffer, ServerInstance->Config->NetBufferSize, 0);
 	if (n >= 0)
 	{
-		unsigned long nrecv = static_cast<unsigned long>(n);
+		size_t nrecv = static_cast<size_t>(n);
 		if (nrecv == ServerInstance->Config->NetBufferSize)
 		{
 			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ | FD_ADD_TRIAL_READ);
