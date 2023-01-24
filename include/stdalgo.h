@@ -114,41 +114,6 @@ namespace stdalgo
 			joined.pop_back();
 			return joined;
 		}
-
-		/** Replace first occurrence of a substring ('target') in a string ('str') with another string ('replacement').
-		 * @param str String to perform replacement in
-		 * @param target String to replace
-		 * @param replacement String to put in place of 'target'
-		 * @return True if 'target' was replaced with 'replacement', false if it was not found in 'str'.
-		 */
-		template<typename CharT, typename Traits, typename Alloc>
-		inline bool replace(std::basic_string<CharT, Traits, Alloc>& str, const std::basic_string<CharT, Traits, Alloc>& target, const std::basic_string<CharT, Traits, Alloc>& replacement)
-		{
-			const typename std::basic_string<CharT, Traits, Alloc>::size_type p = str.find(target);
-			if (p == std::basic_string<CharT, Traits, Alloc>::npos)
-				return false;
-			str.replace(p, target.size(), replacement);
-			return true;
-		}
-
-		/** Replace all occurrences of a string ('target') in a string ('str') with another string ('replacement').
-		 * @param str String to perform replacement in
-		 * @param target String to replace
-		 * @param replacement String to put in place of 'target'
-		 */
-		template<typename CharT, typename Traits, typename Alloc>
-		inline void replace_all(std::basic_string<CharT, Traits, Alloc>& str, const std::basic_string<CharT, Traits, Alloc>& target, const std::basic_string<CharT, Traits, Alloc>& replacement)
-		{
-			if (target.empty())
-				return;
-
-			typename std::basic_string<CharT, Traits, Alloc>::size_type p = 0;
-			while ((p = str.find(target, p)) != std::basic_string<CharT, Traits, Alloc>::npos)
-			{
-				str.replace(p, target.size(), replacement);
-				p += replacement.size();
-			}
-		}
 	}
 
 	/**
@@ -200,87 +165,5 @@ namespace stdalgo
 	inline bool isin(const Cont<T, Alloc>& cont, const T& val)
 	{
 		return (std::find(cont.begin(), cont.end(), val) != cont.end());
-	}
-
-	namespace string
-	{
-		/**
-		 * Escape a string
-		 * @param str String to escape
-		 * @param out Output, must not be the same string as str
-		 */
-		template <char from, char to, char esc>
-		inline void escape(const std::string& str, std::string& out)
-		{
-			for (const auto c : str)
-			{
-				if (c == esc)
-					out.append(2, esc);
-				else
-				{
-					if (c == from)
-					{
-						out.push_back(esc);
-						out.push_back(to);
-					}
-					else
-						out.push_back(c);
-				}
-			}
-		}
-
-		/**
-		 * Escape a string using the backslash character as the escape character
-		 * @param str String to escape
-		 * @param out Output, must not be the same string as str
-		 */
-		template <char from, char to>
-		inline void escape(const std::string& str, std::string& out)
-		{
-			escape<from, to, '\\'>(str, out);
-		}
-
-		/**
-		 * Unescape a string
-		 * @param str String to unescape
-		 * @param out Output, must not be the same string as str
-		 * @return True if the string was unescaped, false if an invalid escape sequence is present in the input in which case out will contain a partially unescaped string
-		 */
-		template<char from, char to, char esc>
-		inline bool unescape(const std::string& str, std::string& out)
-		{
-			for (std::string::const_iterator i = str.begin(); i != str.end(); ++i)
-			{
-				char c = *i;
-				if (c == '\\')
-				{
-					++i;
-					if (i == str.end())
-						return false;
-
-					char nextc = *i;
-					if (nextc == esc)
-						c = esc;
-					else if (nextc != to)
-						return false; // Invalid escape sequence
-					else
-						c = from;
-				}
-				out.push_back(c);
-			}
-			return true;
-		}
-
-		/**
-		 * Unescape a string using the backslash character as the escape character
-		 * @param str String to unescape
-		 * @param out Output, must not be the same string as str
-		 * @return True if the string was unescaped, false if an invalid escape sequence is present in the input in which case out will contain a partially unescaped string
-		 */
-		template <char from, char to>
-		inline bool unescape(const std::string& str, std::string& out)
-		{
-			return unescape<from, to, '\\'>(str, out);
-		}
 	}
 }

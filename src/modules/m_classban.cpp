@@ -24,15 +24,9 @@
 class ClassExtBan final
 	: public ExtBan::MatchingBase
 {
-private:
-	std::string space;
-	std::string underscore;
-
 public:
 	ClassExtBan(Module* Creator)
 		: ExtBan::MatchingBase(Creator, "class", 'n')
-		, space(" ")
-		, underscore("_")
 	{
 	}
 
@@ -44,7 +38,7 @@ public:
 
 		// Replace spaces with underscores as they're prohibited in mode parameters.
 		std::string classname(luser->GetClass()->name);
-		stdalgo::string::replace_all(classname, space, underscore);
+		std::replace(classname.begin(), classname.end(), ' ', '_');
 		return InspIRCd::Match(classname, text);
 	}
 };

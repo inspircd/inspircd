@@ -35,15 +35,9 @@ enum
 class OperExtBan final
 	: public ExtBan::MatchingBase
 {
-private:
-	std::string space;
-	std::string underscore;
-
 public:
 	OperExtBan(Module* Creator)
 		: ExtBan::MatchingBase(Creator, "oper", 'O')
-		, space(" ")
-		, underscore("_")
 	{
 	}
 
@@ -55,7 +49,7 @@ public:
 
 		// Replace spaces with underscores as they're prohibited in mode parameters.
 		std::string opername(user->oper->GetType());
-		stdalgo::string::replace_all(opername, space, underscore);
+		std::replace(opername.begin(), opername.end(), ' ', '_');
 		return InspIRCd::Match(opername, text);
 	}
 };
