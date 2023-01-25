@@ -87,8 +87,6 @@ void CullList::Apply()
 #ifdef INSPIRCD_ENABLE_RTTI
 			ServerInstance->Logs.Debug("CULLLIST", "Deleting {} @{}", typeid(*c).name(),
 				fmt::ptr(c));
-#else
-			ServerInstance->Logs.Debug("CULLLIST", "Deleting @{}", fmt::ptr(c));
 #endif
 			c->Cull();
 			queue.push_back(c);
