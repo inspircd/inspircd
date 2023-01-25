@@ -712,7 +712,7 @@ public:
 		{
 			ERR_clear_error();
 			char* buffer = ServerInstance->GetReadBuffer();
-			int bufsiz = static_cast<int>(std::max<size_t>(ServerInstance->Config->NetBufferSize, INT_MAX));
+			int bufsiz = static_cast<int>(std::min<size_t>(ServerInstance->Config->NetBufferSize, INT_MAX));
 			int ret = SSL_read(sess, buffer, bufsiz);
 
 			if (!CheckRenego(user))
