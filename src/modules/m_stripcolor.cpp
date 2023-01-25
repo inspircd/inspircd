@@ -66,7 +66,7 @@ public:
 			case MessageTarget::TYPE_CHANNEL:
 			{
 				Channel* t = target.Get<Channel>();
-				ModResult res = CheckExemption::Call(exemptionprov, user, t, "stripcolor");
+				ModResult res = exemptionprov.Check(user, t, "stripcolor");
 
 				if (res == MOD_RES_ALLOW)
 					return MOD_RES_PASSTHRU;
@@ -96,7 +96,7 @@ public:
 
 		if (extban.GetStatus(user, channel).check(!user->IsModeSet(csc)))
 		{
-			ModResult res = CheckExemption::Call(exemptionprov, user, channel, "stripcolor");
+			ModResult res = exemptionprov.Check(user, channel, "stripcolor");
 
 			if (res != MOD_RES_ALLOW)
 				InspIRCd::StripColor(partmessage);

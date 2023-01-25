@@ -94,7 +94,7 @@ CmdResult CommandTopic::HandleLocal(LocalUser* user, const Params& parameters)
 		}
 		if (c->IsModeSet(topiclockmode))
 		{
-			ModResult MOD_RESULT = CheckExemption::Call(exemptionprov, user, c, "topiclock");
+			ModResult MOD_RESULT = exemptionprov.Check(user, c, "topiclock");
 			if (!MOD_RESULT.check(c->GetPrefixValue(user) >= HALFOP_VALUE))
 			{
 				user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(c, HALFOP_VALUE, "change the topic"));

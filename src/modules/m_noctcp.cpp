@@ -72,7 +72,7 @@ public:
 						details.exemptions.insert(u);
 				}
 
-				ModResult res = CheckExemption::Call(exemptionprov, user, c, "noctcp");
+				ModResult res = exemptionprov.Check(user, c, "noctcp");
 				if (res == MOD_RES_ALLOW)
 					return MOD_RES_PASSTHRU;
 

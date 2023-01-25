@@ -50,7 +50,7 @@ private:
 			return MOD_RES_PASSTHRU;
 
 		// Check for channel members who are exempted by a module.
-		if (CheckExemption::Call(exemptionprov, user, chan, "opmoderated") == MOD_RES_ALLOW)
+		if (exemptionprov.Check(user, chan, "opmoderated") == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 
 		if (!extban.GetStatus(user, chan).check(!chan->IsModeSet(mode)))

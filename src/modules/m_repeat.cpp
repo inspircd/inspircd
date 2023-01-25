@@ -392,7 +392,7 @@ public:
 		if (!memb)
 			return MOD_RES_PASSTHRU;
 
-		ModResult res = CheckExemption::Call(exemptionprov, user, chan, "repeat");
+		ModResult res = exemptionprov.Check(user, chan, "repeat");
 		if (res == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 

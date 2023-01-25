@@ -55,7 +55,7 @@ public:
 		{
 			Channel* c = target.Get<Channel>();
 
-			ModResult res = CheckExemption::Call(exemptionprov, user, c, "blockcolor");
+			ModResult res = exemptionprov.Check(user, c, "blockcolor");
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
 

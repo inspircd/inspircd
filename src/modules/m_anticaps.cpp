@@ -222,7 +222,7 @@ public:
 
 		// If the user is exempt from anticaps then we don't need
 		// to do anything else.
-		ModResult result = CheckExemption::Call(exemptionprov, user, channel, "anticaps");
+		ModResult result = exemptionprov.Check(user, channel, "anticaps");
 		if (result == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 

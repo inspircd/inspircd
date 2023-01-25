@@ -239,7 +239,7 @@ public:
 				if (!targetchan->IsModeSet(regmoderatedmode) || account)
 					return MOD_RES_PASSTHRU;
 
-				if (CheckExemption::Call(exemptionprov, user, targetchan, "regmoderated") == MOD_RES_ALLOW)
+				if (exemptionprov.Check(user, targetchan, "regmoderated") == MOD_RES_ALLOW)
 					return MOD_RES_PASSTHRU;
 
 				// User is messaging a +M channel and is not registered or exempt.

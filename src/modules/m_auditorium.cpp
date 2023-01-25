@@ -103,7 +103,7 @@ public:
 		if (!memb->chan->IsModeSet(&aum))
 			return true;
 
-		ModResult res = CheckExemption::Call(exemptionprov, memb->user, memb->chan, "auditorium-vis");
+		ModResult res = exemptionprov.Check(memb->user, memb->chan, "auditorium-vis");
 		return res.check(OpsVisible && memb->GetRank() >= OP_VALUE);
 	}
 
@@ -119,7 +119,7 @@ public:
 			return true;
 
 		// Can you see the list by permission?
-		ModResult res = CheckExemption::Call(exemptionprov, issuer, memb->chan, "auditorium-see");
+		ModResult res = exemptionprov.Check(issuer, memb->chan, "auditorium-see");
 		return res.check(OpsCanSee && memb->chan->GetPrefixValue(issuer) >= OP_VALUE);
 	}
 

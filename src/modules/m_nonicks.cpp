@@ -49,7 +49,7 @@ public:
 	{
 		for (const auto* memb : user->chans)
 		{
-			ModResult res = CheckExemption::Call(exemptionprov, user, memb->chan, "nonick");
+			ModResult res = exemptionprov.Check(user, memb->chan, "nonick");
 			if (res == MOD_RES_ALLOW)
 				continue;
 

@@ -136,7 +136,7 @@ ModResult ModuleDelayMsg::HandleMessage(User* user, const MessageTarget& target,
 
 	if ((ts + len) > ServerInstance->Time())
 	{
-		ModResult res = CheckExemption::Call(exemptionprov, user, channel, "delaymsg");
+		ModResult res = exemptionprov.Check(user, channel, "delaymsg");
 		if (res == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 

@@ -153,7 +153,7 @@ public:
 		if ((!IS_LOCAL(user)) || !dest->IsModeSet(mf))
 			return MOD_RES_PASSTHRU;
 
-		ModResult res = CheckExemption::Call(exemptionprov, user, dest, "flood");
+		ModResult res = exemptionprov.Check(user, dest, "flood");
 		if (res == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 

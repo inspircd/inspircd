@@ -78,7 +78,7 @@ class ModuleChanFilter final
 		if (user->HasPrivPermission("channels/ignore-chanfilter"))
 			return nullptr; // The source is an exempt server operator.
 
-		if (CheckExemption::Call(exemptionprov, user, chan, "filter") == MOD_RES_ALLOW)
+		if (exemptionprov.Check(user, chan, "filter") == MOD_RES_ALLOW)
 			return nullptr; // The source matches an exemptchanops entry.
 
 		ListModeBase::ModeList* list = cf.GetList(chan);

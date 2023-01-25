@@ -152,7 +152,7 @@ public:
 			nickfloodsettings* f = nf.ext.Get(memb->chan);
 			if (f)
 			{
-				ModResult res = CheckExemption::Call(exemptionprov, user, memb->chan, "nickflood");
+				ModResult res = exemptionprov.Check(user, memb->chan, "nickflood");
 				if (res == MOD_RES_ALLOW)
 					continue;
 
@@ -190,7 +190,7 @@ public:
 			nickfloodsettings* f = nf.ext.Get(memb->chan);
 			if (f)
 			{
-				ModResult res = CheckExemption::Call(exemptionprov, user, memb->chan, "nickflood");
+				ModResult res = exemptionprov.Check(user, memb->chan, "nickflood");
 				if (res == MOD_RES_ALLOW)
 					return;
 
