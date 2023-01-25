@@ -54,8 +54,11 @@ class ProviderConfig
 		// match better.
 		switch (version)
 		{
+			case ARGON2_VERSION_10:
 			case 10:
 				return ARGON2_VERSION_10;
+
+			case ARGON2_VERSION_13:
 			case 13:
 				return ARGON2_VERSION_13;
 		}
