@@ -25,6 +25,7 @@
 
 #include "inspircd.h"
 #include "extension.h"
+#include "numerichelper.h"
 
 enum
 {
@@ -53,7 +54,7 @@ public:
 		auto* target = ServerInstance->Users.Find(parameters[0], true);
 		if (!target)
 		{
-			user->WriteNotice("*** No such nickname: '" + parameters[0] + "'");
+			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			return CmdResult::FAILURE;
 		}
 
@@ -113,7 +114,7 @@ public:
 
 		if (!target)
 		{
-			user->WriteNotice("*** No such nickname: '" + parameters[0] + "'");
+			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			return CmdResult::FAILURE;
 		}
 
