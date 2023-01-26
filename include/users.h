@@ -34,7 +34,7 @@
 #pragma once
 
 #include "socket.h"
-#include "inspsocket.h"
+#include "streamsocket.h"
 #include "mode.h"
 #include "membership.h"
 
