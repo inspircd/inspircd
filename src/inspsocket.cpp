@@ -212,7 +212,7 @@ ssize_t StreamSocket::ReadToRecvQ(std::string& rq)
 }
 
 /* Don't try to prepare huge blobs of data to send to a blocked socket */
-static constexpr int MYIOV_MAX = IOV_MAX < 128 ? IOV_MAX : 128;
+static constexpr size_t MYIOV_MAX = std::min<size_t>(IOV_MAX, 128);
 
 void StreamSocket::DoWrite()
 {
@@ -272,15 +272,8 @@ void StreamSocket::FlushSendQ(SendQueue& sq)
 		int eventChange = FD_WANT_EDGE_WRITE;
 		while (error.empty() && !sq.empty() && eventChange == FD_WANT_EDGE_WRITE)
 		{
-			// Prepare a writev() call to write all buffers efficiently. This cast is
-			// safe as we clamp to MYIOV_MAX right away anyway.
-			int bufcount = static_cast<int>(sq.size());
-
-			// cap the number of buffers at MYIOV_MAX
-			if (bufcount > MYIOV_MAX)
-			{
-				bufcount = MYIOV_MAX;
-			}
+			// Prepare a writev() call to write all buffers efficiently.
+			int bufcount = static_cast<int>(std::min<size_t>(sq.size(), MYIOV_MAX));
 
 			int rv_max = 0;
 			ssize_t rv;
