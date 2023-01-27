@@ -619,10 +619,10 @@ irc::sockets::cidr_mask User::GetCIDRMask() const
 	switch (client_sa.family())
 	{
 		case AF_INET6:
-			range = ServerInstance->Config->c_ipv6_range;
+			range = ServerInstance->Config->IPv6Range;
 			break;
 		case AF_INET:
-			range = ServerInstance->Config->c_ipv4_range;
+			range = ServerInstance->Config->IPv4Range;
 			break;
 	}
 	return irc::sockets::cidr_mask(client_sa, range);

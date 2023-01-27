@@ -260,26 +260,40 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 	}
 }
 
-static std::string GetServerHost()
+namespace
 {
-	char hostname[256];
-	if (gethostname(hostname, sizeof(hostname)) == 0)
+	// Attempts to find something to use as a default server hostname.
+	std::string GetServerHost()
 	{
-		std::string name(hostname);
-		if (name.find('.') == std::string::npos)
-			name.append(".local");
+		char hostname[256];
+		if (gethostname(hostname, sizeof(hostname)) == 0)
+		{
+			std::string name(hostname);
+			if (name.find('.') == std::string::npos)
+				name.append(".local");
 
-		if (name.length() <= ServerInstance->Config->Limits.MaxHost && InspIRCd::IsFQDN(name))
-			return name;
+			if (name.length() <= ServerInstance->Config->Limits.MaxHost && InspIRCd::IsFQDN(name))
+				return name;
+		}
+		return "irc.example.com";
 	}
-	return "irc.example.com";
+
+	// Checks whether the system can create IPv6 sockets.
+	bool CanCreateIPv6Socket()
+	{
+		int fd = socket(AF_INET6, SOCK_STREAM, 0);
+		if (fd < 0)
+			return false;
+
+		SocketEngine::Close(fd);
+		return true;
+	}
 }
 
 void ServerConfig::Fill()
 {
-	auto options = ConfValue("options");
-	auto security = ConfValue("security");
-	auto server = ConfValue("server");
+	// Read the <server> config.
+	const auto& server = ConfValue("server");
 	if (sid.empty())
 	{
 		ServerName = server->getString("name", GetServerHost(), InspIRCd::IsFQDN);
@@ -290,62 +304,54 @@ void ServerConfig::Fill()
 	}
 	else
 	{
-		std::string name = server->getString("name");
-		if (!name.empty() && name != ServerName)
-			throw CoreException("You must restart to change the server name");
+		if (server->getString("name", ServerName, 1) != ServerName)
+			throw CoreException("You must restart to change the server name!");
 
-		std::string nsid = server->getString("id");
-		if (!nsid.empty() && nsid != sid)
-			throw CoreException("You must restart to change the server id");
+		if (server->getString("id", sid, 1) != sid)
+			throw CoreException("You must restart to change the server id!");
 	}
-	SoftLimit = ConfValue("performance")->getNum<size_t>("softlimit", (SocketEngine::GetMaxFds() > 0 ? SocketEngine::GetMaxFds() : SIZE_MAX), 10);
-	MaxConn = ConfValue("performance")->getNum<int>("somaxconn", SOMAXCONN, 1);
-	TimeSkipWarn = ConfValue("performance")->getDuration("timeskipwarn", 2, 0, 30);
+	ServerDesc = server->getString("description", ServerName, 1);
+	Network = server->getString("network", ServerName, 1);
+
+	// Read the <options> config.
+	const auto& options = ConfValue("options");
+	DefaultModes = options->getString("defaultmodes", "not");
+	FullHostInTopic = options->getBool("hostintopic");
+	NoSnoticeStack = options->getBool("nosnoticestack");
+	SyntaxHints = options->getBool("syntaxhints");
 	XLineMessage = options->getString("xlinemessage", "You're banned!", 1);
-	ServerDesc = server->getString("description", "Configure Me", 1);
-	Network = server->getString("network", "Network", 1);
-	NetBufferSize = ConfValue("performance")->getNum<size_t>("netbuffersize", 10240, 1024, 65534);
+	RestrictBannedUsers = options->getEnum("restrictbannedusers", ServerConfig::BUT_RESTRICT_NOTIFY, {
+		{ "no",     ServerConfig::BUT_NORMAL          },
+		{ "silent", ServerConfig::BUT_RESTRICT_SILENT },
+		{ "yes",    ServerConfig::BUT_RESTRICT_NOTIFY },
+	});
+	WildcardIPv6 = options->getEnum("defaultbind", CanCreateIPv6Socket(), {
+		{ "ipv4", false },
+		{ "ipv6", true  },
+	});
+
+	// Read the <performance> config.
+	const auto& performance = ConfValue("performance");
+	MaxConn = performance->getNum<int>("somaxconn", SOMAXCONN, 1);
+	NetBufferSize = performance->getNum<size_t>("netbuffersize", 10240, 1024, 65534);
+	SoftLimit = performance->getNum<size_t>("softlimit", (SocketEngine::GetMaxFds() > 0 ? SocketEngine::GetMaxFds() : SIZE_MAX), 10);
+	TimeSkipWarn = performance->getDuration("timeskipwarn", 2, 0, 30);
+
+	// Read the <security> config.
+	const auto& security = ConfValue("security");
 	CustomVersion = security->getString("customversion");
 	HideBans = security->getBool("hidebans");
-	HideServer = security->getString("hideserver", "", InspIRCd::IsFQDN);
-	SyntaxHints = options->getBool("syntaxhints");
-	FullHostInTopic = options->getBool("hostintopic");
+	HideServer = security->getString("hideserver", {}, InspIRCd::IsFQDN);
 	MaxTargets = security->getNum<unsigned long>("maxtargets", 5, 1, 50);
-	DefaultModes = options->getString("defaultmodes", "not");
-	c_ipv4_range = ConfValue("cidr")->getNum<unsigned char>("ipv4clone", 32, 1, 32);
-	c_ipv6_range = ConfValue("cidr")->getNum<unsigned char>("ipv6clone", 128, 1, 128);
+
+	// Read the <cidr> config.
+	const auto& cidr = ConfValue("cidr");
+	IPv4Range = cidr->getNum<unsigned char>("ipv4clone", 32, 1, 32);
+	IPv6Range = cidr->getNum<unsigned char>("ipv6clone", 128, 1, 128);
+
+	// Read any left over config tags.
 	Limits = ServerLimits(ConfValue("limits"));
 	Paths = ServerPaths(ConfValue("path"));
-	NoSnoticeStack = options->getBool("nosnoticestack", false);
-
-	std::string defbind = options->getString("defaultbind");
-	if (stdalgo::string::equalsci(defbind, "ipv4"))
-	{
-		WildcardIPv6 = false;
-	}
-	else if (stdalgo::string::equalsci(defbind, "ipv6"))
-	{
-		WildcardIPv6 = true;
-	}
-	else
-	{
-		WildcardIPv6 = true;
-		int socktest = socket(AF_INET6, SOCK_STREAM, 0);
-		if (socktest < 0)
-			WildcardIPv6 = false;
-		else
-			SocketEngine::Close(socktest);
-	}
-
-	const std::string restrictbannedusers = options->getString("restrictbannedusers", "yes", 1);
-	if (stdalgo::string::equalsci(restrictbannedusers, "no"))
-		RestrictBannedUsers = ServerConfig::BUT_NORMAL;
-	else if (stdalgo::string::equalsci(restrictbannedusers, "silent"))
-		RestrictBannedUsers = ServerConfig::BUT_RESTRICT_SILENT;
-	else if (stdalgo::string::equalsci(restrictbannedusers, "yes"))
-		RestrictBannedUsers =  ServerConfig::BUT_RESTRICT_NOTIFY;
-	else
-		throw CoreException(restrictbannedusers + " is an invalid <options:restrictbannedusers> value, at " + options->source.str());
 }
 
 // WARNING: it is not safe to use most of the codebase in this function, as it

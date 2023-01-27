@@ -402,12 +402,12 @@ public:
 	/** Clones CIDR range for ipv4 (0-32)
 	 * Defaults to 32 (checks clones on all IPs separately)
 	 */
-	unsigned char c_ipv4_range;
+	unsigned char IPv4Range;
 
 	/** Clones CIDR range for ipv6 (0-128)
 	 * Defaults to 128 (checks on all IPs separately)
 	 */
-	unsigned char c_ipv6_range;
+	unsigned char IPv6Range;
 
 	/** Holds the server name of the local server
 	 * as defined by the administrator.
