@@ -325,7 +325,7 @@ private:
 
 public:
 	ModuleCloakMD5()
-		: Module(VF_VENDOR, "Provides the half and full cloak engines.")
+		: Module(VF_VENDOR, "Adds the half and full cloaking methods for use with the cloak module.")
 		, halfcloakengine(this, "half", true)
 		, fullcloakengine(this, "full", false)
 	{
