@@ -245,23 +245,6 @@ public:
 		mx[1].resize(newsize);
 	}
 
-	void ReadConfig()
-	{
-		const auto& conf = ServerInstance->Config->ConfValue("repeat");
-		ms.MaxLines = conf->getNum<unsigned long>("maxlines", 20);
-		ms.MaxBacklog = conf->getNum<unsigned long>("maxbacklog", 20);
-		ms.MaxSecs = conf->getDuration("maxtime", 0);
-
-		ms.MaxDiff = conf->getNum<unsigned int>("maxdistance", 50, 0, 100);
-
-		size_t newsize = conf->getNum<size_t>("size", 512);
-		if (newsize > ServerInstance->Config->Limits.MaxLine)
-			newsize = ServerInstance->Config->Limits.MaxLine;
-		Resize(newsize);
-
-		ms.KickMessage = conf->getString("kickmessage", "Repeat flood (trigger is %lines% messages in %duration%)", 1);
-	}
-
 	void SerializeParam(Channel* chan, const ChannelSettings* chset, std::string& out)
 	{
 		chset->serialize(out);
@@ -375,7 +358,14 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		rm.ReadConfig();
+		const auto& tag = ServerInstance->Config->ConfValue("repeat");
+		rm.ms.KickMessage = tag->getString("kickmessage", "Repeat flood (trigger is %lines% messages in %duration%)", 1);
+		rm.ms.MaxBacklog = tag->getNum<unsigned long>("maxbacklog", 20);
+		rm.ms.MaxDiff = tag->getNum<unsigned int>("maxdistance", 50, 0, 100);
+		rm.ms.MaxLines = tag->getNum<unsigned long>("maxlines", 20);
+		rm.ms.MaxSecs = tag->getDuration("maxtime", 0);
+
+		rm.Resize(tag->getNum<size_t>("size", 512, 1, ServerInstance->Config->Limits.MaxLine));
 	}
 
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
