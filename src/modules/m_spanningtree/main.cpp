@@ -507,6 +507,12 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 	if (user->IsOper())
 		CommandOpertype::Builder(user, user->oper).Broadcast();
 
+	if (user->IsAway())
+		CommandAway::Builder(user).Broadcast();
+
+	if (user->uniqueusername) // TODO: convert this to BooleanExtItem in v4.
+		CommandMetadata::Builder(user, "uniqueusername", "1").Broadcast();
+
 	for (const auto& [item, obj] : user->GetExtList())
 	{
 		const std::string value = item->ToNetwork(user, obj);
