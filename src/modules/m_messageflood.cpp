@@ -30,85 +30,188 @@
 #include "modules/exemption.h"
 #include "numerichelper.h"
 
-/** Holds flood settings and state for mode +f
- */
-class floodsettings final
+enum class MsgFloodAction
+	: uint8_t
 {
-public:
-	bool ban;
-	unsigned int secs;
-	unsigned int lines;
-	time_t reset;
-	insp::flat_map<User*, double> counters;
+	BAN,
+	BLOCK,
+	MUTE,
+	KICK,
+	KICK_BAN,
+};
 
-	floodsettings(bool a, unsigned int b, unsigned int c)
-		: ban(a)
-		, secs(b)
-		, lines(c)
+class MsgFloodSettings final
+{
+private:
+	insp::flat_map<User*, double> counters;
+	time_t reset;
+
+public:
+	MsgFloodAction action;
+	unsigned int messages;
+	unsigned long period;
+
+
+	MsgFloodSettings(MsgFloodAction a, unsigned int m, unsigned long p)
+		: reset(ServerInstance->Time() + p)
+		, action(a)
+		, messages(m)
+		, period(p)
 	{
-		reset = ServerInstance->Time() + secs;
 	}
 
-	bool addmessage(User* who, double weight)
+	bool Add(User* who, double weight)
 	{
 		if (ServerInstance->Time() > reset)
 		{
 			counters.clear();
-			reset = ServerInstance->Time() + secs;
+			reset = ServerInstance->Time() + period;
 		}
 
 		counters[who] += weight;
-		return (counters[who] >= this->lines);
+		return (counters[who] >= this->messages);
 	}
 
-	void clear(User* who)
+	void Clear(User* who)
 	{
 		counters.erase(who);
 	}
 };
 
-/** Handles channel mode +f
- */
 class MsgFlood final
-	: public ParamMode<MsgFlood, SimpleExtItem<floodsettings>>
+	: public ParamMode<MsgFlood, SimpleExtItem<MsgFloodSettings>>
 {
-public:
-	MsgFlood(Module* Creator)
-		: ParamMode<MsgFlood, SimpleExtItem<floodsettings>>(Creator, "flood", 'f')
+private:
+	static bool ParseAction(irc::sepstream& stream, MsgFloodAction& action)
 	{
-		syntax = "[*]<messages>:<seconds>";
+		std::string actionstr;
+		if (!stream.GetToken(actionstr))
+			return false;
+
+		if (irc::equals(actionstr, "ban"))
+			action = MsgFloodAction::BAN;
+		else if (irc::equals(actionstr, "block"))
+			action = MsgFloodAction::BLOCK;
+		else if (irc::equals(actionstr, "mute"))
+			action = MsgFloodAction::MUTE;
+		else if (irc::equals(actionstr, "kick"))
+			action = MsgFloodAction::KICK;
+		else if (irc::equals(actionstr, "kickban"))
+			action = MsgFloodAction::KICK_BAN;
+		else
+			return false;
+
+		return true;
+	}
+
+	static bool ParseMessages(irc::sepstream& stream, unsigned int& messages)
+	{
+		std::string messagestr;
+		if (!stream.GetToken(messagestr))
+			return false;
+
+		messages = ConvToNum<unsigned int>(messagestr);
+		return true;
+	}
+
+	static bool ParsePeriod(irc::sepstream& stream, unsigned long& period)
+	{
+		std::string periodstr;
+		if (!stream.GetToken(periodstr))
+			return false;
+
+		return Duration::TryFrom(periodstr, period);
+	}
+
+public:
+	bool extended;
+
+	MsgFlood(Module* Creator)
+		: ParamMode<MsgFlood, SimpleExtItem<MsgFloodSettings>>(Creator, "flood", 'f')
+	{
 	}
 
 	bool OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
-		std::string::size_type colon = parameter.find(':');
-		if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
+		MsgFloodAction action;
+		unsigned int messages;
+		unsigned long period;
+		if (extended)
+		{
+			irc::sepstream stream(parameter, ':');
+			if (!ParseAction(stream, action) || !ParseMessages(stream, messages) || !ParsePeriod(stream, period))
+			{
+				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
+				return false;
+			}
+		}
+		else
+		{
+			std::string::size_type colon = parameter.find(':');
+			if (colon == std::string::npos || parameter.find('-') != std::string::npos)
+			{
+				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
+				return false;
+			}
+
+			bool kickban = parameter[0] == '*';
+			action = kickban ? MsgFloodAction::KICK_BAN : MsgFloodAction::BLOCK;
+			messages = ConvToNum<unsigned int>(parameter.substr(kickban ? 1 : 0, kickban ? colon - 1 : colon));
+			period = ConvToNum<unsigned int>(parameter.substr(colon + 1));
+		}
+
+		if (messages < 2 || period < 1)
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
 			return false;
 		}
 
-		/* Set up the flood parameters for this channel */
-		bool ban = (parameter[0] == '*');
-		unsigned int nlines = ConvToNum<unsigned int>(parameter.substr(ban ? 1 : 0, ban ? colon-1 : colon));
-		unsigned int nsecs = ConvToNum<unsigned int>(parameter.substr(colon+1));
-
-		if ((nlines<2) || (nsecs<1))
-		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return false;
-		}
-
-		ext.SetFwd(channel, ban, nsecs, nlines);
+		ext.SetFwd(channel, action, messages, period);
 		return true;
 	}
 
-	void SerializeParam(Channel* chan, const floodsettings* fs, std::string& out)
+	void SerializeParam(Channel* chan, const MsgFloodSettings* fs, std::string& out)
 	{
-		if (fs->ban)
-			out.push_back('*');
-		out.append(ConvToStr(fs->lines)).push_back(':');
-		out.append(ConvToStr(fs->secs));
+		if (extended)
+		{
+			switch (fs->action)
+			{
+				case MsgFloodAction::BAN:
+					out.append("ban");
+					break;
+				case MsgFloodAction::BLOCK:
+					out.append("block");
+					break;
+				case MsgFloodAction::MUTE:
+					out.append("mute");
+					break;
+				case MsgFloodAction::KICK:
+					out.append("kick");
+					break;
+				case MsgFloodAction::KICK_BAN:
+					out.append("kickban");
+					break;
+			}
+			out.push_back(':');
+			out.append(ConvToStr(fs->messages));
+			out.push_back(':');
+			out.append(Duration::ToString(fs->period));
+		}
+		else
+		{
+			if (fs->action == MsgFloodAction::KICK_BAN)
+				out.push_back('*');
+			out.append(ConvToStr(fs->messages)).push_back(':');
+			out.append(ConvToStr(fs->period));
+		}
+	}
+
+	void SetSyntax()
+	{
+		if (extended)
+			syntax = "{ban|block|mute|kick|kickban}:<messages>:<period>";
+		else
+			syntax = "[~|*]<lines>:<duration>[:<difference>][:<backlog>]";
 	}
 };
 
@@ -123,7 +226,19 @@ private:
 	double notice;
 	double privmsg;
 	double tagmsg;
-	std::string kickmessage;
+	std::string message;
+
+	void CreateBan(Channel* channel, User* user, bool mute)
+	{
+		std::string banmask(mute ? "m:*!" : "*!");
+		banmask.append(user->GetBanIdent());
+		banmask.append("@");
+		banmask.append(user->GetDisplayedHost());
+
+		Modes::ChangeList changelist;
+		changelist.push_add(*banmode, banmask);
+		ServerInstance->Modes.Process(ServerInstance->FakeClient, channel, nullptr, changelist);
+	}
 
 public:
 	ModuleMsgFlood()
@@ -141,7 +256,15 @@ public:
 		notice = tag->getNum<float>("notice", 1.0);
 		privmsg = tag->getNum<float>("privmsg", 1.0);
 		tagmsg = tag->getNum<float>("tagmsg", 0.2);
-		kickmessage = tag->getString("kickmessage", "Message flood (trigger is %lines% messages in %duration%)", 1);
+		message = tag->getString("message", "Message flood (trigger is %messages% messages in %duration%)", 1);
+		mf.extended = tag->getBool("extended");
+		mf.SetSyntax();
+	}
+
+	void GetLinkData(LinkData& data, std::string& compatdata) override
+	{
+		data["actions"] = mf.extended ? "ban block kick kickban mute" : "block kickban";
+		compatdata = mf.extended ? "extended" : "";
 	}
 
 	ModResult HandleMessage(User* user, const MessageTarget& target, double weight)
@@ -157,26 +280,44 @@ public:
 		if (res == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 
-		floodsettings* f = mf.ext.Get(dest);
+		auto* f = mf.ext.Get(dest);
 		if (f)
 		{
-			if (f->addmessage(user, weight))
+			if (f->Add(user, weight))
 			{
 				/* You're outttta here! */
-				f->clear(user);
-				if (f->ban)
-				{
-					Modes::ChangeList changelist;
-					changelist.push_add(*banmode, "*!" + user->GetBanIdent() + "@" + user->GetDisplayedHost());
-					ServerInstance->Modes.Process(ServerInstance->FakeClient, dest, nullptr, changelist);
-				}
+				f->Clear(user);
 
-				const std::string kickmsg = Template::Replace(kickmessage, {
-					{ "duration", Duration::ToString(f->secs) },
-					{ "lines",    ConvToStr(f->lines)               },
-					{ "seconds",  ConvToStr(f->secs)                },
+				const std::string msg = Template::Replace(message, {
+					{ "duration", Duration::ToString(f->period) },
+					{ "messages", ConvToStr(f->messages)        },
+					{ "seconds",  ConvToStr(f->period)          },
 				});
-				dest->KickUser(ServerInstance->FakeClient, user, kickmsg);
+				switch (f->action)
+				{
+					case MsgFloodAction::BAN:
+						user->WriteNotice(msg);
+						CreateBan(dest, user, false);
+						break;
+
+					case MsgFloodAction::BLOCK:
+						user->WriteNotice(msg);
+						break;
+
+					case MsgFloodAction::KICK:
+						dest->KickUser(ServerInstance->FakeClient, user, msg);
+						break;
+
+					case MsgFloodAction::KICK_BAN:
+						CreateBan(dest, user, false);
+						dest->KickUser(ServerInstance->FakeClient, user, msg);
+						break;
+
+					case MsgFloodAction::MUTE:
+						user->WriteNotice(msg);
+						CreateBan(dest, user, true);
+						break;
+				}
 
 				return MOD_RES_DENY;
 			}
