@@ -250,7 +250,7 @@ public:
 		SendAlert(user, user->nick, RPL_GONEAWAY, user->awaymsg.c_str(), user->awaytime);
 	}
 
-	void OnUserBack(User* user) override
+	void OnUserBack(User* user, const std::string& message) override
 	{
 		SendAlert(user, user->nick, RPL_NOTAWAY, "is no longer away", ServerInstance->Time());
 	}

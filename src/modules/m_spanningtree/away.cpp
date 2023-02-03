@@ -42,9 +42,10 @@ CmdResult CommandAway::HandleRemote(::RemoteUser* u, Params& params)
 	}
 	else
 	{
+		const std::string awaymsg = u->awaymsg;
 		u->awaytime = 0;
 		u->awaymsg.clear();
-		awayevprov.Call(&Away::EventListener::OnUserBack, u);
+		awayevprov.Call(&Away::EventListener::OnUserBack, u, awaymsg);
 	}
 	return CmdResult::SUCCESS;
 }

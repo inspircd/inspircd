@@ -819,7 +819,7 @@ void ModuleSpanningTree::OnUserAway(User* user)
 		CommandAway::Builder(user).Broadcast();
 }
 
-void ModuleSpanningTree::OnUserBack(User* user)
+void ModuleSpanningTree::OnUserBack(User* user, const std::string& message)
 {
 	OnUserAway(user);
 }

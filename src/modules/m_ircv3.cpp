@@ -175,7 +175,7 @@ public:
 		Monitor::WriteWatchersWithCap(monitorapi, user, awayevent, joinhook.awaycap, res.GetAlreadySentId());
 	}
 
-	void OnUserBack(User* user) override
+	void OnUserBack(User* user, const std::string& message) override
 	{
 		// Back from away: n!u@h AWAY
 		OnUserAway(user);

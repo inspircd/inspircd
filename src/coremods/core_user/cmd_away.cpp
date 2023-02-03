@@ -69,10 +69,11 @@ CmdResult CommandAway::Handle(User* user, const Params& parameters)
 				return CmdResult::FAILURE;
 		}
 
+		const std::string awaymsg = user->awaymsg;
 		user->awaytime = 0;
 		user->awaymsg.clear();
 		user->WriteNumeric(RPL_UNAWAY, "You are no longer marked as being away");
-		awayevprov.Call(&Away::EventListener::OnUserBack, user);
+		awayevprov.Call(&Away::EventListener::OnUserBack, user, awaymsg);
 	}
 
 	return CmdResult::SUCCESS;

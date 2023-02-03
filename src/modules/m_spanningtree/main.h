@@ -201,7 +201,7 @@ public:
 	void OnDelLine(User* u, XLine* x) override;
 	ModResult OnStats(Stats::Context& stats) override;
 	void OnUserAway(User* user) override;
-	void OnUserBack(User* user) override;
+	void OnUserBack(User* user, const std::string& message) override;
 	void OnLoadModule(Module* mod) override;
 	void OnUnloadModule(Module* mod) override;
 	ModResult OnAcceptConnection(int newsock, ListenSocket* from, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server) override;

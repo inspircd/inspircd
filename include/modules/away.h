@@ -65,8 +65,9 @@ public:
 
 	/** Called when a user has returned from being away.
 	 * @param user The user who has returned from being away.
+	 * @param message The away message that the user set.
 	 */
-	virtual void OnUserBack(User* user) = 0;
+	virtual void OnUserBack(User* user, const std::string& message) = 0;
 };
 
 class Away::EventProvider final
