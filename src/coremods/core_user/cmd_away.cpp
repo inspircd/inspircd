@@ -39,6 +39,7 @@ CommandAway::CommandAway(Module* parent)
 	, awayevprov(parent)
 {
 	syntax = { "[:<message>]" };
+	works_before_reg = true;
 }
 
 CmdResult CommandAway::Handle(User* user, const Params& parameters)

@@ -815,7 +815,7 @@ void ModuleSpanningTree::OnDelLine(User* user, XLine* x)
 
 void ModuleSpanningTree::OnUserAway(User* user)
 {
-	if (IS_LOCAL(user))
+	if (IS_LOCAL(user) && user->IsFullyConnected())
 		CommandAway::Builder(user).Broadcast();
 }
 
