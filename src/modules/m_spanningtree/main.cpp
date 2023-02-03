@@ -486,6 +486,12 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 	if (user->IsOper())
 		CommandOpertype::Builder(user).Broadcast();
 
+	if (user->IsAway())
+		CommandAway::Builder(user).Broadcast();
+
+	if (user->uniqueusername) // TODO: convert this to BooleanExtItem in v4.
+		CommandMetadata::Builder(user, "uniqueusername", "1").Broadcast();
+
 	for(Extensible::ExtensibleStore::const_iterator i = user->GetExtList().begin(); i != user->GetExtList().end(); i++)
 	{
 		ExtensionItem* item = i->first;
