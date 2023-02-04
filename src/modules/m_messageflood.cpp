@@ -240,6 +240,15 @@ private:
 		ServerInstance->Modes.Process(ServerInstance->FakeClient, channel, nullptr, changelist);
 	}
 
+	static void InformUser(Channel* chan, User* user, const std::string& message)
+	{
+		Membership* memb = chan->GetUser(user);
+		if (memb)
+			memb->WriteNotice(message);
+		else
+			user->WriteNotice(INSP_FORMAT("[{}] {}", chan->name, message));
+	}
+
 public:
 	ModuleMsgFlood()
 		: Module(VF_VENDOR, "Adds channel mode f (flood) which helps protect against spammers which mass-message channels.")
@@ -296,12 +305,12 @@ public:
 				switch (f->action)
 				{
 					case MsgFloodAction::BAN:
-						user->WriteNotice(msg);
+						InformUser(dest, user, msg);
 						CreateBan(dest, user, false);
 						break;
 
 					case MsgFloodAction::BLOCK:
-						user->WriteNotice(msg);
+						InformUser(dest, user, msg);
 						break;
 
 					case MsgFloodAction::KICK:
@@ -314,7 +323,7 @@ public:
 						break;
 
 					case MsgFloodAction::MUTE:
-						user->WriteNotice(msg);
+						InformUser(dest, user, msg);
 						CreateBan(dest, user, true);
 						break;
 				}
