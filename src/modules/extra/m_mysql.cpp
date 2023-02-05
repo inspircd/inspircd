@@ -39,7 +39,6 @@
 
 
 #include <mysql.h>
-#include <mysql_version.h>
 
 #include "inspircd.h"
 #include "modules/sql.h"
