@@ -36,9 +36,11 @@ class ChannelSettings final
 public:
 	enum RepeatAction
 	{
-		ACT_KICK,
+		ACT_BAN,
 		ACT_BLOCK,
-		ACT_BAN
+		ACT_KICK,
+		ACT_KICK_BAN,
+		ACT_MUTE,
 	};
 
 	RepeatAction Action;
@@ -47,12 +49,46 @@ public:
 	unsigned int Diff;
 	unsigned long Seconds;
 
-	void serialize(std::string& out) const
+	void serialize(bool extended, std::string& out) const
 	{
-		if (Action == ACT_BAN)
-			out.push_back('*');
-		else if (Action == ACT_BLOCK)
-			out.push_back('~');
+		if (extended)
+		{
+			switch (Action)
+			{
+				case ACT_BAN:
+					out.append("ban");
+					break;
+				case ACT_BLOCK:
+					out.append("block");
+					break;
+				case ACT_MUTE:
+					out.append("mute");
+					break;
+				case ACT_KICK:
+					out.append("kick");
+					break;
+				case ACT_KICK_BAN:
+					out.append("kickban");
+					break;
+			}
+			out.push_back(':');
+		}
+		else
+		{
+			switch (Action)
+			{
+				case ACT_KICK_BAN:
+					out.push_back('*');
+					break;
+
+				case ACT_BLOCK:
+					out.push_back('~');
+					break;
+
+				default:
+					break; // No other types are supported in the old mode.
+			}
+		}
 
 		out.append(ConvToStr(Lines)).push_back(':');
 		out.append(ConvToStr(Seconds));
@@ -94,13 +130,13 @@ private:
 
 	struct ModuleSettings final
 	{
+		bool Extended = false;
 		unsigned long MaxLines = 0;
 		unsigned long MaxSecs = 0;
 		unsigned long MaxBacklog = 0;
 		unsigned int MaxDiff = 0;
 		size_t MaxMessageSize = 0;
-		std::string KickMessage;
-
+		std::string Message;
 	};
 
 	std::vector<size_t> mx[2];
@@ -141,7 +177,6 @@ public:
 		: ParamMode<RepeatMode, SimpleExtItem<ChannelSettings>>(Creator, "repeat", 'E')
 		, MemberInfoExt(Creator, "repeat", ExtensionType::MEMBERSHIP)
 	{
-		syntax = "[~|*]<lines>:<duration>[:<difference>][:<backlog>]";
 	}
 
 	void OnUnset(User* source, Channel* chan) override
@@ -247,25 +282,63 @@ public:
 
 	void SerializeParam(Channel* chan, const ChannelSettings* chset, std::string& out)
 	{
-		chset->serialize(out);
+		chset->serialize(ms.Extended, out);
+	}
+
+	void SetSyntax()
+	{
+		if (ms.Extended)
+			syntax = "{ban|block|mute|kick|kickban}:<lines>:<duration>[:<difference>][:<backlog>]";
+		else
+			syntax = "[~|*]<lines>:<duration>[:<difference>][:<backlog>]";
+
 	}
 
 private:
-	static bool ParseSettings(User* source, std::string& parameter, ChannelSettings& settings)
+	bool ParseAction(irc::sepstream& stream, ChannelSettings::RepeatAction& action)
 	{
-		irc::sepstream stream(parameter, ':');
-		std::string	item;
-		if (!stream.GetToken(item))
-			// Required parameter missing
+		std::string actionstr;
+		if (!stream.GetToken(actionstr))
 			return false;
 
-		if ((item[0] == '*') || (item[0] == '~'))
+		if (irc::equals(actionstr, "ban"))
+			action = ChannelSettings::ACT_BAN;
+		else if (irc::equals(actionstr, "kick"))
+			action = ChannelSettings::ACT_KICK;
+		else if (irc::equals(actionstr, "block"))
+			action = ChannelSettings::ACT_BLOCK;
+		else if (irc::equals(actionstr, "mute"))
+			action = ChannelSettings::ACT_MUTE;
+		else if (irc::equals(actionstr, "kickban"))
+			action = ChannelSettings::ACT_KICK_BAN;
+		else
+			return false;
+
+		return true;
+	}
+
+	bool ParseSettings(User* source, std::string& parameter, ChannelSettings& settings)
+	{
+		irc::sepstream stream(parameter, ':');
+		std::string item;
+
+		if (ms.Extended)
 		{
-			settings.Action = ((item[0] == '*') ? ChannelSettings::ACT_BAN : ChannelSettings::ACT_BLOCK);
-			item.erase(item.begin());
+			if (!ParseAction(stream, settings.Action) || !stream.GetToken(item))
+				return false;
 		}
 		else
+		{
+			if (!stream.GetToken(item))
+				return false; // Required parameter missing
+
 			settings.Action = ChannelSettings::ACT_KICK;
+			if ((item[0] == '*') || (item[0] == '~'))
+			{
+				settings.Action = ((item[0] == '*') ? ChannelSettings::ACT_KICK_BAN : ChannelSettings::ACT_BLOCK);
+				item.erase(item.begin());
+			}
+		}
 
 		if ((settings.Lines = ConvToNum<unsigned int>(item)) == 0)
 			return false;
@@ -347,6 +420,18 @@ private:
 	CheckExemption::EventProvider exemptionprov;
 	RepeatMode rm;
 
+	void CreateBan(Channel* channel, User* user, bool mute)
+	{
+		std::string banmask(mute ? "m:*!" : "*!");
+		banmask.append(user->GetBanIdent());
+		banmask.append("@");
+		banmask.append(user->GetDisplayedHost());
+
+		Modes::ChangeList changelist;
+		changelist.push_add(*banmode, banmask);
+		ServerInstance->Modes.Process(ServerInstance->FakeClient, channel, nullptr, changelist);
+	}
+
 public:
 	RepeatModule()
 		: Module(VF_VENDOR | VF_COMMON, "Adds channel mode E (repeat) which helps protect against spammers which spam the same message repeatedly.")
@@ -359,7 +444,8 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("repeat");
-		rm.ms.KickMessage = tag->getString("kickmessage", "Repeat flood (trigger is %lines% messages in %duration%)", 1);
+		rm.ms.Message = tag->getString("message", tag->getString("kickmessage", "Repeat flood (trigger is %lines% messages in %duration%)"), 1);
+		rm.ms.Extended = tag->getBool("extended");
 		rm.ms.MaxBacklog = tag->getNum<unsigned long>("maxbacklog", 20);
 		rm.ms.MaxDiff = tag->getNum<unsigned int>("maxdistance", 50, 0, 100);
 		rm.ms.MaxLines = tag->getNum<unsigned long>("maxlines", 20);
@@ -391,26 +477,38 @@ public:
 
 		if (rm.MatchLine(memb, settings, details.text))
 		{
-			if (settings->Action == ChannelSettings::ACT_BLOCK)
-			{
-				user->WriteNotice("*** This line is too similar to one of your last lines.");
-				return MOD_RES_DENY;
-			}
-
-			if (settings->Action == ChannelSettings::ACT_BAN)
-			{
-				Modes::ChangeList changelist;
-				changelist.push_add(*banmode, "*!" + user->GetBanIdent() + "@" + user->GetDisplayedHost());
-				ServerInstance->Modes.Process(ServerInstance->FakeClient, chan, nullptr, changelist);
-			}
-
-			const std::string kickmsg = Template::Replace(rm.ms.KickMessage, {
-				{ "diff",     ConvToStr(settings->Diff)                   },
+			const std::string message = Template::Replace(rm.ms.Message, {
+				{ "diff",     ConvToStr(settings->Diff)             },
 				{ "duration", Duration::ToString(settings->Seconds) },
-				{ "lines",    ConvToStr(settings->Lines)                  },
-				{ "seconds",  ConvToStr(settings->Seconds)                },
+				{ "lines",    ConvToStr(settings->Lines)            },
+				{ "seconds",  ConvToStr(settings->Seconds)          },
 			});
-			memb->chan->KickUser(ServerInstance->FakeClient, user, kickmsg);
+
+			switch (settings->Action)
+			{
+				case ChannelSettings::ACT_BAN:
+					memb->WriteNotice(message);
+					CreateBan(chan, user, false);
+					break;
+
+				case ChannelSettings::ACT_BLOCK:
+					memb->WriteNotice(message);
+					break;
+
+				case ChannelSettings::ACT_KICK:
+					chan->KickUser(ServerInstance->FakeClient, user, message);
+					break;
+
+				case ChannelSettings::ACT_KICK_BAN:
+					CreateBan(chan, user, false);
+					chan->KickUser(ServerInstance->FakeClient, user, message);
+					break;
+
+				case ChannelSettings::ACT_MUTE:
+					memb->WriteNotice(message);
+					CreateBan(chan, user, true);
+					break;
+			}
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
@@ -423,13 +521,14 @@ public:
 
 	void GetLinkData(LinkData& data, std::string& compatdata) override
 	{
+		data["actions"] = rm.ms.Extended ? "ban block kick kickban mute" : "block kick kickban";
 		data["max-lines"] = ConvToStr(rm.ms.MaxLines);
 		data["max-secs"] = ConvToStr(rm.ms.MaxSecs);
 		data["max-diff"] = ConvToStr(rm.ms.MaxDiff);
 		data["max-backlog"] = ConvToStr(rm.ms.MaxBacklog);
 
-		compatdata = INSP_FORMAT("{}:{}:{}:{}", rm.ms.MaxLines, rm.ms.MaxSecs,
-			rm.ms.MaxDiff, rm.ms.MaxBacklog);
+		compatdata = INSP_FORMAT("{}:{}:{}:{}{}", rm.ms.Extended ? "extended:" : "",
+			rm.ms.MaxLines, rm.ms.MaxSecs, rm.ms.MaxDiff, rm.ms.MaxBacklog);
 	}
 };
 

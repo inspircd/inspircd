@@ -211,7 +211,7 @@ public:
 		if (extended)
 			syntax = "{ban|block|mute|kick|kickban}:<messages>:<period>";
 		else
-			syntax = "[~|*]<lines>:<duration>[:<difference>][:<backlog>]";
+			syntax = "[*]<messages>:<period>";
 	}
 };
 

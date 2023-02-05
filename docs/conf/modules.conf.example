@@ -1974,7 +1974,8 @@
 #        maxlines="20"
 #        maxtime="0s"
 #        size="512"
-#        kickmessage="Repeat flood">
+#        extended="yes"
+#        message="Repeat flood (trigger is %lines% messages in %duration%)">
 #<module name="repeat">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
