@@ -303,6 +303,11 @@ public:
 	 */
 	virtual ssl_cert* GetCertificate(User* user) = 0;
 
+	/** Determines whether the specified user is connected securely.
+	 * @return True if the user is connected securely; otherwise, false.
+	 */
+	virtual bool IsSecure(User* user) = 0;
+
 	/** Set the TLS certificate of a user.
 	 * @param user The user whose certificate to set.
 	 * @param cert The TLS certificate to set for the user.

@@ -114,17 +114,14 @@ private:
 
 	bool OnRequest(LocalUser* user, bool adding) override
 	{
-		if (requiressl && sslapi && !sslapi->GetCertificate(user))
-			return false;
-
 		// Servers MUST NAK any sasl capability request if the authentication layer
 		// is unavailable.
-		return servertracker.IsOnline();
+		return OnList(user);
 	}
 
 	bool OnList(LocalUser* user) override
 	{
-		if (requiressl && sslapi && !sslapi->GetCertificate(user))
+		if (requiressl && sslapi && !sslapi->IsSecure(user))
 			return false;
 
 		// Servers MUST NOT advertise the sasl capability if the authentication layer
@@ -189,7 +186,7 @@ private:
 		params.reserve(3);
 		params.push_back(user->GetRealHost());
 		params.push_back(user->GetAddress());
-		params.emplace_back(sslapi && sslapi->GetCertificate(user) ? "S" : "P");
+		params.emplace_back(sslapi && sslapi->IsSecure(user) ? "S" : "P");
 
 		SendSASL(user, "*", 'H', params);
 	}

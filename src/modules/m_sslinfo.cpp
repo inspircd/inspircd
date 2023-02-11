@@ -136,6 +136,7 @@ class UserCertificateAPIImpl final
 public:
 	BoolExtItem nosslext;
 	SSLCertExt sslext;
+	bool localsecure;
 
 	UserCertificateAPIImpl(Module* mod)
 		: UserCertificateAPIBase(mod)
@@ -160,6 +161,18 @@ public:
 
 		SetCertificate(user, cert);
 		return cert;
+	}
+
+	bool IsSecure(User* user) override
+	{
+		auto* cert = GetCertificate(user);
+		if (cert)
+			return !!cert;
+
+		if (localsecure)
+			return user->client_sa.is_local();
+
+		return false;
 	}
 
 	void SetCertificate(User* user, ssl_cert* cert) override
@@ -307,15 +320,18 @@ public:
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("sslinfo");
 		cmd.operonlyfp = tag->getBool("operonly");
+		cmd.sslapi.localsecure = tag->getBool("localsecure", true);
 		hash = tag->getString("hash");
 	}
 
 	void OnWhois(Whois::Context& whois) override
 	{
+		if (cmd.sslapi.IsSecure(whois.GetTarget()))
+			whois.SendLine(RPL_WHOISSECURE, "is using a secure connection");
+
 		ssl_cert* cert = cmd.sslapi.GetCertificate(whois.GetTarget());
 		if (cert)
 		{
-			whois.SendLine(RPL_WHOISSECURE, "is using a secure connection");
 			if ((!cmd.operonlyfp || whois.IsSelfWhois() || whois.GetSource()->IsOper()) && !cert->fingerprint.empty())
 				whois.SendLine(RPL_WHOISCERTFP, INSP_FORMAT("has TLS client certificate fingerprint {}", cert->fingerprint));
 		}

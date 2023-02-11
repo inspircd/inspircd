@@ -93,8 +93,7 @@ public:
 					size_t nonssl = 0;
 					for (const auto& [u, _] : channel->GetUsers())
 					{
-						ssl_cert* cert = API->GetCertificate(u);
-						if (!cert && !u->server->IsService())
+						if (!API->IsSecure(u) && !u->server->IsService())
 							nonssl++;
 					}
 
@@ -146,7 +145,7 @@ public:
 		if (change.adding == dest->IsModeSet(this))
 			return false;
 
-		if (change.adding && IS_LOCAL(user) && (!API || !API->GetCertificate(user)))
+		if (change.adding && IS_LOCAL(user) && (!API || !API->IsSecure(user)))
 			return false;
 
 		dest->SetMode(this, change.adding);
@@ -185,7 +184,7 @@ public:
 				return MOD_RES_DENY;
 			}
 
-			if (!api->GetCertificate(user))
+			if (!api->IsSecure(user))
 			{
 				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; TLS users only (+z is set)");
 				return MOD_RES_DENY;
@@ -209,7 +208,7 @@ public:
 		/* If the target is +z */
 		if (target->IsModeSet(sslquery))
 		{
-			if (!api || !api->GetCertificate(user))
+			if (!api || !api->IsSecure(user))
 			{
 				/* The sending user is not on an TLS connection */
 				user->WriteNumeric(Numerics::CannotSendTo(target, "messages", &sslquery));
@@ -219,7 +218,7 @@ public:
 		/* If the user is +z */
 		else if (user->IsModeSet(sslquery))
 		{
-			if (!api || !api->GetCertificate(target))
+			if (!api || !api->IsSecure(target))
 			{
 				user->WriteNumeric(Numerics::CannotSendTo(target, "messages", &sslquery, true));
 				return MOD_RES_DENY;
