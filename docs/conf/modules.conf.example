@@ -413,12 +413,16 @@
 # maxlines - The maximum number of lines of chat history to send to a #
 #            joining users. Defaults to 50.                           #
 #                                                                     #
+# maxduration - The maximum period to keep chat history for. Defaults #
+#               to 4 weeks.                                           #
+#                                                                     #
 # prefixmsg - Whether to send an explanatory message to clients that  #
 #             don't support the chathistory batch type. Defaults to   #
 #             yes.                                                    #
 #                                                                     #
 #<chanhistory bots="yes"
 #             enableumode="yes"
+#             maxduration="4w"
 #             maxlines="50"
 #             prefixmsg="yes">
 

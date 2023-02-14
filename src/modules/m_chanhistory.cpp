@@ -80,8 +80,42 @@ struct HistoryList final
 class HistoryMode final
 	: public ParamMode<HistoryMode, SimpleExtItem<HistoryList>>
 {
+private:
+	bool ParseDuration(User* user, irc::sepstream& stream, unsigned long& duration)
+	{
+		std::string durationstr;
+		if (!stream.GetToken(durationstr))
+			return false;
+
+		if (!Duration::TryFrom(durationstr, duration) || duration == 0)
+			return false;
+
+		if (IS_LOCAL(user) && duration > maxduration)
+			duration = maxduration; // Clamp for local users.
+
+		return true;
+	}
+
+	bool ParseLines(User* user, irc::sepstream& stream, unsigned long& lines)
+	{
+		std::string linesstr;
+		if (!stream.GetToken(linesstr))
+			return false;
+
+		lines = ConvToNum<unsigned long>(linesstr);
+		if (lines == 0)
+			return false;
+
+		if (IS_LOCAL(user) && lines > maxlines)
+			lines = maxlines; // Clamp for local users.
+
+		return true;
+	}
+
 public:
+	unsigned long maxduration;
 	unsigned long maxlines;
+
 	HistoryMode(Module* Creator)
 		: ParamMode<HistoryMode, SimpleExtItem<HistoryList>>(Creator, "history", 'H')
 	{
@@ -90,44 +124,30 @@ public:
 
 	bool OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
-		std::string::size_type colon = parameter.find(':');
-		if (colon == std::string::npos)
-		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return false;
-		}
+		irc::sepstream stream(parameter, ':');
 
-		std::string duration(parameter, colon+1);
-		if ((IS_LOCAL(source)) && ((duration.length() > 10) || (!Duration::IsValid(duration))))
+		unsigned long lines;
+		unsigned long duration;
+		if (!ParseLines(source, stream, lines) || !ParseDuration(source, stream, duration))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
 			return false;
 		}
-
-		unsigned long len = ConvToNum<unsigned long>(parameter.substr(0, colon));
-		unsigned long time;
-		if (!Duration::TryFrom(duration, time) || len == 0 || (len > maxlines && IS_LOCAL(source)))
-		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return false;
-		}
-		if (len > maxlines)
-			len = maxlines;
 
 		HistoryList* history = ext.Get(channel);
 		if (history)
 		{
 			// Shrink the list if the new line number limit is lower than the old one
-			if (len < history->lines.size())
-				history->lines.erase(history->lines.begin(), history->lines.begin() + (history->lines.size() - len));
+			if (lines < history->lines.size())
+				history->lines.erase(history->lines.begin(), history->lines.begin() + (history->lines.size() - lines));
 
-			history->maxlen = len;
-			history->maxtime = time;
+			history->maxlen = lines;
+			history->maxtime = duration;
 			history->Prune();
 		}
 		else
 		{
-			ext.SetFwd(channel, len, time);
+			ext.SetFwd(channel, lines, duration);
 		}
 		return true;
 	}
@@ -210,6 +230,7 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("chanhistory");
+		historymode.maxduration = tag->getNum<unsigned long>("maxduration", 60*60*24*28, 1);
 		historymode.maxlines = tag->getNum<unsigned long>("maxlines", 50, 1);
 		prefixmsg = tag->getBool("prefixmsg", true);
 		dobots = tag->getBool("bots", true);
