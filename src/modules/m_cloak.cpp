@@ -76,12 +76,70 @@ public:
 	}
 };
 
-typedef std::vector<std::string> CloakList;
+class CloakAPI final
+	: public Cloak::APIBase
+{
+private:
+	// The cloak providers from the config.
+	CloakMethodList& cloakmethods;
+
+	// The mode which marks a user as being cloaked.
+	ModeHandler* cloakmode;
+
+	// Holds the list of cloaks for a user.
+	ListExtItem<Cloak::List> ext;
+
+public:
+	CloakAPI(Module* Creator, CloakMethodList& cm, ModeHandler* mh)
+		: Cloak::APIBase(Creator)
+		, cloakmethods(cm)
+		, cloakmode(mh)
+		, ext(Creator, "cloaks", ExtensionType::USER)
+	{
+	}
+
+	Cloak::List* GetCloaks(LocalUser* user) override
+	{
+		auto* cloaks = ext.Get(user);
+		if (!cloaks)
+		{
+			// The list doesn't exist so try to create it.
+			cloaks = new Cloak::List();
+			for (const auto& cloakmethod : cloakmethods)
+			{
+				const std::string cloak = cloakmethod->Generate(user);
+				if (!cloak.empty())
+					cloaks->push_back(cloak);
+
+				ServerInstance->Logs.Debug(MODNAME, "Cloaked {} ({}/{}) as {} using the {} method.",
+					user->uuid, user->GetAddress(), user->GetRealHost(),
+					cloak, cloakmethod->GetName());
+			}
+			ext.Set(user, cloaks);
+		}
+		return cloaks->empty() ? nullptr : cloaks;
+	}
+
+	void ResetCloaks(LocalUser* user, bool resetdisplay) override
+	{
+		ext.Unset(user);
+		if (resetdisplay && user->IsModeSet(cloakmode))
+		{
+			Modes::ChangeList changelist;
+			changelist.push_remove(cloakmode);
+			changelist.push_add(cloakmode);
+			ServerInstance->Modes.Process(ServerInstance->FakeClient, nullptr, user, changelist);
+		}
+	}
+};
 
 class CloakMode final
 	: public ModeHandler
 {
 private:
+	// The public API for the cloak system.
+	CloakAPI& cloakapi;
+
 	// The number of times the last user has set/unset this mode at once.
 	size_t prevcount = 0;
 
@@ -111,39 +169,10 @@ public:
 	// Whether the mode has recently been changed.
 	bool active = false;
 
-	// The cloak providers from the config.
-	CloakMethodList& cloakmethods;
-
-	// Holds the list of cloaks for a user.
-	ListExtItem<CloakList> ext;
-
-	CloakMode(Module* Creator, CloakMethodList& ce)
+	CloakMode(Module* Creator, CloakAPI& api)
 		: ModeHandler(Creator, "cloak", 'x', PARAM_NONE, MODETYPE_USER)
-		, cloakmethods(ce)
-		, ext(Creator, "cloaks", ExtensionType::USER)
+		, cloakapi(api)
 	{
-	}
-
-	CloakList* GetCloaks(LocalUser* user)
-	{
-		auto* cloaks = ext.Get(user);
-		if (!cloaks)
-		{
-			// The list doesn't exist so try to create it.
-			cloaks = new CloakList();
-			for (const auto& cloakmethod : cloakmethods)
-			{
-				const std::string cloak = cloakmethod->Generate(user);
-				if (!cloak.empty())
-					cloaks->push_back(cloak);
-
-				ServerInstance->Logs.Debug(MODNAME, "Cloaked {} ({}/{}) as {} using the {} method.",
-					user->uuid, user->GetAddress(), user->GetRealHost(),
-					cloak, cloakmethod->GetName());
-			}
-			ext.Set(user, cloaks);
-		}
-		return cloaks->empty() ? nullptr : cloaks;
 	}
 
 	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
@@ -181,7 +210,7 @@ public:
 		if (!user->IsFullyConnected() && user->GetRealHost() != user->GetDisplayedHost())
 			return false;
 
-		auto* cloaks = GetCloaks(user);
+		auto* cloaks = cloakapi.GetCloaks(user);
 		if (cloaks)
 		{
 			// We were able to generate cloaks for this user.
@@ -196,7 +225,8 @@ public:
 class ModuleCloakSHA256 final
 	: public Module
 {
- private:
+private:
+	CloakAPI cloakapi;
 	CloakMethodList cloakmethods;
 	CommandCloak cloakcmd;
 	CloakMode cloakmode;
@@ -215,11 +245,12 @@ class ModuleCloakSHA256 final
 		}
 	}
 
- public:
+public:
 	ModuleCloakSHA256()
 		: Module(VF_VENDOR | VF_COMMON, "Adds user mode x (cloak) which allows user hostnames to be hidden.")
+		, cloakapi(this, cloakmethods, &cloakmode)
 		, cloakcmd(this, cloakmethods)
-		, cloakmode(this, cloakmethods)
+		, cloakmode(this, cloakapi)
 	{
 	}
 
@@ -295,10 +326,10 @@ class ModuleCloakSHA256 final
 			return;
 
 		// Remove the cloaks so we can generate new ones.
-		cloakmode.ext.Unset(user);
+		cloakapi.ResetCloaks(user, false);
 
 		// If a user is using a cloak then update it.
-		auto* cloaks = cloakmode.GetCloaks(user);
+		auto* cloaks = cloakapi.GetCloaks(user);
 		if (user->IsModeSet(cloakmode))
 		{
 			if (cloaks)
@@ -321,7 +352,7 @@ class ModuleCloakSHA256 final
 		if (!lu)
 			return MOD_RES_PASSTHRU; // We don't have cloaks for remote users.
 
-		auto* cloaks = cloakmode.GetCloaks(lu);
+		auto* cloaks = cloakapi.GetCloaks(lu);
 		if (!cloaks)
 			return MOD_RES_PASSTHRU; // No cloaks, nothing to check.
 
@@ -364,7 +395,7 @@ class ModuleCloakSHA256 final
 	{
 		// Generate cloaks now if they do not already exist so opers can /CHECK
 		// this user if need be.
-		cloakmode.GetCloaks(user);
+		cloakapi.GetCloaks(user);
 	}
 };
 

@@ -21,8 +21,13 @@
 
 namespace Cloak
 {
+	class API;
+	class APIBase;
 	class Engine;
 	class Method;
+
+	/** Encapsulates a list of cloaks. */
+	typedef std::vector<std::string> List;
 
 	/** A shared pointer to a cloak method. */
 	typedef std::shared_ptr<Method> MethodPtr;
@@ -53,6 +58,39 @@ namespace Cloak
 	 */
 	inline std::string VisiblePart(const std::string& host, size_t hostparts, char separator);
 }
+
+/** Defines the interface for the cloak API. */
+class Cloak::APIBase
+	: public DataProvider
+{
+public:
+	APIBase(Module* parent)
+		: DataProvider(parent, "cloakapi")
+	{
+	}
+
+	/** Retrieves the cloak list for the specified user.
+	 * @param user The user to retrieve cloaks for.
+	 */
+	virtual List* GetCloaks(LocalUser* user) = 0;
+
+	/** Reset the cloaks for the specified user.
+	 * @param user The user to reset the cloaks for.
+	 * @param resetdisplay Whether to reset the currently displayed cloak.
+	 */
+	virtual void ResetCloaks(LocalUser* user, bool resetdisplay) = 0;
+};
+
+/** Allows modules to access information regarding cloaks. */
+class Cloak::API final
+	: public dynamic_reference<Cloak::APIBase>
+{
+public:
+	API(Module* parent)
+		: dynamic_reference<Cloak::APIBase>(parent, "cloakapi")
+	{
+	}
+};
 
 /** Base class for cloak engines. */
 class Cloak::Engine
