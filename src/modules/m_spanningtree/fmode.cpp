@@ -59,7 +59,7 @@ CmdResult CommandFMode::Handle(User* who, Params& params)
 
 CmdResult CommandLMode::Handle(User* who, Params& params)
 {
-	// :<sid> LMODE <chan> <chants> <modechr> [<mask> <setts> <setter>]+
+	// :<sid> LMODE <chan> <chants> <modechr> [<mask> <sets> <setter>]+
 	time_t chants = ServerCommand::ExtractTS(params[1]);
 
 	Channel* const chan = ServerInstance->Channels.Find(params[0]);
