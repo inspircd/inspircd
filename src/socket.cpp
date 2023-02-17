@@ -81,18 +81,6 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 			if (strncasecmp(address.c_str(), "::ffff:", 7) == 0)
 				this->Logs.Warning("SOCKET", "Using 4in6 (::ffff:) isn't recommended. You should bind IPv4 addresses directly instead.");
 
-			// Check whether this is a SCTP listener.
-			int protocol = 0;
-			if (tag->getBool("sctp"))
-			{
-#ifdef IPPROTO_SCTP
-				protocol = IPPROTO_SCTP;
-#else
-				failed_ports.emplace_back("Platform does not support SCTP", tag);
-				continue;
-#endif
-			}
-
 			// Try to parse the bind address.
 			irc::sockets::sockaddrs bindspec(false);
 			if (!bindspec.from_ip(address))
@@ -132,10 +120,42 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 						continue; // Should never happen.
 				}
 
-				if (!BindPort(tag, bindspec, old_ports, protocol))
-					failed_ports.emplace_back(strerror(errno), bindspec, tag);
-				else
-					bound++;
+				std::vector<int> protocols;
+				irc::spacesepstream protostream(tag->getString("protocols", "all", 1));
+				for (std::string protocol; protostream.GetToken(protocol); )
+				{
+					if (stdalgo::string::equalsci(protocol, "all"))
+					{
+						protocols.push_back(0); // IPPROTO_TCP
+#ifdef IPPROTO_SCTP
+						protocols.push_back(IPPROTO_SCTP);
+#endif
+					}
+					else if (stdalgo::string::equalsci(protocol, "sctp"))
+					{
+#ifdef IPPROTO_SCTP
+						protocols.push_back(IPPROTO_SCTP);
+#else
+						failed_ports.emplace_back("Platform does not support SCTP", tag);
+#endif
+					}
+					else if (stdalgo::string::equalsci(protocol, "tcp"))
+					{
+						protocols.push_back(0); // IPPROTO_TCP
+					}
+					else
+					{
+						failed_ports.emplace_back("Protocol is not valid: " + protocol, tag);
+					}
+				}
+
+				for (const auto protocol : protocols)
+				{
+					if (!BindPort(tag, bindspec, old_ports, protocol))
+						failed_ports.emplace_back(strerror(errno), bindspec, tag);
+					else
+						bound++;
+				}
 			}
 			continue;
 		}
