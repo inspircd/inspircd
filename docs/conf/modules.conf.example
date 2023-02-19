@@ -2148,11 +2148,6 @@
 #            waittime="1m">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Servprotect module: Provides support for Austhex style +k /
-# UnrealIRCD +S services mode.
-#<module name="servprotect">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # See nicks module: Adds snomask +n and +N which show local and remote
 # nick changes.
 # This module is oper-only.

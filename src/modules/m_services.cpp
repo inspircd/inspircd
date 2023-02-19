@@ -20,6 +20,12 @@
 #include "inspircd.h"
 #include "modules/account.h"
 
+enum
+{
+	// From UnrealIRCd.
+	ERR_KILLDENY = 485
+};
+
 class RegisteredChannel final
 	: public SimpleChannelMode
 {
@@ -42,6 +48,24 @@ public:
 		return SimpleChannelMode::OnModeChange(source, dest, channel, change);
 	}
 };
+
+class ServProtect final
+	: public SimpleUserMode
+{
+public:
+	ServProtect(Module* Creator)
+		: SimpleUserMode(Creator, "servprotect", 'k', true)
+	{
+	}
+
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
+	{
+		// As this mode is only intended for use by pseudoclients the only way
+		// to set it is by introducing a user with it.
+		return false;
+	}
+};
+
 
 class RegisteredUser final
 	: public SimpleUserMode
@@ -74,6 +98,7 @@ private:
 	Account::API accountapi;
 	RegisteredChannel registeredcmode;
 	RegisteredUser registeredumode;
+	ServProtect servprotectmode;
 
 public:
 	ModuleServices()
@@ -81,7 +106,56 @@ public:
 		, accountapi(this)
 		, registeredcmode(this)
 		, registeredumode(this)
+		, servprotectmode(this)
 	{
+	}
+
+	ModResult OnKill(User* source, User* dest, const std::string& reason) override
+	{
+		if (!source)
+			return MOD_RES_PASSTHRU;
+
+		if (dest->IsModeSet(servprotectmode))
+		{
+			source->WriteNumeric(ERR_KILLDENY, INSP_FORMAT("You are not permitted to kill {} services!", ServerInstance->Config->Network));
+			return MOD_RES_DENY;
+		}
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnRawMode(User* user, Channel* chan, const Modes::Change& change) override
+	{
+		if (!IS_LOCAL(user) || change.adding || change.param.empty())
+			return MOD_RES_PASSTHRU; // We only care about local users removing prefix modes.
+
+		const PrefixMode* const pm = change.mh->IsPrefixMode();
+		if (!pm)
+			return MOD_RES_PASSTHRU; // Mode is not a prefix mode.
+
+		auto* target = ServerInstance->Users.Find(change.param);
+		if (!target)
+			return MOD_RES_PASSTHRU; // Target does not exist.
+
+		Membership* memb = chan->GetUser(target);
+		if (!memb || !memb->HasMode(pm))
+			return MOD_RES_PASSTHRU; // Target does not have the mode.
+
+		if (target->IsModeSet(servprotectmode))
+		{
+			user->WriteNumeric(ERR_RESTRICTED, chan->name, INSP_FORMAT("You are not permitted to remove privileges from {} services!", ServerInstance->Config->Network));
+			return MOD_RES_DENY;
+		}
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnUserPreKick(User* source, Membership* memb, const std::string& reason) override
+	{
+		if (memb->user->IsModeSet(servprotectmode))
+		{
+			source->WriteNumeric(ERR_RESTRICTED, memb->chan->name, INSP_FORMAT("You are not permitted to kick {} services!", ServerInstance->Config->Network));
+			return MOD_RES_DENY;
+		}
+		return MOD_RES_PASSTHRU;
 	}
 
 	void OnUserPostNick(User* user, const std::string& oldnick) override

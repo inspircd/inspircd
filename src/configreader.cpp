@@ -636,6 +636,8 @@ std::vector<std::string> ServerConfig::GetModules() const
 			modules.push_back("account");
 			modules.push_back("services");
 		}
+		else if (stdalgo::string::equalsci(shortname, "servprotect"))
+			modules.push_back("services");
 		else
 		{
 			// No need to rewrite this module name.

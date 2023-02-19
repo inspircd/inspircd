@@ -826,7 +826,7 @@ using their cloak when they quit.
               a common channel.
  k            Prevents the user from being kicked from channels, or
               having op modes removed from them (services only,
-              requires the servprotect module).
+              requires the services module).
  o            Marks as a server operator.
  s <mask>     Receives server notices specified by <mask>
               (server operators only).
