@@ -72,22 +72,22 @@ class ModuleServices final
 {
 private:
 	Account::API accountapi;
-	RegisteredChannel chanmode;
-	RegisteredUser usermode;
+	RegisteredChannel registeredcmode;
+	RegisteredUser registeredumode;
 
 public:
 	ModuleServices()
 		: Module(VF_VENDOR, "Provides support for integrating with a services server.")
 		, accountapi(this)
-		, chanmode(this)
-		, usermode(this)
+		, registeredcmode(this)
+		, registeredumode(this)
 	{
 	}
 
 	void OnUserPostNick(User* user, const std::string& oldnick) override
 	{
-		if (user->IsModeSet(usermode) && irc::equals(oldnick, user->nick))
-			usermode.RemoveMode(user);
+		if (user->IsModeSet(registeredumode) && irc::equals(oldnick, user->nick))
+			registeredumode.RemoveMode(user);
 	}
 };
 
