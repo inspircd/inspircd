@@ -23,7 +23,6 @@
 
 
 #include "inspircd.h"
-#include "modules/whois.h"
 
 enum
 {
@@ -56,7 +55,6 @@ public:
 
 class ModuleServProtectMode final
 	: public Module
-	, public Whois::LineEventListener
 {
 private:
 	ServProtectMode bm;
@@ -64,7 +62,6 @@ private:
 public:
 	ModuleServProtectMode()
 		: Module(VF_VENDOR, "Adds user mode k (servprotect) which protects services pseudoclients from being kicked, being killed, or having their channel prefix modes changed.")
-		, Whois::LineEventListener(this)
 		, bm(this)
 	{
 	}
@@ -125,11 +122,6 @@ public:
 		}
 
 		return MOD_RES_PASSTHRU;
-	}
-
-	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) override
-	{
-		return ((numeric.GetNumeric() == RPL_WHOISCHANNELS) && whois.GetTarget()->IsModeSet(bm)) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 };
 
