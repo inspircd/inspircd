@@ -89,6 +89,12 @@ private:
 	// Holds the list of cloaks for a user.
 	ListExtItem<Cloak::List> ext;
 
+	std::string GetFrontCloak(LocalUser* user)
+	{
+		auto* cloaks = GetCloaks(user);
+		return cloaks ? cloaks->front() : "";
+	}
+
 public:
 	CloakAPI(Module* Creator, CloakMethodList& cm, ModeHandler* mh)
 		: Cloak::APIBase(Creator)
@@ -122,14 +128,21 @@ public:
 
 	void ResetCloaks(LocalUser* user, bool resetdisplay) override
 	{
+		const std::string oldcloak = GetFrontCloak(user);
 		ext.Unset(user);
-		if (resetdisplay && user->IsModeSet(cloakmode))
-		{
-			Modes::ChangeList changelist;
-			changelist.push_remove(cloakmode);
+
+		if (!resetdisplay || !user->IsModeSet(cloakmode))
+			return; // Not resetting the display or not cloaked.
+
+		const std::string newcloak = GetFrontCloak(user);
+		if (oldcloak == newcloak)
+			return; // New front cloak is the same.
+
+		Modes::ChangeList changelist;
+		changelist.push_remove(cloakmode);
+		if (!newcloak.empty())
 			changelist.push_add(cloakmode);
-			ServerInstance->Modes.Process(ServerInstance->FakeClient, nullptr, user, changelist);
-		}
+		ServerInstance->Modes.Process(ServerInstance->FakeClient, nullptr, user, changelist);
 	}
 };
 
