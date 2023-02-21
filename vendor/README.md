@@ -18,9 +18,9 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **License** &mdash; MIT License
 
-**Version** &mdash; v2.9.4
+**Version** &mdash; debian/2.9.4-5
 
-**Website** &mdash; [https://github.com/nodejs/http-parser](https://github.com/nodejs/http-parser)
+**Website** &mdash; [https://git.in-ulm.de/cbiedl/http-parser](https://git.in-ulm.de/cbiedl/http-parser)
 
 ## sha2
 

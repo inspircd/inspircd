@@ -10,8 +10,9 @@ website = "https://www.openwall.com/crypt/"
 [http_parser]
 author  = "Joyent, Inc. and other Node contributors"
 files   = "{http_parser.[ch],LICENSE-MIT}"
-git     = "https://github.com/nodejs/http-parser"
+git     = "https://git.in-ulm.de/cbiedl/http-parser"
 license = "MIT License"
+patches = "debian/patches/*.patch"
 
 [sha2]
 author  = "Olivier Gay"
