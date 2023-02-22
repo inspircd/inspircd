@@ -16,6 +16,8 @@ jobs:
 
       - name: Setup Conan
         uses: turtlebrowser/get-conan@v1.2
+        with:
+          version: 1.59.0
 
       - name: Install libraries
         working-directory: ${{ github.workspace }}/win/build
