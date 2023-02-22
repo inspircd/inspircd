@@ -65,23 +65,24 @@ struct CloakInfo final
 	// The secret used for generating cloaks.
 	std::string key;
 
+	// Dynamic reference to the md5 implementation.
+	dynamic_reference_nocheck<HashProvider> md5;
+
 	// The prefix for cloaks (e.g. MyNet-).
 	std::string prefix;
 
 	// The suffix for IP cloaks (e.g. .IP).
 	std::string suffix;
 
-	dynamic_reference<HashProvider> Hash;
-
-	CloakInfo(Cloak::Engine* engine, CloakMode Mode, const std::string& Key, const std::string& Prefix, const std::string& Suffix, bool IgnoreCase, unsigned int DomainParts = 0)
+	CloakInfo(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, CloakMode Mode, const std::string& Key)
 		: Cloak::Method(engine)
 		, mode(Mode)
-		, domainparts(DomainParts)
-		, ignorecase(IgnoreCase)
+		, domainparts(tag->getNum<unsigned int>("domainparts", 3, 1, 10))
+		, ignorecase(tag->getBool("ignorecase"))
 		, key(Key)
-		, prefix(Prefix)
-		, suffix(Suffix)
-		, Hash(engine->creator, "hash/md5")
+		, md5(engine->creator, "hash/md5")
+		, prefix(tag->getString("prefix"))
+		, suffix(tag->getString("suffix", ".IP"))
 	{
 	}
 
@@ -103,7 +104,7 @@ struct CloakInfo final
 		else
 			input.append(item);
 
-		std::string rv = Hash->GenerateRaw(input).substr(0, len);
+		std::string rv = md5->GenerateRaw(input).substr(0, len);
 		for(size_t i = 0; i < len; i++)
 		{
 			// this discards 3 bits per byte. We have an
@@ -186,7 +187,7 @@ struct CloakInfo final
 	std::string GetCompatLinkData()
 	{
 		std::string data = "broken";
-		if (Hash)
+		if (md5)
 		{
 			switch (mode)
 			{
@@ -219,9 +220,9 @@ struct CloakInfo final
 		// can't directly send the key here. Instead we use dummy cloaks that
 		// allow verification of or less the same thing.
 		const std::string broken = "missing-md5-module";
-		data["cloak-v4"]   = Hash ? Generate("123.123.123.123")    : broken;
-		data["cloak-v6"]   = Hash ? Generate("dead:beef:cafe::")   : broken;
-		data["cloak-host"] = Hash ? Generate("cloak.inspircd.org") : broken;
+		data["cloak-v4"]   = md5 ? Generate("123.123.123.123")    : broken;
+		data["cloak-v6"]   = md5 ? Generate("dead:beef:cafe::")   : broken;
+		data["cloak-host"] = md5 ? Generate("cloak.inspircd.org") : broken;
 
 		compatdata = GetCompatLinkData();
 	}
@@ -252,7 +253,7 @@ struct CloakInfo final
 
 	std::string Generate(LocalUser* user) override ATTR_NOT_NULL(2)
 	{
-		if (!Hash || !user->client_sa.is_ip())
+		if (!md5 || !user->client_sa.is_ip())
 			return {};
 
 		return GenCloak(user->client_sa, user->GetAddress(), user->GetRealHost());
@@ -260,7 +261,7 @@ struct CloakInfo final
 
 	std::string Generate(const std::string& hostip) override
 	{
-		if (!Hash)
+		if (!md5)
 			return {};
 
 		irc::sockets::sockaddrs sa;
@@ -273,14 +274,17 @@ class MD5Engine final
 	: public Cloak::Engine
 {
 private:
-	bool halfcloak;
+	// Dynamic reference to the md5 implementation.
 	dynamic_reference_nocheck<HashProvider> md5;
 
+	// The method used for cloaking users.
+	CloakMode mode;
+
 public:
-	MD5Engine(Module* Creator, const std::string& Name, bool hc)
+	MD5Engine(Module* Creator, const std::string& Name, CloakMode cm)
 		: Cloak::Engine(Creator, Name)
-		, halfcloak(hc)
 		, md5(Creator, "hash/md5")
+		, mode(cm)
 	{
 	}
 
@@ -299,20 +303,7 @@ public:
 		if (primary && key.length() < minkeylen)
 			throw ModuleException(creator, "Your cloaking key is not secure. It should be at least " + ConvToStr(minkeylen) + " characters long, at " + tag->source.str());
 
-		const bool ignorecase = tag->getBool("ignorecase");
-		const std::string mode = tag->getString("mode");
-		const std::string prefix = tag->getString("prefix");
-		const std::string suffix = tag->getString("suffix", ".IP");
-
-		if (halfcloak)
-		{
-			unsigned int domainparts = tag->getNum<unsigned int>("domainparts", 3, 1, 10);
-			return std::make_shared<CloakInfo>(this, MODE_HALF_CLOAK, key, prefix, suffix, ignorecase, domainparts);
-		}
-		else
-		{
-			return std::make_shared<CloakInfo>(this, MODE_OPAQUE, key, prefix, suffix, ignorecase);
-		}
+		return std::make_shared<CloakInfo>(this, tag, mode, key);
 	}
 };
 
@@ -320,14 +311,14 @@ class ModuleCloakMD5 final
 	: public Module
 {
 private:
-	MD5Engine halfcloakengine;
-	MD5Engine fullcloakengine;
+	MD5Engine halfcloak;
+	MD5Engine fullcloak;
 
 public:
 	ModuleCloakMD5()
 		: Module(VF_VENDOR, "Adds the half and full cloaking methods for use with the cloak module.")
-		, halfcloakengine(this, "half", true)
-		, fullcloakengine(this, "full", false)
+		, halfcloak(this, "half", MODE_HALF_CLOAK)
+		, fullcloak(this, "full", MODE_OPAQUE)
 	{
 	}
 };
