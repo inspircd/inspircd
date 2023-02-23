@@ -106,6 +106,9 @@ public:
 
 	Cloak::List* GetCloaks(LocalUser* user) override
 	{
+		if (!user->GetClass()->config->getBool("usecloak", true))
+			return nullptr;
+
 		auto* cloaks = ext.Get(user);
 		if (!cloaks)
 		{
@@ -416,6 +419,13 @@ public:
 		// Generate cloaks now if they do not already exist so opers can /CHECK
 		// this user if need be.
 		cloakapi.GetCloaks(user);
+	}
+
+	void OnPostChangeConnectClass(LocalUser* user, bool force)
+	{
+		// Reset the cloaks so if the user is moving into a class with <connect usecloak="no"> they
+		// will be decloaked.
+		cloakapi.ResetCloaks(user, true);
 	}
 };
 
