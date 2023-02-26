@@ -421,7 +421,7 @@ public:
 		cloakapi.GetCloaks(user);
 	}
 
-	void OnPostChangeConnectClass(LocalUser* user, bool force)
+	void OnPostChangeConnectClass(LocalUser* user, bool force) override
 	{
 		// Reset the cloaks so if the user is moving into a class with <connect usecloak="no"> they
 		// will be decloaked.
