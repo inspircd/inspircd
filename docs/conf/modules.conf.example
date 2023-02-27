@@ -1072,7 +1072,7 @@
 # If you also use the hideoper module you can allow hidden opers with
 # the help mode set to to be included in `/STATS P` and mark helpers
 # as such to differentiate them from opers.
-# <hideoper ignorehideoper="no"
+# <helpmode ignorehideoper="no"
 #           markhelpers="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
