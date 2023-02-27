@@ -53,7 +53,7 @@ struct HelpTopic final
 
 typedef std::map<std::string, HelpTopic, irc::insensitive_swo> HelpMap;
 
-class CommandHelpop final
+class CommandHelp final
 	: public Command
 {
 private:
@@ -63,8 +63,8 @@ public:
 	HelpMap help;
 	std::string nohelp;
 
-	CommandHelpop(Module* Creator)
-		: Command(Creator, "HELPOP", 0)
+	CommandHelp(Module* Creator)
+		: Command(Creator, "HELP")
 		, startkey("start")
 	{
 		syntax = { "<any-text>" };
@@ -84,20 +84,20 @@ public:
 		user->WriteNumeric(RPL_HELPSTART, topic, entry.title);
 		for (const auto& line : entry.body)
 			user->WriteNumeric(RPL_HELPTXT, topic, line);
-		user->WriteNumeric(RPL_ENDOFHELP, topic, "End of /HELPOP.");
+		user->WriteNumeric(RPL_ENDOFHELP, topic, "End of /HELP.");
 		return CmdResult::SUCCESS;
 	}
 };
 
-class ModuleHelpop final
+class ModuleHelp final
 	: public Module
 {
 private:
-	CommandHelpop cmd;
+	CommandHelp cmd;
 
 public:
-	ModuleHelpop()
-		: Module(VF_VENDOR, "Adds the /HELPOP command which allows users to view help on various topics.")
+	ModuleHelp()
+		: Module(VF_VENDOR, "Adds the /HELP command which allows users to view help on various topics.")
 		, cmd(this)
 	{
 	}
@@ -107,25 +107,25 @@ public:
 		size_t longestkey = 0;
 
 		HelpMap newhelp;
-		auto tags = ServerInstance->Config->ConfTags("helpop");
+		auto tags = ServerInstance->Config->ConfTags("helptopic", ServerInstance->Config->ConfTags("helpop"));
 		if (tags.empty())
-			throw ModuleException(this, "You have loaded the helpop module but not configured any help topics!");
+			throw ModuleException(this, "You have loaded the help module but not configured any help topics!");
 
 		for (const auto& [_, tag] : tags)
 		{
 			// Attempt to read the help key.
 			const std::string key = tag->getString("key");
 			if (key.empty())
-				throw ModuleException(this, INSP_FORMAT("<helpop:key> is empty at {}", tag->source.str()));
+				throw ModuleException(this, INSP_FORMAT("<{}:key> is empty at {}", tag->name, tag->source.str()));
 			else if (irc::equals(key, "index"))
-				throw ModuleException(this, INSP_FORMAT("<helpop:key> is set to \"index\" which is reserved at {}", tag->source.str()));
+				throw ModuleException(this, INSP_FORMAT("<{}:key> is set to \"index\" which is reserved at {}", tag->name, tag->source.str()));
 			else if (key.length() > longestkey)
 				longestkey = key.length();
 
 			// Attempt to read the help value.
 			std::string value;
 			if (!tag->readString("value", value, true) || value.empty())
-				throw ModuleException(this, INSP_FORMAT("<helpop:value> is empty at {}", tag->source.str()));
+				throw ModuleException(this, INSP_FORMAT("<{}:value> is empty at {}", tag->name, tag->source.str()));
 
 			// Parse the help body. Empty lines are replaced with a single
 			// space because some clients are unable to show blank lines.
@@ -138,8 +138,8 @@ public:
 			const std::string title = tag->getString("title", INSP_FORMAT("*** Help for {}", key), 1);
 			if (!newhelp.emplace(key, HelpTopic(helpmsg, title)).second)
 			{
-				throw ModuleException(this, INSP_FORMAT("<helpop> tag with duplicate key '{}' at {}",
-					key, tag->source.str()));
+				throw ModuleException(this, INSP_FORMAT("<{}> tag with duplicate key '{}' at {}",
+					tag->name, key, tag->source.str()));
 			}
 		}
 
@@ -169,4 +169,4 @@ public:
 	}
 };
 
-MODULE_INIT(ModuleHelpop)
+MODULE_INIT(ModuleHelp)

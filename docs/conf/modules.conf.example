@@ -1054,15 +1054,15 @@
 #<module name="haproxy">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# HELPOP module: Provides the /HELPOP command
-#<module name="helpop">
+# Help module: Provides the /HELP command
+#<module name="help">
 #
-#-#-#-#-#-#-#-#-#-#-#-#-  HELPOP  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
+#-#-#-#-#-#-#-#-#-#-#-#-  HELP  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# If you specify to use the helpop module, then specify below the     #
-# path to the helpop.conf file.                                       #
+# If you specify to use the help module, then specify below the path  #
+# to the help.conf file.                                              #
 #                                                                     #
-#<include file="examples/helpop.conf.example">
+#<include file="examples/help.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Help mode module: Provides oper-only user mode `h` (helpop) which
