@@ -217,6 +217,11 @@ public:
 					stats.AddGenericRow(INSP_FORMAT("\x02{}\x02 ({}){}", oper->nick, oper->GetRealUserHost(), extra));
 				}
 
+				// Sort opers alphabetically.
+				std::sort(stats.GetRows().begin(), stats.GetRows().end(), [](const auto& lhs, const auto& rhs) {
+					return lhs.GetParams()[1] < rhs.GetParams()[1];
+				});
+
 				stats.AddGenericRow(INSP_FORMAT("{} server operator{} total", stats.GetRows().size(), stats.GetRows().size() ? "s" : ""));
 				return MOD_RES_DENY;
 			}
