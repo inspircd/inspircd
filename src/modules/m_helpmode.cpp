@@ -53,15 +53,24 @@ class ModuleHelpMode final
 	, public Whois::EventListener
 {
 private:
+	bool ignorehideoper;
 	HelpOp helpop;
+	UserModeReference hideoper;
 
 public:
 	ModuleHelpMode()
 		: Module(VF_VENDOR, "Adds user mode h (helpop) which marks a server operator as being available for help.")
-		, Stats::EventListener(this)
+		, Stats::EventListener(this, 50)
 		, Whois::EventListener(this)
 		, helpop(this)
+		, hideoper(this, "hideoper")
 	{
+	}
+
+	void ReadConfig(ConfigStatus& status) override
+	{
+		const auto& tag = ServerInstance->Config->ConfValue("helpmode");
+		ignorehideoper = tag->getBool("ignorehideoper", false);
 	}
 
 	ModResult OnStats(Stats::Context& stats) override
@@ -71,8 +80,11 @@ public:
 
 		for (auto* oper : helpop.helpopers)
 		{
-			if (oper->IsOper() || oper->server->IsService())
-				continue; // Ignore opers and services.
+			if (oper->server->IsService())
+				continue; // Ignore services.
+
+			if (oper->IsOper() && (!ignorehideoper || !oper->IsModeSet(hideoper)))
+				continue; // Ignore opers.
 
 			std::string extra;
 			if (oper->IsAway())
