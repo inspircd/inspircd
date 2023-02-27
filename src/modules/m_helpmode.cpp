@@ -26,7 +26,7 @@ class HelpOp final
 	: public SimpleUserMode
 {
 public:
-	std::vector<User*> helpopers;
+	std::vector<User*> helpers;
 
 	HelpOp(Module* mod)
 		: SimpleUserMode(mod, "helpop", 'h', true)
@@ -39,9 +39,9 @@ public:
 			return false;
 
 		if (change.adding)
-			helpopers.push_back(dest);
+			helpers.push_back(dest);
 		else
-			stdalgo::erase(helpopers, dest);
+			stdalgo::erase(helpers, dest);
 
 		return true;
 	}
@@ -78,33 +78,33 @@ public:
 		if (stats.GetSymbol() != 'P')
 			return MOD_RES_PASSTHRU;
 
-		for (auto* oper : helpop.helpopers)
+		for (auto* helper : helpop.helpers)
 		{
-			if (oper->server->IsService())
+			if (helper->server->IsService())
 				continue; // Ignore services.
 
-			if (oper->IsOper() && (!ignorehideoper || !oper->IsModeSet(hideoper)))
-				continue; // Ignore opers.
+			if (helper->IsOper() && (!ignorehideoper || !helper->IsModeSet(hideoper)))
+				continue; // Ignore helpers.
 
 			std::string extra;
-			if (oper->IsAway())
+			if (helper->IsAway())
 			{
-				const std::string awayperiod = Duration::ToString(ServerInstance->Time() - oper->awaytime);
-				const std::string awaytime = InspIRCd::TimeString(oper->awaytime);
+				const std::string awayperiod = Duration::ToString(ServerInstance->Time() - helper->awaytime);
+				const std::string awaytime = InspIRCd::TimeString(helper->awaytime);
 
-				extra = INSP_FORMAT(": away for {} [since {}] ({})", awayperiod, awaytime, oper->awaymsg);
+				extra = INSP_FORMAT(": away for {} [since {}] ({})", awayperiod, awaytime, helper->awaymsg);
 			}
 
-			auto* loper = IS_LOCAL(oper);
-			if (loper)
+			auto* lhelper = IS_LOCAL(helper);
+			if (lhelper)
 			{
-				const std::string idleperiod = Duration::ToString(ServerInstance->Time() - loper->idle_lastmsg);
-				const std::string idletime = InspIRCd::TimeString(loper->idle_lastmsg);
+				const std::string idleperiod = Duration::ToString(ServerInstance->Time() - lhelper->idle_lastmsg);
+				const std::string idletime = InspIRCd::TimeString(lhelper->idle_lastmsg);
 
 				extra += INSP_FORMAT("{} idle for {} [since {}]",  extra.empty() ? ':' : ',', idleperiod, idletime);
 			}
 
-			stats.AddGenericRow(INSP_FORMAT("\x02{}\x02 ({}){}", oper->nick, oper->GetRealUserHost(), extra));
+			stats.AddGenericRow(INSP_FORMAT("\x02{}\x02 ({}){}", helper->nick, helper->GetRealUserHost(), extra));
 		}
 
 		// Allow the core to add normal opers.
