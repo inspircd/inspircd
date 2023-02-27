@@ -627,6 +627,11 @@ std::vector<std::string> ServerConfig::GetModules() const
 		}
 		else if (stdalgo::string::equalsci(shortname, "gecosban"))
 			modules.push_back("realnameban");
+		else if (stdalgo::string::equalsci(shortname, "helpop"))
+		{
+			modules.push_back("help");
+			modules.push_back("helpmode");
+		}
 		else if (stdalgo::string::equalsci(shortname, "regex_pcre2"))
 			modules.push_back("regex_pcre");
 		else if (stdalgo::string::equalsci(shortname, "sha256"))
