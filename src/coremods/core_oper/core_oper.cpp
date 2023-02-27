@@ -46,7 +46,7 @@ private:
 public:
 	CoreModOper()
 		: Module(VF_CORE | VF_VENDOR, "Provides the DIE, KILL, OPER, REHASH, and RESTART commands")
-		, Stats::EventListener(this)
+		, Stats::EventListener(this, UINT_MAX)
 		, cmddie(this)
 		, cmdkill(this)
 		, cmdoper(this)

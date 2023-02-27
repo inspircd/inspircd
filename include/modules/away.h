@@ -29,8 +29,8 @@ class Away::EventListener
 	: public Events::ModuleEventListener
 {
 protected:
-	EventListener(Module* mod)
-		: ModuleEventListener(mod, "event/away")
+	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+		: ModuleEventListener(mod, "event/away", eventprio)
 	{
 	}
 

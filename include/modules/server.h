@@ -44,8 +44,8 @@ class ServerProtocol::BroadcastEventListener
 	: public Events::ModuleEventListener
 {
 public:
-	BroadcastEventListener(Module* mod)
-		: ModuleEventListener(mod, "event/server-broadcast")
+	BroadcastEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+		: ModuleEventListener(mod, "event/server-broadcast", eventprio)
 	{
 	}
 
@@ -62,8 +62,8 @@ class ServerProtocol::LinkEventListener
 	: public Events::ModuleEventListener
 {
 public:
-	LinkEventListener(Module* mod)
-		: ModuleEventListener(mod, "event/server-link")
+	LinkEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+		: ModuleEventListener(mod, "event/server-link", eventprio)
 	{
 	}
 
@@ -88,8 +88,8 @@ class ServerProtocol::MessageEventListener
 	: public Events::ModuleEventListener
 {
 public:
-	MessageEventListener(Module* mod)
-		: ModuleEventListener(mod, "event/server-message")
+	MessageEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+		: ModuleEventListener(mod, "event/server-message", eventprio)
 	{
 	}
 
@@ -112,8 +112,8 @@ class ServerProtocol::SyncEventListener
 	: public Events::ModuleEventListener
 {
 public:
-	SyncEventListener(Module* mod)
-		: ModuleEventListener(mod, "event/server-sync")
+	SyncEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+		: ModuleEventListener(mod, "event/server-sync", eventprio)
 	{
 	}
 

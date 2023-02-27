@@ -28,8 +28,8 @@ class Names::EventListener
 	: public Events::ModuleEventListener
 {
 public:
-	EventListener(Module* mod)
-		: ModuleEventListener(mod, "event/names")
+	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+		: ModuleEventListener(mod, "event/names", eventprio)
 	{
 	}
 

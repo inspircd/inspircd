@@ -38,8 +38,8 @@ class ISupport::EventListener
 	: public Events::ModuleEventListener
 {
 protected:
-	EventListener(Module* mod)
-		: ModuleEventListener(mod, "event/isupport")
+	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+		: ModuleEventListener(mod, "event/isupport", eventprio)
 	{
 	}
 

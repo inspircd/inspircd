@@ -54,8 +54,8 @@ namespace Cap
 	class EventListener : public Events::ModuleEventListener
 	{
 	public:
-		EventListener(Module* mod)
-			: ModuleEventListener(mod, "event/cap")
+		EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+			: ModuleEventListener(mod, "event/cap", eventprio)
 		{
 		}
 

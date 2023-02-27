@@ -60,8 +60,8 @@ namespace ReloadModule
 	class EventListener : public Events::ModuleEventListener
 	{
 	public:
-		EventListener(Module* mod)
-			: ModuleEventListener(mod, "event/reloadmodule")
+		EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+			: ModuleEventListener(mod, "event/reloadmodule", eventprio)
 		{
 		}
 

@@ -305,8 +305,8 @@ class HTTPACLEventListener
 	: public Events::ModuleEventListener
 {
 public:
-	HTTPACLEventListener(Module* mod)
-		: ModuleEventListener(mod, "event/http-acl")
+	HTTPACLEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+		: ModuleEventListener(mod, "event/http-acl", eventprio)
 	{
 	}
 
@@ -317,8 +317,8 @@ class HTTPRequestEventListener
 	: public Events::ModuleEventListener
 {
 public:
-	HTTPRequestEventListener(Module* mod)
-		: ModuleEventListener(mod, "event/http-request")
+	HTTPRequestEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+		: ModuleEventListener(mod, "event/http-request", eventprio)
 	{
 	}
 

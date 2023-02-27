@@ -551,8 +551,8 @@ public:
 	/** Constructor.
 	 * @param mod Module owning the provider.
 	 */
-	MessageTagProvider(Module* mod)
-		: Events::ModuleEventListener(mod, "event/messagetag")
+	MessageTagProvider(Module* mod, unsigned int eventprio = DefaultPriority)
+		: Events::ModuleEventListener(mod, "event/messagetag", eventprio)
 	{
 	}
 
