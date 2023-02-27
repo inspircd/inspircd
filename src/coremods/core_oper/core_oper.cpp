@@ -191,13 +191,11 @@ public:
 			case 'P':
 			{
 				// Online server operators.
-				size_t opers = 0;
 				for (auto* oper : ServerInstance->Users.all_opers)
 				{
 					if (oper->server->IsService())
 						continue;
 
-					opers++;
 					std::string extra;
 					if (oper->IsAway())
 					{
@@ -218,7 +216,8 @@ public:
 
 					stats.AddGenericRow(INSP_FORMAT("\x02{}\x02 ({}){}", oper->nick, oper->GetRealUserHost(), extra));
 				}
-				stats.AddGenericRow(INSP_FORMAT("{} server operator{} total", opers, opers ? "s" : ""));
+
+				stats.AddGenericRow(INSP_FORMAT("{} server operator{} total", stats.GetRows().size(), stats.GetRows().size() ? "s" : ""));
 				return MOD_RES_DENY;
 			}
 		}
