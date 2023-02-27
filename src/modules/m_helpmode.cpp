@@ -56,6 +56,7 @@ private:
 	bool ignorehideoper;
 	HelpOp helpop;
 	UserModeReference hideoper;
+	bool markhelpers;
 
 public:
 	ModuleHelpMode()
@@ -70,7 +71,8 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("helpmode");
-		ignorehideoper = tag->getBool("ignorehideoper", false);
+		ignorehideoper = tag->getBool("ignorehideoper");
+		markhelpers = tag->getBool("markhelpers", true);
 	}
 
 	ModResult OnStats(Stats::Context& stats) override
@@ -84,7 +86,7 @@ public:
 				continue; // Ignore services.
 
 			if (helper->IsOper() && (!ignorehideoper || !helper->IsModeSet(hideoper)))
-				continue; // Ignore helpers.
+				continue; // Ignore opers.
 
 			std::string extra;
 			if (helper->IsAway())
@@ -104,7 +106,8 @@ public:
 				extra += INSP_FORMAT("{} idle for {} [since {}]",  extra.empty() ? ':' : ',', idleperiod, idletime);
 			}
 
-			stats.AddGenericRow(INSP_FORMAT("\x02{}\x02 ({}){}", helper->nick, helper->GetRealUserHost(), extra));
+			stats.AddGenericRow(INSP_FORMAT("\x02{}\x02{} ({}){}", helper->nick, markhelpers ? " [helper]" : "",
+				helper->GetRealUserHost(), extra));
 		}
 
 		// Allow the core to add normal opers.
