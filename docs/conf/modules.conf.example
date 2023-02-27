@@ -1065,6 +1065,11 @@
 #<include file="examples/helpop.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Help mode module: Provides oper-only user mode `h` (helpop) which
+# marks a server operator as available for help.
+#<module name="helpmode">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Hide chans module: Allows users to hide their channels list from non-
 # opers by setting user mode +I on themselves.
 #<module name="hidechans">

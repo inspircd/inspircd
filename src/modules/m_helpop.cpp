@@ -24,7 +24,6 @@
 
 
 #include "inspircd.h"
-#include "modules/whois.h"
 
 enum
 {
@@ -92,18 +91,14 @@ public:
 
 class ModuleHelpop final
 	: public Module
-	, public Whois::EventListener
 {
 private:
 	CommandHelpop cmd;
-	SimpleUserMode ho;
 
 public:
 	ModuleHelpop()
-		: Module(VF_VENDOR, "Adds the /HELPOP command which allows users to view help on various topics and user mode h (helpop) which marks a server operator as being available for help.")
-		, Whois::EventListener(this)
+		: Module(VF_VENDOR, "Adds the /HELPOP command which allows users to view help on various topics.")
 		, cmd(this)
-		, ho(this, "helpop", 'h', true)
 	{
 	}
 
@@ -171,12 +166,6 @@ public:
 
 		const auto& tag = ServerInstance->Config->ConfValue("helpmsg");
 		cmd.nohelp = tag->getString("nohelp", "There is no help for the topic you searched for. Please try again.", 1);
-	}
-
-	void OnWhois(Whois::Context& whois) override
-	{
-		if (whois.GetTarget()->IsModeSet(ho))
-			whois.SendLine(RPL_WHOISHELPOP, "is available for help.");
 	}
 };
 
