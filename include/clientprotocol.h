@@ -550,6 +550,7 @@ class CoreExport ClientProtocol::MessageTagProvider
 public:
 	/** Constructor.
 	 * @param mod Module owning the provider.
+	 * @param eventprio The priority to give this event listener.
 	 */
 	MessageTagProvider(Module* mod, unsigned int eventprio = DefaultPriority)
 		: Events::ModuleEventListener(mod, "event/messagetag", eventprio)
