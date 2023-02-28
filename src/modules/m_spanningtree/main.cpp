@@ -876,7 +876,7 @@ ModuleSpanningTree::~ModuleSpanningTree()
 {
 	ServerInstance->PI = &ServerInstance->DefaultProtocolInterface;
 
-	auto* newsrv = new Server(ServerInstance->Config->GetSID(), ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
+	auto* newsrv = new Server(ServerInstance->Config->ServerId, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
 	SetLocalUsersServer(newsrv);
 
 	delete Utils;

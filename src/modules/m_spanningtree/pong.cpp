@@ -35,7 +35,7 @@ CmdResult CommandPong::HandleServer(TreeServer* server, CommandBase::Params& par
 		server->FinishBurst();
 	}
 
-	if (params[0] == ServerInstance->Config->GetSID())
+	if (params[0] == ServerInstance->Config->ServerId)
 	{
 		// PONG for us
 		server->OnPong();

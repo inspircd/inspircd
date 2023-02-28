@@ -568,7 +568,12 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			if (!this->GetTheirChallenge().empty() && (this->LinkState == CONNECTING))
 			{
 				this->SendCapabilities(2);
-				this->WriteLine("SERVER " + ServerInstance->Config->ServerName + " " + TreeSocket::MakePass(capab->link->SendPass, capab->theirchallenge) + " 0 " + ServerInstance->Config->GetSID() + " :" + ServerInstance->Config->ServerDesc);
+				this->WriteLine(INSP_FORMAT("SERVER {} {} 0 {} :{}",
+					ServerInstance->Config->ServerName,
+					TreeSocket::MakePass(capab->link->SendPass, capab->theirchallenge),
+					ServerInstance->Config->ServerId,
+					ServerInstance->Config->ServerDesc
+				));
 			}
 		}
 		else
@@ -577,7 +582,12 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			if (this->LinkState == CONNECTING)
 			{
 				this->SendCapabilities(2);
-				this->WriteLine("SERVER "+ServerInstance->Config->ServerName+" "+capab->link->SendPass+" 0 "+ServerInstance->Config->GetSID()+" :"+ServerInstance->Config->ServerDesc);
+				this->WriteLine(INSP_FORMAT("SERVER {} {} 0 {} :{}",
+					ServerInstance->Config->ServerName,
+					capab->link->SendPass,
+					ServerInstance->Config->ServerId,
+					ServerInstance->Config->ServerDesc
+				));
 			}
 		}
 	}

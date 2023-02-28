@@ -140,7 +140,7 @@ namespace Stats
 	void ServerInfo(XMLSerializer& serializer)
 	{
 		serializer.BeginBlock("server")
-			.Attribute("id", ServerInstance->Config->GetSID())
+			.Attribute("id", ServerInstance->Config->ServerId)
 			.Attribute("name", ServerInstance->Config->ServerName)
 			.Attribute("description", ServerInstance->Config->ServerDesc)
 			.Attribute("customversion", ServerInstance->Config->CustomVersion)

@@ -294,20 +294,20 @@ void ServerConfig::Fill()
 {
 	// Read the <server> config.
 	const auto& server = ConfValue("server");
-	if (sid.empty())
+	if (ServerId.empty())
 	{
 		ServerName = server->getString("name", GetServerHost(), InspIRCd::IsFQDN);
 
-		sid = server->getString("id");
-		if (!sid.empty() && !InspIRCd::IsSID(sid))
-			throw CoreException(sid + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
+		ServerId = server->getString("id");
+		if (!ServerId.empty() && !InspIRCd::IsSID(ServerId))
+			throw CoreException(ServerId + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
 	}
 	else
 	{
 		if (server->getString("name", ServerName, 1) != ServerName)
 			throw CoreException("You must restart to change the server name!");
 
-		if (server->getString("id", sid, 1) != sid)
+		if (server->getString("id", ServerId, 1) != ServerId)
 			throw CoreException("You must restart to change the server id!");
 	}
 	ServerDesc = server->getString("description", ServerName, 1);
@@ -381,8 +381,8 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
 		 * These values can only be set on boot. Keep their old values. Do it before we send messages so we actually have a servername.
 		 */
 		this->CaseMapping = old->CaseMapping;
+		this->ServerId = old->ServerId;
 		this->ServerName = old->ServerName;
-		this->sid = old->sid;
 		this->cmdline = old->cmdline;
 	}
 

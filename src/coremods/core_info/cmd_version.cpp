@@ -45,7 +45,7 @@ void CommandVersion::BuildNumerics()
 	operversion.GetParams().clear();
 	operversion.push(INSPIRCD_VERSION ".");
 	operversion.push(ServerInstance->Config->ServerName);
-	operversion.push("[" + ServerInstance->Config->GetSID() + "] " + ServerInstance->Config->CustomVersion);
+	operversion.push("[" + ServerInstance->Config->ServerId + "] " + ServerInstance->Config->CustomVersion);
 }
 
 CmdResult CommandVersion::Handle(User* user, const Params& parameters)

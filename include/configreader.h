@@ -504,15 +504,11 @@ public:
 	 * makes code simpler. 0AA, 1BB etc with letters are reserved
 	 * for services use.
 	 */
-	std::string sid;
+	std::string ServerId;
 
 	/** Construct a new ServerConfig
 	 */
 	ServerConfig();
-
-	/** Get server ID as string with required leading zeroes
-	 */
-	const std::string& GetSID() const { return sid; }
 
 	/** Retrieves the server name which should be shown to users. */
 	const std::string& GetServerName() const { return HideServer.empty() ? ServerName : HideServer; }

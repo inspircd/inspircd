@@ -30,7 +30,7 @@
 /** ENCAP */
 CmdResult CommandEncap::Handle(User* user, Params& params)
 {
-	if (ServerInstance->Config->GetSID() == params[0] || InspIRCd::Match(ServerInstance->Config->ServerName, params[0]))
+	if (ServerInstance->Config->ServerId == params[0] || InspIRCd::Match(ServerInstance->Config->ServerName, params[0]))
 	{
 		CommandBase::Params plist(params.begin() + 2, params.end());
 

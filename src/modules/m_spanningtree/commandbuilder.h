@@ -49,7 +49,7 @@ protected:
 public:
 	CmdBuilder(const char* cmd)
 	{
-		content.append(ServerInstance->Config->GetSID());
+		content.append(ServerInstance->Config->ServerId);
 		push(cmd);
 		FireEvent(ServerInstance->FakeClient->server, cmd, tags);
 	}

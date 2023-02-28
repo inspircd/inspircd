@@ -530,14 +530,14 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 
 	// If we don't have a SID, generate one based on the server name and the server description
-	if (Config->sid.empty())
-		Config->sid = UIDGenerator::GenerateSID(Config->ServerName, Config->ServerDesc);
+	if (Config->ServerId.empty())
+		Config->ServerId = UIDGenerator::GenerateSID(Config->ServerName, Config->ServerDesc);
 
 	// Initialize the UID generator with our sid
-	this->UIDGen.init(Config->sid);
+	this->UIDGen.init(Config->ServerId);
 
 	// Create the server user for this server
-	this->FakeClient = new FakeUser(Config->sid, Config->ServerName, Config->ServerDesc);
+	this->FakeClient = new FakeUser(Config->ServerId, Config->ServerName, Config->ServerDesc);
 
 	// This is needed as all new XLines are marked pending until ApplyLines() is called
 	this->XLines->ApplyLines();
@@ -559,7 +559,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		Exit(EXIT_STATUS_LOG);
 	}
 
-	std::cout << "InspIRCd is now running as '" << Config->ServerName << "'[" << Config->GetSID() << "] with " << SocketEngine::GetMaxFds() << " max open sockets" << std::endl;
+	std::cout << "InspIRCd is now running as '" << Config->ServerName << "'[" << Config->ServerId << "] with " << SocketEngine::GetMaxFds() << " max open sockets" << std::endl;
 
 #ifndef _WIN32
 	if (!Config->cmdline.nofork)
@@ -618,7 +618,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	DropRoot();
 
 	Logs.Normal("STARTUP", "Startup complete as '{}'[{}], {} max open sockets", Config->ServerName,
-		Config->GetSID(), SocketEngine::GetMaxFds());
+		Config->ServerId, SocketEngine::GetMaxFds());
 }
 
 void InspIRCd::UpdateTime()

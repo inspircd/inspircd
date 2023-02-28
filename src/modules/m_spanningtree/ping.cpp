@@ -29,7 +29,7 @@
 
 CmdResult CommandPing::Handle(User* user, Params& params)
 {
-	if (params[0] == ServerInstance->Config->GetSID())
+	if (params[0] == ServerInstance->Config->ServerId)
 	{
 		// PING for us, reply with a PONG
 		CmdBuilder reply("PONG");

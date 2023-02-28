@@ -36,7 +36,7 @@
  * no socket associated with it. Its version string is our own local version.
  */
 TreeServer::TreeServer()
-	: Server(ServerInstance->Config->GetSID(), ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc)
+	: Server(ServerInstance->Config->ServerId, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc)
 	, pingtimer(this)
 	, ServerUser(ServerInstance->FakeClient)
 	, age(ServerInstance->Time())
