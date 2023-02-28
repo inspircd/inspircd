@@ -47,7 +47,7 @@ public:
 
 	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (SimpleUserMode::OnModeChange(source, dest, channel, change) == false)
+		if (!SimpleUserMode::OnModeChange(source, dest, channel, change))
 			return false;
 
 		if (change.adding)
