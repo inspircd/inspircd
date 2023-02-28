@@ -26,24 +26,24 @@
 
 #include "inspircd.h"
 
-bool InspIRCd::PassCompare(const std::string& data, const std::string& input, const std::string& hashtype)
+bool InspIRCd::CheckPassword(const std::string& password, const std::string& passwordhash, const std::string& value)
 {
 	ModResult res;
-	FIRST_MOD_RESULT(OnPassCompare, res, (data, input, hashtype));
+	FIRST_MOD_RESULT(OnCheckPassword, res, (password, passwordhash, value));
 
-	/* Module matched */
 	if (res == MOD_RES_ALLOW)
-		return true;
+		return true; // Password explicitly valid.
 
-	/* Module explicitly didnt match */
 	if (res == MOD_RES_DENY)
-		return false;
+		return false; // Password explicitly invalid.
 
-	/* We dont handle any hash types except for plaintext - Thanks tra26 */
-	if (!hashtype.empty() && !stdalgo::string::equalsci(hashtype, "plaintext"))
-		return false;
+	// The hash algorithm wasn't recognised by any modules. If its plain
+	// text then we can check it internally.
+	if (passwordhash.empty() || stdalgo::string::equalsci(passwordhash, "plaintext"))
+		return TimingSafeCompare(password, value);
 
-	return TimingSafeCompare(data, input);
+	// The password was invalid.
+	return false;
 }
 
 bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Params& parameters, unsigned int splithere, int extra, bool usemax)

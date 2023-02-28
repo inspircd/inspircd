@@ -103,7 +103,7 @@ public:
 	bool Matches(LocalUser* user, const std::string& pass, UserCertificateAPI& sslapi) const
 	{
 		// Did the user send a valid password?
-		if (!password.empty() && !InspIRCd::PassCompare(password, pass, passhash))
+		if (!password.empty() && !InspIRCd::CheckPassword(password, passhash, pass))
 			return false;
 
 		// Does the user have a valid fingerprint?

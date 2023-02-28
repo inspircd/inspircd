@@ -104,11 +104,11 @@ public:
 		cmd.access_needed = tag->getBool("operonly") ? CmdAccess::OPERATOR : CmdAccess::NORMAL;
 	}
 
-	ModResult OnPassCompare(const std::string& data, const std::string& input, const std::string& hashtype) override
+	ModResult OnCheckPassword(const std::string& password, const std::string& passwordhash, const std::string& value) override
 	{
-		if (!hashtype.compare(0, 5, "hmac-", 5))
+		if (!passwordhash.compare(0, 5, "hmac-", 5))
 		{
-			std::string type(hashtype, 5);
+			std::string type(passwordhash, 5);
 			HashProvider* hp = ServerInstance->Modules.FindDataService<HashProvider>("hash/" + type);
 			if (!hp)
 				return MOD_RES_PASSTHRU;
@@ -120,24 +120,24 @@ public:
 			}
 
 			// this is a valid hash, from here on we either accept or deny
-			std::string::size_type sep = data.find('$');
+			std::string::size_type sep = password.find('$');
 			if (sep == std::string::npos)
 				return MOD_RES_DENY;
-			std::string salt = Base64::Decode(data.substr(0, sep));
-			std::string target = Base64::Decode(data.substr(sep + 1));
+			std::string salt = Base64::Decode(password.substr(0, sep));
+			std::string target = Base64::Decode(password.substr(sep + 1));
 
-			if (target == hp->hmac(salt, input))
+			if (target == hp->hmac(salt, value))
 				return MOD_RES_ALLOW;
 			else
 				return MOD_RES_DENY;
 		}
 
-		HashProvider* hp = ServerInstance->Modules.FindDataService<HashProvider>("hash/" + hashtype);
+		HashProvider* hp = ServerInstance->Modules.FindDataService<HashProvider>("hash/" + passwordhash);
 
 		/* Is this a valid hash name? */
 		if (hp)
 		{
-			if (hp->Compare(input, data))
+			if (hp->Compare(value, password))
 				return MOD_RES_ALLOW;
 			else
 				/* No match, and must be hashed, forbid */

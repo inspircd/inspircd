@@ -202,7 +202,7 @@ public:
 			return MOD_RES_DENY;
 		}
 
-		if (conndone && !klass->password.empty() && !InspIRCd::PassCompare(klass->password, user->password, klass->passwordhash))
+		if (conndone && !klass->password.empty() && !InspIRCd::CheckPassword(klass->password, klass->passwordhash, user->password))
 		{
 			const char* error = user->password.empty() ? "one was not provided" : "the provided password was incorrect";
 			ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is not suitable as requires a password and {}.",

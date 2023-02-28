@@ -1308,5 +1308,5 @@ bool OperAccount::CanAutoLogin(LocalUser* user) const
 
 bool OperAccount::CheckPassword(const std::string& pw) const
 {
-	return InspIRCd::PassCompare(password, pw, passwordhash);
+	return InspIRCd::CheckPassword(password, passwordhash, pw);
 }

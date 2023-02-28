@@ -132,7 +132,7 @@ ModResult	Module::OnCheckBan(User*, Channel*, const std::string&) { DetachEvent(
 ModResult	Module::OnPreChangeHost(LocalUser*, const std::string&) { DetachEvent(I_OnPreChangeHost); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnPreChangeRealName(LocalUser*, const std::string&) { DetachEvent(I_OnPreChangeRealName); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnPreTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPreTopicChange); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnPassCompare(const std::string& password, const std::string& input, const std::string& hashtype) { DetachEvent(I_OnPassCompare); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckPassword(const std::string&, const std::string&, const std::string&) { DetachEvent(I_OnCheckPassword); return MOD_RES_PASSTHRU; }
 void		Module::OnPostConnect(User*) { DetachEvent(I_OnPostConnect); }
 void		Module::OnUserPostMessage(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserPostMessage); }
 void		Module::OnUserMessageBlocked(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserMessageBlocked); }

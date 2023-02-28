@@ -43,7 +43,7 @@ struct CustomVhost final
 
 	bool CheckPass(const std::string& pass) const
 	{
-		return InspIRCd::PassCompare(password, pass, hash);
+		return InspIRCd::CheckPassword(password, hash, pass);
 	}
 };
 

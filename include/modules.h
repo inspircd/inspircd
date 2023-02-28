@@ -152,6 +152,7 @@ enum Implementation
 	I_OnCheckInvite,
 	I_OnCheckKey,
 	I_OnCheckLimit,
+	I_OnCheckPassword,
 	I_OnCheckReady,
 	I_OnCommandBlocked,
 	I_OnDecodeMetaData,
@@ -165,7 +166,6 @@ enum Implementation
 	I_OnNumeric,
 	I_OnOperLogin,
 	I_OnOperLogout,
-	I_OnPassCompare,
 	I_OnPostChangeConnectClass,
 	I_OnPostChangeRealHost,
 	I_OnPostCommand,
@@ -818,6 +818,15 @@ public:
 	 */
 	virtual ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask);
 
+	/** Called when checking if a password is valid.
+	 * @param password The hashed password.
+	 * @param passwordhash The name of the algorithm used to hash the password.
+	 * @param value The value to check to see if the password is valid.
+	 * @return MOD_RES_ALLOW if the password is correct, MOD_RES_DENY if the password is incorrect,
+	 * or MOD_RES_PASSTHRU to let another module handle the event.
+	 */
+	virtual ModResult OnCheckPassword(const std::string& password, const std::string& passwordhash, const std::string& value);
+
 	/** Called whenever a change of a local users displayed host is attempted.
 	 * Return 1 to deny the host change, or 0 to allow it.
 	 * @param user The user whose host will be changed
@@ -851,17 +860,6 @@ public:
 	 * @param topic The actual topic text
 	 */
 	virtual void OnPostTopicChange(User* user, Channel* chan, const std::string& topic);
-
-	/** Called whenever a password check is to be made. Replaces the old OldOperCompare API.
-	 * The password field (from the config file) is in 'password' and is to be compared against
-	 * 'input'. This method allows for encryption of passwords (oper, connect:allow, die/restart, etc).
-	 * You should return a nonzero value to override the normal comparison, or zero to pass it on.
-	 * @param password The password from the configuration file (the password="" value).
-	 * @param input The password entered by the user or whoever.
-	 * @param hashtype The hash value from the config
-	 * @return 0 to do nothing (pass on to next module/default), 1 == password is OK, -1 == password is not OK
-	 */
-	virtual ModResult OnPassCompare(const std::string& password, const std::string& input, const std::string& hashtype);
 
 	/** Called after a user has fully connected and all modules have executed OnUserConnect
 	 * This event is informational only. You should not change any user information in this

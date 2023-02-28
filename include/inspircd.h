@@ -431,20 +431,17 @@ public:
 	 */
 	static void ProcessColors(std::vector<std::string>& input);
 
+	/** Checks whether a password is valid.
+	 * @param password The hashed password.
+	 * @param passwordhash The name of the algorithm used to hash the password.
+	 * @param value The value to check to see if the password is valid.
+	 */
+	static bool CheckPassword(const std::string& password, const std::string& passwordhash, const std::string& value);
+
 	/** Rehash the local server
 	 * @param uuid The uuid of the user who started the rehash, can be empty
 	 */
 	void Rehash(const std::string& uuid = "");
-
-	/** Attempt to compare a password to a string from the config file.
-	 * This will be passed to handling modules which will compare the data
-	 * against possible hashed equivalents in the input string.
-	 * @param data The data from the config file
-	 * @param input The data input by the oper
-	 * @param hashtype The hash from the config file
-	 * @return True if the strings match, false if they do not
-	 */
-	static bool PassCompare(const std::string& data, const std::string& input, const std::string& hashtype);
 
 	/** Attempt to write the process id to a given file
 	 */
