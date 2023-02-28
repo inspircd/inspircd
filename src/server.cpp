@@ -31,18 +31,22 @@
 
 void InspIRCd::SignalHandler(int signal)
 {
-#ifdef _WIN32
-	if (signal == SIGTERM)
-#else
-	if (signal == SIGHUP)
+	switch (signal)
 	{
-		ServerInstance->SNO.WriteGlobalSno('r', "Rehashing due to SIGHUP");
-		Rehash();
-	}
-	else if (signal == SIGTERM)
+		case SIGTERM:
+			Exit(EXIT_STATUS_SIGTERM);
+
+#ifndef _WIN32
+		case SIGHUP:
+			ServerInstance->SNO.WriteGlobalSno('a', "Rehashing due to SIGHUP");
+			Rehash();
+			break;
 #endif
-	{
-		Exit(EXIT_STATUS_SIGTERM);
+
+		default:
+			ServerInstance->Logs.Debug("SIGNAL", "BUG: InspIRCd::SignalHandler: unknown signal: {}",
+				signal);
+			break;
 	}
 }
 
