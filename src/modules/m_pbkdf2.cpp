@@ -180,7 +180,7 @@ class ModulePBKDF2 final
 		}
 	}
 
-	void GetConfig()
+	void ReadConfig(ConfigStatus& status) override
 	{
 		// First set the common values
 		const auto& tag = ServerInstance->Config->ConfValue("pbkdf2");
@@ -253,11 +253,6 @@ public:
 			providers.erase(i);
 			break;
 		}
-	}
-
-	void ReadConfig(ConfigStatus& status) override
-	{
-		GetConfig();
 	}
 };
 
