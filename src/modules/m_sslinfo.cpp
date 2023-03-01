@@ -253,6 +253,7 @@ class ModuleSSLInfo
  private:
 	CommandSSLInfo cmd;
 	std::string hash;
+	unsigned long warnexpiring;
 
 	bool MatchFP(ssl_cert* const cert, const std::string& fp) const
 	{
@@ -273,6 +274,7 @@ class ModuleSSLInfo
 		ConfigTag* tag = ServerInstance->Config->ConfValue("sslinfo");
 		cmd.operonlyfp = tag->getBool("operonly");
 		hash = tag->getString("hash");
+		warnexpiring = tag->getDuration("warnexpiring", 0, 0, 60*60*24*365);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
@@ -385,6 +387,19 @@ class ModuleSSLInfo
 
 			if (do_login)
 				user->Oper(ifo);
+		}
+
+		if (!warnexpiring || !cert->GetExpirationTime())
+			return;
+
+		if (ServerInstance->Time() > cert->GetExpirationTime())
+		{
+			user->WriteNotice("*** Your TLS (SSL) client certificate has expired.");
+		}
+		else if (static_cast<time_t>(ServerInstance->Time() + warnexpiring) > cert->GetExpirationTime())
+		{
+			const std::string duration = InspIRCd::DurationString(cert->GetExpirationTime() - ServerInstance->Time());
+			user->WriteNotice("*** Your TLS (SSL) client certificate expires in " + duration + ".");
 		}
 	}
 

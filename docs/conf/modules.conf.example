@@ -2318,9 +2318,11 @@
 # If you want to prevent users from viewing TLS (SSL) certificate information
 # and fingerprints of other users, set operonly to yes. You can also set hash
 # to an IANA Hash Function Textual Name to use the SSL fingerprint sent by a
-# WebIRC gateway (requires the cgiirc module).
+# WebIRC gateway (requires the cgiirc module) and warnexpiring to warn users
+# when their client certificate is about to expire.
 #<sslinfo operonly="no"
-#         hash="sha-256">
+#         hash="sha-256"
+#         warnexpiring="1w">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # mbedTLS TLS (SSL) module: Adds support for TLS (SSL) connections using mbedTLS.
