@@ -47,8 +47,17 @@ class ssl_cert : public refcountbase
 	std::string error;
 	std::string fingerprint;
 	bool trusted, invalid, unknownsigner, revoked;
+	time_t activation, expiration;
 
-	ssl_cert() : trusted(false), invalid(true), unknownsigner(true), revoked(false) {}
+	ssl_cert()
+		: trusted(false)
+		, invalid(true)
+		, unknownsigner(true)
+		, revoked(false)
+		, activation(0)
+		, expiration(0)
+	{
+	}
 
 	/** Get certificate distinguished name
 	 * @return Certificate DN
@@ -135,6 +144,22 @@ class ssl_cert : public refcountbase
 	bool IsCAVerified() const
 	{
 		return IsUsable() && trusted && !unknownsigner;
+	}
+
+	/** Retrieves the client certificate activation time.
+	 * @param The time the client certificate was activated or 0 on error.
+	 */
+	time_t GetActivationTime() const
+	{
+		return activation;
+	}
+
+	/** Retrieves the client certificate expiration time.
+	 * @param The time the client certificate will expire or 0 on error.
+	 */
+	time_t GetExpirationTime() const
+	{
+		return expiration;
 	}
 
 	std::string GetMetaLine() const

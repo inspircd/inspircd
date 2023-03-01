@@ -878,11 +878,26 @@ class GnuTLSIOHook : public SSLIOHook
 			certinfo->fingerprint = BinToHex(buffer, buffer_size);
 		}
 
-		/* Beware here we do not check for errors.
-		 */
-		if ((gnutls_x509_crt_get_expiration_time(cert) < ServerInstance->Time()) || (gnutls_x509_crt_get_activation_time(cert) > ServerInstance->Time()))
+		certinfo->activation = gnutls_x509_crt_get_activation_time(cert);
+		if (certinfo->activation == -1)
 		{
-			certinfo->error = "Not activated, or expired certificate";
+			certinfo->activation = 0;
+			certinfo->error = "Unable to check certificate activation time";
+		}
+		else if (certinfo->activation >= ServerInstance->Time())
+		{
+			certinfo->error = "Certificate not activated";
+		}
+
+		certinfo->expiration = gnutls_x509_crt_get_expiration_time(cert);
+		if (certinfo->expiration == -1)
+		{
+			certinfo->expiration = 0;
+			certinfo->error = "Unable to check certificate expiration time";
+		}
+		else if (certinfo->expiration <= ServerInstance->Time())
+		{
+			certinfo->error = "Certificate has expired";
 		}
 
 info_done_dealloc:

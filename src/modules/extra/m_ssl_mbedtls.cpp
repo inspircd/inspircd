@@ -29,6 +29,10 @@
 #include "inspircd.h"
 #include "modules/ssl.h"
 
+#ifdef _WIN32
+# define timegm _mkgmtime
+#endif
+
 // Fix warnings about the use of commas at end of enumerator lists on C++03.
 #if defined __clang__
 # pragma clang diagnostic ignored "-Wc++11-extensions"
@@ -631,6 +635,8 @@ class mbedTLSIOHook : public SSLIOHook
 			return;
 		}
 
+		certificate->activation = GetTime(&cert->valid_from);
+		certificate->expiration = GetTime(&cert->valid_to);
 		if (flags == 0)
 		{
 			// Verification succeeded
@@ -640,8 +646,10 @@ class mbedTLSIOHook : public SSLIOHook
 		{
 			// Verification failed
 			certificate->trusted = false;
-			if ((flags & MBEDTLS_X509_BADCERT_EXPIRED) || (flags & MBEDTLS_X509_BADCERT_FUTURE))
-				certificate->error = "Not activated, or expired certificate";
+			if (flags & MBEDTLS_X509_BADCERT_FUTURE)
+				certificate->error = "Certificate not activated";
+			else if (flags & MBEDTLS_X509_BADCERT_EXPIRED)
+				certificate->error = "Certificate has expired";
 		}
 
 		certificate->unknownsigner = (flags & MBEDTLS_X509_BADCERT_NOT_TRUSTED);
@@ -662,6 +670,21 @@ class mbedTLSIOHook : public SSLIOHook
 		out.assign(buf, ret);
 		for (size_t pos = 0; ((pos = out.find_first_of("\r\n", pos)) != std::string::npos); )
 			out[pos] = ' ';
+	}
+
+	static time_t GetTime(const mbedtls_x509_time* x509time)
+	{
+		// HACK: this is terrible but there's no sensible way I can see to get
+		// a time_t from this.
+		tm ts;
+		ts.tm_year = x509time->year - 1900;
+		ts.tm_mon  = x509time->mon  - 1;
+		ts.tm_mday = x509time->day;
+		ts.tm_hour = x509time->hour;
+		ts.tm_min  = x509time->min;
+		ts.tm_sec  = x509time->sec;
+
+		return timegm(&ts);
 	}
 
 	static int Pull(void* userptr, unsigned char* buffer, size_t size)
