@@ -23,8 +23,8 @@ jobs:
         ^./make/directive.pm:.*:atleast
         ALLTIME$
         alltime$
-        Alltime$\
-        setts
+        Alltime$
+        setts \
         " > ${{ runner.workspace }}/inspircd/.misspell-fixer.ignore
     - uses: sobolevn/misspell-fixer-action@master
       with:
