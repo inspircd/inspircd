@@ -14,7 +14,9 @@ jobs:
       run: |
         echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
         echo "REF_BRANCH=${REF_BRANCH//refs\/heads\//}" >> $GITHUB_ENV
-    - name: Whitelist some directories and files
+    # The below creates a file used by grep '-f'
+    # These are compared to './folder/file:line_num:word'
+    - name: Whitelist some directories, files, and words.
       run: |
         echo "\
         ^./.github/workflows
@@ -24,8 +26,8 @@ jobs:
         ALLTIME$
         alltime$
         Alltime$
-        setts \
-        " > ${{ runner.workspace }}/inspircd/.misspell-fixer.ignore
+        setts$" > \
+        ${{ runner.workspace }}/inspircd/.misspell-fixer.ignore
     - uses: sobolevn/misspell-fixer-action@master
       with:
         options: '-rvnfuRVD .'
