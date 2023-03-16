@@ -31,6 +31,7 @@
 #include "inspircd.h"
 #include "iohook.h"
 #include "modules/httpd.h"
+#include <http_parser.h>
 
 #ifdef __GNUC__
 # pragma GCC diagnostic push
@@ -54,8 +55,6 @@
 #ifdef __GNUC__
 # pragma GCC diagnostic ignored "-Wshadow"
 #endif
-
-#include <http_parser.c>
 
 #ifdef __GNUC__
 # pragma GCC diagnostic pop

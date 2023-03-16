@@ -1,13 +1,15 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2021 Benjamin Graillot <graillot@crans.org>
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2013, 2017-2018, 2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2018 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
+ *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2007-2008 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
- *   Copyright (C) 2006 Craig Edwards <brain@inspircd.org>
+ *   Copyright (C) 2006, 2010 Craig Edwards <brain@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -22,9 +24,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// $ModAuthor: Benjamin Graillot
+/// $ModAuthorMail: graillot@crans.org
+/// $ModDepends: core 3
+/// $ModDesc: Hash provider for sha3.
+
 /// $CompilerFlags: -Ivendor_directory("sha2")
 /// $CompilerFlags: require_compiler("GCC") -Wno-long-long
-
 
 #ifdef __GNUC__
 # pragma GCC diagnostic push
@@ -37,52 +43,42 @@
 # pragma GCC diagnostic ignored "-Wlong-long"
 #endif
 
-// Fix a collision between the Haiku uint64 typedef and the
-// one from the sha2 library.
-#ifdef __HAIKU__
-# define uint64 sha2_uint64
-#endif
+#include "inspircd.h"
+#include "modules/hash.h"
 
-#include <sha256.h>
-
-#ifdef __HAIKU__
-# undef uint64
-#endif
+#include <sha3.h>
 
 #ifdef __GNUC__
 # pragma GCC diagnostic pop
 #endif
 
-#include "inspircd.h"
-#include "modules/hash.h"
-
-class HashSHA256 : public HashProvider
+class HashSHA3 : public HashProvider
 {
  public:
 	std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE
 	{
-                SHA256 sha256;
-                return std::string(sha256(data.data()), 32);
+                SHA3 sha3;
+                return std::string(sha3(data.data()), 64);
 	}
 
-	HashSHA256(Module* parent)
-		: HashProvider(parent, "sha256", 32, 64)
+	HashSHA3(Module* parent)
+		: HashProvider(parent, "sha3", 64, 128)
 	{
 	}
 };
 
-class ModuleSHA256 : public Module
+class ModuleSHA3 : public Module
 {
-	HashSHA256 sha;
+	HashSHA3 sha;
  public:
-	ModuleSHA256() : sha(this)
+	ModuleSHA3() : sha(this)
 	{
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Allows other modules to generate SHA-256 hashes.", VF_VENDOR);
+		return Version("Allows other modules to generate SHA-512 hashes.");
 	}
 };
 
-MODULE_INIT(ModuleSHA256)
+MODULE_INIT(ModuleSHA3)

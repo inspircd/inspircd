@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2022 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2021 Sadie Powell <sadie@witchery.services>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -16,6 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// $ModAuthor: InspIRCd Developers
+/// $ModAuthorMail: noreply@inspircd.org
+/// $ModDepends: core 3
+/// $ModDesc: Provides the pcre2 regular expression engine which uses the PCRE2 library.
 
 /// $CompilerFlags: find_compiler_flags("libpcre2-8")
 /// $LinkerFlags: find_linker_flags("libpcre2-8")

@@ -23,7 +23,7 @@
 #include "inspircd.h"
 #include "modules/hash.h"
 
-#include <crypt_blowfish.c>
+#include <crypt.h>
 
 class BCryptProvider : public HashProvider
 {
@@ -35,7 +35,7 @@ class BCryptProvider : public HashProvider
 			entropy[i] = ServerInstance->GenRandomInt(0xFF);
 
 		char salt[32];
-		if (!_crypt_gensalt_blowfish_rn("$2a$", rounds, entropy, sizeof(entropy), salt, sizeof(salt)))
+		if (!crypt_gensalt_rn("$2a$", rounds, entropy, sizeof(entropy), salt, sizeof(salt)))
 			throw ModuleException("Could not generate salt - this should never happen");
 
 		return salt;
@@ -47,7 +47,7 @@ class BCryptProvider : public HashProvider
 	std::string Generate(const std::string& data, const std::string& salt)
 	{
 		char hash[64];
-		_crypt_blowfish_rn(data.c_str(), salt.c_str(), hash, sizeof(hash));
+		crypt_rn(data.c_str(), salt.c_str(), hash, sizeof(hash));
 		return hash;
 	}
 
