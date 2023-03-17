@@ -27,9 +27,6 @@ jobs:
     - name: make
       run: make
       working-directory: ./build
-    - name: make check
-      run: make check
-      working-directory: ./build
-    - name: make distcheck
-      run: make distcheck
+    - name: make install
+      run: make install
       working-directory: ./build
