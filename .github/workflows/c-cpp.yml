@@ -1,0 +1,35 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: python3-pip
+      run: sudo apt update && apt -y install python3-pip
+    - name: conan
+      run: pip3 install conan
+    - name: conan profile
+      run: conan profile detect --force
+    - name: conan install vendored dependencies
+      run: conan install . --output-folder=build/ --build=missing -s compiler.cppstd=11
+    - name: cmake init 
+      run: cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake
+      working-directory: ./build
+    - name: make
+      run: make
+      working-directory: ./build
+    - name: make check
+      run: make check
+      working-directory: ./build
+    - name: make distcheck
+      run: make distcheck
+      working-directory: ./build
