@@ -5,3 +5,8 @@ cmake_install.cmake
 cmake-build-release/
 *.o
 CMakeCache.txt
+build/
+.DS_Store
+ircd/.DS_Store
+generated/
+dist/
