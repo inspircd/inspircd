@@ -26,112 +26,103 @@
 
 #include "inspircd.h"
 
-enum
-{
-	// From UnrealIRCd.
-	ERR_NOOPERMOTD = 425,
+enum {
+    // From UnrealIRCd.
+    ERR_NOOPERMOTD = 425,
 
-	// From ircd-ratbox.
-	RPL_OMOTDSTART = 720,
-	RPL_OMOTD = 721,
-	RPL_ENDOFOMOTD = 722
+    // From ircd-ratbox.
+    RPL_OMOTDSTART = 720,
+    RPL_OMOTD = 721,
+    RPL_ENDOFOMOTD = 722
 };
 
 /** Handle /OPERMOTD
  */
-class CommandOpermotd : public Command
-{
- public:
-	file_cache opermotd;
+class CommandOpermotd : public Command {
+  public:
+    file_cache opermotd;
 
-	CommandOpermotd(Module* Creator) : Command(Creator,"OPERMOTD", 0, 1)
-	{
-		flags_needed = 'o';
-		syntax = "[<servername>]";
-	}
+    CommandOpermotd(Module* Creator) : Command(Creator,"OPERMOTD", 0, 1) {
+        flags_needed = 'o';
+        syntax = "[<servername>]";
+    }
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		if ((parameters.empty()) || (irc::equals(parameters[0], ServerInstance->Config->ServerName)))
-			ShowOperMOTD(user, true);
-		return CMD_SUCCESS;
-	}
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE {
+        if ((parameters.empty()) || (irc::equals(parameters[0], ServerInstance->Config->ServerName))) {
+            ShowOperMOTD(user, true);
+        }
+        return CMD_SUCCESS;
+    }
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		if ((!parameters.empty()) && (parameters[0].find('.') != std::string::npos))
-			return ROUTE_OPT_UCAST(parameters[0]);
-		return ROUTE_LOCALONLY;
-	}
+    RouteDescriptor GetRouting(User* user,
+                               const Params& parameters) CXX11_OVERRIDE {
+        if ((!parameters.empty()) && (parameters[0].find('.') != std::string::npos)) {
+            return ROUTE_OPT_UCAST(parameters[0]);
+        }
+        return ROUTE_LOCALONLY;
+    }
 
-	void ShowOperMOTD(User* user, bool show_missing)
-	{
-		if (opermotd.empty())
-		{
-			if (show_missing)
-				user->WriteRemoteNumeric(ERR_NOOPERMOTD, "OPERMOTD file is missing.");
-			return;
-		}
+    void ShowOperMOTD(User* user, bool show_missing) {
+        if (opermotd.empty()) {
+            if (show_missing) {
+                user->WriteRemoteNumeric(ERR_NOOPERMOTD, "OPERMOTD file is missing.");
+            }
+            return;
+        }
 
-		user->WriteRemoteNumeric(RPL_OMOTDSTART, "Server operators message of the day");
-		for (file_cache::const_iterator i = opermotd.begin(); i != opermotd.end(); ++i)
-			user->WriteRemoteNumeric(RPL_OMOTD, *i);
-		user->WriteRemoteNumeric(RPL_ENDOFOMOTD, "End of OPERMOTD");
-	}
+        user->WriteRemoteNumeric(RPL_OMOTDSTART, "Server operators message of the day");
+        for (file_cache::const_iterator i = opermotd.begin(); i != opermotd.end();
+                ++i) {
+            user->WriteRemoteNumeric(RPL_OMOTD, *i);
+        }
+        user->WriteRemoteNumeric(RPL_ENDOFOMOTD, "End of OPERMOTD");
+    }
 };
 
 
-class ModuleOpermotd : public Module
-{
-	CommandOpermotd cmd;
-	bool onoper;
- public:
+class ModuleOpermotd : public Module {
+    CommandOpermotd cmd;
+    bool onoper;
+  public:
 
-	ModuleOpermotd()
-		: cmd(this)
-	{
-	}
+    ModuleOpermotd()
+        : cmd(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds the /OPERMOTD command which adds a special message of the day for server operators.", VF_VENDOR | VF_OPTCOMMON);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds the /OPERMOTD command which adds a special message of the day for server operators.", VF_VENDOR | VF_OPTCOMMON);
+    }
 
-	void OnOper(User* user, const std::string &opertype) CXX11_OVERRIDE
-	{
-		if (onoper && IS_LOCAL(user))
-			cmd.ShowOperMOTD(user, false);
-	}
+    void OnOper(User* user, const std::string &opertype) CXX11_OVERRIDE {
+        if (onoper && IS_LOCAL(user)) {
+            cmd.ShowOperMOTD(user, false);
+        }
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		cmd.opermotd.clear();
-		ConfigTag* conf = ServerInstance->Config->ConfValue("opermotd");
-		onoper = conf->getBool("onoper", true);
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        cmd.opermotd.clear();
+        ConfigTag* conf = ServerInstance->Config->ConfValue("opermotd");
+        onoper = conf->getBool("onoper", true);
 
-		try
-		{
-			FileReader reader(conf->getString("file", "opermotd", 1));
+        try {
+            FileReader reader(conf->getString("file", "opermotd", 1));
 
-			const file_cache& lines = reader.GetVector();
+            const file_cache& lines = reader.GetVector();
 
-			// Process the MOTD entry.
-			cmd.opermotd.reserve(lines.size());
-			for (file_cache::const_iterator it = lines.begin(); it != lines.end(); ++it)
-			{
-				// Some clients can not handle receiving RPL_OMOTD with an empty
-				// trailing parameter so if a line is empty we replace it with
-				// a single space.
-				const std::string& line = *it;
-				cmd.opermotd.push_back(line.empty() ? " " : line);
-			}
-			InspIRCd::ProcessColors(cmd.opermotd);
-		}
-		catch (CoreException&)
-		{
-			// Nothing happens here as we do the error handling in ShowOperMOTD.
-		}
-	}
+            // Process the MOTD entry.
+            cmd.opermotd.reserve(lines.size());
+            for (file_cache::const_iterator it = lines.begin(); it != lines.end(); ++it) {
+                // Some clients can not handle receiving RPL_OMOTD with an empty
+                // trailing parameter so if a line is empty we replace it with
+                // a single space.
+                const std::string& line = *it;
+                cmd.opermotd.push_back(line.empty() ? " " : line);
+            }
+            InspIRCd::ProcessColors(cmd.opermotd);
+        } catch (CoreException&) {
+            // Nothing happens here as we do the error handling in ShowOperMOTD.
+        }
+    }
 };
 
 MODULE_INIT(ModuleOpermotd)

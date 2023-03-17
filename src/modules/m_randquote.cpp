@@ -23,36 +23,31 @@
 
 #include "inspircd.h"
 
-class ModuleRandQuote : public Module
-{
- private:
-	std::string prefix;
-	std::string suffix;
-	std::vector<std::string> quotes;
+class ModuleRandQuote : public Module {
+  private:
+    std::string prefix;
+    std::string suffix;
+    std::vector<std::string> quotes;
 
- public:
-	void init() CXX11_OVERRIDE
-	{
-		ConfigTag* conf = ServerInstance->Config->ConfValue("randquote");
-		prefix = conf->getString("prefix");
-		suffix = conf->getString("suffix");
-		FileReader reader(conf->getString("file", "quotes", 1));
-		quotes = reader.GetVector();
-	}
+  public:
+    void init() CXX11_OVERRIDE {
+        ConfigTag* conf = ServerInstance->Config->ConfValue("randquote");
+        prefix = conf->getString("prefix");
+        suffix = conf->getString("suffix");
+        FileReader reader(conf->getString("file", "quotes", 1));
+        quotes = reader.GetVector();
+    }
 
-	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
-	{
-		if (!quotes.empty())
-		{
-			unsigned long random = ServerInstance->GenRandomInt(quotes.size());
-			user->WriteNotice(prefix + quotes[random] + suffix);
-		}
-	}
+    void OnUserConnect(LocalUser* user) CXX11_OVERRIDE {
+        if (!quotes.empty()) {
+            unsigned long random = ServerInstance->GenRandomInt(quotes.size());
+            user->WriteNotice(prefix + quotes[random] + suffix);
+        }
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Allows random quotes to be sent to users when they connect to the server.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Allows random quotes to be sent to users when they connect to the server.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleRandQuote)

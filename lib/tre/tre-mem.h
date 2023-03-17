@@ -14,23 +14,23 @@
 #define TRE_MEM_BLOCK_SIZE 1024
 
 typedef struct tre_list {
-  void *data;
-  struct tre_list *next;
+    void *data;
+    struct tre_list *next;
 } tre_list_t;
 
 typedef struct tre_mem_struct {
-  tre_list_t *blocks;
-  tre_list_t *current;
-  char *ptr;
-  size_t n;
-  int failed;
-  void **provided;
+    tre_list_t *blocks;
+    tre_list_t *current;
+    char *ptr;
+    size_t n;
+    int failed;
+    void **provided;
 } *tre_mem_t;
 
 
 tre_mem_t tre_mem_new_impl(int provided, void *provided_block);
 void *tre_mem_alloc_impl(tre_mem_t mem, int provided, void *provided_block,
-			 int zero, size_t size);
+                         int zero, size_t size);
 
 /* Returns a new memory allocator or NULL if out of memory. */
 #define tre_mem_new()  tre_mem_new_impl(0, NULL)
@@ -51,9 +51,9 @@ void *tre_mem_alloc_impl(tre_mem_t mem, int provided, void *provided_block,
 #define tre_mem_newa() \
   tre_mem_new_impl(1, alloca(sizeof(struct tre_mem_struct)))
 
-#define tre_mem_alloca(mem, size)					      \
-  ((mem)->n >= (size)							      \
-   ? tre_mem_alloc_impl((mem), 1, NULL, 0, (size))			      \
+#define tre_mem_alloca(mem, size)                         \
+  ((mem)->n >= (size)                                 \
+   ? tre_mem_alloc_impl((mem), 1, NULL, 0, (size))                \
    : tre_mem_alloc_impl((mem), 1, alloca(TRE_MEM_BLOCK_SIZE), 0, (size)))
 #endif /* TRE_USE_ALLOCA */
 

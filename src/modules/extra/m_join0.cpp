@@ -24,31 +24,28 @@
 /// $ModDesc: Implement JOIN 0 (joining 0 makes a user part all channels), RFC2812
 /// $ModDepends: core 3
 
-class ModuleJoinZero : public Module
-{
- public:
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
-	{
-		if (validated && command == "JOIN" && (parameters.size() == 1) && parameters[0] == "0")
-		{
-			for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); )
-			{
-				Channel* chan = (*i)->chan;
-				++i;
+class ModuleJoinZero : public Module {
+  public:
+    ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters,
+                           LocalUser* user, bool validated) CXX11_OVERRIDE {
+        if (validated && command == "JOIN" && (parameters.size() == 1) && parameters[0] == "0") {
+            for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end();
+                ) {
+                Channel* chan = (*i)->chan;
+                ++i;
 
-				std::string reason("Left all channels");
-				chan->PartUser(user, reason);
-			}
-			return MOD_RES_DENY;
-		}
-		else
-			return MOD_RES_PASSTHRU;
-	}
+                std::string reason("Left all channels");
+                chan->PartUser(user, reason);
+            }
+            return MOD_RES_DENY;
+        } else {
+            return MOD_RES_PASSTHRU;
+        }
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Implement JOIN 0 (joining 0 makes a user part all channels), RFC2812");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Implement JOIN 0 (joining 0 makes a user part all channels), RFC2812");
+    }
 };
 
 MODULE_INIT(ModuleJoinZero)

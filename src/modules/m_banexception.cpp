@@ -27,87 +27,75 @@
 #include "inspircd.h"
 #include "listmode.h"
 
-enum
-{
-	// From RFC 2812.
-	RPL_EXCEPTLIST = 348,
-	RPL_ENDOFEXCEPTLIST = 349
+enum {
+    // From RFC 2812.
+    RPL_EXCEPTLIST = 348,
+    RPL_ENDOFEXCEPTLIST = 349
 };
 
-class BanException : public ListModeBase
-{
- public:
-	BanException(Module* Creator)
-		: ListModeBase(Creator, "banexception", 'e', "End of Channel Exception List", RPL_EXCEPTLIST, RPL_ENDOFEXCEPTLIST, true)
-	{
-		syntax = "<mask>";
-	}
+class BanException : public ListModeBase {
+  public:
+    BanException(Module* Creator)
+        : ListModeBase(Creator, "banexception", 'e', "End of Channel Exception List",
+                       RPL_EXCEPTLIST, RPL_ENDOFEXCEPTLIST, true) {
+        syntax = "<mask>";
+    }
 };
 
-class ModuleBanException : public Module
-{
-	BanException be;
+class ModuleBanException : public Module {
+    BanException be;
 
- public:
-	ModuleBanException() : be(this)
-	{
-	}
+  public:
+    ModuleBanException() : be(this) {
+    }
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["EXCEPTS"] = ConvToStr(be.GetModeChar());
-	}
+    void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE {
+        tokens["EXCEPTS"] = ConvToStr(be.GetModeChar());
+    }
 
-	ModResult OnExtBanCheck(User *user, Channel *chan, char type) CXX11_OVERRIDE
-	{
-		ListModeBase::ModeList* list = be.GetList(chan);
-		if (!list)
-			return MOD_RES_PASSTHRU;
+    ModResult OnExtBanCheck(User *user, Channel *chan, char type) CXX11_OVERRIDE {
+        ListModeBase::ModeList* list = be.GetList(chan);
+        if (!list) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
-		{
-			if (it->mask.length() <= 2 || it->mask[0] != type || it->mask[1] != ':')
-				continue;
+        for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++) {
+            if (it->mask.length() <= 2 || it->mask[0] != type || it->mask[1] != ':') {
+                continue;
+            }
 
-			if (chan->CheckBan(user, it->mask.substr(2)))
-			{
-				// They match an entry on the list, so let them pass this.
-				return MOD_RES_ALLOW;
-			}
-		}
+            if (chan->CheckBan(user, it->mask.substr(2))) {
+                // They match an entry on the list, so let them pass this.
+                return MOD_RES_ALLOW;
+            }
+        }
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 
-	ModResult OnCheckChannelBan(User* user, Channel* chan) CXX11_OVERRIDE
-	{
-		ListModeBase::ModeList* list = be.GetList(chan);
-		if (!list)
-		{
-			// No list, proceed normally
-			return MOD_RES_PASSTHRU;
-		}
+    ModResult OnCheckChannelBan(User* user, Channel* chan) CXX11_OVERRIDE {
+        ListModeBase::ModeList* list = be.GetList(chan);
+        if (!list) {
+            // No list, proceed normally
+            return MOD_RES_PASSTHRU;
+        }
 
-		for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
-		{
-			if (chan->CheckBan(user, it->mask))
-			{
-				// They match an entry on the list, so let them in.
-				return MOD_RES_ALLOW;
-			}
-		}
-		return MOD_RES_PASSTHRU;
-	}
+        for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++) {
+            if (chan->CheckBan(user, it->mask)) {
+                // They match an entry on the list, so let them in.
+                return MOD_RES_ALLOW;
+            }
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		be.DoRehash();
-	}
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        be.DoRehash();
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds channel mode e (banexception) which allows channel operators to exempt user masks from channel mode b (ban).", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds channel mode e (banexception) which allows channel operators to exempt user masks from channel mode b (ban).", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleBanException)

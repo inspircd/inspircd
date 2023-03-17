@@ -26,64 +26,61 @@
 #include "inspircd.h"
 #include "modules/account.h"
 
-class ModuleConnStrictSasl : public Module
-{
-	LocalIntExt sentauth;
-	std::string reason;
+class ModuleConnStrictSasl : public Module {
+    LocalIntExt sentauth;
+    std::string reason;
 
- public:
-	ModuleConnStrictSasl()
-		: sentauth("sentauth", ExtensionItem::EXT_USER, this)
-	{
-	}
+  public:
+    ModuleConnStrictSasl()
+        : sentauth("sentauth", ExtensionItem::EXT_USER, this) {
+    }
 
-	void Prioritize() CXX11_OVERRIDE
-	{
-		// m_cap will hold registration until 'CAP END', so SASL can try more than once
-		Module* cap = ServerInstance->Modules->Find("m_cap.so");
-		ServerInstance->Modules->SetPriority(this, I_OnCheckReady, PRIORITY_AFTER, cap);
-	}
+    void Prioritize() CXX11_OVERRIDE {
+        // m_cap will hold registration until 'CAP END', so SASL can try more than once
+        Module* cap = ServerInstance->Modules->Find("m_cap.so");
+        ServerInstance->Modules->SetPriority(this, I_OnCheckReady, PRIORITY_AFTER, cap);
+    }
 
-	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
-	{
-		reason = ServerInstance->Config->ConfValue("strictsasl")->getString("reason", "Fix your SASL authentication settings and try again.");
-	}
+    void ReadConfig(ConfigStatus&) CXX11_OVERRIDE {
+        reason = ServerInstance->Config->ConfValue("strictsasl")->getString("reason", "Fix your SASL authentication settings and try again.");
+    }
 
-	void OnPostCommand(Command* command, const CommandBase::Params&, LocalUser* user, CmdResult, bool) CXX11_OVERRIDE
-	{
-		if (command->name == "AUTHENTICATE")
-			sentauth.set(user, 1);
-	}
+    void OnPostCommand(Command* command, const CommandBase::Params&,
+                       LocalUser* user, CmdResult, bool) CXX11_OVERRIDE {
+        if (command->name == "AUTHENTICATE") {
+            sentauth.set(user, 1);
+        }
+    }
 
-	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
-	{
-		// Check that they have sent the AUTHENTICATE command
-		if (!sentauth.get(user))
-			return MOD_RES_PASSTHRU;
+    ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE {
+        // Check that they have sent the AUTHENTICATE command
+        if (!sentauth.get(user)) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		// Let them through if they have an account
-		const AccountExtItem* accountext = GetAccountExtItem();
-		const std::string* account = accountext ? accountext->get(user) : NULL;
-		if (account)
-			return MOD_RES_PASSTHRU;
+        // Let them through if they have an account
+        const AccountExtItem* accountext = GetAccountExtItem();
+        const std::string* account = accountext ? accountext->get(user) : NULL;
+        if (account) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Failed SASL auth from: %s (%s) [%s]",
-			user->GetFullRealHost().c_str(), user->GetIPString().c_str(), user->GetRealName().c_str());
-		ServerInstance->Users->QuitUser(user, reason);
-		return MOD_RES_DENY;
+        ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Failed SASL auth from: %s (%s) [%s]",
+                                  user->GetFullRealHost().c_str(), user->GetIPString().c_str(), user->GetRealName().c_str());
+        ServerInstance->Users->QuitUser(user, reason);
+        return MOD_RES_DENY;
 
-	}
+    }
 
-	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
-	{
-		if (sentauth.get(user))
-			sentauth.set(user, 0);
-	}
+    void OnUserConnect(LocalUser* user) CXX11_OVERRIDE {
+        if (sentauth.get(user)) {
+            sentauth.set(user, 0);
+        }
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Disconnect users that fail a SASL auth.");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Disconnect users that fail a SASL auth.");
+    }
 };
 
 MODULE_INIT(ModuleConnStrictSasl)

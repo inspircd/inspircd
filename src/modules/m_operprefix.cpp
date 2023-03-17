@@ -31,103 +31,104 @@
 
 #define OPERPREFIX_VALUE 1000000
 
-class OperPrefixMode : public PrefixMode
-{
-	public:
-		OperPrefixMode(Module* Creator)
-			: PrefixMode(Creator, "operprefix", 'y', OPERPREFIX_VALUE)
-		{
-			prefix = ServerInstance->Config->ConfValue("operprefix")->getCharacter("prefix", '!');
-			ranktoset = ranktounset = UINT_MAX;
-		}
+class OperPrefixMode : public PrefixMode {
+  public:
+    OperPrefixMode(Module* Creator)
+        : PrefixMode(Creator, "operprefix", 'y', OPERPREFIX_VALUE) {
+        prefix = ServerInstance->Config->ConfValue("operprefix")->getCharacter("prefix",
+                 '!');
+        ranktoset = ranktounset = UINT_MAX;
+    }
 };
 
 class ModuleOperPrefixMode;
-class HideOperWatcher : public ModeWatcher
-{
-	ModuleOperPrefixMode* parentmod;
+class HideOperWatcher : public ModeWatcher {
+    ModuleOperPrefixMode* parentmod;
 
- public:
-	HideOperWatcher(ModuleOperPrefixMode* parent);
-	void AfterMode(User* source, User* dest, Channel* channel, const std::string &parameter, bool adding) CXX11_OVERRIDE;
+  public:
+    HideOperWatcher(ModuleOperPrefixMode* parent);
+    void AfterMode(User* source, User* dest, Channel* channel,
+                   const std::string &parameter, bool adding) CXX11_OVERRIDE;
 };
 
-class ModuleOperPrefixMode : public Module
-{
-	OperPrefixMode opm;
-	HideOperWatcher hideoperwatcher;
-	UserModeReference hideopermode;
+class ModuleOperPrefixMode : public Module {
+    OperPrefixMode opm;
+    HideOperWatcher hideoperwatcher;
+    UserModeReference hideopermode;
 
- public:
-	ModuleOperPrefixMode()
-		: opm(this), hideoperwatcher(this)
-		, hideopermode(this, "hideoper")
-	{
-		/* To give clients a chance to learn about the new prefix we don't give +y to opers
-		 * right now. That means if the module was loaded after opers have joined channels
-		 * they need to rejoin them in order to get the oper prefix.
-		 */
-	}
+  public:
+    ModuleOperPrefixMode()
+        : opm(this), hideoperwatcher(this)
+        , hideopermode(this, "hideoper") {
+        /* To give clients a chance to learn about the new prefix we don't give +y to opers
+         * right now. That means if the module was loaded after opers have joined channels
+         * they need to rejoin them in order to get the oper prefix.
+         */
+    }
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
-	{
-		if ((user->IsOper()) && (!user->IsModeSet(hideopermode)))
-			privs.push_back('y');
-		return MOD_RES_PASSTHRU;
-	}
+    ModResult OnUserPreJoin(LocalUser* user, Channel* chan,
+                            const std::string& cname, std::string& privs,
+                            const std::string& keygiven) CXX11_OVERRIDE {
+        if ((user->IsOper()) && (!user->IsModeSet(hideopermode))) {
+            privs.push_back('y');
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
-	void OnPostJoin(Membership* memb) CXX11_OVERRIDE
-	{
-		if ((!IS_LOCAL(memb->user)) || (!memb->user->IsOper()) || (memb->user->IsModeSet(hideopermode)))
-			return;
+    void OnPostJoin(Membership* memb) CXX11_OVERRIDE {
+        if ((!IS_LOCAL(memb->user)) || (!memb->user->IsOper()) || (memb->user->IsModeSet(hideopermode))) {
+            return;
+        }
 
-		if (memb->HasMode(&opm))
-			return;
+        if (memb->HasMode(&opm)) {
+            return;
+        }
 
-		// The user was force joined and OnUserPreJoin() did not run. Set the operprefix now.
-		Modes::ChangeList changelist;
-		changelist.push_add(&opm, memb->user->nick);
-		ServerInstance->Modes.Process(ServerInstance->FakeClient, memb->chan, NULL, changelist);
-	}
+        // The user was force joined and OnUserPreJoin() did not run. Set the operprefix now.
+        Modes::ChangeList changelist;
+        changelist.push_add(&opm, memb->user->nick);
+        ServerInstance->Modes.Process(ServerInstance->FakeClient, memb->chan, NULL, changelist);
+    }
 
-	void SetOperPrefix(User* user, bool add)
-	{
-		Modes::ChangeList changelist;
-		changelist.push(&opm, add, user->nick);
-		for (User::ChanList::iterator v = user->chans.begin(); v != user->chans.end(); v++)
-			ServerInstance->Modes->Process(ServerInstance->FakeClient, (*v)->chan, NULL, changelist);
-	}
+    void SetOperPrefix(User* user, bool add) {
+        Modes::ChangeList changelist;
+        changelist.push(&opm, add, user->nick);
+        for (User::ChanList::iterator v = user->chans.begin(); v != user->chans.end();
+                v++) {
+            ServerInstance->Modes->Process(ServerInstance->FakeClient, (*v)->chan, NULL,
+                                           changelist);
+        }
+    }
 
-	void OnPostOper(User* user, const std::string& opername, const std::string& opertype) CXX11_OVERRIDE
-	{
-		if (IS_LOCAL(user) && (!user->IsModeSet(hideopermode)))
-			SetOperPrefix(user, true);
-	}
+    void OnPostOper(User* user, const std::string& opername,
+                    const std::string& opertype) CXX11_OVERRIDE {
+        if (IS_LOCAL(user) && (!user->IsModeSet(hideopermode))) {
+            SetOperPrefix(user, true);
+        }
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds the server operator-only y (operprefix) channel prefix mode.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds the server operator-only y (operprefix) channel prefix mode.", VF_VENDOR);
+    }
 
-	void Prioritize() CXX11_OVERRIDE
-	{
-		// m_opermodes may set +H on the oper to hide him, we don't want to set the oper prefix in that case
-		Module* opermodes = ServerInstance->Modules->Find("m_opermodes.so");
-		ServerInstance->Modules->SetPriority(this, I_OnPostOper, PRIORITY_AFTER, opermodes);
-	}
+    void Prioritize() CXX11_OVERRIDE {
+        // m_opermodes may set +H on the oper to hide him, we don't want to set the oper prefix in that case
+        Module* opermodes = ServerInstance->Modules->Find("m_opermodes.so");
+        ServerInstance->Modules->SetPriority(this, I_OnPostOper, PRIORITY_AFTER, opermodes);
+    }
 };
 
 HideOperWatcher::HideOperWatcher(ModuleOperPrefixMode* parent)
-	: ModeWatcher(parent, "hideoper", MODETYPE_USER)
-	, parentmod(parent)
-{
+    : ModeWatcher(parent, "hideoper", MODETYPE_USER)
+    , parentmod(parent) {
 }
 
-void HideOperWatcher::AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding)
-{
-	// If hideoper is being unset because the user is deopering, don't set +y
-	if (IS_LOCAL(dest) && dest->IsOper())
-		parentmod->SetOperPrefix(dest, !adding);
+void HideOperWatcher::AfterMode(User* source, User* dest, Channel* channel,
+                                const std::string& parameter, bool adding) {
+    // If hideoper is being unset because the user is deopering, don't set +y
+    if (IS_LOCAL(dest) && dest->IsOper()) {
+        parentmod->SetOperPrefix(dest, !adding);
+    }
 }
 
 MODULE_INIT(ModuleOperPrefixMode)

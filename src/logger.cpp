@@ -30,14 +30,14 @@
 
 /*
  * Suggested implementation...
- *	class LogManager
- *		bool AddLogType(const std::string &type, enum loglevel, LogStream *)
- *		bool DelLogType(const std::string &type, LogStream *)
- *		Log(const std::string &type, enum loglevel, const std::string &msg)
- *		std::map<std::string, std::vector<LogStream *> > logstreams (holds a 'chain' of logstreams for each type that are all notified when a log happens)
+ *  class LogManager
+ *      bool AddLogType(const std::string &type, enum loglevel, LogStream *)
+ *      bool DelLogType(const std::string &type, LogStream *)
+ *      Log(const std::string &type, enum loglevel, const std::string &msg)
+ *      std::map<std::string, std::vector<LogStream *> > logstreams (holds a 'chain' of logstreams for each type that are all notified when a log happens)
  *
  *  class LogStream
- *		std::string type
+ *      std::string type
  *      virtual void OnLog(enum loglevel, const std::string &msg)
  *
  * How it works:
@@ -56,287 +56,249 @@
  */
 
 const char LogStream::LogHeader[] =
-	"Log started for " INSPIRCD_VERSION;
+    "Log started for " INSPIRCD_VERSION;
 
 LogManager::LogManager()
-	: Logging(false)
-{
+    : Logging(false) {
 }
 
-LogManager::~LogManager()
-{
+LogManager::~LogManager() {
 }
 
-void LogManager::OpenFileLogs()
-{
-	if (ServerInstance->Config->cmdline.forcedebug)
-	{
-		ServerInstance->Config->RawLog = true;
-		return;
-	}
-	/* Skip rest of logfile opening if we are running -nolog. */
-	if (!ServerInstance->Config->cmdline.writelog)
-		return;
-	std::map<std::string, FileWriter*> logmap;
-	ConfigTagList tags = ServerInstance->Config->ConfTags("log");
-	for(ConfigIter i = tags.first; i != tags.second; ++i)
-	{
-		ConfigTag* tag = i->second;
-		const std::string method = tag->getString("method", "file", 1);
-		if (!stdalgo::string::equalsci(method, "file"))
-		{
-			continue;
-		}
-		std::string type = tag->getString("type");
-		std::string level = tag->getString("level");
-		LogLevel loglevel = LOG_DEFAULT;
-		if (stdalgo::string::equalsci(level, "rawio"))
-		{
-			loglevel = LOG_RAWIO;
-			ServerInstance->Config->RawLog = true;
-		}
-		else if (stdalgo::string::equalsci(level, "debug"))
-		{
-			loglevel = LOG_DEBUG;
-		}
-		else if (stdalgo::string::equalsci(level, "verbose"))
-		{
-			loglevel = LOG_VERBOSE;
-		}
-		else if (stdalgo::string::equalsci(level, "sparse"))
-		{
-			loglevel = LOG_SPARSE;
-		}
-		else if (stdalgo::string::equalsci(level, "none"))
-		{
-			loglevel = LOG_NONE;
-		}
-		FileWriter* fw;
-		std::string target = ServerInstance->Config->Paths.PrependLog(tag->getString("target"));
-		std::map<std::string, FileWriter*>::iterator fwi = logmap.find(target);
-		if (fwi == logmap.end())
-		{
-			char realtarget[256];
-			time_t time = ServerInstance->Time();
-			struct tm *mytime = gmtime(&time);
-			strftime(realtarget, sizeof(realtarget), target.c_str(), mytime);
-			FILE* f = fopen(realtarget, "a");
-			fw = new FileWriter(f, tag->getUInt("flush", 20, 1, UINT_MAX));
-			logmap.insert(std::make_pair(target, fw));
-		}
-		else
-		{
-			fw = fwi->second;
-		}
-		FileLogStream* fls = new FileLogStream(loglevel, fw);
-		fls->OnLog(LOG_SPARSE, "HEADER", LogStream::LogHeader);
-		AddLogTypes(type, fls, true);
-	}
+void LogManager::OpenFileLogs() {
+    if (ServerInstance->Config->cmdline.forcedebug) {
+        ServerInstance->Config->RawLog = true;
+        return;
+    }
+    /* Skip rest of logfile opening if we are running -nolog. */
+    if (!ServerInstance->Config->cmdline.writelog) {
+        return;
+    }
+    std::map<std::string, FileWriter*> logmap;
+    ConfigTagList tags = ServerInstance->Config->ConfTags("log");
+    for(ConfigIter i = tags.first; i != tags.second; ++i) {
+        ConfigTag* tag = i->second;
+        const std::string method = tag->getString("method", "file", 1);
+        if (!stdalgo::string::equalsci(method, "file")) {
+            continue;
+        }
+        std::string type = tag->getString("type");
+        std::string level = tag->getString("level");
+        LogLevel loglevel = LOG_DEFAULT;
+        if (stdalgo::string::equalsci(level, "rawio")) {
+            loglevel = LOG_RAWIO;
+            ServerInstance->Config->RawLog = true;
+        } else if (stdalgo::string::equalsci(level, "debug")) {
+            loglevel = LOG_DEBUG;
+        } else if (stdalgo::string::equalsci(level, "verbose")) {
+            loglevel = LOG_VERBOSE;
+        } else if (stdalgo::string::equalsci(level, "sparse")) {
+            loglevel = LOG_SPARSE;
+        } else if (stdalgo::string::equalsci(level, "none")) {
+            loglevel = LOG_NONE;
+        }
+        FileWriter* fw;
+        std::string target = ServerInstance->Config->Paths.PrependLog(
+                                 tag->getString("target"));
+        std::map<std::string, FileWriter*>::iterator fwi = logmap.find(target);
+        if (fwi == logmap.end()) {
+            char realtarget[256];
+            time_t time = ServerInstance->Time();
+            struct tm *mytime = gmtime(&time);
+            strftime(realtarget, sizeof(realtarget), target.c_str(), mytime);
+            FILE* f = fopen(realtarget, "a");
+            fw = new FileWriter(f, tag->getUInt("flush", 20, 1, UINT_MAX));
+            logmap.insert(std::make_pair(target, fw));
+        } else {
+            fw = fwi->second;
+        }
+        FileLogStream* fls = new FileLogStream(loglevel, fw);
+        fls->OnLog(LOG_SPARSE, "HEADER", LogStream::LogHeader);
+        AddLogTypes(type, fls, true);
+    }
 }
 
-void LogManager::CloseLogs()
-{
-	if (ServerInstance->Config && ServerInstance->Config->cmdline.forcedebug)
-		return;
+void LogManager::CloseLogs() {
+    if (ServerInstance->Config && ServerInstance->Config->cmdline.forcedebug) {
+        return;
+    }
 
-	LogStreams.clear();
-	GlobalLogStreams.clear();
+    LogStreams.clear();
+    GlobalLogStreams.clear();
 
-	for (std::map<LogStream*, int>::iterator i = AllLogStreams.begin(); i != AllLogStreams.end(); ++i)
-	{
-		delete i->first;
-	}
+    for (std::map<LogStream*, int>::iterator i = AllLogStreams.begin();
+            i != AllLogStreams.end(); ++i) {
+        delete i->first;
+    }
 
-	AllLogStreams.clear();
+    AllLogStreams.clear();
 }
 
-void LogManager::AddLogTypes(const std::string &types, LogStream* l, bool autoclose)
-{
-	irc::spacesepstream css(types);
-	std::string tok;
-	std::vector<std::string> excludes;
-	while (css.GetToken(tok))
-	{
-		if (tok.empty())
-		{
-			continue;
-		}
-		if (tok.at(0) == '-')
-		{
-			/* Exclude! */
-			excludes.push_back(tok.substr(1));
-		}
-		else
-		{
-			AddLogType(tok, l, autoclose);
-		}
-	}
-	// Handle doing things like: USERINPUT USEROUTPUT -USERINPUT should be the same as saying just USEROUTPUT.
-	// (This is so modules could, for example, inject exclusions for logtypes they can't handle.)
-	for (std::vector<std::string>::iterator i = excludes.begin(); i != excludes.end(); ++i)
-	{
-		if (*i == "*")
-		{
-			/* -* == Exclude all. Why someone would do this, I dunno. */
-			DelLogStream(l);
-			return;
-		}
-		DelLogType(*i, l);
-	}
-	// Now if it's registered as a global, add the exclusions there too.
-	std::map<LogStream *, std::vector<std::string> >::iterator gi = GlobalLogStreams.find(l);
-	if (gi != GlobalLogStreams.end())
-	{
-		gi->second.swap(excludes); // Swap with the vector in the hash.
-	}
+void LogManager::AddLogTypes(const std::string &types, LogStream* l,
+                             bool autoclose) {
+    irc::spacesepstream css(types);
+    std::string tok;
+    std::vector<std::string> excludes;
+    while (css.GetToken(tok)) {
+        if (tok.empty()) {
+            continue;
+        }
+        if (tok.at(0) == '-') {
+            /* Exclude! */
+            excludes.push_back(tok.substr(1));
+        } else {
+            AddLogType(tok, l, autoclose);
+        }
+    }
+    // Handle doing things like: USERINPUT USEROUTPUT -USERINPUT should be the same as saying just USEROUTPUT.
+    // (This is so modules could, for example, inject exclusions for logtypes they can't handle.)
+    for (std::vector<std::string>::iterator i = excludes.begin();
+            i != excludes.end(); ++i) {
+        if (*i == "*") {
+            /* -* == Exclude all. Why someone would do this, I dunno. */
+            DelLogStream(l);
+            return;
+        }
+        DelLogType(*i, l);
+    }
+    // Now if it's registered as a global, add the exclusions there too.
+    std::map<LogStream *, std::vector<std::string> >::iterator gi =
+        GlobalLogStreams.find(l);
+    if (gi != GlobalLogStreams.end()) {
+        gi->second.swap(excludes); // Swap with the vector in the hash.
+    }
 }
 
-bool LogManager::AddLogType(const std::string &type, LogStream *l, bool autoclose)
-{
-	LogStreams[type].push_back(l);
+bool LogManager::AddLogType(const std::string &type, LogStream *l,
+                            bool autoclose) {
+    LogStreams[type].push_back(l);
 
-	if (type == "*")
-		GlobalLogStreams.insert(std::make_pair(l, std::vector<std::string>()));
+    if (type == "*") {
+        GlobalLogStreams.insert(std::make_pair(l, std::vector<std::string>()));
+    }
 
-	if (autoclose)
-		AllLogStreams[l]++;
+    if (autoclose) {
+        AllLogStreams[l]++;
+    }
 
-	return true;
+    return true;
 }
 
-void LogManager::DelLogStream(LogStream* l)
-{
-	for (std::map<std::string, std::vector<LogStream*> >::iterator i = LogStreams.begin(); i != LogStreams.end(); ++i)
-	{
-		while (stdalgo::erase(i->second, l))
-		{
-			// Keep erasing while it exists
-		}
-	}
+void LogManager::DelLogStream(LogStream* l) {
+    for (std::map<std::string, std::vector<LogStream*> >::iterator i =
+                LogStreams.begin(); i != LogStreams.end(); ++i) {
+        while (stdalgo::erase(i->second, l)) {
+            // Keep erasing while it exists
+        }
+    }
 
-	GlobalLogStreams.erase(l);
+    GlobalLogStreams.erase(l);
 
-	std::map<LogStream*, int>::iterator ai = AllLogStreams.begin();
-	if (ai == AllLogStreams.end())
-	{
-		return; /* Done. */
-	}
+    std::map<LogStream*, int>::iterator ai = AllLogStreams.begin();
+    if (ai == AllLogStreams.end()) {
+        return; /* Done. */
+    }
 
-	delete ai->first;
-	AllLogStreams.erase(ai);
+    delete ai->first;
+    AllLogStreams.erase(ai);
 }
 
-bool LogManager::DelLogType(const std::string &type, LogStream *l)
-{
-	std::map<std::string, std::vector<LogStream *> >::iterator i = LogStreams.find(type);
-	if (type == "*")
-	{
-		GlobalLogStreams.erase(l);
-	}
+bool LogManager::DelLogType(const std::string &type, LogStream *l) {
+    std::map<std::string, std::vector<LogStream *> >::iterator i = LogStreams.find(
+                type);
+    if (type == "*") {
+        GlobalLogStreams.erase(l);
+    }
 
-	if (i != LogStreams.end())
-	{
-		if (stdalgo::erase(i->second, l))
-		{
-			if (i->second.size() == 0)
-			{
-				LogStreams.erase(i);
-			}
-		}
-		else
-		{
-			return false;
-		}
-	}
-	else
-	{
-		return false;
-	}
+    if (i != LogStreams.end()) {
+        if (stdalgo::erase(i->second, l)) {
+            if (i->second.size() == 0) {
+                LogStreams.erase(i);
+            }
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
 
-	std::map<LogStream*, int>::iterator ai = AllLogStreams.find(l);
-	if (ai == AllLogStreams.end())
-	{
-		return true;
-	}
+    std::map<LogStream*, int>::iterator ai = AllLogStreams.find(l);
+    if (ai == AllLogStreams.end()) {
+        return true;
+    }
 
-	if ((--ai->second) < 1)
-	{
-		AllLogStreams.erase(ai);
-		delete l;
-	}
+    if ((--ai->second) < 1) {
+        AllLogStreams.erase(ai);
+        delete l;
+    }
 
-	return true;
+    return true;
 }
 
-void LogManager::Log(const std::string &type, LogLevel loglevel, const char *fmt, ...)
-{
-	if (Logging)
-		return;
+void LogManager::Log(const std::string &type, LogLevel loglevel,
+                     const char *fmt, ...) {
+    if (Logging) {
+        return;
+    }
 
-	std::string buf;
-	VAFORMAT(buf, fmt, fmt);
-	this->Log(type, loglevel, buf);
+    std::string buf;
+    VAFORMAT(buf, fmt, fmt);
+    this->Log(type, loglevel, buf);
 }
 
-void LogManager::Log(const std::string &type, LogLevel loglevel, const std::string &msg)
-{
-	if (Logging)
-	{
-		return;
-	}
+void LogManager::Log(const std::string &type, LogLevel loglevel,
+                     const std::string &msg) {
+    if (Logging) {
+        return;
+    }
 
-	Logging = true;
+    Logging = true;
 
-	for (std::map<LogStream *, std::vector<std::string> >::iterator gi = GlobalLogStreams.begin(); gi != GlobalLogStreams.end(); ++gi)
-	{
-		if (stdalgo::isin(gi->second, type))
-		{
-			continue;
-		}
-		gi->first->OnLog(loglevel, type, msg);
-	}
+    for (std::map<LogStream *, std::vector<std::string> >::iterator gi =
+                GlobalLogStreams.begin(); gi != GlobalLogStreams.end(); ++gi) {
+        if (stdalgo::isin(gi->second, type)) {
+            continue;
+        }
+        gi->first->OnLog(loglevel, type, msg);
+    }
 
-	std::map<std::string, std::vector<LogStream *> >::iterator i = LogStreams.find(type);
+    std::map<std::string, std::vector<LogStream *> >::iterator i = LogStreams.find(
+                type);
 
-	if (i != LogStreams.end())
-	{
-		for (std::vector<LogStream *>::iterator it = i->second.begin(); it != i->second.end(); ++it)
-		{
-			(*it)->OnLog(loglevel, type, msg);
-		}
-	}
+    if (i != LogStreams.end()) {
+        for (std::vector<LogStream *>::iterator it = i->second.begin();
+                it != i->second.end(); ++it) {
+            (*it)->OnLog(loglevel, type, msg);
+        }
+    }
 
-	Logging = false;
+    Logging = false;
 }
 
 
 FileWriter::FileWriter(FILE* logfile, unsigned int flushcount)
-	: log(logfile)
-	, flush(flushcount)
-	, writeops(0)
-{
+    : log(logfile)
+    , flush(flushcount)
+    , writeops(0) {
 }
 
-void FileWriter::WriteLogLine(const std::string &line)
-{
-	if (log == NULL)
-		return;
+void FileWriter::WriteLogLine(const std::string &line) {
+    if (log == NULL) {
+        return;
+    }
 // XXX: For now, just return. Don't throw an exception. It'd be nice to find out if this is happening, but I'm terrified of breaking so close to final release. -- w00t
-//		throw CoreException("FileWriter::WriteLogLine called with a closed logfile");
+//      throw CoreException("FileWriter::WriteLogLine called with a closed logfile");
 
-	fputs(line.c_str(), log);
-	if (++writeops % flush == 0)
-	{
-		fflush(log);
-	}
+    fputs(line.c_str(), log);
+    if (++writeops % flush == 0) {
+        fflush(log);
+    }
 }
 
-FileWriter::~FileWriter()
-{
-	if (log)
-	{
-		fflush(log);
-		fclose(log);
-		log = NULL;
-	}
+FileWriter::~FileWriter() {
+    if (log) {
+        fflush(log);
+        fclose(log);
+        log = NULL;
+    }
 }

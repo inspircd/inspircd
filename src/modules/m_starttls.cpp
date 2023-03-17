@@ -26,113 +26,101 @@
 #include "modules/cap.h"
 
 // From IRCv3 tls-3.1
-enum
-{
-	RPL_STARTTLS = 670,
-	ERR_STARTTLS = 691
+enum {
+    RPL_STARTTLS = 670,
+    ERR_STARTTLS = 691
 };
 
-class CommandStartTLS : public SplitCommand
-{
-	dynamic_reference_nocheck<IOHookProvider>& ssl;
+class CommandStartTLS : public SplitCommand {
+    dynamic_reference_nocheck<IOHookProvider>& ssl;
 
- public:
-	CommandStartTLS(Module* mod, dynamic_reference_nocheck<IOHookProvider>& s)
-		: SplitCommand(mod, "STARTTLS")
-		, ssl(s)
-	{
-		works_before_reg = true;
-	}
+  public:
+    CommandStartTLS(Module* mod, dynamic_reference_nocheck<IOHookProvider>& s)
+        : SplitCommand(mod, "STARTTLS")
+        , ssl(s) {
+        works_before_reg = true;
+    }
 
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		if (!ssl)
-		{
-			user->WriteNumeric(ERR_STARTTLS, "STARTTLS is not enabled");
-			return CMD_FAILURE;
-		}
+    CmdResult HandleLocal(LocalUser* user,
+                          const Params& parameters) CXX11_OVERRIDE {
+        if (!ssl) {
+            user->WriteNumeric(ERR_STARTTLS, "STARTTLS is not enabled");
+            return CMD_FAILURE;
+        }
 
-		if (user->registered == REG_ALL)
-		{
-			user->WriteNumeric(ERR_STARTTLS, "STARTTLS is not permitted after client registration is complete");
-			return CMD_FAILURE;
-		}
+        if (user->registered == REG_ALL) {
+            user->WriteNumeric(ERR_STARTTLS,
+                               "STARTTLS is not permitted after client registration is complete");
+            return CMD_FAILURE;
+        }
 
-		if (user->eh.GetIOHook())
-		{
-			user->WriteNumeric(ERR_STARTTLS, "STARTTLS failure");
-			return CMD_FAILURE;
-		}
+        if (user->eh.GetIOHook()) {
+            user->WriteNumeric(ERR_STARTTLS, "STARTTLS failure");
+            return CMD_FAILURE;
+        }
 
-		user->WriteNumeric(RPL_STARTTLS, "STARTTLS successful, go ahead with TLS handshake");
-		/* We need to flush the write buffer prior to adding the IOHook,
-		 * otherwise we'll be sending this line inside the TLS (SSL) session - which
-		 * won't start its handshake until the client gets this line. Currently,
-		 * we assume the write will not block here; this is usually safe, as
-		 * STARTTLS is sent very early on in the registration phase, where the
-		 * user hasn't built up much sendq. Handling a blocked write here would
-		 * be very annoying.
-		 */
-		user->eh.DoWrite();
+        user->WriteNumeric(RPL_STARTTLS, "STARTTLS successful, go ahead with TLS handshake");
+        /* We need to flush the write buffer prior to adding the IOHook,
+         * otherwise we'll be sending this line inside the TLS (SSL) session - which
+         * won't start its handshake until the client gets this line. Currently,
+         * we assume the write will not block here; this is usually safe, as
+         * STARTTLS is sent very early on in the registration phase, where the
+         * user hasn't built up much sendq. Handling a blocked write here would
+         * be very annoying.
+         */
+        user->eh.DoWrite();
 
-		ssl->OnAccept(&user->eh, NULL, NULL);
+        ssl->OnAccept(&user->eh, NULL, NULL);
 
-		return CMD_SUCCESS;
-	}
+        return CMD_SUCCESS;
+    }
 };
 
-class TLSCap : public Cap::Capability
-{
- private:
-	dynamic_reference_nocheck<IOHookProvider>& sslref;
+class TLSCap : public Cap::Capability {
+  private:
+    dynamic_reference_nocheck<IOHookProvider>& sslref;
 
-	bool OnList(LocalUser* user) CXX11_OVERRIDE
-	{
-		return sslref;
-	}
+    bool OnList(LocalUser* user) CXX11_OVERRIDE {
+        return sslref;
+    }
 
-	bool OnRequest(LocalUser* user, bool adding) CXX11_OVERRIDE
-	{
-		return sslref;
-	}
+    bool OnRequest(LocalUser* user, bool adding) CXX11_OVERRIDE {
+        return sslref;
+    }
 
- public:
-	TLSCap(Module* mod, dynamic_reference_nocheck<IOHookProvider>& ssl)
-		: Cap::Capability(mod, "tls")
-		, sslref(ssl)
-	{
-	}
+  public:
+    TLSCap(Module* mod, dynamic_reference_nocheck<IOHookProvider>& ssl)
+        : Cap::Capability(mod, "tls")
+        , sslref(ssl) {
+    }
 };
 
-class ModuleStartTLS : public Module
-{
-	CommandStartTLS starttls;
-	TLSCap tls;
-	dynamic_reference_nocheck<IOHookProvider> ssl;
+class ModuleStartTLS : public Module {
+    CommandStartTLS starttls;
+    TLSCap tls;
+    dynamic_reference_nocheck<IOHookProvider> ssl;
 
- public:
-	ModuleStartTLS()
-		: starttls(this, ssl)
-		, tls(this, ssl)
-		, ssl(this, "ssl")
-	{
-	}
+  public:
+    ModuleStartTLS()
+        : starttls(this, ssl)
+        , tls(this, ssl)
+        , ssl(this, "ssl") {
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ConfigTag* conf = ServerInstance->Config->ConfValue("starttls");
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* conf = ServerInstance->Config->ConfValue("starttls");
 
-		std::string newprovider = conf->getString("provider");
-		if (newprovider.empty())
-			ssl.SetProvider("ssl");
-		else
-			ssl.SetProvider("ssl/" + newprovider);
-	}
+        std::string newprovider = conf->getString("provider");
+        if (newprovider.empty()) {
+            ssl.SetProvider("ssl");
+        } else {
+            ssl.SetProvider("ssl/" + newprovider);
+        }
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides the IRCv3 tls client capability.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Provides the IRCv3 tls client capability.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleStartTLS)

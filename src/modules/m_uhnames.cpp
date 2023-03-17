@@ -28,57 +28,53 @@
 #include "modules/names.h"
 
 class ModuleUHNames
-	: public Module
-	, public Names::EventListener
-{
- private:
-	Cap::Capability cap;
+    : public Module
+    , public Names::EventListener {
+  private:
+    Cap::Capability cap;
 
- public:
-	ModuleUHNames()
-		: Names::EventListener(this)
-		, cap(this, "userhost-in-names")
-	{
-	}
+  public:
+    ModuleUHNames()
+        : Names::EventListener(this)
+        , cap(this, "userhost-in-names") {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides the IRCv3 userhost-in-names client capability.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Provides the IRCv3 userhost-in-names client capability.", VF_VENDOR);
+    }
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		// The legacy PROTOCTL system is a wrapper around the cap.
-		dynamic_reference_nocheck<Cap::Manager> capmanager(this, "capmanager");
-		if (capmanager)
-			tokens["UHNAMES"];
-	}
+    void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE {
+        // The legacy PROTOCTL system is a wrapper around the cap.
+        dynamic_reference_nocheck<Cap::Manager> capmanager(this, "capmanager");
+        if (capmanager) {
+            tokens["UHNAMES"];
+        }
+    }
 
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
-	{
-		/* We don't actually create a proper command handler class for PROTOCTL,
-		 * because other modules might want to have PROTOCTL hooks too.
-		 * Therefore, we just hook its as an unvalidated command therefore we
-		 * can capture it even if it doesnt exist! :-)
-		 */
-		if (command == "PROTOCTL")
-		{
-			if (!parameters.empty() && irc::equals(parameters[0], "UHNAMES"))
-			{
-				cap.set(user, true);
-				return MOD_RES_DENY;
-			}
-		}
-		return MOD_RES_PASSTHRU;
-	}
+    ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters,
+                           LocalUser* user, bool validated) CXX11_OVERRIDE {
+        /* We don't actually create a proper command handler class for PROTOCTL,
+         * because other modules might want to have PROTOCTL hooks too.
+         * Therefore, we just hook its as an unvalidated command therefore we
+         * can capture it even if it doesnt exist! :-)
+         */
+        if (command == "PROTOCTL") {
+            if (!parameters.empty() && irc::equals(parameters[0], "UHNAMES")) {
+                cap.set(user, true);
+                return MOD_RES_DENY;
+            }
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
-	ModResult OnNamesListItem(LocalUser* issuer, Membership* memb, std::string& prefixes, std::string& nick) CXX11_OVERRIDE
-	{
-		if (cap.get(issuer))
-			nick = memb->user->GetFullHost();
+    ModResult OnNamesListItem(LocalUser* issuer, Membership* memb,
+                              std::string& prefixes, std::string& nick) CXX11_OVERRIDE {
+        if (cap.get(issuer)) {
+            nick = memb->user->GetFullHost();
+        }
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 };
 
 MODULE_INIT(ModuleUHNames)

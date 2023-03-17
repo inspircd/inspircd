@@ -28,65 +28,63 @@
 
 /** Handles user mode +I
  */
-class HideChans : public SimpleUserModeHandler
-{
- public:
-	HideChans(Module* Creator) : SimpleUserModeHandler(Creator, "hidechans", 'I') { }
+class HideChans : public SimpleUserModeHandler {
+  public:
+    HideChans(Module* Creator) : SimpleUserModeHandler(Creator, "hidechans", 'I') { }
 };
 
 class ModuleHideChans CXX11_FINAL
-	: public Module
-	, public Who::VisibleEventListener
-	, public Whois::LineEventListener
-{
- private:
-	bool AffectsOpers;
-	HideChans hm;
+    : public Module
+    , public Who::VisibleEventListener
+    , public Whois::LineEventListener {
+  private:
+    bool AffectsOpers;
+    HideChans hm;
 
-	ModResult ShouldHideChans(LocalUser* source, User* target)
-	{
-		if (source == target)
-			return MOD_RES_PASSTHRU; // User is targeting themself.
+    ModResult ShouldHideChans(LocalUser* source, User* target) {
+        if (source == target) {
+            return MOD_RES_PASSTHRU;    // User is targeting themself.
+        }
 
-		if (!target->IsModeSet(hm))
-			return MOD_RES_PASSTHRU; // Mode not set on the target.
+        if (!target->IsModeSet(hm)) {
+            return MOD_RES_PASSTHRU;    // Mode not set on the target.
+        }
 
-		if (!AffectsOpers && source->HasPrivPermission("users/auspex"))
-			return MOD_RES_PASSTHRU; // Opers aren't exempt or the oper doesn't have the right priv.
+        if (!AffectsOpers && source->HasPrivPermission("users/auspex")) {
+            return MOD_RES_PASSTHRU;    // Opers aren't exempt or the oper doesn't have the right priv.
+        }
 
-		return MOD_RES_DENY;
-	}
+        return MOD_RES_DENY;
+    }
 
- public:
-	ModuleHideChans()
-		: Who::VisibleEventListener(this)
-		, Whois::LineEventListener(this)
-		, hm(this)
-	{
-	}
+  public:
+    ModuleHideChans()
+        : Who::VisibleEventListener(this)
+        , Whois::LineEventListener(this)
+        , hm(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds user mode I (hidechans) which hides the channels users with it set are in from their /WHOIS response.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds user mode I (hidechans) which hides the channels users with it set are in from their /WHOIS response.", VF_VENDOR);
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		AffectsOpers = ServerInstance->Config->ConfValue("hidechans")->getBool("affectsopers");
-	}
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        AffectsOpers = ServerInstance->Config->ConfValue("hidechans")->getBool("affectsopers");
+    }
 
-	ModResult OnWhoVisible(const Who::Request& request, LocalUser* source, Membership* memb) CXX11_OVERRIDE
-	{
-		return ShouldHideChans(source, memb->user);
-	}
+    ModResult OnWhoVisible(const Who::Request& request, LocalUser* source,
+                           Membership* memb) CXX11_OVERRIDE {
+        return ShouldHideChans(source, memb->user);
+    }
 
-	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) CXX11_OVERRIDE
-	{
-		if (numeric.GetNumeric() != RPL_WHOISCHANNELS)
-			return MOD_RES_PASSTHRU;
+    ModResult OnWhoisLine(Whois::Context& whois,
+                          Numeric::Numeric& numeric) CXX11_OVERRIDE {
+        if (numeric.GetNumeric() != RPL_WHOISCHANNELS) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		return ShouldHideChans(whois.GetSource(), whois.GetTarget());
-	}
+        return ShouldHideChans(whois.GetSource(), whois.GetTarget());
+    }
 };
 
 MODULE_INIT(ModuleHideChans)

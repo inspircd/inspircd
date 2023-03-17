@@ -37,58 +37,56 @@
 
 #include "inspircd.h"
 
-enum
-{
-	// From UnrealIRCd (channel mode, but same concept)
-	ERR_NOINVITE = 518
+enum {
+    // From UnrealIRCd (channel mode, but same concept)
+    ERR_NOINVITE = 518
 };
 
-class ModuleBlockInvite : public Module
-{
- private:
-	SimpleUserModeHandler bi;
-	bool reply;
+class ModuleBlockInvite : public Module {
+  private:
+    SimpleUserModeHandler bi;
+    bool reply;
 
- public:
-	ModuleBlockInvite()
-		: bi(this, "blockinvite", ServerInstance->Config->ConfValue("blockinvite")->getString("modechar", "V", 1, 1)[0])
-		, reply(false)
-	{
-	}
+  public:
+    ModuleBlockInvite()
+        : bi(this, "blockinvite",
+             ServerInstance->Config->ConfValue("blockinvite")->getString("modechar", "V", 1,
+                     1)[0])
+        , reply(false) {
+    }
 
-	void Prioritize() CXX11_OVERRIDE
-	{
-		// Go before m_allowinvite as it returns ALLOW.
-		Module* allowinvite = ServerInstance->Modules->Find("m_allowinvite.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserPreInvite, PRIORITY_BEFORE, allowinvite);
-	}
+    void Prioritize() CXX11_OVERRIDE {
+        // Go before m_allowinvite as it returns ALLOW.
+        Module* allowinvite = ServerInstance->Modules->Find("m_allowinvite.so");
+        ServerInstance->Modules->SetPriority(this, I_OnUserPreInvite, PRIORITY_BEFORE, allowinvite);
+    }
 
-	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
-	{
-		reply = ServerInstance->Config->ConfValue("blockinvite")->getBool("reply");
-	}
+    void ReadConfig(ConfigStatus&) CXX11_OVERRIDE {
+        reply = ServerInstance->Config->ConfValue("blockinvite")->getBool("reply");
+    }
 
-	ModResult OnUserPreInvite(User* source, User* dest, Channel*, time_t) CXX11_OVERRIDE
-	{
-		if (!IS_LOCAL(source) || !dest->IsModeSet(bi.GetModeChar()))
-			return MOD_RES_PASSTHRU;
+    ModResult OnUserPreInvite(User* source, User* dest, Channel*,
+                              time_t) CXX11_OVERRIDE {
+        if (!IS_LOCAL(source) || !dest->IsModeSet(bi.GetModeChar())) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		if (source->HasPrivPermission("users/blockinvite-override"))
-			return MOD_RES_PASSTHRU;
+        if (source->HasPrivPermission("users/blockinvite-override")) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		if (reply)
-		{
-			source->WriteNumeric(ERR_NOINVITE, InspIRCd::Format("Can't INVITE %s, they have +%c set",
-				dest->nick.c_str(), bi.GetModeChar()));
-		}
+        if (reply) {
+            source->WriteNumeric(ERR_NOINVITE,
+                                 InspIRCd::Format("Can't INVITE %s, they have +%c set",
+                                                  dest->nick.c_str(), bi.GetModeChar()));
+        }
 
-		return MOD_RES_DENY;
-	}
+        return MOD_RES_DENY;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides usermode +" + ConvToStr(bi.GetModeChar()) + " to block all INVITEs", VF_OPTCOMMON);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Provides usermode +" + ConvToStr(bi.GetModeChar()) + " to block all INVITEs", VF_OPTCOMMON);
+    }
 };
 
 MODULE_INIT(ModuleBlockInvite)

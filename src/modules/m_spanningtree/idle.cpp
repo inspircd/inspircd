@@ -26,50 +26,48 @@
 #include "utils.h"
 #include "commands.h"
 
-CmdResult CommandIdle::HandleRemote(RemoteUser* issuer, Params& params)
-{
-	/**
-	 * There are two forms of IDLE: request and reply. Requests have one parameter,
-	 * replies have more than one.
-	 *
-	 * If this is a request, 'issuer' did a /whois and its server wants to learn the
-	 * idle time of the user in params[0].
-	 *
-	 * If this is a reply, params[0] is the user who did the whois and params.back() is
-	 * the number of seconds 'issuer' has been idle.
-	 */
+CmdResult CommandIdle::HandleRemote(RemoteUser* issuer, Params& params) {
+    /**
+     * There are two forms of IDLE: request and reply. Requests have one parameter,
+     * replies have more than one.
+     *
+     * If this is a request, 'issuer' did a /whois and its server wants to learn the
+     * idle time of the user in params[0].
+     *
+     * If this is a reply, params[0] is the user who did the whois and params.back() is
+     * the number of seconds 'issuer' has been idle.
+     */
 
-	User* target = ServerInstance->FindUUID(params[0]);
-	if ((!target) || (target->registered != REG_ALL))
-		return CMD_FAILURE;
+    User* target = ServerInstance->FindUUID(params[0]);
+    if ((!target) || (target->registered != REG_ALL)) {
+        return CMD_FAILURE;
+    }
 
-	LocalUser* localtarget = IS_LOCAL(target);
-	if (!localtarget)
-	{
-		// Forward to target's server
-		return CMD_SUCCESS;
-	}
+    LocalUser* localtarget = IS_LOCAL(target);
+    if (!localtarget) {
+        // Forward to target's server
+        return CMD_SUCCESS;
+    }
 
-	if (params.size() >= 2)
-	{
-		ServerInstance->Parser.CallHandler("WHOIS", params, issuer);
-	}
-	else
-	{
-		// A server is asking us the idle time of our user
-		unsigned int idle;
-		if (localtarget->idle_lastmsg >= ServerInstance->Time())
-			// Possible case when our clock ticked backwards
-			idle = 0;
-		else
-			idle = ((unsigned int) (ServerInstance->Time() - localtarget->idle_lastmsg));
+    if (params.size() >= 2) {
+        ServerInstance->Parser.CallHandler("WHOIS", params, issuer);
+    } else {
+        // A server is asking us the idle time of our user
+        unsigned int idle;
+        if (localtarget->idle_lastmsg >= ServerInstance->Time())
+            // Possible case when our clock ticked backwards
+        {
+            idle = 0;
+        } else {
+            idle = ((unsigned int) (ServerInstance->Time() - localtarget->idle_lastmsg));
+        }
 
-		CmdBuilder reply(target, "IDLE");
-		reply.push(issuer->uuid);
-		reply.push(ConvToStr(target->signon));
-		reply.push(ConvToStr(idle));
-		reply.Unicast(issuer);
-	}
+        CmdBuilder reply(target, "IDLE");
+        reply.push(issuer->uuid);
+        reply.push(ConvToStr(target->signon));
+        reply.push(ConvToStr(idle));
+        reply.Unicast(issuer);
+    }
 
-	return CMD_SUCCESS;
+    return CMD_SUCCESS;
 }

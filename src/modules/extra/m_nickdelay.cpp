@@ -26,63 +26,56 @@
 
 #include "inspircd.h"
 
-class ModuleNickDelay : public Module
-{
-	LocalIntExt lastchanged;
-	unsigned int delay;
-	bool hint;
+class ModuleNickDelay : public Module {
+    LocalIntExt lastchanged;
+    unsigned int delay;
+    bool hint;
 
- public:
-	ModuleNickDelay()
-		: lastchanged("nickdelay", ExtensionItem::EXT_USER, this)
-	{
-	}
+  public:
+    ModuleNickDelay()
+        : lastchanged("nickdelay", ExtensionItem::EXT_USER, this) {
+    }
 
-	void OnUserPostNick(User* user, const std::string& oldnick) CXX11_OVERRIDE
-	{
-		// Ignore remote users and nick changes to uuid
-		if ((IS_LOCAL(user)) && (user->nick != user->uuid))
-			lastchanged.set(user, ServerInstance->Time());
-	}
+    void OnUserPostNick(User* user, const std::string& oldnick) CXX11_OVERRIDE {
+        // Ignore remote users and nick changes to uuid
+        if ((IS_LOCAL(user)) && (user->nick != user->uuid)) {
+            lastchanged.set(user, ServerInstance->Time());
+        }
+    }
 
-	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE
-	{
-		if (user->HasPrivPermission("users/ignore-nickdelay"))
-			return MOD_RES_PASSTHRU;
+    ModResult OnUserPreNick(LocalUser* user,
+                            const std::string& newnick) CXX11_OVERRIDE {
+        if (user->HasPrivPermission("users/ignore-nickdelay")) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		time_t lastchange = lastchanged.get(user);
-		time_t wait = lastchange + delay - ServerInstance->Time();
-		if (wait > 0)
-		{
-			if (hint)
-			{
-				user->WriteNumeric(ERR_CANTCHANGENICK, user->nick,
-					InspIRCd::Format("You cannot change your nickname (try again in %s)",
-					InspIRCd::DurationString(wait).c_str()));
-			}
-			else
-			{
-				user->WriteNumeric(ERR_CANTCHANGENICK, user->nick,
-					"You cannot change your nickname (try again later)");
-			}
+        time_t lastchange = lastchanged.get(user);
+        time_t wait = lastchange + delay - ServerInstance->Time();
+        if (wait > 0) {
+            if (hint) {
+                user->WriteNumeric(ERR_CANTCHANGENICK, user->nick,
+                                   InspIRCd::Format("You cannot change your nickname (try again in %s)",
+                                                    InspIRCd::DurationString(wait).c_str()));
+            } else {
+                user->WriteNumeric(ERR_CANTCHANGENICK, user->nick,
+                                   "You cannot change your nickname (try again later)");
+            }
 
-			return MOD_RES_DENY;
-		}
+            return MOD_RES_DENY;
+        }
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 
-	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("nickdelay");
-		delay = tag->getUInt("delay", 10, 1);
-		hint = tag->getBool("hint", true);
-	}
+    void ReadConfig(ConfigStatus&) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("nickdelay");
+        delay = tag->getUInt("delay", 10, 1);
+        hint = tag->getBool("hint", true);
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Enforces a delay between nick changes per user");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Enforces a delay between nick changes per user");
+    }
 };
 
 MODULE_INIT(ModuleNickDelay)

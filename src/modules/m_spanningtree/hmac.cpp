@@ -30,84 +30,84 @@
 #include "link.h"
 #include "treesocket.h"
 
-const std::string& TreeSocket::GetOurChallenge()
-{
-	return capab->ourchallenge;
+const std::string& TreeSocket::GetOurChallenge() {
+    return capab->ourchallenge;
 }
 
-void TreeSocket::SetOurChallenge(const std::string &c)
-{
-	capab->ourchallenge = c;
+void TreeSocket::SetOurChallenge(const std::string &c) {
+    capab->ourchallenge = c;
 }
 
-const std::string& TreeSocket::GetTheirChallenge()
-{
-	return capab->theirchallenge;
+const std::string& TreeSocket::GetTheirChallenge() {
+    return capab->theirchallenge;
 }
 
-void TreeSocket::SetTheirChallenge(const std::string &c)
-{
-	capab->theirchallenge = c;
+void TreeSocket::SetTheirChallenge(const std::string &c) {
+    capab->theirchallenge = c;
 }
 
-std::string TreeSocket::MakePass(const std::string &password, const std::string &challenge)
-{
-	/* This is a simple (maybe a bit hacky?) HMAC algorithm, thanks to jilles for
-	 * suggesting the use of HMAC to secure the password against various attacks.
-	 *
-	 * Note: If an sha256 provider is not available, we MUST fall back to plaintext with no
-	 *       HMAC challenge/response.
-	 */
-	HashProvider* sha256 = ServerInstance->Modules->FindDataService<HashProvider>("hash/sha256");
-	if (sha256 && !challenge.empty())
-		return "AUTH:" + BinToBase64(sha256->hmac(password, challenge));
+std::string TreeSocket::MakePass(const std::string &password,
+                                 const std::string &challenge) {
+    /* This is a simple (maybe a bit hacky?) HMAC algorithm, thanks to jilles for
+     * suggesting the use of HMAC to secure the password against various attacks.
+     *
+     * Note: If an sha256 provider is not available, we MUST fall back to plaintext with no
+     *       HMAC challenge/response.
+     */
+    HashProvider* sha256 =
+        ServerInstance->Modules->FindDataService<HashProvider>("hash/sha256");
+    if (sha256 && !challenge.empty()) {
+        return "AUTH:" + BinToBase64(sha256->hmac(password, challenge));
+    }
 
-	if (!challenge.empty() && !sha256)
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Not authenticating to server using SHA256/HMAC because we don't have an SHA256 provider (e.g. m_sha256) loaded!");
+    if (!challenge.empty() && !sha256) {
+        ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT,
+                                  "Not authenticating to server using SHA256/HMAC because we don't have an SHA256 provider (e.g. m_sha256) loaded!");
+    }
 
-	return password;
+    return password;
 }
 
-bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
-{
-	capab->auth_fingerprint = !link.Fingerprint.empty();
-	capab->auth_challenge = !capab->ourchallenge.empty() && !capab->theirchallenge.empty();
+bool TreeSocket::ComparePass(const Link& link, const std::string &theirs) {
+    capab->auth_fingerprint = !link.Fingerprint.empty();
+    capab->auth_challenge = !capab->ourchallenge.empty()
+                            && !capab->theirchallenge.empty();
 
-	std::string fp = SSLClientCert::GetFingerprint(this);
-	if (capab->auth_fingerprint)
-	{
-		/* Require fingerprint to exist and match */
-		if (link.Fingerprint != fp)
-		{
-			ServerInstance->SNO->WriteToSnoMask('l',"Invalid SSL certificate fingerprint on link %s: need \"%s\" got \"%s\"",
-				link.Name.c_str(), link.Fingerprint.c_str(), fp.c_str());
-			SendError("Invalid SSL certificate fingerprint " + fp + " - expected " + link.Fingerprint);
-			return false;
-		}
-	}
+    std::string fp = SSLClientCert::GetFingerprint(this);
+    if (capab->auth_fingerprint) {
+        /* Require fingerprint to exist and match */
+        if (link.Fingerprint != fp) {
+            ServerInstance->SNO->WriteToSnoMask('l',
+                                                "Invalid SSL certificate fingerprint on link %s: need \"%s\" got \"%s\"",
+                                                link.Name.c_str(), link.Fingerprint.c_str(), fp.c_str());
+            SendError("Invalid SSL certificate fingerprint " + fp + " - expected " +
+                      link.Fingerprint);
+            return false;
+        }
+    }
 
-	if (capab->auth_challenge)
-	{
-		std::string our_hmac = MakePass(link.RecvPass, capab->ourchallenge);
+    if (capab->auth_challenge) {
+        std::string our_hmac = MakePass(link.RecvPass, capab->ourchallenge);
 
-		// Use the timing-safe compare function to compare the hashes
-		if (!InspIRCd::TimingSafeCompare(our_hmac, theirs))
-			return false;
-	}
-	else
-	{
-		// Use the timing-safe compare function to compare the passwords
-		if (!InspIRCd::TimingSafeCompare(link.RecvPass, theirs))
-			return false;
-	}
+        // Use the timing-safe compare function to compare the hashes
+        if (!InspIRCd::TimingSafeCompare(our_hmac, theirs)) {
+            return false;
+        }
+    } else {
+        // Use the timing-safe compare function to compare the passwords
+        if (!InspIRCd::TimingSafeCompare(link.RecvPass, theirs)) {
+            return false;
+        }
+    }
 
-	// Tell opers to set up fingerprint verification if it's not already set up and the SSL mod gave us a fingerprint
-	// this time
-	if ((!capab->auth_fingerprint) && (!fp.empty()))
-	{
-		ServerInstance->SNO->WriteToSnoMask('l', "SSL certificate fingerprint for link %s is \"%s\". "
-			"You can improve security by specifying this in <link:fingerprint>.", link.Name.c_str(), fp.c_str());
-	}
+    // Tell opers to set up fingerprint verification if it's not already set up and the SSL mod gave us a fingerprint
+    // this time
+    if ((!capab->auth_fingerprint) && (!fp.empty())) {
+        ServerInstance->SNO->WriteToSnoMask('l',
+                                            "SSL certificate fingerprint for link %s is \"%s\". "
+                                            "You can improve security by specifying this in <link:fingerprint>.",
+                                            link.Name.c_str(), fp.c_str());
+    }
 
-	return true;
+    return true;
 }

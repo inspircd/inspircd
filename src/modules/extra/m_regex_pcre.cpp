@@ -39,56 +39,47 @@
 # pragma comment(lib, "pcre.lib")
 #endif
 
-class PCRERegex : public Regex
-{
-	pcre* regex;
+class PCRERegex : public Regex {
+    pcre* regex;
 
- public:
-	PCRERegex(const std::string& rx) : Regex(rx)
-	{
-		const char* error;
-		int erroffset;
-		regex = pcre_compile(rx.c_str(), 0, &error, &erroffset, NULL);
-		if (!regex)
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "pcre_compile failed: /%s/ [%d] %s", rx.c_str(), erroffset, error);
-			throw RegexException(rx, error, erroffset);
-		}
-	}
+  public:
+    PCRERegex(const std::string& rx) : Regex(rx) {
+        const char* error;
+        int erroffset;
+        regex = pcre_compile(rx.c_str(), 0, &error, &erroffset, NULL);
+        if (!regex) {
+            ServerInstance->Logs->Log(MODNAME, LOG_DEBUG,
+                                      "pcre_compile failed: /%s/ [%d] %s", rx.c_str(), erroffset, error);
+            throw RegexException(rx, error, erroffset);
+        }
+    }
 
-	~PCRERegex()
-	{
-		pcre_free(regex);
-	}
+    ~PCRERegex() {
+        pcre_free(regex);
+    }
 
-	bool Matches(const std::string& text) CXX11_OVERRIDE
-	{
-		return (pcre_exec(regex, NULL, text.c_str(), text.length(), 0, 0, NULL, 0) >= 0);
-	}
+    bool Matches(const std::string& text) CXX11_OVERRIDE {
+        return (pcre_exec(regex, NULL, text.c_str(), text.length(), 0, 0, NULL, 0) >= 0);
+    }
 };
 
-class PCREFactory : public RegexFactory
-{
- public:
-	PCREFactory(Module* m) : RegexFactory(m, "regex/pcre") {}
-	Regex* Create(const std::string& expr) CXX11_OVERRIDE
-	{
-		return new PCRERegex(expr);
-	}
+class PCREFactory : public RegexFactory {
+  public:
+    PCREFactory(Module* m) : RegexFactory(m, "regex/pcre") {}
+    Regex* Create(const std::string& expr) CXX11_OVERRIDE {
+        return new PCRERegex(expr);
+    }
 };
 
-class ModuleRegexPCRE : public Module
-{
- public:
-	PCREFactory ref;
-	ModuleRegexPCRE() : ref(this)
-	{
-	}
+class ModuleRegexPCRE : public Module {
+  public:
+    PCREFactory ref;
+    ModuleRegexPCRE() : ref(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides the pcre regular expression engine which uses the PCRE library.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Provides the pcre regular expression engine which uses the PCRE library.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleRegexPCRE)

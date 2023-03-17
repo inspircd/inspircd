@@ -27,52 +27,49 @@
 #include "modules/ctctags.h"
 
 class ModuleRestrictMsg
-	: public Module
-	, public CTCTags::EventListener
-{
- private:
-	ModResult HandleMessage(User* user, const MessageTarget& target)
-	{
-		if ((target.type == MessageTarget::TYPE_USER) && (IS_LOCAL(user)))
-		{
-			User* u = target.Get<User>();
+    : public Module
+    , public CTCTags::EventListener {
+  private:
+    ModResult HandleMessage(User* user, const MessageTarget& target) {
+        if ((target.type == MessageTarget::TYPE_USER) && (IS_LOCAL(user))) {
+            User* u = target.Get<User>();
 
-			// message allowed if:
-			// (1) the sender is opered
-			// (2) the recipient is opered
-			// (3) the recipient is on a ulined server
-			// anything else, blocked.
-			if (u->IsOper() || user->IsOper() || u->server->IsULine())
-				return MOD_RES_PASSTHRU;
+            // message allowed if:
+            // (1) the sender is opered
+            // (2) the recipient is opered
+            // (3) the recipient is on a ulined server
+            // anything else, blocked.
+            if (u->IsOper() || user->IsOper() || u->server->IsULine()) {
+                return MOD_RES_PASSTHRU;
+            }
 
-			user->WriteNumeric(Numerics::CannotSendTo(u, "You cannot send messages to this user."));
-			return MOD_RES_DENY;
-		}
+            user->WriteNumeric(Numerics::CannotSendTo(u,
+                               "You cannot send messages to this user."));
+            return MOD_RES_DENY;
+        }
 
-		// however, we must allow channel messages...
-		return MOD_RES_PASSTHRU;
-	}
+        // however, we must allow channel messages...
+        return MOD_RES_PASSTHRU;
+    }
 
- public:
-	ModuleRestrictMsg()
-		: CTCTags::EventListener(this)
-	{
-	}
+  public:
+    ModuleRestrictMsg()
+        : CTCTags::EventListener(this) {
+    }
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
-	{
-		return HandleMessage(user, target);
-	}
+    ModResult OnUserPreMessage(User* user, const MessageTarget& target,
+                               MessageDetails& details) CXX11_OVERRIDE {
+        return HandleMessage(user, target);
+    }
 
-	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) CXX11_OVERRIDE
-	{
-		return HandleMessage(user, target);
-	}
+    ModResult OnUserPreTagMessage(User* user, const MessageTarget& target,
+                                  CTCTags::TagMessageDetails& details) CXX11_OVERRIDE {
+        return HandleMessage(user, target);
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Prevents users who are not server operators from messaging each other.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Prevents users who are not server operators from messaging each other.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleRestrictMsg)

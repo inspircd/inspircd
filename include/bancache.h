@@ -32,51 +32,53 @@
  * entries expire every few hours, which is a reasonable expiry for any reasonable
  * sized network.
  */
-class CoreExport BanCacheHit
-{
- public:
-	/** Type of cached ban
-	 */
-	std::string Type;
-	/** Reason, shown as quit message
-	 */
-	std::string Reason;
-	/** Time that the ban expires at
-	 */
-	time_t Expiry;
+class CoreExport BanCacheHit {
+  public:
+    /** Type of cached ban
+     */
+    std::string Type;
+    /** Reason, shown as quit message
+     */
+    std::string Reason;
+    /** Time that the ban expires at
+     */
+    time_t Expiry;
 
-	BanCacheHit(const std::string& type, const std::string& reason, time_t seconds);
+    BanCacheHit(const std::string& type, const std::string& reason, time_t seconds);
 
-	bool IsPositive() const { return (!Reason.empty()); }
+    bool IsPositive() const {
+        return (!Reason.empty());
+    }
 };
 
 /** A manager for ban cache, which allocates and deallocates and checks cached bans.
  */
-class CoreExport BanCacheManager
-{
-	/** A container of ban cache items.
-	 */
-	typedef TR1NS::unordered_map<std::string, BanCacheHit*, TR1NS::hash<std::string> > BanCacheHash;
+class CoreExport BanCacheManager {
+    /** A container of ban cache items.
+     */
+    typedef TR1NS::unordered_map<std::string, BanCacheHit*, TR1NS::hash<std::string> >
+    BanCacheHash;
 
-	BanCacheHash BanHash;
-	bool RemoveIfExpired(BanCacheHash::iterator& it);
+    BanCacheHash BanHash;
+    bool RemoveIfExpired(BanCacheHash::iterator& it);
 
- public:
+  public:
 
-	/** Creates and adds a Ban Cache item.
-	 * @param ip The IP the item is for.
-	 * @param type The type of ban cache item. std::string. .empty() means it's a negative match (user is allowed freely).
-	 * @param reason The reason for the ban. Left .empty() if it's a negative match.
-	 * @param seconds Number of seconds before nuking the bancache entry, the default is a day. This might seem long, but entries will be removed as G-lines/etc expire.
-	 */
-	BanCacheHit *AddHit(const std::string &ip, const std::string &type, const std::string &reason, time_t seconds = 0);
-	BanCacheHit *GetHit(const std::string &ip);
+    /** Creates and adds a Ban Cache item.
+     * @param ip The IP the item is for.
+     * @param type The type of ban cache item. std::string. .empty() means it's a negative match (user is allowed freely).
+     * @param reason The reason for the ban. Left .empty() if it's a negative match.
+     * @param seconds Number of seconds before nuking the bancache entry, the default is a day. This might seem long, but entries will be removed as G-lines/etc expire.
+     */
+    BanCacheHit *AddHit(const std::string &ip, const std::string &type,
+                        const std::string &reason, time_t seconds = 0);
+    BanCacheHit *GetHit(const std::string &ip);
 
-	/** Removes all entries of a given type, either positive or negative. Returns the number of hits removed.
-	 * @param type The type of bancache entries to remove (e.g. 'G')
-	 * @param positive Remove either positive (true) or negative (false) hits.
-	 */
-	void RemoveEntries(const std::string& type, bool positive);
+    /** Removes all entries of a given type, either positive or negative. Returns the number of hits removed.
+     * @param type The type of bancache entries to remove (e.g. 'G')
+     * @param positive Remove either positive (true) or negative (false) hits.
+     */
+    void RemoveEntries(const std::string& type, bool positive);
 
-	~BanCacheManager();
+    ~BanCacheManager();
 };

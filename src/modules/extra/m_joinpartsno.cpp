@@ -22,30 +22,27 @@
 /// $ModDesc: Sends server notices when a user joins/parts a channel.
 /// $ModDepends: core 3
 
-class ModuleJoinPartSNO : public Module
-{
-	public:
-		void init() CXX11_OVERRIDE
-		{
-			ServerInstance->SNO->EnableSnomask('e', "JOIN");
-			ServerInstance->SNO->EnableSnomask('p', "PART");
-		}
+class ModuleJoinPartSNO : public Module {
+  public:
+    void init() CXX11_OVERRIDE {
+        ServerInstance->SNO->EnableSnomask('e', "JOIN");
+        ServerInstance->SNO->EnableSnomask('p', "PART");
+    }
 
-		Version GetVersion() CXX11_OVERRIDE
-		{
-			return Version("Creates SNOMask for user joins/parts");
-		}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Creates SNOMask for user joins/parts");
+    }
 
-		void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except) CXX11_OVERRIDE
-		{
-			/* If it's a local user do e, else E. */
-			ServerInstance->SNO->WriteToSnoMask((IS_LOCAL(memb->user) ? 'e' : 'E'), "User %s joined %s", memb->user->GetFullRealHost().c_str(), memb->chan->name.c_str());
-		}
+    void OnUserJoin(Membership* memb, bool sync, bool created,
+                    CUList& except) CXX11_OVERRIDE {
+        /* If it's a local user do e, else E. */
+        ServerInstance->SNO->WriteToSnoMask((IS_LOCAL(memb->user) ? 'e' : 'E'), "User %s joined %s", memb->user->GetFullRealHost().c_str(), memb->chan->name.c_str());
+    }
 
-		void OnUserPart(Membership* memb, std::string& partmessage, CUList& except) CXX11_OVERRIDE
-		{
-			ServerInstance->SNO->WriteToSnoMask((IS_LOCAL(memb->user) ? 'p' : 'P'), "User %s parted %s", memb->user->GetFullRealHost().c_str(), memb->chan->name.c_str());
-		}
+    void OnUserPart(Membership* memb, std::string& partmessage,
+                    CUList& except) CXX11_OVERRIDE {
+        ServerInstance->SNO->WriteToSnoMask((IS_LOCAL(memb->user) ? 'p' : 'P'), "User %s parted %s", memb->user->GetFullRealHost().c_str(), memb->chan->name.c_str());
+    }
 };
 
 MODULE_INIT(ModuleJoinPartSNO)

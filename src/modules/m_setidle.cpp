@@ -27,57 +27,51 @@
 
 #include "inspircd.h"
 
-enum
-{
-	// InspIRCd-specific.
-	ERR_INVALIDIDLETIME = 948,
-	RPL_IDLETIMESET = 944
+enum {
+    // InspIRCd-specific.
+    ERR_INVALIDIDLETIME = 948,
+    RPL_IDLETIMESET = 944
 };
 
 /** Handle /SETIDLE
  */
-class CommandSetidle : public SplitCommand
-{
- public:
-	CommandSetidle(Module* Creator) : SplitCommand(Creator,"SETIDLE", 1)
-	{
-		flags_needed = 'o';
-		syntax = "<duration>";
-	}
+class CommandSetidle : public SplitCommand {
+  public:
+    CommandSetidle(Module* Creator) : SplitCommand(Creator,"SETIDLE", 1) {
+        flags_needed = 'o';
+        syntax = "<duration>";
+    }
 
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		unsigned long idle;
-		if (!InspIRCd::Duration(parameters[0], idle))
-		{
-			user->WriteNumeric(ERR_INVALIDIDLETIME, "Invalid idle time.");
-			return CMD_FAILURE;
-		}
-		user->idle_lastmsg = (ServerInstance->Time() - idle);
-		// minor tweak - we cant have signon time shorter than our idle time!
-		if (user->signon > user->idle_lastmsg)
-			user->signon = user->idle_lastmsg;
-		ServerInstance->SNO->WriteToSnoMask('a', user->nick+" used SETIDLE to set their idle time to "+ConvToStr(idle)+" seconds");
-		user->WriteNumeric(RPL_IDLETIMESET, "Idle time set.");
+    CmdResult HandleLocal(LocalUser* user,
+                          const Params& parameters) CXX11_OVERRIDE {
+        unsigned long idle;
+        if (!InspIRCd::Duration(parameters[0], idle)) {
+            user->WriteNumeric(ERR_INVALIDIDLETIME, "Invalid idle time.");
+            return CMD_FAILURE;
+        }
+        user->idle_lastmsg = (ServerInstance->Time() - idle);
+        // minor tweak - we cant have signon time shorter than our idle time!
+        if (user->signon > user->idle_lastmsg) {
+            user->signon = user->idle_lastmsg;
+        }
+        ServerInstance->SNO->WriteToSnoMask('a', user->nick+" used SETIDLE to set their idle time to "+ConvToStr(idle)+" seconds");
+        user->WriteNumeric(RPL_IDLETIMESET, "Idle time set.");
 
-		return CMD_SUCCESS;
-	}
+        return CMD_SUCCESS;
+    }
 };
 
 
-class ModuleSetIdle : public Module
-{
-	CommandSetidle cmd;
- public:
-	ModuleSetIdle()
-		: cmd(this)
-	{
-	}
+class ModuleSetIdle : public Module {
+    CommandSetidle cmd;
+  public:
+    ModuleSetIdle()
+        : cmd(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds the /SETIDLE command which allows server operators to change their idle time.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds the /SETIDLE command which allows server operators to change their idle time.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleSetIdle)

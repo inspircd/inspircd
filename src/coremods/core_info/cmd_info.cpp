@@ -27,70 +27,71 @@
 #include "core_info.h"
 
 CommandInfo::CommandInfo(Module* parent)
-	: ServerTargetCommand(parent, "INFO")
-{
-	Penalty = 4;
-	syntax = "[<servername>]";
+    : ServerTargetCommand(parent, "INFO") {
+    Penalty = 4;
+    syntax = "[<servername>]";
 }
 
 static const char* const lines[] = {
-	"                   -/\\- \002InspIRCd\002 -\\/-",
-	"                 November 2002 - Present",
-	" ",
-	"\002Core Developers\002:",
-	"    Matt Schatz,            genius3000, <genius3000@g3k.solutions>",
-	"    Sadie Powell,           SadieCat,   <sadie@witchery.services>",
-	" ",
-	"\002Former Developers\002:",
-	"    Attila Molnar,          Attila,     <attilamolnar@hush.com>",
-	"    Daniel De Graaf,        danieldg,   <danieldg@inspircd.org>",
-	"    Dennis Friis,           peavey,     <peavey@inspircd.org>",
-	"    John Brooks,            Special,    <special@inspircd.org>",
-	"    Matt Smith,             dz,         <dz@inspircd.org>",
-	"    Oliver Lupton,          Om,         <om@inspircd.org>",
-	"    Thomas Stagner,         aquanight,  <aquanight@inspircd.org>",
-	"    Uli Schlachter,         psychon,    <psychon@inspircd.org>",
-	" ",
-	"\002Founding Developers\002:",
-	"    Craig Edwards,          Brain,      <brain@inspircd.org>",
-	"    Craig McLure,           Craig,      <craig@inspircd.org>",
-	"    Robin Burchell,         w00t,       <w00t@inspircd.org>",
-	" ",
-	"\002Active Contributors\002:",
-	"   Adam            progval         Robby",
-	" ",
-	"\002Former Contributors\002:",
-	"   Adremelech      Ankit           AnMaster        Bricker",
-	"   BuildSmart      Burlex          CC              ChrisTX",
-	"   Dan             djGrrr          dmb             eggy",
-	"   fraggeln        GreenReaper     HiroP           jackmcbarn",
-	"   jamie           Jason           jilles          John2",
-	"   kaniini         LeaChim         linuxdaemon     MacGyver",
-	"   majic           Namegduf        owine           Phoenix",
-	"   pippijn         praetorian      Quension        satmd",
-	"   Shawn           Sheogorath      Shutter         skenmy",
-	"   Skip            Stskeeps        Taros           ThaPrince",
-	"   Thunderhacker   typobox43       Zaba",
-	" ",
-	"\002Thanks To\002:",
-	"   Asmo            Brik            dan-            Duck",
-	"   jwheare         prawnsalad",
-	" ",
-	" Best experienced with \002an IRC client\002",
-	NULL
+    "                   -/\\- \002InspIRCd\002 -\\/-",
+    "                 November 2002 - Present",
+    " ",
+    "\002Core Developers\002:",
+    "    Matt Schatz,            genius3000, <genius3000@g3k.solutions>",
+    "    Sadie Powell,           SadieCat,   <sadie@witchery.services>",
+    " ",
+    "\002Former Developers\002:",
+    "    Attila Molnar,          Attila,     <attilamolnar@hush.com>",
+    "    Daniel De Graaf,        danieldg,   <danieldg@inspircd.org>",
+    "    Dennis Friis,           peavey,     <peavey@inspircd.org>",
+    "    John Brooks,            Special,    <special@inspircd.org>",
+    "    Matt Smith,             dz,         <dz@inspircd.org>",
+    "    Oliver Lupton,          Om,         <om@inspircd.org>",
+    "    Thomas Stagner,         aquanight,  <aquanight@inspircd.org>",
+    "    Uli Schlachter,         psychon,    <psychon@inspircd.org>",
+    " ",
+    "\002Founding Developers\002:",
+    "    Craig Edwards,          Brain,      <brain@inspircd.org>",
+    "    Craig McLure,           Craig,      <craig@inspircd.org>",
+    "    Robin Burchell,         w00t,       <w00t@inspircd.org>",
+    " ",
+    "\002Active Contributors\002:",
+    "   Adam            progval         Robby",
+    " ",
+    "\002Former Contributors\002:",
+    "   Adremelech      Ankit           AnMaster        Bricker",
+    "   BuildSmart      Burlex          CC              ChrisTX",
+    "   Dan             djGrrr          dmb             eggy",
+    "   fraggeln        GreenReaper     HiroP           jackmcbarn",
+    "   jamie           Jason           jilles          John2",
+    "   kaniini         LeaChim         linuxdaemon     MacGyver",
+    "   majic           Namegduf        owine           Phoenix",
+    "   pippijn         praetorian      Quension        satmd",
+    "   Shawn           Sheogorath      Shutter         skenmy",
+    "   Skip            Stskeeps        Taros           ThaPrince",
+    "   Thunderhacker   typobox43       Zaba",
+    " ",
+    "\002Thanks To\002:",
+    "   Asmo            Brik            dan-            Duck",
+    "   jwheare         prawnsalad",
+    " ",
+    " Best experienced with \002an IRC client\002",
+    NULL
 };
 
 /** Handle /INFO
  */
-CmdResult CommandInfo::Handle(User* user, const Params& parameters)
-{
-	if (parameters.size() > 0 && !irc::equals(parameters[0], ServerInstance->Config->ServerName))
-		return CMD_SUCCESS;
+CmdResult CommandInfo::Handle(User* user, const Params& parameters) {
+    if (parameters.size() > 0
+            && !irc::equals(parameters[0], ServerInstance->Config->ServerName)) {
+        return CMD_SUCCESS;
+    }
 
-	int i=0;
-	while (lines[i])
-		user->WriteRemoteNumeric(RPL_INFO, lines[i++]);
+    int i=0;
+    while (lines[i]) {
+        user->WriteRemoteNumeric(RPL_INFO, lines[i++]);
+    }
 
-	user->WriteRemoteNumeric(RPL_ENDOFINFO, "End of /INFO list");
-	return CMD_SUCCESS;
+    user->WriteRemoteNumeric(RPL_ENDOFINFO, "End of /INFO list");
+    return CMD_SUCCESS;
 }

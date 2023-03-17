@@ -27,111 +27,102 @@
 #include "inspircd.h"
 #include "modules/invite.h"
 
-enum
-{
-	// InspIRCd-specific.
-	ERR_INVITEREMOVED = 494,
-	ERR_NOTINVITED = 505,
-	RPL_UNINVITED = 653
+enum {
+    // InspIRCd-specific.
+    ERR_INVITEREMOVED = 494,
+    ERR_NOTINVITED = 505,
+    RPL_UNINVITED = 653
 };
 
 /** Handle /UNINVITE
  */
-class CommandUninvite : public Command
-{
-	Invite::API invapi;
- public:
-	CommandUninvite(Module* Creator)
-		: Command(Creator, "UNINVITE", 2)
-		, invapi(Creator)
-	{
-		syntax = "<nick> <channel>";
-		TRANSLATE2(TR_NICK, TR_TEXT);
-	}
+class CommandUninvite : public Command {
+    Invite::API invapi;
+  public:
+    CommandUninvite(Module* Creator)
+        : Command(Creator, "UNINVITE", 2)
+        , invapi(Creator) {
+        syntax = "<nick> <channel>";
+        TRANSLATE2(TR_NICK, TR_TEXT);
+    }
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		User* u;
-		if (IS_LOCAL(user))
-			u = ServerInstance->FindNickOnly(parameters[0]);
-		else
-			u = ServerInstance->FindNick(parameters[0]);
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE {
+        User* u;
+        if (IS_LOCAL(user)) {
+            u = ServerInstance->FindNickOnly(parameters[0]);
+        } else {
+            u = ServerInstance->FindNick(parameters[0]);
+        }
 
-		Channel* c = ServerInstance->FindChan(parameters[1]);
+        Channel* c = ServerInstance->FindChan(parameters[1]);
 
-		if ((!c) || (!u) || (u->registered != REG_ALL))
-		{
-			if (!c)
-			{
-				user->WriteNumeric(Numerics::NoSuchChannel(parameters[1]));
-			}
-			else
-			{
-				user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
-			}
+        if ((!c) || (!u) || (u->registered != REG_ALL)) {
+            if (!c) {
+                user->WriteNumeric(Numerics::NoSuchChannel(parameters[1]));
+            } else {
+                user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
+            }
 
-			return CMD_FAILURE;
-		}
+            return CMD_FAILURE;
+        }
 
-		if (IS_LOCAL(user))
-		{
-			if (c->GetPrefixValue(user) < HALFOP_VALUE)
-			{
-				user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(c, HALFOP_VALUE, "remove an invite"));
-				return CMD_FAILURE;
-			}
-		}
+        if (IS_LOCAL(user)) {
+            if (c->GetPrefixValue(user) < HALFOP_VALUE) {
+                user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(c, HALFOP_VALUE,
+                                   "remove an invite"));
+                return CMD_FAILURE;
+            }
+        }
 
-		/* Servers remember invites only for their local users, so act
-		 * only if the target is local. Otherwise the command will be
-		 * passed to the target users server.
-		 */
-		LocalUser* lu = IS_LOCAL(u);
-		if (lu)
-		{
-			// XXX: The source of the numeric we send must be the server of the user doing the /UNINVITE,
-			// so they don't see where the target user is connected to
-			if (!invapi->Remove(lu, c))
-			{
-				Numeric::Numeric n(ERR_NOTINVITED);
-				n.SetServer(user->server);
-				n.push(u->nick).push(c->name).push(InspIRCd::Format("Is not invited to channel %s", c->name.c_str()));
-				user->WriteRemoteNumeric(n);
-				return CMD_FAILURE;
-			}
+        /* Servers remember invites only for their local users, so act
+         * only if the target is local. Otherwise the command will be
+         * passed to the target users server.
+         */
+        LocalUser* lu = IS_LOCAL(u);
+        if (lu) {
+            // XXX: The source of the numeric we send must be the server of the user doing the /UNINVITE,
+            // so they don't see where the target user is connected to
+            if (!invapi->Remove(lu, c)) {
+                Numeric::Numeric n(ERR_NOTINVITED);
+                n.SetServer(user->server);
+                n.push(u->nick).push(c->name).push(
+                    InspIRCd::Format("Is not invited to channel %s", c->name.c_str()));
+                user->WriteRemoteNumeric(n);
+                return CMD_FAILURE;
+            }
 
-			Numeric::Numeric n(ERR_INVITEREMOVED);
-			n.SetServer(user->server);
-			n.push(c->name).push(u->nick).push("Uninvited");
-			user->WriteRemoteNumeric(n);
+            Numeric::Numeric n(ERR_INVITEREMOVED);
+            n.SetServer(user->server);
+            n.push(c->name).push(u->nick).push("Uninvited");
+            user->WriteRemoteNumeric(n);
 
-			lu->WriteNumeric(RPL_UNINVITED, InspIRCd::Format("You were uninvited from %s by %s", c->name.c_str(), user->nick.c_str()));
-			c->WriteRemoteNotice(InspIRCd::Format("*** %s uninvited %s.", user->nick.c_str(), u->nick.c_str()));
-		}
+            lu->WriteNumeric(RPL_UNINVITED,
+                             InspIRCd::Format("You were uninvited from %s by %s", c->name.c_str(),
+                                              user->nick.c_str()));
+            c->WriteRemoteNotice(InspIRCd::Format("*** %s uninvited %s.",
+                                                  user->nick.c_str(), u->nick.c_str()));
+        }
 
-		return CMD_SUCCESS;
-	}
+        return CMD_SUCCESS;
+    }
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		return ROUTE_OPT_UCAST(parameters[0]);
-	}
+    RouteDescriptor GetRouting(User* user,
+                               const Params& parameters) CXX11_OVERRIDE {
+        return ROUTE_OPT_UCAST(parameters[0]);
+    }
 };
 
-class ModuleUninvite : public Module
-{
-	CommandUninvite cmd;
+class ModuleUninvite : public Module {
+    CommandUninvite cmd;
 
- public:
+  public:
 
-	ModuleUninvite() : cmd(this)
-	{
-	}
+    ModuleUninvite() : cmd(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds the /UNINVITE command which allows users who have invited another user to a channel to withdraw their invite.", VF_VENDOR | VF_OPTCOMMON);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds the /UNINVITE command which allows users who have invited another user to a channel to withdraw their invite.", VF_VENDOR | VF_OPTCOMMON);
+    }
 };
 
 MODULE_INIT(ModuleUninvite)

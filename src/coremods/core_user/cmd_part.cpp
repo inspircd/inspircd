@@ -29,44 +29,40 @@
 #include "core_user.h"
 
 CommandPart::CommandPart(Module* parent)
-	: Command(parent, "PART", 1, 2)
-{
-	Penalty = 5;
-	syntax = "<channel>[,<channel>]+ [:<reason>]";
+    : Command(parent, "PART", 1, 2) {
+    Penalty = 5;
+    syntax = "<channel>[,<channel>]+ [:<reason>]";
 }
 
-CmdResult CommandPart::Handle(User* user, const Params& parameters)
-{
-	std::string reason;
-	if (parameters.size() > 1)
-	{
-		if (IS_LOCAL(user))
-			msgwrap.Wrap(parameters[1], reason);
-		else
-			reason = parameters[1];
-	}
+CmdResult CommandPart::Handle(User* user, const Params& parameters) {
+    std::string reason;
+    if (parameters.size() > 1) {
+        if (IS_LOCAL(user)) {
+            msgwrap.Wrap(parameters[1], reason);
+        } else {
+            reason = parameters[1];
+        }
+    }
 
-	if (CommandParser::LoopCall(user, this, parameters, 0))
-		return CMD_SUCCESS;
+    if (CommandParser::LoopCall(user, this, parameters, 0)) {
+        return CMD_SUCCESS;
+    }
 
-	Channel* c = ServerInstance->FindChan(parameters[0]);
+    Channel* c = ServerInstance->FindChan(parameters[0]);
 
-	if (!c)
-	{
-		user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
-		return CMD_FAILURE;
-	}
+    if (!c) {
+        user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
+        return CMD_FAILURE;
+    }
 
-	if (!c->PartUser(user, reason))
-	{
-		user->WriteNumeric(ERR_NOTONCHANNEL, c->name, "You're not on that channel");
-		return CMD_FAILURE;
-	}
+    if (!c->PartUser(user, reason)) {
+        user->WriteNumeric(ERR_NOTONCHANNEL, c->name, "You're not on that channel");
+        return CMD_FAILURE;
+    }
 
-	return CMD_SUCCESS;
+    return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandPart::GetRouting(User* user, const Params& parameters)
-{
-	return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
+RouteDescriptor CommandPart::GetRouting(User* user, const Params& parameters) {
+    return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
 }

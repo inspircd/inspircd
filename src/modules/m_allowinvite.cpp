@@ -24,46 +24,40 @@
 
 #include "inspircd.h"
 
-class ModuleAllowInvite : public Module
-{
-	SimpleChannelModeHandler ni;
- public:
+class ModuleAllowInvite : public Module {
+    SimpleChannelModeHandler ni;
+  public:
 
-	ModuleAllowInvite()
-		: ni(this, "allowinvite", 'A')
-	{
-	}
+    ModuleAllowInvite()
+        : ni(this, "allowinvite", 'A') {
+    }
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["EXTBAN"].push_back('A');
-	}
+    void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE {
+        tokens["EXTBAN"].push_back('A');
+    }
 
-	ModResult OnUserPreInvite(User* user,User* dest,Channel* channel, time_t timeout) CXX11_OVERRIDE
-	{
-		if (IS_LOCAL(user))
-		{
-			ModResult res = channel->GetExtBanStatus(user, 'A');
-			if (res == MOD_RES_DENY)
-			{
-				// Matching extban, explicitly deny /invite
-				user->WriteNumeric(ERR_RESTRICTED, channel->name, "You are banned from using INVITE");
-				return res;
-			}
-			if (channel->IsModeSet(ni) || res == MOD_RES_ALLOW)
-			{
-				// Explicitly allow /invite
-				return MOD_RES_ALLOW;
-			}
-		}
+    ModResult OnUserPreInvite(User* user,User* dest,Channel* channel,
+                              time_t timeout) CXX11_OVERRIDE {
+        if (IS_LOCAL(user)) {
+            ModResult res = channel->GetExtBanStatus(user, 'A');
+            if (res == MOD_RES_DENY) {
+                // Matching extban, explicitly deny /invite
+                user->WriteNumeric(ERR_RESTRICTED, channel->name,
+                                   "You are banned from using INVITE");
+                return res;
+            }
+            if (channel->IsModeSet(ni) || res == MOD_RES_ALLOW) {
+                // Explicitly allow /invite
+                return MOD_RES_ALLOW;
+            }
+        }
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds channel mode A (allowinvite) which allows unprivileged users to use the /INVITE command and extended ban A: (blockinvite) which bans specific masks from using the /INVITE command.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds channel mode A (allowinvite) which allows unprivileged users to use the /INVITE command and extended ban A: (blockinvite) which bans specific masks from using the /INVITE command.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleAllowInvite)

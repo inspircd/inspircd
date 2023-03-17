@@ -24,103 +24,96 @@
 
 #include "inspircd.h"
 
-static bool MatchInternal(const unsigned char* str, const unsigned char* mask, unsigned const char* map)
-{
-	unsigned char* cp = NULL;
-	unsigned char* mp = NULL;
-	unsigned char* string = (unsigned char*)str;
-	unsigned char* wild = (unsigned char*)mask;
+static bool MatchInternal(const unsigned char* str, const unsigned char* mask,
+                          unsigned const char* map) {
+    unsigned char* cp = NULL;
+    unsigned char* mp = NULL;
+    unsigned char* string = (unsigned char*)str;
+    unsigned char* wild = (unsigned char*)mask;
 
-	while ((*string) && (*wild != '*'))
-	{
-		if ((map[*wild] != map[*string]) && (*wild != '?'))
-		{
-			return 0;
-		}
-		wild++;
-		string++;
-	}
+    while ((*string) && (*wild != '*')) {
+        if ((map[*wild] != map[*string]) && (*wild != '?')) {
+            return 0;
+        }
+        wild++;
+        string++;
+    }
 
-	while (*string)
-	{
-		if (*wild == '*')
-		{
-			if (!*++wild)
-			{
-				return 1;
-			}
-			mp = wild;
-			cp = string+1;
-		}
-		else
-			if ((map[*wild] == map[*string]) || (*wild == '?'))
-			{
-				wild++;
-				string++;
-			}
-			else
-			{
-				wild = mp;
-				string = cp++;
-			}
+    while (*string) {
+        if (*wild == '*') {
+            if (!*++wild) {
+                return 1;
+            }
+            mp = wild;
+            cp = string+1;
+        } else if ((map[*wild] == map[*string]) || (*wild == '?')) {
+            wild++;
+            string++;
+        } else {
+            wild = mp;
+            string = cp++;
+        }
 
-	}
+    }
 
-	while (*wild == '*')
-	{
-		wild++;
-	}
+    while (*wild == '*') {
+        wild++;
+    }
 
-	return !*wild;
+    return !*wild;
 }
 
 // Below here is all wrappers around MatchInternal
 
-bool InspIRCd::Match(const std::string& str, const std::string& mask, unsigned const char* map)
-{
-	if (!map)
-		map = national_case_insensitive_map;
+bool InspIRCd::Match(const std::string& str, const std::string& mask,
+                     unsigned const char* map) {
+    if (!map) {
+        map = national_case_insensitive_map;
+    }
 
-	return MatchInternal((const unsigned char*)str.c_str(), (const unsigned char*)mask.c_str(), map);
+    return MatchInternal((const unsigned char*)str.c_str(),
+                         (const unsigned char*)mask.c_str(), map);
 }
 
-bool InspIRCd::Match(const char* str, const char* mask, unsigned const char* map)
-{
-	if (!map)
-		map = national_case_insensitive_map;
+bool InspIRCd::Match(const char* str, const char* mask,
+                     unsigned const char* map) {
+    if (!map) {
+        map = national_case_insensitive_map;
+    }
 
-	return MatchInternal((const unsigned char*)str, (const unsigned char*)mask, map);
+    return MatchInternal((const unsigned char*)str, (const unsigned char*)mask,
+                         map);
 }
 
-bool InspIRCd::MatchCIDR(const std::string& str, const std::string& mask, unsigned const char* map)
-{
-	if (irc::sockets::MatchCIDR(str, mask, true))
-		return true;
+bool InspIRCd::MatchCIDR(const std::string& str, const std::string& mask,
+                         unsigned const char* map) {
+    if (irc::sockets::MatchCIDR(str, mask, true)) {
+        return true;
+    }
 
-	// Fall back to regular match
-	return InspIRCd::Match(str, mask, map);
+    // Fall back to regular match
+    return InspIRCd::Match(str, mask, map);
 }
 
-bool InspIRCd::MatchCIDR(const char* str, const char* mask, unsigned const char* map)
-{
-	if (irc::sockets::MatchCIDR(str, mask, true))
-		return true;
+bool InspIRCd::MatchCIDR(const char* str, const char* mask,
+                         unsigned const char* map) {
+    if (irc::sockets::MatchCIDR(str, mask, true)) {
+        return true;
+    }
 
-	// Fall back to regular match
-	return InspIRCd::Match(str, mask, map);
+    // Fall back to regular match
+    return InspIRCd::Match(str, mask, map);
 }
 
-bool InspIRCd::MatchMask(const std::string& masks, const std::string& hostname, const std::string& ipaddr)
-{
-	irc::spacesepstream masklist(masks);
-	std::string mask;
-	while (masklist.GetToken(mask))
-	{
-		if (InspIRCd::Match(hostname, mask, ascii_case_insensitive_map) ||
-			InspIRCd::MatchCIDR(ipaddr, mask, ascii_case_insensitive_map))
-		{
-			return true;
-		}
-	}
-	return false;
+bool InspIRCd::MatchMask(const std::string& masks, const std::string& hostname,
+                         const std::string& ipaddr) {
+    irc::spacesepstream masklist(masks);
+    std::string mask;
+    while (masklist.GetToken(mask)) {
+        if (InspIRCd::Match(hostname, mask, ascii_case_insensitive_map) ||
+                InspIRCd::MatchCIDR(ipaddr, mask, ascii_case_insensitive_map)) {
+            return true;
+        }
+    }
+    return false;
 }

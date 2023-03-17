@@ -24,28 +24,25 @@
 
 #include "inspircd.h"
 
-class ModuleServerBan : public Module
-{
- public:
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds extended ban s: (server) which check whether users are on a server matching the specified glob pattern.", VF_OPTCOMMON|VF_VENDOR);
-	}
+class ModuleServerBan : public Module {
+  public:
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds extended ban s: (server) which check whether users are on a server matching the specified glob pattern.", VF_OPTCOMMON|VF_VENDOR);
+    }
 
-	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) CXX11_OVERRIDE
-	{
-		if ((mask.length() > 2) && (mask[0] == 's') && (mask[1] == ':'))
-		{
-			if (InspIRCd::Match(user->server->GetPublicName(), mask.substr(2)))
-				return MOD_RES_DENY;
-		}
-		return MOD_RES_PASSTHRU;
-	}
+    ModResult OnCheckBan(User *user, Channel *c,
+                         const std::string& mask) CXX11_OVERRIDE {
+        if ((mask.length() > 2) && (mask[0] == 's') && (mask[1] == ':')) {
+            if (InspIRCd::Match(user->server->GetPublicName(), mask.substr(2))) {
+                return MOD_RES_DENY;
+            }
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["EXTBAN"].push_back('s');
-	}
+    void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE {
+        tokens["EXTBAN"].push_back('s');
+    }
 };
 
 MODULE_INIT(ModuleServerBan)

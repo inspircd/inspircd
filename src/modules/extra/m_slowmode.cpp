@@ -30,167 +30,165 @@
 
 /** Holds slowmode settings and state for mode +W
  */
-class slowmodesettings
-{
- public:
-	typedef std::map<User*, unsigned int> user_counter_t;
+class slowmodesettings {
+  public:
+    typedef std::map<User*, unsigned int> user_counter_t;
 
-	unsigned int lines;
-	unsigned int secs;
+    unsigned int lines;
+    unsigned int secs;
 
-	bool user;
+    bool user;
 
-	union
-	{
-		unsigned int counter;
-		user_counter_t* user_counter;
-	};
+    union {
+        unsigned int counter;
+        user_counter_t* user_counter;
+    };
 
-	time_t reset;
+    time_t reset;
 
-	slowmodesettings(int l, int s, bool u = false) : lines(l), secs(s), user(u), user_counter(0)
-	{
-		this->clear();
-		reset = ServerInstance->Time() + secs;
-	}
+    slowmodesettings(int l, int s, bool u = false) : lines(l), secs(s), user(u),
+        user_counter(0) {
+        this->clear();
+        reset = ServerInstance->Time() + secs;
+    }
 
-	bool addmessage(User *who)
-	{
-		if (ServerInstance->Time() > reset)
-		{
-			this->clear();
-			reset = ServerInstance->Time() + secs;
-		}
+    bool addmessage(User *who) {
+        if (ServerInstance->Time() > reset) {
+            this->clear();
+            reset = ServerInstance->Time() + secs;
+        }
 
-		if (user)
-			if (IS_LOCAL(who))
-				return ++((*user_counter)[who]) >= lines;
-			else
-				return false;
-		else
-			return ++counter >= lines;
-	}
+        if (user)
+            if (IS_LOCAL(who)) {
+                return ++((*user_counter)[who]) >= lines;
+            } else {
+                return false;
+            } else {
+            return ++counter >= lines;
+        }
+    }
 
-	void clear()
-	{
-		if (user)
-			if (user_counter)
-				user_counter->clear();
-			else
-				user_counter = new user_counter_t;
-		else
-			counter = 0;
-	}
+    void clear() {
+        if (user)
+            if (user_counter) {
+                user_counter->clear();
+            } else {
+                user_counter = new user_counter_t;
+            } else {
+            counter = 0;
+        }
+    }
 };
 
 /** Handles channel mode +W
  */
-class MsgFlood : public ParamMode<MsgFlood, SimpleExtItem<slowmodesettings> >
-{
- public:
-	MsgFlood(Module* Creator)
-		: ParamMode<MsgFlood, SimpleExtItem<slowmodesettings> >(Creator, "slowmode", ServerInstance->Config->ConfValue("slowmode")->getString("modechar", "W", 1, 1)[0])
-	{
+class MsgFlood : public ParamMode<MsgFlood, SimpleExtItem<slowmodesettings> > {
+  public:
+    MsgFlood(Module* Creator)
+        : ParamMode<MsgFlood, SimpleExtItem<slowmodesettings> >(Creator, "slowmode",
+                ServerInstance->Config->ConfValue("slowmode")->getString("modechar", "W", 1,
+                        1)[0]) {
 #if defined INSPIRCD_VERSION_SINCE && INSPIRCD_VERSION_SINCE(3, 2)
-		syntax = "[cu]<lines>:<seconds>";
+        syntax = "[cu]<lines>:<seconds>";
 #endif
-	}
+    }
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE
-	{
-		std::string::size_type colon = parameter.find(':');
-		if (colon == std::string::npos || parameter.find('-') != std::string::npos)
-		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
-		}
+    ModeAction OnSet(User* source, Channel* channel,
+                     std::string& parameter) CXX11_OVERRIDE {
+        std::string::size_type colon = parameter.find(':');
+        if (colon == std::string::npos || parameter.find('-') != std::string::npos) {
+            source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
+            return MODEACTION_DENY;
+        }
 
-		bool user;
-		switch (parameter[0])
-		{
-			case 'u':
-				user = true;
-				parameter.erase(0, 1);
-				colon--;
-				break;
-			case 'c':
-				parameter.erase(0, 1);
-				colon--;
-				/*@fallthrough@*/
-			default:
-				user = false;
-				break;
-		}
+        bool user;
+        switch (parameter[0]) {
+        case 'u':
+            user = true;
+            parameter.erase(0, 1);
+            colon--;
+            break;
+        case 'c':
+            parameter.erase(0, 1);
+            colon--;
+        /*@fallthrough@*/
+        default:
+            user = false;
+            break;
+        }
 
-		/* Set up the slowmode parameters for this channel */
-		unsigned int nlines = ConvToNum<unsigned int>(parameter.substr(0, colon));
-		unsigned int nsecs = ConvToNum<unsigned int>(parameter.substr(colon + 1));
+        /* Set up the slowmode parameters for this channel */
+        unsigned int nlines = ConvToNum<unsigned int>(parameter.substr(0, colon));
+        unsigned int nsecs = ConvToNum<unsigned int>(parameter.substr(colon + 1));
 
-		if ((nlines < 2) || nsecs < 1)
-		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
-		}
+        if ((nlines < 2) || nsecs < 1) {
+            source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
+            return MODEACTION_DENY;
+        }
 
-		slowmodesettings* f = ext.get(channel);
-		if (f && nlines == f->lines && nsecs == f->secs && user == f->user)
-			// mode params match
-			return MODEACTION_DENY;
+        slowmodesettings* f = ext.get(channel);
+        if (f && nlines == f->lines && nsecs == f->secs && user == f->user)
+            // mode params match
+        {
+            return MODEACTION_DENY;
+        }
 
-		ext.set(channel, new slowmodesettings(nlines, nsecs, user));
-		parameter = std::string(user ? "u" : "c") + ConvToStr(nlines) + ":" + ConvToStr(nsecs);
-		return MODEACTION_ALLOW;
-	}
+        ext.set(channel, new slowmodesettings(nlines, nsecs, user));
+        parameter = std::string(user ? "u" : "c") + ConvToStr(nlines) + ":" + ConvToStr(nsecs);
+        return MODEACTION_ALLOW;
+    }
 
-	void SerializeParam(Channel* chan, const slowmodesettings* sms, std::string& out)
-	{
-		out.push_back(sms->user ? 'u' : 'c');
-		out.append(ConvToStr(sms->lines));
-		out.push_back(':');
-		out.append(ConvToStr(sms->secs));
-	}
+    void SerializeParam(Channel* chan, const slowmodesettings* sms,
+                        std::string& out) {
+        out.push_back(sms->user ? 'u' : 'c');
+        out.append(ConvToStr(sms->lines));
+        out.push_back(':');
+        out.append(ConvToStr(sms->secs));
+    }
 };
 
-class ModuleMsgFlood : public Module
-{
-	MsgFlood mf;
-	CheckExemption::EventProvider exemptionprov;
+class ModuleMsgFlood : public Module {
+    MsgFlood mf;
+    CheckExemption::EventProvider exemptionprov;
 
- public:
-	ModuleMsgFlood()
-		: mf(this)
-		, exemptionprov(this)
-	{
-	}
+  public:
+    ModuleMsgFlood()
+        : mf(this)
+        , exemptionprov(this) {
+    }
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
-	{
-		if (target.type != MessageTarget::TYPE_CHANNEL || user->server->IsULine())
-			return MOD_RES_PASSTHRU;
+    ModResult OnUserPreMessage(User* user, const MessageTarget& target,
+                               MessageDetails& details) CXX11_OVERRIDE {
+        if (target.type != MessageTarget::TYPE_CHANNEL || user->server->IsULine()) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		Channel* dest = target.Get<Channel>();
-		if (!dest->IsModeSet(mf))
-			return MOD_RES_PASSTHRU;
+        Channel* dest = target.Get<Channel>();
+        if (!dest->IsModeSet(mf)) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		if (CheckExemption::Call(exemptionprov, user, dest, "slowmode") == MOD_RES_ALLOW)
-			return MOD_RES_PASSTHRU;
+        if (CheckExemption::Call(exemptionprov, user, dest, "slowmode") == MOD_RES_ALLOW) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		slowmodesettings *f = mf.ext.get(dest);
-		if (f == NULL || !f->addmessage(user))
-			return MOD_RES_PASSTHRU;
+        slowmodesettings *f = mf.ext.get(dest);
+        if (f == NULL || !f->addmessage(user)) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		if (!IS_LOCAL(user))
-			return MOD_RES_PASSTHRU;
+        if (!IS_LOCAL(user)) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		user->WriteNumeric(ERR_CANNOTSENDTOCHAN, dest->name, "Message throttled due to flood");
-		return MOD_RES_DENY;
-	}
+        user->WriteNumeric(ERR_CANNOTSENDTOCHAN, dest->name, "Message throttled due to flood");
+        return MOD_RES_DENY;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		std::string valid_param("[u|c]<lines>:<secs>");
-		return Version("Provides channel mode +" + ConvToStr(mf.GetModeChar()) + " (slowmode)", VF_COMMON, valid_param);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        std::string valid_param("[u|c]<lines>:<secs>");
+        return Version("Provides channel mode +" + ConvToStr(mf.GetModeChar()) + " (slowmode)", VF_COMMON, valid_param);
+    }
 };
 
 MODULE_INIT(ModuleMsgFlood)

@@ -27,74 +27,68 @@
 
 /** Handle /WALLOPS.
  */
-class CommandWallops : public Command
-{
-	SimpleUserModeHandler wallopsmode;
-	ClientProtocol::EventProvider protoevprov;
+class CommandWallops : public Command {
+    SimpleUserModeHandler wallopsmode;
+    ClientProtocol::EventProvider protoevprov;
 
- public:
-	/** Constructor for wallops.
-	 */
-	CommandWallops(Module* parent)
-		: Command(parent, "WALLOPS", 1, 1)
-		, wallopsmode(parent, "wallops", 'w')
-		, protoevprov(parent, name)
-	{
-		flags_needed = 'o';
-		syntax = ":<message>";
-	}
+  public:
+    /** Constructor for wallops.
+     */
+    CommandWallops(Module* parent)
+        : Command(parent, "WALLOPS", 1, 1)
+        , wallopsmode(parent, "wallops", 'w')
+        , protoevprov(parent, name) {
+        flags_needed = 'o';
+        syntax = ":<message>";
+    }
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+    /** Handle command.
+     * @param parameters The parameters to the command
+     * @param user The user issuing the command
+     * @return A value from CmdResult to indicate command success or failure.
+     */
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		return ROUTE_BROADCAST;
-	}
+    RouteDescriptor GetRouting(User* user,
+                               const Params& parameters) CXX11_OVERRIDE {
+        return ROUTE_BROADCAST;
+    }
 };
 
-CmdResult CommandWallops::Handle(User* user, const Params& parameters)
-{
-	if (parameters[0].empty())
-	{
-		user->WriteNumeric(ERR_NOTEXTTOSEND, "No text to send");
-		return CMD_FAILURE;
-	}
+CmdResult CommandWallops::Handle(User* user, const Params& parameters) {
+    if (parameters[0].empty()) {
+        user->WriteNumeric(ERR_NOTEXTTOSEND, "No text to send");
+        return CMD_FAILURE;
+    }
 
-	ClientProtocol::Message msg("WALLOPS", user);
-	msg.PushParamRef(parameters[0]);
-	ClientProtocol::Event wallopsevent(protoevprov, msg);
+    ClientProtocol::Message msg("WALLOPS", user);
+    msg.PushParamRef(parameters[0]);
+    ClientProtocol::Event wallopsevent(protoevprov, msg);
 
-	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
-	{
-		LocalUser* curr = *i;
-		if (curr->IsModeSet(wallopsmode))
-			curr->Send(wallopsevent);
-	}
+    const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+    for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end();
+            ++i) {
+        LocalUser* curr = *i;
+        if (curr->IsModeSet(wallopsmode)) {
+            curr->Send(wallopsevent);
+        }
+    }
 
-	return CMD_SUCCESS;
+    return CMD_SUCCESS;
 }
 
-class CoreModWallops : public Module
-{
- private:
-	CommandWallops cmd;
+class CoreModWallops : public Module {
+  private:
+    CommandWallops cmd;
 
- public:
-	CoreModWallops()
-		: cmd(this)
-	{
-	}
+  public:
+    CoreModWallops()
+        : cmd(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides the WALLOPS command", VF_CORE | VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Provides the WALLOPS command", VF_CORE | VF_VENDOR);
+    }
 };
 
 MODULE_INIT(CoreModWallops)

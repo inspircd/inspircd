@@ -168,19 +168,17 @@ This command requires the channels/roleplay permission.
 #include "inspircd.h"
 #include "modules/ctctags.h"
 
-enum RoleplayNumerics
-{
-	// This seems to be what Charybdis uses, although I don't know its origin.
-	ERR_ROLEPLAY = 573
+enum RoleplayNumerics {
+    // This seems to be what Charybdis uses, although I don't know its origin.
+    ERR_ROLEPLAY = 573
 };
 
-namespace
-{
-	// These are used everywhere.
-	bool need_op;
-	bool need_mode;
-	std::string npc_host;
-	std::string fakeuid;
+namespace {
+// These are used everywhere.
+bool need_op;
+bool need_mode;
+std::string npc_host;
+std::string fakeuid;
 }
 
 /* Sigh. I had to copy this from the PRIVMSG module because it's not exported.
@@ -189,72 +187,69 @@ namespace
  *
  * --Elizafox
  */
-class MessageDetailsImpl : public MessageDetails
-{
-public:
-	MessageDetailsImpl(MessageType mt, const std::string& msg, const ClientProtocol::TagMap& tags)
-		: MessageDetails(mt, msg, tags)
-	{
-	}
+class MessageDetailsImpl : public MessageDetails {
+  public:
+    MessageDetailsImpl(MessageType mt, const std::string& msg,
+                       const ClientProtocol::TagMap& tags)
+        : MessageDetails(mt, msg, tags) {
+    }
 
-	// Not in the base class, but I needed this. :p
-	void AddTag(const std::string& tagname, ClientProtocol::MessageTagProvider* tagprov, const std::string& val, void* tagdata = NULL)
-	{
-		tags_out.insert(std::make_pair(tagname, ClientProtocol::MessageTagData(tagprov, val, tagdata)));
-	}
+    // Not in the base class, but I needed this. :p
+    void AddTag(const std::string& tagname,
+                ClientProtocol::MessageTagProvider* tagprov, const std::string& val,
+                void* tagdata = NULL) {
+        tags_out.insert(std::make_pair(tagname, ClientProtocol::MessageTagData(tagprov,
+                                       val, tagdata)));
+    }
 
-	bool IsCTCP(std::string& name) const CXX11_OVERRIDE
-	{
-		if (!this->IsCTCP())
-			return false;
+    bool IsCTCP(std::string& name) const CXX11_OVERRIDE {
+        if (!this->IsCTCP()) {
+            return false;
+        }
 
-		size_t end_of_name = text.find(' ', 2);
-		if (end_of_name == std::string::npos)
-		{
-			// The CTCP only contains a name.
-			size_t end_of_ctcp = *text.rbegin() == '\x1' ? 1 : 0;
-			name.assign(text, 1, text.length() - 1 - end_of_ctcp);
-			return true;
-		}
+        size_t end_of_name = text.find(' ', 2);
+        if (end_of_name == std::string::npos) {
+            // The CTCP only contains a name.
+            size_t end_of_ctcp = *text.rbegin() == '\x1' ? 1 : 0;
+            name.assign(text, 1, text.length() - 1 - end_of_ctcp);
+            return true;
+        }
 
-		// The CTCP contains a name and a body.
-		name.assign(text, 1, end_of_name - 1);
-		return true;
-	}
+        // The CTCP contains a name and a body.
+        name.assign(text, 1, end_of_name - 1);
+        return true;
+    }
 
-	bool IsCTCP(std::string& name, std::string& body) const CXX11_OVERRIDE
-	{
-		// Implementation not required
-		return false;
-	}
+    bool IsCTCP(std::string& name, std::string& body) const CXX11_OVERRIDE {
+        // Implementation not required
+        return false;
+    }
 
-	bool IsCTCP() const CXX11_OVERRIDE
-	{
-		// According to draft-oakley-irc-ctcp-02 a valid CTCP must begin with SOH and
-		// contain at least one octet which is not NUL, SOH, CR, LF, or SPACE. As most
-		// of these are restricted at the protocol level we only need to check for SOH
-		// and SPACE.
-		return (text.length() >= 2) && (text[0] == '\x1') && (text[1] != '\x1') && (text[1] != ' ');
-	}
+    bool IsCTCP() const CXX11_OVERRIDE {
+        // According to draft-oakley-irc-ctcp-02 a valid CTCP must begin with SOH and
+        // contain at least one octet which is not NUL, SOH, CR, LF, or SPACE. As most
+        // of these are restricted at the protocol level we only need to check for SOH
+        // and SPACE.
+        return (text.length() >= 2) && (text[0] == '\x1') && (text[1] != '\x1')
+               && (text[1] != ' ');
+    }
 };
 
 // We use this to relay the real host of whoever sent the command
-class RoleplayMsgTag : public ClientProtocol::MessageTagProvider
-{
-private:
-	CTCTags::CapReference ctctagcap;
+class RoleplayMsgTag : public ClientProtocol::MessageTagProvider {
+  private:
+    CTCTags::CapReference ctctagcap;
 
-public:
-	RoleplayMsgTag(Module* mod)
-	: ClientProtocol::MessageTagProvider(mod)
-	, ctctagcap(mod)
-	{
-	}
+  public:
+    RoleplayMsgTag(Module* mod)
+        : ClientProtocol::MessageTagProvider(mod)
+        , ctctagcap(mod) {
+    }
 
-	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) CXX11_OVERRIDE
-	{
-		return ctctagcap.get(user);
-	}
+    bool ShouldSendTag(LocalUser* user,
+                       const ClientProtocol::MessageTagData& tagdata) CXX11_OVERRIDE {
+        return ctctagcap.get(user);
+    }
 };
 
 /* Messages need to come from a UserType of some sort. We can't make a fake
@@ -268,573 +263,540 @@ public:
  *
  * --Elizafox
  */
-class RoleplaySrcTag : public ClientProtocol::MessageTagProvider
-{
-public:
-	RoleplaySrcTag(Module* mod)
-		: ClientProtocol::MessageTagProvider(mod)
-	{
-	}
+class RoleplaySrcTag : public ClientProtocol::MessageTagProvider {
+  public:
+    RoleplaySrcTag(Module* mod)
+        : ClientProtocol::MessageTagProvider(mod) {
+    }
 
-	ModResult OnProcessTag(User* user, const std::string& tagname, std::string& tagvalue) CXX11_OVERRIDE
-	{
-		// Shamelessly ripped off from m_ircv3_msgid. --Elizafox
-		if(!irc::equals(tagname, "inspircd.org/roleplay-src"))
-			return MOD_RES_PASSTHRU;
+    ModResult OnProcessTag(User* user, const std::string& tagname,
+                           std::string& tagvalue) CXX11_OVERRIDE {
+        // Shamelessly ripped off from m_ircv3_msgid. --Elizafox
+        if(!irc::equals(tagname, "inspircd.org/roleplay-src")) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		// We should only allow this tag if it is added by a remote server.
-		return IS_LOCAL(user) ? MOD_RES_DENY : MOD_RES_ALLOW;
-	}
+        // We should only allow this tag if it is added by a remote server.
+        return IS_LOCAL(user) ? MOD_RES_DENY : MOD_RES_ALLOW;
+    }
 
-	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) CXX11_OVERRIDE
-	{
-		// Hide the evidence of our crimes from clients.
-		return false;
-	}
+    bool ShouldSendTag(LocalUser* user,
+                       const ClientProtocol::MessageTagData& tagdata) CXX11_OVERRIDE {
+        // Hide the evidence of our crimes from clients.
+        return false;
+    }
 };
 
 // This is here to make the channel mode optional and configurable.
-class RoleplayMode : public SimpleChannelModeHandler
-{
-public:
-	RoleplayMode(Module* Creator)
-		: SimpleChannelModeHandler(Creator, "roleplay", '\0')
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("roleplay");
-		mode = tag->getString("mode", "U", 1, 1)[0];
-		if(!tag->getBool("needchanmode", true))
-			DisableAutoRegister();
-	}
+class RoleplayMode : public SimpleChannelModeHandler {
+  public:
+    RoleplayMode(Module* Creator)
+        : SimpleChannelModeHandler(Creator, "roleplay", '\0') {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("roleplay");
+        mode = tag->getString("mode", "U", 1, 1)[0];
+        if(!tag->getBool("needchanmode", true)) {
+            DisableAutoRegister();
+        }
+    }
 };
 
 /* This class does the heavy lifting of handling all the sending machinery. It
  * helps cut back heavily on code duplication.
  */
-class CommandBaseRoleplay : public SplitCommand
-{
-	SimpleChannelModeHandler& roleplaymode;
-	RoleplayMsgTag& roleplaymsgtag;
-	RoleplaySrcTag& roleplaysrctag;
+class CommandBaseRoleplay : public SplitCommand {
+    SimpleChannelModeHandler& roleplaymode;
+    RoleplayMsgTag& roleplaymsgtag;
+    RoleplaySrcTag& roleplaysrctag;
 
-	bool CheckMessage(User* user, MessageTarget& msgtarget, MessageDetailsImpl& msgdetails)
-	{
-		// Bypass restrictions/checks if this permission is active
-		if(!user->HasPrivPermission("channels/roleplay-override"))
-		{
-			// Don't allow CTCP spoofing.
-			std::string ctcpname;
-			if(msgdetails.IsCTCP(ctcpname) && !irc::equals(ctcpname, "ACTION"))
-				return false;
+    bool CheckMessage(User* user, MessageTarget& msgtarget,
+                      MessageDetailsImpl& msgdetails) {
+        // Bypass restrictions/checks if this permission is active
+        if(!user->HasPrivPermission("channels/roleplay-override")) {
+            // Don't allow CTCP spoofing.
+            std::string ctcpname;
+            if(msgdetails.IsCTCP(ctcpname) && !irc::equals(ctcpname, "ACTION")) {
+                return false;
+            }
 
-			/* Inform modules that a message wants to be sent and check the
-			 * results. This stops ban/censor evasion, etc. To do this we
-			 * simply present this as a message from the user (effectively,
-			 * that's what this is).
-			 *
-			 * This works just like the privmsg logic (I stole it from
-			 * there. :p)
-			 *
-			 * --Elizafox
-			 */
-			ModResult modres;
+            /* Inform modules that a message wants to be sent and check the
+             * results. This stops ban/censor evasion, etc. To do this we
+             * simply present this as a message from the user (effectively,
+             * that's what this is).
+             *
+             * This works just like the privmsg logic (I stole it from
+             * there. :p)
+             *
+             * --Elizafox
+             */
+            ModResult modres;
 
-			FIRST_MOD_RESULT(OnUserPreMessage, modres, (user, msgtarget, msgdetails));
-			if (modres == MOD_RES_DENY)
-			{
-				// Inform modules that a module blocked the mssage.
-				FOREACH_MOD(OnUserMessageBlocked, (user, msgtarget, msgdetails));
-				return false;
-			}
+            FIRST_MOD_RESULT(OnUserPreMessage, modres, (user, msgtarget, msgdetails));
+            if (modres == MOD_RES_DENY) {
+                // Inform modules that a module blocked the mssage.
+                FOREACH_MOD(OnUserMessageBlocked, (user, msgtarget, msgdetails));
+                return false;
+            }
 
-			// Check whether a module zapped the message body.
-			if (msgdetails.text.empty())
-			{
-				user->WriteNumeric(ERR_NOTEXTTOSEND, "No text to send");
-				return false;
-			}
-		}
+            // Check whether a module zapped the message body.
+            if (msgdetails.text.empty()) {
+                user->WriteNumeric(ERR_NOTEXTTOSEND, "No text to send");
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	bool CheckChannelPermissions(User* user, Channel* c)
-	{
-		if(!c->HasUser(user))
-		{
-			user->WriteNumeric(ERR_NOTONCHANNEL, c->name, "You're not on that channel");
-			return false;
-		}
+    bool CheckChannelPermissions(User* user, Channel* c) {
+        if(!c->HasUser(user)) {
+            user->WriteNumeric(ERR_NOTONCHANNEL, c->name, "You're not on that channel");
+            return false;
+        }
 
-		// Ignore restrictions if the operator has channels/roleplay-override
-		if(!user->HasPrivPermission("channels/roleplay-override"))
-		{
-			if(need_op && c->GetPrefixValue(user) < OP_VALUE)
-			{
-				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name, "You're not a channel operator");
-				return false;
-			}
+        // Ignore restrictions if the operator has channels/roleplay-override
+        if(!user->HasPrivPermission("channels/roleplay-override")) {
+            if(need_op && c->GetPrefixValue(user) < OP_VALUE) {
+                user->WriteNumeric(ERR_CHANOPRIVSNEEDED, c->name,
+                                   "You're not a channel operator");
+                return false;
+            }
 
-			if(need_mode && !c->IsModeSet(roleplaymode))
-			{
-				user->WriteNumeric(ERR_ROLEPLAY, c->name, InspIRCd::Format("Channel mode +%c must be set", roleplaymode.GetModeChar()));
-				return false;
-			}
-		}
+            if(need_mode && !c->IsModeSet(roleplaymode)) {
+                user->WriteNumeric(ERR_ROLEPLAY, c->name,
+                                   InspIRCd::Format("Channel mode +%c must be set", roleplaymode.GetModeChar()));
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	void SendMessage(User* user, Channel* c, const std::string& source, MessageTarget& msgtarget, MessageDetails& msgdetails)
-	{
-		// Inform modules that a message is about to be sent.
-		FOREACH_MOD(OnUserMessage, (user, msgtarget, msgdetails));
+    void SendMessage(User* user, Channel* c, const std::string& source,
+                     MessageTarget& msgtarget, MessageDetails& msgdetails) {
+        // Inform modules that a message is about to be sent.
+        FOREACH_MOD(OnUserMessage, (user, msgtarget, msgdetails));
 
-		/* Do the thing.
-		 * Tags should already have been added to msgdetails before we got here.
-		 */
-		ClientProtocol::Messages::Privmsg privmsg(user, c, msgdetails.text, MSG_PRIVMSG);
-		privmsg.AddTags(msgdetails.tags_out);
-		c->Write(ServerInstance->GetRFCEvents().privmsg, privmsg);
+        /* Do the thing.
+         * Tags should already have been added to msgdetails before we got here.
+         */
+        ClientProtocol::Messages::Privmsg privmsg(user, c, msgdetails.text,
+                MSG_PRIVMSG);
+        privmsg.AddTags(msgdetails.tags_out);
+        c->Write(ServerInstance->GetRFCEvents().privmsg, privmsg);
 
-		/* Inform modules that a message was sent.
-		 *
-		 * spanningtree hooks this and will rebroadcast the message,
-		 * tags and all. This is partially why we have to do all this
-		 * roleplay-src crap.
-		 *
-		 * --Elizafox
-		 */
-		FOREACH_MOD(OnUserPostMessage, (user, msgtarget, msgdetails));
-	}
+        /* Inform modules that a message was sent.
+         *
+         * spanningtree hooks this and will rebroadcast the message,
+         * tags and all. This is partially why we have to do all this
+         * roleplay-src crap.
+         *
+         * --Elizafox
+         */
+        FOREACH_MOD(OnUserPostMessage, (user, msgtarget, msgdetails));
+    }
 
-	std::string MakeFakeHostmask(User* user, const std::string& source)
-	{
-		/* Include the user's nickname as the ident as to differentiate
-		 * various NPC's.
-		 */
-		return InspIRCd::Format("%s!%s@%s", source.c_str(), user->nick.c_str(), npc_host.c_str());
-	}
+    std::string MakeFakeHostmask(User* user, const std::string& source) {
+        /* Include the user's nickname as the ident as to differentiate
+         * various NPC's.
+         */
+        return InspIRCd::Format("%s!%s@%s", source.c_str(), user->nick.c_str(),
+                                npc_host.c_str());
+    }
 
-protected:
-	/* This may be a static string, or generated from the parameters list
-	 * Alternatively, you can return nothing to signal an invalid nickname.
-	 */
-	virtual std::string GetSource(const Params&) = 0;
+  protected:
+    /* This may be a static string, or generated from the parameters list
+     * Alternatively, you can return nothing to signal an invalid nickname.
+     */
+    virtual std::string GetSource(const Params&) = 0;
 
-	/* The message position can vary based on command, but this also makes a
-	 * convenient point for transforming the message (like making it an
-	 * ACTION).
-	 */
-	virtual std::string GetMessage(const Params&) = 0;
+    /* The message position can vary based on command, but this also makes a
+     * convenient point for transforming the message (like making it an
+     * ACTION).
+     */
+    virtual std::string GetMessage(const Params&) = 0;
 
-	// Transform str into a CTCP action
-	std::string MakeAction(const std::string& str)
-	{
-		return InspIRCd::Format("\1ACTION %s\1", str.c_str());
-	}
+    // Transform str into a CTCP action
+    std::string MakeAction(const std::string& str) {
+        return InspIRCd::Format("\1ACTION %s\1", str.c_str());
+    }
 
-	// Transform str into an underlined string
-	std::string MakeUnderline(const std::string& str)
-	{
-		return InspIRCd::Format("\x1F%s\x1F", str.c_str());
-	}
+    // Transform str into an underlined string
+    std::string MakeUnderline(const std::string& str) {
+        return InspIRCd::Format("\x1F%s\x1F", str.c_str());
+    }
 
-public:
-	CommandBaseRoleplay(Module* Creator, const std::string& cmd, int params, RoleplayMode& mode, RoleplayMsgTag& tag_m, RoleplaySrcTag& tag_s)
-		: SplitCommand(Creator, cmd, params, params)
-		, roleplaymode(mode)
-		, roleplaymsgtag(tag_m)
-		, roleplaysrctag(tag_s)
-	{
-		allow_empty_last_param = false;
-	}
+  public:
+    CommandBaseRoleplay(Module* Creator, const std::string& cmd, int params,
+                        RoleplayMode& mode, RoleplayMsgTag& tag_m, RoleplaySrcTag& tag_s)
+        : SplitCommand(Creator, cmd, params, params)
+        , roleplaymode(mode)
+        , roleplaymsgtag(tag_m)
+        , roleplaysrctag(tag_s) {
+        allow_empty_last_param = false;
+    }
 
-	/* Actually send out the message (or an error)
-	 * The machinery for transforming the message/source is in GetSource/GetMessage.
-	 */
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		Channel* c = ServerInstance->FindChan(parameters[0]);
+    /* Actually send out the message (or an error)
+     * The machinery for transforming the message/source is in GetSource/GetMessage.
+     */
+    CmdResult HandleLocal(LocalUser* user,
+                          const Params& parameters) CXX11_OVERRIDE {
+        Channel* c = ServerInstance->FindChan(parameters[0]);
 
-		if(c)
-		{
-			if(!CheckChannelPermissions(user, c))
-				return CMD_FAILURE;
-		}
-		else
-		{
-			user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
-			return CMD_FAILURE;
-		}
+        if(c) {
+            if(!CheckChannelPermissions(user, c)) {
+                return CMD_FAILURE;
+            }
+        } else {
+            user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
+            return CMD_FAILURE;
+        }
 
-		std::string source = GetSource(parameters);
-		if(source.empty())
-		{
-			user->WriteNumeric(ERR_ROLEPLAY, c->name, "Invalid roleplay nickname");
-			return CMD_FAILURE;
-		}
+        std::string source = GetSource(parameters);
+        if(source.empty()) {
+            user->WriteNumeric(ERR_ROLEPLAY, c->name, "Invalid roleplay nickname");
+            return CMD_FAILURE;
+        }
 
-		MessageDetailsImpl msgdetails(MSG_PRIVMSG, GetMessage(parameters), parameters.GetTags());
-		MessageTarget msgtarget(c, 0);
+        MessageDetailsImpl msgdetails(MSG_PRIVMSG, GetMessage(parameters), parameters.GetTags());
+        MessageTarget msgtarget(c, 0);
 
-		source = MakeFakeHostmask(user, source);
+        source = MakeFakeHostmask(user, source);
 
-		/* Put the tags on as soon as possible just in case anything
-		 * wants to look at it.
-		 */
-		msgdetails.AddTag("inspircd.org/roleplay-msg", &roleplaymsgtag, user->GetFullHost());
-		msgdetails.AddTag("inspircd.org/roleplay-src", &roleplaysrctag, source);
+        /* Put the tags on as soon as possible just in case anything
+         * wants to look at it.
+         */
+        msgdetails.AddTag("inspircd.org/roleplay-msg", &roleplaymsgtag, user->GetFullHost());
+        msgdetails.AddTag("inspircd.org/roleplay-src", &roleplaysrctag, source);
 
-		if(!CheckMessage(user, msgtarget, msgdetails))
-			return CMD_FAILURE;
+        if(!CheckMessage(user, msgtarget, msgdetails)) {
+            return CMD_FAILURE;
+        }
 
-		// Do the thing
-		SendMessage(user, c, source, msgtarget, msgdetails);
+        // Do the thing
+        SendMessage(user, c, source, msgtarget, msgdetails);
 
-		// Since this is a message, update the users' idle time.
-		user->idle_lastmsg = ServerInstance->Time();
+        // Since this is a message, update the users' idle time.
+        user->idle_lastmsg = ServerInstance->Time();
 
-		return CMD_SUCCESS;
-	}
+        return CMD_SUCCESS;
+    }
 };
 
 // This command was inspired by Charybdis's m_roleplay module.
-class CommandScene : public CommandBaseRoleplay
-{
-protected:
-	std::string GetSource(const Params& parameters) CXX11_OVERRIDE
-	{
-		// Similar to the old Charybdis module
-		return "=Scene=";
-	}
+class CommandScene : public CommandBaseRoleplay {
+  protected:
+    std::string GetSource(const Params& parameters) CXX11_OVERRIDE {
+        // Similar to the old Charybdis module
+        return "=Scene=";
+    }
 
-	std::string GetMessage(const Params& parameters) CXX11_OVERRIDE
-	{
-		return parameters[1];
-	}
+    std::string GetMessage(const Params& parameters) CXX11_OVERRIDE {
+        return parameters[1];
+    }
 
-public:
-	CommandScene(Module* Creator, RoleplayMode& mode, RoleplayMsgTag& tag_m, RoleplaySrcTag& tag_s)
-		: CommandBaseRoleplay(Creator, "SCENE", 2, mode, tag_m, tag_s)
-	{
-		syntax = "<channel> :<message>";
-	}
+  public:
+    CommandScene(Module* Creator, RoleplayMode& mode, RoleplayMsgTag& tag_m,
+                 RoleplaySrcTag& tag_s)
+        : CommandBaseRoleplay(Creator, "SCENE", 2, mode, tag_m, tag_s) {
+        syntax = "<channel> :<message>";
+    }
 };
 
-class CommandSceneA : public CommandBaseRoleplay
-{
-protected:
-	std::string GetSource(const Params& parameters) CXX11_OVERRIDE
-	{
-		return "=Scene=";
-	}
+class CommandSceneA : public CommandBaseRoleplay {
+  protected:
+    std::string GetSource(const Params& parameters) CXX11_OVERRIDE {
+        return "=Scene=";
+    }
 
-	std::string GetMessage(const Params& parameters) CXX11_OVERRIDE
-	{
-		return MakeAction(parameters[1]);
-	}
+    std::string GetMessage(const Params& parameters) CXX11_OVERRIDE {
+        return MakeAction(parameters[1]);
+    }
 
-public:
-	CommandSceneA(Module* Creator, RoleplayMode& mode, RoleplayMsgTag& tag_m, RoleplaySrcTag& tag_s)
-		: CommandBaseRoleplay(Creator, "SCENEA", 2, mode, tag_m, tag_s)
-	{
-		syntax = "<channel> :<message>";
-	}
+  public:
+    CommandSceneA(Module* Creator, RoleplayMode& mode, RoleplayMsgTag& tag_m,
+                  RoleplaySrcTag& tag_s)
+        : CommandBaseRoleplay(Creator, "SCENEA", 2, mode, tag_m, tag_s) {
+        syntax = "<channel> :<message>";
+    }
 };
 
-class CommandAmbiance : public CommandBaseRoleplay
-{
-protected:
-	std::string GetSource(const Params& parameters) CXX11_OVERRIDE
-	{
-		// Compatibility with the old m_rpg module
-		return ">Ambiance<";
-	}
+class CommandAmbiance : public CommandBaseRoleplay {
+  protected:
+    std::string GetSource(const Params& parameters) CXX11_OVERRIDE {
+        // Compatibility with the old m_rpg module
+        return ">Ambiance<";
+    }
 
-	std::string GetMessage(const Params& parameters) CXX11_OVERRIDE
-	{
-		return parameters[1];
-	}
+    std::string GetMessage(const Params& parameters) CXX11_OVERRIDE {
+        return parameters[1];
+    }
 
-public:
-	CommandAmbiance(Module* Creator, RoleplayMode& mode, RoleplayMsgTag& tag_m, RoleplaySrcTag& tag_s)
-		: CommandBaseRoleplay(Creator, "AMBIANCE", 2, mode, tag_m, tag_s)
-	{
-		syntax = "<channel> :<message>";
-	}
+  public:
+    CommandAmbiance(Module* Creator, RoleplayMode& mode, RoleplayMsgTag& tag_m,
+                    RoleplaySrcTag& tag_s)
+        : CommandBaseRoleplay(Creator, "AMBIANCE", 2, mode, tag_m, tag_s) {
+        syntax = "<channel> :<message>";
+    }
 };
 
-class CommandNarrator : public CommandBaseRoleplay
-{
-protected:
-	std::string GetSource(const Params& parameters) CXX11_OVERRIDE
-	{
-		return "=Narrator=";
-	}
+class CommandNarrator : public CommandBaseRoleplay {
+  protected:
+    std::string GetSource(const Params& parameters) CXX11_OVERRIDE {
+        return "=Narrator=";
+    }
 
-	std::string GetMessage(const Params& parameters) CXX11_OVERRIDE
-	{
-		return parameters[1];
-	}
+    std::string GetMessage(const Params& parameters) CXX11_OVERRIDE {
+        return parameters[1];
+    }
 
-public:
-	CommandNarrator(Module* Creator, RoleplayMode& mode, RoleplayMsgTag& tag_m, RoleplaySrcTag& tag_s)
-		: CommandBaseRoleplay(Creator, "NARRATOR", 2, mode, tag_m, tag_s)
-	{
-		syntax = "<channel> :<message>";
-	}
+  public:
+    CommandNarrator(Module* Creator, RoleplayMode& mode, RoleplayMsgTag& tag_m,
+                    RoleplaySrcTag& tag_s)
+        : CommandBaseRoleplay(Creator, "NARRATOR", 2, mode, tag_m, tag_s) {
+        syntax = "<channel> :<message>";
+    }
 };
 
-class CommandNarratorA : public CommandBaseRoleplay
-{
-protected:
-	// Compatibility with the old m_rpg module
-	std::string GetSource(const Params& parameters) CXX11_OVERRIDE
-	{
-		return "=Narrator=";
-	}
+class CommandNarratorA : public CommandBaseRoleplay {
+  protected:
+    // Compatibility with the old m_rpg module
+    std::string GetSource(const Params& parameters) CXX11_OVERRIDE {
+        return "=Narrator=";
+    }
 
-	std::string GetMessage(const Params& parameters) CXX11_OVERRIDE
-	{
-		return MakeAction(parameters[1]);
-	}
+    std::string GetMessage(const Params& parameters) CXX11_OVERRIDE {
+        return MakeAction(parameters[1]);
+    }
 
-public:
-	CommandNarratorA(Module* Creator, RoleplayMode& mode, RoleplayMsgTag& tag_m, RoleplaySrcTag& tag_s)
-		: CommandBaseRoleplay(Creator, "NARRATORA", 2, mode, tag_m, tag_s)
-	{
-		syntax = "<channel> :<message>";
-	}
+  public:
+    CommandNarratorA(Module* Creator, RoleplayMode& mode, RoleplayMsgTag& tag_m,
+                     RoleplaySrcTag& tag_s)
+        : CommandBaseRoleplay(Creator, "NARRATORA", 2, mode, tag_m, tag_s) {
+        syntax = "<channel> :<message>";
+    }
 };
 
-class CommandFSay : public CommandBaseRoleplay
-{
-protected:
-	std::string GetSource(const Params& parameters) CXX11_OVERRIDE
-	{
-		return (ServerInstance->IsNick(parameters[1]) ? parameters[1] : "");
-	}
+class CommandFSay : public CommandBaseRoleplay {
+  protected:
+    std::string GetSource(const Params& parameters) CXX11_OVERRIDE {
+        return (ServerInstance->IsNick(parameters[1]) ? parameters[1] : "");
+    }
 
-	std::string GetMessage(const Params& parameters) CXX11_OVERRIDE
-	{
-		return parameters[2];
-	}
+    std::string GetMessage(const Params& parameters) CXX11_OVERRIDE {
+        return parameters[2];
+    }
 
-public:
-	CommandFSay(Module* Creator, RoleplayMode& mode, RoleplayMsgTag& tag_m, RoleplaySrcTag& tag_s)
-		: CommandBaseRoleplay(Creator, "FSAY", 3, mode, tag_m, tag_s)
-	{
-		syntax = "<channel> <nickname> :<message>";
-		flags_needed = 'o';
-	}
+  public:
+    CommandFSay(Module* Creator, RoleplayMode& mode, RoleplayMsgTag& tag_m,
+                RoleplaySrcTag& tag_s)
+        : CommandBaseRoleplay(Creator, "FSAY", 3, mode, tag_m, tag_s) {
+        syntax = "<channel> <nickname> :<message>";
+        flags_needed = 'o';
+    }
 
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		if(!user->HasPrivPermission("channels/roleplay"))
-		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, "Permission Denied - You do not have the required operator privileges");
-			return CMD_FAILURE;
-		}
+    CmdResult HandleLocal(LocalUser* user,
+                          const Params& parameters) CXX11_OVERRIDE {
+        if(!user->HasPrivPermission("channels/roleplay")) {
+            user->WriteNumeric(ERR_NOPRIVILEGES,
+                               "Permission Denied - You do not have the required operator privileges");
+            return CMD_FAILURE;
+        }
 
-		return CommandBaseRoleplay::HandleLocal(user, parameters);
-	}
+        return CommandBaseRoleplay::HandleLocal(user, parameters);
+    }
 };
 
-class CommandFAction : public CommandBaseRoleplay
-{
-protected:
-	std::string GetSource(const Params& parameters) CXX11_OVERRIDE
-	{
-		return (ServerInstance->IsNick(parameters[1]) ? parameters[1] : "");
-	}
+class CommandFAction : public CommandBaseRoleplay {
+  protected:
+    std::string GetSource(const Params& parameters) CXX11_OVERRIDE {
+        return (ServerInstance->IsNick(parameters[1]) ? parameters[1] : "");
+    }
 
-	std::string GetMessage(const Params& parameters) CXX11_OVERRIDE
-	{
-		return MakeAction(parameters[2]);
-	}
+    std::string GetMessage(const Params& parameters) CXX11_OVERRIDE {
+        return MakeAction(parameters[2]);
+    }
 
-public:
-	CommandFAction(Module* Creator, RoleplayMode& mode, RoleplayMsgTag& tag_m, RoleplaySrcTag& tag_s)
-		: CommandBaseRoleplay(Creator, "FACTION", 3, mode, tag_m, tag_s)
-	{
-		syntax = "<channel> <nickname> :<message>";
-		flags_needed = 'o';
-	}
+  public:
+    CommandFAction(Module* Creator, RoleplayMode& mode, RoleplayMsgTag& tag_m,
+                   RoleplaySrcTag& tag_s)
+        : CommandBaseRoleplay(Creator, "FACTION", 3, mode, tag_m, tag_s) {
+        syntax = "<channel> <nickname> :<message>";
+        flags_needed = 'o';
+    }
 
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		if(!user->HasPrivPermission("channels/roleplay"))
-		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, "Permission Denied - You do not have the required operator privileges");
-			return CMD_FAILURE;
-		}
+    CmdResult HandleLocal(LocalUser* user,
+                          const Params& parameters) CXX11_OVERRIDE {
+        if(!user->HasPrivPermission("channels/roleplay")) {
+            user->WriteNumeric(ERR_NOPRIVILEGES,
+                               "Permission Denied - You do not have the required operator privileges");
+            return CMD_FAILURE;
+        }
 
-		return CommandBaseRoleplay::HandleLocal(user, parameters);
-	}
+        return CommandBaseRoleplay::HandleLocal(user, parameters);
+    }
 };
 
-class CommandNPC : public CommandBaseRoleplay
-{
-protected:
-	std::string GetSource(const Params& parameters) CXX11_OVERRIDE
-	{
-		if(!ServerInstance->IsNick(parameters[1]))
-			return "";
+class CommandNPC : public CommandBaseRoleplay {
+  protected:
+    std::string GetSource(const Params& parameters) CXX11_OVERRIDE {
+        if(!ServerInstance->IsNick(parameters[1])) {
+            return "";
+        }
 
-		return MakeUnderline(parameters[1]);
-	}
+        return MakeUnderline(parameters[1]);
+    }
 
-	std::string GetMessage(const Params& parameters) CXX11_OVERRIDE
-	{
-		return parameters[2];
-	}
+    std::string GetMessage(const Params& parameters) CXX11_OVERRIDE {
+        return parameters[2];
+    }
 
-public:
-	CommandNPC(Module* Creator, RoleplayMode& mode, RoleplayMsgTag& tag_m, RoleplaySrcTag& tag_s)
-		: CommandBaseRoleplay(Creator, "NPC", 3, mode, tag_m, tag_s)
-	{
-		syntax = "<channel> <nickname> :<message>";
-	}
+  public:
+    CommandNPC(Module* Creator, RoleplayMode& mode, RoleplayMsgTag& tag_m,
+               RoleplaySrcTag& tag_s)
+        : CommandBaseRoleplay(Creator, "NPC", 3, mode, tag_m, tag_s) {
+        syntax = "<channel> <nickname> :<message>";
+    }
 };
 
-class CommandNPCA : public CommandBaseRoleplay
-{
-protected:
-	std::string GetSource(const Params& parameters) CXX11_OVERRIDE
-	{
-		if(!ServerInstance->IsNick(parameters[1]))
-			return "";
+class CommandNPCA : public CommandBaseRoleplay {
+  protected:
+    std::string GetSource(const Params& parameters) CXX11_OVERRIDE {
+        if(!ServerInstance->IsNick(parameters[1])) {
+            return "";
+        }
 
-		return MakeUnderline(parameters[1]);
-	}
+        return MakeUnderline(parameters[1]);
+    }
 
-	std::string GetMessage(const Params& parameters) CXX11_OVERRIDE
-	{
-		return MakeAction(parameters[2]);
-	}
+    std::string GetMessage(const Params& parameters) CXX11_OVERRIDE {
+        return MakeAction(parameters[2]);
+    }
 
-public:
-	CommandNPCA(Module* Creator, RoleplayMode& mode, RoleplayMsgTag& tag_m, RoleplaySrcTag& tag_s)
-		: CommandBaseRoleplay(Creator, "NPCA", 3, mode, tag_m, tag_s)
-	{
-		syntax = "<channel> <nickname> :<message>";
-	}
+  public:
+    CommandNPCA(Module* Creator, RoleplayMode& mode, RoleplayMsgTag& tag_m,
+                RoleplaySrcTag& tag_s)
+        : CommandBaseRoleplay(Creator, "NPCA", 3, mode, tag_m, tag_s) {
+        syntax = "<channel> <nickname> :<message>";
+    }
 };
 
 class ModuleRoleplay
-	: public Module
-	, public CTCTags::EventListener
-{
-	RoleplayMode roleplaymode;
-	RoleplayMsgTag roleplaymsgtag;
-	RoleplaySrcTag roleplaysrctag;
+    : public Module
+    , public CTCTags::EventListener {
+    RoleplayMode roleplaymode;
+    RoleplayMsgTag roleplaymsgtag;
+    RoleplaySrcTag roleplaysrctag;
 
-	CommandScene cscene;
-	CommandSceneA cscenea;
-	CommandAmbiance cambiance;
-	CommandNarrator cnarrator;
-	CommandNarratorA cnarratora;
-	CommandFSay cfsay;
-	CommandFAction cfaction;
-	CommandNPC cnpc;
-	CommandNPCA cnpca;
+    CommandScene cscene;
+    CommandSceneA cscenea;
+    CommandAmbiance cambiance;
+    CommandNarrator cnarrator;
+    CommandNarratorA cnarratora;
+    CommandFSay cfsay;
+    CommandFAction cfaction;
+    CommandNPC cnpc;
+    CommandNPCA cnpca;
 
-	std::string lastsrc;
+    std::string lastsrc;
 
-	ModResult CopyRoleplayTags(const ClientProtocol::TagMap& tags_in, ClientProtocol::TagMap& tags_out)
-	{
-		/* Seems we need to do this to make the tags stick.
-		 * This logic was copied from m_ircv3_msgid with modifications.
-		 *
-		 * --Elizafox
-		 */
-		ClientProtocol::TagMap::const_iterator iter = tags_in.find("inspircd.org/roleplay-src");
-		if(iter != tags_in.end())
-			// If we got a remote message with this tag, copy it over.
-			tags_out.insert(*iter);
+    ModResult CopyRoleplayTags(const ClientProtocol::TagMap& tags_in,
+                               ClientProtocol::TagMap& tags_out) {
+        /* Seems we need to do this to make the tags stick.
+         * This logic was copied from m_ircv3_msgid with modifications.
+         *
+         * --Elizafox
+         */
+        ClientProtocol::TagMap::const_iterator iter =
+            tags_in.find("inspircd.org/roleplay-src");
+        if(iter != tags_in.end())
+            // If we got a remote message with this tag, copy it over.
+        {
+            tags_out.insert(*iter);
+        }
 
-		iter = tags_in.find("inspircd.org/roleplay-msg");
-		if(iter != tags_in.end())
-			tags_out.insert(*iter);
+        iter = tags_in.find("inspircd.org/roleplay-msg");
+        if(iter != tags_in.end()) {
+            tags_out.insert(*iter);
+        }
 
-		// Otherwise, no need to do anything.
-		return MOD_RES_PASSTHRU;
-	}
+        // Otherwise, no need to do anything.
+        return MOD_RES_PASSTHRU;
+    }
 
-public:
-	ModuleRoleplay()
-		: CTCTags::EventListener(this)
-		, roleplaymode(this)
-		, roleplaymsgtag(this)
-		, roleplaysrctag(this)
-		, cscene(this, roleplaymode, roleplaymsgtag, roleplaysrctag)
-		, cscenea(this, roleplaymode, roleplaymsgtag, roleplaysrctag)
-		, cambiance(this, roleplaymode, roleplaymsgtag, roleplaysrctag)
-		, cnarrator(this, roleplaymode, roleplaymsgtag, roleplaysrctag)
-		, cnarratora(this, roleplaymode, roleplaymsgtag, roleplaysrctag)
-		, cfsay(this, roleplaymode, roleplaymsgtag, roleplaysrctag)
-		, cfaction(this, roleplaymode, roleplaymsgtag, roleplaysrctag)
-		, cnpc(this, roleplaymode, roleplaymsgtag, roleplaysrctag)
-		, cnpca(this, roleplaymode, roleplaymsgtag, roleplaysrctag)
-	{
-		// Since we're mangling the source, we need to go first.
-		ServerInstance->Modules->SetPriority(this, I_OnUserWrite, PRIORITY_FIRST);
-	}
+  public:
+    ModuleRoleplay()
+        : CTCTags::EventListener(this)
+        , roleplaymode(this)
+        , roleplaymsgtag(this)
+        , roleplaysrctag(this)
+        , cscene(this, roleplaymode, roleplaymsgtag, roleplaysrctag)
+        , cscenea(this, roleplaymode, roleplaymsgtag, roleplaysrctag)
+        , cambiance(this, roleplaymode, roleplaymsgtag, roleplaysrctag)
+        , cnarrator(this, roleplaymode, roleplaymsgtag, roleplaysrctag)
+        , cnarratora(this, roleplaymode, roleplaymsgtag, roleplaysrctag)
+        , cfsay(this, roleplaymode, roleplaymsgtag, roleplaysrctag)
+        , cfaction(this, roleplaymode, roleplaymsgtag, roleplaysrctag)
+        , cnpc(this, roleplaymode, roleplaymsgtag, roleplaysrctag)
+        , cnpca(this, roleplaymode, roleplaymsgtag, roleplaysrctag) {
+        // Since we're mangling the source, we need to go first.
+        ServerInstance->Modules->SetPriority(this, I_OnUserWrite, PRIORITY_FIRST);
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("roleplay");
-		need_op = tag->getBool("needop", false);
-		npc_host = tag->getString("npchost", "fakeuser.invalid", InspIRCd::IsHost);
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("roleplay");
+        need_op = tag->getBool("needop", false);
+        npc_host = tag->getString("npchost", "fakeuser.invalid", InspIRCd::IsHost);
 
-		// The mode can only be enabled at load-time, so check this instead
-		need_mode = (roleplaymode.GetId() != ModeParser::MODEID_MAX);
+        // The mode can only be enabled at load-time, so check this instead
+        need_mode = (roleplaymode.GetId() != ModeParser::MODEID_MAX);
 
-		// Warn about possibly insecure configuration
-		if(!(need_mode || need_op))
-			ServerInstance->SNO->WriteToSnoMask('a', "WARNING: Roleplay configuration has needchanmode and needop both disabled, this could allow for apparent spoofing!");
-	}
+        // Warn about possibly insecure configuration
+        if(!(need_mode || need_op)) {
+            ServerInstance->SNO->WriteToSnoMask('a',
+                                                "WARNING: Roleplay configuration has needchanmode and needop both disabled, this could allow for apparent spoofing!");
+        }
+    }
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
-	{
-		return CopyRoleplayTags(details.tags_in, details.tags_out);
-	}
+    ModResult OnUserPreMessage(User* user, const MessageTarget& target,
+                               MessageDetails& details) CXX11_OVERRIDE {
+        return CopyRoleplayTags(details.tags_in, details.tags_out);
+    }
 
-	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) CXX11_OVERRIDE
-	{
-		return CopyRoleplayTags(details.tags_in, details.tags_out);
-	}
+    ModResult OnUserPreTagMessage(User* user, const MessageTarget& target,
+                                  CTCTags::TagMessageDetails& details) CXX11_OVERRIDE {
+        return CopyRoleplayTags(details.tags_in, details.tags_out);
+    }
 
-	// This is where the magic of rewriting the user happens.
-	ModResult OnUserWrite(LocalUser* user, ClientProtocol::Message& msg) CXX11_OVERRIDE
-	{
-		const ClientProtocol::TagMap& tags = msg.GetTags();
-		ClientProtocol::TagMap::const_iterator tag;
+    // This is where the magic of rewriting the user happens.
+    ModResult OnUserWrite(LocalUser* user,
+                          ClientProtocol::Message& msg) CXX11_OVERRIDE {
+        const ClientProtocol::TagMap& tags = msg.GetTags();
+        ClientProtocol::TagMap::const_iterator tag;
 
-		tag = tags.find("inspircd.org/roleplay-src");
-		if(tag == tags.end())
-			return MOD_RES_PASSTHRU;
+        tag = tags.find("inspircd.org/roleplay-src");
+        if(tag == tags.end()) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		const std::string& src = tag->second.value;
-		if(src.empty())
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Got an empty value in the inspircd.org/roleplay-src tag, this should not happen.");
-			return MOD_RES_DENY;
-		}
+        const std::string& src = tag->second.value;
+        if(src.empty()) {
+            ServerInstance->Logs->Log(MODNAME, LOG_DEBUG,
+                                      "Got an empty value in the inspircd.org/roleplay-src tag, this should not happen.");
+            return MOD_RES_DENY;
+        }
 
-		// We need to keep the source alive as long as this message is
-		lastsrc = src;
+        // We need to keep the source alive as long as this message is
+        lastsrc = src;
 
-		// Rewrite the source
-		msg.SetSource(lastsrc, msg.GetSourceUser());
+        // Rewrite the source
+        msg.SetSource(lastsrc, msg.GetSourceUser());
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides commands for use in roleplay (tabletop RPGs, etc.)", VF_COMMON);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Provides commands for use in roleplay (tabletop RPGs, etc.)", VF_COMMON);
+    }
 };
 
 MODULE_INIT(ModuleRoleplay)

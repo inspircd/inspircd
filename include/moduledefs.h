@@ -42,6 +42,6 @@ class Module;
 
 /** Defines the interface that a shared library must expose in order to be a module. */
 #define MODULE_INIT(klass) \
-	extern "C" DllExport const unsigned long MODULE_SYM_ABI = MODULE_ABI; \
-	extern "C" DllExport const char MODULE_SYM_VERSION[] = INSPIRCD_VERSION; \
-	extern "C" DllExport Module* MODULE_SYM_INIT() { return new klass; }
+    extern "C" DllExport const unsigned long MODULE_SYM_ABI = MODULE_ABI; \
+    extern "C" DllExport const char MODULE_SYM_VERSION[] = INSPIRCD_VERSION; \
+    extern "C" DllExport Module* MODULE_SYM_INIT() { return new klass; }

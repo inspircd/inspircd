@@ -25,45 +25,43 @@
 
 #include "inspircd.h"
 
-class ModuleConnJoinIdent : public Module
-{
-	typedef std::vector<std::pair<std::string, std::string> > IdentChanList;
-	IdentChanList chans;
+class ModuleConnJoinIdent : public Module {
+    typedef std::vector<std::pair<std::string, std::string> > IdentChanList;
+    IdentChanList chans;
 
- public:
-	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
-	{
-		chans.clear();
+  public:
+    void ReadConfig(ConfigStatus&) CXX11_OVERRIDE {
+        chans.clear();
 
-		ConfigTagList tags = ServerInstance->Config->ConfTags("autojoinident");
-		for (ConfigIter i = tags.first; i != tags.second; ++i)
-		{
-			ConfigTag* tag = i->second;
-			chans.push_back(std::make_pair(tag->getString("ident"), tag->getString("chan")));
-		}
-	}
+        ConfigTagList tags = ServerInstance->Config->ConfTags("autojoinident");
+        for (ConfigIter i = tags.first; i != tags.second; ++i) {
+            ConfigTag* tag = i->second;
+            chans.push_back(std::make_pair(tag->getString("ident"),
+                                           tag->getString("chan")));
+        }
+    }
 
-	void OnPostConnect(User* user) CXX11_OVERRIDE
-	{
-		LocalUser* localuser = IS_LOCAL(user);
-		if (!localuser)
-			return;
+    void OnPostConnect(User* user) CXX11_OVERRIDE {
+        LocalUser* localuser = IS_LOCAL(user);
+        if (!localuser) {
+            return;
+        }
 
-		for (IdentChanList::const_iterator i = chans.begin(); i != chans.end(); ++i)
-		{
-			if (!InspIRCd::Match(localuser->ident, i->first))
-				continue;
+        for (IdentChanList::const_iterator i = chans.begin(); i != chans.end(); ++i) {
+            if (!InspIRCd::Match(localuser->ident, i->first)) {
+                continue;
+            }
 
-			const std::string& channame = i->second;
-			if (ServerInstance->IsChannel(channame))
-				Channel::JoinUser(localuser, channame);
-		}
-	}
+            const std::string& channame = i->second;
+            if (ServerInstance->IsChannel(channame)) {
+                Channel::JoinUser(localuser, channame);
+            }
+        }
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Autojoins users based on their ident");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Autojoins users based on their ident");
+    }
 };
 
 MODULE_INIT(ModuleConnJoinIdent)

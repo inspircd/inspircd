@@ -25,34 +25,38 @@
 #include "commands.h"
 
 /** FMODE command - channel mode change with timestamp checks */
-CmdResult CommandFMode::Handle(User* who, Params& params)
-{
-	time_t TS = ServerCommand::ExtractTS(params[1]);
+CmdResult CommandFMode::Handle(User* who, Params& params) {
+    time_t TS = ServerCommand::ExtractTS(params[1]);
 
-	Channel* const chan = ServerInstance->FindChan(params[0]);
-	if (!chan)
-		// Channel doesn't exist
-		return CMD_FAILURE;
+    Channel* const chan = ServerInstance->FindChan(params[0]);
+    if (!chan)
+        // Channel doesn't exist
+    {
+        return CMD_FAILURE;
+    }
 
-	// Extract the TS of the channel in question
-	time_t ourTS = chan->age;
+    // Extract the TS of the channel in question
+    time_t ourTS = chan->age;
 
-	/* If the TS is greater than ours, we drop the mode and don't pass it anywhere.
-	 */
-	if (TS > ourTS)
-		return CMD_FAILURE;
+    /* If the TS is greater than ours, we drop the mode and don't pass it anywhere.
+     */
+    if (TS > ourTS) {
+        return CMD_FAILURE;
+    }
 
-	/* TS is equal or less: apply the mode change locally and forward the message
-	 */
+    /* TS is equal or less: apply the mode change locally and forward the message
+     */
 
-	// Turn modes into a Modes::ChangeList; may have more elements than max modes
-	Modes::ChangeList changelist;
-	ServerInstance->Modes.ModeParamsToChangeList(who, MODETYPE_CHANNEL, params, changelist, 2);
+    // Turn modes into a Modes::ChangeList; may have more elements than max modes
+    Modes::ChangeList changelist;
+    ServerInstance->Modes.ModeParamsToChangeList(who, MODETYPE_CHANNEL, params,
+            changelist, 2);
 
-	ModeParser::ModeProcessFlag flags = ModeParser::MODE_LOCALONLY;
-	if ((TS == ourTS) && IS_SERVER(who))
-		flags |= ModeParser::MODE_MERGE;
+    ModeParser::ModeProcessFlag flags = ModeParser::MODE_LOCALONLY;
+    if ((TS == ourTS) && IS_SERVER(who)) {
+        flags |= ModeParser::MODE_MERGE;
+    }
 
-	ServerInstance->Modes->Process(who, chan, NULL, changelist, flags);
-	return CMD_SUCCESS;
+    ServerInstance->Modes->Process(who, chan, NULL, changelist, flags);
+    return CMD_SUCCESS;
 }

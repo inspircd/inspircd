@@ -29,41 +29,40 @@
 #include "inspircd.h"
 #include "modules/account.h"
 
-class ModuleConnAccounts : public Module
-{
- public:
-	void Prioritize() CXX11_OVERRIDE
-	{
-		// Go after services_account, it will deny non-authed clients
-		Module* servicesaccount = ServerInstance->Modules->Find("m_services_account.so");
-		ServerInstance->Modules->SetPriority(this, I_OnSetConnectClass, PRIORITY_AFTER, servicesaccount);
-	}
+class ModuleConnAccounts : public Module {
+  public:
+    void Prioritize() CXX11_OVERRIDE {
+        // Go after services_account, it will deny non-authed clients
+        Module* servicesaccount = ServerInstance->Modules->Find("m_services_account.so");
+        ServerInstance->Modules->SetPriority(this, I_OnSetConnectClass, PRIORITY_AFTER, servicesaccount);
+    }
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* connclass) CXX11_OVERRIDE
-	{
-		const std::string accounts = connclass->config->getString("accounts");
-		if (accounts.empty() || !connclass->config->getBool("requireaccount"))
-			return MOD_RES_PASSTHRU;
+    ModResult OnSetConnectClass(LocalUser* user,
+                                ConnectClass* connclass) CXX11_OVERRIDE {
+        const std::string accounts = connclass->config->getString("accounts");
+        if (accounts.empty() || !connclass->config->getBool("requireaccount")) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		const AccountExtItem* accountext = GetAccountExtItem();
-		const std::string* account = accountext ? accountext->get(user) : NULL;
-		if (!account)
-			return MOD_RES_DENY;
+        const AccountExtItem* accountext = GetAccountExtItem();
+        const std::string* account = accountext ? accountext->get(user) : NULL;
+        if (!account) {
+            return MOD_RES_DENY;
+        }
 
-		irc::spacesepstream ss(accounts);
-		for (std::string token; ss.GetToken(token); )
-		{
-			if (irc::equals(*account, token))
-				return MOD_RES_PASSTHRU;
-		}
+        irc::spacesepstream ss(accounts);
+        for (std::string token; ss.GetToken(token); ) {
+            if (irc::equals(*account, token)) {
+                return MOD_RES_PASSTHRU;
+            }
+        }
 
-		return MOD_RES_DENY;
-	}
+        return MOD_RES_DENY;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Limit SASL connect classes by account(s).");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Limit SASL connect classes by account(s).");
+    }
 };
 
 MODULE_INIT(ModuleConnAccounts)

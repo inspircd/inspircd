@@ -40,148 +40,154 @@ extern SpanningTreeUtilities* Utils;
 
 /** Associative container type, mapping server names/ids to TreeServers
  */
-typedef TR1NS::unordered_map<std::string, TreeServer*, irc::insensitive, irc::StrHashComp> server_hash;
+typedef TR1NS::unordered_map<std::string, TreeServer*, irc::insensitive, irc::StrHashComp>
+server_hash;
 
 /** Contains helper functions and variables for this module,
  * and keeps them out of the global namespace
  */
-class SpanningTreeUtilities : public classbase
-{
-	CacheRefreshTimer RefreshTimer;
+class SpanningTreeUtilities : public classbase {
+    CacheRefreshTimer RefreshTimer;
 
- public:
-	typedef std::set<TreeSocket*> TreeSocketSet;
-	typedef std::map<TreeSocket*, std::pair<std::string, unsigned int> > TimeoutList;
+  public:
+    typedef std::set<TreeSocket*> TreeSocketSet;
+    typedef std::map<TreeSocket*, std::pair<std::string, unsigned int> >
+    TimeoutList;
 
-	/** Creator module
-	 */
-	ModuleSpanningTree* Creator;
+    /** Creator module
+     */
+    ModuleSpanningTree* Creator;
 
-	/** Flatten links and /MAP for non-opers
-	 */
-	bool FlatLinks;
+    /** Flatten links and /MAP for non-opers
+     */
+    bool FlatLinks;
 
-	/** True if we're going to hide netsplits as *.net *.split for non-opers
-	 */
-	bool HideSplits;
+    /** True if we're going to hide netsplits as *.net *.split for non-opers
+     */
+    bool HideSplits;
 
-	/** Hide U-Lined servers in /MAP and /LINKS
-	 */
-	bool HideULines;
-	/** Announce TS changes to channels on merge
-	 */
-	bool AnnounceTSChange;
+    /** Hide U-Lined servers in /MAP and /LINKS
+     */
+    bool HideULines;
+    /** Announce TS changes to channels on merge
+     */
+    bool AnnounceTSChange;
 
-	/** Allow modules marked as VF_OPTCOMMON to be mismatched when linking
-	 */
-	bool AllowOptCommon;
+    /** Allow modules marked as VF_OPTCOMMON to be mismatched when linking
+     */
+    bool AllowOptCommon;
 
-	/** Make snomasks +CQ quiet during bursts and splits
-	 */
-	bool quiet_bursts;
+    /** Make snomasks +CQ quiet during bursts and splits
+     */
+    bool quiet_bursts;
 
-	/* Number of seconds that a server can go without ping
-	 * before opers are warned of high latency.
-	 */
-	unsigned int PingWarnTime;
-	/** This variable represents the root of the server tree
-	 */
-	TreeServer *TreeRoot;
-	/** IPs allowed to link to us
-	 */
-	std::vector<std::string> ValidIPs;
-	/** Hash of currently connected servers by name
-	 */
-	server_hash serverlist;
-	/** Hash of currently known server ids
-	 */
-	server_hash sidlist;
-	/** List of all outgoing sockets and their timeouts
-	 */
-	TimeoutList timeoutlist;
-	/** Holds the data from the <link> tags in the conf
-	 */
-	std::vector<reference<Link> > LinkBlocks;
-	/** Holds the data from the <autoconnect> tags in the conf
-	 */
-	std::vector<reference<Autoconnect> > AutoconnectBlocks;
+    /* Number of seconds that a server can go without ping
+     * before opers are warned of high latency.
+     */
+    unsigned int PingWarnTime;
+    /** This variable represents the root of the server tree
+     */
+    TreeServer *TreeRoot;
+    /** IPs allowed to link to us
+     */
+    std::vector<std::string> ValidIPs;
+    /** Hash of currently connected servers by name
+     */
+    server_hash serverlist;
+    /** Hash of currently known server ids
+     */
+    server_hash sidlist;
+    /** List of all outgoing sockets and their timeouts
+     */
+    TimeoutList timeoutlist;
+    /** Holds the data from the <link> tags in the conf
+     */
+    std::vector<reference<Link> > LinkBlocks;
+    /** Holds the data from the <autoconnect> tags in the conf
+     */
+    std::vector<reference<Autoconnect> > AutoconnectBlocks;
 
-	/** Ping frequency of server to server links
-	 */
-	unsigned int PingFreq;
+    /** Ping frequency of server to server links
+     */
+    unsigned int PingFreq;
 
-	/** Initialise utility class
-	 */
-	SpanningTreeUtilities(ModuleSpanningTree* Creator);
+    /** Initialise utility class
+     */
+    SpanningTreeUtilities(ModuleSpanningTree* Creator);
 
-	/** Prepare for class destruction
-	 */
-	CullResult cull() CXX11_OVERRIDE;
+    /** Prepare for class destruction
+     */
+    CullResult cull() CXX11_OVERRIDE;
 
-	/** Destroy class and free listeners etc
-	 */
-	~SpanningTreeUtilities();
+    /** Destroy class and free listeners etc
+     */
+    ~SpanningTreeUtilities();
 
-	void RouteCommand(TreeServer* origin, CommandBase* cmd, const CommandBase::Params& parameters, User* user);
+    void RouteCommand(TreeServer* origin, CommandBase* cmd,
+                      const CommandBase::Params& parameters, User* user);
 
-	/** Send a message from this server to one other local or remote
-	 */
-	void DoOneToOne(const CmdBuilder& params, Server* target);
+    /** Send a message from this server to one other local or remote
+     */
+    void DoOneToOne(const CmdBuilder& params, Server* target);
 
-	/** Send a message from this server to all but one other, local or remote
-	 */
-	void DoOneToAllButSender(const CmdBuilder& params, TreeServer* omit);
+    /** Send a message from this server to all but one other, local or remote
+     */
+    void DoOneToAllButSender(const CmdBuilder& params, TreeServer* omit);
 
-	/** Send a message from this server to all others
-	 */
-	void DoOneToMany(const CmdBuilder& params);
+    /** Send a message from this server to all others
+     */
+    void DoOneToMany(const CmdBuilder& params);
 
-	/** Read the spanningtree module's tags from the config file
-	 */
-	void ReadConfiguration();
+    /** Read the spanningtree module's tags from the config file
+     */
+    void ReadConfiguration();
 
-	/** Handle nick collision
-	 */
-	bool DoCollision(User* u, TreeServer* server, time_t remotets, const std::string& remoteident, const std::string& remoteip, const std::string& remoteuid, const char* collidecmd);
+    /** Handle nick collision
+     */
+    bool DoCollision(User* u, TreeServer* server, time_t remotets,
+                     const std::string& remoteident, const std::string& remoteip,
+                     const std::string& remoteuid, const char* collidecmd);
 
-	/** Compile a list of servers which contain members of channel c
-	 */
-	void GetListOfServersForChannel(Channel* c, TreeSocketSet& list, char status, const CUList& exempt_list);
+    /** Compile a list of servers which contain members of channel c
+     */
+    void GetListOfServersForChannel(Channel* c, TreeSocketSet& list, char status,
+                                    const CUList& exempt_list);
 
-	/** Find a server by name or SID
-	 */
-	TreeServer* FindServer(const std::string &ServerName);
+    /** Find a server by name or SID
+     */
+    TreeServer* FindServer(const std::string &ServerName);
 
-	/** Find server by SID
-	 */
-	TreeServer* FindServerID(const std::string &id);
+    /** Find server by SID
+     */
+    TreeServer* FindServerID(const std::string &id);
 
-	/** Find a server based on a target string.
-	 * @param target Target string where a command should be routed to. May be a server name, a sid, a nickname or a uuid.
-	 */
-	TreeServer* FindRouteTarget(const std::string& target);
+    /** Find a server based on a target string.
+     * @param target Target string where a command should be routed to. May be a server name, a sid, a nickname or a uuid.
+     */
+    TreeServer* FindRouteTarget(const std::string& target);
 
-	/** Find a server by glob mask
-	 */
-	TreeServer* FindServerMask(const std::string &ServerName);
+    /** Find a server by glob mask
+     */
+    TreeServer* FindServerMask(const std::string &ServerName);
 
-	/** Find a link tag from a server name
-	 */
-	Link* FindLink(const std::string& name);
+    /** Find a link tag from a server name
+     */
+    Link* FindLink(const std::string& name);
 
-	/** Refresh the IP cache used for allowing inbound connections
-	 */
-	void RefreshIPCache();
+    /** Refresh the IP cache used for allowing inbound connections
+     */
+    void RefreshIPCache();
 
-	/** Sends a PRIVMSG or a NOTICE to a channel obeying an exempt list and an optional prefix
-	 */
-	void SendChannelMessage(User* source, Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const CUList& exempt_list, const char* message_type, TreeSocket* omit = NULL);
+    /** Sends a PRIVMSG or a NOTICE to a channel obeying an exempt list and an optional prefix
+     */
+    void SendChannelMessage(User* source, Channel* target, const std::string& text,
+                            char status, const ClientProtocol::TagMap& tags, const CUList& exempt_list,
+                            const char* message_type, TreeSocket* omit = NULL);
 
-	/** Send the channel list mode limits to either the specified server or all servers if NULL. */
-	void SendListLimits(Channel* chan, TreeSocket* sock = NULL);
+    /** Send the channel list mode limits to either the specified server or all servers if NULL. */
+    void SendListLimits(Channel* chan, TreeSocket* sock = NULL);
 };
 
-inline void SpanningTreeUtilities::DoOneToMany(const CmdBuilder& params)
-{
-	DoOneToAllButSender(params, NULL);
+inline void SpanningTreeUtilities::DoOneToMany(const CmdBuilder& params) {
+    DoOneToAllButSender(params, NULL);
 }

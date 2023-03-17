@@ -16,10 +16,10 @@
 #include "tre.h"
 
 #ifndef TRE_USE_SYSTEM_REGEX_H
-#define regcomp	   tre_regcomp
+#define regcomp    tre_regcomp
 #define regerror   tre_regerror
-#define regexec	   tre_regexec
-#define regfree	   tre_regfree
+#define regexec    tre_regexec
+#define regfree    tre_regfree
 #endif /* TRE_USE_SYSTEM_REGEX_H */
 
 #define regacomp   tre_regacomp

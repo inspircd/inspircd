@@ -19,33 +19,28 @@
 
 #pragma once
 
-namespace CallerID
-{
-	class APIBase;
-	class API;
+namespace CallerID {
+class APIBase;
+class API;
 }
 
-class CallerID::APIBase : public DataProvider
-{
- public:
-	APIBase(Module* parent)
-		: DataProvider(parent, "m_callerid_api")
-	{
-	}
+class CallerID::APIBase : public DataProvider {
+  public:
+    APIBase(Module* parent)
+        : DataProvider(parent, "m_callerid_api") {
+    }
 
-	/** Determines whether \p source is on the accept list of \p target.
-	 * @param source The user to search for in the accept list.
-	 * @param target The user who's accept list to search in.
-	 * @return True if \p source is on \p target's accept list; otherwise, false.
-	 */
-	virtual bool IsOnAcceptList(User* source, User* target) = 0;
+    /** Determines whether \p source is on the accept list of \p target.
+     * @param source The user to search for in the accept list.
+     * @param target The user who's accept list to search in.
+     * @return True if \p source is on \p target's accept list; otherwise, false.
+     */
+    virtual bool IsOnAcceptList(User* source, User* target) = 0;
 };
 
-class CallerID::API : public dynamic_reference<CallerID::APIBase>
-{
- public:
-	API(Module* parent)
-		: dynamic_reference<CallerID::APIBase>(parent, "m_callerid_api")
-	{
-	}
+class CallerID::API : public dynamic_reference<CallerID::APIBase> {
+  public:
+    API(Module* parent)
+        : dynamic_reference<CallerID::APIBase>(parent, "m_callerid_api") {
+    }
 };

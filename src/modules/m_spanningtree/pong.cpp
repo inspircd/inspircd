@@ -28,18 +28,18 @@
 #include "commands.h"
 #include "utils.h"
 
-CmdResult CommandPong::HandleServer(TreeServer* server, CommandBase::Params& params)
-{
-	if (server->IsBursting())
-	{
-		ServerInstance->SNO->WriteGlobalSno('l', "Server \002%s\002 has not finished burst, forcing end of burst (send ENDBURST!)", server->GetName().c_str());
-		server->FinishBurst();
-	}
+CmdResult CommandPong::HandleServer(TreeServer* server,
+                                    CommandBase::Params& params) {
+    if (server->IsBursting()) {
+        ServerInstance->SNO->WriteGlobalSno('l',
+                                            "Server \002%s\002 has not finished burst, forcing end of burst (send ENDBURST!)",
+                                            server->GetName().c_str());
+        server->FinishBurst();
+    }
 
-	if (params[0] == ServerInstance->Config->GetSID())
-	{
-		// PONG for us
-		server->OnPong();
-	}
-	return CMD_SUCCESS;
+    if (params[0] == ServerInstance->Config->GetSID()) {
+        // PONG for us
+        server->OnPong();
+    }
+    return CMD_SUCCESS;
 }

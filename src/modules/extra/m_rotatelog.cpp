@@ -27,70 +27,61 @@
 
 static volatile sig_atomic_t signaled;
 
-class RotateLogTimer : public Timer
-{
- public:
-	RotateLogTimer() : Timer(3600, true) { }
+class RotateLogTimer : public Timer {
+  public:
+    RotateLogTimer() : Timer(3600, true) { }
 
-	bool Tick(time_t) CXX11_OVERRIDE
-	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Rotating log files ...");
-		ServerInstance->Logs->CloseLogs();
+    bool Tick(time_t) CXX11_OVERRIDE {
+        ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Rotating log files ...");
+        ServerInstance->Logs->CloseLogs();
 
-		ServerInstance->Logs->OpenFileLogs();
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Log files have been rotated!");
-		return true;
-	}
+        ServerInstance->Logs->OpenFileLogs();
+        ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Log files have been rotated!");
+        return true;
+    }
 };
 
-class ModuleRotateLog : public Module
-{
- private:
-	RotateLogTimer* timer;
+class ModuleRotateLog : public Module {
+  private:
+    RotateLogTimer* timer;
 
-	static void SignalHandler(int)
-	{
-		signaled = 1;
-	}
+    static void SignalHandler(int) {
+        signaled = 1;
+    }
 
- public:
-	ModuleRotateLog()
-	{
-		timer = new RotateLogTimer();
-		signal(SIGUSR2, SignalHandler);
-	}
+  public:
+    ModuleRotateLog() {
+        timer = new RotateLogTimer();
+        signal(SIGUSR2, SignalHandler);
+    }
 
-	~ModuleRotateLog()
-	{
-		signal(SIGUSR2, SIG_IGN);
-		ServerInstance->Timers.DelTimer(timer);
-	}
+    ~ModuleRotateLog() {
+        signal(SIGUSR2, SIG_IGN);
+        ServerInstance->Timers.DelTimer(timer);
+    }
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Timers.AddTimer(timer);
-	}
+    void init() CXX11_OVERRIDE {
+        ServerInstance->Timers.AddTimer(timer);
+    }
 
-	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("rotatelog");
-		timer->SetInterval(tag->getDuration("period", 3600, 60));
-	}
+    void ReadConfig(ConfigStatus&) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("rotatelog");
+        timer->SetInterval(tag->getDuration("period", 3600, 60));
+    }
 
-	void OnBackgroundTimer(time_t) CXX11_OVERRIDE
-	{
-		if (!signaled)
-			return;
+    void OnBackgroundTimer(time_t) CXX11_OVERRIDE {
+        if (!signaled) {
+            return;
+        }
 
-		timer->Tick(ServerInstance->Time());
-		timer->SetInterval(timer->GetInterval());
-		signaled = 0;
-	}
+        timer->Tick(ServerInstance->Time());
+        timer->SetInterval(timer->GetInterval());
+        signaled = 0;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Rotates the log files after a defined period.");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Rotates the log files after a defined period.");
+    }
 };
 
 MODULE_INIT(ModuleRotateLog)

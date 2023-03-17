@@ -28,116 +28,107 @@
 
 /** Handle /SAMODE
  */
-class CommandSamode : public Command
-{
-	bool logged;
+class CommandSamode : public Command {
+    bool logged;
 
- public:
-	bool active;
-	CommandSamode(Module* Creator) : Command(Creator,"SAMODE", 2)
-	{
-		allow_empty_last_param = false;
-		flags_needed = 'o';
-		syntax = "<target> (+|-)<modes> [<mode-parameters>]";
-		active = false;
-	}
+  public:
+    bool active;
+    CommandSamode(Module* Creator) : Command(Creator,"SAMODE", 2) {
+        allow_empty_last_param = false;
+        flags_needed = 'o';
+        syntax = "<target> (+|-)<modes> [<mode-parameters>]";
+        active = false;
+    }
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		if (parameters[0].c_str()[0] != '#')
-		{
-			User* target = ServerInstance->FindNickOnly(parameters[0]);
-			if ((!target) || (target->registered != REG_ALL))
-			{
-				user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
-				return CMD_FAILURE;
-			}
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE {
+        if (parameters[0].c_str()[0] != '#') {
+            User* target = ServerInstance->FindNickOnly(parameters[0]);
+            if ((!target) || (target->registered != REG_ALL)) {
+                user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
+                return CMD_FAILURE;
+            }
 
-			// Changing the modes of another user requires a special permission
-			if ((target != user) && (!user->HasPrivPermission("users/samode-usermodes")))
-			{
-				user->WriteNotice("*** You are not allowed to /SAMODE other users (the privilege users/samode-usermodes is needed to /SAMODE others).");
-				return CMD_FAILURE;
-			}
-		}
+            // Changing the modes of another user requires a special permission
+            if ((target != user) && (!user->HasPrivPermission("users/samode-usermodes"))) {
+                user->WriteNotice("*** You are not allowed to /SAMODE other users (the privilege users/samode-usermodes is needed to /SAMODE others).");
+                return CMD_FAILURE;
+            }
+        }
 
-		// XXX: Make ModeParser clear LastParse
-		Modes::ChangeList emptychangelist;
-		ServerInstance->Modes->ProcessSingle(ServerInstance->FakeClient, NULL, ServerInstance->FakeClient, emptychangelist);
+        // XXX: Make ModeParser clear LastParse
+        Modes::ChangeList emptychangelist;
+        ServerInstance->Modes->ProcessSingle(ServerInstance->FakeClient, NULL, ServerInstance->FakeClient, emptychangelist);
 
-		logged = false;
-		this->active = true;
-		ServerInstance->Parser.CallHandler("MODE", parameters, user);
-		this->active = false;
+        logged = false;
+        this->active = true;
+        ServerInstance->Parser.CallHandler("MODE", parameters, user);
+        this->active = false;
 
-		if (!logged)
-		{
-			// If we haven't logged anything yet then the client queried the list of a listmode
-			// (e.g. /SAMODE #chan b), which was handled internally by the MODE command handler.
-			//
-			// Viewing the modes of a user or a channel could also result in this, but
-			// that is not possible with /SAMODE because we require at least 2 parameters.
-			LogUsage(user, stdalgo::string::join(parameters));
-		}
+        if (!logged) {
+            // If we haven't logged anything yet then the client queried the list of a listmode
+            // (e.g. /SAMODE #chan b), which was handled internally by the MODE command handler.
+            //
+            // Viewing the modes of a user or a channel could also result in this, but
+            // that is not possible with /SAMODE because we require at least 2 parameters.
+            LogUsage(user, stdalgo::string::join(parameters));
+        }
 
-		return CMD_SUCCESS;
-	}
+        return CMD_SUCCESS;
+    }
 
-	void LogUsage(const User* user, const std::string& text)
-	{
-		logged = true;
-		ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SAMODE: " + text);
-	}
+    void LogUsage(const User* user, const std::string& text) {
+        logged = true;
+        ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SAMODE: " + text);
+    }
 };
 
-class ModuleSaMode : public Module
-{
-	CommandSamode cmd;
- public:
-	ModuleSaMode()
-		: cmd(this)
-	{
-	}
+class ModuleSaMode : public Module {
+    CommandSamode cmd;
+  public:
+    ModuleSaMode()
+        : cmd(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds the /SAMODE command which allows server operators to change the modes of a target (channel, user) that they would not otherwise have the privileges to change.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds the /SAMODE command which allows server operators to change the modes of a target (channel, user) that they would not otherwise have the privileges to change.", VF_VENDOR);
+    }
 
-	ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes) CXX11_OVERRIDE
-	{
-		if (cmd.active)
-			return MOD_RES_ALLOW;
-		return MOD_RES_PASSTHRU;
-	}
+    ModResult OnPreMode(User* source, User* dest, Channel* channel,
+                        Modes::ChangeList& modes) CXX11_OVERRIDE {
+        if (cmd.active) {
+            return MOD_RES_ALLOW;
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
-	void OnMode(User* user, User* destuser, Channel* destchan, const Modes::ChangeList& modes, ModeParser::ModeProcessFlag processflags) CXX11_OVERRIDE
-	{
-		if (!cmd.active)
-			return;
+    void OnMode(User* user, User* destuser, Channel* destchan,
+                const Modes::ChangeList& modes,
+                ModeParser::ModeProcessFlag processflags) CXX11_OVERRIDE {
+        if (!cmd.active) {
+            return;
+        }
 
-		std::string logtext = (destuser ? destuser->nick : destchan->name);
-		logtext.push_back(' ');
-		logtext += ClientProtocol::Messages::Mode::ToModeLetters(modes);
+        std::string logtext = (destuser ? destuser->nick : destchan->name);
+        logtext.push_back(' ');
+        logtext += ClientProtocol::Messages::Mode::ToModeLetters(modes);
 
-		for (Modes::ChangeList::List::const_iterator i = modes.getlist().begin(); i != modes.getlist().end(); ++i)
-		{
-			const Modes::Change& item = *i;
-			if (!item.param.empty())
-				logtext.append(1, ' ').append(item.param);
-		}
+        for (Modes::ChangeList::List::const_iterator i = modes.getlist().begin(); i != modes.getlist().end(); ++i) {
+            const Modes::Change& item = *i;
+            if (!item.param.empty()) {
+                logtext.append(1, ' ').append(item.param);
+            }
+        }
 
-		cmd.LogUsage(user, logtext);
-	}
+        cmd.LogUsage(user, logtext);
+    }
 
-	void Prioritize() CXX11_OVERRIDE
-	{
-		Module* disable = ServerInstance->Modules->Find("m_disable.so");
-		ServerInstance->Modules->SetPriority(this, I_OnRawMode, PRIORITY_BEFORE, disable);
+    void Prioritize() CXX11_OVERRIDE {
+        Module* disable = ServerInstance->Modules->Find("m_disable.so");
+        ServerInstance->Modules->SetPriority(this, I_OnRawMode, PRIORITY_BEFORE, disable);
 
-		Module *override = ServerInstance->Modules->Find("m_override.so");
-		ServerInstance->Modules->SetPriority(this, I_OnPreMode, PRIORITY_BEFORE, override);
-	}
+        Module *override = ServerInstance->Modules->Find("m_override.so");
+        ServerInstance->Modules->SetPriority(this, I_OnPreMode, PRIORITY_BEFORE, override);
+    }
 };
 
 MODULE_INIT(ModuleSaMode)

@@ -25,68 +25,62 @@
 #include "inspircd.h"
 #include "modules/stats.h"
 
-class ModuleStatsUnlinked : public Module, public Stats::EventListener
-{
- private:
-	std::map<std::string, unsigned int> LinkableServers;
+class ModuleStatsUnlinked : public Module, public Stats::EventListener {
+  private:
+    std::map<std::string, unsigned int> LinkableServers;
 
-	static bool IsServerLinked(const ProtocolInterface::ServerList& linkedServers, const std::string& serverName)
-	{
-		for (ProtocolInterface::ServerList::const_iterator it = linkedServers.begin(); it != linkedServers.end(); ++it)
-		{
-			if (it->servername == serverName)
-				return true;
-		}
-		return false;
-	}
+    static bool IsServerLinked(const ProtocolInterface::ServerList& linkedServers,
+                               const std::string& serverName) {
+        for (ProtocolInterface::ServerList::const_iterator it = linkedServers.begin();
+                it != linkedServers.end(); ++it) {
+            if (it->servername == serverName) {
+                return true;
+            }
+        }
+        return false;
+    }
 
- public:
-	ModuleStatsUnlinked()
-		:  Stats::EventListener(this)
-	{
-	}
+  public:
+    ModuleStatsUnlinked()
+        :  Stats::EventListener(this) {
+    }
 
-	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
-	{
-		LinkableServers.clear();
+    void ReadConfig(ConfigStatus&) CXX11_OVERRIDE {
+        LinkableServers.clear();
 
-		ConfigTagList tags = ServerInstance->Config->ConfTags("link");
-		for (ConfigIter it = tags.first; it != tags.second; ++it)
-		{
-			std::string serverName = it->second->getString("name");
-			unsigned int serverPort = it->second->getUInt("port", 0, 0, UINT16_MAX);
-			if (!serverName.empty() && serverName.size() <= 64 && serverName.find('.') != std::string::npos && serverPort)
-			{
-				// There is currently no way to prioritize the init() function so we
-				// reimplement the checks from m_spanningtree here.
-				LinkableServers[serverName] = serverPort;
-			}
-		}
-	}
+        ConfigTagList tags = ServerInstance->Config->ConfTags("link");
+        for (ConfigIter it = tags.first; it != tags.second; ++it) {
+            std::string serverName = it->second->getString("name");
+            unsigned int serverPort = it->second->getUInt("port", 0, 0, UINT16_MAX);
+            if (!serverName.empty() && serverName.size() <= 64
+                    && serverName.find('.') != std::string::npos && serverPort) {
+                // There is currently no way to prioritize the init() function so we
+                // reimplement the checks from m_spanningtree here.
+                LinkableServers[serverName] = serverPort;
+            }
+        }
+    }
 
-	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
-	{
-		if (stats.GetSymbol() != 'X')
-			return MOD_RES_PASSTHRU;
+    ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE {
+        if (stats.GetSymbol() != 'X') {
+            return MOD_RES_PASSTHRU;
+        }
 
-		ProtocolInterface::ServerList linkedServers;
-		ServerInstance->PI->GetServerList(linkedServers);
+        ProtocolInterface::ServerList linkedServers;
+        ServerInstance->PI->GetServerList(linkedServers);
 
-		for (std::map<std::string, unsigned int>::const_iterator it = LinkableServers.begin(); it != LinkableServers.end(); ++it)
-		{
-			if (!IsServerLinked(linkedServers, it->first))
-			{
-				// ProtoServer does not have a port so we use the port from the config here.
-				stats.AddRow(247, " X " + it->first + " " + ConvToStr(it->second));
-			}
-		}
-		return MOD_RES_DENY;
-	}
+        for (std::map<std::string, unsigned int>::const_iterator it = LinkableServers.begin(); it != LinkableServers.end(); ++it) {
+            if (!IsServerLinked(linkedServers, it->first)) {
+                // ProtoServer does not have a port so we use the port from the config here.
+                stats.AddRow(247, " X " + it->first + " " + ConvToStr(it->second));
+            }
+        }
+        return MOD_RES_DENY;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds stats character 'X' which shows unlinked servers.");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds stats character 'X' which shows unlinked servers.");
+    }
 };
 
 MODULE_INIT(ModuleStatsUnlinked)

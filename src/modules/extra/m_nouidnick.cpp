@@ -24,22 +24,21 @@
 
 #include "inspircd.h"
 
-class ModuleNoUIDNicks : public Module
-{
- public:
-	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE
-	{
-		if ((newnick[0] > '9') || (newnick[0] < '0'))
-			return MOD_RES_PASSTHRU;
+class ModuleNoUIDNicks : public Module {
+  public:
+    ModResult OnUserPreNick(LocalUser* user,
+                            const std::string& newnick) CXX11_OVERRIDE {
+        if ((newnick[0] > '9') || (newnick[0] < '0')) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		user->WriteNumeric(ERR_ERRONEUSNICKNAME, 0, "Erroneous Nickname");
-		return MOD_RES_DENY;
-	}
+        user->WriteNumeric(ERR_ERRONEUSNICKNAME, 0, "Erroneous Nickname");
+        return MOD_RES_DENY;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Disallows changing nick to UID using /NICK");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Disallows changing nick to UID using /NICK");
+    }
 };
 
 MODULE_INIT(ModuleNoUIDNicks)

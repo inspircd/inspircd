@@ -29,69 +29,62 @@
 
 /** Handle /CHGIDENT
  */
-class CommandChgident : public Command
-{
- public:
-	CommandChgident(Module* Creator) : Command(Creator,"CHGIDENT", 2)
-	{
-		allow_empty_last_param = false;
-		flags_needed = 'o';
-		syntax = "<nick> <ident>";
-		TRANSLATE2(TR_NICK, TR_TEXT);
-	}
+class CommandChgident : public Command {
+  public:
+    CommandChgident(Module* Creator) : Command(Creator,"CHGIDENT", 2) {
+        allow_empty_last_param = false;
+        flags_needed = 'o';
+        syntax = "<nick> <ident>";
+        TRANSLATE2(TR_NICK, TR_TEXT);
+    }
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		User* dest = ServerInstance->FindNick(parameters[0]);
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE {
+        User* dest = ServerInstance->FindNick(parameters[0]);
 
-		if ((!dest) || (dest->registered != REG_ALL))
-		{
-			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
-			return CMD_FAILURE;
-		}
+        if ((!dest) || (dest->registered != REG_ALL)) {
+            user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
+            return CMD_FAILURE;
+        }
 
-		if (parameters[1].length() > ServerInstance->Config->Limits.IdentMax)
-		{
-			user->WriteNotice("*** CHGIDENT: Ident is too long");
-			return CMD_FAILURE;
-		}
+        if (parameters[1].length() > ServerInstance->Config->Limits.IdentMax) {
+            user->WriteNotice("*** CHGIDENT: Ident is too long");
+            return CMD_FAILURE;
+        }
 
-		if (!ServerInstance->IsIdent(parameters[1]))
-		{
-			user->WriteNotice("*** CHGIDENT: Invalid characters in ident");
-			return CMD_FAILURE;
-		}
+        if (!ServerInstance->IsIdent(parameters[1])) {
+            user->WriteNotice("*** CHGIDENT: Invalid characters in ident");
+            return CMD_FAILURE;
+        }
 
-		if (IS_LOCAL(dest))
-		{
-			dest->ChangeIdent(parameters[1]);
+        if (IS_LOCAL(dest)) {
+            dest->ChangeIdent(parameters[1]);
 
-			if (!user->server->IsULine())
-				ServerInstance->SNO->WriteGlobalSno('a', "%s used CHGIDENT to change %s's ident to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str());
-		}
+            if (!user->server->IsULine()) {
+                ServerInstance->SNO->WriteGlobalSno('a',
+                                                    "%s used CHGIDENT to change %s's ident to '%s'", user->nick.c_str(),
+                                                    dest->nick.c_str(), dest->ident.c_str());
+            }
+        }
 
-		return CMD_SUCCESS;
-	}
+        return CMD_SUCCESS;
+    }
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		return ROUTE_OPT_UCAST(parameters[0]);
-	}
+    RouteDescriptor GetRouting(User* user,
+                               const Params& parameters) CXX11_OVERRIDE {
+        return ROUTE_OPT_UCAST(parameters[0]);
+    }
 };
 
-class ModuleChgIdent : public Module
-{
-	CommandChgident cmd;
+class ModuleChgIdent : public Module {
+    CommandChgident cmd;
 
-public:
-	ModuleChgIdent() : cmd(this)
-	{
-	}
+  public:
+    ModuleChgIdent() : cmd(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds the /CHGIDENT command which allows server operators to change the username (ident) of a user.", VF_OPTCOMMON | VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds the /CHGIDENT command which allows server operators to change the username (ident) of a user.", VF_OPTCOMMON | VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleChgIdent)

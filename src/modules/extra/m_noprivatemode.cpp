@@ -24,38 +24,36 @@
 
 #include "inspircd.h"
 
-class NoPrivateMode : public Module
-{
- private:
-	ChanModeReference privatemode;
-	ChanModeReference secretmode;
+class NoPrivateMode : public Module {
+  private:
+    ChanModeReference privatemode;
+    ChanModeReference secretmode;
 
- public:
-	NoPrivateMode()
-		: privatemode(this, "private")
-		, secretmode(this, "secret")
-	{
-	}
+  public:
+    NoPrivateMode()
+        : privatemode(this, "private")
+        , secretmode(this, "secret") {
+    }
 
-	ModResult OnPreMode(User* source, User*, Channel* channel, Modes::ChangeList& modes) CXX11_OVERRIDE
-	{
-		// We only care about channel mode changes from local users
-		if (!IS_LOCAL(source) || !channel)
-			return MOD_RES_PASSTHRU;
+    ModResult OnPreMode(User* source, User*, Channel* channel,
+                        Modes::ChangeList& modes) CXX11_OVERRIDE {
+        // We only care about channel mode changes from local users
+        if (!IS_LOCAL(source) || !channel) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		Modes::ChangeList::List& list = modes.getlist();
-		for (Modes::ChangeList::List::iterator iter = list.begin(); iter != list.end(); ++iter)
-		{
-			if (iter->mh == *privatemode)
-				iter->mh = *secretmode;
-		}
-		return MOD_RES_PASSTHRU;
-	}
+        Modes::ChangeList::List& list = modes.getlist();
+        for (Modes::ChangeList::List::iterator iter = list.begin(); iter != list.end(); ++iter) {
+            if (iter->mh == *privatemode) {
+                iter->mh = *secretmode;
+            }
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Sets channel mode +s (secret) when users try to set channel mode +p (private).", VF_OPTCOMMON);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Sets channel mode +s (secret) when users try to set channel mode +p (private).", VF_OPTCOMMON);
+    }
 };
 
 MODULE_INIT(NoPrivateMode)

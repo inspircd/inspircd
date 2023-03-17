@@ -24,27 +24,26 @@
 
 #include "inspircd.h"
 
-class ModulePartMsgBan : public Module
-{
- public:
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds extended ban p: (partmsg) which blocks the part message of matching users.", VF_OPTCOMMON|VF_VENDOR);
-	}
+class ModulePartMsgBan : public Module {
+  public:
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds extended ban p: (partmsg) which blocks the part message of matching users.", VF_OPTCOMMON|VF_VENDOR);
+    }
 
-	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts) CXX11_OVERRIDE
-	{
-		if (!IS_LOCAL(memb->user))
-			return;
+    void OnUserPart(Membership* memb, std::string &partmessage,
+                    CUList& excepts) CXX11_OVERRIDE {
+        if (!IS_LOCAL(memb->user)) {
+            return;
+        }
 
-		if (memb->chan->GetExtBanStatus(memb->user, 'p') == MOD_RES_DENY)
-			partmessage.clear();
-	}
+        if (memb->chan->GetExtBanStatus(memb->user, 'p') == MOD_RES_DENY) {
+            partmessage.clear();
+        }
+    }
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["EXTBAN"].push_back('p');
-	}
+    void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE {
+        tokens["EXTBAN"].push_back('p');
+    }
 };
 
 MODULE_INIT(ModulePartMsgBan)

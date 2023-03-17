@@ -28,118 +28,109 @@
 
 /** Handle /LOADMODULE.
  */
-class CommandLoadmodule : public Command
-{
- public:
-	/** Constructor for loadmodule.
-	 */
-	CommandLoadmodule(Module* parent)
-		: Command(parent,"LOADMODULE", 1, 1)
-	{
-		flags_needed = 'o';
-		syntax = "<modulename>";
-	}
+class CommandLoadmodule : public Command {
+  public:
+    /** Constructor for loadmodule.
+     */
+    CommandLoadmodule(Module* parent)
+        : Command(parent,"LOADMODULE", 1, 1) {
+        flags_needed = 'o';
+        syntax = "<modulename>";
+    }
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+    /** Handle command.
+     * @param parameters The parameters to the command
+     * @param user The user issuing the command
+     * @return A value from CmdResult to indicate command success or failure.
+     */
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /LOADMODULE
  */
-CmdResult CommandLoadmodule::Handle(User* user, const Params& parameters)
-{
-	if (ServerInstance->Modules->Load(parameters[0]))
-	{
-		ServerInstance->SNO->WriteGlobalSno('a', "NEW MODULE: %s loaded %s",user->nick.c_str(), parameters[0].c_str());
-		user->WriteNumeric(RPL_LOADEDMODULE, parameters[0], "Module successfully loaded.");
-		return CMD_SUCCESS;
-	}
-	else
-	{
-		user->WriteNumeric(ERR_CANTLOADMODULE, parameters[0], ServerInstance->Modules->LastError());
-		return CMD_FAILURE;
-	}
+CmdResult CommandLoadmodule::Handle(User* user, const Params& parameters) {
+    if (ServerInstance->Modules->Load(parameters[0])) {
+        ServerInstance->SNO->WriteGlobalSno('a', "NEW MODULE: %s loaded %s",
+                                            user->nick.c_str(), parameters[0].c_str());
+        user->WriteNumeric(RPL_LOADEDMODULE, parameters[0],
+                           "Module successfully loaded.");
+        return CMD_SUCCESS;
+    } else {
+        user->WriteNumeric(ERR_CANTLOADMODULE, parameters[0],
+                           ServerInstance->Modules->LastError());
+        return CMD_FAILURE;
+    }
 }
 
 /** Handle /UNLOADMODULE.
  */
-class CommandUnloadmodule : public Command
-{
- public:
-	bool allowcoreunload;
+class CommandUnloadmodule : public Command {
+  public:
+    bool allowcoreunload;
 
-	/** Constructor for unloadmodule.
-	 */
-	CommandUnloadmodule(Module* parent)
-		: Command(parent, "UNLOADMODULE", 1)
-		, allowcoreunload(false)
-	{
-		flags_needed = 'o';
-		syntax = "<modulename>";
-	}
+    /** Constructor for unloadmodule.
+     */
+    CommandUnloadmodule(Module* parent)
+        : Command(parent, "UNLOADMODULE", 1)
+        , allowcoreunload(false) {
+        flags_needed = 'o';
+        syntax = "<modulename>";
+    }
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+    /** Handle command.
+     * @param parameters The parameters to the command
+     * @param user The user issuing the command
+     * @return A value from CmdResult to indicate command success or failure.
+     */
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
-CmdResult CommandUnloadmodule::Handle(User* user, const Params& parameters)
-{
-	if (!allowcoreunload && InspIRCd::Match(parameters[0], "core_*.so", ascii_case_insensitive_map))
-	{
-		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "You cannot unload core commands!");
-		return CMD_FAILURE;
-	}
+CmdResult CommandUnloadmodule::Handle(User* user, const Params& parameters) {
+    if (!allowcoreunload
+            && InspIRCd::Match(parameters[0], "core_*.so", ascii_case_insensitive_map)) {
+        user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0],
+                           "You cannot unload core commands!");
+        return CMD_FAILURE;
+    }
 
-	Module* m = ServerInstance->Modules->Find(parameters[0]);
-	if (m == creator)
-	{
-		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "You cannot unload module loading commands!");
-		return CMD_FAILURE;
-	}
+    Module* m = ServerInstance->Modules->Find(parameters[0]);
+    if (m == creator) {
+        user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0],
+                           "You cannot unload module loading commands!");
+        return CMD_FAILURE;
+    }
 
-	if (m && ServerInstance->Modules->Unload(m))
-	{
-		ServerInstance->SNO->WriteGlobalSno('a', "MODULE UNLOADED: %s unloaded %s", user->nick.c_str(), parameters[0].c_str());
-		user->WriteNumeric(RPL_UNLOADEDMODULE, parameters[0], "Module successfully unloaded.");
-	}
-	else
-	{
-		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], (m ? ServerInstance->Modules->LastError() : "No such module"));
-		return CMD_FAILURE;
-	}
+    if (m && ServerInstance->Modules->Unload(m)) {
+        ServerInstance->SNO->WriteGlobalSno('a', "MODULE UNLOADED: %s unloaded %s",
+                                            user->nick.c_str(), parameters[0].c_str());
+        user->WriteNumeric(RPL_UNLOADEDMODULE, parameters[0],
+                           "Module successfully unloaded.");
+    } else {
+        user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0],
+                           (m ? ServerInstance->Modules->LastError() : "No such module"));
+        return CMD_FAILURE;
+    }
 
-	return CMD_SUCCESS;
+    return CMD_SUCCESS;
 }
 
-class CoreModLoadModule : public Module
-{
-	CommandLoadmodule cmdloadmod;
-	CommandUnloadmodule cmdunloadmod;
+class CoreModLoadModule : public Module {
+    CommandLoadmodule cmdloadmod;
+    CommandUnloadmodule cmdunloadmod;
 
- public:
-	CoreModLoadModule()
-		: cmdloadmod(this), cmdunloadmod(this)
-	{
-	}
+  public:
+    CoreModLoadModule()
+        : cmdloadmod(this), cmdunloadmod(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides the LOADMODULE and UNLOADMODULE commands", VF_VENDOR|VF_CORE);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Provides the LOADMODULE and UNLOADMODULE commands", VF_VENDOR|VF_CORE);
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("security");
-		cmdunloadmod.allowcoreunload = tag->getBool("allowcoreunload");
-	}
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("security");
+        cmdunloadmod.allowcoreunload = tag->getBool("allowcoreunload");
+    }
 };
 
 MODULE_INIT(CoreModLoadModule)

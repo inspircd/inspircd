@@ -24,66 +24,65 @@
 #include "modules/whois.h"
 
 class ModuleGeoBan
-	: public Module
-	, public Who::MatchEventListener
-	, public Whois::EventListener
-{
- private:
-	Geolocation::API geoapi;
+    : public Module
+    , public Who::MatchEventListener
+    , public Whois::EventListener {
+  private:
+    Geolocation::API geoapi;
 
- public:
-	ModuleGeoBan()
-		: Who::MatchEventListener(this)
-		, Whois::EventListener(this)
-		, geoapi(this)
-	{
-	}
+  public:
+    ModuleGeoBan()
+        : Who::MatchEventListener(this)
+        , Whois::EventListener(this)
+        , geoapi(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds extended ban G: (country) which matches against two letter country codes.", VF_OPTCOMMON|VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds extended ban G: (country) which matches against two letter country codes.", VF_OPTCOMMON|VF_VENDOR);
+    }
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["EXTBAN"].push_back('G');
-	}
+    void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE {
+        tokens["EXTBAN"].push_back('G');
+    }
 
-	ModResult OnCheckBan(User* user, Channel*, const std::string& mask) CXX11_OVERRIDE
-	{
-		if ((mask.length() > 2) && (mask[0] == 'G') && (mask[1] == ':'))
-		{
-			Geolocation::Location* location = geoapi ? geoapi->GetLocation(user) : NULL;
-			const std::string code = location ? location->GetCode() : "XX";
+    ModResult OnCheckBan(User* user, Channel*,
+                         const std::string& mask) CXX11_OVERRIDE {
+        if ((mask.length() > 2) && (mask[0] == 'G') && (mask[1] == ':')) {
+            Geolocation::Location* location = geoapi ? geoapi->GetLocation(user) : NULL;
+            const std::string code = location ? location->GetCode() : "XX";
 
-			// Does this user match against the ban?
-			if (InspIRCd::Match(code, mask.substr(2)))
-				return MOD_RES_DENY;
-		}
-		return MOD_RES_PASSTHRU;
-	}
+            // Does this user match against the ban?
+            if (InspIRCd::Match(code, mask.substr(2))) {
+                return MOD_RES_DENY;
+            }
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
-	ModResult OnWhoMatch(const Who::Request& request, LocalUser* source, User* user) CXX11_OVERRIDE
-	{
-		if (!request.flags['G'])
-			return MOD_RES_PASSTHRU;
+    ModResult OnWhoMatch(const Who::Request& request, LocalUser* source,
+                         User* user) CXX11_OVERRIDE {
+        if (!request.flags['G']) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		Geolocation::Location* location = geoapi ? geoapi->GetLocation(user) : NULL;
-		const std::string code = location ? location->GetCode() : "XX";
-		return InspIRCd::Match(code, request.matchtext, ascii_case_insensitive_map) ? MOD_RES_ALLOW : MOD_RES_DENY;
-	}
+        Geolocation::Location* location = geoapi ? geoapi->GetLocation(user) : NULL;
+        const std::string code = location ? location->GetCode() : "XX";
+        return InspIRCd::Match(code, request.matchtext, ascii_case_insensitive_map) ? MOD_RES_ALLOW : MOD_RES_DENY;
+    }
 
-	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
-	{
-		if (whois.GetTarget()->server->IsULine())
-			return;
+    void OnWhois(Whois::Context& whois) CXX11_OVERRIDE {
+        if (whois.GetTarget()->server->IsULine()) {
+            return;
+        }
 
-		Geolocation::Location* location = geoapi ? geoapi->GetLocation(whois.GetTarget()) : NULL;
-		if (location)
-			whois.SendLine(RPL_WHOISCOUNTRY, location->GetCode(), "is connecting from " + location->GetName());
-		else
-			whois.SendLine(RPL_WHOISCOUNTRY, "*", "is connecting from an unknown country");
-	}
+        Geolocation::Location* location = geoapi ? geoapi->GetLocation(whois.GetTarget()) : NULL;
+        if (location) {
+            whois.SendLine(RPL_WHOISCOUNTRY, location->GetCode(),
+                           "is connecting from " + location->GetName());
+        } else {
+            whois.SendLine(RPL_WHOISCOUNTRY, "*", "is connecting from an unknown country");
+        }
+    }
 };
 
 MODULE_INIT(ModuleGeoBan)

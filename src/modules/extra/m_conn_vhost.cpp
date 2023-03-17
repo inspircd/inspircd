@@ -28,89 +28,91 @@
 #include "inspircd.h"
 #include "modules/account.h"
 
-class ModuleVhostOnConnect : public Module
-{
-	std::bitset<UCHAR_MAX> hostmap;
+class ModuleVhostOnConnect : public Module {
+    std::bitset<UCHAR_MAX> hostmap;
 
-	const std::string GetAccount(LocalUser* user)
-	{
-		std::string result;
+    const std::string GetAccount(LocalUser* user) {
+        std::string result;
 
-		const AccountExtItem* accountext = GetAccountExtItem();
-		const std::string* account = accountext ? accountext->get(user) : NULL;
-		if (account)
-			result = *account;
+        const AccountExtItem* accountext = GetAccountExtItem();
+        const std::string* account = accountext ? accountext->get(user) : NULL;
+        if (account) {
+            result = *account;
+        }
 
-		return result;
-	}
+        return result;
+    }
 
- public:
-	void Prioritize() CXX11_OVERRIDE
-	{
-		// Let's go after conn_umodes in case +x also gets set
-		Module* connumodes = ServerInstance->Modules->Find("m_conn_umodes.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_AFTER, connumodes);
-	}
+  public:
+    void Prioritize() CXX11_OVERRIDE {
+        // Let's go after conn_umodes in case +x also gets set
+        Module* connumodes = ServerInstance->Modules->Find("m_conn_umodes.so");
+        ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_AFTER, connumodes);
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		// From m_sethost: use the same configured host character map if it exists
-		std::string hmap = ServerInstance->Config->ConfValue("hostname")->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789");
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        // From m_sethost: use the same configured host character map if it exists
+        std::string hmap = ServerInstance->Config->ConfValue("hostname")->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789");
 
-		hostmap.reset();
-		for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++)
-			hostmap.set(static_cast<unsigned char>(*n));
-	}
+        hostmap.reset();
+        for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++) {
+            hostmap.set(static_cast<unsigned char>(*n));
+        }
+    }
 
-	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = user->MyClass->config;
-		std::string vhost = tag->getString("vhost");
-		std::string replace;
-		size_t pos;
+    void OnUserConnect(LocalUser* user) CXX11_OVERRIDE {
+        ConfigTag* tag = user->MyClass->config;
+        std::string vhost = tag->getString("vhost");
+        std::string replace;
+        size_t pos;
 
-		if (vhost.empty())
-			return;
+        if (vhost.empty()) {
+            return;
+        }
 
-		std::string ident = user->ident;
-		if (ident[0] == '~')
-			ident.erase(0, 1);
+        std::string ident = user->ident;
+        if (ident[0] == '~') {
+            ident.erase(0, 1);
+        }
 
-		replace = "$ident";
-		while ((pos = irc::find(vhost, replace)) != std::string::npos)
-			vhost.replace(pos, replace.length(), ident);
+        replace = "$ident";
+        while ((pos = irc::find(vhost, replace)) != std::string::npos) {
+            vhost.replace(pos, replace.length(), ident);
+        }
 
-		std::string account = GetAccount(user);
-		if (account.empty())
-			account = "unidentified";
+        std::string account = GetAccount(user);
+        if (account.empty()) {
+            account = "unidentified";
+        }
 
-		replace = "$account";
-		while ((pos = irc::find(vhost, replace)) != std::string::npos)
-			vhost.replace(pos, replace.length(), account);
+        replace = "$account";
+        while ((pos = irc::find(vhost, replace)) != std::string::npos) {
+            vhost.replace(pos, replace.length(), account);
+        }
 
-		if (vhost.length() > ServerInstance->Config->Limits.MaxHost)
-		{
-			ServerInstance->Logs->Log("m_conn_vhost", LOG_DEFAULT, "m_conn_vhost: vhost in connect block %s is too long", user->MyClass->name.c_str());
-			return;
-		}
+        if (vhost.length() > ServerInstance->Config->Limits.MaxHost) {
+            ServerInstance->Logs->Log("m_conn_vhost", LOG_DEFAULT,
+                                      "m_conn_vhost: vhost in connect block %s is too long",
+                                      user->MyClass->name.c_str());
+            return;
+        }
 
-		// From m_sethost: validate the characters
-		for (std::string::const_iterator x = vhost.begin(); x != vhost.end(); x++)
-		{
-			if (!hostmap.test(static_cast<unsigned char>(*x)))
-			{
-				ServerInstance->Logs->Log("m_conn_vhost", LOG_DEFAULT, "m_conn_vhost: vhost in connect block %s has invalid characters", user->MyClass->name.c_str());
-				return;
-			}
-		}
+        // From m_sethost: validate the characters
+        for (std::string::const_iterator x = vhost.begin(); x != vhost.end(); x++) {
+            if (!hostmap.test(static_cast<unsigned char>(*x))) {
+                ServerInstance->Logs->Log("m_conn_vhost", LOG_DEFAULT,
+                                          "m_conn_vhost: vhost in connect block %s has invalid characters",
+                                          user->MyClass->name.c_str());
+                return;
+            }
+        }
 
-		user->ChangeDisplayedHost(vhost.c_str());
-	}
+        user->ChangeDisplayedHost(vhost.c_str());
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Sets a connect block configured vhost on users when they connect");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Sets a connect block configured vhost on users when they connect");
+    }
 };
 
 MODULE_INIT(ModuleVhostOnConnect)

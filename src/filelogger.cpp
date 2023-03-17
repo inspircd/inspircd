@@ -28,32 +28,29 @@
 #include "inspircd.h"
 #include <fstream>
 
-FileLogStream::FileLogStream(LogLevel loglevel, FileWriter *fw) : LogStream(loglevel), f(fw)
-{
-	ServerInstance->Logs->AddLoggerRef(f);
+FileLogStream::FileLogStream(LogLevel loglevel,
+                             FileWriter *fw) : LogStream(loglevel), f(fw) {
+    ServerInstance->Logs->AddLoggerRef(f);
 }
 
-FileLogStream::~FileLogStream()
-{
-	/* FileWriter is managed externally now */
-	ServerInstance->Logs->DelLoggerRef(f);
+FileLogStream::~FileLogStream() {
+    /* FileWriter is managed externally now */
+    ServerInstance->Logs->DelLoggerRef(f);
 }
 
-void FileLogStream::OnLog(LogLevel loglevel, const std::string &type, const std::string &text)
-{
-	static std::string TIMESTR;
-	static time_t LAST = 0;
+void FileLogStream::OnLog(LogLevel loglevel, const std::string &type,
+                          const std::string &text) {
+    static std::string TIMESTR;
+    static time_t LAST = 0;
 
-	if (loglevel < this->loglvl)
-	{
-		return;
-	}
+    if (loglevel < this->loglvl) {
+        return;
+    }
 
-	if (ServerInstance->Time() != LAST)
-	{
-		TIMESTR = InspIRCd::TimeString(ServerInstance->Time());
-		LAST = ServerInstance->Time();
-	}
+    if (ServerInstance->Time() != LAST) {
+        TIMESTR = InspIRCd::TimeString(ServerInstance->Time());
+        LAST = ServerInstance->Time();
+    }
 
-	this->f->WriteLogLine(TIMESTR + " " + type + ": " + text + "\n");
+    this->f->WriteLogLine(TIMESTR + " " + type + ": " + text + "\n");
 }

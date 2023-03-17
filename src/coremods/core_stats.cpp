@@ -37,407 +37,440 @@
 
 /** Handle /STATS.
  */
-class CommandStats : public Command
-{
-	Events::ModuleEventProvider statsevprov;
-	void DoStats(Stats::Context& stats);
+class CommandStats : public Command {
+    Events::ModuleEventProvider statsevprov;
+    void DoStats(Stats::Context& stats);
 
- public:
-	/** STATS characters which non-opers can request. */
-	std::string userstats;
+  public:
+    /** STATS characters which non-opers can request. */
+    std::string userstats;
 
-	CommandStats(Module* Creator)
-		: Command(Creator, "STATS", 1, 2)
-		, statsevprov(Creator, "event/stats")
-	{
-		allow_empty_last_param = false;
-		syntax = "<symbol> [<servername>]";
-	}
+    CommandStats(Module* Creator)
+        : Command(Creator, "STATS", 1, 2)
+        , statsevprov(Creator, "event/stats") {
+        allow_empty_last_param = false;
+        syntax = "<symbol> [<servername>]";
+    }
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		if ((parameters.size() > 1) && (parameters[1].find('.') != std::string::npos))
-			return ROUTE_UNICAST(parameters[1]);
-		return ROUTE_LOCALONLY;
-	}
+    /** Handle command.
+     * @param parameters The parameters to the command
+     * @param user The user issuing the command
+     * @return A value from CmdResult to indicate command success or failure.
+     */
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+    RouteDescriptor GetRouting(User* user,
+                               const Params& parameters) CXX11_OVERRIDE {
+        if ((parameters.size() > 1) && (parameters[1].find('.') != std::string::npos)) {
+            return ROUTE_UNICAST(parameters[1]);
+        }
+        return ROUTE_LOCALONLY;
+    }
 };
 
-static void GenerateStatsLl(Stats::Context& stats)
-{
-	stats.AddRow(211, InspIRCd::Format("nick[ident@%s] sendq cmds_out bytes_out cmds_in bytes_in time_open", (stats.GetSymbol() == 'l' ? "host" : "ip")));
+static void GenerateStatsLl(Stats::Context& stats) {
+    stats.AddRow(211,
+                 InspIRCd::Format("nick[ident@%s] sendq cmds_out bytes_out cmds_in bytes_in time_open",
+                                  (stats.GetSymbol() == 'l' ? "host" : "ip")));
 
-	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
-	{
-		LocalUser* u = *i;
-		stats.AddRow(211, u->nick+"["+u->ident+"@"+(stats.GetSymbol() == 'l' ? u->GetDisplayedHost() : u->GetIPString())+"] "+ConvToStr(u->eh.getSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "+ConvToStr(ServerInstance->Time() - u->signon));
-	}
+    const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+    for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end();
+            ++i) {
+        LocalUser* u = *i;
+        stats.AddRow(211, u->nick+"["+u->ident+"@"+(stats.GetSymbol() == 'l' ?
+                     u->GetDisplayedHost() : u->GetIPString())+"] "+ConvToStr(
+                         u->eh.getSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(
+                         u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "
+                     +ConvToStr(ServerInstance->Time() - u->signon));
+    }
 }
 
-void CommandStats::DoStats(Stats::Context& stats)
-{
-	User* const user = stats.GetSource();
-	const char statschar = stats.GetSymbol();
+void CommandStats::DoStats(Stats::Context& stats) {
+    User* const user = stats.GetSource();
+    const char statschar = stats.GetSymbol();
 
-	bool isPublic = userstats.find(statschar) != std::string::npos;
-	bool isRemoteOper = IS_REMOTE(user) && (user->IsOper());
-	bool isLocalOperWithPrivs = IS_LOCAL(user) && user->HasPrivPermission("servers/auspex");
+    bool isPublic = userstats.find(statschar) != std::string::npos;
+    bool isRemoteOper = IS_REMOTE(user) && (user->IsOper());
+    bool isLocalOperWithPrivs = IS_LOCAL(user)
+                                && user->HasPrivPermission("servers/auspex");
 
-	if (!isPublic && !isRemoteOper && !isLocalOperWithPrivs)
-	{
-		ServerInstance->SNO->WriteToSnoMask('t',
-				"%s '%c' denied for %s (%s@%s)",
-				(IS_LOCAL(user) ? "Stats" : "Remote stats"),
-				statschar, user->nick.c_str(), user->ident.c_str(), user->GetRealHost().c_str());
-		stats.AddRow(481, (std::string("Permission Denied - STATS ") + statschar + " requires the servers/auspex priv."));
-		return;
-	}
+    if (!isPublic && !isRemoteOper && !isLocalOperWithPrivs) {
+        ServerInstance->SNO->WriteToSnoMask('t',
+                                            "%s '%c' denied for %s (%s@%s)",
+                                            (IS_LOCAL(user) ? "Stats" : "Remote stats"),
+                                            statschar, user->nick.c_str(), user->ident.c_str(),
+                                            user->GetRealHost().c_str());
+        stats.AddRow(481, (std::string("Permission Denied - STATS ") + statschar +
+                           " requires the servers/auspex priv."));
+        return;
+    }
 
-	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT_CUSTOM(statsevprov, Stats::EventListener, OnStats, MOD_RESULT, (stats));
-	if (MOD_RESULT == MOD_RES_DENY)
-	{
-		stats.AddRow(219, statschar, "End of /STATS report");
-		ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",
-			(IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(), user->ident.c_str(), user->GetRealHost().c_str());
-		return;
-	}
+    ModResult MOD_RESULT;
+    FIRST_MOD_RESULT_CUSTOM(statsevprov, Stats::EventListener, OnStats, MOD_RESULT,
+                            (stats));
+    if (MOD_RESULT == MOD_RES_DENY) {
+        stats.AddRow(219, statschar, "End of /STATS report");
+        ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",
+                                            (IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(),
+                                            user->ident.c_str(), user->GetRealHost().c_str());
+        return;
+    }
 
-	switch (statschar)
-	{
-		/* stats p (show listening ports) */
-		case 'p':
-		{
-			for (std::vector<ListenSocket*>::const_iterator i = ServerInstance->ports.begin(); i != ServerInstance->ports.end(); ++i)
-			{
-				ListenSocket* ls = *i;
-				std::stringstream portentry;
+    switch (statschar) {
+    /* stats p (show listening ports) */
+    case 'p': {
+        for (std::vector<ListenSocket*>::const_iterator i =
+                    ServerInstance->ports.begin(); i != ServerInstance->ports.end(); ++i) {
+            ListenSocket* ls = *i;
+            std::stringstream portentry;
 
-				const std::string type = ls->bind_tag->getString("type", "clients", 1);
-				portentry << ls->bind_sa.str() << " (type: " << type;
+            const std::string type = ls->bind_tag->getString("type", "clients", 1);
+            portentry << ls->bind_sa.str() << " (type: " << type;
 
-				const std::string hook = ls->bind_tag->getString("hook");
-				if (!hook.empty())
-					portentry << ", hook: " << hook;
+            const std::string hook = ls->bind_tag->getString("hook");
+            if (!hook.empty()) {
+                portentry << ", hook: " << hook;
+            }
 
-				const std::string sslprofile = ls->bind_tag->getString("sslprofile", ls->bind_tag->getString("ssl"));
-				if (!sslprofile.empty())
-					portentry << ", ssl profile: " << sslprofile;
+            const std::string sslprofile = ls->bind_tag->getString("sslprofile",
+                                           ls->bind_tag->getString("ssl"));
+            if (!sslprofile.empty()) {
+                portentry << ", ssl profile: " << sslprofile;
+            }
 
-				portentry << ')';
-				stats.AddRow(249, portentry.str());
-			}
-		}
-		break;
+            portentry << ')';
+            stats.AddRow(249, portentry.str());
+        }
+    }
+    break;
 
-		/* These stats symbols must be handled by a linking module */
-		case 'n':
-		case 'c':
-		break;
+    /* These stats symbols must be handled by a linking module */
+    case 'n':
+    case 'c':
+        break;
 
-		case 'i':
-		{
-			for (ServerConfig::ClassVector::const_iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); ++i)
-			{
-				ConnectClass* c = *i;
-				Stats::Row row(215);
-				row.push("I").push(c->name);
+    case 'i': {
+        for (ServerConfig::ClassVector::const_iterator i =
+                    ServerInstance->Config->Classes.begin();
+                i != ServerInstance->Config->Classes.end(); ++i) {
+            ConnectClass* c = *i;
+            Stats::Row row(215);
+            row.push("I").push(c->name);
 
-				std::string param;
-				if (c->type == CC_ALLOW)
-					param.push_back('+');
-				if (c->type == CC_DENY)
-					param.push_back('-');
+            std::string param;
+            if (c->type == CC_ALLOW) {
+                param.push_back('+');
+            }
+            if (c->type == CC_DENY) {
+                param.push_back('-');
+            }
 
-				if (c->type == CC_NAMED)
-					param.push_back('*');
-				else
-					param.append(c->host);
+            if (c->type == CC_NAMED) {
+                param.push_back('*');
+            } else {
+                param.append(c->host);
+            }
 
-				row.push(param).push(c->config->getString("port", "*", 1));
-				row.push(ConvToStr(c->GetRecvqMax())).push(ConvToStr(c->GetSendqSoftMax())).push(ConvToStr(c->GetSendqHardMax())).push(ConvToStr(c->GetCommandRate()));
+            row.push(param).push(c->config->getString("port", "*", 1));
+            row.push(ConvToStr(c->GetRecvqMax())).push(ConvToStr(
+                        c->GetSendqSoftMax())).push(ConvToStr(c->GetSendqHardMax())).push(ConvToStr(
+                                    c->GetCommandRate()));
 
-				param = ConvToStr(c->GetPenaltyThreshold());
-				if (c->fakelag)
-					param.push_back('*');
-				row.push(param);
+            param = ConvToStr(c->GetPenaltyThreshold());
+            if (c->fakelag) {
+                param.push_back('*');
+            }
+            row.push(param);
 
-				stats.AddRow(row);
-			}
-		}
-		break;
+            stats.AddRow(row);
+        }
+    }
+    break;
 
-		case 'Y':
-		{
-			int idx = 0;
-			for (ServerConfig::ClassVector::const_iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
-			{
-				ConnectClass* c = *i;
-				stats.AddRow(215, 'i', "NOMATCH", '*', c->GetHost(), (c->limit ? c->limit : SocketEngine::GetMaxFds()), idx, ServerInstance->Config->ServerName, '*');
-				stats.AddRow(218, 'Y', idx, c->GetPingTime(), '0', c->GetSendqHardMax(), ConvToStr(c->GetRecvqMax())+" "+ConvToStr(c->GetRegTimeout()));
-				idx++;
-			}
-		}
-		break;
+    case 'Y': {
+        int idx = 0;
+        for (ServerConfig::ClassVector::const_iterator i =
+                    ServerInstance->Config->Classes.begin();
+                i != ServerInstance->Config->Classes.end(); i++) {
+            ConnectClass* c = *i;
+            stats.AddRow(215, 'i', "NOMATCH", '*', c->GetHost(),
+                         (c->limit ? c->limit : SocketEngine::GetMaxFds()), idx,
+                         ServerInstance->Config->ServerName, '*');
+            stats.AddRow(218, 'Y', idx, c->GetPingTime(), '0', c->GetSendqHardMax(),
+                         ConvToStr(c->GetRecvqMax())+" "+ConvToStr(c->GetRegTimeout()));
+            idx++;
+        }
+    }
+    break;
 
-		case 'P':
-		{
-			unsigned int idx = 0;
-			const UserManager::OperList& opers = ServerInstance->Users->all_opers;
-			for (UserManager::OperList::const_iterator i = opers.begin(); i != opers.end(); ++i)
-			{
-				User* oper = *i;
-				if (!oper->server->IsULine())
-				{
-					LocalUser* lu = IS_LOCAL(oper);
-					const std::string idle = lu ? InspIRCd::DurationString(ServerInstance->Time() - lu->idle_lastmsg) : "unavailable";
-					stats.AddRow(249, InspIRCd::Format("%s (%s@%s) Idle: %s", oper->nick.c_str(),
-						oper->ident.c_str(), oper->GetDisplayedHost().c_str(), idle.c_str()));
-					idx++;
-				}
-			}
-			stats.AddRow(249, ConvToStr(idx)+" OPER(s)");
-		}
-		break;
+    case 'P': {
+        unsigned int idx = 0;
+        const UserManager::OperList& opers = ServerInstance->Users->all_opers;
+        for (UserManager::OperList::const_iterator i = opers.begin(); i != opers.end();
+                ++i) {
+            User* oper = *i;
+            if (!oper->server->IsULine()) {
+                LocalUser* lu = IS_LOCAL(oper);
+                const std::string idle = lu ? InspIRCd::DurationString(ServerInstance->Time() -
+                                         lu->idle_lastmsg) : "unavailable";
+                stats.AddRow(249, InspIRCd::Format("%s (%s@%s) Idle: %s", oper->nick.c_str(),
+                                                   oper->ident.c_str(), oper->GetDisplayedHost().c_str(), idle.c_str()));
+                idx++;
+            }
+        }
+        stats.AddRow(249, ConvToStr(idx)+" OPER(s)");
+    }
+    break;
 
-		case 'k':
-			ServerInstance->XLines->InvokeStats("K", stats);
-		break;
-		case 'g':
-			ServerInstance->XLines->InvokeStats("G", stats);
-		break;
-		case 'q':
-			ServerInstance->XLines->InvokeStats("Q", stats);
-		break;
-		case 'Z':
-			ServerInstance->XLines->InvokeStats("Z", stats);
-		break;
-		case 'e':
-			ServerInstance->XLines->InvokeStats("E", stats);
-		break;
-		case 'E':
-		{
-			const SocketEngine::Statistics& sestats = SocketEngine::GetStats();
-			stats.AddRow(249, "Total events: "+ConvToStr(sestats.TotalEvents));
-			stats.AddRow(249, "Read events:  "+ConvToStr(sestats.ReadEvents));
-			stats.AddRow(249, "Write events: "+ConvToStr(sestats.WriteEvents));
-			stats.AddRow(249, "Error events: "+ConvToStr(sestats.ErrorEvents));
-			break;
-		}
+    case 'k':
+        ServerInstance->XLines->InvokeStats("K", stats);
+        break;
+    case 'g':
+        ServerInstance->XLines->InvokeStats("G", stats);
+        break;
+    case 'q':
+        ServerInstance->XLines->InvokeStats("Q", stats);
+        break;
+    case 'Z':
+        ServerInstance->XLines->InvokeStats("Z", stats);
+        break;
+    case 'e':
+        ServerInstance->XLines->InvokeStats("E", stats);
+        break;
+    case 'E': {
+        const SocketEngine::Statistics& sestats = SocketEngine::GetStats();
+        stats.AddRow(249, "Total events: "+ConvToStr(sestats.TotalEvents));
+        stats.AddRow(249, "Read events:  "+ConvToStr(sestats.ReadEvents));
+        stats.AddRow(249, "Write events: "+ConvToStr(sestats.WriteEvents));
+        stats.AddRow(249, "Error events: "+ConvToStr(sestats.ErrorEvents));
+        break;
+    }
 
-		/* stats m (list number of times each command has been used, plus bytecount) */
-		case 'm':
-		{
-			const CommandParser::CommandMap& commands = ServerInstance->Parser.GetCommands();
-			for (CommandParser::CommandMap::const_iterator i = commands.begin(); i != commands.end(); ++i)
-			{
-				if (i->second->use_count)
-				{
-					/* RPL_STATSCOMMANDS */
-					stats.AddRow(212, i->second->name, i->second->use_count);
-				}
-			}
-		}
-		break;
+    /* stats m (list number of times each command has been used, plus bytecount) */
+    case 'm': {
+        const CommandParser::CommandMap& commands =
+            ServerInstance->Parser.GetCommands();
+        for (CommandParser::CommandMap::const_iterator i = commands.begin();
+                i != commands.end(); ++i) {
+            if (i->second->use_count) {
+                /* RPL_STATSCOMMANDS */
+                stats.AddRow(212, i->second->name, i->second->use_count);
+            }
+        }
+    }
+    break;
 
-		/* stats z (debug and memory info) */
-		case 'z':
-		{
-			stats.AddRow(249, "Users: "+ConvToStr(ServerInstance->Users->GetUsers().size()));
-			stats.AddRow(249, "Channels: "+ConvToStr(ServerInstance->GetChans().size()));
-			stats.AddRow(249, "Commands: "+ConvToStr(ServerInstance->Parser.GetCommands().size()));
+    /* stats z (debug and memory info) */
+    case 'z': {
+        stats.AddRow(249, "Users: "+ConvToStr(
+                         ServerInstance->Users->GetUsers().size()));
+        stats.AddRow(249, "Channels: "+ConvToStr(ServerInstance->GetChans().size()));
+        stats.AddRow(249, "Commands: "+ConvToStr(
+                         ServerInstance->Parser.GetCommands().size()));
 
-			float kbitpersec_in, kbitpersec_out, kbitpersec_total;
-			SocketEngine::GetStats().GetBandwidth(kbitpersec_in, kbitpersec_out, kbitpersec_total);
+        float kbitpersec_in, kbitpersec_out, kbitpersec_total;
+        SocketEngine::GetStats().GetBandwidth(kbitpersec_in, kbitpersec_out,
+                                              kbitpersec_total);
 
-			stats.AddRow(249, InspIRCd::Format("Bandwidth total:  %03.5f kilobits/sec", kbitpersec_total));
-			stats.AddRow(249, InspIRCd::Format("Bandwidth out:    %03.5f kilobits/sec", kbitpersec_out));
-			stats.AddRow(249, InspIRCd::Format("Bandwidth in:     %03.5f kilobits/sec", kbitpersec_in));
+        stats.AddRow(249, InspIRCd::Format("Bandwidth total:  %03.5f kilobits/sec",
+                                           kbitpersec_total));
+        stats.AddRow(249, InspIRCd::Format("Bandwidth out:    %03.5f kilobits/sec",
+                                           kbitpersec_out));
+        stats.AddRow(249, InspIRCd::Format("Bandwidth in:     %03.5f kilobits/sec",
+                                           kbitpersec_in));
 
 #ifndef _WIN32
-			/* Moved this down here so all the not-windows stuff (look w00tie, I didn't say win32!) is in one ifndef.
-			 * Also cuts out some identical code in both branches of the ifndef. -- Om
-			 */
-			rusage R;
+        /* Moved this down here so all the not-windows stuff (look w00tie, I didn't say win32!) is in one ifndef.
+         * Also cuts out some identical code in both branches of the ifndef. -- Om
+         */
+        rusage R;
 
-			/* Not sure why we were doing '0' with a RUSAGE_SELF comment rather than just using RUSAGE_SELF -- Om */
-			if (!getrusage(RUSAGE_SELF,&R))	/* RUSAGE_SELF */
-			{
+        /* Not sure why we were doing '0' with a RUSAGE_SELF comment rather than just using RUSAGE_SELF -- Om */
+        if (!getrusage(RUSAGE_SELF,&R)) { /* RUSAGE_SELF */
 #ifndef __HAIKU__
-				stats.AddRow(249, "Total allocation: "+ConvToStr(R.ru_maxrss)+"K");
-				stats.AddRow(249, "Signals:          "+ConvToStr(R.ru_nsignals));
-				stats.AddRow(249, "Page faults:      "+ConvToStr(R.ru_majflt));
-				stats.AddRow(249, "Swaps:            "+ConvToStr(R.ru_nswap));
-				stats.AddRow(249, "Context Switches: Voluntary; "+ConvToStr(R.ru_nvcsw)+" Involuntary; "+ConvToStr(R.ru_nivcsw));
+            stats.AddRow(249, "Total allocation: "+ConvToStr(R.ru_maxrss)+"K");
+            stats.AddRow(249, "Signals:          "+ConvToStr(R.ru_nsignals));
+            stats.AddRow(249, "Page faults:      "+ConvToStr(R.ru_majflt));
+            stats.AddRow(249, "Swaps:            "+ConvToStr(R.ru_nswap));
+            stats.AddRow(249, "Context Switches: Voluntary; "+ConvToStr(
+                             R.ru_nvcsw)+" Involuntary; "+ConvToStr(R.ru_nivcsw));
 #endif
-				float n_elapsed = (ServerInstance->Time() - ServerInstance->stats.LastSampled.tv_sec) * 1000000
-					+ (ServerInstance->Time_ns() - ServerInstance->stats.LastSampled.tv_nsec) / 1000;
-				float n_eaten = ((R.ru_utime.tv_sec - ServerInstance->stats.LastCPU.tv_sec) * 1000000 + R.ru_utime.tv_usec - ServerInstance->stats.LastCPU.tv_usec);
-				float per = (n_eaten / n_elapsed) * 100;
+            float n_elapsed = (ServerInstance->Time() -
+                               ServerInstance->stats.LastSampled.tv_sec) * 1000000
+                              + (ServerInstance->Time_ns() - ServerInstance->stats.LastSampled.tv_nsec) /
+                              1000;
+            float n_eaten = ((R.ru_utime.tv_sec - ServerInstance->stats.LastCPU.tv_sec) *
+                             1000000 + R.ru_utime.tv_usec - ServerInstance->stats.LastCPU.tv_usec);
+            float per = (n_eaten / n_elapsed) * 100;
 
-				stats.AddRow(249, InspIRCd::Format("CPU Use (now):    %03.5f%%", per));
+            stats.AddRow(249, InspIRCd::Format("CPU Use (now):    %03.5f%%", per));
 
-				n_elapsed = ServerInstance->Time() - ServerInstance->startup_time;
-				n_eaten = (float)R.ru_utime.tv_sec + R.ru_utime.tv_usec / 100000.0;
-				per = (n_eaten / n_elapsed) * 100;
+            n_elapsed = ServerInstance->Time() - ServerInstance->startup_time;
+            n_eaten = (float)R.ru_utime.tv_sec + R.ru_utime.tv_usec / 100000.0;
+            per = (n_eaten / n_elapsed) * 100;
 
-				stats.AddRow(249, InspIRCd::Format("CPU Use (total):  %03.5f%%", per));
-			}
+            stats.AddRow(249, InspIRCd::Format("CPU Use (total):  %03.5f%%", per));
+        }
 #else
-			PROCESS_MEMORY_COUNTERS MemCounters;
-			if (GetProcessMemoryInfo(GetCurrentProcess(), &MemCounters, sizeof(MemCounters)))
-			{
-				stats.AddRow(249, "Total allocation: "+ConvToStr((MemCounters.WorkingSetSize + MemCounters.PagefileUsage) / 1024)+"K");
-				stats.AddRow(249, "Pagefile usage:   "+ConvToStr(MemCounters.PagefileUsage / 1024)+"K");
-				stats.AddRow(249, "Page faults:      "+ConvToStr(MemCounters.PageFaultCount));
-			}
+        PROCESS_MEMORY_COUNTERS MemCounters;
+        if (GetProcessMemoryInfo(GetCurrentProcess(), &MemCounters,
+                                 sizeof(MemCounters))) {
+            stats.AddRow(249, "Total allocation: "+ConvToStr((MemCounters.WorkingSetSize +
+                         MemCounters.PagefileUsage) / 1024)+"K");
+            stats.AddRow(249, "Pagefile usage:   "+ConvToStr(MemCounters.PagefileUsage /
+                         1024)+"K");
+            stats.AddRow(249, "Page faults:      "+ConvToStr(MemCounters.PageFaultCount));
+        }
 
-			FILETIME CreationTime;
-			FILETIME ExitTime;
-			FILETIME KernelTime;
-			FILETIME UserTime;
-			LARGE_INTEGER ThisSample;
-			if(GetProcessTimes(GetCurrentProcess(), &CreationTime, &ExitTime, &KernelTime, &UserTime) &&
-				QueryPerformanceCounter(&ThisSample))
-			{
-				KernelTime.dwHighDateTime += UserTime.dwHighDateTime;
-				KernelTime.dwLowDateTime += UserTime.dwLowDateTime;
-				double n_eaten = (double)( ( (uint64_t)(KernelTime.dwHighDateTime - ServerInstance->stats.LastCPU.dwHighDateTime) << 32 ) + (uint64_t)(KernelTime.dwLowDateTime - ServerInstance->stats.LastCPU.dwLowDateTime) )/100000;
-				double n_elapsed = (double)(ThisSample.QuadPart - ServerInstance->stats.LastSampled.QuadPart) / ServerInstance->stats.QPFrequency.QuadPart;
-				double per = (n_eaten/n_elapsed);
+        FILETIME CreationTime;
+        FILETIME ExitTime;
+        FILETIME KernelTime;
+        FILETIME UserTime;
+        LARGE_INTEGER ThisSample;
+        if(GetProcessTimes(GetCurrentProcess(), &CreationTime, &ExitTime, &KernelTime,
+                           &UserTime) &&
+                QueryPerformanceCounter(&ThisSample)) {
+            KernelTime.dwHighDateTime += UserTime.dwHighDateTime;
+            KernelTime.dwLowDateTime += UserTime.dwLowDateTime;
+            double n_eaten = (double)( ( (uint64_t)(KernelTime.dwHighDateTime -
+                                                    ServerInstance->stats.LastCPU.dwHighDateTime) << 32 ) + (uint64_t)(
+                                           KernelTime.dwLowDateTime -
+                                           ServerInstance->stats.LastCPU.dwLowDateTime) )/100000;
+            double n_elapsed = (double)(ThisSample.QuadPart -
+                                        ServerInstance->stats.LastSampled.QuadPart) /
+                               ServerInstance->stats.QPFrequency.QuadPart;
+            double per = (n_eaten/n_elapsed);
 
-				stats.AddRow(249, InspIRCd::Format("CPU Use (now):    %03.5f%%", per));
+            stats.AddRow(249, InspIRCd::Format("CPU Use (now):    %03.5f%%", per));
 
-				n_elapsed = ServerInstance->Time() - ServerInstance->startup_time;
-				n_eaten = (double)(( (uint64_t)(KernelTime.dwHighDateTime) << 32 ) + (uint64_t)(KernelTime.dwLowDateTime))/100000;
-				per = (n_eaten / n_elapsed);
+            n_elapsed = ServerInstance->Time() - ServerInstance->startup_time;
+            n_eaten = (double)(( (uint64_t)(KernelTime.dwHighDateTime) << 32 ) + (uint64_t)(
+                                   KernelTime.dwLowDateTime))/100000;
+            per = (n_eaten / n_elapsed);
 
-				stats.AddRow(249, InspIRCd::Format("CPU Use (total):  %03.5f%%", per));
-			}
+            stats.AddRow(249, InspIRCd::Format("CPU Use (total):  %03.5f%%", per));
+        }
 #endif
-		}
-		break;
+    }
+    break;
 
-		case 'T':
-		{
-			stats.AddRow(249, "accepts "+ConvToStr(ServerInstance->stats.Accept)+" refused "+ConvToStr(ServerInstance->stats.Refused));
-			stats.AddRow(249, "unknown commands "+ConvToStr(ServerInstance->stats.Unknown));
-			stats.AddRow(249, "nick collisions "+ConvToStr(ServerInstance->stats.Collisions));
-			stats.AddRow(249, "dns requests "+ConvToStr(ServerInstance->stats.DnsGood+ServerInstance->stats.DnsBad)+" succeeded "+ConvToStr(ServerInstance->stats.DnsGood)+" failed "+ConvToStr(ServerInstance->stats.DnsBad));
-			stats.AddRow(249, "connection count "+ConvToStr(ServerInstance->stats.Connects));
-			stats.AddRow(249, InspIRCd::Format("bytes sent %5.2fK recv %5.2fK",
-				ServerInstance->stats.Sent / 1024.0, ServerInstance->stats.Recv / 1024.0));
-		}
-		break;
+    case 'T': {
+        stats.AddRow(249, "accepts "+ConvToStr(ServerInstance->stats.Accept)+" refused "
+                     +ConvToStr(ServerInstance->stats.Refused));
+        stats.AddRow(249, "unknown commands "+ConvToStr(ServerInstance->stats.Unknown));
+        stats.AddRow(249, "nick collisions "+ConvToStr(
+                         ServerInstance->stats.Collisions));
+        stats.AddRow(249, "dns requests "+ConvToStr(ServerInstance->stats.DnsGood
+                     +ServerInstance->stats.DnsBad)+" succeeded "+ConvToStr(
+                         ServerInstance->stats.DnsGood)+" failed "+ConvToStr(
+                         ServerInstance->stats.DnsBad));
+        stats.AddRow(249, "connection count "+ConvToStr(
+                         ServerInstance->stats.Connects));
+        stats.AddRow(249, InspIRCd::Format("bytes sent %5.2fK recv %5.2fK",
+                                           ServerInstance->stats.Sent / 1024.0, ServerInstance->stats.Recv / 1024.0));
+    }
+    break;
 
-		/* stats o */
-		case 'o':
-		{
-			for (ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->oper_blocks.begin(); i != ServerInstance->Config->oper_blocks.end(); ++i)
-			{
-				OperInfo* ifo = i->second;
-				ConfigTag* tag = ifo->oper_block;
-				stats.AddRow(243, 'O', tag->getString("host"), '*', tag->getString("name"), tag->getString("type"), '0');
-			}
-		}
-		break;
-		case 'O':
-		{
-			for (ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->OperTypes.begin(); i != ServerInstance->Config->OperTypes.end(); ++i)
-			{
-				OperInfo* tag = i->second;
-				tag->init();
-				std::string umodes;
-				std::string cmodes;
-				for(char c='A'; c <= 'z'; c++)
-				{
-					ModeHandler* mh = ServerInstance->Modes->FindMode(c, MODETYPE_USER);
-					if (mh && mh->NeedsOper() && tag->AllowedUserModes[c - 'A'])
-						umodes.push_back(c);
-					mh = ServerInstance->Modes->FindMode(c, MODETYPE_CHANNEL);
-					if (mh && mh->NeedsOper() && tag->AllowedChanModes[c - 'A'])
-						cmodes.push_back(c);
-				}
-				stats.AddRow(243, 'O', tag->name, umodes, cmodes);
-			}
-		}
-		break;
+    /* stats o */
+    case 'o': {
+        for (ServerConfig::OperIndex::const_iterator i =
+                    ServerInstance->Config->oper_blocks.begin();
+                i != ServerInstance->Config->oper_blocks.end(); ++i) {
+            OperInfo* ifo = i->second;
+            ConfigTag* tag = ifo->oper_block;
+            stats.AddRow(243, 'O', tag->getString("host"), '*', tag->getString("name"),
+                         tag->getString("type"), '0');
+        }
+    }
+    break;
+    case 'O': {
+        for (ServerConfig::OperIndex::const_iterator i =
+                    ServerInstance->Config->OperTypes.begin();
+                i != ServerInstance->Config->OperTypes.end(); ++i) {
+            OperInfo* tag = i->second;
+            tag->init();
+            std::string umodes;
+            std::string cmodes;
+            for(char c='A'; c <= 'z'; c++) {
+                ModeHandler* mh = ServerInstance->Modes->FindMode(c, MODETYPE_USER);
+                if (mh && mh->NeedsOper() && tag->AllowedUserModes[c - 'A']) {
+                    umodes.push_back(c);
+                }
+                mh = ServerInstance->Modes->FindMode(c, MODETYPE_CHANNEL);
+                if (mh && mh->NeedsOper() && tag->AllowedChanModes[c - 'A']) {
+                    cmodes.push_back(c);
+                }
+            }
+            stats.AddRow(243, 'O', tag->name, umodes, cmodes);
+        }
+    }
+    break;
 
-		/* stats l (show user I/O stats) */
-		case 'l':
-		/* stats L (show user I/O stats with IP addresses) */
-		case 'L':
-			GenerateStatsLl(stats);
-		break;
+    /* stats l (show user I/O stats) */
+    case 'l':
+    /* stats L (show user I/O stats with IP addresses) */
+    case 'L':
+        GenerateStatsLl(stats);
+        break;
 
-		/* stats u (show server uptime) */
-		case 'u':
-		{
-			unsigned int up = static_cast<unsigned int>(ServerInstance->Time() - ServerInstance->startup_time);
-			stats.AddRow(242, InspIRCd::Format("Server up %u days, %.2u:%.2u:%.2u",
-				up / 86400, (up / 3600) % 24, (up / 60) % 60, up % 60));
-		}
-		break;
+    /* stats u (show server uptime) */
+    case 'u': {
+        unsigned int up = static_cast<unsigned int>(ServerInstance->Time() -
+                          ServerInstance->startup_time);
+        stats.AddRow(242, InspIRCd::Format("Server up %u days, %.2u:%.2u:%.2u",
+                                           up / 86400, (up / 3600) % 24, (up / 60) % 60, up % 60));
+    }
+    break;
 
-		default:
-		break;
-	}
+    default:
+        break;
+    }
 
-	stats.AddRow(219, statschar, "End of /STATS report");
-	ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",
-		(IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(), user->ident.c_str(), user->GetRealHost().c_str());
-	return;
+    stats.AddRow(219, statschar, "End of /STATS report");
+    ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",
+                                        (IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(),
+                                        user->ident.c_str(), user->GetRealHost().c_str());
+    return;
 }
 
-CmdResult CommandStats::Handle(User* user, const Params& parameters)
-{
-	if (parameters.size() > 1 && !irc::equals(parameters[1], ServerInstance->Config->ServerName))
-	{
-		// Give extra penalty if a non-oper does /STATS <remoteserver>
-		LocalUser* localuser = IS_LOCAL(user);
-		if ((localuser) && (!user->IsOper()))
-			localuser->CommandFloodPenalty += 2000;
-		return CMD_SUCCESS;
-	}
-	Stats::Context stats(user, parameters[0][0]);
-	DoStats(stats);
-	const std::vector<Stats::Row>& rows = stats.GetRows();
-	for (std::vector<Stats::Row>::const_iterator i = rows.begin(); i != rows.end(); ++i)
-	{
-		const Stats::Row& row = *i;
-		user->WriteRemoteNumeric(row);
-	}
+CmdResult CommandStats::Handle(User* user, const Params& parameters) {
+    if (parameters.size() > 1
+            && !irc::equals(parameters[1], ServerInstance->Config->ServerName)) {
+        // Give extra penalty if a non-oper does /STATS <remoteserver>
+        LocalUser* localuser = IS_LOCAL(user);
+        if ((localuser) && (!user->IsOper())) {
+            localuser->CommandFloodPenalty += 2000;
+        }
+        return CMD_SUCCESS;
+    }
+    Stats::Context stats(user, parameters[0][0]);
+    DoStats(stats);
+    const std::vector<Stats::Row>& rows = stats.GetRows();
+    for (std::vector<Stats::Row>::const_iterator i = rows.begin(); i != rows.end();
+            ++i) {
+        const Stats::Row& row = *i;
+        user->WriteRemoteNumeric(row);
+    }
 
-	return CMD_SUCCESS;
+    return CMD_SUCCESS;
 }
 
-class CoreModStats : public Module
-{
- private:
-	CommandStats cmd;
+class CoreModStats : public Module {
+  private:
+    CommandStats cmd;
 
- public:
-	CoreModStats()
-		: cmd(this)
-	{
-	}
+  public:
+    CoreModStats()
+        : cmd(this) {
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ConfigTag* security = ServerInstance->Config->ConfValue("security");
-		cmd.userstats = security->getString("userstats", "Pu");
-	}
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* security = ServerInstance->Config->ConfValue("security");
+        cmd.userstats = security->getString("userstats", "Pu");
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides the STATS command", VF_CORE | VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Provides the STATS command", VF_CORE | VF_VENDOR);
+    }
 };
 
 MODULE_INIT(CoreModStats)

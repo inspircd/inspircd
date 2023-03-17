@@ -37,35 +37,33 @@ class Thread;
  * access non-threadsafe code from a Thread, use the Mutex class to wrap
  * access to the code carefully.
  */
-class CoreExport ThreadEngine
-{
- public:
-	/** Per-thread state, present in each Thread object, managed by the ThreadEngine
-	 */
-	struct ThreadState
-	{
-		pthread_t pthread_id;
-	};
+class CoreExport ThreadEngine {
+  public:
+    /** Per-thread state, present in each Thread object, managed by the ThreadEngine
+     */
+    struct ThreadState {
+        pthread_t pthread_id;
+    };
 
-	/** Create a new thread. This takes an already allocated
-	 * Thread* pointer and initializes it to use this threading
-	 * engine. On failure, this function may throw a CoreException.
-	 * @param thread_to_init Pointer to a newly allocated Thread
-	 * derived object.
-	 */
-	void Start(Thread* thread_to_init);
+    /** Create a new thread. This takes an already allocated
+     * Thread* pointer and initializes it to use this threading
+     * engine. On failure, this function may throw a CoreException.
+     * @param thread_to_init Pointer to a newly allocated Thread
+     * derived object.
+     */
+    void Start(Thread* thread_to_init);
 
-	/** Stop a thread gracefully.
-	 * First, this function asks the thread to terminate by calling Thread::SetExitFlag().
-	 * Next, it waits until the thread terminates (on the operating system level). Finally,
-	 * all OS-level resources associated with the thread are released. The Thread instance
-	 * passed to the function is NOT freed.
-	 * When this function returns, the thread is stopped and you can destroy it or restart it
-	 * at a later point.
-	 * Stopping a thread that is not running is a bug.
-	 * @param thread The thread to stop.
-	 */
-	void Stop(Thread* thread);
+    /** Stop a thread gracefully.
+     * First, this function asks the thread to terminate by calling Thread::SetExitFlag().
+     * Next, it waits until the thread terminates (on the operating system level). Finally,
+     * all OS-level resources associated with the thread are released. The Thread instance
+     * passed to the function is NOT freed.
+     * When this function returns, the thread is stopped and you can destroy it or restart it
+     * at a later point.
+     * Stopping a thread that is not running is a bug.
+     * @param thread The thread to stop.
+     */
+    void Stop(Thread* thread);
 };
 
 /** The Mutex class represents a mutex, which can be used to keep threads
@@ -76,65 +74,54 @@ class CoreExport ThreadEngine
  * in InspIRCd uses critical sections, as they are faster and simpler to
  * manage.
  */
-class CoreExport Mutex
-{
- protected:
-	pthread_mutex_t putex;
- public:
-	/** Constructor.
-	 */
-	Mutex()
-	{
-		pthread_mutex_init(&putex, NULL);
-	}
-	/** Enter/enable the mutex lock.
-	 */
-	void Lock()
-	{
-		pthread_mutex_lock(&putex);
-	}
-	/** Leave/disable the mutex lock.
-	 */
-	void Unlock()
-	{
-		pthread_mutex_unlock(&putex);
-	}
-	/** Destructor
-	 */
-	~Mutex()
-	{
-		pthread_mutex_destroy(&putex);
-	}
+class CoreExport Mutex {
+  protected:
+    pthread_mutex_t putex;
+  public:
+    /** Constructor.
+     */
+    Mutex() {
+        pthread_mutex_init(&putex, NULL);
+    }
+    /** Enter/enable the mutex lock.
+     */
+    void Lock() {
+        pthread_mutex_lock(&putex);
+    }
+    /** Leave/disable the mutex lock.
+     */
+    void Unlock() {
+        pthread_mutex_unlock(&putex);
+    }
+    /** Destructor
+     */
+    ~Mutex() {
+        pthread_mutex_destroy(&putex);
+    }
 };
 
-class ThreadQueueData : public Mutex
-{
-	pthread_cond_t cond;
- public:
-	ThreadQueueData()
-	{
-		pthread_cond_init(&cond, NULL);
-	}
+class ThreadQueueData : public Mutex {
+    pthread_cond_t cond;
+  public:
+    ThreadQueueData() {
+        pthread_cond_init(&cond, NULL);
+    }
 
-	~ThreadQueueData()
-	{
-		pthread_cond_destroy(&cond);
-	}
+    ~ThreadQueueData() {
+        pthread_cond_destroy(&cond);
+    }
 
-	void Wakeup()
-	{
-		pthread_cond_signal(&cond);
-	}
+    void Wakeup() {
+        pthread_cond_signal(&cond);
+    }
 
-	void Wait()
-	{
-		pthread_cond_wait(&cond, &putex);
-	}
+    void Wait() {
+        pthread_cond_wait(&cond, &putex);
+    }
 };
 
 class ThreadSignalSocket;
-class ThreadSignalData
-{
- public:
-	ThreadSignalSocket* sock;
+class ThreadSignalData {
+  public:
+    ThreadSignalSocket* sock;
 };

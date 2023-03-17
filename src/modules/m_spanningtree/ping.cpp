@@ -28,18 +28,18 @@
 #include "commands.h"
 #include "utils.h"
 
-CmdResult CommandPing::Handle(User* user, Params& params)
-{
-	if (params[0] == ServerInstance->Config->GetSID())
-	{
-		// PING for us, reply with a PONG
-		CmdBuilder reply("PONG");
-		reply.push(user->uuid);
-		if (params.size() >= 2)
-			// If there is a second parameter, append it
-			reply.push(params[1]);
+CmdResult CommandPing::Handle(User* user, Params& params) {
+    if (params[0] == ServerInstance->Config->GetSID()) {
+        // PING for us, reply with a PONG
+        CmdBuilder reply("PONG");
+        reply.push(user->uuid);
+        if (params.size() >= 2)
+            // If there is a second parameter, append it
+        {
+            reply.push(params[1]);
+        }
 
-		reply.Unicast(user);
-	}
-	return CMD_SUCCESS;
+        reply.Unicast(user);
+    }
+    return CMD_SUCCESS;
 }

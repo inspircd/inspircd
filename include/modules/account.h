@@ -31,28 +31,26 @@
 
 typedef StringExtItem AccountExtItem;
 
-inline AccountExtItem* GetAccountExtItem()
-{
-	return static_cast<AccountExtItem*>(ServerInstance->Extensions.GetItem("accountname"));
+inline AccountExtItem* GetAccountExtItem() {
+    return static_cast<AccountExtItem*>
+           (ServerInstance->Extensions.GetItem("accountname"));
 }
 
-inline AccountExtItem* GetAccountIdExtItem()
-{
-	return static_cast<AccountExtItem*>(ServerInstance->Extensions.GetItem("accountid"));
+inline AccountExtItem* GetAccountIdExtItem() {
+    return static_cast<AccountExtItem*>
+           (ServerInstance->Extensions.GetItem("accountid"));
 }
 
-class AccountEventListener : public Events::ModuleEventListener
-{
- public:
-	AccountEventListener(Module* mod)
-		: ModuleEventListener(mod, "event/account")
-	{
-	}
+class AccountEventListener : public Events::ModuleEventListener {
+  public:
+    AccountEventListener(Module* mod)
+        : ModuleEventListener(mod, "event/account") {
+    }
 
-	/** Called when a user logs in or logs out
-	 * @param user User logging in or out
-	 * @param newaccount New account name of the user or empty string if the user
-	 * logged out
-	 */
-	virtual void OnAccountChange(User* user, const std::string& newaccount) = 0;
+    /** Called when a user logs in or logs out
+     * @param user User logging in or out
+     * @param newaccount New account name of the user or empty string if the user
+     * logged out
+     */
+    virtual void OnAccountChange(User* user, const std::string& newaccount) = 0;
 };

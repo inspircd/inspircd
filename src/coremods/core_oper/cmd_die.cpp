@@ -30,52 +30,47 @@
 #include "core_oper.h"
 
 CommandDie::CommandDie(Module* parent, std::string& hashref)
-	: Command(parent, "DIE", 1, 1)
-	, hash(hashref)
-{
-	flags_needed = 'o';
-	syntax = "<servername>";
+    : Command(parent, "DIE", 1, 1)
+    , hash(hashref) {
+    flags_needed = 'o';
+    syntax = "<servername>";
 }
 
-void DieRestart::SendError(const std::string& message)
-{
-	ClientProtocol::Messages::Error errormsg(message);
-	ClientProtocol::Event errorevent(ServerInstance->GetRFCEvents().error, errormsg);
-	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
-	{
-		LocalUser* user = *i;
-		if (user->registered == REG_ALL)
-		{
-			user->WriteNotice(message);
-		}
-		else
-		{
-			// Unregistered connections receive ERROR, not a NOTICE
-			user->Send(errorevent);
-		}
-	}
+void DieRestart::SendError(const std::string& message) {
+    ClientProtocol::Messages::Error errormsg(message);
+    ClientProtocol::Event errorevent(ServerInstance->GetRFCEvents().error,
+                                     errormsg);
+    const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+    for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end();
+            ++i) {
+        LocalUser* user = *i;
+        if (user->registered == REG_ALL) {
+            user->WriteNotice(message);
+        } else {
+            // Unregistered connections receive ERROR, not a NOTICE
+            user->Send(errorevent);
+        }
+    }
 }
 
 /** Handle /DIE
  */
-CmdResult CommandDie::Handle(User* user, const Params& parameters)
-{
-	if (ServerInstance->PassCompare(user, password, parameters[0], hash))
-	{
-		{
-			std::string diebuf = "*** DIE command from " + user->GetFullHost() + ". Terminating.";
-			ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, diebuf);
-			DieRestart::SendError(diebuf);
-		}
+CmdResult CommandDie::Handle(User* user, const Params& parameters) {
+    if (ServerInstance->PassCompare(user, password, parameters[0], hash)) {
+        {
+            std::string diebuf = "*** DIE command from " + user->GetFullHost() +
+                                 ". Terminating.";
+            ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, diebuf);
+            DieRestart::SendError(diebuf);
+        }
 
-		ServerInstance->Exit(EXIT_STATUS_DIE);
-	}
-	else
-	{
-		ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Failed /DIE command from %s", user->GetFullRealHost().c_str());
-		ServerInstance->SNO->WriteGlobalSno('a', "Failed DIE command from %s.", user->GetFullRealHost().c_str());
-		return CMD_FAILURE;
-	}
-	return CMD_SUCCESS;
+        ServerInstance->Exit(EXIT_STATUS_DIE);
+    } else {
+        ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Failed /DIE command from %s",
+                                  user->GetFullRealHost().c_str());
+        ServerInstance->SNO->WriteGlobalSno('a', "Failed DIE command from %s.",
+                                            user->GetFullRealHost().c_str());
+        return CMD_FAILURE;
+    }
+    return CMD_SUCCESS;
 }

@@ -39,47 +39,44 @@
    blocking DCC however.
 */
 
-class ModuleDCCBlock : public Module
-{
- private:
-	bool users;
-	bool channels;
+class ModuleDCCBlock : public Module {
+  private:
+    bool users;
+    bool channels;
 
- public:
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("dccblock");
-		users = tag->getBool("users", true);
-		channels = tag->getBool("channels", true);
-	}
+  public:
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("dccblock");
+        users = tag->getBool("users", true);
+        channels = tag->getBool("channels", true);
+    }
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
-	{
-		if (!IS_LOCAL(user))
-			return MOD_RES_PASSTHRU;
+    ModResult OnUserPreMessage(User* user, const MessageTarget& target,
+                               MessageDetails& details) CXX11_OVERRIDE {
+        if (!IS_LOCAL(user)) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		std::string ctcptype;
-		if (details.IsCTCP(ctcptype) && irc::equals(ctcptype, "DCC"))
-		{
-			if (target.type == MessageTarget::TYPE_USER && users)
-			{
-				user->WriteNumeric(Numerics::CannotSendTo(target.Get<User>(), "You cannot send DCCs to users."));
-				return MOD_RES_DENY;
-			}
+        std::string ctcptype;
+        if (details.IsCTCP(ctcptype) && irc::equals(ctcptype, "DCC")) {
+            if (target.type == MessageTarget::TYPE_USER && users) {
+                user->WriteNumeric(Numerics::CannotSendTo(target.Get<User>(),
+                                   "You cannot send DCCs to users."));
+                return MOD_RES_DENY;
+            }
 
-			if (target.type == MessageTarget::TYPE_CHANNEL && channels)
-			{
-				user->WriteNumeric(Numerics::CannotSendTo(target.Get<Channel>(), "You cannot send DCCs to channels."));
-				return MOD_RES_DENY;
-			}
-		}
-		return MOD_RES_PASSTHRU;
-	}
+            if (target.type == MessageTarget::TYPE_CHANNEL && channels) {
+                user->WriteNumeric(Numerics::CannotSendTo(target.Get<Channel>(),
+                                   "You cannot send DCCs to channels."));
+                return MOD_RES_DENY;
+            }
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides support for blocking DCC transfers");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Provides support for blocking DCC transfers");
+    }
 };
 
 MODULE_INIT(ModuleDCCBlock)

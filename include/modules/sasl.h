@@ -24,13 +24,11 @@
 
 #include "event.h"
 
-class SASLEventListener : public Events::ModuleEventListener
-{
- public:
-	SASLEventListener(Module* mod)
-		: ModuleEventListener(mod, "event/sasl")
-	{
-	}
+class SASLEventListener : public Events::ModuleEventListener {
+  public:
+    SASLEventListener(Module* mod)
+        : ModuleEventListener(mod, "event/sasl") {
+    }
 
-	virtual void OnSASLAuth(const CommandBase::Params& params) = 0;
+    virtual void OnSASLAuth(const CommandBase::Params& params) = 0;
 };

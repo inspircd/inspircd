@@ -23,70 +23,64 @@
 /// $ModAuthorMail: shutter@canternet.org
 /// $ModDepends: core 3
 
-class ChangeCap : public Command
-{
- public:
-	ChangeCap(Module* Creator)
-		: Command(Creator, "CHANGECAP", 1)
-	{
-		allow_empty_last_param = false;
-		syntax = "<channel>";
-	}
+class ChangeCap : public Command {
+  public:
+    ChangeCap(Module* Creator)
+        : Command(Creator, "CHANGECAP", 1) {
+        allow_empty_last_param = false;
+        syntax = "<channel>";
+    }
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		Channel* chan = ServerInstance->FindChan(parameters[0]);
-		if (!chan)
-		{
-			user->WriteNotice("*** CHANGECAP: The channel " + parameters[0] + " does not exist,");
-			return CMD_FAILURE;
-		}
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE {
+        Channel* chan = ServerInstance->FindChan(parameters[0]);
+        if (!chan) {
+            user->WriteNotice("*** CHANGECAP: The channel " + parameters[0] +
+                              " does not exist,");
+            return CMD_FAILURE;
+        }
 
-		if (IS_LOCAL(user))
-		{
-			if (chan->GetPrefixValue(user) < OP_VALUE)
-			{
-				user->WriteNotice("*** CHANGECAP: You need to be a channel operator on " + chan->name + " to change its name capitalization.");
-				return CMD_FAILURE;
-			}
+        if (IS_LOCAL(user)) {
+            if (chan->GetPrefixValue(user) < OP_VALUE) {
+                user->WriteNotice("*** CHANGECAP: You need to be a channel operator on " +
+                                  chan->name + " to change its name capitalization.");
+                return CMD_FAILURE;
+            }
 
-			if (chan->name == parameters[0])
-			{
-				user->WriteNotice("*** CHANGECAP: The channel is already using this capitalization.");
-				return CMD_FAILURE;
-			}
+            if (chan->name == parameters[0]) {
+                user->WriteNotice("*** CHANGECAP: The channel is already using this capitalization.");
+                return CMD_FAILURE;
+            }
 
-			user->WriteNotice("*** CHANGECAP: Capitalisation changed from " + chan->name + " to " + parameters[0] + ".");
-		}
+            user->WriteNotice("*** CHANGECAP: Capitalisation changed from " + chan->name +
+                              " to " + parameters[0] + ".");
+        }
 
-		ServerInstance->chanlist.erase(chan->name);
-		ServerInstance->chanlist.insert(std::make_pair(parameters[0], chan));
-		chan->name = parameters[0];
+        ServerInstance->chanlist.erase(chan->name);
+        ServerInstance->chanlist.insert(std::make_pair(parameters[0], chan));
+        chan->name = parameters[0];
 
-		return CMD_SUCCESS;
-	}
+        return CMD_SUCCESS;
+    }
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		return ROUTE_OPT_BCAST;
-	}
+    RouteDescriptor GetRouting(User* user,
+                               const Params& parameters) CXX11_OVERRIDE {
+        return ROUTE_OPT_BCAST;
+    }
 };
 
-class ModuleChangeCap : public Module
-{
- private:
-	ChangeCap cmd;
+class ModuleChangeCap : public Module {
+  private:
+    ChangeCap cmd;
 
- public:
-	ModuleChangeCap()
-		: cmd(this)
-	{
-	}
+  public:
+    ModuleChangeCap()
+        : cmd(this) {
+    }
 
-	Version GetVersion()
-	{
-		return Version("Provides the CHANGECAP command that allows a channel op to change the capitalization of the channel name.", VF_OPTCOMMON);
-	}
+    Version GetVersion() {
+        return Version("Provides the CHANGECAP command that allows a channel op to change the capitalization of the channel name.",
+                       VF_OPTCOMMON);
+    }
 };
 
 MODULE_INIT(ModuleChangeCap)

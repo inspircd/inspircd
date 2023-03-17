@@ -21,38 +21,38 @@
 
 #pragma once
 
-class CoreExport UIDGenerator
-{
- private:
-	/** Holds the current UID. Used to generate the next one.
-	 */
-	std::string current_uid;
+class CoreExport UIDGenerator {
+  private:
+    /** Holds the current UID. Used to generate the next one.
+     */
+    std::string current_uid;
 
-	/** Increments the current UID by one.
-	 */
-	void IncrementUID(unsigned int pos);
+    /** Increments the current UID by one.
+     */
+    void IncrementUID(unsigned int pos);
 
- public:
-	/**
-	* This is the maximum length of a UUID (unique user identifier).
-	* It allows up to 12,960 servers and 2,176,782,336 users per server.
-	*/
-	static const unsigned int UUID_LENGTH = 9;
+  public:
+    /**
+    * This is the maximum length of a UUID (unique user identifier).
+    * It allows up to 12,960 servers and 2,176,782,336 users per server.
+    */
+    static const unsigned int UUID_LENGTH = 9;
 
-	/** Initializes this UID generator with the given SID
-	 * @param sid SID that conforms to InspIRCd::IsSID()
-	 */
-	void init(const std::string& sid);
+    /** Initializes this UID generator with the given SID
+     * @param sid SID that conforms to InspIRCd::IsSID()
+     */
+    void init(const std::string& sid);
 
-	/** Returns the next available UID for this server.
-	 */
-	std::string GetUID();
+    /** Returns the next available UID for this server.
+     */
+    std::string GetUID();
 
-	/** Generates a pseudorandom SID based on a servername and a description
-	 * Guaranteed to return the same if invoked with the same parameters
-	 * @param servername The server name to use as seed
-	 * @param serverdesc The server description to use as seed
-	 * @return A valid SID
-	 */
-	static std::string GenerateSID(const std::string& servername, const std::string& serverdesc);
+    /** Generates a pseudorandom SID based on a servername and a description
+     * Guaranteed to return the same if invoked with the same parameters
+     * @param servername The server name to use as seed
+     * @param serverdesc The server description to use as seed
+     * @return A valid SID
+     */
+    static std::string GenerateSID(const std::string& servername,
+                                   const std::string& serverdesc);
 };

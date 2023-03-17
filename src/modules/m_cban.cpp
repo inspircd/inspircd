@@ -31,10 +31,9 @@
 #include "xline.h"
 #include "modules/stats.h"
 
-enum
-{
-	// InspIRCd-specific.
-	ERR_BADCHANNEL = 926
+enum {
+    // InspIRCd-specific.
+    ERR_BADCHANNEL = 926
 };
 
 // Compatibility: Use glob matching?
@@ -43,192 +42,177 @@ static bool glob = false;
 
 /** Holds a CBAN item
  */
-class CBan : public XLine
-{
-private:
-	std::string matchtext;
+class CBan : public XLine {
+  private:
+    std::string matchtext;
 
-public:
-	CBan(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& ch)
-		: XLine(s_time, d, src, re, "CBAN")
-		, matchtext(ch)
-	{
-	}
+  public:
+    CBan(time_t s_time, unsigned long d, const std::string& src,
+         const std::string& re, const std::string& ch)
+        : XLine(s_time, d, src, re, "CBAN")
+        , matchtext(ch) {
+    }
 
-	// XXX I shouldn't have to define this
-	bool Matches(User* u) CXX11_OVERRIDE
-	{
-		return false;
-	}
+    // XXX I shouldn't have to define this
+    bool Matches(User* u) CXX11_OVERRIDE {
+        return false;
+    }
 
-	bool Matches(const std::string& s) CXX11_OVERRIDE
-	{
-		if (glob)
-			return InspIRCd::Match(s, matchtext);
-		else
-			return irc::equals(matchtext, s);
-	}
+    bool Matches(const std::string& s) CXX11_OVERRIDE {
+        if (glob) {
+            return InspIRCd::Match(s, matchtext);
+        } else {
+            return irc::equals(matchtext, s);
+        }
+    }
 
-	const std::string& Displayable() CXX11_OVERRIDE
-	{
-		return matchtext;
-	}
+    const std::string& Displayable() CXX11_OVERRIDE {
+        return matchtext;
+    }
 };
 
 /** An XLineFactory specialized to generate cban pointers
  */
-class CBanFactory : public XLineFactory
-{
- public:
-	CBanFactory() : XLineFactory("CBAN") { }
+class CBanFactory : public XLineFactory {
+  public:
+    CBanFactory() : XLineFactory("CBAN") { }
 
-	/** Generate a CBAN
-	*/
-	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) CXX11_OVERRIDE
-	{
-		return new CBan(set_time, duration, source, reason, xline_specific_mask);
-	}
+    /** Generate a CBAN
+    */
+    XLine* Generate(time_t set_time, unsigned long duration,
+                    const std::string& source, const std::string& reason,
+                    const std::string& xline_specific_mask) CXX11_OVERRIDE {
+        return new CBan(set_time, duration, source, reason, xline_specific_mask);
+    }
 
-	bool AutoApplyToUserList(XLine* x) CXX11_OVERRIDE
-	{
-		return false; // No, we apply to channels.
-	}
+    bool AutoApplyToUserList(XLine* x) CXX11_OVERRIDE {
+        return false; // No, we apply to channels.
+    }
 };
 
 /** Handle /CBAN
  */
-class CommandCBan : public Command
-{
- public:
-	CommandCBan(Module* Creator) : Command(Creator, "CBAN", 1, 3)
-	{
-		flags_needed = 'o';
-		this->syntax = "<channelmask> [<duration> [:<reason>]]";
-	}
+class CommandCBan : public Command {
+  public:
+    CommandCBan(Module* Creator) : Command(Creator, "CBAN", 1, 3) {
+        flags_needed = 'o';
+        this->syntax = "<channelmask> [<duration> [:<reason>]]";
+    }
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		/* syntax: CBAN #channel time :reason goes here */
-		/* 'time' is a human-readable timestring, like 2d3h2s. */
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE {
+        /* syntax: CBAN #channel time :reason goes here */
+        /* 'time' is a human-readable timestring, like 2d3h2s. */
 
-		if (parameters.size() == 1)
-		{
-			std::string reason;
+        if (parameters.size() == 1) {
+            std::string reason;
 
-			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "CBAN", reason, user))
-			{
-				ServerInstance->SNO->WriteToSnoMask('x', "%s removed CBan on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason.c_str());
-			}
-			else
-			{
-				user->WriteNotice("*** CBan " + parameters[0] + " not found on the list.");
-				return CMD_FAILURE;
-			}
-		}
-		else
-		{
-			// Adding - XXX todo make this respect <insane> tag perhaps..
-			unsigned long duration;
-			if (!InspIRCd::Duration(parameters[1], duration))
-			{
-				user->WriteNotice("*** Invalid duration for CBan.");
-				return CMD_FAILURE;
-			}
-			const char *reason = (parameters.size() > 2) ? parameters[2].c_str() : "No reason supplied";
-			CBan* r = new CBan(ServerInstance->Time(), duration, user->nick, reason, parameters[0]);
+            if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "CBAN", reason,
+                                                user)) {
+                ServerInstance->SNO->WriteToSnoMask('x', "%s removed CBan on %s: %s",
+                                                    user->nick.c_str(), parameters[0].c_str(), reason.c_str());
+            } else {
+                user->WriteNotice("*** CBan " + parameters[0] + " not found on the list.");
+                return CMD_FAILURE;
+            }
+        } else {
+            // Adding - XXX todo make this respect <insane> tag perhaps..
+            unsigned long duration;
+            if (!InspIRCd::Duration(parameters[1], duration)) {
+                user->WriteNotice("*** Invalid duration for CBan.");
+                return CMD_FAILURE;
+            }
+            const char *reason = (parameters.size() > 2) ? parameters[2].c_str() :
+                                 "No reason supplied";
+            CBan* r = new CBan(ServerInstance->Time(), duration, user->nick, reason,
+                               parameters[0]);
 
-			if (ServerInstance->XLines->AddLine(r, user))
-			{
-				if (!duration)
-				{
-					ServerInstance->SNO->WriteToSnoMask('x', "%s added a permanent CBan on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason);
-				}
-				else
-				{
-					ServerInstance->SNO->WriteToSnoMask('x', "%s added a timed CBan on %s, expires in %s (on %s): %s",
-						user->nick.c_str(), parameters[0].c_str(), InspIRCd::DurationString(duration).c_str(),
-						InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), reason);
-				}
-			}
-			else
-			{
-				delete r;
-				user->WriteNotice("*** CBan for " + parameters[0] + " already exists");
-				return CMD_FAILURE;
-			}
-		}
-		return CMD_SUCCESS;
-	}
+            if (ServerInstance->XLines->AddLine(r, user)) {
+                if (!duration) {
+                    ServerInstance->SNO->WriteToSnoMask('x', "%s added a permanent CBan on %s: %s",
+                                                        user->nick.c_str(), parameters[0].c_str(), reason);
+                } else {
+                    ServerInstance->SNO->WriteToSnoMask('x',
+                                                        "%s added a timed CBan on %s, expires in %s (on %s): %s",
+                                                        user->nick.c_str(), parameters[0].c_str(),
+                                                        InspIRCd::DurationString(duration).c_str(),
+                                                        InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), reason);
+                }
+            } else {
+                delete r;
+                user->WriteNotice("*** CBan for " + parameters[0] + " already exists");
+                return CMD_FAILURE;
+            }
+        }
+        return CMD_SUCCESS;
+    }
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		if (IS_LOCAL(user))
-			return ROUTE_LOCALONLY; // spanningtree will send ADDLINE
+    RouteDescriptor GetRouting(User* user,
+                               const Params& parameters) CXX11_OVERRIDE {
+        if (IS_LOCAL(user)) {
+            return ROUTE_LOCALONLY;    // spanningtree will send ADDLINE
+        }
 
-		return ROUTE_BROADCAST;
-	}
+        return ROUTE_BROADCAST;
+    }
 };
 
-class ModuleCBan : public Module, public Stats::EventListener
-{
-	CommandCBan mycommand;
-	CBanFactory f;
+class ModuleCBan : public Module, public Stats::EventListener {
+    CommandCBan mycommand;
+    CBanFactory f;
 
- public:
-	ModuleCBan()
-		: Stats::EventListener(this)
-		, mycommand(this)
-	{
-	}
+  public:
+    ModuleCBan()
+        : Stats::EventListener(this)
+        , mycommand(this) {
+    }
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->XLines->RegisterFactory(&f);
-	}
+    void init() CXX11_OVERRIDE {
+        ServerInstance->XLines->RegisterFactory(&f);
+    }
 
-	~ModuleCBan()
-	{
-		ServerInstance->XLines->DelAll("CBAN");
-		ServerInstance->XLines->UnregisterFactory(&f);
-	}
+    ~ModuleCBan() {
+        ServerInstance->XLines->DelAll("CBAN");
+        ServerInstance->XLines->UnregisterFactory(&f);
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("cban");
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("cban");
 
-		// XXX: Consider changing default behavior on the next major version
-		glob = tag->getBool("glob", false);
-	}
+        // XXX: Consider changing default behavior on the next major version
+        glob = tag->getBool("glob", false);
+    }
 
-	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
-	{
-		if (stats.GetSymbol() != 'C')
-			return MOD_RES_PASSTHRU;
+    ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE {
+        if (stats.GetSymbol() != 'C') {
+            return MOD_RES_PASSTHRU;
+        }
 
-		ServerInstance->XLines->InvokeStats("CBAN", stats);
-		return MOD_RES_DENY;
-	}
+        ServerInstance->XLines->InvokeStats("CBAN", stats);
+        return MOD_RES_DENY;
+    }
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
-	{
-		XLine *rl = ServerInstance->XLines->MatchesLine("CBAN", cname);
+    ModResult OnUserPreJoin(LocalUser* user, Channel* chan,
+                            const std::string& cname, std::string& privs,
+                            const std::string& keygiven) CXX11_OVERRIDE {
+        XLine *rl = ServerInstance->XLines->MatchesLine("CBAN", cname);
 
-		if (rl)
-		{
-			// Channel is banned.
-			user->WriteNumeric(ERR_BADCHANNEL, cname, InspIRCd::Format("Channel %s is CBANed: %s", cname.c_str(), rl->reason.c_str()));
-			ServerInstance->SNO->WriteGlobalSno('a', "%s tried to join %s which is CBANed (%s)",
-				user->nick.c_str(), cname.c_str(), rl->reason.c_str());
-			return MOD_RES_DENY;
-		}
+        if (rl) {
+            // Channel is banned.
+            user->WriteNumeric(ERR_BADCHANNEL, cname,
+                               InspIRCd::Format("Channel %s is CBANed: %s", cname.c_str(),
+                                                rl->reason.c_str()));
+            ServerInstance->SNO->WriteGlobalSno('a',
+                                                "%s tried to join %s which is CBANed (%s)",
+                                                user->nick.c_str(), cname.c_str(), rl->reason.c_str());
+            return MOD_RES_DENY;
+        }
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds the /CBAN command which allows server operators to prevent channels matching a glob from being created.", VF_COMMON | VF_VENDOR, glob ? "glob" : "");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds the /CBAN command which allows server operators to prevent channels matching a glob from being created.", VF_COMMON | VF_VENDOR, glob ? "glob" : "");
+    }
 };
 
 MODULE_INIT(ModuleCBan)

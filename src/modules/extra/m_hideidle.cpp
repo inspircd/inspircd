@@ -26,38 +26,41 @@
 #include "inspircd.h"
 #include "modules/whois.h"
 
-class ModuleHideIdle : public Module, public Whois::LineEventListener
-{
-	SimpleUserModeHandler hideidle;
+class ModuleHideIdle : public Module, public Whois::LineEventListener {
+    SimpleUserModeHandler hideidle;
 
- public:
-	ModuleHideIdle()
-		: Whois::LineEventListener(this)
-		, hideidle(this, "hideidle", ServerInstance->Config->ConfValue("hideidle")->getString("modechar", "a", 1, 1)[0])
-	{
-	}
+  public:
+    ModuleHideIdle()
+        : Whois::LineEventListener(this)
+        , hideidle(this, "hideidle",
+                   ServerInstance->Config->ConfValue("hideidle")->getString("modechar", "a", 1,
+                           1)[0]) {
+    }
 
-	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) CXX11_OVERRIDE
-	{
-		if (numeric.GetNumeric() != 317)
-			return MOD_RES_PASSTHRU;
+    ModResult OnWhoisLine(Whois::Context& whois,
+                          Numeric::Numeric& numeric) CXX11_OVERRIDE {
+        if (numeric.GetNumeric() != 317) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		if (whois.GetSource() == whois.GetTarget())
-			return MOD_RES_PASSTHRU;
+        if (whois.GetSource() == whois.GetTarget()) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		if (!whois.GetTarget()->IsModeSet(hideidle))
-			return MOD_RES_PASSTHRU;
+        if (!whois.GetTarget()->IsModeSet(hideidle)) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		if (!whois.GetSource()->HasPrivPermission("users/auspex"))
-			return MOD_RES_DENY;
+        if (!whois.GetSource()->HasPrivPermission("users/auspex")) {
+            return MOD_RES_DENY;
+        }
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides the +a usermode that hides idle and signon time in WHOIS from non-opers");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Provides the +a usermode that hides idle and signon time in WHOIS from non-opers");
+    }
 };
 
 MODULE_INIT(ModuleHideIdle)

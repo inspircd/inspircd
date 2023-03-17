@@ -25,41 +25,39 @@
 
 #include "event.h"
 
-class Regex : public classbase
-{
-protected:
-	/** The uncompiled regex string. */
-	std::string regex_string;
+class Regex : public classbase {
+  protected:
+    /** The uncompiled regex string. */
+    std::string regex_string;
 
-	// Constructor may as well be protected, as this class is abstract.
-	Regex(const std::string& rx) : regex_string(rx) { }
+    // Constructor may as well be protected, as this class is abstract.
+    Regex(const std::string& rx) : regex_string(rx) { }
 
-public:
+  public:
 
-	virtual ~Regex() { }
+    virtual ~Regex() { }
 
-	virtual bool Matches(const std::string& text) = 0;
+    virtual bool Matches(const std::string& text) = 0;
 
-	const std::string& GetRegexString() const
-	{
-		return regex_string;
-	}
+    const std::string& GetRegexString() const {
+        return regex_string;
+    }
 };
 
-class RegexFactory : public DataProvider
-{
- public:
-	RegexFactory(Module* Creator, const std::string& Name) : DataProvider(Creator, Name) { }
+class RegexFactory : public DataProvider {
+  public:
+    RegexFactory(Module* Creator, const std::string& Name) : DataProvider(Creator,
+                Name) { }
 
-	virtual Regex* Create(const std::string& expr) = 0;
+    virtual Regex* Create(const std::string& expr) = 0;
 };
 
-class RegexException : public ModuleException
-{
- public:
-	RegexException(const std::string& regex, const std::string& error)
-		: ModuleException("Error in regex '" + regex + "': " + error) { }
+class RegexException : public ModuleException {
+  public:
+    RegexException(const std::string& regex, const std::string& error)
+        : ModuleException("Error in regex '" + regex + "': " + error) { }
 
-	RegexException(const std::string& regex, const std::string& error, int offset)
-		: ModuleException("Error in regex '" + regex + "' at offset " + ConvToStr(offset) + ": " + error) { }
+    RegexException(const std::string& regex, const std::string& error, int offset)
+        : ModuleException("Error in regex '" + regex + "' at offset " + ConvToStr(
+                              offset) + ": " + error) { }
 };

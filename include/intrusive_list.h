@@ -21,38 +21,38 @@
 
 #include <iterator>
 
-namespace insp
-{
+namespace insp {
 
 struct intrusive_list_def_tag { };
 
-template <typename T, typename Tag = intrusive_list_def_tag> class intrusive_list;
-template <typename T, typename Tag = intrusive_list_def_tag> class intrusive_list_tail;
+template <typename T, typename Tag = intrusive_list_def_tag> class
+    intrusive_list;
+template <typename T, typename Tag = intrusive_list_def_tag> class
+    intrusive_list_tail;
 
 template <typename T, typename Tag = intrusive_list_def_tag>
-class intrusive_list_node
-{
-	T* ptr_next;
-	T* ptr_prev;
+class intrusive_list_node {
+    T* ptr_next;
+    T* ptr_prev;
 
-	void unlink()
-	{
-		if (ptr_next)
-			ptr_next->intrusive_list_node<T, Tag>::ptr_prev = this->ptr_prev;
-		if (ptr_prev)
-			ptr_prev->intrusive_list_node<T, Tag>::ptr_next = this->ptr_next;
-		ptr_next = ptr_prev = NULL;
-	}
+    void unlink() {
+        if (ptr_next) {
+            ptr_next->intrusive_list_node<T, Tag>::ptr_prev = this->ptr_prev;
+        }
+        if (ptr_prev) {
+            ptr_prev->intrusive_list_node<T, Tag>::ptr_next = this->ptr_next;
+        }
+        ptr_next = ptr_prev = NULL;
+    }
 
- public:
-	intrusive_list_node()
-		: ptr_next(NULL)
-		, ptr_prev(NULL)
-	{
-	}
+  public:
+    intrusive_list_node()
+        : ptr_next(NULL)
+        , ptr_prev(NULL) {
+    }
 
-	friend class intrusive_list<T, Tag>;
-	friend class intrusive_list_tail<T, Tag>;
+    friend class intrusive_list<T, Tag>;
+    friend class intrusive_list_tail<T, Tag>;
 };
 
 } // namespace insp

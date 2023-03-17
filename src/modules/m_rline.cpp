@@ -33,325 +33,300 @@
 static bool ZlineOnMatch = false;
 static bool added_zline = false;
 
-class RLine : public XLine
-{
- public:
-	RLine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& regexs, dynamic_reference<RegexFactory>& rxfactory)
-		: XLine(s_time, d, src, re, "R")
-		, matchtext(regexs)
-	{
-		/* This can throw on failure, but if it does we DONT catch it here, we catch it and display it
-		 * where the object is created, we might not ALWAYS want it to output stuff to snomask x all the time
-		 */
-		regex = rxfactory->Create(regexs);
-	}
+class RLine : public XLine {
+  public:
+    RLine(time_t s_time, unsigned long d, const std::string& src,
+          const std::string& re, const std::string& regexs,
+          dynamic_reference<RegexFactory>& rxfactory)
+        : XLine(s_time, d, src, re, "R")
+        , matchtext(regexs) {
+        /* This can throw on failure, but if it does we DONT catch it here, we catch it and display it
+         * where the object is created, we might not ALWAYS want it to output stuff to snomask x all the time
+         */
+        regex = rxfactory->Create(regexs);
+    }
 
-	~RLine()
-	{
-		delete regex;
-	}
+    ~RLine() {
+        delete regex;
+    }
 
-	bool Matches(User* u) CXX11_OVERRIDE
-	{
-		LocalUser* lu = IS_LOCAL(u);
-		if (lu && lu->exempt)
-			return false;
+    bool Matches(User* u) CXX11_OVERRIDE {
+        LocalUser* lu = IS_LOCAL(u);
+        if (lu && lu->exempt) {
+            return false;
+        }
 
-		const std::string host = u->nick + "!" + u->ident + "@" + u->GetRealHost() + " " + u->GetRealName();
-		const std::string ip = u->nick + "!" + u->ident + "@" + u->GetIPString() + " " + u->GetRealName();
-		return (regex->Matches(host) || regex->Matches(ip));
-	}
+        const std::string host = u->nick + "!" + u->ident + "@" + u->GetRealHost() + " " + u->GetRealName();
+        const std::string ip = u->nick + "!" + u->ident + "@" + u->GetIPString() + " " + u->GetRealName();
+        return (regex->Matches(host) || regex->Matches(ip));
+    }
 
-	bool Matches(const std::string& compare) CXX11_OVERRIDE
-	{
-		return regex->Matches(compare);
-	}
+    bool Matches(const std::string& compare) CXX11_OVERRIDE {
+        return regex->Matches(compare);
+    }
 
-	void Apply(User* u) CXX11_OVERRIDE
-	{
-		if (ZlineOnMatch)
-		{
-			ZLine* zl = new ZLine(ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, MODNAME "@" + ServerInstance->Config->ServerName, reason, u->GetIPString());
-			if (ServerInstance->XLines->AddLine(zl, NULL))
-			{
-				if (!duration)
-				{
-					ServerInstance->SNO->WriteToSnoMask('x', "%s added a permanent Z-line on %s: %s",
-						zl->source.c_str(), u->GetIPString().c_str(), zl->reason.c_str());
-				}
-				else
-				{
-					ServerInstance->SNO->WriteToSnoMask('x', "%s added a timed Z-line on %s, expires in %s (on %s): %s",
-						zl->source.c_str(), u->GetIPString().c_str(), InspIRCd::DurationString(zl->duration).c_str(),
-						InspIRCd::TimeString(zl->duration).c_str(), zl->reason.c_str());
-				}
-				added_zline = true;
-			}
-			else
-				delete zl;
-		}
-		DefaultApply(u, "R", false);
-	}
+    void Apply(User* u) CXX11_OVERRIDE {
+        if (ZlineOnMatch) {
+            ZLine* zl = new ZLine(ServerInstance->Time(),
+                                  duration ? expiry - ServerInstance->Time() : 0,
+                                  MODNAME "@" + ServerInstance->Config->ServerName, reason, u->GetIPString());
+            if (ServerInstance->XLines->AddLine(zl, NULL)) {
+                if (!duration) {
+                    ServerInstance->SNO->WriteToSnoMask('x',
+                                                        "%s added a permanent Z-line on %s: %s",
+                                                        zl->source.c_str(), u->GetIPString().c_str(), zl->reason.c_str());
+                } else {
+                    ServerInstance->SNO->WriteToSnoMask('x',
+                                                        "%s added a timed Z-line on %s, expires in %s (on %s): %s",
+                                                        zl->source.c_str(), u->GetIPString().c_str(),
+                                                        InspIRCd::DurationString(zl->duration).c_str(),
+                                                        InspIRCd::TimeString(zl->duration).c_str(), zl->reason.c_str());
+                }
+                added_zline = true;
+            } else {
+                delete zl;
+            }
+        }
+        DefaultApply(u, "R", false);
+    }
 
-	const std::string& Displayable() CXX11_OVERRIDE
-	{
-		return matchtext;
-	}
+    const std::string& Displayable() CXX11_OVERRIDE {
+        return matchtext;
+    }
 
-	std::string matchtext;
+    std::string matchtext;
 
-	Regex *regex;
+    Regex *regex;
 };
 
 
 /** An XLineFactory specialized to generate RLine* pointers
  */
-class RLineFactory : public XLineFactory
-{
- public:
-	dynamic_reference<RegexFactory>& rxfactory;
-	RLineFactory(dynamic_reference<RegexFactory>& rx) : XLineFactory("R"), rxfactory(rx)
-	{
-	}
+class RLineFactory : public XLineFactory {
+  public:
+    dynamic_reference<RegexFactory>& rxfactory;
+    RLineFactory(dynamic_reference<RegexFactory>& rx) : XLineFactory("R"),
+        rxfactory(rx) {
+    }
 
-	/** Generate a RLine
-	 */
-	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) CXX11_OVERRIDE
-	{
-		if (!rxfactory)
-		{
-			ServerInstance->SNO->WriteToSnoMask('a', "Cannot create regexes until engine is set to a loaded provider!");
-			throw ModuleException("Regex engine not set or loaded!");
-		}
+    /** Generate a RLine
+     */
+    XLine* Generate(time_t set_time, unsigned long duration,
+                    const std::string& source, const std::string& reason,
+                    const std::string& xline_specific_mask) CXX11_OVERRIDE {
+        if (!rxfactory) {
+            ServerInstance->SNO->WriteToSnoMask('a',
+                                                "Cannot create regexes until engine is set to a loaded provider!");
+            throw ModuleException("Regex engine not set or loaded!");
+        }
 
-		return new RLine(set_time, duration, source, reason, xline_specific_mask, rxfactory);
-	}
+        return new RLine(set_time, duration, source, reason, xline_specific_mask, rxfactory);
+    }
 };
 
 /** Handle /RLINE
  * Syntax is same as other lines: RLINE regex_goes_here 1d :reason
  */
-class CommandRLine : public Command
-{
-	std::string rxengine;
-	RLineFactory& factory;
+class CommandRLine : public Command {
+    std::string rxengine;
+    RLineFactory& factory;
 
- public:
-	CommandRLine(Module* Creator, RLineFactory& rlf) : Command(Creator,"RLINE", 1, 3), factory(rlf)
-	{
-		flags_needed = 'o'; this->syntax = "<regex> [<duration> :<reason>]";
-	}
+  public:
+    CommandRLine(Module* Creator, RLineFactory& rlf) : Command(Creator,"RLINE", 1,
+                3), factory(rlf) {
+        flags_needed = 'o';
+        this->syntax = "<regex> [<duration> :<reason>]";
+    }
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE {
 
-		if (parameters.size() >= 3)
-		{
-			// Adding - XXX todo make this respect <insane> tag perhaps..
+        if (parameters.size() >= 3) {
+            // Adding - XXX todo make this respect <insane> tag perhaps..
 
-			unsigned long duration;
-			if (!InspIRCd::Duration(parameters[1], duration))
-			{
-				user->WriteNotice("*** Invalid duration for R-line.");
-				return CMD_FAILURE;
-			}
-			XLine *r = NULL;
+            unsigned long duration;
+            if (!InspIRCd::Duration(parameters[1], duration)) {
+                user->WriteNotice("*** Invalid duration for R-line.");
+                return CMD_FAILURE;
+            }
+            XLine *r = NULL;
 
-			try
-			{
-				r = factory.Generate(ServerInstance->Time(), duration, user->nick, parameters[2], parameters[0]);
-			}
-			catch (ModuleException &e)
-			{
-				ServerInstance->SNO->WriteToSnoMask('a', "Could not add R-line: " + e.GetReason());
-			}
+            try {
+                r = factory.Generate(ServerInstance->Time(), duration, user->nick,
+                                     parameters[2], parameters[0]);
+            } catch (ModuleException &e) {
+                ServerInstance->SNO->WriteToSnoMask('a',
+                                                    "Could not add R-line: " + e.GetReason());
+            }
 
-			if (r)
-			{
-				if (ServerInstance->XLines->AddLine(r, user))
-				{
-					if (!duration)
-					{
-						ServerInstance->SNO->WriteToSnoMask('x', "%s added a permanent R-line on %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
-					}
-					else
-					{
-						ServerInstance->SNO->WriteToSnoMask('x', "%s added a timed R-line on %s, expires in %s (on %s): %s",
-							user->nick.c_str(), parameters[0].c_str(), InspIRCd::DurationString(duration).c_str(),
-							InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), parameters[2].c_str());
-					}
+            if (r) {
+                if (ServerInstance->XLines->AddLine(r, user)) {
+                    if (!duration) {
+                        ServerInstance->SNO->WriteToSnoMask('x',
+                                                            "%s added a permanent R-line on %s: %s", user->nick.c_str(),
+                                                            parameters[0].c_str(), parameters[2].c_str());
+                    } else {
+                        ServerInstance->SNO->WriteToSnoMask('x',
+                                                            "%s added a timed R-line on %s, expires in %s (on %s): %s",
+                                                            user->nick.c_str(), parameters[0].c_str(),
+                                                            InspIRCd::DurationString(duration).c_str(),
+                                                            InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(),
+                                                            parameters[2].c_str());
+                    }
 
-					ServerInstance->XLines->ApplyLines();
-				}
-				else
-				{
-					delete r;
-					user->WriteNotice("*** R-line for " + parameters[0] + " already exists.");
-				}
-			}
-		}
-		else
-		{
-			std::string reason;
+                    ServerInstance->XLines->ApplyLines();
+                } else {
+                    delete r;
+                    user->WriteNotice("*** R-line for " + parameters[0] + " already exists.");
+                }
+            }
+        } else {
+            std::string reason;
 
-			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "R", reason, user))
-			{
-				ServerInstance->SNO->WriteToSnoMask('x', "%s removed R-line on %s: %s", user->nick.c_str(), parameters[0].c_str(), reason.c_str());
-			}
-			else
-			{
-				user->WriteNotice("*** R-line " + parameters[0] + " not found on the list.");
-			}
-		}
+            if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "R", reason, user)) {
+                ServerInstance->SNO->WriteToSnoMask('x', "%s removed R-line on %s: %s",
+                                                    user->nick.c_str(), parameters[0].c_str(), reason.c_str());
+            } else {
+                user->WriteNotice("*** R-line " + parameters[0] + " not found on the list.");
+            }
+        }
 
-		return CMD_SUCCESS;
-	}
+        return CMD_SUCCESS;
+    }
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		if (IS_LOCAL(user))
-			return ROUTE_LOCALONLY; // spanningtree will send ADDLINE
+    RouteDescriptor GetRouting(User* user,
+                               const Params& parameters) CXX11_OVERRIDE {
+        if (IS_LOCAL(user)) {
+            return ROUTE_LOCALONLY;    // spanningtree will send ADDLINE
+        }
 
-		return ROUTE_BROADCAST;
-	}
+        return ROUTE_BROADCAST;
+    }
 };
 
-class ModuleRLine : public Module, public Stats::EventListener
-{
-	dynamic_reference<RegexFactory> rxfactory;
-	RLineFactory f;
-	CommandRLine r;
-	bool MatchOnNickChange;
-	bool initing;
-	RegexFactory* factory;
+class ModuleRLine : public Module, public Stats::EventListener {
+    dynamic_reference<RegexFactory> rxfactory;
+    RLineFactory f;
+    CommandRLine r;
+    bool MatchOnNickChange;
+    bool initing;
+    RegexFactory* factory;
 
- public:
-	ModuleRLine()
-		: Stats::EventListener(this)
-		, rxfactory(this, "regex")
-		, f(rxfactory)
-		, r(this, f)
-		, initing(true)
-	{
-	}
+  public:
+    ModuleRLine()
+        : Stats::EventListener(this)
+        , rxfactory(this, "regex")
+        , f(rxfactory)
+        , r(this, f)
+        , initing(true) {
+    }
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->XLines->RegisterFactory(&f);
-	}
+    void init() CXX11_OVERRIDE {
+        ServerInstance->XLines->RegisterFactory(&f);
+    }
 
-	~ModuleRLine()
-	{
-		ServerInstance->XLines->DelAll("R");
-		ServerInstance->XLines->UnregisterFactory(&f);
-	}
+    ~ModuleRLine() {
+        ServerInstance->XLines->DelAll("R");
+        ServerInstance->XLines->UnregisterFactory(&f);
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds the /RLINE command which allows server operators to prevent users matching a nickname!username@hostname+realname regular expression from connecting to the server.", VF_COMMON | VF_VENDOR, rxfactory ? rxfactory->name : "");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds the /RLINE command which allows server operators to prevent users matching a nickname!username@hostname+realname regular expression from connecting to the server.", VF_COMMON | VF_VENDOR, rxfactory ? rxfactory->name : "");
+    }
 
-	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
-	{
-		// Apply lines on user connect
-		XLine *rl = ServerInstance->XLines->MatchesLine("R", user);
+    ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE {
+        // Apply lines on user connect
+        XLine *rl = ServerInstance->XLines->MatchesLine("R", user);
 
-		if (rl)
-		{
-			// Bang. :P
-			rl->Apply(user);
-			return MOD_RES_DENY;
-		}
-		return MOD_RES_PASSTHRU;
-	}
+        if (rl) {
+            // Bang. :P
+            rl->Apply(user);
+            return MOD_RES_DENY;
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("rline");
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("rline");
 
-		MatchOnNickChange = tag->getBool("matchonnickchange");
-		ZlineOnMatch = tag->getBool("zlineonmatch");
-		std::string newrxengine = tag->getString("engine");
+        MatchOnNickChange = tag->getBool("matchonnickchange");
+        ZlineOnMatch = tag->getBool("zlineonmatch");
+        std::string newrxengine = tag->getString("engine");
 
-		factory = rxfactory ? (rxfactory.operator->()) : NULL;
+        factory = rxfactory ? (rxfactory.operator->()) : NULL;
 
-		if (newrxengine.empty())
-			rxfactory.SetProvider("regex");
-		else
-			rxfactory.SetProvider("regex/" + newrxengine);
+        if (newrxengine.empty()) {
+            rxfactory.SetProvider("regex");
+        } else {
+            rxfactory.SetProvider("regex/" + newrxengine);
+        }
 
-		if (!rxfactory)
-		{
-			if (newrxengine.empty())
-				ServerInstance->SNO->WriteToSnoMask('a', "WARNING: No regex engine loaded - R-line functionality disabled until this is corrected.");
-			else
-				ServerInstance->SNO->WriteToSnoMask('a', "WARNING: Regex engine '%s' is not loaded - R-line functionality disabled until this is corrected.", newrxengine.c_str());
+        if (!rxfactory) {
+            if (newrxengine.empty()) {
+                ServerInstance->SNO->WriteToSnoMask('a',
+                                                    "WARNING: No regex engine loaded - R-line functionality disabled until this is corrected.");
+            } else {
+                ServerInstance->SNO->WriteToSnoMask('a',
+                                                    "WARNING: Regex engine '%s' is not loaded - R-line functionality disabled until this is corrected.",
+                                                    newrxengine.c_str());
+            }
 
-			ServerInstance->XLines->DelAll(f.GetType());
-		}
-		else if ((!initing) && (rxfactory.operator->() != factory))
-		{
-			ServerInstance->SNO->WriteToSnoMask('a', "Regex engine has changed, removing all R-lines.");
-			ServerInstance->XLines->DelAll(f.GetType());
-		}
+            ServerInstance->XLines->DelAll(f.GetType());
+        } else if ((!initing) && (rxfactory.operator->() != factory)) {
+            ServerInstance->SNO->WriteToSnoMask('a',
+                                                "Regex engine has changed, removing all R-lines.");
+            ServerInstance->XLines->DelAll(f.GetType());
+        }
 
-		initing = false;
-	}
+        initing = false;
+    }
 
-	ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE
-	{
-		if (stats.GetSymbol() != 'R')
-			return MOD_RES_PASSTHRU;
+    ModResult OnStats(Stats::Context& stats) CXX11_OVERRIDE {
+        if (stats.GetSymbol() != 'R') {
+            return MOD_RES_PASSTHRU;
+        }
 
-		ServerInstance->XLines->InvokeStats("R", stats);
-		return MOD_RES_DENY;
-	}
+        ServerInstance->XLines->InvokeStats("R", stats);
+        return MOD_RES_DENY;
+    }
 
-	void OnUserPostNick(User *user, const std::string &oldnick) CXX11_OVERRIDE
-	{
-		if (!IS_LOCAL(user))
-			return;
+    void OnUserPostNick(User *user, const std::string &oldnick) CXX11_OVERRIDE {
+        if (!IS_LOCAL(user)) {
+            return;
+        }
 
-		if (!MatchOnNickChange)
-			return;
+        if (!MatchOnNickChange) {
+            return;
+        }
 
-		XLine *rl = ServerInstance->XLines->MatchesLine("R", user);
+        XLine *rl = ServerInstance->XLines->MatchesLine("R", user);
 
-		if (rl)
-		{
-			// Bang! :D
-			rl->Apply(user);
-		}
-	}
+        if (rl) {
+            // Bang! :D
+            rl->Apply(user);
+        }
+    }
 
-	void OnBackgroundTimer(time_t curtime) CXX11_OVERRIDE
-	{
-		if (added_zline)
-		{
-			added_zline = false;
-			ServerInstance->XLines->ApplyLines();
-		}
-	}
+    void OnBackgroundTimer(time_t curtime) CXX11_OVERRIDE {
+        if (added_zline) {
+            added_zline = false;
+            ServerInstance->XLines->ApplyLines();
+        }
+    }
 
-	void OnUnloadModule(Module* mod) CXX11_OVERRIDE
-	{
-		// If the regex engine became unavailable or has changed, remove all R-lines.
-		if (!rxfactory)
-		{
-			ServerInstance->XLines->DelAll(f.GetType());
-		}
-		else if (rxfactory.operator->() != factory)
-		{
-			factory = rxfactory.operator->();
-			ServerInstance->XLines->DelAll(f.GetType());
-		}
-	}
+    void OnUnloadModule(Module* mod) CXX11_OVERRIDE {
+        // If the regex engine became unavailable or has changed, remove all R-lines.
+        if (!rxfactory) {
+            ServerInstance->XLines->DelAll(f.GetType());
+        } else if (rxfactory.operator->() != factory) {
+            factory = rxfactory.operator->();
+            ServerInstance->XLines->DelAll(f.GetType());
+        }
+    }
 
-	void Prioritize() CXX11_OVERRIDE
-	{
-		Module* mod = ServerInstance->Modules->Find("m_cgiirc.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserRegister, PRIORITY_AFTER, mod);
-	}
+    void Prioritize() CXX11_OVERRIDE {
+        Module* mod = ServerInstance->Modules->Find("m_cgiirc.so");
+        ServerInstance->Modules->SetPriority(this, I_OnUserRegister, PRIORITY_AFTER, mod);
+    }
 };
 
 MODULE_INIT(ModuleRLine)

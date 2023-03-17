@@ -48,48 +48,39 @@
 # pragma GCC diagnostic pop
 #endif
 
-class RE2Regex : public Regex
-{
-	RE2 regexcl;
+class RE2Regex : public Regex {
+    RE2 regexcl;
 
- public:
-	RE2Regex(const std::string& rx) : Regex(rx), regexcl(rx, RE2::Quiet)
-	{
-		if (!regexcl.ok())
-		{
-			throw RegexException(rx, regexcl.error());
-		}
-	}
+  public:
+    RE2Regex(const std::string& rx) : Regex(rx), regexcl(rx, RE2::Quiet) {
+        if (!regexcl.ok()) {
+            throw RegexException(rx, regexcl.error());
+        }
+    }
 
-	bool Matches(const std::string& text) CXX11_OVERRIDE
-	{
-		return RE2::FullMatch(text, regexcl);
-	}
+    bool Matches(const std::string& text) CXX11_OVERRIDE {
+        return RE2::FullMatch(text, regexcl);
+    }
 };
 
-class RE2Factory : public RegexFactory
-{
- public:
-	RE2Factory(Module* m) : RegexFactory(m, "regex/re2") { }
-	Regex* Create(const std::string& expr) CXX11_OVERRIDE
-	{
-		return new RE2Regex(expr);
-	}
+class RE2Factory : public RegexFactory {
+  public:
+    RE2Factory(Module* m) : RegexFactory(m, "regex/re2") { }
+    Regex* Create(const std::string& expr) CXX11_OVERRIDE {
+        return new RE2Regex(expr);
+    }
 };
 
-class ModuleRegexRE2 : public Module
-{
-	RE2Factory ref;
+class ModuleRegexRE2 : public Module {
+    RE2Factory ref;
 
- public:
-	ModuleRegexRE2() : ref(this)
-	{
-	}
+  public:
+    ModuleRegexRE2() : ref(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides the re2 regular expression engine which uses the RE2 library.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Provides the re2 regular expression engine which uses the RE2 library.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleRegexRE2)

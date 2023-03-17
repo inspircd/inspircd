@@ -25,427 +25,403 @@
 #include "inspircd.h"
 #include "modules/ldap.h"
 
-namespace
-{
-	Module* me;
-	std::string killreason;
-	LocalIntExt* authed;
-	bool verbose;
-	std::string vhost;
-	LocalStringExt* vhosts;
-	std::vector<std::pair<std::string, std::string> > requiredattributes;
+namespace {
+Module* me;
+std::string killreason;
+LocalIntExt* authed;
+bool verbose;
+std::string vhost;
+LocalStringExt* vhosts;
+std::vector<std::pair<std::string, std::string> > requiredattributes;
 }
 
-class BindInterface : public LDAPInterface
-{
-	const std::string provider;
-	const std::string uid;
-	std::string DN;
-	bool checkingAttributes;
-	bool passed;
-	int attrCount;
+class BindInterface : public LDAPInterface {
+    const std::string provider;
+    const std::string uid;
+    std::string DN;
+    bool checkingAttributes;
+    bool passed;
+    int attrCount;
 
-	static std::string SafeReplace(const std::string& text, std::map<std::string, std::string>& replacements)
-	{
-		std::string result;
-		result.reserve(text.length());
+    static std::string SafeReplace(const std::string& text,
+                                   std::map<std::string, std::string>& replacements) {
+        std::string result;
+        result.reserve(text.length());
 
-		for (unsigned int i = 0; i < text.length(); ++i)
-		{
-			char c = text[i];
-			if (c == '$')
-			{
-				// find the first nonalpha
-				i++;
-				unsigned int start = i;
+        for (unsigned int i = 0; i < text.length(); ++i) {
+            char c = text[i];
+            if (c == '$') {
+                // find the first nonalpha
+                i++;
+                unsigned int start = i;
 
-				while (i < text.length() - 1 && isalpha(text[i + 1]))
-					++i;
+                while (i < text.length() - 1 && isalpha(text[i + 1])) {
+                    ++i;
+                }
 
-				std::string key(text, start, (i - start) + 1);
-				result.append(replacements[key]);
-			}
-			else
-				result.push_back(c);
-		}
+                std::string key(text, start, (i - start) + 1);
+                result.append(replacements[key]);
+            } else {
+                result.push_back(c);
+            }
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	static void SetVHost(User* user, const std::string& DN)
-	{
-		if (!vhost.empty())
-		{
-			irc::commasepstream stream(DN);
+    static void SetVHost(User* user, const std::string& DN) {
+        if (!vhost.empty()) {
+            irc::commasepstream stream(DN);
 
-			// mashed map of key:value parts of the DN
-			std::map<std::string, std::string> dnParts;
+            // mashed map of key:value parts of the DN
+            std::map<std::string, std::string> dnParts;
 
-			std::string dnPart;
-			while (stream.GetToken(dnPart))
-			{
-				std::string::size_type pos = dnPart.find('=');
-				if (pos == std::string::npos) // malformed
-					continue;
+            std::string dnPart;
+            while (stream.GetToken(dnPart)) {
+                std::string::size_type pos = dnPart.find('=');
+                if (pos == std::string::npos) { // malformed
+                    continue;
+                }
 
-				std::string key(dnPart, 0, pos);
-				std::string value(dnPart, pos + 1, dnPart.length() - pos + 1); // +1s to skip the = itself
-				dnParts[key] = value;
-			}
+                std::string key(dnPart, 0, pos);
+                std::string value(dnPart, pos + 1,
+                                  dnPart.length() - pos + 1); // +1s to skip the = itself
+                dnParts[key] = value;
+            }
 
-			// change host according to config key
-			vhosts->set(user, SafeReplace(vhost, dnParts));
-		}
-	}
+            // change host according to config key
+            vhosts->set(user, SafeReplace(vhost, dnParts));
+        }
+    }
 
- public:
-	BindInterface(Module* c, const std::string& p, const std::string& u, const std::string& dn)
-		: LDAPInterface(c)
-		, provider(p), uid(u), DN(dn), checkingAttributes(false), passed(false), attrCount(0)
-	{
-	}
+  public:
+    BindInterface(Module* c, const std::string& p, const std::string& u,
+                  const std::string& dn)
+        : LDAPInterface(c)
+        , provider(p), uid(u), DN(dn), checkingAttributes(false), passed(false),
+          attrCount(0) {
+    }
 
-	void OnResult(const LDAPResult& r) CXX11_OVERRIDE
-	{
-		User* user = ServerInstance->FindUUID(uid);
-		dynamic_reference<LDAPProvider> LDAP(me, provider);
+    void OnResult(const LDAPResult& r) CXX11_OVERRIDE {
+        User* user = ServerInstance->FindUUID(uid);
+        dynamic_reference<LDAPProvider> LDAP(me, provider);
 
-		if (!user || !LDAP)
-		{
-			if (!checkingAttributes || !--attrCount)
-				delete this;
-			return;
-		}
+        if (!user || !LDAP) {
+            if (!checkingAttributes || !--attrCount) {
+                delete this;
+            }
+            return;
+        }
 
-		if (!checkingAttributes && requiredattributes.empty())
-		{
-			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('c', "Successful connection from %s (dn=%s)", user->GetFullRealHost().c_str(), DN.c_str());
+        if (!checkingAttributes && requiredattributes.empty()) {
+            if (verbose) {
+                ServerInstance->SNO->WriteToSnoMask('c',
+                                                    "Successful connection from %s (dn=%s)", user->GetFullRealHost().c_str(),
+                                                    DN.c_str());
+            }
 
-			// We're done, there are no attributes to check
-			SetVHost(user, DN);
-			authed->set(user, 1);
+            // We're done, there are no attributes to check
+            SetVHost(user, DN);
+            authed->set(user, 1);
 
-			delete this;
-			return;
-		}
+            delete this;
+            return;
+        }
 
-		// Already checked attributes?
-		if (checkingAttributes)
-		{
-			if (!passed)
-			{
-				// Only one has to pass
-				passed = true;
+        // Already checked attributes?
+        if (checkingAttributes) {
+            if (!passed) {
+                // Only one has to pass
+                passed = true;
 
-				if (verbose)
-					ServerInstance->SNO->WriteToSnoMask('c', "Successful connection from %s (dn=%s)", user->GetFullRealHost().c_str(), DN.c_str());
+                if (verbose) {
+                    ServerInstance->SNO->WriteToSnoMask('c',
+                                                        "Successful connection from %s (dn=%s)", user->GetFullRealHost().c_str(),
+                                                        DN.c_str());
+                }
 
-				SetVHost(user, DN);
-				authed->set(user, 1);
-			}
+                SetVHost(user, DN);
+                authed->set(user, 1);
+            }
 
-			// Delete this if this is the last ref
-			if (!--attrCount)
-				delete this;
+            // Delete this if this is the last ref
+            if (!--attrCount) {
+                delete this;
+            }
 
-			return;
-		}
+            return;
+        }
 
-		// check required attributes
-		checkingAttributes = true;
+        // check required attributes
+        checkingAttributes = true;
 
-		for (std::vector<std::pair<std::string, std::string> >::const_iterator it = requiredattributes.begin(); it != requiredattributes.end(); ++it)
-		{
-			// Note that only one of these has to match for it to be success
-			const std::string& attr = it->first;
-			const std::string& val = it->second;
+        for (std::vector<std::pair<std::string, std::string> >::const_iterator it = requiredattributes.begin(); it != requiredattributes.end(); ++it) {
+            // Note that only one of these has to match for it to be success
+            const std::string& attr = it->first;
+            const std::string& val = it->second;
 
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "LDAP compare: %s=%s", attr.c_str(), val.c_str());
-			try
-			{
-				LDAP->Compare(this, DN, attr, val);
-				++attrCount;
-			}
-			catch (LDAPException &ex)
-			{
-				if (verbose)
-					ServerInstance->SNO->WriteToSnoMask('c', "Unable to compare attributes %s=%s: %s", attr.c_str(), val.c_str(), ex.GetReason().c_str());
-			}
-		}
+            ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "LDAP compare: %s=%s",
+                                      attr.c_str(), val.c_str());
+            try {
+                LDAP->Compare(this, DN, attr, val);
+                ++attrCount;
+            } catch (LDAPException &ex) {
+                if (verbose) {
+                    ServerInstance->SNO->WriteToSnoMask('c',
+                                                        "Unable to compare attributes %s=%s: %s", attr.c_str(), val.c_str(),
+                                                        ex.GetReason().c_str());
+                }
+            }
+        }
 
-		// Nothing done
-		if (!attrCount)
-		{
-			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (dn=%s) (unable to validate attributes)", user->GetFullRealHost().c_str(), DN.c_str());
-			ServerInstance->Users->QuitUser(user, killreason);
-			delete this;
-		}
-	}
+        // Nothing done
+        if (!attrCount) {
+            if (verbose) {
+                ServerInstance->SNO->WriteToSnoMask('c',
+                                                    "Forbidden connection from %s (dn=%s) (unable to validate attributes)",
+                                                    user->GetFullRealHost().c_str(), DN.c_str());
+            }
+            ServerInstance->Users->QuitUser(user, killreason);
+            delete this;
+        }
+    }
 
-	void OnError(const LDAPResult& err) CXX11_OVERRIDE
-	{
-		if (checkingAttributes && --attrCount)
-			return;
+    void OnError(const LDAPResult& err) CXX11_OVERRIDE {
+        if (checkingAttributes && --attrCount) {
+            return;
+        }
 
-		if (passed)
-		{
-			delete this;
-			return;
-		}
+        if (passed) {
+            delete this;
+            return;
+        }
 
-		User* user = ServerInstance->FindUUID(uid);
-		if (user)
-		{
-			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (%s)", user->GetFullRealHost().c_str(), err.getError().c_str());
-			ServerInstance->Users->QuitUser(user, killreason);
-		}
+        User* user = ServerInstance->FindUUID(uid);
+        if (user) {
+            if (verbose) {
+                ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (%s)",
+                                                    user->GetFullRealHost().c_str(), err.getError().c_str());
+            }
+            ServerInstance->Users->QuitUser(user, killreason);
+        }
 
-		delete this;
-	}
+        delete this;
+    }
 };
 
-class SearchInterface : public LDAPInterface
-{
-	const std::string provider;
-	const std::string uid;
+class SearchInterface : public LDAPInterface {
+    const std::string provider;
+    const std::string uid;
 
- public:
-	SearchInterface(Module* c, const std::string& p, const std::string& u)
-		: LDAPInterface(c), provider(p), uid(u)
-	{
-	}
+  public:
+    SearchInterface(Module* c, const std::string& p, const std::string& u)
+        : LDAPInterface(c), provider(p), uid(u) {
+    }
 
-	void OnResult(const LDAPResult& r) CXX11_OVERRIDE
-	{
-		LocalUser* user = IS_LOCAL(ServerInstance->FindUUID(uid));
-		dynamic_reference<LDAPProvider> LDAP(me, provider);
-		if (!LDAP || r.empty() || !user)
-		{
-			if (user)
-				ServerInstance->Users->QuitUser(user, killreason);
-			delete this;
-			return;
-		}
+    void OnResult(const LDAPResult& r) CXX11_OVERRIDE {
+        LocalUser* user = IS_LOCAL(ServerInstance->FindUUID(uid));
+        dynamic_reference<LDAPProvider> LDAP(me, provider);
+        if (!LDAP || r.empty() || !user) {
+            if (user) {
+                ServerInstance->Users->QuitUser(user, killreason);
+            }
+            delete this;
+            return;
+        }
 
-		try
-		{
-			const LDAPAttributes& a = r.get(0);
-			std::string bindDn = a.get("dn");
-			if (bindDn.empty())
-			{
-				ServerInstance->Users->QuitUser(user, killreason);
-				delete this;
-				return;
-			}
+        try {
+            const LDAPAttributes& a = r.get(0);
+            std::string bindDn = a.get("dn");
+            if (bindDn.empty()) {
+                ServerInstance->Users->QuitUser(user, killreason);
+                delete this;
+                return;
+            }
 
-			LDAP->Bind(new BindInterface(this->creator, provider, uid, bindDn), bindDn, user->password);
-		}
-		catch (LDAPException& ex)
-		{
-			ServerInstance->SNO->WriteToSnoMask('a', "Error searching LDAP server: " + ex.GetReason());
-		}
-		delete this;
-	}
+            LDAP->Bind(new BindInterface(this->creator, provider, uid, bindDn), bindDn,
+                       user->password);
+        } catch (LDAPException& ex) {
+            ServerInstance->SNO->WriteToSnoMask('a',
+                                                "Error searching LDAP server: " + ex.GetReason());
+        }
+        delete this;
+    }
 
-	void OnError(const LDAPResult& err) CXX11_OVERRIDE
-	{
-		ServerInstance->SNO->WriteToSnoMask('a', "Error searching LDAP server: %s", err.getError().c_str());
-		User* user = ServerInstance->FindUUID(uid);
-		if (user)
-			ServerInstance->Users->QuitUser(user, killreason);
-		delete this;
-	}
+    void OnError(const LDAPResult& err) CXX11_OVERRIDE {
+        ServerInstance->SNO->WriteToSnoMask('a', "Error searching LDAP server: %s", err.getError().c_str());
+        User* user = ServerInstance->FindUUID(uid);
+        if (user) {
+            ServerInstance->Users->QuitUser(user, killreason);
+        }
+        delete this;
+    }
 };
 
-class AdminBindInterface : public LDAPInterface
-{
-	const std::string provider;
-	const std::string uuid;
-	const std::string base;
-	const std::string what;
+class AdminBindInterface : public LDAPInterface {
+    const std::string provider;
+    const std::string uuid;
+    const std::string base;
+    const std::string what;
 
- public:
-	AdminBindInterface(Module* c, const std::string& p, const std::string& u, const std::string& b, const std::string& w)
-		: LDAPInterface(c), provider(p), uuid(u), base(b), what(w)
-	{
-	}
+  public:
+    AdminBindInterface(Module* c, const std::string& p, const std::string& u,
+                       const std::string& b, const std::string& w)
+        : LDAPInterface(c), provider(p), uuid(u), base(b), what(w) {
+    }
 
-	void OnResult(const LDAPResult& r) CXX11_OVERRIDE
-	{
-		dynamic_reference<LDAPProvider> LDAP(me, provider);
-		if (LDAP)
-		{
-			try
-			{
-				LDAP->Search(new SearchInterface(this->creator, provider, uuid), base, what);
-			}
-			catch (LDAPException& ex)
-			{
-				ServerInstance->SNO->WriteToSnoMask('a', "Error searching LDAP server: " + ex.GetReason());
-			}
-		}
-		delete this;
-	}
+    void OnResult(const LDAPResult& r) CXX11_OVERRIDE {
+        dynamic_reference<LDAPProvider> LDAP(me, provider);
+        if (LDAP) {
+            try {
+                LDAP->Search(new SearchInterface(this->creator, provider, uuid), base, what);
+            } catch (LDAPException& ex) {
+                ServerInstance->SNO->WriteToSnoMask('a',
+                                                    "Error searching LDAP server: " + ex.GetReason());
+            }
+        }
+        delete this;
+    }
 
-	void OnError(const LDAPResult& err) CXX11_OVERRIDE
-	{
-		ServerInstance->SNO->WriteToSnoMask('a', "Error binding as manager to LDAP server: " + err.getError());
-		delete this;
-	}
+    void OnError(const LDAPResult& err) CXX11_OVERRIDE {
+        ServerInstance->SNO->WriteToSnoMask('a', "Error binding as manager to LDAP server: " + err.getError());
+        delete this;
+    }
 };
 
-class ModuleLDAPAuth : public Module
-{
-	dynamic_reference<LDAPProvider> LDAP;
-	LocalIntExt ldapAuthed;
-	LocalStringExt ldapVhost;
-	std::string base;
-	std::string attribute;
-	std::vector<std::string> allowpatterns;
-	std::vector<std::string> whitelistedcidrs;
-	bool useusername;
+class ModuleLDAPAuth : public Module {
+    dynamic_reference<LDAPProvider> LDAP;
+    LocalIntExt ldapAuthed;
+    LocalStringExt ldapVhost;
+    std::string base;
+    std::string attribute;
+    std::vector<std::string> allowpatterns;
+    std::vector<std::string> whitelistedcidrs;
+    bool useusername;
 
-public:
-	ModuleLDAPAuth()
-		: LDAP(this, "LDAP")
-		, ldapAuthed("ldapauth", ExtensionItem::EXT_USER, this)
-		, ldapVhost("ldapauth_vhost", ExtensionItem::EXT_USER, this)
-	{
-		me = this;
-		authed = &ldapAuthed;
-		vhosts = &ldapVhost;
-	}
+  public:
+    ModuleLDAPAuth()
+        : LDAP(this, "LDAP")
+        , ldapAuthed("ldapauth", ExtensionItem::EXT_USER, this)
+        , ldapVhost("ldapauth_vhost", ExtensionItem::EXT_USER, this) {
+        me = this;
+        authed = &ldapAuthed;
+        vhosts = &ldapVhost;
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("ldapauth");
-		whitelistedcidrs.clear();
-		requiredattributes.clear();
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("ldapauth");
+        whitelistedcidrs.clear();
+        requiredattributes.clear();
 
-		base			= tag->getString("baserdn");
-		attribute		= tag->getString("attribute");
-		killreason		= tag->getString("killreason");
-		vhost			= tag->getString("host");
-		// Set to true if failed connects should be reported to operators
-		verbose			= tag->getBool("verbose");
-		useusername		= tag->getBool("useusername", tag->getBool("userfield"));
+        base            = tag->getString("baserdn");
+        attribute       = tag->getString("attribute");
+        killreason      = tag->getString("killreason");
+        vhost           = tag->getString("host");
+        // Set to true if failed connects should be reported to operators
+        verbose         = tag->getBool("verbose");
+        useusername     = tag->getBool("useusername", tag->getBool("userfield"));
 
-		LDAP.SetProvider("LDAP/" + tag->getString("dbid"));
+        LDAP.SetProvider("LDAP/" + tag->getString("dbid"));
 
-		ConfigTagList whitelisttags = ServerInstance->Config->ConfTags("ldapwhitelist");
+        ConfigTagList whitelisttags = ServerInstance->Config->ConfTags("ldapwhitelist");
 
-		for (ConfigIter i = whitelisttags.first; i != whitelisttags.second; ++i)
-		{
-			std::string cidr = i->second->getString("cidr");
-			if (!cidr.empty()) {
-				whitelistedcidrs.push_back(cidr);
-			}
-		}
+        for (ConfigIter i = whitelisttags.first; i != whitelisttags.second; ++i) {
+            std::string cidr = i->second->getString("cidr");
+            if (!cidr.empty()) {
+                whitelistedcidrs.push_back(cidr);
+            }
+        }
 
-		ConfigTagList attributetags = ServerInstance->Config->ConfTags("ldaprequire");
+        ConfigTagList attributetags = ServerInstance->Config->ConfTags("ldaprequire");
 
-		for (ConfigIter i = attributetags.first; i != attributetags.second; ++i)
-		{
-			const std::string attr = i->second->getString("attribute");
-			const std::string val = i->second->getString("value");
+        for (ConfigIter i = attributetags.first; i != attributetags.second; ++i) {
+            const std::string attr = i->second->getString("attribute");
+            const std::string val = i->second->getString("value");
 
-			if (!attr.empty() && !val.empty())
-				requiredattributes.push_back(make_pair(attr, val));
-		}
+            if (!attr.empty() && !val.empty()) {
+                requiredattributes.push_back(make_pair(attr, val));
+            }
+        }
 
-		std::string allowpattern = tag->getString("allowpattern");
-		irc::spacesepstream ss(allowpattern);
-		for (std::string more; ss.GetToken(more); )
-		{
-			allowpatterns.push_back(more);
-		}
-	}
+        std::string allowpattern = tag->getString("allowpattern");
+        irc::spacesepstream ss(allowpattern);
+        for (std::string more; ss.GetToken(more); ) {
+            allowpatterns.push_back(more);
+        }
+    }
 
-	void OnUserConnect(LocalUser *user) CXX11_OVERRIDE
-	{
-		std::string* cc = ldapVhost.get(user);
-		if (cc)
-		{
-			user->ChangeDisplayedHost(*cc);
-			ldapVhost.unset(user);
-		}
-	}
+    void OnUserConnect(LocalUser *user) CXX11_OVERRIDE {
+        std::string* cc = ldapVhost.get(user);
+        if (cc) {
+            user->ChangeDisplayedHost(*cc);
+            ldapVhost.unset(user);
+        }
+    }
 
-	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
-	{
-		for (std::vector<std::string>::const_iterator i = allowpatterns.begin(); i != allowpatterns.end(); ++i)
-		{
-			if (InspIRCd::Match(user->nick, *i))
-			{
-				ldapAuthed.set(user,1);
-				return MOD_RES_PASSTHRU;
-			}
-		}
+    ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE {
+        for (std::vector<std::string>::const_iterator i = allowpatterns.begin(); i != allowpatterns.end(); ++i) {
+            if (InspIRCd::Match(user->nick, *i)) {
+                ldapAuthed.set(user,1);
+                return MOD_RES_PASSTHRU;
+            }
+        }
 
-		for (std::vector<std::string>::iterator i = whitelistedcidrs.begin(); i != whitelistedcidrs.end(); i++)
-		{
-			if (InspIRCd::MatchCIDR(user->GetIPString(), *i, ascii_case_insensitive_map))
-			{
-				ldapAuthed.set(user,1);
-				return MOD_RES_PASSTHRU;
-			}
-		}
+        for (std::vector<std::string>::iterator i = whitelistedcidrs.begin(); i != whitelistedcidrs.end(); i++) {
+            if (InspIRCd::MatchCIDR(user->GetIPString(), *i, ascii_case_insensitive_map)) {
+                ldapAuthed.set(user,1);
+                return MOD_RES_PASSTHRU;
+            }
+        }
 
-		if (user->password.empty())
-		{
-			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (no password provided)", user->GetFullRealHost().c_str());
-			ServerInstance->Users->QuitUser(user, killreason);
-			return MOD_RES_DENY;
-		}
+        if (user->password.empty()) {
+            if (verbose) {
+                ServerInstance->SNO->WriteToSnoMask('c',
+                                                    "Forbidden connection from %s (no password provided)",
+                                                    user->GetFullRealHost().c_str());
+            }
+            ServerInstance->Users->QuitUser(user, killreason);
+            return MOD_RES_DENY;
+        }
 
-		if (!LDAP)
-		{
-			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (unable to find LDAP provider)", user->GetFullRealHost().c_str());
-			ServerInstance->Users->QuitUser(user, killreason);
-			return MOD_RES_DENY;
-		}
+        if (!LDAP) {
+            if (verbose) {
+                ServerInstance->SNO->WriteToSnoMask('c',
+                                                    "Forbidden connection from %s (unable to find LDAP provider)",
+                                                    user->GetFullRealHost().c_str());
+            }
+            ServerInstance->Users->QuitUser(user, killreason);
+            return MOD_RES_DENY;
+        }
 
-		std::string what;
-		std::string::size_type pos = user->password.find(':');
-		if (pos != std::string::npos)
-		{
-			what = attribute + "=" + user->password.substr(0, pos);
+        std::string what;
+        std::string::size_type pos = user->password.find(':');
+        if (pos != std::string::npos) {
+            what = attribute + "=" + user->password.substr(0, pos);
 
-			// Trim the user: prefix, leaving just 'pass' for later password check
-			user->password = user->password.substr(pos + 1);
-		}
-		else
-		{
-			what = attribute + "=" + (useusername ? user->ident : user->nick);
-		}
+            // Trim the user: prefix, leaving just 'pass' for later password check
+            user->password = user->password.substr(pos + 1);
+        } else {
+            what = attribute + "=" + (useusername ? user->ident : user->nick);
+        }
 
-		try
-		{
-			LDAP->BindAsManager(new AdminBindInterface(this, LDAP.GetProvider(), user->uuid, base, what));
-		}
-		catch (LDAPException &ex)
-		{
-			ServerInstance->SNO->WriteToSnoMask('a', "LDAP exception: " + ex.GetReason());
-			ServerInstance->Users->QuitUser(user, killreason);
-		}
+        try {
+            LDAP->BindAsManager(new AdminBindInterface(this, LDAP.GetProvider(), user->uuid,
+                                base, what));
+        } catch (LDAPException &ex) {
+            ServerInstance->SNO->WriteToSnoMask('a', "LDAP exception: " + ex.GetReason());
+            ServerInstance->Users->QuitUser(user, killreason);
+        }
 
-		return MOD_RES_DENY;
-	}
+        return MOD_RES_DENY;
+    }
 
-	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
-	{
-		return ldapAuthed.get(user) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
-	}
+    ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE {
+        return ldapAuthed.get(user) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Allows connecting users to be authenticated against an LDAP database.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Allows connecting users to be authenticated against an LDAP database.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleLDAPAuth)

@@ -29,14 +29,14 @@
 
 /** A logging class which logs to a streamed file.
  */
-class CoreExport FileLogStream : public LogStream
-{
- private:
-	FileWriter *f;
- public:
-	FileLogStream(LogLevel loglevel, FileWriter *fw);
+class CoreExport FileLogStream : public LogStream {
+  private:
+    FileWriter *f;
+  public:
+    FileLogStream(LogLevel loglevel, FileWriter *fw);
 
-	virtual ~FileLogStream();
+    virtual ~FileLogStream();
 
-	void OnLog(LogLevel loglevel, const std::string& type, const std::string& msg) CXX11_OVERRIDE;
+    void OnLog(LogLevel loglevel, const std::string& type,
+               const std::string& msg) CXX11_OVERRIDE;
 };

@@ -29,66 +29,59 @@
 #include "core_oper.h"
 
 CommandRehash::CommandRehash(Module* parent)
-	: Command(parent, "REHASH", 0)
-{
-	flags_needed = 'o';
-	Penalty = 2;
-	syntax = "[<servermask>]";
+    : Command(parent, "REHASH", 0) {
+    flags_needed = 'o';
+    Penalty = 2;
+    syntax = "[<servermask>]";
 }
 
-CmdResult CommandRehash::Handle(User* user, const Params& parameters)
-{
-	std::string param = parameters.size() ? parameters[0] : "";
+CmdResult CommandRehash::Handle(User* user, const Params& parameters) {
+    std::string param = parameters.size() ? parameters[0] : "";
 
-	FOREACH_MOD(OnPreRehash, (user, param));
+    FOREACH_MOD(OnPreRehash, (user, param));
 
-	if (param.empty())
-	{
-		// standard rehash of local server
-	}
-	else if (param.find_first_of("*.") != std::string::npos)
-	{
-		// rehash of servers by server name (with wildcard)
-		if (!InspIRCd::Match(ServerInstance->Config->ServerName, parameters[0]))
-		{
-			// Doesn't match us. PreRehash is already done, nothing left to do
-			return CMD_SUCCESS;
-		}
-	}
-	else
-	{
-		// parameterized rehash
+    if (param.empty()) {
+        // standard rehash of local server
+    } else if (param.find_first_of("*.") != std::string::npos) {
+        // rehash of servers by server name (with wildcard)
+        if (!InspIRCd::Match(ServerInstance->Config->ServerName, parameters[0])) {
+            // Doesn't match us. PreRehash is already done, nothing left to do
+            return CMD_SUCCESS;
+        }
+    } else {
+        // parameterized rehash
 
-		// the leading "-" is optional; remove it if present.
-		if (param[0] == '-')
-			param.erase(param.begin());
+        // the leading "-" is optional; remove it if present.
+        if (param[0] == '-') {
+            param.erase(param.begin());
+        }
 
-		FOREACH_MOD(OnModuleRehash, (user, param));
-		return CMD_SUCCESS;
-	}
+        FOREACH_MOD(OnModuleRehash, (user, param));
+        return CMD_SUCCESS;
+    }
 
-	// Rehash for me. Try to start the rehash thread
-	if (!ServerInstance->ConfigThread)
-	{
-		const std::string configfile = FileSystem::GetFileName(ServerInstance->ConfigFileName);
-		user->WriteRemoteNumeric(RPL_REHASHING, configfile, "Rehashing " + ServerInstance->Config->ServerName);
-		ServerInstance->SNO->WriteGlobalSno('a', "%s is rehashing %s on %s", user->nick.c_str(),
-			configfile.c_str(), ServerInstance->Config->ServerName.c_str());
+    // Rehash for me. Try to start the rehash thread
+    if (!ServerInstance->ConfigThread) {
+        const std::string configfile = FileSystem::GetFileName(
+                                           ServerInstance->ConfigFileName);
+        user->WriteRemoteNumeric(RPL_REHASHING, configfile,
+                                 "Rehashing " + ServerInstance->Config->ServerName);
+        ServerInstance->SNO->WriteGlobalSno('a', "%s is rehashing %s on %s",
+                                            user->nick.c_str(),
+                                            configfile.c_str(), ServerInstance->Config->ServerName.c_str());
 
-		/* Don't do anything with the logs here -- logs are restarted
-		 * after the config thread has completed.
-		 */
-		ServerInstance->Rehash(user->uuid);
-	}
-	else
-	{
-		/*
-		 * A rehash is already in progress! ahh shit.
-		 * XXX, todo: we should find some way to kill runaway rehashes that are blocking, this is a major problem for unrealircd users
-		 */
-		user->WriteRemoteNotice("*** Could not rehash: A rehash is already in progress.");
-	}
+        /* Don't do anything with the logs here -- logs are restarted
+         * after the config thread has completed.
+         */
+        ServerInstance->Rehash(user->uuid);
+    } else {
+        /*
+         * A rehash is already in progress! ahh shit.
+         * XXX, todo: we should find some way to kill runaway rehashes that are blocking, this is a major problem for unrealircd users
+         */
+        user->WriteRemoteNotice("*** Could not rehash: A rehash is already in progress.");
+    }
 
-	// Always return success so spanningtree forwards an incoming REHASH even if we failed
-	return CMD_SUCCESS;
+    // Always return success so spanningtree forwards an incoming REHASH even if we failed
+    return CMD_SUCCESS;
 }

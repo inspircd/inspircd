@@ -20,22 +20,25 @@
 
 #pragma once
 
-class CoreExport ParamModeBase : public ModeHandler
-{
- private:
-	virtual void OnUnsetInternal(User* source, Channel* chan) = 0;
+class CoreExport ParamModeBase : public ModeHandler {
+  private:
+    virtual void OnUnsetInternal(User* source, Channel* chan) = 0;
 
- public:
-	ParamModeBase(Module* Creator, const std::string& Name, char modeletter, ParamSpec ps)
-		: ModeHandler(Creator, Name, modeletter, ps, MODETYPE_CHANNEL, MC_PARAM) { }
+  public:
+    ParamModeBase(Module* Creator, const std::string& Name, char modeletter,
+                  ParamSpec ps)
+        : ModeHandler(Creator, Name, modeletter, ps, MODETYPE_CHANNEL, MC_PARAM) { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& param, bool adding) CXX11_OVERRIDE;
+    ModeAction OnModeChange(User* source, User* dest, Channel* channel,
+                            std::string& param, bool adding) CXX11_OVERRIDE;
 
-	// Does nothing by default
-	virtual bool IsParameterSecret() { return false; }
-	virtual void OnUnset(User* source, Channel* chan) { }
-	virtual ModeAction OnSet(User* source, Channel* chan, std::string& param) = 0;
-	virtual void GetParameter(Channel* chan, std::string& out) = 0;
+    // Does nothing by default
+    virtual bool IsParameterSecret() {
+        return false;
+    }
+    virtual void OnUnset(User* source, Channel* chan) { }
+    virtual ModeAction OnSet(User* source, Channel* chan, std::string& param) = 0;
+    virtual void GetParameter(Channel* chan, std::string& out) = 0;
 };
 
 /** Defines a parameter mode
@@ -45,32 +48,29 @@ class CoreExport ParamModeBase : public ModeHandler
  * When unsetting the mode, the extension is automatically unset.
  */
 template <typename T, typename ExtItemT>
-class ParamMode : public ParamModeBase
-{
- public:
-	ExtItemT ext;
+class ParamMode : public ParamModeBase {
+  public:
+    ExtItemT ext;
 
-	/**
-	 * @param Creator Module handling this mode
-	 * @param Name The internal name of this mode
-	 * @param modeletter The mode letter of this mode
-	 * @param ps The parameter type of this mode, one of ParamSpec
-	 */
-	ParamMode(Module* Creator, const std::string& Name, char modeletter, ParamSpec ps = PARAM_SETONLY)
-		: ParamModeBase(Creator, Name, modeletter, ps)
-		, ext("parammode_" + Name, ExtensionItem::EXT_CHANNEL, Creator)
-	{
-	}
+    /**
+     * @param Creator Module handling this mode
+     * @param Name The internal name of this mode
+     * @param modeletter The mode letter of this mode
+     * @param ps The parameter type of this mode, one of ParamSpec
+     */
+    ParamMode(Module* Creator, const std::string& Name, char modeletter,
+              ParamSpec ps = PARAM_SETONLY)
+        : ParamModeBase(Creator, Name, modeletter, ps)
+        , ext("parammode_" + Name, ExtensionItem::EXT_CHANNEL, Creator) {
+    }
 
-	void OnUnsetInternal(User* source, Channel* chan) CXX11_OVERRIDE
-	{
-		this->OnUnset(source, chan);
-		ext.unset(chan);
-	}
+    void OnUnsetInternal(User* source, Channel* chan) CXX11_OVERRIDE {
+        this->OnUnset(source, chan);
+        ext.unset(chan);
+    }
 
-	void GetParameter(Channel* chan, std::string& out) CXX11_OVERRIDE
-	{
-		T* mh = static_cast<T*>(this);
-		mh->SerializeParam(chan, ext.get(chan), out);
-	}
+    void GetParameter(Channel* chan, std::string& out) CXX11_OVERRIDE {
+        T* mh = static_cast<T*>(this);
+        mh->SerializeParam(chan, ext.get(chan), out);
+    }
 };

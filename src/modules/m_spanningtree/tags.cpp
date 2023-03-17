@@ -20,19 +20,18 @@
 #include "main.h"
 
 ServiceTag::ServiceTag(Module* mod)
-	: ClientProtocol::MessageTagProvider(mod)
-	, ctctagcap(mod)
-{
+    : ClientProtocol::MessageTagProvider(mod)
+    , ctctagcap(mod) {
 }
 
-void ServiceTag::OnPopulateTags(ClientProtocol::Message& msg)
-{
-	User* const user = msg.GetSourceUser();
-	if (user && user->server->IsULine())
-		msg.AddTag("inspircd.org/service", this, "");
+void ServiceTag::OnPopulateTags(ClientProtocol::Message& msg) {
+    User* const user = msg.GetSourceUser();
+    if (user && user->server->IsULine()) {
+        msg.AddTag("inspircd.org/service", this, "");
+    }
 }
 
-bool ServiceTag::ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata)
-{
-	return ctctagcap.get(user);
+bool ServiceTag::ShouldSendTag(LocalUser* user,
+                               const ClientProtocol::MessageTagData& tagdata) {
+    return ctctagcap.get(user);
 }

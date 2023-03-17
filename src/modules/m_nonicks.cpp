@@ -27,51 +27,48 @@
 #include "inspircd.h"
 #include "modules/exemption.h"
 
-class ModuleNoNickChange : public Module
-{
-	CheckExemption::EventProvider exemptionprov;
-	SimpleChannelModeHandler nn;
- public:
-	ModuleNoNickChange()
-		: exemptionprov(this)
-		, nn(this, "nonick", 'N')
-	{
-	}
+class ModuleNoNickChange : public Module {
+    CheckExemption::EventProvider exemptionprov;
+    SimpleChannelModeHandler nn;
+  public:
+    ModuleNoNickChange()
+        : exemptionprov(this)
+        , nn(this, "nonick", 'N') {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds channel mode N (nonick) which prevents users from changing their nickname whilst in the channel.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds channel mode N (nonick) which prevents users from changing their nickname whilst in the channel.", VF_VENDOR);
+    }
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["EXTBAN"].push_back('N');
-	}
+    void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE {
+        tokens["EXTBAN"].push_back('N');
+    }
 
-	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE
-	{
-		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); i++)
-		{
-			Channel* curr = (*i)->chan;
+    ModResult OnUserPreNick(LocalUser* user,
+                            const std::string& newnick) CXX11_OVERRIDE {
+        for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); i++) {
+            Channel* curr = (*i)->chan;
 
-			ModResult res = CheckExemption::Call(exemptionprov, user, curr, "nonick");
-			if (res == MOD_RES_ALLOW)
-				continue;
+            ModResult res = CheckExemption::Call(exemptionprov, user, curr, "nonick");
+            if (res == MOD_RES_ALLOW) {
+                continue;
+            }
 
-			if (user->HasPrivPermission("channels/ignore-nonicks"))
-				continue;
+            if (user->HasPrivPermission("channels/ignore-nonicks")) {
+                continue;
+            }
 
-			bool modeset = curr->IsModeSet(nn);
-			if (!curr->GetExtBanStatus(user, 'N').check(!modeset))
-			{
-				user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("Can't change nickname while on %s (%s)",
-					curr->name.c_str(), modeset ? "+N is set" : "you're extbanned"));
-				return MOD_RES_DENY;
-			}
-		}
+            bool modeset = curr->IsModeSet(nn);
+            if (!curr->GetExtBanStatus(user, 'N').check(!modeset)) {
+                user->WriteNumeric(ERR_CANTCHANGENICK,
+                                   InspIRCd::Format("Can't change nickname while on %s (%s)",
+                                                    curr->name.c_str(), modeset ? "+N is set" : "you're extbanned"));
+                return MOD_RES_DENY;
+            }
+        }
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 };
 
 MODULE_INIT(ModuleNoNickChange)

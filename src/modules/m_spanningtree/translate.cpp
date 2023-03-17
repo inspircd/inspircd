@@ -20,29 +20,28 @@
 #include "inspircd.h"
 #include "translate.h"
 
-std::string Translate::ModeChangeListToParams(const Modes::ChangeList::List& modes)
-{
-	std::string ret;
-	for (Modes::ChangeList::List::const_iterator i = modes.begin(); i != modes.end(); ++i)
-	{
-		const Modes::Change& item = *i;
-		ModeHandler* mh = item.mh;
-		if (!mh->NeedsParam(item.adding))
-			continue;
+std::string Translate::ModeChangeListToParams(const Modes::ChangeList::List&
+        modes) {
+    std::string ret;
+    for (Modes::ChangeList::List::const_iterator i = modes.begin();
+            i != modes.end(); ++i) {
+        const Modes::Change& item = *i;
+        ModeHandler* mh = item.mh;
+        if (!mh->NeedsParam(item.adding)) {
+            continue;
+        }
 
-		ret.push_back(' ');
+        ret.push_back(' ');
 
-		if (mh->IsPrefixMode())
-		{
-			User* target = ServerInstance->FindNick(item.param);
-			if (target)
-			{
-				ret.append(target->uuid);
-				continue;
-			}
-		}
+        if (mh->IsPrefixMode()) {
+            User* target = ServerInstance->FindNick(item.param);
+            if (target) {
+                ret.append(target->uuid);
+                continue;
+            }
+        }
 
-		ret.append(item.param);
-	}
-	return ret;
+        ret.append(item.param);
+    }
+    return ret;
 }

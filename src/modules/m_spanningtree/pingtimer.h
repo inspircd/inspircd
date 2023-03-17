@@ -23,55 +23,53 @@ class TreeServer;
 
 /** Handles PINGing servers and killing them on timeout
  */
-class PingTimer : public Timer
-{
-	enum State
-	{
-		/** Send PING next */
-		PS_SENDPING,
-		/** Warn opers next */
-		PS_WARN,
-		/** Kill the server next due to ping timeout */
-		PS_TIMEOUT,
-		/** Do nothing */
-		PS_IDLE
-	};
+class PingTimer : public Timer {
+    enum State {
+        /** Send PING next */
+        PS_SENDPING,
+        /** Warn opers next */
+        PS_WARN,
+        /** Kill the server next due to ping timeout */
+        PS_TIMEOUT,
+        /** Do nothing */
+        PS_IDLE
+    };
 
-	/** Server the timer is interacting with
-	 */
-	TreeServer* const server;
+    /** Server the timer is interacting with
+     */
+    TreeServer* const server;
 
-	/** What to do when the timer ticks next
-	 */
-	State state;
+    /** What to do when the timer ticks next
+     */
+    State state;
 
-	/** Last ping time in milliseconds, used to calculate round trip time
-	 */
-	unsigned long LastPingMsec;
+    /** Last ping time in milliseconds, used to calculate round trip time
+     */
+    unsigned long LastPingMsec;
 
-	/** Update internal state and reschedule timer according to the new state
-	 * @param newstate State to change to
-	 */
-	void SetState(State newstate);
+    /** Update internal state and reschedule timer according to the new state
+     * @param newstate State to change to
+     */
+    void SetState(State newstate);
 
-	/** Process timer tick event
-	 * @return State to change to
-	 */
-	State TickInternal();
+    /** Process timer tick event
+     * @return State to change to
+     */
+    State TickInternal();
 
-	/** Called by the TimerManager when the timer expires
-	 * @param currtime Time now
-	 * @return Always false, we reschedule ourselves instead
-	 */
-	bool Tick(time_t currtime) CXX11_OVERRIDE;
+    /** Called by the TimerManager when the timer expires
+     * @param currtime Time now
+     * @return Always false, we reschedule ourselves instead
+     */
+    bool Tick(time_t currtime) CXX11_OVERRIDE;
 
- public:
-	/** Construct the timer. This doesn't schedule the timer.
-	 * @param server TreeServer to interact with
-	 */
-	PingTimer(TreeServer* server);
+  public:
+    /** Construct the timer. This doesn't schedule the timer.
+     * @param server TreeServer to interact with
+     */
+    PingTimer(TreeServer* server);
 
-	/** Register a PONG from the server
-	 */
-	void OnPong();
+    /** Register a PONG from the server
+     */
+    void OnPong();
 };

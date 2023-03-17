@@ -27,62 +27,57 @@
 #include "inspircd.h"
 #include "core_user.h"
 
-enum
-{
-	// From RFC 1459.
-	RPL_UNAWAY = 305,
-	RPL_NOWAWAY = 306
+enum {
+    // From RFC 1459.
+    RPL_UNAWAY = 305,
+    RPL_NOWAWAY = 306
 };
 
 CommandAway::CommandAway(Module* parent)
-	: Command(parent, "AWAY", 0, 1)
-	, awayevprov(parent)
-{
-	allow_empty_last_param = false;
-	syntax = "[:<message>]";
+    : Command(parent, "AWAY", 0, 1)
+    , awayevprov(parent) {
+    allow_empty_last_param = false;
+    syntax = "[:<message>]";
 }
 
 /** Handle /AWAY
  */
-CmdResult CommandAway::Handle(User* user, const Params& parameters)
-{
-	LocalUser* luser = IS_LOCAL(user);
-	ModResult MOD_RESULT;
+CmdResult CommandAway::Handle(User* user, const Params& parameters) {
+    LocalUser* luser = IS_LOCAL(user);
+    ModResult MOD_RESULT;
 
-	if (!parameters.empty())
-	{
-		std::string message(parameters[0]);
-		if (luser)
-		{
-			FIRST_MOD_RESULT_CUSTOM(awayevprov, Away::EventListener, OnUserPreAway, MOD_RESULT, (luser, message));
-			if (MOD_RESULT == MOD_RES_DENY)
-				return CMD_FAILURE;
-		}
+    if (!parameters.empty()) {
+        std::string message(parameters[0]);
+        if (luser) {
+            FIRST_MOD_RESULT_CUSTOM(awayevprov, Away::EventListener, OnUserPreAway,
+                                    MOD_RESULT, (luser, message));
+            if (MOD_RESULT == MOD_RES_DENY) {
+                return CMD_FAILURE;
+            }
+        }
 
-		user->awaytime = ServerInstance->Time();
-		user->awaymsg.assign(message, 0, ServerInstance->Config->Limits.MaxAway);
-		user->WriteNumeric(RPL_NOWAWAY, "You have been marked as being away");
-		FOREACH_MOD_CUSTOM(awayevprov, Away::EventListener, OnUserAway, (user));
-	}
-	else
-	{
-		if (luser)
-		{
-			FIRST_MOD_RESULT_CUSTOM(awayevprov, Away::EventListener, OnUserPreBack, MOD_RESULT, (luser));
-			if (MOD_RESULT == MOD_RES_DENY)
-				return CMD_FAILURE;
-		}
+        user->awaytime = ServerInstance->Time();
+        user->awaymsg.assign(message, 0, ServerInstance->Config->Limits.MaxAway);
+        user->WriteNumeric(RPL_NOWAWAY, "You have been marked as being away");
+        FOREACH_MOD_CUSTOM(awayevprov, Away::EventListener, OnUserAway, (user));
+    } else {
+        if (luser) {
+            FIRST_MOD_RESULT_CUSTOM(awayevprov, Away::EventListener, OnUserPreBack,
+                                    MOD_RESULT, (luser));
+            if (MOD_RESULT == MOD_RES_DENY) {
+                return CMD_FAILURE;
+            }
+        }
 
-		user->awaytime = 0;
-		user->awaymsg.clear();
-		user->WriteNumeric(RPL_UNAWAY, "You are no longer marked as being away");
-		FOREACH_MOD_CUSTOM(awayevprov, Away::EventListener, OnUserBack, (user));
-	}
+        user->awaytime = 0;
+        user->awaymsg.clear();
+        user->WriteNumeric(RPL_UNAWAY, "You are no longer marked as being away");
+        FOREACH_MOD_CUSTOM(awayevprov, Away::EventListener, OnUserBack, (user));
+    }
 
-	return CMD_SUCCESS;
+    return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandAway::GetRouting(User* user, const Params& parameters)
-{
-	return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
+RouteDescriptor CommandAway::GetRouting(User* user, const Params& parameters) {
+    return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
 }

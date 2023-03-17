@@ -35,135 +35,116 @@
  *
  * Basically it's a SAPART + SAJOIN in 1 command
  */
-class CommandSamove : public Command
-{
- public:
-	CommandSamove(Module* Creator) : Command(Creator,"SAMOVE", 1)
-	{
-		allow_empty_last_param = false;
-		flags_needed = 'o';
-		syntax = "<nick> <fromchannel> <tochannel>";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_TEXT);		
-	}
+class CommandSamove : public Command {
+  public:
+    CommandSamove(Module* Creator) : Command(Creator,"SAMOVE", 1) {
+        allow_empty_last_param = false;
+        flags_needed = 'o';
+        syntax = "<nick> <fromchannel> <tochannel>";
+        TRANSLATE3(TR_NICK, TR_TEXT, TR_TEXT);
+    }
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE				
-	{
-		if (parameters.size() != 3) 
-		{
-			return CMD_FAILURE;			
-		}
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE {
+        if (parameters.size() != 3) {
+            return CMD_FAILURE;
+        }
 
-		const std::string& nickname = parameters[0];
-		const std::string& from_channel = parameters[1];
-		const std::string& to_channel = parameters[2];
+        const std::string& nickname = parameters[0];
+        const std::string& from_channel = parameters[1];
+        const std::string& to_channel = parameters[2];
 
-		User* dest = ServerInstance->FindNick(nickname);
-		if ((dest) && (dest->registered == REG_ALL))
-		{
+        User* dest = ServerInstance->FindNick(nickname);
+        if ((dest) && (dest->registered == REG_ALL)) {
 
-			if (dest->server->IsULine())
-			{
-				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a U-lined client");
-				return CMD_FAILURE;
-			}
-			if (IS_LOCAL(user) && !ServerInstance->IsChannel(from_channel))
-			{
-				/* we didn't need to check this for each character ;) */
-				user->WriteNotice("*** Invalid characters in 'from channel' name or name too long");
-				return CMD_FAILURE;
-			}
-			if (IS_LOCAL(user) && !ServerInstance->IsChannel(to_channel))
-			{
-				/* we didn't need to check this for each character ;) */
-				user->WriteNotice("*** Invalid characters in 'to channel' name or name too long");
-				return CMD_FAILURE;
-			}
-			Channel* from_chan = ServerInstance->FindChan(from_channel);
-			if (!(from_chan))
-			{
-				user->WriteRemoteNotice("*** invalid 'from channel' " + from_channel);
-				return CMD_FAILURE;
-			}
-			Channel* to_chan = ServerInstance->FindChan(to_channel);
-			if (!(to_chan))
-			{
-				user->WriteRemoteNotice("*** invalid 'to channel' " + to_channel);
-				return CMD_FAILURE;
-			}
-
-			
+            if (dest->server->IsULine()) {
+                user->WriteNumeric(ERR_NOPRIVILEGES,
+                                   "Cannot use an SA command on a U-lined client");
+                return CMD_FAILURE;
+            }
+            if (IS_LOCAL(user) && !ServerInstance->IsChannel(from_channel)) {
+                /* we didn't need to check this for each character ;) */
+                user->WriteNotice("*** Invalid characters in 'from channel' name or name too long");
+                return CMD_FAILURE;
+            }
+            if (IS_LOCAL(user) && !ServerInstance->IsChannel(to_channel)) {
+                /* we didn't need to check this for each character ;) */
+                user->WriteNotice("*** Invalid characters in 'to channel' name or name too long");
+                return CMD_FAILURE;
+            }
+            Channel* from_chan = ServerInstance->FindChan(from_channel);
+            if (!(from_chan)) {
+                user->WriteRemoteNotice("*** invalid 'from channel' " + from_channel);
+                return CMD_FAILURE;
+            }
+            Channel* to_chan = ServerInstance->FindChan(to_channel);
+            if (!(to_chan)) {
+                user->WriteRemoteNotice("*** invalid 'to channel' " + to_channel);
+                return CMD_FAILURE;
+            }
 
 
 
-			/* For local users, we call Channel::JoinUser which may create a channel and set its TS, also PART them directly
-			 * For non-local users, we just return CMD_SUCCESS, knowing this will propagate it where it needs to be
-			 * and then that server will handle the command.
-			 */
-			LocalUser* localuser = IS_LOCAL(dest);
-			if (localuser)
-			{
-				/*
-				 * 
-				 */
-
-				if ((from_chan) && (from_chan->HasUser(dest))) 
-				{
-					std::string msg; //PartUser doesn't accept a const reference atm
-					from_chan->PartUser(dest, msg);
-				}
-
-				if ((to_chan) && (!to_chan->HasUser(dest))) 
-				{
-					Channel* chan = Channel::JoinUser(localuser, to_channel, true);
-					if (!chan)
-					{
-						user->WriteNotice("*** Could not join "+dest->nick+" to "+to_channel);
-						return CMD_FAILURE;
-					}
-
-				}
 
 
-				ServerInstance->SNO->WriteGlobalSno('m', user->nick+" used SAMOVE to move "+dest->nick+" from "+from_channel+" to "+to_channel);
-				return CMD_SUCCESS;
+            /* For local users, we call Channel::JoinUser which may create a channel and set its TS, also PART them directly
+             * For non-local users, we just return CMD_SUCCESS, knowing this will propagate it where it needs to be
+             * and then that server will handle the command.
+             */
+            LocalUser* localuser = IS_LOCAL(dest);
+            if (localuser) {
+                /*
+                 *
+                 */
 
-			}
-			else
-			{
-				return CMD_SUCCESS;
-			}
-		}
-		else
-		{
-			user->WriteNotice("*** No such nickname: '" + nickname + "'");
-			return CMD_FAILURE;
-		}
-	}
+                if ((from_chan) && (from_chan->HasUser(dest))) {
+                    std::string msg; //PartUser doesn't accept a const reference atm
+                    from_chan->PartUser(dest, msg);
+                }
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		return ROUTE_OPT_UCAST(parameters[0]);
-	}
+                if ((to_chan) && (!to_chan->HasUser(dest))) {
+                    Channel* chan = Channel::JoinUser(localuser, to_channel, true);
+                    if (!chan) {
+                        user->WriteNotice("*** Could not join "+dest->nick+" to "+to_channel);
+                        return CMD_FAILURE;
+                    }
+
+                }
+
+
+                ServerInstance->SNO->WriteGlobalSno('m',
+                                                    user->nick+" used SAMOVE to move "+dest->nick+" from "+from_channel+" to "
+                                                    +to_channel);
+                return CMD_SUCCESS;
+
+            } else {
+                return CMD_SUCCESS;
+            }
+        } else {
+            user->WriteNotice("*** No such nickname: '" + nickname + "'");
+            return CMD_FAILURE;
+        }
+    }
+
+    RouteDescriptor GetRouting(User* user,
+                               const Params& parameters) CXX11_OVERRIDE {
+        return ROUTE_OPT_UCAST(parameters[0]);
+    }
 };
 
-class ModuleSamove : public Module
-{
-	CommandSamove cmd;
- public:
-	ModuleSamove()
-		: cmd(this)
-	{
-	}
+class ModuleSamove : public Module {
+    CommandSamove cmd;
+  public:
+    ModuleSamove()
+        : cmd(this) {
+    }
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->SNO->EnableSnomask('m', "SAMOVE");
-	}
+    void init() CXX11_OVERRIDE {
+        ServerInstance->SNO->EnableSnomask('m', "SAMOVE");
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds the /SAMOVE command which allows server operators to force move users from one channel to another.", VF_OPTCOMMON);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds the /SAMOVE command which allows server operators to force move users from one channel to another.", VF_OPTCOMMON);
+    }
 };
 
 MODULE_INIT(ModuleSamove)

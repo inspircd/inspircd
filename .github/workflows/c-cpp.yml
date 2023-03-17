@@ -28,5 +28,5 @@ jobs:
       run: make
       working-directory: ./build
     - name: make install
-      run: make install
+      run: sudo make install
       working-directory: ./build

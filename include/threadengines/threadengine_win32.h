@@ -38,37 +38,35 @@ class Thread;
  * access non-threadsafe code from a Thread, use the Mutex class to wrap
  * access to the code carefully.
  */
-class CoreExport ThreadEngine
-{
- public:
-	/** Per-thread state, present in each Thread object, managed by the ThreadEngine
-	 */
-	struct ThreadState
-	{
-		HANDLE handle;
-	};
+class CoreExport ThreadEngine {
+  public:
+    /** Per-thread state, present in each Thread object, managed by the ThreadEngine
+     */
+    struct ThreadState {
+        HANDLE handle;
+    };
 
-	static DWORD WINAPI Entry(void* parameter);
+    static DWORD WINAPI Entry(void* parameter);
 
-	/** Create a new thread. This takes an already allocated
-	 * Thread* pointer and initializes it to use this threading
-	 * engine. On failure, this function may throw a CoreException.
-	 * @param thread_to_init Pointer to a newly allocated Thread
-	 * derived object.
-	 */
-	void Start(Thread* thread_to_init);
+    /** Create a new thread. This takes an already allocated
+     * Thread* pointer and initializes it to use this threading
+     * engine. On failure, this function may throw a CoreException.
+     * @param thread_to_init Pointer to a newly allocated Thread
+     * derived object.
+     */
+    void Start(Thread* thread_to_init);
 
-	/** Stop a thread gracefully.
-	 * First, this function asks the thread to terminate by calling Thread::SetExitFlag().
-	 * Next, it waits until the thread terminates (on the operating system level). Finally,
-	 * all OS-level resources associated with the thread are released. The Thread instance
-	 * passed to the function is NOT freed.
-	 * When this function returns, the thread is stopped and you can destroy it or restart it
-	 * at a later point.
-	 * Stopping a thread that is not running is a bug.
-	 * @param thread The thread to stop.
-	 */
-	void Stop(Thread* thread);
+    /** Stop a thread gracefully.
+     * First, this function asks the thread to terminate by calling Thread::SetExitFlag().
+     * Next, it waits until the thread terminates (on the operating system level). Finally,
+     * all OS-level resources associated with the thread are released. The Thread instance
+     * passed to the function is NOT freed.
+     * When this function returns, the thread is stopped and you can destroy it or restart it
+     * at a later point.
+     * Stopping a thread that is not running is a bug.
+     * @param thread The thread to stop.
+     */
+    void Stop(Thread* thread);
 };
 
 /** The Mutex class represents a mutex, which can be used to keep threads
@@ -79,64 +77,53 @@ class CoreExport ThreadEngine
  * in InspIRCd uses critical sections, as they are faster and simpler to
  * manage.
  */
-class CoreExport Mutex
-{
- private:
-	CRITICAL_SECTION wutex;
- public:
-	Mutex()
-	{
-		InitializeCriticalSection(&wutex);
-	}
-	void Lock()
-	{
-		EnterCriticalSection(&wutex);
-	}
-	void Unlock()
-	{
-		LeaveCriticalSection(&wutex);
-	}
-	~Mutex()
-	{
-		DeleteCriticalSection(&wutex);
-	}
+class CoreExport Mutex {
+  private:
+    CRITICAL_SECTION wutex;
+  public:
+    Mutex() {
+        InitializeCriticalSection(&wutex);
+    }
+    void Lock() {
+        EnterCriticalSection(&wutex);
+    }
+    void Unlock() {
+        LeaveCriticalSection(&wutex);
+    }
+    ~Mutex() {
+        DeleteCriticalSection(&wutex);
+    }
 };
 
-class ThreadQueueData : public Mutex
-{
-	HANDLE event;
- public:
-	ThreadQueueData()
-	{
-		event = CreateEvent(NULL, false, false, NULL);
-		if (event == NULL)
-			throw CoreException("CreateEvent() failed in ThreadQueueData::ThreadQueueData()!");
-	}
+class ThreadQueueData : public Mutex {
+    HANDLE event;
+  public:
+    ThreadQueueData() {
+        event = CreateEvent(NULL, false, false, NULL);
+        if (event == NULL) {
+            throw CoreException("CreateEvent() failed in ThreadQueueData::ThreadQueueData()!");
+        }
+    }
 
-	~ThreadQueueData()
-	{
-		CloseHandle(event);
-	}
+    ~ThreadQueueData() {
+        CloseHandle(event);
+    }
 
-	void Wakeup()
-	{
-		PulseEvent(event);
-	}
+    void Wakeup() {
+        PulseEvent(event);
+    }
 
-	void Wait()
-	{
-		Unlock();
-		WaitForSingleObject(event, INFINITE);
-		Lock();
-	}
+    void Wait() {
+        Unlock();
+        WaitForSingleObject(event, INFINITE);
+        Lock();
+    }
 };
 
-class ThreadSignalData
-{
- public:
-	int connFD;
-	ThreadSignalData()
-	{
-		connFD = -1;
-	}
+class ThreadSignalData {
+  public:
+    int connFD;
+    ThreadSignalData() {
+        connFD = -1;
+    }
 };

@@ -31,16 +31,17 @@ const time_t CommandSave::SavedTimestamp = 100;
 /**
  * SAVE command - force nick change to UID on timestamp match
  */
-CmdResult CommandSave::Handle(User* user, Params& params)
-{
-	User* u = ServerInstance->FindUUID(params[0]);
-	if (!u)
-		return CMD_FAILURE;
+CmdResult CommandSave::Handle(User* user, Params& params) {
+    User* u = ServerInstance->FindUUID(params[0]);
+    if (!u) {
+        return CMD_FAILURE;
+    }
 
-	time_t ts = ConvToNum<time_t>(params[1]);
+    time_t ts = ConvToNum<time_t>(params[1]);
 
-	if (u->age == ts)
-		u->ChangeNick(u->uuid, SavedTimestamp);
+    if (u->age == ts) {
+        u->ChangeNick(u->uuid, SavedTimestamp);
+    }
 
-	return CMD_SUCCESS;
+    return CMD_SUCCESS;
 }

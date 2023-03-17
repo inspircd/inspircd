@@ -26,141 +26,139 @@
 
 /** Handle /OJOIN
  */
-class CommandOjoin : public SplitCommand
-{
- public:
-	bool active;
-	bool notice;
-	bool op;
-	ModeHandler* npmh;
-	ChanModeReference opmode;
-	CommandOjoin(Module* parent, ModeHandler& mode)
-		: SplitCommand(parent, "OJOIN", 1)
-		, npmh(&mode)
-		, opmode(parent, "op")
-	{
-		flags_needed = 'o';
-		syntax = "<channel>";
-		active = false;
-	}
+class CommandOjoin : public SplitCommand {
+  public:
+    bool active;
+    bool notice;
+    bool op;
+    ModeHandler* npmh;
+    ChanModeReference opmode;
+    CommandOjoin(Module* parent, ModeHandler& mode)
+        : SplitCommand(parent, "OJOIN", 1)
+        , npmh(&mode)
+        , opmode(parent, "op") {
+        flags_needed = 'o';
+        syntax = "<channel>";
+        active = false;
+    }
 
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		// Make sure the channel name is allowable.
-		if (!ServerInstance->IsChannel(parameters[0]))
-		{
-			user->WriteNumeric(ERR_BADCHANMASK, parameters[0], "Invalid channel name");
-			return CMD_FAILURE;
-		}
+    CmdResult HandleLocal(LocalUser* user,
+                          const Params& parameters) CXX11_OVERRIDE {
+        // Make sure the channel name is allowable.
+        if (!ServerInstance->IsChannel(parameters[0])) {
+            user->WriteNumeric(ERR_BADCHANMASK, parameters[0], "Invalid channel name");
+            return CMD_FAILURE;
+        }
 
-		active = true;
-		// override is false because we want OnUserPreJoin to run
-		Channel* channel = Channel::JoinUser(user, parameters[0], false);
-		active = false;
+        active = true;
+        // override is false because we want OnUserPreJoin to run
+        Channel* channel = Channel::JoinUser(user, parameters[0], false);
+        active = false;
 
-		if (channel)
-		{
-			ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used OJOIN to join "+channel->name);
+        if (channel) {
+            ServerInstance->SNO->WriteGlobalSno('a',
+                                                user->nick+" used OJOIN to join "+channel->name);
 
-			if (notice)
-				channel->WriteRemoteNotice(user->nick + " joined on official network business.");
-		}
-		else
-		{
-			channel = ServerInstance->FindChan(parameters[0]);
-			if (!channel)
-				return CMD_FAILURE;
+            if (notice) {
+                channel->WriteRemoteNotice(user->nick +
+                                           " joined on official network business.");
+            }
+        } else {
+            channel = ServerInstance->FindChan(parameters[0]);
+            if (!channel) {
+                return CMD_FAILURE;
+            }
 
-			ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used OJOIN in "+parameters[0]);
-			// they're already in the channel
-			Modes::ChangeList changelist;
-			changelist.push_add(npmh, user->nick);
-			if (op && opmode)
-				changelist.push_add(*opmode, user->nick);
-			ServerInstance->Modes->Process(ServerInstance->FakeClient, channel, NULL, changelist);
-		}
-		return CMD_SUCCESS;
-	}
+            ServerInstance->SNO->WriteGlobalSno('a',
+                                                user->nick+" used OJOIN in "+parameters[0]);
+            // they're already in the channel
+            Modes::ChangeList changelist;
+            changelist.push_add(npmh, user->nick);
+            if (op && opmode) {
+                changelist.push_add(*opmode, user->nick);
+            }
+            ServerInstance->Modes->Process(ServerInstance->FakeClient, channel, NULL,
+                                           changelist);
+        }
+        return CMD_SUCCESS;
+    }
 };
 
 /** channel mode +Y
  */
-class NetworkPrefix : public PrefixMode
-{
- public:
-	NetworkPrefix(Module* parent, char NPrefix)
-		: PrefixMode(parent, "official-join", 'Y', NETWORK_VALUE, NPrefix)
-	{
-		ranktoset = ranktounset = UINT_MAX;
-	}
+class NetworkPrefix : public PrefixMode {
+  public:
+    NetworkPrefix(Module* parent, char NPrefix)
+        : PrefixMode(parent, "official-join", 'Y', NETWORK_VALUE, NPrefix) {
+        ranktoset = ranktounset = UINT_MAX;
+    }
 
-	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding) CXX11_OVERRIDE
-	{
-		User* theuser = ServerInstance->FindNick(parameter);
-		// remove own privs?
-		if (source == theuser && !adding)
-			return MOD_RES_ALLOW;
+    ModResult AccessCheck(User* source, Channel* channel, std::string &parameter,
+                          bool adding) CXX11_OVERRIDE {
+        User* theuser = ServerInstance->FindNick(parameter);
+        // remove own privs?
+        if (source == theuser && !adding) {
+            return MOD_RES_ALLOW;
+        }
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 };
 
-class ModuleOjoin : public Module
-{
-	NetworkPrefix np;
-	CommandOjoin mycommand;
+class ModuleOjoin : public Module {
+    NetworkPrefix np;
+    CommandOjoin mycommand;
 
- public:
+  public:
 
-	ModuleOjoin()
-		: np(this, ServerInstance->Config->ConfValue("ojoin")->getCharacter("prefix"))
-		, mycommand(this, np)
-	{
-	}
+    ModuleOjoin()
+        : np(this, ServerInstance->Config->ConfValue("ojoin")->getCharacter("prefix"))
+        , mycommand(this, np) {
+    }
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
-	{
-		if (mycommand.active)
-		{
-			privs += np.GetModeChar();
-			if (mycommand.op && mycommand.opmode)
-				privs += mycommand.opmode->IsPrefixMode()->GetPrefix();
-			return MOD_RES_ALLOW;
-		}
+    ModResult OnUserPreJoin(LocalUser* user, Channel* chan,
+                            const std::string& cname, std::string& privs,
+                            const std::string& keygiven) CXX11_OVERRIDE {
+        if (mycommand.active) {
+            privs += np.GetModeChar();
+            if (mycommand.op && mycommand.opmode) {
+                privs += mycommand.opmode->IsPrefixMode()->GetPrefix();
+            }
+            return MOD_RES_ALLOW;
+        }
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ConfigTag* Conf = ServerInstance->Config->ConfValue("ojoin");
-		mycommand.notice = Conf->getBool("notice", true);
-		mycommand.op = Conf->getBool("op", true);
-	}
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* Conf = ServerInstance->Config->ConfValue("ojoin");
+        mycommand.notice = Conf->getBool("notice", true);
+        mycommand.op = Conf->getBool("op", true);
+    }
 
-	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason) CXX11_OVERRIDE
-	{
-		// Don't do anything if they're not +Y
-		if (!memb->HasMode(&np))
-			return MOD_RES_PASSTHRU;
+    ModResult OnUserPreKick(User* source, Membership* memb,
+                            const std::string &reason) CXX11_OVERRIDE {
+        // Don't do anything if they're not +Y
+        if (!memb->HasMode(&np)) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		// Let them do whatever they want to themselves.
-		if (source == memb->user)
-			return MOD_RES_PASSTHRU;
+        // Let them do whatever they want to themselves.
+        if (source == memb->user) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		source->WriteNumeric(ERR_RESTRICTED, memb->chan->name, "Can't kick "+memb->user->nick+" as they're on official network business.");
-		return MOD_RES_DENY;
-	}
+        source->WriteNumeric(ERR_RESTRICTED, memb->chan->name, "Can't kick "+memb->user->nick+" as they're on official network business.");
+        return MOD_RES_DENY;
+    }
 
-	void Prioritize() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->SetPriority(this, I_OnUserPreJoin, PRIORITY_FIRST);
-	}
+    void Prioritize() CXX11_OVERRIDE {
+        ServerInstance->Modules->SetPriority(this, I_OnUserPreJoin, PRIORITY_FIRST);
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds the /OJOIN command which allows server operators to join a channel and receive the server operator-only Y (official-join) channel prefix mode.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds the /OJOIN command which allows server operators to join a channel and receive the server operator-only Y (official-join) channel prefix mode.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleOjoin)

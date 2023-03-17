@@ -31,91 +31,87 @@
 #include "modules/account.h"
 #include "modules/ctctags.h"
 
-class TagIPHost : public ClientProtocol::MessageTagProvider
-{
- private:
-	CTCTags::CapReference ctctagcap;
+class TagIPHost : public ClientProtocol::MessageTagProvider {
+  private:
+    CTCTags::CapReference ctctagcap;
 
- public:
-	std::vector<std::string> accounts;
+  public:
+    std::vector<std::string> accounts;
 
-	TagIPHost(Module* mod)
-		: ClientProtocol::MessageTagProvider(mod)
-		, ctctagcap(mod)
-	{
-	}
+    TagIPHost(Module* mod)
+        : ClientProtocol::MessageTagProvider(mod)
+        , ctctagcap(mod) {
+    }
 
-	void OnPopulateTags(ClientProtocol::Message& msg) CXX11_OVERRIDE
-	{
-		User* const user = msg.GetSourceUser();
-		if (user && !IS_SERVER(user) && !user->server->IsULine())
-		{
-			msg.AddTag("inspircd.org/ip", this, user->GetIPString());
-			msg.AddTag("inspircd.org/realhost", this, user->GetHost(true));
-		}
-	}
+    void OnPopulateTags(ClientProtocol::Message& msg) CXX11_OVERRIDE {
+        User* const user = msg.GetSourceUser();
+        if (user && !IS_SERVER(user) && !user->server->IsULine()) {
+            msg.AddTag("inspircd.org/ip", this, user->GetIPString());
+            msg.AddTag("inspircd.org/realhost", this, user->GetHost(true));
+        }
+    }
 
-	ModResult OnProcessTag(User*, const std::string&, std::string&) CXX11_OVERRIDE
-	{
-		// Disallow anyone from sending this tag themselves.
-		return MOD_RES_DENY;
-	}
+    ModResult OnProcessTag(User*, const std::string&, std::string&) CXX11_OVERRIDE {
+        // Disallow anyone from sending this tag themselves.
+        return MOD_RES_DENY;
+    }
 
-	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData&) CXX11_OVERRIDE
-	{
-		if (!ctctagcap.get(user))
-			return false;
+    bool ShouldSendTag(LocalUser* user,
+                       const ClientProtocol::MessageTagData&) CXX11_OVERRIDE {
+        if (!ctctagcap.get(user)) {
+            return false;
+        }
 
-		if (user->HasPrivPermission("users/iphost"))
-			return true;
+        if (user->HasPrivPermission("users/iphost")) {
+            return true;
+        }
 
-		if (accounts.empty())
-			return false;
+        if (accounts.empty()) {
+            return false;
+        }
 
-		const AccountExtItem* accountext = GetAccountExtItem();
-		const std::string* account = accountext ? accountext->get(user) : NULL;
-		if (!account)
-			return false;
+        const AccountExtItem* accountext = GetAccountExtItem();
+        const std::string* account = accountext ? accountext->get(user) : NULL;
+        if (!account) {
+            return false;
+        }
 
-		for (std::vector<std::string>::const_iterator i = accounts.begin(); i != accounts.end(); ++i)
-		{
-			if (irc::equals(*account, *i))
-				return true;
-		}
+        for (std::vector<std::string>::const_iterator i = accounts.begin(); i != accounts.end(); ++i) {
+            if (irc::equals(*account, *i)) {
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 };
 
-class ModuleTagIPHost : public Module
-{
- private:
-	TagIPHost iphost;
+class ModuleTagIPHost : public Module {
+  private:
+    TagIPHost iphost;
 
- public:
-	ModuleTagIPHost()
-		: iphost(this)
-	{
-	}
+  public:
+    ModuleTagIPHost()
+        : iphost(this) {
+    }
 
-	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
-	{
-		std::vector<std::string> newaccounts;
+    void ReadConfig(ConfigStatus&) CXX11_OVERRIDE {
+        std::vector<std::string> newaccounts;
 
-		ConfigTag* tag = ServerInstance->Config->ConfValue("iphost");
-		const std::string accounts = tag->getString("accounts");
+        ConfigTag* tag = ServerInstance->Config->ConfValue("iphost");
+        const std::string accounts = tag->getString("accounts");
 
-		irc::spacesepstream ss(accounts);
-		for (std::string token; ss.GetToken(token); )
-			newaccounts.push_back(token);
+        irc::spacesepstream ss(accounts);
+        for (std::string token; ss.GetToken(token); ) {
+            newaccounts.push_back(token);
+        }
 
-		iphost.accounts.swap(newaccounts);
-	}
+        iphost.accounts.swap(newaccounts);
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides message tags for showing the IP address and real host to a privileged user.");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Provides message tags for showing the IP address and real host to a privileged user.");
+    }
 };
 
 MODULE_INIT(ModuleTagIPHost)

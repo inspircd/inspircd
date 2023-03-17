@@ -25,37 +25,37 @@
 
 #include "commands.h"
 
-CmdResult CommandSVSJoin::Handle(User* user, Params& parameters)
-{
-	// Check for valid channel name
-	if (!ServerInstance->IsChannel(parameters[1]))
-		return CMD_FAILURE;
+CmdResult CommandSVSJoin::Handle(User* user, Params& parameters) {
+    // Check for valid channel name
+    if (!ServerInstance->IsChannel(parameters[1])) {
+        return CMD_FAILURE;
+    }
 
-	// Check target exists
-	User* u = ServerInstance->FindUUID(parameters[0]);
-	if (!u)
-		return CMD_FAILURE;
+    // Check target exists
+    User* u = ServerInstance->FindUUID(parameters[0]);
+    if (!u) {
+        return CMD_FAILURE;
+    }
 
-	/* only join if it's local, otherwise just pass it on! */
-	LocalUser* localuser = IS_LOCAL(u);
-	if (localuser)
-	{
-		bool override = false;
-		std::string key;
-		if (parameters.size() >= 3)
-		{
-			key = parameters[2];
-			if (key.empty())
-				override = true;
-		}
+    /* only join if it's local, otherwise just pass it on! */
+    LocalUser* localuser = IS_LOCAL(u);
+    if (localuser) {
+        bool override = false;
+        std::string key;
+        if (parameters.size() >= 3) {
+            key = parameters[2];
+            if (key.empty()) {
+                override = true;
+            }
+        }
 
-		Channel::JoinUser(localuser, parameters[1], override, key);
-	}
+        Channel::JoinUser(localuser, parameters[1], override, key);
+    }
 
-	return CMD_SUCCESS;
+    return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandSVSJoin::GetRouting(User* user, const Params& parameters)
-{
-	return ROUTE_OPT_UCAST(parameters[0]);
+RouteDescriptor CommandSVSJoin::GetRouting(User* user,
+        const Params& parameters) {
+    return ROUTE_OPT_UCAST(parameters[0]);
 }

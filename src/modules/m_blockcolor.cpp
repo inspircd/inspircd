@@ -30,62 +30,59 @@
 #include "inspircd.h"
 #include "modules/exemption.h"
 
-class ModuleBlockColor : public Module
-{
-	CheckExemption::EventProvider exemptionprov;
-	SimpleChannelModeHandler bc;
- public:
+class ModuleBlockColor : public Module {
+    CheckExemption::EventProvider exemptionprov;
+    SimpleChannelModeHandler bc;
+  public:
 
-	ModuleBlockColor()
-		: exemptionprov(this)
-		, bc(this, "blockcolor", 'c')
-	{
-	}
+    ModuleBlockColor()
+        : exemptionprov(this)
+        , bc(this, "blockcolor", 'c') {
+    }
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["EXTBAN"].push_back('c');
-	}
+    void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE {
+        tokens["EXTBAN"].push_back('c');
+    }
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
-	{
-		if ((target.type == MessageTarget::TYPE_CHANNEL) && (IS_LOCAL(user)))
-		{
-			Channel* c = target.Get<Channel>();
+    ModResult OnUserPreMessage(User* user, const MessageTarget& target,
+                               MessageDetails& details) CXX11_OVERRIDE {
+        if ((target.type == MessageTarget::TYPE_CHANNEL) && (IS_LOCAL(user))) {
+            Channel* c = target.Get<Channel>();
 
-			ModResult res = CheckExemption::Call(exemptionprov, user, c, "blockcolor");
-			if (res == MOD_RES_ALLOW)
-				return MOD_RES_PASSTHRU;
+            ModResult res = CheckExemption::Call(exemptionprov, user, c, "blockcolor");
+            if (res == MOD_RES_ALLOW) {
+                return MOD_RES_PASSTHRU;
+            }
 
-			bool modeset = c->IsModeSet(bc);
-			if (!c->GetExtBanStatus(user, 'c').check(!modeset))
-			{
-				std::string ctcpname; // Unused.
-				std::string message;
-				if (!details.IsCTCP(ctcpname, message))
-					message.assign(details.text);
+            bool modeset = c->IsModeSet(bc);
+            if (!c->GetExtBanStatus(user, 'c').check(!modeset)) {
+                std::string ctcpname; // Unused.
+                std::string message;
+                if (!details.IsCTCP(ctcpname, message)) {
+                    message.assign(details.text);
+                }
 
-				for (std::string::iterator i = message.begin(); i != message.end(); ++i)
-				{
-					const unsigned char chr = static_cast<unsigned char>(*i);
-					if (chr < 32)
-					{
-						if (modeset)
-							user->WriteNumeric(Numerics::CannotSendTo(c, "messages containing formatting characters", &bc));
-						else
-							user->WriteNumeric(Numerics::CannotSendTo(c, "messages containing formatting characters", 'c', "nocolor"));
-						return MOD_RES_DENY;
-					}
-				}
-			}
-		}
-		return MOD_RES_PASSTHRU;
-	}
+                for (std::string::iterator i = message.begin(); i != message.end(); ++i) {
+                    const unsigned char chr = static_cast<unsigned char>(*i);
+                    if (chr < 32) {
+                        if (modeset) {
+                            user->WriteNumeric(Numerics::CannotSendTo(c,
+                                               "messages containing formatting characters", &bc));
+                        } else {
+                            user->WriteNumeric(Numerics::CannotSendTo(c,
+                                               "messages containing formatting characters", 'c', "nocolor"));
+                        }
+                        return MOD_RES_DENY;
+                    }
+                }
+            }
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds channel mode c (blockcolor) which allows channels to block messages which contain IRC formatting codes.",VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds channel mode c (blockcolor) which allows channels to block messages which contain IRC formatting codes.",VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleBlockColor)

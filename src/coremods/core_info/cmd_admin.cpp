@@ -27,22 +27,27 @@
 #include "core_info.h"
 
 CommandAdmin::CommandAdmin(Module* parent)
-	: ServerTargetCommand(parent, "ADMIN")
-{
-	Penalty = 2;
-	syntax = "[<servername>]";
+    : ServerTargetCommand(parent, "ADMIN") {
+    Penalty = 2;
+    syntax = "[<servername>]";
 }
 
 /** Handle /ADMIN
  */
-CmdResult CommandAdmin::Handle(User* user, const Params& parameters)
-{
-	if (parameters.size() > 0 && !irc::equals(parameters[0], ServerInstance->Config->ServerName))
-		return CMD_SUCCESS;
-	user->WriteRemoteNumeric(RPL_ADMINME, ServerInstance->Config->GetServerName(), "Administrative info");
-	if (!AdminName.empty())
-		user->WriteRemoteNumeric(RPL_ADMINLOC1, InspIRCd::Format("Name: %s", AdminName.c_str()));
-	user->WriteRemoteNumeric(RPL_ADMINLOC2, InspIRCd::Format("Nickname: %s", AdminNick.c_str()));
-	user->WriteRemoteNumeric(RPL_ADMINEMAIL, InspIRCd::Format("Email: %s", AdminEmail.c_str()));
-	return CMD_SUCCESS;
+CmdResult CommandAdmin::Handle(User* user, const Params& parameters) {
+    if (parameters.size() > 0
+            && !irc::equals(parameters[0], ServerInstance->Config->ServerName)) {
+        return CMD_SUCCESS;
+    }
+    user->WriteRemoteNumeric(RPL_ADMINME, ServerInstance->Config->GetServerName(),
+                             "Administrative info");
+    if (!AdminName.empty()) {
+        user->WriteRemoteNumeric(RPL_ADMINLOC1, InspIRCd::Format("Name: %s",
+                                 AdminName.c_str()));
+    }
+    user->WriteRemoteNumeric(RPL_ADMINLOC2, InspIRCd::Format("Nickname: %s",
+                             AdminNick.c_str()));
+    user->WriteRemoteNumeric(RPL_ADMINEMAIL, InspIRCd::Format("Email: %s",
+                             AdminEmail.c_str()));
+    return CMD_SUCCESS;
 }

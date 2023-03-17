@@ -32,72 +32,61 @@
 # include <regex.h>
 #endif
 
-class POSIXRegex : public Regex
-{
-	regex_t regbuf;
+class POSIXRegex : public Regex {
+    regex_t regbuf;
 
- public:
-	POSIXRegex(const std::string& rx, bool extended) : Regex(rx)
-	{
-		int flags = (extended ? REG_EXTENDED : 0) | REG_NOSUB;
-		int errcode;
-		errcode = regcomp(&regbuf, rx.c_str(), flags);
-		if (errcode)
-		{
-			// Get the error string into a std::string. YUCK this involves at least 2 string copies.
-			std::string error;
-			char* errbuf;
-			size_t sz = regerror(errcode, &regbuf, NULL, 0);
-			errbuf = new char[sz + 1];
-			memset(errbuf, 0, sz + 1);
-			regerror(errcode, &regbuf, errbuf, sz + 1);
-			error = errbuf;
-			delete[] errbuf;
-			regfree(&regbuf);
-			throw RegexException(rx, error);
-		}
-	}
+  public:
+    POSIXRegex(const std::string& rx, bool extended) : Regex(rx) {
+        int flags = (extended ? REG_EXTENDED : 0) | REG_NOSUB;
+        int errcode;
+        errcode = regcomp(&regbuf, rx.c_str(), flags);
+        if (errcode) {
+            // Get the error string into a std::string. YUCK this involves at least 2 string copies.
+            std::string error;
+            char* errbuf;
+            size_t sz = regerror(errcode, &regbuf, NULL, 0);
+            errbuf = new char[sz + 1];
+            memset(errbuf, 0, sz + 1);
+            regerror(errcode, &regbuf, errbuf, sz + 1);
+            error = errbuf;
+            delete[] errbuf;
+            regfree(&regbuf);
+            throw RegexException(rx, error);
+        }
+    }
 
-	~POSIXRegex()
-	{
-		regfree(&regbuf);
-	}
+    ~POSIXRegex() {
+        regfree(&regbuf);
+    }
 
-	bool Matches(const std::string& text) CXX11_OVERRIDE
-	{
-		return (regexec(&regbuf, text.c_str(), 0, NULL, 0) == 0);
-	}
+    bool Matches(const std::string& text) CXX11_OVERRIDE {
+        return (regexec(&regbuf, text.c_str(), 0, NULL, 0) == 0);
+    }
 };
 
-class PosixFactory : public RegexFactory
-{
- public:
-	bool extended;
-	PosixFactory(Module* m) : RegexFactory(m, "regex/posix") {}
-	Regex* Create(const std::string& expr) CXX11_OVERRIDE
-	{
-		return new POSIXRegex(expr, extended);
-	}
+class PosixFactory : public RegexFactory {
+  public:
+    bool extended;
+    PosixFactory(Module* m) : RegexFactory(m, "regex/posix") {}
+    Regex* Create(const std::string& expr) CXX11_OVERRIDE {
+        return new POSIXRegex(expr, extended);
+    }
 };
 
-class ModuleRegexPOSIX : public Module
-{
-	PosixFactory ref;
+class ModuleRegexPOSIX : public Module {
+    PosixFactory ref;
 
- public:
-	ModuleRegexPOSIX() : ref(this)
-	{
-	}
+  public:
+    ModuleRegexPOSIX() : ref(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides the posix regular expression engine which uses the POSIX.2 regular expression matching system.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Provides the posix regular expression engine which uses the POSIX.2 regular expression matching system.", VF_VENDOR);
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ref.extended = ServerInstance->Config->ConfValue("posix")->getBool("extended");
-	}
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ref.extended = ServerInstance->Config->ConfValue("posix")->getBool("extended");
+    }
 };
 
 MODULE_INIT(ModuleRegexPOSIX)

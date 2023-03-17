@@ -23,29 +23,28 @@
 
 #include "inspircd.h"
 
-class ModuleModesOnConnect : public Module
-{
- public:
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Allows the server administrator to set user modes on connecting users.", VF_VENDOR);
-	}
+class ModuleModesOnConnect : public Module {
+  public:
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Allows the server administrator to set user modes on connecting users.", VF_VENDOR);
+    }
 
-	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
-	{
-		const std::string modestr = user->MyClass->config->getString("modes");
-		if (modestr.empty())
-			return;
+    void OnUserConnect(LocalUser* user) CXX11_OVERRIDE {
+        const std::string modestr = user->MyClass->config->getString("modes");
+        if (modestr.empty()) {
+            return;
+        }
 
-		CommandBase::Params params;
-		params.push_back(user->nick);
+        CommandBase::Params params;
+        params.push_back(user->nick);
 
-		irc::spacesepstream modestream(modestr);
-		for (std::string modetoken; modestream.GetToken(modetoken); )
-			params.push_back(modetoken);
+        irc::spacesepstream modestream(modestr);
+        for (std::string modetoken; modestream.GetToken(modetoken); ) {
+            params.push_back(modetoken);
+        }
 
-		ServerInstance->Parser.CallHandler("MODE", params, user);
-	}
+        ServerInstance->Parser.CallHandler("MODE", params, user);
+    }
 };
 
 MODULE_INIT(ModuleModesOnConnect)

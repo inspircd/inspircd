@@ -33,66 +33,56 @@
 #include <sys/types.h>
 #include <tre/regex.h>
 
-class TRERegex : public Regex
-{
-	regex_t regbuf;
+class TRERegex : public Regex {
+    regex_t regbuf;
 
-public:
-	TRERegex(const std::string& rx) : Regex(rx)
-	{
-		int flags = REG_EXTENDED | REG_NOSUB;
-		int errcode;
-		errcode = regcomp(&regbuf, rx.c_str(), flags);
-		if (errcode)
-		{
-			// Get the error string into a std::string. YUCK this involves at least 2 string copies.
-			std::string error;
-			char* errbuf;
-			size_t sz = regerror(errcode, &regbuf, NULL, 0);
-			errbuf = new char[sz + 1];
-			memset(errbuf, 0, sz + 1);
-			regerror(errcode, &regbuf, errbuf, sz + 1);
-			error = errbuf;
-			delete[] errbuf;
-			regfree(&regbuf);
-			throw RegexException(rx, error);
-		}
-	}
+  public:
+    TRERegex(const std::string& rx) : Regex(rx) {
+        int flags = REG_EXTENDED | REG_NOSUB;
+        int errcode;
+        errcode = regcomp(&regbuf, rx.c_str(), flags);
+        if (errcode) {
+            // Get the error string into a std::string. YUCK this involves at least 2 string copies.
+            std::string error;
+            char* errbuf;
+            size_t sz = regerror(errcode, &regbuf, NULL, 0);
+            errbuf = new char[sz + 1];
+            memset(errbuf, 0, sz + 1);
+            regerror(errcode, &regbuf, errbuf, sz + 1);
+            error = errbuf;
+            delete[] errbuf;
+            regfree(&regbuf);
+            throw RegexException(rx, error);
+        }
+    }
 
-	~TRERegex()
-	{
-		regfree(&regbuf);
-	}
+    ~TRERegex() {
+        regfree(&regbuf);
+    }
 
-	bool Matches(const std::string& text)  CXX11_OVERRIDE
-	{
-		return (regexec(&regbuf, text.c_str(), 0, NULL, 0) == 0);
-	}
+    bool Matches(const std::string& text)  CXX11_OVERRIDE {
+        return (regexec(&regbuf, text.c_str(), 0, NULL, 0) == 0);
+    }
 };
 
-class TREFactory : public RegexFactory
-{
- public:
-	TREFactory(Module* m) : RegexFactory(m, "regex/tre") {}
-	Regex* Create(const std::string& expr) CXX11_OVERRIDE
-	{
-		return new TRERegex(expr);
-	}
+class TREFactory : public RegexFactory {
+  public:
+    TREFactory(Module* m) : RegexFactory(m, "regex/tre") {}
+    Regex* Create(const std::string& expr) CXX11_OVERRIDE {
+        return new TRERegex(expr);
+    }
 };
 
-class ModuleRegexTRE : public Module
-{
-	TREFactory trf;
+class ModuleRegexTRE : public Module {
+    TREFactory trf;
 
- public:
-	ModuleRegexTRE() : trf(this)
-	{
-	}
+  public:
+    ModuleRegexTRE() : trf(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides the tre regular expression engine which uses the TRE library.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Provides the tre regular expression engine which uses the TRE library.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleRegexTRE)

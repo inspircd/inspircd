@@ -25,102 +25,94 @@
 
 #include "inspircd.h"
 
-class ModuleConnFlood : public Module
-{
- private:
-	unsigned int seconds;
-	unsigned int timeout;
-	unsigned int boot_wait;
-	unsigned int conns;
-	unsigned int maxconns;
-	bool throttled;
-	time_t first;
-	std::string quitmsg;
+class ModuleConnFlood : public Module {
+  private:
+    unsigned int seconds;
+    unsigned int timeout;
+    unsigned int boot_wait;
+    unsigned int conns;
+    unsigned int maxconns;
+    bool throttled;
+    time_t first;
+    std::string quitmsg;
 
-	static bool IsExempt(LocalUser* user)
-	{
-		// E-lined and already banned users shouldn't be hit.
-		if (user->exempt || user->quitting)
-			return true;
+    static bool IsExempt(LocalUser* user) {
+        // E-lined and already banned users shouldn't be hit.
+        if (user->exempt || user->quitting) {
+            return true;
+        }
 
-		// Users in an exempt class shouldn't be hit.
-		return user->GetClass() && !user->GetClass()->config->getBool("useconnflood", true);
-	}
+        // Users in an exempt class shouldn't be hit.
+        return user->GetClass()
+               && !user->GetClass()->config->getBool("useconnflood", true);
+    }
 
-public:
-	ModuleConnFlood()
-		: conns(0), throttled(false)
-	{
-	}
+  public:
+    ModuleConnFlood()
+        : conns(0), throttled(false) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Throttles excessive connections to the server.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Throttles excessive connections to the server.", VF_VENDOR);
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		/* read configuration variables */
-		ConfigTag* tag = ServerInstance->Config->ConfValue("connflood");
-		/* throttle configuration */
-		seconds = tag->getDuration("period", tag->getDuration("seconds", 30));
-		maxconns = tag->getUInt("maxconns", 3);
-		timeout = tag->getDuration("timeout", 30);
-		quitmsg = tag->getString("quitmsg");
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        /* read configuration variables */
+        ConfigTag* tag = ServerInstance->Config->ConfValue("connflood");
+        /* throttle configuration */
+        seconds = tag->getDuration("period", tag->getDuration("seconds", 30));
+        maxconns = tag->getUInt("maxconns", 3);
+        timeout = tag->getDuration("timeout", 30);
+        quitmsg = tag->getString("quitmsg");
 
-		/* seconds to wait when the server just booted */
-		boot_wait = tag->getDuration("bootwait", 60*2);
+        /* seconds to wait when the server just booted */
+        boot_wait = tag->getDuration("bootwait", 60*2);
 
-		first = ServerInstance->Time();
-	}
+        first = ServerInstance->Time();
+    }
 
-	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
-	{
-		if (IsExempt(user))
-			return MOD_RES_PASSTHRU;
+    ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE {
+        if (IsExempt(user)) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		time_t next = ServerInstance->Time();
+        time_t next = ServerInstance->Time();
 
-		if ((time_t)(ServerInstance->startup_time + boot_wait) > next)
-			return MOD_RES_PASSTHRU;
+        if ((time_t)(ServerInstance->startup_time + boot_wait) > next) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		/* time difference between first and latest connection */
-		unsigned long tdiff = next - first;
+        /* time difference between first and latest connection */
+        unsigned long tdiff = next - first;
 
-		/* increase connection count */
-		conns++;
+        /* increase connection count */
+        conns++;
 
-		if (throttled)
-		{
-			if (tdiff > seconds + timeout)
-			{
-				/* expire throttle */
-				throttled = false;
-				ServerInstance->SNO->WriteGlobalSno('a', "Connection throttle deactivated");
-				return MOD_RES_PASSTHRU;
-			}
+        if (throttled) {
+            if (tdiff > seconds + timeout) {
+                /* expire throttle */
+                throttled = false;
+                ServerInstance->SNO->WriteGlobalSno('a', "Connection throttle deactivated");
+                return MOD_RES_PASSTHRU;
+            }
 
-			ServerInstance->Users->QuitUser(user, quitmsg);
-			return MOD_RES_DENY;
-		}
+            ServerInstance->Users->QuitUser(user, quitmsg);
+            return MOD_RES_DENY;
+        }
 
-		if (tdiff <= seconds)
-		{
-			if (conns >= maxconns)
-			{
-				throttled = true;
-				ServerInstance->SNO->WriteGlobalSno('a', "Connection throttle activated");
-				ServerInstance->Users->QuitUser(user, quitmsg);
-				return MOD_RES_DENY;
-			}
-		}
-		else
-		{
-			conns = 1;
-			first = next;
-		}
-		return MOD_RES_PASSTHRU;
-	}
+        if (tdiff <= seconds) {
+            if (conns >= maxconns) {
+                throttled = true;
+                ServerInstance->SNO->WriteGlobalSno('a', "Connection throttle activated");
+                ServerInstance->Users->QuitUser(user, quitmsg);
+                return MOD_RES_DENY;
+            }
+        } else {
+            conns = 1;
+            first = next;
+        }
+        return MOD_RES_PASSTHRU;
+    }
 };
 
 MODULE_INIT(ModuleConnFlood)

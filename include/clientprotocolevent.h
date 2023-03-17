@@ -20,60 +20,62 @@
 
 #pragma once
 
-namespace ClientProtocol
-{
-	namespace Events
-	{
-		struct Join;
-		class Mode;
-	}
+namespace ClientProtocol {
+namespace Events {
+struct Join;
+class Mode;
+}
 }
 
-struct CoreExport ClientProtocol::Events::Join : public ClientProtocol::Messages::Join, public ClientProtocol::Event
-{
-	Join()
-		: ClientProtocol::Event(ServerInstance->GetRFCEvents().join, *this)
-	{
-	}
+struct CoreExport ClientProtocol::Events::Join : public
+    ClientProtocol::Messages::Join, public ClientProtocol::Event {
+    Join()
+        : ClientProtocol::Event(ServerInstance->GetRFCEvents().join, *this) {
+    }
 
-	Join(Membership* Memb)
-		: ClientProtocol::Messages::Join(Memb)
-		, ClientProtocol::Event(ServerInstance->GetRFCEvents().join, *this)
-	{
-	}
+    Join(Membership* Memb)
+        : ClientProtocol::Messages::Join(Memb)
+        , ClientProtocol::Event(ServerInstance->GetRFCEvents().join, *this) {
+    }
 
-	Join(Membership* Memb, const std::string& Sourcestr)
-		: ClientProtocol::Messages::Join(Memb, Sourcestr)
-		, ClientProtocol::Event(ServerInstance->GetRFCEvents().join, *this)
-	{
-	}
+    Join(Membership* Memb, const std::string& Sourcestr)
+        : ClientProtocol::Messages::Join(Memb, Sourcestr)
+        , ClientProtocol::Event(ServerInstance->GetRFCEvents().join, *this) {
+    }
 };
 
-class CoreExport ClientProtocol::Events::Mode : public ClientProtocol::Event
-{
-	std::list<ClientProtocol::Messages::Mode> modelist;
-	std::vector<Message*> modemsgplist;
-	const Modes::ChangeList& modechanges;
+class CoreExport ClientProtocol::Events::Mode : public ClientProtocol::Event {
+    std::list<ClientProtocol::Messages::Mode> modelist;
+    std::vector<Message*> modemsgplist;
+    const Modes::ChangeList& modechanges;
 
- public:
-	static void BuildMessages(User* source, Channel* Chantarget, User* Usertarget, const Modes::ChangeList& changelist, std::list<ClientProtocol::Messages::Mode>& modelist, std::vector<Message*>& modemsgplist)
-	{
-		// Build as many MODEs as necessary
-		for (Modes::ChangeList::List::const_iterator i = changelist.getlist().begin(); i != changelist.getlist().end(); i = modelist.back().GetEndIterator())
-		{
-			modelist.push_back(ClientProtocol::Messages::Mode(source, Chantarget, Usertarget, changelist, i));
-			modemsgplist.push_back(&modelist.back());
-		}
-	}
+  public:
+    static void BuildMessages(User* source, Channel* Chantarget, User* Usertarget,
+                              const Modes::ChangeList& changelist,
+                              std::list<ClientProtocol::Messages::Mode>& modelist,
+                              std::vector<Message*>& modemsgplist) {
+        // Build as many MODEs as necessary
+        for (Modes::ChangeList::List::const_iterator i = changelist.getlist().begin();
+                i != changelist.getlist().end(); i = modelist.back().GetEndIterator()) {
+            modelist.push_back(ClientProtocol::Messages::Mode(source, Chantarget,
+                               Usertarget, changelist, i));
+            modemsgplist.push_back(&modelist.back());
+        }
+    }
 
-	Mode(User* source, Channel* Chantarget, User* Usertarget, const Modes::ChangeList& changelist)
-		: ClientProtocol::Event(ServerInstance->GetRFCEvents().mode)
-		, modechanges(changelist)
-	{
-		BuildMessages(source, Chantarget, Usertarget, changelist, modelist, modemsgplist);
-		SetMessageList(modemsgplist);
-	}
+    Mode(User* source, Channel* Chantarget, User* Usertarget,
+         const Modes::ChangeList& changelist)
+        : ClientProtocol::Event(ServerInstance->GetRFCEvents().mode)
+        , modechanges(changelist) {
+        BuildMessages(source, Chantarget, Usertarget, changelist, modelist,
+                      modemsgplist);
+        SetMessageList(modemsgplist);
+    }
 
-	const Modes::ChangeList& GetChangeList() const { return modechanges; }
-	const std::list<ClientProtocol::Messages::Mode>& GetMessages() const { return modelist; }
+    const Modes::ChangeList& GetChangeList() const {
+        return modechanges;
+    }
+    const std::list<ClientProtocol::Messages::Mode>& GetMessages() const {
+        return modelist;
+    }
 };

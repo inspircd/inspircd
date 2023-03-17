@@ -29,364 +29,343 @@
 #include <typeinfo>
 #endif
 
-classbase::classbase()
-{
+classbase::classbase() {
 #ifdef INSPIRCD_ENABLE_RTTI
-	if (ServerInstance)
-		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "classbase::+%s @%p", typeid(*this).name(), (void*)this);
+    if (ServerInstance) {
+        ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "classbase::+%s @%p",
+                                  typeid(*this).name(), (void*)this);
+    }
 #endif
 }
 
-CullResult classbase::cull()
-{
+CullResult classbase::cull() {
 #ifdef INSPIRCD_ENABLE_RTTI
-	if (ServerInstance)
-		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "classbase::-%s @%p", typeid(*this).name(), (void*)this);
+    if (ServerInstance) {
+        ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "classbase::-%s @%p",
+                                  typeid(*this).name(), (void*)this);
+    }
 #endif
-	return CullResult();
+    return CullResult();
 }
 
-classbase::~classbase()
-{
+classbase::~classbase() {
 #ifdef INSPIRCD_ENABLE_RTTI
-	if (ServerInstance)
-		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "classbase::~%s @%p", typeid(*this).name(), (void*)this);
+    if (ServerInstance) {
+        ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "classbase::~%s @%p",
+                                  typeid(*this).name(), (void*)this);
+    }
 #endif
 }
 
-CullResult::CullResult()
-{
+CullResult::CullResult() {
 }
 
 // This trick detects heap allocations of refcountbase objects
 static void* last_heap = NULL;
 
-void* refcountbase::operator new(size_t size)
-{
-	last_heap = ::operator new(size);
-	return last_heap;
+void* refcountbase::operator new(size_t size) {
+    last_heap = ::operator new(size);
+    return last_heap;
 }
 
-void refcountbase::operator delete(void* obj)
-{
-	if (last_heap == obj)
-		last_heap = NULL;
-	::operator delete(obj);
+void refcountbase::operator delete(void* obj) {
+    if (last_heap == obj) {
+        last_heap = NULL;
+    }
+    ::operator delete(obj);
 }
 
-refcountbase::refcountbase() : refcount(0)
-{
-	if (this != last_heap)
-		throw CoreException("Reference allocate on the stack!");
+refcountbase::refcountbase() : refcount(0) {
+    if (this != last_heap) {
+        throw CoreException("Reference allocate on the stack!");
+    }
 }
 
-refcountbase::~refcountbase()
-{
-	if (refcount && ServerInstance)
-		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "refcountbase::~ @%p with refcount %d",
-			(void*)this, refcount);
+refcountbase::~refcountbase() {
+    if (refcount && ServerInstance)
+        ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG,
+                                  "refcountbase::~ @%p with refcount %d",
+                                  (void*)this, refcount);
 }
 
-usecountbase::~usecountbase()
-{
-	if (usecount && ServerInstance)
-		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "usecountbase::~ @%p with refcount %d",
-			(void*)this, usecount);
+usecountbase::~usecountbase() {
+    if (usecount && ServerInstance)
+        ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG,
+                                  "usecountbase::~ @%p with refcount %d",
+                                  (void*)this, usecount);
 }
 
-ServiceProvider::~ServiceProvider()
-{
+ServiceProvider::~ServiceProvider() {
 }
 
-void ServiceProvider::RegisterService()
-{
+void ServiceProvider::RegisterService() {
 }
 
-ExtensionItem::ExtensionItem(const std::string& Key, ExtensibleType exttype, Module* mod)
-	: ServiceProvider(mod, Key, SERVICE_METADATA)
-	, type(exttype)
-{
+ExtensionItem::ExtensionItem(const std::string& Key, ExtensibleType exttype,
+                             Module* mod)
+    : ServiceProvider(mod, Key, SERVICE_METADATA)
+    , type(exttype) {
 }
 
-ExtensionItem::~ExtensionItem()
-{
+ExtensionItem::~ExtensionItem() {
 }
 
-void* ExtensionItem::get_raw(const Extensible* container) const
-{
-	Extensible::ExtensibleStore::const_iterator i =
-		container->extensions.find(const_cast<ExtensionItem*>(this));
-	if (i == container->extensions.end())
-		return NULL;
-	return i->second;
+void* ExtensionItem::get_raw(const Extensible* container) const {
+    Extensible::ExtensibleStore::const_iterator i =
+        container->extensions.find(const_cast<ExtensionItem*>(this));
+    if (i == container->extensions.end()) {
+        return NULL;
+    }
+    return i->second;
 }
 
-void* ExtensionItem::set_raw(Extensible* container, void* value)
-{
-	std::pair<Extensible::ExtensibleStore::iterator,bool> rv =
-		container->extensions.insert(std::make_pair(this, value));
-	if (rv.second)
-	{
-		return NULL;
-	}
-	else
-	{
-		void* old = rv.first->second;
-		rv.first->second = value;
-		return old;
-	}
+void* ExtensionItem::set_raw(Extensible* container, void* value) {
+    std::pair<Extensible::ExtensibleStore::iterator,bool> rv =
+        container->extensions.insert(std::make_pair(this, value));
+    if (rv.second) {
+        return NULL;
+    } else {
+        void* old = rv.first->second;
+        rv.first->second = value;
+        return old;
+    }
 }
 
-void* ExtensionItem::unset_raw(Extensible* container)
-{
-	Extensible::ExtensibleStore::iterator i = container->extensions.find(this);
-	if (i == container->extensions.end())
-		return NULL;
-	void* rv = i->second;
-	container->extensions.erase(i);
-	return rv;
+void* ExtensionItem::unset_raw(Extensible* container) {
+    Extensible::ExtensibleStore::iterator i = container->extensions.find(this);
+    if (i == container->extensions.end()) {
+        return NULL;
+    }
+    void* rv = i->second;
+    container->extensions.erase(i);
+    return rv;
 }
 
-void ExtensionItem::RegisterService()
-{
-	if (!ServerInstance->Extensions.Register(this))
-		throw ModuleException("Extension already exists: " + name);
+void ExtensionItem::RegisterService() {
+    if (!ServerInstance->Extensions.Register(this)) {
+        throw ModuleException("Extension already exists: " + name);
+    }
 }
 
-bool ExtensionManager::Register(ExtensionItem* item)
-{
-	return types.insert(std::make_pair(item->name, item)).second;
+bool ExtensionManager::Register(ExtensionItem* item) {
+    return types.insert(std::make_pair(item->name, item)).second;
 }
 
-void ExtensionManager::BeginUnregister(Module* module, std::vector<reference<ExtensionItem> >& list)
-{
-	ExtMap::iterator i = types.begin();
-	while (i != types.end())
-	{
-		ExtMap::iterator me = i++;
-		ExtensionItem* item = me->second;
-		if (item->creator == module)
-		{
-			list.push_back(item);
-			types.erase(me);
-		}
-	}
+void ExtensionManager::BeginUnregister(Module* module,
+                                       std::vector<reference<ExtensionItem> >& list) {
+    ExtMap::iterator i = types.begin();
+    while (i != types.end()) {
+        ExtMap::iterator me = i++;
+        ExtensionItem* item = me->second;
+        if (item->creator == module) {
+            list.push_back(item);
+            types.erase(me);
+        }
+    }
 }
 
-ExtensionItem* ExtensionManager::GetItem(const std::string& name)
-{
-	ExtMap::iterator i = types.find(name);
-	if (i == types.end())
-		return NULL;
-	return i->second;
+ExtensionItem* ExtensionManager::GetItem(const std::string& name) {
+    ExtMap::iterator i = types.find(name);
+    if (i == types.end()) {
+        return NULL;
+    }
+    return i->second;
 }
 
-void Extensible::doUnhookExtensions(const std::vector<reference<ExtensionItem> >& toRemove)
-{
-	for(std::vector<reference<ExtensionItem> >::const_iterator i = toRemove.begin(); i != toRemove.end(); ++i)
-	{
-		ExtensionItem* item = *i;
-		ExtensibleStore::iterator e = extensions.find(item);
-		if (e != extensions.end())
-		{
-			item->free(this, e->second);
-			extensions.erase(e);
-		}
-	}
+void Extensible::doUnhookExtensions(const
+                                    std::vector<reference<ExtensionItem> >& toRemove) {
+    for(std::vector<reference<ExtensionItem> >::const_iterator i = toRemove.begin();
+            i != toRemove.end(); ++i) {
+        ExtensionItem* item = *i;
+        ExtensibleStore::iterator e = extensions.find(item);
+        if (e != extensions.end()) {
+            item->free(this, e->second);
+            extensions.erase(e);
+        }
+    }
 }
 
 Extensible::Extensible()
-	: culled(false)
-{
+    : culled(false) {
 }
 
-CullResult Extensible::cull()
-{
-	FreeAllExtItems();
-	culled = true;
-	return classbase::cull();
+CullResult Extensible::cull() {
+    FreeAllExtItems();
+    culled = true;
+    return classbase::cull();
 }
 
-void Extensible::FreeAllExtItems()
-{
-	for(ExtensibleStore::iterator i = extensions.begin(); i != extensions.end(); ++i)
-	{
-		i->first->free(this, i->second);
-	}
-	extensions.clear();
+void Extensible::FreeAllExtItems() {
+    for(ExtensibleStore::iterator i = extensions.begin(); i != extensions.end();
+            ++i) {
+        i->first->free(this, i->second);
+    }
+    extensions.clear();
 }
 
-Extensible::~Extensible()
-{
-	if ((!extensions.empty() || !culled) && ServerInstance)
-		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "Extensible destructor called without cull @%p", (void*)this);
+Extensible::~Extensible() {
+    if ((!extensions.empty() || !culled) && ServerInstance) {
+        ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG,
+                                  "Extensible destructor called without cull @%p", (void*)this);
+    }
 }
 
-void ExtensionItem::FromInternal(Extensible* container, const std::string& value)
-{
-	FromNetwork(container, value);
+void ExtensionItem::FromInternal(Extensible* container,
+                                 const std::string& value) {
+    FromNetwork(container, value);
 }
 
-void ExtensionItem::FromNetwork(Extensible* container, const std::string& value)
-{
+void ExtensionItem::FromNetwork(Extensible* container,
+                                const std::string& value) {
 }
 
-std::string ExtensionItem::ToHuman(const Extensible* container, void* item) const
-{
-	// Try to use the network form by default.
-	std::string ret = ToNetwork(container, item);
+std::string ExtensionItem::ToHuman(const Extensible* container,
+                                   void* item) const {
+    // Try to use the network form by default.
+    std::string ret = ToNetwork(container, item);
 
-	// If there's no network form then fall back to the internal form.
-	if (ret.empty())
-		ret = ToInternal(container, item);
+    // If there's no network form then fall back to the internal form.
+    if (ret.empty()) {
+        ret = ToInternal(container, item);
+    }
 
-	return ret;
+    return ret;
 }
 
-std::string ExtensionItem::ToInternal(const Extensible* container, void* item) const
-{
-	return ToNetwork(container, item);
+std::string ExtensionItem::ToInternal(const Extensible* container,
+                                      void* item) const {
+    return ToNetwork(container, item);
 }
 
-std::string ExtensionItem::ToNetwork(const Extensible* container, void* item) const
-{
-	return std::string();
+std::string ExtensionItem::ToNetwork(const Extensible* container,
+                                     void* item) const {
+    return std::string();
 }
 
-std::string ExtensionItem::serialize(SerializeFormat format, const Extensible* container, void* item) const
-{
-	// Wrap the deprecated API with the new API.
-	switch (format)
-	{
-		case FORMAT_USER:
-			return ToHuman(container, item);
-		case FORMAT_INTERNAL:
-		case FORMAT_PERSIST:
-			return ToInternal(container, item);
-		case FORMAT_NETWORK:
-			return ToNetwork(container, item);
-	}
-	return "";
+std::string ExtensionItem::serialize(SerializeFormat format,
+                                     const Extensible* container, void* item) const {
+    // Wrap the deprecated API with the new API.
+    switch (format) {
+    case FORMAT_USER:
+        return ToHuman(container, item);
+    case FORMAT_INTERNAL:
+    case FORMAT_PERSIST:
+        return ToInternal(container, item);
+    case FORMAT_NETWORK:
+        return ToNetwork(container, item);
+    }
+    return "";
 }
 
 
-void ExtensionItem::unserialize(SerializeFormat format, Extensible* container, const std::string& value)
-{
-	// Wrap the deprecated API with the new API.
-	switch (format)
-	{
-		case FORMAT_USER:
-			break;
-		case FORMAT_INTERNAL:
-		case FORMAT_PERSIST:
-			FromInternal(container, value);
-			break;
-		case FORMAT_NETWORK:
-			FromNetwork(container, value);
-			break;
-	}
+void ExtensionItem::unserialize(SerializeFormat format, Extensible* container,
+                                const std::string& value) {
+    // Wrap the deprecated API with the new API.
+    switch (format) {
+    case FORMAT_USER:
+        break;
+    case FORMAT_INTERNAL:
+    case FORMAT_PERSIST:
+        FromInternal(container, value);
+        break;
+    case FORMAT_NETWORK:
+        FromNetwork(container, value);
+        break;
+    }
 }
 
-LocalStringExt::LocalStringExt(const std::string& Key, ExtensibleType exttype, Module* Owner)
-	: SimpleExtItem<std::string>(Key, exttype, Owner)
-{
+LocalStringExt::LocalStringExt(const std::string& Key, ExtensibleType exttype,
+                               Module* Owner)
+    : SimpleExtItem<std::string>(Key, exttype, Owner) {
 }
 
-LocalStringExt::~LocalStringExt()
-{
+LocalStringExt::~LocalStringExt() {
 }
 
-std::string LocalStringExt::ToInternal(const Extensible* container, void* item) const
-{
-	return item ? *static_cast<std::string*>(item) : std::string();
+std::string LocalStringExt::ToInternal(const Extensible* container,
+                                       void* item) const {
+    return item ? *static_cast<std::string*>(item) : std::string();
 }
 
-void LocalStringExt::FromInternal(Extensible* container, const std::string& value)
-{
-	set(container, value);
+void LocalStringExt::FromInternal(Extensible* container,
+                                  const std::string& value) {
+    set(container, value);
 }
 
-LocalIntExt::LocalIntExt(const std::string& Key, ExtensibleType exttype, Module* mod)
-	: ExtensionItem(Key, exttype, mod)
-{
+LocalIntExt::LocalIntExt(const std::string& Key, ExtensibleType exttype,
+                         Module* mod)
+    : ExtensionItem(Key, exttype, mod) {
 }
 
-LocalIntExt::~LocalIntExt()
-{
+LocalIntExt::~LocalIntExt() {
 }
 
-std::string LocalIntExt::ToInternal(const Extensible* container, void* item) const
-{
-	return ConvToStr(reinterpret_cast<intptr_t>(item));
+std::string LocalIntExt::ToInternal(const Extensible* container,
+                                    void* item) const {
+    return ConvToStr(reinterpret_cast<intptr_t>(item));
 }
 
-void LocalIntExt::FromInternal(Extensible* container, const std::string& value)
-{
-	set(container, ConvToNum<intptr_t>(value));
+void LocalIntExt::FromInternal(Extensible* container,
+                               const std::string& value) {
+    set(container, ConvToNum<intptr_t>(value));
 }
 
-intptr_t LocalIntExt::get(const Extensible* container) const
-{
-	return reinterpret_cast<intptr_t>(get_raw(container));
+intptr_t LocalIntExt::get(const Extensible* container) const {
+    return reinterpret_cast<intptr_t>(get_raw(container));
 }
 
-intptr_t LocalIntExt::set(Extensible* container, intptr_t value)
-{
-	if (value)
-		return reinterpret_cast<intptr_t>(set_raw(container, reinterpret_cast<void*>(value)));
-	else
-		return reinterpret_cast<intptr_t>(unset_raw(container));
+intptr_t LocalIntExt::set(Extensible* container, intptr_t value) {
+    if (value) {
+        return reinterpret_cast<intptr_t>(set_raw(container,
+                                          reinterpret_cast<void*>(value)));
+    } else {
+        return reinterpret_cast<intptr_t>(unset_raw(container));
+    }
 }
 
-void LocalIntExt::free(Extensible* container, void* item)
-{
+void LocalIntExt::free(Extensible* container, void* item) {
 }
 
-StringExtItem::StringExtItem(const std::string& Key, ExtensibleType exttype, Module* mod)
-	: ExtensionItem(Key, exttype, mod)
-{
+StringExtItem::StringExtItem(const std::string& Key, ExtensibleType exttype,
+                             Module* mod)
+    : ExtensionItem(Key, exttype, mod) {
 }
 
-StringExtItem::~StringExtItem()
-{
+StringExtItem::~StringExtItem() {
 }
 
-std::string* StringExtItem::get(const Extensible* container) const
-{
-	return static_cast<std::string*>(get_raw(container));
+std::string* StringExtItem::get(const Extensible* container) const {
+    return static_cast<std::string*>(get_raw(container));
 }
 
-std::string StringExtItem::ToNetwork(const Extensible* container, void* item) const
-{
-	return item ? *static_cast<std::string*>(item) : std::string();
+std::string StringExtItem::ToNetwork(const Extensible* container,
+                                     void* item) const {
+    return item ? *static_cast<std::string*>(item) : std::string();
 }
 
-void StringExtItem::FromNetwork(Extensible* container, const std::string& value)
-{
-	if (value.empty())
-		unset(container);
-	else
-		set(container, value);
+void StringExtItem::FromNetwork(Extensible* container,
+                                const std::string& value) {
+    if (value.empty()) {
+        unset(container);
+    } else {
+        set(container, value);
+    }
 }
 
-void StringExtItem::set(Extensible* container, const std::string& value)
-{
-	void* old = set_raw(container, new std::string(value));
-	free(container, old);
+void StringExtItem::set(Extensible* container, const std::string& value) {
+    void* old = set_raw(container, new std::string(value));
+    free(container, old);
 }
 
-void StringExtItem::unset(Extensible* container)
-{
-	void* old = unset_raw(container);
-	free(container, old);
+void StringExtItem::unset(Extensible* container) {
+    void* old = unset_raw(container);
+    free(container, old);
 }
 
-void StringExtItem::free(Extensible* container, void* item)
-{
-	delete static_cast<std::string*>(item);
+void StringExtItem::free(Extensible* container, void* item) {
+    delete static_cast<std::string*>(item);
 }
 
 ModuleException::ModuleException(const std::string &message, Module* who)
-	: CoreException(message, who ? who->ModuleSourceFile : "A Module")
-{
+    : CoreException(message, who ? who->ModuleSourceFile : "A Module") {
 }

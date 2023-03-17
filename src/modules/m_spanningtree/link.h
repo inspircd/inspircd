@@ -26,33 +26,31 @@
 
 #pragma once
 
-class Link : public refcountbase
-{
- public:
-	reference<ConfigTag> tag;
-	std::string Name;
-	std::string IPAddr;
-	unsigned int Port;
-	std::string SendPass;
-	std::string RecvPass;
-	std::string Fingerprint;
-	std::vector<std::string> AllowMasks;
-	bool HiddenFromStats;
-	std::string Hook;
-	unsigned int Timeout;
-	std::string Bind;
-	bool Hidden;
-	Link(ConfigTag* Tag) : tag(Tag) {}
+class Link : public refcountbase {
+  public:
+    reference<ConfigTag> tag;
+    std::string Name;
+    std::string IPAddr;
+    unsigned int Port;
+    std::string SendPass;
+    std::string RecvPass;
+    std::string Fingerprint;
+    std::vector<std::string> AllowMasks;
+    bool HiddenFromStats;
+    std::string Hook;
+    unsigned int Timeout;
+    std::string Bind;
+    bool Hidden;
+    Link(ConfigTag* Tag) : tag(Tag) {}
 };
 
-class Autoconnect : public refcountbase
-{
- public:
-	reference<ConfigTag> tag;
-	std::vector<std::string> servers;
-	unsigned long Period;
-	time_t NextConnectTime;
-	/** Negative == inactive */
-	int position;
-	Autoconnect(ConfigTag* Tag) : tag(Tag) {}
+class Autoconnect : public refcountbase {
+  public:
+    reference<ConfigTag> tag;
+    std::vector<std::string> servers;
+    unsigned long Period;
+    time_t NextConnectTime;
+    /** Negative == inactive */
+    int position;
+    Autoconnect(ConfigTag* Tag) : tag(Tag) {}
 };

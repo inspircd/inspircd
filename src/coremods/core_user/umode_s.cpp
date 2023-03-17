@@ -27,133 +27,124 @@
 #include "core_user.h"
 
 ModeUserServerNoticeMask::ModeUserServerNoticeMask(Module* Creator)
-	: ModeHandler(Creator, "snomask", 's', PARAM_SETONLY, MODETYPE_USER)
-{
-	oper = true;
-	syntax = "(+|-)<snomasks>|*";
+    : ModeHandler(Creator, "snomask", 's', PARAM_SETONLY, MODETYPE_USER) {
+    oper = true;
+    syntax = "(+|-)<snomasks>|*";
 }
 
-ModeAction ModeUserServerNoticeMask::OnModeChange(User* source, User* dest, Channel*, std::string &parameter, bool adding)
-{
-	if (adding)
-	{
-		dest->SetMode(this, true);
-		// Process the parameter (remove chars we don't understand, remove redundant chars, etc.)
-		parameter = ProcessNoticeMasks(dest, parameter);
-		return MODEACTION_ALLOW;
-	}
-	else
-	{
-		if (dest->IsModeSet(this))
-		{
-			dest->SetMode(this, false);
-			dest->snomasks.reset();
-			return MODEACTION_ALLOW;
-		}
-	}
+ModeAction ModeUserServerNoticeMask::OnModeChange(User* source, User* dest,
+        Channel*, std::string &parameter, bool adding) {
+    if (adding) {
+        dest->SetMode(this, true);
+        // Process the parameter (remove chars we don't understand, remove redundant chars, etc.)
+        parameter = ProcessNoticeMasks(dest, parameter);
+        return MODEACTION_ALLOW;
+    } else {
+        if (dest->IsModeSet(this)) {
+            dest->SetMode(this, false);
+            dest->snomasks.reset();
+            return MODEACTION_ALLOW;
+        }
+    }
 
-	// Mode not set and trying to unset, deny
-	return MODEACTION_DENY;
+    // Mode not set and trying to unset, deny
+    return MODEACTION_DENY;
 }
 
-std::string ModeUserServerNoticeMask::GetUserParameter(const User* user) const
-{
-	std::string ret;
-	if (!user->IsModeSet(this))
-		return ret;
+std::string ModeUserServerNoticeMask::GetUserParameter(const User* user) const {
+    std::string ret;
+    if (!user->IsModeSet(this)) {
+        return ret;
+    }
 
-	ret.push_back('+');
-	for (unsigned char n = 0; n < 64; n++)
-	{
-		if (user->snomasks[n])
-			ret.push_back(n + 'A');
-	}
-	return ret;
+    ret.push_back('+');
+    for (unsigned char n = 0; n < 64; n++) {
+        if (user->snomasks[n]) {
+            ret.push_back(n + 'A');
+        }
+    }
+    return ret;
 }
 
-std::string ModeUserServerNoticeMask::ProcessNoticeMasks(User* user, const std::string& input)
-{
-	bool adding = true;
-	std::bitset<64> curr = user->snomasks;
+std::string ModeUserServerNoticeMask::ProcessNoticeMasks(User* user,
+        const std::string& input) {
+    bool adding = true;
+    std::bitset<64> curr = user->snomasks;
 
-	for (std::string::const_iterator i = input.begin(); i != input.end(); ++i)
-	{
-		switch (*i)
-		{
-			case '+':
-				adding = true;
-			break;
-			case '-':
-				adding = false;
-			break;
-			case '*':
-				for (size_t j = 0; j < 64; j++)
-				{
-					const char chr = j + 'A';
-					if (user->HasSnomaskPermission(chr) && ServerInstance->SNO->IsSnomaskUsable(chr))
-						curr[j] = adding;
-				}
-			break;
-			default:
-				// For local users check whether the given snomask is valid and enabled - IsSnomaskUsable() tests both.
-				// For remote users accept what we were told, unless the snomask char is not a letter.
-				if (IS_LOCAL(user))
-				{
-					if (!ServerInstance->SNO->IsSnomaskUsable(*i))
-					{
-						user->WriteNumeric(ERR_UNKNOWNSNOMASK, *i, "is an unknown snomask character");
-						continue;
-					}
-					else if (!user->IsOper())
-					{
-						user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Only operators may %sset snomask %c",
-							adding ? "" : "un", *i));
-						continue;
+    for (std::string::const_iterator i = input.begin(); i != input.end(); ++i) {
+        switch (*i) {
+        case '+':
+            adding = true;
+            break;
+        case '-':
+            adding = false;
+            break;
+        case '*':
+            for (size_t j = 0; j < 64; j++) {
+                const char chr = j + 'A';
+                if (user->HasSnomaskPermission(chr)
+                        && ServerInstance->SNO->IsSnomaskUsable(chr)) {
+                    curr[j] = adding;
+                }
+            }
+            break;
+        default:
+            // For local users check whether the given snomask is valid and enabled - IsSnomaskUsable() tests both.
+            // For remote users accept what we were told, unless the snomask char is not a letter.
+            if (IS_LOCAL(user)) {
+                if (!ServerInstance->SNO->IsSnomaskUsable(*i)) {
+                    user->WriteNumeric(ERR_UNKNOWNSNOMASK, *i, "is an unknown snomask character");
+                    continue;
+                } else if (!user->IsOper()) {
+                    user->WriteNumeric(ERR_NOPRIVILEGES,
+                                       InspIRCd::Format("Permission Denied - Only operators may %sset snomask %c",
+                                                        adding ? "" : "un", *i));
+                    continue;
 
-					}
-					else if (!user->HasSnomaskPermission(*i))
-					{
-						user->WriteNumeric(ERR_NOPRIVILEGES, InspIRCd::Format("Permission Denied - Oper type %s does not have access to snomask %c",
-							user->oper->name.c_str(), *i));
-						continue;
-					}
-				}
-				else if (!(((*i >= 'a') && (*i <= 'z')) || ((*i >= 'A') && (*i <= 'Z'))))
-					continue;
+                } else if (!user->HasSnomaskPermission(*i)) {
+                    user->WriteNumeric(ERR_NOPRIVILEGES,
+                                       InspIRCd::Format("Permission Denied - Oper type %s does not have access to snomask %c",
+                                                        user->oper->name.c_str(), *i));
+                    continue;
+                }
+            } else if (!(((*i >= 'a') && (*i <= 'z')) || ((*i >= 'A') && (*i <= 'Z')))) {
+                continue;
+            }
 
-				size_t index = ((*i) - 'A');
-				curr[index] = adding;
-			break;
-		}
-	}
+            size_t index = ((*i) - 'A');
+            curr[index] = adding;
+            break;
+        }
+    }
 
-	std::string plus = "+";
-	std::string minus = "-";
+    std::string plus = "+";
+    std::string minus = "-";
 
-	// Apply changes and construct two strings consisting of the newly added and the removed snomask chars
-	for (size_t i = 0; i < 64; i++)
-	{
-		bool isset = curr[i];
-		if (user->snomasks[i] != isset)
-		{
-			user->snomasks[i] = isset;
-			std::string& appendhere = (isset ? plus : minus);
-			appendhere.push_back(i+'A');
-		}
-	}
+    // Apply changes and construct two strings consisting of the newly added and the removed snomask chars
+    for (size_t i = 0; i < 64; i++) {
+        bool isset = curr[i];
+        if (user->snomasks[i] != isset) {
+            user->snomasks[i] = isset;
+            std::string& appendhere = (isset ? plus : minus);
+            appendhere.push_back(i+'A');
+        }
+    }
 
-	// Create the final string that will be shown to the user and sent to servers
-	// Form: "+ABc-de"
-	std::string output;
-	if (plus.length() > 1)
-		output = plus;
+    // Create the final string that will be shown to the user and sent to servers
+    // Form: "+ABc-de"
+    std::string output;
+    if (plus.length() > 1) {
+        output = plus;
+    }
 
-	if (minus.length() > 1)
-		output += minus;
+    if (minus.length() > 1) {
+        output += minus;
+    }
 
-	// Unset the snomask usermode itself if every snomask was unset
-	if (user->snomasks.none())
-		user->SetMode(this, false);
+    // Unset the snomask usermode itself if every snomask was unset
+    if (user->snomasks.none()) {
+        user->SetMode(this, false);
+    }
 
-	return output;
+    return output;
 }

@@ -27,19 +27,16 @@
 #include "main.h"
 #include "commandbuilder.h"
 
-ModResult ModuleSpanningTree::HandleRemoteWhois(const CommandBase::Params& parameters, User* user)
-{
-	User* remote = ServerInstance->FindNickOnly(parameters[1]);
-	if (remote && !IS_LOCAL(remote))
-	{
-		CmdBuilder(user, "IDLE").push(remote->uuid).Unicast(remote);
-		return MOD_RES_DENY;
-	}
-	else if (!remote)
-	{
-		user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
-		user->WriteNumeric(RPL_ENDOFWHOIS, parameters[0], "End of /WHOIS list.");
-		return MOD_RES_DENY;
-	}
-	return MOD_RES_PASSTHRU;
+ModResult ModuleSpanningTree::HandleRemoteWhois(const CommandBase::Params&
+        parameters, User* user) {
+    User* remote = ServerInstance->FindNickOnly(parameters[1]);
+    if (remote && !IS_LOCAL(remote)) {
+        CmdBuilder(user, "IDLE").push(remote->uuid).Unicast(remote);
+        return MOD_RES_DENY;
+    } else if (!remote) {
+        user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
+        user->WriteNumeric(RPL_ENDOFWHOIS, parameters[0], "End of /WHOIS list.");
+        return MOD_RES_DENY;
+    }
+    return MOD_RES_PASSTHRU;
 }

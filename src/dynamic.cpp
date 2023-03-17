@@ -35,96 +35,93 @@
 #define DLL_EXTENSION ".so"
 
 DLLManager::DLLManager(const std::string& name)
-	: lib(NULL)
-	, libname(name)
-{
-	static size_t extlen = strlen(DLL_EXTENSION);
-	if (name.length() <= extlen || name.compare(name.length() - extlen, name.length(), DLL_EXTENSION))
-	{
-		err.assign(name + " is not a module (no " DLL_EXTENSION " extension)");
-		return;
-	}
+    : lib(NULL)
+    , libname(name) {
+    static size_t extlen = strlen(DLL_EXTENSION);
+    if (name.length() <= extlen
+            || name.compare(name.length() - extlen, name.length(), DLL_EXTENSION)) {
+        err.assign(name + " is not a module (no " DLL_EXTENSION " extension)");
+        return;
+    }
 
 #ifdef _WIN32
-	lib = LoadLibraryA(name.c_str());
+    lib = LoadLibraryA(name.c_str());
 #else
-	lib = dlopen(name.c_str(), RTLD_NOW|RTLD_LOCAL);
+    lib = dlopen(name.c_str(), RTLD_NOW|RTLD_LOCAL);
 #endif
 
-	if (!lib)
-		RetrieveLastError();
+    if (!lib) {
+        RetrieveLastError();
+    }
 }
 
-DLLManager::~DLLManager()
-{
-	if (!lib)
-		return;
+DLLManager::~DLLManager() {
+    if (!lib) {
+        return;
+    }
 
 #ifdef _WIN32
-	FreeLibrary(lib);
+    FreeLibrary(lib);
 #else
-	dlclose(lib);
+    dlclose(lib);
 #endif
 }
 
-Module* DLLManager::CallInit()
-{
-	if (!lib)
-		return NULL;
+Module* DLLManager::CallInit() {
+    if (!lib) {
+        return NULL;
+    }
 
-	const unsigned long* abi = GetSymbol<const unsigned long>(MODULE_STR_ABI);
-	if (!abi)
-	{
-		err.assign(libname + " is not a module (no ABI symbol)");
-		return NULL;
-	}
-	else if (*abi != MODULE_ABI)
-	{
-		const char* version = GetVersion();
-		err.assign(InspIRCd::Format("%s was built against %s (%lu) which is too %s to use with %s (%lu).",
-			libname.c_str(), version ? version : "an unknown version", *abi,
-			*abi < MODULE_ABI ? "old" : "new", INSPIRCD_VERSION, MODULE_ABI));
-		return NULL;
-	}
+    const unsigned long* abi = GetSymbol<const unsigned long>(MODULE_STR_ABI);
+    if (!abi) {
+        err.assign(libname + " is not a module (no ABI symbol)");
+        return NULL;
+    } else if (*abi != MODULE_ABI) {
+        const char* version = GetVersion();
+        err.assign(
+            InspIRCd::Format("%s was built against %s (%lu) which is too %s to use with %s (%lu).",
+                             libname.c_str(), version ? version : "an unknown version", *abi,
+                             *abi < MODULE_ABI ? "old" : "new", INSPIRCD_VERSION, MODULE_ABI));
+        return NULL;
+    }
 
-	union
-	{
-		void* vptr;
-		Module* (*fptr)();
-	};
+    union {
+        void* vptr;
+        Module* (*fptr)();
+    };
 
-	vptr = GetSymbol(MODULE_STR_INIT);
-	if (!vptr)
-	{
-		err.assign(libname + " is not a module (no init symbol)");
-		return NULL;
-	}
+    vptr = GetSymbol(MODULE_STR_INIT);
+    if (!vptr) {
+        err.assign(libname + " is not a module (no init symbol)");
+        return NULL;
+    }
 
-	return (*fptr)();
+    return (*fptr)();
 }
 
-void* DLLManager::GetSymbol(const char* name) const
-{
-	if (!lib)
-		return NULL;
+void* DLLManager::GetSymbol(const char* name) const {
+    if (!lib) {
+        return NULL;
+    }
 
 #if defined _WIN32
-	return GetProcAddress(lib, name);
+    return GetProcAddress(lib, name);
 #else
-	return dlsym(lib, name);
+    return dlsym(lib, name);
 #endif
 }
 
-void DLLManager::RetrieveLastError()
-{
+void DLLManager::RetrieveLastError() {
 #ifdef _WIN32
-	err = GetErrorMessage(GetLastError());
-	SetLastError(ERROR_SUCCESS);
+    err = GetErrorMessage(GetLastError());
+    SetLastError(ERROR_SUCCESS);
 #else
-	const char* errmsg = dlerror();
-	err = errmsg ? errmsg : "Unknown error";
+    const char* errmsg = dlerror();
+    err = errmsg ? errmsg : "Unknown error";
 #endif
 
-	for (size_t pos = 0; ((pos = err.find_first_of("\r\n", pos)) != std::string::npos); )
-		err[pos] = ' ';
+    for (size_t pos = 0;
+            ((pos = err.find_first_of("\r\n", pos)) != std::string::npos); ) {
+        err[pos] = ' ';
+    }
 }

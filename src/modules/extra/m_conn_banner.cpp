@@ -25,26 +25,23 @@
 
 #include "inspircd.h"
 
-class ModuleConnBanner : public Module
-{
-	std::string text;
+class ModuleConnBanner : public Module {
+    std::string text;
 
- public:
-	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
-	{
-		text = ServerInstance->Config->ConfValue("connbanner")->getString("text");
-	}
+  public:
+    void ReadConfig(ConfigStatus&) CXX11_OVERRIDE {
+        text = ServerInstance->Config->ConfValue("connbanner")->getString("text");
+    }
 
-	void OnUserPostInit(LocalUser* user) CXX11_OVERRIDE
-	{
-		if (!text.empty())
-			user->WriteNotice("*** " + text);
-	}
+    void OnUserPostInit(LocalUser* user) CXX11_OVERRIDE {
+        if (!text.empty()) {
+            user->WriteNotice("*** " + text);
+        }
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Displays a static text to every connecting user before registration");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Displays a static text to every connecting user before registration");
+    }
 };
 
 MODULE_INIT(ModuleConnBanner)

@@ -22,40 +22,40 @@
 #include "main.h"
 #include "servercommand.h"
 
-ServerCommand::ServerCommand(Module* Creator, const std::string& Name, unsigned int MinParams, unsigned int MaxParams)
-	: CommandBase(Creator, Name, MinParams, MaxParams)
-{
+ServerCommand::ServerCommand(Module* Creator, const std::string& Name,
+                             unsigned int MinParams, unsigned int MaxParams)
+    : CommandBase(Creator, Name, MinParams, MaxParams) {
 }
 
-void ServerCommand::RegisterService()
-{
-	ModuleSpanningTree* st = static_cast<ModuleSpanningTree*>(static_cast<Module*>(creator));
-	st->CmdManager.AddCommand(this);
+void ServerCommand::RegisterService() {
+    ModuleSpanningTree* st = static_cast<ModuleSpanningTree*>(static_cast<Module*>
+                             (creator));
+    st->CmdManager.AddCommand(this);
 }
 
-RouteDescriptor ServerCommand::GetRouting(User* user, const Params& parameters)
-{
-	// Broadcast server-to-server commands unless overridden
-	return ROUTE_BROADCAST;
+RouteDescriptor ServerCommand::GetRouting(User* user,
+        const Params& parameters) {
+    // Broadcast server-to-server commands unless overridden
+    return ROUTE_BROADCAST;
 }
 
-time_t ServerCommand::ExtractTS(const std::string& tsstr)
-{
-	time_t TS = ConvToNum<time_t>(tsstr);
-	if (!TS)
-		throw ProtocolException("Invalid TS");
-	return TS;
+time_t ServerCommand::ExtractTS(const std::string& tsstr) {
+    time_t TS = ConvToNum<time_t>(tsstr);
+    if (!TS) {
+        throw ProtocolException("Invalid TS");
+    }
+    return TS;
 }
 
-ServerCommand* ServerCommandManager::GetHandler(const std::string& command) const
-{
-	ServerCommandMap::const_iterator it = commands.find(command);
-	if (it != commands.end())
-		return it->second;
-	return NULL;
+ServerCommand* ServerCommandManager::GetHandler(const std::string& command)
+const {
+    ServerCommandMap::const_iterator it = commands.find(command);
+    if (it != commands.end()) {
+        return it->second;
+    }
+    return NULL;
 }
 
-bool ServerCommandManager::AddCommand(ServerCommand* cmd)
-{
-	return commands.insert(std::make_pair(cmd->name, cmd)).second;
+bool ServerCommandManager::AddCommand(ServerCommand* cmd) {
+    return commands.insert(std::make_pair(cmd->name, cmd)).second;
 }

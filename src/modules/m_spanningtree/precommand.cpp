@@ -25,36 +25,27 @@
 
 #include "main.h"
 
-ModResult ModuleSpanningTree::OnPreCommand(std::string &command, CommandBase::Params& parameters, LocalUser *user, bool validated)
-{
-	/* If the command doesnt appear to be valid, we dont want to mess with it. */
-	if (!validated)
-		return MOD_RES_PASSTHRU;
+ModResult ModuleSpanningTree::OnPreCommand(std::string &command,
+        CommandBase::Params& parameters, LocalUser *user, bool validated) {
+    /* If the command doesnt appear to be valid, we dont want to mess with it. */
+    if (!validated) {
+        return MOD_RES_PASSTHRU;
+    }
 
-	if (command == "CONNECT")
-	{
-		return this->HandleConnect(parameters,user);
-	}
-	else if (command == "SQUIT")
-	{
-		return this->HandleSquit(parameters,user);
-	}
-	else if (command == "LINKS")
-	{
-		this->HandleLinks(parameters,user);
-		return MOD_RES_DENY;
-	}
-	else if (command == "WHOIS")
-	{
-		if (parameters.size() > 1)
-		{
-			// remote whois
-			return this->HandleRemoteWhois(parameters,user);
-		}
-	}
-	else if ((command == "VERSION") && (parameters.size() > 0))
-	{
-		return this->HandleVersion(parameters,user);
-	}
-	return MOD_RES_PASSTHRU;
+    if (command == "CONNECT") {
+        return this->HandleConnect(parameters,user);
+    } else if (command == "SQUIT") {
+        return this->HandleSquit(parameters,user);
+    } else if (command == "LINKS") {
+        this->HandleLinks(parameters,user);
+        return MOD_RES_DENY;
+    } else if (command == "WHOIS") {
+        if (parameters.size() > 1) {
+            // remote whois
+            return this->HandleRemoteWhois(parameters,user);
+        }
+    } else if ((command == "VERSION") && (parameters.size() > 0)) {
+        return this->HandleVersion(parameters,user);
+    }
+    return MOD_RES_PASSTHRU;
 }

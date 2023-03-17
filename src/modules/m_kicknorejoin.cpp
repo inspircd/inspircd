@@ -29,142 +29,132 @@
 #include "inspircd.h"
 #include "modules/invite.h"
 
-class KickRejoinData
-{
-	struct KickedUser
-	{
-		std::string uuid;
-		time_t expire;
+class KickRejoinData {
+    struct KickedUser {
+        std::string uuid;
+        time_t expire;
 
-		KickedUser(User* user, unsigned int Delay)
-			: uuid(user->uuid)
-			, expire(ServerInstance->Time() + Delay)
-		{
-		}
-	};
+        KickedUser(User* user, unsigned int Delay)
+            : uuid(user->uuid)
+            , expire(ServerInstance->Time() + Delay) {
+        }
+    };
 
-	typedef std::vector<KickedUser> KickedList;
+    typedef std::vector<KickedUser> KickedList;
 
-	mutable KickedList kicked;
+    mutable KickedList kicked;
 
- public:
-	const unsigned int delay;
+  public:
+    const unsigned int delay;
 
-	KickRejoinData(unsigned int Delay) : delay(Delay) { }
+    KickRejoinData(unsigned int Delay) : delay(Delay) { }
 
-	bool canjoin(LocalUser* user) const
-	{
-		for (KickedList::iterator i = kicked.begin(); i != kicked.end(); )
-		{
-			KickedUser& rec = *i;
-			if (rec.expire > ServerInstance->Time())
-			{
-				if (rec.uuid == user->uuid)
-					return false;
-				++i;
-			}
-			else
-			{
-				// Expired record, remove.
-				stdalgo::vector::swaperase(kicked, i);
-				if (kicked.empty())
-					break;
-			}
-		}
-		return true;
-	}
+    bool canjoin(LocalUser* user) const {
+        for (KickedList::iterator i = kicked.begin(); i != kicked.end(); ) {
+            KickedUser& rec = *i;
+            if (rec.expire > ServerInstance->Time()) {
+                if (rec.uuid == user->uuid) {
+                    return false;
+                }
+                ++i;
+            } else {
+                // Expired record, remove.
+                stdalgo::vector::swaperase(kicked, i);
+                if (kicked.empty()) {
+                    break;
+                }
+            }
+        }
+        return true;
+    }
 
-	void add(User* user)
-	{
-		// One user can be in the list multiple times if the user gets kicked, force joins
-		// (skipping OnUserPreJoin) and gets kicked again, but that's okay because canjoin()
-		// works correctly in this case as well
-		kicked.push_back(KickedUser(user, delay));
-	}
+    void add(User* user) {
+        // One user can be in the list multiple times if the user gets kicked, force joins
+        // (skipping OnUserPreJoin) and gets kicked again, but that's okay because canjoin()
+        // works correctly in this case as well
+        kicked.push_back(KickedUser(user, delay));
+    }
 };
 
 /** Handles channel mode +J
  */
-class KickRejoin : public ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >
-{
-	const unsigned int max;
- public:
-	KickRejoin(Module* Creator)
-		: ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >(Creator, "kicknorejoin", 'J')
-		, max(60)
-	{
-		syntax = "<seconds>";
-	}
+class KickRejoin : public
+    ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> > {
+    const unsigned int max;
+  public:
+    KickRejoin(Module* Creator)
+        : ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >(Creator, "kicknorejoin",
+                'J')
+        , max(60) {
+        syntax = "<seconds>";
+    }
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE
-	{
-		unsigned int v = ConvToNum<unsigned int>(parameter);
-		if (v <= 0)
-		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
-		}
+    ModeAction OnSet(User* source, Channel* channel,
+                     std::string& parameter) CXX11_OVERRIDE {
+        unsigned int v = ConvToNum<unsigned int>(parameter);
+        if (v <= 0) {
+            source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
+            return MODEACTION_DENY;
+        }
 
-		if (IS_LOCAL(source) && v > max)
-			v = max;
+        if (IS_LOCAL(source) && v > max) {
+            v = max;
+        }
 
-		ext.set(channel, new KickRejoinData(v));
-		return MODEACTION_ALLOW;
-	}
+        ext.set(channel, new KickRejoinData(v));
+        return MODEACTION_ALLOW;
+    }
 
-	void SerializeParam(Channel* chan, const KickRejoinData* krd, std::string& out)
-	{
-		out.append(ConvToStr(krd->delay));
-	}
+    void SerializeParam(Channel* chan, const KickRejoinData* krd,
+                        std::string& out) {
+        out.append(ConvToStr(krd->delay));
+    }
 
-	std::string GetModuleSettings() const
-	{
-		return ConvToStr(max);
-	}
+    std::string GetModuleSettings() const {
+        return ConvToStr(max);
+    }
 };
 
-class ModuleKickNoRejoin : public Module
-{
-	KickRejoin kr;
-	Invite::API invapi;
+class ModuleKickNoRejoin : public Module {
+    KickRejoin kr;
+    Invite::API invapi;
 
-public:
-	ModuleKickNoRejoin()
-		: kr(this)
-		, invapi(this)
-	{
-	}
+  public:
+    ModuleKickNoRejoin()
+        : kr(this)
+        , invapi(this) {
+    }
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
-	{
-		if (chan)
-		{
-			const KickRejoinData* data = kr.ext.get(chan);
-			if ((data) && !invapi->IsInvited(user, chan) && (!data->canjoin(user)))
-			{
-				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan->name, InspIRCd::Format("You must wait %u seconds after being kicked to rejoin (+J is set)", data->delay));
-				return MOD_RES_DENY;
-			}
-		}
-		return MOD_RES_PASSTHRU;
-	}
+    ModResult OnUserPreJoin(LocalUser* user, Channel* chan,
+                            const std::string& cname, std::string& privs,
+                            const std::string& keygiven) CXX11_OVERRIDE {
+        if (chan) {
+            const KickRejoinData* data = kr.ext.get(chan);
+            if ((data) && !invapi->IsInvited(user, chan) && (!data->canjoin(user))) {
+                user->WriteNumeric(ERR_UNAVAILRESOURCE, chan->name,
+                                   InspIRCd::Format("You must wait %u seconds after being kicked to rejoin (+J is set)",
+                                                    data->delay));
+                return MOD_RES_DENY;
+            }
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
-	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts) CXX11_OVERRIDE
-	{
-		if ((!IS_LOCAL(memb->user)) || (source == memb->user))
-			return;
+    void OnUserKick(User* source, Membership* memb, const std::string &reason,
+                    CUList& excepts) CXX11_OVERRIDE {
+        if ((!IS_LOCAL(memb->user)) || (source == memb->user)) {
+            return;
+        }
 
-		KickRejoinData* data = kr.ext.get(memb->chan);
-		if (data)
-		{
-			data->add(memb->user);
-		}
-	}
+        KickRejoinData* data = kr.ext.get(memb->chan);
+        if (data) {
+            data->add(memb->user);
+        }
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds channel mode J (kicknorejoin) which prevents users from rejoining after being kicked from a channel.", VF_VENDOR | VF_COMMON, kr.GetModuleSettings());
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds channel mode J (kicknorejoin) which prevents users from rejoining after being kicked from a channel.", VF_VENDOR | VF_COMMON, kr.GetModuleSettings());
+    }
 };
 
 MODULE_INIT(ModuleKickNoRejoin)

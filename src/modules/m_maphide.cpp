@@ -24,30 +24,26 @@
 
 #include "inspircd.h"
 
-class ModuleMapHide : public Module
-{
-	std::string url;
- public:
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		url = ServerInstance->Config->ConfValue("security")->getString("maphide");
-	}
+class ModuleMapHide : public Module {
+    std::string url;
+  public:
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        url = ServerInstance->Config->ConfValue("security")->getString("maphide");
+    }
 
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
-	{
-		if (validated && !user->IsOper() && !url.empty() && (command == "MAP" || command == "LINKS"))
-		{
-			user->WriteNotice("/" + command + " has been disabled; visit " + url);
-			return MOD_RES_DENY;
-		}
-		else
-			return MOD_RES_PASSTHRU;
-	}
+    ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters,
+                           LocalUser* user, bool validated) CXX11_OVERRIDE {
+        if (validated && !user->IsOper() && !url.empty() && (command == "MAP" || command == "LINKS")) {
+            user->WriteNotice("/" + command + " has been disabled; visit " + url);
+            return MOD_RES_DENY;
+        } else {
+            return MOD_RES_PASSTHRU;
+        }
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Allows the server administrator to replace the output of a /MAP and /LINKS with an URL.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Allows the server administrator to replace the output of a /MAP and /LINKS with an URL.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleMapHide)

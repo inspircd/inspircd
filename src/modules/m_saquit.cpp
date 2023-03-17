@@ -29,62 +29,56 @@
 
 /** Handle /SAQUIT
  */
-class CommandSaquit : public Command
-{
- public:
-	CommandSaquit(Module* Creator) : Command(Creator, "SAQUIT", 2, 2)
-	{
-		flags_needed = 'o';
-		syntax = "<nick> :<reason>";
-		TRANSLATE2(TR_NICK, TR_TEXT);
-	}
+class CommandSaquit : public Command {
+  public:
+    CommandSaquit(Module* Creator) : Command(Creator, "SAQUIT", 2, 2) {
+        flags_needed = 'o';
+        syntax = "<nick> :<reason>";
+        TRANSLATE2(TR_NICK, TR_TEXT);
+    }
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		User* dest = ServerInstance->FindNick(parameters[0]);
-		if ((dest) && (dest->registered == REG_ALL))
-		{
-			if (dest->server->IsULine())
-			{
-				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a U-lined client");
-				return CMD_FAILURE;
-			}
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE {
+        User* dest = ServerInstance->FindNick(parameters[0]);
+        if ((dest) && (dest->registered == REG_ALL)) {
+            if (dest->server->IsULine()) {
+                user->WriteNumeric(ERR_NOPRIVILEGES,
+                                   "Cannot use an SA command on a U-lined client");
+                return CMD_FAILURE;
+            }
 
-			// Pass the command on, so the client's server can quit it properly.
-			if (!IS_LOCAL(dest))
-				return CMD_SUCCESS;
+            // Pass the command on, so the client's server can quit it properly.
+            if (!IS_LOCAL(dest)) {
+                return CMD_SUCCESS;
+            }
 
-			ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SAQUIT to make "+dest->nick+" quit with a reason of "+parameters[1]);
+            ServerInstance->SNO->WriteGlobalSno('a',
+                                                user->nick+" used SAQUIT to make "+dest->nick+" quit with a reason of "
+                                                +parameters[1]);
 
-			ServerInstance->Users->QuitUser(dest, parameters[1]);
-			return CMD_SUCCESS;
-		}
-		else
-		{
-			user->WriteNotice("*** Invalid nickname: '" + parameters[0] + "'");
-			return CMD_FAILURE;
-		}
-	}
+            ServerInstance->Users->QuitUser(dest, parameters[1]);
+            return CMD_SUCCESS;
+        } else {
+            user->WriteNotice("*** Invalid nickname: '" + parameters[0] + "'");
+            return CMD_FAILURE;
+        }
+    }
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		return ROUTE_OPT_UCAST(parameters[0]);
-	}
+    RouteDescriptor GetRouting(User* user,
+                               const Params& parameters) CXX11_OVERRIDE {
+        return ROUTE_OPT_UCAST(parameters[0]);
+    }
 };
 
-class ModuleSaquit : public Module
-{
-	CommandSaquit cmd;
- public:
-	ModuleSaquit()
-		: cmd(this)
-	{
-	}
+class ModuleSaquit : public Module {
+    CommandSaquit cmd;
+  public:
+    ModuleSaquit()
+        : cmd(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds the /SAQUIT command which allows server operators to disconnect users from the server.", VF_OPTCOMMON | VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds the /SAQUIT command which allows server operators to disconnect users from the server.", VF_OPTCOMMON | VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleSaquit)

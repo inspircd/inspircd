@@ -26,19 +26,18 @@
 
 /** Valid exit codes to be used with InspIRCd::Exit()
  */
-enum ExitStatus
-{
-	EXIT_STATUS_NOERROR = 0,		/* No error */
-	EXIT_STATUS_DIE = 1,			/* Operator issued DIE */
-	EXIT_STATUS_CONFIG = 2,			/* Config error */
-	EXIT_STATUS_LOG = 3,			/* Log file error */
-	EXIT_STATUS_FORK = 4,			/* fork() failed */
-	EXIT_STATUS_ARGV = 5,			/* Invalid program arguments */
-	EXIT_STATUS_PID = 6,			/* Couldn't write PID file */
-	EXIT_STATUS_SOCKETENGINE = 7,	/* Couldn't start socket engine */
-	EXIT_STATUS_ROOT = 8,			/* Refusing to start as root */
-	EXIT_STATUS_MODULE = 9,			/* Couldn't load a required module */
-	EXIT_STATUS_SIGTERM = 10		/* Received SIGTERM */
+enum ExitStatus {
+    EXIT_STATUS_NOERROR = 0,        /* No error */
+    EXIT_STATUS_DIE = 1,            /* Operator issued DIE */
+    EXIT_STATUS_CONFIG = 2,         /* Config error */
+    EXIT_STATUS_LOG = 3,            /* Log file error */
+    EXIT_STATUS_FORK = 4,           /* fork() failed */
+    EXIT_STATUS_ARGV = 5,           /* Invalid program arguments */
+    EXIT_STATUS_PID = 6,            /* Couldn't write PID file */
+    EXIT_STATUS_SOCKETENGINE = 7,   /* Couldn't start socket engine */
+    EXIT_STATUS_ROOT = 8,           /* Refusing to start as root */
+    EXIT_STATUS_MODULE = 9,         /* Couldn't load a required module */
+    EXIT_STATUS_SIGTERM = 10        /* Received SIGTERM */
 };
 
 /** Array that maps exit codes (ExitStatus types) to

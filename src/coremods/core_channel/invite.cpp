@@ -22,188 +22,178 @@
 
 #include "invite.h"
 
-class InviteExpireTimer : public Timer
-{
-	Invite::Invite* const inv;
+class InviteExpireTimer : public Timer {
+    Invite::Invite* const inv;
 
-	bool Tick(time_t currtime) CXX11_OVERRIDE;
+    bool Tick(time_t currtime) CXX11_OVERRIDE;
 
- public:
-	InviteExpireTimer(Invite::Invite* invite, time_t timeout);
+  public:
+    InviteExpireTimer(Invite::Invite* invite, time_t timeout);
 };
 
 static Invite::APIImpl* apiimpl;
 
-void RemoveInvite(Invite::Invite* inv, bool remove_user, bool remove_chan)
-{
-	apiimpl->Destruct(inv, remove_user, remove_chan);
+void RemoveInvite(Invite::Invite* inv, bool remove_user, bool remove_chan) {
+    apiimpl->Destruct(inv, remove_user, remove_chan);
 }
 
-void UnserializeInvite(LocalUser* user, const std::string& str)
-{
-	apiimpl->Unserialize(user, str);
+void UnserializeInvite(LocalUser* user, const std::string& str) {
+    apiimpl->Unserialize(user, str);
 }
 
 Invite::APIBase::APIBase(Module* parent)
-	: DataProvider(parent, "core_channel_invite")
-{
+    : DataProvider(parent, "core_channel_invite") {
 }
 
 Invite::APIImpl::APIImpl(Module* parent)
-	: APIBase(parent)
-	, userext(parent, "invite_user")
-	, chanext(parent, "invite_chan")
-{
-	apiimpl = this;
+    : APIBase(parent)
+    , userext(parent, "invite_user")
+    , chanext(parent, "invite_chan") {
+    apiimpl = this;
 }
 
-void Invite::APIImpl::Destruct(Invite* inv, bool remove_user, bool remove_chan)
-{
-	Store<LocalUser>* ustore = userext.get(inv->user);
-	if (ustore)
-	{
-		ustore->invites.erase(inv);
-		if ((remove_user) && (ustore->invites.empty()))
-			userext.unset(inv->user);
-	}
+void Invite::APIImpl::Destruct(Invite* inv, bool remove_user,
+                               bool remove_chan) {
+    Store<LocalUser>* ustore = userext.get(inv->user);
+    if (ustore) {
+        ustore->invites.erase(inv);
+        if ((remove_user) && (ustore->invites.empty())) {
+            userext.unset(inv->user);
+        }
+    }
 
-	Store<Channel>* cstore = chanext.get(inv->chan);
-	if (cstore)
-	{
-		cstore->invites.erase(inv);
-		if ((remove_chan) && (cstore->invites.empty()))
-			chanext.unset(inv->chan);
-	}
+    Store<Channel>* cstore = chanext.get(inv->chan);
+    if (cstore) {
+        cstore->invites.erase(inv);
+        if ((remove_chan) && (cstore->invites.empty())) {
+            chanext.unset(inv->chan);
+        }
+    }
 
-	delete inv;
+    delete inv;
 }
 
-bool Invite::APIImpl::Remove(LocalUser* user, Channel* chan)
-{
-	Invite* inv = Find(user, chan);
-	if (inv)
-	{
-		Destruct(inv);
-		return true;
-	}
-	return false;
+bool Invite::APIImpl::Remove(LocalUser* user, Channel* chan) {
+    Invite* inv = Find(user, chan);
+    if (inv) {
+        Destruct(inv);
+        return true;
+    }
+    return false;
 }
 
-void Invite::APIImpl::Create(LocalUser* user, Channel* chan, time_t timeout)
-{
-	if ((timeout != 0) && (ServerInstance->Time() >= timeout))
-		// Expired, don't bother
-		return;
+void Invite::APIImpl::Create(LocalUser* user, Channel* chan, time_t timeout) {
+    if ((timeout != 0) && (ServerInstance->Time() >= timeout))
+        // Expired, don't bother
+    {
+        return;
+    }
 
-	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Invite::APIImpl::Create(): user=%s chan=%s timeout=%lu", user->uuid.c_str(), chan->name.c_str(), (unsigned long)timeout);
+    ServerInstance->Logs->Log(MODNAME, LOG_DEBUG,
+                              "Invite::APIImpl::Create(): user=%s chan=%s timeout=%lu", user->uuid.c_str(),
+                              chan->name.c_str(), (unsigned long)timeout);
 
-	Invite* inv = Find(user, chan);
-	if (inv)
-	{
-		// We only ever extend invites, so nothing to do if the existing one is not timed
-		if (!inv->IsTimed())
-			return;
+    Invite* inv = Find(user, chan);
+    if (inv) {
+        // We only ever extend invites, so nothing to do if the existing one is not timed
+        if (!inv->IsTimed()) {
+            return;
+        }
 
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Invite::APIImpl::Create(): changing expiration in %p", (void*) inv);
-		if (timeout == 0)
-		{
-			// Convert timed invite to non-expiring
-			delete inv->expiretimer;
-			inv->expiretimer = NULL;
-		}
-		else if (inv->expiretimer->GetTrigger() >= ServerInstance->Time() + timeout)
-		{
-			// New expiration time is further than the current, extend the expiration
-			inv->expiretimer->SetInterval(timeout - ServerInstance->Time());
-		}
-	}
-	else
-	{
-		inv = new Invite(user, chan);
-		if (timeout)
-		{
-			inv->expiretimer = new InviteExpireTimer(inv, timeout - ServerInstance->Time());
-			ServerInstance->Timers.AddTimer(inv->expiretimer);
-		}
+        ServerInstance->Logs->Log(MODNAME, LOG_DEBUG,
+                                  "Invite::APIImpl::Create(): changing expiration in %p", (void*) inv);
+        if (timeout == 0) {
+            // Convert timed invite to non-expiring
+            delete inv->expiretimer;
+            inv->expiretimer = NULL;
+        } else if (inv->expiretimer->GetTrigger() >= ServerInstance->Time() + timeout) {
+            // New expiration time is further than the current, extend the expiration
+            inv->expiretimer->SetInterval(timeout - ServerInstance->Time());
+        }
+    } else {
+        inv = new Invite(user, chan);
+        if (timeout) {
+            inv->expiretimer = new InviteExpireTimer(inv, timeout - ServerInstance->Time());
+            ServerInstance->Timers.AddTimer(inv->expiretimer);
+        }
 
-		userext.get(user, true)->invites.push_front(inv);
-		chanext.get(chan, true)->invites.push_front(inv);
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Invite::APIImpl::Create(): created new Invite %p", (void*) inv);
-	}
+        userext.get(user, true)->invites.push_front(inv);
+        chanext.get(chan, true)->invites.push_front(inv);
+        ServerInstance->Logs->Log(MODNAME, LOG_DEBUG,
+                                  "Invite::APIImpl::Create(): created new Invite %p", (void*) inv);
+    }
 }
 
-Invite::Invite* Invite::APIImpl::Find(LocalUser* user, Channel* chan)
-{
-	const List* list = APIImpl::GetList(user);
-	if (!list)
-		return NULL;
+Invite::Invite* Invite::APIImpl::Find(LocalUser* user, Channel* chan) {
+    const List* list = APIImpl::GetList(user);
+    if (!list) {
+        return NULL;
+    }
 
-	for (List::iterator i = list->begin(); i != list->end(); ++i)
-	{
-		Invite* inv = *i;
-		if (inv->chan == chan)
-			return inv;
-	}
+    for (List::iterator i = list->begin(); i != list->end(); ++i) {
+        Invite* inv = *i;
+        if (inv->chan == chan) {
+            return inv;
+        }
+    }
 
-	return NULL;
+    return NULL;
 }
 
-const Invite::List* Invite::APIImpl::GetList(LocalUser* user)
-{
-	Store<LocalUser>* list = userext.get(user);
-	if (list)
-		return &list->invites;
-	return NULL;
+const Invite::List* Invite::APIImpl::GetList(LocalUser* user) {
+    Store<LocalUser>* list = userext.get(user);
+    if (list) {
+        return &list->invites;
+    }
+    return NULL;
 }
 
-void Invite::APIImpl::Unserialize(LocalUser* user, const std::string& value)
-{
-	irc::spacesepstream ss(value);
-	for (std::string channame, exptime; (ss.GetToken(channame) && ss.GetToken(exptime)); )
-	{
-		Channel* chan = ServerInstance->FindChan(channame);
-		if (chan)
-			Create(user, chan, ConvToNum<time_t>(exptime));
-	}
+void Invite::APIImpl::Unserialize(LocalUser* user, const std::string& value) {
+    irc::spacesepstream ss(value);
+    for (std::string channame, exptime; (ss.GetToken(channame)
+                                         && ss.GetToken(exptime)); ) {
+        Channel* chan = ServerInstance->FindChan(channame);
+        if (chan) {
+            Create(user, chan, ConvToNum<time_t>(exptime));
+        }
+    }
 }
 
 Invite::Invite::Invite(LocalUser* u, Channel* c)
-	: user(u)
-	, chan(c)
-	, expiretimer(NULL)
-{
+    : user(u)
+    , chan(c)
+    , expiretimer(NULL) {
 }
 
-Invite::Invite::~Invite()
-{
-	delete expiretimer;
-	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Invite::~ %p", (void*) this);
+Invite::Invite::~Invite() {
+    delete expiretimer;
+    ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Invite::~ %p", (void*) this);
 }
 
-void Invite::Invite::Serialize(bool human, bool show_chans, std::string& out)
-{
-	if (show_chans)
-		out.append(this->chan->name);
-	else
-		out.append(human ? user->nick : user->uuid);
-	out.push_back(' ');
+void Invite::Invite::Serialize(bool human, bool show_chans, std::string& out) {
+    if (show_chans) {
+        out.append(this->chan->name);
+    } else {
+        out.append(human ? user->nick : user->uuid);
+    }
+    out.push_back(' ');
 
-	if (expiretimer)
-		out.append(ConvToStr(expiretimer->GetTrigger()));
-	else
-		out.push_back('0');
-	out.push_back(' ');
+    if (expiretimer) {
+        out.append(ConvToStr(expiretimer->GetTrigger()));
+    } else {
+        out.push_back('0');
+    }
+    out.push_back(' ');
 }
 
 InviteExpireTimer::InviteExpireTimer(Invite::Invite* invite, time_t timeout)
-	: Timer(timeout)
-	, inv(invite)
-{
+    : Timer(timeout)
+    , inv(invite) {
 }
 
-bool InviteExpireTimer::Tick(time_t currtime)
-{
-	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "InviteExpireTimer::Tick(): expired %p", (void*) inv);
-	apiimpl->Destruct(inv);
-	return false;
+bool InviteExpireTimer::Tick(time_t currtime) {
+    ServerInstance->Logs->Log(MODNAME, LOG_DEBUG,
+                              "InviteExpireTimer::Tick(): expired %p", (void*) inv);
+    apiimpl->Destruct(inv);
+    return false;
 }

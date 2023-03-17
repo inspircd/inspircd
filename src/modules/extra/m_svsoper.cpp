@@ -24,59 +24,57 @@
 
 #include "inspircd.h"
 
-class CommandSVSOper : public Command
-{
- public:
-	CommandSVSOper(Module* Creator)
-		: Command(Creator, "SVSOPER", 2, 2)
-	{
-		flags_needed = FLAG_SERVERONLY;
-	}
+class CommandSVSOper : public Command {
+  public:
+    CommandSVSOper(Module* Creator)
+        : Command(Creator, "SVSOPER", 2, 2) {
+        flags_needed = FLAG_SERVERONLY;
+    }
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		if (!user->server->IsULine())
-			return CMD_FAILURE;
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE {
+        if (!user->server->IsULine()) {
+            return CMD_FAILURE;
+        }
 
-		User* target = ServerInstance->FindUUID(parameters[0]);
-		if (!target)
-			return CMD_FAILURE;
+        User* target = ServerInstance->FindUUID(parameters[0]);
+        if (!target) {
+            return CMD_FAILURE;
+        }
 
-		if (IS_LOCAL(target))
-		{
-			ServerConfig::OperIndex::iterator iter = ServerInstance->Config->OperTypes.find(parameters[1]);
-			if (iter == ServerInstance->Config->OperTypes.end())
-				return CMD_FAILURE;
+        if (IS_LOCAL(target)) {
+            ServerConfig::OperIndex::iterator iter = ServerInstance->Config->OperTypes.find(
+                parameters[1]);
+            if (iter == ServerInstance->Config->OperTypes.end()) {
+                return CMD_FAILURE;
+            }
 
-			target->Oper(iter->second);
-		}
-		return CMD_SUCCESS;
-	}
+            target->Oper(iter->second);
+        }
+        return CMD_SUCCESS;
+    }
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		User* target = ServerInstance->FindUUID(parameters[0]);
-		if (!target)
-			return ROUTE_LOCALONLY;
-		return ROUTE_OPT_UCAST(target->server);
-	}
+    RouteDescriptor GetRouting(User* user,
+                               const Params& parameters) CXX11_OVERRIDE {
+        User* target = ServerInstance->FindUUID(parameters[0]);
+        if (!target) {
+            return ROUTE_LOCALONLY;
+        }
+        return ROUTE_OPT_UCAST(target->server);
+    }
 };
 
-class ModuleSVSOper : public Module
-{
- private:
-	CommandSVSOper command;
+class ModuleSVSOper : public Module {
+  private:
+    CommandSVSOper command;
 
- public:
-	ModuleSVSOper()
-		: command(this)
-	{
-	}
+  public:
+    ModuleSVSOper()
+        : command(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Allows services to forcibly oper a user.", VF_OPTCOMMON);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Allows services to forcibly oper a user.", VF_OPTCOMMON);
+    }
 };
 
 MODULE_INIT(ModuleSVSOper)

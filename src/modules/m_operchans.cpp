@@ -25,65 +25,65 @@
 
 #include "inspircd.h"
 
-enum
-{
-	// From UnrealIRCd.
-	ERR_CANTJOINOPERSONLY = 520
+enum {
+    // From UnrealIRCd.
+    ERR_CANTJOINOPERSONLY = 520
 };
 
-class ModuleOperChans : public Module
-{
- private:
-	SimpleChannelModeHandler oc;
-	std::string space;
-	std::string underscore;
+class ModuleOperChans : public Module {
+  private:
+    SimpleChannelModeHandler oc;
+    std::string space;
+    std::string underscore;
 
- public:
-	ModuleOperChans()
-		: oc(this, "operonly", 'O', true)
-		, space(" ")
-		, underscore("_")
-	{
-	}
+  public:
+    ModuleOperChans()
+        : oc(this, "operonly", 'O', true)
+        , space(" ")
+        , underscore("_") {
+    }
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
-	{
-		if (chan && chan->IsModeSet(oc) && !user->IsOper())
-		{
-			user->WriteNumeric(ERR_CANTJOINOPERSONLY, chan->name, InspIRCd::Format("Only server operators may join %s (+O is set)", chan->name.c_str()));
-			return MOD_RES_DENY;
-		}
-		return MOD_RES_PASSTHRU;
-	}
+    ModResult OnUserPreJoin(LocalUser* user, Channel* chan,
+                            const std::string& cname, std::string& privs,
+                            const std::string& keygiven) CXX11_OVERRIDE {
+        if (chan && chan->IsModeSet(oc) && !user->IsOper()) {
+            user->WriteNumeric(ERR_CANTJOINOPERSONLY, chan->name,
+                               InspIRCd::Format("Only server operators may join %s (+O is set)",
+                                                chan->name.c_str()));
+            return MOD_RES_DENY;
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
-	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask) CXX11_OVERRIDE
-	{
-		// Check whether the entry is an extban.
-		if (mask.length() <= 2 || mask[0] != 'O' || mask[1] != ':')
-			return MOD_RES_PASSTHRU;
+    ModResult OnCheckBan(User* user, Channel* chan,
+                         const std::string& mask) CXX11_OVERRIDE {
+        // Check whether the entry is an extban.
+        if (mask.length() <= 2 || mask[0] != 'O' || mask[1] != ':') {
+            return MOD_RES_PASSTHRU;
+        }
 
-		// If the user is not an oper they can't match this.
-		if (!user->IsOper())
-			return MOD_RES_PASSTHRU;
+        // If the user is not an oper they can't match this.
+        if (!user->IsOper()) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		// Replace spaces with underscores as they're prohibited in mode parameters.
-		std::string opername(user->oper->name);
-		stdalgo::string::replace_all(opername, space, underscore);
-		if (InspIRCd::Match(opername, mask.substr(2)))
-			return MOD_RES_DENY;
+        // Replace spaces with underscores as they're prohibited in mode parameters.
+        std::string opername(user->oper->name);
+        stdalgo::string::replace_all(opername, space, underscore);
+        if (InspIRCd::Match(opername, mask.substr(2))) {
+            return MOD_RES_DENY;
+        }
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["EXTBAN"].push_back('O');
-	}
+    void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE {
+        tokens["EXTBAN"].push_back('O');
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds channel mode O (operonly) which prevents non-server operators from joining the channel.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds channel mode O (operonly) which prevents non-server operators from joining the channel.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleOperChans)

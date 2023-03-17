@@ -29,39 +29,45 @@
 /** Because the core won't let users or even SERVERS set +o,
  * we use the OPERTYPE command to do this.
  */
-CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& params)
-{
-	const std::string& opertype = params[0];
-	if (!u->IsOper())
-		ServerInstance->Users->all_opers.push_back(u);
+CmdResult CommandOpertype::HandleRemote(RemoteUser* u,
+                                        CommandBase::Params& params) {
+    const std::string& opertype = params[0];
+    if (!u->IsOper()) {
+        ServerInstance->Users->all_opers.push_back(u);
+    }
 
-	ModeHandler* opermh = ServerInstance->Modes->FindMode('o', MODETYPE_USER);
-	if (opermh)
-		u->SetMode(opermh, true);
+    ModeHandler* opermh = ServerInstance->Modes->FindMode('o', MODETYPE_USER);
+    if (opermh) {
+        u->SetMode(opermh, true);
+    }
 
-	ServerConfig::OperIndex::const_iterator iter = ServerInstance->Config->OperTypes.find(opertype);
-	if (iter != ServerInstance->Config->OperTypes.end())
-		u->oper = iter->second;
-	else
-		u->oper = new OperInfo(opertype);
+    ServerConfig::OperIndex::const_iterator iter =
+        ServerInstance->Config->OperTypes.find(opertype);
+    if (iter != ServerInstance->Config->OperTypes.end()) {
+        u->oper = iter->second;
+    } else {
+        u->oper = new OperInfo(opertype);
+    }
 
-	if (Utils->quiet_bursts)
-	{
-		/*
-		 * If quiet bursts are enabled, and server is bursting or silent uline (i.e. services),
-		 * then do nothing. -- w00t
-		 */
-		TreeServer* remoteserver = TreeServer::Get(u);
-		if (remoteserver->IsBehindBursting() || remoteserver->IsSilentULine())
-			return CMD_SUCCESS;
-	}
+    if (Utils->quiet_bursts) {
+        /*
+         * If quiet bursts are enabled, and server is bursting or silent uline (i.e. services),
+         * then do nothing. -- w00t
+         */
+        TreeServer* remoteserver = TreeServer::Get(u);
+        if (remoteserver->IsBehindBursting() || remoteserver->IsSilentULine()) {
+            return CMD_SUCCESS;
+        }
+    }
 
-	ServerInstance->SNO->WriteToSnoMask('O', "From %s: User %s (%s@%s) is now a server operator of type %s", u->server->GetName().c_str(), u->nick.c_str(),u->ident.c_str(), u->GetRealHost().c_str(), opertype.c_str());
-	return CMD_SUCCESS;
+    ServerInstance->SNO->WriteToSnoMask('O',
+                                        "From %s: User %s (%s@%s) is now a server operator of type %s",
+                                        u->server->GetName().c_str(), u->nick.c_str(),u->ident.c_str(),
+                                        u->GetRealHost().c_str(), opertype.c_str());
+    return CMD_SUCCESS;
 }
 
 CommandOpertype::Builder::Builder(User* user)
-	: CmdBuilder(user, "OPERTYPE")
-{
-	push_last(user->oper->name);
+    : CmdBuilder(user, "OPERTYPE") {
+    push_last(user->oper->name);
 }

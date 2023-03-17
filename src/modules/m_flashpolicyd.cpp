@@ -26,145 +26,137 @@
 
 class FlashPDSocket;
 
-namespace
-{
-	insp::intrusive_list<FlashPDSocket> sockets;
-	std::string policy_reply;
-	const std::string expected_request("<policy-file-request/>\0", 23);
+namespace {
+insp::intrusive_list<FlashPDSocket> sockets;
+std::string policy_reply;
+const std::string expected_request("<policy-file-request/>\0", 23);
 }
 
-class FlashPDSocket : public BufferedSocket, public Timer, public insp::intrusive_list_node<FlashPDSocket>
-{
-	/** True if this object is in the cull list
-	 */
-	bool waitingcull;
+class FlashPDSocket : public BufferedSocket, public Timer,
+    public insp::intrusive_list_node<FlashPDSocket> {
+    /** True if this object is in the cull list
+     */
+    bool waitingcull;
 
-	bool Tick(time_t currtime) CXX11_OVERRIDE
-	{
-		AddToCull();
-		return false;
-	}
+    bool Tick(time_t currtime) CXX11_OVERRIDE {
+        AddToCull();
+        return false;
+    }
 
- public:
-	FlashPDSocket(int newfd, unsigned int timeoutsec)
-		: BufferedSocket(newfd)
-		, Timer(timeoutsec)
-		, waitingcull(false)
-	{
-		ServerInstance->Timers.AddTimer(this);
-	}
+  public:
+    FlashPDSocket(int newfd, unsigned int timeoutsec)
+        : BufferedSocket(newfd)
+        , Timer(timeoutsec)
+        , waitingcull(false) {
+        ServerInstance->Timers.AddTimer(this);
+    }
 
-	~FlashPDSocket()
-	{
-		sockets.erase(this);
-	}
+    ~FlashPDSocket() {
+        sockets.erase(this);
+    }
 
-	void OnError(BufferedSocketError) CXX11_OVERRIDE
-	{
-		AddToCull();
-	}
+    void OnError(BufferedSocketError) CXX11_OVERRIDE {
+        AddToCull();
+    }
 
-	void OnDataReady() CXX11_OVERRIDE
-	{
-		if (recvq == expected_request)
-			WriteData(policy_reply);
-		AddToCull();
-	}
+    void OnDataReady() CXX11_OVERRIDE {
+        if (recvq == expected_request) {
+            WriteData(policy_reply);
+        }
+        AddToCull();
+    }
 
-	void AddToCull()
-	{
-		if (waitingcull)
-			return;
+    void AddToCull() {
+        if (waitingcull) {
+            return;
+        }
 
-		waitingcull = true;
-		Close();
-		ServerInstance->GlobalCulls.AddItem(this);
-	}
+        waitingcull = true;
+        Close();
+        ServerInstance->GlobalCulls.AddItem(this);
+    }
 };
 
-class ModuleFlashPD : public Module
-{
-	unsigned int timeout;
+class ModuleFlashPD : public Module {
+    unsigned int timeout;
 
- public:
-	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
-	{
-		if (!stdalgo::string::equalsci(from->bind_tag->getString("type"), "flashpolicyd"))
-			return MOD_RES_PASSTHRU;
+  public:
+    ModResult OnAcceptConnection(int nfd, ListenSocket* from,
+                                 irc::sockets::sockaddrs* client,
+                                 irc::sockets::sockaddrs* server) CXX11_OVERRIDE {
+        if (!stdalgo::string::equalsci(from->bind_tag->getString("type"), "flashpolicyd")) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		if (policy_reply.empty())
-			return MOD_RES_DENY;
+        if (policy_reply.empty()) {
+            return MOD_RES_DENY;
+        }
 
-		sockets.push_front(new FlashPDSocket(nfd, timeout));
-		return MOD_RES_ALLOW;
-	}
+        sockets.push_front(new FlashPDSocket(nfd, timeout));
+        return MOD_RES_ALLOW;
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("flashpolicyd");
-		std::string file = tag->getString("file");
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("flashpolicyd");
+        std::string file = tag->getString("file");
 
-		if (!file.empty())
-		{
-			try
-			{
-				FileReader reader(file);
-				policy_reply = reader.GetString();
-			}
-			catch (CoreException&)
-			{
-				throw ModuleException("A file was specified for FlashPD, but it could not be loaded at " + tag->getTagLocation());
-			}
-			return;
-		}
+        if (!file.empty()) {
+            try {
+                FileReader reader(file);
+                policy_reply = reader.GetString();
+            } catch (CoreException&) {
+                throw ModuleException("A file was specified for FlashPD, but it could not be loaded at "
+                                      + tag->getTagLocation());
+            }
+            return;
+        }
 
-		// A file was not specified. Set the default setting.
-		// We allow access to all client ports by default
-		std::string to_ports;
-		for (std::vector<ListenSocket*>::const_iterator i = ServerInstance->ports.begin(); i != ServerInstance->ports.end(); ++i)
-		{
-				ListenSocket* ls = *i;
-				if (!stdalgo::string::equalsci(ls->bind_tag->getString("type", "clients", 1), "clients"))
-					continue;
+        // A file was not specified. Set the default setting.
+        // We allow access to all client ports by default
+        std::string to_ports;
+        for (std::vector<ListenSocket*>::const_iterator i = ServerInstance->ports.begin(); i != ServerInstance->ports.end(); ++i) {
+            ListenSocket* ls = *i;
+            if (!stdalgo::string::equalsci(ls->bind_tag->getString("type", "clients", 1),
+                                           "clients")) {
+                continue;
+            }
 
-				if (!ls->bind_tag->getString("sslprofile", ls->bind_tag->getString("ssl")).empty())
-					continue;
+            if (!ls->bind_tag->getString("sslprofile",
+                                         ls->bind_tag->getString("ssl")).empty()) {
+                continue;
+            }
 
-				to_ports.append(ConvToStr(ls->bind_sa.port())).push_back(',');
-		}
+            to_ports.append(ConvToStr(ls->bind_sa.port())).push_back(',');
+        }
 
-		if (to_ports.empty())
-		{
-			policy_reply.clear();
-			return;
-		}
+        if (to_ports.empty()) {
+            policy_reply.clear();
+            return;
+        }
 
-		to_ports.erase(to_ports.size() - 1);
+        to_ports.erase(to_ports.size() - 1);
 
-		policy_reply =
-"<?xml version=\"1.0\"?>\
+        policy_reply =
+            "<?xml version=\"1.0\"?>\
 <!DOCTYPE cross-domain-policy SYSTEM \"/xml/dtds/cross-domain-policy.dtd\">\
 <cross-domain-policy>\
 <site-control permitted-cross-domain-policies=\"master-only\"/>\
 <allow-access-from domain=\"*\" to-ports=\"" + to_ports + "\" />\
 </cross-domain-policy>";
-		timeout = tag->getDuration("timeout", 5, 1);
-	}
+        timeout = tag->getDuration("timeout", 5, 1);
+    }
 
-	CullResult cull() CXX11_OVERRIDE
-	{
-		for (insp::intrusive_list<FlashPDSocket>::const_iterator i = sockets.begin(); i != sockets.end(); ++i)
-		{
-			FlashPDSocket* sock = *i;
-			sock->AddToCull();
-		}
-		return Module::cull();
-	}
+    CullResult cull() CXX11_OVERRIDE {
+        for (insp::intrusive_list<FlashPDSocket>::const_iterator i = sockets.begin(); i != sockets.end(); ++i) {
+            FlashPDSocket* sock = *i;
+            sock->AddToCull();
+        }
+        return Module::cull();
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Allows connection policies to be served to IRC clients that use Adobe Flash.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Allows connection policies to be served to IRC clients that use Adobe Flash.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleFlashPD)

@@ -27,30 +27,28 @@
 #include "core_user.h"
 
 CommandQuit::CommandQuit(Module* parent)
-	: Command(parent, "QUIT", 0, 1)
-	, operquit("operquit", ExtensionItem::EXT_USER, parent)
-{
-	works_before_reg = true;
-	syntax = "[:<message>]";
+    : Command(parent, "QUIT", 0, 1)
+    , operquit("operquit", ExtensionItem::EXT_USER, parent) {
+    works_before_reg = true;
+    syntax = "[:<message>]";
 }
 
-CmdResult CommandQuit::Handle(User* user, const Params& parameters)
-{
-	std::string quitmsg;
-	if (parameters.empty())
-		quitmsg = "Client exited";
-	else if (IS_LOCAL(user))
-		msgwrap.Wrap(parameters[0], quitmsg);
-	else
-		quitmsg = parameters[0];
+CmdResult CommandQuit::Handle(User* user, const Params& parameters) {
+    std::string quitmsg;
+    if (parameters.empty()) {
+        quitmsg = "Client exited";
+    } else if (IS_LOCAL(user)) {
+        msgwrap.Wrap(parameters[0], quitmsg);
+    } else {
+        quitmsg = parameters[0];
+    }
 
-	std::string* operquitmsg = operquit.get(user);
-	ServerInstance->Users->QuitUser(user, quitmsg, operquitmsg);
+    std::string* operquitmsg = operquit.get(user);
+    ServerInstance->Users->QuitUser(user, quitmsg, operquitmsg);
 
-	return CMD_SUCCESS;
+    return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandQuit::GetRouting(User* user, const Params& parameters)
-{
-	return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
+RouteDescriptor CommandQuit::GetRouting(User* user, const Params& parameters) {
+    return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
 }

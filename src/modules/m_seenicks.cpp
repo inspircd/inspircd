@@ -23,23 +23,19 @@
 
 #include "inspircd.h"
 
-class ModuleSeeNicks : public Module
-{
- public:
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->SNO->EnableSnomask('n',"NICK");
-	}
+class ModuleSeeNicks : public Module {
+  public:
+    void init() CXX11_OVERRIDE {
+        ServerInstance->SNO->EnableSnomask('n',"NICK");
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Sends a notice to snomasks n (local) and N (remote) when a user changes their nickname.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Sends a notice to snomasks n (local) and N (remote) when a user changes their nickname.", VF_VENDOR);
+    }
 
-	void OnUserPostNick(User* user, const std::string &oldnick) CXX11_OVERRIDE
-	{
-		ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'n' : 'N',"User %s changed their nickname to %s", oldnick.c_str(), user->nick.c_str());
-	}
+    void OnUserPostNick(User* user, const std::string &oldnick) CXX11_OVERRIDE {
+        ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'n' : 'N',"User %s changed their nickname to %s", oldnick.c_str(), user->nick.c_str());
+    }
 };
 
 MODULE_INIT(ModuleSeeNicks)

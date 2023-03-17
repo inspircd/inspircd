@@ -24,42 +24,37 @@
 
 #include "inspircd.h"
 
-class ModuleBadChannelExtban : public Module
-{
- public:
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds extended ban j: (channel) which checks whether users are in a channel matching the specified glob pattern.", VF_OPTCOMMON|VF_VENDOR);
-	}
+class ModuleBadChannelExtban : public Module {
+  public:
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds extended ban j: (channel) which checks whether users are in a channel matching the specified glob pattern.", VF_OPTCOMMON|VF_VENDOR);
+    }
 
-	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) CXX11_OVERRIDE
-	{
-		if ((mask.length() > 2) && (mask[0] == 'j') && (mask[1] == ':'))
-		{
-			std::string rm(mask, 2);
-			char status = 0;
-			const PrefixMode* const mh = ServerInstance->Modes->FindPrefix(rm[0]);
-			if (mh)
-			{
-				rm.assign(mask, 3, std::string::npos);
-				status = mh->GetModeChar();
-			}
-			for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); i++)
-			{
-				if (InspIRCd::Match((*i)->chan->name, rm))
-				{
-					if ((!status) || ((*i)->HasMode(mh)))
-						return MOD_RES_DENY;
-				}
-			}
-		}
-		return MOD_RES_PASSTHRU;
-	}
+    ModResult OnCheckBan(User *user, Channel *c,
+                         const std::string& mask) CXX11_OVERRIDE {
+        if ((mask.length() > 2) && (mask[0] == 'j') && (mask[1] == ':')) {
+            std::string rm(mask, 2);
+            char status = 0;
+            const PrefixMode* const mh = ServerInstance->Modes->FindPrefix(rm[0]);
+            if (mh) {
+                rm.assign(mask, 3, std::string::npos);
+                status = mh->GetModeChar();
+            }
+            for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end();
+                    i++) {
+                if (InspIRCd::Match((*i)->chan->name, rm)) {
+                    if ((!status) || ((*i)->HasMode(mh))) {
+                        return MOD_RES_DENY;
+                    }
+                }
+            }
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["EXTBAN"].push_back('j');
-	}
+    void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE {
+        tokens["EXTBAN"].push_back('j');
+    }
 };
 
 MODULE_INIT(ModuleBadChannelExtban)

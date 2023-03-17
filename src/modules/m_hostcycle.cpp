@@ -21,100 +21,93 @@
 #include "inspircd.h"
 #include "modules/cap.h"
 
-class ModuleHostCycle : public Module
-{
-	Cap::Reference chghostcap;
-	const std::string quitmsghost;
-	const std::string quitmsgident;
+class ModuleHostCycle : public Module {
+    Cap::Reference chghostcap;
+    const std::string quitmsghost;
+    const std::string quitmsgident;
 
-	/** Send fake quit/join/mode messages for host or ident cycle.
-	 */
-	void DoHostCycle(User* user, const std::string& newident, const std::string& newhost, const std::string& reason)
-	{
-		// The user has the original ident/host at the time this function is called
-		ClientProtocol::Messages::Quit quitmsg(user, reason);
-		ClientProtocol::Event quitevent(ServerInstance->GetRFCEvents().quit, quitmsg);
+    /** Send fake quit/join/mode messages for host or ident cycle.
+     */
+    void DoHostCycle(User* user, const std::string& newident,
+                     const std::string& newhost, const std::string& reason) {
+        // The user has the original ident/host at the time this function is called
+        ClientProtocol::Messages::Quit quitmsg(user, reason);
+        ClientProtocol::Event quitevent(ServerInstance->GetRFCEvents().quit, quitmsg);
 
-		already_sent_t silent_id = ServerInstance->Users.NextAlreadySentId();
-		already_sent_t seen_id = ServerInstance->Users.NextAlreadySentId();
+        already_sent_t silent_id = ServerInstance->Users.NextAlreadySentId();
+        already_sent_t seen_id = ServerInstance->Users.NextAlreadySentId();
 
-		IncludeChanList include_chans(user->chans.begin(), user->chans.end());
-		std::map<User*,bool> exceptions;
+        IncludeChanList include_chans(user->chans.begin(), user->chans.end());
+        std::map<User*,bool> exceptions;
 
-		FOREACH_MOD(OnBuildNeighborList, (user, include_chans, exceptions));
+        FOREACH_MOD(OnBuildNeighborList, (user, include_chans, exceptions));
 
-		// Users shouldn't see themselves quitting when host cycling
-		exceptions.erase(user);
-		for (std::map<User*,bool>::iterator i = exceptions.begin(); i != exceptions.end(); ++i)
-		{
-			LocalUser* u = IS_LOCAL(i->first);
-			if ((u) && (!u->quitting) && (!chghostcap.get(u)))
-			{
-				if (i->second)
-				{
-					u->already_sent = seen_id;
-					u->Send(quitevent);
-				}
-				else
-				{
-					u->already_sent = silent_id;
-				}
-			}
-		}
+        // Users shouldn't see themselves quitting when host cycling
+        exceptions.erase(user);
+        for (std::map<User*,bool>::iterator i = exceptions.begin();
+                i != exceptions.end(); ++i) {
+            LocalUser* u = IS_LOCAL(i->first);
+            if ((u) && (!u->quitting) && (!chghostcap.get(u))) {
+                if (i->second) {
+                    u->already_sent = seen_id;
+                    u->Send(quitevent);
+                } else {
+                    u->already_sent = silent_id;
+                }
+            }
+        }
 
-		std::string newfullhost = user->nick + "!" + newident + "@" + newhost;
+        std::string newfullhost = user->nick + "!" + newident + "@" + newhost;
 
-		for (IncludeChanList::const_iterator i = include_chans.begin(); i != include_chans.end(); ++i)
-		{
-			Membership* memb = *i;
-			Channel* c = memb->chan;
+        for (IncludeChanList::const_iterator i = include_chans.begin();
+                i != include_chans.end(); ++i) {
+            Membership* memb = *i;
+            Channel* c = memb->chan;
 
-			ClientProtocol::Events::Join joinevent(memb, newfullhost);
+            ClientProtocol::Events::Join joinevent(memb, newfullhost);
 
-			const Channel::MemberMap& ulist = c->GetUsers();
-			for (Channel::MemberMap::const_iterator j = ulist.begin(); j != ulist.end(); ++j)
-			{
-				LocalUser* u = IS_LOCAL(j->first);
-				if (u == NULL || u == user)
-					continue;
-				if (u->already_sent == silent_id)
-					continue;
-				if (chghostcap.get(u))
-					continue;
+            const Channel::MemberMap& ulist = c->GetUsers();
+            for (Channel::MemberMap::const_iterator j = ulist.begin(); j != ulist.end();
+                    ++j) {
+                LocalUser* u = IS_LOCAL(j->first);
+                if (u == NULL || u == user) {
+                    continue;
+                }
+                if (u->already_sent == silent_id) {
+                    continue;
+                }
+                if (chghostcap.get(u)) {
+                    continue;
+                }
 
-				if (u->already_sent != seen_id)
-				{
-					u->Send(quitevent);
-					u->already_sent = seen_id;
-				}
+                if (u->already_sent != seen_id) {
+                    u->Send(quitevent);
+                    u->already_sent = seen_id;
+                }
 
-				u->Send(joinevent);
-			}
-		}
-	}
+                u->Send(joinevent);
+            }
+        }
+    }
 
- public:
-	ModuleHostCycle()
-		: chghostcap(this, "chghost")
-		, quitmsghost("Changing host")
-		, quitmsgident("Changing ident")
-	{
-	}
+  public:
+    ModuleHostCycle()
+        : chghostcap(this, "chghost")
+        , quitmsghost("Changing host")
+        , quitmsgident("Changing ident") {
+    }
 
-	void OnChangeIdent(User* user, const std::string& newident) CXX11_OVERRIDE
-	{
-		DoHostCycle(user, newident, user->GetDisplayedHost(), quitmsgident);
-	}
+    void OnChangeIdent(User* user, const std::string& newident) CXX11_OVERRIDE {
+        DoHostCycle(user, newident, user->GetDisplayedHost(), quitmsgident);
+    }
 
-	void OnChangeHost(User* user, const std::string& newhost) CXX11_OVERRIDE
-	{
-		DoHostCycle(user, user->ident, newhost, quitmsghost);
-	}
+    void OnChangeHost(User* user, const std::string& newhost) CXX11_OVERRIDE {
+        DoHostCycle(user, user->ident, newhost, quitmsghost);
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Sends a fake disconnection and reconnection when a user's username (ident) or hostname changes to allow clients to update their internal caches.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Sends a fake disconnection and reconnection when a user's username (ident) or hostname changes to allow clients to update their internal caches.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleHostCycle)

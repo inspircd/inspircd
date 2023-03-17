@@ -22,35 +22,35 @@
 
 #include "modules/cap.h"
 
-namespace IRCv3
-{
-	class WriteNeighborsWithCap;
-	template <typename T>
-	class CapTag;
+namespace IRCv3 {
+class WriteNeighborsWithCap;
+template <typename T>
+class CapTag;
 }
 
-class IRCv3::WriteNeighborsWithCap : public User::ForEachNeighborHandler
-{
- private:
-	const Cap::Capability& cap;
-	ClientProtocol::Event& protoev;
-	already_sent_t sentid;
+class IRCv3::WriteNeighborsWithCap : public User::ForEachNeighborHandler {
+  private:
+    const Cap::Capability& cap;
+    ClientProtocol::Event& protoev;
+    already_sent_t sentid;
 
-	void Execute(LocalUser* user) CXX11_OVERRIDE
-	{
-		if (cap.get(user))
-			user->Send(protoev);
-	}
+    void Execute(LocalUser* user) CXX11_OVERRIDE {
+        if (cap.get(user)) {
+            user->Send(protoev);
+        }
+    }
 
- public:
-	WriteNeighborsWithCap(User* user, ClientProtocol::Event& ev, const Cap::Capability& capability, bool include_self = false)
-		: cap(capability)
-		, protoev(ev)
-	{
-		sentid = user->ForEachNeighbor(*this, include_self);
-	}
+  public:
+    WriteNeighborsWithCap(User* user, ClientProtocol::Event& ev,
+                          const Cap::Capability& capability, bool include_self = false)
+        : cap(capability)
+        , protoev(ev) {
+        sentid = user->ForEachNeighbor(*this, include_self);
+    }
 
-	already_sent_t GetAlreadySentId() const { return sentid; }
+    already_sent_t GetAlreadySentId() const {
+        return sentid;
+    }
 };
 
 /** Base class for simple message tags.
@@ -70,41 +70,41 @@ class IRCv3::WriteNeighborsWithCap : public User::ForEachNeighborHandler
  * Template parameter T is the derived class.
  */
 template <typename T>
-class IRCv3::CapTag : public ClientProtocol::MessageTagProvider
-{
- protected:
-	Cap::Capability cap;
-	const std::string tagname;
+class IRCv3::CapTag : public ClientProtocol::MessageTagProvider {
+  protected:
+    Cap::Capability cap;
+    const std::string tagname;
 
-	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) CXX11_OVERRIDE
-	{
-		return cap.get(user);
-	}
+    bool ShouldSendTag(LocalUser* user,
+                       const ClientProtocol::MessageTagData& tagdata) CXX11_OVERRIDE {
+        return cap.get(user);
+    }
 
-	void OnPopulateTags(ClientProtocol::Message& msg) CXX11_OVERRIDE
-	{
-		T& tag = static_cast<T&>(*this);
-		const std::string* const val = tag.GetValue(msg);
-		if (val)
-			msg.AddTag(tagname, this, *val);
-	}
+    void OnPopulateTags(ClientProtocol::Message& msg) CXX11_OVERRIDE {
+        T& tag = static_cast<T&>(*this);
+        const std::string* const val = tag.GetValue(msg);
+        if (val) {
+            msg.AddTag(tagname, this, *val);
+        }
+    }
 
- public:
-	/** Constructor.
-	 * @param mod Module that owns the tag.
-	 * @param capname Name of the client capability.
-	 * A client capability with this name will be created. It will be available to all clients and it won't
-	 * have a value.
-	 * See Cap::Capability for more info on client capabilities.
-	 * @param Tagname Name of the message tag, to use in the protocol.
-	 */
-	CapTag(Module* mod, const std::string& capname, const std::string& Tagname)
-		: ClientProtocol::MessageTagProvider(mod)
-		, cap(mod, capname)
-		, tagname(Tagname)
-	{
-	}
+  public:
+    /** Constructor.
+     * @param mod Module that owns the tag.
+     * @param capname Name of the client capability.
+     * A client capability with this name will be created. It will be available to all clients and it won't
+     * have a value.
+     * See Cap::Capability for more info on client capabilities.
+     * @param Tagname Name of the message tag, to use in the protocol.
+     */
+    CapTag(Module* mod, const std::string& capname, const std::string& Tagname)
+        : ClientProtocol::MessageTagProvider(mod)
+        , cap(mod, capname)
+        , tagname(Tagname) {
+    }
 
-	/** Retrieves the underlying capability. */
-	const Cap::Capability& GetCap() const { return cap; }
+    /** Retrieves the underlying capability. */
+    const Cap::Capability& GetCap() const {
+        return cap;
+    }
 };

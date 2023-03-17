@@ -26,72 +26,67 @@
 #include "modules/ctctags.h"
 
 class ModuleNoIdleTyping
-	: public Module
-	, public CTCTags::EventListener
-{
- private:
-	unsigned long duration;
+    : public Module
+    , public CTCTags::EventListener {
+  private:
+    unsigned long duration;
 
-	bool IsIdle(User* source)
-	{
-		LocalUser* lsource = IS_LOCAL(source);
-		if (!lsource)
-		{
-			// Servers handle their own users.
-			return false;
-		}
+    bool IsIdle(User* source) {
+        LocalUser* lsource = IS_LOCAL(source);
+        if (!lsource) {
+            // Servers handle their own users.
+            return false;
+        }
 
-		unsigned long diff = ServerInstance->Time() - lsource->idle_lastmsg;
-		return diff > duration;
-	}
+        unsigned long diff = ServerInstance->Time() - lsource->idle_lastmsg;
+        return diff > duration;
+    }
 
-	ModResult BuildChannelExempts(User* source, Channel* channel, CTCTags::TagMessageDetails& details)
-	{
-		const Channel::MemberMap& members = channel->GetUsers();
-		for (Channel::MemberMap::const_iterator member = members.begin(); member != members.end(); ++member)
-		{
-			if (IsIdle(source))
-				details.exemptions.insert(member->first);
-		}
-		return MOD_RES_PASSTHRU;
-	}
+    ModResult BuildChannelExempts(User* source, Channel* channel,
+                                  CTCTags::TagMessageDetails& details) {
+        const Channel::MemberMap& members = channel->GetUsers();
+        for (Channel::MemberMap::const_iterator member = members.begin();
+                member != members.end(); ++member) {
+            if (IsIdle(source)) {
+                details.exemptions.insert(member->first);
+            }
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
- public:
-	ModuleNoIdleTyping()
-		: CTCTags::EventListener(this, 200)
-	{
-	}
+  public:
+    ModuleNoIdleTyping()
+        : CTCTags::EventListener(this, 200) {
+    }
 
-	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("noidletyping");
-		duration = tag->getDuration("duration", 60*10, 60);
-	}
+    void ReadConfig(ConfigStatus&) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("noidletyping");
+        duration = tag->getDuration("duration", 60*10, 60);
+    }
 
-	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) CXX11_OVERRIDE
-	{
-		ClientProtocol::TagMap::const_iterator iter = details.tags_out.find("+typing");
-		ClientProtocol::TagMap::const_iterator draftiter = details.tags_out.find("+draft/typing");
-		if (iter == details.tags_out.end() && draftiter == details.tags_out.end())
-			return MOD_RES_PASSTHRU;
+    ModResult OnUserPreTagMessage(User* user, const MessageTarget& target,
+                                  CTCTags::TagMessageDetails& details) CXX11_OVERRIDE {
+        ClientProtocol::TagMap::const_iterator iter = details.tags_out.find("+typing");
+        ClientProtocol::TagMap::const_iterator draftiter = details.tags_out.find("+draft/typing");
+        if (iter == details.tags_out.end() && draftiter == details.tags_out.end()) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		switch (target.type)
-		{
-			case MessageTarget::TYPE_CHANNEL:
-				return BuildChannelExempts(user, target.Get<Channel>(), details);
+        switch (target.type) {
+        case MessageTarget::TYPE_CHANNEL:
+            return BuildChannelExempts(user, target.Get<Channel>(), details);
 
-			case MessageTarget::TYPE_USER:
-				return IsIdle(target.Get<User>()) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+        case MessageTarget::TYPE_USER:
+            return IsIdle(target.Get<User>()) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 
-			default:
-				return MOD_RES_PASSTHRU;
-		}
-	}
+        default:
+            return MOD_RES_PASSTHRU;
+        }
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Prevents typing notifications from being sent to idle users.");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Prevents typing notifications from being sent to idle users.");
+    }
 };
 
 MODULE_INIT(ModuleNoIdleTyping)

@@ -25,53 +25,52 @@
 #include "treeserver.h"
 #include "treesocket.h"
 
-CmdResult CommandIJoin::HandleRemote(RemoteUser* user, Params& params)
-{
-	Channel* chan = ServerInstance->FindChan(params[0]);
-	if (!chan)
-	{
-		// Desync detected, recover
-		// Ignore the join and send RESYNC, this will result in the remote server sending all channel data to us
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Received IJOIN for nonexistent channel: " + params[0]);
+CmdResult CommandIJoin::HandleRemote(RemoteUser* user, Params& params) {
+    Channel* chan = ServerInstance->FindChan(params[0]);
+    if (!chan) {
+        // Desync detected, recover
+        // Ignore the join and send RESYNC, this will result in the remote server sending all channel data to us
+        ServerInstance->Logs->Log(MODNAME, LOG_DEBUG,
+                                  "Received IJOIN for nonexistent channel: " + params[0]);
 
-		CmdBuilder("RESYNC").push(params[0]).Unicast(user);
+        CmdBuilder("RESYNC").push(params[0]).Unicast(user);
 
-		return CMD_FAILURE;
-	}
+        return CMD_FAILURE;
+    }
 
-	bool apply_modes;
-	if (params.size() > 3)
-	{
-		time_t RemoteTS = ServerCommand::ExtractTS(params[2]);
-		apply_modes = (RemoteTS <= chan->age);
-	}
-	else
-		apply_modes = false;
+    bool apply_modes;
+    if (params.size() > 3) {
+        time_t RemoteTS = ServerCommand::ExtractTS(params[2]);
+        apply_modes = (RemoteTS <= chan->age);
+    } else {
+        apply_modes = false;
+    }
 
-	// Join the user and set the membership id to what they sent
-	Membership* memb = chan->ForceJoin(user, apply_modes ? &params[3] : NULL);
-	if (!memb)
-		return CMD_FAILURE;
+    // Join the user and set the membership id to what they sent
+    Membership* memb = chan->ForceJoin(user, apply_modes ? &params[3] : NULL);
+    if (!memb) {
+        return CMD_FAILURE;
+    }
 
-	memb->id = Membership::IdFromString(params[1]);
-	return CMD_SUCCESS;
+    memb->id = Membership::IdFromString(params[1]);
+    return CMD_SUCCESS;
 }
 
-CmdResult CommandResync::HandleServer(TreeServer* server, CommandBase::Params& params)
-{
-	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Resyncing " + params[0]);
-	Channel* chan = ServerInstance->FindChan(params[0]);
-	if (!chan)
-	{
-		// This can happen for a number of reasons, safe to ignore
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Channel does not exist");
-		return CMD_FAILURE;
-	}
+CmdResult CommandResync::HandleServer(TreeServer* server,
+                                      CommandBase::Params& params) {
+    ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Resyncing " + params[0]);
+    Channel* chan = ServerInstance->FindChan(params[0]);
+    if (!chan) {
+        // This can happen for a number of reasons, safe to ignore
+        ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Channel does not exist");
+        return CMD_FAILURE;
+    }
 
-	if (!server->IsLocal())
-		throw ProtocolException("RESYNC from a server that is not directly connected");
+    if (!server->IsLocal()) {
+        throw ProtocolException("RESYNC from a server that is not directly connected");
+    }
 
-	// Send all known information about the channel
-	server->GetSocket()->SyncChannel(chan);
-	return CMD_SUCCESS;
+    // Send all known information about the channel
+    server->GetSocket()->SyncChannel(chan);
+    return CMD_SUCCESS;
 }

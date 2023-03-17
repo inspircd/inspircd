@@ -28,11 +28,10 @@
 #include "core_user.h"
 
 CommandNick::CommandNick(Module* parent)
-	: SplitCommand(parent, "NICK", 1)
-{
-	works_before_reg = true;
-	syntax = "<newnick>";
-	Penalty = 0;
+    : SplitCommand(parent, "NICK", 1) {
+    works_before_reg = true;
+    syntax = "<newnick>";
+    Penalty = 0;
 }
 
 /** Handle nick changes from users.
@@ -40,62 +39,59 @@ CommandNick::CommandNick(Module* parent)
  * for the client introduction code in here, youre in the wrong place.
  * You need to look in the spanningtree module for this!
  */
-CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
-{
-	std::string newnick = parameters[0];
+CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters) {
+    std::string newnick = parameters[0];
 
-	// anything except the initial NICK gets a flood penalty
-	if (user->registered == REG_ALL)
-		user->CommandFloodPenalty += 4000;
+    // anything except the initial NICK gets a flood penalty
+    if (user->registered == REG_ALL) {
+        user->CommandFloodPenalty += 4000;
+    }
 
-	if (newnick.empty())
-	{
-		user->WriteNumeric(ERR_NONICKNAMEGIVEN, "No nickname given");
-		return CMD_FAILURE;
-	}
+    if (newnick.empty()) {
+        user->WriteNumeric(ERR_NONICKNAMEGIVEN, "No nickname given");
+        return CMD_FAILURE;
+    }
 
-	if (newnick == "0")
-	{
-		newnick = user->uuid;
-	}
-	else if (!ServerInstance->IsNick(newnick))
-	{
-		user->WriteNumeric(ERR_ERRONEUSNICKNAME, newnick, "Erroneous Nickname");
-		return CMD_FAILURE;
-	}
+    if (newnick == "0") {
+        newnick = user->uuid;
+    } else if (!ServerInstance->IsNick(newnick)) {
+        user->WriteNumeric(ERR_ERRONEUSNICKNAME, newnick, "Erroneous Nickname");
+        return CMD_FAILURE;
+    }
 
-	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (user, newnick));
+    ModResult MOD_RESULT;
+    FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (user, newnick));
 
-	// If a module denied the change, abort now
-	if (MOD_RESULT == MOD_RES_DENY)
-		return CMD_FAILURE;
+    // If a module denied the change, abort now
+    if (MOD_RESULT == MOD_RES_DENY) {
+        return CMD_FAILURE;
+    }
 
-	// Disallow the nick change if <security:restrictbannedusers> is on and there is a ban matching this user in
-	// one of the channels they are on
-	if (ServerInstance->Config->RestrictBannedUsers != ServerConfig::BUT_NORMAL)
-	{
-		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); ++i)
-		{
-			Channel* chan = (*i)->chan;
-			if (chan->GetPrefixValue(user) < VOICE_VALUE && chan->IsBanned(user))
-			{
-				if (ServerInstance->Config->RestrictBannedUsers == ServerConfig::BUT_RESTRICT_NOTIFY)
-					user->WriteNumeric(ERR_CANTCHANGENICK, InspIRCd::Format("Cannot change nickname while on %s (you're banned)",
-						chan->name.c_str()));
-				return CMD_FAILURE;
-			}
-		}
-	}
+    // Disallow the nick change if <security:restrictbannedusers> is on and there is a ban matching this user in
+    // one of the channels they are on
+    if (ServerInstance->Config->RestrictBannedUsers != ServerConfig::BUT_NORMAL) {
+        for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end();
+                ++i) {
+            Channel* chan = (*i)->chan;
+            if (chan->GetPrefixValue(user) < VOICE_VALUE && chan->IsBanned(user)) {
+                if (ServerInstance->Config->RestrictBannedUsers ==
+                        ServerConfig::BUT_RESTRICT_NOTIFY)
+                    user->WriteNumeric(ERR_CANTCHANGENICK,
+                                       InspIRCd::Format("Cannot change nickname while on %s (you're banned)",
+                                                        chan->name.c_str()));
+                return CMD_FAILURE;
+            }
+        }
+    }
 
-	if (!user->ChangeNick(newnick))
-		return CMD_FAILURE;
+    if (!user->ChangeNick(newnick)) {
+        return CMD_FAILURE;
+    }
 
-	if (user->registered < REG_NICKUSER)
-	{
-		user->registered = (user->registered | REG_NICK);
-		return CommandUser::CheckRegister(user);
-	}
+    if (user->registered < REG_NICKUSER) {
+        user->registered = (user->registered | REG_NICK);
+        return CommandUser::CheckRegister(user);
+    }
 
-	return CMD_SUCCESS;
+    return CMD_SUCCESS;
 }

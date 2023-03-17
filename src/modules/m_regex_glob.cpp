@@ -25,43 +25,35 @@
 #include "inspircd.h"
 #include "modules/regex.h"
 
-class GlobRegex : public Regex
-{
-public:
-	GlobRegex(const std::string& rx) : Regex(rx)
-	{
-	}
+class GlobRegex : public Regex {
+  public:
+    GlobRegex(const std::string& rx) : Regex(rx) {
+    }
 
-	bool Matches(const std::string& text) CXX11_OVERRIDE
-	{
-		return InspIRCd::Match(text, this->regex_string);
-	}
+    bool Matches(const std::string& text) CXX11_OVERRIDE {
+        return InspIRCd::Match(text, this->regex_string);
+    }
 };
 
-class GlobFactory : public RegexFactory
-{
- public:
-	Regex* Create(const std::string& expr) CXX11_OVERRIDE
-	{
-		return new GlobRegex(expr);
-	}
+class GlobFactory : public RegexFactory {
+  public:
+    Regex* Create(const std::string& expr) CXX11_OVERRIDE {
+        return new GlobRegex(expr);
+    }
 
-	GlobFactory(Module* m) : RegexFactory(m, "regex/glob") {}
+    GlobFactory(Module* m) : RegexFactory(m, "regex/glob") {}
 };
 
-class ModuleRegexGlob : public Module
-{
-	GlobFactory gf;
-public:
-	ModuleRegexGlob()
-		: gf(this)
-	{
-	}
+class ModuleRegexGlob : public Module {
+    GlobFactory gf;
+  public:
+    ModuleRegexGlob()
+        : gf(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides the glob regular expression engine which uses the built-in glob matching system.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Provides the glob regular expression engine which uses the built-in glob matching system.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleRegexGlob)

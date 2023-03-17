@@ -29,61 +29,56 @@
  * This will also attempt to match any leading usernames or nicknames on the mask, using
  * match(), when match_with_username is true.
  */
-bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr_mask, bool match_with_username)
-{
-	std::string address_copy;
-	std::string cidr_copy;
+bool irc::sockets::MatchCIDR(const std::string &address,
+                             const std::string &cidr_mask, bool match_with_username) {
+    std::string address_copy;
+    std::string cidr_copy;
 
-	/* The caller is trying to match ident@<mask>/bits.
-	 * Chop off the ident@ portion, use match() on it
-	 * separately.
-	 */
-	if (match_with_username)
-	{
-		/* Use strchr not strrchr, because its going to be nearer to the left */
-		std::string::size_type username_mask_pos = cidr_mask.rfind('@');
-		std::string::size_type username_addr_pos = address.rfind('@');
+    /* The caller is trying to match ident@<mask>/bits.
+     * Chop off the ident@ portion, use match() on it
+     * separately.
+     */
+    if (match_with_username) {
+        /* Use strchr not strrchr, because its going to be nearer to the left */
+        std::string::size_type username_mask_pos = cidr_mask.rfind('@');
+        std::string::size_type username_addr_pos = address.rfind('@');
 
-		/* Both strings have an @ symbol in them */
-		if (username_mask_pos != std::string::npos && username_addr_pos != std::string::npos)
-		{
-			/* Try and match() the strings before the @
-			 * symbols, and recursively call MatchCIDR without
-			 * username matching enabled to match the host part.
-			 */
-			return (InspIRCd::Match(address.substr(0, username_addr_pos), cidr_mask.substr(0, username_mask_pos), ascii_case_insensitive_map) &&
-					MatchCIDR(address.substr(username_addr_pos + 1), cidr_mask.substr(username_mask_pos + 1), false));
-		}
-		else
-		{
-			address_copy.assign(address, username_addr_pos + 1, std::string::npos);
-			cidr_copy.assign(cidr_mask, username_mask_pos + 1, std::string::npos);
-		}
-	}
-	else
-	{
-		address_copy.assign(address);
-		cidr_copy.assign(cidr_mask);
-	}
+        /* Both strings have an @ symbol in them */
+        if (username_mask_pos != std::string::npos
+                && username_addr_pos != std::string::npos) {
+            /* Try and match() the strings before the @
+             * symbols, and recursively call MatchCIDR without
+             * username matching enabled to match the host part.
+             */
+            return (InspIRCd::Match(address.substr(0, username_addr_pos),
+                                    cidr_mask.substr(0, username_mask_pos), ascii_case_insensitive_map) &&
+                    MatchCIDR(address.substr(username_addr_pos + 1),
+                              cidr_mask.substr(username_mask_pos + 1), false));
+        } else {
+            address_copy.assign(address, username_addr_pos + 1, std::string::npos);
+            cidr_copy.assign(cidr_mask, username_mask_pos + 1, std::string::npos);
+        }
+    } else {
+        address_copy.assign(address);
+        cidr_copy.assign(cidr_mask);
+    }
 
-	const std::string::size_type per_pos = cidr_copy.rfind('/');
-	if ((per_pos != std::string::npos) && ((per_pos == cidr_copy.length()-1)
-		|| (cidr_copy.find_first_not_of("0123456789", per_pos+1) != std::string::npos)
-		|| (cidr_copy.find_first_not_of("0123456789abcdefABCDEF.:") < per_pos)))
-	{
-		// The CIDR mask is invalid
-		return false;
-	}
+    const std::string::size_type per_pos = cidr_copy.rfind('/');
+    if ((per_pos != std::string::npos) && ((per_pos == cidr_copy.length()-1)
+                                           || (cidr_copy.find_first_not_of("0123456789", per_pos+1) != std::string::npos)
+                                           || (cidr_copy.find_first_not_of("0123456789abcdefABCDEF.:") < per_pos))) {
+        // The CIDR mask is invalid
+        return false;
+    }
 
-	irc::sockets::sockaddrs addr;
-	if (!irc::sockets::aptosa(address_copy, 0, addr))
-	{
-		// The address could not be parsed.
-		return false;
-	}
+    irc::sockets::sockaddrs addr;
+    if (!irc::sockets::aptosa(address_copy, 0, addr)) {
+        // The address could not be parsed.
+        return false;
+    }
 
-	irc::sockets::cidr_mask mask(cidr_copy);
-	irc::sockets::cidr_mask mask2(addr, mask.length);
+    irc::sockets::cidr_mask mask(cidr_copy);
+    irc::sockets::cidr_mask mask2(addr, mask.length);
 
-	return mask == mask2;
+    return mask == mask2;
 }

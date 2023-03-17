@@ -31,90 +31,81 @@
 #include "core_xline.h"
 
 CommandKline::CommandKline(Module* parent)
-	: Command(parent, "KLINE", 1, 3)
-{
-	flags_needed = 'o';
-	syntax = "<user@host>[,<user@host>]+ [<duration> :<reason>]";
+    : Command(parent, "KLINE", 1, 3) {
+    flags_needed = 'o';
+    syntax = "<user@host>[,<user@host>]+ [<duration> :<reason>]";
 }
 
 /** Handle /KLINE
  */
-CmdResult CommandKline::Handle(User* user, const Params& parameters)
-{
-	if (CommandParser::LoopCall(user, this, parameters, 0))
-		return CMD_SUCCESS;
+CmdResult CommandKline::Handle(User* user, const Params& parameters) {
+    if (CommandParser::LoopCall(user, this, parameters, 0)) {
+        return CMD_SUCCESS;
+    }
 
-	std::string target = parameters[0];
-	if (parameters.size() >= 3)
-	{
-		IdentHostPair ih;
-		User* find = ServerInstance->FindNick(target);
-		if ((find) && (find->registered == REG_ALL))
-		{
-			ih.first = find->GetBanIdent();
-			ih.second = find->GetIPString();
-			target = ih.first + "@" + ih.second;
-		}
-		else
-			ih = ServerInstance->XLines->IdentSplit(target);
+    std::string target = parameters[0];
+    if (parameters.size() >= 3) {
+        IdentHostPair ih;
+        User* find = ServerInstance->FindNick(target);
+        if ((find) && (find->registered == REG_ALL)) {
+            ih.first = find->GetBanIdent();
+            ih.second = find->GetIPString();
+            target = ih.first + "@" + ih.second;
+        } else {
+            ih = ServerInstance->XLines->IdentSplit(target);
+        }
 
-		if (ih.first.empty())
-		{
-			user->WriteNotice("*** Target not found.");
-			return CMD_FAILURE;
-		}
+        if (ih.first.empty()) {
+            user->WriteNotice("*** Target not found.");
+            return CMD_FAILURE;
+        }
 
-		InsaneBan::IPHostMatcher matcher;
-		if (InsaneBan::MatchesEveryone(ih.first + "@" + ih.second, matcher, user, 'K', "hostmasks"))
-			return CMD_FAILURE;
+        InsaneBan::IPHostMatcher matcher;
+        if (InsaneBan::MatchesEveryone(ih.first + "@" + ih.second, matcher, user, 'K',
+                                       "hostmasks")) {
+            return CMD_FAILURE;
+        }
 
-		if (target.find('!') != std::string::npos)
-		{
-			user->WriteNotice("*** K-line cannot operate on nick!user@host masks.");
-			return CMD_FAILURE;
-		}
+        if (target.find('!') != std::string::npos) {
+            user->WriteNotice("*** K-line cannot operate on nick!user@host masks.");
+            return CMD_FAILURE;
+        }
 
-		unsigned long duration;
-		if (!InspIRCd::Duration(parameters[1], duration))
-		{
-			user->WriteNotice("*** Invalid duration for K-line.");
-			return CMD_FAILURE;
-		}
-		KLine* kl = new KLine(ServerInstance->Time(), duration, user->nick, parameters[2], ih.first, ih.second);
-		if (ServerInstance->XLines->AddLine(kl,user))
-		{
-			if (!duration)
-			{
-				ServerInstance->SNO->WriteToSnoMask('x', "%s added a permanent K-line on %s: %s", user->nick.c_str(), target.c_str(), parameters[2].c_str());
-			}
-			else
-			{
-				ServerInstance->SNO->WriteToSnoMask('x', "%s added a timed K-line on %s, expires in %s (on %s): %s",
-					user->nick.c_str(), target.c_str(), InspIRCd::DurationString(duration).c_str(),
-					InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(), parameters[2].c_str());
-			}
+        unsigned long duration;
+        if (!InspIRCd::Duration(parameters[1], duration)) {
+            user->WriteNotice("*** Invalid duration for K-line.");
+            return CMD_FAILURE;
+        }
+        KLine* kl = new KLine(ServerInstance->Time(), duration, user->nick,
+                              parameters[2], ih.first, ih.second);
+        if (ServerInstance->XLines->AddLine(kl,user)) {
+            if (!duration) {
+                ServerInstance->SNO->WriteToSnoMask('x',
+                                                    "%s added a permanent K-line on %s: %s", user->nick.c_str(), target.c_str(),
+                                                    parameters[2].c_str());
+            } else {
+                ServerInstance->SNO->WriteToSnoMask('x',
+                                                    "%s added a timed K-line on %s, expires in %s (on %s): %s",
+                                                    user->nick.c_str(), target.c_str(), InspIRCd::DurationString(duration).c_str(),
+                                                    InspIRCd::TimeString(ServerInstance->Time() + duration).c_str(),
+                                                    parameters[2].c_str());
+            }
 
-			ServerInstance->XLines->ApplyLines();
-		}
-		else
-		{
-			delete kl;
-			user->WriteNotice("*** K-line for " + target + " already exists.");
-		}
-	}
-	else
-	{
-		std::string reason;
+            ServerInstance->XLines->ApplyLines();
+        } else {
+            delete kl;
+            user->WriteNotice("*** K-line for " + target + " already exists.");
+        }
+    } else {
+        std::string reason;
 
-		if (ServerInstance->XLines->DelLine(target.c_str(), "K", reason, user))
-		{
-			ServerInstance->SNO->WriteToSnoMask('x', "%s removed K-line on %s: %s", user->nick.c_str(), target.c_str(), reason.c_str());
-		}
-		else
-		{
-			user->WriteNotice("*** K-line " + target + " not found on the list.");
-		}
-	}
+        if (ServerInstance->XLines->DelLine(target.c_str(), "K", reason, user)) {
+            ServerInstance->SNO->WriteToSnoMask('x', "%s removed K-line on %s: %s",
+                                                user->nick.c_str(), target.c_str(), reason.c_str());
+        } else {
+            user->WriteNotice("*** K-line " + target + " not found on the list.");
+        }
+    }
 
-	return CMD_SUCCESS;
+    return CMD_SUCCESS;
 }

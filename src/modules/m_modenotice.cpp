@@ -22,54 +22,48 @@
 
 #include "inspircd.h"
 
-class CommandModeNotice : public Command
-{
- public:
-	CommandModeNotice(Module* parent) : Command(parent,"MODENOTICE",2,2)
-	{
-		syntax = "<modeletters> :<message>";
-		flags_needed = 'o';
-	}
+class CommandModeNotice : public Command {
+  public:
+    CommandModeNotice(Module* parent) : Command(parent,"MODENOTICE",2,2) {
+        syntax = "<modeletters> :<message>";
+        flags_needed = 'o';
+    }
 
-	CmdResult Handle(User* src, const Params& parameters) CXX11_OVERRIDE
-	{
-		std::string msg = "*** From " + src->nick + ": " + parameters[1];
-		int mlen = parameters[0].length();
-		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
-		for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
-		{
-			User* user = *i;
-			for (int n = 0; n < mlen; n++)
-			{
-				if (!user->IsModeSet(parameters[0][n]))
-					goto next_user;
-			}
-			user->WriteNotice(msg);
-next_user:	;
-		}
-		return CMD_SUCCESS;
-	}
+    CmdResult Handle(User* src, const Params& parameters) CXX11_OVERRIDE {
+        std::string msg = "*** From " + src->nick + ": " + parameters[1];
+        int mlen = parameters[0].length();
+        const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+        for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i) {
+            User* user = *i;
+            for (int n = 0; n < mlen; n++) {
+                if (!user->IsModeSet(parameters[0][n])) {
+                    goto next_user;
+                }
+            }
+            user->WriteNotice(msg);
+next_user:
+            ;
+        }
+        return CMD_SUCCESS;
+    }
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		return ROUTE_OPT_BCAST;
-	}
+    RouteDescriptor GetRouting(User* user,
+                               const Params& parameters) CXX11_OVERRIDE {
+        return ROUTE_OPT_BCAST;
+    }
 };
 
-class ModuleModeNotice : public Module
-{
-	CommandModeNotice cmd;
+class ModuleModeNotice : public Module {
+    CommandModeNotice cmd;
 
- public:
-	ModuleModeNotice()
-		: cmd(this)
-	{
-	}
+  public:
+    ModuleModeNotice()
+        : cmd(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds the /MODENOTICE command which sends a message to all users with the specified user modes set.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds the /MODENOTICE command which sends a message to all users with the specified user modes set.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleModeNotice)

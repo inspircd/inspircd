@@ -22,43 +22,38 @@
 
 static volatile sig_atomic_t signaled;
 
-class ModuleSSLRehashSignal : public Module
-{
- private:
-	static void SignalHandler(int)
-	{
-		signaled = 1;
-	}
+class ModuleSSLRehashSignal : public Module {
+  private:
+    static void SignalHandler(int) {
+        signaled = 1;
+    }
 
- public:
-	~ModuleSSLRehashSignal()
-	{
-		signal(SIGUSR1, SIG_IGN);
-	}
+  public:
+    ~ModuleSSLRehashSignal() {
+        signal(SIGUSR1, SIG_IGN);
+    }
 
-	void init() CXX11_OVERRIDE
-	{
-		signal(SIGUSR1, SignalHandler);
-	}
+    void init() CXX11_OVERRIDE {
+        signal(SIGUSR1, SignalHandler);
+    }
 
-	void OnBackgroundTimer(time_t) CXX11_OVERRIDE
-	{
-		if (!signaled)
-			return;
+    void OnBackgroundTimer(time_t) CXX11_OVERRIDE {
+        if (!signaled) {
+            return;
+        }
 
-		const std::string feedbackmsg = "Got SIGUSR1, reloading TLS (SSL) credentials";
-		ServerInstance->SNO->WriteGlobalSno('a', feedbackmsg);
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, feedbackmsg);
+        const std::string feedbackmsg = "Got SIGUSR1, reloading TLS (SSL) credentials";
+        ServerInstance->SNO->WriteGlobalSno('a', feedbackmsg);
+        ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, feedbackmsg);
 
-		const std::string str = "tls";
-		FOREACH_MOD(OnModuleRehash, (NULL, str));
-		signaled = 0;
-	}
+        const std::string str = "tls";
+        FOREACH_MOD(OnModuleRehash, (NULL, str));
+        signaled = 0;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Allows the SIGUSR1 signal to be sent to the server to reload TLS (SSL) certificates.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Allows the SIGUSR1 signal to be sent to the server to reload TLS (SSL) certificates.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleSSLRehashSignal)

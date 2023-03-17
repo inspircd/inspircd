@@ -21,22 +21,19 @@
 
 #include "event.h"
 
-namespace WebIRC
-{
-	class EventListener;
+namespace WebIRC {
+class EventListener;
 
-	typedef insp::flat_map<std::string, std::string, irc::insensitive_swo> FlagMap;
+typedef insp::flat_map<std::string, std::string, irc::insensitive_swo> FlagMap;
 }
 
 class WebIRC::EventListener
-	: public Events::ModuleEventListener
-{
- protected:
-	EventListener(Module* mod)
-		: ModuleEventListener(mod, "event/webirc")
-	{
-	}
+    : public Events::ModuleEventListener {
+  protected:
+    EventListener(Module* mod)
+        : ModuleEventListener(mod, "event/webirc") {
+    }
 
- public:
-	virtual void OnWebIRCAuth(LocalUser* user, const FlagMap* flags) = 0;
+  public:
+    virtual void OnWebIRCAuth(LocalUser* user, const FlagMap* flags) = 0;
 };

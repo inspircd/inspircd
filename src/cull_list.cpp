@@ -28,62 +28,56 @@
 #include <typeinfo>
 #endif
 
-void CullList::Apply()
-{
-	std::vector<LocalUser *> working;
-	while (!SQlist.empty())
-	{
-		working.swap(SQlist);
-		for(std::vector<LocalUser *>::iterator a = working.begin(); a != working.end(); a++)
-		{
-			LocalUser *u = *a;
-			ServerInstance->SNO->WriteGlobalSno('a', "User %s SendQ exceeds connect class maximum of %lu",
-				u->nick.c_str(), u->MyClass->GetSendqHardMax());
-			ServerInstance->Users->QuitUser(u, "SendQ exceeded");
-		}
-		working.clear();
-	}
-	std::set<classbase*> gone;
-	std::vector<classbase*> queue;
-	queue.reserve(list.size() + 32);
-	for(unsigned int i=0; i < list.size(); i++)
-	{
-		classbase* c = list[i];
-		if (gone.insert(c).second)
-		{
+void CullList::Apply() {
+    std::vector<LocalUser *> working;
+    while (!SQlist.empty()) {
+        working.swap(SQlist);
+        for(std::vector<LocalUser *>::iterator a = working.begin(); a != working.end();
+                a++) {
+            LocalUser *u = *a;
+            ServerInstance->SNO->WriteGlobalSno('a',
+                                                "User %s SendQ exceeds connect class maximum of %lu",
+                                                u->nick.c_str(), u->MyClass->GetSendqHardMax());
+            ServerInstance->Users->QuitUser(u, "SendQ exceeded");
+        }
+        working.clear();
+    }
+    std::set<classbase*> gone;
+    std::vector<classbase*> queue;
+    queue.reserve(list.size() + 32);
+    for(unsigned int i=0; i < list.size(); i++) {
+        classbase* c = list[i];
+        if (gone.insert(c).second) {
 #ifdef INSPIRCD_ENABLE_RTTI
-			ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "Deleting %s @%p", typeid(*c).name(),
-				(void*)c);
+            ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "Deleting %s @%p",
+                                      typeid(*c).name(),
+                                      (void*)c);
 #else
-			ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "Deleting @%p", (void*)c);
+            ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "Deleting @%p", (void*)c);
 #endif
-			c->cull();
-			queue.push_back(c);
-		}
-		else
-		{
-			ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "WARNING: Object @%p culled twice!",
-				(void*)c);
-		}
-	}
-	list.clear();
-	for(unsigned int i=0; i < queue.size(); i++)
-	{
-		classbase* c = queue[i];
-		delete c;
-	}
-	if (!list.empty())
-	{
-		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "WARNING: Objects added to cull list in a destructor");
-		Apply();
-	}
+            c->cull();
+            queue.push_back(c);
+        } else {
+            ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG,
+                                      "WARNING: Object @%p culled twice!",
+                                      (void*)c);
+        }
+    }
+    list.clear();
+    for(unsigned int i=0; i < queue.size(); i++) {
+        classbase* c = queue[i];
+        delete c;
+    }
+    if (!list.empty()) {
+        ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG,
+                                  "WARNING: Objects added to cull list in a destructor");
+        Apply();
+    }
 }
 
-void ActionList::Run()
-{
-	for(unsigned int i=0; i < list.size(); i++)
-	{
-		list[i]->Call();
-	}
-	list.clear();
+void ActionList::Run() {
+    for(unsigned int i=0; i < list.size(); i++) {
+        list[i]->Call();
+    }
+    list.clear();
 }

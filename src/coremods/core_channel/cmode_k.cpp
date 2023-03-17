@@ -30,71 +30,69 @@
 const std::string::size_type ModeChannelKey::maxkeylen = 32;
 
 ModeChannelKey::ModeChannelKey(Module* Creator)
-	: ParamMode<ModeChannelKey, LocalStringExt>(Creator, "key", 'k', PARAM_ALWAYS)
-{
-	syntax = "<key>";
+    : ParamMode<ModeChannelKey, LocalStringExt>(Creator, "key", 'k', PARAM_ALWAYS) {
+    syntax = "<key>";
 }
 
-ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
-{
-	const std::string* key = ext.get(channel);
-	bool exists = (key != NULL);
-	if (IS_LOCAL(source))
-	{
-		if (exists == adding)
-			return MODEACTION_DENY;
-		if (exists && (parameter != *key))
-		{
-			/* Key is currently set and the correct key wasn't given */
-			source->WriteNumeric(ERR_KEYSET, channel->name, "Channel key already set");
-			return MODEACTION_DENY;
-		}
-	} else {
-		if (exists && adding && parameter == *key)
-		{
-			/* no-op, don't show */
-			return MODEACTION_DENY;
-		}
-	}
+ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel,
+                                        std::string &parameter, bool adding) {
+    const std::string* key = ext.get(channel);
+    bool exists = (key != NULL);
+    if (IS_LOCAL(source)) {
+        if (exists == adding) {
+            return MODEACTION_DENY;
+        }
+        if (exists && (parameter != *key)) {
+            /* Key is currently set and the correct key wasn't given */
+            source->WriteNumeric(ERR_KEYSET, channel->name, "Channel key already set");
+            return MODEACTION_DENY;
+        }
+    } else {
+        if (exists && adding && parameter == *key) {
+            /* no-op, don't show */
+            return MODEACTION_DENY;
+        }
+    }
 
-	if (adding)
-	{
-		// When joining a channel multiple keys are delimited with a comma so we strip
-		// them out here to avoid creating channels that are unjoinable.
-		size_t commapos;
-		while ((commapos = parameter.find(',')) != std::string::npos)
-			parameter.erase(commapos, 1);
+    if (adding) {
+        // When joining a channel multiple keys are delimited with a comma so we strip
+        // them out here to avoid creating channels that are unjoinable.
+        size_t commapos;
+        while ((commapos = parameter.find(',')) != std::string::npos) {
+            parameter.erase(commapos, 1);
+        }
 
-		// Truncate the parameter to the maximum key length.
-		if (parameter.length() > maxkeylen)
-			parameter.erase(maxkeylen);
+        // Truncate the parameter to the maximum key length.
+        if (parameter.length() > maxkeylen) {
+            parameter.erase(maxkeylen);
+        }
 
-		// If the password is empty here then it only consisted of commas. This is not
-		// acceptable so we reject the mode change.
-		if (parameter.empty())
-			return MODEACTION_DENY;
+        // If the password is empty here then it only consisted of commas. This is not
+        // acceptable so we reject the mode change.
+        if (parameter.empty()) {
+            return MODEACTION_DENY;
+        }
 
-		ext.set(channel, parameter);
-	}
-	else
-		ext.unset(channel);
+        ext.set(channel, parameter);
+    } else {
+        ext.unset(channel);
+    }
 
-	channel->SetMode(this, adding);
-	return MODEACTION_ALLOW;
+    channel->SetMode(this, adding);
+    return MODEACTION_ALLOW;
 }
 
-void ModeChannelKey::SerializeParam(Channel* chan, const std::string* key, std::string& out)
-{
-	out += *key;
+void ModeChannelKey::SerializeParam(Channel* chan, const std::string* key,
+                                    std::string& out) {
+    out += *key;
 }
 
-ModeAction ModeChannelKey::OnSet(User* source, Channel* chan, std::string& param)
-{
-	// Dummy function, never called
-	return MODEACTION_DENY;
+ModeAction ModeChannelKey::OnSet(User* source, Channel* chan,
+                                 std::string& param) {
+    // Dummy function, never called
+    return MODEACTION_DENY;
 }
 
-bool ModeChannelKey::IsParameterSecret()
-{
-	return true;
+bool ModeChannelKey::IsParameterSecret() {
+    return true;
 }

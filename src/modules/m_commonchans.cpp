@@ -25,73 +25,73 @@
 #include "modules/ctctags.h"
 
 class ModuleCommonChans
-	: public CTCTags::EventListener
-	, public Module
-{
- private:
-	SimpleUserModeHandler mode;
-	bool invite;
+    : public CTCTags::EventListener
+    , public Module {
+  private:
+    SimpleUserModeHandler mode;
+    bool invite;
 
-	bool IsExempt(User* source, User* target)
-	{
-		if (!target->IsModeSet(mode) || source->SharesChannelWith(target))
-			return true; // Target doesn't have mode set or shares a common channel.
+    bool IsExempt(User* source, User* target) {
+        if (!target->IsModeSet(mode) || source->SharesChannelWith(target)) {
+            return true;    // Target doesn't have mode set or shares a common channel.
+        }
 
-		if (source->HasPrivPermission("users/ignore-commonchans") || source->server->IsULine())
-			return true; // Source is an oper or a uline.
+        if (source->HasPrivPermission("users/ignore-commonchans")
+                || source->server->IsULine()) {
+            return true;    // Source is an oper or a uline.
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	ModResult HandleMessage(User* user, const MessageTarget& target)
-	{
-		if (target.type != MessageTarget::TYPE_USER)
-			return MOD_RES_PASSTHRU;
+    ModResult HandleMessage(User* user, const MessageTarget& target) {
+        if (target.type != MessageTarget::TYPE_USER) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		User* targetuser = target.Get<User>();
-		if (IsExempt(user, targetuser))
-			return MOD_RES_PASSTHRU;
+        User* targetuser = target.Get<User>();
+        if (IsExempt(user, targetuser)) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		user->WriteNumeric(Numerics::CannotSendTo(targetuser, "messages", &mode));
-		return MOD_RES_DENY;
-	}
+        user->WriteNumeric(Numerics::CannotSendTo(targetuser, "messages", &mode));
+        return MOD_RES_DENY;
+    }
 
- public:
-	ModuleCommonChans()
-		: CTCTags::EventListener(this)
-		, mode(this, "deaf_commonchan", 'c')
-	{
-	}
+  public:
+    ModuleCommonChans()
+        : CTCTags::EventListener(this)
+        , mode(this, "deaf_commonchan", 'c') {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds user mode c (deaf_commonchan) which requires users to have a common channel before they can privately message each other.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds user mode c (deaf_commonchan) which requires users to have a common channel before they can privately message each other.", VF_VENDOR);
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("commonchans");
-		invite = tag->getBool("invite");
-	}
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("commonchans");
+        invite = tag->getBool("invite");
+    }
 
-	ModResult OnUserPreInvite(User* source, User* dest, Channel* channel, time_t timeout) CXX11_OVERRIDE
-	{
-		if (!invite || IsExempt(source, dest))
-			return MOD_RES_PASSTHRU;
+    ModResult OnUserPreInvite(User* source, User* dest, Channel* channel,
+                              time_t timeout) CXX11_OVERRIDE {
+        if (!invite || IsExempt(source, dest)) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		source->WriteNumeric(Numerics::CannotSendTo(dest, "invites", &mode));
-		return MOD_RES_DENY;
-	}
+        source->WriteNumeric(Numerics::CannotSendTo(dest, "invites", &mode));
+        return MOD_RES_DENY;
+    }
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
-	{
-		return HandleMessage(user, target);
-	}
+    ModResult OnUserPreMessage(User* user, const MessageTarget& target,
+                               MessageDetails& details) CXX11_OVERRIDE {
+        return HandleMessage(user, target);
+    }
 
-	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) CXX11_OVERRIDE
-	{
-		return HandleMessage(user, target);
-	}
+    ModResult OnUserPreTagMessage(User* user, const MessageTarget& target,
+                                  CTCTags::TagMessageDetails& details) CXX11_OVERRIDE {
+        return HandleMessage(user, target);
+    }
 };
 
 MODULE_INIT(ModuleCommonChans)

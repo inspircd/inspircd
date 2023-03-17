@@ -25,67 +25,64 @@
 
 #include "inspircd.h"
 
-class MessageLengthMode : public ParamMode<MessageLengthMode, LocalIntExt>
-{
- public:
-	MessageLengthMode(Module* Creator)
-		: ParamMode<MessageLengthMode, LocalIntExt>(Creator, "message-length", ServerInstance->Config->ConfValue("messagelength")->getString("modechar", "W", 1, 1)[0])
-	{
+class MessageLengthMode : public ParamMode<MessageLengthMode, LocalIntExt> {
+  public:
+    MessageLengthMode(Module* Creator)
+        : ParamMode<MessageLengthMode, LocalIntExt>(Creator, "message-length",
+                ServerInstance->Config->ConfValue("messagelength")->getString("modechar", "W",
+                        1, 1)[0]) {
 #if defined INSPIRCD_VERSION_SINCE && INSPIRCD_VERSION_SINCE(3, 2)
-		syntax = "<max-length>";
+        syntax = "<max-length>";
 #endif
-	}
+    }
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter)
-	{
-		size_t length = ConvToNum<size_t>(parameter);
-		if (length == 0 || length > ServerInstance->Config->Limits.MaxLine)
-		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
-		}
+    ModeAction OnSet(User* source, Channel* channel, std::string& parameter) {
+        size_t length = ConvToNum<size_t>(parameter);
+        if (length == 0 || length > ServerInstance->Config->Limits.MaxLine) {
+            source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
+            return MODEACTION_DENY;
+        }
 
-		this->ext.set(channel, length);
-		return MODEACTION_ALLOW;
-	}
+        this->ext.set(channel, length);
+        return MODEACTION_ALLOW;
+    }
 
-	void SerializeParam(Channel* channel, int n, std::string& out)
-	{
-		out += ConvToStr(n);
-	}
+    void SerializeParam(Channel* channel, int n, std::string& out) {
+        out += ConvToStr(n);
+    }
 };
 
-class ModuleMessageLength : public Module
-{
- private:
-	MessageLengthMode mode;
+class ModuleMessageLength : public Module {
+  private:
+    MessageLengthMode mode;
 
- public:
-	ModuleMessageLength()
-		: mode(this)
-	{
-	}
+  public:
+    ModuleMessageLength()
+        : mode(this) {
+    }
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
-	{
-		if (target.type != MessageTarget::TYPE_CHANNEL)
-			return MOD_RES_PASSTHRU;
+    ModResult OnUserPreMessage(User* user, const MessageTarget& target,
+                               MessageDetails& details) CXX11_OVERRIDE {
+        if (target.type != MessageTarget::TYPE_CHANNEL) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		Channel* channel = target.Get<Channel>();
-		if (!channel->IsModeSet(&mode))
-			return MOD_RES_PASSTHRU;
+        Channel* channel = target.Get<Channel>();
+        if (!channel->IsModeSet(&mode)) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		unsigned int msglength = mode.ext.get(channel);
-		if (details.text.length() > msglength)
-			details.text.resize(msglength);
+        unsigned int msglength = mode.ext.get(channel);
+        if (details.text.length() > msglength) {
+            details.text.resize(msglength);
+        }
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds a channel mode which limits the length of messages.", VF_COMMON);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds a channel mode which limits the length of messages.", VF_COMMON);
+    }
 };
 
 MODULE_INIT(ModuleMessageLength)

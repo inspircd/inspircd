@@ -26,157 +26,166 @@
 
 #include "inspircd.h"
 
-struct LusersCounters
-{
-	unsigned int max_local;
-	unsigned int max_global;
-	unsigned int invisible;
+struct LusersCounters {
+    unsigned int max_local;
+    unsigned int max_global;
+    unsigned int invisible;
 
-	LusersCounters(unsigned int inv)
-		: max_local(ServerInstance->Users->LocalUserCount())
-		, max_global(ServerInstance->Users->RegisteredUserCount())
-		, invisible(inv)
-	{
-	}
+    LusersCounters(unsigned int inv)
+        : max_local(ServerInstance->Users->LocalUserCount())
+        , max_global(ServerInstance->Users->RegisteredUserCount())
+        , invisible(inv) {
+    }
 
-	inline void UpdateMaxUsers()
-	{
-		unsigned int current = ServerInstance->Users->LocalUserCount();
-		if (current > max_local)
-			max_local = current;
+    inline void UpdateMaxUsers() {
+        unsigned int current = ServerInstance->Users->LocalUserCount();
+        if (current > max_local) {
+            max_local = current;
+        }
 
-		current = ServerInstance->Users->RegisteredUserCount();
-		if (current > max_global)
-			max_global = current;
-	}
+        current = ServerInstance->Users->RegisteredUserCount();
+        if (current > max_global) {
+            max_global = current;
+        }
+    }
 };
 
 /** Handle /LUSERS.
  */
-class CommandLusers : public Command
-{
-	LusersCounters& counters;
- public:
-	/** Constructor for lusers.
-	 */
-	CommandLusers(Module* parent, LusersCounters& Counters)
-		: Command(parent,"LUSERS",0,0), counters(Counters)
-	{ }
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+class CommandLusers : public Command {
+    LusersCounters& counters;
+  public:
+    /** Constructor for lusers.
+     */
+    CommandLusers(Module* parent, LusersCounters& Counters)
+        : Command(parent,"LUSERS",0,0), counters(Counters)
+    { }
+    /** Handle command.
+     * @param parameters The parameters to the command
+     * @param user The user issuing the command
+     * @return A value from CmdResult to indicate command success or failure.
+     */
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /LUSERS
  */
-CmdResult CommandLusers::Handle(User* user, const Params& parameters)
-{
-	unsigned int n_users = ServerInstance->Users->RegisteredUserCount();
-	ProtocolInterface::ServerList serverlist;
-	ServerInstance->PI->GetServerList(serverlist);
-	unsigned int n_serv = serverlist.size();
-	unsigned int n_local_servs = 0;
-	for (ProtocolInterface::ServerList::const_iterator i = serverlist.begin(); i != serverlist.end(); ++i)
-	{
-		if (i->parentname == ServerInstance->Config->ServerName)
-			n_local_servs++;
-	}
-	// fix for default GetServerList not returning us
-	if (!n_serv)
-		n_serv = 1;
+CmdResult CommandLusers::Handle(User* user, const Params& parameters) {
+    unsigned int n_users = ServerInstance->Users->RegisteredUserCount();
+    ProtocolInterface::ServerList serverlist;
+    ServerInstance->PI->GetServerList(serverlist);
+    unsigned int n_serv = serverlist.size();
+    unsigned int n_local_servs = 0;
+    for (ProtocolInterface::ServerList::const_iterator i = serverlist.begin();
+            i != serverlist.end(); ++i) {
+        if (i->parentname == ServerInstance->Config->ServerName) {
+            n_local_servs++;
+        }
+    }
+    // fix for default GetServerList not returning us
+    if (!n_serv) {
+        n_serv = 1;
+    }
 
-	counters.UpdateMaxUsers();
+    counters.UpdateMaxUsers();
 
-	user->WriteNumeric(RPL_LUSERCLIENT, InspIRCd::Format("There are %d users and %d invisible on %d servers",
-			n_users - counters.invisible, counters.invisible, n_serv));
+    user->WriteNumeric(RPL_LUSERCLIENT,
+                       InspIRCd::Format("There are %d users and %d invisible on %d servers",
+                                        n_users - counters.invisible, counters.invisible, n_serv));
 
-	if (ServerInstance->Users->OperCount())
-		user->WriteNumeric(RPL_LUSEROP, ServerInstance->Users.OperCount(), "operator(s) online");
+    if (ServerInstance->Users->OperCount()) {
+        user->WriteNumeric(RPL_LUSEROP, ServerInstance->Users.OperCount(),
+                           "operator(s) online");
+    }
 
-	if (ServerInstance->Users->UnregisteredUserCount())
-		user->WriteNumeric(RPL_LUSERUNKNOWN, ServerInstance->Users.UnregisteredUserCount(), "unknown connections");
+    if (ServerInstance->Users->UnregisteredUserCount()) {
+        user->WriteNumeric(RPL_LUSERUNKNOWN,
+                           ServerInstance->Users.UnregisteredUserCount(), "unknown connections");
+    }
 
-	user->WriteNumeric(RPL_LUSERCHANNELS, ServerInstance->GetChans().size(), "channels formed");
-	user->WriteNumeric(RPL_LUSERME, InspIRCd::Format("I have %d clients and %d servers", ServerInstance->Users.LocalUserCount(), n_local_servs));
-	user->WriteNumeric(RPL_LOCALUSERS, InspIRCd::Format("Current local users: %d  Max: %d", ServerInstance->Users.LocalUserCount(), counters.max_local));
-	user->WriteNumeric(RPL_GLOBALUSERS, InspIRCd::Format("Current global users: %d  Max: %d", n_users, counters.max_global));
+    user->WriteNumeric(RPL_LUSERCHANNELS, ServerInstance->GetChans().size(),
+                       "channels formed");
+    user->WriteNumeric(RPL_LUSERME,
+                       InspIRCd::Format("I have %d clients and %d servers",
+                                        ServerInstance->Users.LocalUserCount(), n_local_servs));
+    user->WriteNumeric(RPL_LOCALUSERS,
+                       InspIRCd::Format("Current local users: %d  Max: %d",
+                                        ServerInstance->Users.LocalUserCount(), counters.max_local));
+    user->WriteNumeric(RPL_GLOBALUSERS,
+                       InspIRCd::Format("Current global users: %d  Max: %d", n_users,
+                                        counters.max_global));
 
-	return CMD_SUCCESS;
+    return CMD_SUCCESS;
 }
 
-class InvisibleWatcher : public ModeWatcher
-{
-	unsigned int& invisible;
-public:
-	InvisibleWatcher(Module* mod, unsigned int& Invisible)
-		: ModeWatcher(mod, "invisible", MODETYPE_USER), invisible(Invisible)
-	{
-	}
+class InvisibleWatcher : public ModeWatcher {
+    unsigned int& invisible;
+  public:
+    InvisibleWatcher(Module* mod, unsigned int& Invisible)
+        : ModeWatcher(mod, "invisible", MODETYPE_USER), invisible(Invisible) {
+    }
 
-	void AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding) CXX11_OVERRIDE
-	{
-		if (dest->registered != REG_ALL)
-			return;
+    void AfterMode(User* source, User* dest, Channel* channel,
+                   const std::string& parameter, bool adding) CXX11_OVERRIDE {
+        if (dest->registered != REG_ALL) {
+            return;
+        }
 
-		if (dest->server->IsULine())
-			return;
+        if (dest->server->IsULine()) {
+            return;
+        }
 
-		if (adding)
-			invisible++;
-		else
-			invisible--;
-	}
+        if (adding) {
+            invisible++;
+        } else {
+            invisible--;
+        }
+    }
 };
 
-class ModuleLusers : public Module
-{
-	UserModeReference invisiblemode;
-	LusersCounters counters;
-	CommandLusers cmd;
-	InvisibleWatcher mw;
+class ModuleLusers : public Module {
+    UserModeReference invisiblemode;
+    LusersCounters counters;
+    CommandLusers cmd;
+    InvisibleWatcher mw;
 
-	unsigned int CountInvisible()
-	{
-		unsigned int c = 0;
-		const user_hash& users = ServerInstance->Users->GetUsers();
-		for (user_hash::const_iterator i = users.begin(); i != users.end(); ++i)
-		{
-			User* u = i->second;
-			if (!u->server->IsULine() && u->IsModeSet(invisiblemode))
-				c++;
-		}
-		return c;
-	}
+    unsigned int CountInvisible() {
+        unsigned int c = 0;
+        const user_hash& users = ServerInstance->Users->GetUsers();
+        for (user_hash::const_iterator i = users.begin(); i != users.end(); ++i) {
+            User* u = i->second;
+            if (!u->server->IsULine() && u->IsModeSet(invisiblemode)) {
+                c++;
+            }
+        }
+        return c;
+    }
 
- public:
-	ModuleLusers()
-		: invisiblemode(this, "invisible")
-		, counters(CountInvisible())
-		, cmd(this, counters)
-		, mw(this, counters.invisible)
-	{
-	}
+  public:
+    ModuleLusers()
+        : invisiblemode(this, "invisible")
+        , counters(CountInvisible())
+        , cmd(this, counters)
+        , mw(this, counters.invisible) {
+    }
 
-	void OnPostConnect(User* user) CXX11_OVERRIDE
-	{
-		counters.UpdateMaxUsers();
-		if (!user->server->IsULine() && user->IsModeSet(invisiblemode))
-			counters.invisible++;
-	}
+    void OnPostConnect(User* user) CXX11_OVERRIDE {
+        counters.UpdateMaxUsers();
+        if (!user->server->IsULine() && user->IsModeSet(invisiblemode)) {
+            counters.invisible++;
+        }
+    }
 
-	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message) CXX11_OVERRIDE
-	{
-		if (!user->server->IsULine() && user->IsModeSet(invisiblemode))
-			counters.invisible--;
-	}
+    void OnUserQuit(User* user, const std::string& message,
+                    const std::string& oper_message) CXX11_OVERRIDE {
+        if (!user->server->IsULine() && user->IsModeSet(invisiblemode)) {
+            counters.invisible--;
+        }
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides the LUSERS command", VF_VENDOR | VF_CORE);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Provides the LUSERS command", VF_VENDOR | VF_CORE);
+    }
 };
 
 MODULE_INIT(ModuleLusers)

@@ -33,51 +33,48 @@
 
 /* Error message strings for error codes listed in `tre.h'.  This list
    needs to be in sync with the codes listed there, naturally. */
-static const char *tre_error_messages[] =
-  { gettext_noop("No error"),				 /* REG_OK */
-    gettext_noop("No match"),				 /* REG_NOMATCH */
-    gettext_noop("Invalid regexp"),			 /* REG_BADPAT */
-    gettext_noop("Unknown collating element"),		 /* REG_ECOLLATE */
-    gettext_noop("Unknown character class name"),	 /* REG_ECTYPE */
-    gettext_noop("Trailing backslash"),			 /* REG_EESCAPE */
-    gettext_noop("Invalid back reference"),		 /* REG_ESUBREG */
-    gettext_noop("Missing ']'"),			 /* REG_EBRACK */
-    gettext_noop("Missing ')'"),			 /* REG_EPAREN */
-    gettext_noop("Missing '}'"),			 /* REG_EBRACE */
-    gettext_noop("Invalid contents of {}"),		 /* REG_BADBR */
-    gettext_noop("Invalid character range"),		 /* REG_ERANGE */
-    gettext_noop("Out of memory"),			 /* REG_ESPACE */
-    gettext_noop("Invalid use of repetition operators")	 /* REG_BADRPT */
-  };
+static const char *tre_error_messages[] = {
+    gettext_noop("No error"),                /* REG_OK */
+    gettext_noop("No match"),                /* REG_NOMATCH */
+    gettext_noop("Invalid regexp"),          /* REG_BADPAT */
+    gettext_noop("Unknown collating element"),       /* REG_ECOLLATE */
+    gettext_noop("Unknown character class name"),    /* REG_ECTYPE */
+    gettext_noop("Trailing backslash"),          /* REG_EESCAPE */
+    gettext_noop("Invalid back reference"),      /* REG_ESUBREG */
+    gettext_noop("Missing ']'"),             /* REG_EBRACK */
+    gettext_noop("Missing ')'"),             /* REG_EPAREN */
+    gettext_noop("Missing '}'"),             /* REG_EBRACE */
+    gettext_noop("Invalid contents of {}"),      /* REG_BADBR */
+    gettext_noop("Invalid character range"),         /* REG_ERANGE */
+    gettext_noop("Out of memory"),           /* REG_ESPACE */
+    gettext_noop("Invalid use of repetition operators")  /* REG_BADRPT */
+};
 
 size_t
-tre_regerror(int errcode, const regex_t *preg, char *errbuf, size_t errbuf_size)
-{
-  const char *err;
-  size_t err_len;
+tre_regerror(int errcode, const regex_t *preg, char *errbuf,
+             size_t errbuf_size) {
+    const char *err;
+    size_t err_len;
 
-  /*LINTED*/(void)&preg;
-  if (errcode >= 0
-      && errcode < (int)(sizeof(tre_error_messages)
-			 / sizeof(*tre_error_messages)))
-    err = gettext(tre_error_messages[errcode]);
-  else
-    err = gettext("Unknown error");
-
-  err_len = strlen(err) + 1;
-  if (errbuf_size > 0 && errbuf != NULL)
-    {
-      if (err_len > errbuf_size)
-	{
-	  strncpy(errbuf, err, errbuf_size - 1);
-	  errbuf[errbuf_size - 1] = '\0';
-	}
-      else
-	{
-	  strcpy(errbuf, err);
-	}
+    /*LINTED*/(void)&preg;
+    if (errcode >= 0
+            && errcode < (int)(sizeof(tre_error_messages)
+                               / sizeof(*tre_error_messages))) {
+        err = gettext(tre_error_messages[errcode]);
+    } else {
+        err = gettext("Unknown error");
     }
-  return err_len;
+
+    err_len = strlen(err) + 1;
+    if (errbuf_size > 0 && errbuf != NULL) {
+        if (err_len > errbuf_size) {
+            strncpy(errbuf, err, errbuf_size - 1);
+            errbuf[errbuf_size - 1] = '\0';
+        } else {
+            strcpy(errbuf, err);
+        }
+    }
+    return err_len;
 }
 
 /* EOF */

@@ -27,23 +27,21 @@
 #include "core_info.h"
 
 CommandVersion::CommandVersion(Module* parent)
-	: Command(parent, "VERSION", 0, 0)
-{
-	syntax = "[<servername>]";
+    : Command(parent, "VERSION", 0, 0) {
+    syntax = "[<servername>]";
 }
 
-CmdResult CommandVersion::Handle(User* user, const Params& parameters)
-{
-	Numeric::Numeric numeric(RPL_VERSION);
-	irc::tokenstream tokens(ServerInstance->GetVersionString(user->IsOper()));
-	for (std::string token; tokens.GetTrailing(token); )
-		numeric.push(token);
-	user->WriteNumeric(numeric);
+CmdResult CommandVersion::Handle(User* user, const Params& parameters) {
+    Numeric::Numeric numeric(RPL_VERSION);
+    irc::tokenstream tokens(ServerInstance->GetVersionString(user->IsOper()));
+    for (std::string token; tokens.GetTrailing(token); ) {
+        numeric.push(token);
+    }
+    user->WriteNumeric(numeric);
 
-	LocalUser *lu = IS_LOCAL(user);
-	if (lu != NULL)
-	{
-		ServerInstance->ISupport.SendTo(lu);
-	}
-	return CMD_SUCCESS;
+    LocalUser *lu = IS_LOCAL(user);
+    if (lu != NULL) {
+        ServerInstance->ISupport.SendTo(lu);
+    }
+    return CMD_SUCCESS;
 }

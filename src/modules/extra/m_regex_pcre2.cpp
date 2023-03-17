@@ -42,71 +42,62 @@
 #endif
 
 class PCRE2Regex CXX11_FINAL
-	: public Regex
-{
- private:
-	pcre2_code* regex;
+    : public Regex {
+  private:
+    pcre2_code* regex;
 
- public:
-	PCRE2Regex(const std::string& pattern)
-		: Regex(pattern)
-	{
-		int errorcode;
-		PCRE2_SIZE erroroffset;
-		regex = pcre2_compile(reinterpret_cast<PCRE2_SPTR8>(pattern.c_str()), pattern.length(), 0, &errorcode, &erroroffset, NULL);
-		if (!regex)
-		{
-			PCRE2_UCHAR errorstr[128];
-			pcre2_get_error_message(errorcode, errorstr, sizeof errorstr);
-			throw RegexException(pattern, reinterpret_cast<const char*>(errorstr), erroroffset);
-		}
-	}
+  public:
+    PCRE2Regex(const std::string& pattern)
+        : Regex(pattern) {
+        int errorcode;
+        PCRE2_SIZE erroroffset;
+        regex = pcre2_compile(reinterpret_cast<PCRE2_SPTR8>(pattern.c_str()),
+                              pattern.length(), 0, &errorcode, &erroroffset, NULL);
+        if (!regex) {
+            PCRE2_UCHAR errorstr[128];
+            pcre2_get_error_message(errorcode, errorstr, sizeof errorstr);
+            throw RegexException(pattern, reinterpret_cast<const char*>(errorstr),
+                                 erroroffset);
+        }
+    }
 
-	~PCRE2Regex() CXX11_OVERRIDE
-	{
-		pcre2_code_free(regex);
-	}
+    ~PCRE2Regex() CXX11_OVERRIDE {
+        pcre2_code_free(regex);
+    }
 
-	bool Matches(const std::string& text) CXX11_OVERRIDE
-	{
-		pcre2_match_data* unused = pcre2_match_data_create(1, NULL);
-		int result = pcre2_match(regex, reinterpret_cast<PCRE2_SPTR8>(text.c_str()), text.length(), 0, 0, unused, NULL);
-		pcre2_match_data_free(unused);
-		return result >= 0;
-	}
+    bool Matches(const std::string& text) CXX11_OVERRIDE {
+        pcre2_match_data* unused = pcre2_match_data_create(1, NULL);
+        int result = pcre2_match(regex, reinterpret_cast<PCRE2_SPTR8>(text.c_str()), text.length(), 0, 0, unused, NULL);
+        pcre2_match_data_free(unused);
+        return result >= 0;
+    }
 };
 
 class PCRE2Factory CXX11_FINAL
-	: public RegexFactory
-{
- public:
-	PCRE2Factory(Module* Creator)
-		: RegexFactory(Creator, "regex/pcre")
-	{
-	}
+    : public RegexFactory {
+  public:
+    PCRE2Factory(Module* Creator)
+        : RegexFactory(Creator, "regex/pcre") {
+    }
 
-	Regex* Create(const std::string& pattern) CXX11_OVERRIDE
-	{
-		return new PCRE2Regex(pattern);
-	}
+    Regex* Create(const std::string& pattern) CXX11_OVERRIDE {
+        return new PCRE2Regex(pattern);
+    }
 };
 
 class ModuleRegexPCRE2 CXX11_FINAL
-	: public Module
-{
- private:
-	PCRE2Factory regex;
+    : public Module {
+  private:
+    PCRE2Factory regex;
 
- public:
-	ModuleRegexPCRE2()
-		: regex(this)
-	{
-	}
+  public:
+    ModuleRegexPCRE2()
+        : regex(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides the pcre regular expression engine which uses the PCRE2 library.");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Provides the pcre regular expression engine which uses the PCRE2 library.");
+    }
 };
 
 MODULE_INIT(ModuleRegexPCRE2)

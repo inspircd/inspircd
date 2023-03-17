@@ -25,46 +25,45 @@
 
 #include "inspircd.h"
 
-class ModuleModesOnOper : public Module
-{
- public:
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Allows the server administrator to set user modes on server operators when they log into their server operator account.", VF_VENDOR);
-	}
+class ModuleModesOnOper : public Module {
+  public:
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Allows the server administrator to set user modes on server operators when they log into their server operator account.", VF_VENDOR);
+    }
 
-	void OnPostOper(User* user, const std::string &opertype, const std::string &opername) CXX11_OVERRIDE
-	{
-		if (!IS_LOCAL(user))
-			return;
+    void OnPostOper(User* user, const std::string &opertype,
+                    const std::string &opername) CXX11_OVERRIDE {
+        if (!IS_LOCAL(user)) {
+            return;
+        }
 
-		// whenever a user opers, go through the oper types, find their <type:modes>,
-		// and if they have one apply their modes. The mode string can contain +modes
-		// to add modes to the user or -modes to take modes from the user.
-		std::string ThisOpersModes = user->oper->getConfig("modes");
-		if (!ThisOpersModes.empty())
-		{
-			ApplyModes(user, ThisOpersModes);
-		}
-	}
+        // whenever a user opers, go through the oper types, find their <type:modes>,
+        // and if they have one apply their modes. The mode string can contain +modes
+        // to add modes to the user or -modes to take modes from the user.
+        std::string ThisOpersModes = user->oper->getConfig("modes");
+        if (!ThisOpersModes.empty()) {
+            ApplyModes(user, ThisOpersModes);
+        }
+    }
 
-	void ApplyModes(User *u, std::string &smodes)
-	{
-		char first = *(smodes.c_str());
-		if ((first != '+') && (first != '-'))
-			smodes = "+" + smodes;
+    void ApplyModes(User *u, std::string &smodes) {
+        char first = *(smodes.c_str());
+        if ((first != '+') && (first != '-')) {
+            smodes = "+" + smodes;
+        }
 
-		std::string buf;
-		irc::spacesepstream ss(smodes);
-		CommandBase::Params modes;
+        std::string buf;
+        irc::spacesepstream ss(smodes);
+        CommandBase::Params modes;
 
-		modes.push_back(u->nick);
-		// split into modes and mode params
-		while (ss.GetToken(buf))
-			modes.push_back(buf);
+        modes.push_back(u->nick);
+        // split into modes and mode params
+        while (ss.GetToken(buf)) {
+            modes.push_back(buf);
+        }
 
-		ServerInstance->Parser.CallHandler("MODE", modes, u);
-	}
+        ServerInstance->Parser.CallHandler("MODE", modes, u);
+    }
 };
 
 MODULE_INIT(ModuleModesOnOper)

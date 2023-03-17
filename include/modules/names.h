@@ -21,26 +21,24 @@
 
 #include "event.h"
 
-namespace Names
-{
-	class EventListener;
+namespace Names {
+class EventListener;
 }
 
-class Names::EventListener : public Events::ModuleEventListener
-{
- public:
-	EventListener(Module* mod)
-		: ModuleEventListener(mod, "event/names")
-	{
-	}
+class Names::EventListener : public Events::ModuleEventListener {
+  public:
+    EventListener(Module* mod)
+        : ModuleEventListener(mod, "event/names") {
+    }
 
-	/* Called for every item in a NAMES list.
-	 * @param issuer The user who initiated the NAMES request.
-	 * @param memb The channel membership of the user who is being considered for inclusion.
-	 * @param prefixes The prefix character(s) to show in front of the user's nickname.
-	 * @param nick The nickname of the user to show.
-	 * @return Return MOD_RES_PASSTHRU to allow the member to be displayed, MOD_RES_DENY to cause them to be
-	 * excluded from this NAMES list
-	 */
-	virtual ModResult OnNamesListItem(LocalUser* issuer, Membership* memb, std::string& prefixes, std::string& nick) = 0;
+    /* Called for every item in a NAMES list.
+     * @param issuer The user who initiated the NAMES request.
+     * @param memb The channel membership of the user who is being considered for inclusion.
+     * @param prefixes The prefix character(s) to show in front of the user's nickname.
+     * @param nick The nickname of the user to show.
+     * @return Return MOD_RES_PASSTHRU to allow the member to be displayed, MOD_RES_DENY to cause them to be
+     * excluded from this NAMES list
+     */
+    virtual ModResult OnNamesListItem(LocalUser* issuer, Membership* memb,
+                                      std::string& prefixes, std::string& nick) = 0;
 };

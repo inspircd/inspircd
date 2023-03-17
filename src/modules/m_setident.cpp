@@ -28,50 +28,42 @@
 
 /** Handle /SETIDENT
  */
-class CommandSetident : public Command
-{
- public:
- CommandSetident(Module* Creator) : Command(Creator,"SETIDENT", 1)
-	{
-		allow_empty_last_param = false;
-		flags_needed = 'o';
-		syntax = "<ident>";
-	}
+class CommandSetident : public Command {
+  public:
+    CommandSetident(Module* Creator) : Command(Creator,"SETIDENT", 1) {
+        allow_empty_last_param = false;
+        flags_needed = 'o';
+        syntax = "<ident>";
+    }
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		if (parameters[0].size() > ServerInstance->Config->Limits.IdentMax)
-		{
-			user->WriteNotice("*** SETIDENT: Ident is too long");
-			return CMD_FAILURE;
-		}
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE {
+        if (parameters[0].size() > ServerInstance->Config->Limits.IdentMax) {
+            user->WriteNotice("*** SETIDENT: Ident is too long");
+            return CMD_FAILURE;
+        }
 
-		if (!ServerInstance->IsIdent(parameters[0]))
-		{
-			user->WriteNotice("*** SETIDENT: Invalid characters in ident");
-			return CMD_FAILURE;
-		}
+        if (!ServerInstance->IsIdent(parameters[0])) {
+            user->WriteNotice("*** SETIDENT: Invalid characters in ident");
+            return CMD_FAILURE;
+        }
 
-		user->ChangeIdent(parameters[0]);
-		ServerInstance->SNO->WriteGlobalSno('a', "%s used SETIDENT to change their ident to '%s'", user->nick.c_str(), user->ident.c_str());
+        user->ChangeIdent(parameters[0]);
+        ServerInstance->SNO->WriteGlobalSno('a', "%s used SETIDENT to change their ident to '%s'", user->nick.c_str(), user->ident.c_str());
 
-		return CMD_SUCCESS;
-	}
+        return CMD_SUCCESS;
+    }
 };
 
-class ModuleSetIdent : public Module
-{
-	CommandSetident cmd;
+class ModuleSetIdent : public Module {
+    CommandSetident cmd;
 
- public:
-	ModuleSetIdent() : cmd(this)
-	{
-	}
+  public:
+    ModuleSetIdent() : cmd(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds the /SETIDENT command which allows server operators to change their username (ident).", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds the /SETIDENT command which allows server operators to change their username (ident).", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleSetIdent)

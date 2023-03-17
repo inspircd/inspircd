@@ -35,29 +35,28 @@ extern WindowsStream StandardOutput;
 # include <unistd.h>
 #endif
 
-namespace
-{
-	inline bool CanUseColors()
-	{
+namespace {
+inline bool CanUseColors() {
 #ifdef INSPIRCD_DISABLE_COLORS
-		return false;
+    return false;
 #else
-		return isatty(fileno(stdout));
+    return isatty(fileno(stdout));
 #endif
-	}
+}
 
 #ifdef _WIN32
-	inline WindowsStream& GetStreamHandle(std::ostream& os)
-	{
-		if (os.rdbuf() == std::cerr.rdbuf())
-			return StandardError;
+inline WindowsStream& GetStreamHandle(std::ostream& os) {
+    if (os.rdbuf() == std::cerr.rdbuf()) {
+        return StandardError;
+    }
 
-		if (os.rdbuf() == std::cout.rdbuf())
-			return StandardOutput;
+    if (os.rdbuf() == std::cout.rdbuf()) {
+        return StandardOutput;
+    }
 
-		// This will never happen.
-		throw std::invalid_argument("Tried to write color codes to a stream other than stdout or stderr!");
-	}
+    // This will never happen.
+    throw std::invalid_argument("Tried to write color codes to a stream other than stdout or stderr!");
+}
 #endif
 }
 
@@ -65,108 +64,101 @@ namespace
 
 #include <windows.h>
 
-inline std::ostream& con_green(std::ostream& stream)
-{
-	if (CanUseColors())
-	{
-		const WindowsStream& ws = GetStreamHandle(stream);
-		SetConsoleTextAttribute(ws.Handle, FOREGROUND_GREEN | FOREGROUND_INTENSITY | ws.BackgroundColor);
-	}
-	return stream;
+inline std::ostream& con_green(std::ostream& stream) {
+    if (CanUseColors()) {
+        const WindowsStream& ws = GetStreamHandle(stream);
+        SetConsoleTextAttribute(ws.Handle,
+                                FOREGROUND_GREEN | FOREGROUND_INTENSITY | ws.BackgroundColor);
+    }
+    return stream;
 }
 
-inline std::ostream& con_red(std::ostream& stream)
-{
-	if (CanUseColors())
-	{
-		const WindowsStream& ws = GetStreamHandle(stream);
-		SetConsoleTextAttribute(ws.Handle, FOREGROUND_RED | FOREGROUND_INTENSITY | ws.BackgroundColor);
-	}
-	return stream;
+inline std::ostream& con_red(std::ostream& stream) {
+    if (CanUseColors()) {
+        const WindowsStream& ws = GetStreamHandle(stream);
+        SetConsoleTextAttribute(ws.Handle,
+                                FOREGROUND_RED | FOREGROUND_INTENSITY | ws.BackgroundColor);
+    }
+    return stream;
 }
 
-inline std::ostream& con_white(std::ostream& stream)
-{
-	if (CanUseColors())
-	{
-		const WindowsStream& ws = GetStreamHandle(stream);
-		SetConsoleTextAttribute(ws.Handle, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | ws.BackgroundColor);
-	}
-	return stream;
+inline std::ostream& con_white(std::ostream& stream) {
+    if (CanUseColors()) {
+        const WindowsStream& ws = GetStreamHandle(stream);
+        SetConsoleTextAttribute(ws.Handle,
+                                FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | ws.BackgroundColor);
+    }
+    return stream;
 }
 
-inline std::ostream& con_white_bright(std::ostream& stream)
-{
-	if (CanUseColors())
-	{
-		const WindowsStream& ws = GetStreamHandle(stream);
-		SetConsoleTextAttribute(ws.Handle, FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | ws.BackgroundColor);
-	}
-	return stream;
+inline std::ostream& con_white_bright(std::ostream& stream) {
+    if (CanUseColors()) {
+        const WindowsStream& ws = GetStreamHandle(stream);
+        SetConsoleTextAttribute(ws.Handle,
+                                FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY |
+                                ws.BackgroundColor);
+    }
+    return stream;
 }
 
-inline std::ostream& con_bright(std::ostream& stream)
-{
-	if (CanUseColors())
-	{
-		const WindowsStream& ws = GetStreamHandle(stream);
-		SetConsoleTextAttribute(ws.Handle, FOREGROUND_INTENSITY | ws.BackgroundColor);
-	}
-	return stream;
+inline std::ostream& con_bright(std::ostream& stream) {
+    if (CanUseColors()) {
+        const WindowsStream& ws = GetStreamHandle(stream);
+        SetConsoleTextAttribute(ws.Handle, FOREGROUND_INTENSITY | ws.BackgroundColor);
+    }
+    return stream;
 }
 
-inline std::ostream& con_reset(std::ostream& stream)
-{
-	if (CanUseColors())
-	{
-		const WindowsStream& ws = GetStreamHandle(stream);
-		SetConsoleTextAttribute(ws.Handle, ws.ForegroundColor);
-	}
-	return stream;
+inline std::ostream& con_reset(std::ostream& stream) {
+    if (CanUseColors()) {
+        const WindowsStream& ws = GetStreamHandle(stream);
+        SetConsoleTextAttribute(ws.Handle, ws.ForegroundColor);
+    }
+    return stream;
 }
 
 #else
 
-inline std::ostream& con_green(std::ostream& stream)
-{
-	if (!CanUseColors())
-		return stream;
-	return stream << "\033[1;32m";
+inline std::ostream& con_green(std::ostream& stream) {
+    if (!CanUseColors()) {
+        return stream;
+    }
+    return stream << "\033[1;32m";
 }
 
-inline std::ostream& con_red(std::ostream& stream)
-{
-	if (!CanUseColors())
-		return stream;
-	return stream << "\033[1;31m";
+inline std::ostream& con_red(std::ostream& stream) {
+    if (!CanUseColors()) {
+        return stream;
+    }
+    return stream << "\033[1;31m";
 }
 
-inline std::ostream& con_white(std::ostream& stream)
-{
-	if (!CanUseColors())
-		return stream;
-	return stream << "\033[0m";
+inline std::ostream& con_white(std::ostream& stream) {
+    if (!CanUseColors()) {
+        return stream;
+    }
+    return stream << "\033[0m";
 }
 
-inline std::ostream& con_white_bright(std::ostream& stream)
-{
-	if (!CanUseColors())
-		return stream;
-	return stream << "\033[1m";
+inline std::ostream& con_white_bright(std::ostream& stream) {
+    if (!CanUseColors()) {
+        return stream;
+    }
+    return stream << "\033[1m";
 }
 
-inline std::ostream& con_bright(std::ostream& stream)
-{
-	if (!CanUseColors())
-		return stream;
-	return stream << "\033[1m";
+inline std::ostream& con_bright(std::ostream& stream) {
+    if (!CanUseColors()) {
+        return stream;
+    }
+    return stream << "\033[1m";
 }
 
-inline std::ostream& con_reset(std::ostream& stream)
-{
-	if (!CanUseColors())
-		return stream;
-	return stream << "\033[0m";
+inline std::ostream& con_reset(std::ostream& stream) {
+    if (!CanUseColors()) {
+        return stream;
+    }
+    return stream << "\033[0m";
 }
 
 #endif

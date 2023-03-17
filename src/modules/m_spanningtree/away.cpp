@@ -28,30 +28,27 @@
 #include "utils.h"
 #include "commands.h"
 
-CmdResult CommandAway::HandleRemote(::RemoteUser* u, Params& params)
-{
-	if (!params.empty())
-	{
-		if (params.size() > 1)
-			u->awaytime = ConvToNum<time_t>(params[0]);
-		else
-			u->awaytime = ServerInstance->Time();
+CmdResult CommandAway::HandleRemote(::RemoteUser* u, Params& params) {
+    if (!params.empty()) {
+        if (params.size() > 1) {
+            u->awaytime = ConvToNum<time_t>(params[0]);
+        } else {
+            u->awaytime = ServerInstance->Time();
+        }
 
-		u->awaymsg = params.back();
-		FOREACH_MOD_CUSTOM(awayevprov, Away::EventListener, OnUserAway, (u));
-	}
-	else
-	{
-		u->awaytime = 0;
-		u->awaymsg.clear();
-		FOREACH_MOD_CUSTOM(awayevprov, Away::EventListener, OnUserBack, (u));
-	}
-	return CMD_SUCCESS;
+        u->awaymsg = params.back();
+        FOREACH_MOD_CUSTOM(awayevprov, Away::EventListener, OnUserAway, (u));
+    } else {
+        u->awaytime = 0;
+        u->awaymsg.clear();
+        FOREACH_MOD_CUSTOM(awayevprov, Away::EventListener, OnUserBack, (u));
+    }
+    return CMD_SUCCESS;
 }
 
 CommandAway::Builder::Builder(User* user)
-	: CmdBuilder(user, "AWAY")
-{
-	if (!user->awaymsg.empty())
-		push_int(user->awaytime).push_last(user->awaymsg);
+    : CmdBuilder(user, "AWAY") {
+    if (!user->awaymsg.empty()) {
+        push_int(user->awaytime).push_last(user->awaymsg);
+    }
 }

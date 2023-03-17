@@ -25,64 +25,59 @@
 #include "modules/ctctags.h"
 
 class ModuleQuietBan
-	: public Module
-	, public CTCTags::EventListener
-{
- private:
-	bool notifyuser;
+    : public Module
+    , public CTCTags::EventListener {
+  private:
+    bool notifyuser;
 
- public:
-	ModuleQuietBan()
-		: CTCTags::EventListener(this)
-	{
-	}
+  public:
+    ModuleQuietBan()
+        : CTCTags::EventListener(this) {
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("muteban");
-		notifyuser = tag->getBool("notifyuser", true);
-	}
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("muteban");
+        notifyuser = tag->getBool("notifyuser", true);
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds extended ban m: (mute) which bans specific masks from speaking in a channel.", VF_OPTCOMMON|VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds extended ban m: (mute) which bans specific masks from speaking in a channel.", VF_OPTCOMMON|VF_VENDOR);
+    }
 
-	ModResult HandleMessage(User* user, const MessageTarget& target, bool& echo_original)
-	{
-		if (!IS_LOCAL(user) || target.type != MessageTarget::TYPE_CHANNEL)
-			return MOD_RES_PASSTHRU;
+    ModResult HandleMessage(User* user, const MessageTarget& target,
+                            bool& echo_original) {
+        if (!IS_LOCAL(user) || target.type != MessageTarget::TYPE_CHANNEL) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		Channel* chan = target.Get<Channel>();
-		if (chan->GetExtBanStatus(user, 'm') == MOD_RES_DENY && chan->GetPrefixValue(user) < VOICE_VALUE)
-		{
-			if (!notifyuser)
-			{
-				echo_original = true;
-				return MOD_RES_DENY;
-			}
+        Channel* chan = target.Get<Channel>();
+        if (chan->GetExtBanStatus(user, 'm') == MOD_RES_DENY
+                && chan->GetPrefixValue(user) < VOICE_VALUE) {
+            if (!notifyuser) {
+                echo_original = true;
+                return MOD_RES_DENY;
+            }
 
-			user->WriteNumeric(Numerics::CannotSendTo(chan, "messages", 'm', "mute"));
-			return MOD_RES_DENY;
-		}
+            user->WriteNumeric(Numerics::CannotSendTo(chan, "messages", 'm', "mute"));
+            return MOD_RES_DENY;
+        }
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
-	{
-		return HandleMessage(user, target, details.echo_original);
-	}
+    ModResult OnUserPreMessage(User* user, const MessageTarget& target,
+                               MessageDetails& details) CXX11_OVERRIDE {
+        return HandleMessage(user, target, details.echo_original);
+    }
 
-	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) CXX11_OVERRIDE
-	{
-		return HandleMessage(user, target, details.echo_original);
-	}
+    ModResult OnUserPreTagMessage(User* user, const MessageTarget& target,
+                                  CTCTags::TagMessageDetails& details) CXX11_OVERRIDE {
+        return HandleMessage(user, target, details.echo_original);
+    }
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["EXTBAN"].push_back('m');
-	}
+    void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE {
+        tokens["EXTBAN"].push_back('m');
+    }
 };
 
 MODULE_INIT(ModuleQuietBan)

@@ -21,32 +21,33 @@
 #pragma once
 
 /** This class manages the generation and transmission of ISUPPORT. */
-class CoreExport ISupportManager
-{
- private:
-	/** The generated lines which are sent to clients. */
-	std::vector<Numeric::Numeric> cachedlines;
+class CoreExport ISupportManager {
+  private:
+    /** The generated lines which are sent to clients. */
+    std::vector<Numeric::Numeric> cachedlines;
 
-	/** Escapes an ISUPPORT token value and appends it to the buffer.
-	 * @param buffer The buffer to append to.
-	 * @param value An ISUPPORT token value.
-	 */
-	void AppendValue(std::string& buffer, const std::string& value);
+    /** Escapes an ISUPPORT token value and appends it to the buffer.
+     * @param buffer The buffer to append to.
+     * @param value An ISUPPORT token value.
+     */
+    void AppendValue(std::string& buffer, const std::string& value);
 
- public:
-	/** (Re)build the ISUPPORT vector.
-	 * Called by the core on boot after all modules have been loaded, and every time when a module is loaded
-	 * or unloaded. Calls the On005Numeric hook, letting modules manipulate the ISUPPORT tokens.
-	 */
-	void Build();
+  public:
+    /** (Re)build the ISUPPORT vector.
+     * Called by the core on boot after all modules have been loaded, and every time when a module is loaded
+     * or unloaded. Calls the On005Numeric hook, letting modules manipulate the ISUPPORT tokens.
+     */
+    void Build();
 
-	/** Returns the cached std::vector of ISUPPORT lines.
-	 * @return A list of Numeric::Numeric objects prepared for sending to users
-	 */
-	const std::vector<Numeric::Numeric>& GetLines() const { return cachedlines; }
+    /** Returns the cached std::vector of ISUPPORT lines.
+     * @return A list of Numeric::Numeric objects prepared for sending to users
+     */
+    const std::vector<Numeric::Numeric>& GetLines() const {
+        return cachedlines;
+    }
 
-	/** Send the 005 numerics (ISUPPORT) to a user.
-	 * @param user The user to send the ISUPPORT numerics to
-	 */
-	void SendTo(LocalUser* user);
+    /** Send the 005 numerics (ISUPPORT) to a user.
+     * @param user The user to send the ISUPPORT numerics to
+     */
+    void SendTo(LocalUser* user);
 };

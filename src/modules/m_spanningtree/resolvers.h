@@ -33,18 +33,18 @@
 
 /** Handle resolving of server IPs for the cache
  */
-class SecurityIPResolver : public DNS::Request
-{
- private:
-	reference<Link> MyLink;
-	Module* mine;
-	std::string host;
-	DNS::QueryType query;
-	bool CheckIPv4();
- public:
-	SecurityIPResolver(Module* me, DNS::Manager* mgr, const std::string& hostname, Link* x, DNS::QueryType qt);
-	void OnLookupComplete(const DNS::Query *r) CXX11_OVERRIDE;
-	void OnError(const DNS::Query *q) CXX11_OVERRIDE;
+class SecurityIPResolver : public DNS::Request {
+  private:
+    reference<Link> MyLink;
+    Module* mine;
+    std::string host;
+    DNS::QueryType query;
+    bool CheckIPv4();
+  public:
+    SecurityIPResolver(Module* me, DNS::Manager* mgr, const std::string& hostname,
+                       Link* x, DNS::QueryType qt);
+    void OnLookupComplete(const DNS::Query *r) CXX11_OVERRIDE;
+    void OnError(const DNS::Query *q) CXX11_OVERRIDE;
 };
 
 /** This class is used to resolve server hostnames during /connect and autoconnect.
@@ -53,15 +53,15 @@ class SecurityIPResolver : public DNS::Request
  * callback to OnLookupComplete or OnError when completed. Once it has completed we
  * will have an IP address which we can then use to continue our connection.
  */
-class ServernameResolver : public DNS::Request
-{
- private:
-	DNS::QueryType query;
-	std::string host;
-	reference<Link> MyLink;
-	reference<Autoconnect> myautoconnect;
- public:
-	ServernameResolver(DNS::Manager* mgr, const std::string& hostname, Link* x, DNS::QueryType qt, Autoconnect* myac);
-	void OnLookupComplete(const DNS::Query *r) CXX11_OVERRIDE;
-	void OnError(const DNS::Query *q) CXX11_OVERRIDE;
+class ServernameResolver : public DNS::Request {
+  private:
+    DNS::QueryType query;
+    std::string host;
+    reference<Link> MyLink;
+    reference<Autoconnect> myautoconnect;
+  public:
+    ServernameResolver(DNS::Manager* mgr, const std::string& hostname, Link* x,
+                       DNS::QueryType qt, Autoconnect* myac);
+    void OnLookupComplete(const DNS::Query *r) CXX11_OVERRIDE;
+    void OnError(const DNS::Query *q) CXX11_OVERRIDE;
 };

@@ -27,38 +27,34 @@
 
 #include "inspircd.h"
 
-class ModuleNoKicks : public Module
-{
-	SimpleChannelModeHandler nk;
+class ModuleNoKicks : public Module {
+    SimpleChannelModeHandler nk;
 
- public:
-	ModuleNoKicks()
-		: nk(this, "nokick", 'Q')
-	{
-	}
+  public:
+    ModuleNoKicks()
+        : nk(this, "nokick", 'Q') {
+    }
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["EXTBAN"].push_back('Q');
-	}
+    void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE {
+        tokens["EXTBAN"].push_back('Q');
+    }
 
-	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason) CXX11_OVERRIDE
-	{
-		bool modeset = memb->chan->IsModeSet(nk);
-		if (!memb->chan->GetExtBanStatus(source, 'Q').check(!modeset))
-		{
-			// Can't kick with Q in place, not even opers with override, and founders
-			source->WriteNumeric(ERR_RESTRICTED, memb->chan->name, InspIRCd::Format("Can't kick user %s from channel (%s)",
-				memb->user->nick.c_str(), modeset ? "+Q is set" : "you're extbanned"));
-			return MOD_RES_DENY;
-		}
-		return MOD_RES_PASSTHRU;
-	}
+    ModResult OnUserPreKick(User* source, Membership* memb,
+                            const std::string &reason) CXX11_OVERRIDE {
+        bool modeset = memb->chan->IsModeSet(nk);
+        if (!memb->chan->GetExtBanStatus(source, 'Q').check(!modeset)) {
+            // Can't kick with Q in place, not even opers with override, and founders
+            source->WriteNumeric(ERR_RESTRICTED, memb->chan->name,
+                                 InspIRCd::Format("Can't kick user %s from channel (%s)",
+                                                  memb->user->nick.c_str(), modeset ? "+Q is set" : "you're extbanned"));
+            return MOD_RES_DENY;
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds channel mode Q (nokick) which prevents privileged users from using the /KICK command.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds channel mode Q (nokick) which prevents privileged users from using the /KICK command.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleNoKicks)

@@ -32,74 +32,69 @@
 
 #include "inspircd.h"
 
-class RandomNoticeTimer : public Timer
-{
- public:
-	std::vector<std::string> notices;
-	std::string prefix;
-	std::string suffix;
+class RandomNoticeTimer : public Timer {
+  public:
+    std::vector<std::string> notices;
+    std::string prefix;
+    std::string suffix;
 
-	RandomNoticeTimer() : Timer(1800, true) { }
+    RandomNoticeTimer() : Timer(1800, true) { }
 
-	bool Tick(time_t) CXX11_OVERRIDE
-	{
-		if (notices.empty())
-			return false;
+    bool Tick(time_t) CXX11_OVERRIDE {
+        if (notices.empty()) {
+            return false;
+        }
 
-		unsigned long random = ServerInstance->GenRandomInt(notices.size());
-		const std::string& notice = notices[random];
+        unsigned long random = ServerInstance->GenRandomInt(notices.size());
+        const std::string& notice = notices[random];
 
-		for (UserManager::LocalList::const_iterator i = ServerInstance->Users.GetLocalUsers().begin(); i != ServerInstance->Users.GetLocalUsers().end(); ++i)
-		{
-			LocalUser* user = *i;
+        for (UserManager::LocalList::const_iterator i = ServerInstance->Users.GetLocalUsers().begin(); i != ServerInstance->Users.GetLocalUsers().end(); ++i) {
+            LocalUser* user = *i;
 
-			if (user->registered == REG_ALL)
-				user->WriteNotice(prefix + notice + suffix);
-		}
+            if (user->registered == REG_ALL) {
+                user->WriteNotice(prefix + notice + suffix);
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 };
 
-class ModuleRandomNotice : public Module
-{
-	RandomNoticeTimer* timer;
+class ModuleRandomNotice : public Module {
+    RandomNoticeTimer* timer;
 
- public:
-	ModuleRandomNotice()
-	{
-		timer = new RandomNoticeTimer();
-	}
+  public:
+    ModuleRandomNotice() {
+        timer = new RandomNoticeTimer();
+    }
 
-	~ModuleRandomNotice()
-	{
-		ServerInstance->Timers.DelTimer(timer);
-	}
+    ~ModuleRandomNotice() {
+        ServerInstance->Timers.DelTimer(timer);
+    }
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Timers.AddTimer(timer);
-	}
+    void init() CXX11_OVERRIDE {
+        ServerInstance->Timers.AddTimer(timer);
+    }
 
-	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("randomnotice");
-		FileReader reader(tag->getString("file", "randomnotices.txt"));
-		timer->notices = reader.GetVector();
-		timer->prefix = tag->getString("prefix");
-		timer->suffix = tag->getString("suffix");
-		unsigned long interval = tag->getDuration("interval", 1800, 60, 31536000);
-		if (timer->GetInterval() != interval)
-			timer->SetInterval(interval);
+    void ReadConfig(ConfigStatus&) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("randomnotice");
+        FileReader reader(tag->getString("file", "randomnotices.txt"));
+        timer->notices = reader.GetVector();
+        timer->prefix = tag->getString("prefix");
+        timer->suffix = tag->getString("suffix");
+        unsigned long interval = tag->getDuration("interval", 1800, 60, 31536000);
+        if (timer->GetInterval() != interval) {
+            timer->SetInterval(interval);
+        }
 
-		if (timer->notices.empty())
-			throw ModuleException("Random Notices file is empty!! Please add quotes to the file.");
-	}
+        if (timer->notices.empty()) {
+            throw ModuleException("Random Notices file is empty!! Please add quotes to the file.");
+        }
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Send a random notice (quote) to all users at a set interval.");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Send a random notice (quote) to all users at a set interval.");
+    }
 };
 
 MODULE_INIT(ModuleRandomNotice)

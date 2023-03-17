@@ -26,94 +26,88 @@
 
 #include "inspircd.h"
 
-static void JoinChannels(LocalUser* u, const std::string& chanlist)
-{
-	irc::commasepstream chans(chanlist);
-	std::string chan;
+static void JoinChannels(LocalUser* u, const std::string& chanlist) {
+    irc::commasepstream chans(chanlist);
+    std::string chan;
 
-	while (chans.GetToken(chan))
-	{
-		if (ServerInstance->IsChannel(chan))
-			Channel::JoinUser(u, chan);
-	}
+    while (chans.GetToken(chan)) {
+        if (ServerInstance->IsChannel(chan)) {
+            Channel::JoinUser(u, chan);
+        }
+    }
 }
 
-class JoinTimer : public Timer
-{
- private:
-	LocalUser* const user;
-	const std::string channels;
-	SimpleExtItem<JoinTimer>& ext;
+class JoinTimer : public Timer {
+  private:
+    LocalUser* const user;
+    const std::string channels;
+    SimpleExtItem<JoinTimer>& ext;
 
- public:
-	JoinTimer(LocalUser* u, SimpleExtItem<JoinTimer>& ex, const std::string& chans, unsigned int delay)
-		: Timer(delay, false)
-		, user(u), channels(chans), ext(ex)
-	{
-		ServerInstance->Timers.AddTimer(this);
-	}
+  public:
+    JoinTimer(LocalUser* u, SimpleExtItem<JoinTimer>& ex, const std::string& chans,
+              unsigned int delay)
+        : Timer(delay, false)
+        , user(u), channels(chans), ext(ex) {
+        ServerInstance->Timers.AddTimer(this);
+    }
 
-	bool Tick(time_t time) CXX11_OVERRIDE
-	{
-		if (user->chans.empty())
-			JoinChannels(user, channels);
+    bool Tick(time_t time) CXX11_OVERRIDE {
+        if (user->chans.empty()) {
+            JoinChannels(user, channels);
+        }
 
-		ext.unset(user);
-		return false;
-	}
+        ext.unset(user);
+        return false;
+    }
 };
 
-class ModuleConnJoin : public Module
-{
-	SimpleExtItem<JoinTimer> ext;
-	std::string defchans;
-	unsigned int defdelay;
+class ModuleConnJoin : public Module {
+    SimpleExtItem<JoinTimer> ext;
+    std::string defchans;
+    unsigned int defdelay;
 
- public:
-	ModuleConnJoin()
-		: ext("join_timer", ExtensionItem::EXT_USER, this)
-	{
-	}
+  public:
+    ModuleConnJoin()
+        : ext("join_timer", ExtensionItem::EXT_USER, this) {
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("autojoin");
-		defchans = tag->getString("channel");
-		defdelay = tag->getDuration("delay", 0, 0, 60*15);
-	}
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("autojoin");
+        defchans = tag->getString("channel");
+        defdelay = tag->getDuration("delay", 0, 0, 60*15);
+    }
 
-	void Prioritize() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIORITY_LAST);
-	}
+    void Prioritize() CXX11_OVERRIDE {
+        ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIORITY_LAST);
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Allows the server administrator to force users to join one or more channels on connect.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Allows the server administrator to force users to join one or more channels on connect.", VF_VENDOR);
+    }
 
-	void OnPostConnect(User* user) CXX11_OVERRIDE
-	{
-		LocalUser* localuser = IS_LOCAL(user);
-		if (!localuser)
-			return;
+    void OnPostConnect(User* user) CXX11_OVERRIDE {
+        LocalUser* localuser = IS_LOCAL(user);
+        if (!localuser) {
+            return;
+        }
 
-		std::string chanlist = localuser->GetClass()->config->getString("autojoin");
-		unsigned int chandelay = localuser->GetClass()->config->getDuration("autojoindelay", 0, 0, 60*15);
+        std::string chanlist = localuser->GetClass()->config->getString("autojoin");
+        unsigned int chandelay = localuser->GetClass()->config->getDuration("autojoindelay", 0, 0, 60*15);
 
-		if (chanlist.empty())
-		{
-			if (defchans.empty())
-				return;
-			chanlist = defchans;
-			chandelay = defdelay;
-		}
+        if (chanlist.empty()) {
+            if (defchans.empty()) {
+                return;
+            }
+            chanlist = defchans;
+            chandelay = defdelay;
+        }
 
-		if (!chandelay)
-			JoinChannels(localuser, chanlist);
-		else
-			ext.set(localuser, new JoinTimer(localuser, ext, chanlist, chandelay));
-	}
+        if (!chandelay) {
+            JoinChannels(localuser, chanlist);
+        } else {
+            ext.set(localuser, new JoinTimer(localuser, ext, chanlist, chandelay));
+        }
+    }
 };
 
 MODULE_INIT(ModuleConnJoin)

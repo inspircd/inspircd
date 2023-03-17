@@ -25,26 +25,24 @@
 
 #include "inspircd.h"
 
-class ModuleForceIdent : public Module
-{
- public:
-	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = user->MyClass->config;
-		std::string ident = tag->getString("forceident");
-		if (ServerInstance->IsIdent(ident.c_str()))
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Setting ident of user '%s' (%s) in class '%s' to '%s'.",
-				user->nick.c_str(), user->uuid.c_str(), user->MyClass->name.c_str(), ident.c_str());
-			user->ident = ident;
-			user->InvalidateCache();
-		}
-	}
+class ModuleForceIdent : public Module {
+  public:
+    void OnUserConnect(LocalUser* user) CXX11_OVERRIDE {
+        ConfigTag* tag = user->MyClass->config;
+        std::string ident = tag->getString("forceident");
+        if (ServerInstance->IsIdent(ident.c_str())) {
+            ServerInstance->Logs->Log(MODNAME, LOG_DEBUG,
+                                      "Setting ident of user '%s' (%s) in class '%s' to '%s'.",
+                                      user->nick.c_str(), user->uuid.c_str(), user->MyClass->name.c_str(),
+                                      ident.c_str());
+            user->ident = ident;
+            user->InvalidateCache();
+        }
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Allows forcing idents on users based on their connect class.");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Allows forcing idents on users based on their connect class.");
+    }
 };
 
 MODULE_INIT(ModuleForceIdent)

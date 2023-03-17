@@ -28,52 +28,46 @@
 #include "inspircd.h"
 #include "modules/exemption.h"
 
-class ModuleNoNotice : public Module
-{
-	CheckExemption::EventProvider exemptionprov;
-	SimpleChannelModeHandler nt;
- public:
+class ModuleNoNotice : public Module {
+    CheckExemption::EventProvider exemptionprov;
+    SimpleChannelModeHandler nt;
+  public:
 
-	ModuleNoNotice()
-		: exemptionprov(this)
-		, nt(this, "nonotice", 'T')
-	{
-	}
+    ModuleNoNotice()
+        : exemptionprov(this)
+        , nt(this, "nonotice", 'T') {
+    }
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["EXTBAN"].push_back('T');
-	}
+    void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE {
+        tokens["EXTBAN"].push_back('T');
+    }
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
-	{
-		if ((details.type == MSG_NOTICE) && (target.type == MessageTarget::TYPE_CHANNEL) && (IS_LOCAL(user)))
-		{
-			Channel* c = target.Get<Channel>();
+    ModResult OnUserPreMessage(User* user, const MessageTarget& target,
+                               MessageDetails& details) CXX11_OVERRIDE {
+        if ((details.type == MSG_NOTICE) && (target.type == MessageTarget::TYPE_CHANNEL) && (IS_LOCAL(user))) {
+            Channel* c = target.Get<Channel>();
 
-			ModResult res = CheckExemption::Call(exemptionprov, user, c, "nonotice");
-			if (res == MOD_RES_ALLOW)
-				return MOD_RES_PASSTHRU;
+            ModResult res = CheckExemption::Call(exemptionprov, user, c, "nonotice");
+            if (res == MOD_RES_ALLOW) {
+                return MOD_RES_PASSTHRU;
+            }
 
-			if (c->IsModeSet(nt))
-			{
-				user->WriteNumeric(Numerics::CannotSendTo(c, "notices", &nt));
-				return MOD_RES_DENY;
-			}
+            if (c->IsModeSet(nt)) {
+                user->WriteNumeric(Numerics::CannotSendTo(c, "notices", &nt));
+                return MOD_RES_DENY;
+            }
 
-			if (c->GetExtBanStatus(user, 'T') == MOD_RES_DENY)
-			{
-				user->WriteNumeric(Numerics::CannotSendTo(c, "notices", 'T', "nonotice"));
-				return MOD_RES_DENY;
-			}
-		}
-		return MOD_RES_PASSTHRU;
-	}
+            if (c->GetExtBanStatus(user, 'T') == MOD_RES_DENY) {
+                user->WriteNumeric(Numerics::CannotSendTo(c, "notices", 'T', "nonotice"));
+                return MOD_RES_DENY;
+            }
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds channel mode T (nonotice) which allows channels to block messages sent with the /NOTICE command.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds channel mode T (nonotice) which allows channels to block messages sent with the /NOTICE command.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleNoNotice)

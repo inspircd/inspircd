@@ -34,186 +34,179 @@
 
 /** A specialisation of the SocketEngine class, designed to use BSD kqueue().
  */
-namespace
-{
-	int EngineHandle;
-	unsigned int ChangePos = 0;
-	/** These are used by kqueue() to hold socket events
-	 */
-	std::vector<struct kevent> ke_list(16);
+namespace {
+int EngineHandle;
+unsigned int ChangePos = 0;
+/** These are used by kqueue() to hold socket events
+ */
+std::vector<struct kevent> ke_list(16);
 
-	/** Pending changes
-	 */
-	std::vector<struct kevent> changelist(8);
+/** Pending changes
+ */
+std::vector<struct kevent> changelist(8);
 
 #if defined __NetBSD__ && __NetBSD_Version__ <= 999001400
-	inline intptr_t udata_cast(EventHandler* eh)
-	{
-		// On NetBSD <10 the last parameter of EV_SET is intptr_t.
-		return reinterpret_cast<intptr_t>(eh);
-	}
+inline intptr_t udata_cast(EventHandler* eh) {
+    // On NetBSD <10 the last parameter of EV_SET is intptr_t.
+    return reinterpret_cast<intptr_t>(eh);
+}
 #else
-	inline void* udata_cast(EventHandler* eh)
-	{
-		// On other platforms the last parameter of EV_SET is void*.
-		return static_cast<void*>(eh);
-	}
+inline void* udata_cast(EventHandler* eh) {
+    // On other platforms the last parameter of EV_SET is void*.
+    return static_cast<void*>(eh);
+}
 #endif
 }
 
 /** Initialize the kqueue engine
  */
-void SocketEngine::Init()
-{
-	LookupMaxFds();
-	RecoverFromFork();
+void SocketEngine::Init() {
+    LookupMaxFds();
+    RecoverFromFork();
 }
 
-void SocketEngine::RecoverFromFork()
-{
-	/*
-	 * The only bad thing about kqueue is that its fd cant survive a fork and is not inherited.
-	 * BUM HATS.
-	 *
-	 */
-	EngineHandle = kqueue();
-	if (EngineHandle == -1)
-		InitError();
+void SocketEngine::RecoverFromFork() {
+    /*
+     * The only bad thing about kqueue is that its fd cant survive a fork and is not inherited.
+     * BUM HATS.
+     *
+     */
+    EngineHandle = kqueue();
+    if (EngineHandle == -1) {
+        InitError();
+    }
 }
 
 /** Shutdown the kqueue engine
  */
-void SocketEngine::Deinit()
-{
-	Close(EngineHandle);
+void SocketEngine::Deinit() {
+    Close(EngineHandle);
 }
 
-static struct kevent* GetChangeKE()
-{
-	if (ChangePos >= changelist.size())
-		changelist.resize(changelist.size() * 2);
-	return &changelist[ChangePos++];
+static struct kevent* GetChangeKE() {
+    if (ChangePos >= changelist.size()) {
+        changelist.resize(changelist.size() * 2);
+    }
+    return &changelist[ChangePos++];
 }
 
-bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
-{
-	int fd = eh->GetFd();
+bool SocketEngine::AddFd(EventHandler* eh, int event_mask) {
+    int fd = eh->GetFd();
 
-	if (fd < 0)
-		return false;
+    if (fd < 0) {
+        return false;
+    }
 
-	if (!SocketEngine::AddFdRef(eh))
-		return false;
+    if (!SocketEngine::AddFdRef(eh)) {
+        return false;
+    }
 
-	// We always want to read from the socket...
-	struct kevent* ke = GetChangeKE();
-	EV_SET(ke, fd, EVFILT_READ, EV_ADD, 0, 0, udata_cast(eh));
+    // We always want to read from the socket...
+    struct kevent* ke = GetChangeKE();
+    EV_SET(ke, fd, EVFILT_READ, EV_ADD, 0, 0, udata_cast(eh));
 
-	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
+    ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
 
-	eh->SetEventMask(event_mask);
-	OnSetEvent(eh, 0, event_mask);
-	ResizeDouble(ke_list);
+    eh->SetEventMask(event_mask);
+    OnSetEvent(eh, 0, event_mask);
+    ResizeDouble(ke_list);
 
-	return true;
+    return true;
 }
 
-void SocketEngine::DelFd(EventHandler* eh)
-{
-	int fd = eh->GetFd();
+void SocketEngine::DelFd(EventHandler* eh) {
+    int fd = eh->GetFd();
 
-	if (fd < 0)
-	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "DelFd() on invalid fd: %d", fd);
-		return;
-	}
+    if (fd < 0) {
+        ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "DelFd() on invalid fd: %d",
+                                  fd);
+        return;
+    }
 
-	// First remove the write filter ignoring errors, since we can't be
-	// sure if there are actually any write filters registered.
-	struct kevent* ke = GetChangeKE();
-	EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+    // First remove the write filter ignoring errors, since we can't be
+    // sure if there are actually any write filters registered.
+    struct kevent* ke = GetChangeKE();
+    EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
 
-	// Then remove the read filter.
-	ke = GetChangeKE();
-	EV_SET(ke, eh->GetFd(), EVFILT_READ, EV_DELETE, 0, 0, NULL);
+    // Then remove the read filter.
+    ke = GetChangeKE();
+    EV_SET(ke, eh->GetFd(), EVFILT_READ, EV_DELETE, 0, 0, NULL);
 
-	SocketEngine::DelFdRef(eh);
+    SocketEngine::DelFdRef(eh);
 
-	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d", fd);
+    ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d",
+                              fd);
 }
 
-void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
-{
-	if ((new_mask & FD_WANT_POLL_WRITE) && !(old_mask & FD_WANT_POLL_WRITE))
-	{
-		// new poll-style write
-		struct kevent* ke = GetChangeKE();
-		EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_ADD, 0, 0, udata_cast(eh));
-	}
-	else if ((old_mask & FD_WANT_POLL_WRITE) && !(new_mask & FD_WANT_POLL_WRITE))
-	{
-		// removing poll-style write
-		struct kevent* ke = GetChangeKE();
-		EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
-	}
-	if ((new_mask & (FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE)) && !(old_mask & (FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE)))
-	{
-		struct kevent* ke = GetChangeKE();
-		EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, udata_cast(eh));
-	}
+void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask) {
+    if ((new_mask & FD_WANT_POLL_WRITE) && !(old_mask & FD_WANT_POLL_WRITE)) {
+        // new poll-style write
+        struct kevent* ke = GetChangeKE();
+        EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_ADD, 0, 0, udata_cast(eh));
+    } else if ((old_mask & FD_WANT_POLL_WRITE)
+               && !(new_mask & FD_WANT_POLL_WRITE)) {
+        // removing poll-style write
+        struct kevent* ke = GetChangeKE();
+        EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+    }
+    if ((new_mask & (FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE))
+            && !(old_mask & (FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE))) {
+        struct kevent* ke = GetChangeKE();
+        EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0,
+               udata_cast(eh));
+    }
 }
 
-int SocketEngine::DispatchEvents()
-{
-	struct timespec ts;
-	ts.tv_nsec = 0;
-	ts.tv_sec = 1;
+int SocketEngine::DispatchEvents() {
+    struct timespec ts;
+    ts.tv_nsec = 0;
+    ts.tv_sec = 1;
 
-	int i = kevent(EngineHandle, &changelist.front(), ChangePos, &ke_list.front(), ke_list.size(), &ts);
-	ChangePos = 0;
-	ServerInstance->UpdateTime();
+    int i = kevent(EngineHandle, &changelist.front(), ChangePos, &ke_list.front(),
+                   ke_list.size(), &ts);
+    ChangePos = 0;
+    ServerInstance->UpdateTime();
 
-	if (i < 0)
-		return i;
+    if (i < 0) {
+        return i;
+    }
 
-	stats.TotalEvents += i;
+    stats.TotalEvents += i;
 
-	for (int j = 0; j < i; j++)
-	{
-		// This can't be a static_cast because udata is intptr_t on NetBSD.
-		struct kevent& kev = ke_list[j];
-		EventHandler* eh = reinterpret_cast<EventHandler*>(kev.udata);
-		if (!eh)
-			continue;
+    for (int j = 0; j < i; j++) {
+        // This can't be a static_cast because udata is intptr_t on NetBSD.
+        struct kevent& kev = ke_list[j];
+        EventHandler* eh = reinterpret_cast<EventHandler*>(kev.udata);
+        if (!eh) {
+            continue;
+        }
 
-		// Copy these in case the vector gets resized and kev invalidated
-		const int fd = eh->GetFd();
-		const short filter = kev.filter;
-		if (fd < 0)
-			continue;
+        // Copy these in case the vector gets resized and kev invalidated
+        const int fd = eh->GetFd();
+        const short filter = kev.filter;
+        if (fd < 0) {
+            continue;
+        }
 
-		if (kev.flags & EV_EOF)
-		{
-			stats.ErrorEvents++;
-			eh->OnEventHandlerError(kev.fflags);
-			continue;
-		}
-		if (filter == EVFILT_WRITE)
-		{
-			/* When mask is FD_WANT_FAST_WRITE or FD_WANT_SINGLE_WRITE,
-			 * we set a one-shot write, so we need to clear that bit
-			 * to detect when it set again.
-			 */
-			const int bits_to_clr = FD_WANT_SINGLE_WRITE | FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK;
-			eh->SetEventMask(eh->GetEventMask() & ~bits_to_clr);
-			eh->OnEventHandlerWrite();
-		}
-		else if (filter == EVFILT_READ)
-		{
-			eh->SetEventMask(eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
-			eh->OnEventHandlerRead();
-		}
-	}
+        if (kev.flags & EV_EOF) {
+            stats.ErrorEvents++;
+            eh->OnEventHandlerError(kev.fflags);
+            continue;
+        }
+        if (filter == EVFILT_WRITE) {
+            /* When mask is FD_WANT_FAST_WRITE or FD_WANT_SINGLE_WRITE,
+             * we set a one-shot write, so we need to clear that bit
+             * to detect when it set again.
+             */
+            const int bits_to_clr = FD_WANT_SINGLE_WRITE | FD_WANT_FAST_WRITE |
+                                    FD_WRITE_WILL_BLOCK;
+            eh->SetEventMask(eh->GetEventMask() & ~bits_to_clr);
+            eh->OnEventHandlerWrite();
+        } else if (filter == EVFILT_READ) {
+            eh->SetEventMask(eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
+            eh->OnEventHandlerRead();
+        }
+    }
 
-	return i;
+    return i;
 }

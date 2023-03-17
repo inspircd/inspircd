@@ -24,47 +24,44 @@
 
 #include "inspircd.h"
 
-class ModuleGecosBan : public Module
-{
- public:
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds extended bans a: (realmask) and r:(realname) which checks whether users have a real name (gecos) matching the specified glob pattern.", VF_OPTCOMMON|VF_VENDOR);
-	}
+class ModuleGecosBan : public Module {
+  public:
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds extended bans a: (realmask) and r:(realname) which checks whether users have a real name (gecos) matching the specified glob pattern.", VF_OPTCOMMON|VF_VENDOR);
+    }
 
-	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) CXX11_OVERRIDE
-	{
-		if ((mask.length() > 2) && (mask[1] == ':'))
-		{
-			if (mask[0] == 'r')
-			{
-				if (InspIRCd::Match(user->GetRealName(), mask.substr(2)))
-					return MOD_RES_DENY;
-			}
-			else if (mask[0] == 'a')
-			{
-				// Check that the user actually specified a real name.
-				const size_t divider = mask.find('+', 1);
-				if (divider == std::string::npos)
-					return MOD_RES_PASSTHRU;
+    ModResult OnCheckBan(User *user, Channel *c,
+                         const std::string& mask) CXX11_OVERRIDE {
+        if ((mask.length() > 2) && (mask[1] == ':')) {
+            if (mask[0] == 'r') {
+                if (InspIRCd::Match(user->GetRealName(), mask.substr(2))) {
+                    return MOD_RES_DENY;
+                }
+            } else if (mask[0] == 'a') {
+                // Check that the user actually specified a real name.
+                const size_t divider = mask.find('+', 1);
+                if (divider == std::string::npos) {
+                    return MOD_RES_PASSTHRU;
+                }
 
-				// Check whether the user's mask matches.
-				if (!c->CheckBan(user, mask.substr(2, divider - 2)))
-					return MOD_RES_PASSTHRU;
+                // Check whether the user's mask matches.
+                if (!c->CheckBan(user, mask.substr(2, divider - 2))) {
+                    return MOD_RES_PASSTHRU;
+                }
 
-				// Check whether the user's real name matches.
-				if (InspIRCd::Match(user->GetRealName(), mask.substr(divider + 1)))
-					return MOD_RES_DENY;
-			}
-		}
-		return MOD_RES_PASSTHRU;
-	}
+                // Check whether the user's real name matches.
+                if (InspIRCd::Match(user->GetRealName(), mask.substr(divider + 1))) {
+                    return MOD_RES_DENY;
+                }
+            }
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["EXTBAN"].push_back('a');
-		tokens["EXTBAN"].push_back('r');
-	}
+    void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE {
+        tokens["EXTBAN"].push_back('a');
+        tokens["EXTBAN"].push_back('r');
+    }
 };
 
 MODULE_INIT(ModuleGecosBan)

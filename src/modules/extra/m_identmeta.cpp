@@ -24,29 +24,26 @@
 
 #include "inspircd.h"
 
-class ModuleIdentMeta : public Module
-{
- private:
-	StringExtItem ext;
+class ModuleIdentMeta : public Module {
+  private:
+    StringExtItem ext;
 
- public:
-	ModuleIdentMeta()
-		: ext("user-ident", ExtensionItem::EXT_USER, this) { }
+  public:
+    ModuleIdentMeta()
+        : ext("user-ident", ExtensionItem::EXT_USER, this) { }
 
-	void OnChangeIdent(User* user, const std::string& ident) CXX11_OVERRIDE
-	{
-		if (IS_LOCAL(user) && ext.get(user) == NULL)
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Setting ident metadata of %s to %s.",
-				user->nick.c_str(), ident.c_str());
-			ext.set(user, ident);
-		}
-	}
+    void OnChangeIdent(User* user, const std::string& ident) CXX11_OVERRIDE {
+        if (IS_LOCAL(user) && ext.get(user) == NULL) {
+            ServerInstance->Logs->Log(MODNAME, LOG_DEBUG,
+                                      "Setting ident metadata of %s to %s.",
+                                      user->nick.c_str(), ident.c_str());
+            ext.set(user, ident);
+        }
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Stores the ident given in USER as metadata.");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Stores the ident given in USER as metadata.");
+    }
 };
 
 MODULE_INIT(ModuleIdentMeta)

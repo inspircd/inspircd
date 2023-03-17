@@ -25,73 +25,66 @@
 
 #include <crypt.h>
 
-class BCryptProvider : public HashProvider
-{
- private:
-	std::string Salt()
-	{
-		char entropy[16];
-		for (unsigned int i = 0; i < sizeof(entropy); ++i)
-			entropy[i] = ServerInstance->GenRandomInt(0xFF);
+class BCryptProvider : public HashProvider {
+  private:
+    std::string Salt() {
+        char entropy[16];
+        for (unsigned int i = 0; i < sizeof(entropy); ++i) {
+            entropy[i] = ServerInstance->GenRandomInt(0xFF);
+        }
 
-		char salt[32];
-		if (!crypt_gensalt_rn("$2a$", rounds, entropy, sizeof(entropy), salt, sizeof(salt)))
-			throw ModuleException("Could not generate salt - this should never happen");
+        char salt[32];
+        if (!crypt_gensalt_rn("$2a$", rounds, entropy, sizeof(entropy), salt,
+                              sizeof(salt))) {
+            throw ModuleException("Could not generate salt - this should never happen");
+        }
 
-		return salt;
-	}
+        return salt;
+    }
 
- public:
-	unsigned int rounds;
+  public:
+    unsigned int rounds;
 
-	std::string Generate(const std::string& data, const std::string& salt)
-	{
-		char hash[64];
-		crypt_rn(data.c_str(), salt.c_str(), hash, sizeof(hash));
-		return hash;
-	}
+    std::string Generate(const std::string& data, const std::string& salt) {
+        char hash[64];
+        crypt_rn(data.c_str(), salt.c_str(), hash, sizeof(hash));
+        return hash;
+    }
 
-	std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE
-	{
-		return Generate(data, Salt());
-	}
+    std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE {
+        return Generate(data, Salt());
+    }
 
-	bool Compare(const std::string& input, const std::string& hash)  CXX11_OVERRIDE
-	{
-		return InspIRCd::TimingSafeCompare(Generate(input, hash), hash);
-	}
+    bool Compare(const std::string& input,
+                 const std::string& hash)  CXX11_OVERRIDE {
+        return InspIRCd::TimingSafeCompare(Generate(input, hash), hash);
+    }
 
-	std::string ToPrintable(const std::string& raw) CXX11_OVERRIDE
-	{
-		return raw;
-	}
+    std::string ToPrintable(const std::string& raw) CXX11_OVERRIDE {
+        return raw;
+    }
 
-	BCryptProvider(Module* parent)
-		: HashProvider(parent, "bcrypt", 60)
-		, rounds(10)
-	{
-	}
+    BCryptProvider(Module* parent)
+        : HashProvider(parent, "bcrypt", 60)
+        , rounds(10) {
+    }
 };
 
-class ModuleBCrypt : public Module
-{
-	BCryptProvider bcrypt;
+class ModuleBCrypt : public Module {
+    BCryptProvider bcrypt;
 
- public:
-	ModuleBCrypt() : bcrypt(this)
-	{
-	}
+  public:
+    ModuleBCrypt() : bcrypt(this) {
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ConfigTag* conf = ServerInstance->Config->ConfValue("bcrypt");
-		bcrypt.rounds = conf->getUInt("rounds", 10, 1);
-	}
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* conf = ServerInstance->Config->ConfValue("bcrypt");
+        bcrypt.rounds = conf->getUInt("rounds", 10, 1);
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Allows other modules to generate bcrypt hashes.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Allows other modules to generate bcrypt hashes.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleBCrypt)

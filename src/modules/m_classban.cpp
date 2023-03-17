@@ -20,43 +20,39 @@
 
 #include "inspircd.h"
 
-class ModuleClassBan : public Module
-{
- private:
-	std::string space;
-	std::string underscore;
+class ModuleClassBan : public Module {
+  private:
+    std::string space;
+    std::string underscore;
 
- public:
-	ModuleClassBan()
-		: space(" ")
-		, underscore("_")
-	{
-	}
+  public:
+    ModuleClassBan()
+        : space(" ")
+        , underscore("_") {
+    }
 
-	ModResult OnCheckBan(User* user, Channel* c, const std::string& mask) CXX11_OVERRIDE
-	{
-		LocalUser* localUser = IS_LOCAL(user);
-		if ((localUser) && (mask.length() > 2) && (mask[0] == 'n') && (mask[1] == ':'))
-		{
-			// Replace spaces with underscores as they're prohibited in mode parameters.
-			std::string classname(localUser->GetClass()->name);
-			stdalgo::string::replace_all(classname, space, underscore);
-			if (InspIRCd::Match(classname, mask.substr(2)))
-				return MOD_RES_DENY;
+    ModResult OnCheckBan(User* user, Channel* c,
+                         const std::string& mask) CXX11_OVERRIDE {
+        LocalUser* localUser = IS_LOCAL(user);
+        if ((localUser) && (mask.length() > 2) && (mask[0] == 'n') && (mask[1] == ':')) {
+            // Replace spaces with underscores as they're prohibited in mode parameters.
+            std::string classname(localUser->GetClass()->name);
+            stdalgo::string::replace_all(classname, space, underscore);
+            if (InspIRCd::Match(classname, mask.substr(2))) {
+                return MOD_RES_DENY;
+            }
 
-		}
-		return MOD_RES_PASSTHRU;
-	}
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["EXTBAN"].push_back('n');
-	}
+    void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE {
+        tokens["EXTBAN"].push_back('n');
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds extended ban n: (class) which check whether users are in a connect class matching the specified glob pattern.", VF_VENDOR | VF_OPTCOMMON);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds extended ban n: (class) which check whether users are in a connect class matching the specified glob pattern.", VF_VENDOR | VF_OPTCOMMON);
+    }
 };
 
 MODULE_INIT(ModuleClassBan)

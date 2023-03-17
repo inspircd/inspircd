@@ -26,46 +26,46 @@
 
 #include "inspircd.h"
 
-class ModuleOperjoin : public Module
-{
-		std::vector<std::string> operChans;
-		bool override;
+class ModuleOperjoin : public Module {
+    std::vector<std::string> operChans;
+    bool override;
 
-	public:
-		void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-		{
-			ConfigTag* tag = ServerInstance->Config->ConfValue("operjoin");
+  public:
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("operjoin");
 
-			override = tag->getBool("override", false);
-			irc::commasepstream ss(tag->getString("channel"));
-			operChans.clear();
+        override = tag->getBool("override", false);
+        irc::commasepstream ss(tag->getString("channel"));
+        operChans.clear();
 
-			for (std::string channame; ss.GetToken(channame); )
-				operChans.push_back(channame);
-		}
+        for (std::string channame; ss.GetToken(channame); ) {
+            operChans.push_back(channame);
+        }
+    }
 
-		Version GetVersion() CXX11_OVERRIDE
-		{
-			return Version("Allows the server administrator to force server operators to join one or more channels when logging into their server operator account.", VF_VENDOR);
-		}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Allows the server administrator to force server operators to join one or more channels when logging into their server operator account.", VF_VENDOR);
+    }
 
-		void OnPostOper(User* user, const std::string &opertype, const std::string &opername) CXX11_OVERRIDE
-		{
-			LocalUser* localuser = IS_LOCAL(user);
-			if (!localuser)
-				return;
+    void OnPostOper(User* user, const std::string &opertype,
+                    const std::string &opername) CXX11_OVERRIDE {
+        LocalUser* localuser = IS_LOCAL(user);
+        if (!localuser) {
+            return;
+        }
 
-			for (std::vector<std::string>::const_iterator i = operChans.begin(); i != operChans.end(); ++i)
-				if (ServerInstance->IsChannel(*i))
-					Channel::JoinUser(localuser, *i, override);
+        for (std::vector<std::string>::const_iterator i = operChans.begin(); i != operChans.end(); ++i)
+            if (ServerInstance->IsChannel(*i)) {
+                Channel::JoinUser(localuser, *i, override);
+            }
 
-			irc::commasepstream ss(localuser->oper->getConfig("autojoin"));
-			for (std::string channame; ss.GetToken(channame); )
-			{
-				if (ServerInstance->IsChannel(channame))
-					Channel::JoinUser(localuser, channame, override);
-			}
-		}
+        irc::commasepstream ss(localuser->oper->getConfig("autojoin"));
+        for (std::string channame; ss.GetToken(channame); ) {
+            if (ServerInstance->IsChannel(channame)) {
+                Channel::JoinUser(localuser, channame, override);
+            }
+        }
+    }
 };
 
 MODULE_INIT(ModuleOperjoin)

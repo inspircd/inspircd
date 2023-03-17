@@ -23,12 +23,10 @@
 
 #include "inspircd.h"
 
-void Thread::SetExitFlag()
-{
-	ExitFlag = true;
+void Thread::SetExitFlag() {
+    ExitFlag = true;
 }
 
-void Thread::join()
-{
-	ServerInstance->Threads.Stop(this);
+void Thread::join() {
+    ServerInstance->Threads.Stop(this);
 }

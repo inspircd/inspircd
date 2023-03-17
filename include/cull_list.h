@@ -29,41 +29,44 @@
  * avoid problems with references to deleted pointers if an object were deleted
  * during execution.
  */
-class CoreExport CullList
-{
-	std::vector<classbase*> list;
-	std::vector<LocalUser*> SQlist;
+class CoreExport CullList {
+    std::vector<classbase*> list;
+    std::vector<LocalUser*> SQlist;
 
- public:
-	/** Adds an item to the cull list
-	 */
-	void AddItem(classbase* item) { list.push_back(item); }
-	void AddSQItem(LocalUser* item) { SQlist.push_back(item); }
+  public:
+    /** Adds an item to the cull list
+     */
+    void AddItem(classbase* item) {
+        list.push_back(item);
+    }
+    void AddSQItem(LocalUser* item) {
+        SQlist.push_back(item);
+    }
 
-	/** Applies the cull list (deletes the contents)
-	 */
-	void Apply();
+    /** Applies the cull list (deletes the contents)
+     */
+    void Apply();
 };
 
 /** Represents an action which is executable by an action list */
-class CoreExport ActionBase : public classbase
-{
- public:
-	/** Executes this action. */
-	virtual void Call() = 0;
+class CoreExport ActionBase : public classbase {
+  public:
+    /** Executes this action. */
+    virtual void Call() = 0;
 };
 
-class CoreExport ActionList
-{
-	std::vector<ActionBase*> list;
+class CoreExport ActionList {
+    std::vector<ActionBase*> list;
 
- public:
-	/** Adds an item to the list
-	 */
-	void AddAction(ActionBase* item) { list.push_back(item); }
+  public:
+    /** Adds an item to the list
+     */
+    void AddAction(ActionBase* item) {
+        list.push_back(item);
+    }
 
-	/** Runs the items
-	 */
-	void Run();
+    /** Runs the items
+     */
+    void Run();
 
 };

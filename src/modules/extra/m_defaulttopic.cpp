@@ -25,28 +25,27 @@
 
 #include "inspircd.h"
 
-class ModuleDefaultTopic : public Module
-{
- private:
-	std::string defaulttopic;
+class ModuleDefaultTopic : public Module {
+  private:
+    std::string defaulttopic;
 
- public:
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("options");
-		defaulttopic = tag->getString("defaulttopic", "", 0, ServerInstance->Config->Limits.MaxTopic);
-	}
+  public:
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("options");
+        defaulttopic = tag->getString("defaulttopic", "", 0, ServerInstance->Config->Limits.MaxTopic);
+    }
 
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except) CXX11_OVERRIDE
-	{
-		if (created && !defaulttopic.empty())
-			memb->chan->SetTopic(ServerInstance->FakeClient, defaulttopic, ServerInstance->Time());
-	}
+    void OnUserJoin(Membership* memb, bool sync, bool created,
+                    CUList& except) CXX11_OVERRIDE {
+        if (created && !defaulttopic.empty()) {
+            memb->chan->SetTopic(ServerInstance->FakeClient, defaulttopic,
+                                 ServerInstance->Time());
+        }
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds support for default channel topics.", VF_COMMON);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds support for default channel topics.", VF_COMMON);
+    }
 };
 
 MODULE_INIT(ModuleDefaultTopic)

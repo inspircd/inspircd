@@ -21,13 +21,13 @@
 
 #include "modules/ctctags.h"
 
-class ServiceTag : public ClientProtocol::MessageTagProvider
-{
- private:
-	CTCTags::CapReference ctctagcap;
+class ServiceTag : public ClientProtocol::MessageTagProvider {
+  private:
+    CTCTags::CapReference ctctagcap;
 
- public:
-	ServiceTag(Module* mod);
-	void OnPopulateTags(ClientProtocol::Message& msg) CXX11_OVERRIDE;
-	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) CXX11_OVERRIDE;
+  public:
+    ServiceTag(Module* mod);
+    void OnPopulateTags(ClientProtocol::Message& msg) CXX11_OVERRIDE;
+    bool ShouldSendTag(LocalUser* user,
+                       const ClientProtocol::MessageTagData& tagdata) CXX11_OVERRIDE;
 };

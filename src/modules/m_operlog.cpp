@@ -25,47 +25,44 @@
 
 #include "inspircd.h"
 
-class ModuleOperLog : public Module
-{
-	bool tosnomask;
+class ModuleOperLog : public Module {
+    bool tosnomask;
 
- public:
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->SNO->EnableSnomask('r', "OPERLOG");
-	}
+  public:
+    void init() CXX11_OVERRIDE {
+        ServerInstance->SNO->EnableSnomask('r', "OPERLOG");
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Allows the server administrator to make the server log when a server operator-only command is executed.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Allows the server administrator to make the server log when a server operator-only command is executed.", VF_VENDOR);
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		tosnomask = ServerInstance->Config->ConfValue("operlog")->getBool("tosnomask", false);
-	}
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        tosnomask = ServerInstance->Config->ConfValue("operlog")->getBool("tosnomask", false);
+    }
 
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
-	{
-		/* If the command doesnt appear to be valid, we dont want to mess with it. */
-		if (!validated)
-			return MOD_RES_PASSTHRU;
+    ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters,
+                           LocalUser* user, bool validated) CXX11_OVERRIDE {
+        /* If the command doesnt appear to be valid, we dont want to mess with it. */
+        if (!validated) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		if ((user->IsOper()) && (user->HasCommandPermission(command)))
-		{
-			Command* thiscmd = ServerInstance->Parser.GetHandler(command);
-			if ((thiscmd) && (thiscmd->flags_needed == 'o'))
-			{
-				std::string msg = "[" + user->GetFullRealHost() + "] " + command + " " + stdalgo::string::join(parameters);
-				if (tosnomask)
-					ServerInstance->SNO->WriteGlobalSno('r', msg);
-				else
-					ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, msg);
-			}
-		}
+        if ((user->IsOper()) && (user->HasCommandPermission(command))) {
+            Command* thiscmd = ServerInstance->Parser.GetHandler(command);
+            if ((thiscmd) && (thiscmd->flags_needed == 'o')) {
+                std::string msg = "[" + user->GetFullRealHost() + "] " + command + " " +
+                stdalgo::string::join(parameters);
+                if (tosnomask) {
+                    ServerInstance->SNO->WriteGlobalSno('r', msg);
+                } else {
+                    ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, msg);
+                }
+            }
+        }
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 };
 
 MODULE_INIT(ModuleOperLog)

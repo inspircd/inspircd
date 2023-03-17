@@ -23,35 +23,29 @@
 #include "treeserver.h"
 #include "commands.h"
 
-CmdResult CommandSInfo::HandleServer(TreeServer* server, CommandBase::Params& params)
-{
-	const std::string& key = params.front();
-	const std::string& value = params.back();
+CmdResult CommandSInfo::HandleServer(TreeServer* server,
+                                     CommandBase::Params& params) {
+    const std::string& key = params.front();
+    const std::string& value = params.back();
 
-	if (key == "fullversion")
-	{
-		server->SetFullVersion(value);
-	}
-	else if (key == "version")
-	{
-		server->SetVersion(value);
-	}
-	else if (key == "rawversion")
-	{
-		server->SetRawVersion(value);
-	}
-	else if (key == "desc")
-	{
-		// Only sent when the description of a server changes because of a rehash; not sent on burst
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Server description of " + server->GetName() + " changed: " + value);
-		server->SetDesc(value);
-	}
+    if (key == "fullversion") {
+        server->SetFullVersion(value);
+    } else if (key == "version") {
+        server->SetVersion(value);
+    } else if (key == "rawversion") {
+        server->SetRawVersion(value);
+    } else if (key == "desc") {
+        // Only sent when the description of a server changes because of a rehash; not sent on burst
+        ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT,
+                                  "Server description of " + server->GetName() + " changed: " + value);
+        server->SetDesc(value);
+    }
 
-	return CMD_SUCCESS;
+    return CMD_SUCCESS;
 }
 
-CommandSInfo::Builder::Builder(TreeServer* server, const char* key, const std::string& val)
-	: CmdBuilder(server, "SINFO")
-{
-	push(key).push_last(val);
+CommandSInfo::Builder::Builder(TreeServer* server, const char* key,
+                               const std::string& val)
+    : CmdBuilder(server, "SINFO") {
+    push(key).push_last(val);
 }

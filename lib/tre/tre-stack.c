@@ -17,96 +17,84 @@
 #include "xmalloc.h"
 
 union tre_stack_item {
-  void *voidptr_value;
-  int int_value;
+    void *voidptr_value;
+    int int_value;
 };
 
 struct tre_stack_rec {
-  int size;
-  int max_size;
-  int increment;
-  int ptr;
-  union tre_stack_item *stack;
+    int size;
+    int max_size;
+    int increment;
+    int ptr;
+    union tre_stack_item *stack;
 };
 
 
 tre_stack_t *
-tre_stack_new(int size, int max_size, int increment)
-{
-  tre_stack_t *s;
+tre_stack_new(int size, int max_size, int increment) {
+    tre_stack_t *s;
 
-  s = xmalloc(sizeof(*s));
-  if (s != NULL)
-    {
-      s->stack = xmalloc(sizeof(*s->stack) * size);
-      if (s->stack == NULL)
-	{
-	  xfree(s);
-	  return NULL;
-	}
-      s->size = size;
-      s->max_size = max_size;
-      s->increment = increment;
-      s->ptr = 0;
+    s = xmalloc(sizeof(*s));
+    if (s != NULL) {
+        s->stack = xmalloc(sizeof(*s->stack) * size);
+        if (s->stack == NULL) {
+            xfree(s);
+            return NULL;
+        }
+        s->size = size;
+        s->max_size = max_size;
+        s->increment = increment;
+        s->ptr = 0;
     }
-  return s;
+    return s;
 }
 
 void
-tre_stack_destroy(tre_stack_t *s)
-{
-  xfree(s->stack);
-  xfree(s);
+tre_stack_destroy(tre_stack_t *s) {
+    xfree(s->stack);
+    xfree(s);
 }
 
 int
-tre_stack_num_objects(tre_stack_t *s)
-{
-  return s->ptr;
+tre_stack_num_objects(tre_stack_t *s) {
+    return s->ptr;
 }
 
 static reg_errcode_t
-tre_stack_push(tre_stack_t *s, union tre_stack_item value)
-{
-  if (s->ptr < s->size)
-    {
-      s->stack[s->ptr] = value;
-      s->ptr++;
+tre_stack_push(tre_stack_t *s, union tre_stack_item value) {
+    if (s->ptr < s->size) {
+        s->stack[s->ptr] = value;
+        s->ptr++;
+    } else {
+        if (s->size >= s->max_size) {
+            DPRINT(("tre_stack_push: stack full\n"));
+            return REG_ESPACE;
+        } else {
+            union tre_stack_item *new_buffer;
+            int new_size;
+            DPRINT(("tre_stack_push: trying to realloc more space\n"));
+            new_size = s->size + s->increment;
+            if (new_size > s->max_size) {
+                new_size = s->max_size;
+            }
+            new_buffer = xrealloc(s->stack, sizeof(*new_buffer) * new_size);
+            if (new_buffer == NULL) {
+                DPRINT(("tre_stack_push: realloc failed.\n"));
+                return REG_ESPACE;
+            }
+            DPRINT(("tre_stack_push: realloc succeeded.\n"));
+            assert(new_size > s->size);
+            s->size = new_size;
+            s->stack = new_buffer;
+            tre_stack_push(s, value);
+        }
     }
-  else
-    {
-      if (s->size >= s->max_size)
-	{
-	  DPRINT(("tre_stack_push: stack full\n"));
-	  return REG_ESPACE;
-	}
-      else
-	{
-	  union tre_stack_item *new_buffer;
-	  int new_size;
-	  DPRINT(("tre_stack_push: trying to realloc more space\n"));
-	  new_size = s->size + s->increment;
-	  if (new_size > s->max_size)
-	    new_size = s->max_size;
-	  new_buffer = xrealloc(s->stack, sizeof(*new_buffer) * new_size);
-	  if (new_buffer == NULL)
-	    {
-	      DPRINT(("tre_stack_push: realloc failed.\n"));
-	      return REG_ESPACE;
-	    }
-	  DPRINT(("tre_stack_push: realloc succeeded.\n"));
-	  assert(new_size > s->size);
-	  s->size = new_size;
-	  s->stack = new_buffer;
-	  tre_stack_push(s, value);
-	}
-    }
-  return REG_OK;
+    return REG_OK;
 }
 
 #define define_pushf(typetag, type)  \
   declare_pushf(typetag, type) {     \
-    union tre_stack_item item;	     \
+    union tre_stack_item item;       \
     item.typetag ## _value = value;  \
     return tre_stack_push(s, item);  \
 }
@@ -114,8 +102,8 @@ tre_stack_push(tre_stack_t *s, union tre_stack_item value)
 define_pushf(int, int)
 define_pushf(voidptr, void *)
 
-#define define_popf(typetag, type)		    \
-  declare_popf(typetag, type) {			    \
+#define define_popf(typetag, type)          \
+  declare_popf(typetag, type) {             \
     return s->stack[--s->ptr].typetag ## _value;    \
   }
 

@@ -26,73 +26,65 @@
 
 #include "inspircd.h"
 
-class ModuleWaitPong : public Module
-{
-	bool sendsnotice;
-	bool killonbadreply;
-	LocalStringExt ext;
+class ModuleWaitPong : public Module {
+    bool sendsnotice;
+    bool killonbadreply;
+    LocalStringExt ext;
 
- public:
-	ModuleWaitPong()
-		: ext("waitpong_pingstr", ExtensionItem::EXT_USER, this)
-	{
-	}
+  public:
+    ModuleWaitPong()
+        : ext("waitpong_pingstr", ExtensionItem::EXT_USER, this) {
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("waitpong");
-		sendsnotice = tag->getBool("sendsnotice", false);
-		killonbadreply = tag->getBool("killonbadreply", true);
-	}
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("waitpong");
+        sendsnotice = tag->getBool("sendsnotice", false);
+        killonbadreply = tag->getBool("killonbadreply", true);
+    }
 
-	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
-	{
-		std::string pingrpl = ServerInstance->GenRandomStr(10);
-		{
-			ClientProtocol::Messages::Ping pingmsg(pingrpl);
-			user->Send(ServerInstance->GetRFCEvents().ping, pingmsg);
-		}
+    ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE {
+        std::string pingrpl = ServerInstance->GenRandomStr(10);
+        {
+            ClientProtocol::Messages::Ping pingmsg(pingrpl);
+            user->Send(ServerInstance->GetRFCEvents().ping, pingmsg);
+        }
 
-		if(sendsnotice)
-			user->WriteNotice("*** If you are having problems connecting due to registration timeouts type /quote PONG " + pingrpl + " or /raw PONG " + pingrpl + " now.");
+        if(sendsnotice) {
+            user->WriteNotice("*** If you are having problems connecting due to registration timeouts type /quote PONG "
+                              + pingrpl + " or /raw PONG " + pingrpl + " now.");
+        }
 
-		ext.set(user, pingrpl);
-		return MOD_RES_PASSTHRU;
-	}
+        ext.set(user, pingrpl);
+        return MOD_RES_PASSTHRU;
+    }
 
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
-	{
-		if (command == "PONG")
-		{
-			std::string* pingrpl = ext.get(user);
+    ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters,
+                           LocalUser* user, bool validated) CXX11_OVERRIDE {
+        if (command == "PONG") {
+            std::string* pingrpl = ext.get(user);
 
-			if (pingrpl)
-			{
-				if (!parameters.empty() && *pingrpl == parameters[0])
-				{
-					ext.unset(user);
-					return MOD_RES_DENY;
-				}
-				else
-				{
-					if(killonbadreply)
-						ServerInstance->Users->QuitUser(user, "Incorrect ping reply for registration");
-					return MOD_RES_DENY;
-				}
-			}
-		}
-		return MOD_RES_PASSTHRU;
-	}
+            if (pingrpl) {
+                if (!parameters.empty() && *pingrpl == parameters[0]) {
+                    ext.unset(user);
+                    return MOD_RES_DENY;
+                } else {
+                    if(killonbadreply) {
+                        ServerInstance->Users->QuitUser(user, "Incorrect ping reply for registration");
+                    }
+                    return MOD_RES_DENY;
+                }
+            }
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
-	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
-	{
-		return ext.get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
-	}
+    ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE {
+        return ext.get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Requires all clients to respond to a PING request before they can fully connect.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Requires all clients to respond to a PING request before they can fully connect.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleWaitPong)

@@ -24,59 +24,59 @@
 #include "inspircd.h"
 #include "modules/exemption.h"
 
-class ModuleOpModerated : public Module
-{
-	SimpleChannelModeHandler opmod;
-	CheckExemption::EventProvider exemptionprov;
+class ModuleOpModerated : public Module {
+    SimpleChannelModeHandler opmod;
+    CheckExemption::EventProvider exemptionprov;
 
- public:
-	ModuleOpModerated()
-		: opmod(this, "opmoderated", ServerInstance->Config->ConfValue("opmoderated")->getString("modechar", "U", 1, 1)[0])
-		, exemptionprov(this)
-	{
-	}
+  public:
+    ModuleOpModerated()
+        : opmod(this, "opmoderated",
+                ServerInstance->Config->ConfValue("opmoderated")->getString("modechar", "U", 1,
+                        1)[0])
+        , exemptionprov(this) {
+    }
 
-	void Prioritize() CXX11_OVERRIDE
-	{
-		// since we steal the message, we should be last (let everyone else eat it first)
-		ServerInstance->Modules->SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
-	}
+    void Prioritize() CXX11_OVERRIDE {
+        // since we steal the message, we should be last (let everyone else eat it first)
+        ServerInstance->Modules->SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
+    }
 
-	ModResult OnUserPreMessage(User *user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
-	{
-		if (target.type != MessageTarget::TYPE_CHANNEL || target.status)
-			return MOD_RES_PASSTHRU;
+    ModResult OnUserPreMessage(User *user, const MessageTarget& target,
+                               MessageDetails& details) CXX11_OVERRIDE {
+        if (target.type != MessageTarget::TYPE_CHANNEL || target.status) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		if (IS_LOCAL(user) && user->HasPrivPermission("channels/ignore-opmoderated"))
-			return MOD_RES_PASSTHRU;
+        if (IS_LOCAL(user) && user->HasPrivPermission("channels/ignore-opmoderated")) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		Channel* const chan = target.Get<Channel>();
-		if (CheckExemption::Call(exemptionprov, user, chan, "opmoderated") == MOD_RES_ALLOW)
-			return MOD_RES_PASSTHRU;
+        Channel* const chan = target.Get<Channel>();
+        if (CheckExemption::Call(exemptionprov, user, chan, "opmoderated") == MOD_RES_ALLOW) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		if (!chan->GetExtBanStatus(user, 'u').check(!chan->IsModeSet(&opmod)) && chan->GetPrefixValue(user) < VOICE_VALUE)
-		{
-			// Add any unprivileged users to the exemption list.
-			const Channel::MemberMap& users = chan->GetUsers();
-			for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end(); ++i)
-			{
-				if (i->second->getRank() < OP_VALUE)
-					details.exemptions.insert(i->first);
-			}
-		}
+        if (!chan->GetExtBanStatus(user, 'u').check(!chan->IsModeSet(&opmod)) && chan->GetPrefixValue(user) < VOICE_VALUE) {
+            // Add any unprivileged users to the exemption list.
+            const Channel::MemberMap& users = chan->GetUsers();
+            for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end();
+                    ++i) {
+                if (i->second->getRank() < OP_VALUE) {
+                    details.exemptions.insert(i->first);
+                }
+            }
+        }
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["EXTBAN"].push_back('u');
-	}
+    void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE {
+        tokens["EXTBAN"].push_back('u');
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Implements opmoderated channel mode +U (non-voiced messages sent to ops) and extban 'u'", VF_OPTCOMMON);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Implements opmoderated channel mode +U (non-voiced messages sent to ops) and extban 'u'", VF_OPTCOMMON);
+    }
 };
 
 MODULE_INIT(ModuleOpModerated)

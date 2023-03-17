@@ -21,53 +21,51 @@
 
 #include "compat.h"
 
-class CoreExport TokenList
-{
- private:
-	/** The underlying type of the token list. */
-	typedef insp::flat_set<std::string, irc::insensitive_swo> TokenMap;
+class CoreExport TokenList {
+  private:
+    /** The underlying type of the token list. */
+    typedef insp::flat_set<std::string, irc::insensitive_swo> TokenMap;
 
-	/** Whether this list includes all tokens by default. */
-	bool permissive;
+    /** Whether this list includes all tokens by default. */
+    bool permissive;
 
-	/** Either the tokens to exclude if in permissive mode or the tokens to include if in strict mode. */
-	TokenMap tokens;
+    /** Either the tokens to exclude if in permissive mode or the tokens to include if in strict mode. */
+    TokenMap tokens;
 
- public:
-	TokenList()
-		: permissive(false)
-	{
-	}
+  public:
+    TokenList()
+        : permissive(false) {
+    }
 
-	/** Adds a space-delimited list of tokens to the token list.
-	 * @param tokenlist The list of space-delimited tokens to add.
-	 */
-	void AddList(const std::string& tokenlist);
+    /** Adds a space-delimited list of tokens to the token list.
+     * @param tokenlist The list of space-delimited tokens to add.
+     */
+    void AddList(const std::string& tokenlist);
 
-	/** Adds a single token to the token list.
-	 * @param token The token to add.
-	 */
-	void Add(const std::string& token);
+    /** Adds a single token to the token list.
+     * @param token The token to add.
+     */
+    void Add(const std::string& token);
 
-	/** Removes all tokens from the token list. */
-	void Clear();
+    /** Removes all tokens from the token list. */
+    void Clear();
 
-	/** Determines whether the specified token exists in the token list.
-	 * @param token The token to search for.
-	 */
-	bool Contains(const std::string& token) const;
+    /** Determines whether the specified token exists in the token list.
+     * @param token The token to search for.
+     */
+    bool Contains(const std::string& token) const;
 
-	/** Removes the specified token from the token list.
-	 * @param token The token to remove.
-	 */
-	void Remove(const std::string& token);
+    /** Removes the specified token from the token list.
+     * @param token The token to remove.
+     */
+    void Remove(const std::string& token);
 
-	/** Retrieves a string which represents the contents of this token list. */
-	std::string ToString() const;
+    /** Retrieves a string which represents the contents of this token list. */
+    std::string ToString() const;
 
-	/** Determines whether the specified token list contains the same tokens as this instance.
-	 * @param other The tokenlist to compare against.
-	 * @return True if the token lists are equal; otherwise, false.
-	 */
-	bool operator==(const TokenList& other) const;
+    /** Determines whether the specified token list contains the same tokens as this instance.
+     * @param other The tokenlist to compare against.
+     * @return True if the token lists are equal; otherwise, false.
+     */
+    bool operator==(const TokenList& other) const;
 };

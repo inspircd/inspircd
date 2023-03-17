@@ -26,9 +26,8 @@
 
 /** Timer that fires when we need to refresh the IP cache of servers
  */
-class CacheRefreshTimer : public Timer
-{
- public:
-	CacheRefreshTimer();
-	bool Tick(time_t TIME) CXX11_OVERRIDE;
+class CacheRefreshTimer : public Timer {
+  public:
+    CacheRefreshTimer();
+    bool Tick(time_t TIME) CXX11_OVERRIDE;
 };

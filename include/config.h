@@ -48,13 +48,13 @@
 
 #ifndef _WIN32
 
- /** Whether the arc4random_buf() function was available at compile time. */
+/** Whether the arc4random_buf() function was available at compile time. */
 /*# define HAS_ARC4RANDOM_BUF*/
 
- /** Whether the clock_gettime() function was available at compile time. */
+/** Whether the clock_gettime() function was available at compile time. */
 # define HAS_CLOCK_GETTIME
 
- /** Whether the eventfd() function was available at compile time. */
+/** Whether the eventfd() function was available at compile time. */
 # undef HAS_EVENTFD
 
 #endif

@@ -19,62 +19,59 @@
 
 #pragma once
 
-namespace Geolocation
-{
-	class APIBase;
-	class API;
-	class Location;
+namespace Geolocation {
+class APIBase;
+class API;
+class Location;
 }
 
-class Geolocation::APIBase : public DataProvider
-{
- public:
-	APIBase(Module* parent)
-		: DataProvider(parent, "geolocationapi")
-	{
-	}
+class Geolocation::APIBase : public DataProvider {
+  public:
+    APIBase(Module* parent)
+        : DataProvider(parent, "geolocationapi") {
+    }
 
-	/** Looks up the location of the specified user.
-	 * @param user The user to look up the location of.
-	 * @return Either an instance of the Location class or NULL if no location could be found.
-	 */
-	virtual Location* GetLocation(User* user) = 0;
+    /** Looks up the location of the specified user.
+     * @param user The user to look up the location of.
+     * @return Either an instance of the Location class or NULL if no location could be found.
+     */
+    virtual Location* GetLocation(User* user) = 0;
 
-	/** Looks up the location of the specified IP address.
-	 * @param sa The IP address to look up the location of.
-	 * @return Either an instance of the Location class or NULL if no location could be found.
-	 */
-	virtual Location* GetLocation(irc::sockets::sockaddrs& sa) = 0;
+    /** Looks up the location of the specified IP address.
+     * @param sa The IP address to look up the location of.
+     * @return Either an instance of the Location class or NULL if no location could be found.
+     */
+    virtual Location* GetLocation(irc::sockets::sockaddrs& sa) = 0;
 };
 
-class Geolocation::API : public dynamic_reference<Geolocation::APIBase>
-{
- public:
-	API(Module* parent)
-		: dynamic_reference<Geolocation::APIBase>(parent, "geolocationapi")
-	{
-	}
+class Geolocation::API : public dynamic_reference<Geolocation::APIBase> {
+  public:
+    API(Module* parent)
+        : dynamic_reference<Geolocation::APIBase>(parent, "geolocationapi") {
+    }
 };
 
-class Geolocation::Location : public usecountbase
-{
-private:
-	/** The two character country code for this location. */
-	std::string code;
+class Geolocation::Location : public usecountbase {
+  private:
+    /** The two character country code for this location. */
+    std::string code;
 
-	/** The country name for this location. */
-	std::string name;
+    /** The country name for this location. */
+    std::string name;
 
- public:
-	Location(const std::string& Code, const std::string& Name)
-		: code(Code)
-		, name(Name)
-	{
-	}
+  public:
+    Location(const std::string& Code, const std::string& Name)
+        : code(Code)
+        , name(Name) {
+    }
 
-	/** Retrieves the two character country code for this location. */
-	const std::string& GetCode() const { return code; }
+    /** Retrieves the two character country code for this location. */
+    const std::string& GetCode() const {
+        return code;
+    }
 
-	/** Retrieves the country name for this location. */
-	const std::string& GetName() const { return name; }
+    /** Retrieves the country name for this location. */
+    const std::string& GetName() const {
+        return name;
+    }
 };

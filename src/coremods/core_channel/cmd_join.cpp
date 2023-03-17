@@ -27,39 +27,34 @@
 #include "core_channel.h"
 
 CommandJoin::CommandJoin(Module* parent)
-	: SplitCommand(parent, "JOIN", 1, 2)
-{
-	syntax = "<channel>[,<channel>]+ [<key>[,<key>]+]";
-	Penalty = 2;
+    : SplitCommand(parent, "JOIN", 1, 2) {
+    syntax = "<channel>[,<channel>]+ [<key>[,<key>]+]";
+    Penalty = 2;
 }
 
 /** Handle /JOIN
  */
-CmdResult CommandJoin::HandleLocal(LocalUser* user, const Params& parameters)
-{
-	if (parameters.size() > 1)
-	{
-		if (CommandParser::LoopCall(user, this, parameters, 0, 1, false))
-			return CMD_SUCCESS;
+CmdResult CommandJoin::HandleLocal(LocalUser* user, const Params& parameters) {
+    if (parameters.size() > 1) {
+        if (CommandParser::LoopCall(user, this, parameters, 0, 1, false)) {
+            return CMD_SUCCESS;
+        }
 
-		if (ServerInstance->IsChannel(parameters[0]))
-		{
-			Channel::JoinUser(user, parameters[0], false, parameters[1]);
-			return CMD_SUCCESS;
-		}
-	}
-	else
-	{
-		if (CommandParser::LoopCall(user, this, parameters, 0, -1, false))
-			return CMD_SUCCESS;
+        if (ServerInstance->IsChannel(parameters[0])) {
+            Channel::JoinUser(user, parameters[0], false, parameters[1]);
+            return CMD_SUCCESS;
+        }
+    } else {
+        if (CommandParser::LoopCall(user, this, parameters, 0, -1, false)) {
+            return CMD_SUCCESS;
+        }
 
-		if (ServerInstance->IsChannel(parameters[0]))
-		{
-			Channel::JoinUser(user, parameters[0]);
-			return CMD_SUCCESS;
-		}
-	}
+        if (ServerInstance->IsChannel(parameters[0])) {
+            Channel::JoinUser(user, parameters[0]);
+            return CMD_SUCCESS;
+        }
+    }
 
-	user->WriteNumeric(ERR_BADCHANMASK, parameters[0], "Invalid channel name");
-	return CMD_FAILURE;
+    user->WriteNumeric(ERR_BADCHANMASK, parameters[0], "Invalid channel name");
+    return CMD_FAILURE;
 }

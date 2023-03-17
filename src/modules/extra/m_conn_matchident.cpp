@@ -25,36 +25,34 @@
 
 #include "inspircd.h"
 
-class ModuleConnMatchIdent : public Module
-{
- public:
-	void Prioritize() CXX11_OVERRIDE
-	{
-		// Go after requireident, which is recommended but not required.
-		Module* requireident = ServerInstance->Modules->Find("m_ident.so");
-		ServerInstance->Modules->SetPriority(this, I_OnSetConnectClass, PRIORITY_AFTER, requireident);
-	}
+class ModuleConnMatchIdent : public Module {
+  public:
+    void Prioritize() CXX11_OVERRIDE {
+        // Go after requireident, which is recommended but not required.
+        Module* requireident = ServerInstance->Modules->Find("m_ident.so");
+        ServerInstance->Modules->SetPriority(this, I_OnSetConnectClass, PRIORITY_AFTER, requireident);
+    }
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* connclass) CXX11_OVERRIDE
-	{
-		const std::string matchident = connclass->config->getString("matchident");
-		if (matchident.empty())
-			return MOD_RES_PASSTHRU;
+    ModResult OnSetConnectClass(LocalUser* user,
+                                ConnectClass* connclass) CXX11_OVERRIDE {
+        const std::string matchident = connclass->config->getString("matchident");
+        if (matchident.empty()) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		irc::spacesepstream ss(matchident);
-		for (std::string token; ss.GetToken(token); )
-		{
-			if (InspIRCd::Match(user->ident, token))
-				return MOD_RES_PASSTHRU;
-		}
+        irc::spacesepstream ss(matchident);
+        for (std::string token; ss.GetToken(token); ) {
+            if (InspIRCd::Match(user->ident, token)) {
+                return MOD_RES_PASSTHRU;
+            }
+        }
 
-		return MOD_RES_DENY;
-	}
+        return MOD_RES_DENY;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Allows a connect class to match by ident(s).");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Allows a connect class to match by ident(s).");
+    }
 };
 
 MODULE_INIT(ModuleConnMatchIdent)

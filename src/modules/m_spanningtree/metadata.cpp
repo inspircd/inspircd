@@ -26,76 +26,76 @@
 #include "inspircd.h"
 #include "commands.h"
 
-CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
-{
-	if (params[0] == "*")
-	{
-		std::string value = params.size() < 3 ? "" : params[2];
-		FOREACH_MOD(OnDecodeMetaData, (NULL,params[1],value));
-		return CMD_SUCCESS;
-	}
+CmdResult CommandMetadata::Handle(User* srcuser, Params& params) {
+    if (params[0] == "*") {
+        std::string value = params.size() < 3 ? "" : params[2];
+        FOREACH_MOD(OnDecodeMetaData, (NULL,params[1],value));
+        return CMD_SUCCESS;
+    }
 
-	if (params[0][0] == '#')
-	{
-		// Channel METADATA has an additional parameter: the channel TS
-		// :22D METADATA #channel 12345 extname :extdata
-		if (params.size() < 3)
-			throw ProtocolException("Insufficient parameters for channel METADATA");
+    if (params[0][0] == '#') {
+        // Channel METADATA has an additional parameter: the channel TS
+        // :22D METADATA #channel 12345 extname :extdata
+        if (params.size() < 3) {
+            throw ProtocolException("Insufficient parameters for channel METADATA");
+        }
 
-		Channel* c = ServerInstance->FindChan(params[0]);
-		if (!c)
-			return CMD_FAILURE;
+        Channel* c = ServerInstance->FindChan(params[0]);
+        if (!c) {
+            return CMD_FAILURE;
+        }
 
-		time_t ChanTS = ServerCommand::ExtractTS(params[1]);
-		if (c->age < ChanTS)
-			// Their TS is newer than ours, discard this command and do not propagate
-			return CMD_FAILURE;
+        time_t ChanTS = ServerCommand::ExtractTS(params[1]);
+        if (c->age < ChanTS)
+            // Their TS is newer than ours, discard this command and do not propagate
+        {
+            return CMD_FAILURE;
+        }
 
-		std::string value = params.size() < 4 ? "" : params[3];
+        std::string value = params.size() < 4 ? "" : params[3];
 
-		ExtensionItem* item = ServerInstance->Extensions.GetItem(params[2]);
-		if ((item) && (item->type == ExtensionItem::EXT_CHANNEL))
-			item->FromNetwork(c, value);
-		FOREACH_MOD(OnDecodeMetaData, (c,params[2],value));
-	}
-	else
-	{
-		User* u = ServerInstance->FindUUID(params[0]);
-		if (u)
-		{
-			ExtensionItem* item = ServerInstance->Extensions.GetItem(params[1]);
-			std::string value = params.size() < 3 ? "" : params[2];
+        ExtensionItem* item = ServerInstance->Extensions.GetItem(params[2]);
+        if ((item) && (item->type == ExtensionItem::EXT_CHANNEL)) {
+            item->FromNetwork(c, value);
+        }
+        FOREACH_MOD(OnDecodeMetaData, (c,params[2],value));
+    } else {
+        User* u = ServerInstance->FindUUID(params[0]);
+        if (u) {
+            ExtensionItem* item = ServerInstance->Extensions.GetItem(params[1]);
+            std::string value = params.size() < 3 ? "" : params[2];
 
-			if ((item) && (item->type == ExtensionItem::EXT_USER))
-				item->FromNetwork(u, value);
-			FOREACH_MOD(OnDecodeMetaData, (u,params[1],value));
-		}
-	}
+            if ((item) && (item->type == ExtensionItem::EXT_USER)) {
+                item->FromNetwork(u, value);
+            }
+            FOREACH_MOD(OnDecodeMetaData, (u,params[1],value));
+        }
+    }
 
-	return CMD_SUCCESS;
+    return CMD_SUCCESS;
 }
 
-CommandMetadata::Builder::Builder(User* user, const std::string& key, const std::string& val)
-	: CmdBuilder("METADATA")
-{
-	push(user->uuid);
-	push(key);
-	push_last(val);
+CommandMetadata::Builder::Builder(User* user, const std::string& key,
+                                  const std::string& val)
+    : CmdBuilder("METADATA") {
+    push(user->uuid);
+    push(key);
+    push_last(val);
 }
 
-CommandMetadata::Builder::Builder(Channel* chan, const std::string& key, const std::string& val)
-	: CmdBuilder("METADATA")
-{
-	push(chan->name);
-	push_int(chan->age);
-	push(key);
-	push_last(val);
+CommandMetadata::Builder::Builder(Channel* chan, const std::string& key,
+                                  const std::string& val)
+    : CmdBuilder("METADATA") {
+    push(chan->name);
+    push_int(chan->age);
+    push(key);
+    push_last(val);
 }
 
-CommandMetadata::Builder::Builder(const std::string& key, const std::string& val)
-	: CmdBuilder("METADATA")
-{
-	push("*");
-	push(key);
-	push_last(val);
+CommandMetadata::Builder::Builder(const std::string& key,
+                                  const std::string& val)
+    : CmdBuilder("METADATA") {
+    push("*");
+    push(key);
+    push_last(val);
 }

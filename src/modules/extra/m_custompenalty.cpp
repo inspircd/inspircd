@@ -25,46 +25,41 @@
 
 #include "inspircd.h"
 
-class ModuleCustomPenalty : public Module
-{
- private:
-	void SetPenalties()
-	{
-		ConfigTagList tags = ServerInstance->Config->ConfTags("penalty");
-		for (ConfigIter i = tags.first; i != tags.second; ++i)
-		{
-			ConfigTag* tag = i->second;
+class ModuleCustomPenalty : public Module {
+  private:
+    void SetPenalties() {
+        ConfigTagList tags = ServerInstance->Config->ConfTags("penalty");
+        for (ConfigIter i = tags.first; i != tags.second; ++i) {
+            ConfigTag* tag = i->second;
 
-			std::string name = tag->getString("name");
-			unsigned int penalty = tag->getUInt("value", 1, 1);
+            std::string name = tag->getString("name");
+            unsigned int penalty = tag->getUInt("value", 1, 1);
 
-			Command* command = ServerInstance->Parser.GetHandler(name);
-			if (!command)
-			{
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Warning: unable to find command: " + name);
-				continue;
-			}
+            Command* command = ServerInstance->Parser.GetHandler(name);
+            if (!command) {
+                ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT,
+                                          "Warning: unable to find command: " + name);
+                continue;
+            }
 
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Setting the penalty for %s to %d", name.c_str(), penalty);
-			command->Penalty = penalty;
-		}
-	}
+            ServerInstance->Logs->Log(MODNAME, LOG_DEBUG,
+                                      "Setting the penalty for %s to %d", name.c_str(), penalty);
+            command->Penalty = penalty;
+        }
+    }
 
- public:
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		SetPenalties();
-	}
+  public:
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        SetPenalties();
+    }
 
-	void OnLoadModule(Module*) CXX11_OVERRIDE
-	{
-		SetPenalties();
-	}
+    void OnLoadModule(Module*) CXX11_OVERRIDE {
+        SetPenalties();
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Allows the customisation of penalty levels.");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Allows the customisation of penalty levels.");
+    }
 };
 
 MODULE_INIT(ModuleCustomPenalty)

@@ -56,33 +56,27 @@
 #include "inspircd.h"
 #include "modules/hash.h"
 
-class HashSHA256 : public HashProvider
-{
- public:
-	std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE
-	{
-                SHA256 sha256;
-                return std::string(sha256(data.data()), 32);
-	}
+class HashSHA256 : public HashProvider {
+  public:
+    std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE {
+        SHA256 sha256;
+        return std::string(sha256(data.data()), 32);
+    }
 
-	HashSHA256(Module* parent)
-		: HashProvider(parent, "sha256", 32, 64)
-	{
-	}
+    HashSHA256(Module* parent)
+        : HashProvider(parent, "sha256", 32, 64) {
+    }
 };
 
-class ModuleSHA256 : public Module
-{
-	HashSHA256 sha;
- public:
-	ModuleSHA256() : sha(this)
-	{
-	}
+class ModuleSHA256 : public Module {
+    HashSHA256 sha;
+  public:
+    ModuleSHA256() : sha(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Allows other modules to generate SHA-256 hashes.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Allows other modules to generate SHA-256 hashes.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleSHA256)

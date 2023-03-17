@@ -28,57 +28,51 @@
 
 /** Handle /SATOPIC
  */
-class CommandSATopic : public Command
-{
- public:
-	CommandSATopic(Module* Creator) : Command(Creator,"SATOPIC", 2, 2)
-	{
-		flags_needed = 'o';
-		syntax = "<channel> :<topic>";
-	}
+class CommandSATopic : public Command {
+  public:
+    CommandSATopic(Module* Creator) : Command(Creator,"SATOPIC", 2, 2) {
+        flags_needed = 'o';
+        syntax = "<channel> :<topic>";
+    }
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		/*
-		 * Handles a SATOPIC request. Notifies all +s users.
-		 */
-		Channel* target = ServerInstance->FindChan(parameters[0]);
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE {
+        /*
+         * Handles a SATOPIC request. Notifies all +s users.
+         */
+        Channel* target = ServerInstance->FindChan(parameters[0]);
 
-		if(target)
-		{
-			const std::string newTopic(parameters[1], 0, ServerInstance->Config->Limits.MaxTopic);
-			if (target->topic == newTopic)
-			{
-				user->WriteNotice(InspIRCd::Format("The topic on %s is already what you are trying to change it to.", target->name.c_str()));
-				return CMD_SUCCESS;
-			}
+        if(target) {
+            const std::string newTopic(parameters[1], 0,
+                                       ServerInstance->Config->Limits.MaxTopic);
+            if (target->topic == newTopic) {
+                user->WriteNotice(
+                    InspIRCd::Format("The topic on %s is already what you are trying to change it to.",
+                                     target->name.c_str()));
+                return CMD_SUCCESS;
+            }
 
-			target->SetTopic(user, newTopic, ServerInstance->Time(), NULL);
-			ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SATOPIC on " + target->name + ", new topic: " + newTopic);
+            target->SetTopic(user, newTopic, ServerInstance->Time(), NULL);
+            ServerInstance->SNO->WriteGlobalSno('a',
+                                                user->nick + " used SATOPIC on " + target->name + ", new topic: " + newTopic);
 
-			return CMD_SUCCESS;
-		}
-		else
-		{
-			user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
-			return CMD_FAILURE;
-		}
-	}
+            return CMD_SUCCESS;
+        } else {
+            user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
+            return CMD_FAILURE;
+        }
+    }
 };
 
-class ModuleSATopic : public Module
-{
-	CommandSATopic cmd;
- public:
-	ModuleSATopic()
-	: cmd(this)
-	{
-	}
+class ModuleSATopic : public Module {
+    CommandSATopic cmd;
+  public:
+    ModuleSATopic()
+        : cmd(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds the /SATOPIC command which allows server operators to change the topic of a channel that they would not otherwise have the privileges to change.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds the /SATOPIC command which allows server operators to change the topic of a channel that they would not otherwise have the privileges to change.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleSATopic)

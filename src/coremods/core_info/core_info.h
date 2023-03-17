@@ -24,159 +24,149 @@
 
 /** These commands require no parameters, but if there is a parameter it is a server name where the command will be routed to.
  */
-class ServerTargetCommand : public Command
-{
- public:
-	ServerTargetCommand(Module* mod, const std::string& Name)
-		: Command(mod, Name)
-	{
-	}
+class ServerTargetCommand : public Command {
+  public:
+    ServerTargetCommand(Module* mod, const std::string& Name)
+        : Command(mod, Name) {
+    }
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
+    RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /ADMIN.
  */
-class CommandAdmin : public ServerTargetCommand
-{
- public:
-	/** Holds the admin's name, for output in
-	 * the /ADMIN command.
-	 */
-	std::string AdminName;
+class CommandAdmin : public ServerTargetCommand {
+  public:
+    /** Holds the admin's name, for output in
+     * the /ADMIN command.
+     */
+    std::string AdminName;
 
-	/** Holds the email address of the admin,
-	 * for output in the /ADMIN command.
-	 */
-	std::string AdminEmail;
+    /** Holds the email address of the admin,
+     * for output in the /ADMIN command.
+     */
+    std::string AdminEmail;
 
-	/** Holds the admin's nickname, for output
-	 * in the /ADMIN command
-	 */
-	std::string AdminNick;
+    /** Holds the admin's nickname, for output
+     * in the /ADMIN command
+     */
+    std::string AdminNick;
 
-	/** Constructor for admin.
-	 */
-	CommandAdmin(Module* parent);
+    /** Constructor for admin.
+     */
+    CommandAdmin(Module* parent);
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+    /** Handle command.
+     * @param parameters The parameters to the command
+     * @param user The user issuing the command
+     * @return A value from CmdResult to indicate command success or failure.
+     */
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /COMMANDS.
  */
-class CommandCommands : public Command
-{
- public:
-	/** Constructor for commands.
-	 */
-	CommandCommands(Module* parent);
+class CommandCommands : public Command {
+  public:
+    /** Constructor for commands.
+     */
+    CommandCommands(Module* parent);
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+    /** Handle command.
+     * @param parameters The parameters to the command
+     * @param user The user issuing the command
+     * @return A value from CmdResult to indicate command success or failure.
+     */
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /INFO.
  */
-class CommandInfo : public ServerTargetCommand
-{
- public:
-	/** Constructor for info.
-	 */
-	CommandInfo(Module* parent);
+class CommandInfo : public ServerTargetCommand {
+  public:
+    /** Constructor for info.
+     */
+    CommandInfo(Module* parent);
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+    /** Handle command.
+     * @param parameters The parameters to the command
+     * @param user The user issuing the command
+     * @return A value from CmdResult to indicate command success or failure.
+     */
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /MODULES.
  */
-class CommandModules : public ServerTargetCommand
-{
- public:
-	/** Constructor for modules.
-	 */
-	CommandModules(Module* parent);
+class CommandModules : public ServerTargetCommand {
+  public:
+    /** Constructor for modules.
+     */
+    CommandModules(Module* parent);
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+    /** Handle command.
+     * @param parameters The parameters to the command
+     * @param user The user issuing the command
+     * @return A value from CmdResult to indicate command success or failure.
+     */
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /MOTD.
  */
-class CommandMotd : public ServerTargetCommand
-{
- public:
-	ConfigFileCache motds;
+class CommandMotd : public ServerTargetCommand {
+  public:
+    ConfigFileCache motds;
 
-	/** Constructor for motd.
-	 */
-	CommandMotd(Module* parent);
+    /** Constructor for motd.
+     */
+    CommandMotd(Module* parent);
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+    /** Handle command.
+     * @param parameters The parameters to the command
+     * @param user The user issuing the command
+     * @return A value from CmdResult to indicate command success or failure.
+     */
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
-class CommandServList : public SplitCommand
-{
- private:
-	UserModeReference invisiblemode;
+class CommandServList : public SplitCommand {
+  private:
+    UserModeReference invisiblemode;
 
- public:
-	CommandServList(Module* parent);
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
+  public:
+    CommandServList(Module* parent);
+    CmdResult HandleLocal(LocalUser* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /TIME.
  */
-class CommandTime : public ServerTargetCommand
-{
- public:
-	/** Constructor for time.
-	 */
-	CommandTime(Module* parent);
+class CommandTime : public ServerTargetCommand {
+  public:
+    /** Constructor for time.
+     */
+    CommandTime(Module* parent);
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+    /** Handle command.
+     * @param parameters The parameters to the command
+     * @param user The user issuing the command
+     * @return A value from CmdResult to indicate command success or failure.
+     */
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 };
 
 /** Handle /VERSION.
  */
-class CommandVersion : public Command
-{
- public:
-	/** Constructor for version.
-	 */
-	CommandVersion(Module* parent);
+class CommandVersion : public Command {
+  public:
+    /** Constructor for version.
+     */
+    CommandVersion(Module* parent);
 
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
+    /** Handle command.
+     * @param parameters The parameters to the command
+     * @param user The user issuing the command
+     * @return A value from CmdResult to indicate command success or failure.
+     */
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE;
 };

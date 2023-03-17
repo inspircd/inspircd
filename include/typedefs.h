@@ -51,40 +51,42 @@ class XLineFactory;
 class ConnectClass;
 class ModResult;
 
-namespace ClientProtocol
-{
-	class Event;
-	class EventProvider;
-	class Message;
-	class MessageTagEvent;
-	class MessageTagProvider;
-	class Serializer;
+namespace ClientProtocol {
+class Event;
+class EventProvider;
+class Message;
+class MessageTagEvent;
+class MessageTagProvider;
+class Serializer;
 
-	typedef std::vector<Message*> MessageList;
-	typedef std::vector<std::string> ParamList;
-	typedef std::string SerializedMessage;
+typedef std::vector<Message*> MessageList;
+typedef std::vector<std::string> ParamList;
+typedef std::string SerializedMessage;
 
-	struct CoreExport MessageTagData
-	{
-		MessageTagProvider* tagprov;
-		std::string value;
-		void* provdata;
+struct CoreExport MessageTagData {
+    MessageTagProvider* tagprov;
+    std::string value;
+    void* provdata;
 
-		MessageTagData(MessageTagProvider* prov, const std::string& val, void* data = NULL);
-	};
+    MessageTagData(MessageTagProvider* prov, const std::string& val,
+                   void* data = NULL);
+};
 
-	/** Map of message tag values and providers keyed by their name.
-	 * Sorted in descending order to ensure tag names beginning with symbols (such as '+') come later when iterating
-	 * the container than tags with a normal name.
-	 */
-	typedef insp::flat_map<std::string, MessageTagData, std::greater<std::string> > TagMap;
+/** Map of message tag values and providers keyed by their name.
+ * Sorted in descending order to ensure tag names beginning with symbols (such as '+') come later when iterating
+ * the container than tags with a normal name.
+ */
+typedef insp::flat_map<std::string, MessageTagData, std::greater<std::string> >
+TagMap;
 }
 
 #include "hashcomp.h"
 #include "base.h"
 
-typedef TR1NS::unordered_map<std::string, User*, irc::insensitive, irc::StrHashComp> user_hash;
-typedef TR1NS::unordered_map<std::string, Channel*, irc::insensitive, irc::StrHashComp> chan_hash;
+typedef TR1NS::unordered_map<std::string, User*, irc::insensitive, irc::StrHashComp>
+user_hash;
+typedef TR1NS::unordered_map<std::string, Channel*, irc::insensitive, irc::StrHashComp>
+chan_hash;
 
 /** List of channels to consider when building the neighbor list of a user
  */
@@ -96,11 +98,13 @@ typedef std::vector<std::string> file_cache;
 
 /** A mapping of configuration keys to their assigned values.
  */
-typedef insp::flat_map<std::string, std::string, irc::insensitive_swo> ConfigItems;
+typedef insp::flat_map<std::string, std::string, irc::insensitive_swo>
+ConfigItems;
 
 /** The entire configuration
  */
-typedef std::multimap<std::string, reference<ConfigTag>, irc::insensitive_swo> ConfigDataHash;
+typedef std::multimap<std::string, reference<ConfigTag>, irc::insensitive_swo>
+ConfigDataHash;
 
 /** Iterator of ConfigDataHash */
 typedef ConfigDataHash::const_iterator ConfigIter;
@@ -137,7 +141,6 @@ typedef XLineContainer::iterator ContainerIter;
  */
 typedef XLineLookup::iterator LookupIter;
 
-namespace Stats
-{
-	class Context;
+namespace Stats {
+class Context;
 }

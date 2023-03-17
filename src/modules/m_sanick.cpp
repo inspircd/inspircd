@@ -27,81 +27,70 @@
 
 /** Handle /SANICK
  */
-class CommandSanick : public Command
-{
- public:
-	CommandSanick(Module* Creator) : Command(Creator,"SANICK", 2)
-	{
-		allow_empty_last_param = false;
-		flags_needed = 'o';
-		syntax = "<nick> <newnick>";
-		TRANSLATE2(TR_NICK, TR_TEXT);
-	}
+class CommandSanick : public Command {
+  public:
+    CommandSanick(Module* Creator) : Command(Creator,"SANICK", 2) {
+        allow_empty_last_param = false;
+        flags_needed = 'o';
+        syntax = "<nick> <newnick>";
+        TRANSLATE2(TR_NICK, TR_TEXT);
+    }
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		User* target = ServerInstance->FindNick(parameters[0]);
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE {
+        User* target = ServerInstance->FindNick(parameters[0]);
 
-		/* Do local sanity checks and bails */
-		if (IS_LOCAL(user))
-		{
-			if (target && target->server->IsULine())
-			{
-				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a U-lined client");
-				return CMD_FAILURE;
-			}
+        /* Do local sanity checks and bails */
+        if (IS_LOCAL(user)) {
+            if (target && target->server->IsULine()) {
+                user->WriteNumeric(ERR_NOPRIVILEGES,
+                                   "Cannot use an SA command on a U-lined client");
+                return CMD_FAILURE;
+            }
 
-			if ((!target) || (target->registered != REG_ALL))
-			{
-				user->WriteNotice("*** No such nickname: '" + parameters[0] + "'");
-				return CMD_FAILURE;
-			}
+            if ((!target) || (target->registered != REG_ALL)) {
+                user->WriteNotice("*** No such nickname: '" + parameters[0] + "'");
+                return CMD_FAILURE;
+            }
 
-			if (!ServerInstance->IsNick(parameters[1]))
-			{
-				user->WriteNotice("*** Invalid nickname: '" + parameters[1] + "'");
-				return CMD_FAILURE;
-			}
-		}
+            if (!ServerInstance->IsNick(parameters[1])) {
+                user->WriteNotice("*** Invalid nickname: '" + parameters[1] + "'");
+                return CMD_FAILURE;
+            }
+        }
 
-		/* Have we hit target's server yet? */
-		if (target && IS_LOCAL(target))
-		{
-			const std::string oldnick = target->nick;
-			const std::string newnick = parameters[1];
-			if (!ServerInstance->FindNickOnly(newnick) && target->ChangeNick(newnick))
-			{
-				ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SANICK to change " + oldnick + " to " + newnick);
-			}
-			else
-			{
-				ServerInstance->SNO->WriteGlobalSno('a', user->nick + " failed SANICK (from " + oldnick + " to " + newnick + ")");
-			}
-		}
+        /* Have we hit target's server yet? */
+        if (target && IS_LOCAL(target)) {
+            const std::string oldnick = target->nick;
+            const std::string newnick = parameters[1];
+            if (!ServerInstance->FindNickOnly(newnick) && target->ChangeNick(newnick)) {
+                ServerInstance->SNO->WriteGlobalSno('a',
+                                                    user->nick + " used SANICK to change " + oldnick + " to " + newnick);
+            } else {
+                ServerInstance->SNO->WriteGlobalSno('a',
+                                                    user->nick + " failed SANICK (from " + oldnick + " to " + newnick + ")");
+            }
+        }
 
-		return CMD_SUCCESS;
-	}
+        return CMD_SUCCESS;
+    }
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		return ROUTE_OPT_UCAST(parameters[0]);
-	}
+    RouteDescriptor GetRouting(User* user,
+                               const Params& parameters) CXX11_OVERRIDE {
+        return ROUTE_OPT_UCAST(parameters[0]);
+    }
 };
 
 
-class ModuleSanick : public Module
-{
-	CommandSanick cmd;
- public:
-	ModuleSanick()
-		: cmd(this)
-	{
-	}
+class ModuleSanick : public Module {
+    CommandSanick cmd;
+  public:
+    ModuleSanick()
+        : cmd(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds the /SANICK command which allows server operators to change the nickname of a user.", VF_OPTCOMMON | VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds the /SANICK command which allows server operators to change the nickname of a user.", VF_OPTCOMMON | VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleSanick)

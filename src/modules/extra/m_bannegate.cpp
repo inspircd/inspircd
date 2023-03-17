@@ -24,27 +24,25 @@
 
 #include "inspircd.h"
 
-class ModuleBanNegate : public Module
-{
- public:
-	void Prioritize() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->SetPriority(this, I_OnCheckBan, PRIORITY_FIRST);
-	}
+class ModuleBanNegate : public Module {
+  public:
+    void Prioritize() CXX11_OVERRIDE {
+        ServerInstance->Modules->SetPriority(this, I_OnCheckBan, PRIORITY_FIRST);
+    }
 
-	ModResult OnCheckBan(User* source, Channel* chan, const std::string& mask) CXX11_OVERRIDE
-	{
-		// If our matching mask begins with the negate character, but does not have multiple in a row (to avoid nested loops)
-		if (mask.length() > 2 && mask[0] == '~' && mask[1] != '~')
-			return (chan->CheckBan(source, mask.substr(1)) ? MOD_RES_ALLOW : MOD_RES_DENY);
+    ModResult OnCheckBan(User* source, Channel* chan,
+                         const std::string& mask) CXX11_OVERRIDE {
+        // If our matching mask begins with the negate character, but does not have multiple in a row (to avoid nested loops)
+        if (mask.length() > 2 && mask[0] == '~' && mask[1] != '~') {
+            return (chan->CheckBan(source, mask.substr(1)) ? MOD_RES_ALLOW : MOD_RES_DENY);
+        }
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Enables negating any ban by putting a ~ before its mask and matching extban", VF_OPTCOMMON);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Enables negating any ban by putting a ~ before its mask and matching extban", VF_OPTCOMMON);
+    }
 };
 
 MODULE_INIT(ModuleBanNegate)

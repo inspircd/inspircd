@@ -28,74 +28,65 @@
 
 /** Handle /USERIP
  */
-class CommandUserip : public Command
-{
- private:
-	UserModeReference hideopermode;
+class CommandUserip : public Command {
+  private:
+    UserModeReference hideopermode;
 
- public:
-	CommandUserip(Module* Creator)
-		: Command(Creator,"USERIP", 1)
-		, hideopermode(Creator, "hideoper")
-	{
-		allow_empty_last_param = false;
-		syntax = "<nick> [<nick>]+";
-	}
+  public:
+    CommandUserip(Module* Creator)
+        : Command(Creator,"USERIP", 1)
+        , hideopermode(Creator, "hideoper") {
+        allow_empty_last_param = false;
+        syntax = "<nick> [<nick>]+";
+    }
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		const bool has_privs = user->HasPrivPermission("users/auspex");
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE {
+        const bool has_privs = user->HasPrivPermission("users/auspex");
 
-		std::string retbuf;
+        std::string retbuf;
 
-		size_t paramcount = std::min<size_t>(parameters.size(), 5);
-		for (size_t i = 0; i < paramcount; ++i)
-		{
-			User *u = ServerInstance->FindNickOnly(parameters[i]);
-			if ((u) && (u->registered == REG_ALL))
-			{
-				retbuf += u->nick;
+        size_t paramcount = std::min<size_t>(parameters.size(), 5);
+        for (size_t i = 0; i < paramcount; ++i) {
+            User *u = ServerInstance->FindNickOnly(parameters[i]);
+            if ((u) && (u->registered == REG_ALL)) {
+                retbuf += u->nick;
 
-				if (u->IsOper())
-				{
-					// XXX: +H hidden opers must not be shown as opers
-					if ((u == user) || (has_privs) || (!u->IsModeSet(hideopermode)))
-						retbuf += '*';
-				}
+                if (u->IsOper()) {
+                    // XXX: +H hidden opers must not be shown as opers
+                    if ((u == user) || (has_privs) || (!u->IsModeSet(hideopermode))) {
+                        retbuf += '*';
+                    }
+                }
 
-				retbuf += '=';
-				retbuf += (u->IsAway() ? '-' : '+');
-				retbuf += u->ident;
-				retbuf += '@';
-				retbuf += (u == user || has_privs ? u->GetIPString() : "255.255.255.255");
-				retbuf += ' ';
-			}
-		}
+                retbuf += '=';
+                retbuf += (u->IsAway() ? '-' : '+');
+                retbuf += u->ident;
+                retbuf += '@';
+                retbuf += (u == user || has_privs ? u->GetIPString() : "255.255.255.255");
+                retbuf += ' ';
+            }
+        }
 
-		user->WriteNumeric(RPL_USERIP, retbuf);
+        user->WriteNumeric(RPL_USERIP, retbuf);
 
-		return CMD_SUCCESS;
-	}
+        return CMD_SUCCESS;
+    }
 };
 
-class ModuleUserIP : public Module
-{
-	CommandUserip cmd;
- public:
-	ModuleUserIP()
-		: cmd(this)
-	{
-	}
+class ModuleUserIP : public Module {
+    CommandUserip cmd;
+  public:
+    ModuleUserIP()
+        : cmd(this) {
+    }
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["USERIP"];
-	}
+    void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE {
+        tokens["USERIP"];
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds the /USERIP command which allows users to find out the IP address of one or more connected users.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds the /USERIP command which allows users to find out the IP address of one or more connected users.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleUserIP)

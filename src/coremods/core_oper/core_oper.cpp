@@ -22,60 +22,59 @@
 #include "inspircd.h"
 #include "core_oper.h"
 
-class CoreModOper : public Module
-{
-	std::string powerhash;
+class CoreModOper : public Module {
+    std::string powerhash;
 
-	CommandDie cmddie;
-	CommandKill cmdkill;
-	CommandOper cmdoper;
-	CommandRehash cmdrehash;
-	CommandRestart cmdrestart;
+    CommandDie cmddie;
+    CommandKill cmdkill;
+    CommandOper cmdoper;
+    CommandRehash cmdrehash;
+    CommandRestart cmdrestart;
 
- public:
-	CoreModOper()
-		: cmddie(this, powerhash)
-		, cmdkill(this)
-		, cmdoper(this)
-		, cmdrehash(this)
-		, cmdrestart(this, powerhash)
-	{
-	}
+  public:
+    CoreModOper()
+        : cmddie(this, powerhash)
+        , cmdkill(this)
+        , cmdoper(this)
+        , cmdrehash(this)
+        , cmdrestart(this, powerhash) {
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("power");
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("power");
 
-		// The hash method for *BOTH* the die and restart passwords
-		powerhash = tag->getString("hash");
+        // The hash method for *BOTH* the die and restart passwords
+        powerhash = tag->getString("hash");
 
-		cmddie.password = tag->getString("diepass", ServerInstance->Config->ServerName, 1);
-		cmdrestart.password = tag->getString("restartpass", ServerInstance->Config->ServerName, 1);
+        cmddie.password = tag->getString("diepass", ServerInstance->Config->ServerName, 1);
+        cmdrestart.password = tag->getString("restartpass", ServerInstance->Config->ServerName, 1);
 
-		ConfigTag* security = ServerInstance->Config->ConfValue("security");
-		cmdkill.hidenick = security->getString("hidekills");
-		cmdkill.hideuline = security->getBool("hideulinekills");
-	}
+        ConfigTag* security = ServerInstance->Config->ConfValue("security");
+        cmdkill.hidenick = security->getString("hidekills");
+        cmdkill.hideuline = security->getBool("hideulinekills");
+    }
 
-	void OnPostOper(User* user, const std::string&, const std::string&) CXX11_OVERRIDE
-	{
-		LocalUser* luser = IS_LOCAL(user);
-		if (!luser)
-			return;
+    void OnPostOper(User* user, const std::string&,
+                    const std::string&) CXX11_OVERRIDE {
+        LocalUser* luser = IS_LOCAL(user);
+        if (!luser) {
+            return;
+        }
 
-		const std::string vhost = luser->oper->getConfig("vhost");
-		if (!vhost.empty())
-			luser->ChangeDisplayedHost(vhost);
+        const std::string vhost = luser->oper->getConfig("vhost");
+        if (!vhost.empty()) {
+            luser->ChangeDisplayedHost(vhost);
+        }
 
-		const std::string klass = luser->oper->getConfig("class");
-		if (!klass.empty())
-			luser->SetClass(klass);
-	}
+        const std::string klass = luser->oper->getConfig("class");
+        if (!klass.empty()) {
+            luser->SetClass(klass);
+        }
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides the DIE, KILL, OPER, REHASH, and RESTART commands", VF_VENDOR | VF_CORE);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Provides the DIE, KILL, OPER, REHASH, and RESTART commands", VF_VENDOR | VF_CORE);
+    }
 };
 
 MODULE_INIT(CoreModOper)

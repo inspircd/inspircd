@@ -29,83 +29,79 @@
 #include "inspircd.h"
 #include "modules/exemption.h"
 
-class ModuleStripColor : public Module
-{
-	CheckExemption::EventProvider exemptionprov;
-	SimpleChannelModeHandler csc;
-	SimpleUserModeHandler usc;
+class ModuleStripColor : public Module {
+    CheckExemption::EventProvider exemptionprov;
+    SimpleChannelModeHandler csc;
+    SimpleUserModeHandler usc;
 
- public:
-	ModuleStripColor()
-		: exemptionprov(this)
-		, csc(this, "stripcolor", 'S')
-		, usc(this, "u_stripcolor", 'S')
-	{
-	}
+  public:
+    ModuleStripColor()
+        : exemptionprov(this)
+        , csc(this, "stripcolor", 'S')
+        , usc(this, "u_stripcolor", 'S') {
+    }
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["EXTBAN"].push_back('S');
-	}
+    void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE {
+        tokens["EXTBAN"].push_back('S');
+    }
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
-	{
-		if (!IS_LOCAL(user))
-			return MOD_RES_PASSTHRU;
+    ModResult OnUserPreMessage(User* user, const MessageTarget& target,
+                               MessageDetails& details) CXX11_OVERRIDE {
+        if (!IS_LOCAL(user)) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		bool active = false;
-		switch (target.type)
-		{
-			case MessageTarget::TYPE_USER:
-			{
-				User* t = target.Get<User>();
-				active = t->IsModeSet(usc);
-				break;
-			}
-			case MessageTarget::TYPE_CHANNEL:
-			{
-				Channel* t = target.Get<Channel>();
-				ModResult res = CheckExemption::Call(exemptionprov, user, t, "stripcolor");
+        bool active = false;
+        switch (target.type) {
+        case MessageTarget::TYPE_USER: {
+            User* t = target.Get<User>();
+            active = t->IsModeSet(usc);
+            break;
+        }
+        case MessageTarget::TYPE_CHANNEL: {
+            Channel* t = target.Get<Channel>();
+            ModResult res = CheckExemption::Call(exemptionprov, user, t, "stripcolor");
 
-				if (res == MOD_RES_ALLOW)
-					return MOD_RES_PASSTHRU;
+            if (res == MOD_RES_ALLOW) {
+                return MOD_RES_PASSTHRU;
+            }
 
-				active = !t->GetExtBanStatus(user, 'S').check(!t->IsModeSet(csc));
-				break;
-			}
-			case MessageTarget::TYPE_SERVER:
-				break;
-		}
+            active = !t->GetExtBanStatus(user, 'S').check(!t->IsModeSet(csc));
+            break;
+        }
+        case MessageTarget::TYPE_SERVER:
+            break;
+        }
 
-		if (active)
-		{
-			InspIRCd::StripColor(details.text);
-		}
+        if (active) {
+            InspIRCd::StripColor(details.text);
+        }
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 
-	void OnUserPart(Membership* memb, std::string& partmessage, CUList& except_list) CXX11_OVERRIDE
-	{
-		User* user = memb->user;
-		Channel* channel = memb->chan;
+    void OnUserPart(Membership* memb, std::string& partmessage,
+                    CUList& except_list) CXX11_OVERRIDE {
+        User* user = memb->user;
+        Channel* channel = memb->chan;
 
-		if (!IS_LOCAL(user))
-			return;
+        if (!IS_LOCAL(user)) {
+            return;
+        }
 
-		if (channel->GetExtBanStatus(user, 'S').check(!user->IsModeSet(csc)))
-		{
-			ModResult res = CheckExemption::Call(exemptionprov, user, channel, "stripcolor");
+        if (channel->GetExtBanStatus(user, 'S').check(!user->IsModeSet(csc))) {
+            ModResult res = CheckExemption::Call(exemptionprov, user, channel,
+                                                 "stripcolor");
 
-			if (res != MOD_RES_ALLOW)
-				InspIRCd::StripColor(partmessage);
-		}
-	}
+            if (res != MOD_RES_ALLOW) {
+                InspIRCd::StripColor(partmessage);
+            }
+        }
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds channel mode S (stripcolor) which allows channels to strip IRC formatting codes from messages.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds channel mode S (stripcolor) which allows channels to strip IRC formatting codes from messages.", VF_VENDOR);
+    }
 
 };
 

@@ -28,154 +28,158 @@
 #include "listmode.h"
 #include "modules/exemption.h"
 
-enum
-{
-	// InspIRCd-specific.
-	RPL_ENDOFSPAMFILTER = 940,
-	RPL_SPAMFILTER = 941
+enum {
+    // InspIRCd-specific.
+    RPL_ENDOFSPAMFILTER = 940,
+    RPL_SPAMFILTER = 941
 };
 
-class ChanFilter : public ListModeBase
-{
- public:
-	unsigned long maxlen;
+class ChanFilter : public ListModeBase {
+  public:
+    unsigned long maxlen;
 
-	ChanFilter(Module* Creator)
-		: ListModeBase(Creator, "filter", 'g', "End of channel spamfilter list", RPL_SPAMFILTER, RPL_ENDOFSPAMFILTER, false)
-	{
-		syntax = "<pattern>";
-	}
+    ChanFilter(Module* Creator)
+        : ListModeBase(Creator, "filter", 'g', "End of channel spamfilter list",
+                       RPL_SPAMFILTER, RPL_ENDOFSPAMFILTER, false) {
+        syntax = "<pattern>";
+    }
 
-	bool ValidateParam(User* user, Channel* chan, std::string& word) CXX11_OVERRIDE
-	{
-		if (word.length() > maxlen)
-		{
-			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word, "Word is too long for the spamfilter list."));
-			return false;
-		}
+    bool ValidateParam(User* user, Channel* chan,
+                       std::string& word) CXX11_OVERRIDE {
+        if (word.length() > maxlen) {
+            user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, word,
+                               "Word is too long for the spamfilter list."));
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 };
 
-class ModuleChanFilter : public Module
-{
-	CheckExemption::EventProvider exemptionprov;
-	ChanFilter cf;
-	bool hidemask;
-	bool notifyuser;
+class ModuleChanFilter : public Module {
+    CheckExemption::EventProvider exemptionprov;
+    ChanFilter cf;
+    bool hidemask;
+    bool notifyuser;
 
-	ChanFilter::ListItem* Match(User* user, Channel* chan, const std::string& text)
-	{
-		if (!IS_LOCAL(user))
-			return NULL; // We don't handle remote users.
+    ChanFilter::ListItem* Match(User* user, Channel* chan,
+                                const std::string& text) {
+        if (!IS_LOCAL(user)) {
+            return NULL;    // We don't handle remote users.
+        }
 
-		if (user->HasPrivPermission("channels/ignore-chanfilter"))
-			return NULL; // The source is an exempt server operator.
+        if (user->HasPrivPermission("channels/ignore-chanfilter")) {
+            return NULL;    // The source is an exempt server operator.
+        }
 
-		if (CheckExemption::Call(exemptionprov, user, chan, "filter") == MOD_RES_ALLOW)
-			return NULL; // The source matches an exemptchanops entry.
+        if (CheckExemption::Call(exemptionprov, user, chan,
+                                 "filter") == MOD_RES_ALLOW) {
+            return NULL;    // The source matches an exemptchanops entry.
+        }
 
-		ListModeBase::ModeList* list = cf.GetList(chan);
-		if (!list)
-			return NULL;
+        ListModeBase::ModeList* list = cf.GetList(chan);
+        if (!list) {
+            return NULL;
+        }
 
-		for (ListModeBase::ModeList::iterator i = list->begin(); i != list->end(); i++)
-		{
-			if (InspIRCd::Match(text, i->mask))
-				return &*i;
-		}
+        for (ListModeBase::ModeList::iterator i = list->begin(); i != list->end();
+                i++) {
+            if (InspIRCd::Match(text, i->mask)) {
+                return &*i;
+            }
+        }
 
-		return NULL;
-	}
+        return NULL;
+    }
 
- public:
+  public:
 
-	ModuleChanFilter()
-		: exemptionprov(this)
-		, cf(this)
-	{
-	}
+    ModuleChanFilter()
+        : exemptionprov(this)
+        , cf(this) {
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("chanfilter");
-		hidemask = tag->getBool("hidemask");
-		cf.maxlen = tag->getUInt("maxlen", 35, 10, ModeParser::MODE_PARAM_MAX);
-		notifyuser = tag->getBool("notifyuser", true);
-		cf.DoRehash();
-	}
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("chanfilter");
+        hidemask = tag->getBool("hidemask");
+        cf.maxlen = tag->getUInt("maxlen", 35, 10, ModeParser::MODE_PARAM_MAX);
+        notifyuser = tag->getBool("notifyuser", true);
+        cf.DoRehash();
+    }
 
-	void OnUserPart(Membership* memb, std::string& partmessage, CUList& except_list) CXX11_OVERRIDE
-	{
-		if (!memb)
-			return;
+    void OnUserPart(Membership* memb, std::string& partmessage,
+                    CUList& except_list) CXX11_OVERRIDE {
+        if (!memb) {
+            return;
+        }
 
-		User* user = memb->user;
-		Channel* chan = memb->chan;
-		ChanFilter::ListItem* match = Match(user, chan, partmessage);
-		if (!match)
-			return;
+        User* user = memb->user;
+        Channel* chan = memb->chan;
+        ChanFilter::ListItem* match = Match(user, chan, partmessage);
+        if (!match) {
+            return;
+        }
 
-		// Match() checks the user is local, we can assume from here
-		LocalUser* luser = IS_LOCAL(user);
+        // Match() checks the user is local, we can assume from here
+        LocalUser* luser = IS_LOCAL(user);
 
-		std::string oldreason(partmessage);
-		partmessage = "Reason filtered";
-		if (!notifyuser)
-		{
-			// Send fake part
-			ClientProtocol::Messages::Part partmsg(memb, oldreason);
-			ClientProtocol::Event ev(ServerInstance->GetRFCEvents().part, partmsg);
-			luser->Send(ev);
+        std::string oldreason(partmessage);
+        partmessage = "Reason filtered";
+        if (!notifyuser) {
+            // Send fake part
+            ClientProtocol::Messages::Part partmsg(memb, oldreason);
+            ClientProtocol::Event ev(ServerInstance->GetRFCEvents().part, partmsg);
+            luser->Send(ev);
 
-			// Don't send the user the changed message
-			except_list.insert(user);
-			return;
-		}
+            // Don't send the user the changed message
+            except_list.insert(user);
+            return;
+        }
 
-		if (hidemask)
-			user->WriteNumeric(Numerics::CannotSendTo(chan, "Your part message contained a banned phrase and was blocked."));
-		else
-			user->WriteNumeric(Numerics::CannotSendTo(chan, InspIRCd::Format("Your part message contained a banned phrase (%s) and was blocked.",
-				match->mask.c_str())));
-	}
+        if (hidemask) {
+            user->WriteNumeric(Numerics::CannotSendTo(chan,
+                               "Your part message contained a banned phrase and was blocked."));
+        } else
+            user->WriteNumeric(Numerics::CannotSendTo(chan, InspIRCd::Format("Your part message contained a banned phrase (%s) and was blocked.",
+                               match->mask.c_str())));
+    }
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
-	{
-		if (target.type != MessageTarget::TYPE_CHANNEL)
-			return MOD_RES_PASSTHRU;
+    ModResult OnUserPreMessage(User* user, const MessageTarget& target,
+                               MessageDetails& details) CXX11_OVERRIDE {
+        if (target.type != MessageTarget::TYPE_CHANNEL) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		Channel* chan = target.Get<Channel>();
-		ChanFilter::ListItem* match = Match(user, chan, details.text);
-		if (match)
-		{
-			if (!notifyuser)
-			{
-				details.echo_original = true;
-				return MOD_RES_DENY;
-			}
+        Channel* chan = target.Get<Channel>();
+        ChanFilter::ListItem* match = Match(user, chan, details.text);
+        if (match) {
+            if (!notifyuser) {
+                details.echo_original = true;
+                return MOD_RES_DENY;
+            }
 
-			if (hidemask)
-				user->WriteNumeric(Numerics::CannotSendTo(chan, "Your message to this channel contained a banned phrase and was blocked."));
-			else
-				user->WriteNumeric(Numerics::CannotSendTo(chan, InspIRCd::Format("Your message to this channel contained a banned phrase (%s) and was blocked.",
-					match->mask.c_str())));
+            if (hidemask) {
+                user->WriteNumeric(Numerics::CannotSendTo(chan,
+                                   "Your message to this channel contained a banned phrase and was blocked."));
+            } else
+                user->WriteNumeric(Numerics::CannotSendTo(chan,
+                                   InspIRCd::Format("Your message to this channel contained a banned phrase (%s) and was blocked.",
+                                                    match->mask.c_str())));
 
-			return MOD_RES_DENY;
-		}
-		return MOD_RES_PASSTHRU;
-	}
+            return MOD_RES_DENY;
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		// We don't send any link data if the length is 35 for compatibility with the 2.0 branch.
-		std::string maxfilterlen;
-		if (cf.maxlen != 35)
-			maxfilterlen.assign(ConvToStr(cf.maxlen));
+    Version GetVersion() CXX11_OVERRIDE {
+        // We don't send any link data if the length is 35 for compatibility with the 2.0 branch.
+        std::string maxfilterlen;
+        if (cf.maxlen != 35) {
+            maxfilterlen.assign(ConvToStr(cf.maxlen));
+        }
 
-		return Version("Adds channel mode g (filter) which allows channel operators to define glob patterns for inappropriate phrases that are not allowed to be used in the channel.", VF_VENDOR, maxfilterlen);
-	}
+        return Version("Adds channel mode g (filter) which allows channel operators to define glob patterns for inappropriate phrases that are not allowed to be used in the channel.", VF_VENDOR, maxfilterlen);
+    }
 };
 
 MODULE_INIT(ModuleChanFilter)

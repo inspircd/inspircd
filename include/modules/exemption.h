@@ -21,55 +21,53 @@
 
 #include "event.h"
 
-namespace CheckExemption
-{
-	class EventListener;
-	class EventProvider;
+namespace CheckExemption {
+class EventListener;
+class EventProvider;
 
-	/** Helper function for calling the CheckExemption::EventListener::OnCheckExemption event.
-	 * @param prov The CheckExemption::EventProvider which is calling the event.
-	 * @param user The user to check exemption for.
-	 * @param chan The channel to check exemption on.
-	 * @param restriction The restriction to check for.
-	 * @return Either MOD_RES_ALLOW if the exemption was confirmed, MOD_RES_DENY if the exemption was
-	 *         denied or MOD_RES_PASSTHRU if no module handled the event.
-	 */
-	inline ModResult Call(const CheckExemption::EventProvider& prov, User* user, Channel* chan, const std::string& restriction);
+/** Helper function for calling the CheckExemption::EventListener::OnCheckExemption event.
+ * @param prov The CheckExemption::EventProvider which is calling the event.
+ * @param user The user to check exemption for.
+ * @param chan The channel to check exemption on.
+ * @param restriction The restriction to check for.
+ * @return Either MOD_RES_ALLOW if the exemption was confirmed, MOD_RES_DENY if the exemption was
+ *         denied or MOD_RES_PASSTHRU if no module handled the event.
+ */
+inline ModResult Call(const CheckExemption::EventProvider& prov, User* user,
+                      Channel* chan, const std::string& restriction);
 }
 
 class CheckExemption::EventListener
-	: public Events::ModuleEventListener
-{
- protected:
-	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/exemption", eventprio)
-	{
-	}
+    : public Events::ModuleEventListener {
+  protected:
+    EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+        : ModuleEventListener(mod, "event/exemption", eventprio) {
+    }
 
- public:
-	/** Called when checking if a user is exempt from something.
-	 * @param user The user to check exemption for.
-	 * @param chan The channel to check exemption on.
-	 * @param restriction The restriction to check for.
-	 * @return Either MOD_RES_ALLOW to confirm an exemption, MOD_RES_DENY to deny an exemption,
-	 *         or MOD_RES_PASSTHRU to let another module handle the event.
-	 */
-	virtual ModResult OnCheckExemption(User* user, Channel* chan, const std::string& restriction) = 0;
+  public:
+    /** Called when checking if a user is exempt from something.
+     * @param user The user to check exemption for.
+     * @param chan The channel to check exemption on.
+     * @param restriction The restriction to check for.
+     * @return Either MOD_RES_ALLOW to confirm an exemption, MOD_RES_DENY to deny an exemption,
+     *         or MOD_RES_PASSTHRU to let another module handle the event.
+     */
+    virtual ModResult OnCheckExemption(User* user, Channel* chan,
+                                       const std::string& restriction) = 0;
 };
 
 class CheckExemption::EventProvider
-	: public Events::ModuleEventProvider
-{
- public:
-	EventProvider(Module* mod)
-		: ModuleEventProvider(mod, "event/exemption")
-	{
-	}
+    : public Events::ModuleEventProvider {
+  public:
+    EventProvider(Module* mod)
+        : ModuleEventProvider(mod, "event/exemption") {
+    }
 };
 
-inline ModResult CheckExemption::Call(const CheckExemption::EventProvider& prov, User* user, Channel* chan, const std::string& restriction)
-{
-	ModResult result;
-	FIRST_MOD_RESULT_CUSTOM(prov, CheckExemption::EventListener, OnCheckExemption, result, (user, chan, restriction));
-	return result;
+inline ModResult CheckExemption::Call(const CheckExemption::EventProvider& prov,
+                                      User* user, Channel* chan, const std::string& restriction) {
+    ModResult result;
+    FIRST_MOD_RESULT_CUSTOM(prov, CheckExemption::EventListener, OnCheckExemption,
+                            result, (user, chan, restriction));
+    return result;
 }

@@ -27,67 +27,59 @@
 
 /** Handle /CHGNAME
  */
-class CommandChgname : public Command
-{
- public:
-	CommandChgname(Module* Creator) : Command(Creator,"CHGNAME", 2, 2)
-	{
-		allow_empty_last_param = false;
-		flags_needed = 'o';
-		syntax = "<nick> :<realname>";
-		TRANSLATE2(TR_NICK, TR_TEXT);
-	}
+class CommandChgname : public Command {
+  public:
+    CommandChgname(Module* Creator) : Command(Creator,"CHGNAME", 2, 2) {
+        allow_empty_last_param = false;
+        flags_needed = 'o';
+        syntax = "<nick> :<realname>";
+        TRANSLATE2(TR_NICK, TR_TEXT);
+    }
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		User* dest = ServerInstance->FindNick(parameters[0]);
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE {
+        User* dest = ServerInstance->FindNick(parameters[0]);
 
-		if ((!dest) || (dest->registered != REG_ALL))
-		{
-			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
-			return CMD_FAILURE;
-		}
+        if ((!dest) || (dest->registered != REG_ALL)) {
+            user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
+            return CMD_FAILURE;
+        }
 
-		if (parameters[1].empty())
-		{
-			user->WriteNotice("*** CHGNAME: Real name must be specified");
-			return CMD_FAILURE;
-		}
+        if (parameters[1].empty()) {
+            user->WriteNotice("*** CHGNAME: Real name must be specified");
+            return CMD_FAILURE;
+        }
 
-		if (parameters[1].length() > ServerInstance->Config->Limits.MaxReal)
-		{
-			user->WriteNotice("*** CHGNAME: Real name is too long");
-			return CMD_FAILURE;
-		}
+        if (parameters[1].length() > ServerInstance->Config->Limits.MaxReal) {
+            user->WriteNotice("*** CHGNAME: Real name is too long");
+            return CMD_FAILURE;
+        }
 
-		if (IS_LOCAL(dest))
-		{
-			dest->ChangeRealName(parameters[1]);
-			ServerInstance->SNO->WriteGlobalSno('a', "%s used CHGNAME to change %s's real name to '%s\x0F'", user->nick.c_str(), dest->nick.c_str(), dest->GetRealName().c_str());
-		}
+        if (IS_LOCAL(dest)) {
+            dest->ChangeRealName(parameters[1]);
+            ServerInstance->SNO->WriteGlobalSno('a',
+                                                "%s used CHGNAME to change %s's real name to '%s\x0F'", user->nick.c_str(),
+                                                dest->nick.c_str(), dest->GetRealName().c_str());
+        }
 
-		return CMD_SUCCESS;
-	}
+        return CMD_SUCCESS;
+    }
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		return ROUTE_OPT_UCAST(parameters[0]);
-	}
+    RouteDescriptor GetRouting(User* user,
+                               const Params& parameters) CXX11_OVERRIDE {
+        return ROUTE_OPT_UCAST(parameters[0]);
+    }
 };
 
-class ModuleChgName : public Module
-{
-	CommandChgname cmd;
+class ModuleChgName : public Module {
+    CommandChgname cmd;
 
-public:
-	ModuleChgName() : cmd(this)
-	{
-	}
+  public:
+    ModuleChgName() : cmd(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds the /CHGNAME command which allows server operators to change the real name (gecos) of a user.", VF_OPTCOMMON | VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds the /CHGNAME command which allows server operators to change the real name (gecos) of a user.", VF_OPTCOMMON | VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleChgName)

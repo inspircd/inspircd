@@ -25,57 +25,54 @@
 #include "inspircd.h"
 #include "modules/httpd.h"
 
-class ModuleHttpConfig : public Module, public HTTPRequestEventListener
-{
-	HTTPdAPI API;
+class ModuleHttpConfig : public Module, public HTTPRequestEventListener {
+    HTTPdAPI API;
 
- public:
-	ModuleHttpConfig()
-		: HTTPRequestEventListener(this)
-		, API(this)
-	{
-	}
+  public:
+    ModuleHttpConfig()
+        : HTTPRequestEventListener(this)
+        , API(this) {
+    }
 
-	ModResult OnHTTPRequest(HTTPRequest& request) CXX11_OVERRIDE
-	{
-		if (request.GetPath() != "/config")
-			return MOD_RES_PASSTHRU;
+    ModResult OnHTTPRequest(HTTPRequest& request) CXX11_OVERRIDE {
+        if (request.GetPath() != "/config") {
+            return MOD_RES_PASSTHRU;
+        }
 
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling HTTP request for %s", request.GetPath().c_str());
-		std::stringstream buffer;
+        ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling HTTP request for %s", request.GetPath().c_str());
+        std::stringstream buffer;
 
-		ConfigDataHash& config = ServerInstance->Config->config_data;
-		for (ConfigDataHash::const_iterator citer = config.begin(); citer != config.end(); ++citer)
-		{
-			// Show the location of the tag in a comment.
-			ConfigTag* tag = citer->second;
-			buffer << "# " << tag->getTagLocation() << std::endl
-				<< '<' << tag->tag << ' ';
+        ConfigDataHash& config = ServerInstance->Config->config_data;
+        for (ConfigDataHash::const_iterator citer = config.begin(); citer != config.end(); ++citer) {
+            // Show the location of the tag in a comment.
+            ConfigTag* tag = citer->second;
+            buffer << "# " << tag->getTagLocation() << std::endl
+                   << '<' << tag->tag << ' ';
 
-			// Print out the tag with all keys aligned vertically.
-			const std::string indent(tag->tag.length() + 2, ' ');
-			const ConfigItems& items = tag->getItems();
-			for (ConfigItems::const_iterator kiter = items.begin(); kiter != items.end(); )
-			{
-				ConfigItems::const_iterator curr = kiter++;
-				buffer << curr->first << "=\"" << ServerConfig::Escape(curr->second) << '"';
-				if (kiter != items.end())
-					buffer << std::endl << indent;
-			}
-			buffer << '>' << std::endl << std::endl;
-		}
+            // Print out the tag with all keys aligned vertically.
+            const std::string indent(tag->tag.length() + 2, ' ');
+            const ConfigItems& items = tag->getItems();
+            for (ConfigItems::const_iterator kiter = items.begin(); kiter != items.end();
+                ) {
+                ConfigItems::const_iterator curr = kiter++;
+                buffer << curr->first << "=\"" << ServerConfig::Escape(curr->second) << '"';
+                if (kiter != items.end()) {
+                    buffer << std::endl << indent;
+                }
+            }
+            buffer << '>' << std::endl << std::endl;
+        }
 
-		HTTPDocumentResponse response(this, request, &buffer, 200);
-		response.headers.SetHeader("X-Powered-By", MODNAME);
-		response.headers.SetHeader("Content-Type", "text/plain");
-		API->SendResponse(response);
-		return MOD_RES_DENY;
-	}
+        HTTPDocumentResponse response(this, request, &buffer, 200);
+        response.headers.SetHeader("X-Powered-By", MODNAME);
+        response.headers.SetHeader("Content-Type", "text/plain");
+        API->SendResponse(response);
+        return MOD_RES_DENY;
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Allows the server configuration to be viewed over HTTP via the /config path.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Allows the server configuration to be viewed over HTTP via the /config path.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleHttpConfig)

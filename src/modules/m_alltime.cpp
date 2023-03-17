@@ -26,45 +26,39 @@
 
 #include "inspircd.h"
 
-class CommandAlltime : public Command
-{
- public:
-	CommandAlltime(Module* Creator) : Command(Creator, "ALLTIME", 0)
-	{
-		flags_needed = 'o';
-	}
+class CommandAlltime : public Command {
+  public:
+    CommandAlltime(Module* Creator) : Command(Creator, "ALLTIME", 0) {
+        flags_needed = 'o';
+    }
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		const std::string fmtdate = InspIRCd::TimeString(ServerInstance->Time(), "%Y-%m-%d %H:%M:%S", true);
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE {
+        const std::string fmtdate = InspIRCd::TimeString(ServerInstance->Time(), "%Y-%m-%d %H:%M:%S", true);
 
-		std::string msg = "System time is " + fmtdate + " (" + ConvToStr(ServerInstance->Time()) + ") on " + ServerInstance->Config->ServerName;
+        std::string msg = "System time is " + fmtdate + " (" + ConvToStr(ServerInstance->Time()) + ") on " + ServerInstance->Config->ServerName;
 
-		user->WriteRemoteNotice(msg);
+        user->WriteRemoteNotice(msg);
 
-		/* we want this routed out! */
-		return CMD_SUCCESS;
-	}
+        /* we want this routed out! */
+        return CMD_SUCCESS;
+    }
 
-	RouteDescriptor GetRouting(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		return ROUTE_OPT_BCAST;
-	}
+    RouteDescriptor GetRouting(User* user,
+                               const Params& parameters) CXX11_OVERRIDE {
+        return ROUTE_OPT_BCAST;
+    }
 };
 
-class Modulealltime : public Module
-{
-	CommandAlltime mycommand;
- public:
-	Modulealltime()
-		: mycommand(this)
-	{
-	}
+class Modulealltime : public Module {
+    CommandAlltime mycommand;
+  public:
+    Modulealltime()
+        : mycommand(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds the /ALLTIME command which allows server operators to see the current UTC time on all of the servers on the network.", VF_OPTCOMMON | VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds the /ALLTIME command which allows server operators to see the current UTC time on all of the servers on the network.", VF_OPTCOMMON | VF_VENDOR);
+    }
 
 };
 

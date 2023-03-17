@@ -29,254 +29,256 @@
 
 typedef insp::flat_map<std::string, std::string> HistoryTagMap;
 
-struct HistoryItem
-{
-	time_t ts;
-	std::string text;
-	MessageType type;
-	HistoryTagMap tags;
-	std::string sourcemask;
+struct HistoryItem {
+    time_t ts;
+    std::string text;
+    MessageType type;
+    HistoryTagMap tags;
+    std::string sourcemask;
 
-	HistoryItem(User* source, const MessageDetails& details)
-		: ts(ServerInstance->Time())
-		, text(details.text)
-		, type(details.type)
-		, sourcemask(source->GetFullHost())
-	{
-		tags.reserve(details.tags_out.size());
-		for (ClientProtocol::TagMap::const_iterator iter = details.tags_out.begin(); iter != details.tags_out.end(); ++iter)
-			tags[iter->first] = iter->second.value;
-	}
+    HistoryItem(User* source, const MessageDetails& details)
+        : ts(ServerInstance->Time())
+        , text(details.text)
+        , type(details.type)
+        , sourcemask(source->GetFullHost()) {
+        tags.reserve(details.tags_out.size());
+        for (ClientProtocol::TagMap::const_iterator iter = details.tags_out.begin();
+                iter != details.tags_out.end(); ++iter) {
+            tags[iter->first] = iter->second.value;
+        }
+    }
 };
 
-struct HistoryList
-{
-	std::deque<HistoryItem> lines;
-	unsigned int maxlen;
-	unsigned int maxtime;
+struct HistoryList {
+    std::deque<HistoryItem> lines;
+    unsigned int maxlen;
+    unsigned int maxtime;
 
-	HistoryList(unsigned int len, unsigned int time)
-		: maxlen(len)
-		, maxtime(time)
-	{
-	}
+    HistoryList(unsigned int len, unsigned int time)
+        : maxlen(len)
+        , maxtime(time) {
+    }
 
-	size_t Prune()
-	{
-		// Prune expired entries from the list.
-		if (maxtime)
-		{
-			time_t mintime = ServerInstance->Time() - maxtime;
-			while (!lines.empty() && lines.front().ts < mintime)
-				lines.pop_front();
-		}
-		return lines.size();
-	}
+    size_t Prune() {
+        // Prune expired entries from the list.
+        if (maxtime) {
+            time_t mintime = ServerInstance->Time() - maxtime;
+            while (!lines.empty() && lines.front().ts < mintime) {
+                lines.pop_front();
+            }
+        }
+        return lines.size();
+    }
 };
 
-class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
-{
- public:
-	unsigned int maxlines;
-	HistoryMode(Module* Creator)
-		: ParamMode<HistoryMode, SimpleExtItem<HistoryList> >(Creator, "history", 'H')
-	{
-		syntax = "<max-messages>:<max-duration>";
-	}
+class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> > {
+  public:
+    unsigned int maxlines;
+    HistoryMode(Module* Creator)
+        : ParamMode<HistoryMode, SimpleExtItem<HistoryList> >(Creator, "history", 'H') {
+        syntax = "<max-messages>:<max-duration>";
+    }
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE
-	{
-		std::string::size_type colon = parameter.find(':');
-		if (colon == std::string::npos)
-		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
-		}
+    ModeAction OnSet(User* source, Channel* channel,
+                     std::string& parameter) CXX11_OVERRIDE {
+        std::string::size_type colon = parameter.find(':');
+        if (colon == std::string::npos) {
+            source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
+            return MODEACTION_DENY;
+        }
 
-		std::string duration(parameter, colon+1);
-		if ((IS_LOCAL(source)) && ((duration.length() > 10) || (!InspIRCd::IsValidDuration(duration))))
-		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
-		}
+        std::string duration(parameter, colon+1);
+        if ((IS_LOCAL(source)) && ((duration.length() > 10) || (!InspIRCd::IsValidDuration(duration)))) {
+            source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
+            return MODEACTION_DENY;
+        }
 
-		unsigned int len = ConvToNum<unsigned int>(parameter.substr(0, colon));
-		unsigned long time;
-		if (!InspIRCd::Duration(duration, time) || len == 0 || (len > maxlines && IS_LOCAL(source)))
-		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
-		}
-		if (len > maxlines)
-			len = maxlines;
+        unsigned int len = ConvToNum<unsigned int>(parameter.substr(0, colon));
+        unsigned long time;
+        if (!InspIRCd::Duration(duration, time) || len == 0 || (len > maxlines && IS_LOCAL(source))) {
+            source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
+            return MODEACTION_DENY;
+        }
+        if (len > maxlines) {
+            len = maxlines;
+        }
 
-		HistoryList* history = ext.get(channel);
-		if (history)
-		{
-			// Shrink the list if the new line number limit is lower than the old one
-			if (len < history->lines.size())
-				history->lines.erase(history->lines.begin(), history->lines.begin() + (history->lines.size() - len));
+        HistoryList* history = ext.get(channel);
+        if (history) {
+            // Shrink the list if the new line number limit is lower than the old one
+            if (len < history->lines.size()) {
+                history->lines.erase(history->lines.begin(),
+                                     history->lines.begin() + (history->lines.size() - len));
+            }
 
-			history->maxlen = len;
-			history->maxtime = time;
-			history->Prune();
-		}
-		else
-		{
-			ext.set(channel, new HistoryList(len, time));
-		}
-		return MODEACTION_ALLOW;
-	}
+            history->maxlen = len;
+            history->maxtime = time;
+            history->Prune();
+        } else {
+            ext.set(channel, new HistoryList(len, time));
+        }
+        return MODEACTION_ALLOW;
+    }
 
-	void SerializeParam(Channel* chan, const HistoryList* history, std::string& out)
-	{
-		out.append(ConvToStr(history->maxlen));
-		out.append(":");
-		out.append(InspIRCd::DurationString(history->maxtime));
-	}
+    void SerializeParam(Channel* chan, const HistoryList* history,
+                        std::string& out) {
+        out.append(ConvToStr(history->maxlen));
+        out.append(":");
+        out.append(InspIRCd::DurationString(history->maxtime));
+    }
 };
 
-class NoHistoryMode : public SimpleUserModeHandler
-{
-public:
-	NoHistoryMode(Module* Creator)
-		: SimpleUserModeHandler(Creator, "nohistory", 'N')
-	{
-		if (!ServerInstance->Config->ConfValue("chanhistory")->getBool("enableumode"))
-			DisableAutoRegister();
-	}
+class NoHistoryMode : public SimpleUserModeHandler {
+  public:
+    NoHistoryMode(Module* Creator)
+        : SimpleUserModeHandler(Creator, "nohistory", 'N') {
+        if (!ServerInstance->Config->ConfValue("chanhistory")->getBool("enableumode")) {
+            DisableAutoRegister();
+        }
+    }
 };
 
 class ModuleChanHistory
-	: public Module
-	, public ServerProtocol::BroadcastEventListener
-{
- private:
-	HistoryMode historymode;
-	NoHistoryMode nohistorymode;
-	bool prefixmsg;
-	UserModeReference botmode;
-	bool dobots;
-	IRCv3::Batch::CapReference batchcap;
-	IRCv3::Batch::API batchmanager;
-	IRCv3::Batch::Batch batch;
-	IRCv3::ServerTime::API servertimemanager;
-	ClientProtocol::MessageTagEvent tagevent;
+    : public Module
+    , public ServerProtocol::BroadcastEventListener {
+  private:
+    HistoryMode historymode;
+    NoHistoryMode nohistorymode;
+    bool prefixmsg;
+    UserModeReference botmode;
+    bool dobots;
+    IRCv3::Batch::CapReference batchcap;
+    IRCv3::Batch::API batchmanager;
+    IRCv3::Batch::Batch batch;
+    IRCv3::ServerTime::API servertimemanager;
+    ClientProtocol::MessageTagEvent tagevent;
 
-	void AddTag(ClientProtocol::Message& msg, const std::string& tagkey, std::string& tagval)
-	{
-		const Events::ModuleEventProvider::SubscriberList& list = tagevent.GetSubscribers();
-		for (Events::ModuleEventProvider::SubscriberList::const_iterator i = list.begin(); i != list.end(); ++i)
-		{
-			ClientProtocol::MessageTagProvider* const tagprov = static_cast<ClientProtocol::MessageTagProvider*>(*i);
-			const ModResult res = tagprov->OnProcessTag(ServerInstance->FakeClient, tagkey, tagval);
-			if (res == MOD_RES_ALLOW)
-				msg.AddTag(tagkey, tagprov, tagval);
-			else if (res == MOD_RES_DENY)
-				break;
-		}
-	}
+    void AddTag(ClientProtocol::Message& msg, const std::string& tagkey,
+                std::string& tagval) {
+        const Events::ModuleEventProvider::SubscriberList& list =
+            tagevent.GetSubscribers();
+        for (Events::ModuleEventProvider::SubscriberList::const_iterator i =
+                    list.begin(); i != list.end(); ++i) {
+            ClientProtocol::MessageTagProvider* const tagprov =
+                static_cast<ClientProtocol::MessageTagProvider*>(*i);
+            const ModResult res = tagprov->OnProcessTag(ServerInstance->FakeClient, tagkey,
+                                  tagval);
+            if (res == MOD_RES_ALLOW) {
+                msg.AddTag(tagkey, tagprov, tagval);
+            } else if (res == MOD_RES_DENY) {
+                break;
+            }
+        }
+    }
 
-	void SendHistory(LocalUser* user, Channel* channel, HistoryList* list)
-	{
-		if (batchmanager)
-		{
-			batchmanager->Start(batch);
-			batch.GetBatchStartMessage().PushParamRef(channel->name);
-		}
+    void SendHistory(LocalUser* user, Channel* channel, HistoryList* list) {
+        if (batchmanager) {
+            batchmanager->Start(batch);
+            batch.GetBatchStartMessage().PushParamRef(channel->name);
+        }
 
-		for (std::deque<HistoryItem>::iterator i = list->lines.begin(); i != list->lines.end(); ++i)
-		{
-			HistoryItem& item = *i;
-			ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, item.sourcemask, channel, item.text, item.type);
-			for (HistoryTagMap::iterator iter = item.tags.begin(); iter != item.tags.end(); ++iter)
-				AddTag(msg, iter->first, iter->second);
-			if (servertimemanager)
-				servertimemanager->Set(msg, item.ts);
-			batch.AddToBatch(msg);
-			user->Send(ServerInstance->GetRFCEvents().privmsg, msg);
-		}
+        for (std::deque<HistoryItem>::iterator i = list->lines.begin();
+                i != list->lines.end(); ++i) {
+            HistoryItem& item = *i;
+            ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy,
+                                                  item.sourcemask, channel, item.text, item.type);
+            for (HistoryTagMap::iterator iter = item.tags.begin(); iter != item.tags.end();
+                    ++iter) {
+                AddTag(msg, iter->first, iter->second);
+            }
+            if (servertimemanager) {
+                servertimemanager->Set(msg, item.ts);
+            }
+            batch.AddToBatch(msg);
+            user->Send(ServerInstance->GetRFCEvents().privmsg, msg);
+        }
 
-		if (batchmanager)
-			batchmanager->End(batch);
-	}
+        if (batchmanager) {
+            batchmanager->End(batch);
+        }
+    }
 
- public:
-	ModuleChanHistory()
-		: ServerProtocol::BroadcastEventListener(this)
-		, historymode(this)
-		, nohistorymode(this)
-		, botmode(this, "bot")
-		, batchcap(this)
-		, batchmanager(this)
-		, batch("chathistory")
-		, servertimemanager(this)
-		, tagevent(this)
-	{
-	}
+  public:
+    ModuleChanHistory()
+        : ServerProtocol::BroadcastEventListener(this)
+        , historymode(this)
+        , nohistorymode(this)
+        , botmode(this, "bot")
+        , batchcap(this)
+        , batchmanager(this)
+        , batch("chathistory")
+        , servertimemanager(this)
+        , tagevent(this) {
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("chanhistory");
-		historymode.maxlines = tag->getUInt("maxlines", 50, 1);
-		prefixmsg = tag->getBool("prefixmsg", tag->getBool("notice", true));
-		dobots = tag->getBool("bots", true);
-	}
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("chanhistory");
+        historymode.maxlines = tag->getUInt("maxlines", 50, 1);
+        prefixmsg = tag->getBool("prefixmsg", tag->getBool("notice", true));
+        dobots = tag->getBool("bots", true);
+    }
 
-	ModResult OnBroadcastMessage(Channel* channel, const Server* server) CXX11_OVERRIDE
-	{
-		return channel->IsModeSet(historymode) ? MOD_RES_ALLOW : MOD_RES_PASSTHRU;
-	}
+    ModResult OnBroadcastMessage(Channel* channel,
+                                 const Server* server) CXX11_OVERRIDE {
+        return channel->IsModeSet(historymode) ? MOD_RES_ALLOW : MOD_RES_PASSTHRU;
+    }
 
-	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) CXX11_OVERRIDE
-	{
-		if (target.type != MessageTarget::TYPE_CHANNEL || target.status)
-			return;
+    void OnUserPostMessage(User* user, const MessageTarget& target,
+                           const MessageDetails& details) CXX11_OVERRIDE {
+        if (target.type != MessageTarget::TYPE_CHANNEL || target.status) {
+            return;
+        }
 
-		std::string ctcpname;
-		if (details.IsCTCP(ctcpname) && !irc::equals(ctcpname, "ACTION"))
-			return;
+        std::string ctcpname;
+        if (details.IsCTCP(ctcpname) && !irc::equals(ctcpname, "ACTION")) {
+            return;
+        }
 
-		HistoryList* list = historymode.ext.get(target.Get<Channel>());
-		if (!list)
-			return;
+        HistoryList* list = historymode.ext.get(target.Get<Channel>());
+        if (!list) {
+            return;
+        }
 
-		list->lines.push_back(HistoryItem(user, details));
-		if (list->lines.size() > list->maxlen)
-			list->lines.pop_front();
-	}
+        list->lines.push_back(HistoryItem(user, details));
+        if (list->lines.size() > list->maxlen) {
+            list->lines.pop_front();
+        }
+    }
 
-	void OnPostJoin(Membership* memb) CXX11_OVERRIDE
-	{
-		LocalUser* localuser = IS_LOCAL(memb->user);
-		if (!localuser)
-			return;
+    void OnPostJoin(Membership* memb) CXX11_OVERRIDE {
+        LocalUser* localuser = IS_LOCAL(memb->user);
+        if (!localuser) {
+            return;
+        }
 
-		if (memb->user->IsModeSet(botmode) && !dobots)
-			return;
+        if (memb->user->IsModeSet(botmode) && !dobots) {
+            return;
+        }
 
-		if (memb->user->IsModeSet(nohistorymode))
-			return;
+        if (memb->user->IsModeSet(nohistorymode)) {
+            return;
+        }
 
-		HistoryList* list = historymode.ext.get(memb->chan);
-		if (!list || !list->Prune())
-			return;
+        HistoryList* list = historymode.ext.get(memb->chan);
+        if (!list || !list->Prune()) {
+            return;
+        }
 
-		if ((prefixmsg) && (!batchcap.get(localuser)))
-		{
-			std::string message("Replaying up to " + ConvToStr(list->maxlen) + " lines of pre-join history");
-			if (list->maxtime > 0)
-				message.append(" from the last " + InspIRCd::DurationString(list->maxtime));
-			memb->WriteNotice(message);
-		}
+        if ((prefixmsg) && (!batchcap.get(localuser))) {
+            std::string message("Replaying up to " + ConvToStr(list->maxlen) +
+                                " lines of pre-join history");
+            if (list->maxtime > 0) {
+                message.append(" from the last " + InspIRCd::DurationString(list->maxtime));
+            }
+            memb->WriteNotice(message);
+        }
 
-		SendHistory(localuser, memb->chan, list);
-	}
+        SendHistory(localuser, memb->chan, list);
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds channel mode H (history) which allows message history to be viewed on joining the channel.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds channel mode H (history) which allows message history to be viewed on joining the channel.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleChanHistory)

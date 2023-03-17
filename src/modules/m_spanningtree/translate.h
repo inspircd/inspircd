@@ -19,12 +19,11 @@
 
 #pragma once
 
-namespace Translate
-{
-	/** Generate a list of mode parameters suitable for FMODE/MODE from a Modes::ChangeList::List
-	 * @param modes List of mode changes
-	 * @return List of mode parameters built from the input. Does not include the modes themselves,
-	 * only the parameters.
-	 */
-	std::string ModeChangeListToParams(const Modes::ChangeList::List& modes);
+namespace Translate {
+/** Generate a list of mode parameters suitable for FMODE/MODE from a Modes::ChangeList::List
+ * @param modes List of mode changes
+ * @return List of mode parameters built from the input. Does not include the modes themselves,
+ * only the parameters.
+ */
+std::string ModeChangeListToParams(const Modes::ChangeList::List& modes);
 }

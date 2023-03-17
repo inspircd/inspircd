@@ -22,49 +22,48 @@
 
 #include "inspircd.h"
 
-enum
-{
-	// From Charybdis.
-	ERR_MLOCKRESTRICTED = 742
+enum {
+    // From Charybdis.
+    ERR_MLOCKRESTRICTED = 742
 };
 
-class ModuleMLock : public Module
-{
-	StringExtItem mlock;
+class ModuleMLock : public Module {
+    StringExtItem mlock;
 
- public:
-	ModuleMLock()
-		: mlock("mlock", ExtensionItem::EXT_CHANNEL, this)
-	{
-	}
+  public:
+    ModuleMLock()
+        : mlock("mlock", ExtensionItem::EXT_CHANNEL, this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Allows services to lock channel modes so that they can not be changed.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Allows services to lock channel modes so that they can not be changed.", VF_VENDOR);
+    }
 
-	ModResult OnRawMode(User* source, Channel* channel, ModeHandler* mh, const std::string& parameter, bool adding) CXX11_OVERRIDE
-	{
-		if (!channel)
-			return MOD_RES_PASSTHRU;
+    ModResult OnRawMode(User* source, Channel* channel, ModeHandler* mh,
+                        const std::string& parameter, bool adding) CXX11_OVERRIDE {
+        if (!channel) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		if (!IS_LOCAL(source))
-			return MOD_RES_PASSTHRU;
+        if (!IS_LOCAL(source)) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		std::string *mlock_str = mlock.get(channel);
-		if (!mlock_str)
-			return MOD_RES_PASSTHRU;
+        std::string *mlock_str = mlock.get(channel);
+        if (!mlock_str) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		const char mode = mh->GetModeChar();
-		std::string::size_type p = mlock_str->find(mode);
-		if (p != std::string::npos)
-		{
-			source->WriteNumeric(ERR_MLOCKRESTRICTED, channel->name, mode, *mlock_str, "MODE cannot be set due to the channel having an active MLOCK restriction policy");
-			return MOD_RES_DENY;
-		}
+        const char mode = mh->GetModeChar();
+        std::string::size_type p = mlock_str->find(mode);
+        if (p != std::string::npos) {
+            source->WriteNumeric(ERR_MLOCKRESTRICTED, channel->name, mode, *mlock_str,
+                                 "MODE cannot be set due to the channel having an active MLOCK restriction policy");
+            return MOD_RES_DENY;
+        }
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 };
 
 MODULE_INIT(ModuleMLock)

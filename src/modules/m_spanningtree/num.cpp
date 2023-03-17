@@ -24,41 +24,46 @@
 #include "commands.h"
 #include "remoteuser.h"
 
-CmdResult CommandNum::HandleServer(TreeServer* server, CommandBase::Params& params)
-{
-	User* const target = ServerInstance->FindUUID(params[1]);
-	if (!target)
-		return CMD_FAILURE;
+CmdResult CommandNum::HandleServer(TreeServer* server,
+                                   CommandBase::Params& params) {
+    User* const target = ServerInstance->FindUUID(params[1]);
+    if (!target) {
+        return CMD_FAILURE;
+    }
 
-	LocalUser* const localtarget = IS_LOCAL(target);
-	if (!localtarget)
-		return CMD_SUCCESS;
+    LocalUser* const localtarget = IS_LOCAL(target);
+    if (!localtarget) {
+        return CMD_SUCCESS;
+    }
 
-	Numeric::Numeric numeric(ConvToNum<unsigned int>(params[2]));
-	// Passing NULL is ok, in that case the numeric source becomes this server
-	numeric.SetServer(Utils->FindServerID(params[0]));
-	numeric.GetParams().insert(numeric.GetParams().end(), params.begin()+3, params.end());
+    Numeric::Numeric numeric(ConvToNum<unsigned int>(params[2]));
+    // Passing NULL is ok, in that case the numeric source becomes this server
+    numeric.SetServer(Utils->FindServerID(params[0]));
+    numeric.GetParams().insert(numeric.GetParams().end(), params.begin()+3,
+                               params.end());
 
-	localtarget->WriteNumeric(numeric);
-	return CMD_SUCCESS;
+    localtarget->WriteNumeric(numeric);
+    return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandNum::GetRouting(User* user, const Params& params)
-{
-	return ROUTE_UNICAST(params[1]);
+RouteDescriptor CommandNum::GetRouting(User* user, const Params& params) {
+    return ROUTE_UNICAST(params[1]);
 }
 
-CommandNum::Builder::Builder(SpanningTree::RemoteUser* target, const Numeric::Numeric& numeric)
-	: CmdBuilder("NUM")
-{
-	TreeServer* const server = (numeric.GetServer() ? (static_cast<TreeServer*>(numeric.GetServer())) : Utils->TreeRoot);
-	push(server->GetId()).push(target->uuid).push(InspIRCd::Format("%03u", numeric.GetNumeric()));
-	const CommandBase::Params& params = numeric.GetParams();
-	if (!params.empty())
-	{
-		for (CommandBase::Params::const_iterator i = params.begin(); i != params.end()-1; ++i)
-			push(*i);
-		push_last(params.back());
-	}
-	push_tags(params.GetTags());
+CommandNum::Builder::Builder(SpanningTree::RemoteUser* target,
+                             const Numeric::Numeric& numeric)
+    : CmdBuilder("NUM") {
+    TreeServer* const server = (numeric.GetServer() ? (static_cast<TreeServer*>
+                                (numeric.GetServer())) : Utils->TreeRoot);
+    push(server->GetId()).push(target->uuid).push(InspIRCd::Format("%03u",
+            numeric.GetNumeric()));
+    const CommandBase::Params& params = numeric.GetParams();
+    if (!params.empty()) {
+        for (CommandBase::Params::const_iterator i = params.begin();
+                i != params.end()-1; ++i) {
+            push(*i);
+        }
+        push_last(params.back());
+    }
+    push_tags(params.GetTags());
 }

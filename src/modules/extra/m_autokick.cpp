@@ -25,53 +25,48 @@
 
 #include "inspircd.h"
 
-class ModeWatcherBan : public ModeWatcher
-{
- public:
-	std::string Reason;
+class ModeWatcherBan : public ModeWatcher {
+  public:
+    std::string Reason;
 
-	ModeWatcherBan(Module* Creator) : ModeWatcher(Creator, "ban", MODETYPE_CHANNEL) { }
+    ModeWatcherBan(Module* Creator) : ModeWatcher(Creator, "ban",
+                MODETYPE_CHANNEL) { }
 
-	void AfterMode(User* source, User*, Channel* channel, const std::string& parameter, bool adding) CXX11_OVERRIDE
-	{
-		if (adding)
-		{
-			unsigned int rank = channel->GetPrefixValue(source);
+    void AfterMode(User* source, User*, Channel* channel,
+                   const std::string& parameter, bool adding) CXX11_OVERRIDE {
+        if (adding) {
+            unsigned int rank = channel->GetPrefixValue(source);
 
-			const Channel::MemberMap& users = channel->GetUsers();
-			Channel::MemberMap::const_iterator iter = users.begin();
+            const Channel::MemberMap& users = channel->GetUsers();
+            Channel::MemberMap::const_iterator iter = users.begin();
 
-			while (iter != users.end())
-			{
-				// KickUser invalidates the iterator so copy and increment it here.
-				Channel::MemberMap::const_iterator it = iter++;
-				if (IS_LOCAL(it->first) && rank > channel->GetPrefixValue(it->first) && channel->CheckBan(it->first, parameter))
-				{
-					channel->KickUser(ServerInstance->FakeClient, it->first, Reason.c_str());
-				}
-			}
-		}
-	}
+            while (iter != users.end()) {
+                // KickUser invalidates the iterator so copy and increment it here.
+                Channel::MemberMap::const_iterator it = iter++;
+                if (IS_LOCAL(it->first) && rank > channel->GetPrefixValue(it->first)
+                        && channel->CheckBan(it->first, parameter)) {
+                    channel->KickUser(ServerInstance->FakeClient, it->first, Reason.c_str());
+                }
+            }
+        }
+    }
 };
 
-class ModuleAutoKick : public Module
-{
- private:
-	ModeWatcherBan mw;
+class ModuleAutoKick : public Module {
+  private:
+    ModeWatcherBan mw;
 
- public:
-	ModuleAutoKick() : mw(this) { }
+  public:
+    ModuleAutoKick() : mw(this) { }
 
-	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("autokick");
-		mw.Reason = tag->getString("message", "Banned");
-	}
+    void ReadConfig(ConfigStatus&) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("autokick");
+        mw.Reason = tag->getString("message", "Banned");
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Automatically kicks people who match a banned mask.", VF_OPTCOMMON);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Automatically kicks people who match a banned mask.", VF_OPTCOMMON);
+    }
 };
 
 MODULE_INIT(ModuleAutoKick)

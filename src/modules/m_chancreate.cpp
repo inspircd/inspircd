@@ -24,26 +24,23 @@
 
 #include "inspircd.h"
 
-class ModuleChanCreate : public Module
-{
- public:
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->SNO->EnableSnomask('j', "CHANCREATE");
-	}
+class ModuleChanCreate : public Module {
+  public:
+    void init() CXX11_OVERRIDE {
+        ServerInstance->SNO->EnableSnomask('j', "CHANCREATE");
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Sends a notice to snomasks j (local) and J (remote) when a channel is created.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Sends a notice to snomasks j (local) and J (remote) when a channel is created.", VF_VENDOR);
+    }
 
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except) CXX11_OVERRIDE
-	{
-		if ((created) && (IS_LOCAL(memb->user)))
-		{
-			ServerInstance->SNO->WriteGlobalSno('j', "Channel %s created by %s", memb->chan->name.c_str(), memb->user->GetFullRealHost().c_str());
-		}
-	}
+    void OnUserJoin(Membership* memb, bool sync, bool created,
+                    CUList& except) CXX11_OVERRIDE {
+        if ((created) && (IS_LOCAL(memb->user))) {
+            ServerInstance->SNO->WriteGlobalSno('j', "Channel %s created by %s",
+                                                memb->chan->name.c_str(), memb->user->GetFullRealHost().c_str());
+        }
+    }
 };
 
 MODULE_INIT(ModuleChanCreate)

@@ -55,68 +55,63 @@
 # define GNUTLS_HAS_DIG_SHA3
 #endif
 
-class GnuTLSHash : public HashProvider
-{
- private:
-	const gnutls_digest_algorithm_t algo;
+class GnuTLSHash : public HashProvider {
+  private:
+    const gnutls_digest_algorithm_t algo;
 
- public:
-	GnuTLSHash(Module* parent, const std::string& Name, const size_t outputsize, const size_t blocksize, gnutls_digest_algorithm_t digestalgo)
-		: HashProvider(parent, Name, outputsize, blocksize)
-		, algo(digestalgo)
-	{
-	}
+  public:
+    GnuTLSHash(Module* parent, const std::string& Name, const size_t outputsize,
+               const size_t blocksize, gnutls_digest_algorithm_t digestalgo)
+        : HashProvider(parent, Name, outputsize, blocksize)
+        , algo(digestalgo) {
+    }
 
-	std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE
-	{
-		std::vector<char> digest;
-		digest.reserve(this->out_size);
-		gnutls_hash_fast(algo, data.data(), data.length(), &digest[0]);
-		return std::string(&digest[0], this->out_size);
-	}
+    std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE {
+        std::vector<char> digest;
+        digest.reserve(this->out_size);
+        gnutls_hash_fast(algo, data.data(), data.length(), &digest[0]);
+        return std::string(&digest[0], this->out_size);
+    }
 };
 
-class ModuleHashGnuTLS : public Module
-{
- private:
-	GnuTLSHash md5;
-	GnuTLSHash sha1;
-	GnuTLSHash sha256;
-	GnuTLSHash sha512;
-	GnuTLSHash ripemd160;
+class ModuleHashGnuTLS : public Module {
+  private:
+    GnuTLSHash md5;
+    GnuTLSHash sha1;
+    GnuTLSHash sha256;
+    GnuTLSHash sha512;
+    GnuTLSHash ripemd160;
 #if defined GNUTLS_HAS_DIG_SHA3
-	GnuTLSHash sha3_224;
-	GnuTLSHash sha3_256;
-	GnuTLSHash sha3_384;
-	GnuTLSHash sha3_512;
+    GnuTLSHash sha3_224;
+    GnuTLSHash sha3_256;
+    GnuTLSHash sha3_384;
+    GnuTLSHash sha3_512;
 #endif
 
- public:
-	ModuleHashGnuTLS()
-		: md5(this, "hash/md5", 16, 64, GNUTLS_DIG_MD5)
-		, sha1(this, "hash/sha1", 20, 64, GNUTLS_DIG_SHA1)
-		, sha256(this, "hash/sha256", 32, 64, GNUTLS_DIG_SHA256)
-		, sha512(this, "hash/sha512", 64, 128, GNUTLS_DIG_SHA512)
-		, ripemd160(this, "hash/ripemd160", 20, 64, GNUTLS_DIG_RMD160)
+  public:
+    ModuleHashGnuTLS()
+        : md5(this, "hash/md5", 16, 64, GNUTLS_DIG_MD5)
+        , sha1(this, "hash/sha1", 20, 64, GNUTLS_DIG_SHA1)
+        , sha256(this, "hash/sha256", 32, 64, GNUTLS_DIG_SHA256)
+        , sha512(this, "hash/sha512", 64, 128, GNUTLS_DIG_SHA512)
+        , ripemd160(this, "hash/ripemd160", 20, 64, GNUTLS_DIG_RMD160)
 #if defined GNUTLS_HAS_DIG_SHA3
-		, sha3_224(this, "hash/sha3-224", 28, 144, GNUTLS_DIG_SHA3_224)
-		, sha3_256(this, "hash/sha3-256", 32, 136, GNUTLS_DIG_SHA3_256)
-		, sha3_384(this, "hash/sha3-384", 48, 104, GNUTLS_DIG_SHA3_384)
-		, sha3_512(this, "hash/sha3-512", 64, 72, GNUTLS_DIG_SHA3_512)
+        , sha3_224(this, "hash/sha3-224", 28, 144, GNUTLS_DIG_SHA3_224)
+        , sha3_256(this, "hash/sha3-256", 32, 136, GNUTLS_DIG_SHA3_256)
+        , sha3_384(this, "hash/sha3-384", 48, 104, GNUTLS_DIG_SHA3_384)
+        , sha3_512(this, "hash/sha3-512", 64, 72, GNUTLS_DIG_SHA3_512)
 #endif
-	{
-		gnutls_global_init();
-	}
+    {
+        gnutls_global_init();
+    }
 
-	~ModuleHashGnuTLS()
-	{
-		gnutls_global_deinit();
-	}
+    ~ModuleHashGnuTLS() {
+        gnutls_global_deinit();
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Implements hash functions using GnuTLS API");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Implements hash functions using GnuTLS API");
+    }
 };
 
 MODULE_INIT(ModuleHashGnuTLS)

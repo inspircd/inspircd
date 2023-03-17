@@ -22,16 +22,17 @@
 
 #pragma once
 
-struct ParseStack
-{
-	std::vector<std::string> reading;
-	insp::flat_map<std::string, std::string, irc::insensitive_swo> vars;
-	ConfigDataHash& output;
-	ConfigFileCache& FilesOutput;
-	std::stringstream& errstr;
+struct ParseStack {
+    std::vector<std::string> reading;
+    insp::flat_map<std::string, std::string, irc::insensitive_swo> vars;
+    ConfigDataHash& output;
+    ConfigFileCache& FilesOutput;
+    std::stringstream& errstr;
 
-	ParseStack(ServerConfig* conf);
-	bool ParseFile(const std::string& name, int flags, const std::string& mandatory_tag = std::string(), bool isexec = false);
-	void DoInclude(ConfigTag* includeTag, int flags);
-	void DoReadFile(const std::string& key, const std::string& file, int flags, bool exec);
+    ParseStack(ServerConfig* conf);
+    bool ParseFile(const std::string& name, int flags,
+                   const std::string& mandatory_tag = std::string(), bool isexec = false);
+    void DoInclude(ConfigTag* includeTag, int flags);
+    void DoReadFile(const std::string& key, const std::string& file, int flags,
+                    bool exec);
 };

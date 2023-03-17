@@ -20,54 +20,49 @@
 #include "tre-filter.h"
 
 int
-tre_filter_find(const unsigned char *str, size_t len, tre_filter_t *filter)
-{
-  unsigned short counts[256];
-  unsigned int i;
-  unsigned int window_len = filter->window_len;
-  tre_filter_profile_t *profile = filter->profile;
-  const unsigned char *str_orig = str;
+tre_filter_find(const unsigned char *str, size_t len, tre_filter_t *filter) {
+    unsigned short counts[256];
+    unsigned int i;
+    unsigned int window_len = filter->window_len;
+    tre_filter_profile_t *profile = filter->profile;
+    const unsigned char *str_orig = str;
 
-  DPRINT(("tre_filter_find: %.*s\n", len, str));
+    DPRINT(("tre_filter_find: %.*s\n", len, str));
 
-  for (i = 0; i < elementsof(counts); i++)
-    counts[i] = 0;
-
-  i = 0;
-  while (*str && i < window_len && i < len)
-    {
-      counts[*str]++;
-      i++;
-      str++;
-      len--;
+    for (i = 0; i < elementsof(counts); i++) {
+        counts[i] = 0;
     }
 
-  while (len > 0)
-    {
-      tre_filter_profile_t *p;
-      counts[*str]++;
-      counts[*(str - window_len)]--;
-
-      p = profile;
-      while (p->ch)
-	{
-	  if (counts[p->ch] < p->count)
-	    break;
-	  p++;
-	}
-      if (!p->ch)
-	{
-	  DPRINT(("Found possible match at %d\n",
-		  str - str_orig));
-	  return str - str_orig;
-	}
-      else
-	{
-	  DPRINT(("No match so far...\n"));
-	}
-      len--;
-      str++;
+    i = 0;
+    while (*str && i < window_len && i < len) {
+        counts[*str]++;
+        i++;
+        str++;
+        len--;
     }
-  DPRINT(("This string cannot match.\n"));
-  return -1;
+
+    while (len > 0) {
+        tre_filter_profile_t *p;
+        counts[*str]++;
+        counts[*(str - window_len)]--;
+
+        p = profile;
+        while (p->ch) {
+            if (counts[p->ch] < p->count) {
+                break;
+            }
+            p++;
+        }
+        if (!p->ch) {
+            DPRINT(("Found possible match at %d\n",
+                    str - str_orig));
+            return str - str_orig;
+        } else {
+            DPRINT(("No match so far...\n"));
+        }
+        len--;
+        str++;
+    }
+    DPRINT(("This string cannot match.\n"));
+    return -1;
 }

@@ -24,55 +24,55 @@
 #include "commands.h"
 #include "treeserver.h"
 
-void CmdBuilder::FireEvent(Server* target, const char* cmd, ClientProtocol::TagMap& taglist)
-{
-	if (!Utils->Creator || Utils->Creator->dying)
-		return;
+void CmdBuilder::FireEvent(Server* target, const char* cmd,
+                           ClientProtocol::TagMap& taglist) {
+    if (!Utils->Creator || Utils->Creator->dying) {
+        return;
+    }
 
-	FOREACH_MOD_CUSTOM(Utils->Creator->GetMessageEventProvider(), ServerProtocol::MessageEventListener, OnBuildMessage, (target, cmd, taglist));
-	UpdateTags();
+    FOREACH_MOD_CUSTOM(Utils->Creator->GetMessageEventProvider(),
+                       ServerProtocol::MessageEventListener, OnBuildMessage, (target, cmd, taglist));
+    UpdateTags();
 }
 
-void CmdBuilder::FireEvent(User* target, const char* cmd, ClientProtocol::TagMap& taglist)
-{
-	if (!Utils->Creator || Utils->Creator->dying)
-		return;
+void CmdBuilder::FireEvent(User* target, const char* cmd,
+                           ClientProtocol::TagMap& taglist) {
+    if (!Utils->Creator || Utils->Creator->dying) {
+        return;
+    }
 
-	FOREACH_MOD_CUSTOM(Utils->Creator->GetMessageEventProvider(), ServerProtocol::MessageEventListener, OnBuildMessage, (target, cmd, taglist));
-	UpdateTags();
+    FOREACH_MOD_CUSTOM(Utils->Creator->GetMessageEventProvider(),
+                       ServerProtocol::MessageEventListener, OnBuildMessage, (target, cmd, taglist));
+    UpdateTags();
 }
 
-void CmdBuilder::UpdateTags()
-{
-	std::string taglist;
-	if (!tags.empty())
-	{
-		char separator = '@';
-		for (ClientProtocol::TagMap::const_iterator iter = tags.begin(); iter != tags.end(); ++iter)
-		{
-			taglist.push_back(separator);
-			separator = ';';
-			taglist.append(iter->first);
-			if (!iter->second.value.empty())
-			{
-				taglist.push_back('=');
-				taglist.append(iter->second.value);
-			}
-		}
-		taglist.push_back(' ');
-	}
-	content.replace(0, tagsize, taglist);
-	tagsize = taglist.length();
+void CmdBuilder::UpdateTags() {
+    std::string taglist;
+    if (!tags.empty()) {
+        char separator = '@';
+        for (ClientProtocol::TagMap::const_iterator iter = tags.begin();
+                iter != tags.end(); ++iter) {
+            taglist.push_back(separator);
+            separator = ';';
+            taglist.append(iter->first);
+            if (!iter->second.value.empty()) {
+                taglist.push_back('=');
+                taglist.append(iter->second.value);
+            }
+        }
+        taglist.push_back(' ');
+    }
+    content.replace(0, tagsize, taglist);
+    tagsize = taglist.length();
 }
 
-CmdResult CommandSNONotice::Handle(User* user, Params& params)
-{
-	ServerInstance->SNO->WriteToSnoMask(params[0][0], "From " + user->nick + ": " + params[1]);
-	return CMD_SUCCESS;
+CmdResult CommandSNONotice::Handle(User* user, Params& params) {
+    ServerInstance->SNO->WriteToSnoMask(params[0][0],
+                                        "From " + user->nick + ": " + params[1]);
+    return CMD_SUCCESS;
 }
 
-CmdResult CommandEndBurst::HandleServer(TreeServer* server, Params& params)
-{
-	server->FinishBurst();
-	return CMD_SUCCESS;
+CmdResult CommandEndBurst::HandleServer(TreeServer* server, Params& params) {
+    server->FinishBurst();
+    return CMD_SUCCESS;
 }

@@ -29,49 +29,52 @@
 #include <regex>
 
 static const char FACES[6][16] = {
-	"(・`ω´・) ",
-	";;w;; ",
-	"owo ",
-	"UwU ",
-	">w< ",
-	"^w^ "
+    "(・`ω´・) ",
+    ";;w;; ",
+    "owo ",
+    "UwU ",
+    ">w< ",
+    "^w^ "
 };
 
-class ModuleOwoifier : public Module
-{
- public:
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
-	{
-		if (!IS_LOCAL(user))
-			return MOD_RES_PASSTHRU;
+class ModuleOwoifier : public Module {
+  public:
+    ModResult OnUserPreMessage(User* user, const MessageTarget& target,
+                               MessageDetails& details) override {
+        if (!IS_LOCAL(user)) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		// Replace r and l with w.
-		details.text = std::regex_replace(details.text, std::regex("[rl]"), "w");
-		details.text = std::regex_replace(details.text, std::regex("[RL]"), "W");
+        // Replace r and l with w.
+        details.text = std::regex_replace(details.text, std::regex("[rl]"), "w");
+        details.text = std::regex_replace(details.text, std::regex("[RL]"), "W");
 
-		// Replace [Nn][vowel] with [N|n][Y|y][vowel].
-		details.text = std::regex_replace(details.text, std::regex("n([aeiou])"), "ny$1");
-		details.text = std::regex_replace(details.text, std::regex("n([AEIOU])"), "nY$1");
-		details.text = std::regex_replace(details.text, std::regex("N([aeiou])"), "Ny$1");
-		details.text = std::regex_replace(details.text, std::regex("N([AEIOU])"), "NY$1");
+        // Replace [Nn][vowel] with [N|n][Y|y][vowel].
+        details.text = std::regex_replace(details.text, std::regex("n([aeiou])"),
+                                          "ny$1");
+        details.text = std::regex_replace(details.text, std::regex("n([AEIOU])"),
+                                          "nY$1");
+        details.text = std::regex_replace(details.text, std::regex("N([aeiou])"),
+                                          "Ny$1");
+        details.text = std::regex_replace(details.text, std::regex("N([AEIOU])"),
+                                          "NY$1");
 
-		// Replace ove with uv.
-		details.text = std::regex_replace(details.text, std::regex("ove"), "uv");
-		details.text = std::regex_replace(details.text, std::regex("Ove"), "Uv");
-		details.text = std::regex_replace(details.text, std::regex("OVe"), "UV");
-		details.text = std::regex_replace(details.text, std::regex("OVE"), "UV");
+        // Replace ove with uv.
+        details.text = std::regex_replace(details.text, std::regex("ove"), "uv");
+        details.text = std::regex_replace(details.text, std::regex("Ove"), "Uv");
+        details.text = std::regex_replace(details.text, std::regex("OVe"), "UV");
+        details.text = std::regex_replace(details.text, std::regex("OVE"), "UV");
 
-		// Replace the ! at the end of a sentence with a face.
-		const char* face = FACES[ServerInstance->GenRandomInt(5)];
-		details.text = std::regex_replace(details.text, std::regex("! ?"), face);
+        // Replace the ! at the end of a sentence with a face.
+        const char* face = FACES[ServerInstance->GenRandomInt(5)];
+        details.text = std::regex_replace(details.text, std::regex("! ?"), face);
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 
-	Version GetVersion() override
-	{
-		return Version("OwO, whats this?", VF_OPTCOMMON);
-	}
+    Version GetVersion() override {
+        return Version("OwO, whats this?", VF_OPTCOMMON);
+    }
 };
 
 MODULE_INIT(ModuleOwoifier)

@@ -29,79 +29,80 @@
 
 typedef std::vector<std::string> AllowList;
 
-class ModuleSecureList : public Module
-{
- private:
-	AllowList allowlist;
-	bool exemptregistered;
-	bool showmsg;
-	unsigned int WaitTime;
+class ModuleSecureList : public Module {
+  private:
+    AllowList allowlist;
+    bool exemptregistered;
+    bool showmsg;
+    unsigned int WaitTime;
 
- public:
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Prevents users from using the /LIST command until a predefined period has passed.", VF_VENDOR);
-	}
+  public:
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Prevents users from using the /LIST command until a predefined period has passed.", VF_VENDOR);
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		AllowList newallows;
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        AllowList newallows;
 
-		ConfigTagList tags = ServerInstance->Config->ConfTags("securehost");
-		for (ConfigIter i = tags.first; i != tags.second; ++i)
-		{
-			std::string host = i->second->getString("exception");
-			if (host.empty())
-				throw ModuleException("<securehost:exception> is a required field at " + i->second->getTagLocation());
-			newallows.push_back(host);
-		}
+        ConfigTagList tags = ServerInstance->Config->ConfTags("securehost");
+        for (ConfigIter i = tags.first; i != tags.second; ++i) {
+            std::string host = i->second->getString("exception");
+            if (host.empty()) {
+                throw ModuleException("<securehost:exception> is a required field at " +
+                                      i->second->getTagLocation());
+            }
+            newallows.push_back(host);
+        }
 
-		ConfigTag* tag = ServerInstance->Config->ConfValue("securelist");
-		exemptregistered = tag->getBool("exemptregistered");
-		showmsg = tag->getBool("showmsg", true);
-		WaitTime = tag->getDuration("waittime", 60, 1);
-		allowlist.swap(newallows);
-	}
+        ConfigTag* tag = ServerInstance->Config->ConfValue("securelist");
+        exemptregistered = tag->getBool("exemptregistered");
+        showmsg = tag->getBool("showmsg", true);
+        WaitTime = tag->getDuration("waittime", 60, 1);
+        allowlist.swap(newallows);
+    }
 
-	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) CXX11_OVERRIDE
-	{
-		/* If the command doesnt appear to be valid, we dont want to mess with it. */
-		if (!validated)
-			return MOD_RES_PASSTHRU;
+    ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters,
+                           LocalUser* user, bool validated) CXX11_OVERRIDE {
+        /* If the command doesnt appear to be valid, we dont want to mess with it. */
+        if (!validated) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		time_t waitallowed = user->signon + WaitTime;
-		if ((command == "LIST") && (ServerInstance->Time() < waitallowed) && (!user->IsOper()))
-		{
-			/* Normally wouldnt be allowed here, are they exempt? */
-			for (std::vector<std::string>::iterator x = allowlist.begin(); x != allowlist.end(); x++)
-				if (InspIRCd::Match(user->MakeHost(), *x, ascii_case_insensitive_map))
-					return MOD_RES_PASSTHRU;
+        time_t waitallowed = user->signon + WaitTime;
+        if ((command == "LIST") && (ServerInstance->Time() < waitallowed) && (!user->IsOper())) {
+            /* Normally wouldnt be allowed here, are they exempt? */
+            for (std::vector<std::string>::iterator x = allowlist.begin();
+                    x != allowlist.end(); x++)
+                if (InspIRCd::Match(user->MakeHost(), *x, ascii_case_insensitive_map)) {
+                    return MOD_RES_PASSTHRU;
+                }
 
-			const AccountExtItem* ext = GetAccountExtItem();
-			if (exemptregistered && ext && ext->get(user))
-				return MOD_RES_PASSTHRU;
+            const AccountExtItem* ext = GetAccountExtItem();
+            if (exemptregistered && ext && ext->get(user)) {
+                return MOD_RES_PASSTHRU;
+            }
 
-			if (showmsg)
-			{
-				user->WriteNotice(InspIRCd::Format("*** You cannot view the channel list right now. Please %stry again in %s.",
-					(exemptregistered ? "login to an account or " : ""),
-					InspIRCd::DurationString(waitallowed - ServerInstance->Time()).c_str()));
-			}
+            if (showmsg) {
+                user->WriteNotice(
+                    InspIRCd::Format("*** You cannot view the channel list right now. Please %stry again in %s.",
+                                     (exemptregistered ? "login to an account or " : ""),
+                                     InspIRCd::DurationString(waitallowed - ServerInstance->Time()).c_str()));
+            }
 
-			// The client might be waiting on a response to do something so send them an
-			// empty list response to satisfy that.
-			user->WriteNumeric(RPL_LISTSTART, "Channel", "Users Name");
-			user->WriteNumeric(RPL_LISTEND, "End of channel list.");
-			return MOD_RES_DENY;
-		}
-		return MOD_RES_PASSTHRU;
-	}
+            // The client might be waiting on a response to do something so send them an
+            // empty list response to satisfy that.
+            user->WriteNumeric(RPL_LISTSTART, "Channel", "Users Name");
+            user->WriteNumeric(RPL_LISTEND, "End of channel list.");
+            return MOD_RES_DENY;
+        }
+        return MOD_RES_PASSTHRU;
+    }
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		if (showmsg)
-			tokens["SECURELIST"] = ConvToStr(WaitTime);
-	}
+    void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE {
+        if (showmsg) {
+            tokens["SECURELIST"] = ConvToStr(WaitTime);
+        }
+    }
 };
 
 MODULE_INIT(ModuleSecureList)

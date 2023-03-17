@@ -27,30 +27,32 @@
 #include "core_user.h"
 
 ModeUserOperator::ModeUserOperator(Module* Creator)
-	: ModeHandler(Creator, "oper", 'o', PARAM_NONE, MODETYPE_USER)
-{
-	oper = true;
+    : ModeHandler(Creator, "oper", 'o', PARAM_NONE, MODETYPE_USER) {
+    oper = true;
 }
 
-ModeAction ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, std::string&, bool adding)
-{
-	/* Only opers can execute this class at all */
-	if (!source->server->IsULine() && !source->IsOper())
-		return MODEACTION_DENY;
+ModeAction ModeUserOperator::OnModeChange(User* source, User* dest, Channel*,
+        std::string&, bool adding) {
+    /* Only opers can execute this class at all */
+    if (!source->server->IsULine() && !source->IsOper()) {
+        return MODEACTION_DENY;
+    }
 
-	/* Not even opers can GIVE the +o mode, only take it away */
-	if (adding)
-		return MODEACTION_DENY;
+    /* Not even opers can GIVE the +o mode, only take it away */
+    if (adding) {
+        return MODEACTION_DENY;
+    }
 
-	/* Set the bitfields.
-	 * Note that oper status is only given in User::Oper()
-	 * NOT here. It is impossible to directly set +o without
-	 * verifying as an oper and getting an opertype assigned
-	 * to your User!
-	 */
-	char snomask = IS_LOCAL(dest) ? 'o' : 'O';
-	ServerInstance->SNO->WriteToSnoMask(snomask, "User %s de-opered (by %s)", dest->nick.c_str(), source->nick.c_str());
-	dest->UnOper();
+    /* Set the bitfields.
+     * Note that oper status is only given in User::Oper()
+     * NOT here. It is impossible to directly set +o without
+     * verifying as an oper and getting an opertype assigned
+     * to your User!
+     */
+    char snomask = IS_LOCAL(dest) ? 'o' : 'O';
+    ServerInstance->SNO->WriteToSnoMask(snomask, "User %s de-opered (by %s)",
+                                        dest->nick.c_str(), source->nick.c_str());
+    dest->UnOper();
 
-	return MODEACTION_ALLOW;
+    return MODEACTION_ALLOW;
 }

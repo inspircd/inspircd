@@ -29,79 +29,73 @@
 #include "core_channel.h"
 
 CommandTopic::CommandTopic(Module* parent)
-	: SplitCommand(parent, "TOPIC", 1, 2)
-	, exemptionprov(parent)
-	, secretmode(parent, "secret")
-	, topiclockmode(parent, "topiclock")
-{
-	syntax = "<channel> [:<topic>]";
-	Penalty = 2;
+    : SplitCommand(parent, "TOPIC", 1, 2)
+    , exemptionprov(parent)
+    , secretmode(parent, "secret")
+    , topiclockmode(parent, "topiclock") {
+    syntax = "<channel> [:<topic>]";
+    Penalty = 2;
 }
 
-CmdResult CommandTopic::HandleLocal(LocalUser* user, const Params& parameters)
-{
-	Channel* c = ServerInstance->FindChan(parameters[0]);
-	if (!c)
-	{
-		user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
-		return CMD_FAILURE;
-	}
+CmdResult CommandTopic::HandleLocal(LocalUser* user, const Params& parameters) {
+    Channel* c = ServerInstance->FindChan(parameters[0]);
+    if (!c) {
+        user->WriteNumeric(Numerics::NoSuchChannel(parameters[0]));
+        return CMD_FAILURE;
+    }
 
-	if (parameters.size() == 1)
-	{
-		if ((c->IsModeSet(secretmode)) && (!c->HasUser(user) && !user->HasPrivPermission("channels/auspex")))
-		{
-			user->WriteNumeric(Numerics::NoSuchChannel(c->name));
-			return CMD_FAILURE;
-		}
+    if (parameters.size() == 1) {
+        if ((c->IsModeSet(secretmode)) && (!c->HasUser(user)
+                                           && !user->HasPrivPermission("channels/auspex"))) {
+            user->WriteNumeric(Numerics::NoSuchChannel(c->name));
+            return CMD_FAILURE;
+        }
 
-		if (c->topic.length())
-		{
-			Topic::ShowTopic(user, c);
-		}
-		else
-		{
-			user->WriteNumeric(RPL_NOTOPICSET, c->name, "No topic is set.");
-		}
-		return CMD_SUCCESS;
-	}
+        if (c->topic.length()) {
+            Topic::ShowTopic(user, c);
+        } else {
+            user->WriteNumeric(RPL_NOTOPICSET, c->name, "No topic is set.");
+        }
+        return CMD_SUCCESS;
+    }
 
-	std::string t = parameters[1]; // needed, in case a module wants to change it
-	ModResult res;
-	FIRST_MOD_RESULT(OnPreTopicChange, res, (user,c,t));
+    std::string t = parameters[1]; // needed, in case a module wants to change it
+    ModResult res;
+    FIRST_MOD_RESULT(OnPreTopicChange, res, (user,c,t));
 
-	if (res == MOD_RES_DENY)
-		return CMD_FAILURE;
-	if (res != MOD_RES_ALLOW)
-	{
-		if (!c->HasUser(user))
-		{
-			user->WriteNumeric(ERR_NOTONCHANNEL, c->name, "You're not on that channel!");
-			return CMD_FAILURE;
-		}
-		if (c->IsModeSet(topiclockmode))
-		{
-			ModResult MOD_RESULT = CheckExemption::Call(exemptionprov, user, c, "topiclock");
-			if (!MOD_RESULT.check(c->GetPrefixValue(user) >= HALFOP_VALUE))
-			{
-				user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(c, HALFOP_VALUE, "change the topic"));
-				return CMD_FAILURE;
-			}
-		}
-	}
+    if (res == MOD_RES_DENY) {
+        return CMD_FAILURE;
+    }
+    if (res != MOD_RES_ALLOW) {
+        if (!c->HasUser(user)) {
+            user->WriteNumeric(ERR_NOTONCHANNEL, c->name, "You're not on that channel!");
+            return CMD_FAILURE;
+        }
+        if (c->IsModeSet(topiclockmode)) {
+            ModResult MOD_RESULT = CheckExemption::Call(exemptionprov, user, c,
+                                   "topiclock");
+            if (!MOD_RESULT.check(c->GetPrefixValue(user) >= HALFOP_VALUE)) {
+                user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(c, HALFOP_VALUE,
+                                   "change the topic"));
+                return CMD_FAILURE;
+            }
+        }
+    }
 
-	// Make sure the topic is not longer than the limit in the config
-	if (t.length() > ServerInstance->Config->Limits.MaxTopic)
-		t.erase(ServerInstance->Config->Limits.MaxTopic);
+    // Make sure the topic is not longer than the limit in the config
+    if (t.length() > ServerInstance->Config->Limits.MaxTopic) {
+        t.erase(ServerInstance->Config->Limits.MaxTopic);
+    }
 
-	// Only change if the new topic is different than the current one
-	if (c->topic != t)
-		c->SetTopic(user, t, ServerInstance->Time());
-	return CMD_SUCCESS;
+    // Only change if the new topic is different than the current one
+    if (c->topic != t) {
+        c->SetTopic(user, t, ServerInstance->Time());
+    }
+    return CMD_SUCCESS;
 }
 
-void Topic::ShowTopic(LocalUser* user, Channel* chan)
-{
-	user->WriteNumeric(RPL_TOPIC, chan->name, chan->topic);
-	user->WriteNumeric(RPL_TOPICTIME, chan->name, chan->setby, (unsigned long)chan->topicset);
+void Topic::ShowTopic(LocalUser* user, Channel* chan) {
+    user->WriteNumeric(RPL_TOPIC, chan->name, chan->topic);
+    user->WriteNumeric(RPL_TOPICTIME, chan->name, chan->setby,
+                       (unsigned long)chan->topicset);
 }

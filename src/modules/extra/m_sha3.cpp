@@ -52,33 +52,27 @@
 # pragma GCC diagnostic pop
 #endif
 
-class HashSHA3 : public HashProvider
-{
- public:
-	std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE
-	{
-                SHA3 sha3;
-                return std::string(sha3(data.data()), 64);
-	}
+class HashSHA3 : public HashProvider {
+  public:
+    std::string GenerateRaw(const std::string& data) CXX11_OVERRIDE {
+        SHA3 sha3;
+        return std::string(sha3(data.data()), 64);
+    }
 
-	HashSHA3(Module* parent)
-		: HashProvider(parent, "sha3", 64, 128)
-	{
-	}
+    HashSHA3(Module* parent)
+        : HashProvider(parent, "sha3", 64, 128) {
+    }
 };
 
-class ModuleSHA3 : public Module
-{
-	HashSHA3 sha;
- public:
-	ModuleSHA3() : sha(this)
-	{
-	}
+class ModuleSHA3 : public Module {
+    HashSHA3 sha;
+  public:
+    ModuleSHA3() : sha(this) {
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Allows other modules to generate SHA-512 hashes.");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Allows other modules to generate SHA-512 hashes.");
+    }
 };
 
 MODULE_INIT(ModuleSHA3)

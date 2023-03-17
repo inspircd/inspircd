@@ -25,35 +25,34 @@
 #include "commands.h"
 #include "treeserver.h"
 
-CmdResult CommandNick::HandleRemote(::RemoteUser* user, Params& params)
-{
-	if ((isdigit(params[0][0])) && (params[0] != user->uuid))
-		throw ProtocolException("Attempted to change nick to an invalid or non-matching UUID");
+CmdResult CommandNick::HandleRemote(::RemoteUser* user, Params& params) {
+    if ((isdigit(params[0][0])) && (params[0] != user->uuid)) {
+        throw ProtocolException("Attempted to change nick to an invalid or non-matching UUID");
+    }
 
-	// Timestamp of the new nick
-	time_t newts = ServerCommand::ExtractTS(params[1]);
+    // Timestamp of the new nick
+    time_t newts = ServerCommand::ExtractTS(params[1]);
 
-	/*
-	 * On nick messages, check that the nick doesn't already exist here.
-	 * If it does, perform collision logic.
-	 */
-	User* x = ServerInstance->FindNickOnly(params[0]);
-	if ((x) && (x != user) && (x->registered == REG_ALL))
-	{
-		// 'x' is the already existing user using the same nick as params[0]
-		// 'user' is the user trying to change nick to the in use nick
-		bool they_change = Utils->DoCollision(x, TreeServer::Get(user), newts, user->ident, user->GetIPString(), user->uuid, "NICK");
-		if (they_change)
-		{
-			// Remote client lost, or both lost, rewrite this nick change as a change to uuid before
-			// calling ChangeNick() and forwarding the message
-			params[0] = user->uuid;
-			params[1] = ConvToStr(CommandSave::SavedTimestamp);
-			newts = CommandSave::SavedTimestamp;
-		}
-	}
+    /*
+     * On nick messages, check that the nick doesn't already exist here.
+     * If it does, perform collision logic.
+     */
+    User* x = ServerInstance->FindNickOnly(params[0]);
+    if ((x) && (x != user) && (x->registered == REG_ALL)) {
+        // 'x' is the already existing user using the same nick as params[0]
+        // 'user' is the user trying to change nick to the in use nick
+        bool they_change = Utils->DoCollision(x, TreeServer::Get(user), newts,
+                                              user->ident, user->GetIPString(), user->uuid, "NICK");
+        if (they_change) {
+            // Remote client lost, or both lost, rewrite this nick change as a change to uuid before
+            // calling ChangeNick() and forwarding the message
+            params[0] = user->uuid;
+            params[1] = ConvToStr(CommandSave::SavedTimestamp);
+            newts = CommandSave::SavedTimestamp;
+        }
+    }
 
-	user->ChangeNick(params[0], newts);
+    user->ChangeNick(params[0], newts);
 
-	return CMD_SUCCESS;
+    return CMD_SUCCESS;
 }

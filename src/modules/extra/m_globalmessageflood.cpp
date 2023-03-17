@@ -33,151 +33,145 @@ typedef std::map<User*, unsigned int> counter_t;
 
 /** Holds flood settings and state for mode +x
  */
-class globalfloodsettings
-{
- public:
-	bool ban;
-	unsigned int secs;
-	unsigned int lines;
-	time_t reset;
-	counter_t counters;
+class globalfloodsettings {
+  public:
+    bool ban;
+    unsigned int secs;
+    unsigned int lines;
+    time_t reset;
+    counter_t counters;
 
-	globalfloodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c)
-	{
-		reset = ServerInstance->Time() + secs;
-	}
+    globalfloodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c) {
+        reset = ServerInstance->Time() + secs;
+    }
 
-	bool addmessage(User* who)
-	{
-		if (ServerInstance->Time() > reset)
-		{
-			counters.clear();
-			reset = ServerInstance->Time() + secs;
-		}
+    bool addmessage(User* who) {
+        if (ServerInstance->Time() > reset) {
+            counters.clear();
+            reset = ServerInstance->Time() + secs;
+        }
 
-		return (++counters[who] >= this->lines);
-	}
+        return (++counters[who] >= this->lines);
+    }
 
-	void clear(User* who)
-	{
-		counter_t::iterator iter = counters.find(who);
-		if (iter != counters.end())
-		{
-			counters.erase(iter);
-		}
-	}
+    void clear(User* who) {
+        counter_t::iterator iter = counters.find(who);
+        if (iter != counters.end()) {
+            counters.erase(iter);
+        }
+    }
 };
 
 /** Handles channel mode +x
  */
-class GlobalMsgFlood : public ParamMode<GlobalMsgFlood, SimpleExtItem<globalfloodsettings> >
-{
- public:
-	/* This an oper only mode */
-	GlobalMsgFlood(Module* Creator)
-		: ParamMode<GlobalMsgFlood, SimpleExtItem<globalfloodsettings> >(Creator, "globalflood", ServerInstance->Config->ConfValue("globalflood")->getString("modechar", "x", 1, 1)[0])
-	{
+class GlobalMsgFlood : public
+    ParamMode<GlobalMsgFlood, SimpleExtItem<globalfloodsettings> > {
+  public:
+    /* This an oper only mode */
+    GlobalMsgFlood(Module* Creator)
+        : ParamMode<GlobalMsgFlood, SimpleExtItem<globalfloodsettings> >(Creator,
+                "globalflood",
+                ServerInstance->Config->ConfValue("globalflood")->getString("modechar", "x", 1,
+                        1)[0]) {
 #if defined INSPIRCD_VERSION_SINCE && INSPIRCD_VERSION_SINCE(3, 2)
-		syntax = "[*]<lines>:<seconds>";
+        syntax = "[*]<lines>:<seconds>";
 #endif
-		oper = true;
-	}
+        oper = true;
+    }
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE
-	{
-		std::string::size_type colon = parameter.find(':');
-		if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
-		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
-		}
+    ModeAction OnSet(User* source, Channel* channel,
+                     std::string& parameter) CXX11_OVERRIDE {
+        std::string::size_type colon = parameter.find(':');
+        if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos)) {
+            source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
+            return MODEACTION_DENY;
+        }
 
-		/* Set up the flood parameters for this channel */
-		bool ban = (parameter[0] == '*');
-		unsigned int nlines = ConvToNum<unsigned int>(parameter.substr(ban ? 1 : 0, ban ? colon-1 : colon));
-		unsigned int nsecs = ConvToNum<unsigned int>(parameter.substr(colon + 1));
+        /* Set up the flood parameters for this channel */
+        bool ban = (parameter[0] == '*');
+        unsigned int nlines = ConvToNum<unsigned int>(parameter.substr(ban ? 1 : 0, ban ? colon-1 : colon));
+        unsigned int nsecs = ConvToNum<unsigned int>(parameter.substr(colon + 1));
 
-		if ((nlines<2) || (nsecs<1))
-		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
-		}
+        if ((nlines<2) || (nsecs<1)) {
+            source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
+            return MODEACTION_DENY;
+        }
 
-		globalfloodsettings* f = ext.get(channel);
-		if ((f) && (nlines == f->lines) && (nsecs == f->secs) && (ban == f->ban))
-			// mode params match
-			return MODEACTION_DENY;
+        globalfloodsettings* f = ext.get(channel);
+        if ((f) && (nlines == f->lines) && (nsecs == f->secs) && (ban == f->ban))
+            // mode params match
+        {
+            return MODEACTION_DENY;
+        }
 
-		ext.set(channel, new globalfloodsettings(ban, nsecs, nlines));
-		return MODEACTION_ALLOW;
-	}
+        ext.set(channel, new globalfloodsettings(ban, nsecs, nlines));
+        return MODEACTION_ALLOW;
+    }
 
-	void SerializeParam(Channel* chan, const globalfloodsettings* gfs, std::string& out)
-	{
-		out.append((gfs->ban ? "*" : "") + ConvToStr(gfs->lines) + ":" + ConvToStr(gfs->secs));
-	}
+    void SerializeParam(Channel* chan, const globalfloodsettings* gfs,
+                        std::string& out) {
+        out.append((gfs->ban ? "*" : "") + ConvToStr(gfs->lines) + ":" + ConvToStr(
+                       gfs->secs));
+    }
 };
 
-class ModuleGlobalMsgFlood : public Module
-{
-	GlobalMsgFlood mf;
+class ModuleGlobalMsgFlood : public Module {
+    GlobalMsgFlood mf;
 
- public:
-	ModuleGlobalMsgFlood()
-		: mf(this)
-	{
-	}
+  public:
+    ModuleGlobalMsgFlood()
+        : mf(this) {
+    }
 
-	void init() CXX11_OVERRIDE
-	{
-		/* Enables Flood announcements for everyone with +s +f */
-		ServerInstance->SNO->EnableSnomask('f', "FLOOD");
-	}
+    void init() CXX11_OVERRIDE {
+        /* Enables Flood announcements for everyone with +s +f */
+        ServerInstance->SNO->EnableSnomask('f', "FLOOD");
+    }
 
-	ModResult ProcessMessages(User* user, Channel* dest, const std::string& text)
-	{
-		if ((!IS_LOCAL(user)) || !dest->IsModeSet(mf))
-			return MOD_RES_PASSTHRU;
+    ModResult ProcessMessages(User* user, Channel* dest, const std::string& text) {
+        if ((!IS_LOCAL(user)) || !dest->IsModeSet(mf)) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		if (user->IsModeSet('o'))
-			return MOD_RES_PASSTHRU;
+        if (user->IsModeSet('o')) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		globalfloodsettings *f = mf.ext.get(dest);
-		if (f)
-		{
-			if (f->addmessage(user))
-			{
-				f->clear(user);
-				/* Generate the SNOTICE when someone triggers the flood limit */
+        globalfloodsettings *f = mf.ext.get(dest);
+        if (f) {
+            if (f->addmessage(user)) {
+                f->clear(user);
+                /* Generate the SNOTICE when someone triggers the flood limit */
 
-				ServerInstance->SNO->WriteGlobalSno('f', "Global channel flood triggered by %s (%s) in %s (limit was %u lines in %u secs)",
-					user->GetFullRealHost().c_str(), user->GetFullHost().c_str(), dest->name.c_str(), f->lines, f->secs);
+                ServerInstance->SNO->WriteGlobalSno('f',
+                                                    "Global channel flood triggered by %s (%s) in %s (limit was %u lines in %u secs)",
+                                                    user->GetFullRealHost().c_str(), user->GetFullHost().c_str(),
+                                                    dest->name.c_str(), f->lines, f->secs);
 
-				return MOD_RES_DENY;
-			}
-		}
+                return MOD_RES_DENY;
+            }
+        }
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
-	{
-		if (target.type == MessageTarget::TYPE_CHANNEL)
-			return ProcessMessages(user, target.Get<Channel>(), details.text);
+    ModResult OnUserPreMessage(User* user, const MessageTarget& target,
+                               MessageDetails& details) CXX11_OVERRIDE {
+        if (target.type == MessageTarget::TYPE_CHANNEL) {
+            return ProcessMessages(user, target.Get<Channel>(), details.text);
+        }
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 
-	void Prioritize() CXX11_OVERRIDE
-	{
-		// we want to be after all modules that might deny the message (e.g. m_muteban, m_noctcp, m_blockcolor, etc.)
-		ServerInstance->Modules->SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
-	}
+    void Prioritize() CXX11_OVERRIDE {
+        // we want to be after all modules that might deny the message (e.g. m_muteban, m_noctcp, m_blockcolor, etc.)
+        ServerInstance->Modules->SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides channel mode +x (oper-only message flood protection)");
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Provides channel mode +x (oper-only message flood protection)");
+    }
 };
 
 MODULE_INIT(ModuleGlobalMsgFlood)

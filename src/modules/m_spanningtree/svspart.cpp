@@ -26,25 +26,26 @@
 
 #include "commands.h"
 
-CmdResult CommandSVSPart::Handle(User* user, Params& parameters)
-{
-	User* u = ServerInstance->FindUUID(parameters[0]);
-	if (!u)
-		return CMD_FAILURE;
+CmdResult CommandSVSPart::Handle(User* user, Params& parameters) {
+    User* u = ServerInstance->FindUUID(parameters[0]);
+    if (!u) {
+        return CMD_FAILURE;
+    }
 
-	Channel* c = ServerInstance->FindChan(parameters[1]);
-	if (!c)
-		return CMD_FAILURE;
+    Channel* c = ServerInstance->FindChan(parameters[1]);
+    if (!c) {
+        return CMD_FAILURE;
+    }
 
-	if (IS_LOCAL(u))
-	{
-		std::string reason = (parameters.size() == 3) ? parameters[2] : "Services forced part";
-		c->PartUser(u, reason);
-	}
-	return CMD_SUCCESS;
+    if (IS_LOCAL(u)) {
+        std::string reason = (parameters.size() == 3) ? parameters[2] :
+                             "Services forced part";
+        c->PartUser(u, reason);
+    }
+    return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandSVSPart::GetRouting(User* user, const Params& parameters)
-{
-	return ROUTE_OPT_UCAST(parameters[0]);
+RouteDescriptor CommandSVSPart::GetRouting(User* user,
+        const Params& parameters) {
+    return ROUTE_OPT_UCAST(parameters[0]);
 }

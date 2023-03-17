@@ -27,100 +27,90 @@
 
 /** Handle user mode +W
  */
-class SeeWhois : public SimpleUserModeHandler
-{
- public:
-	SeeWhois(Module* Creator)
-		: SimpleUserModeHandler(Creator, "showwhois", 'W')
-	{
-	}
+class SeeWhois : public SimpleUserModeHandler {
+  public:
+    SeeWhois(Module* Creator)
+        : SimpleUserModeHandler(Creator, "showwhois", 'W') {
+    }
 
-	void SetOperOnly(bool operonly)
-	{
-		oper = operonly;
-	}
+    void SetOperOnly(bool operonly) {
+        oper = operonly;
+    }
 };
 
-class WhoisNoticeCmd : public Command
-{
- public:
-	WhoisNoticeCmd(Module* Creator) : Command(Creator,"WHOISNOTICE", 2)
-	{
-		flags_needed = FLAG_SERVERONLY;
-	}
+class WhoisNoticeCmd : public Command {
+  public:
+    WhoisNoticeCmd(Module* Creator) : Command(Creator,"WHOISNOTICE", 2) {
+        flags_needed = FLAG_SERVERONLY;
+    }
 
-	void HandleFast(User* dest, User* src)
-	{
-		dest->WriteNotice("*** " + src->nick + " (" + src->ident + "@" +
-			src->GetHost(dest->HasPrivPermission("users/auspex")) +
-			") did a /whois on you");
-	}
+    void HandleFast(User* dest, User* src) {
+        dest->WriteNotice("*** " + src->nick + " (" + src->ident + "@" +
+                          src->GetHost(dest->HasPrivPermission("users/auspex")) +
+                          ") did a /whois on you");
+    }
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		User* dest = ServerInstance->FindNick(parameters[0]);
-		if (!dest)
-			return CMD_FAILURE;
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE {
+        User* dest = ServerInstance->FindNick(parameters[0]);
+        if (!dest) {
+            return CMD_FAILURE;
+        }
 
-		User* source = ServerInstance->FindNick(parameters[1]);
+        User* source = ServerInstance->FindNick(parameters[1]);
 
-		if (IS_LOCAL(dest) && source)
-			HandleFast(dest, source);
+        if (IS_LOCAL(dest) && source) {
+            HandleFast(dest, source);
+        }
 
-		return CMD_SUCCESS;
-	}
+        return CMD_SUCCESS;
+    }
 };
 
-class ModuleShowwhois : public Module, public Whois::EventListener
-{
-	bool ShowWhoisFromOpers;
-	SeeWhois sw;
-	WhoisNoticeCmd cmd;
+class ModuleShowwhois : public Module, public Whois::EventListener {
+    bool ShowWhoisFromOpers;
+    SeeWhois sw;
+    WhoisNoticeCmd cmd;
 
- public:
+  public:
 
-	ModuleShowwhois()
-		: Whois::EventListener(this)
-		, sw(this)
-		, cmd(this)
-	{
-	}
+    ModuleShowwhois()
+        : Whois::EventListener(this)
+        , sw(this)
+        , cmd(this) {
+    }
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("showwhois");
+    void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("showwhois");
 
-		sw.SetOperOnly(tag->getBool("opersonly", true));
-		ShowWhoisFromOpers = tag->getBool("showfromopers", true);
-	}
+        sw.SetOperOnly(tag->getBool("opersonly", true));
+        ShowWhoisFromOpers = tag->getBool("showfromopers", true);
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds user mode W (showwhois) which allows users to be informed when someone does a /WHOIS query on their nick.", VF_OPTCOMMON|VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds user mode W (showwhois) which allows users to be informed when someone does a /WHOIS query on their nick.", VF_OPTCOMMON|VF_VENDOR);
+    }
 
-	void OnWhois(Whois::Context& whois) CXX11_OVERRIDE
-	{
-		User* const source = whois.GetSource();
-		User* const dest = whois.GetTarget();
-		if (!dest->IsModeSet(sw) || whois.IsSelfWhois())
-			return;
+    void OnWhois(Whois::Context& whois) CXX11_OVERRIDE {
+        User* const source = whois.GetSource();
+        User* const dest = whois.GetTarget();
+        if (!dest->IsModeSet(sw) || whois.IsSelfWhois()) {
+            return;
+        }
 
-		if (!ShowWhoisFromOpers && source->IsOper())
-			return;
+        if (!ShowWhoisFromOpers && source->IsOper()) {
+            return;
+        }
 
-		if (IS_LOCAL(dest))
-		{
-			cmd.HandleFast(dest, source);
-		}
-		else
-		{
-			CommandBase::Params params;
-			params.push_back(dest->uuid);
-			params.push_back(source->uuid);
-			ServerInstance->PI->SendEncapsulatedData(dest->server->GetName(), cmd.name, params);
-		}
-	}
+        if (IS_LOCAL(dest)) {
+            cmd.HandleFast(dest, source);
+        } else {
+            CommandBase::Params params;
+            params.push_back(dest->uuid);
+            params.push_back(source->uuid);
+            ServerInstance->PI->SendEncapsulatedData(dest->server->GetName(), cmd.name,
+                    params);
+        }
+    }
 };
 
 MODULE_INIT(ModuleShowwhois)

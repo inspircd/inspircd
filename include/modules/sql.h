@@ -24,170 +24,164 @@
 #pragma once
 
 
-namespace SQL
-{
-	class Error;
-	class Field;
-	class Provider;
-	class Query;
-	class Result;
+namespace SQL {
+class Error;
+class Field;
+class Provider;
+class Query;
+class Result;
 
-	/** A list of parameter replacement values. */
-	typedef std::vector<std::string> ParamList;
+/** A list of parameter replacement values. */
+typedef std::vector<std::string> ParamList;
 
-	/** A map of parameter replacement values. */
-	typedef std::map<std::string, std::string> ParamMap;
+/** A map of parameter replacement values. */
+typedef std::map<std::string, std::string> ParamMap;
 
-	/** A list of SQL fields from a specific row. */
-	typedef std::vector<Field> Row;
+/** A list of SQL fields from a specific row. */
+typedef std::vector<Field> Row;
 
-	/** An enumeration of possible error codes. */
-	enum ErrorCode
-	{
-		/** No error has occurred. */
-		SUCCESS,
+/** An enumeration of possible error codes. */
+enum ErrorCode {
+    /** No error has occurred. */
+    SUCCESS,
 
-		/** The database identifier is invalid. */
-		BAD_DBID,
+    /** The database identifier is invalid. */
+    BAD_DBID,
 
-		/** The database connection has failed. */
-		BAD_CONN,
+    /** The database connection has failed. */
+    BAD_CONN,
 
-		/** Executing the query failed. */
-		QSEND_FAIL,
+    /** Executing the query failed. */
+    QSEND_FAIL,
 
-		/** Reading the response failed. */
-		QREPLY_FAIL
-	};
+    /** Reading the response failed. */
+    QREPLY_FAIL
+};
 
-	/** Populates a parameter map with information about a user.
-	 * @param user The user to collect information from.
-	 * @param userinfo The map to populate.
-	 */
-	void PopulateUserInfo(User* user, ParamMap& userinfo);
+/** Populates a parameter map with information about a user.
+ * @param user The user to collect information from.
+ * @param userinfo The map to populate.
+ */
+void PopulateUserInfo(User* user, ParamMap& userinfo);
 }
 
 /** Represents a single SQL field. */
-class SQL::Field
-{
- private:
-	/** Whether this SQL field is NULL. */
-	bool null;
+class SQL::Field {
+  private:
+    /** Whether this SQL field is NULL. */
+    bool null;
 
-	/** The underlying SQL value. */
-	std::string value;
+    /** The underlying SQL value. */
+    std::string value;
 
- public:
-	/** Creates a new NULL SQL field. */
-	Field()
-		: null(true)
-	{
-	}
+  public:
+    /** Creates a new NULL SQL field. */
+    Field()
+        : null(true) {
+    }
 
-	/** Creates a new non-NULL SQL field.
-	 * @param v The value of the field.
-	 */
-	Field(const std::string& v)
-		: null(false)
-		, value(v)
-	{
-	}
+    /** Creates a new non-NULL SQL field.
+     * @param v The value of the field.
+     */
+    Field(const std::string& v)
+        : null(false)
+        , value(v) {
+    }
 
-	/** Determines whether this SQL entry is NULL. */
-	inline bool IsNull() const { return null; }
+    /** Determines whether this SQL entry is NULL. */
+    inline bool IsNull() const {
+        return null;
+    }
 
-	/** Retrieves the underlying value. */
-	inline operator const std::string&() const { return value; }
+    /** Retrieves the underlying value. */
+    inline operator const std::string&() const {
+        return value;
+    }
 };
 
 /** Represents the result of an SQL query. */
-class SQL::Result : public classbase
-{
- public:
-	/**
-	 * Return the number of rows in the result.
-	 *
-	 * Note that if you have performed an INSERT or UPDATE query or other
-	 * query which will not return rows, this will return the number of
-	 * affected rows. In this case you SHOULD NEVER access any of the result
-	 * set rows, as there aren't any!
-	 * @returns Number of rows in the result set.
-	 */
-	virtual int Rows() = 0;
+class SQL::Result : public classbase {
+  public:
+    /**
+     * Return the number of rows in the result.
+     *
+     * Note that if you have performed an INSERT or UPDATE query or other
+     * query which will not return rows, this will return the number of
+     * affected rows. In this case you SHOULD NEVER access any of the result
+     * set rows, as there aren't any!
+     * @returns Number of rows in the result set.
+     */
+    virtual int Rows() = 0;
 
-	/** Retrieves the next available row from the database.
-	 * @param result A list to store the fields from this row in.
-	 * @return True if a row could be retrieved; otherwise, false.
-	 */
-	virtual bool GetRow(Row& result) = 0;
+    /** Retrieves the next available row from the database.
+     * @param result A list to store the fields from this row in.
+     * @return True if a row could be retrieved; otherwise, false.
+     */
+    virtual bool GetRow(Row& result) = 0;
 
-	/** Retrieves a list of SQL columns in the result.
-	 * @param result A reference to the vector to store column names in.
-	 */
-	virtual void GetCols(std::vector<std::string>& result) = 0;
+    /** Retrieves a list of SQL columns in the result.
+     * @param result A reference to the vector to store column names in.
+     */
+    virtual void GetCols(std::vector<std::string>& result) = 0;
 
-	/**
-	 * Check if there's a column with the specified name in the result
-	 *
-	 * @param column The column name.
-	 * @param index The place to store the column index if it exists.
-	 * @returns If the column exists then true; otherwise, false.
-	 */
-	virtual bool HasColumn(const std::string& column, size_t& index) = 0;
+    /**
+     * Check if there's a column with the specified name in the result
+     *
+     * @param column The column name.
+     * @param index The place to store the column index if it exists.
+     * @returns If the column exists then true; otherwise, false.
+     */
+    virtual bool HasColumn(const std::string& column, size_t& index) = 0;
 };
 
 /** SQL::Error holds the error state of a request.
  * The error string varies from database software to database software
  * and should be used to display informational error messages to users.
  */
-class SQL::Error
-{
- private:
-	/** The custom error message if one has been specified. */
-	const std::string message;
+class SQL::Error {
+  private:
+    /** The custom error message if one has been specified. */
+    const std::string message;
 
- public:
-	/** The code which represents this error. */
-	const ErrorCode code;
+  public:
+    /** The code which represents this error. */
+    const ErrorCode code;
 
-	/** Initialize an SQL::Error from an error code.
-	 * @param c A code which represents this error.
-	 */
-	Error(ErrorCode c)
-		: code(c)
-	{
-	}
+    /** Initialize an SQL::Error from an error code.
+     * @param c A code which represents this error.
+     */
+    Error(ErrorCode c)
+        : code(c) {
+    }
 
-	/** Initialize an SQL::Error from an error code and a custom error message.
-	 * @param c A code which represents this error.
-	 * @param m A custom error message.
-	 */
-	Error(ErrorCode c, const std::string& m)
-		: message(m)
-		, code(c)
-	{
-	}
+    /** Initialize an SQL::Error from an error code and a custom error message.
+     * @param c A code which represents this error.
+     * @param m A custom error message.
+     */
+    Error(ErrorCode c, const std::string& m)
+        : message(m)
+        , code(c) {
+    }
 
-	/** Retrieves the error message. */
-	const char* ToString() const
-	{
-		if (!message.empty())
-			return message.c_str();
+    /** Retrieves the error message. */
+    const char* ToString() const {
+        if (!message.empty()) {
+            return message.c_str();
+        }
 
-		switch (code)
-		{
-			case BAD_DBID:
-				return "Invalid database identifier";
-			case BAD_CONN:
-				return "Invalid connection";
-			case QSEND_FAIL:
-				return "Sending query failed";
-			case QREPLY_FAIL:
-				return "Getting query result failed";
-			default:
-				return "Unknown error";
-		}
-	}
+        switch (code) {
+        case BAD_DBID:
+            return "Invalid database identifier";
+        case BAD_CONN:
+            return "Invalid connection";
+        case QSEND_FAIL:
+            return "Sending query failed";
+        case QREPLY_FAIL:
+            return "Getting query result failed";
+        default:
+            return "Unknown error";
+        }
+    }
 };
 
 /**
@@ -198,81 +192,79 @@ class SQL::Error
  * You should store whatever information is needed to have the callbacks work in
  * this object (UID of user, channel name, etc).
  */
-class SQL::Query : public classbase
-{
- protected:
-	/** Creates a new SQL query. */
-	Query(Module* Creator)
-		: creator(Creator)
-	{
-	}
+class SQL::Query : public classbase {
+  protected:
+    /** Creates a new SQL query. */
+    Query(Module* Creator)
+        : creator(Creator) {
+    }
 
- public:
-	const ModuleRef creator;
+  public:
+    const ModuleRef creator;
 
-	/* Destroys this Query instance. */
-	virtual ~Query()
-	{
-	}
+    /* Destroys this Query instance. */
+    virtual ~Query() {
+    }
 
-	/** Called when an SQL error happens.
-	 * @param error The error that occurred.
-	 */
-	virtual void OnError(Error& error) = 0;
+    /** Called when an SQL error happens.
+     * @param error The error that occurred.
+     */
+    virtual void OnError(Error& error) = 0;
 
-	/** Called when a SQL result is received.
-	 * @param result The result of the SQL query.
-	 */
-	virtual void OnResult(Result& result) = 0;
+    /** Called when a SQL result is received.
+     * @param result The result of the SQL query.
+     */
+    virtual void OnResult(Result& result) = 0;
 };
 
 /**
  * Provider object for SQL servers
  */
-class SQL::Provider : public DataProvider
-{
- private:
-	/** The name of the database tag in the config. */
-	const std::string dbid;
+class SQL::Provider : public DataProvider {
+  private:
+    /** The name of the database tag in the config. */
+    const std::string dbid;
 
- public:
-	Provider(Module* Creator, const std::string& Name)
-		: DataProvider(Creator, "SQL/" + Name)
-		, dbid(Name)
-	{
-	}
+  public:
+    Provider(Module* Creator, const std::string& Name)
+        : DataProvider(Creator, "SQL/" + Name)
+        , dbid(Name) {
+    }
 
-	/** Retrieves the name of the database tag in the config. */
-	const std::string& GetId() const { return dbid; }
+    /** Retrieves the name of the database tag in the config. */
+    const std::string& GetId() const {
+        return dbid;
+    }
 
-	/** Submit an asynchronous SQL query.
-	 * @param callback The result reporting point
-	 * @param query The hardcoded query string. If you have parameters to substitute, see below.
-	 */
-	virtual void Submit(Query* callback, const std::string& query) = 0;
+    /** Submit an asynchronous SQL query.
+     * @param callback The result reporting point
+     * @param query The hardcoded query string. If you have parameters to substitute, see below.
+     */
+    virtual void Submit(Query* callback, const std::string& query) = 0;
 
-	/** Submit an asynchronous SQL query.
-	 * @param callback The result reporting point
-	 * @param format The simple parameterized query string ('?' parameters)
-	 * @param p Parameters to fill in for the '?' entries
-	 */
-	virtual void Submit(Query* callback, const std::string& format, const SQL::ParamList& p) = 0;
+    /** Submit an asynchronous SQL query.
+     * @param callback The result reporting point
+     * @param format The simple parameterized query string ('?' parameters)
+     * @param p Parameters to fill in for the '?' entries
+     */
+    virtual void Submit(Query* callback, const std::string& format,
+                        const SQL::ParamList& p) = 0;
 
-	/** Submit an asynchronous SQL query.
-	 * @param callback The result reporting point
-	 * @param format The parameterized query string ('$name' parameters)
-	 * @param p Parameters to fill in for the '$name' entries
-	 */
-	virtual void Submit(Query* callback, const std::string& format, const ParamMap& p) = 0;
+    /** Submit an asynchronous SQL query.
+     * @param callback The result reporting point
+     * @param format The parameterized query string ('$name' parameters)
+     * @param p Parameters to fill in for the '$name' entries
+     */
+    virtual void Submit(Query* callback, const std::string& format,
+                        const ParamMap& p) = 0;
 };
 
-inline void SQL::PopulateUserInfo(User* user, ParamMap& userinfo)
-{
-	userinfo["nick"] = user->nick;
-	userinfo["host"] = user->GetRealHost();
-	userinfo["ip"] = user->GetIPString();
-	userinfo["real"] = user->GetRealName();
-	userinfo["ident"] = user->ident;
-	userinfo["server"] = user->server->GetName();
-	userinfo["uuid"] = user->uuid;
+inline void SQL::PopulateUserInfo(User* user, ParamMap& userinfo) {
+    userinfo["nick"] = user->nick;
+    userinfo["host"] = user->GetRealHost();
+    userinfo["ip"] = user->GetIPString();
+    userinfo["real"] = user->GetRealName();
+    userinfo["ident"] = user->ident;
+    userinfo["server"] = user->server->GetName();
+    userinfo["uuid"] = user->uuid;
 }

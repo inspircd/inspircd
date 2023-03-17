@@ -30,43 +30,36 @@
 
 /** Handle /GLOBOPS
  */
-class CommandGlobops : public Command
-{
- public:
-	CommandGlobops(Module* Creator) : Command(Creator,"GLOBOPS", 1,1)
-	{
-		flags_needed = 'o';
-		syntax = ":<message>";
-	}
+class CommandGlobops : public Command {
+  public:
+    CommandGlobops(Module* Creator) : Command(Creator,"GLOBOPS", 1,1) {
+        flags_needed = 'o';
+        syntax = ":<message>";
+    }
 
-	CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE
-	{
-		if (parameters[0].empty())
-		{
-			user->WriteNumeric(ERR_NOTEXTTOSEND, "No text to send");
-			return CMD_FAILURE;
-		}
+    CmdResult Handle(User* user, const Params& parameters) CXX11_OVERRIDE {
+        if (parameters[0].empty()) {
+            user->WriteNumeric(ERR_NOTEXTTOSEND, "No text to send");
+            return CMD_FAILURE;
+        }
 
-		ServerInstance->SNO->WriteGlobalSno('g', "From " + user->nick + ": " + parameters[0]);
-		return CMD_SUCCESS;
-	}
+        ServerInstance->SNO->WriteGlobalSno('g', "From " + user->nick + ": " + parameters[0]);
+        return CMD_SUCCESS;
+    }
 };
 
-class ModuleGlobops : public Module
-{
-	CommandGlobops cmd;
- public:
-	ModuleGlobops() : cmd(this) {}
+class ModuleGlobops : public Module {
+    CommandGlobops cmd;
+  public:
+    ModuleGlobops() : cmd(this) {}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->SNO->EnableSnomask('g',"GLOBOPS");
-	}
+    void init() CXX11_OVERRIDE {
+        ServerInstance->SNO->EnableSnomask('g',"GLOBOPS");
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds the /GLOBOPS command which allows server operators to send messages to all server operators with the g (globops) snomask.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds the /GLOBOPS command which allows server operators to send messages to all server operators with the g (globops) snomask.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleGlobops)

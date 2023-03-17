@@ -30,173 +30,162 @@
 
 /** Holds flood settings and state for mode +f
  */
-class floodsettings
-{
- public:
-	bool ban;
-	unsigned int secs;
-	unsigned int lines;
-	time_t reset;
-	insp::flat_map<User*, double> counters;
+class floodsettings {
+  public:
+    bool ban;
+    unsigned int secs;
+    unsigned int lines;
+    time_t reset;
+    insp::flat_map<User*, double> counters;
 
-	floodsettings(bool a, unsigned int b, unsigned int c)
-		: ban(a)
-		, secs(b)
-		, lines(c)
-	{
-		reset = ServerInstance->Time() + secs;
-	}
+    floodsettings(bool a, unsigned int b, unsigned int c)
+        : ban(a)
+        , secs(b)
+        , lines(c) {
+        reset = ServerInstance->Time() + secs;
+    }
 
-	bool addmessage(User* who, double weight)
-	{
-		if (ServerInstance->Time() > reset)
-		{
-			counters.clear();
-			reset = ServerInstance->Time() + secs;
-		}
+    bool addmessage(User* who, double weight) {
+        if (ServerInstance->Time() > reset) {
+            counters.clear();
+            reset = ServerInstance->Time() + secs;
+        }
 
-		counters[who] += weight;
-		return (counters[who] >= this->lines);
-	}
+        counters[who] += weight;
+        return (counters[who] >= this->lines);
+    }
 
-	void clear(User* who)
-	{
-		counters.erase(who);
-	}
+    void clear(User* who) {
+        counters.erase(who);
+    }
 };
 
 /** Handles channel mode +f
  */
-class MsgFlood : public ParamMode<MsgFlood, SimpleExtItem<floodsettings> >
-{
- public:
-	MsgFlood(Module* Creator)
-		: ParamMode<MsgFlood, SimpleExtItem<floodsettings> >(Creator, "flood", 'f')
-	{
-		syntax = "[*]<messages>:<seconds>";
-	}
+class MsgFlood : public ParamMode<MsgFlood, SimpleExtItem<floodsettings> > {
+  public:
+    MsgFlood(Module* Creator)
+        : ParamMode<MsgFlood, SimpleExtItem<floodsettings> >(Creator, "flood", 'f') {
+        syntax = "[*]<messages>:<seconds>";
+    }
 
-	ModeAction OnSet(User* source, Channel* channel, std::string& parameter) CXX11_OVERRIDE
-	{
-		std::string::size_type colon = parameter.find(':');
-		if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
-		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
-		}
+    ModeAction OnSet(User* source, Channel* channel,
+                     std::string& parameter) CXX11_OVERRIDE {
+        std::string::size_type colon = parameter.find(':');
+        if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos)) {
+            source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
+            return MODEACTION_DENY;
+        }
 
-		/* Set up the flood parameters for this channel */
-		bool ban = (parameter[0] == '*');
-		unsigned int nlines = ConvToNum<unsigned int>(parameter.substr(ban ? 1 : 0, ban ? colon-1 : colon));
-		unsigned int nsecs = ConvToNum<unsigned int>(parameter.substr(colon+1));
+        /* Set up the flood parameters for this channel */
+        bool ban = (parameter[0] == '*');
+        unsigned int nlines = ConvToNum<unsigned int>(parameter.substr(ban ? 1 : 0, ban ? colon-1 : colon));
+        unsigned int nsecs = ConvToNum<unsigned int>(parameter.substr(colon+1));
 
-		if ((nlines<2) || (nsecs<1))
-		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
-			return MODEACTION_DENY;
-		}
+        if ((nlines<2) || (nsecs<1)) {
+            source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
+            return MODEACTION_DENY;
+        }
 
-		ext.set(channel, new floodsettings(ban, nsecs, nlines));
-		return MODEACTION_ALLOW;
-	}
+        ext.set(channel, new floodsettings(ban, nsecs, nlines));
+        return MODEACTION_ALLOW;
+    }
 
-	void SerializeParam(Channel* chan, const floodsettings* fs, std::string& out)
-	{
-		if (fs->ban)
-			out.push_back('*');
-		out.append(ConvToStr(fs->lines)).push_back(':');
-		out.append(ConvToStr(fs->secs));
-	}
+    void SerializeParam(Channel* chan, const floodsettings* fs, std::string& out) {
+        if (fs->ban) {
+            out.push_back('*');
+        }
+        out.append(ConvToStr(fs->lines)).push_back(':');
+        out.append(ConvToStr(fs->secs));
+    }
 };
 
 class ModuleMsgFlood
-	: public Module
-	, public CTCTags::EventListener
-{
-private:
-	ChanModeReference banmode;
-	CheckExemption::EventProvider exemptionprov;
-	MsgFlood mf;
-	double notice;
-	double privmsg;
-	double tagmsg;
+    : public Module
+    , public CTCTags::EventListener {
+  private:
+    ChanModeReference banmode;
+    CheckExemption::EventProvider exemptionprov;
+    MsgFlood mf;
+    double notice;
+    double privmsg;
+    double tagmsg;
 
- public:
-	ModuleMsgFlood()
-		: CTCTags::EventListener(this)
-		, banmode(this, "ban")
-		, exemptionprov(this)
-		, mf(this)
-	{
-	}
+  public:
+    ModuleMsgFlood()
+        : CTCTags::EventListener(this)
+        , banmode(this, "ban")
+        , exemptionprov(this)
+        , mf(this) {
+    }
 
-	void ReadConfig(ConfigStatus&) CXX11_OVERRIDE
-	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("messageflood");
-		notice = tag->getFloat("notice", 1.0);
-		privmsg = tag->getFloat("privmsg", 1.0);
-		tagmsg = tag->getFloat("tagmsg", 0.2);
-	}
+    void ReadConfig(ConfigStatus&) CXX11_OVERRIDE {
+        ConfigTag* tag = ServerInstance->Config->ConfValue("messageflood");
+        notice = tag->getFloat("notice", 1.0);
+        privmsg = tag->getFloat("privmsg", 1.0);
+        tagmsg = tag->getFloat("tagmsg", 0.2);
+    }
 
-	ModResult HandleMessage(User* user, const MessageTarget& target, double weight)
-	{
-		if (target.type != MessageTarget::TYPE_CHANNEL)
-			return MOD_RES_PASSTHRU;
+    ModResult HandleMessage(User* user, const MessageTarget& target,
+                            double weight) {
+        if (target.type != MessageTarget::TYPE_CHANNEL) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		Channel* dest = target.Get<Channel>();
-		if ((!IS_LOCAL(user)) || !dest->IsModeSet(mf))
-			return MOD_RES_PASSTHRU;
+        Channel* dest = target.Get<Channel>();
+        if ((!IS_LOCAL(user)) || !dest->IsModeSet(mf)) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		ModResult res = CheckExemption::Call(exemptionprov, user, dest, "flood");
-		if (res == MOD_RES_ALLOW)
-			return MOD_RES_PASSTHRU;
+        ModResult res = CheckExemption::Call(exemptionprov, user, dest, "flood");
+        if (res == MOD_RES_ALLOW) {
+            return MOD_RES_PASSTHRU;
+        }
 
-		floodsettings *f = mf.ext.get(dest);
-		if (f)
-		{
-			if (f->addmessage(user, weight))
-			{
-				/* You're outttta here! */
-				f->clear(user);
-				if (f->ban)
-				{
-					Modes::ChangeList changelist;
-					changelist.push_add(*banmode, "*!" + user->GetBanIdent() + "@" + user->GetDisplayedHost());
-					ServerInstance->Modes->Process(ServerInstance->FakeClient, dest, NULL, changelist);
-				}
+        floodsettings *f = mf.ext.get(dest);
+        if (f) {
+            if (f->addmessage(user, weight)) {
+                /* You're outttta here! */
+                f->clear(user);
+                if (f->ban) {
+                    Modes::ChangeList changelist;
+                    changelist.push_add(*banmode,
+                                        "*!" + user->GetBanIdent() + "@" + user->GetDisplayedHost());
+                    ServerInstance->Modes->Process(ServerInstance->FakeClient, dest, NULL,
+                                                   changelist);
+                }
 
-				const std::string kickMessage = "Channel flood triggered (trigger is " + ConvToStr(f->lines) +
-					" lines in " + ConvToStr(f->secs) + " secs)";
+                const std::string kickMessage = "Channel flood triggered (trigger is " +
+                                                ConvToStr(f->lines) +
+                                                " lines in " + ConvToStr(f->secs) + " secs)";
 
-				dest->KickUser(ServerInstance->FakeClient, user, kickMessage);
+                dest->KickUser(ServerInstance->FakeClient, user, kickMessage);
 
-				return MOD_RES_DENY;
-			}
-		}
+                return MOD_RES_DENY;
+            }
+        }
 
-		return MOD_RES_PASSTHRU;
-	}
+        return MOD_RES_PASSTHRU;
+    }
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) CXX11_OVERRIDE
-	{
-		return HandleMessage(user, target, (details.type == MSG_PRIVMSG ? privmsg : notice));
-	}
+    ModResult OnUserPreMessage(User* user, const MessageTarget& target,
+                               MessageDetails& details) CXX11_OVERRIDE {
+        return HandleMessage(user, target, (details.type == MSG_PRIVMSG ? privmsg : notice));
+    }
 
-	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) CXX11_OVERRIDE
-	{
-		return HandleMessage(user, target, tagmsg);
-	}
+    ModResult OnUserPreTagMessage(User* user, const MessageTarget& target,
+                                  CTCTags::TagMessageDetails& details) CXX11_OVERRIDE {
+        return HandleMessage(user, target, tagmsg);
+    }
 
-	void Prioritize() CXX11_OVERRIDE
-	{
-		// we want to be after all modules that might deny the message (e.g. m_muteban, m_noctcp, m_blockcolor, etc.)
-		ServerInstance->Modules->SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
-	}
+    void Prioritize() CXX11_OVERRIDE {
+        // we want to be after all modules that might deny the message (e.g. m_muteban, m_noctcp, m_blockcolor, etc.)
+        ServerInstance->Modules->SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
+    }
 
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Adds channel mode f (flood) which helps protect against spammers which mass-message channels.", VF_VENDOR);
-	}
+    Version GetVersion() CXX11_OVERRIDE {
+        return Version("Adds channel mode f (flood) which helps protect against spammers which mass-message channels.", VF_VENDOR);
+    }
 };
 
 MODULE_INIT(ModuleMsgFlood)

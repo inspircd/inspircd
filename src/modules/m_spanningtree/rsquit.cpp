@@ -31,41 +31,44 @@
 #include "commands.h"
 
 CommandRSQuit::CommandRSQuit(Module* Creator)
-	: Command(Creator, "RSQUIT", 1)
-{
-	flags_needed = 'o';
-	syntax = "<target-server-mask> [:<reason>]";
+    : Command(Creator, "RSQUIT", 1) {
+    flags_needed = 'o';
+    syntax = "<target-server-mask> [:<reason>]";
 }
 
-CmdResult CommandRSQuit::Handle(User* user, const Params& parameters)
-{
-	TreeServer *server_target; // Server to squit
+CmdResult CommandRSQuit::Handle(User* user, const Params& parameters) {
+    TreeServer *server_target; // Server to squit
 
-	server_target = Utils->FindServerMask(parameters[0]);
-	if (!server_target)
-	{
-		user->WriteRemoteNotice(InspIRCd::Format("*** RSQUIT: Server \002%s\002 isn't connected to the network!", parameters[0].c_str()));
-		return CMD_FAILURE;
-	}
+    server_target = Utils->FindServerMask(parameters[0]);
+    if (!server_target) {
+        user->WriteRemoteNotice(
+            InspIRCd::Format("*** RSQUIT: Server \002%s\002 isn't connected to the network!",
+                             parameters[0].c_str()));
+        return CMD_FAILURE;
+    }
 
-	if (server_target->IsRoot())
-	{
-		user->WriteRemoteNotice(InspIRCd::Format("*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)", parameters[0].c_str()));
-		return CMD_FAILURE;
-	}
+    if (server_target->IsRoot()) {
+        user->WriteRemoteNotice(
+            InspIRCd::Format("*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)",
+                             parameters[0].c_str()));
+        return CMD_FAILURE;
+    }
 
-	if (server_target->IsLocal())
-	{
-		// We have been asked to remove server_target.
-		const char* reason = parameters.size() == 2 ? parameters[1].c_str() : "No reason";
-		ServerInstance->SNO->WriteToSnoMask('l',"RSQUIT: Server \002%s\002 removed from network by %s (%s)", parameters[0].c_str(), user->nick.c_str(), reason);
-		server_target->SQuit("Server quit by " + user->GetFullRealHost() + " (" + reason + ")");
-	}
+    if (server_target->IsLocal()) {
+        // We have been asked to remove server_target.
+        const char* reason = parameters.size() == 2 ? parameters[1].c_str() :
+                             "No reason";
+        ServerInstance->SNO->WriteToSnoMask('l',
+                                            "RSQUIT: Server \002%s\002 removed from network by %s (%s)",
+                                            parameters[0].c_str(), user->nick.c_str(), reason);
+        server_target->SQuit("Server quit by " + user->GetFullRealHost() + " (" + reason
+                             + ")");
+    }
 
-	return CMD_SUCCESS;
+    return CMD_SUCCESS;
 }
 
-RouteDescriptor CommandRSQuit::GetRouting(User* user, const Params& parameters)
-{
-	return ROUTE_UNICAST(parameters[0]);
+RouteDescriptor CommandRSQuit::GetRouting(User* user,
+        const Params& parameters) {
+    return ROUTE_UNICAST(parameters[0]);
 }

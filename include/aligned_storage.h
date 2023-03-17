@@ -19,32 +19,27 @@
 
 #pragma once
 
-namespace insp
-{
-	template <typename T> class aligned_storage;
+namespace insp {
+template <typename T> class aligned_storage;
 }
 
 template <typename T>
-class insp::aligned_storage
-{
-	mutable typename TR1NS::aligned_storage<sizeof(T), TR1NS::alignment_of<T>::value>::type data;
+class insp::aligned_storage {
+    mutable typename
+    TR1NS::aligned_storage<sizeof(T), TR1NS::alignment_of<T>::value>::type data;
 
- public:
-	aligned_storage()
-	{
-	}
+  public:
+    aligned_storage() {
+    }
 
-	aligned_storage(const aligned_storage& other)
-	{
-	}
+    aligned_storage(const aligned_storage& other) {
+    }
 
-	T* operator->() const
-	{
-		return static_cast<T*>(static_cast<void*>(&data));
-	}
+    T* operator->() const {
+        return static_cast<T*>(static_cast<void*>(&data));
+    }
 
-	operator T*() const
-	{
-		return operator->();
-	}
+    operator T*() const {
+        return operator->();
+    }
 };

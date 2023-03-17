@@ -26,38 +26,35 @@
 #include "inspircd.h"
 #include "core_user.h"
 
-CmdResult CommandUserhost::Handle(User* user, const Params& parameters)
-{
-	const bool has_privs = user->HasPrivPermission("users/auspex");
+CmdResult CommandUserhost::Handle(User* user, const Params& parameters) {
+    const bool has_privs = user->HasPrivPermission("users/auspex");
 
-	std::string retbuf;
+    std::string retbuf;
 
-	size_t paramcount = std::min<size_t>(parameters.size(), 5);
-	for (size_t i = 0; i < paramcount; ++i)
-	{
-		User *u = ServerInstance->FindNickOnly(parameters[i]);
+    size_t paramcount = std::min<size_t>(parameters.size(), 5);
+    for (size_t i = 0; i < paramcount; ++i) {
+        User *u = ServerInstance->FindNickOnly(parameters[i]);
 
-		if ((u) && (u->registered == REG_ALL))
-		{
-			retbuf += u->nick;
+        if ((u) && (u->registered == REG_ALL)) {
+            retbuf += u->nick;
 
-			if (u->IsOper())
-			{
-				// XXX: +H hidden opers must not be shown as opers
-				if ((u == user) || (has_privs) || (!u->IsModeSet(hideopermode)))
-					retbuf += '*';
-			}
+            if (u->IsOper()) {
+                // XXX: +H hidden opers must not be shown as opers
+                if ((u == user) || (has_privs) || (!u->IsModeSet(hideopermode))) {
+                    retbuf += '*';
+                }
+            }
 
-			retbuf += '=';
-			retbuf += (u->IsAway() ? '-' : '+');
-			retbuf += u->ident;
-			retbuf += '@';
-			retbuf += u->GetHost(u == user || has_privs);
-			retbuf += ' ';
-		}
-	}
+            retbuf += '=';
+            retbuf += (u->IsAway() ? '-' : '+');
+            retbuf += u->ident;
+            retbuf += '@';
+            retbuf += u->GetHost(u == user || has_privs);
+            retbuf += ' ';
+        }
+    }
 
-	user->WriteNumeric(RPL_USERHOST, retbuf);
+    user->WriteNumeric(RPL_USERHOST, retbuf);
 
-	return CMD_SUCCESS;
+    return CMD_SUCCESS;
 }

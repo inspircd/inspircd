@@ -64,227 +64,220 @@ CoreExport extern unsigned const char ascii_case_insensitive_map[256];
 
 /** The irc namespace contains a number of helper classes.
  */
-namespace irc
-{
-	/** Check if two IRC object (e.g. nick or channel) names are equal.
-	 * This function uses national_case_insensitive_map to determine equality, which, by default does comparison
-	 * according to RFC 1459, treating certain otherwise non-identical characters as identical.
-	 * @param s1 First string to compare
-	 * @param s2 Second string to compare
-	 * @return True if the two names are equal, false otherwise
-	 */
-	CoreExport bool equals(const std::string& s1, const std::string& s2);
+namespace irc {
+/** Check if two IRC object (e.g. nick or channel) names are equal.
+ * This function uses national_case_insensitive_map to determine equality, which, by default does comparison
+ * according to RFC 1459, treating certain otherwise non-identical characters as identical.
+ * @param s1 First string to compare
+ * @param s2 Second string to compare
+ * @return True if the two names are equal, false otherwise
+ */
+CoreExport bool equals(const std::string& s1, const std::string& s2);
 
-	/** Check whether \p needle exists within \p haystack.
-	 * @param haystack The string to search within.
-	 * @param needle The string to search for.
-	 * @return Either the index at which \p needle was found or std::string::npos.
-	 */
-	CoreExport size_t find(const std::string& haystack, const std::string& needle);
+/** Check whether \p needle exists within \p haystack.
+ * @param haystack The string to search within.
+ * @param needle The string to search for.
+ * @return Either the index at which \p needle was found or std::string::npos.
+ */
+CoreExport size_t find(const std::string& haystack, const std::string& needle);
 
-	/** This class returns true if two strings match.
-	 * Case sensitivity is ignored, and the RFC 'character set'
-	 * is adhered to
-	 */
-	struct StrHashComp
-	{
-		/** The operator () does the actual comparison in hash_map
-		 */
-		bool operator()(const std::string& s1, const std::string& s2) const
-		{
-			return equals(s1, s2);
-		}
-	};
+/** This class returns true if two strings match.
+ * Case sensitivity is ignored, and the RFC 'character set'
+ * is adhered to
+ */
+struct StrHashComp {
+    /** The operator () does the actual comparison in hash_map
+     */
+    bool operator()(const std::string& s1, const std::string& s2) const {
+        return equals(s1, s2);
+    }
+};
 
-	struct insensitive
-	{
-		size_t CoreExport operator()(const std::string &s) const;
-	};
+struct insensitive {
+    size_t CoreExport operator()(const std::string &s) const;
+};
 
-	struct insensitive_swo
-	{
-		bool CoreExport operator()(const std::string& a, const std::string& b) const;
-	};
+struct insensitive_swo {
+    bool CoreExport operator()(const std::string& a, const std::string& b) const;
+};
 
-	/** irc::sepstream allows for splitting token separated lists.
-	 * Each successive call to sepstream::GetToken() returns
-	 * the next token, until none remain, at which point the method returns
-	 * false.
-	 */
-	class CoreExport sepstream
-	{
-	 protected:
-		/** Original string.
-		 */
-		std::string tokens;
-		/** Separator value
-		 */
-		char sep;
-		/** Current string position
-		 */
-		size_t pos;
-		/** If set then GetToken() can return an empty string
-		 */
-		bool allow_empty;
-	 public:
-		/** Create a sepstream and fill it with the provided data
-		 */
-		sepstream(const std::string &source, char separator, bool allowempty = false);
+/** irc::sepstream allows for splitting token separated lists.
+ * Each successive call to sepstream::GetToken() returns
+ * the next token, until none remain, at which point the method returns
+ * false.
+ */
+class CoreExport sepstream {
+  protected:
+    /** Original string.
+     */
+    std::string tokens;
+    /** Separator value
+     */
+    char sep;
+    /** Current string position
+     */
+    size_t pos;
+    /** If set then GetToken() can return an empty string
+     */
+    bool allow_empty;
+  public:
+    /** Create a sepstream and fill it with the provided data
+     */
+    sepstream(const std::string &source, char separator, bool allowempty = false);
 
-		/** Fetch the next token from the stream
-		 * @param token The next token from the stream is placed here
-		 * @return True if tokens still remain, false if there are none left
-		 */
-		bool GetToken(std::string& token);
+    /** Fetch the next token from the stream
+     * @param token The next token from the stream is placed here
+     * @return True if tokens still remain, false if there are none left
+     */
+    bool GetToken(std::string& token);
 
-		/** Fetch the next numeric token from the stream
-		 * @param token The next token from the stream is placed here
-		 * @return True if tokens still remain, false if there are none left
-		 */
-		template<typename Numeric>
-		bool GetNumericToken(Numeric& token)
-		{
-			std::string str;
-			if (!GetToken(str))
-				return false;
+    /** Fetch the next numeric token from the stream
+     * @param token The next token from the stream is placed here
+     * @return True if tokens still remain, false if there are none left
+     */
+    template<typename Numeric>
+    bool GetNumericToken(Numeric& token) {
+        std::string str;
+        if (!GetToken(str)) {
+            return false;
+        }
 
-			token = ConvToNum<Numeric>(str);
-			return true;
-		}
+        token = ConvToNum<Numeric>(str);
+        return true;
+    }
 
-		/** Fetch the entire remaining stream, without tokenizing
-		 * @return The remaining part of the stream
-		 */
-		const std::string GetRemaining();
+    /** Fetch the entire remaining stream, without tokenizing
+     * @return The remaining part of the stream
+     */
+    const std::string GetRemaining();
 
-		/** Returns true if the end of the stream has been reached
-		 * @return True if the end of the stream has been reached, otherwise false
-		 */
-		bool StreamEnd();
+    /** Returns true if the end of the stream has been reached
+     * @return True if the end of the stream has been reached, otherwise false
+     */
+    bool StreamEnd();
 
-		/** Returns true if the specified value exists in the stream
-		 * @param value The value to search for
-		 * @return True if the value was found, False otherwise
-		 */
-		bool Contains(const std::string& value);
-	};
+    /** Returns true if the specified value exists in the stream
+     * @param value The value to search for
+     * @return True if the value was found, False otherwise
+     */
+    bool Contains(const std::string& value);
+};
 
-	/** A derived form of sepstream, which separates on commas
-	 */
-	class CoreExport commasepstream : public sepstream
-	{
-	 public:
-		/** Initialize with comma separator
-		 */
-		commasepstream(const std::string &source, bool allowempty = false) : sepstream(source, ',', allowempty)
-		{
-		}
-	};
+/** A derived form of sepstream, which separates on commas
+ */
+class CoreExport commasepstream : public sepstream {
+  public:
+    /** Initialize with comma separator
+     */
+    commasepstream(const std::string &source,
+                   bool allowempty = false) : sepstream(source, ',', allowempty) {
+    }
+};
 
-	/** A derived form of sepstream, which separates on spaces
-	 */
-	class CoreExport spacesepstream : public sepstream
-	{
-	 public:
-		/** Initialize with space separator
-		 */
-		spacesepstream(const std::string &source, bool allowempty = false) : sepstream(source, ' ', allowempty)
-		{
-		}
-	};
+/** A derived form of sepstream, which separates on spaces
+ */
+class CoreExport spacesepstream : public sepstream {
+  public:
+    /** Initialize with space separator
+     */
+    spacesepstream(const std::string &source,
+                   bool allowempty = false) : sepstream(source, ' ', allowempty) {
+    }
+};
 
-	/** irc::tokenstream reads a string formatted as per RFC1459 and RFC2812.
-	 * It will split the string into 'tokens' each containing one parameter
-	 * from the string.
-	 * For instance, if it is instantiated with the string:
-	 * "PRIVMSG #test :foo bar baz qux"
-	 * then each successive call to tokenstream::GetToken() will return
-	 * "PRIVMSG", "#test", "foo bar baz qux", "".
-	 * Note that if the whole string starts with a colon this is not taken
-	 * to mean the string is all one parameter, and the first item in the
-	 * list will be ":item". This is to allow for parsing 'source' fields
-	 * from data.
-	 */
-	class CoreExport tokenstream
-	{
-	private:
-		/** The message we are parsing tokens from. */
-		std::string message;
+/** irc::tokenstream reads a string formatted as per RFC1459 and RFC2812.
+ * It will split the string into 'tokens' each containing one parameter
+ * from the string.
+ * For instance, if it is instantiated with the string:
+ * "PRIVMSG #test :foo bar baz qux"
+ * then each successive call to tokenstream::GetToken() will return
+ * "PRIVMSG", "#test", "foo bar baz qux", "".
+ * Note that if the whole string starts with a colon this is not taken
+ * to mean the string is all one parameter, and the first item in the
+ * list will be ":item". This is to allow for parsing 'source' fields
+ * from data.
+ */
+class CoreExport tokenstream {
+  private:
+    /** The message we are parsing tokens from. */
+    std::string message;
 
-		/** The current position within the message. */
-		size_t position;
+    /** The current position within the message. */
+    size_t position;
 
-	 public:
-		/** Create a tokenstream and fill it with the provided data. */
-		tokenstream(const std::string& msg, size_t start = 0, size_t end = std::string::npos);
+  public:
+    /** Create a tokenstream and fill it with the provided data. */
+    tokenstream(const std::string& msg, size_t start = 0,
+                size_t end = std::string::npos);
 
-		/** Retrieves the underlying message. */
-		std::string& GetMessage() { return message; }
+    /** Retrieves the underlying message. */
+    std::string& GetMessage() {
+        return message;
+    }
 
-		/** Retrieve the next \<middle> token in the token stream.
-		 * @param token The next token available, or an empty string if none remain.
-		 * @return True if tokens are left to be read, false if the last token was just retrieved.
-		 */
-		bool GetMiddle(std::string& token);
+    /** Retrieve the next \<middle> token in the token stream.
+     * @param token The next token available, or an empty string if none remain.
+     * @return True if tokens are left to be read, false if the last token was just retrieved.
+     */
+    bool GetMiddle(std::string& token);
 
-		/** Retrieve the next \<trailing> token in the token stream.
-		 * @param token The next token available, or an empty string if none remain.
-		 * @return True if tokens are left to be read, false if the last token was just retrieved.
-		 */
-		bool GetTrailing(std::string& token);
-	};
+    /** Retrieve the next \<trailing> token in the token stream.
+     * @param token The next token available, or an empty string if none remain.
+     * @return True if tokens are left to be read, false if the last token was just retrieved.
+     */
+    bool GetTrailing(std::string& token);
+};
 
-	/** The portparser class separates out a port range into integers.
-	 * A port range may be specified in the input string in the form
-	 * "6660,6661,6662-6669,7020". The end of the stream is indicated by
-	 * a return value of 0 from portparser::GetToken(). If you attempt
-	 * to specify an illegal range (e.g. one where start >= end, or
-	 * start or end < 0) then GetToken() will return the first element
-	 * of the pair of numbers.
-	 */
-	class CoreExport portparser
-	{
-	 private:
+/** The portparser class separates out a port range into integers.
+ * A port range may be specified in the input string in the form
+ * "6660,6661,6662-6669,7020". The end of the stream is indicated by
+ * a return value of 0 from portparser::GetToken(). If you attempt
+ * to specify an illegal range (e.g. one where start >= end, or
+ * start or end < 0) then GetToken() will return the first element
+ * of the pair of numbers.
+ */
+class CoreExport portparser {
+  private:
 
-		/** Used to split on commas
-		 */
-		commasepstream sep;
+    /** Used to split on commas
+     */
+    commasepstream sep;
 
-		/** Current position in a range of ports
-		 */
-		long in_range;
+    /** Current position in a range of ports
+     */
+    long in_range;
 
-		/** Starting port in a range of ports
-		 */
-		long range_begin;
+    /** Starting port in a range of ports
+     */
+    long range_begin;
 
-		/** Ending port in a range of ports
-		 */
-		long range_end;
+    /** Ending port in a range of ports
+     */
+    long range_end;
 
-		/** Allow overlapped port ranges
-		 */
-		bool overlapped;
+    /** Allow overlapped port ranges
+     */
+    bool overlapped;
 
-		/** Used to determine overlapping of ports
-		 * without O(n) algorithm being used
-		 */
-		std::set<long> overlap_set;
+    /** Used to determine overlapping of ports
+     * without O(n) algorithm being used
+     */
+    std::set<long> overlap_set;
 
-		/** Returns true if val overlaps an existing range
-		 */
-		bool Overlaps(long val);
-	 public:
+    /** Returns true if val overlaps an existing range
+     */
+    bool Overlaps(long val);
+  public:
 
-		/** Create a portparser and fill it with the provided data
-		 * @param source The source text to parse from
-		 * @param allow_overlapped Allow overlapped ranges
-		 */
-		portparser(const std::string &source, bool allow_overlapped = true);
+    /** Create a portparser and fill it with the provided data
+     * @param source The source text to parse from
+     * @param allow_overlapped Allow overlapped ranges
+     */
+    portparser(const std::string &source, bool allow_overlapped = true);
 
-		/** Fetch the next token from the stream
-		 * @return The next port number is returned, or 0 if none remain
-		 */
-		long GetToken();
-	};
+    /** Fetch the next token from the stream
+     * @return The next port number is returned, or 0 if none remain
+     */
+    long GetToken();
+};
 }
