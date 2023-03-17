@@ -50,5 +50,5 @@ add_library(m_spanningtree
 
 set_target_properties(m_spanningtree PROPERTIES PREFIX ""
   VERSION ${PROJECT_VERSION}
-  SOVERSION 1
-  PUBLIC_HEADER inspircd.h COMPILE_DEFINITIONS "MODNAME=\"m_spanningtree\"")
+  COMPILE_DEFINITIONS "MODNAME=\"m_spanningtree\"")
+install(TARGETS m_spanningtree DESTINATION lib/clandestine/modules/)

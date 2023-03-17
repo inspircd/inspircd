@@ -46,8 +46,10 @@ target_link_libraries(clandestine
   threadengines)
 
 add_executable(ircd inspircd.cpp)
-target_link_libraries(ircd clandestine)
-target_link_libraries(ircd -ldl -pthread)
+target_link_libraries(ircd 
+  clandestine 
+  -ldl 
+  -pthread)
 
 add_subdirectory(modules/)
 

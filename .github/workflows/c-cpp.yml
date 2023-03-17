@@ -24,9 +24,6 @@ jobs:
     - name: cmake init 
       run: cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake
       working-directory: ./build
-    - name: make
-      run: make
-      working-directory: ./build
-    - name: make install
-      run: sudo make install
+    - name: make & install
+      run: sudo make DESTDIR=./dist install
       working-directory: ./build
