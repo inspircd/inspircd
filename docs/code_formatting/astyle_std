@@ -1,0 +1,4 @@
+--convert-tabs          # convert tabs to spaces
+--indent=spaces=4       # indent is set to 4 spaces
+--add-brackets          # add brackets to one line conditional statements
+--max-code-length=80    # maximum column width
