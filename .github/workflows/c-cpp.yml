@@ -13,9 +13,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: python3-pip
-      run: sudo apt update && apt -y install python3-pip
-    - name: conan
+    - name: install python3-pip
+      run: sudo apt update && sudo apt -y install python3-pip
+    - name: install conan
       run: pip3 install conan
     - name: conan profile
       run: conan profile detect --force
