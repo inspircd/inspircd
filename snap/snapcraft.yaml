@@ -36,4 +36,4 @@ parts:
       - libssl-dev
       - libargon2-dev
       - libpq-dev
-      - libldap-dev
+      - libldap2-dev
