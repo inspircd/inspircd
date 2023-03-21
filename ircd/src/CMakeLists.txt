@@ -42,6 +42,7 @@ add_library(clandestine
   xline.cpp)
 
 target_include_directories(clandestine PUBLIC
+  /usr/include
   ../include)
 
 target_link_libraries(clandestine
@@ -53,6 +54,7 @@ install(TARGETS clandestine DESTINATION lib/)
 add_executable(ircd main.cpp)
 
 target_include_directories(ircd PUBLIC
+  /usr/include
   ../include)
 
 target_link_libraries(ircd
