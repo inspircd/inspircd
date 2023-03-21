@@ -26,7 +26,7 @@
 #include "modules/hash.h"
 
 #define UTF_CPP_CPLUSPLUS 199711L
-#include <utf8cpp/utf8/unchecked.h>
+#include <utf8/unchecked.h>
 
 static const char MagicGUID[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 static const char newline[] = "\r\n";
