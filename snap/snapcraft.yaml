@@ -3,10 +3,8 @@ base: core20
 version: '3.15.0' 
 summary: Fork of the InspIRCd 3.x code base, inspired by RatBox and Nefarious
 description: |
-  This is my-snap's description. You have a paragraph or two to tell the
-  most important story about your snap. Keep it under 100 words though,
-  we live in tweetspace and your description wants to look good in the snap
-  store.
+  Fork of the InspIRCd 3.x code base, inspired by RatBox and Nefarious. It has it's own services, 
+  which is a fork of the Anope source tree.
 
 grade: devel 
 confinement: devmode 
@@ -39,6 +37,3 @@ build-packages:
   - libargon2-dev
   - libpq-dev
   - libldap-dev
-
-build-snaps:
-  - cmake
