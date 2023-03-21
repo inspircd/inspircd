@@ -1,7 +1,6 @@
 add_definitions(-DINSPIRCD_VERSION="${PROJECT_VERSION}")
 
 include_directories(
-  /usr/include
   ../../include/
   ../../../lib/hash
   ../../../lib/tre)

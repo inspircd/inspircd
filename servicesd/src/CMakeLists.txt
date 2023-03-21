@@ -50,7 +50,6 @@ add_library(clandestine_services
   xline.cpp)
 
 target_include_directories(clandestine_services PUBLIC
-  /usr/include
   ../include/
   ${CMAKE_CURRENT_BINARY_DIR}/generated/include/
   ../../lib/tre/)
