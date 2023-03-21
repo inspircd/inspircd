@@ -10,3 +10,6 @@ build/
 ircd/.DS_Store
 generated/
 dist/
+*.xpak 
+*.bz2
+*.deb
