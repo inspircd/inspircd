@@ -23,7 +23,7 @@ parts:
     source: . 
     build-packages:
       - libmysqlclient-dev
-      - libutfcpp-dev
+      - libutf8proc-dev
       - libmaxminddb-dev
       - libqrencode-dev
       - libpcre2-dev
