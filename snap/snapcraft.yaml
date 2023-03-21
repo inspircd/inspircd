@@ -37,3 +37,4 @@ parts:
       - libargon2-dev
       - libpq-dev
       - libldap2-dev
+      - libpcre3-dev
