@@ -20,20 +20,20 @@ parts:
     plugin: cmake
     cmake-parameters:
       - -DCMAKE_INSTALL_PREFIX=/usr
-
-build-packages:
-  - libmysqlclient-dev
-  - libutfcpp-dev
-  - libmaxminddb-dev
-  - libqrencode-dev
-  - libpcre2-dev
-  - libre2-dev
-  - libhttp-parser-dev
-  - libxcrypt-source
-  - libsqlite3-dev
-  - libgnutls28-dev
-  - libmbedtls-dev 
-  - libssl-dev
-  - libargon2-dev
-  - libpq-dev
-  - libldap-dev
+    source: . 
+    build-packages:
+      - libmysqlclient-dev
+      - libutfcpp-dev
+      - libmaxminddb-dev
+      - libqrencode-dev
+      - libpcre2-dev
+      - libre2-dev
+      - libhttp-parser-dev
+      - libxcrypt-source
+      - libsqlite3-dev
+      - libgnutls28-dev
+      - libmbedtls-dev 
+      - libssl-dev
+      - libargon2-dev
+      - libpq-dev
+      - libldap-dev
