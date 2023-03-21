@@ -1,0 +1,44 @@
+name: clandestine 
+base: core20 
+version: '3.15.0' 
+summary: Fork of the InspIRCd 3.x code base, inspired by RatBox and Nefarious
+description: |
+  This is my-snap's description. You have a paragraph or two to tell the
+  most important story about your snap. Keep it under 100 words though,
+  we live in tweetspace and your description wants to look good in the snap
+  store.
+
+grade: devel 
+confinement: devmode 
+
+apps:
+  ircd:
+    command: ircd
+  servicesd: 
+    command: servicesd
+
+parts:
+  clandestine:
+    plugin: cmake
+    cmake-parameters:
+      - -DCMAKE_INSTALL_PREFIX=/usr
+
+build-packages:
+  - libmysqlclient-dev
+  - libutfcpp-dev
+  - libmaxminddb-dev
+  - libqrencode-dev
+  - libpcre2-dev
+  - libre2-dev
+  - libhttp-parser-dev
+  - libxcrypt-source
+  - libsqlite3-dev
+  - libgnutls28-dev
+  - libmbedtls-dev 
+  - libssl-dev
+  - libargon2-dev
+  - libpq-dev
+  - libldap-dev
+
+build-snaps:
+  - cmake
