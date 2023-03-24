@@ -81,17 +81,17 @@ public:
 		rapidjson::Writer writer(*this);
 		writer.StartObject();
 		{
-			writer.Key("time");
+			writer.Key("time", 4);
 			writer.String(timestr.c_str(), static_cast<rapidjson::SizeType>(timestr.size()));
 
-			writer.Key("type");
+			writer.Key("type", 4);
 			writer.String(type.c_str(), static_cast<rapidjson::SizeType>(type.size()));
 
-			writer.Key("level");
+			writer.Key("level", 5);
 			const std::string levelstr = Log::LevelToString(level);
 			writer.String(levelstr.c_str(), static_cast<rapidjson::SizeType>(levelstr.size()));
 
-			writer.Key("message");
+			writer.Key("message", 7);
 			writer.Key(message.c_str(), static_cast<rapidjson::SizeType>(message.size()));
 		}
 		writer.EndObject();
