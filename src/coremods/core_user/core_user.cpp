@@ -27,6 +27,7 @@ enum
 {
 	// From RFC 1459.
 	ERR_NOORIGIN = 409,
+	ERR_PASSWDMISMATCH = 464,
 };
 
 class CommandPass final
@@ -207,6 +208,9 @@ public:
 			const char* error = user->password.empty() ? "one was not provided" : "the provided password was incorrect";
 			ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is not suitable as requires a password and {}.",
 				klass->GetName(), error);
+
+			errnum = ERR_PASSWDMISMATCH;
+			errnum->push(INSP_FORMAT("A password is required and {}.", error));
 			return MOD_RES_DENY;
 		}
 
