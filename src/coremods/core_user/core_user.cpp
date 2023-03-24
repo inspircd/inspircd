@@ -27,6 +27,7 @@ enum
 {
 	// From RFC 1459.
 	ERR_NOORIGIN = 409,
+	ERR_NOPERMFORHOST = 463,
 	ERR_PASSWDMISMATCH = 464,
 };
 
@@ -229,7 +230,9 @@ public:
 	{
 		if (klass->type == ConnectClass::DENY)
 		{
-			ServerInstance->Users.QuitUser(user, klass->config->getString("reason", "You are not allowed to connect to this server", 1));
+			const std::string reason = klass->config->getString("reason", "You are not allowed to connect to this server.", 1);
+			user->WriteNumeric(ERR_NOPERMFORHOST, reason);
+			ServerInstance->Users.QuitUser(user, reason);
 			return;
 		}
 
