@@ -66,7 +66,6 @@ public:
 	}
 };
 
-
 class RegisteredUser final
 	: public SimpleUserMode
 {
@@ -95,7 +94,6 @@ class ModuleServices final
 	: public Module
 {
 private:
-	Account::API accountapi;
 	RegisteredChannel registeredcmode;
 	RegisteredUser registeredumode;
 	ServProtect servprotectmode;
@@ -103,7 +101,6 @@ private:
 public:
 	ModuleServices()
 		: Module(VF_VENDOR, "Provides support for integrating with a services server.")
-		, accountapi(this)
 		, registeredcmode(this)
 		, registeredumode(this)
 		, servprotectmode(this)
