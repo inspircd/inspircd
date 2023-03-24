@@ -951,10 +951,11 @@ public:
 	/** Called when trying to find a connect class for a user.
 	 * @param user The user that needs a new connect class.
 	 * @param klass The connect class to check the suitability of.
+	 * @param errnum If returning MOD_RES_DENY then the error numeric to send to the user.
 	 * @return MOD_RES_ALLOW to select this connect class, MOD_RES_DENY to reject this connect
 	 *         class, or MOD_RES_PASSTHRU to let another module handle the event.
 	 */
-	virtual ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass);
+	virtual ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass, std::optional<Numeric::Numeric>& errnum);
 
 	/** Called when a user is about to be assigned to a connect class.
 	 * @param user The user that is being assigned to a connect class.

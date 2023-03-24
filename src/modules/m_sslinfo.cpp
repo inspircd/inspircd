@@ -400,7 +400,7 @@ public:
 		user->WriteNotice(text);
 	}
 
-	ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass) override
+	ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass, std::optional<Numeric::Numeric>& errnum) override
 	{
 		ssl_cert* cert = cmd.sslapi.GetCertificate(user);
 		const char* error = nullptr;

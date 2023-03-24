@@ -403,7 +403,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass) override
+	ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass, std::optional<Numeric::Numeric>& errnum) override
 	{
 		if (klass->config->getBool("requireident") && state.Get(user) != IDENT_FOUND)
 		{

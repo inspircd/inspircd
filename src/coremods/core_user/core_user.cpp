@@ -168,7 +168,7 @@ public:
 	{
 	}
 
-	ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass) override
+	ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass, std::optional<Numeric::Numeric>& errnum) override
 	{
 		bool conndone = user->connected != User::CONN_NONE;
 		if (klass->config->getBool("connected", klass->config->getBool("registered", conndone)) != conndone)

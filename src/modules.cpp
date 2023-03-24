@@ -165,7 +165,7 @@ void		Module::OnOperLogin(User*, const std::shared_ptr<OperAccount>&, bool) { De
 void		Module::OnPostOperLogin(User*, bool) { DetachEvent(I_OnPostOperLogin); }
 void		Module::OnOperLogout(User*) { DetachEvent(I_OnOperLogout); }
 void		Module::OnPostOperLogout(User*, const std::shared_ptr<OperAccount>&) { DetachEvent(I_OnPostOperLogout); }
-ModResult	Module::OnPreChangeConnectClass(LocalUser*, const std::shared_ptr<ConnectClass>&) { DetachEvent(I_OnPreChangeConnectClass); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnPreChangeConnectClass(LocalUser*, const std::shared_ptr<ConnectClass>&, std::optional<Numeric::Numeric>&) { DetachEvent(I_OnPreChangeConnectClass); return MOD_RES_PASSTHRU; }
 void		Module::OnChangeConnectClass(LocalUser*, const std::shared_ptr<ConnectClass>&, bool) { DetachEvent(I_OnChangeConnectClass); }
 void		Module::OnPostChangeConnectClass(LocalUser*, bool) { DetachEvent(I_OnPostChangeConnectClass); }
 

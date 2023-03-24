@@ -660,6 +660,7 @@ bool LocalUser::FindConnectClass()
 	ServerInstance->Logs.Debug("CONNECTCLASS", "Finding a connect class for {} ({}) ...",
 		uuid, GetRealMask());
 
+	std::optional<Numeric::Numeric> errnum;
 	for (const auto& klass : ServerInstance->Config->Classes)
 	{
 		ServerInstance->Logs.Debug("CONNECTCLASS", "Checking the {} connect class ...",
@@ -674,7 +675,7 @@ bool LocalUser::FindConnectClass()
 		}
 
 		ModResult modres;
-		FIRST_MOD_RESULT(OnPreChangeConnectClass, modres, (this, klass));
+		FIRST_MOD_RESULT(OnPreChangeConnectClass, modres, (this, klass, errnum));
 		if (modres != MOD_RES_DENY)
 		{
 			ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is suitable for {} ({}).",
@@ -691,6 +692,9 @@ bool LocalUser::FindConnectClass()
 		connectclass->use_count--;
 		connectclass = nullptr;
 	}
+
+	if (errnum)
+		WriteNumeric(*errnum);
 	ServerInstance->Users.QuitUser(this, "You are not allowed to connect to this server");
 	return false;
 }
