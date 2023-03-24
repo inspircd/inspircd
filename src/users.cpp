@@ -301,8 +301,9 @@ void UserIOHandler::AddWriteBuf(const std::string& data)
 	if (user->quitting_sendq)
 		return;
 
-	if (!user->quitting && GetSendQSize() + data.length() > user->GetClass()->hardsendqmax &&
-		!user->HasPrivPermission("users/flood/increased-buffers"))
+	if (!user->quitting
+		&& (user->GetClass() && GetSendQSize() + data.length() > user->GetClass()->hardsendqmax)
+		&& !user->HasPrivPermission("users/flood/increased-buffers"))
 	{
 		user->quitting_sendq = true;
 		ServerInstance->GlobalCulls.AddSQItem(user);
