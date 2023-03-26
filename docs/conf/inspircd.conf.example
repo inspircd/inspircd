@@ -763,10 +763,10 @@
           # when a remote whois (/WHOIS <nick> <nick>) is used.
           #hideserver="*.example.com"
 
-          # hidebans: If this value is set to yes, when a user is banned ([KGZ]-lined)
-          # only opers will see the ban message when the user is removed
-          # from the server.
-          hidebans="no"
+          # hidelines: If defined then the quit message to show to unprivileged
+          # users when another user is [KGZ]-lined. Can include %type% for the
+          # X-line type and %reason% for the X-line reason.
+          #hidelines="%type%-lined"
 
           # hidekills: If defined, replaces who executed a /KILL with a custom string.
           hidekills=""

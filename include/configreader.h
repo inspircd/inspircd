@@ -457,13 +457,11 @@ public:
 	/** The number of seconds that the server clock can skip by before server operators are warned. */
 	time_t TimeSkipWarn;
 
-	/** True if we're going to hide ban reasons for non-opers (e.g. G-lines,
-	 * K-lines, Z-lines)
-	 */
-	bool HideBans;
-
 	/** True if raw I/O is being logged */
 	bool RawLog = false;
+
+	/** If non-empty then the quit message to use when killing an X-lined user. */
+	std::string HideLines;
 
 	/** Set to a non-empty string to obfuscate server names. */
 	std::string HideServer;

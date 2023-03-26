@@ -340,7 +340,7 @@ void ServerConfig::Fill()
 	// Read the <security> config.
 	const auto& security = ConfValue("security");
 	CustomVersion = security->getString("customversion");
-	HideBans = security->getBool("hidebans");
+	HideLines = security->getString("hidelines", security->getBool("hidebans") ? "%type%-lined" : "");
 	HideServer = security->getString("hideserver", {}, InspIRCd::IsFQDN);
 	MaxTargets = security->getNum<unsigned long>("maxtargets", 5, 1, 50);
 

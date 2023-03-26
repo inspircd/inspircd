@@ -203,13 +203,21 @@ void UserManager::AddUser(int socket, ListenSocket* via, const irc::sockets::soc
 		{
 			/* user banned */
 			ServerInstance->Logs.Debug("BANCACHE", "BanCache: Positive hit for " + New->GetAddress());
+
 			if (!ServerInstance->Config->XLineMessage.empty())
 				New->WriteNumeric(ERR_YOUREBANNEDCREEP, ServerInstance->Config->XLineMessage);
 
-			if (ServerInstance->Config->HideBans)
-				this->QuitUser(New, b->Type + "-lined", &b->Reason);
-			else
+			if (ServerInstance->Config->HideLines.empty())
 				this->QuitUser(New, b->Reason);
+			else
+			{
+				const std::string publicreason = Template::Replace(ServerInstance->Config->HideLines,
+				{
+					{ "reason", b->Reason },
+					{ "type",   b->Type   },
+				});
+				this->QuitUser(New, publicreason, &b->Reason);
+			}
 			return;
 		}
 		else

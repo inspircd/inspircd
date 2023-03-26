@@ -564,20 +564,26 @@ bool XLine::IsBurstable()
 
 void XLine::DefaultApply(User* u, const std::string& line, bool bancache)
 {
-	const std::string banReason = line + "-lined: " + reason;
-
 	if (!ServerInstance->Config->XLineMessage.empty())
 		u->WriteNumeric(ERR_YOUREBANNEDCREEP, ServerInstance->Config->XLineMessage);
 
-	if (ServerInstance->Config->HideBans)
-		ServerInstance->Users.QuitUser(u, line + "-lined", &banReason);
+	const std::string banreason = line + "-lined: " + reason;
+	if (ServerInstance->Config->HideLines.empty())
+		ServerInstance->Users.QuitUser(u, banreason);
 	else
-		ServerInstance->Users.QuitUser(u, banReason);
+	{
+		const std::string publicreason = Template::Replace(ServerInstance->Config->HideLines,
+		{
+			{ "reason", banreason },
+			{ "type",   line      },
+		});
+		ServerInstance->Users.QuitUser(u, publicreason, &banreason);
+	}
 
 	if (bancache)
 	{
 		ServerInstance->Logs.Debug("BANCACHE", "BanCache: Adding positive hit (" + line + ") for " + u->GetAddress());
-		ServerInstance->BanCache.AddHit(u->GetAddress(), this->type, banReason, (this->duration > 0 ? (this->expiry - ServerInstance->Time()) : 0));
+		ServerInstance->BanCache.AddHit(u->GetAddress(), this->type, banreason, (this->duration > 0 ? (this->expiry - ServerInstance->Time()) : 0));
 	}
 }
 
