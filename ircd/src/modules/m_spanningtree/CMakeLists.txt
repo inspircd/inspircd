@@ -47,9 +47,10 @@ add_library(m_spanningtree MODULE
   treesocket2.cpp
   uid.cpp
   utils.cpp)
-
 set_target_properties(m_spanningtree PROPERTIES PREFIX ""
   VERSION ${PROJECT_VERSION}
   COMPILE_DEFINITIONS "MODNAME=\"m_spanningtree\"")
 target_link_libraries(m_spanningtree clandestine)
+target_include_directories(m_spanningtree PRIVATE
+  ../../../include)
 install(TARGETS m_spanningtree DESTINATION lib/clandestine/ircd/modules/)

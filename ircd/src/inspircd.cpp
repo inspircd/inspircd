@@ -511,7 +511,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
         Modules.AddServices(provs, sizeof(provs)/sizeof(provs[0]));
     }
 
-    std::cout << con_green << "InspIRCd - Internet Relay Chat Daemon" << con_reset
+    std::cout << con_green << "Clandestine-IRCd - Internet Relay Chat Daemon" << con_reset
               << std::endl
               << "See " << con_green << "/INFO" << con_reset << " for contributors & authors"
               << std::endl

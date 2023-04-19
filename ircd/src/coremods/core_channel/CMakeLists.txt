@@ -15,4 +15,7 @@ set_target_properties(core_channel PROPERTIES PREFIX ""
 
 target_link_libraries(core_channel clandestine)
 
+target_include_directories(core_channel PRIVATE
+  ../../../include)
+
 install(TARGETS core_channel DESTINATION lib/clandestine/ircd/modules)

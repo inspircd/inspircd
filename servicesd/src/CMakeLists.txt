@@ -1,14 +1,14 @@
+configure_file(../include/sysconf.h.cmake generated/include/sysconf.h)
+
 add_definitions(-DVERSION_MAJOR=${VERSION_MAJOR})
 add_definitions(-DVERSION_MINOR=${VERSION_MINOR})
 add_definitions(-DVERSION_PATCH=${VERSION_PATCH})
 add_definitions(-DVERSION_EXTRA="${VERSION_EXTRA}")
 add_definitions(-DBUILD=${BUILD})
 
-configure_file(../include/sysconf.h.cmake generated/include/sysconf.h)
-
 add_subdirectory(socketengines/)
 
-add_library(clandestine_services 
+add_library(clandestine_services
   main.cpp
   access.cpp
   account.cpp
@@ -48,21 +48,20 @@ add_library(clandestine_services
   uplink.cpp
   users.cpp
   xline.cpp)
-
-target_include_directories(clandestine_services PUBLIC
+target_include_directories(clandestine_services PRIVATE
   ../include/
   ${CMAKE_CURRENT_BINARY_DIR}/generated/include/
   ../../lib/tre/)
-
 target_link_libraries(clandestine_services
   clandestine_services_socketengines)
 
-install(TARGETS clandestine_services DESTINATION lib)
-
 add_executable(servicesd main.cpp)
+target_include_directories(servicesd PRIVATE
+  ../include/
+  ${CMAKE_CURRENT_BINARY_DIR}/generated/include/
+  ../../lib/tre/)
 target_link_libraries(servicesd
   clandestine_services
   -ldl
   -pthread)
-
 install(TARGETS servicesd DESTINATION sbin)

@@ -7,13 +7,13 @@ re2/20230201
 http_parser/2.9.4
 argon2/20190702
 hash-library/8.0
-# mariadb-connector-c/3.3.3
+mariadb-connector-c/3.3.3
 libmaxminddb/1.7.1
 libpq/14.7
 libqrencode/4.1.1
-# mbedtls/3.2.1
-openssl/1.1.1s
-# gnutls/3.7.8
+mbedtls/3.2.1
+openssl/3.1.0
+gnutls/3.7.8
 sqlite3/3.41.1
 
 [generators]

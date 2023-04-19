@@ -41,18 +41,16 @@ add_library(clandestine
   wildcard.cpp
   xline.cpp)
 
-target_include_directories(clandestine PUBLIC
+target_include_directories(clandestine PRIVATE
   ../include)
 
 target_link_libraries(clandestine
   clandestine_ircd_socketengines
   clandestine_ircd_threadengines)
 
-install(TARGETS clandestine DESTINATION lib/)
-
 add_executable(ircd main.cpp)
 
-target_include_directories(ircd PUBLIC
+target_include_directories(ircd PRIVATE
   ../include)
 
 target_link_libraries(ircd

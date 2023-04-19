@@ -12,4 +12,7 @@ set_target_properties(core_oper PROPERTIES PREFIX ""
 
 target_link_libraries(core_oper clandestine)
 
+target_include_directories(core_oper PRIVATE
+  ../../../include)
+
 install(TARGETS core_oper DESTINATION lib/clandestine/ircd/modules)
