@@ -90,7 +90,7 @@ private:
 		if (!Duration::TryFrom(durationstr, duration) || duration == 0)
 			return false;
 
-		if (IS_LOCAL(user) && duration > maxduration)
+		if (IS_LOCAL(user) && maxduration && duration > maxduration)
 			duration = maxduration; // Clamp for local users.
 
 		return true;
@@ -106,7 +106,7 @@ private:
 		if (lines == 0)
 			return false;
 
-		if (IS_LOCAL(user) && lines > maxlines)
+		if (IS_LOCAL(user) && maxlines && lines > maxlines)
 			lines = maxlines; // Clamp for local users.
 
 		return true;
@@ -230,8 +230,8 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("chanhistory");
-		historymode.maxduration = tag->getDuration("maxduration", 60*60*24*28, 1);
-		historymode.maxlines = tag->getNum<unsigned long>("maxlines", 50, 1);
+		historymode.maxduration = tag->getDuration("maxduration", 60*60*24*28);
+		historymode.maxlines = tag->getNum<unsigned long>("maxlines", 50);
 		prefixmsg = tag->getBool("prefixmsg", true);
 		dobots = tag->getBool("bots", true);
 	}
