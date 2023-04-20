@@ -268,7 +268,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 #ifdef IPPROTO_SCTP
 				L->Protocol = IPPROTO_SCTP;
 #else
-				throw ModuleException((Module*)Creator, "Unable to use SCTP listener as this platform does not support SCTP!");
+				throw ModuleException((Module*)Creator, "Unable to use SCTP for outgoing connections as this platform does not support SCTP!");
 #endif
 			}
 		}
