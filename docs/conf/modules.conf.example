@@ -1402,13 +1402,13 @@
 # <ldapauth dbid="ldapdb"                                             #
 #           baserdn="ou=People,dc=brainbox,dc=cc"                     #
 #           attribute="uid"                                           #
-#           allowpattern="Guest* Bot*"                                #
 #           killreason="Access denied"                                #
 #           verbose="yes"                                             #
 #           host="$uid.$ou.inspircd.org"                              #
 #           useusername="no">                                         #
 #                                                                     #
-# <ldapwhitelist cidr="10.42.0.0/16">                                 #
+# <ldapexemption mask="*!*@10.42.0.0/16">                             #
+# <ldapexemption mask="Guest*!*@*">                                   #
 #                                                                     #
 # <ldaprequire attribute="attr" value="val">                          #
 #                                                                     #

@@ -320,8 +320,7 @@ class ModuleLDAPAuth final
 	StringExtItem ldapVhost;
 	std::string base;
 	std::string attribute;
-	std::vector<std::string> allowpatterns;
-	std::vector<std::string> whitelistedcidrs;
+	std::vector<std::string> exemptions;
 	bool useusername;
 
 public:
@@ -339,9 +338,6 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("ldapauth");
-		whitelistedcidrs.clear();
-		requiredattributes.clear();
-
 		base			= tag->getString("baserdn");
 		attribute		= tag->getString("attribute");
 		killreason		= tag->getString("killreason");
@@ -352,14 +348,7 @@ public:
 
 		LDAP.SetProvider("LDAP/" + tag->getString("dbid"));
 
-		for (const auto& [_, wtag] : ServerInstance->Config->ConfTags("ldapwhitelist"))
-		{
-			std::string cidr = wtag->getString("cidr");
-			if (!cidr.empty()) {
-				whitelistedcidrs.push_back(cidr);
-			}
-		}
-
+		requiredattributes.clear();
 		for (const auto& [_, rtag] : ServerInstance->Config->ConfTags("ldaprequire"))
 		{
 			const std::string attr = rtag->getString("attribute");
@@ -369,12 +358,26 @@ public:
 				requiredattributes.emplace_back(attr, val);
 		}
 
-		std::string allowpattern = tag->getString("allowpattern");
-		irc::spacesepstream ss(allowpattern);
-		for (std::string more; ss.GetToken(more); )
+		exemptions.clear();
+		for (const auto& [_, etag] : ServerInstance->Config->ConfTags("ldapexemption"))
 		{
-			allowpatterns.push_back(more);
+			const std::string mask = etag->getString("mask");
+			if (!mask.empty())
+				exemptions.push_back(mask);
 		}
+
+		// Begin v3 config compatibility.
+		for (const auto& [_, wtag] : ServerInstance->Config->ConfTags("ldapwhitelist"))
+		{
+			const std::string cidr = wtag->getString("cidr");
+			if (!cidr.empty())
+				exemptions.push_back("*!*@" + cidr);
+		}
+
+		irc::spacesepstream nickstream(tag->getString("allowpattern"));
+		for (std::string nick; nickstream.GetToken(nick); )
+			exemptions.push_back(nick + "!*@*");
+		// End v3 config compatibility.
 	}
 
 	void OnUserConnect(LocalUser* user) override
@@ -389,18 +392,9 @@ public:
 
 	ModResult OnUserRegister(LocalUser* user) override
 	{
-		for (const auto& allowpattern : allowpatterns)
+		for (const auto& exemption : exemptions)
 		{
-			if (InspIRCd::Match(user->nick, allowpattern))
-			{
-				ldapAuthed.Set(user, true);
-				return MOD_RES_PASSTHRU;
-			}
-		}
-
-		for (const auto& whitelistedcidr : whitelistedcidrs)
-		{
-			if (InspIRCd::MatchCIDR(user->GetAddress(), whitelistedcidr, ascii_case_insensitive_map))
+			if (InspIRCd::MatchCIDR(user->GetRealMask(), exemption) || InspIRCd::MatchCIDR(user->GetMask(), exemption))
 			{
 				ldapAuthed.Set(user, true);
 				return MOD_RES_PASSTHRU;
