@@ -1418,11 +1418,6 @@
 # The attribute value indicates the attribute which is used to locate #
 # a user account by name. On POSIX systems this is usually 'uid'.     #
 #                                                                     #
-# The allowpattern value allows you to specify a space separated list #
-# of wildcard masks which will always be allowed to connect           #
-# regardless of if they have an account, for example guest and bot    #
-# users.                                                              #
-#                                                                     #
 # The useusername setting chooses whether the user's username or      #
 # nickname is used when locating a user account, if a username isn't  #
 # provided in PASS.                                                   #

@@ -130,7 +130,7 @@ class ModuleSQLAuth final
 
 	std::string freeformquery;
 	std::string killreason;
-	std::string allowpattern;
+	std::vector<std::string> exemptions;
 	bool verbose;
 	std::vector<std::string> hash_algos;
 	std::string kdf;
@@ -155,10 +155,18 @@ public:
 			SQL.SetProvider("SQL/" + dbid);
 		freeformquery = conf->getString("query");
 		killreason = conf->getString("killreason");
-		allowpattern = conf->getString("allowpattern");
 		verbose = conf->getBool("verbose");
 		kdf = conf->getString("kdf");
 		pwcolumn = conf->getString("column");
+
+		exemptions.clear();
+		for (const auto& [_, etag] : ServerInstance->Config->ConfTags("sqlexemption"))
+		{
+			const std::string mask = etag->getString("mask");
+			if (!mask.empty())
+				exemptions.push_back(mask);
+		}
+		exemptions.push_back(conf->getString("allowpattern") + "!*@*"); // v3 compat.
 
 		hash_algos.clear();
 		irc::commasepstream algos(conf->getString("hash", "md5,sha256"));
@@ -173,8 +181,11 @@ public:
 		if (!user->GetClass()->config->getBool("usesqlauth", true))
 			return MOD_RES_PASSTHRU;
 
-		if (!allowpattern.empty() && InspIRCd::Match(user->nick, allowpattern))
-			return MOD_RES_PASSTHRU;
+		for (const auto& exemption : exemptions)
+		{
+			if (InspIRCd::MatchCIDR(user->GetRealMask(), exemption) || InspIRCd::MatchCIDR(user->GetMask(), exemption))
+				return MOD_RES_PASSTHRU;
+		}
 
 		if (pendingExt.Get(user))
 			return MOD_RES_PASSTHRU;
