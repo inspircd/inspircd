@@ -45,7 +45,12 @@ public:
 	static PrefixMode* FindMode(const std::string& mid)
 	{
 		if (mid.length() == 1)
-			return ServerInstance->Modes.FindPrefixMode(mid[0]);
+		{
+			PrefixMode* pm = ServerInstance->Modes.FindPrefixMode(mid[0]);
+			if (!pm)
+				pm = ServerInstance->Modes.FindPrefix(mid[0]);
+			return pm;
+		}
 
 		ModeHandler* mh = ServerInstance->Modes.FindMode(mid, MODETYPE_CHANNEL);
 		return mh ? mh->IsPrefixMode() : nullptr;
