@@ -27,6 +27,20 @@
 class CommandRMode final
 	: public Command
 {
+private:
+	static ModeHandler* FindMode(const std::string& mode)
+	{
+		if (mode.length() == 1)
+		{
+			ModeHandler* mh = ServerInstance->Modes.FindMode(mode[0], MODETYPE_CHANNEL);
+			if (!mh)
+				mh = ServerInstance->Modes.FindPrefix(mode[0]);
+			return mh;
+		}
+
+		return ServerInstance->Modes.FindMode(mode, MODETYPE_CHANNEL);
+	}
+
 public:
 	CommandRMode(Module* Creator)
 		: Command(Creator, "RMODE", 2, 3)
@@ -43,9 +57,8 @@ public:
 			return CmdResult::FAILURE;
 		}
 
-		unsigned char modeletter = parameters[1][0];
-		ModeHandler* mh = ServerInstance->Modes.FindMode(modeletter, MODETYPE_CHANNEL);
-		if (!mh || parameters[1].size() > 1)
+		ModeHandler* mh = FindMode(parameters[1]);
+		if (!mh)
 		{
 			user->WriteNumeric(ERR_UNKNOWNMODE, parameters[0], "is not a recognised channel mode.");
 			return CmdResult::FAILURE;
