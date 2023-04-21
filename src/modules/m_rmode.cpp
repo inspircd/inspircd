@@ -47,7 +47,7 @@ class CommandRMode : public Command
 		ModeHandler* mh = ServerInstance->Modes->FindMode(modeletter, MODETYPE_CHANNEL);
 		if (mh == NULL || parameters[1].size() > 1)
 		{
-			user->WriteNumeric(ERR_UNKNOWNMODE, parameters[0], "is not a recognised channel mode.");
+			user->WriteNumeric(ERR_UNKNOWNMODE, parameters[1], "is not a recognised channel mode.");
 			return CMD_FAILURE;
 		}
 
