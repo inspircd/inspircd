@@ -55,7 +55,7 @@ bool InspIRCd::BindPort(const std::shared_ptr<ConfigTag>& tag, const irc::socket
 	if (!ll->HasFd())
 	{
 		ServerInstance->Logs.Normal("SOCKET", "Failed to listen on {} from tag at {}: {}",
-			sa.str(), tag->source.str(), strerror(errno));
+			sa.str(), tag->source.str(), SocketEngine::LastError());
 		delete ll;
 		return false;
 	}
@@ -152,7 +152,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 				for (const auto protocol : protocols)
 				{
 					if (!BindPort(tag, bindspec, old_ports, protocol))
-						failed_ports.emplace_back(strerror(errno), bindspec, tag);
+						failed_ports.emplace_back(SocketEngine::LastError(), bindspec, tag);
 					else
 						bound++;
 				}
@@ -184,7 +184,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 
 			bindspec.from_unix(fullpath);
 			if (!BindPort(tag, bindspec, old_ports, 0))
-				failed_ports.emplace_back(strerror(errno), bindspec, tag);
+				failed_ports.emplace_back(SocketEngine::LastError(), bindspec, tag);
 			else
 				bound++;
 		}
