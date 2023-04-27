@@ -151,11 +151,19 @@ ListenSocket::ListenSocket(const std::shared_ptr<ConfigTag>& tag, const irc::soc
 
 	if (rv == -1)
 	{
+#ifdef _WIN32
+		int errstore = WSAGetLastError();
+#else
 		int errstore = errno;
+#endif
 		SocketEngine::Shutdown(this, 2);
 		SocketEngine::Close(GetFd());
 		SetFd(-1);
+#ifdef _WIN32
+		WSASetLastError(errstore);
+#else
 		errno = errstore;
+#endif
 	}
 	else
 	{
