@@ -50,6 +50,9 @@ public:
 	bool invalid = true;
 	bool unknownsigner = true;
 	bool revoked = false;
+	time_t activation = 0;
+	time_t expiration = 0;
+
 
 	/** Get certificate distinguished name
 	 * @return Certificate DN
@@ -136,6 +139,22 @@ public:
 	bool IsCAVerified() const
 	{
 		return IsUsable() && trusted && !unknownsigner;
+	}
+
+	/** Retrieves the client certificate activation time.
+	 * @param The time the client certificate was activated or 0 on error.
+	 */
+	time_t GetActivationTime() const
+	{
+		return activation;
+	}
+
+	/** Retrieves the client certificate expiration time.
+	 * @param The time the client certificate will expire or 0 on error.
+	 */
+	time_t GetExpirationTime() const
+	{
+		return expiration;
 	}
 };
 

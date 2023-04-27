@@ -2343,13 +2343,15 @@
 #
 # If you want to prevent users from viewing TLS certificate information
 # and fingerprints of other users, set operonly to yes. You can also set hash
-# to an IANA Hash Function Textual Name to use the TLS fingerprint sent by a
-# WebIRC gateway (requires the gateway module) and localsecure to allow
-# locally-connected connections where TLS is not necessary to be considered
-# secure.
+# to an IANA Hash Function Textual Name to use the SSL fingerprint sent by a
+# WebIRC gateway (requires the cgiirc module), localsecure to allow locally
+# connected connections where TLS is not necessary to be considered secure,
+# and warnexpiring to warn users when their client certificate is about to
+# expire.
 #<sslinfo operonly="no"
 #         hash="sha-256"
-#         localsecure="yes">
+#         localsecure="yes"
+#         warnexpiring="1w">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # mbedTLS TLS module: Adds support for TLS connections using mbedTLS.

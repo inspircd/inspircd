@@ -49,6 +49,7 @@
 #include <openssl/dh.h>
 
 #ifdef _WIN32
+# define timegm _mkgmtime
 # pragma comment(lib, "libcrypto.lib")
 # pragma comment(lib, "libssl.lib")
 #endif
@@ -618,10 +619,16 @@ private:
 			certinfo->fingerprint = Hex::Encode(md, n);
 		}
 
-		if ((ASN1_UTCTIME_cmp_time_t(X509_getm_notAfter(cert), ServerInstance->Time()) == -1) || (ASN1_UTCTIME_cmp_time_t(X509_getm_notBefore(cert), ServerInstance->Time()) == 0))
-		{
-			certinfo->error = "Not activated, or expired certificate";
-		}
+		certinfo->activation = GetTime(X509_getm_notBefore(cert));
+		certinfo->expiration = GetTime(X509_getm_notAfter(cert));
+
+		int activated = ASN1_UTCTIME_cmp_time_t(X509_getm_notBefore(cert), ServerInstance->Time());
+		if (activated != -1 && activated != 0)
+			certinfo->error = "Certificate not activated";
+
+		int expired = ASN1_UTCTIME_cmp_time_t(X509_getm_notAfter(cert), ServerInstance->Time());
+		if (expired != 0 && expired != 1)
+			certinfo->error = "Certificate has expired";
 
 		X509_free(cert);
 	}
@@ -634,6 +641,23 @@ private:
 		out.assign(buf);
 		for (size_t pos = 0; ((pos = out.find_first_of("\r\n", pos)) != std::string::npos); )
 			out[pos] = ' ';
+	}
+
+	static time_t GetTime(ASN1_TIME* x509time)
+	{
+#if OPENSSL_VERSION_NUMBER >= 0x10101000L
+		if (!x509time)
+			return 0;
+
+		struct tm ts;
+		if (!ASN1_TIME_to_tm(x509time, &ts))
+			return 0;
+
+		return timegm(&ts);
+#else
+		// OpenSSL 1.1 is required for ASN_TIME_to_tm.
+		return 0;
+#endif
 	}
 
 	void SSLInfoCallback(int where, int rc)

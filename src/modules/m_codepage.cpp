@@ -188,7 +188,7 @@ private:
 	std::string charset;
 
 	template <typename T>
-	void RehashHashmap(T& hashmap)
+	static void RehashHashmap(T& hashmap)
 	{
 		T newhash(hashmap.bucket_count());
 		for (const auto& [key, value] : hashmap)
@@ -196,15 +196,90 @@ private:
 		hashmap.swap(newhash);
 	}
 
+	static void DestroyChannel(Channel* chan)
+	{
+		// Remove all of the users from the channel. Using KICK here will mean
+		// the user's client will probably attempt to rejoin and will enter the
+		// succeeding channel. Unfortunately this is the best we can do for now.
+		while (!chan->userlist.empty())
+			chan->KickUser(ServerInstance->FakeClient, chan->userlist.begin(), "This channel does not exist anymore.");
+
+		// Remove all modes from the channel just in case one of them keeps the channel open.
+		Modes::ChangeList changelist;
+		for (const auto& [_, mh] : ServerInstance->Modes.GetModes(MODETYPE_CHANNEL))
+			mh->RemoveMode(chan, changelist);
+		ServerInstance->Modes.Process(ServerInstance->FakeClient, chan, NULL, changelist, ModeParser::MODE_LOCALONLY);
+
+		// The channel will be destroyed automatically by CheckDestroy.
+	}
+
+	static void ChangeNick(User* user, const std::string& message)
+	{
+		user->WriteNumeric(RPL_SAVENICK, user->uuid, message);
+		user->ChangeNick(user->uuid);
+	}
+
+	static void CheckDuplicateChan()
+	{
+		ChannelMap duplicates;
+		for (auto &[_, chan] : ServerInstance->Channels.GetChans())
+		{
+			auto check = duplicates.insert(std::make_pair(chan->name, chan));
+			if (check.second)
+				continue; // No duplicate.
+
+			Channel* otherchan = check.first->second;
+			if (otherchan->age < chan->age)
+			{
+				// The other channel was created first.
+				DestroyChannel(chan);
+			}
+			else if (otherchan->age > chan->age)
+			{
+				// The other channel was created last.
+				DestroyChannel(otherchan);
+				check.first->second = chan;
+			}
+			else
+			{
+				// Both created at the same time.
+				DestroyChannel(chan);
+				DestroyChannel(otherchan);
+				duplicates.erase(check.first);
+			}
+		}
+	}
+
 	static void CheckDuplicateNick()
 	{
-		insp::flat_set<std::string, irc::insensitive_swo> duplicates;
+		UserMap duplicates;
 		for (auto* user : ServerInstance->Users.GetLocalUsers())
 		{
-			if (user->nick != user->uuid && !duplicates.insert(user->nick).second)
+			if (user->nick == user->uuid)
+				continue; // UUID users are always unique.
+
+			auto check = duplicates.insert(std::make_pair(user->nick, user));
+			if (check.second)
+				continue; // No duplicate.
+
+			User* otheruser = check.first->second;
+			if (otheruser->nickchanged < user->nickchanged)
 			{
-				user->WriteNumeric(RPL_SAVENICK, user->uuid, "Your nickname is no longer available.");
-				user->ChangeNick(user->uuid);
+				// The other user connected first.
+				ChangeNick(user, "Your nickname is no longer available.");
+			}
+			else if (otheruser->nickchanged > user->nickchanged)
+			{
+				// The other user connected last.
+				ChangeNick(otheruser, "Your nickname is no longer available.");
+				check.first->second = user;
+			}
+			else
+			{
+				// Both connected at the same time.
+				ChangeNick(user, "Your nickname is no longer available.");
+				ChangeNick(otheruser, "Your nickname is no longer available.");
+				duplicates.erase(check.first);
 			}
 		}
 	}
@@ -214,14 +289,11 @@ private:
 		for (auto* user : ServerInstance->Users.GetLocalUsers())
 		{
 			if (user->nick != user->uuid && !ServerInstance->IsNick(user->nick))
-			{
-				user->WriteNumeric(RPL_SAVENICK, user->uuid, "Your nickname is no longer valid.");
-				user->ChangeNick(user->uuid);
-			}
+				ChangeNick(user, "Your nickname is no longer valid.");
 		}
 	}
 
-	void CheckRehash(unsigned char* prevmap)
+	static void CheckRehash(unsigned char* prevmap)
 	{
 		if (!memcmp(prevmap, national_case_insensitive_map, UCHAR_MAX))
 			return;
@@ -248,6 +320,7 @@ public:
 
 		ServerInstance->Config->CaseMapping = origcasemapname;
 		national_case_insensitive_map = origcasemap;
+		CheckDuplicateChan();
 		CheckDuplicateNick();
 		if (codepage) // nullptr if ReadConfig throws on load.
 			CheckRehash(codepage->casemap);
@@ -319,7 +392,11 @@ public:
 		ServerInstance->Config->CaseMapping = name;
 		national_case_insensitive_map = codepage->casemap;
 		if (newcodepage) // nullptr on first read.
+		{
+			CheckDuplicateChan();
+			CheckDuplicateNick();
 			CheckRehash(newcodepage->casemap);
+		}
 	}
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override

@@ -27,6 +27,7 @@
 
 
 #include "inspircd.h"
+#include "duration.h"
 #include "extension.h"
 #include "modules/ssl.h"
 #include "modules/webirc.h"
@@ -300,6 +301,7 @@ class ModuleSSLInfo final
 private:
 	CommandSSLInfo cmd;
 	std::string hash;
+	unsigned long warnexpiring;
 
 	static bool MatchFP(ssl_cert* const cert, const std::string& fp)
 	{
@@ -322,6 +324,7 @@ public:
 		cmd.operonlyfp = tag->getBool("operonly");
 		cmd.sslapi.localsecure = tag->getBool("localsecure", true);
 		hash = tag->getString("hash");
+		warnexpiring = tag->getDuration("warnexpiring", 0, 0, 60*60*24*365);
 	}
 
 	void OnWhois(Whois::Context& whois) override
@@ -398,6 +401,19 @@ public:
 		if (cert && !cert->GetFingerprint().empty())
 			text.append(" and your TLS client certificate fingerprint is ").append(cert->GetFingerprint());
 		user->WriteNotice(text);
+
+		if (!cert || !warnexpiring || !cert->GetExpirationTime())
+			return;
+
+		if (ServerInstance->Time() > cert->GetExpirationTime())
+		{
+			user->WriteNotice("*** Your TLS (SSL) client certificate has expired.");
+		}
+		else if (static_cast<time_t>(ServerInstance->Time() + warnexpiring) > cert->GetExpirationTime())
+		{
+			const std::string duration = Duration::ToString(cert->GetExpirationTime() - ServerInstance->Time());
+			user->WriteNotice("*** Your TLS (SSL) client certificate expires in " + duration + ".");
+		}
 	}
 
 	ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass, std::optional<Numeric::Numeric>& errnum) override

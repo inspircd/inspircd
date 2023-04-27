@@ -60,7 +60,7 @@ public:
 		ModeHandler* mh = FindMode(parameters[1]);
 		if (!mh)
 		{
-			user->WriteNumeric(ERR_UNKNOWNMODE, parameters[0], "is not a recognised channel mode.");
+			user->WriteNumeric(ERR_UNKNOWNMODE, parameters[1], "is not a recognised channel mode.");
 			return CmdResult::FAILURE;
 		}
 
