@@ -262,9 +262,9 @@ public:
 	void ReadConfig(ConfigStatus&) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("messageflood");
-		notice = tag->getNum<float>("notice", 1.0);
-		privmsg = tag->getNum<float>("privmsg", 1.0);
-		tagmsg = tag->getNum<float>("tagmsg", 0.2);
+		notice = tag->getNum<double>("notice", 1.0);
+		privmsg = tag->getNum<double>("privmsg", 1.0);
+		tagmsg = tag->getNum<double>("tagmsg", 0.2);
 		message = tag->getString("message", "Message flood (trigger is %messages% messages in %duration%)", 1);
 		mf.extended = tag->getBool("extended");
 		mf.SetSyntax();
