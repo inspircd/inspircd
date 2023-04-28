@@ -5,7 +5,7 @@
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
  *   Copyright (C) 2012-2016, 2018 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2012-2014, 2017-2019, 2022 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012-2014, 2017-2019, 2022-2023 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>

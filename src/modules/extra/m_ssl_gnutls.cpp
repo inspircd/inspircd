@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2013-2014, 2016-2022 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013-2014, 2016-2023 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
  *   Copyright (C) 2012-2017 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012-2013, 2016 Adam <Adam@anope.org>

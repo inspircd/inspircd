@@ -4,7 +4,7 @@
  *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2019 B00mX0r <b00mx0r@aureus.pw>
  *   Copyright (C) 2018 Dylan Frank <b00mx0r@aureus.pw>
- *   Copyright (C) 2013, 2017-2019, 2021-2022 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2019, 2021-2023 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013, 2015-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>
