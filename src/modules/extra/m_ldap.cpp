@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2020 Joel Sing <joel@sing.id.au>
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2016-2022 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2016-2023 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2014, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2013-2016 Adam <Adam@anope.org>
  *
