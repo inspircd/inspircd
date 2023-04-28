@@ -82,7 +82,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 				this->Logs.Warning("SOCKET", "Using 4in6 (::ffff:) isn't recommended. You should bind IPv4 addresses directly instead.");
 
 			// Try to parse the bind address.
-			irc::sockets::sockaddrs bindspec(false);
+			irc::sockets::sockaddrs bindspec(true);
 			if (!bindspec.from_ip(address))
 			{
 				failed_ports.emplace_back("Address is not valid: " + address, tag);
