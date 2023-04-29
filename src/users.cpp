@@ -117,7 +117,7 @@ const std::string& User::GetAddress()
 		// need to partially expand the address to avoid issues with
 		// the IRC wire format.
 		if (cached_address[0] == ':')
-			cached_address.insert(cached_address.begin(), 1, 0);
+			cached_address.insert(cached_address.begin(), 1, '0');
 
 		cached_address.shrink_to_fit();
 	}
