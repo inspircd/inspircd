@@ -130,7 +130,7 @@ const std::string& User::GetUserAddress()
 	if (cached_useraddress.empty())
 	{
 		cached_useraddress = INSP_FORMAT("{}@{}", ident, GetAddress());
-		cached_address.shrink_to_fit();
+		cached_useraddress.shrink_to_fit();
 	}
 
 	return cached_useraddress;
