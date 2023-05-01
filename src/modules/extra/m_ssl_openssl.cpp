@@ -704,11 +704,11 @@ class OpenSSLIOHook : public SSLIOHook
 		certinfo->activation = GetTime(X509_getm_notBefore(cert));
 		certinfo->expiration = GetTime(X509_getm_notAfter(cert));
 
-		int activated = ASN1_UTCTIME_cmp_time_t(X509_getm_notBefore(cert), ServerInstance->Time());
+		int activated = ASN1_TIME_cmp_time_t(X509_getm_notBefore(cert), ServerInstance->Time());
 		if (activated != -1 && activated != 0)
 			certinfo->error = "Certificate not activated";
 
-		int expired = ASN1_UTCTIME_cmp_time_t(X509_getm_notAfter(cert), ServerInstance->Time());
+		int expired = ASN1_TIME_cmp_time_t(X509_getm_notAfter(cert), ServerInstance->Time());
 		if (expired != 0 && expired != 1)
 			certinfo->error = "Certificate has expired";
 
