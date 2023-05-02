@@ -1230,19 +1230,6 @@
 # This module is oper-only.
 #<module name="hideoper">
 
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Hostchange module: Allows a different style of cloaking.
-#<module name="hostchange">
-#
-#-#-#-#-#-#-#-#-#-#-#-  HOSTCHANGE  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# See https://docs.inspircd.org/4/modules/hostchange for help.        #
-#                                                                     #
-#<hostchange mask="*@42.theanswer.example.org" action="addaccount" suffix=".users.example.com">
-#<hostchange mask="*root@*" action="addnick" prefix="example/users/">
-#<hostchange mask="a@example.com" action="set" value="foo.bar.baz">
-#<hostchange mask="*@localhost" ports="7000,7001,7005-7007" action="set" value="blahblah.foo" class="local">
-
 # hostcycle: If loaded, when a user gets a host or ident set, it will
 # cycle them in all their channels. If not loaded it will simply change
 # their host/ident without cycling them.

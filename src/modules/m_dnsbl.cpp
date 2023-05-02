@@ -425,9 +425,6 @@ public:
 	{
 		Module* corexline = ServerInstance->Modules.Find("core_xline");
 		ServerInstance->Modules.SetPriority(this, I_OnChangeRemoteAddress, PRIORITY_AFTER, corexline);
-
-		Module* hostchange = ServerInstance->Modules.Find("hostchange");
-		ServerInstance->Modules.SetPriority(this, I_OnUserConnect, PRIORITY_BEFORE, hostchange);
 	}
 
 	void ReadConfig(ConfigStatus& status) override
