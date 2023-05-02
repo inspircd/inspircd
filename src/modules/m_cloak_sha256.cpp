@@ -186,7 +186,7 @@ private:
 
 public:
 	SHA256Method(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const std::string& k, psl_ctx_t* p, bool ch) ATTR_NOT_NULL(2)
-		: Cloak::Method(engine)
+		: Cloak::Method(engine, tag)
 		, cloakhost(ch)
 		, hostparts(tag->getNum<unsigned long>("hostparts", 3, 0, ServerInstance->Config->Limits.MaxHost / 2))
 		, key(k)
@@ -214,7 +214,7 @@ public:
 
 	std::string Generate(LocalUser* user) override ATTR_NOT_NULL(2)
 	{
-		if (!sha256)
+		if (!sha256 || !MatchesUser(user))
 			return {};
 
 		irc::sockets::sockaddrs sa(false);

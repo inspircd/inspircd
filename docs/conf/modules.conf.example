@@ -561,12 +561,14 @@
 #
 #<cloak method="half"
 #       key="changeme"
+#       class=""
 #       domainparts="3"
 #       prefix="net-"
 #       ignorecase="no">
 #
 #<cloak method="full"
 #       key="changeme"
+#       class=""
 #       prefix="net-"
 #       ignorecase="no">
 
@@ -585,6 +587,10 @@
 #                                                                     #
 #  key       -  The secret key to use when hashing hostnames. This    #
 #               MUST be at least 30 characters long.                  #
+#                                                                     #
+#  class     - If non-empty then a comma-delimited list of connect    #
+#              class names that a user has to be in to get the cloak  #
+#              from this tag.                                         #
 #                                                                     #
 #  prefix    - A freeform value to prefix cloaks with. This must not  #
 #              contain spaces.                                        #
@@ -615,6 +621,7 @@
 #
 #<cloak method="hmac-sha256"
 #       key="changeme"
+#       class=""
 #       prefix="MyNet"
 #       suffix="ip"
 #       case="lower"
@@ -624,6 +631,7 @@
 #
 #<cloak method="hmac-sha256-ip"
 #       key="changeme"
+#       class=""
 #       prefix="MyNet"
 #       suffix="ip"
 #       case="lower"

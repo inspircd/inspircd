@@ -117,10 +117,25 @@ private:
 	/** The name of the engine that created this method. */
 	std::string provname;
 
+	/** The connect classes that a user can be in before */
+	insp::flat_set<std::string> classes;
+
 protected:
-	Method(const Engine* engine) ATTR_NOT_NULL(2)
+	Method(const Engine* engine, const std::shared_ptr<ConfigTag>& tag) ATTR_NOT_NULL(2)
 		: provname(engine->name)
 	{
+		irc::commasepstream klassstream(tag->getString("class"));
+		for (std::string klass; klassstream.GetToken(klass); )
+			classes.insert(klass);
+	}
+
+	bool MatchesUser(LocalUser* user) const
+	{
+		if (!classes.empty() && !stdalgo::isin(classes, user->GetClass()->GetName()))
+			return false;
+
+		// All fields matched.
+		return true;
 	}
 
 public:

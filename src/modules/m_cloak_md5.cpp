@@ -75,7 +75,7 @@ struct CloakInfo final
 	std::string suffix;
 
 	CloakInfo(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, CloakMode Mode, const std::string& Key)
-		: Cloak::Method(engine)
+		: Cloak::Method(engine, tag)
 		, mode(Mode)
 		, domainparts(tag->getNum<unsigned int>("domainparts", 3, 1, 10))
 		, ignorecase(tag->getBool("ignorecase"))
@@ -253,7 +253,7 @@ struct CloakInfo final
 
 	std::string Generate(LocalUser* user) override ATTR_NOT_NULL(2)
 	{
-		if (!md5 || !user->client_sa.is_ip())
+		if (!md5 || !user->client_sa.is_ip() || !MatchesUser(user))
 			return {};
 
 		return GenCloak(user->client_sa, user->GetAddress(), user->GetRealHost());
