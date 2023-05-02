@@ -717,6 +717,29 @@
 #       pathparts="1">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Static cloak module: Adds the "static" (fixed value) cloak method.
+#<module name="cloak_static">
+#
+#-#-#-#-#-#-#-#-#-#- ACCOUNT CLOAK CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
+# To use the cloak_static module you must define a <cloak> tag. This  #
+# tag can have the following fields.                                  #
+#                                                                     #
+#  class - If non-empty then a comma-delimited list of connect class  #
+#  names that a user has to be in to get the cloak from this tag.     #
+#                                                                     #
+#  cloak - The cloak to give to users.                                #
+#                                                                     #
+# IMPORTANT: Changing these details will break all of your existing   #
+# bans. If you do not want this to happen you can define multiple     #
+# cloak tags. The first will be used for hostnames and the rest will  #
+# be used for checking if a user is banned in a channel.              #
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#
+#<cloak method="static"
+#       class=""
+#       cloak="some.fixed.value">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Codepage module: Allows using a custom 8-bit codepage for nicknames
 # and case mapping.
 #<module name="codepage">
