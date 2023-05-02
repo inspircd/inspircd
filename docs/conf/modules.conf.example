@@ -532,26 +532,29 @@
 #<module name="cloak_md5">
 #
 #-#-#-#-#-#-#-#-#-#-#- MD5 CLOAK CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
+# To use the cloak_md5 module you must define a <cloak> tag. This tag #
+# tag can have the following fields.                                  #
 #                                                                     #
-# To use cloak_md5, you must define a cloak key, and optionally a     #
-# cloak prefix as shown below. The cloak key must be shared across    #
-# the network for consistent hostnames and must be at least thirty    #
-# characters long.                                                    #
+#  key       -  The secret key to use when hashing hostnames. This    #
+#               MUST be at least 30 characters long.                  #
 #                                                                     #
-# There are two methods provided by this module:                      #
+#  class     - If non-empty then a comma-delimited list of connect    #
+#              class names that a user has to be in to get the cloak  #
+#              from this tag.                                         #
 #                                                                     #
-#   half           Cloak only the "unique" portion of a host; by      #
-#                  default show the last 2 parts of the domain,       #
-#                  /16 subnet of IPv4 or /48 subnet of the IPv6       #
-#                  address.                                           #
-#                  To change the number of shown parts, modify the    #
-#                  domainparts option.                                #
+#  prefix    - A freeform value to prefix cloaks with. This must not  #
+#              contain spaces.                                        #
 #                                                                     #
-#   full           Cloak the users completely, using three slices for #
-#                  common CIDR bans (IPv4: /16, /24; IPv6: /48, /64). #
+#  suffix    - A freeform value to suffix IPv4/IPv6 cloaks with. This #
+#              must not contain spaces.                               #
 #                                                                     #
-# The methods use a single key that can be any length of text.        #
-# An optional prefix may be specified to mark cloaked hosts.          #
+#  domainparts - The maximum number of hostname labels that should be #
+#              visible on the end of a host. Defaults to 3.           #
+#                                                                     #
+#  ignorecase  - Whether to ignore the capitalisation of a hostname   #
+#                when generating the cloak. This prevents users from  #
+#                evading bans by changing the case of their DNS PTR   #
+#                record. Defaults to off.                             #
 #                                                                     #
 # IMPORTANT: Changing these details will break all of your existing   #
 # bans. If you do not want this to happen you can define multiple     #
@@ -562,15 +565,16 @@
 #<cloak method="half"
 #       key="changeme"
 #       class=""
+#       prefix="MyNet-"
+#       suffix=".IP"
 #       domainparts="3"
-#       prefix="net-"
-#       ignorecase="no">
+#       ignorecase="yes">
 #
 #<cloak method="full"
 #       key="changeme"
 #       class=""
-#       prefix="net-"
-#       ignorecase="no">
+#       prefix="MyNet-"
+#       suffix=".IP">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HMAC-SHA256 cloak module: Adds the "hmac-sha256" (hostname or IP) and
