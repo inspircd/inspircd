@@ -515,11 +515,52 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Cloak module: Adds user mode x (cloak) which allows user hostnames to
 # be hidden. This module does not provide any cloak methods by itself.
-# You should also load another module like cloak_md5 or cloak_sha256.
+# You should also load another module like cloak_account or cloak_sha256.
 #
 # In order to have users automatically cloaked on connect you should
 # load the conn_umodes module and add "x" to <connect:modes>.
 #<module name="cloak">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Account cloak module: Adds the "account" (services account name) and
+# "account-id" (services account identifier) cloak methods.
+#<module name="cloak_account">
+#
+#-#-#-#-#-#-#-#-#-#- ACCOUNT CLOAK CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
+# To use the cloak_account module you must define a <cloak> tag. This #
+# tag can have the following fields.                                  #
+#                                                                     #
+#  class    - If non-empty then a comma-delimited list of connect     #
+#             class names that a user has to be in to get the cloak   #
+#             from this tag.                                          #
+#                                                                     #
+#  prefix   - A freeform value to prefix cloaks with. This must not   #
+#             contain spaces.                                         #
+#                                                                     #
+#  suffix   - A freeform value to suffix IPv4/IPv6 cloaks with. This  #
+#             must not contain spaces.                                #
+#                                                                     #
+#  sanitize - If enabled then any characters in the account name/id   #
+#             that are not valid in a hostname will be removed rather #
+#             than skipping the cloak method. Defaults to yes.        #
+#                                                                     #
+# IMPORTANT: Changing these details will break all of your existing   #
+# bans. If you do not want this to happen you can define multiple     #
+# cloak tags. The first will be used for hostnames and the rest will  #
+# be used for checking if a user is banned in a channel.              #
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#
+#<cloak method="account"
+#       class=""
+#       prefix="MyNet"
+#       suffix="ip"
+#       sanitize="yes">
+#
+#<cloak method="account-id"
+#       class=""
+#       prefix="MyNet"
+#       suffix="ip"
+#       sanitize="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MD5 cloak module: Adds the "half" and "full" cloak methods. These
@@ -545,8 +586,8 @@
 #  prefix    - A freeform value to prefix cloaks with. This must not  #
 #              contain spaces.                                        #
 #                                                                     #
-#  suffix    - A freeform value to suffix IPv4/IPv6 cloaks with. This #
-#              must not contain spaces.                               #
+#  suffix    - A freeform value to suffix cloaks with. This must not  #
+#              contain spaces.                                        #
 #                                                                     #
 #  domainparts - The maximum number of hostname labels that should be #
 #              visible on the end of a host. Defaults to 3.           #
