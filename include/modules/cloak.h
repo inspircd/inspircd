@@ -131,7 +131,7 @@ protected:
 
 	bool MatchesUser(LocalUser* user) const
 	{
-		if (!classes.empty() && !stdalgo::isin(classes, user->GetClass()->GetName()))
+		if (!classes.empty() && classes.find(user->GetClass()->GetName()) == classes.end())
 			return false;
 
 		// All fields matched.
