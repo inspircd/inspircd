@@ -33,6 +33,23 @@
 
 #include "inspircd.h"
 
+namespace
+{
+	// Checks whether the system can create SCTP sockets.
+	bool CanCreateSCTPSocket()
+	{
+#ifdef IPPROTO_SCTP
+		int fd = socket(AF_INET, SOCK_STREAM, IPPROTO_SCTP);
+		if (fd >= 0)
+		{
+			SocketEngine::Close(fd);
+			return true;
+		}
+#endif
+		return false;
+	}
+}
+
 bool InspIRCd::BindPort(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& sa, std::vector<ListenSocket*>& old_ports, int protocol)
 {
 	for (std::vector<ListenSocket*>::iterator n = old_ports.begin(); n != old_ports.end(); ++n)
@@ -128,7 +145,8 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 					{
 						protocols.push_back(0); // IPPROTO_TCP
 #ifdef IPPROTO_SCTP
-						protocols.push_back(IPPROTO_SCTP);
+						if (CanCreateSCTPSocket())
+							protocols.push_back(IPPROTO_SCTP);
 #endif
 					}
 					else if (stdalgo::string::equalsci(protocol, "sctp"))
