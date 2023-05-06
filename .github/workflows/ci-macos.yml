@@ -37,6 +37,12 @@ jobs:
           echo "PATH=$PATH" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
 
+      # TODO: remove this when https://github.com/Homebrew/homebrew-core/issues/130258 is fixed.
+      - name: Work around Homebrew MySQL being broken
+        run: |
+          brew install zlib
+          ln -sv $(brew --prefix zlib)/lib/libz.dylib $(brew --prefix)/lib/libzlib.dylib
+
       - name: Run configure
         run: |
           ./configure --enable-extras "argon2 geo_maxmind ldap log_json log_syslog mysql pgsql regex_pcre regex_posix regex_re2 sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal"
