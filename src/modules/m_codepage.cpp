@@ -381,7 +381,6 @@ public:
 			bool front = tag->getBool("front", false);
 			for (uint32_t pos = begin; pos <= end; ++pos)
 			{
-				// This cast could be unsafe but it's not obvious how to make it safe.
 				switch (newcodepage->AllowCharacter(pos, front))
 				{
 					case Codepage::AllowCharacterResult::OKAY:
@@ -413,8 +412,8 @@ public:
 			if (!newcodepage->Map(upper, lower))
 				throw ModuleException(this, "Malformed <cpcase> tag at " + tag->source.str());
 
-			ServerInstance->Logs.Debug(MODNAME, "Marked {} ({:.4}) as the lower case version of {} ({:.4})",
-				lower, reinterpret_cast<const char*>(&lower), upper, reinterpret_cast<const char*>(&upper));
+			ServerInstance->Logs.Debug(MODNAME, "Marked {} as the lower case version of {}",
+				GetPrintable(lower), GetPrintable(upper));
 		}
 
 		charset = codepagetag->getString("charset");
