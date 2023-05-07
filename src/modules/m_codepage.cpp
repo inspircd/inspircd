@@ -328,6 +328,14 @@ private:
 		RehashHashmap(ServerInstance->Channels.GetChans());
 	}
 
+	static std::string GetPrintable(uint32_t chr)
+	{
+		if (isprint(chr))
+			return INSP_FORMAT("{} ({})", reinterpret_cast<const char*>(&chr), chr);
+		else
+			return INSP_FORMAT("{}", chr);
+	}
+
 public:
 	ModuleCodepage()
 		: Module(VF_VENDOR | VF_COMMON, "Allows the server administrator to define what characters are allowed in nicknames and how characters should be compared in a case insensitive way.")
@@ -377,17 +385,17 @@ public:
 				switch (newcodepage->AllowCharacter(static_cast<uint32_t>(pos), front))
 				{
 					case Codepage::AllowCharacterResult::OKAY:
-						ServerInstance->Logs.Debug(MODNAME, "Marked {} ({:.4}) as allowed (front: {})",
-							pos, reinterpret_cast<const char*>(&pos), front ? "yes" : "no");
+						ServerInstance->Logs.Debug(MODNAME, "Marked {} as allowed (front: {})",
+							GetPrintable(pos), front ? "yes" : "no");
 						break;
 
 					case Codepage::AllowCharacterResult::NOT_VALID:
 						throw ModuleException(this, INSP_FORMAT("<cpchars> tag contains a forbidden character: {} at {}",
-							pos, tag->source.str()));
+							GetPrintable(pos), tag->source.str()));
 
 					case Codepage::AllowCharacterResult::NOT_VALID_AT_FRONT:
 						throw ModuleException(this, INSP_FORMAT("<cpchars> tag contains a forbidden front character: {} at {}",
-							pos, tag->source.str()));
+							GetPrintable(pos), tag->source.str()));
 				}
 			}
 		}
