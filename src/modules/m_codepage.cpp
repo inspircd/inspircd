@@ -107,7 +107,7 @@ public:
 	virtual void GetLinkData(Module::LinkData& data, std::string& compatdata) const = 0;
 
 	// Maps an upper case character to a lower case character.
-	virtual bool Map(unsigned long upper, unsigned long lower) = 0;
+	virtual bool Map(uint32_t upper, uint32_t lower) = 0;
 };
 
 class SingleByteCodepage final
@@ -182,7 +182,7 @@ public:
 		compatdata = INSP_FORMAT("front={}&middle={}&map={}", data["front"], data["middle"], data["map"]);
 	}
 
-	bool Map(unsigned long upper, unsigned long lower) override
+	bool Map(uint32_t upper, uint32_t lower) override
 	{
 		if (upper > UCHAR_MAX || lower > UCHAR_MAX)
 			return false;
@@ -370,19 +370,19 @@ public:
 		std::unique_ptr<Codepage> newcodepage = std::make_unique<SingleByteCodepage>();
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("cpchars"))
 		{
-			unsigned long begin = tag->getNum<unsigned long>("begin", tag->getNum<unsigned long>("index", 0));
+			uint32_t begin = tag->getNum<uint32_t>("begin", tag->getNum<uint32_t>("index", 0));
 			if (!begin)
 				throw ModuleException(this, "<cpchars> tag without index or begin specified at " + tag->source.str());
 
-			unsigned long end = tag->getNum<unsigned long>("end", begin);
+			uint32_t end = tag->getNum<uint32_t>("end", begin);
 			if (begin > end)
 				throw ModuleException(this, "<cpchars:begin> must be lower than <cpchars:end> at " + tag->source.str());
 
 			bool front = tag->getBool("front", false);
-			for (unsigned long pos = begin; pos <= end; ++pos)
+			for (uint32_t pos = begin; pos <= end; ++pos)
 			{
 				// This cast could be unsafe but it's not obvious how to make it safe.
-				switch (newcodepage->AllowCharacter(static_cast<uint32_t>(pos), front))
+				switch (newcodepage->AllowCharacter(pos, front))
 				{
 					case Codepage::AllowCharacterResult::OKAY:
 						ServerInstance->Logs.Debug(MODNAME, "Marked {} as allowed (front: {})",
@@ -402,11 +402,11 @@ public:
 
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("cpcase"))
 		{
-			unsigned long lower = tag->getNum<unsigned long>("lower", 0);
+			uint32_t lower = tag->getNum<uint32_t>("lower", 0);
 			if (!lower)
 				throw ModuleException(this, "<cpcase:lower> is required at " + tag->source.str());
 
-			unsigned long upper = tag->getNum<unsigned long>("upper", 0);
+			uint32_t upper = tag->getNum<uint32_t>("upper", 0);
 			if (!upper)
 				throw ModuleException(this, "<cpcase:upper> is required at " + tag->source.str());
 
