@@ -1429,20 +1429,27 @@
 # Closes the channel for N seconds if X users join in Y seconds.
 #<module name="joinflood">
 #
-# duration:  The number of seconds to close a channel for when it is
-#            being flooded with joins.
+# duration:   The number of seconds to close a channel for when it is
+#             being flooded with joins.
 #
-# bootwait:  The number of seconds to disengage joinflood for after
-#            a server boots. This allows users to reconnect without
-#            being throttled by joinflood.
+# bootwait:   The number of seconds to disengage joinflood for after
+#             a server boots. This allows users to reconnect without
+#             being throttled by joinflood.
 #
-# splitwait: The number of seconds to disengage joinflood for after
-#            a server splits. This allows users to reconnect without
-#            being throttled by joinflood.
+# splitwait:  The number of seconds to disengage joinflood for after
+#             a server splits. This allows users to reconnect without
+#             being throttled by joinflood.
+#
+# notifyrank: The lowest prefix rank that should receive notification
+#             that the channel is closed to new users. This can be set
+#             to 0 for all users, 10000 for voiced users (+v) and above,
+#             30000 for channel operators (+o), or the value specified
+#             in <customprefix:rank> for any custom prefix rank.
 #
 #<joinflood duration="1m"
 #           bootwait="30s"
-#           splitwait="30s">
+#           splitwait="30s"
+#           notifyrank="0">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Anti auto rejoin: Adds support for prevention of auto-rejoin (+J).

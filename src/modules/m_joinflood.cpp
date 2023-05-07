@@ -139,6 +139,7 @@ private:
 	time_t ignoreuntil = 0;
 	unsigned long bootwait;
 	unsigned long splitwait;
+	ModeHandler::Rank notifyrank;
 
 public:
 	ModuleJoinFlood()
@@ -154,6 +155,7 @@ public:
 		duration = static_cast<unsigned int>(tag->getDuration("duration", 60, 10, 600));
 		bootwait = tag->getDuration("bootwait", 30);
 		splitwait = tag->getDuration("splitwait", 30);
+		notifyrank = tag->getNum<ModeHandler::Rank>("notifyrank", 0);
 
 		if (status.initial)
 			ignoreuntil = ServerInstance->startup_time + bootwait;
@@ -195,8 +197,10 @@ public:
 			{
 				f->clear();
 				f->lock();
+
+				PrefixMode* pm = ServerInstance->Modes.FindNearestPrefixMode(notifyrank);
 				memb->chan->WriteNotice(INSP_FORMAT("This channel has been closed to new users for {} seconds because there have been more than {} joins in {} seconds.",
-					duration, f->joins, f->secs));
+					duration, f->joins, f->secs), pm ? pm->GetPrefix() : 0);
 			}
 		}
 	}
