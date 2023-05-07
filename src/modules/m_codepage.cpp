@@ -233,7 +233,7 @@ private:
 		Modes::ChangeList changelist;
 		for (const auto& [_, mh] : ServerInstance->Modes.GetModes(MODETYPE_CHANNEL))
 			mh->RemoveMode(chan, changelist);
-		ServerInstance->Modes.Process(ServerInstance->FakeClient, chan, NULL, changelist, ModeParser::MODE_LOCALONLY);
+		ServerInstance->Modes.Process(ServerInstance->FakeClient, chan, nullptr, changelist, ModeParser::MODE_LOCALONLY);
 
 		// The channel will be destroyed automatically by CheckDestroy.
 	}

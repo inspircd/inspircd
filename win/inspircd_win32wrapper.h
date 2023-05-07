@@ -146,7 +146,7 @@ inline ssize_t writev(int fd, const WindowsIOVec* iov, int count)
 inline std::string GetErrorMessage(DWORD dwErrorCode)
 {
 	char szErrorString[1024];
-	if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, dwErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)szErrorString, _countof(szErrorString), NULL) == 0)
+	if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, dwErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)szErrorString, _countof(szErrorString), nullptr) == 0)
 		sprintf_s(szErrorString, _countof(szErrorString), "Error code: %u", dwErrorCode);
 	return szErrorString;
 }
