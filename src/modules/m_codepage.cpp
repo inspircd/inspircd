@@ -59,17 +59,42 @@ public:
 			if (character >= '0' && character <= '9')
 				return AllowCharacterResult::NOT_VALID_AT_FRONT;
 
-			// Nicknames can not begin with a : as it has special meaning within
-			// the IRC message format.
-			if (character == ':')
+			// Nicknames can not begin with a : or a $ as they have a special
+			// meaning within the IRC message format.
+			if (character == '$' || character == ':')
+				return AllowCharacterResult::NOT_VALID_AT_FRONT;
+
+			// Nicknames can not begin with a channel prefix character (e.g. #)
+			// as they are used to differentiate users from channels in message
+			// targets.
+			if (ServerInstance->Channels.IsPrefix(character))
+				return AllowCharacterResult::NOT_VALID_AT_FRONT;
+
+			// Nicknames can not begin with a prefix mode character (e.g. @)
+			// as they are used as a nick prefix when sending a STATUSMSG.
+			if (ServerInstance->Modes.FindPrefix(character))
 				return AllowCharacterResult::NOT_VALID_AT_FRONT;
 		}
 
-		// Nicknames can never contain NUL, CR, LF, or SPACE as they are either
-		// banned within an IRC message or have special meaning within the IRC
-		// message format.
-		if (!character || character == '\n' || character == '\r' || character == ' ')
-			return AllowCharacterResult::NOT_VALID;
+		// Nicknames can never contain NUL, CR, LF, SPACE, COMMA, PERIOD,
+		// ASTERISK, QUESTION MARK, EXCLAMATION MARK, or AT SIGN as they are
+		// either banned within an IRC message or have special meaning within
+		// the IRC message format.
+		switch (character)
+		{
+			case '\0':
+			case '\n':
+			case '\r':
+			case ' ':
+			case '!':
+			case '*':
+			case ',':
+			case '.':
+			case '?':
+			case '@':
+				return AllowCharacterResult::NOT_VALID;
+		}
+
 
 		// The character is probably okay?
 		return AllowCharacterResult::OKAY;
