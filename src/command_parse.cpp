@@ -26,6 +26,16 @@
 
 #include "inspircd.h"
 
+enum
+{
+	// From RFC 1459.
+	ERR_NOTREGISTERED = 451,
+	ERR_NEEDMOREPARAMS = 461,
+
+	// InspIRCd-specific.
+	RPL_SYNTAX = 650,
+};
+
 bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Params& parameters, unsigned int splithere, int extra, bool usemax)
 {
 	if (splithere >= parameters.size())
@@ -404,4 +414,90 @@ void CommandParser::TranslateSingleParam(TranslateType to, const std::string& it
 			dest.append(item);
 		break;
 	}
+}
+
+CommandBase::CommandBase(Module* mod, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
+	: ServiceProvider(mod, cmd, SERVICE_COMMAND)
+	, min_params(minpara)
+	, max_params(maxpara)
+{
+}
+
+void CommandBase::EncodeParameter(std::string& parameter, unsigned int index)
+{
+}
+
+RouteDescriptor CommandBase::GetRouting(User* user, const Params& parameters)
+{
+	return ROUTE_LOCALONLY;
+}
+
+Command::Command(Module* mod, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
+	: CommandBase(mod, cmd, minpara, maxpara)
+{
+}
+
+Command::~Command()
+{
+	ServerInstance->Parser.RemoveCommand(this);
+}
+
+void Command::RegisterService()
+{
+	if (!ServerInstance->Parser.AddCommand(this))
+		throw ModuleException(creator, "Command already exists: " + name);
+}
+
+void Command::TellNotEnoughParameters(LocalUser* user, const Params& parameters)
+{
+	user->WriteNumeric(ERR_NEEDMOREPARAMS, name, "Not enough parameters.");
+	if (ServerInstance->Config->SyntaxHints && user->IsFullyConnected())
+	{
+		for (const auto& syntaxline : this->syntax)
+			user->WriteNumeric(RPL_SYNTAX, name, syntaxline);
+	}
+}
+
+void Command::TellNotFullyConnected(LocalUser* user, const Params& parameters)
+{
+	user->WriteNumeric(ERR_NOTREGISTERED, name, "You must be fully connected to use this command.");
+}
+
+SplitCommand::SplitCommand(Module* me, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
+	: Command(me, cmd, minpara, maxpara)
+{
+}
+
+CmdResult SplitCommand::Handle(User* user, const Params& parameters)
+{
+	switch (user->usertype)
+	{
+		case User::TYPE_LOCAL:
+			return HandleLocal(static_cast<LocalUser*>(user), parameters);
+
+		case User::TYPE_REMOTE:
+			return HandleRemote(static_cast<RemoteUser*>(user), parameters);
+
+		case User::TYPE_SERVER:
+			return HandleServer(static_cast<FakeUser*>(user), parameters);
+	}
+
+	ServerInstance->Logs.Debug("COMMAND", "Unknown user type {} in command (uuid={})!",
+		user->usertype, user->uuid);
+	return CmdResult::INVALID;
+}
+
+CmdResult SplitCommand::HandleLocal(LocalUser* user, const Params& parameters)
+{
+	return CmdResult::INVALID;
+}
+
+CmdResult SplitCommand::HandleRemote(RemoteUser* user, const Params& parameters)
+{
+	return CmdResult::INVALID;
+}
+
+CmdResult SplitCommand::HandleServer(FakeUser* user, const Params& parameters)
+{
+	return CmdResult::INVALID;
 }
