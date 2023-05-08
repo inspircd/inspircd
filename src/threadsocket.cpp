@@ -23,6 +23,48 @@
 #include "inspircd.h"
 #include "threadsocket.h"
 
+bool Thread::Start()
+{
+	try
+	{
+		if (thread)
+			return false;
+
+		thread = new std::thread(Thread::StartInternal, this);
+		return true;
+	}
+	catch (const std::system_error& err)
+	{
+		throw CoreException("Unable to start new thread: " + std::string(err.what()));
+	}
+}
+
+void Thread::StartInternal(Thread* thread)
+{
+#ifndef _WIN32
+	// C++ does not have an API for this so we still need to use pthreads.
+	sigset_t set;
+	sigemptyset(&set);
+	sigaddset(&set, SIGPIPE);
+	pthread_sigmask(SIG_BLOCK, &set, nullptr);
+#endif
+
+	thread->OnStart();
+}
+
+bool Thread::Stop()
+{
+	if (!thread)
+		return false;
+
+	OnStop();
+	stopping = true;
+	thread->join();
+
+	stdalgo::delete_zero(thread);
+	return true;
+}
+
 #if __has_include(<sys/eventfd.h>)
 #include <sys/eventfd.h>
 
