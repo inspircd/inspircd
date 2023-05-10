@@ -28,7 +28,7 @@
 
 #include "inspircd.h"
 #include "configparser.h"
-#include "duration.h"
+#include "timeutils.h"
 
 #ifdef _WIN32
 # define pclose _pclose

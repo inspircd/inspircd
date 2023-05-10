@@ -34,7 +34,7 @@
 #endif
 
 #include "inspircd.h"
-#include "duration.h"
+#include "timeutils.h"
 #include "xline.h"
 
 bool InspIRCd::CheckPassword(const std::string& password, const std::string& passwordhash, const std::string& value)
@@ -407,7 +407,7 @@ std::string Duration::ToString(unsigned long duration)
 	return ret;
 }
 
-std::string InspIRCd::TimeString(time_t curtime, const char* format, bool utc)
+std::string Time::ToString(time_t curtime, const char* format, bool utc)
 {
 #ifdef _WIN32
 	if (curtime < 0)

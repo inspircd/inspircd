@@ -28,8 +28,8 @@
 
 
 #include "inspircd.h"
-#include "duration.h"
 #include "modules/stats.h"
+#include "timeutils.h"
 #include "xline.h"
 
 enum
@@ -144,7 +144,7 @@ public:
 				{
 					ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed CBan on {}, expires in {} (on {}): {}",
 						user->nick, parameters[0], Duration::ToString(duration),
-						InspIRCd::TimeString(ServerInstance->Time() + duration), reason);
+						Time::ToString(ServerInstance->Time() + duration), reason);
 				}
 			}
 			else

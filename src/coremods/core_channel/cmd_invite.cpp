@@ -28,8 +28,8 @@
 
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
-#include "duration.h"
 #include "numerichelper.h"
+#include "timeutils.h"
 
 #include "core_channel.h"
 #include "invite.h"

@@ -30,9 +30,9 @@
 
 
 #include "inspircd.h"
-#include "duration.h"
 #include "extension.h"
 #include "numerichelper.h"
+#include "timeutils.h"
 
 enum
 {

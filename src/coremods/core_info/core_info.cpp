@@ -22,6 +22,7 @@
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
 #include "fileutils.h"
+#include "timeutils.h"
 
 #include "core_info.h"
 
@@ -176,7 +177,7 @@ public:
 	{
 		user->WriteNumeric(RPL_WELCOME, INSP_FORMAT("Welcome to the {} IRC Network {}", ServerInstance->Config->Network, user->GetRealMask()));
 		user->WriteNumeric(RPL_YOURHOST, INSP_FORMAT("Your host is {}, running version {}", ServerInstance->Config->GetServerName(), INSPIRCD_BRANCH));
-		user->WriteNumeric(RPL_CREATED, InspIRCd::TimeString(ServerInstance->startup_time, "This server was created %H:%M:%S %b %d %Y"));
+		user->WriteNumeric(RPL_CREATED, Time::ToString(ServerInstance->startup_time, "This server was created %H:%M:%S %b %d %Y"));
 		user->WriteNumeric(numeric004);
 		isupport.SendTo(user);
 

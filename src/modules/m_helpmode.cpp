@@ -18,9 +18,9 @@
 
 
 #include "inspircd.h"
-#include "duration.h"
 #include "modules/stats.h"
 #include "modules/whois.h"
+#include "timeutils.h"
 
 class HelpOp final
 	: public SimpleUserMode
@@ -92,7 +92,7 @@ public:
 			if (helper->IsAway())
 			{
 				const std::string awayperiod = Duration::ToString(ServerInstance->Time() - helper->awaytime);
-				const std::string awaytime = InspIRCd::TimeString(helper->awaytime);
+				const std::string awaytime = Time::ToString(helper->awaytime);
 
 				extra = INSP_FORMAT(": away for {} [since {}] ({})", awayperiod, awaytime, helper->awaymsg);
 			}
@@ -101,7 +101,7 @@ public:
 			if (lhelper)
 			{
 				const std::string idleperiod = Duration::ToString(ServerInstance->Time() - lhelper->idle_lastmsg);
-				const std::string idletime = InspIRCd::TimeString(lhelper->idle_lastmsg);
+				const std::string idletime = Time::ToString(lhelper->idle_lastmsg);
 
 				extra += INSP_FORMAT("{} idle for {} [since {}]",  extra.empty() ? ':' : ',', idleperiod, idletime);
 			}

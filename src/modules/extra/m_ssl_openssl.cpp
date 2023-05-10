@@ -41,9 +41,9 @@
 
 
 #include "inspircd.h"
-#include "duration.h"
 #include "iohook.h"
 #include "modules/ssl.h"
+#include "timeutils.h"
 
 #include <openssl/ssl.h>
 #include <openssl/err.h>
@@ -628,7 +628,7 @@ private:
 		{
 			certinfo->error = INSP_FORMAT("Certificate not active for {} (on {})",
 				Duration::ToString(certinfo->activation - ServerInstance->Time()),
-				InspIRCd::TimeString(certinfo->activation));
+				Time::ToString(certinfo->activation));
 		}
 
 		int expired = ASN1_UTCTIME_cmp_time_t(X509_getm_notAfter(cert), ServerInstance->Time());
@@ -636,7 +636,7 @@ private:
 		{
 			certinfo->error = INSP_FORMAT("Certificate expired {} ago (on {})",
 				Duration::ToString(ServerInstance->Time() - certinfo->expiration),
-				InspIRCd::TimeString(certinfo->expiration));
+				Time::ToString(certinfo->expiration));
 		}
 
 		X509_free(cert);

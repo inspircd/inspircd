@@ -30,9 +30,9 @@
 
 
 #include "inspircd.h"
-#include "duration.h"
 #include "modules/shun.h"
 #include "modules/stats.h"
+#include "timeutils.h"
 #include "xline.h"
 
 /** An XLineFactory specialized to generate shun pointers
@@ -129,7 +129,7 @@ public:
 				{
 					ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed SHUN on {}, expires in {} (on {}): {}",
 						user->nick, target, Duration::ToString(duration),
-						InspIRCd::TimeString(ServerInstance->Time() + duration), expr);
+						Time::ToString(ServerInstance->Time() + duration), expr);
 				}
 			}
 			else

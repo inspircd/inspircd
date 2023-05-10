@@ -26,8 +26,8 @@
 
 
 #include "inspircd.h"
-#include "duration.h"
 #include "modules/ircv3_replies.h"
+#include "timeutils.h"
 
 class CommandSetidle final
 	: public SplitCommand

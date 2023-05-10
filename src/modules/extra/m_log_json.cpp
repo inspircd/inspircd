@@ -23,6 +23,7 @@
 #include <rapidjson/writer.h>
 
 #include "inspircd.h"
+#include "timeutils.h"
 
 class JSONMethod final
 	: public Log::Method
@@ -75,7 +76,7 @@ public:
 		if (prevtime != time)
 		{
 			prevtime = time;
-			timestr = InspIRCd::TimeString(prevtime, "%Y-%m-%dT%H:%M:%S%z");
+			timestr = Time::ToString(prevtime, "%Y-%m-%dT%H:%M:%S%z");
 		}
 
 		rapidjson::Writer writer(*this);
@@ -137,7 +138,7 @@ public:
 		if (target.empty())
 			throw CoreException("<log:target> must be specified for JSON logger at " + tag->source.str());
 
-		const std::string fulltarget = ServerInstance->Config->Paths.PrependLog(InspIRCd::TimeString(ServerInstance->Time(), target.c_str()));
+		const std::string fulltarget = ServerInstance->Config->Paths.PrependLog(Time::ToString(ServerInstance->Time(), target.c_str()));
 		auto* fh = fopen(fulltarget.c_str(), "a");
 		if (!fh)
 		{

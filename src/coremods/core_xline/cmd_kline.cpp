@@ -90,7 +90,7 @@ CmdResult CommandKline::Handle(User* user, const Params& parameters)
 			{
 				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed K-line on {}, expires in {} (on {}): {}",
 					user->nick, target, Duration::ToString(duration),
-					InspIRCd::TimeString(ServerInstance->Time() + duration), parameters[2]);
+					Time::ToString(ServerInstance->Time() + duration), parameters[2]);
 			}
 
 			ServerInstance->XLines->ApplyLines();

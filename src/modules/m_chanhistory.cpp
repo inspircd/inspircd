@@ -24,7 +24,6 @@
 
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
-#include "duration.h"
 #include "modules/ircv3_batch.h"
 #include "modules/ircv3_servertime.h"
 #include "modules/server.h"

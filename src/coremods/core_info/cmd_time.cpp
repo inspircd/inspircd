@@ -24,6 +24,8 @@
 
 
 #include "inspircd.h"
+#include "timeutils.h"
+
 #include "core_info.h"
 
 enum
@@ -43,6 +45,6 @@ CmdResult CommandTime::Handle(User* user, const Params& parameters)
 	if (!parameters.empty() && !irc::equals(parameters[0], ServerInstance->Config->ServerName))
 		return CmdResult::SUCCESS;
 
-	user->WriteRemoteNumeric(RPL_TIME, ServerInstance->Config->GetServerName(), InspIRCd::TimeString(ServerInstance->Time()));
+	user->WriteRemoteNumeric(RPL_TIME, ServerInstance->Config->GetServerName(), Time::ToString(ServerInstance->Time()));
 	return CmdResult::SUCCESS;
 }

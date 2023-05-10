@@ -26,7 +26,7 @@
 
 
 #include "inspircd.h"
-#include "duration.h"
+#include "timeutils.h"
 
 #include "main.h"
 #include "utils.h"

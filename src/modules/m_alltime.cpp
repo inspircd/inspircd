@@ -25,6 +25,7 @@
 
 
 #include "inspircd.h"
+#include "timeutils.h"
 
 class CommandAlltime final
 	: public Command
@@ -38,7 +39,7 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		const std::string fmtdate = InspIRCd::TimeString(ServerInstance->Time(), "%Y-%m-%d %H:%M:%S", true);
+		const std::string fmtdate = Time::ToString(ServerInstance->Time(), "%Y-%m-%d %H:%M:%S", true);
 
 		std::string msg = "System time is " + fmtdate + " (" + ConvToStr(ServerInstance->Time()) + ") on " + ServerInstance->Config->ServerName;
 

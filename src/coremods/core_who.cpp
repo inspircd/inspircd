@@ -27,10 +27,10 @@
 
 
 #include "inspircd.h"
-#include "duration.h"
 #include "modules/account.h"
 #include "modules/isupport.h"
 #include "modules/who.h"
+#include "timeutils.h"
 
 enum
 {

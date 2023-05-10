@@ -19,6 +19,7 @@
 
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
+#include "timeutils.h"
 
 const char* Log::LevelToString(Log::Level level)
 {
@@ -74,7 +75,7 @@ void Log::FileMethod::OnLog(time_t time, Level level, const std::string& type, c
 	if (prevtime != time)
 	{
 		prevtime = time;
-		timestr = InspIRCd::TimeString(prevtime);
+		timestr = Time::ToString(prevtime);
 	}
 
 	fputs(timestr.c_str(), file);
@@ -123,7 +124,7 @@ Log::MethodPtr Log::FileEngine::Create(const std::shared_ptr<ConfigTag>& tag)
 	if (target.empty())
 		throw CoreException("<log:target> must be specified for file logger at " + tag->source.str());
 
-	const std::string fulltarget = ServerInstance->Config->Paths.PrependLog(InspIRCd::TimeString(ServerInstance->Time(), target.c_str()));
+	const std::string fulltarget = ServerInstance->Config->Paths.PrependLog(Time::ToString(ServerInstance->Time(), target.c_str()));
 	auto* fh = fopen(fulltarget.c_str(), "a");
 	if (!fh)
 	{

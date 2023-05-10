@@ -30,10 +30,10 @@
 
 
 #include "inspircd.h"
-#include "duration.h"
 #include "listmode.h"
 #include "modules/extban.h"
 #include "numerichelper.h"
+#include "timeutils.h"
 
 // Holds a timed ban
 class TimedBan final

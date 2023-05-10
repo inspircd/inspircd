@@ -27,6 +27,7 @@
 #include "inspircd.h"
 #include "modules/stats.h"
 #include "modules/whois.h"
+#include "timeutils.h"
 
 enum
 {
@@ -229,7 +230,7 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 			if (user->HasPrivPermission("users/auspex"))
 				user->WriteNumeric(RPL_WHOWASIP, parameters[0], INSP_FORMAT("was connecting from *@{}", u->host));
 
-			std::string signon = InspIRCd::TimeString(u->signon);
+			const std::string signon = Time::ToString(u->signon);
 			bool hide_server = (!ServerInstance->Config->HideServer.empty() && !user->HasPrivPermission("servers/auspex"));
 			user->WriteNumeric(RPL_WHOISSERVER, parameters[0], (hide_server ? ServerInstance->Config->HideServer : u->server), signon);
 		}

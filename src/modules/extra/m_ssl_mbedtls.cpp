@@ -27,8 +27,8 @@
 
 
 #include "inspircd.h"
-#include "duration.h"
 #include "modules/ssl.h"
+#include "timeutils.h"
 
 #ifdef _WIN32
 # define timegm _mkgmtime
@@ -652,13 +652,13 @@ private:
 			{
 				certificate->error = INSP_FORMAT("Certificate not active for {} (on {})",
 					Duration::ToString(certificate->activation - ServerInstance->Time()),
-					InspIRCd::TimeString(certificate->activation));
+					Time::ToString(certificate->activation));
 			}
 			else if (flags & MBEDTLS_X509_BADCERT_EXPIRED)
 			{
 				certificate->error = INSP_FORMAT("Certificate expired {} ago (on {})",
 					Duration::ToString(ServerInstance->Time() - certificate->expiration),
-					InspIRCd::TimeString(certificate->expiration));
+					Time::ToString(certificate->expiration));
 			}
 		}
 

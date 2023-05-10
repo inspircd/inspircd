@@ -26,9 +26,9 @@
 
 
 #include "inspircd.h"
-#include "duration.h"
 #include "modules/regex.h"
 #include "modules/stats.h"
+#include "timeutils.h"
 #include "xline.h"
 
 static bool ZlineOnMatch = false;
@@ -80,7 +80,7 @@ public:
 				{
 					ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed Z-line on {}, expires in {} (on {}): {}",
 						zl->source, u->GetAddress(), Duration::ToString(zl->duration),
-						InspIRCd::TimeString(zl->duration), zl->reason);
+						Time::ToString(zl->duration), zl->reason);
 				}
 				added_zline = true;
 			}
@@ -182,7 +182,7 @@ public:
 					{
 						ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed R-line on {}, expires in {} (on {}): {}",
 							user->nick, parameters[0], Duration::ToString(duration),
-							InspIRCd::TimeString(ServerInstance->Time() + duration), parameters[2]);
+							Time::ToString(ServerInstance->Time() + duration), parameters[2]);
 					}
 
 					ServerInstance->XLines->ApplyLines();

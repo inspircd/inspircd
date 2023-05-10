@@ -25,9 +25,9 @@
 
 
 #include "inspircd.h"
-#include "duration.h"
 #include "modules/account.h"
 #include "modules/isupport.h"
+#include "timeutils.h"
 
 typedef std::vector<std::string> AllowList;
 

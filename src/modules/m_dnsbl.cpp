@@ -31,10 +31,10 @@
 #endif
 
 #include "inspircd.h"
-#include "duration.h"
 #include "extension.h"
 #include "modules/dns.h"
 #include "modules/stats.h"
+#include "timeutils.h"
 #include "xline.h"
 
 class DNSBLEntry final
@@ -234,7 +234,7 @@ private:
 
 		ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed {} on {}, expires in {} (on {}): {}",
 			line->source, type, line->Displayable(), Duration::ToString(line->duration),
-			InspIRCd::TimeString(line->expiry), line->reason);
+			Time::ToString(line->expiry), line->reason);
 		ServerInstance->XLines->ApplyLines();
 	}
 

@@ -25,9 +25,9 @@
 
 
 #include "inspircd.h"
-#include "duration.h"
 #include "modules/server.h"
 #include "modules/webirc.h"
+#include "timeutils.h"
 #include "xline.h"
 
 class ModuleConnectBan final
@@ -156,7 +156,7 @@ public:
 				std::string maskstr = mask.str();
 				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed Z-line on {}, expires in {} (on {}): {}",
 					zl->source, maskstr, Duration::ToString(zl->duration),
-					InspIRCd::TimeString(zl->expiry), zl->reason);
+					Time::ToString(zl->expiry), zl->reason);
 				ServerInstance->SNO.WriteGlobalSno('a', "Connect flooding from IP range {} ({})", maskstr, threshold);
 				connects.erase(i);
 				ServerInstance->XLines->ApplyLines();

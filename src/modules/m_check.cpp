@@ -27,6 +27,7 @@
 #include "inspircd.h"
 #include "listmode.h"
 #include "numericbuilder.h"
+#include "timeutils.h"
 
 enum
 {
@@ -41,7 +42,7 @@ private:
 
 	static std::string FormatTime(time_t ts)
 	{
-		std::string timestr(InspIRCd::TimeString(ts, "%Y-%m-%d %H:%M:%S UTC (", true));
+		std::string timestr(Time::ToString(ts, "%Y-%m-%d %H:%M:%S UTC (", true));
 		timestr.append(ConvToStr(ts));
 		timestr.push_back(')');
 		return timestr;

@@ -27,8 +27,8 @@
 
 
 #include "inspircd.h"
-#include "duration.h"
 #include "modules/stats.h"
+#include "timeutils.h"
 #include "xline.h"
 
 /** An XLineFactory specialized to generate GLine* pointers

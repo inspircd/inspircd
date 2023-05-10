@@ -25,10 +25,10 @@
 
 
 #include "inspircd.h"
-#include "duration.h"
 #include "modules/ctctags.h"
 #include "modules/exemption.h"
 #include "numerichelper.h"
+#include "timeutils.h"
 
 enum class MsgFloodAction
 	: uint8_t

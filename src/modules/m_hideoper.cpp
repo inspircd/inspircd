@@ -27,10 +27,10 @@
 
 
 #include "inspircd.h"
-#include "duration.h"
 #include "modules/stats.h"
 #include "modules/who.h"
 #include "modules/whois.h"
+#include "timeutils.h"
 
 /** Handles user mode +H
  */
@@ -158,7 +158,7 @@ public:
 			if (oper->IsAway())
 			{
 				const std::string awayperiod = Duration::ToString(ServerInstance->Time() - oper->awaytime);
-				const std::string awaytime = InspIRCd::TimeString(oper->awaytime);
+				const std::string awaytime = Time::ToString(oper->awaytime);
 
 				extra = INSP_FORMAT(": away for {} [since {}] ({})", awayperiod, awaytime, oper->awaymsg);
 			}
@@ -167,7 +167,7 @@ public:
 			if (loper)
 			{
 				const std::string idleperiod = Duration::ToString(ServerInstance->Time() - loper->idle_lastmsg);
-				const std::string idletime = InspIRCd::TimeString(loper->idle_lastmsg);
+				const std::string idletime = Time::ToString(loper->idle_lastmsg);
 
 				extra += INSP_FORMAT("{} idle for {} [since {}]", extra.empty() ? ':' : ',', idleperiod, idletime);
 			}

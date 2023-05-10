@@ -27,13 +27,13 @@
 
 
 #include "inspircd.h"
-#include "duration.h"
 #include "extension.h"
 #include "modules/ssl.h"
 #include "modules/webirc.h"
 #include "modules/who.h"
 #include "modules/whois.h"
 #include "numerichelper.h"
+#include "timeutils.h"
 
 class SSLCertExt final
 	: public ExtensionItem

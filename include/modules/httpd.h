@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include "duration.h"
+#include "timeutils.h"
 
 class HTTPQueryParameters final
 	: public insp::flat_multimap<std::string, std::string>

@@ -26,10 +26,10 @@
 
 
 #include "inspircd.h"
-#include "duration.h"
 #include "extension.h"
 #include "modules/exemption.h"
 #include "numerichelper.h"
+#include "timeutils.h"
 
 class ChannelSettings final
 {

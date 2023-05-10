@@ -27,8 +27,8 @@
 
 
 #include "inspircd.h"
-#include "duration.h"
 #include "modules/stats.h"
+#include "timeutils.h"
 #include "xline.h"
 
 namespace
@@ -156,7 +156,7 @@ public:
 				{
 					ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed SVSHOLD on {}, expires in {} (on {}): {}",
 						user->nick, parameters[0], Duration::ToString(duration),
-						InspIRCd::TimeString(ServerInstance->Time() + duration), parameters[2]);
+						Time::ToString(ServerInstance->Time() + duration), parameters[2]);
 				}
 			}
 			else
