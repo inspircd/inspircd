@@ -40,6 +40,7 @@
 /// $PackageInfo: require_system("ubuntu") gnutls-bin libgnutls28-dev pkg-config
 
 #include "inspircd.h"
+#include "duration.h"
 #include "fileutils.h"
 #include "modules/ssl.h"
 
@@ -735,7 +736,9 @@ private:
 		}
 		else if (certinfo->activation >= ServerInstance->Time())
 		{
-			certinfo->error = "Certificate not activated";
+			certinfo->error = INSP_FORMAT("Certificate not active for {} (on {})",
+				Duration::ToString(certinfo->activation - ServerInstance->Time()),
+				InspIRCd::TimeString(certinfo->activation));
 		}
 
 		certinfo->expiration = gnutls_x509_crt_get_expiration_time(cert);
@@ -746,7 +749,9 @@ private:
 		}
 		else if (certinfo->expiration <= ServerInstance->Time())
 		{
-			certinfo->error = "Certificate has expired";
+			certinfo->error = INSP_FORMAT("Certificate expired {} ago (on {})",
+				Duration::ToString(ServerInstance->Time() - certinfo->expiration),
+				InspIRCd::TimeString(certinfo->expiration));
 		}
 
 info_done_dealloc:

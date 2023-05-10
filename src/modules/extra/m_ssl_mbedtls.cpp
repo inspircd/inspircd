@@ -27,6 +27,7 @@
 
 
 #include "inspircd.h"
+#include "duration.h"
 #include "modules/ssl.h"
 
 #ifdef _WIN32
@@ -648,9 +649,17 @@ private:
 			// Verification failed
 			certificate->trusted = false;
 			if (flags & MBEDTLS_X509_BADCERT_FUTURE)
-				certificate->error = "Certificate not activated";
+			{
+				certificate->error = INSP_FORMAT("Certificate not active for {} (on {})",
+					Duration::ToString(certificate->activation - ServerInstance->Time()),
+					InspIRCd::TimeString(certificate->activation));
+			}
 			else if (flags & MBEDTLS_X509_BADCERT_EXPIRED)
-				certificate->error = "Certificate has expired";
+			{
+				certificate->error = INSP_FORMAT("Certificate expired {} ago (on {})",
+					Duration::ToString(ServerInstance->Time() - certificate->expiration),
+					InspIRCd::TimeString(certificate->expiration));
+			}
 		}
 
 		certificate->unknownsigner = (flags & MBEDTLS_X509_BADCERT_NOT_TRUSTED);

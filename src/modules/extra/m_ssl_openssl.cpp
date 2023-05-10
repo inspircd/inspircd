@@ -41,6 +41,7 @@
 
 
 #include "inspircd.h"
+#include "duration.h"
 #include "iohook.h"
 #include "modules/ssl.h"
 
@@ -624,11 +625,19 @@ private:
 
 		int activated = ASN1_UTCTIME_cmp_time_t(X509_getm_notBefore(cert), ServerInstance->Time());
 		if (activated != -1 && activated != 0)
-			certinfo->error = "Certificate not activated";
+		{
+			certinfo->error = INSP_FORMAT("Certificate not active for {} (on {})",
+				Duration::ToString(certinfo->activation - ServerInstance->Time()),
+				InspIRCd::TimeString(certinfo->activation));
+		}
 
 		int expired = ASN1_UTCTIME_cmp_time_t(X509_getm_notAfter(cert), ServerInstance->Time());
 		if (expired != 0 && expired != 1)
-			certinfo->error = "Certificate has expired";
+		{
+			certinfo->error = INSP_FORMAT("Certificate expired {} ago (on {})",
+				Duration::ToString(ServerInstance->Time() - certinfo->expiration),
+				InspIRCd::TimeString(certinfo->expiration));
+		}
 
 		X509_free(cert);
 	}
@@ -645,7 +654,6 @@ private:
 
 	static time_t GetTime(ASN1_TIME* x509time)
 	{
-#if OPENSSL_VERSION_NUMBER >= 0x10101000L
 		if (!x509time)
 			return 0;
 
@@ -654,10 +662,6 @@ private:
 			return 0;
 
 		return timegm(&ts);
-#else
-		// OpenSSL 1.1 is required for ASN_TIME_to_tm.
-		return 0;
-#endif
 	}
 
 	void SSLInfoCallback(int where, int rc)
