@@ -47,9 +47,9 @@ inline std::string ConvToStr(const char* in)
 /** Converts a char to a string.
  * @param in The value to convert.
  */
-inline std::string ConvToStr(char in)
+inline std::string ConvToStr(signed char in)
 {
-	return std::string(1, in);
+	return std::string(1, static_cast<std::string::value_type>(in));
 }
 
 /** Converts an unsigned char to a string.
@@ -57,7 +57,7 @@ inline std::string ConvToStr(char in)
  */
 inline std::string ConvToStr(unsigned char in)
 {
-	return std::string(1, in);
+	return std::string(1, static_cast<std::string::value_type>(in));
 }
 
 /** Converts a bool to a string.
@@ -108,9 +108,9 @@ inline Numeric ConvToNum(const std::string& in, Numeric def = 0)
  * @param def The value to return if the string could not be converted (defaults to 0)
  */
 template<>
-inline char ConvToNum<char>(const std::string& in, char def)
+inline signed char ConvToNum<signed char>(const std::string& in, signed char def)
 {
-	int16_t num = ConvToNum<int16_t>(in);
+	int16_t num = ConvToNum<int16_t>(in, def);
 	return num >= INT8_MIN && num <= INT8_MAX ? static_cast<char>(num) : def;
 }
 
@@ -121,6 +121,6 @@ inline char ConvToNum<char>(const std::string& in, char def)
 template<>
 inline unsigned char ConvToNum<unsigned char>(const std::string& in, unsigned char def)
 {
-	uint16_t num = ConvToNum<uint16_t>(in);
+	uint16_t num = ConvToNum<uint16_t>(in, def);
 	return num <= UINT8_MAX ? static_cast<unsigned char>(num) : def;
 }
