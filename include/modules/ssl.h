@@ -142,7 +142,7 @@ public:
 	}
 
 	/** Retrieves the client certificate activation time.
-	 * @param The time the client certificate was activated or 0 on error.
+	 * @return The time the client certificate was activated or 0 on error.
 	 */
 	time_t GetActivationTime() const
 	{
@@ -150,7 +150,7 @@ public:
 	}
 
 	/** Retrieves the client certificate expiration time.
-	 * @param The time the client certificate will expire or 0 on error.
+	 * @return The time the client certificate will expire or 0 on error.
 	 */
 	time_t GetExpirationTime() const
 	{
