@@ -47,7 +47,7 @@ inline std::string ConvToStr(const char* in)
 /** Converts a char to a string.
  * @param in The value to convert.
  */
-inline std::string ConvToStr(signed char in)
+inline std::string ConvToStr(char in)
 {
 	return std::string(1, static_cast<std::string::value_type>(in));
 }
@@ -108,7 +108,7 @@ inline Numeric ConvToNum(const std::string& in, Numeric def = 0)
  * @param def The value to return if the string could not be converted (defaults to 0)
  */
 template<>
-inline signed char ConvToNum<signed char>(const std::string& in, signed char def)
+inline char ConvToNum<char>(const std::string& in, char def)
 {
 	int16_t num = ConvToNum<int16_t>(in, def);
 	return num >= INT8_MIN && num <= INT8_MAX ? static_cast<char>(num) : def;
