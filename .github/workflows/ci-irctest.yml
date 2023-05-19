@@ -14,13 +14,6 @@ jobs:
       - name: "Checkout repository"
         uses: "actions/checkout@v3"
 
-      - name: "Checkout irctest"
-        uses: "actions/checkout@v3"
-        with:
-          path: irctest
-          ref: 3b7f81e22c317eae885f5a942767ba4f6a30414e
-          repository: progval/irctest
-
       - name: "Install irctest dependencies"
         run: "sudo apt install -y python3-pytest python3-pytest-xdist"
 
@@ -30,6 +23,35 @@ jobs:
 
       - name: "Build and Install"
         run: "make install --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))"
+
+      - name: Make artefact tarball
+        run: cd ~; tar -czf artefacts-inspircd.tar.gz .local/ go/
+
+      - name: Upload build artefacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: installed-inspircd-for-irctest
+          path: ~/artefacts-*.tar.gz
+          retention-days: 1
+
+  test:
+    if: "!contains(github.event.head_commit.message, '[skip irctest ci]')"
+    runs-on: "ubuntu-22.04"
+    needs:
+    - build
+    steps:
+      - name: Download build artefacts
+        uses: actions/download-artifact@v3
+        with:
+          name: installed-inspircd-for-irctest
+          path: '~'
+
+      - name: "Checkout irctest"
+        uses: "actions/checkout@v3"
+        with:
+          path: irctest
+          ref: 3b7f81e22c317eae885f5a942767ba4f6a30414e
+          repository: progval/irctest
 
       - name: "Install Atheme"
         run: "sudo apt install -y atheme-services"
