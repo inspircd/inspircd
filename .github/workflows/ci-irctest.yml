@@ -22,8 +22,9 @@ jobs:
           repository: progval/irctest
 
       # Speed-up the main loop
-      - name: "Apply irctest patches"
-        run: "patch -f src/inspircd.cpp < irctest/patches/inspircd_mainloop.patch"
+      # (for some reason, 'patch' claims the patch is reversed?????)
+      #- name: "Apply irctest patches"
+      #  run: "patch src/inspircd.cpp < irctest/patches/inspircd_mainloop.patch"
 
       # speed-up build by removing large modules that won't be used
       - name: "Remove unused modules"
