@@ -41,7 +41,7 @@ jobs:
         run: "rm -rf src/modules/m_spanningtree/"
 
       - name: "Run configure"
-        run: "./configure --development --disable-auto-extras"
+        run: "./configure --development --disable-auto-extras --prefix=$HOME/.local/"
 
       # Speed-up build
       - name: "Precompile inspircd.h"
@@ -94,15 +94,15 @@ jobs:
         if: "matrix.services == 'anope'"
 
       - name: "Run irctest (Atheme services)"
-        run: "PATH=~/.local/inspircd/sbin:~/.local/inspircd/bin:$PATH make -C irctest/ inspircd-atheme PYTEST_ARGS='-n 4'"
+        run: "PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd-atheme PYTEST_ARGS='-n 4'"
         if: "matrix.services == 'atheme'"
 
       - name: "Run irctest (Anope services)"
-        run: "PATH=~/.local/inspircd/sbin:~/.local/inspircd/bin:$PATH make -C irctest/ inspircd-anope PYTEST_ARGS='-n 4'"
+        run: "PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd-anope PYTEST_ARGS='-n 4'"
         if: "matrix.services == 'anope'"
 
       - name: "Run irctest (no services)"
-        run: "PATH=$HOME/.local/bin:$HOME/.local/inspircd/sbin:$HOME/.local/inspircd/bin:$PATH make -C irctest/ inspircd PYTEST_ARGS='-n 4'"
+        run: "PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd PYTEST_ARGS='-n 4'"
         if: "matrix.services == 'no services'"
 
     strategy:
