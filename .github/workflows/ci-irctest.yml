@@ -85,8 +85,21 @@ jobs:
         run: "sudo apt-get install -y atheme-services"
         if: "matrix.services == 'atheme'"
 
-      - name: "Install Anope"
-        run: "sudo apt-get install -y anope"
+      # Can't apt-get install Anope if we want Insp4 support
+      - name: Checkout Anope
+        uses: actions/checkout@v3
+        with:
+          path: anope
+          ref: 2.0.9
+          repository: anope/anope
+        if: "matrix.services == 'anope'"
+      - name: "Build and Install Anope"
+        run: |
+          cd $GITHUB_WORKSPACE/anope/
+          cp $GITHUB_WORKSPACE/irctest/data/anope/* .
+          CFLAGS=-O0 ./Config -quick
+          make -C build -j 4
+          make -C build install
         if: "matrix.services == 'anope'"
 
       - name: "Run irctest (Atheme services)"
@@ -106,5 +119,5 @@ jobs:
       matrix:
         services:
           - no services
-          - atheme
+          - atheme  # Atheme works on Insp3, but not Insp4
           - anope
