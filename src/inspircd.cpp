@@ -669,7 +669,7 @@ void InspIRCd::Run()
 		 * timing using this event, so we dont have to
 		 * time this exactly).
 		 */
-		if (TIME.tv_sec != OLDTIME)
+		if (true)
 		{
 			CollectStats();
 			CheckTimeSkip(OLDTIME, TIME.tv_sec);
