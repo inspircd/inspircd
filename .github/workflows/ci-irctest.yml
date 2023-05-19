@@ -75,12 +75,12 @@ jobs:
 
       - name: "Run irctest (no services)"
         run: "make -C irctest/ inspircd-atheme PYTEST_ARGS='-n $(($(getconf _NPROCESSORS_ONLN) + 1))'"
-        if: ${{ matrix.services }} == none
+        if: ${{ matrix.services }} == 'no services'
 
     strategy:
       fail-fast: false
       matrix:
         services:
-          - none
+          - no services
           - atheme
           - anope
