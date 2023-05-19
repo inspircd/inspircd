@@ -21,8 +21,6 @@ jobs:
           ref: 3b7f81e22c317eae885f5a942767ba4f6a30414e
           repository: progval/irctest
 
-      - uses: actions/checkout@v3
-
       - name: "Install irctest dependencies"
         run: "sudo apt install -y python3-pytest python3-pytest-xdist"
 
