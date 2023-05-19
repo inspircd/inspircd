@@ -32,9 +32,8 @@ jobs:
           repository: progval/irctest
 
       # Speed-up the main loop
-      # (for some reason, 'patch' claims the patch is reversed?????)
-      #- name: "Apply irctest patches"
-      #  run: "patch src/inspircd.cpp < irctest/patches/inspircd_mainloop.patch"
+      - name: "Apply irctest patches"
+        run: "patch src/inspircd.cpp < irctest/patches/inspircd_mainloop.patch"
 
       - name: "Run configure"
         run: "./configure --development --disable-auto-extras --prefix=$HOME/.local/"
