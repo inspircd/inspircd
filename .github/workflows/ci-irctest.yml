@@ -1,3 +1,10 @@
+# This workflow has four tasks:
+#
+# 1. the first builds inspircd (with some optimizations for irctest), and uploads it
+#    to a temporary storage
+# 2. the other three download the binary we just built, and run it through inspircd,
+#    with either Anope, Atheme, or runs service-independent tests
+
 name: "irctest"
 
 on:
