@@ -94,15 +94,15 @@ jobs:
         if: "matrix.services == 'anope'"
 
       - name: "Run irctest (Atheme services)"
-        run: "make -C irctest/ inspircd-atheme PYTEST_ARGS='-n 4'"
+        run: "PATH=~/.local/inspircd/sbin:~/.local/inspircd/bin:$PATH make -C irctest/ inspircd-atheme PYTEST_ARGS='-n 4'"
         if: "matrix.services == 'atheme'"
 
       - name: "Run irctest (Anope services)"
-        run: "make -C irctest/ inspircd-anope PYTEST_ARGS='-n 4'"
+        run: "PATH=~/.local/inspircd/sbin:~/.local/inspircd/bin:$PATH make -C irctest/ inspircd-anope PYTEST_ARGS='-n 4'"
         if: "matrix.services == 'anope'"
 
       - name: "Run irctest (no services)"
-        run: "make -C irctest/ inspircd PYTEST_ARGS='-n 4'"
+        run: "PATH=~/.local/inspircd/sbin:~/.local/inspircd/bin:$PATH make -C irctest/ inspircd PYTEST_ARGS='-n 4'"
         if: "matrix.services == 'no services'"
 
     strategy:
