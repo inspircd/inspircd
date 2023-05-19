@@ -65,6 +65,9 @@ jobs:
           name: installed-inspircd-for-irctest
           path: '~'
 
+      - name: Unpack artefacts
+        run: cd ~; find -name 'artefacts-*.tar.gz' -exec tar -xzf '{}' \;
+
       - name: "Checkout irctest"
         uses: "actions/checkout@v3"
         with:
