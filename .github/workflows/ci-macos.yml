@@ -1,0 +1,53 @@
+name: macOS CI
+on:
+  pull_request:
+  push:
+  schedule:
+    - cron: '0 0 * * 0'
+jobs:
+  build:
+    if: "!contains(github.event.head_commit.message, '[skip macos ci]')"
+    runs-on: macos-latest
+    env:
+      CXXFLAGS: -std=${{ matrix.standard }} -D_LIBCPP_DISABLE_DEPRECATION_WARNINGS
+      HOMEBREW_NO_AUTO_UPDATE: 1
+      HOMEBREW_NO_INSTALL_CLEANUP: 1
+      HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
+      TEST_BUILD_MODULES: argon2 geo_maxmind ldap mysql pgsql regex_pcre regex_pcre2 regex_posix regex_re2 regex_stdlib regex_tre sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          brew update || true
+          for PACKAGE in pkg-config argon2 gnutls libmaxminddb libpq mbedtls mysql-client openssl@3 openldap pcre pcre2 re2 sqlite tre;
+          do
+            brew install $PACKAGE || brew upgrade $PACKAGE
+
+            BREW_PREFIX=$(brew --prefix $PACKAGE)
+            if [ -d "$BREW_PREFIX/bin" ]
+            then
+              export PATH="$PATH:$BREW_PREFIX/bin"
+            fi
+            if [ -d "$BREW_PREFIX/lib/pkgconfig" ]
+            then
+              export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$BREW_PREFIX/lib/pkgconfig"
+            fi
+          done
+          echo "PATH=$PATH" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
+
+      # TODO: remove this when https://github.com/Homebrew/homebrew-core/issues/130258 is fixed.
+      - name: Work around Homebrew MySQL being broken
+        run: |
+          brew install zlib
+          ln -sv $(brew --prefix zlib)/lib/libz.dylib $(brew --prefix)/lib/libzlib.dylib
+
+      - name: Run test-build
+        run: ./tools/test-build c++
+    strategy:
+      fail-fast: false
+      matrix:
+        standard:
+          - gnu++98
+          - c++17

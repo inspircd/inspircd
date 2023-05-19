@@ -1,0 +1,51 @@
+name: Ubuntu CI
+on:
+  pull_request:
+  push:
+  schedule:
+    - cron: '0 0 * * 0'
+jobs:
+  build:
+    if: "!contains(github.event.head_commit.message, '[skip ubuntu ci]')"
+    runs-on: ubuntu-latest
+    env:
+      CXXFLAGS: -std=${{ matrix.standard }}
+      TEST_BUILD_MODULES: argon2 geo_maxmind ldap mysql pgsql regex_pcre regex_pcre2 regex_posix regex_re2 regex_stdlib regex_tre sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update --assume-yes
+          sudo apt-get install --assume-yes --no-install-recommends \
+            clang \
+            g++ \
+            git \
+            libargon2-dev \
+            libgnutls28-dev \
+            libldap2-dev \
+            libmaxminddb-dev \
+            libmbedtls-dev \
+            libmysqlclient-dev \
+            libpcre2-dev \
+            libpcre3-dev \
+            libpq-dev \
+            libre2-dev \
+            libsqlite3-dev \
+            libssl-dev \
+            libtre-dev \
+            make \
+            pkg-config
+
+      - name: Run test-build
+        run: |
+          ./tools/test-build ${{ matrix.compiler }}
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler:
+          - clang++
+          - g++
+        standard:
+          - gnu++98
+          - c++17

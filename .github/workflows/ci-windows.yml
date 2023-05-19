@@ -1,0 +1,36 @@
+name: Windows CI
+on:
+  pull_request:
+  push:
+  schedule:
+    - cron: '0 0 * * 0'
+jobs:
+  build:
+    if: "!contains(github.event.head_commit.message, '[skip windows ci]')"
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.3.1
+
+      - name: Setup Conan
+        uses: turtlebrowser/get-conan@v1.2
+        with:
+          version: 1.59.0
+
+      - name: Install libraries
+        working-directory: ${{ github.workspace }}/win/build
+        run: |
+          (Get-Content ../conanfile.txt).replace('##', '') | Set-Content ../conanfile.txt
+          conan install .. --build=missing
+
+      - name: Run CMake
+        working-directory: ${{ github.workspace }}/win/build
+        run: |
+          cmake -G "Visual Studio 16 2019" -A "x64" ..
+
+      - name: Build InspIRCd
+        working-directory: ${{ github.workspace }}/win/build
+        run: |
+          msbuild InspIRCd.sln /M:3 /P:Configuration=Release /P:Platform=x64 /T:ALL_BUILD /VERBOSITY:MINIMAL
