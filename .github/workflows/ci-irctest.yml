@@ -26,13 +26,16 @@ jobs:
       #- name: "Apply irctest patches"
       #  run: "patch src/inspircd.cpp < irctest/patches/inspircd_mainloop.patch"
 
-      # speed-up build by removing large modules that won't be used
+      # Speed-up build by removing large modules that won't be used
       - name: "Remove unused modules"
         run: "rm -rf src/modules/m_spanningtree/"
 
       - name: "Run configure"
-        run: |
-          ./configure --development --disable-auto-extras
+        run: "./configure --development --disable-auto-extras"
+
+      # Speed-up build
+      - name: "Precompile inspircd.h"
+        run: "g++ include/inspircd.h"
 
       - name: "Build and Install"
         run: "make install --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))"
