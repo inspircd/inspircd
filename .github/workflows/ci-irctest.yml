@@ -14,8 +14,16 @@ jobs:
       - name: "Checkout repository"
         uses: "actions/checkout@v3"
 
-      - name: "Install irctest dependencies"
-        run: "sudo apt install -y python3-pytest python3-pytest-xdist"
+      - name: "Checkout irctest"
+        uses: "actions/checkout@v3"
+        with:
+          path: irctest
+          ref: 3b7f81e22c317eae885f5a942767ba4f6a30414e
+          repository: progval/irctest
+
+      # Speed-up the main loop
+      - name: "Apply irctest patches"
+        run: "patch src/inspircd.cpp < irctest/patches/inspircd_mainloop.patch"
 
       # speed-up build by removing large modules that won't be used
       - name: "Remove unused modules"
@@ -56,6 +64,9 @@ jobs:
           path: irctest
           ref: 3b7f81e22c317eae885f5a942767ba4f6a30414e
           repository: progval/irctest
+
+      - name: "Install irctest dependencies"
+        run: "sudo apt install -y python3-pytest python3-pytest-xdist"
 
       - name: "Install Atheme"
         run: "sudo apt install -y atheme-services"
