@@ -14,6 +14,9 @@ jobs:
       - name: "Checkout repository"
         uses: "actions/checkout@v3"
 
+      - name: "Install dependencies"
+        run: "sudo apt install -y libfmt-dev"  # required to precompile inspircd.h???
+
       - name: "Checkout irctest"
         uses: "actions/checkout@v3"
         with:
