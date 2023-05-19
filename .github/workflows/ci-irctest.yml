@@ -22,7 +22,7 @@ jobs:
         uses: "actions/checkout@v3"
 
       - name: "Install dependencies"
-        run: "sudo apt install -y libfmt-dev"  # required to precompile inspircd.h???
+        run: "sudo apt-get install -y libfmt-dev"  # required to precompile inspircd.h???
 
       - name: "Checkout irctest"
         uses: "actions/checkout@v3"
@@ -83,14 +83,14 @@ jobs:
           repository: progval/irctest
 
       - name: "Install irctest dependencies"
-        run: "sudo apt install -y python3-pytest python3-pytest-xdist"
+        run: "sudo apt-get install -y python3-pytest python3-pytest-xdist"
 
       - name: "Install Atheme"
-        run: "sudo apt install -y atheme-services"
+        run: "sudo apt-get install -y atheme-services"
         if: "matrix.services == 'atheme'"
 
       - name: "Install Anope"
-        run: "sudo apt install -y anope"
+        run: "sudo apt-get install -y anope"
         if: "matrix.services == 'anope'"
 
       - name: "Run irctest (Atheme services)"
