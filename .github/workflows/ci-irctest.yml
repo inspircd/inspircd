@@ -17,6 +17,10 @@ jobs:
       - name: "Install irctest dependencies"
         run: "sudo apt install -y python3-pytest python3-pytest-xdist"
 
+      # speed-up build by removing large modules that won't be used
+      - name: "Remove unused modules"
+        run: "rm -rf src/modules/m_spanningtree/"
+
       - name: "Run configure"
         run: |
           ./configure --development --disable-auto-extras
