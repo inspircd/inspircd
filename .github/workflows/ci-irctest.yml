@@ -23,7 +23,7 @@ jobs:
 
       # Speed-up the main loop
       - name: "Apply irctest patches"
-        run: "patch src/inspircd.cpp < irctest/patches/inspircd_mainloop.patch"
+        run: "patch -f src/inspircd.cpp < irctest/patches/inspircd_mainloop.patch"
 
       # speed-up build by removing large modules that won't be used
       - name: "Remove unused modules"
