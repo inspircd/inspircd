@@ -38,7 +38,7 @@ jobs:
         run: "make install --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))"
 
       - name: Make artefact tarball
-        run: cd ~; tar -czf artefacts-inspircd.tar.gz .local/ go/
+        run: cd ~; tar -czf artefacts-inspircd.tar.gz .local/
 
       - name: Upload build artefacts
         uses: actions/upload-artifact@v3
