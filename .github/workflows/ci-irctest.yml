@@ -36,14 +36,10 @@ jobs:
       #- name: "Apply irctest patches"
       #  run: "patch src/inspircd.cpp < irctest/patches/inspircd_mainloop.patch"
 
-      # Speed-up build by removing large modules that won't be used (6 min -> 5 min)
-      - name: "Remove unused modules"
-        run: "rm -rf src/modules/m_spanningtree/"
-
       - name: "Run configure"
         run: "./configure --development --disable-auto-extras --prefix=$HOME/.local/"
 
-      # Speed-up build
+      # Speed-up build (6 min -> 5 min)
       - name: "Precompile inspircd.h"
         run: "g++ include/inspircd.h"
 
