@@ -29,7 +29,7 @@ jobs:
       #- name: "Apply irctest patches"
       #  run: "patch src/inspircd.cpp < irctest/patches/inspircd_mainloop.patch"
 
-      # Speed-up build by removing large modules that won't be used
+      # Speed-up build by removing large modules that won't be used (6 min -> 5 min)
       - name: "Remove unused modules"
         run: "rm -rf src/modules/m_spanningtree/"
 
@@ -77,23 +77,23 @@ jobs:
 
       - name: "Install Atheme"
         run: "sudo apt install -y atheme-services"
-        if: ${{ matrix.services }} == atheme
+        if: "matrix.services == 'atheme'"
 
       - name: "Install Anope"
         run: "sudo apt install -y anope"
-        if: ${{ matrix.services }} == anope
+        if: "matrix.services == 'anope'"
 
       - name: "Run irctest (Atheme services)"
         run: "make -C irctest/ inspircd PYTEST_ARGS='-n 4'"
-        if: ${{ matrix.services }} == atheme
+        if: "matrix.services == 'atheme'"
 
       - name: "Run irctest (Anope services)"
         run: "make -C irctest/ inspircd-anope PYTEST_ARGS='-n 4'"
-        if: ${{ matrix.services }} == anope
+        if: "matrix.services == 'anope'"
 
       - name: "Run irctest (no services)"
         run: "make -C irctest/ inspircd-atheme PYTEST_ARGS='-n 4'"
-        if: ${{ matrix.services }} == 'no services'
+        if: "matrix.services == 'no services'"
 
     strategy:
       fail-fast: false
