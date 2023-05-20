@@ -31,12 +31,8 @@ jobs:
           ref: 3b7f81e22c317eae885f5a942767ba4f6a30414e
           repository: progval/irctest
 
-      # Speed-up the main loop
-      - name: "Apply irctest patches"
-        run: "patch src/inspircd.cpp < irctest/patches/inspircd_mainloop.patch"
-
       - name: "Run configure"
-        run: "./configure --development --disable-auto-extras --prefix=$HOME/.local/"
+        run: "CXXFLAGS=-DINSPIRCD_UNLIMITED_MAINLOOP ./configure --development --disable-auto-extras --prefix=$HOME/.local/"
 
       # Speed-up build (6 min -> 5 min)
       - name: "Precompile inspircd.h"
