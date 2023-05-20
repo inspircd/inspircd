@@ -71,7 +71,7 @@ jobs:
           repository: progval/irctest
 
       - name: "Install irctest dependencies"
-        run: "pip3 install pytest pytest-split"
+        run: "sudo apt-get install -y python3-pytest"
 
       - name: "Install Atheme"
         run: "sudo apt-get install -y atheme-services"
@@ -103,23 +103,13 @@ jobs:
         if: "matrix.services == 'anope'"
 
       - name: "Run irctest (no services)"
-        run: "PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd PYTEST_ARGS='--split 4 --group ${{ matrix.group }}'"
+        run: "PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd"
         if: "matrix.services == 'no services'"
 
     strategy:
       fail-fast: false
       matrix:
         services:
+          - no services
           - atheme  # Atheme works on Insp3, but not Insp4
           - anope
-
-        # the 'no services' test suite is the longest; split it across four jobs
-        include:
-          - services: no services
-            group: 1
-          - services: no services
-            group: 2
-          - services: no services
-            group: 3
-          - services: no services
-            group: 4
