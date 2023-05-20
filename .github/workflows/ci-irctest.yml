@@ -29,14 +29,14 @@ jobs:
           repository: progval/irctest
 
       - name: "Run configure"
-        run: "CXXFLAGS=-DINSPIRCD_UNLIMITED_MAINLOOP ./configure --development --disable-auto-extras --prefix=$HOME/.local/"
+        run: "./configure --development --disable-auto-extras --prefix=$HOME/.local/"
 
       # Speed-up build (6 min -> 5 min)
       - name: "Precompile inspircd.h"
         run: "g++ -I vendor/ include/inspircd.h"
 
       - name: "Build and Install"
-        run: "make install --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))"
+        run: "make install --jobs $(($(getconf _NPROCESSORS_ONLN) + 1)) CXXFLAGS=-DINSPIRCD_UNLIMITED_MAINLOOP"
 
       - name: Make artefact tarball
         run: cd ~; tar -czf artefacts-inspircd.tar.gz .local/
