@@ -103,7 +103,7 @@ jobs:
         if: "matrix.services == 'anope'"
 
       - name: "Run irctest (no services)"
-        run: "PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd PYTEST_ARGS='--split 4 --group {{ matrix.group }}'"
+        run: "PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd PYTEST_ARGS='--split 4 --group ${{ matrix.group }}'"
         if: "matrix.services == 'no services'"
 
     strategy:
