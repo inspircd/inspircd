@@ -71,7 +71,7 @@ jobs:
           repository: progval/irctest
 
       - name: "Install irctest dependencies"
-        run: "pip3 install pytest pytest-xdist pytest-split"
+        run: "pip3 install pytest pytest-split"
 
       - name: "Install Atheme"
         run: "sudo apt-get install -y atheme-services"
@@ -95,15 +95,15 @@ jobs:
         if: "matrix.services == 'anope'"
 
       - name: "Run irctest (Atheme services)"
-        run: "PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd-atheme PYTEST_ARGS='-n 4'"
+        run: "PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd-atheme"
         if: "matrix.services == 'atheme'"
 
       - name: "Run irctest (Anope services)"
-        run: "PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd-anope PYTEST_ARGS='-n 4'"
+        run: "PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd-anope"
         if: "matrix.services == 'anope'"
 
       - name: "Run irctest (no services)"
-        run: "PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd PYTEST_ARGS='-n 4 --split 4 --group {{ matrix.group }}'"
+        run: "PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd PYTEST_ARGS='--split 4 --group {{ matrix.group }}'"
         if: "matrix.services == 'no services'"
 
     strategy:
