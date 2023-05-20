@@ -664,12 +664,13 @@ void InspIRCd::Run()
 
 		UpdateTime();
 
-		/* Run background module timers every few seconds
-		 * (the docs say modules should not rely on accurate
-		 * timing using this event, so we dont have to
-		 * time this exactly).
-		 */
+		// Normally we want to limit the mainloop to processing data
+		// once a second but this can cause problems with testing
+		// software like irctest. Don't define this unless you know
+		// what you are doing.
+#ifndef INSPIRCD_UNLIMITED_MAINLOOP
 		if (TIME.tv_sec != OLDTIME)
+#endif
 		{
 			CollectStats();
 			CheckTimeSkip(OLDTIME, TIME.tv_sec);
