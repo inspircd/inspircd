@@ -71,7 +71,7 @@ jobs:
           repository: progval/irctest
 
       - name: "Install irctest dependencies"
-        run: "sudo apt-get install -y python3-pytest"
+        run: "sudo apt-get install -y python3-pytest faketime"
 
       - name: "Install Atheme"
         run: "sudo apt-get install -y atheme-services"
