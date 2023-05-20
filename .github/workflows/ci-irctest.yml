@@ -21,9 +21,6 @@ jobs:
       - name: "Checkout repository"
         uses: "actions/checkout@v3"
 
-      - name: "Install dependencies"
-        run: "sudo apt-get install -y libfmt-dev"  # required to precompile inspircd.h???
-
       - name: "Checkout irctest"
         uses: "actions/checkout@v3"
         with:
@@ -36,7 +33,7 @@ jobs:
 
       # Speed-up build (6 min -> 5 min)
       - name: "Precompile inspircd.h"
-        run: "g++ include/inspircd.h"
+        run: "g++ -I vendor/ include/inspircd.h"
 
       - name: "Build and Install"
         run: "make install --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))"
