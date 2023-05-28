@@ -704,6 +704,10 @@ class OpenSSLIOHook : public SSLIOHook
 		certinfo->activation = GetTime(X509_getm_notBefore(cert));
 		certinfo->expiration = GetTime(X509_getm_notAfter(cert));
 
+#if OPENSSL_VERSION_NUMBER < 0x10101000L
+# define ASN1_TIME_cmp_time_t ASN1_UTCTIME_cmp_time_t
+#endif
+
 		int activated = ASN1_TIME_cmp_time_t(X509_getm_notBefore(cert), ServerInstance->Time());
 		if (activated != -1 && activated != 0)
 			certinfo->error = "Certificate not activated";
