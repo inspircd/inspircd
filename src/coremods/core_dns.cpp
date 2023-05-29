@@ -882,7 +882,7 @@ class ModuleDNS : public Module
 		if (DNSServer.empty())
 			FindDNSServer();
 
-		if (oldserver != DNSServer || oldip != SourceIP || oldport != SourcePort)
+		if (oldserver != DNSServer || oldip != SourceIP || oldport != SourcePort || !SourcePort)
 			this->manager.Rehash(DNSServer, SourceIP, SourcePort);
 	}
 
