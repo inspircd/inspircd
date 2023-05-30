@@ -205,7 +205,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 		bool isunix = L->IPAddr.find('/') != std::string::npos;
 		if (!L->Port && !isunix)
 		{
-			ServerInstance->Logs.Warning(MODNAME, "Ignoring a link block without a port.");
+			ServerInstance->Logs.Warning(MODNAME, "Ignoring an IP link block without a port.");
 			/* Invalid link block */
 			continue;
 		}

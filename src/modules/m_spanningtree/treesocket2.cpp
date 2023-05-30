@@ -191,6 +191,11 @@ void TreeSocket::ProcessLine(std::string& line)
 			{
 				this->Capab(params);
 			}
+			else
+			{
+				ServerInstance->Logs.Debug(MODNAME, "Unknown command from fd {} in the WAIT_AUTH_2 phase: {}",
+					GetFd(), command);
+			}
 
 		break;
 		case CONNECTING:
@@ -213,7 +218,13 @@ void TreeSocket::ProcessLine(std::string& line)
 			{
 				this->Capab(params);
 			}
+			else
+			{
+				ServerInstance->Logs.Debug(MODNAME, "Unknown command from fd {} in the CONNECTING phase: {}",
+					GetFd(), command);
+			}
 		break;
+
 		case CONNECTED:
 			/*
 			 * State CONNECTED:
@@ -222,6 +233,7 @@ void TreeSocket::ProcessLine(std::string& line)
 			 */
 			this->ProcessConnectedLine(tags, prefix, command, params);
 		break;
+
 		case DYING:
 		break;
 	}
