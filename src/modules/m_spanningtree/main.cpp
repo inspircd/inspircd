@@ -517,7 +517,7 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 	{
 		const std::string value = item->ToNetwork(user, obj);
 		if (!value.empty())
-			ServerInstance->PI->SendMetaData(user, item->name, value);
+			ServerInstance->PI->SendMetadata(user, item->name, value);
 	}
 
 	Utils->TreeRoot->UserCount++;
@@ -603,7 +603,7 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string& reason, const
 	if (IS_LOCAL(user))
 	{
 		if (oper_message != reason)
-			ServerInstance->PI->SendMetaData(user, "operquit", oper_message);
+			ServerInstance->PI->SendMetadata(user, "operquit", oper_message);
 
 		CmdBuilder(user, "QUIT").push_last(reason).Broadcast();
 	}
@@ -858,7 +858,7 @@ void ModuleSpanningTree::OnShutdown(const std::string& reason)
 		children.front()->SQuit(reason, true);
 }
 
-void ModuleSpanningTree::OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata)
+void ModuleSpanningTree::OnDecodeMetadata(Extensible* target, const std::string& extname, const std::string& extdata)
 {
 	// HACK: this should use automatically synced user metadata in v4.
 	if (target && target->extype == ExtensionType::USER && irc::equals(extname, "uniqueusername"))

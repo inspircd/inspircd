@@ -138,7 +138,7 @@ void		Module::OnUserPostMessage(User*, const MessageTarget&, const MessageDetail
 void		Module::OnUserMessageBlocked(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserMessageBlocked); }
 void		Module::OnUserInvite(User*, User*, Channel*, time_t, ModeHandler::Rank, CUList&) { DetachEvent(I_OnUserInvite); }
 void		Module::OnPostTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPostTopicChange); }
-void		Module::OnDecodeMetaData(Extensible*, const std::string&, const std::string&) { DetachEvent(I_OnDecodeMetaData); }
+void		Module::OnDecodeMetadata(Extensible*, const std::string&, const std::string&) { DetachEvent(I_OnDecodeMetadata); }
 void		Module::OnChangeHost(User*, const std::string&) { DetachEvent(I_OnChangeHost); }
 void		Module::OnChangeRealHost(User*, const std::string&) { DetachEvent(I_OnChangeRealHost); }
 void		Module::OnPostChangeRealHost(User*) { DetachEvent(I_OnPostChangeRealHost); }

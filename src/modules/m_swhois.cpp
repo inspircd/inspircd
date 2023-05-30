@@ -143,7 +143,7 @@ public:
 		cmd.swhois.Unset(user);
 	}
 
-	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string&) override
+	void OnDecodeMetadata(Extensible* target, const std::string& extname, const std::string&) override
 	{
 		if (target && target->extype == ExtensionType::USER && irc::equals(extname, "swhois"))
 			cmd.operblock.Unset(static_cast<User*>(target));

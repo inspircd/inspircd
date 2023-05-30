@@ -137,7 +137,7 @@ void ExtensionItem::Sync(const Extensible* container, void* item)
 {
 	const std::string networkstr = ToNetwork(container, item);
 	if (!networkstr.empty())
-		ServerInstance->PI->SendMetaData(container, name, networkstr);
+		ServerInstance->PI->SendMetadata(container, name, networkstr);
 }
 
 void ExtensionItem::FromInternal(Extensible* container, const std::string& value) noexcept

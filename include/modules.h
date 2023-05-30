@@ -155,7 +155,7 @@ enum Implementation
 	I_OnCheckPassword,
 	I_OnCheckReady,
 	I_OnCommandBlocked,
-	I_OnDecodeMetaData,
+	I_OnDecodeMetadata,
 	I_OnDelLine,
 	I_OnExpireLine,
 	I_OnGarbageCollect,
@@ -538,13 +538,13 @@ public:
 	 */
 	virtual void OnMode(User* user, User* usertarget, Channel* chantarget, const Modes::ChangeList& changelist, ModeParser::ModeProcessFlag processflags);
 
-	/** Allows module data, sent via ProtoSendMetaData, to be decoded again by a receiving module.
+	/** Allows module data, sent via SendMetadata, to be decoded again by a receiving module.
 	 * Please see src/modules/m_swhois.cpp for a working example of how to use this method call.
 	 * @param target The Channel* or User* that data should be added to
 	 * @param extname The extension name which is being sent
 	 * @param extdata The extension data, encoded at the other end by an identical module
 	 */
-	virtual void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata);
+	virtual void OnDecodeMetadata(Extensible* target, const std::string& extname, const std::string& extdata);
 
 	/** Called whenever a user's hostname is changed.
 	 * This event triggers after the host has been set.

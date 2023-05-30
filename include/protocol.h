@@ -33,7 +33,7 @@ public:
 	 * @param key The 'key' of the data
 	 * @param data The string representation of the data
 	 */
-	virtual void SendMetaData(const std::string& key, const std::string& data) = 0;
+	virtual void SendMetadata(const std::string& key, const std::string& data) = 0;
 };
 
 class CoreExport ProtocolInterface
@@ -83,13 +83,13 @@ public:
 	 * @param key The 'key' of the data, e.g. "swhois" for swhois desc on a user
 	 * @param data The string representation of the data
 	 */
-	virtual void SendMetaData(const Extensible* ext, const std::string& key, const std::string& data) { }
+	virtual void SendMetadata(const Extensible* ext, const std::string& key, const std::string& data) { }
 
 	/** Send metadata related to the server to other linked servers.
 	 * @param key The 'key' of the data
 	 * @param data The string representation of the data
 	 */
-	virtual void SendMetaData(const std::string& key, const std::string& data) { }
+	virtual void SendMetadata(const std::string& key, const std::string& data) { }
 
 	/** Send a notice to users with a given snomask.
 	 * @param snomask The snomask required for the message to be sent.

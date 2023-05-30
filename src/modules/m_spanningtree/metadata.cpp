@@ -33,7 +33,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 	if (params[0] == "*")
 	{
 		std::string value = params.size() < 3 ? "" : params[2];
-		FOREACH_MOD(OnDecodeMetaData, (nullptr, params[1], value));
+		FOREACH_MOD(OnDecodeMetadata, (nullptr, params[1], value));
 		return CmdResult::SUCCESS;
 	}
 
@@ -69,7 +69,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 		const std::string value = params.size() < 7 ? "" : params[6];
 		if (item && item->extype == ExtensionType::MEMBERSHIP)
 			item->FromNetwork(m, value);
-		FOREACH_MOD(OnDecodeMetaData, (m, params[5], value));
+		FOREACH_MOD(OnDecodeMetadata, (m, params[5], value));
 	}
 
 	if (ServerInstance->Channels.IsPrefix(params[0][0]))
@@ -93,7 +93,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 		ExtensionItem* item = ServerInstance->Extensions.GetItem(params[2]);
 		if (item && item->extype == ExtensionType::CHANNEL)
 			item->FromNetwork(c, value);
-		FOREACH_MOD(OnDecodeMetaData, (c, params[2], value));
+		FOREACH_MOD(OnDecodeMetadata, (c, params[2], value));
 	}
 	else
 	{
@@ -105,7 +105,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 
 			if (item && item->extype == ExtensionType::USER)
 				item->FromNetwork(u, value);
-			FOREACH_MOD(OnDecodeMetaData, (u, params[1], value));
+			FOREACH_MOD(OnDecodeMetadata, (u, params[1], value));
 		}
 	}
 

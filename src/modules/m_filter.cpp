@@ -233,7 +233,7 @@ public:
 	static std::string EncodeFilter(const FilterResult& filter);
 	FilterResult DecodeFilter(const std::string& data);
 	void OnSyncNetwork(ProtocolInterface::Server& server) override;
-	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata) override;
+	void OnDecodeMetadata(Extensible* target, const std::string& extname, const std::string& extdata) override;
 	ModResult OnStats(Stats::Context& stats) override;
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override;
 	void OnUnloadModule(Module* mod) override;
@@ -734,11 +734,11 @@ void ModuleFilter::OnSyncNetwork(ProtocolInterface::Server& server)
 		if (filter.from_config)
 			continue;
 
-		server.SendMetaData("filter", EncodeFilter(filter));
+		server.SendMetadata("filter", EncodeFilter(filter));
 	}
 }
 
-void ModuleFilter::OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata)
+void ModuleFilter::OnDecodeMetadata(Extensible* target, const std::string& extname, const std::string& extdata)
 {
 	if (!target && irc::equals(extname, "filter"))
 	{

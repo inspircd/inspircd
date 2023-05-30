@@ -87,17 +87,17 @@ void SpanningTreeProtocolInterface::BroadcastEncap(const std::string& cmd, const
 	CmdBuilder(source, "ENCAP * ").push_raw(cmd).insert(params).Forward(server);
 }
 
-void SpanningTreeProtocolInterface::SendMetaData(const Extensible* ext, const std::string& key, const std::string& data)
+void SpanningTreeProtocolInterface::SendMetadata(const Extensible* ext, const std::string& key, const std::string& data)
 {
 	CommandMetadata::Builder(ext, key, data).Broadcast();
 }
 
-void SpanningTreeProtocolInterface::SendMetaData(const std::string& key, const std::string& data)
+void SpanningTreeProtocolInterface::SendMetadata(const std::string& key, const std::string& data)
 {
 	CommandMetadata::Builder(key, data).Broadcast();
 }
 
-void SpanningTreeProtocolInterface::Server::SendMetaData(const std::string& key, const std::string& data)
+void SpanningTreeProtocolInterface::Server::SendMetadata(const std::string& key, const std::string& data)
 {
 	sock->WriteLine(CommandMetadata::Builder(key, data));
 }

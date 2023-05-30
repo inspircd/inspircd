@@ -455,7 +455,7 @@ public:
 		}
 	}
 
-	void OnDecodeMetaData(Extensible* target, const std::string& extname, const std::string& extdata) override
+	void OnDecodeMetadata(Extensible* target, const std::string& extname, const std::string& extdata) override
 	{
 		if (!target && irc::equals(extname, "saslmechlist"))
 			cap.SetMechlist(extdata);
