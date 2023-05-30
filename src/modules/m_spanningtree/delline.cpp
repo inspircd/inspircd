@@ -34,7 +34,7 @@ CmdResult CommandDelLine::Handle(User* user, Params& params)
 	std::string reason;
 
 	// XLineManager::DelLine() returns true if the xline existed, false if it didn't
-	if (ServerInstance->XLines->DelLine(params[1].c_str(), params[0], reason, user))
+	if (ServerInstance->XLines->DelLine(params[1], params[0], reason, user))
 	{
 		ServerInstance->SNO.WriteToSnoMask('X', "{} removed {}{} on {}: {}", setter,
 			params[0], params[0].length() == 1 ? "-line" : "", params[1], reason);

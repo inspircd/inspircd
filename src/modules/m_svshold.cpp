@@ -120,7 +120,7 @@ public:
 		{
 			std::string reason;
 
-			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "SVSHOLD", reason, user))
+			if (ServerInstance->XLines->DelLine(parameters[0], "SVSHOLD", reason, user))
 			{
 				if (!silent)
 					ServerInstance->SNO.WriteToSnoMask('x', "{} removed SVSHOLD on {}: {}", user->nick, parameters[0], reason);

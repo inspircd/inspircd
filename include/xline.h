@@ -487,7 +487,7 @@ public:
 	 * @param simulate If this is true, don't actually remove the line, just return
 	 * @return True if the line was deleted successfully
 	 */
-	bool DelLine(const char* hostmask, const std::string& type, std::string& reason, User* user, bool simulate = false);
+	bool DelLine(const std::string& hostmask, const std::string& type, std::string& reason, User* user, bool simulate = false);
 
 	/** Registers an xline factory.
 	 * An xline factory is a class which when given a particular xline type,

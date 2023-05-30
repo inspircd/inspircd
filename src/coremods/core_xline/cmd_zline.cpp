@@ -103,7 +103,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 	{
 		std::string reason;
 
-		if (ServerInstance->XLines->DelLine(target.c_str(), "Z", reason, user))
+		if (ServerInstance->XLines->DelLine(target, "Z", reason, user))
 		{
 			ServerInstance->SNO.WriteToSnoMask('x', "{} removed Z-line on {}: {}", user->nick, target, reason);
 		}

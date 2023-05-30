@@ -106,7 +106,7 @@ CmdResult CommandGline::Handle(User* user, const Params& parameters)
 	{
 		std::string reason;
 
-		if (ServerInstance->XLines->DelLine(target.c_str(), "G", reason, user))
+		if (ServerInstance->XLines->DelLine(target, "G", reason, user))
 		{
 			ServerInstance->SNO.WriteToSnoMask('x', "{} removed G-line on {}: {}", user->nick, target, reason);
 		}

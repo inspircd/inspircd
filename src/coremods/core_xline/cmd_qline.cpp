@@ -86,7 +86,7 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 	{
 		std::string reason;
 
-		if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "Q", reason, user))
+		if (ServerInstance->XLines->DelLine(parameters[0], "Q", reason, user))
 		{
 			ServerInstance->SNO.WriteToSnoMask('x', "{} removed Q-line on {}: {}", user->nick, parameters[0], reason);
 		}

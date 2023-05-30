@@ -105,7 +105,7 @@ CmdResult CommandKline::Handle(User* user, const Params& parameters)
 	{
 		std::string reason;
 
-		if (ServerInstance->XLines->DelLine(target.c_str(), "K", reason, user))
+		if (ServerInstance->XLines->DelLine(target, "K", reason, user))
 		{
 			ServerInstance->SNO.WriteToSnoMask('x', "{} removed K-line on {}: {}", user->nick, target, reason);
 		}
