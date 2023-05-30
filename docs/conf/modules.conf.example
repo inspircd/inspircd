@@ -2550,8 +2550,11 @@
 # added/removed by Services.                                          #
 #<module name="svshold">
 # SVSHOLD does not generate server notices by default, you can turn
-# notices on by uncommenting the next line.
-#<svshold silent="no">
+# notices on by uncommenting the next line. You can also allow users
+# that are authenticated to a services account to bypass SVSHOLDs for
+# nicknames in their nick group (requires services support).
+#
+#<svshold silent="no" exemptregistered="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SWHOIS module: Allows you to add arbitrary lines to user WHOIS.
