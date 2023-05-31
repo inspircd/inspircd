@@ -157,7 +157,7 @@ void SecurityIPResolver::OnError(const DNS::Query* r)
 		return;
 
 	ServerInstance->Logs.Warning(MODNAME, "Could not resolve IP associated with link '{}': {}",
-		link->Name.c_str(), this->manager->GetErrorStr(r->error).c_str());
+		link->Name, this->manager->GetErrorStr(r->error));
 }
 
 CacheRefreshTimer::CacheRefreshTimer()

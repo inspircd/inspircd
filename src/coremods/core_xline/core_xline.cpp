@@ -44,7 +44,7 @@ bool InsaneBan::MatchesEveryone(const std::string& mask, MatcherBase& test, User
 	{
 		const char* article = strchr("AEIOUaeiou", bantype) ? "an" : "a";
 		ServerInstance->SNO.WriteToSnoMask('x', "\002WARNING\002: {} tried to set add {} {}-line on {} which covers {:.2}% of the network which is more than the maximum of {:.2}%!",
-			user->nick.c_str(), article, bantype, mask, percent, itrigger);
+			user->nick, article, bantype, mask, percent, itrigger);
 		user->WriteNotice(INSP_FORMAT("*** Unable to add {} {}-line on {} which covers {:.2}% of the network which is more than the maximum of {:.2}%!",
 			article, bantype, mask, percent, itrigger));
 		return true;

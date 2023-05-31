@@ -178,9 +178,8 @@ public:
 
 		// The user has tried to change a disabled mode!
 		const char* what = change.mh->GetModeType() == MODETYPE_CHANNEL ? "channel" : "user";
-		WriteLog("{} was blocked from {}setting the disabled {} mode {} ({})",
-			user->GetRealMask().c_str(), change.adding ? "" : "un",
-			what, change.mh->GetModeChar(), change.mh->name.c_str());
+		WriteLog("{} was blocked from {}setting the disabled {} mode {} ({})", user->GetRealMask(),
+			change.adding ? "" : "un", what, change.mh->GetModeChar(), change.mh->name);
 
 		if (fakenonexistent)
 		{

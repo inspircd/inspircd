@@ -66,7 +66,7 @@ public:
 				user->WriteRemoteNumeric(textnumeric, line);
 
 			if (!endtext.empty() && endnumeric)
-				user->WriteRemoteNumeric(endnumeric, endtext.c_str());
+				user->WriteRemoteNumeric(endnumeric, endtext);
 		}
 		else if (IS_LOCAL(user))
 		{

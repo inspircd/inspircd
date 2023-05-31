@@ -106,7 +106,7 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& para
 	if (params.GetTags().find("~name") != params.GetTags().end())
 	{
 		extra += INSP_FORMAT(" ({}using account \x02{}\x02)", automatic ? "automatically " : "",
-			u->oper->GetName().c_str());
+			u->oper->GetName());
 	}
 
 	ServerInstance->SNO.WriteToSnoMask('O', "From {}: {} ({}) [{}] is now a server operator of type \x02{}\x02{}.",

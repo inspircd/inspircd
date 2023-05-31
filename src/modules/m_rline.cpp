@@ -283,7 +283,7 @@ public:
 			if (newrxengine.empty())
 				ServerInstance->SNO.WriteToSnoMask('r', "WARNING: No regex engine loaded - R-line functionality disabled until this is corrected.");
 			else
-				ServerInstance->SNO.WriteToSnoMask('r', "WARNING: Regex engine '{}' is not loaded - R-line functionality disabled until this is corrected.", newrxengine.c_str());
+				ServerInstance->SNO.WriteToSnoMask('r', "WARNING: Regex engine '{}' is not loaded - R-line functionality disabled until this is corrected.", newrxengine);
 
 			ServerInstance->XLines->DelAll(f.GetType());
 		}
