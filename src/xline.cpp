@@ -582,7 +582,7 @@ void XLine::DefaultApply(User* u, const std::string& line, bool bancache)
 
 	if (bancache)
 	{
-		ServerInstance->Logs.Debug("BANCACHE", "BanCache: Adding positive hit (" + line + ") for " + u->GetAddress());
+		ServerInstance->Logs.Debug("BANCACHE", "Adding positive hit (" + line + ") for " + u->GetAddress());
 		ServerInstance->BanCache.AddHit(u->GetAddress(), this->type, banreason, (this->duration > 0 ? (this->expiry - ServerInstance->Time()) : 0));
 	}
 }

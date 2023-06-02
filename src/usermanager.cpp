@@ -202,7 +202,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, const irc::sockets::soc
 		if (!b->Type.empty() && !New->exempt)
 		{
 			/* user banned */
-			ServerInstance->Logs.Debug("BANCACHE", "BanCache: Positive hit for " + New->GetAddress());
+			ServerInstance->Logs.Debug("BANCACHE", "Positive hit for " + New->GetAddress());
 
 			if (!ServerInstance->Config->XLineMessage.empty())
 				New->WriteNumeric(ERR_YOUREBANNEDCREEP, ServerInstance->Config->XLineMessage);
@@ -222,7 +222,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, const irc::sockets::soc
 		}
 		else
 		{
-			ServerInstance->Logs.Debug("BANCACHE", "BanCache: Negative hit for " + New->GetAddress());
+			ServerInstance->Logs.Debug("BANCACHE", "Negative hit for " + New->GetAddress());
 		}
 	}
 	else

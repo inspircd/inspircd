@@ -492,7 +492,7 @@ void LocalUser::FullConnect()
 	ServerInstance->SNO.WriteToSnoMask('c', "Client connecting on port {} (class {}): {} ({}) [{}\x0F]",
 		server_sa.port(), GetClass()->GetName(), GetRealMask(), GetAddress(), GetRealName());
 
-	ServerInstance->Logs.Debug("BANCACHE", "BanCache: Adding NEGATIVE hit for " + this->GetAddress());
+	ServerInstance->Logs.Debug("BANCACHE", "Adding NEGATIVE hit for " + this->GetAddress());
 	ServerInstance->BanCache.AddHit(this->GetAddress(), "", "");
 	// reset the flood penalty (which could have been raised due to things like auto +x)
 	CommandFloodPenalty = 0;
