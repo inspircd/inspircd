@@ -34,9 +34,9 @@ void TreeSocket::WriteLine(const std::string& original_line)
 	size_t cmdstart = 0;
 
 	if (line[0] == '@') // Skip the tags.
-		cmdstart = line.find(' ', cmdstart + 1);
+		cmdstart = line.find(' ');
 
-	if (line[0] == ':') // Skip the prefix.
+	if (line[cmdstart + 1] == ':') // Skip the prefix.
 		cmdstart = line.find(' ', cmdstart + 1);
 
 	// Find the end of the command.
