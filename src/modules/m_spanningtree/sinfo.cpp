@@ -52,13 +52,18 @@ CmdResult CommandSInfo::HandleServer(TreeServer* server, CommandBase::Params& pa
 	{
 		// InspIRCd-4.0.0-a10. sadie.testnet.inspircd.org :[597] Test
 		// version             server                       uid  custom-version
-		std::string unused;
-		irc::spacesepstream versionstream(value);
-		versionstream.GetToken(server->rawversion);
-		server->rawversion.pop_back();
-		versionstream.GetToken(unused);
-		versionstream.GetToken(unused);
-		server->customversion = versionstream.GetRemaining();
+		irc::tokenstream versionstream(value);
+
+		versionstream.GetMiddle(server->rawversion);
+		if (server->rawversion.back() == '.')
+			server->rawversion.pop_back();
+
+		for (std::string token; versionstream.GetTrailing(token); )
+			server->customversion = token;
+
+		const std::string sidprefix = INSP_FORMAT("[{}] ", server->GetId());
+		if (!server->customversion.compare(0, sidprefix.size(), sidprefix))
+			server->customversion.erase(0, sidprefix.size());
 
 		ServerInstance->Logs.Debug(MODNAME, "Extracted entries from fullversion key: rawversion={} customversion={}",
 			server->rawversion, server->customversion);
@@ -66,12 +71,14 @@ CmdResult CommandSInfo::HandleServer(TreeServer* server, CommandBase::Params& pa
 	else if (irc::equals(key,  "version"))
 	{
 		// InspIRCd-4. testnet.inspircd.org :Test
-		std::string unused;
-		irc::spacesepstream versionstream(value);
-		versionstream.GetToken(server->rawbranch);
-		server->rawbranch.pop_back();
-		versionstream.GetToken(unused);
-		server->customversion = versionstream.GetRemaining();
+		irc::tokenstream versionstream(value);
+
+		versionstream.GetMiddle(server->rawbranch);
+		if (server->rawbranch.back() == '.')
+			server->rawbranch.pop_back();
+
+		for (std::string token; versionstream.GetTrailing(token); )
+			server->customversion = token;
 
 		ServerInstance->Logs.Debug(MODNAME, "Extracted entries from version key: rawbranch={} customversion={}",
 			server->rawbranch, server->customversion);
