@@ -174,7 +174,7 @@ private:
 
 	bool CheckSpam(User* user)
 	{
-		if (user->uuid != prevuuid || prevtime != ServerInstance->Time())
+		if (user->uuid == prevuuid && prevtime == ServerInstance->Time())
 		{
 			// The user has changed this mode already recently. Have they done
 			// it too much?
