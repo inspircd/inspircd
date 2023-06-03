@@ -406,10 +406,6 @@
 #                                                                     #
 # bots - Whether to send channel history to bots. Defaults to yes.    #
 #                                                                     #
-# enableumode - Whether to enable the +N user mode which allows users #
-#               to opt-out of receiving channel history. Defaults to  #
-#               no.                                                   #
-#                                                                     #
 # maxlines - The maximum number of lines of chat history to send to a #
 #            joining users. Defaults to 50.                           #
 #                                                                     #
@@ -421,7 +417,6 @@
 #             yes.                                                    #
 #                                                                     #
 #<chanhistory bots="yes"
-#             enableumode="yes"
 #             maxduration="4w"
 #             maxlines="50"
 #             prefixmsg="yes">
