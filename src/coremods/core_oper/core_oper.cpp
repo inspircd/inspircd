@@ -139,7 +139,7 @@ public:
 					const std::string chanmodes = account->GetModes(MODETYPE_CHANNEL);
 					const std::string usermodes = account->GetModes(MODETYPE_USER);
 					const std::string snomasks = account->GetSnomasks();
-					const std::string commands = account->GetCommands();
+					const std::string commands = account->GetCommands(true);
 					const std::string privileges = account->GetPrivileges();
 
 					stats.AddGenericRow(INSP_FORMAT(
@@ -168,7 +168,7 @@ public:
 					const std::string chanmodes = type->GetModes(MODETYPE_CHANNEL);
 					const std::string usermodes = type->GetModes(MODETYPE_USER);
 					const std::string snomasks = type->GetSnomasks();
-					const std::string commands = type->GetCommands();
+					const std::string commands = type->GetCommands(true);
 					const std::string privileges = type->GetPrivileges();
 
 					stats.AddGenericRow(INSP_FORMAT(
