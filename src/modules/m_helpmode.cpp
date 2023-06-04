@@ -107,7 +107,7 @@ public:
 			}
 
 			stats.AddGenericRow(INSP_FORMAT("\x02{}\x02{} ({}){}", helper->nick, markhelpers ? " [helper]" : "",
-				helper->GetRealUserHost(), extra));
+				helper->GetUserHost(), extra));
 		}
 
 		// Allow the core to add normal opers.
