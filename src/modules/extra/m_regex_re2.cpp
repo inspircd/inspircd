@@ -18,6 +18,8 @@
  */
 
 /// $CompilerFlags: -std=c++11 find_compiler_flags("re2" "")
+/// $CompilerFlags: require_version("re2" "11") -std=c++17
+
 /// $LinkerFlags: find_linker_flags("re2" "-lre2")
 
 /// $PackageInfo: require_system("arch") pkgconf re2
