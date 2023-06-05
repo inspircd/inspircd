@@ -321,7 +321,21 @@ public:
 		if (cloakmethods.empty())
 			return;
 
-		auto& cloakmethod = cloakmethods.front();
+		Cloak::MethodPtr cloakmethod;
+		for (const auto& method : cloakmethods)
+		{
+			if (method->IsLinkSensitive())
+			{
+				// This cloak method really wants to be the link method so prefer it.
+				cloakmethod = method;
+				break;
+			}
+		}
+
+		// If no methods are link sensitive we just use the first.
+		if (!cloakmethod)
+			cloakmethod = cloakmethods.front();
+
 		cloakmethod->GetLinkData(data, compatdata);
 
 		data["method"] = cloakmethod->GetName();

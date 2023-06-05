@@ -263,7 +263,12 @@ public:
 #else
 		data["using-psl"] = "no";
 #endif
+	}
 
+	bool IsLinkSensitive() const override
+	{
+		// This method always wants to be at the front.
+		return true;
 	}
 };
 

@@ -227,6 +227,12 @@ struct CloakInfo final
 		compatdata = GetCompatLinkData();
 	}
 
+	bool IsLinkSensitive() const override
+	{
+		// This method always wants to be at the front.
+		return true;
+	}
+
 	std::string GenCloak(const irc::sockets::sockaddrs& ip, const std::string& ipstr, const std::string& host)
 	{
 		std::string chost;

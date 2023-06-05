@@ -163,6 +163,15 @@ public:
 		return provname.c_str() + 6;
 	}
 
+	/** Determines whether when this cloak method is behind non-sensitive cloak methods
+	 * if it should be treated as if it was the primary link method for the purposes of
+	 * generating link data.
+	 */
+	virtual bool IsLinkSensitive() const
+	{
+		return false;
+	}
+
 	/** Determines whether this method is provided by the specified service provider.
 	 * @param prov The service provider to check.
 	 */
