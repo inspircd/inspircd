@@ -489,6 +489,18 @@ public:
 	 */
 	bool DelLine(const std::string& hostmask, const std::string& type, std::string& reason, User* user, bool simulate = false);
 
+	/** Delete an XLine
+	 * @param xline The xline to delete.
+	 * @param reason The xline reason, if it is being removed successfully
+	 * @param user The user removing the line or NULL if its the local server
+	 * @param simulate If this is true, don't actually remove the line, just return
+	 * @return True if the line was deleted successfully
+	 */
+	bool DelLine(const XLine* xline, std::string& reason, User* user, bool simulate = false)
+	{
+		return DelLine(xline->Displayable(), xline->type, reason, user, simulate);
+	}
+
 	/** Registers an xline factory.
 	 * An xline factory is a class which when given a particular xline type,
 	 * will generate a new XLine specialized to that type. For example if you

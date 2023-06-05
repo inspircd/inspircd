@@ -227,9 +227,8 @@ public:
 			Account::NickList* nicks = accountapi->GetAccountNicks(user);
 			if (nicks && nicks->find(rl->Displayable()) != nicks->end())
 			{
-				// TODO: add a DelLine override that can take an XLine*
 				std::string reason;
-				if (ServerInstance->XLines->DelLine(newnick.c_str(), "SVSHOLD", reason, user))
+				if (ServerInstance->XLines->DelLine(rl, reason, user))
 				{
 					if (!silent)
 						ServerInstance->SNO.WriteToSnoMask('x', "{} overrode SVSHOLD on {}: {}", user->nick, rl->Displayable(), reason);
