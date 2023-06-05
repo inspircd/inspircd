@@ -34,7 +34,7 @@
 
 /// $PackageInfo: require_system("arch") openssl pkgconf
 /// $PackageInfo: require_system("centos") openssl-devel pkgconfig
-/// $PackageInfo: require_system("darwin") openssl@1.1 pkg-config
+/// $PackageInfo: require_system("darwin") openssl pkg-config
 /// $PackageInfo: require_system("debian") libssl-dev openssl pkg-config
 /// $PackageInfo: require_system("rocky") openssl-devel pkgconfig
 /// $PackageInfo: require_system("ubuntu") libssl-dev openssl pkg-config

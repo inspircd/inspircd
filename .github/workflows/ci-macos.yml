@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew update || true
-          for PACKAGE in pkg-config argon2 gnutls libmaxminddb libpq libpsl mbedtls mysql-client openssl@3 openldap pcre2 re2 rapidjson sqlite
+          for PACKAGE in pkg-config argon2 gnutls libmaxminddb libpq libpsl mbedtls mysql-client openssl openldap pcre2 re2 rapidjson sqlite
           do
             brew install $PACKAGE || brew upgrade $PACKAGE
 
