@@ -518,23 +518,11 @@ bool XLineManager::InvokeStats(const std::string& type, Stats::Context& context)
 
 XLineManager::XLineManager()
 {
-	GLineFactory* GFact;
-	ELineFactory* EFact;
-	KLineFactory* KFact;
-	QLineFactory* QFact;
-	ZLineFactory* ZFact;
-
-	GFact = new GLineFactory;
-	EFact = new ELineFactory;
-	KFact = new KLineFactory;
-	QFact = new QLineFactory;
-	ZFact = new ZLineFactory;
-
-	RegisterFactory(GFact);
-	RegisterFactory(EFact);
-	RegisterFactory(KFact);
-	RegisterFactory(QFact);
-	RegisterFactory(ZFact);
+	RegisterFactory(new ELineFactory());
+	RegisterFactory(new GLineFactory());
+	RegisterFactory(new KLineFactory());
+	RegisterFactory(new QLineFactory());
+	RegisterFactory(new ZLineFactory());
 }
 
 XLineManager::~XLineManager()

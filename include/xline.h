@@ -95,7 +95,7 @@ public:
 	/** Change creation time of an xline. Updates expiry
 	 * to be after the creation time.
 	 */
-	virtual void SetCreateTime(time_t created)
+	inline void SetCreateTime(time_t created)
 	{
 		set_time = created;
 		expiry = created + duration;
@@ -152,15 +152,15 @@ public:
 
 	/** The duration of the ban, or 0 if permanent
 	 */
-	unsigned long duration;
+	const unsigned long duration;
 
 	/** Source of the ban. This can be a servername or an oper nickname
 	 */
-	std::string source;
+	const std::string source;
 
 	/** Reason for the ban
 	 */
-	std::string reason;
+	const std::string reason;
 
 	/** Expiry time. Does not contain useful data if the duration is 0.
 	 */
@@ -496,7 +496,7 @@ public:
 	 * @param simulate If this is true, don't actually remove the line, just return
 	 * @return True if the line was deleted successfully
 	 */
-	bool DelLine(const XLine* xline, std::string& reason, User* user, bool simulate = false)
+	inline bool DelLine(const XLine* xline, std::string& reason, User* user, bool simulate = false)
 	{
 		return DelLine(xline->Displayable(), xline->type, reason, user, simulate);
 	}
