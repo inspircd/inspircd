@@ -716,27 +716,27 @@ void XLine::DisplayExpiry()
 		Duration::ToString(ServerInstance->Time() - set_time), reason);
 }
 
-const std::string& ELine::Displayable()
+const std::string& ELine::Displayable() const
 {
 	return matchtext;
 }
 
-const std::string& KLine::Displayable()
+const std::string& KLine::Displayable() const
 {
 	return matchtext;
 }
 
-const std::string& GLine::Displayable()
+const std::string& GLine::Displayable() const
 {
 	return matchtext;
 }
 
-const std::string& ZLine::Displayable()
+const std::string& ZLine::Displayable() const
 {
 	return ipaddr;
 }
 
-const std::string& QLine::Displayable()
+const std::string& QLine::Displayable() const
 {
 	return nick;
 }

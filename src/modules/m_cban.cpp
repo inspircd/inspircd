@@ -64,7 +64,7 @@ public:
 		return InspIRCd::Match(s, matchtext);
 	}
 
-	const std::string& Displayable() override
+	const std::string& Displayable() const override
 	{
 		return matchtext;
 	}

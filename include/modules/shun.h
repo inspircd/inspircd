@@ -61,7 +61,7 @@ public:
 		return (matchtext == str);
 	}
 
-	const std::string& Displayable() override
+	const std::string& Displayable() const override
 	{
 		return matchtext;
 	}

@@ -67,7 +67,7 @@ public:
 			XLine::DisplayExpiry();
 	}
 
-	const std::string& Displayable() override
+	const std::string& Displayable() const override
 	{
 		return nickname;
 	}

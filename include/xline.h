@@ -140,7 +140,7 @@ public:
 	 * ident and host parts separately but will still return ident\@host
 	 * for its Displayable() method).
 	 */
-	virtual const std::string& Displayable() = 0;
+	virtual const std::string& Displayable() const = 0;
 
 	/** Called when the xline has just been added.
 	 */
@@ -207,7 +207,7 @@ public:
 
 	void Apply(User* u) override;
 
-	const std::string& Displayable() override;
+	const std::string& Displayable() const override;
 
 	bool IsBurstable() override;
 
@@ -250,7 +250,7 @@ public:
 
 	void Apply(User* u)  override;
 
-	const std::string& Displayable() override;
+	const std::string& Displayable() const override;
 
 	/** Ident mask (ident part only)
 	 */
@@ -293,7 +293,7 @@ public:
 
 	void OnAdd() override;
 
-	const std::string& Displayable() override;
+	const std::string& Displayable() const override;
 
 	/** Ident mask (ident part only)
 	 */
@@ -330,7 +330,7 @@ public:
 
 	void Apply(User* u) override;
 
-	const std::string& Displayable() override;
+	const std::string& Displayable() const override;
 
 	/** IP mask (no ident part)
 	 */
@@ -362,7 +362,7 @@ public:
 
 	void Apply(User* u) override;
 
-	const std::string& Displayable() override;
+	const std::string& Displayable() const override;
 
 	/** Nickname mask
 	 */
