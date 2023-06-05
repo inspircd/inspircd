@@ -41,7 +41,7 @@ public:
 	{
 	}
 
-	bool Matches(User* u) override
+	bool Matches(User* u) const override
 	{
 		LocalUser* lu = IS_LOCAL(u);
 		if (lu && lu->exempt)
@@ -56,7 +56,7 @@ public:
 		return false;
 	}
 
-	bool Matches(const std::string& str) override
+	bool Matches(const std::string& str) const override
 	{
 		return (matchtext == str);
 	}

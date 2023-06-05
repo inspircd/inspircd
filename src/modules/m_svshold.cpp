@@ -51,12 +51,12 @@ public:
 	{
 	}
 
-	bool Matches(User* u) override
+	bool Matches(User* u) const override
 	{
 		return u->nick == nickname;
 	}
 
-	bool Matches(const std::string& s) override
+	bool Matches(const std::string& s) const override
 	{
 		return InspIRCd::Match(s, nickname);
 	}

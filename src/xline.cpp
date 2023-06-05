@@ -161,7 +161,7 @@ public:
  *  bans. :)
  */
 
-bool XLine::Matches(User* u)
+bool XLine::Matches(User* u) const
 {
 	return false;
 }
@@ -587,7 +587,7 @@ void XLine::DefaultApply(User* u, const std::string& line, bool bancache)
 	}
 }
 
-bool KLine::Matches(User* u)
+bool KLine::Matches(User* u) const
 {
 	LocalUser* lu = IS_LOCAL(u);
 	if (lu && lu->exempt)
@@ -610,7 +610,7 @@ void KLine::Apply(User* u)
 	DefaultApply(u, "K", this->identmask ==  "*");
 }
 
-bool GLine::Matches(User* u)
+bool GLine::Matches(User* u) const
 {
 	LocalUser* lu = IS_LOCAL(u);
 	if (lu && lu->exempt)
@@ -633,7 +633,7 @@ void GLine::Apply(User* u)
 	DefaultApply(u, "G", this->identmask == "*");
 }
 
-bool ELine::Matches(User* u)
+bool ELine::Matches(User* u) const
 {
 	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
 	{
@@ -647,7 +647,7 @@ bool ELine::Matches(User* u)
 	return false;
 }
 
-bool ZLine::Matches(User* u)
+bool ZLine::Matches(User* u) const
 {
 	LocalUser* lu = IS_LOCAL(u);
 	if (lu && lu->exempt)
@@ -661,7 +661,7 @@ void ZLine::Apply(User* u)
 	DefaultApply(u, "Z", true);
 }
 
-bool QLine::Matches(User* u)
+bool QLine::Matches(User* u) const
 {
 	return InspIRCd::Match(u->nick, this->nick);
 }
@@ -673,27 +673,27 @@ void QLine::Apply(User* u)
 	u->ChangeNick(u->uuid);
 }
 
-bool ZLine::Matches(const std::string& str)
+bool ZLine::Matches(const std::string& str) const
 {
 	return InspIRCd::MatchCIDR(str, this->ipaddr);
 }
 
-bool QLine::Matches(const std::string& str)
+bool QLine::Matches(const std::string& str) const
 {
 	return InspIRCd::Match(str, this->nick);
 }
 
-bool ELine::Matches(const std::string& str)
+bool ELine::Matches(const std::string& str) const
 {
 	return InspIRCd::MatchCIDR(str, matchtext);
 }
 
-bool KLine::Matches(const std::string& str)
+bool KLine::Matches(const std::string& str) const
 {
 	return InspIRCd::MatchCIDR(str, matchtext);
 }
 
-bool GLine::Matches(const std::string& str)
+bool GLine::Matches(const std::string& str) const
 {
 	return InspIRCd::MatchCIDR(str, matchtext);
 }

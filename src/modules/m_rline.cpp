@@ -48,7 +48,7 @@ public:
 		regex = rxfactory->Create(regexs);
 	}
 
-	bool Matches(User* u) override
+	bool Matches(User* u) const override
 	{
 		LocalUser* lu = IS_LOCAL(u);
 		if (lu && lu->exempt)
@@ -59,7 +59,7 @@ public:
 		return (regex->IsMatch(host) || regex->IsMatch(ip));
 	}
 
-	bool Matches(const std::string& compare) override
+	bool Matches(const std::string& compare) const override
 	{
 		return regex->IsMatch(compare);
 	}

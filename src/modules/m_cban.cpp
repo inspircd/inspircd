@@ -54,12 +54,12 @@ public:
 	}
 
 	// XXX I shouldn't have to define this
-	bool Matches(User* u) override
+	bool Matches(User* u) const override
 	{
 		return false;
 	}
 
-	bool Matches(const std::string& s) override
+	bool Matches(const std::string& s) const override
 	{
 		return InspIRCd::Match(s, matchtext);
 	}

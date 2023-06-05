@@ -106,7 +106,7 @@ public:
 	 * are defined by the derived class.
 	 * @return True if there is a match.
 	 */
-	virtual bool Matches(User* u) = 0;
+	virtual bool Matches(User* u) const = 0;
 
 	/** Returns true whether or not the given string is covered by this line.
 	 * @param str The string to match against. The details of what must be
@@ -114,7 +114,7 @@ public:
 	 * derived class.
 	 * @return True if there is a match
 	 */
-	virtual bool Matches(const std::string& str) = 0;
+	virtual bool Matches(const std::string& str) const = 0;
 
 	/** Apply a line against a user. The mechanics of what occurs when
 	 * the line is applied are specific to the derived class.
@@ -201,9 +201,9 @@ public:
 		matchtext.append("@").append(this->hostmask);
 	}
 
-	bool Matches(User* u) override;
+	bool Matches(User* u) const override;
 
-	bool Matches(const std::string& str) override;
+	bool Matches(const std::string& str) const override;
 
 	void Apply(User* u) override;
 
@@ -244,9 +244,9 @@ public:
 		matchtext.append("@").append(this->hostmask);
 	}
 
-	bool Matches(User* u) override;
+	bool Matches(User* u) const override;
 
-	bool Matches(const std::string& str) override;
+	bool Matches(const std::string& str) const override;
 
 	void Apply(User* u)  override;
 
@@ -285,9 +285,9 @@ public:
 		matchtext.append("@").append(this->hostmask);
 	}
 
-	bool Matches(User* u) override;
+	bool Matches(User* u) const override;
 
-	bool Matches(const std::string& str) override;
+	bool Matches(const std::string& str) const override;
 
 	void Unset() override;
 
@@ -324,9 +324,9 @@ public:
 	{
 	}
 
-	bool Matches(User* u) override;
+	bool Matches(User* u) const override;
 
-	bool Matches(const std::string& str) override;
+	bool Matches(const std::string& str) const override;
 
 	void Apply(User* u) override;
 
@@ -356,9 +356,9 @@ public:
 	{
 	}
 
-	bool Matches(User* u) override;
+	bool Matches(User* u) const override;
 
-	bool Matches(const std::string& str) override;
+	bool Matches(const std::string& str) const override;
 
 	void Apply(User* u) override;
 
