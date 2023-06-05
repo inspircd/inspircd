@@ -148,7 +148,9 @@ private:
 		if (psl && separator == '.')
 		{
 			// Attempt to look up the suffix with libpsl.
-			const char* publicsuffix = psl_unregistrable_domain(psl, host.c_str());
+			const char* publicsuffix = psl_registrable_domain(psl, host.c_str());
+			if (!publicsuffix || publicsuffix == host)
+				publicsuffix = psl_unregistrable_domain(psl, host.c_str());
 			if (publicsuffix && publicsuffix != host)
 				visiblepart = publicsuffix;
 		}
