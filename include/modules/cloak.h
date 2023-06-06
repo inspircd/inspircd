@@ -105,7 +105,7 @@ protected:
 public:
 	/** Creates a new cloak method from the specified config.
 	 * @param tag The config tag to configure the cloak method with.
-	 * @param primary Whether the created cloak method is the primary emthod.
+	 * @param primary Whether the created cloak method is the primary method.
 	 */
 	virtual MethodPtr Create(const std::shared_ptr<ConfigTag>& tag, bool primary) = 0;
 };
@@ -164,7 +164,7 @@ public:
 	}
 
 	/** Determines whether when this cloak method is behind non-sensitive cloak methods
-	 * if it should be treated as if it was the primary link method for the purposes of
+	 * if it should be treated as if it was the primary cloak method for the purposes of
 	 * generating link data.
 	 */
 	virtual bool IsLinkSensitive() const
