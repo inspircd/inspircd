@@ -38,7 +38,7 @@ private:
 	// API for sending a NOTE message.
 	IRCv3::Replies::Note noterpl;
 
-	// Reference to the inspircd.org/standard-replies csp.
+	// Reference to the standard-replies cap.
 	IRCv3::Replies::CapReference stdrplcap;
 
 public:
