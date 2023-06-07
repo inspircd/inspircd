@@ -255,6 +255,7 @@ public:
 		data["cloak-unix"] = sha256 ? Generate("/inspircd/cloak.sock") : broken;
 
 		data["host-parts"] = ConvToStr(hostparts);
+		data["path-parts"] = ConvToStr(pathparts);
 		data["prefix"]     = prefix;
 		data["suffix"]     = suffix;
 
