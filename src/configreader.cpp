@@ -313,6 +313,7 @@ void ServerConfig::Fill()
 	ServerDesc = server->getString("description", ServerName, 1);
 	Network = server->getString("network", ServerName, 1);
 
+
 	// Read the <options> config.
 	const auto& options = ConfValue("options");
 	DefaultModes = options->getString("defaultmodes", "not");
@@ -326,8 +327,9 @@ void ServerConfig::Fill()
 		{ "yes",    ServerConfig::BUT_RESTRICT_NOTIFY },
 	});
 	WildcardIPv6 = options->getEnum("defaultbind", CanCreateIPv6Socket(), {
-		{ "ipv4", false },
-		{ "ipv6", true  },
+		{ "auto", CanCreateIPv6Socket() },
+		{ "ipv4", false                 },
+		{ "ipv6", true                  },
 	});
 
 	// Read the <performance> config.
