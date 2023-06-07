@@ -135,7 +135,7 @@ public:
 	void OnUserPostNick(User* user, const std::string& oldnick) override
 	{
 		LocalUser* luser = IS_LOCAL(user);
-		if (luser && cloakapi)
+		if (luser && cloakapi && cloakapi->IsActiveCloak(nickcloak))
 			cloakapi->ResetCloaks(luser, true);
 	}
 };

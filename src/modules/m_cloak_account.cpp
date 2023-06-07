@@ -183,7 +183,10 @@ public:
 	void OnAccountChange(User* user, const std::string& newaccount) override
 	{
 		LocalUser* luser = IS_LOCAL(user);
-		if (luser && cloakapi)
+		if (!luser || !cloakapi)
+			return;
+
+		if (cloakapi->IsActiveCloak(accountcloak) || cloakapi->IsActiveCloak(accountidcloak))
 			cloakapi->ResetCloaks(luser, true);
 	}
 };

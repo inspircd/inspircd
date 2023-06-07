@@ -74,6 +74,11 @@ public:
 	 */
 	virtual List* GetCloaks(LocalUser* user) = 0;
 
+	/** Determines whether any cloaks of the specified type exist.
+	 * @param method The engine to check the active status of.
+	 */
+	virtual bool IsActiveCloak(const Cloak::Engine& engine) = 0;
+
 	/** Reset the cloaks for the specified user.
 	 * @param user The user to reset the cloaks for.
 	 * @param resetdisplay Whether to reset the currently displayed cloak.

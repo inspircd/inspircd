@@ -136,6 +136,16 @@ public:
 		return cloaks->empty() ? nullptr : cloaks;
 	}
 
+	bool IsActiveCloak(const Cloak::Engine& engine) override
+	{
+		for (const auto& cloakmethod : cloakmethods)
+		{
+			if (cloakmethod->IsProvidedBy(engine))
+				return true;
+		}
+		return false;
+	}
+
 	void ResetCloaks(LocalUser* user, bool resetdisplay) override
 	{
 		const std::string oldcloak = GetFrontCloak(user);
