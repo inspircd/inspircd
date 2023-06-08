@@ -109,7 +109,7 @@ void CullList::Apply()
 
 	if (!list.empty())
 	{
-		ServerInstance->Logs.Debug("CULLLIST", "WARNING: Objects added to cull list in a destructor");
+		ServerInstance->Logs.Debug("CULLLIST", "WARNING: %zu objects added to the cull list from a destructor", list.size());
 		Apply();
 	}
 }
