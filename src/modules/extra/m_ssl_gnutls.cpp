@@ -45,6 +45,7 @@
 #include "timeutils.h"
 
 #include <gnutls/gnutls.h>
+#include <gnutls/abstract.h>
 #include <gnutls/crypto.h>
 #include <gnutls/x509.h>
 
@@ -480,6 +481,9 @@ namespace GnuTLS
 		 */
 		const bool requestclientcert;
 
+		/** Whether the fingerprint is a SPKI fingerprint or not. */
+		bool spkifp;
+
 		static std::string ReadFile(const std::string& filename)
 		{
 			FileReader reader(filename);
@@ -534,6 +538,7 @@ namespace GnuTLS
 
 			unsigned int outrecsize;
 			bool requestclientcert;
+			bool spkifp;
 
 			Config(const std::string& profilename, const std::shared_ptr<ConfigTag>& tag)
 				: name(profilename)
@@ -546,6 +551,7 @@ namespace GnuTLS
 				, mindh(tag->getNum<unsigned int>("mindhbits", 1024))
 				, hashstr(tag->getString("hash", "sha256", 1))
 				, requestclientcert(tag->getBool("requestclientcert", true))
+				, spkifp(tag->getBool("spkifp"))
 			{
 				// Load trusted CA and revocation list, if set
 				std::string filename = tag->getString("cafile");
@@ -570,6 +576,7 @@ namespace GnuTLS
 			, priority(config.priostr)
 			, outrecsize(config.outrecsize)
 			, requestclientcert(config.requestclientcert)
+			, spkifp(config.spkifp)
 		{
 #ifndef GNUTLS_AUTO_DH
 			x509cred.SetDH(config.dh);
@@ -593,6 +600,7 @@ namespace GnuTLS
 		X509Credentials& GetX509Credentials() { return x509cred; }
 		gnutls_digest_algorithm_t GetHash() const { return hash.get(); }
 		unsigned int GetOutgoingRecordSize() const { return outrecsize; }
+		bool UseSPKI() const { return spkifp; }
 	};
 }
 
@@ -661,6 +669,42 @@ private:
 		}
 	}
 
+	int GetCertFP(gnutls_x509_crt_t& cert, char* buffer, size_t& buffer_size)
+	{
+		return gnutls_x509_crt_get_fingerprint(cert, GetProfile().GetHash(), buffer, &buffer_size);
+	}
+
+	int GetSPKIFP(gnutls_x509_crt_t& cert, char* buffer, size_t& buffer_size)
+	{
+		int ret;
+		gnutls_pubkey_t pubkey;
+
+		if ((ret = gnutls_pubkey_init(&pubkey)) != GNUTLS_E_SUCCESS)
+			return ret;
+
+		if ((ret = gnutls_pubkey_import_x509(pubkey, cert, 0)) != GNUTLS_E_SUCCESS)
+		{
+			gnutls_pubkey_deinit(pubkey);
+			return ret;
+		}
+
+		// We need to do this twice in order to find the size of the public key.
+		size_t derkey_size = 0;
+		if (gnutls_pubkey_export(pubkey, GNUTLS_X509_FMT_DER, buffer, &derkey_size) != GNUTLS_E_SHORT_MEMORY_BUFFER)
+			return GNUTLS_E_SHORT_MEMORY_BUFFER;
+
+		std::vector<char> derkey(derkey_size);
+		if ((ret = gnutls_pubkey_export(pubkey, GNUTLS_X509_FMT_DER, &derkey[0], &derkey_size)) != GNUTLS_E_SUCCESS)
+			return ret;
+
+		gnutls_pubkey_deinit(pubkey);
+		if (gnutls_hash_fast(GetProfile().GetHash(), &derkey[0], derkey_size, buffer) != GNUTLS_E_SUCCESS)
+			return ret;
+
+		buffer_size = gnutls_hash_get_len(GetProfile().GetHash());
+		return GNUTLS_E_SUCCESS;
+	}
+
 	void VerifyCertificate()
 	{
 		auto* certinfo = new ssl_cert();
@@ -719,7 +763,8 @@ private:
 			ProcessDNString(buffer, buffer_size, certinfo->issuer);
 
 		buffer_size = sizeof(buffer);
-		if ((ret = gnutls_x509_crt_get_fingerprint(cert, GetProfile().GetHash(), buffer, &buffer_size)) < 0)
+		ret = GetProfile().UseSPKI() ? GetSPKIFP(cert, buffer, buffer_size) : GetCertFP(cert, buffer, buffer_size);
+		if (ret != GNUTLS_E_SUCCESS)
 		{
 			certinfo->error = gnutls_strerror(ret);
 		}
