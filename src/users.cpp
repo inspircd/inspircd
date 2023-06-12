@@ -336,7 +336,11 @@ void UserIOHandler::OnError(BufferedSocketError sockerr)
 Cullable::Result User::Cull()
 {
 	if (!quitting)
+	{
+		ServerInstance->Logs.Debug("CULLLIST", "BUG: User {} (@{}) was culled without being quit first!",
+			uuid, fmt::ptr(this));
 		ServerInstance->Users.QuitUser(this, "Culled without QuitUser");
+	}
 
 	if (client_sa.family() != AF_UNSPEC)
 		ServerInstance->Users.RemoveCloneCounts(this);
