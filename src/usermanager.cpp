@@ -251,13 +251,13 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 {
 	if (user->quitting)
 	{
-		ServerInstance->Logs.Debug("USERS", "ERROR: Tried to quit quitting user: " + user->nick);
+		ServerInstance->Logs.Debug("USERS", "BUG: Tried to quit quitting user: " + user->nick);
 		return;
 	}
 
 	if (IS_SERVER(user))
 	{
-		ServerInstance->Logs.Debug("USERS", "ERROR: Tried to quit server user: " + user->nick);
+		ServerInstance->Logs.Debug("USERS", "BUG: Tried to quit server user: " + user->nick);
 		return;
 	}
 
@@ -318,7 +318,7 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 	}
 
 	if (!clientlist.erase(user->nick))
-		ServerInstance->Logs.Debug("USERS", "ERROR: Nick not found in clientlist, cannot remove: " + user->nick);
+		ServerInstance->Logs.Debug("USERS", "BUG: Nick not found in clientlist, cannot remove: " + user->nick);
 
 	uuidlist.erase(user->uuid);
 	user->PurgeEmptyChannels();

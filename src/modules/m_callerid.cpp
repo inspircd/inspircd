@@ -145,12 +145,12 @@ struct CallerIDExtInfo final
 			callerid_data* target = this->Get(user, false);
 			if (!target)
 			{
-				ServerInstance->Logs.Debug(MODNAME, "ERROR: Inconsistency detected in callerid state, please report (1)");
+				ServerInstance->Logs.Debug(MODNAME, "BUG: Inconsistency detected in callerid state, please report (1)");
 				continue; // shouldn't happen, but oh well.
 			}
 
 			if (!stdalgo::vector::swaperase(target->wholistsme, dat))
-				ServerInstance->Logs.Debug(MODNAME, "ERROR: Inconsistency detected in callerid state, please report (2)");
+				ServerInstance->Logs.Debug(MODNAME, "BUG: Inconsistency detected in callerid state, please report (2)");
 		}
 		delete dat;
 	}
@@ -321,12 +321,12 @@ public:
 		if (!dat2)
 		{
 			// How the fuck is this possible.
-			ServerInstance->Logs.Debug(MODNAME, "ERROR: Inconsistency detected in callerid state, please report (3)");
+			ServerInstance->Logs.Debug(MODNAME, "BUG: Inconsistency detected in callerid state, please report (3)");
 			return false;
 		}
 
 		if (!stdalgo::vector::swaperase(dat2->wholistsme, dat))
-			ServerInstance->Logs.Debug(MODNAME, "ERROR: Inconsistency detected in callerid state, please report (4)");
+			ServerInstance->Logs.Debug(MODNAME, "BUG: Inconsistency detected in callerid state, please report (4)");
 
 		user->WriteNotice(whotoremove->nick + " is no longer on your accept list");
 		return true;
@@ -382,7 +382,7 @@ private:
 		{
 			// Find me on their callerid list
 			if (!dat->accepting.erase(who))
-				ServerInstance->Logs.Debug(MODNAME, "ERROR: Inconsistency detected in callerid state, please report (5)");
+				ServerInstance->Logs.Debug(MODNAME, "BUG: Inconsistency detected in callerid state, please report (5)");
 		}
 
 		userdata->wholistsme.clear();
