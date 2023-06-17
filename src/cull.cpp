@@ -24,9 +24,11 @@
 
 
 #include "inspircd.h"
+
 #ifdef INSPIRCD_ENABLE_RTTI
 # include <typeinfo>
 #endif
+#include <unordered_set>
 
 Cullable::Cullable()
 {
@@ -77,39 +79,48 @@ void CullList::Apply()
 		working.clear();
 	}
 
-	std::set<Cullable*> gone;
-	std::vector<Cullable*> queue;
-	queue.reserve(list.size() + 32);
-	for (auto* c : list)
+	std::unordered_set<Cullable*> culled;
+	culled.reserve(list.size() + 32);
+
+	// IMPORTANT: we can't use a range-based for loop here as culling an object
+	// may invalidate the list iterators.
+	for (size_t idx = 0; idx < list.size(); ++idx)
 	{
-		if (gone.insert(c).second)
+		auto* c = list[idx];
+		if (culled.insert(c).second)
 		{
 #ifdef INSPIRCD_ENABLE_RTTI
-			ServerInstance->Logs.Debug("CULLLIST", "Deleting {} @{}", typeid(*c).name(),
+			ServerInstance->Logs.Debug("CULLLIST", "Culling {} @{}", typeid(*c).name(),
 				fmt::ptr(c));
 #endif
 			c->Cull();
-			queue.push_back(c);
 		}
 		else
 		{
 #ifdef INSPIRCD_ENABLE_RTTI
-			ServerInstance->Logs.Debug("CULLLIST", "WARNING: Object {} @{} culled twice!",
+			ServerInstance->Logs.Debug("CULLLIST", "BUG: {} @{} was added to the cull list twice!",
 				typeid(*c).name(), fmt::ptr(c));
 #else
-			ServerInstance->Logs.Debug("CULLLIST", "WARNING: Object @{} culled twice!",
+			ServerInstance->Logs.Debug("CULLLIST", "BUG: @{} was added to the cull list twice!",
 				fmt::ptr(c));
 #endif
 		}
 	}
 	list.clear();
 
-	for (auto* c : queue)
+	for (auto* c : culled)
+	{
+#ifdef INSPIRCD_ENABLE_RTTI
+			ServerInstance->Logs.Debug("CULLLIST", "Deleting {} @{}", typeid(*c).name(),
+				fmt::ptr(c));
+#endif
 		delete c;
+	}
 
 	if (!list.empty())
 	{
-		ServerInstance->Logs.Debug("CULLLIST", "WARNING: %zu objects added to the cull list from a destructor", list.size());
+		ServerInstance->Logs.Debug("CULLLIST", "BUG: {} objects were added to the cull list from a destructor",
+			list.size());
 		Apply();
 	}
 }
