@@ -26,11 +26,15 @@
 /// $PackageInfo: require_system("debian") libpsl-dev pkg-config
 /// $PackageInfo: require_system("ubuntu") libpsl-dev pkg-config
 
-#ifdef HAS_LIBPSL
-# include <libpsl.h>
-# ifdef _WIN32
+#ifdef _WIN32
+# if __has_include(<libpsl.h>)
+#  define HAS_LIBPSL
 #  pragma comment(lib, "psl.lib")
 # endif
+#endif
+
+#ifdef HAS_LIBPSL
+# include <libpsl.h>
 #else
 typedef void psl_ctx_t;
 #endif
