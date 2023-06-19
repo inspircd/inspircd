@@ -46,7 +46,8 @@ file(GLOB INSPIRCD_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
 )
 list(SORT INSPIRCD_SOURCES)
 
-include_directories("${INSPIRCD_BASE}/win" "${INSPIRCD_BASE}/include" "${INSPIRCD_BASE}/vendor")
+include_directories("${INSPIRCD_BASE}/win" "${INSPIRCD_BASE}/include")
+include_directories(SYSTEM "${INSPIRCD_BASE}/vendor")
 
 if(MSVC)
 	add_library(win32_memory STATIC "${INSPIRCD_BASE}/win/inspircd_memory_functions.cpp")
