@@ -31,10 +31,6 @@
 
 #include "win32service.h"
 
-/* This defaults to 64, way too small for an ircd! */
-
-#define FD_SETSIZE 24000
-
 /* Macros for exporting symbols - dependent on what is being compiled */
 
 #ifdef DLL_BUILD

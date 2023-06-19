@@ -25,6 +25,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 add_compile_definitions(
 	"_WIN32_WINNT=0x0A00"      # Set the minimum OS to Windows 10
+	"FD_SETSIZE=24000"         # Increase the default socket limit to something reasonable
 	"NOMINMAX"                 # Avoid the Windows API breaking std::{min,max}
 	"NTDDI_VERSION=0x0A000005" # Set the minimum OS to Windows 10 1803 "Redstone 4"
 	"WIN32_LEAN_AND_MEAN"      # Trim down the size of the included headers.
