@@ -20,13 +20,10 @@
 #include "modules/account.h"
 #include "modules/cloak.h"
 
-class AccountMethod
+class UserMethod
 	: public Cloak::Method
 {
 protected:
-	// Dynamic reference to the account api.
-	Account::API& accountapi;
-
 	// The characters which are valid in a hostname.
 	const CharState& hostmap;
 
@@ -39,17 +36,8 @@ protected:
 	// The suffix for IP cloaks (e.g. .example.org).
 	const std::string suffix;
 
-	// Retrieves the middle segment of the cloak.
-	virtual std::string GetMiddle(LocalUser* user)
-	{
-		const std::string* accountname = accountapi ? accountapi->GetAccountName(user) : nullptr;
-		return accountname ? *accountname : "";
-	}
-
-public:
-	AccountMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm, Account::API& api) ATTR_NOT_NULL(2)
+	UserMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm) ATTR_NOT_NULL(2)
 		: Cloak::Method(engine, tag)
-		, accountapi(api)
 		, hostmap(hm)
 		, prefix(tag->getString("prefix"))
 		, sanitize(tag->getBool("sanitize", true))
@@ -57,6 +45,10 @@ public:
 	{
 	}
 
+	// Retrieves the middle segment of the cloak.
+	virtual std::string GetMiddle(LocalUser* user) = 0;
+
+public:
 	std::string Generate(LocalUser* user) override ATTR_NOT_NULL(2)
 	{
 		if (!MatchesUser(user))
@@ -101,10 +93,35 @@ public:
 	}
 };
 
-class AccountIdMethod final
-	: public AccountMethod
+class AccountMethod final
+	: public UserMethod
 {
-protected:
+private:
+	// Dynamic reference to the account api.
+	Account::API accountapi;
+
+	// Retrieves the middle segment of the cloak.
+	std::string GetMiddle(LocalUser* user) override
+	{
+		const std::string* accountname = accountapi ? accountapi->GetAccountName(user) : nullptr;
+		return accountname ? *accountname : "";
+	}
+
+public:
+	AccountMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm) ATTR_NOT_NULL(2)
+		: UserMethod(engine, tag, hm)
+		, accountapi(engine->creator)
+	{
+	}
+};
+
+class AccountIdMethod final
+	: public UserMethod
+{
+private:
+	// Dynamic reference to the account api.
+	Account::API accountapi;
+
 	// Retrieves the middle segment of the cloak.
 	std::string GetMiddle(LocalUser* user) override
 	{
@@ -113,55 +130,69 @@ protected:
 	}
 
 public:
-	AccountIdMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm, Account::API& api) ATTR_NOT_NULL(2)
-		: AccountMethod(engine, tag, hm, api)
+	AccountIdMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm) ATTR_NOT_NULL(2)
+		: UserMethod(engine, tag, hm)
+		, accountapi(engine->creator)
+	{
+	}
+};
+
+class NickMethod final
+	: public UserMethod
+{
+private:
+	// Retrieves the middle segment of the cloak.
+	std::string GetMiddle(LocalUser* user) override
+	{
+		return user->nick;
+	}
+
+public:
+	NickMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm) ATTR_NOT_NULL(2)
+		: UserMethod(engine, tag, hm)
 	{
 	}
 };
 
 template <typename Method>
-class AccountEngine final
+class UserEngine final
 	: public Cloak::Engine
 {
 private:
-	// Dynamic reference to the account api.
-	Account::API& accountapi;
-
 	// The characters which are valid in a hostname.
 	const CharState& hostmap;
 
 public:
-	AccountEngine(Module* Creator, const std::string& Name, const CharState& hm, Account::API& api)
+	UserEngine(Module* Creator, const std::string& Name, const CharState& hm)
 		: Cloak::Engine(Creator, Name)
-		, accountapi(api)
 		, hostmap(hm)
 	{
 	}
 
 	Cloak::MethodPtr Create(const std::shared_ptr<ConfigTag>& tag, bool primary) override
 	{
-		return std::make_shared<Method>(this, tag, hostmap, accountapi);
+		return std::make_shared<Method>(this, tag, hostmap);
 	}
 };
 
-class ModuleCloakAccount final
+class ModuleCloakUser final
 	: public Module
 	, public Account::EventListener
 {
 private:
-	Account::API accountapi;
-	AccountEngine<AccountMethod> accountcloak;
-	AccountEngine<AccountIdMethod> accountidcloak;
+	UserEngine<AccountMethod> accountcloak;
+	UserEngine<AccountIdMethod> accountidcloak;
+	UserEngine<NickMethod> nickcloak;
 	Cloak::API cloakapi;
 	CharState hostmap;
 
 public:
-	ModuleCloakAccount()
-		: Module(VF_VENDOR, "Adds the account and account-id cloaking methods for use with the cloak module.")
+	ModuleCloakUser()
+		: Module(VF_VENDOR, "Adds the account, account-id, nick cloaking methods for use with the cloak module.")
 		, Account::EventListener(this)
-		, accountapi(this)
-		, accountcloak(this, "account", hostmap, accountapi)
-		, accountidcloak(this, "account-id", hostmap, accountapi)
+		, accountcloak(this, "account", hostmap)
+		, accountidcloak(this, "account-id", hostmap)
+		, nickcloak(this, "nick", hostmap)
 		, cloakapi(this)
 	{
 	}
@@ -189,6 +220,13 @@ public:
 		if (cloakapi->IsActiveCloak(accountcloak) || cloakapi->IsActiveCloak(accountidcloak))
 			cloakapi->ResetCloaks(luser, true);
 	}
+
+	void OnUserPostNick(User* user, const std::string& oldnick) override
+	{
+		LocalUser* luser = IS_LOCAL(user);
+		if (luser && cloakapi && cloakapi->IsActiveCloak(nickcloak))
+			cloakapi->ResetCloaks(luser, true);
+	}
 };
 
-MODULE_INIT(ModuleCloakAccount)
+MODULE_INIT(ModuleCloakUser)
