@@ -21,3 +21,10 @@
 #<connect name="IRCCloud (IPv6)"
 #         parent="IRCCloud"
 #         allow="2a03:5180:f::/62 2a03:5180:f:4::/63 2a03:5180:f:6::/64">
+
+# IRCCloud IPv4 users use a shared IPv4 address which means that some clients
+# may have trouble banning them. To work around this you can use the cloak_user
+# module to copy the user identifier from the ident to the hostname.
+#<cloak method="ident"
+#       class="IRCCloud (IPv4),IRCCloud (IPv6)"
+#       suffix=".irccloud.com">
