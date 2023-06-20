@@ -23,7 +23,7 @@
 class UserMethod
 	: public Cloak::Method
 {
-protected:
+private:
 	// The characters which are valid in a hostname.
 	const CharState& hostmap;
 
@@ -36,6 +36,10 @@ protected:
 	// The suffix for IP cloaks (e.g. .example.org).
 	const std::string suffix;
 
+	// Retrieves the middle segment of the cloak.
+	virtual std::string GetMiddle(LocalUser* user) = 0;
+
+protected:
 	UserMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm) ATTR_NOT_NULL(2)
 		: Cloak::Method(engine, tag)
 		, hostmap(hm)
@@ -44,9 +48,6 @@ protected:
 		, suffix(tag->getString("suffix"))
 	{
 	}
-
-	// Retrieves the middle segment of the cloak.
-	virtual std::string GetMiddle(LocalUser* user) = 0;
 
 public:
 	std::string Generate(LocalUser* user) override ATTR_NOT_NULL(2)
@@ -81,7 +82,7 @@ public:
 
 	std::string Generate(const std::string& hostip) override
 	{
-		// We can't generate account cloaks without a user.
+		// We can't generate user cloaks without a user.
 		return {};
 	}
 
