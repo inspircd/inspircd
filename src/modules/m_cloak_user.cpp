@@ -206,7 +206,7 @@ private:
 
 public:
 	ModuleCloakUser()
-		: Module(VF_VENDOR, "Adds the account, account-id, nick cloaking methods for use with the cloak module.")
+		: Module(VF_VENDOR, "Adds the account, account-id, ident, and nick cloaking methods for use with the cloak module.")
 		, Account::EventListener(this)
 		, accountcloak(this, "account", hostmap)
 		, accountidcloak(this, "account-id", hostmap)
