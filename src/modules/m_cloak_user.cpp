@@ -154,6 +154,23 @@ public:
 	}
 };
 
+class IdentMethod final
+	: public UserMethod
+{
+private:
+	// Retrieves the middle segment of the cloak.
+	std::string GetMiddle(LocalUser* user) override
+	{
+		return user->ident;
+	}
+
+public:
+	IdentMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm) ATTR_NOT_NULL(2)
+		: UserMethod(engine, tag, hm)
+	{
+	}
+};
+
 template <typename Method>
 class UserEngine final
 	: public Cloak::Engine
@@ -182,6 +199,7 @@ class ModuleCloakUser final
 private:
 	UserEngine<AccountMethod> accountcloak;
 	UserEngine<AccountIdMethod> accountidcloak;
+	UserEngine<IdentMethod> identcloak;
 	UserEngine<NickMethod> nickcloak;
 	Cloak::API cloakapi;
 	CharState hostmap;
@@ -192,6 +210,7 @@ public:
 		, Account::EventListener(this)
 		, accountcloak(this, "account", hostmap)
 		, accountidcloak(this, "account-id", hostmap)
+		, identcloak(this, "ident", hostmap)
 		, nickcloak(this, "nick", hostmap)
 		, cloakapi(this)
 	{
@@ -218,6 +237,13 @@ public:
 			return;
 
 		if (cloakapi->IsActiveCloak(accountcloak) || cloakapi->IsActiveCloak(accountidcloak))
+			cloakapi->ResetCloaks(luser, true);
+	}
+
+	void OnChangeIdent(User* user, const std::string& ident) override
+	{
+		LocalUser* luser = IS_LOCAL(user);
+		if (luser && cloakapi && cloakapi->IsActiveCloak(identcloak))
 			cloakapi->ResetCloaks(luser, true);
 	}
 

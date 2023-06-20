@@ -661,8 +661,8 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # User data cloak module: Adds the "account" (services account name),
-# "account-id" (services account identifier), and "nick" (nickname)
-# cloak methods.
+# "account-id" (services account id), "ident" (RFC1413 username), and
+# "nick" (nickname) cloak methods.
 #<module name="cloak_user">
 #
 #-#-#-#-#-#-#-#-#-#-#- USER CLOAK CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
@@ -700,6 +700,12 @@
 #       class=""
 #       prefix=""
 #       suffix=".users.example.com"
+#       sanitize="yes">
+#
+#<cloak method="ident"
+#       class=""
+#       prefix="Users/"
+#       suffix=""
 #       sanitize="yes">
 #
 #<cloak method="nick"
