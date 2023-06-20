@@ -24,14 +24,28 @@ class UserMethod
 	: public Cloak::Method
 {
 private:
+	// The action to take when an invalid character is encountered.
+	enum InvalidChar
+		: uint8_t
+	{
+		// Reject the value as a valid cloak,
+		REJECT,
+
+		// Strip the invalid character from the value.
+		STRIP,
+
+		// Truncate the value at the missing character.
+		TRUNCATE,
+	};
+
 	// The characters which are valid in a hostname.
 	const CharState& hostmap;
 
+	// The action to take when an invalid character is encountered.
+	InvalidChar invalidchar;
+
 	// The prefix for cloaks (e.g. users.).
 	const std::string prefix;
-
-	// Whether to strip non-host characters from the cloak.
-	const bool sanitize;
 
 	// The suffix for IP cloaks (e.g. .example.org).
 	const std::string suffix;
@@ -44,9 +58,13 @@ protected:
 		: Cloak::Method(engine, tag)
 		, hostmap(hm)
 		, prefix(tag->getString("prefix"))
-		, sanitize(tag->getBool("sanitize", true))
 		, suffix(tag->getString("suffix"))
 	{
+		invalidchar = tag->getEnum("invalidchar", InvalidChar::STRIP, {
+			{ "reject",   InvalidChar::REJECT   },
+			{ "strip",    InvalidChar::STRIP    },
+			{ "truncate", InvalidChar::TRUNCATE },
+		});
 	}
 
 public:
@@ -63,16 +81,35 @@ public:
 		safemiddle.reserve(middle.length());
 		for (const auto chr : middle)
 		{
-			if (!hostmap.test(static_cast<unsigned char>(chr)))
+			if (hostmap.test(static_cast<unsigned char>(chr)))
 			{
-				if (!sanitize)
-					return {}; // Contains invalid characters.
-
-				continue;
+				safemiddle.push_back(chr);
+				continue; // Character is valid.
 			}
 
-			safemiddle.push_back(chr);
+			// Character is invalid. What should we do?
+			bool done = false;
+			switch (invalidchar)
+			{
+				case InvalidChar::REJECT:
+					safemiddle.clear();
+					done = true;
+					break;
+
+				case InvalidChar::STRIP:
+					continue;
+
+				case InvalidChar::TRUNCATE:
+					done = true;
+					break;
+			}
+
+			if (done)
+				break;
 		}
+
+		ServerInstance->Logs.Debug(MODNAME, "Cleaned {} for cloak: {} => {}",
+			GetName(), middle, safemiddle);
 
 		if (safemiddle.empty())
 			return {}; // No cloak.
@@ -88,8 +125,19 @@ public:
 
 	void GetLinkData(Module::LinkData& data, std::string& compatdata) override
 	{
+		switch (invalidchar)
+		{
+			case InvalidChar::REJECT:
+				data["invalidchar"] = "reject";
+				break;
+			case InvalidChar::STRIP:
+				data["invalidchar"] = "strip";
+				break;
+			case InvalidChar::TRUNCATE:
+				data["invalidchar"] = "truncate";
+				break;
+		}
 		data["prefix"]   = prefix;
-		data["sanitize"] = sanitize ? "yes" : "no";
 		data["suffix"]   = suffix;
 	}
 };

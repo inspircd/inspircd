@@ -669,20 +669,21 @@
 # To use the cloak_user module you must define a <cloak> tag. This    #
 # tag can have the following fields.                                  #
 #                                                                     #
-#  class    - If non-empty then a comma-delimited list of connect     #
-#             class names that a user has to be in to get the cloak   #
-#             from this tag.                                          #
+#  class       - If non-empty then a comma-delimited list of connect  #
+#                class names that a user has to be in to get the      #
+#                cloak from this tag.                                 #
 #                                                                     #
-#  prefix   - A freeform value to prefix cloaks with. This must not   #
-#             contain spaces.                                         #
+#  invalidchar - The action to take when an invalid host character is #
+#                encountered in the cloak. Can be set to "reject" to  #
+#                not apply the cloak, "strip" to remove the invalid   #
+#                host character, or "truncate" to truncate the cloak  #
+#                at the invalid host character. Defaults to "strip".  #
 #                                                                     #
-#  suffix   - A freeform value to suffix IPv4/IPv6 cloaks with. This  #
-#             must not contain spaces.                                #
+#  prefix      - A freeform value to prefix cloaks with. This must    #
+#                not contain spaces.                                  #
 #                                                                     #
-#  sanitize - If enabled then any characters in the account name,     #
-#             account id or nickname that are not valid in a hostname #
-#             will be removed rather  than skipping the cloak method. #
-#             Defaults to yes.                                        #
+#  suffix      - A freeform value to suffix IPv4/IPv6 cloaks with.    #
+#                This must not contain spaces.                        #
 #                                                                     #
 # IMPORTANT: Changing these details will break all of your existing   #
 # bans. If you do not want this to happen you can define multiple     #
@@ -692,27 +693,27 @@
 #
 #<cloak method="account"
 #       class=""
+#       invalidchar="strip"
 #       prefix=""
-#       suffix=".users.example.com"
-#       sanitize="yes">
+#       suffix=".users.example.com">
 #
 #<cloak method="account-id"
 #       class=""
+#       invalidchar="strip"
 #       prefix=""
-#       suffix=".users.example.com"
-#       sanitize="yes">
+#       suffix=".users.example.com">
 #
 #<cloak method="ident"
 #       class=""
+#       invalidchar="strip"
 #       prefix="Users/"
-#       suffix=""
-#       sanitize="yes">
+#       suffix="">
 #
 #<cloak method="nick"
 #       class=""
+#       invalidchar="strip"
 #       prefix="Users/"
-#       suffix=""
-#       sanitize="yes">
+#       suffix="">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Codepage module: Allows using a custom 8-bit codepage for nicknames
