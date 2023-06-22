@@ -87,8 +87,8 @@ public:
 			LocalUser* localuser = IS_LOCAL(dest);
 			if (localuser)
 			{
-				chan = Channel::JoinUser(localuser, channel, true);
-				if (chan)
+				Membership* memb = Channel::JoinUser(localuser, channel, true);
+				if (memb)
 				{
 					ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used SAJOIN to make "+dest->nick+" join "+channel);
 					return CmdResult::SUCCESS;

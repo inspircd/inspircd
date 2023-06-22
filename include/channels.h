@@ -214,11 +214,11 @@ public:
 	 * @param channame The channel name to join to. Does not have to exist.
 	 * @param key The key of the channel, if given
 	 * @param override If true, override all join restrictions such as +bkil
-	 * @return A pointer to the Channel the user was joined to. A new Channel may have
+	 * @return A pointer to the Membership of the joined user. A new Channel may have
 	 * been created if the channel did not exist before the user was joined to it.
 	 * If the user could not be joined to a channel, the return value is NULL.
 	 */
-	static Channel* JoinUser(LocalUser* user, std::string channame, bool override = false, const std::string& key = "");
+	static Membership* JoinUser(LocalUser* user, std::string channame, bool override = false, const std::string& key = "");
 
 	/** Join a user to an existing channel, without doing any permission checks
 	 * @param user The user to join to the channel

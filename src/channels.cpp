@@ -164,7 +164,7 @@ void Channel::SetDefaultModes()
  * add a channel to a user, creating the record for it if needed and linking
  * it to the user record
  */
-Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, const std::string& key)
+Membership* Channel::JoinUser(LocalUser* user, std::string cname, bool override, const std::string& key)
 {
 	if (!user->IsFullyConnected())
 	{
@@ -211,8 +211,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 
 	// We figured that this join is allowed and also created the
 	// channel if it didn't exist before, now do the actual join
-	chan->ForceJoin(user, &privs, false, created_by_local);
-	return chan;
+	return chan->ForceJoin(user, &privs, false, created_by_local);
 }
 
 Membership* Channel::ForceJoin(User* user, const std::string* privs, bool bursting, bool created_by_local)

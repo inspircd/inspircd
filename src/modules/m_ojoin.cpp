@@ -54,19 +54,19 @@ public:
 
 		active = true;
 		// override is false because we want OnUserPreJoin to run
-		Channel* channel = Channel::JoinUser(user, parameters[0], false);
+		Membership* memb = Channel::JoinUser(user, parameters[0], false);
 		active = false;
 
-		if (channel)
+		if (memb)
 		{
-			ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used OJOIN to join "+channel->name);
+			ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used OJOIN to join "+memb->chan->name);
 
 			if (notice)
-				channel->WriteRemoteNotice(user->nick + " joined on official network business.");
+				memb->chan->WriteRemoteNotice(user->nick + " joined on official network business.");
 		}
 		else
 		{
-			channel = ServerInstance->Channels.Find(parameters[0]);
+			Channel* channel = ServerInstance->Channels.Find(parameters[0]);
 			if (!channel)
 				return CmdResult::FAILURE;
 
