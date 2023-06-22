@@ -62,7 +62,7 @@ public:
 				return MOD_RES_DENY;
 			}
 
-			user->WriteNumeric(Numerics::CannotSendTo(chan, "messages", 'm', "mute"));
+			user->WriteNumeric(Numerics::CannotSendTo(chan, "messages", extban));
 			return MOD_RES_DENY;
 		}
 

@@ -65,7 +65,7 @@ public:
 
 			if (extban.GetStatus(user, c) == MOD_RES_DENY)
 			{
-				user->WriteNumeric(Numerics::CannotSendTo(c, "notices", 'T', "nonotice"));
+				user->WriteNumeric(Numerics::CannotSendTo(c, "notices", extban));
 				return MOD_RES_DENY;
 			}
 		}

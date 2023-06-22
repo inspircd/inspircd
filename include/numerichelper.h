@@ -58,13 +58,15 @@ public:
 			what, mh->GetModeChar(), mh->name));
 	}
 
-	CannotSendTo(Channel* chan, const std::string& what, char extban, const std::string& extbandesc)
+#ifdef INSPIRCD_EXTBAN
+	CannotSendTo(Channel* chan, const std::string& what, const ExtBan::Base& xb)
 		: Numeric(ERR_CANNOTSENDTOCHAN)
 	{
 		push(chan->name);
 		push(INSP_FORMAT("You cannot send {} to this channel whilst {} {}: ({}) extban is set matching you.",
-			what, strchr("AEIOUaeiou", extban) ? "an" : "a", extban, extbandesc));
+			what, strchr("AEIOUaeiou", xb.GetLetter()) ? "an" : "a", xb.GetLetter(), xb.GetName()));
 	}
+#endif
 
 	CannotSendTo(User* user, const std::string& message)
 		: Numeric(ERR_CANNOTSENDTOUSER)

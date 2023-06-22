@@ -74,7 +74,7 @@ public:
 						if (modeset)
 							user->WriteNumeric(Numerics::CannotSendTo(c, "messages containing formatting characters", &bc));
 						else
-							user->WriteNumeric(Numerics::CannotSendTo(c, "messages containing formatting characters", 'c', "nocolor"));
+							user->WriteNumeric(Numerics::CannotSendTo(c, "messages containing formatting characters", extban));
 						return MOD_RES_DENY;
 					}
 				}

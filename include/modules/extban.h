@@ -19,6 +19,10 @@
 
 #pragma once
 
+#ifndef INSPIRCD_EXTBAN
+# define INSPIRCD_EXTBAN
+#endif
+
 namespace ExtBan
 {
 	class Acting;

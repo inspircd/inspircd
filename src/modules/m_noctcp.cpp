@@ -84,7 +84,7 @@ public:
 
 				if (extban.GetStatus(user, c) == MOD_RES_DENY)
 				{
-					user->WriteNumeric(Numerics::CannotSendTo(c, "CTCPs", 'C', "noctcp"));
+					user->WriteNumeric(Numerics::CannotSendTo(c, "CTCPs", extban));
 					return MOD_RES_DENY;
 				}
 				break;
