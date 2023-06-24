@@ -2421,17 +2421,34 @@
 #
 #<module name="sslinfo">
 #
-# If you want to prevent users from viewing TLS certificate information
-# and fingerprints of other users, set operonly to yes. You can also set hash
-# to an IANA Hash Function Textual Name to use the SSL fingerprint sent by a
-# WebIRC gateway (requires the cgiirc module), localsecure to allow locally
-# connected connections where TLS is not necessary to be considered secure,
-# spkifp to use a SPKI key fingerprint instead of a client certificate
-# fingerprint and warnexpiring to warn users when their client certificate is
-# about to expire.
-#<sslinfo operonly="no"
-#         hash="sha-256"
+#-#-#-#-#-#-#-#-#-#-#-#- SSLINFO CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+#  hash         - The IANA Hash Function Name of the hash algorithm   #
+#                 used for the TLS client fingerprint of WebIRC       #
+#                 gateway users (requires the gateway module). This   #
+#                 should be the same algorithm you specified in the   #
+#                 <sslprofile:hash> field of the TLS profile used for #
+#                 user connections.                                   #
+#                                                                     #
+#  localsecure  - Whether to treat locally-connected plaintext users  #
+#                 as if they are connected with TLS. Defaults to yes. #
+#                                                                     #
+#  operonly     - Whether TLS client certificate info is only visible #
+#                 by server operators. Defaults to no.                #
+#                                                                     #
+#  spkifp       - Whether to use a Subject Public Key Info (SPKI)     #
+#                 fingerprint instead of a certificate fingerprint    #
+#                 for user TLS client fingerprints. Defaults to no.   #
+#                                                                     #
+#  warnexpiring - If specified then the maximum period of validity    #
+#                 that can be left on a user's TLS client certificate #
+#                 before users are warned about the imminent expiry.  #
+#                                                                     #
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#
+#<sslinfo hash="sha-256"
 #         localsecure="yes"
+#         operonly="no"
 #         spkifp="no"
 #         warnexpiring="1w">
 
