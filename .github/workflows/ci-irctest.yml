@@ -77,9 +77,9 @@ jobs:
       - name: Install irctest dependencies
         run: sudo apt-get install -y python3-pytest faketime
 
-      - name: Install Atheme
-        run: sudo apt-get install -y atheme-services
-        if: matrix.services == 'atheme'
+      - name: Run irctest (no services)
+        if: matrix.services == 'no services'
+        run: PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd
 
       # Can't apt-get install Anope if we want Insp4 support
       - name: Checkout Anope
@@ -99,17 +99,18 @@ jobs:
           make -C build --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))
           make -C build install
 
-      - name: Run irctest (Atheme services)
-        if: matrix.services == 'atheme'
-        run: PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd-atheme
-
       - name: Run irctest (Anope services)
         if: matrix.services == 'anope'
         run: PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd-anope
 
-      - name: Run irctest (no services)
-        if: matrix.services == 'no services'
-        run: PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd
+      - name: Install Atheme
+        if: matrix.services == 'atheme'
+        run: sudo apt-get install --assume-yes atheme-services
+
+
+      - name: Run irctest (Atheme services)
+        if: matrix.services == 'atheme'
+        run: PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd-atheme
 
     strategy:
       fail-fast: false
