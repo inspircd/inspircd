@@ -90,7 +90,7 @@ jobs:
           ref: 2.0.9
           repository: anope/anope
 
-      - name: Build and Install Anope
+      - name: Build and install Anope
         if: matrix.services == 'anope'
         run: |
           cd $GITHUB_WORKSPACE/anope/
@@ -116,5 +116,5 @@ jobs:
       matrix:
         services:
           - no services
-          - atheme
           - anope
+          - atheme
