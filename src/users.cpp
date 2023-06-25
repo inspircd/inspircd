@@ -568,6 +568,7 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 	}
 	const std::string oldnick = nick;
 	nick = newnick;
+	nick.shrink_to_fit();
 
 	InvalidateCache();
 	ServerInstance->Users.clientlist.erase(oldnick);
@@ -936,6 +937,7 @@ bool User::ChangeRealName(const std::string& real)
 	}
 	FOREACH_MOD(OnChangeRealName, (this, real));
 	this->realname.assign(real, 0, ServerInstance->Config->Limits.MaxReal);
+	this->realname.shrink_to_fit();
 
 	return true;
 }
@@ -960,6 +962,7 @@ bool User::ChangeDisplayedHost(const std::string& shost)
 		this->displayhost.clear();
 	else
 		this->displayhost.assign(shost, 0, ServerInstance->Config->Limits.MaxHost);
+	this->displayhost.shrink_to_fit();
 
 	this->InvalidateCache();
 
@@ -998,6 +1001,8 @@ void User::ChangeRealHost(const std::string& host, bool resetdisplay)
 		FOREACH_MOD(OnChangeRealHost, (this, host));
 
 	realhost = host;
+	realhost.shrink_to_fit();
+
 	this->InvalidateCache();
 
 	// Don't call the OnPostChangeRealHost event when initialising a user.
@@ -1013,6 +1018,7 @@ bool User::ChangeIdent(const std::string& newident)
 	FOREACH_MOD(OnChangeIdent, (this, newident));
 
 	this->ident.assign(newident, 0, ServerInstance->Config->Limits.MaxUser);
+	this->ident.shrink_to_fit();
 	this->InvalidateCache();
 
 	return true;
