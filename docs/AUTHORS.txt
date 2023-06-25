@@ -35,8 +35,8 @@ the number of contributions they have made, are:
   * iwalkalone <iwalkalone69@gmail.com>
   * katsklaw
   * Dylan Frank <b00mx0r@aureus.pw>
-  * Steven Van Acker <steven@singularity.be>
   * Wade Cline <wadecline@hotmail.com>
+  * Steven Van Acker <steven@singularity.be>
   * Val Lorentz <progval+git@progval.net>
   * Dan Parsons <dparsons@nyip.net>
   * Googolplexed <googol@googolplexed.net>

@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2017 Wade Cline <wadecline@hotmail.com>
+ *   Copyright (C) 2017, 2023 Wade Cline <wadecline@hotmail.com>
  *   Copyright (C) 2016 Adam <Adam@anope.org>
  *   Copyright (C) 2014 Julien Vehent <julien@linuxwall.info>
  *   Copyright (C) 2013-2014, 2016-2023 Sadie Powell <sadie@witchery.services>
@@ -703,6 +703,10 @@ class OpenSSLIOHook : public SSLIOHook
 
 		certinfo->activation = GetTime(X509_getm_notBefore(cert));
 		certinfo->expiration = GetTime(X509_getm_notAfter(cert));
+
+#if OPENSSL_VERSION_NUMBER < 0x10101000L
+# define ASN1_TIME_cmp_time_t ASN1_UTCTIME_cmp_time_t
+#endif
 
 		int activated = ASN1_TIME_cmp_time_t(X509_getm_notBefore(cert), ServerInstance->Time());
 		if (activated != -1 && activated != 0)

@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013-2014, 2017-2019, 2021-2022 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013-2014, 2017-2019, 2021-2023 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Adam <Adam@anope.org>
  *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
@@ -214,7 +214,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 		bool isunix = L->IPAddr.find('/') != std::string::npos;
 		if (!L->Port && !isunix)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Ignoring a link block without a port.");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Ignoring an IP link block without a port.");
 			/* Invalid link block */
 			continue;
 		}
