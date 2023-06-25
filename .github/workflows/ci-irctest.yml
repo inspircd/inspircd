@@ -75,7 +75,7 @@ jobs:
           repository: progval/irctest
 
       - name: Install irctest dependencies
-        run: sudo apt-get install -y python3-pytest faketime
+        run: sudo apt-get install --assume-yes faketime python3-pytest
 
       - name: Run irctest (no services)
         if: matrix.services == 'no services'
@@ -107,7 +107,6 @@ jobs:
         if: matrix.services == 'atheme'
         run: sudo apt-get install --assume-yes atheme-services
 
-
       - name: Run irctest (Atheme services)
         if: matrix.services == 'atheme'
         run: PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd-atheme
@@ -117,5 +116,5 @@ jobs:
       matrix:
         services:
           - no services
-          - atheme  # Atheme works on Insp3, but not Insp4
+          - atheme
           - anope
