@@ -58,7 +58,7 @@ configure_file("${INSPIRCD_BASE}/make/template/config.h" "${INSPIRCD_BASE}/inclu
 
 add_executable(inspircd ${INSPIRCD_SOURCES} "${INSPIRCD_BASE}/win/inspircd.rc")
 target_link_libraries(inspircd win32_memory)
-set_target_properties(inspircd PROPERTIES COMPILE_DEFINITIONS "FMT_EXPORT" ENABLE_EXPORTS ON)
+set_target_properties(inspircd PROPERTIES COMPILE_DEFINITIONS "FMT_LIB_EXPORT" ENABLE_EXPORTS ON)
 install(TARGETS inspircd RUNTIME DESTINATION .)
 
 add_subdirectory(modules)
