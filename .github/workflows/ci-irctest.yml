@@ -38,14 +38,14 @@ jobs:
       - name: Build and Install
         run: make install --jobs $(($(getconf _NPROCESSORS_ONLN) + 1)) CXXFLAGS=-DINSPIRCD_UNLIMITED_MAINLOOP
 
-      - name: Make artefact tarball
-        run: cd ~; tar -czf artefacts-inspircd.tar.gz .local/
+      - name: Make artifact tarball
+        run: cd ~; tar -czf artifacts-inspircd.tar.gz .local/
 
-      - name: Upload build artefacts
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: installed-inspircd-for-irctest
-          path: ~/artefacts-*.tar.gz
+          path: ~/artifacts-inspircd.tar.gz
           retention-days: 1
 
   test:
@@ -54,14 +54,14 @@ jobs:
     needs:
     - build
     steps:
-      - name: Download build artefacts
+      - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
           name: installed-inspircd-for-irctest
           path: "~"
 
-      - name: Unpack artefacts
-        run: cd ~; find -name 'artefacts-*.tar.gz' -exec tar -xzf '{}' \;
+      - name: Unpack artifacts
+        run: cd ~; find -name 'artifacts-inspircd.tar.gz' -exec tar -xzf '{}' \;
 
       - name: Checkout irctest
         uses: actions/checkout@v3
