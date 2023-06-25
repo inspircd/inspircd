@@ -485,10 +485,6 @@
 # You *MUST* edit it.
 #<include file="examples/opers.conf.example">
 
-# This file has all the information about server links and services servers.
-# You *MUST* edit it if you intend to link servers.
-#<include file="examples/links.conf.example">
-
 #-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 

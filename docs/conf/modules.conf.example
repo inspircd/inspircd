@@ -2673,3 +2673,7 @@
 # You will almost always want to load this.
 #
 #<module name="spanningtree">
+#
+# This file has all the information about server links and services servers.
+# You *MUST* edit it if you intend to link servers.
+#<include file="examples/links.conf.example">
