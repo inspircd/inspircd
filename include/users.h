@@ -476,22 +476,28 @@ public:
 	/** What type of user is this? */
 	const uint8_t usertype:2;
 
-	/** Retrieves this user's hostname.
-	 * @param uncloak If true then return the real host; otherwise, the display host.
-	 */
-	const std::string& GetHost(bool uncloak) const;
-
 	/** Retrieves the username which should be included in bans for this user. */
 	const std::string& GetBanIdent() const;
 
+	/** Retrieves this user's hostname.
+	 * @param uncloak If true then return the real host; otherwise, the display host.
+	 */
+	inline const std::string& GetHost(bool uncloak) const
+	{
+		return uncloak ? GetRealHost() : GetDisplayedHost();
+	}
+
 	/** Retrieves this user's displayed hostname. */
-	const std::string& GetDisplayedHost() const;
+	inline const std::string& GetDisplayedHost() const
+	{
+		return displayhost.empty() ? realhost : displayhost;
+	}
 
 	/** Retrieves this user's real hostname. */
-	const std::string& GetRealHost() const;
+	inline const std::string& GetRealHost() const { return realhost; }
 
 	/** Retrieves this user's real name. */
-	const std::string& GetRealName() const;
+	inline const std::string& GetRealName() const { return realname; }
 
 	/** Get CIDR mask, using default range, for this user
 	 */

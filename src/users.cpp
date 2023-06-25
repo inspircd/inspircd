@@ -599,26 +599,6 @@ const std::string& User::GetBanIdent() const
 	return uniqueusername ? ident : wildcard;
 }
 
-const std::string& User::GetHost(bool uncloak) const
-{
-	return uncloak ? GetRealHost() : GetDisplayedHost();
-}
-
-const std::string& User::GetDisplayedHost() const
-{
-	return displayhost.empty() ? realhost : displayhost;
-}
-
-const std::string& User::GetRealHost() const
-{
-	return realhost;
-}
-
-const std::string& User::GetRealName() const
-{
-	return realname;
-}
-
 irc::sockets::cidr_mask User::GetCIDRMask() const
 {
 	unsigned char range = 0;
