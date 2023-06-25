@@ -245,7 +245,7 @@ public:
 	void OnError(BufferedSocketError err) override
 	{
 		ServerInstance->Logs.Debug(MODNAME, "HTTP socket {} encountered an error: {} - {}",
-			GetFd(), err, GetError());
+			GetFd(), (int)err, GetError());
 		Close();
 	}
 
