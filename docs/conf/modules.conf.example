@@ -147,13 +147,6 @@
 #<alias text="ID" replace="SQUERY NickServ :IDENTIFY $2"
 #  requires="NickServ" service="yes">
 #
-# This alias fixes a glitch in xchat 2.6.x and above and the way it
-# assumes IDENTIFY must be prefixed by a colon (:) character. It should
-# be placed ABOVE the default NICKSERV alias.
-#
-#<alias text="NICKSERV" format=":IDENTIFY *" replace="SQUERY NickServ :IDENTIFY $3-"
-#  requires="NickServ" service="yes">
-#
 # You may also add aliases to trigger based on something said in a
 # channel, aka 'fantasy' commands, configured in the same manner as any
 # other alias, with usercommand="no" and channelcommand="yes" The
