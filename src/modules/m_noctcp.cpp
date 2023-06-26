@@ -97,7 +97,9 @@ public:
 				User* u = target.Get<User>();
 				if (u->IsModeSet(ncu))
 				{
-					user->WriteNumeric(Numerics::CannotSendTo(u, "CTCPs", &ncu));
+					// Don't send an error message if we're blocking an automatic CTCP reply.
+					if (details.type == MessageType::NOTICE)
+						user->WriteNumeric(Numerics::CannotSendTo(u, "CTCPs", &ncu));
 					return MOD_RES_DENY;
 				}
 				break;

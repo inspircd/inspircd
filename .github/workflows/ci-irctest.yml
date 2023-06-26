@@ -1,0 +1,120 @@
+# This workflow has four tasks:
+#
+# 1. the first builds inspircd (with some optimizations for irctest), and uploads it
+#    to a temporary storage
+# 2. the other three download the binary we just built, and run it through inspircd,
+#    with either Anope, Atheme, or runs service-independent tests
+
+name: irctest
+
+on:
+  pull_request:
+  push:
+  schedule:
+    - cron: 0 0 * * 0
+
+jobs:
+  build:
+    if: "!contains(github.event.head_commit.message, '[skip irctest ci]')"
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Checkout irctest
+        uses: actions/checkout@v3
+        with:
+          path: irctest
+          ref: 321e254d15fab53fe6c8e3959312f6c0805c770f
+          repository: progval/irctest
+
+      - name: Run configure
+        run: ./configure --development --disable-auto-extras --prefix=$HOME/.local/
+
+      # Speed-up build (6 min -> 5 min)
+      - name: Precompile inspircd.h
+        run: c++ -I vendor/ include/inspircd.h
+
+      - name: Build and Install
+        run: make install --jobs $(($(getconf _NPROCESSORS_ONLN) + 1)) CXXFLAGS=-DINSPIRCD_UNLIMITED_MAINLOOP
+
+      - name: Make artifact tarball
+        run: |-
+          cd ~
+          tar -czf artifacts-inspircd.tar.gz .local/
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: installed-inspircd-for-irctest
+          path: ~/artifacts-inspircd.tar.gz
+          retention-days: 1
+
+  test:
+    if: "!contains(github.event.head_commit.message, '[skip irctest ci]')"
+    runs-on: ubuntu-22.04
+    needs:
+    - build
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: installed-inspircd-for-irctest
+          path: "~"
+
+      - name: Unpack artifacts
+        run: |-
+          cd ~
+          find -name 'artifacts-inspircd.tar.gz' -exec tar -xzf '{}' \;
+
+      - name: Checkout irctest
+        uses: actions/checkout@v3
+        with:
+          path: irctest
+          ref: 3b7f81e22c317eae885f5a942767ba4f6a30414e
+          repository: progval/irctest
+
+      - name: Install irctest dependencies
+        run: sudo apt-get install --assume-yes faketime python3-pytest
+
+      - name: Run irctest (no services)
+        if: matrix.services == 'no services'
+        run: PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd
+
+      # Can't apt-get install Anope if we want Insp4 support
+      - name: Checkout Anope
+        if: matrix.services == 'anope'
+        uses: actions/checkout@v3
+        with:
+          path: anope
+          ref: 2.0.9
+          repository: anope/anope
+
+      - name: Build and install Anope
+        if: matrix.services == 'anope'
+        run: |
+          cd $GITHUB_WORKSPACE/anope/
+          cp $GITHUB_WORKSPACE/irctest/data/anope/* .
+          CFLAGS=-O0 ./Config -quick
+          make -C build --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))
+          make -C build install
+
+      - name: Run irctest (Anope services)
+        if: matrix.services == 'anope'
+        run: PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd-anope
+
+#      - name: Install Atheme
+#        if: matrix.services == 'atheme'
+#        run: sudo apt-get install --assume-yes atheme-services
+
+#      - name: Run irctest (Atheme services)
+#        if: matrix.services == 'atheme'
+#        run: PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd-atheme
+
+    strategy:
+      fail-fast: false
+      matrix:
+        services:
+          - no services
+          - anope
+#          - atheme
