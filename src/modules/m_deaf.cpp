@@ -40,13 +40,13 @@ public:
 
 	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (change.adding && SimpleUserMode::OnModeChange(source, dest, channel, change))
-		{
-			dest->WriteNotice("*** You have enabled user mode +d, deaf mode. This mode means you WILL NOT receive any messages from any channels you are in. If you did NOT mean to do this, use /mode " + dest->nick + " -d.");
-			return true;
-		}
+		if (!SimpleUserMode::OnModeChange(source, dest, channel, change))
+			return false;
 
-		return false;
+		if (change.adding)
+			dest->WriteNotice("*** You have enabled user mode +d, deaf mode. This mode means you WILL NOT receive any messages from any channels you are in. If you did NOT mean to do this, use /mode " + dest->nick + " -d.");
+
+		return true;
 	}
 };
 
@@ -62,13 +62,13 @@ public:
 
 	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (change.adding && SimpleUserMode::OnModeChange(source, dest, channel, change))
-		{
-			dest->WriteNotice("*** You have enabled user mode +D, private deaf mode. This mode means you WILL NOT receive any messages and notices from any nicks. If you did NOT mean to do this, use /mode " + dest->nick + " -D.");
-			return true;
-		}
+		if (!SimpleUserMode::OnModeChange(source, dest, channel, change))
+			return false;
 
-		return false;
+		if (change.adding)
+			dest->WriteNotice("*** You have enabled user mode +D, private deaf mode. This mode means you WILL NOT receive any messages and notices from any nicks. If you did NOT mean to do this, use /mode " + dest->nick + " -D.");
+
+		return true;
 	}
 };
 
