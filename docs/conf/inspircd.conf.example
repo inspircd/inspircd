@@ -319,7 +319,9 @@
          # This setting only has effect when the dnsbl module is loaded.
          #usednsbl="yes"
 
-         # useident: Defines if users in this class MUST respond to a ident query or not.
+         # useident: Whether to try to look up the real username of users in this class using
+         # the RFC 1413 identification protocol.
+         # This setting only has effect when the ident module is loaded.
          useident="no"
 
          # usests: Whether a STS policy should be advertised to users in this class.
@@ -452,7 +454,9 @@
          # in this class. This can save a lot of resources on very busy servers.
          resolvehostnames="yes"
 
-         # useident: Defines if users in this class must respond to a ident query or not.
+         # useident: Whether to try to look up the real username of users in this class using
+         # the RFC 1413 identification protocol.
+         # This setting only has effect when the ident module is loaded.
          useident="no"
 
          # usests: Whether a STS policy should be advertised to users in this class.
