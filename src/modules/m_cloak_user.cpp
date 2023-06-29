@@ -20,7 +20,7 @@
 #include "modules/account.h"
 #include "modules/cloak.h"
 
-class UserMethod
+class UserMethodBase
 	: public Cloak::Method
 {
 private:
@@ -54,7 +54,7 @@ private:
 	virtual std::string GetMiddle(LocalUser* user) = 0;
 
 protected:
-	UserMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm) ATTR_NOT_NULL(2)
+	UserMethodBase(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm) ATTR_NOT_NULL(2)
 		: Cloak::Method(engine, tag)
 		, hostmap(hm)
 		, prefix(tag->getString("prefix"))
@@ -143,7 +143,7 @@ public:
 };
 
 class AccountMethod final
-	: public UserMethod
+	: public UserMethodBase
 {
 private:
 	// Dynamic reference to the account api.
@@ -158,14 +158,14 @@ private:
 
 public:
 	AccountMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm) ATTR_NOT_NULL(2)
-		: UserMethod(engine, tag, hm)
+		: UserMethodBase(engine, tag, hm)
 		, accountapi(engine->creator)
 	{
 	}
 };
 
 class AccountIdMethod final
-	: public UserMethod
+	: public UserMethodBase
 {
 private:
 	// Dynamic reference to the account api.
@@ -180,14 +180,14 @@ private:
 
 public:
 	AccountIdMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm) ATTR_NOT_NULL(2)
-		: UserMethod(engine, tag, hm)
+		: UserMethodBase(engine, tag, hm)
 		, accountapi(engine->creator)
 	{
 	}
 };
 
 class NickMethod final
-	: public UserMethod
+	: public UserMethodBase
 {
 private:
 	// Retrieves the middle segment of the cloak.
@@ -198,13 +198,13 @@ private:
 
 public:
 	NickMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm) ATTR_NOT_NULL(2)
-		: UserMethod(engine, tag, hm)
+		: UserMethodBase(engine, tag, hm)
 	{
 	}
 };
 
-class IdentMethod final
-	: public UserMethod
+class UserMethod final
+	: public UserMethodBase
 {
 private:
 	// Retrieves the middle segment of the cloak.
@@ -214,8 +214,8 @@ private:
 	}
 
 public:
-	IdentMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm) ATTR_NOT_NULL(2)
-		: UserMethod(engine, tag, hm)
+	UserMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm) ATTR_NOT_NULL(2)
+		: UserMethodBase(engine, tag, hm)
 	{
 	}
 };
@@ -248,19 +248,19 @@ class ModuleCloakUser final
 private:
 	UserEngine<AccountMethod> accountcloak;
 	UserEngine<AccountIdMethod> accountidcloak;
-	UserEngine<IdentMethod> identcloak;
-	UserEngine<NickMethod> nickcloak;
+	UserEngine<UserMethod> usernamecloak;
+	UserEngine<NickMethod> nicknamecloak;
 	Cloak::API cloakapi;
 	CharState hostmap;
 
 public:
 	ModuleCloakUser()
-		: Module(VF_VENDOR, "Adds the account, account-id, ident, and nick cloaking methods for use with the cloak module.")
+		: Module(VF_VENDOR, "Adds the account, account-id, nickname, and username cloaking methods for use with the cloak module.")
 		, Account::EventListener(this)
 		, accountcloak(this, "account", hostmap)
 		, accountidcloak(this, "account-id", hostmap)
-		, identcloak(this, "ident", hostmap)
-		, nickcloak(this, "nick", hostmap)
+		, nicknamecloak(this, "nickname", hostmap)
+		, usernamecloak(this, "username", hostmap)
 		, cloakapi(this)
 	{
 	}
@@ -292,14 +292,14 @@ public:
 	void OnChangeIdent(User* user, const std::string& ident) override
 	{
 		LocalUser* luser = IS_LOCAL(user);
-		if (luser && cloakapi && cloakapi->IsActiveCloak(identcloak))
+		if (luser && cloakapi && cloakapi->IsActiveCloak(usernamecloak))
 			cloakapi->ResetCloaks(luser, true);
 	}
 
 	void OnUserPostNick(User* user, const std::string& oldnick) override
 	{
 		LocalUser* luser = IS_LOCAL(user);
-		if (luser && cloakapi && cloakapi->IsActiveCloak(nickcloak))
+		if (luser && cloakapi && cloakapi->IsActiveCloak(nicknamecloak))
 			cloakapi->ResetCloaks(luser, true);
 	}
 };
