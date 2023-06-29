@@ -409,7 +409,11 @@ public:
 			if (cloak == user->GetDisplayedHost())
 				continue; // This is checked by the core.
 
-			const std::string cloakmask = user->nick + "!" + user->ident + "@" + cloak;
+			std::string cloakmask = user->nick + "!" + user->GetRealUser() + "@" + cloak;
+			if (InspIRCd::Match(cloakmask, mask))
+				return MOD_RES_DENY;
+
+			cloakmask = user->nick + "!" + user->GetDisplayedUser() + "@" + cloak;
 			if (InspIRCd::Match(cloakmask, mask))
 				return MOD_RES_DENY;
 		}

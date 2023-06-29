@@ -38,7 +38,7 @@
  * Sends SAVEs as appropriate and forces nick change of the user 'u' if our side loses or if both lose.
  * Does not change the nick of the user that is trying to claim the nick of 'u', i.e. the "remote" user.
  */
-bool SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remotets, const std::string& remoteident, const std::string& remoteip, const std::string& remoteuid, const char* collidecmd)
+bool SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remotets, const std::string& remoteuser, const std::string& remoteip, const std::string& remoteuid, const char* collidecmd)
 {
 	// At this point we're sure that a collision happened, increment the counter regardless of who wins
 	ServerInstance->stats.Collisions++;
@@ -68,15 +68,15 @@ bool SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remo
 	const time_t localts = u->nickchanged;
 	if (remotets != localts)
 	{
-		/* first, let's see if ident@host matches. */
-		const std::string& localident = u->ident;
+		/* first, let's see if user@host matches. */
+		const std::string& localuser = u->GetRealUser();
 		const std::string& localip = u->GetAddress();
-		bool SamePerson = (localident == remoteident)
+		bool SamePerson = (localuser == remoteuser)
 				&& (localip == remoteip);
 
 		/*
-		 * if ident@ip is equal, and theirs is newer, or
-		 * ident@ip differ, and ours is newer
+		 * if user@ip is equal, and theirs is newer, or
+		 * user@ip differ, and ours is newer
 		 */
 		if ((SamePerson && remotets < localts) || (!SamePerson && remotets > localts))
 		{
@@ -91,8 +91,8 @@ bool SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remo
 	}
 
 	ServerInstance->Logs.Debug(MODNAME, "Nick collision on \"{}\" caused by {}: {}/{}/{}@{} {} <-> {}/{}/{}@{} {}", u->nick, collidecmd,
-		u->uuid, localts, u->ident, u->GetAddress(), bChangeLocal,
-		remoteuid, remotets, remoteident, remoteip, bChangeRemote);
+		u->uuid, localts, u->GetRealUser(), u->GetAddress(), bChangeLocal,
+		remoteuid, remotets, remoteuser, remoteip, bChangeRemote);
 
 	/*
 	 * Send SAVE and accept the losing client with its UID (as we know the SAVE will

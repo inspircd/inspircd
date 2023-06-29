@@ -34,8 +34,8 @@ bool irc::sockets::MatchCIDR(const std::string& address, const std::string& cidr
 	std::string address_copy;
 	std::string cidr_copy;
 
-	/* The caller is trying to match ident@<mask>/bits.
-	 * Chop off the ident@ portion, use match() on it
+	/* The caller is trying to match username@<mask>/bits.
+	 * Chop off the username@ portion, use match() on it
 	 * separately.
 	 */
 	if (match_with_username)

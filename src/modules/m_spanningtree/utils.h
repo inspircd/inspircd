@@ -139,7 +139,7 @@ public:
 
 	/** Handle nick collision
 	 */
-	static bool DoCollision(User* u, TreeServer* server, time_t remotets, const std::string& remoteident, const std::string& remoteip, const std::string& remoteuid, const char* collidecmd);
+	static bool DoCollision(User* u, TreeServer* server, time_t remotets, const std::string& remoteuser, const std::string& remoteip, const std::string& remoteuid, const char* collidecmd);
 
 	/** Compile a list of servers which contain members of channel c
 	 */

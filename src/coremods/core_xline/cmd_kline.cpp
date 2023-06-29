@@ -45,16 +45,16 @@ CmdResult CommandKline::Handle(User* user, const Params& parameters)
 	std::string target = parameters[0];
 	if (parameters.size() >= 3)
 	{
-		IdentHostPair ih;
+		UserHostPair ih;
 		auto* find = ServerInstance->Users.Find(target, true);
 		if (find)
 		{
-			ih.first = find->GetBanIdent();
+			ih.first = find->GetBanUser(true);
 			ih.second = find->GetAddress();
 			target = ih.first + "@" + ih.second;
 		}
 		else
-			ih = XLineManager::IdentSplit(target);
+			ih = XLineManager::SplitUserHost(target);
 
 		if (ih.first.empty())
 		{

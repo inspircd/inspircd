@@ -91,10 +91,10 @@ public:
 
 static void GenerateStatsLl(Stats::Context& stats)
 {
-	stats.AddRow(211, INSP_FORMAT("nick[ident@{}] sendq cmds_out bytes_out cmds_in bytes_in time_open", stats.GetSymbol() == 'l' ? "host" : "ip"));
+	stats.AddRow(211, INSP_FORMAT("nick[user@{}] sendq cmds_out bytes_out cmds_in bytes_in time_open", stats.GetSymbol() == 'l' ? "host" : "ip"));
 
 	for (auto* u : ServerInstance->Users.GetLocalUsers())
-		stats.AddRow(211, u->nick+"["+u->ident+"@"+(stats.GetSymbol() == 'l' ? u->GetDisplayedHost() : u->GetAddress())+"] "+ConvToStr(u->eh.GetSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "+ConvToStr(ServerInstance->Time() - u->signon));
+		stats.AddRow(211, u->nick+"["+u->GetDisplayedUser()+"@"+(stats.GetSymbol() == 'l' ? u->GetDisplayedHost() : u->GetAddress())+"] "+ConvToStr(u->eh.GetSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "+ConvToStr(ServerInstance->Time() - u->signon));
 }
 
 void CommandStats::DoStats(Stats::Context& stats)
@@ -358,7 +358,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 
 	stats.AddRow(219, statschar, "End of /STATS report");
 	ServerInstance->SNO.WriteToSnoMask('t', "{} '{}' requested by {} ({}@{})", (IS_LOCAL(user) ? "Stats" : "Remote stats"),
-		statschar, user->nick, user->ident, user->GetRealHost());
+		statschar, user->nick, user->GetRealUser(), user->GetRealHost());
 }
 
 CmdResult CommandStats::Handle(User* user, const Params& parameters)

@@ -235,10 +235,13 @@ public:
 inline void SQL::PopulateUserInfo(User* user, ParamMap& userinfo)
 {
 	userinfo["nick"] = user->nick;
+	userinfo["user"] = user->GetRealUser();
 	userinfo["host"] = user->GetRealHost();
 	userinfo["ip"] = user->GetAddress();
 	userinfo["real"] = user->GetRealName();
-	userinfo["ident"] = user->ident;
 	userinfo["server"] = user->server->GetName();
 	userinfo["uuid"] = user->uuid;
+
+	// Deprecated.
+	userinfo["ident"] = userinfo["user"];
 }

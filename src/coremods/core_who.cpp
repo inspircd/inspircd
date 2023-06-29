@@ -385,16 +385,19 @@ bool CommandWho::MatchUser(LocalUser* source, User* user, WhoData& data)
 			match = true;
 	}
 
-	// The source wants to match against users' idents.
+	// The source wants to match against users' usernames.
 	else if (data.flags['u'])
-		match = InspIRCd::Match(user->ident, data.matchtext, ascii_case_insensitive_map);
+	{
+		const std::string username = user->GetUser(source_can_see_target && data.flags['x']);
+		match = InspIRCd::Match(username, data.matchtext, ascii_case_insensitive_map);
+	}
 
 	// The <name> passed to WHO is matched against users' host, server,
 	// real name and nickname if the channel <name> cannot be found.
 	else
 	{
-		const std::string host = user->GetHost(source_can_see_target && data.flags['x']);
-		match = InspIRCd::Match(host, data.matchtext, ascii_case_insensitive_map);
+		const std::string hostname = user->GetHost(source_can_see_target && data.flags['x']);
+		match = InspIRCd::Match(hostname, data.matchtext, ascii_case_insensitive_map);
 
 		if (!match)
 		{
@@ -473,9 +476,9 @@ void CommandWho::SendWhoLine(LocalUser* source, const std::vector<std::string>& 
 		if (data.whox_fields['c'])
 			wholine.push(memb ? memb->chan->name : "*");
 
-		// Include the user's ident.
+		// Include the user's username.
 		if (data.whox_fields['u'])
-			wholine.push(user->ident);
+			wholine.push(user->GetUser(source_can_see_target && data.flags['x']));
 
 		// Include the user's IP address.
 		if (data.whox_fields['i'])
@@ -560,8 +563,8 @@ void CommandWho::SendWhoLine(LocalUser* source, const std::vector<std::string>& 
 		// Include the channel name.
 		wholine.push(memb ? memb->chan->name : "*");
 
-		// Include the user's ident.
-		wholine.push(user->ident);
+		// Include the user's username.
+		wholine.push(user->GetUser(source_can_see_target && data.flags['x']));
 
 		// Include the user's hostname.
 		wholine.push(user->GetHost(source_can_see_target && data.flags['x']));

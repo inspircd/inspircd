@@ -129,7 +129,7 @@ const std::string& User::GetUserAddress()
 {
 	if (cached_useraddress.empty())
 	{
-		cached_useraddress = INSP_FORMAT("{}@{}", ident, GetAddress());
+		cached_useraddress = INSP_FORMAT("{}@{}", GetRealUser(), GetAddress());
 		cached_useraddress.shrink_to_fit();
 	}
 
@@ -139,7 +139,7 @@ const std::string& User::GetUserHost()
 {
 	if (cached_userhost.empty())
 	{
-		cached_userhost = INSP_FORMAT("{}@{}", ident, GetDisplayedHost());
+		cached_userhost = INSP_FORMAT("{}@{}", GetDisplayedUser(), GetDisplayedHost());
 		cached_userhost.shrink_to_fit();
 	}
 
@@ -150,7 +150,7 @@ const std::string& User::GetRealUserHost()
 {
 	if (cached_realuserhost.empty())
 	{
-		cached_realuserhost = INSP_FORMAT("{}@{}", ident, GetRealHost());
+		cached_realuserhost = INSP_FORMAT("{}@{}", GetRealUser(), GetRealHost());
 		cached_realuserhost.shrink_to_fit();
 	}
 
@@ -161,7 +161,7 @@ const std::string& User::GetMask()
 {
 	if (cached_mask.empty())
 	{
-		cached_mask = INSP_FORMAT("{}!{}@{}", nick, ident, GetDisplayedHost());
+		cached_mask = INSP_FORMAT("{}!{}@{}", nick, GetDisplayedUser(), GetDisplayedHost());
 		cached_mask.shrink_to_fit();
 	}
 
@@ -172,7 +172,7 @@ const std::string& User::GetRealMask()
 {
 	if (cached_realmask.empty())
 	{
-		cached_realmask = INSP_FORMAT("{}!{}@{}", nick, ident, GetRealHost());
+		cached_realmask = INSP_FORMAT("{}!{}@{}", nick, GetRealUser(), GetRealHost());
 		cached_realmask.shrink_to_fit();
 	}
 
@@ -190,9 +190,9 @@ LocalUser::LocalUser(int myfd, const irc::sockets::sockaddrs& clientsa, const ir
 	signon = ServerInstance->Time();
 	// The user's default nick is their UUID
 	nick = uuid;
-	ident = uuid;
 	eh.SetFd(myfd);
 	memcpy(&client_sa, &clientsa, sizeof(irc::sockets::sockaddrs));
+	ChangeRealUser(uuid, true);
 	ChangeRealHost(GetAddress(), true);
 }
 
@@ -593,10 +593,10 @@ void LocalUser::OverruleNick()
 	this->ChangeNick(this->uuid);
 }
 
-const std::string& User::GetBanIdent() const
+const std::string& User::GetBanUser(bool real) const
 {
 	static const std::string wildcard = "*";
-	return uniqueusername ? ident : wildcard;
+	return uniqueusername ? GetUser(real) : wildcard;
 }
 
 irc::sockets::cidr_mask User::GetCIDRMask() const
@@ -990,20 +990,60 @@ void User::ChangeRealHost(const std::string& host, bool resetdisplay)
 		FOREACH_MOD(OnPostChangeRealHost, (this));
 }
 
-bool User::ChangeIdent(const std::string& newident)
+void User::ChangeRealUser(const std::string& newuser, bool resetdisplay)
 {
-	if (this->ident == newident)
-		return true;
+	// If the real user is the new user and we are not resetting the
+	// display user then we have nothing to do.
+	const bool changeuser = (realuser != newuser);
+	if (!changeuser && !resetdisplay)
+		return;
 
-	FOREACH_MOD(OnChangeIdent, (this, newident));
+	// If the displayuser is not set and we are not resetting it then
+	// we need to copy it to the displayuser field.
+	if (displayuser.empty() && !resetdisplay)
+		displayuser = realuser;
 
-	this->ident.assign(newident, 0, ServerInstance->Config->Limits.MaxUser);
-	this->ident.shrink_to_fit();
+	// If the displayuser is the new user or we are resetting it then
+	// we clear its contents to save memory.
+	else if (displayuser == newuser || resetdisplay)
+		displayuser.clear();
+
+	// If we are just resetting the display user then we don't need to
+	// do anything else.
+	if (!changeuser)
+		return;
+
+	// Don't call the OnChangeRealUser event when initialising a user.
+	const bool initializing = realuser.empty();
+	if (!initializing)
+		FOREACH_MOD(OnChangeRealUser, (this, newuser));
+
+	realuser = newuser;
+	realuser.shrink_to_fit();
+
 	this->InvalidateCache();
 
-	return true;
+	// Don't call the OnPostChangeRealUser event when initialising a user.
+	if (!this->quitting && !initializing)
+		FOREACH_MOD(OnPostChangeRealUser, (this));
 }
 
+bool User::ChangeDisplayedUser(const std::string& newuser)
+{
+	if (GetDisplayedUser() == newuser)
+		return true;
+
+	FOREACH_MOD(OnChangeUser, (this, newuser));
+
+	if (realuser == newuser)
+		this->displayuser.clear();
+	else
+		this->displayuser.assign(newuser, 0, ServerInstance->Config->Limits.MaxUser);
+	this->displayuser.shrink_to_fit();
+
+	this->InvalidateCache();
+	return true;
+}
 
 void User::PurgeEmptyChannels()
 {

@@ -69,7 +69,6 @@ public:
 		if (!request.GetFieldIndex('f', flag_index))
 			return MOD_RES_PASSTHRU;
 
-		// #chan ident localhost insp22.test nick H@ :0 Attila
 		if (numeric.GetParams().size() <= flag_index)
 			return MOD_RES_PASSTHRU;
 

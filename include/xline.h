@@ -30,9 +30,9 @@ namespace Stats
 	class Context;
 }
 
-/** Contains an ident and host split into two strings
+/** Contains an username and host split into two strings
  */
-typedef std::pair<std::string, std::string> IdentHostPair;
+typedef std::pair<std::string, std::string> UserHostPair;
 
 /** A map of xline factories
  */
@@ -102,7 +102,7 @@ public:
 	}
 
 	/** Returns true whether or not the given user is covered by this line.
-	 * @param u The user to match against. The mechanics of the match
+	 * @param u The Username to match against. The mechanics of the match
 	 * are defined by the derived class.
 	 * @return True if there is a match.
 	 */
@@ -137,7 +137,7 @@ public:
 	 * e.g. '*\@foo' or '*baz*'. This must always return the full pattern
 	 * in a form which can be used to construct an entire derived xline,
 	 * even if it is stored differently internally (e.g. GLine stores the
-	 * ident and host parts separately but will still return ident\@host
+	 * user and host parts separately but will still return user\@host
 	 * for its Displayable() method).
 	 */
 	virtual const std::string& Displayable() const = 0;
@@ -189,15 +189,15 @@ public:
 	 * @param d The duration of the xline
 	 * @param src The sender of the xline
 	 * @param re The reason of the xline
-	 * @param ident Ident to match
-	 * @param host Host to match
+	 * @param user Username to match
+	 * @param host Hostname to match
 	 */
-	KLine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& ident, const std::string& host)
+	KLine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& user, const std::string& host)
 		: XLine(s_time, d, src, re, "K")
-		, identmask(ident)
+		, usermask(user)
 		, hostmask(host)
 	{
-		matchtext = this->identmask;
+		matchtext = this->usermask;
 		matchtext.append("@").append(this->hostmask);
 	}
 
@@ -211,11 +211,10 @@ public:
 
 	bool IsBurstable() override;
 
-	/** Ident mask (ident part only)
-	 */
-	std::string identmask;
-	/** Host mask (host part only)
-	 */
+	/** Username pattern to match. */
+	std::string usermask;
+
+	/** Hostname pattern to match. */
 	std::string hostmask;
 
 	std::string matchtext;
@@ -232,15 +231,15 @@ public:
 	 * @param d The duration of the xline
 	 * @param src The sender of the xline
 	 * @param re The reason of the xline
-	 * @param ident Ident to match
-	 * @param host Host to match
+	 * @param user Username to match
+	 * @param host Hostname to match
 	 */
-	GLine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& ident, const std::string& host)
+	GLine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& user, const std::string& host)
 		: XLine(s_time, d, src, re, "G")
-		, identmask(ident)
+		, usermask(user)
 		, hostmask(host)
 	{
-		matchtext = this->identmask;
+		matchtext = this->usermask;
 		matchtext.append("@").append(this->hostmask);
 	}
 
@@ -252,11 +251,10 @@ public:
 
 	const std::string& Displayable() const override;
 
-	/** Ident mask (ident part only)
-	 */
-	std::string identmask;
-	/** Host mask (host part only)
-	 */
+	/** Username pattern to match. */
+	std::string usermask;
+
+	/** Hostname pattern to match. */
 	std::string hostmask;
 
 	std::string matchtext;
@@ -273,15 +271,15 @@ public:
 	 * @param d The duration of the xline
 	 * @param src The sender of the xline
 	 * @param re The reason of the xline
-	 * @param ident Ident to match
-	 * @param host Host to match
+	 * @param user Username to match
+	 * @param host Hostname to match
 	 */
-	ELine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& ident, const std::string& host)
+	ELine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& user, const std::string& host)
 		: XLine(s_time, d, src, re, "E")
-		, identmask(ident)
+		, usermask(user)
 		, hostmask(host)
 	{
-		matchtext = this->identmask;
+		matchtext = this->usermask;
 		matchtext.append("@").append(this->hostmask);
 	}
 
@@ -295,11 +293,10 @@ public:
 
 	const std::string& Displayable() const override;
 
-	/** Ident mask (ident part only)
-	 */
-	std::string identmask;
-	/** Host mask (host part only)
-	 */
+	/** Username pattern to match. */
+	std::string usermask;
+
+	/** Hostname pattern to match. */
 	std::string hostmask;
 
 	std::string matchtext;
@@ -332,7 +329,7 @@ public:
 
 	const std::string& Displayable() const override;
 
-	/** IP mask (no ident part)
+	/** IP mask (no user part)
 	 */
 	std::string ipaddr;
 };
@@ -446,10 +443,10 @@ public:
 	 */
 	~XLineManager();
 
-	/** Split an ident and host into two separate strings.
+	/** Split an user and host into two separate strings.
 	 * This allows for faster matching.
 	 */
-	static IdentHostPair IdentSplit(const std::string& ident_and_host);
+	static UserHostPair SplitUserHost(const std::string& user_and_host);
 
 	/** Checks what users match E-lines and sets their ban exempt flag accordingly.
 	 */
@@ -527,7 +524,7 @@ public:
 
 	/** Check if a user matches an XLine
 	 * @param type The type of line to look up
-	 * @param user The user to match against (what is checked is specific to the xline type)
+	 * @param user The Username to match against (what is checked is specific to the xline type)
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
 	XLine* MatchesLine(const std::string& type, User* user);

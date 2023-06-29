@@ -199,7 +199,7 @@ void CommandWhois::DoWhois(LocalUser* user, User* dest, time_t signon, unsigned 
 {
 	WhoisContextImpl whois(user, dest, lineevprov);
 
-	whois.SendLine(RPL_WHOISUSER, dest->ident, dest->GetDisplayedHost(), '*', dest->GetRealName());
+	whois.SendLine(RPL_WHOISUSER, dest->GetDisplayedUser(), dest->GetDisplayedHost(), '*', dest->GetRealName());
 	if (!dest->server->IsService() && (whois.IsSelfWhois() || user->HasPrivPermission("users/auspex")))
 	{
 		whois.SendLine(RPL_WHOISACTUALLY, dest->GetRealUserHost(), dest->GetAddress(), "is connecting from");

@@ -51,10 +51,10 @@ public:
 	std::string FormatStr(const LocalUser* user, const std::string& format, const std::string& pass)
 	{
 		return Template::Replace(format, {
-			{ "nick",         user->nick,   },
-			{ "nickrequired", nickrequired, },
-			{ "pass",         pass,         },
-			{ "user",         user->ident,  },
+			{ "nick",         user->nick,          },
+			{ "nickrequired", nickrequired,        },
+			{ "pass",         pass,                },
+			{ "user",         user->GetRealUser(), },
 		});
 	}
 

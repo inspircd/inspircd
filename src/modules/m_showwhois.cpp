@@ -54,9 +54,10 @@ public:
 
 	static void HandleFast(User* dest, User* src)
 	{
-		dest->WriteNotice("*** " + src->nick + " (" + src->ident + "@" +
-			src->GetHost(dest->HasPrivPermission("users/auspex")) +
-			") did a /whois on you");
+		const std::string& userhost = dest->HasPrivPermission("users/auspex")
+			? src->GetRealUserHost()
+			: src->GetUserHost();
+		dest->WriteNotice(INSP_FORMAT("{} ({}) did a /WHOIS on you", src->nick, userhost));
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

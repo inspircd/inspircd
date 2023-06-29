@@ -151,7 +151,7 @@ E.g. '/RMODE #channel b m:*' will remove all mute extbans on the channel.
 
 <helptopic key="hexip" title="/HEXIP <hex-ip|raw-ip>" value="
 If the specified argument is a raw IP address then respond with the
-hex encoded equivalent as if sent by an ident gateway. Otherwise, if
+hex encoded equivalent as if sent by an username gateway. Otherwise, if
 the specified argument is a hex encoded IP address then respond with
 the equivalent raw IP address.
 ">
@@ -188,8 +188,8 @@ Sends a notice to a channel indicating you wish to join.
 
 <helptopic key="user" title="/USER <username> <unused> <unused> :<realname>" value="
 This command is used by your client to register your
-IRC session, providing your ident and real name to the
-server.
+IRC session, providing your username and real name to
+the server.
 
 You should not use it during an established connection.
 ">
@@ -307,7 +307,7 @@ The following flags use <pattern> to match against the specified user data:
        modifier is specified then this will match against the real server name
        instead of the masked server name.
  t     Show users who have connected in the last <pattern> seconds.
- u     Show users who have an ident (username) matching <pattern>.
+ u     Show users who have an username matching <pattern>.
 
 The following flags filter users by their status:
 
@@ -342,7 +342,7 @@ Valid WHO Fields
        specified then this is the real server name rather than the masked server
        name.
  t     Include the query type in the response.
- u     Include the user's ident in the response.
+ u     Include the user's username in the response.
 
 
 ">
@@ -611,8 +611,8 @@ just be specified as a number of seconds.
 Sets your host to the specified host.
 ">
 
-<helptopic key="setident" title="/SETIDENT <ident>" value="
-Sets your ident to the specified ident.
+<helptopic key="setident" title="/SETIDENT <username>" value="
+Sets your username to the specified value.
 ">
 
 <helptopic key="swhois" title="/SWHOIS <nick> :<swhois>" value="
@@ -649,8 +649,8 @@ Changes the host of the user to the specified host.
 Changes the real name of the user to the specified real name.
 ">
 
-<helptopic key="chgident" title="/CHGIDENT <nick> <ident>" value="
-Changes the ident of the user to the specified ident.
+<helptopic key="chgident" title="/CHGIDENT <nick> <username>" value="
+Changes the username of the user to the specified value.
 ">
 
 <helptopic key="shun" title="/SHUN <nick!user@host>[,<nick!user@host>]+ [<duration> :<reason>]" value="
@@ -777,7 +777,7 @@ five minutes and six seconds. All fields in this format are optional.
 
 This command has a few important limitations. Bans on *@<ip> can only
 be negated by an E-line on *@<ip>, bans on *@<host> can be negated by
-E-lines on *@<ip>, or *@<host>, and bans on <ident>@* or <ident>@<host>
+E-lines on *@<ip>, or *@<host>, and bans on <user>@* or <user>@<host>
 can be negated by any E-line that matches.
 ">
 

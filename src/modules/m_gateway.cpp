@@ -38,23 +38,23 @@
 // One or more hostmask globs or CIDR ranges.
 typedef std::vector<std::string> MaskList;
 
-// Encapsulates information about an ident host.
-class IdentHost final
+// Encapsulates information about an username gateway.
+class UserHost final
 {
 private:
 	MaskList hostmasks;
-	std::string newident;
+	std::string newuser;
 
 public:
-	IdentHost(const MaskList& masks, const std::string& ident)
+	UserHost(const MaskList& masks, const std::string& user)
 		: hostmasks(masks)
-		, newident(ident)
+		, newuser(user)
 	{
 	}
 
-	const std::string& GetIdent() const
+	const std::string& GetUser() const
 	{
-		return newident;
+		return newuser;
 	}
 
 	bool Matches(LocalUser* user) const
@@ -75,7 +75,7 @@ public:
 	}
 };
 
-// Encapsulates information about a WebIRC host.
+// Encapsulates information about a WebIRC gateway.
 class WebIRCHost final
 {
 private:
@@ -169,32 +169,32 @@ public:
 
 	static bool ParseIP(const std::string& in, irc::sockets::sockaddrs& out)
 	{
-		const char* ident = nullptr;
+		const char* user = nullptr;
 		if (in.length() == 8)
 		{
-			// The ident is an IPv4 address encoded in hexadecimal with two characters
+			// The user is an IPv4 address encoded in hexadecimal with two characters
 			// per address segment.
-			ident = in.c_str();
+			user = in.c_str();
 		}
 		else if (in.length() == 9 && in[0] == '~')
 		{
-			// The same as above but m_ident got to this user before we did. Strip the
-			// ident prefix and continue as normal.
-			ident = in.c_str() + 1;
+			// The same as above but m_user got to this user before we did. Strip the
+			// user prefix and continue as normal.
+			user = in.c_str() + 1;
 		}
 		else
 		{
-			// The user either does not have an IPv4 in their ident or the gateway server
-			// is also running an identd. In the latter case there isn't really a lot we
+			// The user either does not have an IPv4 in their user or the gateway server
+			// is also running an userd. In the latter case there isn't really a lot we
 			// can do so we just assume that the client in question is not connecting via
-			// an ident gateway.
+			// an user gateway.
 			return false;
 		}
 
 		// Try to convert the IP address to a string. If this fails then the user
-		// does not have an IPv4 address in their ident.
+		// does not have an IPv4 address in their user.
 		errno = 0;
-		unsigned long address = strtoul(ident, nullptr, 16);
+		unsigned long address = strtoul(user, nullptr, 16);
 		if (errno)
 			return false;
 
@@ -334,7 +334,7 @@ class ModuleGateway final
 private:
 	CommandHexIP cmdhexip;
 	CommandWebIRC cmdwebirc;
-	std::vector<IdentHost> hosts;
+	std::vector<UserHost> hosts;
 
 public:
 	ModuleGateway()
@@ -353,7 +353,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		std::vector<IdentHost> identhosts;
+		std::vector<UserHost> userhosts;
 		std::vector<WebIRCHost> webirchosts;
 
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("gateway", ServerInstance->Config->ConfTags("cgihost")))
@@ -369,11 +369,11 @@ public:
 
 			// Determine what lookup type this host uses.
 			const std::string type = tag->getString("type");
-			if (stdalgo::string::equalsci(type, "ident"))
+			if (stdalgo::string::equalsci(type, "username") || stdalgo::string::equalsci(type, "ident"))
 			{
 				// The IP address should be looked up from the hex IP address.
-				const std::string newident = tag->getString("newident", "gateway", ServerInstance->IsIdent);
-				identhosts.emplace_back(masks, newident);
+				const std::string newuser = tag->getString("newusername", tag->getString("newident", "gateway", ServerInstance->IsUser), ServerInstance->IsUser);
+				userhosts.emplace_back(masks, newuser);
 			}
 			else if (stdalgo::string::equalsci(type, "webirc"))
 			{
@@ -402,7 +402,7 @@ public:
 		}
 
 		// The host configuration was valid so we can apply it.
-		hosts.swap(identhosts);
+		hosts.swap(userhosts);
 		cmdwebirc.hosts.swap(webirchosts);
 	}
 
@@ -448,20 +448,20 @@ public:
 				continue;
 
 			// We have matched an gateway block! Try to parse the encoded IPv4 address
-			// out of the ident.
+			// out of the user.
 			irc::sockets::sockaddrs address(user->client_sa);
-			if (!CommandHexIP::ParseIP(user->ident, address))
+			if (!CommandHexIP::ParseIP(user->GetRealUser(), address))
 				return MOD_RES_PASSTHRU;
 
 			// Store the hostname and IP of the gateway for later use.
 			cmdwebirc.realhost.Set(user, user->GetRealHost());
 			cmdwebirc.realip.Set(user, user->GetAddress());
 
-			const std::string& newident = host.GetIdent();
-			ServerInstance->SNO.WriteGlobalSno('w', "Connecting user {} is using an ident gateway; changing their IP from {} to {} and their ident from {} to {}.",
-				user->uuid, user->GetAddress(), address.addr(), user->ident, newident);
+			const std::string& newuser = host.GetUser();
+			ServerInstance->SNO.WriteGlobalSno('w', "Connecting user {} is using an user gateway; changing their IP from {} to {} and their real username from {} to {}.",
+				user->uuid, user->GetAddress(), address.addr(), user->GetRealUser(), newuser);
 
-			user->ChangeIdent(newident);
+			user->ChangeRealUser(newuser, user->GetDisplayedUser() == user->GetRealUser());
 			user->ChangeRemoteAddress(address);
 			break;
 		}
@@ -545,7 +545,7 @@ public:
 		if (gateway)
 			whois.SendLine(RPL_WHOISGATEWAY, *realhost, *realip, "is connected via the " + *gateway + " WebIRC gateway");
 		else
-			whois.SendLine(RPL_WHOISGATEWAY, *realhost, *realip, "is connected via an ident gateway");
+			whois.SendLine(RPL_WHOISGATEWAY, *realhost, *realip, "is connected via an user gateway");
 	}
 };
 

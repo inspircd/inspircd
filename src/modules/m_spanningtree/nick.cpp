@@ -42,7 +42,7 @@ CmdResult CommandNick::HandleRemote(::RemoteUser* user, Params& params)
 	{
 		// 'x' is the already existing user using the same nick as params[0]
 		// 'user' is the user trying to change nick to the in use nick
-		bool they_change = SpanningTreeUtilities::DoCollision(x, TreeServer::Get(user), newts, user->ident, user->GetAddress(), user->uuid, "NICK");
+		bool they_change = SpanningTreeUtilities::DoCollision(x, TreeServer::Get(user), newts, user->GetRealUser(), user->GetAddress(), user->uuid, "NICK");
 		if (they_change)
 		{
 			// Remote client lost, or both lost, rewrite this nick change as a change to uuid before

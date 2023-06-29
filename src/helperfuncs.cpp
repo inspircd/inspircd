@@ -205,8 +205,8 @@ bool InspIRCd::DefaultIsNick(const std::string_view& n)
 	return true;
 }
 
-/* return true for good ident, false else */
-bool InspIRCd::DefaultIsIdent(const std::string_view& n)
+/* return true for good username, false else */
+bool InspIRCd::DefaultIsUser(const std::string_view& n)
 {
 	if (n.empty())
 		return false;

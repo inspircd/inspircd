@@ -290,17 +290,18 @@ bool Channel::CheckBan(User* user, const std::string& mask)
 	if (at == std::string::npos)
 		return false;
 
-	const std::string nickIdent = user->nick + "!" + user->ident;
-	std::string prefix(mask, 0, at);
-	if (InspIRCd::Match(nickIdent, prefix, nullptr))
+	const std::string prefix(mask, 0, at);
+	if (!InspIRCd::Match(user->nick + "!" + user->GetDisplayedUser(), prefix) &&
+		!InspIRCd::Match(user->nick + "!" + user->GetRealUser(), prefix))
 	{
-		std::string suffix(mask, at + 1);
-		if (InspIRCd::Match(user->GetRealHost(), suffix, nullptr) ||
-			InspIRCd::Match(user->GetDisplayedHost(), suffix, nullptr) ||
-			InspIRCd::MatchCIDR(user->GetAddress(), suffix, nullptr))
-			return true;
+		// Neither the nick!user or nick!duser.
+		return false;
 	}
-	return false;
+
+	const std::string suffix(mask, at + 1);
+	return InspIRCd::Match(user->GetRealHost(), suffix) ||
+		InspIRCd::Match(user->GetDisplayedHost(), suffix) ||
+		InspIRCd::MatchCIDR(user->GetAddress(), suffix);
 }
 
 /* Channel::PartUser

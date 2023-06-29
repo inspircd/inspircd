@@ -27,13 +27,12 @@ class ModuleHostCycle final
 {
 	Cap::Reference chghostcap;
 	const std::string quitmsghost;
-	const std::string quitmsgident;
+	const std::string quitmsguser;
 
-	/** Send fake quit/join/mode messages for host or ident cycle.
-	 */
-	void DoHostCycle(User* user, const std::string& newident, const std::string& newhost, const std::string& reason)
+	// Sends a fake quit/join/mode messages for hostame or username cycle.
+	void DoHostCycle(User* user, const std::string& newuser, const std::string& newhost, const std::string& reason)
 	{
-		// The user has the original ident/host at the time this function is called
+		// The user has the original username/hostname at the time this function is called
 		ClientProtocol::Messages::Quit quitmsg(user, reason);
 		ClientProtocol::Event quitevent(ServerInstance->GetRFCEvents().quit, quitmsg);
 
@@ -64,7 +63,7 @@ class ModuleHostCycle final
 			}
 		}
 
-		std::string newfullhost = user->nick + "!" + newident + "@" + newhost;
+		const std::string newfullhost = user->nick + "!" + newuser + "@" + newhost;
 
 		for (auto* memb : include_chans)
 		{
@@ -94,21 +93,21 @@ class ModuleHostCycle final
 
 public:
 	ModuleHostCycle()
-		: Module(VF_VENDOR, "Sends a fake disconnection and reconnection when a user's username (ident) or hostname changes to allow clients to update their internal caches.")
+		: Module(VF_VENDOR, "Sends a fake disconnection and reconnection when a user's username or hostname changes to allow clients to update their internal caches.")
 		, chghostcap(this, "chghost")
-		, quitmsghost("Changing host")
-		, quitmsgident("Changing ident")
+		, quitmsghost("Changing hostname")
+		, quitmsguser("Changing username")
 	{
 	}
 
-	void OnChangeIdent(User* user, const std::string& newident) override
+	void OnChangeUser(User* user, const std::string& newuser) override
 	{
-		DoHostCycle(user, newident, user->GetDisplayedHost(), quitmsgident);
+		DoHostCycle(user, newuser, user->GetDisplayedHost(), quitmsguser);
 	}
 
 	void OnChangeHost(User* user, const std::string& newhost) override
 	{
-		DoHostCycle(user, user->ident, newhost, quitmsghost);
+		DoHostCycle(user, user->GetDisplayedUser(), newhost, quitmsghost);
 	}
 };
 

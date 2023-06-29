@@ -143,7 +143,9 @@ void		Module::OnChangeHost(User*, const std::string&) { DetachEvent(I_OnChangeHo
 void		Module::OnChangeRealHost(User*, const std::string&) { DetachEvent(I_OnChangeRealHost); }
 void		Module::OnPostChangeRealHost(User*) { DetachEvent(I_OnPostChangeRealHost); }
 void		Module::OnChangeRealName(User*, const std::string&) { DetachEvent(I_OnChangeRealName); }
-void		Module::OnChangeIdent(User*, const std::string&) { DetachEvent(I_OnChangeIdent); }
+void		Module::OnChangeUser(User*, const std::string&) { DetachEvent(I_OnChangeUser); }
+void		Module::OnChangeRealUser(User*, const std::string&) { DetachEvent(I_OnChangeRealUser); }
+void		Module::OnPostChangeRealUser(User*) { DetachEvent(I_OnPostChangeRealUser); }
 void		Module::OnAddLine(User*, XLine*) { DetachEvent(I_OnAddLine); }
 void		Module::OnDelLine(User*, XLine*) { DetachEvent(I_OnDelLine); }
 void		Module::OnExpireLine(XLine*) { DetachEvent(I_OnExpireLine); }

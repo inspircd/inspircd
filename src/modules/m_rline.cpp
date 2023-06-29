@@ -54,8 +54,8 @@ public:
 		if (lu && lu->exempt)
 			return false;
 
-		const std::string host = u->nick + "!" + u->ident + "@" + u->GetRealHost() + " " + u->GetRealName();
-		const std::string ip = u->nick + "!" + u->ident + "@" + u->GetAddress() + " " + u->GetRealName();
+		const std::string host = u->nick + "!" + u->GetRealUser() + "@" + u->GetRealHost() + " " + u->GetRealName();
+		const std::string ip = u->nick + "!" + u->GetRealUser() + "@" + u->GetAddress() + " " + u->GetRealName();
 		return (regex->IsMatch(host) || regex->IsMatch(ip));
 	}
 

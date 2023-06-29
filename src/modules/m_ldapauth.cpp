@@ -428,7 +428,7 @@ public:
 		}
 		else
 		{
-			what = attribute + "=" + (useusername ? user->ident : user->nick);
+			what = attribute + "=" + (useusername ? user->GetRealUser() : user->nick);
 		}
 
 		try

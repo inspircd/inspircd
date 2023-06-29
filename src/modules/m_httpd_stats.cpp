@@ -264,7 +264,8 @@ namespace Stats
 			.Attribute("signon", u->signon)
 			.Attribute("nickchanged", u->nickchanged)
 			.Attribute("modes", u->GetModeLetters().substr(1))
-			.Attribute("ident", u->ident)
+			.Attribute("realuser", u->GetRealUser())
+			.Attribute("displayuser", u->GetDisplayedUser())
 			.Attribute("ipaddress", u->GetAddress());
 
 		if (u->IsAway())

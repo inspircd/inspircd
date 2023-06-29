@@ -169,7 +169,7 @@ private:
 	void CreateBan(Channel* channel, User* user, bool mute)
 	{
 		std::string banmask(mute ? "m:*!" : "*!");
-		banmask.append(user->GetBanIdent());
+		banmask.append(user->GetBanUser(false));
 		banmask.append("@");
 		banmask.append(user->GetDisplayedHost());
 

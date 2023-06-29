@@ -45,14 +45,17 @@ namespace WhoWas
 	/** One entry for a nick. There may be multiple entries for a nick. */
 	struct Entry final
 	{
-		/** Real host */
+		/** Real hostname */
 		const std::string host;
 
-		/** Displayed host */
+		/** Displayed hostname */
 		const std::string dhost;
 
-		/** Ident */
-		const std::string ident;
+		/** Real username */
+		const std::string user;
+
+		/** Displayed username */
+		const std::string duser;
 
 		/** Server name */
 		const std::string server;
@@ -225,10 +228,10 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 
 		for (const auto* u : insp::iterator_range(nick->entries.rbegin(), last))
 		{
-			user->WriteNumeric(RPL_WHOWASUSER, parameters[0], u->ident, u->dhost, '*', u->real);
+			user->WriteNumeric(RPL_WHOWASUSER, parameters[0], u->duser, u->dhost, '*', u->real);
 
 			if (user->HasPrivPermission("users/auspex"))
-				user->WriteNumeric(RPL_WHOWASIP, parameters[0], INSP_FORMAT("was connecting from *@{}", u->host));
+				user->WriteNumeric(RPL_WHOWASIP, parameters[0], INSP_FORMAT("was connecting from {}@{}", u->user, u->host));
 
 			const std::string signon = Time::ToString(u->signon);
 			bool hide_server = (!ServerInstance->Config->HideServer.empty() && !user->HasPrivPermission("servers/auspex"));
@@ -392,13 +395,14 @@ void WhoWas::Manager::PurgeNick(WhoWas::Nick* nick)
 	PurgeNick(it);
 }
 
-WhoWas::Entry::Entry(User* user)
-	: host(user->GetRealHost())
-	, dhost(user->GetDisplayedHost())
-	, ident(user->ident)
-	, server(user->server->GetPublicName())
-	, real(user->GetRealName())
-	, signon(user->signon)
+WhoWas::Entry::Entry(User* u)
+	: host(u->GetRealHost())
+	, dhost(u->GetDisplayedHost())
+	, user(u->GetRealUser())
+	, duser(u->GetDisplayedUser())
+	, server(u->server->GetPublicName())
+	, real(u->GetRealName())
+	, signon(u->signon)
 {
 }
 

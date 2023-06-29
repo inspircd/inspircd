@@ -201,7 +201,7 @@ public:
 	size_t MaxChannel;
 	/** Maximum number of modes per line */
 	size_t MaxModes;
-	/** Maximum length of a username (ident) */
+	/** Maximum length of a username */
 	size_t MaxUser;
 	/** Maximum length of a quit message */
 	size_t MaxQuit;

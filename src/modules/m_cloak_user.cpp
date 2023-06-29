@@ -210,7 +210,7 @@ private:
 	// Retrieves the middle segment of the cloak.
 	std::string GetMiddle(LocalUser* user) override
 	{
-		return user->ident;
+		return user->GetRealUser();
 	}
 
 public:
@@ -289,7 +289,7 @@ public:
 			cloakapi->ResetCloaks(luser, true);
 	}
 
-	void OnChangeIdent(User* user, const std::string& ident) override
+	void OnChangeRealUser(User* user, const std::string& newuser) override
 	{
 		LocalUser* luser = IS_LOCAL(user);
 		if (luser && cloakapi && cloakapi->IsActiveCloak(usernamecloak))

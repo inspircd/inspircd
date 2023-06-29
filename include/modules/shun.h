@@ -47,7 +47,10 @@ public:
 		if (lu && lu->exempt)
 			return false;
 
-		if (InspIRCd::Match(u->GetMask(), matchtext) || InspIRCd::Match(u->GetRealMask(), matchtext) || InspIRCd::Match(u->nick+"!"+u->ident+"@"+u->GetAddress(), matchtext))
+		if (InspIRCd::Match(u->GetMask(), matchtext) || InspIRCd::Match(u->GetRealMask(), matchtext))
+			return true;
+
+		if (InspIRCd::Match(u->GetUserAddress(), matchtext))
 			return true;
 
 		if (InspIRCd::MatchCIDR(u->GetAddress(), matchtext, ascii_case_insensitive_map))

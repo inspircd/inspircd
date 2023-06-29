@@ -110,7 +110,7 @@
 #                    ninth word onwards, e.g. if the user types the   #
 #                    command "foo bar baz qux quz" then $3- will hold #
 #                    "baz qux quz" and $2 will contain "bar". You may #
-#                    also use the special variables: $nick, $ident,   #
+#                    also use the special variables: $nick, $user,    #
 #                    $host and $vhost, and you may separate multiple  #
 #                    commands with a newline (which can be written in #
 #                    the file literally, or encoded as &nl; or \n     #
@@ -240,7 +240,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Ban redirection module: Allows bans which redirect to a specified
-# channel. e.g. +b nick!ident@host#channelbanneduserissentto
+# channel. e.g. +b nick!user@host#channelbanneduserissentto
 #<module name="banredirect">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -339,21 +339,21 @@
 #
 # Alternatively if your gateway does not support sending the WEBIRC
 # message then you can configure InspIRCd to look for the client IP
-# address in the ident sent by the user. This is not recommended as it
-# only works with IPv4 connections.
+# address in the username sent by the user. This is not recommended
+# as it only works with IPv4 connections.
 #
 # When using this method you must specify one or more wildcard masks
 # or CIDR ranges to allow gateway connections from. You can also
 # optionally configure the static value that replaces the IP in the
-# ident to avoid leaking the real IP address of gateway clients
+# username to avoid leaking the real IP address of gateway clients
 # (defaults to "gateway" if not set).
 #
-# <gateway type="ident"
+# <gateway type="username"
 #          mask="198.51.100.0/24 203.0.113.*"
-#          newident="wibble">
-# <gateway type="ident"
-#          mask="*.ident.gateway.example.com"
-#          newident="wobble">
+#          newusername="wibble">
+# <gateway type="username"
+#          mask="*.username.gateway.example.com"
+#          newusername="wobble">
 #
 # IMPORTANT NOTE:
 # ---------------
@@ -874,7 +874,7 @@
 #  vhost    - Displayed host (optional).
 #
 #<title name="foo" password="bar" title="Official Chat Helper">
-#<title name="bar" password="foo" host="ident@test.org" title="Official Chat Helper" vhost="helper.test.org">
+#<title name="bar" password="foo" host="test@test.org" title="Official Chat Helper" vhost="helper.test.org">
 #<title name="foo" password="$2a$10$UYZ4OcO8NNTCCGyCdY9SK.2GHiqGgxZfHFPOPmWuxEVWVQTtoDC7C" hash="bcrypt" title="Official Chat Helper">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1199,9 +1199,9 @@
 # This module is oper-only.
 #<module name="hideoper">
 
-# hostcycle: If loaded, when a user gets a host or ident set, it will
-# cycle them in all their channels. If not loaded it will simply change
-# their host/ident without cycling them.
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# hostcycle module: Sends a fake part and join for users when their
+# username or hostname changes to update client information caches.
 # This module is compatible with the ircv3_chghost module. Clients
 # supporting the chghost extension will get the chghost message instead
 # of seeing a host cycle.
@@ -1262,7 +1262,7 @@
 # Ident: Provides RFC 1413 ident lookup support.
 # When this module is loaded <connect:allow> tags may have an optional
 # useident="yes|no" boolean value, determining whether or not to lookup
-# ident on users matching that connect tag.
+# usernames on users matching that connect tag.
 #<module name="ident">
 #
 #-#-#-#-#-#-#-#-#-#-#-#-   IDENT CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
@@ -1271,9 +1271,9 @@
 # the timeout for ident lookups here. If not defined, it will default #
 # to 5 seconds. This is a non-blocking timeout which holds the user   #
 # in a 'connecting' state until the lookup is complete.               #
-# prefixunqueried: If yes, the idents of users in a connect class     #
+# prefixunqueried: If yes, the usernames of users in a connect class  #
 # with ident lookups disabled (i.e. <connect useident="no">) will be  #
-# prefixed with a "~". If no, the ident of those users will not be    #
+# prefixed with a "~". If no, the username of those users will not be #
 # prefixed. Default is no.                                            #
 #
 #<ident timeout="5" prefixunqueried="no">
@@ -1323,10 +1323,11 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # IRCv3 chghost module: Provides the chghost IRCv3 extension which
-# allows capable clients to learn when the host/ident of another user
-# changes without cycling the user. This module is compatible with the
-# hostcycle module. If both are loaded, clients supporting the chghost
-# extension will get the chghost message and won't see host cycling.
+# allows capable clients to learn when the username or hostname of a
+# user changes
+# This module is compatible with the hostcycle module. If both are
+# loaded, clients supporting the chghost extension will get the chghost
+# message and won't receive a host cycle.
 #<module name="ircv3_chghost">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1846,7 +1847,7 @@
 	# %nick%          The nickname of the authenticating user.
 	# %nickrequired%  The nickname of the service to forward to (see above).
 	# %pass%          The password to forward to services.
-	# %user%          The username (ident) of the authenticating user.
+	# %user%          The username of the authenticating user.
 	forwardmsg="NOTICE %nick% :*** Forwarding password to %nickrequired%"
 
 	# cmd: The message to send to forward passwords to services.
@@ -1863,7 +1864,7 @@
 # password you want to hash. For example:
 #
 #     <oper name="Brain"
-#           host="ident@dialup15.isp.test.com"
+#           host="brain@dialup15.isp.test.com"
 #           hash="bcrypt"
 #           password="$2a$10$Mss9AtHHslZTLBrXqM0FB.JBwD.UTSu8A48SfrY9exrpxbsRiRTbO"
 #           type="NetAdmin">
@@ -2576,8 +2577,8 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # UHNAMES support module: Adds support for the IRCv3 userhost-in-names
-# capability which displays the ident and hostname of users in the NAMES
-# list.
+# capability which displays the username and hostname of users in the
+# NAMES response.
 #<module name="uhnames">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

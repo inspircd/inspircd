@@ -141,10 +141,11 @@ enum Implementation
 	I_OnBuildNeighborList,
 	I_OnChangeConnectClass,
 	I_OnChangeHost,
-	I_OnChangeIdent,
 	I_OnChangeRealHost,
 	I_OnChangeRealName,
+	I_OnChangeRealUser,
 	I_OnChangeRemoteAddress,
+	I_OnChangeUser,
 	I_OnChannelDelete,
 	I_OnChannelPreDelete,
 	I_OnCheckBan,
@@ -168,6 +169,7 @@ enum Implementation
 	I_OnOperLogout,
 	I_OnPostChangeConnectClass,
 	I_OnPostChangeRealHost,
+	I_OnPostChangeRealUser,
 	I_OnPostCommand,
 	I_OnPostConnect,
 	I_OnPostJoin,
@@ -573,12 +575,22 @@ public:
 	 */
 	virtual void OnChangeRealName(User* user, const std::string& real);
 
-	/** Called whenever a user's IDENT is changed.
-	 * This event triggers after the name has been set.
-	 * @param user The user who's IDENT is being changed
-	 * @param ident The new IDENT being set on the user
+	/** Called before a user's username is changed.
+	 * @param user The user who's username is being changed
+	 * @param newuser The new username being set.
 	 */
-	virtual void OnChangeIdent(User* user, const std::string& ident);
+	virtual void OnChangeUser(User* user, const std::string& newuser);
+
+	/** Called before a user's real username is changed.
+	 * @param user The user who's real username is being changed
+	 * @param newuser The new real username being set.
+	 */
+	virtual void OnChangeRealUser(User* user, const std::string& newuser);
+
+	/** Called after a user's real username is changed.
+	 * @param user The user whos real username was changed.
+	 */
+	virtual void OnPostChangeRealUser(User* user);
 
 	/** Called whenever an xline is added by a local user.
 	 * This method is triggered after the line is added.

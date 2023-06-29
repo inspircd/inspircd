@@ -379,15 +379,15 @@ public:
 	 */
 	static bool DefaultIsNick(const std::string_view& nick);
 
-	/** Determines whether an ident is valid. */
-	std::function<bool(const std::string_view&)> IsIdent = &DefaultIsIdent;
+	/** Determines whether an username is valid. */
+	std::function<bool(const std::string_view&)> IsUser = &DefaultIsUser;
 
-	/** Determines whether a ident is valid according to the RFC 1459 rules.
-	 * This is the default function for InspIRCd::IsIdent.
-	 * @param ident The ident to validate.
-	 * @return True if the ident is valid according to RFC 1459 rules; otherwise, false.
+	/** Determines whether a username is valid according to the RFC 1459 rules.
+	 * This is the default function for InspIRCd::IsUser.
+	 * @param user The username to validate.
+	 * @return True if the username is valid according to RFC 1459 rules; otherwise, false.
 	*/
-	static bool DefaultIsIdent(const std::string_view& ident);
+	static bool DefaultIsUser(const std::string_view& user);
 
 	/** Match two strings using pattern matching, optionally, with a map
 	 * to check case against (may be NULL). If map is null, match will be case insensitive.

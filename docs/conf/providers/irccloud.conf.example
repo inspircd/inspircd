@@ -24,7 +24,7 @@
 
 # IRCCloud IPv4 users use a shared IPv4 address which means that some clients
 # may have trouble banning them. To work around this you can use the cloak_user
-# module to copy the user identifier from the ident to the hostname.
+# module to copy the user identifier from the username to the hostname.
 #<cloak method="username"
 #       class="IRCCloud (IPv4),IRCCloud (IPv6)"
 #       suffix=".irccloud.com">

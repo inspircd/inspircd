@@ -351,10 +351,10 @@ public:
 						result.append(chan->name);
 					i += 4;
 				}
-				else if (!newline.compare(i, 6, "$ident", 6))
+				else if (!newline.compare(i, 5, "$user", 5))
 				{
-					result.append(user->ident);
-					i += 5;
+					result.append(user->GetRealUser());
+					i += 4;
 				}
 				else if (!newline.compare(i, 6, "$vhost", 6))
 				{
@@ -366,6 +366,13 @@ public:
 					result.append(a.RequiredNick);
 					i += 11;
 				}
+				else if (!newline.compare(i, 6, "$ident", 6))
+				{
+					// TODO: remove this in the next major release.
+					result.append(user->GetRealHost());
+					i += 5;
+				}
+
 				else
 					result.push_back(c);
 			}

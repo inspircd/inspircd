@@ -141,7 +141,7 @@ public:
 		access_needed = CmdAccess::OPERATOR;
 		syntax = {
 			"<nick>|<channel> [<servername>]",
-			"<nickmask>|<identmask>|<hostmask>|<ipmask>|<realnamemask> [<servername>]",
+			"<nickmask>|<usermask>|<hostmask>|<ipmask>|<realnamemask> [<servername>]",
 		};
 	}
 
@@ -267,8 +267,11 @@ public:
 				if (InspIRCd::Match(u->nick, parameters[0], ascii_case_insensitive_map))
 					matches.push_back("nick");
 
-				if (InspIRCd::Match(u->ident, parameters[0], ascii_case_insensitive_map))
-					matches.push_back("ident");
+				if (InspIRCd::Match(u->GetRealUser(), parameters[0], ascii_case_insensitive_map))
+					matches.push_back("ruser");
+
+				if (InspIRCd::Match(u->GetDisplayedUser(), parameters[0], ascii_case_insensitive_map))
+					matches.push_back("duser");
 
 				if (InspIRCd::Match(u->GetRealHost(), parameters[0], ascii_case_insensitive_map))
 					matches.push_back("rhost");
@@ -285,8 +288,8 @@ public:
 				if (!matches.empty())
 				{
 					const std::string whatmatch = stdalgo::string::join(matches, ',');
-					context.Write("match", INSP_FORMAT("{} {} {} {} {} {} {} :{}", ++x, whatmatch, u->nick, u->ident,
-						u->GetRealHost(), u->GetDisplayedHost(), u->GetAddress(), u->GetRealName()));
+					context.Write("match", INSP_FORMAT("{} {} {} {} {} {} {} {} :{}", ++x, whatmatch, u->nick, u->GetRealUser(),
+						u->GetDisplayedUser(), u->GetRealHost(), u->GetDisplayedHost(), u->GetAddress(), u->GetRealName()));
 					matches.clear();
 				}
 			}

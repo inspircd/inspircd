@@ -502,7 +502,22 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 	if (sslapi)
 		sslapi->GetCertificate(user);
 
-	CommandUID::Builder(user).Broadcast();
+	CommandUID::Builder uid(user, true);
+	CommandUID::Builder olduid(user, false);
+
+	// NOTE: we can't do CommandUID::Builder(user).Broadcast() whilst
+	// we still support the 1205 protocol.
+	for (const auto* server : Utils->TreeRoot->GetChildren())
+	{
+		TreeSocket* socket = server->GetSocket();
+		if (!socket)
+			continue; // Should never happen?
+
+		if (socket->proto_version >= PROTO_INSPIRCD_4)
+			socket->WriteLine(uid);
+		else
+			socket->WriteLine(olduid);
+	}
 
 	if (user->IsOper())
 		CommandOpertype::Builder(user, user->oper).Broadcast();
@@ -578,12 +593,12 @@ void ModuleSpanningTree::OnChangeRealName(User* user, const std::string& real)
 	CmdBuilder(user, "FNAME").push_last(real).Broadcast();
 }
 
-void ModuleSpanningTree::OnChangeIdent(User* user, const std::string& ident)
+void ModuleSpanningTree::OnChangeUser(User* user, const std::string& newuser)
 {
 	if (!user->IsFullyConnected() || !IS_LOCAL(user))
 		return;
 
-	CmdBuilder(user, "FIDENT").push(ident).Broadcast();
+	CmdBuilder(user, "FIDENT").push(newuser).Broadcast();
 }
 
 void ModuleSpanningTree::OnUserPart(Membership* memb, std::string& partmessage, CUList& excepts)

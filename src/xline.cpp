@@ -46,7 +46,7 @@ public:
 	 */
 	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
 	{
-		IdentHostPair ih = XLineManager::IdentSplit(xline_specific_mask);
+		UserHostPair ih = XLineManager::SplitUserHost(xline_specific_mask);
 		return new GLine(set_time, duration, source, reason, ih.first, ih.second);
 	}
 };
@@ -66,7 +66,7 @@ public:
 	 */
 	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
 	{
-		IdentHostPair ih = XLineManager::IdentSplit(xline_specific_mask);
+		UserHostPair ih = XLineManager::SplitUserHost(xline_specific_mask);
 		return new ELine(set_time, duration, source, reason, ih.first, ih.second);
 	}
 };
@@ -86,7 +86,7 @@ public:
 	 */
 	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
 	{
-		IdentHostPair ih = XLineManager::IdentSplit(xline_specific_mask);
+		UserHostPair ih = XLineManager::SplitUserHost(xline_specific_mask);
 		return new KLine(set_time, duration, source, reason, ih.first, ih.second);
 	}
 };
@@ -251,14 +251,14 @@ std::vector<std::string> XLineManager::GetAllTypes()
 	return items;
 }
 
-IdentHostPair XLineManager::IdentSplit(const std::string& ident_and_host)
+UserHostPair XLineManager::SplitUserHost(const std::string& user_and_host)
 {
-	IdentHostPair n = std::make_pair<std::string, std::string>("*", "*");
-	std::string::size_type x = ident_and_host.find('@');
+	UserHostPair n = std::make_pair("*", "*");
+	std::string::size_type x = user_and_host.find('@');
 	if (x != std::string::npos)
 	{
-		n.second = ident_and_host.substr(x + 1, ident_and_host.length());
-		n.first = ident_and_host.substr(0, x);
+		n.second = user_and_host.substr(x + 1, user_and_host.length());
+		n.first = user_and_host.substr(0, x);
 		if (!n.first.length())
 			n.first.assign("*");
 		if (!n.second.length())
@@ -267,7 +267,7 @@ IdentHostPair XLineManager::IdentSplit(const std::string& ident_and_host)
 	else
 	{
 		n.first.clear();
-		n.second = ident_and_host;
+		n.second = user_and_host;
 	}
 
 	return n;
@@ -581,7 +581,7 @@ bool KLine::Matches(User* u) const
 	if (lu && lu->exempt)
 		return false;
 
-	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
+	if (InspIRCd::Match(u->GetRealUser(), this->usermask, ascii_case_insensitive_map))
 	{
 		if (InspIRCd::MatchCIDR(u->GetRealHost(), this->hostmask, ascii_case_insensitive_map) ||
 			InspIRCd::MatchCIDR(u->GetAddress(), this->hostmask, ascii_case_insensitive_map))
@@ -595,7 +595,7 @@ bool KLine::Matches(User* u) const
 
 void KLine::Apply(User* u)
 {
-	DefaultApply(u, "K", this->identmask ==  "*");
+	DefaultApply(u, "K", this->usermask ==  "*");
 }
 
 bool GLine::Matches(User* u) const
@@ -604,7 +604,7 @@ bool GLine::Matches(User* u) const
 	if (lu && lu->exempt)
 		return false;
 
-	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
+	if (InspIRCd::Match(u->GetRealUser(), this->usermask, ascii_case_insensitive_map))
 	{
 		if (InspIRCd::MatchCIDR(u->GetRealHost(), this->hostmask, ascii_case_insensitive_map) ||
 			InspIRCd::MatchCIDR(u->GetAddress(), this->hostmask, ascii_case_insensitive_map))
@@ -618,12 +618,12 @@ bool GLine::Matches(User* u) const
 
 void GLine::Apply(User* u)
 {
-	DefaultApply(u, "G", this->identmask == "*");
+	DefaultApply(u, "G", this->usermask == "*");
 }
 
 bool ELine::Matches(User* u) const
 {
-	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
+	if (InspIRCd::Match(u->GetRealUser(), this->usermask, ascii_case_insensitive_map))
 	{
 		if (InspIRCd::MatchCIDR(u->GetRealHost(), this->hostmask, ascii_case_insensitive_map) ||
 			InspIRCd::MatchCIDR(u->GetAddress(), this->hostmask, ascii_case_insensitive_map))

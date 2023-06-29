@@ -296,7 +296,7 @@ public:
 						}
 					}
 
-					std::string mask = target->nick+"!"+target->ident+"@"+target->GetDisplayedHost();
+					std::string mask = target->GetMask();
 					unsigned long length;
 					if (parameters.size() < 2)
 					{
@@ -506,14 +506,14 @@ public:
 							return MOD_RES_PASSTHRU;
 
 						user->WriteNotice("The user " + u->nick + " is not accepting DCC SENDs from you. Your file " + filename + " was not sent.");
-						u->WriteNotice(user->nick + " (" + user->ident + "@" + user->GetDisplayedHost() + ") attempted to send you a file named " + filename + ", which was blocked.");
+						u->WriteNotice(user->nick + " (" + user->GetUserHost() + ") attempted to send you a file named " + filename + ", which was blocked.");
 						u->WriteNotice("If you trust " + user->nick + " and were expecting this, you can type /DCCALLOW HELP for information on the DCCALLOW system.");
 						return MOD_RES_DENY;
 					}
 					else if (blockchat && irc::equals(type, "CHAT"))
 					{
 						user->WriteNotice("The user " + u->nick + " is not accepting DCC CHAT requests from you.");
-						u->WriteNotice(user->nick + " (" + user->ident + "@" + user->GetDisplayedHost() + ") attempted to initiate a DCC CHAT session, which was blocked.");
+						u->WriteNotice(user->nick + " (" + user->GetUserHost() + ") attempted to initiate a DCC CHAT session, which was blocked.");
 						u->WriteNotice("If you trust " + user->nick + " and were expecting this, you can type /DCCALLOW HELP for information on the DCCALLOW system.");
 						return MOD_RES_DENY;
 					}

@@ -246,11 +246,11 @@ public:
 				continue;
 
 			/* Add the next char to the result and see if it's still a valid ident,
-			 * according to IsIdent(). If it isn't, then erase what we just added and
+			 * according to IsUser(). If it isn't, then erase what we just added and
 			 * we're done.
 			 */
 			result += chr;
-			if (!ServerInstance->IsIdent(result))
+			if (!ServerInstance->IsUser(result))
 			{
 				result.pop_back();
 				break;
@@ -280,27 +280,27 @@ private:
 	SimpleExtItem<IdentRequestSocket, Cullable::Deleter> socket;
 	IntExtItem state;
 
-	static void PrefixIdent(LocalUser* user)
+	static void PrefixUser(LocalUser* user)
 	{
 		// Check that they haven't been prefixed already.
-		if (user->ident[0] == '~')
+		if (user->GetRealUser().front() == '~')
 			return;
 
 		// All invalid usernames are prefixed with a tilde.
-		std::string newident(user->ident);
-		newident.insert(newident.begin(), '~');
+		std::string newuser(user->GetRealUser());
+		newuser.insert(newuser.begin(), '~');
 
 		// If the username is too long then truncate it.
-		if (newident.length() > ServerInstance->Config->Limits.MaxUser)
-			newident.erase(ServerInstance->Config->Limits.MaxUser);
+		if (newuser.length() > ServerInstance->Config->Limits.MaxUser)
+			newuser.erase(ServerInstance->Config->Limits.MaxUser);
 
 		// Apply the new username.
-		user->ChangeIdent(newident);
+		user->ChangeRealUser(newuser, user->GetDisplayedUser() == user->GetRealUser());
 	}
 
 public:
 	ModuleIdent()
-		: Module(VF_VENDOR, "Allows the usernames (idents) of users to be looked up using the RFC 1413 Identification Protocol.")
+		: Module(VF_VENDOR, "Allows the usernames of users to be looked up using the RFC 1413 Identification Protocol.")
 		, socket(this, "ident-socket", ExtensionType::USER)
 		, state(this, "ident-state", ExtensionType::USER)
 	{
@@ -362,7 +362,7 @@ public:
 		{
 			if (prefixunqueried && state.Get(user) == IDENT_SKIPPED)
 			{
-				PrefixIdent(user);
+				PrefixUser(user);
 				state.Set(user, IDENT_PREFIXED);
 			}
 			return MOD_RES_PASSTHRU;
@@ -375,8 +375,8 @@ public:
 		{
 			/* Ident timeout */
 			state.Set(user, IDENT_MISSING);
-			PrefixIdent(user);
-			user->WriteNotice("*** Ident lookup timed out, using " + user->ident + " instead.");
+			PrefixUser(user);
+			user->WriteNotice("*** Ident lookup timed out, using " + user->GetRealUser() + " instead.");
 		}
 		else if (!isock->HasResult())
 		{
@@ -388,14 +388,14 @@ public:
 		else if (isock->result.empty())
 		{
 			state.Set(user, IDENT_MISSING);
-			PrefixIdent(user);
-			user->WriteNotice("*** Could not find your ident, using " + user->ident + " instead.");
+			PrefixUser(user);
+			user->WriteNotice("*** Could not find your ident, using " + user->GetRealUser() + " instead.");
 		}
 		else
 		{
 			state.Set(user, IDENT_FOUND);
-			user->ChangeIdent(isock->result);
-			user->WriteNotice("*** Found your ident, '" + user->ident + "'");
+			user->ChangeRealUser(isock->result, user->GetDisplayedUser() == user->GetRealUser());
+			user->WriteNotice("*** Found your ident, '" + user->GetRealUser() + "'");
 		}
 
 		isock->Close();

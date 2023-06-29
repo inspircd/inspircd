@@ -34,25 +34,25 @@ public:
 		: Command(Creator, "SETIDENT", 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
-		syntax = { "<ident>" };
+		syntax = { "<username>" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		if (parameters[0].size() > ServerInstance->Config->Limits.MaxUser)
 		{
-			user->WriteNotice("*** SETIDENT: Ident is too long");
+			user->WriteNotice("*** SETIDENT: Username is too long");
 			return CmdResult::FAILURE;
 		}
 
-		if (!ServerInstance->IsIdent(parameters[0]))
+		if (!ServerInstance->IsUser(parameters[0]))
 		{
-			user->WriteNotice("*** SETIDENT: Invalid characters in ident");
+			user->WriteNotice("*** SETIDENT: Invalid characters in username");
 			return CmdResult::FAILURE;
 		}
 
-		user->ChangeIdent(parameters[0]);
-		ServerInstance->SNO.WriteGlobalSno('a', "{} used SETIDENT to change their ident to '{}'", user->nick, user->ident);
+		user->ChangeDisplayedUser(parameters[0]);
+		ServerInstance->SNO.WriteGlobalSno('a', "{} used SETIDENT to change their username to '{}'", user->nick, user->GetRealUser());
 
 		return CmdResult::SUCCESS;
 	}
@@ -66,7 +66,7 @@ private:
 
 public:
 	ModuleSetIdent()
-		: Module(VF_VENDOR, "Adds the /SETIDENT command which allows server operators to change their username (ident).")
+		: Module(VF_VENDOR, "Adds the /SETIDENT command which allows server operators to change their username.")
 		, cmd(this)
 	{
 	}

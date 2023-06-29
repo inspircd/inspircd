@@ -119,7 +119,7 @@ public:
 				XLine* xline;
 				try
 				{
-					mask = (method[0] == 'Z') ? curr->GetAddress() : (curr->GetBanIdent() + "@" + curr->GetRealHost());
+					mask = (method[0] == 'Z') ? curr->GetAddress() : (curr->GetBanUser(true) + "@" + curr->GetRealHost());
 					xline = xlf->Generate(ServerInstance->Time(), 60*60, user->nick, reason, mask);
 				}
 				catch (const ModuleException&)

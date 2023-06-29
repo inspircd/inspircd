@@ -69,10 +69,10 @@ public:
 
 	bool BeforeMode(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		/* nick!ident@host -> nick!ident@host
-		 * nick!ident@host#chan -> nick!ident@host#chan
+		/* nick!user@host -> nick!user@host
+		 * nick!user@host#chan -> nick!user@host#chan
 		 * nick@host#chan -> nick!*@host#chan
-		 * nick!ident#chan -> nick!ident@*#chan
+		 * nick!user#chan -> nick!user@*#chan
 		 * nick#chan -> nick!*@*#chan
 		 */
 
@@ -81,7 +81,7 @@ public:
 			BanRedirectList* redirects;
 
 			std::string mask[4];
-			enum { NICK, IDENT, HOST, CHAN } current = NICK;
+			enum { NICK, USER, HOST, CHAN } current = NICK;
 			std::string::iterator start_pos = change.param.begin();
 
 			std::string unused = change.param;
@@ -109,11 +109,11 @@ public:
 						if (current != NICK)
 							break;
 						mask[current].assign(start_pos, curr);
-						current = IDENT;
+						current = USER;
 						start_pos = curr+1;
 						break;
 					case '@':
-						if (current != IDENT)
+						if (current != USER)
 							break;
 						mask[current].assign(start_pos, curr);
 						current = HOST;
@@ -135,13 +135,13 @@ public:
 			}
 
 			/* nick@host wants to be changed to *!nick@host rather than nick!*@host... */
-			if(mask[NICK].length() && mask[HOST].length() && mask[IDENT].empty())
+			if(mask[NICK].length() && mask[HOST].length() && mask[USER].empty())
 			{
 				/* std::string::swap() is fast - it runs in constant time */
-				mask[NICK].swap(mask[IDENT]);
+				mask[NICK].swap(mask[USER]);
 			}
 
-			if (!mask[NICK].empty() && mask[IDENT].empty() && mask[HOST].empty())
+			if (!mask[NICK].empty() && mask[USER].empty() && mask[HOST].empty())
 			{
 				if (mask[NICK].find('.') != std::string::npos || mask[NICK].find(':') != std::string::npos)
 				{
@@ -157,7 +157,7 @@ public:
 				}
 			}
 
-			change.param.assign(mask[NICK]).append(1, '!').append(mask[IDENT]).append(1, '@').append(mask[HOST]);
+			change.param.assign(mask[NICK]).append(1, '!').append(mask[USER]).append(1, '@').append(mask[HOST]);
 
 			if(mask[CHAN].length())
 			{

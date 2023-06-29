@@ -835,8 +835,8 @@
         # maxhost: Maximum length of a hostname.
         maxhost="64"
 
-        # maxident: Maximum length of a ident/username.
-        maxident="10"
+        # maxuser: Maximum length of a username.
+        maxuser="10"
 
         # maxkey: Maximum length of a channel key.
         maxkey="30"
@@ -946,7 +946,7 @@
          reason="Don't use this nick.">
 
 <badhost
-         # host: ident@hostname to ban.
+         # host: username@hostname to ban.
          # Wildcards and CIDR (if you specify an IP) can be used.
          host="*@banneduser.example.net"
 
@@ -958,7 +958,7 @@
 
 # exception: Hosts that are exempt from [KGZ]-lines.
 <exception
-           # host: ident@hostname to exempt.
+           # host: username@hostname to exempt.
            # Wildcards and CIDR (if you specify an IP) can be used.
            host="*@serverop.example.com"
 

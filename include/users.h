@@ -86,7 +86,7 @@ public:
 	/** Whether the DNS hostnames of users in this class should be resolved. */
 	bool resolvehostnames:1;
 
-	/** Whether this class is for a shared host where the username (ident) uniquely identifies users. */
+	/** Whether this class is for a shared host where the username uniquely identifies users. */
 	bool uniqueusername:1;
 
 	/** Maximum rate of commands (units: millicommands per second). */
@@ -338,6 +338,12 @@ private:
 	/** The real name of this user. */
 	std::string realname;
 
+	/** If set then the username which is displayed to users. */
+	std::string displayuser;
+
+	/** The real username of this user from USER or an ident loookup. */
+	std::string realuser;
+
 	/** The user's mode list.
 	 * Much love to the STL for giving us an easy to use bitset, saving us RAM.
 	 * if (modes[modeid]) is set, then the mode is set.
@@ -429,11 +435,6 @@ public:
 	 */
 	const std::string uuid;
 
-	/** The users ident reply.
-	 * Two characters are added to the user-defined limit to compensate for the tilde etc.
-	 */
-	std::string ident;
-
 	/** What snomasks are set on this user.
 	 * This functions the same as the above modes.
 	 */
@@ -470,21 +471,29 @@ public:
 	 */
 	unsigned int quitting:1;
 
-	/** Whether the ident field uniquely identifies this user on their origin host. */
+	/** Whether the username field uniquely identifies this user on their origin host. */
 	bool uniqueusername:1;
 
 	/** What type of user is this? */
 	const uint8_t usertype:2;
 
 	/** Retrieves the username which should be included in bans for this user. */
-	const std::string& GetBanIdent() const;
+	const std::string& GetBanUser(bool real) const;
 
 	/** Retrieves this user's hostname.
-	 * @param uncloak If true then return the real host; otherwise, the display host.
+	 * @param uncloak If true then return the real hostname; otherwise, the display hostname.
 	 */
 	inline const std::string& GetHost(bool uncloak) const
 	{
 		return uncloak ? GetRealHost() : GetDisplayedHost();
+	}
+
+	/** Retrieves this user's username.
+	 * @param uncloak If true then return the real username; otherwise, the display username.
+	 */
+	inline const std::string& GetUser(bool uncloak) const
+	{
+		return uncloak ? GetRealUser() : GetDisplayedUser();
 	}
 
 	/** Retrieves this user's displayed hostname. */
@@ -493,8 +502,17 @@ public:
 		return displayhost.empty() ? realhost : displayhost;
 	}
 
+	/** Retrieves this user's displayed username. */
+	inline const std::string& GetDisplayedUser() const
+	{
+		return displayuser.empty() ? realuser : displayuser;
+	}
+
 	/** Retrieves this user's real hostname. */
 	inline const std::string& GetRealHost() const { return realhost; }
+
+	/** Retrieves this user's real username. */
+	inline const std::string& GetRealUser() const { return realuser; }
 
 	/** Retrieves this user's real name. */
 	inline const std::string& GetRealName() const { return realname; }
@@ -695,14 +713,17 @@ public:
 	 */
 	void ChangeRealHost(const std::string& host, bool resetdisplay);
 
-	/** Change the ident (username) of a user.
-	 * ALWAYS use this function, rather than writing User::ident directly,
-	 * as this triggers module events allowing the change to be synchronized to
-	 * remote servers.
-	 * @param newident The new ident to set
-	 * @return True if the change succeeded, false if it didn't
+	/** Change the displayed username of this user.
+	 * @param newuser The new displayed username of this user.
+	 * @return True if the username was changed successfully; otherwise, false.
 	 */
-	bool ChangeIdent(const std::string& newident);
+	bool ChangeDisplayedUser(const std::string& newuser);
+
+	/** Change the real username of this user.
+	 * @param newuser The new real username of this user.
+	 * @param resetdisplay Whether to reset the display username to this value.
+	 */
+	void ChangeRealUser(const std::string& newuser, bool resetdisplay);
 
 	/** Change a users realname field.
 	 * @param real The user's new real name

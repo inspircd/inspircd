@@ -36,7 +36,7 @@ public:
 		: Command(Creator, "CHGIDENT", 2)
 	{
 		access_needed = CmdAccess::OPERATOR;
-		syntax = { "<nick> <ident>" };
+		syntax = { "<nick> <username>" };
 		translation = { TR_NICK, TR_TEXT };
 	}
 
@@ -51,22 +51,25 @@ public:
 
 		if (parameters[1].length() > ServerInstance->Config->Limits.MaxUser)
 		{
-			user->WriteNotice("*** CHGIDENT: Ident is too long");
+			user->WriteNotice("*** CHGIDENT: Username is too long");
 			return CmdResult::FAILURE;
 		}
 
-		if (!ServerInstance->IsIdent(parameters[1]))
+		if (!ServerInstance->IsUser(parameters[1]))
 		{
-			user->WriteNotice("*** CHGIDENT: Invalid characters in ident");
+			user->WriteNotice("*** CHGIDENT: Invalid characters in username");
 			return CmdResult::FAILURE;
 		}
 
 		if (IS_LOCAL(dest))
 		{
-			dest->ChangeIdent(parameters[1]);
+			dest->ChangeDisplayedUser(parameters[1]);
 
 			if (!user->server->IsService())
-				ServerInstance->SNO.WriteGlobalSno('a', "{} used CHGIDENT to change {}'s ident to '{}'", user->nick, dest->nick, dest->ident);
+			{
+				ServerInstance->SNO.WriteGlobalSno('a', "{} used CHGIDENT to change {}'s username to '{}'",
+					user->nick, dest->nick, dest->GetDisplayedUser());
+			}
 		}
 
 		return CmdResult::SUCCESS;
@@ -86,7 +89,7 @@ private:
 
 public:
 	ModuleChgIdent()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /CHGIDENT command which allows server operators to change the username (ident) of a user.")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /CHGIDENT command which allows server operators to change the username of a user.")
 		, cmd(this)
 	{
 	}

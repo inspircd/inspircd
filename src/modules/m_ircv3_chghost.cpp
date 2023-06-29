@@ -31,14 +31,14 @@ class ModuleIRCv3ChgHost final
 	ClientProtocol::EventProvider protoevprov;
 	Monitor::API monitorapi;
 
-	void DoChgHost(User* user, const std::string& ident, const std::string& host)
+	void DoChgHost(User* user, const std::string& username, const std::string& hostname)
 	{
 		if (!(user->connected & User::CONN_NICKUSER))
 			return;
 
 		ClientProtocol::Message msg("CHGHOST", user);
-		msg.PushParamRef(ident);
-		msg.PushParamRef(host);
+		msg.PushParamRef(username);
+		msg.PushParamRef(hostname);
 		ClientProtocol::Event protoev(protoevprov, msg);
 		IRCv3::WriteNeighborsWithCap res(user, protoev, cap, true);
 		Monitor::WriteWatchersWithCap(monitorapi, user, protoev, cap, res.GetAlreadySentId());
@@ -53,14 +53,14 @@ public:
 	{
 	}
 
-	void OnChangeIdent(User* user, const std::string& newident) override
+	void OnChangeUser(User* user, const std::string& newuser) override
 	{
-		DoChgHost(user, newident, user->GetDisplayedHost());
+		DoChgHost(user, newuser, user->GetDisplayedHost());
 	}
 
 	void OnChangeHost(User* user, const std::string& newhost) override
 	{
-		DoChgHost(user, user->ident, newhost);
+		DoChgHost(user, user->GetDisplayedUser(), newhost);
 	}
 };
 

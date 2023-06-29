@@ -81,8 +81,8 @@ public:
 	// If action is set to mark then a new hostname to set on users who's IP address is in this DNSBL.
 	std::string markhost;
 
-	// If action is set to mark then a new username (ident) to set on users who's IP address is in this DNSBL.
-	std::string markident;
+	// If action is set to mark then a new username to set on users who's IP address is in this DNSBL.
+	std::string markuser;
 
 	// The human readable name of this DNSBL.
 	std::string name;
@@ -158,17 +158,17 @@ public:
 
 		reason = tag->getString("reason", "Your IP (%ip%) has been blacklisted by the %dnsbl% DNSBL.", 1, ServerInstance->Config->Limits.MaxLine);
 		timeout = static_cast<unsigned int>(tag->getDuration("timeout", 0, 1, 60));
-		markident = tag->getString("ident");
+		markuser = tag->getString("user", tag->getString("ident"));
 		markhost = tag->getString("host");
 		xlineduration = tag->getDuration("duration", 60*60, 1);
 	}
 };
 
-class DNSBLIdentHost final
+class DNSBLMask final
 {
 public:
-	// The ident to give a user because they were in a DNSBL (<dnsbl:ident>).
-	std::string ident;
+	// The username to give a user because they were in a DNSBL (<dnsbl:user>).
+	std::string user;
 
 	// The hostname to give a user because they were in a DNSBL (<dnsbl:host>).
 	std::string host;
@@ -176,15 +176,15 @@ public:
 	// The reason why the user was given this user@host (<dnsbl:reason>).
 	std::string reason;
 
-	DNSBLIdentHost(const std::shared_ptr<DNSBLEntry>& cfg, const std::string& msg)
-		: ident(cfg->markident)
+	DNSBLMask(const std::shared_ptr<DNSBLEntry>& cfg, const std::string& msg)
+		: user(cfg->markuser)
 		, host(cfg->markhost)
 		, reason(msg)
 	{
 	}
 };
 
-typedef SimpleExtItem<DNSBLIdentHost> IdentHostExtItem;
+typedef SimpleExtItem<DNSBLMask> MaskExtItem;
 typedef ListExtItem<std::vector<std::string>> MarkExtItem;
 
 // Data which is shared with DNS lookup classes.
@@ -200,8 +200,8 @@ public:
 	// The DNSBL marks which are set on a user.
 	MarkExtItem markext;
 
-	// The ident@host to set on a marked user when they are connected.
-	IdentHostExtItem maskext;
+	// The user@host to set on a marked user when they are connected.
+	MaskExtItem maskext;
 
 	SharedData(Module* mod)
 		: dns(mod)
@@ -329,9 +329,9 @@ public:
 				}
 				case DNSBLEntry::Action::MARK:
 				{
-					if (!config->markident.empty() || !config->markhost.empty())
+					if (!config->markuser.empty() || !config->markhost.empty())
 					{
-						// Store the u@h mask for later to avoid being overwritten by ident/hostname lookups.
+						// Store the u@h mask for later to avoid being overwritten by username/hostname lookups.
 						data.maskext.SetFwd(them, config, reason);
 
 						// If the user is already connected we should just do this now.
@@ -344,12 +344,12 @@ public:
 				}
 				case DNSBLEntry::Action::KLINE:
 				{
-					AddLine<KLine>("K-line", reason, config->xlineduration, them->GetBanIdent(), them->GetAddress());
+					AddLine<KLine>("K-line", reason, config->xlineduration, them->GetBanUser(true), them->GetAddress());
 					break;
 				}
 				case DNSBLEntry::Action::GLINE:
 				{
-					AddLine<GLine>("G-line", reason, config->xlineduration, them->GetBanIdent(), them->GetAddress());
+					AddLine<GLine>("G-line", reason, config->xlineduration, them->GetBanUser(true), them->GetAddress());
 					break;
 				}
 				case DNSBLEntry::Action::ZLINE:
@@ -536,18 +536,18 @@ public:
 
 	void OnUserConnect(LocalUser* user) override
 	{
-		DNSBLIdentHost* ih = data.maskext.Get(user);
+		DNSBLMask* ih = data.maskext.Get(user);
 		if (ih)
 		{
-			if (!ih->ident.empty())
+			if (!ih->user.empty())
 			{
-				user->WriteNotice("Your ident has been set to " + ih->ident + " because you matched " + ih->reason);
-				user->ChangeIdent(ih->ident);
+				user->WriteNotice("Your username has been set to " + ih->user + " because you matched " + ih->reason);
+				user->ChangeDisplayedUser(ih->user);
 			}
 
 			if (!ih->host.empty())
 			{
-				user->WriteNotice("Your host has been set to " + ih->host + " because you matched " + ih->reason);
+				user->WriteNotice("Your hostname has been set to " + ih->host + " because you matched " + ih->reason);
 				user->ChangeDisplayedHost(ih->host);
 			}
 

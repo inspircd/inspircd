@@ -33,12 +33,15 @@
 CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params& params)
 {
 	/**
-	 *     0    1           2    3    4     5     6         7      8      9       (n-1)
-	 * UID uuid nickchanged nick host dhost ident ip.string signon +modes (modepara) :real
+	 *     0    1           2    3    4     5?     6(5)    7(6)      8(7)   9(8)   10(9)      (n-1)
+	 * UID uuid nickchanged nick host dhost [user] duser ip.string signon +modes (modepara) :real
+	 *
+	 * The `duser` field was introduced in the 1206 (v4) protocol.
 	 */
+	size_t offset = params[9][0] == '+' ? 1 : 0;
 	time_t nickchanged = ServerCommand::ExtractTS(params[1]);
-	time_t signon = ServerCommand::ExtractTS(params[7]);
-	const std::string& modestr = params[8];
+	time_t signon = ServerCommand::ExtractTS(params[7+offset]);
+	const std::string& modestr = params[8+offset];
 
 	// Check if the length of the uuid is correct and confirm the sid portion of the uuid matches the sid of the server introducing the user
 	if (params[0].length() != UIDGenerator::UUID_LENGTH || params[0].compare(0, 3, remoteserver->GetId()))
@@ -59,7 +62,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	else if (collideswith)
 	{
 		// The user on this side is fully connected, handle the collision
-		bool they_change = SpanningTreeUtilities::DoCollision(collideswith, remoteserver, nickchanged, params[5], params[6], params[0], "UID");
+		bool they_change = SpanningTreeUtilities::DoCollision(collideswith, remoteserver, nickchanged, params[5], params[6+offset], params[0], "UID");
 		if (they_change)
 		{
 			// The client being introduced needs to change nick to uuid, change the nick in the message before
@@ -71,7 +74,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	}
 
 	irc::sockets::sockaddrs sa(false);
-	if (!sa.from(params[6]))
+	if (!sa.from(params[6+offset]))
 		throw ProtocolException("Invalid IP address or UNIX socket path");
 
 	/* For remote users, we pass the UUID they sent to the constructor.
@@ -82,14 +85,16 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	_new->nick = params[2];
 	_new->ChangeRealHost(params[3], false);
 	_new->ChangeDisplayedHost(params[4]);
-	_new->ident = params[5];
+	if (offset)
+		_new->ChangeRealUser(params[5], false);
+	_new->ChangeDisplayedUser(params[5+offset]);
 	_new->ChangeRemoteAddress(sa);
 	_new->ChangeRealName(params.back());
 	_new->connected = User::CONN_FULL;
 	_new->signon = signon;
 	_new->nickchanged = nickchanged;
 
-	size_t paramptr = 9;
+	size_t paramptr = 9 + offset;
 	for (const auto& modechr : modestr)
 	{
 		// Accept more '+' chars, for now
@@ -151,7 +156,6 @@ CmdResult CommandFHost::HandleRemote(RemoteUser* src, Params& params)
 	return CmdResult::SUCCESS;
 }
 
-
 CmdResult CommandFRHost::HandleRemote(RemoteUser* src, Params& params)
 {
 	src->ChangeRealHost(params[0], false);
@@ -160,7 +164,7 @@ CmdResult CommandFRHost::HandleRemote(RemoteUser* src, Params& params)
 
 CmdResult CommandFIdent::HandleRemote(RemoteUser* src, Params& params)
 {
-	src->ChangeIdent(params[0]);
+	src->ChangeDisplayedUser(params[0]);
 	return CmdResult::SUCCESS;
 }
 
@@ -170,7 +174,7 @@ CmdResult CommandFName::HandleRemote(RemoteUser* src, Params& params)
 	return CmdResult::SUCCESS;
 }
 
-CommandUID::Builder::Builder(User* user)
+CommandUID::Builder::Builder(User* user, bool real_user)
 	: CmdBuilder(TreeServer::Get(user), "UID")
 {
 	push(user->uuid);
@@ -178,7 +182,9 @@ CommandUID::Builder::Builder(User* user)
 	push(user->nick);
 	push(user->GetRealHost());
 	push(user->GetDisplayedHost());
-	push(user->ident);
+	if (real_user)
+		push(user->GetRealUser());
+	push(user->GetDisplayedUser());
 	push(user->GetAddress());
 	push_int(user->signon);
 	push(user->GetModeLetters(true));

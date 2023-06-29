@@ -664,11 +664,11 @@ public:
 	 *
 	 * nick -> nick!*@*
 	 *
-	 * nick!ident -> nick!ident@*
+	 * nick!user -> nick!user@*
 	 *
 	 * host.name -> *!*\@host.name
 	 *
-	 * ident\@host.name -> *!ident\@host.name
+	 * user\@host.name -> *!user\@host.name
 	 *
 	 * This method can be used on both IPV4 and IPV6 user masks.
 	 */

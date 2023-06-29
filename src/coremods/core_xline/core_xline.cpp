@@ -141,6 +141,16 @@ public:
 		luser->CheckLines(false);
 	}
 
+	void OnPostChangeRealUser(User* user) override
+	{
+		LocalUser* luser = IS_LOCAL(user);
+		if (!luser || luser->quitting)
+			return;
+
+		luser->exempt = !!ServerInstance->XLines->MatchesLine("E", user);
+		luser->CheckLines(false);
+	}
+
 	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) override
 	{
 		// Check Q-lines (for local nick changes only, remote servers have our Q-lines to enforce themselves)

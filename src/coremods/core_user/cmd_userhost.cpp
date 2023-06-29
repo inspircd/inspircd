@@ -55,7 +55,7 @@ CmdResult CommandUserhost::Handle(User* user, const Params& parameters)
 
 			retbuf += '=';
 			retbuf += (u->IsAway() ? '-' : '+');
-			retbuf += u->ident;
+			retbuf += u->GetUser(u == user || has_privs);
 			retbuf += '@';
 			retbuf += u->GetHost(u == user || has_privs);
 			retbuf += ' ';

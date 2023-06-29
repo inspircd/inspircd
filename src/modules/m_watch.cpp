@@ -59,9 +59,9 @@ class CommandWatch final
 		{
 			// The away state should only be sent if the client requests away notifications for a nick but 2.0 always sends them so we do that too
 			if (target->IsAway())
-				user->WriteNumeric(RPL_NOWISAWAY, target->nick, target->ident, target->GetDisplayedHost(), target->awaytime, "is away");
+				user->WriteNumeric(RPL_NOWISAWAY, target->nick, target->GetDisplayedHost(), target->GetDisplayedHost(), target->awaytime, "is away");
 			else
-				user->WriteNumeric(RPL_NOWON, target->nick, target->ident, target->GetDisplayedHost(), target->nickchanged, "is online");
+				user->WriteNumeric(RPL_NOWON, target->nick, target->GetDisplayedHost(), target->GetDisplayedHost(), target->nickchanged, "is online");
 		}
 		else if (show_offline)
 			user->WriteNumeric(RPL_NOWOFF, nick, "*", "*", "0", "is offline");
@@ -94,7 +94,7 @@ class CommandWatch final
 
 		User* target = ServerInstance->Users.FindNick(nick, true);
 		if (target)
-			user->WriteNumeric(RPL_WATCHOFF, target->nick, target->ident, target->GetDisplayedHost(), target->nickchanged, "stopped watching");
+			user->WriteNumeric(RPL_WATCHOFF, target->nick, target->GetDisplayedHost(), target->GetDisplayedHost(), target->nickchanged, "stopped watching");
 		else
 			user->WriteNumeric(RPL_WATCHOFF, nick, "*", "*", "0", "stopped watching");
 	}
@@ -191,7 +191,7 @@ private:
 			return;
 
 		Numeric::Numeric num(numeric);
-		num.push(nick).push(user->ident).push(user->GetDisplayedHost()).push(ConvToStr(shownts)).push(numerictext);
+		num.push(nick).push(user->GetDisplayedUser()).push(user->GetDisplayedHost()).push(ConvToStr(shownts)).push(numerictext);
 		for (const auto& curr : *list)
 			curr->WriteNumeric(num);
 	}
