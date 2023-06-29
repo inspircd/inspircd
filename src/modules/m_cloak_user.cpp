@@ -248,8 +248,8 @@ class ModuleCloakUser final
 private:
 	UserEngine<AccountMethod> accountcloak;
 	UserEngine<AccountIdMethod> accountidcloak;
-	UserEngine<UserMethod> usernamecloak;
 	UserEngine<NickMethod> nicknamecloak;
+	UserEngine<UserMethod> usernamecloak;
 	Cloak::API cloakapi;
 	CharState hostmap;
 
