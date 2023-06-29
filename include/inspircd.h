@@ -379,7 +379,7 @@ public:
 	 */
 	static bool DefaultIsNick(const std::string_view& nick);
 
-	/** Determines whether an username is valid. */
+	/** Determines whether a username is valid. */
 	std::function<bool(const std::string_view&)> IsUser = &DefaultIsUser;
 
 	/** Determines whether a username is valid according to the RFC 1459 rules.

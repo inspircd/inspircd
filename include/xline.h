@@ -30,7 +30,7 @@ namespace Stats
 	class Context;
 }
 
-/** Contains an username and host split into two strings
+/** Contains a username and hostname split into two strings
  */
 typedef std::pair<std::string, std::string> UserHostPair;
 
@@ -443,7 +443,7 @@ public:
 	 */
 	~XLineManager();
 
-	/** Split an user and host into two separate strings.
+	/** Split a username and hostname into two separate strings.
 	 * This allows for faster matching.
 	 */
 	static UserHostPair SplitUserHost(const std::string& user_and_host);

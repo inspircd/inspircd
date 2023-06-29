@@ -38,7 +38,7 @@
 // One or more hostmask globs or CIDR ranges.
 typedef std::vector<std::string> MaskList;
 
-// Encapsulates information about an username gateway.
+// Encapsulates information about a username gateway.
 class UserHost final
 {
 private:
@@ -169,32 +169,32 @@ public:
 
 	static bool ParseIP(const std::string& in, irc::sockets::sockaddrs& out)
 	{
-		const char* user = nullptr;
+		const char* username = nullptr;
 		if (in.length() == 8)
 		{
-			// The user is an IPv4 address encoded in hexadecimal with two characters
+			// The username is an IPv4 address encoded in hexadecimal with two characters
 			// per address segment.
-			user = in.c_str();
+			username = in.c_str();
 		}
 		else if (in.length() == 9 && in[0] == '~')
 		{
-			// The same as above but m_user got to this user before we did. Strip the
-			// user prefix and continue as normal.
-			user = in.c_str() + 1;
+			// The same as above but m_ident got to this user before we did. Strip the
+			// username prefix and continue as normal.
+			username = in.c_str() + 1;
 		}
 		else
 		{
-			// The user either does not have an IPv4 in their user or the gateway server
-			// is also running an userd. In the latter case there isn't really a lot we
+			// The user either does not have an IPv4 in their username or the gateway server
+			// is also running an identd. In the latter case there isn't really a lot we
 			// can do so we just assume that the client in question is not connecting via
-			// an user gateway.
+			// a username gateway.
 			return false;
 		}
 
 		// Try to convert the IP address to a string. If this fails then the user
-		// does not have an IPv4 address in their user.
+		// does not have an IPv4 address in their username.
 		errno = 0;
-		unsigned long address = strtoul(user, nullptr, 16);
+		unsigned long address = strtoul(username, nullptr, 16);
 		if (errno)
 			return false;
 
@@ -458,7 +458,7 @@ public:
 			cmdwebirc.realip.Set(user, user->GetAddress());
 
 			const std::string& newuser = host.GetUser();
-			ServerInstance->SNO.WriteGlobalSno('w', "Connecting user {} is using an user gateway; changing their IP from {} to {} and their real username from {} to {}.",
+			ServerInstance->SNO.WriteGlobalSno('w', "Connecting user {} is using a username gateway; changing their IP from {} to {} and their real username from {} to {}.",
 				user->uuid, user->GetAddress(), address.addr(), user->GetRealUser(), newuser);
 
 			user->ChangeRealUser(newuser, user->GetDisplayedUser() == user->GetRealUser());
@@ -545,7 +545,7 @@ public:
 		if (gateway)
 			whois.SendLine(RPL_WHOISGATEWAY, *realhost, *realip, "is connected via the " + *gateway + " WebIRC gateway");
 		else
-			whois.SendLine(RPL_WHOISGATEWAY, *realhost, *realip, "is connected via an user gateway");
+			whois.SendLine(RPL_WHOISGATEWAY, *realhost, *realip, "is connected via a username gateway");
 	}
 };
 

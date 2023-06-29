@@ -151,7 +151,7 @@ E.g. '/RMODE #channel b m:*' will remove all mute extbans on the channel.
 
 <helptopic key="hexip" title="/HEXIP <hex-ip|raw-ip>" value="
 If the specified argument is a raw IP address then respond with the
-hex encoded equivalent as if sent by an username gateway. Otherwise, if
+hex encoded equivalent as if sent by a username gateway. Otherwise, if
 the specified argument is a hex encoded IP address then respond with
 the equivalent raw IP address.
 ">
@@ -307,7 +307,7 @@ The following flags use <pattern> to match against the specified user data:
        modifier is specified then this will match against the real server name
        instead of the masked server name.
  t     Show users who have connected in the last <pattern> seconds.
- u     Show users who have an username matching <pattern>.
+ u     Show users who have a username matching <pattern>.
 
 The following flags filter users by their status:
 
