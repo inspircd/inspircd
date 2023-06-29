@@ -53,7 +53,8 @@ public:
 		if (InspIRCd::Match(u->GetUserAddress(), matchtext))
 			return true;
 
-		if (InspIRCd::MatchCIDR(u->GetAddress(), matchtext, ascii_case_insensitive_map))
+		const std::string addressmask = INSP_FORMAT("{}!{}", u->nick, u->GetAddress());
+		if (InspIRCd::MatchCIDR(addressmask, matchtext, ascii_case_insensitive_map))
 			return true;
 
 		return false;
