@@ -654,8 +654,8 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # User data cloak module: Adds the "account" (services account name),
-# "account-id" (services account id), nickname, (current nickname), and
-# "username" (RFC 1413 identification string) cloak methods.
+# "account-id" (services account id), "nickname" (current nickname),
+# and "username" (RFC 1413 identification string) cloak methods.
 #<module name="cloak_user">
 #
 #-#-#-#-#-#-#-#-#-#-#- USER CLOAK CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
