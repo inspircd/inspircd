@@ -85,8 +85,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	_new->nick = params[2];
 	_new->ChangeRealHost(params[3], false);
 	_new->ChangeDisplayedHost(params[4]);
-	if (offset)
-		_new->ChangeRealUser(params[5], false);
+	_new->ChangeRealUser(params[5], false);
 	_new->ChangeDisplayedUser(params[5+offset]);
 	_new->ChangeRemoteAddress(sa);
 	_new->ChangeRealName(params.back());
