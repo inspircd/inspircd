@@ -129,8 +129,6 @@ ModResult	Module::OnCheckKey(User*, Channel*, const std::string&) { DetachEvent(
 ModResult	Module::OnCheckLimit(User*, Channel*) { DetachEvent(I_OnCheckLimit); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckChannelBan(User*, Channel*) { DetachEvent(I_OnCheckChannelBan); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckBan(User*, Channel*, const std::string&) { DetachEvent(I_OnCheckBan); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnPreChangeHost(LocalUser*, const std::string&) { DetachEvent(I_OnPreChangeHost); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnPreChangeRealName(LocalUser*, const std::string&) { DetachEvent(I_OnPreChangeRealName); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnPreTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPreTopicChange); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckPassword(const std::string&, const std::string&, const std::string&) { DetachEvent(I_OnCheckPassword); return MOD_RES_PASSTHRU; }
 void		Module::OnPostConnect(User*) { DetachEvent(I_OnPostConnect); }

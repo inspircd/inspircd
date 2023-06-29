@@ -703,9 +703,8 @@ public:
 
 	/** Change the displayed hostname of this user.
 	 * @param host The new displayed hostname of this user.
-	 * @return True if the hostname was changed successfully; otherwise, false.
 	 */
-	bool ChangeDisplayedHost(const std::string& host);
+	void ChangeDisplayedHost(const std::string& host);
 
 	/** Change the real hostname of this user.
 	 * @param host The new real hostname of this user.
@@ -715,9 +714,8 @@ public:
 
 	/** Change the displayed username of this user.
 	 * @param newuser The new displayed username of this user.
-	 * @return True if the username was changed successfully; otherwise, false.
 	 */
-	bool ChangeDisplayedUser(const std::string& newuser);
+	void ChangeDisplayedUser(const std::string& newuser);
 
 	/** Change the real username of this user.
 	 * @param newuser The new real username of this user.
@@ -725,11 +723,10 @@ public:
 	 */
 	void ChangeRealUser(const std::string& newuser, bool resetdisplay);
 
-	/** Change a users realname field.
-	 * @param real The user's new real name
-	 * @return True if the change succeeded, false if otherwise
+	/** Change the real name of this user.
+	 * @param newreal The new real name of this user.
 	 */
-	bool ChangeRealName(const std::string& real);
+	void ChangeRealName(const std::string& newreal);
 
 	/** Change a user's nick
 	 * @param newnick The new nick. If equal to the users uuid, the nick change always succeeds.

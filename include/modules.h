@@ -177,8 +177,6 @@ enum Implementation
 	I_OnPostOperLogout,
 	I_OnPostTopicChange,
 	I_OnPreChangeConnectClass,
-	I_OnPreChangeHost,
-	I_OnPreChangeRealName,
 	I_OnPreCommand,
 	I_OnPreMode,
 	I_OnPreOperLogin,
@@ -838,22 +836,6 @@ public:
 	 * or MOD_RES_PASSTHRU to let another module handle the event.
 	 */
 	virtual ModResult OnCheckPassword(const std::string& password, const std::string& passwordhash, const std::string& value);
-
-	/** Called whenever a change of a local users displayed host is attempted.
-	 * Return 1 to deny the host change, or 0 to allow it.
-	 * @param user The user whose host will be changed
-	 * @param newhost The new hostname
-	 * @return 1 to deny the host change, 0 to allow
-	 */
-	virtual ModResult OnPreChangeHost(LocalUser* user, const std::string& newhost);
-
-	/** Called whenever a change of a local users real name is attempted.
-	 * return MOD_RES_DENY to deny the name change, or MOD_RES_ALLOW to allow it.
-	 * @param user The user whose real name will be changed
-	 * @param newhost The new real name.
-	 * @return MOD_RES_DENY to deny the real name change, MOD_RES_ALLOW to allow
-	 */
-	virtual ModResult OnPreChangeRealName(LocalUser* user, const std::string& newhost);
 
 	/** Called before a topic is changed.
 	 * Return 1 to deny the topic change, 0 to check details on the change, -1 to let it through with no checks

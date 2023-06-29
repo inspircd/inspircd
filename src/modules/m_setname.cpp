@@ -55,12 +55,7 @@ public:
 			return CmdResult::FAILURE;
 		}
 
-		if (!user->ChangeRealName(parameters[0]))
-		{
-			fail.SendIfCap(user, &cap, this, "CANNOT_CHANGE_REALNAME", "Unable to change your real name");
-			return CmdResult::FAILURE;
-		}
-
+		user->ChangeRealName(parameters[0]);
 		if (notifyopers)
 			ServerInstance->SNO.WriteGlobalSno('a', "{} used SETNAME to change their real name to '{}'",
 				user->nick, parameters[0]);

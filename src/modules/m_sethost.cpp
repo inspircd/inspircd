@@ -55,13 +55,9 @@ public:
 			}
 		}
 
-		if (user->ChangeDisplayedHost(parameters[0]))
-		{
-			ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used SETHOST to change their displayed host to "+user->GetDisplayedHost());
-			return CmdResult::SUCCESS;
-		}
-
-		return CmdResult::FAILURE;
+		user->ChangeDisplayedHost(parameters[0]);
+		ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used SETHOST to change their displayed host to "+user->GetDisplayedHost());
+		return CmdResult::SUCCESS;
 	}
 };
 

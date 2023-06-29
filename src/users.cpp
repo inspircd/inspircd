@@ -903,38 +903,21 @@ bool User::SharesChannelWith(User* other) const
 	return false;
 }
 
-bool User::ChangeRealName(const std::string& real)
+void User::ChangeRealName(const std::string& real)
 {
 	if (!this->realname.compare(real))
-		return true;
+		return;
 
-	if (IS_LOCAL(this))
-	{
-		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnPreChangeRealName, MOD_RESULT, (IS_LOCAL(this), real));
-		if (MOD_RESULT == MOD_RES_DENY)
-			return false;
-	}
 	FOREACH_MOD(OnChangeRealName, (this, real));
+
 	this->realname.assign(real, 0, ServerInstance->Config->Limits.MaxReal);
 	this->realname.shrink_to_fit();
-
-	return true;
 }
 
-bool User::ChangeDisplayedHost(const std::string& shost)
+void User::ChangeDisplayedHost(const std::string& shost)
 {
 	if (GetDisplayedHost() == shost)
-		return true;
-
-	LocalUser* luser = IS_LOCAL(this);
-	if (luser)
-	{
-		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnPreChangeHost, MOD_RESULT, (luser, shost));
-		if (MOD_RESULT == MOD_RES_DENY)
-			return false;
-	}
+		return;
 
 	FOREACH_MOD(OnChangeHost, (this, shost));
 
@@ -948,8 +931,6 @@ bool User::ChangeDisplayedHost(const std::string& shost)
 
 	if (IS_LOCAL(this) && connected != User::CONN_NONE)
 		this->WriteNumeric(RPL_YOURDISPLAYEDHOST, this->GetDisplayedHost(), "is now your displayed host");
-
-	return true;
 }
 
 void User::ChangeRealHost(const std::string& host, bool resetdisplay)
@@ -1028,10 +1009,10 @@ void User::ChangeRealUser(const std::string& newuser, bool resetdisplay)
 		FOREACH_MOD(OnPostChangeRealUser, (this));
 }
 
-bool User::ChangeDisplayedUser(const std::string& newuser)
+void User::ChangeDisplayedUser(const std::string& newuser)
 {
 	if (GetDisplayedUser() == newuser)
-		return true;
+		return;
 
 	FOREACH_MOD(OnChangeUser, (this, newuser));
 
@@ -1042,7 +1023,6 @@ bool User::ChangeDisplayedUser(const std::string& newuser)
 	this->displayuser.shrink_to_fit();
 
 	this->InvalidateCache();
-	return true;
 }
 
 void User::PurgeEmptyChannels()

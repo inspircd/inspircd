@@ -68,7 +68,8 @@ public:
 
 		if (IS_LOCAL(dest))
 		{
-			if ((dest->ChangeDisplayedHost(parameters[1])) && (!user->server->IsService()))
+			dest->ChangeDisplayedHost(parameters[1]);
+			if (!user->server->IsService())
 			{
 				ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used CHGHOST to make the displayed host of "+dest->nick+" become "+dest->GetDisplayedHost());
 			}
