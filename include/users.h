@@ -702,15 +702,15 @@ public:
 	bool SharesChannelWith(User* other) const;
 
 	/** Change the displayed hostname of this user.
-	 * @param host The new displayed hostname of this user.
+	 * @param newhost The new displayed hostname of this user.
 	 */
-	void ChangeDisplayedHost(const std::string& host);
+	void ChangeDisplayedHost(const std::string& newhost);
 
 	/** Change the real hostname of this user.
-	 * @param host The new real hostname of this user.
+	 * @param newhost The new real hostname of this user.
 	 * @param resetdisplay Whether to reset the display host to this value.
 	 */
-	void ChangeRealHost(const std::string& host, bool resetdisplay);
+	void ChangeRealHost(const std::string& newhost, bool resetdisplay);
 
 	/** Change the displayed username of this user.
 	 * @param newuser The new displayed username of this user.

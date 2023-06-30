@@ -914,17 +914,17 @@ void User::ChangeRealName(const std::string& real)
 	this->realname.shrink_to_fit();
 }
 
-void User::ChangeDisplayedHost(const std::string& shost)
+void User::ChangeDisplayedHost(const std::string& newhost)
 {
-	if (GetDisplayedHost() == shost)
+	if (GetDisplayedHost() == newhost)
 		return;
 
-	FOREACH_MOD(OnChangeHost, (this, shost));
+	FOREACH_MOD(OnChangeHost, (this, newhost));
 
-	if (realhost == shost)
+	if (realhost == newhost)
 		this->displayhost.clear();
 	else
-		this->displayhost.assign(shost, 0, ServerInstance->Config->Limits.MaxHost);
+		this->displayhost.assign(newhost, 0, ServerInstance->Config->Limits.MaxHost);
 	this->displayhost.shrink_to_fit();
 
 	this->InvalidateCache();
@@ -933,11 +933,11 @@ void User::ChangeDisplayedHost(const std::string& shost)
 		this->WriteNumeric(RPL_YOURDISPLAYEDHOST, this->GetDisplayedHost(), "is now your displayed host");
 }
 
-void User::ChangeRealHost(const std::string& host, bool resetdisplay)
+void User::ChangeRealHost(const std::string& newhost, bool resetdisplay)
 {
 	// If the real host is the new host and we are not resetting the
 	// display host then we have nothing to do.
-	const bool changehost = (realhost != host);
+	const bool changehost = (realhost != newhost);
 	if (!changehost && !resetdisplay)
 		return;
 
@@ -948,7 +948,7 @@ void User::ChangeRealHost(const std::string& host, bool resetdisplay)
 
 	// If the displayhost is the new host or we are resetting it then
 	// we clear its contents to save memory.
-	else if (displayhost == host || resetdisplay)
+	else if (displayhost == newhost || resetdisplay)
 		displayhost.clear();
 
 	// If we are just resetting the display host then we don't need to
@@ -959,9 +959,9 @@ void User::ChangeRealHost(const std::string& host, bool resetdisplay)
 	// Don't call the OnChangeRealHost event when initialising a user.
 	const bool initializing = realhost.empty();
 	if (!initializing)
-		FOREACH_MOD(OnChangeRealHost, (this, host));
+		FOREACH_MOD(OnChangeRealHost, (this, newhost));
 
-	realhost = host;
+	realhost = newhost;
 	realhost.shrink_to_fit();
 
 	this->InvalidateCache();
