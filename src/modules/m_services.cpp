@@ -123,7 +123,7 @@ public:
 
 	bool Matches(const std::string& text) const override
 	{
-		return irc::equals(nickname, text):
+		return irc::equals(text, nickname);
 	}
 };
 
@@ -152,7 +152,7 @@ class CommandSVSHold final
 {
 public:
 	CommandSVSHold(Module* Creator)
-		: Command(Creator, "SVSHOLD", 1)
+		: Command(Creator, "SVSHOLD")
 	{
 		// No need to set any privs because they're not checked for remote users.
 	}
@@ -160,7 +160,7 @@ public:
 	CmdResult Handle(User* user, const Params& parameters)
 	{
 		// The command can only be executed by remote services servers.
-		if (!IS_LOCAL(user) || !user->server->IsService())
+		if (IS_LOCAL(user) || !user->server->IsService())
 			return CmdResult::FAILURE;
 
 		if (parameters.size() == 1)
