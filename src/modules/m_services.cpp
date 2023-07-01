@@ -157,7 +157,7 @@ public:
 		// No need to set any privs because they're not checked for remote users.
 	}
 
-	CmdResult Handle(User* user, const Params& parameters)
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		// The command can only be executed by remote services servers.
 		if (IS_LOCAL(user) || !user->server->IsService())
