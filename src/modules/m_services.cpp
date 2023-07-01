@@ -49,23 +49,6 @@ public:
 	}
 };
 
-class ServProtect final
-	: public SimpleUserMode
-{
-public:
-	ServProtect(Module* Creator)
-		: SimpleUserMode(Creator, "servprotect", 'k', true)
-	{
-	}
-
-	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
-	{
-		// As this mode is only intended for use by pseudoclients the only way
-		// to set it is by introducing a user with it.
-		return false;
-	}
-};
-
 class RegisteredUser final
 	: public SimpleUserMode
 {
@@ -87,6 +70,23 @@ public:
 		}
 
 		return SimpleUserMode::OnModeChange(source, dest, channel, change);
+	}
+};
+
+class ServProtect final
+	: public SimpleUserMode
+{
+public:
+	ServProtect(Module* Creator)
+		: SimpleUserMode(Creator, "servprotect", 'k', true)
+	{
+	}
+
+	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
+	{
+		// As this mode is only intended for use by pseudoclients the only way
+		// to set it is by introducing a user with it.
+		return false;
 	}
 };
 
