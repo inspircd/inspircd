@@ -2245,10 +2245,23 @@
 # Atheme.
 #<module name="services">
 #
-# If your services server has support for InspIRCd v4 then you can disable
-# the legacy modes that were previously used for marking a user or channel
-# as being registered:
-# <services disablemodes="yes">
+#-#-#-#-#-#-#-#-#-#-#-#- SERVICES  CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+#  accountoverrideshold - Whether to allow users that are logged in   #
+#                         to an account that has a services-held nick #
+#                         in their group to override the SVSHOLD.     #
+#                         Defaults to no.                             #
+#                                                                     #
+#  disablemodes         - Whether channel mode `r` (registered) and   #
+#                         user mode `r` (u_registered) are disabled.  #
+#                         These modes are deprecated in InspIRCd v4   #
+#                         but may still be needed by older services   #
+#                         software. Defaults to no.                   #
+#                                                                     #
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#
+# <services accountoverrideshold="yes"
+#           disablemodes="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Sethost module: Adds the /SETHOST command.
@@ -2538,17 +2551,6 @@
 # a proper TLS module is loaded (either ssl_gnutls,             #
 # ssl_mbedtls or ssl_openssl).                                        #
 #<module name="starttls">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SVSHold module: Implements SVSHOLD. Like Q-lines, but can only be   #
-# added/removed by Services.                                          #
-#<module name="svshold">
-# SVSHOLD does not generate server notices by default, you can turn
-# notices on by uncommenting the next line. You can also allow users
-# that are authenticated to a services account to bypass SVSHOLDs for
-# nicknames in their nick group (requires services support).
-#
-#<svshold silent="no" exemptregistered="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SWHOIS module: Allows you to add arbitrary lines to user WHOIS.

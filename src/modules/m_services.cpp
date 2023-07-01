@@ -19,6 +19,9 @@
 
 #include "inspircd.h"
 #include "modules/account.h"
+#include "modules/stats.h"
+#include "timeutils.h"
+#include "xline.h"
 
 enum
 {
@@ -90,21 +93,144 @@ public:
 	}
 };
 
-class ModuleServices final
-	: public Module
+class SVSHold final
+	: public XLine
 {
 private:
+	std::string nickname;
+
+public:
+	SVSHold(time_t settime, unsigned long period, const std::string& setter, const std::string& message, const std::string& nick)
+		: XLine(settime, period, setter, message, "SVSHOLD")
+		, nickname(nick)
+	{
+	}
+
+	const std::string& Displayable() const override
+	{
+		return nickname;
+	}
+
+	void DisplayExpiry() override
+	{
+		// SVSHOLDs do not generate any messages.
+	}
+
+	bool Matches(User* user) const override
+	{
+		return irc::equals(user->nick, nickname);
+	}
+
+	bool Matches(const std::string& text) const override
+	{
+		return irc::equals(nickname, text):
+	}
+};
+
+class SVSHoldFactory final
+	: public XLineFactory
+{
+public:
+	SVSHoldFactory()
+		: XLineFactory("SVSHOLD")
+	{
+	}
+
+	XLine* Generate(time_t settime, unsigned long duration, const std::string& source, const std::string& reason, const std::string& nick) override
+	{
+		return new SVSHold(settime, duration, source, reason, nick);
+	}
+
+	bool AutoApplyToUserList(XLine* x) override
+	{
+		return false;
+	}
+};
+
+class CommandSVSHold final
+	: public Command
+{
+public:
+	CommandSVSHold(Module* Creator)
+		: Command(Creator, "SVSHOLD", 1)
+	{
+		// No need to set any privs because they're not checked for remote users.
+	}
+
+	CmdResult Handle(User* user, const Params& parameters)
+	{
+		// The command can only be executed by remote services servers.
+		if (!IS_LOCAL(user) || !user->server->IsService())
+			return CmdResult::FAILURE;
+
+		if (parameters.size() == 1)
+		{
+			// :36DAAAAAA SVSHOLD ChanServ
+			std::string reason;
+			return ServerInstance->XLines->DelLine(parameters[0], "SVSHOLD", reason, user) ? CmdResult::SUCCESS : CmdResult::FAILURE;
+		}
+
+		if (parameters.size() == 3)
+		{
+			/// :36DAAAAAA SVSHOLD NickServ 86400 :Reserved for services
+			/// :36DAAAAAA SVSHOLD NickServ 1d :Reserved for services
+			unsigned long duration;
+			if (!Duration::TryFrom(parameters[1], duration))
+				return CmdResult::FAILURE;
+
+			auto* svshold = new SVSHold(ServerInstance->Time(), duration, user->nick, parameters[2], parameters[0]);
+			return ServerInstance->XLines->AddLine(svshold, user) ? CmdResult::SUCCESS : CmdResult::FAILURE;
+		}
+
+		return CmdResult::FAILURE;
+	}
+
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
+	{
+		return ROUTE_BROADCAST;
+	}
+};
+
+class ModuleServices final
+	: public Module
+	, public Stats::EventListener
+{
+private:
+	Account::API accountapi;
 	RegisteredChannel registeredcmode;
 	RegisteredUser registeredumode;
 	ServProtect servprotectmode;
+	SVSHoldFactory svsholdfactory;
+	CommandSVSHold svsholdcmd;
+	bool accountoverrideshold;
 
 public:
 	ModuleServices()
-		: Module(VF_VENDOR, "Provides support for integrating with a services server.")
+		: Module(VF_COMMON | VF_VENDOR, "Provides support for integrating with a services server.")
+		, Stats::EventListener(this)
+		, accountapi(this)
 		, registeredcmode(this)
 		, registeredumode(this)
 		, servprotectmode(this)
+		, svsholdcmd(this)
 	{
+	}
+
+	~ModuleServices() override
+	{
+		ServerInstance->XLines->DelAll("SVSHOLD");
+		ServerInstance->XLines->UnregisterFactory(&svsholdfactory);
+	}
+
+	void init() override
+	{
+		ServerInstance->XLines->RegisterFactory(&svsholdfactory);
+	}
+
+	void ReadConfig(ConfigStatus& status) override
+	{
+		const auto& tag = ServerInstance->Config->ConfValue("services");
+		accountoverrideshold = tag->getBool("accountoverrideshold");
 	}
 
 	ModResult OnKill(User* source, User* dest, const std::string& reason) override
@@ -145,6 +271,15 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
+	ModResult OnStats(Stats::Context& stats) override
+	{
+		if (stats.GetSymbol() != 'S')
+			return MOD_RES_PASSTHRU;
+
+		ServerInstance->XLines->InvokeStats("SVSHOLD", stats);
+		return MOD_RES_DENY;
+	}
+
 	ModResult OnUserPreKick(User* source, Membership* memb, const std::string& reason) override
 	{
 		if (memb->user->IsModeSet(servprotectmode))
@@ -153,6 +288,27 @@ public:
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) override
+	{
+		auto* svshold = ServerInstance->XLines->MatchesLine("SVSHOLD", newnick);
+		if (!svshold)
+			return MOD_RES_PASSTHRU;
+
+		if (accountoverrideshold && accountapi)
+		{
+			Account::NickList* nicks = accountapi->GetAccountNicks(user);
+			if (nicks && nicks->find(svshold->Displayable()) != nicks->end())
+			{
+				std::string reason;
+				ServerInstance->XLines->DelLine(svshold, reason, user);
+				return MOD_RES_PASSTHRU;
+			}
+		}
+
+		user->WriteNumeric(ERR_ERRONEUSNICKNAME, newnick, INSP_FORMAT("Services reserved nickname: {}", svshold->reason));
+		return MOD_RES_DENY;
 	}
 
 	void OnUserPostNick(User* user, const std::string& oldnick) override

@@ -63,6 +63,8 @@ namespace
 					modname = "m_gecosban.so";
 				else if (stdalgo::string::equalsci(modname, "m_account.so") && ServerInstance->Modules.Find("services"))
 					modname = "m_services_account.so";
+				else if (stdalgo::string::equalsci(modname, "m_services.so"))
+					modname = "m_svshold.so";
 			}
 			else
 			{
