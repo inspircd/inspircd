@@ -255,7 +255,7 @@ public:
 	}
 };
 
-class ModuleCloakSHA256 final
+class ModuleCloak final
 	: public Module
 {
 private:
@@ -279,7 +279,7 @@ private:
 	}
 
 public:
-	ModuleCloakSHA256()
+	ModuleCloak()
 		: Module(VF_VENDOR | VF_COMMON, "Adds user mode x (cloak) which allows user hostnames to be hidden.")
 		, cloakapi(this, cloakmethods, &cloakmode)
 		, cloakcmd(this, cloakmethods)
@@ -457,4 +457,4 @@ public:
 	}
 };
 
-MODULE_INIT(ModuleCloakSHA256)
+MODULE_INIT(ModuleCloak)
