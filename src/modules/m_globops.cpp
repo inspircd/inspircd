@@ -61,7 +61,7 @@ private:
 
 public:
 	ModuleGlobops()
-		: Module(VF_VENDOR, "Adds the /GLOBOPS command which allows server operators to send messages to all server operators with the g (globops) snomask.")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /GLOBOPS command which allows server operators to send messages to all server operators with the g (globops) snomask.")
 		, cmd(this)
 	{
 	}

@@ -65,6 +65,10 @@ namespace
 					modname = "m_services_account.so";
 				else if (stdalgo::string::equalsci(modname, "m_services.so"))
 					modname = "m_svshold.so";
+
+				// Handle modules with changed properties.
+				else if (stdalgo::string::equalsci(modname, "m_globops.so"))
+					continue;  // This module was made VF_OPTCOMMON in v4.
 			}
 			else
 			{
@@ -369,6 +373,12 @@ void TreeSocket::SendCapabilities(int phase)
 		capabilities["CHANMAX"]  = capabilities["MAXCHANNEL"];
 		capabilities["IDENTMAX"] = capabilities["MAXUSER"];
 		capabilities["NICKMAX"]  = capabilities["MAXNICK"];
+
+		// Advertise the presence or absence of the globops snomask in CAPAB CAPABILITIES. Services
+		// needs to know about it and since m_globops is not marked as VF_(OPT)COMMON in v3 we
+		// advertise it here to not break linking to previous versions.
+		capabilities["GLOBOPS"] = ConvToStr(!!ServerInstance->Modules.Find("globops"));
+
 	}
 	else
 	{
@@ -383,11 +393,6 @@ void TreeSocket::SendCapabilities(int phase)
 		SetOurChallenge(ServerInstance->GenRandomStr(20));
 		capabilities["CHALLENGE"] = GetOurChallenge();
 	}
-
-	// Advertise the presence or absence of the globops snomask in CAPAB CAPABILITIES. Services
-	// needs to know about it and since m_globops is not marked as VF_(OPT)COMMON we advertise it
-	// here to not break linking to previous versions.
-	capabilities["GLOBOPS"] = ConvToStr(!!ServerInstance->Modules.Find("globops"));
 
 	std::stringstream capabilitystr;
 	char separator = ':';
