@@ -27,9 +27,9 @@ private:
 	std::string cloak;
 
 public:
-	StaticMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag) ATTR_NOT_NULL(2)
+	StaticMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const std::string& c) ATTR_NOT_NULL(2)
 		: Cloak::Method(engine, tag)
-		, cloak(tag->getString("cloak"))
+		, cloak(c)
 	{
 	}
 
@@ -63,7 +63,14 @@ public:
 
 	Cloak::MethodPtr Create(const std::shared_ptr<ConfigTag>& tag, bool primary) override
 	{
-		return std::make_shared<StaticMethod>(this, tag);
+		const std::string cloak = tag->getString("cloak");
+		if (cloak.empty() || cloak.length() > ServerInstance->Config->Limits.MaxHost)
+		{
+			throw ModuleException(creator, INSP_FORMAT("Your static cloak must be between 1 and {} characters long, at {}",
+				ServerInstance->Config->Limits.MaxHost, tag->source.str()));
+		}
+
+		return std::make_shared<StaticMethod>(this, tag, cloak);
 	}
 };
 
