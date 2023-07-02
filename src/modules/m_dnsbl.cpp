@@ -541,14 +541,14 @@ public:
 		{
 			if (!ih->user.empty())
 			{
-				user->WriteNotice("Your username has been set to " + ih->user + " because you matched " + ih->reason);
 				user->ChangeDisplayedUser(ih->user);
+				user->WriteNotice("Your username has been set to " + ih->user + ": " + ih->reason);
 			}
 
 			if (!ih->host.empty())
 			{
-				user->WriteNotice("Your hostname has been set to " + ih->host + " because you matched " + ih->reason);
 				user->ChangeDisplayedHost(ih->host);
+				user->WriteNotice("Your hostname has been set to " + ih->host + ": " + ih->reason);
 			}
 
 			data.maskext.Unset(user);
