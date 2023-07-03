@@ -65,6 +65,8 @@ static Module* thismod;
 
 namespace GnuTLS
 {
+	time_t lastrehash = 0;
+
 	void GenRandom(char* buffer, size_t len)
 	{
 		gnutls_rnd(GNUTLS_RND_RANDOM, buffer, len);
@@ -485,7 +487,7 @@ namespace GnuTLS
 
 		static std::string ReadFile(const std::string& filename)
 		{
-			auto file = ServerInstance->Config->ReadFile(filename);
+			auto file = ServerInstance->Config->ReadFile(filename, GnuTLS::lastrehash != ServerInstance->Time());
 			if (!file)
 				throw Exception("Cannot read file " + filename + ": " + file.error);
 			return file.contents;
@@ -1123,6 +1125,9 @@ class ModuleSSLGnuTLS final
 
 	void ReadProfiles()
 	{
+		// Invalidate the filesystem cache.
+		GnuTLS::lastrehash = ServerInstance->Time();
+
 		// First, store all profiles in a new, temporary container. If no problems occur, swap the two
 		// containers; this way if something goes wrong we can go back and continue using the current profiles,
 		// avoiding unpleasant situations where no new TLS connections are possible.

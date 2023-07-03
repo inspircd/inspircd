@@ -250,7 +250,7 @@ private:
 	/** Holds the contents of a cached file. */
 	typedef insp::flat_map<std::string, std::string> FileCache;
 
-		/** Holds the contents of a cached file. */
+	/** Holds the contents of a cached file. */
 	typedef insp::flat_map<std::string, std::pair<std::string, bool>, irc::insensitive_swo> FileSource;
 
 	/** Holds the server config. */

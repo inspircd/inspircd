@@ -47,16 +47,17 @@
 #include <mbedtls/x509.h>
 #include <mbedtls/x509_crt.h>
 #include <mbedtls/x509_crl.h>
+
 #ifdef INSPIRCD_MBEDTLS_LIBRARY_DEBUG
 #include <mbedtls/debug.h>
 #endif
-
-#include <fstream>
 
 static Module* thismod;
 
 namespace mbedTLS
 {
+	time_t lastrehash = 0;
+
 	class Exception final
 		: public ModuleException
 	{
@@ -523,11 +524,10 @@ namespace mbedTLS
 
 		static std::string ReadFile(const std::string& filename)
 		{
-			std::ifstream stream(ServerInstance->Config->Paths.PrependConfig(filename));
-			if (!stream.is_open())
-				throw Exception("Cannot read file " + filename);
-
-			return std::string((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+			auto file = ServerInstance->Config->ReadFile(filename, mbedTLS::lastrehash != ServerInstance->Time());
+			if (!file)
+				throw Exception("Cannot read file " + filename + ": " + file.error);
+			return file.contents;
 		}
 
 		/** Set up the given session with the settings in this profile
@@ -922,6 +922,9 @@ private:
 
 	void ReadProfiles()
 	{
+		// Invalidate the filesystem cache.
+		mbedTLS::lastrehash = ServerInstance->Time();
+
 		// First, store all profiles in a new, temporary container. If no problems occur, swap the two
 		// containers; this way if something goes wrong we can go back and continue using the current profiles,
 		// avoiding unpleasant situations where no new TLS connections are possible.
