@@ -40,7 +40,7 @@
 #include "configparser.h"
 #include "exitcodes.h"
 
-ServerLimits::ServerLimits(const std::shared_ptr<ConfigTag>& tag)
+ServerConfig::ServerLimits::ServerLimits(const std::shared_ptr<ConfigTag>& tag)
 	: MaxLine(tag->getNum<size_t>("maxline", 512, 512))
 	, MaxNick(tag->getNum<size_t>("maxnick", 30, 1, MaxLine))
 	, MaxChannel(tag->getNum<size_t>("maxchan", 60, 1, MaxLine))

@@ -187,44 +187,6 @@ public:
 	void LogMalformed(const std::string& key, const std::string& val, const std::string& def, const std::string& reason) const;
 };
 
-/** Defines the server's length limits on various length-limited
- * items such as topics, nicknames, channel names etc.
- */
-class ServerLimits final
-{
-public:
-	/** Maximum line length */
-	size_t MaxLine;
-	/** Maximum nickname length */
-	size_t MaxNick;
-	/** Maximum channel length */
-	size_t MaxChannel;
-	/** Maximum number of modes per line */
-	size_t MaxModes;
-	/** Maximum length of a username */
-	size_t MaxUser;
-	/** Maximum length of a quit message */
-	size_t MaxQuit;
-	/** Maximum topic length */
-	size_t MaxTopic;
-	/** Maximum kick message length */
-	size_t MaxKick;
-	/** Maximum real name length */
-	size_t MaxReal;
-	/** Maximum away message length */
-	size_t MaxAway;
-	/** Maximum hostname length */
-	size_t MaxHost;
-
-	/** Read all limits from a config tag. Limits which aren't specified in the tag are set to a default value.
-	 * @param tag Configuration tag to read the limits from
-	 */
-	ServerLimits(const std::shared_ptr<ConfigTag>& tag);
-
-	/** Maximum length of a n!u\@h mask */
-	size_t GetMaxMask() const { return MaxNick + 1 + MaxUser + 1 + MaxHost; }
-};
-
 struct CommandLineConf final
 {
 	/** If this value is true, the owner of the
@@ -301,7 +263,54 @@ public:
 		BUT_RESTRICT_NOTIFY
 	};
 
-	class CoreExport ServerPaths
+	/** Holds the limits for how long various fields can be. Read from the \<limits> tag. */
+	class ServerLimits final
+	{
+	public:
+		/** Maximum line length */
+		size_t MaxLine;
+
+		/** Maximum nickname length */
+		size_t MaxNick;
+
+		/** Maximum channel length */
+		size_t MaxChannel;
+
+		/** Maximum number of modes per line */
+		size_t MaxModes;
+
+		/** Maximum length of a username */
+		size_t MaxUser;
+
+		/** Maximum length of a quit message */
+		size_t MaxQuit;
+
+		/** Maximum topic length */
+		size_t MaxTopic;
+
+		/** Maximum kick message length */
+		size_t MaxKick;
+
+		/** Maximum real name length */
+		size_t MaxReal;
+
+		/** Maximum away message length */
+		size_t MaxAway;
+
+		/** Maximum hostname length */
+		size_t MaxHost;
+
+		/** Read all limits from a config tag. Limits which aren't specified in the tag are set to a default value.
+		 * @param tag Configuration tag to read the limits from
+		 */
+		ServerLimits(const std::shared_ptr<ConfigTag>& tag);
+
+		/** Maximum length of a n!u\@h mask */
+		size_t GetMaxMask() const { return MaxNick + 1 + MaxUser + 1 + MaxHost; }
+	};
+
+	/** Holds the location of various directories. Read from the \<path> tag */
+	class CoreExport ServerPaths final
 	{
 	private:
 		/** Expands a path fragment to a full path.
