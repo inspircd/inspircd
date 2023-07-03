@@ -343,7 +343,7 @@ void ServerConfig::Fill()
 	CustomVersion = security->getString("customversion");
 	HideLines = security->getString("hidelines", security->getBool("hidebans") ? "%type%-lined" : "");
 	HideServer = security->getString("hideserver", {}, InspIRCd::IsFQDN);
-	MaxTargets = security->getNum<unsigned long>("maxtargets", 5, 1, 50);
+	MaxTargets = security->getNum<size_t>("maxtargets", 5, 1, 50);
 
 	// Read the <cidr> config.
 	const auto& cidr = ConfValue("cidr");

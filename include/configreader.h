@@ -454,7 +454,7 @@ public:
 	time_t TimeSkipWarn;
 
 	/** The maximum number of targets for a multi-target command (e.g. KICK). */
-	unsigned long MaxTargets;
+	size_t MaxTargets;
 
 	/** The maximum amount of data to read from a socket in one go. */
 	size_t NetBufferSize;

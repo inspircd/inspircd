@@ -64,7 +64,7 @@ bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Pa
 	irc::commasepstream items1(parameters[splithere]);
 	irc::commasepstream items2(extra >= 0 ? parameters[extra] : "", true);
 	std::string item;
-	unsigned int max = 0;
+	size_t max = 0;
 	LocalUser* localuser = IS_LOCAL(user);
 
 	/* Attempt to iterate these lists and call the command handler
