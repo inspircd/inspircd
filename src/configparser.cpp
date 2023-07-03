@@ -369,7 +369,7 @@ void ParseStack::DoInclude(const std::shared_ptr<ConfigTag>& tag, int flags)
 		else
 			flags &= ~FLAG_MISSING_OKAY;
 
-		if (!ParseFile(ServerInstance->Config->Paths.PrependConfig(name), flags, mandatorytag))
+		if (!ParseFile(name, flags, mandatorytag))
 			throw CoreException("Included");
 	}
 	else if (tag->readString("directory", name))
@@ -421,28 +421,31 @@ void ParseStack::DoInclude(const std::shared_ptr<ConfigTag>& tag, int flags)
 
 FilePtr ParseStack::DoOpenFile(const std::string& name, bool isexec)
 {
-	ServerInstance->Logs.Debug("CONFIG", "Opening {}: {}", isexec ? "executable" : "file", name);
-
 	if (isexec)
+	{
+		ServerInstance->Logs.Debug("CONFIG", "Opening executable: {}", name);
 		return FilePtr(popen(name.c_str(), "r"), pclose);
+	}
 
+	const std::string path = ServerInstance->Config->Paths.PrependConfig(name);
+	ServerInstance->Logs.Debug("CONFIG", "Opening file: {}", path);
 #ifndef _WIN32
 	struct stat pathinfo;
-	if (stat(name.c_str(), &pathinfo) == 0)
+	if (stat(path.c_str(), &pathinfo) == 0)
 	{
 		if (getegid() != pathinfo.st_gid)
 		{
 			ServerInstance->Logs.Warning("CONFIG", "Possible configuration error: {} is owned by group {} but the server is running as group {}.",
-				name, pathinfo.st_gid, getegid());
+				path, pathinfo.st_gid, getegid());
 		}
 		if (geteuid() != pathinfo.st_uid)
 		{
 			ServerInstance->Logs.Warning("CONFIG", "Possible configuration error: {} is owned by user {} but the server is running as user {}.",
-				name, pathinfo.st_uid, geteuid());
+				path, pathinfo.st_uid, geteuid());
 		}
 	}
 #endif
-	return FilePtr(fopen(name.c_str(), "r"), fclose);
+	return FilePtr(fopen(path.c_str(), "r"), fclose);
 }
 
 void ParseStack::DoReadFile(const std::string& key, const std::string& name, int flags, bool exec)
