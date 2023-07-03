@@ -40,6 +40,12 @@
 #include "configparser.h"
 #include "exitcodes.h"
 
+ServerConfig::ReadResult::ReadResult(const std::string& c, const std::string& e)
+	: contents(c)
+	, error(e)
+{
+}
+
 ServerConfig::ServerLimits::ServerLimits(const std::shared_ptr<ConfigTag>& tag)
 	: MaxLine(tag->getNum<size_t>("maxline", 512, 512))
 	, MaxNick(tag->getNum<size_t>("maxnick", 30, 1, MaxLine))
@@ -86,6 +92,45 @@ ServerConfig::ServerConfig()
 	, Limits(EmptyTag)
 	, Paths(EmptyTag)
 {
+}
+
+ServerConfig::ReadResult ServerConfig::ReadFile(const std::string& file, bool invalidate)
+{
+	auto contents = filecontents.find(file);
+	if (invalidate)
+		filecontents.erase(contents);
+	else if (contents != filecontents.end())
+		return ReadResult(contents->second, {});
+
+	bool executable = false;
+	std::string name = file;
+	std::string path = file;
+
+	// If the caller specified a short name (e.g. <file motd="motd.txt">) then look it up.
+	auto source = filesources.find(file);
+	if (source != filesources.end())
+	{
+		name = source->first;
+		path = source->second.second;
+		executable = source->second.second;
+	}
+
+	// Try to open the file and error out if it fails.
+	auto fh = ParseStack::DoOpenFile(path, executable);
+	if (!fh)
+		return ReadResult({}, strerror(errno));
+
+	std::stringstream datastream;
+	char databuf[4096];
+	while (fgets(databuf, sizeof(databuf), fh.get()))
+	{
+		size_t len = strlen(databuf);
+		if (len)
+			datastream.write(databuf, len);
+	}
+
+	filecontents[name] = datastream.str();
+	return ReadResult(filecontents[name], {});
 }
 
 void ServerConfig::CrossCheckOperBlocks()

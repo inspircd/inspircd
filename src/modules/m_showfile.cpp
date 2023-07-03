@@ -20,7 +20,6 @@
 
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
-#include "fileutils.h"
 
 enum
 {
@@ -80,7 +79,7 @@ public:
 		return CmdResult::SUCCESS;
 	}
 
-	void UpdateSettings(const std::shared_ptr<ConfigTag>& tag, const std::vector<std::string>& filecontents)
+	void UpdateSettings(const std::shared_ptr<ConfigTag>& tag, const std::string& filecontents)
 	{
 		introtext = tag->getString("introtext", "Showing " + name);
 		endtext = tag->getString("endtext", "End of " + name);
@@ -97,8 +96,9 @@ public:
 
 		// Process the entry.
 		contents.clear();
-		contents.reserve(filecontents.size());
-		for (const auto& line : filecontents)
+
+		irc::sepstream linestream(filecontents, '\n');
+		for (std::string line; linestream.GetToken(line); )
 		{
 			// Some clients can not handle receiving NOTICE/PRIVMSG/RPL_RULES
 			// with an empty trailing parameter so if a line is empty we
@@ -106,6 +106,7 @@ public:
 			contents.push_back(line.empty() ? " " : line);
 		}
 		InspIRCd::ProcessColors(contents);
+		contents.shrink_to_fit();
 	}
 };
 
@@ -126,7 +127,10 @@ private:
 		const std::string file = tag->getString("file", cmdname);
 		if (file.empty())
 			throw ModuleException(this, "Empty value for 'file'");
-		FileReader reader(file);
+
+		auto reader = ServerInstance->Config->ReadFile(file);
+		if (!reader)
+			throw ModuleException(this, "Unable to read " + file + ": " + reader.error);
 
 		CommandShowFile* sfcmd;
 		Command* handler = ServerInstance->Parser.GetHandler(cmdname);
@@ -148,7 +152,7 @@ private:
 			ServerInstance->Modules.AddService(*sfcmd);
 		}
 
-		sfcmd->UpdateSettings(tag, reader.GetVector());
+		sfcmd->UpdateSettings(tag, reader.contents);
 		newcmds.push_back(sfcmd);
 	}
 

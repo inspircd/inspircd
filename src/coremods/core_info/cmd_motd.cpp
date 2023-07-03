@@ -57,7 +57,7 @@ CmdResult CommandMotd::Handle(User* user, const Params& parameters)
 		tag = localuser->GetClass()->config;
 
 	const std::string motd_name = tag->getString("motd", "motd", 1);
-	ConfigFileCache::iterator motd = motds.find(motd_name);
+	auto motd = motds.find(motd_name);
 	if (motd == motds.end())
 	{
 		user->WriteRemoteNumeric(ERR_NOMOTD, "There is no message of the day.");

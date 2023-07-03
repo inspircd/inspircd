@@ -29,7 +29,7 @@ struct ParseStack final
 	std::vector<std::string> reading;
 	insp::flat_map<std::string, std::string, irc::insensitive_swo> vars;
 	ServerConfig::TagMap& output;
-	ConfigFileCache& FilesOutput;
+	ServerConfig::FileSource& FilesOutput;
 	std::stringstream& errstr;
 
 	ParseStack(ServerConfig* conf);

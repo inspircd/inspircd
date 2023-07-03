@@ -21,7 +21,6 @@
 
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
-#include "fileutils.h"
 #include "timeutils.h"
 
 #include "core_info.h"
@@ -128,7 +127,7 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		// Process the escape codes in the MOTDs.
-		ConfigFileCache newmotds;
+		CommandMotd::MessageCache newmotds;
 		for (const auto& klass : ServerInstance->Config->Classes)
 		{
 			// Don't process the file if it has already been processed.
@@ -136,23 +135,19 @@ public:
 			if (newmotds.find(motd) != newmotds.end())
 				continue;
 
-			FileReader reader;
-			try
-			{
-				reader.Load(motd);
-			}
-			catch (const CoreException& ce)
+			auto file = ServerInstance->Config->ReadFile(motd);
+			if (!file)
 			{
 				// We can't process the file if it doesn't exist.
 				ServerInstance->Logs.Warning(MODNAME, "Unable to read motd for connect class \"{}\" at {}: {}",
-					klass->GetName(), klass->config->source.str(), ce.GetReason());
+					klass->GetName(), klass->config->source.str(), file.error);
 				continue;
 			}
 
 			// Process the MOTD entry.
-			file_cache& newmotd = newmotds[motd];
-			newmotd.reserve(reader.GetVector().size());
-			for (const auto& line : reader.GetVector())
+			auto& newmotd = newmotds[motd];
+			irc::sepstream linestream(file.contents, '\n');
+			for (std::string line; linestream.GetToken(line); )
 			{
 				// Some clients can not handle receiving RPL_MOTD with an empty
 				// trailing parameter so if a line is empty we replace it with

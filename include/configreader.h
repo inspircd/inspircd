@@ -245,8 +245,13 @@ class CoreExport ServerConfig final
 {
 private:
 	friend class ConfigReaderThread; // valid
-	friend class FileReader; // Files
-	friend struct ParseStack; // config_data, errstr, Files
+	friend struct ParseStack; // config_data, errstr, filesources
+
+	/** Holds the contents of a cached file. */
+	typedef insp::flat_map<std::string, std::string> FileCache;
+
+		/** Holds the contents of a cached file. */
+	typedef insp::flat_map<std::string, std::pair<std::string, bool>, irc::insensitive_swo> FileSource;
 
 	/** Holds the server config. */
 	typedef std::multimap<std::string, std::shared_ptr<ConfigTag>, irc::insensitive_swo> TagMap;
@@ -258,7 +263,10 @@ private:
 	std::stringstream errstr;
 
 	/** Files which have been read from disk. */
-	ConfigFileCache Files;
+	FileCache filecontents;
+
+	/** The location of files from \<[exec]files>. */
+	FileSource filesources;
 
 	/** Whether the server config is valid. */
 	bool valid;
@@ -292,6 +300,23 @@ public:
 
 		/** Restrict the actions of a banned user and notify them of their treatment. */
 		BUT_RESTRICT_NOTIFY
+	};
+
+	/** Encapsulates the result of calling ReadFile. */
+	class CoreExport ReadResult final
+		: private insp::uncopiable
+	{
+	public:
+		/* If the read succeeded then the contents of the file. */
+		const std::string& contents;
+
+		/* If the read failed then the reason why. */
+		const std::string error;
+
+		ReadResult(const std::string& c, const std::string& e);
+
+		/** Allows nicer evaluation of a read result */
+		inline operator bool() const { return error.empty(); }
 	};
 
 	/** Holds the limits for how long various fields can be. Read from the \<limits> tag. */
@@ -515,6 +540,13 @@ public:
 
 	/** Attempt to read the configuration from disk. */
 	void Read();
+
+	/** Reads a file from disk.
+	 * @param file The file to read from. May also be an \<[exec]files> key.
+	 * @param invalidate Whether to invalidate the cached copy if it exists.
+	 * @return The result of the read operation.
+	 */
+	ReadResult ReadFile(const std::string& file, bool invalidate = false);
 };
 
 /** The background thread for config reading, so that reading from executable includes

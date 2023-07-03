@@ -25,7 +25,6 @@
 
 
 #include "inspircd.h"
-#include "fileutils.h"
 
 enum
 {
@@ -104,23 +103,19 @@ private:
 		if (motd.empty() || newmotds.find(motd) != newmotds.end())
 			return;
 
-		FileReader reader;
-		try
-		{
-			reader.Load(motd);
-		}
-		catch (const CoreException& ce)
+		auto file = ServerInstance->Config->ReadFile(motd);
+		if (!file)
 		{
 			// We can't process the file if it doesn't exist.
 			ServerInstance->Logs.Normal(MODNAME, "Unable to read server operator motd for oper {} \"{}\" at {}: {}",
-				type, oper->GetName(), oper->GetConfig()->source.str(), ce.GetReason());
+				type, oper->GetName(), oper->GetConfig()->source.str(), file.error);
 			return;
 		}
 
 		// Process the MOTD entry.
 		auto& newmotd = newmotds[motd];
-		newmotd.reserve(reader.GetVector().size());
-		for (const auto& line : reader.GetVector())
+		irc::sepstream linestream(file.contents, '\n');
+		for (std::string line; linestream.GetToken(line); )
 		{
 			// Some clients can not handle receiving RPL_OMOTD with an empty
 			// trailing parameter so if a line is empty we replace it with

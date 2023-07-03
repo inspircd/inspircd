@@ -118,7 +118,8 @@ class CommandMotd final
 	: public ServerTargetCommand
 {
 public:
-	ConfigFileCache motds;
+	typedef insp::flat_map<std::string, std::vector<std::string>> MessageCache;
+	MessageCache motds;
 
 	CommandMotd(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;

@@ -75,13 +75,6 @@ namespace ClientProtocol
 #include "hashcomp.h"
 #include "base.h"
 
-/** A cached text file stored with its contents as lines
- */
-typedef std::vector<std::string> file_cache;
-
-/** Files read by the configuration */
-typedef std::map<std::string, file_cache> ConfigFileCache;
-
 /** Generic user list, used for exceptions */
 typedef std::set<User*> CUList;
 

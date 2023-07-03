@@ -40,7 +40,6 @@
 /// $PackageInfo: require_system("ubuntu") gnutls-bin libgnutls28-dev pkg-config
 
 #include "inspircd.h"
-#include "fileutils.h"
 #include "modules/ssl.h"
 #include "timeutils.h"
 
@@ -486,11 +485,10 @@ namespace GnuTLS
 
 		static std::string ReadFile(const std::string& filename)
 		{
-			FileReader reader(filename);
-			std::string ret = reader.GetString();
-			if (ret.empty())
-				throw Exception("Cannot read file " + filename);
-			return ret;
+			auto file = ServerInstance->Config->ReadFile(filename);
+			if (!file)
+				throw Exception("Cannot read file " + filename + ": " + file.error);
+			return file.contents;
 		}
 
 		static std::string GetPrioStr(const std::string& profilename, const std::shared_ptr<ConfigTag>& tag)

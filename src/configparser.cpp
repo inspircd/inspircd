@@ -452,33 +452,16 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 	if (exec && (flags & FLAG_NO_EXEC))
 		throw CoreException("Invalid <execfiles> tag in file included with noexec=\"yes\"");
 
-	std::string path = name;
-	if (!exec)
-		path = ServerInstance->Config->Paths.PrependConfig(name);
-
-	auto file = DoOpenFile(path, exec);
-	if (!file)
-		throw CoreException(INSP_FORMAT("Could not read \"{}\" for {}: {}", path, key, strerror(errno)));
-
-	file_cache& cache = FilesOutput[key];
-	cache.clear();
-
-	char linebuf[5120];
-	while (fgets(linebuf, sizeof(linebuf), file.get()))
+	if (FilesOutput.emplace(key, std::make_pair(name, exec)).second)
 	{
-		size_t len = strlen(linebuf);
-		if (len)
-		{
-			if (linebuf[len-1] == '\n')
-				len--;
-			cache.push_back(std::string(linebuf, len));
-		}
+		ServerInstance->Logs.Debug("CONFIG", "Stored config key: {} => {} (executable: {}).",
+			key, name, exec ? "yes" : "no");
 	}
 }
 
 ParseStack::ParseStack(ServerConfig* conf)
 	: output(conf->config_data)
-	, FilesOutput(conf->Files)
+	, FilesOutput(conf->filesources)
 	, errstr(conf->errstr)
 {
 	vars = {

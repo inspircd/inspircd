@@ -22,7 +22,6 @@
 
 
 #include "inspircd.h"
-#include "fileutils.h"
 
 class ModuleRandQuote final
 	: public Module
@@ -43,8 +42,17 @@ public:
 		const auto& conf = ServerInstance->Config->ConfValue("randquote");
 		prefix = conf->getString("prefix");
 		suffix = conf->getString("suffix");
-		FileReader reader(conf->getString("file", "quotes", 1));
-		quotes = reader.GetVector();
+
+		const std::string filestr = conf->getString("file", "quotes", 1);
+		auto file = ServerInstance->Config->ReadFile(filestr);
+		if (!file)
+			throw ModuleException(this, "Unable to read quotes from " + filestr + ": " + file.error);
+
+		std::vector<std::string> newquotes;
+		irc::sepstream linestream(file.contents, '\n');
+		for (std::string line; linestream.GetToken(line); )
+			newquotes.push_back(line);
+		std::swap(quotes, newquotes);
 	}
 
 	void OnUserConnect(LocalUser* user) override
