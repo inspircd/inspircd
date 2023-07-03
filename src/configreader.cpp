@@ -85,7 +85,6 @@ ServerConfig::ServerConfig()
 	: EmptyTag(std::make_shared<ConfigTag>("empty", FilePosition("<auto>", 0, 0)))
 	, Limits(EmptyTag)
 	, Paths(EmptyTag)
-	, CaseMapping("ascii")
 {
 }
 
@@ -383,9 +382,9 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
 		 * These values can only be set on boot. Keep their old values. Do it before we send messages so we actually have a servername.
 		 */
 		this->CaseMapping = old->CaseMapping;
+		this->CommandLine = old->CommandLine;
 		this->ServerId = old->ServerId;
 		this->ServerName = old->ServerName;
-		this->cmdline = old->cmdline;
 	}
 
 	/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */

@@ -48,7 +48,7 @@ public:
 		ServerInstance->Logs.Debug(MODNAME, "Handling HTTP request for {}", request.GetPath());
 
 		std::stringstream buffer;
-		for (const auto& [_, tag] : ServerInstance->Config->config_data)
+		for (const auto& [_, tag] : ServerInstance->Config->GetConfig())
 		{
 			// Show the location of the tag in a comment.
 			buffer << "# " << tag->source.str() << std::endl

@@ -244,14 +244,45 @@ struct CommandLineConf final
 class CoreExport ServerConfig final
 {
 private:
+	friend class ConfigReaderThread; // valid
+	friend class FileReader; // Files
+	friend struct ParseStack; // config_data, errstr, Files
+
+	/** Holds the server config. */
+	typedef std::multimap<std::string, std::shared_ptr<ConfigTag>, irc::insensitive_swo> TagMap;
+
+	/** The server config. */
+	TagMap config_data;
+
+	/** Whether any errors occurred whilst reading the server config. */
+	std::stringstream errstr;
+
+	/** Files which have been read from disk. */
+	ConfigFileCache Files;
+
+	/** Whether the server config is valid. */
+	bool valid;
+
+	/** Loads added modules and unloads any removed ones.
+	 * @param user If non-nullptr then the user who initiated this config load.
+	 */
 	void ApplyModules(User* user) const;
+
+	/** Ensures that connect classes are well formed.
+	 * @param current The current server config that is about to be replaced.
+	 */
 	void CrossCheckConnectBlocks(ServerConfig* current);
+
+	/** Ensures that oper accounts, oper types, and oper classes are well formed. */
 	void CrossCheckOperBlocks();
+
+	/** Reads the core server config. */
 	void Fill();
 
 public:
 	/** How to treat a user in a channel who is banned. */
 	enum BannedUserTreatment
+		: uint8_t
 	{
 		/** Don't treat a banned user any different to normal. */
 		BUT_NORMAL,
@@ -264,7 +295,7 @@ public:
 	};
 
 	/** Holds the limits for how long various fields can be. Read from the \<limits> tag. */
-	class ServerLimits final
+	class CoreExport ServerLimits final
 	{
 	public:
 		/** Maximum line length */
@@ -344,8 +375,7 @@ public:
 		inline std::string PrependRuntime(const std::string& fn) const { return ExpandPath(Runtime, fn); }
 	};
 
-	/** Holds a complete list of all connect blocks
-	 */
+	/** Holds the connect classes from the server config. */
 	typedef std::vector<std::shared_ptr<ConnectClass>> ClassVector;
 
 	/** Holds the oper accounts from the server config. */
@@ -354,18 +384,103 @@ public:
 	/** Holds the oper types from the server config. */
 	typedef insp::flat_map<std::string, std::shared_ptr<OperType>> OperTypeMap;
 
-	/** Holds the server config. */
-	typedef std::multimap<std::string, std::shared_ptr<ConfigTag>, irc::insensitive_swo> TagMap;
-
 	/** Holds iterators to a subsection of the server config map. */
 	typedef insp::iterator_range<TagMap::const_iterator> TagList;
 
-	/** Get a configuration tag by name. If one or more tags are present then the first is returned.
-	 * @param tag The name of the tag to get.
-	 * @param def The value to return if the tag doesn't exist.
-	 * @returns Either a tag from the config or EmptyTag.
-	 */
-	const std::shared_ptr<ConfigTag>& ConfValue(const std::string& tag, const std::shared_ptr<ConfigTag>& def = nullptr) const;
+	/** The connect classes from the server config. */
+	ClassVector Classes;
+
+	/** The configuration read from the command line. */
+	CommandLineConf CommandLine;
+
+	/** An empty configuration tag. */
+	std::shared_ptr<ConfigTag> EmptyTag;
+
+	/** The limits for how long various fields can be. */
+	ServerLimits Limits;
+
+	/** The location of various directories. */
+	ServerPaths Paths;
+
+	/** Oper accounts keyed by their name. */
+	OperAccountMap OperAccounts;
+
+	/** Oper types keyed by their name. */
+	OperTypeMap OperTypes;
+
+	/** The name of the casemapping method used by this server. */
+	std::string CaseMapping = "ascii";
+
+	/** The value to show in the comment field of the RPL_VERSION. */
+	std::string CustomVersion;
+
+	/** The modes to set on a new channel. May contain channel prefix modes to set on the channel creator. */
+	std::string DefaultModes;
+
+	/** If non-empty then the quit message to use when killing an X-lined user. */
+	std::string HideLines;
+
+	/** If non-empty then the value to replace the server name with in public messages. */
+	std::string HideServer;
+
+	/* The name of the IRC network (e.g. ExampleNet). */
+	std::string Network;
+
+	/** The description of the IRC server (e.g. ExampleNet European Server). */
+	std::string ServerDesc;
+
+	/** The unique identifier for this server. Must be in the format [0-9][A-Z0-9][A-Z0-9]. */
+	std::string ServerId;
+
+	/** The hostname of the IRC server (e.g. irc.example.com). */
+	std::string ServerName;
+
+	/** The message to send to users when they are banned by an X-line. */
+	std::string XLineMessage;
+
+	/** The CIDR range to use when determining if IPv4 clients are from the same origin. */
+	unsigned char IPv4Range;
+
+	/** The CIDR range to use when determining if IPv4 clients are from the same origin. */
+	unsigned char IPv6Range;
+
+	/** How to treat a user in a channel who is banned. */
+	BannedUserTreatment RestrictBannedUsers;
+
+	/** The maximum number of connections that can be waiting in the server accept queue. */
+	int MaxConn;
+
+	/** The number of seconds that the server clock can skip by before server operators are warned. */
+	time_t TimeSkipWarn;
+
+	/** The maximum number of targets for a multi-target command (e.g. KICK). */
+	unsigned long MaxTargets;
+
+	/** The maximum amount of data to read from a socket in one go. */
+	size_t NetBufferSize;
+
+	/** The maximum number of local connections that can be made to the IRC server. */
+	size_t SoftLimit;
+
+	/** Whether to store the full nick!duser\@dhost as a topic setter instead of just their nick. */
+	bool FullHostInTopic;
+
+	/** Whether to disable stacking snotices when multiple identical messages are sent. */
+	bool NoSnoticeStack;
+
+	/** Whether raw I/O traffic is being logged. */
+	bool RawLog = false;
+
+	/** Whether to show syntax hints when a user does not provide enough parameters for a command. */
+	bool SyntaxHints;
+
+	/** Whether to bind to IPv6 by default. */
+	bool WildcardIPv6;
+
+	ServerConfig();
+
+	/** Apply configuration changes from the old configuration. */
+	void Apply(ServerConfig* old, const std::string& useruid);
 
 	/** Get a list of configuration tags by name.
 	 * @param tag The name of the tags to get.
@@ -374,176 +489,32 @@ public:
 	 */
 	TagList ConfTags(const std::string& tag, std::optional<TagList> def = std::nullopt) const;
 
-	/** An empty configuration tag. */
-	std::shared_ptr<ConfigTag> EmptyTag;
-
-	/** Error stream, contains error output from any failed configuration parsing.
+	/** Get a configuration tag by name. If one or more tags are present then the first is returned.
+	 * @param tag The name of the tag to get.
+	 * @param def The value to return if the tag doesn't exist.
+	 * @returns Either a tag from the config or EmptyTag.
 	 */
-	std::stringstream errstr;
-
-	/** True if this configuration is valid enough to run with */
-	bool valid;
-
-	/** Bind to IPv6 by default */
-	bool WildcardIPv6;
-
-	/** This holds all the information in the config file,
-	 * it's indexed by tag name to a vector of key/values.
-	 */
-	TagMap config_data;
-
-	/** This holds all extra files that have been read in the configuration
-	 * (for example, MOTD and RULES files are stored here)
-	 */
-	ConfigFileCache Files;
-
-	/** Length limits, see definition of ServerLimits class
-	 */
-	ServerLimits Limits;
-
-	/** Locations of various types of file (config, module, etc). */
-	ServerPaths Paths;
-
-	/** Configuration parsed from the command line.
-	 */
-	CommandLineConf cmdline;
-
-	/** Clones CIDR range for ipv4 (0-32)
-	 * Defaults to 32 (checks clones on all IPs separately)
-	 */
-	unsigned char IPv4Range;
-
-	/** Clones CIDR range for ipv6 (0-128)
-	 * Defaults to 128 (checks on all IPs separately)
-	 */
-	unsigned char IPv6Range;
-
-	/** Holds the server name of the local server
-	 * as defined by the administrator.
-	 */
-	std::string ServerName;
-
-	/** Notice to give to users when they are banned by an XLine
-	 */
-	std::string XLineMessage;
-
-	/* Holds the network name the local server
-	 * belongs to. This is an arbitrary field defined
-	 * by the administrator.
-	 */
-	std::string Network;
-
-	/** Holds the description of the local server
-	 * as defined by the administrator.
-	 */
-	std::string ServerDesc;
-
-	/** How to treat a user in a channel who is banned. */
-	BannedUserTreatment RestrictBannedUsers;
-
-	/** The size of the read() buffer in the user
-	 * handling code, used to read data into a user's
-	 * recvQ.
-	 */
-	size_t NetBufferSize;
-
-	/** The value to be used for listen() backlogs as default.
-	 * As listen() expects a backlog to be `int` sized, so this must be.
-	 */
-	int MaxConn;
-
-	/** The soft limit value assigned to the irc server.
-	 * The IRC server will not allow more than this
-	 * number of local users.
-	 */
-	size_t SoftLimit;
-
-	/** Maximum number of targets for a multi target command
-	 * such as PRIVMSG or KICK
-	 */
-	unsigned long MaxTargets;
-
-	/** The number of seconds that the server clock can skip by before server operators are warned. */
-	time_t TimeSkipWarn;
-
-	/** True if raw I/O is being logged */
-	bool RawLog = false;
-
-	/** If non-empty then the quit message to use when killing an X-lined user. */
-	std::string HideLines;
-
-	/** Set to a non-empty string to obfuscate server names. */
-	std::string HideServer;
-
-	/** The connect classes in use by the IRC server.
-	 */
-	ClassVector Classes;
-
-	/** Default channel modes
-	 */
-	std::string DefaultModes;
-
-	/** Custom version string, which if defined can replace the system info in VERSION.
-	 */
-	std::string CustomVersion;
-
-	/** If set to true, provide syntax hints for unknown commands
-	 */
-	bool SyntaxHints;
-
-	/** The name of the casemapping method used by this server.
-	 */
-	std::string CaseMapping;
-
-	/** If set to true, the full nick!user\@host will be shown in the TOPIC command
-	 * for who set the topic last. If false, only the nick is shown.
-	 */
-	bool FullHostInTopic;
-
-	/** Oper accounts keyed by their name. */
-	OperAccountMap OperAccounts;
-
-	/** Oper types keyed by their name. */
-	OperTypeMap OperTypes;
-
-	/** Unique server ID.
-	 * NOTE: 000...999 are usable for InspIRCd servers. This
-	 * makes code simpler. 0AA, 1BB etc with letters are reserved
-	 * for services use.
-	 */
-	std::string ServerId;
-
-	/** Construct a new ServerConfig
-	 */
-	ServerConfig();
-
-	/** Retrieves the server name which should be shown to users. */
-	const std::string& GetServerName() const { return HideServer.empty() ? ServerName : HideServer; }
-
-	/** Retrieves the server description which should be shown to users. */
-	const std::string& GetServerDesc() const { return HideServer.empty() ? ServerDesc : Network; }
-
-	/** Read the entire configuration into memory
-	 * and initialize this class. All other methods
-	 * should be used only by the core.
-	 */
-	void Read();
-
-	/** Apply configuration changes from the old configuration.
-	 */
-	void Apply(ServerConfig* old, const std::string& useruid);
+	const std::shared_ptr<ConfigTag>& ConfValue(const std::string& tag, const std::shared_ptr<ConfigTag>& def = nullptr) const;
 
 	/** Escapes a value for storage in a configuration key.
 	 * @param str The string to escape.
 	 */
 	static std::string Escape(const std::string& str);
 
+	/** Retrieves the entire server config. */
+	const auto& GetConfig() const { return config_data; }
+
 	/** Retrieves the list of modules that were specified in the config. */
 	std::vector<std::string> GetModules() const;
 
-	/** If this value is true, snotices will not stack when repeats are sent
-	 */
-	bool NoSnoticeStack = false;
+	/** Retrieves the server description which should be shown to users. */
+	const auto& GetServerDesc() const { return HideServer.empty() ? ServerDesc : Network; }
+
+	/** Retrieves the server name which should be shown to users. */
+	const auto& GetServerName() const { return HideServer.empty() ? ServerName : HideServer; }
+
+	/** Attempt to read the configuration from disk. */
+	void Read();
 };
 
 /** The background thread for config reading, so that reading from executable includes

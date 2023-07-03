@@ -313,7 +313,7 @@ namespace
 				["-v"]["--version"]
 				("Show version and exit.");
 
-		auto result = cli.parse({ServerInstance->Config->cmdline.argc, ServerInstance->Config->cmdline.argv});
+		auto result = cli.parse({ServerInstance->Config->CommandLine.argc, ServerInstance->Config->CommandLine.argv});
 		if (!result)
 		{
 			std::cerr << rang::style::bold << rang::fg::red << "Error: " << rang::style::reset << result.message() << '.' << std::endl;
@@ -335,11 +335,11 @@ namespace
 		// Store the relevant parsed arguments
 		if (!config.empty())
 			ServerInstance->ConfigFileName = ExpandPath(config.c_str());
-		ServerInstance->Config->cmdline.forcedebug = do_debug;
-		ServerInstance->Config->cmdline.nofork = do_nofork;
-		ServerInstance->Config->cmdline.runasroot = do_runasroot;
-		ServerInstance->Config->cmdline.writelog = !do_nolog;
-		ServerInstance->Config->cmdline.writepid = !do_nopid;
+		ServerInstance->Config->CommandLine.forcedebug = do_debug;
+		ServerInstance->Config->CommandLine.nofork = do_nofork;
+		ServerInstance->Config->CommandLine.runasroot = do_runasroot;
+		ServerInstance->Config->CommandLine.writelog = !do_nolog;
+		ServerInstance->Config->CommandLine.writepid = !do_nopid;
 	}
 	// Seeds the random number generator if applicable.
 	void SeedRng(timespec ts)
@@ -439,7 +439,7 @@ void InspIRCd::Cleanup()
 
 void InspIRCd::WritePID()
 {
-	if (!ServerInstance->Config->cmdline.writepid)
+	if (!ServerInstance->Config->CommandLine.writepid)
 	{
 		this->Logs.Normal("STARTUP", "--nopid specified on command line; PID file not written.");
 		return;
@@ -475,8 +475,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	dynamic_reference_base::reset_all();
 	this->XLines = new XLineManager;
 
-	this->Config->cmdline.argv = argv;
-	this->Config->cmdline.argc = argc;
+	this->Config->CommandLine.argv = argv;
+	this->Config->CommandLine.argc = argc;
 	ParseOptions();
 
 	{
@@ -494,7 +494,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		<< std::endl;
 
 	Logs.RegisterServices();
-	if (Config->cmdline.forcedebug)
+	if (Config->CommandLine.forcedebug)
 		Logs.EnableDebugMode();
 
 	if (!FindConfigFile(ConfigFileName))
@@ -505,9 +505,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 
 	SetSignals();
-	if (!Config->cmdline.runasroot)
+	if (!Config->CommandLine.runasroot)
 		CheckRoot();
-	if (!Config->cmdline.nofork)
+	if (!Config->CommandLine.nofork)
 		ForkIntoBackground();
 
 	std::cout << "InspIRCd Process ID: " << rang::style::bold << rang::fg::green << getpid() << rang::style::reset << std::endl;
@@ -562,7 +562,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	std::cout << "InspIRCd is now running as '" << Config->ServerName << "'[" << Config->ServerId << "] with " << SocketEngine::GetMaxFds() << " max open sockets" << std::endl;
 
 #ifndef _WIN32
-	if (!Config->cmdline.nofork)
+	if (!Config->CommandLine.nofork)
 	{
 		if (kill(getppid(), SIGTERM) == -1)
 		{
@@ -581,7 +581,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	 *
 	 *    -- nenolod
 	 */
-	if ((!Config->cmdline.nofork) && (!Config->cmdline.forcedebug))
+	if ((!Config->CommandLine.nofork) && (!Config->CommandLine.forcedebug))
 	{
 		int fd = open("/dev/null", O_RDWR);
 
@@ -606,7 +606,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	SetServiceRunning();
 
 	// Handle forking
-	if(!Config->cmdline.nofork)
+	if(!Config->CommandLine.nofork)
 	{
 		FreeConsole();
 	}

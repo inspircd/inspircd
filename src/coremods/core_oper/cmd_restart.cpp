@@ -66,9 +66,9 @@ CmdResult CommandRestart::Handle(User* user, const Params& parameters)
 		}
 #endif
 
-		execvp(ServerInstance->Config->cmdline.argv[0], ServerInstance->Config->cmdline.argv);
+		execvp(ServerInstance->Config->CommandLine.argv[0], ServerInstance->Config->CommandLine.argv);
 		ServerInstance->SNO.WriteGlobalSno('a', "Failed RESTART - could not execute '{}' ({})",
-			ServerInstance->Config->cmdline.argv[0], strerror(errno));
+			ServerInstance->Config->CommandLine.argv[0], strerror(errno));
 	}
 	else
 	{

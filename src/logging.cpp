@@ -189,14 +189,14 @@ void Log::Manager::EnableDebugMode()
 void Log::Manager::OpenLogs(bool requiremethods)
 {
 	// If the server is started in debug mode we don't write logs.
-	if (ServerInstance->Config->cmdline.forcedebug)
+	if (ServerInstance->Config->CommandLine.forcedebug)
 	{
 		Normal("LOG", "Not opening loggers because we were started with --debug");
 		return;
 	}
 
 	// If the server is started with logging disabled we don't write logs.
-	if (!ServerInstance->Config->cmdline.writelog)
+	if (!ServerInstance->Config->CommandLine.writelog)
 	{
 		Normal("LOG", "Not opening loggers because we were started with --nolog");
 		return;
