@@ -47,14 +47,17 @@ public:
 		if (lu && lu->exempt)
 			return false;
 
+		// Try to match nick!duser@dhost or nick!ruser@rhost
 		if (InspIRCd::Match(u->GetMask(), matchtext) || InspIRCd::Match(u->GetRealMask(), matchtext))
 			return true;
 
-		if (InspIRCd::Match(u->GetUserAddress(), matchtext))
+		// Try to match nick!ruser@address
+		const std::string addressmask = INSP_FORMAT("{}!{}", u->nick, u->GetUserAddress());
+		if (InspIRCd::Match(addressmask, matchtext))
 			return true;
 
-		const std::string addressmask = INSP_FORMAT("{}!{}", u->nick, u->GetAddress());
-		if (InspIRCd::MatchCIDR(addressmask, matchtext, ascii_case_insensitive_map))
+		// Try to match address
+		if (InspIRCd::MatchCIDR(u->GetAddress(), matchtext, ascii_case_insensitive_map))
 			return true;
 
 		return false;
