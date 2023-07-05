@@ -395,7 +395,7 @@ public:
 		{
 			state.Set(user, IDENT_FOUND);
 			user->ChangeRealUser(isock->result, user->GetDisplayedUser() == user->GetRealUser());
-			user->WriteNotice("*** Found your ident, '" + user->GetRealUser() + "'");
+			user->WriteNotice("*** Found your ident (" + user->GetRealUser() + ").");
 		}
 
 		isock->Close();
