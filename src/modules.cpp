@@ -59,7 +59,10 @@ Module::Module(int mprops, const std::string& mdesc)
 Cullable::Result Module::Cull()
 {
 	if (ModuleDLLManager)
+	{
 		ServerInstance->GlobalCulls.AddItem(ModuleDLLManager);
+		ModuleDLLManager = nullptr;
+	}
 	return Cullable::Cull();
 }
 
