@@ -463,7 +463,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		}
 		else if (f->action == FA_SHUN && (ServerInstance->XLines->GetFactory("SHUN")))
 		{
-			auto* sh = new Shun(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetAddress());
+			auto* sh = new Shun(ServerInstance->Time(), f->duration, MODNAME "@" + ServerInstance->Config->ServerName, f->reason, user->GetAddress());
 			ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was shunned for {} (expires on {}) because their message to {} matched {} ({})",
 				user->nick, sh->Displayable(), Duration::ToString(f->duration),
 				Time::ToString(ServerInstance->Time() + f->duration),
@@ -477,7 +477,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		}
 		else if (f->action == FA_GLINE)
 		{
-			auto* gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, "*", user->GetAddress());
+			auto* gl = new GLine(ServerInstance->Time(), f->duration, MODNAME "@" + ServerInstance->Config->ServerName, f->reason, "*", user->GetAddress());
 			ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was G-lined for {} (expires on {}) because their message to {} matched {} ({})",
 				user->nick, gl->Displayable(), Duration::ToString(f->duration),
 				Time::ToString(ServerInstance->Time() + f->duration),
@@ -491,7 +491,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		}
 		else if (f->action == FA_ZLINE)
 		{
-			auto* zl = new ZLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetAddress());
+			auto* zl = new ZLine(ServerInstance->Time(), f->duration, MODNAME "@" + ServerInstance->Config->ServerName, f->reason, user->GetAddress());
 			ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was Z-lined for {} (expires on {}) because their message to {} matched {} ({})",
 				user->nick, zl->Displayable(), Duration::ToString(f->duration),
 				Time::ToString(ServerInstance->Time() + f->duration),
@@ -568,7 +568,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 			if (f->action == FA_GLINE)
 			{
 				/* Note: We G-line *@IP so that if their host doesn't resolve the G-line still applies. */
-				auto* gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, "*", user->GetAddress());
+				auto* gl = new GLine(ServerInstance->Time(), f->duration, MODNAME "@" + ServerInstance->Config->ServerName, f->reason, "*", user->GetAddress());
 				ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was G-lined for {} (expires on {}) because their {} message matched {} ({})",
 					user->nick, gl->Displayable(),
 					Duration::ToString(f->duration),
@@ -584,7 +584,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 			}
 			if (f->action == FA_ZLINE)
 			{
-				auto* zl = new ZLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetAddress());
+				auto* zl = new ZLine(ServerInstance->Time(), f->duration, MODNAME "@" + ServerInstance->Config->ServerName, f->reason, user->GetAddress());
 				ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was Z-lined for {} (expires on {}) because their {} message matched {} ({})",
 					user->nick, zl->Displayable(),
 					Duration::ToString(f->duration),
@@ -601,7 +601,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 			else if (f->action == FA_SHUN && (ServerInstance->XLines->GetFactory("SHUN")))
 			{
 				/* Note: We shun *!*@IP so that if their host doesnt resolve the shun still applies. */
-				auto* sh = new Shun(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName, f->reason, user->GetAddress());
+				auto* sh = new Shun(ServerInstance->Time(), f->duration, MODNAME "@" + ServerInstance->Config->ServerName, f->reason, user->GetAddress());
 				ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was shunned for {} (expires on {}) because their {} message matched {} ({})",
 					user->nick, sh->Displayable(),
 					Duration::ToString(f->duration),
