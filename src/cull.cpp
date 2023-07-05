@@ -111,8 +111,8 @@ void CullList::Apply()
 	for (auto* c : culled)
 	{
 #ifdef INSPIRCD_ENABLE_RTTI
-			ServerInstance->Logs.Debug("CULLLIST", "Deleting {} @{}", typeid(*c).name(),
-				fmt::ptr(c));
+		ServerInstance->Logs.Debug("CULLLIST", "Deleting {} @{}", typeid(*c).name(),
+			fmt::ptr(c));
 #endif
 		delete c;
 	}
