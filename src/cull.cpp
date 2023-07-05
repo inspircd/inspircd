@@ -127,7 +127,9 @@ void CullList::Apply()
 
 void ActionList::Run()
 {
-	for (auto* action : list)
-		action->Call();
+	// IMPORTANT: we can't use a range-based for loop here as adding to the list
+	// may invalidate the list iterators.
+	for (size_t idx = 0; idx < list.size(); ++idx)
+		list[idx]->Call();
 	list.clear();
 }
