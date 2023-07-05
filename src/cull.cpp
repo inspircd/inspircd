@@ -80,6 +80,7 @@ void CullList::Apply()
 	}
 
 	std::unordered_set<Cullable*> culled;
+	std::vector<Cullable*> deletable;
 	culled.reserve(list.size() + 32);
 
 	// IMPORTANT: we can't use a range-based for loop here as culling an object
@@ -94,6 +95,10 @@ void CullList::Apply()
 				fmt::ptr(c));
 #endif
 			c->Cull();
+
+			// IMPORTANT: we have to use two containers here because some objects
+			// have to be deleted in the same order they were culled in.
+			deletable.push_back(c);
 		}
 		else
 		{
@@ -108,7 +113,7 @@ void CullList::Apply()
 	}
 	list.clear();
 
-	for (auto* c : culled)
+	for (auto* c : deletable)
 	{
 #ifdef INSPIRCD_ENABLE_RTTI
 		ServerInstance->Logs.Debug("CULLLIST", "Deleting {} @{}", typeid(*c).name(),
