@@ -51,7 +51,7 @@ refcountbase::~refcountbase()
 {
 	if (refcount && ServerInstance)
 	{
-		ServerInstance->Logs.Debug("CULLLIST", "refcountbase::~ @{} with refcount {}",
+		ServerInstance->Logs.Debug("CULL", "refcountbase::~ @{} with refcount {}",
 			fmt::ptr(this), refcount);
 	}
 }
@@ -60,7 +60,7 @@ usecountbase::~usecountbase()
 {
 	if (usecount && ServerInstance)
 	{
-		ServerInstance->Logs.Debug("CULLLIST", "usecountbase::~ @{} with refcount {}",
+		ServerInstance->Logs.Debug("CULL", "usecountbase::~ @{} with refcount {}",
 			fmt::ptr(this), usecount);
 	}
 }

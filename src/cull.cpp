@@ -35,7 +35,7 @@ Cullable::Cullable()
 #ifdef INSPIRCD_ENABLE_RTTI
 	if (ServerInstance)
 	{
-		ServerInstance->Logs.Debug("CULLLIST", "Cullable::+{} @{}",
+		ServerInstance->Logs.Debug("CULL", "Cullable::+{} @{}",
 			typeid(*this).name(), fmt::ptr(this));
 	}
 #endif
@@ -46,7 +46,7 @@ Cullable::~Cullable()
 #ifdef INSPIRCD_ENABLE_RTTI
 	if (ServerInstance)
 	{
-		ServerInstance->Logs.Debug("CULLLIST", "Cullable::~{} @{}",
+		ServerInstance->Logs.Debug("CULL", "Cullable::~{} @{}",
 			typeid(*this).name(), fmt::ptr(this));
 	}
 #endif
@@ -57,7 +57,7 @@ Cullable::Result Cullable::Cull()
 #ifdef INSPIRCD_ENABLE_RTTI
 	if (ServerInstance)
 	{
-		ServerInstance->Logs.Debug("CULLLIST", "Cullable::-{} @{}",
+		ServerInstance->Logs.Debug("CULL", "Cullable::-{} @{}",
 			typeid(*this).name(), fmt::ptr(this));
 	}
 #endif
@@ -91,7 +91,7 @@ void CullList::Apply()
 		if (culled.insert(c).second)
 		{
 #ifdef INSPIRCD_ENABLE_RTTI
-			ServerInstance->Logs.Debug("CULLLIST", "Culling {} @{}", typeid(*c).name(),
+			ServerInstance->Logs.Debug("CULL", "Culling {} @{}", typeid(*c).name(),
 				fmt::ptr(c));
 #endif
 			c->Cull();
@@ -103,10 +103,10 @@ void CullList::Apply()
 		else
 		{
 #ifdef INSPIRCD_ENABLE_RTTI
-			ServerInstance->Logs.Debug("CULLLIST", "BUG: {} @{} was added to the cull list twice!",
+			ServerInstance->Logs.Debug("CULL", "BUG: {} @{} was added to the cull list twice!",
 				typeid(*c).name(), fmt::ptr(c));
 #else
-			ServerInstance->Logs.Debug("CULLLIST", "BUG: @{} was added to the cull list twice!",
+			ServerInstance->Logs.Debug("CULL", "BUG: @{} was added to the cull list twice!",
 				fmt::ptr(c));
 #endif
 		}
@@ -116,7 +116,7 @@ void CullList::Apply()
 	for (auto* c : deletable)
 	{
 #ifdef INSPIRCD_ENABLE_RTTI
-		ServerInstance->Logs.Debug("CULLLIST", "Deleting {} @{}", typeid(*c).name(),
+		ServerInstance->Logs.Debug("CULL", "Deleting {} @{}", typeid(*c).name(),
 			fmt::ptr(c));
 #endif
 		delete c;
@@ -124,7 +124,7 @@ void CullList::Apply()
 
 	if (!list.empty())
 	{
-		ServerInstance->Logs.Debug("CULLLIST", "BUG: {} objects were added to the cull list from a destructor",
+		ServerInstance->Logs.Debug("CULL", "BUG: {} objects were added to the cull list from a destructor",
 			list.size());
 		Apply();
 	}

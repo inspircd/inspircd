@@ -58,7 +58,7 @@ Extensible::~Extensible()
 {
 	if ((!extensions.empty() || !culled) && ServerInstance)
 	{
-		ServerInstance->Logs.Debug("CULLLIST", "Extensible destructor called without cull @{}",
+		ServerInstance->Logs.Debug("CULL", "Extensible was deleted without being culled: @{}",
 			fmt::ptr(this));
 	}
 }
