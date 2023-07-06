@@ -318,12 +318,12 @@
          # limit: How many users are allowed in this class
          limit="5000"
 
-         # modes: User modes that are set on users in this block on connect.
-         # Enabling this option requires that the conn_umodes module be loaded.
-         # This entry is highly recommended to use for/with IP cloaking/masking.
-         # For the example to work, this also requires that the cloak
-         # module be loaded as well.
-         modes="+x"
+         # modes: The modes to set on users in this class when they connect to
+         # the server. See https://docs.inspircd.org/3/user-modes/ for a list of
+         # user modes. The example below sets user modes v (deaf_commonchans)
+         # and x (cloak) which require the commonchans and cloak modules.
+         # This setting only has effect when the conn_umodes module is loaded.
+         modes="+cx"
 
          # requireident: Require that users of this block have a valid ident response.
          # Requires the ident module to be loaded.
@@ -451,12 +451,12 @@
          # limit: How many users are allowed in this class
          limit="5000"
 
-         # modes: User modes that are set on users in this block on connect.
-         # Enabling this option requires that the conn_umodes module be loaded.
-         # This entry is highly recommended to use for/with IP cloaking/masking.
-         # For the example to work, this also requires that the cloaking
-         # module be loaded as well.
-         modes="+x">
+         # modes: The modes to set on users in this class when they connect to
+         # the server. See https://docs.inspircd.org/3/user-modes/ for a list of
+         # user modes. The example below sets user modes v (deaf_commonchans)
+         # and x (cloak) which require the commonchans and cloak modules.
+         # This setting only has effect when the conn_umodes module is loaded.
+         modes="+cx">
 
 
 
@@ -628,8 +628,12 @@
          # 'splitmsg' - the same as split but also send a message explaining the split.
          splitwhois="no"
 
-         # defaultmodes: What modes are set on a new channel when a user creates it. Any
-         # prefix modes will be set on the creating user.
+         # defaultmodes: The modes to set on a channel when it is created. See
+         # https://docs.inspircd.org/3/channel-modes/ for a list of channel
+         # modes. If a prefix mode is included in this option it will be set on
+         # the user that created the channel. The example below sets channel
+         # modes n (noextmsg) and t (topiclock) and grants channel prefix mode
+         # o (op) to the channel creator.
          defaultmodes="not"
 
          # xlinemessage: This is the text that is sent to a user when they are
