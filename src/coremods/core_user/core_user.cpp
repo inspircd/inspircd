@@ -269,8 +269,7 @@ public:
 		if (memb->GetRank() < VOICE_VALUE && ServerInstance->Config->RestrictBannedUsers != ServerConfig::BUT_NORMAL && memb->chan->IsBanned(memb->user))
 		{
 			// The user is banned in the channel and restrictbannedusers is enabled.
-			if (ServerInstance->Config->RestrictBannedUsers != ServerConfig::BUT_NORMAL)
-				partmessage.clear();
+			partmessage.clear();
 		}
 	}
 
