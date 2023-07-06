@@ -78,6 +78,15 @@ public:
 	{
 		return HandleMessage(user, target, details.echo_original);
 	}
+
+	void OnUserPart(Membership* memb, std::string& partmessage, CUList& excepts) override
+	{
+		if (!IS_LOCAL(memb->user))
+			return;
+
+		if (extban.GetStatus(memb->user, memb->chan) == MOD_RES_DENY)
+			partmessage.clear();
+	}
 };
 
 MODULE_INIT(ModuleQuietBan)
