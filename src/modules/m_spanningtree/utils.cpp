@@ -233,16 +233,19 @@ void SpanningTreeUtilities::RefreshIPCache()
 
 void SpanningTreeUtilities::ReadConfiguration()
 {
-	const auto& security = ServerInstance->Config->ConfValue("security");
 	const auto& options = ServerInstance->Config->ConfValue("options");
+	AllowOptCommon = options->getBool("allowmismatch");
+	AnnounceTSChange = options->getBool("announcets");
+	PingWarnTime = options->getDuration("pingwarning", 15);
+	PingFreq = options->getDuration("serverpingfreq", 60, 1);
+
+	const auto& security = ServerInstance->Config->ConfValue("security");
 	FlatLinks = security->getBool("flatlinks");
 	HideServices = security->getBool("hideservices", security->getBool("hideulines"));
 	HideSplits = security->getBool("hidesplits");
-	AnnounceTSChange = options->getBool("announcets");
-	AllowOptCommon = options->getBool("allowmismatch");
-	quiet_bursts = ServerInstance->Config->ConfValue("performance")->getBool("quietbursts");
-	PingWarnTime = options->getDuration("pingwarning", 15);
-	PingFreq = options->getDuration("serverpingfreq", 60, 1);
+
+	const auto& performance = ServerInstance->Config->ConfValue("performance");
+	quiet_bursts = performance->getBool("quietbursts");
 
 	if (PingWarnTime >= PingFreq)
 		PingWarnTime = 0;
