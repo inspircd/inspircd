@@ -22,6 +22,7 @@
 
 
 #include "inspircd.h"
+#include "clientprotocolevent.h"
 #include "modules/ctctags.h"
 #include "modules/extban.h"
 #include "numerichelper.h"
@@ -79,13 +80,28 @@ public:
 		return HandleMessage(user, target, details.echo_original);
 	}
 
-	void OnUserPart(Membership* memb, std::string& partmessage, CUList& excepts) override
+	void OnUserPart(Membership* memb, std::string& partmessage, CUList& except_list) override
 	{
-		if (!IS_LOCAL(memb->user))
+		LocalUser* luser = IS_LOCAL(memb->user);
+		if (!luser)
 			return;
 
-		if (extban.GetStatus(memb->user, memb->chan) == MOD_RES_DENY)
-			partmessage.clear();
+		if (extban.GetStatus(memb->user, memb->chan) != MOD_RES_DENY)
+			return;
+
+		if (!notifyuser)
+		{
+			// Send fake part
+			const std::string oldreason = partmessage;
+			ClientProtocol::Messages::Part partmsg(memb, oldreason);
+			ClientProtocol::Event ev(ServerInstance->GetRFCEvents().part, partmsg);
+			luser->Send(ev);
+
+			// Don't send the user the changed message
+			except_list.insert(luser);
+			return;
+		}
+		partmessage.clear();
 	}
 };
 
