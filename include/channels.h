@@ -201,13 +201,27 @@ public:
 			KickUser(src, it, reason);
 	}
 
-	/** Part a user from this channel with the given reason.
-	 * If the reason field is NULL, no reason will be sent.
-	 * @param user The user who is parting (must be on this channel)
-	 * @param reason The part reason
-	 * @return True if the user was on the channel and left, false if they weren't and nothing happened
+	/** Part \p membiter from this channel with the given reason.
+	 * @param membiter An iterator to the user to part from the channel.
+	 * @param reason The part reason.
 	 */
-	bool PartUser(User* user, const std::string& reason);
+	void PartUser(const MemberMap::iterator& membiter, const std::string& reason);
+
+	/** Part \p user from this channel with the given reason.
+	 * @param user The user to part from the channel.
+	 * @param reason The part reason.
+	 * @return True if the user was a member of the channel and was parted; otherwise, false.
+	 */
+	inline bool PartUser(User* user, const std::string& reason)
+	{
+		auto it = userlist.find(user);
+		if (it != userlist.end())
+		{
+			PartUser(it, reason);
+			return true;
+		}
+		return false;
+	}
 
 	/** Join a local user to a channel, with or without permission checks. May be a channel that doesn't exist yet.
 	 * @param user The user to join to the channel.

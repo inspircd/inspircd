@@ -304,17 +304,9 @@ bool Channel::CheckBan(User* user, const std::string& mask)
 		InspIRCd::MatchCIDR(user->GetAddress(), suffix);
 }
 
-/* Channel::PartUser
- * Remove a channel from a users record, remove the reference to the Membership object
- * from the channel and destroy it.
- */
-bool Channel::PartUser(User* user, const std::string& reason)
+void Channel::PartUser(const MemberMap::iterator& membiter, const std::string& reason)
 {
-	MemberMap::iterator membiter = userlist.find(user);
-
-	if (membiter == userlist.end())
-		return false;
-
+	User* user = membiter->first;
 	Membership* memb = membiter->second;
 	std::string partreason(reason);
 	CUList except_list;
@@ -325,10 +317,9 @@ bool Channel::PartUser(User* user, const std::string& reason)
 
 	// Remove this channel from the user's chanlist
 	user->chans.erase(memb);
+
 	// Remove the Membership from this channel's userlist and destroy it
 	this->DelUser(membiter);
-
-	return true;
 }
 
 void Channel::KickUser(User* src, const MemberMap::iterator& victimiter, const std::string& reason)
