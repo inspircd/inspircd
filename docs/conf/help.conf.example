@@ -1101,8 +1101,6 @@ Acting extbans:
                matching users (requires the blockcolor module).
  m:<banmask>   Blocks messages from matching users (requires the muteban
                module). Users with +v or above are not affected.
- p:<banmask>   Blocks part messages from matching users (requires
-               the nopartmsg module).
  A:<banmask>   Blocks invites by matching users even when +A is set
                (requires the allowinvite module).
  B:<banmask>   Blocks all capital or nearly all capital messages from

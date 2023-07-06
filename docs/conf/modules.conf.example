@@ -1700,11 +1700,6 @@
 #<module name="nonicks">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# No part message module: Adds extban 'p' to block part messages from #
-# matching users.                                                     #
-#<module name="nopartmsg">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # No notice module: Adds the channel mode +T and the extban 'T' to
 # block specific users from noticing the channel.
 #<module name="nonotice">
