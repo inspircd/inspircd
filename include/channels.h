@@ -182,23 +182,28 @@ public:
 
 	Membership* GetUser(User* user) const;
 
-	/** Make src kick user from this channel with the given reason.
-	 * @param src The source of the kick
-	 * @param victimiter Iterator to the user being kicked, must be valid
-	 * @param reason The reason for the kick
+	/** Make \p source kick \p victimiter from this channel with the given reason.
+	 * @param source The user who initiated the kick.
+	 * @param victimiter An iterator to the user to kick from the channel.
+	 * @param reason The kick reason.
 	 */
-	void KickUser(User* src, const MemberMap::iterator& victimiter, const std::string& reason);
+	void KickUser(User* source, const MemberMap::iterator& victimiter, const std::string& reason);
 
-	/** Make src kick user from this channel with the given reason.
-	 * @param src The source of the kick
-	 * @param user The user being kicked
-	 * @param reason The reason for the kick
+	/** Make \p source kick \p victim from this channel with the given reason.
+	 * @param source The user who initiated the kick.
+	 * @param victim The user to kick from the channel.
+	 * @param reason The kick reason.
+	 * @return True if the user was a member of the channel and was kicked; otherwise, false.
 	 */
-	void KickUser(User* src, User* user, const std::string& reason)
+	bool KickUser(User* source, User* victim, const std::string& reason)
 	{
-		MemberMap::iterator it = userlist.find(user);
+		auto it = userlist.find(victim);
 		if (it != userlist.end())
-			KickUser(src, it, reason);
+		{
+			KickUser(source, it, reason);
+			return true;
+		}
+		return false;
 	}
 
 	/** Part \p membiter from this channel with the given reason.
