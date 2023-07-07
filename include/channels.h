@@ -122,9 +122,9 @@ public:
 	 * @param mode The mode character you wish to query
 	 * @return True if the custom mode is set, false if otherwise
 	 */
-	bool IsModeSet(const ModeHandler* mode) const { return ((mode->GetId() != ModeParser::MODEID_MAX) && (modes[mode->GetId()])); }
-	bool IsModeSet(const ModeHandler& mode) const { return IsModeSet(&mode); }
-	bool IsModeSet(const ChanModeReference& mode) const;
+	inline bool IsModeSet(const ModeHandler* mode) const { return mode->GetId() != ModeParser::MODEID_MAX && modes[mode->GetId()]; }
+	inline bool IsModeSet(const ModeHandler& mode) const { return IsModeSet(&mode); }
+	inline bool IsModeSet(const ChanModeReference& mode) const { return mode ? IsModeSet(*mode) : false; }
 
 	/** Returns the parameter for a custom mode on a channel.
 	 * @param mode The mode character you wish to query
@@ -178,7 +178,7 @@ public:
 	 * @param user The user to look for
 	 * @return True if the user is on this channel
 	 */
-	bool HasUser(User* user) const;
+	inline bool HasUser(User* user) const { return userlist.find(user) != userlist.end(); }
 
 	Membership* GetUser(User* user) const;
 
@@ -195,7 +195,7 @@ public:
 	 * @param reason The kick reason.
 	 * @return True if the user was a member of the channel and was kicked; otherwise, false.
 	 */
-	bool KickUser(User* source, User* victim, const std::string& reason)
+	inline bool KickUser(User* source, User* victim, const std::string& reason)
 	{
 		auto it = userlist.find(victim);
 		if (it != userlist.end())
@@ -301,11 +301,6 @@ public:
 	void WriteRemoteNotice(const std::string& text, char status = 0) const;
 };
 
-inline bool Channel::HasUser(User* user) const
-{
-	return (userlist.find(user) != userlist.end());
-}
-
 inline std::string Channel::GetModeParameter(ChanModeReference& mode)
 {
 	if (!mode)
@@ -328,11 +323,4 @@ inline std::string Channel::GetModeParameter(ParamModeBase* pm)
 	if (this->IsModeSet(pm))
 		pm->GetParameter(this, out);
 	return out;
-}
-
-inline bool Channel::IsModeSet(const ChanModeReference& mode) const
-{
-	if (!mode)
-		return false;
-	return IsModeSet(*mode);
 }
