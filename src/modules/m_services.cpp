@@ -36,7 +36,7 @@ public:
 	RegisteredChannel(Module* Creator)
 		: SimpleChannelMode(Creator, "c_registered", 'r')
 	{
-		if (ServerInstance->Config->ConfValue("services")->getBool("disablemodes"))
+		if (ServerInstance->Config->ConfValue("servicesintegration")->getBool("disablemodes"))
 			DisableAutoRegister();
 	}
 
@@ -60,7 +60,7 @@ public:
 	RegisteredUser(Module* Creator)
 		: SimpleUserMode(Creator, "u_registered", 'r')
 	{
-		if (ServerInstance->Config->ConfValue("services")->getBool("disablemodes"))
+		if (ServerInstance->Config->ConfValue("servicesintegration")->getBool("disablemodes"))
 			DisableAutoRegister();
 	}
 
@@ -229,7 +229,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		const auto& tag = ServerInstance->Config->ConfValue("services");
+		const auto& tag = ServerInstance->Config->ConfValue("servicesintegration");
 		accountoverrideshold = tag->getBool("accountoverrideshold");
 	}
 

@@ -2255,8 +2255,8 @@
 #                                                                     #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #
-# <services accountoverrideshold="yes"
-#           disablemodes="no">
+# <servicesintegration accountoverrideshold="yes"
+#                      disablemodes="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Sethost module: Adds the /SETHOST command.
