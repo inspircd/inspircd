@@ -184,18 +184,58 @@ public:
 	}
 };
 
+typedef std::vector<std::shared_ptr<DNSBLEntry>> DNSBLEntries;
 typedef SimpleExtItem<DNSBLMask> MaskExtItem;
 typedef ListExtItem<std::vector<std::string>> MarkExtItem;
 
 // Data which is shared with DNS lookup classes.
 class SharedData final
 {
+private:
+	std::string ReverseIP(const irc::sockets::sockaddrs& sa)
+	{
+		switch (sa.family())
+		{
+			case AF_INET:
+			{
+				auto a = (unsigned int) sa.in4.sin_addr.s_addr & 0xFF;
+				auto b = (unsigned int) (sa.in4.sin_addr.s_addr >> 8) & 0xFF;
+				auto c = (unsigned int) (sa.in4.sin_addr.s_addr >> 16) & 0xFF;
+				auto d = (unsigned int) (sa.in4.sin_addr.s_addr >> 24) & 0xFF;
+				return INSP_FORMAT("{}.{}.{}.{}", d, c, b, a);
+			}
+
+			case AF_INET6:
+			{
+				const std::string hexaddr = Hex::Encode(sa.in6.sin6_addr.s6_addr, 16);
+				std::string reversedip;
+				reversedip.reserve(hexaddr.length() * 2);
+				for (const auto hexchr : insp::reverse_range(hexaddr))
+				{
+					reversedip.push_back(hexchr);
+					reversedip.push_back('.');
+				}
+				reversedip.pop_back();
+				return reversedip;
+			}
+
+			default:
+				break;
+		}
+
+		// Clients can't be in a DNSBL if they aren't connected via IPv4 or IPv6.
+		return {};
+	}
+
 public:
+	// Counts the number of DNSBL lookups waiting for this user.
+	IntExtItem countext;
+
 	// Reference to the DNS manager.
 	DNS::ManagerRef dns;
 
-	// Counts the number of DNSBL lookups waiting for this user.
-	IntExtItem countext;
+	// The DNSBL entries from the config.
+	DNSBLEntries dnsbls;
 
 	// The DNSBL marks which are set on a user.
 	MarkExtItem markext;
@@ -204,12 +244,15 @@ public:
 	MaskExtItem maskext;
 
 	SharedData(Module* mod)
-		: dns(mod)
-		, countext(mod, "dnsbl-pending", ExtensionType::USER)
+		: countext(mod, "dnsbl-pending", ExtensionType::USER)
+		, dns(mod)
 		, markext(mod, "dnsbl-match", ExtensionType::USER)
 		, maskext(mod, "dnsbl-mask", ExtensionType::USER)
 	{
 	}
+
+	// Performs one or more DNSBL lookups on the specified user.
+	void Lookup(LocalUser* user);
 };
 
 class DNSBLResolver final
@@ -220,7 +263,6 @@ private:
 	SharedData& data;
 	const irc::sockets::sockaddrs sa;
 	const std::string uuid;
-
 
 	template <typename Line, typename... Extra>
 	void AddLine(const char* type, const std::string& reason, unsigned long duration, Extra&&... extra)
@@ -398,7 +440,41 @@ public:
 	}
 };
 
-typedef std::vector<std::shared_ptr<DNSBLEntry>> DNSBLEntries;
+void SharedData::Lookup(LocalUser* user)
+{
+	if (!dns)
+		return; // The core_dns module is not loaded.
+
+	if (user->exempt || !user->GetClass()->config->getBool("usednsbl", true))
+		return; // The user is exempt from DNSBL lookups.
+
+	const std::string reversedip = ReverseIP(user->client_sa);
+	ServerInstance->Logs.Debug(MODNAME, "Reversed IP {} => {}", user->GetAddress(), reversedip);
+
+	countext.Set(user, dnsbls.size());
+
+	// For each DNSBL, we will run through this lookup
+	for (const auto& dnsbl : dnsbls)
+	{
+		// Fill hostname with a dnsbl style host (d.c.b.a.domain.tld)
+		const std::string hostname = reversedip + "." + dnsbl->domain;
+
+		// Try to do the DNSBL lookup.
+		auto* r = new DNSBLResolver(dns->creator, *this, hostname, user, dnsbl);
+		try
+		{
+			dns->Process(r);
+		}
+		catch (const DNS::Exception& ex)
+		{
+			delete r;
+			ServerInstance->Logs.Debug(MODNAME, "DNSBL lookup error: {}", ex.GetReason());
+		}
+
+		if (user->quitting)
+			break; // DNS resolver found a cached hit.
+	}
+}
 
 class ModuleDNSBL final
 	: public Module
@@ -406,7 +482,6 @@ class ModuleDNSBL final
 {
 private:
 	SharedData data;
-	DNSBLEntries dnsbls;
 
 public:
 	ModuleDNSBL()
@@ -435,71 +510,13 @@ public:
 			auto entry = std::make_shared<DNSBLEntry>(this, tag);
 			newdnsbls.push_back(entry);
 		}
-		dnsbls.swap(newdnsbls);
+		data.dnsbls.swap(newdnsbls);
 	}
 
 	void OnChangeRemoteAddress(LocalUser* user) override
 	{
-		if (user->exempt || user->quitting || !data.dns || !user->GetClass())
-			return;
-
-		// Clients can't be in a DNSBL if they aren't connected via IPv4 or IPv6.
-		if (!user->client_sa.is_ip())
-			return;
-
-		if (!user->GetClass()->config->getBool("usednsbl", true))
-			return;
-
-		std::string reversedip;
-		if (user->client_sa.family() == AF_INET)
-		{
-			unsigned int a = (unsigned int) user->client_sa.in4.sin_addr.s_addr & 0xFF;
-			unsigned int b = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 8) & 0xFF;
-			unsigned int c = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 16) & 0xFF;
-			unsigned int d = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 24) & 0xFF;
-
-			reversedip = ConvToStr(d) + "." + ConvToStr(c) + "." + ConvToStr(b) + "." + ConvToStr(a);
-		}
-		else if (user->client_sa.family() == AF_INET6)
-		{
-			const unsigned char* ip = user->client_sa.in6.sin6_addr.s6_addr;
-
-			const std::string buf = Hex::Encode(ip, 16);
-			for (const auto chr : insp::reverse_range(buf))
-			{
-				reversedip.push_back(chr);
-				reversedip.push_back('.');
-			}
-			reversedip.erase(reversedip.length() - 1, 1);
-		}
-		else
-			return;
-
-		ServerInstance->Logs.Debug(MODNAME, "Reversed IP {} -> {}", user->GetAddress(), reversedip);
-
-		data.countext.Set(user, dnsbls.size());
-
-		// For each DNSBL, we will run through this lookup
-		for (const auto& dnsbl : dnsbls)
-		{
-			// Fill hostname with a dnsbl style host (d.c.b.a.domain.tld)
-			std::string hostname = reversedip + "." + dnsbl->domain;
-
-			/* now we'd need to fire off lookups for `hostname'. */
-			auto* r = new DNSBLResolver(this, data, hostname, user, dnsbl);
-			try
-			{
-				data.dns->Process(r);
-			}
-			catch (const DNS::Exception& ex)
-			{
-				delete r;
-				ServerInstance->Logs.Debug(MODNAME, ex.GetReason());
-			}
-
-			if (user->quitting)
-				break;
-		}
+		if (user->quitting && user->GetClass())
+			data.Lookup(user);
 	}
 
 	ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass, std::optional<Numeric::Numeric>& errnum) override
@@ -563,7 +580,7 @@ public:
 		unsigned long total_hits = 0;
 		unsigned long total_misses = 0;
 		unsigned long total_errors = 0;
-		for (const auto& dnsbl : dnsbls)
+		for (const auto& dnsbl : data.dnsbls)
 		{
 			total_hits += dnsbl->stats_hits;
 			total_misses += dnsbl->stats_misses;
