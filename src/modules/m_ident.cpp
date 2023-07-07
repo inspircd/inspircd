@@ -337,7 +337,7 @@ public:
 			return;
 		}
 
-		user->WriteNotice("*** Looking up your ident...");
+		user->WriteNotice("*** Looking up your username...");
 
 		try
 		{
@@ -389,13 +389,13 @@ public:
 		{
 			state.Set(user, IDENT_MISSING);
 			PrefixUser(user);
-			user->WriteNotice("*** Could not find your ident, using " + user->GetRealUser() + " instead.");
+			user->WriteNotice("*** Could not find your username, using " + user->GetRealUser() + " instead.");
 		}
 		else
 		{
 			state.Set(user, IDENT_FOUND);
 			user->ChangeRealUser(isock->result, user->GetDisplayedUser() == user->GetRealUser());
-			user->WriteNotice("*** Found your ident (" + user->GetRealUser() + ").");
+			user->WriteNotice("*** Found your username (" + user->GetRealUser() + ")");
 		}
 
 		isock->Close();
