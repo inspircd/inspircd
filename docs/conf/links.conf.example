@@ -130,7 +130,7 @@
 	server="hub.us.example.org hub.eu.example.org leaf.eu.example.org">
 
 
-#-#-#-#-#-#-#-#-#-#-#-#-# SERVICE CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
+#-#-#-#-#-#-#-#-#-#-#-# SERVICES  CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
 # This tag defines a services server. A services server has special     #
 # permissions, and should be used with caution. This should be used for #
 # the server that has ChanServ, NickServ, etc on it not a user server.  #
@@ -139,7 +139,7 @@
 # not generate quit and connect notices, which can cut down on noise    #
 # to opers on the network.                                              #
 #                                                                       #
-<service server="services.example.com" silent="yes">
+<services server="services.example.com" silent="yes">
 
 # Once you have edited this file you can remove this line. This is just to
 # ensure that you don't hastily include the file without reading it.

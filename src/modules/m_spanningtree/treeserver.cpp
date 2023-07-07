@@ -235,7 +235,7 @@ void TreeServer::CheckService()
 {
 	service = silentservice = false;
 
-	for (const auto& [_, tag] : ServerInstance->Config->ConfTags("service", ServerInstance->Config->ConfTags("uline")))
+	for (const auto& [_, tag] : ServerInstance->Config->ConfTags("services", ServerInstance->Config->ConfTags("uline")))
 	{
 		std::string server = tag->getString("server");
 		if (irc::equals(server, GetName()))
