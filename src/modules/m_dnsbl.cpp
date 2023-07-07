@@ -34,6 +34,7 @@
 #include "extension.h"
 #include "modules/dns.h"
 #include "modules/stats.h"
+#include "numerichelper.h"
 #include "timeutils.h"
 #include "xline.h"
 
@@ -401,8 +402,9 @@ public:
 				}
 			}
 
-			ServerInstance->SNO.WriteGlobalSno('d', "Connecting user {} ({}) detected as being on the '{}' DNS blacklist with result {}",
-				them->GetRealMask(), them->GetAddress(), config->name, result);
+			ServerInstance->SNO.WriteGlobalSno('d', "{} {} ({}) detected as being on the '{}' DNSBL with result {}",
+				them->IsFullyConnected() ? "User" : "Connecting user", them->GetRealMask(), them->GetAddress(),
+				config->name, result);
 		}
 		else
 			config->stats_misses++;
@@ -435,8 +437,69 @@ public:
 		if (is_miss)
 			return;
 
-		ServerInstance->SNO.WriteGlobalSno('d', "An error occurred whilst checking whether {} ({}) is on the '{}' DNS blacklist: {}",
+		ServerInstance->SNO.WriteGlobalSno('d', "An error occurred whilst checking whether {} ({}) is on the '{}' DNSBL: {}",
 			them->GetRealMask(), them->GetAddress(), config->name, data.dns->GetErrorStr(q->error));
+	}
+};
+
+class CommandDNSBL final
+	: public Command
+{
+private:
+	SharedData& data;
+
+public:
+	CommandDNSBL(Module* mod, SharedData& sd)
+		: Command(mod, "DNSBL", 1, 2)
+		, data(sd)
+	{
+		access_needed = CmdAccess::OPERATOR;
+		syntax = { "[<nick> [<reason>]]" };
+		translation = { TR_NICK, TR_TEXT };
+	}
+
+	CmdResult Handle(User* user, const Params& parameters) override
+	{
+		User* target;
+		if (IS_LOCAL(user))
+			target = ServerInstance->Users.FindNick(parameters[0], true);
+		else
+			target = ServerInstance->Users.FindUUID(parameters[0], true);
+
+		// We couldn't find the user so just give up.
+		if (!target)
+		{
+			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
+			return CmdResult::FAILURE;
+		}
+
+		auto* ltarget = IS_LOCAL(target);
+		if (!ltarget)
+			return CmdResult::SUCCESS; // The user is on another server so just let it forward.
+
+		intptr_t count = data.countext.Get(ltarget);
+		if (count)
+		{
+			// TODO: replace this with a FAIL stdrpl when we can network those.
+			user->WriteRemoteNotice(INSP_FORMAT("*** DNSBL: Unable to recheck {}: still waiting on {} DNSBLs from the previous check.",
+				ltarget->nick, count));
+			return CmdResult::FAILURE;
+		}
+
+		// TODO: replace this with a NOTE stdrpl when we can network those.
+		user->WriteRemoteNotice(INSP_FORMAT("*** DNSBL: Rechecking {} against {} DNSBLs.", ltarget->nick, data.dnsbls.size()));
+
+		const bool has_reason = parameters.size() > 1;
+		ServerInstance->SNO.WriteGlobalSno('d', "{} is rechecking whether {} ({}) is in a DNSBL{}{}", user->nick,
+			ltarget->nick, ltarget->GetAddress(),  has_reason ? ": " : "", has_reason ? parameters[1] : ".");
+
+		data.Lookup(ltarget);
+		return CmdResult::SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
+	{
+		return ROUTE_OPT_UCAST(parameters[0]);
 	}
 };
 
@@ -482,12 +545,14 @@ class ModuleDNSBL final
 {
 private:
 	SharedData data;
+	CommandDNSBL cmd;
 
 public:
 	ModuleDNSBL()
 		: Module(VF_VENDOR, "Allows the server administrator to check the IP address of connecting users against a DNSBL.")
 		, Stats::EventListener(this)
 		, data(this)
+		, cmd(this, data)
 	{
 	}
 
