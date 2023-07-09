@@ -271,11 +271,12 @@ struct Parser final
 		}
 		else if (stdalgo::string::equalsci(name, "define"))
 		{
-			std::string varname = tag->getString("name");
-			std::string value = tag->getString("value");
+			const std::string varname = tag->getString("name");
 			if (varname.empty())
-				throw CoreException("Variable definition must include variable name");
-			stack.vars[varname] = value;
+				throw CoreException("Variable definition must include a variable name, at " + tag->source.str());
+
+			if (stack.vars.find(varname) == stack.vars.end() || tag->getBool("replace", true))
+				stack.vars[varname] = tag->getString("value");
 		}
 		else
 		{
