@@ -45,6 +45,30 @@ private:
 	bool showmsg;
 	unsigned long waittime;
 
+	bool IsExempt(LocalUser* user)
+	{
+		// Allow if the source is a privileged server operator.
+		if (user->HasPrivPermission("servers/ignore-securelist"))
+			return true;
+
+		// Allow if the source is logged in and <securelist:exemptregistered> is set.
+		if (exemptregistered && accountapi && accountapi->GetAccountName(user))
+			return true;
+
+		// Allow if the source matches an <securehost> entry.
+		for (const auto& allowhost : allowlist)
+		{
+			if (InspIRCd::Match(user->GetRealUserHost(), allowhost, ascii_case_insensitive_map))
+				return true;
+
+			if (InspIRCd::Match(user->GetUserAddress(), allowhost, ascii_case_insensitive_map))
+				return true;
+		}
+
+		// The user does not appear to be exempt.
+		return false;
+	}
+
 public:
 	ModuleSecureList()
 		: Module(VF_VENDOR, "Prevents users from using the /LIST command until a predefined period has passed.")
@@ -78,27 +102,13 @@ public:
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
 	{
-		// Ignore unless the command is a validated LIST command.
-		if (!validated || command != "LIST")
+		// Ignore unless the command is a validated LIST command from a non-exempt user.
+		if (!validated || command != "LIST" || IsExempt(user))
 			return MOD_RES_PASSTHRU;
 
 		// Allow if the wait time has passed.
 		time_t maxwaittime = user->signon + waittime;
-		if (ServerInstance->Time() > maxwaittime || user->HasPrivPermission("servers/ignore-securelist"))
-			return MOD_RES_PASSTHRU;
-
-		// Allow if the source matches an <securehost> entry.
-		for (const auto& allowhost : allowlist)
-		{
-			if (InspIRCd::Match(user->GetRealUserHost(), allowhost, ascii_case_insensitive_map))
-				return MOD_RES_PASSTHRU;
-
-			if (InspIRCd::Match(user->GetUserAddress(), allowhost, ascii_case_insensitive_map))
-				return MOD_RES_PASSTHRU;
-		}
-
-		// Allow if the source is logged in and <securelist:exemptregistered> is set.
-		if (exemptregistered && accountapi && accountapi->GetAccountName(user))
+		if (ServerInstance->Time() > maxwaittime)
 			return MOD_RES_PASSTHRU;
 
 		// If <securehost:showmsg> is set then tell the user that they need to wait.
