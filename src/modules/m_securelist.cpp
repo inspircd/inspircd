@@ -42,10 +42,12 @@ private:
 	unsigned long fakechans;
 	std::string fakechanprefix;
 	std::string fakechantopic;
+	size_t hidesmallchans;
+	bool sendingfakelist = false;
 	bool showmsg;
 	unsigned long waittime;
 
-	bool IsExempt(LocalUser* user)
+	bool IsExempt(User* user)
 	{
 		// Allow if the source is a privileged server operator.
 		if (user->HasPrivPermission("servers/ignore-securelist"))
@@ -94,6 +96,7 @@ public:
 		fakechans = tag->getNum<unsigned long>("fakechans", 5, 0);
 		fakechanprefix = tag->getString("fakechanprefix", "#", 1, ServerInstance->Config->Limits.MaxChannel - 1);
 		fakechantopic = tag->getString("fakechantopic", "Fake channel for confusing spambots", 1, ServerInstance->Config->Limits.MaxTopic - 1);
+		hidesmallchans = tag->getNum<size_t>("hidesmallchans", 0);
 		showmsg = tag->getBool("showmsg", true);
 		waittime = tag->getDuration("waittime", 60, 1, 60*60*24);
 
@@ -122,6 +125,8 @@ public:
 		// The client might be waiting on a response to do something so send them an
 		// fake list response to satisfy that.
 		size_t maxfakesuffix = ServerInstance->Config->Limits.MaxChannel - fakechanprefix.size();
+		sendingfakelist = true;
+
 		user->WriteNumeric(RPL_LISTSTART, "Channel", "Users Name");
 		for (unsigned long fakechan = 0; fakechan < fakechans; ++fakechan)
 		{
@@ -140,7 +145,22 @@ public:
 			user->WriteNumeric(RPL_LIST, fakechanprefix + chansuffix, chanusers, chantopic);
 		}
 		user->WriteNumeric(RPL_LISTEND, "End of channel list.");
+
+		sendingfakelist = false;
 		return MOD_RES_DENY;
+	}
+
+	ModResult OnNumeric(User* user, const Numeric::Numeric& numeric) override
+	{
+		if (numeric.GetNumeric() != RPL_LIST || numeric.GetParams().size() < 2)
+			return MOD_RES_PASSTHRU; // The numeric isn't the one we care about.
+
+		if (sendingfakelist || IsExempt(user))
+			return MOD_RES_PASSTHRU; // This numeric should be shown even if too small.
+
+		// If the channel has less than the minimum amount of users then hide it from /LIST.
+		auto usercount = ConvToNum<size_t>(numeric.GetParams()[1]);
+		return usercount < hidesmallchans ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override

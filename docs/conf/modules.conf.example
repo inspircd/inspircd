@@ -2183,8 +2183,9 @@
 #      requiressl="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Secure list module: Prevent /LIST in the first minute of connection,
-# crippling most spambots and trojan spreader bots.
+# Secure list module: Prevent users from using the /LIST command until
+# a predefined period has passed. This helps protect your network from
+# spambots.
 #<module name="securelist">
 #
 #-#-#-#-#-#-#-#-#-# SECURELIST CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -2207,6 +2208,11 @@
 # fakechantopic - The topic for the fake channels. A random format    #
 #                 modifier will be inserted into this for randomness. #
 #                                                                     #
+# hidesmallchans - The minimum user count for a channel to show up in #
+#                  /LIST after the wait period (see below). If a user #
+#                  is exempt from the wait period this will not apply #
+#                  to them.                                           #
+#                                                                     #
 # showmsg - Whether to tell users that they need to wait for a while  #
 #           before they can use the /LIST command.                    #
 #           Defaults to no.                                           #
@@ -2219,6 +2225,7 @@
 #            fakechans="5"
 #            fakechanprefix="#spam"
 #            fakechantopic="Fake channel for confusing spambots"
+#            hidesmallchans="0"
 #            showmsg="yes"
 #            waittime="1m">
 
