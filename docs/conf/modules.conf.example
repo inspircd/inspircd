@@ -1275,7 +1275,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # IRCv3 invite-notify module: Provides the invite-notify IRCv3
 # extension which notifies supporting clients when a user invites
-# another user into a channel. This respects <options:announceinvites>.
+# another user into a channel. This respects <security:announceinvites>.
 #<module name="ircv3_invitenotify">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
