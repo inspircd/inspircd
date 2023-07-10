@@ -1286,8 +1286,8 @@
 #<inviteexception bypasskey="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# IRCv3 module: Provides the following IRCv3 extensions:
-# extended-join, away-notify and account-notify. These are optional
+# IRCv3 module: Provides the IRCv3 account-notify, away-notify,
+# extended-join, and standard-replies extensions. These are optional
 # enhancements to the client-to-server protocol. An extension is only
 # active for a client when the client specifically requests it, so this
 # module needs the cap module to work.
@@ -1351,7 +1351,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # IRCv3 invite-notify module: Provides the invite-notify IRCv3
 # extension which notifies supporting clients when a user invites
-# another user into a channel. This respects <options:announceinvites>.
+# another user into a channel. This respects <security:announceinvites>.
 #<module name="ircv3_invitenotify">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

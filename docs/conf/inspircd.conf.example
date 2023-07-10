@@ -320,7 +320,7 @@
 
          # modes: The modes to set on users in this class when they connect to
          # the server. See https://docs.inspircd.org/3/user-modes/ for a list of
-         # user modes. The example below sets user modes v (deaf_commonchans)
+         # user modes. The example below sets user modes c (deaf_commonchans)
          # and x (cloak) which require the commonchans and cloak modules.
          # This setting only has effect when the conn_umodes module is loaded.
          modes="+cx"
@@ -453,7 +453,7 @@
 
          # modes: The modes to set on users in this class when they connect to
          # the server. See https://docs.inspircd.org/3/user-modes/ for a list of
-         # user modes. The example below sets user modes v (deaf_commonchans)
+         # user modes. The example below sets user modes c (deaf_commonchans)
          # and x (cloak) which require the commonchans and cloak modules.
          # This setting only has effect when the conn_umodes module is loaded.
          modes="+cx">
