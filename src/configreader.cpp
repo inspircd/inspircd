@@ -96,10 +96,12 @@ ServerConfig::ServerConfig()
 ServerConfig::ReadResult ServerConfig::ReadFile(const std::string& file, bool invalidate)
 {
 	auto contents = filecontents.find(file);
-	if (invalidate)
+	if (contents != filecontents.end())
+	{
+		if (!invalidate)
+			return ReadResult(contents->second, {});
 		filecontents.erase(contents);
-	else if (contents != filecontents.end())
-		return ReadResult(contents->second, {});
+	}
 
 	bool executable = false;
 	std::string name = file;
@@ -110,7 +112,7 @@ ServerConfig::ReadResult ServerConfig::ReadFile(const std::string& file, bool in
 	if (source != filesources.end())
 	{
 		name = source->first;
-		path = source->second.second;
+		path = source->second.first;
 		executable = source->second.second;
 	}
 
