@@ -658,7 +658,7 @@ public:
 		stats.AddGenericRow("Total DNSBL hits: " + ConvToStr(total_hits));
 		stats.AddGenericRow("Total DNSBL misses: " + ConvToStr(total_misses));
 		stats.AddGenericRow("Total DNSBL errors: " + ConvToStr(total_errors));
-		return MOD_RES_PASSTHRU;
+		return MOD_RES_DENY;
 	}
 };
 

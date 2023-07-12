@@ -118,7 +118,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 	if (res == MOD_RES_DENY)
 	{
 		const char* what = IS_LOCAL(user) ? "Stats" : "Remote stats";
-		ServerInstance->SNO.WriteToSnoMask('t', "{} '{}' denied for {} ({})", what, statschar, user->nick, user->GetRealUserHost());
+		ServerInstance->SNO.WriteToSnoMask('t', "{} '{}' requested by {} ({})", what, statschar, user->nick, user->GetRealUserHost());
 		stats.AddRow(219, statschar, "End of /STATS report");
 		return;
 	}

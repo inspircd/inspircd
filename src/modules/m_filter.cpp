@@ -915,7 +915,7 @@ ModResult ModuleFilter::OnStats(Stats::Context& stats)
 			stats.AddRow(223, "EXEMPT " + exemptednick);
 		}
 	}
-	return MOD_RES_PASSTHRU;
+	return MOD_RES_DENY;
 }
 
 void ModuleFilter::OnUnloadModule(Module* mod)
