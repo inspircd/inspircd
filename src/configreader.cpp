@@ -31,7 +31,6 @@
 
 
 #include <filesystem>
-#include <iostream>
 #ifndef _WIN32
 # include <unistd.h>
 #endif
@@ -507,9 +506,11 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
 		getline(errstr, line, '\n');
 		if (line.empty())
 			continue;
+
 		// On startup, print out to console (still attached at this point)
 		if (!old)
-			std::cout << line << std::endl;
+			fmt::println(line);
+
 		// If a user is rehashing, tell them directly
 		if (user)
 			user->WriteRemoteNotice(INSP_FORMAT("*** {}", line));

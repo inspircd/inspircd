@@ -26,14 +26,13 @@
  */
 
 
-#include <iostream>
-
-#include <rang/rang.hpp>
-
 #ifndef _WIN32
 # include <fcntl.h>
 # include <sys/resource.h>
+# include <unistd.h>
 #endif
+
+#include <fmt/color.h>
 
 #include "inspircd.h"
 #include "exitcodes.h"
@@ -71,7 +70,7 @@ void EventHandler::OnEventHandlerError(int errornum)
 
 void SocketEngine::InitError()
 {
-	std::cerr << rang::style::bold << rang::fg::red << "FATAL ERROR!" << rang::style::reset << " Socket engine initialization failed. " << strerror(errno) << '.' << std::endl;
+	fmt::println(stderr, "{} Socket engine initialization failed. {}.", fmt::styled("FATAL ERROR!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), strerror(errno));
 	InspIRCd::QuickExit(EXIT_STATUS_SOCKETENGINE);
 }
 

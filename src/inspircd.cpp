@@ -36,8 +36,8 @@
 #include <fstream>
 #include <iostream>
 
+#include <fmt/color.h>
 #include <lyra/lyra.hpp>
-#include <rang/rang.hpp>
 
 #include "inspircd.h"
 #include "exitcodes.h"
@@ -48,6 +48,7 @@
 # include <grp.h>
 # include <pwd.h>
 # include <sys/resource.h>
+# include <unistd.h>
 #else
 # define STDIN_FILENO 0
 # define STDOUT_FILENO 1
@@ -77,21 +78,21 @@ namespace
 		if (getegid() != 0 && geteuid() != 0)
 			return;
 
-		std::cout << rang::style::bold << rang::fg::red << "Warning!" << rang::style::reset << " You have started as root. Running as root is generally not required" << std::endl
-			<< "and may allow an attacker to gain access to your system if they find a way to" << std::endl
-			<< "exploit your IRC server." << std::endl
-			<< std::endl;
+		fmt::println("{} You have started as root. Running as root is generally not required", fmt::styled("Warning!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)));
+		fmt::println("and may allow an attacker to gain access to your system if they find a way to");
+		fmt::println("exploit your IRC server.");
+		fmt::println("");
 		if (isatty(fileno(stdout)))
 		{
-			std::cout << "InspIRCd will start in 30 seconds. If you are sure that you need to run as root" << std::endl
-				<< "then you can pass the " << rang::style::bold << "--runasroot" << rang::style::reset << " option to disable this wait." << std::endl;
+			fmt::println("InspIRCd will start in 30 seconds. If you are sure that you need to run as root");
+			fmt::println("then you can pass the {} option to disable this wait.", fmt::styled("--runasroot", fmt::emphasis::bold));
 			sleep(30);
 		}
 		else
 		{
-			std::cout << "If you are sure that you need to run as root then you can pass the " << rang::style::bold << "--runasroot" << rang::style::reset << std::endl
-				<< "option to disable this error." << std::endl;
-				ServerInstance->Exit(EXIT_STATUS_ROOT);
+			fmt::println("If you are sure that you need to run as root then you can pass the {}", fmt::styled("--runasroot", fmt::emphasis::bold));
+			fmt::println("option to disable this error.");
+			ServerInstance->Exit(EXIT_STATUS_ROOT);
 		}
 #endif
 	}
@@ -235,7 +236,7 @@ namespace
 		if (childpid < 0)
 		{
 			ServerInstance->Logs.Error("STARTUP", "fork() failed: {}", strerror(errno));
-			std::cout << rang::style::bold << rang::fg::red << "Error:" << rang::style::reset << " unable to fork into background: " << strerror(errno);
+			fmt::println("{} unable to fork into background: {}", fmt::styled("Error:", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), strerror(errno));
 			ServerInstance->Exit(EXIT_STATUS_FORK);
 		}
 		else if (childpid > 0)
@@ -316,7 +317,7 @@ namespace
 		auto result = cli.parse({ServerInstance->Config->CommandLine.argc, ServerInstance->Config->CommandLine.argv});
 		if (!result)
 		{
-			std::cerr << rang::style::bold << rang::fg::red << "Error: " << rang::style::reset << result.message() << '.' << std::endl;
+			fmt::println(stderr, "{} {}", fmt::styled("Error:", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), result.message());
 			ServerInstance->Exit(EXIT_STATUS_ARGV);
 		}
 
@@ -328,7 +329,7 @@ namespace
 
 		if (do_version)
 		{
-			std::cout << INSPIRCD_VERSION << std::endl;
+			fmt::println(INSPIRCD_VERSION);
 			ServerInstance->Exit(EXIT_STATUS_NOERROR);
 		}
 
@@ -373,24 +374,24 @@ namespace
 
 		if (!pl.empty())
 		{
-			std::cout << rang::style::bold << rang::fg::red << "Warning!" << rang::style::reset << " Some of your listener" << (pl.size() == 1 ? "s" : "") << " failed to bind:" << std::endl
-				<< std::endl;
+			fmt::println("{} Some of your listeners failed to bind:", fmt::styled("Warning!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)));
+			fmt::println("");
 
 			for (const auto& fp : pl)
 			{
-				std::cout << "  ";
+				fmt::print("  ");
 				if (fp.sa.family() != AF_UNSPEC)
-					std::cout << rang::style::bold << fp.sa.str() << rang::style::reset << ": ";
+					fmt::print("{}: ", fmt::styled(fp.sa.str(), fmt::emphasis::bold));
 
-				std::cout << fp.error << '.' << std::endl
-					<< "  " << "Created from <bind> tag at " << fp.tag->source.str() << std::endl
-					<< std::endl;
+				fmt::println("{}.", fp.error);
+				fmt::println("Created from <bind> tag at {}", fp.tag->source.str());
+				fmt::println("");
 			}
 
-			std::cout << rang::style::bold << "Hints:" << rang::style::reset << std::endl
-				<< "- For TCP/IP listeners try using a public IP address in <bind:address> instead" << std::endl
-				<< "  of * or leaving it blank." << std::endl
-				<< "- For UNIX socket listeners try enabling <bind:rewrite> to replace old sockets." << std::endl;
+			fmt::print(fmt::text_style(fmt::emphasis::bold), "Hints:");
+			fmt::println("- For TCP/IP listeners try using a public IP address in <bind:address> instead");
+			fmt::println("  of * or leaving it blank.");
+			fmt::println("- For UNIX socket listeners try enabling <bind:rewrite> to replace old sockets.");
 		}
 	}
 
@@ -454,7 +455,7 @@ void InspIRCd::WritePID()
 	}
 	else
 	{
-		std::cout << "Failed to write PID-file '" << pidfile << "', exiting." << std::endl;
+		fmt::println("Failed to write PID-file '{}', exiting.", pidfile);
 		this->Logs.Error("STARTUP", "Failed to write PID-file '{}', exiting.", pidfile);
 		Exit(EXIT_STATUS_PID);
 	}
@@ -489,9 +490,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		Modules.AddServices(provs, sizeof(provs)/sizeof(provs[0]));
 	}
 
-	std::cout << rang::style::bold << rang::fg::green << "InspIRCd - Internet Relay Chat Daemon" << rang::style::reset << std::endl
-		<< "See " << rang::style::bold << rang::fg::green << "/INFO" << rang::style::reset << " for contributors & authors" << std::endl
-		<< std::endl;
+	fmt::println("{}", fmt::styled("InspIRCd - Internet Relay Chat Daemon", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::green)));
+	fmt::println("See {} for contributors & authors", fmt::styled("/INFO", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::green)));
+	fmt::println("");
 
 	Logs.RegisterServices();
 	if (Config->CommandLine.forcedebug)
@@ -500,7 +501,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	if (!FindConfigFile(ConfigFileName))
 	{
 		this->Logs.Error("STARTUP", "Unable to open config file {}", ConfigFileName);
-		std::cout << "ERROR: Cannot open config file: " << ConfigFileName << std::endl << "Exiting..." << std::endl;
+		fmt::println("ERROR: Cannot open config file: {}", ConfigFileName);
+		fmt::println("Exiting...");
 		Exit(EXIT_STATUS_CONFIG);
 	}
 
@@ -510,7 +512,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	if (!Config->CommandLine.nofork)
 		ForkIntoBackground();
 
-	std::cout << "InspIRCd Process ID: " << rang::style::bold << rang::fg::green << getpid() << rang::style::reset << std::endl;
+	fmt::println("InspIRCd Process ID: {}", fmt::styled(getpid(), fmt::emphasis::bold | fmt::fg(fmt::terminal_color::green)));
 
 	/* During startup we read the configuration now, not in
 	 * a separate thread
@@ -525,7 +527,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 	catch (const CoreException& ex)
 	{
-		std::cout << "ERROR: Cannot open log files: " << ex.GetReason() << std::endl << "Exiting..." << std::endl;
+		fmt::println("ERROR: Cannot open log files: {}", ex.GetReason());
+		fmt::println("Exiting...");
 		Exit(EXIT_STATUS_LOG);
 	}
 
@@ -542,7 +545,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	// This is needed as all new XLines are marked pending until ApplyLines() is called
 	this->XLines->ApplyLines();
 
-	std::cout << std::endl;
+	fmt::println("");
 
 	TryBindPorts();
 
@@ -555,18 +558,20 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 	catch (const CoreException& ex)
 	{
-		std::cout << "ERROR: Cannot open log files: " << ex.GetReason() << std::endl << "Exiting..." << std::endl;
+		fmt::println("ERROR: Cannot open log files: {}", ex.GetReason());
+		fmt::println("Exiting...");
 		Exit(EXIT_STATUS_LOG);
 	}
 
-	std::cout << "InspIRCd is now running as '" << Config->ServerName << "'[" << Config->ServerId << "] with " << SocketEngine::GetMaxFds() << " max open sockets" << std::endl;
+	fmt::println("InspIRCd is now running as '{}'[{}] with {} max open sockets",
+		Config->ServerName, Config->ServerId, SocketEngine::GetMaxFds());
 
 #ifndef _WIN32
 	if (!Config->CommandLine.nofork)
 	{
 		if (kill(getppid(), SIGTERM) == -1)
 		{
-			std::cout << "Error killing parent process: " << strerror(errno) << std::endl;
+			fmt::println("Error killing parent process: {}", strerror(errno));
 			Logs.Warning("STARTUP", "Error killing parent process: {}", strerror(errno));
 		}
 	}

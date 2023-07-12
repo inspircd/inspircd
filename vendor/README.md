@@ -52,16 +52,6 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **Website** &mdash; [https://openwall.info/wiki/people/solar/software/public-domain-source-code/md5](https://openwall.info/wiki/people/solar/software/public-domain-source-code/md5)
 
-## rang
-
-**Author** &mdash; Abhinav Gauniyal
-
-**License** &mdash; Unlicense
-
-**Version** &mdash; v3.2
-
-**Website** &mdash; [https://github.com/agauniyal/rang/](https://github.com/agauniyal/rang/)
-
 ## sha2
 
 **Author** &mdash; [Olivier Gay](mailto:olivier.gay@a3.epfl.ch)

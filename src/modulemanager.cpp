@@ -23,9 +23,8 @@
 
 
 #include <filesystem>
-#include <iostream>
 
-#include <rang/rang.hpp>
+#include <fmt/color.h>
 
 #include "inspircd.h"
 #include "dynamic.h"
@@ -128,7 +127,8 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 /* We must load the modules AFTER initializing the socket engine, now */
 void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicemap)
 {
-	std::cout << "Loading core modules " << std::flush;
+	fmt::print("Loading core modules ");
+	fflush(stdout);
 
 	try
 	{
@@ -141,21 +141,24 @@ void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicem
 			if (!InspIRCd::Match(name, "core_*" DLL_EXTENSION))
 				continue;
 
-			std::cout << "." << std::flush;
+			fmt::print(".");
+			fflush(stdout);
 			this->NewServices = &servicemap[name];
 
 			if (!Load(name, true))
 			{
-				std::cout << std::endl << "[" << rang::style::bold << rang::fg::red << "*" << rang::style::reset << "] " << this->LastError() << std::endl << std::endl;
+				fmt::println("");
+				fmt::println("[{}] {}", fmt::styled("*", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), LastError());
+				fmt::println("");
 				ServerInstance->Exit(EXIT_STATUS_MODULE);
 			}
 		}
 	}
 	catch (const std::filesystem::filesystem_error& err)
 	{
-		std::cout << "failed: " << err.what() << std::endl;
+		fmt::println("failed: {}", err.what());
 		ServerInstance->Exit(EXIT_STATUS_MODULE);
 	}
 
-	std::cout << std::endl;
+	fmt::println("");
 }

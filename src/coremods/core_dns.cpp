@@ -24,7 +24,6 @@
 #include "modules/dns.h"
 #include "modules/stats.h"
 
-#include <iostream>
 #include <fstream>
 
 #ifdef _WIN32

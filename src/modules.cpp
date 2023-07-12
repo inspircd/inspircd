@@ -30,9 +30,7 @@
  */
 
 
-#include <iostream>
-
-#include <rang/rang.hpp>
+#include <fmt/color.h>
 
 #include "inspircd.h"
 #include "exitcodes.h"
@@ -536,10 +534,12 @@ void ModuleManager::LoadAll()
 			continue;
 
 		this->NewServices = &servicemap[name];
-		std::cout << "[" << rang::style::bold << rang::fg::green << "*" << rang::style::reset << "] Loading module:\t" << rang::style::bold << rang::fg::green << name << rang::style::reset << std::endl;
+		fmt::println("[{}] Loading module:\t{}", fmt::styled("*", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::green)), name);
 		if (!this->Load(name, true))
 		{
-			std::cout << std::endl << "[" << rang::style::bold << rang::fg::red << "*" << rang::style::reset << "] " << this->LastError() << std::endl << std::endl;
+			fmt::println("");
+			fmt::println("[{}] {}", fmt::styled("*", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), LastError());
+			fmt::println("");
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
 	}
@@ -558,7 +558,9 @@ void ModuleManager::LoadAll()
 		{
 			LastModuleError = "Unable to initialize " + modname + ": " + modexcept.GetReason();
 			ServerInstance->Logs.Error("MODULE", LastModuleError);
-			std::cout << std::endl << "[" << rang::style::bold << rang::fg::red << "*" << rang::style::reset << "] " << LastModuleError << std::endl << std::endl;
+			fmt::println("");
+			fmt::println("[{}] {}", fmt::styled("*", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), LastModuleError);
+			fmt::println("");
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
 	}
@@ -580,7 +582,9 @@ void ModuleManager::LoadAll()
 		{
 			LastModuleError = "Unable to read the configuration for " + modname + ": " + modexcept.GetReason();
 			ServerInstance->Logs.Error("MODULE", LastModuleError);
-			std::cout << std::endl << "[" << rang::style::bold << rang::fg::red << "*" << rang::style::reset << "] " << LastModuleError << std::endl << std::endl;
+			fmt::println("");
+			fmt::println("[{}] {}", fmt::styled("*", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), LastModuleError);
+			fmt::println("");
 			ServerInstance->Exit(EXIT_STATUS_CONFIG);
 		}
 	}
