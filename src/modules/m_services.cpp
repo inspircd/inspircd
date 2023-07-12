@@ -313,7 +313,7 @@ public:
 
 	void OnUserPostNick(User* user, const std::string& oldnick) override
 	{
-		if (user->IsModeSet(registeredumode) && irc::equals(oldnick, user->nick))
+		if (user->IsModeSet(registeredumode) && !irc::equals(oldnick, user->nick))
 			registeredumode.RemoveMode(user);
 	}
 };
