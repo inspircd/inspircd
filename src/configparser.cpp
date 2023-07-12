@@ -163,9 +163,15 @@ struct Parser
 	{
 		while (1)
 		{
-			int ch = next();
+			int ch = next(true);
 			if (ch == '\n')
 				return;
+
+			if (ch == EOF)
+			{
+				unget(ch);
+				return;
+			}
 		}
 	}
 
