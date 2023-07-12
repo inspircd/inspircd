@@ -50,6 +50,13 @@ public:
 		irc::spacesepstream codes(country);
 		for (std::string token; codes.GetToken(token); )
 		{
+			if (token.length() != 2)
+			{
+				ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class contains an invalid country code: {}",
+					klass->GetName(), token);
+				continue;
+			}
+
 			// If the user matches this country code then they can use this
 			// connect class.
 			if (stdalgo::string::equalsci(token, code))

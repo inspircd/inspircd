@@ -117,8 +117,10 @@ ifeq ($(SYSTEM), $(filter $(SYSTEM), gnu linux solaris))
 	LDLIBS += -lrt
 endif
 
-# On Haiku we need libnetwork for creating sockets.
+# On Haiku we need _BSD_SOURCE for common BSD extensions and
+# libnetwork for creating sockets.
 ifeq ($(SYSTEM), haiku)
+  CORECXXFLAGS += -D_BSD_SOURCE
   LDLIBS += -lnetwork
 endif
 
