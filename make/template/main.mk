@@ -94,6 +94,9 @@ endif
 ifeq ($(SYSTEM), gnu)
   LDLIBS += -ldl -lrt
 endif
+ifeq ($(SYSTEM), haiku)
+	CORECXXFLAGS += -D_BSD_SOURCE
+endif
 ifeq ($(SYSTEM), solaris)
   LDLIBS += -lsocket -lnsl -lrt -lresolv
 endif
