@@ -1,4 +1,4 @@
-# Last updated: 2022-07-01
+# Last updated: 2022-07-13
 #
 # Modules we can't legally ship: geo_maxmind, ssl_mbedtls, ssl_openssl
 # Modules which don't apply to Windows: sslrehashsignal
@@ -11,7 +11,7 @@ libmysqlclient/8.0.31
 libpq/14.7
 libpsl/0.21.1
 ## mbedtls/3.2.1
-## openssl/1.1.1u # unable to upgrade to v3 yet because of dependency issues
+## openssl/3.1.1
 pcre2/10.42
 rapidjson/cci.20220822
 re2/20230602
