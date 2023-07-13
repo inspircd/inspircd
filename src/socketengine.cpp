@@ -35,7 +35,6 @@
 #include <fmt/color.h>
 
 #include "inspircd.h"
-#include "exitcodes.h"
 
 /** Reference table, contains all current handlers
  **/
@@ -71,7 +70,7 @@ void EventHandler::OnEventHandlerError(int errornum)
 void SocketEngine::InitError()
 {
 	fmt::println(stderr, "{} Socket engine initialization failed. {}.", fmt::styled("FATAL ERROR!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), strerror(errno));
-	InspIRCd::QuickExit(EXIT_STATUS_SOCKETENGINE);
+	InspIRCd::QuickExit(EXIT_FAILURE);
 }
 
 void SocketEngine::LookupMaxFds()

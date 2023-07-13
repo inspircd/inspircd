@@ -22,7 +22,6 @@
 
 
 #include "inspircd.h"
-#include "exitcodes.h"
 
 #include <iostream>
 
@@ -61,14 +60,14 @@ void SetServiceRunning()
 		throw CWin32Exception();
 }
 
-/* In windows we hook this to InspIRCd::Exit() */
+/* In windows we hook this to InspIRCd::Exit(EXIT_FAILURE) */
 void SetServiceStopped(DWORD dwStatus)
 {
 	if (!g_bRunningAsService)
 		return;
 
 	g_ServiceStatus.dwCurrentState = SERVICE_STOPPED;
-	if(dwStatus != EXIT_STATUS_NOERROR)
+	if(dwStatus != EXIT_SUCCESS)
 	{
 		g_ServiceStatus.dwServiceSpecificExitCode = dwStatus;
 		g_ServiceStatus.dwWin32ExitCode = ERROR_SERVICE_SPECIFIC_ERROR;
@@ -255,12 +254,12 @@ int main(int argc, char* argv[])
 			if(!_stricmp(argv[i], "--installservice"))
 			{
 				InstallService();
-				return 0;
+				return EXIT_SUCCESS;
 			}
 			if(!_stricmp(argv[i], "--uninstallservice") || !_stricmp(argv[i], "--removeservice"))
 			{
 				UninstallService();
-				return 0;
+				return EXIT_SUCCESS;
 			}
 		}
 	}
@@ -282,8 +281,8 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			return EXIT_STATUS_SERVICE;
+			return EXIT_FAILURE;
 		}
 	}
-	return 0;
+	return EXIT_SUCCESS;
 }

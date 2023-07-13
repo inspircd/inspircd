@@ -33,7 +33,6 @@
 #include <fmt/color.h>
 
 #include "inspircd.h"
-#include "exitcodes.h"
 #include "dynamic.h"
 #include "utility/map.h"
 
@@ -540,7 +539,7 @@ void ModuleManager::LoadAll()
 			fmt::println("");
 			fmt::println("[{}] {}", fmt::styled("*", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), LastError());
 			fmt::println("");
-			ServerInstance->Exit(EXIT_STATUS_MODULE);
+			ServerInstance->Exit(EXIT_FAILURE);
 		}
 	}
 
@@ -561,7 +560,7 @@ void ModuleManager::LoadAll()
 			fmt::println("");
 			fmt::println("[{}] {}", fmt::styled("*", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), LastModuleError);
 			fmt::println("");
-			ServerInstance->Exit(EXIT_STATUS_MODULE);
+			ServerInstance->Exit(EXIT_FAILURE);
 		}
 	}
 
@@ -585,12 +584,12 @@ void ModuleManager::LoadAll()
 			fmt::println("");
 			fmt::println("[{}] {}", fmt::styled("*", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), LastModuleError);
 			fmt::println("");
-			ServerInstance->Exit(EXIT_STATUS_CONFIG);
+			ServerInstance->Exit(EXIT_FAILURE);
 		}
 	}
 
 	if (!PrioritizeHooks())
-		ServerInstance->Exit(EXIT_STATUS_MODULE);
+		ServerInstance->Exit(EXIT_FAILURE);
 }
 
 std::string& ModuleManager::LastError()

@@ -27,14 +27,13 @@
 
 
 #include "inspircd.h"
-#include "exitcodes.h"
 
 void InspIRCd::SignalHandler(int signal)
 {
 	switch (signal)
 	{
 		case SIGTERM:
-			Exit(EXIT_STATUS_SIGTERM);
+			Exit(EXIT_FAILURE);
 
 #ifndef _WIN32
 		case SIGHUP:
@@ -63,12 +62,7 @@ void InspIRCd::Exit(int status)
 
 void InspIRCd::QuickExit(int status)
 {
-#ifdef INSPIRCD_BINARY_EXIT
-	// Some init systems handle non-binary exit statuses weirdly.
-	exit(status ? EXIT_FAILURE : EXIT_SUCCESS);
-#else
 	exit(status);
-#endif
 }
 
 void InspIRCd::Rehash(const std::string& uuid)

@@ -56,52 +56,6 @@ Allow the server to start as root (not recommended).
 .br
 Displays the InspIRCd version and exits.
 
-.SH "EXIT STATUS"
-.TP
-.B "0 (EXIT_STATUS_NOERROR)"
-.br
-The server exited cleanly.
-.TP
-.B "1 (EXIT_STATUS_DIE)"
-.br
-The server exited because the DIE command was executed.
-.TP
-.B "2 (EXIT_STATUS_CONFIG)"
-.br
-The server exited because of a configuration file error.
-.TP
-.B "3 (EXIT_STATUS_LOG)"
-.br
-The server exited because of a log file error.
-.TP
-.B "4 (EXIT_STATUS_FORK)"
-.br
-The server exited because it was unable to fork into the background.
-.TP
-.B "5 (EXIT_STATUS_ARGV)"
-.br
-The server exited because an invalid argument was passed to it on the command line.
-.TP
-.B "6 (EXIT_STATUS_PID)"
-.br
-The server exited because it was unable to write to the PID file.
-.TP
-.B "7 (EXIT_STATUS_SOCKETENGINE)"
-.br
-The server exited because it was unable to initialize the @SOCKETENGINE@ socket engine.
-.TP
-.B "8 (EXIT_STATUS_ROOT)"
-.br
-The server exited because the user tried to start as root without \fI--runasroot\fR.
-.TP
-.B "9 (EXIT_STATUS_MODULE)"
-.br
-The server exited because it was unable to load a module on first run.
-.TP
-.B "10 (EXIT_STATUS_SIGTERM)"
-.br
-The server exited because it received SIGTERM.
-
 .SH "SUPPORT"
 IRC support for InspIRCd can be found at ircs://irc.inspircd.org/inspircd.
 

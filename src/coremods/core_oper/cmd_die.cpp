@@ -27,8 +27,6 @@
 
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
-#include "exitcodes.h"
-
 
 #include "core_oper.h"
 
@@ -65,7 +63,7 @@ CmdResult CommandDie::Handle(User* user, const Params& parameters)
 		const std::string diebuf = "*** DIE command from " + user->GetMask() + ". Terminating.";
 		ServerInstance->Logs.Error(MODNAME, diebuf);
 		DieRestart::SendError(diebuf);
-		ServerInstance->Exit(EXIT_STATUS_DIE);
+		ServerInstance->Exit(EXIT_FAILURE);
 	}
 	else
 	{

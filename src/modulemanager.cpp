@@ -28,7 +28,6 @@
 
 #include "inspircd.h"
 #include "dynamic.h"
-#include "exitcodes.h"
 
 bool ModuleManager::Load(const std::string& modname, bool defer)
 {
@@ -150,14 +149,14 @@ void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicem
 				fmt::println("");
 				fmt::println("[{}] {}", fmt::styled("*", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), LastError());
 				fmt::println("");
-				ServerInstance->Exit(EXIT_STATUS_MODULE);
+				ServerInstance->Exit(EXIT_FAILURE);
 			}
 		}
 	}
 	catch (const std::filesystem::filesystem_error& err)
 	{
 		fmt::println("failed: {}", err.what());
-		ServerInstance->Exit(EXIT_STATUS_MODULE);
+		ServerInstance->Exit(EXIT_FAILURE);
 	}
 
 	fmt::println("");

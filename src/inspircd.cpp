@@ -40,7 +40,6 @@
 #include <lyra/lyra.hpp>
 
 #include "inspircd.h"
-#include "exitcodes.h"
 #include "xline.h"
 
 #ifndef _WIN32
@@ -92,7 +91,7 @@ namespace
 		{
 			fmt::println("If you are sure that you need to run as root then you can pass the {}", fmt::styled("--runasroot", fmt::emphasis::bold));
 			fmt::println("option to disable this error.");
-			ServerInstance->Exit(EXIT_STATUS_ROOT);
+			ServerInstance->Exit(EXIT_FAILURE);
 		}
 #endif
 	}
@@ -151,20 +150,20 @@ namespace
 			if (setgroups(0, nullptr) == -1)
 			{
 				ServerInstance->Logs.Error("STARTUP", "setgroups() failed (wtf?): {}", strerror(errno));
-				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
+				InspIRCd::QuickExit(EXIT_FAILURE);
 			}
 
 			struct group* g = getgrnam(SetGroup.c_str());
 			if (!g)
 			{
 				ServerInstance->Logs.Error("STARTUP", "getgrnam({}) failed (wrong group?): {}", SetGroup, strerror(errno));
-				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
+				InspIRCd::QuickExit(EXIT_FAILURE);
 			}
 
 			if (setgid(g->gr_gid) == -1)
 			{
 				ServerInstance->Logs.Error("STARTUP", "setgid({}) failed (wrong group?): {}", g->gr_gid, strerror(errno));
-				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
+				InspIRCd::QuickExit(EXIT_FAILURE);
 			}
 		}
 
@@ -176,13 +175,13 @@ namespace
 			if (!u)
 			{
 				ServerInstance->Logs.Error("STARTUP", "getpwnam({}) failed (wrong user?): {}", SetUser, strerror(errno));
-				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
+				InspIRCd::QuickExit(EXIT_FAILURE);
 			}
 
 			if (setuid(u->pw_uid) == -1)
 			{
 				ServerInstance->Logs.Error("STARTUP", "setuid({}) failed (wrong user?): {}", u->pw_uid, strerror(errno));
-				InspIRCd::QuickExit(EXIT_STATUS_CONFIG);
+				InspIRCd::QuickExit(EXIT_FAILURE);
 			}
 		}
 #endif
@@ -228,7 +227,7 @@ namespace
 	{
 #ifndef _WIN32
 		// We use VoidSignalHandler whilst forking to avoid breaking daemon scripts
-		// if the parent process exits with SIGTERM (15) instead of EXIT_STATUS_NOERROR (0).
+		// if the parent process exits with SIGTERM (15) instead of EXIT_SUCCESS (0).
 		signal(SIGTERM, VoidSignalHandler);
 
 		errno = 0;
@@ -237,7 +236,7 @@ namespace
 		{
 			ServerInstance->Logs.Error("STARTUP", "fork() failed: {}", strerror(errno));
 			fmt::println("{} unable to fork into background: {}", fmt::styled("Error:", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), strerror(errno));
-			ServerInstance->Exit(EXIT_STATUS_FORK);
+			ServerInstance->Exit(EXIT_FAILURE);
 		}
 		else if (childpid > 0)
 		{
@@ -247,7 +246,7 @@ namespace
 			// happened and the parent should exit.
 			while (kill(childpid, 0) != -1)
 				sleep(1);
-			InspIRCd::QuickExit(EXIT_STATUS_NOERROR);
+			InspIRCd::QuickExit(EXIT_SUCCESS);
 		}
 		else
 		{
@@ -318,19 +317,19 @@ namespace
 		if (!result)
 		{
 			fmt::println(stderr, "{} {}", fmt::styled("Error:", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), result.message());
-			ServerInstance->Exit(EXIT_STATUS_ARGV);
+			ServerInstance->Exit(EXIT_FAILURE);
 		}
 
 		if (do_help)
 		{
 			std::cout << cli << std::endl;
-			ServerInstance->Exit(EXIT_STATUS_NOERROR);
+			ServerInstance->Exit(EXIT_SUCCESS);
 		}
 
 		if (do_version)
 		{
 			fmt::println(INSPIRCD_VERSION);
-			ServerInstance->Exit(EXIT_STATUS_NOERROR);
+			ServerInstance->Exit(EXIT_SUCCESS);
 		}
 
 		// Store the relevant parsed arguments
@@ -398,7 +397,7 @@ namespace
 	// Required for returning the proper value of EXIT_SUCCESS for the parent process.
 	void VoidSignalHandler(int)
 	{
-		InspIRCd::QuickExit(EXIT_STATUS_NOERROR);
+		InspIRCd::QuickExit(EXIT_SUCCESS);
 	}
 }
 
@@ -457,7 +456,7 @@ void InspIRCd::WritePID()
 	{
 		fmt::println("Failed to write PID-file '{}', exiting.", pidfile);
 		this->Logs.Error("STARTUP", "Failed to write PID-file '{}', exiting.", pidfile);
-		Exit(EXIT_STATUS_PID);
+		Exit(EXIT_FAILURE);
 	}
 }
 
@@ -503,7 +502,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		this->Logs.Error("STARTUP", "Unable to open config file {}", ConfigFileName);
 		fmt::println("ERROR: Cannot open config file: {}", ConfigFileName);
 		fmt::println("Exiting...");
-		Exit(EXIT_STATUS_CONFIG);
+		Exit(EXIT_FAILURE);
 	}
 
 	SetSignals();
@@ -529,7 +528,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	{
 		fmt::println("ERROR: Cannot open log files: {}", ex.GetReason());
 		fmt::println("Exiting...");
-		Exit(EXIT_STATUS_LOG);
+		Exit(EXIT_FAILURE);
 	}
 
 	// If we don't have a SID, generate one based on the server name and the server description
@@ -560,7 +559,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	{
 		fmt::println("ERROR: Cannot open log files: {}", ex.GetReason());
 		fmt::println("Exiting...");
-		Exit(EXIT_STATUS_LOG);
+		Exit(EXIT_FAILURE);
 	}
 
 	fmt::println("InspIRCd is now running as '{}'[{}] with {} max open sockets",

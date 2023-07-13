@@ -112,9 +112,6 @@ private:
 	DWORD dwErrorCode;
 };
 
-// Same value as EXIT_STATUS_FORK (EXIT_STATUS_FORK is unused on Windows)
-#define EXIT_STATUS_SERVICE 4
-
 // POSIX iovec
 struct iovec final
 {

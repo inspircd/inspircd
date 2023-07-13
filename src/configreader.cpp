@@ -37,7 +37,6 @@
 
 #include "inspircd.h"
 #include "configparser.h"
-#include "exitcodes.h"
 
 ServerConfig::ReadResult::ReadResult(const std::string& c, const std::string& e)
 	: contents(c)
@@ -528,7 +527,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
 	{
 		if (!valid)
 		{
-			ServerInstance->Exit(EXIT_STATUS_CONFIG);
+			ServerInstance->Exit(EXIT_FAILURE);
 		}
 
 		return;
