@@ -198,7 +198,7 @@ void ListenSocket::OnEventHandlerRead()
 	{
 		ServerInstance->Logs.Debug("SOCKET", "Refused connection to {}: {}",
 			bind_sa.str(), strerror(errno));
-		ServerInstance->stats.Refused++;
+		ServerInstance->Stats.Refused++;
 		return;
 	}
 
@@ -257,11 +257,11 @@ void ListenSocket::OnEventHandlerRead()
 	FIRST_MOD_RESULT(OnAcceptConnection, res, (incomingfd, this, client, server));
 	if (res == MOD_RES_ALLOW)
 	{
-		ServerInstance->stats.Accept++;
+		ServerInstance->Stats.Accept++;
 		return;
 	}
 
-	ServerInstance->stats.Refused++;
+	ServerInstance->Stats.Refused++;
 	ServerInstance->Logs.Normal("SOCKET", "Refusing connection on {} - {}", bind_sa.str(),
 		res == MOD_RES_DENY ? "Connection refused by module" : "Module for this port not found");
 	SocketEngine::Close(incomingfd);

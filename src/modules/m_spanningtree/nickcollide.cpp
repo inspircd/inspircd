@@ -41,7 +41,7 @@
 bool SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remotets, const std::string& remoteuser, const std::string& remoteip, const std::string& remoteuid, const char* collidecmd)
 {
 	// At this point we're sure that a collision happened, increment the counter regardless of who wins
-	ServerInstance->stats.Collisions++;
+	ServerInstance->Stats.Collisions++;
 
 	/*
 	 * Under old protocol rules, we would have had to kill both clients.

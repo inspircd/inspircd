@@ -105,7 +105,7 @@ CoreExport extern InspIRCd* ServerInstance;
  * It is used by the InspIRCd class, which internally
  * has an instance of it.
  */
-class serverstats final
+class ServerStats final
 {
 public:
 	/** Number of accepted connections
@@ -237,7 +237,7 @@ public:
 
 	/** Stats class, holds miscellaneous stats counters
 	 */
-	serverstats stats;
+	ServerStats Stats;
 
 	/**  Server Config class, holds configuration file data
 	 */

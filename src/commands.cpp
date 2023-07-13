@@ -204,7 +204,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 			if (user->IsFullyConnected())
 				user->WriteNumeric(ERR_UNKNOWNCOMMAND, command, "Unknown command");
 
-			ServerInstance->stats.Unknown++;
+			ServerInstance->Stats.Unknown++;
 			FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 			return;
 		}
@@ -283,7 +283,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 			if (user->IsFullyConnected())
 				user->WriteNumeric(ERR_UNKNOWNCOMMAND, command, "Unknown command");
 
-			ServerInstance->stats.Unknown++;
+			ServerInstance->Stats.Unknown++;
 			FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 
 			break;

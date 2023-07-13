@@ -156,7 +156,7 @@ public:
 			// The server administrator has specified that disabled commands should be
 			// treated as if they do not exist.
 			user->WriteNumeric(ERR_UNKNOWNCOMMAND, command, "Unknown command");
-			ServerInstance->stats.Unknown++;
+			ServerInstance->Stats.Unknown++;
 			return MOD_RES_DENY;
 		}
 

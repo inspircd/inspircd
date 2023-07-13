@@ -277,9 +277,9 @@ void CommandStats::DoStats(Stats::Context& stats)
 				stats.AddRow(249, "Swaps:            "+ConvToStr(R.ru_nswap));
 				stats.AddRow(249, "Context Switches: Voluntary; "+ConvToStr(R.ru_nvcsw)+" Involuntary; "+ConvToStr(R.ru_nivcsw));
 #endif
-				float n_elapsed = (ServerInstance->Time() - ServerInstance->stats.LastSampled.tv_sec) * 1000000
-					+ (ServerInstance->Time_ns() - ServerInstance->stats.LastSampled.tv_nsec) / 1000;
-				float n_eaten = ((R.ru_utime.tv_sec - ServerInstance->stats.LastCPU.tv_sec) * 1000000 + R.ru_utime.tv_usec - ServerInstance->stats.LastCPU.tv_usec);
+				float n_elapsed = (ServerInstance->Time() - ServerInstance->Stats.LastSampled.tv_sec) * 1000000
+					+ (ServerInstance->Time_ns() - ServerInstance->Stats.LastSampled.tv_nsec) / 1000;
+				float n_eaten = ((R.ru_utime.tv_sec - ServerInstance->Stats.LastCPU.tv_sec) * 1000000 + R.ru_utime.tv_usec - ServerInstance->Stats.LastCPU.tv_usec);
 				float per = (n_eaten / n_elapsed) * 100;
 
 				stats.AddRow(249, INSP_FORMAT("CPU Use (now):    {:03.5}%", per));
@@ -309,8 +309,8 @@ void CommandStats::DoStats(Stats::Context& stats)
 			{
 				KernelTime.dwHighDateTime += UserTime.dwHighDateTime;
 				KernelTime.dwLowDateTime += UserTime.dwLowDateTime;
-				double n_eaten = (double)( ( (uint64_t)(KernelTime.dwHighDateTime - ServerInstance->stats.LastCPU.dwHighDateTime) << 32 ) + (uint64_t)(KernelTime.dwLowDateTime - ServerInstance->stats.LastCPU.dwLowDateTime) )/100000;
-				double n_elapsed = (double)(ThisSample.QuadPart - ServerInstance->stats.LastSampled.QuadPart) / ServerInstance->stats.QPFrequency.QuadPart;
+				double n_eaten = (double)( ( (uint64_t)(KernelTime.dwHighDateTime - ServerInstance->Stats.LastCPU.dwHighDateTime) << 32 ) + (uint64_t)(KernelTime.dwLowDateTime - ServerInstance->Stats.LastCPU.dwLowDateTime) )/100000;
+				double n_elapsed = (double)(ThisSample.QuadPart - ServerInstance->Stats.LastSampled.QuadPart) / ServerInstance->Stats.QPFrequency.QuadPart;
 				double per = (n_eaten/n_elapsed);
 
 				stats.AddRow(249, INSP_FORMAT("CPU Use (now):    {:03.5}%", per));
@@ -327,12 +327,12 @@ void CommandStats::DoStats(Stats::Context& stats)
 
 		case 'T':
 		{
-			stats.AddRow(249, "accepts "+ConvToStr(ServerInstance->stats.Accept)+" refused "+ConvToStr(ServerInstance->stats.Refused));
-			stats.AddRow(249, "unknown commands "+ConvToStr(ServerInstance->stats.Unknown));
-			stats.AddRow(249, "nick collisions "+ConvToStr(ServerInstance->stats.Collisions));
-			stats.AddRow(249, "connection count "+ConvToStr(ServerInstance->stats.Connects));
+			stats.AddRow(249, "accepts "+ConvToStr(ServerInstance->Stats.Accept)+" refused "+ConvToStr(ServerInstance->Stats.Refused));
+			stats.AddRow(249, "unknown commands "+ConvToStr(ServerInstance->Stats.Unknown));
+			stats.AddRow(249, "nick collisions "+ConvToStr(ServerInstance->Stats.Collisions));
+			stats.AddRow(249, "connection count "+ConvToStr(ServerInstance->Stats.Connects));
 			stats.AddRow(249, INSP_FORMAT("bytes sent {:5.2}K recv {:5.2}K",
-				ServerInstance->stats.Sent / 1024.0, ServerInstance->stats.Recv / 1024.0));
+				ServerInstance->Stats.Sent / 1024.0, ServerInstance->Stats.Recv / 1024.0));
 		}
 		break;
 

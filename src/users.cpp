@@ -280,7 +280,7 @@ void UserIOHandler::OnDataReady()
 		checked_until = 0;
 
 		// TODO should this be moved to when it was inserted in recvq?
-		ServerInstance->stats.Recv += qpos;
+		ServerInstance->Stats.Recv += qpos;
 		user->bytes_in += qpos;
 		user->cmds_in++;
 
@@ -464,7 +464,7 @@ bool LocalUser::CheckLines(bool doZline)
 
 void LocalUser::FullConnect()
 {
-	ServerInstance->stats.Connects++;
+	ServerInstance->Stats.Connects++;
 	this->idle_lastmsg = ServerInstance->Time();
 
 	/*
@@ -726,7 +726,7 @@ void LocalUser::Write(const ClientProtocol::SerializedMessage& text)
 	eh.AddWriteBuf(text);
 
 	const size_t bytessent = text.length() + 2;
-	ServerInstance->stats.Sent += bytessent;
+	ServerInstance->Stats.Sent += bytessent;
 	this->bytes_out += bytessent;
 	this->cmds_out++;
 }
