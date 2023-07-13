@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 project(InspIRCd CXX)
 
+if(NOT WIN32)
+	message(FATAL_ERROR "CMake can only be used on Windows!")
+endif()
+
 set(CONFIG_DIR "conf" CACHE PATH "Configuration file path")
 set(MODULE_DIR "modules" CACHE PATH "Module path")
 set(DATA_DIR "data" CACHE PATH "Data path")
