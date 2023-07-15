@@ -463,8 +463,8 @@ void InspIRCd::DefaultGenRandom(char* output, size_t max)
 #else
 	static std::random_device device;
 	static std::mt19937 engine(device());
-	static std::uniform_int_distribution<char> dist;
+	static std::uniform_int_distribution<short> dist(CHAR_MIN, CHAR_MAX);
 	for (size_t i = 0; i < max; ++i)
-		output[i] = dist(engine);
+		output[i] = static_cast<char>(dist(engine));
 #endif
 }
