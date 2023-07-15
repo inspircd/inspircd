@@ -37,7 +37,7 @@
  * order to build on Windows correctly.
  */
 #if defined _WIN32
-# include "inspircd_win32wrapper.h"
+# include "win32wrapper.h"
 #else
 # define DllExport __attribute__ ((visibility ("default")))
 # define CoreExport __attribute__ ((visibility ("default")))

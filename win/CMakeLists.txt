@@ -45,7 +45,7 @@ string(REGEX REPLACE ".*InspIRCd-([^\"]+).*" "\\1" VERSION_FULL "${VERSIONSH}")
 file(GLOB INSPIRCD_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
 	"${INSPIRCD_BASE}/src/*.cpp"
 	"${INSPIRCD_BASE}/src/socketengines/select.cpp"
-	"${INSPIRCD_BASE}/win/inspircd_win32wrapper.cpp"
+	"${INSPIRCD_BASE}/win/win32wrapper.cpp"
 	"${INSPIRCD_BASE}/win/win32service.cpp"
 )
 list(SORT INSPIRCD_SOURCES)
@@ -54,14 +54,14 @@ include_directories("${INSPIRCD_BASE}/win" "${INSPIRCD_BASE}/include")
 include_directories(SYSTEM "${INSPIRCD_BASE}/vendor")
 
 if(MSVC)
-	add_library(win32_memory STATIC "${INSPIRCD_BASE}/win/inspircd_memory_functions.cpp")
+	add_library(win32memory STATIC "${INSPIRCD_BASE}/win/win32memory.cpp")
 endif()
 
 configure_file("${INSPIRCD_BASE}/win/inspircd.rc.cmake" "${INSPIRCD_BASE}/win/inspircd.rc")
 configure_file("${INSPIRCD_BASE}/make/template/config.h" "${INSPIRCD_BASE}/include/config.h")
 
 add_executable(inspircd ${INSPIRCD_SOURCES} "${INSPIRCD_BASE}/win/inspircd.rc")
-target_link_libraries(inspircd win32_memory)
+target_link_libraries(inspircd win32memory)
 set_target_properties(inspircd PROPERTIES COMPILE_DEFINITIONS "FMT_LIB_EXPORT" ENABLE_EXPORTS ON)
 install(TARGETS inspircd RUNTIME DESTINATION .)
 
