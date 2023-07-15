@@ -207,6 +207,8 @@ class ModuleWatch
 	void Online(User* user)
 	{
 		SendAlert(user, user->nick, RPL_LOGON, "arrived online", user->age);
+		if (!user->awaymsg.empty())
+			OnUserAway(user);
 	}
 
 	void Offline(User* user, const std::string& nick)
