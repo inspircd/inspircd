@@ -199,6 +199,8 @@ private:
 	void Online(User* user)
 	{
 		SendAlert(user, user->nick, RPL_LOGON, "arrived online", user->nickchanged);
+		if (!user->awaymsg.empty())
+			OnUserAway(user);
 	}
 
 	void Offline(User* user, const std::string& nick)
