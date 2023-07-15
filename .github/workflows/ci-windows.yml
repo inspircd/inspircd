@@ -28,7 +28,7 @@ jobs:
       - name: Run CMake
         working-directory: ${{ github.workspace }}/win/build
         run: |
-          cmake -G "Visual Studio 16 2019" -A "x64" ..
+          cmake -A x64 -G "Visual Studio 16 2019" -Wdev ..
 
       - name: Build InspIRCd
         working-directory: ${{ github.workspace }}/win/build
