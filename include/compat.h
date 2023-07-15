@@ -36,8 +36,15 @@
  * Windows is very different to UNIX so we have to wrap certain features in
  * order to build on Windows correctly.
  */
-#if defined _WIN32
+#ifdef _WIN32
 # include "win32wrapper.h"
+# ifdef INSPIRCD_CORE
+#  define CoreExport __declspec(dllexport)
+#  define DllExport __declspec(dllimport)
+# else
+#  define CoreExport __declspec(dllimport)
+#  define DllExport __declspec(dllexport)
+# endif
 #else
 # define DllExport __attribute__ ((visibility ("default")))
 # define CoreExport __attribute__ ((visibility ("default")))

@@ -31,17 +31,6 @@
 
 #include "win32service.h"
 
-/* Macros for exporting symbols - dependent on what is being compiled */
-
-#ifdef DLL_BUILD
-#define CoreExport __declspec(dllimport)
-#define DllExport __declspec(dllexport)
-#else
-#define CoreExport __declspec(dllexport)
-#define DllExport __declspec(dllimport)
-#endif
-
-
 /* Disable the deprecation warnings.. it spams :P */
 #define _CRT_SECURE_NO_DEPRECATE
 #define _WINSOCK_DEPRECATED_NO_WARNINGS

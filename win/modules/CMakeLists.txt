@@ -19,12 +19,12 @@
 #
 
 
-# These modules can always be built on all platforms.
+# These modules can always be built on all platforms
 file(GLOB INSPIRCD_MODULES
 	"${INSPIRCD_BASE}/src/coremods/core_*"
 	"${INSPIRCD_BASE}/src/modules/m_*")
 
-# These modules have their dependencies provided by Windows.
+# These modules have their dependencies provided by Windows
 list(APPEND INSPIRCD_MODULES
 	"${INSPIRCD_BASE}/src/modules/extra/m_ldap.cpp")
 
@@ -64,8 +64,6 @@ endif()
 
 list(SORT INSPIRCD_MODULES)
 
-add_definitions("-DDLL_BUILD")
-
 foreach(MODULE_NAME ${INSPIRCD_MODULES})
 	if(IS_DIRECTORY "${MODULE_NAME}")
 		string(REGEX REPLACE "^.*[/\\](.*)$" "\\1" BASE_NAME ${MODULE_NAME})
@@ -81,14 +79,11 @@ foreach(MODULE_NAME ${INSPIRCD_MODULES})
 		add_library(${BASE_NAME} MODULE ${MODULE_NAME})
 	endif()
 
-	# Generate the module and set its linker flags, also set it to depend on the main executable to be built beforehand
-	target_link_libraries(${BASE_NAME} inspircd)
-	add_dependencies(${BASE_NAME} inspircd)
-	if(MSVC)
-		target_link_libraries(${BASE_NAME} win32memory)
-		add_dependencies(${BASE_NAME} win32memory)
-	endif()
+	# Link against the core and memory library
+	add_dependencies(${BASE_NAME} "inspircd" "win32memory")
+	target_link_libraries(${BASE_NAME} "inspircd" "win32memory")
 
+	# Link against any dependencies if available
 	if(CONAN_CXX_FLAGS)
 		conan_target_link_libraries(${BASE_NAME})
 	endif()

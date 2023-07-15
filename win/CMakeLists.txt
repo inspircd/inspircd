@@ -20,20 +20,21 @@
 #
 
 
-cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
-project(InspIRCd CXX)
+project("InspIRCd" CXX)
 
 if(NOT WIN32)
 	message(FATAL_ERROR "CMake can only be used on Windows!")
 endif()
 
-set(CONFIG_DIR "conf" CACHE PATH "Configuration file path")
+set(CONFIG_DIR "conf" CACHE PATH "Configuration path")
 set(MODULE_DIR "modules" CACHE PATH "Module path")
 set(DATA_DIR "data" CACHE PATH "Data path")
-set(LOG_DIR "logs" CACHE PATH "Log file path")
+set(LOG_DIR "logs" CACHE PATH "Log path")
 
-set(INSPIRCD_BASE "${CMAKE_CURRENT_SOURCE_DIR}/../")
+# Find the root of the source directory
+cmake_path(GET CMAKE_CURRENT_SOURCE_DIR PARENT_PATH INSPIRCD_BASE)
 
 # Build with multiple processes
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
@@ -57,6 +58,12 @@ add_compile_definitions(
 	"WIN32_LEAN_AND_MEAN"      # Trim down the size of the included headers.
 )
 
+include_directories("${INSPIRCD_BASE}/win" "${INSPIRCD_BASE}/include")
+include_directories(SYSTEM "${INSPIRCD_BASE}/vendor")
+
+# win32memory is statically linked into every target later
+add_library("win32memory" STATIC "${INSPIRCD_BASE}/win/win32memory.cpp")
+
 # Grab version info from version.sh
 file(STRINGS "${INSPIRCD_BASE}/src/version.sh" VERSIONSH)
 string(REGEX REPLACE ".*InspIRCd-([0-9]*).*" "\\1" VERSION_MAJOR "${VERSIONSH}")
@@ -64,7 +71,18 @@ string(REGEX REPLACE ".*InspIRCd-[0-9]*\\.([0-9]*).*" "\\1" VERSION_MINOR "${VER
 string(REGEX REPLACE ".*InspIRCd-[0-9]*\\.[0-9]*\\.([0-9]*).*" "\\1" VERSION_PATCH "${VERSIONSH}")
 string(REGEX REPLACE ".*InspIRCd-([^\"]+).*" "\\1" VERSION_FULL "${VERSIONSH}")
 
-file(GLOB INSPIRCD_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+# Preconfigure files that the InspIRCd build needs.
+configure_file("${INSPIRCD_BASE}/make/template/config.h" "${INSPIRCD_BASE}/include/config.h")
+configure_file("${INSPIRCD_BASE}/win/inspircd.rc.cmake" "${INSPIRCD_BASE}/win/inspircd.rc")
+
+file(GLOB INSPIRCD_HEADERS
+	"${INSPIRCD_BASE}/include/*.h"
+	"${INSPIRCD_BASE}/include/modules/*.h"
+	"${INSPIRCD_BASE}/include/utility/*.h"
+)
+list(SORT INSPIRCD_HEADERS)
+
+file(GLOB INSPIRCD_SOURCES
 	"${INSPIRCD_BASE}/src/*.cpp"
 	"${INSPIRCD_BASE}/src/socketengines/select.cpp"
 	"${INSPIRCD_BASE}/win/win32wrapper.cpp"
@@ -72,26 +90,20 @@ file(GLOB INSPIRCD_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
 )
 list(SORT INSPIRCD_SOURCES)
 
-include_directories("${INSPIRCD_BASE}/win" "${INSPIRCD_BASE}/include")
-include_directories(SYSTEM "${INSPIRCD_BASE}/vendor")
+# The main server executable
+add_executable("inspircd" ${INSPIRCD_HEADERS} ${INSPIRCD_SOURCES} "${INSPIRCD_BASE}/win/inspircd.rc")
+add_dependencies("inspircd" "win32memory")
+target_compile_definitions("inspircd" PRIVATE "FMT_LIB_EXPORT" "INSPIRCD_CORE")
+set_target_properties("inspircd" PROPERTIES "ENABLE_EXPORTS" ON)
+target_link_libraries("inspircd" "win32memory")
+install(TARGETS "inspircd" RUNTIME DESTINATION ".")
 
-if(MSVC)
-	add_library(win32memory STATIC "${INSPIRCD_BASE}/win/win32memory.cpp")
-endif()
+# Also build modules
+add_subdirectory("modules")
 
-configure_file("${INSPIRCD_BASE}/win/inspircd.rc.cmake" "${INSPIRCD_BASE}/win/inspircd.rc")
-configure_file("${INSPIRCD_BASE}/make/template/config.h" "${INSPIRCD_BASE}/include/config.h")
-
-add_executable(inspircd ${INSPIRCD_SOURCES} "${INSPIRCD_BASE}/win/inspircd.rc")
-target_link_libraries(inspircd win32memory)
-set_target_properties(inspircd PROPERTIES COMPILE_DEFINITIONS "FMT_LIB_EXPORT" ENABLE_EXPORTS ON)
-install(TARGETS inspircd RUNTIME DESTINATION .)
-
-add_subdirectory(modules)
-
-# Package any DLLs in win/
-file(GLOB EXTRA_DLLS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${INSPIRCD_BASE}/win/*.dll")
-install(FILES ${EXTRA_DLLS} DESTINATION .)
+# Package any DLLs from Conan
+file(GLOB EXTRA_DLLS "${CMAKE_CURRENT_SOURCE_DIR}/*.dll")
+install(FILES ${EXTRA_DLLS} DESTINATION ".")
 
 # Install example configs
 install(DIRECTORY "${INSPIRCD_BASE}/docs/conf/" DESTINATION "${CONFIG_DIR}/examples")
@@ -104,16 +116,17 @@ file(MAKE_DIRECTORY ${LOG_DIR})
 install(DIRECTORY ${LOG_DIR} DESTINATION .)
 
 if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
-	set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ".") # place runtime libraries next to InspIRCd binary
-	include(InstallRequiredSystemLibraries)
+	# Place runtime libraries next to the InspIRCd binary
+	set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ".")
+	include("InstallRequiredSystemLibraries")
 
-	set(CPACK_PACKAGE_NAME "InspIRCd IRC Daemon")
-	set(CPACK_PACKAGE_VENDOR "InspIRCd Development Team")
+	set(CPACK_PACKAGE_NAME "InspIRCd -- Internet Relay Chat Daemon")
+	set(CPACK_PACKAGE_VENDOR "InspIRCd Team")
 	set(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
 	set(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
 	set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
-	set(CPACK_PACKAGE_FILE_NAME "InspIRCd-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
-	set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../docs/LICENSE.txt")
+	set(CPACK_PACKAGE_FILE_NAME "InspIRCd-${VERSION_FULL}")
+	set(CPACK_RESOURCE_FILE_LICENSE "${INSPIRCD_BASE}/docs/LICENSE.txt")
 
 	set(CPACK_GENERATOR "NSIS")
 	set(CPACK_PACKAGE_INSTALL_DIRECTORY "InspIRCd")
@@ -125,5 +138,5 @@ if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
 	set(CPACK_NSIS_URL_INFO_ABOUT "https://www.inspircd.org")
 	set(CPACK_NSIS_COMPRESSOR "/SOLID zlib")
 
-	include(CPack)
+	include("CPack")
 endif()
