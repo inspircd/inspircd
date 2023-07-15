@@ -28,10 +28,7 @@
  */
 
 
-#ifdef _WIN32
-#define _CRT_RAND_S
-#include <stdlib.h>
-#endif
+#include <random>
 
 #include "inspircd.h"
 #include "timeutils.h"
@@ -464,17 +461,10 @@ void InspIRCd::DefaultGenRandom(char* output, size_t max)
 #if defined HAS_ARC4RANDOM_BUF
 	arc4random_buf(output, max);
 #else
-	for (unsigned int i = 0; i < max; ++i)
-# ifdef _WIN32
-	{
-		unsigned int uTemp;
-		if(rand_s(&uTemp) != 0)
-			output[i] = rand();
-		else
-			output[i] = uTemp;
-	}
-# else
-		output[i] = random();
-# endif
+	static std::random_device device;
+	static std::mt19937 engine(device());
+	static std::uniform_int_distribution<char> dist;
+	for (size_t i = 0; i < max; ++i)
+		output[i] = dist(engine);
 #endif
 }

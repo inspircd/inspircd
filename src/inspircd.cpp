@@ -341,15 +341,6 @@ namespace
 		ServerInstance->Config->CommandLine.writelog = !do_nolog;
 		ServerInstance->Config->CommandLine.writepid = !do_nopid;
 	}
-	// Seeds the random number generator if applicable.
-	void SeedRng(timespec ts)
-	{
-#if defined _WIN32
-		srand(ts.tv_nsec ^ ts.tv_sec);
-#elif !defined HAS_ARC4RANDOM_BUF
-		srandom(static_cast<int>(ts.tv_nsec ^ ts.tv_sec));
-#endif
-	}
 
 	// Sets handlers for various process signals.
 	void SetSignals()
@@ -468,7 +459,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->startup_time = TIME.tv_sec;
 
 	IncreaseCoreDumpSize();
-	SeedRng(TIME);
 	SocketEngine::Init();
 
 	this->Config = new ServerConfig;
