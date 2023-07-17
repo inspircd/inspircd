@@ -106,6 +106,9 @@ public:
 
 	Cloak::List* GetCloaks(LocalUser* user) override
 	{
+		if (user->quitting || !(user->connected & User::CONN_NICKUSER))
+			return nullptr; // This user isn't at a point where they can change their cloak.
+
 		if (!user->GetClass()->config->getBool("usecloak", true))
 			return nullptr;
 
@@ -148,6 +151,9 @@ public:
 
 	void ResetCloaks(LocalUser* user, bool resetdisplay) override
 	{
+		if (user->quitting || !(user->connected & User::CONN_NICKUSER))
+			return; // This user isn't at a point where they can change their cloak.
+
 		const std::string oldcloak = GetFrontCloak(user);
 		ext.Unset(user);
 
@@ -368,10 +374,6 @@ public:
 
 	void OnChangeRemoteAddress(LocalUser* user) override
 	{
-		// Connecting users are handled in OnUserConnect not here.
-		if (!user->IsFullyConnected() || user->quitting)
-			return;
-
 		// Remove the cloaks so we can generate new ones.
 		cloakapi.ResetCloaks(user, false);
 

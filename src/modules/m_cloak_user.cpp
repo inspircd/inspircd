@@ -282,8 +282,8 @@ public:
 	void OnAccountChange(User* user, const std::string& newaccount) override
 	{
 		LocalUser* luser = IS_LOCAL(user);
-		if (!luser || luser->quitting || !luser->IsFullyConnected() || !cloakapi)
-			return; // User is uncloakable.
+		if (!luser || !cloakapi)
+			return;
 
 		if (cloakapi->IsActiveCloak(accountcloak) || cloakapi->IsActiveCloak(accountidcloak))
 			cloakapi->ResetCloaks(luser, true);
@@ -292,20 +292,14 @@ public:
 	void OnChangeRealUser(User* user, const std::string& newuser) override
 	{
 		LocalUser* luser = IS_LOCAL(user);
-		if (!luser || luser->quitting || !luser->IsFullyConnected() || !cloakapi)
-			return; // User is uncloakable.
-
-		if (cloakapi->IsActiveCloak(usernamecloak))
+		if (luser && cloakapi && cloakapi->IsActiveCloak(usernamecloak))
 			cloakapi->ResetCloaks(luser, true);
 	}
 
 	void OnUserPostNick(User* user, const std::string& oldnick) override
 	{
 		LocalUser* luser = IS_LOCAL(user);
-		if (!luser || luser->quitting || !luser->IsFullyConnected() || !cloakapi)
-			return; // User is uncloakable.
-
-		if (cloakapi->IsActiveCloak(nicknamecloak))
+		if (luser && cloakapi && cloakapi->IsActiveCloak(nicknamecloak))
 			cloakapi->ResetCloaks(luser, true);
 	}
 };
