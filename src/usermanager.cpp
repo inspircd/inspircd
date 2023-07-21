@@ -207,17 +207,9 @@ void UserManager::AddUser(int socket, ListenSocket* via, const irc::sockets::soc
 			if (!ServerInstance->Config->XLineMessage.empty())
 				New->WriteNumeric(ERR_YOUREBANNEDCREEP, ServerInstance->Config->XLineMessage);
 
-			if (ServerInstance->Config->HideLines.empty())
-				this->QuitUser(New, b->Reason);
-			else
-			{
-				const std::string publicreason = Template::Replace(ServerInstance->Config->HideLines,
-				{
-					{ "reason", b->Reason },
-					{ "type",   b->Type   },
-				});
-				this->QuitUser(New, publicreason, &b->Reason);
-			}
+			// IMPORTANT: we don't check XLineQuitPublic here because the only
+			// person who might see the ban at this point is the affected user.
+			this->QuitUser(New, b->Reason);
 			return;
 		}
 		else

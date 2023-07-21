@@ -87,7 +87,7 @@ public:
 			else
 				delete zl;
 		}
-		DefaultApply(u, "R", false);
+		DefaultApply(u, false);
 	}
 
 	const std::string& Displayable() const override

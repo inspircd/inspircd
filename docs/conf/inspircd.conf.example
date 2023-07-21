@@ -640,6 +640,17 @@
          # banned from the server.
          xlinemessage="You're banned! Email irc@example.com with the ERROR line below for help."
 
+          # xlinequit: The quit message to show to opers and affected users when
+          # a user is [KGZ]-lined. The variables you can use in this are:
+          #
+          # %duration%  - The duration of the X-line.
+          # %expiry%    - The date/time at which the X-line expires.
+          # %reason%    - The reason the X-line was added.
+          # %remaining% - The duration remaining on the X-line.
+          # %setter%    - The name of the X-line setter.
+          # %type%      - The type of X-line which was matched.
+          xlinequit="%type%-lined: %reason%"
+
          # modesinlist: If enabled then the current channel modes will be shown
          # in the /LIST response. Defaults to yes.
          modesinlist="no"
@@ -767,10 +778,16 @@
           # when a remote whois (/WHOIS <nick> <nick>) is used.
           #hideserver="*.example.com"
 
-          # hidelines: If defined then the quit message to show to unprivileged
-          # users when another user is [KGZ]-lined. Can include %type% for the
-          # X-line type and %reason% for the X-line reason.
-          #hidelines="%type%-lined"
+          # publicxlinequit: The quit message to show to unprivileged users when
+          # a user is [KGZ]-lined. The variables you can use in this are:
+          #
+          # %duration%  - The duration of the X-line.
+          # %expiry%    - The date/time at which the X-line expires.
+          # %reason%    - The reason the X-line was added.
+          # %remaining% - The duration remaining on the X-line.
+          # %setter%    - The name of the X-line setter.
+          # %type%      - The type of X-line which was matched.
+          #publicxlinequit="%type%-lined"
 
           # hidekills: If defined, replaces who executed a /KILL with a custom string.
           hidekills=""

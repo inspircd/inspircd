@@ -68,10 +68,9 @@ protected:
 
 	/** Default 'apply' action. Quits the user.
 	 * @param u User to apply the line against
-	 * @param line The line typed, used for display purposes in the quit message
 	 * @param bancache If true, the user will be added to the bancache if they match. Else not.
 	 */
-	void DefaultApply(User* u, const std::string& line, bool bancache);
+	void DefaultApply(User* u, bool bancache);
 
 public:
 

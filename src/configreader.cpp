@@ -365,6 +365,7 @@ void ServerConfig::Fill()
 	NoSnoticeStack = options->getBool("nosnoticestack");
 	SyntaxHints = options->getBool("syntaxhints");
 	XLineMessage = options->getString("xlinemessage", "You're banned!", 1);
+	XLineQuit = options->getString("xlinequit", "%type%-lined: %reason%", 1);
 	RestrictBannedUsers = options->getEnum("restrictbannedusers", ServerConfig::BUT_RESTRICT_NOTIFY, {
 		{ "no",     ServerConfig::BUT_NORMAL          },
 		{ "silent", ServerConfig::BUT_RESTRICT_SILENT },
@@ -386,9 +387,9 @@ void ServerConfig::Fill()
 	// Read the <security> config.
 	const auto& security = ConfValue("security");
 	CustomVersion = security->getString("customversion");
-	HideLines = security->getString("hidelines", security->getBool("hidebans") ? "%type%-lined" : "");
 	HideServer = security->getString("hideserver", {}, InspIRCd::IsFQDN);
 	MaxTargets = security->getNum<size_t>("maxtargets", 5, 1, 50);
+	XLineQuitPublic = security->getString("publicxlinequit", security->getBool("hidebans") ? "%type%-lined" : "");
 
 	// Read the <cidr> config.
 	const auto& cidr = ConfValue("cidr");

@@ -442,9 +442,6 @@ public:
 	/** The modes to set on a new channel. May contain channel prefix modes to set on the channel creator. */
 	std::string DefaultModes;
 
-	/** If non-empty then the quit message to use when killing an X-lined user. */
-	std::string HideLines;
-
 	/** If non-empty then the value to replace the server name with in public messages. */
 	std::string HideServer;
 
@@ -462,6 +459,12 @@ public:
 
 	/** The message to send to users when they are banned by an X-line. */
 	std::string XLineMessage;
+
+	/** The quit message to use when killing an X-lined user. */
+	std::string XLineQuit;
+
+	/** If non-empty then the public quit message to use when killing an X-lined user. */
+	std::string XLineQuitPublic;
 
 	/** The CIDR range to use when determining if IPv4 clients are from the same origin. */
 	unsigned char IPv4Range;

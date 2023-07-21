@@ -550,27 +550,32 @@ bool XLine::IsBurstable()
 	return !from_config;
 }
 
-void XLine::DefaultApply(User* u, const std::string& line, bool bancache)
+void XLine::DefaultApply(User* u, bool bancache)
 {
 	if (!ServerInstance->Config->XLineMessage.empty())
 		u->WriteNumeric(ERR_YOUREBANNEDCREEP, ServerInstance->Config->XLineMessage);
 
-	const std::string banreason = line + "-lined: " + reason;
-	if (ServerInstance->Config->HideLines.empty())
+	Template::VariableMap vars = {
+		{ "duration",  Duration::ToString(duration)                        },
+		{ "expiry",    Time::ToString(expiry)                              },
+		{ "reason",    reason                                              },
+		{ "remaining", Duration::ToString(ServerInstance->Time() - expiry) },
+		{ "setter",    source                                              },
+		{ "type",      type                                                },
+	};
+
+	const std::string banreason = Template::Replace(ServerInstance->Config->XLineQuit, vars);
+	if (ServerInstance->Config->XLineQuitPublic.empty())
 		ServerInstance->Users.QuitUser(u, banreason);
 	else
 	{
-		const std::string publicreason = Template::Replace(ServerInstance->Config->HideLines,
-		{
-			{ "reason", banreason },
-			{ "type",   line      },
-		});
+		const std::string publicreason = Template::Replace(ServerInstance->Config->XLineQuitPublic, vars);
 		ServerInstance->Users.QuitUser(u, publicreason, &banreason);
 	}
 
 	if (bancache)
 	{
-		ServerInstance->Logs.Debug("BANCACHE", "Adding positive hit (" + line + ") for " + u->GetAddress());
+		ServerInstance->Logs.Debug("BANCACHE", "Adding positive hit (" + type + ") for " + u->GetAddress());
 		ServerInstance->BanCache.AddHit(u->GetAddress(), this->type, banreason, (this->duration > 0 ? (this->expiry - ServerInstance->Time()) : 0));
 	}
 }
@@ -595,7 +600,7 @@ bool KLine::Matches(User* u) const
 
 void KLine::Apply(User* u)
 {
-	DefaultApply(u, "K", this->usermask ==  "*");
+	DefaultApply(u, this->usermask ==  "*");
 }
 
 bool GLine::Matches(User* u) const
@@ -618,7 +623,7 @@ bool GLine::Matches(User* u) const
 
 void GLine::Apply(User* u)
 {
-	DefaultApply(u, "G", this->usermask == "*");
+	DefaultApply(u, this->usermask == "*");
 }
 
 bool ELine::Matches(User* u) const
@@ -646,7 +651,7 @@ bool ZLine::Matches(User* u) const
 
 void ZLine::Apply(User* u)
 {
-	DefaultApply(u, "Z", true);
+	DefaultApply(u, true);
 }
 
 bool QLine::Matches(User* u) const
