@@ -156,7 +156,7 @@ the specified argument is a hex encoded IP address then respond with
 the equivalent raw IP address.
 ">
 
-<helptopic key="silence" title="/SILENCE [(+|-)<mask> [CcdiNnPpTtx]]" value="
+<helptopic key="silence" title="/SILENCE [(+|-)<mask> [CcdiHNnPpTtx]]" value="
 A server-side ignore of the given n!u@h mask. If the optional flags field is
 specified then it must contain one or more flags which specify what kind of
 messages should be blocked and how they should be blocked.
@@ -170,6 +170,7 @@ Valid SILENCE Flags
  C    Matches a CTCP targeted at a user.
  c    Matches a CTCP targeted at a channel.
  d    Default behaviour; equivalent to CciNnPpTt.
+ H    Hide the contents of messages instead of blocking.
  i    Matches an invite to a channel.
  N    Matches a NOTICE targeted at a user.
  n    Matches a NOTICE targeted at a channel.

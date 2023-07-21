@@ -21,6 +21,7 @@
 
 
 #include "inspircd.h"
+#include "clientprotocolmsg.h"
 #include "modules/ctctags.h"
 #include "modules/isupport.h"
 
@@ -46,7 +47,10 @@ public:
 		// Exclude users who match this flags ("x").
 		SF_EXEMPT = 1,
 
-		// 2, 4, 8, 16 are reserved for future use.
+		// Hide the contents of the message when sent to the silencer ("H").
+		SF_HIDE_SILENCER = 2,
+
+		// 4, 8, 16 are reserved for future use.
 
 		// Matches a NOTICE targeted at a channel ("n").
 		SF_NOTICE_CHANNEL = 32,
@@ -122,6 +126,9 @@ public:
 				case 'd':
 					out |= SF_DEFAULT;
 					break;
+				case 'H':
+					out |= SF_HIDE_SILENCER;
+					break;
 				case 'i':
 					out |= SF_INVITE;
 					break;
@@ -164,6 +171,8 @@ public:
 			out.push_back('C');
 		if (flags & SF_CTCP_CHANNEL)
 			out.push_back('c');
+		if (flags & SF_HIDE_SILENCER)
+			out.push_back('H');
 		if (flags & SF_INVITE)
 			out.push_back('i');
 		if (flags & SF_NOTICE_USER)
@@ -411,17 +420,21 @@ private:
 	bool exemptservice;
 	CommandSilence cmd;
 
-	ModResult BuildChannelExempts(User* source, Channel* channel, SilenceEntry::SilenceFlags flag, CUList& exemptions)
+	void BuildChannelExempts(User* source, Channel* channel, SilenceEntry::SilenceFlags flag, CUList& exemptions, CUList& hides)
 	{
 		for (const auto& [user, _] : channel->GetUsers())
 		{
-			if (!CanReceiveMessage(source, user, flag))
+			uint32_t flags;
+			if (!CanReceiveMessage(source, user, flag, &flags))
+			{
 				exemptions.insert(user);
+				if (user != source && flags & SilenceEntry::SF_HIDE_SILENCER)
+					hides.insert(user);
+			}
 		}
-		return MOD_RES_PASSTHRU;
 	}
 
-	bool CanReceiveMessage(User* source, User* target, SilenceEntry::SilenceFlags flag)
+	bool CanReceiveMessage(User* source, User* target, SilenceEntry::SilenceFlags flag, uint32_t* flags = nullptr)
 	{
 		// Servers handle their own clients.
 		if (!IS_LOCAL(target))
@@ -440,10 +453,21 @@ private:
 				continue;
 
 			if (InspIRCd::Match(source->GetMask(), entry.mask))
+			{
+				if (flags)
+					*flags = entry.flags;
+
 				return entry.flags & SilenceEntry::SF_EXEMPT;
+			}
 		}
 
 		return true;
+	}
+
+	void HideMessage(std::string& message)
+	{
+		InspIRCd::StripColor(message);
+		message.insert(0, "\x1DSilenced\x1D: \00315,15");
 	}
 
 public:
@@ -490,7 +514,20 @@ public:
 				else if (details.type == MessageType::PRIVMSG)
 					flag = SilenceEntry::SF_PRIVMSG_CHANNEL;
 
-				return BuildChannelExempts(user, target.Get<Channel>(), flag, details.exemptions);
+				CUList hides;
+				BuildChannelExempts(user, target.Get<Channel>(), flag, details.exemptions, hides);
+				if (!hides.empty())
+				{
+					// In this mode we just strip formatting and hide the message.
+					std::string message = details.text;
+					HideMessage(message);
+
+					// Servers handle their own users so this cast will always work.
+					ClientProtocol::Messages::Privmsg msg(user, target.Get<Channel>(), message, details.type, target.status);
+					for (auto* hideuser : hides)
+						static_cast<LocalUser*>(hideuser)->Send(ServerInstance->GetRFCEvents().privmsg, msg);
+				}
+				return MOD_RES_PASSTHRU;
 			}
 			case MessageTarget::TYPE_USER:
 			{
@@ -501,9 +538,16 @@ public:
 				else if (details.type == MessageType::PRIVMSG)
 					flag = SilenceEntry::SF_PRIVMSG_USER;
 
-				if (!CanReceiveMessage(user, target.Get<User>(), flag))
+				uint32_t flags;
+				if (!CanReceiveMessage(user, target.Get<User>(), flag, &flags))
 				{
 					details.echo_original = true;
+					if (flags & SilenceEntry::SF_HIDE_SILENCER)
+					{
+						// In this mode we just strip formatting and hide the message.
+						HideMessage(details.text);
+						break;
+					}
 					return MOD_RES_DENY;
 				}
 				break;
@@ -518,7 +562,11 @@ public:
 	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override
 	{
 		if (target.type == MessageTarget::TYPE_CHANNEL)
-			return BuildChannelExempts(user, target.Get<Channel>(), SilenceEntry::SF_TAGMSG_CHANNEL, details.exemptions);
+		{
+			CUList unused;
+			BuildChannelExempts(user, target.Get<Channel>(), SilenceEntry::SF_TAGMSG_CHANNEL, details.exemptions, unused);
+			return MOD_RES_PASSTHRU;
+		}
 
 		if (target.type == MessageTarget::TYPE_USER && !CanReceiveMessage(user, target.Get<User>(), SilenceEntry::SF_TAGMSG_USER))
 		{
