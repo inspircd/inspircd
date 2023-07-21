@@ -271,8 +271,11 @@ private:
 	const std::string uuid;
 
 	template <typename Line, typename... Extra>
-	void AddLine(const char* type, const std::string& reason, unsigned long duration, Extra&&... extra)
+	void AddLine(const char* type, const std::string& reason, unsigned long duration, LocalUser* user, Extra&&... extra)
 	{
+		if (user->exempt)
+			return; // This user shouldn't be banned.
+
 		auto line = new Line(ServerInstance->Time(), duration, MODNAME "@" + ServerInstance->Config->ServerName, reason, std::forward<Extra>(extra)...);
 		if (!ServerInstance->XLines->AddLine(line, nullptr))
 		{
@@ -372,7 +375,8 @@ public:
 			{
 				case DNSBLEntry::Action::KILL:
 				{
-					ServerInstance->Users.QuitUser(them, "Killed (" + reason + ")");
+					if (!them->exempt)
+						ServerInstance->Users.QuitUser(them, "Killed (" + reason + ")");
 					break;
 				}
 				case DNSBLEntry::Action::MARK:
@@ -392,29 +396,29 @@ public:
 				}
 				case DNSBLEntry::Action::KLINE:
 				{
-					AddLine<KLine>("K-line", reason, config->xlineduration, them->GetBanUser(true), them->GetAddress());
+					AddLine<KLine>("K-line", reason, config->xlineduration, them, them->GetBanUser(true), them->GetAddress());
 					break;
 				}
 				case DNSBLEntry::Action::GLINE:
 				{
-					AddLine<GLine>("G-line", reason, config->xlineduration, them->GetBanUser(true), them->GetAddress());
+					AddLine<GLine>("G-line", reason, config->xlineduration, them, them->GetBanUser(true), them->GetAddress());
 					break;
 				}
 				case DNSBLEntry::Action::ZLINE:
 				{
-					AddLine<ZLine>("Z-line", reason, config->xlineduration, them->GetAddress());
+					AddLine<ZLine>("Z-line", reason, config->xlineduration, them, them->GetAddress());
 					break;
 				}
 				case DNSBLEntry::Action::SHUN:
 				{
-					AddLine<Shun>("Shun", reason, config->xlineduration, them->GetAddress());
+					AddLine<Shun>("Shun", reason, config->xlineduration, them, them->GetAddress());
 					break;
 				}
 			}
 
-			ServerInstance->SNO.WriteGlobalSno('d', "{} {} ({}) detected as being on the '{}' DNSBL with result {}",
+			ServerInstance->SNO.WriteGlobalSno('d', "{} {} ({}) detected as being on the '{}' DNSBL with result {}{}",
 				them->IsFullyConnected() ? "User" : "Connecting user", them->GetRealMask(), them->GetAddress(),
-				config->name, result);
+				config->name, result, them->exempt ? " -- exempt" : "");
 		}
 		else
 			config->stats_misses++;
@@ -518,8 +522,8 @@ void SharedData::Lookup(LocalUser* user)
 	if (!dns)
 		return; // The core_dns module is not loaded.
 
-	if (user->exempt || !user->GetClass()->config->getBool("usednsbl", true))
-		return; // The user is exempt from DNSBL lookups.
+	if (!user->GetClass()->config->getBool("usednsbl", true))
+		return; // The user's class is exempt from DNSBL lookups.
 
 	const std::string reversedip = ReverseIP(user->client_sa);
 	ServerInstance->Logs.Debug(MODNAME, "Reversed IP {} => {}", user->GetAddress(), reversedip);
