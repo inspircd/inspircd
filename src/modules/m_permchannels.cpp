@@ -176,10 +176,15 @@ class ModulePermanentChannels final
 	, public Timer
 
 {
+private:
 	PermChannel p;
 	bool dirty = false;
 	bool loaded = false;
 	bool save_listmodes;
+	unsigned long saveperiod;
+	unsigned long maxbackoff;
+	unsigned char backoff;
+
 public:
 
 	ModulePermanentChannels()
@@ -195,7 +200,10 @@ public:
 		permchannelsconf = tag->getString("filename");
 		save_listmodes = tag->getBool("listmodes", true);
 		p.SetOperOnly(tag->getBool("operonly", true));
-		SetInterval(tag->getDuration("saveperiod", 5));
+		saveperiod = tag->getDuration("saveperiod", 5);
+		backoff = tag->getNum<uint8_t>("backoff", 0);
+		maxbackoff = tag->getDuration("maxbackoff", saveperiod * 120, saveperiod);
+		SetInterval(saveperiod);
 
 		if (!permchannelsconf.empty())
 			permchannelsconf = ServerInstance->Config->Paths.PrependConfig(permchannelsconf);
@@ -289,8 +297,23 @@ public:
 	bool Tick() override
 	{
 		if (dirty)
-			WriteDatabase(p, save_listmodes);
-		dirty = false;
+		{
+			if (WriteDatabase(p, save_listmodes))
+			{
+				// If we were previously unable to write but now can then reset the time interval.
+				if (GetInterval() != saveperiod)
+					SetInterval(saveperiod, false);
+
+				dirty = false;
+			}
+			else
+			{
+				// Back off a bit to avoid spamming opers.
+				if (backoff > 1)
+					SetInterval(std::min(GetInterval() * backoff, maxbackoff), false);
+				ServerInstance->Logs.Debug(MODNAME, "Trying again in {} seconds", GetInterval());
+			}
+		}
 		return true;
 	}
 

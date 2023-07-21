@@ -206,6 +206,9 @@ private:
 	bool dirty = false;
 	std::string filterconf;
 	Regex::Engine* factory;
+	unsigned long saveperiod;
+	unsigned long maxbackoff;
+	unsigned char backoff;
 	void FreeFilters();
 
 public:
@@ -238,6 +241,7 @@ public:
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override;
 	void OnUnloadModule(Module* mod) override;
 	bool Tick() override;
+	bool WriteDatabase();
 	bool AppliesToMe(User* user, const FilterResult& filter, int flags);
 	void ReadFilters();
 	static bool StringToFilterAction(const std::string& str, FilterAction& fa);
@@ -645,7 +649,10 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 	filterconf = tag->getString("filename");
 	if (!filterconf.empty())
 		filterconf = ServerInstance->Config->Paths.PrependConfig(filterconf);
-	SetInterval(tag->getDuration("saveperiod", 5));
+	saveperiod = tag->getDuration("saveperiod", 5);
+	backoff = tag->getNum<uint8_t>("backoff", 0);
+	maxbackoff = tag->getDuration("maxbackoff", saveperiod * 120, saveperiod);
+	SetInterval(saveperiod);
 
 	factory = RegexEngine ? (RegexEngine.operator->()) : nullptr;
 
@@ -934,9 +941,29 @@ void ModuleFilter::OnUnloadModule(Module* mod)
 
 bool ModuleFilter::Tick()
 {
-		if (!dirty) // No need to write.
-			return true;
+	if (dirty)
+	{
+		if (WriteDatabase())
+		{
+			// If we were previously unable to write but now can then reset the time interval.
+			if (GetInterval() != saveperiod)
+				SetInterval(saveperiod, false);
 
+			dirty = false;
+		}
+		else
+		{
+			// Back off a bit to avoid spamming opers.
+			if (backoff > 1)
+				SetInterval(std::min(GetInterval() * backoff, maxbackoff), false);
+			ServerInstance->Logs.Debug(MODNAME, "Trying again in {} seconds", GetInterval());
+		}
+	}
+	return true;
+};
+
+bool ModuleFilter::WriteDatabase()
+{
 		if (filterconf.empty()) // Nothing to write to.
 		{
 			dirty = false;
@@ -949,7 +976,7 @@ bool ModuleFilter::Tick()
 		{
 			ServerInstance->SNO.WriteToSnoMask('f', "Unable to save filters to \"{}\": {} ({})",
 					newfilterconf, strerror(errno), errno);
-			return true;
+			return false;
 		}
 
 		stream
@@ -977,7 +1004,7 @@ bool ModuleFilter::Tick()
 		{
 			ServerInstance->SNO.WriteToSnoMask('f', "Unable to save filters to \"{}\": {} ({})",
 				newfilterconf, strerror(errno), errno);
-			return true;
+			return false;
 		}
 		stream.close();
 
@@ -990,7 +1017,7 @@ bool ModuleFilter::Tick()
 		{
 			ServerInstance->SNO.WriteToSnoMask('f', "Unable to replace old filter config \"{}\" with \"{}\": {} ({})",
 				filterconf, newfilterconf, strerror(errno), errno);
-			return true;
+			return false;
 		}
 
 		dirty = false;

@@ -39,6 +39,9 @@ class ModuleXLineDB final
 private:
 	bool dirty;
 	std::string xlinedbpath;
+	unsigned long saveperiod;
+	unsigned long maxbackoff;
+	unsigned char backoff;
 
 public:
 	ModuleXLineDB()
@@ -57,7 +60,10 @@ public:
 		 */
 		const auto& Conf = ServerInstance->Config->ConfValue("xlinedb");
 		xlinedbpath = ServerInstance->Config->Paths.PrependData(Conf->getString("filename", "xline.db", 1));
-		SetInterval(Conf->getDuration("saveperiod", 5));
+		saveperiod = Conf->getDuration("saveperiod", 5);
+		backoff = Conf->getNum<uint8_t>("backoff", 0);
+		maxbackoff = Conf->getDuration("maxbackoff", saveperiod * 120, saveperiod);
+		SetInterval(saveperiod);
 
 		// Read xlines before attaching to events
 		ReadDatabase();
@@ -91,7 +97,20 @@ public:
 		if (dirty)
 		{
 			if (WriteDatabase())
+			{
+				// If we were previously unable to write but now can then reset the time interval.
+				if (GetInterval() != saveperiod)
+					SetInterval(saveperiod, false);
+
 				dirty = false;
+			}
+			else
+			{
+				// Back off a bit to avoid spamming opers.
+				if (backoff > 1)
+					SetInterval(std::min(GetInterval() * backoff, maxbackoff), false);
+				ServerInstance->Logs.Debug(MODNAME, "Trying again in {} seconds", GetInterval());
+			}
 		}
 		return true;
 	}

@@ -1909,12 +1909,20 @@
 # 'saveperiod' determines how often to check if the database needs to be
 # saved to disk. Defaults to every five seconds.
 #
+# 'backoff' is the value to multiply the saveperiod by every time a save
+# fails. When the save succeeds the period will be reset.
+#
+# 'maxbackoff' is the maximum write period that should be allowed even
+# if incremental backoff is enabled.
+#
 # 'operonly' determines whether a server operator or services server is
 # needed to enable the permchannels mode. You should generally keep this
 # set to yes unless you know what you are doing.
 #<permchanneldb filename="permchannels.conf"
 #               listmodes="yes"
 #               saveperiod="5s"
+#               backoff="2"
+#               maxbackoff="5m"
 #               operonly="yes">
 #<include file="permchannels.conf" missingokay="yes">
 #
@@ -2658,7 +2666,10 @@
 
 # Specify the filename for the xline database and how often to check whether
 # the database needs to be saved here.
-#<xlinedb filename="xline.db" saveperiod="5s">
+#<xlinedb filename="xline.db"
+#         saveperiod="5s"
+#         backoff="2"
+#         maxbackoff="5m">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #    ____                _   _____ _     _       ____  _ _   _        #
