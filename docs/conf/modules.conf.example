@@ -928,8 +928,6 @@
 # from talking in the channel unless they've been joined for X seconds.
 # Settable using /MODE #chan +d 30
 #<module name="delaymsg">
-# Set allownotice to no to disallow NOTICEs too. Defaults to yes.
-#<delaymsg allownotice="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Deny channels module: Deny channels from being used by users.

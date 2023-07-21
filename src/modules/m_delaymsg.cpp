@@ -59,9 +59,8 @@ class ModuleDelayMsg final
 {
 private:
 	DelayMsgMode djm;
-	bool allownotice;
 	CheckExemption::EventProvider exemptionprov;
-	ModResult HandleMessage(User* user, const MessageTarget& target, bool notice);
+	ModResult HandleMessage(User* user, const MessageTarget& target);
 
 public:
 	ModuleDelayMsg()
@@ -75,7 +74,6 @@ public:
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList&) override;
 	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override;
 	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override;
-	void ReadConfig(ConfigStatus& status) override;
 };
 
 bool DelayMsgMode::OnSet(User* source, Channel* chan, std::string& parameter)
@@ -105,20 +103,17 @@ void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CULis
 
 ModResult ModuleDelayMsg::OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details)
 {
-	return HandleMessage(user, target, details.type == MessageType::NOTICE);
+	return HandleMessage(user, target);
 }
 
 ModResult ModuleDelayMsg::OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details)
 {
-	return HandleMessage(user, target, false);
+	return HandleMessage(user, target);
 }
 
-ModResult ModuleDelayMsg::HandleMessage(User* user, const MessageTarget& target, bool notice)
+ModResult ModuleDelayMsg::HandleMessage(User* user, const MessageTarget& target)
 {
-	if (!IS_LOCAL(user))
-		return MOD_RES_PASSTHRU;
-
-	if ((target.type != MessageTarget::TYPE_CHANNEL) || ((!allownotice) && (notice)))
+	if (!IS_LOCAL(user) || target.type != MessageTarget::TYPE_CHANNEL)
 		return MOD_RES_PASSTHRU;
 
 	Channel* channel = target.Get<Channel>();
@@ -153,12 +148,6 @@ ModResult ModuleDelayMsg::HandleMessage(User* user, const MessageTarget& target,
 		djm.jointime.Unset(memb);
 	}
 	return MOD_RES_PASSTHRU;
-}
-
-void ModuleDelayMsg::ReadConfig(ConfigStatus& status)
-{
-	const auto& tag = ServerInstance->Config->ConfValue("delaymsg");
-	allownotice = tag->getBool("allownotice", true);
 }
 
 MODULE_INIT(ModuleDelayMsg)
