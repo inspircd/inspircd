@@ -187,7 +187,7 @@ std::string Base64::Decode(const void* data, size_t length, const char* table)
 	return buffer;
 }
 
-std::string Template::Replace(const std::string& str, const insp::flat_map<std::string, std::string>& vars)
+std::string Template::Replace(const std::string& str, const VariableMap& vars)
 {
 	std::string out;
 	out.reserve(str.length());
