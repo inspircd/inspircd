@@ -79,7 +79,7 @@ public:
 
 	/** Sets the interval between two ticks.
 	 */
-	void SetInterval(unsigned long interval);
+	void SetInterval(unsigned long interval, bool restart = true);
 
 	/** Called when the timer ticks.
 	 * You should override this method with some useful code to

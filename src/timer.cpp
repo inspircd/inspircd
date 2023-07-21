@@ -26,10 +26,13 @@
 
 #include "inspircd.h"
 
-void Timer::SetInterval(unsigned long newinterval)
+void Timer::SetInterval(unsigned long newinterval, bool restart)
 {
-	ServerInstance->Timers.DelTimer(this);
 	secs = newinterval;
+	if (!restart)
+		return;
+
+	ServerInstance->Timers.DelTimer(this);
 	SetTrigger(ServerInstance->Time() + newinterval);
 	ServerInstance->Timers.AddTimer(this);
 }
