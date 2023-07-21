@@ -33,6 +33,7 @@
 #include "inspircd.h"
 #include "extension.h"
 #include "modules/dns.h"
+#include "modules/shun.h"
 #include "modules/stats.h"
 #include "numerichelper.h"
 #include "timeutils.h"
@@ -55,6 +56,9 @@ public:
 
 		// Mark users who's IP address is in the DNSBL.
 		MARK,
+
+		// Shun users who's IP address is in the DNSBL.
+		SHUN,
 
 		// Z-line users who's IP address is in the DNSBL.
 		ZLINE,
@@ -127,6 +131,7 @@ public:
 			{ "kill",  Action::KILL  },
 			{ "kline", Action::KLINE },
 			{ "mark",  Action::MARK  },
+			{ "shun",  Action::SHUN  },
 			{ "zline", Action::ZLINE },
 		});
 
@@ -356,9 +361,9 @@ public:
 		if (match)
 		{
 			const std::string reason = Template::Replace(config->reason, {
-				{ "dnsbl",  config->name     },
+				{ "dnsbl",  config->name       },
 				{ "ip",     them->GetAddress() },
-				{ "result", ConvToStr(result)   },
+				{ "result", ConvToStr(result)  },
 			});
 
 			config->stats_hits++;
@@ -398,6 +403,11 @@ public:
 				case DNSBLEntry::Action::ZLINE:
 				{
 					AddLine<ZLine>("Z-line", reason, config->xlineduration, them->GetAddress());
+					break;
+				}
+				case DNSBLEntry::Action::SHUN:
+				{
+					AddLine<Shun>("Shun", reason, config->xlineduration, them->GetAddress());
 					break;
 				}
 			}
