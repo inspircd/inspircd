@@ -279,6 +279,7 @@ private:
 		auto line = new Line(ServerInstance->Time(), duration, MODNAME "@" + ServerInstance->Config->ServerName, reason, std::forward<Extra>(extra)...);
 		if (!ServerInstance->XLines->AddLine(line, nullptr))
 		{
+			ServerInstance->Users.QuitUser(user, "Killed (" + reason + ")");
 			delete line;
 			return;
 		}
