@@ -29,6 +29,8 @@ jobs:
 
       - name: Run CMake
         working-directory: ${{ github.workspace }}/win/build
+        env:
+          LDFLAGS: /DEBUG:FASTLINK /INCREMENTAL
         run: |
           cmake -G "Visual Studio 16 2019" -A "x64" ..
 
