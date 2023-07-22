@@ -954,7 +954,10 @@ void User::ChangeRealHost(const std::string& newhost, bool resetdisplay)
 	// If we are just resetting the display host then we don't need to
 	// do anything else.
 	if (!changehost)
+	{
+		InvalidateCache();
 		return;
+	}
 
 	// Don't call the OnChangeRealHost event when initialising a user.
 	const bool initializing = realhost.empty();
