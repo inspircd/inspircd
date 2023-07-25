@@ -647,7 +647,7 @@
           # %duration%  - The duration of the X-line.
           # %expiry%    - The date/time at which the X-line expires.
           # %fulltype%  - The type of X-line which was matched, suffixed with
-          #               "-lined" if its name is a single character.
+          #               "-lined" if its name is one or two characters.
           # %reason%    - The reason the X-line was added.
           # %remaining% - The duration remaining on the X-line.
           # %setter%    - The name of the X-line setter.
@@ -788,7 +788,7 @@
           # %duration%  - The duration of the X-line.
           # %expiry%    - The date/time at which the X-line expires.
           # %fulltype%  - The type of X-line which was matched, suffixed with
-          #               "-lined" if its name is a single character.
+          #               "-lined" if its name is one or two characters.
           # %reason%    - The reason the X-line was added.
           # %remaining% - The duration remaining on the X-line.
           # %setter%    - The name of the X-line setter.

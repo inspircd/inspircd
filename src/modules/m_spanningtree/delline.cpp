@@ -37,7 +37,7 @@ CmdResult CommandDelLine::Handle(User* user, Params& params)
 	if (ServerInstance->XLines->DelLine(params[1], params[0], reason, user))
 	{
 		ServerInstance->SNO.WriteToSnoMask('X', "{} removed {}{} on {}: {}", setter,
-			params[0], params[0].length() == 1 ? "-line" : "", params[1], reason);
+			params[0], params[0].length() <= 2 ? "-line" : "", params[1], reason);
 		return CmdResult::SUCCESS;
 	}
 	return CmdResult::FAILURE;
