@@ -559,7 +559,7 @@ void XLine::DefaultApply(User* u, bool bancache)
 		{ "created",   Time::ToString(set_time)                            },
 		{ "duration",  Duration::ToString(duration)                        },
 		{ "expiry",    Time::ToString(expiry)                              },
-		{ "fulltype",  type.length() == 1 ? type + "-lined" : type         },
+		{ "fulltype",  type.length() <= 2 ? type + "-lined" : type         },
 		{ "reason",    reason                                              },
 		{ "remaining", Duration::ToString(ServerInstance->Time() - expiry) },
 		{ "setter",    source                                              },
@@ -705,9 +705,8 @@ void ELine::OnAdd()
 
 void XLine::DisplayExpiry()
 {
-	bool onechar = (type.length() == 1);
 	ServerInstance->SNO.WriteToSnoMask('x', "Removing an expired {}{} on {} (set by {} {} ago): {}",
-		type, (onechar ? "-line" : ""), Displayable(), source,
+		type, (type.length() <= 2 ? "-line" : ""), Displayable(), source,
 		Duration::ToString(ServerInstance->Time() - set_time), reason);
 }
 
