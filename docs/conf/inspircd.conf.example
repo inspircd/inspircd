@@ -319,7 +319,7 @@
          limit="5000"
 
          # modes: The modes to set on users in this class when they connect to
-         # the server. See https://docs.inspircd.org/3/user-modes/ for a list of
+         # the server. See https://docs.inspircd.org/4/user-modes/ for a list of
          # user modes. The example below sets user modes c (deaf_commonchans)
          # and x (cloak) which require the commonchans and cloak modules.
          # This setting only has effect when the conn_umodes module is loaded.
@@ -452,7 +452,7 @@
          limit="5000"
 
          # modes: The modes to set on users in this class when they connect to
-         # the server. See https://docs.inspircd.org/3/user-modes/ for a list of
+         # the server. See https://docs.inspircd.org/4/user-modes/ for a list of
          # user modes. The example below sets user modes c (deaf_commonchans)
          # and x (cloak) which require the commonchans and cloak modules.
          # This setting only has effect when the conn_umodes module is loaded.
@@ -629,7 +629,7 @@
          splitwhois="no"
 
          # defaultmodes: The modes to set on a channel when it is created. See
-         # https://docs.inspircd.org/3/channel-modes/ for a list of channel
+         # https://docs.inspircd.org/4/channel-modes/ for a list of channel
          # modes. If a prefix mode is included in this option it will be set on
          # the user that created the channel. The example below sets channel
          # modes n (noextmsg) and t (topiclock) and grants channel prefix mode
