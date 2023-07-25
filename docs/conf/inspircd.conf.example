@@ -643,13 +643,16 @@
           # xlinequit: The quit message to show to opers and affected users when
           # a user is [KGZ]-lined. The variables you can use in this are:
           #
+          # %created%   - The date/time at which the X-line was created.
           # %duration%  - The duration of the X-line.
           # %expiry%    - The date/time at which the X-line expires.
+          # %fulltype%  - The type of X-line which was matched, suffixed with
+          #               "-lined" if its name is a single character.
           # %reason%    - The reason the X-line was added.
           # %remaining% - The duration remaining on the X-line.
           # %setter%    - The name of the X-line setter.
           # %type%      - The type of X-line which was matched.
-          xlinequit="%type%-lined: %reason%"
+          xlinequit="%fulltype%: %reason%"
 
          # modesinlist: If enabled then the current channel modes will be shown
          # in the /LIST response. Defaults to yes.
@@ -781,13 +784,16 @@
           # publicxlinequit: The quit message to show to unprivileged users when
           # a user is [KGZ]-lined. The variables you can use in this are:
           #
+          # %created%   - The date/time at which the X-line was created.
           # %duration%  - The duration of the X-line.
           # %expiry%    - The date/time at which the X-line expires.
+          # %fulltype%  - The type of X-line which was matched, suffixed with
+          #               "-lined" if its name is a single character.
           # %reason%    - The reason the X-line was added.
           # %remaining% - The duration remaining on the X-line.
           # %setter%    - The name of the X-line setter.
           # %type%      - The type of X-line which was matched.
-          #publicxlinequit="%type%-lined"
+          #publicxlinequit="%fulltype%"
 
           # hidekills: If defined, replaces who executed a /KILL with a custom string.
           hidekills=""

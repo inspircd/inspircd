@@ -556,8 +556,10 @@ void XLine::DefaultApply(User* u, bool bancache)
 		u->WriteNumeric(ERR_YOUREBANNEDCREEP, ServerInstance->Config->XLineMessage);
 
 	Template::VariableMap vars = {
+		{ "created",   Time::ToString(set_time)                            },
 		{ "duration",  Duration::ToString(duration)                        },
 		{ "expiry",    Time::ToString(expiry)                              },
+		{ "fulltype",  type.length() == 1 ? type + "-lined" : type         },
 		{ "reason",    reason                                              },
 		{ "remaining", Duration::ToString(ServerInstance->Time() - expiry) },
 		{ "setter",    source                                              },
