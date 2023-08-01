@@ -595,7 +595,7 @@ public:
 
 	void OnChangeRemoteAddress(LocalUser* user) override
 	{
-		if (user->quitting && user->GetClass())
+		if (!user->quitting && user->GetClass())
 			data.Lookup(user);
 	}
 
