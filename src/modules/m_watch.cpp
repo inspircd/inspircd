@@ -28,6 +28,7 @@
 
 enum
 {
+	RPL_REAWAY = 597,
 	RPL_GONEAWAY = 598,
 	RPL_NOTAWAY = 599,
 	RPL_LOGON = 600,
@@ -249,7 +250,8 @@ public:
 
 	void OnUserAway(User* user, const std::optional<AwayState>& prevstate) override
 	{
-		SendAlert(user, user->nick, RPL_GONEAWAY, user->away->message.c_str(), user->away->time);
+		unsigned int numeric = prevstate ? RPL_REAWAY : RPL_GONEAWAY;
+		SendAlert(user, user->nick, numeric, user->away->message.c_str(), user->away->time);
 	}
 
 	void OnUserBack(User* user, const std::optional<AwayState>& prevstate) override
