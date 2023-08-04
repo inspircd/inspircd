@@ -34,7 +34,7 @@ public:
 	AwayMessage(User* user)
 		: ClientProtocol::Message("AWAY", user)
 	{
-		SetParams(user, user->away->message);
+		SetParams(user, user->away);
 	}
 
 	AwayMessage()
@@ -42,12 +42,12 @@ public:
 	{
 	}
 
-	void SetParams(User* user, const std::string& awaymsg)
+	void SetParams(User* user, const std::optional<AwayState>& awaystate)
 	{
 		// Going away: 1 parameter which is the away reason
 		// Back from away: no parameter
-		if (!awaymsg.empty())
-			PushParam(awaymsg);
+		if (awaystate)
+			PushParam(awaystate->message);
 	}
 };
 
@@ -101,7 +101,7 @@ public:
 		if ((memb->user->IsAway()) && (awaycap.IsActive()))
 		{
 			awaymsg.SetSource(join);
-			awaymsg.SetParams(memb->user, memb->user->away->message);
+			awaymsg.SetParams(memb->user, memb->user->away);
 		}
 	}
 
