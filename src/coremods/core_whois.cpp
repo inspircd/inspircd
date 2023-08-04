@@ -218,7 +218,7 @@ void CommandWhois::DoWhois(LocalUser* user, User* dest, time_t signon, unsigned 
 
 	if (dest->IsAway())
 	{
-		whois.SendLine(RPL_AWAY, dest->awaymsg);
+		whois.SendLine(RPL_AWAY, dest->away->message);
 	}
 
 	if (dest->IsOper())

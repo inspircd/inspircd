@@ -199,10 +199,10 @@ public:
 					std::string extra;
 					if (oper->IsAway())
 					{
-						const std::string awayperiod = Duration::ToString(ServerInstance->Time() - oper->awaytime);
-						const std::string awaytime = Time::ToString(oper->awaytime);
+						const std::string awayperiod = Duration::ToString(ServerInstance->Time() - oper->away->time);
+						const std::string awaytime = Time::ToString(oper->away->time);
 
-						extra = INSP_FORMAT(": away for {} [since {}] ({})", awayperiod, awaytime, oper->awaymsg);
+						extra = INSP_FORMAT(": away for {} [since {}] ({})", awayperiod, awaytime, oper->away->message);
 					}
 
 					auto* loper = IS_LOCAL(oper);

@@ -1153,6 +1153,12 @@ void ConnectClass::Update(const std::shared_ptr<ConnectClass>& src)
 	uniqueusername = src->uniqueusername;
 }
 
+AwayState::AwayState(const std::string& m, time_t t)
+	: message(m, 0, ServerInstance->Config->Limits.MaxAway)
+	, time(t ? t : ServerInstance->Time())
+{
+}
+
 OperType::OperType(const std::string& n, const std::shared_ptr<ConfigTag>& t)
 	: config(std::make_shared<ConfigTag>("generated", FilePosition("<generated>", 0, 0)))
 	, name(n)

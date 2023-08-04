@@ -150,7 +150,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 		{
 			user->WriteNumeric(RPL_INVITING, u->nick, c->name);
 			if (u->IsAway())
-				user->WriteNumeric(RPL_AWAY, u->nick, u->awaymsg);
+				user->WriteNumeric(RPL_AWAY, u->nick, u->away->message);
 		}
 
 		char prefix = 0;

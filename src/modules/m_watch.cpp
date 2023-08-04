@@ -59,7 +59,7 @@ class CommandWatch final
 		{
 			// The away state should only be sent if the client requests away notifications for a nick but 2.0 always sends them so we do that too
 			if (target->IsAway())
-				user->WriteNumeric(RPL_NOWISAWAY, target->nick, target->GetDisplayedHost(), target->GetDisplayedHost(), target->awaytime, "is away");
+				user->WriteNumeric(RPL_NOWISAWAY, target->nick, target->GetDisplayedHost(), target->GetDisplayedHost(), target->away->time, "is away");
 			else
 				user->WriteNumeric(RPL_NOWON, target->nick, target->GetDisplayedHost(), target->GetDisplayedHost(), target->nickchanged, "is online");
 		}
@@ -199,8 +199,8 @@ private:
 	void Online(User* user)
 	{
 		SendAlert(user, user->nick, RPL_LOGON, "arrived online", user->nickchanged);
-		if (!user->awaymsg.empty())
-			OnUserAway(user);
+		if (user->IsAway())
+			OnUserAway(user, std::nullopt);
 	}
 
 	void Offline(User* user, const std::string& nick)
@@ -247,12 +247,12 @@ public:
 		Offline(user, user->nick);
 	}
 
-	void OnUserAway(User* user) override
+	void OnUserAway(User* user, const std::optional<AwayState>& prevstate) override
 	{
-		SendAlert(user, user->nick, RPL_GONEAWAY, user->awaymsg.c_str(), user->awaytime);
+		SendAlert(user, user->nick, RPL_GONEAWAY, user->away->message.c_str(), user->away->time);
 	}
 
-	void OnUserBack(User* user, const std::string& message) override
+	void OnUserBack(User* user, const std::optional<AwayState>& prevstate) override
 	{
 		SendAlert(user, user->nick, RPL_NOTAWAY, "is no longer away", ServerInstance->Time());
 	}

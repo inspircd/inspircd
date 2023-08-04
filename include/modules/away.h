@@ -60,14 +60,15 @@ public:
 
 	/** Called when a user has marked themself as away.
 	 * @param user The user who has gone away.
+	 * @param prevstate The previous away state of the user.
 	 */
-	virtual void OnUserAway(User* user) = 0;
+	virtual void OnUserAway(User* user, const std::optional<AwayState>& prevstate) = 0;
 
 	/** Called when a user has returned from being away.
 	 * @param user The user who has returned from being away.
-	 * @param message The away message that the user set.
+	 * @param prevstate The previous away state of the user.
 	 */
-	virtual void OnUserBack(User* user, const std::string& message) = 0;
+	virtual void OnUserBack(User* user, const std::optional<AwayState>& prevstate) = 0;
 };
 
 class Away::EventProvider final

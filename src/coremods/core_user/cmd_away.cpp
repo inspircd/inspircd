@@ -55,10 +55,10 @@ CmdResult CommandAway::Handle(User* user, const Params& parameters)
 				return CmdResult::FAILURE;
 		}
 
-		user->awaytime = ServerInstance->Time();
-		user->awaymsg.assign(message, 0, ServerInstance->Config->Limits.MaxAway);
+		const auto prevstate = user->away;
+		user->away.emplace(message);
 		user->WriteNumeric(RPL_NOWAWAY, "You have been marked as being away");
-		awayevprov.Call(&Away::EventListener::OnUserAway, user);
+		awayevprov.Call(&Away::EventListener::OnUserAway, user, prevstate);
 	}
 	else
 	{
@@ -69,11 +69,10 @@ CmdResult CommandAway::Handle(User* user, const Params& parameters)
 				return CmdResult::FAILURE;
 		}
 
-		const std::string awaymsg = user->awaymsg;
-		user->awaytime = 0;
-		user->awaymsg.clear();
+		const auto prevstate = user->away;
+		user->away.reset();
 		user->WriteNumeric(RPL_UNAWAY, "You are no longer marked as being away");
-		awayevprov.Call(&Away::EventListener::OnUserBack, user, awaymsg);
+		awayevprov.Call(&Away::EventListener::OnUserBack, user, prevstate);
 	}
 
 	return CmdResult::SUCCESS;

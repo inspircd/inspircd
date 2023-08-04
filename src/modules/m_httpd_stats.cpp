@@ -270,8 +270,8 @@ namespace Stats
 
 		if (u->IsAway())
 		{
-			serializer.Attribute("away", u->awaymsg)
-				.Attribute("awaytime", u->awaytime);
+			serializer.Attribute("away", u->away->message)
+				.Attribute("awaytime", u->away->time);
 		}
 
 		if (u->IsOper())

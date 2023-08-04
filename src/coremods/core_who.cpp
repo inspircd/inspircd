@@ -291,7 +291,7 @@ bool CommandWho::MatchUser(LocalUser* source, User* user, WhoData& data)
 	// The source wants to match against users' away messages.
 	bool match = false;
 	if (data.flags['A'])
-		match = user->IsAway() && InspIRCd::Match(user->awaymsg, data.matchtext, ascii_case_insensitive_map);
+		match = user->IsAway() && InspIRCd::Match(user->away->message, data.matchtext, ascii_case_insensitive_map);
 
 	// The source wants to match against users' account names.
 	else if (data.flags['a'])

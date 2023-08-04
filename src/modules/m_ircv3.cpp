@@ -34,7 +34,7 @@ public:
 	AwayMessage(User* user)
 		: ClientProtocol::Message("AWAY", user)
 	{
-		SetParams(user, user->awaymsg);
+		SetParams(user, user->away->message);
 	}
 
 	AwayMessage()
@@ -101,7 +101,7 @@ public:
 		if ((memb->user->IsAway()) && (awaycap.IsActive()))
 		{
 			awaymsg.SetSource(join);
-			awaymsg.SetParams(memb->user, memb->user->awaymsg);
+			awaymsg.SetParams(memb->user, memb->user->away->message);
 		}
 	}
 
@@ -166,7 +166,7 @@ public:
 		Monitor::WriteWatchersWithCap(monitorapi, user, accountevent, cap_accountnotify, res.GetAlreadySentId());
 	}
 
-	void OnUserAway(User* user) override
+	void OnUserAway(User* user, const std::optional<AwayState>& prevstate) override
 	{
 		if (!joinhook.awaycap.IsActive())
 			return;
@@ -178,10 +178,10 @@ public:
 		Monitor::WriteWatchersWithCap(monitorapi, user, awayevent, joinhook.awaycap, res.GetAlreadySentId());
 	}
 
-	void OnUserBack(User* user, const std::string& message) override
+	void OnUserBack(User* user, const std::optional<AwayState>& prevstate) override
 	{
 		// Back from away: n!u@h AWAY
-		OnUserAway(user);
+		OnUserAway(user, prevstate);
 	}
 };
 

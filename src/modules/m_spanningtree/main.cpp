@@ -828,15 +828,15 @@ void ModuleSpanningTree::OnDelLine(User* user, XLine* x)
 	params.Broadcast();
 }
 
-void ModuleSpanningTree::OnUserAway(User* user)
+void ModuleSpanningTree::OnUserAway(User* user, const std::optional<AwayState>& prevstate)
 {
 	if (IS_LOCAL(user) && user->IsFullyConnected())
 		CommandAway::Builder(user).Broadcast();
 }
 
-void ModuleSpanningTree::OnUserBack(User* user, const std::string& message)
+void ModuleSpanningTree::OnUserBack(User* user, const std::optional<AwayState>& prevstate)
 {
-	OnUserAway(user);
+	OnUserAway(user, prevstate);
 }
 
 void ModuleSpanningTree::OnMode(User* source, User* u, Channel* c, const Modes::ChangeList& modes, ModeParser::ModeProcessFlag processflags)

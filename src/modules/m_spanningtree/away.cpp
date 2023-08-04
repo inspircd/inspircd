@@ -30,22 +30,17 @@
 
 CmdResult CommandAway::HandleRemote(::RemoteUser* u, Params& params)
 {
+	const auto prevstate = u->away;
 	if (!params.empty())
 	{
-		if (params.size() > 1)
-			u->awaytime = ServerCommand::ExtractTS(params[0]);
-		else
-			u->awaytime = ServerInstance->Time();
-
-		u->awaymsg = params.back();
-		awayevprov.Call(&Away::EventListener::OnUserAway, u);
+		time_t awaytime = params.size() > 1 ? ServerCommand::ExtractTS(params[0]) : 0;
+		u->away.emplace(params.back(), awaytime);
+		awayevprov.Call(&Away::EventListener::OnUserAway, u, prevstate);
 	}
 	else
 	{
-		const std::string awaymsg = u->awaymsg;
-		u->awaytime = 0;
-		u->awaymsg.clear();
-		awayevprov.Call(&Away::EventListener::OnUserBack, u, awaymsg);
+		u->away.reset();
+		awayevprov.Call(&Away::EventListener::OnUserBack, u, prevstate);
 	}
 	return CmdResult::SUCCESS;
 }
@@ -53,6 +48,6 @@ CmdResult CommandAway::HandleRemote(::RemoteUser* u, Params& params)
 CommandAway::Builder::Builder(User* user)
 	: CmdBuilder(user, "AWAY")
 {
-	if (!user->awaymsg.empty())
-		push_int(user->awaytime).push_last(user->awaymsg);
+	if (user->IsAway())
+		push_int(user->away->time).push_last(user->away->message);
 }

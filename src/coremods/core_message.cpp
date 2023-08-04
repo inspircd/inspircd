@@ -252,7 +252,7 @@ private:
 
 		// If the target is away then inform the user.
 		if (target->IsAway() && msgdetails.type == MessageType::PRIVMSG)
-			source->WriteNumeric(RPL_AWAY, target->nick, target->awaymsg);
+			source->WriteNumeric(RPL_AWAY, target->nick, target->away->message);
 
 		LocalUser* const localtarget = IS_LOCAL(target);
 		if (localtarget)

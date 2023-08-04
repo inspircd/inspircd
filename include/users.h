@@ -144,6 +144,18 @@ public:
 	const std::vector<std::string>& GetHosts() const { return hosts; }
 };
 
+class CoreExport AwayState final
+{
+public:
+	/** The reason this user specified when they went away. */
+	std::string message;
+
+	/** The time at which this user went away. */
+	time_t time;
+
+	AwayState(const std::string& m, time_t t = 0);
+};
+
 /** Represents an \<opertype> from the server config. */
 class CoreExport OperType
 	: public insp::uncopiable
@@ -448,15 +460,8 @@ public:
 	 */
 	Server* server;
 
-	/** The user's away message.
-	 * If this string is empty, the user is not marked as away.
-	 */
-	std::string awaymsg;
-
-	/** Time the user last went away.
-	 * This is ONLY RELIABLE if user IsAway()!
-	 */
-	time_t awaytime;
+	/** If non-empty then the away state of this user. */
+	std::optional<AwayState> away;
 
 	/** If non-null then the oper account this user is logged in to. */
 	std::shared_ptr<OperAccount> oper;
@@ -567,10 +572,10 @@ public:
 	void InvalidateCache();
 
 	/** Returns whether this user is currently away or not. If true,
-	 * further information can be found in User::awaymsg and User::awaytime
+	 * further information can be found in away->message and away->time
 	 * @return True if the user is away, false otherwise
 	 */
-	bool IsAway() const { return (!awaymsg.empty()); }
+	inline bool IsAway() const { return away.has_value(); }
 
 	/** Returns whether this user is an oper or not. If true,
 	 * oper information can be obtained from User::oper

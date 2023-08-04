@@ -182,8 +182,8 @@ public:
 			if (targetuser->IsAway())
 			{
 				/* user is away */
-				context.Write("awaytime", targetuser->awaytime);
-				context.Write("awaymsg", targetuser->awaymsg);
+				context.Write("awaytime", targetuser->away->time);
+				context.Write("awaymsg", targetuser->away->message);
 			}
 
 			if (targetuser->IsOper())
