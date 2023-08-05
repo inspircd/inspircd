@@ -56,4 +56,31 @@ namespace insp
 		sv.remove_suffix(std::distance(end, str.end()));
 		return sv;
 	}
+
+	/** Get underlying C string of the string passed as parameter. Useful in template functions.
+	 * @param str A `const char*` string.
+	 */
+	inline const char* tocstr(const char* str)
+	{
+		return str;
+	}
+
+	/** Get underlying C string of the string passed as parameter. Useful in template functions.
+	 * @param str A `std::string` string.
+	 */
+	inline const char* tocstr(const std::string& str)
+	{
+		return str.c_str();
+	}
+
+	/** Check if two strings are equal case insensitively.
+	 * @param str1 First string to compare.
+	 * @param str2 Second string to compare.
+	 * @return True if the strings are equal case-insensitively; otherwise, false.
+	 */
+	template <typename S1, typename S2>
+	inline bool equalsci(const S1& str1, const S2& str2)
+	{
+		return (!strcasecmp(tocstr(str1), tocstr(str2)));
+	}
 }

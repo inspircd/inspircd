@@ -65,38 +65,6 @@ namespace stdalgo
 		}
 	}
 
-	namespace string
-	{
-		/** Get underlying C string of the string passed as parameter. Useful in template functions.
-		 * @param str C string
-		 * @return Same as input
-		 */
-		inline const char* tocstr(const char* str)
-		{
-			return str;
-		}
-
-		/** Get underlying C string of the string passed as parameter. Useful in template functions.
-		 * @param str std::string object
-		 * @return str.c_str()
-		 */
-		inline const char* tocstr(const std::string& str)
-		{
-			return str.c_str();
-		}
-
-		/** Check if two strings are equal case insensitively.
-		 * @param str1 First string to compare.
-		 * @param str2 Second string to compare.
-		 * @return True if the strings are equal case-insensitively, false otherwise.
-		 */
-		template <typename S1, typename S2>
-		inline bool equalsci(const S1& str1, const S2& str2)
-		{
-			return (!strcasecmp(tocstr(str1), tocstr(str2)));
-		}
-	}
-
 	/**
 	 * Deletes all elements in a container using operator delete
 	 * @param cont The container containing the elements to delete
