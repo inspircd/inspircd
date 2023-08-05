@@ -92,13 +92,13 @@ ServerConfig::ServerConfig()
 {
 }
 
-ServerConfig::ReadResult ServerConfig::ReadFile(const std::string& file, bool invalidate)
+ServerConfig::ReadResult ServerConfig::ReadFile(const std::string& file, time_t mincache)
 {
 	auto contents = filecontents.find(file);
 	if (contents != filecontents.end())
 	{
-		if (!invalidate)
-			return ReadResult(contents->second, {});
+		if (!mincache || contents->second.second >= mincache)
+			return ReadResult(contents->second.first, {});
 		filecontents.erase(contents);
 	}
 
@@ -129,8 +129,8 @@ ServerConfig::ReadResult ServerConfig::ReadFile(const std::string& file, bool in
 			datastream.write(databuf, len);
 	}
 
-	filecontents[name] = datastream.str();
-	return ReadResult(filecontents[name], {});
+	filecontents[name] = { datastream.str(), ServerInstance->Time() };
+	return ReadResult(filecontents[name].first, {});
 }
 
 void ServerConfig::CrossCheckOperBlocks()

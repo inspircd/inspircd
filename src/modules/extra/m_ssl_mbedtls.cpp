@@ -56,8 +56,6 @@ static Module* thismod;
 
 namespace mbedTLS
 {
-	time_t lastrehash = 0;
-
 	class Exception final
 		: public ModuleException
 	{
@@ -524,7 +522,7 @@ namespace mbedTLS
 
 		static std::string ReadFile(const std::string& filename)
 		{
-			auto file = ServerInstance->Config->ReadFile(filename, mbedTLS::lastrehash != ServerInstance->Time());
+			auto file = ServerInstance->Config->ReadFile(filename, ServerInstance->Time());
 			if (!file)
 				throw Exception("Cannot read file " + filename + ": " + file.error);
 			return file.contents;
@@ -922,9 +920,6 @@ private:
 
 	void ReadProfiles()
 	{
-		// Invalidate the filesystem cache.
-		mbedTLS::lastrehash = ServerInstance->Time();
-
 		// First, store all profiles in a new, temporary container. If no problems occur, swap the two
 		// containers; this way if something goes wrong we can go back and continue using the current profiles,
 		// avoiding unpleasant situations where no new TLS connections are possible.

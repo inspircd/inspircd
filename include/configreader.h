@@ -248,7 +248,7 @@ private:
 	friend struct ParseStack; // config_data, errstr, filesources
 
 	/** Holds the contents of a cached file. */
-	typedef insp::flat_map<std::string, std::string> FileCache;
+	typedef insp::flat_map<std::string, std::pair<std::string, time_t>> FileCache;
 
 	/** Holds the contents of a cached file. */
 	typedef insp::flat_map<std::string, std::pair<std::string, bool>, irc::insensitive_swo> FileSource;
@@ -546,10 +546,10 @@ public:
 
 	/** Reads a file from disk.
 	 * @param file The file to read from. May also be an \<[exec]files> key.
-	 * @param invalidate Whether to invalidate the cached copy if it exists.
+	 * @param mincache If non-zero then invalidate cached copies from before the specified time.
 	 * @return The result of the read operation.
 	 */
-	ReadResult ReadFile(const std::string& file, bool invalidate = false);
+	ReadResult ReadFile(const std::string& file, time_t mincache = 0);
 };
 
 /** The background thread for config reading, so that reading from executable includes
