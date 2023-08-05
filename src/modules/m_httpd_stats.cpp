@@ -403,9 +403,9 @@ namespace Stats
 		bool desc = params.getBool("desc", false);
 
 		OrderBy orderby;
-		if (stdalgo::string::equalsci(sortmethod, "nick"))
+		if (insp::equalsci(sortmethod, "nick"))
 			orderby = OB_NICK;
-		else if (stdalgo::string::equalsci(sortmethod, "lastmsg"))
+		else if (insp::equalsci(sortmethod, "lastmsg"))
 		{
 			orderby = OB_LASTMSG;
 			// We can only check idle times on local users

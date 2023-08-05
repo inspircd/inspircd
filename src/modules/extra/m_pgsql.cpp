@@ -42,6 +42,7 @@
 
 #include "inspircd.h"
 #include "modules/sql.h"
+#include "utility/string.h"
 
 /* SQLConn rewritten by peavey to
  * use EventHandler instead of
@@ -603,7 +604,7 @@ public:
 
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("database"))
 		{
-			if (!stdalgo::string::equalsci(tag->getString("module"), "pgsql"))
+			if (!insp::equalsci(tag->getString("module"), "pgsql"))
 				continue;
 
 			std::string id = tag->getString("id");

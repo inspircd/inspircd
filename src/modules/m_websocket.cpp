@@ -22,6 +22,7 @@
 #include "inspircd.h"
 #include "iohook.h"
 #include "modules/hash.h"
+#include "utility/string.h"
 
 #define UTF_CPP_CPLUSPLUS 199711L
 #include <utfcpp/unchecked.h>
@@ -458,8 +459,8 @@ class WebSocketHook final
 			{
 				proto.erase(std::remove_if(proto.begin(), proto.end(), ::isspace), proto.end());
 
-				bool is_binary = stdalgo::string::equalsci(proto, "binary.inspircd.org");
-				bool is_text = stdalgo::string::equalsci(proto, "text.inspircd.org");
+				bool is_binary = insp::equalsci(proto, "binary.inspircd.org");
+				bool is_text = insp::equalsci(proto, "text.inspircd.org");
 
 				if (is_binary || is_text)
 				{
@@ -648,11 +649,11 @@ public:
 		const auto& tag = ServerInstance->Config->ConfValue("websocket");
 
 		const std::string defaultmodestr = tag->getString("defaultmode", tag->getBool("sendastext", true) ? "text" : "binary", 1);
-		if (stdalgo::string::equalsci(defaultmodestr, "reject"))
+		if (insp::equalsci(defaultmodestr, "reject"))
 			config.defaultmode = WebSocketConfig::DM_REJECT;
-		else if (stdalgo::string::equalsci(defaultmodestr, "binary"))
+		else if (insp::equalsci(defaultmodestr, "binary"))
 			config.defaultmode = WebSocketConfig::DM_BINARY;
-		else if (stdalgo::string::equalsci(defaultmodestr, "text"))
+		else if (insp::equalsci(defaultmodestr, "text"))
 			config.defaultmode = WebSocketConfig::DM_TEXT;
 		else
 			throw ModuleException(this, defaultmodestr + " is an invalid value for <websocket:defaultmode>; acceptable values are 'binary', 'text' and 'reject', at " + tag->source.str());

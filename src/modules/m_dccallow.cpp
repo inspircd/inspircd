@@ -491,7 +491,7 @@ public:
 							if (InspIRCd::Match(filename, bf.filemask, ascii_case_insensitive_map))
 							{
 								/* We have a matching badfile entry, override whatever the default action is */
-								if (stdalgo::string::equalsci(bf.action, "allow"))
+								if (insp::equalsci(bf.action, "allow"))
 									return MOD_RES_PASSTHRU;
 								else
 								{

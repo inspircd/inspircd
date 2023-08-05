@@ -438,7 +438,7 @@ public:
 
 	ModResult OnAcceptConnection(int nfd, ListenSocket* from, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server) override
 	{
-		if (!stdalgo::string::equalsci(from->bind_tag->getString("type"), "httpd"))
+		if (!insp::equalsci(from->bind_tag->getString("type"), "httpd"))
 			return MOD_RES_PASSTHRU;
 
 		sockets.push_front(new HttpServerSocket(nfd, client.addr(), from, client, server, timeoutsec));

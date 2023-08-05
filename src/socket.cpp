@@ -32,6 +32,7 @@
 #endif
 
 #include "inspircd.h"
+#include "utility/string.h"
 
 namespace
 {
@@ -141,7 +142,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 				irc::spacesepstream protostream(tag->getString("protocols", "all", 1));
 				for (std::string protocol; protostream.GetToken(protocol); )
 				{
-					if (stdalgo::string::equalsci(protocol, "all"))
+					if (insp::equalsci(protocol, "all"))
 					{
 						protocols.push_back(0); // IPPROTO_TCP
 #ifdef IPPROTO_SCTP
@@ -149,7 +150,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 							protocols.push_back(IPPROTO_SCTP);
 #endif
 					}
-					else if (stdalgo::string::equalsci(protocol, "sctp"))
+					else if (insp::equalsci(protocol, "sctp"))
 					{
 #ifdef IPPROTO_SCTP
 						protocols.push_back(IPPROTO_SCTP);
@@ -157,7 +158,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 						failed_ports.emplace_back("Platform does not support SCTP", tag);
 #endif
 					}
-					else if (stdalgo::string::equalsci(protocol, "tcp"))
+					else if (insp::equalsci(protocol, "tcp"))
 					{
 						protocols.push_back(0); // IPPROTO_TCP
 					}

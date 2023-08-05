@@ -668,32 +668,32 @@ std::vector<std::string> ServerConfig::GetModules() const
 		}
 
 		// Rewrite the old names of renamed modules.
-		if (stdalgo::string::equalsci(shortname, "cgiirc"))
+		if (insp::equalsci(shortname, "cgiirc"))
 			modules.push_back("gateway");
-		else if (stdalgo::string::equalsci(shortname, "cloaking"))
+		else if (insp::equalsci(shortname, "cloaking"))
 		{
 			modules.push_back("cloak");
 			modules.push_back("cloak_md5");
 		}
-		else if (stdalgo::string::equalsci(shortname, "gecosban"))
+		else if (insp::equalsci(shortname, "gecosban"))
 			modules.push_back("realnameban");
-		else if (stdalgo::string::equalsci(shortname, "helpop"))
+		else if (insp::equalsci(shortname, "helpop"))
 		{
 			modules.push_back("help");
 			modules.push_back("helpmode");
 		}
-		else if (stdalgo::string::equalsci(shortname, "regex_pcre2"))
+		else if (insp::equalsci(shortname, "regex_pcre2"))
 			modules.push_back("regex_pcre");
-		else if (stdalgo::string::equalsci(shortname, "sha256"))
+		else if (insp::equalsci(shortname, "sha256"))
 			modules.push_back("sha2");
-		else if (stdalgo::string::equalsci(shortname, "services_account"))
+		else if (insp::equalsci(shortname, "services_account"))
 		{
 			modules.push_back("account");
 			modules.push_back("services");
 		}
-		else if (stdalgo::string::equalsci(shortname, "servprotect"))
+		else if (insp::equalsci(shortname, "servprotect"))
 			modules.push_back("services");
-		else if (stdalgo::string::equalsci(shortname, "svshold"))
+		else if (insp::equalsci(shortname, "svshold"))
 			modules.push_back("services");
 		else
 		{

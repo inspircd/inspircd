@@ -152,7 +152,7 @@ public:
 			return def;
 
 		for (const auto& [enumkey, enumval] : enumvals)
-			if (stdalgo::string::equalsci(val, enumkey))
+			if (strcasecmp(val.c_str(), enumkey) == 0)
 				return enumval;
 
 		// Unfortunately we have to iterate this twice.

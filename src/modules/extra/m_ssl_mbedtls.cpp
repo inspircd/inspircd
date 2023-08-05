@@ -29,6 +29,7 @@
 #include "inspircd.h"
 #include "modules/ssl.h"
 #include "timeutils.h"
+#include "utility/string.h"
 
 #ifdef _WIN32
 # define timegm _mkgmtime
@@ -931,7 +932,7 @@ private:
 
 		for (const auto& [_, tag] : tags)
 		{
-			if (!stdalgo::string::equalsci(tag->getString("provider"), "mbedtls"))
+			if (!insp::equalsci(tag->getString("provider"), "mbedtls"))
 			{
 				ServerInstance->Logs.Debug(MODNAME, "Ignoring non-mbedTLS <sslprofile> tag at " + tag->source.str());
 				continue;

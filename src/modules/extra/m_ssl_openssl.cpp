@@ -44,6 +44,7 @@
 #include "iohook.h"
 #include "modules/ssl.h"
 #include "timeutils.h"
+#include "utility/string.h"
 
 #include <openssl/ssl.h>
 #include <openssl/err.h>
@@ -216,11 +217,11 @@ namespace OpenSSL
 
 			/* Set CRL mode */
 			unsigned long crlflags = X509_V_FLAG_CRL_CHECK;
-			if (stdalgo::string::equalsci(crlmode, "chain"))
+			if (insp::equalsci(crlmode, "chain"))
 			{
 				crlflags |= X509_V_FLAG_CRL_CHECK_ALL;
 			}
-			else if (!stdalgo::string::equalsci(crlmode, "leaf"))
+			else if (!insp::equalsci(crlmode, "leaf"))
 			{
 				throw ModuleException(thismod, "Unknown mode '" + crlmode + "'; expected either 'chain' (default) or 'leaf'");
 			}
@@ -977,7 +978,7 @@ class ModuleSSLOpenSSL final
 
 		for (const auto& [_, tag] : tags)
 		{
-			if (!stdalgo::string::equalsci(tag->getString("provider"), "openssl"))
+			if (!insp::equalsci(tag->getString("provider"), "openssl"))
 			{
 				ServerInstance->Logs.Debug(MODNAME, "Ignoring non-OpenSSL <sslprofile> tag at " + tag->source.str());
 				continue;

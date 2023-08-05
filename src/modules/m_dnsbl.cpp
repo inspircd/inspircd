@@ -136,14 +136,14 @@ public:
 		});
 
 		const std::string typestr = tag->getString("type");
-		if (stdalgo::string::equalsci(typestr, "bitmask"))
+		if (insp::equalsci(typestr, "bitmask"))
 		{
 			type = Type::BITMASK;
 
 			bitmask = tag->getNum<unsigned int>("bitmask", 0);
 			records = 0;
 		}
-		else if (stdalgo::string::equalsci(typestr, "record"))
+		else if (insp::equalsci(typestr, "record"))
 		{
 			type = Type::RECORD;
 

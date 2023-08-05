@@ -40,6 +40,7 @@
 #include "modules/stats.h"
 #include "numerichelper.h"
 #include "timeutils.h"
+#include "utility/string.h"
 #include "xline.h"
 
 #include <fstream>
@@ -824,21 +825,21 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string& freeform
 
 bool ModuleFilter::StringToFilterAction(const std::string& str, FilterAction& fa)
 {
-	if (stdalgo::string::equalsci(str, "gline"))
+	if (insp::equalsci(str, "gline"))
 		fa = FA_GLINE;
-	else if (stdalgo::string::equalsci(str, "zline"))
+	else if (insp::equalsci(str, "zline"))
 		fa = FA_ZLINE;
-	else if (stdalgo::string::equalsci(str, "warn"))
+	else if (insp::equalsci(str, "warn"))
 		fa = FA_WARN;
-	else if (stdalgo::string::equalsci(str, "block"))
+	else if (insp::equalsci(str, "block"))
 		fa = FA_BLOCK;
-	else if (stdalgo::string::equalsci(str, "silent"))
+	else if (insp::equalsci(str, "silent"))
 		fa = FA_SILENT;
-	else if (stdalgo::string::equalsci(str, "kill"))
+	else if (insp::equalsci(str, "kill"))
 		fa = FA_KILL;
-	else if (stdalgo::string::equalsci(str, "shun") && (ServerInstance->XLines->GetFactory("SHUN")))
+	else if (insp::equalsci(str, "shun") && (ServerInstance->XLines->GetFactory("SHUN")))
 		fa = FA_SHUN;
-	else if (stdalgo::string::equalsci(str, "none"))
+	else if (insp::equalsci(str, "none"))
 		fa = FA_NONE;
 	else
 		return false;

@@ -25,6 +25,7 @@
 
 #include "inspircd.h"
 #include "modules/httpd.h"
+#include "utility/string.h"
 
 class HTTPACL final
 {
@@ -78,16 +79,16 @@ public:
 
 			while (sep.GetToken(type))
 			{
-				if (stdalgo::string::equalsci(type, "password"))
+				if (insp::equalsci(type, "password"))
 				{
 					username = c->getString("username");
 					password = c->getString("password");
 				}
-				else if (stdalgo::string::equalsci(type, "whitelist"))
+				else if (insp::equalsci(type, "whitelist"))
 				{
 					whitelist = c->getString("whitelist");
 				}
-				else if (stdalgo::string::equalsci(type, "blacklist"))
+				else if (insp::equalsci(type, "blacklist"))
 				{
 					blacklist = c->getString("blacklist");
 				}

@@ -423,7 +423,7 @@ public:
 		ssl_cert* cert = cmd.sslapi.GetCertificate(user);
 		const char* error = nullptr;
 		const std::string requiressl = klass->config->getString("requiressl");
-		if (stdalgo::string::equalsci(requiressl, "trusted"))
+		if (insp::equalsci(requiressl, "trusted"))
 		{
 			if (!cert || !cert->IsCAVerified())
 				error = "a trusted TLS client certificate";

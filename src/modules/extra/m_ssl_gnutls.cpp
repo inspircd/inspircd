@@ -42,6 +42,7 @@
 #include "inspircd.h"
 #include "modules/ssl.h"
 #include "timeutils.h"
+#include "utility/string.h"
 
 #include <gnutls/gnutls.h>
 #include <gnutls/abstract.h>
@@ -1134,7 +1135,7 @@ class ModuleSSLGnuTLS final
 
 		for (const auto& [_, tag] : tags)
 		{
-			if (!stdalgo::string::equalsci(tag->getString("provider"), "gnutls"))
+			if (!insp::equalsci(tag->getString("provider"), "gnutls"))
 			{
 				ServerInstance->Logs.Debug(MODNAME, "Ignoring non-GnuTLS <sslprofile> tag at " + tag->source.str());
 				continue;

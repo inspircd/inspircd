@@ -327,7 +327,7 @@ public:
 	ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass, std::optional<Numeric::Numeric>& errnum) override
 	{
 		const char* error = nullptr;
-		if (stdalgo::string::equalsci(klass->config->getString("requireaccount"), "nick"))
+		if (insp::equalsci(klass->config->getString("requireaccount"), "nick"))
 		{
 			if (!accountapi.GetAccountName(user) && !accountapi.IsIdentifiedToNick(user))
 				error = "an account matching their current nickname";

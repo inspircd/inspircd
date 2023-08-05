@@ -31,8 +31,9 @@
 
 
 #include "inspircd.h"
-#include "threadsocket.h"
 #include "modules/ldap.h"
+#include "threadsocket.h"
+#include "utility/string.h"
 
 #if defined LDAP_API_FEATURE_X_OPENLDAP_REENTRANT && !LDAP_API_FEATURE_X_OPENLDAP_REENTRANT
 # error InspIRCd requires OpenLDAP to be built as reentrant.
@@ -245,12 +246,12 @@ private:
 		if (up.field_set & (1 << UF_SCHEMA))
 		{
 			const std::string schema(url, up.field_data[UF_SCHEMA].off, up.field_data[UF_SCHEMA].len);
-			if (stdalgo::string::equalsci(schema, "ldaps"))
+			if (insp::equalsci(schema, "ldaps"))
 			{
 				port = 636; // Default encrypted port.
 				secure = true;
 			}
-			else if (!stdalgo::string::equalsci(schema, "ldap"))
+			else if (!insp::equalsci(schema, "ldap"))
 				return LDAP_CONNECT_ERROR; // Invalid protocol.
 		}
 
@@ -359,9 +360,9 @@ public:
 		, config(tag)
 	{
 		std::string scope = config->getString("searchscope");
-		if (stdalgo::string::equalsci(scope, "base"))
+		if (insp::equalsci(scope, "base"))
 			searchscope = LDAP_SCOPE_BASE;
-		else if (stdalgo::string::equalsci(scope, "onelevel"))
+		else if (insp::equalsci(scope, "onelevel"))
 			searchscope = LDAP_SCOPE_ONELEVEL;
 		else
 			searchscope = LDAP_SCOPE_SUBTREE;
@@ -618,7 +619,7 @@ public:
 
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("database"))
 		{
-			if (!stdalgo::string::equalsci(tag->getString("module"), "ldap"))
+			if (!insp::equalsci(tag->getString("module"), "ldap"))
 				continue;
 
 			std::string id = tag->getString("id");

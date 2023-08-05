@@ -125,7 +125,7 @@ public:
 				throw ModuleException(this, "<title:password> is empty at " + tag->source.str());
 
 			const std::string hash = tag->getString("hash", "plaintext", 1);
-			if (stdalgo::string::equalsci(hash, "plaintext"))
+			if (insp::equalsci(hash, "plaintext"))
 			{
 				ServerInstance->Logs.Normal(MODNAME, "<title> tag for {} at {} contains an plain text password, this is insecure!",
 					name, tag->source.str());

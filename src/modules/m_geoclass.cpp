@@ -20,6 +20,7 @@
 #include "inspircd.h"
 #include "modules/geolocation.h"
 #include "modules/stats.h"
+#include "utility/string.h"
 
 class ModuleGeoClass final
 	: public Module
@@ -59,7 +60,7 @@ public:
 
 			// If the user matches this country code then they can use this
 			// connect class.
-			if (stdalgo::string::equalsci(token, code))
+			if (insp::equalsci(token, code))
 				return MOD_RES_PASSTHRU;
 		}
 

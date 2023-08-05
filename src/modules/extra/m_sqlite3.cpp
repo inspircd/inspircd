@@ -37,6 +37,7 @@
 
 #include "inspircd.h"
 #include "modules/sql.h"
+#include "utility/string.h"
 
 #include <sqlite3.h>
 
@@ -268,7 +269,7 @@ public:
 
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("database"))
 		{
-			if (!stdalgo::string::equalsci(tag->getString("module"), "sqlite"))
+			if (!insp::equalsci(tag->getString("module"), "sqlite"))
 				continue;
 
 			auto* conn = new SQLConn(this, tag);

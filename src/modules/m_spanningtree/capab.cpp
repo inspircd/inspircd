@@ -57,17 +57,17 @@ namespace
 				modname.append(name.substr(0, endpos)).append(".so");
 
 				// Handle renamed modules.
-				if (stdalgo::string::equalsci(modname, "m_cloak.so") && ServerInstance->Modules.Find("cloak_md5"))
+				if (insp::equalsci(modname, "m_cloak.so") && ServerInstance->Modules.Find("cloak_md5"))
 					modname = "m_cloaking.so";
-				else if (stdalgo::string::equalsci(modname, "m_realnameban.so"))
+				else if (insp::equalsci(modname, "m_realnameban.so"))
 					modname = "m_gecosban.so";
-				else if (stdalgo::string::equalsci(modname, "m_account.so") && ServerInstance->Modules.Find("services"))
+				else if (insp::equalsci(modname, "m_account.so") && ServerInstance->Modules.Find("services"))
 					modname = "m_services_account.so";
-				else if (stdalgo::string::equalsci(modname, "m_services.so"))
+				else if (insp::equalsci(modname, "m_services.so"))
 					modname = "m_svshold.so";
 
 				// Handle modules with changed properties.
-				else if (stdalgo::string::equalsci(modname, "m_globops.so"))
+				else if (insp::equalsci(modname, "m_globops.so"))
 					continue;  // This module was made VF_OPTCOMMON in v4.
 			}
 			else

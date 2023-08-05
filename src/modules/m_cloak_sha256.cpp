@@ -42,6 +42,7 @@ typedef void psl_ctx_t;
 #include "inspircd.h"
 #include "modules/cloak.h"
 #include "modules/hash.h"
+#include "utility/string.h"
 
 class SHA256Method final
 	: public Cloak::Method
@@ -313,7 +314,7 @@ public:
 		if (cloakhost && !psldb.empty())
 		{
 #ifdef HAS_LIBPSL
-			if (stdalgo::string::equalsci(psldb, "system"))
+			if (insp::equalsci(psldb, "system"))
 			{
 				psldb = psl_dist_filename();
 				if (psldb.empty())

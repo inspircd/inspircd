@@ -42,6 +42,7 @@
 #include "inspircd.h"
 #include "modules/sql.h"
 #include "threadsocket.h"
+#include "utility/string.h"
 
 #ifdef _WIN32
 # pragma comment(lib, "mysqlclient.lib")
@@ -478,7 +479,7 @@ void ModuleSQL::ReadConfig(ConfigStatus& status)
 
 	for (const auto& [_, tag] : ServerInstance->Config->ConfTags("database"))
 	{
-		if (!stdalgo::string::equalsci(tag->getString("module"), "mysql"))
+		if (!insp::equalsci(tag->getString("module"), "mysql"))
 			continue;
 
 		std::string id = tag->getString("id");
