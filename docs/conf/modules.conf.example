@@ -1477,7 +1477,7 @@
 #           killreason="Access denied"                                #
 #           verbose="yes"                                             #
 #           host="$uid.$ou.inspircd.org"                              #
-#           useusername="no">                                         #
+#           field="nickname">                                         #
 #                                                                     #
 # <ldapexemption mask="*!*@10.42.0.0/16">                             #
 # <ldapexemption mask="Guest*!*@*">                                   #
@@ -1490,9 +1490,8 @@
 # The attribute value indicates the attribute which is used to locate #
 # a user account by name. On POSIX systems this is usually 'uid'.     #
 #                                                                     #
-# The useusername setting chooses whether the user's username or      #
-# nickname is used when locating a user account, if a username isn't  #
-# provided in PASS.                                                   #
+# The field setting chooses where to select the LDAP username from.   #
+# Valid options are "nickname", "username", and "password".           #
 #                                                                     #
 # Killreason indicates the QUIT reason to give to users if they fail  #
 # to authenticate.                                                    #

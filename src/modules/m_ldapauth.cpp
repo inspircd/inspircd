@@ -312,6 +312,14 @@ public:
 	}
 };
 
+enum class AuthField
+	: uint8_t
+{
+	NICKNAME,
+	USERNAME,
+	PASSWORD,
+};
+
 class ModuleLDAPAuth final
 	: public Module
 {
@@ -321,7 +329,7 @@ class ModuleLDAPAuth final
 	std::string base;
 	std::string attribute;
 	std::vector<std::string> exemptions;
-	bool useusername;
+	AuthField field;
 
 public:
 	ModuleLDAPAuth()
@@ -344,7 +352,11 @@ public:
 		vhost			= tag->getString("host");
 		// Set to true if failed connects should be reported to operators
 		verbose			= tag->getBool("verbose");
-		useusername		= tag->getBool("useusername", tag->getBool("userfield"));
+		field = tag->getEnum("field", tag->getBool("useusername") ? AuthField::USERNAME : AuthField::NICKNAME, {
+			{ "nickname", AuthField::USERNAME },
+			{ "password", AuthField::PASSWORD },
+			{ "username", AuthField::NICKNAME },
+		});
 
 		LDAP.SetProvider("LDAP/" + tag->getString("dbid"));
 
@@ -417,18 +429,33 @@ public:
 			return MOD_RES_DENY;
 		}
 
-		std::string what;
-		std::string::size_type pos = user->password.find(':');
-		if (pos != std::string::npos)
+		std::string what = attribute + "=";
+		switch (field)
 		{
-			what = attribute + "=" + user->password.substr(0, pos);
+			case AuthField::NICKNAME:
+				what += user->nick;
+				break;
 
-			// Trim the user: prefix, leaving just 'pass' for later password check
-			user->password = user->password.substr(pos + 1);
-		}
-		else
-		{
-			what = attribute + "=" + (useusername ? user->GetRealUser() : user->nick);
+			case AuthField::USERNAME:
+				what += user->GetRealUser();
+				break;
+
+			case AuthField::PASSWORD:
+			{
+				auto pos = user->password.find(':');
+				if (pos == std::string::npos)
+				{
+					if (verbose)
+						ServerInstance->SNO.WriteToSnoMask('c', "Forbidden connection from {} (no username provided)", user->GetRealMask());
+					ServerInstance->Users.QuitUser(user, killreason);
+					return MOD_RES_DENY;
+				}
+
+				what += user->password.substr(0, pos);
+				user->password.erase(0, pos + 1);
+				user->password.shrink_to_fit();
+				break;
+			}
 		}
 
 		try
