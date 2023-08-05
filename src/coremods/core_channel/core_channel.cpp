@@ -25,6 +25,7 @@
 #include "clientprotocolevent.h"
 #include "listmode.h"
 #include "modules/isupport.h"
+#include "utility/string.h"
 
 #include "core_channel.h"
 #include "invite.h"
@@ -235,7 +236,7 @@ public:
 			tokens["VLIST"] = vlist;
 
 		std::sort(limits.begin(), limits.end());
-		tokens["MAXLIST"] = stdalgo::string::join(limits, ',');
+		tokens["MAXLIST"] = insp::join(limits, ',');
 	}
 
 	void OnBuildClassISupport(const std::shared_ptr<ConnectClass>& klass, ISupport::TokenMap& tokens) override

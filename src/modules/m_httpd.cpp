@@ -29,6 +29,7 @@
 #include "inspircd.h"
 #include "iohook.h"
 #include "modules/httpd.h"
+#include "utility/string.h"
 
 #ifdef __GNUC__
 # pragma GCC diagnostic push
@@ -359,7 +360,7 @@ public:
 			}
 
 			out.path.reserve(url.field_data[UF_PATH].len);
-			out.path.append("/").append(stdalgo::string::join(pathsegments, '/'));
+			out.path.append("/").append(insp::join(pathsegments, '/'));
 		}
 
 		if (url.field_set & (1 << UF_FRAGMENT))

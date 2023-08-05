@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "utility/string.h"
+
 /** Base class for types that extend an extensible. */
 class CoreExport ExtensionItem
 	: public ServiceProvider
@@ -339,7 +341,7 @@ public:
 		if (list->empty())
 			return {};
 
-		return stdalgo::string::join(*list, ' ');
+		return insp::join(*list, ' ');
 	}
 
 	/** @copydoc ExtensionItem::ToInternal */

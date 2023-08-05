@@ -619,9 +619,8 @@ public:
 				return MOD_RES_PASSTHRU;
 		}
 
-		const std::string marks = stdalgo::string::join(dnsbl);
 		ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is not suitable as the DNSBL marks ({}) do not match {}.",
-			klass->GetName(), marks, dnsbl);
+			klass->GetName(), insp::join(*match, ", "), dnsbl);
 		return MOD_RES_DENY;
 	}
 

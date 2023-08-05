@@ -20,6 +20,7 @@
 
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
+#include "utility/string.h"
 
 #include "core_user.h"
 
@@ -191,9 +192,8 @@ public:
 		}
 		if (!hostmatches)
 		{
-			const std::string hosts = stdalgo::string::join(klass->GetHosts());
 			ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is not suitable as neither the host ({}) nor the IP ({}) matches {}.",
-				klass->GetName(), user->GetRealHost(), user->GetAddress(), hosts);
+				klass->GetName(), user->GetRealHost(), user->GetAddress(), insp::join(klass->GetHosts()));
 			return MOD_RES_DENY;
 		}
 
@@ -217,9 +217,8 @@ public:
 
 		if (!klass->ports.empty() && !klass->ports.count(user->server_sa.port()))
 		{
-			const std::string portstr = stdalgo::string::join(klass->ports);
 			ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is not suitable as the connection port ({}) is not any of {}.",
-				klass->GetName(), user->server_sa.port(), portstr);
+				klass->GetName(), user->server_sa.port(), insp::join(klass->ports));
 			return MOD_RES_DENY;
 		}
 

@@ -95,25 +95,6 @@ namespace stdalgo
 		{
 			return (!strcasecmp(tocstr(str1), tocstr(str2)));
 		}
-
-		/** Joins the contents of a vector to a string.
-		 * @param sequence Zero or more items to join.
-		 * @param separator The character to place between the items, defaults to ' ' (space).
-		 * @return The joined string.
-		 */
-		template<typename Collection>
-		inline std::string join(const Collection& sequence, char separator = ' ')
-		{
-			std::string joined;
-			if (sequence.empty())
-				return joined;
-
-			for (const auto& element : sequence)
-				joined.append(ConvToStr(element)).push_back(separator);
-
-			joined.pop_back();
-			return joined;
-		}
 	}
 
 	/**

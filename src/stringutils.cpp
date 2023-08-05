@@ -26,6 +26,7 @@
 #include <fmt/format.cc>
 
 #include "inspircd.h"
+#include "utility/string.h"
 
 std::string Percent::Encode(const void* data, size_t length, const char* table, bool upper)
 {
@@ -342,7 +343,7 @@ std::string TokenList::ToString() const
 
 	// If the token list is not in permissive mode then the token list is just
 	// a list of allowed tokens.
-	return stdalgo::string::join(tokens);
+	return insp::join(tokens);
 }
 
 bool TokenList::operator==(const TokenList& other) const

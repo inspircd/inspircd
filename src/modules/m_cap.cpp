@@ -21,6 +21,7 @@
 #include "inspircd.h"
 #include "modules/reload.h"
 #include "modules/cap.h"
+#include "utility/string.h"
 
 enum
 {
@@ -308,7 +309,7 @@ namespace
 		}
 		result.push_back(version);
 
-		return stdalgo::string::join(result, ' ');
+		return insp::join(result, ' ');
 	}
 }
 

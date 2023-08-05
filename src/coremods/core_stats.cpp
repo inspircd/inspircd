@@ -29,6 +29,7 @@
 #include "inspircd.h"
 #include "modules/cap.h"
 #include "modules/stats.h"
+#include "utility/string.h"
 #include "xline.h"
 
 #ifdef _WIN32
@@ -178,7 +179,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 				if (c->type == ConnectClass::NAMED)
 					param.push_back('*');
 				else
-					param.append(stdalgo::string::join(c->GetHosts(), ','));
+					param.append(insp::join(c->GetHosts(), ','));
 
 				row.push(param).push(c->config->getString("port", "*", 1));
 				row.push(c->recvqmax).push(c->softsendqmax).push(c->hardsendqmax).push(c->commandrate);

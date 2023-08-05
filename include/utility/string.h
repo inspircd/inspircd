@@ -19,8 +19,30 @@
 
 #pragma once
 
+#include "utility/string.h"
+
 namespace insp
 {
+	/** Combines a sequence of elements into a string.
+	 * @param sequence A sequence of elements to combine.
+	 * @param separator The value to separate the elements with. Defaults to ' ' (space).
+	 */
+	template<typename Collection, typename Separator = char>
+	inline std::string join(const Collection& sequence, Separator separator = ' ')
+	{
+		std::string joined;
+		if (sequence.empty())
+			return joined;
+
+		const std::string separatorstr = ConvToStr(separator);
+		for (const auto& element : sequence)
+			joined.append(ConvToStr(element)).append(separatorstr);
+
+		joined.erase(joined.end() - separatorstr.length());
+		joined.shrink_to_fit();
+		return joined;
+	}
+
 	/** Creates a view of a subsection of a string.
 	 * @param str The string to create a view of.
 	 * @param begin The position within the string to start the view at.

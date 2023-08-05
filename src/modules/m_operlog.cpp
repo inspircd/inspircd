@@ -25,6 +25,7 @@
 
 #include "inspircd.h"
 #include "modules/isupport.h"
+#include "utility/string.h"
 
 class ModuleOperLog final
 	: public Module
@@ -54,7 +55,7 @@ public:
 			Command* thiscommand = ServerInstance->Parser.GetHandler(command);
 			if ((thiscommand) && (thiscommand->access_needed == CmdAccess::OPERATOR))
 			{
-				std::string msg = "[" + user->GetRealMask() + "] " + command + " " + stdalgo::string::join(parameters);
+				std::string msg = "[" + user->GetRealMask() + "] " + command + " " + insp::join(parameters);
 				if (tosnomask)
 					ServerInstance->SNO.WriteGlobalSno('o', msg);
 				else

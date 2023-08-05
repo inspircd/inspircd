@@ -35,6 +35,7 @@
 
 #include "inspircd.h"
 #include "clientprotocolevent.h"
+#include "utility/string.h"
 #include "xline.h"
 
 enum
@@ -1207,7 +1208,7 @@ std::string OperType::GetCommands(bool all) const
 			ret.push_back(cmd->name);
 	}
 	std::sort(ret.begin(), ret.end());
-	return stdalgo::string::join(ret);
+	return insp::join(ret);
 }
 
 std::string OperType::GetModes(ModeType mt, bool all) const

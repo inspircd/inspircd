@@ -290,7 +290,7 @@ std::string TreeSocket::BuildModeList(ModeType mtype)
 		modes.push_back(mdesc);
 	}
 	std::sort(modes.begin(), modes.end());
-	return stdalgo::string::join(modes);
+	return insp::join(modes);
 }
 
 bool TreeSocket::BuildExtBanList(std::string& out)

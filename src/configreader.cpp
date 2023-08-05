@@ -37,6 +37,7 @@
 
 #include "inspircd.h"
 #include "configparser.h"
+#include "utility/string.h"
 
 ServerConfig::ReadResult::ReadResult(const std::string& c, const std::string& e)
 	: contents(c)
@@ -205,7 +206,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			{
 				case ConnectClass::ALLOW:
 				case ConnectClass::DENY:
-					oldBlocksByMask[std::make_pair(stdalgo::string::join(c->GetHosts()), c->type)] = c;
+					oldBlocksByMask[std::make_pair(insp::join(c->GetHosts()), c->type)] = c;
 					break;
 
 				case ConnectClass::NAMED:

@@ -28,6 +28,7 @@
 #include "listmode.h"
 #include "numericbuilder.h"
 #include "timeutils.h"
+#include "utility/string.h"
 
 enum
 {
@@ -287,7 +288,7 @@ public:
 
 				if (!matches.empty())
 				{
-					const std::string whatmatch = stdalgo::string::join(matches, ',');
+					const std::string whatmatch = insp::join(matches, ',');
 					context.Write("match", INSP_FORMAT("{} {} {} {} {} {} {} {} :{}", ++x, whatmatch, u->nick, u->GetRealUser(),
 						u->GetDisplayedUser(), u->GetRealHost(), u->GetDisplayedHost(), u->GetAddress(), u->GetRealName()));
 					matches.clear();

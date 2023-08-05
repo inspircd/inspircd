@@ -27,6 +27,7 @@
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
 #include "numerichelper.h"
+#include "utility/string.h"
 
 class CommandSamode final
 	: public Command
@@ -78,7 +79,7 @@ public:
 			//
 			// Viewing the modes of a user or a channel could also result in this, but
 			// that is not possible with /SAMODE because we require at least 2 parameters.
-			LogUsage(user, stdalgo::string::join(parameters));
+			LogUsage(user, insp::join(parameters));
 		}
 
 		return CmdResult::SUCCESS;
