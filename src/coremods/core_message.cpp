@@ -26,7 +26,7 @@
 #include "clientprotocolmsg.h"
 #include "numericbuilder.h"
 #include "numerichelper.h"
-#include "utility/string_view.h"
+#include "utility/string.h"
 
 class MessageDetailsImpl final
 	: public MessageDetails
