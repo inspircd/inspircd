@@ -220,9 +220,9 @@ struct CloakInfo final
 		// can't directly send the key here. Instead we use dummy cloaks that
 		// allow verification of or less the same thing.
 		const std::string broken = "missing-md5-module";
-		data["cloak-v4"]   = md5 ? Generate("123.123.123.123")    : broken;
-		data["cloak-v6"]   = md5 ? Generate("dead:beef:cafe::")   : broken;
-		data["cloak-host"] = md5 ? Generate("cloak.inspircd.org") : broken;
+		data["cloak-v4"]   = md5 ? Generate("123.123.123.123")                        : broken;
+		data["cloak-v6"]   = md5 ? Generate("dead:beef:cafe::")                       : broken;
+		data["cloak-host"] = md5 ? Generate("extremely.long.inspircd.cloak.example")  : broken;
 
 		compatdata = GetCompatLinkData();
 	}

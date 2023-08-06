@@ -254,10 +254,10 @@ public:
 		// IMPORTANT: link data is sent over unauthenticated server links so we
 		// can't directly send the key here. Instead we use dummy cloaks that
 		// allow verification of or less the same thing.
-		data["cloak-v4"]   = sha256 ? Generate("123.123.123.123")      : broken;
-		data["cloak-v6"]   = sha256 ? Generate("dead:beef:cafe::")     : broken;
-		data["cloak-host"] = sha256 ? Generate("cloak.inspircd.org")   : broken;
-		data["cloak-unix"] = sha256 ? Generate("/inspircd/cloak.sock") : broken;
+		data["cloak-v4"]   = sha256 ? Generate("123.123.123.123")                        : broken;
+		data["cloak-v6"]   = sha256 ? Generate("dead:beef:cafe::")                       : broken;
+		data["cloak-host"] = sha256 ? Generate("extremely.long.inspircd.cloak.example")  : broken;
+		data["cloak-unix"] = sha256 ? Generate("/extremely/long/inspircd/cloak.example") : broken;
 
 		data["host-parts"] = ConvToStr(hostparts);
 		data["path-parts"] = ConvToStr(pathparts);
