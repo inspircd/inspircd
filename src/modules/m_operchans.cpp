@@ -32,12 +32,12 @@ enum
 	ERR_CANTJOINOPERSONLY = 520
 };
 
-class OperExtBan final
+class OperTypeExtBan final
 	: public ExtBan::MatchingBase
 {
 public:
-	OperExtBan(Module* Creator)
-		: ExtBan::MatchingBase(Creator, "oper", 'O')
+	OperTypeExtBan(Module* Creator)
+		: ExtBan::MatchingBase(Creator, "opertype", 'O')
 	{
 	}
 
@@ -59,13 +59,13 @@ class ModuleOperChans final
 {
 private:
 	SimpleChannelMode oc;
-	OperExtBan extban;
+	OperTypeExtBan opertype;
 
 public:
 	ModuleOperChans()
 		: Module(VF_VENDOR, "Adds channel mode O (operonly) which prevents non-server operators from joining the channel.")
 		, oc(this, "operonly", 'O', true)
-		, extban(this)
+		, opertype(this)
 	{
 	}
 
