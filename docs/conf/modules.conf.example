@@ -1715,11 +1715,9 @@
 #<ojoin prefix="!" notice="yes" op="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper channels mode: Adds the +O channel mode and extban O:<mask>
-# to ban, except, etc. specific oper types. For example
-# /MODE #channel +iI O:* is equivalent to channel mode +O, but you
-# may also set +iI O:AdminTypeOnly to only allow admins.
-# Modes +I and +e work in a similar fashion.
+# Oper channels mode: Adds the +O channel mode which restricts channel
+# access to server operators and extbans O:<type> and o:<account> that
+# match against an oper type and oper account respectively.
 #<module name="operchans">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

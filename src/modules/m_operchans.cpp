@@ -32,6 +32,28 @@ enum
 	ERR_CANTJOINOPERSONLY = 520
 };
 
+class OperAccountExtBan final
+	: public ExtBan::MatchingBase
+{
+public:
+	OperAccountExtBan(Module* Creator)
+		: ExtBan::MatchingBase(Creator, "oper", 'o')
+	{
+	}
+
+	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	{
+		// If the user is not an oper they can't match this.
+		if (!user->IsOper())
+			return false;
+
+		// Replace spaces with underscores as they're prohibited in mode parameters.
+		std::string opername(user->oper->GetName());
+		std::replace(opername.begin(), opername.end(), ' ', '_');
+		return InspIRCd::Match(opername, text);
+	}
+};
+
 class OperTypeExtBan final
 	: public ExtBan::MatchingBase
 {
@@ -59,12 +81,14 @@ class ModuleOperChans final
 {
 private:
 	SimpleChannelMode oc;
+	OperAccountExtBan operaccount;
 	OperTypeExtBan opertype;
 
 public:
 	ModuleOperChans()
 		: Module(VF_VENDOR, "Adds channel mode O (operonly) which prevents non-server operators from joining the channel.")
 		, oc(this, "operonly", 'O', true)
+		, operaccount(this)
 		, opertype(this)
 	{
 	}
