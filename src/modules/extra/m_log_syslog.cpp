@@ -30,7 +30,7 @@ private:
 	{
 		switch (level)
 		{
-			case Log::Level::ERROR:
+			case Log::Level::CRITICAL:
 				return LOG_ERR;
 
 			case Log::Level::WARNING:

@@ -389,7 +389,7 @@ bool ModuleManager::CanUnload(Module* mod)
 	if ((modfind == Modules.end()) || (modfind->second != mod) || (mod->dying))
 	{
 		LastModuleError = "Module " + mod->ModuleSourceFile + " is not loaded, cannot unload it!";
-		ServerInstance->Logs.Error("MODULE", LastModuleError);
+		ServerInstance->Logs.Critical("MODULE", LastModuleError);
 		return false;
 	}
 
@@ -556,7 +556,7 @@ void ModuleManager::LoadAll()
 		catch (const CoreException& modexcept)
 		{
 			LastModuleError = "Unable to initialize " + modname + ": " + modexcept.GetReason();
-			ServerInstance->Logs.Error("MODULE", LastModuleError);
+			ServerInstance->Logs.Critical("MODULE", LastModuleError);
 			fmt::println("");
 			fmt::println("[{}] {}", fmt::styled("*", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), LastModuleError);
 			fmt::println("");
@@ -580,7 +580,7 @@ void ModuleManager::LoadAll()
 		catch (const CoreException& modexcept)
 		{
 			LastModuleError = "Unable to read the configuration for " + modname + ": " + modexcept.GetReason();
-			ServerInstance->Logs.Error("MODULE", LastModuleError);
+			ServerInstance->Logs.Critical("MODULE", LastModuleError);
 			fmt::println("");
 			fmt::println("[{}] {}", fmt::styled("*", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), LastModuleError);
 			fmt::println("");

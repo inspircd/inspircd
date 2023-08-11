@@ -308,7 +308,7 @@ public:
 
 	bool HandleConnectError(const char* reason)
 	{
-		ServerInstance->Logs.Error(MODNAME, "Could not connect to the \"{}\" database: {}",
+		ServerInstance->Logs.Critical(MODNAME, "Could not connect to the \"{}\" database: {}",
 			GetId(), reason);
 		return false;
 	}

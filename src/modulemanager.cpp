@@ -45,14 +45,14 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 	if (!std::filesystem::is_regular_file(moduleFile, ec))
 	{
 		LastModuleError = "Module file could not be found: " + filename;
-		ServerInstance->Logs.Error("MODULE", LastModuleError);
+		ServerInstance->Logs.Critical("MODULE", LastModuleError);
 		return false;
 	}
 
 	if (Modules.find(filename) != Modules.end())
 	{
 		LastModuleError = "Module " + filename + " is already loaded, cannot load a module twice!";
-		ServerInstance->Logs.Error("MODULE", LastModuleError);
+		ServerInstance->Logs.Critical("MODULE", LastModuleError);
 		return false;
 	}
 
@@ -93,7 +93,7 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 		else
 		{
 			LastModuleError = "Unable to load " + filename + ": " + newhandle->LastError();
-			ServerInstance->Logs.Error("MODULE", LastModuleError);
+			ServerInstance->Logs.Critical("MODULE", LastModuleError);
 			delete newhandle;
 			return false;
 		}
@@ -111,7 +111,7 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 		else
 			delete newhandle;
 		LastModuleError = "Unable to load " + filename + ": " + modexcept.GetReason();
-		ServerInstance->Logs.Error("MODULE", LastModuleError);
+		ServerInstance->Logs.Critical("MODULE", LastModuleError);
 		return false;
 	}
 

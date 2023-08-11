@@ -405,7 +405,7 @@ class MyManager final
 	 */
 	bool CheckCache(DNS::Request* req, const DNS::Question& question)
 	{
-		ServerInstance->Logs.Error(MODNAME, "cache: Checking cache for " + question.name);
+		ServerInstance->Logs.Critical(MODNAME, "cache: Checking cache for " + question.name);
 
 		cache_map::iterator it = this->cache.find(question);
 		if (it == this->cache.end())
@@ -801,13 +801,13 @@ public:
 			if (SocketEngine::Bind(this, bindto) < 0)
 			{
 				/* Failed to bind */
-				ServerInstance->Logs.Error(MODNAME, "Error binding dns socket - hostnames will NOT resolve");
+				ServerInstance->Logs.Critical(MODNAME, "Error binding dns socket - hostnames will NOT resolve");
 				SocketEngine::Close(this->GetFd());
 				this->SetFd(-1);
 			}
 			else if (!SocketEngine::AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE))
 			{
-				ServerInstance->Logs.Error(MODNAME, "Internal error starting DNS - hostnames will NOT resolve.");
+				ServerInstance->Logs.Critical(MODNAME, "Internal error starting DNS - hostnames will NOT resolve.");
 				SocketEngine::Close(this->GetFd());
 				this->SetFd(-1);
 			}
@@ -817,7 +817,7 @@ public:
 		}
 		else
 		{
-			ServerInstance->Logs.Error(MODNAME, "Error creating DNS socket - hostnames will NOT resolve");
+			ServerInstance->Logs.Critical(MODNAME, "Error creating DNS socket - hostnames will NOT resolve");
 		}
 	}
 };

@@ -19,10 +19,6 @@
 
 #pragma once
 
-#ifdef _WIN32
-# undef ERROR // Defined by WinGDI.h
-#endif
-
 namespace Log
 {
 	class Method;
@@ -42,7 +38,7 @@ namespace Log
 		: uint8_t
 	{
 		/** A critical message which must be investigated. */
-		ERROR = 0,
+		CRITICAL = 0,
 
 		/** An important message which should be investigated. */
 		WARNING = 1,
@@ -258,24 +254,24 @@ public:
 	 */
 	void UnloadEngine(const Engine* engine) ATTR_NOT_NULL(2);
 
-	/** Writes an error message to the server log.
+	/** Writes an critical message to the server log.
 	 * @param type The type of message that is being logged.
 	 * @param message The message to log.
 	 */
-	inline void Error(const std::string& type, const std::string& message)
+	inline void Critical(const std::string& type, const std::string& message)
 	{
-		Write(Level::ERROR, type, message);
+		Write(Level::CRITICAL, type, message);
 	}
 
-	/** Writes an error message to the server log.
+	/** Writes an critical message to the server log.
 	 * @param type The type of message that is being logged.
 	 * @param format A format string to format and then log.
 	 * @param args One or more arguments to format the string with.
 	 */
 	template <typename... Args>
-	void Error(const std::string& type, const char* format, Args&&... args)
+	void Critical(const std::string& type, const char* format, Args&&... args)
 	{
-		Write(Level::ERROR, type, fmt::format(format, std::forward<Args>(args)...));
+		Write(Level::CRITICAL, type, fmt::format(format, std::forward<Args>(args)...));
 	}
 
 	/** Writes a warning message to the server log.

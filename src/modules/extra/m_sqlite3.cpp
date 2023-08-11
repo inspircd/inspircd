@@ -113,7 +113,7 @@ public:
 			// Even in case of an error conn must be closed
 			sqlite3_close(conn);
 			conn = nullptr;
-			ServerInstance->Logs.Error(MODNAME, "WARNING: Could not open DB with id: " + tag->getString("id"));
+			ServerInstance->Logs.Critical(MODNAME, "WARNING: Could not open DB with id: " + tag->getString("id"));
 		}
 	}
 

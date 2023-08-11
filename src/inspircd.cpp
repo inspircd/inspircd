@@ -149,20 +149,20 @@ namespace
 			errno = 0;
 			if (setgroups(0, nullptr) == -1)
 			{
-				ServerInstance->Logs.Error("STARTUP", "setgroups() failed (wtf?): {}", strerror(errno));
+				ServerInstance->Logs.Critical("STARTUP", "setgroups() failed (wtf?): {}", strerror(errno));
 				InspIRCd::QuickExit(EXIT_FAILURE);
 			}
 
 			struct group* g = getgrnam(SetGroup.c_str());
 			if (!g)
 			{
-				ServerInstance->Logs.Error("STARTUP", "getgrnam({}) failed (wrong group?): {}", SetGroup, strerror(errno));
+				ServerInstance->Logs.Critical("STARTUP", "getgrnam({}) failed (wrong group?): {}", SetGroup, strerror(errno));
 				InspIRCd::QuickExit(EXIT_FAILURE);
 			}
 
 			if (setgid(g->gr_gid) == -1)
 			{
-				ServerInstance->Logs.Error("STARTUP", "setgid({}) failed (wrong group?): {}", g->gr_gid, strerror(errno));
+				ServerInstance->Logs.Critical("STARTUP", "setgid({}) failed (wrong group?): {}", g->gr_gid, strerror(errno));
 				InspIRCd::QuickExit(EXIT_FAILURE);
 			}
 		}
@@ -174,13 +174,13 @@ namespace
 			struct passwd* u = getpwnam(SetUser.c_str());
 			if (!u)
 			{
-				ServerInstance->Logs.Error("STARTUP", "getpwnam({}) failed (wrong user?): {}", SetUser, strerror(errno));
+				ServerInstance->Logs.Critical("STARTUP", "getpwnam({}) failed (wrong user?): {}", SetUser, strerror(errno));
 				InspIRCd::QuickExit(EXIT_FAILURE);
 			}
 
 			if (setuid(u->pw_uid) == -1)
 			{
-				ServerInstance->Logs.Error("STARTUP", "setuid({}) failed (wrong user?): {}", u->pw_uid, strerror(errno));
+				ServerInstance->Logs.Critical("STARTUP", "setuid({}) failed (wrong user?): {}", u->pw_uid, strerror(errno));
 				InspIRCd::QuickExit(EXIT_FAILURE);
 			}
 		}
@@ -234,7 +234,7 @@ namespace
 		int childpid = fork();
 		if (childpid < 0)
 		{
-			ServerInstance->Logs.Error("STARTUP", "fork() failed: {}", strerror(errno));
+			ServerInstance->Logs.Critical("STARTUP", "fork() failed: {}", strerror(errno));
 			fmt::println("{} unable to fork into background: {}", fmt::styled("Error:", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), strerror(errno));
 			ServerInstance->Exit(EXIT_FAILURE);
 		}
@@ -446,7 +446,7 @@ void InspIRCd::WritePID()
 	else
 	{
 		fmt::println("Failed to write PID-file '{}', exiting.", pidfile);
-		this->Logs.Error("STARTUP", "Failed to write PID-file '{}', exiting.", pidfile);
+		this->Logs.Critical("STARTUP", "Failed to write PID-file '{}', exiting.", pidfile);
 		Exit(EXIT_FAILURE);
 	}
 }
@@ -489,7 +489,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	if (!FindConfigFile(ConfigFileName))
 	{
-		this->Logs.Error("STARTUP", "Unable to open config file {}", ConfigFileName);
+		this->Logs.Critical("STARTUP", "Unable to open config file {}", ConfigFileName);
 		fmt::println("ERROR: Cannot open config file: {}", ConfigFileName);
 		fmt::println("Exiting...");
 		Exit(EXIT_FAILURE);

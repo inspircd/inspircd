@@ -79,7 +79,7 @@ static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes)
 	std::ofstream stream(permchannelsnewconf);
 	if (!stream.is_open())
 	{
-		ServerInstance->Logs.Error(MODNAME, "Cannot create database \"{}\"! {} ({})", permchannelsnewconf, strerror(errno), errno);
+		ServerInstance->Logs.Critical(MODNAME, "Cannot create database \"{}\"! {} ({})", permchannelsnewconf, strerror(errno), errno);
 		ServerInstance->SNO.WriteToSnoMask('a', "database: cannot create new permchan db \"{}\": {} ({})", permchannelsnewconf, strerror(errno), errno);
 		return false;
 	}
@@ -151,7 +151,7 @@ static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes)
 
 	if (stream.fail())
 	{
-		ServerInstance->Logs.Error(MODNAME, "Cannot write to new database \"{}\"! {} ({})", permchannelsnewconf, strerror(errno), errno);
+		ServerInstance->Logs.Critical(MODNAME, "Cannot write to new database \"{}\"! {} ({})", permchannelsnewconf, strerror(errno), errno);
 		ServerInstance->SNO.WriteToSnoMask('a', "database: cannot write to new permchan db \"{}\": {} ({})", permchannelsnewconf, strerror(errno), errno);
 		return false;
 	}
@@ -163,7 +163,7 @@ static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes)
 	// Use rename to move temporary to new db - this is guaranteed not to fuck up, even in case of a crash.
 	if (rename(permchannelsnewconf.c_str(), permchannelsconf.c_str()) < 0)
 	{
-		ServerInstance->Logs.Error(MODNAME, "Cannot replace old database \"{}\" with new database \"{}\"! {} ({})", permchannelsconf, permchannelsnewconf, strerror(errno), errno);
+		ServerInstance->Logs.Critical(MODNAME, "Cannot replace old database \"{}\" with new database \"{}\"! {} ({})", permchannelsconf, permchannelsnewconf, strerror(errno), errno);
 		ServerInstance->SNO.WriteToSnoMask('a', "database: cannot replace old permchan db \"{}\" with new db \"{}\": {} ({})", permchannelsconf, permchannelsnewconf, strerror(errno), errno);
 		return false;
 	}
@@ -342,7 +342,7 @@ public:
 			}
 			catch (const CoreException& e)
 			{
-				ServerInstance->Logs.Error(MODNAME, "Error loading permchannels database: {}", e.what());
+				ServerInstance->Logs.Critical(MODNAME, "Error loading permchannels database: {}", e.what());
 			}
 		}
 	}

@@ -739,7 +739,7 @@ void ConfigReaderThread::OnStop()
 			}
 			catch (const CoreException& modex)
 			{
-				ServerInstance->Logs.Error("MODULE", "Unable to read the configuration for {}: {}",
+				ServerInstance->Logs.Critical("MODULE", "Unable to read the configuration for {}: {}",
 					mod->ModuleSourceFile, modex.what());
 				if (user)
 					user->WriteNotice(modname + ": " + modex.GetReason());
@@ -756,7 +756,7 @@ void ConfigReaderThread::OnStop()
 		}
 		catch (const CoreException& ex)
 		{
-			ServerInstance->Logs.Error("LOG", "Cannot open log files: " + ex.GetReason());
+			ServerInstance->Logs.Critical("LOG", "Cannot open log files: " + ex.GetReason());
 			if (user)
 				user->WriteNotice("Cannot open log files: " + ex.GetReason());
 		}

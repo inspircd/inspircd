@@ -25,8 +25,8 @@ const char* Log::LevelToString(Log::Level level)
 {
 	switch (level)
 	{
-		case Log::Level::ERROR:
-			return "error";
+		case Log::Level::CRITICAL:
+			return "critical";
 
 		case Log::Level::WARNING:
 			return "warning";
@@ -215,16 +215,16 @@ void Log::Manager::OpenLogs(bool requiremethods)
 		}
 
 		const Level level = tag->getEnum("level", Level::NORMAL, {
-			{ "error",   Level::ERROR   },
-			{ "warning", Level::WARNING },
-			{ "normal",  Level::NORMAL  },
-			{ "debug",   Level::DEBUG   },
-			{ "rawio",   Level::RAWIO   },
+			{ "critical", Level::CRITICAL },
+			{ "warning",  Level::WARNING  },
+			{ "normal",   Level::NORMAL   },
+			{ "debug",    Level::DEBUG    },
+			{ "rawio",    Level::RAWIO    },
 
 			// Deprecated v3 names.
-			{ "sparse",  Level::ERROR },
-			{ "verbose", Level::WARNING },
-			{ "default", Level::NORMAL },
+			{ "sparse",  Level::CRITICAL },
+			{ "verbose", Level::WARNING  },
+			{ "default", Level::NORMAL   },
 
 		});
 		TokenList types = tag->getString("type", "*", 1);

@@ -337,7 +337,7 @@ public:
 		unsigned int port = config->getNum<unsigned int>("port", 3306, 1, 65535);
 		if (!mysql_real_connect(connection, host.c_str(), user.c_str(), pass.c_str(), dbname.c_str(), port, nullptr, CLIENT_IGNORE_SIGPIPE))
 		{
-			ServerInstance->Logs.Error(MODNAME, "Unable to connect to the {} MySQL server: {}",
+			ServerInstance->Logs.Critical(MODNAME, "Unable to connect to the {} MySQL server: {}",
 				GetId(), mysql_error(connection));
 			return false;
 		}
@@ -346,7 +346,7 @@ public:
 		const std::string charset = config->getString("charset");
 		if (!charset.empty() && mysql_set_character_set(connection, charset.c_str()))
 		{
-			ServerInstance->Logs.Error(MODNAME, "Could not set character set for {} to \"{}\": {}",
+			ServerInstance->Logs.Critical(MODNAME, "Could not set character set for {} to \"{}\": {}",
 				GetId(), charset, mysql_error(connection));
 			return false;
 		}
@@ -355,7 +355,7 @@ public:
 		const std::string initialquery = config->getString("initialquery");
 		if (!initialquery.empty() && mysql_real_query(connection, initialquery.data(), initialquery.length()))
 		{
-			ServerInstance->Logs.Error(MODNAME, "Could not execute initial query \"{}\" for {}: {}",
+			ServerInstance->Logs.Critical(MODNAME, "Could not execute initial query \"{}\" for {}: {}",
 				initialquery, name, mysql_error(connection));
 			return false;
 		}
