@@ -80,7 +80,7 @@ void ListModeBase::DoRehash()
 		if (!mname.empty() && !insp::equalsci(mname, name) && !(mname.length() == 1 && GetModeChar() == mname[0]))
 			continue;
 
-		ListLimit limit(c->getString("chan", "*", 1), c->getNum<unsigned long>("limit", DEFAULT_LIST_SIZE));
+		ListLimit limit(c->getString("chan", "*", 1), c->getNum<size_t>("limit", DEFAULT_LIST_SIZE));
 
 		if (limit.mask.empty())
 			throw ModuleException(creator, INSP_FORMAT("<maxlist:chan> is empty, at {}", c->source.str()));
@@ -109,11 +109,11 @@ void ListModeBase::DoRehash()
 	{
 		ChanData* cd = extItem.Get(chan);
 		if (cd)
-			cd->maxitems = -1;
+			cd->maxitems.reset();
 	}
 }
 
-unsigned long ListModeBase::FindLimit(const std::string& channame)
+size_t ListModeBase::FindLimit(const std::string& channame)
 {
 	for (const auto& chanlimit : chanlimits)
 	{
@@ -126,14 +126,14 @@ unsigned long ListModeBase::FindLimit(const std::string& channame)
 	return 0;
 }
 
-unsigned long ListModeBase::GetLimitInternal(const std::string& channame, ChanData* cd)
+size_t ListModeBase::GetLimitInternal(const std::string& channame, ChanData* cd)
 {
-	if (cd->maxitems < 0)
+	if (!cd->maxitems)
 		cd->maxitems = FindLimit(channame);
-	return cd->maxitems;
+	return cd->maxitems.value();
 }
 
-unsigned long ListModeBase::GetLimit(Channel* channel)
+size_t ListModeBase::GetLimit(Channel* channel)
 {
 	ChanData* cd = extItem.Get(channel);
 	if (!cd) // just find the limit
@@ -142,12 +142,12 @@ unsigned long ListModeBase::GetLimit(Channel* channel)
 	return GetLimitInternal(channel->name, cd);
 }
 
-unsigned long ListModeBase::GetLowerLimit()
+size_t ListModeBase::GetLowerLimit()
 {
 	if (chanlimits.empty())
 		return DEFAULT_LIST_SIZE;
 
-	unsigned long limit = ULONG_MAX;
+	size_t limit = std::numeric_limits<size_t>::max();
 	for (const auto& chanlimit : chanlimits)
 	{
 		if (chanlimit.limit < limit)
@@ -187,11 +187,15 @@ bool ListModeBase::OnModeChange(User* source, User*, Channel* channel, Modes::Ch
 			extItem.Set(channel, cd);
 		}
 
-		if (lsource && cd->list.size() >= GetLimitInternal(channel->name, cd))
+		if (lsource)
 		{
-			// The list size might be 0 so we have to check even if just created.
-			TellListTooLong(lsource, channel, change.param);
-			return false;
+			size_t limit = GetLimitInternal(channel->name, cd);
+			if (cd->list.size() >= limit)
+			{
+				// The list size might be 0 so we have to check even if just created.
+				TellListTooLong(lsource, channel, change.param, limit);
+				return false;
+			}
 		}
 
 		// Add the new entry to the list.
@@ -231,9 +235,9 @@ void ListModeBase::OnParameterMissing(User* source, User* dest, Channel* channel
 	// Intentionally left blank.
 }
 
-void ListModeBase::TellListTooLong(LocalUser* source, Channel* channel, const std::string& parameter)
+void ListModeBase::TellListTooLong(LocalUser* source, Channel* channel, const std::string& parameter, size_t limit)
 {
-	source->WriteNumeric(ERR_BANLISTFULL, channel->name, parameter, mode, INSP_FORMAT("Channel {} list is full", name));
+	source->WriteNumeric(ERR_BANLISTFULL, channel->name, parameter, mode, INSP_FORMAT("Channel {} list is full ({} entries)", name, limit));
 }
 
 void ListModeBase::TellAlreadyOnList(LocalUser* source, Channel* channel, const std::string& parameter)

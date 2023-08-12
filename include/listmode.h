@@ -53,7 +53,7 @@ private:
 	{
 	public:
 		ModeList list;
-		long maxitems = -1;
+		std::optional<size_t> maxitems;
 	};
 
 	/** The number of items a listmode's list may contain
@@ -61,8 +61,8 @@ private:
 	struct ListLimit final
 	{
 		std::string mask;
-		unsigned long limit;
-		ListLimit(const std::string& Mask, unsigned long Limit)
+		size_t limit;
+		ListLimit(const std::string& Mask, size_t Limit)
 			: mask(Mask)
 			, limit(Limit)
 		{
@@ -82,7 +82,7 @@ private:
 	 * @param channame The channel name to find the limit for
 	 * @return The maximum number of modes of this type that we allow to be set on the given channel name
 	 */
-	unsigned long FindLimit(const std::string& channame);
+	size_t FindLimit(const std::string& channame);
 
 	/** Returns the limit on the given channel for this mode.
 	 * If the limit is cached then the cached value is returned,
@@ -92,7 +92,7 @@ private:
 	 * @param cd The ChanData associated with channel channame
 	 * @return The maximum number of modes of this type that we allow to be set on the given channel
 	 */
-	unsigned long GetLimitInternal(const std::string& channame, ChanData* cd);
+	size_t GetLimitInternal(const std::string& channame, ChanData* cd);
 
 protected:
 	/** Numeric to use when outputting the list
@@ -136,11 +136,11 @@ public:
 	 * @param channel The channel to inspect
 	 * @return Maximum number of modes of this type that can be placed on the given channel
 	 */
-	unsigned long GetLimit(Channel* channel);
+	size_t GetLimit(Channel* channel);
 
 	/** Gets the lower list limit for this listmode.
 	 */
-	unsigned long GetLowerLimit();
+	size_t GetLowerLimit();
 
 	/** Retrieves the list of all modes set on the given channel
 	 * @param channel Channel to get the list from
@@ -182,8 +182,9 @@ public:
 	 * @param source Source user adding the parameter
 	 * @param channel Channel the parameter is being added to
 	 * @param parameter The actual parameter being added
+	 * @param limit The list limit for the channel.
 	 */
-	virtual void TellListTooLong(LocalUser* source, Channel* channel, const std::string& parameter);
+	virtual void TellListTooLong(LocalUser* source, Channel* channel, const std::string& parameter, size_t limit);
 
 	/** Tell the user an item is already on the list.
 	 * Overridden by implementing module.
