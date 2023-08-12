@@ -66,7 +66,7 @@ private:
 		{
 			for (const auto& ban : *bans)
 			{
-				if (irc::equals(ban.mask, mask))
+				if (banlm->CompareEntry(ban.mask, mask))
 					return true;
 			}
 		}

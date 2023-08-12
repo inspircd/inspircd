@@ -67,6 +67,35 @@ bool ExtBanManager::Canonicalize(std::string& text) const
 	return true;
 }
 
+ExtBan::Comparison ExtBanManager::CompareEntry(const ListModeBase* lm, const std::string& entry, const std::string& value) const
+{
+	bool entry_inverted;
+	std::string entry_xbname;
+	std::string entry_xbvalue;
+	bool entry_result = ExtBan::Parse(entry, entry_xbname, entry_xbvalue, entry_inverted);
+
+	bool value_inverted;
+	std::string value_xbname;
+	std::string value_xbvalue;
+	bool value_result = ExtBan::Parse(value, value_xbname, value_xbvalue, value_inverted);
+
+	if (!entry_result && !value_result)
+		return ExtBan::Comparison::NOT_AN_EXTBAN;
+
+	// If we've reached this point at least one looks like an extban.
+	auto entry_extban = entry_result ? Find(entry_xbname) : nullptr;
+	auto value_extban = value_result ? Find(value_xbname) : nullptr;
+	if (!entry_extban || !value_extban)
+		return ExtBan::Comparison::NOT_MATCH;
+
+	// If we've reached this point both are extbans so we can just do a simple comparison.
+	if (entry_inverted != value_inverted || entry_extban != value_extban)
+		return ExtBan::Comparison::NOT_MATCH;
+
+	// Compare the values recursively.
+	return lm->CompareEntry(entry_xbvalue, value_xbvalue) ? ExtBan::Comparison::MATCH : ExtBan::Comparison::NOT_MATCH;
+}
+
 void ExtBanManager::BuildISupport(std::string& out)
 {
 	for (const auto& extban : byletter)

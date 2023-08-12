@@ -171,7 +171,7 @@ bool ListModeBase::OnModeChange(User* source, User*, Channel* channel, Modes::Ch
 			// Check if the item already exists in the list
 			for (const auto& entry : cd->list)
 			{
-				if (change.param != entry.mask)
+				if (!CompareEntry(entry.mask, change.param))
 					continue; // Doesn't match the proposed addition.
 
 				if (lsource)
@@ -206,7 +206,7 @@ bool ListModeBase::OnModeChange(User* source, User*, Channel* channel, Modes::Ch
 			// We have a list and we're removing; is the entry in it?
 			for (ModeList::iterator it = cd->list.begin(); it != cd->list.end(); ++it)
 			{
-				if (change.param != it->mask)
+				if (!CompareEntry(it->mask, change.param))
 					continue; // Doesn't match the proposed removal.
 
 				stdalgo::vector::swaperase(cd->list, it);

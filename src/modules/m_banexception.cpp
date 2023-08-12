@@ -50,6 +50,17 @@ public:
 		syntax = "<mask>";
 	}
 
+	bool CompareEntry(const std::string& entry, const std::string& value) const override
+	{
+		if (extbanmgr)
+		{
+			auto res = extbanmgr->CompareEntry(this, entry, value);
+			if (res != ExtBan::Comparison::NOT_AN_EXTBAN)
+				return res == ExtBan::Comparison::MATCH;
+		}
+		return irc::equals(entry, value);
+	}
+
 	bool ValidateParam(LocalUser* user, Channel* channel, std::string& parameter) override
 	{
 		if (!extbanmgr || !extbanmgr->Canonicalize(parameter))

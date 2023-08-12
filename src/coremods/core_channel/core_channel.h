@@ -106,6 +106,7 @@ private:
 	ExtBan::ManagerRef extbanmgr;
 public:
 	ModeChannelBan(Module* Creator);
+	bool CompareEntry(const std::string& entry, const std::string& value) const override;
 	bool ValidateParam(LocalUser* user, Channel* channel, std::string& parameter) override;
 };
 
@@ -166,6 +167,7 @@ public:
 
 	void AddExtBan(ExtBan::Base* extban) override;
 	bool Canonicalize(std::string& text) const override;
+	ExtBan::Comparison CompareEntry(const ListModeBase* lm, const std::string& entry, const std::string& value) const override;
 	void DelExtBan(ExtBan::Base* extban) override;
 	ExtBan::Format GetFormat() const override { return format; }
 	const LetterMap& GetLetterMap() const override { return byletter; }

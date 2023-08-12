@@ -32,6 +32,20 @@ namespace ExtBan
 	class Manager;
 	class ManagerRef;
 
+	/** All possible results for CompareResult. */
+	enum class Comparison
+		: uint8_t
+	{
+		/** The value passed to CompareResult is not an extban. */
+		NOT_AN_EXTBAN,
+
+		/** The extban is equivalent to the specified value. */
+		MATCH,
+
+		/** The extban is not equivalent to the specified value. */
+		NOT_MATCH,
+	};
+
 	/** All possible extban formats. */
 	enum class Format
 		: uint8_t
@@ -98,6 +112,13 @@ public:
 	 */
 	virtual bool Canonicalize(std::string& text) const = 0;
 
+	/** Compares an entry from this list with the specified value.
+	 * @param entry The list entry to compare against.
+	 * @param value The value to compare to.
+	 * @return ...
+	 */
+	virtual Comparison CompareEntry(const ListModeBase* lm, const std::string& entry, const std::string& value) const = 0;
+
 	/** Unregisters an extban from the manager.
 	 * @param extban The extban instance to unregister.
 	 */
@@ -120,6 +141,11 @@ public:
 	 *         MOD_RES_PASSTHRU if the extban is not set.
 	 */
 	virtual ModResult GetStatus(Acting* extban, User* user, Channel* channel) const = 0;
+
+	/** Finds an extban by name or letter.
+	 * @param xbname The name or letter of the extban to find.
+	 */
+	Base* Find(const std::string& xbname) const { return xbname.length() == 1 ? FindLetter(xbname[0]) : FindName(xbname); }
 
 	/** Finds an extban by letter.
 	 * @param letter The letter of the extban to find.

@@ -125,6 +125,13 @@ public:
 	/** Determines whether some channels have longer lists than others. */
 	bool HasVariableLength() const { return chanlimits.size() > 1; }
 
+	/** Compares an entry from this list with the specified value.
+	 * @param entry The list entry to compare against.
+	 * @param value The value to compare to.
+	 * @return If the entries are equivalent then true; otherwise, false.
+	 */
+	virtual bool CompareEntry(const std::string& entry, const std::string& value) const { return entry == value; }
+
 	/** Get limit of this mode on a channel
 	 * @param channel The channel to inspect
 	 * @return Maximum number of modes of this type that can be placed on the given channel
