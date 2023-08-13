@@ -63,7 +63,7 @@ public:
 
 // Not in a class due to circular dependency hell.
 static std::string permchannelsconf;
-static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes)
+static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes, unsigned char writeversion)
 {
 	/*
 	 * We need to perform an atomic write so as not to fuck things up.
@@ -95,7 +95,7 @@ static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes)
 			continue;
 
 		std::string chanmodes = chan->ChanModes(true);
-		if (save_listmodes)
+		if (save_listmodes && writeversion == 1)
 		{
 			std::string modes;
 			std::string params;
@@ -138,6 +138,7 @@ static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes)
 
 		stream << "<permchannels channel=\"" << ServerConfig::Escape(chan->name)
 			<< "\" ts=\"" << chan->age;
+
 		if (!chan->topic.empty())
 		{
 			// Only store the topic if one is set.
@@ -145,6 +146,25 @@ static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes)
 				<< "\" topicts=\"" << chan->topicset
 				<< "\" topicsetby=\"" << ServerConfig::Escape(chan->setby);
 		}
+
+		if (save_listmodes && writeversion >= 2)
+		{
+			for (auto* lm : ServerInstance->Modes.GetListModes())
+			{
+				ListModeBase::ModeList* list = lm->GetList(chan);
+				if (!list || list->empty())
+					continue;
+
+				stream << "\" " << lm->name << "list=\"";
+				for (auto entry = list->begin(); entry != list->end(); ++entry)
+				{
+					if (entry != list->begin())
+						stream << ' ';
+					stream << entry->mask << ' ' << entry->setter << ' ' << entry->time;
+				}
+			}
+		}
+
 		stream << "\" modes=\"" << ServerConfig::Escape(chanmodes)
 			<< "\">" << std::endl;
 	}
@@ -184,6 +204,7 @@ private:
 	unsigned long saveperiod;
 	unsigned long maxbackoff;
 	unsigned char backoff;
+	unsigned char writeversion;
 
 public:
 
@@ -203,6 +224,7 @@ public:
 		saveperiod = tag->getDuration("saveperiod", 5);
 		backoff = tag->getNum<uint8_t>("backoff", 0);
 		maxbackoff = tag->getDuration("maxbackoff", saveperiod * 120, saveperiod);
+		writeversion = tag->getNum<unsigned char>("writeversion", 2, 1, 2);
 		SetInterval(saveperiod);
 
 		if (!permchannelsconf.empty())
@@ -246,35 +268,39 @@ public:
 
 				ServerInstance->Logs.Debug(MODNAME, "Added {} with topic {}", channel, c->topic);
 
-				std::string modes = tag->getString("modes");
-				if (modes.empty())
-					continue;
-
-				irc::spacesepstream list(modes);
-				std::string modeseq;
-				std::string par;
-
-				list.GetToken(modeseq);
-
-				// XXX bleh, should we pass this to the mode parser instead? ugly. --w00t
-				for (const auto modechr : modeseq)
+				irc::spacesepstream modes(tag->getString("modes"));
+				std::string modechars;
+				modes.GetToken(modechars);
+				for (const auto modechr : modechars)
 				{
-					ModeHandler* mode = ServerInstance->Modes.FindMode(modechr, MODETYPE_CHANNEL);
+					auto* mode = ServerInstance->Modes.FindMode(modechr, MODETYPE_CHANNEL);
 					if (mode)
 					{
+						std::string param;
 						if (mode->NeedsParam(true))
-							list.GetToken(par);
-						else
-							par.clear();
+							modes.GetToken(param);
 
-						Modes::Change modechange(mode, true, par);
+						Modes::Change modechange(mode, true, param);
 						mode->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, c, modechange);
 					}
 				}
 
+				for (auto* lm : ServerInstance->Modes.GetListModes())
+				{
+					irc::spacesepstream listmodes(tag->getString(lm->name + "list"));
+
+					std::string mask;
+					std::string set_by;
+					time_t set_at;
+					while (listmodes.GetToken(mask) && listmodes.GetToken(set_by) && listmodes.GetNumericToken(set_at))
+					{
+						Modes::Change modechange(lm, true, mask, set_by, set_at);
+						lm->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, c, modechange);
+					}
+				}
+
 				// We always apply the permchannels mode to permanent channels.
-				par.clear();
-				Modes::Change modechange(&p, true, par);
+				Modes::Change modechange(&p, true);
 				p.OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, c, modechange);
 			}
 		}
@@ -298,7 +324,7 @@ public:
 	{
 		if (dirty)
 		{
-			if (WriteDatabase(p, save_listmodes))
+			if (WriteDatabase(p, save_listmodes, writeversion))
 			{
 				// If we were previously unable to write but now can then reset the time interval.
 				if (GetInterval() != saveperiod)
