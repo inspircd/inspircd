@@ -29,7 +29,7 @@
 #include "modules/who.h"
 #include "modules/whois.h"
 
-class ModuleNamesX final
+class ModuleMultiPrefix final
 	: public Module
 	, public Names::EventListener
 	, public Who::EventListener
@@ -39,7 +39,7 @@ private:
 	Cap::Capability cap;
 
 public:
-	ModuleNamesX()
+	ModuleMultiPrefix()
 		: Module(VF_VENDOR, "Provides the IRCv3 multi-prefix client capability.")
 		, Names::EventListener(this)
 		, Who::EventListener(this)
@@ -121,4 +121,4 @@ public:
 	}
 };
 
-MODULE_INIT(ModuleNamesX)
+MODULE_INIT(ModuleMultiPrefix)

@@ -297,9 +297,8 @@
 #          cooldown="1m">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# CAP module: Provides the CAP negotiation mechanism required by the
-# sasl, namesx, uhnames, and ircv3 modules.
-# It is also recommended for STARTTLS support in the starttls module.
+# CAP module: Provides the CAP negotiation mechanism required by many
+# other modules. It is strongly recommended that you load this.
 #<module name="cap">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1631,6 +1630,12 @@
 #<monitor maxentries="30">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Multiple prefix module: Provides support for the IRCv3 multi-prefix
+# capability which allows clients to see all the prefix modes set on a
+# user.
+#<module name="multiprefix">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MySQL module: Allows other SQL modules to access MySQL databases
 # through a unified API.
 #
@@ -1658,11 +1663,6 @@
 # For example, to set a ban, do /MODE #channel +Z ban=foo!bar@baz or
 # /PROP #channel ban=foo!bar@baz
 #<module name="namedmodes">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# NAMESX module: Provides support for the IRCv3 multi-prefix capability
-# which allows clients to see all the prefix modes set on a user.
-#<module name="namesx">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Nickchange flood protection module: Provides channel mode +F X:Y

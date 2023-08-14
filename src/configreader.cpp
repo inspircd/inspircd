@@ -682,6 +682,8 @@ std::vector<std::string> ServerConfig::GetModules() const
 			modules.push_back("help");
 			modules.push_back("helpmode");
 		}
+		else if (insp::equalsci(shortname, "namesx"))
+			modules.push_back("multiprefix");
 		else if (insp::equalsci(shortname, "regex_pcre2"))
 			modules.push_back("regex_pcre");
 		else if (insp::equalsci(shortname, "sha256"))
