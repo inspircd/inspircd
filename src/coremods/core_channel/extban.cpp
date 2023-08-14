@@ -105,7 +105,7 @@ void ExtBanManager::BuildISupport(std::string& out)
 	out.insert(0, ",");
 }
 
-ModResult ExtBanManager::GetStatus(ExtBan::Acting* extban, User* user, Channel* channel) const
+ModResult ExtBanManager::GetStatus(ExtBan::ActingBase* extban, User* user, Channel* channel) const
 {
 	ModResult res = evprov.FirstResult(&ExtBan::EventListener::OnExtBanCheck, user, channel, extban);
 	if (res != MOD_RES_PASSTHRU)

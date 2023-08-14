@@ -26,6 +26,7 @@
 namespace ExtBan
 {
 	class Acting;
+	class ActingBase;
 	class Base;
 	class EventListener;
 	class MatchingBase;
@@ -140,7 +141,7 @@ public:
 	 * @return MOD_RES_ALLOW if the user is exempted, MOD_RES_DENY if the user is banned, or
 	 *         MOD_RES_PASSTHRU if the extban is not set.
 	 */
-	virtual ModResult GetStatus(Acting* extban, User* user, Channel* channel) const = 0;
+	virtual ModResult GetStatus(ActingBase* extban, User* user, Channel* channel) const = 0;
 
 	/** Finds an extban by name or letter.
 	 * @param xbname The name or letter of the extban to find.
@@ -257,20 +258,21 @@ public:
 };
 
 /** Base class for acting extbans. */
-class ExtBan::Acting final
+class ExtBan::ActingBase
 	: public Base
 {
-public:
-	/** Initializes an instance of the ExtBan::Acting class.
+protected:
+	/** Initializes an instance of the ExtBan::ActingBase class.
 	 * @param Creator The module which created this instance.
 	 * @param Name The name used in bans to signify this extban.
 	 * @param Letter The character used in bans to signify this extban.
 	 */
-	Acting(Module* Creator, const std::string& Name, unsigned char Letter)
+	ActingBase(Module* Creator, const std::string& Name, unsigned char Letter)
 		: Base(Creator, Name, Letter)
 	{
 	}
 
+public:
 	/** @copydoc ExtBan::Base::Canonicalize */
 	void Canonicalize(std::string& text) override
 	{
@@ -285,6 +287,22 @@ public:
 	bool IsMatch(User* user, Channel* channel, const std::string& text) override
 	{
 		return channel->CheckBan(user, text);
+	}
+};
+
+/** A simple acting extban that has no fields. */
+class ExtBan::Acting
+	: public ActingBase
+{
+public:
+	/** Initializes an instance of the ExtBan::Acting class.
+	 * @param Creator The module which created this instance.
+	 * @param Name The name used in bans to signify this extban.
+	 * @param Letter The character used in bans to signify this extban.
+	 */
+	Acting(Module* Creator, const std::string& Name, unsigned char Letter)
+		: ActingBase(Creator, Name, Letter)
+	{
 	}
 
 	/** Determines whether the specified user matches this acting extban on the specified channel.
