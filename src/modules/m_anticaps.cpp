@@ -37,24 +37,8 @@ enum class AntiCapsMethod
 
 class AntiCapsSettings final
 {
-public:
-	const AntiCapsMethod method;
-	const uint16_t minlen;
-	const uint8_t percent;
-
-	AntiCapsSettings(const AntiCapsMethod& Method, const uint16_t& MinLen, const uint8_t& Percent)
-		: method(Method)
-		, minlen(MinLen)
-		, percent(Percent)
-	{
-	}
-};
-
-class AntiCapsMode final
-	: public ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettings>>
-{
 private:
-	static bool ParseMethod(irc::sepstream& stream, AntiCapsMethod& method)
+	bool ParseMethod(irc::sepstream& stream)
 	{
 		std::string methodstr;
 		if (!stream.GetToken(methodstr))
@@ -76,7 +60,7 @@ private:
 		return true;
 	}
 
-	static bool ParseMinimumLength(irc::sepstream& stream, uint16_t& minlen)
+	bool ParseMinimumLength(irc::sepstream& stream)
 	{
 		std::string minlenstr;
 		if (!stream.GetToken(minlenstr))
@@ -90,7 +74,7 @@ private:
 		return true;
 	}
 
-	static bool ParsePercent(irc::sepstream& stream, uint8_t& percent)
+	bool ParsePercent(irc::sepstream& stream)
 	{
 		std::string percentstr;
 		if (!stream.GetToken(percentstr))
@@ -105,6 +89,21 @@ private:
 	}
 
 public:
+	AntiCapsMethod method = AntiCapsMethod::BLOCK;
+	uint16_t minlen = 0;
+	uint8_t percent = 0;
+
+	bool Parse(const std::string& str)
+	{
+		irc::sepstream stream(str, ':');
+		return ParseMethod(stream) && ParseMinimumLength(stream) && ParsePercent(stream);
+	}
+};
+
+class AntiCapsMode final
+	: public ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettings>>
+{
+public:
 	AntiCapsMode(Module* Creator)
 		: ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettings>>(Creator, "anticaps", 'B')
 	{
@@ -113,19 +112,14 @@ public:
 
 	bool OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
-		irc::sepstream stream(parameter, ':');
-		AntiCapsMethod method;
-		uint16_t minlen;
-		uint8_t percent;
-
-		// Attempt to parse the method.
-		if (!ParseMethod(stream, method) || !ParseMinimumLength(stream, minlen) || !ParsePercent(stream, percent))
+		AntiCapsSettings settings;
+		if (!settings.Parse(parameter))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
 			return false;
 		}
 
-		ext.SetFwd(channel, method, minlen, percent);
+		ext.Set(channel, settings);
 		return true;
 	}
 
