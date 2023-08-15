@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           path: irctest
-          ref: 321e254d15fab53fe6c8e3959312f6c0805c770f
+          ref: 59b2cd729b7785c3768e2ed8c4baa89472b45391
           repository: progval/irctest
 
       - name: Run configure
@@ -35,8 +35,10 @@ jobs:
       - name: Precompile inspircd.h
         run: c++ -I vendor/ include/inspircd.h
 
-      - name: Build and Install
-        run: make install --jobs $(($(getconf _NPROCESSORS_ONLN) + 1)) CXXFLAGS=-DINSPIRCD_UNLIMITED_MAINLOOP
+      - name: Build and install
+        env:
+          CXXFLAGS: -DINSPIRCD_UNLIMITED_MAINLOOP
+        run: make install --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))
 
       - name: Make artifact tarball
         run: |-
@@ -71,7 +73,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           path: irctest
-          ref: 3b7f81e22c317eae885f5a942767ba4f6a30414e
+          ref: 59b2cd729b7785c3768e2ed8c4baa89472b45391
           repository: progval/irctest
 
       - name: Install irctest dependencies
@@ -95,7 +97,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/anope/
           cp $GITHUB_WORKSPACE/irctest/data/anope/* .
-          CFLAGS=-O0 ./Config -quick
+          ./Config -quick
           make -C build --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))
           make -C build install
 
