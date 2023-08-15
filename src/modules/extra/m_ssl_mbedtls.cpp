@@ -932,13 +932,13 @@ private:
 
 		for (const auto& [_, tag] : tags)
 		{
-			if (!insp::equalsci(tag->getString("provider"), "mbedtls"))
+			if (!insp::equalsci(tag->getString("provider", "mbedtls", 1), "mbedtls"))
 			{
 				ServerInstance->Logs.Debug(MODNAME, "Ignoring non-mbedTLS <sslprofile> tag at " + tag->source.str());
 				continue;
 			}
 
-			std::string name = tag->getString("name");
+			const std::string name = tag->getString("name");
 			if (name.empty())
 			{
 				ServerInstance->Logs.Warning(MODNAME, "Ignoring <sslprofile> tag without name at " + tag->source.str());

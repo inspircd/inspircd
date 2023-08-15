@@ -978,13 +978,13 @@ class ModuleSSLOpenSSL final
 
 		for (const auto& [_, tag] : tags)
 		{
-			if (!insp::equalsci(tag->getString("provider"), "openssl"))
+			if (!insp::equalsci(tag->getString("provider", "openssl", 1), "openssl"))
 			{
 				ServerInstance->Logs.Debug(MODNAME, "Ignoring non-OpenSSL <sslprofile> tag at " + tag->source.str());
 				continue;
 			}
 
-			std::string name = tag->getString("name");
+			const std::string name = tag->getString("name");
 			if (name.empty())
 			{
 				ServerInstance->Logs.Warning(MODNAME, "Ignoring <sslprofile> tag without name at " + tag->source.str());
