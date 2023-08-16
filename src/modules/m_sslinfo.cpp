@@ -251,7 +251,7 @@ private:
 
 		if (!source->IsOper() && chan->GetPrefixValue(source) < OP_VALUE)
 		{
-			source->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, OP_VALUE, "view TLS (SSL) client certificate information"));
+			source->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, OP_VALUE, "view TLS client certificate information"));
 			return CmdResult::FAILURE;
 		}
 
@@ -409,12 +409,12 @@ public:
 
 		if (ServerInstance->Time() > cert->GetExpirationTime())
 		{
-			user->WriteNotice("*** Your TLS (SSL) client certificate has expired.");
+			user->WriteNotice("*** Your TLS client certificate has expired.");
 		}
 		else if (static_cast<time_t>(ServerInstance->Time() + warnexpiring) > cert->GetExpirationTime())
 		{
 			const std::string duration = Duration::ToString(cert->GetExpirationTime() - ServerInstance->Time());
-			user->WriteNotice("*** Your TLS (SSL) client certificate expires in " + duration + ".");
+			user->WriteNotice("*** Your TLS client certificate expires in " + duration + ".");
 		}
 	}
 
