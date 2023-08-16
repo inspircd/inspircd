@@ -174,7 +174,8 @@ public:
 			joinfloodsettings* f = jf.ext.Get(chan);
 			if (f && f->islocked())
 			{
-				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan->name, "This channel is temporarily unavailable (+j is set). Please try again later.");
+				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan->name, INSP_FORMAT("This channel is temporarily unavailable (+{} is set). Please try again later.",
+					jf.GetModeChar()));
 				return MOD_RES_DENY;
 			}
 		}

@@ -143,7 +143,8 @@ public:
 		else
 		{
 			/* m_nokicks.so was loaded and +Q was set, block! */
-			user->WriteNumeric(ERR_RESTRICTED, channel->name, INSP_FORMAT("Can't remove user {} from channel (+Q is set)", target->nick));
+			user->WriteNumeric(ERR_RESTRICTED, channel->name, INSP_FORMAT("Can't remove user {} from channel (+{} is set)",
+				target->nick, servprotectmode->GetModeChar()));
 			return CmdResult::FAILURE;
 		}
 

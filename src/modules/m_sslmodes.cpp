@@ -180,13 +180,15 @@ public:
 		{
 			if (!api)
 			{
-				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; unable to determine if you are a TLS user (+z is set)");
+				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, INSP_FORMAT("Cannot join channel; unable to determine if you are a TLS user (+{} is set)",
+					sslm.GetModeChar()));
 				return MOD_RES_DENY;
 			}
 
 			if (!api->IsSecure(user))
 			{
-				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, "Cannot join channel; TLS users only (+z is set)");
+				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, INSP_FORMAT("Cannot join channel; TLS users only (+{} is set)",
+					sslm.GetModeChar()));
 				return MOD_RES_DENY;
 			}
 		}
