@@ -132,7 +132,8 @@ namespace Stats
 				.Attribute("name", item->name);
 
 			const std::string value = item->ToHuman(ext, obj);
-			serializer.Attribute("value", value);
+			serializer.Attribute("value", value)
+				.EndBlock();
 		}
 		serializer.EndBlock();
 	}
