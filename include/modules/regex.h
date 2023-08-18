@@ -80,6 +80,12 @@ public:
 	 * @return A shared pointer to an instance of the Regex::Pattern class.
 	 */
 	PatternPtr CreateHuman(const std::string& pattern) const;
+
+	/** Retrieves the name of this regex engine. */
+	const char* GetName() const
+	{
+		return name.c_str() + 6;
+	}
 };
 
 /**The base class for simple regular expression engines. */

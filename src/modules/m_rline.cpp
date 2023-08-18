@@ -248,7 +248,10 @@ public:
 	void GetLinkData(LinkData& data, std::string& compatdata) override
 	{
 		if (rxfactory)
-			data["regex"] = compatdata = rxfactory->name;
+		{
+			compatdata = rxfactory->name; // e.g. regex/pcre
+			data["regex"] = rxfactory->GetName(); // e.g. pcre
+		}
 		else
 			data["regex"] = "broken";
 	}

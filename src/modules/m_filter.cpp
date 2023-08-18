@@ -683,7 +683,10 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 void ModuleFilter::GetLinkData(LinkData& data, std::string& compatdata)
 {
 	if (RegexEngine)
-		data["regex"] = compatdata = RegexEngine->name;
+	{
+		compatdata = RegexEngine->name; // e.g. regex/pcre
+		data["regex"] = RegexEngine->GetName(); // e.g. pcre
+	}
 	else
 		data["regex"] = "broken";
 }
