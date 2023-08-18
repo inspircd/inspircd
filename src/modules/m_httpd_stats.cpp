@@ -451,7 +451,6 @@ class ModuleHttpStats final
 private:
 	HTTPdAPI API;
 	ISupport::EventProvider isupportevprov;
-	bool enableparams = false;
 
 public:
 	ModuleHttpStats()
@@ -461,16 +460,6 @@ public:
 		, isupportevprov(this)
 	{
 		isevprov = &isupportevprov;
-	}
-
-	void ReadConfig(ConfigStatus& status) override
-	{
-		const auto& conf = ServerInstance->Config->ConfValue("httpstats");
-
-		// Parameterized queries may cause a performance issue
-		// Due to the sheer volume of data
-		// So default them to disabled
-		enableparams = conf->getBool("enableparams");
 	}
 
 	ModResult OnHTTPRequest(HTTPRequest& request) override
@@ -499,10 +488,7 @@ public:
 		}
 		else if (request.GetPath() == "/stats/users")
 		{
-			if (enableparams)
-				Stats::ListUsers(serializer, request.GetParsedURI().query_params);
-			else
-				Stats::Users(serializer);
+			Stats::ListUsers(serializer, request.GetParsedURI().query_params);
 		}
 		else
 		{
