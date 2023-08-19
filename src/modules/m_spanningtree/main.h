@@ -114,9 +114,6 @@ public:
 	/** Tags for server to server messages. */
 	ServerTags servertags;
 
-	/** Tag for marking services pseudoclients. */
-	ServiceTag servicetag;
-
 	/** The DNS manager service provided by core_dns. */
 	DNS::ManagerRef DNS;
 

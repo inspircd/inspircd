@@ -29,11 +29,3 @@ public:
 	ModResult OnProcessTag(User* user, const std::string& tagname, std::string& tagvalue) override;
 	bool ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata) override;
 };
-
-class ServiceTag final
-	: public CTCTags::TagProvider
-{
-public:
-	ServiceTag(Module* mod);
-	void OnPopulateTags(ClientProtocol::Message& msg) override;
-};

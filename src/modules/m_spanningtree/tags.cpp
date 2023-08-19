@@ -38,15 +38,3 @@ bool ServerTags::ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTag
 	// Server tags should never be sent to users.
 	return false;
 }
-
-ServiceTag::ServiceTag(Module* mod)
-	: CTCTags::TagProvider(mod)
-{
-}
-
-void ServiceTag::OnPopulateTags(ClientProtocol::Message& msg)
-{
-	User* const user = msg.GetSourceUser();
-	if (user && user->server->IsService())
-		msg.AddTag("inspircd.org/service", this, "");
-}

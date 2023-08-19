@@ -57,7 +57,6 @@ ModuleSpanningTree::ModuleSpanningTree()
 	, synceventprov(this, "event/server-sync")
 	, sslapi(this)
 	, servertags(this)
-	, servicetag(this)
 	, DNS(this)
 	, tagevprov(this)
 {

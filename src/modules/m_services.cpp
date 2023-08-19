@@ -19,6 +19,7 @@
 
 #include "inspircd.h"
 #include "modules/account.h"
+#include "modules/ctctags.h"
 #include "modules/stats.h"
 #include "timeutils.h"
 #include "xline.h"
@@ -73,6 +74,23 @@ public:
 		}
 
 		return SimpleUserMode::OnModeChange(source, dest, channel, change);
+	}
+};
+
+class ServiceTag final
+	: public CTCTags::TagProvider
+{
+public:
+	ServiceTag(Module* mod)
+		: CTCTags::TagProvider(mod)
+	{
+	}
+
+	void OnPopulateTags(ClientProtocol::Message& msg) override
+	{
+		const auto* user = msg.GetSourceUser();
+		if (user && user->server->IsService())
+			msg.AddTag("inspircd.org/service", this, "");
 	}
 };
 
@@ -199,6 +217,7 @@ private:
 	Account::API accountapi;
 	RegisteredChannel registeredcmode;
 	RegisteredUser registeredumode;
+	ServiceTag servicetag;
 	ServProtect servprotectmode;
 	SVSHoldFactory svsholdfactory;
 	CommandSVSHold svsholdcmd;
@@ -211,6 +230,7 @@ public:
 		, accountapi(this)
 		, registeredcmode(this)
 		, registeredumode(this)
+		, servicetag(this)
 		, servprotectmode(this)
 		, svsholdcmd(this)
 	{
