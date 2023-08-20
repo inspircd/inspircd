@@ -66,7 +66,7 @@ CmdResult CommandCommands::HandleLocal(LocalUser* user, const Params& parameters
 		// Only send this command to the user if:
 		// 1. It is usable by the caller.
 		// 2. The caller has the servers/auspex priv.
-		if (!usable || user->HasPrivPermission("servers/auspex"))
+		if (!usable && !user->HasPrivPermission("servers/auspex"))
 			continue;
 
 		Numeric::Numeric numeric(RPL_COMMANDS);
