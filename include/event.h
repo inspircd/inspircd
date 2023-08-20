@@ -136,6 +136,7 @@ private:
 class Events::ModuleEventListener
 	: private dynamic_reference_base::CaptureHook
 {
+private:
 	/** Reference to the provider, can be NULL if none of the provider modules are loaded
 	 */
 	dynamic_reference_nocheck<ModuleEventProvider> prov;
@@ -149,9 +150,7 @@ class Events::ModuleEventListener
 		prov->Subscribe(this);
 	}
 
-public:
-	static constexpr unsigned int DefaultPriority = 100;
-
+protected:
 	/** Constructor
 	 * @param mod Module subscribing
 	 * @param eventid Identifier of the event to subscribe to
@@ -166,6 +165,9 @@ public:
 		if (prov)
 			ModuleEventListener::OnCapture();
 	}
+
+public:
+	static constexpr unsigned int DefaultPriority = 100;
 
 	~ModuleEventListener()
 	{
