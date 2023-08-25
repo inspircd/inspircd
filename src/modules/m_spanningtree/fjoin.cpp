@@ -128,6 +128,9 @@ CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 
 	if (!chan)
 	{
+		if (channel[0] != '#')
+			throw ProtocolException("Malformed channel name in FJOIN '" + channel + '"');
+
 		chan = new Channel(channel, TS);
 	}
 	else
