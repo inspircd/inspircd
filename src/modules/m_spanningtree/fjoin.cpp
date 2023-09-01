@@ -127,7 +127,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 	if (!chan)
 	{
 		if (!ServerInstance->Channels.IsPrefix(channel[0]))
-			throw ProtocolException("Malformed channel name in FJOIN '" + channel + '"');
+			throw ProtocolException("Malformed channel name in FJOIN: " + channel);
 
 		chan = new Channel(channel, TS);
 	}
