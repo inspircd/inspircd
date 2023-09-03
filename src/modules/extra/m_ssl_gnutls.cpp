@@ -41,6 +41,7 @@
 
 #include "inspircd.h"
 #include "modules/ssl.h"
+#include "stringutils.h"
 #include "timeutils.h"
 #include "utility/string.h"
 

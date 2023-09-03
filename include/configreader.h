@@ -31,7 +31,6 @@
 #pragma once
 
 #include "inspircd.h"
-#include "stringutils.h"
 
 /** Represents the position within a file. */
 class CoreExport FilePosition final

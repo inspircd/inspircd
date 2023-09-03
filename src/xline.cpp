@@ -28,6 +28,7 @@
 
 #include "inspircd.h"
 #include "modules/stats.h"
+#include "stringutils.h"
 #include "timeutils.h"
 #include "xline.h"
 

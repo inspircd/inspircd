@@ -25,6 +25,7 @@
 
 #include "inspircd.h"
 #include "modules/account.h"
+#include "stringutils.h"
 
 class ModulePassForward final
 	: public Module

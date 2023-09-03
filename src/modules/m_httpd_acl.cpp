@@ -25,6 +25,7 @@
 
 #include "inspircd.h"
 #include "modules/httpd.h"
+#include "stringutils.h"
 #include "utility/string.h"
 
 class HTTPACL final

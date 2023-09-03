@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include "stringutils.h"
+
 class HashProvider
 	: public DataProvider
 {

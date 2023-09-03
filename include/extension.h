@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "stringutils.h"
 #include "utility/string.h"
 
 /** Base class for types that extend an extensible. */

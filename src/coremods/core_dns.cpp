@@ -23,6 +23,7 @@
 #include "inspircd.h"
 #include "modules/dns.h"
 #include "modules/stats.h"
+#include "stringutils.h"
 
 #include <fstream>
 

@@ -32,6 +32,17 @@
 # define ATTR_NOT_NULL(...)
 #endif
 
+/** @def INSP_FORMAT(FORMAT, ...)
+ * Formats a string with format string checking.
+ */
+#if defined __cpp_if_constexpr && defined __cpp_return_type_deduction
+# include <fmt/compile.h>
+# define INSP_FORMAT(FORMAT, ...) fmt::format(FMT_COMPILE(FORMAT), __VA_ARGS__)
+#else
+# include <fmt/core.h>
+# define INSP_FORMAT(FORMAT, ...) fmt::format(FMT_STRING(FORMAT), __VA_ARGS__)
+#endif
+
 /**
  * Windows is very different to UNIX so we have to wrap certain features in
  * order to build on Windows correctly.
