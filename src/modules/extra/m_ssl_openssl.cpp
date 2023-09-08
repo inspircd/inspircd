@@ -1043,7 +1043,15 @@ public:
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("openssl");
 		if (status.initial || tag->getBool("onrehash", true))
+		{
+			// Try to help people who have outdated configs.
+			for (const auto& field : {"cafile", "certfile", "ciphers", "clientclearoptions", "clientsetoptions", "compression", "crlfile", "crlmode", "crlpath", "dhfile", "ecdhcurve", "hash", "keyfile", "renegotiation", "requestclientcert", "serverclearoptions", "serversetoptions", "tlsv1", "tlsv11", "tlsv12", "tlsv13"})
+			{
+				if (!tag->getString(field).empty())
+					throw ModuleException(this, "TLS settings have moved from <openssl> to <sslprofile>. See " INSPIRCD_DOCS "modules/ssl_openssl/#sslprofile for more information.");
+			}
 			ReadProfiles();
+		}
 	}
 
 	void OnModuleRehash(User* user, const std::string& param) override

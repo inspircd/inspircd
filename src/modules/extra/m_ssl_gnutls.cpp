@@ -1190,7 +1190,15 @@ public:
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("gnutls");
 		if (status.initial || tag->getBool("onrehash", true))
+		{
+			// Try to help people who have outdated configs.
+			for (const auto& field : {"cafile", "certfile", "crlfile", "dhfile", "hash", "keyfile", "mindhbits", "outrecsize", "priority", "requestclientcert", "strictpriority"})
+			{
+				if (!tag->getString(field).empty())
+					throw ModuleException(this, "TLS settings have moved from <gnutls> to <sslprofile>. See " INSPIRCD_DOCS "modules/ssl_gnutls/#sslprofile for more information.");
+			}
 			ReadProfiles();
+		}
 	}
 
 	void OnModuleRehash(User* user, const std::string& param) override

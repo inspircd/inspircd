@@ -991,7 +991,15 @@ public:
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("mbedtls");
 		if (status.initial || tag->getBool("onrehash", true))
+		{
+			// Try to help people who have outdated configs.
+			for (const auto& field : {"cafile", "certfile", "ciphersuites", "crlfile", "curves", "dhfile", "hash", "keyfile", "maxver", "mindhbits", "minver", "outrecsize", "requestclientcert"})
+			{
+				if (!tag->getString(field).empty())
+					throw ModuleException(this, "TLS settings have moved from <mbedtls> to <sslprofile>. See " INSPIRCD_DOCS "modules/ssl_mbedtls/#sslprofile for more information.");
+			}
 			ReadProfiles();
+		}
 	}
 
 	void OnModuleRehash(User* user, const std::string& param) override
