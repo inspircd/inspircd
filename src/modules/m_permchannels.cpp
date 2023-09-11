@@ -89,6 +89,7 @@ static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes, unsign
 		<< "# Any changes to this file will be automatically overwritten." << std::endl
 		<< std::endl;
 
+	const static std::string indent(14, ' ');
 	for (const auto& [_, chan] : ServerInstance->Channels.GetChans())
 	{
 		if (!chan->IsModeSet(permchanmode))
@@ -136,15 +137,15 @@ static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes, unsign
 			}
 		}
 
-		stream << "<permchannels channel=\"" << ServerConfig::Escape(chan->name)
-			<< "\" ts=\"" << chan->age;
+		stream << "<permchannels channel=\"" << ServerConfig::Escape(chan->name) << "\"" << std::endl
+			<< indent << "ts=\"" << chan->age << "\"" << std::endl;
 
 		if (!chan->topic.empty())
 		{
 			// Only store the topic if one is set.
-			stream << "\" topic=\"" << ServerConfig::Escape(chan->topic)
-				<< "\" topicts=\"" << chan->topicset
-				<< "\" topicsetby=\"" << ServerConfig::Escape(chan->setby);
+			stream << indent << "topic=\"" << ServerConfig::Escape(chan->topic) << "\"" << std::endl
+				<< indent << "topicts=\"" << chan->topicset << "\"" << std::endl
+				<< indent << "topicsetby=\"" << ServerConfig::Escape(chan->setby) << "\"" << std::endl;
 		}
 
 		if (save_listmodes && writeversion >= 2)
@@ -155,18 +156,18 @@ static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes, unsign
 				if (!list || list->empty())
 					continue;
 
-				stream << "\" " << lm->name << "list=\"";
+				stream << indent << lm->name << "list=\"";
 				for (auto entry = list->begin(); entry != list->end(); ++entry)
 				{
 					if (entry != list->begin())
 						stream << ' ';
 					stream << entry->mask << ' ' << entry->setter << ' ' << entry->time;
 				}
+				stream << "\"" << std::endl;
 			}
 		}
 
-		stream << "\" modes=\"" << ServerConfig::Escape(chanmodes)
-			<< "\">" << std::endl;
+		stream << indent << "modes=\"" << ServerConfig::Escape(chanmodes) << "\">" << std::endl;
 	}
 
 	if (stream.fail())
