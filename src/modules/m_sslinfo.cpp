@@ -276,19 +276,25 @@ public:
 	bool operonlyfp;
 
 	CommandSSLInfo(Module* Creator)
-		: SplitCommand(Creator, "SSLINFO", 1)
+		: SplitCommand(Creator, "SSLINFO")
 		, sslonlymode(Creator, "sslonly")
 		, sslapi(Creator)
 	{
-		syntax = { "<channel|nick>" };
+		syntax = { "[<channel|nick>]" };
 	}
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
+		if (parameters.empty())
+		{
+			HandleUserInternal(user, user, true);
+			return CmdResult::SUCCESS;
+		}
+
 		if (ServerInstance->Channels.IsPrefix(parameters[0][0]))
 			return HandleChannel(user, parameters[0]);
-		else
-			return HandleUser(user, parameters[0]);
+
+		return HandleUser(user, parameters[0]);
 	}
 };
 

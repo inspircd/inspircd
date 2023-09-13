@@ -51,12 +51,15 @@ match against the nickname of the network service and the oper type of
 the network service.
 ">
 
-<helptopic key="sslinfo" title="/SSLINFO <chan>|<nick>" value="
+<helptopic key="sslinfo" title="/SSLINFO [<chan>|<nick>]" value="
 If a channel is specified then display TLS connection information
 for users in the specified channel.
 
 If a user is specified then display information on the TLS connection
 and certificate of the specified user.
+
+If no target is specified then display information on the TLS
+connection and certificate of the executing user.
 ">
 
 <helptopic key="uninvite" title="/UNINVITE <nick> <channel>" value="
