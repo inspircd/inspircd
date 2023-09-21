@@ -122,7 +122,7 @@ private:
 	/** The name of the engine that created this method. */
 	std::string provname;
 
-	/** The connect classes that a user can be in before */
+	/** If non-empty the connect classes that a user must be in one of to be cloaked by this method. */
 	insp::flat_set<std::string> classes;
 
 protected:
