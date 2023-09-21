@@ -362,7 +362,7 @@ void ServerConfig::Fill()
 	// Read the <options> config.
 	const auto& options = ConfValue("options");
 	DefaultModes = options->getString("defaultmodes", "not");
-	FullHostInTopic = options->getBool("hostintopic");
+	MaskInTopic = options->getBool("maskintopic", options->getBool("hostintopic"));
 	NoSnoticeStack = options->getBool("nosnoticestack");
 	SyntaxHints = options->getBool("syntaxhints");
 	XLineMessage = options->getString("xlinemessage", "You're banned!", 1);

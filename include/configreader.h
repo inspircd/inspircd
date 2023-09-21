@@ -490,7 +490,7 @@ public:
 	size_t SoftLimit;
 
 	/** Whether to store the full nick!duser\@dhost as a topic setter instead of just their nick. */
-	bool FullHostInTopic;
+	bool MaskInTopic;
 
 	/** Whether to disable stacking snotices when multiple identical messages are sent. */
 	bool NoSnoticeStack;

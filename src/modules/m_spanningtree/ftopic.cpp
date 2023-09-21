@@ -45,7 +45,7 @@ CmdResult CommandFTopic::Handle(User* user, Params& params)
 	const std::string& newtopic = params.back();
 
 	// If there is a setter in the message use that, otherwise use the message source
-	const std::string& setter = ((params.size() > 4) ? params[3] : (ServerInstance->Config->FullHostInTopic ? user->GetMask() : user->nick));
+	const std::string& setter = ((params.size() > 4) ? params[3] : (ServerInstance->Config->MaskInTopic ? user->GetMask() : user->nick));
 
 	/*
 	 * If the topics were updated at the exact same second, accept

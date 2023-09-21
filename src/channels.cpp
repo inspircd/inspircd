@@ -61,7 +61,7 @@ void Channel::SetTopic(User* u, const std::string& ntopic, time_t topicts, const
 
 	// Always update setter and set time
 	if (!setter)
-		setter = ServerInstance->Config->FullHostInTopic ? &u->GetMask() : &u->nick;
+		setter = ServerInstance->Config->MaskInTopic ? &u->GetMask() : &u->nick;
 	this->setby.assign(*setter, 0, ServerInstance->Config->Limits.GetMaxMask());
 	this->topicset = topicts;
 

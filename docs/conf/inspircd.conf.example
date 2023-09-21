@@ -609,9 +609,9 @@
          # falling back to IPv4 otherwise.
          defaultbind="auto"
 
-         # hostintopic: If enabled, channels will show the host of the topic setter
-         # in the topic. If set to no, it will only show the nick of the topic setter.
-         hostintopic="yes"
+         # maskintopic: If enabled then channels will show the nick!user@host of the topic
+         # setter in the topic instead of just the nick of the topic setter.
+         maskintopic="yes"
 
          # pingwarning: If a server does not respond to a ping within this period,
          # it will send a notice to opers with snomask +l informing that the server
