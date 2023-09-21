@@ -489,6 +489,9 @@ public:
 	/** The maximum number of local connections that can be made to the IRC server. */
 	size_t SoftLimit;
 
+	/** Whether to store the full nick!duser\@dhost as a list mode setter instead of just their nick. */
+	bool MaskInList;
+
 	/** Whether to store the full nick!duser\@dhost as a topic setter instead of just their nick. */
 	bool MaskInTopic;
 

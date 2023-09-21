@@ -199,7 +199,11 @@ bool ListModeBase::OnModeChange(User* source, User*, Channel* channel, Modes::Ch
 		}
 
 		// Add the new entry to the list.
-		cd->list.emplace_back(change.param, change.set_by.value_or(source->nick), change.set_at.value_or(ServerInstance->Time()));
+		cd->list.emplace_back(
+			change.param,
+			change.set_by.value_or(ServerInstance->Config->MaskInList ? source->GetMask() : source->nick),
+			change.set_at.value_or(ServerInstance->Time())
+		);
 		return true;
 	}
 	else

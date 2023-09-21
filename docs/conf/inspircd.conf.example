@@ -609,6 +609,10 @@
          # falling back to IPv4 otherwise.
          defaultbind="auto"
 
+         # maskinlist: If enabled then channels will show the nick!user@host of a list
+         # mode setter in the mode list instead of just the nick of the list mode setter.
+         maskinlist="yes"
+
          # maskintopic: If enabled then channels will show the nick!user@host of the topic
          # setter in the topic instead of just the nick of the topic setter.
          maskintopic="yes"
