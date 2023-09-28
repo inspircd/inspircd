@@ -33,25 +33,23 @@ ModeUserOperator::ModeUserOperator(Module* Creator)
 
 bool ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, Modes::Change& change)
 {
-	/* Only opers can execute this class at all */
+	// Only services pseudoclients and server operators can log out a
+	// server operator.
 	if (!source->server->IsService() && !source->IsOper())
 		return false;
 
-	/* Not even opers can GIVE the +o mode, only take it away */
+	// The setting of the oper mode is done in User::OperLogin without
+	// calling the handler so reject any attempt to manually set it.
 	if (change.adding)
 		return false;
 
-	/* Set the bitfields.
-	 * Note that oper status is only given in User::Oper()
-	 * NOT here. It is impossible to directly set +o without
-	 * verifying as an oper and getting an opertype assigned
-	 * to your User!
-	 */
+	// Notify server operators of the logout.
 	char snomask = IS_LOCAL(dest) ? 'o' : 'O';
 	ServerInstance->SNO.WriteToSnoMask(snomask, "{} ({}) [{}] logged {}{}out of their server operator account.",
 		source->nick, source->GetRealUserHost(), source->GetAddress(),
 		source == dest ? "" : dest->nick, source == dest ? "" : " ");
-	dest->OperLogout();
 
+	// Log the server operator out of their account.
+	dest->OperLogout();
 	return true;
 }
