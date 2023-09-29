@@ -48,6 +48,12 @@ public:
 	dynamic_reference_base(const dynamic_reference_base&) = default;
 	~dynamic_reference_base();
 
+	dynamic_reference_base& operator=(const dynamic_reference_base& rhs)
+	{
+		SetProvider(rhs.GetProvider());
+		return *this;
+	}
+
 	inline const std::string& GetProvider() const { return name; }
 	void ClearProvider();
 	void SetProvider(const std::string& newname);
