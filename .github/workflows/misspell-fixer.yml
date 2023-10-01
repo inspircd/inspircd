@@ -9,7 +9,7 @@ jobs:
     env:
       REF_BRANCH: ${{ github.ref }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name : Set a couple env variables
       run: |
         echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
