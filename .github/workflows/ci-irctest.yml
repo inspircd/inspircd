@@ -19,10 +19,10 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout irctest
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: irctest
           ref: 59b2cd729b7785c3768e2ed8c4baa89472b45391
@@ -70,7 +70,7 @@ jobs:
           find -name 'artifacts-inspircd.tar.gz' -exec tar -xzf '{}' \;
 
       - name: Checkout irctest
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: irctest
           ref: 59b2cd729b7785c3768e2ed8c4baa89472b45391
@@ -86,7 +86,7 @@ jobs:
       # Can't apt-get install Anope if we want Insp4 support
       - name: Checkout Anope
         if: matrix.services == 'anope'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: anope
           ref: 2.0.9
