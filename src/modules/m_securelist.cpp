@@ -98,7 +98,7 @@ public:
 		fakechantopic = tag->getString("fakechantopic", "Fake channel for confusing spambots", 1, ServerInstance->Config->Limits.MaxTopic - 1);
 		hidesmallchans = tag->getNum<size_t>("hidesmallchans", 0);
 		showmsg = tag->getBool("showmsg", true);
-		waittime = tag->getDuration("waittime", 60, 1, 60*60*24);
+		waittime = tag->getDuration("waittime", 60, !exemptregistered, 60*60*24);
 
 		allowlist.swap(newallows);
 	}
@@ -111,15 +111,22 @@ public:
 
 		// Allow if the wait time has passed.
 		time_t maxwaittime = user->signon + waittime;
-		if (ServerInstance->Time() > maxwaittime)
+		if (waittime && ServerInstance->Time() > maxwaittime)
 			return MOD_RES_PASSTHRU;
 
 		// If <securehost:showmsg> is set then tell the user that they need to wait.
 		if (showmsg)
 		{
-			user->WriteNotice(INSP_FORMAT("*** You cannot view the channel list right now. Please {}try again in {}.",
-				exemptregistered ? "log in to an account or " : "",
-				Duration::ToString(maxwaittime - ServerInstance->Time())));
+			if (waittime)
+			{
+				user->WriteNotice(INSP_FORMAT("*** You cannot view the channel list right now. Please {}try again in {}.",
+					exemptregistered ? "log in to an account or " : "",
+					Duration::ToString(maxwaittime - ServerInstance->Time())));
+			}
+			else
+			{
+				user->WriteNotice("*** You must be logged into an account to view the channel list.");
+			}
 		}
 
 		// The client might be waiting on a response to do something so send them an

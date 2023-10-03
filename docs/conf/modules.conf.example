@@ -2221,8 +2221,10 @@
 #           Defaults to no.                                           #
 #                                                                     #
 # waittime - The time period that a user must be connected for before #
-#            they can use the /LIST command.                          #
-#             Defaults to 1 minute.                                   #
+#            they can use the /LIST command. If exemptregistered is   #
+#            enabled you can set this to 0 to disable unauthenticated #
+#            users from viewing the channel list.                     #
+#            Defaults to 1 minute.                                    #
 #                                                                     #
 #<securelist exemptregistered="yes"
 #            fakechans="5"
