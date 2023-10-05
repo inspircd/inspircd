@@ -22,7 +22,7 @@ If you encounter any bugs then [please file an issue](https://github.com/inspirc
 
 Most InspIRCd users running a UNIX-like system build from source. A guide about how to do this is available on [the InspIRCd docs site](https://docs.inspircd.org/3/installation/source).
 
-Building from source on Windows is generally not recommended but [a guide is available](https://github.com/inspircd/inspircd/blob/master/win/README.txt) if you wish to do this.
+Building from source on Windows is generally not recommended but [a guide is available](https://docs.inspircd.org/3/installation/windows-source/) if you wish to do this.
 
 If you are running on CentOS 7, Debian 11/12, Rocky Linux 8/9, Ubuntu 18.04/20.04/22.04, or Windows 8+ binary packages are available from [the downloads page](https://github.com/inspircd/inspircd/releases/latest).
 
