@@ -498,8 +498,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	SetSignals();
 	if (!Config->CommandLine.runasroot)
 		CheckRoot();
-	if (!Config->CommandLine.nofork)
-		ForkIntoBackground();
 
 	fmt::println("InspIRCd Process ID: {}", fmt::styled(getpid(), fmt::emphasis::bold | fmt::fg(fmt::terminal_color::green)));
 
@@ -520,6 +518,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		fmt::println("Exiting...");
 		Exit(EXIT_FAILURE);
 	}
+
+	if (!Config->CommandLine.nofork)
+		ForkIntoBackground();
 
 	// If we don't have a SID, generate one based on the server name and the server description
 	if (Config->ServerId.empty())
