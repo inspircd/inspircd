@@ -219,6 +219,10 @@ Your client should send this to answer server PINGs. You
 should not issue this command manually.
 ">
 
+<helptopic key="prop" title="/PROP <target> [(+|-)<name> [<value>]]+" value="
+Allows users to add, remove, and view the modes of a specific target.
+">
+
 <helptopic key="admin" title="/ADMIN [<servername>]" value="
 Shows the administrative information for the given server.
 ">
