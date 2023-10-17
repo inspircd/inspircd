@@ -246,7 +246,7 @@ namespace
 			// happened and the parent should exit.
 			while (kill(childpid, 0) != -1)
 				sleep(1);
-			InspIRCd::QuickExit(EXIT_SUCCESS);
+			InspIRCd::QuickExit(EXIT_FAILURE);
 		}
 		else
 		{
