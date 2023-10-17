@@ -361,14 +361,6 @@ public:
 	[[noreturn]]
 	void Exit(int status);
 
-	 /** Causes the server to exit immediately.
-	 *
-	 * @param status The exit code to give to the operating system
-	 * (See the ExitStatus enum for valid values)
-	 */
-	[[noreturn]]
-	static void QuickExit(int status);
-
 	/** Determines whether a nickname is valid. */
 	std::function<bool(const std::string_view&)> IsNick = &DefaultIsNick;
 

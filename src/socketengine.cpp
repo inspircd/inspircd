@@ -70,7 +70,7 @@ void EventHandler::OnEventHandlerError(int errornum)
 void SocketEngine::InitError()
 {
 	fmt::println(stderr, "{} Socket engine initialization failed. {}.", fmt::styled("FATAL ERROR!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), strerror(errno));
-	InspIRCd::QuickExit(EXIT_FAILURE);
+	exit(EXIT_FAILURE);
 }
 
 void SocketEngine::LookupMaxFds()

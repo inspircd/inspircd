@@ -57,11 +57,6 @@ void InspIRCd::Exit(int status)
 	this->Cleanup();
 	ServerInstance = nullptr;
 	delete this;
-	QuickExit(status);
-}
-
-void InspIRCd::QuickExit(int status)
-{
 	exit(status);
 }
 
