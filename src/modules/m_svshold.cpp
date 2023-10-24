@@ -50,14 +50,12 @@ public:
 
 	bool Matches(User* u) CXX11_OVERRIDE
 	{
-		if (u->nick == nickname)
-			return true;
-		return false;
+		return irc::equals(u->nick, nickname);
 	}
 
 	bool Matches(const std::string& s) CXX11_OVERRIDE
 	{
-		return InspIRCd::Match(s, nickname);
+		return irc::equals(s, nickname);
 	}
 
 	void DisplayExpiry() CXX11_OVERRIDE
