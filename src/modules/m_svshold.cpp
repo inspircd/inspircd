@@ -48,6 +48,12 @@ public:
 	{
 	}
 
+	void Apply(User* u) CXX11_OVERRIDE
+	{
+		u->WriteNumeric(RPL_SAVENICK, u->nick, InspIRCd::Format("Services reserved nickname: %s", reason.c_str()));
+		u->ChangeNick(u->uuid);
+	}
+
 	bool Matches(User* u) CXX11_OVERRIDE
 	{
 		return irc::equals(u->nick, nickname);
@@ -82,11 +88,6 @@ class SVSHoldFactory : public XLineFactory
 	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) CXX11_OVERRIDE
 	{
 		return new SVSHold(set_time, duration, source, reason, xline_specific_mask);
-	}
-
-	bool AutoApplyToUserList(XLine* x) CXX11_OVERRIDE
-	{
-		return false;
 	}
 };
 
