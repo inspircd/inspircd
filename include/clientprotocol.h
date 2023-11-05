@@ -92,8 +92,10 @@ public:
 
 class CoreExport ClientProtocol::MessageSource
 {
+ protected:
 	User* sourceuser;
 	const std::string* sourcestr;
+	bool sourceowned:1;
 
 public:
 	/** Constructor, sets the source to be the full host of a user or sets it to be nothing.
@@ -102,8 +104,15 @@ public:
 	 * Optional, defaults to NULL.
 	 */
 	MessageSource(User* Sourceuser = nullptr)
+		: sourceowned(false)
 	{
 		SetSourceUser(Sourceuser);
+	}
+
+	~MessageSource()
+	{
+		if (sourceowned && sourcestr)
+			delete sourcestr;
 	}
 
 	/** Constructor, sets the source to the supplied string and optionally sets the source user.
@@ -114,6 +123,7 @@ public:
 	 * Useful when the source string is synthesized but it is still related to a User.
 	 */
 	MessageSource(const std::string& Sourcestr, User* Sourceuser = nullptr)
+		: sourceowned(false)
 	{
 		SetSource(Sourcestr, Sourceuser);
 	}
@@ -461,6 +471,12 @@ public:
 			if (!param.IsOwned())
 				ReplaceParam(idx, param);
 			idx++;
+		}
+
+		if (GetSource())
+		{
+			sourcestr = new std::string(*GetSource());
+			sourceowned = true;
 		}
 	}
 

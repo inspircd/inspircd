@@ -124,6 +124,12 @@ public:
 	{
 	}
 
+	void Apply(User* u) override
+	{
+		u->WriteNumeric(RPL_SAVENICK, u->nick, INSP_FORMAT("Services reserved nickname: {}", reason));
+		u->ChangeNick(u->uuid);
+	}
+
 	const std::string& Displayable() const override
 	{
 		return nickname;
@@ -157,11 +163,6 @@ public:
 	XLine* Generate(time_t settime, unsigned long duration, const std::string& source, const std::string& reason, const std::string& nick) override
 	{
 		return new SVSHold(settime, duration, source, reason, nick);
-	}
-
-	bool AutoApplyToUserList(XLine* x) override
-	{
-		return false;
 	}
 };
 
