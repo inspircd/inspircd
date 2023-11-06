@@ -10,6 +10,9 @@
 /GNUmakefile
 /build
 /core
+/core.*
+/vgcore
+/vgcore.*
 /docs/doxygen
 /run
 
