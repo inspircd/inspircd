@@ -1300,6 +1300,7 @@ class ModuleSSLGnuTLS : public Module
 	// First member of the class, gets constructed first and destructed last
 	GnuTLS::Init libinit;
 	ProfileList profiles;
+	TR1NS::function<void(char*, size_t)> rememberer;
 
 	void ReadProfiles()
 	{
@@ -1373,6 +1374,7 @@ class ModuleSSLGnuTLS : public Module
 
  public:
 	ModuleSSLGnuTLS()
+		: rememberer(ServerInstance->GenRandom)
 	{
 #ifndef GNUTLS_HAS_RND
 		gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
@@ -1383,7 +1385,7 @@ class ModuleSSLGnuTLS : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "GnuTLS lib version %s module was compiled for " GNUTLS_VERSION, gnutls_check_version(NULL));
-		ServerInstance->GenRandom = RandGen::Call;
+		ServerInstance->GenRandom = &RandGen::Call;
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
@@ -1411,7 +1413,7 @@ class ModuleSSLGnuTLS : public Module
 
 	~ModuleSSLGnuTLS()
 	{
-		ServerInstance->GenRandom = &InspIRCd::DefaultGenRandom;
+		ServerInstance->GenRandom = rememberer;
 	}
 
 	void OnCleanup(ExtensionItem::ExtensibleType type, Extensible* item) CXX11_OVERRIDE
