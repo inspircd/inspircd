@@ -370,6 +370,11 @@ class ModuleAlias : public Module
 					result.append(a->RequiredNick);
 					i += 11;
 				}
+				else if (!newline.compare(i, 6, "$address", 8))
+				{
+					result.append(user->GetIPString());
+					i += 7;
+				}
 				else
 					result.push_back(c);
 			}
