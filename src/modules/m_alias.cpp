@@ -374,10 +374,9 @@ public:
 				else if (!newline.compare(i, 6, "$ident", 6))
 				{
 					// TODO: remove this in the next major release.
-					result.append(user->GetRealHost());
+					result.append(user->GetRealUser());
 					i += 5;
 				}
-
 				else
 					result.push_back(c);
 			}
