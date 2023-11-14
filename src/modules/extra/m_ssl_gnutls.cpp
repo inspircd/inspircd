@@ -1122,6 +1122,7 @@ class ModuleSSLGnuTLS final
 	// First member of the class, gets constructed first and destructed last
 	GnuTLS::Init libinit;
 	ProfileList profiles;
+	std::function<void(char*, size_t)> rememberer;
 
 	void ReadProfiles()
 	{
@@ -1174,6 +1175,7 @@ class ModuleSSLGnuTLS final
 public:
 	ModuleSSLGnuTLS()
 		: Module(VF_VENDOR, "Allows TLS encrypted connections using the GnuTLS library.")
+		, rememberer(ServerInstance->GenRandom)
 	{
 		thismod = this;
 	}
@@ -1182,8 +1184,7 @@ public:
 	{
 		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against GnuTLS version {} and is running against version {}",
 			GNUTLS_VERSION, gnutls_check_version(nullptr));
-
-		ServerInstance->GenRandom = GnuTLS::GenRandom;
+		ServerInstance->GenRandom = &GnuTLS::GenRandom;
 	}
 
 	void ReadConfig(ConfigStatus& status) override
@@ -1219,7 +1220,7 @@ public:
 
 	~ModuleSSLGnuTLS() override
 	{
-		ServerInstance->GenRandom = &InspIRCd::DefaultGenRandom;
+		ServerInstance->GenRandom = rememberer;
 	}
 
 	void OnCleanup(ExtensionType type, Extensible* item) override

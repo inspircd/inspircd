@@ -111,10 +111,9 @@
 #                    command "foo bar baz qux quz" then $3- will hold #
 #                    "baz qux quz" and $2 will contain "bar". You may #
 #                    also use the special variables: $nick, $user,    #
-#                    $host and $vhost, and you may separate multiple  #
-#                    commands with a newline (which can be written in #
-#                    the file literally, or encoded as &nl; or \n     #
-#                    depending on the config format setting).         #
+#                    $address, $host and $vhost, and you may separate #
+#                    multiple commands with a newline (which can be   #
+#                    written in the file literally or encoded as &nl; #
 #                                                                     #
 # requires    -      If you provide a value for 'requires' this means #
 #                    the given nickname MUST be online for the alias  #

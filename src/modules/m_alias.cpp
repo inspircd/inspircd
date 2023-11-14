@@ -366,6 +366,11 @@ public:
 					result.append(a.RequiredNick);
 					i += 11;
 				}
+				else if (!newline.compare(i, 6, "$address", 8))
+				{
+					result.append(user->GetAddress());
+					i += 7;
+				}
 				else if (!newline.compare(i, 6, "$ident", 6))
 				{
 					// TODO: remove this in the next major release.
