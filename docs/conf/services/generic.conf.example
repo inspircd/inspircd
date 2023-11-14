@@ -25,6 +25,11 @@
 # Identifies to a services account.
 <alias text="ID"       format="*" replace="SQUERY $requirement :IDENTIFY $2-" requires="NickServ" uline="yes">
 <alias text="IDENTIFY" format="*" replace="SQUERY $requirement :IDENTIFY $2-" requires="NickServ" uline="yes">
+<alias text="LOGIN"    format="*" replace="SQUERY $requirement :IDENTIFY $2-" requires="NickServ" uline="yes">
+
+# /LOGOUT
+# Logs out of a services account.
+<alias text="LOGOUT" format="*" replace="SQUERY $requirement :LOGOUT" requires="NickServ" uline="yes">
 
 # Prevent clients from using the nicknames of services pseudoclients.
 <badnick nick="BotServ"  reason="Reserved for a network service">
