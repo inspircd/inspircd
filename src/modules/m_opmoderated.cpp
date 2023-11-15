@@ -30,7 +30,7 @@ private:
 	ExtBan::Acting extban;
 	SimpleChannelMode mode;
 
-	ModResult HandleMessage(User* user, const MessageTarget& target, CUList& exemptions)
+	ModResult HandleMessage(User* user, MessageTarget& target, CUList& exemptions)
 	{
 		// We only handle messages from local users.
 		if (!IS_LOCAL(user))
@@ -54,14 +54,7 @@ private:
 			return MOD_RES_PASSTHRU;
 
 		if (!extban.GetStatus(user, chan).check(!chan->IsModeSet(mode)))
-		{
-			// Add any unprivileged users to the exemption list.
-			for (const auto& [u, memb] : chan->GetUsers())
-			{
-				if (memb->GetRank() < OP_VALUE)
-					exemptions.insert(u);
-			}
-		}
+			target.status = '@';
 
 		return MOD_RES_PASSTHRU;
 	}
