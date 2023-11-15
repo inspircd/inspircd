@@ -497,7 +497,7 @@ public:
 		return CanReceiveMessage(source, dest, SilenceEntry::SF_INVITE) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
+	ModResult OnUserPreMessage(User* user, MessageTarget& target, MessageDetails& details) override
 	{
 		std::string_view ctcpname;
 		bool is_ctcp = details.IsCTCP(ctcpname) && !irc::equals(ctcpname, "ACTION");
@@ -559,7 +559,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override
+	ModResult OnUserPreTagMessage(User* user, MessageTarget& target, CTCTags::TagMessageDetails& details) override
 	{
 		if (target.type == MessageTarget::TYPE_CHANNEL)
 		{

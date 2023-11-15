@@ -110,14 +110,17 @@ private:
 	void* dest;
 
 public:
-	/** If type is TYPE_CHANNEL and the user specified a status rank. */
+	/** If type is TYPE_CHANNEL then the original status rank of users who can receive the message. */
+	const char original_status = 0;
+
+	/** If type is TYPE_CHANNEL then the status rank of users who can receive the message. */
 	char status = 0;
 
 	/** The type of the target of the message. If this is TYPE_CHANNEL then dest
 	 * is a Channel*, TYPE_USER then dest is a User*, and TYPE_SERVER then dest is
 	 * a std::string* containing a server glob.
 	 */
-	MessageTarget::TargetType type;
+	const MessageTarget::TargetType type;
 
 	/** Initialises a new channel message target.
 	 * @param channel The channel which is the target of the message.
@@ -125,6 +128,7 @@ public:
 	 */
 	MessageTarget(Channel* channel, char statuschar)
 		: dest(channel)
+		, original_status(statuschar)
 		, status(statuschar)
 		, type(TYPE_CHANNEL)
 	{

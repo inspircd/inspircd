@@ -106,7 +106,7 @@ void		Module::OnModuleRehash(User*, const std::string&) { DetachEvent(I_OnModule
 ModResult	Module::OnUserPreJoin(LocalUser*, Channel*, const std::string&, std::string&, const std::string&, bool) { DetachEvent(I_OnUserPreJoin); return MOD_RES_PASSTHRU; }
 void		Module::OnMode(User*, User*, Channel*, const Modes::ChangeList&, ModeParser::ModeProcessFlag) { DetachEvent(I_OnMode); }
 ModResult	Module::OnUserPreInvite(User*, User*, Channel*, time_t) { DetachEvent(I_OnUserPreInvite); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserPreMessage(User*, const MessageTarget&, MessageDetails&) { DetachEvent(I_OnUserPreMessage); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserPreMessage(User*, MessageTarget&, MessageDetails&) { DetachEvent(I_OnUserPreMessage); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserPreNick(LocalUser*, const std::string&) { DetachEvent(I_OnUserPreNick); return MOD_RES_PASSTHRU; }
 void		Module::OnUserPostNick(User*, const std::string&) { DetachEvent(I_OnUserPostNick); }
 ModResult	Module::OnPreMode(User*, User*, Channel*, Modes::ChangeList&) { DetachEvent(I_OnPreMode); return MOD_RES_PASSTHRU; }

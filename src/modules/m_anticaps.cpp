@@ -199,7 +199,7 @@ public:
 			lowercase.set(static_cast<unsigned char>(chr));
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
+	ModResult OnUserPreMessage(User* user, MessageTarget& target, MessageDetails& details) override
 	{
 		// We only want to operate on messages from local users.
 		if (!IS_LOCAL(user))

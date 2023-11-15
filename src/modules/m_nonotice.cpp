@@ -47,7 +47,7 @@ public:
 	{
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
+	ModResult OnUserPreMessage(User* user, MessageTarget& target, MessageDetails& details) override
 	{
 		if ((details.type == MessageType::NOTICE) && (target.type == MessageTarget::TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{

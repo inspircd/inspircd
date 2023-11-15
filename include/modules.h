@@ -466,7 +466,7 @@ public:
 	 * @return MOD_RES_ALLOW to explicitly allow the message, MOD_RES_DENY to explicitly deny the
 	 *         message, or MOD_RES_PASSTHRU to let another module handle the event.
 	 */
-	virtual ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details);
+	virtual ModResult OnUserPreMessage(User* user, MessageTarget& target, MessageDetails& details);
 
 	/** Called when sending a message to all "neighbors" of a given user -
 	 * that is, all users that share a common channel. This is used in

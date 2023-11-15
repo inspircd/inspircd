@@ -72,8 +72,8 @@ public:
 	}
 
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList&) override;
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override;
-	ModResult OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details) override;
+	ModResult OnUserPreMessage(User* user, MessageTarget& target, MessageDetails& details) override;
+	ModResult OnUserPreTagMessage(User* user, MessageTarget& target, CTCTags::TagMessageDetails& details) override;
 };
 
 bool DelayMsgMode::OnSet(User* source, Channel* chan, std::string& parameter)
@@ -101,12 +101,12 @@ void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CULis
 	}
 }
 
-ModResult ModuleDelayMsg::OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details)
+ModResult ModuleDelayMsg::OnUserPreMessage(User* user, MessageTarget& target, MessageDetails& details)
 {
 	return HandleMessage(user, target);
 }
 
-ModResult ModuleDelayMsg::OnUserPreTagMessage(User* user, const MessageTarget& target, CTCTags::TagMessageDetails& details)
+ModResult ModuleDelayMsg::OnUserPreTagMessage(User* user, MessageTarget& target, CTCTags::TagMessageDetails& details)
 {
 	return HandleMessage(user, target);
 }

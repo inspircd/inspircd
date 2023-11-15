@@ -228,7 +228,7 @@ public:
 	ModuleFilter();
 	void init() override;
 	Cullable::Result Cull() override;
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override;
+	ModResult OnUserPreMessage(User* user, MessageTarget& target, MessageDetails& details) override;
 	const FilterResult* FilterMatch(User* user, const std::string& text, int flags);
 	bool DeleteFilter(const std::string& freeform, std::string& reason);
 	std::pair<bool, std::string> AddFilter(const std::string& freeform, FilterAction type, const std::string& reason, unsigned long duration, const std::string& flags, bool config = false);
@@ -386,7 +386,7 @@ void ModuleFilter::FreeFilters()
 	dirty = true;
 }
 
-ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtarget, MessageDetails& details)
+ModResult ModuleFilter::OnUserPreMessage(User* user, MessageTarget& msgtarget, MessageDetails& details)
 {
 	// Leave remote users and servers alone
 	if (!IS_LOCAL(user))

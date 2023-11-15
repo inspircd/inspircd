@@ -92,7 +92,8 @@ public:
 			case MessageTarget::TYPE_CHANNEL:
 			{
 				Channel* chan = target.Get<Channel>();
-				ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, chan, text, details.type, target.status);
+				const char status = details.echo_original ? target.original_status : target.status;
+				ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, chan, text, details.type, status);
 				privmsg.AddTags(tags);
 				AddEchoTag(privmsg);
 				localuser->Send(ServerInstance->GetRFCEvents().privmsg, privmsg);
@@ -132,7 +133,8 @@ public:
 			case MessageTarget::TYPE_CHANNEL:
 			{
 				Channel* chan = target.Get<Channel>();
-				CTCTags::TagMessage message(user, chan, tags, target.status);
+				const char status = details.echo_original ? target.original_status : target.status;
+				CTCTags::TagMessage message(user, chan, tags, status);
 				AddEchoTag(message);
 				localuser->Send(tagmsgprov, message);
 				break;

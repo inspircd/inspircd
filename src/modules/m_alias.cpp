@@ -190,7 +190,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreMessage(User* user, const MessageTarget& target, MessageDetails& details) override
+	ModResult OnUserPreMessage(User* user, MessageTarget& target, MessageDetails& details) override
 	{
 		// Don't echo anything which is caused by an alias.
 		if (active)
