@@ -309,6 +309,7 @@ private:
 	std::string hash;
 	bool spkifp;
 	unsigned long warnexpiring;
+	bool welcomemsg;
 
 	static bool MatchFP(ssl_cert* const cert, const std::string& fp)
 	{
@@ -333,6 +334,7 @@ public:
 		hash = tag->getString("hash");
 		spkifp = tag->getBool("spkifp");
 		warnexpiring = tag->getDuration("warnexpiring", 0, 0, 60*60*24*365);
+		welcomemsg = tag->getBool("welcomemsg");
 	}
 
 	void OnWhois(Whois::Context& whois) override
@@ -400,15 +402,18 @@ public:
 
 		ssl_cert* const cert = ssliohook->GetCertificate();
 
-		std::string text = "*** You are connected to ";
-		if (!ssliohook->GetServerName(text))
-			text.append(ServerInstance->Config->GetServerName());
-		text.append(" using TLS cipher '");
-		ssliohook->GetCiphersuite(text);
-		text.push_back('\'');
-		if (cert && !cert->GetFingerprint().empty())
-			text.append(" and your TLS client certificate fingerprint is ").append(cert->GetFingerprint());
-		user->WriteNotice(text);
+		if (welcomemsg)
+		{
+			std::string text = "*** You are connected to ";
+			if (!ssliohook->GetServerName(text))
+				text.append(ServerInstance->Config->GetServerName());
+			text.append(" using TLS cipher '");
+			ssliohook->GetCiphersuite(text);
+			text.push_back('\'');
+			if (cert && !cert->GetFingerprint().empty())
+				text.append(" and your TLS client certificate fingerprint is ").append(cert->GetFingerprint());
+			user->WriteNotice(text);
+		}
 
 		if (!cert || !warnexpiring || !cert->GetExpirationTime())
 			return;

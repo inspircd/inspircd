@@ -2457,13 +2457,18 @@
 #                 that can be left on a user's TLS client certificate #
 #                 before users are warned about the imminent expiry.  #
 #                                                                     #
+#  welcomemsg   - Whether to send a welcome message to users that are #
+#                 connecting using TLS containing their server name,  #
+#                 ciphersuite and client fingerprint. Defaults to no. #
+#                                                                     #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #
 #<sslinfo hash="sha-256"
 #         localsecure="yes"
 #         operonly="no"
 #         spkifp="no"
-#         warnexpiring="1w">
+#         warnexpiring="1w"
+#         welcomemsg="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # mbedTLS TLS module: Adds support for TLS connections using mbedTLS.
