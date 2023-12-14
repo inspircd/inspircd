@@ -45,7 +45,7 @@
 #include "utility/string.h"
 
 #ifdef _WIN32
-# pragma comment(lib, "mysqlclient.lib")
+# pragma comment(lib, "libmysql.lib")
 #endif
 
 /* VERSION 3 API: With nonblocking (threaded) requests */
