@@ -438,7 +438,7 @@ class ModuleHAProxy : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Allows IRC connections to be made using reverse proxies that implement the HAProxy PROXY protocol.", VF_VENDOR);
+		return Version("Allows IRC connections to be made using reverse proxies that implement version 2 of the HAProxy PROXY protocol.", VF_VENDOR);
 	}
 };
 
