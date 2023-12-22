@@ -1,2 +1,2 @@
 #!/bin/sh
-echo "InspIRCd-3.16.1"
+echo "InspIRCd-3.17.0"
