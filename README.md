@@ -24,7 +24,7 @@ Most InspIRCd users running a UNIX-like system build from source. A guide about 
 
 Building from source on Windows is generally not recommended but [a guide is available](https://docs.inspircd.org/3/installation/windows-source/) if you wish to do this.
 
-If you are running on CentOS 7, Debian 11/12, Rocky Linux 8/9, Ubuntu 18.04/20.04/22.04, or Windows 8+ binary packages are available from [the downloads page](https://github.com/inspircd/inspircd/releases/latest).
+If you are running on CentOS 7, Debian 11/12/13, Rocky Linux 8/9, Ubuntu 20.04/22.04, or Windows 8+ binary packages are available from [the downloads page](https://github.com/inspircd/inspircd/releases/latest).
 
 A [Docker](https://www.docker.com) image is also available. See [the inspircd-docker repository](https://github.com/inspircd/inspircd-docker) for more information.
 
