@@ -46,7 +46,7 @@ jobs:
           tar -czf artifacts-inspircd.tar.gz .local/
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: installed-inspircd-for-irctest
           path: ~/artifacts-inspircd.tar.gz
