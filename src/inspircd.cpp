@@ -378,7 +378,7 @@ namespace
 				fmt::println("");
 			}
 
-			fmt::print(fmt::text_style(fmt::emphasis::bold), "Hints:");
+			fmt::println(fmt::text_style(fmt::emphasis::bold), "Hints:");
 			fmt::println("- For TCP/IP listeners try using a public IP address in <bind:address> instead");
 			fmt::println("  of * or leaving it blank.");
 			fmt::println("- For UNIX socket listeners try enabling <bind:rewrite> to replace old sockets.");
