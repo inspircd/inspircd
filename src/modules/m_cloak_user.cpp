@@ -19,11 +19,12 @@
 #include "inspircd.h"
 #include "modules/account.h"
 #include "modules/cloak.h"
+#include "modules/ssl.h"
 
 class UserMethodBase
 	: public Cloak::Method
 {
-private:
+protected:
 	// The action to take when an invalid character is encountered.
 	enum InvalidChar
 		: uint8_t
@@ -53,7 +54,6 @@ private:
 	// Retrieves the middle segment of the cloak.
 	virtual std::string GetMiddle(LocalUser* user) = 0;
 
-protected:
 	UserMethodBase(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm) ATTR_NOT_NULL(2)
 		: Cloak::Method(engine, tag)
 		, hostmap(hm)
@@ -186,6 +186,47 @@ public:
 	}
 };
 
+class FingerprintMethod final
+	: public UserMethodBase
+{
+private:
+	// Dynamic reference to the certificate api.
+	UserCertificateAPI sslapi;
+
+	// The number of octets of the fingerprint to use.
+	size_t length;
+
+	// Retrieves the middle segment of the cloak.
+	std::string GetMiddle(LocalUser* user) override
+	{
+		const ssl_cert* cert = sslapi ? sslapi->GetCertificate(user) : nullptr;
+		if (!cert || !cert->IsUsable())
+			return {};
+
+		return cert->GetFingerprint().substr(0, length);
+	}
+
+	// Calculates the longest valid fingerprint length.
+	inline size_t GetMaxLength()
+	{
+		return ServerInstance->Config->Limits.MaxHost - prefix.length() - suffix.length();
+	}
+
+public:
+	FingerprintMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm) ATTR_NOT_NULL(2)
+		: UserMethodBase(engine, tag, hm)
+		, sslapi(engine->creator)
+		, length(tag->getNum<size_t>("length", GetMaxLength(), 1, GetMaxLength()))
+	{
+	}
+
+	void GetLinkData(Module::LinkData& data, std::string& compatdata) override
+	{
+		UserMethodBase::GetLinkData(data, compatdata);
+		data["length"] = ConvToStr(length);
+	}
+};
+
 class NickMethod final
 	: public UserMethodBase
 {
@@ -248,6 +289,7 @@ class ModuleCloakUser final
 private:
 	UserEngine<AccountMethod> accountcloak;
 	UserEngine<AccountIdMethod> accountidcloak;
+	UserEngine<FingerprintMethod> fingerprintcloak;
 	UserEngine<NickMethod> nicknamecloak;
 	UserEngine<UserMethod> usernamecloak;
 	Cloak::API cloakapi;
@@ -259,6 +301,7 @@ public:
 		, Account::EventListener(this)
 		, accountcloak(this, "account", hostmap)
 		, accountidcloak(this, "account-id", hostmap)
+		, fingerprintcloak(this, "fingerprint", hostmap)
 		, nicknamecloak(this, "nickname", hostmap)
 		, usernamecloak(this, "username", hostmap)
 		, cloakapi(this)

@@ -653,7 +653,8 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # User data cloak module: Adds the "account" (services account name),
 # "account-id" (services account id), "nickname" (current nickname),
-# and "username" (RFC 1413 identification string) cloak methods.
+# "fingerprint" (client certificate fingerprint), and "username" (RFC
+# 1413 identification string) cloak methods.
 #<module name="cloak_user">
 #
 #-#-#-#-#-#-#-#-#-#-#- USER CLOAK CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
@@ -669,6 +670,11 @@
 #                not apply the cloak, "strip" to remove the invalid   #
 #                host character, or "truncate" to truncate the cloak  #
 #                at the invalid host character. Defaults to "strip".  #
+#                                                                     #
+# length       - If using the "fingerprint" method them the number of #
+#                characters of the fingerprint hash to use. Defaults  #
+#                to the value of <limits:maxhost> minus the length of #
+#                the prefix and suffix fields.                        #
 #                                                                     #
 #  prefix      - A freeform value to prefix cloaks with. This must    #
 #                not contain spaces.                                  #
@@ -693,6 +699,13 @@
 #       invalidchar="strip"
 #       prefix=""
 #       suffix=".users.example.com">
+#
+#<cloak method="fingerprint"
+#       class=""
+#       invalidchar="strip"
+#       length="16"
+#       prefix=""
+#       suffix=".fp">
 #
 #<cloak method="nickname"
 #       class=""
