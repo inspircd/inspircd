@@ -96,7 +96,7 @@ namespace Hex
 	 */
 	inline std::string Encode(const std::string& data, const char* table = nullptr, char separator = 0)
 	{
-		return Encode(data.c_str(), data.length(), table);
+		return Encode(data.c_str(), data.length(), table, separator);
 	}
 }
 
