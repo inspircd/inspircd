@@ -79,6 +79,26 @@ namespace Hex
 	/** The table used for encoding as an upper-case hexadecimal string. */
 	inline constexpr const char* TABLE_UPPER = "0123456789ABCDEF";
 
+	/** Decodes a hexadecimal-encoded byte array.
+	 * @param data The byte array to decode from.
+	 * @param length The length of the byte array.
+	 * @param separator If non-zero then the character hexadecimal digits are separated with.
+	 * @param table The index table to use for decoding.
+	 * @return The decoded form of the specified data.
+	 */
+	CoreExport std::string Decode(const void* data, size_t length, const char* table = nullptr, char separator = 0);
+
+	/** Decodes a hexadecimal-encoded string.
+	 * @param data The string to decode from.
+	 * @param table The index table to use for decoding.
+	 * @param separator If non-zero then the character hexadecimal digits are separated with.
+	 * @return The decoded form of the specified data.
+	 */
+	inline std::string Decode(const std::string& data, const char* table = nullptr, char separator = 0)
+	{
+		return Decode(data.c_str(), data.length(), table, separator);
+	}
+
 	/** Encodes a byte array using hexadecimal encoding.
 	 * @param data The byte array to encode from.
 	 * @param length The length of the byte array.

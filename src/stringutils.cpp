@@ -113,6 +113,32 @@ std::string Hex::Encode(const void* data, size_t length, const char* table, char
 	return buffer;
 }
 
+std::string Hex::Decode(const void* data, size_t length, const char* table, char separator)
+{
+	if (!table)
+		table = Hex::TABLE_LOWER;
+
+	// The size of each hex segment.
+	size_t segment = (separator ? 3 : 2);
+
+	// Preallocate the output buffer to avoid constant reallocations.
+	std::string buffer;
+	buffer.reserve(length / segment);
+
+	const char* cdata = static_cast<const char*>(data);
+	for (size_t idx = 0; idx + 1 < length; idx += segment)
+	{
+		// Attempt to find the octets in the table.
+		const char* table1 = strchr(table, cdata[idx]);
+		const char* table2 = strchr(table, cdata[idx + 1]);
+
+		char pair = ((table1 ? table1 - table : 0) << 4) + (table2 ? table2 - table : 0);
+		buffer.push_back(pair);
+	}
+
+	return buffer;
+}
+
 std::string Base64::Encode(const void* data, size_t length, const char* table, char padding)
 {
 	// Use the default table if one is not specified.
