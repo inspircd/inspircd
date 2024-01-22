@@ -119,14 +119,6 @@ public:
 	}
 };
 
-class CoreExport DataProvider
-	: public ServiceProvider
-{
-public:
-	DataProvider(Module* Creator, const std::string& Name)
-		: ServiceProvider(Creator, Name, SERVICE_DATA) {}
-};
-
 /** Priority types which can be used by Module::Prioritize()
  */
 enum Priority { PRIORITY_FIRST, PRIORITY_LAST, PRIORITY_BEFORE, PRIORITY_AFTER };

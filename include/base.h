@@ -171,3 +171,11 @@ public:
 	 */
 	void DisableAutoRegister();
 };
+
+class CoreExport DataProvider
+	: public ServiceProvider
+{
+public:
+	DataProvider(Module* Creator, const std::string& Name)
+		: ServiceProvider(Creator, Name, SERVICE_DATA) {}
+};
