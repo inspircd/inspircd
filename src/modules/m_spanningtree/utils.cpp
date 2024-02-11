@@ -320,7 +320,9 @@ void SpanningTreeUtilities::ReadConfiguration()
 		if (!L->Port && L->IPAddr.find('/') == std::string::npos)
 			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Configuration warning: Link block '" + L->Name + "' has no port defined, you will not be able to /connect it.");
 
+		std::transform(L->Fingerprint.begin(), L->Fingerprint.end(), L->Fingerprint.begin(), ::tolower);
 		L->Fingerprint.erase(std::remove(L->Fingerprint.begin(), L->Fingerprint.end(), ':'), L->Fingerprint.end());
+
 		LinkBlocks.push_back(L);
 	}
 
