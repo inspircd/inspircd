@@ -94,7 +94,7 @@ sub __get_template_settings($$$) {
 
 sub __test_compiler($) {
 	my $compiler = shift;
-	return 0 unless run_test("`$compiler`", !system "$compiler -v ${\CONFIGURE_ERROR_PIPE}");
+	return 0 unless run_test("`$compiler`", !system "$compiler --version ${\CONFIGURE_ERROR_PIPE}");
 	return 0 unless run_test("`$compiler`", test_file($compiler, 'compiler.cpp', '-fno-rtti'), 'compatible');
 	return 1;
 }
