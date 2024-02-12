@@ -569,7 +569,7 @@
 #
 # IMPORTANT: If you are using this module you should also load the sha2
 # module. Failure to do so will result in users not being cloaked.
-#<module name="cloak_hmac_sha256">
+#<module name="cloak_sha256">
 #
 #-#-#-#-#-#-#-#-#- HMAC-SHA256 CLOAK CONFIGURATION -#-#-#-#-#-#-#-#-#-#
 # To use the cloak_sha256 module you must define a <cloak> tag. This  #
