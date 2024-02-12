@@ -564,7 +564,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HMAC-SHA256 cloak module: Adds the "hmac-sha256" (hostname or IP) and
-# "hmac-sha256-ip" (IP only) cloak methods. This is the recommended
+# "hmac-sha256-addr" (IP only) cloak methods. This is the recommended
 # cloak module for new networks.
 #
 # IMPORTANT: If you are using this module you should also load the sha2
@@ -619,7 +619,7 @@
 #       pathparts="1"
 #       psl="system">
 #
-#<cloak method="hmac-sha256-ip"
+#<cloak method="hmac-sha256-addr"
 #       key="changeme"
 #       class=""
 #       prefix="MyNet"

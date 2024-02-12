@@ -337,14 +337,14 @@ class ModuleCloakSHA256 final
 	: public Module
 {
 private:
+	SHA256Engine addrcloak;
 	SHA256Engine hostcloak;
-	SHA256Engine ipcloak;
 
 public:
 	ModuleCloakSHA256()
 		: Module(VF_VENDOR, "Adds the hmac-sha256 and hmac-sha256-ip cloaking methods for use with the cloak module.")
+		, addrcloak(this, "hmac-sha256-addr", false)
 		, hostcloak(this, "hmac-sha256", true)
-		, ipcloak(this, "hmac-sha256-ip", false)
 	{
 	}
 
