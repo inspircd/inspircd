@@ -234,14 +234,22 @@ public:
 
 inline void SQL::PopulateUserInfo(User* user, ParamMap& userinfo)
 {
-	userinfo["nick"] = user->nick;
-	userinfo["user"] = user->GetRealUser();
-	userinfo["host"] = user->GetRealHost();
-	userinfo["ip"] = user->GetAddress();
-	userinfo["real"] = user->GetRealName();
-	userinfo["server"] = user->server->GetName();
-	userinfo["uuid"] = user->uuid;
+	userinfo.insert({
+		{ "address", user->GetAddress()       },
+		{ "dhost",   user->GetDisplayedHost() },
+		{ "duser",   user->GetDisplayedUser() },
+		{ "host",    user->GetRealHost()      },
+		{ "nick",    user->nick               },
+		{ "real",    user->GetRealName()      },
+		{ "server",  user->server->GetName()  },
+		{ "sid",     user->server->GetId()    },
+		{ "user",    user->GetRealUser()      },
+		{ "uuid",    user->uuid               },
+	});
 
-	// Deprecated.
-	userinfo["ident"] = userinfo["user"];
-}
+	// Deprecated keys.
+	userinfo.insert({
+		{ "ident", userinfo["user"]    },
+		{ "ip" ,   userinfo["address"] },
+	});
+};
