@@ -45,7 +45,7 @@ public:
 	std::string dn;
 	std::string issuer;
 	std::string error;
-	std::string fingerprint;
+	std::vector<std::string> fingerprints;
 	bool trusted = false;
 	bool invalid = true;
 	bool unknownsigner = true;
@@ -79,12 +79,20 @@ public:
 		return error;
 	}
 
-	/** Get key fingerprint.
-	 * @return The key fingerprint as a hex string.
+	/** Get primary fingerprint.
+	 * @return The primary fingerprint as a hex string.
 	 */
-	const std::string& GetFingerprint() const
+	std::string GetFingerprint() const
 	{
-		return fingerprint;
+		return fingerprints.empty() ? "" : fingerprints.front();
+	}
+
+	/** Get all fingerprints.
+	 * @return All fingerprints as a hex string.
+	 */
+	const std::vector<std::string>& GetFingerprints() const
+	{
+		return fingerprints;
 	}
 
 	/** Get trust status
@@ -333,9 +341,9 @@ public:
 	 */
 	virtual void SetCertificate(User* user, ssl_cert* cert) = 0;
 
-	/** Get the key fingerprint from a user's certificate
-	 * @param user The user whose key fingerprint to get, user may be remote
-	 * @return The key fingerprint from the user's TLS certificate or an empty string
+	/** Get the primary fingerprint from a user's certificate
+	 * @param user The user whose primary fingerprint to get.
+	 * @return The primary fingerprint from the user's TLS certificate or an empty string
 	 * if the user is not using TLS or did not provide a client certificate
 	 */
 	std::string GetFingerprint(User* user)
@@ -344,6 +352,19 @@ public:
 		if (cert)
 			return cert->GetFingerprint();
 		return "";
+	}
+
+	/** Get all fingerprint from a user's certificate
+	 * @param user The user whose fingerprint to get.
+	 * @return The fingerprint from the user's TLS certificate or an empty string
+	 * if the user is not using TLS or did not provide a client certificate
+	 */
+	std::vector<std::string> GetFingerprints(User* user)
+	{
+		ssl_cert* cert = GetCertificate(user);
+		if (cert)
+			return cert->GetFingerprints();
+		return {};
 	}
 };
 

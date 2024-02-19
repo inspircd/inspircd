@@ -262,16 +262,6 @@ bool irc::sepstream::StreamEnd()
 	return this->pos > this->tokens.length();
 }
 
-bool irc::sepstream::Contains(const std::string& value)
-{
-	std::string token;
-	while (GetToken(token))
-		if (value == token)
-			return true;
-
-	return false;
-}
-
 irc::portparser::portparser(const std::string& source, bool allow_overlapped)
 	: sep(source)
 	, overlapped(allow_overlapped)

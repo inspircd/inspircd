@@ -71,6 +71,35 @@ void TreeSocket::WriteLine(const std::string& original_line)
 			// FRHOST was introduced in PROTO_INSPIRCD_4; drop it.
 			return;
 		}
+		else if (irc::equals(command, "METADATA"))
+		{
+			// :<sid> METADATA <uuid|chan|*|@> <name> :<value>
+			size_t targetend = NextToken(line, cmdend);
+			size_t nameend = NextToken(line, targetend);
+			size_t flagend = NextToken(line, nameend);
+			if (flagend != std::string::npos)
+			{
+				std::string extname(line, targetend + 1, nameend - targetend - 1);
+				if (irc::equals(extname, "ssl_cert"))
+				{
+					// Check we have the "e" flag (no error).
+					if (line.find('e', nameend + 1) < flagend)
+					{
+						size_t fpend = NextToken(line, flagend);
+						if (fpend != std::string::npos)
+						{
+							size_t commapos = line.find(',', flagend + 1);
+							if (commapos < fpend)
+							{
+								// Multiple fingerprints in ssl_cert was introduced in PROTO_INSPIRCD_4; drop it.
+								line.erase(commapos, fpend - commapos);
+							}
+
+						}
+					}
+				}
+			}
+		}
 		else if (irc::equals(command, "SQUERY"))
 		{
 			// SQUERY was introduced in PROTO_INSPIRCD_4; convert to PRIVMSG.

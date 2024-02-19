@@ -83,7 +83,7 @@ public:
 			<< " ";
 
 		if (cert->GetError().empty())
-			value << cert->GetFingerprint() << " " << cert->GetDN() << " " << cert->GetIssuer();
+			value << insp::join(cert->GetFingerprints(), ',') << " " << cert->GetDN() << " " << cert->GetIssuer();
 		else
 			value << cert->GetError();
 
@@ -117,7 +117,12 @@ public:
 		}
 		else
 		{
-			getline(s, cert->fingerprint, ' ');
+			std::string fingerprints;
+			getline(s, fingerprints, ' ');
+			irc::commasepstream fingerprintstream(fingerprints);
+			for (std::string fingerprint; fingerprintstream.GetToken(fingerprint); )
+				cert->fingerprints.push_back(fingerprint);
+
 			getline(s, cert->dn, ' ');
 			getline(s, cert->issuer, '\n');
 		}
@@ -211,7 +216,8 @@ private:
 		{
 			source->WriteNotice("*** Distinguished Name: " + cert->GetDN());
 			source->WriteNotice("*** Issuer:             " + cert->GetIssuer());
-			source->WriteNotice("*** Key Fingerprint:    " + cert->GetFingerprint());
+			for (const auto& fingerprint : cert->GetFingerprints())
+				source->WriteNotice("*** Key Fingerprint:    " + fingerprint);
 		}
 	}
 
@@ -306,14 +312,23 @@ class ModuleSSLInfo final
 {
 private:
 	CommandSSLInfo cmd;
-	std::string hash;
-	bool spkifp;
+	std::vector<std::string> hashes;
 	unsigned long warnexpiring;
 	bool welcomemsg;
 
-	static bool MatchFP(ssl_cert* const cert, const std::string& fp)
+	static bool MatchFingerprint(const ssl_cert* cert, const std::string& fp)
 	{
-		return irc::spacesepstream(fp).Contains(cert->GetFingerprint());
+		irc::spacesepstream configfpstream(fp);
+		for (std::string configfp; configfpstream.GetToken(configfp); )
+		{
+			for (const auto& certfp : cert->GetFingerprints())
+			{
+				if (InspIRCd::TimingSafeCompare(certfp, configfp))
+					return true;
+			}
+		}
+
+		return false;
 	}
 
 public:
@@ -331,10 +346,19 @@ public:
 		const auto& tag = ServerInstance->Config->ConfValue("sslinfo");
 		cmd.operonlyfp = tag->getBool("operonly");
 		cmd.sslapi.localsecure = tag->getBool("localsecure", true);
-		hash = tag->getString("hash");
-		spkifp = tag->getBool("spkifp");
 		warnexpiring = tag->getDuration("warnexpiring", 0, 0, 60*60*24*365);
 		welcomemsg = tag->getBool("welcomemsg");
+
+		hashes.clear();
+		irc::spacesepstream hashstream(tag->getString("hash"));
+		for (std::string hash; hashstream.GetToken(hash); )
+		{
+			if (!hash.compare(0, 5, "spki-", 5))
+				hash.insert(4, "fp"); // spki-foo => spkifp-foo
+			else
+				hash.insert(0, "certfp-"); // foo => certfp-foo
+			hashes.push_back(hash);
+		}
 	}
 
 	void OnWhois(Whois::Context& whois) override
@@ -345,8 +369,11 @@ public:
 		ssl_cert* cert = cmd.sslapi.GetCertificate(whois.GetTarget());
 		if (cert)
 		{
-			if ((!cmd.operonlyfp || whois.IsSelfWhois() || whois.GetSource()->IsOper()) && !cert->fingerprint.empty())
-				whois.SendLine(RPL_WHOISCERTFP, INSP_FORMAT("has TLS client certificate fingerprint {}", cert->fingerprint));
+			if (!cmd.operonlyfp || whois.IsSelfWhois() || whois.GetSource()->IsOper())
+			{
+				for (const auto& fingerprint : cert->GetFingerprints())
+					whois.SendLine(RPL_WHOISCERTFP, INSP_FORMAT("has TLS client certificate fingerprint {}", fingerprint));
+			}
 		}
 	}
 
@@ -377,7 +404,7 @@ public:
 		}
 
 		const std::string fingerprint = oper->GetConfig()->getString("fingerprint");
-		if (!fingerprint.empty() && (!cert || !MatchFP(cert, fingerprint)))
+		if (!fingerprint.empty() && (!cert || !MatchFingerprint(cert, fingerprint)))
 		{
 			if (!automatic)
 			{
@@ -479,24 +506,24 @@ public:
 
 		// Create a fake ssl_cert for the user.
 		auto* cert = new ssl_cert();
-		if (!hash.empty())
+		cert->dn = "(unknown)";
+		cert->invalid = false;
+		cert->issuer = "(unknown)";
+		cert->trusted = true;
+		cert->unknownsigner = false;
+		for (const auto& hash : hashes)
 		{
-			iter = flags->find(spkifp ? "spkifp-" : "certfp-" + hash);
+			iter = flags->find(hash);
 			if (iter != flags->end() && !iter->second.empty())
 			{
 				// If the gateway specifies this flag we put all trust onto them
 				// for having validated the client certificate. This is probably
 				// ill-advised but there's not much else we can do.
-				cert->fingerprint = iter->second;
-				cert->dn = "(unknown)";
-				cert->invalid = false;
-				cert->issuer = "(unknown)";
-				cert->trusted = true;
-				cert->unknownsigner = false;
+				cert->fingerprints.push_back(iter->second);
 			}
 		}
 
-		if (cert->fingerprint.empty())
+		if (cert->GetFingerprints().empty())
 		{
 			cert->error = "WebIRC gateway did not send a client fingerprint";
 			cert->revoked = true;

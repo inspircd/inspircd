@@ -56,8 +56,15 @@ public:
 
 	bool IsMatch(User* user, Channel* channel, const std::string& text) override
 	{
-		const std::string fp = sslapi ? sslapi->GetFingerprint(user) : "";
-		return !fp.empty() && InspIRCd::Match(fp, text);
+		if (!sslapi)
+			return false;
+
+		for (const auto& fingerprint : sslapi->GetFingerprints(user))
+		{
+			if (InspIRCd::Match(fingerprint, text))
+				return true;
+		}
+		return false;
 	}
 };
 

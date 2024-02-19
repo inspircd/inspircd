@@ -303,7 +303,7 @@ namespace OpenSSL
 
 		/** Digest to use when generating fingerprints
 		 */
-		const EVP_MD* digest;
+		std::vector<const EVP_MD*> digests;
 
 		/** Last error, set by error_callback()
 		 */
@@ -382,10 +382,15 @@ namespace OpenSSL
 				throw Exception("Couldn't set DH parameters");
 #endif
 
-			const std::string hash = tag->getString("hash", "sha256", 1);
-			digest = EVP_get_digestbyname(hash.c_str());
-			if (!digest)
-				throw Exception("Unknown hash type " + hash);
+			irc::spacesepstream hashstream(tag->getString("hash", "sha256", 1));
+			for (std::string hash; hashstream.GetToken(hash); )
+			{
+				const auto* digest = EVP_get_digestbyname(hash.c_str());
+				if (!digest)
+					throw Exception("Unknown hash type " + hash);
+
+				digests.push_back(digest);
+			}
 
 			const std::string ciphers = tag->getString("ciphers");
 			if (!ciphers.empty())
@@ -455,7 +460,7 @@ namespace OpenSSL
 		const std::string& GetName() const { return name; }
 		SSL* CreateServerSession() { return ctx.CreateServerSession(); }
 		SSL* CreateClientSession() { return clientctx.CreateClientSession(); }
-		const EVP_MD* GetDigest() { return digest; }
+		const std::vector<const EVP_MD*> GetDigests() { return digests; }
 		bool AllowRenegotiation() const { return allowrenego; }
 		unsigned int GetOutgoingRecordSize() const { return outrecsize; }
 	};
@@ -613,13 +618,16 @@ private:
 		GetDNString(X509_get_subject_name(cert), certinfo->dn);
 		GetDNString(X509_get_issuer_name(cert), certinfo->issuer);
 
-		if (!X509_digest(cert, GetProfile().GetDigest(), md, &n))
+		for (const auto* digest : GetProfile().GetDigests())
 		{
-			certinfo->error = "Out of memory generating fingerprint";
-		}
-		else
-		{
-			certinfo->fingerprint = Hex::Encode(md, n);
+			if (!X509_digest(cert, digest, md, &n))
+			{
+				certinfo->error = "Out of memory generating fingerprint";
+			}
+			else
+			{
+				certinfo->fingerprints.push_back(Hex::Encode(md, n));
+			}
 		}
 
 		certinfo->activation = GetTime(X509_getm_notBefore(cert));

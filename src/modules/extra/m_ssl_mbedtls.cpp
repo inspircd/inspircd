@@ -368,27 +368,40 @@ namespace mbedTLS
 
 	class Hash final
 	{
-		const mbedtls_md_info_t* md;
+	private:
+		std::vector<std::pair<const mbedtls_md_info_t*, unsigned char>> mds;
 
 		/** Buffer where cert hashes are written temporarily
 		 */
 		mutable std::vector<unsigned char> buf;
 
 	public:
-		Hash(std::string hashstr)
+		Hash(const std::string& hashstr)
 		{
-			std::transform(hashstr.begin(), hashstr.end(), hashstr.begin(), ::toupper);
-			md = mbedtls_md_info_from_string(hashstr.c_str());
-			if (!md)
-				throw Exception("Unknown hash: " + hashstr);
+			irc::spacesepstream hashstream(hashstr);
+			unsigned char mdsize = 0;
+			for (std::string hash; hashstream.GetToken(hash); )
+			{
+				std::transform(hash.begin(), hash.end(), hash.begin(), ::toupper);
+				const auto* md = mbedtls_md_info_from_string(hash.c_str());
+				if (!md)
+					throw Exception("Unknown hash: " + hash);
 
-			buf.resize(mbedtls_md_get_size(md));
+				mds.push_back(std::make_pair(md, mbedtls_md_get_size(md)));
+				mdsize = std::max(mdsize, mds.back().second);
+			}
+
+			buf.resize(mdsize);
+			buf.shrink_to_fit();
 		}
 
-		std::string hash(const unsigned char* input, size_t length) const
+		void hash(const unsigned char* input, size_t length, std::vector<std::string>& fingerprints) const
 		{
-			mbedtls_md(md, input, length, &buf.front());
-			return Hex::Encode(&buf.front(), buf.size());
+			for (const auto& [md, size] : mds)
+			{
+				mbedtls_md(md, input, length, &buf.front());
+				fingerprints.push_back(Hex::Encode(&buf.front(), size));
+			}
 		}
 	};
 
@@ -627,7 +640,7 @@ private:
 		}
 
 		// If there is a certificate we can always generate a fingerprint
-		certificate->fingerprint = GetProfile().GetHash().hash(cert->raw.p, cert->raw.len);
+		GetProfile().GetHash().hash(cert->raw.p, cert->raw.len, certificate->fingerprints);
 
 		// At this point mbedTLS verified the cert already, we just need to check the results
 		const uint32_t flags = mbedtls_ssl_get_verify_result(&sess);

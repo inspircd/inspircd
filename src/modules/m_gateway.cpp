@@ -107,9 +107,24 @@ public:
 			return false;
 
 		// Does the user have a valid fingerprint?
-		const std::string fp = sslapi ? sslapi->GetFingerprint(user) : "";
-		if (!fingerprint.empty() && !InspIRCd::TimingSafeCompare(fp, fingerprint))
-			return false;
+		if (!fingerprint.empty())
+		{
+			if (!sslapi)
+				return false;
+
+			bool okay = false;
+			for (const auto& fp : sslapi->GetFingerprints(user))
+			{
+				if (InspIRCd::TimingSafeCompare(fp, fingerprint))
+				{
+					okay = true;
+					break;
+				}
+			}
+
+			if (!okay)
+				return false;
+		}
 
 		for (const auto& mask : hostmasks)
 		{

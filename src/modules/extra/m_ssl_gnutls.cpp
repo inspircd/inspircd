@@ -117,24 +117,37 @@ namespace GnuTLS
 
 	class Hash final
 	{
-		gnutls_digest_algorithm_t hash;
+		std::vector<std::pair<gnutls_digest_algorithm_t, bool>> hashes;
 
 	public:
 		// Nothing to deallocate, constructor may throw freely
-		Hash(const std::string& hashname)
+		Hash(const std::string& hashlist)
 		{
-			hash = gnutls_digest_get_id(hashname.c_str());
-			if (hash == GNUTLS_DIG_UNKNOWN)
-				throw Exception("Unknown hash type " + hashname);
+			irc::spacesepstream hashstream(hashlist);
+			for (std::string hashname; hashstream.GetToken(hashname); )
+			{
+				bool spki = false;
+				if (!hashname.compare(0, 5, "spki-", 5) && hashname.length() > 5)
+				{
+					spki = true;
+					hashname.erase(0, 5);
+				}
 
-			// Check if the user is giving us something that is a valid MAC but not digest
-			gnutls_hash_hd_t is_digest;
-			if (gnutls_hash_init(&is_digest, hash) < 0)
-				throw Exception("Unknown hash type " + hashname);
-			gnutls_hash_deinit(is_digest, nullptr);
+				auto hash = gnutls_digest_get_id(hashname.c_str());
+				if (hash == GNUTLS_DIG_UNKNOWN)
+					throw Exception("Unknown hash type " + hashname);
+
+				// Check if the user is giving us something that is a valid MAC but not digest
+				gnutls_hash_hd_t is_digest;
+				if (gnutls_hash_init(&is_digest, hash) < 0)
+					throw Exception("Unknown hash type " + hashname);
+				gnutls_hash_deinit(is_digest, nullptr);
+
+				hashes.emplace_back(hash, spki);
+			}
 		}
 
-		gnutls_digest_algorithm_t get() const { return hash; }
+		std::vector<std::pair<gnutls_digest_algorithm_t, bool>> get() const { return hashes; }
 	};
 
 #ifndef GNUTLS_AUTO_DH
@@ -482,9 +495,6 @@ namespace GnuTLS
 		 */
 		const bool requestclientcert;
 
-		/** Whether the fingerprint is a SPKI fingerprint or not. */
-		bool spkifp;
-
 		static std::string ReadFile(const std::string& filename)
 		{
 			auto file = ServerInstance->Config->ReadFile(filename, ServerInstance->Time());
@@ -538,7 +548,6 @@ namespace GnuTLS
 
 			unsigned int outrecsize;
 			bool requestclientcert;
-			bool spkifp;
 
 			Config(const std::string& profilename, const std::shared_ptr<ConfigTag>& tag)
 				: name(profilename)
@@ -551,7 +560,6 @@ namespace GnuTLS
 				, mindh(tag->getNum<unsigned int>("mindhbits", 1024))
 				, hashstr(tag->getString("hash", "sha256", 1))
 				, requestclientcert(tag->getBool("requestclientcert", true))
-				, spkifp(tag->getBool("spkifp"))
 			{
 				// Load trusted CA and revocation list, if set
 				std::string filename = tag->getString("cafile");
@@ -576,7 +584,6 @@ namespace GnuTLS
 			, priority(config.priostr)
 			, outrecsize(config.outrecsize)
 			, requestclientcert(config.requestclientcert)
-			, spkifp(config.spkifp)
 		{
 #ifndef GNUTLS_AUTO_DH
 			x509cred.SetDH(config.dh);
@@ -598,9 +605,8 @@ namespace GnuTLS
 
 		const std::string& GetName() const { return name; }
 		X509Credentials& GetX509Credentials() { return x509cred; }
-		gnutls_digest_algorithm_t GetHash() const { return hash.get(); }
+		std::vector<std::pair<gnutls_digest_algorithm_t, bool>> GetHash() const { return hash.get(); }
 		unsigned int GetOutgoingRecordSize() const { return outrecsize; }
-		bool UseSPKI() const { return spkifp; }
 	};
 }
 
@@ -669,12 +675,12 @@ private:
 		}
 	}
 
-	int GetCertFP(gnutls_x509_crt_t& cert, char* buffer, size_t& buffer_size)
+	int GetCertFP(gnutls_x509_crt_t& cert, gnutls_digest_algorithm_t algo, char* buffer, size_t& buffer_size)
 	{
-		return gnutls_x509_crt_get_fingerprint(cert, GetProfile().GetHash(), buffer, &buffer_size);
+		return gnutls_x509_crt_get_fingerprint(cert, algo, buffer, &buffer_size);
 	}
 
-	int GetSPKIFP(gnutls_x509_crt_t& cert, char* buffer, size_t& buffer_size)
+	int GetSPKIFP(gnutls_x509_crt_t& cert, gnutls_digest_algorithm_t algo, char* buffer, size_t& buffer_size)
 	{
 		int ret;
 		gnutls_pubkey_t pubkey;
@@ -698,10 +704,10 @@ private:
 			return ret;
 
 		gnutls_pubkey_deinit(pubkey);
-		if (gnutls_hash_fast(GetProfile().GetHash(), &derkey[0], derkey_size, buffer) != GNUTLS_E_SUCCESS)
+		if (gnutls_hash_fast(algo, &derkey[0], derkey_size, buffer) != GNUTLS_E_SUCCESS)
 			return ret;
 
-		buffer_size = gnutls_hash_get_len(GetProfile().GetHash());
+		buffer_size = gnutls_hash_get_len(algo);
 		return GNUTLS_E_SUCCESS;
 	}
 
@@ -762,15 +768,19 @@ private:
 		if (gnutls_x509_crt_get_issuer_dn(cert, buffer, &buffer_size) == 0)
 			ProcessDNString(buffer, buffer_size, certinfo->issuer);
 
-		buffer_size = sizeof(buffer);
-		ret = GetProfile().UseSPKI() ? GetSPKIFP(cert, buffer, buffer_size) : GetCertFP(cert, buffer, buffer_size);
-		if (ret != GNUTLS_E_SUCCESS)
+
+		for (const auto& [hash, spki] : GetProfile().GetHash())
 		{
-			certinfo->error = gnutls_strerror(ret);
-		}
-		else
-		{
-			certinfo->fingerprint = Hex::Encode(buffer, buffer_size);
+			buffer_size = sizeof(buffer);
+			ret = spki ? GetSPKIFP(cert, hash, buffer, buffer_size) : GetCertFP(cert, hash, buffer, buffer_size);
+			if (ret != GNUTLS_E_SUCCESS)
+			{
+				certinfo->error = gnutls_strerror(ret);
+			}
+			else
+			{
+				certinfo->fingerprints.push_back(Hex::Encode(buffer, buffer_size));
+			}
 		}
 
 		certinfo->activation = gnutls_x509_crt_get_activation_time(cert);

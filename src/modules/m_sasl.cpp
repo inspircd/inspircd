@@ -200,9 +200,11 @@ public:
 		std::vector<std::string> params;
 		params.push_back(method);
 
-		const std::string fp = sslapi ? sslapi->GetFingerprint(user) : "";
-		if (!fp.empty())
-			params.push_back(fp);
+		if (sslapi)
+		{
+			for (const auto& fingerprint : sslapi->GetFingerprints(user))
+				params.push_back(fingerprint);
+		}
 
 		SendSASL(user, "*", 'S', params);
 	}
