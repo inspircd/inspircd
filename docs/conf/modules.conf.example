@@ -661,6 +661,11 @@
 # To use the cloak_user module you must define a <cloak> tag. This    #
 # tag can have the following fields.                                  #
 #                                                                     #
+#  case        - The case to transform the cloak value to. Can be set #
+#                to "upper" to use upper case, "lower" to use lower   #
+#                case, or "preserve" to not change the case. Defaults #
+#                to "preserve".                                       #
+#                                                                     #
 #  class       - If non-empty then a comma-delimited list of connect  #
 #                class names that a user has to be in to get the      #
 #                cloak from this tag.                                 #
@@ -671,7 +676,7 @@
 #                host character, or "truncate" to truncate the cloak  #
 #                at the invalid host character. Defaults to "strip".  #
 #                                                                     #
-# length       - If using the "fingerprint" method them the number of #
+#  length      - If using the "fingerprint" method them the number of #
 #                characters of the fingerprint hash to use. Defaults  #
 #                to the value of <limits:maxhost> minus the length of #
 #                the prefix and suffix fields.                        #
@@ -689,18 +694,21 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #
 #<cloak method="account"
+#       case="preserve"
 #       class=""
 #       invalidchar="strip"
 #       prefix=""
 #       suffix=".users.example.com">
 #
 #<cloak method="account-id"
+#       case="preserve"
 #       class=""
 #       invalidchar="strip"
 #       prefix=""
 #       suffix=".users.example.com">
 #
 #<cloak method="fingerprint"
+#       case="preserve"
 #       class=""
 #       invalidchar="strip"
 #       length="16"
@@ -708,12 +716,14 @@
 #       suffix=".fp">
 #
 #<cloak method="nickname"
+#       case="preserve"
 #       class=""
 #       invalidchar="strip"
 #       prefix="Users/"
 #       suffix="">
 #
 #<cloak method="username"
+#       case="preserve"
 #       class=""
 #       invalidchar="strip"
 #       prefix="Users/"

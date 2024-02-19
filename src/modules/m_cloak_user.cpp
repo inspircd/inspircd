@@ -26,7 +26,7 @@ class UserMethodBase
 {
 protected:
 	// The action to take when an invalid character is encountered.
-	enum InvalidChar
+	enum class InvalidChar
 		: uint8_t
 	{
 		// Reject the value as a valid cloak,
@@ -37,6 +37,20 @@ protected:
 
 		// Truncate the value at the missing character.
 		TRUNCATE,
+	};
+
+	// The action to perform to the cloak value.
+	enum class TransformCase
+		: uint8_t
+	{
+		// Preserve the case of the cloak.
+		PRESERVE,
+
+		// Convert the cloak to upper case.
+		UPPER,
+
+		// Convert the cloak to lower case.
+		LOWER,
 	};
 
 	// The characters which are valid in a hostname.
@@ -50,6 +64,9 @@ protected:
 
 	// The suffix for IP cloaks (e.g. .example.org).
 	const std::string suffix;
+
+	// The case to transform cloaks to.
+	TransformCase transformcase;
 
 	// Retrieves the middle segment of the cloak.
 	virtual std::string GetMiddle(LocalUser* user) = 0;
@@ -65,6 +82,11 @@ protected:
 			{ "strip",    InvalidChar::STRIP    },
 			{ "truncate", InvalidChar::TRUNCATE },
 		});
+		transformcase = tag->getEnum("case", TransformCase::PRESERVE, {
+			{ "lower",    TransformCase::LOWER    },
+			{ "preserve", TransformCase::PRESERVE },
+			{ "upper",    TransformCase::UPPER    },
+		});
 	}
 
 public:
@@ -79,8 +101,22 @@ public:
 
 		std::string safemiddle;
 		safemiddle.reserve(middle.length());
-		for (const auto chr : middle)
+		for (auto chr : middle)
 		{
+			switch (transformcase)
+			{
+				case TransformCase::LOWER:
+					chr = tolower(chr);
+					break;
+
+				case TransformCase::PRESERVE:
+					break; // We don't need to do anything here.
+
+				case TransformCase::UPPER:
+					chr = toupper(chr);
+					break;
+			}
+
 			if (hostmap.test(static_cast<unsigned char>(chr)))
 			{
 				safemiddle.push_back(chr);
