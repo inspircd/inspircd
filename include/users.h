@@ -891,9 +891,11 @@ public:
 	void ChangeConnectClass(const std::shared_ptr<ConnectClass>& klass, bool force);
 
 	/** Find a new connect class for this user.
+	 * @param keepexisting If no connect class can be found should they keep their existing one if
+	 *                     they have one.
 	 * @return True if an allow-type connect class was found for the user. Otherwise, false.
 	 */
-	bool FindConnectClass();
+	bool FindConnectClass(bool keepexisting = false);
 
 	/** Send a NOTICE message from the local server to the user.
 	 * The message will be sent even if the user is connected to a remote server.

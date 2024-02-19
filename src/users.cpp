@@ -642,7 +642,7 @@ void LocalUser::ChangeRemoteAddress(const irc::sockets::sockaddrs& sa)
 		FOREACH_MOD(OnChangeRemoteAddress, (this));
 }
 
-bool LocalUser::FindConnectClass()
+bool LocalUser::FindConnectClass(bool keepexisting)
 {
 	ServerInstance->Logs.Debug("CONNECTCLASS", "Finding a connect class for {} ({}) ...",
 		uuid, GetRealMask());
@@ -676,6 +676,9 @@ bool LocalUser::FindConnectClass()
 	// The user didn't match any connect classes.
 	if (connectclass)
 	{
+		if (keepexisting)
+			return false; // They're fine keeping their existing one.
+
 		connectclass->use_count--;
 		connectclass = nullptr;
 	}

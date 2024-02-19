@@ -37,6 +37,7 @@ private:
 	CommandRestart cmdrestart;
 	ModeUserOperator operatormode;
 	ModeUserServerNoticeMask snomaskmode;
+	BoolExtItem hasoperclass;
 
 	static std::string NoneIfEmpty(const std::string& field)
 	{
@@ -54,6 +55,7 @@ public:
 		, cmdrestart(this)
 		, operatormode(this)
 		, snomaskmode(this)
+		, hasoperclass(this, "has-oper-class", ExtensionType::USER)
 	{
 	}
 
@@ -120,9 +122,24 @@ public:
 				if (klassname == klass->GetName())
 				{
 					luser->ChangeConnectClass(klass, true);
+					hasoperclass.Set(user, true);
 					break;
 				}
 			}
+		}
+	}
+
+	void OnPostOperLogout(User* user, const std::shared_ptr<OperAccount>& oper) override
+	{
+		LocalUser* luser = IS_LOCAL(user);
+		if (!luser)
+			return;
+
+		if (hasoperclass.Get(luser))
+		{
+			if (!luser->FindConnectClass(true))
+				ServerInstance->Logs.Normal("CONNECTCLASS", "Unable to find a non-operator connect class for {} ({}); keeping their existing one.");
+			hasoperclass.Unset(luser);
 		}
 	}
 
