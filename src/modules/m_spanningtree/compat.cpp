@@ -20,6 +20,17 @@
 #include "inspircd.h"
 #include "main.h"
 
+namespace
+{
+	size_t NextToken(const std::string& line, size_t start)
+	{
+		if (start == std::string::npos || start + 1 > line.length())
+			return std::string::npos;
+
+		return line.find(' ', start + 1);
+	}
+}
+
 void TreeSocket::WriteLine(const std::string& original_line)
 {
 	if (LinkState != CONNECTED || proto_version == PROTO_NEWEST)
@@ -34,17 +45,25 @@ void TreeSocket::WriteLine(const std::string& original_line)
 	size_t cmdstart = 0;
 
 	if (line[0] == '@') // Skip the tags.
-		cmdstart = line.find(' ');
+	{
+		cmdstart = NextToken(line, 0);
+		if (cmdstart != std::string::npos)
+			cmdstart++;
+	}
 
-	if (line[cmdstart + 1] == ':') // Skip the prefix.
-		cmdstart = line.find(' ', cmdstart + 1);
+	if (line[cmdstart] == ':') // Skip the prefix.
+	{
+		cmdstart = NextToken(line, cmdstart);
+		if (cmdstart != std::string::npos)
+			cmdstart++;
+	}
 
 	// Find the end of the command.
-	size_t cmdend = line.find(' ', cmdstart + 1);
+	size_t cmdend = NextToken(line, cmdstart);
 	if (cmdend == std::string::npos)
-		cmdend = line.size();
+		cmdend = line.size() - 1;
 
-	std::string command(line, cmdstart + 1, cmdend - cmdstart - 1);
+	std::string command(line, cmdstart, cmdend - cmdstart);
 	if (proto_version == PROTO_INSPIRCD_3)
 	{
 		if (irc::equals(command, "FRHOST"))
@@ -55,7 +74,7 @@ void TreeSocket::WriteLine(const std::string& original_line)
 		else if (irc::equals(command, "SQUERY"))
 		{
 			// SQUERY was introduced in PROTO_INSPIRCD_4; convert to PRIVMSG.
-			line.replace(cmdstart + 1, cmdend - cmdstart - 1, "PRIVMSG");
+			line.replace(cmdstart, 6, "PRIVMSG");
 		}
 	}
 
