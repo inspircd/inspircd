@@ -20,6 +20,7 @@
 
 
 #include "inspircd.h"
+#include "extension.h"
 #include "modules/stats.h"
 #include "timeutils.h"
 
