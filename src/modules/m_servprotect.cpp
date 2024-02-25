@@ -129,7 +129,10 @@ class ModuleServProtectMode CXX11_FINAL
 
 	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) CXX11_OVERRIDE
 	{
-		return ((numeric.GetNumeric() == RPL_WHOISCHANNELS) && whois.GetTarget()->IsModeSet(bm)) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		if (numeric.GetNumeric() != RPL_WHOISCHANNELS && numeric.GetNumeric() != RPL_CHANNELSMSG)
+			return MOD_RES_PASSTHRU;
+
+		return whois.GetTarget()->IsModeSet(bm) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 };
 

@@ -82,7 +82,7 @@ class ModuleHideChans CXX11_FINAL
 
 	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) CXX11_OVERRIDE
 	{
-		if (numeric.GetNumeric() != RPL_WHOISCHANNELS)
+		if (numeric.GetNumeric() != RPL_WHOISCHANNELS && numeric.GetNumeric() != RPL_CHANNELSMSG)
 			return MOD_RES_PASSTHRU;
 
 		return ShouldHideChans(whois.GetSource(), whois.GetTarget());
