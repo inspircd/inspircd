@@ -77,7 +77,7 @@ bool TreeSocket::ComparePass(const Link& link, const std::string& theirs)
 	if (capab->auth_fingerprint)
 	{
 		/* Require fingerprint to exist and match */
-		if (link.Fingerprint != fp)
+		if (!InspIRCd::TimingSafeCompare(link.Fingerprint, fp))
 		{
 			ServerInstance->SNO.WriteToSnoMask('l', "Invalid TLS certificate fingerprint on link {}: need \"{}\" got \"{}\"",
 				link.Name, link.Fingerprint, fp);

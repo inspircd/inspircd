@@ -82,7 +82,7 @@ public:
 
 	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) override
 	{
-		if (numeric.GetNumeric() != RPL_WHOISCHANNELS)
+		if (numeric.GetNumeric() != RPL_WHOISCHANNELS && numeric.GetNumeric() != RPL_CHANNELSMSG)
 			return MOD_RES_PASSTHRU;
 
 		return ShouldHideChans(whois.GetSource(), whois.GetTarget());
