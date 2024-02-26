@@ -63,10 +63,7 @@ ModuleSpanningTree::ModuleSpanningTree()
 }
 
 SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
-	: svsjoin(module)
-	, svspart(module)
-	, svsnick(module)
-	, metadata(module)
+	: metadata(module)
 	, uid(module)
 	, opertype(module)
 	, fjoin(module)

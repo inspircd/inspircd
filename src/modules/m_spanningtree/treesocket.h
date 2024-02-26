@@ -333,7 +333,11 @@ public:
 	/** Handle socket timeout from connect()
 	 */
 	void OnTimeout() override;
+
 	/** Handle server quit on close
 	 */
 	void Close() override;
+
+	/** Fixes messages coming from old servers so the new command handlers understand them. */
+	bool PreProcessOldProtocolMessage(User*& who, std::string& cmd, CommandBase::Params& params);
 };

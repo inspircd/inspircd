@@ -69,42 +69,6 @@ public:
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-class CommandSVSJoin final
-	: public ServerCommand
-{
-public:
-	CommandSVSJoin(Module* Creator)
-		: ServerCommand(Creator, "SVSJOIN", 2)
-	{
-	}
-	CmdResult Handle(User* user, Params& params) override;
-	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
-};
-
-class CommandSVSPart final
-	: public ServerCommand
-{
-public:
-	CommandSVSPart(Module* Creator)
-		: ServerCommand(Creator, "SVSPART", 2)
-	{
-	}
-	CmdResult Handle(User* user, Params& params) override;
-	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
-};
-
-class CommandSVSNick final
-	: public ServerCommand
-{
-public:
-	CommandSVSNick(Module* Creator)
-		: ServerCommand(Creator, "SVSNICK", 3)
-	{
-	}
-	CmdResult Handle(User* user, Params& params) override;
-	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
-};
-
 class CommandMetadata final
 	: public ServerCommand
 {
@@ -546,9 +510,6 @@ public:
 class SpanningTreeCommands final
 {
 public:
-	CommandSVSJoin svsjoin;
-	CommandSVSPart svspart;
-	CommandSVSNick svsnick;
 	CommandMetadata metadata;
 	CommandUID uid;
 	CommandOpertype opertype;

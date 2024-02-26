@@ -109,3 +109,20 @@ void TreeSocket::WriteLine(const std::string& original_line)
 
 	WriteLineInternal(line);
 }
+
+bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, CommandBase::Params& params)
+{
+	if (irc::equals(cmd, "SVSJOIN") || irc::equals(cmd, "SVSNICK") || irc::equals(cmd, "SVSPART"))
+	{
+		if (params.empty())
+			return false; // Malformed.
+
+		auto* target = ServerInstance->Users.FindUUID(params[0]);
+		if (!target)
+			return false; // User gone.
+
+		params.insert(params.begin(), { cmd, target->uuid });
+		cmd = "ENCAP";
+	}
+	return true;
+}

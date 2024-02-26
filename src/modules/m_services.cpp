@@ -210,6 +210,164 @@ public:
 	}
 };
 
+class CommandSVSJoin final
+	: public Command
+{
+public:
+	CommandSVSJoin(Module* mod)
+		: Command(mod, "SVSJOIN", 2)
+	{
+		access_needed = CmdAccess::SERVER;
+	}
+
+	CmdResult Handle(User* user, const Params& parameters) override
+	{
+		// The command can only be executed by remote services servers.
+		if (IS_LOCAL(user) || !user->server->IsService())
+			return CmdResult::FAILURE;
+
+		// Check for a valid channel name.
+		if (!ServerInstance->Channels.IsChannel(parameters[1]))
+			return CmdResult::FAILURE;
+
+		// Check the target exists/
+		auto* u = ServerInstance->Users.FindUUID(parameters[0]);
+		if (!u)
+			return CmdResult::FAILURE;
+
+		/* only join if it's local, otherwise just pass it on! */
+		auto* lu = IS_LOCAL(u);
+		if (lu)
+		{
+			bool override = false;
+			std::string key;
+			if (parameters.size() >= 3)
+			{
+				key = parameters[2];
+				if (key.empty())
+					override = true;
+			}
+
+			Channel::JoinUser(lu, parameters[1], override, key);
+		}
+
+		return CmdResult::SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
+	{
+		return ROUTE_UNICAST(parameters[0]);
+	}
+};
+
+class CommandSVSNick final
+	: public Command
+{
+public:
+	CommandSVSNick(Module* mod)
+		: Command(mod, "SVSNICK", 3)
+	{
+		access_needed = CmdAccess::SERVER;
+	}
+
+	CmdResult Handle(User* user, const Params& parameters) override
+	{
+		// The command can only be executed by remote services servers.
+		if (IS_LOCAL(user) || !user->server->IsService())
+			return CmdResult::FAILURE;
+
+		auto* u = ServerInstance->Users.Find(parameters[0]);
+		if (u && IS_LOCAL(u))
+		{
+			// The 4th parameter is optional and it is the expected nick TS of the target user. If
+			// this parameter is present and it doesn't match the user's nick TS, the SVSNICK is not
+			// acted upon.
+			//
+			// This makes it possible to detect the case when services wants to change the nick of
+			// a user, but the user changes their nick before the SVSNICK arrives, making the
+			// SVSNICK nick change (usually to a guest nick) unnecessary. Consider the following for
+			// example:
+			//
+			// 1. test changes nick to Attila which is protected by services
+			// 2. Services SVSNICKs the user to Guest12345
+			// 3. Attila changes nick to Attila_ which isn't protected by services
+			// 4. SVSNICK arrives
+			// 5. Attila_ gets his nick changed to Guest12345 unnecessarily
+			//
+			// In this case when the SVSNICK is processed the target has already changed their nick
+			// to something which isn't protected, so changing the nick again to a Guest nick is not
+			// desired. However, if the expected nick TS parameter is present in the SVSNICK then
+			// the nick change in step 5 won't happen because the timestamps won't match.
+			if (parameters.size() > 3)
+			{
+				time_t expectedts = ConvToNum<time_t>(parameters[3]);
+				if (!expectedts)
+					return CmdResult::INVALID; // Malformed message
+
+				if (u->nickchanged != expectedts)
+					return CmdResult::FAILURE; // Ignore SVSNICK
+			}
+
+			std::string nick = parameters[1];
+			if (isdigit(nick[0]))
+				nick = u->uuid;
+
+			time_t nickts = ConvToNum<time_t>(parameters[2]);
+			if (!nickts)
+				return CmdResult::INVALID; // Malformed message
+
+			if (!u->ChangeNick(nick, nickts))
+			{
+				// Changing to 'nick' failed (it may already be in use), change to the uuid
+				u->WriteNumeric(RPL_SAVENICK, u->uuid, "Your nickname is in use by an older user on a new server.");
+				u->ChangeNick(u->uuid);
+			}
+		}
+		return CmdResult::SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
+	{
+		return ROUTE_UNICAST(parameters[0]);
+	}
+};
+
+class CommandSVSPart final
+	: public Command
+{
+public:
+	CommandSVSPart(Module* mod)
+		: Command(mod, "SVSPART", 2)
+	{
+		access_needed = CmdAccess::SERVER;
+	}
+
+	CmdResult Handle(User* user, const Params& parameters) override
+	{
+		// The command can only be executed by remote services servers.
+		if (IS_LOCAL(user) || !user->server->IsService())
+			return CmdResult::FAILURE;
+
+		auto* u = ServerInstance->Users.FindUUID(parameters[0]);
+		if (!u)
+			return CmdResult::FAILURE;
+
+		auto* c = ServerInstance->Channels.Find(parameters[1]);
+		if (!c)
+			return CmdResult::FAILURE;
+
+		if (IS_LOCAL(u))
+			c->PartUser(u, parameters.size() == 3 ? parameters[2] : "Services forced part");
+
+		return CmdResult::SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
+	{
+		return ROUTE_UNICAST(parameters[0]);
+	}
+};
+
 class ModuleServices final
 	: public Module
 	, public Stats::EventListener
@@ -222,6 +380,9 @@ private:
 	ServProtect servprotectmode;
 	SVSHoldFactory svsholdfactory;
 	CommandSVSHold svsholdcmd;
+	CommandSVSJoin svsjoincmd;
+	CommandSVSNick svsnickcmd;
+	CommandSVSPart svspartcmd;
 	bool accountoverrideshold;
 
 public:
@@ -234,6 +395,9 @@ public:
 		, servicetag(this)
 		, servprotectmode(this)
 		, svsholdcmd(this)
+		, svsjoincmd(this)
+		, svsnickcmd(this)
+		, svspartcmd(this)
 	{
 	}
 

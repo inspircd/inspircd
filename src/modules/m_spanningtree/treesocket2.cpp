@@ -347,6 +347,13 @@ void TreeSocket::ProcessConnectedLine(std::string& taglist, std::string& prefix,
 		return;
 	}
 
+	// Translate commands coming from servers using an older protocol
+	if (proto_version < PROTO_NEWEST)
+	{
+		if (!PreProcessOldProtocolMessage(who, command, params))
+			return;
+	}
+
 	ServerCommand* scmd = Utils->Creator->CmdManager.GetHandler(command);
 	CommandBase* cmdbase = scmd;
 	Command* cmd = nullptr;
