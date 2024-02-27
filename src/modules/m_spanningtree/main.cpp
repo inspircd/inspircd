@@ -570,7 +570,7 @@ void ModuleSpanningTree::OnChangeHost(User* user, const std::string& newhost)
 	if (!user->IsFullyConnected() || !IS_LOCAL(user))
 		return;
 
-	CmdBuilder(user, "FHOST").push(newhost).Broadcast();
+	CmdBuilder(user, "FHOST").push(newhost).push('*').Broadcast();
 }
 
 void ModuleSpanningTree::OnChangeRealHost(User* user, const std::string& newhost)
@@ -578,7 +578,7 @@ void ModuleSpanningTree::OnChangeRealHost(User* user, const std::string& newhost
 	if (!user->IsFullyConnected() || !IS_LOCAL(user))
 		return;
 
-	CmdBuilder(user, "FRHOST").push(newhost).Broadcast();
+	CmdBuilder(user, "FHOST").push('*').push(newhost).Broadcast();
 }
 
 void ModuleSpanningTree::OnChangeRealName(User* user, const std::string& real)

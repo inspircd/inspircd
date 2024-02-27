@@ -66,20 +66,15 @@ void TreeSocket::WriteLine(const std::string& original_line)
 	std::string command(line, cmdstart, cmdend - cmdstart);
 	if (proto_version == PROTO_INSPIRCD_3)
 	{
-		if (irc::equals(command, "FRHOST"))
+		if (irc::equals(command, "FHOST") || irc::equals(command, "FIDENT"))
 		{
-			// FRHOST was introduced in PROTO_INSPIRCD_4; drop it.
-			return;
-		}
-		else if (irc::equals(command, "FIDENT"))
-		{
-			// FIDENT has two parameters in v4; drop the real username.
-			// :<sid> FIDENT <display|*> <real|*>
+			// FIDENT/FHOST has two parameters in v4; drop the real username/hostname.
+			// :<sid> FIDENT|FHOST <display|*> <real|*>
 			size_t displayend = NextToken(line, cmdend);
 			if (displayend != std::string::npos)
 			{
 				if ((displayend - cmdend) == 2 && line[displayend - 1] == '*')
-					return; // FIDENT is only changing the real username; drop.
+					return; // FIDENT/FHOST is only changing the real username/hostname; drop.
 
 				// Trim the rest of the line.
 				line.erase(displayend);
@@ -126,7 +121,7 @@ void TreeSocket::WriteLine(const std::string& original_line)
 
 bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, CommandBase::Params& params)
 {
-	if (irc::equals(cmd, "FIDENT"))
+	if (irc::equals(cmd, "FHOST") || irc::equals(cmd, "FIDENT"))
 	{
 		if (params.size() < 2)
 			params.push_back("*");

@@ -214,18 +214,7 @@ class CommandFHost final
 {
 public:
 	CommandFHost(Module* Creator)
-		: UserOnlyServerCommand<CommandFHost>(Creator, "FHOST", 1)
-	{
-	}
-	CmdResult HandleRemote(RemoteUser* user, Params& params);
-};
-
-class CommandFRHost final
-	: public UserOnlyServerCommand<CommandFRHost>
-{
-public:
-	CommandFRHost(Module* Creator)
-		: UserOnlyServerCommand<CommandFRHost>(Creator, "FRHOST", 1)
+		: UserOnlyServerCommand<CommandFHost>(Creator, "FHOST", 2)
 	{
 	}
 	CmdResult HandleRemote(RemoteUser* user, Params& params);
