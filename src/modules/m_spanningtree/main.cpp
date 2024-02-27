@@ -594,7 +594,15 @@ void ModuleSpanningTree::OnChangeUser(User* user, const std::string& newuser)
 	if (!user->IsFullyConnected() || !IS_LOCAL(user))
 		return;
 
-	CmdBuilder(user, "FIDENT").push(newuser).Broadcast();
+	CmdBuilder(user, "FIDENT").push(newuser).push("*").Broadcast();
+}
+
+void ModuleSpanningTree::OnChangeRealUser(User* user, const std::string& newuser)
+{
+	if (!user->IsFullyConnected() || !IS_LOCAL(user))
+		return;
+
+	CmdBuilder(user, "FIDENT").push("*").push(newuser).Broadcast();
 }
 
 void ModuleSpanningTree::OnUserPart(Membership* memb, std::string& partmessage, CUList& excepts)

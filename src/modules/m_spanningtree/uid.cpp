@@ -163,7 +163,12 @@ CmdResult CommandFRHost::HandleRemote(RemoteUser* src, Params& params)
 
 CmdResult CommandFIdent::HandleRemote(RemoteUser* src, Params& params)
 {
-	src->ChangeDisplayedUser(params[0]);
+	if (params[0] != "*")
+		src->ChangeDisplayedUser(params[0]);
+
+	if (params[1] != "*")
+		src->ChangeRealUser(params[1], false);
+
 	return CmdResult::SUCCESS;
 }
 

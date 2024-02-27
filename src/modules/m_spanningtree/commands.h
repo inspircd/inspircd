@@ -236,7 +236,7 @@ class CommandFIdent final
 {
 public:
 	CommandFIdent(Module* Creator)
-		: UserOnlyServerCommand<CommandFIdent>(Creator, "FIDENT", 1)
+		: UserOnlyServerCommand<CommandFIdent>(Creator, "FIDENT", 2)
 	{
 	}
 	CmdResult HandleRemote(RemoteUser* user, Params& params);

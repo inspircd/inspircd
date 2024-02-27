@@ -71,6 +71,20 @@ void TreeSocket::WriteLine(const std::string& original_line)
 			// FRHOST was introduced in PROTO_INSPIRCD_4; drop it.
 			return;
 		}
+		else if (irc::equals(command, "FIDENT"))
+		{
+			// FIDENT has two parameters in v4; drop the real username.
+			// :<sid> FIDENT <display|*> <real|*>
+			size_t displayend = NextToken(line, cmdend);
+			if (displayend != std::string::npos)
+			{
+				if ((displayend - cmdend) == 2 && line[displayend - 1] == '*')
+					return; // FIDENT is only changing the real username; drop.
+
+				// Trim the rest of the line.
+				line.erase(displayend);
+			}
+		}
 		else if (irc::equals(command, "METADATA"))
 		{
 			// :<sid> METADATA <uuid|chan|*|@> <name> :<value>
@@ -112,7 +126,12 @@ void TreeSocket::WriteLine(const std::string& original_line)
 
 bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, CommandBase::Params& params)
 {
-	if (irc::equals(cmd, "SVSJOIN") || irc::equals(cmd, "SVSNICK") || irc::equals(cmd, "SVSPART"))
+	if (irc::equals(cmd, "FIDENT"))
+	{
+		if (params.size() < 2)
+			params.push_back("*");
+	}
+	else if (irc::equals(cmd, "SVSJOIN") || irc::equals(cmd, "SVSNICK") || irc::equals(cmd, "SVSPART"))
 	{
 		if (params.empty())
 			return false; // Malformed.

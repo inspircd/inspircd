@@ -187,6 +187,7 @@ public:
 	void OnChangeRealHost(User* user, const std::string& newhost) override;
 	void OnChangeRealName(User* user, const std::string& real) override;
 	void OnChangeUser(User* user, const std::string& newuser) override;
+	void OnChangeRealUser(User* user, const std::string& newuser) override;
 	void OnUserPart(Membership* memb, std::string& partmessage, CUList& excepts) override;
 	void OnUserQuit(User* user, const std::string& reason, const std::string& oper_message) override;
 	void OnUserPostNick(User* user, const std::string& oldnick) override;
