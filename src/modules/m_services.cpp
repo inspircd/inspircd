@@ -226,7 +226,7 @@ public:
 	CommandSVSHold(Module* Creator)
 		: Command(Creator, "SVSHOLD")
 	{
-		// No need to set any privs because they're not checked for remote users.
+		access_needed = CmdAccess::SERVER;
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
