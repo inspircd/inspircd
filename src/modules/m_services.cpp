@@ -28,7 +28,10 @@
 enum
 {
 	// From UnrealIRCd.
-	ERR_KILLDENY = 485
+	ERR_KILLDENY = 485,
+
+	// From Charybdis.
+	ERR_MLOCKRESTRICTED = 742,
 };
 
 class RegisteredChannel final
@@ -432,12 +435,27 @@ private:
 	ServiceTag servicetag;
 	ServProtect servprotectmode;
 	SVSHoldFactory svsholdfactory;
+	StringExtItem mlockext;
 	CommandSVSCMode svscmodecmd;
 	CommandSVSHold svsholdcmd;
 	CommandSVSJoin svsjoincmd;
 	CommandSVSNick svsnickcmd;
 	CommandSVSPart svspartcmd;
 	bool accountoverrideshold;
+
+	bool HandleModeLock(User* user, Channel* chan, const Modes::Change& change)
+	{
+		const auto* mlock = mlockext.Get(chan);
+		if (!mlock)
+			return true; // No mode lock.
+
+		if (mlock->find(change.mh->GetModeChar()) == std::string::npos)
+			return true; // Mode is not locked.
+
+		user->WriteNumeric(ERR_MLOCKRESTRICTED, chan->name, change.mh->GetModeChar(), *mlock, INSP_FORMAT("Mode cannot be changed as it has been locked {} by services!",
+			chan->IsModeSet(change.mh) ? "on" : "off"));
+		return false;
+	}
 
 	bool HandleProtectedService(User* user, Channel* chan, const Modes::Change& change)
 	{
@@ -472,6 +490,7 @@ public:
 		, registeredumode(this)
 		, servicetag(this)
 		, servprotectmode(this)
+		, mlockext(this, "mlock", ExtensionType::CHANNEL, true)
 		, svscmodecmd(this)
 		, svsholdcmd(this)
 		, svsjoincmd(this)
@@ -516,6 +535,9 @@ public:
 			return MOD_RES_PASSTHRU; // Not our job to handle.
 
 		if (!HandleProtectedService(user, chan, change))
+			return MOD_RES_DENY;
+
+		if (!HandleModeLock(user, chan, change))
 			return MOD_RES_DENY;
 
 		return MOD_RES_PASSTHRU;

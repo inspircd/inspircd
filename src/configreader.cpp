@@ -683,6 +683,8 @@ std::vector<std::string> ServerConfig::GetModules() const
 			modules.push_back("help");
 			modules.push_back("helpmode");
 		}
+		else if (insp::equalsci(shortname, "mlock"))
+			modules.push_back("services");
 		else if (insp::equalsci(shortname, "namesx"))
 			modules.push_back("multiprefix");
 		else if (insp::equalsci(shortname, "regex_pcre2"))

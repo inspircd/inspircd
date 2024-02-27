@@ -1638,12 +1638,6 @@
 #              tagmsg="0.2">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# MLOCK module: Adds support for server-side enforcement of services
-# side MLOCKs. Basically, this module suppresses any mode change that
-# would likely be immediately bounced by services.
-#<module name="mlock">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Monitor module: Adds support for MONITOR which is used by clients to
 # maintain notify lists.
 #<module name="monitor">
