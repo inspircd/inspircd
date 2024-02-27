@@ -2598,11 +2598,6 @@
 #<module name="tline">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Topiclock module: implements server-side topic locking to achieve deeper
-# integration with services packages.
-#<module name="topiclock">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # UHNAMES support module: Adds support for the IRCv3 userhost-in-names
 # capability which displays the username and hostname of users in the
 # NAMES response.

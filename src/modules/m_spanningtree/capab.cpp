@@ -64,7 +64,11 @@ namespace
 				else if (insp::equalsci(modname, "m_account.so") && ServerInstance->Modules.Find("services"))
 					modname = "m_services_account.so";
 				else if (insp::equalsci(modname, "m_services.so"))
-					modname = "m_svshold.so";
+				{
+					modules["m_svshold.so"];
+					modules["m_topiclock.so"];
+					continue;
+				}
 
 				// Handle modules with changed properties.
 				else if (insp::equalsci(modname, "m_globops.so"))

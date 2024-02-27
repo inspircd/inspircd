@@ -32,6 +32,9 @@ enum
 
 	// From Charybdis.
 	ERR_MLOCKRESTRICTED = 742,
+
+	// InspIRCd-specific.
+	ERR_TOPICLOCK = 744,
 };
 
 class RegisteredChannel final
@@ -424,6 +427,55 @@ public:
 	}
 };
 
+class CommandSVSTopic final
+	: public Command
+{
+public:
+	CommandSVSTopic(Module* mod)
+		: Command(mod, "SVSTOPIC", 1, 4)
+	{
+		access_needed = CmdAccess::SERVER;
+		allow_empty_last_param = true;
+	}
+
+	CmdResult Handle(User* user, const Params& parameters) override
+	{
+		// The command can only be executed by remote services servers.
+		if (IS_LOCAL(user) || !user->server->IsService())
+			return CmdResult::FAILURE;
+
+		auto* chan = ServerInstance->Channels.Find(parameters[0]);
+		if (!chan)
+			return CmdResult::FAILURE;
+
+		if (parameters.size() == 4)
+		{
+			// 4 parameter version, set all topic data on the channel to the ones given in the parameters.
+			time_t topicts = ConvToNum<time_t>(parameters[1]);
+			if (!topicts)
+			{
+				ServerInstance->Logs.Debug(MODNAME, "Received SVSTOPIC with a 0 topicts; dropped.");
+				return CmdResult::INVALID;
+			}
+
+			chan->SetTopic(user, parameters[3], topicts, &parameters[2]);
+		}
+		else
+		{
+			// 1 parameter version, nuke the topic
+			chan->SetTopic(user, std::string(), 0);
+			chan->setby.clear();
+		}
+
+		return CmdResult::SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
+	{
+		return ROUTE_BROADCAST;
+	}
+};
+
 class ModuleServices final
 	: public Module
 	, public Stats::EventListener
@@ -436,11 +488,13 @@ private:
 	ServProtect servprotectmode;
 	SVSHoldFactory svsholdfactory;
 	StringExtItem mlockext;
+	BoolExtItem topiclockext;
 	CommandSVSCMode svscmodecmd;
 	CommandSVSHold svsholdcmd;
 	CommandSVSJoin svsjoincmd;
 	CommandSVSNick svsnickcmd;
 	CommandSVSPart svspartcmd;
+	CommandSVSTopic svstopiccmd;
 	bool accountoverrideshold;
 
 	bool HandleModeLock(User* user, Channel* chan, const Modes::Change& change)
@@ -491,11 +545,13 @@ public:
 		, servicetag(this)
 		, servprotectmode(this)
 		, mlockext(this, "mlock", ExtensionType::CHANNEL, true)
+		, topiclockext(this, "topiclock", ExtensionType::CHANNEL, true)
 		, svscmodecmd(this)
 		, svsholdcmd(this)
 		, svsjoincmd(this)
 		, svsnickcmd(this)
 		, svspartcmd(this)
+		, svstopiccmd(this)
 	{
 	}
 
@@ -527,6 +583,15 @@ public:
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string& topic) override
+	{
+		if (!IS_LOCAL(user) || !topiclockext.Get(chan))
+			return MOD_RES_PASSTHRU; // Remote user or no topiclock.
+
+		user->WriteNumeric(ERR_TOPICLOCK, chan->name, "Topic cannot be changed as it has been locked by services!");
+		return MOD_RES_DENY;
 	}
 
 	ModResult OnRawMode(User* user, Channel* chan, const Modes::Change& change) override

@@ -700,6 +700,8 @@ std::vector<std::string> ServerConfig::GetModules() const
 			modules.push_back("services");
 		else if (insp::equalsci(shortname, "svshold"))
 			modules.push_back("services");
+		else if (insp::equalsci(shortname, "topiclock"))
+			modules.push_back("services");
 		else
 		{
 			// No need to rewrite this module name.
