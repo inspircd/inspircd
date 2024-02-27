@@ -18,6 +18,7 @@
 
 
 #include "inspircd.h"
+#include "listmode.h"
 #include "modules/account.h"
 #include "modules/ctctags.h"
 #include "modules/stats.h"
@@ -163,6 +164,58 @@ public:
 	XLine* Generate(time_t settime, unsigned long duration, const std::string& source, const std::string& reason, const std::string& nick) override
 	{
 		return new SVSHold(settime, duration, source, reason, nick);
+	}
+};
+
+class CommandSVSCMode final
+	: public Command
+{
+public:
+	CommandSVSCMode(Module* mod)
+		: Command(mod, "SVSCMODE", 3)
+	{
+		access_needed = CmdAccess::SERVER;
+	}
+
+	CmdResult Handle(User* user, const Params& parameters) override
+	{
+		// The command can only be executed by remote services servers.
+		if (IS_LOCAL(user) || !user->server->IsService())
+			return CmdResult::FAILURE;
+
+		auto* u = ServerInstance->Users.FindUUID(parameters[0]);
+		if (!u)
+			return CmdResult::FAILURE;
+
+		auto* c = ServerInstance->Channels.Find(parameters[1]);
+		if (!c)
+			return CmdResult::FAILURE;
+
+		for (auto mode : parameters[2])
+		{
+			auto* mh = ServerInstance->Modes.FindMode(mode, MODETYPE_CHANNEL);
+			if (!mh || !mh->IsListModeBase())
+				continue; // Not a list mode.
+
+			auto* list = mh->IsListModeBase()->GetList(c);
+			if (!list)
+				continue; // No list modes set.
+
+			Modes::ChangeList changelist;
+			for (const auto& entry : *list)
+			{
+				if (c->CheckBan(u, entry.mask))
+					changelist.push(mh, false, entry.mask);
+			}
+			ServerInstance->Modes.Process(user, c, nullptr, changelist);
+		}
+		return CmdResult::SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
+	{
+		// This can be made ROUTE_UNICAST in v5.
+		return ROUTE_OPT_UCAST(parameters[0]);
 	}
 };
 
@@ -379,6 +432,7 @@ private:
 	ServiceTag servicetag;
 	ServProtect servprotectmode;
 	SVSHoldFactory svsholdfactory;
+	CommandSVSCMode svscmodecmd;
 	CommandSVSHold svsholdcmd;
 	CommandSVSJoin svsjoincmd;
 	CommandSVSNick svsnickcmd;
@@ -394,6 +448,7 @@ public:
 		, registeredumode(this)
 		, servicetag(this)
 		, servprotectmode(this)
+		, svscmodecmd(this)
 		, svsholdcmd(this)
 		, svsjoincmd(this)
 		, svsnickcmd(this)
