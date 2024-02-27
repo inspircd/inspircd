@@ -439,6 +439,30 @@ private:
 	CommandSVSPart svspartcmd;
 	bool accountoverrideshold;
 
+	bool HandleProtectedService(User* user, Channel* chan, const Modes::Change& change)
+	{
+		if (change.adding || change.param.empty())
+			return true; // We only care about local users removing prefix modes.
+
+		const auto* pm = change.mh->IsPrefixMode();
+		if (!pm)
+			return true; // Mode is not a prefix mode.
+
+		auto* target = ServerInstance->Users.Find(change.param);
+		if (!target)
+			return true; // Target does not exist.
+
+		Membership* memb = chan->GetUser(target);
+		if (!memb || !memb->HasMode(pm))
+			return true; // Target does not have the mode.
+
+		if (!target->IsModeSet(servprotectmode))
+			return true; // Target is not a protected service.
+
+		user->WriteNumeric(ERR_RESTRICTED, chan->name, INSP_FORMAT("You are not permitted to remove privileges from {} services!", ServerInstance->Config->Network));
+		return false;
+	}
+
 public:
 	ModuleServices()
 		: Module(VF_COMMON | VF_VENDOR, "Provides support for integrating with a services server.")
@@ -488,26 +512,12 @@ public:
 
 	ModResult OnRawMode(User* user, Channel* chan, const Modes::Change& change) override
 	{
-		if (!IS_LOCAL(user) || change.adding || change.param.empty())
-			return MOD_RES_PASSTHRU; // We only care about local users removing prefix modes.
+		if (!IS_LOCAL(user) || !chan)
+			return MOD_RES_PASSTHRU; // Not our job to handle.
 
-		const PrefixMode* const pm = change.mh->IsPrefixMode();
-		if (!pm)
-			return MOD_RES_PASSTHRU; // Mode is not a prefix mode.
-
-		auto* target = ServerInstance->Users.Find(change.param);
-		if (!target)
-			return MOD_RES_PASSTHRU; // Target does not exist.
-
-		Membership* memb = chan->GetUser(target);
-		if (!memb || !memb->HasMode(pm))
-			return MOD_RES_PASSTHRU; // Target does not have the mode.
-
-		if (target->IsModeSet(servprotectmode))
-		{
-			user->WriteNumeric(ERR_RESTRICTED, chan->name, INSP_FORMAT("You are not permitted to remove privileges from {} services!", ServerInstance->Config->Network));
+		if (!HandleProtectedService(user, chan, change))
 			return MOD_RES_DENY;
-		}
+
 		return MOD_RES_PASSTHRU;
 	}
 
