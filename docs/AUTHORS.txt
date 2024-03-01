@@ -37,13 +37,13 @@ the number of contributions they have made, are:
   * Dylan Frank <b00mx0r@aureus.pw>
   * Val Lorentz <progval+git@progval.net>
   * Wade Cline <wadecline@hotmail.com>
+  * satmd <satmd@satmd.de>
   * Steven Van Acker <steven@singularity.be>
   * Dan Parsons <dparsons@nyip.net>
   * Googolplexed <googol@googolplexed.net>
   * Herman <GermanAizek@yandex.ru>
   * Mantas Mikulėnas <grawity@gmail.com>
   * Renegade334 <contact.caaeed4f@renegade334.me.uk>
-  * satmd <satmd@satmd.de>
   * Sheogorath <sheogorath@shivering-isles.com>
   * typobox43
   * Anatole Denis <natolumin@rezel.net>
