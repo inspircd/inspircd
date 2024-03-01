@@ -2198,7 +2198,8 @@
 # when it should enable the SASL capability.
 # You can also define <sasl:requiressl> to require users to use TLS
 # in order to be able to use SASL.
-#<sasl target="services.mynetwork.com"
+#<sasl abortonconnect="yes"
+#      target="services.mynetwork.com"
 #      requiressl="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

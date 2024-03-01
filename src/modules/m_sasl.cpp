@@ -409,6 +409,7 @@ private:
 	CommandAuthenticate auth;
 	CommandSASL sasl;
 	ClientProtocol::EventProvider protoev;
+	bool abortonconnect;
 
 public:
 	ModuleSASL()
@@ -437,6 +438,7 @@ public:
 		if (target.empty())
 			throw ModuleException(this, "<sasl:target> must be set to the name of your services server!");
 
+		abortonconnect = tag->getBool("abortonconnect", true);
 		cap.requiressl = tag->getBool("requiressl");
 		sasl_target = target;
 		servertracker.Reset();
@@ -449,7 +451,7 @@ public:
 		// in progress, the server SHOULD abort it and send a 906 numeric, then
 		// register the client without authentication.
 		SaslAuthenticator* saslauth = authExt.Get(user);
-		if (saslauth)
+		if (abortonconnect && saslauth)
 		{
 			saslauth->Abort();
 			saslauth->AnnounceState();
