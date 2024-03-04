@@ -55,10 +55,10 @@ Module::Module(int mprops, const std::string& mdesc)
 
 Cullable::Result Module::Cull()
 {
-	if (ModuleDLLManager)
+	if (ModuleDLL)
 	{
-		ServerInstance->GlobalCulls.AddItem(ModuleDLLManager);
-		ModuleDLLManager = nullptr;
+		ServerInstance->GlobalCulls.AddItem(ModuleDLL);
+		ModuleDLL = nullptr;
 	}
 	return Cullable::Cull();
 }
@@ -384,11 +384,11 @@ bool ModuleManager::PrioritizeHooks()
 
 bool ModuleManager::CanUnload(Module* mod)
 {
-	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleSourceFile);
+	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleFile);
 
 	if ((modfind == Modules.end()) || (modfind->second != mod) || (mod->dying))
 	{
-		LastModuleError = "Module " + mod->ModuleSourceFile + " is not loaded, cannot unload it!";
+		LastModuleError = "Module " + mod->ModuleFile + " is not loaded, cannot unload it!";
 		ServerInstance->Logs.Critical("MODULE", LastModuleError);
 		return false;
 	}
@@ -416,7 +416,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	// i.e. before we unregister the services of the module being unloaded
 	FOREACH_MOD(OnUnloadModule, (mod));
 
-	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleSourceFile);
+	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleFile);
 
 	// Unregister modes before extensions because modes may require their extension to show the mode being unset
 	UnregisterModes(mod, MODETYPE_USER);
@@ -466,7 +466,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	Modules.erase(modfind);
 	ServerInstance->GlobalCulls.AddItem(mod);
 
-	ServerInstance->Logs.Normal("MODULE", "The {} module was unloaded", mod->ModuleSourceFile);
+	ServerInstance->Logs.Normal("MODULE", "The {} module was unloaded", mod->ModuleFile);
 }
 
 void ModuleManager::UnloadAll()
@@ -606,7 +606,7 @@ void ModuleManager::AddServices(const ServiceList& list)
 void ModuleManager::AddService(ServiceProvider& item)
 {
 	ServerInstance->Logs.Debug("SERVICE", "Adding {} {} provided by {}", item.name,
-		item.GetTypeString(), item.creator ? item.creator->ModuleSourceFile : "the core");
+		item.GetTypeString(), item.creator ? item.creator->ModuleFile : "the core");
 	switch (item.service)
 	{
 		case SERVICE_DATA:
@@ -636,7 +636,7 @@ void ModuleManager::AddService(ServiceProvider& item)
 void ModuleManager::DelService(ServiceProvider& item)
 {
 	ServerInstance->Logs.Debug("SERVICE", "Deleting {} {} provided by {}", item.name,
-		item.GetTypeString(), item.creator ? item.creator->ModuleSourceFile : "the core");
+		item.GetTypeString(), item.creator ? item.creator->ModuleFile : "the core");
 	switch (item.service)
 	{
 		case SERVICE_MODE:

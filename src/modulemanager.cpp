@@ -69,8 +69,8 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 
 		if (newmod)
 		{
-			newmod->ModuleSourceFile = filename;
-			newmod->ModuleDLLManager = newhandle;
+			newmod->ModuleFile = filename;
+			newmod->ModuleDLL = newhandle;
 			Modules[filename] = newmod;
 
 			if (!defer)

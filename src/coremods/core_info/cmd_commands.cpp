@@ -71,7 +71,7 @@ CmdResult CommandCommands::HandleLocal(LocalUser* user, const Params& parameters
 
 		Numeric::Numeric numeric(RPL_COMMANDS);
 		numeric.push(command->name);
-		numeric.push(ModuleManager::ShrinkModName(command->creator->ModuleSourceFile));
+		numeric.push(ModuleManager::ShrinkModName(command->creator->ModuleFile));
 		numeric.push(command->min_params);
 		if (command->max_params < command->min_params)
 			numeric.push("*");

@@ -140,7 +140,7 @@ public:
 		if (cap->creator == this)
 			return;
 
-		if (cap->creator->ModuleSourceFile == reloadedmod)
+		if (cap->creator->ModuleFile == reloadedmod)
 		{
 			if (!add)
 				reloadedcaps.push_back(cap->GetName());
@@ -160,7 +160,7 @@ public:
 	{
 		if (mod == this)
 			return;
-		reloadedmod = mod->ModuleSourceFile;
+		reloadedmod = mod->ModuleFile;
 		// Request callback when reload is complete
 		cd.add(this, nullptr);
 	}

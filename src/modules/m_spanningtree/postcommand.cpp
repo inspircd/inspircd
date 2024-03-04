@@ -77,7 +77,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 		if (!(srcmodule->properties & (VF_COMMON | VF_CORE)) && srcmodule != Creator)
 		{
 			ServerInstance->Logs.Normal(MODNAME, "Routed command {} from non-VF_COMMON module {}",
-				command, srcmodule->ModuleSourceFile);
+				command, srcmodule->ModuleFile);
 			return;
 		}
 	}

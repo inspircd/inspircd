@@ -747,7 +747,7 @@ void ConfigReaderThread::OnStop()
 			catch (const CoreException& modex)
 			{
 				ServerInstance->Logs.Critical("MODULE", "Unable to read the configuration for {}: {}",
-					mod->ModuleSourceFile, modex.what());
+					mod->ModuleFile, modex.what());
 				if (user)
 					user->WriteNotice(modname + ": " + modex.GetReason());
 			}

@@ -64,7 +64,7 @@ CmdResult CommandModules::Handle(User* user, const Params& parameters)
 	bool has_priv = IS_LOCAL(user) && user->HasPrivPermission("servers/auspex");
 	for (const auto& [modname, mod] : ServerInstance->Modules.GetModules())
 	{
-		const char* version = has_priv ? mod->ModuleDLLManager->GetVersion() : "*";
+		const char* version = has_priv ? mod->ModuleDLL->GetVersion() : "*";
 		const std::string props = has_priv ? mod->GetPropertyString() : "*";
 		user->WriteRemoteNumeric(RPL_MODLIST, ModuleManager::ShrinkModName(modname), version, props, mod->description);
 	}

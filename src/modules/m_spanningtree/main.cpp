@@ -723,10 +723,10 @@ namespace
 	void BroadcastModuleState(Module* mod, bool loading)
 	{
 		std::stringstream buffer;
-		buffer << (loading ? '+' : '-') << ModuleManager::ShrinkModName(mod->ModuleSourceFile);
+		buffer << (loading ? '+' : '-') << ModuleManager::ShrinkModName(mod->ModuleFile);
 
 		std::stringstream compatbuffer;
-		compatbuffer << (loading ? '+' : '-') << mod->ModuleSourceFile;
+		compatbuffer << (loading ? '+' : '-') << mod->ModuleFile;
 
 		if (loading)
 		{

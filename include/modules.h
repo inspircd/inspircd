@@ -235,13 +235,11 @@ public:
 	/** A list of modules. */
 	typedef std::vector<Module*> List;
 
-	/** File that this module was loaded from
-	 */
-	std::string ModuleSourceFile;
+	/** Reference to the dynamic library. */
+	DLLManager* ModuleDLL = nullptr;
 
-	/** Reference to the dlopen() value
-	 */
-	DLLManager* ModuleDLLManager = nullptr;
+	/** File that this module was loaded from. */
+	std::string ModuleFile;
 
 	/** If true, this module will be unloaded soon, further unload attempts will fail
 	 * Value is used by the ModuleManager internally, you should not modify it
@@ -1204,7 +1202,7 @@ public:
 			} \
 			catch (const CoreException& _exception_ ## EVENT) \
 			{ \
-				ServerInstance->Logs.Debug("MODULE", _mod->ModuleSourceFile + " threw an exception in " # EVENT ": " + (_exception_ ## EVENT).GetReason()); \
+				ServerInstance->Logs.Debug("MODULE", _mod->ModuleFile + " threw an exception in " # EVENT ": " + (_exception_ ## EVENT).GetReason()); \
 			} \
 		} \
 	} while (false)
@@ -1231,7 +1229,7 @@ public:
 			} \
 			catch (const CoreException& _exception_ ## EVENT) \
 			{ \
-				ServerInstance->Logs.Debug("MODULE", _mod->ModuleSourceFile + " threw an exception in " # EVENT ": " + (_exception_ ## EVENT).GetReason()); \
+				ServerInstance->Logs.Debug("MODULE", _mod->ModuleFile + " threw an exception in " # EVENT ": " + (_exception_ ## EVENT).GetReason()); \
 			} \
 		} \
 	} while (false)

@@ -93,7 +93,7 @@ namespace
 		mod->CompareLinkData(otherdata, datadiff);
 		if (!datadiff.empty())
 		{
-			diffconfig << ' ' << ModuleManager::ShrinkModName(mod->ModuleSourceFile) << " (";
+			diffconfig << ' ' << ModuleManager::ShrinkModName(mod->ModuleFile) << " (";
 			bool first = true;
 			for (const auto& [key, values] : datadiff)
 			{

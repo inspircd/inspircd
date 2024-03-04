@@ -576,7 +576,7 @@ void ModeParser::AddMode(ModeHandler* mh)
 		if (otherpm)
 		{
 			throw ModuleException(mh->creator, INSP_FORMAT("Mode prefix for {} already used by {} from {}: {}",
-				mh->name, otherpm->name, otherpm->creator->ModuleSourceFile, pm->GetPrefix()));
+				mh->name, otherpm->name, otherpm->creator->ModuleFile, pm->GetPrefix()));
 		}
 	}
 
@@ -584,7 +584,7 @@ void ModeParser::AddMode(ModeHandler* mh)
 	if (slot)
 	{
 		throw ModuleException(mh->creator, INSP_FORMAT("Mode letter for {} already used by {} from {}: {}",
-			mh->name, slot->name, slot->creator->ModuleSourceFile, mh->GetModeChar()));
+			mh->name, slot->name, slot->creator->ModuleFile, mh->GetModeChar()));
 	}
 
 	// The mode needs an id if it is either a user mode, a simple mode (flag) or a parameter mode.
@@ -598,7 +598,7 @@ void ModeParser::AddMode(ModeHandler* mh)
 	{
 		ModeHandler* othermh = res.first->second;
 		throw ModuleException(mh->creator, INSP_FORMAT("Mode name {} already used by {} from {}",
-			mh->name, othermh->GetModeChar(), othermh->creator->ModuleSourceFile));
+			mh->name, othermh->GetModeChar(), othermh->creator->ModuleFile));
 	}
 
 	// Everything is fine, add the mode

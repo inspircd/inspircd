@@ -510,7 +510,7 @@ void DataKeeper::VerifyServiceProvider(const ProviderInfo& service, const char* 
 	if (!sp)
 		ServerInstance->Logs.Debug(MODNAME, "{} \"{}\" is no longer available", type, service.itemname);
 	else if (sp->creator != mod)
-		ServerInstance->Logs.Debug(MODNAME, "{} \"{}\" is now handled by {}", type, service.itemname, (sp->creator ? sp->creator->ModuleSourceFile : "<core>"));
+		ServerInstance->Logs.Debug(MODNAME, "{} \"{}\" is now handled by {}", type, service.itemname, (sp->creator ? sp->creator->ModuleFile : "<core>"));
 }
 
 void DataKeeper::LinkModes(ModeType modetype)
@@ -689,7 +689,7 @@ public:
 		ReloadModule::DataKeeper datakeeper;
 		datakeeper.Save(mod);
 
-		std::string name = mod->ModuleSourceFile;
+		std::string name = mod->ModuleFile;
 		ServerInstance->Modules.DoSafeUnload(mod);
 		ServerInstance->GlobalCulls.Apply();
 		bool result = ServerInstance->Modules.Load(name);
