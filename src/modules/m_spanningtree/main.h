@@ -96,8 +96,8 @@ public:
 	 */
 	SpanningTreeProtocolInterface protocolinterface;
 
-	/** Event provider for our broadcast events. */
-	Events::ModuleEventProvider broadcasteventprov;
+	/** Event provider for our routing event. */
+	Events::ModuleEventProvider routeeventprov;
 
 	/** Event provider for our link events. */
 	Events::ModuleEventProvider linkeventprov;

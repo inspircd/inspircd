@@ -161,7 +161,7 @@ public:
 
 class ModuleChanHistory final
 	: public Module
-	, public ServerProtocol::BroadcastEventListener
+	, public ServerProtocol::RouteEventListener
 {
 private:
 	HistoryMode historymode;
@@ -214,7 +214,7 @@ private:
 public:
 	ModuleChanHistory()
 		: Module(VF_VENDOR, "Adds channel mode H (history) which allows message history to be viewed on joining the channel.")
-		, ServerProtocol::BroadcastEventListener(this)
+		, ServerProtocol::RouteEventListener(this)
 		, historymode(this)
 		, nohistorymode(this, "nohistory", 'N')
 		, botmode(this, "bot")
@@ -235,7 +235,7 @@ public:
 		dobots = tag->getBool("bots", true);
 	}
 
-	ModResult OnBroadcastMessage(const Channel* channel, const Server* server) override
+	ModResult OnRouteMessage(const Channel* channel, const Server* server) override
 	{
 		return channel->IsModeSet(historymode) ? MOD_RES_ALLOW : MOD_RES_PASSTHRU;
 	}

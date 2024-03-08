@@ -24,9 +24,9 @@
 
 namespace ServerProtocol
 {
-	class BroadcastEventListener;
 	class LinkEventListener;
 	class MessageEventListener;
+	class RouteEventListener;
 	class SyncEventListener;
 }
 
@@ -38,24 +38,6 @@ enum
 
 	// InspIRCd-specific.
 	RPL_MAPUSERS = 18,
-};
-
-class ServerProtocol::BroadcastEventListener
-	: public Events::ModuleEventListener
-{
-public:
-	BroadcastEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/server-broadcast", eventprio)
-	{
-	}
-
-	/** Fired when a channel message is being broadcast across the network.
-	 * @param channel The channel which is having a message sent to it.
-	 * @param server The server which might have a message broadcast to it.
-	 * @return Either MOD_RES_ALLOW to always send the message to the server, MOD_RES_DENY to never
-	 *         send the message to the server or MOD_RES_PASSTHRU if no module handled the event.
-	 */
-	virtual ModResult OnBroadcastMessage(const Channel* channel, const Server* server) { return MOD_RES_PASSTHRU; }
 };
 
 class ServerProtocol::LinkEventListener
@@ -107,6 +89,25 @@ public:
 	 */
 	virtual void OnBuildServerMessage(const Server* source, const char* name, ClientProtocol::TagMap& tags) { }
 };
+
+class ServerProtocol::RouteEventListener
+	: public Events::ModuleEventListener
+{
+public:
+	RouteEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+		: ModuleEventListener(mod, "event/server-route", eventprio)
+	{
+	}
+
+	/** Fired when a channel message is being routed across the network.
+	 * @param channel The channel which is having a message sent to it.
+	 * @param server The server which might have a message routed to it.
+	 * @return Either MOD_RES_ALLOW to always send the message to the server, MOD_RES_DENY to never
+	 *         send the message to the server, or MOD_RES_PASSTHRU to not handle the event.
+	 */
+	virtual ModResult OnRouteMessage(const Channel* channel, const Server* server) { return MOD_RES_PASSTHRU; }
+};
+
 
 class ServerProtocol::SyncEventListener
 	: public Events::ModuleEventListener
