@@ -217,12 +217,6 @@ public:
 		}
 		return CmdResult::SUCCESS;
 	}
-
-	RouteDescriptor GetRouting(User* user, const Params& parameters) override
-	{
-		// This can be made ROUTE_UNICAST in v5.
-		return ROUTE_OPT_UCAST(parameters[0]);
-	}
 };
 
 class CommandSVSHold final
