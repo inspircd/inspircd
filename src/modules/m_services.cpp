@@ -21,6 +21,7 @@
 #include "listmode.h"
 #include "modules/account.h"
 #include "modules/ctctags.h"
+#include "modules/server.h"
 #include "modules/stats.h"
 #include "timeutils.h"
 #include "xline.h"
@@ -514,6 +515,7 @@ public:
 
 class ModuleServices final
 	: public Module
+	, public ServerProtocol::RouteEventListener
 	, public Stats::EventListener
 {
 private:
@@ -523,6 +525,7 @@ private:
 	ServiceTag servicetag;
 	ServProtect servprotectmode;
 	SVSHoldFactory svsholdfactory;
+	BoolExtItem auspexext;
 	StringExtItem mlockext;
 	BoolExtItem topiclockext;
 	CommandSVSCMode svscmodecmd;
@@ -575,12 +578,14 @@ private:
 public:
 	ModuleServices()
 		: Module(VF_COMMON | VF_VENDOR, "Provides support for integrating with a services server.")
+		, ServerProtocol::RouteEventListener(this)
 		, Stats::EventListener(this)
 		, accountapi(this)
 		, registeredcmode(this)
 		, registeredumode(this)
 		, servicetag(this)
 		, servprotectmode(this)
+		, auspexext(this, "auspex", ExtensionType::CHANNEL, true)
 		, mlockext(this, "mlock", ExtensionType::CHANNEL, true)
 		, topiclockext(this, "topiclock", ExtensionType::CHANNEL, true)
 		, svscmodecmd(this)
@@ -608,6 +613,15 @@ public:
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("servicesintegration");
 		accountoverrideshold = tag->getBool("accountoverrideshold");
+	}
+
+	ModResult OnRouteMessage(const Channel* channel, const Server* server) override
+	{
+		if (!server->IsService() || !auspexext.Get(channel))
+			return MOD_RES_PASSTHRU;
+
+		// Allow services to see messages in this channel even if not guarded.
+		return MOD_RES_ALLOW;
 	}
 
 	ModResult OnKill(User* source, User* dest, const std::string& reason) override
