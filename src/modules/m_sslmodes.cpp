@@ -41,15 +41,15 @@ enum
 	ERR_ALLMUSTSSL = 490
 };
 
-class SSLFPExtBan final
+class FingerprintExtBan final
 	: public ExtBan::MatchingBase
 {
 private:
 	UserCertificateAPI& sslapi;
 
 public:
-	SSLFPExtBan(Module* Creator, UserCertificateAPI& api)
-		: ExtBan::MatchingBase(Creator, "sslfp", 'z')
+	FingerprintExtBan(Module* Creator, UserCertificateAPI& api)
+		: ExtBan::MatchingBase(Creator, "fingerprint", 'z')
 		, sslapi(api)
 	{
 	}
@@ -168,7 +168,7 @@ private:
 	UserCertificateAPI api;
 	SSLMode sslm;
 	SSLModeUser sslquery;
-	SSLFPExtBan sslfp;
+	FingerprintExtBan extban;
 
 public:
 	ModuleSSLModes()
@@ -177,7 +177,7 @@ public:
 		, api(this)
 		, sslm(this, api)
 		, sslquery(this, api)
-		, sslfp(this, api)
+		, extban(this, api)
 	{
 	}
 
