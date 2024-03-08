@@ -237,7 +237,7 @@ public:
 
 	ModResult OnRouteMessage(const Channel* channel, const Server* server) override
 	{
-		return channel->IsModeSet(historymode) ? MOD_RES_ALLOW : MOD_RES_PASSTHRU;
+		return channel->IsModeSet(historymode) && !server->IsService() ? MOD_RES_ALLOW : MOD_RES_PASSTHRU;
 	}
 
 	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) override
