@@ -167,11 +167,11 @@ void SpanningTreeUtilities::GetListOfServersForChannel(const Channel* c, TreeSoc
 
 	// Check whether the servers which do not have users in the channel might need this message. This
 	// is used to keep the chanhistory module synchronised between servers.
-	for (const auto* child : children)
+	for (const auto &[_, server] : Utils->serverlist)
 	{
-		ModResult result = Creator->routeeventprov.FirstResult(&ServerProtocol::RouteEventListener::OnRouteMessage, c, child);
+		ModResult result = Creator->routeeventprov.FirstResult(&ServerProtocol::RouteEventListener::OnRouteMessage, c, server);
 		if (result == MOD_RES_ALLOW)
-			list.insert(child->GetSocket());
+			list.insert(server->GetRoute()->GetSocket());
 	}
 }
 
