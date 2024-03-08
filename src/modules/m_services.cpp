@@ -385,6 +385,48 @@ public:
 	}
 };
 
+class CommandSVSOper final
+	: public Command
+{
+public:
+	CommandSVSOper(Module* Creator)
+		: Command(Creator, "SVSOPER", 2, 2)
+	{
+		access_needed = CmdAccess::SERVER;
+	}
+
+	CmdResult Handle(User* user, const Params& parameters) override
+	{
+		if (!user->server->IsService())
+			return CmdResult::FAILURE;
+
+		auto* target = ServerInstance->Users.FindUUID(parameters[0]);
+		if (!target)
+			return CmdResult::FAILURE;
+
+		if (IS_LOCAL(target))
+		{
+			auto iter = ServerInstance->Config->OperTypes.find(parameters[1]);
+			if (iter == ServerInstance->Config->OperTypes.end())
+				return CmdResult::FAILURE;
+
+			auto automatic = parameters.GetTags().find("~automatic") != parameters.GetTags().end();
+			auto account = std::make_shared<OperAccount>(MODNAME, iter->second, ServerInstance->Config->EmptyTag);
+			target->OperLogin(account, automatic, true);
+		}
+
+		return CmdResult::SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
+	{
+		auto* target = ServerInstance->Users.FindUUID(parameters[0]);
+		if (!target)
+			return ROUTE_LOCALONLY;
+		return ROUTE_OPT_UCAST(target->server);
+	}
+};
+
 class CommandSVSPart final
 	: public Command
 {
@@ -487,6 +529,7 @@ private:
 	CommandSVSHold svsholdcmd;
 	CommandSVSJoin svsjoincmd;
 	CommandSVSNick svsnickcmd;
+	CommandSVSOper svsopercmd;
 	CommandSVSPart svspartcmd;
 	CommandSVSTopic svstopiccmd;
 	bool accountoverrideshold;
@@ -544,6 +587,7 @@ public:
 		, svsholdcmd(this)
 		, svsjoincmd(this)
 		, svsnickcmd(this)
+		, svsopercmd(this)
 		, svspartcmd(this)
 		, svstopiccmd(this)
 	{
