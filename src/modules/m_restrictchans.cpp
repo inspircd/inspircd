@@ -83,7 +83,7 @@ public:
 		// channel does not yet exist (record is null, about to be created IF we were to allow it)
 		if (!override && !chan && !CanCreateChannel(user, cname))
 		{
-			user->WriteNumeric(ERR_BANNEDFROMCHAN, cname, "You are not allowed to create new channels.");
+			user->WriteNumeric(ERR_RESTRICTED, cname, "You are not allowed to create new channels.");
 			return MOD_RES_DENY;
 		}
 
