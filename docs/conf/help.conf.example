@@ -148,8 +148,10 @@ a message stating they were removed from the channel and by whom.
 ">
 
 <helptopic key="rmode" title="/RMODE <channel> <mode> [<pattern>]" value="
-Removes listmodes from a channel, optionally matching a glob-based pattern.
-E.g. '/RMODE #channel b m:*' will remove all mute extbans on the channel.
+Removes list and prefix modes from the specified channel. If a pattern is
+specified then all modes matching the specified pattern will be removed. If
+removing a list mode and the pattern is the nick of an online user then all
+modes in the list matching the specified user will be removed.
 ">
 
 <helptopic key="hexip" title="/HEXIP <hex-ip|raw-ip>" value="
