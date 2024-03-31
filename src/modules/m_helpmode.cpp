@@ -114,6 +114,12 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
+	void OnUserQuit(User* user, const std::string& message, const std::string& opermessage) override
+	{
+		if (user->IsModeSet(helpop))
+			stdalgo::erase(helpop.helpers, user);
+	}
+
 	void OnWhois(Whois::Context& whois) override
 	{
 		if (whois.GetTarget()->IsModeSet(helpop))
