@@ -44,6 +44,11 @@
 # endif
 #endif
 
+// Work around mbedTLS using C99 features that are not part of C++.
+#ifdef __clang__
+# pragma clang diagnostic ignored "-Wc99-extensions"
+#endif
+
 #include <mbedtls/ctr_drbg.h>
 #include <mbedtls/dhm.h>
 #include <mbedtls/ecp.h>
