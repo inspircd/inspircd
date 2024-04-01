@@ -2439,7 +2439,7 @@
 # TLS info module: Allows users to retrieve information about other
 # users' peer TLS certificates and keys via the SSLINFO command.
 # This can be used by client scripts to validate users. For this to
-# work, one of ssl_gnutls, ssl_mbedtls or ssl_openssl must be loaded.
+# work either ssl_gnutls or ssl_openssl must be loaded.
 # This module also adds the "<user> is using a secure connection"
 # and "<user> has TLS client certificate fingerprint <fingerprint>"
 # WHOIS lines, the ability for opers to use TLS cert fingerprints to
@@ -2483,15 +2483,6 @@
 #         operonly="no"
 #         warnexpiring="1w"
 #         welcomemsg="no">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# mbedTLS TLS module: Adds support for TLS connections using mbedTLS.
-#<module name="ssl_mbedtls">
-#
-#-#-#-#-#-#-#-#-#-#-#- MBEDTLS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# ssl_mbedtls is too complex to describe here, see the docs:          #
-# https://docs.inspircd.org/4/modules/ssl_mbedtls                     #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # OpenSSL TLS module: Adds support for TLS connections using OpenSSL,
@@ -2571,10 +2562,10 @@
 #<sqloper dbid="1">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# StartTLS module: Implements STARTTLS, which allows clients          #
-# connected to non TLS enabled ports to enable TLS, if    #
-# a proper TLS module is loaded (either ssl_gnutls,             #
-# ssl_mbedtls or ssl_openssl).                                        #
+# StartTLS module: Adds support for the IRCv3 tls capability which    #
+# allows clients to upgrade their connection to use TLS. As well as   #
+# this module you should also load one of ssl_gnutls or ssl_openssl   #
+# modules. You may also want to consider using the ircv3_sts module.  #
 #<module name="starttls">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

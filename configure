@@ -400,7 +400,6 @@ if (prompt_bool $interactive, $question, 0) {
 		'm_regex_re2.cpp'       => 'pkg-config --exists re2',
 		'm_sqlite3.cpp'         => 'pkg-config --exists sqlite3',
 		'm_ssl_gnutls.cpp'      => 'pkg-config --exists "gnutls >= 3.3.5"',
-		'm_ssl_mbedtls.cpp'     => "echo '#include <mbedtls/version.h>' | $config{CXX} -E -",
 		'm_ssl_openssl.cpp'     => 'pkg-config --exists "openssl >= 1.1.1"',
 		'm_sslrehashsignal.cpp' => undef,
 	);
@@ -419,7 +418,6 @@ security and privacy of your IRC server and is required for linking servers.
 Please read the following documentation pages on how to enable TLS support:
 
 GnuTLS (recommended): https://docs.inspircd.org/$version{MAJOR}/modules/ssl_gnutls
-mbedTLS:              https://docs.inspircd.org/$version{MAJOR}/modules/ssl_mbedtls
 OpenSSL:              https://docs.inspircd.org/$version{MAJOR}/modules/ssl_openssl
 EOM
 }

@@ -49,7 +49,6 @@ if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
 	enable_extra("regex_pcre" "PCRE2")
 	enable_extra("regex_posix" "PCRE2")
 	enable_extra("regex_re2" "RE2")
-	enable_extra("ssl_mbedtls" "MBEDTLS")
 	enable_extra("ssl_openssl" "OPENSSL")
 	enable_extra("sqlite3" "SQLITE3")
 

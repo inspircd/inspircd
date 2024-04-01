@@ -45,7 +45,7 @@
 	# Required by the mysql module:
 	#include <abstractions/mysql>
 
-	# Required by the ssl_gnutls, ssl_mbedtls, and ssl_openssl modules:
+	# Required by the ssl_gnutls and ssl_openssl modules:
 	#include <abstractions/ssl_certs>
 	#include <abstractions/ssl_keys>
 }

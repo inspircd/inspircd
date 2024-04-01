@@ -139,11 +139,10 @@
       # docs page for the TLS module you are using for more details:
       #
       # GnuTLS:  https://docs.inspircd.org/4/modules/ssl_gnutls#sslprofile
-      # mbedTLS: https://docs.inspircd.org/4/modules/ssl_mbedtls#sslprofile
       # OpenSSL: https://docs.inspircd.org/4/modules/ssl_openssl#sslprofile
       #
-      # You will need to load the ssl_openssl module for OpenSSL, ssl_gnutls
-      # for GnuTLS and ssl_mbedtls for mbedTLS.
+      # You will need to load the ssl_openssl module for OpenSSL and ssl_gnutls
+      # for GnuTLS.
       sslprofile="Clients"
 
       # defer: When this is non-zero, connections will not be handed over to
@@ -202,9 +201,9 @@
 # for this listener. See the docs page for the TLS module you are using for
 # more details.
 #
-# When linking servers, the OpenSSL, GnuTLS, and mbedTLS implementations are
-# completely link-compatible and can be used alongside each other on each end
-# of the link without any significant issues.
+# When linking servers, the OpenSSL and GnuTLS implementations are completely
+# link-compatible and can be used alongside each other on each end of the link
+# without any significant issues.
 
 
 #-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#

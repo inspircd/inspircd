@@ -112,13 +112,12 @@ It appears that the server endpoint is using plaintext! Make sure that:
   * You have one or more of the following modules loaded:
     - ssl_gnutls
     - ssl_openssl
-    - ssl_mbedtls
 
   * The value of <bind:sslprofile> is the same as an <sslprofile:name> field.
 
   * The value of <sslprofile:provider> for your used TLS profile is set to
-    "gnutls" if using the ssl_gnutls module, "openssl" if using the ssl_openssl
-    module, or "mbedtls" if using the ssl_mbedtls module.
+    "gnutls" if using the ssl_gnutls module or "openssl" if using the
+    ssl_openssl module.
 
   * If you have your TLS configuration in a file other than inspircd.conf then
     that file is included by inspircd.conf.
@@ -126,7 +125,6 @@ It appears that the server endpoint is using plaintext! Make sure that:
 See the following links for more information:
 
   https://docs.inspircd.org/4/modules/ssl_gnutls/#configuration
-  https://docs.inspircd.org/4/modules/ssl_mbedtls/#configuration
   https://docs.inspircd.org/4/modules/ssl_openssl/#configuration
 EOM
 	exit 1;
@@ -148,8 +146,8 @@ ${\CC_RED}no${\CC_RESET}
 
 It appears that something is wrong with your server. Make sure that:
 
-  * You are not using an old version of GnuTLS, mbedTLS, or OpenSSL which only
-    supports deprecated algorithms like SSLv3.
+  * You are not using an old version of GnuTLS or OpenSSL which only supports
+    deprecated algorithms like SSLv3.
   * If you are using a self-signed certificate (not recommended) that you passed
     the `selfsigned` argument to this script.
 

@@ -30,7 +30,6 @@ jobs:
             libpsl-dev \
             make \
             mariadb-dev \
-            mbedtls-dev \
             openldap-dev \
             openssl-dev \
             pcre2-dev \
@@ -42,7 +41,7 @@ jobs:
 
       - name: Run configure
         run: |
-          ./configure --enable-extras "argon2 geo_maxmind ldap log_json log_syslog mysql pgsql regex_pcre regex_posix regex_re2 sqlite3 ssl_gnutls ssl_mbedtls ssl_openssl sslrehashsignal"
+          ./configure --enable-extras "argon2 geo_maxmind ldap log_json log_syslog mysql pgsql regex_pcre regex_posix regex_re2 sqlite3 ssl_gnutls ssl_openssl sslrehashsignal"
           ./configure --development --disable-auto-extras --disable-ownership --socketengine ${{ matrix.socketengine }}
 
       - name: Build core

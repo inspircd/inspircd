@@ -61,12 +61,11 @@
       # the TLS module you are using for more details:
       #
       # GnuTLS:  https://docs.inspircd.org/4/modules/ssl_gnutls#sslprofile
-      # mbedTLS: https://docs.inspircd.org/4/modules/ssl_mbedtls#sslprofile
       # OpenSSL: https://docs.inspircd.org/4/modules/ssl_openssl#sslprofile
       #
-      # You will need to load the ssl_openssl module for OpenSSL, ssl_gnutls
-      # for GnuTLS and ssl_mbedtls for mbedTLS. The server port that you
-      # connect to must be capable of accepting this type of connection.
+      # You will need to load the ssl_openssl module for OpenSSL and ssl_gnutls
+      # for GnuTLS. The server port that you connect to must be capable of
+      # accepting this type of connection.
       sslprofile="Servers"
 
       # fingerprint: If defined, this option will force servers to be

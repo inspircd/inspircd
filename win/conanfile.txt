@@ -1,6 +1,6 @@
 # Last updated: 2024-03-01
 #
-# Modules we can't legally ship: geo_maxmind, ssl_mbedtls, ssl_openssl
+# Modules we can't legally ship: geo_maxmind, ssl_openssl
 # Modules which don't apply to Windows: sslrehashsignal
 # Modules without packages: ssl_gnutls
 
@@ -10,7 +10,6 @@ argon2/20190702
 libmysqlclient/8.1.0
 libpq/15.4
 libpsl/0.21.1
-## mbedtls/3.2.1 # unable to upgrade until mbedTLS issue #7087 is fixed
 ## openssl/3.2.1
 pcre2/10.43
 rapidjson/cci.20230929

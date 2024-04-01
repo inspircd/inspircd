@@ -29,7 +29,6 @@
 /src/modules/m_regex_re2.cpp
 /src/modules/m_sqlite3.cpp
 /src/modules/m_ssl_gnutls.cpp
-/src/modules/m_ssl_mbedtls.cpp
 /src/modules/m_ssl_openssl.cpp
 /src/modules/m_sslrehashsignal.cpp
 
