@@ -146,7 +146,7 @@ public:
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
 	{
-		if (!override)
+		if (override)
 			return MOD_RES_PASSTHRU;
 
 		for (const auto& badchan : badchannels)
