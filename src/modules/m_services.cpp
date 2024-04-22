@@ -53,7 +53,7 @@ public:
 	{
 		if (IS_LOCAL(source))
 		{
-			source->WriteNumeric(ERR_NOPRIVILEGES, "Only a server may modify the +r channel mode");
+			source->WriteNumeric(ERR_NOPRIVILEGES, INSP_FORMAT("Only a server may modify the +{} channel mode", GetModeChar()));
 			return false;
 		}
 
@@ -77,7 +77,7 @@ public:
 	{
 		if (IS_LOCAL(source))
 		{
-			source->WriteNumeric(ERR_NOPRIVILEGES, "Only a server may modify the +r user mode");
+			source->WriteNumeric(ERR_NOPRIVILEGES, INSP_FORMAT("Only a server may modify the +{} user mode", GetModeChar()));
 			return false;
 		}
 
