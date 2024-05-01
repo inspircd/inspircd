@@ -21,6 +21,8 @@
 #include "clientprotocolmsg.h"
 #include "timeutils.h"
 
+#include <fmt/color.h>
+
 const char* Log::LevelToString(Log::Level level)
 {
 	switch (level)
@@ -50,6 +52,21 @@ void Log::NotifyRawIO(LocalUser* user, MessageType type)
 	ClientProtocol::Messages::Privmsg msg(ServerInstance->FakeClient, user, "*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.", type);
 	user->Send(ServerInstance->GetRFCEvents().privmsg, msg);
 }
+
+class DebugLogMethod final
+	: public Log::Method
+{
+public:
+	void OnLog(time_t time, Log::Level level, const std::string& type, const std::string& message) override
+	{
+		fmt::println("{} {}: {}",
+			fmt::styled(Time::ToString(time, "%d %b %Y %H:%M:%S"), fmt::fg(fmt::terminal_color::yellow)),
+			fmt::styled(type, fmt::fg(fmt::terminal_color::green)),
+			message
+		);
+	}
+};
+
 
 Log::FileMethod::FileMethod(const std::string& n, FILE* fh, unsigned long fl, bool ac)
 	: Timer(15*60, true)
@@ -181,7 +198,7 @@ void Log::Manager::CloseLogs()
 void Log::Manager::EnableDebugMode()
 {
 	TokenList types = std::string("*");
-	MethodPtr method = stdoutlog.Create(ServerInstance->Config->EmptyTag);
+	MethodPtr method = std::make_shared<DebugLogMethod>();
 
 	if (ServerInstance->Config->CommandLine.forceprotodebug)
 	{
