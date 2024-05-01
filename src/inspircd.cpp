@@ -341,7 +341,7 @@ namespace
 			ServerInstance->ConfigFileName = ExpandPath(config.c_str());
 		ServerInstance->Config->CommandLine.forcedebug = do_debug || do_protocoldebug;
 		ServerInstance->Config->CommandLine.forceprotodebug = do_protocoldebug;
-		ServerInstance->Config->CommandLine.nofork = do_nofork;
+		ServerInstance->Config->CommandLine.nofork = ServerInstance->Config->CommandLine.forcedebug || do_nofork;
 		ServerInstance->Config->CommandLine.runasroot = do_runasroot;
 		ServerInstance->Config->CommandLine.writelog = !do_nolog;
 		ServerInstance->Config->CommandLine.writepid = !do_nopid;
@@ -580,7 +580,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	 *
 	 *    -- nenolod
 	 */
-	if ((!Config->CommandLine.nofork) && (!Config->CommandLine.forcedebug))
+	if (!Config->CommandLine.nofork)
 	{
 		int fd = open("/dev/null", O_RDWR);
 
