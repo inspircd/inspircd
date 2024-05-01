@@ -98,7 +98,8 @@ void CommandServer::HandleExtra(TreeServer* newserver, Params& params)
 
 std::shared_ptr<Link> TreeSocket::AuthRemote(const CommandBase::Params& params)
 {
-	if (params.size() < 5)
+	size_t offset = proto_version == PROTO_INSPIRCD_3;
+	if (params.size() < 4+offset)
 	{
 		SendError("Protocol error - Not enough parameters for SERVER command");
 		return nullptr;
@@ -106,7 +107,7 @@ std::shared_ptr<Link> TreeSocket::AuthRemote(const CommandBase::Params& params)
 
 	const std::string& sname = params[0];
 	const std::string& password = params[1];
-	const std::string& sid = params[3];
+	const std::string& sid = params[2+offset];
 	const std::string& description = params.back();
 
 	this->SendCapabilities(2);
@@ -170,7 +171,7 @@ bool TreeSocket::Outbound_Reply_Server(CommandBase::Params& params)
 		 * While we're at it, create a treeserver object so we know about them.
 		 *   -- w
 		 */
-		FinishAuth(params[0], params[3], params.back(), x->Hidden);
+		FinishAuth(params[0], params[proto_version == PROTO_INSPIRCD_3 ? 3 : 2], params.back(), x->Hidden);
 
 		return true;
 	}
@@ -216,15 +217,16 @@ bool TreeSocket::Inbound_Server(CommandBase::Params& params)
 	{
 		// Save these for later, so when they accept our credentials (indicated by BURST) we remember them
 		this->capab->hidden = x->Hidden;
-		this->capab->sid = params[3];
+		this->capab->sid = params[proto_version == PROTO_INSPIRCD_3 ? 3 : 2];
 		this->capab->description = params.back();
 		this->capab->name = params[0];
 
 		// Send our details: Our server name and description and hopcount of 0,
 		// along with the sendpass from this block.
-		this->WriteLine(INSP_FORMAT("SERVER {} {} 0 {} :{}",
+		this->WriteLine(INSP_FORMAT("SERVER {} {} {}{} :{}",
 			ServerInstance->Config->ServerName,
 			TreeSocket::MakePass(x->SendPass, this->GetTheirChallenge()),
+			proto_version == PROTO_INSPIRCD_3 ? "0 " : "",
 			ServerInstance->Config->ServerId,
 			ServerInstance->Config->ServerDesc
 		));
