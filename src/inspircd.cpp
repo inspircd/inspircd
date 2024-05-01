@@ -284,6 +284,7 @@ namespace
 		bool do_nofork = false;
 		bool do_nolog = false;
 		bool do_nopid = false;
+		bool do_protocoldebug = false;
 		bool do_runasroot = false;
 		bool do_version = false;
 
@@ -303,6 +304,9 @@ namespace
 			| lyra::opt(do_nolog)
 				["-L"]["--nolog"]
 				("Disable writing logs to disk.")
+			| lyra::opt(do_protocoldebug)
+				["-p"]["--protocoldebug"]
+				("Start in protocol debug mode.")
 			| lyra::opt(do_nopid)
 				["-P"]["--nopid"]
 				("Disable writing the pid file.")
@@ -335,7 +339,8 @@ namespace
 		// Store the relevant parsed arguments
 		if (!config.empty())
 			ServerInstance->ConfigFileName = ExpandPath(config.c_str());
-		ServerInstance->Config->CommandLine.forcedebug = do_debug;
+		ServerInstance->Config->CommandLine.forcedebug = do_debug || do_protocoldebug;
+		ServerInstance->Config->CommandLine.forceprotodebug = do_protocoldebug;
 		ServerInstance->Config->CommandLine.nofork = do_nofork;
 		ServerInstance->Config->CommandLine.runasroot = do_runasroot;
 		ServerInstance->Config->CommandLine.writelog = !do_nolog;

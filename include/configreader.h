@@ -203,6 +203,9 @@ struct CommandLineConf final
 	 */
 	bool forcedebug;
 
+	/** If enabled then protocol traffic is being logged. */
+	bool forceprotodebug;
+
 	/** If this is true then log output will be
 	 * written to the logfile. This is the default.
 	 * If you put -nolog on the commandline then

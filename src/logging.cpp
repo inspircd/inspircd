@@ -182,8 +182,17 @@ void Log::Manager::EnableDebugMode()
 {
 	TokenList types = std::string("*");
 	MethodPtr method = stdoutlog.Create(ServerInstance->Config->EmptyTag);
-	loggers.emplace_back(Level::RAWIO, std::move(types), std::move(method), false, &stdoutlog);
-	ServerInstance->Config->RawLog = true;
+
+	if (ServerInstance->Config->CommandLine.forceprotodebug)
+	{
+		// If we are doing a protocol debug we need to warn users.
+		loggers.emplace_back(Level::RAWIO, std::move(types), std::move(method), false, &stdoutlog);
+		ServerInstance->Config->RawLog = true;
+	}
+	else
+	{
+		loggers.emplace_back(Level::DEBUG, std::move(types), std::move(method), false, &stdoutlog);
+	}
 }
 
 void Log::Manager::OpenLogs(bool requiremethods)
