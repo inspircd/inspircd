@@ -41,7 +41,6 @@ public:
 	uint32_t outlen;
 	uint32_t saltlen;
 	uint32_t threads;
-	Argon2_version version;
 
 	ProviderConfig()
 	{
@@ -69,12 +68,6 @@ public:
 
 		uint32_t def_threads = def ? def->threads : 1;
 		this->threads = tag->getNum<uint32_t>("threads", def_threads, ARGON2_MIN_THREADS, ARGON2_MAX_THREADS);
-
-		Argon2_version def_version = def ? def->version : ARGON2_VERSION_13;
-		this->version = tag->getEnum("version", def_version, {
-			{ "10", ARGON2_VERSION_10 },
-			{ "13", ARGON2_VERSION_13 },
-		});
 	}
 };
 
@@ -126,7 +119,7 @@ public:
 			encoded_data.data(),
 			encoded_data.size(),
 			argon2Type,
-			config.version);
+			ARGON2_VERSION_NUMBER);
 
 		if (argonResult != ARGON2_OK)
 			throw ModuleException(creator, "Argon2 hashing failed: " + std::string(argon2_error_message(argonResult)));
