@@ -334,8 +334,23 @@ public:
 		const std::string user = config->getString("user");
 		const std::string pass = config->getString("pass");
 		const std::string dbname = config->getString("name");
-		unsigned int port = config->getNum<unsigned int>("port", 3306, 1, 65535);
-		if (!mysql_real_connect(connection, host.c_str(), user.c_str(), pass.c_str(), dbname.c_str(), port, nullptr, CLIENT_IGNORE_SIGPIPE))
+
+		MYSQL* result;
+#if defined LIBMYSQL_VERSION_ID && LIBMYSQL_VERSION_ID > 80000
+		if (config->getBool("srv"))
+		{
+			result = mysql_real_connect_dns_srv(connection, host.c_str(), user.c_str(),
+				pass.c_str(), dbname.c_str(), CLIENT_IGNORE_SIGPIPE);
+		}
+		else
+#endif
+		{
+			auto port = config->getNum<unsigned int>("port", 3306, 1, 65535);
+			result = mysql_real_connect(connection, host.c_str(), user.c_str(), pass.c_str(),
+				dbname.c_str(), port, nullptr, CLIENT_IGNORE_SIGPIPE);
+		}
+
+		if (!result)
 		{
 			ServerInstance->Logs.Critical(MODNAME, "Unable to connect to the {} MySQL server: {}",
 				GetId(), mysql_error(connection));
