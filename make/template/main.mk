@@ -101,6 +101,7 @@ ifeq ($(SYSTEM), solaris)
   LDLIBS += -lsocket -lnsl -lrt -lresolv
 endif
 ifeq ($(SYSTEM), darwin)
+  CXX += -std=c++11
   LDLIBS += -ldl
   CORELDFLAGS = -dynamic -bind_at_load -L.
   PICLDFLAGS = -fPIC -shared -twolevel_namespace -undefined dynamic_lookup
