@@ -176,15 +176,18 @@ void ServerConfig::CrossCheckOperBlocks()
 
 	for (const auto& [_, tag] : ConfTags("oper"))
 	{
-		const std::string name = tag->getString("name");
+		const auto name = tag->getString("name");
 		if (name.empty())
 			throw CoreException("<oper:name> missing from tag at " + tag->source.str());
 
-		const std::string typestr = tag->getString("type");
+		const auto typestr = tag->getString("type");
 		if (typestr.empty())
 			throw CoreException("<oper:type> missing from tag at " + tag->source.str());
 
-		auto type = OperTypes.find(typestr);
+		if (tag->getString("password").empty() && !tag->getBool("nopassword"))
+			throw CoreException("<oper:password> missing from tag at " + tag->source.str());
+
+		const auto type = OperTypes.find(typestr);
 		if (type == OperTypes.end())
 			throw CoreException("Oper block " + name + " has missing type " + typestr + " at " + tag->source.str());
 

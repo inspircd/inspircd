@@ -363,7 +363,7 @@ contain important server rules and notices and should be read prior
 to using a server.
 ">
 
-<helptopic key="oper" title="/OPER <username> <password>" value="
+<helptopic key="oper" title="/OPER <username> [<password>]" value="
 Attempts to authenticate as a server operator.
 
 Both successful and unsuccessful oper attempts are

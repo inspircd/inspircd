@@ -123,6 +123,14 @@
       # password: Case-sensitive, unhashed (plaintext).
       password="s3cret"
 
+      # nopassword: Whether to allow logging into an account without a password.
+      #
+      # IMPORTANT: As this option overrides the password field it should **NOT** be used
+      # unless you are certain that nobody other than the intended user will match the
+      # restrictions of this <oper> block. Failure to do this may result in your server
+      # being compromised.
+      #nopassword="no"
+
       # host: What hostnames and IPs are allowed to use this operator account.
       # Multiple options can be separated by spaces and CIDRs are allowed.
       # You can use just * or *@* for this section, but it is not recommended

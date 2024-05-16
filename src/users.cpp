@@ -1294,8 +1294,9 @@ void OperType::MergeTag(const std::shared_ptr<ConfigTag>& tag)
 
 OperAccount::OperAccount(const std::string& n, const std::shared_ptr<OperType>& o, const std::shared_ptr<ConfigTag>& t)
 	: OperType(n, nullptr)
-	, password(t->getString("password"))
-	, passwordhash(t->getString("hash", "plaintext", 1))
+	, nopassword(t->getBool("nopassword"))
+	, password(nopassword ? "" : t->getString("password"))
+	, passwordhash(nopassword ? "" : t->getString("hash", "plaintext", 1))
 	, type(o ? o->GetName() : n)
 {
 	autologin = t->getEnum("autologin", AutoLogin::NEVER, {
@@ -1336,5 +1337,8 @@ bool OperAccount::CanAutoLogin(LocalUser* user) const
 
 bool OperAccount::CheckPassword(const std::string& pw) const
 {
-	return InspIRCd::CheckPassword(password, passwordhash, pw);
+	if (nopassword)
+		return true; // <oper nopassword="yes">
+
+	return !password.empty() && InspIRCd::CheckPassword(password, passwordhash, pw);
 }

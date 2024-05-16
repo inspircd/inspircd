@@ -38,9 +38,9 @@ namespace
 }
 
 CommandOper::CommandOper(Module* parent)
-	: SplitCommand(parent, "OPER", 2, 2)
+	: SplitCommand(parent, "OPER", 1, 2)
 {
-	syntax = { "<username> <password>" };
+	syntax = { "<username> [<password>]" };
 }
 
 CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
@@ -56,7 +56,8 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 
 	// Check whether the password is correct.
 	auto account = it->second;
-	if (!account->CheckPassword(parameters[1]))
+	const auto& password = parameters.size() > 1 ? parameters[1] : "";
+	if (!account->CheckPassword(password))
 	{
 		ServerInstance->SNO.WriteGlobalSno('o', "{} ({}) [{}] failed to log into the \x02{}\x02 oper account because they specified the wrong password.",
 			user->nick, user->GetRealUserHost(), user->GetAddress(), parameters[0]);

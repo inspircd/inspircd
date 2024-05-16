@@ -285,6 +285,9 @@ protected:
 	/** Whether this oper account can be automatically logged into. */
 	AutoLogin autologin;
 
+	/** Whether the account can be logged into without a password. */
+	bool nopassword;
+
 	/** The password to used to log into this oper account. */
 	std::string password;
 
