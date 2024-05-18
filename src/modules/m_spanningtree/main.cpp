@@ -700,6 +700,13 @@ void ModuleSpanningTree::ReadConfig(ConfigStatus& status)
 		CommandSInfo::Builder(Utils->TreeRoot, "desc", newdesc).Broadcast();
 	}
 
+	const auto& newcustomversion = ServerInstance->Config->CustomVersion;
+	if (newcustomversion != Utils->TreeRoot->customversion)
+	{
+		Utils->TreeRoot->customversion = newcustomversion;
+		CommandSInfo::Builder(Utils->TreeRoot, "customversion", newcustomversion).Broadcast();
+	}
+
 	// Re-read config stuff
 	try
 	{
