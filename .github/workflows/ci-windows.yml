@@ -2,6 +2,9 @@ name: Windows CI
 on:
   pull_request:
   push:
+  release:
+    types:
+      - published
   schedule:
     - cron: '0 0 * * 0'
 jobs:
@@ -32,9 +35,17 @@ jobs:
         env:
           LDFLAGS: /DEBUG:FASTLINK /INCREMENTAL
         run: |
-          cmake -A x64 -G "Visual Studio 16 2019" -Wdev ..
+          cmake -A x64 -D CMAKE_BUILD_TYPE=${{ github.event_name == 'release' && 'Release' || 'Debug' }} -G "Visual Studio 16 2019" -Wdev ..
 
       - name: Build InspIRCd
         working-directory: ${{ github.workspace }}/win/build
         run: |
-          msbuild PACKAGE.vcxproj /M:3 /P:Configuration=Release /P:Platform=x64 /VERBOSITY:MINIMAL
+          msbuild PACKAGE.vcxproj /M:3 /P:Configuration=${{ github.event_name == 'release' && 'Release' || 'Debug' }} /P:Platform=x64 /VERBOSITY:MINIMAL
+
+      - name: Upload installer
+        if: "${{ github.event_name == 'release' }}"
+        working-directory: ${{ github.workspace }}/win/build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ github.event.release.tag_name }} $(Get-ChildItem InspIRCd-*.exe)
