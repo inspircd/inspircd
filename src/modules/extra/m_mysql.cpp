@@ -317,6 +317,12 @@ public:
 	// true upon success.
 	bool Connect()
 	{
+		if (connection)
+		{
+			mysql_close(connection);
+			connection = NULL;
+		}
+
 		connection = mysql_init(connection);
 
 		// Set the connection timeout.
