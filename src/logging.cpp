@@ -60,7 +60,7 @@ public:
 	void OnLog(time_t time, Log::Level level, const std::string& type, const std::string& message) override
 	{
 		fmt::println("{} {}: {}",
-			fmt::styled(Time::ToString(time, "%d %b %Y %H:%M:%S"), fmt::fg(fmt::terminal_color::yellow)),
+			fmt::styled(Time::ToString(time, "%d %b %H:%M:%S"), fmt::fg(fmt::terminal_color::yellow)),
 			fmt::styled(type, fmt::fg(fmt::terminal_color::green)),
 			message
 		);
