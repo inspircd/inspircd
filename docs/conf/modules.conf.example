@@ -2640,15 +2640,24 @@
 #              messages as raw binary frames, or "reject" to close
 #              connections which do not request a subprotocol. Defaults
 #              to "text".
+#
 # proxyranges: A space-delimited list of glob or CIDR matches to trust
 #              the X-Real-IP or X-Forwarded-For headers from. If enabled
 #              the server will use the IP address specified by those HTTP
 #              headers. You should NOT enable this unless you are using
 #              a HTTP proxy like nginx as it will allow IP spoofing.
-# nativeping:  Whether to check client connectivity using WebSocket ping
-#              messages instead of IRC ping messages. Defaults to yes.
+#
+# allowmissingorigin: Whether to allow connections from clients that
+#                     don't send an origin header. These are probably
+#                     not web clients so it probably safe to allow this.
+#                     Defaults to yes.
+#
+# nativeping: Whether to check client connectivity using WebSocket ping
+#             messages instead of IRC ping messages. Defaults to yes.
+#
 #<websocket defaultmode="text"
 #           proxyranges="192.0.2.0/24 198.51.100.*"
+#           allowmissingorigin="yes"
 #           nativeping="yes">
 #
 # If you use the websocket module you MUST specify one or more origins

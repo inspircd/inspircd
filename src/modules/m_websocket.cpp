@@ -58,6 +58,9 @@ struct WebSocketConfig final
 	// The IP ranges which send trustworthy X-Real-IP or X-Forwarded-For headers.
 	ProxyRanges proxyranges;
 
+	// Whether to allow connections from clients that do not send an Origin header.
+	bool allowmissingorigin;
+
 	// Whether to send WebSocket ping messages instead of IRC ping messages.
 	bool nativeping;
 };
@@ -400,6 +403,11 @@ class WebSocketHook final
 				}
 			}
 		}
+		else if (config.allowmissingorigin)
+		{
+			// This is a non-web WebSocket connection.
+			allowedorigin = true;
+		}
 		else
 		{
 			FailHandshake(sock, "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n", "WebSocket: Received HTTP request that did not send the Origin header");
@@ -662,6 +670,7 @@ public:
 		for (std::string proxyrange; proxyranges.GetToken(proxyrange); )
 			config.proxyranges.push_back(proxyrange);
 
+		config.allowmissingorigin = tag->getBool("allowmissingorigin", true);
 		config.nativeping = tag->getBool("nativeping", true);
 
 		// Everything is okay; apply the new config.
