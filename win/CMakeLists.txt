@@ -44,7 +44,7 @@ set(CMAKE_MODULE_PATH "${INSPIRCD_BASE}/win")
 
 # Require C++17
 set(CMAKE-CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD "17")
+set(CMAKE_CXX_STANDARD "20")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Put modules in their own folder

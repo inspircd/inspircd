@@ -213,7 +213,7 @@ sub test_file($$;$) {
 	my ($compiler, $file, $args) = @_;
 	my $status = 0;
 	$args //= '';
-	$status ||= system "$compiler -std=c++17 -o ${\CONFIGURE_ROOT}/__test_$file ${\CONFIGURE_ROOT}/make/test/$file $args ${\CONFIGURE_ERROR_PIPE}";
+	$status ||= system "$compiler -std=c++20 -o ${\CONFIGURE_ROOT}/__test_$file ${\CONFIGURE_ROOT}/make/test/$file $args ${\CONFIGURE_ERROR_PIPE}";
 	$status ||= system "${\CONFIGURE_ROOT}/__test_$file ${\CONFIGURE_ERROR_PIPE}";
 	unlink "${\CONFIGURE_ROOT}/__test_$file";
 	return !$status;
