@@ -57,13 +57,8 @@
 # pragma comment(lib, "libssl.lib")
 #endif
 
-#if OPENSSL_VERSION_NUMBER < 0x10101000L
-# error OpenSSL 1.1.1 or newer is required by the ssl_openssl module.
-#elif OPENSSL_VERSION_NUMBER < 0x30000000L
-# define OPENSSL_VERSION_STR OPENSSL_VERSION_TEXT
-# define OPENSSL_VERSION_STRING OPENSSL_VERSION
-#else
-# define INSPIRCD_OPENSSL_AUTO_DH
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+# error OpenSSL 3.0.0 or newer is required by the ssl_openssl module.
 #endif
 
 static bool SelfSigned = false;
@@ -89,37 +84,6 @@ namespace OpenSSL
 		{
 		}
 	};
-
-#ifndef INSPIRCD_OPENSSL_AUTO_DH
-	class DHParams final
-	{
-		DH* dh;
-
-	public:
-		DHParams(const std::string& filename)
-		{
-			BIO* dhpfile = BIO_new_file(filename.c_str(), "r");
-			if (!dhpfile)
-				throw Exception("Couldn't open DH file " + filename);
-
-			dh = PEM_read_bio_DHparams(dhpfile, nullptr, nullptr, nullptr);
-			BIO_free(dhpfile);
-
-			if (!dh)
-				throw Exception("Couldn't read DH params from file " + filename);
-		}
-
-		~DHParams()
-		{
-			DH_free(dh);
-		}
-
-		DH* get()
-		{
-			return dh;
-		}
-	};
-#endif
 
 	class Context final
 	{
@@ -157,14 +121,6 @@ namespace OpenSSL
 		{
 			SSL_CTX_free(ctx);
 		}
-
-#ifndef INSPIRCD_OPENSSL_AUTO_DH
-		bool SetDH(DHParams& dh)
-		{
-			ERR_clear_error();
-			return (SSL_CTX_set_tmp_dh(ctx, dh.get()) >= 0);
-		}
-#endif
 
 #ifndef OPENSSL_NO_ECDH
 		void SetECDH(const std::string& curvename)
@@ -290,12 +246,6 @@ namespace OpenSSL
 		 */
 		const std::string name;
 
-#ifndef INSPIRCD_OPENSSL_AUTO_DH
-		/** DH parameters in use
-		 */
-		DHParams dh;
-#endif
-
 		/** OpenSSL makes us have two contexts, one for servers and one for clients
 		 */
 		Context ctx;
@@ -369,19 +319,11 @@ namespace OpenSSL
 	public:
 		Profile(const std::string& profilename, const std::shared_ptr<ConfigTag>& tag)
 			: name(profilename)
-#ifndef INSPIRCD_OPENSSL_AUTO_DH
-			, dh(ServerInstance->Config->Paths.PrependConfig(tag->getString("dhfile", "dhparams.pem", 1)))
-#endif
 			, ctx(SSL_CTX_new(TLS_server_method()))
 			, clientctx(SSL_CTX_new(TLS_client_method()))
 			, allowrenego(tag->getBool("renegotiation")) // Disallow by default
 			, outrecsize(tag->getNum<unsigned int>("outrecsize", 2048, 512, 16384))
 		{
-#ifndef INSPIRCD_OPENSSL_AUTO_DH
-			if ((!ctx.SetDH(dh)) || (!clientctx.SetDH(dh)))
-				throw Exception("Couldn't set DH parameters");
-#endif
-
 			irc::spacesepstream hashstream(tag->getString("hash", "sha256", 1));
 			for (std::string hash; hashstream.GetToken(hash); )
 			{
