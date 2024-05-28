@@ -53,10 +53,8 @@
 // Check if the GnuTLS library is at least version major.minor.patch
 #define INSPIRCD_GNUTLS_HAS_VERSION(major, minor, patch) (GNUTLS_VERSION_NUMBER >= ((major << 16) | (minor << 8) | patch))
 
-#if !INSPIRCD_GNUTLS_HAS_VERSION(3, 3, 5)
-# error GnuTLS 3.3.5 or newer is required by the ssl_openssl module.
-#elif INSPIRCD_GNUTLS_HAS_VERSION(3, 6, 0)
-# define GNUTLS_AUTO_DH
+#if !INSPIRCD_GNUTLS_HAS_VERSION(3, 6, 0)
+# error GnuTLS 3.6.0 or newer is required by the ssl_openssl module.
 #endif
 
 #ifdef _WIN32
@@ -149,35 +147,6 @@ namespace GnuTLS
 
 		std::vector<std::pair<gnutls_digest_algorithm_t, bool>> get() const { return hashes; }
 	};
-
-#ifndef GNUTLS_AUTO_DH
-	class DHParams final
-	{
-		gnutls_dh_params_t dh_params;
-
-		DHParams()
-		{
-			ThrowOnError(gnutls_dh_params_init(&dh_params), "gnutls_dh_params_init() failed");
-		}
-
-	public:
-		/** Import */
-		static std::shared_ptr<DHParams> Import(const std::string& dhstr)
-		{
-			std::shared_ptr<DHParams> dh(new DHParams);
-			int ret = gnutls_dh_params_import_pkcs3(dh->dh_params, Datum(dhstr).get(), GNUTLS_X509_FMT_PEM);
-			ThrowOnError(ret, "Unable to import DH params");
-			return dh;
-		}
-
-		~DHParams()
-		{
-			gnutls_dh_params_deinit(dh_params);
-		}
-
-		const gnutls_dh_params_t& get() const { return dh_params; }
-	};
-#endif
 
 	class X509Key final
 	{
@@ -344,12 +313,6 @@ namespace GnuTLS
 
 	class CertCredentials
 	{
-#ifndef GNUTLS_AUTO_DH
-		/** DH parameters associated with these credentials
-		 */
-		std::shared_ptr<DHParams> dh;
-#endif
-
 	protected:
 		gnutls_certificate_credentials_t cred;
 
@@ -370,16 +333,6 @@ namespace GnuTLS
 		{
 			gnutls_credentials_set(sess, GNUTLS_CRD_CERTIFICATE, cred);
 		}
-
-#ifndef GNUTLS_AUTO_DH
-		/** Set the given DH parameters to be used with these credentials
-		 */
-		void SetDH(const std::shared_ptr<DHParams>& DH)
-		{
-			dh = DH;
-			gnutls_certificate_set_dh_params(cred, dh->get());
-		}
-#endif
 	};
 
 	class X509Credentials final
@@ -538,9 +491,6 @@ namespace GnuTLS
 
 			std::string certstr;
 			std::string keystr;
-#ifndef GNUTLS_AUTO_DH
-			std::shared_ptr<DHParams> dh;
-#endif
 
 			std::string priostr;
 			unsigned int mindh;
@@ -553,9 +503,6 @@ namespace GnuTLS
 				: name(profilename)
 				, certstr(ReadFile(tag->getString("certfile", "cert.pem", 1)))
 				, keystr(ReadFile(tag->getString("keyfile", "key.pem", 1)))
-#ifndef GNUTLS_AUTO_DH
-				, dh(DHParams::Import(ReadFile(tag->getString("dhfile", "dhparams.pem", 1))))
-#endif
 				, priostr(GetPrioStr(profilename, tag))
 				, mindh(tag->getNum<unsigned int>("mindhbits", 1024))
 				, hashstr(tag->getString("hash", "sha256", 1))
@@ -585,9 +532,6 @@ namespace GnuTLS
 			, outrecsize(config.outrecsize)
 			, requestclientcert(config.requestclientcert)
 		{
-#ifndef GNUTLS_AUTO_DH
-			x509cred.SetDH(config.dh);
-#endif
 			x509cred.SetCA(config.ca, config.crl);
 		}
 		/** Set up the given session with the settings in this profile
