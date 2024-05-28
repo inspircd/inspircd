@@ -160,7 +160,7 @@ public:
 		cmdmotd.motds.swap(newmotds);
 
 		const auto& tag = ServerInstance->Config->ConfValue("admin");
-		cmdadmin.adminname = tag->getString("name", tag->getString("nick", ServerInstance->Config->Network + " Admins", 1));
+		cmdadmin.adminname = tag->getString("name", ServerInstance->Config->Network + " Admins", 1);
 		cmdadmin.admindesc = tag->getString("description");
 		cmdadmin.adminemail = tag->getString("email", "noreply@" + ServerInstance->Config->GetServerName(), 1);
 

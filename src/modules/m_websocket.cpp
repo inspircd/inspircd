@@ -656,7 +656,7 @@ public:
 
 		const auto& tag = ServerInstance->Config->ConfValue("websocket");
 
-		const std::string defaultmodestr = tag->getString("defaultmode", tag->getBool("sendastext", true) ? "text" : "binary", 1);
+		const std::string defaultmodestr = tag->getString("defaultmode", "text", 1);
 		if (insp::equalsci(defaultmodestr, "reject"))
 			config.defaultmode = WebSocketConfig::DM_REJECT;
 		else if (insp::equalsci(defaultmodestr, "binary"))

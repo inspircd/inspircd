@@ -303,7 +303,7 @@ public:
 		CloakMethodList newcloakmethods;
 		for (const auto& [_, tag] : tags)
 		{
-			const std::string method = tag->getString("method", tag->getString("mode"));
+			const std::string method = tag->getString("method");
 			if (method.empty())
 				throw ModuleException(this, "<cloak:method> must be set to the name of a cloak engine, at " + tag->source.str());
 

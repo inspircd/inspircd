@@ -50,7 +50,7 @@ ServerConfig::ServerLimits::ServerLimits(const std::shared_ptr<ConfigTag>& tag)
 	, MaxNick(tag->getNum<size_t>("maxnick", 30, 1, MaxLine))
 	, MaxChannel(tag->getNum<size_t>("maxchan", 60, 1, MaxLine))
 	, MaxModes(tag->getNum<size_t>("maxmodes", 20, 1))
-	, MaxUser(tag->getNum<size_t>("maxuser", tag->getNum<size_t>("maxident", 10, 1, MaxLine), 1, MaxLine))
+	, MaxUser(tag->getNum<size_t>("maxuser", 10, 1, MaxLine))
 	, MaxQuit(tag->getNum<size_t>("maxquit", 300, 0, MaxLine))
 	, MaxTopic(tag->getNum<size_t>("maxtopic", 330, 1, MaxLine))
 	, MaxKick(tag->getNum<size_t>("maxkick", 300, 1, MaxLine))
@@ -366,7 +366,7 @@ void ServerConfig::Fill()
 	const auto& options = ConfValue("options");
 	DefaultModes = options->getString("defaultmodes", "not");
 	MaskInList = options->getBool("maskinlist");
-	MaskInTopic = options->getBool("maskintopic", options->getBool("hostintopic"));
+	MaskInTopic = options->getBool("maskintopic");
 	NoSnoticeStack = options->getBool("nosnoticestack");
 	SyntaxHints = options->getBool("syntaxhints");
 	XLineMessage = options->getString("xlinemessage", "You're banned!", 1);
@@ -394,7 +394,7 @@ void ServerConfig::Fill()
 	CustomVersion = security->getString("customversion");
 	HideServer = security->getString("hideserver", {}, InspIRCd::IsFQDN);
 	MaxTargets = security->getNum<size_t>("maxtargets", 5, 1, 50);
-	XLineQuitPublic = security->getString("publicxlinequit", security->getBool("hidebans") ? "%fulltype%" : "");
+	XLineQuitPublic = security->getString("publicxlinequit");
 
 	// Read the <cidr> config.
 	const auto& cidr = ConfValue("cidr");
@@ -672,40 +672,6 @@ std::vector<std::string> ServerConfig::GetModules() const
 		}
 
 		// Rewrite the old names of renamed modules.
-		if (insp::equalsci(shortname, "cgiirc"))
-			modules.push_back("gateway");
-		else if (insp::equalsci(shortname, "cloaking"))
-		{
-			modules.push_back("cloak");
-			modules.push_back("cloak_md5");
-		}
-		else if (insp::equalsci(shortname, "gecosban"))
-			modules.push_back("realnameban");
-		else if (insp::equalsci(shortname, "helpop"))
-		{
-			modules.push_back("help");
-			modules.push_back("helpmode");
-		}
-		else if (insp::equalsci(shortname, "mlock"))
-			modules.push_back("services");
-		else if (insp::equalsci(shortname, "namesx"))
-			modules.push_back("multiprefix");
-		else if (insp::equalsci(shortname, "regex_pcre2"))
-			modules.push_back("regex_pcre");
-		else if (insp::equalsci(shortname, "sha256"))
-			modules.push_back("sha2");
-		else if (insp::equalsci(shortname, "services_account"))
-		{
-			modules.push_back("account");
-			modules.push_back("services");
-		}
-		else if (insp::equalsci(shortname, "servprotect"))
-			modules.push_back("services");
-		else if (insp::equalsci(shortname, "svshold"))
-			modules.push_back("services");
-		else if (insp::equalsci(shortname, "topiclock"))
-			modules.push_back("services");
-		else
 		{
 			// No need to rewrite this module name.
 			modules.push_back(shortname);

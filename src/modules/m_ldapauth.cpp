@@ -352,7 +352,7 @@ public:
 		vhost			= tag->getString("host");
 		// Set to true if failed connects should be reported to operators
 		verbose			= tag->getBool("verbose");
-		field = tag->getEnum("field", tag->getBool("useusername") ? AuthField::USERNAME : AuthField::NICKNAME, {
+		field = tag->getEnum("field", AuthField::NICKNAME, {
 			{ "nickname", AuthField::USERNAME },
 			{ "password", AuthField::PASSWORD },
 			{ "username", AuthField::NICKNAME },

@@ -96,7 +96,7 @@ public:
 				throw ModuleException(this, "<alias:replace> is empty! at " + tag->source.str());
 
 			a.RequiredNick = tag->getString("requires");
-			a.ServiceOnly = tag->getBool("service", tag->getBool("uline"));
+			a.ServiceOnly = tag->getBool("service");
 			a.ChannelCommand = tag->getBool("channelcommand", false);
 			a.UserCommand = tag->getBool("usercommand", true);
 			a.OperOnly = tag->getBool("operonly");
@@ -370,12 +370,6 @@ public:
 				{
 					result.append(user->GetAddress());
 					i += 7;
-				}
-				else if (!newline.compare(i, 6, "$ident", 6))
-				{
-					// TODO: remove this in the next major release.
-					result.append(user->GetRealUser());
-					i += 5;
 				}
 				else
 					result.push_back(c);

@@ -64,7 +64,7 @@ public:
 	{
 		const auto& security = ServerInstance->Config->ConfValue("security");
 		cmdkill.hidenick = security->getString("hidekills");
-		cmdkill.hideservicekills = security->getBool("hideservicekills", security->getBool("hideulinekills"));
+		cmdkill.hideservicekills = security->getBool("hideservicekills");
 	}
 
 	void OnPostConnect(User* user) override

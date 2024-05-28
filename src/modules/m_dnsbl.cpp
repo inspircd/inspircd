@@ -164,7 +164,7 @@ public:
 
 		reason = tag->getString("reason", "Your IP (%ip%) has been blacklisted by the %dnsbl% DNSBL.", 1, ServerInstance->Config->Limits.MaxLine);
 		timeout = static_cast<unsigned int>(tag->getDuration("timeout", 0, 1, 60));
-		markuser = tag->getString("user", tag->getString("ident"));
+		markuser = tag->getString("user");
 		markhost = tag->getString("host");
 		xlineduration = tag->getDuration("duration", 60*60, 1);
 	}

@@ -241,7 +241,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 
 	const auto& security = ServerInstance->Config->ConfValue("security");
 	FlatLinks = security->getBool("flatlinks");
-	HideServices = security->getBool("hideservices", security->getBool("hideulines"));
+	HideServices = security->getBool("hideservices");
 	HideSplits = security->getBool("hidesplits");
 
 	const auto& performance = ServerInstance->Config->ConfValue("performance");
