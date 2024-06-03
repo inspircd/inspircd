@@ -206,7 +206,10 @@ bool PrefixMode::OnModeChange(User* source, User*, Channel* chan, Modes::Change&
 
 	Membership* memb = chan->GetUser(target);
 	if (!memb)
+	{
+		source->WriteNumeric(ERR_USERNOTINCHANNEL, target->nick, chan->name, "They are not on that channel");
 		return false;
+	}
 
 	change.param = target->nick;
 	return memb->SetPrefix(this, change.adding);
