@@ -212,7 +212,10 @@ ModeAction PrefixMode::OnModeChange(User* source, User*, Channel* chan, std::str
 
 	Membership* memb = chan->GetUser(target);
 	if (!memb)
+	{
+		source->WriteNumeric(ERR_USERNOTINCHANNEL, target->nick, chan->name, "They are not on that channel");
 		return MODEACTION_DENY;
+	}
 
 	parameter = target->nick;
 	return (memb->SetPrefix(this, adding) ? MODEACTION_ALLOW : MODEACTION_DENY);
