@@ -30,7 +30,7 @@ class insp::aligned_storage final
 {
 private:
 	/** The underlying aligned storage block. */
-	mutable typename std::aligned_storage<sizeof(T), std::alignment_of_v<T>>::type data;
+	alignas(T) mutable std::byte data[sizeof(T)];
 
 public:
 	/** Default constructor for the aligned_storage class. */
