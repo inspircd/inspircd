@@ -290,7 +290,7 @@ public:
 	 * The details of the connecting user are available to you in the parameter User* user
 	 * @param user The user who is connecting
 	 */
-	virtual void OnUserConnect(LocalUser* user);
+	virtual void OnUserConnect(LocalUser* user) ATTR_NOT_NULL(2);
 
 	/** Called when before a user quits.
 	 * The details of the exiting user are available to you in the parameter User* user
@@ -300,7 +300,7 @@ public:
 	 * @param message The user's quit message (as seen by non-opers)
 	 * @param oper_message The user's quit message (as seen by opers)
 	 */
-	virtual ModResult OnUserPreQuit(LocalUser* user, std::string& message, std::string& oper_message);
+	virtual ModResult OnUserPreQuit(LocalUser* user, std::string& message, std::string& oper_message) ATTR_NOT_NULL(2);
 
 	/** Called when a user quits.
 	 * The details of the exiting user are available to you in the parameter User* user
@@ -310,7 +310,7 @@ public:
 	 * @param message The user's quit message (as seen by non-opers)
 	 * @param oper_message The user's quit message (as seen by opers)
 	 */
-	virtual void OnUserQuit(User* user, const std::string& message, const std::string& oper_message);
+	virtual void OnUserQuit(User* user, const std::string& message, const std::string& oper_message) ATTR_NOT_NULL(2);
 
 	/** Called whenever a user's socket is closed.
 	 * The details of the exiting user are available to you in the parameter User* user
@@ -318,18 +318,18 @@ public:
 	 * which might assign resources to user, such as dns lookups, objects and sockets.
 	 * @param user The user who is disconnecting
 	 */
-	virtual void OnUserDisconnect(LocalUser* user);
+	virtual void OnUserDisconnect(LocalUser* user) ATTR_NOT_NULL(2);
 
 	/** Called whenever a channel is about to be deleted
 	 * @param chan The channel being deleted
 	 * @return An integer specifying whether or not the channel may be deleted. 0 for yes, 1 for no.
 	 */
-	virtual ModResult OnChannelPreDelete(Channel* chan);
+	virtual ModResult OnChannelPreDelete(Channel* chan) ATTR_NOT_NULL(2);
 
 	/** Called whenever a channel is deleted, either by QUIT, KICK or PART.
 	 * @param chan The channel being deleted
 	 */
-	virtual void OnChannelDelete(Channel* chan);
+	virtual void OnChannelDelete(Channel* chan) ATTR_NOT_NULL(2);
 
 	/** Called when a user joins a channel.
 	 * The details of the joining user are available to you in the parameter User* user,
@@ -340,14 +340,14 @@ public:
 	 * @param created This is true if the join created the channel
 	 * @param except_list A list of users not to send to.
 	 */
-	virtual void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except_list);
+	virtual void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except_list) ATTR_NOT_NULL(2);
 
 	/** Called after a user joins a channel
 	 * Identical to OnUserJoin, but called immediately afterwards, when any linking module has
 	 * seen the join.
 	 * @param memb The channel membership created
 	 */
-	virtual void OnPostJoin(Membership* memb);
+	virtual void OnPostJoin(Membership* memb) ATTR_NOT_NULL(2);
 
 	/** Called when a user parts a channel.
 	 * The details of the leaving user are available to you in the parameter User* user,
@@ -356,7 +356,7 @@ public:
 	 * @param partmessage The part message, or an empty string (may be modified)
 	 * @param except_list A list of users to not send to.
 	 */
-	virtual void OnUserPart(Membership* memb, std::string& partmessage, CUList& except_list);
+	virtual void OnUserPart(Membership* memb, std::string& partmessage, CUList& except_list) ATTR_NOT_NULL(2);
 
 	/** Called on rehash.
 	 * This method is called prior to a /REHASH or when a SIGHUP is received from the operating
@@ -410,7 +410,7 @@ public:
 	 * @param override Whether the channel join can be blocked by returning MOD_RES_DENY.
 	 * @return 1 To prevent the join, 0 to allow it.
 	 */
-	virtual ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override);
+	virtual ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) ATTR_NOT_NULL(2);
 
 	/** Called whenever a user is about to be kicked.
 	 * Returning a value of 1 from this function stops the process immediately, causing no
@@ -421,7 +421,7 @@ public:
 	 * @param reason The kick reason
 	 * @return 1 to prevent the kick, 0 to continue normally, -1 to explicitly allow the kick regardless of normal operation
 	 */
-	virtual ModResult OnUserPreKick(User* source, Membership* memb, const std::string& reason);
+	virtual ModResult OnUserPreKick(User* source, Membership* memb, const std::string& reason)  ATTR_NOT_NULL(2, 3);
 
 	/** Called whenever a user is kicked.
 	 * If this method is called, the kick is already underway and cannot be prevented, so
@@ -431,7 +431,7 @@ public:
 	 * @param reason The kick reason
 	 * @param except_list A list of users to not send to.
 	 */
-	virtual void OnUserKick(User* source, Membership* memb, const std::string& reason, CUList& except_list);
+	virtual void OnUserKick(User* source, Membership* memb, const std::string& reason, CUList& except_list) ATTR_NOT_NULL(2, 3);
 
 	/** Called whenever a user is about to invite another user into a channel, before any processing is done.
 	 * Returning 1 from this function stops the process immediately, causing no
@@ -443,7 +443,7 @@ public:
 	 * @param timeout The time the invite will expire (0 == never)
 	 * @return 1 to deny the invite, 0 to check whether or not the user has permission to invite, -1 to explicitly allow the invite
 	 */
-	virtual ModResult OnUserPreInvite(User* source, User* dest, Channel* channel, time_t timeout);
+	virtual ModResult OnUserPreInvite(User* source, User* dest, Channel* channel, time_t timeout) ATTR_NOT_NULL(2, 3, 4);
 
 	/** Called after a user has been successfully invited to a channel.
 	 * You cannot prevent the invite from occurring using this function, to do that,
@@ -455,7 +455,7 @@ public:
 	 * @param notifyrank Rank required to get an invite announcement (if enabled)
 	 * @param notifyexcepts List of users to not send the default NOTICE invite announcement to
 	 */
-	virtual void OnUserInvite(User* source, User* dest, Channel* channel, time_t timeout, ModeHandler::Rank notifyrank, CUList& notifyexcepts);
+	virtual void OnUserInvite(User* source, User* dest, Channel* channel, time_t timeout, ModeHandler::Rank notifyrank, CUList& notifyexcepts)  ATTR_NOT_NULL(2, 3, 4);
 
 	/** Called before a user sends a message to a channel, a user, or a server glob mask.
 	 * @param user The user sending the message.
@@ -466,7 +466,7 @@ public:
 	 * @return MOD_RES_ALLOW to explicitly allow the message, MOD_RES_DENY to explicitly deny the
 	 *         message, or MOD_RES_PASSTHRU to let another module handle the event.
 	 */
-	virtual ModResult OnUserPreMessage(User* user, MessageTarget& target, MessageDetails& details);
+	virtual ModResult OnUserPreMessage(User* user, MessageTarget& target, MessageDetails& details) ATTR_NOT_NULL(2);
 
 	/** Called when sending a message to all "neighbors" of a given user -
 	 * that is, all users that share a common channel. This is used in
@@ -477,7 +477,7 @@ public:
 	 *
 	 * Set exceptions[user] = true to include, exceptions[user] = false to exclude
 	 */
-	virtual void OnBuildNeighborList(User* source, User::NeighborList& include, User::NeighborExceptions& exceptions);
+	virtual void OnBuildNeighborList(User* source, User::NeighborList& include, User::NeighborExceptions& exceptions) ATTR_NOT_NULL(2);
 
 	/** Called before local nickname changes. This can be used to implement Q-lines etc.
 	 * If your method returns nonzero, the nickchange is silently forbidden, and it is down to your
@@ -486,7 +486,7 @@ public:
 	 * @param newnick Their new nickname
 	 * @return 1 to deny the change, 0 to allow
 	 */
-	virtual ModResult OnUserPreNick(LocalUser* user, const std::string& newnick);
+	virtual ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) ATTR_NOT_NULL(2);
 
 	/** Called immediately after a user sends a message to a channel, a user, or a server glob mask.
 	 * @param user The user sending the message.
@@ -495,7 +495,7 @@ public:
 	 * @param details Details about the message such as the message text and type. See the
 	 *                MessageDetails class for more information.
 	 */
-	virtual void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details);
+	virtual void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) ATTR_NOT_NULL(2);
 
 	/** Called immediately before a user sends a message to a channel, a user, or a server glob mask.
 	 * @param user The user sending the message.
@@ -504,7 +504,7 @@ public:
 	 * @param details Details about the message such as the message text and type. See the
 	 *                MessageDetails class for more information.
 	 */
-	virtual void OnUserMessage(User* user, const MessageTarget& target, const MessageDetails& details);
+	virtual void OnUserMessage(User* user, const MessageTarget& target, const MessageDetails& details) ATTR_NOT_NULL(2);
 
 	/** Called when a message sent by a user to a channel, a user, or a server glob mask is blocked.
 	 * @param user The user sending the message.
@@ -513,7 +513,7 @@ public:
 	 * @param details Details about the message such as the message text and type. See the
 	 *                MessageDetails class for more information.
 	 */
-	virtual void OnUserMessageBlocked(User* user, const MessageTarget& target, const MessageDetails& details);
+	virtual void OnUserMessageBlocked(User* user, const MessageTarget& target, const MessageDetails& details) ATTR_NOT_NULL(2);
 
 	/** Called after every MODE command sent from a user
 	 * Either the usertarget or the chantarget variable contains the target of the modes,
@@ -526,7 +526,7 @@ public:
 	 * @param processflags Flags passed to ModeParser::Process(), see ModeParser::ModeProcessFlags
 	 * for the possible flags.
 	 */
-	virtual void OnMode(User* user, User* usertarget, Channel* chantarget, const Modes::ChangeList& changelist, ModeParser::ModeProcessFlag processflags);
+	virtual void OnMode(User* user, User* usertarget, Channel* chantarget, const Modes::ChangeList& changelist, ModeParser::ModeProcessFlag processflags) ATTR_NOT_NULL(2);
 
 	/** Allows module data, sent via SendMetadata, to be decoded again by a receiving module.
 	 * Please see src/modules/m_swhois.cpp for a working example of how to use this method call.
@@ -541,64 +541,64 @@ public:
 	 * @param user The user whose host is being changed
 	 * @param newhost The new hostname being set
 	 */
-	virtual void OnChangeHost(User* user, const std::string& newhost);
+	virtual void OnChangeHost(User* user, const std::string& newhost) ATTR_NOT_NULL(2);
 
 	/** Called whenever a user's real hostname is changed.
 	 * This event triggers before the host has been set.
 	 * @param user The user whose host is being changed
 	 * @param newhost The new hostname being set
 	 */
-	virtual void OnChangeRealHost(User* user, const std::string& newhost);
+	virtual void OnChangeRealHost(User* user, const std::string& newhost) ATTR_NOT_NULL(2);
 
 	/** Called whenever a user's real hostname is changed.
 	 * This event triggers after the host has been set.
 	 * @param user The user whos host was changed.
 	 */
-	virtual void OnPostChangeRealHost(User* user);
+	virtual void OnPostChangeRealHost(User* user) ATTR_NOT_NULL(2);
 
 	/** Called whenever a user's real name is changed.
 	 * This event triggers after the name has been set.
 	 * @param user The user who's real name is being changed
 	 * @param real The new real name being set on the user
 	 */
-	virtual void OnChangeRealName(User* user, const std::string& real);
+	virtual void OnChangeRealName(User* user, const std::string& real) ATTR_NOT_NULL(2);
 
 	/** Called before a user's username is changed.
 	 * @param user The user who's username is being changed
 	 * @param newuser The new username being set.
 	 */
-	virtual void OnChangeUser(User* user, const std::string& newuser);
+	virtual void OnChangeUser(User* user, const std::string& newuser) ATTR_NOT_NULL(2);
 
 	/** Called before a user's real username is changed.
 	 * @param user The user who's real username is being changed
 	 * @param newuser The new real username being set.
 	 */
-	virtual void OnChangeRealUser(User* user, const std::string& newuser);
+	virtual void OnChangeRealUser(User* user, const std::string& newuser) ATTR_NOT_NULL(2);
 
 	/** Called after a user's real username is changed.
 	 * @param user The user whos real username was changed.
 	 */
-	virtual void OnPostChangeRealUser(User* user);
+	virtual void OnPostChangeRealUser(User* user) ATTR_NOT_NULL(2);
 
 	/** Called whenever an xline is added by a local user.
 	 * This method is triggered after the line is added.
 	 * @param source The sender of the line or NULL for local server
 	 * @param line The xline being added
 	 */
-	virtual void OnAddLine(User* source, XLine* line);
+	virtual void OnAddLine(User* source, XLine* line) ATTR_NOT_NULL(3);
 
 	/** Called whenever an xline is deleted MANUALLY. See OnExpireLine for expiry.
 	 * This method is triggered after the line is deleted.
 	 * @param source The user removing the line or NULL for local server
 	 * @param line the line being deleted
 	 */
-	virtual void OnDelLine(User* source, XLine* line);
+	virtual void OnDelLine(User* source, XLine* line) ATTR_NOT_NULL(3);
 
 	/** Called whenever an xline expires.
 	 * This method is triggered after the line is deleted.
 	 * @param line The line being deleted.
 	 */
-	virtual void OnExpireLine(XLine* line);
+	virtual void OnExpireLine(XLine* line) ATTR_NOT_NULL(2);
 
 	/** Called before the module is unloaded to clean up extension.
 	 * This method is called once for every channel, membership, and user.
@@ -606,7 +606,7 @@ public:
 	 * @param type The type of extensible being cleaned up.
 	 * @param item A pointer to the extensible which is being cleaned up.
 	 */
-	virtual void OnCleanup(ExtensionType type, Extensible* item);
+	virtual void OnCleanup(ExtensionType type, Extensible* item) ATTR_NOT_NULL(3);
 
 	/** Called after any nickchange, local or remote. This can be used to track users after nickchanges
 	 * have been applied. Please note that although you can see remote nickchanges through this function, you should
@@ -617,7 +617,7 @@ public:
 	 * @param user The user changing their nick
 	 * @param oldnick The old nickname of the user before the nickchange
 	 */
-	virtual void OnUserPostNick(User* user, const std::string& oldnick);
+	virtual void OnUserPostNick(User* user, const std::string& oldnick) ATTR_NOT_NULL(2);
 
 	/** Called before a mode change via the MODE command, to allow a single access check for
 	 * a full mode change (use OnRawMode to check individual modes)
@@ -630,7 +630,7 @@ public:
 	 * @param channel the channel destination of the mode change
 	 * @param modes Modes being changed, can be edited
 	 */
-	virtual ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes);
+	virtual ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes) ATTR_NOT_NULL(2);
 
 	/** Called when a client is disconnected by KILL.
 	 * If a client is killed by a server, e.g. a nickname collision or protocol error,
@@ -645,7 +645,7 @@ public:
 	 * @param reason The kill reason
 	 * @return 1 to prevent the kill, 0 to allow
 	 */
-	virtual ModResult OnKill(User* source, User* dest, const std::string& reason);
+	virtual ModResult OnKill(User* source, User* dest, const std::string& reason) ATTR_NOT_NULL(2, 3);
 
 	/** Called whenever a module is loaded.
 	 * mod will contain a pointer to the module, and string will contain its name,
@@ -658,7 +658,7 @@ public:
 	 * module).
 	 * @param mod A pointer to the new module
 	 */
-	virtual void OnLoadModule(Module* mod);
+	virtual void OnLoadModule(Module* mod) ATTR_NOT_NULL(2);
 
 	/** Called whenever a module is unloaded.
 	 * mod will contain a pointer to the module, and string will contain its name,
@@ -671,7 +671,7 @@ public:
 	 * module).
 	 * @param mod Pointer to the module being unloaded (still valid)
 	 */
-	virtual void OnUnloadModule(Module* mod);
+	virtual void OnUnloadModule(Module* mod) ATTR_NOT_NULL(2);
 
 	/** Called once every five seconds for background processing.
 	 * This timer can be used to control timed features. Its period is not accurate
@@ -697,7 +697,7 @@ public:
 	 * You should only change the parameter list and command string if validated == false (e.g. before the command lookup occurs).
 	 * @return 1 to block the command, 0 to allow
 	 */
-	virtual ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated);
+	virtual ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) ATTR_NOT_NULL(4);
 
 	/** Called after any command has been executed.
 	 * This event occurs for all registered commands, whether they are registered in the core,
@@ -710,14 +710,14 @@ public:
 	 * @param result The return code given by the command handler, one of CmdResult::SUCCESS or CmdResult::FAILURE
 	 * @param loop Whether the command is being called from LoopCall or directly.
 	 */
-	virtual void OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, bool loop);
+	virtual void OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, bool loop) ATTR_NOT_NULL(2, 4);
 
 	/** Called when a command was blocked before it could be executed.
 	 * @param command The command being executed.
 	 * @param parameters The parameters for the command.
 	 * @param user The user issuing the command.
 	 */
-	virtual void OnCommandBlocked(const std::string& command, const CommandBase::Params& parameters, LocalUser* user);
+	virtual void OnCommandBlocked(const std::string& command, const CommandBase::Params& parameters, LocalUser* user) ATTR_NOT_NULL(4);
 
 	/** Called after a user object is initialised and added to the user list.
 	 * When this is called the user has not had their I/O hooks checked or had their initial
@@ -725,13 +725,13 @@ public:
 	 * the OnUserPostInit or OnUserSetIP hooks instead of this one.
 	 * @param user The connecting user.
 	 */
-	virtual void OnUserInit(LocalUser* user);
+	virtual void OnUserInit(LocalUser* user) ATTR_NOT_NULL(2);
 
 	/** Called after a user object has had their I/O hooks checked, their initial connection
 	 * class assigned, and had a serializer set.
 	 * @param user The connecting user.
 	 */
-	virtual void OnUserPostInit(LocalUser* user);
+	virtual void OnUserPostInit(LocalUser* user) ATTR_NOT_NULL(2);
 
 	/** Called to check if a user who is connecting can now be allowed to register
 	 * If any modules return false for this function, the user is held in the waiting
@@ -743,7 +743,7 @@ public:
 	 * @param user The user to check
 	 * @return true to indicate readiness, false if otherwise
 	 */
-	virtual ModResult OnCheckReady(LocalUser* user);
+	virtual ModResult OnCheckReady(LocalUser* user) ATTR_NOT_NULL(2);
 
 	/** Called whenever a user is about to register their connection (e.g. before the user
 	 * is sent the MOTD etc). Modules can use this method if they are performing a function
@@ -754,7 +754,7 @@ public:
 	 * @param user The user registering
 	 * @return 1 to indicate user quit, 0 to continue
 	 */
-	virtual ModResult OnUserRegister(LocalUser* user);
+	virtual ModResult OnUserRegister(LocalUser* user) ATTR_NOT_NULL(2);
 
 	/** Called whenever a user joins a channel, to determine if invite checks should go ahead or not.
 	 * This method will always be called for each join, whether or not the channel is actually +i, and
@@ -764,7 +764,7 @@ public:
 	 * @param chan The channel being joined
 	 * @return 1 to explicitly allow the join, 0 to proceed as normal
 	 */
-	virtual ModResult OnCheckInvite(User* user, Channel* chan);
+	virtual ModResult OnCheckInvite(User* user, Channel* chan) ATTR_NOT_NULL(2, 3);
 
 	/** Called whenever a mode character is processed.
 	 * Return 1 from this function to block the mode character from being processed entirely.
@@ -775,7 +775,7 @@ public:
 	 * to skip all permission checking. Please note that for remote mode changes, your return value
 	 * will be ignored!
 	 */
-	virtual ModResult OnRawMode(User* user, Channel* chan, const Modes::Change& change);
+	virtual ModResult OnRawMode(User* user, Channel* chan, const Modes::Change& change) ATTR_NOT_NULL(2);
 
 	/** Called whenever a user joins a channel, to determine if key checks should go ahead or not.
 	 * This method will always be called for each join, whether or not the channel is actually +k, and
@@ -787,7 +787,7 @@ public:
 	 * @param keygiven The key given on joining the channel.
 	 * @return 1 to explicitly allow the join, 0 to proceed as normal
 	 */
-	virtual ModResult OnCheckKey(User* user, Channel* chan, const std::string& keygiven);
+	virtual ModResult OnCheckKey(User* user, Channel* chan, const std::string& keygiven) ATTR_NOT_NULL(2, 3);
 
 	/** Called whenever a user joins a channel, to determine if channel limit checks should go ahead or not.
 	 * This method will always be called for each join, whether or not the channel is actually +l, and
@@ -797,7 +797,7 @@ public:
 	 * @param chan The channel being joined
 	 * @return 1 to explicitly allow the join, 0 to proceed as normal
 	 */
-	virtual ModResult OnCheckLimit(User* user, Channel* chan);
+	virtual ModResult OnCheckLimit(User* user, Channel* chan) ATTR_NOT_NULL(2, 3);
 
 	/**
 	 * Checks for a user's ban from the channel
@@ -806,7 +806,7 @@ public:
 	 * @return MOD_RES_DENY to mark as banned, MOD_RES_ALLOW to skip the
 	 * ban check, or MOD_RES_PASSTHRU to check bans normally
 	 */
-	virtual ModResult OnCheckChannelBan(User* user, Channel* chan);
+	virtual ModResult OnCheckChannelBan(User* user, Channel* chan) ATTR_NOT_NULL(2, 3);
 
 	/**
 	 * Checks for a user's match of a single ban
@@ -816,7 +816,7 @@ public:
 	 * @return MOD_RES_DENY to mark as banned, MOD_RES_ALLOW to skip the
 	 * ban check, or MOD_RES_PASSTHRU to check bans normally
 	 */
-	virtual ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask);
+	virtual ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask)  ATTR_NOT_NULL(2, 3);
 
 	/** Called when checking if a password is valid.
 	 * @param password The hashed password.
@@ -835,7 +835,7 @@ public:
 	 * @param topic The actual topic text
 	 * @return 1 to block the topic change, 0 to allow
 	 */
-	virtual ModResult OnPreTopicChange(User* user, Channel* chan, const std::string& topic);
+	virtual ModResult OnPreTopicChange(User* user, Channel* chan, const std::string& topic) ATTR_NOT_NULL(2, 3);
 
 	/** Called whenever a topic has been changed.
 	 * To block topic changes you must use OnPreTopicChange instead.
@@ -843,7 +843,7 @@ public:
 	 * @param chan The channels who's topic is being changed
 	 * @param topic The actual topic text
 	 */
-	virtual void OnPostTopicChange(User* user, Channel* chan, const std::string& topic);
+	virtual void OnPostTopicChange(User* user, Channel* chan, const std::string& topic) ATTR_NOT_NULL(2, 3);
 
 	/** Called after a user has fully connected and all modules have executed OnUserConnect
 	 * This event is informational only. You should not change any user information in this
@@ -851,7 +851,7 @@ public:
 	 * This is called for both local and remote users.
 	 * @param user The user who is connecting
 	 */
-	virtual void OnPostConnect(User* user);
+	virtual void OnPostConnect(User* user)  ATTR_NOT_NULL(2);
 
 	/** Called when a port accepts a connection
 	 * Return MOD_RES_ACCEPT if you have used the file descriptor.
@@ -860,7 +860,7 @@ public:
 	 * @param client The client IP address and port
 	 * @param server The server IP address and port
 	 */
-	virtual ModResult OnAcceptConnection(int fd, ListenSocket* sock, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server);
+	virtual ModResult OnAcceptConnection(int fd, ListenSocket* sock, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server) ATTR_NOT_NULL(3);
 
 	/** Called at intervals for modules to garbage-collect any hashes etc.
 	 * Certain data types such as hash_map 'leak' buckets, which must be
@@ -869,12 +869,12 @@ public:
 	 */
 	virtual void OnGarbageCollect();
 
-	virtual ModResult OnNumeric(User* user, const Numeric::Numeric& numeric);
+	virtual ModResult OnNumeric(User* user, const Numeric::Numeric& numeric) ATTR_NOT_NULL(2);
 
 	/** Called whenever a local user's remote address is set or changed.
 	 * @param user The user whose remote address is being set or changed.
 	 */
-	virtual void OnChangeRemoteAddress(LocalUser* user);
+	virtual void OnChangeRemoteAddress(LocalUser* user) ATTR_NOT_NULL(2);
 
 	/** Called whenever a ServiceProvider is registered.
 	 * @param service ServiceProvider being registered.
@@ -892,7 +892,7 @@ public:
 	 * @return MOD_RES_ALLOW to explicitly allow the message to be sent, MOD_RES_DENY to explicitly
 	 * deny the message from being sent, or MOD_RES_PASSTHRU to let another module handle the event.
 	 */
-	virtual ModResult OnUserWrite(LocalUser* user, ClientProtocol::Message& msg);
+	virtual ModResult OnUserWrite(LocalUser* user, ClientProtocol::Message& msg) ATTR_NOT_NULL(2);
 
 	/** Called before a server shuts down.
 	 * @param reason The reason the server is shutting down.
@@ -906,31 +906,31 @@ public:
 	 * @return MOD_RES_ALLOW to explicitly allow the login, MOD_RES_DENY to explicitly deny the
 	 *         login, or MOD_RES_PASSTHRU to let another module handle the event.
 	 */
-	virtual ModResult OnPreOperLogin(LocalUser* user, const std::shared_ptr<OperAccount>& oper, bool automatic);
+	virtual ModResult OnPreOperLogin(LocalUser* user, const std::shared_ptr<OperAccount>& oper, bool automatic) ATTR_NOT_NULL(2);
 
 	/** Called when a user is about to be logged in to an server operator account.
 	 * @param user The user who is about to be logged in.
 	 * @param oper The server operator account they are logging in to.
 	 * @param automatic Whether the login was performed automatically.
 	 */
-	virtual void OnOperLogin(User* user, const std::shared_ptr<OperAccount>& oper, bool automatic);
+	virtual void OnOperLogin(User* user, const std::shared_ptr<OperAccount>& oper, bool automatic) ATTR_NOT_NULL(2);
 
 	/** Called after a user has been logged in to an server operator account.
 	 * @param user The user who has been logged in.
 	 * @param automatic Whether the login was performed automatically.
 	 */
-	virtual void OnPostOperLogin(User* user, bool automatic);
+	virtual void OnPostOperLogin(User* user, bool automatic) ATTR_NOT_NULL(2);
 
 	/** Called when a user is about to be logged out of an server operator account.
 	 * @param user The user who is about to be logged out.
 	 */
-	virtual void OnOperLogout(User* user);
+	virtual void OnOperLogout(User* user) ATTR_NOT_NULL(2);
 
 	/** Called after a user has been logged out of an server operator account.
 	 * @param user The user who has been logged out.
 	 * @param oper The server operator account they were logged out of.
 	 */
-	virtual void OnPostOperLogout(User* user, const std::shared_ptr<OperAccount>& oper);
+	virtual void OnPostOperLogout(User* user, const std::shared_ptr<OperAccount>& oper) ATTR_NOT_NULL(2);
 
 	/** Called when trying to find a connect class for a user.
 	 * @param user The user that needs a new connect class.
@@ -939,20 +939,20 @@ public:
 	 * @return MOD_RES_ALLOW to select this connect class, MOD_RES_DENY to reject this connect
 	 *         class, or MOD_RES_PASSTHRU to let another module handle the event.
 	 */
-	virtual ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass, std::optional<Numeric::Numeric>& errnum);
+	virtual ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass, std::optional<Numeric::Numeric>& errnum) ATTR_NOT_NULL(2);
 
 	/** Called when a user is about to be assigned to a connect class.
 	 * @param user The user that is being assigned to a connect class.
 	 * @param klass The connect class the user is being assigned to.
 	 * @param force Whether the connect class was explicitly picked (e.g. via <oper:class>).
 	 */
-	virtual void OnChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass, bool force);
+	virtual void OnChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass, bool force) ATTR_NOT_NULL(2);
 
 	/** Called when a user has bee assigned to a connect class.
 	 * @param user The user that was assigned to a connect class.
 	 * @param force Whether the connect class was explicitly picked (e.g. via <oper:class>).
 	 */
-	virtual void OnPostChangeConnectClass(LocalUser* user, bool force);
+	virtual void OnPostChangeConnectClass(LocalUser* user, bool force) ATTR_NOT_NULL(2);
 };
 
 /** ModuleManager takes care of all things module-related
