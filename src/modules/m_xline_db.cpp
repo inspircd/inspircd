@@ -3,11 +3,10 @@
  *
  *   Copyright (C) 2021 Herman <GermanAizek@yandex.ru>
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
- *   Copyright (C) 2014 Justin Crawford <Justasic@Gmail.com>
- *   Copyright (C) 2013, 2015, 2018-2020, 2022 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2015, 2018-2023 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2013 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012, 2014 Adam <Adam@anope.org>
+ *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008 Robin Burchell <robin+git@viroteck.net>

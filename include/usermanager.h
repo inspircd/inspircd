@@ -3,10 +3,9 @@
  *
  *   Copyright (C) 2015 Adam <Adam@anope.org>
  *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2012-2013, 2017, 2019-2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012-2013, 2017, 2019-2023 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
- *   Copyright (C) 2008 Thomas Stagner <aquanight@inspircd.org>
  *   Copyright (C) 2008 Robin Burchell <robin+git@viroteck.net>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can

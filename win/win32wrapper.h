@@ -2,16 +2,15 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
- *   Copyright (C) 2013-2015 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2013, 2015, 2018-2019, 2021-2022 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2015, 2018, 2021-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2015 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012-2013 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2011, 2014, 2019 Adam <Adam@anope.org>
  *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
- *   Copyright (C) 2007-2009 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2007-2008 Craig Edwards <brain@inspircd.org>
+ *   Copyright (C) 2007, 2009 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2007, 2009 Dennis Friis <peavey@inspircd.org>
- *   Copyright (C) 2007 burlex
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public

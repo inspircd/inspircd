@@ -1,7 +1,8 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2021 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2021 Val Lorentz <progval+git@progval.net>
+ *   Copyright (C) 2019, 2021-2023 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2015-2016 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
