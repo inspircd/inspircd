@@ -251,4 +251,4 @@ inline void SQL::PopulateUserInfo(User* user, ParamMap& userinfo)
 		{ "ident", userinfo["user"]    },
 		{ "ip" ,   userinfo["address"] },
 	});
-};
+}
