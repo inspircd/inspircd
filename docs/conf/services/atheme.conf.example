@@ -9,7 +9,6 @@
 <alias text="ALIS"      replace="SQUERY $requirement :$2-" requires="ALIS"      service="yes">
 <alias text="CHANFIX"   replace="SQUERY $requirement :$2-" requires="ChanFix"   service="yes">
 <alias text="GAMESERV"  replace="SQUERY $requirement :$2-" requires="GameServ"  service="yes">
-<alias text="GLOBAL"    replace="SQUERY $requirement :$2-" requires="Global"    service="yes" operonly="yes">
 <alias text="GROUPSERV" replace="SQUERY $requirement :$2-" requires="GroupServ" service="yes">
 <alias text="HELPSERV"  replace="SQUERY $requirement :$2-" requires="HelpServ"  service="yes">
 <alias text="INFOSERV"  replace="SQUERY $requirement :$2-" requires="InfoServ"  service="yes">
@@ -18,7 +17,6 @@
 
 # Short hand aliases for services pseudoclients.
 <alias text="CF" replace="SQUERY $requirement :$2-" requires="ChanFix"   service="yes">
-<alias text="GL" replace="SQUERY $requirement :$2-" requires="Global"    service="yes" operonly="yes">
 <alias text="GS" replace="SQUERY $requirement :$2-" requires="GroupServ" service="yes">
 <alias text="IS" replace="SQUERY $requirement :$2-" requires="InfoServ"  service="yes">
 <alias text="LS" replace="SQUERY $requirement :$2-" requires="ALIS"      service="yes">
