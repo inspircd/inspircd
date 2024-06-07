@@ -521,7 +521,7 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 	if (user->IsAway())
 		CommandAway::Builder(user).Broadcast();
 
-	if (user->uniqueusername) // TODO: convert this to BooleanExtItem in v4.
+	if (user->uniqueusername) // TODO: convert this to BooleanExtItem.
 		CommandMetadata::Builder(user, "uniqueusername", "1").Broadcast();
 
 	for (const auto& [item, obj] : user->GetExtList())
@@ -886,7 +886,7 @@ void ModuleSpanningTree::OnShutdown(const std::string& reason)
 
 void ModuleSpanningTree::OnDecodeMetadata(Extensible* target, const std::string& extname, const std::string& extdata)
 {
-	// HACK: this should use automatically synced user metadata in v4.
+	// HACK: this should use automatically synced user metadata.
 	if (target && target->extype == ExtensionType::USER && irc::equals(extname, "uniqueusername"))
 		static_cast<User*>(target)->uniqueusername = (extdata != "0");
 }
