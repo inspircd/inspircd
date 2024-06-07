@@ -30,7 +30,7 @@ namespace
 {
 	CmdResult FailedOper(LocalUser* user, const std::string& name)
 	{
-		user->WriteNumeric(ERR_NOOPERHOST, INSP_FORMAT("Failed to log into the \x02{}\x02 oper account (check the server log for details).", name));
+		user->WriteNumeric(ERR_NOOPERHOST, fmt::format("Failed to log into the \x02{}\x02 oper account (check the server log for details).", name));
 		user->CommandFloodPenalty += 10'000;
 		return CmdResult::FAILURE;
 	}

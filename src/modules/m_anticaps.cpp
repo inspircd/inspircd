@@ -263,7 +263,7 @@ public:
 		if (percent < config->percent)
 			return MOD_RES_PASSTHRU;
 
-		const std::string message = INSP_FORMAT("Your message exceeded the {}% upper case character threshold for {}",
+		const std::string message = fmt::format("Your message exceeded the {}% upper case character threshold for {}",
 			config->percent, channel->name);
 
 		switch (config->method)

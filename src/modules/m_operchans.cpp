@@ -97,7 +97,7 @@ public:
 	{
 		if (!override && chan && chan->IsModeSet(oc) && !user->IsOper())
 		{
-			user->WriteNumeric(ERR_CANTJOINOPERSONLY, chan->name, INSP_FORMAT("Only server operators may join {} (+{} is set)",
+			user->WriteNumeric(ERR_CANTJOINOPERSONLY, chan->name, fmt::format("Only server operators may join {} (+{} is set)",
 				chan->name, oc.GetModeChar()));
 			return MOD_RES_DENY;
 		}

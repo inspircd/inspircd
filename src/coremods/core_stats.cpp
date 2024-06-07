@@ -91,7 +91,7 @@ public:
 
 static void GenerateStatsLl(Stats::Context& stats)
 {
-	stats.AddRow(211, INSP_FORMAT("nick[user@{}] sendq cmds_out bytes_out cmds_in bytes_in time_open", stats.GetSymbol() == 'l' ? "host" : "ip"));
+	stats.AddRow(211, fmt::format("nick[user@{}] sendq cmds_out bytes_out cmds_in bytes_in time_open", stats.GetSymbol() == 'l' ? "host" : "ip"));
 
 	for (auto* u : ServerInstance->Users.GetLocalUsers())
 		stats.AddRow(211, u->nick+"["+u->GetDisplayedUser()+"@"+(stats.GetSymbol() == 'l' ? u->GetDisplayedHost() : u->GetAddress())+"] "+ConvToStr(u->eh.GetSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "+ConvToStr(ServerInstance->Time() - u->signon));
@@ -257,9 +257,9 @@ void CommandStats::DoStats(Stats::Context& stats)
 			float kbitpersec_total;
 			SocketEngine::GetStats().GetBandwidth(kbitpersec_in, kbitpersec_out, kbitpersec_total);
 
-			stats.AddRow(249, INSP_FORMAT("Bandwidth total:  {:03.5} kilobits/sec", kbitpersec_total));
-			stats.AddRow(249, INSP_FORMAT("Bandwidth out:    {:03.5} kilobits/sec", kbitpersec_out));
-			stats.AddRow(249, INSP_FORMAT("Bandwidth in:     {:03.5} kilobits/sec", kbitpersec_in));
+			stats.AddRow(249, fmt::format("Bandwidth total:  {:03.5} kilobits/sec", kbitpersec_total));
+			stats.AddRow(249, fmt::format("Bandwidth out:    {:03.5} kilobits/sec", kbitpersec_out));
+			stats.AddRow(249, fmt::format("Bandwidth in:     {:03.5} kilobits/sec", kbitpersec_in));
 
 #ifndef _WIN32
 			/* Moved this down here so all the not-windows stuff (look w00tie, I didn't say win32!) is in one ifndef.
@@ -282,13 +282,13 @@ void CommandStats::DoStats(Stats::Context& stats)
 				float n_eaten = ((R.ru_utime.tv_sec - ServerInstance->Stats.LastCPU.tv_sec) * 1000000 + R.ru_utime.tv_usec - ServerInstance->Stats.LastCPU.tv_usec);
 				float per = (n_eaten / n_elapsed) * 100;
 
-				stats.AddRow(249, INSP_FORMAT("CPU Use (now):    {:03.5}%", per));
+				stats.AddRow(249, fmt::format("CPU Use (now):    {:03.5}%", per));
 
 				n_elapsed = ServerInstance->Time() - ServerInstance->startup_time;
 				n_eaten = (float)R.ru_utime.tv_sec + R.ru_utime.tv_usec / 100000.0;
 				per = (n_eaten / n_elapsed) * 100;
 
-				stats.AddRow(249, INSP_FORMAT("CPU Use (total):  {:03.5}%", per));
+				stats.AddRow(249, fmt::format("CPU Use (total):  {:03.5}%", per));
 			}
 #else
 			PROCESS_MEMORY_COUNTERS MemCounters;
@@ -313,13 +313,13 @@ void CommandStats::DoStats(Stats::Context& stats)
 				double n_elapsed = (double)(ThisSample.QuadPart - ServerInstance->Stats.LastSampled.QuadPart) / ServerInstance->Stats.QPFrequency.QuadPart;
 				double per = (n_eaten/n_elapsed);
 
-				stats.AddRow(249, INSP_FORMAT("CPU Use (now):    {:03.5}%", per));
+				stats.AddRow(249, fmt::format("CPU Use (now):    {:03.5}%", per));
 
 				n_elapsed = ServerInstance->Time() - ServerInstance->startup_time;
 				n_eaten = (double)(( (uint64_t)(KernelTime.dwHighDateTime) << 32 ) + (uint64_t)(KernelTime.dwLowDateTime))/100000;
 				per = (n_eaten / n_elapsed);
 
-				stats.AddRow(249, INSP_FORMAT("CPU Use (total):  {:03.5}%", per));
+				stats.AddRow(249, fmt::format("CPU Use (total):  {:03.5}%", per));
 			}
 #endif
 		}
@@ -331,7 +331,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 			stats.AddRow(249, "unknown commands "+ConvToStr(ServerInstance->Stats.Unknown));
 			stats.AddRow(249, "nick collisions "+ConvToStr(ServerInstance->Stats.Collisions));
 			stats.AddRow(249, "connection count "+ConvToStr(ServerInstance->Stats.Connects));
-			stats.AddRow(249, INSP_FORMAT("bytes sent {:5.2}K recv {:5.2}K",
+			stats.AddRow(249, fmt::format("bytes sent {:5.2}K recv {:5.2}K",
 				ServerInstance->Stats.Sent / 1024.0, ServerInstance->Stats.Recv / 1024.0));
 		}
 		break;
@@ -347,7 +347,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 		case 'u':
 		{
 			unsigned int up = static_cast<unsigned int>(ServerInstance->Time() - ServerInstance->startup_time);
-			stats.AddRow(242, INSP_FORMAT("Server up {} days, {:02}:{:02}:{:02}",
+			stats.AddRow(242, fmt::format("Server up {} days, {:02}:{:02}:{:02}",
 				up / 86400, (up / 3600) % 24, (up / 60) % 60, up % 60));
 		}
 		break;

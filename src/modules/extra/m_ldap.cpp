@@ -469,7 +469,7 @@ private:
 
 		if (res != req->success)
 		{
-			ldap_result->error = INSP_FORMAT("{} ({})", ldap_err2string(res), req->info());
+			ldap_result->error = fmt::format("{} ({})", ldap_err2string(res), req->info());
 			return;
 		}
 

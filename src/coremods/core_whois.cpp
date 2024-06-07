@@ -224,18 +224,18 @@ void CommandWhois::DoWhois(LocalUser* user, User* dest, time_t signon, unsigned 
 		if (genericoper)
 			whois.SendLine(RPL_WHOISOPERATOR, dest->server->IsService() ? "is a network service" : "is a server operator");
 		else
-			whois.SendLine(RPL_WHOISOPERATOR, INSP_FORMAT("is {} {} on {}", (strchr("AEIOUaeiou", dest->oper->GetType()[0]) ? "an" : "a"), dest->oper->GetType(), ServerInstance->Config->Network));
+			whois.SendLine(RPL_WHOISOPERATOR, fmt::format("is {} {} on {}", (strchr("AEIOUaeiou", dest->oper->GetType()[0]) ? "an" : "a"), dest->oper->GetType(), ServerInstance->Config->Network));
 	}
 
 	if (whois.IsSelfWhois() || user->HasPrivPermission("users/auspex"))
 	{
 		if (dest->IsModeSet(snomaskmode))
 		{
-			whois.SendLine(RPL_WHOISMODES, INSP_FORMAT("is using modes {} {}", dest->GetModeLetters(), snomaskmode->GetUserParameter(dest)));
+			whois.SendLine(RPL_WHOISMODES, fmt::format("is using modes {} {}", dest->GetModeLetters(), snomaskmode->GetUserParameter(dest)));
 		}
 		else
 		{
-			whois.SendLine(RPL_WHOISMODES, INSP_FORMAT("is using modes {}", dest->GetModeLetters()));
+			whois.SendLine(RPL_WHOISMODES, fmt::format("is using modes {}", dest->GetModeLetters()));
 		}
 	}
 

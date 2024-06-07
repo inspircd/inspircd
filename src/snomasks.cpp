@@ -113,7 +113,7 @@ void Snomask::Flush()
 void Snomask::Send(char letter, const std::string& desc, const std::string& msg)
 {
 	ServerInstance->Logs.Normal(desc, msg);
-	const std::string finalmsg = INSP_FORMAT("*** {}: {}", desc, msg);
+	const std::string finalmsg = fmt::format("*** {}: {}", desc, msg);
 
 	/* Only opers can receive snotices, so we iterate the oper list */
 	for (auto* user : ServerInstance->Users.all_opers)
@@ -132,6 +132,6 @@ std::string Snomask::GetDescription(char letter) const
 	if (!Description.empty())
 		ret += Description;
 	else
-		ret += INSP_FORMAT("SNO-{}", tolower(letter));
+		ret += fmt::format("SNO-{}", tolower(letter));
 	return ret;
 }

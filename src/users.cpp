@@ -125,7 +125,7 @@ const std::string& User::GetUserAddress()
 {
 	if (cached_useraddress.empty())
 	{
-		cached_useraddress = INSP_FORMAT("{}@{}", GetRealUser(), GetAddress());
+		cached_useraddress = fmt::format("{}@{}", GetRealUser(), GetAddress());
 		cached_useraddress.shrink_to_fit();
 	}
 
@@ -135,7 +135,7 @@ const std::string& User::GetUserHost()
 {
 	if (cached_userhost.empty())
 	{
-		cached_userhost = INSP_FORMAT("{}@{}", GetDisplayedUser(), GetDisplayedHost());
+		cached_userhost = fmt::format("{}@{}", GetDisplayedUser(), GetDisplayedHost());
 		cached_userhost.shrink_to_fit();
 	}
 
@@ -146,7 +146,7 @@ const std::string& User::GetRealUserHost()
 {
 	if (cached_realuserhost.empty())
 	{
-		cached_realuserhost = INSP_FORMAT("{}@{}", GetRealUser(), GetRealHost());
+		cached_realuserhost = fmt::format("{}@{}", GetRealUser(), GetRealHost());
 		cached_realuserhost.shrink_to_fit();
 	}
 
@@ -157,7 +157,7 @@ const std::string& User::GetMask()
 {
 	if (cached_mask.empty())
 	{
-		cached_mask = INSP_FORMAT("{}!{}@{}", nick, GetDisplayedUser(), GetDisplayedHost());
+		cached_mask = fmt::format("{}!{}@{}", nick, GetDisplayedUser(), GetDisplayedHost());
 		cached_mask.shrink_to_fit();
 	}
 
@@ -168,7 +168,7 @@ const std::string& User::GetRealMask()
 {
 	if (cached_realmask.empty())
 	{
-		cached_realmask = INSP_FORMAT("{}!{}@{}", nick, GetRealUser(), GetRealHost());
+		cached_realmask = fmt::format("{}!{}@{}", nick, GetRealUser(), GetRealHost());
 		cached_realmask.shrink_to_fit();
 	}
 

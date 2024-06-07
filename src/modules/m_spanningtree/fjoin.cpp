@@ -278,7 +278,7 @@ void CommandFJoin::LowerTS(Channel* chan, time_t TS, const std::string& newname)
 	if (Utils->AnnounceTSChange)
 	{
 		// WriteRemoteNotice is not used here because the message only needs to go to the local server.
-		chan->WriteNotice(INSP_FORMAT("Creation time of {} changed from {} to {}", newname,
+		chan->WriteNotice(fmt::format("Creation time of {} changed from {} to {}", newname,
 			Time::ToString(chan->age), Time::ToString(TS)));
 	}
 

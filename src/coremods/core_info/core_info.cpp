@@ -171,8 +171,8 @@ public:
 
 	void OnUserConnect(LocalUser* user) override
 	{
-		user->WriteNumeric(RPL_WELCOME, INSP_FORMAT("Welcome to the {} IRC Network {}", ServerInstance->Config->Network, user->GetRealMask()));
-		user->WriteNumeric(RPL_YOURHOST, INSP_FORMAT("Your host is {}, running version {}", ServerInstance->Config->GetServerName(), INSPIRCD_BRANCH));
+		user->WriteNumeric(RPL_WELCOME, fmt::format("Welcome to the {} IRC Network {}", ServerInstance->Config->Network, user->GetRealMask()));
+		user->WriteNumeric(RPL_YOURHOST, fmt::format("Your host is {}, running version {}", ServerInstance->Config->GetServerName(), INSPIRCD_BRANCH));
 		user->WriteNumeric(RPL_CREATED, Time::ToString(ServerInstance->startup_time, "This server was created %H:%M:%S %b %d %Y"));
 		user->WriteNumeric(numeric004);
 		isupport.SendTo(user);

@@ -73,7 +73,7 @@ public:
 			else
 			{
 				// Logged in.
-				user->WriteNumeric(RPL_LOGGEDIN, user->GetMask(), value, INSP_FORMAT("You are now logged in as {}", value));
+				user->WriteNumeric(RPL_LOGGEDIN, user->GetMask(), value, fmt::format("You are now logged in as {}", value));
 			}
 		}
 

@@ -209,7 +209,7 @@ private:
 				auto b = (unsigned int) (sa.in4.sin_addr.s_addr >> 8) & 0xFF;
 				auto c = (unsigned int) (sa.in4.sin_addr.s_addr >> 16) & 0xFF;
 				auto d = (unsigned int) (sa.in4.sin_addr.s_addr >> 24) & 0xFF;
-				return INSP_FORMAT("{}.{}.{}.{}", d, c, b, a);
+				return fmt::format("{}.{}.{}.{}", d, c, b, a);
 			}
 
 			case AF_INET6:
@@ -497,13 +497,13 @@ public:
 		if (count)
 		{
 			// TODO: replace this with a FAIL stdrpl when we can network those.
-			user->WriteRemoteNotice(INSP_FORMAT("*** DNSBL: Unable to recheck {}: still waiting on {} DNSBLs from the previous check.",
+			user->WriteRemoteNotice(fmt::format("*** DNSBL: Unable to recheck {}: still waiting on {} DNSBLs from the previous check.",
 				ltarget->nick, count));
 			return CmdResult::FAILURE;
 		}
 
 		// TODO: replace this with a NOTE stdrpl when we can network those.
-		user->WriteRemoteNotice(INSP_FORMAT("*** DNSBL: Rechecking {} against {} DNSBLs.", ltarget->nick, data.dnsbls.size()));
+		user->WriteRemoteNotice(fmt::format("*** DNSBL: Rechecking {} against {} DNSBLs.", ltarget->nick, data.dnsbls.size()));
 
 		const bool has_reason = parameters.size() > 1;
 		ServerInstance->SNO.WriteGlobalSno('d', "{} is rechecking whether {} ({}) is in a DNSBL{}{}", user->nick,
@@ -666,7 +666,7 @@ public:
 			total_misses += dnsbl->stats_misses;
 			total_errors += dnsbl->stats_errors;
 
-			stats.AddGenericRow(INSP_FORMAT("The \"{}\" DNSBL had {} hits, {} misses, and {} errors",
+			stats.AddGenericRow(fmt::format("The \"{}\" DNSBL had {} hits, {} misses, and {} errors",
 				dnsbl->name, dnsbl->stats_hits, dnsbl->stats_misses, dnsbl->stats_errors));
 		}
 

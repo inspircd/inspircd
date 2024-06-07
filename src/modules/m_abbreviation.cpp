@@ -78,7 +78,7 @@ public:
 		/* Ambiguous command, list the matches */
 		if (!matchlist.empty())
 		{
-			user->WriteNumeric(ERR_AMBIGUOUSCOMMAND, INSP_FORMAT("Ambiguous abbreviation, possible matches: {}{}", foundcommand, matchlist));
+			user->WriteNumeric(ERR_AMBIGUOUSCOMMAND, fmt::format("Ambiguous abbreviation, possible matches: {}{}", foundcommand, matchlist));
 			return MOD_RES_DENY;
 		}
 

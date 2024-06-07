@@ -107,7 +107,7 @@ public:
 			fflush(file);
 
 		if (ferror(file))
-			throw CoreException(INSP_FORMAT("Unable to write to {}: {}", name, strerror(errno)));
+			throw CoreException(fmt::format("Unable to write to {}: {}", name, strerror(errno)));
 	}
 
 	// RapidJSON API: Write a character to the file.
@@ -142,7 +142,7 @@ public:
 		auto* fh = fopen(fulltarget.c_str(), "a");
 		if (!fh)
 		{
-			throw CoreException(INSP_FORMAT("Unable to open {} for JSON logger at {}: {}",
+			throw CoreException(fmt::format("Unable to open {} for JSON logger at {}: {}",
 				fulltarget, tag->source.str(), strerror(errno)));
 		}
 

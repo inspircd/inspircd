@@ -285,7 +285,7 @@ public:
 		callerid_data* dat = extInfo.Get(user, true);
 		if (dat->accepting.size() >= maxaccepts)
 		{
-			user->WriteNumeric(ERR_ACCEPTFULL, INSP_FORMAT("Accept list is full (limit is {})", maxaccepts));
+			user->WriteNumeric(ERR_ACCEPTFULL, fmt::format("Accept list is full (limit is {})", maxaccepts));
 			return false;
 		}
 		if (!dat->accepting.insert(whotoadd).second)
@@ -423,12 +423,12 @@ public:
 		{
 			time_t now = ServerInstance->Time();
 			/* +g and *not* accepted */
-			user->WriteNumeric(ERR_TARGUMODEG, dest->nick, INSP_FORMAT("is in +{} mode (server-side ignore).", myumode.GetModeChar()));
+			user->WriteNumeric(ERR_TARGUMODEG, dest->nick, fmt::format("is in +{} mode (server-side ignore).", myumode.GetModeChar()));
 			if (now > (dat->lastnotify + long(notify_cooldown)))
 			{
 				user->WriteNumeric(RPL_TARGNOTIFY, dest->nick, "has been informed that you messaged them.");
 				dest->WriteRemoteNumeric(RPL_UMODEGMSG, user->nick, user->GetUserHost(),
-					INSP_FORMAT("is messaging you, and you have user mode +{} set. Use /ACCEPT +{} to allow.", myumode.GetModeChar(), user->nick)
+					fmt::format("is messaging you, and you have user mode +{} set. Use /ACCEPT +{} to allow.", myumode.GetModeChar(), user->nick)
 				);
 				dat->lastnotify = now;
 			}

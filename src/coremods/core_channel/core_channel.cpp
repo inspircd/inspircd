@@ -228,7 +228,7 @@ public:
 		std::string vlist;
 		for (auto* lm : ServerInstance->Modes.GetListModes())
 		{
-			limits.push_back(INSP_FORMAT("{}:{}", lm->GetModeChar(), lm->GetLowerLimit()));
+			limits.push_back(fmt::format("{}:{}", lm->GetModeChar(), lm->GetLowerLimit()));
 			if (lm->HasVariableLength())
 				vlist.push_back(lm->GetModeChar());
 		}
@@ -241,7 +241,7 @@ public:
 
 	void OnBuildClassISupport(const std::shared_ptr<ConnectClass>& klass, ISupport::TokenMap& tokens) override
 	{
-		tokens["CHANLIMIT"] = INSP_FORMAT("#:{}", klass->maxchans);
+		tokens["CHANLIMIT"] = fmt::format("#:{}", klass->maxchans);
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override

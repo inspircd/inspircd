@@ -372,14 +372,14 @@ private:
 	{
 		if (ms.MaxLines && settings.Lines > ms.MaxLines)
 		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, INSP_FORMAT(
+			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, fmt::format(
 				"The line number you specified is too big. Maximum allowed is {}.", ms.MaxLines)));
 			return false;
 		}
 
 		if (ms.MaxSecs && settings.Seconds > ms.MaxSecs)
 		{
-			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, INSP_FORMAT(
+			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, fmt::format(
 				"The seconds you specified are too big. Maximum allowed is {}.", ms.MaxSecs)));
 			return false;
 		}
@@ -390,7 +390,7 @@ private:
 				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter,
 					"The server administrator has disabled matching on edit distance."));
 			else
-				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, INSP_FORMAT(
+				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, fmt::format(
 					"The distance you specified is too big. Maximum allowed is {}.", ms.MaxDiff)));
 			return false;
 		}
@@ -401,7 +401,7 @@ private:
 				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter,
 					"The server administrator has disabled backlog matching."));
 			else
-				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, INSP_FORMAT(
+				source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter, fmt::format(
 					"The backlog you specified is too big. Maximum allowed is {}.", ms.MaxBacklog)));
 			return false;
 		}
@@ -525,7 +525,7 @@ public:
 		data["max-diff"] = ConvToStr(rm.ms.MaxDiff);
 		data["max-backlog"] = ConvToStr(rm.ms.MaxBacklog);
 
-		compatdata = INSP_FORMAT("{}:{}:{}:{}{}", rm.ms.Extended ? "extended:" : "",
+		compatdata = fmt::format("{}:{}:{}:{}{}", rm.ms.Extended ? "extended:" : "",
 			rm.ms.MaxLines, rm.ms.MaxSecs, rm.ms.MaxDiff, rm.ms.MaxBacklog);
 	}
 };

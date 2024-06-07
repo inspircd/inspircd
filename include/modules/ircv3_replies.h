@@ -67,9 +67,9 @@ private:
 	void SendNoticeInternal(LocalUser* user, const Command* command, const std::string& description)
 	{
 		if (command)
-			user->WriteNotice(INSP_FORMAT("*** {}: {}", command->name, description));
+			user->WriteNotice(fmt::format("*** {}: {}", command->name, description));
 		else
-			user->WriteNotice(INSP_FORMAT("*** {}", description));
+			user->WriteNotice(fmt::format("*** {}", description));
 	}
 
 protected:

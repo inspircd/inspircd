@@ -223,7 +223,7 @@ bool TreeSocket::Inbound_Server(CommandBase::Params& params)
 
 		// Send our details: Our server name and description and hopcount of 0,
 		// along with the sendpass from this block.
-		this->WriteLine(INSP_FORMAT("SERVER {} {} {}{} :{}",
+		this->WriteLine(fmt::format("SERVER {} {} {}{} :{}",
 			ServerInstance->Config->ServerName,
 			TreeSocket::MakePass(x->SendPass, this->GetTheirChallenge()),
 			proto_version == PROTO_INSPIRCD_3 ? "0 " : "",

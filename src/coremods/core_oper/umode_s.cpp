@@ -107,14 +107,14 @@ std::string ModeUserServerNoticeMask::ProcessNoticeMasks(User* user, const std::
 					}
 					else if (!user->IsOper())
 					{
-						user->WriteNumeric(ERR_NOPRIVILEGES, INSP_FORMAT("Permission Denied - Only operators may {} snomask {}",
+						user->WriteNumeric(ERR_NOPRIVILEGES, fmt::format("Permission Denied - Only operators may {} snomask {}",
 							adding ? "set" : "unset", snomask));
 						continue;
 
 					}
 					else if (!user->HasSnomaskPermission(snomask))
 					{
-						user->WriteNumeric(ERR_NOPRIVILEGES, INSP_FORMAT("Permission Denied - Oper type {} does not have access to snomask {}",
+						user->WriteNumeric(ERR_NOPRIVILEGES, fmt::format("Permission Denied - Oper type {} does not have access to snomask {}",
 							user->oper->GetType(), snomask));
 						continue;
 					}

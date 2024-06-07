@@ -44,13 +44,13 @@ CmdResult CommandRSQuit::Handle(User* user, const Params& parameters)
 	server_target = Utils->FindServerMask(parameters[0]);
 	if (!server_target)
 	{
-		user->WriteRemoteNotice(INSP_FORMAT("*** RSQUIT: Server \002{}\002 isn't connected to the network!", parameters[0]));
+		user->WriteRemoteNotice(fmt::format("*** RSQUIT: Server \002{}\002 isn't connected to the network!", parameters[0]));
 		return CmdResult::FAILURE;
 	}
 
 	if (server_target->IsRoot())
 	{
-		user->WriteRemoteNotice(INSP_FORMAT("*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! ({} matches local server name)", parameters[0]));
+		user->WriteRemoteNotice(fmt::format("*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! ({} matches local server name)", parameters[0]));
 		return CmdResult::FAILURE;
 	}
 

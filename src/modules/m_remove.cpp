@@ -82,7 +82,7 @@ public:
 
 		if (!channel->HasUser(target))
 		{
-			user->WriteNotice(INSP_FORMAT("*** User {} is not on channel {}", target->nick, channel->name));
+			user->WriteNotice(fmt::format("*** User {} is not on channel {}", target->nick, channel->name));
 			return CmdResult::FAILURE;
 		}
 
@@ -128,21 +128,21 @@ public:
 				/* Build up the part reason string. */
 				std::string reason = "Removed by " + user->nick + ": " + reasonparam;
 
-				channel->WriteRemoteNotice(INSP_FORMAT("{} removed {} from the channel", user->nick, target->nick));
+				channel->WriteRemoteNotice(fmt::format("{} removed {} from the channel", user->nick, target->nick));
 				target->WriteNotice("*** " + user->nick + " removed you from " + channel->name + " with the message: " + reasonparam);
 
 				channel->PartUser(target, reason);
 			}
 			else
 			{
-				user->WriteNotice(INSP_FORMAT("*** You do not have access to /REMOVE {} from {}", target->nick, channel->name));
+				user->WriteNotice(fmt::format("*** You do not have access to /REMOVE {} from {}", target->nick, channel->name));
 				return CmdResult::FAILURE;
 			}
 		}
 		else
 		{
 			/* m_nokicks.so was loaded and +Q was set, block! */
-			user->WriteNumeric(ERR_RESTRICTED, channel->name, INSP_FORMAT("Can't remove user {} from channel (+{} is set)",
+			user->WriteNumeric(ERR_RESTRICTED, channel->name, fmt::format("Can't remove user {} from channel (+{} is set)",
 				target->nick, servprotectmode->GetModeChar()));
 			return CmdResult::FAILURE;
 		}

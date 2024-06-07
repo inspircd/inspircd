@@ -51,12 +51,12 @@ void ListModeBase::DisplayList(User* user, Channel* channel)
 	for (const auto& item : cd->list)
 		user->WriteNumeric(listnumeric, channel->name, item.mask, item.setter, item.time);
 
-	user->WriteNumeric(endoflistnumeric, channel->name, INSP_FORMAT("End of channel {} list.", name));
+	user->WriteNumeric(endoflistnumeric, channel->name, fmt::format("End of channel {} list.", name));
 }
 
 void ListModeBase::DisplayEmptyList(User* user, Channel* channel)
 {
-	user->WriteNumeric(endoflistnumeric, channel->name, INSP_FORMAT("Channel {} list is empty.", name));
+	user->WriteNumeric(endoflistnumeric, channel->name, fmt::format("Channel {} list is empty.", name));
 }
 
 void ListModeBase::RemoveMode(Channel* channel, Modes::ChangeList& changelist)
@@ -83,7 +83,7 @@ void ListModeBase::DoRehash()
 		ListLimit limit(c->getString("chan", "*", 1), c->getNum<size_t>("limit", DEFAULT_LIST_SIZE));
 
 		if (limit.mask.empty())
-			throw ModuleException(creator, INSP_FORMAT("<maxlist:chan> is empty, at {}", c->source.str()));
+			throw ModuleException(creator, fmt::format("<maxlist:chan> is empty, at {}", c->source.str()));
 
 		if (limit.mask == "*" || limit.mask == "#*")
 			seen_default = true;
@@ -241,15 +241,15 @@ void ListModeBase::OnParameterMissing(User* source, User* dest, Channel* channel
 
 void ListModeBase::TellListTooLong(LocalUser* source, Channel* channel, const std::string& parameter, size_t limit)
 {
-	source->WriteNumeric(ERR_BANLISTFULL, channel->name, parameter, mode, INSP_FORMAT("Channel {} list is full ({} entries)", name, limit));
+	source->WriteNumeric(ERR_BANLISTFULL, channel->name, parameter, mode, fmt::format("Channel {} list is full ({} entries)", name, limit));
 }
 
 void ListModeBase::TellAlreadyOnList(LocalUser* source, Channel* channel, const std::string& parameter)
 {
-	source->WriteNumeric(ERR_LISTMODEALREADYSET, channel->name, parameter, mode, INSP_FORMAT("Channel {} list already contains {}", name, parameter));
+	source->WriteNumeric(ERR_LISTMODEALREADYSET, channel->name, parameter, mode, fmt::format("Channel {} list already contains {}", name, parameter));
 }
 
 void ListModeBase::TellNotSet(LocalUser* source, Channel* channel, const std::string& parameter)
 {
-	source->WriteNumeric(ERR_LISTMODENOTSET, channel->name, parameter, mode, INSP_FORMAT("Channel {} list does not contain {}", name, parameter));
+	source->WriteNumeric(ERR_LISTMODENOTSET, channel->name, parameter, mode, fmt::format("Channel {} list does not contain {}", name, parameter));
 }

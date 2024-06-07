@@ -57,12 +57,12 @@ public:
 			auto* c = ServerInstance->Channels.Find(parameter);
 			if (!c)
 			{
-				source->WriteNumeric(690, INSP_FORMAT("Target channel {} must exist to be set as a redirect.", parameter));
+				source->WriteNumeric(690, fmt::format("Target channel {} must exist to be set as a redirect.", parameter));
 				return false;
 			}
 			else if (c->GetPrefixValue(source) < OP_VALUE)
 			{
-				source->WriteNumeric(690, INSP_FORMAT("You must be opped on {} to set it as a redirect.", parameter));
+				source->WriteNumeric(690, fmt::format("You must be opped on {} to set it as a redirect.", parameter));
 				return false;
 			}
 		}

@@ -132,10 +132,10 @@ void TreeSocket::SendServerInfo(TreeServer* from)
 
 	if (proto_version < PROTO_INSPIRCD_4)
 	{
-		this->WriteLine(CommandSInfo::Builder(from, "version", INSP_FORMAT("{}. {} :{}", from->rawbranch,
+		this->WriteLine(CommandSInfo::Builder(from, "version", fmt::format("{}. {} :{}", from->rawbranch,
 			from->GetPublicName(), from->customversion)));
 
-		this->WriteLine(CommandSInfo::Builder(from, "fullversion", INSP_FORMAT("{}. {} :[{}] {}", from->rawversion,
+		this->WriteLine(CommandSInfo::Builder(from, "fullversion", fmt::format("{}. {} :[{}] {}", from->rawversion,
 			from->GetName(), from->GetId(), from->customversion)));
 	}
 }

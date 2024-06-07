@@ -271,7 +271,7 @@ public:
 	template <typename... Args>
 	void Critical(const std::string& type, const char* format, Args&&... args)
 	{
-		Write(Level::CRITICAL, type, fmt::format(format, std::forward<Args>(args)...));
+		Write(Level::CRITICAL, type, fmt::format(fmt::runtime(format), std::forward<Args>(args)...));
 	}
 
 	/** Writes a warning message to the server log.
@@ -291,7 +291,7 @@ public:
 	template <typename... Args>
 	void Warning(const std::string& type, const char* format, Args&&... args)
 	{
-		Write(Level::WARNING, type, fmt::format(format, std::forward<Args>(args)...));
+		Write(Level::WARNING, type, fmt::format(fmt::runtime(format), std::forward<Args>(args)...));
 	}
 
 	/** Writes a normal message to the server log.
@@ -311,7 +311,7 @@ public:
 	template <typename... Args>
 	void Normal(const std::string& type, const char* format, Args&&... args)
 	{
-		Write(Level::NORMAL, type, fmt::format(format, std::forward<Args>(args)...));
+		Write(Level::NORMAL, type, fmt::format(fmt::runtime(format), std::forward<Args>(args)...));
 	}
 
 	/** Writes a debug message to the server log.
@@ -330,7 +330,7 @@ public:
 	template <typename... Args>
 	void Debug(const std::string& type, const char* format, Args&&... args)
 	{
-		Write(Level::DEBUG, type, fmt::format(format, std::forward<Args>(args)...));
+		Write(Level::DEBUG, type, fmt::format(fmt::runtime(format), std::forward<Args>(args)...));
 	}
 
 	/** Writes a raw I/O message to the server log.
@@ -350,6 +350,6 @@ public:
 	template <typename... Args>
 	void RawIO(const std::string& type, const char* format, Args&&... args)
 	{
-		Write(Level::RAWIO, type, fmt::format(format, std::forward<Args>(args)...));
+		Write(Level::RAWIO, type, fmt::format(fmt::runtime(format), std::forward<Args>(args)...));
 	}
 };

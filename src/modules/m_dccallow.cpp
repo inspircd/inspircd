@@ -258,7 +258,7 @@ public:
 							if (i->nickname == target->nick)
 							{
 								dl->erase(i);
-								user->WriteNumeric(RPL_DCCALLOWREMOVED, user->nick, INSP_FORMAT("Removed {} from your DCCALLOW list", target->nick));
+								user->WriteNumeric(RPL_DCCALLOWREMOVED, user->nick, fmt::format("Removed {} from your DCCALLOW list", target->nick));
 								break;
 							}
 						}
@@ -291,7 +291,7 @@ public:
 					{
 						if (dccallow.nickname == target->nick)
 						{
-							user->WriteNumeric(ERR_DCCALLOWINVALID, user->nick, INSP_FORMAT("{} is already on your DCCALLOW list", target->nick));
+							user->WriteNumeric(ERR_DCCALLOWINVALID, user->nick, fmt::format("{} is already on your DCCALLOW list", target->nick));
 							return CmdResult::FAILURE;
 						}
 					}
@@ -304,7 +304,7 @@ public:
 					}
 					else if (!Duration::IsValid(parameters[1]))
 					{
-						user->WriteNumeric(ERR_DCCALLOWINVALID, user->nick, INSP_FORMAT("{} is not a valid DCCALLOW duration", parameters[1]));
+						user->WriteNumeric(ERR_DCCALLOWINVALID, user->nick, fmt::format("{} is not a valid DCCALLOW duration", parameters[1]));
 						return CmdResult::FAILURE;
 					}
 					else
@@ -325,11 +325,11 @@ public:
 
 					if (length > 0)
 					{
-						user->WriteNumeric(RPL_DCCALLOWTIMED, user->nick, INSP_FORMAT("Added {} to DCCALLOW list for {}", target->nick, Duration::ToString(length)));
+						user->WriteNumeric(RPL_DCCALLOWTIMED, user->nick, fmt::format("Added {} to DCCALLOW list for {}", target->nick, Duration::ToString(length)));
 					}
 					else
 					{
-						user->WriteNumeric(RPL_DCCALLOWPERMANENT, user->nick, INSP_FORMAT("Added {} to DCCALLOW list for this session", target->nick));
+						user->WriteNumeric(RPL_DCCALLOWPERMANENT, user->nick, fmt::format("Added {} to DCCALLOW list for this session", target->nick));
 					}
 
 					/* route it. */
@@ -373,7 +373,7 @@ public:
 		{
 			for (const auto& dccallow : *dl)
 			{
-				user->WriteNumeric(RPL_DCCALLOWLIST, user->nick, INSP_FORMAT("{} ({})",
+				user->WriteNumeric(RPL_DCCALLOWLIST, user->nick, fmt::format("{} ({})",
 					dccallow.nickname, dccallow.hostmask));
 			}
 		}
@@ -539,7 +539,7 @@ public:
 						time_t expires = iter2->set_on + iter2->length;
 						if (iter2->length != 0 && expires <= ServerInstance->Time())
 						{
-							u->WriteNumeric(RPL_DCCALLOWEXPIRED, u->nick, INSP_FORMAT("DCCALLOW entry for {} has expired", iter2->nickname));
+							u->WriteNumeric(RPL_DCCALLOWEXPIRED, u->nick, fmt::format("DCCALLOW entry for {} has expired", iter2->nickname));
 							iter2 = dl->erase(iter2);
 						}
 						else
@@ -574,7 +574,7 @@ public:
 						{
 
 							u->WriteNotice(i->nickname + " left the network or changed their nickname and has been removed from your DCCALLOW list");
-							u->WriteNumeric(RPL_DCCALLOWREMOVED, u->nick, INSP_FORMAT("Removed {} from your DCCALLOW list", i->nickname));
+							u->WriteNumeric(RPL_DCCALLOWREMOVED, u->nick, fmt::format("Removed {} from your DCCALLOW list", i->nickname));
 							dl->erase(i);
 							break;
 						}

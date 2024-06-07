@@ -102,7 +102,7 @@ CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 
 	counters.UpdateMaxUsers();
 
-	user->WriteNumeric(RPL_LUSERCLIENT, INSP_FORMAT("There are {} users and {} invisible on {} servers",
+	user->WriteNumeric(RPL_LUSERCLIENT, fmt::format("There are {} users and {} invisible on {} servers",
 			n_users - counters.invisible, counters.invisible, n_serv));
 
 	size_t opercount = ServerInstance->Users.all_opers.size();
@@ -113,9 +113,9 @@ CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 		user->WriteNumeric(RPL_LUSERUNKNOWN, ServerInstance->Users.UnknownUserCount(), "unknown connections");
 
 	user->WriteNumeric(RPL_LUSERCHANNELS, ServerInstance->Channels.GetChans().size(), "channels formed");
-	user->WriteNumeric(RPL_LUSERME, INSP_FORMAT("I have {} clients and {} servers", ServerInstance->Users.LocalUserCount(), n_local_servs));
-	user->WriteNumeric(RPL_LOCALUSERS, INSP_FORMAT("Current local users: {}  Max: {}", ServerInstance->Users.LocalUserCount(), counters.max_local));
-	user->WriteNumeric(RPL_GLOBALUSERS, INSP_FORMAT("Current global users: {}  Max: {}", n_users, counters.max_global));
+	user->WriteNumeric(RPL_LUSERME, fmt::format("I have {} clients and {} servers", ServerInstance->Users.LocalUserCount(), n_local_servs));
+	user->WriteNumeric(RPL_LOCALUSERS, fmt::format("Current local users: {}  Max: {}", ServerInstance->Users.LocalUserCount(), counters.max_local));
+	user->WriteNumeric(RPL_GLOBALUSERS, fmt::format("Current global users: {}  Max: {}", n_users, counters.max_global));
 	return CmdResult::SUCCESS;
 }
 

@@ -54,7 +54,7 @@ public:
 		: Numeric(ERR_CANNOTSENDTOCHAN)
 	{
 		push(chan->name);
-		push(INSP_FORMAT("You cannot send {} to this channel whilst the +{} ({}) mode is set.",
+		push(fmt::format("You cannot send {} to this channel whilst the +{} ({}) mode is set.",
 			what, mh->GetModeChar(), mh->name));
 	}
 
@@ -63,7 +63,7 @@ public:
 		: Numeric(ERR_CANNOTSENDTOCHAN)
 	{
 		push(chan->name);
-		push(INSP_FORMAT("You cannot send {} to this channel whilst {} {}: ({}) extban is set matching you.",
+		push(fmt::format("You cannot send {} to this channel whilst {} {}: ({}) extban is set matching you.",
 			what, strchr("AEIOUaeiou", xb.GetLetter()) ? "an" : "a", xb.GetLetter(), xb.GetName()));
 	}
 #endif
@@ -79,7 +79,7 @@ public:
 		: Numeric(ERR_CANNOTSENDTOUSER)
 	{
 		push(user->connected & User::CONN_NICK ? user->nick : "*");
-		push(INSP_FORMAT("You cannot send {} to this user whilst {} have the +{} ({}) mode set.",
+		push(fmt::format("You cannot send {} to this user whilst {} have the +{} ({}) mode set.",
 			what, self ? "you" : "they", mh->GetModeChar(), mh->name));
 	}
 };
@@ -95,9 +95,9 @@ public:
 
 		const PrefixMode* pm = ServerInstance->Modes.FindNearestPrefixMode(rank);
 		if (pm)
-			push(INSP_FORMAT("You must be a channel {} or higher to {}.", pm->name, message));
+			push(fmt::format("You must be a channel {} or higher to {}.", pm->name, message));
 		else
-			push(INSP_FORMAT("You do not have the required channel privileges to {}.", message));
+			push(fmt::format("You do not have the required channel privileges to {}.", message));
 	}
 };
 
@@ -119,12 +119,12 @@ private:
 		if (!syntax.empty())
 		{
 			// If the mode has a syntax hint we include it in the message.
-			push(INSP_FORMAT("Invalid {} mode parameter. Syntax: {}.", mode->name, syntax));
+			push(fmt::format("Invalid {} mode parameter. Syntax: {}.", mode->name, syntax));
 		}
 		else
 		{
 			// Otherwise, send it without.
-			push(INSP_FORMAT("Invalid {} mode parameter.", mode->name));
+			push(fmt::format("Invalid {} mode parameter.", mode->name));
 		}
 	}
 

@@ -139,7 +139,7 @@ ModResult ModuleDelayMsg::HandleMessage(User* user, const MessageTarget& target)
 		if (user->HasPrivPermission("channels/ignore-delaymsg"))
 			return MOD_RES_PASSTHRU;
 
-		const std::string message = INSP_FORMAT("You cannot send messages to this channel until you have been a member for {} seconds.", len);
+		const std::string message = fmt::format("You cannot send messages to this channel until you have been a member for {} seconds.", len);
 		user->WriteNumeric(Numerics::CannotSendTo(channel, message));
 		return MOD_RES_DENY;
 	}

@@ -47,13 +47,13 @@ private:
 		{
 			// Check that the character is a valid mode letter.
 			if (!ModeParser::IsModeChar(chr))
-				throw ModuleException(this, INSP_FORMAT("Invalid mode '{}' was specified in <disabled:{}> at {}",
+				throw ModuleException(this, fmt::format("Invalid mode '{}' was specified in <disabled:{}> at {}",
 					chr, field, tag->source.str()));
 
 			// Check that the mode actually exists.
 			ModeHandler* mh = ServerInstance->Modes.FindMode(chr, type);
 			if (!mh)
-				throw ModuleException(this, INSP_FORMAT("Nonexistent mode '{}' was specified in <disabled:{}> at {}",
+				throw ModuleException(this, fmt::format("Nonexistent mode '{}' was specified in <disabled:{}> at {}",
 					chr, field, tag->source.str()));
 
 			// Disable the mode.
@@ -90,7 +90,7 @@ public:
 			// Check that the command actually exists.
 			Command* handler = ServerInstance->Parser.GetHandler(command);
 			if (!handler)
-				throw ModuleException(this, INSP_FORMAT("Nonexistent command '{}' was specified in <disabled:commands> at {}",
+				throw ModuleException(this, fmt::format("Nonexistent command '{}' was specified in <disabled:commands> at {}",
 					command, tag->source.str()));
 
 			// Prevent admins from disabling MODULES for transparency reasons.
@@ -186,12 +186,12 @@ public:
 			// treated as if they do not exist.
 			int numeric = (change.mh->GetModeType() == MODETYPE_CHANNEL ? ERR_UNKNOWNMODE : ERR_UNKNOWNSNOMASK);
 			const char* typestr = (change.mh->GetModeType() == MODETYPE_CHANNEL ? "channel" : "user");
-			user->WriteNumeric(numeric, change.mh->GetModeChar(), INSP_FORMAT("is not a recognised {} mode.", typestr));
+			user->WriteNumeric(numeric, change.mh->GetModeChar(), fmt::format("is not a recognised {} mode.", typestr));
 			return MOD_RES_DENY;
 		}
 
 		// Inform the user that the mode they changed has been disabled.
-		user->WriteNumeric(ERR_NOPRIVILEGES, INSP_FORMAT("Permission Denied - {} mode {} ({}) is disabled",
+		user->WriteNumeric(ERR_NOPRIVILEGES, fmt::format("Permission Denied - {} mode {} ({}) is disabled",
 			what, change.mh->GetModeChar(), change.mh->name));
 		return MOD_RES_DENY;
 	}

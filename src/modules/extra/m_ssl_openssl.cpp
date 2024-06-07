@@ -578,7 +578,7 @@ private:
 		int activated = ASN1_TIME_cmp_time_t(X509_getm_notBefore(cert), ServerInstance->Time());
 		if (activated != -1 && activated != 0)
 		{
-			certinfo->error = INSP_FORMAT("Certificate not active for {} (on {})",
+			certinfo->error = fmt::format("Certificate not active for {} (on {})",
 				Duration::ToString(certinfo->activation - ServerInstance->Time()),
 				Time::ToString(certinfo->activation));
 		}
@@ -586,7 +586,7 @@ private:
 		int expired = ASN1_TIME_cmp_time_t(X509_getm_notAfter(cert), ServerInstance->Time());
 		if (expired != 0 && expired != 1)
 		{
-			certinfo->error = INSP_FORMAT("Certificate expired {} ago (on {})",
+			certinfo->error = fmt::format("Certificate expired {} ago (on {})",
 				Duration::ToString(ServerInstance->Time() - certinfo->expiration),
 				Time::ToString(certinfo->expiration));
 		}

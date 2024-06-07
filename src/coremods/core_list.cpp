@@ -171,7 +171,7 @@ CmdResult CommandList::Handle(User* user, const Params& parameters)
 			else if (showmodes)
 			{
 				// Show the list response with the modes and topic.
-				user->WriteNumeric(RPL_LIST, chan->name, users, INSP_FORMAT("[+{}] {}", chan->ChanModes(n), chan->topic));
+				user->WriteNumeric(RPL_LIST, chan->name, users, fmt::format("[+{}] {}", chan->ChanModes(n), chan->topic));
 			}
 			else
 			{

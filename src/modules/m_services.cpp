@@ -53,7 +53,7 @@ public:
 	{
 		if (IS_LOCAL(source))
 		{
-			source->WriteNumeric(ERR_NOPRIVILEGES, INSP_FORMAT("Only a server may modify the +{} channel mode", GetModeChar()));
+			source->WriteNumeric(ERR_NOPRIVILEGES, fmt::format("Only a server may modify the +{} channel mode", GetModeChar()));
 			return false;
 		}
 
@@ -77,7 +77,7 @@ public:
 	{
 		if (IS_LOCAL(source))
 		{
-			source->WriteNumeric(ERR_NOPRIVILEGES, INSP_FORMAT("Only a server may modify the +{} user mode", GetModeChar()));
+			source->WriteNumeric(ERR_NOPRIVILEGES, fmt::format("Only a server may modify the +{} user mode", GetModeChar()));
 			return false;
 		}
 
@@ -134,7 +134,7 @@ public:
 
 	void Apply(User* u) override
 	{
-		u->WriteNumeric(RPL_SAVENICK, u->nick, INSP_FORMAT("Services reserved nickname: {}", reason));
+		u->WriteNumeric(RPL_SAVENICK, u->nick, fmt::format("Services reserved nickname: {}", reason));
 		u->ChangeNick(u->uuid);
 	}
 
@@ -546,7 +546,7 @@ private:
 		if (mlock->find(change.mh->GetModeChar()) == std::string::npos)
 			return true; // Mode is not locked.
 
-		user->WriteNumeric(ERR_MLOCKRESTRICTED, chan->name, change.mh->GetModeChar(), *mlock, INSP_FORMAT("Mode cannot be changed as it has been locked {} by services!",
+		user->WriteNumeric(ERR_MLOCKRESTRICTED, chan->name, change.mh->GetModeChar(), *mlock, fmt::format("Mode cannot be changed as it has been locked {} by services!",
 			chan->IsModeSet(change.mh) ? "on" : "off"));
 		return false;
 	}
@@ -571,7 +571,7 @@ private:
 		if (!target->IsModeSet(servprotectmode))
 			return true; // Target is not a protected service.
 
-		user->WriteNumeric(ERR_RESTRICTED, chan->name, INSP_FORMAT("You are not permitted to remove privileges from {} services!", ServerInstance->Config->Network));
+		user->WriteNumeric(ERR_RESTRICTED, chan->name, fmt::format("You are not permitted to remove privileges from {} services!", ServerInstance->Config->Network));
 		return false;
 	}
 
@@ -631,7 +631,7 @@ public:
 
 		if (dest->IsModeSet(servprotectmode))
 		{
-			source->WriteNumeric(ERR_KILLDENY, INSP_FORMAT("You are not permitted to kill {} services!", ServerInstance->Config->Network));
+			source->WriteNumeric(ERR_KILLDENY, fmt::format("You are not permitted to kill {} services!", ServerInstance->Config->Network));
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
@@ -673,7 +673,7 @@ public:
 	{
 		if (memb->user->IsModeSet(servprotectmode))
 		{
-			source->WriteNumeric(ERR_RESTRICTED, memb->chan->name, INSP_FORMAT("You are not permitted to kick {} services!", ServerInstance->Config->Network));
+			source->WriteNumeric(ERR_RESTRICTED, memb->chan->name, fmt::format("You are not permitted to kick {} services!", ServerInstance->Config->Network));
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
@@ -696,7 +696,7 @@ public:
 			}
 		}
 
-		user->WriteNumeric(ERR_ERRONEUSNICKNAME, newnick, INSP_FORMAT("Services reserved nickname: {}", svshold->reason));
+		user->WriteNumeric(ERR_ERRONEUSNICKNAME, newnick, fmt::format("Services reserved nickname: {}", svshold->reason));
 		return MOD_RES_DENY;
 	}
 

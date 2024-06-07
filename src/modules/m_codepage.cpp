@@ -179,7 +179,7 @@ public:
 			data["map"].push_back(',');
 		}
 
-		compatdata = INSP_FORMAT("front={}&middle={}&map={}", data["front"], data["middle"], data["map"]);
+		compatdata = fmt::format("front={}&middle={}&map={}", data["front"], data["middle"], data["map"]);
 	}
 
 	bool Map(uint32_t upper, uint32_t lower) override
@@ -331,9 +331,9 @@ private:
 	static std::string GetPrintable(uint32_t chr)
 	{
 		if (isprint(chr))
-			return INSP_FORMAT("{} ({})", reinterpret_cast<const char*>(&chr), chr);
+			return fmt::format("{} ({})", reinterpret_cast<const char*>(&chr), chr);
 		else
-			return INSP_FORMAT("{}", chr);
+			return fmt::format("{}", chr);
 	}
 
 public:
@@ -389,11 +389,11 @@ public:
 						break;
 
 					case Codepage::AllowCharacterResult::NOT_VALID:
-						throw ModuleException(this, INSP_FORMAT("<cpchars> tag contains a forbidden character: {} at {}",
+						throw ModuleException(this, fmt::format("<cpchars> tag contains a forbidden character: {} at {}",
 							GetPrintable(pos), tag->source.str()));
 
 					case Codepage::AllowCharacterResult::NOT_VALID_AT_FRONT:
-						throw ModuleException(this, INSP_FORMAT("<cpchars> tag contains a forbidden front character: {} at {}",
+						throw ModuleException(this, fmt::format("<cpchars> tag contains a forbidden front character: {} at {}",
 							GetPrintable(pos), tag->source.str()));
 				}
 			}

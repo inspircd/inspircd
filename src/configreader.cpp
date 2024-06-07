@@ -512,11 +512,11 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
 
 		// On startup, print out to console (still attached at this point)
 		if (!old)
-			fmt::println(line);
+			fmt::println("{}", line);
 
 		// If a user is rehashing, tell them directly
 		if (user)
-			user->WriteRemoteNotice(INSP_FORMAT("*** {}", line));
+			user->WriteRemoteNotice(fmt::format("*** {}", line));
 		// Also tell opers
 		ServerInstance->SNO.WriteGlobalSno('r', line);
 	}
@@ -569,7 +569,7 @@ void ServerConfig::ApplyModules(User* user) const
 
 		if (ServerInstance->Modules.Unload(mod))
 		{
-			const std::string message = INSP_FORMAT("The {} module was unloaded.", modname);
+			const std::string message = fmt::format("The {} module was unloaded.", modname);
 			if (user)
 				user->WriteNumeric(RPL_UNLOADEDMODULE, modname, message);
 
@@ -577,7 +577,7 @@ void ServerConfig::ApplyModules(User* user) const
 		}
 		else
 		{
-			const std::string message = INSP_FORMAT("Failed to unload the {} module: {}", modname, ServerInstance->Modules.LastError());
+			const std::string message = fmt::format("Failed to unload the {} module: {}", modname, ServerInstance->Modules.LastError());
 			if (user)
 				user->WriteNumeric(ERR_CANTUNLOADMODULE, modname, message);
 
@@ -593,7 +593,7 @@ void ServerConfig::ApplyModules(User* user) const
 
 		if (ServerInstance->Modules.Load(modname))
 		{
-			const std::string message = INSP_FORMAT("The {} module was loaded.", modname);
+			const std::string message = fmt::format("The {} module was loaded.", modname);
 			if (user)
 				user->WriteNumeric(RPL_LOADEDMODULE, modname, message);
 
@@ -601,7 +601,7 @@ void ServerConfig::ApplyModules(User* user) const
 		}
 		else
 		{
-			const std::string message = INSP_FORMAT("Failed to load the {} module: {}", modname, ServerInstance->Modules.LastError());
+			const std::string message = fmt::format("Failed to load the {} module: {}", modname, ServerInstance->Modules.LastError());
 			if (user)
 				user->WriteNumeric(ERR_CANTLOADMODULE, modname, message);
 

@@ -576,7 +576,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			if (!this->GetTheirChallenge().empty() && (this->LinkState == CONNECTING))
 			{
 				this->SendCapabilities(2);
-				this->WriteLine(INSP_FORMAT("SERVER {} {} {}{} :{}",
+				this->WriteLine(fmt::format("SERVER {} {} {}{} :{}",
 					ServerInstance->Config->ServerName,
 					TreeSocket::MakePass(capab->link->SendPass, capab->theirchallenge),
 					proto_version == PROTO_INSPIRCD_3 ? "0 " : "",
@@ -591,7 +591,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			if (this->LinkState == CONNECTING)
 			{
 				this->SendCapabilities(2);
-				this->WriteLine(INSP_FORMAT("SERVER {} {} {}{} :{}",
+				this->WriteLine(fmt::format("SERVER {} {} {}{} :{}",
 					ServerInstance->Config->ServerName,
 					capab->link->SendPass,
 					proto_version == PROTO_INSPIRCD_3 ? "0 " : "",

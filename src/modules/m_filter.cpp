@@ -316,8 +316,8 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 			std::pair<bool, std::string> result = static_cast<ModuleFilter*>(me)->AddFilter(freeform, type, parameters[reasonindex], duration, flags);
 			if (result.first)
 			{
-				const std::string message = INSP_FORMAT("'{}', type '{}'{}, flags '{}', reason: {}", freeform, parameters[1],
-					(duration ? INSP_FORMAT(", duration '{}'", Duration::ToString(duration)) : ""),
+				const std::string message = fmt::format("'{}', type '{}'{}, flags '{}', reason: {}", freeform, parameters[1],
+					(duration ? fmt::format(", duration '{}'", Duration::ToString(duration)) : ""),
 					flags, parameters[reasonindex]);
 
 				user->WriteNotice("*** Added filter " + message);
@@ -441,9 +441,9 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, MessageTarget& msgtarget, M
 			if (notifyuser)
 			{
 				if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
-					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<Channel>(), INSP_FORMAT("Your message to this channel was blocked: {}.", f->reason)));
+					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<Channel>(), fmt::format("Your message to this channel was blocked: {}.", f->reason)));
 				else
-					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<User>(), INSP_FORMAT("Your message to this user was blocked: {}.", f->reason)));
+					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<User>(), fmt::format("Your message to this user was blocked: {}.", f->reason)));
 			}
 			else
 				details.echo_original = true;
@@ -453,9 +453,9 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, MessageTarget& msgtarget, M
 			if (notifyuser)
 			{
 				if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
-					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<Channel>(), INSP_FORMAT("Your message to this channel was blocked: {}.", f->reason)));
+					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<Channel>(), fmt::format("Your message to this channel was blocked: {}.", f->reason)));
 				else
-					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<User>(), INSP_FORMAT("Your message to this user was blocked: {}.", f->reason)));
+					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<User>(), fmt::format("Your message to this user was blocked: {}.", f->reason)));
 			}
 			else
 				details.echo_original = true;

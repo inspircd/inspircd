@@ -114,7 +114,7 @@ class CommandWatch final
 
 		// Do not show how many clients are watching this nick, it's pointless
 		const IRCv3::Monitor::WatchedList& list = manager.GetWatched(user);
-		user->WriteNumeric(RPL_WATCHSTAT, INSP_FORMAT("You have {} and are on 0 WATCH entries", list.size()));
+		user->WriteNumeric(RPL_WATCHSTAT, fmt::format("You have {} and are on 0 WATCH entries", list.size()));
 
 		Numeric::Builder<' '> out(user, RPL_WATCHLIST);
 		for (const auto* entry : list)

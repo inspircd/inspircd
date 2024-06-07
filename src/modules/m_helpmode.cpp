@@ -94,7 +94,7 @@ public:
 				const std::string awayperiod = Duration::ToString(ServerInstance->Time() - helper->away->time);
 				const std::string awaytime = Time::ToString(helper->away->time);
 
-				extra = INSP_FORMAT(": away for {} [since {}] ({})", awayperiod, awaytime, helper->away->message);
+				extra = fmt::format(": away for {} [since {}] ({})", awayperiod, awaytime, helper->away->message);
 			}
 
 			auto* lhelper = IS_LOCAL(helper);
@@ -103,10 +103,10 @@ public:
 				const std::string idleperiod = Duration::ToString(ServerInstance->Time() - lhelper->idle_lastmsg);
 				const std::string idletime = Time::ToString(lhelper->idle_lastmsg);
 
-				extra += INSP_FORMAT("{} idle for {} [since {}]",  extra.empty() ? ':' : ',', idleperiod, idletime);
+				extra += fmt::format("{} idle for {} [since {}]",  extra.empty() ? ':' : ',', idleperiod, idletime);
 			}
 
-			stats.AddGenericRow(INSP_FORMAT("\x02{}\x02{} ({}){}", helper->nick, markhelpers ? " [helper]" : "",
+			stats.AddGenericRow(fmt::format("\x02{}\x02{} ({}){}", helper->nick, markhelpers ? " [helper]" : "",
 				helper->GetUserHost(), extra));
 		}
 

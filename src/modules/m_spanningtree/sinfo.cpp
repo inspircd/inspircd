@@ -61,7 +61,7 @@ CmdResult CommandSInfo::HandleServer(TreeServer* server, CommandBase::Params& pa
 		for (std::string token; versionstream.GetTrailing(token); )
 			server->customversion = token;
 
-		const std::string sidprefix = INSP_FORMAT("[{}] ", server->GetId());
+		const std::string sidprefix = fmt::format("[{}] ", server->GetId());
 		if (!server->customversion.compare(0, sidprefix.size(), sidprefix))
 			server->customversion.erase(0, sidprefix.size());
 

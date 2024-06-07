@@ -95,7 +95,7 @@ static std::vector<std::string> GetMap(User* user, TreeServer* current, size_t m
 	// Pad with spaces until its at max len, max_len must always be >= my names length
 	buffer.append(max_len - current->GetName().length(), ' ');
 
-	buffer += INSP_FORMAT("{:5} [{:5.2}%]", current->UserCount, percent);
+	buffer += fmt::format("{:5} [{:5.2}%]", current->UserCount, percent);
 
 	if (user->IsOper())
 	{
@@ -218,7 +218,7 @@ CmdResult CommandMap::Handle(User* user, const Params& parameters)
 	size_t totusers = ServerInstance->Users.GetUsers().size();
 	float avg_users = (float) totusers / Utils->serverlist.size();
 
-	user->WriteRemoteNumeric(RPL_MAPUSERS, INSP_FORMAT("{} server{} and {} user{}, average {:.2} users per server",
+	user->WriteRemoteNumeric(RPL_MAPUSERS, fmt::format("{} server{} and {} user{}, average {:.2} users per server",
 		Utils->serverlist.size(), (Utils->serverlist.size() > 1 ? "s" : ""), totusers,
 		(totusers > 1 ? "s" : ""), avg_users));
 

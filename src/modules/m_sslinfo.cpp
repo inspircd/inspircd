@@ -199,16 +199,16 @@ private:
 		ssl_cert* cert = sslapi.GetCertificate(target);
 		if (!cert)
 		{
-			source->WriteNotice(INSP_FORMAT("*** {} is not connected using TLS.", target->nick));
+			source->WriteNotice(fmt::format("*** {} is not connected using TLS.", target->nick));
 		}
 		else if (cert->GetError().length())
 		{
-			source->WriteNotice(INSP_FORMAT("*** {} is connected using TLS but has not specified a valid client certificate ({}).",
+			source->WriteNotice(fmt::format("*** {} is connected using TLS but has not specified a valid client certificate ({}).",
 				target->nick, cert->GetError()));
 		}
 		else if (!verbose)
 		{
-			source->WriteNotice(INSP_FORMAT("*** {} is connected using TLS with a valid client certificate ({}).",
+			source->WriteNotice(fmt::format("*** {} is connected using TLS with a valid client certificate ({}).",
 				target->nick, cert->GetFingerprint()));
 		}
 		else
@@ -262,7 +262,7 @@ private:
 
 		if (sslonlymode)
 		{
-			source->WriteNotice(INSP_FORMAT("*** {} {} have channel mode +{} ({}) set.",
+			source->WriteNotice(fmt::format("*** {} {} have channel mode +{} ({}) set.",
 				chan->name, chan->IsModeSet(sslonlymode) ? "does" : "does not",
 				sslonlymode->GetModeChar(), sslonlymode->name));
 		}
@@ -371,7 +371,7 @@ public:
 			if (!cmd.operonlyfp || whois.IsSelfWhois() || whois.GetSource()->IsOper())
 			{
 				for (const auto& fingerprint : cert->GetFingerprints())
-					whois.SendLine(RPL_WHOISCERTFP, INSP_FORMAT("has TLS client certificate fingerprint {}", fingerprint));
+					whois.SendLine(RPL_WHOISCERTFP, fmt::format("has TLS client certificate fingerprint {}", fingerprint));
 			}
 		}
 	}

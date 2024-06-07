@@ -48,7 +48,7 @@ public:
 		if (!extban.GetStatus(source, memb->chan).check(!modeset))
 		{
 			// Can't kick with Q in place, not even opers with override, and founders
-			source->WriteNumeric(ERR_RESTRICTED, memb->chan->name, INSP_FORMAT("Can't kick user {} from channel ({})",
+			source->WriteNumeric(ERR_RESTRICTED, memb->chan->name, fmt::format("Can't kick user {} from channel ({})",
 				memb->user->nick, modeset ? "+Q is set" : "you're extbanned"));
 			return MOD_RES_DENY;
 		}

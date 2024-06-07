@@ -521,7 +521,7 @@ bool ParseStack::ParseFile(const std::string& path, int flags, const std::string
 		if (flags & FLAG_MISSING_OKAY)
 			return true;
 
-		throw CoreException(INSP_FORMAT("Could not read \"{}\" for include: {}", path, strerror(errno)));
+		throw CoreException(fmt::format("Could not read \"{}\" for include: {}", path, strerror(errno)));
 	}
 
 	reading.push_back(path);

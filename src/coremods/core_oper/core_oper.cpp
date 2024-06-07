@@ -104,7 +104,7 @@ public:
 		if (!luser)
 			return;
 
-		luser->WriteNumeric(RPL_YOUAREOPER, INSP_FORMAT("You are now {} {}", strchr("AEIOUaeiou", user->oper->GetType()[0]) ? "an" : "a",
+		luser->WriteNumeric(RPL_YOUAREOPER, fmt::format("You are now {} {}", strchr("AEIOUaeiou", user->oper->GetType()[0]) ? "an" : "a",
 			user->oper->GetType()));
 
 		ServerInstance->SNO.WriteToSnoMask('o', "{} ({}) [{}] is now a server operator of type \x02{}\x02 ({}using account \x02{}\x02).",
@@ -160,7 +160,7 @@ public:
 					const std::string commands = account->GetCommands(true);
 					const std::string privileges = account->GetPrivileges();
 
-					stats.AddGenericRow(INSP_FORMAT(
+					stats.AddGenericRow(fmt::format(
 						"\x02{}\x02 (hosts: {}, type: {}, channel modes: {}, user modes: {}, snomasks: {}, commands: {}, privileges: {})",
 						account->GetName(), NoneIfEmpty(hosts), account->GetType(), NoneIfEmpty(chanmodes), NoneIfEmpty(usermodes),
 						NoneIfEmpty(snomasks), NoneIfEmpty(commands), NoneIfEmpty(privileges)
@@ -189,7 +189,7 @@ public:
 					const std::string commands = type->GetCommands(true);
 					const std::string privileges = type->GetPrivileges();
 
-					stats.AddGenericRow(INSP_FORMAT(
+					stats.AddGenericRow(fmt::format(
 						"\x02{}\02 (channel modes: {}, user modes: {}, snomasks: {}, commands: {}, privileges: {})",
 						type->GetName(), NoneIfEmpty(chanmodes), NoneIfEmpty(usermodes), NoneIfEmpty(snomasks),
 						NoneIfEmpty(commands), NoneIfEmpty(privileges)
@@ -220,7 +220,7 @@ public:
 						const std::string awayperiod = Duration::ToString(ServerInstance->Time() - oper->away->time);
 						const std::string awaytime = Time::ToString(oper->away->time);
 
-						extra = INSP_FORMAT(": away for {} [since {}] ({})", awayperiod, awaytime, oper->away->message);
+						extra = fmt::format(": away for {} [since {}] ({})", awayperiod, awaytime, oper->away->message);
 					}
 
 					auto* loper = IS_LOCAL(oper);
@@ -229,10 +229,10 @@ public:
 						const std::string idleperiod = Duration::ToString(ServerInstance->Time() - loper->idle_lastmsg);
 						const std::string idletime = Time::ToString(loper->idle_lastmsg);
 
-						extra += INSP_FORMAT("{} idle for {} [since {}]",  extra.empty() ? ':' : ',', idleperiod, idletime);
+						extra += fmt::format("{} idle for {} [since {}]",  extra.empty() ? ':' : ',', idleperiod, idletime);
 					}
 
-					stats.AddGenericRow(INSP_FORMAT("\x02{}\x02 ({}){}", oper->nick, oper->GetUserHost(), extra));
+					stats.AddGenericRow(fmt::format("\x02{}\x02 ({}){}", oper->nick, oper->GetUserHost(), extra));
 				}
 
 				// Sort opers alphabetically.
@@ -240,7 +240,7 @@ public:
 					return lhs.GetParams()[1] < rhs.GetParams()[1];
 				});
 
-				stats.AddGenericRow(INSP_FORMAT("{} server operator{} total", stats.GetRows().size(), stats.GetRows().size() ? "s" : ""));
+				stats.AddGenericRow(fmt::format("{} server operator{} total", stats.GetRows().size(), stats.GetRows().size() ? "s" : ""));
 				return MOD_RES_DENY;
 			}
 		}

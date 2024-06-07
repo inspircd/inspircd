@@ -97,7 +97,7 @@ public:
 			ListModeBase::ModeList* list = banlm->GetList(channel);
 			if (list && change.adding && maxbans <= list->size())
 			{
-				source->WriteNumeric(ERR_BANLISTFULL, channel->name, banlm->GetModeChar(), INSP_FORMAT("Channel ban list for {} is full (maximum entries for this channel is {})",
+				source->WriteNumeric(ERR_BANLISTFULL, channel->name, banlm->GetModeChar(), fmt::format("Channel ban list for {} is full (maximum entries for this channel is {})",
 					channel->name, maxbans));
 				return false;
 			}
@@ -166,19 +166,19 @@ public:
 				{
 					if (!ServerInstance->Channels.IsChannel(mask[CHAN]))
 					{
-						source->WriteNumeric(ERR_NOSUCHCHANNEL, channel->name, INSP_FORMAT("Invalid channel name in redirection ({})", mask[CHAN]));
+						source->WriteNumeric(ERR_NOSUCHCHANNEL, channel->name, fmt::format("Invalid channel name in redirection ({})", mask[CHAN]));
 						return false;
 					}
 
 					auto* c = ServerInstance->Channels.Find(mask[CHAN]);
 					if (!c)
 					{
-						source->WriteNumeric(690, INSP_FORMAT("Target channel {} must exist to be set as a redirect.", mask[CHAN]));
+						source->WriteNumeric(690, fmt::format("Target channel {} must exist to be set as a redirect.", mask[CHAN]));
 						return false;
 					}
 					else if (change.adding && c->GetPrefixValue(source) < OP_VALUE)
 					{
-						source->WriteNumeric(690, INSP_FORMAT("You must be opped on {} to set it as a redirect.", mask[CHAN]));
+						source->WriteNumeric(690, fmt::format("You must be opped on {} to set it as a redirect.", mask[CHAN]));
 						return false;
 					}
 

@@ -95,7 +95,7 @@ public:
 			{
 				Numeric::Numeric n(ERR_NOTINVITED);
 				n.SetServer(user->server);
-				n.push(u->nick).push(c->name).push(INSP_FORMAT("Is not invited to channel {}", c->name));
+				n.push(u->nick).push(c->name).push(fmt::format("Is not invited to channel {}", c->name));
 				user->WriteRemoteNumeric(n);
 				return CmdResult::FAILURE;
 			}
@@ -105,8 +105,8 @@ public:
 			n.push(c->name).push(u->nick).push("Uninvited");
 			user->WriteRemoteNumeric(n);
 
-			lu->WriteNumeric(RPL_UNINVITED, INSP_FORMAT("You were uninvited from {} by {}", c->name, user->nick));
-			c->WriteRemoteNotice(INSP_FORMAT("*** {} uninvited {}.", user->nick, u->nick));
+			lu->WriteNumeric(RPL_UNINVITED, fmt::format("You were uninvited from {} by {}", c->name, user->nick));
+			c->WriteRemoteNotice(fmt::format("*** {} uninvited {}.", user->nick, u->nick));
 		}
 
 		return CmdResult::SUCCESS;

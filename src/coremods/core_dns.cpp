@@ -235,7 +235,7 @@ private:
 				if (!InspIRCd::IsHost(srv->host, true))
 					throw Exception(creator, "Invalid name in SRV resource record");
 
-				record.rdata = INSP_FORMAT("{} {} {} {}", srv->priority, srv->weight, srv->port, srv->host);
+				record.rdata = fmt::format("{} {} {} {}", srv->priority, srv->weight, srv->port, srv->host);
 				record.rdataobj = srv;
 				break;
 			}
@@ -933,7 +933,7 @@ public:
 	{
 		if (stats.GetSymbol() == 'T')
 		{
-			stats.AddGenericRow(INSP_FORMAT("DNS requests: {} ({} succeeded, {} failed)",
+			stats.AddGenericRow(fmt::format("DNS requests: {} ({} succeeded, {} failed)",
 				manager.stats_total, manager.stats_success, manager.stats_failure));
 		}
 		return MOD_RES_PASSTHRU;

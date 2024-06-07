@@ -107,7 +107,7 @@ public:
 		{
 			// A hostname can not contain NUL, LF, CR, or SPACE.
 			if (chr == 0x00 || chr == 0x0A || chr == 0x0D || chr == 0x20)
-				throw ModuleException(this, INSP_FORMAT("<hostname:charmap> can not contain character 0x{:02X} ({})", chr, chr));
+				throw ModuleException(this, fmt::format("<hostname:charmap> can not contain character 0x{:02X} ({})", chr, chr));
 			newhostmap.set(static_cast<unsigned char>(chr));
 		}
 		std::swap(newhostmap, cmd.hostmap);
