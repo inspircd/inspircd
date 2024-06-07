@@ -6,6 +6,7 @@
 # Long hand aliases for services pseudoclients.
 <alias text="BOTSERV"  replace="SQUERY $requirement :$2-" requires="BotServ"  service="yes">
 <alias text="CHANSERV" replace="SQUERY $requirement :$2-" requires="ChanServ" service="yes">
+<alias text="GLOBAL"   replace="SQUERY $requirement :$2-" requires="Global"   service="yes" operonly="yes">
 <alias text="HOSTSERV" replace="SQUERY $requirement :$2-" requires="HostServ" service="yes">
 <alias text="MEMOSERV" replace="SQUERY $requirement :$2-" requires="MemoServ" service="yes">
 <alias text="NICKSERV" replace="SQUERY $requirement :$2-" requires="NickServ" service="yes">
@@ -15,6 +16,7 @@
 # Short hand aliases for services pseudoclients.
 <alias text="BS" replace="SQUERY $requirement :$2-" requires="BotServ"  service="yes">
 <alias text="CS" replace="SQUERY $requirement :$2-" requires="ChanServ" service="yes">
+<alias text="GL" replace="SQUERY $requirement :$2-" requires="Global"   service="yes" operonly="yes">
 <alias text="HS" replace="SQUERY $requirement :$2-" requires="HostServ" service="yes">
 <alias text="MS" replace="SQUERY $requirement :$2-" requires="MemoServ" service="yes">
 <alias text="NS" replace="SQUERY $requirement :$2-" requires="NickServ" service="yes">

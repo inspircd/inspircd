@@ -3,7 +3,3 @@
 
 # This file inherits from the generic config to avoid repetition.
 <include file="examples/services/generic.conf.example">
-
-# /GLOBAL <message>
-# Sends a global notice.
-<alias text="GLOBAL" format="*" replace="SQUERY $requirement :GLOBAL $2-" requires="Global" service="yes" operonly="yes">

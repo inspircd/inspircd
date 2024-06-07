@@ -1,5 +1,5 @@
 This directory stores modules which require external libraries to compile.
-For example, m_regex_pcre requires the PCRE2 library.
+For example, m_regex_pcre2 requires the PCRE2 library.
 
 To compile any of these modules first ensure you have the required dependencies
 (read the online documentation at https://docs.inspircd.org) and then symlink
