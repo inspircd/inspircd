@@ -686,8 +686,8 @@ std::vector<std::string> ServerConfig::GetModules() const
 			modules.push_back("services");
 		else if (insp::equalsci(shortname, "namesx"))
 			modules.push_back("multiprefix");
-		else if (insp::equalsci(shortname, "regex_pcre2"))
-			modules.push_back("regex_pcre");
+		else if (insp::equalsci(shortname, "regex_pcre"))
+			modules.push_back("regex_pcre2");
 		else if (insp::equalsci(shortname, "sha256"))
 			modules.push_back("sha2");
 		else if (insp::equalsci(shortname, "services_account"))

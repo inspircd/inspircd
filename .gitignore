@@ -24,7 +24,7 @@
 /src/modules/m_log_syslog.cpp
 /src/modules/m_mysql.cpp
 /src/modules/m_pgsql.cpp
-/src/modules/m_regex_pcre.cpp
+/src/modules/m_regex_pcre2.cpp
 /src/modules/m_regex_posix.cpp
 /src/modules/m_regex_re2.cpp
 /src/modules/m_sqlite3.cpp
