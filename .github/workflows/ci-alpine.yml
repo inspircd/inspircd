@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     if: "!contains(github.event.head_commit.message, '[skip alpine ci]')"
-    container: alpine:3.16
+    container: alpine:3.20
     runs-on: ubuntu-latest
     env:
       CXX: ${{ matrix.compiler }}

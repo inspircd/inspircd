@@ -266,7 +266,7 @@ int main(int argc, char* argv[])
 
 	SERVICE_TABLE_ENTRY serviceTable[] =
 	{
-		{ TEXT("InspIRCd"), (LPSERVICE_MAIN_FUNCTION)ServiceMain },
+		{ (LPSTR)"InspIRCd", (LPSERVICE_MAIN_FUNCTION)ServiceMain },
 		{ nullptr, nullptr }
 	};
 

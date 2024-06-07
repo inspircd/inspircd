@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: irctest
-          ref: 2dea91e17a873761f20bd10a9a188f6abe2046ba
+          ref: af980ed3b639b5e1b3749c74027872adb69922a7
           repository: progval/irctest
 
       - name: Run configure
@@ -73,7 +73,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: irctest
-          ref: 2dea91e17a873761f20bd10a9a188f6abe2046ba
+          ref: af980ed3b639b5e1b3749c74027872adb69922a7
           repository: progval/irctest
 
       - name: Install irctest dependencies
