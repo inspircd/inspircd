@@ -81,9 +81,6 @@ private:
 	}
 
 public:
-	// Stop GCC warnings about the deprecated OnServerSplit event.
-	using ServerProtocol::LinkEventListener::OnServerSplit;
-
 	ModuleConnectBan()
 		: Module(VF_VENDOR, "Z-lines IP addresses which make excessive connections to the server.")
 		, ServerProtocol::LinkEventListener(this)

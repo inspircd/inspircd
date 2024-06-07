@@ -246,12 +246,6 @@ void Log::Manager::OpenLogs(bool requiremethods)
 			{ "normal",   Level::NORMAL   },
 			{ "debug",    Level::DEBUG    },
 			{ "rawio",    Level::RAWIO    },
-
-			// Deprecated v3 names.
-			{ "sparse",  Level::CRITICAL },
-			{ "verbose", Level::WARNING  },
-			{ "default", Level::NORMAL   },
-
 		});
 		TokenList types = tag->getString("type", "*", 1);
 		MethodPtr method = engine->Create(tag);

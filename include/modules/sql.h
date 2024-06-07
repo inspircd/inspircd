@@ -245,10 +245,4 @@ inline void SQL::PopulateUserInfo(User* user, ParamMap& userinfo)
 		{ "user",    user->GetRealUser()      },
 		{ "uuid",    user->uuid               },
 	});
-
-	// Deprecated keys.
-	userinfo.insert({
-		{ "ident", userinfo["user"]    },
-		{ "ip" ,   userinfo["address"] },
-	});
 }
