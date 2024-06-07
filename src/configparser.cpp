@@ -3,7 +3,6 @@
  *
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2013-2014, 2016-2023 Sadie Powell <sadie@witchery.services>
- *   Copyright (C) 2013 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2012-2014 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>

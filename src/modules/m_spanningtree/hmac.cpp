@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2014 Matthew Martin <phy1729@gmail.com>
  *   Copyright (C) 2013-2014 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2013 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2019, 2021-2024 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008 Robin Burchell <robin+git@viroteck.net>

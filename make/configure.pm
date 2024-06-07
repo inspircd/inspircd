@@ -1,6 +1,7 @@
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
+#   Copyright (C) 2024 satmd <satmd@satmd.de>
 #   Copyright (C) 2020 Nicole Kleinhoff <ilbelkyr@shalture.org>
 #   Copyright (C) 2013-2022 Sadie Powell <sadie@witchery.services>
 #   Copyright (C) 2012 Robby <robby@chatbelgie.be>

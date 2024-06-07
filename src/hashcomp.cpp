@@ -1,10 +1,9 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2013, 2018-2019 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2018-2023 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Adam <Adam@anope.org>
- *   Copyright (C) 2012-2013, 2015-2016 Attila Molnar <attilamolnar@hush.com>
+ *   Copyright (C) 2012-2013, 2015 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008 Robin Burchell <robin+git@viroteck.net>
