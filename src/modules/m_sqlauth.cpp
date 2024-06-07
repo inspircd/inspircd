@@ -174,7 +174,7 @@ public:
 		// End v3 config compatibility.
 
 		hash_algos.clear();
-		irc::commasepstream algos(conf->getString("hash", "md5,sha256"));
+		irc::commasepstream algos(conf->getString("hash", "sha1,sha256"));
 		std::string algo;
 		while (algos.GetToken(algo))
 			hash_algos.push_back(algo);

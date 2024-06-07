@@ -42,16 +42,6 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **Website** &mdash; [https://github.com/bfgroup/Lyra](https://github.com/bfgroup/Lyra)
 
-## md5
-
-**Author** &mdash; [Solar Designer](mailto:solar@openwall.com)
-
-**License** &mdash; Cut-down BSD License
-
-**Version** &mdash; v2.0
-
-**Website** &mdash; [https://openwall.info/wiki/people/solar/software/public-domain-source-code/md5](https://openwall.info/wiki/people/solar/software/public-domain-source-code/md5)
-
 ## sha2
 
 **Author** &mdash; [Olivier Gay](mailto:olivier.gay@a3.epfl.ch)

@@ -29,16 +29,6 @@ git     = "https://github.com/bfgroup/Lyra"
 branch  = "release"
 license = "Boost Software License"
 
-[md5]
-author  = "Solar Designer"
-depth   = 1
-email   = "solar@openwall.com"
-files   = "{LICENSE,md5/md5.[ch]}"
-license = "Cut-down BSD License"
-tarball = "https://www.openwall.com/blists/blists-2.0.tar.gz"
-version = "v2.0"
-website = "https://openwall.info/wiki/people/solar/software/public-domain-source-code/md5"
-
 [sha2]
 author  = "Olivier Gay"
 email   = "olivier.gay@a3.epfl.ch"

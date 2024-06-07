@@ -27,16 +27,6 @@
 #                                                                     #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# MD5 module: Allows other modules to generate MD5 hashes, usually for
-# cryptographic uses and security.
-#
-# IMPORTANT:
-# Other modules such as cloak_md5 and password_hash may rely on
-# this module being loaded to function.
-#
-#<module name="md5">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SHA2 module: Allows other modules to generate SHA2 hashes,
 # usually for cryptographic uses and security.
 #
@@ -506,61 +496,6 @@
 # In order to have users automatically cloaked on connect you should
 # load the conn_umodes module and add "x" to <connect:modes>.
 #<module name="cloak">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# MD5 cloak module: Adds the "half" and "full" cloak methods. These
-# methods are obsolete and should only be used on a network which is
-# upgrading from v3 and wishes to keep ban compatibility. New networks
-# should should use the "hmac-sha256" method (see below) instead.
-#
-# IMPORTANT: If you are using this module you should also load the md5
-# module. Failure to do so will result in users not being cloaked.
-#<module name="cloak_md5">
-#
-#-#-#-#-#-#-#-#-#-#-#- MD5 CLOAK CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
-# To use the cloak_md5 module you must define a <cloak> tag. This tag #
-# tag can have the following fields.                                  #
-#                                                                     #
-#  key       -  The secret key to use when hashing hostnames. This    #
-#               MUST be at least 30 characters long.                  #
-#                                                                     #
-#  class     - If non-empty then a comma-delimited list of connect    #
-#              class names that a user has to be in to get the cloak  #
-#              from this tag.                                         #
-#                                                                     #
-#  prefix    - A freeform value to prefix cloaks with. This must not  #
-#              contain spaces.                                        #
-#                                                                     #
-#  suffix    - A freeform value to suffix cloaks with. This must not  #
-#              contain spaces.                                        #
-#                                                                     #
-#  domainparts - The maximum number of hostname labels that should be #
-#              visible on the end of a host. Defaults to 3.           #
-#                                                                     #
-#  ignorecase  - Whether to ignore the capitalisation of a hostname   #
-#                when generating the cloak. This prevents users from  #
-#                evading bans by changing the case of their DNS PTR   #
-#                record. Defaults to off.                             #
-#                                                                     #
-# IMPORTANT: Changing these details will break all of your existing   #
-# bans. If you do not want this to happen you can define multiple     #
-# cloak tags. The first will be used for hostnames and the rest will  #
-# be used for checking if a user is banned in a channel.              #
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-#
-#<cloak method="half"
-#       key="changeme"
-#       class=""
-#       prefix="MyNet-"
-#       suffix=".IP"
-#       domainparts="3"
-#       ignorecase="yes">
-#
-#<cloak method="full"
-#       key="changeme"
-#       class=""
-#       prefix="MyNet-"
-#       suffix=".IP">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HMAC-SHA256 cloak module: Adds the "hmac-sha256" (hostname or IP) and

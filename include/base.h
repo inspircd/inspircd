@@ -139,7 +139,7 @@ enum ServiceType {
 	SERVICE_MODE,
 	/** is a metadata descriptor */
 	SERVICE_METADATA,
-	/** is a data processing provider (MD5, SQL) */
+	/** is a data processing provider */
 	SERVICE_DATA,
 	/** is an I/O hook provider */
 	SERVICE_IOHOOK,
