@@ -62,7 +62,7 @@ public:
 
 // Not in a class due to circular dependency hell.
 static std::string permchannelsconf;
-static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes, unsigned char writeversion)
+static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes)
 {
 	/*
 	 * We need to perform an atomic write so as not to fuck things up.
@@ -94,48 +94,6 @@ static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes, unsign
 		if (!chan->IsModeSet(permchanmode))
 			continue;
 
-		std::string chanmodes = chan->ChanModes(true);
-		if (save_listmodes && writeversion == 1)
-		{
-			std::string modes;
-			std::string params;
-
-			for (auto* lm : ServerInstance->Modes.GetListModes())
-			{
-				ListModeBase::ModeList* list = lm->GetList(chan);
-				if (!list || list->empty())
-					continue;
-
-				// Append the parameters
-				for (const auto& entry : *list)
-				{
-					params += entry.mask;
-					params += ' ';
-				}
-
-				// Append the mode letters (for example "IIII", "gg")
-				modes.append(list->size(), lm->GetModeChar());
-			}
-
-			if (!params.empty())
-			{
-				// Remove the last space
-				params.pop_back();
-
-				// If there is at least a space in chanmodes (that is, a non-listmode has a parameter)
-				// insert the listmode mode letters before the space. Otherwise just append them.
-				std::string::size_type p = chanmodes.find(' ');
-				if (p == std::string::npos)
-					chanmodes += modes;
-				else
-					chanmodes.insert(p, modes);
-
-				// Append the listmode parameters (the masks themselves)
-				chanmodes += ' ';
-				chanmodes += params;
-			}
-		}
-
 		stream << "<permchannels channel=\"" << ServerConfig::Escape(chan->name) << "\"" << std::endl
 			<< indent << "ts=\"" << chan->age << "\"" << std::endl;
 
@@ -147,7 +105,7 @@ static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes, unsign
 				<< indent << "topicsetby=\"" << ServerConfig::Escape(chan->setby) << "\"" << std::endl;
 		}
 
-		if (save_listmodes && writeversion >= 2)
+		if (save_listmodes)
 		{
 			for (auto* lm : ServerInstance->Modes.GetListModes())
 			{
@@ -166,7 +124,7 @@ static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes, unsign
 			}
 		}
 
-		stream << indent << "modes=\"" << ServerConfig::Escape(chanmodes) << "\">" << std::endl;
+		stream << indent << "modes=\"" << ServerConfig::Escape(chan->ChanModes(true)) << "\">" << std::endl;
 	}
 
 	if (stream.fail())
@@ -204,7 +162,6 @@ private:
 	unsigned long saveperiod;
 	unsigned long maxbackoff;
 	unsigned char backoff;
-	unsigned char writeversion;
 
 public:
 
@@ -224,7 +181,6 @@ public:
 		saveperiod = tag->getDuration("saveperiod", 5);
 		backoff = tag->getNum<uint8_t>("backoff", 0);
 		maxbackoff = tag->getDuration("maxbackoff", saveperiod * 120, saveperiod);
-		writeversion = tag->getNum<unsigned char>("writeversion", 2, 1, 2);
 		SetInterval(saveperiod);
 
 		if (!permchannelsconf.empty())
@@ -324,7 +280,7 @@ public:
 	{
 		if (dirty)
 		{
-			if (WriteDatabase(p, save_listmodes, writeversion))
+			if (WriteDatabase(p, save_listmodes))
 			{
 				// If we were previously unable to write but now can then reset the time interval.
 				if (GetInterval() != saveperiod)
