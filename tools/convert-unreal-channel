@@ -1,0 +1,132 @@
+#!/usr/bin/env python3
+#
+# InspIRCd -- Internet Relay Chat Daemon
+#
+#   Copyright (C) 2024 Sadie Powell <sadie@witchery.services>
+#
+# This file is part of InspIRCd.  InspIRCd is free software: you can
+# redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, version 2.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+
+import os
+import sys
+
+
+class UnrealDB:
+    def __init__(self, path):
+        self.error = None
+        try:
+            with open(sys.argv[1], mode="rb") as fh:
+                data = fh.read()
+                if data.startswith(b"UnrealIRCd-DB-v1"):
+                    self.data = data[40:]
+                elif data.startswith(b"UnrealIRCd-DB"):
+                    self.error = f"Unsupported database version: {data[0:32]}"
+                else:
+                    self.data = data
+        except OSError as e:
+            self.error = f"Read error: {e}"
+
+    def read_i16(self):
+        tmp = int.from_bytes(self.data[0:2], byteorder="little")
+        self.data = self.data[2:]
+        return tmp
+
+    def read_i32(self):
+        tmp = int.from_bytes(self.data[0:4], byteorder="little")
+        self.data = self.data[4:]
+        return tmp
+
+    def read_i64(self):
+        tmp = int.from_bytes(self.data[0:8], byteorder="little")
+        self.data = self.data[8:]
+        return tmp
+
+    def read_str(self):
+        len = self.read_i16()
+        if len == 0 or len == 0xFFFF:
+            return ""
+        tmp = self.data[0:len]
+        self.data = self.data[len:]
+        return str(tmp, "utf-8")
+
+
+def error(msg):
+    print(msg, file=sys.stderr)
+    sys.exit(1)
+
+
+if len(sys.argv) < 3:
+    program = os.path.basename(__file__)
+    error(f"Usage: {program} <input-file> <output-file>")
+
+db = UnrealDB(sys.argv[1])
+if db.error:
+    error(db.error)
+
+version = db.read_i32()
+if version != 100:
+    error(f"Unrecognised channel database version: {version}")
+
+count = db.read_i64()
+print(f"Converting {count} channels ...")
+
+try:
+    with open(sys.argv[2], mode="w") as fh:
+        for i in range(count):
+            magic = db.read_i32()
+            if magic != 0x11111111:
+                error(f"Unrecognised database start magic: {magic}")
+
+            channel = db.read_str()
+            print(f'<permchannels name="{channel}"', file=fh)
+
+            created = db.read_i64()
+            print(f'              ts="{created}"', file=fh)
+
+            topic = db.read_str()
+            print(f'              topic="{topic}"', file=fh)
+
+            topic_set_by = db.read_str()
+            print(f'              topicsetby="{topic_set_by}"', file=fh)
+
+            topic_set_at = db.read_i64()
+            print(f'              topicts="{topic_set_at}"', file=fh)
+
+            modes = db.read_str()
+            mode_params = db.read_str()
+            print(f'              modes="{modes} {mode_params}"', file=fh)
+
+            mode_lock = db.read_str()  # unused
+            for mode in ["ban", "banexception", "invex"]:
+                mode_count = db.read_i32()
+                if mode_count == 0:
+                    continue
+
+                print(f'              {mode}list="', end="", file=fh)
+                for j in range(mode_count):
+                    mode_str = db.read_str()
+                    mode_set_by = db.read_str()
+                    mode_set_at = db.read_i64()
+                    print(f"{mode_str} {mode_set_by} {mode_set_at} ", end="", file=fh)
+                print('"', file=fh)
+
+            magic = db.read_i32()
+            if magic != 0x22222222:
+                error(f"Unrecognised database end magic: {magic}")
+
+            print(">", file=fh)
+
+
+except OSError as e:
+    error(f"Write error: {e}")

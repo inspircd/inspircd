@@ -1,0 +1,137 @@
+#!/usr/bin/env python3
+#
+# InspIRCd -- Internet Relay Chat Daemon
+#
+#   Copyright (C) 2024 Sadie Powell <sadie@witchery.services>
+#
+# This file is part of InspIRCd.  InspIRCd is free software: you can
+# redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, version 2.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+
+import os
+import sys
+
+
+class UnrealDB:
+    def __init__(self, path):
+        self.error = None
+        try:
+            with open(sys.argv[1], mode="rb") as fh:
+                data = fh.read()
+                if data.startswith(b"UnrealIRCd-DB-v1"):
+                    self.data = data[40:]
+                elif data.startswith(b"UnrealIRCd-DB"):
+                    self.error = f"Unsupported database version: {data[0:32]}"
+                else:
+                    self.data = data
+        except OSError as e:
+            self.error = f"Read error: {e}"
+
+    def read_char(self):
+        tmp = self.data[0:1]
+        self.data = self.data[1:]
+        return str(tmp, "utf-8")
+
+    def read_i16(self):
+        tmp = int.from_bytes(self.data[0:2], byteorder="little")
+        self.data = self.data[2:]
+        return tmp
+
+    def read_i32(self):
+        tmp = int.from_bytes(self.data[0:4], byteorder="little")
+        self.data = self.data[4:]
+        return tmp
+
+    def read_i64(self):
+        tmp = int.from_bytes(self.data[0:8], byteorder="little")
+        self.data = self.data[8:]
+        return tmp
+
+    def read_str(self):
+        len = self.read_i16()
+        if len == 0 or len == 0xFFFF:
+            return ""
+        tmp = self.data[0:len]
+        self.data = self.data[len:]
+        return str(tmp, "utf-8")
+
+
+def error(msg):
+    print(msg, file=sys.stderr)
+    sys.exit(1)
+
+
+if len(sys.argv) < 3:
+    program = os.path.basename(__file__)
+    error(f"Usage: {program} <input-file> <output-file>")
+
+db = UnrealDB(sys.argv[1])
+if db.error:
+    error(db.error)
+
+magic = db.read_i32()
+if magic != 0x10101010:
+    error(f"Unrecognised database magic: {magic}")
+
+version = db.read_i32()
+if version != 4999:
+    error(f"Unrecognised TKL database version: {version}")
+
+count = db.read_i64()
+print(f"Converting {count} TKLs ...")
+
+try:
+    with open(sys.argv[2], mode="w") as fh:
+        print("VERSION 1", file=fh)
+        for i in range(count):
+            type = db.read_char()
+            set_by = db.read_str()
+            set_at = db.read_i64()
+            expire_at = db.read_i64()
+            duration = expire_at - set_at
+
+            if type in "Ee":
+                username = db.read_str()
+                hostname = db.read_str()
+                etype = db.read_str()  # unused
+                reason = db.read_str()
+                print(
+                    f"LINE E {username}@{hostname} {set_by} {set_at} {duration} :{reason}",
+                    file=fh,
+                )
+            elif type in "Ff":
+                method = db.read_str()  # unused
+                pattern = db.read_str()  # unused
+                target = db.read_str()  # unused
+                action = db.read_char()  # unused
+                reason = db.read_str()  # unused
+                duration = db.read_i64()  # unused
+            elif type in "GksZz":
+                username = db.read_str()
+                hostname = db.read_str()
+                reason = db.read_str()
+                line = "SHUN" if type == "s" else type.upper()
+                print(
+                    f"LINE {line} {username}@{hostname} {set_by} {set_at} {duration} :{reason}",
+                    file=fh,
+                )
+            elif type in "Qq":
+                etype = db.read_str()  # unused
+                name = db.read_str()
+                reason = db.read_str()
+                print(f"LINE Q {name} {set_by} {set_at} {duration} :{reason}", file=fh)
+            else:
+                error(f"Unsupported row type: {type}")
+
+except OSError as e:
+    error(f"Write error: {e}")
