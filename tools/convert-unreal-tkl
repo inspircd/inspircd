@@ -18,6 +18,7 @@
 #
 
 
+import io
 import os
 import sys
 
@@ -29,41 +30,31 @@ class UnrealDB:
             with open(sys.argv[1], mode="rb") as fh:
                 data = fh.read()
                 if data.startswith(b"UnrealIRCd-DB-v1"):
-                    self.data = data[40:]
+                    self.data = io.BytesIO(data[40:])
                 elif data.startswith(b"UnrealIRCd-DB"):
                     self.error = f"Unsupported database version: {data[0:32]}"
                 else:
-                    self.data = data
+                    self.data = io.BytesIO(data)
         except OSError as e:
             self.error = f"Read error: {e}"
 
     def read_char(self):
-        tmp = self.data[0:1]
-        self.data = self.data[1:]
-        return str(tmp, "utf-8")
+        return self.data.read(1).decode("utf-8")
 
     def read_i16(self):
-        tmp = int.from_bytes(self.data[0:2], byteorder="little")
-        self.data = self.data[2:]
-        return tmp
+        return int.from_bytes(self.data.read(2), byteorder="little")
 
     def read_i32(self):
-        tmp = int.from_bytes(self.data[0:4], byteorder="little")
-        self.data = self.data[4:]
-        return tmp
+        return int.from_bytes(self.data.read(4), byteorder="little")
 
     def read_i64(self):
-        tmp = int.from_bytes(self.data[0:8], byteorder="little")
-        self.data = self.data[8:]
-        return tmp
+        return int.from_bytes(self.data.read(8), byteorder="little")
 
     def read_str(self):
         len = self.read_i16()
         if len == 0 or len == 0xFFFF:
             return ""
-        tmp = self.data[0:len]
-        self.data = self.data[len:]
-        return str(tmp, "utf-8")
+        return self.data.read(len).decode("utf-8")
 
 
 def error(msg):
