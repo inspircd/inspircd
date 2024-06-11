@@ -114,9 +114,10 @@ public:
 	virtual bool Canonicalize(std::string& text) const = 0;
 
 	/** Compares an entry from this list with the specified value.
+	 * @param lm The list mode which is the entry exists on.
 	 * @param entry The list entry to compare against.
 	 * @param value The value to compare to.
-	 * @return ...
+	 * @return MATCH if the entries match and NOT_MATCH if the entries do not match.
 	 */
 	virtual Comparison CompareEntry(const ListModeBase* lm, const std::string& entry, const std::string& value) const = 0;
 
