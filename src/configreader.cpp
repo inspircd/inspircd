@@ -512,7 +512,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
 
 		// On startup, print out to console (still attached at this point)
 		if (!old)
-			fmt::println(line);
+			fmt::println("{}", line);
 
 		// If a user is rehashing, tell them directly
 		if (user)
