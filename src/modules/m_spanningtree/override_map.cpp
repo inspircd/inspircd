@@ -95,7 +95,7 @@ static std::vector<std::string> GetMap(User* user, TreeServer* current, size_t m
 	// Pad with spaces until its at max len, max_len must always be >= my names length
 	buffer.append(max_len - current->GetName().length(), ' ');
 
-	buffer += fmt::format("{:5} [{:5.2}%]", current->UserCount, percent);
+	buffer += fmt::format("{:5} [{:5.2f}%]", current->UserCount, percent);
 
 	if (user->IsOper())
 	{

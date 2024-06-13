@@ -195,7 +195,7 @@ public:
 	SHA256Method(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const std::string& k, psl_ctx_t* p, bool ch) ATTR_NOT_NULL(2)
 		: Cloak::Method(engine, tag)
 		, cloakhost(ch)
-		, hostparts(tag->getNum<unsigned long>("hostparts", 3, 0, ServerInstance->Config->Limits.MaxHost / 2))
+		, hostparts(cloakhost ? tag->getNum<unsigned long>("hostparts", 3, 0, ServerInstance->Config->Limits.MaxHost / 2) : 0)
 		, key(k)
 		, pathparts(tag->getNum<unsigned long>("pathparts", 1, 0, ServerInstance->Config->Limits.MaxHost / 2))
 		, prefix(tag->getString("prefix"))
@@ -256,13 +256,16 @@ public:
 		// allow verification of or less the same thing.
 		data["cloak-v4"]   = sha256 ? Generate("123.123.123.123")                        : broken;
 		data["cloak-v6"]   = sha256 ? Generate("dead:beef:cafe::")                       : broken;
-		data["cloak-host"] = sha256 ? Generate("extremely.long.inspircd.cloak.example")  : broken;
 		data["cloak-unix"] = sha256 ? Generate("/extremely/long/inspircd/cloak.example") : broken;
-
-		data["host-parts"] = ConvToStr(hostparts);
 		data["path-parts"] = ConvToStr(pathparts);
 		data["prefix"]     = prefix;
 		data["suffix"]     = suffix;
+
+		if (!cloakhost)
+			return;
+
+		data["cloak-host"] = sha256 ? Generate("extremely.long.inspircd.cloak.example") : broken;
+		data["host-parts"] = ConvToStr(hostparts);
 
 #ifdef HAS_PSL
 		data["using-psl"] = psl ? "yes" : "no";

@@ -17,14 +17,14 @@
 .\"
 
 
-.TH "InspIRCd" "1" "2018-08-24" "InspIRCd @VERSION_FULL@" "InspIRCd Manual"
+.TH "InspIRCd" "1" "2024-06-11" "InspIRCd @VERSION_FULL@" "InspIRCd Manual"
 
 .SH "NAME"
 \t\fBInspIRCd\fR - \fIthe\fR stable, high-performance and modular Internet Relay Chat Daemon
 .BR
 
 .SH "SYNOPSIS"
-\t\fBinspircd\fR [--config <file>] [--debug] [--nofork] [--nolog] [--nopid] [--runasroot] [--version]
+\t\fBinspircd\fR [--config <file>] [--debug] [--nofork] [--nolog] [--nopid] [--protocoldebug] [--runasroot] [--version]
 
 .SH "OPTIONS"
 .TP
@@ -34,7 +34,7 @@ Sets the path to the main configuration file. Defaults to \fI@CONFIG_DIR@/inspir
 .TP
 .B "--debug"
 .br
-Log verbosely to the standard output stream.
+Log at the debug level to the standard output stream.
 .TP
 .B "--nofork"
 .br
@@ -47,6 +47,10 @@ Don't write to log files.
 .B "--nopid"
 .br
 Don't write to the PID file.
+.TP
+.B "--protocoldebug"
+.br
+Log at the raw I/O level to the standard output stream.
 .TP
 .B "--runasroot"
 .br
