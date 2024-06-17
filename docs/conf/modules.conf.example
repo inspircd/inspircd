@@ -27,28 +27,6 @@
 #                                                                     #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# MD5 module: Allows other modules to generate MD5 hashes, usually for
-# cryptographic uses and security.
-#
-# IMPORTANT:
-# Other modules such as cloak_md5 and password_hash may rely on
-# this module being loaded to function.
-#
-#<module name="md5">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SHA2 module: Allows other modules to generate SHA2 hashes,
-# usually for cryptographic uses and security.
-#
-# IMPORTANT:
-# Other modules such as password_hash may rely on this module being
-# loaded to function. Certain modules such as spanningtree will
-# function without this module but when it is loaded their features will
-# be enhanced (for example the addition of HMAC authentication).
-#
-#<module name="sha2">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Abbreviation module: Provides the ability to abbreviate commands a-la
 # BBC BASIC keywords.
 #<module name="abbreviation">
@@ -305,66 +283,6 @@
 # This module is oper-only and provides /CBAN.
 # To use, CBAN must be in one of your oper class blocks.
 #<module name="cban">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Gateway module: Enables forwarding the real IP address of a user from
-# a gateway to the IRC server.
-#<module name="gateway">
-#
-#-#-#-#-#-#-#-#-#-#-#-# GATEWAY  CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
-#
-# If you use the gateway module then you must specify the gateways which
-# are authorised to forward IP/host information to your server. There
-# are currently two ways to do this:
-#
-# The webirc method is the recommended way to allow gateways to forward
-# IP/host information. When using this method the gateway sends a WEBIRC
-# message to the server on connection. For more details please read the
-# IRCv3 WebIRC specification at: https://ircv3.net/specs/extensions/webirc.html
-#
-# When using this method you must specify one or more wildcard masks
-# or CIDR ranges to allow gateway connections from and at least one of
-# either a TLS client certificate fingerprint for the gateway or
-# a password to be sent in the WEBIRC command.
-#
-# <gateway type="webirc"
-#          fingerprint="bd90547b59c1942b85f382bc059318f4c6ca54c5"
-#          mask="192.0.2.0/24 198.51.100.*">
-# <gateway type="webirc"
-#          password="$2a$10$WEUpX9GweJiEF1WxBDSkeODBstIBMlVPweQTG9cKM8/Vd58BeM5cW"
-#          hash="bcrypt"
-#          mask="*.webirc.gateway.example.com">
-#
-# Alternatively if your gateway does not support sending the WEBIRC
-# message then you can configure InspIRCd to look for the client IP
-# address in the username sent by the user. This is not recommended
-# as it only works with IPv4 connections.
-#
-# When using this method you must specify one or more wildcard masks
-# or CIDR ranges to allow gateway connections from. You can also
-# optionally configure the static value that replaces the IP in the
-# username to avoid leaking the real IP address of gateway clients
-# (defaults to "gateway" if not set).
-#
-# <gateway type="username"
-#          mask="198.51.100.0/24 203.0.113.*"
-#          newusername="wibble">
-# <gateway type="username"
-#          mask="*.username.gateway.example.com"
-#          newusername="wobble">
-#
-# IMPORTANT NOTE:
-# ---------------
-#
-# When you connect gateway clients, there are two connect classes which
-# apply to these clients. When the client initially connects, the connect
-# class which matches the gateway site's host is checked. Therefore you
-# must raise the maximum local/global clients for this IP as high as you
-# want to allow gateway clients. After the client has connected and is
-# determined to be a gateway client, the class which matches the client's
-# real IP is then checked. You may set this class to a lower value, so that
-# the real IP of the client can still be restricted to, for example, 3
-# sessions maximum.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel create module: Adds snomask +j, which will notify opers of
@@ -752,54 +670,6 @@
 #<module name="commonchans">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Auto join on connect module: Allows you to force users to join one
-# or more channels automatically upon connecting to the server, or
-# join them in case they aren't on any channels after being online
-# for X seconds.
-#<module name="conn_join">
-#
-#-#-#-#-#-#-#-#-#-#-#-#- CONNJOIN CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
-#
-# If you have the conn_join module loaded, you can configure it below
-# or set autojoin="#chat,#help" in <connect> blocks.
-#
-# Join users immediately after connection to #one #two and #three.
-#<autojoin channel="#one,#two,#three">
-# Join users to #chat after 15 seconds if they aren't on any channels.
-#<autojoin channel="#chat" delay="15">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Set modes on connect module: When this module is loaded <connect>
-# blocks may have an optional modes="" value, which contains modes to
-# add or remove from users when they connect to the server.
-#<module name="conn_umodes">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Wait for PONG on connect module: Send a PING to all connecting users
-# and don't let them connect until they reply with a PONG.
-# This is useful to stop certain kinds of bots and proxies.
-#<module name="conn_waitpong">
-#
-#-#-#-#-#-#-#-#-#-#-#-   WAITPONG CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# If you have the conn_waitpong module loaded, configure it with the  #
-# <waitpong> tag:                                                     #
-#                                                                     #
-# sendsnotice    -   Whether to send a helpful notice to users on     #
-#                    connect telling them how to connect, should      #
-#                    their client not reply PONG automatically.       #
-#                                                                     #
-# killonbadreply -   Whether to kill the user if they send the wrong  #
-#                    PONG reply.                                      #
-#                                                                     #
-#<waitpong sendsnotice="no" killonbadreply="yes">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Channel cycle module: Adds the /CYCLE command which is a server-side
-# /HOP that bypasses restrictive modes.
-#<module name="cycle">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Connectban: Provides IP connection throttling. Any IP range that
 # connects too many times (configurable) in an hour is Z-lined for a
 # (configurable) duration, and their count resets to 0.
@@ -855,6 +725,49 @@
 #   quitmsg="Throttled" bootwait="2m">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Auto join on connect module: Allows you to force users to join one
+# or more channels automatically upon connecting to the server, or
+# join them in case they aren't on any channels after being online
+# for X seconds.
+#<module name="conn_join">
+#
+#-#-#-#-#-#-#-#-#-#-#-#- CONNJOIN CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
+#
+# If you have the conn_join module loaded, you can configure it below
+# or set autojoin="#chat,#help" in <connect> blocks.
+#
+# Join users immediately after connection to #one #two and #three.
+#<autojoin channel="#one,#two,#three">
+# Join users to #chat after 15 seconds if they aren't on any channels.
+#<autojoin channel="#chat" delay="15">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Set modes on connect module: When this module is loaded <connect>
+# blocks may have an optional modes="" value, which contains modes to
+# add or remove from users when they connect to the server.
+#<module name="conn_umodes">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Wait for PONG on connect module: Send a PING to all connecting users
+# and don't let them connect until they reply with a PONG.
+# This is useful to stop certain kinds of bots and proxies.
+#<module name="conn_waitpong">
+#
+#-#-#-#-#-#-#-#-#-#-#-   WAITPONG CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# If you have the conn_waitpong module loaded, configure it with the  #
+# <waitpong> tag:                                                     #
+#                                                                     #
+# sendsnotice    -   Whether to send a helpful notice to users on     #
+#                    connect telling them how to connect, should      #
+#                    their client not reply PONG automatically.       #
+#                                                                     #
+# killonbadreply -   Whether to kill the user if they send the wrong  #
+#                    PONG reply.                                      #
+#                                                                     #
+#<waitpong sendsnotice="no" killonbadreply="yes">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Custom prefixes: Allows for channel prefixes to be configured.
 #<module name="customprefix">
 #
@@ -897,6 +810,11 @@
 #<title name="foo" password="bar" title="Official Chat Helper">
 #<title name="bar" password="foo" host="test@test.org" title="Official Chat Helper" vhost="helper.test.org">
 #<title name="foo" password="$2a$10$UYZ4OcO8NNTCCGyCdY9SK.2GHiqGgxZfHFPOPmWuxEVWVQTtoDC7C" hash="bcrypt" title="Official Chat Helper">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Channel cycle module: Adds the /CYCLE command which is a server-side
+# /HOP that bypasses restrictive modes.
+#<module name="cycle">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # DCCALLOW module: Adds the /DCCALLOW command.
@@ -1085,28 +1003,64 @@
 #<include file="examples/filter.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Geolocation ban module: Adds support for extban 'G' which matches   #
-# against the ISO 3166-1 alpha-2 codes for the countries that users   #
-# are connecting from. Users connecting from unknown origins such as  #
-# internal networks can be matched against using the XX alpha-2 code. #
-# A full list of ISO 3166-1 alpha-2 codes can be found at             #
-# https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2                    #
-#<module name="geoban">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Geolocation connect class module: Adds support for limiting connect #
-# classes to users from specific countries. With this module you can  #
-# specify a space-delimited list of two character the ISO 3166-1      #
-# alpha-2 codes in the "country" field of a connect class. e.g. to    #
-# deny connections from users in Russia or Turkey:                    #
-#                                                                     #
-# <connect deny="*" country="TR RU">                                  #
-#                                                                     #
-# Users connecting from unknown origins such as internal networks can #
-# be matched against using the XX alpha-2 code. A full list of ISO    #
-# 3166-1 alpha-2 codes can be found at                                #
-# https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2                    #
-#<module name="geoclass">
+# Gateway module: Enables forwarding the real IP address of a user from
+# a gateway to the IRC server.
+#<module name="gateway">
+#
+#-#-#-#-#-#-#-#-#-#-#-# GATEWAY  CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
+#
+# If you use the gateway module then you must specify the gateways which
+# are authorised to forward IP/host information to your server. There
+# are currently two ways to do this:
+#
+# The webirc method is the recommended way to allow gateways to forward
+# IP/host information. When using this method the gateway sends a WEBIRC
+# message to the server on connection. For more details please read the
+# IRCv3 WebIRC specification at: https://ircv3.net/specs/extensions/webirc.html
+#
+# When using this method you must specify one or more wildcard masks
+# or CIDR ranges to allow gateway connections from and at least one of
+# either a TLS client certificate fingerprint for the gateway or
+# a password to be sent in the WEBIRC command.
+#
+# <gateway type="webirc"
+#          fingerprint="bd90547b59c1942b85f382bc059318f4c6ca54c5"
+#          mask="192.0.2.0/24 198.51.100.*">
+# <gateway type="webirc"
+#          password="$2a$10$WEUpX9GweJiEF1WxBDSkeODBstIBMlVPweQTG9cKM8/Vd58BeM5cW"
+#          hash="bcrypt"
+#          mask="*.webirc.gateway.example.com">
+#
+# Alternatively if your gateway does not support sending the WEBIRC
+# message then you can configure InspIRCd to look for the client IP
+# address in the username sent by the user. This is not recommended
+# as it only works with IPv4 connections.
+#
+# When using this method you must specify one or more wildcard masks
+# or CIDR ranges to allow gateway connections from. You can also
+# optionally configure the static value that replaces the IP in the
+# username to avoid leaking the real IP address of gateway clients
+# (defaults to "gateway" if not set).
+#
+# <gateway type="username"
+#          mask="198.51.100.0/24 203.0.113.*"
+#          newusername="wibble">
+# <gateway type="username"
+#          mask="*.username.gateway.example.com"
+#          newusername="wobble">
+#
+# IMPORTANT NOTE:
+# ---------------
+#
+# When you connect gateway clients, there are two connect classes which
+# apply to these clients. When the client initially connects, the connect
+# class which matches the gateway site's host is checked. Therefore you
+# must raise the maximum local/global clients for this IP as high as you
+# want to allow gateway clients. After the client has connected and is
+# determined to be a gateway client, the class which matches the client's
+# real IP is then checked. You may set this class to a lower value, so that
+# the real IP of the client can still be restricted to, for example, 3
+# sessions maximum.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MaxMindDB geolocation module: Provides geolocation information for  #
@@ -1131,10 +1085,28 @@
 #<maxmind file="GeoLite2-Country.mmdb">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Globops module: Provides the /GLOBOPS command and snomask +g.
-# This module is oper-only.
-# To use, GLOBOPS must be in one of your oper class blocks.
-#<module name="globops">
+# Geolocation ban module: Adds support for extban 'G' which matches   #
+# against the ISO 3166-1 alpha-2 codes for the countries that users   #
+# are connecting from. Users connecting from unknown origins such as  #
+# internal networks can be matched against using the XX alpha-2 code. #
+# A full list of ISO 3166-1 alpha-2 codes can be found at             #
+# https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2                    #
+#<module name="geoban">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Geolocation connect class module: Adds support for limiting connect #
+# classes to users from specific countries. With this module you can  #
+# specify a space-delimited list of two character the ISO 3166-1      #
+# alpha-2 codes in the "country" field of a connect class. e.g. to    #
+# deny connections from users in Russia or Turkey:                    #
+#                                                                     #
+# <connect deny="*" country="TR RU">                                  #
+#                                                                     #
+# Users connecting from unknown origins such as internal networks can #
+# be matched against using the XX alpha-2 code. A full list of ISO    #
+# 3166-1 alpha-2 codes can be found at                                #
+# https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2                    #
+#<module name="geoclass">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Global load module: Allows loading and unloading of modules network-
@@ -1144,6 +1116,12 @@
 # To use, GLOADMODULE, GUNLOADMODULE and GRELOADMODULE
 # must be in one of your oper class blocks.
 #<module name="globalload">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Globops module: Provides the /GLOBOPS command and snomask +g.
+# This module is oper-only.
+# To use, GLOBOPS must be in one of your oper class blocks.
+#<module name="globops">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HAProxy module: Adds support for the HAProxy PROXY v2 protocol. To
@@ -1623,6 +1601,16 @@
 #<module name="maphide">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# MD5 module: Allows other modules to generate MD5 hashes, usually for
+# cryptographic uses and security.
+#
+# IMPORTANT:
+# Other modules such as cloak_md5 and password_hash may rely on
+# this module being loaded to function.
+#
+#<module name="md5">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Message flood module: Adds message/notice flood protection via
 # channel mode +f.
 #<module name="messageflood">
@@ -1650,6 +1638,15 @@
 # capability which allows clients to see all the prefix modes set on a
 # user.
 #<module name="multiprefix">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Muteban: Implements extended ban 'm', which stops anyone matching
+# a mask like +b m:nick!user@host from speaking on channel.
+#<module name="muteban">
+#
+# If notifyuser is set to no, the user will not be notified when
+# their message is blocked.
+#<muteban notifyuser="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MySQL module: Allows other SQL modules to access MySQL databases
@@ -1760,6 +1757,13 @@
 #<type name="Helper" autojoin="#help" classes="...">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper levels module: Gives each oper a level and prevents actions
+# being taken by lower level opers against higher level opers.
+# Specify the level as the 'level' parameter of the <type> tag.
+# This module is oper-only.
+#<module name="operlevels">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper log module: Logs all oper commands to the server log (with log
 # type "m_operlog" at default loglevel), and optionally to the 'o'
 # snomask.
@@ -1769,6 +1773,20 @@
 # If the following option is on then all oper commands will be sent to
 # the snomask 'r'. The default is no.
 #<operlog tosnomask="no">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper modes module: Allows you to specify modes to add/remove on oper.
+# Specify the modes as the 'modes' parameter of the <type> tag
+# and/or as the 'modes' parameter of the <oper> tag.
+# This module is oper-only. For the user equivalent, see the
+# conn_umodes module.
+#<module name="opermodes">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper MOTD module: Provides support for a separate message of the day
+# on oper-up.
+# This module is oper-only.
+#<module name="opermotd">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper prefixing module: Adds a channel prefix mode +y which is given
@@ -1783,11 +1801,11 @@
 # You may additionally customise the prefix character.
 #<operprefix prefix="!">
 
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper MOTD module: Provides support for a separate message of the day
-# on oper-up.
-# This module is oper-only.
-#<module name="opermotd">
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Op moderated module: Adds channel mode +U and extban u: which allow
+# making messages from matching unprivileged users only visible to
+# channel operators.
+#<module name="opmoderated">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Override module: Adds support for oper override.
@@ -1813,27 +1831,6 @@
 #<override noisy="yes"
 #          requirekey="no"
 #          timeout="30m">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper levels module: Gives each oper a level and prevents actions
-# being taken by lower level opers against higher level opers.
-# Specify the level as the 'level' parameter of the <type> tag.
-# This module is oper-only.
-#<module name="operlevels">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper modes module: Allows you to specify modes to add/remove on oper.
-# Specify the modes as the 'modes' parameter of the <type> tag
-# and/or as the 'modes' parameter of the <oper> tag.
-# This module is oper-only. For the user equivalent, see the
-# conn_umodes module.
-#<module name="opermodes">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Op moderated module: Adds channel mode +U and extban u: which allow
-# making messages from matching unprivileged users only visible to
-# channel operators.
-#<module name="opmoderated">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Password forwarding module: Allows forwarding passwords to services to
@@ -1963,15 +1960,6 @@
 #<database module="pgsql" name="mydb" user="myuser" pass="mypass" host="localhost" id="my_database" tls="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Muteban: Implements extended ban 'm', which stops anyone matching
-# a mask like +b m:nick!user@host from speaking on channel.
-#<module name="muteban">
-#
-# If notifyuser is set to no, the user will not be notified when
-# their message is blocked.
-#<muteban notifyuser="yes">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Random quote module: Provides a random quote on connect.
 # NOTE: Some of these may mimic fatal errors and confuse users and
 # opers alike - BEWARE!
@@ -2011,12 +1999,6 @@
 #<module name="regex_pcre2">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Regular Expression Provider for RE2 Regular Expressions.
-# You need libre2 installed and in your include/library paths in order
-# to compile and load this module.
-#<module name="regex_re2">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Regular expression provider for POSIX regular expressions.
 # You shouldn't need any additional libraries on a POSIX-compatible
 # system (i.e.: any Linux, BSD, but not Windows). You must have at
@@ -2024,6 +2006,12 @@
 # On POSIX-compliant systems, regex syntax can be found by using the
 # command: 'man 7 regex'.
 #<module name="regex_posix">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Regular Expression Provider for RE2 Regular Expressions.
+# You need libre2 installed and in your include/library paths in order
+# to compile and load this module.
+#<module name="regex_re2">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Regular expression provider for C++11 std::regex regular expressions.
@@ -2181,13 +2169,6 @@
 #<module name="saquit">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SATOPIC module: Adds the /SATOPIC command which allows changing the
-# topic on a channel without requiring any channel privileges.
-# This module is oper-only.
-# To use, SATOPIC must be in one of your oper class blocks.
-#<module name="satopic">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SASL authentication module: Provides support for IRC Authentication
 # Layer via AUTHENTICATE. Note: You also need to have cap loaded
 # for SASL to work.
@@ -2200,6 +2181,13 @@
 # in order to be able to use SASL.
 #<sasl target="services.mynetwork.com"
 #      requiressl="yes">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SATOPIC module: Adds the /SATOPIC command which allows changing the
+# topic on a channel without requiring any channel privileges.
+# This module is oper-only.
+# To use, SATOPIC must be in one of your oper class blocks.
+#<module name="satopic">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Secure list module: Prevent users from using the /LIST command until
@@ -2257,10 +2245,10 @@
 #<module name="seenicks">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Set idle module: Adds a command for opers to change their idle time.
-# This module is oper-only.
-# To use, SETIDLE must be in one of your oper class blocks.
-#<module name="setidle">
+# Serverban: Implements extended ban 's', which stops anyone connected
+# to a server matching a mask like +b s:server.mask.here from joining.
+# Wildcards are accepted.
+#<module name="serverban">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Services integration module: Adds various features which enable
@@ -2300,6 +2288,12 @@
 #<module name="setident">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Set idle module: Adds a command for opers to change their idle time.
+# This module is oper-only.
+# To use, SETIDLE must be in one of your oper class blocks.
+#<module name="setidle">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SETNAME module: Adds the /SETNAME command.
 #<module name="setname">
 #
@@ -2316,15 +2310,21 @@
 #         operonly="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Serverban: Implements extended ban 's', which stops anyone connected
-# to a server matching a mask like +b s:server.mask.here from joining.
-# Wildcards are accepted.
-#<module name="serverban">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SHA1 module: Allows other modules to generate SHA1 hashes.
 # Required by the WebSocket module.
 #<module name="sha1">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SHA2 module: Allows other modules to generate SHA2 hashes,
+# usually for cryptographic uses and security.
+#
+# IMPORTANT:
+# Other modules such as password_hash may rely on this module being
+# loaded to function. Certain modules such as spanningtree will
+# function without this module but when it is loaded their features will
+# be enhanced (for example the addition of HMAC authentication).
+#
+#<module name="sha2">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Showfile: Provides support for showing a text file to users when    #
@@ -2400,28 +2400,87 @@
 #      notifyuser="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# TLS mode module: Adds support for TLS-only channels via the '+z'
-# channel mode, TLS-only private messages via the '+z' user mode and
-# the 'z:' extban which matches TLS client certificate fingerprints.
+# Silence module: Adds support for the /SILENCE command, which allows
+# users to have a server-side ignore list for their client.
+#<module name="silence">
 #
-# Does not do anything useful without a working TLS module and the
-# sslinfo module (see below).
-#<module name="sslmodes">
+# Set the maximum number of entries allowed on a user's silence list.
+#<silence maxentries="32"
+#
+# Whether messages from services servers will bypass silence masks.
+#exemptservice="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# TLS rehash signal module: Allows the TLS modules to be rehashed by
-# sending SIGUSR1 to a running InspIRCd process.
+#    ____                _   _____ _     _       ____  _ _   _        #
+#   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
+#   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
+#   |  _ <  __/ (_| | (_| |   | | | | | | \__ \ | |_) | | |_|_|       #
+#   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
+#                                                                     #
+# To link servers to InspIRCd, you MUST load the spanningtree module. #
+# If you don't do this, server links will NOT work at all.            #
+# This is by design, to allow for the implementation of other linking #
+# protocols in modules in the future.                                 #
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Spanning tree module: Allows linking of servers using the spanning
+# tree protocol (see the READ THIS BIT section above).
+# You will almost always want to load this.
 #
-# This module depends on a POSIX component (SIGUSR1) and may need to be
-# manually enabled at build time. If you are building from source you
-# can do this by running:
+#<module name="spanningtree">
 #
-#   ./configure --enable-extras sslrehashsignal
-#   make install
+# This file has all the information about server links and services servers.
+# You *MUST* edit it if you intend to link servers.
+#<include file="examples/links.conf.example">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SQL authentication module: Allows IRCd connections to be tied into
+# a database table (for example a forum).
 #
-# Users of binary packages should consult the documentation for their
-# package to find out whether this module is available.
-#<module name="sslrehashsignal">
+#<module name="sqlauth">
+#
+#-#-#-#-#-#-#-#-#-#-#- SQLAUTH CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# sqlauth is too complex to describe here, see the docs:              #
+# https://docs.inspircd.org/4/modules/sqlauth                         #
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SQLite3 module: Allows other SQL modules to access SQLite3          #
+# databases through a unified API.                                    #
+#                                                                     #
+# This module depends on a third-party library (SQLite) and may need  #
+# to be manually enabled at build time. If you are building from      #
+# source you can do this by installing this dependency and running:   #
+#                                                                     #
+#   ./configure --enable-extras sqlite3                               #
+#   make install                                                      #
+#                                                                     #
+# Users of binary packages should consult the documentation for their #
+# package to find out whether this module is available.               #
+#<module name="sqlite3">
+#
+#-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# sqlite is more complex than described here, see the docs for more   #
+# info: https://docs.inspircd.org/4/modules/sqlite3                   #
+#
+#<database module="sqlite" hostname="/full/path/to/database.db" id="anytext">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SQL oper module: Allows you to store oper credentials in an SQL
+# table. You can add additional table columns like you would config
+# tags in opers.conf. Opers in opers.conf will override opers from
+# this module.
+#
+#<module name="sqloper">
+#
+#-#-#-#-#-#-#-#-#-#-#- SQLOPER CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# dbid       - Database ID to use (see SQL modules).                  #
+#                                                                     #
+# See also: https://docs.inspircd.org/4/modules/sqloper               #
+#                                                                     #
+#<sqloper dbid="1">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # GnuTLS TLS module: Adds support for TLS connections using GnuTLS,
@@ -2434,6 +2493,18 @@
 #                                                                     #
 # ssl_gnutls is too complex to describe here, see the docs:           #
 # https://docs.inspircd.org/4/modules/ssl_gnutls                      #
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# OpenSSL TLS module: Adds support for TLS connections using OpenSSL,
+# if enabled. You must answer 'yes' in ./configure when asked or symlink
+# the source for this module from the directory src/modules/extra, if
+# you want to enable this, or it will not load.
+#<module name="ssl_openssl">
+#
+#-#-#-#-#-#-#-#-#-#-#- OPENSSL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# ssl_openssl is too complex to describe here, see the docs:          #
+# https://docs.inspircd.org/4/modules/ssl_openssl                     #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # TLS info module: Allows users to retrieve information about other
@@ -2485,81 +2556,28 @@
 #         welcomemsg="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# OpenSSL TLS module: Adds support for TLS connections using OpenSSL,
-# if enabled. You must answer 'yes' in ./configure when asked or symlink
-# the source for this module from the directory src/modules/extra, if
-# you want to enable this, or it will not load.
-#<module name="ssl_openssl">
+# TLS mode module: Adds support for TLS-only channels via the '+z'
+# channel mode, TLS-only private messages via the '+z' user mode and
+# the 'z:' extban which matches TLS client certificate fingerprints.
 #
-#-#-#-#-#-#-#-#-#-#-#- OPENSSL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# ssl_openssl is too complex to describe here, see the docs:          #
-# https://docs.inspircd.org/4/modules/ssl_openssl                     #
+# Does not do anything useful without a working TLS module and the
+# sslinfo module (see below).
+#<module name="sslmodes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Strip color module: Adds channel mode +S that strips color codes and
-# all control codes except CTCP from all messages sent to the channel.
-#<module name="stripcolor">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Silence module: Adds support for the /SILENCE command, which allows
-# users to have a server-side ignore list for their client.
-#<module name="silence">
+# TLS rehash signal module: Allows the TLS modules to be rehashed by
+# sending SIGUSR1 to a running InspIRCd process.
 #
-# Set the maximum number of entries allowed on a user's silence list.
-#<silence maxentries="32"
+# This module depends on a POSIX component (SIGUSR1) and may need to be
+# manually enabled at build time. If you are building from source you
+# can do this by running:
 #
-# Whether messages from services servers will bypass silence masks.
-#exemptservice="yes">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SQLite3 module: Allows other SQL modules to access SQLite3          #
-# databases through a unified API.                                    #
-#                                                                     #
-# This module depends on a third-party library (SQLite) and may need  #
-# to be manually enabled at build time. If you are building from      #
-# source you can do this by installing this dependency and running:   #
-#                                                                     #
-#   ./configure --enable-extras sqlite3                               #
-#   make install                                                      #
-#                                                                     #
-# Users of binary packages should consult the documentation for their #
-# package to find out whether this module is available.               #
-#<module name="sqlite3">
+#   ./configure --enable-extras sslrehashsignal
+#   make install
 #
-#-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# sqlite is more complex than described here, see the docs for more   #
-# info: https://docs.inspircd.org/4/modules/sqlite3                   #
-#
-#<database module="sqlite" hostname="/full/path/to/database.db" id="anytext">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SQL authentication module: Allows IRCd connections to be tied into
-# a database table (for example a forum).
-#
-#<module name="sqlauth">
-#
-#-#-#-#-#-#-#-#-#-#-#- SQLAUTH CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# sqlauth is too complex to describe here, see the docs:              #
-# https://docs.inspircd.org/4/modules/sqlauth                         #
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SQL oper module: Allows you to store oper credentials in an SQL
-# table. You can add additional table columns like you would config
-# tags in opers.conf. Opers in opers.conf will override opers from
-# this module.
-#
-#<module name="sqloper">
-#
-#-#-#-#-#-#-#-#-#-#-#- SQLOPER CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# dbid       - Database ID to use (see SQL modules).                  #
-#                                                                     #
-# See also: https://docs.inspircd.org/4/modules/sqloper               #
-#                                                                     #
-#<sqloper dbid="1">
+# Users of binary packages should consult the documentation for their
+# package to find out whether this module is available.
+#<module name="sslrehashsignal">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # StartTLS module: Adds support for the IRCv3 tls capability which    #
@@ -2567,6 +2585,11 @@
 # this module you should also load one of ssl_gnutls or ssl_openssl   #
 # modules. You may also want to consider using the ircv3_sts module.  #
 #<module name="starttls">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Strip color module: Adds channel mode +S that strips color codes and
+# all control codes except CTCP from all messages sent to the channel.
+#<module name="stripcolor">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SWHOIS module: Allows you to add arbitrary lines to user WHOIS.
@@ -2680,26 +2703,3 @@
 #         saveperiod="5s"
 #         backoff="2"
 #         maxbackoff="5m">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-#    ____                _   _____ _     _       ____  _ _   _        #
-#   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
-#   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
-#   |  _ <  __/ (_| | (_| |   | | | | | | \__ \ | |_) | | |_|_|       #
-#   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
-#                                                                     #
-# To link servers to InspIRCd, you MUST load the spanningtree module. #
-# If you don't do this, server links will NOT work at all.            #
-# This is by design, to allow for the implementation of other linking #
-# protocols in modules in the future.                                 #
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Spanning tree module: Allows linking of servers using the spanning
-# tree protocol (see the READ THIS BIT section above).
-# You will almost always want to load this.
-#
-#<module name="spanningtree">
-#
-# This file has all the information about server links and services servers.
-# You *MUST* edit it if you intend to link servers.
-#<include file="examples/links.conf.example">
