@@ -279,10 +279,10 @@ endif
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd.1 $(MANPATH) 2>/dev/null
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd-testssl.1 $(MANPATH) 2>/dev/null
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_BIN) tools/testssl $(BINPATH)/inspircd-testssl 2>/dev/null
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/*.example $(EXAPATH)
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/codepages/*.example $(EXAPATH)/codepages
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/providers/*.example $(EXAPATH)/providers
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/services/*.example $(EXAPATH)/services
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/*.example.* $(EXAPATH)
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/codepages/*.example.* $(EXAPATH)/codepages
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/providers/*.example.* $(EXAPATH)/providers
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/services/*.example.* $(EXAPATH)/services
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/sql/log_sql/*.sql $(EXAPATH)/sql/log_sql
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/sql/sqloper/*.sql $(EXAPATH)/sql/sqloper
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/help.txt $(CONPATH)
@@ -314,10 +314,10 @@ deinstall:
 	-rm -f $(BINPATH)/inspircd
 	-rm -f $(BINPATH)/inspircd-testssl
 	-rm -f $(CONPATH)/help.txt
-	-rm -f $(EXAPATH)/*.example
-	-rm -f $(EXAPATH)/codepages/*.example
-	-rm -f $(EXAPATH)/providers/*.example
-	-rm -f $(EXAPATH)/services/*.example
+	-rm -f $(EXAPATH)/*.example.*
+	-rm -f $(EXAPATH)/codepages/*.example.*
+	-rm -f $(EXAPATH)/providers/*.example.*
+	-rm -f $(EXAPATH)/services/*.example.*
 	-rm -f $(EXAPATH)/sql/*.sql
 	-rm -f $(MANPATH)/inspircd-testssl.1
 	-rm -f $(MANPATH)/inspircd.1

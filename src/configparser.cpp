@@ -389,6 +389,7 @@ void ParseStack::DoInclude(const std::shared_ptr<ConfigTag>& tag, int flags)
 			flags |= FLAG_NO_ENV;
 
 		const std::string includedir = ServerInstance->Config->Paths.PrependConfig(name);
+		std::set<std::string> configs;
 		try
 		{
 			for (const auto& entry : std::filesystem::directory_iterator(includedir))
@@ -397,16 +398,19 @@ void ParseStack::DoInclude(const std::shared_ptr<ConfigTag>& tag, int flags)
 					continue;
 
 				const std::string path = entry.path().string();
-				if (!InspIRCd::Match(path, "*.conf"))
-					continue;
-
-				if (!ParseFile(path, flags, mandatorytag))
-					throw CoreException("Included");
+				if (InspIRCd::Match(path, "*.conf"))
+					configs.insert(path);
 			}
 		}
 		catch (const std::filesystem::filesystem_error& err)
 		{
 			throw CoreException("Unable to read directory for include " + includedir + ": " + err.what());
+		}
+
+		for (const auto& config : configs)
+		{
+			if (!ParseFile(config, flags, mandatorytag))
+				throw CoreException("Included");
 		}
 	}
 

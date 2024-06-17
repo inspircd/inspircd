@@ -21,7 +21,7 @@
         \__/  /(_/     \__/
           (__/
 
-      +-- To change this see \bopermotd.txt.example\x --+
+      +-- To change this see \bopermotd.example.txt\x --+
       |                                             |
       |   * \bWeb:\x https://www.inspircd.org           |
       |   * \bIRC:\x irc.inspircd.org #inspircd         |
