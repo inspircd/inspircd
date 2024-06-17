@@ -40,6 +40,11 @@ jobs:
           CXXFLAGS: -DINSPIRCD_UNLIMITED_MAINLOOP
         run: make install --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))
 
+      - name: Work around an issue with irctest
+        env:
+          CXXFLAGS: -DINSPIRCD_UNLIMITED_MAINLOOP
+        run: cp ~/.local/conf/examples/help.example.conf ~/.local/conf/examples/help.conf.example
+
       - name: Make artifact tarball
         run: |-
           cd ~
