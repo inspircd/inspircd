@@ -199,26 +199,6 @@ namespace
 		return path;
 	}
 
-	// Locates a config file on the file system.
-	bool FindConfigFile(std::string& path)
-	{
-		std::error_code ec;
-		if (std::filesystem::is_regular_file(path, ec))
-			return true;
-
-#ifdef _WIN32
-		// Windows hides file extensions by default so try appending .txt to the path
-		// to help users who have that feature enabled and can't create .conf files.
-		const std::string txtpath = path + ".txt";
-		if (std::filesystem::is_regular_file(txtpath, ec))
-		{
-			path.assign(txtpath);
-			return true;
-		}
-#endif
-		return false;
-	}
-
 	// Attempts to fork into the background.
 	void ForkIntoBackground()
 	{
@@ -489,7 +469,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	if (Config->CommandLine.forcedebug)
 		Logs.EnableDebugMode();
 
-	if (!FindConfigFile(ConfigFileName))
+	std::error_code ec;
+	if (!std::filesystem::is_regular_file(ConfigFileName, ec))
 	{
 		this->Logs.Critical("STARTUP", "Unable to open config file {}", ConfigFileName);
 		fmt::println("ERROR: Cannot open config file: {}", ConfigFileName);
