@@ -40,27 +40,6 @@
 #include "protocolinterface.h"
 #include "tags.h"
 
-/** An enumeration of all known protocol versions.
- *
- * If you introduce new protocol versions please document them here:
- * https://docs.inspircd.org/spanningtree/changes
- */
-enum ProtocolVersion
-	: uint16_t
-{
-	/** The linking protocol version introduced in InspIRCd v3.0. */
-	PROTO_INSPIRCD_3 = 1205,
-
-	/** The linking protocol version introduced in InspIRCd v4.0a1. */
-	PROTO_INSPIRCD_4 = 1206,
-
-	/** The oldest version of the protocol that we support. */
-	PROTO_OLDEST = PROTO_INSPIRCD_3,
-
-	/** The newest version of the protocol that we support. */
-	PROTO_NEWEST = PROTO_INSPIRCD_4
-};
-
 /** Forward declarations
  */
 class SpanningTreeUtilities;

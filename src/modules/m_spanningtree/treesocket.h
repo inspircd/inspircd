@@ -31,6 +31,27 @@
 
 #include "utils.h"
 
+/** An enumeration of all known protocol versions.
+ *
+ * If you introduce new protocol versions please document them here:
+ * https://docs.inspircd.org/server/change-log/
+ */
+enum ProtocolVersion
+	: uint16_t
+{
+	/** The linking protocol version introduced in InspIRCd v3.0. */
+	PROTO_INSPIRCD_3 = 1205,
+
+	/** The linking protocol version introduced in InspIRCd v4.0. */
+	PROTO_INSPIRCD_4 = 1206,
+
+	/** The oldest version of the protocol that we support. */
+	PROTO_OLDEST = PROTO_INSPIRCD_3,
+
+	/** The newest version of the protocol that we support. */
+	PROTO_NEWEST = PROTO_INSPIRCD_4
+};
+
 /*
  * The server list in InspIRCd is maintained as two structures
  * which hold the data in different ways. Most of the time, we
@@ -183,7 +204,7 @@ public:
 	const time_t age;
 
 	// The protocol version which has been negotiated with the remote server.
-	uint16_t proto_version = 0;
+	uint16_t proto_version = PROTO_NEWEST;
 
 	/** Because most of the I/O gubbins are encapsulated within
 	 * BufferedSocket, we just call the superclass constructor for
