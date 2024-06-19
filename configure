@@ -218,7 +218,7 @@ if (defined $opt_portable) {
 	$config{BINARY_DIR}  = $opt_binary_dir  // catdir $config{BASE_DIR}, 'usr/bin';
 	$config{CONFIG_DIR}  = $opt_config_dir  // catdir $config{BASE_DIR}, 'etc/inspircd';
 	$config{DATA_DIR}    = $opt_data_dir    // catdir $config{BASE_DIR}, 'var/lib/inspircd';
-	$config{EXAMPLE_DIR} = $opt_example_dir // catdir $config{BASE_DIR}, 'usr/share/doc/inspircd';
+	$config{EXAMPLE_DIR} = $opt_example_dir // catdir $config{BASE_DIR}, 'usr/share/doc/inspircd/examples';
 	$config{LOG_DIR}     = $opt_log_dir     // catdir $config{BASE_DIR}, 'var/log/inspircd';
 	$config{MANUAL_DIR}  = $opt_manual_dir  // catdir $config{BASE_DIR}, 'usr/share/man/man1';
 	$config{MODULE_DIR}  = $opt_module_dir  // catdir $config{BASE_DIR}, 'usr/lib/inspircd';
