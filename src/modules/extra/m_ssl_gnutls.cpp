@@ -558,7 +558,7 @@ namespace GnuTLS
 #endif
 				, priostr(GetPrioStr(profilename, tag))
 				, mindh(tag->getNum<unsigned int>("mindhbits", 1024))
-				, hashstr(tag->getString("hash", "sha256", 1))
+				, hashstr(tag->getString("hash", "sha256 md5", 1))
 				, requestclientcert(tag->getBool("requestclientcert", true))
 			{
 				// Load trusted CA and revocation list, if set

@@ -382,7 +382,7 @@ namespace OpenSSL
 				throw Exception("Couldn't set DH parameters");
 #endif
 
-			irc::spacesepstream hashstream(tag->getString("hash", "sha256", 1));
+			irc::spacesepstream hashstream(tag->getString("hash", "sha256 md5", 1));
 			for (std::string hash; hashstream.GetToken(hash); )
 			{
 				const auto* digest = EVP_get_digestbyname(hash.c_str());
