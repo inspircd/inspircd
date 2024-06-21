@@ -4,7 +4,7 @@
  *   Copyright (C) 2019-2023 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
- *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
+ *   Copyright (C) 2009 Uli Schlachter <psychon@znc.in>
  *   Copyright (C) 2007-2008 Dennis Friis <peavey@inspircd.org>
  *   Copyright (C) 2006 Craig Edwards <brain@inspircd.org>
  *
