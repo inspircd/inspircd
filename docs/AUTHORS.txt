@@ -9,11 +9,11 @@ the number of contributions they have made, are:
   * Daniel De Graaf <danieldg@inspircd.org>
   * Dennis Friis <peavey@inspircd.org>
   * Oliver Lupton <om@inspircd.org>
-  * John Brooks <special@inspircd.org>
+  * John Brooks <john@jbrooks.io>
   * Adam <Adam@anope.org>
   * Craig McLure <craig@frostycoolslug.com>
   * Matt Schatz <genius3000@g3k.solutions>
-  * Thomas Stagner <aquanight@inspircd.org>
+  * Thomas Stagner <aquanight@gmail.com>
   * Robby <robby@chatbelgie.be>
   * Daniel Vassdal <shutter@canternet.org>
   * Matt Smith <dz@inspircd.org>
@@ -23,7 +23,7 @@ the number of contributions they have made, are:
   * Ariadne Conill <ariadne@dereferenced.org>
   * burlex
   * jackmcbarn <jackmcbarn@inspircd.org>
-  * Uli Schlachter <psychon@inspircd.org>
+  * Uli Schlachter <psychon@znc.in>
   * B00mX0r <b00mx0r@aureus.pw>
   * ChrisTX <xpipe@hotmail.de>
   * fez

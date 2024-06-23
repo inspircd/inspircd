@@ -9,7 +9,7 @@
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
- *   Copyright (C) 2008 Thomas Stagner <aquanight@inspircd.org>
+ *   Copyright (C) 2008 Thomas Stagner <aquanight@gmail.com>
  *   Copyright (C) 2008 Craig Edwards <brain@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can

@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2020-2022 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
- *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
+ *   Copyright (C) 2009 Uli Schlachter <psychon@znc.in>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008 Robin Burchell <robin+git@viroteck.net>
  *

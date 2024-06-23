@@ -6,7 +6,7 @@
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
- *   Copyright (C) 2009 Uli Schlachter <psychon@inspircd.org>
+ *   Copyright (C) 2009 Uli Schlachter <psychon@znc.in>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
  *   Copyright (C) 2006 Craig Edwards <brain@inspircd.org>
  *
@@ -49,7 +49,7 @@ public:
 		{
 			// Can't kick with Q in place, not even opers with override, and founders
 			source->WriteNumeric(ERR_RESTRICTED, memb->chan->name, fmt::format("Can't kick user {} from channel ({})",
-				memb->user->nick, modeset ? "+Q is set" : "you're extbanned"));
+				memb->user->nick, modeset ? fmt::format("+{} is set", nk.GetModeChar()) : "you're extbanned"));
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

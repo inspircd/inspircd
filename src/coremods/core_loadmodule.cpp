@@ -5,7 +5,7 @@
  *   Copyright (C) 2014, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
- *   Copyright (C) 2008 Thomas Stagner <aquanight@inspircd.org>
+ *   Copyright (C) 2008 Thomas Stagner <aquanight@gmail.com>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
  *   Copyright (C) 2006 Craig Edwards <brain@inspircd.org>
  *
