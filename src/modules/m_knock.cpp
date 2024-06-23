@@ -95,7 +95,7 @@ public:
 
 		if (c->IsModeSet(noknockmode))
 		{
-			user->WriteNumeric(ERR_CANNOTKNOCK, INSP_FORMAT("Can't KNOCK on {}, +K is set.", c->name));
+			user->WriteNumeric(ERR_CANNOTKNOCK, INSP_FORMAT("Can't KNOCK on {}, +{} is set.", c->name, noknockmode.GetModeChar()));
 			return CmdResult::FAILURE;
 		}
 
