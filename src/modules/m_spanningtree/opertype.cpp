@@ -89,7 +89,7 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& para
 	// the oper details we instead just assume they have access to everything
 	// as was the default until 1206.
 	bool automatic = params.GetTags().find("~automatic") != params.GetTags().end();
-	u->OperLogin(std::make_shared<RemoteOperAccount>(params.back(), params.GetTags()), true, automatic);
+	u->OperLogin(std::make_shared<RemoteOperAccount>(params.back(), params.GetTags()), automatic, true);
 
 	if (Utils->quiet_bursts)
 	{
