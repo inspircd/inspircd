@@ -50,8 +50,6 @@ our @EXPORT = qw(CONFIGURE_CACHE_FILE
                  run_test
                  test_file
                  test_header
-                 module_expand
-                 module_shrink
                  write_configure_cache
                  get_compiler_info
                  find_compiler
@@ -227,18 +225,6 @@ sub test_header($$;$) {
 	print $fh "#include <$header>";
 	close $fh;
 	return !$?;
-}
-
-sub module_expand($) {
-	my $module = shift;
-	$module = "m_$module" unless $module =~ /^(?:m|core)_/;
-	$module = "$module.cpp" unless $module =~ /\.cpp$/;
-	return $module;
-}
-
-sub module_shrink($) {
-	my $module = basename shift;
-	return $module =~ s/(?:^m_|\.cpp$)//gr;
 }
 
 sub write_configure_cache(%) {

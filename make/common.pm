@@ -24,6 +24,7 @@ use strict;
 use warnings FATAL => qw(all);
 
 use Exporter              qw(import);
+use File::Basename        qw(basename);
 use File::Path            qw(mkpath);
 use File::Spec::Functions qw(rel2abs);
 
@@ -33,6 +34,8 @@ our @EXPORT = qw(create_directory
                  execute
                  get_cpu_count
                  get_version
+                 module_expand
+                 module_shrink
                  read_config_file
                  write_config_file);
 
@@ -105,6 +108,18 @@ sub get_cpu_count {
 	}
 	chomp($count);
 	return $count;
+}
+
+sub module_expand($) {
+	my $module = shift;
+	$module = "m_$module" unless $module =~ /^(?:m|core)_/;
+	$module = "$module.cpp" unless $module =~ /\.cpp$/;
+	return $module;
+}
+
+sub module_shrink($) {
+	my $module = basename shift;
+	return $module =~ s/(?:^m_|\.cpp$)//gr;
 }
 
 sub read_config_file($) {
