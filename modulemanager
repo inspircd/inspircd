@@ -40,6 +40,7 @@ use FindBin        qw($RealDir);
 use lib $RealDir;
 use make::common;
 use make::console;
+use make::directive;
 
 my %installed;
 # $installed{name} = $version
@@ -335,6 +336,12 @@ for my $mod (sort keys %todo) {
 		print MF $response->content;
 		close(MF);
 		print " - done\n";
+
+		say "You can add this module to your config with:";
+		say " <module name=\"" . module_shrink($mod) . "\">";
+		for my $tag (get_directives("$RealDir/src/modules/$mod.cpp", 'ModConfig')) {
+			say " $tag" if $tag;
+		}
 	} else {
 		printf "\nHTTP %s: %s\n", $response->code, $response->message;
 	}
