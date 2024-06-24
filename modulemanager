@@ -254,22 +254,24 @@ sub resolve_deps {
 
 command 'install', 'Install a third-party module', sub {
 	for my $mod (@_) {
+		my $hmod = module_shrink($mod);
+		$mod = "m_$hmod";
 		my $vers = $mod =~ s/=([-0-9.]+)// ? $1 : undef;
 		$mod = lc $mod;
 		unless ($modules{$mod}) {
-			print "Cannot find module $mod\n";
+			print "Cannot find module $hmod\n";
 			exit 1;
 		}
 		my $ver = find_mod_in_range($mod, $vers, $vers ? 1 : 0);
 		unless ($ver) {
-			print "Cannot find suitable version of $mod\n";
+			print "Cannot find suitable version of $hmod\n";
 			exit 1;
 		}
 		$todo{$mod} = $ver;
 	}
 };
 
-command 'upgrade', 'Upgrade a third-party module', sub {
+command 'upgrade', 'Upgrade third-party modules', sub {
 	my @installed = sort keys %installed;
 	for my $mod (@installed) {
 		next unless $mod =~ /^m_/;
@@ -284,6 +286,7 @@ command 'upgrade', 'Upgrade a third-party module', sub {
 command 'list', 'List available third-party modules', sub {
 	my @all = sort keys %modules;
 	for my $mod (@all) {
+		my $hmod = module_shrink($mod);
 		my @vers = sort { ver_cmp() } keys %{$modules{$mod}};
 		my $desc = '';
 		for my $ver (@vers) {
@@ -293,7 +296,7 @@ command 'list', 'List available third-party modules', sub {
 		next if @vers == 1 && $modules{$mod}{$vers[0]}{url} eq 'NONE';
 		my $instver = $installed{$mod} || '';
 		my $vers = join ' ', map { $_ eq $instver ? "\e[1m$_\e[m" : $_ } @vers;
-		print "$mod ($vers) - $desc\n";
+		print "$hmod ($vers) - $desc\n";
 	}
 	exit 0;
 };
@@ -307,24 +310,26 @@ $| = 1; # immediate print of lines without \n
 print "Processing changes...\n";
 for my $mod (keys %installed) {
 	next if $todo{$mod};
-	print "Uninstalling $mod $installed{$mod}\n";
+	my $hmod = module_shrink($mod);
+	print "Uninstalling $hmod $installed{$mod}\n";
 	unlink "$RealDir/src/modules/$mod.cpp";
 }
 
 my $count = scalar keys %todo;
 print "Checking $count items...\n";
 for my $mod (sort keys %todo) {
+	my $hmod = module_shrink($mod);
 	my $ver = $todo{$mod};
 	my $oldver = $installed{$mod};
 	if ($modules{$mod}{$ver}{mask}) {
-		print "Module $mod $ver is masked: $modules{$mod}{$ver}{mask}\n";
+		print "Module $hmod $ver is masked: $modules{$mod}{$ver}{mask}\n";
 	}
 	next if $oldver && $oldver eq $ver;
 	my $url = $modules{$mod}{$ver}{url};
 	if ($oldver) {
-		print "Upgrading $mod from $oldver to $ver using $url"
+		print "Upgrading $hmod from $oldver to $ver using $url"
 	} else {
-		print "Installing $mod $ver from $url";
+		print "Installing $hmod $ver from $url";
 	}
 	$mod_versions{$mod} = $ver;
 
@@ -338,7 +343,7 @@ for my $mod (sort keys %todo) {
 		print " - done\n";
 
 		say "You can add this module to your config with:";
-		say " <module name=\"" . module_shrink($mod) . "\">";
+		say " <module name=\"$hmod\">";
 		for my $tag (get_directives("$RealDir/src/modules/$mod.cpp", 'ModConfig')) {
 			say " $tag" if $tag;
 		}
