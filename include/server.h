@@ -71,7 +71,7 @@ class CoreExport Server : public classbase
 
 	/**
 	 * Returns the name of this server
-	 * @return The name of this server, for example "irc.inspircd.org".
+	 * @return The name of this server, for example "irc.example.com".
 	 */
 	const std::string& GetName() const { return name; }
 
