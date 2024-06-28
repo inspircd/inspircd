@@ -179,7 +179,7 @@ non-interactive configuration is started and any omitted values are defaulted.
   <|BOLD INSPIRCD_VERBOSE=<0|1>|>        Shows additional information for debugging.
 
 If you have any problems with configuring InspIRCd then visit our IRC channel
-at irc.inspircd.org #InspIRCd or create a support discussion at
+at irc.chatspike.net #InspIRCd or create a support discussion at
 https://github.com/inspircd/inspircd/discussions.
 
 Packagers: see https://docs.inspircd.org/packaging/ for packaging advice.
