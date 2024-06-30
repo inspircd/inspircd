@@ -65,7 +65,7 @@ public:
 			return;
 
 		// If the connect class requires a password, don't forward it
-		if (!user->GetClass()->config->getString("password").empty())
+		if (!user->GetClass()->password.empty())
 			return;
 
 		if (accountapi && accountapi->GetAccountName(user))
