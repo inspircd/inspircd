@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS "ircd_opers" (
   "active" bool NOT NULL DEFAULT true,
+
   "name" text NOT NULL,
   "password" text NOT NULL,
   "host" text NOT NULL,
