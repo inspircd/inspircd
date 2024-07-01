@@ -1,5 +1,5 @@
 Table ircd_log {
-  time datetime
-  type varchar(50)
-  message text
+  time datetime [not null]
+  type varchar(50) [not null]
+  message text [not null]
 }
