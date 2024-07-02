@@ -58,6 +58,8 @@ add_compile_definitions(
 	"WIN32_LEAN_AND_MEAN"      # Trim down the size of the included headers.
 )
 
+add_compile_options("/utf-8")
+
 include_directories("${INSPIRCD_BASE}/win" "${INSPIRCD_BASE}/include")
 include_directories(SYSTEM "${INSPIRCD_BASE}/vendor")
 
