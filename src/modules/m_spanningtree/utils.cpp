@@ -169,6 +169,9 @@ void SpanningTreeUtilities::GetListOfServersForChannel(const Channel* c, TreeSoc
 	// is used to keep the chanhistory module synchronised between servers.
 	for (const auto &[_, server] : Utils->serverlist)
 	{
+		if (!server->GetRoute())
+			continue; // Local server
+
 		ModResult result = Creator->routeeventprov.FirstResult(&ServerProtocol::RouteEventListener::OnRouteMessage, c, server);
 		if (result == MOD_RES_ALLOW)
 			list.insert(server->GetRoute()->GetSocket());
