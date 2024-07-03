@@ -21,9 +21,9 @@
 
 #include <tunables/global>
 
-@BINARY_DIR@/inspircd {
-	#include <abstractions/base>
-	#include <abstractions/nameservice>
+profile inspircd @BINARY_DIR@/inspircd {
+	include <abstractions/base>
+	include <abstractions/nameservice>
 
 	capability net_bind_service,
 	capability setgid,
@@ -40,12 +40,15 @@
 	@RUNTIME_DIR@/** rw,
 
 	# Required by the ldap module:
-	#include <abstractions/ldapclient>
+	include <abstractions/ldapclient>
 
 	# Required by the mysql module:
-	#include <abstractions/mysql>
+	include <abstractions/mysql>
 
 	# Required by the ssl_gnutls and ssl_openssl modules:
-	#include <abstractions/ssl_certs>
-	#include <abstractions/ssl_keys>
+	include <abstractions/ssl_certs>
+	include <abstractions/ssl_keys>
+
+	# External distro/install specific rules:
+	include if exists <local/inspircd>
 }
