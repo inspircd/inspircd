@@ -46,7 +46,7 @@ BUILDPATH ?= $(SOURCEPATH)/build/@COMPILER_NAME@-@COMPILER_VERSION@
 SOCKETENGINE = @SOCKETENGINE@
 CORECXXFLAGS = -fPIC -fvisibility=hidden -fvisibility-inlines-hidden -pipe -I"$(SOURCEPATH)/include" -isystem "$(SOURCEPATH)/vendor" -Wall -Wextra -Wfatal-errors -Woverloaded-virtual -Wpedantic -Wno-format-nonliteral -Wno-unused-parameter -DFMT_SHARED
 LDLIBS = @COMPILER_EXTRA_LDLIBS@
-CORELDFLAGS = -fPIE -L.
+CORELDFLAGS = -fPIE -pie -L.
 PICLDFLAGS  = -fPIC -shared
 
 DESTDIR := $(if $(DESTDIR),$(DESTDIR),"@DESTDIR|@")

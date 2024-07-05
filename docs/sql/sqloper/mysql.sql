@@ -1,12 +1,32 @@
-CREATE TABLE ircd_opers (
-  id bigint(20) NOT NULL auto_increment,
-  name text NOT NULL,
-  password text NOT NULL,
-  hash text,
-  host text NOT NULL,
-  type text NOT NULL,
-  fingerprint text,
-  autologin tinyint(1) NOT NULL DEFAULT 0,
-  active tinyint(1) NOT NULL DEFAULT 1,
-  PRIMARY KEY  (id)
-) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS `ircd_opers` (
+  `active` bool NOT NULL DEFAULT true,
+
+  `name` text NOT NULL,
+  `password` text NOT NULL,
+  `host` text NOT NULL,
+  `type` text NOT NULL,
+
+  `autologin` ENUM ('strict', 'relaxed', 'never'),
+  `class` text,
+  `hash` text,
+  `maxchans` bigint,
+  `nopassword` bool,
+  `vhost` text,
+
+  `commands` text,
+  `privs` text,
+  `chanmodes` text,
+  `usermodes` text,
+  `snomasks` text,
+
+  `account` text,
+  `autojoin` text,
+  `automotd` bool,
+  `fingerprint` text,
+  `level` bigint,
+  `modes` text,
+  `motd` bool,
+  `override` text,
+  `sslonly` bool,
+  `swhois` text
+);

@@ -1,6 +1,5 @@
-CREATE TABLE "ircd_log" (
-  "time" datetime,
-  "type" varchar(50),
-  "message" text
+CREATE TABLE IF NOT EXISTS "ircd_log" (
+  "time" datetime NOT NULL,
+  "type" varchar(50) NOT NULL,
+  "message" text NOT NULL
 );
-

@@ -112,7 +112,7 @@ private:
 
 		// Process the MOTD entry.
 		auto& newmotd = newmotds[motd];
-		irc::sepstream linestream(file.contents, '\n');
+		irc::sepstream linestream(file.contents, '\n', true);
 		for (std::string line; linestream.GetToken(line); )
 		{
 			// Some clients can not handle receiving RPL_OMOTD with an empty

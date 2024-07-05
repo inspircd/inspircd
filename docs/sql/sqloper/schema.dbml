@@ -1,0 +1,43 @@
+Enum autologin {
+  strict
+  relaxed
+  never
+}
+
+Table ircd_opers {
+  // internal to sqloper
+  active bool [default: true, not null]
+
+  // core oper config (required)
+  name text [not null]
+  password text [not null]
+  host text [not null]
+  type text [not null]
+
+  // core oper config (optional)
+  autologin autologin [null]
+  class text [null]
+  hash text [null]
+  maxchans bigint [null]
+  nopassword bool [null]
+  vhost text [null]
+
+  // core type config
+  commands text [null]
+  privs text [null]
+  chanmodes text [null]
+  usermodes text [null]
+  snomasks text [null]
+
+  // module config
+  account text [null] // account
+  autojoin text [null] // operjoin
+  automotd bool [null] // opermotd
+  fingerprint text [null] // sslinfo
+  level bigint [null] // operlevels
+  modes text [null] // opermodes
+  motd bool [null] // opermotd
+  override text [null] // override
+  sslonly bool [null] // sslinfo
+  swhois text [null] // swhois
+}

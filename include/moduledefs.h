@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2020 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2020, 2024 Sadie Powell <sadie@witchery.services>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -22,7 +22,7 @@
 class Module;
 
 /** The version of the InspIRCd ABI which is presently in use. */
-#define MODULE_ABI 4000UL
+#define MODULE_ABI 4001UL
 
 /** Stringifies the value of a symbol. */
 #define MODULE_STRINGIFY_SYM1(DEF) MODULE_STRINGIFY_SYM2(DEF)

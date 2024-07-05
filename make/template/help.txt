@@ -4,7 +4,7 @@ In order to get your server running you need to create config files. Examples
 can be found at `@EXAMPLE_DIR@`.
 
 If you need any help with this then you can visit our support channel at
-irc.inspircd.org #inspircd, open a support discussion at https://git.io/JIuYv,
+irc.chatspike.net #inspircd, open a support discussion at https://git.io/JIuYv,
 or refer to the the docs site:
 
 	https://docs.inspircd.org/@VERSION_MAJOR@/configuration

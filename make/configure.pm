@@ -3,7 +3,7 @@
 #
 #   Copyright (C) 2024 satmd <satmd@satmd.de>
 #   Copyright (C) 2020 Nicole Kleinhoff <ilbelkyr@shalture.org>
-#   Copyright (C) 2013-2022 Sadie Powell <sadie@witchery.services>
+#   Copyright (C) 2013-2022, 2024 Sadie Powell <sadie@witchery.services>
 #   Copyright (C) 2012 Robby <robby@chatbelgie.be>
 #   Copyright (C) 2007-2008 Craig Edwards <brain@inspircd.org>
 #   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
@@ -50,8 +50,6 @@ our @EXPORT = qw(CONFIGURE_CACHE_FILE
                  run_test
                  test_file
                  test_header
-                 module_expand
-                 module_shrink
                  write_configure_cache
                  get_compiler_info
                  find_compiler
@@ -181,7 +179,7 @@ non-interactive configuration is started and any omitted values are defaulted.
   <|BOLD INSPIRCD_VERBOSE=<0|1>|>        Shows additional information for debugging.
 
 If you have any problems with configuring InspIRCd then visit our IRC channel
-at irc.inspircd.org #InspIRCd or create a support discussion at
+at irc.chatspike.net #InspIRCd or create a support discussion at
 https://github.com/inspircd/inspircd/discussions.
 
 Packagers: see https://docs.inspircd.org/packaging/ for packaging advice.
@@ -227,18 +225,6 @@ sub test_header($$;$) {
 	print $fh "#include <$header>";
 	close $fh;
 	return !$?;
-}
-
-sub module_expand($) {
-	my $module = shift;
-	$module = "m_$module" unless $module =~ /^(?:m|core)_/;
-	$module = "$module.cpp" unless $module =~ /\.cpp$/;
-	return $module;
-}
-
-sub module_shrink($) {
-	my $module = basename shift;
-	return $module =~ s/(?:^m_|\.cpp$)//gr;
 }
 
 sub write_configure_cache(%) {

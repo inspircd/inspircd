@@ -97,7 +97,7 @@ public:
 		// Process the entry.
 		contents.clear();
 
-		irc::sepstream linestream(filecontents, '\n');
+		irc::sepstream linestream(filecontents, '\n', true);
 		for (std::string line; linestream.GetToken(line); )
 		{
 			// Some clients can not handle receiving NOTICE/PRIVMSG/RPL_RULES
