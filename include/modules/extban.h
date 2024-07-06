@@ -206,6 +206,11 @@ protected:
 	{
 	}
 
+	~Base() override
+	{
+		SetActive(false);
+	}
+
 public:
 	/** Canonicalises a value for this extban.
 	 * @param text The value to canonicalize.
