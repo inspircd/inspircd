@@ -40,24 +40,26 @@ our @EXPORT = qw(
 	execute_functions
 );
 
-sub get_directives($$) {
-	my ($file, $property) = @_;
+sub get_directives($$;$) {
+	my ($file, $property, $functions) = @_;
+	$functions //= 1;
 	open(my $fh, $file) or return ();
 
 	my @values;
 	while (<$fh>) {
 		if ($_ =~ /^\/\* \$(\S+): (.+) \*\/$/ || $_ =~ /^\/\/\/ \$(\S+): (.+)/) {
 			next unless $1 eq $property;
-			push @values, execute_functions($file, $1, $2);
+			my $value = $functions ? execute_functions($file, $1, $2) : $2;
+			push @values, $value;
 		}
 	}
 	close $fh;
 	return @values;
 }
 
-sub get_directive($$;$) {
-	my ($file, $property, $default) = @_;
-	my @values = get_directives($file, $property);
+sub get_directive($$;$$) {
+	my ($file, $property, $default, $functions) = @_;
+	my @values = get_directives($file, $property, $functions);
 
 	my $value = join ' ', @values;
 	$value =~ s/^\s+|\s+$//g;
@@ -70,7 +72,7 @@ sub execute_functions($$$) {
 	# NOTE: we have to use 'our' instead of 'my' here because of a Perl bug.
 	for (our @parameters = (); $line =~ /([a-z_]+)\((?:\s*"([^"]*)(?{push @parameters, $2})"\s*)*\)/; undef @parameters) {
 		my $sub = make::directive->can("__function_$1");
-		print_error "unknown $name directive '$1' in $file!" unless $sub;
+		print_error "unknown $name function '$1' in $file!" unless $sub;
 
 		# Call the subroutine and replace the function.
 		my $result = $sub->($file, @parameters);
