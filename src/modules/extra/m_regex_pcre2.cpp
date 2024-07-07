@@ -80,7 +80,10 @@ public:
 		pcre2_match_data* data = pcre2_match_data_create_from_pattern(regex, nullptr);
 		int result = pcre2_match(regex, reinterpret_cast<PCRE2_SPTR8>(text.c_str()), text.length(), 0, 0, data, nullptr);
 		if (result < 0)
+		{
+			pcre2_match_data_free(data);
 			return std::nullopt;
+		}
 
 		PCRE2_SIZE* ovector = pcre2_get_ovector_pointer(data);
 
@@ -117,6 +120,7 @@ public:
 			}
 		}
 
+		pcre2_match_data_free(data);
 		return Regex::MatchCollection(captures, namedcaptures);
 	}
 };
