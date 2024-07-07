@@ -209,6 +209,7 @@ public:
 				iter = geoapi.locations.erase(iter);
 			}
 		}
+		geoapi.locations.shrink_to_fit();
 	}
 
 	void OnChangeRemoteAddress(LocalUser* user) override
