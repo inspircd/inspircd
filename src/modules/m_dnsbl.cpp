@@ -366,9 +366,10 @@ public:
 		if (match)
 		{
 			const std::string reason = Template::Replace(config->reason, {
-				{ "dnsbl",  config->name       },
-				{ "ip",     them->GetAddress() },
-				{ "result", ConvToStr(result)  },
+				{ "dnsbl",   config->name                    },
+				{ "ip",      them->GetAddress()              },
+				{ "network", ServerInstance->Config->Network },
+				{ "result",  ConvToStr(result)               },
 			});
 
 			config->stats_hits++;
