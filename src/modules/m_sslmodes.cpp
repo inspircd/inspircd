@@ -26,6 +26,7 @@
 
 
 #include "inspircd.h"
+#include "modules/callerid.h"
 #include "modules/ctctags.h"
 #include "modules/extban.h"
 #include "modules/ssl.h"
@@ -165,6 +166,7 @@ class ModuleSSLModes final
 {
 private:
 	UserCertificateAPI api;
+	CallerID::API calleridapi;
 	SSLMode sslm;
 	SSLModeUser sslquery;
 	FingerprintExtBan extban;
@@ -174,6 +176,7 @@ public:
 		: Module(VF_VENDOR, "Adds channel mode z (sslonly) which prevents users who are not connecting using TLS from joining the channel and user mode z (sslqueries) to prevent messages from non-TLS users.")
 		, CTCTags::EventListener(this)
 		, api(this)
+		, calleridapi(this)
 		, sslm(this, api)
 		, sslquery(this, api)
 		, extban(this, api)
@@ -216,7 +219,7 @@ public:
 		/* If the target is +z */
 		if (target->IsModeSet(sslquery))
 		{
-			if (!api || !api->IsSecure(user))
+			if (!api || !api->IsSecure(user) || (calleridapi && !calleridapi->IsOnAcceptList(user, target)))
 			{
 				/* The sending user is not on an TLS connection */
 				user->WriteNumeric(Numerics::CannotSendTo(target, "messages", &sslquery));

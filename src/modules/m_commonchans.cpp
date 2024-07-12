@@ -22,6 +22,7 @@
 
 
 #include "inspircd.h"
+#include "modules/callerid.h"
 #include "modules/ctctags.h"
 #include "numerichelper.h"
 
@@ -30,6 +31,7 @@ class ModuleCommonChans final
 	, public CTCTags::EventListener
 {
 private:
+	CallerID::API calleridapi;
 	SimpleUserMode mode;
 
 	bool IsExempt(User* source, User* target)
@@ -39,6 +41,9 @@ private:
 
 		if (source->HasPrivPermission("users/ignore-commonchans") || source->server->IsService())
 			return true; // Source is an oper or a service.
+
+		if (calleridapi && calleridapi->IsOnAcceptList(source, target))
+			return true; // Source is on the callerid accept list
 
 		return false;
 	}
@@ -60,6 +65,7 @@ public:
 	ModuleCommonChans()
 		: Module(VF_VENDOR, "Adds user mode c (deaf_commonchan) which requires users to have a common channel before they can privately message each other.")
 		, CTCTags::EventListener(this)
+		, calleridapi(this)
 		, mode(this, "deaf_commonchan", 'c')
 	{
 	}
