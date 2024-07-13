@@ -21,10 +21,11 @@
 /// $CompilerFlags: require_library("libpsl") find_compiler_flags("libpsl") -DHAS_LIBPSL
 /// $LinkerFlags: require_library("libpsl") find_linker_flags("libpsl")
 
+/// $PackageInfo: require_system("alpine") libpsl-dev pkgconf
 /// $PackageInfo: require_system("arch") libpsl pkgconf
 /// $PackageInfo: require_system("darwin") libpsl pkg-config
-/// $PackageInfo: require_system("debian") libpsl-dev pkg-config
-/// $PackageInfo: require_system("ubuntu") libpsl-dev pkg-config
+/// $PackageInfo: require_system("debian~") libpsl-dev pkg-config
+/// $PackageInfo: require_system("rhel~") libpsl-devel pkg-config
 
 #ifdef _WIN32
 # if __has_include(<libpsl.h>)
