@@ -21,6 +21,5 @@
 
 int main() {
 	char buffer[100];
-	getentropy(buffer, sizeof(buffer));
-	return 0;
+	return getentropy(buffer, sizeof(buffer)) == 0;
 }
