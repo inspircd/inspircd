@@ -277,23 +277,31 @@ sub __function_require_compiler {
 
 sub __function_require_system {
 	my ($file, $name, $minimum, $maximum) = @_;
-	my ($system, $version);
+	my ($system, $system_like, $version);
+
+	# If a system name ends in a tilde we match on alternate names.
+	my $match_like = $name =~ s/~$//;
 
 	# Linux is special and can be compared by distribution names.
 	if ($^O eq 'linux' && $name ne 'linux') {
-		chomp($system = lc `lsb_release --id --short 2>/dev/null`);
-		chomp($version = lc `lsb_release --release --short 2>/dev/null`);
+		chomp($system      = lc `sh -c '. /etc/os-release 2>/dev/null && echo \$ID'`);
+		chomp($system_like = lc `sh -c '. /etc/os-release 2>/dev/null && echo \$ID_LIKE'`);
+		chomp($version     = lc `sh -c '. /etc/os-release 2>/dev/null && echo \$VERSION_ID'`);
 	}
 
 	# Gather information on the system if we don't have it already.
 	chomp($system ||= lc `uname -s 2>/dev/null`);
 	chomp($version ||= lc `uname -r 2>/dev/null`);
+	$system_like ||= '';
 
 	# We only care about the important bit of the version number so trim the rest.
 	$version =~ s/^(\d+\.\d+).+/$1/;
 
 	# Check whether the current system is suitable.
-	return undef if $name ne $system;
+	if ($name ne $system) {
+		return undef unless $match_like;
+		return undef unless grep { $_ eq $name } split /\s+/, $system_like;
+	}
 	return undef if defined $minimum && $version < $minimum;
 	return undef if defined $maximum && $version > $maximum;
 
