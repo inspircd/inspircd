@@ -20,10 +20,10 @@
 /// $CompilerFlags: find_compiler_flags("libargon2")
 /// $LinkerFlags: find_linker_flags("libargon2")
 
+/// $PackageInfo: require_system("alpine") argon2-dev pkgconf
 /// $PackageInfo: require_system("arch") argon2 pkgconf
 /// $PackageInfo: require_system("darwin") argon2 pkg-config
-/// $PackageInfo: require_system("debian" "10.0") libargon2-dev pkg-config
-/// $PackageInfo: require_system("ubuntu" "18.04") libargon2-0-dev pkg-config
+/// $PackageInfo: require_system("debian~") libargon2-dev pkg-config
 
 
 #include "inspircd.h"

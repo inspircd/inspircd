@@ -18,6 +18,11 @@
 
 /// $CompilerFlags: find_compiler_flags("RapidJSON")
 
+/// $PackageInfo: require_system("alpine") rapidjson-dev pkgconf
+/// $PackageInfo: require_system("arch") rapidjson pkgconf
+/// $PackageInfo: require_system("darwin") rapidjson pkg-config
+/// $PackageInfo: require_system("debian~") rapidjson-dev pkg-config
+
 
 #include <rapidjson/ostreamwrapper.h>
 #include <rapidjson/writer.h>

@@ -27,12 +27,11 @@
 /// $CompilerFlags: find_compiler_flags("sqlite3")
 /// $LinkerFlags: find_linker_flags("sqlite3")
 
+/// $PackageInfo: require_system("alpine") pkgconf sqlite-dev
 /// $PackageInfo: require_system("arch") pkgconf sqlite
-/// $PackageInfo: require_system("centos") pkgconfig sqlite-devel
 /// $PackageInfo: require_system("darwin") pkg-config sqlite
-/// $PackageInfo: require_system("debian") libsqlite3-dev pkg-config
-/// $PackageInfo: require_system("rocky") pkgconfig sqlite-devel
-/// $PackageInfo: require_system("ubuntu") libsqlite3-dev pkg-config
+/// $PackageInfo: require_system("debian~") libsqlite3-dev pkg-config
+/// $PackageInfo: require_system("rhel~") pkgconfig sqlite-devel
 
 #include "inspircd.h"
 #include "modules/sql.h"

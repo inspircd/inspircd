@@ -33,11 +33,10 @@
 /// $LinkerFlags: find_linker_flags("gnutls")
 
 /// $PackageInfo: require_system("arch") gnutls pkgconf
-/// $PackageInfo: require_system("centos") gnutls-devel pkgconfig
+/// $PackageInfo: require_system("alpine") gnutls-dev gnutls-utils pkgconf
 /// $PackageInfo: require_system("darwin") gnutls pkg-config
-/// $PackageInfo: require_system("debian") gnutls-bin libgnutls28-dev pkg-config
-/// $PackageInfo: require_system("rocky") gnutls-devel pkgconfig
-/// $PackageInfo: require_system("ubuntu") gnutls-bin libgnutls28-dev pkg-config
+/// $PackageInfo: require_system("debian~") gnutls-bin libgnutls28-dev pkg-config
+/// $PackageInfo: require_system("rhel~") gnutls-devel pkgconfig
 
 #include "inspircd.h"
 #include "modules/ssl.h"

@@ -24,11 +24,11 @@
 /// $CompilerFlags: find_compiler_flags("lber" "") find_compiler_flags("ldap" "")
 /// $LinkerFlags: find_linker_flags("lber" "-llber") find_linker_flags("ldap" "-lldap_r")
 
-/// $PackageInfo: require_system("arch") libldap
-/// $PackageInfo: require_system("centos") openldap-devel
-/// $PackageInfo: require_system("debian") libldap2-dev
-/// $PackageInfo: require_system("rocky") openldap-devel
-/// $PackageInfo: require_system("ubuntu") libldap2-dev
+/// $PackageInfo: require_system("alpine") openldap-dev pkgconf
+/// $PackageInfo: require_system("arch") libldap pkgconf
+/// $PackageInfo: require_system("darwin") openldap pkg-config
+/// $PackageInfo: require_system("debian~") libldap2-dev pkg-config
+/// $PackageInfo: require_system("rhel~") openldap-devel pkg-config
 
 
 #include "inspircd.h"

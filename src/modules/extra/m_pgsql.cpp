@@ -29,12 +29,12 @@
 /// $CompilerFlags: find_compiler_flags("libpq")
 /// $LinkerFlags: find_linker_flags("libpq")
 
-/// $PackageInfo: require_system("arch") postgresql-libs
-/// $PackageInfo: require_system("centos") postgresql-devel
-/// $PackageInfo: require_system("darwin") libpq
-/// $PackageInfo: require_system("debian") libpq-dev
-/// $PackageInfo: require_system("rocky") postgresql-devel
-/// $PackageInfo: require_system("ubuntu") libpq-dev
+/// $PackageInfo: require_system("alpine") pcre2-dev pkgconf
+/// $PackageInfo: require_system("arch") pkgconf postgresql-libs
+/// $PackageInfo: require_system("darwin") libpq pkg-config
+/// $PackageInfo: require_system("debian~") libpq-dev pkg-config
+/// $PackageInfo: require_system("rhel~") pkg-config postgresql-devel
+/// $PackageInfo: require_system("ubuntu") libpq-dev pkg-config
 
 
 #include <libpq-fe.h>

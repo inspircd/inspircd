@@ -19,12 +19,11 @@
 /// $CompilerFlags: find_compiler_flags("libpcre2-8")
 /// $LinkerFlags: find_linker_flags("libpcre2-8")
 
+/// $PackageInfo: require_system("alpine") pcre2-devel
 /// $PackageInfo: require_system("arch") pcre2
-/// $PackageInfo: require_system("centos") pcre2-devel
 /// $PackageInfo: require_system("darwin") pcre2
-/// $PackageInfo: require_system("debian") libpcre2-dev
-/// $PackageInfo: require_system("rocky") pcre2-devel
-/// $PackageInfo: require_system("ubuntu") libpcre2-dev
+/// $PackageInfo: require_system("debian~") libpcre2-dev
+/// $PackageInfo: require_system("rhel~") pcre2-devel
 
 
 #include "inspircd.h"
