@@ -153,7 +153,7 @@ public:
 		if (target.type != MessageTarget::TYPE_CHANNEL)
 			return MOD_RES_PASSTHRU;
 
-		Channel* chan = target.Get<Channel>();
+		auto* chan = target.Get<Channel>();
 		const ChanFilter::ListItem* match = Match(user, chan, details.text);
 		if (match)
 		{

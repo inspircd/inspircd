@@ -425,7 +425,7 @@ public:
 
 		if (target.type == MessageTarget::TYPE_USER)
 		{
-			User* u = target.Get<User>();
+			auto* u = target.Get<User>();
 
 			/* Always allow a user to dcc themselves (although... why?) */
 			if (user == u)

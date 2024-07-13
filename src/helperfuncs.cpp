@@ -27,6 +27,10 @@
 
 #include <random>
 
+#ifndef _WIN32
+# include <unistd.h>
+#endif
+
 #include "inspircd.h"
 #include "timeutils.h"
 #include "utility/string.h"
@@ -456,7 +460,11 @@ unsigned long InspIRCd::GenRandomInt(unsigned long max) const
 // This is overridden by a higher-quality algorithm when TLS support is loaded
 void InspIRCd::DefaultGenRandom(char* output, size_t max)
 {
-#if defined HAS_ARC4RANDOM_BUF
+#ifdef HAS_GETENTROPY
+	if (getentropy(output, max) == 0)
+		return;
+#endif
+#ifdef HAS_ARC4RANDOM_BUF
 	arc4random_buf(output, max);
 #else
 	static std::random_device device;

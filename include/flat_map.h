@@ -98,6 +98,7 @@ public:
 
 	void clear() { vect.clear(); }
 	void reserve(size_type n) { vect.reserve(n); }
+	void shrink_to_fit() { vect.shrink_to_fit(); }
 
 	iterator begin() { return vect.begin(); }
 	iterator end() { return vect.end(); }

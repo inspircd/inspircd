@@ -40,24 +40,26 @@ our @EXPORT = qw(
 	execute_functions
 );
 
-sub get_directives($$) {
-	my ($file, $property) = @_;
+sub get_directives($$;$) {
+	my ($file, $property, $functions) = @_;
+	$functions //= 1;
 	open(my $fh, $file) or return ();
 
 	my @values;
 	while (<$fh>) {
 		if ($_ =~ /^\/\* \$(\S+): (.+) \*\/$/ || $_ =~ /^\/\/\/ \$(\S+): (.+)/) {
 			next unless $1 eq $property;
-			push @values, execute_functions($file, $1, $2);
+			my $value = $functions ? execute_functions($file, $1, $2) : $2;
+			push @values, $value;
 		}
 	}
 	close $fh;
 	return @values;
 }
 
-sub get_directive($$;$) {
-	my ($file, $property, $default) = @_;
-	my @values = get_directives($file, $property);
+sub get_directive($$;$$) {
+	my ($file, $property, $default, $functions) = @_;
+	my @values = get_directives($file, $property, $functions);
 
 	my $value = join ' ', @values;
 	$value =~ s/^\s+|\s+$//g;
@@ -70,7 +72,7 @@ sub execute_functions($$$) {
 	# NOTE: we have to use 'our' instead of 'my' here because of a Perl bug.
 	for (our @parameters = (); $line =~ /([a-z_]+)\((?:\s*"([^"]*)(?{push @parameters, $2})"\s*)*\)/; undef @parameters) {
 		my $sub = make::directive->can("__function_$1");
-		print_error "unknown $name directive '$1' in $file!" unless $sub;
+		print_error "unknown $name function '$1' in $file!" unless $sub;
 
 		# Call the subroutine and replace the function.
 		my $result = $sub->($file, @parameters);
@@ -275,23 +277,31 @@ sub __function_require_compiler {
 
 sub __function_require_system {
 	my ($file, $name, $minimum, $maximum) = @_;
-	my ($system, $version);
+	my ($system, $system_like, $version);
+
+	# If a system name ends in a tilde we match on alternate names.
+	my $match_like = $name =~ s/~$//;
 
 	# Linux is special and can be compared by distribution names.
 	if ($^O eq 'linux' && $name ne 'linux') {
-		chomp($system = lc `lsb_release --id --short 2>/dev/null`);
-		chomp($version = lc `lsb_release --release --short 2>/dev/null`);
+		chomp($system      = lc `sh -c '. /etc/os-release 2>/dev/null && echo \$ID'`);
+		chomp($system_like = lc `sh -c '. /etc/os-release 2>/dev/null && echo \$ID_LIKE'`);
+		chomp($version     = lc `sh -c '. /etc/os-release 2>/dev/null && echo \$VERSION_ID'`);
 	}
 
 	# Gather information on the system if we don't have it already.
 	chomp($system ||= lc `uname -s 2>/dev/null`);
 	chomp($version ||= lc `uname -r 2>/dev/null`);
+	$system_like ||= '';
 
 	# We only care about the important bit of the version number so trim the rest.
 	$version =~ s/^(\d+\.\d+).+/$1/;
 
 	# Check whether the current system is suitable.
-	return undef if $name ne $system;
+	if ($name ne $system) {
+		return undef unless $match_like;
+		return undef unless grep { $_ eq $name } split /\s+/, $system_like;
+	}
 	return undef if defined $minimum && $version < $minimum;
 	return undef if defined $maximum && $version > $maximum;
 

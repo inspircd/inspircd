@@ -417,7 +417,7 @@ void ModuleSpanningTree::OnUserPostMessage(User* user, const MessageTarget& targ
 	{
 		case MessageTarget::TYPE_USER:
 		{
-			User* d = target.Get<User>();
+			auto* d = target.Get<User>();
 			if (!IS_LOCAL(d))
 			{
 				CmdBuilder params(user, message_type);
@@ -435,7 +435,7 @@ void ModuleSpanningTree::OnUserPostMessage(User* user, const MessageTarget& targ
 		}
 		case MessageTarget::TYPE_SERVER:
 		{
-			const std::string* serverglob = target.Get<std::string>();
+			const auto* serverglob = target.Get<std::string>();
 			CmdBuilder par(user, message_type);
 			par.push_tags(details.tags_out);
 			par.push(std::string("$") + *serverglob);
@@ -455,7 +455,7 @@ void ModuleSpanningTree::OnUserPostTagMessage(User* user, const MessageTarget& t
 	{
 		case MessageTarget::TYPE_USER:
 		{
-			User* d = target.Get<User>();
+			auto* d = target.Get<User>();
 			if (!IS_LOCAL(d))
 			{
 				CmdBuilder params(user, "TAGMSG");
@@ -472,7 +472,7 @@ void ModuleSpanningTree::OnUserPostTagMessage(User* user, const MessageTarget& t
 		}
 		case MessageTarget::TYPE_SERVER:
 		{
-			const std::string* serverglob = target.Get<std::string>();
+			const auto* serverglob = target.Get<std::string>();
 			CmdBuilder par(user, "TAGMSG");
 			par.push_tags(details.tags_out);
 			par.push(std::string("$") + *serverglob);

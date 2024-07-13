@@ -44,6 +44,7 @@ my %version = get_version();
 my $docdir = rel2abs catdir $ARGV[0], 'docs', $version{MAJOR}, 'modules';
 print_error "unable to find the module directory at $docdir!" unless -d $docdir;
 
+my @updated;
 my $root = dirname $RealDir;
 for my $module (<$root/src/modules/extra/m_*.cpp>, <$root/src/modules/m_*.cpp>, <$root/src/modules/m_*/main.cpp>) {
 	print_error "unable to extract module name from $module!" unless $module =~ /m_(\w+)[.\/]/;
@@ -66,6 +67,7 @@ for my $module (<$root/src/modules/extra/m_*.cpp>, <$root/src/modules/m_*.cpp>, 
 		chomp $line;
 		if ($line =~ /^(\t+:\s+Module\([^,]+,\s+")[^"]+("\))$/) {
 			push @lines, join '', $1, $description, $2;
+			push @updated, $module;
 		} else {
 			push @lines, $line;
 		}
@@ -77,4 +79,11 @@ for my $module (<$root/src/modules/extra/m_*.cpp>, <$root/src/modules/m_*.cpp>, 
 		say $moh $line;
 	}
 	close $moh;
+}
+
+if ($ENV{MKDESCRIPTIONS_COMMIT} // 0) {
+	execute 'git', 'commit',
+		'--author', 'InspIRCd Robot <noreply@inspircd.org>',
+		'--message', 'Update module descriptions.',
+		'--', @updated;
 }

@@ -26,6 +26,7 @@
 
 
 #include "inspircd.h"
+#include "modules/callerid.h"
 #include "modules/exemption.h"
 #include "modules/extban.h"
 #include "numerichelper.h"
@@ -34,6 +35,7 @@ class ModuleNoCTCP final
 	: public Module
 {
 private:
+	CallerID::API calleridapi;
 	CheckExemption::EventProvider exemptionprov;
 	ExtBan::Acting extban;
 	SimpleChannelMode nc;
@@ -42,6 +44,7 @@ private:
 public:
 	ModuleNoCTCP()
 		: Module(VF_VENDOR, "Adds channel mode C (noctcp) which allows channels to block messages which contain CTCPs and user mode T (u_noctcp) which allows users to block private messages that contain CTCPs.")
+		, calleridapi(this)
 		, exemptionprov(this)
 		, extban(this, "noctcp", 'C')
 		, nc(this, "noctcp", 'C')
@@ -65,7 +68,7 @@ public:
 				if (user->HasPrivPermission("channels/ignore-noctcp"))
 					return MOD_RES_PASSTHRU;
 
-				Channel* c = target.Get<Channel>();
+				auto* c = target.Get<Channel>();
 				for (const auto& [u, _] : c->GetUsers())
 				{
 					if (u->IsModeSet(ncu))
@@ -91,15 +94,18 @@ public:
 			}
 			case MessageTarget::TYPE_USER:
 			{
+				auto* targetuser = target.Get<User>();
 				if (user->HasPrivPermission("users/ignore-noctcp"))
 					return MOD_RES_PASSTHRU;
 
-				User* u = target.Get<User>();
-				if (u->IsModeSet(ncu))
+				if (calleridapi && calleridapi->IsOnAcceptList(user, targetuser))
+					return MOD_RES_PASSTHRU;
+
+				if (targetuser->IsModeSet(ncu))
 				{
 					// Don't send an error message if we're blocking an automatic CTCP reply.
 					if (details.type == MessageType::NOTICE)
-						user->WriteNumeric(Numerics::CannotSendTo(u, "CTCPs", &ncu));
+						user->WriteNumeric(Numerics::CannotSendTo(targetuser, "CTCPs", &ncu));
 					return MOD_RES_DENY;
 				}
 				break;

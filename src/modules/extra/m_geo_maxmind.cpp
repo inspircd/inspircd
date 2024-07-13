@@ -20,10 +20,11 @@
 /// $CompilerFlags: find_compiler_flags("libmaxminddb")
 /// $LinkerFlags: find_linker_flags("libmaxminddb")
 
+/// $PackageInfo: require_system("alpine") libmaxminddb-dev pkgconf
 /// $PackageInfo: require_system("arch") libmaxminddb pkgconf
 /// $PackageInfo: require_system("darwin") libmaxminddb pkg-config
-/// $PackageInfo: require_system("debian" "9.0") libmaxminddb-dev pkg-config
-/// $PackageInfo: require_system("ubuntu" "16.04") libmaxminddb-dev pkg-config
+/// $PackageInfo: require_system("debian~") libmaxminddb-dev pkg-config
+/// $PackageInfo: require_system("rhel~") libmaxminddb-devel pkgconfig
 
 #ifdef _WIN32
 # pragma comment(lib, "maxminddb.lib")
@@ -209,6 +210,7 @@ public:
 				iter = geoapi.locations.erase(iter);
 			}
 		}
+		geoapi.locations.shrink_to_fit();
 	}
 
 	void OnChangeRemoteAddress(LocalUser* user) override

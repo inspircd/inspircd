@@ -241,7 +241,7 @@ sub write_configure_cache(%) {
 sub get_compiler_info($) {
 	my $binary = shift;
 	my %info = (NAME => 'Unknown', VERSION => '0.0');
-	return %info if system "$binary -o __compiler_info ${\CONFIGURE_ROOT}/make/test/compiler_info.cpp ${\CONFIGURE_ERROR_PIPE}";
+	return %info if system "$binary -o __compiler_info ${\CONFIGURE_ROOT}/make/test/compiler.cpp ${\CONFIGURE_ERROR_PIPE}";
 	open(my $fh, '-|', './__compiler_info 2>/dev/null');
 	while (my $line = <$fh>) {
 		$info{$1} = $2 if $line =~ /^([A-Z_]+)\s(.*)$/;

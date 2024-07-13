@@ -58,4 +58,7 @@
  /** Whether the clock_gettime() function was available at compile time. */
  %define HAS_CLOCK_GETTIME
 
+ /** Whether the getentropy() function was available at compile time. */
+ %define HAS_GETENTROPY
+
 #endif

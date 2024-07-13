@@ -281,7 +281,7 @@ public:
 		if (target.type != MessageTarget::TYPE_CHANNEL)
 			return MOD_RES_PASSTHRU;
 
-		Channel* dest = target.Get<Channel>();
+		auto* dest = target.Get<Channel>();
 		if ((!IS_LOCAL(user)) || !dest->IsModeSet(mf))
 			return MOD_RES_PASSTHRU;
 

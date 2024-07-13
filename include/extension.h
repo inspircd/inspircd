@@ -311,6 +311,12 @@ public:
 		if (container->extype != this->extype)
 			return;
 
+		if (value.empty())
+		{
+			SimpleExtItem<Container>::Unset(container);
+			return;
+		}
+
 		auto list = new List();
 		irc::spacesepstream stream(value);
 		for (std::string element; stream.GetToken(element); )

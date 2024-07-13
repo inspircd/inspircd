@@ -402,7 +402,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, MessageTarget& msgtarget, M
 		{
 			case MessageTarget::TYPE_USER:
 			{
-				User* t = msgtarget.Get<User>();
+				const auto* t = msgtarget.Get<User>();
 				// Check if the target nick is exempted, if yes, ignore this message
 				if (exemptednicks.count(t->nick))
 					return MOD_RES_PASSTHRU;
@@ -413,7 +413,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, MessageTarget& msgtarget, M
 			}
 			case MessageTarget::TYPE_CHANNEL:
 			{
-				Channel* t = msgtarget.Get<Channel>();
+				const auto* t = msgtarget.Get<Channel>();
 				if (exemptedchans.count(t->name))
 					return MOD_RES_PASSTHRU;
 				break;

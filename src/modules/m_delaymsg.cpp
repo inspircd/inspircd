@@ -117,7 +117,7 @@ ModResult ModuleDelayMsg::HandleMessage(User* user, const MessageTarget& target)
 	if (!IS_LOCAL(user) || target.type != MessageTarget::TYPE_CHANNEL)
 		return MOD_RES_PASSTHRU;
 
-	Channel* channel = target.Get<Channel>();
+	auto* channel = target.Get<Channel>();
 	Membership* memb = channel->GetUser(user);
 
 	if (!memb)

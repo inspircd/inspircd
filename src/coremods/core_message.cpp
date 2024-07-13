@@ -423,7 +423,7 @@ public:
 		if (!IS_LOCAL(user) || target.type != MessageTarget::TYPE_CHANNEL)
 			return MOD_RES_PASSTHRU;
 
-		Channel* chan = target.Get<Channel>();
+		auto* chan = target.Get<Channel>();
 		if (chan->IsModeSet(noextmsgmode) && !chan->HasUser(user))
 		{
 			// The noextmsg mode is set and the user is not in the channel.

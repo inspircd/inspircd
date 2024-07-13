@@ -232,7 +232,7 @@ public:
 		{
 			case MessageTarget::TYPE_CHANNEL:
 			{
-				Channel* targetchan = target.Get<Channel>();
+				auto* targetchan = target.Get<Channel>();
 
 				if (!targetchan->IsModeSet(regmoderatedmode) || account)
 					return MOD_RES_PASSTHRU;
@@ -246,7 +246,7 @@ public:
 			}
 			case MessageTarget::TYPE_USER:
 			{
-				User* targetuser = target.Get<User>();
+				auto* targetuser = target.Get<User>();
 				if (!targetuser->IsModeSet(regdeafmode)  || account)
 					return MOD_RES_PASSTHRU;
 

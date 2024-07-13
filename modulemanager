@@ -344,7 +344,7 @@ for my $mod (sort keys %todo) {
 
 		say "You can add this module to your config with:";
 		say " <module name=\"$hmod\">";
-		for my $tag (get_directives("$RealDir/src/modules/$mod.cpp", 'ModConfig')) {
+		for my $tag (get_directives("$RealDir/src/modules/$mod.cpp", 'ModConfig', 0)) {
 			say " $tag" if $tag;
 		}
 	} else {

@@ -29,12 +29,11 @@
 /// $CompilerFlags: execute("mysql_config --include" "MYSQL_CXXFLAGS")
 /// $LinkerFlags: execute("mysql_config --libs_r" "MYSQL_LDFLAGS" "-lmysqlclient")
 
+/// $PackageInfo: require_system("alpine") mariadb-dev
 /// $PackageInfo: require_system("arch") mariadb-libs
-/// $PackageInfo: require_system("centos") mysql-devel
 /// $PackageInfo: require_system("darwin") mysql-client
-/// $PackageInfo: require_system("debian") libmysqlclient-dev
-/// $PackageInfo: require_system("rocky") mysql-devel
-/// $PackageInfo: require_system("ubuntu") libmysqlclient-dev
+/// $PackageInfo: require_system("debian~") libmysqlclient-dev
+/// $PackageInfo: require_system("rhel~") mariadb-connector-c-devel
 
 
 #include <mysql.h>

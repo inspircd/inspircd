@@ -457,7 +457,7 @@ public:
 		if (target.type != MessageTarget::TYPE_CHANNEL || !IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
 
-		Channel* chan = target.Get<Channel>();
+		auto* chan = target.Get<Channel>();
 		ChannelSettings* settings = rm.ext.Get(chan);
 		if (!settings)
 			return MOD_RES_PASSTHRU;

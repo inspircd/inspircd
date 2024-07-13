@@ -19,12 +19,11 @@
 /// $CompilerFlags: find_compiler_flags("libpcre2-8")
 /// $LinkerFlags: find_linker_flags("libpcre2-8")
 
+/// $PackageInfo: require_system("alpine") pcre2-devel
 /// $PackageInfo: require_system("arch") pcre2
-/// $PackageInfo: require_system("centos") pcre2-devel
 /// $PackageInfo: require_system("darwin") pcre2
-/// $PackageInfo: require_system("debian") libpcre2-dev
-/// $PackageInfo: require_system("rocky") pcre2-devel
-/// $PackageInfo: require_system("ubuntu") libpcre2-dev
+/// $PackageInfo: require_system("debian~") libpcre2-dev
+/// $PackageInfo: require_system("rhel~") pcre2-devel
 
 
 #include "inspircd.h"
@@ -80,7 +79,10 @@ public:
 		pcre2_match_data* data = pcre2_match_data_create_from_pattern(regex, nullptr);
 		int result = pcre2_match(regex, reinterpret_cast<PCRE2_SPTR8>(text.c_str()), text.length(), 0, 0, data, nullptr);
 		if (result < 0)
+		{
+			pcre2_match_data_free(data);
 			return std::nullopt;
+		}
 
 		PCRE2_SIZE* ovector = pcre2_get_ovector_pointer(data);
 
@@ -117,6 +119,7 @@ public:
 			}
 		}
 
+		pcre2_match_data_free(data);
 		return Regex::MatchCollection(captures, namedcaptures);
 	}
 };

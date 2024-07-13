@@ -35,7 +35,7 @@ private:
 	{
 		if ((target.type == MessageTarget::TYPE_USER) && (IS_LOCAL(user)))
 		{
-			User* u = target.Get<User>();
+			const auto* u = target.Get<User>();
 
 			// message allowed if:
 			// (1) the sender is opered

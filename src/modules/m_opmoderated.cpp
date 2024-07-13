@@ -46,7 +46,7 @@ private:
 			return MOD_RES_PASSTHRU;
 
 		// Exempt channel members who have the appropriate privileges.
-		Channel* const chan = target.Get<Channel>();
+		auto* chan = target.Get<Channel>();
 		if (chan->GetPrefixValue(user) > VOICE_VALUE)
 			return MOD_RES_PASSTHRU;
 
