@@ -43,14 +43,14 @@ class Numerics::CannotSendTo final
 	: public Numeric::Numeric
 {
 public:
-	CannotSendTo(Channel* chan, const std::string& message)
+	CannotSendTo(const Channel* chan, const std::string& message)
 		: Numeric(ERR_CANNOTSENDTOCHAN)
 	{
 		push(chan->name);
 		push(message);
 	}
 
-	CannotSendTo(Channel* chan, const std::string& what, ModeHandler* mh)
+	CannotSendTo(const Channel* chan, const std::string& what, const ModeHandler* mh)
 		: Numeric(ERR_CANNOTSENDTOCHAN)
 	{
 		push(chan->name);
@@ -59,7 +59,7 @@ public:
 	}
 
 #ifdef INSPIRCD_EXTBAN
-	CannotSendTo(Channel* chan, const std::string& what, const ExtBan::Base& xb)
+	CannotSendTo(const Channel* chan, const std::string& what, const ExtBan::Base& xb)
 		: Numeric(ERR_CANNOTSENDTOCHAN)
 	{
 		push(chan->name);
@@ -68,14 +68,14 @@ public:
 	}
 #endif
 
-	CannotSendTo(User* user, const std::string& message)
+	CannotSendTo(const User* user, const std::string& message)
 		: Numeric(ERR_CANNOTSENDTOUSER)
 	{
 		push(user->connected & User::CONN_NICK ? user->nick : "*");
 		push(message);
 	}
 
-	CannotSendTo(User* user, const std::string& what, ModeHandler* mh, bool self = false)
+	CannotSendTo(const User* user, const std::string& what, const ModeHandler* mh, bool self = false)
 		: Numeric(ERR_CANNOTSENDTOUSER)
 	{
 		push(user->connected & User::CONN_NICK ? user->nick : "*");
@@ -88,7 +88,7 @@ public:
 class Numerics::ChannelPrivilegesNeeded : public Numeric::Numeric
 {
 public:
-	ChannelPrivilegesNeeded(Channel* chan, ModeHandler::Rank rank, const std::string& message)
+	ChannelPrivilegesNeeded(const Channel* chan, ModeHandler::Rank rank, const std::string& message)
 		: Numeric(ERR_CHANOPRIVSNEEDED)
 	{
 		push(chan->name);
@@ -106,7 +106,7 @@ class Numerics::InvalidModeParameter final
 	: public Numeric::Numeric
 {
 private:
-	void push_message(ModeHandler* mode, const std::string& message)
+	void push_message(const ModeHandler* mode, const std::string& message)
 	{
 		if (!message.empty())
 		{
@@ -129,7 +129,7 @@ private:
 	}
 
 public:
-	InvalidModeParameter(Channel* chan, ModeHandler* mode, const std::string& parameter, const std::string& message = "")
+	InvalidModeParameter(const Channel* chan, const ModeHandler* mode, const std::string& parameter, const std::string& message = "")
 		: Numeric(ERR_INVALIDMODEPARAM)
 	{
 		push(chan->name);
@@ -138,7 +138,7 @@ public:
 		push_message(mode, message);
 	}
 
-	InvalidModeParameter(User* user, ModeHandler* mode, const std::string& parameter, const std::string& message = "")
+	InvalidModeParameter(const User* user, const ModeHandler* mode, const std::string& parameter, const std::string& message = "")
 		: Numeric(ERR_INVALIDMODEPARAM)
 	{
 		push(user->connected & User::CONN_NICK ? user->nick : "*");
