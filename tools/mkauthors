@@ -54,7 +54,9 @@ for my $author (sort { $authors{$b} <=> $authors{$a} or lc($a) cmp lc($b) } keys
 }
 close $fh;
 
-execute 'git', 'commit',
-	'--author', 'InspIRCd Robot <noreply@inspircd.org>',
-	'--message', 'Update author list.',
-	'--', $author_file;
+if ($ENV{MKAUTHORS_COMMIT} // 1) {
+	execute 'git', 'commit',
+		'--author', 'InspIRCd Robot <noreply@inspircd.org>',
+		'--message', 'Update author list.',
+		'--', $author_file;
+}

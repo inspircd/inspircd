@@ -152,7 +152,9 @@ for my $path (@paths) {
 	}
 }
 
-execute 'git', 'commit',
-	'--author', 'InspIRCd Robot <noreply@inspircd.org>',
-	'--message', 'Update copyright headers.',
-	'--', @updated;
+if ($ENV{MKHEADERS_COMMIT} // 1) {
+	execute 'git', 'commit',
+		'--author', 'InspIRCd Robot <noreply@inspircd.org>',
+		'--message', 'Update copyright headers.',
+		'--', @updated;
+}
