@@ -183,6 +183,7 @@ my %compiler = get_compiler_info($config{CXX});
 
 $config{HAS_ARC4RANDOM_BUF} = run_test 'arc4random_buf()', test_file($config{CXX}, 'arc4random_buf.cpp');
 $config{HAS_CLOCK_GETTIME} = run_test 'clock_gettime()', test_file($config{CXX}, 'clock_gettime.cpp', $^O eq 'darwin' ? undef : '-lrt');
+$config{HAS_GETENTROPY} = run_test 'getentropy()', test_file($config{CXX}, 'getentropy.cpp');
 
 my @socketengines;
 push @socketengines, 'epoll'  if run_test 'epoll', test_header $config{CXX}, 'sys/epoll.h';
