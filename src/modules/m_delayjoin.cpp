@@ -222,7 +222,7 @@ void ModuleDelayJoin::OnUserTagMessage(User* user, const MessageTarget& target, 
 	if (target.type != MessageTarget::TYPE_CHANNEL)
 		return;
 
-	Channel* channel = target.Get<Channel>();
+	auto* channel = target.Get<Channel>();
 	djm.RevealUser(user, channel);
 }
 
@@ -231,7 +231,7 @@ void ModuleDelayJoin::OnUserMessage(User* user, const MessageTarget& target, con
 	if (target.type != MessageTarget::TYPE_CHANNEL)
 		return;
 
-	Channel* channel = target.Get<Channel>();
+	auto* channel = target.Get<Channel>();
 	djm.RevealUser(user, channel);
 }
 

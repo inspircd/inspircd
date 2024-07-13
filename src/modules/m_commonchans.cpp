@@ -53,7 +53,7 @@ private:
 		if (target.type != MessageTarget::TYPE_USER)
 			return MOD_RES_PASSTHRU;
 
-		User* targetuser = target.Get<User>();
+		auto* targetuser = target.Get<User>();
 		if (IsExempt(user, targetuser))
 			return MOD_RES_PASSTHRU;
 

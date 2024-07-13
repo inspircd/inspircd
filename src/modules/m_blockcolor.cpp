@@ -51,7 +51,7 @@ public:
 	{
 		if ((target.type == MessageTarget::TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
-			Channel* c = target.Get<Channel>();
+			auto* c = target.Get<Channel>();
 
 			ModResult res = exemptionprov.Check(user, c, "blockcolor");
 			if (res == MOD_RES_ALLOW)

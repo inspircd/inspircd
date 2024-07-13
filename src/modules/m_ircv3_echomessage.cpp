@@ -82,7 +82,7 @@ public:
 		{
 			case MessageTarget::TYPE_USER:
 			{
-				User* destuser = target.Get<User>();
+				const auto* destuser = target.Get<User>();
 				ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, destuser, text, details.type);
 				privmsg.AddTags(tags);
 				AddEchoTag(privmsg);
@@ -91,7 +91,7 @@ public:
 			}
 			case MessageTarget::TYPE_CHANNEL:
 			{
-				Channel* chan = target.Get<Channel>();
+				const auto* chan = target.Get<Channel>();
 				const char status = details.echo_original ? target.original_status : target.status;
 				ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, chan, text, details.type, status);
 				privmsg.AddTags(tags);
@@ -101,7 +101,7 @@ public:
 			}
 			case MessageTarget::TYPE_SERVER:
 			{
-				const std::string* servername = target.Get<std::string>();
+				const auto* servername = target.Get<std::string>();
 				ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, user, *servername, text, details.type);
 				privmsg.AddTags(tags);
 				AddEchoTag(privmsg);
@@ -124,7 +124,7 @@ public:
 		{
 			case MessageTarget::TYPE_USER:
 			{
-				User* destuser = target.Get<User>();
+				const auto* destuser = target.Get<User>();
 				CTCTags::TagMessage message(user, destuser, tags);
 				AddEchoTag(message);
 				localuser->Send(tagmsgprov, message);
@@ -132,7 +132,7 @@ public:
 			}
 			case MessageTarget::TYPE_CHANNEL:
 			{
-				Channel* chan = target.Get<Channel>();
+				const auto* chan = target.Get<Channel>();
 				const char status = details.echo_original ? target.original_status : target.status;
 				CTCTags::TagMessage message(user, chan, tags, status);
 				AddEchoTag(message);
@@ -141,7 +141,7 @@ public:
 			}
 			case MessageTarget::TYPE_SERVER:
 			{
-				const std::string* servername = target.Get<std::string>();
+				const auto* servername = target.Get<std::string>();
 				CTCTags::TagMessage message(user, servername->c_str(), tags);
 				AddEchoTag(message);
 				localuser->Send(tagmsgprov, message);

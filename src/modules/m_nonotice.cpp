@@ -49,7 +49,7 @@ public:
 	{
 		if ((details.type == MessageType::NOTICE) && (target.type == MessageTarget::TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
-			Channel* c = target.Get<Channel>();
+			auto* c = target.Get<Channel>();
 
 			ModResult res = exemptionprov.Check(user, c, "nonotice");
 			if (res == MOD_RES_ALLOW)

@@ -223,7 +223,7 @@ public:
 			return;
 		}
 
-		Channel* c = target.Get<Channel>();
+		auto* c = target.Get<Channel>();
 		std::string scommand;
 
 		// text is like "!moo cows bite me", we want "!moo" first

@@ -68,7 +68,7 @@ public:
 				if (user->HasPrivPermission("channels/ignore-noctcp"))
 					return MOD_RES_PASSTHRU;
 
-				Channel* c = target.Get<Channel>();
+				auto* c = target.Get<Channel>();
 				for (const auto& [u, _] : c->GetUsers())
 				{
 					if (u->IsModeSet(ncu))

@@ -210,7 +210,7 @@ public:
 		if (msgtarget.type != MessageTarget::TYPE_USER)
 			return MOD_RES_PASSTHRU;
 
-		User* target = msgtarget.Get<User>();
+		auto* target = msgtarget.Get<User>();
 
 		/* If one or more of the parties involved is a services user, we won't stop it. */
 		if (user->server->IsService() || target->server->IsService())

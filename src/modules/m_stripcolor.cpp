@@ -58,13 +58,13 @@ public:
 		{
 			case MessageTarget::TYPE_USER:
 			{
-				User* t = target.Get<User>();
+				const auto* t = target.Get<User>();
 				active = t->IsModeSet(usc);
 				break;
 			}
 			case MessageTarget::TYPE_CHANNEL:
 			{
-				Channel* t = target.Get<Channel>();
+				auto* t = target.Get<Channel>();
 				ModResult res = exemptionprov.Check(user, t, "stripcolor");
 
 				if (res == MOD_RES_ALLOW)

@@ -209,7 +209,7 @@ public:
 			return MOD_RES_PASSTHRU;
 
 		// We only act if the channel has the mode set.
-		Channel* channel = target.Get<Channel>();
+		auto* channel = target.Get<Channel>();
 		if (!channel->IsModeSet(&mode))
 			return MOD_RES_PASSTHRU;
 

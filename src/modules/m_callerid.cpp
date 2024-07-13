@@ -411,7 +411,7 @@ public:
 		if (!IS_LOCAL(user) || target.type != MessageTarget::TYPE_USER)
 			return MOD_RES_PASSTHRU;
 
-		User* dest = target.Get<User>();
+		auto* dest = target.Get<User>();
 		if (!dest->IsModeSet(myumode) || (user == dest))
 			return MOD_RES_PASSTHRU;
 

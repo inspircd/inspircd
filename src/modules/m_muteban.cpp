@@ -53,7 +53,7 @@ public:
 		if (!IS_LOCAL(user) || target.type != MessageTarget::TYPE_CHANNEL)
 			return MOD_RES_PASSTHRU;
 
-		Channel* chan = target.Get<Channel>();
+		auto* chan = target.Get<Channel>();
 		if (extban.GetStatus(user, chan) == MOD_RES_DENY && chan->GetPrefixValue(user) < VOICE_VALUE)
 		{
 			if (!notifyuser)
