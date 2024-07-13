@@ -27,6 +27,10 @@
 
 #include <random>
 
+#ifndef _WIN32
+# include <unistd.h>
+#endif
+
 #include "inspircd.h"
 #include "timeutils.h"
 #include "utility/string.h"
