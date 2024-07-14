@@ -313,7 +313,7 @@ public:
 
 		if (value.empty())
 		{
-			SimpleExtItem<Container>::Unset(container);
+			SimpleExtItem<Container>::Unset(container, false);
 			return;
 		}
 
@@ -332,12 +332,12 @@ public:
 		{
 			// The remote sent an empty list.
 			delete list;
-			SimpleExtItem<Container>::Unset(container);
+			SimpleExtItem<Container>::Unset(container, false);
 		}
 		else
 		{
 			// The remote sent a non-zero list.
-			SimpleExtItem<Container>::Set(container, list);
+			SimpleExtItem<Container>::Set(container, list, false);
 		}
 	}
 
