@@ -1,4 +1,4 @@
-Since the first commit in January 2003 108 people have submitted patches,
+Since the first commit in January 2003 109 people have submitted patches,
 commits, and other useful contributions to InspIRCd. These people, ordered by
 the number of contributions they have made, are:
 
@@ -58,6 +58,7 @@ the number of contributions they have made, are:
   * Jens Voss <DukePyrolator@anope.org>
   * Johanna A
   * Kyle Fuller <inbox@kylefuller.co.uk>
+  * Marcus Rueckert <darix@nordisch.org>
   * md_5 <git@md-5.net>
   * Michael <michaelhazell@hotmail.com>
   * Michael Hazell <michaelhazell@hotmail.com>
