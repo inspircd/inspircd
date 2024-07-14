@@ -4,7 +4,6 @@
  *   Copyright (C) 2021 Dominic Hamon
  *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2017, 2023 Wade Cline <wadecline@hotmail.com>
- *   Copyright (C) 2016 Adam <Adam@anope.org>
  *   Copyright (C) 2014, 2016-2017, 2019-2024 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2014 Julien Vehent <julien@linuxwall.info>
  *   Copyright (C) 2012-2017 Attila Molnar <attilamolnar@hush.com>
