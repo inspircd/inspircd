@@ -278,8 +278,8 @@ ifeq ($(SYSTEM), linux)
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd.service $(SCRPATH) 2>/dev/null
 endif
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd.1 $(MANPATH) 2>/dev/null
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd-testssl.1 $(MANPATH) 2>/dev/null
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_BIN) tools/testssl $(BINPATH)/inspircd-testssl 2>/dev/null
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd-test-tls.1 $(MANPATH) 2>/dev/null
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_BIN) tools/test-tls $(BINPATH)/inspircd-test-tls 2>/dev/null
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/*.example.* $(EXAPATH)
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/codepages/*.example.* $(EXAPATH)/codepages
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/providers/*.example.* $(EXAPATH)/providers
@@ -313,14 +313,14 @@ clean:
 
 deinstall:
 	-rm -f $(BINPATH)/inspircd
-	-rm -f $(BINPATH)/inspircd-testssl
+	-rm -f $(BINPATH)/inspircd-test-tls
 	-rm -f $(CONPATH)/help.txt
 	-rm -f $(EXAPATH)/*.example.*
 	-rm -f $(EXAPATH)/codepages/*.example.*
 	-rm -f $(EXAPATH)/providers/*.example.*
 	-rm -f $(EXAPATH)/services/*.example.*
 	-rm -f $(EXAPATH)/sql/*.sql
-	-rm -f $(MANPATH)/inspircd-testssl.1
+	-rm -f $(MANPATH)/inspircd-test-tls.1
 	-rm -f $(MANPATH)/inspircd.1
 	-rm -f $(MODPATH)/core_*.$(DLLEXT)
 	-rm -f $(MODPATH)/m_*.$(DLLEXT)
