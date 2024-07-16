@@ -36,10 +36,9 @@ inline static uint32_t rol(uint32_t value, uint32_t bits) { return (value << bit
 
 // blk0() and blk() perform the initial expand.
 // I got the idea of expanding during the round function from SSLeay
-static bool big_endian;
 inline static uint32_t blk0(CHAR64LONG16& block, uint32_t i)
 {
-	if (big_endian)
+	if constexpr (std::endian::native == std::endian::big)
 		return block.l[i];
 	else
 		return block.l[i] = (rol(block.l[i], 24) & 0xFF00FF00) | (rol(block.l[i], 8) & 0x00FF00FF);
@@ -192,7 +191,6 @@ public:
 		: Module(VF_VENDOR, "Allows other modules to generate SHA-1 hashes.")
 		, sha1(this)
 	{
-		big_endian = (htonl(1337) == 1337);
 	}
 };
 
