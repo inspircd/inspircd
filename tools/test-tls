@@ -1,0 +1,162 @@
+#!/usr/bin/env python3
+#
+# InspIRCd -- Internet Relay Chat Daemon
+#
+#   Copyright (C) 2024 Sadie Powell <sadie@witchery.services>
+#
+# This file is part of InspIRCd.  InspIRCd is free software: you can
+# redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, version 2.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+
+import os
+import re
+import socket
+import ssl
+import sys
+import textwrap
+
+CC_BOLD  = "\x1B[1m"    if sys.stdout.isatty() else ""
+CC_RESET = "\x1B[0m"    if sys.stdout.isatty() else ""
+CC_GREEN = "\x1B[1;32m" if sys.stdout.isatty() else ""
+CC_RED   = "\x1B[1;31m" if sys.stdout.isatty() else ""
+
+if len(sys.argv) < 3:
+    program = os.path.basename(__file__)
+    print(f"Usage: {program} <host/ip> <port> [selfsigned]", file=sys.stderr)
+    sys.exit(1)
+
+hostip = sys.argv[1]
+if re.match(r"[^A-Za-z0-9.:-]", hostip):
+    print(f"Error: invalid hostname or IP address: {hostip}", file=sys.stderr)
+    sys.exit(1)
+
+port = sys.argv[2]
+if not port.isnumeric() or int(port) < 1 or int(port) > 65535:
+    print(f"Error: invalid TCP port: {port}", file=sys.stderr)
+    sys.exit(1)
+
+self_signed = len(sys.argv) > 3 and sys.argv[3] == "selfsigned"
+try:
+    print(f"Checking whether {CC_BOLD}{hostip}/{port}{CC_RESET} is reachable ... ", end="", flush=True)
+    sock = socket.create_connection((hostip, int(port)), 30)
+    print(f"{CC_GREEN}yes{CC_RESET}")
+except socket.error as error:
+    print(textwrap.dedent(f"""
+        {CC_RED}no{CC_RESET}
+
+        It seems like the server endpoint you specified is not reachable! Make sure that:
+
+          * You have specified a <bind> tag in your config for this endpoint.
+          * You have rehashed or restarted the server since adding the <bind> tag.
+          * If you are using a firewall incoming connections on TCP port {port} are allowed.
+          * The endpoint your server is listening on is not local or private.
+
+        The error provided by the socket library was:
+
+          {error}
+
+        See https://docs.inspircd.org/4/configuration/#bind for more information.
+    """).strip())
+    sys.exit(1)
+
+data = b""
+try:
+    print(f"Checking whether {CC_BOLD}{hostip}/{port}{CC_RESET} is using plaintext ... ", end="", flush=True)
+    sock.settimeout(5)
+    data = sock.recv(1, socket.MSG_PEEK)
+except socket.timeout:
+    pass # The server is probably using deferred sockets
+except socket.error as error:
+    print(textwrap.dedent(f"""
+        {CC_RED}error{CC_RESET}
+
+        It seems like the server dropped the connection before sending anything! Make sure that:
+
+          * The endpoint you specified is actually your IRC server.
+          * If you are using a firewall incoming data on TCP port {port} are allowed.
+          * The IP address you are connecting from has not been banned from the server.
+
+        The error provided by the socket library was:
+
+          {error}
+
+        See https://docs.inspircd.org/4/configuration/#bind for more information.
+    """).strip())
+    sys.exit(1)
+
+if re.match(br"[A-Z:@]", data):
+    print(textwrap.dedent(f"""
+        {CC_RED}yes{CC_RESET}
+
+        It appears that the server endpoint is using plaintext! Make sure that:
+
+          * You have one or more of the following modules loaded:
+            - ssl_gnutls
+            - ssl_openssl
+
+          * The value of <bind:sslprofile> is the same as an <sslprofile:name> field.
+
+          * The value of <sslprofile:provider> for your used TLS profile is set to
+            "gnutls" if using the ssl_gnutls module or "openssl" if using the
+            ssl_openssl module.
+
+          * If you have your TLS configuration in a file other than inspircd.conf then
+            that file is included by inspircd.conf.
+
+        See the following links for more information:
+
+          https://docs.inspircd.org/4/modules/ssl_gnutls/#configuration
+          https://docs.inspircd.org/4/modules/ssl_openssl/#configuration
+    """).strip())
+    sys.exit(0)
+
+try:
+    print(f"{CC_GREEN}no{CC_RESET}")
+    print(f"Checking whether {CC_BOLD}{hostip}/{port}{CC_RESET} can have an TLS session negotiated ... ", end="", flush=True)
+
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    context.check_hostname = not self_signed
+    context.verify_mode = ssl.CERT_NONE if self_signed else ssl.CERT_REQUIRED
+    context.load_default_certs()
+    context.wrap_socket(sock, server_hostname=hostip)
+except ssl.SSLError as error:
+    print(textwrap.dedent(  f"""
+        {CC_RED}no{CC_RESET}
+
+        It appears that something is wrong with your server. Make sure that:
+
+          * You are not using an old version of GnuTLS or OpenSSL which only supports
+            deprecated algorithms like SSLv3.
+          * If you are using a self-signed certificate (not recommended) that you passed
+            the `selfsigned` argument to this script.
+
+        The error provided by the TLS library was:
+
+          {error}
+    """).strip())
+    sys.exit(0)
+
+print(textwrap.dedent(f"""
+    {CC_GREEN}yes{CC_RESET}
+
+    It seems like TLS is working fine on your server. If you are having trouble
+    connecting try using a different client or connecting from a different host.
+
+    You may also find running some of the following commands to be helpful:
+
+       gnutls-cli-debug --port {port} {hostip}
+       openssl s_client -connect {hostip}:{port} -debug -security_debug
+
+    If you need any help working out what is wrong then visit our support channel
+    at irc.chatspike.net #inspircd.
+""").strip())
