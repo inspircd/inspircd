@@ -191,7 +191,7 @@ Log::Manager::Manager()
 void Log::Manager::CloseLogs()
 {
 	logging = true; // Prevent writing to dying loggers.
-	loggers.erase(std::remove_if(loggers.begin(), loggers.end(), [](const Info& info) { return info.config; }), loggers.end());
+	std::erase_if(loggers, [](const Info& info) { return info.config; });
 	logging = false;
 }
 
@@ -288,7 +288,7 @@ void Log::Manager::UnloadEngine(const Engine* engine)
 {
 	logging = true; // Prevent writing to dying loggers.
 	size_t logger_count = loggers.size();
-	loggers.erase(std::remove_if(loggers.begin(), loggers.end(), [&engine](const Info& info) { return info.engine == engine; }), loggers.end());
+	std::erase_if(loggers, [&engine](const Info& info) { return info.engine == engine; });
 	logging = false;
 
 	Normal("LOG", "The {} log engine is unloading; removed {}/{} loggers.", engine->name.c_str(), logger_count - loggers.size(), logger_count);

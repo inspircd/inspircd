@@ -199,22 +199,6 @@ public:
 	}
 };
 
-class ChannelMatcher final
-{
-	Channel* const chan;
-
-public:
-	ChannelMatcher(Channel* ch)
-		: chan(ch)
-	{
-	}
-
-	bool operator()(const TimedBan& tb) const
-	{
-		return (tb.chan == chan);
-	}
-};
-
 class ModuleTimedBans final
 	: public Module
 {
@@ -275,7 +259,7 @@ public:
 	void OnChannelDelete(Channel* chan) override
 	{
 		// Remove all timed bans affecting the channel from internal bookkeeping
-		TimedBanList.erase(std::remove_if(TimedBanList.begin(), TimedBanList.end(), ChannelMatcher(chan)), TimedBanList.end());
+		std::erase_if(TimedBanList, [chan](const TimedBan& tb) { return tb.chan == chan; });
 	}
 };
 

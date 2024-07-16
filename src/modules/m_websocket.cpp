@@ -466,7 +466,7 @@ class WebSocketHook final
 			irc::commasepstream protostream(protocolheader.ExtractValue(recvq));
 			for (std::string proto; protostream.GetToken(proto); )
 			{
-				proto.erase(std::remove_if(proto.begin(), proto.end(), ::isspace), proto.end());
+				std::erase_if(proto, ::isspace);
 
 				bool is_binary = insp::equalsci(proto, "binary.inspircd.org");
 				bool is_text = insp::equalsci(proto, "text.inspircd.org");
