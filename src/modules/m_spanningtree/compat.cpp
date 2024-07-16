@@ -135,7 +135,7 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, Comm
 		if (!target)
 			return false; // User gone.
 
-		params.insert(params.begin(), { cmd, target->uuid });
+		params.insert(params.begin(), { target->uuid.substr(0, 3), cmd });
 		cmd = "ENCAP";
 	}
 	return true;

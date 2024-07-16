@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2022-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2022-2024 Sadie Powell <sadie@witchery.services>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -313,7 +313,7 @@ public:
 
 		if (value.empty())
 		{
-			SimpleExtItem<Container>::Unset(container);
+			SimpleExtItem<Container>::Unset(container, false);
 			return;
 		}
 
@@ -332,12 +332,12 @@ public:
 		{
 			// The remote sent an empty list.
 			delete list;
-			SimpleExtItem<Container>::Unset(container);
+			SimpleExtItem<Container>::Unset(container, false);
 		}
 		else
 		{
 			// The remote sent a non-zero list.
-			SimpleExtItem<Container>::Set(container, list);
+			SimpleExtItem<Container>::Set(container, list, false);
 		}
 	}
 

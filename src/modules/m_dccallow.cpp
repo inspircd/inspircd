@@ -4,7 +4,7 @@
  *   Copyright (C) 2021 Dominic Hamon
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2016 Adam <Adam@anope.org>
- *   Copyright (C) 2013, 2017-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017-2024 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Matt Smith <dz@inspircd.org>
