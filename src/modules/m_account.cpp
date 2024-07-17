@@ -28,8 +28,9 @@
 #include "modules/account.h"
 #include "modules/callerid.h"
 #include "modules/ctctags.h"
-#include "modules/extban.h"
 #include "modules/exemption.h"
+#include "modules/extban.h"
+#include "modules/isupport.h"
 #include "modules/who.h"
 #include "modules/whois.h"
 
@@ -179,6 +180,7 @@ public:
 class ModuleAccount final
 	: public Module
 	, public CTCTags::EventListener
+	, public ISupport::EventListener
 	, public Who::EventListener
 	, public Whois::EventListener
 {
@@ -196,6 +198,7 @@ public:
 	ModuleAccount()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds support for user accounts.")
 		, CTCTags::EventListener(this)
+		, ISupport::EventListener(this)
 		, Who::EventListener(this)
 		, Whois::EventListener(this)
 		, calleridapi(this)
@@ -207,6 +210,13 @@ public:
 		, accountextban(this, accountapi)
 		, unauthedextban(this, accountapi)
 	{
+	}
+
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
+	{
+		tokens["ACCOUNTEXTBAN"] = accountextban.GetLetter()
+			? INSP_FORMAT("{},{}", accountextban.GetName(), accountextban.GetLetter())
+			: accountextban.GetName();
 	}
 
 	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) override
