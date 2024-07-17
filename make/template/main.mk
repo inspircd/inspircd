@@ -346,7 +346,7 @@ configureclean:
 
 distclean: clean configureclean
 	-rm -rf "$(SOURCEPATH)/run"
-	-find "$(SOURCEPATH)/src/modules" -type l -delete
+	-find "$(SOURCEPATH)/modules" -type l -delete
 
 help:
 	@echo 'InspIRCd Makefile'

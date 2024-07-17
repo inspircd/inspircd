@@ -19,8 +19,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+# TODO: kill this brittle mess before v5.
 
 
+use v5.26.0;
 use strict;
 use warnings FATAL => qw(all);
 
@@ -79,29 +81,28 @@ END
 	for my $file (<*.cpp>, "socketengines/$ENV{SOCKETENGINE}.cpp") {
 		my $out = find_output $file;
 		dep_cpp $file, $out, 'gen-o';
-		# Having a module in the src directory is a bad idea because it will be linked to the core binary
-		if ($file =~ /^(m|core)_.*\.cpp/) {
-			my $correctsubdir = ($file =~ /^m_/ ? "modules" : "coremods");
-			print "Error: module $file is in the src directory, put it in src/$correctsubdir instead!\n";
-			exit 1;
-		}
 		push @core_deps, $out;
 	}
 
-	for my $directory (qw(coremods modules)) {
+	for my $directory (qw(../modules/core ../modules)) {
 		opendir(my $moddir, $directory);
-		my $mlist = $directory eq 'coremods' ? \@coremodlist : \@modlist;
+		my $mlist = $directory eq '../modules/core' ? \@coremodlist : \@modlist;
 		for my $file (sort readdir $moddir) {
 			next if $file =~ /^\./;
-			if ($directory eq 'modules' && -e "modules/extra/$file" && !-l "modules/$file") {
+			next if $file eq 'core';
+			next if $file eq 'extra';
+
+			if ($directory eq '../modules' && -e "../modules/extra/$file" && !-l "../modules/$file") {
 				# Incorrect symlink?
 				print "Replacing symlink for $file found in modules/extra\n";
-				rename "modules/$file", "modules/$file~";
-				symlink "extra/$file", "modules/$file";
+				rename "../modules/$file", "../modules/$file~";
+				symlink "extra/$file", "../modules/$file";
 			}
-			if ($file =~ /^(?:core|m)_/ && -d "$directory/$file" && dep_dir "$directory/$file", "modules/$file") {
-				mkdir "${\BUILDPATH}/obj/$file";
-				push @$mlist, "modules/$file${\DLL_EXT}";
+
+			my $prefix = $file =~ '^core_' ? '' : 'm_';
+			if (-d "$directory/$file" && dep_dir "$directory/$file", "modules/$prefix$file") {
+				mkdir "${\BUILDPATH}/obj/$prefix$file";
+				push @$mlist, "modules/$prefix$file${\DLL_EXT}";
 			}
 			if ($file =~ /^.*\.cpp$/) {
 				my $out = dep_so "$directory/$file";
@@ -132,12 +133,15 @@ END
 sub find_output {
 	my $file = shift;
 	my($path,$base) = $file =~ m#^((?:.*/)?)([^/]+)\.cpp# or die "Bad file $file";
-	if ($path eq 'modules/' || $path eq 'coremods/') {
-		return "modules/$base${\DLL_EXT}";
+	if ($path eq '../modules/' || $path eq '../modules/core/') {
+		my $prefix = $base =~ '^core_' ? '' : 'm_';
+		return "modules/$prefix$base${\DLL_EXT}";
 	} elsif ($path eq '' || $path eq 'modes/' || $path =~ /^[a-z]+engines\/$/) {
 		return "obj/$base.o";
-	} elsif ($path =~ m#modules/(m_.*)/# || $path =~ m#coremods/(core_.*)/#) {
-		return "obj/$1/$base.o";
+	} elsif ($path =~ m#\.\./modules/core/(core_.*)/# || $path =~ m#\.\./modules/(.*)/#) {
+		my $mod = $1;
+		my $prefix = $mod =~ '^core_' ? '' : 'm_';
+		return "obj/$prefix$mod/$base.o";
 	} else {
 		die "Can't determine output for $file";
 	}
@@ -161,7 +165,6 @@ sub gendep($) {
 			for my $loc ("$basedir/$inc", "${\SOURCEPATH}/include/$inc", "${\SOURCEPATH}/vendor/$inc") {
 				next unless -e $loc;
 				$dep{$_}++ for split / /, gendep $loc;
-				$loc =~ s#^\.\./##;
 				$dep{$loc}++;
 			}
 		}

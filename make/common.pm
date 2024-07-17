@@ -112,14 +112,13 @@ sub get_cpu_count {
 
 sub module_expand($) {
 	my $module = shift;
-	$module = "m_$module" unless $module =~ /^(?:m|core)_/;
 	$module = "$module.cpp" unless $module =~ /\.cpp$/;
 	return $module;
 }
 
 sub module_shrink($) {
-	my $module = basename shift;
-	return $module =~ s/(?:^m_|\.cpp$)//gr;
+	my $module = shift;
+	return basename($module,  '.cpp');
 }
 
 sub read_config_file($) {

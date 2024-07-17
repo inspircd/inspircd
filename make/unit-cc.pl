@@ -20,6 +20,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+# TODO: kill this brittle mess before v5.
 
 
 use v5.26.0;
@@ -93,8 +94,10 @@ sub do_compile {
 	if ($do_compile) {
 		$flags = $ENV{CORECXXFLAGS} . ' ' . get_directive($file, 'CompilerFlags', '');
 
-		if ($file =~ m#(?:^|/)((?:m|core)_[^/. ]+)(?:\.cpp|/.*\.cpp)$#) {
-			$flags .= ' -DMODNAME=\\"'.$1.'\\"';
+		if ($file =~ m#/modules/(?:core/)?([a-z0-9_]+)#) {
+			my $name = $1;
+			my $prefix = $1 =~ '^core_' ? '' : 'm_';
+			$flags .= ' -DMODNAME=\\"'.$prefix.$name.'\\"';
 		}
 	}
 
@@ -106,6 +109,6 @@ sub do_compile {
 	}
 
 	my $execstr = "$ENV{CXX} -o $out $flags $file $libs";
-	message 'BUILD', abs2rel($file, "$ENV{SOURCEPATH}/src"), $execstr;
+	message 'BUILD', abs2rel($file =~ s#/src/\.\./#/#gr, $ENV{SOURCEPATH}), $execstr;
 	exec $execstr;
 }

@@ -527,7 +527,6 @@ public:
 	virtual void OnMode(User* user, User* usertarget, Channel* chantarget, const Modes::ChangeList& changelist, ModeParser::ModeProcessFlag processflags) ATTR_NOT_NULL(2);
 
 	/** Allows module data, sent via SendMetadata, to be decoded again by a receiving module.
-	 * Please see src/modules/m_swhois.cpp for a working example of how to use this method call.
 	 * @param target The Channel* or User* that data should be added to
 	 * @param extname The extension name which is being sent
 	 * @param extdata The extension data, encoded at the other end by an identical module

@@ -17,20 +17,20 @@
 
 /include/config.h
 
-/src/modules/m_argon2.cpp
-/src/modules/m_geo_maxmind.cpp
-/src/modules/m_ldap.cpp
-/src/modules/m_log_json.cpp
-/src/modules/m_log_syslog.cpp
-/src/modules/m_mysql.cpp
-/src/modules/m_pgsql.cpp
-/src/modules/m_regex_pcre2.cpp
-/src/modules/m_regex_posix.cpp
-/src/modules/m_regex_re2.cpp
-/src/modules/m_sqlite3.cpp
-/src/modules/m_ssl_gnutls.cpp
-/src/modules/m_ssl_openssl.cpp
-/src/modules/m_sslrehashsignal.cpp
+/modules/argon2.cpp
+/modules/geo_maxmind.cpp
+/modules/ldap.cpp
+/modules/log_json.cpp
+/modules/log_syslog.cpp
+/modules/mysql.cpp
+/modules/pgsql.cpp
+/modules/regex_pcre2.cpp
+/modules/regex_posix.cpp
+/modules/regex_re2.cpp
+/modules/sqlite3.cpp
+/modules/ssl_gnutls.cpp
+/modules/ssl_openssl.cpp
+/modules/sslrehashsignal.cpp
 
 /win/Win32
 /win/*.dir

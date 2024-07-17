@@ -46,7 +46,7 @@ print_error "unable to find the module directory at $docdir!" unless -d $docdir;
 
 my @updated;
 my $root = dirname $RealDir;
-for my $module (<$root/src/modules/extra/m_*.cpp>, <$root/src/modules/m_*.cpp>, <$root/src/modules/m_*/main.cpp>) {
+for my $module (<$root/modules/extra/*.cpp>, <$root/modules/*.cpp>, <$root/modules/*/main.cpp>) {
 	print_error "unable to extract module name from $module!" unless $module =~ /m_(\w+)[.\/]/;
 	my $docfile = catfile $docdir, "$1.yml";
 	print_error "unable to find the module documentation at $docfile!" unless -f $docfile;

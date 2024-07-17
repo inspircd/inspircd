@@ -24,7 +24,7 @@
 #include "modules/isupport.h"
 
 #define INSPIRCD_MONITOR_MANAGER_ONLY
-#include "m_monitor.cpp"
+#include "monitor.cpp"
 
 enum
 {

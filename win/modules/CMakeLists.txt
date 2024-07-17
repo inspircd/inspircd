@@ -21,12 +21,12 @@
 
 # These modules can always be built on all platforms
 file(GLOB INSPIRCD_MODULES
-	"${INSPIRCD_BASE}/src/coremods/core_*"
-	"${INSPIRCD_BASE}/src/modules/m_*")
+	"${INSPIRCD_BASE}/modules/core/core_*"
+	"${INSPIRCD_BASE}/modules/*")
 
 # These modules have their dependencies provided by Windows
 list(APPEND INSPIRCD_MODULES
-	"${INSPIRCD_BASE}/src/modules/extra/m_ldap.cpp")
+	"${INSPIRCD_BASE}/modules/extra/ldap.cpp")
 
 if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
 	include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
@@ -34,7 +34,7 @@ if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
 	function(enable_extra NAME PACKAGE)
 		if(DEFINED "CONAN_${PACKAGE}_ROOT")
 			message("Enabling the ${NAME} module")
-			list(APPEND INSPIRCD_MODULES "${INSPIRCD_BASE}/src/modules/extra/m_${NAME}.cpp")
+			list(APPEND INSPIRCD_MODULES "${INSPIRCD_BASE}/modules/extra/${NAME}.cpp")
 			set(INSPIRCD_MODULES ${INSPIRCD_MODULES} PARENT_SCOPE)
 		else()
 			message("Unable to enable the ${NAME} module (missing library)")
@@ -68,6 +68,15 @@ foreach(MODULE_NAME ${INSPIRCD_MODULES})
 		string(REGEX REPLACE "^.*[/\\](.*)$" "\\1" BASE_NAME ${MODULE_NAME})
 	else()
 		string(REGEX REPLACE "^.*[/\\](.*).cpp$" "\\1" BASE_NAME ${MODULE_NAME})
+	endif()
+
+	if(${BASE_NAME} STREQUAL "core" OR ${BASE_NAME} STREQUAL "extra")
+		continue()
+	endif()
+
+	string(FIND ${BASE_NAME} "core_" CORE_MODULE)
+	if(NOT CORE_MODULE EQUAL 0)
+		set(BASE_NAME "m_${BASE_NAME}")
 	endif()
 
 	if(IS_DIRECTORY "${MODULE_NAME}")

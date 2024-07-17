@@ -144,7 +144,7 @@ $modules{core}{$installed{core}} = {
 };
 
 # set up core module list
-for my $modname (<$RealDir/src/modules/m_*.cpp>) {
+for my $modname (<$RealDir/modules/*.cpp>) {
 	my $mod = basename($modname, '.cpp');
 	my $ver = getmodversion($mod) || '0.0';
 	$ver =~ s/\$Rev: (.*) \$/$1/; # for storing revision in SVN
@@ -312,7 +312,7 @@ for my $mod (keys %installed) {
 	next if $todo{$mod};
 	my $hmod = module_shrink($mod);
 	print "Uninstalling $hmod $installed{$mod}\n";
-	unlink "$RealDir/src/modules/$mod.cpp";
+	unlink "$RealDir/modules/$mod.cpp";
 }
 
 my $count = scalar keys %todo;
@@ -337,14 +337,14 @@ for my $mod (sort keys %todo) {
 	my $response = $ua->get($url);
 
 	if ($response->is_success) {
-		open(MF, '>', "$RealDir/src/modules/$mod.cpp") or die "\nFilesystem not writable: $!";
+		open(MF, '>', "$RealDir/modules/$mod.cpp") or die "\nFilesystem not writable: $!";
 		print MF $response->content;
 		close(MF);
 		print " - done\n";
 
 		say "You can add this module to your config with:";
 		say " <module name=\"$hmod\">";
-		for my $tag (get_directives("$RealDir/src/modules/$mod.cpp", 'ModConfig', 0)) {
+		for my $tag (get_directives("$RealDir/modules/$mod.cpp", 'ModConfig', 0)) {
 			say " $tag" if $tag;
 		}
 	} else {
