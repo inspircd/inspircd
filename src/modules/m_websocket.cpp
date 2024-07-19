@@ -468,8 +468,8 @@ class WebSocketHook final
 			{
 				proto.erase(std::remove_if(proto.begin(), proto.end(), ::isspace), proto.end());
 
-				bool is_binary = insp::equalsci(proto, "binary.inspircd.org");
-				bool is_text = insp::equalsci(proto, "text.inspircd.org");
+				bool is_binary = insp::equalsci(proto, "binary.ircv3.net");
+				bool is_text = insp::equalsci(proto, "text.ircv3.net");
 
 				if (is_binary || is_text)
 				{
