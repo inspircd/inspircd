@@ -707,14 +707,11 @@ void LocalUser::ChangeConnectClass(const std::shared_ptr<ConnectClass>& klass, b
 
 void LocalUser::Write(const ClientProtocol::SerializedMessage& text)
 {
-	if (!eh.HasFd())
+	if (!eh.HasFd() || text.empty())
 		return;
 
 	if (ServerInstance->Config->RawLog)
 	{
-		if (text.empty())
-			return;
-
 		std::string::size_type nlpos = text.find_first_of("\r\n", 0, 2);
 		if (nlpos == std::string::npos)
 			nlpos = text.length();
