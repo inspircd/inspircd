@@ -114,6 +114,19 @@ void TreeSocket::WriteLine(const std::string& original_line)
 			// SQUERY was introduced in PROTO_INSPIRCD_4; convert to PRIVMSG.
 			line.replace(cmdstart, 6, "PRIVMSG");
 		}
+		else if (irc::equals(command, "UID"))
+		{
+			// :<sid> UID <uuid> <nickchanged> <nick> <host> <dhost> <user> <duser> <ip.string> <signon> <modes> [<modepara>] :<real>
+			//                                                       ^^^^^^ New in 1206
+			size_t uuidend = NextToken(line, cmdend);
+			size_t nickchangedend = NextToken(line, uuidend);
+			size_t nickend = NextToken(line, nickchangedend);
+			size_t hostend = NextToken(line, nickend);
+			size_t dhostend = NextToken(line, hostend);
+			size_t userend = NextToken(line, dhostend);
+			if (userend != std::string::npos)
+				line.erase(dhostend, userend - dhostend);
+		}
 	}
 
 	WriteLineInternal(line);

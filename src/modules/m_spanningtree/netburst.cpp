@@ -282,7 +282,7 @@ void TreeSocket::SendUsers(BurstState& bs)
 		if (!user->IsFullyConnected())
 			continue;
 
-		this->WriteLine(CommandUID::Builder(user, this->proto_version != PROTO_INSPIRCD_3));
+		this->WriteLine(CommandUID::Builder(user));
 
 		if (user->IsOper())
 			this->WriteLine(CommandOpertype::Builder(user, user->oper));

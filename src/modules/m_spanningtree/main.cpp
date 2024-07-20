@@ -497,22 +497,7 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 	if (sslapi)
 		sslapi->GetCertificate(user);
 
-	CommandUID::Builder uid(user, true);
-	CommandUID::Builder olduid(user, false);
-
-	// NOTE: we can't do CommandUID::Builder(user).Broadcast() whilst
-	// we still support the 1205 protocol.
-	for (const auto* server : Utils->TreeRoot->GetChildren())
-	{
-		TreeSocket* socket = server->GetSocket();
-		if (!socket)
-			continue; // Should never happen?
-
-		if (socket->proto_version >= PROTO_INSPIRCD_4)
-			socket->WriteLine(uid);
-		else
-			socket->WriteLine(olduid);
-	}
+	CommandUID::Builder(user).Broadcast();
 
 	if (user->IsOper())
 		CommandOpertype::Builder(user, user->oper).Broadcast();
