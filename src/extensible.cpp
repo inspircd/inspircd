@@ -140,8 +140,7 @@ void* ExtensionItem::UnsetRaw(Extensible* container)
 void ExtensionItem::Sync(const Extensible* container, void* item)
 {
 	const std::string networkstr = item ? ToNetwork(container, item) : "";
-	if (!networkstr.empty())
-		ServerInstance->PI->SendMetadata(container, name, networkstr);
+	ServerInstance->PI->SendMetadata(container, name, networkstr);
 	OnSync(container, item, nullptr);
 }
 
