@@ -242,7 +242,10 @@ void TreeSocket::SyncChannel(Channel* chan, TreeServer* s)
 	{
 		const std::string valuestr = item->ToNetwork(chan, value);
 		if (!valuestr.empty())
+		{
 			this->WriteLine(CommandMetadata::Builder(chan, item->name, valuestr));
+			item->OnSync(chan, value, s);
+		}
 	}
 
 	for (const auto& [_, memb] : chan->GetUsers())
@@ -251,7 +254,10 @@ void TreeSocket::SyncChannel(Channel* chan, TreeServer* s)
 		{
 			const std::string valuestr = item->ToNetwork(memb, value);
 			if (!valuestr.empty())
+			{
 				this->WriteLine(CommandMetadata::Builder(memb, item->name, valuestr));
+				item->OnSync(memb, value, s);
+			}
 		}
 	}
 
@@ -282,7 +288,10 @@ void TreeSocket::SendUsers(TreeServer* s)
 		{
 			const std::string value = item->ToNetwork(user, obj);
 			if (!value.empty())
+			{
 				this->WriteLine(CommandMetadata::Builder(user, item->name, value));
+				item->OnSync(user, obj, s);
+			}
 		}
 
 		Utils->Creator->synceventprov.Call(&ServerProtocol::SyncEventListener::OnSyncUser, user, *s);

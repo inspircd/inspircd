@@ -48,6 +48,13 @@ public:
 	 */
 	virtual void FromNetwork(Extensible* container, const std::string& value) noexcept;
 
+	/** Called when a value for this extension is synchronised across the network.
+	 * @param container The container that this extension is set on.
+	 * @param item The value that is set on the container.
+	 * @param server The server which is being synchronised to or nullptr for a broadcast.
+	 */
+	virtual void OnSync(const Extensible* container, void* item, Server* server);
+
 	/** @copydoc ServiceProvider::RegisterService */
 	void RegisterService() override;
 

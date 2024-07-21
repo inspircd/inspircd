@@ -96,6 +96,10 @@ ExtensionItem::ExtensionItem(Module* mod, const std::string& Key, ExtensionType 
 {
 }
 
+void ExtensionItem::OnSync(const Extensible* container, void* item, Server* server)
+{
+}
+
 void ExtensionItem::RegisterService()
 {
 	if (!ServerInstance->Extensions.Register(this))
@@ -138,6 +142,7 @@ void ExtensionItem::Sync(const Extensible* container, void* item)
 	const std::string networkstr = item ? ToNetwork(container, item) : "";
 	if (!networkstr.empty())
 		ServerInstance->PI->SendMetadata(container, name, networkstr);
+	OnSync(container, item, nullptr);
 }
 
 void ExtensionItem::FromInternal(Extensible* container, const std::string& value) noexcept
