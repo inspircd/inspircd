@@ -217,7 +217,8 @@ void Log::Manager::OpenLogs(bool requiremethods)
 	// If the server is started in debug mode we don't write logs.
 	if (ServerInstance->Config->CommandLine.forcedebug)
 	{
-		Normal("LOG", "Not opening loggers because we were started with --(protocol)debug");
+		const auto* option = ServerInstance->Config->CommandLine.forceprotodebug ? "--protocoldebug" : "--debug";
+		Normal("LOG", "Not opening loggers because we were started with {}", option);
 		return;
 	}
 
