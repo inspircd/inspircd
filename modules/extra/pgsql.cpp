@@ -579,17 +579,17 @@ public:
 
 	void init() override
 	{
-		int version = PQlibVersion();
-		int minor = version / 100 % 100;
-		int revision = version % 100;
-		if (version >= 10'00'00)
+		int pqversion = PQlibVersion();
+		int minor = pqversion / 100 % 100;
+		int revision = pqversion % 100;
+		if (pqversion >= 10'00'00)
 		{
 			// Ref: https://www.postgresql.org/docs/current/libpq-misc.html#LIBPQ-PQLIBVERSION
 			minor = revision;
 			revision = 0;
 		}
 		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against libpq version {} and is running against version {}.{}.{}",
-			PG_VERSION, version / 10000, minor, revision);
+			PG_VERSION, pqversion / 10000, minor, revision);
 	}
 
 	void ReadConfig(ConfigStatus& status) override

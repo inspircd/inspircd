@@ -26,7 +26,7 @@ jobs:
 
       # Speed-up build (6 min -> 5 min)
       - name: Precompile inspircd.h
-        run: c++ -I vendor/ include/inspircd.h
+        run: c++ -isystem vendor include/inspircd.h
 
       - name: Build and install
         env:
@@ -66,7 +66,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: irctest
-          ref: 9f33633cc71739cd8e88cc4f3d39fa002cc0f97e
+          ref: a1324407893b603fe6b55ce7c4ee385938291ae1
           repository: progval/irctest
 
       - name: Install irctest dependencies

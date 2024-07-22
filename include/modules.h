@@ -218,6 +218,13 @@ protected:
 	 */
 	Module(int mprops, const std::string& mdesc);
 
+	/** Initializes a new instance of the Module class.
+	 * @param mprops The properties of this module.
+	 * @param mversion The version of this module (for contrib modules).
+	 * @param mdesc A description of this module.
+	 */
+	Module(int mprops, const std::string& mversion, const std::string& mdesc);
+
 	/** Detach an event from this module
 	 * @param i Event type to detach
 	 */
@@ -250,6 +257,9 @@ public:
 	/** The properties of this module. */
 	const int properties;
 
+	/** The version of this module. */
+	const std::string version;
+
 	/** Module setup
 	 * \exception ModuleException Throwing this class, or any class derived from ModuleException, causes loading of the module to abort.
 	 */
@@ -274,6 +284,9 @@ public:
 
 	/** Retrieves a string that represents the properties of this module. */
 	std::string GetPropertyString() const;
+
+	/** Retrieves the version of the module. */
+	std::string GetVersion() const;
 
 	/** This method is called when you should reload module specific configuration:
 	 * on boot, on a /REHASH and on module load.

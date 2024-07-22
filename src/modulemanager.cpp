@@ -82,12 +82,8 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 				newmod->ReadConfig(confstatus);
 			}
 
-			const char* version = newhandle->GetVersion();
-			if (!version)
-				version = "unknown";
-
 			ServerInstance->Logs.Normal("MODULE", "New module introduced: {} (version {}, properties {})",
-				filename, version, newmod->GetPropertyString());
+				filename, newmod->GetVersion(), newmod->GetPropertyString());
 		}
 		else
 		{

@@ -102,7 +102,7 @@ public:
 		: public CmdBuilder
 	{
 	public:
-		Builder(User* user, bool real_user);
+		Builder(User* user);
 	};
 };
 

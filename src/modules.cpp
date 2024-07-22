@@ -46,8 +46,14 @@ void dynamic_reference_base::reset_all()
 }
 
 Module::Module(int mprops, const std::string& mdesc)
+	: Module(mprops, "", mdesc)
+{
+}
+
+Module::Module(int mprops, const std::string& mversion, const std::string& mdesc)
 	: description(mdesc)
 	, properties(mprops)
+	, version(mversion)
 {
 }
 
@@ -79,8 +85,17 @@ std::string Module::GetPropertyString() const
 	size_t pos = 0;
 	for (int mult = VF_CORE; mult <= VF_OPTCOMMON; mult *= 2, ++pos)
 		if (!(this->properties & mult))
-			propstr[pos] = tolower(propstr[pos]);
+			propstr[pos] = '-';
 	return propstr;
+}
+
+std::string Module::GetVersion() const
+{
+	if (!version.empty())
+		return version;
+
+	const auto* dll_version = ModuleDLL->GetVersion();
+	return dll_version ? dll_version : "unknown";
 }
 
 void Module::DetachEvent(Implementation i)

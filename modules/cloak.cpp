@@ -96,6 +96,8 @@ private:
 	}
 
 public:
+	bool recloaking = false;
+
 	CloakAPI(Module* Creator, CloakMethodList& cm, ModeHandler* mh)
 		: Cloak::APIBase(Creator)
 		, cloakmethods(cm)
@@ -167,8 +169,12 @@ public:
 		Modes::ChangeList changelist;
 		changelist.push_remove(cloakmode);
 		if (!newcloak.empty())
+		{
+			recloaking = true;
 			changelist.push_add(cloakmode);
+		}
 		ServerInstance->Modes.Process(ServerInstance->FakeClient, nullptr, user, changelist);
+		recloaking = false;
 	}
 };
 
@@ -190,6 +196,9 @@ private:
 
 	bool CheckSpam(User* user)
 	{
+		if (cloakapi.recloaking)
+			return false; // Recloaking is always allowed.
+
 		if (user->uuid == prevuuid && prevtime == ServerInstance->Time())
 		{
 			// The user has changed this mode already recently. Have they done
@@ -231,14 +240,15 @@ public:
 			return false;
 
 		// Penalise changing the mode to avoid spam.
-		if (source == dest)
+		if (source == dest && !cloakapi.recloaking)
 			user->CommandFloodPenalty += 5'000;
 
 		if (!change.adding)
 		{
 			// Remove the mode and restore their real host.
 			user->SetMode(this, false);
-			user->ChangeDisplayedHost(user->GetRealHost());
+			if (!cloakapi.recloaking)
+				user->ChangeDisplayedHost(user->GetRealHost());
 			return true;
 		}
 
