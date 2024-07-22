@@ -163,9 +163,9 @@ public:
 		}
 	}
 
-	void GetLinkData(LinkData& data, std::string& compatdata) override
+	void GetLinkData(LinkData& data) override
 	{
-		data["max-time"] = compatdata = ConvToStr(kr.max);
+		data["max-time"] = ConvToStr(kr.max);
 	}
 };
 

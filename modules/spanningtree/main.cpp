@@ -716,30 +716,14 @@ namespace
 		std::stringstream buffer;
 		buffer << (loading ? '+' : '-') << ModuleManager::ShrinkModName(mod->ModuleFile);
 
-		std::stringstream compatbuffer;
-		compatbuffer << (loading ? '+' : '-') << mod->ModuleFile;
-
 		if (loading)
 		{
-			const std::string linkstring = SpanningTreeUtilities::BuildLinkString(PROTO_INSPIRCD_4, mod);
+			const std::string linkstring = SpanningTreeUtilities::BuildLinkString(mod);
 			if (!linkstring.empty())
 				buffer << '=' << linkstring;
-
-			const std::string compatlinkstring = SpanningTreeUtilities::BuildLinkString(PROTO_INSPIRCD_3, mod);
-			if (!compatlinkstring.empty())
-				compatbuffer << '=' << compatlinkstring;
 		}
 
-		for (const auto* child : Utils->TreeRoot->GetChildren())
-		{
-			if (!child->GetSocket())
-				continue; // Should never happen?
-
-			if (child->GetSocket()->proto_version <= PROTO_INSPIRCD_3)
-				CommandMetadata::Builder("modules", buffer.str()).Forward(child);
-			else
-				CommandMetadata::Builder("modules", compatbuffer.str()).Forward(child);
-		}
+		CommandMetadata::Builder("modules", buffer.str()).Broadcast();
 	}
 }
 

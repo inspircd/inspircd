@@ -331,9 +331,8 @@ public:
 
 	void CompareLinkData(const LinkData& otherdata, LinkDataDiff& diffs) override
 	{
-		std::string unused;
 		LinkData data;
-		this->GetLinkData(data, unused);
+		this->GetLinkData(data);
 
 		// If the only difference is the method then just include that.
 		insp::map::difference(data, otherdata, diffs);
@@ -342,7 +341,7 @@ public:
 			diffs = { *it };
 	}
 
-	void GetLinkData(LinkData& data, std::string& compatdata) override
+	void GetLinkData(LinkData& data) override
 	{
 		if (cloakmethods.empty())
 			return;
@@ -362,11 +361,8 @@ public:
 		if (!cloakmethod)
 			cloakmethod = cloakmethods.front();
 
-		cloakmethod->GetLinkData(data, compatdata);
-
+		cloakmethod->GetLinkData(data);
 		data["method"] = cloakmethod->GetName();
-		if (compatdata.empty())
-			compatdata.assign(cloakmethod->GetName());
 	}
 
 	void Prioritize() override

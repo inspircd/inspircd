@@ -46,39 +46,12 @@ namespace
 			if (!(module->properties & property))
 				continue;
 
-			std::string modname;
-			size_t endpos = name.length() - strlen(DLL_EXTENSION);
-			if (protocol <= PROTO_INSPIRCD_3)
-			{
-				// Replace m_foo.dylib with m_foo.so
-				modname.append(name.substr(0, endpos)).append(".so");
+			// Replace m_foo.dylib with foo
+			auto startpos = name.compare(0, 2, "m_", 2) ? 0 : 2;
+			auto endpos = name.length() - strlen(DLL_EXTENSION);
 
-				// Handle renamed modules.
-				if (insp::equalsci(modname, "m_cloak.so") && ServerInstance->Modules.Find("cloak_md5"))
-					modname = "m_cloaking.so";
-				else if (insp::equalsci(modname, "m_realnameban.so"))
-					modname = "m_gecosban.so";
-				else if (insp::equalsci(modname, "m_account.so") && ServerInstance->Modules.Find("services"))
-					modname = "m_services_account.so";
-				else if (insp::equalsci(modname, "m_services.so"))
-				{
-					modules["m_svshold.so"];
-					modules["m_topiclock.so"];
-					continue;
-				}
-
-				// Handle modules with changed properties.
-				else if (insp::equalsci(modname, "m_globops.so"))
-					continue;  // This module was made VF_OPTCOMMON in v4.
-			}
-			else
-			{
-				// Replace m_foo.dylib with foo
-				size_t startpos = name.compare(0, 2, "m_", 2) ? 0 : 2;
-				modname.assign(name.substr(startpos, endpos - startpos));
-			}
-
-			modules[modname] = SpanningTreeUtilities::BuildLinkString(protocol, module);
+			auto modname = name.substr(startpos, endpos - startpos);
+			modules[modname] = SpanningTreeUtilities::BuildLinkString(module);
 		}
 		return modules;
 	}
@@ -122,37 +95,6 @@ namespace
 		}
 
 		return true;
-	}
-
-	// Compares the lists of module on a remote v3 server to the local server.
-	bool CompareModulesOld(ModuleFlags property, const CapabData::ModuleMap& remote, std::ostringstream& diffconfig,
-		std::ostringstream& localmissing, std::ostringstream& remotemissing)
-	{
-		// Retrieve the local module list and compare to the remote.
-		CapabData::ModuleMap mymodules = BuildModuleList(property, PROTO_INSPIRCD_3);
-		TokenDiff modulediff;
-		insp::map::difference(mymodules, remote, modulediff);
-
-		for (const auto& [module, values] : modulediff)
-		{
-			if (values.first && values.second)
-			{
-				// Exists on both but with different link data.
-				diffconfig << ' ' << module << " (" << *values.first << " here, " << *values.second << " there)";
-			}
-			else if (values.first && !values.second)
-			{
-				// Only exists on the local server.
-				remotemissing << ' ' << module;
-			}
-			else if (!values.first && values.second)
-			{
-				// Only exists on the remote server.
-				localmissing << ' ' << module;
-			}
-		}
-
-		return modulediff.empty();
 	}
 
 	// Compares the lists of module on a remote v4+ server to the local server.
@@ -215,14 +157,10 @@ namespace
 		if (!remote)
 			return true;
 
-		bool okay;
 		std::ostringstream diffconfig;
 		std::ostringstream localmissing;
 		std::ostringstream remotemissing;
-		if (protocol <= PROTO_INSPIRCD_3)
-			okay = CompareModulesOld(property, *remote, diffconfig, localmissing, remotemissing);
-		else
-			okay = CompareModulesNew(property, *remote, diffconfig, localmissing, remotemissing);
+		auto okay = CompareModulesNew(property, *remote, diffconfig, localmissing, remotemissing);
 
 		if (!diffconfig.str().empty())
 			out << " Loaded on both with different config:" << diffconfig.str() << '.';
@@ -356,37 +294,9 @@ void TreeSocket::SendCapabilities(int phase)
 		{ "MAXUSER",     ConvToStr(ServerInstance->Config->Limits.MaxUser)    },
 	};
 
-	if (proto_version <= PROTO_INSPIRCD_3)
-	{
-		// 1205 HACK: Allow services to know what extbans exist.
-		ExtBan::ManagerRef extbanmgr(Utils->Creator);
-		if (extbanmgr)
-		{
-			std::string extbans;
-			for (const auto& [extban, _] : extbanmgr->GetLetterMap())
-				extbans.push_back(extban);
-
-			if (!extbans.empty())
-				capabilities["EXTBANS"] = extbans;
-		}
-
-		// These have been renamed in the 1206 protocol.
-		capabilities["CHANMAX"]  = capabilities["MAXCHANNEL"];
-		capabilities["IDENTMAX"] = capabilities["MAXUSER"];
-		capabilities["NICKMAX"]  = capabilities["MAXNICK"];
-
-		// Advertise the presence or absence of the globops snomask in CAPAB CAPABILITIES. Services
-		// needs to know about it and since m_globops is not marked as VF_(OPT)COMMON in v3 we
-		// advertise it here to not break linking to previous versions.
-		capabilities["GLOBOPS"] = ConvToStr(!!ServerInstance->Modules.Find("globops"));
-
-	}
-	else
-	{
-		std::string extbans;
-		if (BuildExtBanList(extbans))
-			WriteLine("CAPAB EXTBANS :" + extbans);
-	}
+	std::string extbans;
+	if (BuildExtBanList(extbans))
+		WriteLine("CAPAB EXTBANS :" + extbans);
 
 	// If SHA256 hashing support is available then send a challenge token.
 	if (ServerInstance->Modules.FindService(SERVICE_DATA, "hash/sha256"))
@@ -576,10 +486,9 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			if (!this->GetTheirChallenge().empty() && (this->LinkState == CONNECTING))
 			{
 				this->SendCapabilities(2);
-				this->WriteLine(fmt::format("SERVER {} {} {}{} :{}",
+				this->WriteLine(fmt::format("SERVER {} {} {} :{}",
 					ServerInstance->Config->ServerName,
 					TreeSocket::MakePass(capab->link->SendPass, capab->theirchallenge),
-					proto_version == PROTO_INSPIRCD_3 ? "0 " : "",
 					ServerInstance->Config->ServerId,
 					ServerInstance->Config->ServerDesc
 				));
@@ -591,10 +500,9 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			if (this->LinkState == CONNECTING)
 			{
 				this->SendCapabilities(2);
-				this->WriteLine(fmt::format("SERVER {} {} {}{} :{}",
+				this->WriteLine(fmt::format("SERVER {} {} {} :{}",
 					ServerInstance->Config->ServerName,
 					capab->link->SendPass,
-					proto_version == PROTO_INSPIRCD_3 ? "0 " : "",
 					ServerInstance->Config->ServerId,
 					ServerInstance->Config->ServerDesc
 				));

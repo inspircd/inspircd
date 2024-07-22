@@ -113,7 +113,7 @@ public:
 		std::swap(newhostmap, cmd.hostmap);
 	}
 
-	void GetLinkData(Module::LinkData& data, std::string& compatdata) override
+	void GetLinkData(Module::LinkData& data) override
 	{
 		for (size_t i = 0; i < cmd.hostmap.size(); ++i)
 			if (cmd.hostmap[i])

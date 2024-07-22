@@ -176,13 +176,9 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void GetLinkData(LinkData& data, std::string& compatdata) override
+	void GetLinkData(LinkData& data) override
 	{
 		data["max-length"] = ConvToStr(cf.maxlen);
-
-		// We don't send any link data if the length is 35 for compatibility with v3 and earlier..
-		if (cf.maxlen != 35)
-			compatdata = ConvToStr(cf.maxlen);
 	}
 };
 

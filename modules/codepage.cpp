@@ -104,7 +104,7 @@ public:
 	virtual bool IsValidNick(const std::string_view& nick) = 0;
 
 	// Retrieves the link data for this codepage.
-	virtual void GetLinkData(Module::LinkData& data, std::string& compatdata) const = 0;
+	virtual void GetLinkData(Module::LinkData& data) const = 0;
 
 	// Maps an upper case character to a lower case character.
 	virtual bool Map(uint32_t upper, uint32_t lower) = 0;
@@ -159,7 +159,7 @@ public:
 		return true;
 	}
 
-	void GetLinkData(Module::LinkData& data, std::string& compatdata) const override
+	void GetLinkData(Module::LinkData& data) const override
 	{
 		for (size_t i = 0; i < allowedfrontchars.size(); ++i)
 			if (allowedfrontchars[i])
@@ -178,8 +178,6 @@ public:
 			data["map"].push_back(casemap[i]);
 			data["map"].push_back(',');
 		}
-
-		compatdata = fmt::format("front={}&middle={}&map={}", data["front"], data["middle"], data["map"]);
 	}
 
 	bool Map(uint32_t upper, uint32_t lower) override
@@ -437,9 +435,9 @@ public:
 			tokens["CHARSET"] = charset;
 	}
 
-	void GetLinkData(LinkData& data, std::string& compatdata) override
+	void GetLinkData(LinkData& data) override
 	{
-		codepage->GetLinkData(data, compatdata);
+		codepage->GetLinkData(data);
 	}
 };
 

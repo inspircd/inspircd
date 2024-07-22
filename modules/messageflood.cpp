@@ -270,10 +270,9 @@ public:
 		mf.SetSyntax();
 	}
 
-	void GetLinkData(LinkData& data, std::string& compatdata) override
+	void GetLinkData(LinkData& data) override
 	{
 		data["actions"] = mf.extended ? "ban block kick kickban mute" : "block kickban";
-		compatdata = mf.extended ? "extended" : "";
 	}
 
 	ModResult HandleMessage(User* user, const MessageTarget& target, double weight)

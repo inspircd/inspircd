@@ -159,7 +159,7 @@ public:
 		return {};
 	}
 
-	void GetLinkData(Module::LinkData& data, std::string& compatdata) override
+	void GetLinkData(Module::LinkData& data) override
 	{
 		switch (invalidchar)
 		{
@@ -256,9 +256,9 @@ public:
 	{
 	}
 
-	void GetLinkData(Module::LinkData& data, std::string& compatdata) override
+	void GetLinkData(Module::LinkData& data) override
 	{
-		UserMethodBase::GetLinkData(data, compatdata);
+		UserMethodBase::GetLinkData(data);
 		data["length"] = ConvToStr(length);
 	}
 };

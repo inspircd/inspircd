@@ -69,9 +69,8 @@ Cullable::Result Module::Cull()
 
 void Module::CompareLinkData(const LinkData& otherdata, LinkDataDiff& diffs)
 {
-	std::string unused;
 	LinkData data;
-	this->GetLinkData(data, unused);
+	this->GetLinkData(data);
 	insp::map::difference(data, otherdata, diffs);
 }
 
@@ -103,7 +102,7 @@ void Module::DetachEvent(Implementation i)
 	ServerInstance->Modules.Detach(i, this);
 }
 
-void		Module::GetLinkData(LinkData&, std::string&) { }
+void		Module::GetLinkData(LinkData&) { }
 void		Module::Prioritize() { }
 void		Module::ReadConfig(ConfigStatus& status) { }
 ModResult	Module::OnSendSnotice(char& snomask, std::string& type, const std::string& message) { DetachEvent(I_OnSendSnotice); return MOD_RES_PASSTHRU; }

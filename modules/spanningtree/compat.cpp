@@ -20,6 +20,7 @@
 #include "inspircd.h"
 #include "main.h"
 
+#if 0
 namespace
 {
 	size_t NextToken(const std::string& line, size_t start)
@@ -30,6 +31,7 @@ namespace
 		return line.find(' ', start + 1);
 	}
 }
+#endif
 
 void TreeSocket::WriteLine(const std::string& original_line)
 {
@@ -42,6 +44,7 @@ void TreeSocket::WriteLine(const std::string& original_line)
 	}
 
 	std::string line = original_line;
+#if 0
 	size_t cmdstart = 0;
 
 	if (line[0] == '@') // Skip the tags.
@@ -64,71 +67,10 @@ void TreeSocket::WriteLine(const std::string& original_line)
 		cmdend = line.size() - 1;
 
 	std::string command(line, cmdstart, cmdend - cmdstart);
-	if (proto_version == PROTO_INSPIRCD_3)
+	if (proto_version == PROTO_INSPIRCD_4)
 	{
-		if (irc::equals(command, "FHOST") || irc::equals(command, "FIDENT"))
-		{
-			// FIDENT/FHOST has two parameters in v4; drop the real username/hostname.
-			// :<sid> FIDENT|FHOST <display|*> <real|*>
-			size_t displayend = NextToken(line, cmdend);
-			if (displayend != std::string::npos)
-			{
-				if ((displayend - cmdend) == 2 && line[displayend - 1] == '*')
-					return; // FIDENT/FHOST is only changing the real username/hostname; drop.
-
-				// Trim the rest of the line.
-				line.erase(displayend);
-			}
-		}
-		else if (irc::equals(command, "METADATA"))
-		{
-			// :<sid> METADATA <uuid|chan|*|@> <name> :<value>
-			size_t targetend = NextToken(line, cmdend);
-			size_t nameend = NextToken(line, targetend);
-			size_t flagend = NextToken(line, nameend);
-			if (flagend != std::string::npos)
-			{
-				std::string extname(line, targetend + 1, nameend - targetend - 1);
-				if (irc::equals(extname, "ssl_cert"))
-				{
-					// Check we have the "e" flag (no error).
-					if (line.find('e', nameend + 1) < flagend)
-					{
-						size_t fpend = NextToken(line, flagend);
-						if (fpend != std::string::npos)
-						{
-							size_t commapos = line.find(',', flagend + 1);
-							if (commapos < fpend)
-							{
-								// Multiple fingerprints in ssl_cert was introduced in PROTO_INSPIRCD_4; drop it.
-								line.erase(commapos, fpend - commapos);
-							}
-
-						}
-					}
-				}
-			}
-		}
-		else if (irc::equals(command, "SQUERY"))
-		{
-			// SQUERY was introduced in PROTO_INSPIRCD_4; convert to PRIVMSG.
-			line.replace(cmdstart, 6, "PRIVMSG");
-		}
-		else if (irc::equals(command, "UID"))
-		{
-			// :<sid> UID <uuid> <nickchanged> <nick> <host> <dhost> <user> <duser> <ip.string> <signon> <modes> [<modepara>] :<real>
-			//                                                       ^^^^^^ New in 1206
-			size_t uuidend = NextToken(line, cmdend);
-			size_t nickchangedend = NextToken(line, uuidend);
-			size_t nickend = NextToken(line, nickchangedend);
-			size_t hostend = NextToken(line, nickend);
-			size_t dhostend = NextToken(line, hostend);
-			size_t userend = NextToken(line, dhostend);
-			if (userend != std::string::npos)
-				line.erase(dhostend, userend - dhostend);
-		}
 	}
-
+#endif
 	WriteLineInternal(line);
 }
 

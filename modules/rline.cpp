@@ -245,13 +245,10 @@ public:
 		ServerInstance->XLines->UnregisterFactory(&f);
 	}
 
-	void GetLinkData(LinkData& data, std::string& compatdata) override
+	void GetLinkData(LinkData& data) override
 	{
 		if (rxfactory)
-		{
-			compatdata = rxfactory->name; // e.g. regex/pcre
 			data["regex"] = rxfactory->GetName(); // e.g. pcre
-		}
 		else
 			data["regex"] = "broken";
 	}

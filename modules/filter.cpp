@@ -233,7 +233,7 @@ public:
 	bool DeleteFilter(const std::string& freeform, std::string& reason);
 	std::pair<bool, std::string> AddFilter(const std::string& freeform, FilterAction type, const std::string& reason, unsigned long duration, const std::string& flags, bool config = false);
 	void ReadConfig(ConfigStatus& status) override;
-	void GetLinkData(LinkData& data, std::string& compatdata) override;
+	void GetLinkData(LinkData& data) override;
 	static std::string EncodeFilter(const FilterResult& filter);
 	FilterResult DecodeFilter(const std::string& data);
 	void OnSyncNetwork(ProtocolInterface::Server& server) override;
@@ -680,13 +680,10 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 	ReadFilters();
 }
 
-void ModuleFilter::GetLinkData(LinkData& data, std::string& compatdata)
+void ModuleFilter::GetLinkData(LinkData& data)
 {
 	if (RegexEngine)
-	{
-		compatdata = RegexEngine->name; // e.g. regex/pcre
 		data["regex"] = RegexEngine->GetName(); // e.g. pcre
-	}
 	else
 		data["regex"] = "broken";
 }

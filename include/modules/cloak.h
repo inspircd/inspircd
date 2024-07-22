@@ -159,9 +159,8 @@ public:
 
 	/** Retrieves link compatibility data for this cloak method.
 	 * @param data The location to store link compatibility data.
-	 * @param compatdata The location to store link compatibility data for older protocols.
 	 */
-	virtual void GetLinkData(Module::LinkData& data, std::string& compatdata) = 0;
+	virtual void GetLinkData(Module::LinkData& data) = 0;
 
 	/** Retrieves the name of this cloaking method. */
 	const char* GetName() const

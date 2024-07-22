@@ -176,7 +176,7 @@ public:
 	void SendChannelMessage(const User* source, const Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const CUList& exempt_list, const char* message_type, const TreeSocket* omit = nullptr) const;
 
 	// Builds link data to be sent to another server.
-	static std::string BuildLinkString(uint16_t protocol, Module* mod);
+	static std::string BuildLinkString(Module* mod);
 
 	/** Send the channel list mode limits to either the specified server or all servers if nullptr. */
 	static void SendListLimits(Channel* chan, TreeSocket* sock = nullptr);

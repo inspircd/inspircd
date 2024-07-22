@@ -517,16 +517,13 @@ public:
 		ServerInstance->Modules.SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
 	}
 
-	void GetLinkData(LinkData& data, std::string& compatdata) override
+	void GetLinkData(LinkData& data) override
 	{
 		data["actions"] = rm.ms.Extended ? "ban block kick kickban mute" : "block kick kickban";
 		data["max-lines"] = ConvToStr(rm.ms.MaxLines);
 		data["max-secs"] = ConvToStr(rm.ms.MaxSecs);
 		data["max-diff"] = ConvToStr(rm.ms.MaxDiff);
 		data["max-backlog"] = ConvToStr(rm.ms.MaxBacklog);
-
-		compatdata = fmt::format("{}:{}:{}:{}{}", rm.ms.Extended ? "extended:" : "",
-			rm.ms.MaxLines, rm.ms.MaxSecs, rm.ms.MaxDiff, rm.ms.MaxBacklog);
 	}
 };
 

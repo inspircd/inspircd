@@ -278,9 +278,8 @@ public:
 
 	/** Retrieves link compatibility data for this module.
 	 * @param data The location to store link compatibility data.
-	 * @param compatdata The location to store link compatibility data for older protocols.
 	 */
-	virtual void GetLinkData(LinkData& data, std::string& compatdata);
+	virtual void GetLinkData(LinkData& data);
 
 	/** Retrieves a string that represents the properties of this module. */
 	std::string GetPropertyString() const;

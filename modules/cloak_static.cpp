@@ -46,7 +46,7 @@ public:
 		return cloak;
 	}
 
-	void GetLinkData(Module::LinkData& data, std::string& compatdata) override
+	void GetLinkData(Module::LinkData& data) override
 	{
 		data["cloak"] = cloak;
 	}

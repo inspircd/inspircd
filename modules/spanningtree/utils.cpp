@@ -390,14 +390,10 @@ void SpanningTreeUtilities::SendChannelMessage(const User* source, const Channel
 	}
 }
 
-std::string SpanningTreeUtilities::BuildLinkString(uint16_t proto, Module* mod)
+std::string SpanningTreeUtilities::BuildLinkString(Module* mod)
 {
 	Module::LinkData data;
-	std::string compatdata;
-	mod->GetLinkData(data, compatdata);
-
-	if (proto <= PROTO_INSPIRCD_3)
-		return compatdata;
+	mod->GetLinkData(data);
 
 	std::stringstream buffer;
 	for (Module::LinkData::const_iterator iter = data.begin(); iter != data.end(); ++iter)

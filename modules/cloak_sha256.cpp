@@ -247,7 +247,7 @@ public:
 		return {}; // Only reachable on hmac-sha256-ip.
 	}
 
-	void GetLinkData(Module::LinkData& data, std::string& compatdata) override
+	void GetLinkData(Module::LinkData& data) override
 	{
 		// The value we use for cloaks when the sha2 module is missing.
 		const std::string broken = "missing-sha2-module";

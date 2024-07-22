@@ -210,13 +210,6 @@ public:
 
 		return MOD_RES_PASSTHRU;
 	}
-
-	void GetLinkData(LinkData& data, std::string& compatdata) override
-	{
-		// It is assumed that if a server can speak the v4 protocol it can also
-		// handle glob patterns for channel bans.
-		compatdata.assign("glob");
-	}
 };
 
 MODULE_INIT(ModuleCBan)
