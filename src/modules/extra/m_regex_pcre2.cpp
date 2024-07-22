@@ -139,12 +139,12 @@ public:
 
 	void init() override
 	{
-		std::vector<char> version(16);
-		if (pcre2_config(PCRE2_CONFIG_VERSION, version.data()) < 0)
+		std::vector<char> pcre_version(16);
+		if (pcre2_config(PCRE2_CONFIG_VERSION, pcre_version.data()) < 0)
 			return;
 
 		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against PCRE2 version {}.{} and is running against version {}",
-			PCRE2_MAJOR, PCRE2_MINOR, version.data());
+			PCRE2_MAJOR, PCRE2_MINOR, pcre_version.data());
 	}
 };
 
