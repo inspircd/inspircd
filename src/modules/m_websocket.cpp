@@ -23,6 +23,7 @@
 #include "inspircd.h"
 #include "iohook.h"
 #include "modules/hash.h"
+#include "modules/isupport.h"
 #include "utility/string.h"
 
 #define UTF_CPP_CPLUSPLUS 199711L
@@ -52,6 +53,9 @@ struct WebSocketConfig final
 
 	// The HTTP origins that can connect to the server.
 	OriginList allowedorigins;
+
+	// Whether text encoding can be used on this server.
+	bool allowtext;
 
 	// The method to use if a subprotocol is not negotiated.
 	DefaultMode defaultmode;
@@ -489,6 +493,12 @@ class WebSocketHook final
 			return -1;
 		}
 
+		if (sendastext && !config.allowtext)
+		{
+			FailHandshake(sock, "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n", "WebSocket: Received HTTP request that requested a text protocol which is not compatible with the server character set");
+			return -1;
+		}
+
 		HTTPHeaderFinder keyheader;
 		if (!keyheader.Find(recvq, "Sec-WebSocket-Key:", 18, reqend))
 		{
@@ -631,12 +641,14 @@ class ModuleWebSocket final
 private:
 	dynamic_reference_nocheck<HashProvider> hash;
 	std::shared_ptr<WebSocketHookProvider> hookprov;
+	ISupport::EventProvider isupportprov;
 
 public:
 	ModuleWebSocket()
 		: Module(VF_VENDOR, "Allows WebSocket clients to connect to the IRC server.")
 		, hash(this, "hash/sha1")
 		, hookprov(std::make_shared<WebSocketHookProvider>(this))
+		, isupportprov(this)
 	{
 		sha1 = &hash;
 	}
@@ -648,6 +660,16 @@ public:
 			throw ModuleException(this, "You have loaded the websocket module but not configured any allowed origins!");
 
 		WebSocketConfig config;
+
+		// If a server has a non-utf8 compatible character set configured
+		// then we can not support text encoding.
+		ISupport::TokenMap tokens;
+		isupportprov.Call(&ISupport::EventListener::OnBuildISupport, tokens);
+		auto it = tokens.find("CHARSET");
+		config.allowtext = it == tokens.end()
+			|| irc::equals(it->second, "ascii")
+			|| irc::equals(it->second, "utf8");
+
 		for (const auto& [_, tag] : tags)
 		{
 			// Ensure that we have the <wsorigin:allow> parameter.
@@ -660,7 +682,7 @@ public:
 
 		const auto& tag = ServerInstance->Config->ConfValue("websocket");
 
-		const std::string defaultmodestr = tag->getString("defaultmode", tag->getBool("sendastext", true) ? "text" : "binary", 1);
+		const std::string defaultmodestr = tag->getString("defaultmode", tag->getBool("sendastext", config.allowtext) ? "text" : "binary", 1);
 		if (insp::equalsci(defaultmodestr, "reject"))
 			config.defaultmode = WebSocketConfig::DM_REJECT;
 		else if (insp::equalsci(defaultmodestr, "binary"))
@@ -669,6 +691,9 @@ public:
 			config.defaultmode = WebSocketConfig::DM_TEXT;
 		else
 			throw ModuleException(this, defaultmodestr + " is an invalid value for <websocket:defaultmode>; acceptable values are 'binary', 'text' and 'reject', at " + tag->source.str());
+
+		if (config.defaultmode == WebSocketConfig::DM_TEXT && !config.allowtext)
+			throw ModuleException(this, "You can not use text websockets when using a non-utf8 compatible server charset, at " + tag->source.str());
 
 		irc::spacesepstream proxyranges(tag->getString("proxyranges"));
 		for (std::string proxyrange; proxyranges.GetToken(proxyrange); )
