@@ -85,7 +85,7 @@ std::string Module::GetPropertyString() const
 	size_t pos = 0;
 	for (int mult = VF_CORE; mult <= VF_OPTCOMMON; mult *= 2, ++pos)
 		if (!(this->properties & mult))
-			propstr[pos] = tolower(propstr[pos]);
+			propstr[pos] = '-';
 	return propstr;
 }
 
