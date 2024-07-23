@@ -97,6 +97,10 @@ public:
 	 */
 	TreeServer();
 
+	void SendMetadata(const std::string& key, const std::string& data) const override;
+
+	void SendMetadata(const Extensible* ext, const std::string& key, const std::string& data) const override;
+
 	/** When we create a new server, we call this constructor to initialize it.
 	 * This constructor initializes the server's Route and Parent, and sets up
 	 * its ping counters so that it will be pinged one minute from now.

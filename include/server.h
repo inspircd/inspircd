@@ -84,4 +84,17 @@ public:
 	 * @return True if this server is a silent service, false otherwise.
 	 */
 	bool IsSilentService() const { return silentservice; }
+
+	/** Send metadata related to this server to the target server.
+	 * @param key The name of the metadata (e.g. foo-bar).
+	 * @param data The network representation of the metadata.
+	 */
+	virtual void SendMetadata(const std::string& key, const std::string& data) const;
+
+	/** Send metadata related to an extensible to the target server.
+	 * @param ext The extensible to send metadata for.
+	 * @param key The name of the metadata (e.g. foo-bar).
+	 * @param data The network representation of the metadata.
+	 */
+	virtual void SendMetadata(const Extensible* ext, const std::string& key, const std::string& data) const;
 };
