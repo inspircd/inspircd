@@ -84,15 +84,6 @@ public:
 	}
 };
 
-struct TreeSocket::BurstState final
-{
-	SpanningTreeProtocolInterface::Server server;
-	BurstState(TreeSocket* sock)
-		: server(sock)
-	{
-	}
-};
-
 /** This function is called when we want to send a netburst to a local
  * server. There is a set order we must do this, because for example
  * users require their servers to exist, and channels require their
@@ -109,17 +100,16 @@ void TreeSocket::DoBurst(TreeServer* s)
 	// Introduce all servers behind us
 	this->SendServers(Utils->TreeRoot, s);
 
-	BurstState bs(this);
 	// Introduce all users
-	this->SendUsers(bs);
+	this->SendUsers(s);
 
 	// Sync all channels
 	for (const auto& [_, chan] : ServerInstance->Channels.GetChans())
-		SyncChannel(chan, bs);
+		SyncChannel(chan, s);
 
 	// Send all xlines
 	this->SendXLines();
-	Utils->Creator->synceventprov.Call(&ServerProtocol::SyncEventListener::OnSyncNetwork, bs.server);
+	Utils->Creator->synceventprov.Call(&ServerProtocol::SyncEventListener::OnSyncNetwork, *s);
 	this->WriteLine(CmdBuilder("ENDBURST"));
 	ServerInstance->SNO.WriteToSnoMask('l', "Finished bursting to \002"+ s->GetName()+"\002.");
 }
@@ -236,7 +226,7 @@ void TreeSocket::SendLegacyListModes(Channel* chan)
 }
 
 /** Send channel users, topic, modes and global metadata */
-void TreeSocket::SyncChannel(Channel* chan, BurstState& bs)
+void TreeSocket::SyncChannel(Channel* chan, TreeServer* s)
 {
 	SendFJoins(chan);
 
@@ -265,17 +255,12 @@ void TreeSocket::SyncChannel(Channel* chan, BurstState& bs)
 		}
 	}
 
-	Utils->Creator->synceventprov.Call(&ServerProtocol::SyncEventListener::OnSyncChannel, chan, bs.server);
+	Utils->Creator->synceventprov.Call(&ServerProtocol::SyncEventListener::OnSyncChannel, chan, *s);
 }
 
-void TreeSocket::SyncChannel(Channel* chan)
-{
-	BurstState bs(this);
-	SyncChannel(chan, bs);
-}
 
 /** Send all users and their state, including oper and away status and global metadata */
-void TreeSocket::SendUsers(BurstState& bs)
+void TreeSocket::SendUsers(TreeServer* s)
 {
 	for (const auto& [_, user] : ServerInstance->Users.GetUsers())
 	{
@@ -300,6 +285,6 @@ void TreeSocket::SendUsers(BurstState& bs)
 				this->WriteLine(CommandMetadata::Builder(user, item->name, value));
 		}
 
-		Utils->Creator->synceventprov.Call(&ServerProtocol::SyncEventListener::OnSyncUser, user, bs.server);
+		Utils->Creator->synceventprov.Call(&ServerProtocol::SyncEventListener::OnSyncUser, user, *s);
 	}
 }

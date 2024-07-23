@@ -27,19 +27,13 @@
 
 class User;
 
-class ProtocolServer
-{
-public:
-	/** Send metadata related to this server to the target server
-	 * @param key The 'key' of the data
-	 * @param data The string representation of the data
-	 */
-	virtual void SendMetadata(const std::string& key, const std::string& data) = 0;
-};
+[[deprecated("ProtocolServer has been merged with Server")]]
+typedef ::Server ProtocolServer;
 
 class CoreExport ProtocolInterface
 {
 public:
+	[[deprecated("ProtocolInterface::Server has been merged with Server")]]
 	typedef ProtocolServer Server;
 
 	class ServerInfo final

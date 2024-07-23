@@ -236,7 +236,7 @@ public:
 	void GetLinkData(LinkData& data, std::string& compatdata) override;
 	static std::string EncodeFilter(const FilterResult& filter);
 	FilterResult DecodeFilter(const std::string& data);
-	void OnSyncNetwork(ProtocolInterface::Server& server) override;
+	void OnSyncNetwork(Server& server) override;
 	void OnDecodeMetadata(Extensible* target, const std::string& extname, const std::string& extdata) override;
 	ModResult OnStats(Stats::Context& stats) override;
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override;
@@ -738,7 +738,7 @@ FilterResult ModuleFilter::DecodeFilter(const std::string& data)
 	return res;
 }
 
-void ModuleFilter::OnSyncNetwork(ProtocolInterface::Server& server)
+void ModuleFilter::OnSyncNetwork(Server& server)
 {
 	for (const auto& filter : filters)
 	{

@@ -27,19 +27,6 @@ class SpanningTreeProtocolInterface final
 	: public ProtocolInterface
 {
 public:
-	class Server final
-		: public ProtocolInterface::Server
-	{
-		TreeSocket* const sock;
-
-	public:
-		Server(TreeSocket* s)
-			: sock(s)
-		{
-		}
-		void SendMetadata(const std::string& key, const std::string& data) override;
-	};
-
 	bool SendEncapsulatedData(const std::string& targetmask, const std::string& cmd, const CommandBase::Params& params, const User* source) override;
 	void BroadcastEncap(const std::string& cmd, const CommandBase::Params& params, const User* source, const User* omit) override;
 	void SendMetadata(const Extensible* ext, const std::string& key, const std::string& data) override;

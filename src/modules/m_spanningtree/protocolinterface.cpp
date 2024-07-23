@@ -96,11 +96,6 @@ void SpanningTreeProtocolInterface::SendMetadata(const std::string& key, const s
 	CommandMetadata::Builder(key, data).Broadcast();
 }
 
-void SpanningTreeProtocolInterface::Server::SendMetadata(const std::string& key, const std::string& data)
-{
-	sock->WriteLine(CommandMetadata::Builder(key, data));
-}
-
 void SpanningTreeProtocolInterface::SendSNONotice(char snomask, const std::string& text)
 {
 	CmdBuilder("SNONOTICE").push(snomask).push_last(text).Broadcast();

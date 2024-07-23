@@ -71,6 +71,6 @@ CmdResult CommandResync::HandleServer(TreeServer* server, CommandBase::Params& p
 		throw ProtocolException("RESYNC from a server that is not directly connected");
 
 	// Send all known information about the channel
-	server->GetSocket()->SyncChannel(chan);
+	server->GetSocket()->SyncChannel(chan, server);
 	return CmdResult::SUCCESS;
 }
