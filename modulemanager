@@ -48,7 +48,7 @@ my %installed;
 my %modules;
 # $modules{$name}{$version} = {
 #	url => URL of this version
-#	depends => [ 'm_foo 1.2.0-1.3.0', ... ]
+#	depends => [ 'foo 1.2.0-1.3.0', ... ]
 #	conflicts => [ ]
 #	from => URL of source document
 #	mask => Reason for not installing (INSECURE/DEPRECATED)
@@ -104,7 +104,7 @@ sub parse_url {
 	}
 }
 
-# hash of installed module versions from our mini-database, key (m_foobar) to version (00abacca..).
+# hash of installed module versions from our mini-database, key (foobar) to version (00abacca..).
 my %mod_versions = read_config_file "$RealDir/.modulemanager";
 
 # useless helper stub
@@ -255,7 +255,6 @@ sub resolve_deps {
 command 'install', 'Install a third-party module', sub {
 	for my $mod (@_) {
 		my $hmod = module_shrink($mod);
-		$mod = "m_$hmod";
 		my $vers = $mod =~ s/=([-0-9.]+)// ? $1 : undef;
 		$mod = lc $mod;
 		unless ($modules{$mod}) {
@@ -274,7 +273,6 @@ command 'install', 'Install a third-party module', sub {
 command 'upgrade', 'Upgrade third-party modules', sub {
 	my @installed = sort keys %installed;
 	for my $mod (@installed) {
-		next unless $mod =~ /^m_/;
 		my %saved = %todo;
 		$todo{$mod} = find_mod_in_range($mod);
 		if (!resolve_deps(1)) {
