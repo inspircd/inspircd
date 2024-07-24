@@ -48,6 +48,8 @@ jobs:
   test:
     if: "!contains(github.event.head_commit.message, '[skip irctest ci]')"
     runs-on: ubuntu-latest
+    env:
+      IRCTEST_DEBUG_LOGS: "1"
     needs:
     - build
     steps:
@@ -66,7 +68,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: irctest
-          ref: a1324407893b603fe6b55ce7c4ee385938291ae1
+          ref: 75d9040d37041e7dae971357fbab500fe06cc01f
           repository: progval/irctest
 
       - name: Install irctest dependencies
