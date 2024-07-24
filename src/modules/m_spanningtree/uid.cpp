@@ -38,10 +38,9 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	 *
 	 * The `duser` field was introduced in the 1206 (v4) protocol.
 	 */
-	size_t offset = params[9][0] == '+' ? 1 : 0;
 	time_t nickchanged = ServerCommand::ExtractTS(params[1]);
-	time_t signon = ServerCommand::ExtractTS(params[7+offset]);
-	const std::string& modestr = params[8+offset];
+	time_t signon = ServerCommand::ExtractTS(params[8]);
+	const std::string& modestr = params[9];
 
 	// Check if the length of the uuid is correct and confirm the sid portion of the uuid matches the sid of the server introducing the user
 	if (params[0].length() != UIDGenerator::UUID_LENGTH || params[0].compare(0, 3, remoteserver->GetId()))
@@ -62,7 +61,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	else if (collideswith)
 	{
 		// The user on this side is fully connected, handle the collision
-		bool they_change = SpanningTreeUtilities::DoCollision(collideswith, remoteserver, nickchanged, params[5], params[6+offset], params[0], "UID");
+		bool they_change = SpanningTreeUtilities::DoCollision(collideswith, remoteserver, nickchanged, params[5], params[7], params[0], "UID");
 		if (they_change)
 		{
 			// The client being introduced needs to change nick to uuid, change the nick in the message before
@@ -74,7 +73,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	}
 
 	irc::sockets::sockaddrs sa(false);
-	if (!sa.from(params[6+offset]))
+	if (!sa.from(params[7]))
 		throw ProtocolException("Invalid IP address or UNIX socket path");
 
 	/* For remote users, we pass the UUID they sent to the constructor.
@@ -86,14 +85,14 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 	_new->ChangeRealHost(params[3], false);
 	_new->ChangeDisplayedHost(params[4]);
 	_new->ChangeRealUser(params[5], false);
-	_new->ChangeDisplayedUser(params[5+offset]);
+	_new->ChangeDisplayedUser(params[6]);
 	_new->ChangeRemoteAddress(sa);
 	_new->ChangeRealName(params.back());
 	_new->connected = User::CONN_FULL;
 	_new->signon = signon;
 	_new->nickchanged = nickchanged;
 
-	size_t paramptr = 9 + offset;
+	size_t paramptr = 10;
 	for (const auto& modechr : modestr)
 	{
 		// Accept more '+' chars, for now

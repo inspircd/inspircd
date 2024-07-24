@@ -151,5 +151,14 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, Comm
 		params.insert(params.begin(), { target->uuid.substr(0, 3), cmd });
 		cmd = "ENCAP";
 	}
+	else if (irc::equals(cmd, "UID"))
+	{
+		if (params.size() < 6)
+			return false; // Malformed.
+
+		// :<sid> UID <uuid> <nickchanged> <nick> <host> <dhost> <user> <duser> <ip.string> <signon> <modes> [<modepara>] :<real>
+		//                                                       ^^^^^^ New in 1206
+		params.insert(params.begin() + 5, params[5]);
+	}
 	return true;
 }
