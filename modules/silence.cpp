@@ -270,7 +270,7 @@ public:
 		}
 
 		// The value was well formed.
-		Set(user, list);
+		Set(user, list, false);
 	}
 
 	std::string ToInternal(const Extensible* container, void* item) const noexcept override

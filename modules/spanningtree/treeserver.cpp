@@ -291,3 +291,15 @@ void TreeServer::RemoveHash()
 	Utils->sidlist.erase(GetId());
 	Utils->serverlist.erase(GetName());
 }
+
+void TreeServer::SendMetadata(const std::string& key, const std::string& data) const
+{
+	if (!GetRoute())
+		GetRoute()->GetSocket()->WriteLine(CommandMetadata::Builder(key, data));
+}
+
+void TreeServer::SendMetadata(const Extensible* ext, const std::string& key, const std::string& data) const
+{
+	if (!GetRoute())
+		GetRoute()->GetSocket()->WriteLine(CommandMetadata::Builder(ext, key, data));
+}

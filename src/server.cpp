@@ -161,3 +161,13 @@ const std::string& Server::GetPublicName() const
 		return ServerInstance->Config->HideServer;
 	return GetName();
 }
+
+void Server::SendMetadata(const std::string& key, const std::string& data) const
+{
+	// Do nothing for the local server.
+}
+
+void Server::SendMetadata(const Extensible* ext, const std::string& key, const std::string& data) const
+{
+	// Do nothing for the local server.
+}

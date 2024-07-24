@@ -147,7 +147,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 				if (!sourceserver->IsBursting())
 				{
 					ServerInstance->Logs.Debug(MODNAME, "Server {} recreated channel {} with higher TS, resyncing", sourceserver->GetName(), chan->name);
-					sourceserver->GetSocket()->SyncChannel(chan);
+					sourceserver->GetSocket()->SyncChannel(chan, sourceserver);
 				}
 				apply_other_sides_modes = false;
 			}
