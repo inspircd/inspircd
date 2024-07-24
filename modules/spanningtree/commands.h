@@ -93,7 +93,7 @@ class CommandUID final
 {
 public:
 	CommandUID(Module* Creator)
-		: ServerOnlyServerCommand<CommandUID>(Creator, "UID", 10)
+		: ServerOnlyServerCommand<CommandUID>(Creator, "UID", 11)
 	{
 	}
 	CmdResult HandleServer(TreeServer* server, CommandBase::Params& params);
