@@ -1,6 +1,6 @@
 ## Important Notice
 
-The `master` branch contains the latest unstable development code. If you are running a server then you probably want to use a v3 release for now. You can obtain this from [the releases page](https://github.com/inspircd/inspircd/releases/latest) or by running `git checkout $(git describe --abbrev=0 --tags insp3)` if you are installing from Git.
+The `master` branch contains the latest unstable development code. If you are running a server then you probably want to use a v4 release for now. You can obtain this from [the releases page](https://github.com/inspircd/inspircd/releases/latest) or by running `git checkout $(git describe --abbrev=0 --tags insp4)` if you are installing from Git.
 
 ## About
 
