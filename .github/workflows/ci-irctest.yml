@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run configure
-        run: ./configure --development --disable-auto-extras --prefix=$HOME/.local/
+        run: ./configure --development --disable-auto-extras --prefix=$HOME/inspircd
 
       # Speed-up build (6 min -> 5 min)
       - name: Precompile inspircd.h
@@ -36,7 +36,7 @@ jobs:
       - name: Make artifact tarball
         run: |-
           cd ~
-          tar -czf artifacts-inspircd.tar.gz .local/
+          tar -czf artifacts-inspircd.tar.gz inspircd
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -74,7 +74,7 @@ jobs:
 
       - name: Run irctest (no services)
         if: matrix.services == 'no services'
-        run: PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd
+        run: PATH=$HOME/inspircd/bin:$PATH make -C irctest inspircd
 
       - name: Checkout Anope
         if: matrix.services == 'anope'
@@ -87,23 +87,15 @@ jobs:
       - name: Build and install Anope
         if: matrix.services == 'anope'
         run: |
-          cd $GITHUB_WORKSPACE/anope/
+          cd $GITHUB_WORKSPACE/anope
           sudo apt-get install ninja-build --no-install-recommends
           mkdir build && cd build
-          cmake -DCMAKE_INSTALL_PREFIX=$HOME/.local/ -DPROGRAM_NAME=anope -GNinja ..
+          cmake -DCMAKE_INSTALL_PREFIX=$HOME/anope -DPROGRAM_NAME=anope -GNinja ..
           ninja install
 
       - name: Run irctest (Anope services)
         if: matrix.services == 'anope'
-        run: PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd-anope
-
-#      - name: Install Atheme
-#        if: matrix.services == 'atheme'
-#        run: sudo apt-get install --assume-yes atheme-services
-
-#      - name: Run irctest (Atheme services)
-#        if: matrix.services == 'atheme'
-#        run: PATH=$HOME/.local/bin:$PATH make -C irctest/ inspircd-atheme
+        run: PATH=$HOME/anope/bin:$HOME/inspircd/bin:$PATH make -C irctest inspircd-anope
 
     strategy:
       fail-fast: false
@@ -111,4 +103,3 @@ jobs:
         services:
           - no services
           - anope
-#          - atheme
