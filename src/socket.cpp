@@ -484,13 +484,21 @@ irc::sockets::cidr_mask::cidr_mask(const std::string& mask)
 
 	if (bits_chars == std::string::npos)
 	{
-		sa.from_ip(mask);
+		if (!sa.from_ip(mask))
+		{
+			memset(this, 0, sizeof(*this));
+			return;
+		}
 		sa2cidr(*this, sa, 128);
 	}
 	else
 	{
 		unsigned char range = ConvToNum<unsigned char>(mask.substr(bits_chars + 1));
-		sa.from_ip(mask.substr(0, bits_chars));
+		if (!sa.from_ip(mask.substr(0, bits_chars)))
+		{
+			memset(this, 0, sizeof(*this));
+			return;
+		}
 		sa2cidr(*this, sa, range);
 	}
 }
