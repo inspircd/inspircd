@@ -603,8 +603,17 @@ irc::sockets::cidr_mask User::GetCIDRMask() const
 		case AF_INET6:
 			range = ServerInstance->Config->IPv6Range;
 			break;
+
 		case AF_INET:
 			range = ServerInstance->Config->IPv4Range;
+			break;
+
+		case AF_UNIX:
+			break; // CIDR not supported.
+
+		default:
+			ServerInstance->Logs.Debug("SOCKET", "BUG: User::GetCIDRMask(): socket type {} is unknown!",
+				client_sa.family());
 			break;
 	}
 	return irc::sockets::cidr_mask(client_sa, range);
