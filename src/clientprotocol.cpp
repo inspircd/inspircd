@@ -80,7 +80,7 @@ std::string ClientProtocol::Message::EscapeTag(const std::string& value)
 				ret.append("\\s");
 				break;
 			case ';':
-				ret.append("\\;");
+				ret.append("\\:");
 				break;
 			case '\\':
 				ret.append("\\\\");
@@ -113,35 +113,34 @@ std::string ClientProtocol::Message::UnescapeTag(const std::string& value)
 		}
 
 		it++;
-		if (it != value.end())
+		if (it == value.end())
+			break;
+
+		chr = *it;
+		switch (chr)
 		{
-			chr = *it;
-			switch (chr)
-			{
-				case 's':
-					ret.push_back(' ');
-					break;
-				case ':':
-					ret.push_back(';');
-					break;
-				case '\\':
-					ret.push_back('\\');
-					break;
-				case 'n':
-					ret.push_back('\n');
-					break;
-				case 'r':
-					ret.push_back('\r');
-					break;
-				default:
-					ret.push_back(chr);
-					break;
-			}
+			case 's':
+				ret.push_back(' ');
+				break;
+			case ':':
+				ret.push_back(';');
+				break;
+			case '\\':
+				ret.push_back('\\');
+				break;
+			case 'n':
+				ret.push_back('\n');
+				break;
+			case 'r':
+				ret.push_back('\r');
+				break;
+			default:
+				ret.push_back(chr);
+				break;
 		}
 	}
 	return ret;
 }
-
 
 const ClientProtocol::SerializedMessage& ClientProtocol::Message::GetSerialized(const SerializedInfo& serializeinfo) const
 {
