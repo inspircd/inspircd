@@ -472,10 +472,10 @@ class WebSocketHook final
 			{
 				proto.erase(std::remove_if(proto.begin(), proto.end(), ::isspace), proto.end());
 
-				bool is_binary = insp::equalsci(proto, "binary.ircv3.net")
+				auto is_binary = (sock->type == StreamSocket::SS_USER && insp::equalsci(proto, "binary.ircv3.net"))
 					|| insp::equalsci(proto, "binary.inspircd.org");
 
-				bool is_text = insp::equalsci(proto, "text.ircv3.net")
+				auto is_text = (sock->type == StreamSocket::SS_USER && insp::equalsci(proto, "text.ircv3.net"))
 					|| insp::equalsci(proto, "text.inspircd.org");
 
 				if (is_binary || is_text)
