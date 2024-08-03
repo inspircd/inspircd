@@ -4,7 +4,7 @@
  *   Copyright (C) 2021 Dominic Hamon
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2019 iwalkalone <iwalkalone69@gmail.com>
- *   Copyright (C) 2018-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018-2024 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2015 Renegade334 <contact.caaeed4f@renegade334.me.uk>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 Attila Molnar <attilamolnar@hush.com>
