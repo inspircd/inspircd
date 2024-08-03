@@ -22,7 +22,7 @@
 class Module;
 
 /** The version of the InspIRCd ABI which is presently in use. */
-#define MODULE_ABI 4001UL
+#define MODULE_ABI 4002UL
 
 /** Stringifies the value of a symbol. */
 #define MODULE_STRINGIFY_SYM1(DEF) MODULE_STRINGIFY_SYM2(DEF)
