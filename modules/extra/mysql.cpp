@@ -170,7 +170,8 @@ public:
 	MySQLresult(MYSQL_RES* res, unsigned long affected_rows)
 		: err(SQL::SUCCESS)
 	{
-		if (affected_rows >= 1)
+		// mysql returns -1 on error even though the return type is unsigned
+		if (affected_rows >= 1 && affected_rows != (unsigned long)-1)
 		{
 			rows = int(affected_rows);
 			fieldlists.resize(rows);

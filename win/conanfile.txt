@@ -13,7 +13,7 @@ libpsl/0.21.1
 ## openssl/3.2.2
 pcre2/10.44
 rapidjson/cci.20230929
-re2/20240301
+re2/20240702
 sqlite3/3.46.0
 
 [options]
