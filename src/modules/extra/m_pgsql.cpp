@@ -33,7 +33,6 @@
 /// $PackageInfo: require_system("darwin") libpq pkg-config
 /// $PackageInfo: require_system("debian~") libpq-dev pkg-config
 /// $PackageInfo: require_system("rhel~") pkg-config postgresql-devel
-/// $PackageInfo: require_system("ubuntu") libpq-dev pkg-config
 
 
 #include <libpq-fe.h>
