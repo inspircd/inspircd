@@ -85,6 +85,16 @@ class SQLConnection;
 class MySQLresult;
 class DispatcherThread;
 
+namespace
+{
+	template<typename Numeric>
+	bool IsMySQLError(Numeric num)
+	{
+		// MySQL regularly returns -1 on error in unsigned fields.
+		return num == static_cast<Numeric>(-1);
+	}
+}
+
 struct QueryQueueItem final
 {
 	// An SQL database which this query is executed on.
@@ -170,8 +180,7 @@ public:
 	MySQLresult(MYSQL_RES* res, unsigned long affected_rows)
 		: err(SQL::SUCCESS)
 	{
-		// mysql returns -1 on error even though the return type is unsigned
-		if (affected_rows >= 1 && affected_rows != (unsigned long)-1)
+		if (affected_rows >= 1 && !IsMySQLError(affected_rows))
 		{
 			rows = int(affected_rows);
 			fieldlists.resize(rows);
@@ -285,7 +294,7 @@ private:
 		// unsigned type even though -1 is returned on error so checking whether an error
 		// happened is a bit cursed.
 		unsigned long escapedsize = mysql_escape_string(buffer.data(), in.c_str(), in.length());
-		if (escapedsize == static_cast<unsigned long>(-1))
+		if (IsMySQLError(escapedsize))
 		{
 			SQL::Error err(SQL::QSEND_FAIL, INSP_FORMAT("{}: {}", mysql_errno(connection), mysql_error(connection)));
 			query->OnError(err);
