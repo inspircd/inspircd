@@ -44,7 +44,7 @@ static const char* const lines[] = {
 	"                 November 2002 - Present",
 	" ",
 	"\002Core Developers\002:",
-	"    Matt Schatz (genius3000)        Sadie Powell (SadieCat)",
+	"    Matt Schatz (genius3000)        Sadie Powell (Sadie)",
 	" ",
 	"\002Former Developers\002:",
 	"    Attila Molnar (Attila)          Daniel De Graaf (danieldg)",
