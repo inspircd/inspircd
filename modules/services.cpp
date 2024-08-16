@@ -113,7 +113,7 @@ public:
 	RegisteredChannel(Module* Creator)
 		: SimpleChannelMode(Creator, "c_registered", 'r')
 	{
-		if (ServerInstance->Config->ConfValue("servicesintegration")->getBool("disablemodes"))
+		if (ServerInstance->Config->ConfValue("servicesintegration")->getBool("disablemodes", true))
 			DisableAutoRegister();
 	}
 
@@ -137,7 +137,7 @@ public:
 	RegisteredUser(Module* Creator)
 		: SimpleUserMode(Creator, "u_registered", 'r')
 	{
-		if (ServerInstance->Config->ConfValue("servicesintegration")->getBool("disablemodes"))
+		if (ServerInstance->Config->ConfValue("servicesintegration")->getBool("disablemodes", true))
 			DisableAutoRegister();
 	}
 
