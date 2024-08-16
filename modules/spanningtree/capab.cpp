@@ -163,6 +163,43 @@ namespace
 		return okay;
 	}
 
+	// Generates a capability list in the format "FOO=BAR BAZ=BAX".
+	std::string FormatCapabilities(TreeSocket* ts)
+	{
+		std::unordered_map<std::string, std::string> capabilities = {
+			{ "CASEMAPPING", ServerInstance->Config->CaseMapping                  },
+			{ "MAXAWAY",     ConvToStr(ServerInstance->Config->Limits.MaxAway)    },
+			{ "MAXCHANNEL",  ConvToStr(ServerInstance->Config->Limits.MaxChannel) },
+			{ "MAXHOST",     ConvToStr(ServerInstance->Config->Limits.MaxHost)    },
+			{ "MAXKICK",     ConvToStr(ServerInstance->Config->Limits.MaxKick)    },
+			{ "MAXLINE",     ConvToStr(ServerInstance->Config->Limits.MaxLine)    },
+			{ "MAXMODES",    ConvToStr(ServerInstance->Config->Limits.MaxModes)   },
+			{ "MAXNICK",     ConvToStr(ServerInstance->Config->Limits.MaxNick)    },
+			{ "MAXQUIT",     ConvToStr(ServerInstance->Config->Limits.MaxQuit)    },
+			{ "MAXREAL",     ConvToStr(ServerInstance->Config->Limits.MaxReal)    },
+			{ "MAXTOPIC",    ConvToStr(ServerInstance->Config->Limits.MaxTopic)   },
+			{ "MAXUSER",     ConvToStr(ServerInstance->Config->Limits.MaxUser)    },
+		};
+
+		// If SHA256 hashing support is available then send a challenge token.
+		if (ServerInstance->Modules.FindService(SERVICE_DATA, "hash/sha256"))
+		{
+			ts->SetOurChallenge(ServerInstance->GenRandomStr(20));
+			capabilities["CHALLENGE"] = ts->GetOurChallenge();
+		}
+
+		auto first = true;
+		std::stringstream capabilitystr;
+		for (const auto& [capkey, capvalue] : capabilities)
+		{
+			if (!first)
+				capabilitystr << ' ';
+			capabilitystr << capkey << '=' << capvalue;
+			first = false;
+		}
+		return capabilitystr.str();
+	}
+
 	// Generates a module list in the format "m_foo.so=bar m_bar.so=baz".
 	std::string FormatModules(ModuleFlags property)
 	{
@@ -265,46 +302,16 @@ void TreeSocket::SendCapabilities(int phase)
 	if (phase < 2)
 		return;
 
+	WriteLine("CAPAB CAPABILITIES :" + FormatCapabilities(this));
 	WriteLine("CAPAB MODULES :" + FormatModules(VF_COMMON));
 	WriteLine("CAPAB MODSUPPORT :" + FormatModules(VF_OPTCOMMON));
 	WriteLine("CAPAB CHANMODES :" + BuildModeList(MODETYPE_CHANNEL));
 	WriteLine("CAPAB USERMODES :" + BuildModeList(MODETYPE_USER));
 
-	std::unordered_map<std::string, std::string> capabilities = {
-		{ "CASEMAPPING", ServerInstance->Config->CaseMapping                  },
-		{ "MAXAWAY",     ConvToStr(ServerInstance->Config->Limits.MaxAway)    },
-		{ "MAXCHANNEL",  ConvToStr(ServerInstance->Config->Limits.MaxChannel) },
-		{ "MAXHOST",     ConvToStr(ServerInstance->Config->Limits.MaxHost)    },
-		{ "MAXKICK",     ConvToStr(ServerInstance->Config->Limits.MaxKick)    },
-		{ "MAXLINE",     ConvToStr(ServerInstance->Config->Limits.MaxLine)    },
-		{ "MAXMODES",    ConvToStr(ServerInstance->Config->Limits.MaxModes)   },
-		{ "MAXNICK",     ConvToStr(ServerInstance->Config->Limits.MaxNick)    },
-		{ "MAXQUIT",     ConvToStr(ServerInstance->Config->Limits.MaxQuit)    },
-		{ "MAXREAL",     ConvToStr(ServerInstance->Config->Limits.MaxReal)    },
-		{ "MAXTOPIC",    ConvToStr(ServerInstance->Config->Limits.MaxTopic)   },
-		{ "MAXUSER",     ConvToStr(ServerInstance->Config->Limits.MaxUser)    },
-	};
-
 	std::string extbans;
 	if (BuildExtBanList(extbans))
 		WriteLine("CAPAB EXTBANS :" + extbans);
 
-	// If SHA256 hashing support is available then send a challenge token.
-	if (ServerInstance->Modules.FindService(SERVICE_DATA, "hash/sha256"))
-	{
-		SetOurChallenge(ServerInstance->GenRandomStr(20));
-		capabilities["CHALLENGE"] = GetOurChallenge();
-	}
-
-	std::stringstream capabilitystr;
-	char separator = ':';
-	for (const auto& [capkey, capvalue] : capabilities)
-	{
-		capabilitystr << separator << capkey << '=' << capvalue;
-		separator = ' ';
-	}
-
-	this->WriteLine("CAPAB CAPABILITIES " + capabilitystr.str());
 	this->WriteLine("CAPAB END");
 }
 
