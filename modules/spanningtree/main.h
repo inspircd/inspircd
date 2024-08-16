@@ -68,7 +68,7 @@ class ModuleSpanningTree final
 
 	/** Next membership id assigned when a local user joins a channel
 	 */
-	Membership::Id currmembid = 0;
+	Membership::Id currmembid = 1;
 
 public:
 	/** The specialized ProtocolInterface that is assigned to ServerInstance->PI on load

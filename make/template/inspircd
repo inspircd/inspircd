@@ -60,19 +60,17 @@ use constant {
     GENERIC_EXIT_NOT_RUNNING => 7
 };
 
-my $scriptpath = "@SCRIPT_DIR@";
-my $confpath	=	"@CONFIG_DIR@";
-my $binpath	=	"@BINARY_DIR@";
-my $runtimedir = "@RUNTIME_DIR@";
-my $valgrindlogpath = "@LOG_DIR@/valgrind";
-my $executable	=	"inspircd";
-my $version	=	"@VERSION_FULL@";
+my $configdir      = "@CONFIG_DIR@";
+my @debugargs      = qw(--nolog --nopid --protocoldebug);
+my $executable     = "@BINARY_DIR@/inspircd";
+my $runtimedir     = "@RUNTIME_DIR@";
+my $valgrindlogdir = "@LOG_DIR@/valgrind";
 
 my @gdbargs = (
 	'--eval-command', 'set pagination off',
 	'--eval-command', 'handle all nostop pass print',
 	'--eval-command', 'run',
-	'--args', "$binpath/$executable", qw(--nofork --nolog --protocoldebug)
+	'--args', $executable, @debugargs,
 );
 
 sub expand_fragment($$) {
@@ -97,7 +95,7 @@ for my $a (@ARGV)
 	}
 }
 if (!defined $conf) {
-	$conf = expand_fragment $confpath, "inspircd.conf";
+	$conf = expand_fragment $configdir, "inspircd.conf";
 	push @ARGV, '--config='.$conf;
 }
 
@@ -169,8 +167,7 @@ sub cmd_cron()
 
 sub cmd_version()
 {
-	print "InspIRCd version: $version\n";
-	exit GENERIC_EXIT_SUCCESS;
+	exec $executable, '--version' or die "Unable to execute $executable: $!"
 }
 
 sub cmd_restart(@)
@@ -180,23 +177,16 @@ sub cmd_restart(@)
 	goto &cmd_start(@_);
 }
 
-sub hid_cheese_sandwich()
-{
-	print "Creating Cheese Sandwich..\n";
-	print "Done.\n";
-	exit GENERIC_EXIT_SUCCESS;
-}
-
 sub cmd_start(@)
 {
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; exit GENERIC_EXIT_SUCCESS; }
 
 	# If we are still alive here.. Try starting the IRCd..
-	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
-	print "$binpath/$executable is not executable\n" and return 0 unless(-f "$binpath/$executable" && -x "$binpath/$executable");
+	print "$executable doesn't exist\n" and return 0 unless(-e $executable);
+	print "$executable is not executable\n" and return 0 unless(-f $executable && -x $executable);
 
-	exec "$binpath/$executable", @_;
+	exec $executable, @_;
 	die "Failed to start IRCd: $!\n";
 }
 
@@ -205,11 +195,11 @@ sub dev_debug(@)
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
 
-	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
-	print "$binpath/$executable is not executable\n" and return 0 unless(-f "$binpath/$executable" && -x "$binpath/$executable");
+	print "$executable doesn't exist\n" and return 0 unless(-e $executable);
+	print "$executable is not executable\n" and return 0 unless(-f $executable && -x $executable);
 
 	# Check we have gdb
-	checkgdb();
+	check("gdb");
 
 	# If we are still alive here.. Try starting the IRCd..
 	exec 'gdb', @gdbargs, @_;
@@ -221,11 +211,10 @@ sub dev_screendebug(@)
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
 
-	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
+	print "$executable doesn't exist\n" and return 0 unless(-e $executable);
 
 	#Check we have gdb
-	checkgdb();
-	checkscreen();
+	check("gdb", "screen");
 
 	# If we are still alive here.. Try starting the IRCd..
 	print "Starting InspIRCd in `screen`, type `screen -r` when the ircd crashes to view the gdb output and get a backtrace.\n";
@@ -239,16 +228,16 @@ sub dev_valdebug(@)
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
 
-	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
-	print "$binpath/$executable is not executable\n" and return 0 unless(-f "$binpath/$executable" && -x "$binpath/$executable");
+	print "$executable doesn't exist\n" and return 0 unless(-e $executable);
+	print "$executable is not executable\n" and return 0 unless(-f $executable && -x $executable);
 
 	# Check we have valgrind
-	checkvalgrind();
+	check("valgrind");
 
 	# If we are still alive here.. Try starting the IRCd..
 	# May want to do something with these args at some point: --suppressions=.inspircd.sup --gen-suppressions=yes
 	# Could be useful when we want to stop it complaining about things we're sure aren't issues.
-	exec qw(valgrind -v --tool=memcheck --leak-check=yes --num-callers=30), "$binpath/$executable", qw(--nofork --nolog --protocoldebug), @_;
+	exec qw(valgrind -v --tool=memcheck --leak-check=yes --num-callers=30), $executable, @debugargs, @_;
 	die "Failed to start valgrind: $!\n";
 }
 
@@ -258,11 +247,11 @@ sub dev_valdebug_unattended(@)
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
 
-	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
-	print "$binpath/$executable is not executable\n" and return 0 unless(-f "$binpath/$executable" && -x "$binpath/$executable");
+	print "$executable doesn't exist\n" and return 0 unless(-e $executable);
+	print "$executable is not executable\n" and return 0 unless(-f $executable && -x $executable);
 
 	# Check we have valgrind
-	checkvalgrind();
+	check("valgrind");
 
 	# If we are still alive here.. Try starting the IRCd..
 	#
@@ -272,18 +261,14 @@ sub dev_valdebug_unattended(@)
 	my $pid = fork;
 	if ($pid == 0) {
 		POSIX::setsid();
-		-d $valgrindlogpath or mkdir $valgrindlogpath or die "Cannot create $valgrindlogpath: $!\n";
-		-e "$binpath/valgrind.sup" or do { open my $f, '>', "$binpath/valgrind.sup"; };
+		-d $valgrindlogdir or mkdir $valgrindlogdir or die "Cannot create $valgrindlogdir: $!\n";
 		my $suffix = strftime("%Y%m%d-%H%M%S", localtime(time)) . ".$$";
 		open STDIN, '<', '/dev/null' or die "Can't redirect STDIN to /dev/null: $!\n";
-		sysopen STDOUT, "$valgrindlogpath/out.$suffix", O_WRONLY | O_CREAT | O_NOCTTY | O_APPEND, 0600 or die "Can't open $valgrindlogpath/out.$suffix: $!\n";
-		sysopen STDERR, "$valgrindlogpath/valdebug.$suffix", O_WRONLY | O_CREAT | O_NOCTTY | O_APPEND, 0666 or die "Can't open $valgrindlogpath/valdebug.$suffix: $!\n";
-	# May want to do something with these args at some point: --suppressions=.inspircd.sup --gen-suppressions=yes
-	# Could be useful when we want to stop it complaining about things we're sure aren't issues.
+		sysopen STDOUT, "$valgrindlogdir/out.$suffix", O_WRONLY | O_CREAT | O_NOCTTY | O_APPEND, 0600 or die "Can't open $valgrindlogdir/out.$suffix: $!\n";
+		sysopen STDERR, "$valgrindlogdir/valdebug.$suffix", O_WRONLY | O_CREAT | O_NOCTTY | O_APPEND, 0666 or die "Can't open $valgrindlogdir/valdebug.$suffix: $!\n";
 		exec qw(valgrind -v --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=30 --track-fds=yes),
-			"--suppressions=$binpath/valgrind.sup", qw(--gen-suppressions=all),
 			qw(--leak-resolution=med --time-stamp=yes --log-fd=2 --),
-			"$binpath/$executable", qw(--nofork --nolog --protocoldebug), @_;
+			$executable, @debugargs, @_;
 		die "Can't execute valgrind: $!\n";
 	}
 }
@@ -293,18 +278,15 @@ sub dev_screenvaldebug(@)
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
 
-	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
-	print "$binpath/$executable is not executable\n" and return 0 unless(-f "$binpath/$executable" && -x "$binpath/$executable");
+	print "$executable doesn't exist\n" and return 0 unless(-e $executable);
+	print "$executable is not executable\n" and return 0 unless(-f $executable && -x $executable);
 
-	#Check we have gdb
-	checkvalgrind();
-	checkgdb();
-	checkscreen();
+	check("gdb", "screen", "valgrind");
 
 	# If we are still alive here.. Try starting the IRCd..
 	print "Starting InspIRCd in `screen`, type `screen -r` when the ircd crashes to view the valgrind and gdb output and get a backtrace.\n";
 	print "Once you're inside the screen session press ^C + d to re-detach from the session\n";
-	exec qw(screen -m -d valgrind -v --tool=memcheck --leak-check=yes --num-callers=30), "$binpath/$executable", qw(--nofork --nolog --protocoldebug), @_;
+	exec qw(screen -m -d valgrind -v --tool=memcheck --leak-check=yes --num-callers=30), $executable, @debugargs, @_;
 	die "Failed to start screen: $!\n";
 }
 
@@ -343,7 +325,7 @@ sub getpidfile
 	}
 
 	# Expand any relative paths.
-	$file = expand_fragment $confpath, $file;
+	$file = expand_fragment $configdir, $file;
 
 	# Have we checked this file before?
 	return if $filesparsed{$file};
@@ -387,7 +369,7 @@ sub getpidfile
 	}
 
 	# End of includes / No includes found. Using default.
-	$pidfile = $runtimedir . "/inspircd.pid";
+	$pidfile = expand_fragment $runtimedir, "inspircd.pid";
 }
 
 sub getstatus {
@@ -408,29 +390,14 @@ sub getprocessid {
 	return $pid;
 }
 
-sub checkvalgrind
+sub check(@)
 {
-	unless(`valgrind --version`)
+	for my $tool (@_)
 	{
-		print "Couldn't start valgrind: $!\n";
-		exit GENERIC_EXIT_UNSPECIFIED;
-	}
-}
-
-sub checkgdb
-{
-	unless(`gdb --version`)
-	{
-		print "Couldn't start gdb: $!\n";
-		exit GENERIC_EXIT_UNSPECIFIED;
-	}
-}
-
-sub checkscreen
-{
-	unless(`screen --version`)
-	{
-		print "Couldn't start screen: $!\n";
-		exit GENERIC_EXIT_UNSPECIFIED;
+		unless(`$tool --version`)
+		{
+			print "Couldn't start $tool: $!\n";
+			exit GENERIC_EXIT_UNSPECIFIED;
+		}
 	}
 }
