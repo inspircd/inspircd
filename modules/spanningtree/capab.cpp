@@ -97,10 +97,14 @@ namespace
 		return true;
 	}
 
-	// Compares the lists of module on a remote v4+ server to the local server.
-	bool CompareModulesNew(ModuleFlags property, const CapabData::ModuleMap& remote, std::ostringstream& diffconfig,
-		std::ostringstream& localmissing, std::ostringstream& remotemissing)
+	// Compares the lists of module on a remote server to the local server.
+	bool CompareModules(ModuleFlags property, uint16_t protocol, std::optional<CapabData::ModuleMap>& remote,
+		std::ostringstream& out)
 	{
+		// If the remote didn't send a module list then don't compare.
+		if (!remote)
+			return true;
+
 		// Retrieve the local module list.
 		bool okay = true;
 		ModuleManager::ModuleMap local;
@@ -110,7 +114,10 @@ namespace
 				local[ModuleManager::ShrinkModName(name)] = module;
 		}
 
-		for (const auto& [name, linkdata] : remote)
+		std::ostringstream diffconfig;
+		std::ostringstream localmissing;
+		std::ostringstream remotemissing;
+		for (const auto& [name, linkdata] : *remote)
 		{
 			auto moditer = local.find(name);
 			if (moditer == local.end())
@@ -145,22 +152,6 @@ namespace
 			remotemissing << ' ' << name;
 			okay = false;
 		}
-
-		return okay;
-	}
-
-	// Compares the lists of module on a remote server to the local server.
-	bool CompareModules(ModuleFlags property, uint16_t protocol, std::optional<CapabData::ModuleMap>& remote,
-		std::ostringstream& out)
-	{
-		// If the remote didn't send a module list then don't compare.
-		if (!remote)
-			return true;
-
-		std::ostringstream diffconfig;
-		std::ostringstream localmissing;
-		std::ostringstream remotemissing;
-		auto okay = CompareModulesNew(property, *remote, diffconfig, localmissing, remotemissing);
 
 		if (!diffconfig.str().empty())
 			out << " Loaded on both with different config:" << diffconfig.str() << '.';
