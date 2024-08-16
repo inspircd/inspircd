@@ -38,7 +38,7 @@ namespace
 	typedef std::map<std::string, std::pair<std::optional<std::string>, std::optional<std::string>>, irc::insensitive_swo> TokenDiff;
 
 	// Builds a list of the local modules with the specified property.
-	CapabData::ModuleMap BuildModuleList(ModuleFlags property, uint16_t protocol)
+	CapabData::ModuleMap BuildModuleList(ModuleFlags property)
 	{
 		CapabData::ModuleMap modules;
 		for (const auto& [name, module] : ServerInstance->Modules.GetModules())
@@ -98,7 +98,7 @@ namespace
 	}
 
 	// Compares the lists of module on a remote server to the local server.
-	bool CompareModules(ModuleFlags property, uint16_t protocol, std::optional<CapabData::ModuleMap>& remote,
+	bool CompareModules(ModuleFlags property, std::optional<CapabData::ModuleMap>& remote,
 		std::ostringstream& out)
 	{
 		// If the remote didn't send a module list then don't compare.
@@ -164,10 +164,10 @@ namespace
 	}
 
 	// Generates a module list in the format "m_foo.so=bar m_bar.so=baz".
-	std::string FormatModules(ModuleFlags property, uint16_t protocol)
+	std::string FormatModules(ModuleFlags property)
 	{
 		std::ostringstream modules;
-		CapabData::ModuleMap mymodules = BuildModuleList(property, protocol);
+		CapabData::ModuleMap mymodules = BuildModuleList(property);
 		for (const auto& [module, linkdata] : mymodules)
 		{
 			modules << module;
@@ -265,8 +265,8 @@ void TreeSocket::SendCapabilities(int phase)
 	if (phase < 2)
 		return;
 
-	WriteLine("CAPAB MODULES :" + FormatModules(VF_COMMON, proto_version));
-	WriteLine("CAPAB MODSUPPORT :" + FormatModules(VF_OPTCOMMON, proto_version));
+	WriteLine("CAPAB MODULES :" + FormatModules(VF_COMMON));
+	WriteLine("CAPAB MODSUPPORT :" + FormatModules(VF_OPTCOMMON));
 	WriteLine("CAPAB CHANMODES :" + BuildModeList(MODETYPE_CHANNEL));
 	WriteLine("CAPAB USERMODES :" + BuildModeList(MODETYPE_USER));
 
@@ -365,13 +365,13 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 	else if (irc::equals(params[0], "END"))
 	{
 		std::ostringstream errormsg;
-		if (!CompareModules(VF_COMMON, proto_version, this->capab->requiredmodules, errormsg))
+		if (!CompareModules(VF_COMMON, this->capab->requiredmodules, errormsg))
 		{
 			SendError("CAPAB negotiation failed. Required modules incorrectly matched on these servers."
 				+ errormsg.str());
 			return false;
 		}
-		else if (!CompareModules(VF_OPTCOMMON, proto_version, this->capab->optionalmodules, errormsg))
+		else if (!CompareModules(VF_OPTCOMMON, this->capab->optionalmodules, errormsg))
 		{
 			if (Utils->AllowOptCommon)
 			{
