@@ -56,8 +56,8 @@ private:
 	{
 		if (irc::equals(target, server->GetName()))
 		{
-			ServerInstance->Logs.Debug(MODNAME, "Services server %s (%s) %s.", server->GetName().c_str(),
-				server->GetId().c_str(), online ? "came online" : "went offline");
+			ServerInstance->Logs.Debug(MODNAME, "Services server {} ({}) {}.", server->GetName(),
+				server->GetId(), online ? "came online" : "went offline");
 			SetAvailable(online);
 		}
 	}
@@ -81,14 +81,14 @@ public:
 		{
 			if (irc::equals(target, server.servername))
 			{
-				ServerInstance->Logs.Debug(MODNAME, "Changed the services server to %s.",
-					server.servername.c_str());
+				ServerInstance->Logs.Debug(MODNAME, "Changed the services server to {}.",
+					server.servername);
 				SetAvailable(true);
 				return;
 			}
 		}
 
-		ServerInstance->Logs.Debug(MODNAME, "The services server (%s) is currently unavailable.",
+		ServerInstance->Logs.Debug(MODNAME, "The services server ({}) is currently unavailable.",
 			target.c_str());
 		SetAvailable(false);
 	}
