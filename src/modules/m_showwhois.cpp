@@ -57,7 +57,7 @@ public:
 		const std::string& userhost = dest->HasPrivPermission("users/auspex")
 			? src->GetRealUserHost()
 			: src->GetUserHost();
-		dest->WriteNotice(INSP_FORMAT("{} ({}) did a /WHOIS on you", src->nick, userhost));
+		dest->WriteNotice("{} ({}) did a /WHOIS on you", src->nick, userhost);
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

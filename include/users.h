@@ -665,10 +665,30 @@ public:
 	 */
 	void WriteNotice(const std::string& text);
 
+	/** Sends a server notice to this user.
+	 * @param text A format string to format and then send.
+	 * @param p One or more arguments to format the string with.
+	 */
+	template <typename... Param>
+	void WriteNotice(const char* text, Param&&... p)
+	{
+		WriteNotice(fmt::format(text, std::forward<Param>(p)...));
+	}
+
 	/** Sends a server notice from the local server to the user.
 	 * @param text The message to send.
 	 */
 	virtual void WriteRemoteNotice(const std::string& text);
+
+	/** Sends a server notice to this user.
+	 * @param text A format string to format and then send.
+	 * @param p One or more arguments to format the string with.
+	 */
+	template <typename... Param>
+	void WriteRemoteNotice(const char* text, Param&&... p)
+	{
+		WriteRemoteNotice(fmt::format(text, std::forward<Param>(p)...));
+	}
 
 	/** Sends a notice to this user.
 	 * @param numeric The numeric to send.

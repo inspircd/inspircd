@@ -500,13 +500,13 @@ public:
 		if (count)
 		{
 			// TODO: replace this with a FAIL stdrpl when we can network those.
-			user->WriteRemoteNotice(INSP_FORMAT("*** DNSBL: Unable to recheck {}: still waiting on {} DNSBLs from the previous check.",
-				ltarget->nick, count));
+			user->WriteRemoteNotice("*** DNSBL: Unable to recheck {}: still waiting on {} DNSBLs from the previous check.",
+				ltarget->nick, count);
 			return CmdResult::FAILURE;
 		}
 
 		// TODO: replace this with a NOTE stdrpl when we can network those.
-		user->WriteRemoteNotice(INSP_FORMAT("*** DNSBL: Rechecking {} against {} DNSBLs.", ltarget->nick, data.dnsbls.size()));
+		user->WriteRemoteNotice("*** DNSBL: Rechecking {} against {} DNSBLs.", ltarget->nick, data.dnsbls.size());
 
 		const bool has_reason = parameters.size() > 1;
 		ServerInstance->SNO.WriteGlobalSno('d', "{} is rechecking whether {} ({}) is in a DNSBL{}{}", user->nick,

@@ -120,9 +120,9 @@ public:
 		{
 			if (waittime)
 			{
-				user->WriteNotice(INSP_FORMAT("*** You cannot view the channel list right now. Please {}try again in {}.",
+				user->WriteNotice("*** You cannot view the channel list right now. Please {}try again in {}.",
 					exemptregistered ? "log in to an account or " : "",
-					Duration::ToString(maxwaittime - ServerInstance->Time())));
+					Duration::ToString(maxwaittime - ServerInstance->Time()));
 			}
 			else
 			{

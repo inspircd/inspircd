@@ -246,7 +246,7 @@ private:
 		if (memb)
 			memb->WriteNotice(message);
 		else
-			user->WriteNotice(INSP_FORMAT("[{}] {}", chan->name, message));
+			user->WriteNotice("[{}] {}", chan->name, message);
 	}
 
 public:
