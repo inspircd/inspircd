@@ -654,28 +654,31 @@ public:
 	/** Logs this user out of their server operator account. Does nothing to non-operators. */
 	void OperLogout();
 
+	/** Write to all users that can see this user (including this user in the list if include_self is true), appending CR/LF
+	 * @param protoev Protocol event to send, may contain any number of messages.
+	 * @param include_self Should the message be sent back to the author?
+	 */
+	void WriteCommonRaw(ClientProtocol::Event& protoev, bool include_self = true);
+
 	/** Sends a server notice to this user.
-	 * @param text The contents of the message to send.
+	 * @param text The message to send.
 	 */
 	void WriteNotice(const std::string& text);
 
-	/** Send a NOTICE message from the local server to the user.
-	 * @param text Text to send
+	/** Sends a server notice from the local server to the user.
+	 * @param text The message to send.
 	 */
 	virtual void WriteRemoteNotice(const std::string& text);
 
-	virtual void WriteRemoteNumeric(const Numeric::Numeric& numeric);
-
-	template <typename... Param>
-	void WriteRemoteNumeric(unsigned int numeric, Param&&... p)
-	{
-		Numeric::Numeric n(numeric);
-		n.push(std::forward<Param>(p)...);
-		WriteRemoteNumeric(n);
-	}
-
+	/** Sends a notice to this user.
+	 * @param numeric The numeric to send.
+	 */
 	void WriteNumeric(const Numeric::Numeric& numeric);
 
+	/** Sends a notice to this user.
+	 * @param numeric The numeric code to send.
+	 * @param p One or more parameters to the numeric.
+	 */
 	template <typename... Param>
 	void WriteNumeric(unsigned int numeric, Param&&... p)
 	{
@@ -684,11 +687,22 @@ public:
 		WriteNumeric(n);
 	}
 
-	/** Write to all users that can see this user (including this user in the list if include_self is true), appending CR/LF
-	 * @param protoev Protocol event to send, may contain any number of messages.
-	 * @param include_self Should the message be sent back to the author?
+	/** Sends a notice from the local server to this user.
+	 * @param numeric The numeric to send.
 	 */
-	void WriteCommonRaw(ClientProtocol::Event& protoev, bool include_self = true);
+	virtual void WriteRemoteNumeric(const Numeric::Numeric& numeric);
+
+	/** Sends a notice from the local server to this user.
+	 * @param numeric The numeric code to send.
+	 * @param p One or more parameters to the numeric.
+	 */
+	template <typename... Param>
+	void WriteRemoteNumeric(unsigned int numeric, Param&&... p)
+	{
+		Numeric::Numeric n(numeric);
+		n.push(std::forward<Param>(p)...);
+		WriteRemoteNumeric(n);
+	}
 
 	/** Execute a function once for each local neighbor of this user. By default, the neighbors of a user are the users
 	 * who have at least one common channel with the user. Modules are allowed to alter the set of neighbors freely.
