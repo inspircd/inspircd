@@ -128,6 +128,17 @@ public:
 		return *this;
 	}
 
+	/** Formats the string with the specified arguments and adds them to the numeric.
+	 * @param text A format string to format and then push.
+	 * @param p One or more arguments to format the string with.
+	 */
+	template <typename... Args>
+	Numeric& push_fmt(const char* text, Args&&... args)
+	{
+		push(fmt::format(text, std::forward<Args>(args)...));
+		return *this;
+	}
+
 	/** Set the source server of the numeric. The source server defaults to the local server.
 	 * @param server Server to set as source
 	 */
