@@ -134,4 +134,14 @@ public:
 	 * @param text The contents of the message to send.
 	 */
 	void WriteNotice(const std::string& text) const;
+
+	/** Sends a server notice to this user in the context of this channel.
+	 * @param text A format string to format and then send.
+	 * @param p One or more arguments to format the string with.
+	 */
+	template <typename... Param>
+	void WriteNotice(const char* text, Param&&... p)
+	{
+		WriteNotice(fmt::format(fmt::runtime(text), std::forward<Param>(p)...));
+	}
 };

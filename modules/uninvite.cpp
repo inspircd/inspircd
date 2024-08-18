@@ -95,7 +95,7 @@ public:
 			{
 				Numeric::Numeric n(ERR_NOTINVITED);
 				n.SetServer(user->server);
-				n.push(u->nick).push(c->name).push(fmt::format("Is not invited to channel {}", c->name));
+				n.push(u->nick, c->name).push_fmt("Is not invited to channel {}", c->name);
 				user->WriteRemoteNumeric(n);
 				return CmdResult::FAILURE;
 			}

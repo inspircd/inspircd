@@ -54,8 +54,8 @@ public:
 		: Numeric(ERR_CANNOTSENDTOCHAN)
 	{
 		push(chan->name);
-		push(fmt::format("You cannot send {} to this channel whilst the +{} ({}) mode is set.",
-			what, mh->GetModeChar(), mh->name));
+		push_fmt("You cannot send {} to this channel whilst the +{} ({}) mode is set.", what,
+			mh->GetModeChar(), mh->name);
 	}
 
 #ifdef INSPIRCD_EXTBAN
@@ -63,8 +63,8 @@ public:
 		: Numeric(ERR_CANNOTSENDTOCHAN)
 	{
 		push(chan->name);
-		push(fmt::format("You cannot send {} to this channel whilst {} {}: ({}) extban is set matching you.",
-			what, strchr("AEIOUaeiou", xb.GetLetter()) ? "an" : "a", xb.GetLetter(), xb.GetName()));
+		push_fmt("You cannot send {} to this channel whilst {} {}: ({}) extban is set matching you.",
+			what, strchr("AEIOUaeiou", xb.GetLetter()) ? "an" : "a", xb.GetLetter(), xb.GetName());
 	}
 #endif
 
@@ -79,8 +79,8 @@ public:
 		: Numeric(ERR_CANNOTSENDTOUSER)
 	{
 		push(user->connected & User::CONN_NICK ? user->nick : "*");
-		push(fmt::format("You cannot send {} to this user whilst {} have the +{} ({}) mode set.",
-			what, self ? "you" : "they", mh->GetModeChar(), mh->name));
+		push_fmt("You cannot send {} to this user whilst {} have the +{} ({}) mode set.",
+			what, self ? "you" : "they", mh->GetModeChar(), mh->name);
 	}
 };
 
@@ -93,11 +93,11 @@ public:
 	{
 		push(chan->name);
 
-		const PrefixMode* pm = ServerInstance->Modes.FindNearestPrefixMode(rank);
+		const auto* pm = ServerInstance->Modes.FindNearestPrefixMode(rank);
 		if (pm)
-			push(fmt::format("You must be a channel {} or higher to {}.", pm->name, message));
+			push_fmt("You must be a channel {} or higher to {}.", pm->name, message);
 		else
-			push(fmt::format("You do not have the required channel privileges to {}.", message));
+			push_fmt("You do not have the required channel privileges to {}.", message);
 	}
 };
 
@@ -119,12 +119,12 @@ private:
 		if (!syntax.empty())
 		{
 			// If the mode has a syntax hint we include it in the message.
-			push(fmt::format("Invalid {} mode parameter. Syntax: {}.", mode->name, syntax));
+			push_fmt("Invalid {} mode parameter. Syntax: {}.", mode->name, syntax);
 		}
 		else
 		{
 			// Otherwise, send it without.
-			push(fmt::format("Invalid {} mode parameter.", mode->name));
+			push_fmt("Invalid {} mode parameter.", mode->name);
 		}
 	}
 

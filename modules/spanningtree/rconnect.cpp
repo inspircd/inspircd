@@ -42,7 +42,7 @@ CmdResult CommandRConnect::Handle(User* user, const Params& parameters)
 	/* First see if the server which is being asked to connect to another server in fact exists */
 	if (!Utils->FindServerMask(parameters[0]))
 	{
-		user->WriteRemoteNotice(fmt::format("*** RCONNECT: Server \002{}\002 isn't connected to the network!", parameters[0]));
+		user->WriteRemoteNotice("*** RCONNECT: Server \002{}\002 isn't connected to the network!", parameters[0]);
 		return CmdResult::FAILURE;
 	}
 

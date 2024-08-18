@@ -211,7 +211,7 @@ public:
 				klass->GetName(), error);
 
 			errnum = ERR_PASSWDMISMATCH;
-			errnum->push(fmt::format("A password is required and {}.", error));
+			errnum->push_fmt("A password is required and {}.", error);
 			return MOD_RES_DENY;
 		}
 

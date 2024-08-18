@@ -164,20 +164,20 @@ public:
 			}
 
 			uint32_t addr = sa.in4.sin_addr.s_addr;
-			user->WriteNotice(fmt::format("*** HEXIP: {} encodes to {:02x}{:02x}{:02x}{:02x}.",
+			user->WriteNotice("*** HEXIP: {} encodes to {:02x}{:02x}{:02x}{:02x}.",
 				sa.addr(), (addr & 0xFF), ((addr >> 8) & 0xFF), ((addr >> 16) & 0xFF),
-				((addr >> 24) & 0xFF)));
+				((addr >> 24) & 0xFF));
 			return CmdResult::SUCCESS;
 		}
 
 		if (ParseIP(parameters[0], sa))
 		{
-			user->WriteNotice(fmt::format("*** HEXIP: {} decodes to {}.", parameters[0], sa.addr()));
+			user->WriteNotice("*** HEXIP: {} decodes to {}.", parameters[0], sa.addr());
 			return CmdResult::SUCCESS;
 		}
 
-		user->WriteNotice(fmt::format("*** HEXIP: {} is not a valid raw or hex encoded IPv4 address.",
-			parameters[0]));
+		user->WriteNotice("*** HEXIP: {} is not a valid raw or hex encoded IPv4 address.",
+			parameters[0]);
 		return CmdResult::FAILURE;
 	}
 

@@ -82,7 +82,7 @@ public:
 
 		if (!channel->HasUser(target))
 		{
-			user->WriteNotice(fmt::format("*** User {} is not on channel {}", target->nick, channel->name));
+			user->WriteNotice("*** User {} is not on channel {}", target->nick, channel->name);
 			return CmdResult::FAILURE;
 		}
 
@@ -135,7 +135,7 @@ public:
 			}
 			else
 			{
-				user->WriteNotice(fmt::format("*** You do not have access to /REMOVE {} from {}", target->nick, channel->name));
+				user->WriteNotice("*** You do not have access to /REMOVE {} from {}", target->nick, channel->name);
 				return CmdResult::FAILURE;
 			}
 		}

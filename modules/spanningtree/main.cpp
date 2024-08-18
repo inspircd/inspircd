@@ -351,25 +351,26 @@ ModResult ModuleSpanningTree::HandleConnect(const CommandBase::Params& parameter
 		{
 			if (InspIRCd::Match(ServerInstance->Config->ServerName, x->Name, ascii_case_insensitive_map))
 			{
-				user->WriteRemoteNotice(fmt::format("*** CONNECT: Server \002{}\002 is ME, not connecting.", x->Name));
+				user->WriteRemoteNotice("*** CONNECT: Server \002{}\002 is ME, not connecting.", x->Name);
 				return MOD_RES_DENY;
 			}
 
 			TreeServer* CheckDupe = Utils->FindServer(x->Name);
 			if (!CheckDupe)
 			{
-				user->WriteRemoteNotice(fmt::format("*** CONNECT: Connecting to server: \002{}\002 ({}:{})", x->Name, (x->HiddenFromStats ? "<hidden>" : x->IPAddr), x->Port));
+				user->WriteRemoteNotice("*** CONNECT: Connecting to server: \002{}\002 ({}:{})", x->Name, (x->HiddenFromStats ? "<hidden>" : x->IPAddr), x->Port);
 				ConnectServer(x);
 				return MOD_RES_DENY;
 			}
 			else
 			{
-				user->WriteRemoteNotice(fmt::format("*** CONNECT: Server \002{}\002 already exists on the network and is connected via \002{}\002", x->Name, CheckDupe->GetParent()->GetName()));
+				user->WriteRemoteNotice("*** CONNECT: Server \002{}\002 already exists on the network and is connected via \002{}\002", x->Name, CheckDupe->GetParent()->GetName());
 				return MOD_RES_DENY;
 			}
 		}
 	}
-	user->WriteRemoteNotice(fmt::format("*** CONNECT: No server matching \002{}\002 could be found in the config file.", parameters[0]));
+
+	user->WriteRemoteNotice("*** CONNECT: No server matching \002{}\002 could be found in the config file.", parameters[0]);
 	return MOD_RES_DENY;
 }
 

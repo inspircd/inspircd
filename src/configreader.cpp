@@ -516,7 +516,8 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
 
 		// If a user is rehashing, tell them directly
 		if (user)
-			user->WriteRemoteNotice(fmt::format("*** {}", line));
+			user->WriteRemoteNotice("*** {}", line);
+
 		// Also tell opers
 		ServerInstance->SNO.WriteGlobalSno('r', line);
 	}

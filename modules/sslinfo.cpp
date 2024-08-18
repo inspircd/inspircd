@@ -199,17 +199,17 @@ private:
 		ssl_cert* cert = sslapi.GetCertificate(target);
 		if (!cert)
 		{
-			source->WriteNotice(fmt::format("*** {} is not connected using TLS.", target->nick));
+			source->WriteNotice("*** {} is not connected using TLS.", target->nick);
 		}
 		else if (cert->GetError().length())
 		{
-			source->WriteNotice(fmt::format("*** {} is connected using TLS but has not specified a valid client certificate ({}).",
-				target->nick, cert->GetError()));
+			source->WriteNotice("*** {} is connected using TLS but has not specified a valid client certificate ({}).",
+				target->nick, cert->GetError());
 		}
 		else if (!verbose)
 		{
-			source->WriteNotice(fmt::format("*** {} is connected using TLS with a valid client certificate ({}).",
-				target->nick, cert->GetFingerprint()));
+			source->WriteNotice("*** {} is connected using TLS with a valid client certificate ({}).",
+				target->nick, cert->GetFingerprint());
 		}
 		else
 		{
@@ -262,9 +262,9 @@ private:
 
 		if (sslonlymode)
 		{
-			source->WriteNotice(fmt::format("*** {} {} have channel mode +{} ({}) set.",
+			source->WriteNotice("*** {} {} have channel mode +{} ({}) set.",
 				chan->name, chan->IsModeSet(sslonlymode) ? "does" : "does not",
-				sslonlymode->GetModeChar(), sslonlymode->name));
+				sslonlymode->GetModeChar(), sslonlymode->name);
 		}
 
 		for (const auto& [u, _] : chan->GetUsers())
