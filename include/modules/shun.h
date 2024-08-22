@@ -52,7 +52,7 @@ public:
 			return true;
 
 		// Try to match nick!ruser@address
-		const std::string addressmask = fmt::format("{}!{}", u->nick, u->GetUserAddress());
+		const std::string addressmask = FMT::format("{}!{}", u->nick, u->GetUserAddress());
 		if (InspIRCd::Match(addressmask, matchtext))
 			return true;
 

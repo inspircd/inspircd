@@ -143,7 +143,7 @@ public:
 			user->WriteNumeric(Numerics::CannotSendTo(chan, "Your part message contained a banned phrase and was blocked."));
 		else
 		{
-			user->WriteNumeric(Numerics::CannotSendTo(chan, fmt::format("Your part message contained a banned phrase ({}) and was blocked.",
+			user->WriteNumeric(Numerics::CannotSendTo(chan, FMT::format("Your part message contained a banned phrase ({}) and was blocked.",
 				match->mask)));
 		}
 	}
@@ -167,7 +167,7 @@ public:
 				user->WriteNumeric(Numerics::CannotSendTo(chan, "Your message to this channel contained a banned phrase and was blocked."));
 			else
 			{
-				user->WriteNumeric(Numerics::CannotSendTo(chan, fmt::format("Your message to this channel contained a banned phrase ({}) and was blocked.",
+				user->WriteNumeric(Numerics::CannotSendTo(chan, FMT::format("Your message to this channel contained a banned phrase ({}) and was blocked.",
 					match->mask)));
 			}
 

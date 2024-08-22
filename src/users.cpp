@@ -125,7 +125,7 @@ const std::string& User::GetUserAddress()
 {
 	if (cached_useraddress.empty())
 	{
-		cached_useraddress = fmt::format("{}@{}", GetRealUser(), GetAddress());
+		cached_useraddress = FMT::format("{}@{}", GetRealUser(), GetAddress());
 		cached_useraddress.shrink_to_fit();
 	}
 
@@ -135,7 +135,7 @@ const std::string& User::GetUserHost()
 {
 	if (cached_userhost.empty())
 	{
-		cached_userhost = fmt::format("{}@{}", GetDisplayedUser(), GetDisplayedHost());
+		cached_userhost = FMT::format("{}@{}", GetDisplayedUser(), GetDisplayedHost());
 		cached_userhost.shrink_to_fit();
 	}
 
@@ -146,7 +146,7 @@ const std::string& User::GetRealUserHost()
 {
 	if (cached_realuserhost.empty())
 	{
-		cached_realuserhost = fmt::format("{}@{}", GetRealUser(), GetRealHost());
+		cached_realuserhost = FMT::format("{}@{}", GetRealUser(), GetRealHost());
 		cached_realuserhost.shrink_to_fit();
 	}
 
@@ -157,7 +157,7 @@ const std::string& User::GetMask()
 {
 	if (cached_mask.empty())
 	{
-		cached_mask = fmt::format("{}!{}@{}", nick, GetDisplayedUser(), GetDisplayedHost());
+		cached_mask = FMT::format("{}!{}@{}", nick, GetDisplayedUser(), GetDisplayedHost());
 		cached_mask.shrink_to_fit();
 	}
 
@@ -168,7 +168,7 @@ const std::string& User::GetRealMask()
 {
 	if (cached_realmask.empty())
 	{
-		cached_realmask = fmt::format("{}!{}@{}", nick, GetRealUser(), GetRealHost());
+		cached_realmask = FMT::format("{}!{}@{}", nick, GetRealUser(), GetRealHost());
 		cached_realmask.shrink_to_fit();
 	}
 
@@ -334,7 +334,7 @@ Cullable::Result User::Cull()
 	if (!quitting)
 	{
 		ServerInstance->Logs.Debug("CULL", "BUG: User {} (@{}) was culled without being quit first!",
-			uuid, fmt::ptr(this));
+			uuid, FMT_PTR(this));
 		ServerInstance->Users.QuitUser(this, "Culled without QuitUser");
 	}
 

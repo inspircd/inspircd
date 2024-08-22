@@ -349,7 +349,7 @@ private:
 		std::sort(type3.begin(), type3.end());
 		std::sort(type4.begin(), type4.end());
 
-		return fmt::format("{},{},{},{}", type1, type2, type3, type4);
+		return FMT::format("{},{},{},{}", type1, type2, type3, type4);
 	}
 
 	static std::string GeneratePrefixList(bool includemodechars)

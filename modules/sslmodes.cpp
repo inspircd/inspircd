@@ -106,7 +106,7 @@ public:
 
 					if (nonssl)
 					{
-						source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, fmt::format("All members of the channel must be connected via TLS ({}/{} are non-TLS)",
+						source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, FMT::format("All members of the channel must be connected via TLS ({}/{} are non-TLS)",
 							nonssl, channel->GetUsers().size()));
 						return false;
 					}
@@ -189,14 +189,14 @@ public:
 		{
 			if (!api)
 			{
-				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, fmt::format("Cannot join channel; unable to determine if you are a TLS user (+{} is set)",
+				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, FMT::format("Cannot join channel; unable to determine if you are a TLS user (+{} is set)",
 					sslm.GetModeChar()));
 				return MOD_RES_DENY;
 			}
 
 			if (!api->IsSecure(user))
 			{
-				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, fmt::format("Cannot join channel; TLS users only (+{} is set)",
+				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, FMT::format("Cannot join channel; TLS users only (+{} is set)",
 					sslm.GetModeChar()));
 				return MOD_RES_DENY;
 			}

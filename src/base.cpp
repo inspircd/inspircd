@@ -52,7 +52,7 @@ refcountbase::~refcountbase()
 	if (refcount && ServerInstance)
 	{
 		ServerInstance->Logs.Debug("CULL", "refcountbase::~ @{} with refcount {}",
-			fmt::ptr(this), refcount);
+			FMT_PTR(this), refcount);
 	}
 }
 
@@ -61,7 +61,7 @@ usecountbase::~usecountbase()
 	if (usecount && ServerInstance)
 	{
 		ServerInstance->Logs.Debug("CULL", "usecountbase::~ @{} with refcount {}",
-			fmt::ptr(this), usecount);
+			FMT_PTR(this), usecount);
 	}
 }
 

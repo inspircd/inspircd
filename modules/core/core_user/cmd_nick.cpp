@@ -80,7 +80,7 @@ CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 			if (memb->chan->GetPrefixValue(user) < VOICE_VALUE && memb->chan->IsBanned(user))
 			{
 				if (ServerInstance->Config->RestrictBannedUsers == ServerConfig::BUT_RESTRICT_NOTIFY)
-					user->WriteNumeric(ERR_CANTCHANGENICK, fmt::format("Cannot change nickname while on {} (you're banned)",
+					user->WriteNumeric(ERR_CANTCHANGENICK, FMT::format("Cannot change nickname while on {} (you're banned)",
 						memb->chan->name));
 				return CmdResult::FAILURE;
 			}

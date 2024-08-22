@@ -202,7 +202,7 @@ public:
 		if (rl)
 		{
 			// Channel is banned.
-			user->WriteNumeric(ERR_BADCHANNEL, cname, fmt::format("Channel {} is CBANed: {}", cname, rl->reason));
+			user->WriteNumeric(ERR_BADCHANNEL, cname, FMT::format("Channel {} is CBANed: {}", cname, rl->reason));
 			ServerInstance->SNO.WriteGlobalSno('a', "{} tried to join {} which is CBANed ({})",
 				user->nick, cname, rl->reason);
 			return MOD_RES_DENY;

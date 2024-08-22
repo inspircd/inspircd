@@ -50,7 +50,7 @@ public:
 		if (user->HasPrivPermission("channels/auspex"))
 			return true;
 
-		user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, minrank, fmt::format("view the channel {} list", GetModeName())));
+		user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, minrank, FMT::format("view the channel {} list", GetModeName())));
 		return false;
 	}
 };

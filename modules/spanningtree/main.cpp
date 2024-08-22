@@ -161,7 +161,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 
 	user->WriteNumeric(RPL_LINKS, Current->GetName(),
 			(((Utils->FlatLinks) && (!user->IsOper())) ? ServerInstance->Config->GetServerName() : Parent),
-			fmt::format("{} {}", (((Utils->FlatLinks) && (!user->IsOper())) ? 0 : hops), Current->GetDesc()));
+			FMT::format("{} {}", (((Utils->FlatLinks) && (!user->IsOper())) ? 0 : hops), Current->GetDesc()));
 }
 
 void ModuleSpanningTree::HandleLinks(const CommandBase::Params& parameters, User* user)

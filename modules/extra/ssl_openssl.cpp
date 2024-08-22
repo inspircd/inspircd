@@ -576,7 +576,7 @@ private:
 		int activated = ASN1_TIME_cmp_time_t(X509_getm_notBefore(cert), ServerInstance->Time());
 		if (activated != -1 && activated != 0)
 		{
-			certinfo->error = fmt::format("Certificate not active for {} (on {})",
+			certinfo->error = FMT::format("Certificate not active for {} (on {})",
 				Duration::ToString(certinfo->activation - ServerInstance->Time()),
 				Time::ToString(certinfo->activation));
 		}
@@ -584,7 +584,7 @@ private:
 		int expired = ASN1_TIME_cmp_time_t(X509_getm_notAfter(cert), ServerInstance->Time());
 		if (expired != 0 && expired != 1)
 		{
-			certinfo->error = fmt::format("Certificate expired {} ago (on {})",
+			certinfo->error = FMT::format("Certificate expired {} ago (on {})",
 				Duration::ToString(ServerInstance->Time() - certinfo->expiration),
 				Time::ToString(certinfo->expiration));
 		}
@@ -635,7 +635,7 @@ private:
 		if (status != STATUS_NONE)
 			return true;
 
-		ServerInstance->Logs.Debug(MODNAME, "Session {} killed, attempted to renegotiate", fmt::ptr(sess));
+		ServerInstance->Logs.Debug(MODNAME, "Session {} killed, attempted to renegotiate", FMT_PTR(sess));
 		CloseSession();
 		sock->SetError("Renegotiation is not allowed");
 		return false;

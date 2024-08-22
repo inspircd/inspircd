@@ -277,7 +277,7 @@ class CommandMonitor final
 			if (result == IRCv3::Monitor::Manager::WR_TOOMANY)
 			{
 				// List is full, send error which includes the remaining nicks that were not processed
-				user->WriteNumeric(ERR_MONLISTFULL, maxmonitor, fmt::format("{}{}{}", nick, (ss.StreamEnd() ? "" : ","), ss.GetRemaining()), "Monitor list is full");
+				user->WriteNumeric(ERR_MONLISTFULL, maxmonitor, FMT::format("{}{}{}", nick, (ss.StreamEnd() ? "" : ","), ss.GetRemaining()), "Monitor list is full");
 				break;
 			}
 			else if (result != IRCv3::Monitor::Manager::WR_OK)

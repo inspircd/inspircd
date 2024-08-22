@@ -84,7 +84,7 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		user->WriteNumeric(RPL_LINKS, ServerInstance->Config->GetServerName(), ServerInstance->Config->GetServerName(), fmt::format("0 {}", ServerInstance->Config->GetServerDesc()));
+		user->WriteNumeric(RPL_LINKS, ServerInstance->Config->GetServerName(), ServerInstance->Config->GetServerName(), FMT::format("0 {}", ServerInstance->Config->GetServerDesc()));
 		user->WriteNumeric(RPL_ENDOFLINKS, '*', "End of /LINKS list.");
 		return CmdResult::SUCCESS;
 	}

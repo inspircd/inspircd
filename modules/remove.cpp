@@ -128,7 +128,7 @@ public:
 				/* Build up the part reason string. */
 				std::string reason = "Removed by " + user->nick + ": " + reasonparam;
 
-				channel->WriteRemoteNotice(fmt::format("{} removed {} from the channel", user->nick, target->nick));
+				channel->WriteRemoteNotice(FMT::format("{} removed {} from the channel", user->nick, target->nick));
 				target->WriteNotice("*** " + user->nick + " removed you from " + channel->name + " with the message: " + reasonparam);
 
 				channel->PartUser(target, reason);
@@ -142,7 +142,7 @@ public:
 		else
 		{
 			/* m_nokicks.so was loaded and +Q was set, block! */
-			user->WriteNumeric(ERR_RESTRICTED, channel->name, fmt::format("Can't remove user {} from channel (+{} is set)",
+			user->WriteNumeric(ERR_RESTRICTED, channel->name, FMT::format("Can't remove user {} from channel (+{} is set)",
 				target->nick, servprotectmode->GetModeChar()));
 			return CmdResult::FAILURE;
 		}

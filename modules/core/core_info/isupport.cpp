@@ -65,7 +65,7 @@ void ISupportManager::AppendValue(std::string& buffer, const std::string& value)
 		//   (1) It is a banned character in an IRC <middle> parameter (NUL, LF, CR, SPACE).
 		//   (2) It has special meaning within an ISUPPORT token (EQUALS, BACKSLASH).
 		if (chr == '\0' || chr == '\n' || chr == '\r' || chr == ' ' || chr == '=' || chr == '\\')
-			buffer.append(fmt::format("\\x{:02X}", chr));
+			buffer.append(FMT::format("\\x{:02X}", chr));
 		else
 			buffer.push_back(chr);
 	}

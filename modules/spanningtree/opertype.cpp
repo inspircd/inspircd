@@ -105,7 +105,7 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& para
 	std::string extra;
 	if (params.GetTags().find("~name") != params.GetTags().end())
 	{
-		extra += fmt::format(" ({}using account \x02{}\x02)", automatic ? "automatically " : "",
+		extra += FMT::format(" ({}using account \x02{}\x02)", automatic ? "automatically " : "",
 			u->oper->GetName());
 	}
 

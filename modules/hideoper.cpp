@@ -160,7 +160,7 @@ public:
 				const std::string awayperiod = Duration::ToString(ServerInstance->Time() - oper->away->time);
 				const std::string awaytime = Time::ToString(oper->away->time);
 
-				extra = fmt::format(": away for {} [since {}] ({})", awayperiod, awaytime, oper->away->message);
+				extra = FMT::format(": away for {} [since {}] ({})", awayperiod, awaytime, oper->away->message);
 			}
 
 			auto* loper = IS_LOCAL(oper);
@@ -169,10 +169,10 @@ public:
 				const std::string idleperiod = Duration::ToString(ServerInstance->Time() - loper->idle_lastmsg);
 				const std::string idletime = Time::ToString(loper->idle_lastmsg);
 
-				extra += fmt::format("{} idle for {} [since {}]", extra.empty() ? ':' : ',', idleperiod, idletime);
+				extra += FMT::format("{} idle for {} [since {}]", extra.empty() ? ':' : ',', idleperiod, idletime);
 			}
 
-			stats.AddGenericRow(fmt::format("\x02{}\x02 ({}){}", oper->nick, oper->GetUserHost(), extra));
+			stats.AddGenericRow(FMT::format("\x02{}\x02 ({}){}", oper->nick, oper->GetUserHost(), extra));
 		}
 
 		// Sort opers alphabetically.
@@ -180,7 +180,7 @@ public:
 			return lhs.GetParams()[1] < rhs.GetParams()[1];
 		});
 
-		stats.AddGenericRow(fmt::format("{} server operator{} total", stats.GetRows().size(), stats.GetRows().size() ? "s" : ""));
+		stats.AddGenericRow(FMT::format("{} server operator{} total", stats.GetRows().size(), stats.GetRows().size() ? "s" : ""));
 		return MOD_RES_DENY;
 	}
 };

@@ -209,7 +209,7 @@ private:
 				auto b = (unsigned int) (sa.in4.sin_addr.s_addr >> 8) & 0xFF;
 				auto c = (unsigned int) (sa.in4.sin_addr.s_addr >> 16) & 0xFF;
 				auto d = (unsigned int) (sa.in4.sin_addr.s_addr >> 24) & 0xFF;
-				return fmt::format("{}.{}.{}.{}", d, c, b, a);
+				return FMT::format("{}.{}.{}.{}", d, c, b, a);
 			}
 
 			case AF_INET6:
@@ -669,7 +669,7 @@ public:
 			total_misses += dnsbl->stats_misses;
 			total_errors += dnsbl->stats_errors;
 
-			stats.AddGenericRow(fmt::format("The \"{}\" DNSBL had {} hits, {} misses, and {} errors",
+			stats.AddGenericRow(FMT::format("The \"{}\" DNSBL had {} hits, {} misses, and {} errors",
 				dnsbl->name, dnsbl->stats_hits, dnsbl->stats_misses, dnsbl->stats_errors));
 		}
 

@@ -55,8 +55,6 @@
 # include <sys/time.h>
 #endif
 
-#include <fmt/format.h>
-
 #include "utility/aligned_storage.h"
 #include "utility/iterator_range.h"
 

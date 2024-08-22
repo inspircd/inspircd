@@ -31,6 +31,8 @@
 # include <unistd.h>
 #endif
 
+#include <fmt/format.h>
+
 #include "inspircd.h"
 #include "configparser.h"
 #include "utility/string.h"
@@ -570,7 +572,7 @@ void ServerConfig::ApplyModules(User* user) const
 
 		if (ServerInstance->Modules.Unload(mod))
 		{
-			const std::string message = fmt::format("The {} module was unloaded.", modname);
+			const std::string message = FMT::format("The {} module was unloaded.", modname);
 			if (user)
 				user->WriteNumeric(RPL_UNLOADEDMODULE, modname, message);
 
@@ -578,7 +580,7 @@ void ServerConfig::ApplyModules(User* user) const
 		}
 		else
 		{
-			const std::string message = fmt::format("Failed to unload the {} module: {}", modname, ServerInstance->Modules.LastError());
+			const std::string message = FMT::format("Failed to unload the {} module: {}", modname, ServerInstance->Modules.LastError());
 			if (user)
 				user->WriteNumeric(ERR_CANTUNLOADMODULE, modname, message);
 
@@ -594,7 +596,7 @@ void ServerConfig::ApplyModules(User* user) const
 
 		if (ServerInstance->Modules.Load(modname))
 		{
-			const std::string message = fmt::format("The {} module was loaded.", modname);
+			const std::string message = FMT::format("The {} module was loaded.", modname);
 			if (user)
 				user->WriteNumeric(RPL_LOADEDMODULE, modname, message);
 
@@ -602,7 +604,7 @@ void ServerConfig::ApplyModules(User* user) const
 		}
 		else
 		{
-			const std::string message = fmt::format("Failed to load the {} module: {}", modname, ServerInstance->Modules.LastError());
+			const std::string message = FMT::format("Failed to load the {} module: {}", modname, ServerInstance->Modules.LastError());
 			if (user)
 				user->WriteNumeric(ERR_CANTLOADMODULE, modname, message);
 

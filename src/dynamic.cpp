@@ -78,7 +78,7 @@ Module* DLLManager::CallInit()
 	else if (*abi != MODULE_ABI)
 	{
 		const char* version = GetVersion();
-		err.assign(fmt::format("{} was built against {} ({}) which is too {} to use with {} ({}).",
+		err.assign(FMT::format("{} was built against {} ({}) which is too {} to use with {} ({}).",
 			libname, version ? version : "an unknown version", *abi,
 			*abi < MODULE_ABI ? "old" : "new", INSPIRCD_VERSION, MODULE_ABI));
 		return nullptr;

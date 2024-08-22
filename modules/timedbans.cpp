@@ -151,7 +151,7 @@ public:
 
 		if (sendnotice)
 		{
-			const std::string message = fmt::format("Timed ban {} added by {} on {} lasting for {}.",
+			const std::string message = FMT::format("Timed ban {} added by {} on {} lasting for {}.",
 				mask, user->nick, channel->name, Duration::ToString(duration));
 
 			// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
@@ -240,7 +240,7 @@ public:
 		{
 			if (cmd.sendnotice)
 			{
-				const std::string message = fmt::format("Timed ban {} set by {} on {} has expired.",
+				const std::string message = FMT::format("Timed ban {} set by {} on {} has expired.",
 					timedban.mask, timedban.setter, timedban.chan->name);
 
 				// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above

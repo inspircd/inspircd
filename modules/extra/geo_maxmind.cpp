@@ -181,7 +181,7 @@ public:
 		MMDB_s mmdb;
 		int result = MMDB_open(file.c_str(), MMDB_MODE_MMAP, &mmdb);
 		if (result != MMDB_SUCCESS)
-			throw ModuleException(this, fmt::format("Unable to load the MaxMind database ({}): {}",
+			throw ModuleException(this, FMT::format("Unable to load the MaxMind database ({}): {}",
 				file, MMDB_strerror(result)));
 
 		// Swap the new database with the old database.

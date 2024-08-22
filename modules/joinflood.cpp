@@ -175,7 +175,7 @@ public:
 			joinfloodsettings* f = jf.ext.Get(chan);
 			if (f && f->islocked())
 			{
-				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan->name, fmt::format("This channel is temporarily unavailable (+{} is set). Please try again later.",
+				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan->name, FMT::format("This channel is temporarily unavailable (+{} is set). Please try again later.",
 					jf.GetModeChar()));
 				return MOD_RES_DENY;
 			}
@@ -201,7 +201,7 @@ public:
 				f->lock();
 
 				PrefixMode* pm = ServerInstance->Modes.FindNearestPrefixMode(notifyrank);
-				memb->chan->WriteNotice(fmt::format("This channel has been closed to new users for {} seconds because there have been more than {} joins in {} seconds.",
+				memb->chan->WriteNotice(FMT::format("This channel has been closed to new users for {} seconds because there have been more than {} joins in {} seconds.",
 					duration, f->joins, f->secs), pm ? pm->GetPrefix() : 0);
 			}
 		}

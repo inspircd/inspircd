@@ -65,7 +65,7 @@ public:
 
 		if (chan->GetPrefixValue(user) < mh->GetLevelRequired(false))
 		{
-			user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, mh->GetLevelRequired(false), fmt::format("unset channel mode {} ({})",
+			user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, mh->GetLevelRequired(false), FMT::format("unset channel mode {} ({})",
 				mh->GetModeChar(), mh->name)));
 			return CmdResult::FAILURE;
 		}

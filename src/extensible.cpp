@@ -59,7 +59,7 @@ Extensible::~Extensible()
 	if ((!extensions.empty() || !culled) && ServerInstance)
 	{
 		ServerInstance->Logs.Debug("CULL", "Extensible was deleted without being culled: @{}",
-			fmt::ptr(this));
+			FMT_PTR(this));
 	}
 }
 

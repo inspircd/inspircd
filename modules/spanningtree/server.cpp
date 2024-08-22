@@ -222,7 +222,7 @@ bool TreeSocket::Inbound_Server(CommandBase::Params& params)
 
 		// Send our details: Our server name and description and hopcount of 0,
 		// along with the sendpass from this block.
-		this->WriteLine(fmt::format("SERVER {} {} {} :{}",
+		this->WriteLine(FMT::format("SERVER {} {} {} :{}",
 			ServerInstance->Config->ServerName,
 			TreeSocket::MakePass(x->SendPass, this->GetTheirChallenge()),
 			ServerInstance->Config->ServerId,

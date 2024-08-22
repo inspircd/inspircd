@@ -373,7 +373,7 @@ public:
 				bool first = true;
 				for (const auto& fingerprint : cert->GetFingerprints())
 				{
-					whois.SendLine(RPL_WHOISCERTFP, fmt::format("has {}client certificate fingerprint {}",
+					whois.SendLine(RPL_WHOISCERTFP, FMT::format("has {}client certificate fingerprint {}",
 						first ? "" : "old ", fingerprint));
 					first = false;
 				}

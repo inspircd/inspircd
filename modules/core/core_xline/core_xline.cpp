@@ -167,7 +167,7 @@ public:
 		}
 
 		// Send a numeric because if we deny then the core doesn't reply anything
-		user->WriteNumeric(ERR_ERRONEUSNICKNAME, newnick, fmt::format("Invalid nickname: {}", xline->reason));
+		user->WriteNumeric(ERR_ERRONEUSNICKNAME, newnick, FMT::format("Invalid nickname: {}", xline->reason));
 		return MOD_RES_DENY;
 	}
 

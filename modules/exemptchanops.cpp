@@ -81,7 +81,7 @@ public:
 		if (channel->GetPrefixValue(source) >= pm->GetLevelRequired(change.adding))
 			return MOD_RES_PASSTHRU;
 
-		source->WriteNumeric(ERR_CHANOPRIVSNEEDED, channel->name, fmt::format("You must be able to {} mode {} ({}) to {} a restriction containing it",
+		source->WriteNumeric(ERR_CHANOPRIVSNEEDED, channel->name, FMT::format("You must be able to {} mode {} ({}) to {} a restriction containing it",
 			change.adding ? "set" : "unset", pm->GetModeChar(), pm->name, change.adding ? "add" : "remove"));
 		return MOD_RES_DENY;
 	}

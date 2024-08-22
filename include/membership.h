@@ -142,6 +142,6 @@ public:
 	template <typename... Param>
 	void WriteNotice(const char* text, Param&&... p)
 	{
-		WriteNotice(fmt::vformat(text, fmt::make_format_args(p...)));
+		WriteNotice(FMT::vformat(text, FMT::make_format_args(p...)));
 	}
 };

@@ -52,7 +52,7 @@ CommandNum::Builder::Builder(SpanningTree::RemoteUser* target, const Numeric::Nu
 	: CmdBuilder("NUM")
 {
 	TreeServer* const server = (numeric.GetServer() ? (static_cast<TreeServer*>(numeric.GetServer())) : Utils->TreeRoot);
-	push(server->GetId()).push(target->uuid).push(fmt::format("{:03}", numeric.GetNumeric()));
+	push(server->GetId()).push(target->uuid).push(FMT::format("{:03}", numeric.GetNumeric()));
 	const CommandBase::Params& params = numeric.GetParams();
 	if (!params.empty())
 	{

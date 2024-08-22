@@ -271,7 +271,7 @@ public:
 	template <typename... Args>
 	void Critical(const std::string& type, const char* format, Args&&... args)
 	{
-		Write(Level::CRITICAL, type, fmt::vformat(format, fmt::make_format_args(args...)));
+		Write(Level::CRITICAL, type, FMT::vformat(format, FMT::make_format_args(args...)));
 	}
 
 	/** Writes a warning message to the server log.
@@ -291,7 +291,7 @@ public:
 	template <typename... Args>
 	void Warning(const std::string& type, const char* format, Args&&... args)
 	{
-		Write(Level::WARNING, type, fmt::vformat(format, fmt::make_format_args(args...)));
+		Write(Level::WARNING, type, FMT::vformat(format, FMT::make_format_args(args...)));
 	}
 
 	/** Writes a normal message to the server log.
@@ -311,7 +311,7 @@ public:
 	template <typename... Args>
 	void Normal(const std::string& type, const char* format, Args&&... args)
 	{
-		Write(Level::NORMAL, type, fmt::vformat(format, fmt::make_format_args(args...)));
+		Write(Level::NORMAL, type, FMT::vformat(format, FMT::make_format_args(args...)));
 	}
 
 	/** Writes a debug message to the server log.
@@ -330,7 +330,7 @@ public:
 	template <typename... Args>
 	void Debug(const std::string& type, const char* format, Args&&... args)
 	{
-		Write(Level::DEBUG, type, fmt::vformat(format, fmt::make_format_args(args...)));
+		Write(Level::DEBUG, type, FMT::vformat(format, FMT::make_format_args(args...)));
 	}
 
 	/** Writes a raw I/O message to the server log.
@@ -350,6 +350,6 @@ public:
 	template <typename... Args>
 	void RawIO(const std::string& type, const char* format, Args&&... args)
 	{
-		Write(Level::RAWIO, type, fmt::vformat(format, fmt::make_format_args(args...)));
+		Write(Level::RAWIO, type, FMT::vformat(format, FMT::make_format_args(args...)));
 	}
 };

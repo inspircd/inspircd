@@ -171,13 +171,13 @@ public:
 			if (badchan.redirect.empty() || user->IsModeSet(antiredirectmode)
 				|| ((target = ServerInstance->Channels.Find(badchan.redirect)) && target->IsModeSet(redirectmode)))
 			{
-				user->WriteNumeric(ERR_BADCHANNEL, cname, fmt::format("Channel {} is forbidden: {}", cname,
+				user->WriteNumeric(ERR_BADCHANNEL, cname, FMT::format("Channel {} is forbidden: {}", cname,
 					badchan.reason));
 				return MOD_RES_DENY;
 			}
 
 			// Redirect the user to the target channel.
-			user->WriteNumeric(ERR_BADCHANNEL, cname, fmt::format("Channel {} is forbidden, redirecting to {}: {}",
+			user->WriteNumeric(ERR_BADCHANNEL, cname, FMT::format("Channel {} is forbidden, redirecting to {}: {}",
 				cname, badchan.redirect, badchan.reason));
 			Channel::JoinUser(user, badchan.redirect);
 			return MOD_RES_DENY;

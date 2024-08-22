@@ -734,7 +734,7 @@ private:
 		}
 		else if (certinfo->activation >= ServerInstance->Time())
 		{
-			certinfo->error = fmt::format("Certificate not active for {} (on {})",
+			certinfo->error = FMT::format("Certificate not active for {} (on {})",
 				Duration::ToString(certinfo->activation - ServerInstance->Time()),
 				Time::ToString(certinfo->activation));
 		}
@@ -747,7 +747,7 @@ private:
 		}
 		else if (certinfo->expiration <= ServerInstance->Time())
 		{
-			certinfo->error = fmt::format("Certificate expired {} ago (on {})",
+			certinfo->error = FMT::format("Certificate expired {} ago (on {})",
 				Duration::ToString(ServerInstance->Time() - certinfo->expiration),
 				Time::ToString(certinfo->expiration));
 		}

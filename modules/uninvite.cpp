@@ -105,8 +105,8 @@ public:
 			n.push(c->name).push(u->nick).push("Uninvited");
 			user->WriteRemoteNumeric(n);
 
-			lu->WriteNumeric(RPL_UNINVITED, fmt::format("You were uninvited from {} by {}", c->name, user->nick));
-			c->WriteRemoteNotice(fmt::format("*** {} uninvited {}.", user->nick, u->nick));
+			lu->WriteNumeric(RPL_UNINVITED, FMT::format("You were uninvited from {} by {}", c->name, user->nick));
+			c->WriteRemoteNotice(FMT::format("*** {} uninvited {}.", user->nick, u->nick));
 		}
 
 		return CmdResult::SUCCESS;

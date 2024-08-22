@@ -662,7 +662,7 @@ void DataKeeper::DoRestoreModules()
 {
 	for (const auto& data : moddata.list)
 	{
-		ServerInstance->Logs.Debug(MODNAME, "Calling module data handler {}", fmt::ptr(data.handler));
+		ServerInstance->Logs.Debug(MODNAME, "Calling module data handler {}", FMT_PTR(data.handler));
 		data.handler->OnReloadModuleRestore(mod, data.data);
 	}
 }
@@ -710,9 +710,9 @@ public:
 		if (user)
 		{
 			if (result)
-				user->WriteNumeric(RPL_LOADEDMODULE, passedname, fmt::format("The {} module was reloaded.", passedname));
+				user->WriteNumeric(RPL_LOADEDMODULE, passedname, FMT::format("The {} module was reloaded.", passedname));
 			else
-				user->WriteNumeric(ERR_CANTUNLOADMODULE, passedname, fmt::format("Failed to reload the {} module.", passedname));
+				user->WriteNumeric(ERR_CANTUNLOADMODULE, passedname, FMT::format("Failed to reload the {} module.", passedname));
 		}
 
 		ServerInstance->GlobalCulls.AddItem(this);

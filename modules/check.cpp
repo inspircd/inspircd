@@ -244,7 +244,7 @@ public:
 				 * Unlike Asuka, I define a clone as coming from the same host. --w00t
 				 */
 				const UserManager::CloneCounts& clonecount = ServerInstance->Users.GetCloneCounts(u);
-				context.Write("member", fmt::format("{} {}{} ({}\x0F)", clonecount.global, memb->GetAllPrefixChars(),
+				context.Write("member", FMT::format("{} {}{} ({}\x0F)", clonecount.global, memb->GetAllPrefixChars(),
 					u->GetMask(), u->GetRealName()));
 			}
 
@@ -288,7 +288,7 @@ public:
 				if (!matches.empty())
 				{
 					const std::string whatmatch = insp::join(matches, ',');
-					context.Write("match", fmt::format("{} {} {} {} {} {} {} {} :{}", ++x, whatmatch, u->nick, u->GetRealUser(),
+					context.Write("match", FMT::format("{} {} {} {} {} {} {} {} :{}", ++x, whatmatch, u->nick, u->GetRealUser(),
 						u->GetDisplayedUser(), u->GetRealHost(), u->GetDisplayedHost(), u->GetAddress(), u->GetRealName()));
 					matches.clear();
 				}

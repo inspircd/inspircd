@@ -32,6 +32,19 @@
 # define ATTR_NOT_NULL(...)
 #endif
 
+/** @def INSP_FORMAT(FORMAT, ...)
+ * Formats a string with format string checking.
+ */
+#if defined __cpp_lib_format && __cpp_lib_format >= 202106L
+# include <format>
+# define FMT std
+# define FMT_PTR(PTR) static_cast<void*>(PTR)
+#else
+# include <fmt/format.h>
+# define FMT fmt
+# define FMT_PTR(PTR) fmt::ptr(PTR)
+#endif
+
 /**
  * Windows is very different to UNIX so we have to wrap certain features in
  * order to build on Windows correctly.

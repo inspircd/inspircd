@@ -329,9 +329,9 @@ private:
 	static std::string GetPrintable(uint32_t chr)
 	{
 		if (isprint(chr))
-			return fmt::format("{} ({})", reinterpret_cast<const char*>(&chr), chr);
+			return FMT::format("{} ({})", reinterpret_cast<const char*>(&chr), chr);
 		else
-			return fmt::format("{}", chr);
+			return FMT::format("{}", chr);
 	}
 
 public:
@@ -387,11 +387,11 @@ public:
 						break;
 
 					case Codepage::AllowCharacterResult::NOT_VALID:
-						throw ModuleException(this, fmt::format("<cpchars> tag contains a forbidden character: {} at {}",
+						throw ModuleException(this, FMT::format("<cpchars> tag contains a forbidden character: {} at {}",
 							GetPrintable(pos), tag->source.str()));
 
 					case Codepage::AllowCharacterResult::NOT_VALID_AT_FRONT:
-						throw ModuleException(this, fmt::format("<cpchars> tag contains a forbidden front character: {} at {}",
+						throw ModuleException(this, FMT::format("<cpchars> tag contains a forbidden front character: {} at {}",
 							GetPrintable(pos), tag->source.str()));
 				}
 			}

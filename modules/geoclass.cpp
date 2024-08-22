@@ -93,12 +93,12 @@ public:
 
 		for (const auto& [location, count] : counts)
 		{
-			stats.AddGenericRow(fmt::format("{} ({}): {}", location->GetName(),
+			stats.AddGenericRow(FMT::format("{} ({}): {}", location->GetName(),
 				location->GetCode(), count));
 		}
 
 		if (unknown)
-			stats.AddGenericRow(fmt::format("Unknown Country: {}", unknown));
+			stats.AddGenericRow(FMT::format("Unknown Country: {}", unknown));
 
 		return MOD_RES_DENY;
 	}

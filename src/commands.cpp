@@ -270,7 +270,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 			if (!user->HasCommandPermission(command))
 			{
 				user->CommandFloodPenalty += failpenalty;
-				user->WriteNumeric(ERR_NOPRIVILEGES, fmt::format("Permission Denied - Oper type {} does not have access to command {}",
+				user->WriteNumeric(ERR_NOPRIVILEGES, FMT::format("Permission Denied - Oper type {} does not have access to command {}",
 					user->oper->GetType(), command));
 				FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 				return;

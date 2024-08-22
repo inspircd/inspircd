@@ -36,7 +36,7 @@ Cullable::Cullable()
 	if (ServerInstance)
 	{
 		ServerInstance->Logs.Debug("CULL", "Cullable::+{} @{}",
-			typeid(*this).name(), fmt::ptr(this));
+			typeid(*this).name(), FMT_PTR(this));
 	}
 #endif
 }
@@ -47,7 +47,7 @@ Cullable::~Cullable()
 	if (ServerInstance)
 	{
 		ServerInstance->Logs.Debug("CULL", "Cullable::~{} @{}",
-			typeid(*this).name(), fmt::ptr(this));
+			typeid(*this).name(), FMT_PTR(this));
 	}
 #endif
 }
@@ -58,7 +58,7 @@ Cullable::Result Cullable::Cull()
 	if (ServerInstance)
 	{
 		ServerInstance->Logs.Debug("CULL", "Cullable::-{} @{}",
-			typeid(*this).name(), fmt::ptr(this));
+			typeid(*this).name(), FMT_PTR(this));
 	}
 #endif
 	return {};
@@ -92,7 +92,7 @@ void CullList::Apply()
 		{
 #ifdef INSPIRCD_ENABLE_RTTI
 			ServerInstance->Logs.Debug("CULL", "Culling {} @{}", typeid(*c).name(),
-				fmt::ptr(c));
+				FMT_PTR(c));
 #endif
 			c->Cull();
 
@@ -104,10 +104,10 @@ void CullList::Apply()
 		{
 #ifdef INSPIRCD_ENABLE_RTTI
 			ServerInstance->Logs.Debug("CULL", "BUG: {} @{} was added to the cull list twice!",
-				typeid(*c).name(), fmt::ptr(c));
+				typeid(*c).name(), FMT_PTR(c));
 #else
 			ServerInstance->Logs.Debug("CULL", "BUG: @{} was added to the cull list twice!",
-				fmt::ptr(c));
+				FMT_PTR(c));
 #endif
 		}
 	}
@@ -117,7 +117,7 @@ void CullList::Apply()
 	{
 #ifdef INSPIRCD_ENABLE_RTTI
 		ServerInstance->Logs.Debug("CULL", "Deleting {} @{}", typeid(*c).name(),
-			fmt::ptr(c));
+			FMT_PTR(c));
 #endif
 		delete c;
 	}
