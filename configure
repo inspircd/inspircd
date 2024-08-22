@@ -388,20 +388,20 @@ if (prompt_bool $interactive, $question, 0) {
 	}
 } elsif (!defined $opt_disable_auto_extras) {
 	my %modules = (
-		'm_argon2.cpp'          => 'pkg-config --exists libargon2',
-		'm_geo_maxmind.cpp'     => 'pkg-config --exists libmaxminddb',
-		'm_mysql.cpp'           => 'mysql_config --version',
-		'm_pgsql.cpp'           => 'pg_config --version',
-		'm_ldap.cpp'            => "pkg-config --exists lber && pkg-config --exists ldap",
-		'm_log_json.cpp'        => 'pkg-config --exists RapidJSON',
-		'm_log_syslog.cpp'      => undef,
-		'm_regex_pcre2.cpp'     => 'pkg-config --exists libpcre2-8',
-		'm_regex_posix.cpp'     => undef,
-		'm_regex_re2.cpp'       => 'pkg-config --exists re2',
-		'm_sqlite3.cpp'         => 'pkg-config --exists sqlite3',
-		'm_ssl_gnutls.cpp'      => 'pkg-config --exists "gnutls >= 3.3.5"',
-		'm_ssl_openssl.cpp'     => 'pkg-config --exists "openssl >= 1.1.1"',
-		'm_sslrehashsignal.cpp' => undef,
+		'argon2'          => 'pkg-config --exists libargon2',
+		'geo_maxmind'     => 'pkg-config --exists libmaxminddb',
+		'mysql'           => 'mysql_config --version',
+		'pgsql'           => 'pg_config --version',
+		'ldap'            => "pkg-config --exists lber && pkg-config --exists ldap",
+		'log_json'        => 'pkg-config --exists RapidJSON',
+		'log_syslog'      => undef,
+		'regex_pcre2'     => 'pkg-config --exists libpcre2-8',
+		'regex_posix'     => undef,
+		'regex_re2'       => 'pkg-config --exists re2',
+		'sqlite3'         => 'pkg-config --exists sqlite3',
+		'ssl_gnutls'      => 'pkg-config --exists "gnutls >= 3.3.5"',
+		'ssl_openssl'     => 'pkg-config --exists "openssl >= 1.1.1"',
+		'sslrehashsignal' => undef,
 	);
 	while (my ($module, $command) = each %modules) {
 		unless (defined $command && system "$command 1>/dev/null 2>/dev/null") {
