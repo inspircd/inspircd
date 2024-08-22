@@ -370,8 +370,13 @@ public:
 		{
 			if (!cmd.operonlyfp || whois.IsSelfWhois() || whois.GetSource()->IsOper())
 			{
+				bool first = true;
 				for (const auto& fingerprint : cert->GetFingerprints())
-					whois.SendLine(RPL_WHOISCERTFP, fmt::format("has TLS client certificate fingerprint {}", fingerprint));
+				{
+					whois.SendLine(RPL_WHOISCERTFP, fmt::format("has {}client certificate fingerprint {}",
+						first ? "" : "old ", fingerprint));
+					first = false;
+				}
 			}
 		}
 	}

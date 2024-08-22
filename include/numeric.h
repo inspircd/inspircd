@@ -135,7 +135,7 @@ public:
 	template <typename... Args>
 	Numeric& push_fmt(const char* text, Args&&... args)
 	{
-		push(fmt::format(fmt::runtime(text), std::forward<Args>(args)...));
+		push(fmt::vformat(text, fmt::make_format_args(args...)));
 		return *this;
 	}
 

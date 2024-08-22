@@ -672,7 +672,7 @@ public:
 	template <typename... Param>
 	void WriteNotice(const char* text, Param&&... p)
 	{
-		WriteNotice(fmt::format(fmt::runtime(text), std::forward<Param>(p)...));
+		WriteNotice(fmt::vformat(text, fmt::make_format_args(p...)));
 	}
 
 	/** Sends a server notice from the local server to the user.
@@ -687,7 +687,7 @@ public:
 	template <typename... Param>
 	void WriteRemoteNotice(const char* text, Param&&... p)
 	{
-		WriteRemoteNotice(fmt::format(fmt::runtime(text), std::forward<Param>(p)...));
+		WriteRemoteNotice(fmt::vformat(text, fmt::make_format_args(p...)));
 	}
 
 	/** Sends a notice to this user.
