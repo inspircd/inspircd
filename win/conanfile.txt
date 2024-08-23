@@ -12,9 +12,9 @@ libpq/15.5
 libpsl/0.21.1
 ## openssl/3.2.2
 pcre2/10.44
-rapidjson/cci.20230929
 re2/20240702
 sqlite3/3.46.0
+yyjson/0.10.0
 
 [options]
 argon2:shared=True
@@ -26,6 +26,7 @@ openssl:shared=True
 pcre2:shared=True
 re2:shared=True
 sqlite3:shared=True
+yyjson:shared=True
 
 [imports]
 ., *.dll -> extradll @ keep_path=False
