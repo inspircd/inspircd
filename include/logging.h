@@ -191,6 +191,9 @@ private:
 		/** Whether the logger was read from the server config. */
 		bool config;
 
+		/** Whether this logger is dead and is awaiting removal. */
+		bool dead = false;
+
 		/** The minimum log level that this logger accepts. */
 		Level level;
 
@@ -204,6 +207,12 @@ private:
 		const Engine* engine;
 
 		Info(Level l, TokenList t, MethodPtr m, bool c, const Engine* e) ATTR_NOT_NULL(6);
+
+		/** Determines whether a message of the specified level and type should be written to this logger.
+		 * @param l The level to check
+		 * @param t The type to check.
+		 */
+		bool Suitable(Level l, const std::string& t) const;
 	};
 
 	/** The log messages we have cached for modules. */

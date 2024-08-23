@@ -181,6 +181,11 @@ Log::Manager::Info::Info(Level l, TokenList t, MethodPtr m, bool c, const Engine
 {
 }
 
+bool Log::Manager::Info::Suitable(Level l, const std::string& t) const
+{
+	return level >= l && types.Contains(t) && !dead;
+}
+
 Log::Manager::Manager()
 	: filelog(nullptr)
 	, stderrlog(nullptr, "stderr", stderr)
@@ -262,15 +267,27 @@ void Log::Manager::OpenLogs(bool requiremethods)
 	if (requiremethods && caching)
 	{
 		// The server has finished starting up so we can write out any cached log messages.
-		for (const auto& logger : loggers)
+		for (auto& logger : loggers)
 		{
-			if (!logger.method->AcceptsCachedMessages())
+			if (logger.dead || !logger.method->AcceptsCachedMessages())
 				continue; // Does not support logging.
 
 			for (const auto& message : cache)
 			{
-				if (logger.level >= message.level && logger.types.Contains(message.type))
+				if (!logger.Suitable(message.level, message.type))
+					continue;
+
+				try
+				{
 					logger.method->OnLog(message.time, message.level, message.type, message.message);
+				}
+				catch (const CoreException& err)
+				{
+					logger.dead = true;
+					logger.method.reset();
+					ServerInstance->SNO.WriteGlobalSno('a', "A logger threw an exception: {}", err.GetReason());
+					break;
+				}
 			}
 		}
 
@@ -308,10 +325,22 @@ void Log::Manager::Write(Level level, const std::string& type, const std::string
 
 	logging = true;
 	time_t time = ServerInstance->Time();
-	for (const auto& logger : loggers)
+	for (auto& logger : loggers)
 	{
-		if (logger.level >= level && logger.types.Contains(type))
+		if (!logger.Suitable(level, type))
+			continue;
+
+		try
+		{
 			logger.method->OnLog(time, level, type, message);
+		}
+		catch (const CoreException& err)
+		{
+			logger.dead = true;
+			logger.method.reset();
+			ServerInstance->SNO.WriteGlobalSno('a', "A logger threw an exception: {}", err.GetReason());
+			break;
+		}
 	}
 
 	if (caching)
