@@ -34,8 +34,7 @@ jobs:
             libsqlite3-dev \
             libssl-dev \
             make \
-            pkg-config \
-            rapidjson-dev
+            pkg-config
 
       - name: Run configure
         run: |

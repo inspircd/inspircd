@@ -262,22 +262,34 @@ sub __function_find_linker_flags {
 sub __function_require_compiler {
 	my ($file, $name, $minimum, $maximum) =  @_;
 
+	# Check for an inverted match.
+	my ($ok, $err) = ("", undef);
+	if ($name =~ s/^!//) {
+		($ok, $err) = ($err, $ok);
+	}
+
 	# Look up information about the compiler.
-	return undef unless $ENV{CXX};
+	return $err unless $ENV{CXX};
 	my %compiler = get_compiler_info($ENV{CXX});
 
 	# Check whether the current compiler is suitable.
-	return undef unless $compiler{NAME} eq $name;
-	return undef if defined $minimum && $compiler{VERSION} < $minimum;
-	return undef if defined $maximum && $compiler{VERSION} > $maximum;
+	return $err unless $compiler{NAME} eq $name;
+	return $err if defined $minimum && $compiler{VERSION} < $minimum;
+	return $err if defined $maximum && $compiler{VERSION} > $maximum;
 
 	# Requirement directives don't change anything directly.
-	return "";
+	return $ok;
 }
 
 sub __function_require_system {
 	my ($file, $name, $minimum, $maximum) = @_;
 	my ($system, $system_like, $version);
+
+	# Check for an inverted match.
+	my ($ok, $err) = ("", undef);
+	if ($name =~ s/^!//) {
+		($ok, $err) = ($err, $ok);
+	}
 
 	# If a system name ends in a tilde we match on alternate names.
 	my $match_like = $name =~ s/~$//;
@@ -299,32 +311,38 @@ sub __function_require_system {
 
 	# Check whether the current system is suitable.
 	if ($name ne $system) {
-		return undef unless $match_like;
-		return undef unless grep { $_ eq $name } split /\s+/, $system_like;
+		return $err unless $match_like;
+		return $err unless grep { $_ eq $name } split /\s+/, $system_like;
 	}
-	return undef if defined $minimum && $version < $minimum;
-	return undef if defined $maximum && $version > $maximum;
+	return $err if defined $minimum && $version < $minimum;
+	return $err if defined $maximum && $version > $maximum;
 
 	# Requirement directives don't change anything directly.
-	return "";
+	return $ok;
 }
 
 sub __function_require_library {
 	my ($file, $name, $minimum, $maximum) = @_;
 
+	# Check for an inverted match.
+	my ($ok, $err) = ("", undef);
+	if ($name =~ s/^!//) {
+		($ok, $err) = ($err, $ok);
+	}
+
 	# If pkg-config isn't installed then we can't do anything here.
 	if (system "${\PKG_CONFIG} --version 1>/dev/null 2>/dev/null") {
 		print_warning "unable to look up the version of <|GREEN $name|> using pkg-config!";
-		return undef;
+		return $err;
 	}
 
 	# Check with pkg-config whether we have the required version.
-	return undef if system "${\PKG_CONFIG} --exists $name";
-	return undef if defined $minimum && system "${\PKG_CONFIG} --atleast-version $minimum $name";
-	return undef if defined $maximum && system "${\PKG_CONFIG} --max-version $maximum $name";
+	return $err if system "${\PKG_CONFIG} --exists $name";
+	return $err if defined $minimum && system "${\PKG_CONFIG} --atleast-version $minimum $name";
+	return $err if defined $maximum && system "${\PKG_CONFIG} --max-version $maximum $name";
 
 	# Requirement directives don't change anything directly.
-	return "";
+	return $ok;
 }
 
 sub __function_warning {

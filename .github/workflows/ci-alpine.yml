@@ -35,9 +35,9 @@ jobs:
             pcre2-dev \
             perl \
             pkgconf \
-            rapidjson-dev \
             re2-dev \
-            sqlite-dev
+            sqlite-dev \
+            yyjson-dev
 
       - name: Run configure
         run: |

@@ -16,20 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: find_compiler_flags("RapidJSON")
+/// $CompilerFlags: find_compiler_flags("yyjson")
+/// $LinkerFlags: find_linker_flags("yyjson")
 
-/// $PackageInfo: require_system("alpine") rapidjson-dev pkgconf
-/// $PackageInfo: require_system("arch") rapidjson pkgconf
-/// $PackageInfo: require_system("darwin") rapidjson pkg-config
-/// $PackageInfo: require_system("debian~") rapidjson-dev pkg-config
+/// $PackageInfo: require_system("alpine") pkgconf yyjson-dev
+/// $PackageInfo: require_system("arch") pkgconf yyjson
+/// $PackageInfo: require_system("darwin") pkg-config yyjson
+/// $PackageInfo: require_system("debian~") libyyjson-dev pkg-config
 
+#ifdef _WIN32
+# pragma comment(lib, "yyjson.lib")
+#endif
 
-#include <rapidjson/ostreamwrapper.h>
-#include <rapidjson/writer.h>
+#include <yyjson.h>
 
 #include "inspircd.h"
 #include "timeutils.h"
 
+#include <iostream>
 class JSONMethod final
 	: public Log::Method
 	, public Timer
@@ -51,9 +55,6 @@ private:
 	const std::string name;
 
 public:
-	// RapidJSON API: The type of character that this writer accepts.
-	typedef char Ch;
-
 	JSONMethod(const std::string& n, FILE* fh, unsigned long fl, bool ac) ATTR_NOT_NULL(3)
 		: Timer(15*60, true)
 		, autoclose(ac)
@@ -71,9 +72,6 @@ public:
 			fclose(file);
 	}
 
-	// RapidJSON API: We implement our own flushing in OnLog.
-	void Flush() { }
-
 	void OnLog(time_t time, Log::Level level, const std::string& type, const std::string& message) override
 	{
 		static time_t prevtime = 0;
@@ -84,41 +82,32 @@ public:
 			timestr = Time::ToString(prevtime, "%Y-%m-%dT%H:%M:%S%z");
 		}
 
-		rapidjson::Writer writer(*this);
-		writer.StartObject();
-		{
-			writer.Key("time", 4);
-			writer.String(timestr.c_str(), static_cast<rapidjson::SizeType>(timestr.size()));
+		const auto* levelstr = Log::LevelToString(level);
 
-			writer.Key("type", 4);
-			writer.String(type.c_str(), static_cast<rapidjson::SizeType>(type.size()));
+		auto* doc = yyjson_mut_doc_new(nullptr);
 
-			writer.Key("level", 5);
-			const std::string levelstr = Log::LevelToString(level);
-			writer.String(levelstr.c_str(), static_cast<rapidjson::SizeType>(levelstr.size()));
+		auto* root = yyjson_mut_obj(doc);
+		yyjson_mut_doc_set_root(doc, root);
 
-			writer.Key("message", 7);
-			writer.Key(message.c_str(), static_cast<rapidjson::SizeType>(message.size()));
-		}
-		writer.EndObject();
+		auto error = false;
+		error |= yyjson_mut_obj_add_strn(doc, root, "time", timestr.c_str(), timestr.length());
+		error |= yyjson_mut_obj_add_strn(doc, root, "type", type.c_str(), type.length());
+		error |= yyjson_mut_obj_add_strn(doc, root, "level", levelstr, strlen(levelstr));
+		error |= yyjson_mut_obj_add_strn(doc, root, "message", message.c_str(), message.length());
 
-#ifdef _WIN32
-	fputs("\r\n", file);
-#else
-	fputs("\n", file);
-#endif
+		yyjson_write_err errmsg;
+		error |= yyjson_mut_write_fp(file, doc, YYJSON_WRITE_ALLOW_INVALID_UNICODE | YYJSON_WRITE_NEWLINE_AT_END, nullptr, &errmsg);
+
+		yyjson_mut_doc_free(doc);
+
+		if (error)
+			throw CoreException(FMT::format("Unable to generate JSON for {}: {}", name, errmsg.msg ? errmsg.msg : "unknown error"));
 
 		if (!(++lines % flush))
 			fflush(file);
 
 		if (ferror(file))
 			throw CoreException(FMT::format("Unable to write to {}: {}", name, strerror(errno)));
-	}
-
-	// RapidJSON API: Write a character to the file.
-	void Put(Ch c)
-	{
-		fputc(c, file);
 	}
 
 	bool Tick() override
@@ -194,8 +183,9 @@ public:
 
 	void init() override
 	{
-		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against RapidJSON version {}",
-			RAPIDJSON_VERSION_STRING);
+		const auto yyversion = yyjson_version();
+		ServerInstance->Logs.Normal(MODNAME, "Module was compiled against yyjson version {} and is running against version {}.{}.{}",
+			YYJSON_VERSION_STRING, (yyversion >> 16) & 0xFF, (yyversion >> 8) & 0xFF, yyversion & 0xFF);
 	}
 };
 
