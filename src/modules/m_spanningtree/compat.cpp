@@ -51,8 +51,10 @@ void TreeSocket::WriteLine(const std::string& original_line)
 			cmdstart++;
 	}
 
+	size_t sidstart = std::string::npos;
 	if (line[cmdstart] == ':') // Skip the prefix.
 	{
+		sidstart = cmdstart + 1;
 		cmdstart = NextToken(line, cmdstart);
 		if (cmdstart != std::string::npos)
 			cmdstart++;
@@ -105,6 +107,37 @@ void TreeSocket::WriteLine(const std::string& original_line)
 							}
 
 						}
+					}
+				}
+			}
+		}
+		else if (irc::equals(command, "SINFO"))
+		{
+			// :<sid> SINFO <key> :<value>
+			auto keyend = NextToken(line, cmdend);
+			if (keyend != std::string::npos && sidstart != std::string::npos)
+			{
+				auto skey = line.substr(cmdend + 1, keyend - cmdend - 1);
+				if (irc::equals(skey, "customversion"))
+					return;
+				else if (irc::equals(skey, "rawbranch"))
+				{
+					// InspIRCd-4. testnet.inspircd.org :Test
+					auto* sid = Utils->FindServerID(line.substr(sidstart, cmdstart - sidstart - 1));
+					if (sid)
+					{
+						line.replace(cmdend + 1, keyend - cmdend - 1, "version");
+						line.append(INSP_FORMAT(". {} :{}", sid->GetPublicName(), sid->GetDesc()));
+					}
+				}
+				else if (irc::equals(skey, "rawversion"))
+				{
+					// InspIRCd-4.0.0-a10. sadie.testnet.inspircd.org :[597] Test
+					auto* sid = Utils->FindServerID(line.substr(sidstart, cmdstart - sidstart - 1));
+					if (sid)
+					{
+						line.replace(cmdend + 1, keyend - cmdend - 1, "fullversion");
+						line.append(INSP_FORMAT(". {} :[{}] {}", sid->GetName(), sid->GetId(), sid->GetDesc()));
 					}
 				}
 			}

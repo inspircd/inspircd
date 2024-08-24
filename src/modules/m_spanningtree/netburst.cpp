@@ -119,15 +119,6 @@ void TreeSocket::SendServerInfo(TreeServer* from)
 	this->WriteLine(CommandSInfo::Builder(from, "customversion", from->customversion));
 	this->WriteLine(CommandSInfo::Builder(from, "rawbranch", from->rawbranch));
 	this->WriteLine(CommandSInfo::Builder(from, "rawversion", from->rawversion));
-
-	if (proto_version < PROTO_INSPIRCD_4)
-	{
-		this->WriteLine(CommandSInfo::Builder(from, "version", INSP_FORMAT("{}. {} :{}", from->rawbranch,
-			from->GetPublicName(), from->customversion)));
-
-		this->WriteLine(CommandSInfo::Builder(from, "fullversion", INSP_FORMAT("{}. {} :[{}] {}", from->rawversion,
-			from->GetName(), from->GetId(), from->customversion)));
-	}
 }
 
 /** Recursively send the server tree.

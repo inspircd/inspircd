@@ -61,6 +61,8 @@ TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const s
 	, pingtimer(this)
 	, ServerUser(new FakeUser(id, this))
 	, age(ServerInstance->Time())
+	, rawbranch("unknown")
+	, rawversion("unknown")
 	, Hidden(Hide)
 {
 	ServerInstance->Logs.Debug(MODNAME, "New server {} behind_bursting {}", GetName(), behind_bursting);
