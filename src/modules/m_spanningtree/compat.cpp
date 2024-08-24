@@ -82,6 +82,47 @@ void TreeSocket::WriteLine(const std::string& original_line)
 				line.erase(displayend);
 			}
 		}
+		else if (irc::equals(command, "LMODE"))
+		{
+			// LMODE is new in v4; downgrade to FMODE.
+
+			// :<sid>  LMODE <chan> <chants> <modechr> [<mask> <setts> <setter>]+
+			auto chanend = NextToken(line, cmdend);
+			auto chantsend = NextToken(line, chanend);
+			auto modechrend = NextToken(line, chantsend);
+
+			if (modechrend != std::string::npos)
+			{
+				// This should only be one character but its best to be sure...
+				auto modechr = line.substr(chantsend + 1, modechrend - chantsend - 1);
+				auto prevend = modechrend;
+
+				// Build a new mode and parameter list.
+				std::string modelist = "+";
+				std::string paramlist;
+				while (prevend != std::string::npos)
+				{
+					// We drop the setts and setter for the old protocol.
+					auto maskend = NextToken(line, prevend);
+					auto settsend = NextToken(line, maskend);
+					if (settsend != std::string::npos)
+					{
+						modelist.append(modechr);
+						paramlist.append(" ").append(line.substr(prevend + 1, maskend - prevend - 1));
+					}
+					prevend = NextToken(line, settsend);
+				}
+
+				// Replace the mode tuples with a list of mode values.
+				line.replace(modechrend, line.length() - modechrend, paramlist);
+
+				// Replace the mode character with a list of +modes
+				line.replace(chantsend + 1, modechrend - chantsend - 1, modelist);
+
+				// Replace LMODE with FMODE.
+				line.replace(cmdstart, 5, "FMODE");
+			}
+		}
 		else if (irc::equals(command, "METADATA"))
 		{
 			// :<sid> METADATA <uuid|chan|*|@> <name> :<value>
