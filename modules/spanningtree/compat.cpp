@@ -54,8 +54,10 @@ void TreeSocket::WriteLine(const std::string& original_line)
 			cmdstart++;
 	}
 
+	size_t sidstart = std::string::npos;
 	if (line[cmdstart] == ':') // Skip the prefix.
 	{
+		sidstart = cmdstart + 1;
 		cmdstart = NextToken(line, cmdstart);
 		if (cmdstart != std::string::npos)
 			cmdstart++;

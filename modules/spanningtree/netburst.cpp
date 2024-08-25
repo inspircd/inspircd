@@ -31,59 +31,6 @@
 #include "main.h"
 #include "commands.h"
 
-/**
- * Creates FMODE messages, used only when syncing channels
- */
-class FModeBuilder final
-	: public CmdBuilder
-{
-	static constexpr size_t maxline = 480;
-	std::string params;
-	unsigned int modes = 0;
-	std::string::size_type startpos;
-
-public:
-	FModeBuilder(Channel* chan)
-		: CmdBuilder("FMODE")
-	{
-		push(chan->name).push_int(chan->age).push_raw(" +");
-		startpos = str().size();
-	}
-
-	/** Add a mode to the message
-	 */
-	void push_mode(char modeletter, const std::string& mask)
-	{
-		push_raw(modeletter);
-		params.push_back(' ');
-		params.append(mask);
-		modes++;
-	}
-
-	/** Remove all modes from the message
-	 */
-	void clear()
-	{
-		content.erase(startpos);
-		params.clear();
-		modes = 0;
-	}
-
-	/** Prepare the message for sending, next mode can only be added after clear()
-	 */
-	const std::string& finalize()
-	{
-		return push_raw(params);
-	}
-
-	/** Returns true if this message is empty (has no modes)
-	 */
-	bool empty() const
-	{
-		return (modes == 0);
-	}
-};
-
 /** This function is called when we want to send a netburst to a local
  * server. There is a set order we must do this, because for example
  * users require their servers to exist, and channels require their
@@ -119,15 +66,6 @@ void TreeSocket::SendServerInfo(TreeServer* from)
 	this->WriteLine(CommandSInfo::Builder(from, "customversion", from->customversion));
 	this->WriteLine(CommandSInfo::Builder(from, "rawbranch", from->rawbranch));
 	this->WriteLine(CommandSInfo::Builder(from, "rawversion", from->rawversion));
-
-	if (proto_version < PROTO_INSPIRCD_4)
-	{
-		this->WriteLine(CommandSInfo::Builder(from, "version", FMT::format("{}. {} :{}", from->rawbranch,
-			from->GetPublicName(), from->customversion)));
-
-		this->WriteLine(CommandSInfo::Builder(from, "fullversion", FMT::format("{}. {} :[{}] {}", from->rawversion,
-			from->GetName(), from->GetId(), from->customversion)));
-	}
 }
 
 /** Recursively send the server tree.
@@ -186,12 +124,6 @@ void TreeSocket::SendXLines()
 
 void TreeSocket::SendListModes(Channel* chan)
 {
-	if (proto_version < PROTO_INSPIRCD_4)
-	{
-		SendLegacyListModes(chan);
-		return;
-	}
-
 	for (auto* mode : ServerInstance->Modes.GetListModes())
 	{
 		ListModeBase::ModeList* list = mode->GetList(chan);
@@ -206,23 +138,6 @@ void TreeSocket::SendListModes(Channel* chan)
 
 		this->WriteLine(lmode.str());
 	}
-}
-
-void TreeSocket::SendLegacyListModes(Channel* chan)
-{
-	FModeBuilder fmode(chan);
-	for (auto* mode : ServerInstance->Modes.GetListModes())
-	{
-		ListModeBase::ModeList* list = mode->GetList(chan);
-		if (!list)
-			continue;
-
-		for (const auto& entry : *list)
-			fmode.push_mode(mode->GetModeChar(), entry.mask);
-	}
-
-	if (!fmode.empty())
-		this->WriteLine(fmode.finalize());
 }
 
 /** Send channel users, topic, modes and global metadata */

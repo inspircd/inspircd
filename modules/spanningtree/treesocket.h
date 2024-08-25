@@ -141,7 +141,6 @@ class TreeSocket final
 	/** Send all ListModeBase modes set on the channel
 	 */
 	void SendListModes(Channel* chan);
-	void SendLegacyListModes(Channel* chan);
 
 	/** Send all users and their oper state, away state and metadata */
 	void SendUsers(TreeServer* s);
