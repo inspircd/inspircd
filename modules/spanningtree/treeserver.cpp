@@ -166,7 +166,7 @@ void TreeServer::FinishBurst()
 
 void TreeServer::SQuitChild(TreeServer* server, const std::string& reason, bool error)
 {
-	stdalgo::erase(Children, server);
+	std::erase(Children, server);
 
 	if (IsRoot())
 	{

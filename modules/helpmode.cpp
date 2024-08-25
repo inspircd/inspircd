@@ -41,7 +41,7 @@ public:
 		if (change.adding)
 			helpers.push_back(dest);
 		else
-			stdalgo::erase(helpers, dest);
+			std::erase(helpers, dest);
 
 		return true;
 	}
@@ -117,7 +117,7 @@ public:
 	void OnUserQuit(User* user, const std::string& message, const std::string& opermessage) override
 	{
 		if (user->IsModeSet(helpop))
-			stdalgo::erase(helpop.helpers, user);
+			std::erase(helpop.helpers, user);
 	}
 
 	void OnWhois(Whois::Context& whois) override

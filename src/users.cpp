@@ -342,7 +342,7 @@ Cullable::Result User::Cull()
 		ServerInstance->Users.RemoveCloneCounts(this);
 
 	if (server->IsService())
-		stdalgo::erase(ServerInstance->Users.all_services, this);
+		std::erase(ServerInstance->Users.all_services, this);
 
 	return Extensible::Cull();
 }

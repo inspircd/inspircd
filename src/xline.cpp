@@ -357,7 +357,7 @@ bool XLineManager::DelLine(const std::string& hostmask, const std::string& type,
 
 	y->second->Unset();
 
-	stdalgo::erase(pending_lines, y->second);
+	std::erase(pending_lines, y->second);
 
 	delete y->second;
 	x->second.erase(y);
@@ -456,7 +456,7 @@ void XLineManager::ExpireLine(ContainerIter container, LookupIter item, bool sil
 	 * is pending, cleared when it is no longer pending, so we skip over this loop if its not pending?
 	 * -- Brain
 	 */
-	stdalgo::erase(pending_lines, item->second);
+	std::erase(pending_lines, item->second);
 
 	delete item->second;
 	container->second.erase(item);

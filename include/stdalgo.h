@@ -87,24 +87,6 @@ namespace stdalgo
 	}
 
 	/**
-	 * Remove an element from a container
-	 * @param cont Container to remove the element from
-	 * @param val Value of the element to look for and remove
-	 * @return True if the element was found and removed, false otherwise
-	 */
-	template <template<typename, typename> class Cont, typename T, typename Alloc>
-	inline bool erase(Cont<T, Alloc>& cont, const T& val)
-	{
-		const typename Cont<T, Alloc>::iterator it = std::find(cont.begin(), cont.end(), val);
-		if (it != cont.end())
-		{
-			cont.erase(it);
-			return true;
-		}
-		return false;
-	}
-
-	/**
 	 * Check if an element with the given value is in a container. Equivalent to (std::find(cont.begin(), cont.end(), val) != cont.end()).
 	 * @param cont Container to find the element in
 	 * @param val Value of the element to look for

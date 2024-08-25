@@ -406,7 +406,7 @@ public:
 
 		// remove their DCCALLOW list if they have one
 		if (udl)
-			stdalgo::erase(ul, user);
+			std::erase(ul, user);
 
 		// remove them from any DCCALLOW lists
 		// they are currently on

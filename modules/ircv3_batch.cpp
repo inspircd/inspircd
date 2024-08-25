@@ -175,7 +175,7 @@ public:
 		}
 
 		// erase() not swaperase because the reftag generation logic depends on the order of the elements
-		stdalgo::erase(active_batches, &batch);
+		std::erase(active_batches, &batch);
 		delete batch.batchinfo;
 		batch.batchinfo = nullptr;
 	}

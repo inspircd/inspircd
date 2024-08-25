@@ -193,7 +193,7 @@ ServiceProvider::ServiceProvider(Module* Creator, const std::string& Name, Servi
 void ServiceProvider::DisableAutoRegister()
 {
 	if ((ServerInstance) && (ServerInstance->Modules.NewServices))
-		stdalgo::erase(*ServerInstance->Modules.NewServices, this);
+		std::erase(*ServerInstance->Modules.NewServices, this);
 }
 
 const char* ServiceProvider::GetTypeString() const
@@ -227,7 +227,7 @@ bool ModuleManager::Attach(Implementation i, Module* mod)
 
 bool ModuleManager::Detach(Implementation i, Module* mod)
 {
-	return stdalgo::erase(EventHandlers[i], mod);
+	return std::erase(EventHandlers[i], mod);
 }
 
 void ModuleManager::Attach(const Implementation* i, Module* mod, size_t sz)
