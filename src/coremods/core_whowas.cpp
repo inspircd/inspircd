@@ -112,7 +112,7 @@ namespace WhoWas
 		/** Add a user to the whowas database. Called when a user quits.
 		 * @param user The user to add to the database
 		 */
-		void Add(User* user);
+		void Add(User* user, const std::string& nickname);
 
 		/** Retrieves statistics about the whowas database
 		 * @return Whowas statistics as a WhoWas::Manager::Stats struct
@@ -269,14 +269,14 @@ WhoWas::Manager::Stats WhoWas::Manager::GetStats() const
 	return stats;
 }
 
-void WhoWas::Manager::Add(User* user)
+void WhoWas::Manager::Add(User* user, const std::string& nickname)
 {
 	if (!IsEnabled())
 		return;
 
 	// Insert nick if it doesn't exist
 	// 'first' will point to the newly inserted element or to the existing element with an equivalent key
-	std::pair<whowas_users::iterator, bool> ret = whowas.emplace(user->nick, nullptr);
+	std::pair<whowas_users::iterator, bool> ret = whowas.emplace(nickname, nullptr);
 
 	if (ret.second) // If inserted
 	{
@@ -429,7 +429,9 @@ class ModuleWhoWas final
 	: public Module
 	, public Stats::EventListener
 {
+public:
 	CommandWhowas cmd;
+	bool nickupdate;
 
 public:
 	ModuleWhoWas()
@@ -447,7 +449,13 @@ public:
 
 	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message) override
 	{
-		cmd.manager.Add(user);
+		cmd.manager.Add(user, user->nick);
+	}
+
+	void OnUserPostNick(User* user, const std::string& oldnick) override
+	{
+		if (nickupdate)
+			cmd.manager.Add(user, oldnick);
 	}
 
 	ModResult OnStats(Stats::Context& stats) override
@@ -464,6 +472,7 @@ public:
 		unsigned int NewGroupSize = tag->getNum<unsigned int>("groupsize", 10, 0, 10000);
 		unsigned int NewMaxGroups = tag->getNum<unsigned int>("maxgroups", 10240, 0, 1000000);
 		unsigned int NewMaxKeep = static_cast<unsigned int>(tag->getDuration("maxkeep", 3600, 3600));
+		nickupdate = tag->getBool("nickupdate");
 
 		cmd.manager.UpdateConfig(NewGroupSize, NewMaxGroups, NewMaxKeep);
 	}
