@@ -47,7 +47,7 @@ class MsgIdGenerator final
 
 public:
 	MsgIdGenerator()
-		: strid(FMT::format("{}~{}~", ServerInstance->Config->ServerId, ServerInstance->startup_time))
+		: strid(FMT::format("{}~{}~", ServerInstance->Config->ServerId, ServerInstance->StartTime))
 		, baselen(strid.length())
 	{
 	}

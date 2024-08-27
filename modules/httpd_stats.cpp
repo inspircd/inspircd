@@ -172,7 +172,7 @@ namespace Stats
 			.Attribute("opercount", ServerInstance->Users.all_opers.size())
 			.Attribute("socketcount", SocketEngine::GetUsedFds())
 			.Attribute("socketmax", SocketEngine::GetMaxFds())
-			.Attribute("boottime", ServerInstance->startup_time)
+			.Attribute("boottime", ServerInstance->StartTime)
 			.Attribute("currenttime", ServerInstance->Time());
 
 		ISupport(serializer);

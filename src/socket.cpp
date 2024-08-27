@@ -79,14 +79,14 @@ bool InspIRCd::BindPort(const std::shared_ptr<ConfigTag>& tag, const irc::socket
 	}
 
 	ServerInstance->Logs.Debug("SOCKET", "Added a listener on {} from tag at {}", sa.str(), tag->source.str());
-	ports.push_back(ll);
+	Ports.push_back(ll);
 	return true;
 }
 
 size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 {
 	size_t bound = 0;
-	std::vector<ListenSocket*> old_ports(ports.begin(), ports.end());
+	std::vector<ListenSocket*> old_ports(Ports.begin(), Ports.end());
 
 	for (const auto& [_, tag] : ServerInstance->Config->ConfTags("bind"))
 	{
@@ -209,12 +209,12 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 		}
 	}
 
-	std::vector<ListenSocket*>::iterator n = ports.begin();
+	std::vector<ListenSocket*>::iterator n = Ports.begin();
 	for (auto* old_port : old_ports)
 	{
-		while (n != ports.end() && *n != old_port)
+		while (n != Ports.end() && *n != old_port)
 			n++;
-		if (n == ports.end())
+		if (n == Ports.end())
 		{
 			this->Logs.Warning("SOCKET", "Port bindings slipped out of vector, aborting close!");
 			break;
@@ -225,7 +225,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 		delete *n;
 
 		// this keeps the iterator valid, pointing to the next element
-		n = ports.erase(n);
+		n = Ports.erase(n);
 	}
 
 	return bound;

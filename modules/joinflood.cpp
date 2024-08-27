@@ -159,7 +159,7 @@ public:
 		notifyrank = tag->getNum<ModeHandler::Rank>("notifyrank", 0);
 
 		if (status.initial)
-			ignoreuntil = ServerInstance->startup_time + bootwait;
+			ignoreuntil = ServerInstance->StartTime + bootwait;
 	}
 
 	void OnServerSplit(const Server* server, bool error) override

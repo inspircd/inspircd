@@ -262,10 +262,10 @@ public:
 	std::function<bool(const std::string_view&)> IsUser = &DefaultIsUser;
 
 	/** List of the open listeners. */
-	std::vector<ListenSocket*> ports;
+	std::vector<ListenSocket*> Ports;
 
 	/** The time at which the server was started. */
-	time_t startup_time;
+	const time_t StartTime;
 
 	/** Initialises a new server instance and stores it in ServerInstance
 	 * @param argc The argument count from main().

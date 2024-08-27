@@ -377,12 +377,12 @@ namespace
 void InspIRCd::Cleanup()
 {
 	// Close all listening sockets
-	for (auto* port : ports)
+	for (auto* port : Ports)
 	{
 		port->Cull();
 		delete port;
 	}
-	ports.clear();
+	Ports.clear();
 
 	// Tell modules that we're shutting down.
 	const std::string quitmsg = "Server shutting down";
@@ -434,12 +434,11 @@ void InspIRCd::WritePID()
 }
 
 InspIRCd::InspIRCd(int argc, char** argv)
+	: StartTime(time(NULL))
 {
 	ServerInstance = this;
 
 	UpdateTime();
-	this->startup_time = Time();
-
 	IncreaseCoreDumpSize();
 	SocketEngine::Init();
 

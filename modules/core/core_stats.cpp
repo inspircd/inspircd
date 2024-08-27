@@ -128,7 +128,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 		/* stats p (show listening ports) */
 		case 'p':
 		{
-			for (const auto* ls : ServerInstance->ports)
+			for (const auto* ls : ServerInstance->Ports)
 			{
 				std::stringstream portentry;
 
@@ -284,7 +284,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 
 				stats.AddRow(249, FMT::format("CPU Use (now):    {:03.5}%", per));
 
-				n_elapsed = ServerInstance->Time() - ServerInstance->startup_time;
+				n_elapsed = ServerInstance->Time() - ServerInstance->StartTime;
 				n_eaten = (float)R.ru_utime.tv_sec + R.ru_utime.tv_usec / 100000.0;
 				per = (n_eaten / n_elapsed) * 100;
 
@@ -315,7 +315,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 
 				stats.AddRow(249, FMT::format("CPU Use (now):    {:03.5}%", per));
 
-				n_elapsed = ServerInstance->Time() - ServerInstance->startup_time;
+				n_elapsed = ServerInstance->Time() - ServerInstance->StartTime;
 				n_eaten = (double)(( (uint64_t)(KernelTime.dwHighDateTime) << 32 ) + (uint64_t)(KernelTime.dwLowDateTime))/100000;
 				per = (n_eaten / n_elapsed);
 
@@ -346,7 +346,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 		/* stats u (show server uptime) */
 		case 'u':
 		{
-			unsigned int up = static_cast<unsigned int>(ServerInstance->Time() - ServerInstance->startup_time);
+			unsigned int up = static_cast<unsigned int>(ServerInstance->Time() - ServerInstance->StartTime);
 			stats.AddRow(242, FMT::format("Server up {} days, {:02}:{:02}:{:02}",
 				up / 86400, (up / 3600) % 24, (up / 60) % 60, up % 60));
 		}

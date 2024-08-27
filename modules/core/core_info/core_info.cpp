@@ -173,7 +173,7 @@ public:
 	{
 		user->WriteNumeric(RPL_WELCOME, FMT::format("Welcome to the {} IRC Network {}", ServerInstance->Config->Network, user->GetRealMask()));
 		user->WriteNumeric(RPL_YOURHOST, FMT::format("Your host is {}, running version {}", ServerInstance->Config->GetServerName(), INSPIRCD_BRANCH));
-		user->WriteNumeric(RPL_CREATED, Time::ToString(ServerInstance->startup_time, "This server was created %H:%M:%S %b %d %Y"));
+		user->WriteNumeric(RPL_CREATED, Time::ToString(ServerInstance->StartTime, "This server was created %H:%M:%S %b %d %Y"));
 		user->WriteNumeric(numeric004);
 		isupport.SendTo(user);
 
