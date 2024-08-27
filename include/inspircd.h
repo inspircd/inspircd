@@ -105,33 +105,26 @@ CoreExport extern InspIRCd* ServerInstance;
 class ServerStats final
 {
 public:
-	/** Number of accepted connections
-	 */
-	unsigned long Accept = 0;
+	/** Number of accepted connections. */
+	size_t Accept = 0;
 
-	/** Number of failed accepts
-	 */
-	unsigned long Refused = 0;
+	/** Number of rejected connections. */
+	size_t Refused = 0;
 
-	/** Number of unknown commands seen
-	 */
-	unsigned long Unknown = 0;
+	/** Number of unknown commands seen. */
+	size_t Unknown = 0;
 
-	/** Number of nickname collisions handled
-	 */
-	unsigned long Collisions = 0;
+	/** Number of nickname collisions handled. */
+	size_t Collisions = 0;
 
-	/** Number of inbound connections seen
-	 */
-	unsigned long Connects = 0;
+	/** Number of fully connected users seen. */
+	size_t Connects = 0;
 
-	/** Total bytes of data transmitted
-	 */
-	unsigned long Sent = 0;
+	/** Total bytes of data transmitted. */
+	size_t Sent = 0;
 
-	/** Total bytes of data received
-	 */
-	unsigned long Recv = 0;
+	/** Total bytes of data received. */
+	size_t Recv = 0;
 
 #ifdef _WIN32
 	/** Cpu usage at last sample
@@ -146,12 +139,10 @@ public:
 	*/
 	LARGE_INTEGER QPFrequency;
 #else
-	/** Cpu usage at last sample
-	 */
+	/** CPU usage at the last sample. */
 	timeval LastCPU;
 
-	/** Time last sample was read
-	 */
+	/** Time the last sample was read. */
 	timespec LastSampled;
 #endif
 };
