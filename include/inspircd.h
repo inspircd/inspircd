@@ -165,141 +165,154 @@ public:
 class CoreExport InspIRCd final
 {
 private:
-	/** The current time, updated in the mainloop
-	 */
-	struct timespec TIME;
+	/** The last signal that was received from the operating system. */
+	static sig_atomic_t lastsignal;
 
-	/** A 64k buffer used to read socket data into
-	 * Update the range of <performance:netbuffersize> if you change this
-	 */
-	char ReadBuffer[65535];
+	/** A 64k buffer used to read socket data into. */
+	char readbuffer[65535];
 
+	/** The client protocol events provided by the core. */
 	ClientProtocol::RFCEvents rfcevents;
 
-public:
+	/** The current time, updated once per main loop iteration. */
+	struct timespec ts;
 
-	UIDGenerator UIDGen;
+	/** Prepares the server for restart or shutdown. */
+	void Cleanup();
 
-	/** Global cull list, will be processed on next iteration
+	/** Handles an stored signal in the main loop.
+	 * @param signal The signal received from the operating system.
 	 */
-	CullList GlobalCulls;
-	/** Actions that must happen outside of the current call stack */
+	void HandleSignal(sig_atomic_t signal);
+
+	/** Attempt to write the process id to a file. */
+	void WritePID();
+
+public:
+	/** Actions that must happen outside of the current call stack. */
 	ActionList AtomicActions;
 
-	/** Globally accessible fake user record. This is used to force mode changes etc across s2s, etc.. bit ugly, but.. better than how this was done in 1.1
-	 * Reason for it:
-	 * kludge alert!
-	 * SendMode expects a User* to send the numeric replies
-	 * back to, so we create it a fake user that isn't in the user
-	 * hash and set its descriptor to FD_MAGIC_NUMBER so the data
-	 * falls into the abyss :p
-	 */
-	FakeUser* FakeClient = nullptr;
-
-	/** Time this ircd was booted
-	 */
-	time_t startup_time;
-
-	/** Config file pathname specified on the commandline or via ./configure
-	 */
-	std::string ConfigFileName = INSPIRCD_CONFIG_PATH "/inspircd.conf";
-
-	ExtensionManager Extensions;
-
-	/** Mode handler, handles mode setting and removal
-	 */
-	ModeParser Modes;
-
-	/** Command parser, handles client to server commands
-	 */
-	CommandParser Parser;
-
-	/** The thread/class used to read config files in REHASH and on startup
-	 */
-	ConfigReaderThread* ConfigThread = nullptr;
-
-	/** LogManager handles logging.
-	 */
-	Log::Manager Logs;
-
-	/** ModuleManager contains everything related to loading/unloading
-	 * modules.
-	 */
-	ModuleManager Modules;
-
-	/** BanCacheManager is used to speed up checking of restrictions on connection
-	 * to the IRCd.
-	 */
+	/** Caches server bans to speeds up checking of restrictions on connect. */
 	BanCacheManager BanCache;
-
-	/** Stats class, holds miscellaneous stats counters
-	 */
-	ServerStats Stats;
-
-	/**  Server Config class, holds configuration file data
-	 */
-	ServerConfig* Config = nullptr;
-
-	/** Snomask manager - handles routing of snomask messages
-	 * to opers.
-	 */
-	SnomaskManager SNO;
-
-	/** Timer manager class, triggers Timer timer events
-	 */
-	TimerManager Timers;
-
-	/** X-line manager. Handles G/K/Q/E-line setting, removal and matching
-	 */
-	XLineManager* XLines = nullptr;
-
-	/** User manager. Various methods and data associated with users.
-	 */
-	UserManager Users;
 
 	/** Manager for state relating to channels. */
 	ChannelManager Channels;
 
-	/** List of the open ports
-	 */
-	std::vector<ListenSocket*> ports;
-
-	/** Set to the current signal received
-	 */
-	static sig_atomic_t s_signal;
-
-	/** Protocol interface, overridden by server protocol modules
-	 */
-	ProtocolInterface* PI = &DefaultProtocolInterface;
-
-	/** Default implementation of the ProtocolInterface, does nothing
-	 */
+	/** Default implementation of the protocol interface which does nothing. */
 	ProtocolInterface DefaultProtocolInterface;
 
-	/** Get the current time
-	 * Because this only calls time() once every time around the mainloop,
-	 * it is much faster than calling time() directly.
-	 * @return The current time as an epoch value (time_t)
-	 */
-	inline time_t Time() { return TIME.tv_sec; }
-	/** The fractional time at the start of this mainloop iteration (nanoseconds) */
-	inline long Time_ns() { return TIME.tv_nsec; }
-	/** Update the current time. Don't call this unless you have reason to do so. */
-	void UpdateTime();
+	/* Manager for the extension system. */
+	ExtensionManager Extensions;
 
-	/** Generate a random string with the given length
-	 * @param length The length in bytes
-	 * @param printable if false, the string will use characters 0-255; otherwise,
-	 * it will be limited to 0x30-0x7E ('0'-'~', nonspace printable characters)
+	/** Objects that should be culled outside of the current call stack. */
+	CullList GlobalCulls;
+
+	/** Manager for the logging system. */
+	Log::Manager Logs;
+
+	/* Manager for the mode handlers. */
+	ModeParser Modes;
+
+	/** Manager for the module loading system. */
+	ModuleManager Modules;
+
+	/** Manager for the command handlers. */
+	CommandParser Parser;
+
+	/** Manages sending snomasks to server operators. */
+	SnomaskManager SNO;
+
+	/** Holds miscellaneous stats counters. */
+	ServerStats Stats;
+
+	/** Manages scheduling and triggering of timer events. */
+	TimerManager Timers;
+
+	/* Generator for unique user identifiers. */
+	UIDGenerator UIDGen;
+
+	/** Manager for state relating to users. */
+	UserManager Users;
+
+	/** The server configuration. */
+	ServerConfig* Config = nullptr;
+
+	/* If non-nullptr then the thread that is reading the server configuration on rehash. */
+	ConfigReaderThread* ConfigThread = nullptr;
+
+	/** A fake user that represents the local server. */
+	FakeUser* FakeClient = nullptr;
+
+	/** The protocol interface used for interacting with remote servers by the linking module. */
+	ProtocolInterface* PI = &DefaultProtocolInterface;
+
+	/** Manager for X-lines. */
+	XLineManager* XLines = nullptr;
+
+	/** The current server configuration file from --config or configure. */
+	std::string ConfigFileName = INSPIRCD_CONFIG_PATH "/inspircd.conf";
+
+	/** Fills a buffer with random bytes. */
+	std::function<void(char*, size_t)> GenRandom = &DefaultGenRandom;
+
+	/** Determines whether a nickname is valid. */
+	std::function<bool(const std::string_view&)> IsNick = &DefaultIsNick;
+
+	/** Determines whether a username is valid. */
+	std::function<bool(const std::string_view&)> IsUser = &DefaultIsUser;
+
+	/** List of the open listeners. */
+	std::vector<ListenSocket*> ports;
+
+	/** The time at which the server was started. */
+	time_t startup_time;
+
+	/** Initialises a new server instance and stores it in ServerInstance
+	 * @param argc The argument count from main().
+	 * @param argv The argument list from main().
 	 */
-	std::string GenRandomStr(size_t length, bool printable = true) const;
-	/** Generate a random integer.
-	 * This is generally more secure than rand()
+	InspIRCd(int argc, char** argv);
+
+	/** Binds to a specific port from a config tag.
+	 * @param tag the tag that contains bind information.
+	 * @param sa The endpoint to listen on.
+	 * @param oldports Previously listening ports that may be on the same endpoint.
+	 * @param protocol The protocol to bind with or 0 to determine from the endpoint.
+	 * @return True if the port was bound successfully; otherwise, false.
+	 */
+	bool BindPort(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& sa, std::vector<ListenSocket*>& oldports, sa_family_t protocol);
+
+	/** Binds all ports specified in the configuration file.
+	 * @return The number of ports bound without error.
+	 */
+	size_t BindPorts(FailedPortList& failed_ports);
+
+	/** Compares a password to a hashed password.
+	 * @param password The hashed password.
+	 * @param passwordhash If non-empty then the algorithm the password is hashed with.
+	 * @param value The value to check to see if the password is valid.
+	 * @return True if the password is correct, otherwise, false.
+	 */
+	static bool CheckPassword(const std::string& password, const std::string& passwordhash, const std::string& value);
+
+	/** Generates a random integer.
+	 * @param max The maximum value for the integer.
+	 * @return A random integer between 0 and \p max.
 	 */
 	unsigned long GenRandomInt(unsigned long max) const;
 
-	/** Fill a buffer with random bits */
-	std::function<void(char*, size_t)> GenRandom = &DefaultGenRandom;
+	/** Generates a random string.
+	 * @param length The length in bytes.
+	 * @param printable Whether to only return printable characters.
+	 * @return  A random string of \p length bytes.
+	 */
+	std::string GenRandomStr(size_t length, bool printable = true) const;
+
+	/** Retrieves a 64k buffer used to read socket data into. */
+	inline auto* GetReadBuffer() { return readbuffer; }
+
+	/** Retrieves the client protocol events provided by the core. */
+	inline auto& GetRFCEvents() { return rfcevents; }
 
 	/** Fills the output buffer with the specified number of random characters.
 	 * This is the default function for InspIRCd::GenRandom.
@@ -308,68 +321,12 @@ public:
 	 */
 	static void DefaultGenRandom(char* output, size_t max);
 
-	/** Bind to a specific port from a config tag.
-	 * @param tag the tag that contains bind information.
-	 * @param sa The endpoint to listen on.
-	 * @param old_ports Previously listening ports that may be on the same endpoint.
-	 * @param protocol The protocol to bind with or 0 to determine from the endpoint.
-	 */
-	bool BindPort(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& sa, std::vector<ListenSocket*>& old_ports, int protocol);
-
-	/** Bind all ports specified in the configuration file.
-	 * @return The number of ports bound without error
-	 */
-	size_t BindPorts(FailedPortList& failed_ports);
-
-	/** Determines whether a hostname is valid according to RFC 5891 rules.
-	 * @param host The hostname to validate.
-	 * @param allowsimple Whether to allow simple hostnames (e.g. localhost).
-	 * @return True if the hostname is valid; otherwise, false.
-	 */
-	static bool IsHost(const std::string& host, bool allowsimple);
-
-	/** Determines whether a fully qualified hostname is valid according to RFC 5891 rules.
-	 * @param host The hostname to validate.
-	 * @return True if the hostname is valid; otherwise, false.
-	 */
-	inline static bool IsFQDN(const std::string& host) { return IsHost(host, false); }
-
-	/** Return true if str looks like a server ID
-	 * @param sid string to check against
-	 */
-	static bool IsSID(const std::string& sid);
-
-	/** Handles incoming signals after being set
-	 * @param signal the signal received
-	 */
-	void SignalHandler(int signal);
-
-	/** Sets the signal received
-	 * @param signal the signal received
-	 */
-	static void SetSignal(int signal);
-
-	/** Causes the server to exit after unloading modules and
-	 * closing all open file descriptors.
-	 *
-	 * @param status The exit code to give to the operating system
-	 * (See the ExitStatus enum for valid values)
-	 */
-	[[noreturn]]
-	void Exit(int status);
-
-	/** Determines whether a nickname is valid. */
-	std::function<bool(const std::string_view&)> IsNick = &DefaultIsNick;
-
 	/** Determines whether a nickname is valid according to the RFC 1459 rules.
 	 * This is the default function for InspIRCd::IsNick.
 	 * @param nick The nickname to validate.
 	 * @return True if the nickname is valid according to RFC 1459 rules; otherwise, false.
 	 */
 	static bool DefaultIsNick(const std::string_view& nick);
-
-	/** Determines whether a username is valid. */
-	std::function<bool(const std::string_view&)> IsUser = &DefaultIsUser;
 
 	/** Determines whether a username is valid according to the RFC 1459 rules.
 	 * This is the default function for InspIRCd::IsUser.
@@ -378,98 +335,126 @@ public:
 	*/
 	static bool DefaultIsUser(const std::string_view& user);
 
-	/** Match two strings using pattern matching, optionally, with a map
-	 * to check case against (may be NULL). If map is null, match will be case insensitive.
-	 * @param str The literal string to match against
-	 * @param mask The glob pattern to match against.
-	 * @param map The character map to use when matching.
+	/** Causes the server to exit after unloading modules and closing all open file descriptors.
+	 * @param status The exit code to give to the operating system.
 	 */
-	static bool Match(const std::string& str, const std::string& mask, const unsigned char* map = nullptr);
-	static bool Match(const char* str, const char* mask, const unsigned char* map = nullptr);
+	[[noreturn]]
+	void Exit(int status);
 
-	/** Match two strings using pattern matching, optionally, with a map
-	 * to check case against (may be NULL). If map is null, match will be case insensitive.
-	 * Supports CIDR patterns as well as globs.
-	 * @param str The literal string to match against
-	 * @param mask The glob or CIDR pattern to match against.
-	 * @param map The character map to use when matching.
+	/** Determines whether a fully qualified hostname is valid according to RFC 5891 rules.
+	 * @param host The hostname to validate.
+	 * @return True if the hostname is valid; otherwise, false.
 	 */
-	static bool MatchCIDR(const std::string& str, const std::string& mask, const unsigned char* map = nullptr);
-	static bool MatchCIDR(const char* str, const char* mask, const unsigned char* map = nullptr);
+	inline static auto IsFQDN(const std::string& host) { return IsHost(host, false); }
 
-	/** Matches a hostname and IP against a space delimited list of hostmasks.
-	 * @param masks The space delimited masks to match against.
-	 * @param hostname The hostname to try and match.
-	 * @param ipaddr The IP address to try and match.
+	/** Determines whether a hostname is valid according to RFC 5891 rules.
+	 * @param host The hostname to validate.
+	 * @param allowsimple Whether to allow simple hostnames (e.g. localhost).
+	 * @return True if the hostname is valid; otherwise, false.
 	 */
-	static bool MatchMask(const std::string& masks, const std::string& hostname, const std::string& ipaddr);
+	static bool IsHost(const std::string& host, bool allowsimple);
 
-	/** Return true if the given parameter is a valid nick!user\@host mask
-	 * @param mask A nick!user\@host masak to match against
-	 * @return True i the mask is valid
+	/** Determines whether the specified string is a server identifier.
+	 * @param sid The string to check.
+	 * @return True if the specified string is a server identifier; otherwise, false.
+	 */
+	static bool IsSID(const std::string& sid);
+
+	/** Determines whether the specified string is a valid nick!user\@host mask.
+	 * @param mask The string to check.
+	 * @return True if the specified string is a valid nick!user\@host mask; otherwise, false.
 	 */
 	static bool IsValidMask(const std::string& mask);
 
-	/** Strips all color and control codes except 001 from the given string
-	 * @param sentence The string to strip from
+	/** Matches two strings using glob pattern matching, optionally with a case map to use instead
+	 * of the server case map.
+	 * @param str The literal string to match against
+	 * @param pattern The glob pattern to match against.
+	 * @param map The character map to use when matching.
+	 * @return True if the string matches the mask; otherwise, false.
 	 */
-	static void StripColor(std::string& sentence);
+	static bool Match(const std::string& str, const std::string& pattern, const unsigned char* map = nullptr);
 
-	/** Parses color codes from string values to actual color codes
-	 * @param input The data to process
+	/** Matches two strings using glob pattern matching, optionally with a case map to use instead
+	 * of the server case map.
+	 * @param str The literal string to match against
+	 * @param pattern The glob pattern to match against.
+	 * @param map The character map to use when matching.
+	 * @return True if the string matches the pattern; otherwise, false.
 	 */
-	static void ProcessColors(std::vector<std::string>& input);
+	static bool Match(const char* str, const char* pattern, const unsigned char* map = nullptr);
 
-	/** Checks whether a password is valid.
-	 * @param password The hashed password.
-	 * @param passwordhash The name of the algorithm used to hash the password.
-	 * @param value The value to check to see if the password is valid.
+	/** Matches two strings using glob pattern and CIDR range matching, optionally with a case map
+	 * to use instead of the server case map.
+	 * @param str The literal string to match against
+	 * @param pattern The glob pattern to match against.
+	 * @param map The character map to use when matching.
+	 * @return True if the string matches the pattern; otherwise, false.
 	 */
-	static bool CheckPassword(const std::string& password, const std::string& passwordhash, const std::string& value);
+	static bool MatchCIDR(const std::string& str, const std::string& pattern, const unsigned char* map = nullptr);
 
-	/** Rehash the local server
-	 * @param uuid The uuid of the user who started the rehash, can be empty
+	/** Matches two strings using glob pattern and CIDR range matching, optionally with a case map
+	 * to use instead of the server case map.
+	 * @param str The literal string to match against
+	 * @param pattern The glob pattern to match against.
+	 * @param map The character map to use when matching.
+	 * @return True if the string matches the pattern; otherwise, false.
+	 */
+	static bool MatchCIDR(const char* str, const char* pattern, const unsigned char* map = nullptr);
+
+	/** Matches a hostname and address against a space delimited list of hostmasks.
+	 * @param masks The space delimited masks to match against.
+	 * @param hostname The hostname to try and match.
+	 * @param address The IP address or UNIX socket path to try and match.
+	 * @return True if a mask matches the hostname or address; otherwise, false.
+	 */
+	static bool MatchMask(const std::string& masks, const std::string& hostname, const std::string& address);
+
+	/** Reloads the server configuration.
+	 * @param uuid If non-empty then the uuid of the user who started the rehash.
 	 */
 	void Rehash(const std::string& uuid = "");
-
-	/** Attempt to write the process id to a given file
-	 */
-	void WritePID();
-
-	/** This constructor initialises all the subsystems and reads the config file.
-	 * @param argc The argument count passed to main()
-	 * @param argv The argument list passed to main()
-	 * @throw <anything> If anything is thrown from here and makes it to
-	 * you, you should probably just give up and go home. Yes, really.
-	 * It's that bad. Higher level classes should catch any non-fatal exceptions.
-	 */
-	InspIRCd(int argc, char** argv);
-
-	/** Prepare the ircd for restart or shutdown.
-	 * This function unloads all modules which can be unloaded,
-	 * closes all open sockets, and closes the logfile.
-	 */
-	void Cleanup();
-
-	/** Compare two strings in a timing-safe way. If the lengths of the strings differ, the function
-	 * returns false immediately (leaking information about the length), otherwise it compares each
-	 * character and only returns after all characters have been compared.
-	 * @param one First string
-	 * @param two Second string
-	 * @return True if the strings match, false if they don't
-	 */
-	static bool TimingSafeCompare(const std::string& one, const std::string& two);
 
 	/** Starts the execution of the server main loop. */
 	[[noreturn]]
 	void Run();
 
-	char* GetReadBuffer()
-	{
-		return this->ReadBuffer;
-	}
+	/** Replaces color escapes in the specified lines with IRC colors.
+	 * @param lines A vector of lines to replace color escapes in.
+	 */
+	static void ProcessColors(std::vector<std::string>& lines);
 
-	ClientProtocol::RFCEvents& GetRFCEvents() { return rfcevents; }
+	/** Stores an incoming signal when received from the operating system.
+	 * @param signal The signal received from the operating system.
+	 */
+	static void SetSignal(int signal);
+
+	/* Removes IRC colors from the specified string.
+	 * @param str The string to strip colors from.
+	 */
+	static void StripColor(std::string& str);
+
+	/** Retrieves the time, updated once per main loop iteration, as the number of seconds since
+	 * the UNIX epoch. This is faster than calling time functions manually.
+	 */
+	inline auto Time() const { return ts.tv_sec; }
+
+	/** Retrieves the time, updated once per main loop iteration, as the number of fractional
+	 * seconds since the UNIX epoch. This is faster than calling time functions manually.
+	 */
+	inline auto Time_ns() const { return ts.tv_nsec; }
+
+	/** Compares two strings in a timing-safe way. If the lengths of the strings differ the
+	 * function returns false immediately (leaking information about the length). Otherwise, it
+	 * compares each character and only returns after all characters have been compared.
+	 * @param str1 The first string to compare.
+	 * @param str2 The second string to compare.
+	 * @return True if the strings are equivalent; otherwise, false.
+	 */
+	static bool TimingSafeCompare(const std::string& str1, const std::string& str2);
+
+	/** Updates the current cached time. Don't call this unless you have reason to do so. */
+	void UpdateTime();
 };
 
 inline void Cullable::Deleter::operator()(Cullable* item)

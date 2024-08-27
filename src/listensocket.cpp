@@ -112,7 +112,7 @@ namespace
 	}
 }
 
-ListenSocket::ListenSocket(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& bind_to, int protocol)
+ListenSocket::ListenSocket(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& bind_to, sa_family_t protocol)
 	: bind_tag(tag)
 	, bind_sa(bind_to)
 	, bind_protocol(protocol)

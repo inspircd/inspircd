@@ -26,7 +26,7 @@
 
 #include "inspircd.h"
 
-void InspIRCd::SignalHandler(int signal)
+void InspIRCd::HandleSignal(sig_atomic_t signal)
 {
 	switch (signal)
 	{

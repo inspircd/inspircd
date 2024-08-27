@@ -409,7 +409,7 @@ public:
 	 * @param maxtime Time to wait for connection
 	 * @param protocol The protocol to use when connecting.
 	 */
-	void DoConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long maxtime, int protocol = 0);
+	void DoConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long maxtime, sa_family_t protocol = AF_UNSPEC);
 
 	/** This method is called when an outbound connection on your socket is
 	 * completed.
@@ -434,7 +434,7 @@ public:
 
 protected:
 	void OnEventHandlerWrite() override;
-	BufferedSocketError BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long timeout, int protocol);
+	BufferedSocketError BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long timeout, sa_family_t protocol = AF_UNSPEC);
 };
 
 inline IOHook* StreamSocket::GetIOHook() const { return iohook; }
