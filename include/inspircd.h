@@ -127,17 +127,14 @@ public:
 	size_t Recv = 0;
 
 #ifdef _WIN32
-	/** Cpu usage at last sample
-	*/
-	FILETIME LastCPU;
+	/** CPU performance frequency on boot. */
+	LARGE_INTEGER BootCPU;
 
-	/** Time QP sample was read
-	*/
-	LARGE_INTEGER LastSampled;
+	/** CPU performance frequency at the last sample. */
+	LARGE_INTEGER LastCPU;
 
-	/** QP frequency
-	*/
-	LARGE_INTEGER QPFrequency;
+	/** Time the last sample was read. */
+	FILETIME LastSampled;
 #else
 	/** CPU usage at the last sample. */
 	timeval LastCPU;

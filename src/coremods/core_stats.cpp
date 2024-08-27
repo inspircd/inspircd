@@ -309,8 +309,8 @@ void CommandStats::DoStats(Stats::Context& stats)
 			{
 				KernelTime.dwHighDateTime += UserTime.dwHighDateTime;
 				KernelTime.dwLowDateTime += UserTime.dwLowDateTime;
-				double n_eaten = (double)( ( (uint64_t)(KernelTime.dwHighDateTime - ServerInstance->Stats.LastCPU.dwHighDateTime) << 32 ) + (uint64_t)(KernelTime.dwLowDateTime - ServerInstance->Stats.LastCPU.dwLowDateTime) )/100000;
-				double n_elapsed = (double)(ThisSample.QuadPart - ServerInstance->Stats.LastSampled.QuadPart) / ServerInstance->Stats.QPFrequency.QuadPart;
+				double n_eaten = (double)( ( (uint64_t)(KernelTime.dwHighDateTime - ServerInstance->Stats.LastSampled.dwHighDateTime) << 32 ) + (uint64_t)(KernelTime.dwLowDateTime - ServerInstance->Stats.LastSampled.dwLowDateTime) )/100000;
+				double n_elapsed = (double)(ThisSample.QuadPart - ServerInstance->Stats.LastCPU.QuadPart) / ServerInstance->Stats.BootCPU.QuadPart;
 				double per = (n_eaten/n_elapsed);
 
 				stats.AddRow(249, INSP_FORMAT("CPU Use (now):    {:03.5}%", per));
