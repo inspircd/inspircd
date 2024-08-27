@@ -280,7 +280,7 @@ public:
 	 * @param protocol The protocol to bind with or 0 to determine from the endpoint.
 	 * @return True if the port was bound successfully; otherwise, false.
 	 */
-	bool BindPort(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& sa, std::vector<ListenSocket*>& oldports, int protocol);
+	bool BindPort(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& sa, std::vector<ListenSocket*>& oldports, sa_family_t protocol);
 
 	/** Binds all ports specified in the configuration file.
 	 * @return The number of ports bound without error.

@@ -54,7 +54,7 @@ BufferedSocket::BufferedSocket(int newfd)
 		SocketEngine::AddFd(this, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE);
 }
 
-void BufferedSocket::DoConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long maxtime, int protocol)
+void BufferedSocket::DoConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long maxtime, sa_family_t protocol)
 {
 	BufferedSocketError err = BeginConnect(dest, bind, maxtime, protocol);
 	if (err != I_ERR_NONE)
@@ -65,7 +65,7 @@ void BufferedSocket::DoConnect(const irc::sockets::sockaddrs& dest, const irc::s
 	}
 }
 
-BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long timeout, int protocol)
+BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long timeout, sa_family_t protocol)
 {
 	if (!HasFd())
 		SetFd(socket(dest.family(), SOCK_STREAM, protocol));
