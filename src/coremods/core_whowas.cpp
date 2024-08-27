@@ -69,6 +69,12 @@ namespace WhoWas
 
 		/** Initialize this Entry with a user */
 		Entry(User* user);
+
+		/** Retrieves the real hostname of the user. */
+		const auto& GetHost() const { return host.empty() ? dhost : host; }
+
+		/** Retrieves the real username of the user. */
+		const auto& GetUser() const { return user.empty() ? duser : user; }
 	};
 
 	/** Everything known about one nick */
@@ -232,7 +238,7 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 			user->WriteNumeric(RPL_WHOWASUSER, parameters[0], u->duser, u->dhost, '*', u->real);
 
 			if (user->HasPrivPermission("users/auspex"))
-				user->WriteNumeric(RPL_WHOISACTUALLY, INSP_FORMAT("{}@{}", u->user, u->host), u->address, "was connecting from");
+				user->WriteNumeric(RPL_WHOISACTUALLY, INSP_FORMAT("{}@{}", u->GetUser(), u->GetHost()), u->address, "was connecting from");
 
 			const std::string signon = Time::ToString(u->signon);
 			bool hide_server = (!ServerInstance->Config->HideServer.empty() && !user->HasPrivPermission("servers/auspex"));
@@ -397,9 +403,9 @@ void WhoWas::Manager::PurgeNick(WhoWas::Nick* nick)
 }
 
 WhoWas::Entry::Entry(User* u)
-	: host(u->GetRealHost())
+	: host(u->GetRealHost() == u->GetDisplayedHost() ? "" : u->GetRealHost())
 	, dhost(u->GetDisplayedHost())
-	, user(u->GetRealUser())
+	, user(u->GetRealUser() == u->GetDisplayedUser() ? "" : u->GetRealUser())
 	, duser(u->GetDisplayedUser())
 	, server(u->server->GetName())
 	, real(u->GetRealName())
