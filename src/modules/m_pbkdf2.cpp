@@ -119,7 +119,10 @@ public:
 
 	std::string GenerateRaw(const std::string& data) override
 	{
-		PBKDF2Hash hs(this->iterations, this->dkey_length, ServerInstance->GenRandomStr(dkey_length, false));
+		std::string salt(dkey_length, '\0');
+		ServerInstance->GenRandom(salt.data(), salt.length());
+
+		PBKDF2Hash hs(this->iterations, this->dkey_length, salt);
 		hs.hash = PBKDF2(data, hs.salt, this->iterations, this->dkey_length);
 		return hs.ToString();
 	}

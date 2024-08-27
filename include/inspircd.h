@@ -290,12 +290,19 @@ public:
 	 */
 	unsigned long GenRandomInt(unsigned long max) const;
 
+	/** Generates a human readable random string.
+	 * @param length The length in bytes.
+	 * @return  A random string of \p length bytes.
+	 */
+	std::string GenRandomStr(size_t length) const;
+
 	/** Generates a random string.
 	 * @param length The length in bytes.
 	 * @param printable Whether to only return printable characters.
 	 * @return  A random string of \p length bytes.
 	 */
-	std::string GenRandomStr(size_t length, bool printable = true) const;
+	[[deprecated("Use GenRandomStr(length) or GenRandom(buf, len) instead")]]
+	std::string GenRandomStr(size_t length, bool printable) const;
 
 	/** Retrieves a 64k buffer used to read socket data into. */
 	inline auto* GetReadBuffer() { return readbuffer; }

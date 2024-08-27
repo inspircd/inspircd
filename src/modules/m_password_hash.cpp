@@ -56,7 +56,9 @@ public:
 				return CmdResult::FAILURE;
 			}
 
-			std::string salt = ServerInstance->GenRandomStr(hp->out_size, false);
+			std::string salt(hp->out_size, '\0');
+			ServerInstance->GenRandom(salt.data(), salt.length());
+
 			std::string target = hp->hmac(salt, parameters[1]);
 			std::string str = Base64::Encode(salt) + "$" + Base64::Encode(target, nullptr, 0);
 
