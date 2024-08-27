@@ -130,7 +130,7 @@ public:
 
 	/** Formats the string with the specified arguments and adds them to the numeric.
 	 * @param text A format string to format and then push.
-	 * @param p One or more arguments to format the string with.
+	 * @param args One or more arguments to format the string with.
 	 */
 	template <typename... Args>
 	Numeric& push_fmt(const char* text, Args&&... args)
