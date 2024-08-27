@@ -118,9 +118,9 @@ private:
 			// Some clients can not handle receiving RPL_OMOTD with an empty
 			// trailing parameter so if a line is empty we replace it with
 			// a single space.
+			InspIRCd::ProcessColors(line);
 			newmotd.push_back(line.empty() ? " " : line);
 		}
-		InspIRCd::ProcessColors(newmotd);
 	}
 
 public:

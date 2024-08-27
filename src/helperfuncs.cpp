@@ -121,6 +121,12 @@ void InspIRCd::StripColor(std::string& sentence)
 
 void InspIRCd::ProcessColors(std::vector<std::string>& input)
 {
+	for (auto& line : input)
+		ProcessColors(line);
+}
+
+void InspIRCd::ProcessColors(std::string& ret)
+{
 	/*
 	 * Replace all color codes from the special[] array to actual
 	 * color code chars using C++ style escape sequences. You
@@ -148,7 +154,6 @@ void InspIRCd::ProcessColors(std::vector<std::string>& input)
 		special_chars("", "")
 	};
 
-	for (auto& ret : input)
 	{
 		for(int i = 0; !special[i].character.empty(); ++i)
 		{

@@ -422,7 +422,13 @@ public:
 	/** Replaces color escapes in the specified lines with IRC colors.
 	 * @param lines A vector of lines to replace color escapes in.
 	 */
+	[[deprecated("Use ProcessColors(std::string) instead")]]
 	static void ProcessColors(std::vector<std::string>& lines);
+
+	/** Replaces color escapes in the specified string with IRC colors.
+	 * @param lines The string replace color escapes in.
+	 */
+	static void ProcessColors(std::string& str);
 
 	/** Stores an incoming signal when received from the operating system.
 	 * @param signal The signal received from the operating system.
