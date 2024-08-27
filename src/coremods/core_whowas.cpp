@@ -36,9 +36,6 @@ enum
 	RPL_WHOWASUSER = 314,
 	RPL_ENDOFWHOWAS = 369,
 	ERR_WASNOSUCHNICK = 406,
-
-	// InspIRCd-specific.
-	RPL_WHOWASIP = 652
 };
 
 namespace WhoWas
@@ -63,6 +60,9 @@ namespace WhoWas
 
 		/** Real name */
 		const std::string real;
+
+		/** IP address or UNIX socket path. */
+		const std::string address;
 
 		/** Signon time */
 		const time_t signon;
@@ -232,7 +232,7 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 			user->WriteNumeric(RPL_WHOWASUSER, parameters[0], u->duser, u->dhost, '*', u->real);
 
 			if (user->HasPrivPermission("users/auspex"))
-				user->WriteNumeric(RPL_WHOWASIP, parameters[0], INSP_FORMAT("was connecting from {}@{}", u->user, u->host));
+				user->WriteNumeric(RPL_WHOISACTUALLY, INSP_FORMAT("{}@{}", u->user, u->host), u->address, "was connecting from");
 
 			const std::string signon = Time::ToString(u->signon);
 			bool hide_server = (!ServerInstance->Config->HideServer.empty() && !user->HasPrivPermission("servers/auspex"));
@@ -403,6 +403,7 @@ WhoWas::Entry::Entry(User* u)
 	, duser(u->GetDisplayedUser())
 	, server(u->server->GetPublicName())
 	, real(u->GetRealName())
+	, address(u->GetAddress())
 	, signon(u->signon)
 {
 }
