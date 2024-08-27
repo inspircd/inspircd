@@ -449,12 +449,13 @@ public:
 
 	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message) override
 	{
-		cmd.manager.Add(user, user->nick);
+		if (user->nick != user->uuid)
+			cmd.manager.Add(user, user->nick);
 	}
 
 	void OnUserPostNick(User* user, const std::string& oldnick) override
 	{
-		if (nickupdate)
+		if (nickupdate && oldnick != user->uuid)
 			cmd.manager.Add(user, oldnick);
 	}
 
