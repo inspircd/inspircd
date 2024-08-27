@@ -438,7 +438,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	ServerInstance = this;
 
 	UpdateTime();
-	this->startup_time = TIME.tv_sec;
+	this->startup_time = Time();
 
 	IncreaseCoreDumpSize();
 	SocketEngine::Init();
@@ -601,26 +601,26 @@ InspIRCd::InspIRCd(int argc, char** argv)
 void InspIRCd::UpdateTime()
 {
 #if defined HAS_CLOCK_GETTIME
-	clock_gettime(CLOCK_REALTIME, &TIME);
+	clock_gettime(CLOCK_REALTIME, &ts);
 #elif defined _WIN32
 	SYSTEMTIME st;
 	GetSystemTime(&st);
 
-	TIME.tv_sec = time(nullptr);
-	TIME.tv_nsec = st.wMilliseconds;
+	ts.tv_sec = time(nullptr);
+	ts.tv_nsec = st.wMilliseconds;
 #else
 	struct timeval tv;
 	gettimeofday(&tv, nullptr);
 
-	TIME.tv_sec = tv.tv_sec;
-	TIME.tv_nsec = tv.tv_usec * 1000;
+	ts.tv_sec = tv.tv_sec;
+	ts.tv_nsec = tv.tv_usec * 1000;
 #endif
 }
 
 void InspIRCd::Run()
 {
 	UpdateTime();
-	time_t OLDTIME = TIME.tv_sec;
+	auto oldtime = Time();
 
 	while (true)
 	{
@@ -640,23 +640,23 @@ void InspIRCd::Run()
 		// software like irctest. Don't define this unless you know
 		// what you are doing.
 #ifndef INSPIRCD_UNLIMITED_MAINLOOP
-		if (TIME.tv_sec != OLDTIME)
+		if (Time() != oldtime)
 #endif
 		{
 			CollectStats();
-			CheckTimeSkip(OLDTIME, TIME.tv_sec);
+			CheckTimeSkip(oldtime, Time());
 
-			OLDTIME = TIME.tv_sec;
+			oldtime = Time();
 
-			if ((TIME.tv_sec % 3600) == 0)
+			if ((Time() % 3600) == 0)
 				FOREACH_MOD(OnGarbageCollect, ());
 
 			Timers.TickTimers();
 			Users.DoBackgroundUserStuff();
 
-			if ((TIME.tv_sec % 5) == 0)
+			if ((Time() % 5) == 0)
 			{
-				FOREACH_MOD(OnBackgroundTimer, (TIME.tv_sec));
+				FOREACH_MOD(OnBackgroundTimer, (Time()));
 				SNO.FlushSnotices();
 			}
 		}
@@ -675,19 +675,19 @@ void InspIRCd::Run()
 		GlobalCulls.Apply();
 		AtomicActions.Run();
 
-		if (s_signal)
+		if (lastsignal)
 		{
-			this->SignalHandler(s_signal);
-			s_signal = 0;
+			HandleSignal(lastsignal);
+			lastsignal = 0;
 		}
 	}
 }
 
-sig_atomic_t InspIRCd::s_signal = 0;
+sig_atomic_t InspIRCd::lastsignal = 0;
 
 void InspIRCd::SetSignal(int signal)
 {
-	s_signal = signal;
+	lastsignal = signal;
 }
 
 #ifdef _WIN32
