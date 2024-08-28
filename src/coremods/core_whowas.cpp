@@ -129,7 +129,7 @@ namespace WhoWas
 		 * @param NewMaxGroups Maximum number of entries per nick
 		 * @param NewMaxKeep Seconds how long each nick should be kept
 		 */
-		void UpdateConfig(unsigned int NewGroupSize, unsigned int NewMaxGroups, unsigned int NewMaxKeep);
+		void UpdateConfig(unsigned int NewGroupSize, unsigned int NewMaxGroups, unsigned long NewMaxKeep);
 
 		/** Retrieves all data known about a given nick
 		 * @param nick Nickname to find, case insensitive (IRC casemapping)
@@ -167,7 +167,7 @@ namespace WhoWas
 		unsigned int MaxGroups = 0;
 
 		/** Max seconds a user is kept in WhoWas before being pruned. */
-		unsigned int MaxKeep = 0;
+		unsigned long MaxKeep = 0;
 
 		/** Shrink all data structures to honor the current settings */
 		void Prune();
@@ -372,7 +372,7 @@ bool WhoWas::Manager::IsEnabled() const
 	return ((GroupSize != 0) && (MaxGroups != 0));
 }
 
-void WhoWas::Manager::UpdateConfig(unsigned int NewGroupSize, unsigned int NewMaxGroups, unsigned int NewMaxKeep)
+void WhoWas::Manager::UpdateConfig(unsigned int NewGroupSize, unsigned int NewMaxGroups, unsigned long NewMaxKeep)
 {
 	if ((NewGroupSize == GroupSize) && (NewMaxGroups == MaxGroups) && (NewMaxKeep == MaxKeep))
 		return;
@@ -472,7 +472,7 @@ public:
 		const auto& tag = ServerInstance->Config->ConfValue("whowas");
 		const auto groupsize = tag->getNum<unsigned int>("groupsize", 10);
 		const auto maxgroups = tag->getNum<unsigned int>("maxgroups", 10000);
-		const auto maxkeep = static_cast<unsigned int>(tag->getDuration("maxkeep", 7*24*60*60, 60*60));
+		const auto maxkeep = tag->getDuration("maxkeep", 7*24*60*60, 60*60);
 		nickupdate = tag->getBool("nickupdate", true);
 
 		cmd.manager.UpdateConfig(groupsize, maxgroups, maxkeep);
