@@ -329,13 +329,10 @@ public:
 	/** Retrieves the level required to modify this mode.
 	 * @param adding Whether the mode is being added or removed.
 	 */
-	inline Rank GetLevelRequired(bool adding) const
-	{
-		return adding ? ranktoset : ranktounset;
-	}
+	inline auto GetLevelRequired(bool adding) const { return adding ? ranktoset : ranktounset; }
 
 	/** Retrieves the syntax of the parameter for this mode. */
-	const std::string& GetSyntax() const { return syntax; }
+	const auto& GetSyntax() const { return syntax; }
 
 	friend class ModeParser;
 };
