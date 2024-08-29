@@ -238,7 +238,7 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 			user->WriteNumeric(RPL_WHOWASUSER, parameters[0], u->duser, u->dhost, '*', u->real);
 
 			if (user->HasPrivPermission("users/auspex"))
-				user->WriteNumeric(RPL_WHOISACTUALLY, INSP_FORMAT("{}@{}", u->GetUser(), u->GetHost()), u->address, "was connecting from");
+				user->WriteNumeric(RPL_WHOISACTUALLY, parameters[0], INSP_FORMAT("{}@{}", u->GetUser(), u->GetHost()), u->address, "was connecting from");
 
 			const std::string signon = Time::ToString(u->signon);
 			bool hide_server = (!ServerInstance->Config->HideServer.empty() && !user->HasPrivPermission("servers/auspex"));
