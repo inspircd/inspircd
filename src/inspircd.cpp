@@ -105,7 +105,7 @@ namespace
 		ServerInstance->Stats.LastSampled.tv_nsec = ServerInstance->Time_ns();
 		ServerInstance->Stats.LastCPU = ru.ru_utime;
 #else
-		if (!QueryPerformanceCounter(&ServerInstance->Stats.LastSampled))
+		if (!QueryPerformanceCounter(&ServerInstance->Stats.LastCPU))
 			return; // Should never happen.
 
 		FILETIME CreationTime;
@@ -114,8 +114,8 @@ namespace
 		FILETIME UserTime;
 		GetProcessTimes(GetCurrentProcess(), &CreationTime, &ExitTime, &KernelTime, &UserTime);
 
-		ServerInstance->Stats.LastCPU.dwHighDateTime = KernelTime.dwHighDateTime + UserTime.dwHighDateTime;
-		ServerInstance->Stats.LastCPU.dwLowDateTime = KernelTime.dwLowDateTime + UserTime.dwLowDateTime;
+		ServerInstance->Stats.LastSampled.dwHighDateTime = KernelTime.dwHighDateTime + UserTime.dwHighDateTime;
+		ServerInstance->Stats.LastSampled.dwLowDateTime = KernelTime.dwLowDateTime + UserTime.dwLowDateTime;
 #endif
 	}
 
@@ -587,7 +587,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		FreeConsole();
 	}
 
-	QueryPerformanceFrequency(&this->Stats.QPFrequency);
+	QueryPerformanceFrequency(&this->Stats.BootCPU);
 #endif
 
 	WritePID();

@@ -335,10 +335,16 @@ public:
 	{
 		{
 			if (!cap.IsEnabled(user))
+			{
+				user->WriteNumeric(ERR_UNKNOWNCOMMAND, name, "You must request the sasl capability to use this command");
 				return CmdResult::FAILURE;
+			}
 
 			if (parameters[0].find(' ') != std::string::npos || parameters[0][0] == ':')
+			{
+				user->WriteNumeric(ERR_SASLABORTED, "SASL authentication aborted");
 				return CmdResult::FAILURE;
+			}
 
 			if (parameters[0].length() > MAX_AUTHENTICATE_SIZE)
 			{

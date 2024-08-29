@@ -103,9 +103,9 @@ public:
 			// Some clients can not handle receiving NOTICE/PRIVMSG/RPL_RULES
 			// with an empty trailing parameter so if a line is empty we
 			// replace it with a single space.
+			InspIRCd::ProcessColors(line);
 			contents.push_back(line.empty() ? " " : line);
 		}
-		InspIRCd::ProcessColors(contents);
 		contents.shrink_to_fit();
 	}
 };

@@ -36,9 +36,6 @@ enum
 	RPL_WHOWASUSER = 314,
 	RPL_ENDOFWHOWAS = 369,
 	ERR_WASNOSUCHNICK = 406,
-
-	// InspIRCd-specific.
-	RPL_WHOWASIP = 652
 };
 
 namespace WhoWas
@@ -64,11 +61,20 @@ namespace WhoWas
 		/** Real name */
 		const std::string real;
 
+		/** IP address or UNIX socket path. */
+		const std::string address;
+
 		/** Signon time */
 		const time_t signon;
 
 		/** Initialize this Entry with a user */
 		Entry(User* user);
+
+		/** Retrieves the real hostname of the user. */
+		const auto& GetHost() const { return host.empty() ? dhost : host; }
+
+		/** Retrieves the real username of the user. */
+		const auto& GetUser() const { return user.empty() ? duser : user; }
 	};
 
 	/** Everything known about one nick */
@@ -106,7 +112,7 @@ namespace WhoWas
 		/** Add a user to the whowas database. Called when a user quits.
 		 * @param user The user to add to the database
 		 */
-		void Add(User* user);
+		void Add(User* user, const std::string& nickname);
 
 		/** Retrieves statistics about the whowas database
 		 * @return Whowas statistics as a WhoWas::Manager::Stats struct
@@ -123,7 +129,7 @@ namespace WhoWas
 		 * @param NewMaxGroups Maximum number of entries per nick
 		 * @param NewMaxKeep Seconds how long each nick should be kept
 		 */
-		void UpdateConfig(unsigned int NewGroupSize, unsigned int NewMaxGroups, unsigned int NewMaxKeep);
+		void UpdateConfig(unsigned int NewGroupSize, unsigned int NewMaxGroups, unsigned long NewMaxKeep);
 
 		/** Retrieves all data known about a given nick
 		 * @param nick Nickname to find, case insensitive (IRC casemapping)
@@ -161,7 +167,7 @@ namespace WhoWas
 		unsigned int MaxGroups = 0;
 
 		/** Max seconds a user is kept in WhoWas before being pruned. */
-		unsigned int MaxKeep = 0;
+		unsigned long MaxKeep = 0;
 
 		/** Shrink all data structures to honor the current settings */
 		void Prune();
@@ -232,7 +238,7 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 			user->WriteNumeric(RPL_WHOWASUSER, parameters[0], u->duser, u->dhost, '*', u->real);
 
 			if (user->HasPrivPermission("users/auspex"))
-				user->WriteNumeric(RPL_WHOWASIP, parameters[0], FMT::format("was connecting from {}@{}", u->user, u->host));
+				user->WriteNumeric(RPL_WHOISACTUALLY, parameters[0], FMT::format("{}@{}", u->GetUser(), u->GetHost()), u->address, "was connecting from");
 
 			const std::string signon = Time::ToString(u->signon);
 			bool hide_server = (!ServerInstance->Config->HideServer.empty() && !user->HasPrivPermission("servers/auspex"));
@@ -263,14 +269,14 @@ WhoWas::Manager::Stats WhoWas::Manager::GetStats() const
 	return stats;
 }
 
-void WhoWas::Manager::Add(User* user)
+void WhoWas::Manager::Add(User* user, const std::string& nickname)
 {
 	if (!IsEnabled())
 		return;
 
 	// Insert nick if it doesn't exist
 	// 'first' will point to the newly inserted element or to the existing element with an equivalent key
-	std::pair<whowas_users::iterator, bool> ret = whowas.emplace(user->nick, nullptr);
+	std::pair<whowas_users::iterator, bool> ret = whowas.emplace(nickname, nullptr);
 
 	if (ret.second) // If inserted
 	{
@@ -366,7 +372,7 @@ bool WhoWas::Manager::IsEnabled() const
 	return ((GroupSize != 0) && (MaxGroups != 0));
 }
 
-void WhoWas::Manager::UpdateConfig(unsigned int NewGroupSize, unsigned int NewMaxGroups, unsigned int NewMaxKeep)
+void WhoWas::Manager::UpdateConfig(unsigned int NewGroupSize, unsigned int NewMaxGroups, unsigned long NewMaxKeep)
 {
 	if ((NewGroupSize == GroupSize) && (NewMaxGroups == MaxGroups) && (NewMaxKeep == MaxKeep))
 		return;
@@ -397,12 +403,13 @@ void WhoWas::Manager::PurgeNick(WhoWas::Nick* nick)
 }
 
 WhoWas::Entry::Entry(User* u)
-	: host(u->GetRealHost())
+	: host(u->GetRealHost() == u->GetDisplayedHost() ? "" : u->GetRealHost())
 	, dhost(u->GetDisplayedHost())
-	, user(u->GetRealUser())
+	, user(u->GetRealUser() == u->GetDisplayedUser() ? "" : u->GetRealUser())
 	, duser(u->GetDisplayedUser())
-	, server(u->server->GetPublicName())
+	, server(u->server->GetName())
 	, real(u->GetRealName())
+	, address(u->GetAddress())
 	, signon(u->signon)
 {
 }
@@ -422,7 +429,9 @@ class ModuleWhoWas final
 	: public Module
 	, public Stats::EventListener
 {
+public:
 	CommandWhowas cmd;
+	bool nickupdate;
 
 public:
 	ModuleWhoWas()
@@ -440,7 +449,14 @@ public:
 
 	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message) override
 	{
-		cmd.manager.Add(user);
+		if (user->nick != user->uuid)
+			cmd.manager.Add(user, user->nick);
+	}
+
+	void OnUserPostNick(User* user, const std::string& oldnick) override
+	{
+		if (nickupdate && oldnick != user->uuid)
+			cmd.manager.Add(user, oldnick);
 	}
 
 	ModResult OnStats(Stats::Context& stats) override
@@ -454,11 +470,12 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("whowas");
-		unsigned int NewGroupSize = tag->getNum<unsigned int>("groupsize", 10, 0, 10000);
-		unsigned int NewMaxGroups = tag->getNum<unsigned int>("maxgroups", 10240, 0, 1000000);
-		unsigned int NewMaxKeep = static_cast<unsigned int>(tag->getDuration("maxkeep", 3600, 3600));
+		const auto groupsize = tag->getNum<unsigned int>("groupsize", 10);
+		const auto maxgroups = tag->getNum<unsigned int>("maxgroups", 10000);
+		const auto maxkeep = tag->getDuration("maxkeep", 7*24*60*60, 60*60);
+		nickupdate = tag->getBool("nickupdate", true);
 
-		cmd.manager.UpdateConfig(NewGroupSize, NewMaxGroups, NewMaxKeep);
+		cmd.manager.UpdateConfig(groupsize, maxgroups, maxkeep);
 	}
 };
 

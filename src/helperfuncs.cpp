@@ -119,7 +119,7 @@ void InspIRCd::StripColor(std::string& sentence)
 	}
 }
 
-void InspIRCd::ProcessColors(std::vector<std::string>& input)
+void InspIRCd::ProcessColors(std::string& ret)
 {
 	/*
 	 * Replace all color codes from the special[] array to actual
@@ -148,7 +148,6 @@ void InspIRCd::ProcessColors(std::vector<std::string>& input)
 		special_chars("", "")
 	};
 
-	for (auto& ret : input)
 	{
 		for(int i = 0; !special[i].character.empty(); ++i)
 		{
@@ -438,14 +437,21 @@ std::string Time::ToString(time_t curtime, const char* format, bool utc)
 	return buffer;
 }
 
-std::string InspIRCd::GenRandomStr(size_t length, bool printable) const
+std::string InspIRCd::GenRandomStr(size_t length) const
 {
-	std::vector<char> str(length);
-	GenRandom(str.data(), length);
-	if (printable)
-		for (size_t i = 0; i < length; i++)
-			str[i] = 0x3F + (str[i] & 0x3F);
-	return std::string(str.data(), str.size());
+	static const char chars[] = {
+		'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+		'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+		'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+		'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+	};
+
+	std::string buf;
+	buf.reserve(length);
+	for (size_t idx = 0; idx < length; ++idx)
+		buf.push_back(chars[GenRandomInt(std::size(chars))]);
+	return buf;
 }
 
 // NOTE: this has a slight bias for lower values if max is not a power of 2.

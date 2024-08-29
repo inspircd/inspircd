@@ -92,7 +92,8 @@ public:
 
 	std::string GenerateRaw(const std::string& data) override
 	{
-		const std::string salt = ServerInstance->GenRandomStr(config.saltlen, false);
+		std::vector<char> salt(config.saltlen);
+		ServerInstance->GenRandom(salt.data(), salt.size());
 
 		size_t encodedLen = argon2_encodedlen(
 			config.iterations,
@@ -111,8 +112,8 @@ public:
 			config.threads,
 			data.c_str(),
 			data.length(),
-			salt.c_str(),
-			salt.length(),
+			salt.data(),
+			salt.size(),
 			raw_data.data(),
 			raw_data.size(),
 			encoded_data.data(),

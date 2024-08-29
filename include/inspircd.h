@@ -105,53 +105,41 @@ CoreExport extern InspIRCd* ServerInstance;
 class ServerStats final
 {
 public:
-	/** Number of accepted connections
-	 */
-	unsigned long Accept = 0;
+	/** Number of accepted connections. */
+	size_t Accept = 0;
 
-	/** Number of failed accepts
-	 */
-	unsigned long Refused = 0;
+	/** Number of rejected connections. */
+	size_t Refused = 0;
 
-	/** Number of unknown commands seen
-	 */
-	unsigned long Unknown = 0;
+	/** Number of unknown commands seen. */
+	size_t Unknown = 0;
 
-	/** Number of nickname collisions handled
-	 */
-	unsigned long Collisions = 0;
+	/** Number of nickname collisions handled. */
+	size_t Collisions = 0;
 
-	/** Number of inbound connections seen
-	 */
-	unsigned long Connects = 0;
+	/** Number of fully connected users seen. */
+	size_t Connects = 0;
 
-	/** Total bytes of data transmitted
-	 */
-	unsigned long Sent = 0;
+	/** Total bytes of data transmitted. */
+	size_t Sent = 0;
 
-	/** Total bytes of data received
-	 */
-	unsigned long Recv = 0;
+	/** Total bytes of data received. */
+	size_t Recv = 0;
 
 #ifdef _WIN32
-	/** Cpu usage at last sample
-	*/
-	FILETIME LastCPU;
+	/** CPU performance frequency on boot. */
+	LARGE_INTEGER BootCPU;
 
-	/** Time QP sample was read
-	*/
-	LARGE_INTEGER LastSampled;
+	/** CPU performance frequency at the last sample. */
+	LARGE_INTEGER LastCPU;
 
-	/** QP frequency
-	*/
-	LARGE_INTEGER QPFrequency;
+	/** Time the last sample was read. */
+	FILETIME LastSampled;
 #else
-	/** Cpu usage at last sample
-	 */
+	/** CPU usage at the last sample. */
 	timeval LastCPU;
 
-	/** Time last sample was read
-	 */
+	/** Time the last sample was read. */
 	timespec LastSampled;
 #endif
 };
@@ -283,9 +271,10 @@ public:
 	bool BindPort(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& sa, std::vector<ListenSocket*>& oldports, sa_family_t protocol);
 
 	/** Binds all ports specified in the configuration file.
+	 * @param failedports The location to store details about the ports that failed to bind.
 	 * @return The number of ports bound without error.
 	 */
-	size_t BindPorts(FailedPortList& failed_ports);
+	size_t BindPorts(FailedPortList& failedports);
 
 	/** Compares a password to a hashed password.
 	 * @param password The hashed password.
@@ -301,12 +290,11 @@ public:
 	 */
 	unsigned long GenRandomInt(unsigned long max) const;
 
-	/** Generates a random string.
+	/** Generates a human readable random string.
 	 * @param length The length in bytes.
-	 * @param printable Whether to only return printable characters.
 	 * @return  A random string of \p length bytes.
 	 */
-	std::string GenRandomStr(size_t length, bool printable = true) const;
+	std::string GenRandomStr(size_t length) const;
 
 	/** Retrieves a 64k buffer used to read socket data into. */
 	inline auto* GetReadBuffer() { return readbuffer; }
@@ -419,10 +407,10 @@ public:
 	[[noreturn]]
 	void Run();
 
-	/** Replaces color escapes in the specified lines with IRC colors.
-	 * @param lines A vector of lines to replace color escapes in.
+	/** Replaces color escapes in the specified string with IRC colors.
+	 * @param lines The string replace color escapes in.
 	 */
-	static void ProcessColors(std::vector<std::string>& lines);
+	static void ProcessColors(std::string& str);
 
 	/** Stores an incoming signal when received from the operating system.
 	 * @param signal The signal received from the operating system.
