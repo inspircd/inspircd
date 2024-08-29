@@ -139,6 +139,27 @@ void InspIRCd::ProcessColors(std::string& line)
 		{ 'u',  "\x1F" }, // Underline
 		{ 'x',  "\x0F" }, // Reset
 	};
+	static const insp::flat_map<std::string, uint8_t, irc::insensitive_swo> colors = {
+		{ "white",       0  },
+		{ "black",       1  },
+		{ "blue",        2  },
+		{ "green",       3  },
+		{ "red",         4  },
+		{ "brown",       5  },
+		{ "magenta",     6  },
+		{ "orange",      7  },
+		{ "yellow",      8  },
+		{ "light green", 9  },
+		{ "cyan",        10 },
+		{ "light cyan",  11 },
+		{ "light blue",  12 },
+		{ "pink",        13 },
+		{ "gray",        14 },
+		{ "grey",        14 },
+		{ "light gray",  15 },
+		{ "light grey",  15 },
+		{ "default",     99 },
+	};
 
 	for (size_t idx = 0; idx < line.length(); )
 	{
@@ -157,7 +178,8 @@ void InspIRCd::ProcessColors(std::string& line)
 			continue;
 		}
 
-		const auto it = formats.find(line[idx]);
+		const auto chr = line[idx];
+		const auto it = formats.find(chr);
 		if (it == formats.end())
 		{
 			// Unknown escape, strip.
@@ -167,6 +189,45 @@ void InspIRCd::ProcessColors(std::string& line)
 
 		line.replace(start, 2, it->second);
 		idx = start + it->second.length();
+
+		if (chr != 'c')
+			continue; // Only colors can have values.
+
+		start = idx;
+		if (idx >= line.length() || line[idx] != '{')
+			continue; // No color value.
+
+		const auto fgend = line.find_first_of(",}", idx + 1);
+		if (fgend == std::string::npos)
+		{
+			// Malformed color value, strip.
+			line.erase(start);
+			break;
+		}
+
+		size_t bgend = std::string::npos;
+		if (line[fgend] == ',')
+		{
+			bgend = line.find_first_of("}", fgend + 1);
+			if (bgend == std::string::npos)
+			{
+				// Malformed color value, strip.
+				line.erase(start);
+				break;
+			}
+		}
+
+		const auto fg = colors.find(line.substr(start + 1, fgend - start - 1));
+		auto tmp = ConvToStr(fg == colors.end() ? 99 : fg->second);
+		if (bgend != std::string::npos)
+		{
+			const auto bg = colors.find(line.substr(fgend + 1, bgend - fgend - 1));
+			tmp.push_back(',');
+			tmp.append(ConvToStr(bg == colors.end() ? 99 : bg->second));
+		}
+
+		const auto end = bgend == std::string::npos ? fgend : bgend;
+		line.replace(start, end - start + 1, tmp);
 	}
 }
 
