@@ -125,60 +125,48 @@ void InspIRCd::ProcessColors(std::vector<std::string>& input)
 		ProcessColors(line);
 }
 
-void InspIRCd::ProcessColors(std::string& ret)
+void InspIRCd::ProcessColors(std::string& line)
 {
-	/*
-	 * Replace all color codes from the special[] array to actual
-	 * color code chars using C++ style escape sequences. You
-	 * can append other chars to replace if you like -- Justasic
-	 */
-	static struct special_chars final
-	{
-		std::string character;
-		std::string replace;
-		special_chars(const std::string& c, const std::string& r)
-			: character(c)
-			, replace(r)
-		{
-		}
-	} special[] = {
-		special_chars("\\b", "\x02"), // Bold
-		special_chars("\\c", "\x03"), // Color
-		special_chars("\\h", "\x04"), // Hex Color
-		special_chars("\\i", "\x1D"), // Italic
-		special_chars("\\m", "\x11"), // Monospace
-		special_chars("\\r", "\x16"), // Reverse
-		special_chars("\\s", "\x1E"), // Strikethrough
-		special_chars("\\u", "\x1F"), // Underline
-		special_chars("\\x", "\x0F"), // Reset
-		special_chars("", "")
+	static const insp::flat_map<std::string::value_type, std::string> formats = {
+		{ '\\', "\\"   }, // Escape
+		{ 'b',  "\x02" }, // Bold
+		{ 'c',  "\x03" }, // Color
+		{ 'h',  "\x04" }, // Hex Color
+		{ 'i',  "\x1D" }, // Italic
+		{ 'm',  "\x11" }, // Monospace
+		{ 'r',  "\x16" }, // Reverse
+		{ 's',  "\x1E" }, // Strikethrough
+		{ 'u',  "\x1F" }, // Underline
+		{ 'x',  "\x0F" }, // Reset
 	};
 
+	for (size_t idx = 0; idx < line.length(); )
 	{
-		for(int i = 0; !special[i].character.empty(); ++i)
+		if (line[idx] != '\\')
 		{
-			std::string::size_type pos = ret.find(special[i].character);
-			if(pos == std::string::npos) // Couldn't find the character, skip this line
-				continue;
-
-			if((pos > 0) && (ret[pos-1] == '\\') && (ret[pos] == '\\'))
-				continue; // Skip double slashes.
-
-			// Replace all our characters in the array
-			while(pos != std::string::npos)
-			{
-				ret = ret.substr(0, pos) + special[i].replace + ret.substr(pos + special[i].character.size());
-				pos = ret.find(special[i].character, pos + special[i].replace.size());
-			}
+			// Regular character.
+			idx++;
+			continue;
 		}
 
-		// Replace double slashes with a single slash before we return
-		std::string::size_type pos = ret.find("\\\\");
-		while(pos != std::string::npos)
+		auto start = idx;
+		if (++idx >= line.length())
 		{
-			ret = ret.substr(0, pos) + "\\" + ret.substr(pos + 2);
-			pos = ret.find("\\\\", pos + 1);
+			// Stray \ at the end of the string; strip.
+			line.pop_back();
+			continue;
 		}
+
+		const auto it = formats.find(line[idx]);
+		if (it == formats.end())
+		{
+			// Unknown escape, strip.
+			line.erase(start, 2);
+			continue;
+		}
+
+		line.replace(start, 2, it->second);
+		idx = start + it->second.length();
 	}
 }
 
