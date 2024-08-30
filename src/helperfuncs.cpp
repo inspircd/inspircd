@@ -129,6 +129,8 @@ void InspIRCd::ProcessColors(std::string& line)
 {
 	static const insp::flat_map<std::string::value_type, std::string> formats = {
 		{ '\\', "\\"   }, // Escape
+		{ '{',  "{"    }, // Escape
+		{ '}',  "}"    }, // Escape
 		{ 'b',  "\x02" }, // Bold
 		{ 'c',  "\x03" }, // Color
 		{ 'h',  "\x04" }, // Hex Color
