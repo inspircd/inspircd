@@ -492,6 +492,7 @@ ParseStack::ParseStack(ServerConfig* conf)
 
 		// Directories that were set at build time.
 		{ "dir.config",  INSPIRCD_CONFIG_PATH  },
+		{ "dir.example", INSPIRCD_EXAMPLE_PATH },
 		{ "dir.data",    INSPIRCD_DATA_PATH    },
 		{ "dir.log",     INSPIRCD_LOG_PATH     },
 		{ "dir.module",  INSPIRCD_MODULE_PATH  },
