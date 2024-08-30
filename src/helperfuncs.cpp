@@ -91,31 +91,51 @@ bool InspIRCd::IsValidMask(const std::string& mask)
 	return true;
 }
 
-void InspIRCd::StripColor(std::string& sentence)
+void InspIRCd::StripColor(std::string& line)
 {
-	/* refactor this completely due to SQUIT bug since the old code would strip last char and replace with \0 --peavey */
-	int seq = 0;
-
-	for (std::string::iterator i = sentence.begin(); i != sentence.end();)
+	for (size_t idx = 0; idx < line.length(); )
 	{
-		if (*i == 3)
-			seq = 1;
-		else if (seq && (( ((*i >= '0') && (*i <= '9')) || (*i == ',') ) ))
+		switch (line[idx])
 		{
-			seq++;
-			if ( (seq <= 4) && (*i == ',') )
-				seq = 1;
-			else if (seq > 3)
-				seq = 0;
-		}
-		else
-			seq = 0;
+			case '\x02': // Bold
+			case '\x1D': // Italic
+			case '\x11': // Monospace
+			case '\x16': // Reverse
+			case '\x1E': // Strikethrough
+			case '\x1F': // Underline
+			case '\x0F': // Reset
+				line.erase(idx, 1);
+				break;
 
-		// Strip all control codes too except \001 for CTCP
-		if (seq || ((*i >= 0) && (*i < 32) && (*i != 1)))
-			i = sentence.erase(i);
-		else
-			++i;
+			case '\x03': // Color
+			{
+				auto start = idx;
+				while (++idx < line.length() && idx - start < 6)
+				{
+					const auto chr = line[idx];
+					if (chr != ',' && (chr < '0' || chr > '9'))
+						break;
+				}
+				line.erase(start, idx - start);
+				break;
+			}
+			case '\x04': // Hex Color
+			{
+				auto start = idx;
+				while (++idx < line.length() && idx - start < 14)
+				{
+					const auto chr = line[idx];
+					if (chr != ',' && (chr < '0' || chr > '9') && (chr < 'A' || chr > 'F') && (chr < 'a' || chr > 'f'))
+						break;
+				}
+				line.erase(start, idx - start);
+				break;
+			}
+
+			default: // Non-formatting character.
+				idx++;
+				break;
+		}
 	}
 }
 
