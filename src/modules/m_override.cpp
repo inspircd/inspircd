@@ -86,8 +86,8 @@ class ModuleOverride final
 	, public ISupport::EventListener
 {
 private:
-	bool RequireKey;
-	bool NoisyOverride;
+	bool requirekey;
+	bool noisyoverride;
 	Override ou;
 	ChanModeReference topiclock;
 	ChanModeReference inviteonly;
@@ -107,14 +107,14 @@ private:
 
 	ModResult HandleJoinOverride(LocalUser* user, Channel* chan, const std::string& keygiven, const char* bypasswhat, const char* mode) const
 	{
-		if (RequireKey && keygiven != "override")
+		if (requirekey && keygiven != "override")
 		{
 			// Can't join normally -- must use a special key to bypass restrictions
 			user->WriteNotice("*** You may not join normally. You must join with a key of 'override' to oper override.");
 			return MOD_RES_PASSTHRU;
 		}
 
-		if (NoisyOverride)
+		if (noisyoverride)
 			chan->WriteRemoteNotice(INSP_FORMAT("{} used oper override to bypass {}", user->nick, bypasswhat));
 		ServerInstance->SNO.WriteGlobalSno('v', user->nick+" used oper override to bypass " + mode + " on " + chan->name);
 		return MOD_RES_ALLOW;
@@ -142,8 +142,8 @@ public:
 	{
 		// re-read our config options
 		const auto& tag = ServerInstance->Config->ConfValue("override");
-		NoisyOverride = tag->getBool("noisy");
-		RequireKey = tag->getBool("requirekey");
+		noisyoverride = tag->getBool("noisy");
+		requirekey = tag->getBool("requirekey");
 		ou.timeout = tag->getDuration("timeout", 0);
 	}
 
