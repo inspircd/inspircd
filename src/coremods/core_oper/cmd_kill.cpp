@@ -86,10 +86,10 @@ CmdResult CommandKill::Handle(User* user, const Params& parameters)
 		 * Moved this event inside the IS_LOCAL check also, we don't want half the network killing a user
 		 * and the other half not. This would be a bad thing. ;p -- w00t
 		 */
-		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnKill, MOD_RESULT, (user, target, parameters[1]));
+		ModResult modres;
+		FIRST_MOD_RESULT(OnKill, modres, (user, target, parameters[1]));
 
-		if (MOD_RESULT == MOD_RES_DENY)
+		if (modres == MOD_RES_DENY)
 			return CmdResult::FAILURE;
 
 		killreason = "Killed (";

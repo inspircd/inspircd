@@ -183,9 +183,9 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 
 	if (!handler)
 	{
-		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, false));
-		if (MOD_RESULT == MOD_RES_DENY)
+		ModResult modres;
+		FIRST_MOD_RESULT(OnPreCommand, modres, (command, command_p, user, false));
+		if (modres == MOD_RES_DENY)
 		{
 			FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 			return;
@@ -242,9 +242,9 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 	 * We call OnPreCommand here separately if the command exists, so the magic above can
 	 * truncate to max_params if necessary. -- w00t
 	 */
-	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, false));
-	if (MOD_RESULT == MOD_RES_DENY)
+	ModResult modres;
+	FIRST_MOD_RESULT(OnPreCommand, modres, (command, command_p, user, false));
+	if (modres == MOD_RES_DENY)
 	{
 		FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 		return;
@@ -313,8 +313,8 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		handler->use_count++;
 
 		/* module calls too */
-		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, true));
-		if (MOD_RESULT == MOD_RES_DENY)
+		FIRST_MOD_RESULT(OnPreCommand, modres, (command, command_p, user, true));
+		if (modres == MOD_RES_DENY)
 		{
 			FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 			return;

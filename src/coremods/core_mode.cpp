@@ -130,13 +130,13 @@ CmdResult CommandMode::Handle(User* user, const Params& parameters)
 	ModeType type = targetchannel ? MODETYPE_CHANNEL : MODETYPE_USER;
 	ServerInstance->Modes.ModeParamsToChangeList(user, type, parameters, changelist);
 
-	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(OnPreMode, MOD_RESULT, (user, targetuser, targetchannel, changelist));
+	ModResult modres;
+	FIRST_MOD_RESULT(OnPreMode, modres, (user, targetuser, targetchannel, changelist));
 
 	ModeParser::ModeProcessFlag flags = ModeParser::MODE_NONE;
 	if (IS_LOCAL(user))
 	{
-		if (MOD_RESULT == MOD_RES_PASSTHRU)
+		if (modres == MOD_RES_PASSTHRU)
 		{
 			if ((targetuser) && (user != targetuser))
 			{
@@ -149,7 +149,7 @@ CmdResult CommandMode::Handle(User* user, const Params& parameters)
 			// Ensure access checks will happen for each mode being changed.
 			flags |= ModeParser::MODE_CHECKACCESS;
 		}
-		else if (MOD_RESULT == MOD_RES_DENY)
+		else if (modres == MOD_RES_DENY)
 			return CmdResult::FAILURE; // Entire mode change denied by a module
 	}
 	else

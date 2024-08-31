@@ -55,7 +55,7 @@ CommandInvite::CommandInvite(Module* parent, Invite::APIImpl& invapiimpl)
 
 CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 {
-	ModResult MOD_RESULT;
+	ModResult modres;
 
 	if (parameters.size() >= 2)
 	{
@@ -119,13 +119,13 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 			return CmdResult::FAILURE;
 		}
 
-		FIRST_MOD_RESULT(OnUserPreInvite, MOD_RESULT, (user, u, c, timeout));
+		FIRST_MOD_RESULT(OnUserPreInvite, modres, (user, u, c, timeout));
 
-		if (MOD_RESULT == MOD_RES_DENY)
+		if (modres == MOD_RES_DENY)
 		{
 			return CmdResult::FAILURE;
 		}
-		else if (MOD_RESULT == MOD_RES_PASSTHRU)
+		else if (modres == MOD_RES_PASSTHRU)
 		{
 			if (IS_LOCAL(user))
 			{

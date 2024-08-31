@@ -132,11 +132,11 @@ public:
 			params.push_back(password);
 
 			// Begin callback to other modules (i.e. sslinfo) now that we completed the DB fetch
-			ModResult MOD_RESULT;
+			ModResult modres;
 
 			std::string origin = "OPER";
-			FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (origin, params, user, true));
-			if (MOD_RESULT == MOD_RES_DENY)
+			FIRST_MOD_RESULT(OnPreCommand, modres, (origin, params, user, true));
+			if (modres == MOD_RES_DENY)
 				return;
 
 			// Now handle /OPER.

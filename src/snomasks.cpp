@@ -84,9 +84,9 @@ void Snomask::SendMessage(const std::string& message, char letter)
 	this->Flush();
 
 	std::string desc = GetDescription(letter);
-	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(OnSendSnotice, MOD_RESULT, (letter, desc, message));
-	if (MOD_RESULT == MOD_RES_DENY)
+	ModResult modres;
+	FIRST_MOD_RESULT(OnSendSnotice, modres, (letter, desc, message));
+	if (modres == MOD_RES_DENY)
 		return;
 
 	Snomask::Send(letter, desc, message);

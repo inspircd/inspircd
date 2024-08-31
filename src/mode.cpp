@@ -260,21 +260,21 @@ bool ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Modes::Cha
 	if (mcitem.param.length() > MODE_PARAM_MAX && mcitem.adding)
 		mcitem.param.erase(MODE_PARAM_MAX);
 
-	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(OnRawMode, MOD_RESULT, (user, chan, mcitem));
+	ModResult modres;
+	FIRST_MOD_RESULT(OnRawMode, modres, (user, chan, mcitem));
 
-	if (IS_LOCAL(user) && (MOD_RESULT == MOD_RES_DENY))
+	if (IS_LOCAL(user) && (modres == MOD_RES_DENY))
 		return false;
 
 	const char modechar = mh->GetModeChar();
 
-	if (chan && !SkipACL && (MOD_RESULT != MOD_RES_ALLOW))
+	if (chan && !SkipACL && (modres != MOD_RES_ALLOW))
 	{
-		MOD_RESULT = mh->AccessCheck(user, chan, mcitem);
+		modres = mh->AccessCheck(user, chan, mcitem);
 
-		if (MOD_RESULT == MOD_RES_DENY)
+		if (modres == MOD_RES_DENY)
 			return false;
-		if (MOD_RESULT == MOD_RES_PASSTHRU)
+		if (modres == MOD_RES_PASSTHRU)
 		{
 			ModeHandler::Rank neededrank = mh->GetLevelRequired(mcitem.adding);
 			ModeHandler::Rank ourrank = chan->GetPrefixValue(user);
@@ -478,9 +478,9 @@ void ModeParser::ShowListModeList(User* user, Channel* chan, ModeHandler* mh)
 {
 	{
 		Modes::Change modechange(mh, true, "");
-		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnRawMode, MOD_RESULT, (user, chan, modechange));
-		if (MOD_RESULT == MOD_RES_DENY)
+		ModResult modres;
+		FIRST_MOD_RESULT(OnRawMode, modres, (user, chan, modechange));
+		if (modres == MOD_RES_DENY)
 			return;
 
 		bool display = true;

@@ -178,17 +178,17 @@ public:
 		isupport.SendTo(user);
 
 		/* Trigger MOTD and LUSERS output, give modules a chance too */
-		ModResult MOD_RESULT;
+		ModResult modres;
 		std::string command("LUSERS");
 		CommandBase::Params parameters;
-		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, user, true));
-		if (!MOD_RESULT)
+		FIRST_MOD_RESULT(OnPreCommand, modres, (command, parameters, user, true));
+		if (!modres)
 			ServerInstance->Parser.CallHandler(command, parameters, user);
 
-		MOD_RESULT = MOD_RES_PASSTHRU;
+		modres = MOD_RES_PASSTHRU;
 		command = "MOTD";
-		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, user, true));
-		if (!MOD_RESULT)
+		FIRST_MOD_RESULT(OnPreCommand, modres, (command, parameters, user, true));
+		if (!modres)
 			ServerInstance->Parser.CallHandler(command, parameters, user);
 
 		if (ServerInstance->Config->RawLog)

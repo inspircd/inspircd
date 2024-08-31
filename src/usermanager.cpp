@@ -259,9 +259,9 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 	LocalUser* const localuser = IS_LOCAL(user);
 	if (localuser)
 	{
-		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnUserPreQuit, MOD_RESULT, (localuser, quitmsg, operquitmsg));
-		if (MOD_RESULT == MOD_RES_DENY)
+		ModResult modres;
+		FIRST_MOD_RESULT(OnUserPreQuit, modres, (localuser, quitmsg, operquitmsg));
+		if (modres == MOD_RES_DENY)
 			return;
 	}
 

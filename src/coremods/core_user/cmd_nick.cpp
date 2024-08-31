@@ -64,11 +64,11 @@ CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 		return CmdResult::FAILURE;
 	}
 
-	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (user, newnick));
+	ModResult modres;
+	FIRST_MOD_RESULT(OnUserPreNick, modres, (user, newnick));
 
 	// If a module denied the change, abort now
-	if (MOD_RESULT == MOD_RES_DENY)
+	if (modres == MOD_RES_DENY)
 		return CmdResult::FAILURE;
 
 	// Disallow the nick change if <security:restrictbannedusers> is on and there is a ban matching this user in

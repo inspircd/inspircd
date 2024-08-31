@@ -75,9 +75,9 @@ CmdResult CommandUser::CheckRegister(LocalUser* user)
 	// the other handler will call us again
 	if (user->connected == User::CONN_NICKUSER)
 	{
-		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnUserRegister, MOD_RESULT, (user));
-		if (MOD_RESULT == MOD_RES_DENY)
+		ModResult modres;
+		FIRST_MOD_RESULT(OnUserRegister, modres, (user));
+		if (modres == MOD_RES_DENY)
 			return CmdResult::FAILURE;
 	}
 

@@ -184,9 +184,9 @@ Membership* Channel::JoinUser(LocalUser* user, std::string cname, bool override,
 		privs = ServerInstance->Config->DefaultModes.substr(0, ServerInstance->Config->DefaultModes.find(' '));
 
 		// Ask the modules whether they're ok with the join, pass NULL as Channel* as the channel is yet to be created
-		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, nullptr, cname, privs, key, override));
-		if (!override && MOD_RESULT == MOD_RES_DENY)
+		ModResult modres;
+		FIRST_MOD_RESULT(OnUserPreJoin, modres, (user, nullptr, cname, privs, key, override));
+		if (!override && modres == MOD_RES_DENY)
 			return nullptr; // A module wasn't happy with the join, abort
 
 		chan = new Channel(cname, ServerInstance->Time());
@@ -199,12 +199,12 @@ Membership* Channel::JoinUser(LocalUser* user, std::string cname, bool override,
 		if (chan->HasUser(user))
 			return nullptr;
 
-		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, chan, cname, privs, key, override));
+		ModResult modres;
+		FIRST_MOD_RESULT(OnUserPreJoin, modres, (user, chan, cname, privs, key, override));
 
 		// A module explicitly denied the join and (hopefully) generated a message
 		// describing the situation, so we may stop here without sending anything
-		if (!override && MOD_RESULT == MOD_RES_DENY)
+		if (!override && modres == MOD_RES_DENY)
 			return nullptr;
 	}
 
