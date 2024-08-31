@@ -230,7 +230,7 @@ void InspIRCd::ProcessColors(std::string& line)
 		size_t bgend = std::string::npos;
 		if (line[fgend] == ',')
 		{
-			bgend = line.find_first_of("}", fgend + 1);
+			bgend = line.find_first_of('}', fgend + 1);
 			if (bgend == std::string::npos)
 			{
 				// Malformed color value, strip.
