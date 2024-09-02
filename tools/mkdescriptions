@@ -54,7 +54,7 @@ for my $module (<$root/src/modules/extra/m_*.cpp>, <$root/src/modules/m_*.cpp>, 
 	my ($docdata, undef, undef) = LoadFile($docfile) or print_error "unable to read from $docfile: $!";
 	print_error "unable to find the module description in $docfile!" unless $docdata->{description};
 
-	my $docraw = $docdata->{description} =~ s/^(?:This module )//r;
+	my $docraw = $docdata->{description} =~ s/(?:^This module |\{\{\s*[a-z_]+\s*\}\})//gr;
 	my $docrendered = CommonMark->markdown_to_html(ucfirst $docraw);
 	my $docplain = HTML::FormatText->new(leftmargin => 0, rightmargin => ~0)->format(HTML::TreeBuilder->new->parse($docrendered));
 
