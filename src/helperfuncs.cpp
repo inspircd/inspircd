@@ -194,20 +194,12 @@ void InspIRCd::ProcessColors(std::string& line)
 
 		auto start = idx;
 		if (++idx >= line.length())
-		{
-			// Stray \ at the end of the string; strip.
-			line.pop_back();
-			continue;
-		}
+			continue; // Stray \ at the end of the string; skip.
 
 		const auto chr = line[idx];
 		const auto it = formats.find(chr);
 		if (it == formats.end())
-		{
-			// Unknown escape, strip.
-			line.erase(start, 2);
-			continue;
-		}
+			continue; // Unknown escape, skip.
 
 		line.replace(start, 2, it->second);
 		idx = start + it->second.length();
