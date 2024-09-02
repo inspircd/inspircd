@@ -33,10 +33,8 @@ use make::common;
 use make::console;
 
 my @ignored_revisions = (
-	'0b4285abd12323920d92fee51e199edd7527dbec', # adding copyright headers
 	'46a39046196f55b52336e19662bb7bac85b731ac', # adding copyright headers
 	'4a6fedd9324d87349a806c9c1d0ae6e7d3c1fd38', # mass-updating descriptions
-	'56375392ba94f2552bbeeeab4fd39e1e50295525', # sadie's name change
 	'bab14f0dd2345c9d7dcbc47c918563709e1ac094', # peavey breaking line endings
 	'de6d4dbd1e8845e08c2d87cd89a919e5b21ba619', # jsoref fixing a ton of typos
 	'f2acdbc3820f0f4f5ef76a0a64e73d2a320df91f', # peavey fixing line endings
@@ -123,7 +121,9 @@ for my $path (@paths) {
 				push @{$authors{$display}}, $commits{$commit}->{YEAR};
 				my $details = `git rev-list --format=%B --max-count=1 $commit`;
 				while ($details =~ /co-authored-by: ([^<]+<[^>]+>)/gi) {
-					my $coauthor = $1;
+					open(my $fh, '-|', 'git', 'check-mailmap', $1);
+					chomp(my $coauthor = <$fh>);
+					close $fh;
 					my $year = $details =~ /co-authored-year: (\d+)/i ? $1 : $commits{$commit}->{YEAR};
 					$authors{$coauthor} //= [];
 					push @{$authors{$coauthor}}, $year;
