@@ -290,6 +290,14 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		}
 	}
 
+	if (!user->IsFullyConnected() && !handler->works_before_reg)
+	{
+		user->CommandFloodPenalty += failpenalty;
+		handler->TellNotFullyConnected(user, command_p);
+		FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
+		return;
+	}
+
 	if ((!command_p.empty()) && (command_p.back().empty()) && (!handler->allow_empty_last_param))
 		command_p.pop_back();
 
@@ -297,14 +305,6 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 	{
 		user->CommandFloodPenalty += failpenalty;
 		handler->TellNotEnoughParameters(user, command_p);
-		FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
-		return;
-	}
-
-	if (!user->IsFullyConnected() && !handler->works_before_reg)
-	{
-		user->CommandFloodPenalty += failpenalty;
-		handler->TellNotFullyConnected(user, command_p);
 		FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 	}
 	else
