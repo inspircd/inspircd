@@ -35,7 +35,6 @@ class ProviderConfig final
 {
 public:
 	uint32_t iterations;
-	uint32_t lanes;
 	uint32_t memory;
 	uint32_t outlen;
 	uint32_t saltlen;
@@ -52,9 +51,6 @@ public:
 
 		uint32_t def_iterations = def ? def->iterations : 3;
 		this->iterations = tag->getNum<uint32_t>("iterations", def_iterations, 1);
-
-		uint32_t def_lanes = def ? def->lanes : 1;
-		this->lanes = tag->getNum<uint32_t>("lanes", def_lanes, ARGON2_MIN_LANES, ARGON2_MAX_LANES);
 
 		uint32_t def_memory = def ? def->memory : 131072; // 128 MiB
 		this->memory = tag->getNum<uint32_t>("memory", def_memory, ARGON2_MIN_MEMORY, ARGON2_MAX_MEMORY);
@@ -98,7 +94,7 @@ public:
 		size_t encodedLen = argon2_encodedlen(
 			config.iterations,
 			config.memory,
-			config.lanes,
+			config.threads,
 			config.saltlen,
 			config.outlen,
 			argon2Type);
