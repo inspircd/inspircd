@@ -340,20 +340,20 @@ public:
 	 * @param host The hostname to validate.
 	 * @return True if the hostname is valid; otherwise, false.
 	 */
-	inline static auto IsFQDN(const std::string& host) { return IsHost(host, false); }
+	inline static auto IsFQDN(const std::string_view& host) { return IsHost(host, false); }
 
 	/** Determines whether a hostname is valid according to RFC 5891 rules.
 	 * @param host The hostname to validate.
 	 * @param allowsimple Whether to allow simple hostnames (e.g. localhost).
 	 * @return True if the hostname is valid; otherwise, false.
 	 */
-	static bool IsHost(const std::string& host, bool allowsimple);
+	static bool IsHost(const std::string_view& host, bool allowsimple);
 
 	/** Determines whether the specified string is a server identifier.
 	 * @param sid The string to check.
 	 * @return True if the specified string is a server identifier; otherwise, false.
 	 */
-	static bool IsSID(const std::string& sid);
+	static bool IsSID(const std::string_view& sid);
 
 	/** Determines whether the specified string is a valid nick!user\@host mask.
 	 * @param mask The string to check.

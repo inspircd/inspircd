@@ -292,7 +292,7 @@ bool InspIRCd::DefaultIsUser(const std::string_view& n)
 	return true;
 }
 
-bool InspIRCd::IsHost(const std::string& host, bool allowsimple)
+bool InspIRCd::IsHost(const std::string_view& host, bool allowsimple)
 {
 	// Hostnames must be non-empty and shorter than the maximum hostname length.
 	if (host.empty() || host.length() > ServerInstance->Config->Limits.MaxHost)
@@ -301,10 +301,10 @@ bool InspIRCd::IsHost(const std::string& host, bool allowsimple)
 	unsigned int numdashes = 0;
 	unsigned int numdots = 0;
 	bool seendot = false;
-	const std::string::const_iterator hostend = host.end() - 1;
-	for (std::string::const_iterator iter = host.begin(); iter != host.end(); ++iter)
+	const auto hostend = host.end() - 1;
+	for (auto iter = host.begin(); iter != host.end(); ++iter)
 	{
-		unsigned char chr = static_cast<unsigned char>(*iter);
+		const auto chr = static_cast<unsigned char>(*iter);
 
 		// If the current character is a label separator.
 		if (chr == '.')
@@ -351,7 +351,7 @@ bool InspIRCd::IsHost(const std::string& host, bool allowsimple)
 	return numdots || allowsimple;
 }
 
-bool InspIRCd::IsSID(const std::string& str)
+bool InspIRCd::IsSID(const std::string_view& str)
 {
 	/* Returns true if the string given is exactly 3 characters long,
 	 * starts with a digit, and the other two characters are A-Z or digits
