@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2018, 2020-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018, 2020-2024 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2017 B00mX0r <b00mx0r@aureus.pw>
  *   Copyright (C) 2013-2016, 2018 Attila Molnar <attilamolnar@hush.com>
@@ -55,7 +55,7 @@ CommandInvite::CommandInvite(Module* parent, Invite::APIImpl& invapiimpl)
 
 CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 {
-	ModResult MOD_RESULT;
+	ModResult modres;
 
 	if (parameters.size() >= 2)
 	{
@@ -119,13 +119,13 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 			return CmdResult::FAILURE;
 		}
 
-		FIRST_MOD_RESULT(OnUserPreInvite, MOD_RESULT, (user, u, c, timeout));
+		FIRST_MOD_RESULT(OnUserPreInvite, modres, (user, u, c, timeout));
 
-		if (MOD_RESULT == MOD_RES_DENY)
+		if (modres == MOD_RES_DENY)
 		{
 			return CmdResult::FAILURE;
 		}
-		else if (MOD_RESULT == MOD_RES_PASSTHRU)
+		else if (modres == MOD_RES_PASSTHRU)
 		{
 			if (IS_LOCAL(user))
 			{

@@ -32,8 +32,8 @@
 # define ATTR_NOT_NULL(...)
 #endif
 
-/** @def INSP_FORMAT(FORMAT, ...)
- * Formats a string with format string checking.
+/** Allows using C++20 format on compatible compilers and falling back to {fmt}
+ * if a C++20 implementation is not available.
  */
 #if defined __cpp_lib_format && __cpp_lib_format >= 202106L
 # include <format>

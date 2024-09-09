@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2014, 2016 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2013, 2016, 2018, 2020-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2016, 2018, 2020-2024 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2007-2008 Robin Burchell <robin+git@viroteck.net>
@@ -64,11 +64,11 @@ CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 		return CmdResult::FAILURE;
 	}
 
-	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (user, newnick));
+	ModResult modres;
+	FIRST_MOD_RESULT(OnUserPreNick, modres, (user, newnick));
 
 	// If a module denied the change, abort now
-	if (MOD_RESULT == MOD_RES_DENY)
+	if (modres == MOD_RES_DENY)
 		return CmdResult::FAILURE;
 
 	// Disallow the nick change if <security:restrictbannedusers> is on and there is a ban matching this user in

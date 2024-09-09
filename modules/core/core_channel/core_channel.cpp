@@ -4,7 +4,7 @@
  *   Copyright (C) 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2018 Dylan Frank <b00mx0r@aureus.pw>
- *   Copyright (C) 2017-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2017-2024 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2014-2015, 2018 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -275,9 +275,9 @@ public:
 		const std::string ckey = chan->GetModeParameter(&keymode);
 		if (!ckey.empty())
 		{
-			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnCheckKey, MOD_RESULT, (user, chan, keygiven));
-			if (!MOD_RESULT.check(InspIRCd::TimingSafeCompare(ckey, keygiven)))
+			ModResult modres;
+			FIRST_MOD_RESULT(OnCheckKey, modres, (user, chan, keygiven));
+			if (!modres.check(InspIRCd::TimingSafeCompare(ckey, keygiven)))
 			{
 				// If no key provided, or key is not the right one, and can't bypass +k (not invited or option not enabled)
 				user->WriteNumeric(ERR_BADCHANNELKEY, chan->name, "Cannot join channel (incorrect channel key)");
@@ -288,9 +288,9 @@ public:
 		// Check whether the invite only mode is set.
 		if (chan->IsModeSet(inviteonlymode))
 		{
-			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnCheckInvite, MOD_RESULT, (user, chan));
-			if (MOD_RESULT != MOD_RES_ALLOW)
+			ModResult modres;
+			FIRST_MOD_RESULT(OnCheckInvite, modres, (user, chan));
+			if (modres != MOD_RES_ALLOW)
 			{
 				user->WriteNumeric(ERR_INVITEONLYCHAN, chan->name, "Cannot join channel (invite only)");
 				return MOD_RES_DENY;
@@ -300,9 +300,9 @@ public:
 		// Check whether the limit would be exceeded by this user joining.
 		if (chan->IsModeSet(limitmode))
 		{
-			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnCheckLimit, MOD_RESULT, (user, chan));
-			if (!MOD_RESULT.check(chan->GetUsers().size() < static_cast<size_t>(limitmode.ext.Get(chan))))
+			ModResult modres;
+			FIRST_MOD_RESULT(OnCheckLimit, modres, (user, chan));
+			if (!modres.check(chan->GetUsers().size() < static_cast<size_t>(limitmode.ext.Get(chan))))
 			{
 				user->WriteNumeric(ERR_CHANNELISFULL, chan->name, "Cannot join channel (channel is full)");
 				return MOD_RES_DENY;

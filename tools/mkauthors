@@ -30,14 +30,23 @@ use lib dirname $RealDir;
 use make::common;
 use make::console;
 
+my %committers;
+for my $committer (split /\n+/, `git log --pretty='%an <%ae>%n%(trailers:key=Co-Authored-By,valueonly)' HEAD`) {
+	$committers{$committer} ||= 0;
+	$committers{$committer} += 1;
+}
+
 my %authors;
-for my $author (split /\n+/, `git log --pretty='%aN <%aE>%n%(trailers:key=Co-Authored-By,valueonly)' HEAD`) {
+for my $committer (keys %committers) {
+	open(my $fh, '-|', 'git', 'check-mailmap', $committer);
+	chomp(my $author = <$fh>);
+	close $fh;
+
 	$author = $1 if $author =~ /^(.+) <(?:unknown\@email.invalid|\S+\@users.noreply.github.com)>$/;
 	next if $author =~ /\[bot\]$/;
 
-	$author =~ s/\.$//g;
 	$authors{$author} ||= 0;
-	$authors{$author} += 1;
+	$authors{$author} += $committers{$committer};
 }
 
 my $author_file = catfile dirname($RealDir), 'docs', 'AUTHORS.txt';

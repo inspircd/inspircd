@@ -34,6 +34,9 @@
 /** The default location that config files are stored in. */
 #define INSPIRCD_CONFIG_PATH "@CONFIG_DIR@"
 
+/** The default location that example config files are stored in. */
+#define INSPIRCD_EXAMPLE_PATH "@EXAMPLE_DIR@"
+
 /** The default location that data files are stored in. */
 #define INSPIRCD_DATA_PATH "@DATA_DIR@"
 

@@ -65,16 +65,31 @@ public:
 				if (!details.IsCTCP(ctcpname, message))
 					message = details.text;
 
-				for (const auto chr : message)
+				auto it = std::find_if(message.begin(), message.end(), [](const char& chr)
 				{
-					if (static_cast<unsigned char>(chr) < 32)
+					switch (chr)
 					{
-						if (modeset)
-							user->WriteNumeric(Numerics::CannotSendTo(c, "messages containing formatting characters", &bc));
-						else
-							user->WriteNumeric(Numerics::CannotSendTo(c, "messages containing formatting characters", extban));
-						return MOD_RES_DENY;
+						case '\x02': // Bold
+						case '\x03': // Color
+						case '\x04': // Hex Color
+						case '\x1D': // Italic
+						case '\x11': // Monospace
+						case '\x16': // Reverse
+						case '\x1E': // Strikethrough
+						case '\x1F': // Underline
+						case '\x0F': // Reset
+							return true;
 					}
+					return false;
+				});
+
+				if (it != message.end())
+				{
+					if (modeset)
+						user->WriteNumeric(Numerics::CannotSendTo(c, "messages containing formatting characters", &bc));
+					else
+						user->WriteNumeric(Numerics::CannotSendTo(c, "messages containing formatting characters", extban));
+					return MOD_RES_DENY;
 				}
 			}
 		}

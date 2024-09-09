@@ -3,9 +3,9 @@
  *
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2012-2013, 2015 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2012, 2018 Robby <robby@chatbelgie.be>
+ *   Copyright (C) 2012-2013 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012, 2014, 2017-2018, 2020-2024 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
@@ -91,88 +91,151 @@ bool InspIRCd::IsValidMask(const std::string& mask)
 	return true;
 }
 
-void InspIRCd::StripColor(std::string& sentence)
+void InspIRCd::StripColor(std::string& line)
 {
-	/* refactor this completely due to SQUIT bug since the old code would strip last char and replace with \0 --peavey */
-	int seq = 0;
-
-	for (std::string::iterator i = sentence.begin(); i != sentence.end();)
+	for (size_t idx = 0; idx < line.length(); )
 	{
-		if (*i == 3)
-			seq = 1;
-		else if (seq && (( ((*i >= '0') && (*i <= '9')) || (*i == ',') ) ))
+		switch (line[idx])
 		{
-			seq++;
-			if ( (seq <= 4) && (*i == ',') )
-				seq = 1;
-			else if (seq > 3)
-				seq = 0;
-		}
-		else
-			seq = 0;
+			case '\x02': // Bold
+			case '\x1D': // Italic
+			case '\x11': // Monospace
+			case '\x16': // Reverse
+			case '\x1E': // Strikethrough
+			case '\x1F': // Underline
+			case '\x0F': // Reset
+				line.erase(idx, 1);
+				break;
 
-		// Strip all control codes too except \001 for CTCP
-		if (seq || ((*i >= 0) && (*i < 32) && (*i != 1)))
-			i = sentence.erase(i);
-		else
-			++i;
+			case '\x03': // Color
+			{
+				auto start = idx;
+				while (++idx < line.length() && idx - start < 6)
+				{
+					const auto chr = line[idx];
+					if (chr != ',' && (chr < '0' || chr > '9'))
+						break;
+				}
+				line.erase(start, idx - start);
+				break;
+			}
+			case '\x04': // Hex Color
+			{
+				auto start = idx;
+				while (++idx < line.length() && idx - start < 14)
+				{
+					const auto chr = line[idx];
+					if (chr != ',' && (chr < '0' || chr > '9') && (chr < 'A' || chr > 'F') && (chr < 'a' || chr > 'f'))
+						break;
+				}
+				line.erase(start, idx - start);
+				break;
+			}
+
+			default: // Non-formatting character.
+				idx++;
+				break;
+		}
 	}
 }
 
-void InspIRCd::ProcessColors(std::string& ret)
+void InspIRCd::ProcessColors(std::string& line)
 {
-	/*
-	 * Replace all color codes from the special[] array to actual
-	 * color code chars using C++ style escape sequences. You
-	 * can append other chars to replace if you like -- Justasic
-	 */
-	static struct special_chars final
-	{
-		std::string character;
-		std::string replace;
-		special_chars(const std::string& c, const std::string& r)
-			: character(c)
-			, replace(r)
-		{
-		}
-	} special[] = {
-		special_chars("\\b", "\x02"), // Bold
-		special_chars("\\c", "\x03"), // Color
-		special_chars("\\h", "\x04"), // Hex Color
-		special_chars("\\i", "\x1D"), // Italic
-		special_chars("\\m", "\x11"), // Monospace
-		special_chars("\\r", "\x16"), // Reverse
-		special_chars("\\s", "\x1E"), // Strikethrough
-		special_chars("\\u", "\x1F"), // Underline
-		special_chars("\\x", "\x0F"), // Reset
-		special_chars("", "")
+	static const insp::flat_map<std::string::value_type, std::string> formats = {
+		{ '\\', "\\"   }, // Escape
+		{ '{',  "{"    }, // Escape
+		{ '}',  "}"    }, // Escape
+		{ 'b',  "\x02" }, // Bold
+		{ 'c',  "\x03" }, // Color
+		{ 'h',  "\x04" }, // Hex Color
+		{ 'i',  "\x1D" }, // Italic
+		{ 'm',  "\x11" }, // Monospace
+		{ 'r',  "\x16" }, // Reverse
+		{ 's',  "\x1E" }, // Strikethrough
+		{ 'u',  "\x1F" }, // Underline
+		{ 'x',  "\x0F" }, // Reset
+	};
+	static const insp::flat_map<std::string, uint8_t, irc::insensitive_swo> colors = {
+		{ "white",       0  },
+		{ "black",       1  },
+		{ "blue",        2  },
+		{ "green",       3  },
+		{ "red",         4  },
+		{ "brown",       5  },
+		{ "magenta",     6  },
+		{ "orange",      7  },
+		{ "yellow",      8  },
+		{ "light green", 9  },
+		{ "cyan",        10 },
+		{ "light cyan",  11 },
+		{ "light blue",  12 },
+		{ "pink",        13 },
+		{ "gray",        14 },
+		{ "grey",        14 },
+		{ "light gray",  15 },
+		{ "light grey",  15 },
+		{ "default",     99 },
 	};
 
+	for (size_t idx = 0; idx < line.length(); )
 	{
-		for(int i = 0; !special[i].character.empty(); ++i)
+		if (line[idx] != '\\')
 		{
-			std::string::size_type pos = ret.find(special[i].character);
-			if(pos == std::string::npos) // Couldn't find the character, skip this line
-				continue;
+			// Regular character.
+			idx++;
+			continue;
+		}
 
-			if((pos > 0) && (ret[pos-1] == '\\') && (ret[pos] == '\\'))
-				continue; // Skip double slashes.
+		auto start = idx;
+		if (++idx >= line.length())
+			continue; // Stray \ at the end of the string; skip.
 
-			// Replace all our characters in the array
-			while(pos != std::string::npos)
+		const auto chr = line[idx];
+		const auto it = formats.find(chr);
+		if (it == formats.end())
+			continue; // Unknown escape, skip.
+
+		line.replace(start, 2, it->second);
+		idx = start + it->second.length();
+
+		if (chr != 'c')
+			continue; // Only colors can have values.
+
+		start = idx;
+		if (idx >= line.length() || line[idx] != '{')
+			continue; // No color value.
+
+		const auto fgend = line.find_first_of(",}", idx + 1);
+		if (fgend == std::string::npos)
+		{
+			// Malformed color value, strip.
+			line.erase(start);
+			break;
+		}
+
+		size_t bgend = std::string::npos;
+		if (line[fgend] == ',')
+		{
+			bgend = line.find_first_of('}', fgend + 1);
+			if (bgend == std::string::npos)
 			{
-				ret = ret.substr(0, pos) + special[i].replace + ret.substr(pos + special[i].character.size());
-				pos = ret.find(special[i].character, pos + special[i].replace.size());
+				// Malformed color value, strip.
+				line.erase(start);
+				break;
 			}
 		}
 
-		// Replace double slashes with a single slash before we return
-		std::string::size_type pos = ret.find("\\\\");
-		while(pos != std::string::npos)
+		const auto fg = colors.find(line.substr(start + 1, fgend - start - 1));
+		auto tmp = ConvToStr(fg == colors.end() ? 99 : fg->second);
+		if (bgend != std::string::npos)
 		{
-			ret = ret.substr(0, pos) + "\\" + ret.substr(pos + 2);
-			pos = ret.find("\\\\", pos + 1);
+			const auto bg = colors.find(line.substr(fgend + 1, bgend - fgend - 1));
+			tmp.push_back(',');
+			tmp.append(ConvToStr(bg == colors.end() ? 99 : bg->second));
 		}
+
+		const auto end = bgend == std::string::npos ? fgend : bgend;
+		line.replace(start, end - start + 1, tmp);
 	}
 }
 
@@ -223,7 +286,7 @@ bool InspIRCd::DefaultIsUser(const std::string_view& n)
 	return true;
 }
 
-bool InspIRCd::IsHost(const std::string& host, bool allowsimple)
+bool InspIRCd::IsHost(const std::string_view& host, bool allowsimple)
 {
 	// Hostnames must be non-empty and shorter than the maximum hostname length.
 	if (host.empty() || host.length() > ServerInstance->Config->Limits.MaxHost)
@@ -232,10 +295,10 @@ bool InspIRCd::IsHost(const std::string& host, bool allowsimple)
 	unsigned int numdashes = 0;
 	unsigned int numdots = 0;
 	bool seendot = false;
-	const std::string::const_iterator hostend = host.end() - 1;
-	for (std::string::const_iterator iter = host.begin(); iter != host.end(); ++iter)
+	const auto hostend = host.end() - 1;
+	for (auto iter = host.begin(); iter != host.end(); ++iter)
 	{
-		unsigned char chr = static_cast<unsigned char>(*iter);
+		const auto chr = static_cast<unsigned char>(*iter);
 
 		// If the current character is a label separator.
 		if (chr == '.')
@@ -282,7 +345,7 @@ bool InspIRCd::IsHost(const std::string& host, bool allowsimple)
 	return numdots || allowsimple;
 }
 
-bool InspIRCd::IsSID(const std::string& str)
+bool InspIRCd::IsSID(const std::string_view& str)
 {
 	/* Returns true if the string given is exactly 3 characters long,
 	 * starts with a digit, and the other two characters are A-Z or digits

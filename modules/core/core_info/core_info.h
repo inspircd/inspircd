@@ -59,6 +59,13 @@ public:
 	 */
 	void Build();
 
+	/** Sends an 005 (ISUPPORT) diff from the old class to the new one.
+	 * @param user The user to send the diff to.
+	 * @param oldclass The connect class the user is moving from.
+	 * @param newclass The conenct class the user is moving to.
+	 */
+	void ChangeClass(LocalUser* user, const std::shared_ptr<ConnectClass>& oldclass, const std::shared_ptr<ConnectClass>& newclass);
+
 	/** Send the 005 numerics (ISUPPORT) to a user.
 	 * @param user The user to send the ISUPPORT numerics to
 	 */

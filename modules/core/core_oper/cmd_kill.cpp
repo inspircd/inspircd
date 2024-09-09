@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2017-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2017-2024 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2016 Adam <Adam@anope.org>
  *   Copyright (C) 2012-2014, 2016, 2018 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
@@ -86,10 +86,10 @@ CmdResult CommandKill::Handle(User* user, const Params& parameters)
 		 * Moved this event inside the IS_LOCAL check also, we don't want half the network killing a user
 		 * and the other half not. This would be a bad thing. ;p -- w00t
 		 */
-		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnKill, MOD_RESULT, (user, target, parameters[1]));
+		ModResult modres;
+		FIRST_MOD_RESULT(OnKill, modres, (user, target, parameters[1]));
 
-		if (MOD_RESULT == MOD_RES_DENY)
+		if (modres == MOD_RES_DENY)
 			return CmdResult::FAILURE;
 
 		killreason = "Killed (";

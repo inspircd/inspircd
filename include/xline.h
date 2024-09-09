@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
- *   Copyright (C) 2012-2013, 2018-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2012-2013, 2018-2024 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012, 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2007-2008 Robin Burchell <robin+git@viroteck.net>
@@ -195,9 +195,8 @@ public:
 		: XLine(s_time, d, src, re, "K")
 		, usermask(user)
 		, hostmask(host)
+		, matchtext(FMT::format("{}@{}", user, host))
 	{
-		matchtext = this->usermask;
-		matchtext.append("@").append(this->hostmask);
 	}
 
 	bool Matches(User* u) const override;
@@ -211,12 +210,12 @@ public:
 	bool IsBurstable() override;
 
 	/** Username pattern to match. */
-	std::string usermask;
+	const std::string usermask;
 
 	/** Hostname pattern to match. */
-	std::string hostmask;
+	const std::string hostmask;
 
-	std::string matchtext;
+	const std::string matchtext;
 };
 
 /** GLine class
@@ -237,9 +236,8 @@ public:
 		: XLine(s_time, d, src, re, "G")
 		, usermask(user)
 		, hostmask(host)
+		, matchtext(FMT::format("{}@{}", user, host))
 	{
-		matchtext = this->usermask;
-		matchtext.append("@").append(this->hostmask);
 	}
 
 	bool Matches(User* u) const override;
@@ -251,12 +249,12 @@ public:
 	const std::string& Displayable() const override;
 
 	/** Username pattern to match. */
-	std::string usermask;
+	const std::string usermask;
 
 	/** Hostname pattern to match. */
-	std::string hostmask;
+	const std::string hostmask;
 
-	std::string matchtext;
+	const std::string matchtext;
 };
 
 /** ELine class
@@ -277,9 +275,8 @@ public:
 		: XLine(s_time, d, src, re, "E")
 		, usermask(user)
 		, hostmask(host)
+		, matchtext(FMT::format("{}@{}", user, host))
 	{
-		matchtext = this->usermask;
-		matchtext.append("@").append(this->hostmask);
 	}
 
 	bool Matches(User* u) const override;
@@ -293,12 +290,12 @@ public:
 	const std::string& Displayable() const override;
 
 	/** Username pattern to match. */
-	std::string usermask;
+	const std::string usermask;
 
 	/** Hostname pattern to match. */
-	std::string hostmask;
+	const std::string hostmask;
 
-	std::string matchtext;
+	const std::string matchtext;
 };
 
 /** ZLine class
@@ -330,7 +327,7 @@ public:
 
 	/** IP mask (no user part)
 	 */
-	std::string ipaddr;
+	const std::string ipaddr;
 };
 
 /** QLine class
@@ -362,7 +359,7 @@ public:
 
 	/** Nickname mask
 	 */
-	std::string nick;
+	const std::string nick;
 };
 
 /** XLineFactory is used to generate an XLine pointer, given just the
@@ -375,8 +372,7 @@ public:
 class CoreExport XLineFactory
 {
 protected:
-
-	std::string type;
+	const std::string type;
 
 public:
 

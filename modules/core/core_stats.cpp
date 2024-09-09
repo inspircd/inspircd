@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2018 Puck Meerburg <puck@puckipedia.com>
- *   Copyright (C) 2016, 2018-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2016, 2018-2024 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>

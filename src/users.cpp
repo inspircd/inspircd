@@ -781,11 +781,11 @@ void User::WriteNumeric(const Numeric::Numeric& numeric)
 	if (!localuser)
 		return;
 
-	ModResult MOD_RESULT;
+	ModResult modres;
 
-	FIRST_MOD_RESULT(OnNumeric, MOD_RESULT, (this, numeric));
+	FIRST_MOD_RESULT(OnNumeric, modres, (this, numeric));
 
-	if (MOD_RESULT == MOD_RES_DENY)
+	if (modres == MOD_RES_DENY)
 		return;
 
 	ClientProtocol::Messages::Numeric numericmsg(numeric, localuser);

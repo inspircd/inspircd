@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2021-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2021-2024 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013-2014 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2013 Adam <Adam@anope.org>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
@@ -84,9 +84,9 @@ void Snomask::SendMessage(const std::string& message, char letter)
 	this->Flush();
 
 	std::string desc = GetDescription(letter);
-	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(OnSendSnotice, MOD_RESULT, (letter, desc, message));
-	if (MOD_RESULT == MOD_RES_DENY)
+	ModResult modres;
+	FIRST_MOD_RESULT(OnSendSnotice, modres, (letter, desc, message));
+	if (modres == MOD_RES_DENY)
 		return;
 
 	Snomask::Send(letter, desc, message);

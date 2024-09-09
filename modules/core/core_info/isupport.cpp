@@ -160,6 +160,23 @@ void ISupportManager::BuildNumerics(ISupport::TokenMap& tokens, std::vector<Nume
 	}
 }
 
+void ISupportManager::ChangeClass(LocalUser* user, const std::shared_ptr<ConnectClass>& oldclass, const std::shared_ptr<ConnectClass>& newclass)
+{
+	auto oldtokens = cachedtokens.find(oldclass);
+	auto newtokens = cachedtokens.find(newclass);
+	if (oldtokens == cachedtokens.end() || newtokens == cachedtokens.end())
+		return; // Should never happen.
+
+	ISupport::TokenMap difftokens;
+	TokenDifference(difftokens, oldtokens->second, newtokens->second);
+
+	std::vector<Numeric::Numeric> diffnumerics;
+	BuildNumerics(difftokens, diffnumerics);
+
+	for (const auto& numeric : diffnumerics)
+		user->WriteNumeric(numeric);
+}
+
 void ISupportManager::SendTo(LocalUser* user)
 {
 	auto numerics = cachednumerics.find(user->GetClass());

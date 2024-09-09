@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2019 iwalkalone <iwalkalone69@gmail.com>
  *   Copyright (C) 2013-2016, 2018 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2013, 2018-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2018-2024 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013, 2015 Adam <Adam@anope.org>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -259,9 +259,9 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 	LocalUser* const localuser = IS_LOCAL(user);
 	if (localuser)
 	{
-		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnUserPreQuit, MOD_RESULT, (localuser, quitmsg, operquitmsg));
-		if (MOD_RESULT == MOD_RES_DENY)
+		ModResult modres;
+		FIRST_MOD_RESULT(OnUserPreQuit, modres, (localuser, quitmsg, operquitmsg));
+		if (modres == MOD_RES_DENY)
 			return;
 	}
 

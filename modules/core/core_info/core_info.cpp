@@ -169,6 +169,17 @@ public:
 		ServerInstance->AtomicActions.AddAction(new ISupportAction(isupport));
 	}
 
+	void OnChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass, bool force) override
+	{
+		// TODO: this should be OnPostChangeConnectClass but we need the old
+		// connect class which isn't exposed to the module interface and we
+		// can't break the API in a stable release. For now we use this and
+		// prioritise it to be after core_user checks whether the user needs
+		// to die.
+		if (user->IsFullyConnected() && !user->quitting)
+			isupport.ChangeClass(user, user->GetClass(), klass);
+	}
+
 	void OnUserConnect(LocalUser* user) override
 	{
 		user->WriteNumeric(RPL_WELCOME, FMT::format("Welcome to the {} IRC Network {}", ServerInstance->Config->Network, user->GetRealMask()));
@@ -178,17 +189,17 @@ public:
 		isupport.SendTo(user);
 
 		/* Trigger MOTD and LUSERS output, give modules a chance too */
-		ModResult MOD_RESULT;
+		ModResult modres;
 		std::string command("LUSERS");
 		CommandBase::Params parameters;
-		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, user, true));
-		if (!MOD_RESULT)
+		FIRST_MOD_RESULT(OnPreCommand, modres, (command, parameters, user, true));
+		if (!modres)
 			ServerInstance->Parser.CallHandler(command, parameters, user);
 
-		MOD_RESULT = MOD_RES_PASSTHRU;
+		modres = MOD_RES_PASSTHRU;
 		command = "MOTD";
-		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, user, true));
-		if (!MOD_RESULT)
+		FIRST_MOD_RESULT(OnPreCommand, modres, (command, parameters, user, true));
+		if (!modres)
 			ServerInstance->Parser.CallHandler(command, parameters, user);
 
 		if (ServerInstance->Config->RawLog)

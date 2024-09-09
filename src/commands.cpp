@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2021 Herman <GermanAizek@yandex.ru>
- *   Copyright (C) 2018-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018-2024 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2016, 2018 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -183,9 +183,9 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 
 	if (!handler)
 	{
-		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, false));
-		if (MOD_RESULT == MOD_RES_DENY)
+		ModResult modres;
+		FIRST_MOD_RESULT(OnPreCommand, modres, (command, command_p, user, false));
+		if (modres == MOD_RES_DENY)
 		{
 			FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 			return;
@@ -242,9 +242,9 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 	 * We call OnPreCommand here separately if the command exists, so the magic above can
 	 * truncate to max_params if necessary. -- w00t
 	 */
-	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, false));
-	if (MOD_RESULT == MOD_RES_DENY)
+	ModResult modres;
+	FIRST_MOD_RESULT(OnPreCommand, modres, (command, command_p, user, false));
+	if (modres == MOD_RES_DENY)
 	{
 		FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 		return;
@@ -290,6 +290,14 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		}
 	}
 
+	if (!user->IsFullyConnected() && !handler->works_before_reg)
+	{
+		user->CommandFloodPenalty += failpenalty;
+		handler->TellNotFullyConnected(user, command_p);
+		FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
+		return;
+	}
+
 	if ((!command_p.empty()) && (command_p.back().empty()) && (!handler->allow_empty_last_param))
 		command_p.pop_back();
 
@@ -298,14 +306,6 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		user->CommandFloodPenalty += failpenalty;
 		handler->TellNotEnoughParameters(user, command_p);
 		FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
-		return;
-	}
-
-	if (!user->IsFullyConnected() && !handler->works_before_reg)
-	{
-		user->CommandFloodPenalty += failpenalty;
-		handler->TellNotFullyConnected(user, command_p);
-		FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 	}
 	else
 	{
@@ -313,8 +313,8 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 		handler->use_count++;
 
 		/* module calls too */
-		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, true));
-		if (MOD_RESULT == MOD_RES_DENY)
+		FIRST_MOD_RESULT(OnPreCommand, modres, (command, command_p, user, true));
+		if (modres == MOD_RES_DENY)
 		{
 			FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 			return;

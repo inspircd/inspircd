@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2022-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2022-2024 Sadie Powell <sadie@witchery.services>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -235,6 +235,9 @@ private:
 
 	/** Whether we are currently logging to a file. */
 	bool logging = false;
+
+	/** Check whether raw logging is enabled. */
+	void CheckRawLog();
 
 	/** Writes a message to the server log.
 	 * @param level The level to log at.

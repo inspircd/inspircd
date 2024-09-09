@@ -3,9 +3,9 @@
  *
  *   Copyright (C) 2020 satmd <satmd@satmd.de>
  *   Copyright (C) 2017 B00mX0r <b00mx0r@aureus.pw>
- *   Copyright (C) 2013, 2019-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013-2015 Attila Molnar <attilamolnar@hush.com>
+ *   Copyright (C) 2013, 2019-2024 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
- *   Copyright (C) 2012-2015 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008 Robin Burchell <robin+git@viroteck.net>
@@ -86,8 +86,8 @@ class ModuleOverride final
 	, public ISupport::EventListener
 {
 private:
-	bool RequireKey;
-	bool NoisyOverride;
+	bool requirekey;
+	bool noisyoverride;
 	Override ou;
 	ChanModeReference topiclock;
 	ChanModeReference inviteonly;
@@ -107,14 +107,14 @@ private:
 
 	ModResult HandleJoinOverride(LocalUser* user, Channel* chan, const std::string& keygiven, const char* bypasswhat, const char* mode) const
 	{
-		if (RequireKey && keygiven != "override")
+		if (requirekey && keygiven != "override")
 		{
 			// Can't join normally -- must use a special key to bypass restrictions
 			user->WriteNotice("*** You may not join normally. You must join with a key of 'override' to oper override.");
 			return MOD_RES_PASSTHRU;
 		}
 
-		if (NoisyOverride)
+		if (noisyoverride)
 			chan->WriteRemoteNotice(FMT::format("{} used oper override to bypass {}", user->nick, bypasswhat));
 		ServerInstance->SNO.WriteGlobalSno('v', user->nick+" used oper override to bypass " + mode + " on " + chan->name);
 		return MOD_RES_ALLOW;
@@ -142,8 +142,8 @@ public:
 	{
 		// re-read our config options
 		const auto& tag = ServerInstance->Config->ConfValue("override");
-		NoisyOverride = tag->getBool("noisy");
-		RequireKey = tag->getBool("requirekey");
+		noisyoverride = tag->getBool("noisy");
+		requirekey = tag->getBool("requirekey");
 		ou.timeout = tag->getDuration("timeout", 0);
 	}
 

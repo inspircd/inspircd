@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2017-2018, 2020, 2022-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2017-2018, 2020, 2022-2024 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2014-2015 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
@@ -75,9 +75,9 @@ CmdResult CommandUser::CheckRegister(LocalUser* user)
 	// the other handler will call us again
 	if (user->connected == User::CONN_NICKUSER)
 	{
-		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnUserRegister, MOD_RESULT, (user));
-		if (MOD_RESULT == MOD_RES_DENY)
+		ModResult modres;
+		FIRST_MOD_RESULT(OnUserRegister, modres, (user));
+		if (modres == MOD_RES_DENY)
 			return CmdResult::FAILURE;
 	}
 

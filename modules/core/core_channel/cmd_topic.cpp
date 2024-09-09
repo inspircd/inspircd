@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
- *   Copyright (C) 2017-2018, 2020-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2017-2018, 2020-2024 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2017 B00mX0r <b00mx0r@aureus.pw>
  *   Copyright (C) 2013-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
@@ -94,8 +94,8 @@ CmdResult CommandTopic::HandleLocal(LocalUser* user, const Params& parameters)
 		}
 		if (c->IsModeSet(topiclockmode))
 		{
-			ModResult MOD_RESULT = exemptionprov.Check(user, c, "topiclock");
-			if (!MOD_RESULT.check(c->GetPrefixValue(user) >= HALFOP_VALUE))
+			ModResult modres = exemptionprov.Check(user, c, "topiclock");
+			if (!modres.check(c->GetPrefixValue(user) >= HALFOP_VALUE))
 			{
 				user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(c, HALFOP_VALUE, "change the topic"));
 				return CmdResult::FAILURE;
