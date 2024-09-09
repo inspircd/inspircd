@@ -224,6 +224,7 @@ void Log::Manager::OpenLogs(bool requiremethods)
 	{
 		const auto* option = ServerInstance->Config->CommandLine.forceprotodebug ? "--protocoldebug" : "--debug";
 		Normal("LOG", "Not opening loggers because we were started with {}", option);
+		CheckRawLog();
 		return;
 	}
 
@@ -231,6 +232,7 @@ void Log::Manager::OpenLogs(bool requiremethods)
 	if (!ServerInstance->Config->CommandLine.writelog)
 	{
 		Normal("LOG", "Not opening loggers because we were started with --nolog");
+		CheckRawLog();
 		return;
 	}
 
@@ -295,11 +297,7 @@ void Log::Manager::OpenLogs(bool requiremethods)
 		cache.shrink_to_fit();
 		caching = false;
 	}
-
-	// There might be a logger not from the config so we need to check this outside of the creation loop.
-	ServerInstance->Config->RawLog = std::any_of(loggers.begin(), loggers.end(), [](const auto& logger) {
-		return logger.level >= Level::RAWIO;
-	});
+	CheckRawLog();
 }
 
 void Log::Manager::RegisterServices()
@@ -316,6 +314,14 @@ void Log::Manager::UnloadEngine(const Engine* engine)
 	logging = false;
 
 	Normal("LOG", "The {} log engine is unloading; removed {}/{} loggers.", engine->name.c_str(), logger_count - loggers.size(), logger_count);
+}
+
+void Log::Manager::CheckRawLog()
+{
+	// There might be a logger not from the config so we need to check this outside of the creation loop.
+	ServerInstance->Config->RawLog = std::any_of(loggers.begin(), loggers.end(), [](const auto& logger) {
+		return logger.level >= Level::RAWIO;
+	});
 }
 
 void Log::Manager::Write(Level level, const std::string& type, const std::string& message)

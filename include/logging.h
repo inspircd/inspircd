@@ -236,6 +236,9 @@ private:
 	/** Whether we are currently logging to a file. */
 	bool logging = false;
 
+	/** Check whether raw logging is enabled. */
+	void CheckRawLog();
+
 	/** Writes a message to the server log.
 	 * @param level The level to log at.
 	 * @param type The type of message that is being logged.
