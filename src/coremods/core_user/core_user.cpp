@@ -280,6 +280,11 @@ public:
 		const auto& performance = ServerInstance->Config->ConfValue("performance");
 		clonesonconnect = performance->getBool("clonesonconnect", true);
 	}
+
+	void Prioritize() override
+	{
+		ServerInstance->Modules.SetPriority(this, I_OnChangeConnectClass, PRIORITY_FIRST);
+	}
 };
 
 MODULE_INIT(CoreModUser)

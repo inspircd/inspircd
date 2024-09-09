@@ -169,6 +169,17 @@ public:
 		ServerInstance->AtomicActions.AddAction(new ISupportAction(isupport));
 	}
 
+	void OnChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass, bool force) override
+	{
+		// TODO: this should be OnPostChangeConnectClass but we need the old
+		// connect class which isn't exposed to the module interface and we
+		// can't break the API in a stable release. For now we use this and
+		// prioritise it to be after core_user checks whether the user needs
+		// to die.
+		if (user->IsFullyConnected() && !user->quitting)
+			isupport.ChangeClass(user, user->GetClass(), klass);
+	}
+
 	void OnUserConnect(LocalUser* user) override
 	{
 		user->WriteNumeric(RPL_WELCOME, INSP_FORMAT("Welcome to the {} IRC Network {}", ServerInstance->Config->Network, user->GetRealMask()));
