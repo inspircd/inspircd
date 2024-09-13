@@ -22,8 +22,18 @@
 
 void ExtBanManager::AddExtBan(ExtBan::Base* extban)
 {
-	byletter.emplace(extban->GetLetter(), extban);
-	byname.emplace(extban->GetName(), extban);
+	auto lit = byletter.emplace(extban->GetLetter(), extban);
+	if (!lit.second)
+		throw ModuleException(creator, FMT::format("ExtBan letter \"{}\" is already in use by the {} extban from {}",
+			(char)extban->GetLetter(), lit.first->second->GetName(), lit.first->second->creator->ModuleFile));
+
+	auto nit = byname.emplace(extban->GetName(), extban);
+	if (!nit.second)
+	{
+		byletter.erase(extban->GetLetter());
+		throw ModuleException(creator, FMT::format("ExtBan name \"{}\" is already in use by the {} extban from {}",
+			extban->GetName(), (char)nit.first->second->GetLetter(), nit.first->second->creator->ModuleFile));
+	}
 }
 
 bool ExtBanManager::Canonicalize(std::string& text) const
@@ -143,8 +153,13 @@ ModResult ExtBanManager::GetStatus(ExtBan::ActingBase* extban, User* user, Chann
 
 void ExtBanManager::DelExtBan(ExtBan::Base* extban)
 {
-	byletter.erase(extban->GetLetter());
-	byname.erase(extban->GetName());
+	auto lit = byletter.find(extban->GetLetter());
+	if (lit != byletter.end() && lit->second->creator.ptr() == extban->creator.ptr())
+		byletter.erase(lit);
+
+	auto nit = byname.find(extban->GetName());
+	if (nit != byname.end() && nit->second->creator.ptr() == extban->creator.ptr())
+		byname.erase(nit);
 }
 
 ExtBan::Base* ExtBanManager::FindName(const std::string& xbname) const
