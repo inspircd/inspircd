@@ -52,9 +52,10 @@ CmdResult CommandRConnect::Handle(User* user, const Params& parameters)
 		/* Yes, initiate the given connect */
 		ServerInstance->SNO.WriteToSnoMask('l', "Remote CONNECT from {} matching \002{}\002, connecting server \002{}\002",
 			user->nick, parameters[0], parameters[1]);
+
 		CommandBase::Params para;
 		para.push_back(parameters[1]);
-		((ModuleSpanningTree*)(Module*)creator)->HandleConnect(para, user);
+		static_cast<ModuleSpanningTree*>(creator.ptr())->HandleConnect(para, user);
 	}
 	else
 	{
