@@ -153,8 +153,13 @@ ModResult ExtBanManager::GetStatus(ExtBan::ActingBase* extban, User* user, Chann
 
 void ExtBanManager::DelExtBan(ExtBan::Base* extban)
 {
-	byletter.erase(extban->GetLetter());
-	byname.erase(extban->GetName());
+	auto lit = byletter.find(extban->GetLetter());
+	if (lit != byletter.end() && lit->second->creator.ptr() == extban->creator.ptr())
+		byletter.erase(lit);
+
+	auto nit = byname.find(extban->GetName());
+	if (nit != byname.end() && nit->second->creator.ptr() == extban->creator.ptr())
+		byname.erase(nit);
 }
 
 ExtBan::Base* ExtBanManager::FindName(const std::string& xbname) const
