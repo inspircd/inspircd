@@ -458,7 +458,7 @@ public:
 	void UpdateTime();
 };
 
-inline void Cullable::Deleter::operator()(Cullable* item)
+inline void Cullable::Deleter::operator()(Cullable* item) const
 {
 	if (item)
 		ServerInstance->GlobalCulls.AddItem(item);
