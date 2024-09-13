@@ -22,8 +22,18 @@
 
 void ExtBanManager::AddExtBan(ExtBan::Base* extban)
 {
-	byletter.emplace(extban->GetLetter(), extban);
-	byname.emplace(extban->GetName(), extban);
+	auto lit = byletter.emplace(extban->GetLetter(), extban);
+	if (!lit.second)
+		throw ModuleException(creator, INSP_FORMAT("ExtBan letter \"{}\" is already in use by the {} extban from {}",
+			(char)extban->GetLetter(), lit.first->second->GetName(), lit.first->second->creator->ModuleFile));
+
+	auto nit = byname.emplace(extban->GetName(), extban);
+	if (!nit.second)
+	{
+		byletter.erase(extban->GetLetter());
+		throw ModuleException(creator, INSP_FORMAT("ExtBan name \"{}\" is already in use by the {} extban from {}",
+			extban->GetName(), (char)nit.first->second->GetLetter(), nit.first->second->creator->ModuleFile));
+	}
 }
 
 bool ExtBanManager::Canonicalize(std::string& text) const
