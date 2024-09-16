@@ -88,6 +88,7 @@ class CoreModInfo final
 			if (!needparam || mh->NeedsParam(true))
 				modestr.push_back(mh->GetModeChar());
 		}
+		std::sort(modestr.begin(), modestr.end());
 		return modestr;
 	}
 
