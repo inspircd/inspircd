@@ -63,6 +63,7 @@ struct ISupportAction final
 class CoreModInfo final
 	: public Module
 {
+private:
 	CommandAdmin cmdadmin;
 	CommandCommands cmdcommands;
 	CommandInfo cmdinfo;
@@ -92,11 +93,8 @@ class CoreModInfo final
 		return modestr;
 	}
 
-	void OnServiceChange(const ServiceProvider& prov)
+	void Rebuild004()
 	{
-		if (prov.service != SERVICE_MODE)
-			return;
-
 		std::vector<std::string>& params = numeric004.GetParams();
 		params.erase(params.begin()+2, params.end());
 
@@ -108,6 +106,7 @@ class CoreModInfo final
 		numeric004.push(CreateModeList(MODETYPE_CHANNEL));
 		numeric004.push(CreateModeList(MODETYPE_CHANNEL, true));
 	}
+
 public:
 	CoreModInfo()
 		: Module(VF_CORE | VF_VENDOR, "Provides the ADMIN, COMMANDS, INFO, MODULES, MOTD, TIME, SERVLIST, and VERSION commands")
@@ -166,6 +165,8 @@ public:
 		cmdadmin.admindesc = tag->getString("description");
 		cmdadmin.adminemail = tag->getString("email", "noreply@" + ServerInstance->Config->GetServerName(), 1);
 
+		Rebuild004();
+
 		cmdversion.BuildNumerics();
 		ServerInstance->AtomicActions.AddAction(new ISupportAction(isupport));
 	}
@@ -218,12 +219,14 @@ public:
 
 	void OnServiceAdd(ServiceProvider& service) override
 	{
-		OnServiceChange(service);
+		if (service.service == SERVICE_MODE)
+			Rebuild004();
 	}
 
 	void OnServiceDel(ServiceProvider& service) override
 	{
-		OnServiceChange(service);
+		if (service.service == SERVICE_MODE)
+			Rebuild004();
 	}
 
 	void Prioritize() override
