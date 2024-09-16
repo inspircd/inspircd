@@ -41,7 +41,6 @@
 #include "inspircd.h"
 #include "timeutils.h"
 
-#include <iostream>
 class JSONMethod final
 	: public Log::Method
 	, public Timer

@@ -23,8 +23,6 @@
 
 #include "inspircd.h"
 
-#include <iostream>
-
 #include <windows.h>
 
 static SERVICE_STATUS_HANDLE g_ServiceStatusHandle;
@@ -193,7 +191,7 @@ void InstallService()
 
 		CloseServiceHandle(InspServiceHandle);
 		CloseServiceHandle(SCMHandle);
-		std::cout << "Service installed." << std::endl;
+		fmt::println("Service installed.");
 	}
 	catch(const CWin32Exception& e)
 	{
@@ -203,7 +201,7 @@ void InstallService()
 		if(SCMHandle)
 			CloseServiceHandle(SCMHandle);
 
-		std::cout << "Service installation failed: " << e.what() << std::endl;
+		fmt::println("Service installation failed: {}", e.what());
 	}
 }
 
@@ -229,7 +227,7 @@ void UninstallService()
 
 		CloseServiceHandle(InspServiceHandle);
 		CloseServiceHandle(SCMHandle);
-		std::cout << "Service removed." << std::endl;
+		fmt::println("Service removed.");
 	}
 	catch(const CWin32Exception& e)
 	{
@@ -239,7 +237,7 @@ void UninstallService()
 		if(SCMHandle)
 			CloseServiceHandle(SCMHandle);
 
-		std::cout << "Service deletion failed: " << e.what() << std::endl;
+		fmt::println("Service deletion failed: {}", e.what());
 	}
 }
 
