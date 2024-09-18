@@ -23,6 +23,7 @@
 #include "modules/ctctags.h"
 #include "modules/server.h"
 #include "modules/stats.h"
+#include "modules/whois.h"
 #include "timeutils.h"
 #include "xline.h"
 
@@ -517,6 +518,7 @@ class ModuleServices final
 	: public Module
 	, public ServerProtocol::RouteEventListener
 	, public Stats::EventListener
+	, public Whois::LineEventListener
 {
 private:
 	Account::API accountapi;
@@ -580,6 +582,7 @@ public:
 		: Module(VF_COMMON | VF_VENDOR, "Provides support for integrating with a services server.")
 		, ServerProtocol::RouteEventListener(this)
 		, Stats::EventListener(this)
+		, Whois::LineEventListener(this)
 		, accountapi(this)
 		, registeredcmode(this)
 		, registeredumode(this)
@@ -704,6 +707,14 @@ public:
 	{
 		if (user->IsModeSet(registeredumode) && !irc::equals(oldnick, user->nick))
 			registeredumode.RemoveMode(user);
+	}
+
+	ModResult OnWhoisLine(Whois::Context& whois, Numeric::Numeric& numeric) override
+	{
+		if (numeric.GetNumeric() != RPL_WHOISCHANNELS && numeric.GetNumeric() != RPL_CHANNELSMSG)
+			return MOD_RES_PASSTHRU;
+
+		return whois.GetTarget()->IsModeSet(servprotectmode) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 };
 
