@@ -931,12 +931,6 @@ public:
 	 */
 	bool FindConnectClass(bool keepexisting = false);
 
-	/** Send a NOTICE message from the local server to the user.
-	 * The message will be sent even if the user is connected to a remote server.
-	 * @param text Text to send
-	 */
-	void WriteRemoteNotice(const std::string& text) override;
-
 	/** Change nick to uuid, unset CONN_NICK and send a nickname overruled numeric.
 	 * This is called when another user (either local or remote) needs the nick of this user and this user
 	 * isn't fully connected.

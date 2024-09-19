@@ -794,11 +794,6 @@ void User::WriteNumeric(const Numeric::Numeric& numeric)
 
 void User::WriteRemoteNotice(const std::string& text)
 {
-	ServerInstance->PI->SendMessage(this, text, MessageType::NOTICE);
-}
-
-void LocalUser::WriteRemoteNotice(const std::string& text)
-{
 	WriteNotice(text);
 }
 
