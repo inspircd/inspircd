@@ -21,6 +21,8 @@
  */
 
 
+#include <fmt/format.h>
+
 #include "inspircd.h"
 
 CWin32Exception::CWin32Exception()
