@@ -225,7 +225,7 @@ public:
 	std::unique_ptr<ServerConfig> Config;
 
 	/* If non-nullptr then the thread that is reading the server configuration on rehash. */
-	ConfigReaderThread* ConfigThread = nullptr;
+	std::unique_ptr<ConfigReaderThread> ConfigThread;
 
 	/** A fake user that represents the local server. */
 	FakeUser* FakeClient = nullptr;

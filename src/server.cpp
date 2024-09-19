@@ -62,7 +62,7 @@ void InspIRCd::Rehash(const std::string& uuid)
 {
 	if (!ConfigThread)
 	{
-		ConfigThread = new ConfigReaderThread(uuid);
+		ConfigThread = std::make_unique<ConfigReaderThread>(uuid);
 		ConfigThread->Start();
 	}
 }

@@ -629,7 +629,7 @@ void InspIRCd::Run()
 			/* Rehash has completed */
 			this->Logs.Normal("CONFIG", "New configuration has been read, applying...");
 			ConfigThread->Stop();
-			stdalgo::delete_zero(ConfigThread);
+			ConfigThread.reset(nullptr);
 		}
 
 		UpdateTime();
