@@ -150,14 +150,20 @@ class ModuleConnectBan CXX11_FINAL
 
 			if (i->second >= threshold)
 			{
+				// If an IPv6 address begins with a colon then expand it
+				// slightly to avoid breaking the server protocol.
+				std::string maskstr = mask.str();
+				if (maskstr[0] == ':')
+					maskstr.insert(maskstr.begin(), 1, '0');
+
 				// Create Z-line for set duration.
-				ZLine* zl = new ZLine(ServerInstance->Time(), banduration, MODNAME "@" + ServerInstance->Config->ServerName, banmessage, mask.str());
+				ZLine* zl = new ZLine(ServerInstance->Time(), banduration, MODNAME "@" + ServerInstance->Config->ServerName, banmessage, maskstr);
 				if (!ServerInstance->XLines->AddLine(zl, NULL))
 				{
 					delete zl;
 					return;
 				}
-				std::string maskstr = mask.str();
+
 				ServerInstance->SNO->WriteToSnoMask('x', "%s added a timed Z-line on %s, expires in %s (on %s): %s",
 					zl->source.c_str(), maskstr.c_str(), InspIRCd::DurationString(zl->duration).c_str(),
 					InspIRCd::TimeString(zl->expiry).c_str(), zl->reason.c_str());
