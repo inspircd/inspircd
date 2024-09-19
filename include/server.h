@@ -85,6 +85,15 @@ public:
 	 */
 	bool IsSilentService() const { return silentservice; }
 
+	/** Retrieves the number of server operators on this server. */
+	virtual size_t GetOperCount() const;
+
+	/** Retrieves the parent of this server or nullptr for the root server. */
+	virtual Server* GetParent() const { return nullptr; }
+
+	/** Retrieves the number of fully connected users on this server. */
+	virtual size_t GetUserCount() const;
+
 	/** Send metadata related to this server to the target server.
 	 * @param key The name of the metadata (e.g. foo-bar).
 	 * @param data The network representation of the metadata.

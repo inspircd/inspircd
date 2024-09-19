@@ -97,6 +97,12 @@ public:
 	 */
 	TreeServer();
 
+	size_t GetOperCount() const { return OperCount; }
+
+	Server* GetParent() const override { return Parent; }
+
+	size_t GetUserCount() const { return UserCount; }
+
 	void SendMetadata(const std::string& key, const std::string& data) const override;
 
 	void SendMetadata(const Extensible* ext, const std::string& key, const std::string& data) const override;

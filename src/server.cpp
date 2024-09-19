@@ -162,6 +162,16 @@ const std::string& Server::GetPublicName() const
 	return GetName();
 }
 
+size_t Server::GetOperCount() const
+{
+	return ServerInstance->Users.all_opers.size();
+}
+
+size_t Server::GetUserCount() const
+{
+	return ServerInstance->Users.LocalUserCount();
+}
+
 void Server::SendMetadata(const std::string& key, const std::string& data) const
 {
 	// Do nothing for the local server.
