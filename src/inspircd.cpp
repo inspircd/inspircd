@@ -405,7 +405,7 @@ void InspIRCd::Cleanup()
 	}
 	stdalgo::delete_zero(this->FakeClient);
 	stdalgo::delete_zero(this->XLines);
-	stdalgo::delete_zero(this->Config);
+	this->Config.reset(nullptr);
 	SocketEngine::Deinit();
 	Logs.CloseLogs();
 }
@@ -442,7 +442,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	IncreaseCoreDumpSize();
 	SocketEngine::Init();
 
-	this->Config = new ServerConfig;
+	this->Config = std::make_unique<ServerConfig>();
 	dynamic_reference_base::reset_all();
 	this->XLines = new XLineManager;
 

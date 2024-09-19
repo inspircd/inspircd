@@ -195,7 +195,7 @@ void ServerConfig::CrossCheckOperBlocks()
 	}
 }
 
-void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
+void ServerConfig::CrossCheckConnectBlocks(const std::unique_ptr<ServerConfig>& current)
 {
 	typedef std::map<std::pair<std::string, ConnectClass::Type>, std::shared_ptr<ConnectClass>> ClassMap;
 	ClassMap oldBlocksByMask;
@@ -422,7 +422,7 @@ void ServerConfig::Read()
 	}
 }
 
-void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
+void ServerConfig::Apply(const std::unique_ptr<ServerConfig>& old, const std::string& useruid)
 {
 	valid = true;
 	if (old)
@@ -687,12 +687,12 @@ void ConfigReaderThread::OnStart()
 
 void ConfigReaderThread::OnStop()
 {
-	ServerConfig* old = ServerInstance->Config;
 	ServerInstance->Logs.Normal("CONFIG", "Switching to new configuration...");
-	ServerInstance->Config = this->Config;
-	Config->Apply(old, UUID);
 
-	if (Config->valid)
+	std::swap(ServerInstance->Config, this->Config);
+	ServerInstance->Config->Apply(this->Config, UUID);
+
+	if (ServerInstance->Config->valid)
 	{
 		/*
 		 * Apply the changed configuration from the rehash.
@@ -736,17 +736,15 @@ void ConfigReaderThread::OnStop()
 				user->WriteNotice("Cannot open log files: " + ex.GetReason());
 		}
 
-		if (Config->RawLog && !old->RawLog)
+		if (!Config->RawLog && ServerInstance->Config->RawLog)
 		{
 			for (auto* luser : ServerInstance->Users.GetLocalUsers())
 				Log::NotifyRawIO(luser, MessageType::PRIVMSG);
 		}
-
-		Config = old;
 	}
 	else
 	{
 		// whoops, abort!
-		ServerInstance->Config = old;
+		std::swap(ServerInstance->Config, this->Config);
 	}
 }

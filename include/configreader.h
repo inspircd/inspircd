@@ -279,7 +279,7 @@ private:
 	/** Ensures that connect classes are well formed.
 	 * @param current The current server config that is about to be replaced.
 	 */
-	void CrossCheckConnectBlocks(ServerConfig* current);
+	void CrossCheckConnectBlocks(const std::unique_ptr<ServerConfig>& current);
 
 	/** Ensures that oper accounts, oper types, and oper classes are well formed. */
 	void CrossCheckOperBlocks();
@@ -511,7 +511,7 @@ public:
 	ServerConfig();
 
 	/** Apply configuration changes from the old configuration. */
-	void Apply(ServerConfig* old, const std::string& useruid);
+	void Apply(const std::unique_ptr<ServerConfig>& old, const std::string& useruid);
 
 	/** Get a list of configuration tags by name.
 	 * @param tag The name of the tags to get.
@@ -563,7 +563,7 @@ class CoreExport ConfigReaderThread final
 {
 private:
 	/** The new server configuration. */
-	ServerConfig* Config = new ServerConfig();
+	std::unique_ptr<ServerConfig> Config;
 
 	/** Whether the config has been read yet. */
 	std::atomic_bool done = { false };
@@ -579,13 +579,9 @@ public:
 	const std::string UUID;
 
 	ConfigReaderThread(const std::string& uuid)
-		: UUID(uuid)
+		: Config(std::make_unique<ServerConfig>())
+		, UUID(uuid)
 	{
-	}
-
-	~ConfigReaderThread() override
-	{
-		delete Config;
 	}
 
 	/** Whether the configuration has been read yet. */

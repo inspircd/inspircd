@@ -222,7 +222,7 @@ public:
 	UserManager Users;
 
 	/** The server configuration. */
-	ServerConfig* Config = nullptr;
+	std::unique_ptr<ServerConfig> Config;
 
 	/* If non-nullptr then the thread that is reading the server configuration on rehash. */
 	ConfigReaderThread* ConfigThread = nullptr;
