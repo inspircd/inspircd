@@ -50,24 +50,25 @@ class ServerTracker final
 private:
 	bool online;
 
-	void Update(const Server* server, bool linked)
+	void Update(const Server& server, bool linked)
 	{
 		if (sasl_target == "*")
 			return;
 
-		if (InspIRCd::Match(server->GetName(), sasl_target))
+		if (InspIRCd::Match(server.GetName(), sasl_target))
 		{
-			ServerInstance->Logs.Debug(MODNAME, "SASL target server \"{}\" {}", sasl_target, (linked ? "came online" : "went offline"));
+			ServerInstance->Logs.Debug(MODNAME, "SASL target server \"{}\" {}",
+				sasl_target, (linked ? "came online" : "went offline"));
 			online = linked;
 		}
 	}
 
-	void OnServerLink(const Server* server) override
+	void OnServerLink(const Server& server) override
 	{
 		Update(server, true);
 	}
 
-	void OnServerSplit(const Server* server, bool error) override
+	void OnServerSplit(const Server& server, bool error) override
 	{
 		Update(server, false);
 	}

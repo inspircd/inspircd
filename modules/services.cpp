@@ -33,12 +33,12 @@ class ServicesAccountProvider final
 private:
 	std::string target;
 
-	void OnServerLink(const Server* server) override
+	void OnServerLink(const Server& server) override
 	{
 		UpdateStatus(server, true);
 	}
 
-	void OnServerSplit(const Server* server, bool error) override
+	void OnServerSplit(const Server& server, bool error) override
 	{
 		UpdateStatus(server, false);
 	}
@@ -52,12 +52,12 @@ private:
 			ServerInstance->Modules.DelService(*this);
 	}
 
-	void UpdateStatus(const Server* server, bool online)
+	void UpdateStatus(const Server& server, bool online)
 	{
-		if (irc::equals(target, server->GetName()))
+		if (irc::equals(target, server.GetName()))
 		{
-			ServerInstance->Logs.Debug(MODNAME, "Services server {} ({}) {}.", server->GetName(),
-				server->GetId(), online ? "came online" : "went offline");
+			ServerInstance->Logs.Debug(MODNAME, "Services server {} ({}) {}.", server.GetName(),
+				server.GetId(), online ? "came online" : "went offline");
 			SetAvailable(online);
 		}
 	}

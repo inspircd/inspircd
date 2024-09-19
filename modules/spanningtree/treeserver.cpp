@@ -124,7 +124,7 @@ TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const s
 	this->AddHashEntry();
 	Parent->Children.push_back(this);
 
-	Utils->Creator->linkeventprov.Call(&ServerProtocol::LinkEventListener::OnServerLink, this);
+	Utils->Creator->linkeventprov.Call(&ServerProtocol::LinkEventListener::OnServerLink, *this);
 }
 
 void TreeServer::BeginBurst(uint64_t startms)
@@ -158,7 +158,7 @@ void TreeServer::FinishBurst()
 	unsigned long bursttime = ts - this->StartBurst;
 	ServerInstance->SNO.WriteToSnoMask(Parent == Utils->TreeRoot ? 'l' : 'L', "Received end of netburst from \002{}\002 (burst time: {} {})",
 		GetName(), (bursttime > 10000 ? bursttime / 1000 : bursttime), (bursttime > 10000 ? "secs" : "msecs"));
-	Utils->Creator->linkeventprov.Call(&ServerProtocol::LinkEventListener::OnServerBurst, this);
+	Utils->Creator->linkeventprov.Call(&ServerProtocol::LinkEventListener::OnServerBurst, *this);
 
 	StartBurst = 0;
 	FinishBurstInternal();
@@ -213,7 +213,7 @@ void TreeServer::SQuitInternal(unsigned int& num_lost_servers, bool error)
 	RemoveHash();
 
 	if (!Utils->Creator->dying)
-		Utils->Creator->linkeventprov.Call(&ServerProtocol::LinkEventListener::OnServerSplit, this, error);
+		Utils->Creator->linkeventprov.Call(&ServerProtocol::LinkEventListener::OnServerSplit, *this, error);
 }
 
 size_t TreeServer::QuitUsers(const std::string& reason)

@@ -29,7 +29,7 @@ void CmdBuilder::FireEvent(const Server* target, const char* cmd, ClientProtocol
 	if (!Utils->Creator || Utils->Creator->dying)
 		return;
 
-	Utils->Creator->messageeventprov.Call(&ServerProtocol::MessageEventListener::OnBuildServerMessage, target, cmd, taglist);
+	Utils->Creator->messageeventprov.Call(&ServerProtocol::MessageEventListener::OnBuildServerMessage, *target, cmd, taglist);
 	UpdateTags();
 }
 

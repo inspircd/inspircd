@@ -162,7 +162,7 @@ public:
 			ignoreuntil = ServerInstance->StartTime + bootwait;
 	}
 
-	void OnServerSplit(const Server* server, bool error) override
+	void OnServerSplit(const Server& server, bool error) override
 	{
 		if (splitwait)
 			ignoreuntil = std::max<time_t>(ignoreuntil, ServerInstance->Time() + splitwait);

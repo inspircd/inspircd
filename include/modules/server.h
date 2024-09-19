@@ -52,18 +52,18 @@ public:
 	/** Fired when a server has linked to the network.
 	 * @param server Server that recently linked.
 	 */
-	virtual void OnServerLink(const Server* server) { }
+	virtual void OnServerLink(const Server& server) { }
 
 	/** Fired when a server has finished bursting.
 	 * @param server Server that recently finished bursting.
 	 */
-	virtual void OnServerBurst(const Server* server) { }
+	virtual void OnServerBurst(const Server& server) { }
 
 	/** Fired when a server splits
 	 * @param server Server that split
 	 * @param error Whether the server split because of an error.
 	 */
-	virtual void OnServerSplit(const Server* server, bool error) { }
+	virtual void OnServerSplit(const Server& server, bool error) { }
 };
 
 class ServerProtocol::MessageEventListener
@@ -87,7 +87,7 @@ public:
 	 * @param name The name of the command which was sent.
 	 * @param tags The tags which will be sent with the message.
 	 */
-	virtual void OnBuildServerMessage(const Server* source, const char* name, ClientProtocol::TagMap& tags) { }
+	virtual void OnBuildServerMessage(const Server& source, const char* name, ClientProtocol::TagMap& tags) { }
 };
 
 class ServerProtocol::RouteEventListener

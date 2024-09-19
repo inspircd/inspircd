@@ -748,7 +748,7 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 		for (const auto& [_, server] : Utils->serverlist)
 		{
 			if (!server->IsRoot())
-				linkeventprov.Call(&ServerProtocol::LinkEventListener::OnServerSplit, server, false);
+				linkeventprov.Call(&ServerProtocol::LinkEventListener::OnServerSplit, *server, false);
 		}
 		return;
 	}
