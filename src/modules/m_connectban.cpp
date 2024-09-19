@@ -147,14 +147,20 @@ public:
 
 			if (i->second >= threshold)
 			{
+				// If an IPv6 address begins with a colon then expand it
+				// slightly to avoid breaking the server protocol.
+				std::string maskstr = mask.str();
+				if (maskstr[0] == ':')
+					maskstr.insert(maskstr.begin(), 1, '0');
+
 				// Create Z-line for set duration.
-				auto* zl = new ZLine(ServerInstance->Time(), banduration, MODNAME "@" + ServerInstance->Config->ServerName, banmessage, mask.str());
+				auto* zl = new ZLine(ServerInstance->Time(), banduration, MODNAME "@" + ServerInstance->Config->ServerName, banmessage, maskstr);
 				if (!ServerInstance->XLines->AddLine(zl, nullptr))
 				{
 					delete zl;
 					return;
 				}
-				std::string maskstr = mask.str();
+
 				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed Z-line on {}, expires in {} (on {}): {}",
 					zl->source, maskstr, Duration::ToString(zl->duration),
 					Time::ToString(zl->expiry), zl->reason);
