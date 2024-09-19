@@ -36,7 +36,7 @@ public:
 	/** Deleter that queues an object for deletion at the end of the current main loop iteration. */
 	struct Deleter final
 	{
-		void operator()(Cullable* item);
+		void operator()(Cullable* item) const;
 	};
 
 	/** Dummy class to help ensure all superclasses get culled. */
