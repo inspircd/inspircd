@@ -97,14 +97,10 @@ public:
 	 */
 	TreeServer();
 
-	size_t GetOperCount() const { return OperCount; }
-
+	size_t GetOperCount() const override { return OperCount; }
 	Server* GetParent() const override { return Parent; }
-
-	size_t GetUserCount() const { return UserCount; }
-
+	size_t GetUserCount() const override { return UserCount; }
 	void SendMetadata(const std::string& key, const std::string& data) const override;
-
 	void SendMetadata(const Extensible* ext, const std::string& key, const std::string& data) const override;
 
 	/** When we create a new server, we call this constructor to initialize it.
