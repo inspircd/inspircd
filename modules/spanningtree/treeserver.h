@@ -120,7 +120,7 @@ public:
 	 */
 	void SQuit(const std::string& reason, bool error = false)
 	{
-		GetParent()->SQuitChild(this, reason, error);
+		GetTreeParent()->SQuitChild(this, reason, error);
 	}
 
 	static size_t QuitUsers(const std::string& reason);
@@ -164,7 +164,7 @@ public:
 	/** Get the parent server.
 	 * For the root node, this returns NULL.
 	 */
-	TreeServer* GetParent() const { return Parent; }
+	TreeServer* GetTreeParent() const { return Parent; }
 
 	/** Sets the description of this server. Called when the description of a remote server changes
 	 * and we are notified about it.

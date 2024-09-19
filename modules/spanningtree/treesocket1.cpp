@@ -171,9 +171,9 @@ CmdResult CommandSQuit::HandleServer(TreeServer* server, CommandBase::Params& pa
 	if (quitting == server)
 	{
 		ret = CmdResult::FAILURE;
-		server = server->GetParent();
+		server = server->GetTreeParent();
 	}
-	else if (quitting->GetParent() != server)
+	else if (quitting->GetTreeParent() != server)
 		throw ProtocolException("Attempted to SQUIT a non-directly connected server or the parent");
 
 	server->SQuitChild(quitting, params[1]);

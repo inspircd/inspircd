@@ -184,7 +184,7 @@ bool TreeSocket::CheckDuplicate(const std::string& sname, const std::string& sid
 	TreeServer* CheckDupe = Utils->FindServer(sname);
 	if (CheckDupe)
 	{
-		std::string pname = CheckDupe->GetParent() ? CheckDupe->GetParent()->GetName() : "<ourself>";
+		std::string pname = CheckDupe->GetTreeParent() ? CheckDupe->GetTreeParent()->GetName() : "<ourself>";
 		SendError("Server "+sname+" already exists on server "+pname+"!");
 		ServerInstance->SNO.WriteToSnoMask('l', "Server connection from \002"+sname+"\002 denied, already exists on server "+pname);
 		return false;
@@ -238,7 +238,7 @@ bool TreeSocket::Inbound_Server(CommandBase::Params& params)
 }
 
 CommandServer::Builder::Builder(TreeServer* server)
-	: CmdBuilder(server->GetParent(), "SERVER")
+	: CmdBuilder(server->GetTreeParent(), "SERVER")
 {
 	push(server->GetName());
 	push(server->GetId());

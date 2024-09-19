@@ -101,9 +101,9 @@ TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const s
 	}
 	else
 	{
-		while (this->Route->GetParent() != Utils->TreeRoot)
+		while (this->Route->GetTreeParent() != Utils->TreeRoot)
 		{
-			this->Route = Route->GetParent();
+			this->Route = Route->GetTreeParent();
 		}
 	}
 

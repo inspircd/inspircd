@@ -38,7 +38,7 @@ void SpanningTreeProtocolInterface::GetServerList(ServerList& sl)
 	{
 		ServerInfo ps;
 		ps.servername = server->GetName();
-		TreeServer* s = server->GetParent();
+		TreeServer* s = server->GetTreeParent();
 		ps.parentname = s ? s->GetName() : "";
 		ps.usercount = server->UserCount;
 		ps.opercount = server->OperCount;

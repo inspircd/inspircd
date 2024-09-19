@@ -133,9 +133,9 @@ void ModuleSpanningTree::init()
 void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 {
 	std::string Parent = Utils->TreeRoot->GetName();
-	if (Current->GetParent())
+	if (Current->GetTreeParent())
 	{
-		Parent = Current->GetParent()->GetName();
+		Parent = Current->GetTreeParent()->GetName();
 	}
 
 	for (auto* server : Current->GetChildren())
@@ -364,7 +364,7 @@ ModResult ModuleSpanningTree::HandleConnect(const CommandBase::Params& parameter
 			}
 			else
 			{
-				user->WriteRemoteNotice("*** CONNECT: Server \002{}\002 already exists on the network and is connected via \002{}\002", x->Name, CheckDupe->GetParent()->GetName());
+				user->WriteRemoteNotice("*** CONNECT: Server \002{}\002 already exists on the network and is connected via \002{}\002", x->Name, CheckDupe->GetTreeParent()->GetName());
 				return MOD_RES_DENY;
 			}
 		}
