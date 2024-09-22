@@ -45,6 +45,7 @@ class ModuleHideChans final
 {
 private:
 	bool affectsopers;
+	bool hideservices;
 	HideChans hm;
 
 	ModResult ShouldHideChans(LocalUser* source, User* target)
@@ -54,6 +55,9 @@ private:
 
 		if (!target->IsModeSet(hm))
 			return MOD_RES_PASSTHRU; // Mode not set on the target.
+
+		if (hideservices && target->server->IsService())
+			return MOD_RES_DENY; // Nobody is allowed to see services not even opers.
 
 		if (!affectsopers && source->HasPrivPermission("users/auspex"))
 			return MOD_RES_PASSTHRU; // Opers aren't exempt or the oper doesn't have the right priv.
@@ -74,6 +78,7 @@ public:
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("hidechans");
 		affectsopers = tag->getBool("affectsopers");
+		hideservices = tag->getBool("hideservices", true);
 	}
 
 	ModResult OnWhoVisible(const Who::Request& request, LocalUser* source, Membership* memb) override
