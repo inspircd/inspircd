@@ -166,14 +166,14 @@ class ModuleChanHistory final
 private:
 	HistoryMode historymode;
 	SimpleUserMode nohistorymode;
-	bool prefixmsg;
 	UserModeReference botmode;
-	bool dobots;
 	IRCv3::Batch::CapReference batchcap;
 	IRCv3::Batch::API batchmanager;
 	IRCv3::Batch::Batch batch;
 	IRCv3::ServerTime::API servertimemanager;
 	ClientProtocol::MessageTagEvent tagevent;
+	bool prefixmsg;
+	bool sendtobots;
 
 	void AddTag(ClientProtocol::Message& msg, const std::string& tagkey, std::string& tagval)
 	{
@@ -232,7 +232,7 @@ public:
 		historymode.maxduration = tag->getDuration("maxduration", 60*60*24*28);
 		historymode.maxlines = tag->getNum<unsigned long>("maxlines", 50);
 		prefixmsg = tag->getBool("prefixmsg", true);
-		dobots = tag->getBool("bots", true);
+		sendtobots = tag->getBool("sendtobots", tag->getBool("bots", true));
 	}
 
 	ModResult OnRouteMessage(const Channel* channel, const Server* server) override
@@ -264,7 +264,7 @@ public:
 		if (!localuser)
 			return;
 
-		if (memb->user->IsModeSet(botmode) && !dobots)
+		if (memb->user->IsModeSet(botmode) && !sendtobots)
 			return;
 
 		if (memb->user->IsModeSet(nohistorymode))
