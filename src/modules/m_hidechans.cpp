@@ -44,7 +44,7 @@ class ModuleHideChans final
 	, public Whois::LineEventListener
 {
 private:
-	bool AffectsOpers;
+	bool affectsopers;
 	HideChans hm;
 
 	ModResult ShouldHideChans(LocalUser* source, User* target)
@@ -55,7 +55,7 @@ private:
 		if (!target->IsModeSet(hm))
 			return MOD_RES_PASSTHRU; // Mode not set on the target.
 
-		if (!AffectsOpers && source->HasPrivPermission("users/auspex"))
+		if (!affectsopers && source->HasPrivPermission("users/auspex"))
 			return MOD_RES_PASSTHRU; // Opers aren't exempt or the oper doesn't have the right priv.
 
 		return MOD_RES_DENY;
@@ -72,7 +72,8 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		AffectsOpers = ServerInstance->Config->ConfValue("hidechans")->getBool("affectsopers");
+		const auto& tag = ServerInstance->Config->ConfValue("hidechans");
+		affectsopers = tag->getBool("affectsopers");
 	}
 
 	ModResult OnWhoVisible(const Who::Request& request, LocalUser* source, Membership* memb) override
