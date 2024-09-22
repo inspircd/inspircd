@@ -173,6 +173,7 @@ private:
 	IRCv3::ServerTime::API servertimemanager;
 	ClientProtocol::MessageTagEvent tagevent;
 	bool prefixmsg;
+	bool savefrombots;
 	bool sendtobots;
 
 	void AddTag(ClientProtocol::Message& msg, const std::string& tagkey, std::string& tagval)
@@ -232,6 +233,7 @@ public:
 		historymode.maxduration = tag->getDuration("maxduration", 60*60*24*28);
 		historymode.maxlines = tag->getNum<unsigned long>("maxlines", 50);
 		prefixmsg = tag->getBool("prefixmsg", true);
+		savefrombots = tag->getBool("savefrombots", true);
 		sendtobots = tag->getBool("sendtobots", tag->getBool("bots", true));
 	}
 
@@ -243,6 +245,9 @@ public:
 	void OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details) override
 	{
 		if (target.type != MessageTarget::TYPE_CHANNEL || target.status)
+			return;
+
+		if (user->IsModeSet(botmode) && !savefrombots)
 			return;
 
 		std::string_view ctcpname;
