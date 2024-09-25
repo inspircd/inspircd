@@ -356,10 +356,10 @@ void TreeSocket::SendCapabilities(int phase)
 		{ "MAXUSER",     ConvToStr(ServerInstance->Config->Limits.MaxUser)    },
 	};
 
+	ExtBan::ManagerRef extbanmgr(Utils->Creator);
 	if (proto_version <= PROTO_INSPIRCD_3)
 	{
 		// 1205 HACK: Allow services to know what extbans exist.
-		ExtBan::ManagerRef extbanmgr(Utils->Creator);
 		if (extbanmgr)
 		{
 			std::string extbans;
@@ -386,6 +386,23 @@ void TreeSocket::SendCapabilities(int phase)
 		std::string extbans;
 		if (BuildExtBanList(extbans))
 			WriteLine("CAPAB EXTBANS :" + extbans);
+
+		if (extbanmgr)
+		{
+			std::string& xbformat = capabilities["EXTBANFORMAT"];
+			switch (extbanmgr->GetFormat())
+			{
+				case ExtBan::Format::ANY:
+					xbformat = "any";
+					break;
+				case ExtBan::Format::NAME:
+					xbformat = "name";
+					break;
+				case ExtBan::Format::LETTER:
+					xbformat = "letter";
+					break;
+			}
+		}
 	}
 
 	// If SHA256 hashing support is available then send a challenge token.
