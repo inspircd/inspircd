@@ -72,6 +72,9 @@ namespace ExtBan
 		MATCHING
 	};
 
+	/** The underlying type of an extban letter. */
+	using Letter = std::string::value_type;
+
 	/** Parses a ban entry and extracts an extban from it.
 	 * @param banentry The ban entry to parse.
 	 * @param name The parsed name of the extban.
@@ -97,7 +100,7 @@ protected:
 
 public:
 	/** A mapping of extban letters to their associated object. */
-	typedef std::unordered_map<unsigned char, ExtBan::Base*> LetterMap;
+	typedef std::unordered_map<ExtBan::Letter, ExtBan::Base*> LetterMap;
 
 	/** A mapping of extban names to their associated objects. */
 	typedef std::unordered_map<std::string, ExtBan::Base*, irc::insensitive, irc::StrHashComp> NameMap;
@@ -152,7 +155,7 @@ public:
 	/** Finds an extban by letter.
 	 * @param xbletter The letter of the extban to find.
 	 */
-	virtual Base* FindLetter(unsigned char xbletter) const = 0;
+	virtual Base* FindLetter(ExtBan::Letter xbletter) const = 0;
 
 	/** Finds an extban by name.
 	 * @param xbname The name of the extban to find.
@@ -181,7 +184,7 @@ private:
 	bool active = false;
 
 	/** The character used in bans to signify this extban (e.g. z). */
-	unsigned char letter;
+	ExtBan::Letter letter;
 
 	/** A reference to the extban manager. */
 	dynamic_reference<Manager> manager;
@@ -199,7 +202,7 @@ protected:
 	 * @param xbname The name used in bans to signify this extban.
 	 * @param xbletter The character used in bans to signify this extban.
 	 */
-	Base(Module* mod, const std::string& xbname, unsigned char xbletter)
+	Base(Module* mod, const std::string& xbname, ExtBan::Letter xbletter)
 		: ServiceProvider(mod, xbname, SERVICE_CUSTOM)
 		, letter(ServerInstance->Config->ConfValue("extbans")->getCharacter(xbname, xbletter))
 		, manager(mod, "extbanmanager")
@@ -218,7 +221,7 @@ public:
 	virtual void Canonicalize(std::string& text) { }
 
 	/** Retrieves the character used in bans to signify this extban. */
-	unsigned char GetLetter() const { return letter; }
+	ExtBan::Letter GetLetter() const { return letter; }
 
 	/** Retrieves a pointer to the extban manager. */
 	Manager* GetManager() { return manager ? *manager : nullptr; }
@@ -273,7 +276,7 @@ protected:
 	 * @param xbname The name used in bans to signify this extban.
 	 * @param xbletter The character used in bans to signify this extban.
 	 */
-	ActingBase(Module* mod, const std::string& xbname, unsigned char xbletter)
+	ActingBase(Module* mod, const std::string& xbname, ExtBan::Letter xbletter)
 		: Base(mod, xbname, xbletter)
 	{
 	}
@@ -306,7 +309,7 @@ public:
 	 * @param xbname The name used in bans to signify this extban.
 	 * @param xbletter The character used in bans to signify this extban.
 	 */
-	Acting(Module* mod, const std::string& xbname, unsigned char xbletter)
+	Acting(Module* mod, const std::string& xbname, ExtBan::Letter xbletter)
 		: ActingBase(mod, xbname, xbletter)
 	{
 	}
@@ -336,7 +339,7 @@ protected:
 	 * @param xbname The name used in bans to signify this extban.
 	 * @param xbletter The character used in bans to signify this extban.
 	 */
-	MatchingBase(Module* mod, const std::string& xbname, unsigned char xbletter)
+	MatchingBase(Module* mod, const std::string& xbname, ExtBan::Letter xbletter)
 		: Base(mod, xbname, xbletter)
 	{
 	}
