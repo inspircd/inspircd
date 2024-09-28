@@ -298,6 +298,7 @@ public:
 				f->Clear(user);
 
 				const std::string msg = Template::Replace(message, {
+					{ "channel",  dest->name                    },
 					{ "duration", Duration::ToString(f->period) },
 					{ "messages", ConvToStr(f->messages)        },
 					{ "seconds",  ConvToStr(f->period)          },

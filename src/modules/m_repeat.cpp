@@ -476,6 +476,7 @@ public:
 		if (rm.MatchLine(memb, settings, details.text))
 		{
 			const std::string message = Template::Replace(rm.ms.Message, {
+				{ "channel",  chan->name                            },
 				{ "diff",     ConvToStr(settings->Diff)             },
 				{ "duration", Duration::ToString(settings->Seconds) },
 				{ "lines",    ConvToStr(settings->Lines)            },
