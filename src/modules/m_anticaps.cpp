@@ -36,8 +36,24 @@ enum class AntiCapsMethod
 
 class AntiCapsSettings final
 {
-private:
-	bool ParseMethod(irc::sepstream& stream)
+public:
+	const AntiCapsMethod method;
+	const uint16_t minlen;
+	const uint8_t percent;
+
+	AntiCapsSettings(const AntiCapsMethod& m, uint16_t ml, uint8_t p)
+		: method(m)
+		, minlen(ml)
+		, percent(p)
+	{
+	}
+
+	static bool Parse(irc::sepstream& stream, AntiCapsMethod& method, uint16_t& minlen, uint8_t& percent)
+	{
+		return ParseMethod(stream, method) && ParseMinimumLength(stream, minlen) && ParsePercent(stream, percent);
+	}
+
+	static bool ParseMethod(irc::sepstream& stream, AntiCapsMethod& method)
 	{
 		std::string methodstr;
 		if (!stream.GetToken(methodstr))
@@ -59,7 +75,7 @@ private:
 		return true;
 	}
 
-	bool ParseMinimumLength(irc::sepstream& stream)
+	static bool ParseMinimumLength(irc::sepstream& stream, uint16_t& minlen)
 	{
 		std::string minlenstr;
 		if (!stream.GetToken(minlenstr))
@@ -73,7 +89,7 @@ private:
 		return true;
 	}
 
-	bool ParsePercent(irc::sepstream& stream)
+	static bool ParsePercent(irc::sepstream& stream, uint8_t& percent)
 	{
 		std::string percentstr;
 		if (!stream.GetToken(percentstr))
@@ -85,17 +101,6 @@ private:
 
 		percent = result;
 		return true;
-	}
-
-public:
-	AntiCapsMethod method = AntiCapsMethod::BLOCK;
-	uint16_t minlen = 0;
-	uint8_t percent = 0;
-
-	bool Parse(const std::string& str)
-	{
-		irc::sepstream stream(str, ':');
-		return ParseMethod(stream) && ParseMinimumLength(stream) && ParsePercent(stream);
 	}
 };
 
@@ -111,14 +116,19 @@ public:
 
 	bool OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
-		AntiCapsSettings settings;
-		if (!settings.Parse(parameter))
+		irc::sepstream stream(parameter, ':');
+		AntiCapsMethod method;
+		uint16_t minlen;
+		uint8_t percent;
+
+		// Attempt to parse the settings.
+		if (!AntiCapsSettings::Parse(stream, method, minlen, percent))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
 			return false;
 		}
 
-		ext.Set(channel, settings);
+		ext.SetFwd(channel, method, minlen, percent);
 		return true;
 	}
 
