@@ -442,7 +442,7 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("repeat");
-		rm.ms.Message = tag->getString("message", tag->getString("kickmessage", "Repeat flood (trigger is %lines% messages in %duration%)"), 1);
+		rm.ms.Message = tag->getString("message", tag->getString("kickmessage", "Repeat flood detected (trigger is %lines% messages in %duration%)"), 1);
 		rm.ms.Extended = tag->getBool("extended");
 		rm.ms.MaxBacklog = tag->getNum<unsigned long>("maxbacklog", 20);
 		rm.ms.MaxDiff = tag->getNum<unsigned int>("maxdistance", 50, 0, 100);
