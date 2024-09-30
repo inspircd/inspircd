@@ -36,8 +36,24 @@ enum class AntiCapsMethod
 
 class AntiCapsSettings final
 {
-private:
-	bool ParseMethod(irc::sepstream& stream)
+public:
+	const AntiCapsMethod method;
+	const uint16_t minlen;
+	const uint8_t percent;
+
+	AntiCapsSettings(const AntiCapsMethod& m, uint16_t ml, uint8_t p)
+		: method(m)
+		, minlen(ml)
+		, percent(p)
+	{
+	}
+
+	static bool Parse(irc::sepstream& stream, AntiCapsMethod& method, uint16_t& minlen, uint8_t& percent)
+	{
+		return ParseMethod(stream, method) && ParseMinimumLength(stream, minlen) && ParsePercent(stream, percent);
+	}
+
+	static bool ParseMethod(irc::sepstream& stream, AntiCapsMethod& method)
 	{
 		std::string methodstr;
 		if (!stream.GetToken(methodstr))
@@ -59,7 +75,7 @@ private:
 		return true;
 	}
 
-	bool ParseMinimumLength(irc::sepstream& stream)
+	static bool ParseMinimumLength(irc::sepstream& stream, uint16_t& minlen)
 	{
 		std::string minlenstr;
 		if (!stream.GetToken(minlenstr))
@@ -73,7 +89,7 @@ private:
 		return true;
 	}
 
-	bool ParsePercent(irc::sepstream& stream)
+	static bool ParsePercent(irc::sepstream& stream, uint8_t& percent)
 	{
 		std::string percentstr;
 		if (!stream.GetToken(percentstr))
@@ -85,17 +101,6 @@ private:
 
 		percent = result;
 		return true;
-	}
-
-public:
-	AntiCapsMethod method = AntiCapsMethod::BLOCK;
-	uint16_t minlen = 0;
-	uint8_t percent = 0;
-
-	bool Parse(const std::string& str)
-	{
-		irc::sepstream stream(str, ':');
-		return ParseMethod(stream) && ParseMinimumLength(stream) && ParsePercent(stream);
 	}
 };
 
@@ -111,14 +116,19 @@ public:
 
 	bool OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
-		AntiCapsSettings settings;
-		if (!settings.Parse(parameter))
+		irc::sepstream stream(parameter, ':');
+		AntiCapsMethod method;
+		uint16_t minlen;
+		uint8_t percent;
+
+		// Attempt to parse the settings.
+		if (!AntiCapsSettings::Parse(stream, method, minlen, percent))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));
 			return false;
 		}
 
-		ext.Set(channel, settings);
+		ext.SetFwd(channel, method, minlen, percent);
 		return true;
 	}
 
@@ -158,6 +168,7 @@ private:
 	CharState uppercase;
 	CharState lowercase;
 	AntiCapsMode mode;
+	std::string message;
 
 	void CreateBan(Channel* channel, User* user, bool mute)
 	{
@@ -171,9 +182,9 @@ private:
 		ServerInstance->Modes.Process(ServerInstance->FakeClient, channel, nullptr, changelist);
 	}
 
-	static void InformUser(Channel* channel, User* user, const std::string& message)
+	static void InformUser(Channel* channel, User* user, const std::string& msg)
 	{
-		user->WriteNumeric(Numerics::CannotSendTo(channel, message + " and was blocked."));
+		user->WriteNumeric(Numerics::CannotSendTo(channel, msg));
 	}
 
 public:
@@ -196,6 +207,8 @@ public:
 		lowercase.reset();
 		for (const auto chr : tag->getString("lowercase", "abcdefghijklmnopqrstuvwxyz", 1))
 			lowercase.set(static_cast<unsigned char>(chr));
+
+		message = tag->getString("message", "Your message exceeded the %percent%%% upper case character threshold for %channel%", 1);
 	}
 
 	ModResult OnUserPreMessage(User* user, MessageTarget& target, MessageDetails& details) override
@@ -245,11 +258,14 @@ public:
 		// Count the characters to see how many upper case and
 		// ignored (non upper or lower) characters there are.
 		size_t upper = 0;
+		size_t lower = 0;
 		for (const auto chr : msgbody)
 		{
 			if (uppercase.test(static_cast<unsigned char>(chr)))
 				upper += 1;
-			else if (!lowercase.test(static_cast<unsigned char>(chr)))
+			else if (lowercase.test(static_cast<unsigned char>(chr)))
+				lower += 1;
+			else
 				length -= 1;
 		}
 
@@ -263,32 +279,38 @@ public:
 		if (percent < config->percent)
 			return MOD_RES_PASSTHRU;
 
-		const std::string message = FMT::format("Your message exceeded the {}% upper case character threshold for {}",
-			config->percent, channel->name);
+		const auto msg = Template::Replace(message, {
+			{ "channel",     channel->name                               },
+			{ "lower",       ConvToStr(lower)                            },
+			{ "minlen",      ConvToStr(config->minlen)                   },
+			{ "percent",     ConvToStr<uint16_t>(config->percent)        },
+			{ "punctuation", ConvToStr(msgbody.length() - upper - lower) },
+			{ "upper",       ConvToStr(upper)                            },
+		});
 
 		switch (config->method)
 		{
 			case AntiCapsMethod::BAN:
-				InformUser(channel, user, message);
+				InformUser(channel, user, msg);
 				CreateBan(channel, user, false);
 				break;
 
 			case AntiCapsMethod::BLOCK:
-				InformUser(channel, user, message);
+				InformUser(channel, user, msg);
 				break;
 
 			case AntiCapsMethod::MUTE:
-				InformUser(channel, user, message);
+				InformUser(channel, user, msg);
 				CreateBan(channel, user, true);
 				break;
 
 			case AntiCapsMethod::KICK:
-				channel->KickUser(ServerInstance->FakeClient, user, message);
+				channel->KickUser(ServerInstance->FakeClient, user, msg);
 				break;
 
 			case AntiCapsMethod::KICK_BAN:
 				CreateBan(channel, user, false);
-				channel->KickUser(ServerInstance->FakeClient, user, message);
+				channel->KickUser(ServerInstance->FakeClient, user, msg);
 				break;
 		}
 		return MOD_RES_DENY;

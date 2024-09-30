@@ -188,6 +188,24 @@ namespace
 			capabilities["CHALLENGE"] = ts->GetOurChallenge();
 		}
 
+		ExtBan::ManagerRef extbanmgr(Utils->Creator);
+		if (extbanmgr)
+		{
+			std::string& xbformat = capabilities["EXTBANFORMAT"];
+			switch (extbanmgr->GetFormat())
+			{
+				case ExtBan::Format::ANY:
+					xbformat = "any";
+					break;
+				case ExtBan::Format::NAME:
+					xbformat = "name";
+					break;
+				case ExtBan::Format::LETTER:
+					xbformat = "letter";
+					break;
+			}
+		}
+
 		auto first = true;
 		std::stringstream capabilitystr;
 		for (const auto& [capkey, capvalue] : capabilities)

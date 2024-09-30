@@ -21,9 +21,11 @@
  */
 
 
-#include "inspircd.h"
-
 #include <windows.h>
+
+#include <fmt/format.h>
+
+#include "inspircd.h"
 
 static SERVICE_STATUS_HANDLE g_ServiceStatusHandle;
 static SERVICE_STATUS g_ServiceStatus;

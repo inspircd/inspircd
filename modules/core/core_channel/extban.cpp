@@ -25,14 +25,14 @@ void ExtBanManager::AddExtBan(ExtBan::Base* extban)
 	auto lit = byletter.emplace(extban->GetLetter(), extban);
 	if (!lit.second)
 		throw ModuleException(creator, FMT::format("ExtBan letter \"{}\" is already in use by the {} extban from {}",
-			(char)extban->GetLetter(), lit.first->second->GetName(), lit.first->second->creator->ModuleFile));
+			extban->GetLetter(), lit.first->second->GetName(), lit.first->second->creator->ModuleFile));
 
 	auto nit = byname.emplace(extban->GetName(), extban);
 	if (!nit.second)
 	{
 		byletter.erase(extban->GetLetter());
 		throw ModuleException(creator, FMT::format("ExtBan name \"{}\" is already in use by the {} extban from {}",
-			extban->GetName(), (char)nit.first->second->GetLetter(), nit.first->second->creator->ModuleFile));
+			extban->GetName(), nit.first->second->GetLetter(), nit.first->second->creator->ModuleFile));
 	}
 }
 
@@ -170,7 +170,7 @@ ExtBan::Base* ExtBanManager::FindName(const std::string& xbname) const
 	return iter->second;
 }
 
-ExtBan::Base* ExtBanManager::FindLetter(unsigned char letter) const
+ExtBan::Base* ExtBanManager::FindLetter(ExtBan::Letter letter) const
 {
 	LetterMap::const_iterator iter = byletter.find(letter);
 	if (iter == byletter.end())

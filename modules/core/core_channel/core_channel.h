@@ -174,6 +174,6 @@ public:
 	const NameMap& GetNameMap() const override { return byname; }
 	ModResult GetStatus(ExtBan::ActingBase* extban, User* user, Channel* channel) const override;
 	ExtBan::Base* FindName(const std::string& name) const override;
-	ExtBan::Base* FindLetter(unsigned char letter) const override;
+	ExtBan::Base* FindLetter(ExtBan::Letter letter) const override;
 	void BuildISupport(std::string& out);
 };
