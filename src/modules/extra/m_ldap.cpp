@@ -47,9 +47,9 @@
 #endif
 
 #ifdef _WIN32
+# include <Wininet.h>
 # include <Winldap.h>
 # include <WinBer.h>
-# include <http_parser/http_parser.c>
 # define LDAP_OPT_SUCCESS LDAP_SUCCESS
 # define LDAP_OPT_NETWORK_TIMEOUT LDAP_OPT_SEND_TIMEOUT
 # define LDAP_STR(X) const_cast<PSTR>((X).c_str())
@@ -61,6 +61,7 @@
 # define ldap_first_message ldap_first_entry
 # define ldap_next_message ldap_next_entry
 # define ldap_unbind_ext(LDAP, UNUSED1, UNUSED2) ldap_unbind(LDAP)
+# pragma comment(lib, "Wininet.lib")
 # pragma comment(lib, "Wldap32.lib")
 #else
 # include <ldap.h>
@@ -234,36 +235,39 @@ private:
 	// Windows LDAP does not implement this so we need to do it.
 	int ldap_initialize(LDAP** ldap, const char* url)
 	{
-		http_parser_url up;
-		http_parser_url_init(&up);
-		if (http_parser_parse_url(url, strlen(url), 0, &up) != 0)
-			return LDAP_CONNECT_ERROR; // Malformed url.
+		URL_COMPONENTS urlComponents;
+		memset(&urlComponents, 0, sizeof(urlComponents));
+		urlComponents.dwStructSize = sizeof(urlComponents);
 
-		if (!(up.field_set & (1 << UF_HOST)))
-			return LDAP_CONNECT_ERROR; // Missing the host.
+		std::vector<char> schemebuf(16);
+		urlComponents.lpszScheme = schemebuf.data();
+		urlComponents.dwSchemeLength = schemebuf.size();
+
+		std::vector<char> hostbuf(1024);
+		urlComponents.lpszHostName = hostbuf.data();
+		urlComponents.dwHostNameLength = hostbuf.size();
+
+		if (!InternetCrackUrlA(url, 0, 0, &urlComponents))
+			return LDAP_CONNECT_ERROR; // Malformed url.
 
 		unsigned long port = 389; // Default plaintext port.
 		bool secure = false; // LDAP defaults to plaintext.
-		if (up.field_set & (1 << UF_SCHEMA))
+		if (urlComponents.dwSchemeLength > 0)
 		{
-			const std::string schema(url, up.field_data[UF_SCHEMA].off, up.field_data[UF_SCHEMA].len);
-			if (insp::equalsci(schema, "ldaps"))
+			const std::string scheme(urlComponents.lpszScheme);
+			if (insp::equalsci(scheme, "ldaps"))
 			{
 				port = 636; // Default encrypted port.
 				secure = true;
 			}
-			else if (!insp::equalsci(schema, "ldap"))
+			else if (!insp::equalsci(scheme, "ldap"))
 				return LDAP_CONNECT_ERROR; // Invalid protocol.
 		}
 
-		if (up.field_set & (1 << UF_PORT))
-		{
-			const std::string portstr(url, up.field_data[UF_PORT].off, up.field_data[UF_PORT].len);
-			port = ConvToNum<unsigned long>(portstr);
-		}
+		if (urlComponents.nPort > 0)
+			port = urlComponents.nPort;
 
-		const std::string host(url, up.field_data[UF_HOST].off, up.field_data[UF_HOST].len);
-		*ldap = ldap_sslinit(LDAP_STR(host), port, secure);
+		*ldap = ldap_sslinit(urlComponents.lpszHostName, port, secure);
 		if (!*ldap)
 			return LdapGetLastError(); // Something went wrong, find out what.
 
