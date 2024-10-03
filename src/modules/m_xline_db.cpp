@@ -29,6 +29,7 @@
 #include <fstream>
 
 #include "inspircd.h"
+#include "timeutils.h"
 #include "xline.h"
 
 class ModuleXLineDB final
@@ -241,12 +242,23 @@ public:
 				XLine* xl = xlf->Generate(ServerInstance->Time(), ConvToNum<unsigned long>(command_p[5]), command_p[3], command_p[6], command_p[2]);
 				xl->SetCreateTime(ConvToNum<time_t>(command_p[4]));
 
-				if (ServerInstance->XLines->AddLine(xl, nullptr))
+				if (!ServerInstance->XLines->AddLine(xl, nullptr))
 				{
-					ServerInstance->SNO.WriteToSnoMask('x', "database: Added a line of type {}", command_p[1]);
+					continue;
+					delete xl;
+				}
+
+				if (xl->duration)
+				{
+					ServerInstance->SNO.WriteToSnoMask('x', "database: added a timed {}{} on {}, expires in {} (on {}): {}",
+						xl->type, xl->type.length() <= 2 ? "-line" : "", xl->Displayable(),
+						Duration::ToString(xl->duration), Time::FromNow(xl->duration), xl->reason);
 				}
 				else
-					delete xl;
+				{
+					ServerInstance->SNO.WriteToSnoMask('x', "database: added a permanent {}{} on {}: {}", xl->type,
+						xl->type.length() <= 2 ? "-line" : "", xl->Displayable(), xl->reason);
+				}
 			}
 		}
 		stream.close();
