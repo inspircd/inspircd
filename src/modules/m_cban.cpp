@@ -144,7 +144,7 @@ public:
 				{
 					ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed CBan on {}, expires in {} (on {}): {}",
 						user->nick, parameters[0], Duration::ToString(duration),
-						Time::ToString(ServerInstance->Time() + duration), reason);
+						Time::FromNow(duration), reason);
 				}
 			}
 			else

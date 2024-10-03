@@ -471,7 +471,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, MessageTarget& msgtarget, M
 			auto* sh = new Shun(ServerInstance->Time(), f->duration, MODNAME "@" + ServerInstance->Config->ServerName, f->reason, user->GetAddress());
 			ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was shunned for {} (expires on {}) because their message to {} matched {} ({})",
 				user->nick, sh->Displayable(), Duration::ToString(f->duration),
-				Time::ToString(ServerInstance->Time() + f->duration),
+				Time::FromNow(f->duration),
 				msgtarget.GetName(), f->freeform, f->reason);
 			if (ServerInstance->XLines->AddLine(sh, nullptr))
 			{
@@ -485,7 +485,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, MessageTarget& msgtarget, M
 			auto* gl = new GLine(ServerInstance->Time(), f->duration, MODNAME "@" + ServerInstance->Config->ServerName, f->reason, "*", user->GetAddress());
 			ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was G-lined for {} (expires on {}) because their message to {} matched {} ({})",
 				user->nick, gl->Displayable(), Duration::ToString(f->duration),
-				Time::ToString(ServerInstance->Time() + f->duration),
+				Time::FromNow(f->duration),
 				msgtarget.GetName(), f->freeform, f->reason);
 			if (ServerInstance->XLines->AddLine(gl, nullptr))
 			{
@@ -499,7 +499,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, MessageTarget& msgtarget, M
 			auto* zl = new ZLine(ServerInstance->Time(), f->duration, MODNAME "@" + ServerInstance->Config->ServerName, f->reason, user->GetAddress());
 			ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was Z-lined for {} (expires on {}) because their message to {} matched {} ({})",
 				user->nick, zl->Displayable(), Duration::ToString(f->duration),
-				Time::ToString(ServerInstance->Time() + f->duration),
+				Time::FromNow(f->duration),
 				msgtarget.GetName(), f->freeform, f->reason);
 			if (ServerInstance->XLines->AddLine(zl, nullptr))
 			{
@@ -577,7 +577,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 				ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was G-lined for {} (expires on {}) because their {} message matched {} ({})",
 					user->nick, gl->Displayable(),
 					Duration::ToString(f->duration),
-					Time::ToString(ServerInstance->Time() + f->duration),
+					Time::FromNow(f->duration),
 					command, f->freeform, f->reason);
 
 				if (ServerInstance->XLines->AddLine(gl, nullptr))
@@ -593,7 +593,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 				ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was Z-lined for {} (expires on {}) because their {} message matched {} ({})",
 					user->nick, zl->Displayable(),
 					Duration::ToString(f->duration),
-					Time::ToString(ServerInstance->Time() + f->duration),
+					Time::FromNow(f->duration),
 					command, f->freeform, f->reason);
 
 				if (ServerInstance->XLines->AddLine(zl, nullptr))
@@ -610,7 +610,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 				ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was shunned for {} (expires on {}) because their {} message matched {} ({})",
 					user->nick, sh->Displayable(),
 					Duration::ToString(f->duration),
-					Time::ToString(ServerInstance->Time() + f->duration),
+					Time::FromNow(f->duration),
 					command, f->freeform, f->reason);
 
 				if (ServerInstance->XLines->AddLine(sh, nullptr))
