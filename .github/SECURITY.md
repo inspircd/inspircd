@@ -18,6 +18,6 @@ Version | Supported
 
 ## Reporting a Vulnerability
 
-Please do not report security vulnerabilities on GitHub. Instead, get the attention of a developer in our development IRC channel at irc.chatspike.net #inspircd.dev and PM them the details.
+Please do not report security vulnerabilities on GitHub. Instead, get the attention of a developer in our development IRC channel at irc.inspircd.org #inspircd.dev and PM them the details.
 
 We will triage your issue as soon as possible and try to release a fixed version within a week of receiving your report.

@@ -40,6 +40,6 @@ InspIRCd is licensed under [version 2 of the GNU General Public License](https:/
 * [Documentation](https://docs.inspircd.org)
 * [GitHub](https://github.com/inspircd)
 * [Social Media](https://docs.inspircd.org/social)
-* Support IRC channel &mdash; \#inspircd on irc.chatspike.net
-* Development IRC channel &mdash; \#inspircd.dev on irc.chatspike.net
+* Support IRC channel &mdash; \#inspircd on irc.inspircd.org
+* Development IRC channel &mdash; \#inspircd.dev on irc.inspircd.org
 * InspIRCd test network &mdash; testnet.inspircd.org
