@@ -350,6 +350,17 @@ void UserManager::RehashCloneCounts()
 		AddClone(u);
 }
 
+void UserManager::RehashServices()
+{
+	UserManager::ServiceList newservices;
+	for (const auto& [_, user] : ServerInstance->Users.GetUsers())
+	{
+		if (user->server->IsService())
+			newservices.push_back(user);
+	}
+	std::swap(ServerInstance->Users.all_services, newservices);
+}
+
 const UserManager::CloneCounts& UserManager::GetCloneCounts(User* user) const
 {
 	CloneMap::const_iterator it = clonemap.find(user->GetCIDRMask());
