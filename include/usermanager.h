@@ -141,6 +141,9 @@ class CoreExport UserManager : public fakederef<UserManager>
 	 */
 	void RehashCloneCounts();
 
+	/** Rebuilds the list of services servers. Required when \<uline> settings change. */
+	void RehashULines();
+
 	/** Return the number of local and global clones of this user
 	 * @param user The user to get the clone counts for
 	 * @return The clone counts of this user. The returned reference is volatile - you

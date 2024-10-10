@@ -353,6 +353,19 @@ void UserManager::RehashCloneCounts()
 	}
 }
 
+void UserManager::RehashULines()
+{
+	UserManager::ULineList newulines;
+	const user_hash& users = ServerInstance->Users.GetUsers();
+	for (user_hash::const_iterator i = users.begin(); i != users.end(); ++i)
+	{
+		User* user = i->second;
+		if (user->server->IsULine())
+			newulines.push_back(user);
+	}
+	std::swap(ServerInstance->Users.all_ulines, newulines);
+}
+
 const UserManager::CloneCounts& UserManager::GetCloneCounts(User* user) const
 {
 	CloneMap::const_iterator it = clonemap.find(user->GetCIDRMask());

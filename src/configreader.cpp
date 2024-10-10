@@ -733,6 +733,7 @@ void ConfigReaderThread::Finish()
 		ServerInstance->FakeClient->server->description = Config->ServerDesc;
 
 		ServerInstance->ISupport.Build();
+		ServerInstance->Users.RehashULines();
 
 		ServerInstance->Logs->CloseLogs();
 		ServerInstance->Logs->OpenFileLogs();
