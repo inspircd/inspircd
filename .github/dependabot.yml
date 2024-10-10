@@ -4,4 +4,3 @@ updates:
     directory: /
     schedule:
       interval: monthly
-    target-branch: insp3
