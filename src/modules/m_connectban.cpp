@@ -103,7 +103,7 @@ public:
 
 		ipv4_cidr = tag->getNum<unsigned int>("ipv4cidr", ServerInstance->Config->IPv4Range, 1, 32);
 		ipv6_cidr = tag->getNum<unsigned int>("ipv6cidr", ServerInstance->Config->IPv6Range, 1, 128);
-		threshold = tag->getNum<unsigned long>("threshold", 10, 1);
+		threshold = tag->getNum<unsigned long>("threshold", 10, 2);
 		bootwait = tag->getDuration("bootwait", 60*2);
 		splitwait = tag->getDuration("splitwait", 60*2);
 		banduration = tag->getDuration("banduration", 6*60*60, 1);
