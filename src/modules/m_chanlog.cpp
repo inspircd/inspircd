@@ -74,7 +74,7 @@ class ModuleChanLog : public Module
 			Channel *c = ServerInstance->FindChan(it->second);
 			if (c)
 			{
-				ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->Config->ServerName, c, snotice);
+				ClientProtocol::Messages::Privmsg privmsg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, c, snotice);
 				c->Write(ServerInstance->GetRFCEvents().privmsg, privmsg);
 				ServerInstance->PI->SendMessage(c, 0, snotice);
 			}
