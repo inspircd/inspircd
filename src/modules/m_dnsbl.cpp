@@ -96,6 +96,9 @@ public:
 	// A range of DNSBL result types to match against.
 	CharState records;
 
+	// A map of DNSBL replies to their descriptions.
+	insp::flat_map<uint32_t, std::string> replies;
+
 	// The message to send to users who's IP address is in a DNSBL.
 	std::string reason;
 
@@ -365,12 +368,16 @@ public:
 
 		if (match)
 		{
+			const auto it = config->replies.find(result);
+			const auto reasonstr = it == config->replies.end() ? INSP_FORMAT("Result {}", result) : it->second;
+
 			const std::string reason = Template::Replace(config->reason, {
 				{ "dnsbl",       config->name                                     },
 				{ "dnsbl.url",   Percent::Encode(config->name)                    },
 				{ "ip",          them->GetAddress()                               },
 				{ "network",     ServerInstance->Config->Network                  },
 				{ "network.url", Percent::Encode(ServerInstance->Config->Network) },
+				{ "reason",      reasonstr                                        },
 				{ "result",      ConvToStr(result)                                },
 			});
 
@@ -421,9 +428,9 @@ public:
 				}
 			}
 
-			ServerInstance->SNO.WriteGlobalSno('d', "{} {} ({}) detected as being on the '{}' DNSBL with result {}{}",
+			ServerInstance->SNO.WriteGlobalSno('d', "{} {} ({}) detected as being on the '{}' DNSBL: {}{}",
 				them->IsFullyConnected() ? "User" : "Connecting user", them->GetRealMask(), them->GetAddress(),
-				config->name, result, them->exempt ? " -- exempt" : "");
+				config->name, reasonstr, them->exempt ? " -- exempt" : "");
 		}
 		else
 			config->stats_misses++;
@@ -594,6 +601,30 @@ public:
 			auto entry = std::make_shared<DNSBLEntry>(this, tag);
 			newdnsbls.push_back(entry);
 		}
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("dnsblreply"))
+		{
+			const auto dnsblname = tag->getString("name");
+			auto dnsbl = std::find_if(newdnsbls.begin(), newdnsbls.end(), [&dnsblname](const auto& d)
+			{
+				return insp::equalsci(d->name, dnsblname);
+			});
+			if (dnsbl == newdnsbls.end())
+				throw ModuleException(this, "<dnsblreply:name> must be set to the name of a DNSBL at " + tag->source.str());
+
+			const auto dnsbldesc = tag->getString("description");
+			if (dnsbldesc.empty())
+				throw ModuleException(this, "<dnsblreply:description> must not be empty at " + tag->source.str());
+
+			const auto dnsblreply = tag->getNum<uint32_t>("reply", std::numeric_limits<uint32_t>::max());
+			if (dnsblreply > 16'777'215)
+			{
+				throw ModuleException(this, INSP_FORMAT("<dnsblreply:reply> ({}) is not a valid DNSBL reply at {}",
+					dnsblreply, tag->source.str()));
+			}
+
+			(*dnsbl)->replies[dnsblreply] = dnsbldesc;
+		}
+
 		data.dnsbls.swap(newdnsbls);
 	}
 
