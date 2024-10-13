@@ -10,7 +10,7 @@ The GitHub issue tracker is for feature requests ONLY. General support can be fo
 
 Discussions: https://github.com/inspircd/inspircd/discussions
 Docs: https://docs.inspircd.org
-IRC: irc.inspircd.org #inspircd
+IRC: ircs://irc.teranova.net/inspircd
 Example configs: https://github.com/inspircd/inspircd/tree/insp3/docs/conf
 -->
 
