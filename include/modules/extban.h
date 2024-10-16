@@ -204,7 +204,7 @@ protected:
 	 */
 	Base(Module* mod, const std::string& xbname, ExtBan::Letter xbletter)
 		: ServiceProvider(mod, xbname, SERVICE_CUSTOM)
-		, letter(ServerInstance->Config->ConfValue("extbans")->getCharacter(xbname, xbletter))
+		, letter(ServerInstance->Config->ConfValue("extbans")->getCharacter(xbname, xbletter, true))
 		, manager(mod, "extbanmanager")
 	{
 	}

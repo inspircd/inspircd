@@ -300,8 +300,8 @@ bool TreeSocket::BuildExtBanList(std::string& out)
 	if (!extbanmgr)
 		return false;
 
-	const ExtBan::Manager::LetterMap& extbans = extbanmgr->GetLetterMap();
-	for (ExtBan::Manager::LetterMap::const_iterator iter = extbans.begin(); iter != extbans.end(); ++iter)
+	const auto& extbans = extbanmgr->GetNameMap();
+	for (auto iter = extbans.begin(); iter != extbans.end(); ++iter)
 	{
 		if (iter != extbans.begin())
 			out.push_back(' ');
@@ -317,9 +317,9 @@ bool TreeSocket::BuildExtBanList(std::string& out)
 				break;
 		}
 
-		out.append(extban->GetName())
-			.append("=")
-			.push_back(extban->GetLetter());
+		out.append(extban->GetName());
+		if (extban->GetLetter())
+			out.append("=").push_back(extban->GetLetter());
 	}
 	return true;
 }
