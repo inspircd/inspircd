@@ -732,11 +732,14 @@ bool ConfigTag::getBool(const std::string& key, bool def) const
 	return def;
 }
 
-unsigned char ConfigTag::getCharacter(const std::string& key, unsigned char def) const
+unsigned char ConfigTag::getCharacter(const std::string& key, unsigned char def, bool emptynul) const
 {
 	std::string result;
-	if (!readString(key, result) || result.size() != 1)
+	if (!readString(key, result))
 		return def;
+
+	if (result.size() != 1)
+		return result.empty() && emptynul ? 0 : def;
 
 	return result[0];
 }

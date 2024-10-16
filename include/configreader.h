@@ -129,7 +129,7 @@ public:
 	/** Get the value of an option, using def if it does not exist */
 	bool getBool(const std::string& key, bool def = false) const;
 	/** Get the value of an option, using def if it does not exist */
-	unsigned char getCharacter(const std::string& key, unsigned char def = '\0') const;
+	unsigned char getCharacter(const std::string& key, unsigned char def = '\0', bool emptynul = false) const;
 
 	/** Get the value in seconds of a duration that is in the user-friendly "1h2m3s" format,
 	 * using a default value if it does not exist or is out of bounds.
