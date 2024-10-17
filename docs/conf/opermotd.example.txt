@@ -24,7 +24,7 @@
       +-- To change this see \bopermotd.example.txt\x --+
       |                                             |
       |   * \bWeb:\x https://www.inspircd.org           |
-      |   * \bIRC:\x irc.inspircd.org #inspircd         |
+      |   * \bIRC:\x ircs://irc.teranova.net/inspircd   |
       |   * \bDocs:\x https://docs.inspircd.org         |
       |   * \bIssues:\x https://git.io/JIuYi            |
       |   * \bDiscussions:\x https://git.io/JIuYv       |
