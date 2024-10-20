@@ -184,7 +184,7 @@ public:
 		if (!HasValidSSLPort(port))
 			throw ModuleException(this, "<sts:port> must be a TLS port, at " + tag->source.str());
 
-		unsigned long duration = tag->getDuration("duration", 5*60, 60);
+		unsigned long duration = tag->getDuration("duration", 60*60*24*60, 60);
 		bool preload = tag->getBool("preload");
 		cap.SetPolicy(host, duration, port, preload);
 
