@@ -185,7 +185,7 @@ public:
 			exempts[restriction] = prefix;
 		}
 
-		ExtBan::Format newformat = optionstag->getEnum("extbanformat", ExtBan::Format::ANY, {
+		const auto newformat = optionstag->getEnum("extbanformat", ExtBan::Format::NAME, {
 			{ "any",    ExtBan::Format::ANY },
 			{ "name",   ExtBan::Format::NAME },
 			{ "letter", ExtBan::Format::LETTER },
