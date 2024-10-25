@@ -517,6 +517,9 @@ public:
 
 		for (const auto& [ciphersuite, count] : counts)
 		{
+			if (!count)
+				continue;
+
 			stats.AddGenericRow(INSP_FORMAT("{}: {}", ciphersuite, count))
 				.AddTags(stats, {
 					{ "ciphersuite", ciphersuite      },
