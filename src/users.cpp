@@ -33,15 +33,6 @@
 #include "utility/string.h"
 #include "xline.h"
 
-enum
-{
-	// From RFC 1459.
-	ERR_NICKNAMEINUSE = 433,
-
-	// From ircu.
-	RPL_YOURDISPLAYEDHOST = 396,
-};
-
 ClientProtocol::MessageList LocalUser::sendmsglist;
 
 bool User::IsNoticeMaskSet(unsigned char sm) const

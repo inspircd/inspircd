@@ -23,13 +23,6 @@
 #include "inspircd.h"
 #include "listmode.h"
 
-enum
-{
-	// InspIRCd-specific.
-	ERR_LISTMODEALREADYSET = 697,
-	ERR_LISTMODENOTSET = 698,
-};
-
 ListModeBase::ListModeBase(Module* Creator, const std::string& Name, char modechar, unsigned int lnum, unsigned int eolnum)
 	: ModeHandler(Creator, Name, modechar, PARAM_ALWAYS, MODETYPE_CHANNEL, MC_LIST)
 	, listnumeric(lnum)
