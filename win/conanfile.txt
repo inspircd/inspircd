@@ -10,10 +10,10 @@ argon2/20190702
 libmysqlclient/8.1.0
 libpq/15.5
 libpsl/0.21.1
-## openssl/3.2.2
+## openssl/3.3.2
 pcre2/10.44
 re2/20240702
-sqlite3/3.46.0
+sqlite3/3.47.0
 yyjson/0.10.0
 
 [options]
