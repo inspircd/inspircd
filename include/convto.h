@@ -77,11 +77,20 @@ inline std::enable_if_t<std::is_arithmetic_v<Stringable>, std::string> ConvToStr
 	return std::to_string(in);
 }
 
+/** Converts a type that fmtlib can format to a string.
+ * @param in The value to convert.
+ */
+template<typename Formattable>
+inline std::enable_if_t<!std::is_arithmetic_v<Formattable> && fmt::is_formattable<Formattable>::value, std::string> ConvToStr(const Formattable& in)
+{
+	return INSP_FORMAT("{}", in);
+}
+
 /** Converts any type to a string.
  * @param in The value to convert.
  */
 template <class T>
-inline std::enable_if_t<!std::is_arithmetic_v<T>, std::string> ConvToStr(const T& in)
+inline std::enable_if_t<!std::is_arithmetic_v<T> && !fmt::is_formattable<T>::value, std::string> ConvToStr(const T& in)
 {
 	std::stringstream tmp;
 	if (!(tmp << in))
