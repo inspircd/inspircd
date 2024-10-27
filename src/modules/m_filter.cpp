@@ -85,7 +85,7 @@ public:
 	bool flag_strip_color;
 	bool flag_no_registered;
 
-	FilterResult(Regex::EngineReference& RegexEngine, const std::string& free, const std::string& rea, FilterAction act, unsigned long gt, const std::string& fla, bool cfg)
+	FilterResult(Regex::EngineReference& RegexEngine, const std::string& free, const std::string& rea, FilterAction act, unsigned long gt, const std::string& fla, bool cfg, bool ef)
 		: freeform(free)
 		, reason(rea)
 		, action(act)
@@ -94,7 +94,7 @@ public:
 	{
 		if (!RegexEngine)
 			throw ModuleException(thismod, "Regex module implementing '"+RegexEngine.GetProvider()+"' is not loaded!");
-		regex = RegexEngine->Create(free);
+		regex = ef ? RegexEngine->CreateHuman(free) : RegexEngine->Create(free);
 		this->FillFlags(fla);
 	}
 
@@ -202,6 +202,7 @@ private:
 
 	Account::API accountapi;
 	bool initing = true;
+	bool enableflags;
 	bool notifyuser;
 	bool warnonselfmsg;
 	bool dirty = false;
@@ -233,6 +234,7 @@ public:
 	bool DeleteFilter(const std::string& freeform, std::string& reason);
 	std::pair<bool, std::string> AddFilter(const std::string& freeform, FilterAction type, const std::string& reason, unsigned long duration, const std::string& flags, bool config = false);
 	void ReadConfig(ConfigStatus& status) override;
+	void CompareLinkData(const LinkData& otherdata, LinkDataDiff& diffs) override;
 	void GetLinkData(LinkData& data, std::string& compatdata) override;
 	static std::string EncodeFilter(const FilterResult& filter);
 	FilterResult DecodeFilter(const std::string& data);
@@ -645,6 +647,7 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 
 	const auto& tag = ServerInstance->Config->ConfValue("filteropts");
 	std::string newrxengine = tag->getString("engine");
+	enableflags = tag->getBool("enableflags");
 	notifyuser = tag->getBool("notifyuser", true);
 	warnonselfmsg = tag->getBool("warnonselfmsg");
 	filterconf = tag->getString("filename");
@@ -680,6 +683,20 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 	ReadFilters();
 }
 
+void ModuleFilter::CompareLinkData(const LinkData& otherdata, LinkDataDiff& diffs)
+{
+	Module::CompareLinkData(otherdata, diffs);
+
+	auto it = diffs.find("flags");
+	if (it == diffs.end())
+		return; // Should never happen.
+
+	if (!it->second.first)
+		it->second.first = "no";
+	if (!it->second.second)
+		it->second.second = "no";
+}
+
 void ModuleFilter::GetLinkData(LinkData& data, std::string& compatdata)
 {
 	if (RegexEngine)
@@ -689,6 +706,9 @@ void ModuleFilter::GetLinkData(LinkData& data, std::string& compatdata)
 	}
 	else
 		data["regex"] = "broken";
+
+	if (enableflags)
+		data["flags"] = "yes";
 }
 
 std::string ModuleFilter::EncodeFilter(const FilterResult& filter)
@@ -815,7 +835,7 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string& freeform
 
 	try
 	{
-		filters.emplace_back(RegexEngine, freeform, reason, type, duration, flgs, config);
+		filters.emplace_back(RegexEngine, freeform, reason, type, duration, flgs, config, enableflags);
 		dirty = true;
 	}
 	catch (const ModuleException& e)
