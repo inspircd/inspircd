@@ -78,9 +78,9 @@ endif
 # was not passed to configure.
 DISABLE_OWNERSHIP=@DISABLE_OWNERSHIP@
 ifeq ($(DISABLE_OWNERSHIP), 1)
-  INSTFLAGS =
+  INSTOWNER =
 else
-  INSTFLAGS = -g @GID@ -o @UID@
+  INSTOWNER = -g @GID@ -o @UID@
 endif
 
 # Force the use of libc++ on macOS as on some systems it is not the
@@ -252,41 +252,41 @@ finishmessage: target
 	@echo "*************************************"
 
 install: target
-	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(BINPATH)
-	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(CONPATH)
-	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(DATPATH)
-	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(EXAPATH)/codepages
-	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(EXAPATH)/providers
-	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(EXAPATH)/services
-	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(EXAPATH)/sql/log_sql
-	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(EXAPATH)/sql/sqloper
-	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(LOGPATH)
-	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(MANPATH)
-	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(MODPATH)
-	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(RUNPATH)
-	@-$(INSTALL) -d $(INSTFLAGS) -m $(INSTMODE_DIR) $(SCRPATH)
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_BIN) "$(BUILDPATH)/bin/inspircd" $(BINPATH)
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_BIN) "$(BUILDPATH)/modules/"*.$(DLLEXT) $(MODPATH)
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/deploy-ssl.sh $(SCRPATH) 2>/dev/null
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/inspircd $(SCRPATH) 2>/dev/null
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/apparmor $(SCRPATH) 2>/dev/null
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/logrotate $(SCRPATH) 2>/dev/null
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(BINPATH)
+	@-$(INSTALL) -d $(INSTOWNER) -m $(INSTMODE_DIR) $(CONPATH)
+	@-$(INSTALL) -d $(INSTOWNER) -m $(INSTMODE_DIR) $(DATPATH)
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(EXAPATH)/codepages
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(EXAPATH)/providers
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(EXAPATH)/services
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(EXAPATH)/sql/log_sql
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(EXAPATH)/sql/sqloper
+	@-$(INSTALL) -d $(INSTOWNER) -m $(INSTMODE_DIR) $(LOGPATH)
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MANPATH)
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MODPATH)
+	@-$(INSTALL) -d $(INSTOWNER) -m $(INSTMODE_DIR) $(RUNPATH)
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(SCRPATH)
+	-$(INSTALL) -m $(INSTMODE_BIN) "$(BUILDPATH)/bin/inspircd" $(BINPATH)
+	-$(INSTALL) -m $(INSTMODE_BIN) "$(BUILDPATH)/modules/"*.$(DLLEXT) $(MODPATH)
+	-$(INSTALL) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/deploy-ssl.sh $(SCRPATH) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/inspircd $(SCRPATH) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/apparmor $(SCRPATH) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/logrotate $(SCRPATH) 2>/dev/null
 ifeq ($(SYSTEM), darwin)
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/org.inspircd.plist $(SCRPATH) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/org.inspircd.plist $(SCRPATH) 2>/dev/null
 endif
 ifeq ($(SYSTEM), linux)
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd.service $(SCRPATH) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd.service $(SCRPATH) 2>/dev/null
 endif
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd.1 $(MANPATH) 2>/dev/null
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd-testssl.1 $(MANPATH) 2>/dev/null
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_BIN) tools/testssl $(BINPATH)/inspircd-testssl 2>/dev/null
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/*.example.* $(EXAPATH)
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/codepages/*.example.* $(EXAPATH)/codepages
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/providers/*.example.* $(EXAPATH)/providers
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/conf/services/*.example.* $(EXAPATH)/services
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/sql/log_sql/*.sql $(EXAPATH)/sql/log_sql
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) docs/sql/sqloper/*.sql $(EXAPATH)/sql/sqloper
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/help.txt $(CONPATH)
+	-$(INSTALL) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd.1 $(MANPATH) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd-testssl.1 $(MANPATH) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_BIN) tools/testssl $(BINPATH)/inspircd-testssl 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_TXT) docs/conf/*.example.* $(EXAPATH)
+	-$(INSTALL) -m $(INSTMODE_TXT) docs/conf/codepages/*.example.* $(EXAPATH)/codepages
+	-$(INSTALL) -m $(INSTMODE_TXT) docs/conf/providers/*.example.* $(EXAPATH)/providers
+	-$(INSTALL) -m $(INSTMODE_TXT) docs/conf/services/*.example.* $(EXAPATH)/services
+	-$(INSTALL) -m $(INSTMODE_TXT) docs/sql/log_sql/*.sql $(EXAPATH)/sql/log_sql
+	-$(INSTALL) -m $(INSTMODE_TXT) docs/sql/sqloper/*.sql $(EXAPATH)/sql/sqloper
+	-$(INSTALL) $(INSTOWNER) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/help.txt $(CONPATH)
 	@echo ""
 	@echo "*************************************"
 	@echo "*        INSTALL COMPLETE!          *"
