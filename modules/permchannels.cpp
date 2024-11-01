@@ -118,7 +118,7 @@ static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes)
 				{
 					if (entry != list->begin())
 						stream << ' ';
-					stream << entry->mask << ' ' << entry->setter << ' ' << entry->time;
+					stream << ServerConfig::Escape(entry->mask) << ' ' << ServerConfig::Escape(entry->setter) << ' ' << entry->time;
 				}
 				stream << "\"" << std::endl;
 			}

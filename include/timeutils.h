@@ -63,11 +63,22 @@ namespace Time
 {
 	/** Converts a UNIX timestamp to a time string.
 	 *
-	 * e.g.
 	 * @param ts The timestamp to convert to a string.
 	 * @param format A snprintf format string to output the timestamp in.
 	 * @param utc If the timestamp is a UTC timestamp then true or false if the
 	 *            timestamp is a local timestamp.
 	 */
 	CoreExport std::string ToString(time_t ts, const char* format = nullptr, bool utc = false);
+
+	/** Converts a duration from now to a time string.
+	 *
+	 * @param duration The duration from now to convert to a string.
+	 * @param format A snprintf format string to output the timestamp in.
+	 * @param utc If the timestamp is a UTC timestamp then true or false if the
+	 *            timestamp is a local timestamp.
+	 */
+	inline std::string FromNow(unsigned long duration, const char* format = nullptr, bool utc = false)
+	{
+		return ToString(ServerInstance->Time() + duration, format, utc);
+	}
 }

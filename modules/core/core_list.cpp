@@ -27,6 +27,14 @@
 #include "inspircd.h"
 #include "modules/isupport.h"
 
+enum class ShowModes
+	: uint8_t
+{
+	NOBODY,
+	OPERS,
+	ALL,
+};
+
 class CommandList final
 	: public Command
 {
@@ -48,7 +56,7 @@ private:
 
 public:
 	// Whether to show modes in the LIST response.
-	bool showmodes;
+	ShowModes showmodes;
 
 	CommandList(Module* parent)
 		: Command(parent, "LIST")
@@ -129,6 +137,7 @@ CmdResult CommandList::Handle(User* user, const Params& parameters)
 	}
 
 	const bool has_privs = user->HasPrivPermission("channels/auspex");
+	const bool show_modes = (showmodes == ShowModes::ALL) || (showmodes == ShowModes::OPERS && has_privs);
 
 	user->WriteNumeric(RPL_LISTSTART, "Channel", "Users Name");
 
@@ -168,7 +177,7 @@ CmdResult CommandList::Handle(User* user, const Params& parameters)
 				// Channel is private (+p) and user is outside/not privileged
 				user->WriteNumeric(RPL_LIST, '*', users, "");
 			}
-			else if (showmodes)
+			else if (show_modes)
 			{
 				// Show the list response with the modes and topic.
 				user->WriteNumeric(RPL_LIST, chan->name, users, FMT::format("[+{}] {}", chan->ChanModes(n), chan->topic));
@@ -203,7 +212,11 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("options");
-		cmd.showmodes = tag->getBool("modesinlist");
+		cmd.showmodes = tag->getEnum("showmodes", ShowModes::OPERS, {
+			{ "no",    ShowModes::NOBODY },
+			{ "opers", ShowModes::OPERS  },
+			{ "yes",   ShowModes::ALL    },
+		});
 	}
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override

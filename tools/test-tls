@@ -158,5 +158,5 @@ print(textwrap.dedent(f"""
        openssl s_client -connect {hostip}:{port} -debug -security_debug
 
     If you need any help working out what is wrong then visit our support channel
-    at irc.chatspike.net #inspircd.
+    at ircs://irc.teranova.net/inspircd.
 """).strip())

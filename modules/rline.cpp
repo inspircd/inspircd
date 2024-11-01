@@ -182,7 +182,7 @@ public:
 					{
 						ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed R-line on {}, expires in {} (on {}): {}",
 							user->nick, parameters[0], Duration::ToString(duration),
-							Time::ToString(ServerInstance->Time() + duration), parameters[2]);
+							Time::FromNow(duration), parameters[2]);
 					}
 
 					ServerInstance->XLines->ApplyLines();

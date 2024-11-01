@@ -71,17 +71,26 @@ inline std::string ConvToStr(const bool in)
 /** Converts a type that to_string is implemented for to a string.
  * @param in The value to convert.
  */
-template<typename Stringable>
-inline std::enable_if_t<std::is_arithmetic_v<Stringable>, std::string> ConvToStr(const Stringable& in)
+template<typename Stringable> requires(std::integral<Stringable> || std::floating_point<Stringable>)
+inline std::string ConvToStr(const Stringable& in)
 {
 	return std::to_string(in);
+}
+
+/** Converts a type that fmtlib can format to a string.
+ * @param in The value to convert.
+ */
+template<typename Formattable> requires(!std::integral<Formattable> && !std::floating_point<Formattable> && fmt_formattable<Formattable>)
+inline std::string ConvToStr(const Formattable& in)
+{
+	return FMT::format("{}", in);
 }
 
 /** Converts any type to a string.
  * @param in The value to convert.
  */
-template <class T>
-inline std::enable_if_t<!std::is_arithmetic_v<T>, std::string> ConvToStr(const T& in)
+template <class T> requires(!std::integral<T> && !std::floating_point<T> && !fmt_formattable<T>)
+inline std::string ConvToStr(const T& in)
 {
 	std::stringstream tmp;
 	if (!(tmp << in))

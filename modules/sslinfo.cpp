@@ -28,6 +28,7 @@
 #include "inspircd.h"
 #include "extension.h"
 #include "modules/ssl.h"
+#include "modules/stats.h"
 #include "modules/webirc.h"
 #include "modules/who.h"
 #include "modules/whois.h"
@@ -305,9 +306,10 @@ public:
 
 class ModuleSSLInfo final
 	: public Module
+	, public Stats::EventListener
 	, public WebIRC::EventListener
-	, public Whois::EventListener
 	, public Who::EventListener
+	, public Whois::EventListener
 {
 private:
 	CommandSSLInfo cmd;
@@ -333,9 +335,10 @@ private:
 public:
 	ModuleSSLInfo()
 		: Module(VF_VENDOR, "Adds user facing TLS information, various TLS configuration options, and the /SSLINFO command to look up TLS certificate information for other users.")
+		, Stats::EventListener(this)
 		, WebIRC::EventListener(this)
-		, Whois::EventListener(this)
 		, Who::EventListener(this)
+		, Whois::EventListener(this)
 		, cmd(this)
 	{
 	}
@@ -484,6 +487,46 @@ public:
 		}
 
 		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnStats(Stats::Context& stats) override
+	{
+		if (stats.GetSymbol() != 't')
+			return MOD_RES_PASSTHRU;
+
+		// Counter for the number of users using each ciphersuite.
+		std::map<std::string, size_t> counts;
+		auto& plaintext = counts["Plain text"];
+		auto& unknown = counts["Unknown"];
+		for (auto* user : ServerInstance->Users.GetLocalUsers())
+		{
+			const auto* ssliohook = SSLIOHook::IsSSL(&user->eh);
+			if (!ssliohook)
+			{
+				plaintext++;
+				continue;
+			}
+
+			std::string ciphersuite;
+			ssliohook->GetCiphersuite(ciphersuite);
+			if (ciphersuite.empty())
+				unknown++;
+			else
+				counts[ciphersuite]++;
+		}
+
+		for (const auto& [ciphersuite, count] : counts)
+		{
+			if (!count)
+				continue;
+
+			stats.AddGenericRow(FMT::format("{}: {}", ciphersuite, count))
+				.AddTags(stats, {
+					{ "ciphersuite", ciphersuite      },
+					{ "count",       ConvToStr(count) },
+				});
+		}
+		return MOD_RES_DENY;
 	}
 
 	void OnWebIRCAuth(LocalUser* user, const WebIRC::FlagMap* flags) override

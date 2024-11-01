@@ -141,7 +141,17 @@ public:
 
 	bool IsMatch(User* user, Channel* channel, const std::string& text) override
 	{
-		const std::string* account = accountapi.GetAccountName(user);
+		const auto* nicks = accountapi.GetAccountNicks(user);
+		if (nicks)
+		{
+			for (const auto& nick : *nicks)
+			{
+				if (InspIRCd::Match(nick, text))
+					return true;
+			}
+		}
+
+		const auto* account = accountapi.GetAccountName(user);
 		return account && InspIRCd::Match(*account, text);
 	}
 };

@@ -140,6 +140,9 @@ public:
 	 */
 	void RehashCloneCounts();
 
+	/** Rebuilds the list of services servers. Required when \<services> settings change. */
+	void RehashServices();
+
 	/** Return the number of local and global clones of this user
 	 * @param user The user to get the clone counts for
 	 * @return The clone counts of this user. The returned reference is volatile - you
@@ -171,7 +174,7 @@ public:
 	/** Return a count of fully connected connections on the network.
 	 * @return The number of fully connected users on the network.
 	 */
-	size_t GlobalUserCount() const { return this->clientlist.size() - this->UnknownUserCount() - this->ServiceCount(); }
+	size_t GlobalUserCount() const { return this->clientlist.size() - this->UnknownUserCount(); }
 
 	/** Get a hash map containing all users, keyed by their nickname
 	 * @return A hash map mapping nicknames to User pointers

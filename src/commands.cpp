@@ -26,16 +26,6 @@
 
 #include "inspircd.h"
 
-enum
-{
-	// From RFC 1459.
-	ERR_NOTREGISTERED = 451,
-	ERR_NEEDMOREPARAMS = 461,
-
-	// InspIRCd-specific.
-	RPL_SYNTAX = 650,
-};
-
 bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Params& parameters, unsigned int splithere, int extra, bool usemax)
 {
 	if (splithere >= parameters.size())

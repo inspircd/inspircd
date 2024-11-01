@@ -22,15 +22,20 @@
 
 void ExtBanManager::AddExtBan(ExtBan::Base* extban)
 {
-	auto lit = byletter.emplace(extban->GetLetter(), extban);
-	if (!lit.second)
-		throw ModuleException(creator, FMT::format("ExtBan letter \"{}\" is already in use by the {} extban from {}",
-			extban->GetLetter(), lit.first->second->GetName(), lit.first->second->creator->ModuleFile));
+	if (extban->GetLetter())
+	{
+		auto lit = byletter.emplace(extban->GetLetter(), extban);
+		if (!lit.second)
+			throw ModuleException(creator, FMT::format("ExtBan letter \"{}\" is already in use by the {} extban from {}",
+				extban->GetLetter(), lit.first->second->GetName(), lit.first->second->creator->ModuleFile));
+	}
 
 	auto nit = byname.emplace(extban->GetName(), extban);
 	if (!nit.second)
 	{
-		byletter.erase(extban->GetLetter());
+		if (extban->GetLetter())
+			byletter.erase(extban->GetLetter());
+
 		throw ModuleException(creator, FMT::format("ExtBan name \"{}\" is already in use by the {} extban from {}",
 			extban->GetName(), nit.first->second->GetLetter(), nit.first->second->creator->ModuleFile));
 	}
@@ -63,7 +68,10 @@ bool ExtBanManager::Canonicalize(std::string& text) const
 			break;
 
 		case ExtBan::Format::LETTER:
-			text.append(1, extban->GetLetter());
+			if (extban->GetLetter())
+				text.push_back(extban->GetLetter());
+			else
+				text.append(extban->GetName()); // ExtBan has no letter.
 			break;
 
 		default:
@@ -153,9 +161,12 @@ ModResult ExtBanManager::GetStatus(ExtBan::ActingBase* extban, User* user, Chann
 
 void ExtBanManager::DelExtBan(ExtBan::Base* extban)
 {
-	auto lit = byletter.find(extban->GetLetter());
-	if (lit != byletter.end() && lit->second->creator.ptr() == extban->creator.ptr())
-		byletter.erase(lit);
+	if (extban->GetLetter())
+	{
+		auto lit = byletter.find(extban->GetLetter());
+		if (lit != byletter.end() && lit->second->creator.ptr() == extban->creator.ptr())
+			byletter.erase(lit);
+	}
 
 	auto nit = byname.find(extban->GetName());
 	if (nit != byname.end() && nit->second->creator.ptr() == extban->creator.ptr())

@@ -85,7 +85,7 @@ public:
 	bool flag_strip_color;
 	bool flag_no_registered;
 
-	FilterResult(Regex::EngineReference& RegexEngine, const std::string& free, const std::string& rea, FilterAction act, unsigned long gt, const std::string& fla, bool cfg)
+	FilterResult(Regex::EngineReference& RegexEngine, const std::string& free, const std::string& rea, FilterAction act, unsigned long gt, const std::string& fla, bool cfg, bool ef)
 		: freeform(free)
 		, reason(rea)
 		, action(act)
@@ -94,7 +94,7 @@ public:
 	{
 		if (!RegexEngine)
 			throw ModuleException(thismod, "Regex module implementing '"+RegexEngine.GetProvider()+"' is not loaded!");
-		regex = RegexEngine->Create(free);
+		regex = ef ? RegexEngine->CreateHuman(free) : RegexEngine->Create(free);
 		this->FillFlags(fla);
 	}
 
@@ -202,6 +202,7 @@ private:
 
 	Account::API accountapi;
 	bool initing = true;
+	bool enableflags;
 	bool notifyuser;
 	bool warnonselfmsg;
 	bool dirty = false;
@@ -233,6 +234,7 @@ public:
 	bool DeleteFilter(const std::string& freeform, std::string& reason);
 	std::pair<bool, std::string> AddFilter(const std::string& freeform, FilterAction type, const std::string& reason, unsigned long duration, const std::string& flags, bool config = false);
 	void ReadConfig(ConfigStatus& status) override;
+	void CompareLinkData(const LinkData& otherdata, LinkDataDiff& diffs) override;
 	void GetLinkData(LinkData& data) override;
 	static std::string EncodeFilter(const FilterResult& filter);
 	FilterResult DecodeFilter(const std::string& data);
@@ -471,7 +473,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, MessageTarget& msgtarget, M
 			auto* sh = new Shun(ServerInstance->Time(), f->duration, MODNAME "@" + ServerInstance->Config->ServerName, f->reason, user->GetAddress());
 			ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was shunned for {} (expires on {}) because their message to {} matched {} ({})",
 				user->nick, sh->Displayable(), Duration::ToString(f->duration),
-				Time::ToString(ServerInstance->Time() + f->duration),
+				Time::FromNow(f->duration),
 				msgtarget.GetName(), f->freeform, f->reason);
 			if (ServerInstance->XLines->AddLine(sh, nullptr))
 			{
@@ -485,7 +487,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, MessageTarget& msgtarget, M
 			auto* gl = new GLine(ServerInstance->Time(), f->duration, MODNAME "@" + ServerInstance->Config->ServerName, f->reason, "*", user->GetAddress());
 			ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was G-lined for {} (expires on {}) because their message to {} matched {} ({})",
 				user->nick, gl->Displayable(), Duration::ToString(f->duration),
-				Time::ToString(ServerInstance->Time() + f->duration),
+				Time::FromNow(f->duration),
 				msgtarget.GetName(), f->freeform, f->reason);
 			if (ServerInstance->XLines->AddLine(gl, nullptr))
 			{
@@ -499,7 +501,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, MessageTarget& msgtarget, M
 			auto* zl = new ZLine(ServerInstance->Time(), f->duration, MODNAME "@" + ServerInstance->Config->ServerName, f->reason, user->GetAddress());
 			ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was Z-lined for {} (expires on {}) because their message to {} matched {} ({})",
 				user->nick, zl->Displayable(), Duration::ToString(f->duration),
-				Time::ToString(ServerInstance->Time() + f->duration),
+				Time::FromNow(f->duration),
 				msgtarget.GetName(), f->freeform, f->reason);
 			if (ServerInstance->XLines->AddLine(zl, nullptr))
 			{
@@ -577,7 +579,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 				ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was G-lined for {} (expires on {}) because their {} message matched {} ({})",
 					user->nick, gl->Displayable(),
 					Duration::ToString(f->duration),
-					Time::ToString(ServerInstance->Time() + f->duration),
+					Time::FromNow(f->duration),
 					command, f->freeform, f->reason);
 
 				if (ServerInstance->XLines->AddLine(gl, nullptr))
@@ -593,7 +595,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 				ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was Z-lined for {} (expires on {}) because their {} message matched {} ({})",
 					user->nick, zl->Displayable(),
 					Duration::ToString(f->duration),
-					Time::ToString(ServerInstance->Time() + f->duration),
+					Time::FromNow(f->duration),
 					command, f->freeform, f->reason);
 
 				if (ServerInstance->XLines->AddLine(zl, nullptr))
@@ -610,7 +612,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 				ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was shunned for {} (expires on {}) because their {} message matched {} ({})",
 					user->nick, sh->Displayable(),
 					Duration::ToString(f->duration),
-					Time::ToString(ServerInstance->Time() + f->duration),
+					Time::FromNow(f->duration),
 					command, f->freeform, f->reason);
 
 				if (ServerInstance->XLines->AddLine(sh, nullptr))
@@ -645,6 +647,7 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 
 	const auto& tag = ServerInstance->Config->ConfValue("filteropts");
 	std::string newrxengine = tag->getString("engine");
+	enableflags = tag->getBool("enableflags");
 	notifyuser = tag->getBool("notifyuser", true);
 	warnonselfmsg = tag->getBool("warnonselfmsg");
 	filterconf = tag->getString("filename");
@@ -680,12 +683,29 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 	ReadFilters();
 }
 
+void ModuleFilter::CompareLinkData(const LinkData& otherdata, LinkDataDiff& diffs)
+{
+	Module::CompareLinkData(otherdata, diffs);
+
+	auto it = diffs.find("flags");
+	if (it == diffs.end())
+		return; // Should never happen.
+
+	if (!it->second.first)
+		it->second.first = "no";
+	if (!it->second.second)
+		it->second.second = "no";
+}
+
 void ModuleFilter::GetLinkData(LinkData& data)
 {
 	if (RegexEngine)
 		data["regex"] = RegexEngine->GetName(); // e.g. pcre
 	else
 		data["regex"] = "broken";
+
+	if (enableflags)
+		data["flags"] = "yes";
 }
 
 std::string ModuleFilter::EncodeFilter(const FilterResult& filter)
@@ -812,7 +832,7 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string& freeform
 
 	try
 	{
-		filters.emplace_back(RegexEngine, freeform, reason, type, duration, flgs, config);
+		filters.emplace_back(RegexEngine, freeform, reason, type, duration, flgs, config, enableflags);
 		dirty = true;
 	}
 	catch (const ModuleException& e)

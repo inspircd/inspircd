@@ -39,10 +39,12 @@
 # include <format>
 # define FMT std
 # define FMT_PTR(PTR) static_cast<void*>(PTR)
+template<typename T> concept fmt_formattable = std::default_initializable<std::formatter<std::remove_cvref_t<T>>>;
 #else
 # include <fmt/format.h>
 # define FMT fmt
 # define FMT_PTR(PTR) fmt::ptr(PTR)
+template<typename T> concept fmt_formattable = fmt::formattable<T>;
 #endif
 
 /**

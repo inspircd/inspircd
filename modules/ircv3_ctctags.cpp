@@ -45,10 +45,7 @@ private:
 
 		// Check whether a module zapped the message tags.
 		if (msgdetails.tags_out.empty())
-		{
-			source->WriteNumeric(ERR_NOTEXTTOSEND, "No tags to send");
 			return false;
-		}
 
 		// Inform modules that a TAGMSG is about to be sent.
 		tagevprov.Call(&CTCTags::EventListener::OnUserTagMessage, source, msgtarget, msgdetails);

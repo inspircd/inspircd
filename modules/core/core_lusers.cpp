@@ -50,7 +50,7 @@ struct LusersCounters final
 	{
 		for (const auto& [_, u] : ServerInstance->Users.GetUsers())
 		{
-			if (!u->server->IsService() && u->IsModeSet(invisiblemode))
+			if (u->IsModeSet(invisiblemode))
 				invisible++;
 		}
 	}
@@ -135,9 +135,6 @@ public:
 		if (!dest->IsFullyConnected())
 			return;
 
-		if (dest->server->IsService())
-			return;
-
 		if (change.adding)
 			invisible++;
 		else
@@ -166,13 +163,13 @@ public:
 	void OnPostConnect(User* user) override
 	{
 		counters.UpdateMaxUsers();
-		if (!user->server->IsService() && user->IsModeSet(invisiblemode))
+		if (user->IsModeSet(invisiblemode))
 			counters.invisible++;
 	}
 
 	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message) override
 	{
-		if (!user->server->IsService() && user->IsModeSet(invisiblemode))
+		if (user->IsModeSet(invisiblemode))
 			counters.invisible--;
 	}
 };

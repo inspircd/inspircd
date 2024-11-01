@@ -83,7 +83,8 @@ public:
 		// channel does not yet exist (record is null, about to be created IF we were to allow it)
 		if (!override && !chan && !CanCreateChannel(user, cname))
 		{
-			user->WriteNumeric(ERR_RESTRICTED, cname, "You are not allowed to create new channels.");
+			const auto* reason = allowregistered ? "logged into an account" : "a server operator";
+			user->WriteNumeric(ERR_RESTRICTED, cname, FMT::format("You must be {} to create new channels.", reason));
 			return MOD_RES_DENY;
 		}
 

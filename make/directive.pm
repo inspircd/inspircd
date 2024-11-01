@@ -161,8 +161,8 @@ sub __error {
 	push @message, '';
 
 	push @message, 'If you would like help with fixing this problem then visit our IRC';
-	push @message, 'channel at irc.chatspike.net #InspIRCd or create a support discussion';
-	push @message, 'at https://github.com/inspircd/inspircd/discussions.';
+	push @message, 'channel at ircs://irc.teranova.net/inspircd or create a support';
+	push @message, 'discussion at https://github.com/inspircd/inspircd/discussions.';
 	push @message, '';
 
 	print_error @message;
