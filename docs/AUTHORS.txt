@@ -32,11 +32,11 @@ the number of contributions they have made, are:
   * blitmap <blitternet@gmail.com>
   * jamie
   * Justin Crawford <Justasic@Gmail.com>
+  * Wade Cline <wadecline@hotmail.com>
   * iwalkalone <iwalkalone69@gmail.com>
   * katsklaw
   * Val Lorentz <progval+git@progval.net>
   * Dylan Frank <b00mx0r@aureus.pw>
-  * Wade Cline <wadecline@hotmail.com>
   * satmd <satmd@satmd.de>
   * Steven Van Acker <steven@singularity.be>
   * Dan Parsons <dparsons@nyip.net>
