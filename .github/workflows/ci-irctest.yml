@@ -26,7 +26,7 @@ jobs:
 
       # Speed-up build (6 min -> 5 min)
       - name: Precompile inspircd.h
-        run: c++ -Ivendor include/inspircd.h
+        run: c++ -std=c++20 -Ivendor include/inspircd.h
 
       - name: Build and install
         env:
@@ -68,7 +68,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: irctest
-          ref: 75d9040d37041e7dae971357fbab500fe06cc01f
+          ref: 2680502dfe496a597bf8fb3cfc08cd3b6a698b17
           repository: progval/irctest
 
       - name: Install irctest dependencies
@@ -83,7 +83,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: anope
-          ref: 2.1.7
+          ref: 2.1.10
           repository: anope/anope
 
       - name: Build and install Anope

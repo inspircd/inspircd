@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2022-2024 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2021 Herman <GermanAizek@yandex.ru>
- *   Copyright (C) 2012-2013 ChrisTX <xpipe@hotmail.de>
+ *   Copyright (C) 2013 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2008 Craig Edwards <brain@inspircd.org>
  *
