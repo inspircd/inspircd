@@ -1,0 +1,20 @@
+---
+name: Feature request
+description: Request that a new feature is added to InspIRCd.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this feature request!
+
+  - type: textarea
+    attributes:
+      label: Description
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Why this would be useful?
+    validations:
+      required: true

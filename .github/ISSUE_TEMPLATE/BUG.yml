@@ -1,0 +1,44 @@
+---
+name: Bug report
+description: Report a non-security bug in InspIRCd.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+
+        If you're looking for help with setting up your server please post on [our support forum](https://github.com/orgs/inspircd/discussions/categories/support) instead.
+
+        If you're reporting a crash or other security issue [please read our security policy](https://github.com/inspircd/inspircd/security/policy#reporting-a-vulnerability) for how to report security issues privately.
+
+  - type: textarea
+    attributes:
+      label: Description
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Steps to reproduce the issue
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Describe the results you received
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Describe the results you expected
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: InspIRCd version
+      description: |-
+        Either the output of `inspircd --version` or `./src/version.sh`.
+    validations:
+      required: true
