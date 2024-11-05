@@ -112,7 +112,7 @@ public:
 	{
 		if (whois.GetTarget()->IsModeSet(bm))
 		{
-			whois.SendLine(RPL_WHOISBOT, "is a bot on " + ServerInstance->Config->Network);
+			whois.SendLine(RPL_WHOISBOT, "is a bot");
 		}
 	}
 };
