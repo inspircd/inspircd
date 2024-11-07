@@ -450,8 +450,11 @@ class WebSocketHook : public IOHookMiddle
 			{
 				proto.erase(std::remove_if(proto.begin(), proto.end(), ::isspace), proto.end());
 
-				bool is_binary = stdalgo::string::equalsci(proto, "binary.inspircd.org");
-				bool is_text = stdalgo::string::equalsci(proto, "text.inspircd.org");
+				bool is_binary = (sock->type == StreamSocket::SS_USER && stdalgo::string::equalsci(proto, "binary.ircv3.net"))
+					|| stdalgo::string::equalsci(proto, "binary.inspircd.org");
+
+				bool is_text = (sock->type == StreamSocket::SS_USER && stdalgo::string::equalsci(proto, "text.ircv3.net"))
+					|| stdalgo::string::equalsci(proto, "text.inspircd.org");
 
 				if (is_binary || is_text)
 				{
