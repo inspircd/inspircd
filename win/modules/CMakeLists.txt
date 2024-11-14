@@ -78,6 +78,15 @@ foreach(MODULE_NAME ${INSPIRCD_MODULES})
 		add_library(${BASE_NAME} MODULE ${MODULE_NAME})
 	endif()
 
+	set(PCH_TARGET "")
+	if(${PCH_TARGET})
+		target_precompile_headers(${BASE_NAME} REUSE_FROM ${PCH_TARGET})
+	else()
+		target_precompile_headers(${BASE_NAME} PUBLIC "${INSPIRCD_BASE}/include/inspircd.h")
+		set(PCH_TARGET ${BASE_NAME})
+	endif()
+
+
 	# Link against the core and memory library
 	add_dependencies(${BASE_NAME} "inspircd" "win32memory")
 	target_link_libraries(${BASE_NAME} "inspircd" "win32memory")
