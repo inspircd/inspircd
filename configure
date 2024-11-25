@@ -416,8 +416,10 @@ security and privacy of your IRC server and is required for linking servers.
 
 Please read the following documentation pages on how to enable TLS support:
 
-GnuTLS (recommended): https://docs.inspircd.org/$version{MAJOR}/modules/ssl_gnutls
-OpenSSL:              https://docs.inspircd.org/$version{MAJOR}/modules/ssl_openssl
+Configuration:  https://docs.inspircd.org/tutorials/enable-tls
+GnuTLS module:  https://docs.inspircd.org/$version{MAJOR}/modules/ssl_gnutls
+OpenSSL module: https://docs.inspircd.org/$version{MAJOR}/modules/ssl_openssl
+
 EOM
 }
 
