@@ -117,6 +117,7 @@ void InspIRCd::StripColor(std::string& line)
 						break;
 				}
 				line.erase(start, idx - start);
+				idx = start;
 				break;
 			}
 			case '\x04': // Hex Color
@@ -129,6 +130,7 @@ void InspIRCd::StripColor(std::string& line)
 						break;
 				}
 				line.erase(start, idx - start);
+				idx = start;
 				break;
 			}
 
