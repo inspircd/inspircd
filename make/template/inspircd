@@ -146,11 +146,12 @@ sub cmd_status()
 	}
 }
 
-sub cmd_rehash()
+sub signal($)
 {
+	my $sig = shift;
 	if (getstatus() == 1) {
 		my $pid = getprocessid();
-		kill HUP => $pid;
+		kill $sig => $pid;
 		print "InspIRCd rehashed (pid: $pid).\n";
 		exit GENERIC_EXIT_SUCCESS;
 	} else {
@@ -158,6 +159,17 @@ sub cmd_rehash()
 		exit GENERIC_EXIT_NOT_RUNNING;
 	}
 }
+
+sub cmd_rehash()
+{
+	signal 'HUP';
+}
+
+sub cmd_sslrehash()
+{
+	signal 'USR1';
+}
+
 
 sub cmd_cron()
 {
