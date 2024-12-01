@@ -36,19 +36,19 @@
 
 namespace
 {
+#ifdef IPPROTO_SCTP
 	// Checks whether the system can create SCTP sockets.
 	bool CanCreateSCTPSocket()
 	{
-#ifdef IPPROTO_SCTP
 		int fd = socket(AF_INET, SOCK_STREAM, IPPROTO_SCTP);
 		if (fd >= 0)
 		{
 			SocketEngine::Close(fd);
 			return true;
 		}
-#endif
 		return false;
 	}
+#endif
 }
 
 bool InspIRCd::BindPort(const std::shared_ptr<ConfigTag>& tag, const irc::sockets::sockaddrs& sa, std::vector<ListenSocket*>& old_ports, sa_family_t protocol)

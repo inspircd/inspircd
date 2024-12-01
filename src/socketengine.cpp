@@ -244,9 +244,9 @@ ssize_t SocketEngine::SendTo(EventHandler* eh, const void* buf, size_t len, int 
 	return nbSent;
 }
 
-ssize_t SocketEngine::WriteV(EventHandler* eh, const IOVector* iovec, int count)
+ssize_t SocketEngine::WriteV(EventHandler* eh, const IOVector* iov, int count)
 {
-	ssize_t sent = writev(eh->GetFd(), iovec, count);
+	ssize_t sent = writev(eh->GetFd(), iov, count);
 	stats.UpdateWriteCounters(sent);
 	return sent;
 }
