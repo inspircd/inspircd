@@ -177,7 +177,8 @@ public:
 		if (currentrow >= PQntuples(res))
 			return false;
 		int ncols = PQnfields(res);
-
+		
+		result.clear();
 		for(int i = 0; i < ncols; i++)
 		{
 			result.push_back(GetValue(currentrow, i));
