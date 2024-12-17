@@ -445,7 +445,7 @@ void CommandWho::WhoUsers(LocalUser* source, const std::vector<std::string>& par
 		User* user = GetUser(iter);
 
 		// Only show users in response to a fuzzy WHO if we can see them normally.
-		bool can_see_normally = user == source || source->SharesChannelWith(user) || !user->IsModeSet(invisiblemode);
+		bool can_see_normally = user == source || !user->IsModeSet(invisiblemode) || source->SharesChannelWith(user);
 		if (data.fuzzy_match && !can_see_normally && !source_has_users_auspex)
 			continue;
 
