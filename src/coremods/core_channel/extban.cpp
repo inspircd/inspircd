@@ -154,7 +154,10 @@ ModResult ExtBanManager::GetStatus(ExtBan::ActingBase* extban, User* user, Chann
 				continue;
 		}
 
-		return extban->IsMatch(user, channel, xbvalue) != inverted ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		// For a non-inverted (regular) extban we want to match but for an
+		// inverted extban we want to not match.
+		if (extban->IsMatch(user, channel, xbvalue) != inverted)
+			return MOD_RES_DENY;
 	}
 	return MOD_RES_PASSTHRU;
 }
