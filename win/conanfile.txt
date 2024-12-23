@@ -10,11 +10,11 @@ argon2/20190702
 libmysqlclient/8.1.0
 libpq/15.5
 ## mbedtls/3.2.1 # unable to upgrade until mbedTLS issue #7087 is fixed
-## openssl/3.2.2
+## openssl/3.3.2
 pcre/8.45
 pcre2/10.44
-re2/20240301
-sqlite3/3.46.0
+re2/20240702
+sqlite3/3.47.0
 
 [options]
 argon2:shared=True
