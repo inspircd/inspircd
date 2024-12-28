@@ -73,6 +73,7 @@ private:
 	CommandTime cmdtime;
 	ISupportManager isupport;
 	CommandVersion cmdversion;
+	Numeric::Numeric numeric003;
 	Numeric::Numeric numeric004;
 
 	/** Returns a list of user or channel mode characters.
@@ -119,8 +120,11 @@ public:
 		, cmdtime(this)
 		, isupport(this)
 		, cmdversion(this, isupport)
+		, numeric003(RPL_CREATED)
 		, numeric004(RPL_MYINFO)
 	{
+		numeric003.push(Time::ToString(ServerInstance->startup_time, "This server was created on %d %b %Y at %H:%M:%S", true));
+
 		numeric004.push(ServerInstance->Config->GetServerName());
 		numeric004.push(INSPIRCD_BRANCH);
 	}
@@ -186,7 +190,7 @@ public:
 	{
 		user->WriteNumeric(RPL_WELCOME, INSP_FORMAT("Welcome to the {} IRC Network {}", ServerInstance->Config->Network, user->GetRealMask()));
 		user->WriteNumeric(RPL_YOURHOST, INSP_FORMAT("Your host is {}, running version {}", ServerInstance->Config->GetServerName(), INSPIRCD_BRANCH));
-		user->WriteNumeric(RPL_CREATED, Time::ToString(ServerInstance->startup_time, "This server was created %H:%M:%S %b %d %Y"));
+		user->WriteNumeric(numeric003);
 		user->WriteNumeric(numeric004);
 		isupport.SendTo(user);
 
