@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2024 Glen Miner <shaggie76@gmail.com>
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2018 Adam <Adam@anope.org>
  *   Copyright (C) 2017-2023 Sadie Powell <sadie@witchery.services>
