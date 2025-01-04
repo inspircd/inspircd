@@ -1,4 +1,4 @@
-Since the first commit in January 2003 109 people have submitted patches,
+Since the first commit in January 2003 111 people have submitted patches,
 commits, and other useful contributions to InspIRCd. These people, ordered by
 the number of contributions they have made, are:
 
@@ -52,6 +52,7 @@ the number of contributions they have made, are:
   * Chin Lee <kwangchin@gmail.com>
   * Christopher 'm4z' Holm <them4z@gmail.com>
   * eggy
+  * Glen Miner <shaggie76@gmail.com>
   * Guillaume Delacour <gui@iroqwa.org>
   * James Lu <GLolol@overdrivenetworks.com>
   * JD Horelick <jdhore1@gmail.com>
@@ -93,6 +94,7 @@ the number of contributions they have made, are:
   * Josh Soref
   * Julien Vehent <julien@linuxwall.info>
   * JustArchi <JustArchi@JustArchi.net>
+  * Larry Williamson <l422y@l422y.com>
   * Matthew Martin <phy1729@gmail.com>
   * newuser1 <flirtex@gmail.com>
   * nia <nia@netbsd.org>
