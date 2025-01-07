@@ -21,9 +21,11 @@
 
 
 #include "inspircd.h"
+#include "extension.h"
 #include "iohook.h"
 #include "modules/hash.h"
 #include "modules/isupport.h"
+#include "modules/whois.h"
 #include "utility/string.h"
 
 #define UTF_CPP_CPLUSPLUS 199711L
@@ -32,7 +34,31 @@
 static constexpr char MagicGUID[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 static constexpr char newline[] = "\r\n";
 static constexpr char whitespace[] = " \t";
-static dynamic_reference_nocheck<HashProvider>* sha1;
+
+struct SharedData final
+{
+	// An extension that stores the value of the Origin header.
+	StringExtItem origin;
+
+	// An extension that stores the real hostname for proxied hosts.
+	StringExtItem realhost;
+
+	// An extension that stores the real IP for proxied hosts.
+	StringExtItem realip;
+
+	// A reference to the SHA-1 provider.
+	dynamic_reference_nocheck<HashProvider> sha1;
+
+	SharedData(Module* mod)
+		: origin(mod, "websocket-origin", ExtensionType::USER, true)
+		, realhost(mod, "websocket-realhost", ExtensionType::USER, true)
+		, realip(mod, "websocket-realip", ExtensionType::USER, true)
+		, sha1(mod, "hash/sha1")
+	{
+	}
+};
+
+static SharedData* g_data;
 
 struct WebSocketConfig final
 {
@@ -394,6 +420,10 @@ class WebSocketHook final
 		if (reqend == std::string::npos)
 			return 0;
 
+		LocalUser* luser = nullptr;
+		if (sock->type == StreamSocket::SS_USER)
+			luser = static_cast<UserIOHandler*>(sock)->user;
+
 		bool allowedorigin = false;
 		HTTPHeaderFinder originheader;
 		if (originheader.Find(recvq, "Origin:", 7, reqend))
@@ -404,6 +434,8 @@ class WebSocketHook final
 				if (InspIRCd::Match(origin, cfgorigin, ascii_case_insensitive_map))
 				{
 					allowedorigin = true;
+					if (luser)
+						g_data->origin.Set(luser, origin);
 					break;
 				}
 			}
@@ -425,9 +457,8 @@ class WebSocketHook final
 			return -1;
 		}
 
-		if (!config.proxyranges.empty() && sock->type == StreamSocket::SS_USER)
+		if (!config.proxyranges.empty() && luser)
 		{
-			LocalUser* luser = static_cast<UserIOHandler*>(sock)->user;
 			irc::sockets::sockaddrs realsa(luser->client_sa);
 
 			HTTPHeaderFinder proxyheader;
@@ -453,7 +484,11 @@ class WebSocketHook final
 				{
 					// Give the user their real IP address.
 					if (realsa != luser->client_sa)
+					{
+						g_data->realhost.Set(luser, luser->GetRealHost());
+						g_data->realip.Set(luser, luser->GetAddress());
 						luser->ChangeRemoteAddress(realsa);
+					}
 
 					// Error if changing their IP gets them banned.
 					if (luser->quitting)
@@ -506,7 +541,7 @@ class WebSocketHook final
 			return -1;
 		}
 
-		if (!*sha1)
+		if (!*g_data->sha1)
 		{
 			FailHandshake(sock, "HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\n\r\n", "WebSocket: SHA-1 provider missing");
 			return -1;
@@ -518,7 +553,7 @@ class WebSocketHook final
 		key.append(MagicGUID);
 
 		std::string reply = "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ";
-		reply.append(Base64::Encode((*sha1)->GenerateRaw(key), nullptr, '=')).append(newline);
+		reply.append(Base64::Encode((*g_data->sha1)->GenerateRaw(key), nullptr, '=')).append(newline);
 		if (!selectedproto.empty())
 			reply.append("Sec-WebSocket-Protocol: ").append(selectedproto).append(newline);
 		reply.append(newline);
@@ -637,20 +672,22 @@ void WebSocketHookProvider::OnAccept(StreamSocket* sock, const irc::sockets::soc
 
 class ModuleWebSocket final
 	: public Module
+	, public Whois::EventListener
 {
 private:
-	dynamic_reference_nocheck<HashProvider> hash;
 	std::shared_ptr<WebSocketHookProvider> hookprov;
 	ISupport::EventProvider isupportprov;
+	SharedData data;
 
 public:
 	ModuleWebSocket()
 		: Module(VF_VENDOR, "Allows WebSocket clients to connect to the IRC server.")
-		, hash(this, "hash/sha1")
+		, Whois::EventListener(this)
 		, hookprov(std::make_shared<WebSocketHookProvider>(this))
 		, isupportprov(this)
+		, data(this)
 	{
-		sha1 = &hash;
+		g_data = &data;
 	}
 
 	void ReadConfig(ConfigStatus& status) override
@@ -714,6 +751,28 @@ public:
 		LocalUser* user = IS_LOCAL(static_cast<User*>(item));
 		if ((user) && (user->eh.GetModHook(this)))
 			ServerInstance->Users.QuitUser(user, "WebSocket module unloading");
+	}
+
+	void OnWhois(Whois::Context& whois) override
+	{
+		if (!whois.GetSource()->HasPrivPermission("users/auspex"))
+			return; // Only visible to opers.
+
+		const auto* origin = data.origin.Get(whois.GetTarget());
+		const auto* realhost = data.realhost.Get(whois.GetTarget());
+		const auto* realip = data.realip.Get(whois.GetTarget());
+		if (!origin && !realhost && !realip)
+			return; // If these fields are not set then the client is not a WebSocket user.
+
+		// If either of these aren't set then the user's connection isn't proxied.
+		std::string missing = "*";
+		if (!realhost || !realip)
+			realhost = realip = &missing;
+
+		if (origin)
+			whois.SendLine(RPL_WHOISGATEWAY, *realhost, *realip, "is connected from the " + *origin + " WebSocket origin");
+		else
+			whois.SendLine(RPL_WHOISGATEWAY, *realhost, *realip, "is connected from a non-web WebSocket origin");
 	}
 };
 
