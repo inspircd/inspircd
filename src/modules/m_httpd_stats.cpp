@@ -73,7 +73,7 @@ namespace Stats
 				// Base64 encode the entire string and wrap it in a CDATA.
 				ret.clear();
 				ret += "<![CDATA[";
-				ret += Base64::Encode(str);
+				ret += Base64::Encode(str, nullptr, '=');
 				ret += "]]>";
 				break;
 			}
