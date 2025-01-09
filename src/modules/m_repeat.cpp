@@ -526,7 +526,7 @@ public:
 		data["max-diff"] = ConvToStr(rm.ms.MaxDiff);
 		data["max-backlog"] = ConvToStr(rm.ms.MaxBacklog);
 
-		compatdata = INSP_FORMAT("{}:{}:{}:{}{}", rm.ms.Extended ? "extended:" : "",
+		compatdata = INSP_FORMAT("{}{}:{}:{}:{}", rm.ms.Extended ? "extended:" : "",
 			rm.ms.MaxLines, rm.ms.MaxSecs, rm.ms.MaxDiff, rm.ms.MaxBacklog);
 	}
 };
