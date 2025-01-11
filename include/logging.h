@@ -51,6 +51,12 @@ namespace Log
 
 		/** A sensitive message that we should not store lightly. */
 		RAWIO = 4,
+
+		/** The lowest log level supported. */
+		LOWEST = CRITICAL,
+
+		/** The highest log level supported. */
+		HIGHEST = RAWIO,
 	};
 
 	/** Converts a log level to a string.
@@ -236,8 +242,11 @@ private:
 	/** Whether we are currently logging to a file. */
 	bool logging = false;
 
-	/** Check whether raw logging is enabled. */
-	void CheckRawLog();
+	/** The highest level that loggers will accept. */
+	Log::Level maxlevel = Level::HIGHEST;
+
+	/** Check for the highest log level and warn about raw logging */
+	void CheckLevel();
 
 	/** Writes a message to the server log.
 	 * @param level The level to log at.
@@ -245,6 +254,15 @@ private:
 	 * @param message The message to log.
 	 */
 	void Write(Level level, const std::string& type, const std::string& message);
+
+	template <typename... Args>
+	void Write(Level level, const std::string& type, const char* format, Args&&... args)
+	{
+		if (maxlevel < level && !caching)
+			return; // No loggers care about this message.
+
+		Write(level, type, fmt::vformat(format, fmt::make_format_args(args...)));
+	}
 
 public:
 	Manager();
@@ -283,7 +301,7 @@ public:
 	template <typename... Args>
 	void Critical(const std::string& type, const char* format, Args&&... args)
 	{
-		Write(Level::CRITICAL, type, fmt::vformat(format, fmt::make_format_args(args...)));
+		Write(Level::CRITICAL, type, format, std::forward<Args>(args)...);
 	}
 
 	/** Writes a warning message to the server log.
@@ -303,7 +321,7 @@ public:
 	template <typename... Args>
 	void Warning(const std::string& type, const char* format, Args&&... args)
 	{
-		Write(Level::WARNING, type, fmt::vformat(format, fmt::make_format_args(args...)));
+		Write(Level::WARNING, type, format, std::forward<Args>(args)...);
 	}
 
 	/** Writes a normal message to the server log.
@@ -323,7 +341,7 @@ public:
 	template <typename... Args>
 	void Normal(const std::string& type, const char* format, Args&&... args)
 	{
-		Write(Level::NORMAL, type, fmt::vformat(format, fmt::make_format_args(args...)));
+		Write(Level::NORMAL, type, format, std::forward<Args>(args)...);
 	}
 
 	/** Writes a debug message to the server log.
@@ -342,7 +360,7 @@ public:
 	template <typename... Args>
 	void Debug(const std::string& type, const char* format, Args&&... args)
 	{
-		Write(Level::DEBUG, type, fmt::vformat(format, fmt::make_format_args(args...)));
+		Write(Level::DEBUG, type, format, std::forward<Args>(args)...);
 	}
 
 	/** Writes a raw I/O message to the server log.
@@ -362,6 +380,6 @@ public:
 	template <typename... Args>
 	void RawIO(const std::string& type, const char* format, Args&&... args)
 	{
-		Write(Level::RAWIO, type, fmt::vformat(format, fmt::make_format_args(args...)));
+		Write(Level::RAWIO, type, format, std::forward<Args>(args)...);
 	}
 };

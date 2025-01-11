@@ -224,7 +224,7 @@ void Log::Manager::OpenLogs(bool requiremethods)
 	{
 		const auto* option = ServerInstance->Config->CommandLine.forceprotodebug ? "--protocoldebug" : "--debug";
 		Normal("LOG", "Not opening loggers because we were started with {}", option);
-		CheckRawLog();
+		CheckLevel();
 		return;
 	}
 
@@ -232,7 +232,7 @@ void Log::Manager::OpenLogs(bool requiremethods)
 	if (!ServerInstance->Config->CommandLine.writelog)
 	{
 		Normal("LOG", "Not opening loggers because we were started with --nolog");
-		CheckRawLog();
+		CheckLevel();
 		return;
 	}
 
@@ -297,7 +297,7 @@ void Log::Manager::OpenLogs(bool requiremethods)
 		cache.shrink_to_fit();
 		caching = false;
 	}
-	CheckRawLog();
+	CheckLevel();
 }
 
 void Log::Manager::RegisterServices()
@@ -316,18 +316,29 @@ void Log::Manager::UnloadEngine(const Engine* engine)
 	Normal("LOG", "The {} log engine is unloading; removed {}/{} loggers.", engine->name.c_str(), logger_count - loggers.size(), logger_count);
 }
 
-void Log::Manager::CheckRawLog()
+void Log::Manager::CheckLevel()
 {
 	// There might be a logger not from the config so we need to check this outside of the creation loop.
-	ServerInstance->Config->RawLog = std::any_of(loggers.begin(), loggers.end(), [](const auto& logger) {
-		return logger.level >= Level::RAWIO;
-	});
+	auto newmaxlevel = Level::LOWEST;
+	for (const auto& logger : loggers)
+	{
+		if (logger.level > newmaxlevel)
+			newmaxlevel = logger.level;
+	}
+
+	std::swap(maxlevel, newmaxlevel);
+	ServerInstance->Config->RawLog = (newmaxlevel >= Level::RAWIO);
+
+	Debug("LOG", "Changed maximum log level from {} to {}", LevelToString(newmaxlevel), LevelToString(maxlevel));
 }
 
 void Log::Manager::Write(Level level, const std::string& type, const std::string& message)
 {
 	if (logging)
 		return; // Avoid log loops.
+
+	if (maxlevel < level && !caching)
+		return; // No loggers care about this message.
 
 	logging = true;
 	time_t time = ServerInstance->Time();
