@@ -68,7 +68,35 @@ void TreeSocket::WriteLine(const std::string& original_line)
 	std::string command(line, cmdstart, cmdend - cmdstart);
 	if (proto_version == PROTO_INSPIRCD_3)
 	{
-		if (irc::equals(command, "FHOST") || irc::equals(command, "FIDENT"))
+		if (irc::equals(command, "ENCAP"))
+		{
+			// :<sid> ENCAP <server> <real-command>
+			auto serverend = NextToken(line, cmdend);
+			auto actualcmdend = NextToken(line, serverend);
+			if (actualcmdend != std::string::npos)
+			{
+				std::string realcommand(line, serverend + 1, actualcmdend - serverend - 1);
+				if (irc::equals(realcommand, "SASL"))
+				{
+					auto suidend = NextToken(line, actualcmdend);
+					auto tuidend = NextToken(line, suidend);
+					auto flagend = NextToken(line, tuidend);
+					if (flagend != std::string::npos)
+					{
+						std::string flag(line, tuidend + 1, flagend - tuidend - 1);
+						if (irc::equals(flag, "S"))
+						{
+							// SASL <uid> <uid> S <mech> <fp> [<fp>]+
+							auto mechend = NextToken(line, flagend);
+							auto fpend = NextToken(line, mechend);
+							if (fpend != std::string::npos)
+								line.erase(fpend); // Multiple fingerprints in ssl_cert was introduced in PROTO_INSPIRCD_4; drop it.
+						}
+					}
+				}
+			}
+		}
+		else if (irc::equals(command, "FHOST") || irc::equals(command, "FIDENT"))
 		{
 			// FIDENT/FHOST has two parameters in v4; drop the real username/hostname.
 			// :<sid> FIDENT|FHOST <display|*> <real|*>
