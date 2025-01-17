@@ -85,7 +85,7 @@ public:
 	bool flag_strip_color;
 	bool flag_no_registered;
 
-	FilterResult(Regex::EngineReference& RegexEngine, const std::string& free, const std::string& rea, FilterAction act, unsigned long gt, const std::string& fla, bool cfg, bool ef)
+	FilterResult(Regex::EngineReference& RegexEngine, const std::string& free, const std::string& rea, FilterAction act, unsigned long gt, const std::string& fla, bool cfg)
 		: freeform(free)
 		, reason(rea)
 		, action(act)
@@ -94,7 +94,7 @@ public:
 	{
 		if (!RegexEngine)
 			throw ModuleException(thismod, "Regex module implementing '"+RegexEngine.GetProvider()+"' is not loaded!");
-		regex = ef ? RegexEngine->CreateHuman(free) : RegexEngine->Create(free);
+		regex = RegexEngine->CreateHuman(free);
 		this->FillFlags(fla);
 	}
 
@@ -202,7 +202,6 @@ private:
 
 	Account::API accountapi;
 	bool initing = true;
-	bool enableflags;
 	bool notifyuser;
 	bool warnonselfmsg;
 	bool dirty = false;
@@ -647,7 +646,6 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 
 	const auto& tag = ServerInstance->Config->ConfValue("filteropts");
 	std::string newrxengine = tag->getString("engine");
-	enableflags = tag->getBool("enableflags");
 	notifyuser = tag->getBool("notifyuser", true);
 	warnonselfmsg = tag->getBool("warnonselfmsg");
 	filterconf = tag->getString("filename");
@@ -704,8 +702,7 @@ void ModuleFilter::GetLinkData(LinkData& data)
 	else
 		data["regex"] = "broken";
 
-	if (enableflags)
-		data["flags"] = "yes";
+	data["flags"] = "yes";
 }
 
 std::string ModuleFilter::EncodeFilter(const FilterResult& filter)
@@ -832,7 +829,7 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string& freeform
 
 	try
 	{
-		filters.emplace_back(RegexEngine, freeform, reason, type, duration, flgs, config, enableflags);
+		filters.emplace_back(RegexEngine, freeform, reason, type, duration, flgs, config);
 		dirty = true;
 	}
 	catch (const ModuleException& e)
