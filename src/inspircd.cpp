@@ -503,6 +503,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		Exit(EXIT_FAILURE);
 	}
 
+	// We only do this on boot because we might not be able to after dropping root.
+	WritePID();
+
 	// If we don't have a SID, generate one based on the server name and the server description
 	if (Config->ServerId.empty())
 		Config->ServerId = UIDGenerator::GenerateSID(Config->ServerName, Config->ServerDesc);
@@ -590,7 +593,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	QueryPerformanceFrequency(&this->Stats.BootCPU);
 #endif
 
-	WritePID();
 	DropRoot();
 
 	Logs.Normal("STARTUP", "Startup complete as '{}'[{}], {} max open sockets", Config->ServerName,

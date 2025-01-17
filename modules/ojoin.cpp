@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2019-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2019-2024 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013-2014, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2010 Craig Edwards <brain@inspircd.org>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -115,7 +115,7 @@ public:
 
 	ModuleOjoin()
 		: Module(VF_VENDOR, "Adds the /OJOIN command which allows server operators to join a channel and receive the server operator-only Y (official-join) channel prefix mode.")
-		, np(this, ServerInstance->Config->ConfValue("ojoin")->getCharacter("prefix"))
+		, np(this, ServerInstance->Config->ConfValue("ojoin")->getCharacter("prefix", '\0', true))
 		, mycommand(this, np)
 	{
 	}

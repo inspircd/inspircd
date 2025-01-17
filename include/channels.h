@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2024 Glen Miner <shaggie76@gmail.com>
  *   Copyright (C) 2013-2014, 2016, 2018 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012-2013, 2018-2023 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
@@ -43,7 +44,7 @@ class CoreExport Channel final
 public:
 	/** A map of Memberships on a channel keyed by User pointers
 	 */
-	typedef std::map<User*, insp::aligned_storage<Membership>> MemberMap;
+	typedef std::unordered_map<User*, insp::aligned_storage<Membership>> MemberMap;
 
 private:
 	/** Set default modes for the channel on creation

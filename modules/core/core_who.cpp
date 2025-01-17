@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2024 Glen Miner <shaggie76@gmail.com>
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2018 Adam <Adam@anope.org>
  *   Copyright (C) 2017-2023 Sadie Powell <sadie@witchery.services>
@@ -445,7 +446,7 @@ void CommandWho::WhoUsers(LocalUser* source, const std::vector<std::string>& par
 		User* user = GetUser(iter);
 
 		// Only show users in response to a fuzzy WHO if we can see them normally.
-		bool can_see_normally = user == source || source->SharesChannelWith(user) || !user->IsModeSet(invisiblemode);
+		bool can_see_normally = user == source || !user->IsModeSet(invisiblemode) || source->SharesChannelWith(user);
 		if (data.fuzzy_match && !can_see_normally && !source_has_users_auspex)
 			continue;
 
