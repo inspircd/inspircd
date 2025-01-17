@@ -392,7 +392,7 @@ namespace
 			std::cout << con_bright << "Hints:" << con_reset << std::endl
 				<< "- For TCP/IP listeners try using a public IP address in <bind:address> instead" << std::endl
 				<< "  of * or leaving it blank." << std::endl
-				<< "- For UNIX socket listeners try enabling <bind:rewrite> to replace old sockets." << std::endl;
+				<< "- For UNIX socket listeners try enabling <bind:replace> to replace old sockets." << std::endl;
 		}
 	}
 
