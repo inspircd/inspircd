@@ -34,7 +34,7 @@ CommandQline::CommandQline(Module* parent)
 	: Command(parent, "QLINE", 1, 3)
 {
 	access_needed = CmdAccess::OPERATOR;
-	syntax = { "<nickmask>[,<nickmask>]+ [<duration> :<reason>]" };
+	syntax = { "<nickmask>[,<nickmask>]+ [[<duration>] :<reason>]" };
 }
 
 CmdResult CommandQline::Handle(User* user, const Params& parameters)
@@ -42,7 +42,7 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 	if (CommandParser::LoopCall(user, this, parameters, 0))
 		return CmdResult::SUCCESS;
 
-	if (parameters.size() >= 3)
+	if (parameters.size() > 1)
 	{
 		NickMatcher matcher;
 		if (InsaneBan::MatchesEveryone(parameters[0], matcher, user, 'Q', "nickmasks"))
@@ -54,25 +54,25 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 			return CmdResult::FAILURE;
 		}
 
-		unsigned long duration;
-		if (!Duration::TryFrom(parameters[1], duration))
+		unsigned long duration = 0;
+		if (parameters.size() > 2 && !Duration::TryFrom(parameters[1], duration))
 		{
 			user->WriteNotice("*** Invalid duration for Q-line.");
 			return CmdResult::FAILURE;
 		}
 
-		auto* ql = new QLine(ServerInstance->Time(), duration, user->nick, parameters[2], parameters[0]);
+		auto* ql = new QLine(ServerInstance->Time(), duration, user->nick, parameters.back(), parameters[0]);
 		if (ServerInstance->XLines->AddLine(ql, user))
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent Q-line on {}: {}", user->nick, parameters[0], parameters[2]);
+				ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent Q-line on {}: {}",
+					user->nick, parameters[0], ql->reason);
 			}
 			else
 			{
 				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed Q-line on {}, expires in {} (on {}): {}",
-					user->nick, parameters[0], Duration::ToString(duration),
-					Time::FromNow(duration), parameters[2]);
+					user->nick, parameters[0], Duration::ToString(duration), Time::FromNow(duration), ql->reason);
 			}
 			ServerInstance->XLines->ApplyLines();
 		}

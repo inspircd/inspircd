@@ -33,7 +33,7 @@ CommandEline::CommandEline(Module* parent)
 	: Command(parent, "ELINE", 1, 3)
 {
 	access_needed = CmdAccess::OPERATOR;
-	syntax = { "<user@host>[,<user@host>]+ [<duration> :<reason>]" };
+	syntax = { "<user@host>[,<user@host>]+ [[<duration>] :<reason>]" };
 }
 
 CmdResult CommandEline::Handle(User* user, const Params& parameters)
@@ -42,7 +42,7 @@ CmdResult CommandEline::Handle(User* user, const Params& parameters)
 		return CmdResult::SUCCESS;
 
 	std::string target = parameters[0];
-	if (parameters.size() >= 3)
+	if (parameters.size() > 1)
 	{
 		UserHostPair ih;
 		auto* find = ServerInstance->Users.Find(target, true);
@@ -65,25 +65,25 @@ CmdResult CommandEline::Handle(User* user, const Params& parameters)
 		if (InsaneBan::MatchesEveryone(ih.first + "@" + ih.second, matcher, user, 'E', "hostmasks"))
 			return CmdResult::FAILURE;
 
-		unsigned long duration;
-		if (!Duration::TryFrom(parameters[1], duration))
+		unsigned long duration = 0;
+		if (parameters.size() > 2 && !Duration::TryFrom(parameters[1], duration))
 		{
 			user->WriteNotice("*** Invalid duration for E-line.");
 			return CmdResult::FAILURE;
 		}
 
-		auto* el = new ELine(ServerInstance->Time(), duration, user->nick, parameters[2], ih.first, ih.second);
+		auto* el = new ELine(ServerInstance->Time(), duration, user->nick, parameters.back(), ih.first, ih.second);
 		if (ServerInstance->XLines->AddLine(el, user))
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent E-line on {}: {}", user->nick, target, parameters[2]);
+				ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent E-line on {}: {}",
+					user->nick, target, el->reason);
 			}
 			else
 			{
 				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed E-line on {}, expires in {} (on {}): {}",
-					user->nick, target, Duration::ToString(duration),
-					Time::FromNow(duration), parameters[2]);
+					user->nick, target, Duration::ToString(duration), Time::FromNow(duration), el->reason);
 			}
 		}
 		else

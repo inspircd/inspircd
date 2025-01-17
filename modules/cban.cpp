@@ -100,7 +100,7 @@ public:
 		: Command(Creator, "CBAN", 1, 3)
 	{
 		access_needed = CmdAccess::OPERATOR;
-		syntax = { "<channelmask> [<duration> [:<reason>]]" };
+		syntax = { "<channelmask> [[<duration>] :<reason>]" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
@@ -125,26 +125,25 @@ public:
 		else
 		{
 			// Adding - XXX todo make this respect <insane> tag perhaps..
-			unsigned long duration;
-			if (!Duration::TryFrom(parameters[1], duration))
+			unsigned long duration = 0;
+			if (parameters.size() > 2 && !Duration::TryFrom(parameters[1], duration))
 			{
 				user->WriteNotice("*** Invalid duration for CBan.");
 				return CmdResult::FAILURE;
 			}
 
-			const char* reason = (parameters.size() > 2) ? parameters[2].c_str() : "No reason supplied";
-			auto* r = new CBan(ServerInstance->Time(), duration, user->nick, reason, parameters[0]);
+			auto* r = new CBan(ServerInstance->Time(), duration, user->nick, parameters.back(), parameters[0]);
 			if (ServerInstance->XLines->AddLine(r, user))
 			{
 				if (!duration)
 				{
-					ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent CBan on {}: {}", user->nick, parameters[0], reason);
+					ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent CBan on {}: {}",
+						user->nick, parameters[0], r->reason);
 				}
 				else
 				{
 					ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed CBan on {}, expires in {} (on {}): {}",
-						user->nick, parameters[0], Duration::ToString(duration),
-						Time::FromNow(duration), reason);
+						user->nick, parameters[0], Duration::ToString(duration), Time::FromNow(duration), r->reason);
 				}
 			}
 			else
