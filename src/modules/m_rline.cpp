@@ -143,18 +143,18 @@ public:
 		, factory(rlf)
 	{
 		access_needed = CmdAccess::OPERATOR;
-		syntax = { "<regex> [<duration> :<reason>]" };
+		syntax = { "<regex> [[<duration>] :<reason>]" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 
-		if (parameters.size() >= 3)
+		if (parameters.size() > 1)
 		{
 			// Adding - XXX todo make this respect <insane> tag perhaps..
 
-			unsigned long duration;
-			if (!Duration::TryFrom(parameters[1], duration))
+			unsigned long duration = 0;
+			if (parameters.size() > 2 && !Duration::TryFrom(parameters[1], duration))
 			{
 				user->WriteNotice("*** Invalid duration for R-line.");
 				return CmdResult::FAILURE;
@@ -163,7 +163,7 @@ public:
 
 			try
 			{
-				r = factory.Generate(ServerInstance->Time(), duration, user->nick, parameters[2], parameters[0]);
+				r = factory.Generate(ServerInstance->Time(), duration, user->nick, parameters.back(), parameters[0]);
 			}
 			catch (const ModuleException& e)
 			{
@@ -176,13 +176,13 @@ public:
 				{
 					if (!duration)
 					{
-						ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent R-line on {}: {}", user->nick, parameters[0], parameters[2]);
+						ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent R-line on {}: {}",
+								user->nick, parameters[0], r->reason);
 					}
 					else
 					{
 						ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed R-line on {}, expires in {} (on {}): {}",
-							user->nick, parameters[0], Duration::ToString(duration),
-							Time::FromNow(duration), parameters[2]);
+							user->nick, parameters[0], Duration::ToString(duration), Time::FromNow(duration), r->reason);
 					}
 
 					ServerInstance->XLines->ApplyLines();

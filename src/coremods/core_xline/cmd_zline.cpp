@@ -35,7 +35,7 @@ CommandZline::CommandZline(Module* parent)
 	: Command(parent, "ZLINE", 1, 3)
 {
 	access_needed = CmdAccess::OPERATOR;
-	syntax = { "<ipmask>[,<ipmask>]+ [<duration> :<reason>]" };
+	syntax = { "<ipmask>[,<ipmask>]+ [[<duration>] :<reason>]" };
 }
 
 CmdResult CommandZline::Handle(User* user, const Params& parameters)
@@ -44,7 +44,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 		return CmdResult::SUCCESS;
 
 	std::string target = parameters[0];
-	if (parameters.size() >= 3)
+	if (parameters.size() > 1)
 	{
 		if (target.find('!') != std::string::npos)
 		{
@@ -71,25 +71,25 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 		if (InsaneBan::MatchesEveryone(ipaddr, matcher, user, 'Z', "ipmasks"))
 			return CmdResult::FAILURE;
 
-		unsigned long duration;
-		if (!Duration::TryFrom(parameters[1], duration))
+		unsigned long duration = 0;
+		if (parameters.size() > 2 && !Duration::TryFrom(parameters[1], duration))
 		{
 			user->WriteNotice("*** Invalid duration for Z-line.");
 			return CmdResult::FAILURE;
 		}
 
-		auto* zl = new ZLine(ServerInstance->Time(), duration, user->nick, parameters[2], ipaddr);
+		auto* zl = new ZLine(ServerInstance->Time(), duration, user->nick, parameters.back(), ipaddr);
 		if (ServerInstance->XLines->AddLine(zl, user))
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent Z-line on {}: {}", user->nick, ipaddr, parameters[2]);
+				ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent Z-line on {}: {}",
+					user->nick, ipaddr, zl->reason);
 			}
 			else
 			{
 				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed Z-line on {}, expires in {} (on {}): {}",
-					user->nick, ipaddr, Duration::ToString(duration),
-					Time::FromNow(duration), parameters[2]);
+					user->nick, ipaddr, Duration::ToString(duration), Time::FromNow(duration), zl->reason);
 			}
 			ServerInstance->XLines->ApplyLines();
 		}

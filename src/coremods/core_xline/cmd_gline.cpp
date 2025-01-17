@@ -34,7 +34,7 @@ CommandGline::CommandGline(Module* parent)
 	: Command(parent, "GLINE", 1, 3)
 {
 	access_needed = CmdAccess::OPERATOR;
-	syntax = { "<user@host>[,<user@host>]+ [<duration> :<reason>]" };
+	syntax = { "<user@host>[,<user@host>]+ [[<duration>] :<reason>]" };
 }
 
 CmdResult CommandGline::Handle(User* user, const Params& parameters)
@@ -43,7 +43,7 @@ CmdResult CommandGline::Handle(User* user, const Params& parameters)
 		return CmdResult::SUCCESS;
 
 	std::string target = parameters[0];
-	if (parameters.size() >= 3)
+	if (parameters.size() > 1)
 	{
 		UserHostPair ih;
 		auto* find = ServerInstance->Users.Find(target, true);
@@ -72,25 +72,25 @@ CmdResult CommandGline::Handle(User* user, const Params& parameters)
 			return CmdResult::FAILURE;
 		}
 
-		unsigned long duration;
-		if (!Duration::TryFrom(parameters[1], duration))
+		unsigned long duration = 0;
+		if (parameters.size() > 2 && !Duration::TryFrom(parameters[1], duration))
 		{
 			user->WriteNotice("*** Invalid duration for G-line.");
 			return CmdResult::FAILURE;
 		}
 
-		auto* gl = new GLine(ServerInstance->Time(), duration, user->nick, parameters[2], ih.first, ih.second);
+		auto* gl = new GLine(ServerInstance->Time(), duration, user->nick, parameters.back(), ih.first, ih.second);
 		if (ServerInstance->XLines->AddLine(gl, user))
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent G-line on {}: {}", user->nick, target, parameters[2]);
+				ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent G-line on {}: {}",
+					user->nick, target, gl->reason);
 			}
 			else
 			{
 				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed G-line on {}, expires in {} (on {}): {}",
-					user->nick, target, Duration::ToString(duration),
-					Time::FromNow(duration), parameters[2]);
+					user->nick, target, Duration::ToString(duration), Time::FromNow(duration), gl->reason);
 			}
 
 			ServerInstance->XLines->ApplyLines();
