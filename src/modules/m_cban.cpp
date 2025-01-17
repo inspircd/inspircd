@@ -100,7 +100,7 @@ public:
 		: Command(Creator, "CBAN", 1, 3)
 	{
 		access_needed = CmdAccess::OPERATOR;
-		syntax = { "<channelmask> [<duration> [:<reason>]]" };
+		syntax = { "<channelmask> [[<duration>] :<reason>]" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
