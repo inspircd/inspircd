@@ -483,7 +483,7 @@ void LocalUser::FullConnect()
 	ServerInstance->SNO.WriteToSnoMask('c', "Client connecting on port {} (class {}): {} ({}) [{}\x0F]",
 		server_sa.port(), GetClass()->GetName(), GetRealMask(), GetAddress(), GetRealName());
 
-	ServerInstance->Logs.Debug("BANCACHE", "Adding NEGATIVE hit for " + this->GetAddress());
+	ServerInstance->Logs.Debug("BANCACHE", "Adding NEGATIVE hit for {}", this->GetAddress());
 	ServerInstance->BanCache.AddHit(this->GetAddress(), "", "");
 	// reset the flood penalty (which could have been raised due to things like auto +x)
 	CommandFloodPenalty = 0;
@@ -504,7 +504,7 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 {
 	if (quitting)
 	{
-		ServerInstance->Logs.Debug("USERS", "BUG: Attempted to change nick of a quitting user: " + this->nick);
+		ServerInstance->Logs.Debug("USERS", "BUG: Attempted to change nick of a quitting user: {}", this->nick);
 		return false;
 	}
 

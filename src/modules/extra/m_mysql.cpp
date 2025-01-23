@@ -427,7 +427,7 @@ public:
 
 	void Submit(SQL::Query* q, const std::string& qs) override
 	{
-		ServerInstance->Logs.Debug(MODNAME, "Executing MySQL query: " + qs);
+		ServerInstance->Logs.Debug(MODNAME, "Executing MySQL query: {}", qs);
 		Parent()->Dispatcher->LockQueue();
 		Parent()->qq.emplace_back(q, qs, this);
 		Parent()->Dispatcher->UnlockQueueWakeup();

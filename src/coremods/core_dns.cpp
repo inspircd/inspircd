@@ -55,7 +55,7 @@ private:
 		if (pos + name.length() + 2 > output_size)
 			throw Exception(creator, "Unable to pack name");
 
-		ServerInstance->Logs.Debug(MODNAME, "Packing name " + name);
+		ServerInstance->Logs.Debug(MODNAME, "Packing name {}", name);
 
 		irc::sepstream sep(name, '.');
 		std::string token;
@@ -127,7 +127,7 @@ private:
 		if (name.empty())
 			throw Exception(creator, "Unable to unpack name - no name");
 
-		ServerInstance->Logs.Debug(MODNAME, "Unpack name " + name);
+		ServerInstance->Logs.Debug(MODNAME, "Unpack name {}", name);
 
 		return name;
 	}
@@ -250,7 +250,7 @@ private:
 		}
 
 		if (!record.name.empty() && !record.rdata.empty())
-			ServerInstance->Logs.Debug(MODNAME, record.name + " -> " + record.rdata);
+			ServerInstance->Logs.Debug(MODNAME, "{} -> {}", record.name, record.rdata);
 
 		return record;
 	}
@@ -296,7 +296,8 @@ public:
 		unsigned short arcount = (input[packet_pos] << 8) | input[packet_pos + 1];
 		packet_pos += 2;
 
-		ServerInstance->Logs.Debug(MODNAME, "qdcount: " + ConvToStr(qdcount) + " ancount: " + ConvToStr(ancount) + " nscount: " + ConvToStr(nscount) + " arcount: " + ConvToStr(arcount));
+		ServerInstance->Logs.Debug(MODNAME, "qdcount: {} ancount: {} nscount: {} arcount: {}",
+			qdcount, ancount, nscount, arcount);
 
 		if (qdcount != 1)
 			throw Exception(creator, "Question count != 1 in incoming packet");
@@ -407,7 +408,7 @@ class MyManager final
 	 */
 	bool CheckCache(DNS::Request* req, const DNS::Question& question)
 	{
-		ServerInstance->Logs.Critical(MODNAME, "cache: Checking cache for " + question.name);
+		ServerInstance->Logs.Critical(MODNAME, "cache: Checking cache for {}", question.name);
 
 		cache_map::iterator it = this->cache.find(question);
 		if (it == this->cache.end())
@@ -420,7 +421,7 @@ class MyManager final
 			return false;
 		}
 
-		ServerInstance->Logs.Debug(MODNAME, "cache: Using cached result for " + question.name);
+		ServerInstance->Logs.Debug(MODNAME, "cache: Using cached result for {}", question.name);
 		record.cached = true;
 		req->OnLookupComplete(&record);
 		return true;
@@ -446,7 +447,7 @@ class MyManager final
 		ResourceRecord& rr = r.answers.front();
 		// Set TTL to what we've determined to be the lowest
 		rr.ttl = cachettl;
-		ServerInstance->Logs.Debug(MODNAME, "cache: added cache for " + rr.name + " -> " + rr.rdata + " ttl: " + ConvToStr(rr.ttl));
+		ServerInstance->Logs.Debug(MODNAME, "cache: added cache for {} -> {} ttl: {}", rr.name, rr.rdata, rr.ttl);
 		this->cache[r.question] = r;
 	}
 
@@ -511,7 +512,8 @@ public:
 			return;
 		}
 
-		ServerInstance->Logs.Debug(MODNAME, "Processing request to lookup " + req->question.name + " of type " + ConvToStr(req->question.type) + " to " + this->myserver.addr());
+		ServerInstance->Logs.Debug(MODNAME, "Processing request to lookup {} of type {} to {}",
+			req->question.name, (int)req->question.type, this->myserver.addr());
 
 		/* Create an id */
 		unsigned int tries = 0;
@@ -740,7 +742,7 @@ public:
 		}
 		else
 		{
-			ServerInstance->Logs.Debug(MODNAME, "Lookup complete for " + request->question.name);
+			ServerInstance->Logs.Debug(MODNAME, "Lookup complete for {}", request->question.name);
 			this->stats_success++;
 			request->OnLookupComplete(&recv_packet);
 			this->AddCache(recv_packet);

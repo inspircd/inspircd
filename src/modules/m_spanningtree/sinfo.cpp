@@ -35,7 +35,8 @@ CmdResult CommandSInfo::HandleServer(TreeServer* server, CommandBase::Params& pa
 	else if (irc::equals(key,  "desc"))
 	{
 		// Only sent when the description of a server changes because of a rehash; not sent on burst
-		ServerInstance->Logs.Debug(MODNAME, "Server description of " + server->GetName() + " changed: " + value);
+		ServerInstance->Logs.Debug(MODNAME, "Server description of {} changed: {}",
+			server->GetName(), value);
 		server->SetDesc(value);
 	}
 	else if (irc::equals(key,  "rawbranch"))

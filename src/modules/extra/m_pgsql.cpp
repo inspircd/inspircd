@@ -454,7 +454,7 @@ restart:
 
 	void Submit(SQL::Query* req, const std::string& q) override
 	{
-		ServerInstance->Logs.Debug(MODNAME, "Executing PostgreSQL query: " + q);
+		ServerInstance->Logs.Debug(MODNAME, "Executing PostgreSQL query: {}", q);
 		if (qinprog.q.empty())
 		{
 			DoQuery(QueueItem(req, q));

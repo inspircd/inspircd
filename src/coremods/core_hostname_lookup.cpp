@@ -187,7 +187,7 @@ public:
 		catch (const DNS::Exception& e)
 		{
 			delete res_forward;
-			ServerInstance->Logs.Debug(MODNAME, "Error in resolver: " + e.GetReason());
+			ServerInstance->Logs.Debug(MODNAME, "Error in resolver: {}", e.GetReason());
 
 			HandleError(user, "There was an internal error resolving your host");
 		}
@@ -236,7 +236,7 @@ public:
 		{
 			this->dnsLookup.Unset(user);
 			delete res_reverse;
-			ServerInstance->Logs.Debug(MODNAME, "Error in resolver: " + e.GetReason());
+			ServerInstance->Logs.Debug(MODNAME, "Error in resolver: {}", e.GetReason());
 		}
 	}
 

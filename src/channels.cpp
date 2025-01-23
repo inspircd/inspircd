@@ -167,7 +167,7 @@ Membership* Channel::JoinUser(LocalUser* user, std::string cname, bool override,
 {
 	if (!user->IsFullyConnected())
 	{
-		ServerInstance->Logs.Debug("CHANNELS", "Attempted to join partially connected user " + user->uuid + " to channel " + cname);
+		ServerInstance->Logs.Debug("CHANNELS", "Attempted to join partially connected user {} to channel {}", user->uuid, cname);
 		return nullptr;
 	}
 
@@ -217,7 +217,7 @@ Membership* Channel::ForceJoin(User* user, const std::string* privs, bool bursti
 {
 	if (IS_SERVER(user))
 	{
-		ServerInstance->Logs.Debug("CHANNELS", "Attempted to join server user " + user->uuid + " to channel " + this->name);
+		ServerInstance->Logs.Debug("CHANNELS", "Attempted to join server user {} to channel {}", user->uuid, this->name);
 		return nullptr;
 	}
 
