@@ -84,25 +84,23 @@ public:
 
 CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 {
-	size_t n_users = ServerInstance->Users.GlobalUserCount();
 	ProtocolInterface::ServerList serverlist;
 	ServerInstance->PI->GetServerList(serverlist);
-	size_t n_serv = serverlist.size();
-	size_t n_local_servs = 0;
+
+	// If spanningtree is not loaded GetServerList does nothing.
+	size_t global_servers = std::max<size_t>(serverlist.size(), 1);
+	size_t local_servers = 0;
 
 	for (const auto& server : serverlist)
 	{
 		if (server.parentname == ServerInstance->Config->ServerName)
-			n_local_servs++;
+			local_servers++;
 	}
-	// fix for default GetServerList not returning us
-	if (!n_serv)
-		n_serv = 1;
 
 	counters.UpdateMaxUsers();
 
 	user->WriteNumeric(RPL_LUSERCLIENT, INSP_FORMAT("There are {} users and {} invisible on {} servers",
-			n_users - counters.invisible, counters.invisible, n_serv));
+			ServerInstance->Users.GlobalUserCount() - counters.invisible, counters.invisible, global_servers));
 
 	size_t opercount = ServerInstance->Users.all_opers.size();
 	if (opercount)
@@ -112,9 +110,9 @@ CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 		user->WriteNumeric(RPL_LUSERUNKNOWN, ServerInstance->Users.UnknownUserCount(), "unknown connections");
 
 	user->WriteNumeric(RPL_LUSERCHANNELS, ServerInstance->Channels.GetChans().size(), "channels formed");
-	user->WriteNumeric(RPL_LUSERME, INSP_FORMAT("I have {} clients and {} servers", ServerInstance->Users.LocalUserCount(), n_local_servs));
+	user->WriteNumeric(RPL_LUSERME, INSP_FORMAT("I have {} clients and {} servers", ServerInstance->Users.LocalUserCount(), local_servers));
 	user->WriteNumeric(RPL_LOCALUSERS, INSP_FORMAT("Current local users: {}  Max: {}", ServerInstance->Users.LocalUserCount(), counters.max_local));
-	user->WriteNumeric(RPL_GLOBALUSERS, INSP_FORMAT("Current global users: {}  Max: {}", n_users, counters.max_global));
+	user->WriteNumeric(RPL_GLOBALUSERS, INSP_FORMAT("Current global users: {}  Max: {}", ServerInstance->Users.GlobalUserCount(), counters.max_global));
 	return CmdResult::SUCCESS;
 }
 
