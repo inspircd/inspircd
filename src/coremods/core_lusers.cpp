@@ -27,6 +27,9 @@
 
 enum
 {
+	// From ircu.
+	RPL_STATSCONN = 250,
+
 	// From RFC 1459.
 	RPL_LUSERCLIENT = 251,
 	RPL_LUSERUNKNOWN = 253,
@@ -42,6 +45,7 @@ struct LusersCounters final
 {
 	size_t max_local;
 	size_t max_global;
+	size_t max_conns;
 	size_t invisible = 0;
 	size_t global_servers;
 	size_t local_servers;
@@ -56,6 +60,7 @@ struct LusersCounters final
 				invisible++;
 		}
 		UpdateServerCount();
+		max_conns = local_servers + max_local;
 	}
 
 	inline void UpdateMaxUsers()
@@ -67,6 +72,10 @@ struct LusersCounters final
 		current = ServerInstance->Users.GlobalUserCount();
 		if (current > max_global)
 			max_global = current;
+
+		current = local_servers + max_local;
+		if (current > max_conns)
+			max_conns = current;
 	}
 
 	inline void UpdateServerCount()
@@ -124,6 +133,7 @@ CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 	user->WriteNumeric(RPL_LUSERME, INSP_FORMAT("I have {} clients and {} servers", ServerInstance->Users.LocalUserCount(), counters.local_servers));
 	user->WriteNumeric(RPL_LOCALUSERS, INSP_FORMAT("Current local users: {}  Max: {}", ServerInstance->Users.LocalUserCount(), counters.max_local));
 	user->WriteNumeric(RPL_GLOBALUSERS, INSP_FORMAT("Current global users: {}  Max: {}", ServerInstance->Users.GlobalUserCount(), counters.max_global));
+	user->WriteNumeric(RPL_STATSCONN, INSP_FORMAT("Highest connection count: {} ({} clients) ({} connections received)", counters.max_conns, counters.max_local, ServerInstance->Stats.Accept));
 	return CmdResult::SUCCESS;
 }
 
