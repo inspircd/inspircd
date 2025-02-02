@@ -123,7 +123,7 @@ public:
 		, numeric003(RPL_CREATED)
 		, numeric004(RPL_MYINFO)
 	{
-		numeric003.push(Time::ToString(ServerInstance->startup_time, "This server was created on %d %b %Y at %H:%M:%S", true));
+		numeric003.push(Time::ToString(ServerInstance->startup_time, "This server was created on %d %b %Y at %H:%M:%S %Z", true));
 
 		numeric004.push(ServerInstance->Config->GetServerName());
 		numeric004.push(INSPIRCD_BRANCH);
