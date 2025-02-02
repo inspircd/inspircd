@@ -133,7 +133,7 @@ CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 	user->WriteNumeric(RPL_LUSERME, INSP_FORMAT("I have {} clients and {} servers", ServerInstance->Users.LocalUserCount(), counters.local_servers));
 	user->WriteNumeric(RPL_LOCALUSERS, INSP_FORMAT("Current local users: {}  Max: {}", ServerInstance->Users.LocalUserCount(), counters.max_local));
 	user->WriteNumeric(RPL_GLOBALUSERS, INSP_FORMAT("Current global users: {}  Max: {}", ServerInstance->Users.GlobalUserCount(), counters.max_global));
-	user->WriteNumeric(RPL_STATSCONN, INSP_FORMAT("Highest connection count: {} ({} clients) ({} connections received)", counters.max_conns, counters.max_local, ServerInstance->Stats.Accept));
+	user->WriteNumeric(RPL_STATSCONN, INSP_FORMAT("Highest connection count: {} ({} clients) ({} connections received)", counters.max_conns, counters.max_local, ServerInstance->Stats.Connects));
 	return CmdResult::SUCCESS;
 }
 
