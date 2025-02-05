@@ -28,12 +28,6 @@
 
 #include "core_info.h"
 
-enum
-{
-	// From RFC 1459.
-	RPL_TIME = 391,
-};
-
 CommandTime::CommandTime(Module* parent)
 	: ServerTargetCommand(parent, "TIME")
 {
@@ -45,7 +39,9 @@ CmdResult CommandTime::Handle(User* user, const Params& parameters)
 	if (!parameters.empty() && !irc::equals(parameters[0], ServerInstance->Config->ServerName))
 		return CmdResult::SUCCESS;
 
-	const auto timestr = Time::ToString(ServerInstance->Time(), "%A, %d %b %Y %H:%M:%S %Z");
+	auto timestr = Time::ToString(ServerInstance->Time(), "%A, %d %B %Y @ %H:%M:%S %Z");
+	timestr += INSP_FORMAT(" ({})", ServerInstance->Time());
+
 	user->WriteRemoteNumeric(RPL_TIME, ServerInstance->Config->GetServerName(), timestr);
 	return CmdResult::SUCCESS;
 }

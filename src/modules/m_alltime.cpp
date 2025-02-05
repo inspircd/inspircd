@@ -37,13 +37,10 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		const std::string fmtdate = Time::ToString(ServerInstance->Time(), "%Y-%m-%d %H:%M:%S", true);
+		auto timestr = Time::ToString(ServerInstance->Time(), "%A, %d %B %Y @ %H:%M:%S %Z", true);
+		timestr += INSP_FORMAT(" ({})", ServerInstance->Time());
 
-		std::string msg = "System time is " + fmtdate + " (" + ConvToStr(ServerInstance->Time()) + ") on " + ServerInstance->Config->ServerName;
-
-		user->WriteRemoteNotice(msg);
-
-		/* we want this routed out! */
+		user->WriteRemoteNumeric(RPL_TIME, ServerInstance->Config->ServerName, timestr);
 		return CmdResult::SUCCESS;
 	}
 
