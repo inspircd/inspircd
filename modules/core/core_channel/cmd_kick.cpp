@@ -85,7 +85,8 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 		// If the current membership id is not equal to the one in the message then the user rejoined
 		if (memb->id != Membership::IdFromString(parameters[2]))
 		{
-			ServerInstance->Logs.Debug(MODNAME, "Dropped KICK due to membership id mismatch: " + ConvToStr(memb->id) + " != " + parameters[2]);
+			ServerInstance->Logs.Debug(MODNAME, "Dropped KICK due to membership id mismatch: {} != {}",
+				memb->id, parameters[2]);
 			return CmdResult::FAILURE;
 		}
 	}

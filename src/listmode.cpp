@@ -210,6 +210,7 @@ bool ListModeBase::OnModeChange(User* source, User*, Channel* channel, Modes::Ch
 				if (!CompareEntry(it->mask, change.param))
 					continue; // Doesn't match the proposed removal.
 
+				change.param = it->mask;
 				stdalgo::vector::swaperase(cd->list, it);
 				return true;
 			}

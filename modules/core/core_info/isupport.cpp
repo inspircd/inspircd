@@ -71,6 +71,25 @@ void ISupportManager::AppendValue(std::string& buffer, const std::string& value)
 	}
 }
 
+void ISupportManager::BuildClass(ISupport::TokenMap& newtokens, NumericList& newnumerics,
+	NumericList& diffnumerics, const std::shared_ptr<ConnectClass> &klass)
+{
+	isupportevprov.Call(&ISupport::EventListener::OnBuildClassISupport, klass, newtokens);
+
+	// Transform the map into a list of numerics ready to be sent to clients.
+	BuildNumerics(newtokens, newnumerics);
+
+	// Extract the tokens which have been updated.
+	auto oldtokens = cachedtokens.find(klass);
+	if (oldtokens != cachedtokens.end())
+	{
+		// Build the updated numeric diff to send to to existing users.
+		ISupport::TokenMap difftokens;
+		TokenDifference(difftokens, oldtokens->second, newtokens);
+		BuildNumerics(difftokens, diffnumerics);
+	}
+}
+
 void ISupportManager::Build()
 {
 	// Modules can add new tokens and also edit or remove existing tokens.
@@ -97,40 +116,31 @@ void ISupportManager::Build()
 	TokenMap newtokens;
 	for (const auto& klass : ServerInstance->Config->Classes)
 	{
-		ISupport::TokenMap classtokens = tokens;
-		isupportevprov.Call(&ISupport::EventListener::OnBuildClassISupport, klass, classtokens);
-
-		// Transform the map into a list of numerics ready to be sent to clients.
-		std::vector<Numeric::Numeric> numerics;
-		BuildNumerics(classtokens, numerics);
-
-		// Extract the tokens which have been updated.
-		auto oldtokens = cachedtokens.find(klass);
-		if (oldtokens != cachedtokens.end())
-		{
-			// Build the updated numeric diff to send to to existing users.
-			ISupport::TokenMap difftokens;
-			TokenDifference(difftokens, oldtokens->second, classtokens);
-			BuildNumerics(difftokens, diffnumerics[klass]);
-		}
-
-		// Store the new ISUPPORT values.
-		newnumerics[klass] = numerics;
-		newtokens[klass] = classtokens;
+		ServerInstance->Logs.Debug(MODNAME, "Rebuilding isupport for {}", klass->GetName());
+		newtokens[klass] = tokens;
+		BuildClass(newtokens[klass], newnumerics[klass], diffnumerics[klass], klass);
 	}
 
-	// Apply the new ISUPPORT values.
-	cachednumerics.swap(newnumerics);
-	cachedtokens.swap(newtokens);
-
+	// Send out the numeric diffs.
 	if (!diffnumerics.empty())
 	{
 		for (LocalUser* user : ServerInstance->Users.GetLocalUsers())
 		{
+			const auto& klass = user->GetClass();
 			if (!(user->connected & User::CONN_FULL))
 				continue; // User hasn't received 005 yet.
 
-			auto numerics = diffnumerics.find(user->GetClass());
+			auto numerics = diffnumerics.find(klass);
+			if (numerics == diffnumerics.end())
+			{
+				// The user is in a class which has been removed from the server
+				// config; we need to build a class for them.
+				ServerInstance->Logs.Debug(MODNAME, "Rebuilding isupport for {} (dead)", klass->GetName());
+				newtokens[klass] = tokens;
+				BuildClass(newtokens[klass], newnumerics[klass], diffnumerics[klass], klass);
+				numerics = diffnumerics.find(klass);
+			}
+
 			if (numerics == diffnumerics.end())
 				continue; // Should never happen.
 
@@ -138,6 +148,10 @@ void ISupportManager::Build()
 				user->WriteNumeric(numeric);
 		}
 	}
+
+	// Apply the new ISUPPORT values.
+	cachednumerics.swap(newnumerics);
+	cachedtokens.swap(newtokens);
 }
 
 void ISupportManager::BuildNumerics(ISupport::TokenMap& tokens, std::vector<Numeric::Numeric>& numerics)

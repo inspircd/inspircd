@@ -174,7 +174,7 @@ public:
 
 	void Submit(SQL::Query* query, const std::string& q) override
 	{
-		ServerInstance->Logs.Debug(MODNAME, "Executing SQLite3 query: " + q);
+		ServerInstance->Logs.Debug(MODNAME, "Executing SQLite3 query: {}", q);
 		Query(query, q);
 		delete query;
 	}

@@ -23,9 +23,13 @@
 
 
 #include "inspircd.h"
+#include "modules/server.h"
 
 enum
 {
+	// From ircu.
+	RPL_STATSCONN = 250,
+
 	// From RFC 1459.
 	RPL_LUSERCLIENT = 251,
 	RPL_LUSERUNKNOWN = 253,
@@ -41,7 +45,10 @@ struct LusersCounters final
 {
 	size_t max_local;
 	size_t max_global;
+	size_t max_conns;
 	size_t invisible = 0;
+	size_t global_servers;
+	size_t local_servers;
 
 	LusersCounters(UserModeReference& invisiblemode)
 		: max_local(ServerInstance->Users.LocalUserCount())
@@ -52,6 +59,8 @@ struct LusersCounters final
 			if (u->IsModeSet(invisiblemode))
 				invisible++;
 		}
+		UpdateServerCount();
+		max_conns = local_servers + max_local;
 	}
 
 	inline void UpdateMaxUsers()
@@ -63,6 +72,29 @@ struct LusersCounters final
 		current = ServerInstance->Users.GlobalUserCount();
 		if (current > max_global)
 			max_global = current;
+
+		current = local_servers + max_local;
+		if (current > max_conns)
+			max_conns = current;
+	}
+
+	inline void UpdateServerCount()
+	{
+		// XXX: Currently we don't have a way to find out whether a
+		// server is directly connected from a Server object so we
+		// have to do this via the protocol interface.
+		ProtocolInterface::ServerList serverlist;
+		ServerInstance->PI->GetServerList(serverlist);
+
+		// If spanningtree is not loaded GetServerList does nothing.
+		global_servers = std::max<size_t>(serverlist.size(), 1);
+		local_servers = 0;
+
+		for (const auto& server : serverlist)
+		{
+			if (server.parentname == ServerInstance->Config->ServerName)
+				local_servers++;
+		}
 	}
 };
 
@@ -84,25 +116,11 @@ public:
 
 CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 {
-	size_t n_users = ServerInstance->Users.GlobalUserCount();
-	ProtocolInterface::ServerList serverlist;
-	ServerInstance->PI->GetServerList(serverlist);
-	size_t n_serv = serverlist.size();
-	size_t n_local_servs = 0;
-
-	for (const auto& server : serverlist)
-	{
-		if (server.parentname == ServerInstance->Config->ServerName)
-			n_local_servs++;
-	}
-	// fix for default GetServerList not returning us
-	if (!n_serv)
-		n_serv = 1;
-
 	counters.UpdateMaxUsers();
 
 	user->WriteNumeric(RPL_LUSERCLIENT, FMT::format("There are {} users and {} invisible on {} servers",
-			n_users - counters.invisible, counters.invisible, n_serv));
+			ServerInstance->Users.GlobalUserCount() - counters.invisible, counters.invisible,
+			counters.global_servers));
 
 	size_t opercount = ServerInstance->Users.all_opers.size();
 	if (opercount)
@@ -112,9 +130,10 @@ CmdResult CommandLusers::Handle(User* user, const Params& parameters)
 		user->WriteNumeric(RPL_LUSERUNKNOWN, ServerInstance->Users.UnknownUserCount(), "unknown connections");
 
 	user->WriteNumeric(RPL_LUSERCHANNELS, ServerInstance->Channels.GetChans().size(), "channels formed");
-	user->WriteNumeric(RPL_LUSERME, FMT::format("I have {} clients and {} servers", ServerInstance->Users.LocalUserCount(), n_local_servs));
+	user->WriteNumeric(RPL_LUSERME, FMT::format("I have {} clients and {} servers", ServerInstance->Users.LocalUserCount(), counters.local_servers));
 	user->WriteNumeric(RPL_LOCALUSERS, FMT::format("Current local users: {}  Max: {}", ServerInstance->Users.LocalUserCount(), counters.max_local));
-	user->WriteNumeric(RPL_GLOBALUSERS, FMT::format("Current global users: {}  Max: {}", n_users, counters.max_global));
+	user->WriteNumeric(RPL_GLOBALUSERS, FMT::format("Current global users: {}  Max: {}", ServerInstance->Users.GlobalUserCount(), counters.max_global));
+	user->WriteNumeric(RPL_STATSCONN, FMT::format("Highest connection count: {} ({} clients) ({} connections received)", counters.max_conns, counters.max_local, ServerInstance->Stats.Connects));
 	return CmdResult::SUCCESS;
 }
 
@@ -143,6 +162,7 @@ public:
 
 class ModuleLusers final
 	: public Module
+	, public ServerProtocol::LinkEventListener
 {
 	UserModeReference invisiblemode;
 	LusersCounters counters;
@@ -152,6 +172,7 @@ class ModuleLusers final
 public:
 	ModuleLusers()
 		: Module(VF_CORE | VF_VENDOR, "Provides the LUSERS command")
+		, ServerProtocol::LinkEventListener(this)
 		, invisiblemode(this, "invisible")
 		, counters(invisiblemode)
 		, cmd(this, counters)
@@ -170,6 +191,16 @@ public:
 	{
 		if (user->IsModeSet(invisiblemode))
 			counters.invisible--;
+	}
+
+	void OnServerLink(const Server& server) override
+	{
+		counters.UpdateServerCount();
+	}
+
+	void OnServerSplit(const Server& server, bool error) override
+	{
+		counters.UpdateServerCount();
 	}
 };
 

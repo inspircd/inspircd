@@ -200,7 +200,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, const irc::sockets::soc
 		if (!b->Type.empty() && !New->exempt)
 		{
 			/* user banned */
-			ServerInstance->Logs.Debug("BANCACHE", "Positive hit for " + New->GetAddress());
+			ServerInstance->Logs.Debug("BANCACHE", "Positive hit for {}", New->GetAddress());
 
 			if (!ServerInstance->Config->XLineMessage.empty())
 				New->WriteNumeric(ERR_YOUREBANNEDCREEP, ServerInstance->Config->XLineMessage);
@@ -212,7 +212,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, const irc::sockets::soc
 		}
 		else
 		{
-			ServerInstance->Logs.Debug("BANCACHE", "Negative hit for " + New->GetAddress());
+			ServerInstance->Logs.Debug("BANCACHE", "Negative hit for {}", New->GetAddress());
 		}
 	}
 	else
@@ -241,13 +241,13 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 {
 	if (user->quitting)
 	{
-		ServerInstance->Logs.Debug("USERS", "BUG: Tried to quit quitting user: " + user->nick);
+		ServerInstance->Logs.Debug("USERS", "BUG: Tried to quit quitting user: {}", user->nick);
 		return;
 	}
 
 	if (IS_SERVER(user))
 	{
-		ServerInstance->Logs.Debug("USERS", "BUG: Tried to quit server user: " + user->nick);
+		ServerInstance->Logs.Debug("USERS", "BUG: Tried to quit server user: {}", user->nick);
 		return;
 	}
 
@@ -308,7 +308,7 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 	}
 
 	if (!clientlist.erase(user->nick))
-		ServerInstance->Logs.Debug("USERS", "BUG: Nick not found in clientlist, cannot remove: " + user->nick);
+		ServerInstance->Logs.Debug("USERS", "BUG: Nick not found in clientlist, cannot remove: {}", user->nick);
 
 	uuidlist.erase(user->uuid);
 	user->PurgeEmptyChannels();

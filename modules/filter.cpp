@@ -774,7 +774,7 @@ void ModuleFilter::OnDecodeMetadata(Extensible* target, const std::string& extna
 		}
 		catch (const ModuleException& e)
 		{
-			ServerInstance->Logs.Debug(MODNAME, "Error when unserializing filter: " + e.GetReason());
+			ServerInstance->Logs.Debug(MODNAME, "Error when unserializing filter: {}", e.GetReason());
 		}
 	}
 }

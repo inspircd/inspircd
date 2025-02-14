@@ -1092,14 +1092,14 @@ class ModuleSSLGnuTLS final
 		{
 			if (!insp::equalsci(tag->getString("provider", "gnutls", 1), "gnutls"))
 			{
-				ServerInstance->Logs.Debug(MODNAME, "Ignoring non-GnuTLS <sslprofile> tag at " + tag->source.str());
+				ServerInstance->Logs.Debug(MODNAME, "Ignoring non-GnuTLS <sslprofile> tag at {}", tag->source.str());
 				continue;
 			}
 
 			const std::string name = tag->getString("name");
 			if (name.empty())
 			{
-				ServerInstance->Logs.Warning(MODNAME, "Ignoring <sslprofile> tag without name at " + tag->source.str());
+				ServerInstance->Logs.Warning(MODNAME, "Ignoring <sslprofile> tag without name at {}", tag->source.str());
 				continue;
 			}
 

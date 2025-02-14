@@ -347,7 +347,7 @@ public:
 		}
 		catch (const ModuleException& e)
 		{
-			ServerInstance->Logs.Debug(MODNAME, "Ident exception: " + e.GetReason());
+			ServerInstance->Logs.Debug(MODNAME, "Ident exception: {}", e.GetReason());
 		}
 	}
 

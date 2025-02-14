@@ -104,7 +104,7 @@ ExtBan::Comparison ExtBanManager::CompareEntry(const ListModeBase* lm, const std
 	auto entry_extban = entry_result ? Find(entry_xbname) : nullptr;
 	auto value_extban = value_result ? Find(value_xbname) : nullptr;
 	if (!entry_extban || !value_extban)
-		return ExtBan::Comparison::NOT_MATCH;
+		return entry_extban == value_extban ? ExtBan::Comparison::NOT_AN_EXTBAN : ExtBan::Comparison::NOT_MATCH;
 
 	// If we've reached this point both are extbans so we can just do a simple comparison.
 	if (entry_inverted != value_inverted || entry_extban != value_extban)

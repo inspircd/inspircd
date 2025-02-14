@@ -709,7 +709,7 @@ void ConfigReaderThread::OnStop()
 		{
 			try
 			{
-				ServerInstance->Logs.Debug("MODULE", "Rehashing " + modname);
+				ServerInstance->Logs.Debug("MODULE", "Rehashing {}", modname);
 				mod->ReadConfig(status);
 			}
 			catch (const CoreException& modex)
