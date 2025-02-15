@@ -255,7 +255,7 @@ namespace
 	// Parses the command line options.
 	void ParseOptions()
 	{
-		std::string config;
+		std::string config = ServerInstance->Config->Paths.PrependConfig("inspircd.conf");
 		bool do_debug = false;
 		bool do_help = false;
 		bool do_nofork = false;

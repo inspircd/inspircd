@@ -237,7 +237,7 @@ public:
 	XLineManager* XLines = nullptr;
 
 	/** The current server configuration file from --config or configure. */
-	std::string ConfigFileName = INSPIRCD_CONFIG_PATH "/inspircd.conf";
+	std::string ConfigFileName;
 
 	/** Fills a buffer with random bytes. */
 	std::function<void(char*, size_t)> GenRandom = &DefaultGenRandom;
