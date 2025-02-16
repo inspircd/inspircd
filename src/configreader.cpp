@@ -74,9 +74,9 @@ std::string ServerConfig::ServerPaths::ExpandPath(const std::string& base, const
 	if (!fragment.compare(0, 2, "~/", 2))
 	{
 		// The fragment is relative to a home directory, expand that.
-		const char* homedir = getenv("HOME");
+		const auto* homedir = getenv("HOME");
 		if (homedir && *homedir)
-			return std::string(homedir) + '/' + fragment.substr(2);
+			return INSP_FORMAT("{}/{}", homedir, fragment.substr(2));
 	}
 
 	if (std::filesystem::path(base).is_relative())
@@ -87,7 +87,7 @@ std::string ServerConfig::ServerPaths::ExpandPath(const std::string& base, const
 			return INSP_FORMAT("{}/{}/{}", cwd.string(), base, fragment);
 	}
 
-	return base + '/' + fragment;
+	return INSP_FORMAT("{}/{}", base, fragment);
 }
 
 ServerConfig::ServerConfig()
