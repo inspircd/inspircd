@@ -73,15 +73,23 @@ std::string ServerConfig::ServerPaths::ExpandPath(const std::string& base, const
 	if (std::filesystem::path(fragment).is_absolute())
 		return fragment;
 
-	// The fragment is relative to a home directory, expand that.
 	if (!fragment.compare(0, 2, "~/", 2))
 	{
-		const char* homedir = getenv("HOME");
+		// The fragment is relative to a home directory, expand that.
+		const auto* homedir = getenv("HOME");
 		if (homedir && *homedir)
-			return std::string(homedir) + '/' + fragment.substr(2);
+			return FMT::format("{}/{}", homedir, fragment.substr(2));
 	}
 
-	return base + '/' + fragment;
+	if (std::filesystem::path(base).is_relative())
+	{
+		// The base is relative to the working directory, expand that.
+		const auto cwd = std::filesystem::current_path();
+		if (!cwd.empty())
+			return FMT::format("{}/{}/{}", cwd.string(), base, fragment);
+	}
+
+	return FMT::format("{}/{}", base, fragment);
 }
 
 ServerConfig::ServerConfig()

@@ -39,7 +39,8 @@ public:
 
 	void OnUserPostNick(User* user, const std::string& oldnick) override
 	{
-		ServerInstance->SNO.WriteToSnoMask(IS_LOCAL(user) ? 'n' : 'N', "User {} changed their nickname to {}", oldnick, user->nick);
+		ServerInstance->SNO.WriteToSnoMask(IS_LOCAL(user) ? 'n' : 'N', "User {}!{} ({}) changed their nickname to {}",
+			oldnick, user->GetRealUserHost(), user->GetAddress(), user->nick);
 	}
 };
 
