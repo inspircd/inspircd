@@ -18,7 +18,7 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **License** &mdash; MIT License
 
-**Version** &mdash; 11.1.1
+**Version** &mdash; 11.1.4
 
 **Website** &mdash; [https://github.com/fmtlib/fmt/](https://github.com/fmtlib/fmt/)
 
