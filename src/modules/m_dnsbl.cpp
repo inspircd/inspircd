@@ -139,13 +139,16 @@ public:
 			{ "zline", Action::ZLINE },
 		});
 
-		const std::string typestr = tag->getString("type");
+		const std::string typestr = tag->getString("type", "record", 1);
 		if (insp::equalsci(typestr, "bitmask"))
 		{
 			type = Type::BITMASK;
 
 			bitmask = tag->getNum<unsigned int>("bitmask", 0);
 			records = 0;
+
+			ServerInstance->Logs.Normal(MODNAME, "<dnsbl> tag at {} specifies a bitmask. This is deprecated and will be removed in the next major version of InspIRCd, consider migrating to records instead.",
+				tag->source.str());
 		}
 		else if (insp::equalsci(typestr, "record"))
 		{
