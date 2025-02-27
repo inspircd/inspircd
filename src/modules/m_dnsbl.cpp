@@ -159,6 +159,9 @@ public:
 
 				records.set(record);
 			}
+
+			if (records.none())
+				throw ModuleException(mod, "<dnsbl:records> can not be empty at " + tag->source.str());
 		}
 		else
 		{
