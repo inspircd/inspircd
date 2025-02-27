@@ -65,10 +65,5 @@ CmdResult CommandDie::Handle(User* user, const Params& parameters)
 		DieRestart::SendError(diebuf);
 		ServerInstance->Exit(EXIT_FAILURE);
 	}
-	else
-	{
-		ServerInstance->Logs.Critical(MODNAME, "Failed /DIE command from {}", user->GetRealMask());
-		ServerInstance->SNO.WriteGlobalSno('a', "Failed DIE command from {}.", user->GetRealMask());
-		return CmdResult::FAILURE;
-	}
+	return CmdResult::FAILURE;
 }
