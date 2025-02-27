@@ -65,21 +65,8 @@ public:
 		ZLINE,
 	};
 
-	enum class Type
-		: uint8_t
-	{
-		// DNSBL results will be compared against the specified bit mask.
-		BITMASK,
-
-		// DNSBL results will be compared against a numeric range of values.
-		RECORD,
-	};
-
 	// The action to take against users who's IP address is in this DNSBL.
 	Action action;
-
-	// A bitmask of DNSBL result types to match against.
-	unsigned int bitmask;
 
 	// The domain name of this DNSBL.
 	std::string domain;
@@ -104,9 +91,6 @@ public:
 
 	// The number of seconds to wait for a DNSBL request before assuming it has failed.
 	unsigned int timeout;
-
-	// The type of result that this DNSBL will provide.
-	Type type;
 
 	// The number of errors which have occurred when querying this DNSBL.
 	unsigned long stats_errors = 0;
@@ -139,32 +123,18 @@ public:
 			{ "zline", Action::ZLINE },
 		});
 
-		const std::string typestr = tag->getString("type");
-		if (insp::equalsci(typestr, "bitmask"))
+		irc::portparser recordrange(tag->getString("records"), false);
+		for (long record = 0; (record = recordrange.GetToken()); )
 		{
-			type = Type::BITMASK;
+			if (record < 0 || record > UCHAR_MAX)
+				throw ModuleException(mod, "<dnsbl:records> can only hold records between 0 and 255 at " + tag->source.str());
 
-			bitmask = tag->getNum<unsigned int>("bitmask", 0);
-			records = 0;
+			records.set(record);
 		}
-		else if (insp::equalsci(typestr, "record"))
-		{
-			type = Type::RECORD;
 
-			irc::portparser recordrange(tag->getString("records"), false);
-			for (long record = 0; (record = recordrange.GetToken()); )
-			{
-				if (record < 0 || record > UCHAR_MAX)
-					throw ModuleException(mod, "<dnsbl:records> can only hold records between 0 and 255 at " + tag->source.str());
+		if (records.none())
+			throw ModuleException(mod, "<dnsbl:records> can not be empty at " + tag->source.str());
 
-				records.set(record);
-			}
-		}
-		else
-		{
-			throw ModuleException(mod, typestr + " is an invalid value for <dnsbl:type>; acceptable values are 'bitmask' or 'records' at "
-				+ tag->source.str());
-		}
 
 		reason = tag->getString("reason", "Your IP (%ip%) has been blacklisted by the %dnsbl% DNSBL.", 1, ServerInstance->Config->Limits.MaxLine);
 		timeout = static_cast<unsigned int>(tag->getDuration("timeout", 0, 1, 60));
@@ -348,25 +318,8 @@ public:
 			return;
 		}
 
-		bool match = false;
-		unsigned int result = 0;
-		switch (config->type)
-		{
-			case DNSBLEntry::Type::BITMASK:
-			{
-				result = (resultip.s_addr >> 24) & config->bitmask;
-				match = (result != 0);
-				break;
-			}
-			case DNSBLEntry::Type::RECORD:
-			{
-				result = resultip.s_addr >> 24;
-				match = (config->records[result] == 1);
-				break;
-			}
-		}
-
-		if (match)
+		const auto result = resultip.s_addr >> 24;
+		if (config->records[result] == 1)
 		{
 			const auto it = config->replies.find(result);
 			const auto reasonstr = it == config->replies.end() ? FMT::format("Result {}", result) : it->second;
