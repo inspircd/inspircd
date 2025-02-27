@@ -20,7 +20,6 @@
 /modules/argon2.cpp
 /modules/geo_maxmind.cpp
 /modules/ldap.cpp
-/modules/log_json.cpp
 /modules/log_syslog.cpp
 /modules/mysql.cpp
 /modules/pgsql.cpp

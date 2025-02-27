@@ -44,3 +44,10 @@ depth   = 2
 files   = "{LICENSE,source/utf8/{core,unchecked}.h}"
 git     = "https://github.com/nemtrif/utfcpp"
 license = "Boost Software License"
+
+[yyjson]
+author  = "Yaoyuan Guo"
+depth   = 1
+git     = "https://github.com/ibireme/yyjson"
+files   = "{LICENSE,src/yyjson.[ch]}"
+license = "MIT License"

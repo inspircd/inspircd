@@ -43,7 +43,6 @@ if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
 
 	enable_extra("argon2" "ARGON2")
 	enable_extra("geo_maxmind" "LIBMAXMINDDB")
-	enable_extra("log_json" "YYJSON")
 	enable_extra("mysql" "LIBMYSQLCLIENT")
 	enable_extra("pgsql" "LIBPQ")
 	enable_extra("regex_pcre2" "PCRE2")

@@ -16,19 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: find_compiler_flags("yyjson")
-/// $LinkerFlags: find_linker_flags("yyjson")
-
-/// $PackageInfo: require_system("alpine") pkgconf yyjson-dev
-/// $PackageInfo: require_system("arch") pkgconf yyjson
-/// $PackageInfo: require_system("darwin") pkg-config yyjson
-/// $PackageInfo: require_system("debian~") libyyjson-dev pkg-config
-
-#ifdef _WIN32
-# pragma comment(lib, "yyjson.lib")
-#endif
-
-#include <yyjson.h>
+#include <yyjson/yyjson.c>
 
 #include "inspircd.h"
 #include "timeutils.h"

@@ -61,3 +61,13 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 **Version** &mdash; v4.0.6
 
 **Website** &mdash; [https://github.com/nemtrif/utfcpp](https://github.com/nemtrif/utfcpp)
+
+## yyjson
+
+**Author** &mdash; Yaoyuan Guo
+
+**License** &mdash; MIT License
+
+**Version** &mdash; 0.10.0
+
+**Website** &mdash; [https://github.com/ibireme/yyjson](https://github.com/ibireme/yyjson)

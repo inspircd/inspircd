@@ -392,7 +392,6 @@ if (prompt_bool $interactive, $question, 0) {
 		'mysql'           => 'mysql_config --version',
 		'pgsql'           => 'pg_config --version',
 		'ldap'            => "pkg-config --exists lber && pkg-config --exists ldap",
-		'log_json'        => 'pkg-config --exists yyjson',
 		'log_syslog'      => undef,
 		'regex_pcre2'     => 'pkg-config --exists libpcre2-8',
 		'regex_posix'     => undef,
