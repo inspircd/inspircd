@@ -69,9 +69,5 @@ CmdResult CommandRestart::Handle(User* user, const Params& parameters)
 		ServerInstance->SNO.WriteGlobalSno('a', "Failed RESTART - could not execute '{}' ({})",
 			ServerInstance->Config->CommandLine.argv[0], strerror(errno));
 	}
-	else
-	{
-		ServerInstance->SNO.WriteGlobalSno('a', "Failed RESTART Command from {}.", user->GetRealMask());
-	}
 	return CmdResult::FAILURE;
 }

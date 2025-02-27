@@ -35,7 +35,7 @@ void InspIRCd::HandleSignal(sig_atomic_t signal)
 
 #ifndef _WIN32
 		case SIGHUP:
-			ServerInstance->SNO.WriteGlobalSno('a', "Rehashing due to SIGHUP");
+			ServerInstance->SNO.WriteGlobalSno('r', "Rehashing due to SIGHUP");
 			Rehash();
 			break;
 #endif
