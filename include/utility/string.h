@@ -44,20 +44,6 @@ namespace insp
 		return joined;
 	}
 
-	/** Creates a view of a subsection of a string.
-	 * @param str The string to create a view of.
-	 * @param begin The position within the string to start the view at.
-	 * @param end The position within the string to end the view at.
-	 */
-	template <typename Iterator>
-	std::string_view substring_view(const std::string& str, Iterator begin, Iterator end)
-	{
-		std::string_view sv = str;
-		sv.remove_prefix(std::distance(str.begin(), begin));
-		sv.remove_suffix(std::distance(end, str.end()));
-		return sv;
-	}
-
 	/** Get underlying C string of the string passed as parameter. Useful in template functions.
 	 * @param str A `const char*` string.
 	 */

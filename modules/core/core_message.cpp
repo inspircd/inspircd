@@ -47,13 +47,13 @@ public:
 		if (end_of_name == std::string::npos)
 		{
 			// The CTCP only contains a name.
-			name = insp::substring_view(text, text.begin() + 1, text.end() - end_of_ctcp);
+			name = std::string_view(text.begin() + 1, text.end() - end_of_ctcp);
 			body = std::string_view();
 			return true;
 		}
 
 		// The CTCP contains a name and a body.
-		name = insp::substring_view(text, text.begin() + 1, text.begin() + end_of_name);
+		name = std::string_view(text.begin() + 1, text.begin() + end_of_name);
 
 		size_t start_of_body = text.find_first_not_of(' ', end_of_name + 1);
 		if (start_of_body == std::string::npos)
@@ -64,7 +64,7 @@ public:
 		}
 
 		// The CTCP body provided was non-empty.
-		body = insp::substring_view(text, text.begin() + start_of_body, text.end() - end_of_ctcp);
+		body = std::string_view(text.begin() + start_of_body, text.end() - end_of_ctcp);
 		return true;
 	}
 
@@ -78,12 +78,12 @@ public:
 		{
 			// The CTCP only contains a name.
 			size_t end_of_ctcp = text.back() == '\x1' ? 1 : 0;
-			name = insp::substring_view(text, text.begin() + 1, text.end() - end_of_ctcp);
+			name = std::string_view(text.begin() + 1, text.end() - end_of_ctcp);
 			return true;
 		}
 
 		// The CTCP contains a name and a body.
-		name = insp::substring_view(text, text.begin() + 1, text.begin() + end_of_name);
+		name = std::string_view(text.begin() + 1, text.begin() + end_of_name);
 		return true;
 	}
 
