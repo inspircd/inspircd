@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2021 Dominic Hamon
  *   Copyright (C) 2019 Robby <robby@chatbelgie.be>
- *   Copyright (C) 2015, 2018-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2015, 2018-2023, 2025 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2014-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2013, 2015-2016, 2021 Adam <Adam@anope.org>
  *
