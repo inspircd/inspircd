@@ -363,6 +363,21 @@ bool InspIRCd::IsSID(const std::string_view& str)
 			((str[2] >= 'A' && str[2] <= 'Z') || isdigit(str[2])));
 }
 
+namespace
+{
+	constexpr const auto SECONDS_PER_MINUTE = 60;
+
+	constexpr const auto SECONDS_PER_HOUR = SECONDS_PER_MINUTE * 60;
+
+	constexpr const auto SECONDS_PER_DAY = SECONDS_PER_HOUR * 24;
+
+	constexpr const auto SECONDS_PER_WEEK = SECONDS_PER_DAY * 7;
+
+	constexpr const auto SECONDS_PER_YEAR = (SECONDS_PER_DAY * 365);
+
+	constexpr const auto SECONDS_PER_AVG_YEAR = SECONDS_PER_YEAR + (SECONDS_PER_HOUR * 6);
+}
+
 /** A lookup table of values for multiplier characters used by
  * Duration::{Try,}From(). In this lookup table, the indexes for
  * the ascii values 'm' and 'M' have the value '60', the indexes
@@ -374,10 +389,10 @@ static constexpr unsigned int duration_multi[] =
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 86400, 0, 0, 0, 3600, 0, 0, 0, 0, 60, 0, 0,
-	0, 0, 0, 1, 0, 0, 0, 604800, 0, 31557600, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 86400, 0, 0, 0, 3600, 0, 0, 0, 0, 60, 0, 0,
-	0, 0, 0, 1, 0, 0, 0, 604800, 0, 31557600, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, SECONDS_PER_DAY, 0, 0, 0, SECONDS_PER_HOUR, 0, 0, 0, 0, SECONDS_PER_MINUTE, 0, 0,
+	0, 0, 0, 1, 0, 0, 0, SECONDS_PER_WEEK, 0, SECONDS_PER_AVG_YEAR, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, SECONDS_PER_DAY, 0, 0, 0, SECONDS_PER_HOUR, 0, 0, 0, 0, SECONDS_PER_MINUTE, 0, 0,
+	0, 0, 0, 1,	0, 0, 0, SECONDS_PER_WEEK, 0, SECONDS_PER_AVG_YEAR, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -449,29 +464,43 @@ std::string Duration::ToString(unsigned long duration)
 
 	std::string ret;
 
-	unsigned long years = duration / 31449600;
+	const auto years = (duration / SECONDS_PER_YEAR);
 	if (years)
-		ret += ConvToStr(years) + "y";
+	{
+		ret = INSP_FORMAT("{}y", years);
+		duration -= (years * SECONDS_PER_YEAR);
+	}
 
-	unsigned long weeks = (duration / 604800) % 52;
+	const auto weeks = (duration / SECONDS_PER_WEEK);
 	if (weeks)
-		ret += ConvToStr(weeks) + "w";
+	{
+		ret += INSP_FORMAT("{}w", weeks);
+		duration -= (weeks * SECONDS_PER_WEEK);
+	}
 
-	unsigned long days = (duration / 86400) % 7;
+	const auto days = (duration / SECONDS_PER_DAY);
 	if (days)
-		ret += ConvToStr(days) + "d";
+	{
+		ret += INSP_FORMAT("{}d", days);
+		duration -= (days * SECONDS_PER_DAY);
+	}
 
-	unsigned long hours = (duration / 3600) % 24;
+	const auto hours = (duration / SECONDS_PER_HOUR);
 	if (hours)
-		ret += ConvToStr(hours) + "h";
+	{
+		ret += INSP_FORMAT("{}h", hours);
+		duration -= (hours * SECONDS_PER_HOUR);
+	}
 
-	unsigned long minutes = (duration / 60) % 60;
+	const auto minutes = (duration / SECONDS_PER_MINUTE);
 	if (minutes)
-		ret += ConvToStr(minutes) + "m";
+	{
+		ret += INSP_FORMAT("{}m", minutes);
+		duration -= (minutes * SECONDS_PER_MINUTE);
+	}
 
-	unsigned long seconds = duration % 60;
-	if (seconds)
-		ret += ConvToStr(seconds) + "s";
+	if (duration)
+		ret += INSP_FORMAT("{}s", duration);
 
 	return ret;
 }

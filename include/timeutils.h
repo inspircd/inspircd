@@ -40,7 +40,7 @@ namespace Duration
 
 	/** Converts a number of seconds to a duration string.
 	 *
-	 * e.g. 33,019,565 weill result in 1y2w3d4h6m5s which represents one year,
+	 * e.g. 33,019,565 will result in 1y2w3d4h6m5s which represents one year,
 	 * two weeks, three days, four hours, six minutes, and five seconds.
 	 */
 	CoreExport std::string ToString(unsigned long duration);
