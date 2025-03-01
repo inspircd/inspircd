@@ -106,8 +106,7 @@ template<typename Numeric>
 inline Numeric ConvToNum(const std::string& in, Numeric def = 0)
 {
 	Numeric ret;
-	std::istringstream tmp(in);
-	if (!(tmp >> ret))
+	if (std::from_chars(in.data(), in.data() + in.size(), ret).ec != std::errc{})
 		return def;
 	return ret;
 }
