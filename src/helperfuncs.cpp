@@ -403,7 +403,7 @@ static constexpr unsigned int duration_multi[] =
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
-bool Duration::TryFrom(const std::string& str, unsigned long& duration)
+bool Duration::TryFrom(const std::string& str, unsigned long& duration, time_t base)
 {
 	unsigned long total = 0;
 	unsigned long subtotal = 0;
@@ -437,10 +437,10 @@ bool Duration::TryFrom(const std::string& str, unsigned long& duration)
 	return true;
 }
 
-unsigned long Duration::From(const std::string& str)
+unsigned long Duration::From(const std::string& str, time_t base)
 {
 	unsigned long out = 0;
-	Duration::TryFrom(str, out);
+	Duration::TryFrom(str, out, base);
 	return out;
 }
 

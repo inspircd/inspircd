@@ -710,9 +710,9 @@ public:
 				dnsbl->name, dnsbl->stats_hits, dnsbl->stats_misses, dnsbl->stats_errors));
 		}
 
-		stats.AddGenericRow("Total DNSBL hits: " + ConvToStr(total_hits));
-		stats.AddGenericRow("Total DNSBL misses: " + ConvToStr(total_misses));
-		stats.AddGenericRow("Total DNSBL errors: " + ConvToStr(total_errors));
+		stats.AddGenericRow(INSP_FORMAT("Total DNSBL hits: {}", total_hits));
+		stats.AddGenericRow(INSP_FORMAT("Total DNSBL misses: {}", total_misses));
+		stats.AddGenericRow(INSP_FORMAT("Total DNSBL errors: {}", total_errors));
 		return MOD_RES_DENY;
 	}
 };

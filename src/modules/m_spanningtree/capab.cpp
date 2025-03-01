@@ -330,7 +330,7 @@ void TreeSocket::SendCapabilities(int phase)
 		return;
 
 	if (capab->capab_phase < 1 && phase >= 1)
-		WriteLine("CAPAB START " + ConvToStr(PROTO_NEWEST));
+		WriteLine(INSP_FORMAT("CAPAB START {}", (uint16_t)PROTO_NEWEST));
 
 	capab->capab_phase = phase;
 	if (phase < 2)

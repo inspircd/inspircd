@@ -311,7 +311,7 @@ public:
 		// Ensure that we have the <cloak:key> parameter.
 		const std::string key = tag->getString("key");
 		if (key.length() < minkeylen)
-			throw ModuleException(creator, "Your cloak key should be at least " + ConvToStr(minkeylen) + " characters long, at " + tag->source.str());
+			throw ModuleException(creator, INSP_FORMAT("Your cloak key should be at least {} characters long, at {}", minkeylen, tag->source.str()));
 
 		psl_ctx_t* psl = nullptr;
 		std::string psldb = tag->getString("psl");

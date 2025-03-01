@@ -348,7 +348,7 @@ FilePosition::FilePosition(const std::string& Name, unsigned long Line, unsigned
 
 std::string FilePosition::str() const
 {
-	return name + ":" + ConvToStr(line) + ":" + ConvToStr(column);
+	return INSP_FORMAT("{}:{}:{}", name, line, column);
 }
 
 void ParseStack::DoInclude(const std::shared_ptr<ConfigTag>& tag, int flags)
@@ -588,7 +588,7 @@ std::string ConfigTag::getString(const std::string& key, const std::string& def,
 
 	if (res.length() < minlen || res.length() > maxlen)
 	{
-		LogMalformed(key, res, def, "not between " + ConvToStr(minlen) + " and " + ConvToStr(maxlen)  + " characters in length");
+		LogMalformed(key, res, def, INSP_FORMAT("not between {} and {} characters in length", minlen, maxlen));
 		return def;
 	}
 	return res;
@@ -629,7 +629,7 @@ namespace
 
 			default:
 				num = def;
-				tag->LogMalformed(key, val, ConvToStr(def), "contains an invalid magnitude specifier (" + ConvToStr(*tail) +")");
+				tag->LogMalformed(key, val, ConvToStr(def), INSP_FORMAT("contains an invalid magnitude specifier ({})", *tail));
 				return;
 		}
 	}
@@ -649,7 +649,7 @@ namespace
 		if (num >= min && num <= max)
 			return;
 
-		tag->LogMalformed(key, ConvToStr(num), ConvToStr(def), "not between " + ConvToStr(min) + " and " + ConvToStr(max));
+		tag->LogMalformed(key, ConvToStr(num), ConvToStr(def), INSP_FORMAT("not between {} and {}", min, max));
 		num = def;
 	}
 }

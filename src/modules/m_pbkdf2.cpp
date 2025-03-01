@@ -67,7 +67,8 @@ public:
 	{
 		if (!IsValid())
 			return "";
-		return ConvToStr(this->iterations) + ":" + Base64::Encode(this->hash) + ":" + Base64::Encode(this->salt);
+
+		return INSP_FORMAT("{}:{}:{}", this->iterations, Base64::Encode(this->hash), Base64::Encode(this->salt));
 	}
 
 	bool IsValid() const

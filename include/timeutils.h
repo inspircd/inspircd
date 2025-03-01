@@ -29,9 +29,10 @@ namespace Duration
 	 * seconds. If called with this duration 33,019,565 will be returned.
 	 *
 	 * @param str A string containing a duration.
+	 * @param base The base time to use for leap year calculation.
 	 * @return Either the number of seconds in the duration or 0 on error.
 	 */
-	CoreExport unsigned long From(const std::string& str);
+	CoreExport unsigned long From(const std::string& str, time_t base = 0);
 
 	/** Determines whether a duration string is valid.
 	 * @param str The duration string to check.
@@ -54,9 +55,10 @@ namespace Duration
 	 *
 	 * @param str A string containing a duration.
 	 * @param duration The location to store the resulting duration.
+	 * @param base The base time to use for leap year calculation.
 	 * @return True if the conversion succeeded; otherwise, false.
 	 */
-	CoreExport bool TryFrom(const std::string& str, unsigned long& duration);
+	CoreExport bool TryFrom(const std::string& str, unsigned long& duration, time_t base = 0);
 }
 
 namespace Time

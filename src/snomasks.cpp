@@ -100,7 +100,7 @@ void Snomask::Flush()
 	if (Count > 1)
 	{
 		std::string desc = GetDescription(LastLetter);
-		std::string msg = "(last message repeated " + ConvToStr(Count) + " times)";
+		std::string msg = INSP_FORMAT("(last message repeated {} times)", Count);
 
 		FOREACH_MOD(OnSendSnotice, (LastLetter, desc, msg));
 		Snomask::Send(LastLetter, desc, msg);

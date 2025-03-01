@@ -124,7 +124,7 @@ public:
 		 *     -- w00t
 		 */
 		ServerInstance->Logs.Debug(MODNAME, "Opening temporary database");
-		const std::string xlinenewdbpath = xlinedbpath + ".new." + ConvToStr(ServerInstance->Time());
+		const auto xlinenewdbpath = INSP_FORMAT("{}.new.{}", xlinedbpath, ServerInstance->Time());
 		std::ofstream stream(xlinenewdbpath);
 		if (!stream.is_open())
 		{

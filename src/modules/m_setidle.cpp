@@ -61,7 +61,7 @@ public:
 		if (user->signon > user->idle_lastmsg)
 			user->signon = user->idle_lastmsg;
 
-		ServerInstance->SNO.WriteToSnoMask('a', user->nick+" used SETIDLE to set their idle time to "+ConvToStr(idle)+" seconds");
+		ServerInstance->SNO.WriteToSnoMask('a', "{} used SETIDLE to set their idle time to {} seconds", user->nick, idle);
 		noterpl.SendIfCap(user, stdrplcap, this, "IDLE_TIME_SET", user->idle_lastmsg, "Idle time set.");
 		return CmdResult::SUCCESS;
 	}

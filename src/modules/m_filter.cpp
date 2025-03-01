@@ -995,7 +995,7 @@ bool ModuleFilter::WriteDatabase()
 			return true;
 		}
 
-		const std::string newfilterconf = filterconf + ".new." + ConvToStr(ServerInstance->Time());
+		const auto newfilterconf = INSP_FORMAT("{}.new.{}", filterconf, ServerInstance->Time());
 		std::ofstream stream(newfilterconf.c_str());
 		if (!stream.is_open()) // Filesystem probably not writable.
 		{

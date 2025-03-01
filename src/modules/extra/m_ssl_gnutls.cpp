@@ -292,7 +292,8 @@ namespace GnuTLS
 			if (ret < 0)
 			{
 				// gnutls did not understand the user supplied string
-				throw Exception("Unable to initialize priorities to \"" + priorities + "\": " + gnutls_strerror(ret) + " Syntax error at position " + ConvToStr((unsigned int) (prioerror - priocstr)));
+				throw Exception(INSP_FORMAT("Unable to initialize priorities to \"{}\": {} Syntax error at position {}.",
+					priorities, gnutls_strerror(ret), static_cast<size_t>(prioerror - priocstr)));
 			}
 		}
 

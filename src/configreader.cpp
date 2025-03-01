@@ -281,7 +281,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 				throw CoreException("Connect class must have allow, deny, or name specified at " + tag->source.str());
 
 			if (name.empty())
-				name = "unnamed-" + ConvToStr(i);
+				name = INSP_FORMAT("unnamed-{}", i);
 
 			if (names.find(name) != names.end())
 				throw CoreException("Two connect classes with name \"" + name + "\" defined!");

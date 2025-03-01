@@ -100,7 +100,10 @@ static std::vector<std::string> GetMap(User* user, TreeServer* current, size_t m
 	if (user->IsOper())
 	{
 		time_t secs_up = ServerInstance->Time() - current->age;
-		buffer += " [Up: " + Duration::ToString(secs_up) + (current->rtt == 0 ? "]" : " Lag: " + ConvToStr(current->rtt) + "ms]");
+		buffer += INSP_FORMAT(" [Up: {}", Duration::ToString(secs_up));
+		if (current->rtt)
+			buffer += INSP_FORMAT(" Lag: {}ms", current->rtt);
+		buffer += "]";
 	}
 
 	std::vector<std::string> map;

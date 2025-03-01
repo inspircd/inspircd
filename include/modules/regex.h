@@ -139,7 +139,7 @@ public:
 	 * @param error The error which occurred whilst compiling the regular expression.
 	*/
 	Exception(const Module* mod, const std::string& regex, const std::string& error)
-		: ModuleException(mod, "Error in regex '" + regex + "': " + error)
+		: ModuleException(mod, INSP_FORMAT("Error in regex '{}': {}", regex, error))
 	{
 	}
 
@@ -150,7 +150,7 @@ public:
 	 * @param offset The offset at which the errror occurred.
 	*/
 	Exception(const Module* mod, const std::string& regex, const std::string& error, size_t offset)
-		: ModuleException(mod, "Error in regex '" + regex + "' at offset " + ConvToStr(offset) + ": " + error)
+		: ModuleException(mod, INSP_FORMAT("Error in regex '{}' at offset {}: {}", regex, offset, error))
 	{
 	}
 };
