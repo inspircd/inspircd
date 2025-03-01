@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2023-2024 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2023-2025 Sadie Powell <sadie@witchery.services>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -29,9 +29,10 @@ namespace Duration
 	 * seconds. If called with this duration 33,019,565 will be returned.
 	 *
 	 * @param str A string containing a duration.
+	 * @param base The base time to use for leap year calculation.
 	 * @return Either the number of seconds in the duration or 0 on error.
 	 */
-	CoreExport unsigned long From(const std::string& str);
+	CoreExport unsigned long From(const std::string& str, time_t base = 0);
 
 	/** Determines whether a duration string is valid.
 	 * @param str The duration string to check.
@@ -40,7 +41,7 @@ namespace Duration
 
 	/** Converts a number of seconds to a duration string.
 	 *
-	 * e.g. 33,019,565 weill result in 1y2w3d4h6m5s which represents one year,
+	 * e.g. 33,019,565 will result in 1y2w3d4h6m5s which represents one year,
 	 * two weeks, three days, four hours, six minutes, and five seconds.
 	 */
 	CoreExport std::string ToString(unsigned long duration);
@@ -54,9 +55,10 @@ namespace Duration
 	 *
 	 * @param str A string containing a duration.
 	 * @param duration The location to store the resulting duration.
+	 * @param base The base time to use for leap year calculation.
 	 * @return True if the conversion succeeded; otherwise, false.
 	 */
-	CoreExport bool TryFrom(const std::string& str, unsigned long& duration);
+	CoreExport bool TryFrom(const std::string& str, unsigned long& duration, time_t base = 0);
 }
 
 namespace Time

@@ -74,7 +74,7 @@ static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes)
 	if (permchannelsconf.empty())
 		return true;
 
-	const std::string permchannelsnewconf = permchannelsconf + ".new." + ConvToStr(ServerInstance->Time());
+	const auto permchannelsnewconf = FMT::format("{}.new.{}", permchannelsconf, ServerInstance->Time());
 	std::ofstream stream(permchannelsnewconf);
 	if (!stream.is_open())
 	{

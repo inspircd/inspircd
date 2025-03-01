@@ -281,9 +281,9 @@ public:
 
 		if ((prefixmsg) && (!batchcap.IsEnabled(localuser)))
 		{
-			std::string message("Replaying up to " + ConvToStr(list->maxlen) + " lines of pre-join history");
+			auto message = FMT::format("Replaying up to {} lines of pre-join history", list->maxlen);
 			if (list->maxtime > 0)
-				message.append(" from the last " + Duration::ToString(list->maxtime));
+				message += FMT::format(" from the last {}", Duration::ToString(list->maxtime));
 			memb->WriteNotice(message);
 		}
 

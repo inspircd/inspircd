@@ -4,7 +4,7 @@
  *   Copyright (C) 2021 Dominic Hamon
  *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2018-2019 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2017-2024 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2017-2025 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013, 2016 Adam <Adam@anope.org>
  *   Copyright (C) 2013, 2015-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
@@ -657,9 +657,9 @@ public:
 				dnsbl->name, dnsbl->stats_hits, dnsbl->stats_misses, dnsbl->stats_errors));
 		}
 
-		stats.AddGenericRow("Total DNSBL hits: " + ConvToStr(total_hits));
-		stats.AddGenericRow("Total DNSBL misses: " + ConvToStr(total_misses));
-		stats.AddGenericRow("Total DNSBL errors: " + ConvToStr(total_errors));
+		stats.AddGenericRow(FMT::format("Total DNSBL hits: {}", total_hits));
+		stats.AddGenericRow(FMT::format("Total DNSBL misses: {}", total_misses));
+		stats.AddGenericRow(FMT::format("Total DNSBL errors: {}", total_errors));
 		return MOD_RES_DENY;
 	}
 };

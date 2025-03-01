@@ -161,11 +161,11 @@ void TreeSocket::ProcessLine(std::string& line)
 				if (!params.empty())
 				{
 					time_t them = ServerCommand::ExtractTS(params[0]);
-					time_t delta = them - ServerInstance->Time();
-					if ((delta < -15) || (delta > 15))
+					time_t delta = std::abs(them - ServerInstance->Time());
+					if (delta > 15)
 					{
-						ServerInstance->SNO.WriteGlobalSno('l', "\002ERROR\002: Your clocks are off by {} seconds (this is more than fifteen seconds). Link aborted, \002PLEASE SYNC YOUR CLOCKS!\002", labs((long)delta));
-						SendError("Your clocks are out by "+ConvToStr(labs((long)delta))+" seconds (this is more than fifteen seconds). Link aborted, PLEASE SYNC YOUR CLOCKS!");
+						ServerInstance->SNO.WriteGlobalSno('l', "\002ERROR\002: Your clocks are off by {} seconds (this is more than fifteen seconds). Link aborted, \002PLEASE SYNC YOUR CLOCKS!\002", delta);
+						SendError(FMT::format("Your clocks are out by {} seconds (this is more than fifteen seconds). Link aborted, PLEASE SYNC YOUR CLOCKS!", delta));
 						return;
 					}
 					else if ((delta < -5) || (delta > 5))

@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2021 Dominic Hamon
  *   Copyright (C) 2020 Matt Schatz <genius3000@g3k.solutions>
- *   Copyright (C) 2013-2014, 2016-2024 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013-2014, 2016-2025 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
  *   Copyright (C) 2012-2017 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012-2013, 2016 Adam <Adam@anope.org>
@@ -261,7 +261,8 @@ namespace GnuTLS
 			if (ret < 0)
 			{
 				// gnutls did not understand the user supplied string
-				throw Exception("Unable to initialize priorities to \"" + priorities + "\": " + gnutls_strerror(ret) + " Syntax error at position " + ConvToStr((unsigned int) (prioerror - priocstr)));
+				throw Exception(FMT::format("Unable to initialize priorities to \"{}\": {} Syntax error at position {}.",
+					priorities, gnutls_strerror(ret), static_cast<size_t>(prioerror - priocstr)));
 			}
 		}
 

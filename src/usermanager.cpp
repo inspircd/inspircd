@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2019 iwalkalone <iwalkalone69@gmail.com>
  *   Copyright (C) 2013-2016, 2018 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2013, 2018-2024 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2018-2025 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013, 2015 Adam <Adam@anope.org>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
@@ -65,7 +65,7 @@ namespace
 		if (!user->lastping)
 		{
 			time_t secs = ServerInstance->Time() - (user->nextping - user->GetClass()->pingtime);
-			const std::string message = "Ping timeout: " + ConvToStr(secs) + (secs != 1 ? " seconds" : " second");
+			const std::string message = FMT::format("Ping timeout: {} {}", secs, (secs != 1 ? "seconds" : "second"));
 			ServerInstance->Users.QuitUser(user, message);
 			return;
 		}

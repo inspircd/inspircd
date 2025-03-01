@@ -120,7 +120,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 				// Check if the port is out of range.
 				if (port <= std::numeric_limits<in_port_t>::min() || port > std::numeric_limits<in_port_t>::max())
 				{
-					failed_ports.emplace_back("Port is not valid: " + ConvToStr(port), bindspec, tag);
+					failed_ports.emplace_back(FMT::format("Port is not valid: {}", port), bindspec, tag);
 					continue;
 				}
 
