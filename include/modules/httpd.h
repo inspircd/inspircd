@@ -72,7 +72,7 @@ public:
 
 	bool getBool(const std::string& key, bool def = false) const
 	{
-		return getNum<bool>(key, def);
+		return !!getNum<uint8_t>(key, def);
 	}
 };
 

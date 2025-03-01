@@ -92,7 +92,7 @@ void CommandServer::HandleExtra(TreeServer* newserver, Params& params)
 		if (irc::equals(key, "burst"))
 			newserver->BeginBurst(ConvToNum<uint64_t>(val));
 		else if (irc::equals(key, "hidden"))
-			newserver->Hidden = ConvToNum<bool>(val);
+			newserver->Hidden = !!ConvToNum<uint8_t>(val);
 	}
 }
 
