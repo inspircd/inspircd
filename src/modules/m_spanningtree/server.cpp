@@ -37,16 +37,15 @@
 
 namespace
 {
-	bool IsContainerAddress(const irc::sockets::sockaddrs& sa)
+	bool RunningInContainer()
 	{
 		std::error_code ec;
 		if (std::filesystem::is_regular_file("/.dockerenv", ec))
 		{
-			// We are running in docker, check for internal addresses.
-			if (irc::sockets::cidr_mask("172.17.0.0/16").match(sa))
-				return true; // docker0
-			if (irc::sockets::cidr_mask("172.18.0.0/16").match(sa))
-				return true; // docker_gwbridge.
+			// We are running inside of Docker so all IP addresses are
+			// non-local and as far as I can see there isn't a way to
+			// reliably detect the Docker network.
+			return true;
 		}
 		return false;
 	}
@@ -158,7 +157,7 @@ std::shared_ptr<Link> TreeSocket::AuthRemote(const CommandBase::Params& params)
 			ssliohook->GetCiphersuite(ciphersuite);
 			ServerInstance->SNO.WriteToSnoMask('l', "Negotiated ciphersuite {} on link {}", ciphersuite, x->Name);
 		}
-		else if (!capab->remotesa.is_local() && !IsContainerAddress(capab->remotesa))
+		else if (!capab->remotesa.is_local() && !RunningInContainer())
 		{
 			this->SendError("Non-local server connections MUST be linked with SSL!");
 			return nullptr;
