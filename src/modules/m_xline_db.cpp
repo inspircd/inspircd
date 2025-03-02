@@ -252,7 +252,7 @@ public:
 				{
 					ServerInstance->SNO.WriteToSnoMask('x', "database: added a timed {}{} on {}, expires in {} (on {}): {}",
 						xl->type, xl->type.length() <= 2 ? "-line" : "", xl->Displayable(),
-						Duration::ToString(xl->duration), Time::FromNow(xl->duration), xl->reason);
+						Duration::ToHuman(xl->duration), Time::FromNow(xl->duration), xl->reason);
 				}
 				else
 				{

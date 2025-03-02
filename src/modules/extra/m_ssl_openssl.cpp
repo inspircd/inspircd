@@ -635,7 +635,7 @@ private:
 		if (activated != -1 && activated != 0)
 		{
 			certinfo->error = INSP_FORMAT("Certificate not active for {} (on {})",
-				Duration::ToString(certinfo->activation - ServerInstance->Time()),
+				Duration::ToHuman(certinfo->activation - ServerInstance->Time()),
 				Time::ToString(certinfo->activation));
 		}
 
@@ -643,7 +643,7 @@ private:
 		if (expired != 0 && expired != 1)
 		{
 			certinfo->error = INSP_FORMAT("Certificate expired {} ago (on {})",
-				Duration::ToString(ServerInstance->Time() - certinfo->expiration),
+				Duration::ToHuman(ServerInstance->Time() - certinfo->expiration),
 				Time::ToString(certinfo->expiration));
 		}
 

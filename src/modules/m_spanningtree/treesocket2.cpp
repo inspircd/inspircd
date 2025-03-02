@@ -436,7 +436,7 @@ void TreeSocket::Close()
 	time_t server_uptime = ServerInstance->Time() - this->age;
 	if (server_uptime)
 	{
-		std::string timestr = Duration::ToString(server_uptime);
+		std::string timestr = Duration::ToHuman(server_uptime);
 		ServerInstance->SNO.WriteGlobalSno('l', "Connection to '\002{}\002' was established for {}", linkID, timestr);
 	}
 }

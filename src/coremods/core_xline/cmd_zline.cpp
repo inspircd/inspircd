@@ -89,7 +89,7 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 			else
 			{
 				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed Z-line on {}, expires in {} (on {}): {}",
-					user->nick, ipaddr, Duration::ToString(duration), Time::FromNow(duration), zl->reason);
+					user->nick, ipaddr, Duration::ToHuman(duration), Time::FromNow(duration), zl->reason);
 			}
 			ServerInstance->XLines->ApplyLines();
 		}

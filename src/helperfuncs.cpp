@@ -504,6 +504,77 @@ std::string Duration::ToString(unsigned long duration)
 
 	return ret;
 }
+std::string Duration::ToHuman(unsigned long duration)
+{
+	if (duration == 0)
+		return "0 seconds";
+
+	std::string ret;
+
+	const auto years = (duration / SECONDS_PER_YEAR);
+	if (years)
+	{
+		ret = INSP_FORMAT("{} {}", years, years == 1 ? "year" : "years");
+		duration -= (years * SECONDS_PER_YEAR);
+	}
+
+	const auto weeks = (duration / SECONDS_PER_WEEK);
+	if (weeks)
+	{
+		ret += ret.empty() ? "" : ", ";
+		ret += INSP_FORMAT("{} {}", weeks, weeks == 1 ? "week" : "weeks");
+		duration -= (weeks * SECONDS_PER_WEEK);
+	}
+
+	const auto days = (duration / SECONDS_PER_DAY);
+	if (days)
+	{
+		ret += ret.empty() ? "" : ", ";
+		ret += INSP_FORMAT("{} {}", days, days == 1 ? "day" : "days");
+		duration -= (days * SECONDS_PER_DAY);
+	}
+
+	const auto hours = (duration / SECONDS_PER_HOUR);
+	if (hours)
+	{
+		ret += ret.empty() ? "" : ", ";
+		ret += INSP_FORMAT("{} {}", hours, hours == 1 ? "hour" : "hours");
+		duration -= (hours * SECONDS_PER_HOUR);
+	}
+
+	const auto minutes = (duration / SECONDS_PER_MINUTE);
+	if (minutes)
+	{
+		ret += ret.empty() ? "" : ", ";
+		ret += INSP_FORMAT("{} {}", minutes, minutes == 1 ? "minute" : "minutes");
+		duration -= (minutes * SECONDS_PER_MINUTE);
+	}
+
+	if (duration)
+	{
+		ret += ret.empty() ? "" : ", ";
+		ret += INSP_FORMAT("{} {}", duration, duration == 1 ? "second" : "seconds");
+	}
+
+	const auto first_comma = ret.find(',');
+	const auto last_comma = ret.rfind(',');
+	if (first_comma != std::string::npos)
+	{
+		if (first_comma == last_comma)
+		{
+			// BEFORE: 1 minute, 2 seconds
+			// AFTER:  1 minute and 2 seconds
+			ret.replace(last_comma, 1, " and");
+		}
+		else
+		{
+			// BEFORE: 1 hour, 2 minutes, 3 seconds
+			// AFTER:  1 hour, 2 minutes, and 3 seconds
+			ret.insert(last_comma + 1, " and");
+		}
+	}
+	return ret;
+}
 
 std::string Time::ToString(time_t curtime, const char* format, bool utc)
 {

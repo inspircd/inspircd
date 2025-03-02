@@ -295,7 +295,7 @@ private:
 		}
 
 		ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed {} on {}, expires in {} (on {}): {}",
-			line->source, type, line->Displayable(), Duration::ToString(line->duration),
+			line->source, type, line->Displayable(), Duration::ToHuman(line->duration),
 			Time::ToString(line->expiry), line->reason);
 		ServerInstance->XLines->ApplyLines();
 	}
