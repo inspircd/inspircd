@@ -440,7 +440,7 @@ bool Duration::TryFrom(const std::string& str, unsigned long& duration)
 unsigned long Duration::From(const std::string& str)
 {
 	unsigned long out = 0;
-	Duration::TryFrom(str, out, base);
+	Duration::TryFrom(str, out);
 	return out;
 }
 
