@@ -579,6 +579,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 	else
 	{
+		fflush(stderr);
+		fflush(stdout);
+
 		Logs.Normal("STARTUP", "Keeping pseudo-tty open as we are running in the foreground.");
 	}
 #else
