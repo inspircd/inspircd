@@ -23,6 +23,8 @@
  */
 
 
+#include <filesystem>
+
 #include "inspircd.h"
 #include "modules/ssl.h"
 
@@ -32,6 +34,15 @@
 #include "treeserver.h"
 #include "treesocket.h"
 #include "commands.h"
+
+namespace
+{
+	bool RunningInContainer()
+	{
+		std::error_code ec;
+		return std::filesystem::is_regular_file("/.dockerenv", ec);
+	}
+}
 
 /*
  * Some server somewhere in the network introducing another server.
@@ -139,7 +150,7 @@ std::shared_ptr<Link> TreeSocket::AuthRemote(const CommandBase::Params& params)
 			ssliohook->GetCiphersuite(ciphersuite);
 			ServerInstance->SNO.WriteToSnoMask('l', "Negotiated ciphersuite {} on link {}", ciphersuite, x->Name);
 		}
-		else if (!capab->remotesa.is_local())
+		else if (!capab->remotesa.is_local() && !RunningInContainer())
 		{
 			this->SendError("Non-local server connections MUST be linked with SSL!");
 			return nullptr;
