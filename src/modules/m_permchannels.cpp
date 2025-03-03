@@ -337,7 +337,7 @@ public:
 				// Back off a bit to avoid spamming opers.
 				if (backoff > 1)
 					SetInterval(std::min(GetInterval() * backoff, maxbackoff), false);
-				ServerInstance->Logs.Debug(MODNAME, "Trying again in {} seconds", GetInterval());
+				ServerInstance->Logs.Debug(MODNAME, "Trying again in {}", Duration::ToHuman(GetInterval()));
 			}
 		}
 		return true;

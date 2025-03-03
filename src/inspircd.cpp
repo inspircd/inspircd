@@ -37,6 +37,7 @@
 #include <lyra/lyra.hpp>
 
 #include "inspircd.h"
+#include "timeutils.h"
 #include "xline.h"
 
 #ifndef _WIN32
@@ -128,10 +129,10 @@ namespace
 		time_t timediff = newtime - oldtime;
 
 		if (timediff > ServerInstance->Config->TimeSkipWarn)
-			ServerInstance->SNO.WriteToSnoMask('a', "\002Performance warning!\002 Server clock jumped forwards by {} seconds!", timediff);
+			ServerInstance->SNO.WriteToSnoMask('a', "\002Performance warning!\002 Server clock jumped forwards by {}!", Duration::ToHuman(timediff));
 
 		else if (timediff < -ServerInstance->Config->TimeSkipWarn)
-			ServerInstance->SNO.WriteToSnoMask('a', "\002Performance warning!\002 Server clock jumped backwards by {} seconds!", labs(timediff));
+			ServerInstance->SNO.WriteToSnoMask('a', "\002Performance warning!\002 Server clock jumped backwards by {}!", Duration::ToHuman(std::abs(timediff)));
 	}
 
 	// Drops to the unprivileged user/group specified in <security:runas{user,group}>.

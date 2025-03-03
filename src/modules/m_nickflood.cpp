@@ -26,6 +26,7 @@
 #include "extension.h"
 #include "modules/exemption.h"
 #include "numerichelper.h"
+#include "timeutils.h"
 
 // The number of seconds nickname changing will be blocked for.
 static unsigned int duration;
@@ -159,8 +160,8 @@ public:
 
 				if (f->islocked())
 				{
-					user->WriteNumeric(ERR_CANTCHANGENICK, INSP_FORMAT("{} has been locked for nickchanges for {} seconds because there have been more than {} nick changes in {} seconds",
-							memb->chan->name, duration, f->nicks, f->secs));
+					user->WriteNumeric(ERR_CANTCHANGENICK, INSP_FORMAT("{} has been locked for nick changes for {} because there have been more than {} nick changes in {}",
+							memb->chan->name, Duration::ToHuman(duration), f->nicks, Duration::ToHuman(f->secs)));
 					return MOD_RES_DENY;
 				}
 
@@ -168,8 +169,8 @@ public:
 				{
 					f->clear();
 					f->lock();
-					memb->chan->WriteNotice(INSP_FORMAT("No nick changes are allowed for {} seconds because there have been more than {} nick changes in {} seconds.",
-						duration, f->nicks, f->secs));
+					memb->chan->WriteNotice(INSP_FORMAT("No nick changes are allowed for {} because there have been more than {} nick changes in {}.",
+						Duration::ToHuman(duration), f->nicks, Duration::ToHuman(f->secs)));
 					return MOD_RES_DENY;
 				}
 			}

@@ -19,6 +19,7 @@
 
 
 #include "inspircd.h"
+#include "timeutils.h"
 
 #include "pingtimer.h"
 #include "treeserver.h"
@@ -48,7 +49,8 @@ PingTimer::State PingTimer::TickInternal()
 	else if (state == PS_WARN)
 	{
 		// No pong arrived in PingWarnTime seconds, send a warning to opers
-		ServerInstance->SNO.WriteToSnoMask('l', "Server \002{}\002 has not responded to PING for {} seconds, high latency.", server->GetName(), GetInterval());
+		ServerInstance->SNO.WriteToSnoMask('l', "Server \002{}\002 has not responded to PING for {}, high latency.",
+			server->GetName(), Duration::ToHuman(GetInterval()));
 		return PS_TIMEOUT;
 	}
 	else // PS_TIMEOUT

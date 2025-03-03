@@ -28,6 +28,7 @@
 #include "extension.h"
 #include "modules/server.h"
 #include "numerichelper.h"
+#include "timeutils.h"
 
 // The number of seconds the channel will be closed for.
 static unsigned int duration;
@@ -201,8 +202,8 @@ public:
 				f->lock();
 
 				PrefixMode* pm = ServerInstance->Modes.FindNearestPrefixMode(notifyrank);
-				memb->chan->WriteNotice(INSP_FORMAT("This channel has been closed to new users for {} seconds because there have been more than {} joins in {} seconds.",
-					duration, f->joins, f->secs), pm ? pm->GetPrefix() : 0);
+				memb->chan->WriteNotice(INSP_FORMAT("This channel has been closed to new users for {} because there have been more than {} joins in {}.",
+					Duration::ToHuman(duration), f->joins, Duration::ToHuman(f->secs)), pm ? pm->GetPrefix() : 0);
 			}
 		}
 	}

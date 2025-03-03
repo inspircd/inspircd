@@ -27,6 +27,7 @@
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
 #include "iohook.h"
+#include "timeutils.h"
 #include "xline.h"
 
 namespace
@@ -65,7 +66,7 @@ namespace
 		if (!user->lastping)
 		{
 			time_t secs = ServerInstance->Time() - (user->nextping - user->GetClass()->pingtime);
-			const std::string message = INSP_FORMAT("Ping timeout: {} {}", secs, (secs != 1 ? "seconds" : "second"));
+			const std::string message = INSP_FORMAT("Ping timeout: {}", Duration::ToHuman(secs));
 			ServerInstance->Users.QuitUser(user, message);
 			return;
 		}

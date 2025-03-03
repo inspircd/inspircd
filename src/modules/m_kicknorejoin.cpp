@@ -28,6 +28,7 @@
 #include "extension.h"
 #include "modules/invite.h"
 #include "numerichelper.h"
+#include "timeutils.h"
 
 class KickRejoinData final
 {
@@ -143,8 +144,8 @@ public:
 			const KickRejoinData* data = kr.ext.Get(chan);
 			if ((data) && !invapi->IsInvited(user, chan) && (!data->canjoin(user)))
 			{
-				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan->name, INSP_FORMAT("You must wait {} seconds after being kicked to rejoin (+{} is set)",
-					data->delay, kr.GetModeChar()));
+				user->WriteNumeric(ERR_UNAVAILRESOURCE, chan->name, INSP_FORMAT("You must wait for {} after being kicked to rejoin (+{} is set)",
+					Duration::ToHuman(data->delay), kr.GetModeChar()));
 				return MOD_RES_DENY;
 			}
 		}
