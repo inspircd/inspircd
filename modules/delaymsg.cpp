@@ -25,6 +25,7 @@
 #include "inspircd.h"
 #include "modules/ctctags.h"
 #include "modules/exemption.h"
+#include "timeutils.h"
 #include "numerichelper.h"
 
 class DelayMsgMode final
@@ -139,7 +140,8 @@ ModResult ModuleDelayMsg::HandleMessage(User* user, const MessageTarget& target)
 		if (user->HasPrivPermission("channels/ignore-delaymsg"))
 			return MOD_RES_PASSTHRU;
 
-		const std::string message = FMT::format("You cannot send messages to this channel until you have been a member for {} seconds.", len);
+		const std::string message = FMT::format("You cannot send messages to this channel until you have been a member for {}.",
+			Duration::ToHuman(len));
 		user->WriteNumeric(Numerics::CannotSendTo(channel, message));
 		return MOD_RES_DENY;
 	}

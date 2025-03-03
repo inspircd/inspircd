@@ -23,6 +23,8 @@
  */
 
 
+#include <filesystem>
+
 #include "inspircd.h"
 #include "modules/ssl.h"
 
@@ -32,6 +34,22 @@
 #include "treeserver.h"
 #include "treesocket.h"
 #include "commands.h"
+
+namespace
+{
+	bool RunningInContainer()
+	{
+		std::error_code ec;
+		if (std::filesystem::is_regular_file("/.dockerenv", ec))
+		{
+			// We are running inside of Docker so all IP addresses are
+			// non-local and as far as I can see there isn't a way to
+			// reliably detect the Docker network.
+			return true;
+		}
+		return false;
+	}
+}
 
 /*
  * Some server somewhere in the network introducing another server.
@@ -138,7 +156,7 @@ std::shared_ptr<Link> TreeSocket::AuthRemote(const CommandBase::Params& params)
 			ssliohook->GetCiphersuite(ciphersuite);
 			ServerInstance->SNO.WriteToSnoMask('l', "Negotiated ciphersuite {} on link {}", ciphersuite, x->Name);
 		}
-		else if (!capab->remotesa.is_local())
+		else if (!capab->remotesa.is_local() && !RunningInContainer())
 		{
 			this->SendError("Non-local server connections MUST be linked with SSL!");
 			return nullptr;

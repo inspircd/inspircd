@@ -91,7 +91,7 @@ public:
 			std::string extra;
 			if (helper->IsAway())
 			{
-				const std::string awayperiod = Duration::ToString(ServerInstance->Time() - helper->away->time);
+				const std::string awayperiod = Duration::ToHuman(ServerInstance->Time() - helper->away->time);
 				const std::string awaytime = Time::ToString(helper->away->time);
 
 				extra = FMT::format(": away for {} [since {}] ({})", awayperiod, awaytime, helper->away->message);
@@ -100,7 +100,7 @@ public:
 			auto* lhelper = IS_LOCAL(helper);
 			if (lhelper)
 			{
-				const std::string idleperiod = Duration::ToString(ServerInstance->Time() - lhelper->idle_lastmsg);
+				const std::string idleperiod = Duration::ToHuman(ServerInstance->Time() - lhelper->idle_lastmsg);
 				const std::string idletime = Time::ToString(lhelper->idle_lastmsg);
 
 				extra += FMT::format("{} idle for {} [since {}]",  extra.empty() ? ':' : ',', idleperiod, idletime);

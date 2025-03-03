@@ -90,7 +90,7 @@ CmdResult CommandKline::Handle(User* user, const Params& parameters)
 			else
 			{
 				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed K-line on {}, expires in {} (on {}): {}",
-					user->nick, target, Duration::ToString(duration), Time::FromNow(duration), kl->reason);
+					user->nick, target, Duration::ToHuman(duration), Time::FromNow(duration), kl->reason);
 			}
 
 			ServerInstance->XLines->ApplyLines();

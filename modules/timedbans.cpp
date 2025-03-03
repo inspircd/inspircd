@@ -152,7 +152,7 @@ public:
 		if (sendnotice)
 		{
 			const std::string message = FMT::format("Timed ban {} added by {} on {} lasting for {}.",
-				mask, user->nick, channel->name, Duration::ToString(duration));
+				mask, user->nick, channel->name, Duration::ToHuman(duration));
 
 			// If halfop is loaded, send notice to halfops and above, otherwise send to ops and above
 			PrefixMode* mh = ServerInstance->Modes.FindNearestPrefixMode(HALFOP_VALUE);

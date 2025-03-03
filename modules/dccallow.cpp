@@ -325,7 +325,7 @@ public:
 
 					if (length > 0)
 					{
-						user->WriteNumeric(RPL_DCCALLOWTIMED, user->nick, FMT::format("Added {} to DCCALLOW list for {}", target->nick, Duration::ToString(length)));
+						user->WriteNumeric(RPL_DCCALLOWTIMED, user->nick, FMT::format("Added {} to DCCALLOW list for {}", target->nick, Duration::ToHuman(length)));
 					}
 					else
 					{

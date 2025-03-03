@@ -30,6 +30,7 @@
 #include "clientprotocolmsg.h"
 #include "iohook.h"
 #include "socket.h"
+#include "timeutils.h"
 #include "xline.h"
 
 #include "commands.h"
@@ -302,7 +303,8 @@ void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 		}
 		else if (curtime > s->age + (time_t)p.second)
 		{
-			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002{}\002 (timeout of {} seconds)", p.first, p.second);
+			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002{}\002 (timeout of {})",
+				p.first, Duration::ToHuman(p.second));
 			Utils->timeoutlist.erase(me);
 			s->Close();
 		}

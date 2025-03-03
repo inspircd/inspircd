@@ -38,6 +38,13 @@ namespace Duration
 	 */
 	CoreExport bool IsValid(const std::string& str);
 
+	/** Converts a number of seconds to a human-readable representation.
+	 *
+	 * e.g. 33,019,565 will result in 1 year, 2 weeks, 3 days, 4 hours, 6
+	 * minutes, 5 seconds.
+	 */
+	CoreExport std::string ToHuman(unsigned long duration);
+
 	/** Converts a number of seconds to a duration string.
 	 *
 	 * e.g. 33,019,565 will result in 1y2w3d4h6m5s which represents one year,

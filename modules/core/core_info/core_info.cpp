@@ -62,6 +62,7 @@ struct ISupportAction final
 
 class CoreModInfo final
 	: public Module
+	, public ISupport::EventListener
 {
 private:
 	CommandAdmin cmdadmin;
@@ -111,6 +112,7 @@ private:
 public:
 	CoreModInfo()
 		: Module(VF_CORE | VF_VENDOR, "Provides the ADMIN, COMMANDS, INFO, MODULES, MOTD, TIME, SERVLIST, and VERSION commands")
+		, ISupport::EventListener(this)
 		, cmdadmin(this)
 		, cmdcommands(this)
 		, cmdinfo(this)
@@ -236,6 +238,12 @@ public:
 	void Prioritize() override
 	{
 		ServerInstance->Modules.SetPriority(this, I_OnUserConnect, PRIORITY_FIRST);
+	}
+
+	void OnBuildClassISupport(const std::shared_ptr<ConnectClass>& klass, ISupport::TokenMap& tokens) override
+	{
+		if (klass->fakelag)
+			tokens["FAKELAG"];
 	}
 };
 

@@ -283,7 +283,7 @@ public:
 		{
 			auto message = FMT::format("Replaying up to {} lines of pre-join history", list->maxlen);
 			if (list->maxtime > 0)
-				message += FMT::format(" from the last {}", Duration::ToString(list->maxtime));
+				message += FMT::format(" from the last {}", Duration::ToHuman(list->maxtime));
 			memb->WriteNotice(message);
 		}
 

@@ -128,7 +128,7 @@ public:
 				else
 				{
 					ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed SHUN on {}, expires in {} (on {}): {}",
-						user->nick, target, Duration::ToString(duration),
+						user->nick, target, Duration::ToHuman(duration),
 						Time::FromNow(duration), expr);
 				}
 			}
