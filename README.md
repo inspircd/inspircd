@@ -26,11 +26,7 @@ Building from source on Windows is generally not recommended but [a guide is ava
 
 If you are running on Debian 12/13, RHEL 8/9, Ubuntu 22.04/24.04, or Windows 10+ binary packages are available from [the downloads page](https://github.com/inspircd/inspircd/releases/latest).
 
-<!--
-TODO: uncomment this once we have a Docker container for v4.
-
 A [Docker](https://www.docker.com) image is also available. See [the inspircd-docker repository](https://github.com/inspircd/inspircd-docker) for more information.
--->
 
 Some distributions ship an InspIRCd package in their package managers. We generally do not recommend the use of such packages as in the past distributions have made broken modifications to InspIRCd and not kept their packages up to date with essential security updates.
 
