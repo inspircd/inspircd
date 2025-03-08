@@ -57,6 +57,8 @@ private:
 	HelpOp helpop;
 	UserModeReference hideoper;
 	bool markhelpers;
+	std::string helpchanmodes;
+	insp::flat_map<std::string, std::string> helpchans;
 
 public:
 	ModuleHelpMode()
@@ -70,6 +72,15 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("helpchan"))
+		{
+			const auto name = tag->getString("name");
+			if (name.empty())
+				throw ModuleException(this, "<helpchan:name> must not be empty at " + tag->source.str());
+
+			helpchans[name] = tag->getString("prefix", "o", 1);
+		}
+
 		const auto& tag = ServerInstance->Config->ConfValue("helpmode");
 		ignorehideoper = tag->getBool("ignorehideoper");
 		markhelpers = tag->getBool("markhelpers", true);
@@ -111,6 +122,22 @@ public:
 		}
 
 		// Allow the core to add normal opers.
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
+	{
+		if (!user->IsModeSet(helpop))
+			return MOD_RES_PASSTHRU;
+
+		for (const auto& [helpchan, prefix] : helpchans)
+		{
+			if (InspIRCd::Match(cname, helpchan))
+			{
+				privs.append(prefix);
+				break;
+			}
+		}
 		return MOD_RES_PASSTHRU;
 	}
 
