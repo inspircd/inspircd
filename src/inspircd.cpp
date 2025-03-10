@@ -129,10 +129,16 @@ namespace
 		time_t timediff = newtime - oldtime;
 
 		if (timediff > ServerInstance->Config->TimeSkipWarn)
-			ServerInstance->SNO.WriteToSnoMask('a', "\002Performance warning!\002 Server clock jumped forwards by {}!", Duration::ToHuman(timediff));
+		{
+			ServerInstance->SNO.WriteToSnoMask('a', "\002Performance warning!\002 Server clock jumped forwards by {} (from {} to {})!",
+				Duration::ToHuman(timediff), Time::ToString(oldtime), Time::ToString(newtime));
+		}
 
 		else if (timediff < -ServerInstance->Config->TimeSkipWarn)
-			ServerInstance->SNO.WriteToSnoMask('a', "\002Performance warning!\002 Server clock jumped backwards by {}!", Duration::ToHuman(std::abs(timediff)));
+		{
+			ServerInstance->SNO.WriteToSnoMask('a', "\002Performance warning!\002 Server clock jumped backwards by {} (from {} to {})!",
+				Duration::ToHuman(std::abs(timediff)), Time::ToString(oldtime), Time::ToString(newtime));
+		}
 	}
 
 	// Drops to the unprivileged user/group specified in <security:runas{user,group}>.
