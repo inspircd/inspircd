@@ -243,7 +243,7 @@ public:
 	void OnBuildClassISupport(const std::shared_ptr<ConnectClass>& klass, ISupport::TokenMap& tokens) override
 	{
 		if (klass->fakelag)
-			tokens["FAKELAG"];
+			tokens["SAFERATE"];
 	}
 };
 

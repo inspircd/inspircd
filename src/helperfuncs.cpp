@@ -498,10 +498,28 @@ std::string Duration::ToString(unsigned long duration)
 
 	return ret;
 }
-std::string Duration::ToHuman(unsigned long duration)
+std::string Duration::ToHuman(unsigned long duration, bool brief)
 {
 	if (duration == 0)
 		return "0 seconds";
+
+	if (brief)
+	{
+		// This will get inlined when compiled with optimisations.
+		auto nearest = [](unsigned long seconds, unsigned long roundto) {
+			if ((seconds % roundto) <= (roundto / 2))
+				return seconds - (seconds % roundto);
+			return seconds - (seconds % roundto) + roundto;
+		};
+
+		// In order to get a shorter result we round to the nearest period.
+		if (duration >= SECONDS_PER_YEAR)
+			duration = nearest(duration, SECONDS_PER_DAY); // Nearest day if its more than a year
+		else if (duration >= SECONDS_PER_DAY)
+			duration = nearest(duration, SECONDS_PER_HOUR); // Nearest hour if its more than a day
+		else if (duration >= SECONDS_PER_HOUR)
+			duration = nearest(duration, SECONDS_PER_MINUTE); // Nearest minute if its more than an hour
+	}
 
 	std::string ret;
 
