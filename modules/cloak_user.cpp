@@ -68,6 +68,9 @@ protected:
 	// The case to transform cloaks to.
 	TransformCase transformcase;
 
+	// A fixed value to use as a username in the cloak.
+	const std::string username;
+
 	// Retrieves the middle segment of the cloak.
 	virtual std::string GetMiddle(LocalUser* user) = 0;
 
@@ -76,6 +79,7 @@ protected:
 		, hostmap(hm)
 		, prefix(tag->getString("prefix"))
 		, suffix(tag->getString("suffix"))
+		, username(tag->getString("username"))
 	{
 		invalidchar = tag->getEnum("invalidchar", InvalidChar::STRIP, {
 			{ "reject",   InvalidChar::REJECT   },
@@ -150,7 +154,7 @@ public:
 		if (safemiddle.empty())
 			return std::nullopt; // No cloak.
 
-		return prefix + safemiddle + suffix;
+		return Cloak::Info(username, prefix + safemiddle + suffix);
 	}
 
 	std::optional<Cloak::Info> Cloak(const std::string& hostip) override
