@@ -345,6 +345,14 @@ for my $mod (sort keys %todo) {
 		for my $tag (get_directives("$RealDir/modules/$mod.cpp", 'ModConfig', 0)) {
 			say " $tag" if $tag;
 		}
+
+		my @links = get_directives("$RealDir/src/modules/$mod.cpp", 'ModLink', 0);
+		if (@links) {
+			say "You can find out more information about this module at:";
+			for my $link (@links) {
+				say " * $link" if $link;
+			}
+		}
 	} else {
 		printf "\nHTTP %s: %s\n", $response->code, $response->message;
 	}
