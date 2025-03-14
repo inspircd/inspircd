@@ -190,7 +190,7 @@ public:
 			for (const auto& cloakmethod : cloakmethods)
 			{
 				const auto cloak = cloakmethod->Cloak(user);
-				if (!cloak)
+				if (cloak)
 				{
 					cloaks->push_back(*cloak);
 
@@ -335,7 +335,7 @@ public:
 		{
 			// We were able to generate cloaks for this user.
 			auto &cloak = cloaks->front();
-			if (cloak.username.empty())
+			if (!cloak.username.empty())
 				user->ChangeDisplayedUser(cloak.username);
 			user->ChangeDisplayedHost(cloak.hostname);
 			user->SetMode(this, true);
@@ -465,7 +465,7 @@ public:
 			{
 				// The user has a new cloak list; pick the first.
 				auto &cloak = cloaks->front();
-				if (cloak.username.empty())
+				if (!cloak.username.empty())
 					user->ChangeDisplayedUser(cloak.username);
 				user->ChangeDisplayedHost(cloak.hostname);
 			}
