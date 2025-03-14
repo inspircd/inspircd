@@ -33,15 +33,15 @@ public:
 	{
 	}
 
-	std::string Cloak(LocalUser* user) override ATTR_NOT_NULL(2)
+	std::optional<Cloak::Info> Cloak(LocalUser* user) override ATTR_NOT_NULL(2)
 	{
 		if (!MatchesUser(user))
-			return {}; // We shouldn't cloak this user.
+			return std::nullopt; // We shouldn't cloak this user.
 
 		return cloak;
 	}
 
-	std::string Cloak(const std::string& hostip) override
+	std::optional<Cloak::Info> Cloak(const std::string& hostip) override
 	{
 		return cloak;
 	}

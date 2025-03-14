@@ -58,12 +58,12 @@ public:
 		size_t count = 0;
 		for (const auto& cloakmethod : cloakmethods)
 		{
-			const std::string cloak = cloakmethod->Cloak(parameters[0]);
-			if (cloak.empty())
+			const auto cloak = cloakmethod->Cloak(parameters[0]);
+			if (!cloak)
 				continue;
 
-			noterpl.SendIfCap(user, stdrplcap, this, "CLOAK_RESULT", parameters[0], cloak, FMT::format("Cloak #{} for {} is {} (method: {})",
-				++count, parameters[0], cloak, cloakmethod->GetName()));
+			noterpl.SendIfCap(user, stdrplcap, this, "CLOAK_RESULT", parameters[0], cloak->ToString(), FMT::format("Cloak #{} for {} is {} (method: {})",
+				++count, parameters[0], cloak->ToString(), cloakmethod->GetName()));
 		}
 
 		if (!count)
@@ -73,6 +73,74 @@ public:
 		}
 
 		return CmdResult::SUCCESS;
+	}
+};
+
+class CloakExtItem final
+	: public SimpleExtItem<Cloak::List>
+{
+public:
+	CloakExtItem(Module *mod)
+		: SimpleExtItem<Cloak::List>(mod, "cloaks", ExtensionType::USER)
+	{
+	}
+
+	/** @copydoc ExtensionItem::FromInternal */
+	void FromInternal(Extensible* container, const std::string& value) noexcept override
+	{
+		if (container->extype != this->extype)
+			return;
+
+		if (value.empty())
+		{
+			Unset(container, false);
+			return;
+		}
+
+		auto* cloaks = new Cloak::List();
+		irc::spacesepstream stream(value);
+		for (std::string cloak; stream.GetToken(cloak); )
+			cloaks->push_back(Cloak::Info::FromString(Percent::Decode(cloak)));
+
+		if (cloaks->empty())
+		{
+			// The remote sent an empty list.
+			delete cloaks;
+			Unset(container, false);
+		}
+		else
+		{
+			// The remote sent a non-zero list.
+			Set(container, cloaks, false);
+		}
+	}
+
+	std::string ToHuman(const Extensible* container, void* item) const noexcept override
+	{
+		auto* cloaks = static_cast<Cloak::List*>(item);
+		if (cloaks->empty())
+			return {};
+
+		std::string value;
+		for (const auto& cloak : *cloaks)
+			value.append(cloak.ToString()).push_back(' ');
+		value.pop_back();
+
+		return value;
+	}
+
+	std::string ToInternal(const Extensible* container, void* item) const noexcept override
+	{
+		auto* cloaks = static_cast<Cloak::List*>(item);
+		if (cloaks->empty())
+			return {};
+
+		std::string value;
+		for (const auto& cloak : *cloaks)
+			value.append(Percent::Encode(cloak.ToString())).push_back(' ');
+		value.pop_back();
+
+		return value;
 	}
 };
 
@@ -87,12 +155,12 @@ private:
 	ModeHandler* cloakmode;
 
 	// Holds the list of cloaks for a user.
-	ListExtItem<Cloak::List> ext;
+	CloakExtItem ext;
 
-	std::string GetFrontCloak(LocalUser* user)
+	std::optional<Cloak::Info> GetFrontCloak(LocalUser* user)
 	{
 		auto* cloaks = GetCloaks(user);
-		return cloaks ? cloaks->front() : "";
+		return cloaks ? std::make_optional(cloaks->front()) : std::nullopt;
 	}
 
 public:
@@ -102,7 +170,7 @@ public:
 		: Cloak::APIBase(Creator)
 		, cloakmethods(cm)
 		, cloakmode(mh)
-		, ext(Creator, "cloaks", ExtensionType::USER)
+		, ext(Creator)
 	{
 	}
 
@@ -121,13 +189,13 @@ public:
 			cloaks = new Cloak::List();
 			for (const auto& cloakmethod : cloakmethods)
 			{
-				const std::string cloak = cloakmethod->Cloak(user);
-				if (!cloak.empty())
+				const auto cloak = cloakmethod->Cloak(user);
+				if (!cloak)
 				{
-					cloaks->push_back(cloak);
+					cloaks->push_back(*cloak);
 
 					ServerInstance->Logs.Debug(MODNAME, "Cloaked {} ({}) [{}] as {} using the {} method.",
-						user->uuid, user->GetAddress(), user->GetRealHost(), cloak,
+						user->uuid, user->GetAddress(), user->GetRealHost(), cloak->ToString(),
 						cloakmethod->GetName());
 				}
 				else
@@ -156,19 +224,19 @@ public:
 		if (user->quitting || !(user->connected & User::CONN_NICKUSER))
 			return; // This user isn't at a point where they can change their cloak.
 
-		const std::string oldcloak = GetFrontCloak(user);
+		const auto oldcloak = GetFrontCloak(user); // This should always be non-nullopt.
 		ext.Unset(user);
 
 		if (!resetdisplay || !user->IsModeSet(cloakmode))
 			return; // Not resetting the display or not cloaked.
 
-		const std::string newcloak = GetFrontCloak(user);
-		if (oldcloak == newcloak)
+		const auto newcloak = GetFrontCloak(user);
+		if (oldcloak.has_value() == newcloak.has_value() && *oldcloak == *newcloak)
 			return; // New front cloak is the same.
 
 		Modes::ChangeList changelist;
 		changelist.push_remove(cloakmode);
-		if (!newcloak.empty())
+		if (newcloak)
 		{
 			recloaking = true;
 			changelist.push_add(cloakmode);
@@ -248,7 +316,10 @@ public:
 			// Remove the mode and restore their real host.
 			user->SetMode(this, false);
 			if (!cloakapi.recloaking)
+			{
+				user->ChangeDisplayedUser(user->GetRealUser());
 				user->ChangeDisplayedHost(user->GetRealHost());
+			}
 			return true;
 		}
 
@@ -263,7 +334,10 @@ public:
 		if (cloaks)
 		{
 			// We were able to generate cloaks for this user.
-			user->ChangeDisplayedHost(cloaks->front());
+			auto &cloak = cloaks->front();
+			if (cloak.username.empty())
+				user->ChangeDisplayedUser(cloak.username);
+			user->ChangeDisplayedHost(cloak.hostname);
 			user->SetMode(this, true);
 			return true;
 		}
@@ -390,12 +464,16 @@ public:
 			if (cloaks)
 			{
 				// The user has a new cloak list; pick the first.
-				user->ChangeDisplayedHost(cloaks->front());
+				auto &cloak = cloaks->front();
+				if (cloak.username.empty())
+					user->ChangeDisplayedUser(cloak.username);
+				user->ChangeDisplayedHost(cloak.hostname);
 			}
 			else
 			{
 				// The user has no cloak list; unset mode and revert to the real host.
 				DisableMode(user);
+				user->ChangeDisplayedUser(user->GetRealUser());
 				user->ChangeDisplayedHost(user->GetRealHost());
 			}
 		}
@@ -414,14 +492,17 @@ public:
 		// Check if they have a cloaked host but are not using it.
 		for (const auto& cloak : *cloaks)
 		{
-			if (cloak == user->GetDisplayedHost())
+			if (cloak.hostname == user->GetDisplayedHost() && (cloak.username.empty() || cloak.username == user->GetDisplayedUser()))
 				continue; // This is checked by the core.
 
-			std::string cloakmask = user->nick + "!" + user->GetRealUser() + "@" + cloak;
+			const auto &ruser = cloak.username.empty() ? user->GetRealUser() : cloak.username;
+			const auto &duser = cloak.username.empty() ? user->GetDisplayedUser() : cloak.username;
+
+			std::string cloakmask = FMT::format("{}!{}@{}", user->nick, ruser, cloak.hostname);
 			if (InspIRCd::Match(cloakmask, mask))
 				return MOD_RES_DENY;
 
-			cloakmask = user->nick + "!" + user->GetDisplayedUser() + "@" + cloak;
+			cloakmask = FMT::format("{}!{}@{}", user->nick, duser, cloak.hostname);
 			if (InspIRCd::Match(cloakmask, mask))
 				return MOD_RES_DENY;
 		}

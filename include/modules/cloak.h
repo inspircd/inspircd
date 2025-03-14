@@ -26,9 +26,10 @@ namespace Cloak
 	class APIBase;
 	class Engine;
 	class Method;
+	struct Info;
 
 	/** Encapsulates a list of cloaks. */
-	typedef std::vector<std::string> List;
+	typedef std::vector<Info> List;
 
 	/** A shared pointer to a cloak method. */
 	typedef std::shared_ptr<Method> MethodPtr;
@@ -150,12 +151,12 @@ public:
 	/** Generates a cloak for the specified user.
 	 * @param user The user to generate a cloak for.
 	 */
-	virtual std::string Cloak(LocalUser* user) ATTR_NOT_NULL(2) = 0;
+	virtual std::optional<Info> Cloak(LocalUser* user) ATTR_NOT_NULL(2) = 0;
 
 	/** Generates a cloak for the specified hostname, IP address, or UNIX socket path.
 	 * @param hostip The hostname, IP address, or UNIX socket path to generate a cloak for.
 	 */
-	virtual std::string Cloak(const std::string& hostip) = 0;
+	virtual std::optional<Info> Cloak(const std::string& hostip) = 0;
 
 	/** Retrieves link compatibility data for this cloak method.
 	 * @param data The location to store link compatibility data.
@@ -183,6 +184,59 @@ public:
 	bool IsProvidedBy(const ServiceProvider& prov) const
 	{
 		return prov.name == provname;
+	}
+};
+
+/** Encapsulates information about a cloak. */
+struct Cloak::Info final
+{
+	/** The hostname of the cloak. */
+	const std::string hostname;
+
+	/** The username of the cloak (can be empty). */
+	const std::string username;
+
+	/** Creates a new cloak with both a username and hostname.
+	 * @param u The username of the cloak.
+	 * @param h The hostname of the cloak.
+	 */
+	Info(const std::string& u, const std::string& h)
+		: hostname(h)
+		, username(u)
+	{
+	}
+
+	/** Creates a new cloak with just a hostname.
+	 * @param h The hostname of the cloak.
+	 */
+	Info(const std::string& h)
+		: hostname(h)
+	{
+	}
+
+	/** Default comparator for cloaks. */
+	auto operator<=>(const Info&) const = default;
+
+	/** Converts a cloak from the username@hostname form to a \p Cloak::Info.
+	 * @param str The cloak to convert.
+	 */
+	static Cloak::Info FromString(const std::string& cloak)
+	{
+		auto sep = cloak.find('@');
+		if (sep == std::string::npos)
+			return Info(cloak);
+		return Info(cloak.substr(0, sep), cloak.substr(sep + 1));
+	}
+
+	/** Converts a \p Cloak::Info to the username@hostname form. */
+	std::string ToString() const
+	{
+		std::string ret;
+		if (!username.empty())
+			ret.append(username).push_back('@');
+		if (!hostname.empty())
+			ret.append(hostname);
+		return ret;
 	}
 };
 

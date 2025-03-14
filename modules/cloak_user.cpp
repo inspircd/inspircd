@@ -90,14 +90,14 @@ protected:
 	}
 
 public:
-	std::string Cloak(LocalUser* user) override ATTR_NOT_NULL(2)
+	std::optional<Cloak::Info> Cloak(LocalUser* user) override ATTR_NOT_NULL(2)
 	{
 		if (!MatchesUser(user))
-			return {}; // We shouldn't cloak this user.
+			return std::nullopt; // We shouldn't cloak this user.
 
 		const std::string middle = GetMiddle(user);
 		if (middle.empty())
-			return {}; // No middle cloak.
+			return std::nullopt; // No middle cloak.
 
 		std::string safemiddle;
 		safemiddle.reserve(middle.length());
@@ -148,15 +148,15 @@ public:
 			GetName(), middle, safemiddle);
 
 		if (safemiddle.empty())
-			return {}; // No cloak.
+			return std::nullopt; // No cloak.
 
 		return prefix + safemiddle + suffix;
 	}
 
-	std::string Cloak(const std::string& hostip) override
+	std::optional<Cloak::Info> Cloak(const std::string& hostip) override
 	{
 		// We can't generate user cloaks without a user.
-		return {};
+		return std::nullopt;
 	}
 
 	void GetLinkData(Module::LinkData& data) override

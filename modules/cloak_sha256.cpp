@@ -87,7 +87,7 @@ private:
 	// The suffix for IP cloaks (e.g. IP).
 	const std::string suffix;
 
-	std::string CloakAddress(const irc::sockets::sockaddrs& sa)
+	std::optional<Cloak::Info> CloakAddress(const irc::sockets::sockaddrs& sa)
 	{
 		switch (sa.family())
 		{
@@ -100,10 +100,10 @@ private:
 		}
 
 		// Should never be reached.
-		return {};
+		return std::nullopt;
 	}
 
-	std::string CloakIPv4(unsigned long address)
+	std::optional<Cloak::Info> CloakIPv4(unsigned long address)
 	{
 		// IPv4 addresses are cloaked in the form ALPHA.BETA.GAMMA
 		//
@@ -146,7 +146,7 @@ private:
 		return Wrap(FMT::format("{}:{}:{}", alpha, beta, gamma), suffix, ':');
 	}
 
-	std::string CloakHost(const std::string& host, char separator, unsigned long parts)
+	std::optional<Cloak::Info> CloakHost(const std::string& host, char separator, unsigned long parts)
 	{
 		// Attempt to divine the public part of the hostname.
 		std::string visiblepart;
@@ -220,10 +220,10 @@ public:
 	}
 #endif
 
-	std::string Cloak(LocalUser* user) override ATTR_NOT_NULL(2)
+	std::optional<Cloak::Info> Cloak(LocalUser* user) override ATTR_NOT_NULL(2)
 	{
 		if (!sha256 || !MatchesUser(user))
-			return {};
+			return std::nullopt;
 
 		irc::sockets::sockaddrs sa(false);
 		if (!cloakhost || (sa.from(user->GetRealHost()) && sa.addr() == user->client_sa.addr()))
@@ -232,10 +232,10 @@ public:
 		return CloakHost(user->GetRealHost(), '.', hostparts);
 	}
 
-	std::string Cloak(const std::string& hostip) override
+	std::optional<Cloak::Info> Cloak(const std::string& hostip) override
 	{
 		if (!sha256)
-			return {};
+			return std::nullopt;
 
 		irc::sockets::sockaddrs sa(false);
 		if (sa.from(hostip))
@@ -244,7 +244,7 @@ public:
 		if (cloakhost)
 			return CloakHost(hostip, '.', hostparts);
 
-		return {}; // Only reachable on hmac-sha256-ip.
+		return std::nullopt; // Only reachable on hmac-sha256-ip.
 	}
 
 	void GetLinkData(Module::LinkData& data) override
@@ -255,9 +255,10 @@ public:
 		// IMPORTANT: link data is sent over unauthenticated server links so we
 		// can't directly send the key here. Instead we use dummy cloaks that
 		// allow verification of or less the same thing.
-		data["cloak-v4"]   = sha256 ? Cloak("123.123.123.123")                        : broken;
-		data["cloak-v6"]   = sha256 ? Cloak("dead:beef:cafe::")                       : broken;
-		data["cloak-unix"] = sha256 ? Cloak("/extremely/long/inspircd/cloak.example") : broken;
+		auto cloak = [this](const auto *str) { return Cloak(str)->ToString(); };
+		data["cloak-v4"]   = sha256 ? cloak("123.123.123.123")                        : broken;
+		data["cloak-v6"]   = sha256 ? cloak("dead:beef:cafe::")                       : broken;
+		data["cloak-unix"] = sha256 ? cloak("/extremely/long/inspircd/cloak.example") : broken;
 		data["path-parts"] = ConvToStr(pathparts);
 		data["prefix"]     = prefix;
 		data["suffix"]     = suffix;
@@ -265,7 +266,7 @@ public:
 		if (!cloakhost)
 			return;
 
-		data["cloak-host"] = sha256 ? Cloak("extremely.long.inspircd.cloak.example") : broken;
+		data["cloak-host"] = sha256 ? Cloak("extremely.long.inspircd.cloak.example")->ToString() : broken;
 		data["host-parts"] = ConvToStr(hostparts);
 
 #ifdef HAS_PSL
