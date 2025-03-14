@@ -21,6 +21,7 @@
 #include "clientprotocolevent.h"
 #include "modules/cloak.h"
 #include "modules/ircv3_replies.h"
+#include "modules/server.h"
 #include "utility/map.h"
 
 typedef std::vector<Cloak::MethodPtr> CloakMethodList;
@@ -347,6 +348,7 @@ public:
 
 class ModuleCloak final
 	: public Module
+	, public ServerProtocol::SyncEventListener
 {
 private:
 	CloakAPI cloakapi;
@@ -371,6 +373,7 @@ private:
 public:
 	ModuleCloak()
 		: Module(VF_VENDOR | VF_COMMON, "Adds user mode x (cloak) which allows user hostnames to be hidden.")
+		, ServerProtocol::SyncEventListener(this)
 		, cloakapi(this, cloakmethods, &cloakmode)
 		, cloakcmd(this, cloakmethods)
 		, cloakmode(this, cloakapi)
@@ -529,6 +532,40 @@ public:
 			ServerInstance->SNO.WriteGlobalSno('a', "The {} hash provider was unloaded; removing {} cloak methods until the next rehash.",
 				service.name.substr(6), methods);
 		}
+	}
+
+	void OnSyncNetwork(Server& server) override
+	{
+		if (cloakmethods.empty())
+			return;
+
+		std::stringstream buf;
+		for (auto mit = cloakmethods.begin(); mit != cloakmethods.end(); ++mit)
+		{
+			if (mit != cloakmethods.begin())
+				buf << ' ';
+
+			// All cloak methods have their name listed.
+			const auto& cloakmethod = *mit;
+			buf << cloakmethod->GetName();
+
+			LinkData data;
+			cloakmethod->GetLinkData(data);
+			if (data.empty())
+				continue; // This method has no data so thats all we need to do.
+
+			// Serialize the data in the same format as CAPAB MODULES.
+			buf << '=';
+			for (auto dit = data.begin(); dit != data.end(); ++dit)
+			{
+				if (dit != data.begin())
+					buf << '&';
+
+				buf << dit->first << '=' << Percent::Encode(dit->second);
+			}
+		}
+
+		server.SendMetadata("cloakmethods", buf.str());
 	}
 
 	void OnUserConnect(LocalUser* user) override
