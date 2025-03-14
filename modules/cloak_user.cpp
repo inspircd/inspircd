@@ -90,7 +90,7 @@ protected:
 	}
 
 public:
-	std::string Generate(LocalUser* user) override ATTR_NOT_NULL(2)
+	std::string Cloak(LocalUser* user) override ATTR_NOT_NULL(2)
 	{
 		if (!MatchesUser(user))
 			return {}; // We shouldn't cloak this user.
@@ -153,7 +153,7 @@ public:
 		return prefix + safemiddle + suffix;
 	}
 
-	std::string Generate(const std::string& hostip) override
+	std::string Cloak(const std::string& hostip) override
 	{
 		// We can't generate user cloaks without a user.
 		return {};

@@ -220,7 +220,7 @@ public:
 	}
 #endif
 
-	std::string Generate(LocalUser* user) override ATTR_NOT_NULL(2)
+	std::string Cloak(LocalUser* user) override ATTR_NOT_NULL(2)
 	{
 		if (!sha256 || !MatchesUser(user))
 			return {};
@@ -232,7 +232,7 @@ public:
 		return CloakHost(user->GetRealHost(), '.', hostparts);
 	}
 
-	std::string Generate(const std::string& hostip) override
+	std::string Cloak(const std::string& hostip) override
 	{
 		if (!sha256)
 			return {};
@@ -255,9 +255,9 @@ public:
 		// IMPORTANT: link data is sent over unauthenticated server links so we
 		// can't directly send the key here. Instead we use dummy cloaks that
 		// allow verification of or less the same thing.
-		data["cloak-v4"]   = sha256 ? Generate("123.123.123.123")                        : broken;
-		data["cloak-v6"]   = sha256 ? Generate("dead:beef:cafe::")                       : broken;
-		data["cloak-unix"] = sha256 ? Generate("/extremely/long/inspircd/cloak.example") : broken;
+		data["cloak-v4"]   = sha256 ? Cloak("123.123.123.123")                        : broken;
+		data["cloak-v6"]   = sha256 ? Cloak("dead:beef:cafe::")                       : broken;
+		data["cloak-unix"] = sha256 ? Cloak("/extremely/long/inspircd/cloak.example") : broken;
 		data["path-parts"] = ConvToStr(pathparts);
 		data["prefix"]     = prefix;
 		data["suffix"]     = suffix;
@@ -265,7 +265,7 @@ public:
 		if (!cloakhost)
 			return;
 
-		data["cloak-host"] = sha256 ? Generate("extremely.long.inspircd.cloak.example") : broken;
+		data["cloak-host"] = sha256 ? Cloak("extremely.long.inspircd.cloak.example") : broken;
 		data["host-parts"] = ConvToStr(hostparts);
 
 #ifdef HAS_PSL

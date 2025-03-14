@@ -33,7 +33,7 @@ public:
 	{
 	}
 
-	std::string Generate(LocalUser* user) override ATTR_NOT_NULL(2)
+	std::string Cloak(LocalUser* user) override ATTR_NOT_NULL(2)
 	{
 		if (!MatchesUser(user))
 			return {}; // We shouldn't cloak this user.
@@ -41,7 +41,7 @@ public:
 		return cloak;
 	}
 
-	std::string Generate(const std::string& hostip) override
+	std::string Cloak(const std::string& hostip) override
 	{
 		return cloak;
 	}

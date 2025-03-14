@@ -58,7 +58,7 @@ public:
 		size_t count = 0;
 		for (const auto& cloakmethod : cloakmethods)
 		{
-			const std::string cloak = cloakmethod->Generate(parameters[0]);
+			const std::string cloak = cloakmethod->Cloak(parameters[0]);
 			if (cloak.empty())
 				continue;
 
@@ -121,7 +121,7 @@ public:
 			cloaks = new Cloak::List();
 			for (const auto& cloakmethod : cloakmethods)
 			{
-				const std::string cloak = cloakmethod->Generate(user);
+				const std::string cloak = cloakmethod->Cloak(user);
 				if (!cloak.empty())
 				{
 					cloaks->push_back(cloak);

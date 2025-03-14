@@ -150,12 +150,12 @@ public:
 	/** Generates a cloak for the specified user.
 	 * @param user The user to generate a cloak for.
 	 */
-	virtual std::string Generate(LocalUser* user) ATTR_NOT_NULL(2) = 0;
+	virtual std::string Cloak(LocalUser* user) ATTR_NOT_NULL(2) = 0;
 
 	/** Generates a cloak for the specified hostname, IP address, or UNIX socket path.
 	 * @param hostip The hostname, IP address, or UNIX socket path to generate a cloak for.
 	 */
-	virtual std::string Generate(const std::string& hostip) = 0;
+	virtual std::string Cloak(const std::string& hostip) = 0;
 
 	/** Retrieves link compatibility data for this cloak method.
 	 * @param data The location to store link compatibility data.
