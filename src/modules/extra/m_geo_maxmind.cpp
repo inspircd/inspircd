@@ -181,8 +181,8 @@ public:
 		MMDB_s mmdb;
 		int result = MMDB_open(file.c_str(), MMDB_MODE_MMAP, &mmdb);
 		if (result != MMDB_SUCCESS)
-			throw ModuleException(this, INSP_FORMAT("Unable to load the MaxMind database ({}): {}",
-				file, MMDB_strerror(result)));
+			throw ModuleException(this, "Unable to load the MaxMind database ({}): {}",
+				file, MMDB_strerror(result));
 
 		// Swap the new database with the old database.
 		std::swap(mmdb, geoapi.mmdb);

@@ -299,13 +299,13 @@ public:
 		// Ensure that we have the <cloak:key> parameter.
 		const std::string key = tag->getString("key");
 		if (key.empty())
-			throw ModuleException(creator, INSP_FORMAT("You have not defined a cloaking key. Define <cloak:key> as a {}+ character network-wide secret, at {}", minkeylen, tag->source.str()));
+			throw ModuleException(creator, "You have not defined a cloaking key. Define <cloak:key> as a {}+ character network-wide secret, at {}", minkeylen, tag->source.str());
 
 		// If we are the first cloak method then mandate a strong key.
 		if (primary)
 		{
 			if (key.length() < minkeylen)
-				throw ModuleException(creator, INSP_FORMAT("Your cloaking key is not secure. It should be at least {} characters long, at {}", minkeylen, tag->source.str()));
+				throw ModuleException(creator, "Your cloaking key is not secure. It should be at least {} characters long, at {}", minkeylen, tag->source.str());
 
 			ServerInstance->Logs.Normal(MODNAME, "The {} cloak method is deprecated and will be removed in the next major version of InspIRCd. Consider migrating to cloak_sha256 instead. See " INSPIRCD_DOCS "modules/cloak_md5 for more information.",
 				name.c_str() + 6);

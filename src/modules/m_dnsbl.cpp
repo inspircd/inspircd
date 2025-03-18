@@ -624,8 +624,8 @@ public:
 			const auto dnsblreply = tag->getNum<uint32_t>("reply", std::numeric_limits<uint32_t>::max());
 			if (dnsblreply > 16'777'215)
 			{
-				throw ModuleException(this, INSP_FORMAT("<dnsblreply:reply> ({}) is not a valid DNSBL reply at {}",
-					dnsblreply, tag->source.str()));
+				throw ModuleException(this, "<dnsblreply:reply> ({}) is not a valid DNSBL reply at {}",
+					dnsblreply, tag->source.str());
 			}
 
 			(*dnsbl)->replies[dnsblreply] = dnsbldesc;
