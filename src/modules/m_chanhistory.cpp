@@ -283,7 +283,7 @@ public:
 		{
 			auto message = INSP_FORMAT("Replaying up to {} lines of pre-join history", list->maxlen);
 			if (list->maxtime > 0)
-				message += INSP_FORMAT(" from the last {}", Duration::ToHuman(list->maxtime));
+				message += INSP_FORMAT(" from the last {}", Duration::ToLongString(list->maxtime));
 			memb->WriteNotice(message);
 		}
 

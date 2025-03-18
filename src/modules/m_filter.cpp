@@ -319,7 +319,7 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 			if (result.first)
 			{
 				const std::string message = INSP_FORMAT("'{}', type '{}'{}, flags '{}', reason: {}", freeform, parameters[1],
-					(duration ? INSP_FORMAT(", duration '{}'", Duration::ToHuman(duration)) : ""),
+					(duration ? INSP_FORMAT(", duration '{}'", Duration::ToLongString(duration)) : ""),
 					flags, parameters[reasonindex]);
 
 				user->WriteNotice("*** Added filter " + message);
@@ -472,7 +472,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, MessageTarget& msgtarget, M
 		{
 			auto* sh = new Shun(ServerInstance->Time(), f->duration, MODNAME "@" + ServerInstance->Config->ServerName, f->reason, user->GetAddress());
 			ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was shunned for {} (expires on {}) because their message to {} matched {} ({})",
-				user->nick, sh->Displayable(), Duration::ToHuman(f->duration),
+				user->nick, sh->Displayable(), Duration::ToLongString(f->duration),
 				Time::FromNow(f->duration),
 				msgtarget.GetName(), f->freeform, f->reason);
 			if (ServerInstance->XLines->AddLine(sh, nullptr))
@@ -486,7 +486,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, MessageTarget& msgtarget, M
 		{
 			auto* gl = new GLine(ServerInstance->Time(), f->duration, MODNAME "@" + ServerInstance->Config->ServerName, f->reason, "*", user->GetAddress());
 			ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was G-lined for {} (expires on {}) because their message to {} matched {} ({})",
-				user->nick, gl->Displayable(), Duration::ToHuman(f->duration),
+				user->nick, gl->Displayable(), Duration::ToLongString(f->duration),
 				Time::FromNow(f->duration),
 				msgtarget.GetName(), f->freeform, f->reason);
 			if (ServerInstance->XLines->AddLine(gl, nullptr))
@@ -500,7 +500,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, MessageTarget& msgtarget, M
 		{
 			auto* zl = new ZLine(ServerInstance->Time(), f->duration, MODNAME "@" + ServerInstance->Config->ServerName, f->reason, user->GetAddress());
 			ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was Z-lined for {} (expires on {}) because their message to {} matched {} ({})",
-				user->nick, zl->Displayable(), Duration::ToHuman(f->duration),
+				user->nick, zl->Displayable(), Duration::ToLongString(f->duration),
 				Time::FromNow(f->duration),
 				msgtarget.GetName(), f->freeform, f->reason);
 			if (ServerInstance->XLines->AddLine(zl, nullptr))
@@ -578,7 +578,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 				auto* gl = new GLine(ServerInstance->Time(), f->duration, MODNAME "@" + ServerInstance->Config->ServerName, f->reason, "*", user->GetAddress());
 				ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was G-lined for {} (expires on {}) because their {} message matched {} ({})",
 					user->nick, gl->Displayable(),
-					Duration::ToHuman(f->duration),
+					Duration::ToLongString(f->duration),
 					Time::FromNow(f->duration),
 					command, f->freeform, f->reason);
 
@@ -594,7 +594,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 				auto* zl = new ZLine(ServerInstance->Time(), f->duration, MODNAME "@" + ServerInstance->Config->ServerName, f->reason, user->GetAddress());
 				ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was Z-lined for {} (expires on {}) because their {} message matched {} ({})",
 					user->nick, zl->Displayable(),
-					Duration::ToHuman(f->duration),
+					Duration::ToLongString(f->duration),
 					Time::FromNow(f->duration),
 					command, f->freeform, f->reason);
 
@@ -611,7 +611,7 @@ ModResult ModuleFilter::OnPreCommand(std::string& command, CommandBase::Params& 
 				auto* sh = new Shun(ServerInstance->Time(), f->duration, MODNAME "@" + ServerInstance->Config->ServerName, f->reason, user->GetAddress());
 				ServerInstance->SNO.WriteGlobalSno('f', "{} ({}) was shunned for {} (expires on {}) because their {} message matched {} ({})",
 					user->nick, sh->Displayable(),
-					Duration::ToHuman(f->duration),
+					Duration::ToLongString(f->duration),
 					Time::FromNow(f->duration),
 					command, f->freeform, f->reason);
 
@@ -981,7 +981,7 @@ bool ModuleFilter::Tick()
 			// Back off a bit to avoid spamming opers.
 			if (backoff > 1)
 				SetInterval(std::min(GetInterval() * backoff, maxbackoff), false);
-			ServerInstance->Logs.Debug(MODNAME, "Trying again in {}", Duration::ToHuman(GetInterval()));
+			ServerInstance->Logs.Debug(MODNAME, "Trying again in {}", Duration::ToLongString(GetInterval()));
 		}
 	}
 	return true;

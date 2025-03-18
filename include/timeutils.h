@@ -38,7 +38,7 @@ namespace Duration
 	 */
 	CoreExport bool IsValid(const std::string& str);
 
-	/** Converts a number of seconds to a human-readable representation.
+	/** Converts a number of seconds to a human-readable duration string.
 	 *
 	 * e.g. 33,019,565 will result in 1 year, 2 weeks, 3 days, 4 hours, 6
 	 * minutes, 5 seconds.
@@ -46,7 +46,7 @@ namespace Duration
 	 * @param duration The number of seconds to convert.
 	 * @param brief Whether to round to the nearest time period.
 	 */
-	CoreExport std::string ToHuman(unsigned long duration, bool brief = false);
+	CoreExport std::string ToLongString(unsigned long duration, bool brief = false);
 
 	/** Converts a number of seconds to a duration string.
 	 *

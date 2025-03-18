@@ -161,7 +161,7 @@ public:
 				if (f->islocked())
 				{
 					user->WriteNumeric(ERR_CANTCHANGENICK, INSP_FORMAT("{} has been locked for nick changes for {} because there have been more than {} nick changes in {}",
-							memb->chan->name, Duration::ToHuman(duration), f->nicks, Duration::ToHuman(f->secs)));
+							memb->chan->name, Duration::ToLongString(duration), f->nicks, Duration::ToLongString(f->secs)));
 					return MOD_RES_DENY;
 				}
 
@@ -170,7 +170,7 @@ public:
 					f->clear();
 					f->lock();
 					memb->chan->WriteNotice(INSP_FORMAT("No nick changes are allowed for {} because there have been more than {} nick changes in {}.",
-						Duration::ToHuman(duration), f->nicks, Duration::ToHuman(f->secs)));
+						Duration::ToLongString(duration), f->nicks, Duration::ToLongString(f->secs)));
 					return MOD_RES_DENY;
 				}
 			}

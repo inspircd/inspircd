@@ -504,7 +504,7 @@ std::string Duration::ToString(unsigned long duration)
 
 	return ret;
 }
-std::string Duration::ToHuman(unsigned long duration, bool brief)
+std::string Duration::ToLongString(unsigned long duration, bool brief)
 {
 	if (duration == 0)
 		return "0 seconds";

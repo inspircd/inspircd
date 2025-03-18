@@ -707,7 +707,7 @@ void XLine::DisplayExpiry()
 {
 	ServerInstance->SNO.WriteToSnoMask('x', "Removing an expired {}{} on {} (set by {} {} ago): {}",
 		type, (type.length() <= 2 ? "-line" : ""), Displayable(), source,
-		Duration::ToHuman(ServerInstance->Time() - set_time), reason);
+		Duration::ToLongString(ServerInstance->Time() - set_time), reason);
 }
 
 const std::string& ELine::Displayable() const

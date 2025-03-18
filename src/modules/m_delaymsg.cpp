@@ -141,7 +141,7 @@ ModResult ModuleDelayMsg::HandleMessage(User* user, const MessageTarget& target)
 			return MOD_RES_PASSTHRU;
 
 		const std::string message = INSP_FORMAT("You cannot send messages to this channel until you have been a member for {}.",
-			Duration::ToHuman(len));
+			Duration::ToLongString(len));
 		user->WriteNumeric(Numerics::CannotSendTo(channel, message));
 		return MOD_RES_DENY;
 	}

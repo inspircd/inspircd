@@ -72,7 +72,7 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 			else
 			{
 				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed Q-line on {}, expires in {} (on {}): {}",
-					user->nick, parameters[0], Duration::ToHuman(duration), Time::FromNow(duration), ql->reason);
+					user->nick, parameters[0], Duration::ToLongString(duration), Time::FromNow(duration), ql->reason);
 			}
 			ServerInstance->XLines->ApplyLines();
 		}
