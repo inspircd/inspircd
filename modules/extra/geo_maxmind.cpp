@@ -219,6 +219,23 @@ public:
 		// up again next time it is requested.
 		geoapi.ext.Unset(user);
 	}
+
+	void OnModuleRehash(User* user, const std::string& param) override
+	{
+		if (!irc::equals(param, "geolocation"))
+			return;
+
+		try
+		{
+			ConfigStatus status;
+			this->ReadConfig(status);
+			ServerInstance->SNO.WriteToSnoMask('r', "MaxMind database has been reloaded.");
+		}
+		catch (const ModuleException& ex)
+		{
+			ServerInstance->SNO.WriteToSnoMask('r', "Failed to reload the MaxMind database. " + ex.GetReason());
+		}
+	}
 };
 
 MODULE_INIT(ModuleGeoMaxMind)
