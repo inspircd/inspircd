@@ -1,7 +1,7 @@
 # Last updated: 2024-06-19
 #
 # Modules we can't legally ship: geo_maxmind, ssl_openssl
-# Modules which don't apply to Windows: sslrehashsignal
+# Modules which don't apply to Windows: log_syslog, rehashsignal
 # Modules without packages: ssl_gnutls
 
 [requires]

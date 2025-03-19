@@ -64,4 +64,7 @@
  /** Whether the getentropy() function was available at compile time. */
  %define HAS_GETENTROPY
 
+/** Whether the sigabbrev_np() function was available at compile time. */
+ %define HAS_SIGABBREV_NP
+
 #endif

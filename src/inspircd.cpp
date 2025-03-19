@@ -343,6 +343,10 @@ namespace
 		signal(SIGUSR2, SIG_IGN);
 		signal(SIGXFSZ, SIG_IGN);
 #endif
+#if defined(SIGRTMIN) && defined(SIGRTMAX)
+		for (auto rtsig = SIGRTMIN; rtsig <= SIGRTMAX; ++rtsig)
+			signal(rtsig, SIG_IGN);
+#endif
 		signal(SIGTERM, InspIRCd::SetSignal);
 	}
 

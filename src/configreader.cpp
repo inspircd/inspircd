@@ -679,6 +679,9 @@ std::vector<std::string> ServerConfig::GetModules() const
 		}
 
 		// Rewrite the old names of renamed modules.
+		if (insp::equalsci(shortname, "sslrehashsignal"))
+			modules.push_back("rehashsignal");
+		else
 		{
 			// No need to rewrite this module name.
 			modules.push_back(shortname);

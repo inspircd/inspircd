@@ -183,6 +183,7 @@ my %compiler = get_compiler_info($config{CXX});
 $config{HAS_ARC4RANDOM_BUF} = run_test 'arc4random_buf()', test_file($config{CXX}, 'arc4random_buf.cpp');
 $config{HAS_CLOCK_GETTIME} = run_test 'clock_gettime()', test_file($config{CXX}, 'clock_gettime.cpp', $^O eq 'darwin' ? undef : '-lrt');
 $config{HAS_GETENTROPY} = run_test 'getentropy()', test_file($config{CXX}, 'getentropy.cpp');
+$config{HAS_SIGABBREV_NP} = run_test 'sigabbrev_np()', test_file($config{CXX}, 'sigabbrev_np.cpp');
 
 my @socketengines;
 push @socketengines, 'epoll'  if run_test 'epoll', test_header $config{CXX}, 'sys/epoll.h';
@@ -396,10 +397,10 @@ if (prompt_bool $interactive, $question, 0) {
 		'regex_pcre2'     => 'pkg-config --exists libpcre2-8',
 		'regex_posix'     => undef,
 		'regex_re2'       => 'pkg-config --exists re2',
+		'rehashsignal'    => undef,
 		'sqlite3'         => 'pkg-config --exists sqlite3',
 		'ssl_gnutls'      => 'pkg-config --exists "gnutls >= 3.3.5"',
 		'ssl_openssl'     => 'pkg-config --exists "openssl >= 1.1.1"',
-		'sslrehashsignal' => undef,
 	);
 	while (my ($module, $command) = each %modules) {
 		unless (defined $command && system "$command 1>/dev/null 2>/dev/null") {

@@ -40,7 +40,7 @@ jobs:
 
       - name: Run configure
         run: |
-          ./configure --enable-extras "argon2 geo_maxmind ldap log_syslog mysql pgsql regex_pcre2 regex_posix regex_re2 sqlite3 ssl_gnutls ssl_openssl sslrehashsignal"
+          ./configure --enable-extras "argon2 geo_maxmind ldap log_syslog mysql pgsql regex_pcre2 regex_posix regex_re2 rehashsignal sqlite3 ssl_gnutls ssl_openssl"
           ./configure --development --disable-auto-extras --disable-ownership --socketengine ${{ matrix.socketengine }}
 
       - name: Build core
