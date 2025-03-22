@@ -378,10 +378,10 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 
 		if (proto_version < PROTO_OLDEST)
 		{
-			SendError("CAPAB negotiation failed: Server is using protocol version "
-				+ (proto_version ? ConvToStr(proto_version) : "1201 or older")
-				+ " which is too old to link with this server (protocol versions "
-				+ ConvToStr(PROTO_OLDEST) + " to " + ConvToStr(PROTO_NEWEST) + " are supported)");
+			const auto proto_str = proto_version ? ConvToStr(proto_version) : "1201 or older";
+			SendError(FMT::format("CAPAB negotiation failed. Server is using protocol version {} which"
+				" is too old to link with this server (protocol versions {} to {} are supported)",
+				proto_str, (uint16_t)PROTO_OLDEST, (uint16_t)PROTO_NEWEST));
 			return false;
 		}
 
