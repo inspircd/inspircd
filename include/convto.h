@@ -86,18 +86,6 @@ inline std::string ConvToStr(const Formattable& in)
 	return FMT::format("{}", in);
 }
 
-/** Converts any type to a string.
- * @param in The value to convert.
- */
-template <class T> requires(!std::integral<T> && !std::floating_point<T> && !fmt_formattable<T>)
-inline std::string ConvToStr(const T& in)
-{
-	std::stringstream tmp;
-	if (!(tmp << in))
-		return std::string();
-	return tmp.str();
-}
-
 /** Converts a string to a numeric type.
  * @param in The string to convert to a numeric type.
  * @param def The value to return if the string could not be converted (defaults to 0)
