@@ -426,7 +426,7 @@ void ServerConfig::Read()
 	catch (const CoreException& err)
 	{
 		valid = false;
-		errstr << err.GetReason() << std::endl;
+		errors.push_back(err.GetReason());
 	}
 }
 
@@ -451,21 +451,21 @@ void ServerConfig::Apply(const std::unique_ptr<ServerConfig>& old, const std::st
 		auto dietags = ConfTags("die");
 		if (!dietags.empty())
 		{
-			errstr << "Your configuration has not been edited correctly!" << std::endl;
+			errors.push_back("Your configuration has not been edited correctly!");
 			for (const auto& [_, tag] : dietags)
 			{
 				const std::string reason = tag->getString("reason", "You left a <die> tag in your config", 1);
-				errstr << reason <<  " (at " << tag->source.str() << ")" << std::endl;
+				errors.push_back(FMT::format("{} (at {})", reason, tag->source.str()));
 			}
 		}
 
 		// Reject the broken configs that outdated tutorials keep pushing.
 		if (!ConfValue("power")->getString("pause").empty())
 		{
-			errstr << "You appear to be using a config file from an ancient outdated tutorial!" << std::endl
-				<< "This will almost certainly not work. You should instead create a config" << std::endl
-				<< "file using the examples shipped with InspIRCd or by referring to the" << std::endl
-				<< "docs available at " INSPIRCD_DOCS "configuration." << std::endl;
+			errors.push_back("You appear to be using a config file from an ancient outdated tutorial!");
+			errors.push_back("This will almost certainly not work. You should instead create a config");
+			errors.push_back("file using the examples shipped with InspIRCd or by referring to the");
+			errors.push_back("docs available at " INSPIRCD_DOCS "configuration.");
 		}
 
 		Fill();
@@ -476,16 +476,18 @@ void ServerConfig::Apply(const std::unique_ptr<ServerConfig>& old, const std::st
 	}
 	catch (const CoreException& ce)
 	{
-		errstr << ce.GetReason() << std::endl;
+		errors.push_back(ce.GetReason());
 	}
 
 	// Check errors before dealing with failed binds, since continuing on failed bind is wanted in some circumstances.
-	valid = errstr.str().empty();
+	valid = errors.empty();
 
 	auto binds = ConfTags("bind");
 	if (binds.empty())
-		errstr << "Possible configuration error: you have not defined any <bind> blocks." << std::endl
-			<< "You will need to do this if you want clients to be able to connect!" << std::endl;
+	{
+		errors.push_back("Possible configuration error: you have not defined any <bind> blocks.");
+		errors.push_back("You will need to do this if you want clients to be able to connect!");
+	}
 
 	if (old && valid)
 	{
@@ -494,13 +496,15 @@ void ServerConfig::Apply(const std::unique_ptr<ServerConfig>& old, const std::st
 		ServerInstance->BindPorts(pl);
 		if (!pl.empty())
 		{
-			errstr << "Warning! Some of your listener" << (pl.size() == 1 ? "s" : "") << " failed to bind:" << std::endl;
+			errors.push_back("Warning! Some of your listeners failed to bind:");
 			for (const auto& fp : pl)
 			{
 				if (fp.sa.family() != AF_UNSPEC)
-					errstr << "  " << fp.sa.str() << ": ";
+					errors.push_back(FMT::format("  {}: {}", fp.sa.str(), fp.error));
+				else
+					errors.push_back(FMT::format("  {}", fp.error));
 
-				errstr << fp.error << std::endl << "  " << "Created from <bind> tag at " << fp.tag->source.str() << std::endl;
+				errors.push_back(FMT::format("  Created from <bind> tag at {}", fp.tag->source.str()));
 			}
 		}
 	}
@@ -513,13 +517,8 @@ void ServerConfig::Apply(const std::unique_ptr<ServerConfig>& old, const std::st
 		Classes.clear();
 	}
 
-	while (errstr.good())
+	for (const auto &line : errors)
 	{
-		std::string line;
-		getline(errstr, line, '\n');
-		if (line.empty())
-			continue;
-
 		// On startup, print out to console (still attached at this point)
 		if (!old)
 			fmt::println("{}", line);
@@ -532,8 +531,8 @@ void ServerConfig::Apply(const std::unique_ptr<ServerConfig>& old, const std::st
 		ServerInstance->SNO.WriteGlobalSno('r', line);
 	}
 
-	errstr.clear();
-	errstr.str(std::string());
+	errors.clear();
+	errors.shrink_to_fit();
 
 	/* No old configuration -> initial boot, nothing more to do here */
 	if (!old)

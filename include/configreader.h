@@ -245,7 +245,7 @@ class CoreExport ServerConfig final
 {
 private:
 	friend class ConfigReaderThread; // valid
-	friend struct ParseStack; // config_data, errstr, filesources
+	friend struct ParseStack; // config_data, errors, filesources
 
 	/** Holds the contents of a cached file. */
 	typedef insp::flat_map<std::string, std::pair<std::string, time_t>> FileCache;
@@ -260,7 +260,7 @@ private:
 	TagMap config_data;
 
 	/** Whether any errors occurred whilst reading the server config. */
-	std::stringstream errstr;
+	std::vector<std::string> errors;
 
 	/** Files which have been read from disk. */
 	FileCache filecontents;

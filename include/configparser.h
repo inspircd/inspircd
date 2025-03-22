@@ -30,7 +30,7 @@ struct ParseStack final
 	insp::flat_map<std::string, std::string, irc::insensitive_swo> vars;
 	ServerConfig::TagMap& output;
 	ServerConfig::FileSource& FilesOutput;
-	std::stringstream& errstr;
+	std::vector<std::string>& errors;
 
 	ParseStack(ServerConfig* conf);
 	bool ParseFile(const std::string& name, int flags, const std::string& mandatory_tag = std::string(), bool isexec = false);

@@ -182,8 +182,8 @@ struct Parser final
 						break;
 					else
 					{
-						stack.errstr << "Invalid XML entity name in value of <" + tag->name + ":" + key + ">\n"
-							<< "To include an ampersand or quote, use &amp; or &quot;\n";
+						stack.errors.push_back(FMT::format("Invalid XML entity name in value of <{}:{}>", tag->name, key));
+						stack.errors.push_back("To include an ampersand or quote, use &amp; or &quot;");
 						throw CoreException("Parse error");
 					}
 				}
@@ -319,7 +319,7 @@ struct Parser final
 						break;
 					case 0xFE:
 					case 0xFF:
-						stack.errstr << "Do not save your files as UTF-16 or UTF-32, use UTF-8!\n";
+						stack.errors.push_back("Do not save your files as UTF-16 or UTF-32, use UTF-8!");
 						[[fallthrough]];
 					default:
 						throw CoreException("Syntax error - start of tag expected");
@@ -328,12 +328,11 @@ struct Parser final
 		}
 		catch (const CoreException& err)
 		{
-			stack.errstr << err.GetReason() << " at " << current.str();
+			stack.errors.push(FMT::format("{} at {}", err.GetReason(), current.str()));
 			if (tag)
-				stack.errstr << " (inside <" << tag->name << "> tag on line " << tag->source.line << ")";
+				stack.errors.back().append(FMT::format(" (inside {} tag on line {})", tag->name, tag->source.line));
 			else if (last_tag.line)
-				stack.errstr << " (last tag was on line " << last_tag.line << ")";
-			stack.errstr << '\n';
+				stack.errors.back().append(FMT::format(" (last tag was on line {})", tag->source.line));
 		}
 		return false;
 	}
@@ -476,7 +475,7 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 ParseStack::ParseStack(ServerConfig* conf)
 	: output(conf->config_data)
 	, FilesOutput(conf->filesources)
-	, errstr(conf->errstr)
+	, errors(conf->errors)
 {
 	vars = {
 		// Special character escapes.
