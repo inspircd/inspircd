@@ -261,7 +261,15 @@ private:
 		if (maxlevel < level && !caching)
 			return; // No loggers care about this message.
 
-		Write(level, type, fmt::vformat(format, fmt::make_format_args(args...)));
+		try
+		{
+			Write(level, type, fmt::vformat(format, fmt::make_format_args(args...)));
+		}
+		catch (const fmt::format_error& err)
+		{
+			// This should only ever happen when we encounter a bug.
+			Write(Log::Level::CRITICAL, "LOG", "BUG: failed to format a log message: {} -- {}", format, err.what());
+		}
 	}
 
 public:
