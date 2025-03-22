@@ -304,7 +304,7 @@ void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 		else if (curtime > s->age + (time_t)p.second)
 		{
 			ServerInstance->SNO.WriteToSnoMask('l', "CONNECT: Error connecting \002{}\002 (timeout of {})",
-				p.first, Duration::ToHuman(p.second));
+				p.first, Duration::ToLongString(p.second));
 			Utils->timeoutlist.erase(me);
 			s->Close();
 		}

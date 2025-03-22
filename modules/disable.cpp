@@ -47,8 +47,8 @@ private:
 		{
 			// Check that the character is a valid mode letter.
 			if (!ModeParser::IsModeChar(chr))
-				throw ModuleException(this, FMT::format("Invalid mode '{}' was specified in <disabled:{}> at {}",
-					chr, field, tag->source.str()));
+				throw ModuleException(this, "Invalid mode '{}' was specified in <disabled:{}> at {}",
+					chr, field, tag->source.str());
 
 			// Check that the mode actually exists.
 			ModeHandler* mh = ServerInstance->Modes.FindMode(chr, type);
@@ -90,8 +90,8 @@ public:
 			// Check that the command actually exists.
 			Command* handler = ServerInstance->Parser.GetHandler(command);
 			if (!handler)
-				throw ModuleException(this, FMT::format("Nonexistent command '{}' was specified in <disabled:commands> at {}",
-					command, tag->source.str()));
+				throw ModuleException(this, "Nonexistent command '{}' was specified in <disabled:commands> at {}",
+					command, tag->source.str());
 
 			// Prevent admins from disabling MODULES for transparency reasons.
 			if (handler->name == "MODULES")

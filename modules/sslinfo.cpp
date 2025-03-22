@@ -458,7 +458,7 @@ public:
 		}
 		else if (static_cast<time_t>(ServerInstance->Time() + warnexpiring) > cert->GetExpirationTime())
 		{
-			const std::string duration = Duration::ToHuman(cert->GetExpirationTime() - ServerInstance->Time());
+			const std::string duration = Duration::ToLongString(cert->GetExpirationTime() - ServerInstance->Time());
 			user->WriteNotice("*** Your TLS client certificate expires in " + duration + ".");
 		}
 	}

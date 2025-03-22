@@ -24,9 +24,7 @@
  */
 
 
-#include <exception>
 #include <new>
-
 #include <windows.h>
 
 /** On windows, all dll files and executables have their own private heap,
@@ -39,31 +37,26 @@
  * when it comes to memory usage between dlls and exes.
  */
 
-void * ::operator new(size_t iSize)
+void* ::operator new(size_t count)
 {
-	void* ptr = HeapAlloc(GetProcessHeap(), 0, iSize);
-	/* This is the correct behaviour according to C++ standards for out of memory,
-	 * not returning null -- Brain
-	 */
+	void* ptr = HeapAlloc(GetProcessHeap(), 0, count);
 	if (!ptr)
 		throw std::bad_alloc();
-	else
-		return ptr;
+	return ptr;
 }
 
-void ::operator delete(void * ptr)
+void ::operator delete(void* ptr)
 {
 	if (ptr)
 		HeapFree(GetProcessHeap(), 0, ptr);
 }
 
-void * operator new[] (size_t iSize)
+void* operator new[](size_t count)
 {
-	void* ptr = HeapAlloc(GetProcessHeap(), 0, iSize);
+	void* ptr = HeapAlloc(GetProcessHeap(), 0, count);
 	if (!ptr)
 		throw std::bad_alloc();
-	else
-		return ptr;
+	return ptr;
 }
 
 void operator delete[] (void* ptr)

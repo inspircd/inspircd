@@ -387,12 +387,12 @@ public:
 						break;
 
 					case Codepage::AllowCharacterResult::NOT_VALID:
-						throw ModuleException(this, FMT::format("<cpchars> tag contains a forbidden character: {} at {}",
-							GetPrintable(pos), tag->source.str()));
+						throw ModuleException(this, "<cpchars> tag contains a forbidden character: {} at {}",
+							GetPrintable(pos), tag->source.str());
 
 					case Codepage::AllowCharacterResult::NOT_VALID_AT_FRONT:
-						throw ModuleException(this, FMT::format("<cpchars> tag contains a forbidden front character: {} at {}",
-							GetPrintable(pos), tag->source.str()));
+						throw ModuleException(this, "<cpchars> tag contains a forbidden front character: {} at {}",
+							GetPrintable(pos), tag->source.str());
 				}
 			}
 		}

@@ -556,14 +556,16 @@ void XLine::DefaultApply(User* u, bool bancache)
 		u->WriteNumeric(ERR_YOUREBANNEDCREEP, ServerInstance->Config->XLineMessage);
 
 	Template::VariableMap vars = {
-		{ "created",   Time::ToString(set_time)                            },
-		{ "duration",  Duration::ToString(duration)                        },
-		{ "expiry",    Time::ToString(expiry)                              },
-		{ "fulltype",  type.length() <= 2 ? type + "-lined" : type         },
-		{ "reason",    reason                                              },
-		{ "remaining", Duration::ToString(ServerInstance->Time() - expiry) },
-		{ "setter",    source                                              },
-		{ "type",      type                                                },
+		{ "created",        Time::ToString(set_time)                                },
+		{ "duration",       Duration::ToString(duration)                            },
+		{ "duration.long",  Duration::ToLongString(duration)                        },
+		{ "expiry",         Time::ToString(expiry)                                  },
+		{ "fulltype",       type.length() <= 2 ? type + "-lined" : type             },
+		{ "reason",         reason                                                  },
+		{ "remaining",      Duration::ToString(ServerInstance->Time() - expiry)     },
+		{ "remaining.long", Duration::ToLongString(ServerInstance->Time() - expiry) },
+		{ "setter",         source                                                  },
+		{ "type",           type                                                    },
 	};
 
 	const std::string banreason = Template::Replace(ServerInstance->Config->XLineQuit, vars);
@@ -707,7 +709,7 @@ void XLine::DisplayExpiry()
 {
 	ServerInstance->SNO.WriteToSnoMask('x', "Removing an expired {}{} on {} (set by {} {} ago): {}",
 		type, (type.length() <= 2 ? "-line" : ""), Displayable(), source,
-		Duration::ToHuman(ServerInstance->Time() - set_time), reason);
+		Duration::ToLongString(ServerInstance->Time() - set_time), reason);
 }
 
 const std::string& ELine::Displayable() const

@@ -66,7 +66,7 @@ namespace
 		if (!user->lastping)
 		{
 			time_t secs = ServerInstance->Time() - (user->nextping - user->GetClass()->pingtime);
-			const std::string message = FMT::format("Ping timeout: {}", Duration::ToHuman(secs));
+			const std::string message = FMT::format("Ping timeout: {}", Duration::ToLongString(secs));
 			ServerInstance->Users.QuitUser(user, message);
 			return;
 		}

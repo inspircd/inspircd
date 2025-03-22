@@ -54,6 +54,18 @@ private:
 	const Module* module;
 
 public:
+
+	/** Creates a new instance of the ModuleException class with the specified module instance and reason.
+	 * @param mod The module which threw this exception.
+	 * @param format A format string for a message that contains the reason this exception was thrown.
+	 * @param args The arguments to format the message.
+	 */
+	template <typename... Args>
+	ModuleException(const Module* mod, const char* format, Args&&... args)
+		: ModuleException(mod, FMT::vformat(format, FMT::make_format_args(args...)))
+	{
+	}
+
 	/** Creates a new instance of the ModuleException class with the specified module instance and reason.
 	 * @param mod The module which threw this exception.
 	 * @param message A message that contains the reason this exception was thrown.

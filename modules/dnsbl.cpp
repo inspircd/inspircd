@@ -259,7 +259,7 @@ private:
 		}
 
 		ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed {} on {}, expires in {} (on {}): {}",
-			line->source, type, line->Displayable(), Duration::ToHuman(line->duration),
+			line->source, type, line->Displayable(), Duration::ToLongString(line->duration),
 			Time::ToString(line->expiry), line->reason);
 		ServerInstance->XLines->ApplyLines();
 	}
@@ -571,8 +571,8 @@ public:
 			const auto dnsblreply = tag->getNum<uint32_t>("reply", std::numeric_limits<uint32_t>::max());
 			if (dnsblreply > 16'777'215)
 			{
-				throw ModuleException(this, FMT::format("<dnsblreply:reply> ({}) is not a valid DNSBL reply at {}",
-					dnsblreply, tag->source.str()));
+				throw ModuleException(this, "<dnsblreply:reply> ({}) is not a valid DNSBL reply at {}",
+					dnsblreply, tag->source.str());
 			}
 
 			(*dnsbl)->replies[dnsblreply] = dnsbldesc;

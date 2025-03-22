@@ -164,13 +164,13 @@ void TreeSocket::ProcessLine(std::string& line)
 					time_t delta = std::abs(them - ServerInstance->Time());
 					if (delta > 15)
 					{
-						ServerInstance->SNO.WriteGlobalSno('l', "\002ERROR\002: Your clocks are off by {} (this is more than fifteen seconds). Link aborted, \002PLEASE SYNC YOUR CLOCKS!\002", Duration::ToHuman(delta));
-						SendError(FMT::format("Your clocks are out by {} (this is more than fifteen seconds). Link aborted, PLEASE SYNC YOUR CLOCKS!", Duration::ToHuman(delta)));
+						ServerInstance->SNO.WriteGlobalSno('l', "\002ERROR\002: Your clocks are off by {} (this is more than fifteen seconds). Link aborted, \002PLEASE SYNC YOUR CLOCKS!\002", Duration::ToLongString(delta));
+						SendError(FMT::format("Your clocks are out by {} (this is more than fifteen seconds). Link aborted, PLEASE SYNC YOUR CLOCKS!", Duration::ToLongString(delta)));
 						return;
 					}
 					else if (delta > 5)
 					{
-						ServerInstance->SNO.WriteGlobalSno('l', "\002WARNING\002: Your clocks are off by {}. Please consider syncing your clocks.", Duration::ToHuman(delta));
+						ServerInstance->SNO.WriteGlobalSno('l', "\002WARNING\002: Your clocks are off by {}. Please consider syncing your clocks.", Duration::ToLongString(delta));
 					}
 				}
 
@@ -436,7 +436,7 @@ void TreeSocket::Close()
 	time_t server_uptime = ServerInstance->Time() - this->age;
 	if (server_uptime)
 	{
-		std::string timestr = Duration::ToHuman(server_uptime);
+		std::string timestr = Duration::ToLongString(server_uptime);
 		ServerInstance->SNO.WriteGlobalSno('l', "Connection to '\002{}\002' was established for {}", linkID, timestr);
 	}
 }

@@ -59,7 +59,7 @@ CmdResult CommandAddLine::Handle(User* usr, Params& params)
 		{
 			ServerInstance->SNO.WriteToSnoMask('X', "{} added a timed {}{} on {}, expires in {} (on {}): {}",
 				setter, params[0], params[0].length() <= 2 ? "-line" : "",
-				params[1], Duration::ToHuman(xl->duration),
+				params[1], Duration::ToLongString(xl->duration),
 				Time::ToString(xl->expiry), params[5]);
 		}
 		else

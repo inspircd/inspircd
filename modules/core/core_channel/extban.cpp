@@ -26,8 +26,8 @@ void ExtBanManager::AddExtBan(ExtBan::Base* extban)
 	{
 		auto lit = byletter.emplace(extban->GetLetter(), extban);
 		if (!lit.second)
-			throw ModuleException(creator, FMT::format("ExtBan letter \"{}\" is already in use by the {} extban from {}",
-				extban->GetLetter(), lit.first->second->GetName(), lit.first->second->creator->ModuleFile));
+			throw ModuleException(creator, "ExtBan letter \"{}\" is already in use by the {} extban from {}",
+				extban->GetLetter(), lit.first->second->GetName(), lit.first->second->creator->ModuleFile);
 	}
 
 	auto nit = byname.emplace(extban->GetName(), extban);
@@ -36,8 +36,8 @@ void ExtBanManager::AddExtBan(ExtBan::Base* extban)
 		if (extban->GetLetter())
 			byletter.erase(extban->GetLetter());
 
-		throw ModuleException(creator, FMT::format("ExtBan name \"{}\" is already in use by the {} extban from {}",
-			extban->GetName(), nit.first->second->GetLetter(), nit.first->second->creator->ModuleFile));
+		throw ModuleException(creator, "ExtBan name \"{}\" is already in use by the {} extban from {}",
+			extban->GetName(), nit.first->second->GetLetter(), nit.first->second->creator->ModuleFile);
 	}
 }
 

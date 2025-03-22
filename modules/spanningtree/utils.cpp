@@ -301,7 +301,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 			throw ModuleException((Module*)Creator, "The link name '"+L->Name+"' is invalid as it must contain at least one '.' character");
 
 		if (L->Name.length() > ServerInstance->Config->Limits.MaxHost)
-			throw ModuleException((Module*)Creator, FMT::format("The link name '{}' is invalid as it is longer than {} characters", L->Name, ServerInstance->Config->Limits.MaxHost));
+			throw ModuleException((Module*)Creator, "The link name '{}' is invalid as it is longer than {} characters", L->Name, ServerInstance->Config->Limits.MaxHost);
 
 		if (L->RecvPass.empty())
 			throw ModuleException((Module*)Creator, "Invalid configuration for server '"+L->Name+"', recvpass not defined");

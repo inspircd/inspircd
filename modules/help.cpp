@@ -115,16 +115,16 @@ public:
 			// Attempt to read the help key.
 			const std::string key = tag->getString("key");
 			if (key.empty())
-				throw ModuleException(this, FMT::format("<{}:key> is empty at {}", tag->name, tag->source.str()));
+				throw ModuleException(this, "<{}:key> is empty at {}", tag->name, tag->source.str());
 			else if (irc::equals(key, "index"))
-				throw ModuleException(this, FMT::format("<{}:key> is set to \"index\" which is reserved at {}", tag->name, tag->source.str()));
+				throw ModuleException(this, "<{}:key> is set to \"index\" which is reserved at {}", tag->name, tag->source.str());
 			else if (key.length() > longestkey)
 				longestkey = key.length();
 
 			// Attempt to read the help value.
 			std::string value;
 			if (!tag->readString("value", value, true) || value.empty())
-				throw ModuleException(this, FMT::format("<{}:value> is empty at {}", tag->name, tag->source.str()));
+				throw ModuleException(this, "<{}:value> is empty at {}", tag->name, tag->source.str());
 
 			// Parse the help body. Empty lines are replaced with a single
 			// space because some clients are unable to show blank lines.
@@ -137,8 +137,8 @@ public:
 			const std::string title = tag->getString("title", FMT::format("*** Help for {}", key), 1);
 			if (!newhelp.emplace(key, HelpTopic(helpmsg, title)).second)
 			{
-				throw ModuleException(this, FMT::format("<{}> tag with duplicate key '{}' at {}",
-					tag->name, key, tag->source.str()));
+				throw ModuleException(this, "<{}> tag with duplicate key '{}' at {}",
+					tag->name, key, tag->source.str());
 			}
 		}
 

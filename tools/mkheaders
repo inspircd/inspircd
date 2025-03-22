@@ -90,7 +90,7 @@ for my $path (@paths) {
 			$indent = $1;
 		} else {
 			push @lines, $line;
-			push @linenums, $linenum;
+			push(@linenums, $linenum) if $line =~ /\S/;
 		}
 	}
 	close $fh;
