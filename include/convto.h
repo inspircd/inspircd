@@ -110,25 +110,3 @@ inline Numeric ConvToNum(const std::string& in, Numeric def = 0)
 		return def;
 	return ret;
 }
-
-/** Specialisation of ConvToNum so istringstream doesn't try to extract a text character.
- * @param in The string to convert to a numeric type.
- * @param def The value to return if the string could not be converted (defaults to 0)
- */
-template<>
-inline char ConvToNum<char>(const std::string& in, char def)
-{
-	int16_t num = ConvToNum<int16_t>(in, def);
-	return num >= INT8_MIN && num <= INT8_MAX ? static_cast<char>(num) : def;
-}
-
-/** Specialisation of ConvToNum so istringstream doesn't try to extract a text character.
- * @param in The string to convert to a numeric type.
- * @param def The value to return if the string could not be converted (defaults to 0)
- */
-template<>
-inline unsigned char ConvToNum<unsigned char>(const std::string& in, unsigned char def)
-{
-	uint16_t num = ConvToNum<uint16_t>(in, def);
-	return num <= UINT8_MAX ? static_cast<unsigned char>(num) : def;
-}
