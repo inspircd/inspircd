@@ -133,7 +133,7 @@ public:
 	void OnPostOperLogout(User* user, const std::shared_ptr<OperAccount>& oper) override
 	{
 		LocalUser* luser = IS_LOCAL(user);
-		if (!luser)
+		if (!luser || luser->quitting)
 			return;
 
 		if (hasoperclass.Get(luser))
