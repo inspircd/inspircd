@@ -139,7 +139,10 @@ public:
 		if (hasoperclass.Get(luser))
 		{
 			if (!luser->FindConnectClass(true))
-				ServerInstance->Logs.Normal("CONNECTCLASS", "Unable to find a non-operator connect class for {} ({}); keeping their existing one.");
+			{
+				ServerInstance->Logs.Normal("CONNECTCLASS", "Unable to find a non-operator connect class for {} ({}); keeping their existing one.",
+					user->nick, user->GetRealUserHost());
+			}
 			hasoperclass.Unset(luser);
 		}
 	}
