@@ -36,6 +36,8 @@
 /// $PackageInfo: require_system("rhel~") pkg-config postgresql-devel
 
 
+#include <sstream>
+
 #include <libpq-fe.h>
 #include <pg_config.h>
 

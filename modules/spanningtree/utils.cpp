@@ -24,6 +24,8 @@
  */
 
 
+#include <sstream>
+
 #include "inspircd.h"
 #include "listmode.h"
 

@@ -328,7 +328,7 @@ struct Parser final
 		}
 		catch (const CoreException& err)
 		{
-			stack.errors.push(FMT::format("{} at {}", err.GetReason(), current.str()));
+			stack.errors.push_back(FMT::format("{} at {}", err.GetReason(), current.str()));
 			if (tag)
 				stack.errors.back().append(FMT::format(" (inside {} tag on line {})", tag->name, tag->source.line));
 			else if (last_tag.line)

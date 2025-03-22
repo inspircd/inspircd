@@ -25,6 +25,8 @@
  */
 
 
+#include <sstream>
+
 #include "inspircd.h"
 #include "extension.h"
 #include "modules/ssl.h"

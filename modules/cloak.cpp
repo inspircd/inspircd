@@ -17,6 +17,8 @@
  */
 
 
+#include <sstream>
+
 #include "inspircd.h"
 #include "clientprotocolevent.h"
 #include "modules/cloak.h"

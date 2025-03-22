@@ -22,6 +22,8 @@
  */
 
 
+#include <sstream>
+
 #include "inspircd.h"
 #include "dynamic.h"
 #include "modules/extban.h"

@@ -26,6 +26,8 @@
  */
 
 
+#include <sstream>
+
 #include "inspircd.h"
 #include "modules/callerid.h"
 #include "modules/ctctags.h"

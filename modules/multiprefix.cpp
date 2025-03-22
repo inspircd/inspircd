@@ -23,6 +23,8 @@
  */
 
 
+#include <sstream>
+
 #include "inspircd.h"
 #include "modules/cap.h"
 #include "modules/names.h"

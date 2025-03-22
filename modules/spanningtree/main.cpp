@@ -26,6 +26,8 @@
  */
 
 
+#include <sstream>
+
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
 #include "iohook.h"

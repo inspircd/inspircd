@@ -25,6 +25,8 @@
  */
 
 
+#include <sstream>
+
 #include "inspircd.h"
 #include "modules/cap.h"
 #include "modules/stats.h"

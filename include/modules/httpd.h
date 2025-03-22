@@ -26,6 +26,8 @@
 
 #pragma once
 
+#include <sstream>
+
 #include "timeutils.h"
 
 class HTTPQueryParameters final

@@ -44,6 +44,7 @@
 #include "xline.h"
 
 #include <fstream>
+#include <sstream>
 
 enum FilterFlags
 {
