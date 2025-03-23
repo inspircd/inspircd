@@ -42,9 +42,8 @@ private:
 
 	static std::string FormatTime(time_t ts)
 	{
-		std::string timestr(Time::ToString(ts, "%Y-%m-%d %H:%M:%S UTC (", true));
-		timestr.append(ConvToStr(ts));
-		timestr.push_back(')');
+		auto timestr = Time::ToString(ts, Time::DEFAULT_LONG, true);
+		timestr += INSP_FORMAT(" ({})", ServerInstance->Time());
 		return timestr;
 	}
 
