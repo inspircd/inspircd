@@ -37,7 +37,7 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		auto timestr = Time::ToString(ServerInstance->Time(), "%A, %d %B %Y @ %H:%M:%S %Z", true);
+		auto timestr = Time::ToString(ServerInstance->Time(), Time::DEFAULT_LONG, true);
 		timestr += INSP_FORMAT(" ({})", ServerInstance->Time());
 
 		user->WriteRemoteNumeric(RPL_TIME, ServerInstance->Config->ServerName, timestr);

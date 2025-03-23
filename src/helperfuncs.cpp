@@ -617,7 +617,7 @@ std::string Time::ToString(time_t curtime, const char* format, bool utc)
 
 	// This is the default format used by asctime without the terminating new line.
 	if (!format)
-		format = "%a %b %d %Y %H:%M:%S";
+		format = Time::DEFAULT_SHORT;
 
 	char buffer[512];
 	if (!strftime(buffer, sizeof(buffer), format, timeinfo))

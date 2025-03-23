@@ -74,6 +74,18 @@ namespace Duration
 
 namespace Time
 {
+	/** A short time format picked for being readable (e.g. "Sun 23 Mar 2025 10:20:30") */
+	inline constexpr const char* DEFAULT_SHORT = "%a %d %b %Y %H:%M:%S";
+
+	/** A long time format picked for being readable (e.g. "Sunday, 23 March 2025 @ 10:20:30 GMT"). */
+	inline constexpr const char* DEFAULT_LONG = "%A, %d %B %Y @ %H:%M:%S %Z";
+
+	/** The time format specified in ISO 8601 (e.g. "2025-03-23T10:20:30+0000") */
+	inline constexpr const char* ISO_8601 = "%Y-%m-%dT%H:%M:%S%z";
+
+	/** The time format specified in RFC 1123 (e.g. "Sun, 23 Mar 2025 10:20:30 GMT") */
+	inline constexpr const char* RFC_1123 = "%a, %d %b %Y %H:%M:%S %Z";
+
 	/** Converts a UNIX timestamp to a time string.
 	 *
 	 * @param ts The timestamp to convert to a string.

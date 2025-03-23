@@ -94,7 +94,7 @@ public:
 		if (prevtime != time)
 		{
 			prevtime = time;
-			timestr = Time::ToString(prevtime, "%Y-%m-%dT%H:%M:%S%z");
+			timestr = Time::ToString(prevtime, Time::ISO_8601);
 		}
 
 		const auto* levelstr = Log::LevelToString(level);

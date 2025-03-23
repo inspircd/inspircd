@@ -271,7 +271,7 @@ public:
 	{
 		WriteData(INSP_FORMAT("HTTP/{}.{} {} {}\r\n", parser.http_major ? parser.http_major : 1, parser.http_major ? parser.http_minor : 1, response, http_status_str((http_status)response)));
 
-		rheaders.CreateHeader("Date", Time::ToString(ServerInstance->Time(), "%a, %d %b %Y %H:%M:%S GMT", true));
+		rheaders.CreateHeader("Date", Time::ToString(ServerInstance->Time(), Time::RFC_1123, true));
 		rheaders.CreateHeader("Server", INSPIRCD_BRANCH);
 		rheaders.SetHeader("Content-Length", ConvToStr(size));
 
