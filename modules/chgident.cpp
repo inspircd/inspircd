@@ -53,7 +53,7 @@ public:
 			return CmdResult::FAILURE;
 		}
 
-		if (!ServerInstance->IsUser(parameters[1]))
+		if (!ServerInstance->Users.IsUser(parameters[1]))
 		{
 			user->WriteNotice("*** CHGIDENT: Invalid characters in username");
 			return CmdResult::FAILURE;

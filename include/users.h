@@ -438,7 +438,6 @@ public:
 	irc::sockets::sockaddrs client_sa;
 
 	/** The users nickname.
-	 * Use InspIRCd::IsNick() to validate nicknames.
 	 */
 	std::string nick;
 

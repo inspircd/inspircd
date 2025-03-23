@@ -311,7 +311,7 @@ private:
 	{
 		for (auto* user : ServerInstance->Users.GetLocalUsers())
 		{
-			if (user->nick != user->uuid && !ServerInstance->IsNick(user->nick))
+			if (user->nick != user->uuid && !ServerInstance->Users.IsNick(user->nick))
 				ChangeNick(user, "Your nickname is no longer valid.");
 		}
 	}
@@ -340,13 +340,13 @@ public:
 		, ISupport::EventListener(this)
 		, origcasemap(national_case_insensitive_map)
 		, origcasemapname(ServerInstance->Config->CaseMapping)
-		, origisnick(ServerInstance->IsNick)
+		, origisnick(ServerInstance->Users.IsNick)
 	{
 	}
 
 	~ModuleCodepage() override
 	{
-		ServerInstance->IsNick = origisnick;
+		ServerInstance->Users.IsNick = origisnick;
 		CheckInvalidNick();
 
 		ServerInstance->Config->CaseMapping = origcasemapname;
@@ -416,7 +416,7 @@ public:
 
 		charset = codepagetag->getString("charset");
 		std::swap(codepage, newcodepage);
-		ServerInstance->IsNick = [this](const std::string_view& nick) { return codepage->IsValidNick(nick); };
+		ServerInstance->Users.IsNick = [this](const std::string_view& nick) { return codepage->IsValidNick(nick); };
 		CheckInvalidNick();
 
 		ServerInstance->Config->CaseMapping = name;

@@ -241,53 +241,6 @@ void InspIRCd::ProcessColors(std::string& line)
 	}
 }
 
-/* true for valid nickname, false else */
-bool InspIRCd::DefaultIsNick(const std::string_view& n)
-{
-	if (n.empty() || n.length() > ServerInstance->Config->Limits.MaxNick)
-		return false;
-
-	for (std::string_view::const_iterator i = n.begin(); i != n.end(); ++i)
-	{
-		if ((*i >= 'A') && (*i <= '}'))
-		{
-			/* "A"-"}" can occur anywhere in a nickname */
-			continue;
-		}
-
-		if ((((*i >= '0') && (*i <= '9')) || (*i == '-')) && (i != n.begin()))
-		{
-			/* "0"-"9", "-" can occur anywhere BUT the first char of a nickname */
-			continue;
-		}
-
-		/* invalid character! abort */
-		return false;
-	}
-
-	return true;
-}
-
-/* return true for good username, false else */
-bool InspIRCd::DefaultIsUser(const std::string_view& n)
-{
-	if (n.empty())
-		return false;
-
-	for (const auto chr : n)
-	{
-		if (chr >= 'A' && chr <= '}')
-			continue;
-
-		if ((chr >= '0' && chr <= '9') || chr == '-' || chr == '.')
-			continue;
-
-		return false;
-	}
-
-	return true;
-}
-
 bool InspIRCd::IsHost(const std::string_view& host, bool allowsimple)
 {
 	// Hostnames must be non-empty and shorter than the maximum hostname length.

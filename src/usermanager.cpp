@@ -465,3 +465,41 @@ User* UserManager::FindUUID(const std::string& uuid, bool fullyconnected)
 
 	return user;
 }
+
+/* true for valid nickname, false else */
+bool UserManager::DefaultIsNick(const std::string_view& nick)
+{
+	if (nick.empty() || nick.length() > ServerInstance->Config->Limits.MaxNick)
+		return false;
+
+	for (auto it = nick.cbegin(); it != nick.cend(); ++it)
+	{
+		const auto chr = *it;
+		if (chr >= 'A' && chr <= '}')
+			continue; // "A"-"}" can occur anywhere in a nickname.
+
+		if (((chr >= '0' && chr <= '9') || (chr == '-')) && it != nick.begin())
+			continue; // "0"-"9", "-" can occur anywhere BUT the first char of a nickname.
+
+		return false;
+	}
+	return true;
+}
+
+bool UserManager::DefaultIsUser(const std::string_view& user)
+{
+	if (user.empty())
+		return false;
+
+	for (const auto chr : user)
+	{
+		if (chr >= 'A' && chr <= '}')
+			continue;
+
+		if ((chr >= '0' && chr <= '9') || chr == '-' || chr == '.')
+			continue;
+
+		return false;
+	}
+	return true;
+}

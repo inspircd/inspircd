@@ -59,7 +59,7 @@ public:
 				return CmdResult::FAILURE;
 			}
 
-			if (!ServerInstance->IsNick(parameters[1]))
+			if (!ServerInstance->Users.IsNick(parameters[1]))
 			{
 				user->WriteNotice("*** Invalid nickname: '" + parameters[1] + "'");
 				return CmdResult::FAILURE;

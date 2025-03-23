@@ -45,7 +45,7 @@ CmdResult CommandUser::HandleLocal(LocalUser* user, const Params& parameters)
 	/* A user may only send the USER command once */
 	if (!(user->connected & User::CONN_USER))
 	{
-		if (!ServerInstance->IsUser(parameters[0]))
+		if (!ServerInstance->Users.IsUser(parameters[0]))
 		{
 			user->WriteNumeric(ERR_INVALIDUSERNAME, name, "Your username is not valid");
 			return CmdResult::FAILURE;

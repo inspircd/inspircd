@@ -58,7 +58,7 @@ CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 	{
 		newnick = user->uuid;
 	}
-	else if (!ServerInstance->IsNick(newnick))
+	else if (!ServerInstance->Users.IsNick(newnick))
 	{
 		user->WriteNumeric(ERR_ERRONEUSNICKNAME, newnick, "Erroneous Nickname");
 		return CmdResult::FAILURE;

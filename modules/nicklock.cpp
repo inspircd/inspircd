@@ -61,7 +61,7 @@ public:
 		/* Do local sanity checks and bails */
 		if (IS_LOCAL(user))
 		{
-			if (!ServerInstance->IsNick(parameters[1]))
+			if (!ServerInstance->Users.IsNick(parameters[1]))
 			{
 				user->WriteNotice("*** Invalid nickname '" + parameters[1] + "'");
 				return CmdResult::FAILURE;

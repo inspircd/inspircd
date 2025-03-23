@@ -251,7 +251,7 @@ public:
 			 * we're done.
 			 */
 			result += chr;
-			if (!ServerInstance->IsUser(result))
+			if (!ServerInstance->Users.IsUser(result))
 			{
 				result.pop_back();
 				break;

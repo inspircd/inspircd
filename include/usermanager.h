@@ -80,6 +80,12 @@ public:
 	 */
 	~UserManager();
 
+	/** Determines whether a nickname is valid. */
+	std::function<bool(const std::string_view&)> IsNick = &DefaultIsNick;
+
+	/** Determines whether a username is valid. */
+	std::function<bool(const std::string_view&)> IsUser = &DefaultIsUser;
+
 	/** Nickname string -> User* map. Contains all users, including partially connected ones.
 	 */
 	UserMap clientlist;
@@ -97,6 +103,20 @@ public:
 
 	/** Number of local unknown (not fully connected) users. */
 	size_t unknown_count = 0;
+
+	/** Determines whether a nickname is valid according to the RFC 1459 rules.
+	 * This is the default function for UserManager::IsNick.
+	 * @param nick The nickname to validate.
+	 * @return True if the nickname is valid according to RFC 1459 rules; otherwise, false.
+	 */
+	static bool DefaultIsNick(const std::string_view& nick);
+
+	/** Determines whether a username is valid according to the RFC 1459 rules.
+	 * This is the default function for UserManager::IsUser.
+	 * @param user The username to validate.
+	 * @return True if the username is valid according to RFC 1459 rules; otherwise, false.
+	*/
+	static bool DefaultIsUser(const std::string_view& user);
 
 	/** Perform background user events for all local users such as PING checks, connection timeouts,
 	 * penalty management and recvq processing for users who have data in their recvq due to throttling.

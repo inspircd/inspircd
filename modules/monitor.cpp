@@ -122,7 +122,7 @@ public:
 
 	WatchResult Watch(LocalUser* user, const std::string& nick, unsigned long maxwatch)
 	{
-		if (!ServerInstance->IsNick(nick))
+		if (!ServerInstance->Users.IsNick(nick))
 			return WR_INVALIDNICK;
 
 		WatchedList* watched = GetWatchedPriv(user, true);

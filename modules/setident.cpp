@@ -43,7 +43,7 @@ public:
 			return CmdResult::FAILURE;
 		}
 
-		if (!ServerInstance->IsUser(parameters[0]))
+		if (!ServerInstance->Users.IsUser(parameters[0]))
 		{
 			user->WriteNotice("*** SETIDENT: Invalid characters in username");
 			return CmdResult::FAILURE;

@@ -386,7 +386,7 @@ public:
 			if (insp::equalsci(type, "username") || insp::equalsci(type, "ident"))
 			{
 				// The IP address should be looked up from the hex IP address.
-				const std::string newuser = tag->getString("newusername", "gateway", ServerInstance->IsUser);
+				const std::string newuser = tag->getString("newusername", "gateway", ServerInstance->Users.IsUser);
 				userhosts.emplace_back(masks, newuser);
 			}
 			else if (insp::equalsci(type, "webirc"))

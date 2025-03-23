@@ -242,12 +242,6 @@ public:
 	/** Fills a buffer with random bytes. */
 	std::function<void(char*, size_t)> GenRandom = &DefaultGenRandom;
 
-	/** Determines whether a nickname is valid. */
-	std::function<bool(const std::string_view&)> IsNick = &DefaultIsNick;
-
-	/** Determines whether a username is valid. */
-	std::function<bool(const std::string_view&)> IsUser = &DefaultIsUser;
-
 	/** List of the open listeners. */
 	std::vector<ListenSocket*> Ports;
 
@@ -307,20 +301,6 @@ public:
 	 * @param max The maximum number of random characters to put in the buffer.
 	 */
 	static void DefaultGenRandom(char* output, size_t max);
-
-	/** Determines whether a nickname is valid according to the RFC 1459 rules.
-	 * This is the default function for InspIRCd::IsNick.
-	 * @param nick The nickname to validate.
-	 * @return True if the nickname is valid according to RFC 1459 rules; otherwise, false.
-	 */
-	static bool DefaultIsNick(const std::string_view& nick);
-
-	/** Determines whether a username is valid according to the RFC 1459 rules.
-	 * This is the default function for InspIRCd::IsUser.
-	 * @param user The username to validate.
-	 * @return True if the username is valid according to RFC 1459 rules; otherwise, false.
-	*/
-	static bool DefaultIsUser(const std::string_view& user);
 
 	/** Causes the server to exit after unloading modules and closing all open file descriptors.
 	 * @param status The exit code to give to the operating system.
