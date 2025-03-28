@@ -64,43 +64,37 @@ public:
 
 		if (res.Rows())
 		{
-			if (!kdf.empty())
+			HashProvider* hashprov = ServerInstance->Modules.FindDataService<HashProvider>("hash/" + kdf);
+			if (!hashprov)
 			{
-				HashProvider* hashprov = ServerInstance->Modules.FindDataService<HashProvider>("hash/" + kdf);
-				if (!hashprov)
-				{
-					if (verbose)
-						ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from {} (a provider for {} was not loaded)", user->GetRealMask(), kdf);
-					pendingExt.Set(user, AUTH_STATE_FAIL);
-					return;
-				}
-
-				size_t colindex = 0;
-				if (!pwcolumn.empty() && !res.HasColumn(pwcolumn, colindex))
-				{
-					if (verbose)
-						ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from {} (the column specified ({}) was not returned)", user->GetRealMask(), pwcolumn);
-					pendingExt.Set(user, AUTH_STATE_FAIL);
-					return;
-				}
-
-				SQL::Row row;
-				while (res.GetRow(row))
-				{
-					if (row[colindex].has_value() && hashprov->Compare(user->password, *row[colindex]))
-					{
-						pendingExt.Set(user, AUTH_STATE_NONE);
-						return;
-					}
-				}
-
 				if (verbose)
-					ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from {} (password from the SQL query did not match the user provided password)", user->GetRealMask());
+					ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from {} (a provider for {} was not loaded)", user->GetRealMask(), kdf);
 				pendingExt.Set(user, AUTH_STATE_FAIL);
 				return;
 			}
 
-			pendingExt.Set(user, AUTH_STATE_NONE);
+			size_t colindex = 0;
+			if (!pwcolumn.empty() && !res.HasColumn(pwcolumn, colindex))
+			{
+				if (verbose)
+					ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from {} (the column specified ({}) was not returned)", user->GetRealMask(), pwcolumn);
+				pendingExt.Set(user, AUTH_STATE_FAIL);
+				return;
+			}
+
+			SQL::Row row;
+			while (res.GetRow(row))
+			{
+				if (row[colindex].has_value() && hashprov->Compare(user->password, *row[colindex]))
+				{
+					pendingExt.Set(user, AUTH_STATE_NONE);
+					return;
+				}
+			}
+
+			if (verbose)
+				ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from {} (password from the SQL query did not match the user provided password)", user->GetRealMask());
+			pendingExt.Set(user, AUTH_STATE_FAIL);
 		}
 		else
 		{
@@ -132,7 +126,6 @@ class ModuleSQLAuth final
 	std::string killreason;
 	std::vector<std::string> exemptions;
 	bool verbose;
-	std::vector<std::string> hash_algos;
 	std::string kdf;
 	std::string pwcolumn;
 
@@ -156,7 +149,7 @@ public:
 		freeformquery = conf->getString("query");
 		killreason = conf->getString("killreason");
 		verbose = conf->getBool("verbose");
-		kdf = conf->getString("kdf");
+		kdf = conf->getString("kdf", conf->getString("hash", "bcrypt"));
 		pwcolumn = conf->getString("column");
 
 		exemptions.clear();
@@ -166,12 +159,6 @@ public:
 			if (!mask.empty())
 				exemptions.push_back(mask);
 		}
-
-		hash_algos.clear();
-		irc::commasepstream algos(conf->getString("hash", "sha1,sha256"));
-		std::string algo;
-		while (algos.GetToken(algo))
-			hash_algos.push_back(algo);
 	}
 
 	ModResult OnUserRegister(LocalUser* user) override
@@ -200,15 +187,7 @@ public:
 
 		SQL::ParamMap userinfo;
 		SQL::PopulateUserInfo(user, userinfo);
-		userinfo["pass"] = user->password;
 		userinfo["sslfp"] = sslapi ? sslapi->GetFingerprint(user) : "";
-
-		for (const auto& algo : hash_algos)
-		{
-			HashProvider* hashprov = ServerInstance->Modules.FindDataService<HashProvider>("hash/" + algo);
-			if (hashprov && !hashprov->IsKDF())
-				userinfo[algo + "pass"] = hashprov->Generate(user->password);
-		}
 
 		SQL->Submit(new AuthQuery(this, user->uuid, pendingExt, verbose, kdf, pwcolumn), freeformquery, userinfo);
 
