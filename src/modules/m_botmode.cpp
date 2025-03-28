@@ -62,7 +62,7 @@ private:
 
 public:
 	ModuleBotMode()
-		: Module(VF_VENDOR, "Adds user mode B (bot) which marks users with it set as bots in their /WHOIS response.")
+		: Module(VF_VENDOR, "Adds user mode B (bot) which marks users with it set as bots.")
 		, ISupport::EventListener(this)
 		, Who::EventListener(this)
 		, Whois::EventListener(this)
