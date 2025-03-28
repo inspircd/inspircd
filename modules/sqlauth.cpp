@@ -167,12 +167,6 @@ public:
 				exemptions.push_back(mask);
 		}
 
-		// Begin v3 config compatibility.
-		const std::string allowpattern = conf->getString("allowpattern");
-		if (!allowpattern.empty())
-			exemptions.push_back(allowpattern + "!*@*");
-		// End v3 config compatibility.
-
 		hash_algos.clear();
 		irc::commasepstream algos(conf->getString("hash", "sha1,sha256"));
 		std::string algo;

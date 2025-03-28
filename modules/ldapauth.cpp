@@ -376,19 +376,6 @@ public:
 			if (!mask.empty())
 				exemptions.push_back(mask);
 		}
-
-		// Begin v3 config compatibility.
-		for (const auto& [_, wtag] : ServerInstance->Config->ConfTags("ldapwhitelist"))
-		{
-			const std::string cidr = wtag->getString("cidr");
-			if (!cidr.empty())
-				exemptions.push_back("*!*@" + cidr);
-		}
-
-		irc::spacesepstream nickstream(tag->getString("allowpattern"));
-		for (std::string nick; nickstream.GetToken(nick); )
-			exemptions.push_back(nick + "!*@*");
-		// End v3 config compatibility.
 	}
 
 	void OnUserConnect(LocalUser* user) override
