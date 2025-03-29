@@ -263,7 +263,7 @@ private:
 
 		try
 		{
-			Write(level, type, FMT::vformat(format, fmt::make_format_args(args...)));
+			Write(level, type, FMT::vformat(format, FMT::make_format_args(args...)));
 		}
 		catch (const FMT::format_error& err)
 		{
