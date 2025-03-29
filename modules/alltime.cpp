@@ -5,7 +5,6 @@
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2012 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
- *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
  *   Copyright (C) 2007 Craig Edwards <brain@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -37,7 +36,7 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		auto timestr = Time::ToString(ServerInstance->Time(), "%A, %d %B %Y @ %H:%M:%S %Z", true);
+		auto timestr = Time::ToString(ServerInstance->Time(), Time::DEFAULT_LONG, true);
 		timestr += FMT::format(" ({})", ServerInstance->Time());
 
 		user->WriteRemoteNumeric(RPL_TIME, ServerInstance->Config->ServerName, timestr);

@@ -4,7 +4,7 @@
  *   Copyright (C) 2021 Dominic Hamon
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2018 edef <edef@edef.eu>
- *   Copyright (C) 2013-2014, 2017, 2019-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013-2014, 2017, 2019-2023, 2025 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
@@ -271,7 +271,7 @@ public:
 	{
 		WriteData(FMT::format("HTTP/{}.{} {} {}\r\n", parser.http_major ? parser.http_major : 1, parser.http_major ? parser.http_minor : 1, response, http_status_str((http_status)response)));
 
-		rheaders.CreateHeader("Date", Time::ToString(ServerInstance->Time(), "%a, %d %b %Y %H:%M:%S GMT", true));
+		rheaders.CreateHeader("Date", Time::ToString(ServerInstance->Time(), Time::RFC_1123, true));
 		rheaders.CreateHeader("Server", INSPIRCD_BRANCH);
 		rheaders.SetHeader("Content-Length", ConvToStr(size));
 

@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2018-2024 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018-2025 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2014 Attila Molnar <attilamolnar@hush.com>
  *
@@ -133,13 +133,16 @@ public:
 	void OnPostOperLogout(User* user, const std::shared_ptr<OperAccount>& oper) override
 	{
 		LocalUser* luser = IS_LOCAL(user);
-		if (!luser)
+		if (!luser || luser->quitting)
 			return;
 
 		if (hasoperclass.Get(luser))
 		{
 			if (!luser->FindConnectClass(true))
-				ServerInstance->Logs.Normal("CONNECTCLASS", "Unable to find a non-operator connect class for {} ({}); keeping their existing one.");
+			{
+				ServerInstance->Logs.Normal("CONNECTCLASS", "Unable to find a non-operator connect class for {} ({}); keeping their existing one.",
+					user->nick, user->GetRealUserHost());
+			}
 			hasoperclass.Unset(luser);
 		}
 	}

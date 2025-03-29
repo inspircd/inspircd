@@ -39,7 +39,7 @@ CmdResult CommandTime::Handle(User* user, const Params& parameters)
 	if (!parameters.empty() && !irc::equals(parameters[0], ServerInstance->Config->ServerName))
 		return CmdResult::SUCCESS;
 
-	auto timestr = Time::ToString(ServerInstance->Time(), "%A, %d %B %Y @ %H:%M:%S %Z");
+	auto timestr = Time::ToString(ServerInstance->Time(), Time::DEFAULT_LONG);
 	timestr += FMT::format(" ({})", ServerInstance->Time());
 
 	user->WriteRemoteNumeric(RPL_TIME, ServerInstance->Config->GetServerName(), timestr);

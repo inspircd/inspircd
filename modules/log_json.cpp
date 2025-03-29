@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2022-2024 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2022-2025 Sadie Powell <sadie@witchery.services>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -66,7 +66,7 @@ public:
 		if (prevtime != time)
 		{
 			prevtime = time;
-			timestr = Time::ToString(prevtime, "%Y-%m-%dT%H:%M:%S%z");
+			timestr = Time::ToString(prevtime, Time::ISO_8601);
 		}
 
 		const auto* levelstr = Log::LevelToString(level);
