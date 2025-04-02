@@ -55,7 +55,7 @@ private:
 		if (sasl_target == "*")
 			return;
 
-		if (InspIRCd::Match(server.GetName(), sasl_target))
+		if (irc::equals(server.GetName(), sasl_target))
 		{
 			ServerInstance->Logs.Debug(MODNAME, "SASL target server \"{}\" {}",
 				sasl_target, (linked ? "came online" : "went offline"));
