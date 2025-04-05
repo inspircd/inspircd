@@ -29,6 +29,12 @@ git     = "https://github.com/bfgroup/Lyra"
 branch  = "release"
 license = "Boost Software License"
 
+[sha1]
+author  = "Steve Reid"
+git     = "https://github.com/clibs/sha1"
+files   = "sha1.[ch]"
+license = "Public Domain"
+
 [sha2]
 author  = "Olivier Gay"
 email   = "olivier.gay@a3.epfl.ch"

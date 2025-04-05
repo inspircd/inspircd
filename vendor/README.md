@@ -42,6 +42,16 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **Website** &mdash; [https://github.com/bfgroup/Lyra](https://github.com/bfgroup/Lyra)
 
+## sha1
+
+**Author** &mdash; Steve Reid
+
+**License** &mdash; Public Domain
+
+**Version** &mdash; 0.1.0
+
+**Website** &mdash; [https://github.com/clibs/sha1](https://github.com/clibs/sha1)
+
 ## sha2
 
 **Author** &mdash; [Olivier Gay](mailto:olivier.gay@a3.epfl.ch)

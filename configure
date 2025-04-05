@@ -390,6 +390,7 @@ if (prompt_bool $interactive, $question, 0) {
 	my %modules = (
 		'argon2'          => 'pkg-config --exists libargon2',
 		'geo_maxmind'     => 'pkg-config --exists libmaxminddb',
+		'hash_argon2'     => 'pkg-config --exists libargon2',
 		'mysql'           => 'mysql_config --version',
 		'pgsql'           => 'pg_config --version',
 		'ldap'            => "pkg-config --exists lber && pkg-config --exists ldap",

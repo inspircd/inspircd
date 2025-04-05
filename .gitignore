@@ -19,6 +19,7 @@
 
 /modules/argon2.cpp
 /modules/geo_maxmind.cpp
+/modules/hash_argon2.cpp
 /modules/ldap.cpp
 /modules/log_syslog.cpp
 /modules/mysql.cpp
