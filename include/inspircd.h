@@ -269,14 +269,6 @@ public:
 	 */
 	size_t BindPorts(FailedPortList& failedports);
 
-	/** Compares a password to a hashed password.
-	 * @param password The hashed password.
-	 * @param passwordhash If non-empty then the algorithm the password is hashed with.
-	 * @param value The value to check to see if the password is valid.
-	 * @return True if the password is correct, otherwise, false.
-	 */
-	static bool CheckPassword(const std::string& password, const std::string& passwordhash, const std::string& value);
-
 	/** Generates a random integer.
 	 * @param max The maximum value for the integer.
 	 * @return A random integer between 0 and \p max.

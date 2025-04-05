@@ -36,26 +36,6 @@
 #include "utility/string.h"
 #include "xline.h"
 
-bool InspIRCd::CheckPassword(const std::string& password, const std::string& passwordhash, const std::string& value)
-{
-	ModResult res;
-	FIRST_MOD_RESULT(OnCheckPassword, res, (password, passwordhash, value));
-
-	if (res == MOD_RES_ALLOW)
-		return true; // Password explicitly valid.
-
-	if (res == MOD_RES_DENY)
-		return false; // Password explicitly invalid.
-
-	// The hash algorithm wasn't recognised by any modules. If its plain
-	// text then we can check it internally.
-	if (passwordhash.empty() || insp::equalsci(passwordhash, "plaintext"))
-		return TimingSafeCompare(password, value);
-
-	// The password was invalid.
-	return false;
-}
-
 bool InspIRCd::IsValidMask(const std::string& mask)
 {
 	const char* dest = mask.c_str();

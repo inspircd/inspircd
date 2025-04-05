@@ -17,7 +17,6 @@
 
 /include/config.h
 
-/modules/argon2.cpp
 /modules/geo_maxmind.cpp
 /modules/hash_argon2.cpp
 /modules/ldap.cpp

@@ -678,7 +678,17 @@ std::vector<std::string> ServerConfig::GetModules() const
 		}
 
 		// Rewrite the old names of renamed modules.
-		if (insp::equalsci(shortname, "sslrehashsignal"))
+		if (insp::equalsci(shortname, "argon2"))
+			modules.push_back("hash_argon2");
+		else if (insp::equalsci(shortname, "bcrypt"))
+			modules.push_back("hash_bcrypt");
+		else if (insp::equalsci(shortname, "password_hash"))
+			modules.push_back("mkpasswd");
+		else if (insp::equalsci(shortname, "sha1"))
+			modules.push_back("hash_sha1");
+		else if (insp::equalsci(shortname, "sha2"))
+			modules.push_back("hash_sha2");
+		else if (insp::equalsci(shortname, "sslrehashsignal"))
 			modules.push_back("rehashsignal");
 		else
 		{

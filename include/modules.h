@@ -143,7 +143,6 @@ enum Implementation
 	I_OnCheckInvite,
 	I_OnCheckKey,
 	I_OnCheckLimit,
-	I_OnCheckPassword,
 	I_OnCheckReady,
 	I_OnCommandBlocked,
 	I_OnDecodeMetadata,
@@ -826,15 +825,6 @@ public:
 	 * ban check, or MOD_RES_PASSTHRU to check bans normally
 	 */
 	virtual ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask)  ATTR_NOT_NULL(2, 3);
-
-	/** Called when checking if a password is valid.
-	 * @param password The hashed password.
-	 * @param passwordhash The name of the algorithm used to hash the password.
-	 * @param value The value to check to see if the password is valid.
-	 * @return MOD_RES_ALLOW if the password is correct, MOD_RES_DENY if the password is incorrect,
-	 * or MOD_RES_PASSTHRU to let another module handle the event.
-	 */
-	virtual ModResult OnCheckPassword(const std::string& password, const std::string& passwordhash, const std::string& value);
 
 	/** Called before a topic is changed.
 	 * Return 1 to deny the topic change, 0 to check details on the change, -1 to let it through with no checks

@@ -142,7 +142,6 @@ ModResult	Module::OnCheckLimit(User*, Channel*) { DetachEvent(I_OnCheckLimit); r
 ModResult	Module::OnCheckChannelBan(User*, Channel*) { DetachEvent(I_OnCheckChannelBan); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckBan(User*, Channel*, const std::string&) { DetachEvent(I_OnCheckBan); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnPreTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPreTopicChange); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckPassword(const std::string&, const std::string&, const std::string&) { DetachEvent(I_OnCheckPassword); return MOD_RES_PASSTHRU; }
 void		Module::OnPostConnect(User*) { DetachEvent(I_OnPostConnect); }
 void		Module::OnUserPostMessage(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserPostMessage); }
 void		Module::OnUserMessageBlocked(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserMessageBlocked); }
