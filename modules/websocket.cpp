@@ -23,7 +23,7 @@
 #include "inspircd.h"
 #include "extension.h"
 #include "iohook.h"
-#include "modules/hash.h"
+#include "modules/newhash.h"
 #include "modules/isupport.h"
 #include "modules/whois.h"
 #include "utility/string.h"
@@ -47,13 +47,13 @@ struct SharedData final
 	StringExtItem realip;
 
 	// A reference to the SHA-1 provider.
-	dynamic_reference_nocheck<HashProvider> sha1;
+	Hash::ProviderRef sha1;
 
 	SharedData(Module* mod)
 		: origin(mod, "websocket-origin", ExtensionType::USER, true)
 		, realhost(mod, "websocket-realhost", ExtensionType::USER, true)
 		, realip(mod, "websocket-realip", ExtensionType::USER, true)
-		, sha1(mod, "hash/sha1")
+		, sha1(mod, "sha1")
 	{
 	}
 };
@@ -553,7 +553,7 @@ class WebSocketHook final
 		key.append(MagicGUID);
 
 		std::string reply = "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ";
-		reply.append(Base64::Encode((*g_data->sha1)->GenerateRaw(key), nullptr, '=')).append(newline);
+		reply.append(Base64::Encode((*g_data->sha1)->Hash(key), nullptr, '=')).append(newline);
 		if (!selectedproto.empty())
 			reply.append("Sec-WebSocket-Protocol: ").append(selectedproto).append(newline);
 		reply.append(newline);

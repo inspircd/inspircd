@@ -23,7 +23,7 @@
 
 
 #include "inspircd.h"
-#include "modules/hash.h"
+#include "modules/newhash.h"
 #include "modules/ssl.h"
 
 #include "main.h"
@@ -58,9 +58,9 @@ std::string TreeSocket::MakePass(const std::string& password, const std::string&
 	 * Note: If an sha256 provider is not available, we MUST fall back to plaintext with no
 	 *       HMAC challenge/response.
 	 */
-	HashProvider* sha256 = ServerInstance->Modules.FindDataService<HashProvider>("hash/sha256");
+	auto* sha256 = ServerInstance->Modules.FindDataService<Hash::Provider>("hash/sha256");
 	if (sha256 && !challenge.empty())
-		return "AUTH:" + Base64::Encode(sha256->hmac(password, challenge));
+		return "AUTH:" + Base64::Encode(Hash::HMAC(sha256, password, challenge));
 
 	if (!challenge.empty() && !sha256)
 		ServerInstance->Logs.Warning(MODNAME, "Not authenticating to server using HMAC-SHA256 because we don't have an SHA256 provider (e.g. the sha2 module) loaded!");

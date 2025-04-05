@@ -20,6 +20,7 @@
 #include "inspircd.h"
 #include "extension.h"
 #include "modules/cloak.h"
+#include "modules/newhash.h"
 #include "modules/ircv3_replies.h"
 
 class CustomCloakExtItem final
@@ -102,7 +103,7 @@ public:
 
 	bool CheckPassword(const std::string& pass) const
 	{
-		return InspIRCd::CheckPassword(password, passwordhash, pass);
+		return Hash::CheckPassword(password, passwordhash, pass);
 	}
 };
 

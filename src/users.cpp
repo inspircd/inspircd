@@ -30,6 +30,7 @@
 
 #include "inspircd.h"
 #include "clientprotocolevent.h"
+#include "modules/newhash.h"
 #include "utility/string.h"
 #include "xline.h"
 
@@ -1327,5 +1328,5 @@ bool OperAccount::CheckPassword(const std::string& pw) const
 	if (nopassword)
 		return true; // <oper nopassword="yes">
 
-	return !password.empty() && InspIRCd::CheckPassword(password, passwordhash, pw);
+	return !password.empty() && Hash::CheckPassword(password, passwordhash, pw);
 }

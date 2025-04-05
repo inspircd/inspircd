@@ -24,6 +24,7 @@
 
 #include "inspircd.h"
 #include "extension.h"
+#include "modules/newhash.h"
 #include "modules/whois.h"
 
 struct CustomTitle final
@@ -52,7 +53,7 @@ struct CustomTitle final
 
 	bool CheckPass(const std::string& pass) const
 	{
-		return InspIRCd::CheckPassword(password, hash, pass);
+		return Hash::CheckPassword(password, hash, pass);
 	}
 };
 

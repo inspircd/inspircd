@@ -25,7 +25,7 @@
 
 
 #include "inspircd.h"
-#include "modules/hash.h"
+#include "modules/newhash.h"
 
 class CommandMkpasswd final
 	: public Command
@@ -43,7 +43,7 @@ public:
 		if (!parameters[0].compare(0, 5, "hmac-", 5))
 		{
 			std::string type(parameters[0], 5);
-			HashProvider* hp = ServerInstance->Modules.FindDataService<HashProvider>("hash/" + type);
+			auto* hp = ServerInstance->Modules.FindDataService<Hash::Provider>("hash/" + type);
 			if (!hp)
 			{
 				user->WriteNotice("Unknown hash type");
@@ -56,17 +56,17 @@ public:
 				return CmdResult::FAILURE;
 			}
 
-			std::string salt(hp->out_size, '\0');
+			std::string salt(hp->digest_size, '\0');
 			ServerInstance->GenRandom(salt.data(), salt.length());
 
-			std::string target = hp->hmac(salt, parameters[1]);
+			std::string target = Hash::HMAC(hp, salt, parameters[1]);
 			std::string str = Base64::Encode(salt) + "$" + Base64::Encode(target, nullptr, 0);
 
 			user->WriteNotice(parameters[0] + " hashed password for " + parameters[1] + " is " + str);
 			return CmdResult::SUCCESS;
 		}
 
-		HashProvider* hp = ServerInstance->Modules.FindDataService<HashProvider>("hash/" + parameters[0]);
+		auto* hp = ServerInstance->Modules.FindDataService<Hash::Provider>("hash/" + parameters[0]);
 		if (!hp)
 		{
 			user->WriteNotice("Unknown hash type");
@@ -75,7 +75,7 @@ public:
 
 		try
 		{
-			std::string hexsum = hp->Generate(parameters[1]);
+			auto hexsum = hp->ToPrintable(hp->Hash(parameters[1]));
 			user->WriteNotice(parameters[0] + " hashed password for " + parameters[1] + " is " + hexsum);
 			return CmdResult::SUCCESS;
 		}
@@ -104,50 +104,6 @@ public:
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("mkpasswd");
 		cmd.access_needed = tag->getBool("operonly") ? CmdAccess::OPERATOR : CmdAccess::NORMAL;
-	}
-
-	ModResult OnCheckPassword(const std::string& password, const std::string& passwordhash, const std::string& value) override
-	{
-		if (!passwordhash.compare(0, 5, "hmac-", 5))
-		{
-			std::string type(passwordhash, 5);
-			HashProvider* hp = ServerInstance->Modules.FindDataService<HashProvider>("hash/" + type);
-			if (!hp)
-				return MOD_RES_PASSTHRU;
-
-			if (hp->IsKDF())
-			{
-				ServerInstance->Logs.Normal(MODNAME, "Tried to use HMAC with {}, which does not support HMAC", type);
-				return MOD_RES_DENY;
-			}
-
-			// this is a valid hash, from here on we either accept or deny
-			std::string::size_type sep = password.find('$');
-			if (sep == std::string::npos)
-				return MOD_RES_DENY;
-			std::string salt = Base64::Decode(password.substr(0, sep));
-			std::string target = Base64::Decode(password.substr(sep + 1));
-
-			if (target == hp->hmac(salt, value))
-				return MOD_RES_ALLOW;
-			else
-				return MOD_RES_DENY;
-		}
-
-		HashProvider* hp = ServerInstance->Modules.FindDataService<HashProvider>("hash/" + passwordhash);
-
-		/* Is this a valid hash name? */
-		if (hp)
-		{
-			if (hp->Compare(value, password))
-				return MOD_RES_ALLOW;
-			else
-				/* No match, and must be hashed, forbid */
-				return MOD_RES_DENY;
-		}
-
-		// We don't handle this type, let other mods or the core decide
-		return MOD_RES_PASSTHRU;
 	}
 };
 

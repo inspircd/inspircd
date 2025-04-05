@@ -20,6 +20,7 @@
 
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
+#include "modules/newhash.h"
 #include "utility/string.h"
 
 #include "core_user.h"
@@ -204,7 +205,7 @@ public:
 			return MOD_RES_DENY;
 		}
 
-		if (conndone && !klass->password.empty() && !InspIRCd::CheckPassword(klass->password, klass->passwordhash, user->password))
+		if (conndone && !klass->password.empty() && !Hash::CheckPassword(klass->password, klass->passwordhash, user->password))
 		{
 			const char* error = user->password.empty() ? "one was not provided" : "the provided password was incorrect";
 			ServerInstance->Logs.Debug("CONNECTCLASS", "The {} connect class is not suitable as requires a password and {}.",

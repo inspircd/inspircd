@@ -29,6 +29,7 @@
 #include "inspircd.h"
 #include "extension.h"
 #include "modules/extban.h"
+#include "modules/newhash.h"
 #include "modules/ssl.h"
 #include "modules/webirc.h"
 #include "modules/whois.h"
@@ -101,7 +102,7 @@ public:
 	bool Matches(LocalUser* user, const std::string& pass, UserCertificateAPI& sslapi) const
 	{
 		// Did the user send a valid password?
-		if (!password.empty() && !InspIRCd::CheckPassword(password, passhash, pass))
+		if (!password.empty() && !Hash::CheckPassword(password, passhash, pass))
 			return false;
 
 		// Does the user have a valid fingerprint?

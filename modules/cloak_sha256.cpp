@@ -42,7 +42,7 @@ typedef void psl_ctx_t;
 
 #include "inspircd.h"
 #include "modules/cloak.h"
-#include "modules/hash.h"
+#include "modules/newhash.h"
 #include "utility/string.h"
 
 class SHA256Method final
@@ -79,7 +79,7 @@ private:
 #endif
 
 	// Dynamic reference to the sha256 implementation.
-	dynamic_reference_nocheck<HashProvider> sha256;
+	Hash::ProviderRef sha256;
 
 	// The base32 table used when encoding.
 	const unsigned char* table;
@@ -176,7 +176,7 @@ private:
 	std::string Hash(const std::string& str)
 	{
 		std::string out;
-		for (const auto chr : sha256->hmac(key, str).substr(0, segmentlen))
+		for (const auto chr : Hash::HMAC(*sha256, key, str).substr(0, segmentlen))
 			out.push_back(table[chr & 0x1F]);
 		return out;
 	}
@@ -203,7 +203,7 @@ public:
 #ifdef HAS_LIBPSL
 		, psl(p)
 #endif
-		, sha256(engine->creator, "hash/sha256")
+		, sha256(engine->creator, "sha256")
 		, suffix(tag->getString("suffix", "ip"))
 	{
 		table = tag->getEnum("case", base32lower, {
@@ -294,13 +294,13 @@ private:
 	const bool cloakhost;
 
 	// Dynamic reference to the sha256 implementation.
-	dynamic_reference_nocheck<HashProvider> sha256;
+	Hash::ProviderRef sha256;
 
 public:
 	SHA256Engine(Module* Creator, const std::string& Name, bool ch)
 		: Cloak::Engine(Creator, Name)
 		, cloakhost(ch)
-		, sha256(Creator, "hash/sha256")
+		, sha256(Creator, "sha256")
 	{
 	}
 

@@ -27,7 +27,7 @@
 #include "inspircd.h"
 #include "extension.h"
 #include "modules/sql.h"
-#include "modules/hash.h"
+#include "modules/newhash.h"
 #include "modules/ssl.h"
 
 enum AuthState {
@@ -64,7 +64,7 @@ public:
 
 		if (res.Rows())
 		{
-			HashProvider* hashprov = ServerInstance->Modules.FindDataService<HashProvider>("hash/" + kdf);
+			auto* hashprov = ServerInstance->Modules.FindDataService<Hash::Provider>("hash/" + kdf);
 			if (!hashprov)
 			{
 				if (verbose)
