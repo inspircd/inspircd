@@ -18,7 +18,7 @@
 
 
 #include "inspircd.h"
-#include "modules/newhash.h"
+#include "modules/hash.h"
 
 namespace
 {

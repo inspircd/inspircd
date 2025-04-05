@@ -20,7 +20,7 @@
 
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
-#include "modules/newhash.h"
+#include "modules/hash.h"
 #include "utility/string.h"
 
 #include "core_user.h"

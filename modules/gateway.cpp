@@ -29,7 +29,7 @@
 #include "inspircd.h"
 #include "extension.h"
 #include "modules/extban.h"
-#include "modules/newhash.h"
+#include "modules/hash.h"
 #include "modules/ssl.h"
 #include "modules/webirc.h"
 #include "modules/whois.h"

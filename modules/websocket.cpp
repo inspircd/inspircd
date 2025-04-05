@@ -23,7 +23,7 @@
 #include "inspircd.h"
 #include "extension.h"
 #include "iohook.h"
-#include "modules/newhash.h"
+#include "modules/hash.h"
 #include "modules/isupport.h"
 #include "modules/whois.h"
 #include "utility/string.h"

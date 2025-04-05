@@ -30,7 +30,7 @@
 
 #include "inspircd.h"
 #include "clientprotocolevent.h"
-#include "modules/newhash.h"
+#include "modules/hash.h"
 #include "utility/string.h"
 #include "xline.h"
 

@@ -18,7 +18,7 @@
 
 
 #include "inspircd.h"
-#include "modules/newhash.h"
+#include "modules/hash.h"
 
 #include <bcrypt/crypt_blowfish.c>
 

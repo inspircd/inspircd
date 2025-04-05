@@ -27,7 +27,7 @@
 #include <argon2.h>
 
 #include "inspircd.h"
-#include "modules/newhash.h"
+#include "modules/hash.h"
 
 struct Argon2Config final
 {

@@ -24,7 +24,7 @@
 
 #include "inspircd.h"
 #include "extension.h"
-#include "modules/newhash.h"
+#include "modules/hash.h"
 #include "modules/whois.h"
 
 struct CustomTitle final

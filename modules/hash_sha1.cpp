@@ -20,7 +20,7 @@
 #include <sha1/sha1.c>
 
 #include "inspircd.h"
-#include "modules/newhash.h"
+#include "modules/hash.h"
 
 #define SHA1_BLOCK_SIZE 64
 #define SHA1_DIGEST_SIZE 20

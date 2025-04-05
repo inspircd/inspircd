@@ -20,7 +20,7 @@
 #include "inspircd.h"
 #include "extension.h"
 #include "modules/cloak.h"
-#include "modules/newhash.h"
+#include "modules/hash.h"
 #include "modules/ircv3_replies.h"
 
 class CustomCloakExtItem final

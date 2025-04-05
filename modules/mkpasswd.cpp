@@ -18,7 +18,7 @@
 
 
 #include "inspircd.h"
-#include "modules/newhash.h"
+#include "modules/hash.h"
 #include "modules/ircv3_replies.h"
 
 class CommandMakePassword final
