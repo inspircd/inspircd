@@ -250,6 +250,8 @@ public:
 
 		auto* algo = new PBKDF2Provider(this, hp->GetAlgorithm());
 		Configure(algo);
+		ServerInstance->Logs.Debug("HASH", "The {} algorithm was added by {}, also adding {}",
+			hp->GetAlgorithm(), hp->creator->ModuleFile, algo->GetAlgorithm());
 
 		try
 		{
@@ -261,7 +263,7 @@ public:
 			else
 			{
 				ServerInstance->Logs.Debug("HASH", "The {} algorithm lacks runtime checks, unable to verify integrity.",
-					hp->GetAlgorithm());
+					algo->GetAlgorithm());
 			}
 		}
 		catch (const ModuleException& err)
@@ -280,9 +282,12 @@ public:
 		if (!service.name.starts_with("hash/"))
 			return; //  Not a hash provider.
 
-		auto it = algos.find(static_cast<Hash::Provider&>(service).GetAlgorithm());
+		const auto& hp = static_cast<Hash::Provider&>(service);
+		auto it = algos.find(hp.GetAlgorithm());
 		if (it != algos.end())
 		{
+			ServerInstance->Logs.Debug("HASH", "The {} algorithm was deleted by {}, also deleting {}",
+				hp.GetAlgorithm(), hp.creator->ModuleFile, it->second->GetAlgorithm());
 			delete it->second;
 			algos.erase(it);
 		}
