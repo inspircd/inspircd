@@ -40,6 +40,18 @@ namespace
 		{ "sha512", {
 			{ "100:OOjcsv69e87ItbWU6+TX0w:5VoQbRnulaCeJlbA44UMFw", "The quick brown fox jumps over the lazy dog" },
 		}},
+		{ "sha3-224", {
+			{ "100:iqGZHw2Yl6uZm4FDpa/VIA:iP7f+O2eQahVbgTSqWzC6A", "The quick brown fox jumps over the lazy dog" },
+		}},
+		{ "sha3-256", {
+			{ "100:Fd/ckU57sD6Q3PVx0CueWw:U6tmB9q9t55cxNK3I/cHcg", "The quick brown fox jumps over the lazy dog" },
+		}},
+		{ "sha3-384", {
+			{ "100:93wezDugG6v2bB/4dqkhGw:1DVYoIRZELyC/Ed0FyzfuA", "The quick brown fox jumps over the lazy dog" },
+		}},
+		{ "sha3-512", {
+			{ "100:7jK7DPg5yLqNzCRbqvAxYA:hhPbmAnTi0l7xs1aiu4JAw", "The quick brown fox jumps over the lazy dog" },
+		}},
 	};
 
 	std::string PBKDF2(Hash::Provider* provider, const std::string& plain, const std::string& salt, uint32_t iterations, size_t length)
