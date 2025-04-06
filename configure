@@ -400,8 +400,8 @@ if (prompt_bool $interactive, $question, 0) {
 		'regex_re2'       => 'pkg-config --exists re2',
 		'rehashsignal'    => undef,
 		'sqlite3'         => 'pkg-config --exists sqlite3',
-		'ssl_gnutls'      => 'pkg-config --exists "gnutls >= 3.3.5"',
-		'ssl_openssl'     => 'pkg-config --exists "openssl >= 1.1.1"',
+		'ssl_gnutls'      => 'pkg-config --exists "gnutls >= 3.6.0"',
+		'ssl_openssl'     => 'pkg-config --exists "openssl >= 3.0.0"',
 	);
 	while (my ($module, $command) = each %modules) {
 		unless (defined $command && system "$command 1>/dev/null 2>/dev/null") {
