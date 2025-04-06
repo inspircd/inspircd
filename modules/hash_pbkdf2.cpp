@@ -141,6 +141,7 @@ public:
 		: Hash::Provider(mod, FMT::format("pbkdf2-hmac-{}", algorithm))
 		, provider(mod, algorithm)
 	{
+		DisableAutoRegister();
 	}
 
 	bool Compare(const std::string& hash, const std::string& plain) override
@@ -247,6 +248,9 @@ public:
 		auto* hp = static_cast<Hash::Provider*>(&service);
 		if (hp->IsKDF())
 			return; // Can't use PBKDF2 with a KDF.
+
+		if (algos.find(hp->GetAlgorithm()) != algos.end())
+			return; // Already created.
 
 		auto* algo = new PBKDF2Provider(this, hp->GetAlgorithm());
 		Configure(algo);
