@@ -203,6 +203,11 @@ namespace OpenSSL
 			}
 		}
 
+		void SetSecurityLevel(int securitylevel)
+		{
+			SSL_CTX_set_security_level(ctx, securitylevel);
+		}
+
 		long GetDefaultContextOptions() const
 		{
 			return ctx_options;
@@ -360,6 +365,10 @@ namespace OpenSSL
 
 			SetContextOptions("server", tag, ctx);
 			SetContextOptions("client", tag, clientctx);
+
+			const auto securitylevel = tag->getNum<int>("securitylevel", 0, 0, 10);
+			if (securitylevel)
+				ctx.SetSecurityLevel(securitylevel);
 
 			/* Load our keys and certificates
 			 * NOTE: OpenSSL's error logging API sucks, don't blame us for this clusterfuck.
