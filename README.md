@@ -38,8 +38,9 @@ InspIRCd is licensed under [version 2 of the GNU General Public License](https:/
 
 * [Website](https://www.inspircd.org)
 * [Documentation](https://docs.inspircd.org)
-* [GitHub](https://github.com/inspircd)
 * [Support](https://docs.inspircd.org/support)
+* [GitHub](https://github.com/inspircd)
+* [Codeberg (read-only mirror)](https://codeberg.org/inspircd)
 * Support IRC channel &mdash; \#inspircd on irc.teranova.net (TLS only)
 * Development IRC channel &mdash; \#inspircd.dev on irc.teranova.net (TLS only)
 * InspIRCd test network &mdash; testnet.inspircd.org (TLS only)
