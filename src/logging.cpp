@@ -257,7 +257,7 @@ void Log::Manager::OpenLogs(bool requiremethods)
 
 			// Deprecated v3 names.
 			{ "sparse",  Level::CRITICAL },
-			{ "verbose", Level::WARNING  },
+			{ "verbose", Level::DEBUG    },
 			{ "default", Level::NORMAL   },
 
 		});
