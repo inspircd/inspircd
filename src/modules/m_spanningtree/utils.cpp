@@ -294,6 +294,12 @@ void SpanningTreeUtilities::ReadConfiguration()
 		L->Bind = tag->getString("bind");
 		L->Hidden = tag->getBool("hidden");
 
+		if (!tag->getString("ssl").empty())
+		{
+			throw ModuleException((Module*)Creator, "Obsolete TLS configuration in link block at {}. See {}modules/spanningtree/#link for the correct way to configure TLS.",
+				tag->source.str(), INSPIRCD_DOCS);
+		}
+
 		if (L->Name.empty())
 			throw ModuleException((Module*)Creator, "Invalid configuration, found a link tag without a name!" + (!L->IPAddr.empty() ? " IP address: "+L->IPAddr : ""));
 
