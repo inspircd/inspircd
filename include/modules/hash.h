@@ -246,7 +246,7 @@ public:
 	{
 	}
 
-	/** @copydoc Hash::HMACProvider::Compare */
+	/** @copydoc Hash::Provider::Compare */
 	bool Compare(const std::string& hash, const std::string& plain) override
 	{
 		if (!provider)
@@ -263,13 +263,13 @@ public:
 		return !expected.empty() && InspIRCd::TimingSafeCompare(rawhash, expected);
 	}
 
-	/** @copydoc Hash::HMACProvider::CreateContext */
+	/** @copydoc Hash::Provider::CreateContext */
 	std::unique_ptr<Context> CreateContext() override
 	{
 		return std::make_unique<HMACContext>(provider);
 	}
 
-	/** @copydoc Hash::HMACProvider::ToPrintable */
+	/** @copydoc Hash::Provider::ToPrintable */
 	std::string ToPrintable(const std::string &hash) override
 	{
 		// We have no way to make this printable without the creating context
