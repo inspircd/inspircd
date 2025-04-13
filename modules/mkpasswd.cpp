@@ -50,6 +50,13 @@ public:
 			return CmdResult::FAILURE;
 		}
 
+		if (!hp->IsPasswordSafe())
+		{
+			failrpl.SendIfCap(user, stdrplcap, this, "INSECURE_HASH", hp->GetAlgorithm(), FMT::format("{} is not a secure password hashing algorithm!",
+				hp->GetAlgorithm()));
+			return CmdResult::FAILURE;
+		}
+
 		auto hash = hp->Hash(parameters[1]);
 		if (hash.empty())
 		{

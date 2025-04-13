@@ -175,6 +175,14 @@ public:
 	{
 		return std::make_unique<GnuTLSContext>(algorithm);
 	}
+
+	bool IsPasswordSafe() const override
+	{
+		// Plain hashes are not safe for password use as they can be decoded via
+		// the use of a rainbow table. You should use a HMAC hash instead as
+		// they are not vulnerable to this attack.
+		return false;
+	}
 };
 
 class ModuleHashGnuTLS final

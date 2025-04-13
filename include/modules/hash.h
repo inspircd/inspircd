@@ -141,6 +141,9 @@ public:
 	/** Determines whether this hash algorithm is a key derivation function. */
 	auto IsKDF() const { return block_size == 0; }
 
+	/** Determines whether this hash provider is safe for password hashing. */
+	virtual bool IsPasswordSafe() const { return true; }
+
 	/** Converts a hash to its printable form. */
 	virtual std::string ToPrintable(const std::string& hash)
 	{

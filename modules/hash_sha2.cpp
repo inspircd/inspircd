@@ -80,6 +80,14 @@ public:
 	{
 	}
 
+	bool IsPasswordSafe() const override
+	{
+		// Plain SHA-2 is not safe for password use as it can be decoded via the
+		// use of a rainbow table. You should use HMAC-SHA-2 instead as it is not
+		// vulnerable to this attack.
+		return false;
+	}
+
 	std::unique_ptr<Hash::Context> CreateContext() override
 	{
 		return std::make_unique<SHA2Context<SHAContext, SHAInit, SHAUpdate, SHAFinal>>(this->digest_size);

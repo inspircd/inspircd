@@ -67,6 +67,15 @@ public:
 	{
 		return std::make_unique<SHA1Context>();
 	}
+
+
+	bool IsPasswordSafe() const override
+	{
+		// Plain SHA-1 is not safe for password use as it can be decoded via the
+		// use of a rainbow table. You should use HMAC-SHA-1 instead as it is not
+		// vulnerable to this attack.
+		return false;
+	}
 };
 
 class ModuleHashSHA1 final
