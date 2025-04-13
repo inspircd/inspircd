@@ -345,6 +345,24 @@ sub __function_require_library {
 	return $ok;
 }
 
+sub __function_require_environment {
+	my ($file, $name, $value) = @_;
+
+	# Check for an inverted match.
+	my ($ok, $err) = ("", undef);
+	if ($name =~ s/^!//) {
+		($ok, $err) = ($err, $ok);
+	}
+
+	return $err unless defined $ENV{$name};
+	if (defined $value) {
+		return $err unless $ENV{$name} eq $value;
+	}
+
+	# Requirement directives don't change anything directly.
+	return $ok;
+}
+
 sub __function_warning {
 	my ($file, @messages) = @_;
 	print_warning @messages;

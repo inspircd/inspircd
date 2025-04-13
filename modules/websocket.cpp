@@ -19,6 +19,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// $CompilerFlags: require_environment("SYSTEM_UTFCPP" "1") -DUSE_SYSTEM_UTFCPP
+
+
+#ifdef USE_SYSTEM_UTFCPP
+# include <utf8cpp/utf8/unchecked.h>
+#else
+# include <utfcpp/unchecked.h>
+#endif
 
 #include "inspircd.h"
 #include "extension.h"
@@ -27,9 +35,6 @@
 #include "modules/isupport.h"
 #include "modules/whois.h"
 #include "utility/string.h"
-
-#define UTF_CPP_CPLUSPLUS 199711L
-#include <utfcpp/unchecked.h>
 
 static constexpr char MagicGUID[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 static constexpr char newline[] = "\r\n";

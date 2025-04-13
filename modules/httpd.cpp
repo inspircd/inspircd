@@ -26,6 +26,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// $CompilerFlags: require_environment("SYSTEM_HTTP_PARSER" "1") -DUSE_SYSTEM_HTTP_PARSER
+/// $LinkerFlags: require_environment("SYSTEM_HTTP_PARSER" "1") -lhttp_parser
+
 
 #include "inspircd.h"
 #include "iohook.h"
@@ -41,7 +44,11 @@
 # pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
-#include <http_parser/http_parser.c>
+#ifdef USE_SYSTEM_HTTP_PARSER
+# include <http_parser.h>
+#else
+# include <http_parser/http_parser.c>
+#endif
 
 #ifdef __GNUC__
 # pragma GCC diagnostic pop
