@@ -814,7 +814,7 @@ public:
 	 * @return MOD_RES_DENY to mark as banned, MOD_RES_ALLOW to skip the
 	 * ban check, or MOD_RES_PASSTHRU to check bans normally
 	 */
-	virtual ModResult OnCheckChannelBan(User* user, Channel* chan) ATTR_NOT_NULL(2, 3);
+	virtual ModResult OnCheckChannelBan(User* user, Channel* chan, bool full) ATTR_NOT_NULL(2, 3);
 
 	/**
 	 * Checks for a user's match of a single ban
@@ -824,7 +824,7 @@ public:
 	 * @return MOD_RES_DENY to mark as banned, MOD_RES_ALLOW to skip the
 	 * ban check, or MOD_RES_PASSTHRU to check bans normally
 	 */
-	virtual ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask)  ATTR_NOT_NULL(2, 3);
+	virtual ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask, bool full) ATTR_NOT_NULL(2, 3);
 
 	/** Called before a topic is changed.
 	 * Return 1 to deny the topic change, 0 to check details on the change, -1 to let it through with no checks

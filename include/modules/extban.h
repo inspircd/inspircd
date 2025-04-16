@@ -142,10 +142,11 @@ public:
 	 * @param extban The extban to get the status of.
 	 * @param user The user to match the extban against.
 	 * @param channel The channel which the extban is set on.
+	 * @param full Whether to match against hidden data as well as visible data.
 	 * @return MOD_RES_ALLOW if the user is exempted, MOD_RES_DENY if the user is banned, or
 	 *         MOD_RES_PASSTHRU if the extban is not set.
 	 */
-	virtual ModResult GetStatus(ActingBase* extban, User* user, Channel* channel) const = 0;
+	virtual ModResult GetStatus(ActingBase* extban, User* user, Channel* channel, const std::optional<bool>& full = std::nullopt) const = 0;
 
 	/** Finds an extban by name or letter.
 	 * @param xbname The name or letter of the extban to find.
@@ -239,9 +240,10 @@ public:
 	 * @param user The user to match the text against.
 	 * @param channel The channel which the extban is set on.
 	 * @param text The string to match the user against.
+	 * @param full Whether to match against hidden data as well as visible data.
 	 * @return True if the user matches the extban; otherwise, false.
 	 */
-	virtual bool IsMatch(User* user, Channel* channel, const std::string& text) = 0;
+	virtual bool IsMatch(User* user, Channel* channel, const std::string& text, bool full) = 0;
 
 	/** @copydoc ServiceProvider::RegisterService */
 	void RegisterService() override
@@ -293,9 +295,9 @@ public:
 	Type GetType() const override { return ExtBan::Type::ACTING; }
 
 	/** @copydoc ExtBan::Base::IsMatch */
-	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	bool IsMatch(User* user, Channel* channel, const std::string& text, bool full) override
 	{
-		return channel->CheckBan(user, text);
+		return channel->CheckBan(user, text, full);
 	}
 };
 
@@ -317,15 +319,16 @@ public:
 	/** Determines whether the specified user matches this acting extban on the specified channel.
 	 * @param user The user to check.
 	 * @param channel The channel to check on.
+	 * @param full Whether to match against hidden data as well as visible data.
 	 * @return MOD_RES_ALLOW to explicitly allow their action, MOD_RES_DENY to expicitly deny their
 	 *         action, or MOD_RES_PASSTHRU to let the default behaviour apply.
 	 */
-	ModResult GetStatus(User* user, Channel* channel)
+	ModResult GetStatus(User* user, Channel* channel, const std::optional<bool>& full = std::nullopt)
 	{
 		if (!GetManager())
 			return MOD_RES_PASSTHRU;
 
-		return GetManager()->GetStatus(this, user, channel);
+		return GetManager()->GetStatus(this, user, channel, full);
 	}
 };
 
@@ -349,7 +352,7 @@ public:
 	Type GetType() const override { return ExtBan::Type::MATCHING; }
 
 	/** @copydoc ExtBan::Base::IsMatch */
-	virtual bool IsMatch(User* user, Channel* channel, const std::string& text) override = 0;
+	virtual bool IsMatch(User* user, Channel* channel, const std::string& text, bool full) override = 0;
 };
 
 /** Provides events relating to extbans. */
@@ -367,8 +370,9 @@ public:
 	 * @param user The user which the extban is being checked against.
 	 * @param chan The channel which the extban is set on.
 	 * @param extban The extban which is being checked against.
+	 * @param full Whether to match against hidden data as well as visible data.
 	 */
-	virtual ModResult OnExtBanCheck(User* user, Channel* chan, ExtBan::Base* extban) = 0;
+	virtual ModResult OnExtBanCheck(User* user, Channel* chan, ExtBan::Base* extban, bool full) = 0;
 };
 
 inline bool ExtBan::Parse(const std::string& banentry, std::string& name, std::string& value, bool& inverted)

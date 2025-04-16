@@ -343,7 +343,7 @@ public:
 		return IsInvited(user, chan);
 	}
 
-	ModResult OnCheckChannelBan(User* user, Channel* chan) override
+	ModResult OnCheckChannelBan(User* user, Channel* chan, bool full) override
 	{
 		// Hook only runs when being invited bypasses +bkl
 		return IsInvited(user, chan);
@@ -372,7 +372,7 @@ public:
 		invapi.RemoveAll(chan);
 	}
 
-	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask) override
+	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask, bool full) override
 	{
 		bool inverted;
 		std::string name;
@@ -390,7 +390,7 @@ public:
 		if (!extban || extban->GetType() != ExtBan::Type::MATCHING)
 			return MOD_RES_PASSTHRU;
 
-		return extban->IsMatch(user, chan, value) != inverted ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		return extban->IsMatch(user, chan, value, full) != inverted ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnCheckExemption(User* user, Channel* chan, const std::string& restriction) override

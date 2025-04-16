@@ -139,8 +139,8 @@ ModResult	Module::OnRawMode(User*, Channel*, const Modes::Change&) { DetachEvent
 ModResult	Module::OnCheckInvite(User*, Channel*) { DetachEvent(I_OnCheckInvite); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckKey(User*, Channel*, const std::string&) { DetachEvent(I_OnCheckKey); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckLimit(User*, Channel*) { DetachEvent(I_OnCheckLimit); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckChannelBan(User*, Channel*) { DetachEvent(I_OnCheckChannelBan); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckBan(User*, Channel*, const std::string&) { DetachEvent(I_OnCheckBan); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckChannelBan(User*, Channel*, bool) { DetachEvent(I_OnCheckChannelBan); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckBan(User*, Channel*, const std::string&, bool) { DetachEvent(I_OnCheckBan); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnPreTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPreTopicChange); return MOD_RES_PASSTHRU; }
 void		Module::OnPostConnect(User*) { DetachEvent(I_OnPostConnect); }
 void		Module::OnUserPostMessage(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserPostMessage); }

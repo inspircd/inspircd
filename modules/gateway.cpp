@@ -234,7 +234,7 @@ public:
 	{
 	}
 
-	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	bool IsMatch(User* user, Channel* channel, const std::string& text, bool full) override
 	{
 		const std::string* gatewayname = gateway.Get(user);
 		return gatewayname ? InspIRCd::Match(*gatewayname, text) : false;

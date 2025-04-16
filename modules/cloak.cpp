@@ -484,7 +484,7 @@ public:
 		}
 	}
 
-	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask) override
+	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask, bool full) override
 	{
 		LocalUser* lu = IS_LOCAL(user);
 		if (!lu)
@@ -503,11 +503,14 @@ public:
 			const auto &ruser = cloak.username.empty() ? user->GetRealUser() : cloak.username;
 			const auto &duser = cloak.username.empty() ? user->GetDisplayedUser() : cloak.username;
 
-			std::string cloakmask = FMT::format("{}!{}@{}", user->nick, ruser, cloak.hostname);
-			if (InspIRCd::Match(cloakmask, mask))
-				return MOD_RES_DENY;
+			if (full)
+			{
+				auto cloakmask = FMT::format("{}!{}@{}", user->nick, ruser, cloak.hostname);
+				if (InspIRCd::Match(cloakmask, mask))
+					return MOD_RES_DENY;
+			}
 
-			cloakmask = FMT::format("{}!{}@{}", user->nick, duser, cloak.hostname);
+			auto cloakmask = FMT::format("{}!{}@{}", user->nick, duser, cloak.hostname);
 			if (InspIRCd::Match(cloakmask, mask))
 				return MOD_RES_DENY;
 		}

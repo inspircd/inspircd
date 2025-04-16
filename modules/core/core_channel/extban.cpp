@@ -123,9 +123,11 @@ void ExtBanManager::BuildISupport(std::string& out)
 	out.insert(0, ",");
 }
 
-ModResult ExtBanManager::GetStatus(ExtBan::ActingBase* extban, User* user, Channel* channel) const
+ModResult ExtBanManager::GetStatus(ExtBan::ActingBase* extban, User* user, Channel* channel, const std::optional<bool>& ofull) const
 {
-	ModResult res = evprov.FirstResult(&ExtBan::EventListener::OnExtBanCheck, user, channel, extban);
+	auto full = ofull.value_or(ServerInstance->Config->BanRealMask);
+
+	ModResult res = evprov.FirstResult(&ExtBan::EventListener::OnExtBanCheck, user, channel, extban, full);
 	if (res != MOD_RES_PASSTHRU)
 		return res;
 
@@ -156,7 +158,7 @@ ModResult ExtBanManager::GetStatus(ExtBan::ActingBase* extban, User* user, Chann
 
 		// For a non-inverted (regular) extban we want to match but for an
 		// inverted extban we want to not match.
-		if (extban->IsMatch(user, channel, xbvalue) != inverted)
+		if (extban->IsMatch(user, channel, xbvalue, full) != inverted)
 			return MOD_RES_DENY;
 	}
 	return MOD_RES_PASSTHRU;

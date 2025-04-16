@@ -34,7 +34,7 @@ public:
 	{
 	}
 
-	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	bool IsMatch(User* user, Channel* channel, const std::string& text, bool full) override
 	{
 		// Check that the user actually specified a real name.
 		const size_t divider = text.find('+', 1);
@@ -59,7 +59,7 @@ public:
 	{
 	}
 
-	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	bool IsMatch(User* user, Channel* channel, const std::string& text, bool full) override
 	{
 		return InspIRCd::Match(user->GetRealName(), text);
 	}

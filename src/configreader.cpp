@@ -397,6 +397,7 @@ void ServerConfig::Fill()
 
 	// Read the <security> config.
 	const auto& security = ConfValue("security");
+	BanRealMask = security->getBool("banrealmask", true);
 	CustomVersion = security->getString("customversion");
 	HideServer = security->getString("hideserver", {}, InspIRCd::IsFQDN);
 	MaxTargets = security->getNum<size_t>("maxtargets", 5, 1, 50);

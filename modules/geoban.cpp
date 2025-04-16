@@ -37,7 +37,7 @@ public:
 	{
 	}
 
-	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	bool IsMatch(User* user, Channel* channel, const std::string& text, bool full) override
 	{
 		Geolocation::Location* location = geoapi ? geoapi->GetLocation(user) : nullptr;
 		const std::string code = location ? location->GetCode() : "XX";

@@ -33,7 +33,7 @@ public:
 	{
 	}
 
-	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	bool IsMatch(User* user, Channel* channel, const std::string& text, bool full) override
 	{
 		return InspIRCd::Match(user->server->GetPublicName(), text);
 	}

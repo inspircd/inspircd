@@ -91,7 +91,7 @@ public:
 		tokens["EXCEPTS"] = ConvToStr(be.GetModeChar());
 	}
 
-	ModResult OnExtBanCheck(User* user, Channel* chan, ExtBan::Base* extban) override
+	ModResult OnExtBanCheck(User* user, Channel* chan, ExtBan::Base* extban, bool full) override
 	{
 		ListModeBase::ModeList* list = be.GetList(chan);
 		if (!list)
@@ -118,12 +118,12 @@ public:
 					continue;
 			}
 
-			return extban->IsMatch(user, chan, value) != inverted ? MOD_RES_ALLOW : MOD_RES_PASSTHRU;
+			return extban->IsMatch(user, chan, value, full) != inverted ? MOD_RES_ALLOW : MOD_RES_PASSTHRU;
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckChannelBan(User* user, Channel* chan) override
+	ModResult OnCheckChannelBan(User* user, Channel* chan, bool full) override
 	{
 		ListModeBase::ModeList* list = be.GetList(chan);
 		if (!list)
@@ -134,7 +134,7 @@ public:
 
 		for (const auto& entry : *list)
 		{
-			if (chan->CheckBan(user, entry.mask))
+			if (chan->CheckBan(user, entry.mask, full))
 			{
 				// They match an entry on the list, so let them in.
 				return MOD_RES_ALLOW;

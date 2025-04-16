@@ -288,11 +288,11 @@ public:
 	 * @param user A user to check against the banlist
 	 * @returns True if the user given is banned
 	 */
-	bool IsBanned(User* user);
+	bool IsBanned(User* user, const std::optional<bool>& full = std::nullopt);
 
 	/** Check a single ban for match
 	 */
-	bool CheckBan(User* user, const std::string& banmask);
+	bool CheckBan(User* user, const std::string& banmask, const std::optional<bool>& full = std::nullopt);
 
 	/** Write a NOTICE to all local users on the channel
 	 * @param text Text to send

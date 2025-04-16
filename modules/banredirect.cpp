@@ -304,7 +304,7 @@ public:
 			{
 				/* We actually had some ban redirects to check */
 				ModResult result;
-				FIRST_MOD_RESULT(OnCheckChannelBan, result, (user, chan));
+				FIRST_MOD_RESULT(OnCheckChannelBan, result, (user, chan, ServerInstance->Config->BanRealMask));
 				if (result == MOD_RES_ALLOW)
 				{
 					// they have a ban exception
