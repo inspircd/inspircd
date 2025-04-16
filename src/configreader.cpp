@@ -367,9 +367,16 @@ void ServerConfig::Fill()
 	ServerDesc = server->getString("description", ServerName, 1);
 	Network = server->getString("network", ServerName, 1);
 
+	// Read the <security> config.
+	const auto& security = ConfValue("security");
+	BanRealMask = security->getBool("banrealmask", true);
+	HideServer = security->getString("hideserver", {}, InspIRCd::IsFQDN);
+	MaxTargets = security->getNum<size_t>("maxtargets", 5, 1, 50);
+	XLineQuitPublic = security->getString("publicxlinequit");
 
 	// Read the <options> config.
 	const auto& options = ConfValue("options");
+	CustomVersion = options->getString("customversion", security->getString("customversion"));
 	DefaultModes = options->getString("defaultmodes", "not");
 	MaskInList = options->getBool("maskinlist");
 	MaskInTopic = options->getBool("maskintopic");
@@ -394,14 +401,6 @@ void ServerConfig::Fill()
 	NetBufferSize = performance->getNum<size_t>("netbuffersize", 10240, 1024, 65534);
 	SoftLimit = performance->getNum<size_t>("softlimit", (SocketEngine::GetMaxFds() > 0 ? SocketEngine::GetMaxFds() : SIZE_MAX), 10);
 	TimeSkipWarn = performance->getDuration("timeskipwarn", 2, 0, 30);
-
-	// Read the <security> config.
-	const auto& security = ConfValue("security");
-	BanRealMask = security->getBool("banrealmask", true);
-	CustomVersion = security->getString("customversion");
-	HideServer = security->getString("hideserver", {}, InspIRCd::IsFQDN);
-	MaxTargets = security->getNum<size_t>("maxtargets", 5, 1, 50);
-	XLineQuitPublic = security->getString("publicxlinequit");
 
 	// Read the <cidr> config.
 	const auto& cidr = ConfValue("cidr");
