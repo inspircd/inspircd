@@ -42,7 +42,7 @@ public:
 			return false;
 
 		// Check whether the user's mask matches.
-		if (!channel->CheckBan(user, text.substr(0, divider)))
+		if (!channel->CheckBan(user, text.substr(0, divider), full))
 			return false;
 
 		// Check whether the user's real name matches.
