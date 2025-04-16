@@ -16,7 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <yyjson/yyjson.c>
+/// $CompilerFlags: require_environment("SYSTEM_YYJSON" "1") find_compiler_flags("yyjson") -DUSE_SYSTEM_YYJSON
+/// $LinkerFlags: require_environment("SYSTEM_YYJSON" "1")  find_linker_flags("yyjson")
+
+
+#ifdef USE_SYSTEM_YYJSON
+# include <yyjson.h>
+#else
+# include <yyjson/yyjson.c>
+#endif
 
 #include "inspircd.h"
 #include "timeutils.h"
