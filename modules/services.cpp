@@ -266,6 +266,10 @@ public:
 		if (!c)
 			return CmdResult::FAILURE;
 
+		auto full = ServerInstance->Config->BanRealMask;
+		if (parameters.size() > 3)
+			full = !!ConvToNum<uint8_t>(parameters[3], 1);
+
 		for (auto mode : parameters[2])
 		{
 			auto* mh = ServerInstance->Modes.FindMode(mode, MODETYPE_CHANNEL);
@@ -279,7 +283,7 @@ public:
 			Modes::ChangeList changelist;
 			for (const auto& entry : *list)
 			{
-				if (c->CheckBan(u, entry.mask))
+				if (c->CheckBan(u, entry.mask, full))
 					changelist.push(mh, false, entry.mask);
 			}
 			ServerInstance->Modes.Process(user, c, nullptr, changelist);
