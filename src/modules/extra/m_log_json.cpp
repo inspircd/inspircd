@@ -28,7 +28,6 @@
 
 #ifdef _WIN32
 # define HAS_YYJSON
-# pragma comment(lib, "yyjson.lib")
 #endif
 
 #ifdef HAS_YYJSON

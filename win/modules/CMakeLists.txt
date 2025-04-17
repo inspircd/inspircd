@@ -28,37 +28,44 @@ file(GLOB INSPIRCD_MODULES
 list(APPEND INSPIRCD_MODULES
 	"${INSPIRCD_BASE}/src/modules/extra/m_ldap.cpp")
 
-if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-	include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
+# The libraries that modules depend on.
+set(INSPIRCD_DEPS)
 
-	function(enable_extra NAME PACKAGE)
-		if(DEFINED "CONAN_${PACKAGE}_ROOT")
+if(DEFINED CMAKE_TOOLCHAIN_FILE)
+	function(enable_extra NAME PACKAGE TARGET)
+		find_package(${PACKAGE})
+		if(${PACKAGE}_FOUND)
 			message("Enabling the ${NAME} module")
 			list(APPEND INSPIRCD_MODULES "${INSPIRCD_BASE}/src/modules/extra/m_${NAME}.cpp")
 			set(INSPIRCD_MODULES ${INSPIRCD_MODULES} PARENT_SCOPE)
+			list(APPEND INSPIRCD_DEPS ${TARGET})
+			set(INSPIRCD_DEPS ${INSPIRCD_DEPS} PARENT_SCOPE)
 		else()
 			message("Unable to enable the ${NAME} module (missing library)")
 		endif()
 	endfunction()
 
-	enable_extra("argon2" "ARGON2")
-	enable_extra("geo_maxmind" "LIBMAXMINDDB")
-	enable_extra("log_json" "YYJSON")
-	enable_extra("mysql" "LIBMYSQLCLIENT")
-	enable_extra("pgsql" "LIBPQ")
-	enable_extra("regex_pcre2" "PCRE2")
-	enable_extra("regex_posix" "PCRE2")
-	enable_extra("regex_re2" "RE2")
-	enable_extra("ssl_openssl" "OPENSSL")
-	enable_extra("sqlite3" "SQLITE3")
+	enable_extra("argon2" "argon2" "argon2::argon2")
+	enable_extra("geo_maxmind" "maxminddb" "maxminddb::maxminddb")
+	enable_extra("log_json" "yyjson" "yyjson::yyjson")
+	enable_extra("mysql" "libmysqlclient" "libmysqlclient::libmysqlclient")
+	enable_extra("pgsql" "PostgreSQL" "PostgreSQL::PostgreSQL")
+	enable_extra("regex_pcre2" "PCRE2" "pcre2::pcre2")
+	enable_extra("regex_posix" "PCRE2" "pcre2::pcre2")
+	enable_extra("regex_re2" "re2" "re2::re2")
+	enable_extra("ssl_openssl" "OpenSSL" "openssl::openssl")
+	enable_extra("sqlite3" "SQLite3" "SQLite::SQLite3")
 
-	link_directories("${CMAKE_BINARY_DIR}/extradll" "${CMAKE_BINARY_DIR}/extralib")
+	# Optional dependency of cloak_sha256
+	find_package("libpsl")
+	if (libpsl_FOUND)
+		list(APPEND INSPIRCD_DEPS "libpsl::libpsl")
+	endif()
+
 	file(GLOB EXTRA_DLLS "${CMAKE_BINARY_DIR}/extradll/*.dll")
 	install(FILES ${EXTRA_DLLS} DESTINATION .)
-
-	conan_basic_setup(TARGETS)
 else()
-	message("Unable to build extras: conanbuildinfo.cmake does not exist in the build directory!")
+	message("Unable to build extras: CMAKE_TOOLCHAIN_FILE is not set to the Conan toolchain!")
 endif()
 
 list(SORT INSPIRCD_MODULES)
@@ -82,10 +89,8 @@ foreach(MODULE_NAME ${INSPIRCD_MODULES})
 	add_dependencies(${BASE_NAME} "inspircd" "win32memory")
 	target_link_libraries(${BASE_NAME} "inspircd" "win32memory")
 
-	# Link against any dependencies if available
-	if(CONAN_CXX_FLAGS)
-		conan_target_link_libraries(${BASE_NAME})
-	endif()
+	# Link against any Conan dependencies
+	target_link_libraries(${BASE_NAME} ${INSPIRCD_DEPS})
 
 	set_target_properties(${BASE_NAME} PROPERTIES
 		PREFIX ""

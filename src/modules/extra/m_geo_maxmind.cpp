@@ -26,9 +26,6 @@
 /// $PackageInfo: require_system("debian~") libmaxminddb-dev pkg-config
 /// $PackageInfo: require_system("rhel~") libmaxminddb-devel pkgconfig
 
-#ifdef _WIN32
-# pragma comment(lib, "maxminddb.lib")
-#endif
 
 #include <maxminddb.h>
 

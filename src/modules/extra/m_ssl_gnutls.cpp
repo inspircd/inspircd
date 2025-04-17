@@ -58,10 +58,6 @@
 # define GNUTLS_AUTO_DH
 #endif
 
-#ifdef _WIN32
-# pragma comment(lib, "libgnutls-30.lib")
-#endif
-
 static Module* thismod;
 
 namespace GnuTLS

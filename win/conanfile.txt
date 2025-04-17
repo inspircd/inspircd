@@ -1,36 +1,33 @@
-# Last updated: 2024-06-19
+# Last updated: 2025-04-17
 #
 # Modules we can't legally ship: geo_maxmind, ssl_openssl
-# Modules which don't apply to Windows: sslrehashsignal
+# Modules which don't apply to Windows: log_syslog, sslrehashsignal
 # Modules without packages: ssl_gnutls
 
 [requires]
 argon2/20190702
-## libmaxminddb/1.10.0
+## libmaxminddb/1.12.2
 libmysqlclient/8.1.0
-libpq/15.5
-libpsl/0.21.1
-## openssl/3.3.2
+libpq/16.8
+libpsl/0.21.5
+## openssl/3.4.1
 pcre2/10.44
 re2/20240702
-sqlite3/3.47.0
+sqlite3/3.49.1
 yyjson/0.10.0
 
 [options]
-argon2:shared=True
-libmaxminddb:shared=True
-libmysqlclient:shared=True
-libpq:shared=True
-libpsl:shared=True
-openssl:shared=True
-pcre2:shared=True
-re2:shared=True
-sqlite3:shared=True
-yyjson:shared=True
-
-[imports]
-., *.dll -> extradll @ keep_path=False
-., *.lib -> extralib @ keep_path=False
+argon2/*:shared=True
+libmaxminddb/*:shared=True
+libmysqlclient/*:shared=True
+libpq/*:shared=True
+libpsl/*:shared=True
+openssl/*:shared=True
+pcre2/*:shared=True
+re2/*:shared=True
+sqlite3/*:shared=True
+yyjson/*:shared=True
 
 [generators]
-cmake
+CMakeDeps
+CMakeToolchain
