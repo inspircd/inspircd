@@ -43,10 +43,6 @@
 #include "threadsocket.h"
 #include "utility/string.h"
 
-#ifdef _WIN32
-# pragma comment(lib, "libmysql.lib")
-#endif
-
 /* VERSION 3 API: With nonblocking (threaded) requests */
 
 /* THE NONBLOCKING MYSQL API!

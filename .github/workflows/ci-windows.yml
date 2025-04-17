@@ -12,8 +12,8 @@ jobs:
     if: "!contains(github.event.head_commit.message, '[skip windows ci]')"
     runs-on: windows-2025
     env:
-      CONAN_USER_HOME: ${{ github.workspace }}/win/build
-      CONAN_USER_HOME_SHORT: None
+      BUILD_TYPE: ${{ github.event_name == 'release' && 'Release' || 'Debug' }}
+      CONAN_HOME: ${{ github.workspace }}/win/build/conan
     steps:
       - uses: actions/checkout@v4
 
@@ -28,40 +28,45 @@ jobs:
 
       - name: Setup Conan
         uses: turtlebrowser/get-conan@v1.2
-        with:
-          version: 1.66.0
+
+      - name: Create Conan profile
+        run: |-
+          conan profile detect
+          (Get-Content ${{ env.CONAN_HOME }}/profiles/default).replace('build_type=Release', 'build_type=${{ env.BUILD_TYPE }}') | Set-Content ${{ env.CONAN_HOME }}/profiles/default
+          (Get-Content ${{ env.CONAN_HOME }}/profiles/default).replace('compiler.cppstd=14', 'compiler.cppstd=20') | Set-Content ${{ env.CONAN_HOME }}/profiles/default
+          Write-Output 'core.sources:download_urls=["origin", "https://c3i.jfrog.io/artifactory/conan-center-backup-sources/"]' | Out-File -Append ${{ env.CONAN_HOME }}/global.conf
 
       - name: Try to restore libraries from the cache
         uses: actions/cache/restore@v4
         id: library-cache
         with:
-          key: conan-${{ hashFiles('win/conanfile.txt') }}
-          path: ${{ env.CONAN_USER_HOME }}/.conan
+          key: conan-${{ env.BUILD_TYPE }}-${{ hashFiles('win/conanfile.txt') }}
+          path: ${{ env.CONAN_HOME }}
 
       - name: Install libraries
         working-directory: ${{ github.workspace }}/win/build
         run: |
           (Get-Content ../conanfile.txt).replace('##', '') | Set-Content ../conanfile.txt
-          conan install .. --build=missing
+          conan install .. --build missing --deployer runtime_deploy --deployer-folder extradll --output-folder .
 
       - name: Save libraries to the cache
         if: ${{ steps.library-cache.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@v4
         with:
           key:  ${{ steps.library-cache.outputs.cache-primary-key }}
-          path: ${{ env.CONAN_USER_HOME }}/.conan
+          path: ${{ env.CONAN_HOME }}
 
       - name: Run CMake
         working-directory: ${{ github.workspace }}/win/build
         env:
           LDFLAGS: /DEBUG:FASTLINK /INCREMENTAL
         run: |
-          cmake -A x64 -D CMAKE_BUILD_TYPE=${{ github.event_name == 'release' && 'Release' || 'Debug' }} -G "Visual Studio 17 2022" -Wdev ..
+          cmake -A x64 -D CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -D CMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -G "Visual Studio 17 2022" -Wdev ..
 
       - name: Build InspIRCd
         working-directory: ${{ github.workspace }}/win/build
         run: |
-          msbuild PACKAGE.vcxproj /M:5 /P:Configuration=${{ github.event_name == 'release' && 'Release' || 'Debug' }} /P:Platform=x64 /VERBOSITY:MINIMAL
+          msbuild PACKAGE.vcxproj /M:5 /P:Configuration=${{ env.BUILD_TYPE }} /P:Platform=x64 /VERBOSITY:MINIMAL
 
       - name: Upload installer
         if: "${{ github.event_name == 'release' }}"

@@ -30,7 +30,6 @@
 #ifdef _WIN32
 # if __has_include(<libpsl.h>)
 #  define HAS_LIBPSL
-#  pragma comment(lib, "psl.lib")
 # endif
 #endif
 
@@ -212,7 +211,7 @@ public:
 		});
 	}
 
-#ifdef HAS_PSL
+#ifdef HAS_LIBPSL
 	~SHA256Method() override
 	{
 		if (psl)

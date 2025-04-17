@@ -56,10 +56,6 @@
 # error GnuTLS 3.6.0 or newer is required by the ssl_openssl module.
 #endif
 
-#ifdef _WIN32
-# pragma comment(lib, "libgnutls-30.lib")
-#endif
-
 static Module* thismod;
 
 namespace GnuTLS

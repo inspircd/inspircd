@@ -39,10 +39,6 @@
 
 #include <sqlite3.h>
 
-#ifdef _WIN32
-# pragma comment(lib, "sqlite3.lib")
-#endif
-
 class SQLConn;
 typedef insp::flat_map<std::string, SQLConn*> ConnMap;
 

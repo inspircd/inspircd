@@ -51,8 +51,6 @@
 
 #ifdef _WIN32
 # define timegm _mkgmtime
-# pragma comment(lib, "libcrypto.lib")
-# pragma comment(lib, "libssl.lib")
 #endif
 
 #if OPENSSL_VERSION_NUMBER < 0x30000000L

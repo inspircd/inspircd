@@ -22,7 +22,6 @@
 
 #ifdef _WIN32
 # include "pcre2posix.h"
-# pragma comment(lib, "pcre2-posix.lib")
 #else
 # include <regex.h>
 # include <sys/types.h>
