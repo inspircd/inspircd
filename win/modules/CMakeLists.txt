@@ -64,6 +64,11 @@ if(DEFINED CMAKE_TOOLCHAIN_FILE)
 
 	file(GLOB EXTRA_DLLS "${CMAKE_BINARY_DIR}/extradll/*.dll")
 	install(FILES ${EXTRA_DLLS} DESTINATION .)
+
+	foreach(EXTRA_DLL ${EXTRA_DLLS})
+		cmake_path(GET EXTRA_DLL FILENAME EXTRA_DLL_FILE)
+		message("Installing dependency DLL: ${EXTRA_DLL_FILE}")
+	endforeach()
 else()
 	message("Unable to build extras: CMAKE_TOOLCHAIN_FILE is not set to the Conan toolchain!")
 endif()
