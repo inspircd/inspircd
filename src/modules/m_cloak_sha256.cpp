@@ -73,6 +73,9 @@ private:
 	const std::string prefix;
 
 #ifdef HAS_LIBPSL
+	// Whether to enforce the use of the Public Suffix List in link data.
+	bool enforcepsl;
+
 	// Handle to the Public Suffix List library.
 	psl_ctx_t* psl;
 #endif
@@ -201,6 +204,7 @@ public:
 		, prefix(tag->getString("prefix"))
 #ifdef HAS_LIBPSL
 		, psl(p)
+		, enforcepsl(p ? tag->getBool("enforcepsl") : false)
 #endif
 		, sha256(engine->creator, "hash/sha256")
 		, suffix(tag->getString("suffix", "ip"))
@@ -267,8 +271,8 @@ public:
 		data["cloak-host"] = sha256 ? Generate("extremely.long.inspircd.cloak.example") : broken;
 		data["host-parts"] = ConvToStr(hostparts);
 
-#ifdef HAS_PSL
-		data["using-psl"] = psl ? "yes" : "no";
+#ifdef HAS_LIBPSL
+		data["using-psl"] = enforcepsl ? "yes" : "no";
 #else
 		data["using-psl"] = "no";
 #endif
