@@ -212,7 +212,7 @@ public:
 		});
 	}
 
-#ifdef HAS_PSL
+#ifdef HAS_LIBPSL
 	~SHA256Method() override
 	{
 		if (psl)
