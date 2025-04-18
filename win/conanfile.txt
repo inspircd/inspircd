@@ -16,15 +16,13 @@ re2/20240702
 sqlite3/3.49.1
 
 [options]
-argon2/*:shared=True
-libmaxminddb/*:shared=True
-libmysqlclient/*:shared=True
-libpq/*:shared=True
-libpsl/*:shared=True
-openssl/*:shared=True
-pcre2/*:shared=True
-re2/*:shared=True
-sqlite3/*:shared=True
+*/*:shared=True
+libmaxminddb/*:with_binaries=False
+openssl/*:no_apps=True
+pcre2/*:build_pcre2_16=False
+pcre2/*:build_pcre2_32=False
+pcre2/*:build_pcre2grep=False
+sqlite3/*:build_executable=False
 
 [generators]
 CMakeDeps

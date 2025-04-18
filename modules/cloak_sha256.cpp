@@ -268,7 +268,7 @@ public:
 		data["cloak-host"] = sha256 ? Cloak("extremely.long.inspircd.cloak.example")->ToString() : broken;
 		data["host-parts"] = ConvToStr(hostparts);
 
-#ifdef HAS_PSL
+#ifdef HAS_LIBPSL
 		data["using-psl"] = psl ? "yes" : "no";
 #else
 		data["using-psl"] = "no";
