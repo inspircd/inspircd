@@ -203,8 +203,8 @@ public:
 		, pathparts(tag->getNum<unsigned long>("pathparts", 1, 0, ServerInstance->Config->Limits.MaxHost / 2))
 		, prefix(tag->getString("prefix"))
 #ifdef HAS_LIBPSL
-		, psl(p)
 		, enforcepsl(p ? tag->getBool("enforcepsl") : false)
+		, psl(p)
 #endif
 		, sha256(engine->creator, "hash/sha256")
 		, suffix(tag->getString("suffix", "ip"))
