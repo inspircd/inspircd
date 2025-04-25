@@ -43,6 +43,7 @@ CmdResult CommandCommands::HandleLocal(LocalUser* user, const Params& parameters
 	std::vector<Numeric::Numeric> numerics;
 	numerics.reserve(ServerInstance->Parser.GetCommands().size());
 
+	const auto has_auspex = user->HasPrivPermission("servers/auspex");
 	for (const auto& [_, command] : ServerInstance->Parser.GetCommands())
 	{
 		// Don't show privileged commands to users without the privilege.
@@ -64,7 +65,7 @@ CmdResult CommandCommands::HandleLocal(LocalUser* user, const Params& parameters
 		// Only send this command to the user if:
 		// 1. It is usable by the caller.
 		// 2. The caller has the servers/auspex priv.
-		if (!usable && !user->HasPrivPermission("servers/auspex"))
+		if (!usable && !has_auspex)
 			continue;
 
 		Numeric::Numeric numeric(RPL_COMMANDS);
