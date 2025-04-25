@@ -81,7 +81,7 @@ CmdResult CommandCommands::HandleLocal(LocalUser* user, const Params& parameters
 
 	// Sort alphabetically by command name.
 	std::sort(numerics.begin(), numerics.end(), [](const auto& lhs, const auto& rhs) {
-		return lhs.GetParams()[0] > rhs.GetParams()[0];
+		return lhs.GetParams()[0] < rhs.GetParams()[0];
 	});
 
 	for (const auto& numeric : numerics)
