@@ -10,7 +10,7 @@ website = "https://www.openwall.com/crypt/"
 [fmt]
 author  = "Victor Zverovich and fmt contributors"
 depth   = 2
-files   = "{include/fmt/{base,color,compile,core,format,format-inl}.h,LICENSE,src/format.cc}"
+files   = "{include/fmt/{base,color,compile,format,format-inl}.h,LICENSE,src/format.cc}"
 git     = "https://github.com/fmtlib/fmt/"
 license = "MIT License"
 
