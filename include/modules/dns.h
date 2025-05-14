@@ -179,6 +179,7 @@ namespace DNS
 		{
 		}
 
+		virtual unsigned long GetDefaultTimeout() const = 0;
 		virtual void Process(Request* req) = 0;
 		virtual void RemoveRequest(Request* req) = 0;
 		virtual std::string GetErrorStr(Error) = 0;
@@ -212,7 +213,7 @@ namespace DNS
 		Module* const creator;
 
 		Request(Manager* mgr, Module* mod, const std::string& addr, QueryType qt, bool usecache = true, unsigned long timeout = 0)
-			: Timer(timeout ? timeout : ServerInstance->Config->ConfValue("dns")->getDuration("timeout", 5, 1), false)
+			: Timer(timeout ? timeout : mgr->GetDefaultTimeout(), false)
 			, manager(mgr)
 			, question(addr, qt)
 			, use_cache(usecache)

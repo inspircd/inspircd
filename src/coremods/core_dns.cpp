@@ -456,6 +456,7 @@ public:
 	size_t stats_total = 0;
 	size_t stats_success = 0;
 	size_t stats_failure = 0;
+	unsigned long timeout = 0;
 
 	MyManager(Module* c)
 		: Manager(c)
@@ -497,6 +498,11 @@ public:
 
 		// Remove all entries from the cache.
 		cache.clear();
+	}
+
+	unsigned long GetDefaultTimeout() const override
+	{
+		return timeout;
 	}
 
 	void Process(DNS::Request* req) override
@@ -929,6 +935,8 @@ public:
 
 		if (oldserver != DNSServer || oldip != SourceIP || oldport != SourcePort || !SourcePort)
 			this->manager.Rehash(DNSServer, SourceIP, SourcePort);
+
+		this->manager.timeout = tag->getDuration("timeout", 5, 1);
 	}
 
 	ModResult OnStats(Stats::Context& stats) override
