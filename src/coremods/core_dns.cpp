@@ -40,12 +40,10 @@ namespace DNS
 	const unsigned int MAX_REQUEST_ID = 0xFFFF;
 }
 
-using namespace DNS;
-
 /** A full packet sent or received to/from the nameserver
  */
 class Packet final
-	: public Query
+	: public DNS::Query
 {
 private:
 	const Module* creator;
@@ -53,7 +51,7 @@ private:
 	void PackName(unsigned char* output, unsigned short output_size, unsigned short& pos, const std::string& name)
 	{
 		if (pos + name.length() + 2 > output_size)
-			throw Exception(creator, "Unable to pack name");
+			throw DNS::Exception(creator, "Unable to pack name");
 
 		ServerInstance->Logs.Debug(MODNAME, "Packing name {}", name);
 
@@ -78,7 +76,7 @@ private:
 		bool compressed = false;
 
 		if (pos_ptr >= input_size)
-			throw Exception(creator, "Unable to unpack name - no input");
+			throw DNS::Exception(creator, "Unable to unpack name - no input");
 
 		while (input[pos_ptr] > 0)
 		{
@@ -87,9 +85,9 @@ private:
 			if (offset & POINTER)
 			{
 				if ((offset & POINTER) != POINTER)
-					throw Exception(creator, "Unable to unpack name - bogus compression header");
+					throw DNS::Exception(creator, "Unable to unpack name - bogus compression header");
 				if (pos_ptr + 1 >= input_size)
-					throw Exception(creator, "Unable to unpack name - bogus compression header");
+					throw DNS::Exception(creator, "Unable to unpack name - bogus compression header");
 
 				/* Place pos at the second byte of the first (farthest) compression pointer */
 				if (!compressed)
@@ -102,13 +100,13 @@ private:
 
 				/* Pointers can only go back */
 				if (pos_ptr >= lowest_ptr)
-					throw Exception(creator, "Unable to unpack name - bogus compression pointer");
+					throw DNS::Exception(creator, "Unable to unpack name - bogus compression pointer");
 				lowest_ptr = pos_ptr;
 			}
 			else
 			{
 				if (pos_ptr + offset + 1 >= input_size)
-					throw Exception(creator, "Unable to unpack name - offset too large");
+					throw DNS::Exception(creator, "Unable to unpack name - offset too large");
 				if (!name.empty())
 					name += ".";
 				for (unsigned i = 1; i <= offset; ++i)
@@ -125,23 +123,23 @@ private:
 		++pos;
 
 		if (name.empty())
-			throw Exception(creator, "Unable to unpack name - no name");
+			throw DNS::Exception(creator, "Unable to unpack name - no name");
 
 		ServerInstance->Logs.Debug(MODNAME, "Unpack name {}", name);
 
 		return name;
 	}
 
-	Question UnpackQuestion(const unsigned char* input, unsigned short input_size, unsigned short& pos)
+	DNS::Question UnpackQuestion(const unsigned char* input, unsigned short input_size, unsigned short& pos)
 	{
-		Question q;
+		DNS::Question q;
 
 		q.name = this->UnpackName(input, input_size, pos);
 
 		if (pos + 4 > input_size)
-			throw Exception(creator, "Unable to unpack question");
+			throw DNS::Exception(creator, "Unable to unpack question");
 
-		q.type = static_cast<QueryType>(input[pos] << 8 | input[pos + 1]);
+		q.type = static_cast<DNS::QueryType>(input[pos] << 8 | input[pos + 1]);
 		pos += 2;
 
 		// Skip over query class code
@@ -150,12 +148,12 @@ private:
 		return q;
 	}
 
-	ResourceRecord UnpackResourceRecord(const unsigned char* input, unsigned short input_size, unsigned short& pos)
+	DNS::ResourceRecord UnpackResourceRecord(const unsigned char* input, unsigned short input_size, unsigned short& pos)
 	{
-		ResourceRecord record = static_cast<ResourceRecord>(this->UnpackQuestion(input, input_size, pos));
+		auto record = static_cast<DNS::ResourceRecord>(this->UnpackQuestion(input, input_size, pos));
 
 		if (pos + 6 > input_size)
-			throw Exception(creator, "Unable to unpack resource record");
+			throw DNS::Exception(creator, "Unable to unpack resource record");
 
 		record.ttl = (input[pos] << 24) | (input[pos + 1] << 16) | (input[pos + 2] << 8) | input[pos + 3];
 		pos += 4;
@@ -165,10 +163,10 @@ private:
 
 		switch (record.type)
 		{
-			case QUERY_A:
+			case DNS::QUERY_A:
 			{
 				if (pos + 4 > input_size)
-					throw Exception(creator, "Unable to unpack A resource record");
+					throw DNS::Exception(creator, "Unable to unpack A resource record");
 
 				irc::sockets::sockaddrs addrs;
 				addrs.in4.sin_family = AF_INET;
@@ -178,10 +176,10 @@ private:
 				record.rdata = addrs.addr();
 				break;
 			}
-			case QUERY_AAAA:
+			case DNS::QUERY_AAAA:
 			{
 				if (pos + 16 > input_size)
-					throw Exception(creator, "Unable to unpack AAAA resource record");
+					throw DNS::Exception(creator, "Unable to unpack AAAA resource record");
 
 				irc::sockets::sockaddrs addrs;
 				addrs.in6.sin6_family = AF_INET6;
@@ -193,34 +191,34 @@ private:
 
 				break;
 			}
-			case QUERY_CNAME:
-			case QUERY_PTR:
+			case DNS::QUERY_CNAME:
+			case DNS::QUERY_PTR:
 			{
 				record.rdata = this->UnpackName(input, input_size, pos);
 				if (!InspIRCd::IsHost(record.rdata, true))
-					throw Exception(creator, "Invalid name in CNAME/PTR resource record");
+					throw DNS::Exception(creator, "Invalid name in CNAME/PTR resource record");
 
 				break;
 			}
-			case QUERY_TXT:
+			case DNS::QUERY_TXT:
 			{
 				if (pos + rdlength > input_size)
-					throw Exception(creator, "Unable to unpack TXT resource record");
+					throw DNS::Exception(creator, "Unable to unpack TXT resource record");
 
 				record.rdata = std::string(reinterpret_cast<const char* >(input + pos), rdlength);
 				pos += rdlength;
 
 				if (record.rdata.find_first_of("\r\n\0", 0, 3) != std::string::npos)
-					throw Exception(creator, "Invalid character in TXT resource record");
+					throw DNS::Exception(creator, "Invalid character in TXT resource record");
 
 				break;
 			}
-			case QUERY_SRV:
+			case DNS::QUERY_SRV:
 			{
 				if (rdlength < 6 || pos + rdlength > input_size)
-					throw Exception(creator, "Unable to unpack SRV resource record");
+					throw DNS::Exception(creator, "Unable to unpack SRV resource record");
 
-				auto srv = std::make_shared<Record::SRV>();
+				auto srv = std::make_shared<DNS::Record::SRV>();
 
 				srv->priority = input[pos] << 8 | input[pos + 1];
 				pos += 2;
@@ -233,7 +231,7 @@ private:
 
 				srv->host = this->UnpackName(input, input_size, pos);
 				if (!InspIRCd::IsHost(srv->host, true))
-					throw Exception(creator, "Invalid name in SRV resource record");
+					throw DNS::Exception(creator, "Invalid name in SRV resource record");
 
 				record.rdata = INSP_FORMAT("{} {} {} {}", srv->priority, srv->weight, srv->port, srv->host);
 				record.rdataobj = srv;
@@ -242,7 +240,7 @@ private:
 			default:
 			{
 				if (pos + rdlength > input_size)
-					throw Exception(creator, "Unable to skip resource record");
+					throw DNS::Exception(creator, "Unable to skip resource record");
 
 				pos += rdlength;
 				break;
@@ -261,7 +259,7 @@ public:
 	static constexpr int HEADER_LENGTH = 12;
 
 	/* ID for this packet */
-	RequestId id = 0;
+	DNS::RequestId id = 0;
 
 	/* Flags on the packet */
 	unsigned short flags = 0;
@@ -274,7 +272,7 @@ public:
 	void Fill(const unsigned char* input, unsigned short len)
 	{
 		if (len < HEADER_LENGTH)
-			throw Exception(creator, "Unable to fill packet");
+			throw DNS::Exception(creator, "Unable to fill packet");
 
 		unsigned short packet_pos = 0;
 
@@ -300,7 +298,7 @@ public:
 			qdcount, ancount, nscount, arcount);
 
 		if (qdcount != 1)
-			throw Exception(creator, "Question count != 1 in incoming packet");
+			throw DNS::Exception(creator, "Question count != 1 in incoming packet");
 
 		this->question = this->UnpackQuestion(input, len, packet_pos);
 
@@ -311,7 +309,7 @@ public:
 	unsigned short Pack(unsigned char* output, unsigned short output_size)
 	{
 		if (output_size < HEADER_LENGTH)
-			throw Exception(creator, "Unable to pack oversized packet header");
+			throw DNS::Exception(creator, "Unable to pack oversized packet header");
 
 		unsigned short pos = 0;
 
@@ -329,13 +327,13 @@ public:
 		output[pos++] = 0;
 
 		{
-			Question& q = this->question;
+			auto& q = this->question;
 
-			if (q.type == QUERY_PTR)
+			if (q.type == DNS::QUERY_PTR)
 			{
 				irc::sockets::sockaddrs ip(false);
 				if (!ip.from_ip(q.name))
-					throw Exception(creator, "Unable to pack packet with malformed IP for PTR lookup");
+					throw DNS::Exception(creator, "Unable to pack packet with malformed IP for PTR lookup");
 
 				if (q.name.find(':') != std::string::npos)
 				{
@@ -367,7 +365,7 @@ public:
 			this->PackName(output, output_size, pos, q.name);
 
 			if (pos + 4 >= output_size)
-				throw Exception(creator, "Unable to pack oversized packet body");
+				throw DNS::Exception(creator, "Unable to pack oversized packet body");
 
 			short s = htons(q.type);
 			memcpy(&output[pos], &s, 2);
@@ -383,11 +381,11 @@ public:
 };
 
 class MyManager final
-	: public Manager
+	: public DNS::Manager
 	, public Timer
 	, public EventHandler
 {
-	typedef std::unordered_map<Question, Query, Question::hash> cache_map;
+	typedef std::unordered_map<DNS::Question, DNS::Query, DNS::Question::hash> cache_map;
 	cache_map cache;
 
 	irc::sockets::sockaddrs myserver;
@@ -397,9 +395,9 @@ class MyManager final
 	 */
 	static constexpr unsigned int MAX_CACHE_SIZE = 1000;
 
-	static bool IsExpired(const Query& record)
+	static bool IsExpired(const DNS::Query& record)
 	{
-		const ResourceRecord& req = record.answers[0];
+		const auto& req = record.answers[0];
 		return (req.created + static_cast<time_t>(req.ttl) < ServerInstance->Time());
 	}
 
@@ -414,7 +412,7 @@ class MyManager final
 		if (it == this->cache.end())
 			return false;
 
-		Query& record = it->second;
+		auto& record = it->second;
 		if (IsExpired(record))
 		{
 			this->cache.erase(it);
@@ -430,7 +428,7 @@ class MyManager final
 	/** Add a record to the dns cache
 	 * @param r The record
 	 */
-	void AddCache(Query& r)
+	void AddCache(DNS::Query& r)
 	{
 		if (cache.size() >= MAX_CACHE_SIZE)
 			cache.clear();
@@ -444,7 +442,7 @@ class MyManager final
 		}
 
 		cachettl = std::min<unsigned int>(cachettl, 5*60);
-		ResourceRecord& rr = r.answers.front();
+		auto& rr = r.answers.front();
 		// Set TTL to what we've determined to be the lowest
 		rr.ttl = cachettl;
 		ServerInstance->Logs.Debug(MODNAME, "cache: added cache for {} -> {} ttl: {}", rr.name, rr.rdata, rr.ttl);
@@ -452,7 +450,7 @@ class MyManager final
 	}
 
 public:
-	DNS::Request* requests[MAX_REQUEST_ID+1];
+	DNS::Request* requests[DNS::MAX_REQUEST_ID + 1];
 	size_t stats_total = 0;
 	size_t stats_success = 0;
 	size_t stats_failure = 0;
@@ -462,7 +460,7 @@ public:
 		: Manager(c)
 		, Timer(5*60, true)
 	{
-		for (unsigned int i = 0; i <= MAX_REQUEST_ID; ++i)
+		for (unsigned int i = 0; i <= DNS::MAX_REQUEST_ID; ++i)
 			requests[i] = nullptr;
 		ServerInstance->Timers.AddTimer(this);
 	}
@@ -473,14 +471,14 @@ public:
 		Close();
 		unloading = true;
 
-		for (unsigned int i = 0; i <= MAX_REQUEST_ID; ++i)
+		for (unsigned int i = 0; i <= DNS::MAX_REQUEST_ID; ++i)
 		{
 			DNS::Request* request = requests[i];
 			if (!request)
 				continue;
 
-			Query rr(request->question);
-			rr.error = ERROR_UNKNOWN;
+			DNS::Query rr(request->question);
+			rr.error = DNS::ERROR_UNKNOWN;
 			request->OnError(&rr);
 
 			delete request;
@@ -508,12 +506,12 @@ public:
 	void Process(DNS::Request* req) override
 	{
 		if ((unloading) || (req->creator->dying))
-			throw Exception(creator, "Module is being unloaded");
+			throw DNS::Exception(creator, "Module is being unloaded");
 
 		if (!HasFd())
 		{
-			Query rr(req->question);
-			rr.error = ERROR_DISABLED;
+			DNS::Query rr(req->question);
+			rr.error = DNS::ERROR_DISABLED;
 			req->OnError(&rr);
 			return;
 		}
@@ -543,7 +541,7 @@ public:
 				}
 
 				if (id == -1)
-					throw Exception(creator, "DNS: All ids are in use");
+					throw DNS::Exception(creator, "DNS: All ids are in use");
 
 				break;
 			}
@@ -554,7 +552,7 @@ public:
 		this->requests[req->id] = req;
 
 		Packet p(creator);
-		p.flags = QUERYFLAGS_RD;
+		p.flags = DNS::QUERYFLAGS_RD;
 		p.id = req->id;
 		p.question = req->question;
 
@@ -576,7 +574,7 @@ public:
 		req->question.name = p.question.name;
 
 		if (SocketEngine::SendTo(this, buffer, len, 0, this->myserver) != len)
-			throw Exception(creator, "DNS: Unable to send query");
+			throw DNS::Exception(creator, "DNS: Unable to send query");
 
 		// Add timer for timeout
 		ServerInstance->Timers.AddTimer(req);
@@ -588,51 +586,51 @@ public:
 			requests[req->id] = nullptr;
 	}
 
-	std::string GetErrorStr(Error e) override
+	std::string GetErrorStr(DNS::Error e) override
 	{
 		switch (e)
 		{
-			case ERROR_UNLOADED:
+			case DNS::ERROR_UNLOADED:
 				return "Module is unloading";
-			case ERROR_TIMEDOUT:
+			case DNS::ERROR_TIMEDOUT:
 				return "Request timed out";
-			case ERROR_NOT_AN_ANSWER:
-			case ERROR_NONSTANDARD_QUERY:
-			case ERROR_FORMAT_ERROR:
-			case ERROR_MALFORMED:
+			case DNS::ERROR_NOT_AN_ANSWER:
+			case DNS::ERROR_NONSTANDARD_QUERY:
+			case DNS::ERROR_FORMAT_ERROR:
+			case DNS::ERROR_MALFORMED:
 				return "Malformed answer";
-			case ERROR_SERVER_FAILURE:
-			case ERROR_NOT_IMPLEMENTED:
-			case ERROR_REFUSED:
-			case ERROR_INVALIDTYPE:
+			case DNS::ERROR_SERVER_FAILURE:
+			case DNS::ERROR_NOT_IMPLEMENTED:
+			case DNS::ERROR_REFUSED:
+			case DNS::ERROR_INVALIDTYPE:
 				return "Nameserver failure";
-			case ERROR_DOMAIN_NOT_FOUND:
-			case ERROR_NO_RECORDS:
+			case DNS::ERROR_DOMAIN_NOT_FOUND:
+			case DNS::ERROR_NO_RECORDS:
 				return "Domain not found";
-			case ERROR_DISABLED:
+			case DNS::ERROR_DISABLED:
 				return "DNS lookups are disabled";
-			case ERROR_NONE:
-			case ERROR_UNKNOWN:
+			case DNS::ERROR_NONE:
+			case DNS::ERROR_UNKNOWN:
 				break;
 		}
 		return "Unknown error";
 	}
 
-	std::string GetTypeStr(QueryType qt) override
+	std::string GetTypeStr(DNS::QueryType qt) override
 	{
 		switch (qt)
 		{
-			case QUERY_A:
+			case DNS::QUERY_A:
 				return "A";
-			case QUERY_AAAA:
+			case DNS::QUERY_AAAA:
 				return "AAAA";
-			case QUERY_CNAME:
+			case DNS::QUERY_CNAME:
 				return "CNAME";
-			case QUERY_PTR:
+			case DNS::QUERY_PTR:
 				return "PTR";
-			case QUERY_TXT:
+			case DNS::QUERY_TXT:
 				return "TXT";
-			case QUERY_SRV:
+			case DNS::QUERY_SRV:
 				return "SRV";
 			default:
 				return "UNKNOWN";
@@ -672,7 +670,7 @@ public:
 			recv_packet.Fill(buffer, length);
 			valid = true;
 		}
-		catch (const Exception& ex)
+		catch (const DNS::Exception& ex)
 		{
 			ServerInstance->Logs.Debug(MODNAME, ex.GetReason());
 		}
@@ -695,41 +693,41 @@ public:
 		if (!valid)
 		{
 			this->stats_failure++;
-			recv_packet.error = ERROR_MALFORMED;
+			recv_packet.error = DNS::ERROR_MALFORMED;
 			request->OnError(&recv_packet);
 		}
-		else if (recv_packet.flags & QUERYFLAGS_OPCODE)
+		else if (recv_packet.flags & DNS::QUERYFLAGS_OPCODE)
 		{
 			ServerInstance->Logs.Debug(MODNAME, "Received a nonstandard query");
 			this->stats_failure++;
-			recv_packet.error = ERROR_NONSTANDARD_QUERY;
+			recv_packet.error = DNS::ERROR_NONSTANDARD_QUERY;
 			request->OnError(&recv_packet);
 		}
-		else if (!(recv_packet.flags & QUERYFLAGS_QR) || (recv_packet.flags & QUERYFLAGS_RCODE))
+		else if (!(recv_packet.flags & DNS::QUERYFLAGS_QR) || (recv_packet.flags & DNS::QUERYFLAGS_RCODE))
 		{
-			Error error = ERROR_UNKNOWN;
+			auto error = DNS::ERROR_UNKNOWN;
 
-			switch (recv_packet.flags & QUERYFLAGS_RCODE)
+			switch (recv_packet.flags & DNS::QUERYFLAGS_RCODE)
 			{
 				case 1:
 					ServerInstance->Logs.Debug(MODNAME, "format error");
-					error = ERROR_FORMAT_ERROR;
+					error = DNS::ERROR_FORMAT_ERROR;
 					break;
 				case 2:
 					ServerInstance->Logs.Debug(MODNAME, "server error");
-					error = ERROR_SERVER_FAILURE;
+					error = DNS::ERROR_SERVER_FAILURE;
 					break;
 				case 3:
 					ServerInstance->Logs.Debug(MODNAME, "domain not found");
-					error = ERROR_DOMAIN_NOT_FOUND;
+					error = DNS::ERROR_DOMAIN_NOT_FOUND;
 					break;
 				case 4:
 					ServerInstance->Logs.Debug(MODNAME, "not implemented");
-					error = ERROR_NOT_IMPLEMENTED;
+					error = DNS::ERROR_NOT_IMPLEMENTED;
 					break;
 				case 5:
 					ServerInstance->Logs.Debug(MODNAME, "refused");
-					error = ERROR_REFUSED;
+					error = DNS::ERROR_REFUSED;
 					break;
 				default:
 					break;
@@ -743,7 +741,7 @@ public:
 		{
 			ServerInstance->Logs.Debug(MODNAME, "No resource records returned");
 			this->stats_failure++;
-			recv_packet.error = ERROR_NO_RECORDS;
+			recv_packet.error = DNS::ERROR_NO_RECORDS;
 			request->OnError(&recv_packet);
 		}
 		else
@@ -765,7 +763,7 @@ public:
 		unsigned long expired = 0;
 		for (cache_map::iterator it = this->cache.begin(); it != this->cache.end(); )
 		{
-			const Query& query = it->second;
+			const auto& query = it->second;
 			if (IsExpired(query))
 			{
 				expired++;
@@ -853,7 +851,7 @@ class ModuleDNS final
 
 		if (pFixedInfo)
 		{
-			if (GetNetworkParams(pFixedInfo, &dwBufferSize) == ERROR_BUFFER_OVERFLOW)
+			if (GetNetworkParams(pFixedInfo, &dwBufferSize) == DNS::ERROR_BUFFER_OVERFLOW)
 			{
 				HeapFree(GetProcessHeap(), 0, pFixedInfo);
 				pFixedInfo = (PFIXED_INFO) HeapAlloc(GetProcessHeap(), 0, dwBufferSize);
@@ -951,7 +949,7 @@ public:
 
 	void OnUnloadModule(Module* mod) override
 	{
-		for (unsigned int i = 0; i <= MAX_REQUEST_ID; ++i)
+		for (unsigned int i = 0; i <= DNS::MAX_REQUEST_ID; ++i)
 		{
 			DNS::Request* req = this->manager.requests[i];
 			if (!req)
@@ -959,8 +957,8 @@ public:
 
 			if (req->creator == mod)
 			{
-				Query rr(req->question);
-				rr.error = ERROR_UNLOADED;
+				DNS::Query rr(req->question);
+				rr.error = DNS::ERROR_UNLOADED;
 				req->OnError(&rr);
 
 				delete req;
