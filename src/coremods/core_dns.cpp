@@ -851,7 +851,7 @@ class ModuleDNS final
 
 		if (pFixedInfo)
 		{
-			if (GetNetworkParams(pFixedInfo, &dwBufferSize) == DNS::ERROR_BUFFER_OVERFLOW)
+			if (GetNetworkParams(pFixedInfo, &dwBufferSize) == ERROR_BUFFER_OVERFLOW)
 			{
 				HeapFree(GetProcessHeap(), 0, pFixedInfo);
 				pFixedInfo = (PFIXED_INFO) HeapAlloc(GetProcessHeap(), 0, dwBufferSize);
