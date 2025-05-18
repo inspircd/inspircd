@@ -265,7 +265,7 @@ public:
 		if (!cloakhost)
 			return;
 
-		data["cloak-host"] = sha256 ? Cloak("extremely.long.inspircd.cloak.example")->ToString() : broken;
+		data["cloak-host"] = sha256 ? cloak("extremely.long.inspircd.cloak.example") : broken;
 		data["host-parts"] = ConvToStr(hostparts);
 
 #ifdef HAS_LIBPSL
