@@ -310,9 +310,16 @@ public:
 
 		if (parameters.size() == 1)
 		{
-			// :36DAAAAAA SVSHOLD ChanServ
-			std::string reason;
-			return ServerInstance->XLines->DelLine(parameters[0], "SVSHOLD", reason, user) ? CmdResult::SUCCESS : CmdResult::FAILURE;
+			if (irc::equals(parameters[0], "*"))
+			{
+				ServerInstance->XLines->DelAll("SVSHOLD", true);
+			}
+			else
+			{
+				// :36DAAAAAA SVSHOLD ChanServ
+				std::string reason;
+				return ServerInstance->XLines->DelLine(parameters[0], "SVSHOLD", reason, user) ? CmdResult::SUCCESS : CmdResult::FAILURE;
+			}
 		}
 
 		if (parameters.size() == 3)
@@ -674,7 +681,7 @@ public:
 
 	~ModuleServices() override
 	{
-		ServerInstance->XLines->DelAll("SVSHOLD");
+		ServerInstance->XLines->DelAll("SVSHOLD", true);
 		ServerInstance->XLines->UnregisterFactory(&svsholdfactory);
 	}
 
