@@ -457,7 +457,7 @@ public:
 
 	/** Remove all lines of a certain type.
 	 */
-	void DelAll(const std::string& type);
+	void DelAll(const std::string& type, bool silent = false);
 
 	/** Return all known types of line currently stored by the XLineManager.
 	 * @return A vector containing all known line types currently stored in the main list.
