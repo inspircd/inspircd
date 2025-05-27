@@ -269,6 +269,7 @@ void Log::Manager::OpenLogs(bool requiremethods)
 	if (requiremethods && caching)
 	{
 		// The server has finished starting up so we can write out any cached log messages.
+		logging = true;
 		for (auto& logger : loggers)
 		{
 			if (logger.dead || !logger.method->AcceptsCachedMessages())
@@ -296,6 +297,7 @@ void Log::Manager::OpenLogs(bool requiremethods)
 		cache.clear();
 		cache.shrink_to_fit();
 		caching = false;
+		logging = false;
 	}
 	CheckLevel();
 }
