@@ -18,6 +18,7 @@
 
 
 #include "inspircd.h"
+#include "modules/isupport.h"
 
 enum
 {
@@ -33,6 +34,7 @@ typedef std::vector<std::string> CommandList;
 
 class ModuleDisable final
 	: public Module
+	, public ISupport::EventListener
 {
 private:
 	CommandList commands;
@@ -75,6 +77,7 @@ private:
 public:
 	ModuleDisable()
 		: Module(VF_VENDOR, "Allows commands, channel modes, and user modes to be disabled.")
+		, ISupport::EventListener(this)
 	{
 	}
 
@@ -120,6 +123,32 @@ public:
 
 		// Whether to notify server operators via snomask `a` about the attempted use of disabled commands/modes.
 		notifyopers = tag->getBool("notifyopers");
+	}
+
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
+	{
+		if (chanmodes.none() || usermodes.none())
+			return;
+
+		auto &buf = tokens["DISABLEDMODES"];
+		for (unsigned char chr = '0'; chr <= 'z'; ++chr)
+		{
+			if (!ModeParser::IsModeChar(chr))
+				continue;
+
+			if (chanmodes.test(ModeParser::GetModeIndex(chr)))
+				buf.push_back(chr);
+		}
+
+		buf.push_back(',');
+		for (unsigned char chr = '0'; chr <= 'z'; ++chr)
+		{
+			if (!ModeParser::IsModeChar(chr))
+				continue;
+
+			if (usermodes.test(ModeParser::GetModeIndex(chr)))
+				buf.push_back(chr);
+		}
 	}
 
 	ModResult OnNumeric(User* user, const Numeric::Numeric& numeric) override
