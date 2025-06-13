@@ -275,6 +275,7 @@ ifeq ($(SYSTEM), darwin)
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/org.inspircd.plist $(SCRPATH) 2>/dev/null
 endif
 ifeq ($(SYSTEM), linux)
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/inspircd.openrc $(SCRPATH) 2>/dev/null
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd.service $(SCRPATH) 2>/dev/null
 endif
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd.1 $(MANPATH) 2>/dev/null
@@ -326,6 +327,7 @@ deinstall:
 	-rm -f $(MODPATH)/m_*.$(DLLEXT)
 	-rm -f $(SCRPATH)/apparmor
 	-rm -f $(SCRPATH)/inspircd
+	-rm -f $(SCRPATH)/inspircd.openrc
 	-rm -f $(SCRPATH)/inspircd.service
 	-rm -f $(SCRPATH)/logrotate
 	-rm -f $(SCRPATH)/org.inspircd.plist
