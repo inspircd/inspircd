@@ -272,7 +272,7 @@ install: target
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/apparmor $(SCRPATH) 2>/dev/null
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/logrotate $(SCRPATH) 2>/dev/null
 ifeq ($(SYSTEM), darwin)
-	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_BIN) @CONFIGURE_DIRECTORY@/org.inspircd.plist $(SCRPATH) 2>/dev/null
+	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/org.inspircd.plist $(SCRPATH) 2>/dev/null
 endif
 ifeq ($(SYSTEM), linux)
 	-$(INSTALL) $(INSTFLAGS) -m $(INSTMODE_TXT) @CONFIGURE_DIRECTORY@/inspircd.service $(SCRPATH) 2>/dev/null
