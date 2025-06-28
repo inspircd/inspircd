@@ -34,6 +34,7 @@
 namespace
 {
 	bool addedzline = false;
+	bool useflags = false;
 	bool zlineonmatch = false;
 }
 
@@ -48,7 +49,7 @@ public:
 		/* This can throw on failure, but if it does we DONT catch it here, we catch it and display it
 		 * where the object is created, we might not ALWAYS want it to output stuff to snomask x all the time
 		 */
-		regex = rxfactory->Create(regexs);
+		regex = useflags ? rxfactory->Create(regexs) : rxfactory->CreateHuman(regexs);
 	}
 
 	bool Matches(User* u) const override
@@ -278,9 +279,10 @@ public:
 		const auto& tag = ServerInstance->Config->ConfValue("rline");
 
 		matchonnickchange = tag->getBool("matchonnickchange");
+		useflags = tag->getBool("useflags");
 		zlineonmatch = tag->getBool("zlineonmatch");
-		std::string newrxengine = tag->getString("engine");
 
+		std::string newrxengine = tag->getString("engine");
 		factory = rxfactory ? (rxfactory.operator->()) : nullptr;
 
 		rxfactory.SetEngine(newrxengine);
