@@ -1,0 +1,56 @@
+%mode 0750
+%platform linux
+#!/sbin/openrc-run
+#
+# InspIRCd -- Internet Relay Chat Daemon
+#
+#   Copyright (C) 2025 Sadie Powell <sadie@witchery.services>
+#
+# This file is part of InspIRCd.  InspIRCd is free software: you can
+# redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, version 2.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+name=$RC_SVCNAME
+description="InspIRCd - Internet Relay Chat Daemon"
+
+command="@BINARY_DIR@/inspircd"
+command_args="--nofork --nopid"
+command_user="@USER@:@GROUP@"
+pidfile="@RUNTIME_DIR@/${RC_SVCNAME}.pid"
+supervisor="supervise-daemon"
+
+extra_commands="version"
+extra_started_commands="reload sslreload"
+
+depend() {
+	need net
+	use dns netmount
+	provide ircd
+}
+
+reload() {
+	ebegin "Reloading ${RC_SVCNAME} configuration"
+	${supervisor} ${RC_SVCNAME} --signal HUP --pidfile "${pidfile}"
+	eend $?
+}
+
+sslreload() {
+	ebegin "Reloading ${RC_SVCNAME} SSL profiles"
+	${supervisor} ${RC_SVCNAME} --signal USR1 --pidfile "${pidfile}"
+	eend $?
+}
+
+version() {
+	ebegin "Print ${RC_SVCNAME} version"
+	${command} --version
+	eend $?
+}
