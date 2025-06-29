@@ -49,7 +49,7 @@ public:
 		/* This can throw on failure, but if it does we DONT catch it here, we catch it and display it
 		 * where the object is created, we might not ALWAYS want it to output stuff to snomask x all the time
 		 */
-		regex = useflags ? rxfactory->Create(regexs) : rxfactory->CreateHuman(regexs);
+		regex = useflags ? rxfactory->CreateHuman(regexs) : rxfactory->Create(regexs);
 	}
 
 	bool Matches(User* u) const override
