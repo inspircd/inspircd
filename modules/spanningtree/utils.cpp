@@ -409,7 +409,9 @@ std::string SpanningTreeUtilities::BuildLinkString(Module* mod)
 		if (iter != data.begin())
 			buffer << '&';
 
-		buffer << iter->first << '=' << Percent::Encode(iter->second);
+		buffer << iter->first;
+		if (!iter->second.empty())
+			buffer << '=' << Percent::Encode(iter->second);
 	}
 	return buffer.str();
 }

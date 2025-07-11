@@ -254,6 +254,8 @@ public:
 			data["regex"] = rxfactory->GetName(); // e.g. pcre
 		else
 			data["regex"] = "broken";
+
+		data["flags"];
 	}
 
 	ModResult OnUserRegister(LocalUser* user) override
