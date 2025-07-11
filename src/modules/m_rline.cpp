@@ -258,6 +258,9 @@ public:
 		}
 		else
 			data["regex"] = "broken";
+
+		if (useflags)
+			data["flags"];
 	}
 
 	ModResult OnUserRegister(LocalUser* user) override
