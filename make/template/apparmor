@@ -40,6 +40,10 @@ profile inspircd @BINARY_DIR@/inspircd {
 	@LOG_DIR@/** w,
 	@RUNTIME_DIR@/** rw,
 
+	# Required by the cloak_sha256 module:
+	/usr/share/publicsuffix/public_suffix_list.dafsa r,
+	/usr/share/publicsuffix/public_suffix_list.dat r,
+
 	# Required by the ldap module:
 	include <abstractions/ldapclient>
 
