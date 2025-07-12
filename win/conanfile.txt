@@ -20,6 +20,7 @@ yyjson/0.10.0
 */*:shared=True
 libmaxminddb/*:with_binaries=False
 openssl/*:no_apps=True
+openssl/*:no_legacy=True
 pcre2/*:build_pcre2_16=False
 pcre2/*:build_pcre2_32=False
 pcre2/*:build_pcre2grep=False
