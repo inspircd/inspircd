@@ -464,8 +464,21 @@ print console_format <<"EOM";
   <|GREEN Runtime:|> $config{RUNTIME_DIR}
   <|GREEN Script:|>  $config{SCRIPT_DIR}
 
-<|GREEN Execution Group:|> $config{GROUP} ($config{GID})
-<|GREEN Execution User:|>  $config{USER} ($config{UID})
+EOM
+
+if ($config{DISABLE_OWNERSHIP}) {
+	print console_format <<~"EOM";
+		<|GREEN Execution Group:|> <|ITALIC none|>
+		<|GREEN Execution User:|>  <|ITALIC none|>
+		EOM
+} else {
+	print console_format <<~"EOM";
+		<|GREEN Execution Group:|> $config{GROUP} ($config{GID})
+		<|GREEN Execution User:|>  $config{USER} ($config{UID})
+		EOM
+}
+
+print console_format <<"EOM";
 <|GREEN Socket Engine:|>   $config{SOCKETENGINE}
 
 To build with these settings run '<|GREEN make ${\join ' ', @makeargs} install|>' now.
