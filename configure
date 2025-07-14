@@ -213,6 +213,7 @@ if (defined $opt_portable) {
 	$config{MODULE_DIR}  = $opt_module_dir  // 'modules';
 	$config{RUNTIME_DIR} = $opt_runtime_dir // $config{DATA_DIR};
 	$config{SCRIPT_DIR}  = $opt_script_dir  // $config{BASE_DIR};
+	$opt_disable_ownership = 1;
 } elsif (defined $opt_system) {
 	$config{BASE_DIR}    = $opt_prefix      // '/';
 	$config{BINARY_DIR}  = $opt_binary_dir  // catdir $config{BASE_DIR}, 'usr/bin';

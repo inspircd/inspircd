@@ -113,7 +113,7 @@ non-interactive configuration is started and any omitted values are defaulted.
 <|GREEN PATH OPTIONS|>
 
   <|BOLD --portable|>                    Automatically set up the installation paths for
-                                portable installation.
+                                portable installation. This implies --disable-ownership.
   <|BOLD --system|>                      Automatically set up the installation paths for
                                 system-wide installation.
   <|BOLD --prefix <DIR>|>                The root install directory. If this is set then
