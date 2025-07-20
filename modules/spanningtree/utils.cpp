@@ -238,19 +238,21 @@ void SpanningTreeUtilities::RefreshIPCache()
 
 void SpanningTreeUtilities::ReadConfiguration()
 {
+	const auto& mtag = ServerInstance->Config->ConfValue("spanningtree");
+
 	const auto& options = ServerInstance->Config->ConfValue("options");
-	AllowOptCommon = options->getBool("allowmismatch");
-	AnnounceTSChange = options->getBool("announcets");
-	PingWarnTime = options->getDuration("pingwarning", 15);
-	PingFreq = options->getDuration("serverpingfreq", 60, 1);
+	AllowOptCommon = mtag->getBool("allowmismatch", options->getBool("allowmismatch"));
+	AnnounceTSChange = mtag->getBool("announcets", options->getBool("announcets"));
+	PingWarnTime = mtag->getDuration("pingwarning", options->getDuration("pingwarning", 15));
+	PingFreq = mtag->getDuration("pingfreq", options->getDuration("serverpingfreq", 60, 1), 60, 1);
 
 	const auto& security = ServerInstance->Config->ConfValue("security");
-	FlatLinks = security->getBool("flatlinks");
-	HideServices = security->getBool("hideservices");
-	HideSplits = security->getBool("hidesplits");
+	FlatLinks = mtag->getBool("flatlinks", security->getBool("flatlinks"));
+	HideServices = mtag->getBool("hideservices", security->getBool("hideservices"));
+	HideSplits = mtag->getBool("hidesplits", security->getBool("hidesplits"));
 
 	const auto& performance = ServerInstance->Config->ConfValue("performance");
-	quiet_bursts = performance->getBool("quietbursts");
+	quiet_bursts = mtag->getBool("quietbursts", performance->getBool("quietbursts", true));
 
 	if (PingWarnTime >= PingFreq)
 		PingWarnTime = 0;
