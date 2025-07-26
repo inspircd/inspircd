@@ -298,6 +298,14 @@ sub parse_templates($$$) {
 					} else {
 						push @lines, "#${indent}undef $value";
 					}
+				} elsif ($name eq 'ifdef') {
+					if ($name =~ /^(\S+)\s+(.+)/ && $settings{$1}) {
+						push @lines, $indent . $2;
+					}
+				} elsif ($name eq 'ifndef') {
+					if ($3 =~ /^(\S+)\s+(.+)/ && !$settings{$1}) {
+						push @lines, $indent . $2;
+					}
 				} elsif ($name eq 'mode') {
 					$mode = oct $value;
 				} elsif ($name eq 'platform') {

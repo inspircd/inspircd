@@ -21,7 +21,7 @@
 
 @LOG_DIR@/*.log {
 	compress
-	create 0644 @USER@ @GROUP@
+	%ifndef DISABLE_OWNERSHIP create 0644 @USER@ @GROUP@
 	dateext
 	delaycompress
 	missingok
