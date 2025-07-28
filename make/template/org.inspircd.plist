@@ -26,9 +26,9 @@
 	<string>@LOG_DIR@/launchd-stdout.log</string>
 	<key>StandardErrorPath</key>
 	<string>@LOG_DIR@/launchd-stderr.log</string>
-	<key>UserName</key>
-	<string>@USER@</string>
-	<key>GroupName</key>
-	<string>@GROUP@</string>
+	%ifndef DISABLE_OWNERSHIP <key>UserName</key>
+	%ifndef DISABLE_OWNERSHIP <string>@USER@</string>
+	%ifndef DISABLE_OWNERSHIP <key>GroupName</key>
+	%ifndef DISABLE_OWNERSHIP <string>@GROUP@</string>
 </dict>
 </plist>
