@@ -708,7 +708,7 @@ void ModuleFilter::GetLinkData(LinkData& data, std::string& compatdata)
 		data["regex"] = "broken";
 
 	if (enableflags)
-		data["flags"];
+		data["flags"] = "yes";
 }
 
 std::string ModuleFilter::EncodeFilter(const FilterResult& filter)
