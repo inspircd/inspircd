@@ -78,6 +78,6 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **License** &mdash; MIT License
 
-**Version** &mdash; 0.10.0
+**Version** &mdash; 0.11.1
 
 **Website** &mdash; [https://github.com/ibireme/yyjson](https://github.com/ibireme/yyjson)
