@@ -6,7 +6,6 @@
  *   Copyright (C) 2013-2014 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2013, 2016-2025 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
- *   Copyright (C) 2012 ChrisTX <xpipe@hotmail.de>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2009 Uli Schlachter <psychon@znc.in>
  *   Copyright (C) 2007, 2009 Dennis Friis <peavey@inspircd.org>
