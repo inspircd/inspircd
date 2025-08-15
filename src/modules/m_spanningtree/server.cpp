@@ -42,6 +42,10 @@ namespace
 		if (sa.is_local())
 			return true; // Always allowed.
 
+		std::error_code ec;
+		if (Utils->LocalRanges.empty() && std::filesystem::is_regular_file("/.dockerenv", ec))
+			return true; // TODO: remove this a future release.
+
 		for (const auto& cidr : Utils->LocalRanges)
 		{
 			if (cidr.match(sa))
