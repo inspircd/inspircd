@@ -247,6 +247,15 @@ void SpanningTreeUtilities::ReadConfiguration()
 	HideServices = security->getBool("hideservices", security->getBool("hideulines"));
 	HideSplits = security->getBool("hidesplits");
 
+	LocalRanges.clear();
+	irc::spacesepstream localrangestream(security->getString("localranges"));
+	for (std::string localrange; localrangestream.GetToken(localrange); )
+	{
+		irc::sockets::cidr_mask cidr(localrange);
+		if (cidr.length)
+			LocalRanges.push_back(cidr);
+	}
+
 	const auto& performance = ServerInstance->Config->ConfValue("performance");
 	quiet_bursts = performance->getBool("quietbursts");
 
