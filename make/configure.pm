@@ -3,7 +3,7 @@
 #
 #   Copyright (C) 2024 satmd <satmd@satmd.de>
 #   Copyright (C) 2020 Nicole Kleinhoff <ilbelkyr@shalture.org>
-#   Copyright (C) 2013-2022, 2024 Sadie Powell <sadie@witchery.services>
+#   Copyright (C) 2013-2022, 2024-2025 Sadie Powell <sadie@witchery.services>
 #   Copyright (C) 2012 Robby <robby@chatbelgie.be>
 #   Copyright (C) 2007-2008 Craig Edwards <brain@inspircd.org>
 #
@@ -299,11 +299,11 @@ sub parse_templates($$$) {
 						push @lines, "#${indent}undef $value";
 					}
 				} elsif ($name eq 'ifdef') {
-					if ($name =~ /^(\S+)\s+(.+)/ && $settings{$1}) {
+					if ($value =~ /^(\S+)\s+(.+)/ && $settings{$1}) {
 						push @lines, $indent . $2;
 					}
 				} elsif ($name eq 'ifndef') {
-					if ($3 =~ /^(\S+)\s+(.+)/ && !$settings{$1}) {
+					if ($value =~ /^(\S+)\s+(.+)/ && !$settings{$1}) {
 						push @lines, $indent . $2;
 					}
 				} elsif ($name eq 'mode') {

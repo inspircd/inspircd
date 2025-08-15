@@ -37,15 +37,15 @@
 
 namespace
 {
-	bool RunningInContainer()
+	bool IsLocalRange(const irc::sockets::sockaddrs& sa)
 	{
-		std::error_code ec;
-		if (std::filesystem::is_regular_file("/.dockerenv", ec))
+		if (sa.is_local())
+			return true; // Always allowed.
+
+		for (const auto& cidr : Utils->LocalRanges)
 		{
-			// We are running inside of Docker so all IP addresses are
-			// non-local and as far as I can see there isn't a way to
-			// reliably detect the Docker network.
-			return true;
+			if (cidr.match(sa))
+				return true; // Explicitly allowed range.
 		}
 		return false;
 	}
@@ -156,7 +156,7 @@ std::shared_ptr<Link> TreeSocket::AuthRemote(const CommandBase::Params& params)
 			ssliohook->GetCiphersuite(ciphersuite);
 			ServerInstance->SNO.WriteToSnoMask('l', "Negotiated ciphersuite {} on link {}", ciphersuite, x->Name);
 		}
-		else if (!capab->remotesa.is_local() && !RunningInContainer())
+		else if (!IsLocalRange(capab->remotesa))
 		{
 			this->SendError("Non-local server connections MUST be linked with SSL!");
 			return nullptr;
