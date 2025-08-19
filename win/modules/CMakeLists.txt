@@ -53,6 +53,7 @@ if(DEFINED CMAKE_TOOLCHAIN_FILE)
 	enable_extra("regex_pcre2" "PCRE2" "pcre2::pcre2")
 	enable_extra("regex_posix" "PCRE2" "pcre2::pcre2")
 	enable_extra("regex_re2" "re2" "re2::re2")
+	enable_extra("regex_tre" "tre" "tre::tre")
 	enable_extra("ssl_openssl" "OpenSSL" "openssl::openssl")
 	enable_extra("sqlite3" "SQLite3" "SQLite::SQLite3")
 

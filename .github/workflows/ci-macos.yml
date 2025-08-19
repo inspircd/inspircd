@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew update || true
-          for PACKAGE in pkg-config argon2 gnutls libmaxminddb libpq libpsl mysql-client openssl openldap pcre2 re2 sqlite yyjson
+          for PACKAGE in pkg-config argon2 gnutls libmaxminddb libpq libpsl mysql-client openssl openldap pcre2 re2 sqlite tre yyjson
           do
             brew install $PACKAGE || brew upgrade $PACKAGE
 
@@ -44,7 +44,7 @@ jobs:
 
       - name: Run configure
         run: |
-          ./configure --enable-extras "argon2 geo_maxmind ldap log_json log_syslog mysql pgsql regex_pcre2 regex_posix regex_re2 sqlite3 ssl_gnutls ssl_openssl sslrehashsignal"
+          ./configure --enable-extras "argon2 geo_maxmind ldap log_json log_syslog mysql pgsql regex_pcre2 regex_posix regex_re2 regex_tre sqlite3 ssl_gnutls ssl_openssl sslrehashsignal"
           ./configure --development --disable-auto-extras --socketengine ${{ matrix.socketengine }}
 
       - name: Build core

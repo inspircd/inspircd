@@ -398,6 +398,7 @@ if (prompt_bool $interactive, $question, 0) {
 		'regex_pcre2'     => 'pkg-config --exists libpcre2-8',
 		'regex_posix'     => undef,
 		'regex_re2'       => 'pkg-config --exists re2',
+		'regex_tre'       => 'pkg-config --exists tre',
 		'sqlite3'         => 'pkg-config --exists sqlite3',
 		'ssl_gnutls'      => 'pkg-config --exists "gnutls >= 3.3.5"',
 		'ssl_openssl'     => 'pkg-config --exists "openssl >= 1.1.1"',

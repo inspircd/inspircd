@@ -14,6 +14,7 @@ libpsl/0.21.5
 pcre2/10.44
 re2/20250722
 sqlite3/3.50.4
+tre/cci.20230717
 yyjson/0.10.0
 
 [options]
