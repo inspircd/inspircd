@@ -292,9 +292,6 @@ public:
 		{
 			if (f->Add(user, weight))
 			{
-				/* You're outttta here! */
-				f->Clear(user);
-
 				const std::string msg = Template::Replace(message, {
 					{ "channel",  dest->name                    },
 					{ "duration", Duration::ToString(f->period) },
@@ -314,11 +311,13 @@ public:
 
 					case MsgFloodAction::KICK:
 						dest->KickUser(ServerInstance->FakeClient, user, msg);
+						f->Clear(user);
 						break;
 
 					case MsgFloodAction::KICK_BAN:
 						CreateBan(dest, user, false);
 						dest->KickUser(ServerInstance->FakeClient, user, msg);
+						f->Clear(user);
 						break;
 
 					case MsgFloodAction::MUTE:
