@@ -283,7 +283,7 @@ public:
 		notice = tag->getNum<double>("notice", 1.0);
 		privmsg = tag->getNum<double>("privmsg", 1.0);
 		tagmsg = tag->getNum<double>("tagmsg", 0.2);
-		message = tag->getString("message", "Message flood detected (trigger is %messages% messages in %duration%)", 1);
+		message = tag->getString("message", "Message flood detected (trigger is %messages% messages in %duration.long%)", 1);
 		mf.extended = tag->getBool("extended");
 		mf.SetSyntax();
 	}
@@ -313,10 +313,11 @@ public:
 			if (f->Add(user, weight))
 			{
 				const std::string msg = Template::Replace(message, {
-					{ "channel",  dest->name                    },
-					{ "duration", Duration::ToString(f->period) },
-					{ "messages", ConvToStr(f->messages)        },
-					{ "seconds",  ConvToStr(f->period)          },
+					{ "channel",       dest->name                        },
+					{ "duration",      Duration::ToString(f->period)     },
+					{ "duration.long", Duration::ToLongString(f->period) },
+					{ "messages",      ConvToStr(f->messages)            },
+					{ "seconds",       ConvToStr(f->period)              },
 				});
 				switch (f->action)
 				{

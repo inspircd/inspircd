@@ -443,7 +443,7 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("repeat");
-		rm.ms.Message = tag->getString("message", tag->getString("kickmessage", "Repeat flood detected (trigger is %lines% messages in %duration%)"), 1);
+		rm.ms.Message = tag->getString("message", tag->getString("kickmessage", "Repeat flood detected (trigger is %lines% messages in %duration.long%)"), 1);
 		rm.ms.Extended = tag->getBool("extended");
 		rm.ms.MaxBacklog = tag->getNum<unsigned long>("maxbacklog", 20);
 		rm.ms.MaxDiff = tag->getNum<unsigned int>("maxdistance", 50, 0, 100);
@@ -477,11 +477,12 @@ public:
 		if (rm.MatchLine(memb, settings, details.text))
 		{
 			const std::string message = Template::Replace(rm.ms.Message, {
-				{ "channel",  chan->name                            },
-				{ "diff",     ConvToStr(settings->Diff)             },
-				{ "duration", Duration::ToString(settings->Seconds) },
-				{ "lines",    ConvToStr(settings->Lines)            },
-				{ "seconds",  ConvToStr(settings->Seconds)          },
+				{ "channel",       chan->name                                },
+				{ "diff",          ConvToStr(settings->Diff)                 },
+				{ "duration",      Duration::ToString(settings->Seconds)     },
+				{ "duration.long", Duration::ToLongString(settings->Seconds) },
+				{ "lines",         ConvToStr(settings->Lines)                },
+				{ "seconds",       ConvToStr(settings->Seconds)              },
 			});
 
 			switch (settings->Action)
