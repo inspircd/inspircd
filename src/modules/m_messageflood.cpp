@@ -38,11 +38,22 @@ enum class MsgFloodAction
 	KICK_BAN,
 };
 
+struct MsgFloodData final
+{
+	time_t reset;
+	double messages = 0;
+
+	MsgFloodData(unsigned long period)
+		: reset(ServerInstance->Time() + period)
+	{
+	}
+};
+
 class MsgFloodSettings final
 {
 private:
-	insp::flat_map<User*, double> counters;
-	time_t reset;
+	using CounterMap = insp::flat_map<User*, MsgFloodData>;
+	CounterMap counters;
 
 public:
 	MsgFloodAction action;
@@ -51,8 +62,7 @@ public:
 
 
 	MsgFloodSettings(MsgFloodAction a, unsigned int m, unsigned long p)
-		: reset(ServerInstance->Time() + p)
-		, action(a)
+		: action(a)
 		, messages(m)
 		, period(p)
 	{
@@ -60,19 +70,29 @@ public:
 
 	bool Add(User* who, double weight)
 	{
-		if (ServerInstance->Time() > reset)
-		{
-			counters.clear();
-			reset = ServerInstance->Time() + period;
-		}
+		auto it = Find(who);
+		if (it == counters.end())
+			it = counters.emplace(who, MsgFloodData(period)).first;
 
-		counters[who] += weight;
-		return (counters[who] >= this->messages);
+		it->second.messages += weight;
+		return (it->second.messages >= this->messages);
 	}
 
-	void Clear(User* who)
+	CounterMap::iterator Find(User* who)
 	{
-		counters.erase(who);
+		CounterMap::iterator ret = counters.end();
+		for (auto it = counters.begin(); it != counters.end(); )
+		{
+			if (it->second.reset <= ServerInstance->Time())
+				it = counters.erase(it);
+			else
+			{
+				if (it->first == who)
+					ret = it;
+				it++;
+			}
+		}
+		return ret;
 	}
 };
 
@@ -311,13 +331,11 @@ public:
 
 					case MsgFloodAction::KICK:
 						dest->KickUser(ServerInstance->FakeClient, user, msg);
-						f->Clear(user);
 						break;
 
 					case MsgFloodAction::KICK_BAN:
 						CreateBan(dest, user, false);
 						dest->KickUser(ServerInstance->FakeClient, user, msg);
-						f->Clear(user);
 						break;
 
 					case MsgFloodAction::MUTE:
