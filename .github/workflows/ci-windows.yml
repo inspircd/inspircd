@@ -15,7 +15,7 @@ jobs:
       BUILD_TYPE: ${{ github.event_name == 'release' && 'Release' || 'Debug' }}
       CONAN_HOME: ${{ github.workspace }}/win/build/conan
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup NSIS
         run: |-

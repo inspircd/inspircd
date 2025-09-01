@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-24.04-arm
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Run configure
         run: ./configure --development --disable-auto-extras --prefix=$HOME/inspircd
@@ -65,7 +65,7 @@ jobs:
           find -name 'artifacts-inspircd.tar.gz' -exec tar -xzf '{}' \;
 
       - name: Checkout irctest
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: irctest
           ref: 4ee99ede9a0d6e8e88a6d7d98793f57465f9d841
@@ -80,7 +80,7 @@ jobs:
 
       - name: Checkout Anope
         if: matrix.services == 'anope'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: anope
           ref: 2.1.17
@@ -101,7 +101,7 @@ jobs:
 
       - name: Checkout Atheme
         if: matrix.services == 'atheme'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: atheme
           ref: master
