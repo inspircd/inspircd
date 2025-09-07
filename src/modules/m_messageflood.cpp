@@ -289,7 +289,7 @@ public:
 		const auto& tag = ServerInstance->Config->ConfValue("messageflood");
 		notice = tag->getNum<double>("notice", 1.0);
 		privmsg = tag->getNum<double>("privmsg", 1.0);
-		tagmsg = tag->getNum<double>("tagmsg", 0.2);
+		tagmsg = tag->getNum<double>("tagmsg", 0.1);
 		message = tag->getString("message", "Message flood detected (trigger is %messages% messages in %duration.long%)", 1);
 		mf.extended = tag->getBool("extended");
 		resetonhit = tag->getBool("resetonhit", !mf.extended);
