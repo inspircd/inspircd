@@ -86,7 +86,8 @@ public:
 
 	CounterMap::iterator Find(User* who)
 	{
-		CounterMap::iterator ret = counters.end();
+		auto found = false;
+		CounterMap::iterator ret;
 		for (auto it = counters.begin(); it != counters.end(); )
 		{
 			if (it->second.reset <= ServerInstance->Time())
@@ -94,11 +95,14 @@ public:
 			else
 			{
 				if (it->first == who)
+				{
+					found = true;
 					ret = it;
+				}
 				it++;
 			}
 		}
-		return ret;
+		return found ? ret : counters.end();
 	}
 };
 
