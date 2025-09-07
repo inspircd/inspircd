@@ -78,6 +78,12 @@ public:
 		return (it->second.messages >= this->messages);
 	}
 
+	void Clear(User* who)
+	{
+		counters.erase(who);
+	}
+
+
 	CounterMap::iterator Find(User* who)
 	{
 		CounterMap::iterator ret = counters.end();
@@ -244,6 +250,7 @@ private:
 	double notice;
 	double privmsg;
 	double tagmsg;
+	bool resetonhit;
 	std::string message;
 
 	void CreateBan(Channel* channel, User* user, bool mute)
@@ -285,6 +292,7 @@ public:
 		tagmsg = tag->getNum<double>("tagmsg", 0.2);
 		message = tag->getString("message", "Message flood detected (trigger is %messages% messages in %duration.long%)", 1);
 		mf.extended = tag->getBool("extended");
+		resetonhit = tag->getBool("resetonhit", !mf.extended);
 		mf.SetSyntax();
 	}
 
@@ -324,6 +332,8 @@ public:
 					case MsgFloodAction::BAN:
 						InformUser(dest, user, msg);
 						CreateBan(dest, user, false);
+						if (resetonhit)
+							f->Clear(user);
 						break;
 
 					case MsgFloodAction::BLOCK:
@@ -332,16 +342,22 @@ public:
 
 					case MsgFloodAction::KICK:
 						dest->KickUser(ServerInstance->FakeClient, user, msg);
+						if (resetonhit)
+							f->Clear(user);
 						break;
 
 					case MsgFloodAction::KICK_BAN:
 						CreateBan(dest, user, false);
 						dest->KickUser(ServerInstance->FakeClient, user, msg);
+						if (resetonhit)
+							f->Clear(user);
 						break;
 
 					case MsgFloodAction::MUTE:
 						InformUser(dest, user, msg);
 						CreateBan(dest, user, true);
+						if (resetonhit)
+							f->Clear(user);
 						break;
 				}
 
