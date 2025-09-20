@@ -163,15 +163,10 @@ namespace OpenSSL
 #endif
 
 #ifndef OPENSSL_NO_ECDH
-		void SetECDH(const std::string& curvename)
+		bool SetECDH(const std::string& grouplist)
 		{
-			int nid = OBJ_sn2nid(curvename.c_str());
-			if (nid == NID_undef)
-				throw Exception("Unknown curve: " + curvename);
-
 			ERR_clear_error();
-			if (!SSL_CTX_set1_groups(ctx, &nid, 1))
-				throw Exception("Couldn't set ECDH curve");
+			return SSL_CTX_set1_groups_list(ctx, grouplist.c_str());
 		}
 #endif
 
@@ -414,9 +409,12 @@ namespace OpenSSL
 			}
 
 #ifndef OPENSSL_NO_ECDH
-			const std::string curvename = tag->getString("ecdhcurve", "prime256v1");
-			if (!curvename.empty())
-				ctx.SetECDH(curvename);
+			const auto grouplist = tag->getString("ecdhgroups", tag->getString("ecdhcurve", "prime256v1"));
+			if (!grouplist.empty() && !ctx.SetECDH(grouplist))
+			{
+				ERR_print_errors_cb(error_callback, this);
+				throw Exception("Couldn't set ECDH groups: " + lasterr);
+			}
 #endif
 
 			SetContextOptions("server", tag, ctx);
@@ -724,6 +722,11 @@ private:
 	// Calls our private SSLInfoCallback()
 	friend void StaticSSLInfoCallback(const SSL* ssl, int where, int rc);
 
+	static const char* UnknownIfNULL(const char* str)
+	{
+		return str ? str : "UNKNOWN";
+	}
+
 public:
 	OpenSSLIOHook(const std::shared_ptr<IOHookProvider>& hookprov, StreamSocket* sock, SSL* session)
 		: SSLIOHook(hookprov)
@@ -872,7 +875,10 @@ public:
 		if (!IsHookReady())
 			return;
 		out.append(SSL_get_version(sess)).push_back('-');
-		out.append(SSL_get_cipher(sess));
+#if OPENSSL_VERSION_NUMBER >= 0x30200000L
+		out.append(UnknownIfNULL(SSL_get0_group_name(sess))).push_back('-');
+#endif
+		out.append(UnknownIfNULL(SSL_get_cipher(sess)));
 	}
 
 	bool GetServerName(std::string& out) const override
