@@ -15,7 +15,7 @@ jobs:
       INSPIRCD_DEBUG: 3
       INSPIRCD_VERBOSE: 1
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Prepare the build environment
         run: |
@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew update || true
-          for PACKAGE in pkg-config argon2 gnutls libmaxminddb libpq libpsl mysql-client openssl openldap pcre2 re2 sqlite
+          for PACKAGE in pkg-config argon2 gnutls libmaxminddb libpq libpsl mysql-client openssl openldap pcre2 re2 sqlite tre
           do
             brew install $PACKAGE || brew upgrade $PACKAGE
 
@@ -44,7 +44,7 @@ jobs:
 
       - name: Run configure
         run: |
-          ./configure --enable-extras "geo_maxmind hash_argon2 hash_gnutls ldap log_syslog mysql pgsql regex_pcre2 regex_posix regex_re2 rehashsignal sqlite3 ssl_gnutls ssl_openssl"
+          ./configure --enable-extras "geo_maxmind hash_argon2 hash_gnutls ldap log_syslog mysql pgsql regex_pcre2 regex_posix regex_re2 regex_tre rehashsignal sqlite3 ssl_gnutls ssl_openssl"
           ./configure --development --disable-auto-extras --socketengine ${{ matrix.socketengine }}
 
       - name: Build core

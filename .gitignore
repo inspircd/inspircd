@@ -27,6 +27,7 @@
 /modules/regex_pcre2.cpp
 /modules/regex_posix.cpp
 /modules/regex_re2.cpp
+/modules/regex_tre.cpp
 /modules/rehashsignal.cpp
 /modules/sqlite3.cpp
 /modules/ssl_gnutls.cpp

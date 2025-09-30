@@ -406,7 +406,7 @@ class MyManager final
 	 */
 	bool CheckCache(DNS::Request* req, const DNS::Question& question)
 	{
-		ServerInstance->Logs.Critical(MODNAME, "cache: Checking cache for {}", question.name);
+		ServerInstance->Logs.Debug(MODNAME, "cache: Checking cache for {}", question.name);
 
 		cache_map::iterator it = this->cache.find(question);
 		if (it == this->cache.end())

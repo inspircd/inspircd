@@ -431,7 +431,7 @@ void TreeSocket::Close()
 	if (MyRoot && !MyRoot->IsDead())
 		MyRoot->SQuit(GetError(), true);
 	else
-		ServerInstance->SNO.WriteGlobalSno('l', "Connection to '\002{}\002' failed.", linkID);
+		ServerInstance->SNO.WriteGlobalSno('l', "Connection to '\002{}\002' closed.", linkID);
 
 	time_t server_uptime = ServerInstance->Time() - this->age;
 	if (server_uptime)

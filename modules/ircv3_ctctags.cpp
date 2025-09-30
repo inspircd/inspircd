@@ -229,12 +229,10 @@ public:
 		if (IS_LOCAL(user) && !cap.IsEnabled(user))
 			return CmdResult::FAILURE;
 
-		// The specified message tags were empty.
+		// The specified message tags were empty. This probably means that client
+		// only tags are disabled.
 		if (parameters.GetTags().empty())
-		{
-			user->WriteNumeric(ERR_NOTEXTTOSEND, "No tags to send");
 			return CmdResult::FAILURE;
-		}
 
 		// The target is a server glob.
 		if (parameters[0][0] == '$')
