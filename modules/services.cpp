@@ -26,6 +26,18 @@
 #include "timeutils.h"
 #include "xline.h"
 
+enum
+{
+	// From UnrealIRCd.
+	ERR_KILLDENY = 485,
+
+	// From Charybdis.
+	ERR_MLOCKRESTRICTED = 742,
+
+	// InspIRCd-specific.
+	ERR_TOPICLOCK = 744,
+};
+
 class ServicesAccountProvider final
 	: public Account::ProviderAPIBase
 	, public ServerProtocol::LinkEventListener
@@ -81,29 +93,15 @@ public:
 		{
 			if (irc::equals(target, server.servername))
 			{
-				ServerInstance->Logs.Debug(MODNAME, "Changed the services server to {}.",
-					server.servername);
+				ServerInstance->Logs.Debug(MODNAME, "Changed the services server to {}.", server.servername);
 				SetAvailable(true);
 				return;
 			}
 		}
 
-		ServerInstance->Logs.Debug(MODNAME, "The services server ({}) is currently unavailable.",
-			target.c_str());
+		ServerInstance->Logs.Debug(MODNAME, "The services server ({}) is currently unavailable.", target);
 		SetAvailable(false);
 	}
-};
-
-enum
-{
-	// From UnrealIRCd.
-	ERR_KILLDENY = 485,
-
-	// From Charybdis.
-	ERR_MLOCKRESTRICTED = 742,
-
-	// InspIRCd-specific.
-	ERR_TOPICLOCK = 744,
 };
 
 class RegisteredChannel final
