@@ -54,7 +54,7 @@ public:
 	CmdResult Handle(User* user, const CommandBase::Params& parameters) override
 	{
 		// Keep compatibility with v3 servers by allowing them to send removes with the old order.
-		bool neworder = !IS_LOCAL(user) && ServerInstance->Channels.IsPrefix(parameters[0][0]);
+		const auto neworder = IS_LOCAL(user) || ServerInstance->Channels.IsPrefix(parameters[0][0]);
 		const std::string& channame = parameters[neworder ? 0 : 1];
 		const std::string& username = parameters[neworder ? 1 : 0];
 
