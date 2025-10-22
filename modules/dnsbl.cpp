@@ -106,10 +106,6 @@ public:
 
 	DNSBLEntry(const Module* mod, const std::shared_ptr<ConfigTag>& tag)
 	{
-		name = tag->getString("name");
-		if (name.empty())
-			throw ModuleException(mod, "<dnsbl:name> can not be empty at " + tag->source.str());
-
 		domain = tag->getString("domain");
 		if (domain.empty())
 			throw ModuleException(mod, "<dnsbl:domain> can not be empty at " + tag->source.str());
@@ -131,11 +127,10 @@ public:
 
 			records.set(record);
 		}
-
 		if (records.none())
 			throw ModuleException(mod, "<dnsbl:records> can not be empty at " + tag->source.str());
 
-
+		name = tag->getString("name", domain, 1);
 		reason = tag->getString("reason", "Your IP (%ip%) has been blacklisted by the %dnsbl% DNSBL.", 1, ServerInstance->Config->Limits.MaxLine);
 		timeout = static_cast<unsigned int>(tag->getDuration("timeout", 0, 1, 60));
 		markuser = tag->getString("user");
