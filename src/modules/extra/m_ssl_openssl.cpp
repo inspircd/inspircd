@@ -62,8 +62,6 @@
 # define INSPIRCD_OPENSSL_AUTO_DH
 #endif
 
-#define INSPIRCD_OPENSSL_DEFAULT_GROUPS "X25519MLKEM768:X25519:prime256v1";
-
 static bool SelfSigned = false;
 static int exdataindex;
 static Module* thismod;
@@ -426,15 +424,19 @@ namespace OpenSSL
 				}
 			}
 
-			std::string grouplist = INSPIRCD_OPENSSL_DEFAULT_GROUPS;
+			std::string grouplist = "X25519MLKEM768:X25519:prime256v1";
 			auto strictgroups = tag->readString("groups", grouplist);
 			if (!strictgroups)
 				strictgroups = tag->readString("ecdhcurve", grouplist);
 
-			if (!grouplist.empty() && !ctx.SetGroups(grouplist, tag->getBool("strictgroups", strictgroups)))
+			if (!grouplist.empty())
 			{
-				ERR_print_errors_cb(error_callback, this);
-				throw Exception("Couldn't set groups: " + lasterr);
+				strictgroups = tag->getBool("strictgroups", strictgroups);
+				if (!ctx.SetGroups(grouplist, strictgroups) || !clientctx.SetGroups(grouplist, strictgroups))
+				{
+					ERR_print_errors_cb(error_callback, this);
+					throw Exception("Couldn't set groups: " + lasterr);
+				}
 			}
 
 			SetContextOptions("server", tag, ctx);
