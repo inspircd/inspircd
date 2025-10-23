@@ -118,13 +118,30 @@ namespace OpenSSL
 			SSL_CTX_free(ctx);
 		}
 
-#ifndef OPENSSL_NO_ECDH
-		bool SetECDH(const std::string& grouplist)
+		bool SetGroups(const std::string& groups, bool strictgroups)
 		{
+			std::string grouplist;
+			if (strictgroups)
+				grouplist = groups;
+			else
+			{
+				irc::sepstream groupstream(groups, ':');
+				for (std::string group; groupstream.GetToken(group); )
+				{
+					if (OBJ_sn2nid(group.c_str()) == NID_undef)
+						continue;
+
+					grouplist.append(grouplist.empty() ? "" : ":");
+					grouplist.append(group);
+				}
+
+				ServerInstance->Logs.Debug(MODNAME, "Relaxed groups from {} to {}",
+					groups, grouplist);
+			}
+
 			ERR_clear_error();
 			return SSL_CTX_set1_groups_list(ctx, grouplist.c_str());
 		}
-#endif
 
 		bool SetCiphers(const std::string& ciphers)
 		{
@@ -350,14 +367,13 @@ namespace OpenSSL
 				}
 			}
 
-#ifndef OPENSSL_NO_ECDH
-			const auto grouplist = tag->getString("ecdhgroups", tag->getString("ecdhcurve", "prime256v1"));
-			if (!grouplist.empty() && !ctx.SetECDH(grouplist))
+			std::string grouplist = "X25519MLKEM768:X25519:prime256v1";
+			const auto strictgroups = tag->readString("groups", grouplist);
+			if (!grouplist.empty() && !ctx.SetGroups(grouplist, tag->getBool("strictgroups", strictgroups)))
 			{
 				ERR_print_errors_cb(error_callback, this);
-				throw Exception("Couldn't set ECDH groups: " + lasterr);
+				throw Exception("Couldn't set groups: " + lasterr);
 			}
-#endif
 
 			SetContextOptions("server", tag, ctx);
 			SetContextOptions("client", tag, clientctx);
