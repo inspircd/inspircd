@@ -442,9 +442,12 @@ namespace OpenSSL
 			SetContextOptions("server", tag, ctx);
 			SetContextOptions("client", tag, clientctx);
 
-			const auto securitylevel = tag->getNum<int>("securitylevel", 0, 0, 10);
-			if (securitylevel)
+			const auto securitylevel = tag->getNum<int>("securitylevel", -1, -1, 10);
+			if (securitylevel >= 0)
+			{
 				ctx.SetSecurityLevel(securitylevel);
+				clientctx.SetSecurityLevel(securitylevel);
+			}
 
 			/* Load our keys and certificates
 			 * NOTE: OpenSSL's error logging API sucks, don't blame us for this clusterfuck.
