@@ -368,19 +368,26 @@ namespace OpenSSL
 			}
 
 			std::string grouplist = "X25519MLKEM768:X25519:prime256v1";
-			const auto strictgroups = tag->readString("groups", grouplist);
-			if (!grouplist.empty() && !ctx.SetGroups(grouplist, tag->getBool("strictgroups", strictgroups)))
+			auto strictgroups = tag->readString("groups", grouplist);
+			if (!grouplist.empty())
 			{
-				ERR_print_errors_cb(error_callback, this);
-				throw Exception("Couldn't set groups: " + lasterr);
+				strictgroups = tag->getBool("strictgroups", strictgroups);
+				if (!ctx.SetGroups(grouplist, strictgroups) || !clientctx.SetGroups(grouplist, strictgroups))
+				{
+					ERR_print_errors_cb(error_callback, this);
+					throw Exception("Couldn't set groups: " + lasterr);
+				}
 			}
 
 			SetContextOptions("server", tag, ctx);
 			SetContextOptions("client", tag, clientctx);
 
-			const auto securitylevel = tag->getNum<int>("securitylevel", 0, 0, 10);
-			if (securitylevel)
+			const auto securitylevel = tag->getNum<int>("securitylevel", -1, -1, 10);
+			if (securitylevel >= 0)
+			{
 				ctx.SetSecurityLevel(securitylevel);
+				clientctx.SetSecurityLevel(securitylevel);
+			}
 
 			/* Load our keys and certificates
 			 * NOTE: OpenSSL's error logging API sucks, don't blame us for this clusterfuck.
