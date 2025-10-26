@@ -161,7 +161,11 @@ public:
 		if (!luser || nosslext.Get(luser))
 			return nullptr;
 
-		cert = SSLClientCert::GetCertificate(&luser->eh);
+		auto* ssliohook = SSLIOHook::IsSSL(&luser->eh);
+		if (!ssliohook)
+			return nullptr;
+
+		cert = ssliohook->GetCertificate();
 		if (!cert)
 			return nullptr;
 

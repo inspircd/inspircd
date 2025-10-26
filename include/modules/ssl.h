@@ -289,6 +289,7 @@ public:
 	 * @param sock The socket to get the certificate from, the socket does not have to use TLS
 	 * @return The TLS client certificate information, NULL if the peer is not using TLS
 	 */
+	[[deprecated("Use SSLIOHook::IsSSL()->GetCertificate() instead")]]
 	static ssl_cert* GetCertificate(StreamSocket* sock)
 	{
 		SSLIOHook* ssliohook = SSLIOHook::IsSSL(sock);
@@ -305,12 +306,18 @@ public:
 	 * @return The key fingerprint from the TLS certificate sent by the peer,
 	 * empty if no cert was sent or the peer is not using TLS
 	 */
+	[[deprecated("Use SSLIOHook::IsSSL()->GetCertificate()->GetFingerprint() instead")]]
 	static std::string GetFingerprint(StreamSocket* sock)
 	{
-		ssl_cert* cert = SSLClientCert::GetCertificate(sock);
-		if (cert)
-			return cert->GetFingerprint();
-		return "";
+		auto* ssliohook = SSLIOHook::IsSSL(sock);
+		if (!ssliohook)
+			return nullptr;
+
+		auto* cert = ssliohook->GetCertificate();
+		if (!cert)
+			return "";
+
+		return cert->GetFingerprint();
 	}
 };
 
