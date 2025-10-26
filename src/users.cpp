@@ -167,18 +167,17 @@ const std::string& User::GetRealMask()
 	return cached_realmask;
 }
 
-LocalUser::LocalUser(int myfd, const irc::sockets::sockaddrs& clientsa, const irc::sockets::sockaddrs& serversa)
+LocalUser::LocalUser(LocalUserIO* lio, const irc::sockets::sockaddrs& clientsa, const irc::sockets::sockaddrs& serversa)
 	: User(ServerInstance->UIDGen.GetUID(), ServerInstance->FakeClient->server, User::TYPE_LOCAL)
-	, eh(this)
+	, io(lio)
 	, server_sa(serversa)
 	, quitting_sendq(false)
 	, lastping(true)
 	, exempt(false)
 {
+	io->user = this;
 	signon = ServerInstance->Time();
-	// The user's default nick is their UUID
 	nick = uuid;
-	eh.SetFd(myfd);
 	memcpy(&client_sa, &clientsa, sizeof(irc::sockets::sockaddrs));
 	ChangeRealUser(uuid, true);
 	ChangeRealHost(GetAddress(), true);
@@ -206,121 +205,6 @@ const std::string& FakeUser::GetRealMask()
 	return server->GetPublicName();
 }
 
-void UserIOHandler::OnDataReady()
-{
-	if (user->quitting)
-		return;
-
-	if (recvq.length() > user->GetClass()->recvqmax && !user->HasPrivPermission("users/flood/increased-buffers"))
-	{
-		ServerInstance->Users.QuitUser(user, "RecvQ exceeded");
-		ServerInstance->SNO.WriteToSnoMask('a', "User {} RecvQ of {} exceeds connect class maximum of {}",
-			user->nick, recvq.length(), user->GetClass()->recvqmax);
-		return;
-	}
-
-	unsigned long sendqmax = ULONG_MAX;
-	if (!user->HasPrivPermission("users/flood/increased-buffers"))
-		sendqmax = user->GetClass()->softsendqmax;
-
-	unsigned long penaltymax = ULONG_MAX;
-	if (!user->HasPrivPermission("users/flood/no-fakelag"))
-		penaltymax = user->GetClass()->penaltythreshold * 1000;
-
-	// The cleaned message sent by the user or empty if not found yet.
-	std::string line;
-
-	// The position of the most \n character or npos if not found yet.
-	std::string::size_type eolpos;
-
-	// The position within the recvq of the current character.
-	std::string::size_type qpos;
-
-	while (user->CommandFloodPenalty < penaltymax && GetSendQSize() < sendqmax)
-	{
-		// Check the newly received data for an EOL.
-		eolpos = recvq.find('\n', checked_until);
-		if (eolpos == std::string::npos)
-		{
-			checked_until = recvq.length();
-			return;
-		}
-
-		// We've found a line! Clean it up and move it to the line buffer.
-		line.reserve(eolpos);
-		for (qpos = 0; qpos < eolpos; ++qpos)
-		{
-			char c = recvq[qpos];
-			switch (c)
-			{
-				case '\0':
-					c = ' ';
-					break;
-				case '\r':
-					continue;
-			}
-
-			line.push_back(c);
-		}
-
-		// just found a newline. Terminate the string, and pull it out of recvq
-		recvq.erase(0, eolpos + 1);
-		checked_until = 0;
-
-		// TODO should this be moved to when it was inserted in recvq?
-		ServerInstance->Stats.Recv += qpos;
-		user->bytes_in += qpos;
-		user->cmds_in++;
-
-		ServerInstance->Parser.ProcessBuffer(user, line);
-		if (user->quitting)
-			return;
-
-		// clear() does not reclaim memory associated with the string, so our .reserve() call is safe
-		line.clear();
-	}
-
-	if (user->CommandFloodPenalty >= penaltymax && !user->GetClass()->fakelag)
-		ServerInstance->Users.QuitUser(user, "Excess Flood");
-}
-
-void UserIOHandler::AddWriteBuf(const std::string& data)
-{
-	if (user->quitting_sendq)
-		return;
-
-	if (!user->quitting
-		&& (user->GetClass() && GetSendQSize() + data.length() > user->GetClass()->hardsendqmax)
-		&& !user->HasPrivPermission("users/flood/increased-buffers"))
-	{
-		user->quitting_sendq = true;
-		ServerInstance->GlobalCulls.AddSQItem(user);
-		return;
-	}
-
-	// We still want to append data to the sendq of a quitting user,
-	// e.g. their ERROR message that says 'closing link'
-
-	WriteData(data);
-}
-
-bool UserIOHandler::OnChangeLocalSocketAddress(const irc::sockets::sockaddrs& sa)
-{
-	memcpy(&user->server_sa, &sa, sizeof(irc::sockets::sockaddrs));
-	return true;
-}
-
-bool UserIOHandler::OnChangeRemoteSocketAddress(const irc::sockets::sockaddrs& sa)
-{
-	user->ChangeRemoteAddress(sa);
-	return !user->quitting;
-}
-
-void UserIOHandler::OnError(BufferedSocketError sockerr)
-{
-	ServerInstance->Users.QuitUser(user, GetError());
-}
-
 Cullable::Result User::Cull()
 {
 	if (!quitting)
@@ -341,7 +225,7 @@ Cullable::Result User::Cull()
 
 Cullable::Result LocalUser::Cull()
 {
-	eh.Cull();
+	this->io->Cull();
 	return User::Cull();
 }
 
@@ -708,7 +592,7 @@ void LocalUser::ChangeConnectClass(const std::shared_ptr<ConnectClass>& klass, b
 
 void LocalUser::Write(const ClientProtocol::SerializedMessage& text)
 {
-	if (!eh.HasFd() || text.empty())
+	if (text.empty())
 		return;
 
 	if (ServerInstance->Config->RawLog)
@@ -720,7 +604,7 @@ void LocalUser::Write(const ClientProtocol::SerializedMessage& text)
 		ServerInstance->Logs.RawIO("USEROUTPUT", "C[{}] O {}", uuid, std::string_view(text.c_str(), nlpos));
 	}
 
-	eh.AddWriteBuf(text);
+	this->io->Write(text);
 
 	const size_t bytessent = text.length() + 2;
 	ServerInstance->Stats.Sent += bytessent;

@@ -96,7 +96,7 @@ static void GenerateStatsLl(Stats::Context& stats)
 	stats.AddRow(211, FMT::format("nick[user@{}] sendq cmds_out bytes_out cmds_in bytes_in time_open", stats.GetSymbol() == 'l' ? "host" : "ip"));
 
 	for (auto* u : ServerInstance->Users.GetLocalUsers())
-		stats.AddRow(211, u->nick+"["+u->GetDisplayedUser()+"@"+(stats.GetSymbol() == 'l' ? u->GetDisplayedHost() : u->GetAddress())+"] "+ConvToStr(u->eh.GetSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "+ConvToStr(ServerInstance->Time() - u->signon));
+		stats.AddRow(211, u->nick+"["+u->GetDisplayedUser()+"@"+(stats.GetSymbol() == 'l' ? u->GetDisplayedHost() : u->GetAddress())+"] "+ConvToStr(u->io->GetSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "+ConvToStr(ServerInstance->Time() - u->signon));
 }
 
 void CommandStats::DoStats(Stats::Context& stats)

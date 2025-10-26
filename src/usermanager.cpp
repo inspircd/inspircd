@@ -74,21 +74,13 @@ namespace
 		user->lastping = 0;
 		user->nextping = ServerInstance->Time() + user->GetClass()->pingtime;
 
-		// If the user has an I/O hook that can handle pinging use that instead.
-		IOHook* hook = user->eh.GetIOHook();
-		while (hook)
+		// If the user has an I/O handler that can handle pinging use that
+		// instead. Otherwise, send a ping using an IRC message.
+		if (!user->io->Ping())
 		{
-			if (hook->Ping())
-				return; // Client has been pinged.
-
-			IOHookMiddle* middlehook = IOHookMiddle::ToMiddleHook(hook);
-			hook = middlehook ? middlehook->GetNextHook() : nullptr;
+			ClientProtocol::Messages::Ping ping;
+			user->Send(ServerInstance->GetRFCEvents().ping, ping);
 		}
-
-
-		// Send a ping to the client using an IRC message.
-		ClientProtocol::Messages::Ping ping;
-		user->Send(ServerInstance->GetRFCEvents().ping, ping);
 	}
 
 	void CheckConnectionTimeout(LocalUser* user)
@@ -130,53 +122,16 @@ UserManager::~UserManager()
 		delete client;
 }
 
-void UserManager::AddUser(int socket, ListenSocket* via, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server)
+void UserManager::AddUser(LocalUserIO* lio, ListenSocket* via, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server)
 {
 	// User constructor allocates a new UUID for the user and inserts it into the uuidlist
-	LocalUser* const New = new LocalUser(socket, client, server);
-	UserIOHandler* eh = &New->eh;
-
-	ServerInstance->Logs.Debug("USERS", "New user fd: {}", socket);
+	LocalUser* const New = new LocalUser(lio, client, server);
 
 	this->unknown_count++;
 	this->clientlist[New->nick] = New;
 	this->AddClone(New);
 	this->local_users.push_front(New);
 	FOREACH_MOD(OnUserInit, (New));
-
-	if (!SocketEngine::AddFd(eh, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE))
-	{
-		ServerInstance->Logs.Debug("USERS", "Internal error on new connection");
-		this->QuitUser(New, "Internal error handling connection");
-		return;
-	}
-
-	// If this listener has an IO hook provider set then tell it about the connection
-	for (ListenSocket::IOHookProvList::iterator i = via->iohookprovs.begin(); i != via->iohookprovs.end(); ++i)
-	{
-		ListenSocket::IOHookProvRef& iohookprovref = *i;
-		if (!iohookprovref)
-		{
-			if (iohookprovref.GetProvider().empty())
-				continue;
-
-			const char* hooktype = i == via->iohookprovs.begin() ? "hook" : "sslprofile";
-			ServerInstance->Logs.Warning("USERS", "Non-existent I/O hook '{}' in <bind:{}> tag at {}",
-				iohookprovref.GetProvider(), hooktype, via->bind_tag->source.str());
-			this->QuitUser(New, FMT::format("Internal error handling connection (misconfigured {})", hooktype));
-			return;
-		}
-
-		iohookprovref->OnAccept(eh, client, server);
-
-		// IOHook could have encountered a fatal error, e.g. if the TLS ClientHello
-		// was already in the queue and there was no common TLS version.
-		if (!eh->GetError().empty())
-		{
-			QuitUser(New, eh->GetError());
-			return;
-		}
-	}
 
 	if (this->local_users.size() > ServerInstance->Config->SoftLimit)
 	{
@@ -296,7 +251,7 @@ void UserManager::QuitUser(User* user, const std::string& quitmessage, const std
 	{
 		LocalUser* lu = IS_LOCAL(user);
 		FOREACH_MOD(OnUserDisconnect, (lu));
-		lu->eh.Close();
+		lu->io->Close();
 
 		if (lu->IsFullyConnected())
 		{
@@ -384,14 +339,14 @@ void UserManager::DoBackgroundUserStuff()
 		LocalUser* curr = *i;
 		++i;
 
-		if (curr->CommandFloodPenalty || curr->eh.GetSendQSize())
+		if (curr->CommandFloodPenalty || curr->io->GetSendQSize())
 		{
 			unsigned long rate = curr->GetClass()->commandrate;
 			if (curr->CommandFloodPenalty > rate)
 				curr->CommandFloodPenalty -= rate;
 			else
 				curr->CommandFloodPenalty = 0;
-			curr->eh.OnDataReady();
+			curr->io->Process();
 		}
 
 		switch (curr->connected)

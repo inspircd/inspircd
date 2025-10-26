@@ -41,7 +41,7 @@ private:
 			return false;
 
 		// Plaintext listeners have their own policy.
-		SSLIOHook* sslhook = SSLIOHook::IsSSL(&user->eh);
+		SSLIOHook* sslhook = SSLIOHook::IsSSL(user->io->GetSocket());
 		if (!sslhook)
 			return true;
 
@@ -65,7 +65,7 @@ private:
 
 	const std::string* GetValue(LocalUser* user) const override
 	{
-		if (SSLIOHook::IsSSL(&user->eh))
+		if (SSLIOHook::IsSSL(user->io->GetSocket()))
 			return &securepolicy; // Normal SSL connection.
 
 		if (sslapi && sslapi->GetCertificate(user))

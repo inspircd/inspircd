@@ -1060,7 +1060,7 @@ public:
 		{
 			LocalUser* user = IS_LOCAL((User*)item);
 
-			if ((user) && (user->eh.GetModHook(this)))
+			if (user && user->io->GetSocket() && user->io->GetSocket()->GetModHook(this))
 			{
 				// User is using TLS, they're a local user, and they're using one of *our* TLS ports.
 				// Potentially there could be multiple TLS modules loaded at once on different ports.
@@ -1071,7 +1071,11 @@ public:
 
 	ModResult OnCheckReady(LocalUser* user) override
 	{
-		const OpenSSLIOHook* const iohook = static_cast<OpenSSLIOHook*>(user->eh.GetModHook(this));
+		auto* sock = user->io->GetSocket();
+		if (!sock)
+			return MOD_RES_PASSTHRU; // No socket.
+
+		const OpenSSLIOHook* const iohook = static_cast<OpenSSLIOHook*>(sock->GetModHook(this));
 		if ((iohook) && (!iohook->IsHookReady()))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;

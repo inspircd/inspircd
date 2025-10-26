@@ -163,7 +163,7 @@ public:
 		if (!luser || nosslext.Get(luser))
 			return nullptr;
 
-		auto* ssliohook = SSLIOHook::IsSSL(&luser->eh);
+		auto* ssliohook = SSLIOHook::IsSSL(luser->io->GetSocket());
 		if (!ssliohook)
 			return nullptr;
 
@@ -436,7 +436,7 @@ public:
 		if (!localuser)
 			return;
 
-		const SSLIOHook* const ssliohook = SSLIOHook::IsSSL(&localuser->eh);
+		const SSLIOHook* const ssliohook = SSLIOHook::IsSSL(localuser->io->GetSocket());
 		if (!ssliohook || cmd.sslapi.nosslext.Get(localuser))
 			return;
 
@@ -506,7 +506,7 @@ public:
 		auto& unknown = counts["Unknown"];
 		for (auto* user : ServerInstance->Users.GetLocalUsers())
 		{
-			const auto* ssliohook = SSLIOHook::IsSSL(&user->eh);
+			const auto* ssliohook = SSLIOHook::IsSSL(user->io->GetSocket());
 			if (!ssliohook)
 			{
 				plaintext++;

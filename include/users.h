@@ -785,29 +785,35 @@ public:
 	inline bool IsFullyConnected() const { return connected == CONN_FULL; }
 };
 
-class CoreExport UserIOHandler final
-	: public StreamSocket
+class CoreExport LocalUserIO
+	: public Cullable
 {
-private:
-	size_t checked_until = 0;
-public:
-	LocalUser* const user;
-	UserIOHandler(LocalUser* me)
-		: StreamSocket(StreamSocket::SS_USER)
-		, user(me)
-	{
-	}
-	void OnDataReady() override;
-	bool OnChangeLocalSocketAddress(const irc::sockets::sockaddrs& sa) override;
-	bool OnChangeRemoteSocketAddress(const irc::sockets::sockaddrs& sa) override;
-	void OnError(BufferedSocketError error) override;
+protected:
+	LocalUserIO() = default;
 
-	/** Adds to the user's write buffer.
-	 * You may add any amount of text up to this users sendq value, if you exceed the
-	 * sendq value, the user will be removed, and further buffer adds will be dropped.
-	 * @param data The data to add to the write buffer
+public:
+	/** The user this I/O handler is associated with */
+	LocalUser* user = nullptr;
+
+	/** Closes the user I/O handler. */
+	virtual void Close() = 0;
+
+	/** Retrieves the current size of the send queue. */
+	virtual size_t GetSendQSize() const = 0;
+
+	/** Retrieves the underlying network socket. */
+	virtual StreamSocket* GetSocket() { return nullptr; }
+
+	/** Sends a keep-alive ping. */
+	virtual bool Ping() = 0;
+
+	/** Processes data in the receive queue. */
+	virtual void Process() = 0;
+
+	/** Called to write an IRC message to the I/O handler.
+	 * @param msg The serialized message to write.
 	 */
-	void AddWriteBuf(const std::string& data);
+	virtual void Write(const ClientProtocol::SerializedMessage& msg) = 0;
 };
 
 class CoreExport LocalUser final
@@ -834,11 +840,12 @@ private:
 	void Send(ClientProtocol::Event& protoev, ClientProtocol::MessageList& msglist);
 
 public:
-	LocalUser(int fd, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server);
+	LocalUser(LocalUserIO* lio, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server);
 
 	Cullable::Result Cull() override;
 
-	UserIOHandler eh;
+	/** The I/O handler for this user. */
+	LocalUserIO* io;
 
 	/** Serializer to use when communicating with the user
 	 */

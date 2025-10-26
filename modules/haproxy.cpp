@@ -218,7 +218,7 @@ private:
 		cert->unknownsigner = true;
 
 		// Extract the user for this socket and set their certificate.
-		LocalUser* luser = static_cast<UserIOHandler*>(sock)->user;
+		auto* luser = reinterpret_cast<LocalUserIO*>(sock)->user;
 		sslapi->SetCertificate(luser, cert);
 		return true;
 	}

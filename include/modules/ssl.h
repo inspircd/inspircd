@@ -228,6 +228,9 @@ protected:
 public:
 	static SSLIOHook* IsSSL(StreamSocket* sock)
 	{
+		if (!sock)
+			return nullptr;
+
 		IOHook* const lasthook = sock->GetLastHook();
 		if (lasthook && (lasthook->prov->type == IOHookProvider::IOH_SSL))
 			return static_cast<SSLIOHook*>(lasthook);
