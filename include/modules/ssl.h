@@ -278,42 +278,6 @@ public:
 	bool IsHookReady() const override { return status == STATUS_OPEN; }
 };
 
-/** Helper functions for obtaining TLS client certificates and key fingerprints
- * from StreamSockets
- */
-class SSLClientCert final
-{
-public:
-	/**
-	 * Get the client certificate from a socket
-	 * @param sock The socket to get the certificate from, the socket does not have to use TLS
-	 * @return The TLS client certificate information, NULL if the peer is not using TLS
-	 */
-	static ssl_cert* GetCertificate(StreamSocket* sock)
-	{
-		SSLIOHook* ssliohook = SSLIOHook::IsSSL(sock);
-		if (!ssliohook)
-			return nullptr;
-
-		return ssliohook->GetCertificate();
-	}
-
-	/**
-	 * Get the fingerprint of a client certificate from a socket
-	 * @param sock The socket to get the certificate fingerprint from, the
-	 * socket does not have to use TLS
-	 * @return The key fingerprint from the TLS certificate sent by the peer,
-	 * empty if no cert was sent or the peer is not using TLS
-	 */
-	static std::string GetFingerprint(StreamSocket* sock)
-	{
-		ssl_cert* cert = SSLClientCert::GetCertificate(sock);
-		if (cert)
-			return cert->GetFingerprint();
-		return "";
-	}
-};
-
 class UserCertificateAPIBase
 	: public DataProvider
 {
@@ -348,7 +312,7 @@ public:
 	std::string GetFingerprint(User* user)
 	{
 		ssl_cert* cert = GetCertificate(user);
-		if (cert)
+		if (cert && cert->IsUsable())
 			return cert->GetFingerprint();
 		return "";
 	}
@@ -361,7 +325,7 @@ public:
 	std::vector<std::string> GetFingerprints(User* user)
 	{
 		ssl_cert* cert = GetCertificate(user);
-		if (cert)
+		if (cert && cert->IsUsable())
 			return cert->GetFingerprints();
 		return {};
 	}
