@@ -73,15 +73,38 @@ bool TreeSocket::ComparePass(const Link& link, const std::string& theirs)
 	capab->auth_fingerprint = !link.Fingerprint.empty();
 	capab->auth_challenge = !capab->ourchallenge.empty() && !capab->theirchallenge.empty();
 
-	std::string fp = SSLClientCert::GetFingerprint(this);
+	std::string fp;
 	if (capab->auth_fingerprint)
 	{
-		/* Require fingerprint to exist and match */
-		if (!InspIRCd::TimingSafeCompare(link.Fingerprint, fp))
+		std::string badfps;
+		auto foundfp = false;
+
+		auto* sslhook = SSLIOHook::IsSSL(this);
+		auto* sslcert = sslhook ? sslhook->GetCertificate() : nullptr;
+		if (sslcert && sslcert->IsUsable())
 		{
+			for (const auto& fingerprint : sslcert->GetFingerprints())
+			{
+				if (InspIRCd::TimingSafeCompare(link.Fingerprint, fingerprint))
+				{
+					fp = fingerprint;
+					foundfp = true;
+					break;
+				}
+
+				badfps.append(badfps.empty() ? "" : ", ").append(fingerprint);
+			}
+		}
+
+		/* Require fingerprint to exist and match */
+		if (!foundfp)
+		{
+			if (badfps.empty())
+				badfps = "(none)";
+
 			ServerInstance->SNO.WriteToSnoMask('l', "Invalid TLS certificate fingerprint on link {}: need \"{}\" got \"{}\"",
-				link.Name, link.Fingerprint, fp);
-			SendError("Invalid TLS certificate fingerprint " + fp + " - expected " + link.Fingerprint);
+				link.Name, link.Fingerprint, badfps);
+			SendError("Invalid TLS certificate fingerprint: " + badfps);
 			return false;
 		}
 	}
