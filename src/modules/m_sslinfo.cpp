@@ -373,7 +373,7 @@ public:
 			whois.SendLine(RPL_WHOISSECURE, "is using a secure connection");
 
 		ssl_cert* cert = cmd.sslapi.GetCertificate(whois.GetTarget());
-		if (cert)
+		if (!cert || !cert->IsUsable())
 		{
 			if (!cmd.operonlyfp || whois.IsSelfWhois() || whois.GetSource()->IsOper())
 			{
@@ -415,7 +415,7 @@ public:
 		}
 
 		const std::string fingerprint = oper->GetConfig()->getString("fingerprint");
-		if (!fingerprint.empty() && (!cert || !MatchFingerprint(cert, fingerprint)))
+		if (!fingerprint.empty() && (!cert || !cert->IsUsable() || !MatchFingerprint(cert, fingerprint)))
 		{
 			if (!automatic)
 			{

@@ -314,7 +314,7 @@ public:
 			return nullptr;
 
 		auto* cert = ssliohook->GetCertificate();
-		if (!cert)
+		if (!cert || !cert->IsUsable())
 			return "";
 
 		return cert->GetFingerprint();
@@ -355,7 +355,7 @@ public:
 	std::string GetFingerprint(User* user)
 	{
 		ssl_cert* cert = GetCertificate(user);
-		if (cert)
+		if (cert && cert->IsUsable())
 			return cert->GetFingerprint();
 		return "";
 	}
@@ -368,7 +368,7 @@ public:
 	std::vector<std::string> GetFingerprints(User* user)
 	{
 		ssl_cert* cert = GetCertificate(user);
-		if (cert)
+		if (cert && cert->IsUsable())
 			return cert->GetFingerprints();
 		return {};
 	}
