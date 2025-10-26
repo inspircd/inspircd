@@ -651,6 +651,35 @@ void LocalUser::Send(ClientProtocol::Event& protoev, ClientProtocol::MessageList
 	}
 }
 
+bool LocalUserIO::CheckMaxRecvQ() const
+{
+	if (!user || !user->GetClass())
+		return true; // Should never happen.
+
+	if ((GetRecvQSize() > user->GetClass()->recvqmax) && !user->HasPrivPermission("users/flood/increased-buffers"))
+	{
+		ServerInstance->Users.QuitUser(user, "RecvQ exceeded");
+		ServerInstance->SNO.WriteToSnoMask('a', "User {} RecvQ of {} exceeds connect class maximum of {}",
+			user->nick, GetRecvQSize(), user->GetClass()->recvqmax);
+		return false;
+	}
+	return true;
+}
+
+bool LocalUserIO::CheckMaxSendQ(size_t extra) const
+{
+	if (!user || !user->GetClass())
+		return true; // Should never happen.
+
+	if ((GetSendQSize() + extra > user->GetClass()->hardsendqmax) && !user->HasPrivPermission("users/flood/increased-buffers"))
+	{
+		user->quitting_sendq = true;
+		ServerInstance->GlobalCulls.AddSQItem(user);
+		return false;
+	}
+	return true;
+}
+
 void User::WriteNumeric(const Numeric::Numeric& numeric)
 {
 	LocalUser* const localuser = IS_LOCAL(this);

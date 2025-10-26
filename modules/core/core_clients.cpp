@@ -40,6 +40,11 @@ public:
 		StreamSocket::Close();
 	}
 
+	size_t GetRecvQSize() const override
+	{
+		return this->recvq.size();
+	}
+
 	size_t GetSendQSize() const override
 	{
 		return StreamSocket::GetSendQSize();
@@ -64,20 +69,12 @@ public:
 
 	void OnDataReady() override
 	{
-		if (user->quitting)
+		if (user->quitting || !CheckMaxRecvQ())
 			return;
 
-		if (recvq.length() > user->GetClass()->recvqmax && !user->HasPrivPermission("users/flood/increased-buffers"))
-		{
-			ServerInstance->Users.QuitUser(user, "RecvQ exceeded");
-			ServerInstance->SNO.WriteToSnoMask('a', "User {} RecvQ of {} exceeds connect class maximum of {}",
-				user->nick, recvq.length(), user->GetClass()->recvqmax);
-			return;
-		}
-
-		unsigned long sendqmax = ULONG_MAX;
+		unsigned long softsendqmax = ULONG_MAX;
 		if (!user->HasPrivPermission("users/flood/increased-buffers"))
-			sendqmax = user->GetClass()->softsendqmax;
+			softsendqmax = user->GetClass()->softsendqmax;
 
 		unsigned long penaltymax = ULONG_MAX;
 		if (!user->HasPrivPermission("users/flood/no-fakelag"))
@@ -92,7 +89,7 @@ public:
 		// The position within the recvq of the current character.
 		std::string::size_type qpos;
 
-		while (user->CommandFloodPenalty < penaltymax && GetSendQSize() < sendqmax)
+		while (user->CommandFloodPenalty < penaltymax && GetSendQSize() < softsendqmax)
 		{
 			// Check the newly received data for an EOL.
 			eolpos = recvq.find('\n', checked_until);
@@ -170,14 +167,8 @@ public:
 		if (!HasFd() || user->quitting_sendq)
 			return;
 
-		if (!user->quitting
-			&& (user->GetClass() && GetSendQSize() + msg.length() > user->GetClass()->hardsendqmax)
-			&& !user->HasPrivPermission("users/flood/increased-buffers"))
-		{
-			user->quitting_sendq = true;
-			ServerInstance->GlobalCulls.AddSQItem(user);
+		if (!user->quitting && !CheckMaxSendQ(msg.length()))
 			return;
-		}
 
 		// We still want to append data to the sendq of a quitting user,
 		// e.g. their ERROR message that says 'closing link'

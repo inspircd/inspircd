@@ -791,12 +791,23 @@ class CoreExport LocalUserIO
 protected:
 	LocalUserIO() = default;
 
+	/** Determines whether the receive queue limit has been reached and quits the user if it has. */
+	bool CheckMaxRecvQ() const;
+
+	/** Determines whether the send queue limit has been reached and quits the user if it has.
+	 * @param extra The amount of bytes which will be added to the send queue by the next write.
+	 */
+	bool CheckMaxSendQ(size_t extra) const;
+
 public:
 	/** The user this I/O handler is associated with */
 	LocalUser* user = nullptr;
 
 	/** Closes the user I/O handler. */
 	virtual void Close() = 0;
+
+	/** Retrieves the current size of the receive queue. */
+	virtual size_t GetRecvQSize() const = 0;
 
 	/** Retrieves the current size of the send queue. */
 	virtual size_t GetSendQSize() const = 0;
