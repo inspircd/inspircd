@@ -590,28 +590,6 @@ void LocalUser::ChangeConnectClass(const std::shared_ptr<ConnectClass>& klass, b
 	FOREACH_MOD(OnPostChangeConnectClass, (this, force));
 }
 
-void LocalUser::Write(const ClientProtocol::SerializedMessage& text)
-{
-	if (text.empty())
-		return;
-
-	if (ServerInstance->Config->RawLog)
-	{
-		std::string::size_type nlpos = text.find_first_of("\r\n", 0, 2);
-		if (nlpos == std::string::npos)
-			nlpos = text.length();
-
-		ServerInstance->Logs.RawIO("USEROUTPUT", "C[{}] O {}", uuid, std::string_view(text.c_str(), nlpos));
-	}
-
-	this->io->Write(text);
-
-	const size_t bytessent = text.length() + 2;
-	ServerInstance->Stats.Sent += bytessent;
-	this->bytes_out += bytessent;
-	this->cmds_out++;
-}
-
 void LocalUser::Send(ClientProtocol::Event& protoev)
 {
 	if (!serializer)
@@ -646,8 +624,13 @@ void LocalUser::Send(ClientProtocol::Event& protoev, ClientProtocol::MessageList
 		ClientProtocol::Message& curr = *msg;
 		ModResult res;
 		FIRST_MOD_RESULT(OnUserWrite, res, (this, curr));
-		if (res != MOD_RES_DENY)
-			Write(serializer->SerializeForUser(this, curr));
+		if (res == MOD_RES_DENY)
+			continue;
+
+		const auto bytessent = this->io->Write(curr);
+		ServerInstance->Stats.Sent += bytessent;
+		this->bytes_out += bytessent;
+		this->cmds_out++;
 	}
 }
 

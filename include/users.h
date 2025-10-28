@@ -822,9 +822,10 @@ public:
 	virtual void Process() = 0;
 
 	/** Called to write an IRC message to the I/O handler.
-	 * @param msg The serialized message to write.
+	 * @param msg The message to write.
+	 * @return The number of bytes written to the user.
 	 */
-	virtual void Write(const ClientProtocol::SerializedMessage& msg) = 0;
+	virtual size_t Write(ClientProtocol::Message& msg) = 0;
 };
 
 class CoreExport LocalUser final
@@ -837,11 +838,6 @@ private:
 
 	/** Message list, can be passed to the two parameter Send(). */
 	static ClientProtocol::MessageList sendmsglist;
-
-	/** Add a serialized message to the send queue of the user.
-	 * @param serialized Bytes to add.
-	 */
-	void Write(const ClientProtocol::SerializedMessage& serialized);
 
 	/** Send a protocol event to the user, consisting of one or more messages.
 	 * @param protoev Event to send, may contain any number of messages.

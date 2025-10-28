@@ -162,17 +162,31 @@ public:
 		OnDataReady();
 	}
 
-	void Write(const ClientProtocol::SerializedMessage& msg) override
+	size_t Write(ClientProtocol::Message& msg) override
 	{
-		if (!HasFd() || user->quitting_sendq)
-			return;
+		if (!HasFd() || user->quitting_sendq || !user->serializer)
+			return 0; // Should never happen.
 
-		if (!user->quitting && !CheckMaxSendQ(msg.length()))
-			return;
+		const auto line = this->user->serializer->SerializeForUser(this->user, msg);
+		if (line.empty())
+			return 0; // Unserializable message.
+
+		if (!user->quitting && !CheckMaxSendQ(line.length()))
+			return 0; // SendQ exceeded.
+
+		if (ServerInstance->Config->RawLog)
+		{
+			auto nlpos = line.find_first_of("\r\n", 0, 2);
+			if (nlpos == std::string::npos)
+				nlpos = line.length();
+
+			ServerInstance->Logs.RawIO("USEROUTPUT", "C[{}] O {}", user->uuid, std::string_view(line.c_str(), nlpos));
+		}
 
 		// We still want to append data to the sendq of a quitting user,
 		// e.g. their ERROR message that says 'closing link'
-		WriteData(msg);
+		WriteData(line);
+		return line.length();
 	}
 };
 
