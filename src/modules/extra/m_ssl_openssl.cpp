@@ -783,7 +783,8 @@ public:
 		{
 			ERR_clear_error();
 			char* buffer = ServerInstance->GetReadBuffer();
-			int ret = SSL_read(sess, buffer, ServerInstance->Config->NetBufferSize);
+			int bufsiz = static_cast<int>(std::min<size_t>(ServerInstance->Config->NetBufferSize, INT_MAX));
+			int ret = SSL_read(sess, buffer, bufsiz);
 
 			if (!CheckRenego(user))
 				return -1;
@@ -846,7 +847,7 @@ public:
 			ERR_clear_error();
 			FlattenSendQueue(sendq, GetProfile().GetOutgoingRecordSize());
 			const StreamSocket::SendQueue::Element& buffer = sendq.front();
-			int ret = SSL_write(sess, buffer.data(), buffer.size());
+			int ret = SSL_write(sess, buffer.data(), static_cast<int>(buffer.size()));
 
 			if (!CheckRenego(user))
 				return -1;
