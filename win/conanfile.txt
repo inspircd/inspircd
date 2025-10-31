@@ -1,4 +1,4 @@
-# Last updated: 2025-08-15
+# Last updated: 2025-10-31
 #
 # Modules we can't legally ship: geo_maxmind, ssl_openssl
 # Modules which don't apply to Windows: log_syslog, sslrehashsignal
@@ -10,12 +10,12 @@ argon2/20190702
 libmysqlclient/8.1.0
 libpq/17.5
 libpsl/0.21.5
-## openssl/3.5.2
+## openssl/3.6.0
 pcre2/10.44
 re2/20250722
 sqlite3/3.50.4
 tre/cci.20230717
-yyjson/0.10.0
+yyjson/0.12.0
 
 [options]
 */*:shared=True
