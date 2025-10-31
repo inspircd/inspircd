@@ -321,7 +321,6 @@ private:
 	CommandSSLInfo cmd;
 	std::vector<std::string> hashes;
 	unsigned long warnexpiring;
-	bool welcomemsg;
 
 	static bool MatchFingerprint(const ssl_cert* cert, const std::string& fp)
 	{
@@ -355,7 +354,6 @@ public:
 		cmd.operonlyfp = tag->getBool("operonly");
 		cmd.sslapi.localsecure = tag->getBool("localsecure", true);
 		warnexpiring = tag->getDuration("warnexpiring", 0, 0, 60*60*24*365);
-		welcomemsg = tag->getBool("welcomemsg");
 
 		hashes.clear();
 		irc::spacesepstream hashstream(tag->getString("hash"));
@@ -436,25 +434,7 @@ public:
 		if (!localuser)
 			return;
 
-		const SSLIOHook* const ssliohook = SSLIOHook::IsSSL(localuser->io->GetSocket());
-		if (!ssliohook || cmd.sslapi.nosslext.Get(localuser))
-			return;
-
-		ssl_cert* const cert = ssliohook->GetCertificate();
-
-		if (welcomemsg)
-		{
-			std::string text = "*** You are connected to ";
-			if (!ssliohook->GetServerName(text))
-				text.append(ServerInstance->Config->GetServerName());
-			text.append(" using TLS cipher '");
-			ssliohook->GetCiphersuite(text);
-			text.push_back('\'');
-			if (cert && !cert->GetFingerprint().empty())
-				text.append(" and your TLS client certificate fingerprint is ").append(cert->GetFingerprint());
-			user->WriteNotice(text);
-		}
-
+		ssl_cert* const cert = cmd.sslapi.GetCertificate(localuser);
 		if (!cert || !warnexpiring || !cert->GetExpirationTime())
 			return;
 
