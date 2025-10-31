@@ -18,7 +18,7 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **License** &mdash; MIT License
 
-**Version** &mdash; 11.2.0
+**Version** &mdash; 12.1.0
 
 **Website** &mdash; [https://github.com/fmtlib/fmt/](https://github.com/fmtlib/fmt/)
 
@@ -38,7 +38,7 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **License** &mdash; Boost Software License
 
-**Version** &mdash; 1.6.1
+**Version** &mdash; 1.7.0
 
 **Website** &mdash; [https://github.com/bfgroup/Lyra](https://github.com/bfgroup/Lyra)
 
@@ -68,6 +68,6 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **License** &mdash; Boost Software License
 
-**Version** &mdash; v4.0.6
+**Version** &mdash; v4.0.8
 
 **Website** &mdash; [https://github.com/nemtrif/utfcpp](https://github.com/nemtrif/utfcpp)
