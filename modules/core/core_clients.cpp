@@ -188,6 +188,11 @@ public:
 		WriteData(line);
 		return line.length();
 	}
+
+	IOHook* GetModHook(Module* mod) const
+	{
+		return StreamSocket::GetModHook(mod);
+	}
 };
 
 class CoreModClients final

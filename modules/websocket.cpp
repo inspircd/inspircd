@@ -753,9 +753,11 @@ public:
 		if (type != ExtensionType::USER)
 			return;
 
-		LocalUser* user = IS_LOCAL(static_cast<User*>(item));
-		if ((user) && (user->io->GetSocket()->GetModHook(this)))
-			ServerInstance->Users.QuitUser(user, "WebSocket module unloading");
+		auto* user = IS_LOCAL(static_cast<User*>(item));
+		if (!user || !user->io->GetModHook(this))
+			return;
+
+		ServerInstance->Users.QuitUser(user, "WebSocket module unloading");
 	}
 
 	void OnWhois(Whois::Context& whois) override

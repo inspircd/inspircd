@@ -821,6 +821,12 @@ public:
 	/** Processes data in the receive queue. */
 	virtual void Process() = 0;
 
+	/** Get the I/O hook of a module attached to this socket.
+	 * @param mod Module whose I/O hook to return.
+	 * @return An I/O hook or nullptr if no hook is attached.
+	 */
+	virtual IOHook* GetModHook(Module* mod) const { return nullptr; }
+
 	/** Called to write an IRC message to the I/O handler.
 	 * @param msg The message to write.
 	 * @return The number of bytes written to the user.

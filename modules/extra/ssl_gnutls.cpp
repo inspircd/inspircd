@@ -1179,7 +1179,7 @@ public:
 			return;
 
 		auto* user = IS_LOCAL(static_cast<User*>(item));
-		if (!user || !user->io->GetSocket() || !user->io->GetSocket()->GetModHook(this))
+		if (!user || !user->io->GetModHook(this))
 			return;
 
 		// User is using TLS, they're a local user, and they're using one of *our* TLS ports.
@@ -1189,11 +1189,7 @@ public:
 
 	ModResult OnCheckReady(LocalUser* user) override
 	{
-		auto* sock = user->io->GetSocket();
-		if (!sock)
-			return MOD_RES_PASSTHRU; // No socket.
-
-		const auto* const iohook = static_cast<GnuTLSIOHook*>(sock->GetModHook(this));
+		const auto* const iohook = static_cast<GnuTLSIOHook*>(user->io->GetModHook(this));
 		if ((iohook) && (!iohook->IsHookReady()))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
