@@ -41,7 +41,7 @@ jobs:
         id: library-cache
         with:
           key: conan-${{ env.BUILD_TYPE }}-${{ hashFiles('win/conanfile.txt') }}
-          path: ${{ env.CONAN_HOME }}
+          path: ${{ env.CONAN_HOME }}/p
 
       - name: Install libraries
         working-directory: ${{ github.workspace }}/win/build
@@ -54,7 +54,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           key:  ${{ steps.library-cache.outputs.cache-primary-key }}
-          path: ${{ env.CONAN_HOME }}
+          path: ${{ env.CONAN_HOME }}/p
 
       - name: Run CMake
         working-directory: ${{ github.workspace }}/win/build
