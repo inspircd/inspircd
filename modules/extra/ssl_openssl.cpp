@@ -1056,17 +1056,16 @@ public:
 
 	void OnCleanup(ExtensionType type, Extensible* item) override
 	{
-		if (type == ExtensionType::USER)
-		{
-			LocalUser* user = IS_LOCAL((User*)item);
+		if (type != ExtensionType::USER)
+			return;
 
-			if (user && user->io->GetSocket() && user->io->GetSocket()->GetModHook(this))
-			{
-				// User is using TLS, they're a local user, and they're using one of *our* TLS ports.
-				// Potentially there could be multiple TLS modules loaded at once on different ports.
-				ServerInstance->Users.QuitUser(user, "OpenSSL module unloading");
-			}
-		}
+		auto* user = IS_LOCAL(static_cast<User*>(item));
+		if (!user || !user->io->GetSocket() || !user->io->GetSocket()->GetModHook(this))
+			return;
+
+		// User is using TLS, they're a local user, and they're using one of *our* TLS ports.
+		// Potentially there could be multiple TLS modules loaded at once on different ports.
+		ServerInstance->Users.QuitUser(user, "OpenSSL module unloading");
 	}
 
 	ModResult OnCheckReady(LocalUser* user) override

@@ -274,24 +274,22 @@ public:
 
 	void OnCleanup(ExtensionType type, Extensible* item) override
 	{
-		if (type == ExtensionType::CHANNEL)
-		{
-			Channel* chan = static_cast<Channel*>(item);
-			BanRedirectList* redirects = banwatcher.redirectlist.Get(chan);
+		if (type != ExtensionType::CHANNEL)
+			return;
 
-			if(redirects)
-			{
-				Modes::ChangeList changelist;
+		auto* chan = static_cast<Channel*>(item);
+		auto* redirects = banwatcher.redirectlist.Get(chan);
+		if (!redirects)
+			return;
 
-				for (auto& redirect : *redirects)
-					changelist.push_remove(*banwatcher.banmode, redirect.targetchan.insert(0, redirect.banmask));
+		Modes::ChangeList changelist;
+		for (auto& redirect : *redirects)
+			changelist.push_remove(*banwatcher.banmode, redirect.targetchan.insert(0, redirect.banmask));
 
-				for (const auto& redirect : *redirects)
-					changelist.push_add(*banwatcher.banmode, redirect.banmask);
+		for (const auto& redirect : *redirects)
+			changelist.push_add(*banwatcher.banmode, redirect.banmask);
 
-				ServerInstance->Modes.Process(ServerInstance->FakeClient, chan, nullptr, changelist, ModeParser::MODE_LOCALONLY);
-			}
-		}
+		ServerInstance->Modes.Process(ServerInstance->FakeClient, chan, nullptr, changelist, ModeParser::MODE_LOCALONLY);
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
