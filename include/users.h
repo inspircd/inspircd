@@ -853,7 +853,7 @@ private:
 	void Send(ClientProtocol::Event& protoev, ClientProtocol::MessageList& msglist);
 
 public:
-	LocalUser(LocalUserIO* lio, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server);
+	LocalUser(LocalUserIO* lio, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server) ATTR_NOT_NULL(2);
 
 	Cullable::Result Cull() override;
 

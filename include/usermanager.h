@@ -134,7 +134,7 @@ public:
 	 * @param client The IP address and client port of the user
 	 * @param server The server IP address and port used by the user
 	 */
-	void AddUser(LocalUserIO* lio, ListenSocket* via, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server) ATTR_NOT_NULL(3);
+	void AddUser(LocalUserIO* lio, ListenSocket* via, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server) ATTR_NOT_NULL(2, 3);
 
 	/** Disconnect a user gracefully.
 	 * When this method returns the user provided will be quit, but the User object will continue to be valid and will be deleted at the end of the current main loop iteration.
