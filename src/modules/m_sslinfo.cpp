@@ -65,6 +65,17 @@ public:
 		Delete(user, UnsetRaw(user));
 	}
 
+	static std::string GetFlags(const ssl_cert* cert)
+	{
+		std::string ret;
+		ret.push_back(cert->IsInvalid() ? 'v' : 'V');
+		ret.push_back(cert->IsTrusted() ? 'T' : 't');
+		ret.push_back(cert->IsRevoked() ? 'R' : 'r');
+		ret.push_back(cert->IsUnknownSigner() ? 's' : 'S');
+		ret.push_back(cert->GetError().empty() ? 'e' : 'E');
+		return ret;
+	}
+
 	std::string ToInternal(const Extensible* container, void* item) const noexcept override
 	{
 		return ToNetwork(container, item);
@@ -74,13 +85,7 @@ public:
 	{
 		const ssl_cert* cert = static_cast<ssl_cert*>(item);
 		std::stringstream value;
-		value
-			<< (cert->IsInvalid() ? "v" : "V")
-			<< (cert->IsTrusted() ? "T" : "t")
-			<< (cert->IsRevoked() ? "R" : "r")
-			<< (cert->IsUnknownSigner() ? "s" : "S")
-			<< (cert->GetError().empty() ? "e" : "E")
-			<< " ";
+		value << GetFlags(cert) << " ";
 
 		if (cert->GetError().empty())
 			value << insp::join(cert->GetFingerprints(), ',') << " " << cert->GetDN() << " " << cert->GetIssuer();
@@ -218,6 +223,7 @@ private:
 		}
 		else
 		{
+			source->WriteNotice("*** Flags:              " + SSLCertExt::GetFlags(cert));
 			source->WriteNotice("*** Distinguished Name: " + cert->GetDN());
 			source->WriteNotice("*** Issuer:             " + cert->GetIssuer());
 			for (const auto& fingerprint : cert->GetFingerprints())
