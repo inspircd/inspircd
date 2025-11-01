@@ -501,14 +501,6 @@ namespace OpenSSL
 			return 1;
 		}
 
-		static int destroy(BIO* bio)
-		{
-			// XXX: Dummy function to avoid a memory leak in OpenSSL.
-			// The memory leak happens in BIO_free() (bio_lib.c) when the destroy func of the BIO is NULL.
-			// This is fixed in OpenSSL but some distros still ship the unpatched version hence we provide this workaround.
-			return 1;
-		}
-
 		static long ctrl(BIO* bio, int cmd, long num, void* ptr)
 		{
 			if (cmd == BIO_CTRL_FLUSH)
@@ -528,7 +520,6 @@ namespace OpenSSL
 			BIO_meth_set_read(meth, OpenSSL::BIOMethod::read);
 			BIO_meth_set_ctrl(meth, OpenSSL::BIOMethod::ctrl);
 			BIO_meth_set_create(meth, OpenSSL::BIOMethod::create);
-			BIO_meth_set_destroy(meth, OpenSSL::BIOMethod::destroy);
 			return meth;
 		}
 	}
