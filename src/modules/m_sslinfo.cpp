@@ -433,7 +433,7 @@ public:
 				const char* error;
 				if (!cert)
 					error = "not using a TLS client certificate";
-				if (!cert_usable)
+				else if (!cert_usable)
 					error = "using an invalid (probably expired) TLS client certificate";
 				else
 					error = "not using the correct TLS client certificate";
