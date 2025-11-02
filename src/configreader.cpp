@@ -68,7 +68,7 @@ ServerConfig::ServerPaths::ServerPaths(const std::shared_ptr<ConfigTag>& tag)
 std::string ServerConfig::ServerPaths::ExpandPath(const std::string& base, const std::string& fragment)
 {
 	// The fragment is an absolute path, don't modify it.
-	if (std::filesystem::path(fragment).is_absolute())
+	if (fragment.empty() || std::filesystem::path(fragment).is_absolute())
 		return fragment;
 
 	if (!fragment.compare(0, 2, "~/", 2))

@@ -467,11 +467,14 @@ namespace OpenSSL
 			}
 
 			// Load the CAs we trust
-			filename = ServerInstance->Config->Paths.PrependConfig(tag->getString("cafile", "ca.pem", 1));
-			if ((!ctx.SetCA(filename)) || (!clientctx.SetCA(filename)))
+			filename = ServerInstance->Config->Paths.PrependConfig(tag->getString("cafile", "ca.pem"));
+			if (!filename.empty())
 			{
-				ERR_print_errors_cb(error_callback, this);
-				ServerInstance->Logs.Normal(MODNAME, "Can't read CA list from {}. This is only a problem if you want to verify client certificates, otherwise it's safe to ignore this message. Error: {}", filename, lasterr);
+				if (!ctx.SetCA(filename) || !clientctx.SetCA(filename))
+				{
+					ERR_print_errors_cb(error_callback, this);
+					ServerInstance->Logs.Normal(MODNAME, "Can't read CA list from {}. This is only a problem if you want to verify client certificates, otherwise it's safe to ignore this message. Error: {}", filename, lasterr);
+				}
 			}
 
 			// Load the CRLs.
