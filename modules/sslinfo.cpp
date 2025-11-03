@@ -67,6 +67,17 @@ public:
 		Delete(user, UnsetRaw(user));
 	}
 
+	static std::string GetFlags(const ssl_cert* cert)
+	{
+		std::string ret;
+		ret.push_back(cert->IsInvalid() ? 'v' : 'V');
+		ret.push_back(cert->IsTrusted() ? 'T' : 't');
+		ret.push_back(cert->IsRevoked() ? 'R' : 'r');
+		ret.push_back(cert->IsUnknownSigner() ? 's' : 'S');
+		ret.push_back(cert->GetError().empty() ? 'e' : 'E');
+		return ret;
+	}
+
 	std::string ToInternal(const Extensible* container, void* item) const noexcept override
 	{
 		return ToNetwork(container, item);
@@ -76,13 +87,7 @@ public:
 	{
 		const ssl_cert* cert = static_cast<ssl_cert*>(item);
 		std::stringstream value;
-		value
-			<< (cert->IsInvalid() ? "v" : "V")
-			<< (cert->IsTrusted() ? "T" : "t")
-			<< (cert->IsRevoked() ? "R" : "r")
-			<< (cert->IsUnknownSigner() ? "s" : "S")
-			<< (cert->GetError().empty() ? "e" : "E")
-			<< " ";
+		value << GetFlags(cert) << " ";
 
 		if (cert->GetError().empty())
 			value << insp::join(cert->GetFingerprints(), ',') << " " << cert->GetDN() << " " << cert->GetIssuer();
@@ -220,6 +225,7 @@ private:
 		}
 		else
 		{
+			source->WriteNotice("*** Flags:              " + SSLCertExt::GetFlags(cert));
 			source->WriteNotice("*** Distinguished Name: " + cert->GetDN());
 			source->WriteNotice("*** Issuer:             " + cert->GetIssuer());
 			for (const auto& fingerprint : cert->GetFingerprints())
@@ -414,13 +420,26 @@ public:
 			return MOD_RES_DENY;
 		}
 
-		const std::string fingerprint = oper->GetConfig()->getString("fingerprint");
-		if (!fingerprint.empty() && (!cert || !cert->IsUsable() || !MatchFingerprint(cert, fingerprint)))
+		const auto fingerprint = oper->GetConfig()->getString("fingerprint");
+		if (fingerprint.empty())
+			return MOD_RES_PASSTHRU;
+
+		const auto cert_usable = cert && cert->IsUsable();
+		const auto correct_fp = cert_usable && MatchFingerprint(cert, fingerprint);
+		if (!correct_fp)
 		{
 			if (!automatic)
 			{
-				ServerInstance->SNO.WriteGlobalSno('o', "{} ({}) [{}] failed to log into the \x02{}\x02 oper account because they are not using the correct TLS client certificate.",
-					user->nick, user->GetRealUserHost(), user->GetAddress(), oper->GetName());
+				const char* error;
+				if (!cert)
+					error = "not using a TLS client certificate";
+				else if (!cert_usable)
+					error = "using an invalid (probably expired) TLS client certificate";
+				else
+					error = "not using the correct TLS client certificate";
+
+				ServerInstance->SNO.WriteGlobalSno('o', "{} ({}) [{}] failed to log into the \x02{}\x02 oper account because they are {}.",
+					user->nick, user->GetRealUserHost(), user->GetAddress(), oper->GetName(), error);
 			}
 			return MOD_RES_DENY;
 		}

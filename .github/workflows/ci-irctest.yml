@@ -39,7 +39,7 @@ jobs:
           tar -czf artifacts-inspircd.tar.gz inspircd
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: installed-inspircd-for-irctest
           path: ~/artifacts-inspircd.tar.gz
@@ -54,7 +54,7 @@ jobs:
     - build
     steps:
       - name: Download build artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: installed-inspircd-for-irctest
           path: "~"

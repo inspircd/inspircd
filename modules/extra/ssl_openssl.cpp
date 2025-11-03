@@ -57,7 +57,6 @@
 # error OpenSSL 3.0.0 or newer is required by the ssl_openssl module.
 #endif
 
-static bool SelfSigned = false;
 static int exdataindex;
 static Module* thismod;
 
@@ -407,11 +406,14 @@ namespace OpenSSL
 			}
 
 			// Load the CAs we trust
-			filename = ServerInstance->Config->Paths.PrependConfig(tag->getString("cafile", "ca.pem", 1));
-			if ((!ctx.SetCA(filename)) || (!clientctx.SetCA(filename)))
+			filename = ServerInstance->Config->Paths.PrependConfig(tag->getString("cafile"));
+			if (!filename.empty())
 			{
-				ERR_print_errors_cb(error_callback, this);
-				ServerInstance->Logs.Normal(MODNAME, "Can't read CA list from {}. This is only a problem if you want to verify client certificates, otherwise it's safe to ignore this message. Error: {}", filename, lasterr);
+				if (!ctx.SetCA(filename) || !clientctx.SetCA(filename))
+				{
+					ERR_print_errors_cb(error_callback, this);
+					ServerInstance->Logs.Normal(MODNAME, "Can't read CA list from {}. This is only a problem if you want to verify client certificates, otherwise it's safe to ignore this message. Error: {}", filename, lasterr);
+				}
 			}
 
 			// Load the CRLs.
@@ -441,14 +443,6 @@ namespace OpenSSL
 			return 1;
 		}
 
-		static int destroy(BIO* bio)
-		{
-			// XXX: Dummy function to avoid a memory leak in OpenSSL.
-			// The memory leak happens in BIO_free() (bio_lib.c) when the destroy func of the BIO is NULL.
-			// This is fixed in OpenSSL but some distros still ship the unpatched version hence we provide this workaround.
-			return 1;
-		}
-
 		static long ctrl(BIO* bio, int cmd, long num, void* ptr)
 		{
 			if (cmd == BIO_CTRL_FLUSH)
@@ -468,7 +462,6 @@ namespace OpenSSL
 			BIO_meth_set_read(meth, OpenSSL::BIOMethod::read);
 			BIO_meth_set_ctrl(meth, OpenSSL::BIOMethod::ctrl);
 			BIO_meth_set_create(meth, OpenSSL::BIOMethod::create);
-			BIO_meth_set_destroy(meth, OpenSSL::BIOMethod::destroy);
 			return meth;
 		}
 	}
@@ -483,10 +476,6 @@ static int OnVerify(int preverify_ok, X509_STORE_CTX* ctx)
 	 * we can just return preverify_ok here, and openssl
 	 * will boot off self-signed and invalid peer certs.
 	 */
-	int ve = X509_STORE_CTX_get_error(ctx);
-
-	SelfSigned = (ve == X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT);
-
 	return 1;
 }
 
@@ -570,17 +559,35 @@ private:
 			return;
 		}
 
-		certinfo->invalid = (SSL_get_verify_result(sess) != X509_V_OK);
+		const auto verify = SSL_get_verify_result(sess);
 
-		if (!SelfSigned)
+		auto selfsigned = false;
+		switch (verify)
 		{
-			certinfo->unknownsigner = false;
-			certinfo->trusted = true;
+			case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN:
+			case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
+			case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
+				selfsigned = true;
+				[[fallthrough]];
+
+			case X509_V_OK:
+				certinfo->invalid = false;
+				break;
+
+			default:
+				certinfo->invalid = true;
+				break;
 		}
-		else
+
+		if (selfsigned)
 		{
 			certinfo->unknownsigner = true;
 			certinfo->trusted = false;
+		}
+		else
+		{
+			certinfo->unknownsigner = false;
+			certinfo->trusted = true;
 		}
 
 		GetDNString(X509_get_subject_name(cert), certinfo->dn);
