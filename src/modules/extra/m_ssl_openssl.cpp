@@ -605,14 +605,10 @@ private:
 
 	void VerifyCertificate()
 	{
-		X509* cert;
 		auto* certinfo = new ssl_cert();
 		this->certificate = certinfo;
-		unsigned int n;
-		unsigned char md[EVP_MAX_MD_SIZE];
 
-		cert = SSL_get_peer_certificate(sess);
-
+		auto* cert = SSL_get_peer_certificate(sess);
 		if (!cert)
 		{
 			certinfo->error = "Could not get peer certificate: "+std::string(get_error());
@@ -653,15 +649,17 @@ private:
 		GetDNString(X509_get_subject_name(cert), certinfo->dn);
 		GetDNString(X509_get_issuer_name(cert), certinfo->issuer);
 
+		unsigned int mdlen;
+		unsigned char md[EVP_MAX_MD_SIZE];
 		for (const auto* digest : GetProfile().GetDigests())
 		{
-			if (!X509_digest(cert, digest, md, &n))
+			if (!X509_digest(cert, digest, md, &mdlen))
 			{
 				certinfo->error = "Out of memory generating fingerprint";
 			}
 			else
 			{
-				certinfo->fingerprints.push_back(Hex::Encode(md, n));
+				certinfo->fingerprints.push_back(Hex::Encode(md, mdlen));
 			}
 		}
 
