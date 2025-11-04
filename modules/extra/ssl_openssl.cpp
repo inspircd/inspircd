@@ -45,6 +45,9 @@
 #include "timeutils.h"
 #include "utility/string.h"
 
+#define OPENSSL_API_COMPAT 30000
+#define OPENSSL_NO_DEPRECATED
+
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <openssl/dh.h>
@@ -548,7 +551,7 @@ private:
 		auto* certinfo = new ssl_cert();
 		this->certificate = certinfo;
 
-		auto* cert = SSL_get_peer_certificate(sess);
+		auto* cert = SSL_get1_peer_certificate(sess);
 		if (!cert)
 		{
 			certinfo->error = "Could not get peer certificate: "+std::string(get_error());
