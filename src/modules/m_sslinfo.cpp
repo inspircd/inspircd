@@ -379,7 +379,7 @@ public:
 			whois.SendLine(RPL_WHOISSECURE, "is using a secure connection");
 
 		ssl_cert* cert = cmd.sslapi.GetCertificate(whois.GetTarget());
-		if (!cert || !cert->IsUsable())
+		if (cert && cert->IsUsable())
 		{
 			if (!cmd.operonlyfp || whois.IsSelfWhois() || whois.GetSource()->IsOper())
 			{
