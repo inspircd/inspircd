@@ -720,7 +720,7 @@ private:
 			return;
 		}
 
-		certinfo->invalid = (certstatus & GNUTLS_CERT_INVALID);
+		certinfo->invalid = (certstatus & GNUTLS_CERT_SIGNATURE_FAILURE);
 		certinfo->unknownsigner = (certstatus & GNUTLS_CERT_SIGNER_NOT_FOUND);
 		certinfo->revoked = (certstatus & GNUTLS_CERT_REVOKED);
 		certinfo->trusted = !(certstatus & GNUTLS_CERT_SIGNER_NOT_CA);
