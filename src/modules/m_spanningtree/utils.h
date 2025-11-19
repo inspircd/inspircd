@@ -139,7 +139,7 @@ public:
 
 	/** Read the spanningtree module's tags from the config file
 	 */
-	void ReadConfiguration();
+	void ReadConfiguration(ConfigStatus& status);
 
 	/** Handle nick collision
 	 */

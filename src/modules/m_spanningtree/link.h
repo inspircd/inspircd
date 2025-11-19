@@ -56,6 +56,7 @@ public:
 	std::shared_ptr<ConfigTag> tag;
 	std::vector<std::string> servers;
 	unsigned long Period;
+	unsigned long BootPeriod;
 	time_t NextConnectTime;
 	/** Negative == inactive */
 	int position;

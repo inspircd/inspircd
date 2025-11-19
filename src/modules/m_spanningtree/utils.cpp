@@ -234,7 +234,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 	}
 }
 
-void SpanningTreeUtilities::ReadConfiguration()
+void SpanningTreeUtilities::ReadConfiguration(ConfigStatus& status)
 {
 	const auto& options = ServerInstance->Config->ConfValue("options");
 	AllowOptCommon = options->getBool("allowmismatch");
@@ -349,7 +349,8 @@ void SpanningTreeUtilities::ReadConfiguration()
 	{
 		auto A = std::make_shared<Autoconnect>(tag);
 		A->Period = tag->getDuration("period", 60, 1);
-		A->NextConnectTime = ServerInstance->Time() + A->Period;
+		A->BootPeriod = tag->getDuration("bootperiod", A->Period, 1);
+		A->NextConnectTime = ServerInstance->Time() + (status.initial ? A->BootPeriod : A->Period);
 		A->position = -1;
 		irc::spacesepstream ss(tag->getString("server"));
 		std::string server;
