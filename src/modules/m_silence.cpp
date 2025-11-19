@@ -223,7 +223,7 @@ public:
 
 		// Remove the old list and create a new one.
 		Unset(user, false);
-		auto* list = new SilenceList();
+		SilenceList* list = nullptr;
 
 		irc::spacesepstream ts(value);
 		while (!ts.StreamEnd())
@@ -259,32 +259,28 @@ public:
 			}
 
 			// Store the silence entry.
+			if (!list)
+				list = new SilenceList();
 			list->emplace(flags, mask);
 		}
 
-		// If we have an empty list then don't store it.
-		if (list->empty())
-		{
-			delete list;
-			return;
-		}
-
 		// The value was well formed.
-		Set(user, list, false);
+		if (list)
+			Set(user, list, false);
 	}
 
 	std::string ToInternal(const Extensible* container, void* item) const noexcept override
 	{
-		SilenceList* list = static_cast<SilenceList*>(item);
+		auto* list = static_cast<SilenceList*>(item);
 		std::string buf;
-		for (SilenceList::const_iterator iter = list->begin(); iter != list->end(); ++iter)
+		for (const auto& entry : *list)
 		{
-			if (iter != list->begin())
+			if (!buf.empty())
 				buf.push_back(' ');
 
-			buf.append(iter->mask);
+			buf.append(entry.mask);
 			buf.push_back(' ');
-			buf.append(SilenceEntry::BitsToFlags(iter->flags));
+			buf.append(SilenceEntry::BitsToFlags(entry.flags));
 		}
 		return buf;
 	}
