@@ -57,7 +57,7 @@ if (scalar @ARGV < 1 || $ARGV[0] !~ /^(?:auto|gnutls|openssl)$/i) {
 my $certtool = $^O eq 'darwin' ? 'gnutls-certtool' : 'certtool';
 
 # Check whether the user has the required tools installed.
-my $has_gnutls = `$certtool --version v 2>/dev/null`;
+my $has_gnutls = !system "$certtool --help 2>/dev/null";
 my $has_openssl = !system 'openssl version >/dev/null 2>&1';
 
 # The framework the user has specified.
