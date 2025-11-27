@@ -23,7 +23,8 @@ use v5.26.0;
 use strict;
 use warnings FATAL => qw(all);
 
-use File::Temp();
+use Cwd        qw(getcwd);
+use File::Temp ();
 
 # IMPORTANT: This script has to be able to run by itself so that it can be used
 #            by binary distributions where the make/console.pm module will not
@@ -100,8 +101,6 @@ my $days = prompt('How many days do you want your certificate to be valid for?',
 my $status = 0;
 
 if ($tool eq 'gnutls') {
-	$has_gnutls =~ /certtool.+?(\d+\.\d+)/;
-	my $sec_param = $1 lt '2.10' ? '--bits 2048' : '--sec-param normal';
 	my $tmp = new File::Temp();
 	print $tmp <<__GNUTLS_END__;
 cn              = "$common_name"
@@ -114,19 +113,10 @@ country         = "$country"
 expiration_days = $days
 tls_www_client
 tls_www_server
-signing_key
-encryption_key
-cert_signing_key
-crl_signing_key
-code_signing_key
-ocsp_signing_key
-time_stamping_key
 __GNUTLS_END__
 	close($tmp);
-	$status ||= system "$certtool --generate-privkey $sec_param --outfile key.pem";
+	$status ||= system "$certtool --generate-privkey --sec-param normal --outfile key.pem";
 	$status ||= system "$certtool --generate-self-signed --load-privkey key.pem --outfile cert.pem --template $tmp";
-	$status ||= system "$certtool --generate-request --load-privkey key.pem --outfile csr.pem --template $tmp";
-	$status ||= system "$certtool --generate-dh-params $sec_param --outfile dhparams.pem";
 } elsif ($tool eq 'openssl') {
 	my $tmp = new File::Temp();
 	print $tmp <<__OPENSSL_END__;
@@ -142,11 +132,19 @@ $organization
 __OPENSSL_END__
 	close($tmp);
 	$status ||= system "cat $tmp | openssl req -x509 -nodes -newkey rsa:2048 -keyout key.pem -out cert.pem -days $days 2>/dev/null";
-	$status ||= system "cat $tmp | openssl req -new -nodes -key key.pem -out csr.pem 2>/dev/null";
-	$status ||= system 'openssl dhparam -out dhparams.pem 2048';
 }
 
 if ($status) {
 	say STDERR "SSL generation failed: $tool exited with a non-zero status!";
 	exit 1;
+} else {
+	say <<~"EOM";
+	An SSL certificate and key have been generated and placed in ${\getcwd()}.
+
+	NOTE: It is *NOT SECURE* to use these files for public client connections. They
+	are intended for server connections where the fingerprint is pinned in the link
+	config. For public client connections you should obtain a certificate and key
+	from a trusted authority like Let's Encrypt. This can be automated using a tool
+	like Certbot. See https://certbot.eff.org/instructions for more details.
+	EOM
 }
