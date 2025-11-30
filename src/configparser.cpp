@@ -37,6 +37,17 @@
 # include <unistd.h>
 #endif
 
+namespace
+{
+	std::string GetPrintable(int chr)
+	{
+		if (isprint(chr))
+			return INSP_FORMAT("{} (0x{:x})", (char)chr, chr);
+		else
+			return INSP_FORMAT("0x{:x}", chr);
+	}
+}
+
 enum ParseFlags
 {
 	// Executable includes are disabled.
@@ -158,14 +169,14 @@ struct Parser final
 		}
 		else if (ch != '=')
 		{
-			throw CoreException("Invalid character " + std::string(1, ch) + " in key (" + key + ")");
+			throw CoreException("Invalid character in key " + key + ": " + GetPrintable(ch));
 		}
 
 		std::string value;
 		ch = next();
 		if (ch != '"')
 		{
-			throw CoreException("Invalid character in value of <" + tag->name + ":" + key + ">");
+			throw CoreException("Invalid character in value of <" + tag->name + ":" + key + ">: " + GetPrintable(ch));
 		}
 		while (true)
 		{
@@ -244,7 +255,9 @@ struct Parser final
 		if (spc == '>')
 			unget(spc);
 		else if (!isspace(spc))
-			throw CoreException("Invalid character in tag name");
+		{
+			throw CoreException("Invalid character in tag name: " + GetPrintable(spc));
+		}
 
 		if (name.empty())
 			throw CoreException("Empty tag name");
