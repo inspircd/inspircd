@@ -13,7 +13,7 @@ jobs:
       INSPIRCD_DEBUG: 3
       INSPIRCD_VERBOSE: 1
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Install dependencies
         run: |
