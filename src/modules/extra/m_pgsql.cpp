@@ -409,7 +409,10 @@ restart:
 					case PGRES_BAD_RESPONSE:
 					case PGRES_FATAL_ERROR:
 					{
-						SQL::Error err(SQL::QREPLY_FAIL, PQresultErrorMessage(result));
+						std::string errmsg = PQresultErrorMessage(result);
+						for (size_t pos = 0; ((pos = errmsg.find_first_of("\r\n", pos)) != std::string::npos); )
+							errmsg[pos] = ' ';
+						SQL::Error err(SQL::QREPLY_FAIL, errmsg);
 						qinprog.c->OnError(err);
 						break;
 					}
