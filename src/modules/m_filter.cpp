@@ -6,7 +6,7 @@
  *   Copyright (C) 2019 Filippo Cortigiani <simos@simosnap.org>
  *   Copyright (C) 2018-2019 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2018 Michael Hazell <michaelhazell@hotmail.com>
- *   Copyright (C) 2017 B00mX0r <b00mx0r@aureus.pw>
+ *   Copyright (C) 2017 Dylan Frank <b00mx0r@aureus.pw>
  *   Copyright (C) 2012-2014, 2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012-2013, 2017-2025 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2012, 2018-2019 Robby <robby@chatbelgie.be>
