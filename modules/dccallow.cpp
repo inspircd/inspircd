@@ -130,7 +130,7 @@ public:
 
 		// Remove the old list and create a new one.
 		Unset(user, false);
-		auto* list = new dccallowlist();
+		dccallowlist* list = nullptr;
 
 		irc::spacesepstream ts(value);
 		while (!ts.StreamEnd())
@@ -158,36 +158,32 @@ public:
 			}
 
 			// Store the DCC allow entry.
+			if (!list)
+				list = new dccallowlist();
 			list->push_back(dccallow);
 		}
 
-		// If we have an empty list then don't store it.
-		if (list->empty())
-		{
-			delete list;
-			return;
-		}
-
 		// The value was well formed.
-		Set(user, list);
+		if (list)
+			Set(user, list);
 	}
 
 	std::string ToInternal(const Extensible* container, void* item) const noexcept override
 	{
-		dccallowlist* list = static_cast<dccallowlist*>(item);
+		auto* list = static_cast<dccallowlist*>(item);
 		std::string buf;
-		for (dccallowlist::const_iterator iter = list->begin(); iter != list->end(); ++iter)
+		for (const auto& entry : *list)
 		{
-			if (iter != list->begin())
+			if (!buf.empty())
 				buf.push_back(' ');
 
-			buf.append(iter->nickname);
+			buf.append(entry.nickname);
 			buf.push_back(' ');
-			buf.append(iter->hostmask);
+			buf.append(entry.hostmask);
 			buf.push_back(' ');
-			buf.append(ConvToStr(iter->set_on));
+			buf.append(ConvToStr(entry.set_on));
 			buf.push_back(' ');
-			buf.append(ConvToStr(iter->length));
+			buf.append(ConvToStr(entry.length));
 		}
 		return buf;
 	}

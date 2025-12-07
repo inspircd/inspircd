@@ -428,7 +428,7 @@ public:
 		, data(sd)
 	{
 		access_needed = CmdAccess::OPERATOR;
-		syntax = { "[<nick> [<reason>]]" };
+		syntax = { "<nick> [<reason>]" };
 		translation = { TR_NICK, TR_TEXT };
 	}
 

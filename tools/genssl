@@ -1,0 +1,149 @@
+#!/usr/bin/env perl
+#
+# InspIRCd -- Internet Relay Chat Daemon
+#
+#   Copyright (C) 2025 Sadie Powell <sadie@witchery.services>
+#
+# This file is part of InspIRCd.  InspIRCd is free software: you can
+# redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, version 2.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+
+use v5.26.0;
+use strict;
+use warnings FATAL => qw(all);
+
+use Cwd        qw(getcwd);
+use File::Temp ();
+
+# IMPORTANT: This script has to be able to run by itself so that it can be used
+#            by binary distributions where the make/console.pm module will not
+#            be available!
+eval {
+	use File::Basename qw(dirname);
+	use FindBin        qw($RealDir);
+
+	use lib dirname $RealDir;
+	require make::console;
+	make::console->import();
+};
+
+sub prompt($$) {
+	my ($question, $default) = @_;
+	return prompt_string(1, $question, $default) if defined main->can('prompt_string');
+	say $question;
+	print "[$default] => ";
+	chomp(my $answer = <STDIN>);
+	say '';
+	return $answer ? $answer : $default;
+}
+
+if (scalar @ARGV < 1 || $ARGV[0] !~ /^(?:auto|gnutls|openssl)$/i) {
+	say STDERR "Usage: $0 <auto|gnutls|openssl> [SSL-DIR]";
+	exit 1;
+}
+
+# On OS X the GnuTLS certtool is prefixed to avoid collision with the system certtool.
+my $certtool = $^O eq 'darwin' ? 'gnutls-certtool' : 'certtool';
+
+# Check whether the user has the required tools installed.
+my $has_gnutls = !system "$certtool --help 2>/dev/null";
+my $has_openssl = !system 'openssl version >/dev/null 2>&1';
+
+# The framework the user has specified.
+my $tool = lc $ARGV[0];
+
+# If the user has not explicitly specified a framework then detect one.
+if ($tool eq 'auto') {
+	if ($has_gnutls) {
+		$tool = 'gnutls';
+	} elsif ($has_openssl) {
+		$tool = 'openssl';
+	} else {
+		say STDERR "SSL generation failed: could not find $certtool or openssl in the PATH!";
+		exit 1;
+	}
+} elsif ($tool eq 'gnutls' && !$has_gnutls) {
+	say STDERR "SSL generation failed: could not find '$certtool' in the PATH!";
+	exit 1;
+} elsif ($tool eq 'openssl' && !$has_openssl) {
+	say STDERR 'SSL generation failed: could not find \'openssl\' in the PATH!';
+	exit 1;
+}
+
+# Output to the cwd unless an SSL directory is specified.
+if (scalar @ARGV > 1 && !chdir $ARGV[1]) {
+	say STDERR "Unable to change the working directory to $ARGV[1]: $!.";
+	exit 1;
+}
+
+# Harvest information needed to generate the certificate.
+my $common_name = prompt('What is the hostname of your server?', 'irc.example.com');
+my $email = prompt('What email address can you be contacted at?', 'example@example.com');
+my $unit = prompt('What is the name of your unit?', 'Server Admins');
+my $organization = prompt('What is the name of your organization?', 'Example IRC Network');
+my $city = prompt('What city are you located in?', 'Example City');
+my $state = prompt('What state are you located in?', 'Example State');
+my $country = prompt('What is the ISO 3166-1 code for the country you are located in?', 'XZ');
+my $days = prompt('How many days do you want your certificate to be valid for?', '365');
+
+# Contains the exit code of openssl/gnutls-certtool.
+my $status = 0;
+
+if ($tool eq 'gnutls') {
+	my $tmp = new File::Temp();
+	print $tmp <<__GNUTLS_END__;
+cn              = "$common_name"
+email           = "$email"
+unit            = "$unit"
+organization    = "$organization"
+locality        = "$city"
+state           = "$state"
+country         = "$country"
+expiration_days = $days
+tls_www_client
+tls_www_server
+__GNUTLS_END__
+	close($tmp);
+	$status ||= system "$certtool --generate-privkey --sec-param normal --outfile key.pem";
+	$status ||= system "$certtool --generate-self-signed --load-privkey key.pem --outfile cert.pem --template $tmp";
+} elsif ($tool eq 'openssl') {
+	my $tmp = new File::Temp();
+	print $tmp <<__OPENSSL_END__;
+$country
+$state
+$city
+$organization
+$unit
+$common_name
+$email
+.
+$organization
+__OPENSSL_END__
+	close($tmp);
+	$status ||= system "cat $tmp | openssl req -x509 -nodes -newkey rsa:2048 -keyout key.pem -out cert.pem -days $days 2>/dev/null";
+}
+
+if ($status) {
+	say STDERR "SSL generation failed: $tool exited with a non-zero status!";
+	exit 1;
+} else {
+	say <<~"EOM";
+	An SSL certificate and key have been generated and placed in ${\getcwd()}.
+
+	NOTE: It is *NOT SECURE* to use these files for public client connections. They
+	are intended for server connections where the fingerprint is pinned in the link
+	config. For public client connections you should obtain a certificate and key
+	from a trusted authority like Let's Encrypt. This can be automated using a tool
+	like Certbot. See https://certbot.eff.org/instructions for more details.
+	EOM
+}

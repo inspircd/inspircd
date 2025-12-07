@@ -702,7 +702,7 @@ void ModuleSpanningTree::ReadConfig(ConfigStatus& status)
 	// Re-read config stuff
 	try
 	{
-		Utils->ReadConfiguration();
+		Utils->ReadConfiguration(status);
 	}
 	catch (const ModuleException& e)
 	{

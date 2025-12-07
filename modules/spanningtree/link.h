@@ -3,7 +3,7 @@
  *
  *   Copyright (C) 2021 Dominic Hamon
  *   Copyright (C) 2016 Attila Molnar <attilamolnar@hush.com>
- *   Copyright (C) 2013, 2020-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2020-2023, 2025 Sadie Powell <sadie@witchery.services>
  *   Copyright (C) 2013 Adam <Adam@anope.org>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009 Uli Schlachter <psychon@znc.in>
@@ -56,6 +56,7 @@ public:
 	std::shared_ptr<ConfigTag> tag;
 	std::vector<std::string> servers;
 	unsigned long Period;
+	unsigned long BootPeriod;
 	time_t NextConnectTime;
 	/** Negative == inactive */
 	int position;

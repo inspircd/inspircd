@@ -1,4 +1,4 @@
-Since the first commit in January 2003 111 people have submitted patches,
+Since the first commit in January 2003 110 people have submitted patches,
 commits, and other useful contributions to InspIRCd. These people, ordered by
 the number of contributions they have made, are:
 
@@ -19,12 +19,12 @@ the number of contributions they have made, are:
   * Matt Smith <dz@inspircd.org>
   * Geoff Bricker <geoff.bricker@gmail.com>
   * linuxdaemon <linuxdaemon.irc@gmail.com>
+  * Dylan Frank <b00mx0r@aureus.pw>
   * Pippijn van Steenhoven <pip88nl@gmail.com>
   * Ariadne Conill <ariadne@dereferenced.org>
   * burlex
   * jackmcbarn <jackmcbarn@inspircd.org>
   * Uli Schlachter <psychon@znc.in>
-  * B00mX0r <b00mx0r@aureus.pw>
   * ChrisTX <xpipe@hotmail.de>
   * fez
   * Shawn Smith <ShawnSmith0828@gmail.com>
@@ -34,9 +34,8 @@ the number of contributions they have made, are:
   * Justin Crawford <Justasic@Gmail.com>
   * Wade Cline <wadecline@hotmail.com>
   * iwalkalone <iwalkalone69@gmail.com>
-  * katsklaw
+  * katsklaw <katsklaw@ircmojo.net>
   * Val Lorentz <progval+git@progval.net>
-  * Dylan Frank <b00mx0r@aureus.pw>
   * satmd <satmd@satmd.de>
   * Steven Van Acker <steven@singularity.be>
   * Dan Parsons <dparsons@nyip.net>
