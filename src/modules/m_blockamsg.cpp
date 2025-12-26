@@ -125,8 +125,10 @@ public:
 			{
 				// Block it...
 				if (action == IBLOCK_KILLOPERS || action == IBLOCK_NOTICEOPERS)
-					ServerInstance->SNO.WriteToSnoMask('a', "{} had an /amsg or /ame blocked", user->nick);
-
+				{
+					ServerInstance->SNO.WriteToSnoMask('a', "User {} ({}) had an /amsg or /ame blocked",
+						user->GetRealMask(), user->GetAddress());
+				}
 				if (action == IBLOCK_KILL || action == IBLOCK_KILLOPERS)
 					ServerInstance->Users.QuitUser(user, "Attempted to global message (/amsg or /ame)");
 				else if (action == IBLOCK_NOTICE || action == IBLOCK_NOTICEOPERS)
