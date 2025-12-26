@@ -26,17 +26,32 @@
 
 #include "inspircd.h"
 #include "extension.h"
+#include "xline.h"
 
-enum BlockAction { IBLOCK_KILL, IBLOCK_KILLOPERS, IBLOCK_NOTICE, IBLOCK_NOTICEOPERS, IBLOCK_SILENT };
-/*	IBLOCK_NOTICE		- Send a notice to the user informing them of what happened.
- *	IBLOCK_NOTICEOPERS	- Send a notice to the user informing them and send an oper notice.
- *	IBLOCK_SILENT		- Generate no output, silently drop messages.
- *	IBLOCK_KILL			- Kill the user with the reason "Global message (/amsg or /ame) detected".
- *	IBLOCK_KILLOPERS	- As above, but send an oper notice as well. This is the default.
- */
+enum BlockAction
+{
+	// Kill the user with the reason "Global message (/amsg or /ame) detected".
+	IBLOCK_KILL,
 
-/** Holds a blocked message's details
- */
+	// As above, but send an oper notice as well. This is the default.
+	IBLOCK_KILLOPERS,
+
+	//  Send a notice to the user informing them of what happened.
+	IBLOCK_NOTICE,
+
+	// Send a notice to the user informing them and send an oper notice.
+	IBLOCK_NOTICEOPERS,
+
+	// Generate no output, silently drop messages.
+	IBLOCK_SILENT,
+
+	// ZLine the user with the reason "Global message (/amsg or /ame) detected".
+	IBLOCK_ZLINE,
+
+	// As above, but send an oper notice as well. This is the default.
+	IBLOCK_ZLINEOPERS,
+};
+
 class BlockedMessage final
 {
 public:
@@ -57,6 +72,7 @@ class ModuleBlockAmsg final
 {
 	unsigned long ForgetDelay;
 	BlockAction action;
+	unsigned long duration;
 	SimpleExtItem<BlockedMessage> blockamsg;
 
 public:
@@ -73,8 +89,11 @@ public:
 			{ "killopers",   IBLOCK_KILLOPERS },
 			{ "notice",      IBLOCK_NOTICE },
 			{ "noticeopers", IBLOCK_NOTICEOPERS },
-			{ "silent",      IBLOCK_SILENT }
+			{ "silent",      IBLOCK_SILENT },
+			{ "zline",       IBLOCK_ZLINE },
+			{ "zlineopers",  IBLOCK_ZLINEOPERS },
 		});
+		duration = tag->getNum<unsigned long>("duration", 15*60, 1);
 
 		ForgetDelay = tag->getDuration("delay", 3);
 	}
@@ -124,15 +143,25 @@ public:
 				((targets > 1) && (targets == user->chans.size())))
 			{
 				// Block it...
-				if (action == IBLOCK_KILLOPERS || action == IBLOCK_NOTICEOPERS)
-					ServerInstance->SNO.WriteToSnoMask('a', "{} had an /amsg or /ame blocked", user->nick);
-
+				if (action == IBLOCK_KILLOPERS || action == IBLOCK_NOTICEOPERS || action == IBLOCK_ZLINEOPERS)
+				{
+					ServerInstance->SNO.WriteToSnoMask('a', "User {} ({}) had an /amsg or /ame blocked",
+						user->GetRealMask(), user->GetAddress());
+				}
 				if (action == IBLOCK_KILL || action == IBLOCK_KILLOPERS)
 					ServerInstance->Users.QuitUser(user, "Attempted to global message (/amsg or /ame)");
 				else if (action == IBLOCK_NOTICE || action == IBLOCK_NOTICEOPERS)
 					user->WriteNotice("Global message (/amsg or /ame) blocked");
-
-				return MOD_RES_DENY;
+				else if (action == IBLOCK_ZLINE || action == IBLOCK_ZLINEOPERS)
+				{
+					auto* zl = new ZLine(ServerInstance->Time(), duration, MODNAME "@" + ServerInstance->Config->ServerName,
+						"Attempted to global message (/amsg or /ame)", user->GetAddress());
+					if (!ServerInstance->XLines->AddLine(zl, nullptr))
+					{
+						ServerInstance->Users.QuitUser(user, zl->reason);
+						delete zl;
+					}
+				}
 			}
 
 			if (m)
