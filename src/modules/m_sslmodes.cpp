@@ -219,7 +219,9 @@ public:
 		/* If the target is +z */
 		if (target->IsModeSet(sslquery))
 		{
-			if (!api || !api->IsSecure(user) || (calleridapi && !calleridapi->IsOnAcceptList(user, target)))
+			const bool is_secure = api && api->IsSecure(user);
+			const bool is_accepted = calleridapi && calleridapi->IsOnAcceptList(user, target);
+			if (!is_secure && !is_accepted)
 			{
 				/* The sending user is not on an TLS connection */
 				user->WriteNumeric(Numerics::CannotSendTo(target, "messages", &sslquery));
