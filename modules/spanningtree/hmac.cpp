@@ -101,7 +101,7 @@ bool TreeSocket::ComparePass(const Link& link, const std::string& theirs)
 			}
 			if (!foundfp)
 			{
-				sslerror = INSP_FORMAT("not using the correct TLS client certificate (need \"{}\" got \"{}\")",
+				sslerror = FMT::format("not using the correct TLS client certificate (need \"{}\" got \"{}\")",
 					link.Fingerprint, badfps.empty() ? "(none)" : badfps);
 			}
 		}

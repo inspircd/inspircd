@@ -42,9 +42,9 @@ namespace
 	std::string GetPrintable(int chr)
 	{
 		if (isprint(chr))
-			return INSP_FORMAT("{} (0x{:x})", (char)chr, chr);
+			return FMT::format("{} (0x{:x})", (char)chr, chr);
 		else
-			return INSP_FORMAT("0x{:x}", chr);
+			return FMT::format("0x{:x}", chr);
 	}
 }
 
