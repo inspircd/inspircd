@@ -46,7 +46,26 @@ void TreeSocket::WriteLine(const std::string& original_line)
 
 	if (line[0] == '@') // Skip the tags.
 	{
-		cmdstart = NextToken(line, 0);
+		const auto tagend = NextToken(line, cmdstart);
+
+		auto tagsep = '@';
+		std::string newtags;
+		irc::sepstream ss(line.substr(cmdstart + 1, tagend - cmdstart - 1), ';');
+		for (std::string tag; ss.GetToken(tag); )
+		{
+			// Skip server tags.
+			if (tag[0] != '~')
+			{
+				newtags.push_back(tagsep);
+				newtags.append(tag);
+				tagsep = ';';
+			}
+		}
+		if (!newtags.empty())
+			newtags.push_back(' ');
+		line.replace(cmdstart, tagend - cmdstart + 1, newtags);
+
+		cmdstart = NextToken(line, cmdstart);
 		if (cmdstart != std::string::npos)
 			cmdstart++;
 	}
