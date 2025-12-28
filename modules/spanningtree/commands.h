@@ -247,7 +247,7 @@ class CommandIJoin final
 {
 public:
 	CommandIJoin(Module* Creator)
-		: UserOnlyServerCommand<CommandIJoin>(Creator, "IJOIN", 2)
+		: UserOnlyServerCommand<CommandIJoin>(Creator, "IJOIN", 3)
 	{
 	}
 	CmdResult HandleRemote(RemoteUser* user, Params& params);

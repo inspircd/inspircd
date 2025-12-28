@@ -548,6 +548,7 @@ void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by
 		CmdBuilder params(memb->user, "IJOIN");
 		params.push(memb->chan->name);
 		params.push_int(memb->id);
+		params.push_int(memb->created);
 		if (!memb->modes.empty())
 		{
 			params.push(ConvToStr(memb->chan->age));

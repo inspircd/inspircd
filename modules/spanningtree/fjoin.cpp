@@ -77,11 +77,11 @@ CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 	 * detects that the other side recreated the channel.
 	 *
 	 * Syntax:
-	 * :<sid> FJOIN <chan> <TS> <modes> :[<member> [<member> ...]]
+	 * :<sid> FJOIN <chan> <chants> <modes> :[<member> [<member> ...]]
 	 * The last parameter is a list consisting of zero or more channel members
 	 * (permanent channels may have zero users). Each entry on the list is in the
 	 * following format:
-	 * [[<modes>,]<uuid>[:<membid>]
+	 * [[<modes>,]<uuid>[:<membid>][/<joints>]
 	 * <modes> is a concatenation of the mode letters the user has on the channel
 	 * (e.g.: "ov" if the user is opped and voiced). The order of the mode letters
 	 * are not important but if a server encounters an unknown mode letter, it will
@@ -93,6 +93,9 @@ CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 	 *
 	 * <membid> is a positive integer representing the id of the membership.
 	 * If not present (in FJOINs coming from pre-1205 servers), 0 is assumed.
+	 *
+	 * <joints> is an integer representing the UNIX time that the membership was
+	 * created. If not present, 0 is assumed.
 	 *
 	 * Forwarding:
 	 * FJOIN messages are forwarded with the new TS and modes. Prefix modes of
@@ -249,12 +252,22 @@ void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sour
 		return;
 	}
 
-	// Assign the id to the new Membership
+	// Assign the id and join time to the new Membership
 	Membership::Id membid = 0;
-	const std::string::size_type colon = item.rfind(':');
+	time_t joints = 0;
+	const auto colon = item.rfind(':');
+	const auto slash = item.rfind('/');
 	if (colon != std::string::npos)
-		membid = Membership::IdFromString(item.substr(colon+1));
+	{
+		membid = Membership::IdFromString(item.substr(colon + 1, slash - colon - 1));
+		if (slash != std::string::npos)
+			joints = ConvToNum<time_t>(item.substr(slash + 1));
+	}
 	memb->id = membid;
+	memb->created = joints;
+
+	ServerInstance->Logs.Debug(MODNAME, "Created membership for {} on {}, id {} created {}",
+		memb->user->uuid, memb->chan->name, memb->id, memb->created);
 
 	// Add member to fwdfjoin with prefix modes
 	fwdfjoin.add(memb, item.begin(), modeendit);
@@ -309,6 +322,7 @@ void CommandFJoin::Builder::add(Membership* memb, std::string::const_iterator mb
 {
 	push_raw(mbegin, mend).push_raw(',').push_raw(memb->user->uuid);
 	push_raw(':').push_raw_int(memb->id);
+	push_raw('/').push_raw_int(memb->created);
 	push_raw(' ');
 }
 

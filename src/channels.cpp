@@ -74,6 +74,7 @@ Membership* Channel::AddUser(User* user)
 		return nullptr;
 
 	Membership* memb = new(ret.first->second) Membership(user, this);
+	memb->created = ServerInstance->Time();
 	return memb;
 }
 

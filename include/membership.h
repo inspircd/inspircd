@@ -58,6 +58,9 @@ public:
 	 */
 	Id id;
 
+	/** The time at which this membership was created, or 0 if unknown. */
+	time_t created = 0;
+
 	/** Converts a string to a Membership::Id
 	 * @param str The string to convert
 	 * @return Raw value of type Membership::Id

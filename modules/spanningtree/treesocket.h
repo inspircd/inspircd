@@ -39,14 +39,17 @@
 enum ProtocolVersion
 	: uint16_t
 {
-	/** The linking protocol version introduced in InspIRCd v4.0. */
+	/** The linking protocol version introduced in InspIRCd v4. */
 	PROTO_INSPIRCD_4 = 1206,
+
+	/** The linking protocol version introduced in InspIRCd v5. */
+	PROTO_INSPIRCD_5 = 1207,
 
 	/** The oldest version of the protocol that we support. */
 	PROTO_OLDEST = PROTO_INSPIRCD_4,
 
 	/** The newest version of the protocol that we support. */
-	PROTO_NEWEST = PROTO_INSPIRCD_4
+	PROTO_NEWEST = PROTO_INSPIRCD_5
 };
 
 /*

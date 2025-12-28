@@ -39,20 +39,21 @@ CmdResult CommandIJoin::HandleRemote(RemoteUser* user, Params& params)
 	}
 
 	bool apply_modes;
-	if (params.size() > 3)
+	if (params.size() > 4)
 	{
-		time_t RemoteTS = ServerCommand::ExtractTS(params[2]);
+		time_t RemoteTS = ServerCommand::ExtractTS(params[3]);
 		apply_modes = (RemoteTS <= chan->age);
 	}
 	else
 		apply_modes = false;
 
 	// Join the user and set the membership id to what they sent
-	Membership* memb = chan->ForceJoin(user, apply_modes ? &params[3] : nullptr);
+	Membership* memb = chan->ForceJoin(user, apply_modes ? &params[4] : nullptr);
 	if (!memb)
 		return CmdResult::FAILURE;
 
 	memb->id = Membership::IdFromString(params[1]);
+	memb->created = ConvToNum<time_t>(params[2]);
 	return CmdResult::SUCCESS;
 }
 
