@@ -20,6 +20,9 @@
 #include "inspircd.h"
 #include "main.h"
 
+// The maximum line length in the 1205 protocol
+#define COMPAT_LINE_LEN 510
+
 namespace
 {
 	size_t NextToken(const std::string& line, size_t start)
@@ -127,6 +130,27 @@ void TreeSocket::WriteLine(const std::string& original_line)
 
 				// Trim the rest of the line.
 				line.erase(displayend);
+			}
+		}
+		else if (irc::equals(command, "FJOIN"))
+		{
+			// FJOIN has no length limit in v4
+			// :<sid> FJOIN <chan> <TS> <modes> :[<member> [<member> ...]]
+			const auto chanend = NextToken(line, cmdend);
+			const auto chantsend = NextToken(line, chanend);
+			const auto modesend = NextToken(line, chantsend);
+			if (modesend != std::string::npos)
+			{
+				const auto maxlinelen = cmdstart + COMPAT_LINE_LEN;
+				while (line.length() > maxlinelen)
+				{
+					auto lastpos = line.rfind(' ', maxlinelen);
+					if (lastpos != std::string::npos)
+					{
+						WriteLineInternal(line.substr(0, lastpos));
+						line.erase(modesend, lastpos - modesend);
+					}
+				}
 			}
 		}
 		else if (irc::equals(command, "LMODE"))
