@@ -592,8 +592,7 @@ public:
 
 	void Prioritize() override
 	{
-		Module* corexline = ServerInstance->Modules.Find("core_xline");
-		ServerInstance->Modules.SetPriority(this, I_OnChangeRemoteAddress, PRIORITY_AFTER, corexline);
+		ServerInstance->Modules.SetPriority(this, I_OnChangeRemoteAddress, PRIORITY_AFTER, "core_xline");
 	}
 
 	void ReadConfig(ConfigStatus& status) override

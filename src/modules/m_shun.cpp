@@ -191,8 +191,7 @@ public:
 
 	void Prioritize() override
 	{
-		Module* alias = ServerInstance->Modules.Find("alias");
-		ServerInstance->Modules.SetPriority(this, I_OnPreCommand, PRIORITY_BEFORE, alias);
+		ServerInstance->Modules.SetPriority(this, I_OnPreCommand, PRIORITY_BEFORE, "alias");
 	}
 
 	ModResult OnStats(Stats::Context& stats) override

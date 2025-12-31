@@ -358,8 +358,7 @@ public:
 
 	void Prioritize() override
 	{
-		Module* mod = ServerInstance->Modules.Find("gateway");
-		ServerInstance->Modules.SetPriority(this, I_OnUserRegister, PRIORITY_AFTER, mod);
+		ServerInstance->Modules.SetPriority(this, I_OnUserRegister, PRIORITY_AFTER, "gateway");
 	}
 };
 

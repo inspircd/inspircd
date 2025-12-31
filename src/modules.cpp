@@ -261,6 +261,14 @@ void ModuleManager::SetPriority(Module* mod, Priority s)
 		SetPriority(mod, static_cast<Implementation>(n), s);
 }
 
+bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, const std::string& which)
+{
+	Module* depmod = nullptr;
+	if (!which.empty())
+		depmod = ServerInstance->Modules.Find(which);
+	return SetPriority(mod, i, s, depmod);
+}
+
 bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, Module* which)
 {
 	/** To change the priority of a module, we first find its position in the vector,
