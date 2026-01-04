@@ -74,61 +74,44 @@ class SSLMode final
 	: public ModeHandler
 {
 private:
-	UserCertificateAPI& API;
+	UserCertificateAPI& sslapi;
 
 public:
 	SSLMode(Module* Creator, UserCertificateAPI& api)
 		: ModeHandler(Creator, "sslonly", 'z', PARAM_NONE, MODETYPE_CHANNEL)
-		, API(api)
+		, sslapi(api)
 	{
 	}
 
 	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (change.adding)
+		if (change.adding == dest->IsModeSet(this))
+			return false;
+
+		if (change.adding && IS_LOCAL(source))
 		{
-			if (!channel->IsModeSet(this))
+			if (!sslapi)
 			{
-				if (IS_LOCAL(source))
-				{
-					if (!API)
-					{
-						source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, "Unable to determine whether all members of the channel are connected via TLS");
-						return false;
-					}
-
-					size_t nonssl = 0;
-					for (const auto& [u, _] : channel->GetUsers())
-					{
-						if (!API->IsSecure(u) && !u->server->IsService())
-							nonssl++;
-					}
-
-					if (nonssl)
-					{
-						source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, INSP_FORMAT("All members of the channel must be connected via TLS ({}/{} are non-TLS)",
-							nonssl, channel->GetUsers().size()));
-						return false;
-					}
-				}
-				channel->SetMode(this, true);
-				return true;
+				source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, "Unable to determine whether all members of the channel are connected using TLS");
+				return false;
 			}
-			else
+
+			size_t nonssl = 0;
+			for (const auto& [u, _] : channel->GetUsers())
 			{
+				if (!sslapi->IsSecure(u) && !u->server->IsService())
+					nonssl++;
+			}
+			if (nonssl)
+			{
+				source->WriteNumeric(ERR_ALLMUSTSSL, channel->name, INSP_FORMAT("All members of the channel must be connected using TLS ({}/{} are non-TLS)",
+					nonssl, channel->GetUsers().size()));
 				return false;
 			}
 		}
-		else
-		{
-			if (channel->IsModeSet(this))
-			{
-				channel->SetMode(this, false);
-				return true;
-			}
 
-			return false;
-		}
+		channel->SetMode(this, change.adding);
+		return true;
 	}
 };
 
@@ -138,12 +121,12 @@ class SSLModeUser final
 	: public ModeHandler
 {
 private:
-	UserCertificateAPI& API;
+	UserCertificateAPI& sslapi;
 
 public:
 	SSLModeUser(Module* Creator, UserCertificateAPI& api)
 		: ModeHandler(Creator, "sslqueries", 'z', PARAM_NONE, MODETYPE_USER)
-		, API(api)
+		, sslapi(api)
 	{
 	}
 
@@ -152,8 +135,19 @@ public:
 		if (change.adding == dest->IsModeSet(this))
 			return false;
 
-		if (change.adding && IS_LOCAL(user) && (!API || !API->IsSecure(user)))
-			return false;
+		if (change.adding && IS_LOCAL(user))
+		{
+			if (!sslapi)
+			{
+				user->WriteNumeric(ERR_ALLMUSTSSL, dest->nick, INSP_FORMAT("Unable to determine whether {} is connected with TLS", dest->nick));
+				return false;
+			}
+			if (!sslapi->IsSecure(dest))
+			{
+				user->WriteNumeric(ERR_ALLMUSTSSL, dest->nick, INSP_FORMAT("{} is not connected using TLS", dest->nick));
+				return false;
+			}
+		}
 
 		dest->SetMode(this, change.adding);
 		return true;
