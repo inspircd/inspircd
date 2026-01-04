@@ -2,8 +2,6 @@
 
 InspIRCd is a modular C++ Internet Relay Chat (IRC) server for UNIX-like and Windows systems.
 
-**IMPORTANT** InspIRCd v3 is no longer maintained. Please upgrade as soon as possible.
-
 ## Supported Platforms
 
 InspIRCd is supported on the following platforms:
