@@ -390,7 +390,9 @@ public:
 		if (!extban || extban->GetType() != ExtBan::Type::MATCHING)
 			return MOD_RES_PASSTHRU;
 
-		return extban->IsMatch(user, chan, value, full) != inverted ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		ExtBan::MatchConfig config;
+		config.match_real_mask = full;
+		return extban->IsMatch(user, chan, value, config) != inverted ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnCheckExemption(User* user, Channel* chan, const std::string& restriction) override

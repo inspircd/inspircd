@@ -139,7 +139,7 @@ public:
 	{
 	}
 
-	bool IsMatch(User* user, Channel* channel, const std::string& text, bool full) override
+	bool IsMatch(User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
 	{
 		const auto* nicks = accountapi.GetAccountNicks(user);
 		if (nicks)
@@ -169,10 +169,10 @@ public:
 	{
 	}
 
-	bool IsMatch(User* user, Channel* channel, const std::string& text, bool full) override
+	bool IsMatch(User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
 	{
 		const std::string* account = accountapi.GetAccountName(user);
-		return !account && channel->CheckBan(user, text, full);
+		return !account && config.next_match(user, channel, text, config);
 	}
 };
 

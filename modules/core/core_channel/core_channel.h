@@ -172,7 +172,7 @@ public:
 	ExtBan::Format GetFormat() const override { return format; }
 	const LetterMap& GetLetterMap() const override { return byletter; }
 	const NameMap& GetNameMap() const override { return byname; }
-	ModResult GetStatus(ExtBan::ActingBase* extban, User* user, Channel* channel, const std::optional<bool>& full) const override;
+	ModResult GetStatus(ExtBan::ActingBase* extban, User* user, Channel* channel, const std::optional<ExtBan::MatchConfig>& config) const override;
 	ExtBan::Base* FindName(const std::string& name) const override;
 	ExtBan::Base* FindLetter(ExtBan::Letter letter) const override;
 	void BuildISupport(std::string& out);

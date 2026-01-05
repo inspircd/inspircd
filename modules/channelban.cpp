@@ -33,7 +33,7 @@ public:
 	{
 	}
 
-	bool IsMatch(User* user, Channel* channel, const std::string& text, bool full) override
+	bool IsMatch(User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
 	{
 		unsigned char status = 0;
 		const char* target = text.c_str();

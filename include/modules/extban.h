@@ -29,6 +29,7 @@ namespace ExtBan
 	class ActingBase;
 	class Base;
 	class EventListener;
+	class MatchConfig;
 	class MatchingBase;
 	class Manager;
 	class ManagerRef;
@@ -61,6 +62,16 @@ namespace ExtBan
 		LETTER,
 	};
 
+	enum MatchFlags
+		: uint8_t
+	{
+		/** There are no special rules for matching. */
+		MATCH_DEFAULT = 0,
+
+		/** The channel parameter to IsMatch can not be nullptr. */
+		MATCH_REQUIRE_CHANNEL = 1,
+	};
+
 	/** All possible types of extban. */
 	enum class Type
 		: uint8_t
@@ -84,6 +95,21 @@ namespace ExtBan
 	 */
 	inline bool Parse(const std::string& banentry, std::string& name, std::string& value, bool& inverted);
 }
+
+class ExtBan::MatchConfig final
+{
+public:
+	using MatchFn = std::function<bool(User* user, Channel* chan, const std::string& text, const ExtBan::MatchConfig& config)>;
+
+	/** Whether to match against the real mask. */
+	bool match_real_mask = ServerInstance->Config->BanRealMask;
+
+	/** The function to use when performing the next match. */
+	MatchFn next_match = [](auto* user, auto* chan, const auto& text, const auto& config)
+	{
+		return chan->CheckBan(user, text, config.match_real_mask);
+	};
+};
 
 /** Manager for the extban system. */
 class ExtBan::Manager
@@ -142,11 +168,11 @@ public:
 	 * @param extban The extban to get the status of.
 	 * @param user The user to match the extban against.
 	 * @param channel The channel which the extban is set on.
-	 * @param full Whether to match against hidden data as well as visible data.
+	 * @param config The configuration to use when matching against the user.
 	 * @return MOD_RES_ALLOW if the user is exempted, MOD_RES_DENY if the user is banned, or
 	 *         MOD_RES_PASSTHRU if the extban is not set.
 	 */
-	virtual ModResult GetStatus(ActingBase* extban, User* user, Channel* channel, const std::optional<bool>& full = std::nullopt) const = 0;
+	virtual ModResult GetStatus(ActingBase* extban, User* user, Channel* channel, const std::optional<MatchConfig>& config = std::nullopt) const = 0;
 
 	/** Finds an extban by name or letter.
 	 * @param xbname The name or letter of the extban to find.
@@ -190,6 +216,9 @@ private:
 	/** A reference to the extban manager. */
 	dynamic_reference<Manager> manager;
 
+	/** The flags used for matching. */
+	uint16_t match_flags;
+
 	/** @copydoc dynamic_reference_base::CaptureHook::OnCapture */
 	void OnCapture() override
 	{
@@ -202,11 +231,13 @@ protected:
 	 * @param mod The module which created this instance.
 	 * @param xbname The name used in bans to signify this extban.
 	 * @param xbletter The character used in bans to signify this extban.
+	 * @param xbmatchflags The flags used for matching.
 	 */
-	Base(Module* mod, const std::string& xbname, ExtBan::Letter xbletter)
+	Base(Module* mod, const std::string& xbname, ExtBan::Letter xbletter, uint8_t xbmatchflags = ExtBan::MATCH_DEFAULT)
 		: ServiceProvider(mod, xbname, SERVICE_CUSTOM)
 		, letter(ServerInstance->Config->ConfValue("extbans")->getCharacter(xbname, xbletter, true))
 		, manager(mod, "extbanmanager")
+		, match_flags(xbmatchflags)
 	{
 	}
 
@@ -227,6 +258,9 @@ public:
 	/** Retrieves a pointer to the extban manager. */
 	Manager* GetManager() { return manager ? *manager : nullptr; }
 
+	/** Retrieves the flags used for matching. */
+	auto GetMatchFlags() const { return match_flags; }
+
 	/** Retrieves the name used in bans to signify this extban. */
 	const std::string& GetName() const { return name; }
 
@@ -240,10 +274,10 @@ public:
 	 * @param user The user to match the text against.
 	 * @param channel The channel which the extban is set on.
 	 * @param text The string to match the user against.
-	 * @param full Whether to match against hidden data as well as visible data.
+	 * @param config The configuration to use when matching against the user.
 	 * @return True if the user matches the extban; otherwise, false.
 	 */
-	virtual bool IsMatch(User* user, Channel* channel, const std::string& text, bool full) = 0;
+	virtual bool IsMatch(User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) = 0;
 
 	/** @copydoc ServiceProvider::RegisterService */
 	void RegisterService() override
@@ -277,9 +311,10 @@ protected:
 	 * @param mod The module which created this instance.
 	 * @param xbname The name used in bans to signify this extban.
 	 * @param xbletter The character used in bans to signify this extban.
+	 * @param xbmatchflags The flags used for matching.
 	 */
-	ActingBase(Module* mod, const std::string& xbname, ExtBan::Letter xbletter)
-		: Base(mod, xbname, xbletter)
+	ActingBase(Module* mod, const std::string& xbname, ExtBan::Letter xbletter, uint8_t xbmatchflags = ExtBan::MATCH_DEFAULT)
+		: Base(mod, xbname, xbletter, xbmatchflags)
 	{
 	}
 
@@ -295,9 +330,9 @@ public:
 	Type GetType() const override { return ExtBan::Type::ACTING; }
 
 	/** @copydoc ExtBan::Base::IsMatch */
-	bool IsMatch(User* user, Channel* channel, const std::string& text, bool full) override
+	bool IsMatch(User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
 	{
-		return channel->CheckBan(user, text, full);
+		return config.next_match(user, channel, text, config);
 	}
 };
 
@@ -319,16 +354,16 @@ public:
 	/** Determines whether the specified user matches this acting extban on the specified channel.
 	 * @param user The user to check.
 	 * @param channel The channel to check on.
-	 * @param full Whether to match against hidden data as well as visible data.
+	 * @param config The configuration to use when matching against the user.
 	 * @return MOD_RES_ALLOW to explicitly allow their action, MOD_RES_DENY to expicitly deny their
 	 *         action, or MOD_RES_PASSTHRU to let the default behaviour apply.
 	 */
-	ModResult GetStatus(User* user, Channel* channel, const std::optional<bool>& full = std::nullopt)
+	ModResult GetStatus(User* user, Channel* channel, const std::optional<ExtBan::MatchConfig>& config = std::nullopt)
 	{
 		if (!GetManager())
 			return MOD_RES_PASSTHRU;
 
-		return GetManager()->GetStatus(this, user, channel, full);
+		return GetManager()->GetStatus(this, user, channel, config);
 	}
 };
 
@@ -341,9 +376,10 @@ protected:
 	 * @param mod The module which created this instance.
 	 * @param xbname The name used in bans to signify this extban.
 	 * @param xbletter The character used in bans to signify this extban.
+	 * @param xbmatchflags The flags used for matching.
 	 */
-	MatchingBase(Module* mod, const std::string& xbname, ExtBan::Letter xbletter)
-		: Base(mod, xbname, xbletter)
+	MatchingBase(Module* mod, const std::string& xbname, ExtBan::Letter xbletter, uint8_t xbmatchflags = ExtBan::MATCH_DEFAULT)
+		: Base(mod, xbname, xbletter, xbmatchflags)
 	{
 	}
 
@@ -352,7 +388,7 @@ public:
 	Type GetType() const override { return ExtBan::Type::MATCHING; }
 
 	/** @copydoc ExtBan::Base::IsMatch */
-	virtual bool IsMatch(User* user, Channel* channel, const std::string& text, bool full) override = 0;
+	virtual bool IsMatch(User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override = 0;
 };
 
 /** Provides events relating to extbans. */
@@ -370,9 +406,9 @@ public:
 	 * @param user The user which the extban is being checked against.
 	 * @param chan The channel which the extban is set on.
 	 * @param extban The extban which is being checked against.
-	 * @param full Whether to match against hidden data as well as visible data.
+	 * @param config The configuration to use when matching against the user.
 	 */
-	virtual ModResult OnExtBanCheck(User* user, Channel* chan, ExtBan::Base* extban, bool full) = 0;
+	virtual ModResult OnExtBanCheck(User* user, Channel* chan, ExtBan::Base* extban, const ExtBan::MatchConfig& config) = 0;
 };
 
 inline bool ExtBan::Parse(const std::string& banentry, std::string& name, std::string& value, bool& inverted)

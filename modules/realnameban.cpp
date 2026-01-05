@@ -30,11 +30,11 @@ class RealMaskExtBan final
 {
 public:
 	RealMaskExtBan(Module* Creator)
-		: ExtBan::MatchingBase(Creator, "realmask", 'a')
+		: ExtBan::MatchingBase(Creator, "realmask", 'a', ExtBan::MATCH_REQUIRE_CHANNEL)
 	{
 	}
 
-	bool IsMatch(User* user, Channel* channel, const std::string& text, bool full) override
+	bool IsMatch(User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
 	{
 		// Check that the user actually specified a real name.
 		const size_t divider = text.find('+', 1);
@@ -42,7 +42,7 @@ public:
 			return false;
 
 		// Check whether the user's mask matches.
-		if (!channel->CheckBan(user, text.substr(0, divider), full))
+		if (!channel->CheckBan(user, text.substr(0, divider), config.match_real_mask))
 			return false;
 
 		// Check whether the user's real name matches.
@@ -59,7 +59,7 @@ public:
 	{
 	}
 
-	bool IsMatch(User* user, Channel* channel, const std::string& text, bool full) override
+	bool IsMatch(User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
 	{
 		return InspIRCd::Match(user->GetRealName(), text);
 	}

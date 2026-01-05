@@ -91,8 +91,11 @@ public:
 		tokens["EXCEPTS"] = ConvToStr(be.GetModeChar());
 	}
 
-	ModResult OnExtBanCheck(User* user, Channel* chan, ExtBan::Base* extban, bool full) override
+	ModResult OnExtBanCheck(User* user, Channel* chan, ExtBan::Base* extban, const ExtBan::MatchConfig& config) override
 	{
+		if (!chan)
+			return MOD_RES_PASSTHRU;
+
 		ListModeBase::ModeList* list = be.GetList(chan);
 		if (!list)
 			return MOD_RES_PASSTHRU;
@@ -118,7 +121,7 @@ public:
 					continue;
 			}
 
-			return extban->IsMatch(user, chan, value, full) != inverted ? MOD_RES_ALLOW : MOD_RES_PASSTHRU;
+			return extban->IsMatch(user, chan, value, config) != inverted ? MOD_RES_ALLOW : MOD_RES_PASSTHRU;
 		}
 		return MOD_RES_PASSTHRU;
 	}
