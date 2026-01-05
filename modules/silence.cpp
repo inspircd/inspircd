@@ -29,6 +29,7 @@
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
 #include "modules/ctctags.h"
+#include "modules/extban.h"
 #include "modules/isupport.h"
 
 enum
@@ -365,11 +366,13 @@ private:
 
 public:
 	SilenceExtItem ext;
+	ExtBan::ManagerRef extbanmgr;
 
 	CommandSilence(Module* Creator)
 		: SplitCommand(Creator, "SILENCE")
 		, msgprov(Creator, "SILENCE")
 		, ext(Creator)
+		, extbanmgr(Creator)
 	{
 		syntax = { "[(+|-)<mask> [CcdiNnPpTtx]]" };
 	}
@@ -389,8 +392,9 @@ public:
 			mask.erase(0, 1);
 			if (mask.empty())
 				mask.assign("*");
-			ModeParser::CleanMask(mask);
 		}
+		if (!extbanmgr || !extbanmgr->Canonicalize(mask))
+			ModeParser::CleanMask(mask);
 
 		// If the user specified a flags then use that. Otherwise, default to blocking
 		// all CTCPs, invites, notices, privmsgs, and invites.
@@ -449,12 +453,19 @@ private:
 		if (!list)
 			return true;
 
+		ExtBan::MatchConfig mconfig;
+		mconfig.match_real_mask = ServerInstance->Config->BanRealMask;
+		mconfig.next_match = [this](auto* user, auto*, const auto& text, const auto& config)
+		{
+			return IsMatch(user, text, config);
+		};
+
 		for (const auto& entry : *list)
 		{
 			if (!(entry.flags & flag))
 				continue;
 
-			if (InspIRCd::Match(source->GetMask(), entry.mask))
+			if (IsMatch(source, entry.mask, mconfig))
 			{
 				if (flags)
 					*flags = entry.flags;
@@ -470,6 +481,34 @@ private:
 	{
 		InspIRCd::StripColor(message);
 		message.insert(0, "\x1DSilenced\x1D: \00315,15");
+	}
+
+	bool IsMatch(User *source, const std::string& pattern, const ExtBan::MatchConfig& config)
+	{
+		if (!cmd.extbanmgr)
+			return InspIRCd::Match(source->GetMask(), pattern); // No extban manager
+
+		bool inverted;
+		std::string name;
+		std::string value;
+		if (!ExtBan::Parse(pattern, name, value, inverted))
+			return InspIRCd::Match(source->GetMask(), pattern); // Not an extban
+
+		ExtBan::Base* extban = nullptr;
+		if (name.size() == 1)
+			extban = cmd.extbanmgr->FindLetter(name[0]);
+		else
+			extban = cmd.extbanmgr->FindName(name);
+
+		// It is formatted like an extban but isn't a matching extban.
+		if (!extban || extban->GetType() != ExtBan::Type::MATCHING)
+			return InspIRCd::Match(source->GetMask(), pattern);
+
+		// Not applicable for this use case.
+		if (extban->GetMatchFlags() & ExtBan::MATCH_REQUIRE_CHANNEL)
+			return InspIRCd::Match(source->GetMask(), pattern);
+
+		return extban->IsMatch(source, nullptr, value, config) != inverted;
 	}
 
 public:
