@@ -277,7 +277,7 @@ bool InspIRCd::DefaultIsNick(const std::string_view& n)
 /* return true for good username, false else */
 bool InspIRCd::DefaultIsUser(const std::string_view& n)
 {
-	if (n.empty())
+	if (n.empty() || n.length() > ServerInstance->Config->Limits.MaxUser)
 		return false;
 
 	for (const auto chr : n)
