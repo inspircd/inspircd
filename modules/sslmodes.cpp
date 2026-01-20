@@ -70,14 +70,14 @@ public:
 
 /** Handle channel mode +z
  */
-class SSLMode final
+class SSLOnlyChannel final
 	: public ModeHandler
 {
 private:
 	UserCertificateAPI& sslapi;
 
 public:
-	SSLMode(Module* Creator, UserCertificateAPI& api)
+	SSLOnlyChannel(Module* Creator, UserCertificateAPI& api)
 		: ModeHandler(Creator, "sslonly", 'z', PARAM_NONE, MODETYPE_CHANNEL)
 		, sslapi(api)
 	{
@@ -117,15 +117,15 @@ public:
 
 /** Handle user mode +z
 */
-class SSLModeUser final
+class SSLOnlyUser final
 	: public ModeHandler
 {
 private:
 	UserCertificateAPI& sslapi;
 
 public:
-	SSLModeUser(Module* Creator, UserCertificateAPI& api)
-		: ModeHandler(Creator, "sslqueries", 'z', PARAM_NONE, MODETYPE_USER)
+	SSLOnlyUser(Module* Creator, UserCertificateAPI& api)
+		: ModeHandler(Creator, "sslonly", 'z', PARAM_NONE, MODETYPE_USER)
 		, sslapi(api)
 	{
 	}
@@ -159,41 +159,44 @@ class ModuleSSLModes final
 	, public CTCTags::EventListener
 {
 private:
-	UserCertificateAPI api;
+	UserCertificateAPI sslapi;
 	CallerID::API calleridapi;
-	SSLMode sslm;
-	SSLModeUser sslquery;
+	SSLOnlyChannel sslonlychan;
+	SSLOnlyUser sslonlyuser;
 	FingerprintExtBan extban;
 
 public:
 	ModuleSSLModes()
 		: Module(VF_VENDOR, "Adds channel mode z (sslonly) which prevents users who are not connecting using TLS from joining the channel and user mode z (sslqueries) to prevent messages from non-TLS users.")
 		, CTCTags::EventListener(this)
-		, api(this)
+		, sslapi(this)
 		, calleridapi(this)
-		, sslm(this, api)
-		, sslquery(this, api)
-		, extban(this, api)
+		, sslonlychan(this, sslapi)
+		, sslonlyuser(this, sslapi)
+		, extban(this, sslapi)
 	{
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
 	{
-		if (!override && chan && chan->IsModeSet(sslm))
-		{
-			if (!api)
-			{
-				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, FMT::format("Cannot join channel; unable to determine if you are a TLS user (+{} is set)",
-					sslm.GetModeChar()));
-				return MOD_RES_DENY;
-			}
+		if (override)
+			return MOD_RES_PASSTHRU; // Allow override joins.
 
-			if (!api->IsSecure(user))
-			{
-				user->WriteNumeric(ERR_SECUREONLYCHAN, cname, FMT::format("Cannot join channel; TLS users only (+{} is set)",
-					sslm.GetModeChar()));
-				return MOD_RES_DENY;
-			}
+		if (!chan || !chan->IsModeSet(sslonlychan))
+			return MOD_RES_PASSTHRU; // New channel or mode not set.
+
+		if (!sslapi)
+		{
+			user->WriteNumeric(ERR_SECUREONLYCHAN, cname, FMT::format("Cannot join channel; unable to determine if you are a TLS user (+{} is set)",
+				sslonlychan.GetModeChar()));
+			return MOD_RES_DENY;
+		}
+
+		if (!sslapi->IsSecure(user))
+		{
+			user->WriteNumeric(ERR_SECUREONLYCHAN, cname, FMT::format("Cannot join channel; TLS users only (+{} is set)",
+				sslonlychan.GetModeChar()));
+			return MOD_RES_DENY;
 		}
 
 		return MOD_RES_PASSTHRU;
@@ -211,23 +214,23 @@ public:
 			return MOD_RES_PASSTHRU;
 
 		/* If the target is +z */
-		if (target->IsModeSet(sslquery))
+		if (target->IsModeSet(sslonlyuser))
 		{
-			const bool is_secure = api && api->IsSecure(user);
+			const bool is_secure = sslapi && sslapi->IsSecure(user);
 			const bool is_accepted = calleridapi && calleridapi->IsOnAcceptList(user, target);
 			if (!is_secure && !is_accepted)
 			{
 				/* The sending user is not on an TLS connection */
-				user->WriteNumeric(Numerics::CannotSendTo(target, "messages", &sslquery));
+				user->WriteNumeric(Numerics::CannotSendTo(target, "messages", &sslonlyuser));
 				return MOD_RES_DENY;
 			}
 		}
 		/* If the user is +z */
-		else if (user->IsModeSet(sslquery))
+		else if (user->IsModeSet(sslonlyuser))
 		{
-			if (!api || !api->IsSecure(target))
+			if (!sslapi || !sslapi->IsSecure(target))
 			{
-				user->WriteNumeric(Numerics::CannotSendTo(target, "messages", &sslquery, true));
+				user->WriteNumeric(Numerics::CannotSendTo(target, "messages", &sslonlyuser, true));
 				return MOD_RES_DENY;
 			}
 		}

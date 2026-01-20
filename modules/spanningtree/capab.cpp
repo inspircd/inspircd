@@ -266,7 +266,20 @@ std::string TreeSocket::BuildModeList(ModeType mtype)
 			mdesc.append(mh->NeedsParam(false) ? "param:" : "param-set:");
 		else
 			mdesc.append("simple:");
-		mdesc.append(mh->name);
+
+		// BEGIN COMPATIBILITY CODE
+		auto mname = mh->name;
+		if (proto_version < PROTO_INSPIRCD_5)
+		{
+			if (mtype == MODETYPE_USER)
+			{
+				if (mh->name == "sslonly")
+					mname = "sslqueries";
+			}
+		}
+		// END COMPATIBILITY CODE
+
+		mdesc.append(mname);
 		mdesc.push_back('=');
 		if (pm)
 		{

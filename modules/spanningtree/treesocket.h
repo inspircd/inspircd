@@ -274,7 +274,7 @@ public:
 	/** Returns mode list as a string, filtered by type.
 	 * @param type The type of modes to return.
 	 */
-	static std::string BuildModeList(ModeType type);
+	std::string BuildModeList(ModeType type);
 
 	/** If the extban manager exists then build an extban list.
 	 * @param out The buffer to put the extban list in.
