@@ -901,26 +901,28 @@ bool User::SharesChannelWith(User* other) const
 
 void User::ChangeRealName(const std::string& real)
 {
-	if (!this->realname.compare(real))
+	const auto treal = real.substr(0, ServerInstance->Config->Limits.MaxReal);
+	if (!this->realname.compare(treal))
 		return;
 
-	FOREACH_MOD(OnChangeRealName, (this, real));
+	FOREACH_MOD(OnChangeRealName, (this, treal));
 
-	this->realname.assign(real, 0, ServerInstance->Config->Limits.MaxReal);
+	this->realname.assign(treal);
 	this->realname.shrink_to_fit();
 }
 
 void User::ChangeDisplayedHost(const std::string& newhost)
 {
-	if (GetDisplayedHost() == newhost)
+	const auto tnewhost = newhost.substr(0, ServerInstance->Config->Limits.MaxHost);
+	if (GetDisplayedHost() == tnewhost)
 		return;
 
-	FOREACH_MOD(OnChangeHost, (this, newhost));
+	FOREACH_MOD(OnChangeHost, (this, tnewhost));
 
-	if (realhost == newhost)
+	if (realhost == tnewhost)
 		this->displayhost.clear();
 	else
-		this->displayhost.assign(newhost, 0, ServerInstance->Config->Limits.MaxHost);
+		this->displayhost.assign(tnewhost);
 	this->displayhost.shrink_to_fit();
 
 	this->InvalidateCache();
@@ -933,7 +935,8 @@ void User::ChangeRealHost(const std::string& newhost, bool resetdisplay)
 {
 	// If the real host is the new host and we are not resetting the
 	// display host then we have nothing to do.
-	const bool changehost = (realhost != newhost);
+	const auto tnewhost = newhost.substr(0, ServerInstance->Config->Limits.MaxHost);
+	const bool changehost = (realhost != tnewhost);
 	if (!changehost && !resetdisplay)
 		return;
 
@@ -944,7 +947,7 @@ void User::ChangeRealHost(const std::string& newhost, bool resetdisplay)
 
 	// If the displayhost is the new host or we are resetting it then
 	// we clear its contents to save memory.
-	else if (displayhost == newhost || resetdisplay)
+	else if (displayhost == tnewhost || resetdisplay)
 		displayhost.clear();
 
 	// If we are just resetting the display host then we don't need to
@@ -958,9 +961,9 @@ void User::ChangeRealHost(const std::string& newhost, bool resetdisplay)
 	// Don't call the OnChangeRealHost event when initialising a user.
 	const bool initializing = realhost.empty();
 	if (!initializing)
-		FOREACH_MOD(OnChangeRealHost, (this, newhost));
+		FOREACH_MOD(OnChangeRealHost, (this, tnewhost));
 
-	realhost = newhost;
+	realhost = tnewhost;
 	realhost.shrink_to_fit();
 
 	this->InvalidateCache();
@@ -974,7 +977,8 @@ void User::ChangeRealUser(const std::string& newuser, bool resetdisplay)
 {
 	// If the real user is the new user and we are not resetting the
 	// display user then we have nothing to do.
-	const bool changeuser = (realuser != newuser);
+	const auto tnewuser = newuser.substr(0, ServerInstance->Config->Limits.MaxUser);
+	const bool changeuser = (realuser != tnewuser);
 	if (!changeuser && !resetdisplay)
 		return;
 
@@ -985,7 +989,7 @@ void User::ChangeRealUser(const std::string& newuser, bool resetdisplay)
 
 	// If the displayuser is the new user or we are resetting it then
 	// we clear its contents to save memory.
-	else if (displayuser == newuser || resetdisplay)
+	else if (displayuser == tnewuser || resetdisplay)
 		displayuser.clear();
 
 	// If we are just resetting the display user then we don't need to
@@ -996,9 +1000,9 @@ void User::ChangeRealUser(const std::string& newuser, bool resetdisplay)
 	// Don't call the OnChangeRealUser event when initialising a user.
 	const bool initializing = realuser.empty();
 	if (!initializing)
-		FOREACH_MOD(OnChangeRealUser, (this, newuser));
+		FOREACH_MOD(OnChangeRealUser, (this, tnewuser));
 
-	realuser = newuser;
+	realuser = tnewuser;
 	realuser.shrink_to_fit();
 
 	this->InvalidateCache();
@@ -1010,15 +1014,16 @@ void User::ChangeRealUser(const std::string& newuser, bool resetdisplay)
 
 void User::ChangeDisplayedUser(const std::string& newuser)
 {
-	if (GetDisplayedUser() == newuser)
+	const auto tnewuser = newuser.substr(0, ServerInstance->Config->Limits.MaxUser);
+	if (GetDisplayedUser() == tnewuser)
 		return;
 
-	FOREACH_MOD(OnChangeUser, (this, newuser));
+	FOREACH_MOD(OnChangeUser, (this, tnewuser));
 
-	if (realuser == newuser)
+	if (realuser == tnewuser)
 		this->displayuser.clear();
 	else
-		this->displayuser.assign(newuser, 0, ServerInstance->Config->Limits.MaxUser);
+		this->displayuser.assign(tnewuser);
 	this->displayuser.shrink_to_fit();
 
 	this->InvalidateCache();
