@@ -923,7 +923,7 @@ public:
 
 	uint64_t already_sent = 0;
 
-	/** Check if the user matches a G- or K-line, and disconnect them if they do.
+	/** Check if the user matches a G-line, and disconnect them if they do.
 	 * @param doZline True if Z-lines should be checked (if IP has changed since initial connect)
 	 * Returns true if the user matched a ban, false else.
 	 */

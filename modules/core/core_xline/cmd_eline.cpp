@@ -29,10 +29,10 @@
 #include "core_xline.h"
 
 CommandEline::CommandEline(Module* parent)
-	: Command(parent, "ELINE", 1, 3)
+	: Command(parent, "ELINE", 1, 4)
 {
 	access_needed = CmdAccess::OPERATOR;
-	syntax = { "<user@host>[,<user@host>]+ [[<duration>] :<reason>]" };
+	syntax = { "<user@host>[,<user@host>]+ [[<duration>] [LOCAL] :<reason>]" };
 }
 
 CmdResult CommandEline::Handle(User* user, const Params& parameters)
@@ -71,18 +71,28 @@ CmdResult CommandEline::Handle(User* user, const Params& parameters)
 			return CmdResult::FAILURE;
 		}
 
-		auto* el = new ELine(ServerInstance->Time(), duration, user->nick, parameters.back(), ih.first, ih.second);
+		auto local = false;
+		auto reason = parameters.back();
+		if (parameters.size() > 3 && irc::equals(parameters[2], "LOCAL"))
+			local = true;
+		else
+			reason.insert(0, " ").insert(0, parameters[2]);
+
+		auto* el = new ELine(ServerInstance->Time(), duration, user->nick, reason, ih.first, ih.second);
+		el->local = local;
+
 		if (ServerInstance->XLines->AddLine(el, user))
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent E-line on {}: {}",
-					user->nick, target, el->reason);
+				ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent {}E-line on {}: {}",
+					user->nick, el->local ? "local " : "", target, el->reason);
 			}
 			else
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed E-line on {}, expires in {} (on {}): {}",
-					user->nick, target, Duration::ToLongString(duration), Time::FromNow(duration), el->reason);
+				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed {}E-line on {}, expires in {} (on {}): {}",
+					user->nick, el->local ? "local " : "", target, Duration::ToLongString(duration),
+					Time::FromNow(duration), el->reason);
 			}
 		}
 		else

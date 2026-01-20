@@ -54,7 +54,7 @@ typedef XLineContainer::iterator ContainerIter;
  */
 typedef XLineLookup::iterator LookupIter;
 
-/** XLine is the base class for ban lines such as G-lines and K-lines.
+/** XLine is the base class for ban lines such as G-lines and Z-lines.
  * Modules may derive from this, and their xlines will automatically be
  * handled as expected by any protocol modules (e.g. m_spanningtree will
  * propagate them using AddLine). The process of translating a type+pattern
@@ -165,57 +165,17 @@ public:
 	 */
 	time_t expiry;
 
-	/** "Q", "K", etc. Set only by derived classes constructor to the
-	 * type of line this is.
+	/** The type of line this is (e.g. "Z").
 	 */
 	const std::string type;
 
 	// Whether this XLine was loaded from the server config.
 	bool from_config = false;
 
+	// Whether the -local flag was specified when adding.
+	bool local = false;
+
 	virtual bool IsBurstable();
-};
-
-/** KLine class
- */
-class CoreExport KLine final
-	: public XLine
-{
-public:
-
-	/** Create a K-line.
-	 * @param s_time The set time
-	 * @param d The duration of the xline
-	 * @param src The sender of the xline
-	 * @param re The reason of the xline
-	 * @param user Username to match
-	 * @param host Hostname to match
-	 */
-	KLine(time_t s_time, unsigned long d, const std::string& src, const std::string& re, const std::string& user, const std::string& host)
-		: XLine(s_time, d, src, re, "K")
-		, usermask(user)
-		, hostmask(host)
-		, matchtext(FMT::format("{}@{}", user, host))
-	{
-	}
-
-	bool Matches(User* u) const override;
-
-	bool Matches(const std::string& str) const override;
-
-	void Apply(User* u) override;
-
-	const std::string& Displayable() const override;
-
-	bool IsBurstable() override;
-
-	/** Username pattern to match. */
-	const std::string usermask;
-
-	/** Hostname pattern to match. */
-	const std::string hostmask;
-
-	const std::string matchtext;
 };
 
 /** GLine class
@@ -406,7 +366,7 @@ public:
 	virtual ~XLineFactory() = default;
 };
 
-/** XLineManager is a class used to manage G-lines, K-lines, E-lines, Z-lines and Q-lines,
+/** XLineManager is a class used to manage G-lines, E-lines, Z-lines and Q-lines,
  * or any other line created by a module. It also manages XLineFactory classes which
  * can generate a specialized XLine for use by another module.
  */

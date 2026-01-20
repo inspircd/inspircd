@@ -32,10 +32,10 @@
 #include "core_xline.h"
 
 CommandZline::CommandZline(Module* parent)
-	: Command(parent, "ZLINE", 1, 3)
+	: Command(parent, "ZLINE", 1, 4)
 {
 	access_needed = CmdAccess::OPERATOR;
-	syntax = { "<ipmask>[,<ipmask>]+ [[<duration>] :<reason>]" };
+	syntax = { "<ipmask>[,<ipmask>]+ [[<duration>] [LOCAL] :<reason>]" };
 }
 
 CmdResult CommandZline::Handle(User* user, const Params& parameters)
@@ -78,18 +78,28 @@ CmdResult CommandZline::Handle(User* user, const Params& parameters)
 			return CmdResult::FAILURE;
 		}
 
-		auto* zl = new ZLine(ServerInstance->Time(), duration, user->nick, parameters.back(), ipaddr);
+		auto local = false;
+		auto reason = parameters.back();
+		if (parameters.size() > 3 && irc::equals(parameters[2], "LOCAL"))
+			local = true;
+		else
+			reason.insert(0, " ").insert(0, parameters[2]);
+
+		auto* zl = new ZLine(ServerInstance->Time(), duration, user->nick, reason, ipaddr);
+		zl->local = local;
+
 		if (ServerInstance->XLines->AddLine(zl, user))
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent Z-line on {}: {}",
-					user->nick, ipaddr, zl->reason);
+				ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent {}Z-line on {}: {}",
+					user->nick, local ? "local " : "", ipaddr, zl->reason);
 			}
 			else
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed Z-line on {}, expires in {} (on {}): {}",
-					user->nick, ipaddr, Duration::ToLongString(duration), Time::FromNow(duration), zl->reason);
+				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed {}Z-line on {}, expires in {} (on {}): {}",
+					user->nick, local ? "local " : "", ipaddr, Duration::ToLongString(duration),
+					Time::FromNow(duration), zl->reason);
 			}
 			ServerInstance->XLines->ApplyLines();
 		}

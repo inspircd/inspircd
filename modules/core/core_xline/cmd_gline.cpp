@@ -30,10 +30,10 @@
 #include "core_xline.h"
 
 CommandGline::CommandGline(Module* parent)
-	: Command(parent, "GLINE", 1, 3)
+	: Command(parent, "GLINE", 1, 4)
 {
 	access_needed = CmdAccess::OPERATOR;
-	syntax = { "<user@host>[,<user@host>]+ [[<duration>] :<reason>]" };
+	syntax = { "[<user@host>[,<user@host>]+ [[<duration>] [LOCAL] :<reason>]" };
 }
 
 CmdResult CommandGline::Handle(User* user, const Params& parameters)
@@ -78,18 +78,28 @@ CmdResult CommandGline::Handle(User* user, const Params& parameters)
 			return CmdResult::FAILURE;
 		}
 
-		auto* gl = new GLine(ServerInstance->Time(), duration, user->nick, parameters.back(), ih.first, ih.second);
+		auto local = false;
+		auto reason = parameters.back();
+		if (parameters.size() > 3 && irc::equals(parameters[2], "LOCAL"))
+			local = true;
+		else
+			reason.insert(0, " ").insert(0, parameters[2]);
+
+		auto* gl = new GLine(ServerInstance->Time(), duration, user->nick, reason, ih.first, ih.second);
+		gl->local = local;
+
 		if (ServerInstance->XLines->AddLine(gl, user))
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent G-line on {}: {}",
-					user->nick, target, gl->reason);
+				ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent {}G-line on {}: {}",
+					user->nick, gl->local ? "local " : "", target, gl->reason);
 			}
 			else
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed G-line on {}, expires in {} (on {}): {}",
-					user->nick, target, Duration::ToLongString(duration), Time::FromNow(duration), gl->reason);
+				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed {}G-line on {}, expires in {} (on {}): {}",
+					user->nick, gl->local ? "local " : "", target, Duration::ToLongString(duration),
+					Time::FromNow(duration), gl->reason);
 			}
 
 			ServerInstance->XLines->ApplyLines();

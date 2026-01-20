@@ -30,10 +30,10 @@
 #include "core_xline.h"
 
 CommandQline::CommandQline(Module* parent)
-	: Command(parent, "QLINE", 1, 3)
+	: Command(parent, "QLINE", 1, 4)
 {
 	access_needed = CmdAccess::OPERATOR;
-	syntax = { "<nickmask>[,<nickmask>]+ [[<duration>] :<reason>]" };
+	syntax = { "<nickmask>[,<nickmask>]+ [[<duration>] [LOCAL] :<reason>]" };
 }
 
 CmdResult CommandQline::Handle(User* user, const Params& parameters)
@@ -60,18 +60,28 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 			return CmdResult::FAILURE;
 		}
 
-		auto* ql = new QLine(ServerInstance->Time(), duration, user->nick, parameters.back(), parameters[0]);
+		auto local = false;
+		auto reason = parameters.back();
+		if (parameters.size() > 3 && irc::equals(parameters[2], "LOCAL"))
+			local = true;
+		else
+			reason.insert(0, " ").insert(0, parameters[2]);
+
+		auto* ql = new QLine(ServerInstance->Time(), duration, user->nick, reason, parameters[0]);
+		ql->local = local;
+
 		if (ServerInstance->XLines->AddLine(ql, user))
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent Q-line on {}: {}",
-					user->nick, parameters[0], ql->reason);
+				ServerInstance->SNO.WriteToSnoMask('x', "{} added a permanent {}Q-line on {}: {}",
+					user->nick, ql->local ? "local " : "", parameters[0], ql->reason);
 			}
 			else
 			{
-				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed Q-line on {}, expires in {} (on {}): {}",
-					user->nick, parameters[0], Duration::ToLongString(duration), Time::FromNow(duration), ql->reason);
+				ServerInstance->SNO.WriteToSnoMask('x', "{} added a timed {}Q-line on {}, expires in {} (on {}): {}",
+					user->nick, ql->local ? "local " : "", parameters[0], Duration::ToLongString(duration),
+					Time::FromNow(duration), ql->reason);
 			}
 			ServerInstance->XLines->ApplyLines();
 		}

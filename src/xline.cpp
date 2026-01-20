@@ -71,26 +71,6 @@ public:
 	}
 };
 
-/** An XLineFactory specialized to generate KLine* pointers
- */
-class KLineFactory final
-	: public XLineFactory
-{
-public:
-	KLineFactory()
-		: XLineFactory("K")
-	{
-	}
-
-	/** Generate a KLine
-	 */
-	XLine* Generate(time_t set_time, unsigned long duration, const std::string& source, const std::string& reason, const std::string& xline_specific_mask) override
-	{
-		UserHostPair ih = XLineManager::SplitUserHost(xline_specific_mask);
-		return new KLine(set_time, duration, source, reason, ih.first, ih.second);
-	}
-};
-
 /** An XLineFactory specialized to generate QLine* pointers
  */
 class QLineFactory final
@@ -520,7 +500,6 @@ XLineManager::XLineManager()
 {
 	RegisterFactory(new ELineFactory());
 	RegisterFactory(new GLineFactory());
-	RegisterFactory(new KLineFactory());
 	RegisterFactory(new QLineFactory());
 	RegisterFactory(new ZLineFactory());
 }
@@ -547,7 +526,7 @@ void XLine::Apply(User* u)
 
 bool XLine::IsBurstable()
 {
-	return !from_config;
+	return !from_config && !local;
 }
 
 void XLine::DefaultApply(User* u, bool bancache)
@@ -582,29 +561,6 @@ void XLine::DefaultApply(User* u, bool bancache)
 		ServerInstance->Logs.Debug("BANCACHE", "Adding positive hit ({}) for {}", type, u->GetAddress());
 		ServerInstance->BanCache.AddHit(u->GetAddress(), this->type, banreason, (this->duration > 0 ? (this->expiry - ServerInstance->Time()) : 0));
 	}
-}
-
-bool KLine::Matches(User* u) const
-{
-	LocalUser* lu = IS_LOCAL(u);
-	if (lu && lu->exempt)
-		return false;
-
-	if (InspIRCd::Match(u->GetRealUser(), this->usermask, ascii_case_insensitive_map))
-	{
-		if (InspIRCd::MatchCIDR(u->GetRealHost(), this->hostmask, ascii_case_insensitive_map) ||
-			InspIRCd::MatchCIDR(u->GetAddress(), this->hostmask, ascii_case_insensitive_map))
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-void KLine::Apply(User* u)
-{
-	DefaultApply(u, this->usermask ==  "*");
 }
 
 bool GLine::Matches(User* u) const
@@ -685,11 +641,6 @@ bool ELine::Matches(const std::string& str) const
 	return InspIRCd::MatchCIDR(str, matchtext);
 }
 
-bool KLine::Matches(const std::string& str) const
-{
-	return InspIRCd::MatchCIDR(str, matchtext);
-}
-
 bool GLine::Matches(const std::string& str) const
 {
 	return InspIRCd::MatchCIDR(str, matchtext);
@@ -717,11 +668,6 @@ const std::string& ELine::Displayable() const
 	return matchtext;
 }
 
-const std::string& KLine::Displayable() const
-{
-	return matchtext;
-}
-
 const std::string& GLine::Displayable() const
 {
 	return matchtext;
@@ -735,11 +681,6 @@ const std::string& ZLine::Displayable() const
 const std::string& QLine::Displayable() const
 {
 	return nick;
-}
-
-bool KLine::IsBurstable()
-{
-	return false;
 }
 
 bool XLineManager::RegisterFactory(XLineFactory* xlf)

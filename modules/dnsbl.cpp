@@ -52,9 +52,6 @@ public:
 		// Kill users who's IP address is in the DNSBL.
 		KILL,
 
-		// K-line users who's IP address is in the DNSBL.
-		KLINE,
-
 		// Mark users who's IP address is in the DNSBL.
 		MARK,
 
@@ -101,7 +98,7 @@ public:
 	// The number of misses which have occurred when querying this DNSBL.
 	unsigned long stats_misses = 0;
 
-	// If action is set to gline, kline, or zline then the duration for an X-line to last for.
+	// If action is set to gline or zline then the duration for an X-line to last for.
 	unsigned long xlineduration;
 
 	DNSBLEntry(const Module* mod, const std::shared_ptr<ConfigTag>& tag)
@@ -113,7 +110,7 @@ public:
 		action = tag->getEnum("action", Action::KILL, {
 			{ "gline", Action::GLINE },
 			{ "kill",  Action::KILL  },
-			{ "kline", Action::KLINE },
+			{ "kline", Action::GLINE }, // v4 compatibility.
 			{ "mark",  Action::MARK  },
 			{ "shun",  Action::SHUN  },
 			{ "zline", Action::ZLINE },
@@ -352,11 +349,6 @@ public:
 					}
 
 					data.markext.GetRef(them).push_back(config->name);
-					break;
-				}
-				case DNSBLEntry::Action::KLINE:
-				{
-					AddLine<KLine>("K-line", reason, config->xlineduration, them, them->GetBanUser(true), them->GetAddress());
 					break;
 				}
 				case DNSBLEntry::Action::GLINE:

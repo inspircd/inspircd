@@ -64,7 +64,6 @@ class CoreModXLine final
 private:
 	CommandEline cmdeline;
 	CommandGline cmdgline;
-	CommandKline cmdkline;
 	CommandQline cmdqline;
 	CommandZline cmdzline;
 
@@ -86,7 +85,7 @@ private:
 				throw CoreException("<" + tag + ":reason> missing at " + ctag->source.str());
 
 			XLine* xl = make->Generate(ServerInstance->Time(), 0, ServerInstance->Config->ServerName, reason, mask);
-			xl->from_config = true;
+			xl->from_config = xl->local = true;
 			configlines.insert(xl->Displayable());
 			if (!ServerInstance->XLines->AddLine(xl, nullptr))
 				delete xl;
@@ -97,10 +96,9 @@ private:
 
 public:
 	CoreModXLine()
-		: Module(VF_CORE | VF_VENDOR, "Provides the ELINE, GLINE, KLINE, QLINE, and ZLINE commands")
+		: Module(VF_CORE | VF_VENDOR, "Provides the ELINE, GLINE, QLINE, and ZLINE commands")
 		, cmdeline(this)
 		, cmdgline(this)
-		, cmdkline(this)
 		, cmdqline(this)
 		, cmdzline(this)
 	{
@@ -115,7 +113,7 @@ public:
 	{
 		ReadXLine("badip", "ipmask", "Z");
 		ReadXLine("badnick", "nick", "Q");
-		ReadXLine("badhost", "host", "K");
+		ReadXLine("badhost", "host", "G");
 		ReadXLine("exception", "host", "E");
 
 		ServerInstance->XLines->CheckELines();

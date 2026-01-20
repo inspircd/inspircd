@@ -208,9 +208,6 @@ void CommandStats::DoStats(Stats::Context& stats)
 		}
 		break;
 
-		case 'k':
-			ServerInstance->XLines->InvokeStats("K", stats);
-		break;
 		case 'g':
 			ServerInstance->XLines->InvokeStats("G", stats);
 		break;

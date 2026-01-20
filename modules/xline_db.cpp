@@ -142,7 +142,7 @@ public:
 		 * semblance of backwards compatibility for reading on startup..
 		 *		-- w00t
 		 */
-		stream << "VERSION 1" << std::endl;
+		stream << "VERSION 2" << std::endl;
 
 		// Now, let's write.
 		for (const auto& xltype : ServerInstance->XLines->GetAllTypes())
@@ -156,9 +156,15 @@ public:
 				if (line->from_config)
 					continue;
 
+				std::string flags;
+				if (line->local)
+					flags.push_back('L');
+				if (flags.empty())
+					flags.push_back('*');
+
 				stream << "LINE " << line->type << " " << line->Displayable() << " "
 					<< line->source << " " << line->set_time << " "
-					<< line->duration << " :" << line->reason << std::endl;
+					<< line->duration << " " << flags << " :" << line->reason << std::endl;
 			}
 		}
 
@@ -201,30 +207,25 @@ public:
 			return false;
 		}
 
-		std::string line;
-		while (std::getline(stream, line))
+		auto dbversion = 1;
+		for (std::string line; std::getline(stream, line); )
 		{
+			ServerInstance->Logs.Debug(MODNAME, "Processing {}", line);
+
 			// Inspired by the command parser. :)
 			irc::tokenstream tokens(line);
-			int items = 0;
-			std::string command_p[7];
-			std::string tmp;
-
-			while (tokens.GetTrailing(tmp) && (items < 7))
-			{
-				command_p[items] = tmp;
-				items++;
-			}
-
-			ServerInstance->Logs.Debug(MODNAME, "Processing {}", line);
+			std::vector<std::string> command_p;
+			for (std::string p; tokens.GetTrailing(p); )
+				command_p.push_back(p);
 
 			if (command_p[0] == "VERSION")
 			{
-				if (command_p[1] != "1")
+				dbversion = ConvToNum<int>(command_p[1]);
+				if (dbversion < 1 && dbversion > 2)
 				{
 					stream.close();
-					ServerInstance->Logs.Critical(MODNAME, "I got database version {} - I don't understand it", command_p[1]);
-					ServerInstance->SNO.WriteToSnoMask('x', "database: I got a database version ({}) I don't understand", command_p[1]);
+					ServerInstance->Logs.Critical(MODNAME, "I got database version {} - I don't understand it", version);
+					ServerInstance->SNO.WriteToSnoMask('x', "database: I got a database version ({}) I don't understand", version);
 					return false;
 				}
 			}
@@ -239,8 +240,27 @@ public:
 					continue;
 				}
 
-				XLine* xl = xlf->Generate(ServerInstance->Time(), ConvToNum<unsigned long>(command_p[5]), command_p[3], command_p[6], command_p[2]);
+				XLine* xl = xlf->Generate(ServerInstance->Time(), ConvToNum<unsigned long>(command_p[5]), command_p[3], command_p.back(), command_p[2]);
 				xl->SetCreateTime(ConvToNum<time_t>(command_p[4]));
+
+				if (dbversion >= 2)
+				{
+					// Flags are in command_p[6] in v2.
+					for (const auto flag : command_p[6])
+					{
+						switch (flag)
+						{
+							case '*':
+								break;
+							case 'L':
+								xl->local = true;
+								break;
+							default:
+								ServerInstance->Logs.Debug(MODNAME, "Unknown xline flag: {}", flag);
+								break;
+						}
+					}
+				}
 
 				if (!ServerInstance->XLines->AddLine(xl, nullptr))
 				{
@@ -250,14 +270,14 @@ public:
 
 				if (xl->duration)
 				{
-					ServerInstance->SNO.WriteToSnoMask('x', "database: added a timed {}{} on {}, expires in {} (on {}): {}",
-						xl->type, xl->type.length() <= 2 ? "-line" : "", xl->Displayable(),
+					ServerInstance->SNO.WriteToSnoMask('x', "database: added a timed {}{}{} on {}, expires in {} (on {}): {}",
+						xl->local ? "local " : "", xl->type, xl->type.length() <= 2 ? "-line" : "", xl->Displayable(),
 						Duration::ToLongString(xl->duration), Time::FromNow(xl->duration), xl->reason);
 				}
 				else
 				{
-					ServerInstance->SNO.WriteToSnoMask('x', "database: added a permanent {}{} on {}: {}", xl->type,
-						xl->type.length() <= 2 ? "-line" : "", xl->Displayable(), xl->reason);
+					ServerInstance->SNO.WriteToSnoMask('x', "database: added a permanent {}{}{} on {}: {}", xl->type,
+						xl->local ? "local " : "",  xl->type.length() <= 2 ? "-line" : "", xl->Displayable(), xl->reason);
 				}
 			}
 		}

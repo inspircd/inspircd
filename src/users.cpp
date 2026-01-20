@@ -315,23 +315,18 @@ void User::OperLogout()
 
 bool LocalUser::CheckLines(bool doZline)
 {
-	const char* check[] = { "G" , "K", (doZline) ? "Z" : nullptr, nullptr };
+	if (this->exempt)
+		return false;
 
-	if (!this->exempt)
-	{
-		for (int n = 0; check[n]; ++n)
-		{
-			XLine* r = ServerInstance->XLines->MatchesLine(check[n], this);
+	auto *xline = ServerInstance->XLines->MatchesLine("G", this);
+	if (!xline && doZline)
+		xline = ServerInstance->XLines->MatchesLine("Z", this);
 
-			if (r)
-			{
-				r->Apply(this);
-				return true;
-			}
-		}
-	}
+	if (!xline)
+		return false;
 
-	return false;
+	xline->Apply(this);
+	return true;
 }
 
 void LocalUser::FullConnect()
