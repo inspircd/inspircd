@@ -46,7 +46,7 @@ public:
 		, exemptionprov(this)
 		, extban(this, "noctcp", 'C')
 		, nc(this, "noctcp", 'C')
-		, ncu(this, "u_noctcp", 'T')
+		, ncu(this, "noctcp", 'T')
 	{
 	}
 

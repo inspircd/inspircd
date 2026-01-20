@@ -96,7 +96,7 @@ public:
 		, accountext(mod)
 		, accountidext(mod, "accountid", ExtensionType::USER, true)
 		, accountnicksext(mod, "accountnicks", ExtensionType::USER, true)
-		, identifiedmode(mod, "u_registered")
+		, identifiedmode(mod, "registered")
 	{
 	}
 

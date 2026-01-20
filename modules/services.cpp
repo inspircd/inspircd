@@ -133,7 +133,7 @@ class RegisteredUser final
 
 public:
 	RegisteredUser(Module* Creator)
-		: SimpleUserMode(Creator, "u_registered", 'r')
+		: SimpleUserMode(Creator, "registered", 'r')
 	{
 		if (ServerInstance->Config->ConfValue("servicesintegration")->getBool("disablemodes", true))
 			DisableAutoRegister();

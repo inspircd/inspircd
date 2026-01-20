@@ -273,8 +273,14 @@ std::string TreeSocket::BuildModeList(ModeType mtype)
 		{
 			if (mtype == MODETYPE_USER)
 			{
-				if (mh->name == "sslonly")
+				if (mh->name == "noctcp")
+					mname = "u_registered";
+				else if (mh->name == "registered")
+					mname = "u_registered";
+				else if (mh->name == "sslonly")
 					mname = "sslqueries";
+				else if (mh->name == "stripcolor")
+					mname = "u_stripcolor";
 			}
 		}
 		// END COMPATIBILITY CODE
