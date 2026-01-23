@@ -221,7 +221,7 @@ public:
 			if (command_p[0] == "VERSION")
 			{
 				dbversion = ConvToNum<int>(command_p[1]);
-				if (dbversion < 1 && dbversion > 2)
+				if (dbversion < 1 || dbversion > 2)
 				{
 					stream.close();
 					ServerInstance->Logs.Critical(MODNAME, "I got database version {} - I don't understand it", version);
