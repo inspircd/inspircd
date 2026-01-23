@@ -443,7 +443,7 @@ bool UserManager::DefaultIsNick(const std::string_view& nick)
 
 bool UserManager::DefaultIsUser(const std::string_view& user)
 {
-	if (user.empty())
+	if (user.empty() || user.length() > ServerInstance->Config->Limits.MaxUser)
 		return false;
 
 	for (const auto chr : user)
