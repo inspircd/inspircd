@@ -85,7 +85,7 @@ public:
 
 	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (change.adding == dest->IsModeSet(this))
+		if (change.adding == channel->IsModeSet(this))
 			return false;
 
 		if (change.adding && IS_LOCAL(source))
