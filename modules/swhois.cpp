@@ -320,7 +320,7 @@ private:
 		auto deleted = false;
 		if (message.length() > 1 && message[0] == '@')
 		{
-			auto tag = message.substr(0);
+			auto tag = message.substr(1);
 			deleted = DelSWhois(cmdswhois.swhoisext, user, [&tag](const SWhois& swhois) {
 				return swhois.tag == tag;
 			}, false);
