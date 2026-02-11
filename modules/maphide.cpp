@@ -38,7 +38,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		url = ServerInstance->Config->ConfValue("security")->getString("maphide");
+		url = ServerInstance->Config->ConfValue("maphide")->getString("url");
 	}
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
