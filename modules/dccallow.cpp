@@ -292,7 +292,6 @@ public:
 						}
 					}
 
-					std::string mask = target->GetMask();
 					unsigned long length;
 					if (parameters.size() < 2)
 					{
@@ -312,12 +311,7 @@ public:
 						}
 					}
 
-					if (!InspIRCd::IsValidMask(mask))
-					{
-						return CmdResult::FAILURE;
-					}
-
-					dl->emplace_back(target->nick, mask, ServerInstance->Time(), length);
+					dl->emplace_back(target->nick, target->GetMask(), ServerInstance->Time(), length);
 
 					if (length > 0)
 					{

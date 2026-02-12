@@ -36,41 +36,6 @@
 #include "utility/string.h"
 #include "xline.h"
 
-bool InspIRCd::IsValidMask(const std::string& mask)
-{
-	const char* dest = mask.c_str();
-	int exclamation = 0;
-	int atsign = 0;
-
-	for (const char* i = dest; *i; i++)
-	{
-		/* out of range character, bad mask */
-		if (*i < 32 || *i > 126)
-		{
-			return false;
-		}
-
-		switch (*i)
-		{
-			case '!':
-				exclamation++;
-				break;
-			case '@':
-				atsign++;
-				break;
-		}
-	}
-
-	/* valid masks only have 1 ! and @ */
-	if (exclamation != 1 || atsign != 1)
-		return false;
-
-	if (mask.length() > ServerInstance->Config->Limits.GetMaxMask())
-		return false;
-
-	return true;
-}
-
 void InspIRCd::StripColor(std::string& line)
 {
 	for (size_t idx = 0; idx < line.length(); )

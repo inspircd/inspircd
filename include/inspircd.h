@@ -319,12 +319,6 @@ public:
 	 */
 	static bool IsSID(const std::string_view& sid);
 
-	/** Determines whether the specified string is a valid nick!user\@host mask.
-	 * @param mask The string to check.
-	 * @return True if the specified string is a valid nick!user\@host mask; otherwise, false.
-	 */
-	static bool IsValidMask(const std::string& mask);
-
 	/** Matches two strings using glob pattern matching, optionally with a case map to use instead
 	 * of the server case map.
 	 * @param str The literal string to match against
