@@ -26,11 +26,24 @@
 
 struct SWhois final
 {
-	// Whether this is a compatibility swhois message.
-	bool compat = false;
+	enum Flags
+		: uint8_t
+	{
+		// The message has no special properties.
+		FLAG_NONE = 0,
 
-	// Whether this swhois comes from an oper config.
-	bool oper = false;
+		// The message was set by a v4 or earlier server.
+		FLAG_COMPAT = 1,
+
+		// The message comes from <oper:swhois>.
+		FLAG_OPER_CONFIG = 2,
+
+		// The message is only visible by opers with the users/auspex privilege.
+		FLAG_OPER_ONLY = 4,
+	};
+
+	// The flags that apply to this entry.
+	Flags flags = FLAG_NONE;
 
 	// Where to prioritize this entry in the output.
 	time_t priority = ServerInstance->Time();
@@ -43,20 +56,30 @@ struct SWhois final
 
 	bool operator <(const SWhois& other) const
 	{
-		return std::tie(priority, tag, message, oper, compat)
-			< std::tie(other.priority, other.tag, other.message, other.oper, other.compat);
+		return std::tie(priority, tag, message, other.flags)
+			< std::tie(other.priority, other.tag, other.message, other.flags);
 	}
 
 	std::string GetFlags() const
 	{
-		std::string flags;
-		if (this->compat)
-			flags.push_back('c');
-		if (this->oper)
-			flags.push_back('o');
-		if (flags.empty())
-			flags.push_back('*');
-		return flags;
+		std::string flagstr;
+		if (this->flags & FLAG_COMPAT)
+			flagstr.push_back('c');
+		if (this->flags & FLAG_OPER_CONFIG)
+			flagstr.push_back('o');
+		if (this->flags & FLAG_OPER_ONLY)
+			flagstr.push_back('O');
+		if (flagstr.empty())
+			flagstr.push_back('*');
+		return flagstr;
+	}
+
+	void ParseFlags(const std::string& flagstr)
+	{
+		if (flagstr.find('o') == std::string::npos)
+			this->flags = FLAG_OPER_CONFIG;
+		if (flagstr.find('O') == std::string::npos)
+			this->flags = FLAG_OPER_ONLY;
 	}
 
 	std::string SerializeAdd() const
@@ -112,7 +135,7 @@ namespace
 		{
 			for (auto sit = it; sit != swhoislist->end(); ++sit)
 			{
-				if (sit->compat)
+				if (sit->flags & SWhois::FLAG_COMPAT)
 					ServerInstance->PI->SendMetadata(user, "swhois", "");
 				else
 					ServerInstance->PI->SendMetadata(user, "specialwhois", sit->SerializeDel());
@@ -307,8 +330,8 @@ private:
 
 		auto& swhois = AddSWhois(cmdswhois.swhoisext, user, message);
 		swhois.tag = tag;
-		swhois.oper = flags.find('o') == std::string::npos;
 		swhois.priority = ConvToNum<time_t>(priority);
+		swhois.ParseFlags(flags);
 	}
 
 	void DecodeSWhoisDel(User* user, irc::tokenstream& stream)
@@ -336,7 +359,7 @@ private:
 	void DecodeSWhoisLegacy(User* user, const std::string& message)
 	{
 		// Delete the previous compatibility swhois message and optionally replace it.
-		DelSWhois(cmdswhois.swhoisext, user, [](const SWhois& swhois) { return swhois.compat; }, false);
+		DelSWhois(cmdswhois.swhoisext, user, [](const SWhois& swhois) { return swhois.flags & SWhois::FLAG_COMPAT; }, false);
 		if (!message.empty())
 			AddSWhois(cmdswhois.swhoisext, user, message);
 	}
@@ -388,7 +411,7 @@ public:
 		for (std::string msg; msgstream.GetToken(msg); )
 		{
 			auto& swhois = AddSWhois(cmdswhois.swhoisext, user, msg);
-			swhois.oper = true;
+			swhois.flags = SWhois::FLAG_OPER_CONFIG;
 			ServerInstance->PI->SendMetadata(user, "specialwhois", swhois.SerializeAdd());
 		}
 	}
@@ -399,7 +422,7 @@ public:
 			return;
 
 		// Remove any swhois entries added by the oper block.
-		DelSWhois(cmdswhois.swhoisext, user, [](const SWhois& swhois) { return swhois.oper; }, true);
+		DelSWhois(cmdswhois.swhoisext, user, [](const SWhois& swhois) { return swhois.flags & SWhois::FLAG_OPER_CONFIG; }, true);
 	}
 
 	void OnSyncUser(User* user, Server& server) override
@@ -410,7 +433,7 @@ public:
 
 		for (const auto& swhois : *swhoislist)
 		{
-			if (swhois.compat)
+			if (swhois.flags & SWhois::FLAG_COMPAT)
 				server.SendMetadata(user, "swhois", swhois.message);
 			else
 				server.SendMetadata(user, "specialwhois", swhois.SerializeAdd());
@@ -427,10 +450,14 @@ public:
 		if (!swhoislist)
 			return MOD_RES_PASSTHRU;
 
+		const auto has_priv = whois.GetSource()->HasPrivPermission("users/auspex");
 		for (const auto& swhois : *swhoislist)
 		{
-			if (swhois.oper && whois.GetTarget()->IsModeSet(hideopermode))
+			if (swhois.flags & SWhois::FLAG_OPER_CONFIG && whois.GetTarget()->IsModeSet(hideopermode))
 				continue; // Avoid exposing hidden opers.
+
+			if (swhois.flags & SWhois::FLAG_OPER_ONLY && !has_priv)
+				continue; // This swhois is only available to opers.
 
 			whois.SendLine(RPL_WHOISSPECIAL, swhois.message);
 		}
