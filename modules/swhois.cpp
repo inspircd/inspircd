@@ -46,7 +46,7 @@ struct SWhois final
 	};
 
 	// The flags that apply to this entry.
-	Flags flags = FLAG_NONE;
+	uint8_t flags = FLAG_NONE;
 
 	// Where to prioritize this entry in the output.
 	time_t priority = ServerInstance->Time();
@@ -81,12 +81,13 @@ struct SWhois final
 
 	void ParseFlags(const std::string& flagstr)
 	{
+		this->flags = FLAG_NONE;
 		if (flagstr.find('o') == std::string::npos)
-			this->flags = FLAG_OPER_CONFIG;
+			this->flags |= FLAG_OPER_CONFIG;
 		if (flagstr.find('O') == std::string::npos)
-			this->flags = FLAG_OPER_ONLY;
+			this->flags |= FLAG_OPER_ONLY;
 		if (flagstr.find('s') == std::string::npos)
-			this->flags = FLAG_SERVER_SET;
+			this->flags |= FLAG_SERVER_SET;
 	}
 
 	std::string SerializeAdd() const
