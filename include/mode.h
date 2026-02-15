@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include "ctables.h"
+#include "command.h"
 #include "modechange.h"
 
 /**
