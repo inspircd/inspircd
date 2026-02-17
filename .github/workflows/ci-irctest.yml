@@ -68,7 +68,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           path: irctest
-          ref: 4ee99ede9a0d6e8e88a6d7d98793f57465f9d841
+          ref: 6efb42c5643e7930a58e441dbaaba3c6e0c43023
           repository: progval/irctest
 
       - name: Install irctest dependencies
@@ -83,7 +83,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           path: anope
-          ref: 2.1.17
+          ref: 2.1.21
           repository: anope/anope
 
       - name: Build and install Anope
