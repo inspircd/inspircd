@@ -274,7 +274,7 @@ std::string TreeSocket::BuildModeList(ModeType mtype)
 			if (mtype == MODETYPE_USER)
 			{
 				if (mh->name == "noctcp")
-					mname = "u_registered";
+					mname = "u_noctcp";
 				else if (mh->name == "registered")
 					mname = "u_registered";
 				else if (mh->name == "sslonly")
