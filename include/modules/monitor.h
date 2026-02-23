@@ -86,7 +86,7 @@ public:
 		, ev(event)
 		, sentid(id)
 	{
-		if (monitorapi)
+		if (user->IsFullyConnected() && monitorapi)
 			monitorapi->ForEachWatcher(user, *this);
 	}
 };
