@@ -40,7 +40,7 @@ namespace
 	typedef std::map<std::string, std::pair<std::optional<std::string>, std::optional<std::string>>, irc::insensitive_swo> TokenDiff;
 
 	// Builds a list of the local modules with the specified property.
-	CapabData::ModuleMap BuildModuleList(ModuleFlags property)
+	CapabData::ModuleMap BuildModuleList(ModuleFlags property, uint16_t protocol)
 	{
 		CapabData::ModuleMap modules;
 		for (const auto& [name, module] : ServerInstance->Modules.GetModules())
@@ -53,6 +53,19 @@ namespace
 			auto endpos = name.length() - strlen(DLL_EXTENSION);
 
 			auto modname = name.substr(startpos, endpos - startpos);
+
+			if (protocol < PROTO_NEWEST)
+			{
+				// BEGIN COMPATIBILITY CODE
+				if (irc::equals(modname, "sacommands"))
+				{
+					// These modules were combined in v5.
+					modules["sajoin"] = modules["sakick"] = modules["sanick"] =
+						modules["sapart"] = modules["saquit"];
+					continue;
+				}
+				// END COMPATIBILITY CODE.
+			}
 			modules[modname] = SpanningTreeUtilities::BuildLinkString(module);
 		}
 		return modules;
@@ -221,10 +234,10 @@ namespace
 	}
 
 	// Generates a module list in the format "m_foo.so=bar m_bar.so=baz".
-	std::string FormatModules(ModuleFlags property)
+	std::string FormatModules(ModuleFlags property, uint16_t protocol)
 	{
 		std::ostringstream modules;
-		CapabData::ModuleMap mymodules = BuildModuleList(property);
+		CapabData::ModuleMap mymodules = BuildModuleList(property, protocol);
 		for (const auto& [module, linkdata] : mymodules)
 		{
 			modules << module;
@@ -352,8 +365,8 @@ void TreeSocket::SendCapabilities(int phase)
 		return;
 
 	WriteLine("CAPAB CAPABILITIES :" + FormatCapabilities(this));
-	WriteLine("CAPAB MODULES :" + FormatModules(VF_COMMON));
-	WriteLine("CAPAB MODSUPPORT :" + FormatModules(VF_OPTCOMMON));
+	WriteLine("CAPAB MODULES :" + FormatModules(VF_COMMON, proto_version));
+	WriteLine("CAPAB MODSUPPORT :" + FormatModules(VF_OPTCOMMON, proto_version));
 	WriteLine("CAPAB CHANMODES :" + BuildModeList(MODETYPE_CHANNEL));
 	WriteLine("CAPAB USERMODES :" + BuildModeList(MODETYPE_USER));
 
