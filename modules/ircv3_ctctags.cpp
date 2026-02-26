@@ -121,7 +121,7 @@ private:
 		// the attempt to mass-message users.
 		if (!source->HasPrivPermission("users/mass-message"))
 		{
-			source->WriteNumeric(ERR_NOPRIVILEGES, "Permission Denied - You do not have the required operator privileges");
+			source->WriteNumeric(Numerics::NoPrivileges(source, "your server operator account does not have the users/mass-message privilege"));
 			return CmdResult::FAILURE;
 		}
 

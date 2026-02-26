@@ -25,6 +25,7 @@
 
 #include "inspircd.h"
 #include "core_oper.h"
+#include "numerichelper.h"
 
 ModeUserServerNoticeMask::ModeUserServerNoticeMask(Module* Creator)
 	: ModeHandler(Creator, "snomask", 's', PARAM_SETONLY, MODETYPE_USER)
@@ -106,15 +107,15 @@ std::string ModeUserServerNoticeMask::ProcessNoticeMasks(User* user, const std::
 					}
 					else if (!user->IsOper())
 					{
-						user->WriteNumeric(ERR_NOPRIVILEGES, FMT::format("Permission Denied - Only operators may {} snomask {}",
+						user->WriteNumeric(Numerics::NoPrivileges("only server operators may {} snomask {}",
 							adding ? "set" : "unset", snomask));
 						continue;
 
 					}
 					else if (!user->HasSnomaskPermission(snomask))
 					{
-						user->WriteNumeric(ERR_NOPRIVILEGES, FMT::format("Permission Denied - Oper type {} does not have access to snomask {}",
-							user->oper->GetType(), snomask));
+						user->WriteNumeric(Numerics::NoPrivileges("your server operator account does not have access to {} snomask {}",
+							adding ? "set" : "unset", snomask));
 						continue;
 					}
 				}

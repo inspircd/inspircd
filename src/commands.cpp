@@ -25,6 +25,7 @@
 
 
 #include "inspircd.h"
+#include "numerichelper.h"
 
 bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Params& parameters, unsigned int splithere, int extra, bool usemax)
 {
@@ -249,19 +250,11 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 
 		case CmdAccess::OPERATOR:
 		{
-			if (!user->IsOper())
-			{
-				user->CommandFloodPenalty += failpenalty;
-				user->WriteNumeric(ERR_NOPRIVILEGES, "Permission Denied - You do not have the required operator privileges");
-				FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
-				return;
-			}
-
 			if (!user->HasCommandPermission(command))
 			{
 				user->CommandFloodPenalty += failpenalty;
-				user->WriteNumeric(ERR_NOPRIVILEGES, FMT::format("Permission Denied - Oper type {} does not have access to command {}",
-					user->oper->GetType(), command));
+				user->WriteNumeric(Numerics::NoPrivileges(user, "your server operator account does not have access to the {} command",
+					command));
 				FOREACH_MOD(OnCommandBlocked, (command, command_p, user));
 				return;
 			}

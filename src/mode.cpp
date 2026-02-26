@@ -306,13 +306,15 @@ bool ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Modes::Cha
 		/* It's an oper only mode, and they don't have access to it. */
 		if (user->IsOper())
 		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, FMT::format("Permission Denied - Oper type {} does not have access to {} {} mode {}",
-				user->oper->GetType(), mcitem.adding ? "set" : "unset", type == MODETYPE_CHANNEL ? "channel" : "user", modechar));
+			user->WriteNumeric(Numerics::NoPrivileges("your server operator account does not have access to {} {} mode {} ({})",
+				mcitem.adding ? "set" : "unset", type == MODETYPE_CHANNEL ? "channel" : "user",
+				modechar, mh->name));
 		}
 		else
 		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, FMT::format("Permission Denied - Only operators may {} {} mode {}",
-				mcitem.adding ? "set" : "unset", type == MODETYPE_CHANNEL ? "channel" : "user", modechar));
+			user->WriteNumeric(Numerics::NoPrivileges("only server operators may {} {} mode {} ({})",
+				mcitem.adding ? "set" : "unset", type == MODETYPE_CHANNEL ? "channel" : "user",
+				modechar, mh->name));
 		}
 		return false;
 	}

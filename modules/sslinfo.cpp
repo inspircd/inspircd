@@ -244,7 +244,7 @@ private:
 
 		if (operonlyfp && !source->IsOper() && source != target)
 		{
-			source->WriteNumeric(ERR_NOPRIVILEGES, "You must be a server operator to view TLS client certificate information for other users.");
+			source->WriteNumeric(Numerics::NoPrivileges("you must be a server operator to view TLS client certificate information for other users"));
 			return CmdResult::FAILURE;
 		}
 
@@ -263,7 +263,7 @@ private:
 
 		if (operonlyfp && !source->IsOper())
 		{
-			source->WriteNumeric(ERR_NOPRIVILEGES, "You must be a server operator to view TLS client certificate information for channels.");
+			source->WriteNumeric(Numerics::NoPrivileges("you must be a server operator to view TLS client certificate information for channels"));
 			return CmdResult::FAILURE;
 		}
 

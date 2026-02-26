@@ -23,6 +23,7 @@
 
 
 #include "inspircd.h"
+#include "numerichelper.h"
 
 class CommandSanick final
 	: public Command
@@ -49,7 +50,7 @@ public:
 		{
 			if (target && target->IsModeSet(servprotectmode))
 			{
-				user->WriteNumeric(ERR_NOPRIVILEGES, "Cannot use an SA command on a service");
+				user->WriteNumeric(Numerics::NoPrivileges("you can not use the {} command on a protected service", this->name));
 				return CmdResult::FAILURE;
 			}
 

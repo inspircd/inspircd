@@ -19,6 +19,7 @@
 
 #include "inspircd.h"
 #include "modules/isupport.h"
+#include "numerichelper.h"
 
 enum
 {
@@ -220,7 +221,7 @@ public:
 		}
 
 		// Inform the user that the mode they changed has been disabled.
-		user->WriteNumeric(ERR_NOPRIVILEGES, FMT::format("Permission Denied - {} mode {} ({}) is disabled",
+		user->WriteNumeric(Numerics::NoPrivileges("{} mode {} ({}) is disabled",
 			what, change.mh->GetModeChar(), change.mh->name));
 		return MOD_RES_DENY;
 	}

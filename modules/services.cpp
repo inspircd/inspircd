@@ -23,6 +23,7 @@
 #include "modules/ctctags.h"
 #include "modules/server.h"
 #include "modules/stats.h"
+#include "numerichelper.h"
 #include "timeutils.h"
 #include "xline.h"
 
@@ -119,7 +120,8 @@ public:
 	{
 		if (IS_LOCAL(source))
 		{
-			source->WriteNumeric(ERR_NOPRIVILEGES, FMT::format("Only a server may modify the +{} channel mode", GetModeChar()));
+			source->WriteNumeric(Numerics::NoPrivileges("only services may {} channel mode {} ({})",
+				source->IsModeSet(this) ? "set" : "unset", GetModeChar(), this->name));
 			return false;
 		}
 
@@ -143,7 +145,8 @@ public:
 	{
 		if (IS_LOCAL(source))
 		{
-			source->WriteNumeric(ERR_NOPRIVILEGES, FMT::format("Only a server may modify the +{} user mode", GetModeChar()));
+			source->WriteNumeric(Numerics::NoPrivileges("only services may {} user mode {} ({})",
+				source->IsModeSet(this) ? "set" : "unset", GetModeChar(), this->name));
 			return false;
 		}
 

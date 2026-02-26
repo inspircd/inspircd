@@ -23,6 +23,7 @@ enum
 {
 	// From RFC 1459.
 	ERR_CANNOTSENDTOCHAN = 404,
+	ERR_NOPRIVILEGES = 481,
 
 	// InspIRCd-specific.
 	ERR_CANNOTSENDTOUSER = 531,
@@ -34,6 +35,7 @@ namespace Numerics
 	class CannotSendTo;
 	class ChannelPrivilegesNeeded;
 	class InvalidModeParameter;
+	class NoPrivileges;
 	class NoSuchChannel;
 	class NoSuchNick;
 }
@@ -145,6 +147,29 @@ public:
 		push(mode->GetModeChar());
 		push(parameter);
 		push_message(mode, message);
+	}
+};
+
+/** Helper for the ERR_NOSUCHCHANNEL numeric. */
+class Numerics::NoPrivileges final
+	: public Numeric::Numeric
+{
+public:
+	template <typename... Args>
+	NoPrivileges(const User* user, const char* reason, Args&&... args)
+		: Numeric(ERR_NOPRIVILEGES)
+	{
+		if (!user->IsOper())
+			push("Permission denied (you are not a server operator)");
+		else
+			push(FMT::format("Permission denied ({})", FMT::vformat(reason, FMT::make_format_args(args...))));
+	}
+
+	template <typename... Args>
+	NoPrivileges(const char* reason, Args&&... args)
+		: Numeric(ERR_NOPRIVILEGES)
+	{
+		push(FMT::format("Permission denied ({})", FMT::vformat(reason, FMT::make_format_args(args...))));
 	}
 };
 

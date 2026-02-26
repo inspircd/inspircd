@@ -25,6 +25,7 @@
 
 
 #include "inspircd.h"
+#include "numerichelper.h"
 
 class ModuleOperLevels final
 	: public Module
@@ -51,7 +52,7 @@ public:
 						source->nick, source_level, dest->nick, dest_level, reason);
 				}
 				dest->WriteNotice("*** Oper " + source->nick + " attempted to /KILL you!");
-				source->WriteNumeric(ERR_NOPRIVILEGES, FMT::format("Permission Denied - Oper {} is a higher level than you", dest->nick));
+				source->WriteNumeric(Numerics::NoPrivileges("oper {} is a higher level than you", dest->nick));
 				return MOD_RES_DENY;
 			}
 		}
