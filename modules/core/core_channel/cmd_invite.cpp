@@ -38,7 +38,6 @@ enum
 {
 	// From RFC 1459.
 	RPL_INVITING = 341,
-	ERR_USERONCHANNEL = 443,
 
 	// From ircd-hybrid.
 	RPL_INVITELIST = 336,
