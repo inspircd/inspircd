@@ -197,7 +197,7 @@ private:
 public:
 	bool active = false;
 
-	CommandSAMode(Module* mod, SharedData &sd)
+	CommandSAMode(Module* mod, SharedData& sd)
 		: Command(mod, "SAMODE", 2)
 		, data(sd)
 	{
@@ -214,6 +214,11 @@ public:
 			if (!target)
 			{
 				user->WriteNumeric(Numerics::NoSuchNick(targetstr));
+				return CmdResult::FAILURE;
+			}
+			if (target->IsModeSet(data.servprotectmode))
+			{
+				user->WriteRemoteNumeric(Numerics::NoPrivileges("you can not use the {} command on a protected service", this->name));
 				return CmdResult::FAILURE;
 			}
 
@@ -260,7 +265,7 @@ class CommandSANick final
 	: public Command
 {
 private:
-	SharedData data;
+	SharedData& data;
 
 public:
 	CommandSANick(Module* mod, SharedData& sd)
@@ -449,13 +454,9 @@ public:
 class CommandSATopic final
 	: public Command
 {
-private:
-	SharedData& data;
-
 public:
-	CommandSATopic(Module* mod, SharedData& sd)
+	CommandSATopic(Module* mod)
 		: Command(mod, "SATOPIC", 2, 2)
-		, data(sd)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		allow_empty_last_param = true;
@@ -511,7 +512,7 @@ public:
 		, cmdsanick(this, data)
 		, cmdsapart(this, data)
 		, cmdsaquit(this, data)
-		, cmdsatopic(this, data)
+		, cmdsatopic(this)
 	{
 	}
 
