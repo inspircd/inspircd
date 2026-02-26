@@ -110,7 +110,7 @@ class RegisteredChannel final
 {
 public:
 	RegisteredChannel(Module* Creator)
-		: SimpleChannelMode(Creator, "c_registered", 'r')
+		: SimpleChannelMode(Creator, "registered", 'r')
 	{
 		if (ServerInstance->Config->ConfValue("servicesintegration")->getBool("disablemodes", true))
 			DisableAutoRegister();
