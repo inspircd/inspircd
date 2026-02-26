@@ -331,7 +331,6 @@ bool LocalUser::CheckLines(bool doZline)
 
 void LocalUser::FullConnect()
 {
-	ServerInstance->Stats.Connects++;
 	this->idle_lastmsg = ServerInstance->Time();
 
 	/*
@@ -354,6 +353,7 @@ void LocalUser::FullConnect()
 	FOREACH_MOD(OnUserConnect, (this));
 
 	// The user is now fully connected.
+	ServerInstance->Stats.Connects++;
 	if (ServerInstance->Users.unknown_count)
 		ServerInstance->Users.unknown_count--;
 	this->connected = CONN_FULL;
