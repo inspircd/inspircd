@@ -688,6 +688,20 @@ std::vector<std::string> ServerConfig::GetModules() const
 			modules.push_back("hash_sha1");
 		else if (insp::equalsci(shortname, "sha2"))
 			modules.push_back("hash_sha2");
+		else if (insp::equalsci(shortname, "sajoin"))
+			modules.push_back("sacommands");
+		else if (insp::equalsci(shortname, "sakick"))
+			modules.push_back("sacommands");
+		else if (insp::equalsci(shortname, "samode"))
+			modules.push_back("sacommands");
+		else if (insp::equalsci(shortname, "sanick"))
+			modules.push_back("sacommands");
+		else if (insp::equalsci(shortname, "sapart"))
+			modules.push_back("sacommands");
+		else if (insp::equalsci(shortname, "saquit"))
+			modules.push_back("sacommands");
+		else if (insp::equalsci(shortname, "satopic"))
+			modules.push_back("sacommands");
 		else if (insp::equalsci(shortname, "sslrehashsignal"))
 			modules.push_back("rehashsignal");
 		else
