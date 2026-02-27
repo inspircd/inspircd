@@ -191,6 +191,7 @@ public:
 		: Command(Creator, "ACCEPT", 1)
 		, extInfo(Creator)
 	{
+		accepts_multiple_targets = true;
 		syntax = { "*|(+|-)<nick>[,(+|-)<nick>]+" };
 		translation = { TR_CUSTOM };
 	}
@@ -209,7 +210,7 @@ public:
 		parameter = (action.second ? "" : "-") + action.first->uuid;
 	}
 
-	/** Will take any number of nicks (up to MaxTargets), which can be separated by commas.
+	/** Will take any number of nicks (up to <maxtargets>), which can be separated by commas.
 	 * - in front of any nick removes, and an * lists. This effectively means you can do:
 	 * /accept nick1,nick2,nick3,*
 	 * to add 3 nicks and then show your list

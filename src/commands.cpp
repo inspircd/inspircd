@@ -29,6 +29,12 @@
 
 bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Params& parameters, unsigned int splithere, int extra, bool usemax)
 {
+	if (!handler->accepts_multiple_targets)
+	{
+		ServerInstance->Logs.Debug("COMMAND", "BUG: {} called CommandParser::LoopCall with !accepts_multiple_targets", handler->name);
+		return false;
+	}
+
 	if (splithere >= parameters.size())
 		return false;
 
@@ -63,7 +69,7 @@ bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Pa
 	 * left to parse.
 	 */
 	CommandBase::Params splitparams(parameters);
-	while (items1.GetToken(item) && (!usemax || max++ < ServerInstance->Config->MaxTargets))
+	while (items1.GetToken(item) && (!usemax || max++ < handler->GetMaxTargets()))
 	{
 		if ((!check_dupes) || (dupes.insert(item).second))
 		{
@@ -429,6 +435,20 @@ void Command::RegisterService()
 {
 	if (!ServerInstance->Parser.AddCommand(this))
 		throw ModuleException(creator, "Command already exists: " + name);
+}
+
+size_t Command::GetMaxTargets()
+{
+	if (!this->accepts_multiple_targets)
+		return 0;
+
+	if (!this->max_targets || this->max_targets_checked != ServerInstance->Config->ReadTime)
+	{
+		const auto& tag = ServerInstance->Config->ConfValue("maxtargets");
+		this->max_targets = tag->getNum<size_t>(this->name, tag->getNum("default", 5, 1), 1);
+		this->max_targets_checked = ServerInstance->Config->ReadTime;
+	}
+	return this->max_targets;
 }
 
 void Command::TellNotEnoughParameters(LocalUser* user, const Params& parameters)

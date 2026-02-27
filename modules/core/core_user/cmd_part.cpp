@@ -33,6 +33,7 @@
 CommandPart::CommandPart(Module* parent)
 	: Command(parent, "PART", 1, 2)
 {
+	accepts_multiple_targets = true;
 	allow_empty_last_param = true;
 	penalty = 5000;
 	syntax = { "<channel>[,<channel>]+ [:<reason>]" };

@@ -28,6 +28,7 @@
 CommandJoin::CommandJoin(Module* parent)
 	: SplitCommand(parent, "JOIN", 1, 2)
 {
+	accepts_multiple_targets = true;
 	penalty = 2000;
 	syntax = { "<channel>[,<channel>]+ [<key>[,<key>]+]" };
 }

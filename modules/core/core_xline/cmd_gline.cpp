@@ -32,6 +32,7 @@
 CommandGline::CommandGline(Module* parent)
 	: Command(parent, "GLINE", 1, 4)
 {
+	accepts_multiple_targets = true;
 	access_needed = CmdAccess::OPERATOR;
 	syntax = { "[<user@host>[,<user@host>]+ [[<duration>] [LOCAL] :<reason>]" };
 }

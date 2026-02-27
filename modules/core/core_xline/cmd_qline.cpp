@@ -32,6 +32,7 @@
 CommandQline::CommandQline(Module* parent)
 	: Command(parent, "QLINE", 1, 4)
 {
+	accepts_multiple_targets = true;
 	access_needed = CmdAccess::OPERATOR;
 	syntax = { "<nickmask>[,<nickmask>]+ [[<duration>] [LOCAL] :<reason>]" };
 }

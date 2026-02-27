@@ -49,6 +49,7 @@ public:
 		: Command(mod, "SAJOIN", 1)
 		, data(sd)
 	{
+		accepts_multiple_targets = true;
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "[<nick>] <channel>[,<channel>]+" };
 		translation = { TR_NICK, TR_TEXT };
@@ -346,6 +347,7 @@ public:
 		: Command(mod, "SAPART", 2, 3)
 		, data(sd)
 	{
+		accepts_multiple_targets = true;
 		access_needed = CmdAccess::OPERATOR;
 		allow_empty_last_param = true;
 		syntax = { "<nick> <channel>[,<channel>]+ [:<reason>]" };

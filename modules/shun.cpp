@@ -62,6 +62,7 @@ public:
 	CommandShun(Module* Creator)
 		: Command(Creator, "SHUN", 1, 3)
 	{
+		accepts_multiple_targets = true;
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick!user@host>[,<nick!user@host>]+ [<duration> :<reason>]" };
 	}

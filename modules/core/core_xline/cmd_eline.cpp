@@ -31,6 +31,7 @@
 CommandEline::CommandEline(Module* parent)
 	: Command(parent, "ELINE", 1, 4)
 {
+	accepts_multiple_targets = true;
 	access_needed = CmdAccess::OPERATOR;
 	syntax = { "<user@host>[,<user@host>]+ [[<duration>] [LOCAL] :<reason>]" };
 }

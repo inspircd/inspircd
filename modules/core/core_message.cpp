@@ -277,6 +277,7 @@ public:
 		: Command(parent, ClientProtocol::Messages::Privmsg::CommandStrFromMsgType(mt), 2, 2)
 		, msgtype(mt)
 	{
+		accepts_multiple_targets = true;
 		allow_empty_last_param = true;
 		syntax = { "<target>[,<target>]+ :<message>" };
 	}

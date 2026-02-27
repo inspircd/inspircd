@@ -223,6 +223,13 @@ public:
 class CoreExport Command
 	: public CommandBase
 {
+private:
+	/** The maximum number of targets for a multi-target command (e.g. KICK). */
+	size_t max_targets = 0;
+
+	/** The time at which max_targets was last checked. */
+	time_t max_targets_checked = 0;
+
 protected:
 	/** Initializes a new instance of the Command class.
 	 * @param me The module which created this instance.
@@ -235,6 +242,9 @@ protected:
 public:
 	/** Unregisters this command from the command parser. */
 	~Command() override;
+
+	/** Whether this command accepts multiple targets. */
+	bool accepts_multiple_targets = false;
 
 	/** Who can access this command? */
 	CmdAccess access_needed = CmdAccess::NORMAL;
@@ -253,6 +263,9 @@ public:
 
 	/** Whether the command can be issued before registering. */
 	bool works_before_reg = false;
+
+	/** Retrieves the maximum number of targets this command can accept. */
+	size_t GetMaxTargets();
 
 	/** Handle the command from a user.
 	 * @param user The user who issued the command.
@@ -374,7 +387,7 @@ public:
 	 * If there is only one list and there are duplicates in it, then the command handler is only called for
 	 * unique items. Entries are compared using "irc comparison".
 	 * If the usemax parameter is true (the default) the function only parses until it reaches
-	 * ServerInstance->Config->MaxTargets number of targets, to stop abuse via spam.
+	 * <maxtargets> number of targets, to stop abuse via spam.
 	 *
 	 * The OnPostCommand hook is executed for each item after it has been processed by the handler, with the
 	 * original line parameter being empty (to indicate that the command in that form was created by this function).
@@ -392,7 +405,7 @@ public:
 	 * @param parameters Parameter list as a vector of strings
 	 * @param splithere The first parameter index to split as a comma separated list
 	 * @param extra The second parameter index to split as a comma separated list, or -1 (the default) if there is only one list
-	 * @param usemax True to limit the command to MaxTargets targets (default), or false to process all tokens
+	 * @param usemax True to limit the command to <maxtargets> targets (default), or false to process all tokens
 	 * @return This function returns true when it identified a list in the given parameter and finished calling the
 	 * command handler for each entry on the list. When this occurs, the caller should return without doing anything,
 	 * otherwise it should continue into its main section of code.

@@ -96,6 +96,7 @@ ServerConfig::ServerConfig()
 	: EmptyTag(std::make_shared<ConfigTag>("empty", FilePosition("<auto>", 0, 0)))
 	, Limits(EmptyTag)
 	, Paths(EmptyTag)
+	, ReadTime(ServerInstance->Time())
 {
 }
 
@@ -371,7 +372,6 @@ void ServerConfig::Fill()
 	const auto& security = ConfValue("security");
 	BanRealMask = security->getBool("banrealmask", true);
 	HideServer = security->getString("hideserver", {}, InspIRCd::IsFQDN);
-	MaxTargets = security->getNum<size_t>("maxtargets", 5, 1, 50);
 	XLineQuitPublic = security->getString("publicxlinequit");
 
 	// Read the <options> config.

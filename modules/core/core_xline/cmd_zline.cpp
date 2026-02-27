@@ -34,6 +34,7 @@
 CommandZline::CommandZline(Module* parent)
 	: Command(parent, "ZLINE", 1, 4)
 {
+	accepts_multiple_targets = true;
 	access_needed = CmdAccess::OPERATOR;
 	syntax = { "<ipmask>[,<ipmask>]+ [[<duration>] [LOCAL] :<reason>]" };
 }

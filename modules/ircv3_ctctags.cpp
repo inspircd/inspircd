@@ -230,6 +230,7 @@ public:
 		, tagevprov(Creator, "event/tagmsg")
 		, msgevprov(Creator, "TAGMSG")
 	{
+		accepts_multiple_targets = true;
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
