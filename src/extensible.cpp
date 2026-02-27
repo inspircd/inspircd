@@ -91,7 +91,7 @@ void Extensible::UnhookExtensions(const std::vector<ExtensionItem*>& items)
 }
 
 ExtensionItem::ExtensionItem(Module* mod, const std::string& Key, ExtensionType exttype)
-	: ServiceProvider(mod, Key, SERVICE_METADATA)
+	: ServiceProvider(mod, "ExtensionItem", Key)
 	, extype(exttype)
 {
 }

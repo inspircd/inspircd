@@ -95,11 +95,7 @@ public:
 
 	Log::MethodPtr Create(const std::shared_ptr<ConfigTag>& tag) override
 	{
-		dynamic_reference<SQL::Provider> sql(creator, "SQL");
-		const std::string dbid = tag->getString("dbid");
-		if (!dbid.empty())
-			sql.SetProvider("SQL/" + dbid);
-
+		dynamic_reference<SQL::Provider> sql(creator, "SQL::Provider", tag->getString("dbid"));
 		const std::string query = tag->getString("query", "INSERT INTO ircd_log (time, type, message) VALUES (FROM_UNIXTIME($time), '$type', '$message');", 1);
 		return std::make_shared<SQLMethod>(sql, query);
 	}

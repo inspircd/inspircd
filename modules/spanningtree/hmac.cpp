@@ -58,7 +58,7 @@ std::string TreeSocket::MakePass(const std::string& password, const std::string&
 	 * Note: If an sha256 provider is not available, we MUST fall back to plaintext with no
 	 *       HMAC challenge/response.
 	 */
-	auto* sha256 = ServerInstance->Modules.FindDataService<Hash::Provider>("hash/sha256");
+	auto* sha256 = ServerInstance->Modules.FindDataService<Hash::Provider>("Hash::Provider", "sha256");
 	if (sha256 && !challenge.empty())
 		return "AUTH:" + Base64::Encode(Hash::HMAC(sha256, password, challenge));
 

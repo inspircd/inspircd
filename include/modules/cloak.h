@@ -105,7 +105,7 @@ class Cloak::Engine
 {
 protected:
 	Engine(Module* Creator, const std::string& Name)
-		: DataProvider(Creator, "cloak/" + Name)
+		: DataProvider(Creator, "Cloak::Engine", Name)
 	{
 	}
 
@@ -164,9 +164,9 @@ public:
 	virtual void GetLinkData(Module::LinkData& data) = 0;
 
 	/** Retrieves the name of this cloaking method. */
-	const char* GetName() const
+	const auto& GetName() const
 	{
-		return provname.c_str() + 6;
+		return provname;
 	}
 
 	/** Determines whether when this cloak method is behind non-sensitive cloak methods

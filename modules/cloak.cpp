@@ -388,7 +388,7 @@ public:
 			if (method.empty())
 				throw ModuleException(this, "<cloak:method> must be set to the name of a cloak engine, at " + tag->source.str());
 
-			auto* service = ServerInstance->Modules.FindDataService<Cloak::Engine>("cloak/" + method);
+			auto* service = ServerInstance->Modules.FindDataService<Cloak::Engine>("Cloak::Engine", method);
 			if (!service)
 				throw ModuleException(this, "<cloak> tag was set to non-existent cloak method \"" + method + "\", at " + tag->source.str());
 
@@ -527,7 +527,7 @@ public:
 		if (methods)
 		{
 			ServerInstance->SNO.WriteGlobalSno('a', "The {} hash provider was unloaded; removing {} cloak methods until the next rehash.",
-				service.service_name.substr(6), methods);
+				service.service_name, methods);
 		}
 	}
 

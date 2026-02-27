@@ -278,8 +278,11 @@ public:
 	 */
 	virtual CmdResult Handle(User* user, const Params& parameters) = 0;
 
-	/** Registers this command with the command parser. */
+	/** @copydoc ServiceProvider::RegisterService */
 	void RegisterService() override;
+
+	/** @copydoc ServiceProvider::UnregisterService */
+	void UnregisterService() override;
 
 	/** Tells the user they did not specify enough parameters.
 	 * @param user The user who issued the command.

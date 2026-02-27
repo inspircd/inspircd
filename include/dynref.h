@@ -36,6 +36,7 @@ public:
 
 private:
 	std::string service_name;
+	std::string service_type;
 	CaptureHook* hook = nullptr;
 	void resolve();
 	static void* operator new(std::size_t) = delete;
@@ -44,19 +45,21 @@ protected:
 	ServiceProvider* value = nullptr;
 public:
 	ModuleRef creator;
-	dynamic_reference_base(Module* Creator, const std::string& Name);
+	dynamic_reference_base(Module* mod, const std::string& stype, const std::string& sname);
 	dynamic_reference_base(const dynamic_reference_base&) = default;
 	~dynamic_reference_base();
 
+	inline const auto& GetProviderName() const { return this->service_name; }
+	inline const auto& GetProviderType() const { return this->service_type; }
+	void ClearProviderName();
+	void SetProvider(const std::string& stype, const std::string& sname);
+	void SetProviderName(const std::string& sname);
+
 	dynamic_reference_base& operator=(const dynamic_reference_base& rhs)
 	{
-		SetProvider(rhs.GetProvider());
+		SetProvider(rhs.GetProviderType(), rhs.GetProviderName());
 		return *this;
 	}
-
-	inline const std::string& GetProvider() const { return this->service_name; }
-	void ClearProvider();
-	void SetProvider(const std::string& newname);
 
 	/** Set handler to call when the target object becomes available
 	 * @param h Handler to call
@@ -72,8 +75,8 @@ inline void dynamic_reference_base::check()
 {
 	if (!value)
 	{
-		throw ModuleException(creator, "Dynamic reference to \"{}\" failed to resolve. Are you missing a module?",
-			this->service_name);
+		throw ModuleException(creator, "Dynamic reference to {} {} failed to resolve. Are you missing a module?",
+			GetProviderType(), GetProviderName());
 	}
 }
 
@@ -82,8 +85,10 @@ class dynamic_reference
 	: public dynamic_reference_base
 {
 public:
-	dynamic_reference(Module* Creator, const std::string& Name)
-		: dynamic_reference_base(Creator, Name) {}
+	dynamic_reference(Module* mod, const std::string& stype, const std::string& sname = "")
+		: dynamic_reference_base(mod, stype, sname)
+	{
+	}
 
 	inline T* operator->()
 	{
@@ -112,8 +117,10 @@ class dynamic_reference_nocheck
 	: public dynamic_reference_base
 {
 public:
-	dynamic_reference_nocheck(Module* Creator, const std::string& Name)
-		: dynamic_reference_base(Creator, Name) {}
+	dynamic_reference_nocheck(Module* mod, const std::string& stype, const std::string& sname = "")
+		: dynamic_reference_base(mod, stype, sname)
+	{
+	}
 
 	T* operator->()
 	{
@@ -142,7 +149,9 @@ class ChanModeReference final
 {
 public:
 	ChanModeReference(Module* mod, const std::string& modename)
-		: dynamic_reference_nocheck<ModeHandler>(mod, "mode/" + modename) {}
+		: dynamic_reference_nocheck<ModeHandler>(mod, "ModeHandler/C", modename)
+	{
+	}
 };
 
 class UserModeReference final
@@ -150,5 +159,7 @@ class UserModeReference final
 {
 public:
 	UserModeReference(Module* mod, const std::string& modename)
-		: dynamic_reference_nocheck<ModeHandler>(mod, "umode/" + modename) {}
+		: dynamic_reference_nocheck<ModeHandler>(mod, "ModeHandler/U", modename)
+	{
+	}
 };

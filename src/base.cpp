@@ -63,7 +63,3 @@ usecountbase::~usecountbase()
 			FMT_PTR(this), usecount);
 	}
 }
-
-void ServiceProvider::RegisterService()
-{
-}

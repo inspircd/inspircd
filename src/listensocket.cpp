@@ -269,7 +269,9 @@ void ListenSocket::OnEventHandlerRead()
 
 void ListenSocket::ResetIOHookProvider()
 {
-	iohookprovs[0].SetProvider(bind_tag->getString("hook"));
+	iohookprovs[0].SetProviderName(bind_tag->getString("hook"));
+	ServerInstance->Logs.Debug("SOCKET", "Set hook 1 for {} to {}",
+		bind_sa.str(), iohookprovs[0].GetProviderName());
 
 	// Check that all non-last hooks support being in the middle
 	for (IOHookProvList::iterator i = iohookprovs.begin(); i != iohookprovs.end()-1; ++i)
@@ -277,7 +279,7 @@ void ListenSocket::ResetIOHookProvider()
 		IOHookProvRef& curr = *i;
 		// Ignore if cannot be in the middle
 		if ((curr) && (!curr->IsMiddle()))
-			curr.ClearProvider();
+			curr.ClearProviderName();
 	}
 
 	std::string provname = bind_tag->getString("sslprofile");
@@ -285,5 +287,8 @@ void ListenSocket::ResetIOHookProvider()
 		provname.insert(0, "ssl/");
 
 	// TLS should be the last
-	iohookprovs.back().SetProvider(provname);
+	iohookprovs.back().SetProviderName(provname);
+	ServerInstance->Logs.Debug("SOCKET", "Set hook {} for {} to {}", iohookprovs.size(),
+		bind_sa.str(), iohookprovs.back().GetProviderName());
+
 }

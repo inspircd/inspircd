@@ -94,7 +94,7 @@ public:
 		, from_config(cfg)
 	{
 		if (!RegexEngine)
-			throw ModuleException(thismod, "Regex module implementing '"+RegexEngine.GetProvider()+"' is not loaded!");
+			throw ModuleException(thismod, "Regex module implementing '"+RegexEngine.GetProviderName()+"' is not loaded!");
 		regex = RegexEngine->CreateHuman(free);
 		this->FillFlags(fla);
 	}
@@ -699,7 +699,7 @@ void ModuleFilter::CompareLinkData(const LinkData& otherdata, LinkDataDiff& diff
 void ModuleFilter::GetLinkData(LinkData& data)
 {
 	if (RegexEngine)
-		data["regex"] = RegexEngine->GetName(); // e.g. pcre
+		data["regex"] = RegexEngine->service_name; // e.g. pcre
 	else
 		data["regex"] = "broken";
 
@@ -930,7 +930,7 @@ ModResult ModuleFilter::OnStats(Stats::Context& stats)
 	{
 		for (const auto& filter : filters)
 		{
-			stats.AddRow(223, RegexEngine.GetProvider(), filter.freeform, filter.GetFlags(), FilterActionToString(filter.action), filter.duration, filter.reason);
+			stats.AddRow(223, RegexEngine.GetProviderName(), filter.freeform, filter.GetFlags(), FilterActionToString(filter.action), filter.duration, filter.reason);
 		}
 		for (const auto& exemptedchan : exemptedchans)
 		{

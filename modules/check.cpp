@@ -209,7 +209,7 @@ public:
 					context.Write("connectclass", classname);
 
 				context.Write("exempt", localtarget->exempt ? "yes" : "no");
-				context.Write("serializer", localtarget->serializer->service_name.substr(11));
+				context.Write("serializer", localtarget->serializer->service_name);
 			}
 			else
 				context.Write("onip", targetuser->GetAddress());

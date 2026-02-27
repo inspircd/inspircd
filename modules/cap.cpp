@@ -170,7 +170,7 @@ public:
 		cap->bit = AllocateBit();
 		cap->extitem = &capext;
 		caps.emplace(cap->GetName(), cap);
-		ServerInstance->Modules.AddReferent("cap/" + cap->GetName(), cap);
+		ServerInstance->Modules.AddReferent("Cap::Capability", cap->GetName(), cap);
 
 		evprov.Call(&Cap::EventListener::OnCapAddDel, cap, true);
 	}

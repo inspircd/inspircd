@@ -534,7 +534,7 @@ void DataKeeper::LinkSerializers()
 {
 	for (auto& item : handledserializers)
 	{
-		item.serializer = ServerInstance->Modules.FindDataService<ClientProtocol::Serializer>(item.itemname);
+		item.serializer = ServerInstance->Modules.FindDataService<ClientProtocol::Serializer>("ClientProtocol::Serializer", item.itemname);
 		VerifyServiceProvider(item.serializer, "Serializer");
 	}
 }

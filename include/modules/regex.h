@@ -61,7 +61,7 @@ protected:
 	 * @param Name The name of this regular expression engine.
 	 */
 	Engine(Module* Creator, const std::string& Name)
-		: DataProvider(Creator, "regex/" + Name)
+		: DataProvider(Creator, "Regex::Engine", Name)
 	{
 	}
 
@@ -78,12 +78,6 @@ public:
 	 * @return A shared pointer to an instance of the Regex::Pattern class.
 	 */
 	PatternPtr CreateHuman(const std::string& pattern) const;
-
-	/** Retrieves the name of this regex engine. */
-	const char* GetName() const
-	{
-		return this->service_name.c_str() + 6;
-	}
 };
 
 /**The base class for simple regular expression engines. */
@@ -115,7 +109,7 @@ public:
 	 * @param Name The name of the regular expression engine to reference.
 	 */
 	EngineReference(Module* Creator, const std::string& Name = "")
-		: dynamic_reference_nocheck<Engine>(Creator, Name.empty() ? "regex" : "regex/" + Name)
+		: dynamic_reference_nocheck<Engine>(Creator, "Regex::Engine", Name)
 	{
 	}
 
@@ -124,7 +118,7 @@ public:
 	 */
 	void SetEngine(const std::string& engine)
 	{
-		SetProvider(engine.empty() ? "regex" : "regex/" + engine);
+		SetProviderName(engine);
 	}
 };
 

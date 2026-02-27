@@ -202,7 +202,7 @@ private:
 
 public:
 	Provider(Module* Creator, const std::string& Name)
-		: DataProvider(Creator, "SQL/" + Name)
+		: DataProvider(Creator, "SQL::Provider", Name)
 		, dbid(Name)
 	{
 	}

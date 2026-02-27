@@ -117,7 +117,7 @@ public:
 		: Hash::Provider(mod, argon2_type2string(at, 0))
 		, config(at)
 	{
-		config.ReadConfig(GetAlgorithm());
+		config.ReadConfig(service_name);
 	}
 
 	bool Compare(const std::string &hash, const std::string &plain) override
@@ -176,9 +176,9 @@ public:
 		if (status.initial)
 			return; // Already read.
 
-		argon2ialgo.config.ReadConfig(argon2ialgo.GetAlgorithm());
-		argon2dalgo.config.ReadConfig(argon2dalgo.GetAlgorithm());
-		argon2idalgo.config.ReadConfig(argon2idalgo.GetAlgorithm());
+		argon2ialgo.config.ReadConfig(argon2ialgo.service_name);
+		argon2dalgo.config.ReadConfig(argon2dalgo.service_name);
+		argon2idalgo.config.ReadConfig(argon2idalgo.service_name);
 	}
 };
 

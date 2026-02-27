@@ -197,7 +197,7 @@ private:
 
 	void Configure(PBKDF2Provider* algo)
 	{
-		auto it = configs.find(algo->GetAlgorithm());
+		auto it = configs.find(algo->service_name);
 		if (it == configs.end())
 			algo->config = defaultconfig;
 		else
@@ -254,24 +254,24 @@ public:
 
 	void OnServiceAdd(ServiceProvider& service) override
 	{
-		if (!service.service_name.starts_with("hash/"))
+		if (service.service_type != "Hash::Provider")
 			return; //  Not a hash provider.
 
 		auto* hp = static_cast<Hash::Provider*>(&service);
 		if (hp->IsKDF())
 			return; // Can't use PBKDF2 with a KDF.
 
-		if (algos.find(hp->GetAlgorithm()) != algos.end())
+		if (algos.find(hp->service_name) != algos.end())
 			return; // Already created.
 
-		auto* algo = new PBKDF2Provider(this, hp->GetAlgorithm());
+		auto* algo = new PBKDF2Provider(this, hp->service_name);
 		Configure(algo);
 		ServerInstance->Logs.Debug("HASH", "The {} algorithm was added by {}, also adding {}",
-			hp->GetAlgorithm(), hp->creator->ModuleFile, algo->GetAlgorithm());
+			hp->service_name, hp->creator->ModuleFile, algo->service_name);
 
 		try
 		{
-			auto check = checks.find(hp->GetAlgorithm());
+			auto check = checks.find(hp->service_name);
 			if (check != checks.end())
 			{
 				algo->Check(check->second);
@@ -279,7 +279,7 @@ public:
 			else
 			{
 				ServerInstance->Logs.Debug("HASH", "The {} algorithm lacks runtime checks, unable to verify integrity.",
-					algo->GetAlgorithm());
+					algo->service_name);
 			}
 		}
 		catch (const ModuleException& err)
@@ -289,21 +289,21 @@ public:
 			return; // Broken algorithm.
 		}
 
-		algos.emplace(hp->GetAlgorithm(), algo);
+		algos.emplace(hp->service_name, algo);
 		ServerInstance->Modules.AddService(*algo);
 	}
 
 	void OnServiceDel(ServiceProvider& service) override
 	{
-		if (!service.service_name.starts_with("hash/"))
+		if (service.service_type != "Hash::Provider")
 			return; //  Not a hash provider.
 
 		const auto& hp = static_cast<Hash::Provider&>(service);
-		auto it = algos.find(hp.GetAlgorithm());
+		auto it = algos.find(hp.service_name);
 		if (it != algos.end())
 		{
 			ServerInstance->Logs.Debug("HASH", "The {} algorithm was deleted by {}, also deleting {}",
-				hp.GetAlgorithm(), hp.creator->ModuleFile, it->second->GetAlgorithm());
+				hp.service_name, hp.creator->ModuleFile, it->second->service_name);
 			delete it->second;
 			algos.erase(it);
 		}

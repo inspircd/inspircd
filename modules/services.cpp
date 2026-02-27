@@ -58,7 +58,7 @@ private:
 
 	void SetAvailable(bool online)
 	{
-		auto api = ServerInstance->Modules.FindService(SERVICE_DATA, "accountproviderapi");
+		auto *api = ServerInstance->Modules.FindService("accountproviderapi");
 		if (online && api != this)
 			ServerInstance->Modules.AddService(*this);
 		else if (!online && api == this)

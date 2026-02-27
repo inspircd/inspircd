@@ -218,7 +218,8 @@ Membership* Channel::ForceJoin(User* user, const std::string* privs, bool bursti
 {
 	if (IS_SERVER(user))
 	{
-		ServerInstance->Logs.Debug("CHANNELS", "Attempted to join server user {} to channel {}", user->uuid, this->name);
+		ServerInstance->Logs.Debug("CHANNELS", "Attempted to join server user {} to channel {}",
+			user->uuid, this->name);
 		return nullptr;
 	}
 

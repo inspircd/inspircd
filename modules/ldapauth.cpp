@@ -333,7 +333,7 @@ class ModuleLDAPAuth final
 public:
 	ModuleLDAPAuth()
 		: Module(VF_VENDOR, "Allows connecting users to be authenticated against an LDAP database.")
-		, LDAP(this, "LDAP")
+		, LDAP(this, "LDAPProvider")
 		, ldapAuthed(this, "ldapauth", ExtensionType::USER)
 		, ldapVhost(this, "ldapauth-vhost", ExtensionType::USER)
 	{
@@ -357,7 +357,7 @@ public:
 			{ "username", AuthField::NICKNAME },
 		});
 
-		LDAP.SetProvider("LDAP/" + tag->getString("dbid"));
+		LDAP.SetProviderName(tag->getString("dbid"));
 
 		requiredattributes.clear();
 		for (const auto& [_, rtag] : ServerInstance->Config->ConfTags("ldaprequire"))
@@ -446,7 +446,7 @@ public:
 
 		try
 		{
-			LDAP->BindAsManager(new AdminBindInterface(this, LDAP.GetProvider(), user->uuid, base, what));
+			LDAP->BindAsManager(new AdminBindInterface(this, LDAP.GetProviderName(), user->uuid, base, what));
 		}
 		catch (const LDAPException& ex)
 		{

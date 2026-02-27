@@ -35,7 +35,7 @@ namespace Events
  * Event providers are identified using a unique identifier string.
  */
 class Events::ModuleEventProvider
-	: public ServiceProvider
+	: public DataProvider
 	, private dynamic_reference_base::CaptureHook
 {
 public:
@@ -56,8 +56,8 @@ public:
 	 * @param eventid Identifier of the event or event group provided, must be unique
 	 */
 	ModuleEventProvider(Module* mod, const std::string& eventid)
-		: ServiceProvider(mod, "event/" + eventid, SERVICE_DATA)
-		, prov(mod, this->service_name)
+		: DataProvider(mod, "Events::ModuleEventProvider", eventid)
+		, prov(mod, this->service_type, this->service_name)
 	{
 		prov.SetCaptureHook(this);
 	}
@@ -157,7 +157,7 @@ protected:
 	 * @param eventprio The priority to give this event listener
 	 */
 	ModuleEventListener(Module* mod, const std::string& eventid, unsigned int eventprio)
-		: prov(mod, "event/" + eventid)
+		: prov(mod, "Events::ModuleEventProvider", eventid)
 		, eventpriority(eventprio)
 	{
 		prov.SetCaptureHook(this);

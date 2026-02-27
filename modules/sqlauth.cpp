@@ -64,7 +64,7 @@ public:
 
 		if (res.Rows())
 		{
-			auto* hashprov = ServerInstance->Modules.FindDataService<Hash::Provider>("hash/" + kdf);
+			auto* hashprov = ServerInstance->Modules.FindDataService<Hash::Provider>("Hash::Provider", kdf);
 			if (!hashprov)
 			{
 				if (verbose)
@@ -133,7 +133,7 @@ public:
 	ModuleSQLAuth()
 		: Module(VF_VENDOR, "Allows connecting users to be authenticated against an arbitrary SQL table.")
 		, pendingExt(this, "sqlauth-wait", ExtensionType::USER)
-		, SQL(this, "SQL")
+		, SQL(this, "SQL::Provider")
 		, sslapi(this)
 	{
 	}
@@ -141,11 +141,7 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& conf = ServerInstance->Config->ConfValue("sqlauth");
-		std::string dbid = conf->getString("dbid");
-		if (dbid.empty())
-			SQL.SetProvider("SQL");
-		else
-			SQL.SetProvider("SQL/" + dbid);
+		SQL.SetProviderName(conf->getString("dbid"));
 		freeformquery = conf->getString("query");
 		killreason = conf->getString("killreason");
 		verbose = conf->getBool("verbose");

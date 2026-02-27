@@ -361,7 +361,7 @@ public:
 	std::mutex process_mutex; /* held when processing requests not in either queue */
 
 	LDAPService(Module* c, const std::shared_ptr<ConfigTag>& tag)
-		: LDAPProvider(c, "LDAP/" + tag->getString("id"))
+		: LDAPProvider(c, tag->getString("id"))
 		, config(tag)
 	{
 		std::string scope = config->getString("searchscope");

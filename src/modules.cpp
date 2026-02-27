@@ -180,10 +180,10 @@ ModResult	Module::OnPreChangeConnectClass(LocalUser*, const std::shared_ptr<Conn
 void		Module::OnChangeConnectClass(LocalUser*, const std::shared_ptr<ConnectClass>&, bool) { DetachEvent(I_OnChangeConnectClass); }
 void		Module::OnPostChangeConnectClass(LocalUser*, bool) { DetachEvent(I_OnPostChangeConnectClass); }
 
-ServiceProvider::ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type)
-	: creator(Creator)
-	, service_name(Name)
-	, service_type(Type)
+ServiceProvider::ServiceProvider(Module* mod, const std::string& stype, const std::string& sname)
+	: creator(mod)
+	, service_name(sname)
+	, service_type(stype)
 {
 	if ((ServerInstance) && (ServerInstance->Modules.NewServices))
 		ServerInstance->Modules.NewServices->push_back(this);
@@ -195,24 +195,31 @@ void ServiceProvider::DisableAutoRegister()
 		std::erase(*ServerInstance->Modules.NewServices, this);
 }
 
-const char* ServiceProvider::GetTypeString() const
+void ServiceProvider::RegisterService()
 {
-	switch (this->service_type)
-	{
-		case SERVICE_COMMAND:
-			return "command";
-		case SERVICE_MODE:
-			return "mode";
-		case SERVICE_METADATA:
-			return "metadata";
-		case SERVICE_IOHOOK:
-			return "iohook";
-		case SERVICE_DATA:
-			return "data service";
-		case SERVICE_CUSTOM:
-			return "module service";
-	}
-	return "unknown service";
+	// Intentionally left blank.
+}
+
+void ServiceProvider::UnregisterService()
+{
+	// Intentionally left blank.
+}
+
+DataProvider::DataProvider(Module* mod, const std::string& stype, const std::string& sname)
+	: ServiceProvider(mod, stype, sname)
+{
+}
+
+void DataProvider::RegisterService()
+{
+	if (!this->service_name.empty())
+		ServerInstance->Modules.AddReferent(this->service_type, this->service_name, this);
+	ServerInstance->Modules.AddReferent(this->service_type, "", this);
+}
+
+void DataProvider::UnregisterService()
+{
+	ServerInstance->Modules.DelReferent(this);
 }
 
 bool ModuleManager::Attach(Implementation i, Module* mod)
@@ -624,73 +631,28 @@ void ModuleManager::AddServices(const ServiceList& list)
 
 void ModuleManager::AddService(ServiceProvider& item)
 {
-	ServerInstance->Logs.Debug("SERVICE", "Adding {} {} provided by {}", item.service_name,
-		item.GetTypeString(), item.creator ? item.creator->ModuleFile : "the core");
-	switch (item.service_type)
-	{
-		case SERVICE_DATA:
-		case SERVICE_IOHOOK:
-		{
-			if ((!item.service_name.compare(0, 5, "mode/", 5)) || (!item.service_name.compare(0, 6, "umode/", 6)))
-				throw ModuleException(item.creator, "The \"mode/\" and the \"umode\" service name prefixes are reserved.");
+	ServerInstance->Logs.Debug("SERVICE", "Adding {} {} ({}) provided by {}", item.service_type,
+		item.service_name, (void*)&item, item.creator ? item.creator->ModuleFile : "the core");
 
-			DataProviders.emplace(item.service_name, &item);
-			std::string::size_type slash = item.service_name.find('/');
-			if (slash != std::string::npos)
-			{
-				// Also register foo/bar as foo.
-				DataProviders.emplace(item.service_name.substr(0, slash), &item);
-			}
-
-			dynamic_reference_base::reset_all();
-			break;
-		}
-		default:
-			item.RegisterService();
-	}
-
+	item.RegisterService();
 	FOREACH_MOD(OnServiceAdd, (item));
 }
 
 void ModuleManager::DelService(ServiceProvider& item)
 {
-	ServerInstance->Logs.Debug("SERVICE", "Deleting {} {} provided by {}", item.service_name,
-		item.GetTypeString(), item.creator ? item.creator->ModuleFile : "the core");
-	switch (item.service_type)
-	{
-		case SERVICE_MODE:
-			if (!ServerInstance->Modes.DelMode(static_cast<ModeHandler*>(&item)))
-				throw ModuleException(item.creator, "Mode " + std::string(item.service_name) + " does not exist.");
-			[[fallthrough]];
-		case SERVICE_DATA:
-		case SERVICE_IOHOOK:
-		{
-			DelReferent(&item);
-			break;
-		}
-		default:
-			throw ModuleException(item.creator, "Cannot delete unknown service type");
-	}
+	ServerInstance->Logs.Debug("SERVICE", "Deleting {} {} ({}) provided by {}", item.service_type,
+		item.service_name, (void*)&item, item.creator ? item.creator->ModuleFile : "the core");
 
+	item.UnregisterService();
 	FOREACH_MOD(OnServiceDel, (item));
 }
 
-ServiceProvider* ModuleManager::FindService(ServiceType type, const std::string& name)
+ServiceProvider* ModuleManager::FindService(const std::string& type, const std::string& name)
 {
-	switch (type)
-	{
-		case SERVICE_DATA:
-		case SERVICE_IOHOOK:
-		{
-			DataProviderMap::iterator i = DataProviders.find(name);
-			if (i != DataProviders.end() && i->second->service_type == type)
-				return i->second;
-			return nullptr;
-		}
-		// TODO implement finding of the other types
-		default:
-			throw CoreException("Cannot find unknown service type");
-	}
+	auto i = DataProviders.find(std::make_pair(type, name));
+	if (i != DataProviders.end())
+		return i->second;
+	return nullptr;
 }
 
 std::string ModuleManager::ExpandModName(const std::string& modname)
@@ -713,9 +675,10 @@ std::string ModuleManager::ShrinkModName(const std::string& modname)
 	return modname.substr(startpos, modname.length() - endpos - startpos);
 }
 
-dynamic_reference_base::dynamic_reference_base(Module* Creator, const std::string& Name)
-	: service_name(Name)
-	, creator(Creator)
+dynamic_reference_base::dynamic_reference_base(Module* mod, const std::string& stype, const std::string& sname)
+	: service_name(sname)
+	, service_type(stype)
+	, creator(mod)
 {
 	if (!dynrefs)
 		dynrefs = new insp::intrusive_list<dynamic_reference_base>;
@@ -733,13 +696,19 @@ dynamic_reference_base::~dynamic_reference_base()
 		stdalgo::delete_zero(dynrefs);
 }
 
-void dynamic_reference_base::SetProvider(const std::string& newname)
+void dynamic_reference_base::SetProvider(const std::string& stype, const std::string& sname)
 {
-	this->service_name = newname;
+	this->service_type = stype;
+	this->service_name = sname;
 	resolve();
 }
 
-void dynamic_reference_base::ClearProvider()
+void dynamic_reference_base::SetProviderName(const std::string& sname)
+{
+	SetProvider(GetProviderType(), sname);
+}
+
+void dynamic_reference_base::ClearProviderName()
 {
 	this->service_name.clear();
 	value = nullptr;
@@ -749,8 +718,8 @@ void dynamic_reference_base::resolve()
 {
 	// Because find() may return any element with a matching key in case count(key) > 1 use lower_bound()
 	// to ensure a dynref with the same name as another one resolves to the same object
-	auto i = ServerInstance->Modules.DataProviders.lower_bound(this->service_name);
-	if ((i != ServerInstance->Modules.DataProviders.end()) && (i->first == this->service_name))
+	auto i = ServerInstance->Modules.DataProviders.lower_bound(std::make_pair(this->service_type, this->service_name));
+	if (i != ServerInstance->Modules.DataProviders.end() && i->first.first == this->service_type && i->first.second == this->service_name)
 	{
 		ServiceProvider* newvalue = i->second;
 		if (value != newvalue)
@@ -774,9 +743,11 @@ Module* ModuleManager::Find(const std::string& name)
 		return modfind->second;
 }
 
-void ModuleManager::AddReferent(const std::string& name, ServiceProvider* service)
+void ModuleManager::AddReferent(const std::string& stype, const std::string& sname, ServiceProvider* service)
 {
-	DataProviders.emplace(name, service);
+	ServerInstance->Logs.Debug("SERVICE", "Adding reference to {} as {} {}",
+		(void*)service, stype, sname);
+	DataProviders.emplace(std::make_pair(stype, sname), service);
 	dynamic_reference_base::reset_all();
 }
 

@@ -959,8 +959,19 @@ public:
  */
 class CoreExport ModuleManager final
 {
+private:
+	struct DataProviderCompare
+	{
+		bool CoreExport operator()(const std::pair<std::string, std::string>& lhs, const std::pair<std::string, std::string>& rhs) const
+		{
+			if (!irc::equals(lhs.first, rhs.first))
+				return irc::less(lhs.first, rhs.first);
+			return irc::less(lhs.second, rhs.second);
+		}
+	};
+
 public:
-	typedef std::multimap<std::string, ServiceProvider*, irc::insensitive_swo> DataProviderMap;
+	typedef std::multimap<std::pair<std::string, std::string>, ServiceProvider*, DataProviderCompare> DataProviderMap;
 	typedef std::vector<ServiceProvider*> ServiceList;
 
 private:
@@ -1161,11 +1172,12 @@ public:
 	/** Find a service by name.
 	 * If multiple modules provide a given service, the first one loaded will be chosen.
 	 */
-	ServiceProvider* FindService(ServiceType Type, const std::string& name);
+	ServiceProvider* FindService(const std::string& type, const std::string& name = "");
 
-	template<typename T> inline T* FindDataService(const std::string& name)
+	template<typename T>
+	inline T* FindDataService(const std::string& type, const std::string& name)
 	{
-		return static_cast<T*>(FindService(SERVICE_DATA, name));
+		return static_cast<T*>(FindService(type, name));
 	}
 
 	/** Get a map of all loaded modules keyed by their name
@@ -1174,10 +1186,10 @@ public:
 	const ModuleMap& GetModules() const { return Modules; }
 
 	/** Make a service referenceable by dynamic_references
-	 * @param name Name that will be used by dynamic_references to find the object
+	 * @param name sname that will be used by dynamic_references to find the object
 	 * @param service Service to make referenceable by dynamic_references
 	 */
-	void AddReferent(const std::string& name, ServiceProvider* service);
+	void AddReferent(const std::string& stype, const std::string& sname, ServiceProvider* service);
 
 	/** Make a service no longer referenceable by dynamic_references
 	 * @param service Service to make no longer referenceable by dynamic_references

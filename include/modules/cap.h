@@ -171,7 +171,7 @@ namespace Cap
 		 * @param Name Raw name of the cap as used in the protocol (CAP LS, etc.)
 		 */
 		Capability(Module* mod, const std::string& Name)
-			: ServiceProvider(mod, Name, SERVICE_CUSTOM)
+			: ServiceProvider(mod, "Cap::Capability", Name)
 			, manager(mod, "capmanager")
 		{
 			Unregister();
@@ -182,10 +182,18 @@ namespace Cap
 			SetActive(false);
 		}
 
+		/** @copydoc ServiceProvider::RegisterService */
 		void RegisterService() override
 		{
 			manager.SetCaptureHook(this);
 			SetActive(true);
+		}
+
+		/** @copydoc ServiceProvider::UnregisterService */
+		void UnregisterService() override
+		{
+			manager.SetCaptureHook(nullptr);
+			SetActive(false);
 		}
 
 		/** Check whether a user has the capability turned on.
@@ -299,7 +307,7 @@ namespace Cap
 		 * @param Name Raw name of the cap as used in the protocol (CAP LS, etc.)
 		 */
 		Reference(Module* mod, const std::string& Name)
-			: ref(mod, "cap/" + Name)
+			: ref(mod, "Cap::Capability", Name)
 		{
 		}
 

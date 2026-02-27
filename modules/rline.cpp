@@ -251,7 +251,7 @@ public:
 	void GetLinkData(LinkData& data) override
 	{
 		if (rxfactory)
-			data["regex"] = rxfactory->GetName(); // e.g. pcre
+			data["regex"] = rxfactory->service_name; // e.g. pcre
 		else
 			data["regex"] = "broken";
 

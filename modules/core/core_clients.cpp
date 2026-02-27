@@ -223,14 +223,14 @@ public:
 		for (auto i = from->iohookprovs.begin(); i != from->iohookprovs.end(); ++i)
 		{
 			auto& iohookprovref = *i;
+			if (iohookprovref.GetProviderName().empty())
+				continue; // No hook specified.
+
 			if (!iohookprovref)
 			{
-				if (iohookprovref.GetProvider().empty())
-					continue;
-
 				const char* hooktype = i == from->iohookprovs.begin() ? "hook" : "sslprofile";
 				ServerInstance->Logs.Warning("USERS", "Non-existent I/O hook '{}' in <bind:{}> tag at {}",
-					iohookprovref.GetProvider(), hooktype, from->bind_tag->source.str());
+					iohookprovref.GetProviderName(), hooktype, from->bind_tag->source.str());
 
 				ServerInstance->GlobalCulls.AddItem(static_cast<StreamSocket*>(io));
 				return MOD_RES_DENY;

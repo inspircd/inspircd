@@ -120,7 +120,7 @@ bool Log::FileMethod::Tick()
 }
 
 Log::Engine::Engine(Module* Creator, const std::string& Name)
-	: DataProvider(Creator, "log/" + Name)
+	: DataProvider(Creator, "Log::Engine", Name)
 {
 }
 
@@ -239,7 +239,7 @@ void Log::Manager::OpenLogs(bool requiremethods)
 	for (const auto& [_, tag] : ServerInstance->Config->ConfTags("log"))
 	{
 		const std::string methodstr = tag->getString("method", "file", 1);
-		Log::Engine* engine = ServerInstance->Modules.FindDataService<Log::Engine>("log/" + methodstr);
+		Log::Engine* engine = ServerInstance->Modules.FindDataService<Log::Engine>("Log::Engine", methodstr);
 		if (!engine)
 		{
 			if (!requiremethods)

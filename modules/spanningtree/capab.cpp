@@ -202,7 +202,7 @@ namespace
 		};
 
 		// If SHA256 hashing support is available then send a challenge token.
-		if (ServerInstance->Modules.FindService(SERVICE_DATA, "hash/sha256"))
+		if (ServerInstance->Modules.FindService("Hash::Provider", "sha256"))
 		{
 			ts->SetOurChallenge(ServerInstance->GenRandomStr(20));
 			capabilities["CHALLENGE"] = ts->GetOurChallenge();
@@ -544,7 +544,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 
 		/* Challenge response, store their challenge for our password */
 		std::map<std::string, std::string>::iterator n = this->capab->CapKeys.find("CHALLENGE");
-		if ((n != this->capab->CapKeys.end()) && (ServerInstance->Modules.FindService(SERVICE_DATA, "hash/sha256")))
+		if ((n != this->capab->CapKeys.end()) && (ServerInstance->Modules.FindService("Hash::Provider", "sha256")))
 		{
 			/* Challenge-response is on now */
 			this->SetTheirChallenge(n->second);

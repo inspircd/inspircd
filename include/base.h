@@ -133,21 +133,6 @@ private:
 
 typedef const reference<Module> ModuleRef;
 
-enum ServiceType {
-	/** is a Command */
-	SERVICE_COMMAND,
-	/** is a ModeHandler */
-	SERVICE_MODE,
-	/** is a metadata descriptor */
-	SERVICE_METADATA,
-	/** is a data processing provider */
-	SERVICE_DATA,
-	/** is an I/O hook provider */
-	SERVICE_IOHOOK,
-	/** Service managed by a module */
-	SERVICE_CUSTOM
-};
-
 /** A structure defining something that a module can provide */
 class CoreExport ServiceProvider
 	: public Cullable
@@ -158,15 +143,15 @@ public:
 	/** Name of the service being provided */
 	const std::string service_name;
 	/** Type of service (must match object type) */
-	const ServiceType service_type;
-	ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type);
+	const std::string service_type;
 
-	/** Retrieves a string that represents the type of this service. */
-	const char* GetTypeString() const;
+	ServiceProvider(Module* mod, const std::string& stype, const std::string& sname);
 
-	/** Register this service in the appropriate registrar
-	 */
+	/** Register this service in the appropriate registrar. */
 	virtual void RegisterService();
+
+	/** Unregister this service in the appropriate registrar. */
+	virtual void UnregisterService();
 
 	/** If called, this ServiceProvider won't be registered automatically
 	 */
@@ -177,6 +162,11 @@ class CoreExport DataProvider
 	: public ServiceProvider
 {
 public:
-	DataProvider(Module* Creator, const std::string& Name)
-		: ServiceProvider(Creator, Name, SERVICE_DATA) {}
+	DataProvider(Module* mod, const std::string& stype, const std::string& sname = "");
+
+	/** @copydoc ServiceProvider::RegisterService */
+	void RegisterService() override;
+
+	/** @copydoc ServiceProvider::UnregisterService */
+	void UnregisterService() override;
 };

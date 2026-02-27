@@ -89,7 +89,7 @@ public:
 	 * @param bs The byte size of the block cipher or 0 if not a block cipher.
 	 */
 	Provider(Module* mod, const std::string& algorithm, size_t ds = 0, size_t bs = 0)
-		: DataProvider(mod, "hash/" + algorithm)
+		: DataProvider(mod, "Hash::Provider", algorithm)
 		, block_size(bs)
 		, digest_size(ds)
 	{
@@ -114,20 +114,14 @@ public:
 		for (const auto& [hash, plain] : checks)
 		{
 			if (!Compare(hash, plain))
-				throw ModuleException(creator, "BUG: unable to generate {} hashes safely! Please report this!", GetAlgorithm());
+				throw ModuleException(creator, "BUG: unable to generate {} hashes safely! Please report this!", service_name);
 		}
 
-		ServerInstance->Logs.Debug("HASH", "The {} hash provider appears to be working correctly.", GetAlgorithm());
+		ServerInstance->Logs.Debug("HASH", "The {} hash provider appears to be working correctly.", service_name);
 	}
 
 	/** Creates a new hash context. */
 	virtual std::unique_ptr<Context> CreateContext() = 0;
-
-	/** Retrieves the name of the hash algorithm. */
-	const char* GetAlgorithm() const
-	{
-		return this->service_name.c_str() + 5;
-	}
 
 	/** Quickly hashes the specified values and returns the digest. */
 	template<typename... Args>
@@ -161,16 +155,8 @@ public:
 	 * @param algorithm The name of the hash algorithm.
 	 */
 	ProviderRef(Module* mod, const std::string& algorithm)
-		: dynamic_reference_nocheck<Hash::Provider>(mod, "hash/" + algorithm)
+		: dynamic_reference_nocheck<Hash::Provider>(mod, "Hash::Provider", algorithm)
 	{
-	}
-
-	/** Retrieves the name of the referenced hash algorithm. */
-	const char* GetAlgorithm() const
-	{
-		if (GetProvider().empty())
-			return nullptr;
-		return GetProvider().c_str() + 5;
 	}
 };
 
@@ -283,7 +269,7 @@ public:
 
 inline bool Hash::CheckPassword(const std::string& password, const std::string& algorithm, const std::string& value)
 {
-	auto* hash = ServerInstance->Modules.FindDataService<Hash::Provider>("hash/" + algorithm);
+	auto* hash = ServerInstance->Modules.FindDataService<Hash::Provider>("Hash::Provider", algorithm);
 	if (hash)
 		return hash->Compare(password, value);
 

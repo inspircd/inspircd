@@ -26,7 +26,7 @@ class StreamSocket;
 
 class IOHookProvider
 	: public std::enable_shared_from_this<IOHookProvider>
-	, public ServiceProvider
+	, public DataProvider
 {
 	const bool middlehook;
 
@@ -46,7 +46,7 @@ public:
 	 * @param middle True if the IOHook instances created by this hook are subclasses of IOHookMiddle, false otherwise
 	 */
 	IOHookProvider(Module* mod, const std::string& Name, Type hooktype = IOH_UNKNOWN, bool middle = false)
-		: ServiceProvider(mod, Name, SERVICE_IOHOOK)
+		: DataProvider(mod, "IOHookProvider", Name)
 		, middlehook(middle)
 		, type(hooktype)
 	{

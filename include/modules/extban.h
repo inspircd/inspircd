@@ -234,7 +234,7 @@ protected:
 	 * @param xbmatchflags The flags used for matching.
 	 */
 	Base(Module* mod, const std::string& xbname, ExtBan::Letter xbletter, uint8_t xbmatchflags = ExtBan::MATCH_DEFAULT)
-		: ServiceProvider(mod, xbname, SERVICE_CUSTOM)
+		: ServiceProvider(mod, "ExtBan::Base", xbname)
 		, letter(ServerInstance->Config->ConfValue("extbans")->getCharacter(xbname, xbletter, true))
 		, manager(mod, "extbanmanager")
 		, match_flags(xbmatchflags)
@@ -284,6 +284,13 @@ public:
 	{
 		manager.SetCaptureHook(this);
 		SetActive(true);
+	}
+
+	/** @copydoc ServiceProvider::UnregisterService */
+	void UnregisterService() override
+	{
+		manager.SetCaptureHook(nullptr);
+		SetActive(false);
 	}
 
 	/** Toggles the active status of this extban.

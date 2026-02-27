@@ -320,7 +320,8 @@ public:
 
 		if (!target->ChangeNick(targetnewnick))
 		{
-			user->WriteRemoteNotice("*** {}: could not change the nick of {} to {}.", this->service_name, targetnick, targetnewnick);
+			user->WriteRemoteNotice("*** {}: could not change the nick of {} to {}.", this->service_name,
+				targetnick, targetnewnick);
 			return CmdResult::FAILURE;
 		}
 

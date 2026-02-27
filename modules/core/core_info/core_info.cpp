@@ -225,7 +225,7 @@ public:
 
 	void OnServiceAdd(ServiceProvider& service) override
 	{
-		if (service.service_type == SERVICE_MODE)
+		if (service.service_type.starts_with("ModeHandler/"))
 			Rebuild004();
 	}
 

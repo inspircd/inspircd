@@ -32,7 +32,7 @@
 #include "numerichelper.h"
 
 ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modeletter, ParamSpec Params, ModeType type, Class mclass)
-	: ServiceProvider(Creator, Name, SERVICE_MODE)
+	: ServiceProvider(Creator, FMT::format("ModeHandler/{}", type == MODETYPE_CHANNEL ? "C" : "U"), Name)
 	, modeid(ModeParser::MODEID_MAX)
 	, parameters_taken(Params)
 	, mode(ServerInstance->Config->ConfValue("modes")->getCharacter(Name, modeletter))
@@ -115,7 +115,16 @@ bool ModeHandler::ResolveModeConflict(const std::string& theirs, const std::stri
 void ModeHandler::RegisterService()
 {
 	ServerInstance->Modes.AddMode(this);
-	ServerInstance->Modules.AddReferent((GetModeType() == MODETYPE_CHANNEL ? "mode/" : "umode/") + this->service_name, this);
+	ServerInstance->Modules.AddReferent(GetModeType() == MODETYPE_CHANNEL ? "ModeHandler/C" : "ModeHandler/U",
+		this->service_name, this);
+}
+
+void ModeHandler::UnregisterService()
+{
+	if (!ServerInstance->Modes.DelMode(this))
+		throw ModuleException(creator, "Mode {} does not exist.", this->service_name);
+
+	ServerInstance->Modules.DelReferent(this);
 }
 
 bool SimpleUserMode::OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change)

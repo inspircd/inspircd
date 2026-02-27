@@ -658,7 +658,7 @@ public:
 	void OnServiceAdd(ServiceProvider& provider) override
 	{
 		// If the service is a prefix mode we need to rebuild the oplevel map.
-		if (provider.service_type == SERVICE_MODE && static_cast<ModeHandler&>(provider).IsPrefixMode())
+		if (provider.service_type == "ModeHandler/C" && static_cast<ModeHandler&>(provider).IsPrefixMode())
 			cmd.oplevels.clear();
 	}
 

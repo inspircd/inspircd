@@ -143,7 +143,9 @@ class LDAPProvider
 {
 public:
 	LDAPProvider(Module* Creator, const std::string& Name)
-		: DataProvider(Creator, Name) { }
+		: DataProvider(Creator, "LDAPProvider", Name)
+	{
+	}
 
 	/** Attempt to bind to the LDAP server as a manager
 	 * @param i The LDAPInterface the result is sent to

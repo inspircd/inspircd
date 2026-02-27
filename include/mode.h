@@ -172,9 +172,11 @@ public:
 	ModeHandler(Module* me, const std::string& name, char modeletter, ParamSpec params, ModeType type, Class mclass = MC_OTHER);
 	Cullable::Result Cull() override;
 
-	/** Register this object in the ModeParser
-	 */
+	/** @copydoc ServiceProvider::RegisterService */
 	void RegisterService() override;
+
+	/** @copydoc ServiceProvider::UnregisterService */
+	void UnregisterService() override;
 
 	/**
 	 * Returns true if the mode is a list mode

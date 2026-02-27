@@ -409,7 +409,7 @@ void CommandParser::TranslateSingleParam(TranslateType to, const std::string& it
 }
 
 CommandBase::CommandBase(Module* mod, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
-	: ServiceProvider(mod, cmd, SERVICE_COMMAND)
+	: ServiceProvider(mod, "CommandBase", cmd)
 	, min_params(minpara)
 	, max_params(maxpara)
 {
@@ -438,6 +438,11 @@ void Command::RegisterService()
 {
 	if (!ServerInstance->Parser.AddCommand(this))
 		throw ModuleException(creator, "Command already exists: {}", this->service_name);
+}
+
+void Command::UnregisterService()
+{
+	ServerInstance->Parser.RemoveCommand(this);
 }
 
 size_t Command::GetMaxTargets()

@@ -163,7 +163,7 @@ private:
 public:
 	ModuleSQLOper()
 		: Module(VF_VENDOR, "Allows server operators to be authenticated against an SQL table.")
-		, SQL(this, "SQL")
+		, SQL(this, "SQL::Provider")
 	{
 	}
 
@@ -174,11 +174,7 @@ public:
 
 		const auto& tag = ServerInstance->Config->ConfValue("sqloper");
 
-		std::string dbid = tag->getString("dbid");
-		if (dbid.empty())
-			SQL.SetProvider("SQL");
-		else
-			SQL.SetProvider("SQL/" + dbid);
+		SQL.SetProviderName(tag->getString("dbid"));
 
 		query = tag->getString("query", "SELECT * FROM ircd_opers WHERE active=1;", 1);
 		// Update sqloper list from the database.

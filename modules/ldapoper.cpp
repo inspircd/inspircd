@@ -199,7 +199,7 @@ class ModuleLDAPOper final
 public:
 	ModuleLDAPOper()
 		: Module(VF_VENDOR, "Allows server operators to be authenticated against an LDAP database.")
-		, LDAP(this, "LDAP")
+		, LDAP(this, "LDAPProvider")
 	{
 		me = this;
 	}
@@ -207,8 +207,7 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("ldapoper");
-
-		LDAP.SetProvider("LDAP/" + tag->getString("dbid"));
+		LDAP.SetProviderName(tag->getString("dbid"));
 		base = tag->getString("baserdn");
 		attribute = tag->getString("attribute");
 	}
@@ -234,7 +233,7 @@ public:
 			try
 			{
 				std::string what = attribute + "=" + opername;
-				LDAP->BindAsManager(new AdminBindInterface(this, LDAP.GetProvider(), user->uuid, opername, password, base, what));
+				LDAP->BindAsManager(new AdminBindInterface(this, LDAP.GetProviderName(), user->uuid, opername, password, base, what));
 				return MOD_RES_DENY;
 			}
 			catch (const LDAPException& ex)
