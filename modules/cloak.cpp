@@ -36,7 +36,7 @@ private:
 	CloakMethodList& cloakmethods;
 
 	// API for sending a FAIL message.
-	IRCv3::Replies::Note failrpl;
+	IRCv3::Replies::Fail failrpl;
 
 	// API for sending a NOTE message.
 	IRCv3::Replies::Note noterpl;
