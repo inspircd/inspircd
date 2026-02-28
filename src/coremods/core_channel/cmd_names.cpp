@@ -118,5 +118,4 @@ void CommandNames::SendNames(LocalUser* user, Channel* chan, bool show_invisible
 	}
 
 	reply.Flush();
-	user->WriteNumeric(RPL_ENDOFNAMES, chan->name, "End of /NAMES list.");
 }
