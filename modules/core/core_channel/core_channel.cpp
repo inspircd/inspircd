@@ -334,6 +334,7 @@ public:
 
 			// Show all members of the channel, including invisible (+i) users
 			cmdnames.SendNames(localuser, chan, true);
+			user->WriteNumeric(RPL_ENDOFNAMES, chan->name, "End of /NAMES list.");
 		}
 	}
 
