@@ -61,6 +61,7 @@ bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Pa
 	 * for every parameter or parameter pair until there are no more
 	 * left to parse.
 	 */
+	handler->loopcall = true;
 	CommandBase::Params splitparams(parameters);
 	while (items1.GetToken(item) && (!usemax || max++ < ServerInstance->Config->MaxTargets))
 	{
@@ -86,6 +87,7 @@ bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Pa
 			}
 		}
 	}
+	handler->loopcall = false;
 
 	return true;
 }

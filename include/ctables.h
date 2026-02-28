@@ -254,6 +254,9 @@ public:
 	/** Whether the command can be issued before registering. */
 	bool works_before_reg = false;
 
+	/** Whether the command is currently being loopcalled. */
+	bool loopcall = false;
+
 	/** Handle the command from a user.
 	 * @param user The user who issued the command.
 	 * @param parameters The parameters for the command.
