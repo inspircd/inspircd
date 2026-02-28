@@ -168,7 +168,7 @@ public:
 	SWhoisExtItem swhoisext;
 
 private:
-	IRCv3::Replies::Note failrpl;
+	IRCv3::Replies::Fail failrpl;
 	IRCv3::Replies::Note noterpl;
 	IRCv3::Replies::CapReference stdrplcap;
 
