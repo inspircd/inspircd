@@ -31,13 +31,6 @@
 
 #include "core_channel.h"
 
-enum
-{
-	// From RFC 1459.
-	RPL_NAMREPLY = 353,
-	RPL_ENDOFNAMES = 366,
-};
-
 CommandNames::CommandNames(Module* parent)
 	: SplitCommand(parent, "NAMES")
 	, secretmode(parent, "secret")
@@ -51,8 +44,6 @@ CommandNames::CommandNames(Module* parent)
 
 CmdResult CommandNames::HandleLocal(LocalUser* user, const Params& parameters)
 {
-	Channel* c;
-
 	if (parameters.empty())
 	{
 		user->WriteNumeric(RPL_ENDOFNAMES, '*', "End of /NAMES list.");
@@ -60,9 +51,12 @@ CmdResult CommandNames::HandleLocal(LocalUser* user, const Params& parameters)
 	}
 
 	if (CommandParser::LoopCall(user, this, parameters, 0))
+	{
+		user->WriteNumeric(RPL_ENDOFNAMES, parameters[0], "End of /NAMES list.");
 		return CmdResult::SUCCESS;
+	}
 
-	c = ServerInstance->Channels.Find(parameters[0]);
+	auto* c = ServerInstance->Channels.Find(parameters[0]);
 	if (c)
 	{
 		// Show the NAMES list if one of the following is true:
@@ -73,14 +67,12 @@ CmdResult CommandNames::HandleLocal(LocalUser* user, const Params& parameters)
 		// If the user is inside the channel or has privs, instruct SendNames() to show invisible (+i) members
 		bool show_invisible = ((c->HasUser(user)) || (user->HasPrivPermission("channels/auspex")));
 		if ((show_invisible) || (!c->IsModeSet(secretmode)))
-		{
 			SendNames(user, c, show_invisible);
-			return CmdResult::SUCCESS;
-		}
 	}
 
-	user->WriteNumeric(RPL_ENDOFNAMES, parameters[0], "End of /NAMES list.");
-	return CmdResult::FAILURE;
+	if (!this->loopcall)
+		user->WriteNumeric(RPL_ENDOFNAMES, parameters[0], "End of /NAMES list.");
+	return c ? CmdResult::SUCCESS : CmdResult::FAILURE;
 }
 
 void CommandNames::SendNames(LocalUser* user, Channel* chan, bool show_invisible)

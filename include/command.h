@@ -264,6 +264,9 @@ public:
 	/** Whether the command can be issued before registering. */
 	bool works_before_reg = false;
 
+	/** Whether the command is currently being loopcalled. */
+	bool loopcall = false;
+
 	/** Retrieves the maximum number of targets this command can accept. */
 	size_t GetMaxTargets();
 

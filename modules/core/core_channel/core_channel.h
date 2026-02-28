@@ -25,6 +25,13 @@
 #include "modules/exemption.h"
 #include "modules/extban.h"
 
+enum
+{
+	// From RFC 1459.
+	RPL_NAMREPLY = 353,
+	RPL_ENDOFNAMES = 366,
+};
+
 namespace Topic
 {
 	void ShowTopic(LocalUser* user, Channel* chan);
