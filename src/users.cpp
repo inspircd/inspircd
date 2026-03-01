@@ -675,9 +675,24 @@ void User::WriteNumeric(const Numeric::Numeric& numeric)
 	localuser->Send(ServerInstance->GetRFCEvents().numeric, numericmsg);
 }
 
+void User::WriteReply(const Reply::Reply& reply)
+{
+	auto* lthis = IS_LOCAL(this);
+	if (!IS_LOCAL(this))
+		return;
+
+	ClientProtocol::Messages::Reply replymsg(reply);
+	lthis->Send(ServerInstance->GetRFCEvents().reply, replymsg);
+}
+
 void User::WriteRemoteNotice(const std::string& text)
 {
 	WriteNotice(text);
+}
+
+void User::WriteRemoteReply(const Reply::Reply& reply)
+{
+	WriteReply(reply);
 }
 
 namespace

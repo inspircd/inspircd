@@ -22,7 +22,7 @@
 #include "inspircd.h"
 #include "clientprotocolevent.h"
 #include "modules/cloak.h"
-#include "modules/ircv3_replies.h"
+#include "modules/ircv3.h"
 #include "modules/server.h"
 #include "utility/map.h"
 
@@ -35,21 +35,13 @@ private:
 	// The cloak engines from the config.
 	CloakMethodList& cloakmethods;
 
-	// API for sending a FAIL message.
-	IRCv3::Replies::Fail failrpl;
-
-	// API for sending a NOTE message.
-	IRCv3::Replies::Note noterpl;
-
 	// Reference to the standard-replies cap.
-	IRCv3::Replies::CapReference stdrplcap;
+	IRCv3::ReplyCapReference stdrplcap;
 
 public:
 	CommandCloak(Module* Creator, CloakMethodList& ce)
 		: SplitCommand(Creator, "CLOAK", 1)
 		, cloakmethods(ce)
-		, failrpl(Creator)
-		, noterpl(Creator)
 		, stdrplcap(Creator)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -65,13 +57,13 @@ public:
 			if (!cloak)
 				continue;
 
-			noterpl.SendIfCap(user, stdrplcap, this, "CLOAK_RESULT", parameters[0], cloak->ToString(), FMT::format("Cloak #{} for {} is {} (method: {})",
+			IRCv3::WriteReply(Reply::Type::NOTE, user, stdrplcap, this, "CLOAK_RESULT", parameters[0], cloak->ToString(), FMT::format("Cloak #{} for {} is {} (method: {})",
 				++count, parameters[0], cloak->ToString(), cloakmethod->GetName()));
 		}
 
 		if (!count)
 		{
-			failrpl.SendIfCap(user, stdrplcap, this, "UNABLE_TO_CLOAK", parameters[0], FMT::format("There are no methods available for cloaking {}",
+			IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "UNABLE_TO_CLOAK", parameters[0], FMT::format("There are no methods available for cloaking {}",
 				parameters[0]));
 		}
 

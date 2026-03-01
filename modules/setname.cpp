@@ -24,22 +24,17 @@
 
 #include "inspircd.h"
 #include "modules/ircv3.h"
-#include "modules/ircv3_replies.h"
 #include "modules/monitor.h"
 
 class CommandSetName final
 	: public SplitCommand
 {
-private:
-	IRCv3::Replies::Fail fail;
-
 public:
 	Cap::Capability cap;
 	bool notifyopers;
 
 	CommandSetName(Module* Creator)
 		: SplitCommand(Creator, "SETNAME", 1, 1)
-		, fail(Creator)
 		, cap(Creator, "setname")
 	{
 		syntax = { ":<realname>" };
@@ -49,7 +44,7 @@ public:
 	{
 		if (parameters[0].size() > ServerInstance->Config->Limits.MaxReal)
 		{
-			fail.SendIfCap(user, &cap, this, "INVALID_REALNAME", "Real name is too long");
+			IRCv3::WriteReply(Reply::Type::FAIL, user, &cap, this, "INVALID_REALNAME", "Real name is too long");
 			return CmdResult::FAILURE;
 		}
 

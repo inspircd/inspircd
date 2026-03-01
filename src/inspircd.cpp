@@ -466,7 +466,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		{
 			&rfcevents.numeric, &rfcevents.join, &rfcevents.part, &rfcevents.kick, &rfcevents.quit, &rfcevents.nick,
 			&rfcevents.mode, &rfcevents.topic, &rfcevents.privmsg, &rfcevents.invite, &rfcevents.ping, &rfcevents.pong,
-			&rfcevents.error
+			&rfcevents.reply, &rfcevents.error
 		};
 		Modules.AddServices(provs, sizeof(provs)/sizeof(provs[0]));
 	}

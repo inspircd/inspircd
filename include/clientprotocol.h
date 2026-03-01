@@ -675,6 +675,7 @@ public:
 struct CoreExport ClientProtocol::RFCEvents final
 {
 	EventProvider numeric;
+	EventProvider reply;
 	EventProvider join;
 	EventProvider part;
 	EventProvider kick;
@@ -690,6 +691,7 @@ struct CoreExport ClientProtocol::RFCEvents final
 
 	RFCEvents()
 		: numeric(nullptr, "NUMERIC")
+		, reply(nullptr, "REPLY")
 		, join(nullptr, "JOIN")
 		, part(nullptr, "PART")
 		, kick(nullptr, "KICK")

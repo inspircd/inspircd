@@ -496,6 +496,30 @@ public:
 	CmdResult Handle(User* user, Params& params) override;
 };
 
+
+class CommandReply final
+	: public ServerOnlyServerCommand<CommandReply>
+{
+private:
+	Reply::Type type;
+
+public:
+	CommandReply(Module* Creator, Reply::Type rt)
+		: ServerOnlyServerCommand<CommandReply>(Creator, Reply::CommandStrFromType(rt), 5)
+		, type(rt)
+	{
+	}
+	CmdResult HandleServer(TreeServer* server, Params& parameters);
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
+
+	class Builder final
+		: public CmdBuilder
+	{
+	public:
+		Builder(SpanningTree::RemoteUser* target, const Reply::Reply& reply);
+	};
+};
+
 class SpanningTreeCommands final
 {
 public:
@@ -527,5 +551,8 @@ public:
 	CommandSInfo sinfo;
 	CommandNum num;
 	CommandLMode lmode;
+	CommandReply fail;
+	CommandReply warn;
+	CommandReply note;
 	SpanningTreeCommands(ModuleSpanningTree* module);
 };

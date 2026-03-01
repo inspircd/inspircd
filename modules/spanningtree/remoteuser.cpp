@@ -36,3 +36,8 @@ void SpanningTree::RemoteUser::WriteRemoteNumeric(const Numeric::Numeric& numeri
 {
 	CommandNum::Builder(this, numeric).Unicast(this);
 }
+
+void SpanningTree::RemoteUser::WriteRemoteReply(const Reply::Reply& reply)
+{
+	CommandReply::Builder(this, reply).Unicast(this);
+}

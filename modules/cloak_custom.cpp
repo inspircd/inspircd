@@ -21,7 +21,7 @@
 #include "extension.h"
 #include "modules/cloak.h"
 #include "modules/hash.h"
-#include "modules/ircv3_replies.h"
+#include "modules/ircv3.h"
 
 class CustomCloakExtItem final
 	: public SimpleExtItem<Cloak::Info>
@@ -115,13 +115,11 @@ class CommandCustomCloak final
 private:
 	CustomCloakExtItem& cloakext;
 	UserModeReference cloakmode;
-	IRCv3::Replies::Fail failrpl;
-	IRCv3::Replies::Note noterpl;
-	IRCv3::Replies::CapReference stdrplcap;
+	IRCv3::ReplyCapReference stdrplcap;
 
 	CmdResult FailedLogin(LocalUser* user, const std::string& account)
 	{
-		failrpl.SendIfCap(user, stdrplcap, this, "LOGIN_FAIL", account, FMT::format("Failed to log into the \x02{}\x02 custom cloak account.", account));
+		IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "LOGIN_FAIL", account, FMT::format("Failed to log into the \x02{}\x02 custom cloak account.", account));
 		user->CommandFloodPenalty += 2500;
 		return CmdResult::FAILURE;
 	}
@@ -133,8 +131,6 @@ public:
 		: SplitCommand(mod, "CUSTOMCLOAK", 2)
 		, cloakext(ext)
 		, cloakmode(mod, "cloak")
-		, failrpl(mod)
-		, noterpl(mod)
 		, stdrplcap(mod)
 	{
 		syntax = { "<username> <password>" };
@@ -169,7 +165,7 @@ public:
 		}
 
 		// If they have reached this point then the login succeeded,
-		noterpl.SendIfCap(user, stdrplcap, this, "LOGIN_SUCCESS", it->first, account.cloak.ToString(), FMT::format("You are now logged in as \x02{}\x02; updating your cloak to \x02{}\x02.",
+		IRCv3::WriteReply(Reply::Type::NOTE, user, stdrplcap, this, "LOGIN_SUCCESS", it->first, account.cloak.ToString(), FMT::format("You are now logged in as \x02{}\x02; updating your cloak to \x02{}\x02.",
 			it->first, account.cloak.ToString()));
 
 		cloakext.Set(user, account.cloak);

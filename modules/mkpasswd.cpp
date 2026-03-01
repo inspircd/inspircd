@@ -19,21 +19,17 @@
 
 #include "inspircd.h"
 #include "modules/hash.h"
-#include "modules/ircv3_replies.h"
+#include "modules/ircv3.h"
 
 class CommandMakePassword final
 	: public SplitCommand
 {
 private:
-	IRCv3::Replies::Fail failrpl;
-	IRCv3::Replies::Note noterpl;
-	IRCv3::Replies::CapReference stdrplcap;
+	IRCv3::ReplyCapReference stdrplcap;
 
 public:
 	CommandMakePassword(Module* mod)
 		: SplitCommand(mod, "MKPASSWD", 2, 2)
-		, failrpl(mod)
-		, noterpl(mod)
 		, stdrplcap(mod)
 	{
 		penalty = 5000;
@@ -45,14 +41,14 @@ public:
 		auto* hp = ServerInstance->Modules.FindDataService<Hash::Provider>("hash/" + parameters[0]);
 		if (!hp)
 		{
-			failrpl.SendIfCap(user, stdrplcap, this, "INVALID_HASH", parameters[0], FMT::format("{} is not a known hash algorithm!",
+			IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "INVALID_HASH", parameters[0], FMT::format("{} is not a known hash algorithm!",
 				parameters[0]));
 			return CmdResult::FAILURE;
 		}
 
 		if (!hp->IsPasswordSafe())
 		{
-			failrpl.SendIfCap(user, stdrplcap, this, "INSECURE_HASH", hp->GetAlgorithm(), FMT::format("{} is not a secure password hashing algorithm!",
+			IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "INSECURE_HASH", hp->GetAlgorithm(), FMT::format("{} is not a secure password hashing algorithm!",
 				hp->GetAlgorithm()));
 			return CmdResult::FAILURE;
 		}
@@ -60,13 +56,13 @@ public:
 		auto hash = hp->Hash(parameters[1]);
 		if (hash.empty())
 		{
-			failrpl.SendIfCap(user, stdrplcap, this, "HASH_ERROR", hp->GetAlgorithm(), FMT::format("An error occurred whilst hashing your password with {}!",
+			IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "HASH_ERROR", hp->GetAlgorithm(), FMT::format("An error occurred whilst hashing your password with {}!",
 				hp->GetAlgorithm()));
 			return CmdResult::FAILURE;
 		}
 
 		auto phash = hp->ToPrintable(hash);
-		noterpl.SendIfCap(user, stdrplcap, this, "HASH_RESULT", hp->GetAlgorithm(), phash, FMT::format("{} hashed password: {}",
+		IRCv3::WriteReply(Reply::Type::NOTE, user, stdrplcap, this, "HASH_RESULT", hp->GetAlgorithm(), phash, FMT::format("{} hashed password: {}",
 			hp->GetAlgorithm(), phash));
 
 		return CmdResult::SUCCESS;

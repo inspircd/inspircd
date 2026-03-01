@@ -723,6 +723,28 @@ public:
 		WriteRemoteNumeric(n);
 	}
 
+	template<typename... Param>
+	void WriteReply(Reply::Type type, const Command* command, const std::string& code, Param&&... p)
+	{
+		static_assert(sizeof...(Param) >= 1);
+		Reply::Reply r(type, command, code);
+		r.PushParam(std::forward<Param>(p)...);
+		WriteReply(r);
+	}
+
+	void WriteReply(const Reply::Reply& reply);
+
+	template<typename... Param>
+	void WriteRemoteReply(Reply::Type type, const Command* command, const std::string& code, Param&&... p)
+	{
+		static_assert(sizeof...(Param) >= 1);
+		Reply::Reply r(type, command, code);
+		r.PushParam(std::forward<Param>(p)...);
+		WriteRemoteReply(r);
+	}
+
+	virtual void WriteRemoteReply(const Reply::Reply& reply);
+
 	/** Execute a function once for each local neighbor of this user. By default, the neighbors of a user are the users
 	 * who have at least one common channel with the user. Modules are allowed to alter the set of neighbors freely.
 	 * This function is used for example to send something conditionally to neighbors, or to send different messages

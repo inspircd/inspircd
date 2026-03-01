@@ -66,10 +66,37 @@ void TreeSocket::WriteLine(const std::string& original_line)
 	std::string command(line, cmdstart, cmdend - cmdstart);
 	if (proto_version == PROTO_INSPIRCD_4)
 	{
-		if (irc::equals(command, "FJOIN"))
+		if (irc::equals(command, "FAIL") || irc::equals(command, "WARN") || irc::equals(command, "NOTE"))
+		{
+			// <source-sid> <target-uuid> <command> <code> [<params>...] :<message>
+			const auto sourceend = NextToken(line, cmdend);
+			const auto targetend = NextToken(line, sourceend);
+			const auto commandend = NextToken(line, targetend);
+			const auto codeend = NextToken(line, commandend);
+			if (codeend != std::string::npos)
+			{
+				auto prevpos = codeend;
+				for (size_t pos = prevpos; pos != std::string::npos && line[prevpos + 1] != ':'; )
+				{
+					prevpos = pos;
+					pos = NextToken(line, prevpos);
+				}
+
+				// Fall back to a notice.
+				const auto has_command = line[targetend + 1] != '*';
+				line = FMT::format(":{} NOTICE {} :*** {}{}{}",
+					line.substr(cmdend + 1, sourceend - cmdend - 1),
+					line.substr(sourceend + 1, targetend - sourceend - 1),
+					has_command ? line.substr(targetend + 1, commandend - targetend - 1) : "",
+					has_command ? ": " : "",
+					line.substr(prevpos + 2)
+				);
+			}
+		}
+		else if (irc::equals(command, "FJOIN"))
 		{
 			// :<sid> FJOIN <chan> <chants> <modes> :[<modes>],<uuid>:<membid>/<joined> [<modes>],<uuid>:<membid>/<joined>
-			//                                                                ^^^^^^^^^ New in 120
+			//                                                                ^^^^^^^^^ New in 1207
 			const auto chanend = NextToken(line, cmdend);
 			const auto chantsend = NextToken(line, chanend);
 			const auto modesend = NextToken(line, chantsend);
@@ -97,6 +124,13 @@ void TreeSocket::WriteLine(const std::string& original_line)
 				line.erase(membidend, jointsend - membidend);
 		}
 	}
+
+	if (line != original_line)
+	{
+		ServerInstance->Logs.Debug(MODNAME, "Before compat: {}", original_line);
+		ServerInstance->Logs.Debug(MODNAME, "After compat:  {}", line);
+	}
+
 	WriteLineInternal(line);
 }
 

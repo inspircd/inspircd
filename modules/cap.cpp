@@ -314,7 +314,7 @@ namespace
 }
 
 Cap::ExtItem::ExtItem(Module* mod)
-	: IntExtItem(mod, "caps", ExtensionType::USER)
+	: IntExtItem(mod, "caps", ExtensionType::USER, true)
 {
 }
 

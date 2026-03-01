@@ -19,7 +19,7 @@
 
 #include "inspircd.h"
 #include "extension.h"
-#include "modules/ircv3_replies.h"
+#include "modules/ircv3.h"
 #include "modules/server.h"
 #include "modules/whois.h"
 #include "numerichelper.h"
@@ -168,9 +168,7 @@ public:
 	SWhoisExtItem swhoisext;
 
 private:
-	IRCv3::Replies::Fail failrpl;
-	IRCv3::Replies::Note noterpl;
-	IRCv3::Replies::CapReference stdrplcap;
+	IRCv3::ReplyCapReference stdrplcap;
 
 	CmdResult DoAdd(LocalUser* source, User* target, const Params& parameters)
 	{
@@ -185,7 +183,7 @@ private:
 			swhois.priority = ConvToNum<time_t>(parameters[2]);
 		ServerInstance->PI->SendMetadata(target, "specialwhois", swhois.SerializeAdd());
 
-		noterpl.SendIfCap(source, stdrplcap, this, "ENTRY_ADDED", target->nick, FMT::format("Added special whois for {}: {}",
+		IRCv3::WriteReply(Reply::Type::NOTE, source, stdrplcap, this, "ENTRY_ADDED", target->nick, FMT::format("Added special whois for {}: {}",
 			target->nick, swhois.message));
 		return CmdResult::SUCCESS;
 	}
@@ -194,12 +192,12 @@ private:
 	{
 		if (DelSWhois(swhoisext, source, [](const SWhois& swhois) { return true; }))
 		{
-			noterpl.SendIfCap(source, stdrplcap, this, "LIST_CLEARED", target->nick, FMT::format("Special whois list for {} has been cleared.",
+			IRCv3::WriteReply(Reply::Type::NOTE, source, stdrplcap, this, "LIST_CLEARED", target->nick, FMT::format("Special whois list for {} has been cleared.",
 				target->nick));
 		}
 		else
 		{
-			failrpl.SendIfCap(source, stdrplcap, this, "LIST_EMPTY", target->nick, FMT::format("Special whois list for {} is already empty!",
+			IRCv3::WriteReply(Reply::Type::FAIL, source, stdrplcap, this, "LIST_EMPTY", target->nick, FMT::format("Special whois list for {} is already empty!",
 				target->nick));
 		}
 		return CmdResult::SUCCESS;
@@ -232,12 +230,12 @@ private:
 
 		if (deleted)
 		{
-			noterpl.SendIfCap(source, stdrplcap, this, "ENTRY_DELETED", target->nick,
+			IRCv3::WriteReply(Reply::Type::NOTE, source, stdrplcap, this, "ENTRY_DELETED", target->nick,
 				"The special whois message you specified has been deleted.");
 		}
 		else
 		{
-			failrpl.SendIfCap(source, stdrplcap, this, "LIST_EMPTY", target->nick,
+			IRCv3::WriteReply(Reply::Type::FAIL, source, stdrplcap, this, "LIST_EMPTY", target->nick,
 				"The special whois message you specified does not exist!");
 		}
 		return CmdResult::SUCCESS;
@@ -248,7 +246,7 @@ private:
 		auto* swhoislist = swhoisext.Get(target);
 		if (!swhoislist || swhoislist->empty())
 		{
-			failrpl.SendIfCap(source, stdrplcap, this, "LIST_EMPTY", target->nick, FMT::format("Special whois list for {} is empty!",
+			IRCv3::WriteReply(Reply::Type::FAIL, source, stdrplcap, this, "LIST_EMPTY", target->nick, FMT::format("Special whois list for {} is empty!",
 				target->nick));
 			return CmdResult::SUCCESS;
 		}
@@ -256,7 +254,7 @@ private:
 		size_t index = 0;
 		for (const auto& swhois : *swhoislist)
 		{
-			noterpl.SendIfCap(source, stdrplcap, this, "LIST_ENTRY", target->nick, FMT::format("#{}: {} (priority: {}, flags: {})",
+			IRCv3::WriteReply(Reply::Type::NOTE, source, stdrplcap, this, "LIST_ENTRY", target->nick, FMT::format("#{}: {} (priority: {}, flags: {})",
 				++index, swhois.message, swhois.priority, swhois.GetFlags()));
 		}
 
@@ -267,8 +265,6 @@ public:
 	CommandSWhois(Module* mod)
 		: SplitCommand(mod, "SWHOIS", 2, 4)
 		, swhoisext(mod, "swhois", ExtensionType::USER)
-		, failrpl(mod)
-		, noterpl(mod)
 		, stdrplcap(mod)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -302,7 +298,7 @@ public:
 			return DoList(user, target, parameters);
 		else
 		{
-			failrpl.SendIfCap(user, stdrplcap, this, "UNKNOWN_COMMAND", subcmd, FMT::format("Invalid {} subcommand: {}",
+			IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "UNKNOWN_COMMAND", subcmd, FMT::format("Invalid {} subcommand: {}",
 				this->name, subcmd));
 
 			if (ServerInstance->Config->SyntaxHints)

@@ -93,6 +93,9 @@ SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
 	, sinfo(module)
 	, num(module)
 	, lmode(module)
+	, fail(module, Reply::Type::FAIL)
+	, warn(module, Reply::Type::WARN)
+	, note(module, Reply::Type::NOTE)
 {
 }
 

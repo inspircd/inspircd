@@ -27,6 +27,30 @@ namespace IRCv3
 	class WriteNeighborsWithCap;
 	template <typename T>
 	class CapTag;
+	class ReplyCapReference;
+
+	/**
+	 * Sends a standard reply to the specified user if they have the specified cap
+	 * or a notice if they do not.
+	 * @param user The user to send the reply to.
+	 * @param cap The capability that determines the type of message to send.
+	 * @param command The command that the reply relates to.
+	 * @param code A machine readable code for this reply.
+	 * @param args A variable number of context parameters and a human readable description of this reply.
+	 */
+	template<typename... Args>
+	void WriteReply(Reply::Type rt, User* user, const Cap::Capability* cap, const Command* command,
+		const std::string& code, Args&&... args)
+	{
+		static_assert(sizeof...(Args) >= 1);
+
+		if (cap && cap->IsEnabled(user))
+			user->WriteRemoteReply(rt, command, code, std::forward<Args>(args)...);
+		else if (command)
+			user->WriteRemoteNotice("*** {}: {}", command->name, std::get<sizeof...(Args) - 1>(std::forward_as_tuple(args...)));
+		else
+			user->WriteRemoteNotice("*** {}", std::get<sizeof...(Args) - 1>(std::forward_as_tuple(args...)));
+	}
 }
 
 class IRCv3::WriteNeighborsWithCap final
@@ -109,4 +133,15 @@ public:
 
 	/** Retrieves the underlying capability. */
 	const Cap::Capability& GetCap() const { return cap; }
+};
+
+/** Reference to the standard-replies cap. */
+class IRCv3::ReplyCapReference final
+	: public Cap::Reference
+{
+public:
+	ReplyCapReference(Module* mod)
+		: Cap::Reference(mod, "standard-replies")
+	{
+	}
 };

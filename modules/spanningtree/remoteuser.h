@@ -32,4 +32,5 @@ public:
 	RemoteUser(const std::string& uid, Server* srv);
 	void WriteRemoteNotice(const std::string& text) override;
 	void WriteRemoteNumeric(const Numeric::Numeric& numeric) override;
+	void WriteRemoteReply(const Reply::Reply& reply) override;
 };

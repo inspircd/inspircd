@@ -25,6 +25,7 @@ namespace ClientProtocol
 	namespace Messages
 	{
 		class Numeric;
+		class Reply;
 		class Join;
 		struct Part;
 		struct Kick;
@@ -98,6 +99,25 @@ public:
 	{
 		InitCommand(num);
 		PushParam("*");
+	}
+};
+
+class CoreExport ClientProtocol::Messages::Reply
+	: public ClientProtocol::Message
+{
+public:
+	Reply(const ::Reply::Reply& reply)
+		: ClientProtocol::Message(nullptr, (reply.GetSource() ? reply.GetSource() : ServerInstance->FakeClient->server)->GetPublicName())
+	{
+		AddTags(reply.GetParams().GetTags());
+		SetCommand(::Reply::CommandStrFromType(reply.GetType()));
+		if (reply.GetCommand())
+			PushParamRef(reply.GetCommand()->name);
+		else
+			PushParam("*");
+		PushParam(reply.GetCode());
+		for (const auto& param : reply.GetParams())
+			PushParamRef(param);
 	}
 };
 

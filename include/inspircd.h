@@ -73,6 +73,7 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "extensible.h"
 #include "command.h"
 #include "numeric.h"
+#include "reply.h"
 #include "uid.h"
 #include "server.h"
 #include "token_list.h"
