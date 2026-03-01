@@ -159,6 +159,19 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, Comm
 		// CHG* and SET* were merged in v5.
 		cmd.replace(0, 3, "SET");
 	}
+	else if (irc::equals(cmd, "ENCAP"))
+	{
+		if (params.size() < 2)
+			return false; // Malformed.
+
+		// :<uuid> ENCAP <target> <command> [<params>...];
+		CommandBase::Params newparams(params.begin() + 2, params.end());
+		if (!PreProcessOldProtocolMessage(who, params[1], newparams))
+			return false; // Malformed.
+
+		params.erase(params.begin() + 2, params.end());
+		params.insert(params.end(), newparams.begin(), newparams.end());
+	}
 	if (irc::equals(cmd, "IJOIN"))
 	{
 		if (params.size() < 3)
