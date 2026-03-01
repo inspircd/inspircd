@@ -51,7 +51,7 @@ struct MsgFloodData final
 class MsgFloodSettings final
 {
 private:
-	using CounterMap = insp::flat_map<User*, MsgFloodData>;
+	using CounterMap = insp::flat_map<std::string, MsgFloodData>;
 	CounterMap counters;
 
 public:
@@ -71,7 +71,7 @@ public:
 	{
 		auto it = Find(who);
 		if (it == counters.end())
-			it = counters.emplace(who, MsgFloodData(period)).first;
+			it = counters.emplace(who->uuid, MsgFloodData(period)).first;
 
 		it->second.messages += weight;
 		return (it->second.messages >= this->messages);
@@ -79,9 +79,8 @@ public:
 
 	void Clear(User* who)
 	{
-		counters.erase(who);
+		counters.erase(who->uuid);
 	}
-
 
 	CounterMap::iterator Find(User* who)
 	{
@@ -93,7 +92,7 @@ public:
 				it = counters.erase(it);
 			else
 			{
-				if (it->first == who)
+				if (it->first == who->uuid)
 				{
 					found = true;
 					ret = it;
