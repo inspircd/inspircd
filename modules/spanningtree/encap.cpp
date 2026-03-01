@@ -34,8 +34,19 @@ CmdResult CommandEncap::Handle(User* user, Params& params)
 	{
 		CommandBase::Params plist(params.begin() + 2, params.end());
 		Command* cmd = nullptr;
-		ServerInstance->Parser.CallHandler(params[1], plist, user, &cmd);
+
 		// Discard return value, ENCAP shall succeed even if the command does not exist
+		switch (ServerInstance->Parser.CallHandler(params[1], plist, user, &cmd))
+		{
+			case CmdResult::SUCCESS:
+				break; // Nothing to do.
+			case CmdResult::FAILURE:
+				ServerInstance->Logs.Debug(MODNAME, "Encapsulated command {} failed; ignoring.", params[1]);
+				break;
+			case CmdResult::INVALID:
+				ServerInstance->Logs.Debug(MODNAME, "Encapsulated command {} invalid; ignoring.", params[1]);
+				break;
+		}
 
 		if ((cmd) && (cmd->force_manual_route))
 			return CmdResult::FAILURE;
