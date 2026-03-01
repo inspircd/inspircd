@@ -25,34 +25,73 @@
 #include "inspircd.h"
 #include "modules/ircv3.h"
 #include "modules/monitor.h"
+#include "numerichelper.h"
 
 class CommandSetName final
-	: public SplitCommand
+	: public Command
 {
 public:
 	Cap::Capability cap;
 	bool notifyopers;
 
-	CommandSetName(Module* Creator)
-		: SplitCommand(Creator, "SETNAME", 1, 1)
-		, cap(Creator, "setname")
+	CommandSetName(Module* mod)
+		: Command(mod, "SETNAME", 1, 2)
+		, cap(mod, "setname")
 	{
-		syntax = { ":<realname>" };
+		syntax = { "[<nick>] :<newreal>" };
 	}
 
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		if (parameters[0].size() > ServerInstance->Config->Limits.MaxReal)
+		auto* target = user;
+		if (parameters.size() > 1)
+		{
+			const auto& targetnick = parameters[0];
+			if (IS_LOCAL(user))
+			{
+				// For local users we need to check if they can use the command.
+				target = ServerInstance->Users.FindNick(targetnick, true);
+				if (user != target && !user->HasPrivPermission("users/setname-others"))
+				{
+					user->WriteNumeric(Numerics::NoPrivileges("your server operator account does not have the users/setname-others privilege"));
+					return CmdResult::FAILURE;
+				}
+			}
+			else
+			{
+				// For remote users their server will have checked privs.
+				target = ServerInstance->Users.Find(targetnick);
+			}
+
+			if (!target)
+			{
+				user->WriteNumeric(Numerics::NoSuchNick(targetnick));
+				return CmdResult::FAILURE;
+			}
+		}
+
+		if (!IS_LOCAL(target))
+			return CmdResult::SUCCESS; // Their server will handle this.
+
+		const auto& newreal = parameters.back();
+		if (newreal.size() > ServerInstance->Config->Limits.MaxReal)
 		{
 			IRCv3::WriteReply(Reply::Type::FAIL, user, &cap, this, "INVALID_REALNAME", "Real name is too long");
 			return CmdResult::FAILURE;
 		}
 
-		user->ChangeRealName(parameters[0]);
-		if (notifyopers)
-			ServerInstance->SNO.WriteGlobalSno('a', "{} used SETNAME to change their real name to '{}'",
-				user->nick, parameters[0]);
+		target->ChangeRealName(newreal);
+		if (notifyopers || user != target)
+		{
+			ServerInstance->SNO.WriteGlobalSno('a', "{} ({}) used {} to change the real name of {} to \"{}\x0F\"",
+				user->GetRealMask(), user->GetAddress(), this->name, target->nick, newreal);
+		}
 		return CmdResult::SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
+	{
+		return parameters.size() > 1 ? ROUTE_OPT_UCAST(parameters[0]) : ROUTE_LOCALONLY;
 	}
 };
 
@@ -66,7 +105,7 @@ private:
 
 public:
 	ModuleSetName()
-		: Module(VF_VENDOR, "Adds the /SETNAME command which allows users to change their real name.")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SETNAME command which allows users to change their real name.")
 		, cmd(this)
 		, setnameevprov(this, "SETNAME")
 		, monitorapi(this)

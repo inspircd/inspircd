@@ -23,40 +23,84 @@
 
 
 #include "inspircd.h"
+#include "modules/ircv3.h"
+#include "numerichelper.h"
 
-class CommandSethost final
+class CommandSetHost final
 	: public Command
 {
 public:
+	IRCv3::ReplyCapReference cap;
 	CharState hostmap;
 
-	CommandSethost(Module* Creator)
-		: Command(Creator, "SETHOST", 1)
+	CommandSetHost(Module* mod)
+		: Command(mod, "SETHOST", 1, 2)
+		, cap(mod)
 	{
 		access_needed = CmdAccess::OPERATOR;
-		syntax = { "<host>" };
+		syntax = { "[<nick>] :<newhost>" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		if (parameters[0].length() > ServerInstance->Config->Limits.MaxHost)
+		auto* target = user;
+		if (parameters.size() > 1)
 		{
-			user->WriteNotice("*** SETHOST: Host too long");
-			return CmdResult::FAILURE;
-		}
-
-		for (const auto chr : parameters[0])
-		{
-			if (!hostmap.test(static_cast<unsigned char>(chr)))
+			const auto& targetnick = parameters[0];
+			if (IS_LOCAL(user))
 			{
-				user->WriteNotice("*** SETHOST: Invalid characters in hostname");
+				// For local users we need to check if they can use the command.
+				target = ServerInstance->Users.FindNick(targetnick, true);
+				if (user != target && !user->HasPrivPermission("users/sethost-others"))
+				{
+					user->WriteNumeric(Numerics::NoPrivileges("your server operator account does not have the users/sethost-others privilege"));
+					return CmdResult::FAILURE;
+				}
+			}
+			else
+			{
+				// For remote users their server will have checked privs.
+				target = ServerInstance->Users.Find(targetnick);
+			}
+
+			if (!target)
+			{
+				user->WriteNumeric(Numerics::NoSuchNick(targetnick));
 				return CmdResult::FAILURE;
 			}
 		}
 
-		user->ChangeDisplayedHost(parameters[0]);
-		ServerInstance->SNO.WriteGlobalSno('a', user->nick+" used SETHOST to change their displayed host to "+user->GetDisplayedHost());
+		if (!IS_LOCAL(target))
+			return CmdResult::SUCCESS; // Their server will handle this.
+
+		const auto& newhost = parameters.back();
+		if (newhost.size() > ServerInstance->Config->Limits.MaxHost)
+		{
+			IRCv3::WriteReply(Reply::Type::FAIL, user, cap, this, "INVALID_HOSTNAME", "Hostname is too long");
+			return CmdResult::FAILURE;
+		}
+
+		for (const auto chr : newhost)
+		{
+			if (!hostmap.test(static_cast<unsigned char>(chr)))
+			{
+				IRCv3::WriteReply(Reply::Type::FAIL, user, cap, this, "INVALID_HOSTNAME", "Invalid characters in hostname");
+				return CmdResult::FAILURE;
+			}
+		}
+
+		target->ChangeDisplayedHost(newhost);
+		if (!user->server->IsService())
+		{
+			ServerInstance->SNO.WriteGlobalSno('a', "{} ({}) used {} to change the hostname of {} to \"{}\x0F\"",
+				user->GetRealMask(), user->GetAddress(), this->name, target->nick, newhost);
+		}
 		return CmdResult::SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
+	{
+		return parameters.size() > 1 ? ROUTE_OPT_UCAST(parameters[0]) : ROUTE_LOCALONLY;
 	}
 };
 
@@ -64,11 +108,11 @@ class ModuleSetHost final
 	: public Module
 {
 private:
-	CommandSethost cmd;
+	CommandSetHost cmd;
 
 public:
 	ModuleSetHost()
-		: Module(VF_VENDOR, "Adds the /SETHOST command which allows server operators to change their displayed hostname.")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SETHOST command which allows server operators to change the hostname of users.")
 		, cmd(this)
 	{
 	}
@@ -76,10 +120,9 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("hostname");
-		const std::string hmap = tag->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789", 1);
 
 		CharState newhostmap;
-		for (const auto chr : hmap)
+		for (const auto chr : tag->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789", 1))
 		{
 			// A hostname can not contain NUL, LF, CR, or SPACE.
 			if (chr == 0x00 || chr == 0x0A || chr == 0x0D || chr == 0x20)

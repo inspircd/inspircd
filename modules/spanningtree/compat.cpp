@@ -66,6 +66,21 @@ void TreeSocket::WriteLine(const std::string& original_line)
 	std::string command(line, cmdstart, cmdend - cmdstart);
 	if (proto_version == PROTO_INSPIRCD_4)
 	{
+		if (irc::equals(command, "ENCAP"))
+		{
+			// :<uuid> ENCAP <target> <command> [<params>...];
+			const auto targetend = NextToken(line, cmdend);
+			const auto commandend = NextToken(line, targetend);
+			if (targetend != std::string::npos)
+			{
+				const auto ecommand = line.substr(targetend + 1, commandend - targetend - 1);
+				if (irc::equals(ecommand, "SETHOST") || irc::equals(ecommand, "SETIDENT") || irc::equals(ecommand, "SETNAME"))
+				{
+					// CHG* was merged with SET* in v5.
+					line.replace(targetend + 1, 3, "CHG");
+				}
+			}
+		}
 		if (irc::equals(command, "FAIL") || irc::equals(command, "WARN") || irc::equals(command, "NOTE"))
 		{
 			// <source-sid> <target-uuid> <command> <code> [<params>...] :<message>
@@ -136,6 +151,14 @@ void TreeSocket::WriteLine(const std::string& original_line)
 
 bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, CommandBase::Params& params)
 {
+	if (irc::equals(cmd, "CHGHOST") || irc::equals(cmd, "CHGIDENT") || irc::equals(cmd, "CHGNAME"))
+	{
+		if (params.size() < 2)
+			return false; // Malformed.
+
+		// CHG* and SET* were merged in v5.
+		cmd.replace(0, 3, "SET");
+	}
 	if (irc::equals(cmd, "IJOIN"))
 	{
 		if (params.size() < 3)

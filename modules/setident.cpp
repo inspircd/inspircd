@@ -23,36 +23,80 @@
 
 
 #include "inspircd.h"
+#include "modules/ircv3.h"
+#include "numerichelper.h"
 
-class CommandSetident final
+class CommandSetIdent final
 	: public Command
 {
 public:
-	CommandSetident(Module* Creator)
-		: Command(Creator, "SETIDENT", 1)
+	IRCv3::ReplyCapReference cap;
+
+	CommandSetIdent(Module* mod)
+		: Command(mod, "SETIDENT", 1, 2)
+		, cap(mod)
 	{
 		access_needed = CmdAccess::OPERATOR;
-		syntax = { "<username>" };
+		syntax = { "[<nick>] :<newuser>" };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		if (parameters[0].size() > ServerInstance->Config->Limits.MaxUser)
+		auto* target = user;
+		if (parameters.size() > 1)
 		{
-			user->WriteNotice("*** SETIDENT: Username is too long");
+			const auto& targetnick = parameters[0];
+			if (IS_LOCAL(user))
+			{
+				// For local users we need to check if they can use the command.
+				target = ServerInstance->Users.FindNick(targetnick, true);
+				if (user != target && !user->HasPrivPermission("users/setident-others"))
+				{
+					user->WriteNumeric(Numerics::NoPrivileges("your server operator account does not have the users/setident-others privilege"));
+					return CmdResult::FAILURE;
+				}
+			}
+			else
+			{
+				// For remote users their server will have checked privs.
+				target = ServerInstance->Users.Find(targetnick);
+			}
+
+			if (!target)
+			{
+				user->WriteNumeric(Numerics::NoSuchNick(targetnick));
+				return CmdResult::FAILURE;
+			}
+		}
+
+		if (!IS_LOCAL(target))
+			return CmdResult::SUCCESS; // Their server will handle this.
+
+		const auto& newuser = parameters.back();
+		if (newuser.size() > ServerInstance->Config->Limits.MaxUser)
+		{
+			IRCv3::WriteReply(Reply::Type::FAIL, user, cap, this, "INVALID_USERNAME", "Username is too long");
 			return CmdResult::FAILURE;
 		}
 
 		if (!ServerInstance->Users.IsUser(parameters[0]))
 		{
-			user->WriteNotice("*** SETIDENT: Invalid characters in username");
+			IRCv3::WriteReply(Reply::Type::FAIL, user, cap, this, "INVALID_USERNAME", "Invalid characters in username");
 			return CmdResult::FAILURE;
 		}
 
-		user->ChangeDisplayedUser(parameters[0]);
-		ServerInstance->SNO.WriteGlobalSno('a', "{} used SETIDENT to change their username to '{}'", user->nick, user->GetRealUser());
-
+		target->ChangeDisplayedUser(newuser);
+		if (!user->server->IsService())
+		{
+			ServerInstance->SNO.WriteGlobalSno('a', "{} ({}) used {} to change the username of {} to \"{}\x0F\"",
+				user->GetRealMask(), user->GetAddress(), this->name, target->nick, newuser);
+		}
 		return CmdResult::SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
+	{
+		return parameters.size() > 1 ? ROUTE_OPT_UCAST(parameters[0]) : ROUTE_LOCALONLY;
 	}
 };
 
@@ -60,11 +104,11 @@ class ModuleSetIdent final
 	: public Module
 {
 private:
-	CommandSetident cmd;
+	CommandSetIdent cmd;
 
 public:
 	ModuleSetIdent()
-		: Module(VF_VENDOR, "Adds the /SETIDENT command which allows server operators to change their username.")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SETIDENT command which allows server operators to change the username of users.")
 		, cmd(this)
 	{
 	}

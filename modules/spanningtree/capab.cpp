@@ -57,6 +57,11 @@ namespace
 			if (protocol < PROTO_NEWEST)
 			{
 				// BEGIN COMPATIBILITY CODE
+				if (irc::equals(modname, "sethost") || irc::equals(modname, "setident") || irc::equals(modname, "setname"))
+				{
+					// These modules were combined in v5.
+					modname.replace(0, 3, "chg");
+				}
 				if (irc::equals(modname, "sacommands"))
 				{
 					// These modules were combined in v5.

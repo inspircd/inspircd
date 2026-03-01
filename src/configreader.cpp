@@ -682,6 +682,12 @@ std::vector<std::string> ServerConfig::GetModules() const
 			modules.push_back("hash_argon2");
 		else if (insp::equalsci(shortname, "bcrypt"))
 			modules.push_back("hash_bcrypt");
+		else if (insp::equalsci(shortname, "chghost"))
+			modules.push_back("sethost");
+		else if (insp::equalsci(shortname, "chgident"))
+			modules.push_back("setident");
+		else if (insp::equalsci(shortname, "chgname"))
+			modules.push_back("setname");
 		else if (insp::equalsci(shortname, "password_hash"))
 			modules.push_back("mkpasswd");
 		else if (insp::equalsci(shortname, "sha1"))
