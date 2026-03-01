@@ -53,7 +53,7 @@ public:
 				target = ServerInstance->Users.FindNick(targetnick, true);
 				if (user != target && !user->HasPrivPermission("users/setname-others"))
 				{
-					user->WriteNumeric(Numerics::NoPrivileges("your server operator account does not have the users/setname-others privilege"));
+					user->WriteNumeric(Numerics::NoPrivileges(user, "your server operator account does not have the users/setname-others privilege"));
 					return CmdResult::FAILURE;
 				}
 			}
