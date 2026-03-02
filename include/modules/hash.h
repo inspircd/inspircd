@@ -114,7 +114,7 @@ public:
 		for (const auto& [hash, plain] : checks)
 		{
 			if (!Compare(hash, plain))
-				throw ModuleException(creator, "BUG: unable to generate {} hashes safely! Please report this!", service_name);
+				throw ModuleException(this->service_creator, "BUG: unable to generate {} hashes safely! Please report this!", this->service_name);
 		}
 
 		ServerInstance->Logs.Debug("HASH", "The {} hash provider appears to be working correctly.", service_name);

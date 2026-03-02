@@ -489,7 +489,7 @@ void SharedData::Lookup(LocalUser* user)
 		const std::string hostname = reversedip + "." + dnsbl->domain;
 
 		// Try to do the DNSBL lookup.
-		auto* r = new DNSBLResolver(dns->creator, *this, hostname, user, dnsbl);
+		auto* r = new DNSBLResolver(dns->service_creator, *this, hostname, user, dnsbl);
 		try
 		{
 			dns->Process(r);

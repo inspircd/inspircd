@@ -84,13 +84,13 @@ class Cap::ManagerImpl final
 			if (!(used & bit))
 				return bit;
 		}
-		throw ModuleException(creator, "Too many caps");
+		throw ModuleException(this->service_creator, "Too many caps");
 	}
 
 	void OnReloadModuleSave(Module* mod, ReloadModule::CustomData& cd) override
 	{
 		ServerInstance->Logs.Debug(MODNAME, "OnReloadModuleSave()");
-		if (mod == creator)
+		if (mod == this->service_creator)
 			return;
 
 		auto* capmoddata = new CapModData();
@@ -99,7 +99,7 @@ class Cap::ManagerImpl final
 		for (const auto& [_, cap] : caps)
 		{
 			// Only save users of caps that belong to the module being reloaded
-			if (cap->creator != mod)
+			if (cap->service_creator != mod)
 				continue;
 
 			ServerInstance->Logs.Debug(MODNAME, "Module being reloaded implements cap {}, saving cap users", cap->GetName());

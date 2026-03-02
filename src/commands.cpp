@@ -437,7 +437,7 @@ Command::~Command()
 void Command::RegisterService()
 {
 	if (!ServerInstance->Parser.AddCommand(this))
-		throw ModuleException(creator, "Command already exists: {}", this->service_name);
+		throw ModuleException(this->service_creator, "Command already exists: {}", this->service_name);
 }
 
 void Command::UnregisterService()

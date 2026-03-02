@@ -137,7 +137,7 @@ private:
 		if (handler)
 		{
 			// Command exists, check if it is ours
-			if (handler->creator != this)
+			if (handler->service_creator != this)
 				throw ModuleException(this, "Command " + cmdname + " already exists");
 
 			// This is our command, make sure we don't have the same entry twice

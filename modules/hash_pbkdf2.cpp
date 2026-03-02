@@ -267,7 +267,7 @@ public:
 		auto* algo = new PBKDF2Provider(this, hp->service_name);
 		Configure(algo);
 		ServerInstance->Logs.Debug("HASH", "The {} algorithm was added by {}, also adding {}",
-			hp->service_name, hp->creator->ModuleFile, algo->service_name);
+			hp->service_name, hp->GetSource(), algo->service_name);
 
 		try
 		{
@@ -303,7 +303,7 @@ public:
 		if (it != algos.end())
 		{
 			ServerInstance->Logs.Debug("HASH", "The {} algorithm was deleted by {}, also deleting {}",
-				hp.service_name, hp.creator->ModuleFile, it->second->service_name);
+				hp.service_name, hp.GetSource(), it->second->service_name);
 			delete it->second;
 			algos.erase(it);
 		}

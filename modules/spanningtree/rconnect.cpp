@@ -55,7 +55,7 @@ CmdResult CommandRConnect::Handle(User* user, const Params& parameters)
 
 		CommandBase::Params para;
 		para.push_back(parameters[1]);
-		static_cast<ModuleSpanningTree*>(creator.ptr())->HandleConnect(para, user);
+		static_cast<ModuleSpanningTree*>(this->service_creator.ptr())->HandleConnect(para, user);
 	}
 	else
 	{

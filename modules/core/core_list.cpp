@@ -58,10 +58,10 @@ public:
 	// Whether to show modes in the LIST response.
 	ShowModes showmodes;
 
-	CommandList(Module* parent)
-		: Command(parent, "LIST")
-		, secretmode(creator, "secret")
-		, privatemode(creator, "private")
+	CommandList(Module* mod)
+		: Command(mod, "LIST")
+		, secretmode(mod, "secret")
+		, privatemode(mod, "private")
 	{
 		penalty = 5000;
 	}

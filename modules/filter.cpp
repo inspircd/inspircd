@@ -256,7 +256,7 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 	if (parameters.size() == 1)
 	{
 		/* Deleting a filter */
-		Module* me = creator;
+		auto* me = this->service_creator.ptr();
 		std::string reason;
 
 		if (static_cast<ModuleFilter*>(me)->DeleteFilter(parameters[0], reason))
@@ -314,7 +314,7 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 				reasonindex = 3;
 			}
 
-			Module* me = creator;
+			auto* me = this->service_creator.ptr();
 			std::pair<bool, std::string> result = static_cast<ModuleFilter*>(me)->AddFilter(freeform, type, parameters[reasonindex], duration, flags);
 			if (result.first)
 			{

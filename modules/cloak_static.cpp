@@ -66,7 +66,7 @@ public:
 		const std::string cloak = tag->getString("cloak");
 		if (cloak.empty() || cloak.length() > ServerInstance->Config->Limits.MaxHost)
 		{
-			throw ModuleException(creator, "Your static cloak must be between 1 and {} characters long, at {}",
+			throw ModuleException(this->service_creator, "Your static cloak must be between 1 and {} characters long, at {}",
 				ServerInstance->Config->Limits.MaxHost, tag->source.str());
 		}
 

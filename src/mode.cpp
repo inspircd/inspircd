@@ -122,7 +122,7 @@ void ModeHandler::RegisterService()
 void ModeHandler::UnregisterService()
 {
 	if (!ServerInstance->Modes.DelMode(this))
-		throw ModuleException(creator, "Mode {} does not exist.", this->service_name);
+		throw ModuleException(this->service_creator, "Mode {} does not exist.", this->service_name);
 
 	ServerInstance->Modules.DelReferent(this);
 }
@@ -570,13 +570,13 @@ ModeHandler::Id ModeParser::AllocateModeId(ModeHandler* mh)
 			return i;
 	}
 
-	throw ModuleException(mh->creator, "Out of mode ids");
+	throw ModuleException(mh->service_creator, "Out of mode ids");
 }
 
 void ModeParser::AddMode(ModeHandler* mh)
 {
 	if (!ModeParser::IsModeChar(mh->GetModeChar()))
-		throw ModuleException(mh->creator, "Mode letter for {} is invalid: {}", mh->service_name, mh->GetModeChar());
+		throw ModuleException(mh->service_creator, "Mode letter for {} is invalid: {}", mh->service_name, mh->GetModeChar());
 
 	/* A mode prefix of ',' is not acceptable, it would fuck up server to server.
 	 * A mode prefix of ':' will fuck up both server to server, and client to server.
@@ -586,21 +586,21 @@ void ModeParser::AddMode(ModeHandler* mh)
 	if (pm)
 	{
 		if ((pm->GetPrefix() > 126) || (pm->GetPrefix() == ',') || (pm->GetPrefix() == ':') || ServerInstance->Channels.IsPrefix(pm->GetPrefix()))
-			throw ModuleException(mh->creator, "Mode prefix for {} is invalid: {}", mh->service_name, pm->GetPrefix());
+			throw ModuleException(mh->service_creator, "Mode prefix for {} is invalid: {}", mh->service_name, pm->GetPrefix());
 
 		PrefixMode* otherpm = FindPrefix(pm->GetPrefix());
 		if (otherpm)
 		{
-			throw ModuleException(mh->creator, "Mode prefix for {} already used by {} from {}: {}",
-				mh->service_name, otherpm->service_name, otherpm->creator->ModuleFile, pm->GetPrefix());
+			throw ModuleException(mh->service_creator, "Mode prefix for {} already used by {} from {}: {}",
+				mh->service_name, otherpm->service_name, otherpm->GetSource(), pm->GetPrefix());
 		}
 	}
 
 	ModeHandler*& slot = modehandlers[mh->GetModeType()][ModeParser::GetModeIndex(mh->GetModeChar())];
 	if (slot)
 	{
-		throw ModuleException(mh->creator, "Mode letter for {} already used by {} from {}: {}",
-			mh->service_name, slot->service_name, slot->creator->ModuleFile, mh->GetModeChar());
+		throw ModuleException(mh->service_creator, "Mode letter for {} already used by {} from {}: {}",
+			mh->service_name, slot->service_name, slot->GetSource(), mh->GetModeChar());
 	}
 
 	// The mode needs an id if it is either a user mode, a simple mode (flag) or a parameter mode.
@@ -613,8 +613,8 @@ void ModeParser::AddMode(ModeHandler* mh)
 	if (!res.second)
 	{
 		ModeHandler* othermh = res.first->second;
-		throw ModuleException(mh->creator, "Mode name {} already used by {} from {}",
-			mh->service_name, othermh->GetModeChar(), othermh->creator->ModuleFile);
+		throw ModuleException(mh->service_creator, "Mode name {} already used by {} from {}",
+			mh->service_name, othermh->GetModeChar(), othermh->GetSource());
 	}
 
 	// Everything is fine, add the mode

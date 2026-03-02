@@ -137,10 +137,10 @@ public:
 
 	void OnCapAddDel(Cap::Capability* cap, bool add) override
 	{
-		if (cap->creator == this)
+		if (cap->service_creator == this)
 			return;
 
-		if (cap->creator->ModuleFile == reloadedmod)
+		if (cap->service_creator->ModuleFile == reloadedmod)
 		{
 			if (!add)
 				reloadedcaps.push_back(cap->GetName());

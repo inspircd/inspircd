@@ -246,7 +246,7 @@ public:
 	Cloak::MethodPtr Create(const std::shared_ptr<ConfigTag>& tag, bool primary) override
 	{
 		if (CustomMethod::created)
-			throw ModuleException(creator, "You can only have one custom cloak method, at " + tag->source.str());
+			throw ModuleException(this->service_creator, "You can only have one custom cloak method, at {}", tag->source.str());
 
 		return std::make_shared<CustomMethod>(this, tag, customcloakext);
 	}

@@ -84,7 +84,7 @@ public:
 
 	Regex::PatternPtr Create(const std::string& pattern, uint8_t options) const override
 	{
-		return std::make_shared<StdLibPattern>(creator, pattern, options, regextype);
+		return std::make_shared<StdLibPattern>(this->service_creator, pattern, options, regextype);
 	}
 };
 

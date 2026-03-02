@@ -181,7 +181,7 @@ void		Module::OnChangeConnectClass(LocalUser*, const std::shared_ptr<ConnectClas
 void		Module::OnPostChangeConnectClass(LocalUser*, bool) { DetachEvent(I_OnPostChangeConnectClass); }
 
 ServiceProvider::ServiceProvider(Module* mod, const std::string& stype, const std::string& sname)
-	: creator(mod)
+	: service_creator(mod)
 	, service_name(sname)
 	, service_type(stype)
 {
@@ -193,6 +193,13 @@ void ServiceProvider::DisableAutoRegister()
 {
 	if ((ServerInstance) && (ServerInstance->Modules.NewServices))
 		std::erase(*ServerInstance->Modules.NewServices, this);
+}
+
+std::string ServiceProvider::GetSource() const
+{
+	if (!this->service_creator)
+		return "the core";
+	return FMT::format("the {} module", ModuleManager::ShrinkModName(this->service_creator->ModuleFile));
 }
 
 void ServiceProvider::RegisterService()
@@ -430,7 +437,7 @@ void ModuleManager::UnregisterModes(Module* mod, ModeType modetype)
 	{
 		ModeHandler* const mh = i->second;
 		++i;
-		if (mh->creator == mod)
+		if (mh->service_creator == mod)
 			this->DelService(*mh);
 	}
 }
@@ -478,7 +485,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	for (DataProviderMap::iterator i = DataProviders.begin(); i != DataProviders.end(); )
 	{
 		DataProviderMap::iterator curr = i++;
-		if (curr->second->creator == mod)
+		if (curr->second->service_creator == mod)
 		{
 			DataProviders.erase(curr);
 			FOREACH_MOD(OnServiceDel, (*curr->second));
@@ -632,7 +639,7 @@ void ModuleManager::AddServices(const ServiceList& list)
 void ModuleManager::AddService(ServiceProvider& item)
 {
 	ServerInstance->Logs.Debug("SERVICE", "Adding {} {} ({}) provided by {}", item.service_type,
-		item.service_name, (void*)&item, item.creator ? item.creator->ModuleFile : "the core");
+		item.service_name, (void*)&item, item.GetSource());
 
 	item.RegisterService();
 	FOREACH_MOD(OnServiceAdd, (item));
@@ -641,7 +648,7 @@ void ModuleManager::AddService(ServiceProvider& item)
 void ModuleManager::DelService(ServiceProvider& item)
 {
 	ServerInstance->Logs.Debug("SERVICE", "Deleting {} {} ({}) provided by {}", item.service_type,
-		item.service_name, (void*)&item, item.creator ? item.creator->ModuleFile : "the core");
+		item.service_name, (void*)&item, item.GetSource());
 
 	item.UnregisterService();
 	FOREACH_MOD(OnServiceDel, (item));

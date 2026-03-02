@@ -26,8 +26,8 @@ void ExtBanManager::AddExtBan(ExtBan::Base* extban)
 	{
 		auto lit = byletter.emplace(extban->GetLetter(), extban);
 		if (!lit.second)
-			throw ModuleException(creator, "ExtBan letter \"{}\" is already in use by the {} extban from {}",
-				extban->GetLetter(), lit.first->second->GetName(), lit.first->second->creator->ModuleFile);
+			throw ModuleException(this->service_creator, "ExtBan letter \"{}\" is already in use by the {} extban from {}",
+				extban->GetLetter(), lit.first->second->GetName(), lit.first->second->GetSource());
 	}
 
 	auto nit = byname.emplace(extban->GetName(), extban);
@@ -36,8 +36,8 @@ void ExtBanManager::AddExtBan(ExtBan::Base* extban)
 		if (extban->GetLetter())
 			byletter.erase(extban->GetLetter());
 
-		throw ModuleException(creator, "ExtBan name \"{}\" is already in use by the {} extban from {}",
-			extban->GetName(), nit.first->second->GetLetter(), nit.first->second->creator->ModuleFile);
+		throw ModuleException(this->service_creator, "ExtBan name \"{}\" is already in use by the {} extban from {}",
+			extban->GetName(), nit.first->second->GetLetter(), nit.first->second->GetSource());
 	}
 }
 
@@ -169,12 +169,12 @@ void ExtBanManager::DelExtBan(ExtBan::Base* extban)
 	if (extban->GetLetter())
 	{
 		auto lit = byletter.find(extban->GetLetter());
-		if (lit != byletter.end() && lit->second->creator.ptr() == extban->creator.ptr())
+		if (lit != byletter.end() && lit->second->service_creator.ptr() == extban->service_creator.ptr())
 			byletter.erase(lit);
 	}
 
 	auto nit = byname.find(extban->GetName());
-	if (nit != byname.end() && nit->second->creator.ptr() == extban->creator.ptr())
+	if (nit != byname.end() && nit->second->service_creator.ptr() == extban->service_creator.ptr())
 		byname.erase(nit);
 }
 

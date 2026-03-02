@@ -88,11 +88,11 @@ public:
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-CommandMode::CommandMode(Module* parent)
-	: Command(parent, "MODE", 1)
-	, secretmode(creator, "secret")
-	, privatemode(creator, "private")
-	, snomaskmode(creator, "snomask")
+CommandMode::CommandMode(Module* mod)
+	: Command(mod, "MODE", 1)
+	, secretmode(mod, "secret")
+	, privatemode(mod, "private")
+	, snomaskmode(mod, "snomask")
 {
 	syntax = { "<target> [[(+|-)]<modes> [<mode-parameters>]]" };
 	memset(&sent, 0, sizeof(sent));

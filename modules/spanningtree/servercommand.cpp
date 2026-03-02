@@ -29,7 +29,7 @@ ServerCommand::ServerCommand(Module* Creator, const std::string& Name, unsigned 
 
 void ServerCommand::RegisterService()
 {
-	auto* st = static_cast<ModuleSpanningTree*>(creator.ptr());
+	auto* st = static_cast<ModuleSpanningTree*>(this->service_creator.ptr());
 	st->CmdManager.AddCommand(this);
 }
 

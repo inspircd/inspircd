@@ -77,7 +77,7 @@ CmdResult CommandUnloadmodule::Handle(User* user, const Params& parameters)
 	}
 
 	Module* m = ServerInstance->Modules.Find(parameters[0]);
-	if (m == creator)
+	if (m == this->service_creator)
 	{
 		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "You cannot unload module loading commands!");
 		return CmdResult::FAILURE;

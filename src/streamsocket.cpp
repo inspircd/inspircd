@@ -489,7 +489,7 @@ IOHook* StreamSocket::GetModHook(Module* mod) const
 {
 	for (IOHook* curr = GetIOHook(); curr; curr = GetNextHook(curr))
 	{
-		if (curr->prov->creator == mod)
+		if (curr->prov->service_creator == mod)
 			return curr;
 	}
 	return nullptr;

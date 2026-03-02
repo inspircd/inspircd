@@ -78,7 +78,7 @@ void ListModeBase::DoRehash()
 		ListLimit limit(c->getString("chan", "*", 1), c->getNum<size_t>("limit", DEFAULT_LIST_SIZE));
 
 		if (limit.mask.empty())
-			throw ModuleException(creator, "<maxlist:chan> is empty, at {}", c->source.str());
+			throw ModuleException(this->service_creator, "<maxlist:chan> is empty, at {}", c->source.str());
 
 		if (limit.mask == "*" || limit.mask == "#*")
 			seen_default = true;

@@ -126,7 +126,7 @@ Log::Engine::Engine(Module* Creator, const std::string& Name)
 
 Log::Engine::~Engine()
 {
-	if (creator)
+	if (this->service_creator)
 		ServerInstance->Logs.UnloadEngine(this);
 }
 

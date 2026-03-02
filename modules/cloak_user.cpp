@@ -199,7 +199,7 @@ private:
 public:
 	AccountMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm) ATTR_NOT_NULL(2)
 		: UserMethodBase(engine, tag, hm)
-		, accountapi(engine->creator)
+		, accountapi(engine->service_creator)
 	{
 	}
 };
@@ -221,7 +221,7 @@ private:
 public:
 	AccountIdMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm) ATTR_NOT_NULL(2)
 		: UserMethodBase(engine, tag, hm)
-		, accountapi(engine->creator)
+		, accountapi(engine->service_creator)
 	{
 	}
 };
@@ -255,7 +255,7 @@ private:
 public:
 	FingerprintMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm) ATTR_NOT_NULL(2)
 		: UserMethodBase(engine, tag, hm)
-		, sslapi(engine->creator)
+		, sslapi(engine->service_creator)
 		, length(tag->getNum<size_t>("length", GetMaxLength(), 1, GetMaxLength()))
 	{
 	}

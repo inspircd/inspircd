@@ -355,7 +355,7 @@ size_t DataKeeper::SaveSerializer(User* user)
 	LocalUser* const localuser = IS_LOCAL(user);
 	if ((!localuser) || (!localuser->serializer))
 		return UserData::UNUSED_INDEX;
-	if (localuser->serializer->creator != mod)
+	if (localuser->serializer->service_creator != mod)
 		return UserData::UNUSED_INDEX;
 
 	const size_t serializerindex = GetSerializerIndex(localuser->serializer);
@@ -477,7 +477,7 @@ void DataKeeper::CreateModeList(ModeType modetype)
 {
 	for (const auto& [_, mh] : ServerInstance->Modes.GetModes(modetype))
 	{
-		if (mh->creator == mod)
+		if (mh->service_creator == mod)
 			handledmodes[modetype].emplace_back(mh);
 	}
 }
@@ -488,7 +488,7 @@ void DataKeeper::Save(Module* currmod)
 
 	for (const auto& [_, ext] : ServerInstance->Extensions.GetExts())
 	{
-		if (ext->creator == mod)
+		if (ext->service_creator == mod)
 			handledexts.emplace_back(ext);
 	}
 
@@ -508,8 +508,8 @@ void DataKeeper::VerifyServiceProvider(const ProviderInfo& service, const char* 
 	const ServiceProvider* sp = service.extitem;
 	if (!sp)
 		ServerInstance->Logs.Debug(MODNAME, "{} \"{}\" is no longer available", type, service.itemname);
-	else if (sp->creator != mod)
-		ServerInstance->Logs.Debug(MODNAME, "{} \"{}\" is now handled by {}", type, service.itemname, (sp->creator ? sp->creator->ModuleFile : "<core>"));
+	else if (sp->service_creator != mod)
+		ServerInstance->Logs.Debug(MODNAME, "{} \"{}\" is now handled by {}", type, service.itemname, sp->GetSource());
 }
 
 void DataKeeper::LinkModes(ModeType modetype)
@@ -721,13 +721,13 @@ public:
 CmdResult CommandReloadmodule::Handle(User* user, const Params& parameters)
 {
 	Module* m = ServerInstance->Modules.Find(parameters[0]);
-	if (m == creator)
+	if (m == this->service_creator)
 	{
 		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "You cannot reload core_reloadmodule (unload and load it)");
 		return CmdResult::FAILURE;
 	}
 
-	if (creator->dying)
+	if (this->service_creator->dying)
 		return CmdResult::FAILURE;
 
 	if ((m) && (ServerInstance->Modules.CanUnload(m)))

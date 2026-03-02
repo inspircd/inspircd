@@ -202,7 +202,7 @@ public:
 #ifdef HAS_LIBPSL
 		, psl(p)
 #endif
-		, sha256(engine->creator, "sha256")
+		, sha256(engine->service_creator, "sha256")
 		, suffix(tag->getString("suffix", "ip"))
 	{
 		table = tag->getEnum("case", base32lower, {
@@ -306,12 +306,12 @@ public:
 	Cloak::MethodPtr Create(const std::shared_ptr<ConfigTag>& tag, bool primary) override
 	{
 		if (!sha256)
-			throw ModuleException(creator, "Unable to create a " + this->service_name + " cloak without the sha2 module, at" + tag->source.str());
+			throw ModuleException(this->service_creator, "Unable to create a " + this->service_name + " cloak without the sha2 module, at" + tag->source.str());
 
 		// Ensure that we have the <cloak:key> parameter.
 		const std::string key = tag->getString("key");
 		if (key.length() < minkeylen)
-			throw ModuleException(creator, "Your cloak key should be at least {} characters long, at {}", minkeylen, tag->source.str());
+			throw ModuleException(this->service_creator, "Your cloak key should be at least {} characters long, at {}", minkeylen, tag->source.str());
 
 		psl_ctx_t* psl = nullptr;
 		std::string psldb = tag->getString("psl");
@@ -322,14 +322,14 @@ public:
 			{
 				psldb = psl_dist_filename();
 				if (psldb.empty())
-					throw ModuleException(creator, "You specified \"system\" in <cloak:psl> but libpsl was built without a system copy, at " + tag->source.str());
+					throw ModuleException(this->service_creator, "You specified \"system\" in <cloak:psl> but libpsl was built without a system copy, at " + tag->source.str());
 			}
 
 			psl = psl_load_file(psldb.c_str());
 			if (!psl)
-				throw ModuleException(creator, "The database specified in <cloak:psl> (" + psldb + ") does not exist, at " + tag->source.str());
+				throw ModuleException(this->service_creator, "The database specified in <cloak:psl> (" + psldb + ") does not exist, at " + tag->source.str());
 #else
-			throw ModuleException(creator, "You specified <cloak:psl> but InspIRCd was built without libpsl, at " + tag->source.str());
+			throw ModuleException(this->service_creator, "You specified <cloak:psl> but InspIRCd was built without libpsl, at " + tag->source.str());
 #endif
 		}
 

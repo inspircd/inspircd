@@ -506,7 +506,7 @@ public:
 	void Process(DNS::Request* req) override
 	{
 		if ((unloading) || (req->creator->dying))
-			throw DNS::Exception(creator, "Module is being unloaded");
+			throw DNS::Exception(this->service_creator, "Module is being unloaded");
 
 		if (!HasFd())
 		{
@@ -541,7 +541,7 @@ public:
 				}
 
 				if (id == -1)
-					throw DNS::Exception(creator, "DNS: All ids are in use");
+					throw DNS::Exception(this->service_creator, "DNS: All ids are in use");
 
 				break;
 			}
@@ -551,7 +551,7 @@ public:
 		req->id = id;
 		this->requests[req->id] = req;
 
-		Packet p(creator);
+		Packet p(this->service_creator);
 		p.flags = DNS::QUERYFLAGS_RD;
 		p.id = req->id;
 		p.question = req->question;
@@ -574,7 +574,7 @@ public:
 		req->question.name = p.question.name;
 
 		if (SocketEngine::SendTo(this, buffer, len, 0, this->myserver) != len)
-			throw DNS::Exception(creator, "DNS: Unable to send query");
+			throw DNS::Exception(this->service_creator, "DNS: Unable to send query");
 
 		// Add timer for timeout
 		ServerInstance->Timers.AddTimer(req);
@@ -662,7 +662,7 @@ public:
 			return;
 		}
 
-		Packet recv_packet(creator);
+		Packet recv_packet(this->service_creator);
 		bool valid = false;
 
 		try

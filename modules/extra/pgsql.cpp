@@ -684,7 +684,7 @@ bool ReconnectTimer::Tick()
 void SQLConn::DelayReconnect()
 {
 	status = DEAD;
-	auto* mod = static_cast<ModulePgSQL*>(creator.ptr());
+	auto* mod = static_cast<ModulePgSQL*>(this->service_creator.ptr());
 
 	ConnMap::iterator it = mod->connections.find(conf->getString("id"));
 	if (it != mod->connections.end())

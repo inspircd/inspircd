@@ -138,8 +138,8 @@ class CoreExport ServiceProvider
 	: public Cullable
 {
 public:
-	/** Module that is providing this service */
-	ModuleRef creator;
+	/** Module that created this service */
+	ModuleRef service_creator;
 	/** Name of the service being provided */
 	const std::string service_name;
 	/** Type of service (must match object type) */
@@ -156,6 +156,9 @@ public:
 	/** If called, this ServiceProvider won't be registered automatically
 	 */
 	void DisableAutoRegister();
+
+	/** Retrieves the name of the service creator. */
+	std::string GetSource() const;
 };
 
 class CoreExport DataProvider

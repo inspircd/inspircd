@@ -31,7 +31,7 @@ void ExtensionManager::BeginUnregister(Module* module, std::vector<ExtensionItem
 	{
 		ExtMap::iterator thistype = type++;
 		ExtensionItem* item = thistype->second;
-		if (item->creator == module)
+		if (item->service_creator == module)
 		{
 			items.push_back(item);
 			types.erase(thistype);
@@ -103,7 +103,7 @@ void ExtensionItem::OnSync(const Extensible* container, void* item, Server* serv
 void ExtensionItem::RegisterService()
 {
 	if (!ServerInstance->Extensions.Register(this))
-		throw ModuleException(creator, "Extension already exists: {}", this->service_name);
+		throw ModuleException(this->service_creator, "Extension already exists: {}", this->service_name);
 }
 
 void* ExtensionItem::GetRaw(const Extensible* container) const

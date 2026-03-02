@@ -95,7 +95,7 @@ public:
 	/** @copydoc Regex::Engine::Create */
 	PatternPtr Create(const std::string& pattern, uint8_t options) const override
 	{
-		return std::make_shared<PatternClass>(creator, pattern, options);
+		return std::make_shared<PatternClass>(this->service_creator, pattern, options);
 	}
 };
 
@@ -247,7 +247,7 @@ inline Regex::PatternPtr Regex::Engine::CreateHuman(const std::string& pattern) 
 
 	size_t end = pattern.find_last_not_of("Ii");
 	if (!end || end == std::string::npos || pattern[end] != '/')
-		throw Exception(creator, pattern, "Regex patterns must be terminated with a '/'!");
+		throw Exception(this->service_creator, pattern, "Regex patterns must be terminated with a '/'!");
 
 	uint8_t options = Regex::OPT_NONE;
 	for (const auto flag : insp::iterator_range(pattern.begin() + end + 1, pattern.end()))

@@ -390,7 +390,7 @@ public:
 
 	ModuleSQL* Parent()
 	{
-		return static_cast<ModuleSQL*>(creator.ptr());
+		return static_cast<ModuleSQL*>(this->service_creator.ptr());
 	}
 
 	MySQLresult* DoBlockingQuery(const std::string& query)

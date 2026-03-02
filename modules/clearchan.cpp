@@ -91,7 +91,7 @@ public:
 
 		// Attach to the appropriate hook so we're able to hide the QUIT/KICK messages
 		Implementation hook = (kick ? I_OnUserKick : I_OnBuildNeighborList);
-		ServerInstance->Modules.Attach(hook, creator);
+		ServerInstance->Modules.Attach(hook, this->service_creator);
 
 		std::string mask;
 		// Now remove all local non-opers from the channel
@@ -134,7 +134,7 @@ public:
 			ServerInstance->Users.QuitUser(curr, reason);
 		}
 
-		ServerInstance->Modules.Detach(hook, creator);
+		ServerInstance->Modules.Detach(hook, this->service_creator);
 		if (xlf)
 			ServerInstance->XLines->ApplyLines();
 
