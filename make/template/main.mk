@@ -157,7 +157,7 @@ endif
   DBGOK=1
 endif
 ifeq ($(INSPIRCD_DEBUG), 1)
-  CORECXXFLAGS += -O0 -g3 -Werror -DINSPIRCD_ENABLE_RTTI
+  CORECXXFLAGS += -O0 -g3 -Werror -DINSPIRCD_DEBUG
   HEADER = debug-header
   DBGOK=1
 endif

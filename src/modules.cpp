@@ -638,8 +638,10 @@ void ModuleManager::AddServices(const ServiceList& list)
 
 void ModuleManager::AddService(ServiceProvider& item)
 {
+#ifdef INSPIRCD_DEBUG
 	ServerInstance->Logs.Debug("SERVICE", "Adding {} {} ({}) provided by {}", item.service_type,
 		item.service_name, (void*)&item, item.GetSource());
+#endif
 
 	item.RegisterService();
 	FOREACH_MOD(OnServiceAdd, (item));
@@ -647,8 +649,10 @@ void ModuleManager::AddService(ServiceProvider& item)
 
 void ModuleManager::DelService(ServiceProvider& item)
 {
+#ifdef INSPIRCD_DEBUG
 	ServerInstance->Logs.Debug("SERVICE", "Deleting {} {} ({}) provided by {}", item.service_type,
 		item.service_name, (void*)&item, item.GetSource());
+#endif
 
 	item.UnregisterService();
 	FOREACH_MOD(OnServiceDel, (item));
@@ -752,8 +756,10 @@ Module* ModuleManager::Find(const std::string& name)
 
 void ModuleManager::AddReferent(const std::string& stype, const std::string& sname, ServiceProvider* service)
 {
+#ifdef INSPIRCD_DEBUG
 	ServerInstance->Logs.Debug("SERVICE", "Adding reference to {} as {} {}",
 		(void*)service, stype, sname);
+#endif
 	DataProviders.emplace(std::make_pair(stype, sname), service);
 	dynamic_reference_base::reset_all();
 }
@@ -764,7 +770,13 @@ void ModuleManager::DelReferent(ServiceProvider* service)
 	{
 		ServiceProvider* curr = i->second;
 		if (curr == service)
+		{
+#ifdef INSPIRCD_DEBUG
+			ServerInstance->Logs.Debug("SERVICE", "Deleting reference to {} as {} {}",
+				(void*)service, curr->service_type, curr->service_name);
+#endif
 			DataProviders.erase(i++);
+		}
 		else
 			++i;
 	}

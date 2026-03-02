@@ -25,14 +25,14 @@
 
 #include "inspircd.h"
 
-#ifdef INSPIRCD_ENABLE_RTTI
+#ifdef INSPIRCD_DEBUG
 # include <typeinfo>
 #endif
 #include <unordered_set>
 
 Cullable::Cullable()
 {
-#ifdef INSPIRCD_ENABLE_RTTI
+#ifdef INSPIRCD_DEBUG
 	if (ServerInstance)
 	{
 		ServerInstance->Logs.Debug("CULL", "Cullable::+{} @{}",
@@ -43,7 +43,7 @@ Cullable::Cullable()
 
 Cullable::~Cullable()
 {
-#ifdef INSPIRCD_ENABLE_RTTI
+#ifdef INSPIRCD_DEBUG
 	if (ServerInstance)
 	{
 		ServerInstance->Logs.Debug("CULL", "Cullable::~{} @{}",
@@ -54,7 +54,7 @@ Cullable::~Cullable()
 
 Cullable::Result Cullable::Cull()
 {
-#ifdef INSPIRCD_ENABLE_RTTI
+#ifdef INSPIRCD_DEBUG
 	if (ServerInstance)
 	{
 		ServerInstance->Logs.Debug("CULL", "Cullable::-{} @{}",
@@ -90,7 +90,7 @@ void CullList::Apply()
 		auto* c = list[idx];
 		if (culled.insert(c).second)
 		{
-#ifdef INSPIRCD_ENABLE_RTTI
+#ifdef INSPIRCD_DEBUG
 			ServerInstance->Logs.Debug("CULL", "Culling {} @{}", typeid(*c).name(),
 				FMT_PTR(c));
 #endif
@@ -102,7 +102,7 @@ void CullList::Apply()
 		}
 		else
 		{
-#ifdef INSPIRCD_ENABLE_RTTI
+#ifdef INSPIRCD_DEBUG
 			ServerInstance->Logs.Debug("CULL", "BUG: {} @{} was added to the cull list twice!",
 				typeid(*c).name(), FMT_PTR(c));
 #else
@@ -115,7 +115,7 @@ void CullList::Apply()
 
 	for (auto* c : deletable)
 	{
-#ifdef INSPIRCD_ENABLE_RTTI
+#ifdef INSPIRCD_DEBUG
 		ServerInstance->Logs.Debug("CULL", "Deleting {} @{}", typeid(*c).name(),
 			FMT_PTR(c));
 #endif
