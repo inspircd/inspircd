@@ -35,7 +35,7 @@ public:
 	CommandWallops(Module* parent)
 		: Command(parent, "WALLOPS", 1, 1)
 		, wallopsmode(parent, "wallops", 'w')
-		, protoevprov(parent, name)
+		, protoevprov(parent, "WALLOPS")
 	{
 		access_needed = CmdAccess::OPERATOR;
 		allow_empty_last_param = true;

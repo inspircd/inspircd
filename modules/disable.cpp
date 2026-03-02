@@ -61,7 +61,7 @@ private:
 
 			// Disable the mode.
 			ServerInstance->Logs.Debug(MODNAME, "The {} ({}) {} mode has been disabled",
-				mh->GetModeChar(), mh->name, type == MODETYPE_CHANNEL ? "channel" : "user");
+				mh->GetModeChar(), mh->service_name, type == MODETYPE_CHANNEL ? "channel" : "user");
 			status.set(ModeParser::GetModeIndex(chr));
 		}
 	}
@@ -98,12 +98,12 @@ public:
 					command, tag->source.str());
 
 			// Prevent admins from disabling MODULES for transparency reasons.
-			if (handler->name == "MODULES")
+			if (handler->service_name == "MODULES")
 				continue;
 
 			// Disable the command.
-			ServerInstance->Logs.Debug(MODNAME, "The {} command has been disabled", handler->name);
-			newcommands.push_back(handler->name);
+			ServerInstance->Logs.Debug(MODNAME, "The {} command has been disabled", handler->service_name);
+			newcommands.push_back(handler->service_name);
 		}
 
 		// Parse the disabled channel modes.
@@ -208,7 +208,7 @@ public:
 		// The user has tried to change a disabled mode!
 		const char* what = change.mh->GetModeType() == MODETYPE_CHANNEL ? "channel" : "user";
 		WriteLog("{} was blocked from {}setting the disabled {} mode {} ({})", user->GetRealMask(),
-			change.adding ? "" : "un", what, change.mh->GetModeChar(), change.mh->name);
+			change.adding ? "" : "un", what, change.mh->GetModeChar(), change.mh->service_name);
 
 		if (fakenonexistent)
 		{
@@ -222,7 +222,7 @@ public:
 
 		// Inform the user that the mode they changed has been disabled.
 		user->WriteNumeric(Numerics::NoPrivileges("{} mode {} ({}) is disabled",
-			what, change.mh->GetModeChar(), change.mh->name));
+			what, change.mh->GetModeChar(), change.mh->service_name));
 		return MOD_RES_DENY;
 	}
 };

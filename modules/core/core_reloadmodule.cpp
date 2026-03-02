@@ -87,19 +87,19 @@ class DataKeeper final
 		};
 
 		ProviderInfo(ModeHandler* mode)
-			: itemname(mode->name)
+			: itemname(mode->service_name)
 			, mh(mode)
 		{
 		}
 
 		ProviderInfo(ExtensionItem* ei)
-			: itemname(ei->name)
+			: itemname(ei->service_name)
 			, extitem(ei)
 		{
 		}
 
 		ProviderInfo(ClientProtocol::Serializer* ser)
-			: itemname(ser->name)
+			: itemname(ser->service_name)
 			, serializer(ser)
 		{
 		}

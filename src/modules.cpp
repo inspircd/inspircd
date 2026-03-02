@@ -182,8 +182,8 @@ void		Module::OnPostChangeConnectClass(LocalUser*, bool) { DetachEvent(I_OnPostC
 
 ServiceProvider::ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type)
 	: creator(Creator)
-	, name(Name)
-	, service(Type)
+	, service_name(Name)
+	, service_type(Type)
 {
 	if ((ServerInstance) && (ServerInstance->Modules.NewServices))
 		ServerInstance->Modules.NewServices->push_back(this);
@@ -197,7 +197,7 @@ void ServiceProvider::DisableAutoRegister()
 
 const char* ServiceProvider::GetTypeString() const
 {
-	switch (service)
+	switch (this->service_type)
 	{
 		case SERVICE_COMMAND:
 			return "command";
@@ -624,22 +624,22 @@ void ModuleManager::AddServices(const ServiceList& list)
 
 void ModuleManager::AddService(ServiceProvider& item)
 {
-	ServerInstance->Logs.Debug("SERVICE", "Adding {} {} provided by {}", item.name,
+	ServerInstance->Logs.Debug("SERVICE", "Adding {} {} provided by {}", item.service_name,
 		item.GetTypeString(), item.creator ? item.creator->ModuleFile : "the core");
-	switch (item.service)
+	switch (item.service_type)
 	{
 		case SERVICE_DATA:
 		case SERVICE_IOHOOK:
 		{
-			if ((!item.name.compare(0, 5, "mode/", 5)) || (!item.name.compare(0, 6, "umode/", 6)))
+			if ((!item.service_name.compare(0, 5, "mode/", 5)) || (!item.service_name.compare(0, 6, "umode/", 6)))
 				throw ModuleException(item.creator, "The \"mode/\" and the \"umode\" service name prefixes are reserved.");
 
-			DataProviders.emplace(item.name, &item);
-			std::string::size_type slash = item.name.find('/');
+			DataProviders.emplace(item.service_name, &item);
+			std::string::size_type slash = item.service_name.find('/');
 			if (slash != std::string::npos)
 			{
 				// Also register foo/bar as foo.
-				DataProviders.emplace(item.name.substr(0, slash), &item);
+				DataProviders.emplace(item.service_name.substr(0, slash), &item);
 			}
 
 			dynamic_reference_base::reset_all();
@@ -654,13 +654,13 @@ void ModuleManager::AddService(ServiceProvider& item)
 
 void ModuleManager::DelService(ServiceProvider& item)
 {
-	ServerInstance->Logs.Debug("SERVICE", "Deleting {} {} provided by {}", item.name,
+	ServerInstance->Logs.Debug("SERVICE", "Deleting {} {} provided by {}", item.service_name,
 		item.GetTypeString(), item.creator ? item.creator->ModuleFile : "the core");
-	switch (item.service)
+	switch (item.service_type)
 	{
 		case SERVICE_MODE:
 			if (!ServerInstance->Modes.DelMode(static_cast<ModeHandler*>(&item)))
-				throw ModuleException(item.creator, "Mode " + std::string(item.name) + " does not exist.");
+				throw ModuleException(item.creator, "Mode " + std::string(item.service_name) + " does not exist.");
 			[[fallthrough]];
 		case SERVICE_DATA:
 		case SERVICE_IOHOOK:
@@ -683,7 +683,7 @@ ServiceProvider* ModuleManager::FindService(ServiceType type, const std::string&
 		case SERVICE_IOHOOK:
 		{
 			DataProviderMap::iterator i = DataProviders.find(name);
-			if (i != DataProviders.end() && i->second->service == type)
+			if (i != DataProviders.end() && i->second->service_type == type)
 				return i->second;
 			return nullptr;
 		}
@@ -714,7 +714,7 @@ std::string ModuleManager::ShrinkModName(const std::string& modname)
 }
 
 dynamic_reference_base::dynamic_reference_base(Module* Creator, const std::string& Name)
-	: name(Name)
+	: service_name(Name)
 	, creator(Creator)
 {
 	if (!dynrefs)
@@ -735,13 +735,13 @@ dynamic_reference_base::~dynamic_reference_base()
 
 void dynamic_reference_base::SetProvider(const std::string& newname)
 {
-	name = newname;
+	this->service_name = newname;
 	resolve();
 }
 
 void dynamic_reference_base::ClearProvider()
 {
-	name.clear();
+	this->service_name.clear();
 	value = nullptr;
 }
 
@@ -749,8 +749,8 @@ void dynamic_reference_base::resolve()
 {
 	// Because find() may return any element with a matching key in case count(key) > 1 use lower_bound()
 	// to ensure a dynref with the same name as another one resolves to the same object
-	ModuleManager::DataProviderMap::iterator i = ServerInstance->Modules.DataProviders.lower_bound(name);
-	if ((i != ServerInstance->Modules.DataProviders.end()) && (i->first == this->name))
+	auto i = ServerInstance->Modules.DataProviders.lower_bound(this->service_name);
+	if ((i != ServerInstance->Modules.DataProviders.end()) && (i->first == this->service_name))
 	{
 		ServiceProvider* newvalue = i->second;
 		if (value != newvalue)

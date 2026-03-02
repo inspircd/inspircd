@@ -306,7 +306,7 @@ public:
 	Cloak::MethodPtr Create(const std::shared_ptr<ConfigTag>& tag, bool primary) override
 	{
 		if (!sha256)
-			throw ModuleException(creator, "Unable to create a " + name.substr(6) + " cloak without the sha2 module, at" + tag->source.str());
+			throw ModuleException(creator, "Unable to create a " + this->service_name.substr(6) + " cloak without the sha2 module, at" + tag->source.str());
 
 		// Ensure that we have the <cloak:key> parameter.
 		const std::string key = tag->getString("key");

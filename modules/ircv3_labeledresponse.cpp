@@ -129,7 +129,7 @@ public:
 		// too will run for each element on the list plus once after the whole list has been processed.
 		// loop will only be false for the last run.
 		if (!loop)
-			OnCommandBlocked(command->name, parameters, user);
+			OnCommandBlocked(command->service_name, parameters, user);
 	}
 
 	void OnCommandBlocked(const std::string& command, const CommandBase::Params& parameters, LocalUser* user) override

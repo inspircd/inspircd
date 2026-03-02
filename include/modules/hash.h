@@ -126,7 +126,7 @@ public:
 	/** Retrieves the name of the hash algorithm. */
 	const char* GetAlgorithm() const
 	{
-		return name.c_str() + 5;
+		return this->service_name.c_str() + 5;
 	}
 
 	/** Quickly hashes the specified values and returns the digest. */

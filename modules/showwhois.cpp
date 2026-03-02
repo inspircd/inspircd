@@ -119,7 +119,8 @@ public:
 			CommandBase::Params params;
 			params.push_back(dest->uuid);
 			params.push_back(source->uuid);
-			ServerInstance->PI->SendEncapsulatedData(dest->server->GetName(), cmd.name, params);
+			ServerInstance->PI->SendEncapsulatedData(dest->server->GetName(),
+				cmd.service_name, params);
 		}
 	}
 };

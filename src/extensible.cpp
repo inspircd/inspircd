@@ -22,7 +22,7 @@
 
 bool ExtensionManager::Register(ExtensionItem* item)
 {
-	return types.emplace(item->name, item).second;
+	return types.emplace(item->service_name, item).second;
 }
 
 void ExtensionManager::BeginUnregister(Module* module, std::vector<ExtensionItem*>& items)
@@ -103,7 +103,7 @@ void ExtensionItem::OnSync(const Extensible* container, void* item, Server* serv
 void ExtensionItem::RegisterService()
 {
 	if (!ServerInstance->Extensions.Register(this))
-		throw ModuleException(creator, "Extension already exists: " + name);
+		throw ModuleException(creator, "Extension already exists: {}", this->service_name);
 }
 
 void* ExtensionItem::GetRaw(const Extensible* container) const
@@ -140,7 +140,7 @@ void* ExtensionItem::UnsetRaw(Extensible* container)
 void ExtensionItem::Sync(const Extensible* container, void* item)
 {
 	const std::string networkstr = item ? ToNetwork(container, item) : "";
-	ServerInstance->PI->SendMetadata(container, name, networkstr);
+	ServerInstance->PI->SendMetadata(container, this->service_name, networkstr);
 	OnSync(container, item, nullptr);
 }
 

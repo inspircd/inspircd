@@ -113,7 +113,7 @@ static bool WriteDatabase(PermChannel& permchanmode, bool save_listmodes)
 				if (!list || list->empty())
 					continue;
 
-				stream << indent << lm->name << "list=\"";
+				stream << indent << lm->service_name << "list=\"";
 				for (auto entry = list->begin(); entry != list->end(); ++entry)
 				{
 					if (entry != list->begin())
@@ -243,7 +243,7 @@ public:
 
 				for (auto* lm : ServerInstance->Modes.GetListModes())
 				{
-					irc::spacesepstream listmodes(tag->getString(lm->name + "list"));
+					irc::spacesepstream listmodes(tag->getString(lm->service_name + "list"));
 
 					std::string mask;
 					std::string set_by;

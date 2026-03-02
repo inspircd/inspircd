@@ -39,7 +39,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 	if (routing.type == RouteType::LOCAL)
 		return;
 
-	const std::string& command = thiscmd->name;
+	const std::string& command = thiscmd->service_name;
 	const bool encap = ((routing.type == RouteType::OPTIONAL_BROADCAST) || (routing.type == RouteType::OPTIONAL_UNICAST));
 	CmdBuilder params(user, encap ? "ENCAP" : command.c_str());
 	params.push_tags(parameters.GetTags());

@@ -47,7 +47,7 @@ namespace IRCv3
 		if (cap && cap->IsEnabled(user))
 			user->WriteRemoteReply(rt, command, code, std::forward<Args>(args)...);
 		else if (command)
-			user->WriteRemoteNotice("*** {}: {}", command->name, std::get<sizeof...(Args) - 1>(std::forward_as_tuple(args...)));
+			user->WriteRemoteNotice("*** {}: {}", command->service_name, std::get<sizeof...(Args) - 1>(std::forward_as_tuple(args...)));
 		else
 			user->WriteRemoteNotice("*** {}", std::get<sizeof...(Args) - 1>(std::forward_as_tuple(args...)));
 	}

@@ -262,7 +262,7 @@ public:
 	auto GetMatchFlags() const { return match_flags; }
 
 	/** Retrieves the name used in bans to signify this extban. */
-	const std::string& GetName() const { return name; }
+	const std::string& GetName() const { return service_name; }
 
 	/** Retrieves the type of this extban. */
 	virtual Type GetType() const = 0;

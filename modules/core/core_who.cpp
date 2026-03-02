@@ -144,7 +144,7 @@ private:
 			lastrank = pm->GetPrefixRank();
 			oplevels[pm->GetModeChar()] = ConvToStr(oplevel);
 			ServerInstance->Logs.Debug(MODNAME, "Assigned oplevel {} to the {} ({}) prefix mode.",
-				oplevel, pm->GetModeChar(), pm->name);
+				oplevel, pm->GetModeChar(), pm->service_name);
 		}
 	}
 
@@ -658,7 +658,7 @@ public:
 	void OnServiceAdd(ServiceProvider& provider) override
 	{
 		// If the service is a prefix mode we need to rebuild the oplevel map.
-		if (provider.service == SERVICE_MODE && static_cast<ModeHandler&>(provider).IsPrefixMode())
+		if (provider.service_type == SERVICE_MODE && static_cast<ModeHandler&>(provider).IsPrefixMode())
 			cmd.oplevels.clear();
 	}
 

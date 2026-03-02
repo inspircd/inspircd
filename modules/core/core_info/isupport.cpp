@@ -31,7 +31,7 @@ namespace
 		for (const auto& [_, cmd] : ServerInstance->Parser.GetCommands())
 		{
 			if (cmd->accepts_multiple_targets)
-				limits.push_back(FMT::format("{}:{}", cmd->name, cmd->GetMaxTargets()));
+				limits.push_back(FMT::format("{}:{}", cmd->service_name, cmd->GetMaxTargets()));
 		}
 		std::sort(limits.begin(), limits.end());
 		return insp::join(limits, ',');

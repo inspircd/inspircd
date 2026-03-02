@@ -161,7 +161,7 @@ Log::StreamEngine::StreamEngine(Module* Creator, const std::string& Name, FILE* 
 
 Log::MethodPtr Log::StreamEngine::Create(const std::shared_ptr<ConfigTag>& tag)
 {
-	return std::make_shared<FileMethod>(name, file, 1, false);
+	return std::make_shared<FileMethod>(this->service_name, file, 1, false);
 }
 
 Log::Manager::CachedMessage::CachedMessage(time_t ts, Level l, const std::string& t, const std::string& m)
@@ -309,7 +309,8 @@ void Log::Manager::UnloadEngine(const Engine* engine)
 	std::erase_if(loggers, [&engine](const Info& info) { return info.engine == engine; });
 	logging = false;
 
-	Normal("LOG", "The {} log engine is unloading; removed {}/{} loggers.", engine->name.c_str(), logger_count - loggers.size(), logger_count);
+	Normal("LOG", "The {} log engine is unloading; removed {}/{} loggers.", engine->service_name.c_str(),
+		logger_count - loggers.size(), logger_count);
 }
 
 void Log::Manager::CheckLevel()

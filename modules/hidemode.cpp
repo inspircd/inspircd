@@ -33,7 +33,7 @@ class Settings final
 public:
 	ModeHandler::Rank GetRequiredRank(const ModeHandler& mh) const
 	{
-		RanksToSeeMap::const_iterator it = rankstosee.find(mh.name);
+		RanksToSeeMap::const_iterator it = rankstosee.find(mh.service_name);
 		if (it != rankstosee.end())
 			return it->second;
 		return 0;

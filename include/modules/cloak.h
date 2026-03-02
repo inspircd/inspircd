@@ -129,7 +129,7 @@ private:
 
 protected:
 	Method(const Engine* engine, const std::shared_ptr<ConfigTag>& tag) ATTR_NOT_NULL(2)
-		: provname(engine->name)
+		: provname(engine->service_name)
 	{
 		irc::commasepstream klassstream(tag->getString("class"));
 		for (std::string klass; klassstream.GetToken(klass); )
@@ -183,7 +183,7 @@ public:
 	 */
 	bool IsProvidedBy(const ServiceProvider& prov) const
 	{
-		return prov.name == provname;
+		return prov.service_name == provname;
 	}
 };
 

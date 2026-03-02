@@ -31,7 +31,8 @@ bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Pa
 {
 	if (!handler->accepts_multiple_targets)
 	{
-		ServerInstance->Logs.Debug("COMMAND", "BUG: {} called CommandParser::LoopCall with !accepts_multiple_targets", handler->name);
+		ServerInstance->Logs.Debug("COMMAND", "BUG: {} called CommandParser::LoopCall with !accepts_multiple_targets",
+			handler->service_name);
 		return false;
 	}
 
@@ -322,7 +323,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 
 void CommandParser::RemoveCommand(Command* x)
 {
-	CommandMap::iterator n = cmdlist.find(x->name);
+	CommandMap::iterator n = cmdlist.find(x->service_name);
 	if (n != cmdlist.end() && n->second == x)
 		cmdlist.erase(n);
 }
@@ -342,7 +343,7 @@ void CommandParser::ProcessBuffer(LocalUser* user, const std::string& buffer)
 
 bool CommandParser::AddCommand(Command* cmd)
 {
-	return cmdlist.emplace(cmd->name, cmd).second;
+	return cmdlist.emplace(cmd->service_name, cmd).second;
 }
 
 std::string CommandParser::TranslateUIDs(const std::vector<TranslateType>& to, const CommandBase::Params& source, bool prefix_final, CommandBase* custom_translator)
@@ -436,7 +437,7 @@ Command::~Command()
 void Command::RegisterService()
 {
 	if (!ServerInstance->Parser.AddCommand(this))
-		throw ModuleException(creator, "Command already exists: " + name);
+		throw ModuleException(creator, "Command already exists: {}", this->service_name);
 }
 
 size_t Command::GetMaxTargets()
@@ -447,7 +448,7 @@ size_t Command::GetMaxTargets()
 	if (!this->max_targets || this->max_targets_checked != ServerInstance->Config->ReadTime)
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("maxtargets");
-		this->max_targets = tag->getNum<size_t>(this->name, tag->getNum("default", 5, 1), 1);
+		this->max_targets = tag->getNum<size_t>(this->service_name, tag->getNum("default", 5, 1), 1);
 		this->max_targets_checked = ServerInstance->Config->ReadTime;
 	}
 	return this->max_targets;
@@ -455,17 +456,17 @@ size_t Command::GetMaxTargets()
 
 void Command::TellNotEnoughParameters(LocalUser* user, const Params& parameters)
 {
-	user->WriteNumeric(ERR_NEEDMOREPARAMS, name, "Not enough parameters.");
+	user->WriteNumeric(ERR_NEEDMOREPARAMS, this->service_name, "Not enough parameters.");
 	if (ServerInstance->Config->SyntaxHints && user->IsFullyConnected())
 	{
 		for (const auto& syntaxline : this->syntax)
-			user->WriteNumeric(RPL_SYNTAX, name, syntaxline);
+			user->WriteNumeric(RPL_SYNTAX, this->service_name, syntaxline);
 	}
 }
 
 void Command::TellNotFullyConnected(LocalUser* user, const Params& parameters)
 {
-	user->WriteNumeric(ERR_NOTREGISTERED, name, "You must be fully connected to use this command.");
+	user->WriteNumeric(ERR_NOTREGISTERED, this->service_name, "You must be fully connected to use this command.");
 }
 
 SplitCommand::SplitCommand(Module* me, const std::string& cmd, unsigned int minpara, unsigned int maxpara)

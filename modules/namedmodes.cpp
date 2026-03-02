@@ -43,12 +43,12 @@ static void DisplayList(LocalUser* user, Channel* channel)
 		if (!channel->IsModeSet(mh))
 			continue;
 
-		numeric.Add("+" + mh->name);
+		numeric.Add("+" + mh->service_name);
 		ParamModeBase* pm = mh->IsParameterMode();
 		if (pm)
 		{
 			if ((pm->IsParameterSecret()) && (!channel->HasUser(user)) && (!user->HasPrivPermission("channels/auspex")))
-				numeric.Add("<" + mh->name + ">");
+				numeric.Add("<" + mh->service_name + ">");
 			else
 				numeric.Add(channel->GetModeParameter(mh));
 		}

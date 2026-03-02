@@ -56,7 +56,7 @@ CommandReply::Builder::Builder(SpanningTree::RemoteUser* target, const Reply::Re
 {
 	push(reply.GetSource() ? reply.GetSource()->GetId() : Utils->TreeRoot->GetId());
 	push(target->uuid);
-	push(reply.GetCommand() ? reply.GetCommand()->name : "*");
+	push(reply.GetCommand() ? reply.GetCommand()->service_name : "*");
 	push(reply.GetCode());
 
 	const auto& params = reply.GetParams();

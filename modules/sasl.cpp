@@ -337,7 +337,7 @@ public:
 		{
 			if (!cap.IsEnabled(user))
 			{
-				user->WriteNumeric(ERR_UNKNOWNCOMMAND, name, "You must request the sasl capability to use this command");
+				user->WriteNumeric(ERR_UNKNOWNCOMMAND, this->service_name, "You must request the sasl capability to use this command");
 				return CmdResult::FAILURE;
 			}
 
@@ -425,7 +425,7 @@ public:
 		, cap(this, servertracker)
 		, auth(this, authExt, cap)
 		, sasl(this, authExt)
-		, protoev(this, auth.name)
+		, protoev(this, "AUTHENTICATE")
 	{
 		g_protoev = &protoev;
 	}

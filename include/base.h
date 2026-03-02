@@ -156,9 +156,9 @@ public:
 	/** Module that is providing this service */
 	ModuleRef creator;
 	/** Name of the service being provided */
-	const std::string name;
+	const std::string service_name;
 	/** Type of service (must match object type) */
-	const ServiceType service;
+	const ServiceType service_type;
 	ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type);
 
 	/** Retrieves a string that represents the type of this service. */

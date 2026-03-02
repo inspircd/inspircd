@@ -81,7 +81,7 @@ public:
 		if (mh->GetLevelRequired(change.adding) > mylevel)
 		{
 			source->WriteNumeric(ERR_CHANOPRIVSNEEDED, channel->name, FMT::format("You must be able to {} mode {} ({}) to {} an autoop containing it",
-				change.adding ? "set" : "unset", mh->GetModeChar(), mh->name, change.adding ? "add" : "remove"));
+				change.adding ? "set" : "unset", mh->GetModeChar(), mh->service_name, change.adding ? "add" : "remove"));
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

@@ -86,7 +86,7 @@ public:
 			eparams.push_back(method);
 			eparams.push_back(":");
 			eparams.back().append(reason);
-			ServerInstance->PI->BroadcastEncap(this->name, eparams, user, user);
+			ServerInstance->PI->BroadcastEncap(this->service_name, eparams, user, user);
 		}
 
 		// Attach to the appropriate hook so we're able to hide the QUIT/KICK messages

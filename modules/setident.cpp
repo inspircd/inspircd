@@ -89,7 +89,7 @@ public:
 		if (!user->server->IsService())
 		{
 			ServerInstance->SNO.WriteGlobalSno('a', "{} ({}) used {} to change the username of {} to \"{}\x0F\"",
-				user->GetRealMask(), user->GetAddress(), this->name, target->nick, newuser);
+				user->GetRealMask(), user->GetAddress(), this->service_name, target->nick, newuser);
 		}
 		return CmdResult::SUCCESS;
 	}

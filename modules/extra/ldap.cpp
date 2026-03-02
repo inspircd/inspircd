@@ -330,7 +330,7 @@ private:
 	{
 		// Only try one connect a minute. It is an expensive blocking operation
 		if (last_connect > ServerInstance->Time() - 60)
-			throw LDAPException("Unable to connect to LDAP service " + this->name + ": reconnecting too fast");
+			throw LDAPException("Unable to connect to LDAP service " + this->service_name + ": reconnecting too fast");
 		last_connect = ServerInstance->Time();
 
 		ldap_unbind_ext(this->con, nullptr, nullptr);
@@ -412,17 +412,17 @@ public:
 		std::string server = config->getString("server");
 		int i = ldap_initialize(&this->con, server.c_str());
 		if (i != LDAP_SUCCESS)
-			throw LDAPException("Unable to connect to LDAP service " + this->name + ": " + ldap_err2string(i));
+			throw LDAPException("Unable to connect to LDAP service " + this->service_name + ": " + ldap_err2string(i));
 
 		const int version = LDAP_VERSION3;
 		i = SetOption(LDAP_OPT_PROTOCOL_VERSION, &version);
 		if (i != LDAP_OPT_SUCCESS)
-			throw LDAPException("Unable to set protocol version for " + this->name + ": " + ldap_err2string(i));
+			throw LDAPException("Unable to set protocol version for " + this->service_name + ": " + ldap_err2string(i));
 
 		const struct timeval tv = { 0, 0 };
 		i = SetOption(LDAP_OPT_NETWORK_TIMEOUT, &tv);
 		if (i != LDAP_OPT_SUCCESS)
-			throw LDAPException("Unable to set timeout for " + this->name + ": " + ldap_err2string(i));
+			throw LDAPException("Unable to set timeout for " + this->service_name + ": " + ldap_err2string(i));
 	}
 
 	void BindAsManager(LDAPInterface* i) override

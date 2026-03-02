@@ -54,7 +54,7 @@ CmdResult CommandCommands::HandleLocal(LocalUser* user, const Params& parameters
 				break;
 
 			case CmdAccess::OPERATOR: // Only opers can use oper commands.
-				usable = user->HasCommandPermission(command->name);
+				usable = user->HasCommandPermission(command->service_name);
 				break;
 
 			case CmdAccess::SERVER: // Nobody can use server commands.
@@ -69,7 +69,7 @@ CmdResult CommandCommands::HandleLocal(LocalUser* user, const Params& parameters
 			continue;
 
 		Numeric::Numeric numeric(RPL_COMMANDS);
-		numeric.push(command->name);
+		numeric.push(command->service_name);
 		numeric.push(ModuleManager::ShrinkModName(command->creator->ModuleFile));
 		numeric.push(command->min_params);
 		if (command->max_params < command->min_params)

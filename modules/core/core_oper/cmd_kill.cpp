@@ -31,7 +31,7 @@
 
 CommandKill::CommandKill(Module* parent)
 	: Command(parent, "KILL", 2, 2)
-	, protoev(parent, name)
+	, protoev(parent, "KILL")
 {
 	accepts_multiple_targets = true;
 	access_needed = CmdAccess::OPERATOR;

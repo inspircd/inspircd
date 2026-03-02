@@ -82,7 +82,7 @@ public:
 	/** Retrieves the name of this regex engine. */
 	const char* GetName() const
 	{
-		return name.c_str() + 6;
+		return this->service_name.c_str() + 6;
 	}
 };
 

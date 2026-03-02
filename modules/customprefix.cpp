@@ -39,7 +39,7 @@ public:
 		this->Update(rank, setrank, unsetrank, depriv);
 
 		ServerInstance->Logs.Debug(MODNAME, "Created the {} prefix: letter={} prefix={} rank={} ranktoset={} ranktounset={} depriv={}",
-			name, GetModeChar(), GetPrefix(), GetPrefixRank(), GetLevelRequired(true), GetLevelRequired(false),
+			this->service_name, GetModeChar(), GetPrefix(), GetPrefixRank(), GetLevelRequired(true), GetLevelRequired(false),
 			CanSelfRemove() ? "yes" : "no");
 	}
 };

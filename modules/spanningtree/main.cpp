@@ -521,7 +521,7 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 		const std::string value = item->ToNetwork(user, obj);
 		if (!value.empty())
 		{
-			ServerInstance->PI->SendMetadata(user, item->name, value);
+			ServerInstance->PI->SendMetadata(user, item->service_name, value);
 			item->OnSync(user, obj, nullptr);
 		}
 	}

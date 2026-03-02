@@ -127,7 +127,7 @@ namespace Stats
 		for (const auto& [item, obj] : ext->GetExtList())
 		{
 			serializer.BeginBlock("meta")
-				.Attribute("name", item->name);
+				.Attribute("name", item->service_name);
 
 			const std::string value = item->ToHuman(ext, obj);
 			serializer.Attribute("value", value)

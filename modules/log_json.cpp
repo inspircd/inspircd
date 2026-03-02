@@ -155,7 +155,7 @@ public:
 
 	Log::MethodPtr Create(const std::shared_ptr<ConfigTag>& tag) override
 	{
-		return std::make_shared<JSONMethod>(name, file, 1, false);
+		return std::make_shared<JSONMethod>(this->service_name, file, 1, false);
 	}
 };
 

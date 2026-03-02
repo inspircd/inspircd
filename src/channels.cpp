@@ -382,7 +382,7 @@ const char* Channel::ChanModes(bool showsecret)
 
 			if (pm->IsParameterSecret() && !showsecret)
 			{
-				sparam += " <" + pm->name + ">";
+				sparam += " <" + pm->service_name + ">";
 			}
 			else
 			{

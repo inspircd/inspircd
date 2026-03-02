@@ -35,7 +35,7 @@ public:
 	};
 
 private:
-	std::string name;
+	std::string service_name;
 	CaptureHook* hook = nullptr;
 	void resolve();
 	static void* operator new(std::size_t) = delete;
@@ -54,7 +54,7 @@ public:
 		return *this;
 	}
 
-	inline const std::string& GetProvider() const { return name; }
+	inline const std::string& GetProvider() const { return this->service_name; }
 	void ClearProvider();
 	void SetProvider(const std::string& newname);
 
@@ -71,7 +71,10 @@ public:
 inline void dynamic_reference_base::check()
 {
 	if (!value)
-		throw ModuleException(creator, "Dynamic reference to '" + name + "' failed to resolve. Are you missing a module?");
+	{
+		throw ModuleException(creator, "Dynamic reference to \"{}\" failed to resolve. Are you missing a module?",
+			this->service_name);
+	}
 }
 
 template<typename T>

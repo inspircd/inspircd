@@ -381,7 +381,7 @@ public:
 		if (!initialquery.empty() && mysql_real_query(connection, initialquery.data(), initialquery.length()))
 		{
 			ServerInstance->Logs.Critical(MODNAME, "Could not execute initial query \"{}\" for {}: {}",
-				initialquery, name, mysql_error(connection));
+				initialquery, this->service_name, mysql_error(connection));
 			return false;
 		}
 

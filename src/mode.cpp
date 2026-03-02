@@ -87,7 +87,9 @@ void ModeHandler::DisplayEmptyList(User*, Channel*)
 
 void ModeHandler::OnParameterMissing(User* user, User* dest, Channel* channel)
 {
-	std::string message = FMT::format("You must specify a parameter for the {} mode.", name);
+	std::string message = FMT::format("You must specify a parameter for the {} mode.",
+		this->service_name);
+
 	if (!syntax.empty())
 		message.append(FMT::format(" Syntax: {}.", syntax));
 
@@ -113,7 +115,7 @@ bool ModeHandler::ResolveModeConflict(const std::string& theirs, const std::stri
 void ModeHandler::RegisterService()
 {
 	ServerInstance->Modes.AddMode(this);
-	ServerInstance->Modules.AddReferent((GetModeType() == MODETYPE_CHANNEL ? "mode/" : "umode/") + name, this);
+	ServerInstance->Modules.AddReferent((GetModeType() == MODETYPE_CHANNEL ? "mode/" : "umode/") + this->service_name, this);
 }
 
 bool SimpleUserMode::OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change)
@@ -281,14 +283,14 @@ bool ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Modes::Cha
 			if (ourrank < neededrank)
 			{
 				user->WriteNumeric(Numerics::ChannelPrivilegesNeeded(chan, neededrank, FMT::format("{} channel mode {} ({})",
-					mcitem.adding ? "set" : "unset", mh->GetModeChar(), mh->name)));
+					mcitem.adding ? "set" : "unset", mh->GetModeChar(), mh->service_name)));
 				return false;
 			}
 		}
 	}
 
 	// Ask mode watchers whether this mode change is OK
-	for (const auto& [_, mw] : insp::equal_range(modewatchermap, mh->name))
+	for (const auto& [_, mw] : insp::equal_range(modewatchermap, mh->service_name))
 	{
 		if (mw->GetModeType() == type)
 		{
@@ -308,13 +310,13 @@ bool ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Modes::Cha
 		{
 			user->WriteNumeric(Numerics::NoPrivileges("your server operator account does not have access to {} {} mode {} ({})",
 				mcitem.adding ? "set" : "unset", type == MODETYPE_CHANNEL ? "channel" : "user",
-				modechar, mh->name));
+				modechar, mh->service_name));
 		}
 		else
 		{
 			user->WriteNumeric(Numerics::NoPrivileges("only server operators may {} {} mode {} ({})",
 				mcitem.adding ? "set" : "unset", type == MODETYPE_CHANNEL ? "channel" : "user",
-				modechar, mh->name));
+				modechar, mh->service_name));
 		}
 		return false;
 	}
@@ -326,7 +328,7 @@ bool ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Modes::Cha
 	if ((needs_param) && (mcitem.param.empty()))
 		return false;
 
-	for (const auto& [_, mw] : insp::equal_range(modewatchermap, mh->name))
+	for (const auto& [_, mw] : insp::equal_range(modewatchermap, mh->service_name))
 	{
 		if (mw->GetModeType() == type)
 			mw->AfterMode(user, targetuser, chan, mcitem);
@@ -488,7 +490,7 @@ void ModeParser::ShowListModeList(User* user, Channel* chan, ModeHandler* mh)
 		bool display = true;
 
 		// Ask mode watchers whether it's OK to show the list
-		for (const auto& [_, mw] : insp::equal_range(modewatchermap, mh->name))
+		for (const auto& [_, mw] : insp::equal_range(modewatchermap, mh->service_name))
 		{
 			if (mw->GetModeType() == MODETYPE_CHANNEL)
 			{
@@ -565,7 +567,7 @@ ModeHandler::Id ModeParser::AllocateModeId(ModeHandler* mh)
 void ModeParser::AddMode(ModeHandler* mh)
 {
 	if (!ModeParser::IsModeChar(mh->GetModeChar()))
-		throw ModuleException(mh->creator, "Mode letter for {} is invalid: {}", mh->name, mh->GetModeChar());
+		throw ModuleException(mh->creator, "Mode letter for {} is invalid: {}", mh->service_name, mh->GetModeChar());
 
 	/* A mode prefix of ',' is not acceptable, it would fuck up server to server.
 	 * A mode prefix of ':' will fuck up both server to server, and client to server.
@@ -575,13 +577,13 @@ void ModeParser::AddMode(ModeHandler* mh)
 	if (pm)
 	{
 		if ((pm->GetPrefix() > 126) || (pm->GetPrefix() == ',') || (pm->GetPrefix() == ':') || ServerInstance->Channels.IsPrefix(pm->GetPrefix()))
-			throw ModuleException(mh->creator, "Mode prefix for {} is invalid: {}", mh->name, pm->GetPrefix());
+			throw ModuleException(mh->creator, "Mode prefix for {} is invalid: {}", mh->service_name, pm->GetPrefix());
 
 		PrefixMode* otherpm = FindPrefix(pm->GetPrefix());
 		if (otherpm)
 		{
 			throw ModuleException(mh->creator, "Mode prefix for {} already used by {} from {}: {}",
-				mh->name, otherpm->name, otherpm->creator->ModuleFile, pm->GetPrefix());
+				mh->service_name, otherpm->service_name, otherpm->creator->ModuleFile, pm->GetPrefix());
 		}
 	}
 
@@ -589,7 +591,7 @@ void ModeParser::AddMode(ModeHandler* mh)
 	if (slot)
 	{
 		throw ModuleException(mh->creator, "Mode letter for {} already used by {} from {}: {}",
-			mh->name, slot->name, slot->creator->ModuleFile, mh->GetModeChar());
+			mh->service_name, slot->service_name, slot->creator->ModuleFile, mh->GetModeChar());
 	}
 
 	// The mode needs an id if it is either a user mode, a simple mode (flag) or a parameter mode.
@@ -598,12 +600,12 @@ void ModeParser::AddMode(ModeHandler* mh)
 	if ((mh->GetModeType() == MODETYPE_USER) || (mh->IsParameterMode()) || (!mh->IsListMode()))
 		modeid = AllocateModeId(mh);
 
-	std::pair<ModeHandlerMap::iterator, bool> res = modehandlersbyname[mh->GetModeType()].emplace(mh->name, mh);
+	std::pair<ModeHandlerMap::iterator, bool> res = modehandlersbyname[mh->GetModeType()].emplace(mh->service_name, mh);
 	if (!res.second)
 	{
 		ModeHandler* othermh = res.first->second;
 		throw ModuleException(mh->creator, "Mode name {} already used by {} from {}",
-			mh->name, othermh->GetModeChar(), othermh->creator->ModuleFile);
+			mh->service_name, othermh->GetModeChar(), othermh->creator->ModuleFile);
 	}
 
 	// Everything is fine, add the mode
@@ -628,7 +630,7 @@ bool ModeParser::DelMode(ModeHandler* mh)
 		return false;
 
 	ModeHandlerMap& mhmap = modehandlersbyname[mh->GetModeType()];
-	ModeHandlerMap::iterator mhmapit = mhmap.find(mh->name);
+	ModeHandlerMap::iterator mhmapit = mhmap.find(mh->service_name);
 	if ((mhmapit == mhmap.end()) || (mhmapit->second != mh))
 		return false;
 

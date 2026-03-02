@@ -93,7 +93,7 @@ public:
 		if (!user->server->IsService())
 		{
 			ServerInstance->SNO.WriteGlobalSno('a', "{} ({}) used {} to change the hostname of {} to \"{}\x0F\"",
-				user->GetRealMask(), user->GetAddress(), this->name, target->nick, newhost);
+				user->GetRealMask(), user->GetAddress(), this->service_name, target->nick, newhost);
 		}
 		return CmdResult::SUCCESS;
 	}

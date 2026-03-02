@@ -83,7 +83,7 @@ public:
 			}
 			if (target->IsModeSet(data.servprotectmode))
 			{
-				user->WriteRemoteNumeric(Numerics::NoPrivileges("you can not use the {} command on a protected service", this->name));
+				user->WriteRemoteNumeric(Numerics::NoPrivileges("you can not use the {} command on a protected service", this->service_name));
 				return CmdResult::FAILURE;
 			}
 		}
@@ -109,12 +109,12 @@ public:
 		auto* memb = Channel::JoinUser(ltarget, targetchan, true);
 		if (!memb)
 		{
-			user->WriteRemoteNotice("*** {}: could not join {} to {}.", this->name, target->nick, targetchan);
+			user->WriteRemoteNotice("*** {}: could not join {} to {}.", this->service_name, target->nick, targetchan);
 			return CmdResult::FAILURE;
 		}
 
 		ServerInstance->SNO.WriteGlobalSno('a', "{} ({}) used {} to make {} join {}", user->nick,
-			user->oper->GetName(), this->name, target->nick, memb->chan->name);
+			user->oper->GetName(), this->service_name, target->nick, memb->chan->name);
 
 		return CmdResult::SUCCESS;
 	}
@@ -153,7 +153,7 @@ public:
 		}
 		if (target->IsModeSet(data.servprotectmode))
 		{
-			user->WriteRemoteNumeric(Numerics::NoPrivileges("you can not use the {} command on a protected service", this->name));
+			user->WriteRemoteNumeric(Numerics::NoPrivileges("you can not use the {} command on a protected service", this->service_name));
 			return CmdResult::FAILURE;
 		}
 
@@ -177,7 +177,7 @@ public:
 		chan->KickUser(user, target, data.sign ? FMT::format("{} ({})", reason, user->nick) : reason);
 
 		ServerInstance->SNO.WriteGlobalSno('a', "{} ({}) used {} to kick {} from {} ({})", user->nick,
-			user->oper->GetName(), this->name, target->nick, chan->name, reason);
+			user->oper->GetName(), this->service_name, target->nick, chan->name, reason);
 
 		return CmdResult::SUCCESS;
 	}
@@ -219,7 +219,7 @@ public:
 			}
 			if (target->IsModeSet(data.servprotectmode))
 			{
-				user->WriteRemoteNumeric(Numerics::NoPrivileges("you can not use the {} command on a protected service", this->name));
+				user->WriteRemoteNumeric(Numerics::NoPrivileges("you can not use the {} command on a protected service", this->service_name));
 				return CmdResult::FAILURE;
 			}
 
@@ -258,7 +258,7 @@ public:
 	{
 		this->logged = true;
 		ServerInstance->SNO.WriteGlobalSno('a', "{} ({}) used {} to change the modes of {} to {}", user->nick,
-			user->oper->GetName(), this->name, target, modes);
+			user->oper->GetName(), this->service_name, target, modes);
 	}
 };
 
@@ -290,7 +290,7 @@ public:
 		}
 		if (target->IsModeSet(data.servprotectmode))
 		{
-			user->WriteRemoteNumeric(Numerics::NoPrivileges("you can not use the {} command on a protected service", this->name));
+			user->WriteRemoteNumeric(Numerics::NoPrivileges("you can not use the {} command on a protected service", this->service_name));
 			return CmdResult::FAILURE;
 		}
 
@@ -320,12 +320,12 @@ public:
 
 		if (!target->ChangeNick(targetnewnick))
 		{
-			user->WriteRemoteNotice("*** {}: could not change the nick of {} to {}.", this->name, targetnick, targetnewnick);
+			user->WriteRemoteNotice("*** {}: could not change the nick of {} to {}.", this->service_name, targetnick, targetnewnick);
 			return CmdResult::FAILURE;
 		}
 
 		ServerInstance->SNO.WriteGlobalSno('a', "{} ({}) used {} to change the nick of {} to {}", user->nick,
-			user->oper->GetName(), this->name, targetnick, targetnewnick);
+			user->oper->GetName(), this->service_name, targetnick, targetnewnick);
 
 		return CmdResult::SUCCESS;
 	}
@@ -368,7 +368,7 @@ public:
 		}
 		if (target->IsModeSet(data.servprotectmode))
 		{
-			user->WriteRemoteNumeric(Numerics::NoPrivileges("you can not use the {} command on a protected service", this->name));
+			user->WriteRemoteNumeric(Numerics::NoPrivileges("you can not use the {} command on a protected service", this->service_name));
 			return CmdResult::FAILURE;
 		}
 
@@ -391,7 +391,7 @@ public:
 		}
 
 		ServerInstance->SNO.WriteGlobalSno('a', "{} ({}) used {} to part {} from {} ({})", user->nick,
-			user->oper->GetName(), this->name, target->nick, chan->name, reason);
+			user->oper->GetName(), this->service_name, target->nick, chan->name, reason);
 
 		return CmdResult::FAILURE;
 	}
@@ -430,7 +430,7 @@ public:
 		}
 		if (target->IsModeSet(data.servprotectmode))
 		{
-			user->WriteRemoteNumeric(Numerics::NoPrivileges("you can not use the {} command on a protected service", this->name));
+			user->WriteRemoteNumeric(Numerics::NoPrivileges("you can not use the {} command on a protected service", this->service_name));
 			return CmdResult::FAILURE;
 		}
 
@@ -441,7 +441,7 @@ public:
 		ServerInstance->Users.QuitUser(target, data.sign ? FMT::format("{}{}({})", reason, reason.empty() ? "" : " ", user->nick) : reason);
 
 		ServerInstance->SNO.WriteGlobalSno('a', "{} ({}) used {} to quit {} ({})", user->nick,
-			user->oper->GetName(), this->name, target->nick, reason);
+			user->oper->GetName(), this->service_name, target->nick, reason);
 
 		return CmdResult::FAILURE;
 	}
@@ -478,14 +478,14 @@ public:
 		if (target->topic == topic)
 		{
 			user->WriteRemoteNotice("*** {}: The topic on {} is already what you are trying to change it to.",
-				this->name, target->name);
+				this->service_name, target->name);
 			return CmdResult::SUCCESS;
 		}
 
 		target->SetTopic(user, topic, ServerInstance->Time(), nullptr);
 
 		ServerInstance->SNO.WriteGlobalSno('a', "{} ({}) used {} to change the topic of {} ({})", user->nick,
-			user->oper->GetName(), this->name, target->name, topic);
+			user->oper->GetName(), this->service_name, target->name, topic);
 
 		return CmdResult::SUCCESS;
 	}

@@ -1106,8 +1106,8 @@ std::string OperType::GetCommands(bool all) const
 	std::vector<std::string> ret;
 	for (const auto& [_, cmd] : ServerInstance->Parser.GetCommands())
 	{
-		if (cmd->access_needed == CmdAccess::OPERATOR && CanUseCommand(cmd->name))
-			ret.push_back(cmd->name);
+		if (cmd->access_needed == CmdAccess::OPERATOR && CanUseCommand(cmd->service_name))
+			ret.push_back(cmd->service_name);
 	}
 	std::sort(ret.begin(), ret.end());
 	return insp::join(ret);

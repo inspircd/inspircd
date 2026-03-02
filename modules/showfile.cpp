@@ -81,8 +81,8 @@ public:
 
 	void UpdateSettings(const std::shared_ptr<ConfigTag>& tag, const std::string& filecontents)
 	{
-		introtext = tag->getString("introtext", "Showing " + name);
-		endtext = tag->getString("endtext", "End of " + name);
+		introtext = tag->getString("introtext", "Showing " + this->service_name);
+		endtext = tag->getString("endtext", "End of " + this->service_name);
 		intronumeric = tag->getNum<unsigned int>("intronumeric", RPL_RULESTART, 0, 999);
 		textnumeric = tag->getNum<unsigned int>("numeric", RPL_RULES, 0, 999);
 		endnumeric = tag->getNum<unsigned int>("endnumeric", RPL_RULESEND, 0, 999);

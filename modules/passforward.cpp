@@ -79,7 +79,7 @@ public:
 
 	void OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, bool loop) override
 	{
-		if (command->name == "NICK" && parameters.size() > 1)
+		if (command->service_name == "NICK" && parameters.size() > 1)
 			ForwardPass(user, parameters[1]);
 	}
 

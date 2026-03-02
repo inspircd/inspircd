@@ -402,7 +402,7 @@ public:
 		: SplitCommand(mod, "CAP", 1)
 		, evprov(mod, "event/cap")
 		, manager(mod, evprov)
-		, protoevprov(mod, name)
+		, protoevprov(mod, "CAP")
 		, holdext(mod, "cap-hold", ExtensionType::USER)
 	{
 		works_before_reg = true;

@@ -299,12 +299,12 @@ public:
 		else
 		{
 			IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "UNKNOWN_COMMAND", subcmd, FMT::format("Invalid {} subcommand: {}",
-				this->name, subcmd));
+				this->service_name, subcmd));
 
 			if (ServerInstance->Config->SyntaxHints)
 			{
 				for (const auto& syntaxline : this->syntax)
-					user->WriteNumeric(RPL_SYNTAX, name, syntaxline);
+					user->WriteNumeric(RPL_SYNTAX, this->service_name, syntaxline);
 			}
 			return CmdResult::FAILURE;
 		}

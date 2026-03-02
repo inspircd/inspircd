@@ -240,7 +240,7 @@ namespace
 			// the value of it then we use <name> instead of the value.
 			if (pm->IsParameterSecret() && !show_secret)
 			{
-				num.push("<" + pm->name + ">");
+				num.push("<" + pm->service_name + ">");
 				continue;
 			}
 

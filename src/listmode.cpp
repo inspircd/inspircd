@@ -27,7 +27,7 @@ ListModeBase::ListModeBase(Module* Creator, const std::string& Name, char modech
 	: ModeHandler(Creator, Name, modechar, PARAM_ALWAYS, MODETYPE_CHANNEL, MC_LIST)
 	, listnumeric(lnum)
 	, endoflistnumeric(eolnum)
-	, extItem(Creator, "list-mode-" + name, ExtensionType::CHANNEL)
+	, extItem(Creator, "list-mode-" + Name, ExtensionType::CHANNEL)
 {
 	list = true;
 }
@@ -44,12 +44,14 @@ void ListModeBase::DisplayList(User* user, Channel* channel)
 	for (const auto& item : cd->list)
 		user->WriteNumeric(listnumeric, channel->name, item.mask, item.setter, item.time);
 
-	user->WriteNumeric(endoflistnumeric, channel->name, FMT::format("End of channel {} list.", name));
+	user->WriteNumeric(endoflistnumeric, channel->name, FMT::format("End of channel {} list.",
+		this->service_name));
 }
 
 void ListModeBase::DisplayEmptyList(User* user, Channel* channel)
 {
-	user->WriteNumeric(endoflistnumeric, channel->name, FMT::format("Channel {} list is empty.", name));
+	user->WriteNumeric(endoflistnumeric, channel->name, FMT::format("Channel {} list is empty.",
+		this->service_name));
 }
 
 void ListModeBase::RemoveMode(Channel* channel, Modes::ChangeList& changelist)
@@ -70,7 +72,7 @@ void ListModeBase::DoRehash()
 	for (const auto& [_, c] : ServerInstance->Config->ConfTags("maxlist"))
 	{
 		const std::string mname = c->getString("mode");
-		if (!mname.empty() && !insp::equalsci(mname, name) && !(mname.length() == 1 && GetModeChar() == mname[0]))
+		if (!mname.empty() && !insp::equalsci(mname, this->service_name) && !(mname.length() == 1 && GetModeChar() == mname[0]))
 			continue;
 
 		ListLimit limit(c->getString("chan", "*", 1), c->getNum<size_t>("limit", DEFAULT_LIST_SIZE));
@@ -88,7 +90,7 @@ void ListModeBase::DoRehash()
 	if (!seen_default)
 	{
 		ServerInstance->Logs.Warning("MODE", "No default <maxlist> entry was found for the {} mode; defaulting to {}",
-			name, DEFAULT_LIST_SIZE);
+			this->service_name, DEFAULT_LIST_SIZE);
 		newlimits.push_back(ListLimit("*", DEFAULT_LIST_SIZE));
 	}
 
@@ -235,15 +237,18 @@ void ListModeBase::OnParameterMissing(User* source, User* dest, Channel* channel
 
 void ListModeBase::TellListTooLong(LocalUser* source, Channel* channel, const std::string& parameter, size_t limit)
 {
-	source->WriteNumeric(ERR_BANLISTFULL, channel->name, parameter, mode, FMT::format("Channel {} list is full ({} entries)", name, limit));
+	source->WriteNumeric(ERR_BANLISTFULL, channel->name, parameter, mode, FMT::format("Channel {} list is full ({} entries)",
+		this->service_name, limit));
 }
 
 void ListModeBase::TellAlreadyOnList(LocalUser* source, Channel* channel, const std::string& parameter)
 {
-	source->WriteNumeric(ERR_LISTMODEALREADYSET, channel->name, parameter, mode, FMT::format("Channel {} list already contains {}", name, parameter));
+	source->WriteNumeric(ERR_LISTMODEALREADYSET, channel->name, parameter, mode, FMT::format("Channel {} list already contains {}",
+		this->service_name, parameter));
 }
 
 void ListModeBase::TellNotSet(LocalUser* source, Channel* channel, const std::string& parameter)
 {
-	source->WriteNumeric(ERR_LISTMODENOTSET, channel->name, parameter, mode, FMT::format("Channel {} list does not contain {}", name, parameter));
+	source->WriteNumeric(ERR_LISTMODENOTSET, channel->name, parameter, mode, FMT::format("Channel {} list does not contain {}",
+		this->service_name, parameter));
 }

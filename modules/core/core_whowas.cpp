@@ -207,7 +207,7 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 	/* if whowas disabled in config */
 	if (!manager.IsEnabled())
 	{
-		user->WriteNumeric(ERR_UNKNOWNCOMMAND, name, "This command has been disabled.");
+		user->WriteNumeric(ERR_UNKNOWNCOMMAND, this->service_name, "This command has been disabled.");
 		return CmdResult::FAILURE;
 	}
 

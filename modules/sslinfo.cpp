@@ -277,7 +277,7 @@ private:
 		{
 			source->WriteNotice("*** {} {} have channel mode +{} ({}) set.",
 				chan->name, chan->IsModeSet(sslonlymode) ? "does" : "does not",
-				sslonlymode->GetModeChar(), sslonlymode->name);
+				sslonlymode->GetModeChar(), sslonlymode->service_name);
 		}
 
 		for (const auto& [u, _] : chan->GetUsers())

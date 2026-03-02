@@ -84,7 +84,7 @@ public:
 		if (notifyopers || user != target)
 		{
 			ServerInstance->SNO.WriteGlobalSno('a', "{} ({}) used {} to change the real name of {} to \"{}\x0F\"",
-				user->GetRealMask(), user->GetAddress(), this->name, target->nick, newreal);
+				user->GetRealMask(), user->GetAddress(), this->service_name, target->nick, newreal);
 		}
 		return CmdResult::SUCCESS;
 	}

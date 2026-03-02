@@ -254,7 +254,7 @@ public:
 
 	void OnServiceAdd(ServiceProvider& service) override
 	{
-		if (!service.name.starts_with("hash/"))
+		if (!service.service_name.starts_with("hash/"))
 			return; //  Not a hash provider.
 
 		auto* hp = static_cast<Hash::Provider*>(&service);
@@ -295,7 +295,7 @@ public:
 
 	void OnServiceDel(ServiceProvider& service) override
 	{
-		if (!service.name.starts_with("hash/"))
+		if (!service.service_name.starts_with("hash/"))
 			return; //  Not a hash provider.
 
 		const auto& hp = static_cast<Hash::Provider&>(service);

@@ -238,7 +238,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 				if (command->use_count)
 				{
 					/* RPL_STATSCOMMANDS */
-					stats.AddRow(212, command->name, command->use_count);
+					stats.AddRow(212, command->service_name, command->use_count);
 				}
 			}
 		}

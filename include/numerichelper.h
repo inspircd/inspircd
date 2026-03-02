@@ -57,7 +57,7 @@ public:
 	{
 		push(chan->name);
 		push_fmt("You cannot send {} to this channel whilst the +{} ({}) mode is set.", what,
-			mh->GetModeChar(), mh->name);
+			mh->GetModeChar(), mh->service_name);
 	}
 
 #ifdef INSPIRCD_EXTBAN
@@ -82,7 +82,7 @@ public:
 	{
 		push(user->connected & User::CONN_NICK ? user->nick : "*");
 		push_fmt("You cannot send {} to this user whilst {} have the +{} ({}) mode set.",
-			what, self ? "you" : "they", mh->GetModeChar(), mh->name);
+			what, self ? "you" : "they", mh->GetModeChar(), mh->service_name);
 	}
 };
 
@@ -97,7 +97,7 @@ public:
 
 		const auto* pm = ServerInstance->Modes.FindNearestPrefixMode(rank);
 		if (pm)
-			push_fmt("You must be a channel {} or higher to {}.", pm->name, message);
+			push_fmt("You must be a channel {} or higher to {}.", pm->service_name, message);
 		else
 			push_fmt("You do not have the required channel privileges to {}.", message);
 	}
@@ -121,12 +121,12 @@ private:
 		if (!syntax.empty())
 		{
 			// If the mode has a syntax hint we include it in the message.
-			push_fmt("Invalid {} mode parameter. Syntax: {}.", mode->name, syntax);
+			push_fmt("Invalid {} mode parameter. Syntax: {}.", mode->service_name, syntax);
 		}
 		else
 		{
 			// Otherwise, send it without.
-			push_fmt("Invalid {} mode parameter.", mode->name);
+			push_fmt("Invalid {} mode parameter.", mode->service_name);
 		}
 	}
 

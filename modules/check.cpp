@@ -96,9 +96,9 @@ public:
 		{
 			const std::string value = item->ToHuman(ext, obj);
 			if (!value.empty())
-				Write("meta:" + item->name, value);
-			else if (!item->name.empty())
-				extlist.Add(item->name);
+				Write("meta:" + item->service_name, value);
+			else if (!item->service_name.empty())
+				extlist.Add(item->service_name);
 		}
 
 		extlist.Flush();
@@ -209,7 +209,7 @@ public:
 					context.Write("connectclass", classname);
 
 				context.Write("exempt", localtarget->exempt ? "yes" : "no");
-				context.Write("serializer", localtarget->serializer->name.substr(11));
+				context.Write("serializer", localtarget->serializer->service_name.substr(11));
 			}
 			else
 				context.Write("onip", targetuser->GetAddress());

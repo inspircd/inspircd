@@ -121,7 +121,7 @@ public:
 		if (IS_LOCAL(source))
 		{
 			source->WriteNumeric(Numerics::NoPrivileges("only services may {} channel mode {} ({})",
-				source->IsModeSet(this) ? "set" : "unset", GetModeChar(), this->name));
+				source->IsModeSet(this) ? "set" : "unset", GetModeChar(), this->service_name));
 			return false;
 		}
 
@@ -146,7 +146,7 @@ public:
 		if (IS_LOCAL(source))
 		{
 			source->WriteNumeric(Numerics::NoPrivileges("only services may {} user mode {} ({})",
-				source->IsModeSet(this) ? "set" : "unset", GetModeChar(), this->name));
+				source->IsModeSet(this) ? "set" : "unset", GetModeChar(), this->service_name));
 			return false;
 		}
 

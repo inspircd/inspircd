@@ -225,14 +225,13 @@ public:
 
 	void OnServiceAdd(ServiceProvider& service) override
 	{
-		if (service.service == SERVICE_MODE)
+		if (service.service_type == SERVICE_MODE)
 			Rebuild004();
 	}
 
 	void OnServiceDel(ServiceProvider& service) override
 	{
-		if (service.service == SERVICE_MODE)
-			Rebuild004();
+		OnServiceAdd(service);
 	}
 
 	void Prioritize() override

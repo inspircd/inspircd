@@ -234,7 +234,7 @@ namespace Cap
 		/** Get the name of the capability that's used in the protocol
 		 * @return Name of the capability as used in the protocol
 		 */
-		const std::string& GetName() const { return name; }
+		const std::string& GetName() const { return this->service_name; }
 
 		/** Check whether the capability is active. The cap must be active and registered to be used by users.
 		 * @return True if the cap is active, false if it has been deactivated

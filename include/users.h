@@ -232,7 +232,7 @@ public:
 	/** Determines if this oper type can use the specified command.
 	 * @param cmd The command to check for.
 	 */
-	inline bool CanUseCommand(const Command* cmd) const { return CanUseCommand(cmd->name); }
+	inline bool CanUseCommand(const Command* cmd) const { return CanUseCommand(cmd->service_name); }
 
 	/** Determines if this oper type can use the specified mode.
 	 * @param mt The type of mode to check for.

@@ -527,7 +527,7 @@ public:
 		if (methods)
 		{
 			ServerInstance->SNO.WriteGlobalSno('a', "The {} hash provider was unloaded; removing {} cloak methods until the next rehash.",
-				service.name.substr(6), methods);
+				service.service_name.substr(6), methods);
 		}
 	}
 

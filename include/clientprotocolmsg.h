@@ -112,7 +112,7 @@ public:
 		AddTags(reply.GetParams().GetTags());
 		SetCommand(::Reply::CommandStrFromType(reply.GetType()));
 		if (reply.GetCommand())
-			PushParamRef(reply.GetCommand()->name);
+			PushParamRef(reply.GetCommand()->service_name);
 		else
 			PushParam("*");
 		PushParam(reply.GetCode());
