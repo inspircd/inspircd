@@ -210,7 +210,7 @@ Cullable::Result User::Cull()
 	if (!quitting)
 	{
 		ServerInstance->Logs.Debug("CULL", "BUG: User {} (@{}) was culled without being quit first!",
-			uuid, FMT_PTR(this));
+			uuid, (void*)this);
 		ServerInstance->Users.QuitUser(this, "Culled without QuitUser");
 	}
 

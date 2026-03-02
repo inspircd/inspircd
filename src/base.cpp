@@ -51,7 +51,7 @@ refcountbase::~refcountbase()
 	if (refcount && ServerInstance)
 	{
 		ServerInstance->Logs.Debug("CULL", "refcountbase::~ @{} with refcount {}",
-			FMT_PTR(this), refcount);
+			(void*)this, refcount);
 	}
 }
 
@@ -60,6 +60,6 @@ usecountbase::~usecountbase()
 	if (usecount && ServerInstance)
 	{
 		ServerInstance->Logs.Debug("CULL", "usecountbase::~ @{} with refcount {}",
-			FMT_PTR(this), usecount);
+			(void*)this, usecount);
 	}
 }

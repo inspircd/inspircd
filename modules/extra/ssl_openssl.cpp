@@ -671,7 +671,7 @@ private:
 		if (status != STATUS_NONE)
 			return true;
 
-		ServerInstance->Logs.Debug(MODNAME, "Session {} killed, attempted to renegotiate", FMT_PTR(sess));
+		ServerInstance->Logs.Debug(MODNAME, "Session {} killed, attempted to renegotiate", (void*)sess);
 		CloseSession();
 		sock->SetError("Renegotiation is not allowed");
 		return false;

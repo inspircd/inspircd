@@ -661,7 +661,7 @@ void DataKeeper::DoRestoreModules()
 {
 	for (const auto& data : moddata.list)
 	{
-		ServerInstance->Logs.Debug(MODNAME, "Calling module data handler {}", FMT_PTR(data.handler));
+		ServerInstance->Logs.Debug(MODNAME, "Calling module data handler {}", (void*)data.handler);
 		data.handler->OnReloadModuleRestore(mod, data.data);
 	}
 }
