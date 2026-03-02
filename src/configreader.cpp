@@ -710,6 +710,8 @@ std::vector<std::string> ServerConfig::GetModules() const
 			modules.push_back("sacommands");
 		else if (insp::equalsci(shortname, "sslrehashsignal"))
 			modules.push_back("rehashsignal");
+		else if (insp::equalsci(shortname, "swhois_ext"))
+			modules.push_back("swhois");
 		else
 		{
 			// No need to rewrite this module name.
