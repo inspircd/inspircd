@@ -134,13 +134,10 @@ size_t irc::find(const std::string_view& haystack, const std::string_view& needl
 	return std::string::npos;
 }
 
-bool irc::insensitive_swo::operator()(const std::string& a, const std::string& b) const
+bool irc::less(const std::string_view& a, const std::string_view& b)
 {
-	std::string::size_type asize = a.size();
-	std::string::size_type bsize = b.size();
-	std::string::size_type maxsize = std::min(asize, bsize);
-
-	for (std::string::size_type i = 0; i < maxsize; i++)
+	const auto maxsize = std::min(a.size(), b.size());
+	for (std::string_view::size_type i = 0; i < maxsize; i++)
 	{
 		unsigned char A = national_case_insensitive_map[static_cast<unsigned char>(a[i])];
 		unsigned char B = national_case_insensitive_map[static_cast<unsigned char>(b[i])];
@@ -149,7 +146,7 @@ bool irc::insensitive_swo::operator()(const std::string& a, const std::string& b
 		else if (A < B)
 			return true;
 	}
-	return (asize < bsize);
+	return a.size() < b.size();
 }
 
 size_t irc::insensitive::operator()(const std::string& s) const

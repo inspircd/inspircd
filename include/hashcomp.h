@@ -76,6 +76,15 @@ namespace irc
 	 */
 	CoreExport size_t find(const std::string_view& haystack, const std::string_view& needle);
 
+	/** Check if \p s1 is lexographically less than \p s2 when using the IRC casemapping.
+	 * This function uses national_case_insensitive_map to determine equality, which, by default does comparison
+	 * according to RFC 1459, treating certain otherwise non-identical characters as identical.
+	 * @param s1 First string to compare
+	 * @param s2 Second string to compare
+	 * @return True if the first string is less, false otherwise
+	 */
+	CoreExport bool less(const std::string_view& s1, const std::string_view& s2);
+
 	/** This class returns true if two strings match.
 	 * Case sensitivity is ignored, and the RFC 'character set'
 	 * is adhered to
@@ -97,7 +106,10 @@ namespace irc
 
 	struct insensitive_swo
 	{
-		bool CoreExport operator()(const std::string& a, const std::string& b) const;
+		bool operator()(const std::string& a, const std::string& b) const
+		{
+			return less(a, b);
+		}
 	};
 
 	/** irc::sepstream allows for splitting token separated lists.
