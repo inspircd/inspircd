@@ -34,7 +34,7 @@ CommandKick::CommandKick(Module* parent)
 {
 	accepts_multiple_targets = true;
 	allow_empty_last_param = true;
-	syntax = { "<channel> <nick>[,<nick>]+ [:<reason>]" };
+	syntax = { "<channel>,[<channel>] <nick>[,<nick>]+ [:<reason>]" };
 }
 
 CmdResult CommandKick::Handle(User* user, const Params& parameters)
@@ -42,7 +42,8 @@ CmdResult CommandKick::Handle(User* user, const Params& parameters)
 	auto* c = ServerInstance->Channels.Find(parameters[0]);
 	User* u;
 
-	if (CommandParser::LoopCall(user, this, parameters, 1))
+	const auto extra = parameters[0].find(',') != std::string::npos ? 0 : SIZE_MAX;
+	if (CommandParser::LoopCall(user, this, parameters, 1, extra))
 		return CmdResult::SUCCESS;
 
 	if (IS_LOCAL(user))
