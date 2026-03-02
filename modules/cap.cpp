@@ -400,7 +400,7 @@ public:
 
 	CommandCap(Module* mod)
 		: SplitCommand(mod, "CAP", 1)
-		, evprov(mod, "event/cap")
+		, evprov(mod, "cap")
 		, manager(mod, evprov)
 		, protoevprov(mod, "CAP")
 		, holdext(mod, "cap-hold", ExtensionType::USER)

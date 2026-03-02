@@ -45,7 +45,7 @@ class ServerProtocol::LinkEventListener
 {
 public:
 	LinkEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/server-link", eventprio)
+		: ModuleEventListener(mod, "server-link", eventprio)
 	{
 	}
 
@@ -71,7 +71,7 @@ class ServerProtocol::MessageEventListener
 {
 public:
 	MessageEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/server-message", eventprio)
+		: ModuleEventListener(mod, "server-message", eventprio)
 	{
 	}
 
@@ -95,7 +95,7 @@ class ServerProtocol::RouteEventListener
 {
 public:
 	RouteEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/server-route", eventprio)
+		: ModuleEventListener(mod, "server-route", eventprio)
 	{
 	}
 
@@ -114,7 +114,7 @@ class ServerProtocol::SyncEventListener
 {
 public:
 	SyncEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/server-sync", eventprio)
+		: ModuleEventListener(mod, "server-sync", eventprio)
 	{
 	}
 

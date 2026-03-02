@@ -258,7 +258,7 @@ public:
 		, realhost(Creator, "gateway-realhost", ExtensionType::USER, true)
 		, realip(Creator, "gateway-realip", ExtensionType::USER, true)
 		, sslapi(Creator)
-		, webircevprov(Creator, "event/webirc")
+		, webircevprov(Creator, "webirc")
 	{
 		works_before_reg = true;
 		syntax = { "<password> <gateway> <hostname> <ip> [<flags>]" };

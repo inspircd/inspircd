@@ -66,7 +66,7 @@ class Whois::EventListener
 {
 public:
 	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/whois", eventprio)
+		: ModuleEventListener(mod, "whois", eventprio)
 	{
 	}
 
@@ -81,7 +81,7 @@ class Whois::LineEventListener
 {
 public:
 	LineEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/whoisline", eventprio)
+		: ModuleEventListener(mod, "whoisline", eventprio)
 	{
 	}
 

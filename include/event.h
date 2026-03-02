@@ -56,8 +56,8 @@ public:
 	 * @param eventid Identifier of the event or event group provided, must be unique
 	 */
 	ModuleEventProvider(Module* mod, const std::string& eventid)
-		: ServiceProvider(mod, eventid, SERVICE_DATA)
-		, prov(mod, eventid)
+		: ServiceProvider(mod, "event/" + eventid, SERVICE_DATA)
+		, prov(mod, this->service_name)
 	{
 		prov.SetCaptureHook(this);
 	}
@@ -157,7 +157,7 @@ protected:
 	 * @param eventprio The priority to give this event listener
 	 */
 	ModuleEventListener(Module* mod, const std::string& eventid, unsigned int eventprio)
-		: prov(mod, eventid)
+		: prov(mod, "event/" + eventid)
 		, eventpriority(eventprio)
 	{
 		prov.SetCaptureHook(this);

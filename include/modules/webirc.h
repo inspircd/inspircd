@@ -31,7 +31,7 @@ class WebIRC::EventListener
 {
 protected:
 	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/webirc", eventprio)
+		: ModuleEventListener(mod, "webirc", eventprio)
 	{
 	}
 

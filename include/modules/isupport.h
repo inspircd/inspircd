@@ -39,7 +39,7 @@ class ISupport::EventListener
 {
 protected:
 	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/isupport", eventprio)
+		: ModuleEventListener(mod, "isupport", eventprio)
 	{
 	}
 
@@ -53,7 +53,7 @@ class ISupport::EventProvider final
 {
 public:
 	EventProvider(Module* mod)
-		: Events::ModuleEventProvider(mod, "event/isupport")
+		: Events::ModuleEventProvider(mod, "isupport")
 	{
 	}
 };

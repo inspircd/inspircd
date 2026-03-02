@@ -227,7 +227,7 @@ public:
 	CommandTagMsg(Module* Creator, Cap::Capability& Cap)
 		: Command(Creator, "TAGMSG", 1)
 		, cap(Cap)
-		, tagevprov(Creator, "event/tagmsg")
+		, tagevprov(Creator, "tagmsg")
 		, msgevprov(Creator, "TAGMSG")
 	{
 		accepts_multiple_targets = true;

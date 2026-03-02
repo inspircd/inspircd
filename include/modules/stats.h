@@ -38,7 +38,7 @@ class Stats::EventListener
 {
 public:
 	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/stats", eventprio)
+		: ModuleEventListener(mod, "stats", eventprio)
 	{
 	}
 

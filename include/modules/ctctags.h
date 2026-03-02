@@ -121,7 +121,7 @@ class CTCTags::EventListener
 {
 protected:
 	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/tagmsg", eventprio)
+		: ModuleEventListener(mod, "tagmsg", eventprio)
 	{
 	}
 

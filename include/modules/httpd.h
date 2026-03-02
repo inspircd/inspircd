@@ -308,7 +308,7 @@ class HTTPACLEventListener
 {
 public:
 	HTTPACLEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/http-acl", eventprio)
+		: ModuleEventListener(mod, "http-acl", eventprio)
 	{
 	}
 
@@ -320,7 +320,7 @@ class HTTPRequestEventListener
 {
 public:
 	HTTPRequestEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/http-request", eventprio)
+		: ModuleEventListener(mod, "http-request", eventprio)
 	{
 	}
 

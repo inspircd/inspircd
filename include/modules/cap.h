@@ -55,7 +55,7 @@ namespace Cap
 	{
 	public:
 		EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-			: ModuleEventListener(mod, "event/cap", eventprio)
+			: ModuleEventListener(mod, "cap", eventprio)
 		{
 		}
 

@@ -425,8 +425,8 @@ public:
 	ModuleHttpServer()
 		: Module(VF_VENDOR, "Allows the server administrator to serve various useful resources over HTTP.")
 		, APIImpl(this)
-		, acleventprov(this, "event/http-acl")
-		, reqeventprov(this, "event/http-request")
+		, acleventprov(this, "http-acl")
+		, reqeventprov(this, "http-request")
 	{
 		aclevprov = &acleventprov;
 		reqevprov = &reqeventprov;

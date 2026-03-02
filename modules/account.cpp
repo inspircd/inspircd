@@ -51,7 +51,7 @@ class AccountExtItemImpl final
 public:
 	AccountExtItemImpl(Module* mod)
 		: StringExtItem(mod, "accountname", ExtensionType::USER, true)
-		, eventprov(mod, "event/account")
+		, eventprov(mod, "account")
 	{
 	}
 

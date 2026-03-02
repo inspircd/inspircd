@@ -62,7 +62,7 @@ namespace ReloadModule
 	{
 	public:
 		EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-			: ModuleEventListener(mod, "event/reloadmodule", eventprio)
+			: ModuleEventListener(mod, "reloadmodule", eventprio)
 		{
 		}
 

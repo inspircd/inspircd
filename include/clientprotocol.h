@@ -550,7 +550,7 @@ class CoreExport ClientProtocol::MessageTagEvent
 {
 public:
 	MessageTagEvent(Module* mod)
-		: ModuleEventProvider(mod, "event/messagetag")
+		: ModuleEventProvider(mod, "messagetag")
 	{
 	}
 };
@@ -569,7 +569,7 @@ public:
 	 * @param eventprio The priority to give this event listener.
 	 */
 	MessageTagProvider(Module* mod, unsigned int eventprio = DefaultPriority)
-		: Events::ModuleEventListener(mod, "event/messagetag", eventprio)
+		: Events::ModuleEventListener(mod, "messagetag", eventprio)
 	{
 	}
 
@@ -615,7 +615,7 @@ class CoreExport ClientProtocol::EventHook
 public:
 	static std::string GetEventName(const std::string& name)
 	{
-		return "event/protoevent_" + name;
+		return "protocol/" + name;
 	}
 
 	/** Constructor.

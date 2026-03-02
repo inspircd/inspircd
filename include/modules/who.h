@@ -33,7 +33,7 @@ class Who::EventListener
 {
 public:
 	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/who", eventprio)
+		: ModuleEventListener(mod, "who", eventprio)
 	{
 	}
 
@@ -54,7 +54,7 @@ class Who::MatchEventListener
 {
 public:
 	MatchEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/who-match", eventprio)
+		: ModuleEventListener(mod, "who-match", eventprio)
 	{
 	}
 
@@ -73,7 +73,7 @@ class Who::VisibleEventListener
 {
 public:
 	VisibleEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/who-visible", eventprio)
+		: ModuleEventListener(mod, "who-visible", eventprio)
 	{
 	}
 

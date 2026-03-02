@@ -30,7 +30,7 @@ class CheckExemption::EventListener
 {
 protected:
 	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/exemption", eventprio)
+		: ModuleEventListener(mod, "exemption", eventprio)
 	{
 	}
 
@@ -50,7 +50,7 @@ class CheckExemption::EventProvider final
 {
 public:
 	EventProvider(Module* mod)
-		: ModuleEventProvider(mod, "event/exemption")
+		: ModuleEventProvider(mod, "exemption")
 	{
 	}
 

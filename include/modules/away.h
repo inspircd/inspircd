@@ -30,7 +30,7 @@ class Away::EventListener
 {
 protected:
 	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/away", eventprio)
+		: ModuleEventListener(mod, "away", eventprio)
 	{
 	}
 
@@ -76,7 +76,7 @@ class Away::EventProvider final
 {
 public:
 	EventProvider(Module* mod)
-		: ModuleEventProvider(mod, "event/away")
+		: ModuleEventProvider(mod, "away")
 	{
 	}
 };

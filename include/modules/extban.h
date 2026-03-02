@@ -397,7 +397,7 @@ class ExtBan::EventListener
 {
 protected:
 	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/extban", eventprio)
+		: ModuleEventListener(mod, "extban", eventprio)
 	{
 	}
 

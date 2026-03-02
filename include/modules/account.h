@@ -85,7 +85,7 @@ class Account::EventListener
 {
 public:
 	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "event/account", eventprio)
+		: ModuleEventListener(mod, "account", eventprio)
 	{
 	}
 

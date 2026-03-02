@@ -87,8 +87,8 @@ public:
 		, secretmode(parent, "secret")
 		, privatemode(parent, "private")
 		, snomaskmode(parent, "snomask")
-		, evprov(parent, "event/whois")
-		, lineevprov(parent, "event/whoisline")
+		, evprov(parent, "whois")
+		, lineevprov(parent, "whoisline")
 	{
 		accepts_multiple_targets = true;
 		allow_empty_last_param = true;

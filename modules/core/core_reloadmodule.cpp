@@ -57,7 +57,7 @@ class CommandReloadmodule final
 public:
 	CommandReloadmodule(Module* parent)
 		: Command(parent, "RELOADMODULE", 1)
-		, evprov(parent, "event/reloadmodule")
+		, evprov(parent, "reloadmodule")
 		, dummyser(parent)
 	{
 		reloadevprov = &evprov;

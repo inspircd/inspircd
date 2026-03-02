@@ -168,7 +168,7 @@ public:
 	ExtBanManager(Module* Creator, ModeChannelBan& bm)
 		: ExtBan::Manager(Creator)
 		, banmode(bm)
-		, evprov(Creator, "event/extban")
+		, evprov(Creator, "extban")
 	{
 	}
 

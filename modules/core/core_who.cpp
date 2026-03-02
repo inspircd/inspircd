@@ -212,9 +212,9 @@ public:
 		, secretmode(parent, "secret")
 		, privatemode(parent, "private")
 		, invisiblemode(parent, "invisible")
-		, whoevprov(parent, "event/who")
-		, whomatchevprov(parent, "event/who-match")
-		, whovisibleevprov(parent, "event/who-visible")
+		, whoevprov(parent, "who")
+		, whomatchevprov(parent, "who-match")
+		, whovisibleevprov(parent, "who-visible")
 	{
 		syntax = {
 			"<server>|<nick>|<channel>|<realname>|<host>|0 [Aafhilmnoprstux]%[acdfhilnorstu]",

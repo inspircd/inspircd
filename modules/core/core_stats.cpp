@@ -75,7 +75,7 @@ public:
 
 	CommandStats(Module* Creator)
 		: Command(Creator, "STATS", 1, 2)
-		, statsevprov(Creator, "event/stats")
+		, statsevprov(Creator, "stats")
 		, statstags(Creator)
 	{
 		syntax = { "<symbol> [<servername>]" };

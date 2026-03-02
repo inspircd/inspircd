@@ -148,7 +148,7 @@ public:
 		, cmdkick(this)
 		, cmdnames(this)
 		, cmdtopic(this)
-		, evprov(this, "event/channel")
+		, evprov(this, "channel")
 		, joinhook(this)
 		, banmode(this)
 		, inviteonlymode(this, "inviteonly", 'i')

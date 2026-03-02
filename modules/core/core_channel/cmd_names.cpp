@@ -36,7 +36,7 @@ CommandNames::CommandNames(Module* parent)
 	, secretmode(parent, "secret")
 	, privatemode(parent, "private")
 	, invisiblemode(parent, "invisible")
-	, namesevprov(parent, "event/names")
+	, namesevprov(parent, "names")
 {
 	accepts_multiple_targets = true;
 	syntax = { "[<channel>[,<channel>]+]" };
