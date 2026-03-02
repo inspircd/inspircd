@@ -62,7 +62,7 @@ public:
 	CommandKill(Module* parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
-	void EncodeParameter(std::string& param, unsigned int index) override;
+	void EncodeParameter(std::string& param, size_t index) override;
 };
 
 class CommandOper final

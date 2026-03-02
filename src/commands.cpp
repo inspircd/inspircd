@@ -27,7 +27,7 @@
 #include "inspircd.h"
 #include "numerichelper.h"
 
-bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Params& parameters, unsigned int splithere, int extra, bool usemax)
+bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Params& parameters, size_t splithere, size_t extra, bool usemax)
 {
 	if (!handler->accepts_multiple_targets)
 	{
@@ -52,7 +52,7 @@ bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Pa
 	 * Only check for duplicates if there is one list (allow them in JOIN).
 	 */
 	insp::flat_set<std::string, irc::insensitive_swo> dupes;
-	bool check_dupes = (extra < 0);
+	bool check_dupes = (extra == SIZE_MAX);
 
 	/* Create two sepstreams, if we have only one list, then initialize the second sepstream with
 	 * an empty string. The second parameter of the constructor of the sepstream tells whether
@@ -60,7 +60,7 @@ bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Pa
 	 * We allow empty keys, so "JOIN #a,#b ,bkey" will be interpreted as "JOIN #a", "JOIN #b bkey"
 	 */
 	irc::commasepstream items1(parameters[splithere]);
-	irc::commasepstream items2(extra >= 0 ? parameters[extra] : "", true);
+	irc::commasepstream items2(extra != SIZE_MAX ? parameters[extra] : "", true);
 	std::string item;
 	size_t max = 0;
 	LocalUser* localuser = IS_LOCAL(user);
@@ -77,7 +77,7 @@ bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Pa
 		{
 			splitparams[splithere] = item;
 
-			if (extra >= 0)
+			if (extra != SIZE_MAX)
 			{
 				// If we have two lists then get the next item from the second list.
 				// In case it runs out of elements then 'item' will be an empty string.
@@ -351,7 +351,7 @@ std::string CommandParser::TranslateUIDs(const std::vector<TranslateType>& to, c
 	std::vector<TranslateType>::const_iterator types = to.begin();
 	std::string dest;
 
-	for (unsigned int i = 0; i < source.size(); i++)
+	for (size_t i = 0; i < source.size(); i++)
 	{
 		TranslateType t = TR_TEXT;
 		// They might supply less translation types than parameters,
@@ -375,7 +375,7 @@ std::string CommandParser::TranslateUIDs(const std::vector<TranslateType>& to, c
 	return dest;
 }
 
-void CommandParser::TranslateSingleParam(TranslateType to, const std::string& item, std::string& dest, CommandBase* custom_translator, unsigned int paramnumber)
+void CommandParser::TranslateSingleParam(TranslateType to, const std::string& item, std::string& dest, CommandBase* custom_translator, size_t paramnumber)
 {
 	switch (to)
 	{
@@ -408,14 +408,14 @@ void CommandParser::TranslateSingleParam(TranslateType to, const std::string& it
 	}
 }
 
-CommandBase::CommandBase(Module* mod, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
+CommandBase::CommandBase(Module* mod, const std::string& cmd, size_t minpara, size_t maxpara)
 	: ServiceProvider(mod, "CommandBase", cmd)
 	, min_params(minpara)
 	, max_params(maxpara)
 {
 }
 
-void CommandBase::EncodeParameter(std::string& parameter, unsigned int index)
+void CommandBase::EncodeParameter(std::string& parameter, size_t index)
 {
 }
 
@@ -424,7 +424,7 @@ RouteDescriptor CommandBase::GetRouting(User* user, const Params& parameters)
 	return ROUTE_LOCALONLY;
 }
 
-Command::Command(Module* mod, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
+Command::Command(Module* mod, const std::string& cmd, size_t minpara, size_t maxpara)
 	: CommandBase(mod, cmd, minpara, maxpara)
 {
 }
@@ -474,7 +474,7 @@ void Command::TellNotFullyConnected(LocalUser* user, const Params& parameters)
 	user->WriteNumeric(ERR_NOTREGISTERED, this->service_name, "You must be fully connected to use this command.");
 }
 
-SplitCommand::SplitCommand(Module* me, const std::string& cmd, unsigned int minpara, unsigned int maxpara)
+SplitCommand::SplitCommand(Module* me, const std::string& cmd, size_t minpara, size_t maxpara)
 	: Command(me, cmd, minpara, maxpara)
 {
 }

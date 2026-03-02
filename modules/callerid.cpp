@@ -196,7 +196,7 @@ public:
 		translation = { TR_CUSTOM };
 	}
 
-	void EncodeParameter(std::string& parameter, unsigned int index) override
+	void EncodeParameter(std::string& parameter, size_t index) override
 	{
 		// Send lists as-is (part of 2.0 compat)
 		if (parameter.find(',') != std::string::npos)

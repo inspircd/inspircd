@@ -180,13 +180,13 @@ public:
 
 	/** Minimum number of parameters command takes
 	*/
-	const unsigned int min_params;
+	const size_t min_params;
 
 	/** Maximum number of parameters command takes.
 	 * This is used by the command parser to join extra parameters into one last param.
 	 * If not set, no munging is done to this command.
 	 */
-	const unsigned int max_params;
+	const size_t max_params;
 
 	/** True if the command allows an empty last parameter.
 	 * When false and the last parameter is empty, it's popped BEFORE
@@ -208,7 +208,7 @@ public:
 	 * @param maxpara Maximum number of parameters this command may have - extra parameters
 	 * will be tossed into one last space-separated param.
 	 */
-	CommandBase(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0);
+	CommandBase(Module* me, const std::string& cmd, size_t minpara = 0, size_t maxpara = 0);
 
 	virtual RouteDescriptor GetRouting(User* user, const CommandBase::Params& parameters);
 
@@ -217,7 +217,7 @@ public:
 	 * @param parameter The parameter to encode. Can be modified in place.
 	 * @param index The parameter index (0 == first parameter).
 	 */
-	virtual void EncodeParameter(std::string& parameter, unsigned int index);
+	virtual void EncodeParameter(std::string& parameter, size_t index);
 };
 
 class CoreExport Command
@@ -237,7 +237,7 @@ protected:
 	 * @param minpara The minimum number of parameters that the command accepts.
 	 * @param maxpara The maximum number of parameters that the command accepts.
 	 */
-	Command(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0);
+	Command(Module* me, const std::string& cmd, size_t minpara = 0, size_t maxpara = 0);
 
 public:
 	/** Unregisters this command from the command parser. */
@@ -307,7 +307,7 @@ protected:
 	 * @param minpara The minimum number of parameters that the command accepts.
 	 * @param maxpara The maximum number of parameters that the command accepts.
 	 */
-	SplitCommand(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0);
+	SplitCommand(Module* me, const std::string& cmd, size_t minpara = 0, size_t maxpara = 0);
 
 public:
 	/** @copydoc Command::Handle */
@@ -416,7 +416,7 @@ public:
 	 * command handler for each entry on the list. When this occurs, the caller should return without doing anything,
 	 * otherwise it should continue into its main section of code.
 	 */
-	static bool LoopCall(User* user, Command* handler, const CommandBase::Params& parameters, unsigned int splithere, int extra = -1, bool usemax = true);
+	static bool LoopCall(User* user, Command* handler, const CommandBase::Params& parameters, size_t splithere, size_t extra = SIZE_MAX, bool usemax = true);
 
 	/** Take a raw input buffer from a recvq, and process it on behalf of a user.
 	 * @param buffer The buffer line to process
@@ -448,7 +448,7 @@ public:
 	 * @param custom_translator Used to translate the parameter if the translation type is TR_CUSTOM, if NULL, TR_CUSTOM will act like TR_TEXT
 	 * @param paramnumber The index of the parameter we are translating.
 	 */
-	static void TranslateSingleParam(TranslateType to, const std::string& item, std::string& dest, CommandBase* custom_translator = nullptr, unsigned int paramnumber = 0);
+	static void TranslateSingleParam(TranslateType to, const std::string& item, std::string& dest, CommandBase* custom_translator = nullptr, size_t	number = 0);
 
 	/** Translate nicknames in a list of strings into UIDs, based on the TranslateTypes given.
 	 * @param to The translation types to use for the process. If this list is too short, TR_TEXT is assumed for the rest.
