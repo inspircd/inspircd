@@ -302,6 +302,9 @@ void TreeServer::SendMetadata(const std::string& key, const std::string& data) c
 
 void TreeServer::SendMetadata(const Extensible* ext, const std::string& key, const std::string& data) const
 {
+	if (ext->extype == ExtensionType::USER && !static_cast<const User*>(ext)->IsFullyConnected())
+		return;
+
 	if (GetRoute() && GetRoute()->GetSocket())
 		GetRoute()->GetSocket()->WriteLine(CommandMetadata::Builder(ext, key, data));
 }
