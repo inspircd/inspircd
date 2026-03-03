@@ -686,9 +686,10 @@ std::string ModuleManager::ShrinkModName(const std::string& modname)
 	return modname.substr(startpos, modname.length() - endpos - startpos);
 }
 
-dynamic_reference_base::dynamic_reference_base(Module* mod, const std::string& stype, const std::string& sname)
+dynamic_reference_base::dynamic_reference_base(Module* mod, const std::string& stype, const std::string& sname, bool strict)
 	: service_name(sname)
 	, service_type(stype)
+	, strict_ref(strict)
 	, creator(mod)
 {
 	if (!dynrefs)
@@ -727,21 +728,25 @@ void dynamic_reference_base::ClearProviderName()
 
 void dynamic_reference_base::resolve()
 {
+	auto* oldvalue = this->value;
+	this->value = nullptr;
+
 	// Because find() may return any element with a matching key in case count(key) > 1 use lower_bound()
 	// to ensure a dynref with the same name as another one resolves to the same object
 	auto i = ServerInstance->Modules.DataProviders.lower_bound(std::make_pair(this->service_type, this->service_name));
-	if (i != ServerInstance->Modules.DataProviders.end() && i->first.first == this->service_type && i->first.second == this->service_name)
-	{
-		ServiceProvider* newvalue = i->second;
-		if (value != newvalue)
-		{
-			value = newvalue;
-			if (hook)
-				hook->OnCapture();
-		}
-	}
-	else
-		value = nullptr;
+	if (i == ServerInstance->Modules.DataProviders.end())
+		return; // No service found.
+
+	const auto& [stype, sname] = i->first;
+	if (!irc::equals(this->service_type, stype) || !irc::equals(this->service_name, sname))
+		return; // No service found.
+
+	if (this->strict_ref && sname.empty())
+		return; // Can't use generic services for strict references.
+
+	this->value = i->second;
+	if (oldvalue != value && hook)
+		hook->OnCapture();
 }
 
 Module* ModuleManager::Find(const std::string& name)

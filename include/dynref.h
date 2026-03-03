@@ -37,6 +37,7 @@ public:
 private:
 	std::string service_name;
 	std::string service_type;
+	bool strict_ref;
 	CaptureHook* hook = nullptr;
 	void resolve();
 	static void* operator new(std::size_t) = delete;
@@ -45,7 +46,7 @@ protected:
 	ServiceProvider* value = nullptr;
 public:
 	ModuleRef creator;
-	dynamic_reference_base(Module* mod, const std::string& stype, const std::string& sname);
+	dynamic_reference_base(Module* mod, const std::string& stype, const std::string& sname, bool strict);
 	dynamic_reference_base(const dynamic_reference_base&) = default;
 	~dynamic_reference_base();
 
@@ -85,8 +86,8 @@ class dynamic_reference
 	: public dynamic_reference_base
 {
 public:
-	dynamic_reference(Module* mod, const std::string& stype, const std::string& sname = "")
-		: dynamic_reference_base(mod, stype, sname)
+	dynamic_reference(Module* mod, const std::string& stype, const std::string& sname = "", bool strict = false)
+		: dynamic_reference_base(mod, stype, sname, strict)
 	{
 	}
 
@@ -117,8 +118,8 @@ class dynamic_reference_nocheck
 	: public dynamic_reference_base
 {
 public:
-	dynamic_reference_nocheck(Module* mod, const std::string& stype, const std::string& sname = "")
-		: dynamic_reference_base(mod, stype, sname)
+	dynamic_reference_nocheck(Module* mod, const std::string& stype, const std::string& sname = "", bool strict = false)
+		: dynamic_reference_base(mod, stype, sname, strict)
 	{
 	}
 
@@ -149,7 +150,7 @@ class ChanModeReference final
 {
 public:
 	ChanModeReference(Module* mod, const std::string& modename)
-		: dynamic_reference_nocheck<ModeHandler>(mod, "ModeHandler/C", modename)
+		: dynamic_reference_nocheck<ModeHandler>(mod, "ModeHandler/C", modename, true)
 	{
 	}
 };
@@ -159,7 +160,7 @@ class UserModeReference final
 {
 public:
 	UserModeReference(Module* mod, const std::string& modename)
-		: dynamic_reference_nocheck<ModeHandler>(mod, "ModeHandler/U", modename)
+		: dynamic_reference_nocheck<ModeHandler>(mod, "ModeHandler/U", modename, true)
 	{
 	}
 };

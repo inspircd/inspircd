@@ -205,7 +205,7 @@ public:
 	{
 	public:
 		IOHookProvRef()
-			: dynamic_reference_nocheck<IOHookProvider>(nullptr, "IOHookProvider", std::string())
+			: dynamic_reference_nocheck<IOHookProvider>(nullptr, "IOHookProvider", std::string(), true)
 		{
 		}
 	};
