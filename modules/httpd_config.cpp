@@ -48,6 +48,10 @@ public:
 		ServerInstance->Logs.Debug(MODNAME, "Handling HTTP request for {}", request.GetPath());
 
 		std::stringstream buffer;
+		buffer << "# Server configuration read at "
+			<< Time::ToString(ServerInstance->Config->ReadTime, Time::DEFAULT_LONG, true)
+			<< std::endl << std::endl;
+
 		for (const auto& [_, tag] : ServerInstance->Config->GetConfig())
 		{
 			// Show the location of the tag in a comment.
