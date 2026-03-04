@@ -490,7 +490,7 @@ private:
 	ModeType m_type;
 
 public:
-	ModuleRef creator;
+	const reference<Module> creator;
 
 	/**
 	 * The constructor initializes the mode and the mode type

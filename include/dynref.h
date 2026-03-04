@@ -45,7 +45,7 @@ private:
 protected:
 	ServiceProvider* value = nullptr;
 public:
-	ModuleRef creator;
+	const reference<Module> creator;
 	dynamic_reference_base(Module* mod, const std::string& stype, const std::string& sname, bool strict);
 	dynamic_reference_base(const dynamic_reference_base&) = default;
 	~dynamic_reference_base();

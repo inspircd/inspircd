@@ -177,7 +177,7 @@ protected:
 	}
 
 public:
-	const ModuleRef creator;
+	const reference<Module> creator;
 
 	/** Called when an SQL error happens.
 	 * @param error The error that occurred.

@@ -131,15 +131,13 @@ private:
 #endif
 };
 
-typedef const reference<Module> ModuleRef;
-
 /** A structure defining something that a module can provide */
 class CoreExport ServiceProvider
 	: public Cullable
 {
 public:
 	/** Module that created this service */
-	ModuleRef service_creator;
+	const reference<Module> service_creator;
 	/** Name of the service being provided */
 	const std::string service_name;
 	/** Type of service (must match object type) */

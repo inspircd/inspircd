@@ -127,7 +127,7 @@ struct LDAPResult final
 class LDAPInterface
 {
 public:
-	ModuleRef creator;
+	const reference<Module> creator;
 
 	LDAPInterface(Module* m)
 		: creator(m)
