@@ -959,10 +959,21 @@ public:
  */
 class CoreExport ModuleManager final
 {
+public:
+	/** Holds a a list of modules keyed by their module name. */
+	using ModuleMap = std::map<std::string, Module*>;
+
+	/** Holds one or more services. */
+	using ServiceList = std::vector<ServiceProvider*>;
+
+	/** Holds a service type and names. */
+	using ServicePair = std::pair<std::string, std::string>;
+
 private:
-	struct DataProviderCompare
+	/** Compares two service pairs case insensitively using the IRC casemapping. */
+	struct ServicePairCompare final
 	{
-		bool CoreExport operator()(const std::pair<std::string, std::string>& lhs, const std::pair<std::string, std::string>& rhs) const
+		bool CoreExport operator()(const ServicePair& lhs, const ServicePair& rhs) const
 		{
 			if (!irc::equals(lhs.first, rhs.first))
 				return irc::less(lhs.first, rhs.first);
@@ -970,11 +981,6 @@ private:
 		}
 	};
 
-public:
-	typedef std::multimap<std::pair<std::string, std::string>, ServiceProvider*, DataProviderCompare> DataProviderMap;
-	typedef std::vector<ServiceProvider*> ServiceList;
-
-private:
 	/** Holds a string describing the last module error to occur
 	 */
 	std::string LastModuleError;
@@ -982,7 +988,7 @@ private:
 	/** List of loaded modules and shared object/dll handles
 	 * keyed by module name
 	 */
-	std::map<std::string, Module*> Modules;
+	ModuleMap Modules;
 
 	enum {
 		PRIO_STATE_FIRST,
@@ -1006,15 +1012,13 @@ private:
 	void UnregisterModes(Module* mod, ModeType modetype);
 
 public:
-	typedef std::map<std::string, Module*> ModuleMap;
-
 	/** Event handler hooks.
 	 * This needs to be public to be used by FOREACH_MOD and friends.
 	 */
 	Module::List EventHandlers[I_END];
 
-	/** List of data services keyed by name */
-	DataProviderMap DataProviders;
+	/** List of service providers keyed by service type and name. */
+	std::multimap<ServicePair, ServiceProvider*, ServicePairCompare> Services;
 
 	/** A list of ServiceProviders waiting to be registered.
 	 * Non-NULL when constructing a Module, NULL otherwise.

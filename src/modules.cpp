@@ -482,12 +482,12 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		user->UnhookExtensions(items);
 	}
 
-	for (DataProviderMap::iterator i = DataProviders.begin(); i != DataProviders.end(); )
+	for (auto i = this->Services.begin(); i != this->Services.end(); )
 	{
-		DataProviderMap::iterator curr = i++;
+		auto curr = i++;
 		if (curr->second->service_creator == mod)
 		{
-			DataProviders.erase(curr);
+			this->Services.erase(curr);
 			FOREACH_MOD(OnServiceDel, (*curr->second));
 		}
 	}
@@ -660,8 +660,8 @@ void ModuleManager::DelService(ServiceProvider& item)
 
 ServiceProvider* ModuleManager::FindService(const std::string& type, const std::string& name)
 {
-	auto i = DataProviders.find(std::make_pair(type, name));
-	if (i != DataProviders.end())
+	auto i = this->Services.find(std::make_pair(type, name));
+	if (i != this->Services.end())
 		return i->second;
 	return nullptr;
 }
@@ -733,8 +733,8 @@ void dynamic_reference_base::resolve()
 
 	// Because find() may return any element with a matching key in case count(key) > 1 use lower_bound()
 	// to ensure a dynref with the same name as another one resolves to the same object
-	auto i = ServerInstance->Modules.DataProviders.lower_bound(std::make_pair(this->service_type, this->service_name));
-	if (i == ServerInstance->Modules.DataProviders.end())
+	auto i = ServerInstance->Modules.Services.lower_bound(std::make_pair(this->service_type, this->service_name));
+	if (i == ServerInstance->Modules.Services.end())
 		return; // No service found.
 
 	const auto& [stype, sname] = i->first;
@@ -765,13 +765,13 @@ void ModuleManager::AddReferent(const std::string& stype, const std::string& sna
 	ServerInstance->Logs.Debug("SERVICE", "Adding reference to {} as {} {}",
 		(void*)service, stype, sname);
 #endif
-	DataProviders.emplace(std::make_pair(stype, sname), service);
+	this->Services.emplace(std::make_pair(stype, sname), service);
 	dynamic_reference_base::reset_all();
 }
 
 void ModuleManager::DelReferent(ServiceProvider* service)
 {
-	for (DataProviderMap::iterator i = DataProviders.begin(); i != DataProviders.end(); )
+	for (auto i = this->Services.begin(); i != this->Services.end(); )
 	{
 		ServiceProvider* curr = i->second;
 		if (curr == service)
@@ -780,7 +780,7 @@ void ModuleManager::DelReferent(ServiceProvider* service)
 			ServerInstance->Logs.Debug("SERVICE", "Deleting reference to {} as {} {}",
 				(void*)service, curr->service_type, curr->service_name);
 #endif
-			DataProviders.erase(i++);
+			this->Services.erase(i++);
 		}
 		else
 			++i;

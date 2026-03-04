@@ -219,7 +219,7 @@ public:
 	void init() override
 	{
 		// Let ourself know about any existing services.
-		for (const auto& [_, service] : ServerInstance->Modules.DataProviders)
+		for (const auto& [_, service] : ServerInstance->Modules.Services)
 			OnServiceAdd(*service);
 	}
 
