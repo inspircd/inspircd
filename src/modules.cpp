@@ -36,13 +36,16 @@
 
 static insp::intrusive_list<dynamic_reference_base>* dynrefs = nullptr;
 
-void dynamic_reference_base::reset_all()
+void dynamic_reference_base::reset_all(const std::string& stype)
 {
 	if (!dynrefs)
 		return;
 
 	for (auto* dynref : *dynrefs)
-		dynref->resolve();
+	{
+		if (stype.empty() || dynref->service_type == stype)
+			dynref->resolve();
+	}
 }
 
 Module::Module(int mprops, const std::string& mdesc)
@@ -766,7 +769,7 @@ void ModuleManager::AddReferent(const std::string& stype, const std::string& sna
 		(void*)service, stype, sname);
 #endif
 	this->Services.emplace(std::make_pair(stype, sname), service);
-	dynamic_reference_base::reset_all();
+	dynamic_reference_base::reset_all(stype);
 }
 
 void ModuleManager::DelReferent(ServiceProvider* service)

@@ -69,7 +69,7 @@ public:
 
 	void check();
 	operator bool() const { return (value != nullptr); }
-	static void reset_all();
+	static void reset_all(const std::string& stype = "");
 };
 
 inline void dynamic_reference_base::check()
