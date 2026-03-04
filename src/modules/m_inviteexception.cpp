@@ -60,8 +60,13 @@ public:
 
 	bool ValidateParam(LocalUser* user, Channel* channel, std::string& parameter) override
 	{
-		if (!extbanmgr || !extbanmgr->Canonicalize(parameter))
-			ModeParser::CleanMask(parameter);
+		if (extbanmgr)
+		{
+			const auto valid = extbanmgr->Validate(this, user, channel, parameter);
+			if (valid != ExtBan::Comparison::NOT_AN_EXTBAN)
+				return valid == ExtBan::Comparison::MATCH;
+		}
+		ModeParser::CleanMask(parameter);
 		return true;
 	}
 };

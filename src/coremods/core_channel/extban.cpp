@@ -191,3 +191,44 @@ ExtBan::Base* ExtBanManager::FindLetter(ExtBan::Letter letter) const
 		return nullptr;
 	return iter->second;
 }
+
+ExtBan::Comparison ExtBanManager::Validate(ListModeBase* lm, LocalUser* user, Channel* channel, std::string& text) const
+{
+	bool inverted; // Intentionally unused
+	std::string xbname;
+	std::string xbvalue;
+	if (!ExtBan::Parse(text, xbname, xbvalue, inverted))
+		return ExtBan::Comparison::NOT_AN_EXTBAN; // Not an extban.
+
+	auto* extban = Find(xbname);
+	if (!extban)
+		return ExtBan::Comparison::NOT_AN_EXTBAN; // Looks like an extban but it isn't.
+
+	if (!extban->Validate(lm, user, channel, xbvalue, inverted))
+		return ExtBan::Comparison::NOT_MATCH;
+
+	// Canonicalize the extban.
+	text.assign(inverted ? "!" : "");
+
+	switch (format)
+	{
+		case ExtBan::Format::LETTER:
+			if (extban->GetLetter())
+			{
+				text.push_back(extban->GetLetter());
+				break;
+			}
+			[[fallthrough]]; // ExtBan has no letter.
+
+		case ExtBan::Format::NAME:
+			text.append(extban->GetName());
+			break;
+
+
+		default:
+			text.append(xbname);
+			break;
+	}
+	text.append(":").append(xbvalue);
+	return ExtBan::Comparison::MATCH;
+}
