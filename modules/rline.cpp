@@ -26,6 +26,7 @@
 
 
 #include "inspircd.h"
+#include "modules/ircv3.h"
 #include "modules/regex.h"
 #include "modules/stats.h"
 #include "timeutils.h"
@@ -137,13 +138,16 @@ public:
 class CommandRLine final
 	: public Command
 {
+private:
 	std::string rxengine;
 	RLineFactory& factory;
+	IRCv3::ReplyCapReference stdrplcap;
 
 public:
 	CommandRLine(Module* Creator, RLineFactory& rlf)
 		: Command(Creator, "RLINE", 1, 3)
 		, factory(rlf)
+		, stdrplcap(Creator)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<regex> [[<duration>] :<reason>]" };
@@ -159,7 +163,8 @@ public:
 			unsigned long duration = 0;
 			if (parameters.size() > 2 && !Duration::TryFrom(parameters[1], duration))
 			{
-				user->WriteNotice("*** Invalid duration for R-line.");
+				IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "INVALID_DURATION", parameters[1],
+					FMT::format("Invalid duration for R-line: {}.", parameters[1]));
 				return CmdResult::FAILURE;
 			}
 			XLine* r = nullptr;
@@ -170,7 +175,9 @@ public:
 			}
 			catch (const ModuleException& e)
 			{
-				ServerInstance->SNO.WriteToSnoMask('a', "Could not add R-line: " + e.GetReason());
+				IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "INVALID_VALUE", parameters.back(),
+					FMT::format("Invalid value for R-line: {}.", parameters.back()));
+				return CmdResult::FAILURE;
 			}
 
 			if (r)
@@ -193,7 +200,8 @@ public:
 				else
 				{
 					delete r;
-					user->WriteNotice("*** R-line for " + parameters[0] + " already exists.");
+					IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "ALREADY_EXISTS", parameters[0],
+						FMT::format("R-line on {} already exists.", parameters[0]));
 				}
 			}
 		}
@@ -207,7 +215,8 @@ public:
 			}
 			else
 			{
-				user->WriteNotice("*** R-line " + parameters[0] + " not found on the list.");
+				IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "NOT_FOUND", parameters[0],
+					FMT::format("{} not found on the rline list.", parameters[0]));
 			}
 		}
 

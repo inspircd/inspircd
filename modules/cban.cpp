@@ -155,7 +155,7 @@ public:
 			{
 				delete r;
 				IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "ALREADY_EXISTS", parameters[0],
-					FMT::format("CBan for {} already exists.", parameters[0]));
+					FMT::format("CBan on {} already exists.", parameters[0]));
 				return CmdResult::FAILURE;
 			}
 		}

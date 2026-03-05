@@ -30,6 +30,7 @@
 
 
 #include "inspircd.h"
+#include "modules/ircv3.h"
 #include "modules/shun.h"
 #include "modules/stats.h"
 #include "timeutils.h"
@@ -58,9 +59,13 @@ public:
 class CommandShun final
 	: public Command
 {
+private:
+	IRCv3::ReplyCapReference stdrplcap;
+
 public:
 	CommandShun(Module* Creator)
 		: Command(Creator, "SHUN", 1, 3)
+		, stdrplcap(Creator)
 	{
 		accepts_multiple_targets = true;
 		access_needed = CmdAccess::OPERATOR;
@@ -94,7 +99,8 @@ public:
 			}
 			else
 			{
-				user->WriteNotice("*** Shun " + parameters[0] + " not found on the list.");
+				IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "NOT_FOUND", parameters[0],
+					FMT::format("{} not found on the shun list.", parameters[0]));
 				return CmdResult::FAILURE;
 			}
 		}
@@ -107,7 +113,8 @@ public:
 			{
 				if (!Duration::TryFrom(parameters[1], duration))
 				{
-					user->WriteNotice("*** Invalid duration for SHUN.");
+					IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "INVALID_DURATION", parameters[1],
+						FMT::format("Invalid duration for shun: {}.", parameters[1]));
 					return CmdResult::FAILURE;
 				}
 				expr = parameters[2];
@@ -136,7 +143,8 @@ public:
 			else
 			{
 				delete r;
-				user->WriteNotice("*** Shun for " + target + " already exists.");
+				IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "ALREADY_EXISTS", parameters[0],
+					FMT::format("Shun on {} already exists.", parameters[0]));
 				return CmdResult::FAILURE;
 			}
 		}
