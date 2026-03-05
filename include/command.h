@@ -278,6 +278,11 @@ public:
 	 */
 	virtual CmdResult Handle(User* user, const Params& parameters) = 0;
 
+	/** Determines if this command is usable by the specified.
+	 * @param user The user to check.
+	 */
+	bool IsUsableBy(User* user) const;
+
 	/** @copydoc ServiceProvider::RegisterService */
 	void RegisterService() override;
 

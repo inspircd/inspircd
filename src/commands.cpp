@@ -122,29 +122,9 @@ CmdResult CommandParser::CallHandler(const std::string& commandname, const Comma
 
 		if (parameters.size() >= handler->min_params)
 		{
-			bool bOkay = false;
+			bool bOkay = true;
 			if (IS_LOCAL(user))
-			{
-				switch (handler->access_needed)
-				{
-					case CmdAccess::NORMAL: // Anyone can execute.
-						bOkay = true;
-						break;
-
-					case CmdAccess::OPERATOR: // Only opers can execute.
-						bOkay = user->HasCommandPermission(commandname);
-						break;
-
-					case CmdAccess::SERVER: // Only servers can execute.
-						bOkay = IS_SERVER(user);
-						break;
-				}
-			}
-			else
-			{
-				/* remote or no flags required anyway */
-				bOkay = true;
-			}
+				bOkay = handler->IsUsableBy(user);
 
 			if (bOkay)
 			{
@@ -457,6 +437,22 @@ size_t Command::GetMaxTargets()
 		this->max_targets_checked = ServerInstance->Config->ReadTime;
 	}
 	return this->max_targets;
+}
+
+bool Command::IsUsableBy(User *user) const
+{
+	switch (this->access_needed)
+	{
+		case CmdAccess::NORMAL: // Everyone can use user commands.
+			return true;
+
+		case CmdAccess::OPERATOR: // Only opers can use oper commands.
+			return user->HasCommandPermission(this->service_name);
+
+		case CmdAccess::SERVER: // Nobody can use server commands.
+			return false;
+	}
+	return true; // Should never happen.
 }
 
 void Command::TellNotEnoughParameters(LocalUser* user, const Params& parameters)
