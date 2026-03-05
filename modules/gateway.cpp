@@ -30,6 +30,7 @@
 #include "extension.h"
 #include "modules/extban.h"
 #include "modules/hash.h"
+#include "modules/ircv3.h"
 #include "modules/ssl.h"
 #include "modules/webirc.h"
 #include "modules/whois.h"
@@ -144,9 +145,12 @@ public:
 class CommandHexIP final
 	: public SplitCommand
 {
+private:
+	IRCv3::ReplyCapReference stdrplcap;
 public:
 	CommandHexIP(Module* Creator)
 		: SplitCommand(Creator, "HEXIP", 1)
+		, stdrplcap(Creator)
 	{
 		penalty = 2000;
 		syntax = { "<hex-ip|raw-ip>" };
@@ -159,25 +163,30 @@ public:
 		{
 			if (sa.family() != AF_INET)
 			{
-				user->WriteNotice("*** HEXIP: You can only hex encode an IPv4 address!");
+				IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, this, "NOT_AN_IPV4", parameters[0],
+					"You can only hex encode an IPv4 address!");
 				return CmdResult::FAILURE;
 			}
 
-			uint32_t addr = sa.in4.sin_addr.s_addr;
-			user->WriteNotice("*** HEXIP: {} encodes to {:02x}{:02x}{:02x}{:02x}.",
-				sa.addr(), (addr & 0xFF), ((addr >> 8) & 0xFF), ((addr >> 16) & 0xFF),
-				((addr >> 24) & 0xFF));
+			const auto hexip = FMT::format("{:02x}{:02x}{:02x}{:02x}",
+				(sa.in4.sin_addr.s_addr & 0xFF), ((sa.in4.sin_addr.s_addr >> 8) & 0xFF),
+				((sa.in4.sin_addr.s_addr >> 16) & 0xFF), ((sa.in4.sin_addr.s_addr >> 24) & 0xFF));
+
+			IRCv3::WriteReply(Reply::NOTE, user, stdrplcap, this, "IPV4_TO_HEX", sa.addr(), hexip,
+				FMT::format("{} encodes to {}.", sa.addr(), hexip));
+
 			return CmdResult::SUCCESS;
 		}
 
 		if (ParseIP(parameters[0], sa))
 		{
-			user->WriteNotice("*** HEXIP: {} decodes to {}.", parameters[0], sa.addr());
+			IRCv3::WriteReply(Reply::NOTE, user, stdrplcap, this, "HEX_TO_IPV4", parameters[0], sa.addr(),
+				FMT::format("{} decodes to {}.", parameters[0], sa.addr()));
 			return CmdResult::SUCCESS;
 		}
 
-		user->WriteNotice("*** HEXIP: {} is not a valid raw or hex encoded IPv4 address.",
-			parameters[0]);
+		IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, this, "NOT_AN_IPV4_OR_HEX", parameters[0],
+			FMT::format("{} is not a valid raw or hex encoded IPv4 address.", parameters[0]));
 		return CmdResult::FAILURE;
 	}
 

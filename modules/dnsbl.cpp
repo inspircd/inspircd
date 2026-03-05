@@ -34,6 +34,7 @@
 #include "inspircd.h"
 #include "extension.h"
 #include "modules/dns.h"
+#include "modules/ircv3.h"
 #include "modules/shun.h"
 #include "modules/stats.h"
 #include "numerichelper.h"
@@ -413,11 +414,13 @@ class CommandDNSBL final
 {
 private:
 	SharedData& data;
+	IRCv3::ReplyCapReference stdrplcap;
 
 public:
 	CommandDNSBL(Module* mod, SharedData& sd)
 		: Command(mod, "DNSBL", 1, 2)
 		, data(sd)
+		, stdrplcap(mod)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick> [<reason>]" };
@@ -446,14 +449,14 @@ public:
 		intptr_t count = data.countext.Get(ltarget);
 		if (count)
 		{
-			// TODO: replace this with a FAIL stdrpl when we can network those.
-			user->WriteRemoteNotice("*** DNSBL: Unable to recheck {}: still waiting on {} DNSBLs from the previous check.",
-				ltarget->nick, count);
+			IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, this, "STILL_CHECKING", ltarget->nick,
+				FMT::format("Unable to recheck {}: still waiting on {} DNSBLs from the previous check.",
+					ltarget->nick, count));
 			return CmdResult::FAILURE;
 		}
 
-		// TODO: replace this with a NOTE stdrpl when we can network those.
-		user->WriteRemoteNotice("*** DNSBL: Rechecking {} against {} DNSBLs.", ltarget->nick, data.dnsbls.size());
+		IRCv3::WriteReply(Reply::NOTE, user, stdrplcap, this, "RECHECKING_USER", ltarget->nick,
+			FMT::format("Rechecking {} against {} DNSBLs.", ltarget->nick, data.dnsbls.size()));
 
 		const bool has_reason = parameters.size() > 1;
 		ServerInstance->SNO.WriteGlobalSno('d', "{} is rechecking whether {} ({}) is in a DNSBL{}{}", user->nick,
