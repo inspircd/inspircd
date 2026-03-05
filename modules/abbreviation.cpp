@@ -22,19 +22,18 @@
 
 
 #include "inspircd.h"
-
-enum
-{
-	// InspIRCd-specific.
-	ERR_AMBIGUOUSCOMMAND = 420
-};
+#include "modules/ircv3.h"
 
 class ModuleAbbreviation final
 	: public Module
 {
+private:
+	IRCv3::ReplyCapReference stdrplcap;
+
 public:
 	ModuleAbbreviation()
 		: Module(VF_VENDOR, "Allows commands to be abbreviated by appending a full stop.")
+		, stdrplcap(this)
 	{
 	}
 
@@ -49,43 +48,53 @@ public:
 		if (validated || command.empty() || command.back() != '.')
 			return MOD_RES_PASSTHRU;
 
-		/* Look for any command that starts with the same characters, if it does, replace the command string with it */
-		size_t clen = command.length() - 1;
-		std::string foundcommand;
-		std::string matchlist;
-		bool foundmatch = false;
-		for (const auto& [cmdname, _] : ServerInstance->Parser.GetCommands())
-		{
-			if (!command.compare(0, clen, cmdname, 0, clen))
-			{
-				if (matchlist.length() > 450)
-				{
-					user->WriteNumeric(ERR_AMBIGUOUSCOMMAND, "Ambiguous abbreviation and too many possible matches.");
-					return MOD_RES_DENY;
-				}
+		// :irc.example.com FAIL * AMBIGUOUS_ABBREVIATION :BLAH
+		// :irc.example.com NOTICE nick :*** BLAH
+		const auto maxlen = ServerInstance->Config->Limits.MaxLine
+			- ServerInstance->Config->GetServerName().size()
+			- std::max<size_t>(user->nick.length() + 4, 22)
+			- 10; // Some extra just in case.
 
-				if (!foundmatch)
-				{
-					/* Found the command */
-					foundcommand = cmdname;
-					foundmatch = true;
-				}
-				else
-					matchlist.append(" ").append(cmdname);
+		auto foundmatch = false;
+		std::string foundcommand;
+		std::string extracommands;
+
+		const auto cmdlen = command.length() - 1;
+		for (const auto& [cmdname, cmd] : ServerInstance->Parser.GetCommands())
+		{
+			// Look for any command that starts with the same characters that
+			// is usable by the caller.
+			if (command.compare(0, cmdlen, cmdname, 0, cmdlen) != 0 || !cmd->IsUsableBy(user))
+				continue; // No match.
+
+			if (extracommands.length() > maxlen)
+			{
+				IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, nullptr, "AMBIGUOUS_ABBREVIATION",
+					"Ambiguous abbreviation and too many possible matches.");
+				return MOD_RES_DENY;
 			}
+
+			if (!foundmatch)
+			{
+				// Found the command.
+				foundcommand = cmdname;
+				foundmatch = true;
+			}
+			else
+				extracommands.append(" ").append(cmdname);
 		}
 
 		/* Ambiguous command, list the matches */
-		if (!matchlist.empty())
+		if (!extracommands.empty())
 		{
-			user->WriteNumeric(ERR_AMBIGUOUSCOMMAND, FMT::format("Ambiguous abbreviation, possible matches: {}{}", foundcommand, matchlist));
+			IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, nullptr, "AMBIGUOUS_ABBREVIATION",
+				FMT::format("Ambiguous abbreviation, possible matches: {}{}", foundcommand, extracommands));
 			return MOD_RES_DENY;
 		}
 
+		// Replace the command abbreviation with the found command name.
 		if (!foundcommand.empty())
-		{
 			command = foundcommand;
-		}
 
 		return MOD_RES_PASSTHRU;
 	}
