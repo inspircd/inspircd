@@ -76,7 +76,7 @@ public:
 		const auto& newreal = parameters.back();
 		if (newreal.size() > ServerInstance->Config->Limits.MaxReal)
 		{
-			IRCv3::WriteReply(Reply::Type::FAIL, user, &cap, this, "INVALID_REALNAME", "Real name is too long");
+			IRCv3::WriteReply(Reply::FAIL, user, &cap, this, "INVALID_REALNAME", "Real name is too long");
 			return CmdResult::FAILURE;
 		}
 

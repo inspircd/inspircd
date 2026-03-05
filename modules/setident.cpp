@@ -75,13 +75,13 @@ public:
 		const auto& newuser = parameters.back();
 		if (newuser.size() > ServerInstance->Config->Limits.MaxUser)
 		{
-			IRCv3::WriteReply(Reply::Type::FAIL, user, cap, this, "INVALID_USERNAME", "Username is too long");
+			IRCv3::WriteReply(Reply::FAIL, user, cap, this, "INVALID_USERNAME", "Username is too long");
 			return CmdResult::FAILURE;
 		}
 
 		if (!ServerInstance->Users.IsUser(parameters[0]))
 		{
-			IRCv3::WriteReply(Reply::Type::FAIL, user, cap, this, "INVALID_USERNAME", "Invalid characters in username");
+			IRCv3::WriteReply(Reply::FAIL, user, cap, this, "INVALID_USERNAME", "Invalid characters in username");
 			return CmdResult::FAILURE;
 		}
 

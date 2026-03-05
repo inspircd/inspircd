@@ -23,7 +23,8 @@ namespace Reply
 {
 	class Reply;
 
-	enum class Type
+	enum Type
+		: uint8_t
 	{
 		FAIL,
 		WARN,
@@ -127,15 +128,15 @@ public:
 	void SetSource(Server* s) { this->source = s; }
 };
 
-const char* Reply::CommandStrFromType(Type rt)
+const char* Reply::CommandStrFromType(::Reply::Type rt)
 {
 	switch (rt)
 	{
-		case Type::FAIL:
+		case ::Reply::FAIL:
 			return "FAIL";
-		case Type::WARN:
+		case ::Reply::WARN:
 			return "WARN";
-		case Type::NOTE:
+		case ::Reply::NOTE:
 			return "NOTE";
 	}
 	return nullptr; // Should never happen.

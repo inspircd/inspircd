@@ -119,7 +119,7 @@ private:
 
 	CmdResult FailedLogin(LocalUser* user, const std::string& account)
 	{
-		IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "LOGIN_FAIL", account, FMT::format("Failed to log into the \x02{}\x02 custom cloak account.", account));
+		IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, this, "LOGIN_FAIL", account, FMT::format("Failed to log into the \x02{}\x02 custom cloak account.", account));
 		user->CommandFloodPenalty += 2500;
 		return CmdResult::FAILURE;
 	}
@@ -165,7 +165,7 @@ public:
 		}
 
 		// If they have reached this point then the login succeeded,
-		IRCv3::WriteReply(Reply::Type::NOTE, user, stdrplcap, this, "LOGIN_SUCCESS", it->first, account.cloak.ToString(), FMT::format("You are now logged in as \x02{}\x02; updating your cloak to \x02{}\x02.",
+		IRCv3::WriteReply(Reply::NOTE, user, stdrplcap, this, "LOGIN_SUCCESS", it->first, account.cloak.ToString(), FMT::format("You are now logged in as \x02{}\x02; updating your cloak to \x02{}\x02.",
 			it->first, account.cloak.ToString()));
 
 		cloakext.Set(user, account.cloak);

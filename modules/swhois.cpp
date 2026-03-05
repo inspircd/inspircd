@@ -183,7 +183,7 @@ private:
 			swhois.priority = ConvToNum<time_t>(parameters[2]);
 		ServerInstance->PI->SendMetadata(target, "specialwhois", swhois.SerializeAdd());
 
-		IRCv3::WriteReply(Reply::Type::NOTE, source, stdrplcap, this, "ENTRY_ADDED", target->nick, FMT::format("Added special whois for {}: {}",
+		IRCv3::WriteReply(Reply::NOTE, source, stdrplcap, this, "ENTRY_ADDED", target->nick, FMT::format("Added special whois for {}: {}",
 			target->nick, swhois.message));
 		return CmdResult::SUCCESS;
 	}
@@ -192,12 +192,12 @@ private:
 	{
 		if (DelSWhois(swhoisext, source, [](const SWhois& swhois) { return true; }))
 		{
-			IRCv3::WriteReply(Reply::Type::NOTE, source, stdrplcap, this, "LIST_CLEARED", target->nick, FMT::format("Special whois list for {} has been cleared.",
+			IRCv3::WriteReply(Reply::NOTE, source, stdrplcap, this, "LIST_CLEARED", target->nick, FMT::format("Special whois list for {} has been cleared.",
 				target->nick));
 		}
 		else
 		{
-			IRCv3::WriteReply(Reply::Type::FAIL, source, stdrplcap, this, "LIST_EMPTY", target->nick, FMT::format("Special whois list for {} is already empty!",
+			IRCv3::WriteReply(Reply::FAIL, source, stdrplcap, this, "LIST_EMPTY", target->nick, FMT::format("Special whois list for {} is already empty!",
 				target->nick));
 		}
 		return CmdResult::SUCCESS;
@@ -230,12 +230,12 @@ private:
 
 		if (deleted)
 		{
-			IRCv3::WriteReply(Reply::Type::NOTE, source, stdrplcap, this, "ENTRY_DELETED", target->nick,
+			IRCv3::WriteReply(Reply::NOTE, source, stdrplcap, this, "ENTRY_DELETED", target->nick,
 				"The special whois message you specified has been deleted.");
 		}
 		else
 		{
-			IRCv3::WriteReply(Reply::Type::FAIL, source, stdrplcap, this, "LIST_EMPTY", target->nick,
+			IRCv3::WriteReply(Reply::FAIL, source, stdrplcap, this, "LIST_EMPTY", target->nick,
 				"The special whois message you specified does not exist!");
 		}
 		return CmdResult::SUCCESS;
@@ -246,7 +246,7 @@ private:
 		auto* swhoislist = swhoisext.Get(target);
 		if (!swhoislist || swhoislist->empty())
 		{
-			IRCv3::WriteReply(Reply::Type::FAIL, source, stdrplcap, this, "LIST_EMPTY", target->nick, FMT::format("Special whois list for {} is empty!",
+			IRCv3::WriteReply(Reply::FAIL, source, stdrplcap, this, "LIST_EMPTY", target->nick, FMT::format("Special whois list for {} is empty!",
 				target->nick));
 			return CmdResult::SUCCESS;
 		}
@@ -254,7 +254,7 @@ private:
 		size_t index = 0;
 		for (const auto& swhois : *swhoislist)
 		{
-			IRCv3::WriteReply(Reply::Type::NOTE, source, stdrplcap, this, "LIST_ENTRY", target->nick, FMT::format("#{}: {} (priority: {}, flags: {})",
+			IRCv3::WriteReply(Reply::NOTE, source, stdrplcap, this, "LIST_ENTRY", target->nick, FMT::format("#{}: {} (priority: {}, flags: {})",
 				++index, swhois.message, swhois.priority, swhois.GetFlags()));
 		}
 
@@ -298,7 +298,7 @@ public:
 			return DoList(user, target, parameters);
 		else
 		{
-			IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "UNKNOWN_COMMAND", subcmd, FMT::format("Invalid {} subcommand: {}",
+			IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, this, "UNKNOWN_COMMAND", subcmd, FMT::format("Invalid {} subcommand: {}",
 				this->service_name, subcmd));
 
 			if (ServerInstance->Config->SyntaxHints)

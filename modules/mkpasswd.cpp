@@ -41,14 +41,14 @@ public:
 		auto* hp = ServerInstance->Modules.FindDataService<Hash::Provider>("Hash::Provider", parameters[0]);
 		if (!hp)
 		{
-			IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "INVALID_HASH", parameters[0], FMT::format("{} is not a known hash algorithm!",
+			IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, this, "INVALID_HASH", parameters[0], FMT::format("{} is not a known hash algorithm!",
 				parameters[0]));
 			return CmdResult::FAILURE;
 		}
 
 		if (!hp->IsPasswordSafe())
 		{
-			IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "INSECURE_HASH", hp->service_name, FMT::format("{} is not a secure password hashing algorithm!",
+			IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, this, "INSECURE_HASH", hp->service_name, FMT::format("{} is not a secure password hashing algorithm!",
 				hp->service_name));
 			return CmdResult::FAILURE;
 		}
@@ -56,13 +56,13 @@ public:
 		auto hash = hp->Hash(parameters[1]);
 		if (hash.empty())
 		{
-			IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "HASH_ERROR", hp->service_name, FMT::format("An error occurred whilst hashing your password with {}!",
+			IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, this, "HASH_ERROR", hp->service_name, FMT::format("An error occurred whilst hashing your password with {}!",
 				hp->service_name));
 			return CmdResult::FAILURE;
 		}
 
 		auto phash = hp->ToPrintable(hash);
-		IRCv3::WriteReply(Reply::Type::NOTE, user, stdrplcap, this, "HASH_RESULT", hp->service_name, phash, FMT::format("{} hashed password: {}",
+		IRCv3::WriteReply(Reply::NOTE, user, stdrplcap, this, "HASH_RESULT", hp->service_name, phash, FMT::format("{} hashed password: {}",
 			hp->service_name, phash));
 
 		return CmdResult::SUCCESS;

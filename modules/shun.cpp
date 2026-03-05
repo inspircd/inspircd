@@ -99,7 +99,7 @@ public:
 			}
 			else
 			{
-				IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "NOT_FOUND", parameters[0],
+				IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, this, "NOT_FOUND", parameters[0],
 					FMT::format("{} not found on the shun list.", parameters[0]));
 				return CmdResult::FAILURE;
 			}
@@ -113,7 +113,7 @@ public:
 			{
 				if (!Duration::TryFrom(parameters[1], duration))
 				{
-					IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "INVALID_DURATION", parameters[1],
+					IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, this, "INVALID_DURATION", parameters[1],
 						FMT::format("Invalid duration for shun: {}.", parameters[1]));
 					return CmdResult::FAILURE;
 				}
@@ -143,7 +143,7 @@ public:
 			else
 			{
 				delete r;
-				IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "ALREADY_EXISTS", parameters[0],
+				IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, this, "ALREADY_EXISTS", parameters[0],
 					FMT::format("Shun on {} already exists.", parameters[0]));
 				return CmdResult::FAILURE;
 			}

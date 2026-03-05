@@ -48,7 +48,7 @@ public:
 		unsigned long idle;
 		if (!Duration::TryFrom(parameters[0], idle))
 		{
-			IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "INVALID_IDLE_TIME", parameters[0], "Invalid idle time.");
+			IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, this, "INVALID_IDLE_TIME", parameters[0], "Invalid idle time.");
 			return CmdResult::FAILURE;
 		}
 
@@ -58,7 +58,7 @@ public:
 			user->signon = user->idle_lastmsg;
 
 		ServerInstance->SNO.WriteToSnoMask('a', "{} used SETIDLE to set their idle time to {}", user->nick, Duration::ToLongString(idle));
-		IRCv3::WriteReply(Reply::Type::NOTE, user, stdrplcap, this, "IDLE_TIME_SET", user->idle_lastmsg, "Idle time set.");
+		IRCv3::WriteReply(Reply::NOTE, user, stdrplcap, this, "IDLE_TIME_SET", user->idle_lastmsg, "Idle time set.");
 		return CmdResult::SUCCESS;
 	}
 };

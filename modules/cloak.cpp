@@ -57,13 +57,13 @@ public:
 			if (!cloak)
 				continue;
 
-			IRCv3::WriteReply(Reply::Type::NOTE, user, stdrplcap, this, "CLOAK_RESULT", parameters[0], cloak->ToString(), FMT::format("Cloak #{} for {} is {} (method: {})",
+			IRCv3::WriteReply(Reply::NOTE, user, stdrplcap, this, "CLOAK_RESULT", parameters[0], cloak->ToString(), FMT::format("Cloak #{} for {} is {} (method: {})",
 				++count, parameters[0], cloak->ToString(), cloakmethod->GetName()));
 		}
 
 		if (!count)
 		{
-			IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "UNABLE_TO_CLOAK", parameters[0], FMT::format("There are no methods available for cloaking {}",
+			IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, this, "UNABLE_TO_CLOAK", parameters[0], FMT::format("There are no methods available for cloaking {}",
 				parameters[0]));
 		}
 

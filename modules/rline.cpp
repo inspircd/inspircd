@@ -163,7 +163,7 @@ public:
 			unsigned long duration = 0;
 			if (parameters.size() > 2 && !Duration::TryFrom(parameters[1], duration))
 			{
-				IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "INVALID_DURATION", parameters[1],
+				IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, this, "INVALID_DURATION", parameters[1],
 					FMT::format("Invalid duration for R-line: {}.", parameters[1]));
 				return CmdResult::FAILURE;
 			}
@@ -175,7 +175,7 @@ public:
 			}
 			catch (const ModuleException& e)
 			{
-				IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "INVALID_VALUE", parameters[0],
+				IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, this, "INVALID_VALUE", parameters[0],
 					FMT::format("Invalid value for R-line: {}.", parameters[0]));
 				return CmdResult::FAILURE;
 			}
@@ -200,7 +200,7 @@ public:
 				else
 				{
 					delete r;
-					IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "ALREADY_EXISTS", parameters[0],
+					IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, this, "ALREADY_EXISTS", parameters[0],
 						FMT::format("R-line on {} already exists.", parameters[0]));
 				}
 			}
@@ -215,7 +215,7 @@ public:
 			}
 			else
 			{
-				IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "NOT_FOUND", parameters[0],
+				IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, this, "NOT_FOUND", parameters[0],
 					FMT::format("{} not found on the rline list.", parameters[0]));
 			}
 		}

@@ -69,7 +69,7 @@ public:
 
 			if (extracommands.length() > maxlen)
 			{
-				IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, nullptr, "AMBIGUOUS_ABBREVIATION",
+				IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, nullptr, "AMBIGUOUS_ABBREVIATION",
 					"Ambiguous abbreviation and too many possible matches.");
 				return MOD_RES_DENY;
 			}
@@ -87,7 +87,7 @@ public:
 		/* Ambiguous command, list the matches */
 		if (!extracommands.empty())
 		{
-			IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, nullptr, "AMBIGUOUS_ABBREVIATION",
+			IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, nullptr, "AMBIGUOUS_ABBREVIATION",
 				FMT::format("Ambiguous abbreviation, possible matches: {}{}", foundcommand, extracommands));
 			return MOD_RES_DENY;
 		}

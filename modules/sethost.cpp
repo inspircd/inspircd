@@ -76,7 +76,7 @@ public:
 		const auto& newhost = parameters.back();
 		if (newhost.size() > ServerInstance->Config->Limits.MaxHost)
 		{
-			IRCv3::WriteReply(Reply::Type::FAIL, user, cap, this, "INVALID_HOSTNAME", "Hostname is too long");
+			IRCv3::WriteReply(Reply::FAIL, user, cap, this, "INVALID_HOSTNAME", "Hostname is too long");
 			return CmdResult::FAILURE;
 		}
 
@@ -84,7 +84,7 @@ public:
 		{
 			if (!hostmap.test(static_cast<unsigned char>(chr)))
 			{
-				IRCv3::WriteReply(Reply::Type::FAIL, user, cap, this, "INVALID_HOSTNAME", "Invalid characters in hostname");
+				IRCv3::WriteReply(Reply::FAIL, user, cap, this, "INVALID_HOSTNAME", "Invalid characters in hostname");
 				return CmdResult::FAILURE;
 			}
 		}
