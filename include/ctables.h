@@ -265,6 +265,11 @@ public:
 	 */
 	virtual CmdResult Handle(User* user, const Params& parameters) = 0;
 
+	/** Determines if this command is usable by the specified.
+	 * @param user The user to check.
+	 */
+	bool IsUsableBy(User* user) const;
+
 	/** Registers this command with the command parser. */
 	void RegisterService() override;
 
