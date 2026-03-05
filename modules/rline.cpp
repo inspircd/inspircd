@@ -175,8 +175,8 @@ public:
 			}
 			catch (const ModuleException& e)
 			{
-				IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "INVALID_VALUE", parameters.back(),
-					FMT::format("Invalid value for R-line: {}.", parameters.back()));
+				IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "INVALID_VALUE", parameters[0],
+					FMT::format("Invalid value for R-line: {}.", parameters[0]));
 				return CmdResult::FAILURE;
 			}
 
