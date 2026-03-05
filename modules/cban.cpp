@@ -27,6 +27,7 @@
 
 
 #include "inspircd.h"
+#include "modules/ircv3.h"
 #include "modules/stats.h"
 #include "timeutils.h"
 #include "xline.h"
@@ -94,9 +95,12 @@ public:
 class CommandCBan final
 	: public Command
 {
+private:
+	IRCv3::ReplyCapReference stdrplcap;
 public:
 	CommandCBan(Module* Creator)
 		: Command(Creator, "CBAN", 1, 3)
+		, stdrplcap(Creator)
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<channelmask> [[<duration>] :<reason>]" };
@@ -117,7 +121,8 @@ public:
 			}
 			else
 			{
-				user->WriteNotice("*** CBan " + parameters[0] + " not found on the list.");
+				IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "NOT_FOUND", parameters[0],
+					FMT::format("{} not found on the CBan list.", parameters[0]));
 				return CmdResult::FAILURE;
 			}
 		}
@@ -127,7 +132,8 @@ public:
 			unsigned long duration = 0;
 			if (parameters.size() > 2 && !Duration::TryFrom(parameters[1], duration))
 			{
-				user->WriteNotice("*** Invalid duration for CBan.");
+				IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "INVALID_DURATION", parameters[1],
+					FMT::format("Invalid duration for CBan: {}.", parameters[1]));
 				return CmdResult::FAILURE;
 			}
 
@@ -148,7 +154,8 @@ public:
 			else
 			{
 				delete r;
-				user->WriteNotice("*** CBan for " + parameters[0] + " already exists");
+				IRCv3::WriteReply(Reply::Type::FAIL, user, stdrplcap, this, "ALREADY_EXISTS", parameters[0],
+					FMT::format("CBan for {} already exists.", parameters[0]));
 				return CmdResult::FAILURE;
 			}
 		}
