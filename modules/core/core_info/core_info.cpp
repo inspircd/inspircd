@@ -23,6 +23,7 @@
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
 #include "timeutils.h"
+#include "utility/string.h"
 
 #include "core_info.h"
 
@@ -76,6 +77,23 @@ private:
 	CommandVersion cmdversion;
 	Numeric::Numeric numeric003;
 	Numeric::Numeric numeric004;
+
+	static std::string BuildMaxTargets(LocalUser* user)
+	{
+		std::vector<std::string> limits;
+		for (const auto& [_, cmd] : ServerInstance->Parser.GetCommands())
+		{
+			if (!cmd->accepts_multiple_targets)
+				continue; // Not to be included in TARGMAX.
+
+			if (cmd->access_needed != CmdAccess::NORMAL && (!user || !cmd->IsUsableBy(user)))
+				continue; // Not to be included in TARGMAX for non-opers.
+
+			limits.push_back(FMT::format("{}:{}", cmd->service_name, cmd->GetMaxTargets()));
+		}
+		std::sort(limits.begin(), limits.end());
+		return insp::join(limits, ',');
+	}
 
 	/** Returns a list of user or channel mode characters.
 	 * Used for constructing the parts of the mode list in the 004 numeric.
@@ -232,6 +250,11 @@ public:
 	void Prioritize() override
 	{
 		ServerInstance->Modules.SetPriority(this, I_OnUserConnect, PRIORITY_FIRST);
+	}
+
+	void OnBuildISupport(ISupport::TokenMap& tokens) override
+	{
+		tokens["TARGMAX"] = BuildMaxTargets(nullptr);
 	}
 
 	void OnBuildClassISupport(const std::shared_ptr<ConnectClass>& klass, ISupport::TokenMap& tokens) override

@@ -19,24 +19,11 @@
 
 #include "inspircd.h"
 #include "utility/map.h"
-#include "utility/string.h"
 
 #include "core_info.h"
 
 namespace
 {
-	std::string BuildTARGMAX()
-	{
-		std::vector<std::string> limits;
-		for (const auto& [_, cmd] : ServerInstance->Parser.GetCommands())
-		{
-			if (cmd->accepts_multiple_targets)
-				limits.push_back(FMT::format("{}:{}", cmd->service_name, cmd->GetMaxTargets()));
-		}
-		std::sort(limits.begin(), limits.end());
-		return insp::join(limits, ',');
-	}
-
 	void TokenDifference(ISupport::TokenMap& tokendiff, const ISupport::TokenMap& oldtokens, const ISupport::TokenMap& newtokens)
 	{
 		std::map<std::string, std::pair<std::optional<std::string>, std::optional<std::string>>, irc::insensitive_swo> changedtokens;
@@ -118,7 +105,6 @@ void ISupportManager::Build()
 		{ "NETWORK",     ServerInstance->Config->Network                      },
 		{ "NAMELEN",     ConvToStr(ServerInstance->Config->Limits.MaxReal)    },
 		{ "NICKLEN",     ConvToStr(ServerInstance->Config->Limits.MaxNick)    },
-		{ "TARGMAX",     BuildTARGMAX()                                       },
 		{ "TOPICLEN",    ConvToStr(ServerInstance->Config->Limits.MaxTopic)   },
 		{ "USERLEN",     ConvToStr(ServerInstance->Config->Limits.MaxUser)    },
 	};
