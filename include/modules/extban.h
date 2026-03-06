@@ -79,7 +79,6 @@ namespace ExtBan
 	 * @param banentry The ban entry to parse.
 	 * @param name The parsed name of the extban.
 	 * @param value The parsed value of the extban.
-	 * @param inverted Whether the extban is inverted.
 	 * @return True if an extban was extracted from the ban entry; otherwise, false.
 	 */
 	inline bool Parse(const std::string& banentry, std::string& name, std::string& value, bool& inverted);
@@ -238,7 +237,7 @@ public:
 	 * @param inverted Whether the extban has been inverted.
 	 * @return True if the extban is valid; otherwise, false.
 	 */
-	virtual bool Validate(ListModeBase* lm, LocalUser* user, Channel* channel, std::string& text, bool inverted)
+	virtual bool Validate(ListModeBase* lm, LocalUser* user, Channel* channel, std::string& text)
 	{
 		Canonicalize(text);
 		return true;
@@ -314,7 +313,7 @@ public:
 	}
 
 	/** @copydoc ExtBan::Base::Validate */
-	bool Validate(ListModeBase* lm, LocalUser* user, Channel* channel, std::string& text, bool inverted) override
+	bool Validate(ListModeBase* lm, LocalUser* user, Channel* channel, std::string& text) override
 	{
 		if (GetManager())
 		{
