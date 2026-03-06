@@ -572,7 +572,7 @@ public:
 		cloakapi.GetCloaks(user);
 	}
 
-	void OnPostChangeConnectClass(LocalUser* user, bool force) override
+	void OnPostChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& oldklass, bool force) override
 	{
 		// Reset the cloaks so if the user is moving into a class with <connect usecloak="no"> they
 		// will be decloaked.

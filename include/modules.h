@@ -949,9 +949,10 @@ public:
 
 	/** Called when a user has bee assigned to a connect class.
 	 * @param user The user that was assigned to a connect class.
+	 * @param oldklass The old connect class the user was assigned to.
 	 * @param force Whether the connect class was explicitly picked (e.g. via <oper:class>).
 	 */
-	virtual void OnPostChangeConnectClass(LocalUser* user, bool force) ATTR_NOT_NULL(2);
+	virtual void OnPostChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& oldklass, bool force) ATTR_NOT_NULL(2);
 };
 
 /** ModuleManager takes care of all things module-related

@@ -572,6 +572,7 @@ void LocalUser::ChangeConnectClass(const std::shared_ptr<ConnectClass>& klass, b
 		return; // User hit some kind of restriction.
 
 	// Assign the new connect class.
+	auto oldconnectclass = connectclass;
 	if (connectclass)
 		connectclass->use_count--;
 	connectclass = klass;
@@ -582,7 +583,7 @@ void LocalUser::ChangeConnectClass(const std::shared_ptr<ConnectClass>& klass, b
 	uniqueusername = klass->uniqueusername;
 
 	// Let modules know the class has been changed.
-	FOREACH_MOD(OnPostChangeConnectClass, (this, force));
+	FOREACH_MOD(OnPostChangeConnectClass, (this, oldconnectclass, force));
 }
 
 void LocalUser::Send(ClientProtocol::Event& protoev)
