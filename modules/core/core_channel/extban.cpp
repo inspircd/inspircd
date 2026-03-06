@@ -209,7 +209,7 @@ ExtBan::Comparison ExtBanManager::Validate(ListModeBase* lm, LocalUser* user, Ch
 	if (!channel && (extban->GetMatchFlags() & ExtBan::MATCH_REQUIRE_CHANNEL))
 		return ExtBan::Comparison::NOT_MATCH; // ExtBan is not allowed for this use case.
 
-	if (!extban->Validate(lm, user, channel, xbvalue, inverted))
+	if (!extban->Validate(lm, user, channel, xbvalue))
 		return ExtBan::Comparison::NOT_MATCH;
 
 	// Canonicalize the extban.

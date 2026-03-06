@@ -60,7 +60,7 @@ public:
 		return banned;
 	}
 
-	bool Validate(ListModeBase* lm, LocalUser* user, Channel* channel, std::string& text, bool inverted) override
+	bool Validate(ListModeBase* lm, LocalUser* user, Channel* channel, std::string& text) override
 	{
 		auto* targetchan = ServerInstance->Channels.Find(text);
 		if (!targetchan || (targetchan->IsModeSet(secretmode) && (!targetchan->HasUser(user) && !user->HasPrivPermission("channels/auspex"))))

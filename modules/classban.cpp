@@ -46,7 +46,7 @@ public:
 	}
 
 
-	bool Validate(ListModeBase* lm, LocalUser* user, Channel* channel, std::string& text, bool inverted) override
+	bool Validate(ListModeBase* lm, LocalUser* user, Channel* channel, std::string& text) override
 	{
 		if (operonly && !user->HasPrivPermission("users/auspex"))
 		{
