@@ -188,6 +188,16 @@ public:
 	 * @param xbname The name of the extban to find.
 	 */
 	virtual Base* FindName(const std::string& xbname) const = 0;
+
+	/** Validates an extban.
+	 * @param lm The mode for which the extban is being added.
+	 * @param user The user who is adding the extban
+	 * @param channel The channel the extban is being added mon.
+	 * @param text The text of the extban to validate.
+	 * @return MATCH if the extban is valid, NOT_MATCH if the extban is not valid, and NOT_AN_EXTBAN
+	 * *       if the text is not an extban.
+	 */
+	virtual Comparison Validate(ListModeBase* lm, LocalUser* user, Channel* channel, std::string& text) const = 0;
 };
 
 /** Dynamic reference to the extban manager class. */
@@ -251,6 +261,20 @@ public:
 	 * @param text The value to canonicalize.
 	 */
 	virtual void Canonicalize(std::string& text) { }
+
+	/** Validates an extban
+	 * @param lm The mode for which the extban is being added.
+	 * @param user The user who is adding the extban
+	 * @param channel The channel the extban is being added mon.
+	 * @param text The text of the extban to validate.
+	 * @param inverted Whether the extban has been inverted.
+	 * @return True if the extban is valid; otherwise, false.
+	 */
+	virtual bool Validate(ListModeBase* lm, LocalUser* user, Channel* channel, std::string& text, bool inverted)
+	{
+		Canonicalize(text);
+		return true;
+	}
 
 	/** Retrieves the character used in bans to signify this extban. */
 	ExtBan::Letter GetLetter() const { return letter; }
@@ -331,6 +355,19 @@ public:
 	{
 		if (!GetManager() || !GetManager()->Canonicalize(text))
 			ModeParser::CleanMask(text);
+	}
+
+	/** @copydoc ExtBan::Base::Validate */
+	bool Validate(ListModeBase* lm, LocalUser* user, Channel* channel, std::string& text, bool inverted) override
+	{
+		if (GetManager())
+		{
+			const auto valid = GetManager()->Validate(lm, user, channel, text);
+			if (valid != ExtBan::Comparison::NOT_AN_EXTBAN)
+				return valid == ExtBan::Comparison::MATCH;
+		}
+		ModeParser::CleanMask(text);
+		return true;
 	}
 
 	/** @copydoc ExtBan::Base::GetType */

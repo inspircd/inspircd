@@ -20,11 +20,14 @@
 
 #include "inspircd.h"
 #include "modules/extban.h"
+#include "numerichelper.h"
 
 class ClassExtBan final
 	: public ExtBan::MatchingBase
 {
 public:
+	bool operonly;
+
 	ClassExtBan(Module* Creator)
 		: ExtBan::MatchingBase(Creator, "class", 'n')
 	{
@@ -41,6 +44,17 @@ public:
 		std::replace(classname.begin(), classname.end(), ' ', '_');
 		return InspIRCd::Match(classname, text);
 	}
+
+
+	bool Validate(ListModeBase* lm, LocalUser* user, Channel* channel, std::string& text, bool inverted) override
+	{
+		if (operonly && !user->HasPrivPermission("users/auspex"))
+		{
+			user->WriteNumeric(Numerics::NoPrivileges(user, "your server operator account does not have the users/auspex privilege"));
+			return false;
+		}
+		return true;
+	}
 };
 
 class ModuleClassBan final
@@ -54,6 +68,12 @@ public:
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban n: (class) which check whether users are in a connect class matching the specified glob pattern.")
 		, extban(this)
 	{
+	}
+
+	void ReadConfig(ConfigStatus& status) override
+	{
+		const auto& tag = ServerInstance->Config->ConfValue("classban");
+		extban.operonly = tag->getBool("operonly");
 	}
 };
 

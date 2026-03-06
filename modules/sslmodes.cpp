@@ -48,6 +48,8 @@ private:
 	UserCertificateAPI& sslapi;
 
 public:
+	bool operonly;
+
 	FingerprintExtBan(Module* Creator, UserCertificateAPI& api)
 		: ExtBan::MatchingBase(Creator, "fingerprint", 'z')
 		, sslapi(api)
@@ -65,6 +67,17 @@ public:
 				return true;
 		}
 		return false;
+	}
+
+	bool Validate(ListModeBase* lm, LocalUser* user, Channel* channel, std::string& text, bool inverted) override
+	{
+		if (operonly && !user->IsOper())
+		{
+			// XXX: this has to match the check in sslinfo.
+			user->WriteNumeric(Numerics::NoPrivileges("you are not a server operator"));
+			return false;
+		}
+		return true;
 	}
 };
 
@@ -175,6 +188,12 @@ public:
 		, sslonlyuser(this, sslapi)
 		, extban(this, sslapi)
 	{
+	}
+
+	void ReadConfig(ConfigStatus& status) override
+	{
+		const auto& tag = ServerInstance->Config->ConfValue("sslinfo");
+		extban.operonly = tag->getBool("operonly");
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override

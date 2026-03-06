@@ -311,6 +311,12 @@ private:
 			&& tagvalue.find_first_of(" \n\r") != std::string::npos;
 	}
 
+	static bool ValidateReaction(LocalUser* user, const std::string& tagvalue)
+	{
+		return !tagvalue.empty()
+			&& tagvalue.length() <= 50;
+	}
+
 	static bool ValidateTyping(LocalUser* user, const std::string& tagvalue)
 	{
 		//  A typing notification is represented by a TAGMSG command sent with a
@@ -325,9 +331,9 @@ public:
 	AllowTags allowclientonlytags;
 	insp::flat_map<std::string, std::function<bool(LocalUser*, const std::string&)>, irc::insensitive_swo> knowntags = {
 		{ "+draft/channel-context", ValidateChannel   }, // https://ircv3.net/specs/client-tags/channel-context
-		{ "+draft/react",           ValidateMessageId }, // https://ircv3.net/specs/client-tags/react
+		{ "+draft/react",           ValidateReaction  }, // https://ircv3.net/specs/client-tags/react
 		{ "+draft/reply",           ValidateMessageId }, // https://ircv3.net/specs/client-tags/reply
-		{ "+draft/unreact",         ValidateMessageId }, // https://ircv3.net/specs/client-tags/react
+		{ "+draft/unreact",         ValidateReaction  }, // https://ircv3.net/specs/client-tags/react
 
 		{ "+reply",                 ValidateMessageId }, // https://ircv3.net/specs/client-tags/reply
 		{ "+typing",                ValidateTyping    }, // https://ircv3.net/specs/client-tags/typing

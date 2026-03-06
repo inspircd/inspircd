@@ -23,11 +23,14 @@
 
 #include "inspircd.h"
 #include "modules/extban.h"
+#include "numerichelper.h"
 
 class ServerExtBan final
 	: public ExtBan::MatchingBase
 {
 public:
+	bool operonly;
+
 	ServerExtBan(Module* Creator)
 		: ExtBan::MatchingBase(Creator, "server", 's')
 	{
@@ -35,7 +38,18 @@ public:
 
 	bool IsMatch(User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
 	{
-		return InspIRCd::Match(user->server->GetPublicName(), text);
+		const auto* server = user->server;
+		return InspIRCd::Match(operonly ? server->GetName() : server->GetPublicName(), text);
+	}
+
+	bool Validate(ListModeBase* lm, LocalUser* user, Channel* channel, std::string& text, bool inverted) override
+	{
+		if (operonly && !user->HasPrivPermission("users/auspex"))
+		{
+			user->WriteNumeric(Numerics::NoPrivileges(user, "your server operator account does not have the users/auspex privilege"));
+			return false;
+		}
+		return true;
 	}
 };
 
@@ -50,6 +64,12 @@ public:
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban s: (server) which check whether users are on a server matching the specified glob pattern.")
 		, extban(this)
 	{
+	}
+
+	void ReadConfig(ConfigStatus& status) override
+	{
+		const auto& tag = ServerInstance->Config->ConfValue("serverban");
+		extban.operonly = tag->getBool("operonly");
 	}
 };
 

@@ -182,5 +182,6 @@ public:
 	ModResult GetStatus(ExtBan::ActingBase* extban, User* user, Channel* channel, const std::optional<ExtBan::MatchConfig>& config) const override;
 	ExtBan::Base* FindName(const std::string& name) const override;
 	ExtBan::Base* FindLetter(ExtBan::Letter letter) const override;
+	ExtBan::Comparison Validate(ListModeBase* lm, LocalUser* user, Channel* channel, std::string& text) const override;
 	void BuildISupport(std::string& out);
 };
