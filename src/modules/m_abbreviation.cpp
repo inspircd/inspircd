@@ -54,9 +54,9 @@ public:
 		std::string foundcommand;
 		std::string matchlist;
 		bool foundmatch = false;
-		for (const auto& [cmdname, _] : ServerInstance->Parser.GetCommands())
+		for (const auto& [cmdname, cmd] : ServerInstance->Parser.GetCommands())
 		{
-			if (!command.compare(0, clen, cmdname, 0, clen))
+			if (!command.compare(0, clen, cmdname, 0, clen) && cmd->IsUsableBy(user))
 			{
 				if (matchlist.length() > 450)
 				{
