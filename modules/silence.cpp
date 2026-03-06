@@ -393,7 +393,24 @@ public:
 			if (mask.empty())
 				mask.assign("*");
 		}
-		if (!extbanmgr || !extbanmgr->Canonicalize(mask))
+
+		auto clean = true;
+		if (extbanmgr)
+		{
+			switch (extbanmgr->Validate(nullptr, user, nullptr, mask))
+			{
+				case ExtBan::Comparison::NOT_AN_EXTBAN:
+					break;
+
+				case ExtBan::Comparison::MATCH:
+					clean = false;
+					break;
+
+				case ExtBan::Comparison::NOT_MATCH:
+					return CmdResult::FAILURE; // ExtBan is not allowed.
+			}
+		}
+		if (clean)
 			ModeParser::CleanMask(mask);
 
 		// If the user specified a flags then use that. Otherwise, default to blocking
