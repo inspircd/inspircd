@@ -29,6 +29,16 @@ namespace IRCv3
 	class CapTag;
 	class ReplyCapReference;
 
+	inline void WriteReply(User* user, const Cap::Capability* cap, const Reply::Reply& reply)
+	{
+		if (cap && cap->IsEnabled(user))
+			user->WriteRemoteReply(reply);
+		else if (reply.GetCommand())
+			user->WriteRemoteNotice("*** {}: {}", reply.GetCommand()->service_name, reply.GetParams().back());
+		else
+			user->WriteRemoteNotice("*** {}", reply.GetParams().back());
+	}
+
 	/**
 	 * Sends a standard reply to the specified user if they have the specified cap
 	 * or a notice if they do not.
@@ -43,13 +53,9 @@ namespace IRCv3
 		const std::string& code, Args&&... args)
 	{
 		static_assert(sizeof...(Args) >= 1);
-
-		if (cap && cap->IsEnabled(user))
-			user->WriteRemoteReply(rt, command, code, std::forward<Args>(args)...);
-		else if (command)
-			user->WriteRemoteNotice("*** {}: {}", command->service_name, std::get<sizeof...(Args) - 1>(std::forward_as_tuple(args...)));
-		else
-			user->WriteRemoteNotice("*** {}", std::get<sizeof...(Args) - 1>(std::forward_as_tuple(args...)));
+		Reply::Reply reply(rt, command, code);
+		reply.PushParam(std::forward<Args>(args)...);
+		WriteReply(user, cap, reply);
 	}
 }
 
