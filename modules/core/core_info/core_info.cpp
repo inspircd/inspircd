@@ -262,6 +262,23 @@ public:
 		if (klass->fakelag)
 			tokens["SAFERATE"];
 	}
+
+	void OnBuildOperISupport(LocalUser* user, ISupport::TokenMap& tokens) override
+	{
+		tokens["TARGMAX"] = BuildMaxTargets(user);
+	}
+
+	void OnPostOperLogin(User* user, bool automatic) override
+	{
+		auto* luser = IS_LOCAL(user);
+		if (luser)
+			isupport.SendOper(luser);
+	}
+
+	void OnPostOperLogout(User* user, const std::shared_ptr<OperAccount>& oper) override
+	{
+		OnPostOperLogin(user, false);
+	}
 };
 
 MODULE_INIT(CoreModInfo)

@@ -147,7 +147,7 @@ public:
 		ou.timeout = tag->getDuration("timeout", 0);
 	}
 
-	void OnBuildISupport(ISupport::TokenMap& tokens) override
+	void OnBuildOperISupport(LocalUser* user, ISupport::TokenMap& tokens) override
 	{
 		tokens["OVERRIDE"] = ConvToStr(ou.GetModeChar());
 	}

@@ -46,6 +46,7 @@ protected:
 public:
 	virtual void OnBuildISupport(TokenMap& tokens) { }
 	virtual void OnBuildClassISupport(const std::shared_ptr<ConnectClass>& klass, TokenMap& tokens) { }
+	virtual void OnBuildOperISupport(LocalUser* user, TokenMap& tokens) { }
 };
 
 class ISupport::EventProvider final

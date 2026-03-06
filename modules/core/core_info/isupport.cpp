@@ -41,12 +41,12 @@ namespace
 				tokendiff[name] = *values.second;
 			}
 		}
-
 	}
 }
 
 ISupportManager::ISupportManager(Module* mod)
-	: isupportevprov(mod)
+	: operext(mod, "isupport", ExtensionType::USER)
+	, isupportevprov(mod)
 {
 }
 
@@ -72,8 +72,11 @@ void ISupportManager::AppendValue(std::string& buffer, const std::string& value)
 }
 
 void ISupportManager::BuildClass(ISupport::TokenMap& newtokens, NumericList& newnumerics,
-	NumericList& diffnumerics, const std::shared_ptr<ConnectClass> &klass)
+	NumericList& diffnumerics, const std::shared_ptr<ConnectClass> &klass, bool dead)
 {
+	ServerInstance->Logs.Debug(MODNAME, "Rebuilding isupport for class {}{}",
+		klass->GetName(), dead ? " (dead)" : "");
+
 	isupportevprov.Call(&ISupport::EventListener::OnBuildClassISupport, klass, newtokens);
 
 	// Transform the map into a list of numerics ready to be sent to clients.
@@ -88,6 +91,30 @@ void ISupportManager::BuildClass(ISupport::TokenMap& newtokens, NumericList& new
 		TokenDifference(difftokens, oldtokens->second, newtokens);
 		BuildNumerics(difftokens, diffnumerics);
 	}
+}
+
+void ISupportManager::BuildOper(ISupport::TokenMap& newtokens, NumericList& newnumerics,
+	NumericList& diffnumerics, LocalUser* user)
+{
+	ServerInstance->Logs.Debug(MODNAME, "Rebuilding isupport for {}oper {}",
+		user->IsOper() ? "" : "ex-", user->nick);
+
+	auto classtokens = cachedtokens.find(user->GetClass());
+	if (classtokens == cachedtokens.end())
+		return; // Should never happen.
+
+	newtokens = classtokens->second;
+	if (user->IsOper())
+		isupportevprov.Call(&ISupport::EventListener::OnBuildOperISupport, user, newtokens);
+
+	// Extract the old tokens (falling back to the class tokens).
+	const auto* ext = operext.Get(user);
+	const auto& oldtokens = ext ? ext->first : classtokens->second;
+
+	// Build the updated numeric diff to send to to the user.
+	ISupport::TokenMap difftokens;
+	TokenDifference(difftokens, oldtokens, newtokens);
+	BuildNumerics(difftokens, diffnumerics);
 }
 
 void ISupportManager::Build()
@@ -115,9 +142,8 @@ void ISupportManager::Build()
 	TokenMap newtokens;
 	for (const auto& klass : ServerInstance->Config->Classes)
 	{
-		ServerInstance->Logs.Debug(MODNAME, "Rebuilding isupport for {}", klass->GetName());
 		newtokens[klass] = tokens;
-		BuildClass(newtokens[klass], newnumerics[klass], diffnumerics[klass], klass);
+		BuildClass(newtokens[klass], newnumerics[klass], diffnumerics[klass], klass, false);
 	}
 
 	// Send out the numeric diffs.
@@ -134,14 +160,13 @@ void ISupportManager::Build()
 			{
 				// The user is in a class which has been removed from the server
 				// config; we need to build a class for them.
-				ServerInstance->Logs.Debug(MODNAME, "Rebuilding isupport for {} (dead)", klass->GetName());
 				newtokens[klass] = tokens;
-				BuildClass(newtokens[klass], newnumerics[klass], diffnumerics[klass], klass);
+				BuildClass(newtokens[klass], newnumerics[klass], diffnumerics[klass], klass, true);
 				numerics = diffnumerics.find(klass);
 			}
 
-			if (numerics == diffnumerics.end())
-				continue; // Should never happen.
+			if (user->IsOper())
+				continue; // Server operators are handled later.
 
 			for (const auto& numeric : numerics->second)
 				user->WriteNumeric(numeric);
@@ -151,6 +176,14 @@ void ISupportManager::Build()
 	// Apply the new ISUPPORT values.
 	cachednumerics.swap(newnumerics);
 	cachedtokens.swap(newtokens);
+
+	// Notify operators of the change.
+	for (auto* oper : ServerInstance->Users.all_opers)
+	{
+		auto* loper = IS_LOCAL(oper);
+		if (loper)
+			SendOper(loper);
+	}
 }
 
 void ISupportManager::BuildNumerics(ISupport::TokenMap& tokens, std::vector<Numeric::Numeric>& numerics)
@@ -181,7 +214,23 @@ void ISupportManager::ChangeClass(LocalUser* user, const std::shared_ptr<Connect
 		return; // Should never happen.
 
 	ISupport::TokenMap difftokens;
-	TokenDifference(difftokens, oldtokens->second, newtokens->second);
+	if (user->IsOper())
+	{
+		// Fetch the new oper tokens.
+		auto newopertokens = newtokens->second;
+		isupportevprov.Call(&ISupport::EventListener::OnBuildOperISupport, user, newopertokens);
+
+		// Diff with the old tokens.
+		const auto& oldopertokens = operext.Get(user)->first;
+		TokenDifference(difftokens, oldopertokens, newopertokens);
+
+		// Build the numerics and store for later.
+		NumericList newopernumerics;
+		BuildNumerics(newopertokens, newopernumerics);
+		operext.Set(user, std::make_pair(newopertokens, newopernumerics));
+	}
+	else
+		TokenDifference(difftokens, oldtokens->second, newtokens->second);
 
 	std::vector<Numeric::Numeric> diffnumerics;
 	BuildNumerics(difftokens, diffnumerics);
@@ -192,10 +241,40 @@ void ISupportManager::ChangeClass(LocalUser* user, const std::shared_ptr<Connect
 
 void ISupportManager::SendTo(LocalUser* user)
 {
-	auto numerics = cachednumerics.find(user->GetClass());
-	if (numerics == cachednumerics.end())
+	NumericList* numerics;
+	if (user->IsOper())
+	{
+		auto* ext = operext.Get(user);
+		numerics = (ext ? &ext->second : nullptr);
+	}
+	else
+	{
+		auto it = cachednumerics.find(user->GetClass());
+		numerics = (it == cachednumerics.end() ? nullptr : &it->second);
+	}
+
+	if (!numerics)
 		return; // Should never happen.
 
-	for (const auto& numeric : numerics->second)
+	for (const auto& numeric : *numerics)
 		user->WriteNumeric(numeric);
+}
+
+void ISupportManager::SendOper(LocalUser* user)
+{
+	NumericList diffnumerics;
+	NumericList newnumerics;
+	ISupport::TokenMap newtokens;
+	BuildOper(newtokens, newnumerics, diffnumerics, user);
+
+	for (const auto& numeric : diffnumerics)
+		user->WriteNumeric(numeric);
+
+	// Apply the new ISUPPORT values. If the user is still an oper we need to
+	// store the numerics for if the user executes /VERSION later. Otherwise,
+	// we can just delete it.
+	if (user->IsOper())
+		operext.Set(user, std::make_pair(newtokens, newnumerics));
+	else
+		operext.Unset(user);
 }

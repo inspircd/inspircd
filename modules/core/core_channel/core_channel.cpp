@@ -244,6 +244,13 @@ public:
 		tokens["CHANLIMIT"] = FMT::format("#:{}", klass->maxchans);
 	}
 
+	void OnBuildOperISupport(LocalUser* user, ISupport::TokenMap& tokens) override
+	{
+		const auto maxchans = user->GetClass()->maxchans;
+		const auto opermaxchans = user->oper->GetConfig()->getNum<unsigned long>("maxchans", maxchans, maxchans);
+		tokens["CHANLIMIT"] = FMT::format("#:{}", opermaxchans);
+	}
+
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
 	{
 		if (override)

@@ -21,6 +21,7 @@
 #pragma once
 
 #include "inspircd.h"
+#include "extension.h"
 #include "modules/isupport.h"
 
 /** This class manages the generation and transmission of ISUPPORT. */
@@ -36,6 +37,10 @@ private:
 	typedef insp::flat_map<std::shared_ptr<ConnectClass>, ISupport::TokenMap> TokenMap;
 	TokenMap cachedtokens;
 
+	/** The tokens which were sent to a server operator. */
+	using OperPair = std::pair<ISupport::TokenMap, NumericList>;
+	SimpleExtItem<OperPair> operext;
+
 	/** Provider for the ISupport::EventListener event. */
 	ISupport::EventProvider isupportevprov;
 
@@ -46,7 +51,12 @@ private:
 	static void AppendValue(std::string& buffer, const std::string& value);
 
 	// Builds the ISUPPORT tokens for a specific connect class.
-	void BuildClass(ISupport::TokenMap& newtokens, NumericList& newnumerics, NumericList& diffnumerics, const std::shared_ptr<ConnectClass>& klass);
+	void BuildClass(ISupport::TokenMap& newtokens, NumericList& newnumerics, NumericList& diffnumerics,
+		const std::shared_ptr<ConnectClass>& klass, bool dead);
+
+	// Builds the ISUPPORT tokens for a specific server operator.
+	void BuildOper(ISupport::TokenMap& newtokens, NumericList& newnumerics, NumericList& diffnumerics,
+		LocalUser* user);
 
 	/** Builds the ISUPPORT numerics from a list of tokens.
 	 * @param tokens The tokens to build from.
@@ -74,6 +84,9 @@ public:
 	 * @param user The user to send the ISUPPORT numerics to
 	 */
 	void SendTo(LocalUser* user);
+
+	// Sends an isupport diff to a server operator. */
+	void SendOper(LocalUser* user);
 };
 
 /** These commands require no parameters, but if there is a parameter it is a server name where the command will be routed to.
