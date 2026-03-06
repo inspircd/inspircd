@@ -26,24 +26,21 @@
 
 #include "inspircd.h"
 #include "modules/invite.h"
+#include "modules/ircv3.h"
 #include "numerichelper.h"
-
-enum
-{
-	// InspIRCd-specific.
-	ERR_INVITEREMOVED = 494,
-	ERR_NOTINVITED = 505,
-	RPL_UNINVITED = 653
-};
 
 class CommandUninvite final
 	: public Command
 {
+private:
 	Invite::API invapi;
+	IRCv3::ReplyCapReference stdrplcap;
+
 public:
 	CommandUninvite(Module* Creator)
 		: Command(Creator, "UNINVITE", 2)
 		, invapi(Creator)
+		, stdrplcap(Creator)
 	{
 		syntax = { "<nick> <channel>" };
 		translation = { TR_NICK, TR_TEXT };
@@ -93,19 +90,21 @@ public:
 			// so they don't see where the target user is connected to
 			if (!invapi->Remove(lu, c))
 			{
-				Numeric::Numeric n(ERR_NOTINVITED);
-				n.SetServer(user->server);
-				n.push(u->nick, c->name).push_fmt("Is not invited to channel {}", c->name);
-				user->WriteRemoteNumeric(n);
+				Reply::Reply reply(Reply::FAIL, this, "NOT_INVITED");
+				reply.SetSource(user->server);
+				reply.PushParam(c->name, u->nick).PushParamFmt("{} has not been invited to {}.", u->nick, c->name);
+				IRCv3::WriteReply(user, stdrplcap, reply);
 				return CmdResult::FAILURE;
 			}
 
-			Numeric::Numeric n(ERR_INVITEREMOVED);
-			n.SetServer(user->server);
-			n.push(c->name).push(u->nick).push("Uninvited");
-			user->WriteRemoteNumeric(n);
+			Reply::Reply reply(Reply::FAIL, this, "INVITE_REMOVED");
+			reply.SetSource(user->server);
+			reply.PushParam(c->name, u->nick).PushParamFmt("{} been uninvited from {}.", u->nick, c->name);
+			IRCv3::WriteReply(user, stdrplcap, reply);
 
-			lu->WriteNumeric(RPL_UNINVITED, FMT::format("You were uninvited from {} by {}", c->name, user->nick));
+			IRCv3::WriteReply(Reply::NOTE, u, nullptr, this, "UNINVITED", c->name, user->nick,
+				FMT::format("You were uninvited from {} by {}.", c->name, user->nick));
+
 			c->WriteRemoteNotice(FMT::format("*** {} uninvited {}.", user->nick, u->nick));
 		}
 
