@@ -115,8 +115,7 @@ bool ModeHandler::ResolveModeConflict(const std::string& theirs, const std::stri
 void ModeHandler::RegisterService()
 {
 	ServerInstance->Modes.AddMode(this);
-	ServerInstance->Modules.AddReferent(GetModeType() == MODETYPE_CHANNEL ? "ModeHandler/C" : "ModeHandler/U",
-		this->service_name, this);
+	ServerInstance->Modules.AddReferent(this->service_type, this->service_name, this);
 }
 
 void ModeHandler::UnregisterService()
