@@ -43,7 +43,7 @@ public:
 		, stdrplcap(Creator)
 	{
 		syntax = { "<nick> <channel>" };
-		translation = { TR_NICK, TR_TEXT };
+		translation = { TranslateType::NICK, TranslateType::TEXT };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

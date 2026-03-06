@@ -54,16 +54,18 @@ enum class CmdResult
 	INVALID = 2,
 };
 
-/** Translation types for translation of parameters to UIDs.
- * This allows the core commands to not have to be aware of how UIDs
- * work (making it still possible to write other linking modules which
- * do not use UID (but why would you want to?)
- */
-enum TranslateType
+/** Translation types for translation of parameters to their network form. */
+enum class TranslateType
+	: uint8_t
 {
-	TR_TEXT,		/* Raw text, leave as-is */
-	TR_NICK,		/* Nickname, translate to UUID for server->server */
-	TR_CUSTOM		/* Custom translation handled by EncodeParameter/DecodeParameter */
+	/** The parameter is raw text and should not be translated. */
+	TEXT,
+
+	/** The parameter is a nickname and should be converted to its UUID. */
+	NICK,
+
+	/** The parameter has a translation handled by EncodeParameter/DecodeParameter */
+	CUSTOM,
 };
 
 /** The type of routes that a message can take. */
@@ -213,7 +215,7 @@ public:
 	virtual RouteDescriptor GetRouting(User* user, const CommandBase::Params& parameters);
 
 	/** Encode a parameter for server->server transmission.
-	 * Used for parameters for which the translation type is TR_CUSTOM.
+	 * Used for parameters for which the translation type is TranslateType::CUSTOM.
 	 * @param parameter The parameter to encode. Can be modified in place.
 	 * @param index The parameter index (0 == first parameter).
 	 */
@@ -450,16 +452,16 @@ public:
 	 * @param to The translation type to use for the process
 	 * @param item The input string
 	 * @param dest The output string. The translation result will be appended to this string
-	 * @param custom_translator Used to translate the parameter if the translation type is TR_CUSTOM, if NULL, TR_CUSTOM will act like TR_TEXT
+	 * @param custom_translator Used to translate the parameter if the translation type is TranslateType::CUSTOM, if NULL, TranslateType::CUSTOM will act like TranslateType::TEXT
 	 * @param paramnumber The index of the parameter we are translating.
 	 */
 	static void TranslateSingleParam(TranslateType to, const std::string& item, std::string& dest, CommandBase* custom_translator = nullptr, size_t	number = 0);
 
 	/** Translate nicknames in a list of strings into UIDs, based on the TranslateTypes given.
-	 * @param to The translation types to use for the process. If this list is too short, TR_TEXT is assumed for the rest.
+	 * @param to The translation types to use for the process. If this list is too short, TranslateType::TEXT is assumed for the rest.
 	 * @param source The strings to translate
 	 * @param prefix_final True if the final source argument should have a colon prepended (if it could contain a space)
-	 * @param custom_translator Used to translate the parameter if the translation type is TR_CUSTOM, if NULL, TR_CUSTOM will act like TR_TEXT
+	 * @param custom_translator Used to translate the parameter if the translation type is TranslateType::CUSTOM, if NULL, TranslateType::CUSTOM will act like TranslateType::TEXT
 	 * @return dest The output string
 	 */
 	static std::string TranslateUIDs(const std::vector<TranslateType>& to, const CommandBase::Params& source, bool prefix_final = false, CommandBase* custom_translator = nullptr);

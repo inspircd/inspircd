@@ -275,7 +275,7 @@ public:
 			"DEL <nick> :<index|message>",
 			"LIST <nick>",
 		};
-		translation = { TR_TEXT, TR_NICK, TR_TEXT, TR_TEXT };
+		translation = { TranslateType::TEXT, TranslateType::NICK, TranslateType::TEXT, TranslateType::TEXT };
 	}
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override

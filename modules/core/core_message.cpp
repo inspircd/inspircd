@@ -342,7 +342,7 @@ public:
 	{
 		allow_empty_last_param = true;
 		syntax = { "<service> :<message>" };
-		translation = { TR_NICK, TR_TEXT };
+		translation = { TranslateType::NICK, TranslateType::TEXT };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

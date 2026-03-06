@@ -36,7 +36,7 @@ CommandKill::CommandKill(Module* parent)
 	accepts_multiple_targets = true;
 	access_needed = CmdAccess::OPERATOR;
 	syntax = { "<nick>[,<nick>]+ :<reason>" };
-	translation = { TR_CUSTOM, TR_CUSTOM };
+	translation = { TranslateType::CUSTOM, TranslateType::CUSTOM };
 }
 
 class KillMessage final

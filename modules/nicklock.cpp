@@ -46,7 +46,7 @@ public:
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick> <newnick>" };
-		translation = { TR_NICK, TR_TEXT };
+		translation = { TranslateType::NICK, TranslateType::TEXT };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
@@ -105,7 +105,7 @@ public:
 	{
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "<nick>" };
-		translation = { TR_NICK };
+		translation = { TranslateType::NICK };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override

@@ -333,9 +333,9 @@ std::string CommandParser::TranslateUIDs(const std::vector<TranslateType>& to, c
 
 	for (size_t i = 0; i < source.size(); i++)
 	{
-		TranslateType t = TR_TEXT;
+		auto t = TranslateType::TEXT;
 		// They might supply less translation types than parameters,
-		// in that case pretend that all remaining types are TR_TEXT
+		// in that case pretend that all remaining types are TranslateType::TEXT
 		if (types != to.end())
 		{
 			t = *types;
@@ -359,7 +359,7 @@ void CommandParser::TranslateSingleParam(TranslateType to, const std::string& it
 {
 	switch (to)
 	{
-		case TR_NICK:
+		case TranslateType::NICK:
 		{
 			/* Translate single nickname */
 			auto* user = ServerInstance->Users.Find(item);
@@ -369,7 +369,7 @@ void CommandParser::TranslateSingleParam(TranslateType to, const std::string& it
 				dest.append(item);
 			break;
 		}
-		case TR_CUSTOM:
+		case TranslateType::CUSTOM:
 		{
 			if (custom_translator)
 			{

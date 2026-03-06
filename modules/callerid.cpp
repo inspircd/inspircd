@@ -193,7 +193,7 @@ public:
 	{
 		accepts_multiple_targets = true;
 		syntax = { "*|(+|-)<nick>[,(+|-)<nick>]+" };
-		translation = { TR_CUSTOM };
+		translation = { TranslateType::CUSTOM };
 	}
 
 	void EncodeParameter(std::string& parameter, size_t index) override

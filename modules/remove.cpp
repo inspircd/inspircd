@@ -48,7 +48,7 @@ public:
 		, servprotectmode(Creator, "servprotect")
 	{
 		syntax = { "<channel> <nick> [:<reason>]" };
-		translation = { TR_TEXT, TR_NICK, TR_TEXT };
+		translation = { TranslateType::TEXT, TranslateType::NICK, TranslateType::TEXT };
 	}
 
 	CmdResult Handle(User* user, const CommandBase::Params& parameters) override

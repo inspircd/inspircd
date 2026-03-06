@@ -52,7 +52,7 @@ public:
 		accepts_multiple_targets = true;
 		access_needed = CmdAccess::OPERATOR;
 		syntax = { "[<nick>] <channel>[,<channel>]+" };
-		translation = { TR_NICK, TR_TEXT };
+		translation = { TranslateType::NICK, TranslateType::TEXT };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
@@ -139,7 +139,7 @@ public:
 		access_needed = CmdAccess::OPERATOR;
 		allow_empty_last_param = true;
 		syntax = { "<channel> <nick> [:<reason>]" };
-		translation = { TR_TEXT, TR_NICK, TR_TEXT };
+		translation = { TranslateType::TEXT, TranslateType::NICK, TranslateType::TEXT };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
@@ -276,7 +276,7 @@ public:
 		access_needed = CmdAccess::OPERATOR;
 		allow_empty_last_param = true;
 		syntax = { "<nick> <newnick>" };
-		translation = { TR_NICK, TR_TEXT };
+		translation = { TranslateType::NICK, TranslateType::TEXT };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
@@ -352,7 +352,7 @@ public:
 		access_needed = CmdAccess::OPERATOR;
 		allow_empty_last_param = true;
 		syntax = { "<nick> <channel>[,<channel>]+ [:<reason>]" };
-		translation = { TR_NICK, TR_TEXT, TR_TEXT };
+		translation = { TranslateType::NICK, TranslateType::TEXT, TranslateType::TEXT };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
@@ -417,7 +417,7 @@ public:
 		access_needed = CmdAccess::OPERATOR;
 		allow_empty_last_param = true;
 		syntax = { "<nick> :<reason>" };
-		translation = { TR_NICK, TR_TEXT };
+		translation = { TranslateType::NICK, TranslateType::TEXT };
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
