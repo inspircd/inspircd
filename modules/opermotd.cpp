@@ -41,7 +41,6 @@ class CommandOperMOTD final
 	: public Command
 {
 public:
-	std::string file;
 	MOTDCache motds;
 
 	CommandOperMOTD(Module* Creator)
@@ -70,7 +69,7 @@ public:
 		if (!user->IsOper())
 			return CmdResult::SUCCESS; // WTF?
 
-		auto motd = motds.find(user->oper->GetConfig()->getString("motd", file, 1));
+		auto motd = motds.find(user->oper->GetConfig()->getString("motd", "opermotd", 1));
 		if (motd == motds.end())
 		{
 			if (showmissing)
@@ -92,12 +91,11 @@ class ModuleOperMOTD final
 {
 private:
 	CommandOperMOTD cmd;
-	bool onoper;
 
 	void ProcessMOTD(MOTDCache& newmotds, const std::shared_ptr<OperType>& oper, const char* type) const
 	{
 		// Don't process the file if it has already been processed.
-		const std::string motd = oper->GetConfig()->getString("motd", cmd.file);
+		const std::string motd = oper->GetConfig()->getString("motd", "opermotd");
 		if (motd.empty() || newmotds.find(motd) != newmotds.end())
 			return;
 
@@ -132,24 +130,18 @@ public:
 
 	void OnPostOperLogin(User* user, bool automatic) override
 	{
-		if (IS_LOCAL(user) && user->oper->GetConfig()->getBool("automotd", onoper))
+		if (IS_LOCAL(user) && user->oper->GetConfig()->getBool("automotd", true))
 			cmd.ShowOperMOTD(user, false);
 	}
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		// Compatibility with the v3 config.
-		const auto& tag = ServerInstance->Config->ConfValue("opermotd");
-		cmd.file = tag->getString("file", "opermotd", 1);
-		onoper = tag->getBool("onoper", true);
-
 		MOTDCache newmotds;
 		for (const auto& [_, account] : ServerInstance->Config->OperAccounts)
 			ProcessMOTD(newmotds, account, "account");
 		for (const auto& [_, type] : ServerInstance->Config->OperTypes)
 			ProcessMOTD(newmotds, type, "type");
 		cmd.motds.swap(newmotds);
-
 	}
 };
 
