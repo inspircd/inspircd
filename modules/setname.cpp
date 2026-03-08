@@ -31,11 +31,13 @@ class CommandSetName final
 	: public Command
 {
 public:
+	ChanModeReference banmode;
 	Cap::Capability cap;
 	bool notifyopers;
 
 	CommandSetName(Module* mod)
 		: Command(mod, "SETNAME", 1, 2)
+		, banmode(mod, "ban")
 		, cap(mod, "setname")
 	{
 		syntax = { "[<nick>] :<newreal>" };
@@ -78,6 +80,24 @@ public:
 		{
 			IRCv3::WriteReply(Reply::FAIL, user, &cap, this, "INVALID_REALNAME", "Real name is too long");
 			return CmdResult::FAILURE;
+		}
+
+		// Disallow the real name change if <security:restrictbannedusers> is on and there is a ban
+		// matching this user in one of the channels they are on.
+		if (target == user && ServerInstance->Config->RestrictBannedUsers != ServerConfig::BUT_NORMAL)
+		{
+			for (const auto* memb : user->chans)
+			{
+				if (memb->chan->GetPrefixValue(user) < VOICE_VALUE && memb->chan->CheckList(*banmode, user))
+				{
+					if (ServerInstance->Config->RestrictBannedUsers == ServerConfig::BUT_RESTRICT_NOTIFY)
+					{
+						IRCv3::WriteReply(Reply::FAIL, user, &cap, this, "CANNOT_CHANGE_REALNAME",
+							FMT::format("Cannot change nickname while on {} (you're banned)", memb->chan->name));
+					}
+					return CmdResult::FAILURE;
+				}
+			}
 		}
 
 		target->ChangeRealName(newreal);
