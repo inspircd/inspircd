@@ -286,7 +286,8 @@ public:
 
 	/** Check if a user is banned on this channel
 	 * @param user A user to check against the banlist
-	 * @returns True if the user given is banned
+	 * @param full Whether to check bans against the real username and hostname.
+	 * @return True if the user given is banned
 	 */
 	bool IsBanned(User* user, const std::optional<bool>& full = std::nullopt);
 

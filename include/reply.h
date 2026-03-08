@@ -32,7 +32,7 @@ namespace Reply
 	};
 
 	/** Get command name from Reply::Type.
-	 * @param mt Reply type to get command name for.
+	 * @param rt Reply type to get command name for.
 	 * @return Command name for the message type.
 	 */
 	inline const char* CommandStrFromType(Type rt);

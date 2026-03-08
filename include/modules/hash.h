@@ -191,13 +191,13 @@ public:
 	{
 	}
 
-	/** @copydoc Hash::HMACContext::Update */
+	/** @copydoc Hash::Context::Update(const unsigned char*, size_t) */
 	void Update(const unsigned char *data, size_t len) override
 	{
 		buffer.append(reinterpret_cast<const char *>(data), len);
 	}
 
-	/** @copydoc Hash::HMACContext::Finalize */
+	/** @copydoc Hash::Context::Finalize */
 	std::string Finalize() override
 	{
 		if (!provider)

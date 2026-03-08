@@ -79,7 +79,7 @@ public:
 	 * query which will not return rows, this will return the number of
 	 * affected rows. In this case you SHOULD NEVER access any of the result
 	 * set rows, as there aren't any!
-	 * @returns Number of rows in the result set.
+	 * @return Number of rows in the result set.
 	 */
 	virtual int Rows() = 0;
 
@@ -99,7 +99,7 @@ public:
 	 *
 	 * @param column The column name.
 	 * @param index The place to store the column index if it exists.
-	 * @returns If the column exists then true; otherwise, false.
+	 * @return If the column exists then true; otherwise, false.
 	 */
 	virtual bool HasColumn(const std::string& column, size_t& index) = 0;
 };

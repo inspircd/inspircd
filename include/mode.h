@@ -761,7 +761,7 @@ public:
 	/** Find the mode handler for a given mode and type.
 	 * @param modeletter mode letter to search for
 	 * @param mt type of mode to search for, user or channel
-	 * @returns a pointer to a ModeHandler class, or NULL of there isn't a handler for the given mode
+	 * @return A pointer to a ModeHandler class, or NULL of there isn't a handler for the given mode
 	 */
 	ModeHandler* FindMode(unsigned char modeletter, ModeType mt);
 

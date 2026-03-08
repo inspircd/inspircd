@@ -811,6 +811,7 @@ public:
 	 * Checks for a user's ban from the channel
 	 * @param user The user to check
 	 * @param chan The channel to check in
+	 * @param full Whether to check bans against the real username and hostname.
 	 * @return MOD_RES_DENY to mark as banned, MOD_RES_ALLOW to skip the
 	 * ban check, or MOD_RES_PASSTHRU to check bans normally
 	 */
@@ -821,6 +822,7 @@ public:
 	 * @param user The user to check for match
 	 * @param chan The channel on which the match is being checked
 	 * @param mask The mask being checked
+	 * @param full Whether to check bans against the real username and hostname.
 	 * @return MOD_RES_DENY to mark as banned, MOD_RES_ALLOW to skip the
 	 * ban check, or MOD_RES_PASSTHRU to check bans normally
 	 */
@@ -1191,7 +1193,8 @@ public:
 	const ModuleMap& GetModules() const { return Modules; }
 
 	/** Make a service referenceable by dynamic_references
-	 * @param name sname that will be used by dynamic_references to find the object
+	 * @param stype The type of the service.
+	 * @param sname The name of the service.
 	 * @param service Service to make referenceable by dynamic_references
 	 */
 	void AddReferent(const std::string& stype, const std::string& sname, ServiceProvider* service);

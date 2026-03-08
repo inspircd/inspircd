@@ -400,7 +400,7 @@ public:
 	 * If there is only one list and there are duplicates in it, then the command handler is only called for
 	 * unique items. Entries are compared using "irc comparison".
 	 * If the usemax parameter is true (the default) the function only parses until it reaches
-	 * <maxtargets> number of targets, to stop abuse via spam.
+	 * \<maxtargets> number of targets, to stop abuse via spam.
 	 *
 	 * The OnPostCommand hook is executed for each item after it has been processed by the handler, with the
 	 * original line parameter being empty (to indicate that the command in that form was created by this function).
@@ -418,7 +418,7 @@ public:
 	 * @param parameters Parameter list as a vector of strings
 	 * @param splithere The first parameter index to split as a comma separated list
 	 * @param extra The second parameter index to split as a comma separated list, or -1 (the default) if there is only one list
-	 * @param usemax True to limit the command to <maxtargets> targets (default), or false to process all tokens
+	 * @param usemax True to limit the command to \<maxtargets> targets (default), or false to process all tokens
 	 * @return This function returns true when it identified a list in the given parameter and finished calling the
 	 * command handler for each entry on the list. When this occurs, the caller should return without doing anything,
 	 * otherwise it should continue into its main section of code.
@@ -453,7 +453,7 @@ public:
 	 * @param item The input string
 	 * @param dest The output string. The translation result will be appended to this string
 	 * @param custom_translator Used to translate the parameter if the translation type is TranslateType::CUSTOM, if NULL, TranslateType::CUSTOM will act like TranslateType::TEXT
-	 * @param paramnumber The index of the parameter we are translating.
+	 * @param number The index of the parameter we are translating.
 	 */
 	static void TranslateSingleParam(TranslateType to, const std::string& item, std::string& dest, CommandBase* custom_translator = nullptr, size_t	number = 0);
 

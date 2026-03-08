@@ -217,8 +217,8 @@ struct Cloak::Info final
 	/** Default comparator for cloaks. */
 	auto operator<=>(const Info&) const = default;
 
-	/** Converts a cloak from the username@hostname form to a \p Cloak::Info.
-	 * @param str The cloak to convert.
+	/** Converts a cloak from the username\@hostname form to a \p Cloak::Info.
+	 * @param cloak The cloak to convert.
 	 */
 	static Cloak::Info FromString(const std::string& cloak)
 	{
@@ -228,7 +228,7 @@ struct Cloak::Info final
 		return Info(cloak.substr(0, sep), cloak.substr(sep + 1));
 	}
 
-	/** Converts a \p Cloak::Info to the username@hostname form. */
+	/** Converts a \p Cloak::Info to the username\@hostname form. */
 	std::string ToString() const
 	{
 		std::string ret;
