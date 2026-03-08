@@ -67,7 +67,7 @@ private:
 	CmdResult FirePostEvent(User* source, const MessageTarget& msgtarget, const CTCTags::TagMessageDetails& msgdetails)
 	{
 		// If the source is local then update its idle time.
-		LocalUser* lsource = IS_LOCAL(source);
+		auto* lsource = source->AsLocal();
 		if (lsource && msgdetails.update_idle)
 			lsource->idle_lastmsg = ServerInstance->Time();
 
@@ -98,7 +98,7 @@ private:
 
 		for (const auto& [user, memb] : chan->GetUsers())
 		{
-			LocalUser* luser = IS_LOCAL(user);
+			auto* luser = user->AsLocal();
 
 			// Don't send to remote users or the user who is the source.
 			if (!luser || luser == source)
@@ -163,7 +163,7 @@ private:
 	CmdResult HandleUserTarget(User* source, const Params& parameters)
 	{
 		User* target;
-		if (IS_LOCAL(source))
+		if (source->IsLocal())
 		{
 			// Local sources can specify either a nick or a nick@server mask as the target.
 			const char* targetserver = strchr(parameters[0].c_str(), '@');
@@ -205,7 +205,7 @@ private:
 		if (!FirePreEvents(source, msgtarget, msgdetails))
 			return CmdResult::FAILURE;
 
-		LocalUser* const localtarget = IS_LOCAL(target);
+		auto* const localtarget = target->AsLocal();
 		if (localtarget && cap.IsEnabled(localtarget))
 		{
 			// Servers can fake the target of a message when it is sent to an individual user.
@@ -239,7 +239,7 @@ public:
 			return CmdResult::SUCCESS;
 
 		// Check that the source has the message tags capability.
-		if (IS_LOCAL(user) && !cap.IsEnabled(user))
+		if (user->IsLocal() && !cap.IsEnabled(user))
 			return CmdResult::FAILURE;
 
 		// The specified message tags were empty. This probably means that client
@@ -278,7 +278,7 @@ public:
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
-		if (IS_LOCAL(user))
+		if (user->IsLocal())
 			// This is handled by the OnUserPostTagMessage hook to split the LoopCall pieces
 			return ROUTE_LOCALONLY;
 		else
@@ -354,7 +354,7 @@ public:
 
 		// If the user is local then we check whether they have the message-tags cap
 		// enabled. If not then we reject all client-only tags originating from them.
-		auto* lu = IS_LOCAL(user);
+		auto* lu = user->AsLocal();
 		if (lu)
 		{
 			if (!cap.IsEnabled(lu))
@@ -450,7 +450,7 @@ public:
 
 	ModResult OnUserPreTagMessage(User* user, MessageTarget& target, CTCTags::TagMessageDetails& details) override
 	{
-		if (IS_LOCAL(user) && target.type == MessageTarget::TYPE_CHANNEL)
+		if (user->IsLocal() && target.type == MessageTarget::TYPE_CHANNEL)
 		{
 			auto* chan = target.Get<Channel>();
 			if (chan->IsModeSet(noextmsgmode) && !chan->HasUser(user))

@@ -59,7 +59,7 @@ public:
 		}
 
 		/* Do local sanity checks and bails */
-		if (IS_LOCAL(user))
+		if (user->IsLocal())
 		{
 			if (!ServerInstance->Users.IsNick(parameters[1]))
 			{
@@ -71,7 +71,7 @@ public:
 		}
 
 		/* If we made it this far, extend the user */
-		if (IS_LOCAL(target))
+		if (target->IsLocal())
 		{
 			locked.Set(target);
 
@@ -118,7 +118,7 @@ public:
 			return CmdResult::FAILURE;
 		}
 
-		if (IS_LOCAL(target))
+		if (target->IsLocal())
 		{
 			if (locked.Get(target))
 			{

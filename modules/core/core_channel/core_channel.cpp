@@ -131,7 +131,7 @@ class CoreModChannel final
 
 	ModResult IsInvited(User* user, Channel* chan)
 	{
-		LocalUser* localuser = IS_LOCAL(user);
+		auto* localuser = user->AsLocal();
 		if ((localuser) && (invapi.IsInvited(localuser, chan)))
 			return MOD_RES_ALLOW;
 		return MOD_RES_PASSTHRU;
@@ -330,7 +330,7 @@ public:
 	void OnPostJoin(Membership* memb) override
 	{
 		Channel* const chan = memb->chan;
-		LocalUser* const localuser = IS_LOCAL(memb->user);
+		auto* const localuser = memb->user->AsLocal();
 		if (localuser)
 		{
 			// Remove existing invite, if any

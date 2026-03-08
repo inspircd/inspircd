@@ -69,7 +69,7 @@ public:
 
 	void OnPostConnect(User* user) override
 	{
-		LocalUser* luser = IS_LOCAL(user);
+		auto* luser = user->AsLocal();
 		if (!luser)
 			return;
 
@@ -100,7 +100,7 @@ public:
 
 	void OnPostOperLogin(User* user, bool automatic) override
 	{
-		LocalUser* luser = IS_LOCAL(user);
+		auto* luser = user->AsLocal();
 		if (!luser)
 			return;
 
@@ -132,7 +132,7 @@ public:
 
 	void OnPostOperLogout(User* user, const std::shared_ptr<OperAccount>& oper) override
 	{
-		LocalUser* luser = IS_LOCAL(user);
+		auto* luser = user->AsLocal();
 		if (!luser || luser->quitting)
 			return;
 
@@ -226,7 +226,7 @@ public:
 						extra = FMT::format(": away for {} [since {}] ({})", awayperiod, awaytime, oper->away->message);
 					}
 
-					auto* loper = IS_LOCAL(oper);
+					auto* loper = oper->AsLocal();
 					if (loper)
 					{
 						const std::string idleperiod = Duration::ToLongString(ServerInstance->Time() - loper->idle_lastmsg, true);

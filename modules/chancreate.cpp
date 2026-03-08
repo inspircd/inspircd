@@ -40,7 +40,7 @@ public:
 
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except) override
 	{
-		if ((created) && (IS_LOCAL(memb->user)))
+		if ((created) && (memb->user->IsLocal()))
 		{
 			ServerInstance->SNO.WriteGlobalSno('j', "Channel {} created by {} [{}]",
 				memb->chan->name, memb->user->GetRealMask(), memb->user->GetAddress());

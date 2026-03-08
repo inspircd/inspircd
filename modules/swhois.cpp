@@ -408,7 +408,7 @@ public:
 
 	void OnPostOperLogin(User* user, bool automatic) override
 	{
-		if (!IS_LOCAL(user))
+		if (!user->IsLocal())
 			return;
 
 		std::string swhoisstr;
@@ -426,7 +426,7 @@ public:
 
 	void OnPostOperLogout(User* user, const std::shared_ptr<OperAccount>& oper) override
 	{
-		if (!IS_LOCAL(user))
+		if (!user->IsLocal())
 			return;
 
 		// Remove any swhois entries added by the oper block.

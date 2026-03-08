@@ -42,7 +42,7 @@ CommandAway::CommandAway(Module* parent)
 
 CmdResult CommandAway::Handle(User* user, const Params& parameters)
 {
-	LocalUser* luser = IS_LOCAL(user);
+	auto* luser = user->AsLocal();
 	if (!parameters.empty())
 	{
 		std::string message(parameters[0]);
@@ -78,5 +78,5 @@ CmdResult CommandAway::Handle(User* user, const Params& parameters)
 
 RouteDescriptor CommandAway::GetRouting(User* user, const Params& parameters)
 {
-	return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
+	return (user->IsLocal() ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
 }

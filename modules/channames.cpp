@@ -85,7 +85,7 @@ public:
 			Channel::MemberMap& users = c->userlist;
 			for (Channel::MemberMap::iterator j = users.begin(); j != users.end(); )
 			{
-				if (IS_LOCAL(j->first))
+				if (j->first->IsLocal())
 				{
 					// KickUser invalidates the iterator
 					Channel::MemberMap::iterator it = j++;

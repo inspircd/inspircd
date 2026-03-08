@@ -46,7 +46,7 @@ public:
 
 			if (dest_level > source_level)
 			{
-				if (IS_LOCAL(source))
+				if (source->IsLocal())
 				{
 					ServerInstance->SNO.WriteGlobalSno('a', "Oper {} (level {}) attempted to /KILL a higher level oper: {} (level {}), reason: {}",
 						source->nick, source_level, dest->nick, dest_level, reason);

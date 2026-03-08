@@ -383,7 +383,7 @@ ModResult ModuleSpanningTree::HandleConnect(const CommandBase::Params& parameter
 
 void ModuleSpanningTree::OnUserInvite(User* source, User* dest, Channel* channel, time_t expiry, ModeHandler::Rank notifyrank, CUList& notifyexcepts)
 {
-	if (IS_LOCAL(source))
+	if (source->IsLocal())
 	{
 		CmdBuilder params(source, "INVITE");
 		params.push(dest->uuid);
@@ -409,7 +409,7 @@ ModResult ModuleSpanningTree::OnPreTopicChange(User* user, Channel* chan, const 
 void ModuleSpanningTree::OnPostTopicChange(User* user, Channel* chan, const std::string& topic)
 {
 	// Drop remote events on the floor.
-	if (!IS_LOCAL(user))
+	if (!user->IsLocal())
 		return;
 
 	CommandFTopic::Builder(user, chan).Broadcast();
@@ -417,7 +417,7 @@ void ModuleSpanningTree::OnPostTopicChange(User* user, Channel* chan, const std:
 
 void ModuleSpanningTree::OnUserPostMessage(User* user, const MessageTarget& target, const MessageDetails& details)
 {
-	if (!IS_LOCAL(user))
+	if (!user->IsLocal())
 		return;
 
 	const char* message_type = (details.type == MessageType::PRIVMSG ? "PRIVMSG" : "NOTICE");
@@ -426,7 +426,7 @@ void ModuleSpanningTree::OnUserPostMessage(User* user, const MessageTarget& targ
 		case MessageTarget::TYPE_USER:
 		{
 			auto* d = target.Get<User>();
-			if (!IS_LOCAL(d))
+			if (!d->IsLocal())
 			{
 				CmdBuilder params(user, message_type);
 				params.push_tags(details.tags_out);
@@ -456,7 +456,7 @@ void ModuleSpanningTree::OnUserPostMessage(User* user, const MessageTarget& targ
 
 void ModuleSpanningTree::OnUserPostTagMessage(User* user, const MessageTarget& target, const CTCTags::TagMessageDetails& details)
 {
-	if (!IS_LOCAL(user))
+	if (!user->IsLocal())
 		return;
 
 	switch (target.type)
@@ -464,7 +464,7 @@ void ModuleSpanningTree::OnUserPostTagMessage(User* user, const MessageTarget& t
 		case MessageTarget::TYPE_USER:
 		{
 			auto* d = target.Get<User>();
-			if (!IS_LOCAL(d))
+			if (!d->IsLocal())
 			{
 				CmdBuilder params(user, "TAGMSG");
 				params.push_tags(details.tags_out);
@@ -532,7 +532,7 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by_local, CUList& excepts)
 {
 	// Only do this for local users
-	if (!IS_LOCAL(memb->user))
+	if (!memb->user->IsLocal())
 		return;
 
 	// Assign the current membership id to the new Membership and increase it
@@ -563,7 +563,7 @@ void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by
 
 void ModuleSpanningTree::OnChangeHost(User* user, const std::string& newhost)
 {
-	if (!user->IsFullyConnected() || !IS_LOCAL(user))
+	if (!user->IsFullyConnected() || !user->IsLocal())
 		return;
 
 	CmdBuilder(user, "FHOST").push(newhost).push('*').Broadcast();
@@ -571,7 +571,7 @@ void ModuleSpanningTree::OnChangeHost(User* user, const std::string& newhost)
 
 void ModuleSpanningTree::OnChangeRealHost(User* user, const std::string& newhost)
 {
-	if (!user->IsFullyConnected() || !IS_LOCAL(user))
+	if (!user->IsFullyConnected() || !user->IsLocal())
 		return;
 
 	CmdBuilder(user, "FHOST").push('*').push(newhost).Broadcast();
@@ -579,7 +579,7 @@ void ModuleSpanningTree::OnChangeRealHost(User* user, const std::string& newhost
 
 void ModuleSpanningTree::OnChangeRealName(User* user, const std::string& real)
 {
-	if (!user->IsFullyConnected() || !IS_LOCAL(user))
+	if (!user->IsFullyConnected() || !user->IsLocal())
 		return;
 
 	CmdBuilder(user, "FNAME").push_last(real).Broadcast();
@@ -587,7 +587,7 @@ void ModuleSpanningTree::OnChangeRealName(User* user, const std::string& real)
 
 void ModuleSpanningTree::OnChangeUser(User* user, const std::string& newuser)
 {
-	if (!user->IsFullyConnected() || !IS_LOCAL(user))
+	if (!user->IsFullyConnected() || !user->IsLocal())
 		return;
 
 	CmdBuilder(user, "FIDENT").push(newuser).push("*").Broadcast();
@@ -595,7 +595,7 @@ void ModuleSpanningTree::OnChangeUser(User* user, const std::string& newuser)
 
 void ModuleSpanningTree::OnChangeRealUser(User* user, const std::string& newuser)
 {
-	if (!user->IsFullyConnected() || !IS_LOCAL(user))
+	if (!user->IsFullyConnected() || !user->IsLocal())
 		return;
 
 	CmdBuilder(user, "FIDENT").push("*").push(newuser).Broadcast();
@@ -603,7 +603,7 @@ void ModuleSpanningTree::OnChangeRealUser(User* user, const std::string& newuser
 
 void ModuleSpanningTree::OnUserPart(Membership* memb, std::string& partmessage, CUList& excepts)
 {
-	if (IS_LOCAL(memb->user))
+	if (memb->user->IsLocal())
 	{
 		CmdBuilder params(memb->user, "PART");
 		params.push(memb->chan->name);
@@ -615,7 +615,7 @@ void ModuleSpanningTree::OnUserPart(Membership* memb, std::string& partmessage, 
 
 void ModuleSpanningTree::OnUserQuit(User* user, const std::string& reason, const std::string& oper_message)
 {
-	if (IS_LOCAL(user))
+	if (user->IsLocal())
 	{
 		if (oper_message != reason)
 			ServerInstance->PI->SendMetadata(user, "operquit", oper_message);
@@ -642,7 +642,7 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string& reason, const
 
 void ModuleSpanningTree::OnUserPostNick(User* user, const std::string& oldnick)
 {
-	if (IS_LOCAL(user))
+	if (user->IsLocal())
 	{
 		// The nick TS is updated by the core, we don't do it
 		CmdBuilder params(user, "NICK");
@@ -658,14 +658,14 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string& oldnick)
 
 void ModuleSpanningTree::OnUserKick(User* source, Membership* memb, const std::string& reason, CUList& excepts)
 {
-	if ((!IS_LOCAL(source)) && (source != ServerInstance->FakeClient))
+	if ((!source->IsLocal()) && (source != ServerInstance->FakeClient))
 		return;
 
 	CmdBuilder params(source, "KICK");
 	params.push(memb->chan->name);
 	params.push(memb->user->uuid);
 	// If a remote user is being kicked by us then send the membership id in the kick too
-	if (!IS_LOCAL(memb->user))
+	if (!memb->user->IsLocal())
 		params.push_int(memb->id);
 	params.push_last(reason);
 	params.Broadcast();
@@ -716,7 +716,7 @@ void ModuleSpanningTree::ReadConfig(ConfigStatus& status)
 		std::string msg = "Error in configuration: ";
 		msg.append(e.GetReason());
 		ServerInstance->SNO.WriteToSnoMask('l', msg);
-		if (status.srcuser && !IS_LOCAL(status.srcuser))
+		if (status.srcuser && !status.srcuser->IsLocal())
 			ServerInstance->PI->SendSNONotice('L', msg);
 	}
 }
@@ -786,7 +786,7 @@ restart:
 
 void ModuleSpanningTree::OnOperLogin(User* user, const std::shared_ptr<OperAccount>& oper, bool automatic)
 {
-	if (!user->IsFullyConnected() || !IS_LOCAL(user))
+	if (!user->IsFullyConnected() || !user->IsLocal())
 		return;
 
 	// Note: The protocol does not allow direct umode +o;
@@ -796,7 +796,7 @@ void ModuleSpanningTree::OnOperLogin(User* user, const std::shared_ptr<OperAccou
 
 void ModuleSpanningTree::OnAddLine(User* user, XLine* x)
 {
-	if (!x->IsBurstable() || loopCall || (user && !IS_LOCAL(user)))
+	if (!x->IsBurstable() || loopCall || (user && !user->IsLocal()))
 		return;
 
 	if (!user)
@@ -807,7 +807,7 @@ void ModuleSpanningTree::OnAddLine(User* user, XLine* x)
 
 void ModuleSpanningTree::OnDelLine(User* user, XLine* x)
 {
-	if (!x->IsBurstable() || loopCall || (user && !IS_LOCAL(user)))
+	if (!x->IsBurstable() || loopCall || (user && !user->IsLocal()))
 		return;
 
 	if (!user)
@@ -821,7 +821,7 @@ void ModuleSpanningTree::OnDelLine(User* user, XLine* x)
 
 void ModuleSpanningTree::OnUserAway(User* user, const std::optional<AwayState>& prevstate)
 {
-	if (IS_LOCAL(user) && user->IsFullyConnected())
+	if (user->IsLocal() && user->IsFullyConnected())
 		CommandAway::Builder(user).Broadcast();
 }
 

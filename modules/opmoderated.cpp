@@ -34,7 +34,7 @@ private:
 	ModResult HandleMessage(User* user, MessageTarget& target, CUList& exemptions)
 	{
 		// We only handle messages from local users.
-		if (!IS_LOCAL(user))
+		if (!user->IsLocal())
 			return MOD_RES_PASSTHRU;
 
 		// We only handle messages non-statusmsg messages sent to channels.

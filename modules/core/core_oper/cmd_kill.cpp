@@ -81,10 +81,10 @@ CmdResult CommandKill::Handle(User* user, const Params& parameters)
 	 * just gets processed and passed on, otherwise, if they are local, it gets prefixed. Makes sense :-) -- w00t
 	 */
 
-	if (IS_LOCAL(user))
+	if (user->IsLocal())
 	{
 		/*
-		 * Moved this event inside the IS_LOCAL check also, we don't want half the network killing a user
+		 * Moved this event inside the local check also, we don't want half the network killing a user
 		 * and the other half not. This would be a bad thing. ;p -- w00t
 		 */
 		ModResult modres;
@@ -115,15 +115,15 @@ CmdResult CommandKill::Handle(User* user, const Params& parameters)
 
 	if ((!hideservicekills) || (!user->server->IsService()))
 	{
-		if (IS_LOCAL(user) && IS_LOCAL(target))
+		if (user->IsLocal() && target->IsLocal())
 			ServerInstance->SNO.WriteGlobalSno('k', "Local kill by {}: {} ({})", user->nick, target->GetRealMask(), parameters[1]);
 		else
 			ServerInstance->SNO.WriteToSnoMask('K', "Remote kill by {}: {} ({})", user->nick, target->GetRealMask(), parameters[1]);
 	}
 
-	if (IS_LOCAL(target))
+	if (target->IsLocal())
 	{
-		LocalUser* localu = IS_LOCAL(target);
+		auto* localu = target->AsLocal();
 		KillMessage msg(protoev, user, localu, killreason, hidenick);
 		ClientProtocol::Event killevent(protoev, msg);
 		localu->Send(killevent);

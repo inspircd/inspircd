@@ -218,7 +218,7 @@ public:
 		if (container->extype != this->extype)
 			return;
 
-		LocalUser* user = IS_LOCAL(static_cast<User*>(container));
+		auto* user = static_cast<User*>(container)->AsLocal();
 		if (!user)
 			return;
 
@@ -460,7 +460,7 @@ private:
 	bool CanReceiveMessage(User* source, User* target, SilenceEntry::SilenceFlags flag, uint32_t* flags = nullptr)
 	{
 		// Servers handle their own clients.
-		if (!IS_LOCAL(target))
+		if (!target->IsLocal())
 			return true;
 
 		if (exemptservice && source->server->IsService())

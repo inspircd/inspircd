@@ -211,7 +211,7 @@ public:
 		}
 
 		// fcommands are only for local users. Spanningtree will send them back out as their original cmd.
-		LocalUser* luser = IS_LOCAL(user);
+		auto* luser = user->AsLocal();
 		if (!luser)
 		{
 			return;

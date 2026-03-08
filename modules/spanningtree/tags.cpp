@@ -30,7 +30,7 @@ ModResult ServerTags::OnProcessTag(User* user, const std::string& tagname, std::
 		return MOD_RES_PASSTHRU;
 
 	// Only allow tags from remote users.
-	return IS_LOCAL(user) ? MOD_RES_DENY : MOD_RES_ALLOW;
+	return user->IsLocal() ? MOD_RES_DENY : MOD_RES_ALLOW;
 }
 
 bool ServerTags::ShouldSendTag(LocalUser* user, const ClientProtocol::MessageTagData& tagdata)

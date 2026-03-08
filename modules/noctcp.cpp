@@ -52,7 +52,7 @@ public:
 
 	ModResult OnUserPreMessage(User* user, MessageTarget& target, MessageDetails& details) override
 	{
-		if (!IS_LOCAL(user))
+		if (!user->IsLocal())
 			return MOD_RES_PASSTHRU;
 
 		std::string_view ctcpname;

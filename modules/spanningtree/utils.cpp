@@ -150,7 +150,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(const Channel* c, TreeSoc
 	TreeServer::ChildServers children = TreeRoot->GetChildren();
 	for (const auto& [user, memb] : c->GetUsers())
 	{
-		if (IS_LOCAL(user))
+		if (user->IsLocal())
 			continue;
 
 		if (minrank && memb->GetRank() < minrank)

@@ -270,7 +270,7 @@ public:
 
 	void OnPostOperLogin(User* user, bool automatic) override
 	{
-		auto* luser = IS_LOCAL(user);
+		auto* luser = user->AsLocal();
 		if (luser)
 			isupport.SendOper(luser);
 	}

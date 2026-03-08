@@ -161,7 +161,7 @@ public:
 				extra = FMT::format(": away for {} [since {}] ({})", awayperiod, awaytime, oper->away->message);
 			}
 
-			auto* loper = IS_LOCAL(oper);
+			auto* loper = oper->AsLocal();
 			if (loper)
 			{
 				const std::string idleperiod = Duration::ToLongString(ServerInstance->Time() - loper->idle_lastmsg, true);

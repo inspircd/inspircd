@@ -42,7 +42,7 @@ public:
 
 	bool OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
-		if (IS_LOCAL(source))
+		if (source->IsLocal())
 		{
 			if (!ServerInstance->Channels.IsChannel(parameter))
 			{
@@ -51,7 +51,7 @@ public:
 			}
 		}
 
-		if (IS_LOCAL(source) && !source->IsOper())
+		if (source->IsLocal() && !source->IsOper())
 		{
 			auto* c = ServerInstance->Channels.Find(parameter);
 			if (!c)

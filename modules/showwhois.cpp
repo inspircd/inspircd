@@ -68,7 +68,7 @@ public:
 
 		auto* source = ServerInstance->Users.Find(parameters[1]);
 
-		if (IS_LOCAL(dest) && source)
+		if (dest->IsLocal() && source)
 			HandleFast(dest, source);
 
 		return CmdResult::SUCCESS;
@@ -110,7 +110,7 @@ public:
 		if (source->HasPrivPermission("users/secret-whois"))
 			return;
 
-		if (IS_LOCAL(dest))
+		if (dest->IsLocal())
 		{
 			WhoisNoticeCmd::HandleFast(dest, source);
 		}

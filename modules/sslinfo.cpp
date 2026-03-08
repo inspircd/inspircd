@@ -164,7 +164,7 @@ public:
 		if (cert)
 			return cert;
 
-		LocalUser* luser = IS_LOCAL(user);
+		auto* luser = user->AsLocal();
 		if (!luser || nosslext.Get(luser))
 			return nullptr;
 
@@ -449,7 +449,7 @@ public:
 
 	void OnPostConnect(User* user) override
 	{
-		LocalUser* const localuser = IS_LOCAL(user);
+		auto* const localuser = user->AsLocal();
 		if (!localuser)
 			return;
 

@@ -129,7 +129,7 @@ private:
 	static CmdResult FirePostEvent(User* source, const MessageTarget& msgtarget, const MessageDetails& msgdetails)
 	{
 		// If the source is local and was not sending a CTCP reply then update their idle time.
-		LocalUser* lsource = IS_LOCAL(source);
+		auto* lsource = source->AsLocal();
 		if (lsource && msgdetails.update_idle && (msgdetails.type != MessageType::NOTICE || !msgdetails.IsCTCP()))
 			lsource->idle_lastmsg = ServerInstance->Time();
 
@@ -213,7 +213,7 @@ private:
 	CmdResult HandleUserTarget(User* source, const Params& parameters)
 	{
 		User* target;
-		if (IS_LOCAL(source))
+		if (source->IsLocal())
 		{
 			// Local sources can specify either a nick or a nick@server mask as the target.
 			const char* targetserver = strchr(parameters[0].c_str(), '@');
@@ -253,7 +253,7 @@ private:
 		if (target->IsAway() && msgdetails.type == MessageType::PRIVMSG)
 			source->WriteNumeric(RPL_AWAY, target->nick, target->away->message);
 
-		LocalUser* const localtarget = IS_LOCAL(target);
+		auto* const localtarget = target->AsLocal();
 		if (localtarget)
 		{
 			// Servers can fake the target of a message when it is sent to an individual user.
@@ -325,7 +325,7 @@ public:
 
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override
 	{
-		if (IS_LOCAL(user))
+		if (user->IsLocal())
 			// This is handled by the OnUserPostMessage hook to split the LoopCall pieces
 			return ROUTE_LOCALONLY;
 		else
@@ -355,7 +355,7 @@ public:
 		}
 
 		User* target;
-		if (IS_LOCAL(user))
+		if (user->IsLocal())
 		{
 			// Local sources can specify either a nick or a nick@server mask as the target.
 			const char* targetserver = strchr(parameters[0].c_str(), '@');
@@ -420,7 +420,7 @@ public:
 
 	ModResult OnUserPreMessage(User* user, MessageTarget& target, MessageDetails& details) override
 	{
-		if (!IS_LOCAL(user) || target.type != MessageTarget::TYPE_CHANNEL)
+		if (!user->IsLocal() || target.type != MessageTarget::TYPE_CHANNEL)
 			return MOD_RES_PASSTHRU;
 
 		auto* chan = target.Get<Channel>();

@@ -32,7 +32,7 @@ class ModuleRestrictMsg final
 private:
 	static ModResult HandleMessage(User* user, const MessageTarget& target)
 	{
-		if ((target.type == MessageTarget::TYPE_USER) && (IS_LOCAL(user)))
+		if ((target.type == MessageTarget::TYPE_USER) && (user->IsLocal()))
 		{
 			const auto* u = target.Get<User>();
 

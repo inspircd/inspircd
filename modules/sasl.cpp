@@ -240,7 +240,7 @@ public:
 
 				if (msg[2] == "C")
 				{
-					LocalUser* const localuser = IS_LOCAL(user);
+					auto* const localuser = user->AsLocal();
 					if (localuser)
 					{
 						ClientProtocol::Message authmsg("AUTHENTICATE");

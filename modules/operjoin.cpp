@@ -52,7 +52,7 @@ public:
 
 	void OnPostOperLogin(User* user, bool automatic) override
 	{
-		LocalUser* localuser = IS_LOCAL(user);
+		auto* localuser = user->AsLocal();
 		if (!localuser)
 			return;
 

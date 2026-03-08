@@ -105,12 +105,12 @@ void CommandStats::DoStats(Stats::Context& stats)
 	const char statschar = stats.GetSymbol();
 
 	bool isPublic = userstats.find(statschar) != std::string::npos;
-	bool isRemoteOper = IS_REMOTE(user) && (user->IsOper());
-	bool isLocalOperWithPrivs = IS_LOCAL(user) && user->HasPrivPermission("servers/auspex");
+	bool isRemoteOper = user->IsRemote() && (user->IsOper());
+	bool isLocalOperWithPrivs = user->IsLocal() && user->HasPrivPermission("servers/auspex");
 
 	if (!isPublic && !isRemoteOper && !isLocalOperWithPrivs)
 	{
-		const char* what = IS_LOCAL(user) ? "Stats" : "Remote stats";
+		const auto* what = user->IsLocal() ? "Stats" : "Remote stats";
 		ServerInstance->SNO.WriteToSnoMask('t', "{} '{}' denied for {} ({})", what, statschar, user->nick, user->GetRealUserHost());
 		stats.AddRow(481, (std::string("Permission Denied - STATS ") + statschar + " requires the servers/auspex priv."));
 		return;
@@ -119,7 +119,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 	ModResult res = statsevprov.FirstResult(&Stats::EventListener::OnStats, stats);
 	if (res == MOD_RES_DENY)
 	{
-		const char* what = IS_LOCAL(user) ? "Stats" : "Remote stats";
+		const auto* what = user->IsLocal() ? "Stats" : "Remote stats";
 		ServerInstance->SNO.WriteToSnoMask('t', "{} '{}' requested by {} ({})", what, statschar, user->nick, user->GetRealUserHost());
 		stats.AddRow(219, statschar, "End of /STATS report");
 		return;
@@ -356,7 +356,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 	}
 
 	stats.AddRow(219, statschar, "End of /STATS report");
-	ServerInstance->SNO.WriteToSnoMask('t', "{} '{}' requested by {} ({}@{})", (IS_LOCAL(user) ? "Stats" : "Remote stats"),
+	ServerInstance->SNO.WriteToSnoMask('t', "{} '{}' requested by {} ({}@{})", (user->IsLocal() ? "Stats" : "Remote stats"),
 		statschar, user->nick, user->GetRealUser(), user->GetRealHost());
 }
 
@@ -365,7 +365,7 @@ CmdResult CommandStats::Handle(User* user, const Params& parameters)
 	if (parameters.size() > 1 && !irc::equals(parameters[1], ServerInstance->Config->ServerName))
 	{
 		// Give extra penalty if a non-oper does /STATS <remoteserver>
-		LocalUser* localuser = IS_LOCAL(user);
+		auto* localuser = user->AsLocal();
 		if ((localuser) && (!user->IsOper()))
 			localuser->CommandFloodPenalty += 2000;
 		return CmdResult::SUCCESS;

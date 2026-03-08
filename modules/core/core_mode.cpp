@@ -105,7 +105,7 @@ CmdResult CommandMode::Handle(User* user, const Params& parameters)
 	User* targetuser = nullptr;
 	if (!targetchannel)
 	{
-		if (IS_LOCAL(user))
+		if (user->IsLocal())
 			targetuser = ServerInstance->Users.FindNick(target);
 		else
 			targetuser = ServerInstance->Users.Find(target);
@@ -134,7 +134,7 @@ CmdResult CommandMode::Handle(User* user, const Params& parameters)
 	FIRST_MOD_RESULT(OnPreMode, modres, (user, targetuser, targetchannel, changelist));
 
 	ModeParser::ModeProcessFlag flags = ModeParser::MODE_NONE;
-	if (IS_LOCAL(user))
+	if (user->IsLocal())
 	{
 		if (modres == MOD_RES_PASSTHRU)
 		{
@@ -155,7 +155,7 @@ CmdResult CommandMode::Handle(User* user, const Params& parameters)
 	else
 		flags |= ModeParser::MODE_LOCALONLY;
 
-	if (IS_LOCAL(user))
+	if (user->IsLocal())
 		ServerInstance->Modes.ProcessSingle(user, targetchannel, targetuser, changelist, flags);
 	else
 		ServerInstance->Modes.Process(user, targetchannel, targetuser, changelist, flags);
@@ -173,7 +173,7 @@ CmdResult CommandMode::Handle(User* user, const Params& parameters)
 
 RouteDescriptor CommandMode::GetRouting(User* user, const Params& parameters)
 {
-	return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
+	return (user->IsLocal() ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
 }
 
 void CommandMode::DisplayListModes(User* user, Channel* chan, const std::string& mode_sequence)

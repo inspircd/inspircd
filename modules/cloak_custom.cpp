@@ -52,7 +52,7 @@ public:
 
 			Set(container, cloak, false);
 
-			auto *luser = IS_LOCAL(static_cast<User*>(container));
+			auto *luser = static_cast<User*>(container)->AsLocal();
 			if (!luser || !cloakapi)
 				return;
 

@@ -239,7 +239,7 @@ bool CommandWho::MatchChannel(LocalUser* source, Membership* memb, WhoData& data
 	// The source only wants remote users. This user is eligible if:
 	//   (1) The source can't see server information.
 	//   (2) The source is not local to the current server.
-	LocalUser* lu = IS_LOCAL(memb->user);
+	const auto* lu = memb->user->AsLocal();
 	if (data.flags['f'] && source_can_see_server && lu)
 		return false;
 
@@ -270,7 +270,7 @@ bool CommandWho::MatchUser(LocalUser* source, User* user, WhoData& data)
 	// The source only wants remote users. This user is eligible if:
 	//   (1) The source can't see server information.
 	//   (2) The source is not local to the current server.
-	LocalUser* lu = IS_LOCAL(user);
+	auto* lu = user->AsLocal();
 	if (data.flags['f'] && source_can_see_server && lu)
 		return false;
 
@@ -529,7 +529,7 @@ void CommandWho::SendWhoLine(LocalUser* source, const std::vector<std::string>& 
 		// Include the user's idle time.
 		if (data.whox_fields['l'])
 		{
-			LocalUser* lu = IS_LOCAL(user);
+			auto* lu = user->AsLocal();
 			unsigned long idle = lu ? ServerInstance->Time() - lu->idle_lastmsg : 0;
 			wholine.push(ConvToStr(idle));
 		}

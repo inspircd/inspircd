@@ -67,7 +67,7 @@ CmdResult CommandRConnect::Handle(User* user, const Params& parameters)
 		 * for those conditions here, as ModuleSpanningTree::HandleConnect() (which will run
 		 * on the target) does all the checking and error reporting.
 		 */
-		if (IS_LOCAL(user))
+		if (user->IsLocal())
 		{
 			user->WriteNotice("*** RCONNECT: Sending remote connect to \002 " + parameters[0] + "\002 to connect server \002" + parameters[1] + "\002.");
 		}

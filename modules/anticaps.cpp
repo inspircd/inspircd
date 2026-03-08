@@ -214,7 +214,7 @@ public:
 	ModResult OnUserPreMessage(User* user, MessageTarget& target, MessageDetails& details) override
 	{
 		// We only want to operate on messages from local users.
-		if (!IS_LOCAL(user))
+		if (!user->IsLocal())
 			return MOD_RES_PASSTHRU;
 
 		// The mode can only be applied to channels.

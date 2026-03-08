@@ -753,7 +753,7 @@ public:
 		if (type != ExtensionType::USER)
 			return;
 
-		auto* user = IS_LOCAL(static_cast<User*>(item));
+		auto* user = static_cast<User*>(item)->AsLocal();
 		if (!user || !user->io->GetModHook(this))
 			return;
 

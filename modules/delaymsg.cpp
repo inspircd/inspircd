@@ -97,7 +97,7 @@ void DelayMsgMode::OnUnset(User* source, Channel* chan)
 
 void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CUList&)
 {
-	if ((IS_LOCAL(memb->user)) && (memb->chan->IsModeSet(djm)))
+	if ((memb->user->IsLocal()) && (memb->chan->IsModeSet(djm)))
 	{
 		djm.jointime.Set(memb, ServerInstance->Time());
 	}
@@ -115,7 +115,7 @@ ModResult ModuleDelayMsg::OnUserPreTagMessage(User* user, MessageTarget& target,
 
 ModResult ModuleDelayMsg::HandleMessage(User* user, const MessageTarget& target)
 {
-	if (!IS_LOCAL(user) || target.type != MessageTarget::TYPE_CHANNEL)
+	if (!user->IsLocal() || target.type != MessageTarget::TYPE_CHANNEL)
 		return MOD_RES_PASSTHRU;
 
 	auto* channel = target.Get<Channel>();

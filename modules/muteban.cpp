@@ -50,7 +50,7 @@ public:
 
 	ModResult HandleMessage(User* user, const MessageTarget& target, bool& echo_original)
 	{
-		if (!IS_LOCAL(user) || target.type != MessageTarget::TYPE_CHANNEL)
+		if (!user->IsLocal() || target.type != MessageTarget::TYPE_CHANNEL)
 			return MOD_RES_PASSTHRU;
 
 		auto* chan = target.Get<Channel>();
@@ -81,7 +81,7 @@ public:
 
 	void OnUserPart(Membership* memb, std::string& partmessage, CUList& except_list) override
 	{
-		LocalUser* luser = IS_LOCAL(memb->user);
+		auto* luser = memb->user->AsLocal();
 		if (!luser)
 			return;
 

@@ -42,7 +42,7 @@ bool ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, Modes::
 {
 	const std::string* key = ext.Get(channel);
 	bool exists = (key != nullptr);
-	if (IS_LOCAL(source))
+	if (source->IsLocal())
 	{
 		if (exists == change.adding)
 			return false;

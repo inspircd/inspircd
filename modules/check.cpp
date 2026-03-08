@@ -109,7 +109,7 @@ public:
 	{
 	public:
 		List(CheckContext& context, const char* checktype)
-			: Numeric::GenericBuilder<' ', false, Numeric::WriteRemoteNumericSink>(Numeric::WriteRemoteNumericSink(context.GetUser()), RPL_CHECK, false, (IS_LOCAL(context.GetUser()) ? context.GetUser()->nick.length() : ServerInstance->Config->Limits.MaxNick) + strlen(checktype) + 1)
+			: Numeric::GenericBuilder<' ', false, Numeric::WriteRemoteNumericSink>(Numeric::WriteRemoteNumericSink(context.GetUser()), RPL_CHECK, false, (context.GetUser()->IsLocal() ? context.GetUser()->nick.length() : ServerInstance->Config->Limits.MaxNick) + strlen(checktype) + 1)
 		{
 			GetNumeric().push(checktype).push(std::string());
 		}
@@ -164,7 +164,7 @@ public:
 
 		if (targetuser)
 		{
-			LocalUser* localtarget = IS_LOCAL(targetuser);
+			auto* localtarget = targetuser->AsLocal();
 			/* /check on a user */
 			context.Write("nuh", targetuser->GetMask());
 			context.Write("realnuh", targetuser->GetRealMask());

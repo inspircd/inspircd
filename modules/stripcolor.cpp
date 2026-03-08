@@ -48,7 +48,7 @@ public:
 
 	ModResult OnUserPreMessage(User* user, MessageTarget& target, MessageDetails& details) override
 	{
-		if (!IS_LOCAL(user))
+		if (!user->IsLocal())
 			return MOD_RES_PASSTHRU;
 
 		bool active = false;
@@ -88,7 +88,7 @@ public:
 		User* user = memb->user;
 		Channel* channel = memb->chan;
 
-		if (!IS_LOCAL(user))
+		if (!user->IsLocal())
 			return;
 
 		if (extban.GetStatus(user, channel).check(!user->IsModeSet(csc)))

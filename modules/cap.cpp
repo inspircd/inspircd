@@ -284,8 +284,8 @@ namespace
 {
 	std::string SerializeCaps(const Extensible* container, bool human)
 	{
-		// XXX: Cast away the const because IS_LOCAL() doesn't handle it
-		LocalUser* user = IS_LOCAL(const_cast<User*>(static_cast<const User*>(container)));
+		// XXX: Cast away the const because HandleList doesn't handle it
+		auto* user = const_cast<User*>(static_cast<const User*>(container))->AsLocal();
 		if (!user)
 			return {};
 
@@ -333,7 +333,7 @@ void Cap::ExtItem::FromInternal(Extensible* container, const std::string& value)
 	if (container->extype != this->extype)
 		return;
 
-	LocalUser* user = IS_LOCAL(static_cast<User*>(container));
+	auto* user = static_cast<User*>(container)->AsLocal();
 	if (!user)
 		return; // Can't happen
 

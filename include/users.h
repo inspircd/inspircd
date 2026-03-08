@@ -481,6 +481,10 @@ public:
 	/** What type of user is this? */
 	const uint8_t usertype:2;
 
+	/** If this user is a local user then returns a \p LocalUser; otherwise, returns nullptr. */
+	LocalUser* AsLocal();
+	const LocalUser* AsLocal() const;
+
 	/** Retrieves the username which should be included in bans for this user. */
 	const std::string& GetBanUser(bool real) const;
 
@@ -581,6 +585,15 @@ public:
 	 * @return True if the user is an oper, false otherwise
 	 */
 	bool IsOper() const { return !!oper; }
+
+	/** Checks whether this user is a local user. */
+	inline auto IsLocal() const { return this->usertype == TYPE_LOCAL; }
+
+	/** Checks whether this user is a remote user. */
+	inline auto IsRemote() const { return this->usertype == TYPE_REMOTE; }
+
+	/** Checks whether this user is a (fake) server user. */
+	inline auto IsServer() const { return this->usertype == TYPE_SERVER; }
 
 	/** Returns true if a notice mask is set
 	 * @param sm A notice mask character to check
@@ -1026,23 +1039,6 @@ public:
 	/** @copydoc User::GetRealMask. */
 	const std::string& GetRealMask() override;
 };
-
-/* Faster than dynamic_cast */
-/** Is a local user */
-inline LocalUser* IS_LOCAL(User* u)
-{
-	return (u != nullptr && u->usertype == User::TYPE_LOCAL) ? static_cast<LocalUser*>(u) : nullptr;
-}
-/** Is a remote user */
-inline RemoteUser* IS_REMOTE(User* u)
-{
-	return (u != nullptr && u->usertype == User::TYPE_REMOTE) ? static_cast<RemoteUser*>(u) : nullptr;
-}
-/** Is a server fakeuser */
-inline FakeUser* IS_SERVER(User* u)
-{
-	return (u != nullptr && u->usertype == User::TYPE_SERVER) ? static_cast<FakeUser*>(u) : nullptr;
-}
 
 inline bool User::IsModeSet(const ModeHandler* mh) const
 {

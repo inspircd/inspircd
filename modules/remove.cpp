@@ -58,7 +58,7 @@ public:
 
 		/* Look up the user we're meant to be removing from the channel */
 		User* target;
-		if (IS_LOCAL(user))
+		if (user->IsLocal())
 			target = ServerInstance->Users.FindNick(username, true);
 		else
 			target = ServerInstance->Users.Find(username, true);
@@ -91,7 +91,7 @@ public:
 		}
 
 		/* We support the +Q channel mode via. the m_nokicks module, if the module is loaded and the mode is set then disallow the /remove */
-		if ((!IS_LOCAL(user)) || (!supportnokicks) || (!channel->IsModeSet(nokicksmode)))
+		if ((!user->IsLocal()) || (!supportnokicks) || (!channel->IsModeSet(nokicksmode)))
 		{
 			/* We'll let everyone remove their level and below, eg:
 			 * ops can remove ops, halfops, voices, and those with no mode (no moders actually are set to 1)
@@ -100,10 +100,10 @@ public:
 			 */
 			ModeHandler::Rank ulevel = channel->GetPrefixValue(user);
 			ModeHandler::Rank tlevel = channel->GetPrefixValue(target);
-			if ((!IS_LOCAL(user)) || ((ulevel > VOICE_VALUE) && (ulevel >= tlevel) && ((protectedrank == 0) || (tlevel < protectedrank))))
+			if ((!user->IsLocal()) || ((ulevel > VOICE_VALUE) && (ulevel >= tlevel) && ((protectedrank == 0) || (tlevel < protectedrank))))
 			{
 				// REMOVE will be sent to the target's server and it will reply with a PART (or do nothing if it doesn't understand the command)
-				if (!IS_LOCAL(target))
+				if (!target->IsLocal())
 				{
 					CommandBase::Params p;
 					p.push_back(channel->name);

@@ -181,7 +181,7 @@ public:
 			return false;
 		}
 
-		LocalUser* localsource = IS_LOCAL(source);
+		auto* localsource = source->AsLocal();
 		if ((localsource) && (!ValidateSettings(localsource, channel, parameter, settings)))
 			return false;
 
@@ -410,7 +410,7 @@ public:
 
 	ModResult OnUserPreMessage(User* user, MessageTarget& target, MessageDetails& details) override
 	{
-		if (target.type != MessageTarget::TYPE_CHANNEL || !IS_LOCAL(user))
+		if (target.type != MessageTarget::TYPE_CHANNEL || !user->IsLocal())
 			return MOD_RES_PASSTHRU;
 
 		auto* chan = target.Get<Channel>();

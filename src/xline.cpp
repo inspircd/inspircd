@@ -565,7 +565,7 @@ void XLine::DefaultApply(User* u, bool bancache)
 
 bool GLine::Matches(User* u) const
 {
-	LocalUser* lu = IS_LOCAL(u);
+	auto* lu = u->AsLocal();
 	if (lu && lu->exempt)
 		return false;
 
@@ -602,7 +602,7 @@ bool ELine::Matches(User* u) const
 
 bool ZLine::Matches(User* u) const
 {
-	LocalUser* lu = IS_LOCAL(u);
+	auto* lu = u->AsLocal();
 	if (lu && lu->exempt)
 		return false;
 

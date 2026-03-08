@@ -35,7 +35,7 @@ public:
 			return MOD_RES_PASSTHRU;
 
 		// We should only allow this tag if it is added by a remote server.
-		return IS_LOCAL(user) ? MOD_RES_DENY : MOD_RES_ALLOW;
+		return user->IsLocal() ? MOD_RES_DENY : MOD_RES_ALLOW;
 	}
 };
 

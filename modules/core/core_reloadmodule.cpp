@@ -352,7 +352,7 @@ size_t DataKeeper::GetSerializerIndex(ClientProtocol::Serializer* serializer)
 
 size_t DataKeeper::SaveSerializer(User* user)
 {
-	LocalUser* const localuser = IS_LOCAL(user);
+	auto* const localuser = user->AsLocal();
 	if ((!localuser) || (!localuser->serializer))
 		return UserData::UNUSED_INDEX;
 	if (localuser->serializer->service_creator != mod)
@@ -589,7 +589,7 @@ bool DataKeeper::RestoreSerializer(size_t serializerindex, User* user)
 		return true;
 
 	// The following checks are redundant
-	LocalUser* const localuser = IS_LOCAL(user);
+	auto* const localuser = user->AsLocal();
 	if (!localuser)
 		return true;
 	if (localuser->serializer != dummyserializer)

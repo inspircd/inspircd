@@ -50,7 +50,7 @@ public:
 
 		// If the user is local then we check whether they have the labeled-response
 		// cap enabled. If not then we reject the label tag originating from them.
-		LocalUser* lu = IS_LOCAL(user);
+		auto* lu = user->AsLocal();
 		if (lu && !cap.IsEnabled(lu))
 			return MOD_RES_DENY;
 

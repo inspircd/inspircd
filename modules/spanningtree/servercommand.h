@@ -71,9 +71,10 @@ public:
 
 	CmdResult Handle(User* user, Params& parameters) override
 	{
-		RemoteUser* remoteuser = IS_REMOTE(user);
-		if (!remoteuser)
+		if (!user->IsRemote())
 			throw ProtocolException("Invalid source");
+
+		auto* remoteuser = static_cast<RemoteUser*>(user);
 		return static_cast<T*>(this)->HandleRemote(remoteuser, parameters);
 	}
 };
@@ -91,8 +92,9 @@ public:
 
 	CmdResult Handle(User* user, CommandBase::Params& parameters) override
 	{
-		if (!IS_SERVER(user))
+		if (!user->IsServer())
 			throw ProtocolException("Invalid source");
+
 		TreeServer* server = TreeServer::Get(user);
 		return static_cast<T*>(this)->HandleServer(server, parameters);
 	}

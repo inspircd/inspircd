@@ -54,7 +54,7 @@ public:
 
 	bool Matches(User* u) const override
 	{
-		LocalUser* lu = IS_LOCAL(u);
+		auto* lu = u->AsLocal();
 		if (lu && lu->exempt)
 			return false;
 
@@ -321,7 +321,7 @@ public:
 
 	void OnUserPostNick(User* user, const std::string& oldnick) override
 	{
-		if (!IS_LOCAL(user))
+		if (!user->IsLocal())
 			return;
 
 		if (!matchonnickchange)

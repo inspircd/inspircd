@@ -89,7 +89,7 @@ private:
 		if (!Duration::TryFrom(durationstr, duration) || duration == 0)
 			return false;
 
-		if (IS_LOCAL(user) && maxduration && duration > maxduration)
+		if (user->IsLocal() && maxduration && duration > maxduration)
 			duration = maxduration; // Clamp for local users.
 
 		return true;
@@ -105,7 +105,7 @@ private:
 		if (lines == 0)
 			return false;
 
-		if (IS_LOCAL(user) && maxlines && lines > maxlines)
+		if (user->IsLocal() && maxlines && lines > maxlines)
 			lines = maxlines; // Clamp for local users.
 
 		return true;
@@ -265,7 +265,7 @@ public:
 
 	void OnPostJoin(Membership* memb) override
 	{
-		LocalUser* localuser = IS_LOCAL(memb->user);
+		auto* localuser = memb->user->AsLocal();
 		if (!localuser)
 			return;
 

@@ -143,7 +143,7 @@ public:
 
 		T.mask = mask;
 		T.setter = user->nick;
-		T.expire = expire + (IS_REMOTE(user) ? 5 : 0);
+		T.expire = expire + (user->IsRemote() ? 5 : 0);
 		T.chan = channel;
 		TimedBanList.push_back(T);
 

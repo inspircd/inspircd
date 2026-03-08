@@ -44,14 +44,14 @@ CmdResult CommandMotd::Handle(User* user, const Params& parameters)
 	if (!parameters.empty() && !irc::equals(parameters[0], ServerInstance->Config->ServerName))
 	{
 		// Give extra penalty if a non-oper queries the /MOTD of a remote server
-		LocalUser* localuser = IS_LOCAL(user);
+		auto* localuser = user->AsLocal();
 		if ((localuser) && (!user->IsOper()))
 			localuser->CommandFloodPenalty += 2000;
 		return CmdResult::SUCCESS;
 	}
 
 	auto tag = ServerInstance->Config->EmptyTag;
-	LocalUser* localuser = IS_LOCAL(user);
+	auto* localuser = user->AsLocal();
 	if (localuser)
 		tag = localuser->GetClass()->config;
 

@@ -143,7 +143,7 @@ public:
 
 		for (const auto& [user, _] : memb->chan->GetUsers())
 		{
-			if (IS_LOCAL(user) && !CanSee(user, memb))
+			if (user->IsLocal() && !CanSee(user, memb))
 				excepts.insert(user);
 		}
 	}
@@ -174,7 +174,7 @@ public:
 			// however, that might hide me from ops that can see me...
 			for (const auto& [user, _] : memb->chan->GetUsers())
 			{
-				if (IS_LOCAL(user) && CanSee(user, memb))
+				if (user->IsLocal() && CanSee(user, memb))
 					exception[user] = true;
 			}
 		}

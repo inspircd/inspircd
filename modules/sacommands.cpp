@@ -89,7 +89,7 @@ public:
 		}
 
 		const auto& targetchan = parameters[channelindex];
-		if (IS_LOCAL(user) && !ServerInstance->Channels.IsChannel(targetchan))
+		if (user->IsLocal() && !ServerInstance->Channels.IsChannel(targetchan))
 		{
 			user->WriteRemoteNumeric(ERR_BADCHANMASK, targetchan, "Invalid channel name");
 			return CmdResult::FAILURE;
@@ -102,7 +102,7 @@ public:
 			return CmdResult::FAILURE;
 		}
 
-		auto* ltarget = IS_LOCAL(target);
+		auto* ltarget = target->AsLocal();
 		if (!ltarget)
 			return CmdResult::SUCCESS; // User will be handled by their own server.
 
@@ -170,7 +170,7 @@ public:
 			return CmdResult::FAILURE;
 		}
 
-		if (!IS_LOCAL(target))
+		if (!target->IsLocal())
 			return CmdResult::SUCCESS; // User will be handled by their own server.
 
 		const std::string reason(parameters.size() > 2 ? parameters.back() : target->nick, 0, ServerInstance->Config->Limits.MaxKick);
@@ -315,7 +315,7 @@ public:
 			return CmdResult::FAILURE;
 		}
 
-		if (!IS_LOCAL(target))
+		if (!target->IsLocal())
 			return CmdResult::SUCCESS; // User will be handled by their own server.
 
 		if (!target->ChangeNick(targetnewnick))
@@ -381,7 +381,7 @@ public:
 			return CmdResult::FAILURE;
 		}
 
-		if (!IS_LOCAL(target))
+		if (!target->IsLocal())
 			return CmdResult::SUCCESS; // User will be handled by their own server.
 
 		const auto& reason = parameters.size() > 2 ? parameters.back() : "";
@@ -435,7 +435,7 @@ public:
 			return CmdResult::FAILURE;
 		}
 
-		if (!IS_LOCAL(target))
+		if (!target->IsLocal())
 			return CmdResult::SUCCESS; // User will be handled by their own server.
 
 		const auto& reason = parameters.size() > 2 ? parameters.back() : "";

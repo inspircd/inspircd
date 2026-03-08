@@ -119,7 +119,7 @@ private:
 		unjoined.Unset(memb);
 		for (const auto& [member, _] : memb->chan->GetUsers())
 		{
-			if (member != memb->user && IS_LOCAL(member))
+			if (member != memb->user && member->IsLocal())
 				except.insert(member);
 		}
 	}
@@ -266,7 +266,7 @@ ModResult ModuleDelayJoin::OnRawMode(User* user, Channel* channel, const Modes::
 		return MOD_RES_PASSTHRU;
 
 	User* dest;
-	if (IS_LOCAL(user))
+	if (user->IsLocal())
 		dest = ServerInstance->Users.FindNick(change.param);
 	else
 		dest = ServerInstance->Users.Find(change.param);

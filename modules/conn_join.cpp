@@ -96,7 +96,7 @@ public:
 
 	void OnPostConnect(User* user) override
 	{
-		LocalUser* localuser = IS_LOCAL(user);
+		auto* localuser = user->AsLocal();
 		if (!localuser)
 			return;
 

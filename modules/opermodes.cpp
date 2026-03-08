@@ -34,7 +34,7 @@ public:
 
 	void OnPostOperLogin(User* user, bool automatic) override
 	{
-		if (!IS_LOCAL(user))
+		if (!user->IsLocal())
 			return; // We don't handle remote users.
 
 		const std::string opermodes = user->oper->GetConfig()->getString("modes");

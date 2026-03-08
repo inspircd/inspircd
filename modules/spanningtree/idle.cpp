@@ -43,7 +43,7 @@ CmdResult CommandIdle::HandleRemote(RemoteUser* issuer, Params& params)
 	if (!target)
 		return CmdResult::FAILURE;
 
-	LocalUser* localtarget = IS_LOCAL(target);
+	auto* localtarget = target->AsLocal();
 	if (!localtarget)
 	{
 		// Forward to target's server

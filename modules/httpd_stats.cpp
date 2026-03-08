@@ -276,7 +276,7 @@ namespace Stats
 		if (u->IsOper())
 			serializer.Attribute("opertype", u->oper->GetType());
 
-		LocalUser* lu = IS_LOCAL(u);
+		auto* lu = u->AsLocal();
 		if (lu)
 		{
 			serializer.Attribute("port", lu->server_sa.port())
@@ -365,7 +365,7 @@ namespace Stats
 			switch (order)
 			{
 				case OB_LASTMSG:
-					return Compare(IS_LOCAL(u1)->idle_lastmsg, IS_LOCAL(u2)->idle_lastmsg);
+					return Compare(u1->AsLocal()->idle_lastmsg, u2->AsLocal()->idle_lastmsg);
 				case OB_NICK:
 					return Compare(u1->nick, u2->nick);
 				default:
@@ -420,7 +420,7 @@ namespace Stats
 			if (!showunreg && !u->IsFullyConnected())
 				continue;
 
-			LocalUser* lu = IS_LOCAL(u);
+			auto* lu = u->AsLocal();
 			if (localonly && !lu)
 				continue;
 

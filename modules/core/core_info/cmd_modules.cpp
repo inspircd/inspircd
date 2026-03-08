@@ -48,7 +48,7 @@ CmdResult CommandModules::Handle(User* user, const Params& parameters)
 	// Don't ask remote servers about their modules unless the local user asking is an oper
 	// 2.0 asks anyway, so let's handle that the same way
 	bool for_us = (parameters.empty() || irc::equals(parameters[0], ServerInstance->Config->ServerName));
-	if ((!for_us) || (!IS_LOCAL(user)))
+	if ((!for_us) || (!user->IsLocal()))
 	{
 		if (!user->IsOper())
 		{
@@ -61,7 +61,7 @@ CmdResult CommandModules::Handle(User* user, const Params& parameters)
 			return CmdResult::SUCCESS;
 	}
 
-	bool has_priv = IS_LOCAL(user) && user->HasPrivPermission("servers/auspex");
+	const auto has_priv = user->IsLocal() && user->HasPrivPermission("servers/auspex");
 	for (const auto& [modname, mod] : ServerInstance->Modules.GetModules())
 	{
 		const auto version = has_priv ? mod->GetVersion() : "*";

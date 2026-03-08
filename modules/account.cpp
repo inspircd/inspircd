@@ -63,7 +63,7 @@ public:
 		StringExtItem::FromNetwork(container, value);
 
 		User* user = static_cast<User*>(container);
-		if (IS_LOCAL(user))
+		if (user->IsLocal())
 		{
 			if (value.empty())
 			{
@@ -233,7 +233,7 @@ public:
 
 	ModResult HandleMessage(User* user, const MessageTarget& target)
 	{
-		if (!IS_LOCAL(user))
+		if (!user->IsLocal())
 			return MOD_RES_PASSTHRU;
 
 

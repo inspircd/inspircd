@@ -30,7 +30,7 @@ CmdResult CommandNum::HandleServer(TreeServer* server, CommandBase::Params& para
 	if (!target)
 		return CmdResult::FAILURE;
 
-	LocalUser* const localtarget = IS_LOCAL(target);
+	auto* const localtarget = target->AsLocal();
 	if (!localtarget)
 		return CmdResult::SUCCESS;
 

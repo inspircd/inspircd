@@ -43,7 +43,7 @@ public:
 
 	bool Matches(User* u) const override
 	{
-		LocalUser* lu = IS_LOCAL(u);
+		auto* lu = u->AsLocal();
 		if (lu && lu->exempt)
 			return false;
 

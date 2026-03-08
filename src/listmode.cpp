@@ -153,7 +153,7 @@ size_t ListModeBase::GetLowerLimit()
 
 bool ListModeBase::OnModeChange(User* source, User*, Channel* channel, Modes::Change& change)
 {
-	LocalUser* lsource = IS_LOCAL(source);
+	auto* lsource = source->AsLocal();
 	if (change.adding)
 	{
 		// Try to canonicalise the parameter locally.

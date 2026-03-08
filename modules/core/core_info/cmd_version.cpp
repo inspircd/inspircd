@@ -50,7 +50,7 @@ void CommandVersion::BuildNumerics()
 CmdResult CommandVersion::Handle(User* user, const Params& parameters)
 {
 	user->WriteNumeric(user->IsOper() ? operversion : version);
-	LocalUser* luser = IS_LOCAL(user);
+	auto* luser = user->AsLocal();
 	if (luser)
 		isupport.SendTo(luser);
 	return CmdResult::SUCCESS;

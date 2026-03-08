@@ -75,8 +75,8 @@ public:
 	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
 		bool res = SimpleUserMode::OnModeChange(source, dest, channel, change);
-		if (change.adding && res && IS_LOCAL(dest) && timeout)
-			ext.Set(dest, new UnsetTimer(IS_LOCAL(dest), timeout, *this));
+		if (change.adding && res && dest->IsLocal() && timeout)
+			ext.Set(dest, new UnsetTimer(dest->AsLocal(), timeout, *this));
 		return res;
 	}
 };
@@ -163,7 +163,7 @@ public:
 
 	ModResult OnPreTopicChange(User* source, Channel* channel, const std::string& topic) override
 	{
-		if (IS_LOCAL(source) && source->IsOper() && CanOverride(source, "TOPIC"))
+		if (source->IsLocal() && source->IsOper() && CanOverride(source, "TOPIC"))
 		{
 			if (!channel->HasUser(source) || (channel->IsModeSet(topiclock) && channel->GetPrefixValue(source) < HALFOP_VALUE))
 			{
@@ -196,7 +196,7 @@ public:
 	{
 		if (!channel)
 			return MOD_RES_PASSTHRU;
-		if (!source->IsOper() || !IS_LOCAL(source))
+		if (!source->IsOper() || !source->IsLocal())
 			return MOD_RES_PASSTHRU;
 
 		const Modes::ChangeList::List& list = modes.getlist();

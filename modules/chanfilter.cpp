@@ -71,7 +71,7 @@ class ModuleChanFilter final
 
 	const ChanFilter::ListItem* Match(User* user, Channel* chan, const std::string& text)
 	{
-		if (!IS_LOCAL(user))
+		if (!user->IsLocal())
 			return nullptr; // We don't handle remote users.
 
 		if (user->HasPrivPermission("channels/ignore-chanfilter"))
@@ -123,7 +123,7 @@ public:
 			return;
 
 		// Match() checks the user is local, we can assume from here
-		LocalUser* luser = IS_LOCAL(user);
+		auto* luser = user->AsLocal();
 
 		std::string oldreason(partmessage);
 		partmessage = "Reason filtered";

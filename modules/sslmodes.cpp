@@ -101,7 +101,7 @@ public:
 		if (change.adding == channel->IsModeSet(this))
 			return false;
 
-		if (change.adding && IS_LOCAL(source))
+		if (change.adding && source->IsLocal())
 		{
 			if (!sslapi)
 			{
@@ -148,7 +148,7 @@ public:
 		if (change.adding == dest->IsModeSet(this))
 			return false;
 
-		if (change.adding && IS_LOCAL(user))
+		if (change.adding && user->IsLocal())
 		{
 			if (!sslapi)
 			{

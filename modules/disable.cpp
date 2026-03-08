@@ -157,7 +157,7 @@ public:
 		if (numeric.GetNumeric() != RPL_COMMANDS || numeric.GetParams().empty())
 			return MOD_RES_PASSTHRU; // The numeric isn't the one we care about.
 
-		if (!fakenonexistent || !IS_LOCAL(user))
+		if (!fakenonexistent || !user->IsLocal())
 			return MOD_RES_PASSTHRU; // We're not hiding the numeric OR the user is remote.
 
 		if (!stdalgo::isin(commands, numeric.GetParams()[0]) || user->HasPrivPermission("servers/use-disabled-commands"))
@@ -197,7 +197,7 @@ public:
 	ModResult OnRawMode(User* user, Channel* chan, const Modes::Change& change) override
 	{
 		// If a mode change is remote or the source is not fully connected we do nothing.
-		if (!IS_LOCAL(user) || !user->IsFullyConnected())
+		if (!user->IsLocal() || !user->IsFullyConnected())
 			return MOD_RES_PASSTHRU;
 
 		// If the mode is not disabled or the user has the servers/use-disabled-modes priv we do nothing.

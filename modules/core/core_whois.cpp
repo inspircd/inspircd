@@ -264,7 +264,7 @@ CmdResult CommandWhois::HandleRemote(RemoteUser* target, const Params& parameter
 		return CmdResult::FAILURE;
 
 	// User doing the whois must be on this server
-	LocalUser* localuser = IS_LOCAL(user);
+	auto* localuser = user->AsLocal();
 	if (!localuser)
 		return CmdResult::FAILURE;
 
@@ -308,7 +308,7 @@ CmdResult CommandWhois::HandleLocal(LocalUser* user, const Params& parameters)
 		 * For remote users (/w remoteuser remoteuser), spanningtree will handle calling do_whois, so we can ignore this case.
 		 * Thanks to djGrrr for not being impatient while I have a crap day coding. :p -- w00t
 		 */
-		LocalUser* localuser = IS_LOCAL(dest);
+		auto* localuser = dest->AsLocal();
 		if (localuser && (ServerInstance->Config->HideServer.empty() || parameters.size() > 1))
 		{
 			idle = ServerInstance->Time() - localuser->idle_lastmsg;

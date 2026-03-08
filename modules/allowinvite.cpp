@@ -42,7 +42,7 @@ public:
 
 	ModResult OnUserPreInvite(User* user, User* dest, Channel* channel, time_t timeout) override
 	{
-		if (IS_LOCAL(user))
+		if (user->IsLocal())
 		{
 			ModResult res = extban.GetStatus(user, channel);
 			if (res == MOD_RES_DENY)

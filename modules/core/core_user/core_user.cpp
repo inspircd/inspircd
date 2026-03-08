@@ -105,7 +105,7 @@ public:
 		}
 
 		// set the user as alive so they survive to next ping
-		LocalUser* localuser = IS_LOCAL(user);
+		auto* localuser = user->AsLocal();
 		if (localuser)
 		{
 			// Increase penalty unless we've sent a PING and this is the reply

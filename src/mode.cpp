@@ -203,7 +203,7 @@ ModResult PrefixMode::AccessCheck(User* src, Channel*, Modes::Change& change)
 bool PrefixMode::OnModeChange(User* source, User*, Channel* chan, Modes::Change& change)
 {
 	User* target;
-	if (IS_LOCAL(source))
+	if (source->IsLocal())
 		target = ServerInstance->Users.FindNick(change.param);
 	else
 		target = ServerInstance->Users.Find(change.param);
@@ -273,7 +273,7 @@ bool ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Modes::Cha
 	ModResult modres;
 	FIRST_MOD_RESULT(OnRawMode, modres, (user, chan, mcitem));
 
-	if (IS_LOCAL(user) && (modres == MOD_RES_DENY))
+	if (user->IsLocal() && (modres == MOD_RES_DENY))
 		return false;
 
 	const char modechar = mh->GetModeChar();
@@ -311,7 +311,7 @@ bool ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Modes::Cha
 		}
 	}
 
-	if ((chan || (!chan && mcitem.adding)) && IS_LOCAL(user) && mh->NeedsOper() && !user->HasModePermission(mh))
+	if ((chan || (!chan && mcitem.adding)) && user->IsLocal() && mh->NeedsOper() && !user->HasModePermission(mh))
 	{
 		/* It's an oper only mode, and they don't have access to it. */
 		if (user->IsOper())
@@ -473,9 +473,9 @@ size_t ModeParser::ProcessSingle(User* user, Channel* targetchannel, User* targe
 		{
 			targetchannel->Write(modeevent);
 		}
-		else
+		else if (targetuser)
 		{
-			LocalUser* localtarget = IS_LOCAL(targetuser);
+			auto* localtarget = targetuser->AsLocal();
 			if (localtarget)
 				localtarget->Send(modeevent);
 		}

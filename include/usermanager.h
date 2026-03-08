@@ -228,7 +228,8 @@ public:
 	template<typename T>
 	std::enable_if_t<std::is_same_v<T, LocalUser>, T*> Find(const std::string& nickuuid, bool fullyconnected = false)
 	{
-		return IS_LOCAL(Find(nickuuid, fullyconnected));
+		auto* u = Find(nickuuid, fullyconnected);
+		return u ? u->AsLocal() : nullptr;
 	}
 
 	/** Find a user by their nickname.
@@ -246,7 +247,8 @@ public:
 	template<typename T>
 	std::enable_if_t<std::is_same_v<T, LocalUser>, T*> FindNick(const std::string& nick, bool fullyconnected = false)
 	{
-		return IS_LOCAL(FindNick(nick, fullyconnected));
+		auto* u = FindNick(nick, fullyconnected);
+		return u ? u->AsLocal() : nullptr;
 	}
 
 	/** Find a user by their UUID.
@@ -264,6 +266,7 @@ public:
 	template<typename T>
 	std::enable_if_t<std::is_same_v<T, LocalUser>, T*> FindUUID(const std::string& uuid, bool fullyconnected = false)
 	{
-		return IS_LOCAL(FindUUID(uuid, fullyconnected));
+		auto* u = FindUUID(uuid, fullyconnected);
+		return u ? u->AsLocal() : nullptr;
 	}
 };

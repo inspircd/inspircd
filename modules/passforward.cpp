@@ -60,7 +60,7 @@ public:
 
 	void OnPostConnect(User* ruser) override
 	{
-		LocalUser* user = IS_LOCAL(ruser);
+		auto* user = ruser->AsLocal();
 		if (!user || user->password.empty())
 			return;
 

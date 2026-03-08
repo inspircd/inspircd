@@ -49,7 +49,7 @@ public:
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		User* u;
-		if (IS_LOCAL(user))
+		if (user->IsLocal())
 			u = ServerInstance->Users.FindNick(parameters[0], true);
 		else
 			u = ServerInstance->Users.Find(parameters[0]);
@@ -70,7 +70,7 @@ public:
 			return CmdResult::FAILURE;
 		}
 
-		if (IS_LOCAL(user))
+		if (user->IsLocal())
 		{
 			if (c->GetPrefixValue(user) < HALFOP_VALUE)
 			{
@@ -83,7 +83,7 @@ public:
 		 * only if the target is local. Otherwise the command will be
 		 * passed to the target users server.
 		 */
-		LocalUser* lu = IS_LOCAL(u);
+		auto* lu = u->AsLocal();
 		if (lu)
 		{
 			// XXX: The source of the numeric we send must be the server of the user doing the /UNINVITE,

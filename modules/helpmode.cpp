@@ -108,7 +108,7 @@ public:
 				extra = FMT::format(": away for {} [since {}] ({})", awayperiod, awaytime, helper->away->message);
 			}
 
-			auto* lhelper = IS_LOCAL(helper);
+			auto* lhelper = helper->AsLocal();
 			if (lhelper)
 			{
 				const std::string idleperiod = Duration::ToLongString(ServerInstance->Time() - lhelper->idle_lastmsg, true);

@@ -216,7 +216,7 @@ Membership* Channel::JoinUser(LocalUser* user, std::string cname, bool override,
 
 Membership* Channel::ForceJoin(User* user, const std::string* privs, bool bursting, bool created_by_local)
 {
-	if (IS_SERVER(user))
+	if (user->IsServer())
 	{
 		ServerInstance->Logs.Debug("CHANNELS", "Attempted to join server user {} to channel {}",
 			user->uuid, this->name);
@@ -352,7 +352,7 @@ void Channel::Write(ClientProtocol::Event& protoev, char status, const CUList& e
 
 	for (const auto& [u, memb] : userlist)
 	{
-		LocalUser* user = IS_LOCAL(u);
+		auto* user = u->AsLocal();
 		if ((user) && (!except_list.count(user)))
 		{
 			/* User doesn't have the status we're after */
@@ -471,7 +471,7 @@ bool Membership::SetPrefix(PrefixMode* delta_mh, bool adding)
 
 void Membership::WriteNotice(const std::string& text) const
 {
-	LocalUser* const localuser = IS_LOCAL(user);
+	auto* const localuser = user->AsLocal();
 	if (!localuser)
 		return;
 

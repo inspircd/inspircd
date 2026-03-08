@@ -131,7 +131,7 @@ public:
 
 	void OnPostChangeRealHost(User* user) override
 	{
-		LocalUser* luser = IS_LOCAL(user);
+		auto* luser = user->AsLocal();
 		if (!luser || luser->quitting)
 			return;
 
@@ -141,7 +141,7 @@ public:
 
 	void OnPostChangeRealUser(User* user) override
 	{
-		LocalUser* luser = IS_LOCAL(user);
+		auto* luser = user->AsLocal();
 		if (!luser || luser->quitting)
 			return;
 

@@ -162,7 +162,7 @@ public:
 
 			if(mask[CHAN].length())
 			{
-				if (change.adding && IS_LOCAL(source))
+				if (change.adding && source->IsLocal())
 				{
 					if (!ServerInstance->Channels.IsChannel(mask[CHAN]))
 					{

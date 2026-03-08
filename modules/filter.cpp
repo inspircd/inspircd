@@ -262,7 +262,7 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 		if (static_cast<ModuleFilter*>(me)->DeleteFilter(parameters[0], reason))
 		{
 			user->WriteNotice("*** Removed filter '" + parameters[0] + "': " + reason);
-			ServerInstance->SNO.WriteToSnoMask(IS_LOCAL(user) ? 'f' : 'F', "{} removed filter '{}': {}",
+			ServerInstance->SNO.WriteToSnoMask(user->IsLocal() ? 'f' : 'F', "{} removed filter '{}': {}",
 				user->nick, parameters[0], reason);
 			return CmdResult::SUCCESS;
 		}
@@ -323,7 +323,7 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 					flags, parameters[reasonindex]);
 
 				user->WriteNotice("*** Added filter " + message);
-				ServerInstance->SNO.WriteToSnoMask(IS_LOCAL(user) ? 'f' : 'F', "{} added filter {}", user->nick, message);
+				ServerInstance->SNO.WriteToSnoMask(user->IsLocal() ? 'f' : 'F', "{} added filter {}", user->nick, message);
 
 				return CmdResult::SUCCESS;
 			}
@@ -391,7 +391,7 @@ void ModuleFilter::FreeFilters()
 ModResult ModuleFilter::OnUserPreMessage(User* user, MessageTarget& msgtarget, MessageDetails& details)
 {
 	// Leave remote users and servers alone
-	if (!IS_LOCAL(user))
+	if (!user->IsLocal())
 		return MOD_RES_PASSTHRU;
 
 	flags = (details.type == MessageType::PRIVMSG) ? FLAG_PRIVMSG : FLAG_NOTICE;

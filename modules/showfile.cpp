@@ -67,9 +67,9 @@ public:
 			if (!endtext.empty() && endnumeric)
 				user->WriteRemoteNumeric(endnumeric, endtext);
 		}
-		else if (IS_LOCAL(user))
+		else if (user->IsLocal())
 		{
-			LocalUser* const localuser = IS_LOCAL(user);
+			auto* const localuser = user->AsLocal();
 			for (const auto& line : contents)
 			{
 				ClientProtocol::Messages::Privmsg msg(ClientProtocol::Messages::Privmsg::nocopy, ServerInstance->FakeClient, localuser, line, ((method == SF_MSG) ? MessageType::PRIVMSG : MessageType::NOTICE));

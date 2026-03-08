@@ -110,7 +110,7 @@ public:
 			return false;
 		}
 
-		if (IS_LOCAL(source) && v > max)
+		if (source->IsLocal() && v > max)
 			v = max;
 
 		ext.Set(channel, v);
@@ -154,7 +154,7 @@ public:
 
 	void OnUserKick(User* source, Membership* memb, const std::string& reason, CUList& excepts) override
 	{
-		if ((!IS_LOCAL(memb->user)) || (source == memb->user))
+		if ((!memb->user->IsLocal()) || (source == memb->user))
 			return;
 
 		KickRejoinData* data = kr.ext.Get(memb->chan);

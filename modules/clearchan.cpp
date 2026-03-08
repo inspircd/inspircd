@@ -72,7 +72,7 @@ public:
 		const std::string reason = parameters.size() > 2 ? parameters.back() : "Clearing " + chan->name;
 
 		if (!user->server->IsSilentService())
-			ServerInstance->SNO.WriteToSnoMask((IS_LOCAL(user) ? 'a' : 'A'), user->nick + " has cleared \002" + chan->name + "\002 (" + method + "): " + reason);
+			ServerInstance->SNO.WriteToSnoMask((user->IsLocal() ? 'a' : 'A'), user->nick + " has cleared \002" + chan->name + "\002 (" + method + "): " + reason);
 
 		user->WriteNotice("Clearing \002" + chan->name + "\002 (" + method + "): " + reason);
 
@@ -102,7 +102,7 @@ public:
 			const Channel::MemberMap::iterator currit = i;
 			++i;
 
-			if (!IS_LOCAL(curr) || curr->IsOper())
+			if (!curr->IsLocal() || curr->IsOper())
 				continue;
 
 			// If kicking users, remove them and skip the QuitUser()
@@ -178,7 +178,7 @@ public:
 
 		for (const auto& [member, _] : cmd.activechan->GetUsers())
 		{
-			LocalUser* curr = IS_LOCAL(member);
+			auto* curr = member->AsLocal();
 			if (!curr)
 				continue;
 
@@ -207,7 +207,7 @@ public:
 		User* leaving = memb->user;
 		for (const auto& [curr, _] : memb->chan->GetUsers())
 		{
-			if ((IS_LOCAL(curr)) && (!curr->IsOper()) && (curr != leaving))
+			if ((curr->IsLocal()) && (!curr->IsOper()) && (curr != leaving))
 				excepts.insert(curr);
 		}
 	}

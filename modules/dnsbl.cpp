@@ -430,7 +430,7 @@ public:
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		User* target;
-		if (IS_LOCAL(user))
+		if (user->IsLocal())
 			target = ServerInstance->Users.FindNick(parameters[0], true);
 		else
 			target = ServerInstance->Users.FindUUID(parameters[0], true);
@@ -442,7 +442,7 @@ public:
 			return CmdResult::FAILURE;
 		}
 
-		auto* ltarget = IS_LOCAL(target);
+		auto* ltarget = target->AsLocal();
 		if (!ltarget)
 			return CmdResult::SUCCESS; // The user is on another server so just let it forward.
 

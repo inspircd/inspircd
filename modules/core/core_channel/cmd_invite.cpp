@@ -59,7 +59,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 	if (parameters.size() >= 2)
 	{
 		User* u;
-		if (IS_LOCAL(user))
+		if (user->IsLocal())
 			u = ServerInstance->Users.FindNick(parameters[0], true);
 		else
 			u = ServerInstance->Users.Find(parameters[0], true);
@@ -68,7 +68,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 		time_t timeout = 0;
 		if (parameters.size() >= 3)
 		{
-			if (IS_LOCAL(user))
+			if (user->IsLocal())
 			{
 				unsigned long duration;
 				if (!Duration::TryFrom(parameters[2], duration))
@@ -94,7 +94,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 		}
 
 		// Verify channel timestamp if the INVITE is coming from a remote server
-		if (!IS_LOCAL(user))
+		if (!user->IsLocal())
 		{
 			// Remote INVITE commands must carry a channel timestamp
 			if (parameters.size() < 3)
@@ -106,7 +106,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 				return CmdResult::FAILURE;
 		}
 
-		if ((IS_LOCAL(user)) && (!c->HasUser(user)))
+		if ((user->IsLocal()) && (!c->HasUser(user)))
 		{
 			user->WriteNumeric(ERR_NOTONCHANNEL, c->name, "You're not on that channel!");
 			return CmdResult::FAILURE;
@@ -126,7 +126,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 		}
 		else if (modres == MOD_RES_PASSTHRU)
 		{
-			if (IS_LOCAL(user))
+			if (user->IsLocal())
 			{
 				ModeHandler::Rank rank = c->GetPrefixValue(user);
 				if (rank < HALFOP_VALUE)
@@ -137,7 +137,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 			}
 		}
 
-		LocalUser* const localtargetuser = IS_LOCAL(u);
+		auto* const localtargetuser = u->AsLocal();
 		if (localtargetuser)
 		{
 			invapi.Create(localtargetuser, c, timeout);
@@ -145,7 +145,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 			localtargetuser->Send(ServerInstance->GetRFCEvents().invite, invitemsg);
 		}
 
-		if (IS_LOCAL(user))
+		if (user->IsLocal())
 		{
 			user->WriteNumeric(RPL_INVITING, u->nick, c->name);
 			if (u->IsAway())
@@ -193,11 +193,11 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 			c->Write(ServerInstance->GetRFCEvents().privmsg, privmsg, prefix, excepts);
 		}
 	}
-	else if (IS_LOCAL(user))
+	else if (user->IsLocal())
 	{
 		// pinched from ircu - invite with not enough parameters shows channels
 		// youve been invited to but haven't joined yet.
-		const Invite::List* list = invapi.GetList(IS_LOCAL(user));
+		const auto* list = invapi.GetList(user->AsLocal());
 		if (list)
 		{
 			for (const auto* invite : *list)
@@ -210,5 +210,5 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 
 RouteDescriptor CommandInvite::GetRouting(User* user, const Params& parameters)
 {
-	return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
+	return (user->IsLocal() ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
 }

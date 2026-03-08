@@ -84,7 +84,7 @@ public:
 
 	void OnPostJoin(Membership* memb) override
 	{
-		if ((!IS_LOCAL(memb->user)) || (!memb->user->IsOper()) || (memb->user->IsModeSet(hideopermode)))
+		if ((!memb->user->IsLocal()) || (!memb->user->IsOper()) || (memb->user->IsModeSet(hideopermode)))
 			return;
 
 		if (memb->HasMode(&opm))
@@ -106,7 +106,7 @@ public:
 
 	void OnPostOperLogin(User* user, bool automatic) override
 	{
-		if (IS_LOCAL(user) && (!user->IsModeSet(hideopermode)))
+		if (user->IsLocal() && (!user->IsModeSet(hideopermode)))
 			SetOperPrefix(user, true);
 	}
 
@@ -126,7 +126,7 @@ HideOperWatcher::HideOperWatcher(ModuleOperPrefixMode* parent)
 void HideOperWatcher::AfterMode(User* source, User* dest, Channel* channel, const Modes::Change& change)
 {
 	// If hideoper is being unset because the user is deopering, don't set +y
-	if (IS_LOCAL(dest) && dest->IsOper())
+	if (dest->IsLocal() && dest->IsOper())
 		parentmod->SetOperPrefix(dest, !change.adding);
 }
 

@@ -48,7 +48,7 @@ class ModuleHostCycle final
 		exceptions.erase(user);
 		for (const auto& [exception, sendto] : exceptions)
 		{
-			LocalUser* u = IS_LOCAL(exception);
+			auto* u = exception->AsLocal();
 			if ((u) && (!u->quitting) && (!chghostcap.IsEnabled(u)))
 			{
 				if (sendto)
@@ -72,7 +72,7 @@ class ModuleHostCycle final
 
 			for (const auto& [chanuser, _] : c->GetUsers())
 			{
-				LocalUser* u = IS_LOCAL(chanuser);
+				auto* u = chanuser->AsLocal();
 				if (!u || u == user)
 					continue;
 				if (u->already_sent == silent_id)

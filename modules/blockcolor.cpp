@@ -47,7 +47,7 @@ public:
 
 	ModResult OnUserPreMessage(User* user, MessageTarget& target, MessageDetails& details) override
 	{
-		if ((target.type == MessageTarget::TYPE_CHANNEL) && (IS_LOCAL(user)))
+		if ((target.type == MessageTarget::TYPE_CHANNEL) && (user->IsLocal()))
 		{
 			auto* c = target.Get<Channel>();
 

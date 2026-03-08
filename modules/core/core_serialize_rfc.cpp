@@ -242,7 +242,7 @@ public:
 		if (type != ExtensionType::USER)
 			return;
 
-		LocalUser* const user = IS_LOCAL(static_cast<User*>(item));
+		auto* const user = static_cast<User*>(item)->AsLocal();
 		if ((user) && (user->serializer == &rfcserializer))
 			ServerInstance->Users.QuitUser(user, "Protocol serializer module unloading");
 	}

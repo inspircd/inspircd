@@ -50,7 +50,7 @@ CmdResult CommandFMode::Handle(User* who, Params& params)
 	ServerInstance->Modes.ModeParamsToChangeList(who, MODETYPE_CHANNEL, params, changelist, 2);
 
 	ModeParser::ModeProcessFlag flags = ModeParser::MODE_LOCALONLY;
-	if ((TS == ourTS) && IS_SERVER(who))
+	if ((TS == ourTS) && who->IsServer())
 		flags |= ModeParser::MODE_MERGE;
 
 	ServerInstance->Modes.Process(who, chan, nullptr, changelist, flags);
@@ -93,7 +93,7 @@ CmdResult CommandLMode::Handle(User* who, Params& params)
 	}
 
 	ModeParser::ModeProcessFlag flags = ModeParser::MODE_LOCALONLY;
-	if (chants == chan->age && IS_SERVER(who))
+	if (chants == chan->age && who->IsServer())
 		flags |= ModeParser::MODE_MERGE;
 
 	ServerInstance->Modes.Process(who, chan, nullptr, changelist, flags);

@@ -272,7 +272,7 @@ public:
 			return MOD_RES_PASSTHRU;
 
 		auto* dest = target.Get<Channel>();
-		if ((!IS_LOCAL(user)) || !dest->IsModeSet(mf))
+		if ((!user->IsLocal()) || !dest->IsModeSet(mf))
 			return MOD_RES_PASSTHRU;
 
 		ModResult res = exemptionprov.Check(user, dest, "flood");

@@ -81,7 +81,7 @@ bool ModeChannelLimit::OnSet(User* user, Channel* chan, std::string& parameter)
 	size_t limit = ConvToNum<size_t>(parameter);
 	if (limit < 1 || limit > INTPTR_MAX)
 	{
-		if (IS_LOCAL(user))
+		if (user->IsLocal())
 		{
 			// If the setter is local then we can safely just reject this here.
 			user->WriteNumeric(Numerics::InvalidModeParameter(chan, this, parameter));

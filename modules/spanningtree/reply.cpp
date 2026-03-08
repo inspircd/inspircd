@@ -30,7 +30,7 @@ CmdResult CommandReply::HandleServer(TreeServer* server, CommandBase::Params& pa
 	if (!target)
 		return CmdResult::FAILURE; // User has gone.
 
-	auto* ltarget = IS_LOCAL(target);
+	auto* ltarget = target->AsLocal();
 	if (!ltarget)
 		return CmdResult::SUCCESS; // Not for us.
 

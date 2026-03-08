@@ -47,7 +47,7 @@ public:
 		if (parameters.size() > 1)
 		{
 			const auto& targetnick = parameters[0];
-			if (IS_LOCAL(user))
+			if (user->IsLocal())
 			{
 				// For local users we need to check if they can use the command.
 				target = ServerInstance->Users.FindNick(targetnick, true);
@@ -70,7 +70,7 @@ public:
 			}
 		}
 
-		if (!IS_LOCAL(target))
+		if (!target->IsLocal())
 			return CmdResult::SUCCESS; // Their server will handle this.
 
 		const auto& newreal = parameters.back();

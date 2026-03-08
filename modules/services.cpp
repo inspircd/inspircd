@@ -118,7 +118,7 @@ public:
 
 	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (IS_LOCAL(source))
+		if (source->IsLocal())
 		{
 			source->WriteNumeric(Numerics::NoPrivileges("only services may {} channel mode {} ({})",
 				source->IsModeSet(this) ? "set" : "unset", GetModeChar(), this->service_name));
@@ -143,7 +143,7 @@ public:
 
 	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
-		if (IS_LOCAL(source))
+		if (source->IsLocal())
 		{
 			source->WriteNumeric(Numerics::NoPrivileges("only services may {} user mode {} ({})",
 				source->IsModeSet(this) ? "set" : "unset", GetModeChar(), this->service_name));
@@ -256,7 +256,7 @@ public:
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		// The command can only be executed by remote services servers.
-		if (IS_LOCAL(user) || !user->server->IsService())
+		if (user->IsLocal() || !user->server->IsService())
 			return CmdResult::FAILURE;
 
 		auto* u = ServerInstance->Users.FindUUID(parameters[0]);
@@ -306,7 +306,7 @@ public:
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		// The command can only be executed by remote services servers.
-		if (IS_LOCAL(user) || !user->server->IsService())
+		if (user->IsLocal() || !user->server->IsService())
 			return CmdResult::FAILURE;
 
 		if (parameters.size() == 1)
@@ -357,7 +357,7 @@ public:
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		// The command can only be executed by remote services servers.
-		if (IS_LOCAL(user) || !user->server->IsService())
+		if (user->IsLocal() || !user->server->IsService())
 			return CmdResult::FAILURE;
 
 		// Check for a valid channel name.
@@ -370,7 +370,7 @@ public:
 			return CmdResult::FAILURE;
 
 		/* only join if it's local, otherwise just pass it on! */
-		auto* lu = IS_LOCAL(u);
+		auto* lu = u->AsLocal();
 		if (lu)
 		{
 			bool override = false;
@@ -407,11 +407,11 @@ public:
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		// The command can only be executed by remote services servers.
-		if (IS_LOCAL(user) || !user->server->IsService())
+		if (user->IsLocal() || !user->server->IsService())
 			return CmdResult::FAILURE;
 
 		auto* u = ServerInstance->Users.Find(parameters[0]);
-		if (u && IS_LOCAL(u))
+		if (u && u->IsLocal())
 		{
 			// The 4th parameter is optional and it is the expected nick TS of the target user. If
 			// this parameter is present and it doesn't match the user's nick TS, the SVSNICK is not
@@ -485,7 +485,7 @@ public:
 		if (!target)
 			return CmdResult::FAILURE;
 
-		if (IS_LOCAL(target))
+		if (target->IsLocal())
 		{
 			auto iter = ServerInstance->Config->OperTypes.find(parameters[1]);
 			if (iter == ServerInstance->Config->OperTypes.end())
@@ -521,7 +521,7 @@ public:
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		// The command can only be executed by remote services servers.
-		if (IS_LOCAL(user) || !user->server->IsService())
+		if (user->IsLocal() || !user->server->IsService())
 			return CmdResult::FAILURE;
 
 		auto* u = ServerInstance->Users.FindUUID(parameters[0]);
@@ -532,7 +532,7 @@ public:
 		if (!c)
 			return CmdResult::FAILURE;
 
-		if (IS_LOCAL(u))
+		if (u->IsLocal())
 			c->PartUser(u, parameters.size() == 3 ? parameters[2] : "Services forced part");
 
 		return CmdResult::SUCCESS;
@@ -558,7 +558,7 @@ public:
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		// The command can only be executed by remote services servers.
-		if (IS_LOCAL(user) || !user->server->IsService())
+		if (user->IsLocal() || !user->server->IsService())
 			return CmdResult::FAILURE;
 
 		auto* chan = ServerInstance->Channels.Find(parameters[0]);
@@ -727,7 +727,7 @@ public:
 
 	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string& topic) override
 	{
-		if (!IS_LOCAL(user) || !topiclockext.Get(chan))
+		if (!user->IsLocal() || !topiclockext.Get(chan))
 			return MOD_RES_PASSTHRU; // Remote user or no topiclock.
 
 		user->WriteNumeric(ERR_TOPICLOCK, chan->name, "Topic cannot be changed as it has been locked by services!");
@@ -736,7 +736,7 @@ public:
 
 	ModResult OnRawMode(User* user, Channel* chan, const Modes::Change& change) override
 	{
-		if (!IS_LOCAL(user) || !chan)
+		if (!user->IsLocal() || !chan)
 			return MOD_RES_PASSTHRU; // Not our job to handle.
 
 		if (!HandleProtectedService(user, chan, change))

@@ -63,7 +63,7 @@ bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Pa
 	irc::commasepstream items2(extra != SIZE_MAX ? parameters[extra] : "", true);
 	std::string item;
 	size_t max = 0;
-	LocalUser* localuser = IS_LOCAL(user);
+	auto* localuser = user->AsLocal();
 
 	/* Attempt to iterate these lists and call the command handler
 	 * for every parameter or parameter pair until there are no more
@@ -123,7 +123,7 @@ CmdResult CommandParser::CallHandler(const std::string& commandname, const Comma
 		if (parameters.size() >= handler->min_params)
 		{
 			bool bOkay = true;
-			if (IS_LOCAL(user))
+			if (user->IsLocal())
 				bOkay = handler->IsUsableBy(user);
 
 			if (bOkay)

@@ -130,7 +130,7 @@ public:
 
 	void OnPostOperLogin(User* user, bool automatic) override
 	{
-		if (IS_LOCAL(user) && user->oper->GetConfig()->getBool("automotd", true))
+		if (user->IsLocal() && user->oper->GetConfig()->getBool("automotd", true))
 			cmd.ShowOperMOTD(user, false);
 	}
 

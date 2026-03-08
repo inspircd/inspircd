@@ -289,11 +289,11 @@ public:
 	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override
 	{
 		// For remote users blindly allow this
-		LocalUser* user = IS_LOCAL(dest);
+		auto* user = dest->AsLocal();
 		if (!user)
 		{
 			// Remote setters broadcast mode before host while local setters do the opposite.
-			active = IS_LOCAL(source) ? change.adding : !change.adding;
+			active = source->IsLocal() ? change.adding : !change.adding;
 			dest->SetMode(this, change.adding);
 			return true;
 		}
@@ -354,7 +354,7 @@ private:
 	{
 		user->SetMode(cloakmode, false);
 
-		auto* luser = IS_LOCAL(user);
+		auto* luser = user->AsLocal();
 		if (luser)
 		{
 			Modes::ChangeList changelist;
@@ -478,7 +478,7 @@ public:
 
 	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask, bool full) override
 	{
-		LocalUser* lu = IS_LOCAL(user);
+		auto* lu = user->AsLocal();
 		if (!lu)
 			return MOD_RES_PASSTHRU; // We don't have cloaks for remote users.
 

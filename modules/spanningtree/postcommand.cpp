@@ -115,7 +115,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 		{
 			// user target?
 			auto* d = ServerInstance->Users.Find(dest);
-			if (!d || IS_LOCAL(d))
+			if (!d || d->IsLocal())
 				return;
 			TreeServer* tsd = TreeServer::Get(d)->GetRoute();
 			if (tsd == origin)

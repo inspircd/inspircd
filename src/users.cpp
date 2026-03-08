@@ -239,7 +239,7 @@ Cullable::Result FakeUser::Cull()
 
 bool User::OperLogin(const std::shared_ptr<OperAccount>& account, bool automatic, bool force)
 {
-	LocalUser* luser = IS_LOCAL(this);
+	auto* luser = this->AsLocal();
 	if (luser && !quitting && !force)
 	{
 		ModResult modres;
@@ -460,6 +460,20 @@ void LocalUser::OverruleNick()
 	this->ChangeNick(this->uuid);
 }
 
+LocalUser* User::AsLocal()
+{
+	return this->IsLocal()
+		? static_cast<LocalUser*>(this)
+		: nullptr;
+}
+
+const LocalUser* User::AsLocal() const
+{
+	return this->IsLocal()
+		? static_cast<const LocalUser*>(this)
+		: nullptr;
+}
+
 const std::string& User::GetBanUser(bool real) const
 {
 	static const std::string wildcard = "*";
@@ -661,7 +675,7 @@ bool LocalUserIO::CheckMaxSendQ(size_t extra) const
 
 void User::WriteNumeric(const Numeric::Numeric& numeric)
 {
-	LocalUser* const localuser = IS_LOCAL(this);
+	auto* const localuser = this->AsLocal();
 	if (!localuser)
 		return;
 
@@ -678,8 +692,8 @@ void User::WriteNumeric(const Numeric::Numeric& numeric)
 
 void User::WriteReply(const Reply::Reply& reply)
 {
-	auto* lthis = IS_LOCAL(this);
-	if (!IS_LOCAL(this))
+	auto* lthis = this->AsLocal();
+	if (!this->IsLocal())
 		return;
 
 	ClientProtocol::Messages::Reply replymsg(reply);
@@ -745,7 +759,7 @@ uint64_t User::ForEachNeighbor(ForEachNeighborHandler& handler, bool include_sel
 	// Handle exceptions first
 	for (NeighborExceptions::const_iterator i = exceptions.begin(); i != exceptions.end(); ++i)
 	{
-		LocalUser* curr = IS_LOCAL(i->first);
+		auto* curr = i->first->AsLocal();
 		if (curr)
 		{
 			// Mark as visited to ensure we won't visit again if there is a common channel
@@ -761,7 +775,7 @@ uint64_t User::ForEachNeighbor(ForEachNeighborHandler& handler, bool include_sel
 	{
 		for (const auto& [user, _] : memb->chan->GetUsers())
 		{
-			LocalUser* curr = IS_LOCAL(user);
+			auto* curr = user->AsLocal();
 			// User not yet visited?
 			if ((curr) && (curr->already_sent != newid))
 			{
@@ -830,7 +844,7 @@ void User::ChangeDisplayedHost(const std::string& newhost)
 
 	this->InvalidateCache();
 
-	if (IS_LOCAL(this) && connected != User::CONN_NONE)
+	if (this->IsLocal() && connected != User::CONN_NONE)
 		this->WriteNumeric(RPL_YOURDISPLAYEDHOST, this->GetDisplayedHost(), "is now your displayed host");
 }
 
@@ -945,7 +959,7 @@ void User::PurgeEmptyChannels()
 
 void User::WriteNotice(const std::string& text)
 {
-	LocalUser* const localuser = IS_LOCAL(this);
+	auto* const localuser = this->AsLocal();
 	if (!localuser)
 		return;
 

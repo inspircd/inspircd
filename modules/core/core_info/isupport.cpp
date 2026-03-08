@@ -180,7 +180,7 @@ void ISupportManager::Build()
 	// Notify operators of the change.
 	for (auto* oper : ServerInstance->Users.all_opers)
 	{
-		auto* loper = IS_LOCAL(oper);
+		auto* loper = oper->AsLocal();
 		if (loper)
 			SendOper(loper);
 	}

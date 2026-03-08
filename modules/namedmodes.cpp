@@ -122,7 +122,7 @@ public:
 	// Handle /MODE #chan Z
 	void DisplayList(User* user, Channel* chan) override
 	{
-		LocalUser* luser = IS_LOCAL(user);
+		auto* luser = user->AsLocal();
 		if (luser)
 			::DisplayList(luser, chan);
 	}

@@ -413,7 +413,7 @@ public:
 
 	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message) override
 	{
-		LocalUser* localuser = IS_LOCAL(user);
+		auto* localuser = user->AsLocal();
 		if (localuser)
 			manager.UnwatchAll(localuser);
 		SendAlert(RPL_MONOFFLINE, user->nick);

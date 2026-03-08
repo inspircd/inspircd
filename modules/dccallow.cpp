@@ -124,7 +124,7 @@ public:
 		if (container->extype != this->extype)
 			return;
 
-		LocalUser* user = IS_LOCAL(static_cast<User*>(container));
+		auto* user = static_cast<User*>(container)->AsLocal();
 		if (!user)
 			return;
 
@@ -348,7 +348,7 @@ public:
 			user->WriteNumeric(RPL_HELPTXT, "*", helpline);
 		user->WriteNumeric(RPL_ENDOFHELP, "*", "End of DCCALLOW HELP");
 
-		LocalUser* localuser = IS_LOCAL(user);
+		auto* localuser = user->AsLocal();
 		if (localuser)
 			localuser->CommandFloodPenalty += 4000;
 	}
@@ -410,7 +410,7 @@ public:
 
 	ModResult OnUserPreMessage(User* user, MessageTarget& target, MessageDetails& details) override
 	{
-		if (!IS_LOCAL(user))
+		if (!user->IsLocal())
 			return MOD_RES_PASSTHRU;
 
 		if (target.type == MessageTarget::TYPE_USER)

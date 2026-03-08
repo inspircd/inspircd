@@ -102,7 +102,7 @@ public:
 
 	void OnPostJoin(Membership* memb) override
 	{
-		if (!IS_LOCAL(memb->user))
+		if (!memb->user->IsLocal())
 			return;
 
 		ListModeBase::ModeList* list = mh.GetList(memb->chan);
