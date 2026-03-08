@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <listmode.h>
+
 #ifndef INSPIRCD_EXTBAN
 # define INSPIRCD_EXTBAN
 #endif
@@ -99,15 +101,15 @@ namespace ExtBan
 class ExtBan::MatchConfig final
 {
 public:
-	using MatchFn = std::function<bool(User* user, Channel* chan, const std::string& text, const ExtBan::MatchConfig& config)>;
+	using MatchFn = std::function<bool(ListModeBase*, User*, Channel*, const std::string&, const ExtBan::MatchConfig&)>;
 
 	/** Whether to match against the real mask. */
 	bool match_real_mask = ServerInstance->Config->BanRealMask;
 
 	/** The function to use when performing the next match. */
-	MatchFn next_match = [](auto* user, auto* chan, const auto& text, const auto& config)
+	MatchFn next_match = [](auto* lm, auto* user, auto* chan, const auto& text, const auto& config)
 	{
-		return chan->CheckBan(user, text, config.match_real_mask);
+		return chan->CheckListEntry(lm, user, text, config.match_real_mask);
 	};
 };
 
@@ -300,7 +302,7 @@ public:
 	 * @param config The configuration to use when matching against the user.
 	 * @return True if the user matches the extban; otherwise, false.
 	 */
-	virtual bool IsMatch(User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) = 0;
+	virtual bool IsMatch(ListModeBase* lm, User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) = 0;
 
 	/** @copydoc ServiceProvider::RegisterService */
 	void RegisterService() override
@@ -373,9 +375,9 @@ public:
 	Type GetType() const override { return ExtBan::Type::ACTING; }
 
 	/** @copydoc ExtBan::Base::IsMatch */
-	bool IsMatch(User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
+	bool IsMatch(ListModeBase* lm, User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
 	{
-		return config.next_match(user, channel, text, config);
+		return config.next_match(lm, user, channel, text, config);
 	}
 };
 
@@ -431,7 +433,7 @@ public:
 	Type GetType() const override { return ExtBan::Type::MATCHING; }
 
 	/** @copydoc ExtBan::Base::IsMatch */
-	virtual bool IsMatch(User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override = 0;
+	virtual bool IsMatch(ListModeBase* lm, User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override = 0;
 };
 
 /** Provides events relating to extbans. */
@@ -451,7 +453,7 @@ public:
 	 * @param extban The extban which is being checked against.
 	 * @param config The configuration to use when matching against the user.
 	 */
-	virtual ModResult OnExtBanCheck(User* user, Channel* chan, ExtBan::Base* extban, const ExtBan::MatchConfig& config) = 0;
+	virtual ModResult OnExtBanCheck(User* user, Channel* chan, ExtBan::ActingBase* extban, const ExtBan::MatchConfig& config) = 0;
 };
 
 inline bool ExtBan::Parse(const std::string& banentry, std::string& name, std::string& value, bool& inverted)

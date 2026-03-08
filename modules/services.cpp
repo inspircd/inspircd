@@ -284,7 +284,7 @@ public:
 			Modes::ChangeList changelist;
 			for (const auto& entry : *list)
 			{
-				if (c->CheckBan(u, entry.mask, full))
+				if (c->CheckListEntry(mh, u, entry.mask, full))
 					changelist.push(mh, false, entry.mask);
 			}
 			ServerInstance->Modes.Process(user, c, nullptr, changelist);

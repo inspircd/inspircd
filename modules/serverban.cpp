@@ -36,7 +36,7 @@ public:
 	{
 	}
 
-	bool IsMatch(User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
+	bool IsMatch(ListModeBase* lm, User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
 	{
 		const auto* server = user->server;
 		return InspIRCd::Match(operonly ? server->GetName() : server->GetPublicName(), text);

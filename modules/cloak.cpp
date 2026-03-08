@@ -438,7 +438,7 @@ public:
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules.SetPriority(this, I_OnCheckBan, PRIORITY_LAST);
+		ServerInstance->Modules.SetPriority(this, I_OnCheckListEntry, PRIORITY_LAST);
 	}
 
 	void OnChangeHost(User* user, const std::string& host) override
@@ -476,7 +476,7 @@ public:
 		}
 	}
 
-	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask, bool full) override
+	ModResult OnCheckListEntry(ListModeBase* lm, User* user, Channel* chan, const std::string& mask, bool full) override
 	{
 		auto* lu = user->AsLocal();
 		if (!lu)

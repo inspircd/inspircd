@@ -83,6 +83,8 @@ class CommandNick final
 	: public SplitCommand
 {
 public:
+	ChanModeReference banmode;
+
 	CommandNick(Module* parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };

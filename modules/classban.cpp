@@ -33,7 +33,7 @@ public:
 	{
 	}
 
-	bool IsMatch(User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
+	bool IsMatch(ListModeBase* lm, User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
 	{
 		auto* luser = user->AsLocal();
 		if (!luser)

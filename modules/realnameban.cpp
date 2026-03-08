@@ -34,7 +34,7 @@ public:
 	{
 	}
 
-	bool IsMatch(User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
+	bool IsMatch(ListModeBase* lm, User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
 	{
 		// Check that the user actually specified a real name.
 		const size_t divider = text.find('+', 1);
@@ -42,7 +42,7 @@ public:
 			return false;
 
 		// Check whether the user's mask matches.
-		if (!channel->CheckBan(user, text.substr(0, divider), config.match_real_mask))
+		if (!config.next_match(lm, user, channel, text.substr(0, divider), config))
 			return false;
 
 		// Check whether the user's real name matches.
@@ -59,7 +59,7 @@ public:
 	{
 	}
 
-	bool IsMatch(User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
+	bool IsMatch(ListModeBase* lm, User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
 	{
 		return InspIRCd::Match(user->GetRealName(), text);
 	}

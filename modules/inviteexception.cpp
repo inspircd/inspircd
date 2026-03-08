@@ -41,7 +41,7 @@ private:
 
 public:
 	InviteException(Module* Creator)
-		: ListModeBase(Creator, "invex", 'I', RPL_INVEXLIST, RPL_ENDOFINVEXLIST)
+		: ListModeBase(Creator, "invex", 'I', RPL_INVEXLIST, RPL_ENDOFINVEXLIST, true)
 		, extbanmgr(Creator)
 	{
 		syntax = "<mask>";
@@ -99,7 +99,7 @@ public:
 		{
 			for (const auto& entry : *list)
 			{
-				if (chan->CheckBan(user, entry.mask))
+				if (chan->CheckListEntry(&ie, user, entry.mask))
 				{
 					return MOD_RES_ALLOW;
 				}

@@ -44,7 +44,7 @@ private:
 
 public:
 	BanException(Module* Creator)
-		: ListModeBase(Creator, "banexception", 'e', RPL_EXCEPTLIST, RPL_ENDOFEXCEPTLIST)
+		: ListModeBase(Creator, "banexception", 'e', RPL_EXCEPTLIST, RPL_ENDOFEXCEPTLIST, true)
 		, extbanmgr(Creator)
 	{
 		syntax = "<mask>";
@@ -96,7 +96,7 @@ public:
 		tokens["EXCEPTS"] = ConvToStr(be.GetModeChar());
 	}
 
-	ModResult OnExtBanCheck(User* user, Channel* chan, ExtBan::Base* extban, const ExtBan::MatchConfig& config) override
+	ModResult OnExtBanCheck(User* user, Channel* chan, ExtBan::ActingBase* extban, const ExtBan::MatchConfig& config) override
 	{
 		if (!chan)
 			return MOD_RES_PASSTHRU;
@@ -126,13 +126,16 @@ public:
 					continue;
 			}
 
-			return extban->IsMatch(user, chan, value, config) != inverted ? MOD_RES_ALLOW : MOD_RES_PASSTHRU;
+			return extban->IsMatch(&be, user, chan, value, config) != inverted ? MOD_RES_ALLOW : MOD_RES_PASSTHRU;
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckChannelBan(User* user, Channel* chan, bool full) override
+	ModResult OnCheckList(ListModeBase* lm, User* user, Channel* chan, bool full) override
 	{
+		if (!irc::equals(lm->service_name, "ban"))
+			return MOD_RES_PASSTHRU;
+
 		ListModeBase::ModeList* list = be.GetList(chan);
 		if (!list)
 		{
@@ -142,7 +145,7 @@ public:
 
 		for (const auto& entry : *list)
 		{
-			if (chan->CheckBan(user, entry.mask, full))
+			if (chan->CheckListEntry(&be, user, entry.mask, full))
 			{
 				// They match an entry on the list, so let them in.
 				return MOD_RES_ALLOW;

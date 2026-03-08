@@ -243,7 +243,7 @@ public:
 	{
 	}
 
-	bool IsMatch(User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
+	bool IsMatch(ListModeBase* lm, User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
 	{
 		const std::string* gatewayname = gateway.Get(user);
 		return gatewayname ? InspIRCd::Match(*gatewayname, text) : false;

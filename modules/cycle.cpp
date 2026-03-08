@@ -32,9 +32,13 @@
 class CommandCycle final
 	: public SplitCommand
 {
+private:
+	ChanModeReference banmode;
+
 public:
 	CommandCycle(Module* Creator)
 		: SplitCommand(Creator, "CYCLE", 1)
+		, banmode(Creator, "ban")
 	{
 		penalty = 3000;
 		syntax = { "<channel> [:<reason>]" };
@@ -59,7 +63,7 @@ public:
 
 		if (channel->HasUser(user))
 		{
-			if (channel->GetPrefixValue(user) < VOICE_VALUE && channel->IsBanned(user))
+			if (channel->GetPrefixValue(user) < VOICE_VALUE && channel->CheckList(*banmode, user))
 			{
 				// User is banned, send an error and don't cycle them
 				user->WriteNumeric(ERR_BANNEDFROMCHAN, channel->name, "You may not cycle, as you are banned on channel " + channel->name);

@@ -35,7 +35,7 @@ enum
 };
 
 ModeChannelBan::ModeChannelBan(Module* Creator)
-	: ListModeBase(Creator, "ban", 'b', RPL_BANLIST, RPL_ENDOFBANLIST)
+	: ListModeBase(Creator, "ban", 'b', RPL_BANLIST, RPL_ENDOFBANLIST, true)
 	, extbanmgr(Creator)
 {
 	syntax = "<mask>";

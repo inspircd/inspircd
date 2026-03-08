@@ -93,7 +93,7 @@ public:
 			auto* targuser = parameters.size() > 2 ? ServerInstance->Users.FindNick(parameters[2]) : nullptr;
 			for (const auto& entry : *ml)
 			{
-				if (targuser ? chan->CheckBan(targuser, entry.mask) : InspIRCd::Match(entry.mask, pattern))
+				if (targuser ? chan->CheckListEntry(mh, targuser, entry.mask) : InspIRCd::Match(entry.mask, pattern))
 					changelist.push_remove(mh, entry.mask);
 			}
 		}

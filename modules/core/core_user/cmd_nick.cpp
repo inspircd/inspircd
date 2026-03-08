@@ -27,6 +27,7 @@
 
 CommandNick::CommandNick(Module* parent)
 	: SplitCommand(parent, "NICK", 1)
+	, banmode(parent, "ban")
 {
 	allow_empty_last_param = true;
 	penalty = 0;
@@ -76,7 +77,7 @@ CmdResult CommandNick::HandleLocal(LocalUser* user, const Params& parameters)
 	{
 		for (const auto* memb : user->chans)
 		{
-			if (memb->chan->GetPrefixValue(user) < VOICE_VALUE && memb->chan->IsBanned(user))
+			if (memb->chan->GetPrefixValue(user) < VOICE_VALUE && memb->chan->CheckList(*banmode, user))
 			{
 				if (ServerInstance->Config->RestrictBannedUsers == ServerConfig::BUT_RESTRICT_NOTIFY)
 					user->WriteNumeric(ERR_CANTCHANGENICK, FMT::format("Cannot change nickname while on {} (you're banned)",

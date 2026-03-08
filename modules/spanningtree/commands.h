@@ -344,9 +344,13 @@ public:
 class SpanningTree::CommandNick final
 	: public UserOnlyServerCommand<SpanningTree::CommandNick>
 {
+private:
+	ChanModeReference banmode;
+
 public:
 	CommandNick(Module* Creator)
 		: UserOnlyServerCommand<SpanningTree::CommandNick>(Creator, "NICK", 2)
+		, banmode(Creator, "ban")
 	{
 	}
 	CmdResult HandleRemote(::RemoteUser* user, Params& parameters);

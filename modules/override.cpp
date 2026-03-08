@@ -89,6 +89,7 @@ private:
 	bool requirekey;
 	bool noisyoverride;
 	Override ou;
+	ChanModeReference ban;
 	ChanModeReference topiclock;
 	ChanModeReference inviteonly;
 	ChanModeReference key;
@@ -125,6 +126,7 @@ public:
 		: Module(VF_VENDOR, "Allows server operators to be given privileges that allow them to ignore various channel-level restrictions.")
 		, ISupport::EventListener(this)
 		, ou(this)
+		, ban(this, "ban")
 		, topiclock(this, "topiclock")
 		, inviteonly(this, "inviteonly")
 		, key(this, "key")
@@ -252,7 +254,7 @@ public:
 				if (chan->IsModeSet(limit) && (chan->GetUsers().size() >= ConvToNum<size_t>(chan->GetModeParameter(limit))) && (CanOverride(user, "LIMIT")))
 					return HandleJoinOverride(user, chan, keygiven, "the channel limit", "+l");
 
-				if (chan->IsBanned(user) && CanOverride(user, "BANWALK"))
+				if (chan->CheckList(*ban, user) && CanOverride(user, "BANWALK"))
 					return HandleJoinOverride(user, chan, keygiven, "channel ban", "channel ban");
 			}
 		}

@@ -138,8 +138,8 @@ enum Implementation
 	I_OnChangeUser,
 	I_OnChannelDelete,
 	I_OnChannelPreDelete,
-	I_OnCheckBan,
-	I_OnCheckChannelBan,
+	I_OnCheckList,
+	I_OnCheckListEntry,
 	I_OnCheckInvite,
 	I_OnCheckKey,
 	I_OnCheckLimit,
@@ -815,18 +815,18 @@ public:
 	 * @return MOD_RES_DENY to mark as banned, MOD_RES_ALLOW to skip the
 	 * ban check, or MOD_RES_PASSTHRU to check bans normally
 	 */
-	virtual ModResult OnCheckChannelBan(User* user, Channel* chan, bool full) ATTR_NOT_NULL(2, 3);
+	virtual ModResult OnCheckList(ListModeBase* lm, User* user, Channel* chan, bool full) ATTR_NOT_NULL(2, 3);
 
 	/**
-	 * Checks for a user's match of a single ban
+	 * Checks for a user's match of a single list entry.
 	 * @param user The user to check for match
 	 * @param chan The channel on which the match is being checked
 	 * @param mask The mask being checked
-	 * @param full Whether to check bans against the real username and hostname.
-	 * @return MOD_RES_DENY to mark as banned, MOD_RES_ALLOW to skip the
-	 * ban check, or MOD_RES_PASSTHRU to check bans normally
+	 * @param full Whether to check list entries against the real username and hostname.
+	 * @return MOD_RES_DENY to mark as matching, MOD_RES_ALLOW to skip the
+	 * match check, or MOD_RES_PASSTHRU to check matches normally
 	 */
-	virtual ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask, bool full) ATTR_NOT_NULL(2, 3);
+	virtual ModResult OnCheckListEntry(ListModeBase* lm, User* user, Channel* chan, const std::string& mask, bool full) ATTR_NOT_NULL(2, 3);
 
 	/** Called before a topic is changed.
 	 * Return 1 to deny the topic change, 0 to check details on the change, -1 to let it through with no checks

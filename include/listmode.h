@@ -95,14 +95,6 @@ private:
 	size_t GetLimitInternal(const std::string& channame, ChanData* cd);
 
 protected:
-	/** Numeric to use when outputting the list
-	 */
-	unsigned int listnumeric;
-
-	/** Numeric to indicate end of list
-	 */
-	unsigned int endoflistnumeric;
-
 	/** Limits on a per-channel basis read from the \<listmode>
 	 * config tag.
 	 */
@@ -113,6 +105,16 @@ protected:
 	SimpleExtItem<ChanData> extItem;
 
 public:
+	/** Whether the list mode accepts a user mask. */
+	const bool accepts_mask;
+
+	/** Numeric to use when outputting the list. */
+	const unsigned int listnumeric;
+
+	/** Numeric to indicate end of list. */
+	const unsigned int endoflistnumeric;
+
+
 	/** Constructor.
 	 * @param Creator The creator of this class
 	 * @param Name Mode name
@@ -120,7 +122,7 @@ public:
 	 * @param lnum List numeric
 	 * @param eolnum End of list numeric
 	 */
-	ListModeBase(Module* Creator, const std::string& Name, char modechar, unsigned int lnum, unsigned int eolnum);
+	ListModeBase(Module* Creator, const std::string& Name, char modechar, unsigned int lnum, unsigned int eolnum, bool am = false);
 
 	/** Determines whether some channels have longer lists than others. */
 	bool HasVariableLength() const { return chanlimits.size() > 1; }

@@ -28,11 +28,6 @@
 #include "clientprotocolevent.h"
 #include "listmode.h"
 
-namespace
-{
-	ChanModeReference ban(nullptr, "ban");
-}
-
 Channel::Channel(const std::string& cname, time_t ts)
 	: Extensible(ExtensionType::CHANNEL)
 	, name(cname)
@@ -256,44 +251,48 @@ Membership* Channel::ForceJoin(User* user, const std::string* privs, bool bursti
 	return memb;
 }
 
-bool Channel::IsBanned(User* user, const std::optional<bool>& full)
+bool Channel::CheckList(ModeHandler* mh, User* user, const std::optional<bool>& full)
 {
+	auto* lm = mh ? mh->IsListModeBase() : nullptr;
+	if (!lm)
+		return false; // Not a list mode.
+
 	ModResult result;
-	FIRST_MOD_RESULT(OnCheckChannelBan, result, (user, this, full.value_or(ServerInstance->Config->BanRealMask)));
+	FIRST_MOD_RESULT(OnCheckList, result, (lm, user, this, full.value_or(ServerInstance->Config->BanRealMask)));
 
 	if (result != MOD_RES_PASSTHRU)
 		return (result == MOD_RES_DENY);
 
-	ListModeBase* banlm = static_cast<ListModeBase*>(*ban);
-	if (!banlm)
-		return false;
+	const auto* list = lm->GetList(this);
+	if (!list)
+		return false; // No list.
 
-	const ListModeBase::ModeList* bans = banlm->GetList(this);
-	if (bans)
+	for (const auto& entry : *list)
 	{
-		for (const auto& entry : *bans)
-		{
-			if (CheckBan(user, entry.mask, full))
-				return true;
-		}
+		if (CheckListEntry(lm, user, entry.mask, full))
+			return true;
 	}
 	return false;
 }
 
-bool Channel::CheckBan(User* user, const std::string& mask, const std::optional<bool>& ofull)
+bool Channel::CheckListEntry(ModeHandler* mh, User* user, const std::string& entry, const std::optional<bool>& ofull)
 {
+	auto* lm = mh ? mh->IsListModeBase() : nullptr;
+	if (!lm)
+		return false; // Not a list mode.
+
 	auto full = ofull.value_or(ServerInstance->Config->BanRealMask);
 
 	ModResult result;
-	FIRST_MOD_RESULT(OnCheckBan, result, (user, this, mask, full));
+	FIRST_MOD_RESULT(OnCheckListEntry, result, (lm, user, this, entry, full));
 	if (result != MOD_RES_PASSTHRU)
 		return (result == MOD_RES_DENY);
 
-	std::string::size_type at = mask.find('@');
+	std::string::size_type at = entry.find('@');
 	if (at == std::string::npos)
 		return false;
 
-	const std::string prefix(mask, 0, at);
+	const std::string prefix(entry, 0, at);
 	if (!InspIRCd::Match(user->nick + "!" + user->GetDisplayedUser(), prefix) &&
 		(!full || !InspIRCd::Match(user->nick + "!" + user->GetRealUser(), prefix)))
 	{
@@ -301,7 +300,7 @@ bool Channel::CheckBan(User* user, const std::string& mask, const std::optional<
 		return false;
 	}
 
-	const std::string suffix(mask, at + 1);
+	const std::string suffix(entry, at + 1);
 	if (InspIRCd::Match(user->GetDisplayedHost(), suffix))
 		return true; // The dhost matches.
 

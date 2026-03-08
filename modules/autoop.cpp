@@ -36,7 +36,7 @@ class AutoOpList final
 {
 public:
 	AutoOpList(Module* Creator)
-		: ListModeBase(Creator, "autoop", 'w', RPL_ACCESSLIST, RPL_ENDOFACCESSLIST)
+		: ListModeBase(Creator, "autoop", 'w', RPL_ACCESSLIST, RPL_ENDOFACCESSLIST, true)
 	{
 		ranktoset = ranktounset = OP_VALUE;
 		syntax = "<prefix>:<mask>";
@@ -115,7 +115,7 @@ public:
 				if (colon == std::string::npos)
 					continue;
 
-				if (memb->chan->CheckBan(memb->user, entry.mask.substr(colon + 1)))
+				if (memb->chan->CheckListEntry(&mh, memb->user, entry.mask.substr(colon + 1)))
 				{
 					PrefixMode* given = AutoOpList::FindMode(entry.mask.substr(0, colon));
 					if (given)

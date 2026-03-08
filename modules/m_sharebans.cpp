@@ -32,6 +32,7 @@ class ShareExtBan final
 	: public ExtBan::MatchingBase
 {
 private:
+	ChanModeReference banmode;
 	ChanModeReference secretmode;
 	std::vector<Channel*> seen;
 
@@ -40,11 +41,12 @@ public:
 
 	ShareExtBan(Module* mod)
 		: ExtBan::MatchingBase(mod, "share", 'b', ExtBan::MATCH_REQUIRE_CHANNEL)
+		, banmode(mod, "ban")
 		, secretmode(mod, "secret")
 	{
 	}
 
-	bool IsMatch(User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
+	bool IsMatch(ListModeBase* lm, User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
 	{
 		if (seen.size() >= maxdepth)
 			return false;
@@ -54,7 +56,7 @@ public:
 		if (targetchan && targetchan != channel)
 		{
 			seen.push_back(channel);
-			banned = targetchan->IsBanned(user, config.match_real_mask);
+			banned = targetchan->CheckList(*banmode, user, config.match_real_mask);
 			std::erase(seen, channel);
 		}
 		return banned;

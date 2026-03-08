@@ -302,7 +302,7 @@ public:
 			{
 				/* We actually had some ban redirects to check */
 				ModResult result;
-				FIRST_MOD_RESULT(OnCheckChannelBan, result, (user, chan, ServerInstance->Config->BanRealMask));
+				FIRST_MOD_RESULT(OnCheckList, result, (banwatcher.banmode->IsListModeBase(), user, chan, ServerInstance->Config->BanRealMask));
 				if (result == MOD_RES_ALLOW)
 				{
 					// they have a ban exception

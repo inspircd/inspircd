@@ -472,7 +472,7 @@ private:
 
 		ExtBan::MatchConfig mconfig;
 		mconfig.match_real_mask = ServerInstance->Config->BanRealMask;
-		mconfig.next_match = [this](auto* user, auto*, const auto& text, const auto& config)
+		mconfig.next_match = [this](auto* lm, auto* user, auto*, const auto& text, const auto& config)
 		{
 			return IsMatch(user, text, config);
 		};
@@ -525,7 +525,7 @@ private:
 		if (extban->GetMatchFlags() & ExtBan::MATCH_REQUIRE_CHANNEL)
 			return InspIRCd::Match(source->GetMask(), pattern);
 
-		return extban->IsMatch(source, nullptr, value, config) != inverted;
+		return extban->IsMatch(nullptr, source, nullptr, value, config) != inverted;
 	}
 
 public:

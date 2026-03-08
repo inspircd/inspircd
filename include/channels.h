@@ -271,6 +271,25 @@ public:
 	 */
 	const char* ChanModes(bool showsecret);
 
+	/** Checks whether the specified user matches an entry on a list mode.
+	 * @param mh The list mode to check the list of.
+	 * @param user The user to check against the list.
+	 * @param full Whether to check entries against the real username and hostname.
+	 *             Defaults to \<security:banrealmask>.
+	 * @return True if \p entry matches a \p mh entry; otherwise, false.
+	 */
+	bool CheckList(ModeHandler* mh, User* user, const std::optional<bool>& full = std::nullopt);
+
+	/** Checks whether the specified user matches a single list mode entry.
+	 * @param mh The list mode to check.
+	 * @param user The user to check against the entry.
+	 * @param entry The entry to check against the user.
+	 * @param full Whether to check entries against the real username and hostname.
+	 *             Defaults to \<security:banrealmask>.
+	 * @return True if \p entry matches \p user; otherwise, false.
+	 */
+	bool CheckListEntry(ModeHandler* mh, User* user, const std::string& entry, const std::optional<bool>& full = std::nullopt);
+
 	/** Get the value of a users prefix on this channel.
 	 * @param user The user to look up
 	 * @return The module or core-defined value of the users prefix.
@@ -283,17 +302,6 @@ public:
 	 * VOICE_VALUE is of lesser 'worth' than a voice.
 	 */
 	ModeHandler::Rank GetPrefixValue(User* user) const;
-
-	/** Check if a user is banned on this channel
-	 * @param user A user to check against the banlist
-	 * @param full Whether to check bans against the real username and hostname.
-	 * @return True if the user given is banned
-	 */
-	bool IsBanned(User* user, const std::optional<bool>& full = std::nullopt);
-
-	/** Check a single ban for match
-	 */
-	bool CheckBan(User* user, const std::string& banmask, const std::optional<bool>& full = std::nullopt);
 
 	/** Write a NOTICE to all local users on the channel
 	 * @param text Text to send

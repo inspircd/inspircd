@@ -209,7 +209,7 @@ public:
 		invapi.announceinvites = newannouncestate;
 		joinhook.modefromuser = optionstag->getBool("cyclehostsfromuser");
 
-		Implementation events[] = { I_OnCheckKey, I_OnCheckLimit, I_OnCheckChannelBan };
+		Implementation events[] = { I_OnCheckKey, I_OnCheckLimit, I_OnCheckList };
 		if (optionstag->getBool("invitebypassmodes", true))
 			ServerInstance->Modules.Attach(events, this, sizeof(events)/sizeof(Implementation));
 		else
@@ -317,7 +317,7 @@ public:
 		}
 
 		// Check whether the user is banned from joining the channel.
-		if (chan->IsBanned(user))
+		if (chan->CheckList(&banmode, user))
 		{
 			user->WriteNumeric(ERR_BANNEDFROMCHAN, chan->name, "Cannot join channel (you're banned)");
 			return MOD_RES_DENY;
@@ -351,9 +351,11 @@ public:
 		return IsInvited(user, chan);
 	}
 
-	ModResult OnCheckChannelBan(User* user, Channel* chan, bool full) override
+	ModResult OnCheckList(ListModeBase* lm, User* user, Channel* chan, bool full) override
 	{
 		// Hook only runs when being invited bypasses +bkl
+		if (irc::equals(lm->service_name, "ban"))
+			return MOD_RES_PASSTHRU;
 		return IsInvited(user, chan);
 	}
 
@@ -380,8 +382,11 @@ public:
 		invapi.RemoveAll(chan);
 	}
 
-	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask, bool full) override
+	ModResult OnCheckListEntry(ListModeBase* lm, User* user, Channel* chan, const std::string& mask, bool full) override
 	{
+		if (!lm->accepts_mask)
+			return MOD_RES_PASSTHRU;
+
 		bool inverted;
 		std::string name;
 		std::string value;
@@ -400,7 +405,7 @@ public:
 
 		ExtBan::MatchConfig config;
 		config.match_real_mask = full;
-		return extban->IsMatch(user, chan, value, config) != inverted ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		return extban->IsMatch(lm, user, chan, value, config) != inverted ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnCheckExemption(User* user, Channel* chan, const std::string& restriction) override

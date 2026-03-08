@@ -404,6 +404,7 @@ private:
 	CommandMessage cmdprivmsg;
 	CommandMessage cmdnotice;
 	CommandSQuery cmdsquery;
+	ChanModeReference banmode;
 	ChanModeReference moderatedmode;
 	ChanModeReference noextmsgmode;
 
@@ -413,6 +414,7 @@ public:
 		, cmdprivmsg(this, MessageType::PRIVMSG)
 		, cmdnotice(this, MessageType::NOTICE)
 		, cmdsquery(this)
+		, banmode(this, "ban")
 		, moderatedmode(this, "moderated")
 		, noextmsgmode(this, "noextmsg")
 	{
@@ -439,7 +441,7 @@ public:
 			return MOD_RES_DENY;
 		}
 
-		if (no_chan_priv && ServerInstance->Config->RestrictBannedUsers != ServerConfig::BUT_NORMAL && chan->IsBanned(user))
+		if (no_chan_priv && ServerInstance->Config->RestrictBannedUsers != ServerConfig::BUT_NORMAL && chan->CheckList(*banmode, user))
 		{
 			// The user is banned in the channel and restrictbannedusers is enabled.
 			if (ServerInstance->Config->RestrictBannedUsers == ServerConfig::BUT_RESTRICT_NOTIFY)
