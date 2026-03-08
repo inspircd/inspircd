@@ -373,7 +373,7 @@ public:
 	void Run();
 
 	/** Replaces color escapes in the specified string with IRC colors.
-	 * @param lines The string replace color escapes in.
+	 * @param str The string to replace color escapes in.
 	 */
 	static void ProcessColors(std::string& str);
 

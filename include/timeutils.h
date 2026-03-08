@@ -66,7 +66,6 @@ namespace Duration
 	 *
 	 * @param str A string containing a duration.
 	 * @param duration The location to store the resulting duration.
-	 * @param base The base time to use for leap year calculation.
 	 * @return True if the conversion succeeded; otherwise, false.
 	 */
 	CoreExport bool TryFrom(const std::string& str, unsigned long& duration);
