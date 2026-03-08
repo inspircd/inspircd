@@ -447,10 +447,10 @@ bool Command::IsUsableBy(User *user) const
 			return true;
 
 		case CmdAccess::OPERATOR: // Only opers can use oper commands.
-			return user->HasCommandPermission(this->service_name);
+			return user && user->HasCommandPermission(this->service_name);
 
-		case CmdAccess::SERVER: // Nobody can use server commands.
-			return false;
+		case CmdAccess::SERVER: // Only servers can use server commands.
+			return user && user->IsServer();
 	}
 	return true; // Should never happen.
 }
