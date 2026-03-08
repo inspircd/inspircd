@@ -53,6 +53,24 @@ public:
 			return CmdResult::FAILURE;
 		}
 
+		// Disallow the real name change if <security:restrictbannedusers> is on and there is a ban
+		// matching this user in one of the channels they are on.
+		if (ServerInstance->Config->RestrictBannedUsers != ServerConfig::BUT_NORMAL)
+		{
+			for (const auto* memb : user->chans)
+			{
+				if (memb->chan->GetPrefixValue(user) < VOICE_VALUE && memb->chan->IsBanned(user))
+				{
+					if (ServerInstance->Config->RestrictBannedUsers == ServerConfig::BUT_RESTRICT_NOTIFY)
+					{
+						fail.SendIfCap(user, &cap, this, "CANNOT_CHANGE_REALNAME", INSP_FORMAT("Cannot change nickname while on {} (you're banned)",
+							memb->chan->name));
+					}
+					return CmdResult::FAILURE;
+				}
+			}
+		}
+
 		user->ChangeRealName(parameters[0]);
 		if (notifyopers)
 			ServerInstance->SNO.WriteGlobalSno('a', "{} used SETNAME to change their real name to '{}'",
