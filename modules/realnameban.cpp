@@ -30,7 +30,7 @@ class RealMaskExtBan final
 {
 public:
 	RealMaskExtBan(Module* Creator)
-		: ExtBan::MatchingBase(Creator, "realmask", 'a', ExtBan::MATCH_REQUIRE_CHANNEL)
+		: ExtBan::MatchingBase(Creator, "realmask", 'a')
 	{
 	}
 
