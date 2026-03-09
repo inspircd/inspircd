@@ -346,7 +346,7 @@ protected:
 	 * @param xbmatchflags The flags used for matching.
 	 */
 	ActingBase(Module* mod, const std::string& xbname, ExtBan::Letter xbletter, uint8_t xbmatchflags = ExtBan::MATCH_DEFAULT)
-		: Base(mod, xbname, xbletter, xbmatchflags)
+		: Base(mod, xbname, xbletter, xbmatchflags | ExtBan::MATCH_REQUIRE_CHANNEL)
 	{
 	}
 

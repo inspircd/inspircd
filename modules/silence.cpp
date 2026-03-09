@@ -517,12 +517,8 @@ private:
 		else
 			extban = cmd.extbanmgr->FindName(name);
 
-		// It is formatted like an extban but isn't a matching extban.
-		if (!extban || extban->GetType() != ExtBan::Type::MATCHING)
-			return InspIRCd::Match(source->GetMask(), pattern);
-
 		// Not applicable for this use case.
-		if (extban->GetMatchFlags() & ExtBan::MATCH_REQUIRE_CHANNEL)
+		if (!extban || extban->GetMatchFlags() & ExtBan::MATCH_REQUIRE_CHANNEL)
 			return InspIRCd::Match(source->GetMask(), pattern);
 
 		return extban->IsMatch(nullptr, source, nullptr, value, config) != inverted;
