@@ -13,6 +13,7 @@
 /vgcore
 /vgcore.*
 /docs/doxygen
+/modules
 /run
 
 /include/config.h
