@@ -34,8 +34,14 @@
 #include "listmode.h"
 #include "modules/extban.h"
 
-/* Originally written by Om, January 2009
- */
+enum
+{
+	// From UnrealIRCd?
+	ERR_LINKCHANNEL = 470,
+
+	// InspIRCd-specific.
+	ERR_REDIRECT = 690,
+};
 
 class BanRedirectEntry final
 {
@@ -173,18 +179,19 @@ public:
 					auto* c = ServerInstance->Channels.Find(mask[CHAN]);
 					if (!c)
 					{
-						source->WriteNumeric(690, FMT::format("Target channel {} must exist to be set as a redirect.", mask[CHAN]));
-						return false;
-					}
-					else if (change.adding && c->GetPrefixValue(source) < OP_VALUE)
-					{
-						source->WriteNumeric(690, FMT::format("You must be opped on {} to set it as a redirect.", mask[CHAN]));
+						source->WriteNumeric(ERR_REDIRECT, mask[CHAN], FMT::format("Target channel {} must exist to be set as a redirect.", mask[CHAN]));
 						return false;
 					}
 
-					if (irc::equals(channel->name, mask[CHAN]))
+					if (change.adding && c->GetPrefixValue(source) < OP_VALUE)
 					{
-						source->WriteNumeric(690, channel->name, "You cannot set a ban redirection to the channel the ban is on");
+						source->WriteNumeric(ERR_REDIRECT, c->name, FMT::format("You must be opped on {} to set it as a redirect.", c->name));
+						return false;
+					}
+
+					if (c == channel)
+					{
+						source->WriteNumeric(ERR_REDIRECT, c->name, "You cannot set a ban redirection to the channel the ban is on");
 						return false;
 					}
 				}
@@ -265,7 +272,7 @@ private:
 
 public:
 	ModuleBanRedirect()
-		: Module(VF_VENDOR | VF_COMMON, "Allows specifying a channel to redirect a banned user to in the ban mask.")
+		: Module(VF_VENDOR | VF_COMMON | VF_DEPRECATED, "Allows specifying a channel to redirect a banned user to in the ban mask.")
 		, banwatcher(this)
 		, limitmode(this, "limit")
 		, redirectmode(this, "redirect")
@@ -341,7 +348,7 @@ public:
 						else
 						{
 							user->WriteNumeric(ERR_BANNEDFROMCHAN, chan->name, "Cannot join channel (you're banned)");
-							user->WriteNumeric(470, chan->name, redirect.targetchan, "You are banned from this channel, so you are automatically being transferred to the redirected channel.");
+							user->WriteNumeric(ERR_LINKCHANNEL, chan->name, redirect.targetchan, "You are banned from this channel, so you are automatically being transferred to the redirected channel.");
 							nofollow = true;
 							Channel::JoinUser(user, redirect.targetchan);
 							nofollow = false;

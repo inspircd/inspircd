@@ -45,8 +45,12 @@ public:
 		if (!config.next_match(lm, user, channel, text.substr(0, divider), config))
 			return false;
 
+		// Replace spaces with underscores as they're prohibited in mode parameters.
+		std::string realname(user->GetRealName());
+		std::replace(realname.begin(), realname.end(), ' ', '_');
+
 		// Check whether the user's real name matches.
-		return InspIRCd::Match(user->GetRealName(), text.substr(divider + 1));
+		return InspIRCd::Match(realname, text.substr(divider + 1));
 	}
 };
 
@@ -61,7 +65,13 @@ public:
 
 	bool IsMatch(ListModeBase* lm, User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
 	{
-		return InspIRCd::Match(user->GetRealName(), text);
+		// Replace spaces with underscores as they're prohibited in mode parameters.
+		std::string realname(user->GetRealName());
+		std::replace(realname.begin(), realname.end(), ' ', '_');
+
+		// Check whether the user's real name matches.
+		return InspIRCd::Match(realname, text);
+
 	}
 };
 
