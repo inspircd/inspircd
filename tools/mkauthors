@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+#
+# InspIRCd -- Internet Relay Chat Daemon
+#
+#   Copyright (C) 2026 Sadie Powell <sadie@witchery.services>
+#
+# This file is part of InspIRCd.  InspIRCd is free software: you can
+# redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, version 2.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+import os
+import re
+import shutil
+import subprocess
+import sys
+import textwrap
+
+CC_RED = "\x1B[1;31m" if sys.stdout.isatty() else ""
+CC_RESET = "\x1B[0m" if sys.stdout.isatty() else ""
+
+GIT = os.getenv("GIT", "git")
+if not shutil.which(GIT):
+    print(
+        f"{CC_RED}Error:{CC_RESET} Git ({GIT}) must be installed to build the author list!",
+        file=sys.stderr,
+    )
+
+commit_log = subprocess.check_output(
+    [GIT, "log", "--pretty=%an <%ae>%n%(trailers:key=Co-Authored-By,valueonly)", "HEAD"]
+).split(b"\n")
+
+committers = {}
+for committer in [c for c in commit_log if c]:
+    committers[committer] = committers.get(committer, 0) + 1
+
+authors = {}
+for committer, commits in committers.items():
+    author = (
+        subprocess.check_output([GIT, "check-mailmap", committer])
+            .strip()
+            .decode("utf-8")
+    )
+
+    # Remove email addresses that aren"t real.
+    author = re.sub(
+        r"^(.+) <(?:unknown@email.invalid|\S+@users.noreply.github.com)>$",
+        r"\1",
+        author,
+    )
+
+    # Skip GitHub bots like dependabot.
+    if author.endswith("[bot]"):
+        continue
+
+    # Skip commits made by our own scripts.
+    if author == "InspIRCd Robot <noreply@inspircd.org>":
+        continue
+
+    authors[author] = authors.get(author, 0) + commits
+
+
+authors_txt = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "docs", "AUTHORS.txt"
+)
+with open(authors_txt, "w") as fh:
+    print(
+        textwrap.dedent(
+            f"""
+            Since the first commit in January 2003 {len(authors)} people have submitted patches,
+            commits, and other useful contributions to InspIRCd. These people, ordered by
+            the number of contributions they have made, are:
+            """
+        ).lstrip(),
+        file=fh,
+    )
+
+    # We show the names in the authors file ordered by number of commits and
+    # then name case insensitively.
+    sorted_authors = list(authors.items())
+    sorted_authors.sort(key=lambda a: a[0].lower())
+    sorted_authors.sort(key=lambda a: a[1], reverse=True)
+    for author, commits in sorted_authors:
+        print(f"  * {author}", file=fh)
+
+if int(os.getenv("MKAUTHORS_COMMIT", "1")) > 0:
+    subprocess.check_call(
+        [
+            GIT,
+            "commit",
+            "--author", "InspIRCd Robot <noreply@inspircd.org>",
+            "--message", "Update the author list.",
+            "--",
+            authors_txt,
+        ]
+    )
