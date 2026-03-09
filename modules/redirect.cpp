@@ -225,7 +225,7 @@ public:
 		if (override || !chan)
 			return MOD_RES_PASSTHRU; // No redirect possible.
 
-		const auto modres = redirectextban.GetStatus(user, chan);
+		auto modres = redirectextban.GetStatus(user, chan);
 		if (modres == MOD_RES_DENY)
 			return HandleRedirect(user, chan, "you're extbanned", false);
 
@@ -237,7 +237,6 @@ public:
 
 		if (action_inviteonly && chan->IsModeSet(inviteonlymode))
 		{
-			ModResult modres;
 			FIRST_MOD_RESULT(OnCheckInvite, modres, (user, chan));
 			if (modres != MOD_RES_ALLOW)
 				return HandleRedirect(user, chan, "invite only");
@@ -248,7 +247,6 @@ public:
 			const auto key = chan->GetModeParameter(keymode);
 			if (!key.empty())
 			{
-				ModResult modres;
 				FIRST_MOD_RESULT(OnCheckKey, modres, (user, chan, keygiven));
 				if (!modres.check(InspIRCd::TimingSafeCompare(key, keygiven)))
 					return HandleRedirect(user, chan, "incorrect channel key");
@@ -260,7 +258,6 @@ public:
 			const auto limit = chan->GetModeParameter(limitmode);
 			if (!limit.empty())
 			{
-				ModResult modres;
 				FIRST_MOD_RESULT(OnCheckLimit, modres, (user, chan));
 				if (!modres.check(chan->GetUsers().size() < ConvToNum<size_t>(limit)))
 					return HandleRedirect(user, chan, "limit reached");
