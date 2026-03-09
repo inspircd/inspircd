@@ -87,8 +87,6 @@ public:
 	RedirectExtBan(Module* mod)
 		: ExtBan::Acting(mod, "redirect", 'd')
 	{
-		if (!ServerInstance->Config->ConfValue("redirect")->getBool("extban"))
-			DisableAutoRegister();
 	}
 
 	bool IsMatch(ListModeBase* lm, User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
@@ -156,7 +154,6 @@ class ModuleRedirect final
 {
 private:
 	bool action_ban;
-	bool action_extban;
 	bool action_inviteonly;
 	bool action_key;
 	bool action_limit;
@@ -218,7 +215,6 @@ public:
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("redirect");
 		action_ban = tag->getBool("ban", false);
-		action_extban = tag->getBool("extban", false);
 		action_inviteonly = tag->getBool("inviteonly", true);
 		action_key = tag->getBool("key", true);
 		action_limit = tag->getBool("limit", true);
@@ -229,12 +225,9 @@ public:
 		if (override || !chan)
 			return MOD_RES_PASSTHRU; // No redirect possible.
 
-		if (action_extban)
-		{
-			const auto modres = redirectextban.GetStatus(user, chan);
-			if (modres == MOD_RES_DENY)
-				return HandleRedirect(user, chan, "you're extbanned", false);
-		}
+		const auto modres = redirectextban.GetStatus(user, chan);
+		if (modres == MOD_RES_DENY)
+			return HandleRedirect(user, chan, "you're extbanned", false);
 
 		if (!chan->IsModeSet(redirectmode))
 			return MOD_RES_PASSTHRU; // All others require the mode.

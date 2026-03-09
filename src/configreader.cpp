@@ -680,6 +680,8 @@ std::vector<std::string> ServerConfig::GetModules() const
 		// Rewrite the old names of renamed modules.
 		if (insp::equalsci(shortname, "argon2"))
 			modules.push_back("hash_argon2");
+		else if (insp::equalsci(shortname, "banredirect"))
+			modules.push_back("banredirect");
 		else if (insp::equalsci(shortname, "bcrypt"))
 			modules.push_back("hash_bcrypt");
 		else if (insp::equalsci(shortname, "chghost"))
