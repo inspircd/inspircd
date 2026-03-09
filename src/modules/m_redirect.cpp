@@ -37,12 +37,12 @@ enum
 	ERR_REDIRECT = 690,
 };
 
-class Redirect final
-	: public ParamMode<Redirect, StringExtItem>
+class RedirectMode final
+	: public ParamMode<RedirectMode, StringExtItem>
 {
 public:
-	Redirect(Module* Creator)
-		: ParamMode<Redirect, StringExtItem>(Creator, "redirect", 'L')
+	RedirectMode(Module* mod)
+		: ParamMode<RedirectMode, StringExtItem>(mod, "redirect", 'L')
 	{
 		syntax = "<target>";
 	}
@@ -56,27 +56,22 @@ public:
 				source->WriteNumeric(Numerics::NoSuchChannel(parameter));
 				return false;
 			}
+			if (!source->IsOper())
+			{
+				auto* c = ServerInstance->Channels.Find(parameter);
+				if (!c)
+				{
+					source->WriteNumeric(ERR_REDIRECT, parameter, INSP_FORMAT("Target channel {} must exist to be set as a redirect.", parameter));
+					return false;
+				}
+				else if (c->GetPrefixValue(source) < OP_VALUE)
+				{
+					source->WriteNumeric(ERR_REDIRECT, c->name, INSP_FORMAT("You must be opped on {} to set it as a redirect.", c->name));
+					return false;
+				}
+			}
 		}
 
-		if (IS_LOCAL(source) && !source->IsOper())
-		{
-			auto* c = ServerInstance->Channels.Find(parameter);
-			if (!c)
-			{
-				source->WriteNumeric(ERR_REDIRECT, parameter, INSP_FORMAT("Target channel {} must exist to be set as a redirect.", parameter));
-				return false;
-			}
-			else if (c->GetPrefixValue(source) < OP_VALUE)
-			{
-				source->WriteNumeric(ERR_REDIRECT, c->name, INSP_FORMAT("You must be opped on {} to set it as a redirect.", c->name));
-				return false;
-			}
-		}
-
-		/*
-		 * We used to do some checking for circular +L here, but there is no real need for this any more especially as we
-		 * now catch +L looping in PreJoin. Remove it, since O(n) logic makes me sad, and we catch it anyway. :) -- w00t
-		 */
 		ext.Set(channel, parameter);
 		return true;
 	}
@@ -91,51 +86,109 @@ class ModuleRedirect final
 	: public Module
 {
 private:
-	Redirect re;
+	bool action_ban;
+	bool action_inviteonly;
+	bool action_key;
+	bool action_limit;
+	std::string activechan;
 	SimpleUserMode antiredirectmode;
+	ChanModeReference inviteonlymode;
+	ChanModeReference keymode;
 	ChanModeReference limitmode;
+	RedirectMode redirectmode;
+
+	ModResult HandleRedirect(LocalUser* user, Channel* chan, const std::string& reason)
+	{
+		const auto* channel = redirectmode.ext.Get(chan);
+		if (!channel)
+			return MOD_RES_PASSTHRU; // Should never happen.
+
+		if (user->IsModeSet(antiredirectmode))
+		{
+			user->WriteNumeric(ERR_LINKCHANNEL, chan->name, *channel,
+				INSP_FORMAT("You cannot join {} ({}) and you cannot be redirected to {} as you have user mode +{} ({}) set.",
+					chan->name, reason, *channel, antiredirectmode.GetModeChar(), antiredirectmode.name));
+			return MOD_RES_DENY;
+		}
+
+		user->WriteNumeric(ERR_LINKCHANNEL, chan->name, *channel,
+			INSP_FORMAT("You cannot join {} ({}) so you are being automatically transferred to {}.",
+				chan->name, reason, *channel));
+
+		activechan = chan->name;
+		Channel::JoinUser(user, *channel);
+		activechan.clear();
+
+		return MOD_RES_DENY;
+	}
 
 public:
 	ModuleRedirect()
-		: Module(VF_VENDOR, "Allows users to be redirected to another channel when the user limit is reached.")
-		, re(this)
+		: Module(VF_VENDOR, "Allows users to be redirected to another channel.")
 		, antiredirectmode(this, "antiredirect", 'L')
+		, inviteonlymode(this, "inviteonly")
+		, keymode(this, "key")
 		, limitmode(this, "limit")
+		, redirectmode(this)
 	{
+	}
+
+	void ReadConfig(ConfigStatus&) override
+	{
+		const auto& tag = ServerInstance->Config->ConfValue("redirect");
+		action_ban = tag->getBool("ban", false);
+		action_inviteonly = tag->getBool("inviteonly", true);
+		action_key = tag->getBool("key", true);
+		action_limit = tag->getBool("limit", true);
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
 	{
-		if (!override && chan)
+		if (override || !chan || !chan->IsModeSet(redirectmode))
+			return MOD_RES_PASSTHRU; // No redirect possible.
+
+		// Sometimes broken services can make circular or chained +L, avoid this.
+		if (!activechan.empty())
 		{
-			if (chan->IsModeSet(re) && chan->IsModeSet(limitmode))
+			user->WriteNumeric(ERR_LINKCHANNEL, activechan, cname, "You may not join this channel. A redirect is set, but you cannot be redirected as it is a circular loop.");
+			return MOD_RES_PASSTHRU;
+		}
+
+		if (action_ban && chan->IsBanned(user))
+			return HandleRedirect(user, chan, "you're banned");
+
+		if (action_inviteonly && chan->IsModeSet(inviteonlymode))
+		{
+			ModResult modres;
+			FIRST_MOD_RESULT(OnCheckInvite, modres, (user, chan));
+			if (modres != MOD_RES_ALLOW)
+				return HandleRedirect(user, chan, "invite only");
+		}
+
+		if (action_key)
+		{
+			const auto key = chan->GetModeParameter(keymode);
+			if (!key.empty())
 			{
-				if (chan->GetUsers().size() >= ConvToNum<size_t>(chan->GetModeParameter(limitmode)))
-				{
-					const std::string& channel = *re.ext.Get(chan);
-
-					/* sometimes broken services can make circular or chained +L, avoid this */
-					auto* destchan = ServerInstance->Channels.Find(channel);
-					if (destchan && destchan->IsModeSet(re))
-					{
-						user->WriteNumeric(ERR_LINKCHANNEL, cname, '*', "You may not join this channel. A redirect is set, but you may not be redirected as it is a circular loop.");
-						return MOD_RES_DENY;
-					}
-
-					if (user->IsModeSet(antiredirectmode))
-					{
-						user->WriteNumeric(ERR_LINKCHANNEL, cname, channel, "Force redirection stopped.");
-						return MOD_RES_DENY;
-					}
-					else
-					{
-						user->WriteNumeric(ERR_LINKCHANNEL, cname, channel, "You may not join this channel, so you are automatically being transferred to the redirected channel.");
-						Channel::JoinUser(user, channel);
-						return MOD_RES_DENY;
-					}
-				}
+				ModResult modres;
+				FIRST_MOD_RESULT(OnCheckKey, modres, (user, chan, keygiven));
+				if (!modres.check(InspIRCd::TimingSafeCompare(key, keygiven)))
+					return HandleRedirect(user, chan, "incorrect channel key");
 			}
 		}
+
+		if (action_limit)
+		{
+			const auto limit = chan->GetModeParameter(limitmode);
+			if (!limit.empty())
+			{
+				ModResult modres;
+				FIRST_MOD_RESULT(OnCheckLimit, modres, (user, chan));
+				if (!modres.check(chan->GetUsers().size() < ConvToNum<size_t>(limit)))
+					return HandleRedirect(user, chan, "limit reached");
+			}
+		}
+
 		return MOD_RES_PASSTHRU;
 	}
 };
