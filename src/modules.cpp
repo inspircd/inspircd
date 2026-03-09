@@ -77,13 +77,14 @@ void Module::CompareLinkData(const LinkData& otherdata, LinkDataDiff& diffs)
 
 std::string Module::GetPropertyString() const
 {
-	// D = VF_CORE ("default")
+	// R = VF_CORE ("required")
 	// V = VF_VENDOR
 	// C = VF_COMMON
 	// O = VF_OPTCOMMON
-	std::string propstr("DVCO");
+	// D = VF_DEPRECATED
+	std::string propstr("RVCOD");
 	size_t pos = 0;
-	for (int mult = VF_CORE; mult <= VF_OPTCOMMON; mult *= 2, ++pos)
+	for (int mult = VF_CORE; mult <= VF_LAST; mult *= 2, ++pos)
 		if (!(this->properties & mult))
 			propstr[pos] = '-';
 	return propstr;

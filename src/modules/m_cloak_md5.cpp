@@ -323,7 +323,7 @@ private:
 
 public:
 	ModuleCloakMD5()
-		: Module(VF_VENDOR, "Adds the half and full cloaking methods for use with the cloak module.")
+		: Module(VF_VENDOR | VF_DEPRECATED, "Adds the half and full cloaking methods for use with the cloak module.")
 		, halfcloak(this, "half", MODE_HALF_CLOAK)
 		, fullcloak(this, "full", MODE_OPAQUE)
 	{

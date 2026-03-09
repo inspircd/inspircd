@@ -58,7 +58,7 @@ private:
 
 public:
 	ModuleMD5()
-		: Module(VF_VENDOR, "Allows other modules to generate MD5 hashes.")
+		: Module(VF_VENDOR | VF_DEPRECATED, "Allows other modules to generate MD5 hashes.")
 		, md5(this)
 	{
 	}

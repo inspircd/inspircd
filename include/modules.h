@@ -47,7 +47,13 @@ enum ModuleFlags
 	VF_COMMON = 4,
 
 	/** The module SHOULD be loaded on all servers on a network for consistency. */
-	VF_OPTCOMMON = 8
+	VF_OPTCOMMON = 8,
+
+	/** The module is deprecated and will be removed in the next version of InspIRCd. */
+	VF_DEPRECATED = 16,
+
+	/** Alias for the last vendor flag. Do not use this in module properties as it may change. */
+	VF_LAST = VF_DEPRECATED,
 };
 
 /** The event was explicitly allowed. */
