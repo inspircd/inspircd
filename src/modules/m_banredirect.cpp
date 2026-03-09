@@ -272,7 +272,7 @@ private:
 
 public:
 	ModuleBanRedirect()
-		: Module(VF_VENDOR | VF_COMMON, "Allows specifying a channel to redirect a banned user to in the ban mask.")
+		: Module(VF_VENDOR | VF_COMMON | VF_DEPRECATED, "Allows specifying a channel to redirect a banned user to in the ban mask.")
 		, banwatcher(this)
 		, limitmode(this, "limit")
 		, redirectmode(this, "redirect")

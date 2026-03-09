@@ -26,6 +26,7 @@
 
 #include "inspircd.h"
 #include "extension.h"
+#include "modules/extban.h"
 #include "numerichelper.h"
 
 enum
@@ -35,6 +36,88 @@ enum
 
 	// InspIRCd-specific.
 	ERR_REDIRECT = 690,
+};
+
+namespace
+{
+	Channel* CheckRedirect(User* source, Channel* channel, const std::string& parameter)
+	{
+		if (!ServerInstance->Channels.IsChannel(parameter))
+		{
+			source->WriteNumeric(Numerics::NoSuchChannel(parameter));
+			return nullptr;
+		}
+
+		auto* c = ServerInstance->Channels.Find(parameter);
+		if (!source->IsOper())
+		{
+			if (!c)
+			{
+				source->WriteNumeric(ERR_REDIRECT, parameter, INSP_FORMAT("Target channel {} must exist to be set as a redirect.", parameter));
+				return nullptr;
+			}
+			else if (c->GetPrefixValue(source) < OP_VALUE)
+			{
+				source->WriteNumeric(ERR_REDIRECT, c->name, INSP_FORMAT("You must be opped on {} to set it as a redirect.", c->name));
+				return nullptr;
+			}
+		}
+		return c;
+	}
+}
+
+class RedirectExtBan final
+	: public ExtBan::Acting
+{
+private:
+	bool SplitBan(const std::string& text, std::string& chan, std::string& mask)
+	{
+		auto sep = text.find(':');
+		if (sep == std::string::npos || sep == 0 || sep+1 >= text.length())
+			return false; // Malformed.
+
+		chan.assign(text, 0, sep);
+		mask.assign(text, sep + 1);
+		return true;
+	}
+
+public:
+	std::string matchchan;
+
+	RedirectExtBan(Module* mod)
+		: ExtBan::Acting(mod, "redirect", 'd')
+	{
+		if (!ServerInstance->Config->ConfValue("redirect")->getBool("extban"))
+			DisableAutoRegister();
+	}
+
+	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	{
+		std::string target, mask;
+		if (!SplitBan(text, target, mask))
+			return false; // Malformed.
+
+		matchchan = target;
+		return ExtBan::Acting::IsMatch(user, channel, mask);
+	}
+
+	bool Validate(ListModeBase* lm, LocalUser* user, Channel* channel, std::string& text) override
+	{
+		std::string target, mask;
+		if (!SplitBan(text, target, mask))
+		{
+			user->WriteNumeric(ERR_REDIRECT, text, "Redirect extban must be in the format <chan>:<mask>.");
+			return false; // Malformed.
+		}
+
+		auto* targetchan = CheckRedirect(user, channel, target);
+		if (!targetchan)
+			return false; // Bad target.
+
+		Canonicalize(mask);
+		text = INSP_FORMAT("{}:{}", targetchan->name, mask);
+		return true;
+	}
 };
 
 class RedirectMode final
@@ -51,25 +134,11 @@ public:
 	{
 		if (IS_LOCAL(source))
 		{
-			if (!ServerInstance->Channels.IsChannel(parameter))
-			{
-				source->WriteNumeric(Numerics::NoSuchChannel(parameter));
+			auto* targetchan = CheckRedirect(source, channel, parameter);
+			if (!targetchan)
 				return false;
-			}
-			if (!source->IsOper())
-			{
-				auto* c = ServerInstance->Channels.Find(parameter);
-				if (!c)
-				{
-					source->WriteNumeric(ERR_REDIRECT, parameter, INSP_FORMAT("Target channel {} must exist to be set as a redirect.", parameter));
-					return false;
-				}
-				else if (c->GetPrefixValue(source) < OP_VALUE)
-				{
-					source->WriteNumeric(ERR_REDIRECT, c->name, INSP_FORMAT("You must be opped on {} to set it as a redirect.", c->name));
-					return false;
-				}
-			}
+
+			parameter = targetchan->name;
 		}
 
 		ext.Set(channel, parameter);
@@ -87,6 +156,7 @@ class ModuleRedirect final
 {
 private:
 	bool action_ban;
+	bool action_extban;
 	bool action_inviteonly;
 	bool action_key;
 	bool action_limit;
@@ -95,13 +165,21 @@ private:
 	ChanModeReference inviteonlymode;
 	ChanModeReference keymode;
 	ChanModeReference limitmode;
+	RedirectExtBan redirectextban;
 	RedirectMode redirectmode;
 
-	ModResult HandleRedirect(LocalUser* user, Channel* chan, const std::string& reason)
+	ModResult HandleRedirect(LocalUser* user, Channel* chan, const std::string& reason, bool param = true)
 	{
-		const auto* channel = redirectmode.ext.Get(chan);
+		const auto* channel = param ? redirectmode.ext.Get(chan) : &redirectextban.matchchan;
 		if (!channel)
 			return MOD_RES_PASSTHRU; // Should never happen.
+
+		// Sometimes broken services can make circular or chained +L, avoid this.
+		if (!activechan.empty())
+		{
+			user->WriteNumeric(ERR_LINKCHANNEL, activechan, channel, "You may not join this channel. A redirect is set, but you cannot be redirected as it is a circular loop.");
+			return MOD_RES_PASSTHRU;
+		}
 
 		if (user->IsModeSet(antiredirectmode))
 		{
@@ -129,6 +207,7 @@ public:
 		, inviteonlymode(this, "inviteonly")
 		, keymode(this, "key")
 		, limitmode(this, "limit")
+		, redirectextban(this)
 		, redirectmode(this)
 	{
 	}
@@ -137,6 +216,7 @@ public:
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("redirect");
 		action_ban = tag->getBool("ban", false);
+		action_extban = tag->getBool("extban", false);
 		action_inviteonly = tag->getBool("inviteonly", true);
 		action_key = tag->getBool("key", true);
 		action_limit = tag->getBool("limit", true);
@@ -144,15 +224,18 @@ public:
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
 	{
-		if (override || !chan || !chan->IsModeSet(redirectmode))
+		if (override || !chan)
 			return MOD_RES_PASSTHRU; // No redirect possible.
 
-		// Sometimes broken services can make circular or chained +L, avoid this.
-		if (!activechan.empty())
+		if (action_extban)
 		{
-			user->WriteNumeric(ERR_LINKCHANNEL, activechan, cname, "You may not join this channel. A redirect is set, but you cannot be redirected as it is a circular loop.");
-			return MOD_RES_PASSTHRU;
+			const auto modres = redirectextban.GetStatus(user, chan);
+			if (modres == MOD_RES_DENY)
+				return HandleRedirect(user, chan, "you're extbanned", false);
 		}
+
+		if (!chan->IsModeSet(redirectmode))
+			return MOD_RES_PASSTHRU; // All others require the mode.
 
 		if (action_ban && chan->IsBanned(user))
 			return HandleRedirect(user, chan, "you're banned");
