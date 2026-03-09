@@ -28,8 +28,15 @@
 #include "extension.h"
 #include "numerichelper.h"
 
-/** Handle channel mode +L
- */
+enum
+{
+	// From UnrealIRCd?
+	ERR_LINKCHANNEL = 470,
+
+	// InspIRCd-specific.
+	ERR_REDIRECT = 690,
+};
+
 class Redirect final
 	: public ParamMode<Redirect, StringExtItem>
 {
@@ -56,12 +63,12 @@ public:
 			auto* c = ServerInstance->Channels.Find(parameter);
 			if (!c)
 			{
-				source->WriteNumeric(690, INSP_FORMAT("Target channel {} must exist to be set as a redirect.", parameter));
+				source->WriteNumeric(ERR_REDIRECT, parameter, INSP_FORMAT("Target channel {} must exist to be set as a redirect.", parameter));
 				return false;
 			}
 			else if (c->GetPrefixValue(source) < OP_VALUE)
 			{
-				source->WriteNumeric(690, INSP_FORMAT("You must be opped on {} to set it as a redirect.", parameter));
+				source->WriteNumeric(ERR_REDIRECT, c->name, INSP_FORMAT("You must be opped on {} to set it as a redirect.", c->name));
 				return false;
 			}
 		}
@@ -111,18 +118,18 @@ public:
 					auto* destchan = ServerInstance->Channels.Find(channel);
 					if (destchan && destchan->IsModeSet(re))
 					{
-						user->WriteNumeric(470, cname, '*', "You may not join this channel. A redirect is set, but you may not be redirected as it is a circular loop.");
+						user->WriteNumeric(ERR_LINKCHANNEL, cname, '*', "You may not join this channel. A redirect is set, but you may not be redirected as it is a circular loop.");
 						return MOD_RES_DENY;
 					}
 
 					if (user->IsModeSet(antiredirectmode))
 					{
-						user->WriteNumeric(470, cname, channel, "Force redirection stopped.");
+						user->WriteNumeric(ERR_LINKCHANNEL, cname, channel, "Force redirection stopped.");
 						return MOD_RES_DENY;
 					}
 					else
 					{
-						user->WriteNumeric(470, cname, channel, "You may not join this channel, so you are automatically being transferred to the redirected channel.");
+						user->WriteNumeric(ERR_LINKCHANNEL, cname, channel, "You may not join this channel, so you are automatically being transferred to the redirected channel.");
 						Channel::JoinUser(user, channel);
 						return MOD_RES_DENY;
 					}
