@@ -24,8 +24,8 @@
 
 #include "main.h"
 #include "utils.h"
+#include "translate.h"
 #include "treeserver.h"
-#include "commandbuilder.h"
 
 void ModuleSpanningTree::OnPostCommand(Command* command, const CommandBase::Params& parameters, LocalUser* user, CmdResult result, bool loop)
 {
@@ -41,14 +41,13 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 
 	const std::string& command = thiscmd->service_name;
 	const bool encap = ((routing.type == RouteType::OPTIONAL_BROADCAST) || (routing.type == RouteType::OPTIONAL_UNICAST));
-	CmdBuilder params(user, encap ? "ENCAP" : command.c_str());
-	params.push_tags(parameters.GetTags());
+	MessageBuilder msg(user, encap ? "ENCAP" : command);
+	msg.PushTags(parameters.GetTags());
 	const TreeServer* sdest = nullptr;
 
 	if (routing.type == RouteType::OPTIONAL_BROADCAST)
 	{
-		params.push('*');
-		params.push(command);
+		msg.Push('*', command);
 	}
 	else if (routing.type == RouteType::UNICAST || routing.type == RouteType::OPTIONAL_UNICAST)
 	{
@@ -66,10 +65,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 		}
 
 		if (encap)
-		{
-			params.push(sdest->GetId());
-			params.push(command);
-		}
+			msg.Push(sdest->GetId(), command);
 	}
 	else
 	{
@@ -82,9 +78,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 		}
 	}
 
-	std::string output_text = CommandParser::TranslateUIDs(thiscmd->translation, parameters, true, thiscmd);
-
-	params.push(output_text);
+	msg.PushParams(Translate::ParamsToNetwork(thiscmd->translation, parameters, thiscmd));
 
 	if (routing.type == RouteType::MESSAGE)
 	{
@@ -109,7 +103,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 		}
 		else if (dest[0] == '$')
 		{
-			params.Forward(origin);
+			msg.Broadcast(origin);
 		}
 		else
 		{
@@ -119,17 +113,19 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 				return;
 			TreeServer* tsd = TreeServer::Get(d)->GetRoute();
 			if (tsd == origin)
+			{
 				// huh? no routing stuff around in a circle, please.
 				return;
-			params.Unicast(d);
+			}
+			msg.Unicast(d);
 		}
 	}
 	else if (routing.type == RouteType::BROADCAST || routing.type == RouteType::OPTIONAL_BROADCAST)
 	{
-		params.Forward(origin);
+		msg.Broadcast(origin);
 	}
 	else if (routing.type == RouteType::UNICAST || routing.type == RouteType::OPTIONAL_UNICAST)
 	{
-		params.Unicast(sdest->ServerUser);
+		msg.Unicast(sdest->ServerUser);
 	}
 }

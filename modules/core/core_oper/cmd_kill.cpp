@@ -151,10 +151,10 @@ RouteDescriptor CommandKill::GetRouting(User* user, const Params& parameters)
 	return ROUTE_BROADCAST;
 }
 
-void CommandKill::EncodeParameter(std::string& param, size_t index)
+std::string CommandKill::EncodeParameter(const std::string& param, size_t index)
 {
 	// Manually translate the nick -> uuid (see above), and also the reason (params[1])
 	// because we decorate it if the oper is local and want remote servers to see the
 	// decorated reason not the original.
-	param = ((index == 0) ? lastuuid : killreason);
+	return index == 0 ? lastuuid : killreason;
 }

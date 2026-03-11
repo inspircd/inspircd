@@ -85,12 +85,12 @@ CmdResult CommandAddLine::Handle(User* usr, Params& params)
 }
 
 CommandAddLine::Builder::Builder(XLine* xline, User* user)
-	: CmdBuilder(user, "ADDLINE")
+	: MessageBuilder(user, "ADDLINE")
 {
-	push(xline->type);
-	push(xline->Displayable());
-	push(xline->source);
-	push_int(xline->set_time);
-	push_int(xline->duration);
-	push_last(xline->reason);
+	Push(xline->type);
+	Push(xline->Displayable());
+	Push(xline->source);
+	Push(xline->set_time);
+	Push(xline->duration);
+	Push(xline->reason);
 }

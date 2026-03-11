@@ -112,44 +112,44 @@ CmdResult CommandMetadata::Handle(User* srcuser, Params& params)
 }
 
 CommandMetadata::Builder::Builder(const Extensible* ext, const std::string& key, const std::string& val)
-	: CmdBuilder("METADATA")
+	: MessageBuilder("METADATA")
 {
 	switch (ext->extype)
 	{
 		case ExtensionType::CHANNEL:
 		{
 			const Channel* chan = static_cast<const Channel*>(ext);
-			push(chan->name);
-			push_int(chan->age);
+			Push(chan->name);
+			Push(chan->age);
 			break;
 		}
 
 		case ExtensionType::MEMBERSHIP:
 		{
 			const Membership* memb = static_cast<const Membership*>(ext);
-			push_raw("@");
-			push(memb->user->uuid);
-			push_raw(memb->chan->name);
-			push_int(memb->chan->age);
-			push_int(memb->id);
+			Push("@");
+			Push(memb->user->uuid);
+			Push(memb->chan->name);
+			Push(memb->chan->age);
+			Push(memb->id);
 			break;
 		}
 
 		case ExtensionType::USER:
 		{
 			const User* user = static_cast<const User*>(ext);
-			push(user->uuid);
+			Push(user->uuid);
 			break;
 		}
 	}
-	push(key);
-	push_last(val);
+	Push(key);
+	Push(val);
 }
 
 CommandMetadata::Builder::Builder(const std::string& key, const std::string& val)
-	: CmdBuilder("METADATA")
+	: MessageBuilder("METADATA")
 {
-	push("*");
-	push(key);
-	push_last(val);
+	Push("*");
+	Push(key);
+	Push(val);
 }

@@ -75,19 +75,12 @@ public:
 	{
 	}
 
-	/** Fired when a server message is being sent by a user.
+	/** Fired when a server message is being sent.
 	 * @param source The user who sent the message.
 	 * @param name The name of the command which was sent.
-	 * @param tags The tags which will be sent with the message.
+	 * @param params The parameters to the command.
 	 */
-	virtual void OnBuildUserMessage(const User* source, const char* name, ClientProtocol::TagMap& tags) { }
-
-	/** Fired when a server message is being sent by a server.
-	 * @param source The server who sent the message.
-	 * @param name The name of the command which was sent.
-	 * @param tags The tags which will be sent with the message.
-	 */
-	virtual void OnBuildServerMessage(const Server& source, const char* name, ClientProtocol::TagMap& tags) { }
+	virtual void OnServerMessage(User*& source, std::string& name, CommandBase::Params& params) { }
 };
 
 class ServerProtocol::RouteEventListener

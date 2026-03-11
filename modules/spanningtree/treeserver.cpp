@@ -172,7 +172,9 @@ void TreeServer::SQuitChild(TreeServer* server, const std::string& reason, bool 
 	{
 		// Server split from us, generate a SQUIT message and broadcast it
 		ServerInstance->SNO.WriteGlobalSno('l', "Server \002" + server->GetName() + "\002 split: " + reason);
-		CmdBuilder("SQUIT").push(server->GetId()).push_last(reason).Broadcast();
+		MessageBuilder("SQUIT")
+			.Push(server->GetId(), reason)
+			.Broadcast();
 	}
 	else
 	{
@@ -296,8 +298,8 @@ void TreeServer::RemoveHash()
 
 void TreeServer::SendMetadata(const std::string& key, const std::string& data) const
 {
-	if (GetRoute() && GetRoute()->GetSocket())
-		GetRoute()->GetSocket()->WriteLine(CommandMetadata::Builder(key, data));
+	if (GetRoute())
+		CommandMetadata::Builder(key, data).Unicast(GetRoute());
 }
 
 void TreeServer::SendMetadata(const Extensible* ext, const std::string& key, const std::string& data) const
@@ -305,6 +307,6 @@ void TreeServer::SendMetadata(const Extensible* ext, const std::string& key, con
 	if (ext->extype == ExtensionType::USER && !static_cast<const User*>(ext)->IsFullyConnected())
 		return;
 
-	if (GetRoute() && GetRoute()->GetSocket())
-		GetRoute()->GetSocket()->WriteLine(CommandMetadata::Builder(ext, key, data));
+	if (GetRoute())
+		CommandMetadata::Builder(ext, key, data).Unicast(GetRoute());
 }

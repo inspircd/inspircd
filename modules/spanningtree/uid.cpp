@@ -177,17 +177,17 @@ CmdResult CommandFName::HandleRemote(RemoteUser* src, Params& params)
 }
 
 CommandUID::Builder::Builder(User* user)
-	: CmdBuilder(TreeServer::Get(user), "UID")
+	: MessageBuilder(TreeServer::Get(user), "UID")
 {
-	push(user->uuid);
-	push_int(user->nickchanged);
-	push(user->nick);
-	push(user->GetRealHost());
-	push(user->GetDisplayedHost());
-	push(user->GetRealUser());
-	push(user->GetDisplayedUser());
-	push(user->GetAddress());
-	push_int(user->signon);
-	push(user->GetModeLetters(true));
-	push_last(user->GetRealName());
+	Push(user->uuid);
+	Push(user->nickchanged);
+	Push(user->nick);
+	Push(user->GetRealHost());
+	Push(user->GetDisplayedHost());
+	Push(user->GetRealUser());
+	Push(user->GetDisplayedUser());
+	Push(user->GetAddress());
+	Push(user->signon);
+	Push(user->GetModeLetters(true));
+	Push(user->GetRealName());
 }

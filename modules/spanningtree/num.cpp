@@ -49,16 +49,11 @@ RouteDescriptor CommandNum::GetRouting(User* user, const Params& params)
 }
 
 CommandNum::Builder::Builder(SpanningTree::RemoteUser* target, const Numeric::Numeric& numeric)
-	: CmdBuilder("NUM")
+	: MessageBuilder("NUM")
 {
 	TreeServer* const server = (numeric.GetServer() ? (static_cast<TreeServer*>(numeric.GetServer())) : Utils->TreeRoot);
-	push(server->GetId()).push(target->uuid).push(FMT::format("{:03}", numeric.GetNumeric()));
-	const CommandBase::Params& params = numeric.GetParams();
-	if (!params.empty())
-	{
-		for (CommandBase::Params::const_iterator i = params.begin(); i != params.end()-1; ++i)
-			push(*i);
-		push_last(params.back());
-	}
-	push_tags(params.GetTags());
+	Push(server->GetId());
+	Push(target->uuid);
+	PushFmt("{:03}", numeric.GetNumeric());
+	PushParams(numeric.GetParams());
 }

@@ -53,13 +53,15 @@ bool SpanningTreeProtocolInterface::SendEncapsulatedData(const std::string& targ
 	if (!source)
 		source = ServerInstance->FakeClient;
 
-	CmdBuilder encap(source, "ENCAP");
+	MessageBuilder msg(source, "ENCAP");
 
 	// Are there any wildcards in the target string?
 	if (targetmask.find_first_of("*?") != std::string::npos)
 	{
 		// Yes, send the target string as-is; servers will decide whether or not it matches them
-		encap.push(targetmask).push(cmd).insert(params).Broadcast();
+		msg.Push(targetmask, cmd)
+			.PushParams(params)
+			.Broadcast();
 	}
 	else
 	{
@@ -69,7 +71,9 @@ bool SpanningTreeProtocolInterface::SendEncapsulatedData(const std::string& targ
 			return false;
 
 		// Use the SID of the target in the message instead of the server name
-		encap.push(server->GetId()).push(cmd).insert(params).Unicast(server->ServerUser);
+		msg.Push(server->GetId(), cmd)
+			.PushParams(params)
+			.Unicast(server->ServerUser);
 	}
 
 	return true;
@@ -83,7 +87,10 @@ void SpanningTreeProtocolInterface::BroadcastEncap(const std::string& cmd, const
 	// If omit is non-NULL we pass the route belonging to the user to Forward(),
 	// otherwise we pass NULL, which is equivalent to Broadcast()
 	TreeServer* server = (omit ? TreeServer::Get(omit)->GetRoute() : nullptr);
-	CmdBuilder(source, "ENCAP * ").push_raw(cmd).insert(params).Forward(server);
+	MessageBuilder("ENCAP")
+		.Push('*', cmd)
+		.PushParams(params)
+		.Broadcast(server);
 }
 
 void SpanningTreeProtocolInterface::SendMetadata(const Extensible* ext, const std::string& key, const std::string& data)
@@ -98,7 +105,9 @@ void SpanningTreeProtocolInterface::SendMetadata(const std::string& key, const s
 
 void SpanningTreeProtocolInterface::SendSNONotice(char snomask, const std::string& text)
 {
-	CmdBuilder("SNONOTICE").push(snomask).push_last(text).Broadcast();
+	MessageBuilder("SNONOTICE")
+		.Push(snomask, text)
+		.Broadcast();
 }
 
 void SpanningTreeProtocolInterface::SendMessage(const Channel* target, char status, const std::string& text, MessageType msgtype)
@@ -111,8 +120,7 @@ void SpanningTreeProtocolInterface::SendMessage(const Channel* target, char stat
 
 void SpanningTreeProtocolInterface::SendMessage(const User* target, const std::string& text, MessageType msgtype)
 {
-	CmdBuilder p(msgtype == MessageType::PRIVMSG ? "PRIVMSG" : "NOTICE");
-	p.push(target->uuid);
-	p.push_last(text);
-	p.Unicast(target);
+	MessageBuilder(msgtype == MessageType::PRIVMSG ? "PRIVMSG" : "NOTICE")
+		.Push(target->uuid, text)
+		.Unicast(target);
 }

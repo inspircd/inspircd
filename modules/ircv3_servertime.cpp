@@ -62,11 +62,14 @@ public:
 		return &lasttimestring;
 	}
 
-	void OnBuildUserMessage(const User* source, const char* command, ClientProtocol::TagMap& tags) override
+	void OnServerMessage(User*& source, std::string& name, CommandBase::Params& params) override
 	{
+		if (!source || source->IsServer())
+			return;
+
 		// Server protocol.
 		RefreshTimeString();
-		tags.emplace(tagname, ClientProtocol::MessageTagData(this, lasttimestring));
+		params.GetTags().emplace(tagname, ClientProtocol::MessageTagData(this, lasttimestring));
 	}
 
 };

@@ -363,23 +363,43 @@ void TreeSocket::SendCapabilities(int phase)
 		return;
 
 	if (capab->capab_phase < 1 && phase >= 1)
-		WriteLine(FMT::format("CAPAB START {}", (uint16_t)PROTO_NEWEST));
+	{
+		MessageBuilder("CAPAB")
+			.Push("START", (uint16_t)PROTO_NEWEST)
+			.Unicast(this);
+	}
 
 	capab->capab_phase = phase;
 	if (phase < 2)
 		return;
 
-	WriteLine("CAPAB CAPABILITIES :" + FormatCapabilities(this));
-	WriteLine("CAPAB MODULES :" + FormatModules(VF_COMMON, proto_version));
-	WriteLine("CAPAB MODSUPPORT :" + FormatModules(VF_OPTCOMMON, proto_version));
-	WriteLine("CAPAB CHANMODES :" + BuildModeList(MODETYPE_CHANNEL));
-	WriteLine("CAPAB USERMODES :" + BuildModeList(MODETYPE_USER));
+	MessageBuilder("CAPAB", true)
+		.Push("CAPABILITIES", FormatCapabilities(this))
+		.Unicast(this);
+	MessageBuilder("CAPAB", true)
+		.Push("MODULES", FormatModules(VF_COMMON, proto_version))
+		.Unicast(this);
+	MessageBuilder("CAPAB", true)
+		.Push("MODSUPPORT", FormatModules(VF_OPTCOMMON, proto_version))
+		.Unicast(this);
+	MessageBuilder("CAPAB", true)
+		.Push("CHANMODES", BuildModeList(MODETYPE_CHANNEL))
+		.Unicast(this);
+	MessageBuilder("CAPAB", true)
+		.Push("USERMODES", BuildModeList(MODETYPE_USER))
+		.Unicast(this);
 
 	std::string extbans;
 	if (BuildExtBanList(extbans))
-		WriteLine("CAPAB EXTBANS :" + extbans);
+	{
+		MessageBuilder("CAPAB", true)
+			.Push("EXTBANS", extbans)
+			.Unicast(this);
+	}
 
-	this->WriteLine("CAPAB END");
+	MessageBuilder("CAPAB", true)
+		.Push("END")
+		.Unicast(this);
 }
 
 /* Isolate and return the elements that are different between two comma separated lists */
@@ -551,12 +571,12 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			if (!this->GetTheirChallenge().empty() && (this->LinkState == CONNECTING))
 			{
 				this->SendCapabilities(2);
-				this->WriteLine(FMT::format("SERVER {} {} {} :{}",
-					ServerInstance->Config->ServerName,
-					TreeSocket::MakePass(capab->link->SendPass, capab->theirchallenge),
-					ServerInstance->Config->ServerId,
-					ServerInstance->Config->ServerDesc
-				));
+				MessageBuilder("SERVER", true)
+					.Push(ServerInstance->Config->ServerName,
+						TreeSocket::MakePass(capab->link->SendPass, capab->theirchallenge),
+						ServerInstance->Config->ServerId,
+						ServerInstance->Config->ServerDesc)
+					.Unicast(this);
 			}
 		}
 		else
@@ -565,12 +585,12 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			if (this->LinkState == CONNECTING)
 			{
 				this->SendCapabilities(2);
-				this->WriteLine(FMT::format("SERVER {} {} {} :{}",
-					ServerInstance->Config->ServerName,
-					capab->link->SendPass,
-					ServerInstance->Config->ServerId,
-					ServerInstance->Config->ServerDesc
-				));
+				MessageBuilder("SERVER", true)
+					.Push(ServerInstance->Config->ServerName,
+						capab->link->SendPass,
+						ServerInstance->Config->ServerId,
+						ServerInstance->Config->ServerDesc)
+					.Unicast(this);
 			}
 		}
 	}

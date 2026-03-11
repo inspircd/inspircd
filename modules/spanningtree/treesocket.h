@@ -123,6 +123,8 @@ struct CapabData final
 	}
 };
 
+class MessageBuilder;
+
 /** Every SERVER connection inbound or outbound is represented by an object of
  * type TreeSocket. During setup, the object can be found in Utils->timeoutlist;
  * after setup, MyRoot will have been created as a child of Utils->TreeRoot
@@ -188,11 +190,6 @@ class TreeSocket final
 	 * @return true if a line was read
 	 */
 	bool GetNextLine(std::string& line, char delim = '\n');
-
-	/** Write a line directly to the socket bypassing the older protocol translation layer.
-	 * @param line The line to write directly to the socket.
-	 */
-	void WriteLineInternal(const std::string& line);
 
 public:
 	const time_t age;
@@ -316,9 +313,8 @@ public:
 	 */
 	void OnDataReady() override;
 
-	/** Send one or more complete lines down the socket
-	 */
-	void WriteLine(const std::string& line);
+	// Sends a message to the socket.
+	void SendMessage(MessageBuilder& message);
 
 	/** Handle ERROR command */
 	void Error(CommandBase::Params& params);
@@ -353,6 +349,9 @@ public:
 	 */
 	void Close() override;
 
-	/** Fixes messages coming from old servers so the new command handlers understand them. */
+	// Fixes messages going to old servers so the old command handlers understand them.
+	bool PreProcessNewProtocolMessage(User*& who, std::string& cmd, CommandBase::Params& params);
+
+	// Fixes messages coming from old servers so the new command handlers understand them.
 	bool PreProcessOldProtocolMessage(User*& who, std::string& cmd, CommandBase::Params& params);
 };

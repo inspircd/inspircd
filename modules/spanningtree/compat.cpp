@@ -31,122 +31,80 @@ namespace
 	}
 }
 
-void TreeSocket::WriteLine(const std::string& original_line)
+bool TreeSocket::PreProcessNewProtocolMessage(User*& who, std::string& cmd, CommandBase::Params& params)
 {
-	if (LinkState != CONNECTED || proto_version == PROTO_NEWEST)
-	{
-		// Don't translate connections which have negotiated PROTO_NEWEST or
-		// where the protocol hasn't been negotiated yet.
-		WriteLineInternal(original_line);
-		return;
-	}
-
-	std::string line = original_line;
-	size_t cmdstart = 0;
-
-	if (line[0] == '@') // Skip the tags.
-	{
-		cmdstart = NextToken(line, 0);
-		if (cmdstart != std::string::npos)
-			cmdstart++;
-	}
-
-	if (line[cmdstart] == ':') // Skip the prefix.
-	{
-		cmdstart = NextToken(line, cmdstart);
-		if (cmdstart != std::string::npos)
-			cmdstart++;
-	}
-
-	// Find the end of the command.
-	size_t cmdend = NextToken(line, cmdstart);
-	if (cmdend == std::string::npos)
-		cmdend = line.size() - 1;
-
-	std::string command(line, cmdstart, cmdend - cmdstart);
 	if (proto_version == PROTO_INSPIRCD_4)
 	{
-		if (irc::equals(command, "ENCAP"))
+		if (irc::equals(cmd, "ENCAP"))
 		{
+			if (params.size() < 2)
+				return false; // Malformed.
+
 			// :<uuid> ENCAP <target> <command> [<params>...];
-			const auto targetend = NextToken(line, cmdend);
-			const auto commandend = NextToken(line, targetend);
-			if (targetend != std::string::npos)
-			{
-				const auto ecommand = line.substr(targetend + 1, commandend - targetend - 1);
-				if (irc::equals(ecommand, "SETHOST") || irc::equals(ecommand, "SETIDENT") || irc::equals(ecommand, "SETNAME"))
-				{
-					// CHG* was merged with SET* in v5.
-					line.replace(targetend + 1, 3, "CHG");
-				}
-			}
+			CommandBase::Params newparams(params.begin() + 2, params.end());
+			if (!PreProcessNewProtocolMessage(who, params[1], newparams))
+				return false; // Malformed.
+
+			params.erase(params.begin() + 2, params.end());
+			params.insert(params.end(), newparams.begin(), newparams.end());
 		}
-		if (irc::equals(command, "FAIL") || irc::equals(command, "WARN") || irc::equals(command, "NOTE"))
+		else if (irc::equals(cmd, "FAIL") || irc::equals(cmd, "WARN") || irc::equals(cmd, "NOTE"))
 		{
 			// <source-sid> <target-uuid> <command> <code> [<params>...] :<message>
-			const auto sourceend = NextToken(line, cmdend);
-			const auto targetend = NextToken(line, sourceend);
-			const auto commandend = NextToken(line, targetend);
-			const auto codeend = NextToken(line, commandend);
-			if (codeend != std::string::npos)
-			{
-				auto prevpos = codeend;
-				for (size_t pos = prevpos; pos != std::string::npos && line[prevpos + 1] != ':'; )
-				{
-					prevpos = pos;
-					pos = NextToken(line, prevpos);
-				}
+			if (params.size() < 5)
+				return false; // Malformed.
 
-				// Fall back to a notice.
-				const auto has_command = line[targetend + 1] != '*';
-				line = FMT::format(":{} NOTICE {} :*** {}{}{}",
-					line.substr(cmdend + 1, sourceend - cmdend - 1),
-					line.substr(sourceend + 1, targetend - sourceend - 1),
-					has_command ? line.substr(targetend + 1, commandend - targetend - 1) : "",
-					has_command ? ": " : "",
-					line.substr(prevpos + 2)
-				);
-			}
+			// InspIRCd v5 introduced networking of standard replies. For v4 and earlier fall back
+			// to a notice from the server.
+			cmd = "NOTICE";
+
+			const auto* server = Utils->FindServerID(params[0]);
+			who = server ? server->ServerUser : this->MyRoot->ServerUser;
+
+			const auto has_command = params[2] != "*";
+			CommandBase::Params newparams;
+			newparams.push_back(params[1]);
+			newparams.push_back(FMT::format("*** {}{}{}",
+				has_command ? params[2] : "",
+				has_command ? ": " : "",
+				params.back()
+			));
+
+			std::swap(params, newparams);
 		}
-		else if (irc::equals(command, "FJOIN"))
+		else if (irc::equals(cmd, "FJOIN"))
 		{
 			// :<sid> FJOIN <chan> <chants> <modes> :[<modes>],<uuid>:<membid>/<joined> [<modes>],<uuid>:<membid>/<joined>
 			//                                                                ^^^^^^^^^ New in 1207
-			const auto chanend = NextToken(line, cmdend);
-			const auto chantsend = NextToken(line, chanend);
-			const auto modesend = NextToken(line, chantsend);
-			if (modesend != std::string::npos)
+			if (params.size() < 4)
+				return false; // Malformed
+
+			size_t pos = 0;
+			while (pos != std::string::npos)
 			{
-				auto pos = modesend;
-				while (pos != std::string::npos)
-				{
-					auto next = NextToken(line, pos);
-					auto slash = line.find('/', pos);
-					if (slash != std::string::npos)
-						line.erase(slash, next - slash);
-					pos = next;
-				}
+				auto next = NextToken(params[3], pos);
+				auto slash = params[3].find('/', pos);
+				if (slash != std::string::npos)
+					params[3].erase(slash, next - slash);
+				pos = next;
 			}
 		}
-		else if (irc::equals(command, "IJOIN"))
+		else if (irc::equals(cmd, "IJOIN"))
 		{
+			if (params.size() < 3)
+				return false; // Malformed.
+
 			// :<uuid> IJOIN <chan> <membid> <joints> [<chants> <modes>]
-			//                              ^^^^^^^^ New in 1207
-			const auto chanend = NextToken(line, cmdend);
-			const auto membidend = NextToken(line, chanend);
-			const auto jointsend = NextToken(line, membidend);
-			if (jointsend != std::string::npos)
-				line.erase(membidend, jointsend - membidend);
+			//                               ^^^^^^^^ New in 1207
+			params.erase(params.begin() + 2);
+		}
+		else if (irc::equals(cmd, "SETHOST") || irc::equals(cmd, "SETIDENT") || irc::equals(cmd, "SETNAME"))
+		{
+				// CHG* was merged with SET* in v5. Rewrite to the old commands.
+			cmd.replace(0, 3, "CHG");
 		}
 	}
-
-	if (line != original_line)
-	{
-		ServerInstance->Logs.Debug(MODNAME, "Before compat: {}", original_line);
-		ServerInstance->Logs.Debug(MODNAME, "After compat:  {}", line);
-	}
-
-	WriteLineInternal(line);
+	return true;
 }
 
 bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, CommandBase::Params& params)
@@ -172,7 +130,7 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, Comm
 		params.erase(params.begin() + 2, params.end());
 		params.insert(params.end(), newparams.begin(), newparams.end());
 	}
-	if (irc::equals(cmd, "IJOIN"))
+	else if (irc::equals(cmd, "IJOIN"))
 	{
 		if (params.size() < 3)
 			return false; // Malformed.

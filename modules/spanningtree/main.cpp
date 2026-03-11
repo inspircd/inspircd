@@ -383,15 +383,12 @@ ModResult ModuleSpanningTree::HandleConnect(const CommandBase::Params& parameter
 
 void ModuleSpanningTree::OnUserInvite(User* source, User* dest, Channel* channel, time_t expiry, ModeHandler::Rank notifyrank, CUList& notifyexcepts)
 {
-	if (source->IsLocal())
-	{
-		CmdBuilder params(source, "INVITE");
-		params.push(dest->uuid);
-		params.push(channel->name);
-		params.push_int(channel->age);
-		params.push(ConvToStr(expiry));
-		params.Broadcast();
-	}
+	if (!source->IsLocal())
+		return;
+
+	MessageBuilder(source, "INVITE")
+	.Push(dest->uuid, channel->name, channel->age, expiry)
+	.Broadcast();
 }
 
 ModResult ModuleSpanningTree::OnPreTopicChange(User* user, Channel* chan, const std::string& topic)
@@ -428,11 +425,10 @@ void ModuleSpanningTree::OnUserPostMessage(User* user, const MessageTarget& targ
 			auto* d = target.Get<User>();
 			if (!d->IsLocal())
 			{
-				CmdBuilder params(user, message_type);
-				params.push_tags(details.tags_out);
-				params.push(d->uuid);
-				params.push_last(details.text);
-				params.Unicast(d);
+				MessageBuilder(user, message_type)
+					.Push(d->uuid, details.text)
+					.PushTags(details.tags_out)
+					.Unicast(d);
 			}
 			break;
 		}
@@ -444,11 +440,11 @@ void ModuleSpanningTree::OnUserPostMessage(User* user, const MessageTarget& targ
 		case MessageTarget::TYPE_SERVER:
 		{
 			const auto* serverglob = target.Get<std::string>();
-			CmdBuilder par(user, message_type);
-			par.push_tags(details.tags_out);
-			par.push(std::string("$") + *serverglob);
-			par.push_last(details.text);
-			par.Broadcast();
+			MessageBuilder(user, message_type)
+				.PushFmt("${}", *serverglob)
+				.Push(details.text)
+				.PushTags(details.tags_out)
+				.Broadcast();
 			break;
 		}
 	}
@@ -466,10 +462,10 @@ void ModuleSpanningTree::OnUserPostTagMessage(User* user, const MessageTarget& t
 			auto* d = target.Get<User>();
 			if (!d->IsLocal())
 			{
-				CmdBuilder params(user, "TAGMSG");
-				params.push_tags(details.tags_out);
-				params.push(d->uuid);
-				params.Unicast(d);
+				MessageBuilder(user, "TAGMSG")
+					.Push(d->uuid)
+					.PushTags(details.tags_out)
+					.Unicast(d);
 			}
 			break;
 		}
@@ -481,10 +477,10 @@ void ModuleSpanningTree::OnUserPostTagMessage(User* user, const MessageTarget& t
 		case MessageTarget::TYPE_SERVER:
 		{
 			const auto* serverglob = target.Get<std::string>();
-			CmdBuilder par(user, "TAGMSG");
-			par.push_tags(details.tags_out);
-			par.push(std::string("$") + *serverglob);
-			par.Broadcast();
+			MessageBuilder(user, "TAGMSG")
+				.PushFmt("${}", *serverglob)
+				.PushTags(details.tags_out)
+				.Broadcast();
 			break;
 		}
 	}
@@ -542,22 +538,16 @@ void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by
 	{
 		CommandFJoin::Builder params(memb->chan);
 		params.add(memb);
-		params.finalize();
 		params.Broadcast();
 		SpanningTreeUtilities::SendListLimits(memb->chan, nullptr);
 	}
 	else
 	{
-		CmdBuilder params(memb->user, "IJOIN");
-		params.push(memb->chan->name);
-		params.push_int(memb->id);
-		params.push_int(memb->created);
+		MessageBuilder msg(memb->user, "IJOIN");
+		msg.Push(memb->chan->name, memb->id, memb->created);
 		if (!memb->modes.empty())
-		{
-			params.push(ConvToStr(memb->chan->age));
-			params.push(memb->GetAllPrefixModes());
-		}
-		params.Broadcast();
+			msg.Push(memb->chan->age, memb->GetAllPrefixModes());
+		msg.Broadcast();
 	}
 }
 
@@ -566,7 +556,9 @@ void ModuleSpanningTree::OnChangeHost(User* user, const std::string& newhost)
 	if (!user->IsFullyConnected() || !user->IsLocal())
 		return;
 
-	CmdBuilder(user, "FHOST").push(newhost).push('*').Broadcast();
+	MessageBuilder(user, "FHOST")
+		.Push(newhost, '*')
+		.Broadcast();
 }
 
 void ModuleSpanningTree::OnChangeRealHost(User* user, const std::string& newhost)
@@ -574,7 +566,9 @@ void ModuleSpanningTree::OnChangeRealHost(User* user, const std::string& newhost
 	if (!user->IsFullyConnected() || !user->IsLocal())
 		return;
 
-	CmdBuilder(user, "FHOST").push('*').push(newhost).Broadcast();
+	MessageBuilder(user, "FHOST")
+		.Push('*', newhost)
+		.Broadcast();
 }
 
 void ModuleSpanningTree::OnChangeRealName(User* user, const std::string& real)
@@ -582,7 +576,9 @@ void ModuleSpanningTree::OnChangeRealName(User* user, const std::string& real)
 	if (!user->IsFullyConnected() || !user->IsLocal())
 		return;
 
-	CmdBuilder(user, "FNAME").push_last(real).Broadcast();
+	MessageBuilder(user, "FNAME")
+		.Push(real)
+		.Broadcast();
 }
 
 void ModuleSpanningTree::OnChangeUser(User* user, const std::string& newuser)
@@ -590,7 +586,9 @@ void ModuleSpanningTree::OnChangeUser(User* user, const std::string& newuser)
 	if (!user->IsFullyConnected() || !user->IsLocal())
 		return;
 
-	CmdBuilder(user, "FIDENT").push(newuser).push("*").Broadcast();
+	MessageBuilder(user, "FIDENT")
+		.Push(newuser, '*')
+		.Broadcast();
 }
 
 void ModuleSpanningTree::OnChangeRealUser(User* user, const std::string& newuser)
@@ -598,19 +596,21 @@ void ModuleSpanningTree::OnChangeRealUser(User* user, const std::string& newuser
 	if (!user->IsFullyConnected() || !user->IsLocal())
 		return;
 
-	CmdBuilder(user, "FIDENT").push("*").push(newuser).Broadcast();
+	MessageBuilder(user, "FIDENT")
+		.Push('*', newuser)
+		.Broadcast();
 }
 
 void ModuleSpanningTree::OnUserPart(Membership* memb, std::string& partmessage, CUList& excepts)
 {
-	if (memb->user->IsLocal())
-	{
-		CmdBuilder params(memb->user, "PART");
-		params.push(memb->chan->name);
-		if (!partmessage.empty())
-			params.push_last(partmessage);
-		params.Broadcast();
-	}
+	if (!memb->user->IsLocal())
+		return;
+
+	MessageBuilder msg(memb->user, "PART");
+	msg.Push(memb->chan->name);
+	if (!partmessage.empty())
+		msg.Push(partmessage);
+	msg.Broadcast();
 }
 
 void ModuleSpanningTree::OnUserQuit(User* user, const std::string& reason, const std::string& oper_message)
@@ -620,7 +620,9 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string& reason, const
 		if (oper_message != reason)
 			ServerInstance->PI->SendMetadata(user, "operquit", oper_message);
 
-		CmdBuilder(user, "QUIT").push_last(reason).Broadcast();
+		MessageBuilder(user, "QUIT")
+			.Push(reason)
+			.Broadcast();
 	}
 	else
 	{
@@ -645,10 +647,9 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string& oldnick)
 	if (user->IsLocal())
 	{
 		// The nick TS is updated by the core, we don't do it
-		CmdBuilder params(user, "NICK");
-		params.push(user->nick);
-		params.push(ConvToStr(user->nickchanged));
-		params.Broadcast();
+		MessageBuilder(user, "NICK")
+			.Push(user->nick, user->nickchanged)
+			.Broadcast();
 	}
 	else if (!loopCall)
 	{
@@ -661,14 +662,13 @@ void ModuleSpanningTree::OnUserKick(User* source, Membership* memb, const std::s
 	if ((!source->IsLocal()) && (source != ServerInstance->FakeClient))
 		return;
 
-	CmdBuilder params(source, "KICK");
-	params.push(memb->chan->name);
-	params.push(memb->user->uuid);
+	MessageBuilder msg(source, "KICK");
+	msg.Push(memb->chan->name, memb->user->uuid);
 	// If a remote user is being kicked by us then send the membership id in the kick too
 	if (!memb->user->IsLocal())
-		params.push_int(memb->id);
-	params.push_last(reason);
-	params.Broadcast();
+		msg.Push(memb->id);
+	msg.Push(reason);
+	msg.Broadcast();
 }
 
 void ModuleSpanningTree::OnPreRehash(User* user, const std::string& parameter)
@@ -678,9 +678,9 @@ void ModuleSpanningTree::OnPreRehash(User* user, const std::string& parameter)
 	// Send out to other servers
 	if (!parameter.empty() && parameter[0] != '-')
 	{
-		CmdBuilder params(user ? user : ServerInstance->FakeClient, "REHASH");
-		params.push(parameter);
-		params.Forward(user ? TreeServer::Get(user)->GetRoute() : nullptr);
+		MessageBuilder(user ? user : ServerInstance->FakeClient, "REHASH")
+			.Push(parameter)
+			.Broadcast(user ? TreeServer::Get(user)->GetRoute() : nullptr);
 	}
 }
 
@@ -813,10 +813,9 @@ void ModuleSpanningTree::OnDelLine(User* user, XLine* x)
 	if (!user)
 		user = ServerInstance->FakeClient;
 
-	CmdBuilder params(user, "DELLINE");
-	params.push(x->type);
-	params.push(x->Displayable());
-	params.Broadcast();
+	MessageBuilder(user, "DELLINE")
+		.Push(x->type, x->Displayable())
+		.Broadcast();
 }
 
 void ModuleSpanningTree::OnUserAway(User* user, const std::optional<AwayState>& prevstate)
@@ -840,20 +839,17 @@ void ModuleSpanningTree::OnMode(User* source, User* u, Channel* c, const Modes::
 		if (!u->IsFullyConnected())
 			return;
 
-		CmdBuilder params(source, "MODE");
-		params.push(u->uuid);
-		params.push(ClientProtocol::Messages::Mode::ToModeLetters(modes));
-		params.push_raw(Translate::ModeChangeListToParams(modes.getlist()));
-		params.Broadcast();
+		MessageBuilder(source, "MODE")
+			.Push(u->uuid, ClientProtocol::Messages::Mode::ToModeLetters(modes))
+			.PushParams(Translate::ModeChangeListToParams(modes.getlist()))
+			.Broadcast();
 	}
 	else
 	{
-		CmdBuilder params(source, "FMODE");
-		params.push(c->name);
-		params.push_int(c->age);
-		params.push(ClientProtocol::Messages::Mode::ToModeLetters(modes));
-		params.push_raw(Translate::ModeChangeListToParams(modes.getlist()));
-		params.Broadcast();
+		MessageBuilder(source, "FMODE")
+			.Push(c->name, c->age, ClientProtocol::Messages::Mode::ToModeLetters(modes))
+			.PushParams(Translate::ModeChangeListToParams(modes.getlist()))
+			.Broadcast();
 	}
 }
 

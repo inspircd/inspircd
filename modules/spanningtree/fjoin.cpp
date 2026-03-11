@@ -193,8 +193,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 		ProcessModeUUIDPair(item, sourceserver, chan, modechangelistptr, fwdfjoin);
 	}
 
-	fwdfjoin.finalize();
-	fwdfjoin.Forward(sourceserver->GetRoute());
+	fwdfjoin.Broadcast(sourceserver->GetRoute());
 
 	// Set prefix modes on their users if we lost the FJOIN or had equal TS
 	if (apply_other_sides_modes)
@@ -310,33 +309,40 @@ void CommandFJoin::LowerTS(Channel* chan, time_t TS, const std::string& newname)
 	chan->setby.clear();
 }
 
-CommandFJoin::Builder::Builder(Channel* chan, TreeServer* source)
-	: CmdBuilder(source, "FJOIN")
+CommandFJoin::Builder::Builder(Channel* chan, TreeServer* server)
+	: MessageBuilder(server, "FJOIN")
 {
-	push(chan->name).push_int(chan->age).push_raw(" +");
-	pos = str().size();
-	push_raw(chan->ChanModes(true)).push_raw(" :");
+	Push(chan->name, chan->age, "+");
+
+	CommandBase::Params modeparams;
+	for (const auto& [_, mh] : ServerInstance->Modes.GetModes(MODETYPE_CHANNEL))
+	{
+		if (!chan->IsModeSet(mh))
+			continue;
+
+		this->parameters.back().push_back(mh->GetModeChar());
+
+		auto* pm = mh->IsParameterMode();
+		if (pm)
+		{
+			auto& param = modeparams.emplace_back();
+			pm->GetParameter(chan, param);
+		}
+	}
+	PushParams(modeparams);
+	Push("");
 }
 
 void CommandFJoin::Builder::add(Membership* memb, std::string::const_iterator mbegin, std::string::const_iterator mend)
 {
-	push_raw(mbegin, mend).push_raw(',').push_raw(memb->user->uuid);
-	push_raw(':').push_raw_int(memb->id);
-	push_raw('/').push_raw_int(memb->created);
-	push_raw(' ');
-}
+	auto& last = this->parameters.back();
+	if (!last.empty())
+		last.push_back(' ');
 
-void CommandFJoin::Builder::clear()
-{
-	content.erase(pos);
-	push_raw(" :");
-}
-
-const std::string& CommandFJoin::Builder::finalize()
-{
-	if (content.back() == ' ')
-		content.pop_back();
-	return str();
+	last.append(std::string(mbegin, mend))
+		.append(",").append(memb->user->uuid)
+		.append(":").append(ConvToStr(memb->id))
+		.append("/").append(ConvToStr(memb->created));
 }
 
 void FwdFJoinBuilder::add(Membership* memb, std::string::const_iterator mbegin, std::string::const_iterator mend)

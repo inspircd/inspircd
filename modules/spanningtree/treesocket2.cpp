@@ -454,5 +454,5 @@ void TreeSocket::FinishAuth(const std::string& remotename, const std::string& re
 	MyRoot->BeginBurst();
 	this->DoBurst(MyRoot);
 
-	CommandServer::Builder(MyRoot).Forward(MyRoot);
+	CommandServer::Builder(MyRoot).Broadcast(MyRoot);
 }

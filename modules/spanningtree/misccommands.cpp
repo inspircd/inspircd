@@ -24,47 +24,6 @@
 #include "commands.h"
 #include "treeserver.h"
 
-void CmdBuilder::FireEvent(const Server* target, const char* cmd, ClientProtocol::TagMap& taglist)
-{
-	if (!Utils->Creator || Utils->Creator->dying)
-		return;
-
-	Utils->Creator->messageeventprov.Call(&ServerProtocol::MessageEventListener::OnBuildServerMessage, *target, cmd, taglist);
-	UpdateTags();
-}
-
-void CmdBuilder::FireEvent(const User* target, const char* cmd, ClientProtocol::TagMap& taglist)
-{
-	if (!Utils->Creator || Utils->Creator->dying)
-		return;
-
-	Utils->Creator->messageeventprov.Call(&ServerProtocol::MessageEventListener::OnBuildUserMessage, target, cmd, taglist);
-	UpdateTags();
-}
-
-void CmdBuilder::UpdateTags()
-{
-	std::string taglist;
-	if (!tags.empty())
-	{
-		char separator = '@';
-		for (const auto& [tagname, tagvalue] : tags)
-		{
-			taglist.push_back(separator);
-			separator = ';';
-			taglist.append(tagname);
-			if (!tagvalue.value.empty())
-			{
-				taglist.push_back('=');
-				taglist.append(tagvalue.value);
-			}
-		}
-		taglist.push_back(' ');
-	}
-	content.replace(0, tagsize, taglist);
-	tagsize = taglist.length();
-}
-
 CmdResult CommandSNONotice::Handle(User* user, Params& params)
 {
 	ServerInstance->SNO.WriteToSnoMask(params[0][0], "From " + user->nick + ": " + params[1]);

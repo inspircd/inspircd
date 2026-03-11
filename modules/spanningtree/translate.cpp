@@ -21,28 +21,77 @@
 #include "inspircd.h"
 #include "translate.h"
 
-std::string Translate::ModeChangeListToParams(const Modes::ChangeList::List& modes)
+CommandBase::Params Translate::ModeChangeListToParams(const Modes::ChangeList::List& modes)
 {
-	std::string ret;
+	CommandBase::Params ret;
+	ret.reserve(modes.size());
+
 	for (const auto& item : modes)
 	{
 		ModeHandler* mh = item.mh;
 		if (!mh->NeedsParam(item.adding))
 			continue;
 
-		ret.push_back(' ');
-
 		if (mh->IsPrefixMode())
 		{
 			auto* target = ServerInstance->Users.Find(item.param);
 			if (target)
 			{
-				ret.append(target->uuid);
+				ret.push_back(target->uuid);
 				continue;
 			}
 		}
 
-		ret.append(item.param);
+		ret.push_back(item.param);
 	}
 	return ret;
+}
+
+CommandBase::Params Translate::ParamsToNetwork(const std::vector<TranslateType>& types, const CommandBase::Params& params, CommandBase* custom_translator)
+{
+	CommandBase::Params newparams;
+	newparams.reserve(params.size());
+
+	auto typeit = types.begin();
+	for (size_t index = 0; index < params.size(); ++index)
+	{
+		auto type = TranslateType::TEXT;
+
+		// If less translation types than parameters are specified then we assume that all remaining
+		// types are TranslateType::TEXT
+		if (typeit != types.end())
+		{
+			type = *typeit;
+			typeit++;
+		}
+
+		newparams.push_back(SingleParamToNetwork(type, params[index], custom_translator, index));
+	}
+
+	return newparams;
+}
+
+std::string Translate::SingleParamToNetwork(TranslateType type, const std::string& item, CommandBase* custom_translator, size_t index)
+{
+	switch (type)
+	{
+		case TranslateType::NICK: // Translate a nickname to a UUID.
+		{
+			auto* user = ServerInstance->Users.Find(item);
+			if (user)
+				return user->uuid;
+			break;
+		}
+		case TranslateType::CUSTOM:
+		{
+			if (custom_translator)
+				return custom_translator->EncodeParameter(item, index);
+			break;
+		}
+
+		default:
+			break;
+	}
+
+	return item;
 }

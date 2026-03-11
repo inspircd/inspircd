@@ -216,10 +216,10 @@ public:
 
 	/** Encode a parameter for server->server transmission.
 	 * Used for parameters for which the translation type is TranslateType::CUSTOM.
-	 * @param parameter The parameter to encode. Can be modified in place.
+	 * @param parameter The parameter to encode.
 	 * @param index The parameter index (0 == first parameter).
 	 */
-	virtual void EncodeParameter(std::string& parameter, size_t index);
+	virtual std::string EncodeParameter(const std::string& parameter, size_t index);
 };
 
 class CoreExport Command
@@ -447,22 +447,4 @@ public:
 	/** Removes a command.
 	 */
 	void RemoveCommand(Command* x);
-
-	/** Translate a single item based on the TranslationType given.
-	 * @param to The translation type to use for the process
-	 * @param item The input string
-	 * @param dest The output string. The translation result will be appended to this string
-	 * @param custom_translator Used to translate the parameter if the translation type is TranslateType::CUSTOM, if NULL, TranslateType::CUSTOM will act like TranslateType::TEXT
-	 * @param number The index of the parameter we are translating.
-	 */
-	static void TranslateSingleParam(TranslateType to, const std::string& item, std::string& dest, CommandBase* custom_translator = nullptr, size_t	number = 0);
-
-	/** Translate nicknames in a list of strings into UIDs, based on the TranslateTypes given.
-	 * @param to The translation types to use for the process. If this list is too short, TranslateType::TEXT is assumed for the rest.
-	 * @param source The strings to translate
-	 * @param prefix_final True if the final source argument should have a colon prepended (if it could contain a space)
-	 * @param custom_translator Used to translate the parameter if the translation type is TranslateType::CUSTOM, if NULL, TranslateType::CUSTOM will act like TranslateType::TEXT
-	 * @return dest The output string
-	 */
-	static std::string TranslateUIDs(const std::vector<TranslateType>& to, const CommandBase::Params& source, bool prefix_final = false, CommandBase* custom_translator = nullptr);
 };

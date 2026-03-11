@@ -32,13 +32,14 @@ CmdResult CommandPing::Handle(User* user, Params& params)
 	if (params[0] == ServerInstance->Config->ServerId)
 	{
 		// PING for us, reply with a PONG
-		CmdBuilder reply("PONG");
-		reply.push(user->uuid);
+		MessageBuilder msg("PONG");
+		msg.Push(user->uuid);
 		if (params.size() >= 2)
+		{
 			// If there is a second parameter, append it
-			reply.push(params[1]);
-
-		reply.Unicast(user);
+			msg.Push(params[1]);
+		}
+		msg.Unicast(user);
 	}
 	return CmdResult::SUCCESS;
 }

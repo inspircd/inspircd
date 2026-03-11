@@ -23,7 +23,7 @@
 
 #include "pingtimer.h"
 #include "treeserver.h"
-#include "commandbuilder.h"
+#include "msgbuilder.h"
 
 PingTimer::PingTimer(TreeServer* ts)
 	: Timer(Utils->PingFreq, false)
@@ -38,7 +38,9 @@ PingTimer::State PingTimer::TickInternal()
 	if (state == PS_SENDPING)
 	{
 		// Last ping was answered, send next ping
-		server->GetSocket()->WriteLine(CmdBuilder("PING").push(server->GetId()));
+		MessageBuilder("PING")
+			.Push(server->GetId())
+			.Unicast(server);
 		LastPingMsec = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
 		// Warn next unless warnings are disabled. If they are, jump straight to timeout.
 		if (Utils->PingWarnTime)

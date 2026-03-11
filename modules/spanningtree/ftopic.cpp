@@ -73,21 +73,21 @@ CmdResult CommandFTopic::Handle(User* user, Params& params)
 
 // Used when bursting and in reply to RESYNC, contains topic setter as the 4th parameter
 CommandFTopic::Builder::Builder(Channel* chan)
-	: CmdBuilder("FTOPIC")
+	: MessageBuilder("FTOPIC")
 {
-	push(chan->name);
-	push_int(chan->age);
-	push_int(chan->topicset);
-	push(chan->setby);
-	push_last(chan->topic);
+	Push(chan->name);
+	Push(chan->age);
+	Push(chan->topicset);
+	Push(chan->setby);
+	Push(chan->topic);
 }
 
 // Used when changing the topic, the setter is the message source
 CommandFTopic::Builder::Builder(User* user, Channel* chan)
-	: CmdBuilder(user, "FTOPIC")
+	: MessageBuilder(user, "FTOPIC")
 {
-	push(chan->name);
-	push_int(chan->age);
-	push_int(chan->topicset);
-	push_last(chan->topic);
+	Push(chan->name);
+	Push(chan->age);
+	Push(chan->topicset);
+	Push(chan->topic);
 }

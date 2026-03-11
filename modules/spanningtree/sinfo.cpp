@@ -90,7 +90,8 @@ CmdResult CommandSInfo::HandleServer(TreeServer* server, CommandBase::Params& pa
 }
 
 CommandSInfo::Builder::Builder(TreeServer* server, const char* key, const std::string& val)
-	: CmdBuilder(server, "SINFO")
+	: MessageBuilder(server, "SINFO")
 {
-	push(key).push_last(val);
+	Push(key);
+	Push(val);
 }

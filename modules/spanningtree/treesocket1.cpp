@@ -152,7 +152,9 @@ void TreeSocket::OnError(BufferedSocketError e)
 
 void TreeSocket::SendError(const std::string& errormessage)
 {
-	WriteLine("ERROR :"+errormessage);
+	MessageBuilder("ERROR", true)
+		.Push(errormessage)
+		.Unicast(this);
 	DoWrite();
 	LinkState = DYING;
 	SetError(errormessage);
@@ -232,11 +234,19 @@ void TreeSocket::OnDataReady()
 	Utils->Creator->loopCall = false;
 }
 
-static std::string newline("\n");
-
-void TreeSocket::WriteLineInternal(const std::string& line)
+void TreeSocket::SendMessage(MessageBuilder& msg)
 {
+	// Translate commands coming from servers using an older protocol
+	if (proto_version < PROTO_NEWEST)
+	{
+		if (!PreProcessNewProtocolMessage(msg.GetSource(), msg.GetCommand(), msg.GetParameters()))
+			return;
+	}
+
+	const auto line = msg.ToRFC1459();
 	ServerInstance->Logs.RawIO(MODNAME, "S[{}] O {}", GetFd(), line);
 	this->WriteData(line);
+
+	static std::string newline = "\n";
 	this->WriteData(newline);
 }

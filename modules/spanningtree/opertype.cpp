@@ -115,9 +115,9 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& para
 }
 
 CommandOpertype::Builder::Builder(User* user, const std::shared_ptr<OperAccount>& oper, bool automatic)
-	: CmdBuilder(user, "OPERTYPE")
+	: MessageBuilder(user, "OPERTYPE")
 {
-	push_tags({
+	PushTags({
 		{ "~name",       { &Utils->Creator->servertags, ClientProtocol::Message::EscapeTag(oper->GetName())                        } },
 		{ "~chanmodes",  { &Utils->Creator->servertags, ClientProtocol::Message::EscapeTag(oper->GetModes(MODETYPE_CHANNEL, true)) } },
 		{ "~usermodes",  { &Utils->Creator->servertags, ClientProtocol::Message::EscapeTag(oper->GetModes(MODETYPE_USER, true))    } },
@@ -128,9 +128,9 @@ CommandOpertype::Builder::Builder(User* user, const std::shared_ptr<OperAccount>
 
 	if (automatic)
 	{
-		push_tags({
+		PushTags({
 			{ "~automatic", { &Utils->Creator->servertags, "" } },
 		});
 	}
-	push_last(oper->GetType());
+	Push(oper->GetType());
 }

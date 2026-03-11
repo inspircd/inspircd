@@ -240,12 +240,12 @@ bool TreeSocket::Inbound_Server(CommandBase::Params& params)
 
 		// Send our details: Our server name and description and hopcount of 0,
 		// along with the sendpass from this block.
-		this->WriteLine(FMT::format("SERVER {} {} {} :{}",
-			ServerInstance->Config->ServerName,
-			TreeSocket::MakePass(x->SendPass, this->GetTheirChallenge()),
-			ServerInstance->Config->ServerId,
-			ServerInstance->Config->ServerDesc
-		));
+		MessageBuilder("SERVER", true)
+			.Push(ServerInstance->Config->ServerName,
+				TreeSocket::MakePass(x->SendPass, this->GetTheirChallenge()),
+				ServerInstance->Config->ServerId,
+				ServerInstance->Config->ServerDesc)
+			.Unicast(this);
 
 		// move to the next state, we are now waiting for THEM.
 		this->LinkState = WAIT_AUTH_2;
@@ -256,12 +256,12 @@ bool TreeSocket::Inbound_Server(CommandBase::Params& params)
 }
 
 CommandServer::Builder::Builder(TreeServer* server)
-	: CmdBuilder(server->GetTreeParent(), "SERVER")
+	: MessageBuilder(server->GetTreeParent(), "SERVER")
 {
-	push(server->GetName());
-	push(server->GetId());
+	Push(server->GetName());
+	Push(server->GetId());
 	if (server->IsBursting())
-		push_property("burst", ConvToStr(server->StartBurst));
-	push_property("hidden", ConvToStr(server->Hidden));
-	push_last(server->GetDesc());
+		PushProperty("burst", server->StartBurst);
+	PushProperty("hidden", server->Hidden);
+	Push(server->GetDesc());
 }

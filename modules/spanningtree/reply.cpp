@@ -52,19 +52,11 @@ RouteDescriptor CommandReply::GetRouting(User* user, const Params& params)
 }
 
 CommandReply::Builder::Builder(SpanningTree::RemoteUser* target, const Reply::Reply& reply)
-	: CmdBuilder(Reply::CommandStrFromType(reply.GetType()))
+	: MessageBuilder(Reply::CommandStrFromType(reply.GetType()))
 {
-	push(reply.GetSource() ? reply.GetSource()->GetId() : Utils->TreeRoot->GetId());
-	push(target->uuid);
-	push(reply.GetCommand() ? reply.GetCommand()->service_name : "*");
-	push(reply.GetCode());
-
-	const auto& params = reply.GetParams();
-	if (!params.empty())
-	{
-		for (auto it = params.begin(); it != params.end() - 1; ++it)
-			push(*it);
-		push_last(params.back());
-	}
-	push_tags(params.GetTags());
+	Push(reply.GetSource() ? reply.GetSource()->GetId() : Utils->TreeRoot->GetId());
+	Push(target->uuid);
+	Push(reply.GetCommand() ? reply.GetCommand()->service_name : "*");
+	Push(reply.GetCode());
+	PushParams(reply.GetParams());
 }

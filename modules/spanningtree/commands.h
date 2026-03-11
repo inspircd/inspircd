@@ -23,7 +23,7 @@
 #pragma once
 
 #include "servercommand.h"
-#include "commandbuilder.h"
+#include "msgbuilder.h"
 #include "remoteuser.h"
 #include "modules/away.h"
 
@@ -80,7 +80,7 @@ public:
 	CmdResult Handle(User* user, Params& params) override;
 
 	class Builder final
-		: public CmdBuilder
+		: public MessageBuilder
 	{
 	public:
 		Builder(const Extensible* ext, const std::string& key, const std::string& val);
@@ -99,7 +99,7 @@ public:
 	CmdResult HandleServer(TreeServer* server, CommandBase::Params& params);
 
 	class Builder final
-		: public CmdBuilder
+		: public MessageBuilder
 	{
 	public:
 		Builder(User* user);
@@ -117,7 +117,7 @@ public:
 	CmdResult HandleRemote(RemoteUser* user, Params& params);
 
 	class Builder final
-		: public CmdBuilder
+		: public MessageBuilder
 	{
 	public:
 		Builder(User* user, const std::shared_ptr<OperAccount>& oper, bool automatic = false);
@@ -152,15 +152,8 @@ public:
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override { return ROUTE_LOCALONLY; }
 
 	class Builder
-		: public CmdBuilder
+		: public MessageBuilder
 	{
-		/** Maximum possible Membership::Id length in decimal digits, used for determining whether a user will fit into
-		 * a message or not
-		 */
-		static constexpr size_t membid_max_digits = 20;
-		static constexpr size_t maxline = 510;
-		std::string::size_type pos;
-
 	protected:
 		void add(Membership* memb, std::string::const_iterator mbegin, std::string::const_iterator mend);
 
@@ -172,10 +165,6 @@ public:
 			const std::string modes = memb->GetAllPrefixModes();
 			add(memb, modes.begin(), modes.end());
 		}
-
-		void clear();
-
-		const std::string& finalize();
 	};
 };
 
@@ -201,7 +190,7 @@ public:
 	CmdResult Handle(User* user, Params& params) override;
 
 	class Builder final
-		: public CmdBuilder
+		: public MessageBuilder
 	{
 	public:
 		Builder(Channel* chan);
@@ -280,7 +269,7 @@ public:
 	CmdResult HandleRemote(::RemoteUser* user, Params& parameters);
 
 	class Builder final
-		: public CmdBuilder
+		: public MessageBuilder
 	{
 	public:
 		Builder(User* user);
@@ -299,7 +288,7 @@ public:
 	CmdResult Handle(User* user, Params& parameters) override;
 
 	class Builder final
-		: public CmdBuilder
+		: public MessageBuilder
 	{
 	public:
 		Builder(XLine* xline, User* user = ServerInstance->FakeClient);
@@ -408,11 +397,12 @@ public:
 	CmdResult HandleServer(TreeServer* server, Params& parameters);
 
 	class Builder final
-		: public CmdBuilder
+		: public MessageBuilder
 	{
-		void push_property(const char* key, const std::string& val)
+		template<typename T>
+		void PushProperty(const char* key, const T& val)
 		{
-			push(key).push_raw('=').push_raw(val);
+			PushFmt("{}={}", key, val);
 		}
 	public:
 		Builder(TreeServer* server);
@@ -463,7 +453,7 @@ public:
 	CmdResult HandleServer(TreeServer* server, Params& parameters);
 
 	class Builder final
-		: public CmdBuilder
+		: public MessageBuilder
 	{
 	public:
 		Builder(TreeServer* server, const char* type, const std::string& value);
@@ -482,7 +472,7 @@ public:
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 
 	class Builder final
-		: public CmdBuilder
+		: public MessageBuilder
 	{
 	public:
 		Builder(SpanningTree::RemoteUser* target, const Numeric::Numeric& numeric);
@@ -517,7 +507,7 @@ public:
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 
 	class Builder final
-		: public CmdBuilder
+		: public MessageBuilder
 	{
 	public:
 		Builder(SpanningTree::RemoteUser* target, const Reply::Reply& reply);

@@ -28,7 +28,6 @@
 #include "treesocket.h"
 #include "treeserver.h"
 #include "utils.h"
-#include "commandbuilder.h"
 #include "commands.h"
 
 /*
@@ -111,10 +110,9 @@ bool SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remo
 		 * Local-side nick needs to change. Just in case we are hub, and
 		 * this "local" nick is actually behind us, send a SAVE out.
 		 */
-		CmdBuilder params("SAVE");
-		params.push(u->uuid);
-		params.push(ConvToStr(u->nickchanged));
-		params.Broadcast();
+		MessageBuilder("SAVE")
+			.Push(u->uuid, u->nickchanged)
+			.Broadcast();
 
 		u->ChangeNick(u->uuid, CommandSave::SavedTimestamp);
 	}
@@ -124,7 +122,9 @@ bool SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remo
 		 * Remote side needs to change. If this happens, we modify the UID or NICK and
 		 * send back a SAVE to the source.
 		 */
-		CmdBuilder("SAVE").push(remoteuid).push_int(remotets).Unicast(server->ServerUser);
+		MessageBuilder("SAVE")
+			.Push(remoteuid, remotets)
+			.Unicast(server->ServerUser);
 	}
 
 	return bChangeRemote;

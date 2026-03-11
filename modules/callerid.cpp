@@ -166,8 +166,9 @@ class CommandAccept final
 	 */
 	typedef std::pair<User*, bool> ACCEPTAction;
 
-	static ACCEPTAction GetTargetAndAction(std::string& tok, User* cmdfrom = nullptr)
+	static ACCEPTAction GetTargetAndAction(const std::string& token, User* cmdfrom = nullptr)
 	{
+		auto tok = token;
 		bool remove = (tok[0] == '-');
 		if ((remove) || (tok[0] == '+'))
 			tok.erase(tok.begin());
@@ -196,18 +197,18 @@ public:
 		translation = { TranslateType::CUSTOM };
 	}
 
-	void EncodeParameter(std::string& parameter, size_t index) override
+	std::string EncodeParameter(const std::string& parameter, size_t index) override
 	{
 		// Send lists as-is (part of 2.0 compat)
 		if (parameter.find(',') != std::string::npos)
-			return;
+			return parameter;
 
 		// Convert a (+|-)<nick> into a [-]<uuid>
 		ACCEPTAction action = GetTargetAndAction(parameter);
 		if (!action.first)
-			return;
+			return parameter;
 
-		parameter = (action.second ? "" : "-") + action.first->uuid;
+		return (action.second ? "" : "-") + action.first->uuid;
 	}
 
 	/** Will take any number of nicks (up to <maxtargets>), which can be separated by commas.
@@ -229,11 +230,10 @@ public:
 			return CmdResult::SUCCESS;
 		}
 
-		std::string tok = parameters[0];
-		ACCEPTAction action = GetTargetAndAction(tok, user);
+		ACCEPTAction action = GetTargetAndAction(parameters[0], user);
 		if (!action.first)
 		{
-			user->WriteNumeric(Numerics::NoSuchNick(tok));
+			user->WriteNumeric(Numerics::NoSuchNick(parameters[0]));
 			return CmdResult::FAILURE;
 		}
 
@@ -261,8 +261,7 @@ public:
 			return ROUTE_BROADCAST;
 
 		// Find the target
-		std::string targetstring = parameters[0];
-		ACCEPTAction action = GetTargetAndAction(targetstring, user);
+		ACCEPTAction action = GetTargetAndAction(parameters[0], user);
 		if (!action.first)
 			// Target is a "*" or source is local and the target is a list of nicks
 			return ROUTE_LOCALONLY;

@@ -26,5 +26,16 @@ namespace Translate
 	 * @return List of mode parameters built from the input. Does not include the modes themselves,
 	 * only the parameters.
 	 */
-	std::string ModeChangeListToParams(const Modes::ChangeList::List& modes);
+	CommandBase::Params ModeChangeListToParams(const Modes::ChangeList::List& modes);
+
+	//xxx
+	CommandBase::Params ParamsToNetwork(const std::vector<TranslateType>& types, const CommandBase::Params& params, CommandBase* custom_translator);
+
+	/** Translates a single parameter to the network form.
+	 * @param type The translation type to use.
+	 * @param item The parameter to translate.
+	 * @param custom_translator A custom translator to translate the parameter with if the type is CUSTOM.
+	 * @param index The index of the parameter to translate.
+	 */
+	std::string SingleParamToNetwork(TranslateType type, const std::string& item, CommandBase* custom_translator, size_t index);
 }

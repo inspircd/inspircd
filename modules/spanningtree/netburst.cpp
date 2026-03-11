@@ -43,7 +43,9 @@ void TreeSocket::DoBurst(TreeServer* s)
 		capab->auth_fingerprint ? "TLS certificate fingerprint and " : "",
 		capab->auth_challenge ? "challenge-response" : "plaintext password");
 	this->CleanNegotiationInfo();
-	this->WriteLine(CmdBuilder("BURST").push_int(ServerInstance->Time()));
+
+	MessageBuilder("BURST").Push(ServerInstance->Time()).Unicast(this);
+
 	// Introduce all servers behind us
 	this->SendServers(Utils->TreeRoot, s);
 
@@ -57,15 +59,15 @@ void TreeSocket::DoBurst(TreeServer* s)
 	// Send all xlines
 	this->SendXLines();
 	Utils->Creator->synceventprov.Call(&ServerProtocol::SyncEventListener::OnSyncNetwork, *s);
-	this->WriteLine(CmdBuilder("ENDBURST"));
+	MessageBuilder("ENDBURST").Unicast(this);
 	ServerInstance->SNO.WriteToSnoMask('l', "Finished bursting to \002"+ s->GetName()+"\002.");
 }
 
 void TreeSocket::SendServerInfo(TreeServer* from)
 {
-	this->WriteLine(CommandSInfo::Builder(from, "customversion", from->customversion));
-	this->WriteLine(CommandSInfo::Builder(from, "rawbranch", from->rawbranch));
-	this->WriteLine(CommandSInfo::Builder(from, "rawversion", from->rawversion));
+	CommandSInfo::Builder(from, "customversion", from->customversion).Unicast(this);
+	CommandSInfo::Builder(from, "rawbranch", from->rawbranch).Unicast(this);
+	CommandSInfo::Builder(from, "rawversion", from->rawversion).Unicast(this);
 }
 
 /** Recursively send the server tree.
@@ -82,7 +84,7 @@ void TreeSocket::SendServers(TreeServer* Current, TreeServer* s)
 	{
 		if (recursive_server != s)
 		{
-			this->WriteLine(CommandServer::Builder(recursive_server));
+			CommandServer::Builder(recursive_server).Unicast(this);
 			/* down to next level */
 			this->SendServers(recursive_server, s);
 		}
@@ -96,7 +98,7 @@ void TreeSocket::SendFJoins(Channel* chan)
 	for (const auto& [_, memb] : chan->GetUsers())
 		fjoin.add(memb);
 
-	this->WriteLine(fjoin.finalize());
+	fjoin.Unicast(this);
 }
 
 /** Send all XLines we know about */
@@ -116,7 +118,7 @@ void TreeSocket::SendXLines()
 				 * We break the loop as NONE of the items in this group are worth iterating.
 				 */
 				if (xline->IsBurstable())
-					this->WriteLine(CommandAddLine::Builder(xline));
+					CommandAddLine::Builder(xline).Unicast(this);
 			}
 		}
 	}
@@ -130,13 +132,13 @@ void TreeSocket::SendListModes(Channel* chan)
 		if (!list || list->empty())
 			continue;
 
-		CmdBuilder lmode("LMODE");
-		lmode.push(chan->name).push_int(chan->age).push(mode->GetModeChar());
+		MessageBuilder msg("LMODE");
+		msg.Push(chan->name, chan->age, mode->GetModeChar());
 
 		for (const auto& entry : *list)
-			lmode.push(entry.mask).push(entry.setter).push_int(entry.time);
+			msg.Push(entry.mask, entry.setter, entry.time);
 
-		this->WriteLine(lmode.str());
+		msg.Unicast(this);
 	}
 }
 
@@ -148,7 +150,7 @@ void TreeSocket::SyncChannel(Channel* chan, TreeServer* s)
 	// If the topic was ever set, send it, even if it's empty now
 	// because a new empty topic should override an old non-empty topic
 	if (chan->topicset != 0)
-		this->WriteLine(CommandFTopic::Builder(chan));
+		CommandFTopic::Builder(chan).Unicast(this);
 
 	SpanningTreeUtilities::SendListLimits(chan, this);
 	SendListModes(chan);
@@ -158,7 +160,7 @@ void TreeSocket::SyncChannel(Channel* chan, TreeServer* s)
 		const std::string valuestr = item->ToNetwork(chan, value);
 		if (!valuestr.empty())
 		{
-			this->WriteLine(CommandMetadata::Builder(chan, item->service_name, valuestr));
+			CommandMetadata::Builder(chan, item->service_name, valuestr).Unicast(this);
 			item->OnSync(chan, value, s);
 		}
 	}
@@ -170,7 +172,7 @@ void TreeSocket::SyncChannel(Channel* chan, TreeServer* s)
 			const std::string valuestr = item->ToNetwork(memb, value);
 			if (!valuestr.empty())
 			{
-				this->WriteLine(CommandMetadata::Builder(memb, item->service_name, valuestr));
+				CommandMetadata::Builder(memb, item->service_name, valuestr).Unicast(this);
 				item->OnSync(memb, value, s);
 			}
 		}
@@ -188,23 +190,23 @@ void TreeSocket::SendUsers(TreeServer* s)
 		if (!user->IsFullyConnected())
 			continue;
 
-		this->WriteLine(CommandUID::Builder(user));
+		CommandUID::Builder(user).Unicast(this);
 
 		if (user->IsOper())
-			this->WriteLine(CommandOpertype::Builder(user, user->oper));
+			CommandOpertype::Builder(user, user->oper).Unicast(this);
 
 		if (user->IsAway())
-			this->WriteLine(CommandAway::Builder(user));
+			CommandAway::Builder(user).Unicast(this);
 
 		if (user->uniqueusername) // TODO: convert this to BooleanExtItem.
-			this->WriteLine(CommandMetadata::Builder(user, "uniqueusername", "1"));
+			CommandMetadata::Builder(user, "uniqueusername", "1").Unicast(this);
 
 		for (const auto& [item, obj] : user->GetExtList())
 		{
 			const std::string value = item->ToNetwork(user, obj);
 			if (!value.empty())
 			{
-				this->WriteLine(CommandMetadata::Builder(user, item->service_name, value));
+				CommandMetadata::Builder(user, item->service_name, value).Unicast(this);
 				item->OnSync(user, obj, s);
 			}
 		}

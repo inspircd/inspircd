@@ -326,68 +326,6 @@ bool CommandParser::AddCommand(Command* cmd)
 	return cmdlist.emplace(cmd->service_name, cmd).second;
 }
 
-std::string CommandParser::TranslateUIDs(const std::vector<TranslateType>& to, const CommandBase::Params& source, bool prefix_final, CommandBase* custom_translator)
-{
-	std::vector<TranslateType>::const_iterator types = to.begin();
-	std::string dest;
-
-	for (size_t i = 0; i < source.size(); i++)
-	{
-		auto t = TranslateType::TEXT;
-		// They might supply less translation types than parameters,
-		// in that case pretend that all remaining types are TranslateType::TEXT
-		if (types != to.end())
-		{
-			t = *types;
-			types++;
-		}
-
-		bool last = (i == (source.size() - 1));
-		if (prefix_final && last)
-			dest.push_back(':');
-
-		TranslateSingleParam(t, source[i], dest, custom_translator, i);
-
-		if (!last)
-			dest.push_back(' ');
-	}
-
-	return dest;
-}
-
-void CommandParser::TranslateSingleParam(TranslateType to, const std::string& item, std::string& dest, CommandBase* custom_translator, size_t paramnumber)
-{
-	switch (to)
-	{
-		case TranslateType::NICK:
-		{
-			/* Translate single nickname */
-			auto* user = ServerInstance->Users.Find(item);
-			if (user)
-				dest.append(user->uuid);
-			else
-				dest.append(item);
-			break;
-		}
-		case TranslateType::CUSTOM:
-		{
-			if (custom_translator)
-			{
-				std::string translated = item;
-				custom_translator->EncodeParameter(translated, paramnumber);
-				dest.append(translated);
-				break;
-			}
-			// If no custom translator was given, fall through
-		}
-		[[fallthrough]];
-		default:
-			/* Do nothing */
-			dest.append(item);
-		break;
-	}
-}
-
 CommandBase::CommandBase(Module* mod, const std::string& cmd, size_t minpara, size_t maxpara)
 	: ServiceProvider(mod, "CommandBase", cmd)
 	, min_params(minpara)
@@ -395,8 +333,9 @@ CommandBase::CommandBase(Module* mod, const std::string& cmd, size_t minpara, si
 {
 }
 
-void CommandBase::EncodeParameter(std::string& parameter, size_t index)
+std::string CommandBase::EncodeParameter(const std::string& parameter, size_t index)
 {
+	return parameter;
 }
 
 RouteDescriptor CommandBase::GetRouting(User* user, const Params& parameters)

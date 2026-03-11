@@ -26,14 +26,15 @@
 #include "numerichelper.h"
 
 #include "main.h"
-#include "commandbuilder.h"
 
 ModResult ModuleSpanningTree::HandleRemoteWhois(const CommandBase::Params& parameters, User* user)
 {
 	auto* remote = ServerInstance->Users.FindNick(parameters[1]);
 	if (remote && !remote->IsLocal())
 	{
-		CmdBuilder(user, "IDLE").push(remote->uuid).Unicast(remote);
+		MessageBuilder(user, "IDLE")
+			.Push(remote->uuid)
+			.Unicast(remote);
 		return MOD_RES_DENY;
 	}
 	else if (!remote)

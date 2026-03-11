@@ -29,7 +29,9 @@ SpanningTree::RemoteUser::RemoteUser(const std::string& uid, Server* srv)
 
 void SpanningTree::RemoteUser::WriteRemoteNotice(const std::string& text)
 {
-	CmdBuilder("NOTICE").push(uuid).push_last(text).Unicast(this);
+	MessageBuilder("NOTICE")
+		.Push(this->uuid, text)
+		.Unicast(this);
 }
 
 void SpanningTree::RemoteUser::WriteRemoteNumeric(const Numeric::Numeric& numeric)

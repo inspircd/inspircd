@@ -35,7 +35,6 @@ class Link;
 class Autoconnect;
 class ModuleSpanningTree;
 class SpanningTreeUtilities;
-class CmdBuilder;
 
 extern SpanningTreeUtilities* Utils;
 
@@ -128,14 +127,6 @@ public:
 	~SpanningTreeUtilities() override;
 
 	void RouteCommand(TreeServer* origin, CommandBase* cmd, const CommandBase::Params& parameters, User* user);
-
-	/** Send a message from this server to one other local or remote
-	 */
-	static void DoOneToOne(const CmdBuilder& params, const Server* target);
-
-	/** Send a message from this server to all but one other, local or remote
-	 */
-	void DoOneToAllButSender(const CmdBuilder& params, const TreeServer* omit) const;
 
 	/** Read the spanningtree module's tags from the config file
 	 */

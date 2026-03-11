@@ -34,7 +34,7 @@
 #include "treeserver.h"
 #include "treesocket.h"
 #include "resolvers.h"
-#include "commandbuilder.h"
+#include "msgbuilder.h"
 
 SpanningTreeUtilities* Utils = nullptr;
 
@@ -178,28 +178,6 @@ void SpanningTreeUtilities::GetListOfServersForChannel(const Channel* c, TreeSoc
 		if (result == MOD_RES_ALLOW)
 			list.insert(server->GetRoute()->GetSocket());
 	}
-}
-
-void SpanningTreeUtilities::DoOneToAllButSender(const CmdBuilder& params, const TreeServer* omitroute) const
-{
-	const std::string& FullLine = params.str();
-
-	for (const auto* Route : TreeRoot->GetChildren())
-	{
-		// Send the line if the route isn't the path to the one to be omitted
-		if (Route != omitroute)
-		{
-			Route->GetSocket()->WriteLine(FullLine);
-		}
-	}
-}
-
-void SpanningTreeUtilities::DoOneToOne(const CmdBuilder& params, const Server* server)
-{
-	const TreeServer* ts = static_cast<const TreeServer*>(server);
-	TreeSocket* sock = ts->GetSocket();
-	if (sock)
-		sock->WriteLine(params);
 }
 
 void SpanningTreeUtilities::RefreshIPCache()
@@ -391,14 +369,15 @@ std::shared_ptr<Link> SpanningTreeUtilities::FindLink(const std::string& name)
 
 void SpanningTreeUtilities::SendChannelMessage(const User* source, const Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const CUList& exempt_list, const char* message_type, const TreeSocket* omit) const
 {
-	CmdBuilder msg(source, message_type);
-	msg.push_tags(tags);
-	msg.push_raw(' ');
-	if (status != 0)
-		msg.push_raw(status);
-	msg.push_raw(target->name);
+	MessageBuilder msg(source, message_type);
+	if (status)
+		msg.PushFmt("{}{}", status, target->name);
+	else
+		msg.Push(target->name);
+	msg.Push(target->name)
+		.PushTags(tags);
 	if (!text.empty())
-		msg.push_last(text);
+		msg.Push(text);
 
 	TreeSocketSet list;
 	this->GetListOfServersForChannel(target, list, status, exempt_list);
@@ -406,7 +385,7 @@ void SpanningTreeUtilities::SendChannelMessage(const User* source, const Channel
 	for (auto* Sock : list)
 	{
 		if (Sock != omit)
-			Sock->WriteLine(msg);
+			msg.Unicast(Sock);
 	}
 }
 
@@ -440,7 +419,7 @@ void SpanningTreeUtilities::SendListLimits(Channel* chan, TreeSocket* sock)
 
 	bufferstr.pop_back();
 	if (sock)
-		sock->WriteLine(CommandMetadata::Builder(chan, "maxlist", bufferstr));
+		CommandMetadata::Builder(chan, "maxlist", bufferstr).Unicast(sock);
 	else
 		CommandMetadata::Builder(chan, "maxlist", bufferstr).Broadcast();
 }
