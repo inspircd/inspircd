@@ -377,8 +377,6 @@ void ServerConfig::Fill()
 	// Read the <options> config.
 	const auto& options = ConfValue("options");
 	CustomVersion = options->getString("customversion", security->getString("customversion"));
-	MaskInList = options->getBool("maskinlist");
-	MaskInTopic = options->getBool("maskintopic");
 	NoSnoticeStack = options->getBool("nosnoticestack");
 	SyntaxHints = options->getBool("syntaxhints");
 	XLineMessage = options->getString("xlinemessage", "You're banned!", 1);
@@ -393,6 +391,11 @@ void ServerConfig::Fill()
 		{ "ipv4", false                 },
 		{ "ipv6", true                  },
 	});
+
+	// Read the <channels> config.
+	const auto& channels = ConfValue("channels", options);
+	MaskInList = channels->getBool("maskinlist");
+	MaskInTopic = channels->getBool("maskintopic");
 
 	// Read the <performance> config.
 	const auto& performance = ConfValue("performance");
