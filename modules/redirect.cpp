@@ -149,6 +149,42 @@ public:
 	}
 };
 
+class BanRedirect final
+	: public ModeWatcher
+{
+private:
+	RedirectExtBan& redirectextban;
+
+public:
+	BanRedirect(Module* mod, RedirectExtBan& extban)
+		: ModeWatcher(mod, "ban", MODETYPE_CHANNEL)
+		, redirectextban(extban)
+	{
+	}
+
+	bool BeforeMode(User* source, User* dest, Channel* channel, Modes::Change& change) override
+	{
+		if (!change.adding || change.param.empty() || !source->IsLocal())
+			return true; // Nothing to do.
+
+		bool xbinverted; // Unused
+		std::string xbname, xbvalue; // Unused
+		if (ExtBan::Parse(change.param, xbname, xbvalue, xbinverted))
+			return true; // Don't touch extbans
+
+		const auto pos_of_pling = change.param.find_first_of('!');
+		const auto pos_of_at = change.param.find_first_of('@', pos_of_pling == std::string::npos ? 0 : pos_of_pling);
+		const auto pos_of_hash = change.param.find_first_of('#', pos_of_at == std::string::npos ? 0 : pos_of_at);
+		if (pos_of_hash != std::string::npos)
+		{
+			// Rewrite old banredirect entries from foo!bar@baz#chan to redirect:#chan:foo!bar@baz
+			change.param = FMT::format("{}:{}:{}", redirectextban.service_name,
+				change.param.substr(pos_of_hash), change.param.substr(0, pos_of_hash));
+		}
+		return true;
+	}
+};
+
 class ModuleRedirect final
 	: public Module
 {
@@ -165,6 +201,7 @@ private:
 	ChanModeReference limitmode;
 	RedirectExtBan redirectextban;
 	RedirectMode redirectmode;
+	BanRedirect banredirect;
 
 	ModResult HandleRedirect(LocalUser* user, Channel* chan, const std::string& reason, bool param = true)
 	{
@@ -208,6 +245,7 @@ public:
 		, limitmode(this, "limit")
 		, redirectextban(this)
 		, redirectmode(this)
+		, banredirect(this, redirectextban)
 	{
 	}
 
