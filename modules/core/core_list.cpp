@@ -211,7 +211,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		const auto& tag = ServerInstance->Config->ConfValue("options");
+		const auto& tag = ServerInstance->Config->ConfValue("channels", ServerInstance->Config->ConfValue("options"));
 		cmd.showmodes = tag->getEnum("modesinlist", ShowModes::OPERS, {
 			{ "no",    ShowModes::NOBODY },
 			{ "opers", ShowModes::OPERS  },
