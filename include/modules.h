@@ -425,7 +425,7 @@ public:
 	 * @param override Whether the channel join can be blocked by returning MOD_RES_DENY.
 	 * @return 1 To prevent the join, 0 to allow it.
 	 */
-	virtual ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) ATTR_NOT_NULL(2);
+	virtual ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, PrefixMode::Set& privs, const std::string& keygiven, bool override) ATTR_NOT_NULL(2);
 
 	/** Called whenever a user is about to be kicked.
 	 * Returning a value of 1 from this function stops the process immediately, causing no

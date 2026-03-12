@@ -75,10 +75,10 @@ public:
 		 */
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, PrefixMode::Set& privs, const std::string& keygiven, bool override) override
 	{
 		if ((user->IsOper()) && (!user->IsModeSet(hideopermode)))
-			privs.push_back('y');
+			privs.insert(&opm);
 		return MOD_RES_PASSTHRU;
 	}
 

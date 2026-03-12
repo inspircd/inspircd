@@ -169,7 +169,7 @@ public:
 			ignoreuntil = std::max<time_t>(ignoreuntil, ServerInstance->Time() + splitwait);
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, PrefixMode::Set& privs, const std::string& keygiven, bool override) override
 	{
 		if (!override && chan)
 		{

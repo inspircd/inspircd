@@ -247,7 +247,7 @@ public:
 	 * @param created_by_local True if this channel was just created by a local user (passed to modules in the OnUserJoin hook)
 	 * @return A newly created Membership object, or NULL if the user was already inside the channel or if the user is a server user
 	 */
-	Membership* ForceJoin(User* user, const std::string* privs = nullptr, bool bursting = false, bool created_by_local = false);
+	Membership* ForceJoin(User* user, const PrefixMode::Set* privs = nullptr, bool bursting = false, bool created_by_local = false);
 
 	/** Write to all users on a channel except some users
 	 * @param protoev Event to send, may contain any number of messages.

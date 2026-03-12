@@ -439,9 +439,6 @@ public:
 	/** The value to show in the comment field of the RPL_VERSION. */
 	std::string CustomVersion;
 
-	/** The modes to set on a new channel. May contain channel prefix modes to set on the channel creator. */
-	std::string DefaultModes;
-
 	/** If non-empty then the value to replace the server name with in public messages. */
 	std::string HideServer;
 

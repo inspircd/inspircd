@@ -51,7 +51,7 @@ public:
 	/** List of prefix mode letters this member has,
 	 * sorted by prefix rank, highest first
 	 */
-	std::set<PrefixMode*, PrefixMode::Sorter> modes;
+	PrefixMode::Set modes;
 
 	/** Id of this Membership, set by the protocol module, other components should never read or
 	 * write this field.

@@ -120,13 +120,13 @@ public:
 	{
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, PrefixMode::Set& privs, const std::string& keygiven, bool override) override
 	{
 		if (mycommand.active)
 		{
-			privs += np.GetModeChar();
-			if (mycommand.op && mycommand.opmode)
-				privs += mycommand.opmode->IsPrefixMode()->GetPrefix();
+			privs.insert(&np);
+			if (mycommand.op && mycommand.opmode && mycommand.opmode->IsPrefixMode())
+				privs.insert(mycommand.opmode->IsPrefixMode());
 			return MOD_RES_ALLOW;
 		}
 

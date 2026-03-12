@@ -40,17 +40,25 @@ CmdResult CommandIJoin::HandleRemote(RemoteUser* user, Params& params)
 		return CmdResult::FAILURE;
 	}
 
-	bool apply_modes;
+	auto apply_modes = false;
+	PrefixMode::Set modes;
 	if (params.size() > 4)
 	{
 		time_t RemoteTS = ServerCommand::ExtractTS(params[3]);
-		apply_modes = (RemoteTS <= chan->age);
+		if (RemoteTS <= chan->age)
+		{
+			apply_modes = true;
+			for (const auto modechr : params[4])
+			{
+				auto* pm = ServerInstance->Modes.FindPrefixMode(modechr);
+				if (pm)
+					modes.insert(pm);
+			}
+		}
 	}
-	else
-		apply_modes = false;
 
 	// Join the user and set the membership id to what they sent
-	Membership* memb = chan->ForceJoin(user, apply_modes ? &params[4] : nullptr);
+	auto* memb = chan->ForceJoin(user, apply_modes ? &modes : nullptr);
 	if (!memb)
 		return CmdResult::FAILURE;
 

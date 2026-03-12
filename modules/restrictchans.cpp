@@ -78,7 +78,7 @@ public:
 		allowregistered = tag->getBool("allowregistered", false);
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, PrefixMode::Set& privs, const std::string& keygiven, bool override) override
 	{
 		// channel does not yet exist (record is null, about to be created IF we were to allow it)
 		if (!override && !chan && !CanCreateChannel(user, cname))

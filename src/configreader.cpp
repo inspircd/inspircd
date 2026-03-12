@@ -377,7 +377,6 @@ void ServerConfig::Fill()
 	// Read the <options> config.
 	const auto& options = ConfValue("options");
 	CustomVersion = options->getString("customversion", security->getString("customversion"));
-	DefaultModes = options->getString("defaultmodes", "not");
 	MaskInList = options->getBool("maskinlist");
 	MaskInTopic = options->getBool("maskintopic");
 	NoSnoticeStack = options->getBool("nosnoticestack");

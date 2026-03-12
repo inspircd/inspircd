@@ -129,6 +129,17 @@ class CoreModChannel final
 	insp::flat_map<std::string, char> exemptions;
 	ExtBanManager extbanmgr;
 
+	// <channels:defaultmodes>
+	using DefaultModeList = std::vector<std::pair<ChanModeReference, std::string>>;
+	DefaultModeList defaultmodes;
+
+	// <channels:defaultprivs>
+	using DefaultPrivList = std::vector<ChanModeReference>;
+	DefaultPrivList defaultprivs;
+
+	// <channels:defaulttopic>
+	std::string defaulttopic;
+
 	ModResult IsInvited(User* user, Channel* chan)
 	{
 		auto* localuser = user->AsLocal();
@@ -191,6 +202,59 @@ public:
 			{ "letter", ExtBan::Format::LETTER },
 		});
 
+
+		DefaultPrivList newdefaultprivs;
+		{
+			for (const auto modechr : channelstag->getString("defaultprivs", "o"))
+			{
+				if (modechr == '+')
+					continue; // This is implied.
+
+				auto* pm = ServerInstance->Modes.FindPrefixMode(modechr);
+				if (!pm)
+				{
+					ServerInstance->Logs.Debug(MODNAME, "Ignoring invalid mode in <channels:defaultprivs>: {}",
+						modechr);
+					continue;
+				}
+
+				ChanModeReference moderef(this, pm->service_name);
+				newdefaultprivs.push_back(moderef);
+			}
+		}
+
+		DefaultModeList newdefaultmodes;
+		{
+			irc::spacesepstream defaultmodestream(channelstag->getString("defaultmodes", "nt"));
+
+			std::string modestr;
+			defaultmodestream.GetToken(modestr);
+			for (const auto modechr : modestr)
+			{
+				if (modechr == '+')
+					continue; // This is implied.
+
+				auto* mh = ServerInstance->Modes.FindMode(modechr, MODETYPE_CHANNEL);
+				if (!mh || mh->IsPrefixMode())
+				{
+					ServerInstance->Logs.Debug(MODNAME, "Ignoring invalid mode in <channels:defaultmodes>: {}",
+						modechr);
+					continue;
+				}
+
+				std::string modeparam;
+				if (mh->NeedsParam(true) && (!defaultmodestream.GetToken(modeparam) || modeparam.empty()))
+				{
+					ServerInstance->Logs.Debug(MODNAME, "Ignoring mode with missing parameter in <channels:defaultmodes>: {} ({})",
+						modechr, mh->service_name);
+					continue;
+				}
+
+				ChanModeReference moderef(this, mh->service_name);
+				newdefaultmodes.emplace_back(std::make_pair(moderef, modeparam));
+			}
+		}
+
 		const auto& securitytag = ServerInstance->Config->ConfValue("security");
 		Invite::AnnounceState newannouncestate = securitytag->getEnum("announceinvites", Invite::ANNOUNCE_DYNAMIC, {
 			{ "all",     Invite::ANNOUNCE_ALL },
@@ -204,10 +268,14 @@ public:
 		// Validates and applies <maxlist> tags, so do it first
 		banmode.DoRehash();
 
+		defaultprivs.swap(newdefaultprivs);
+		defaultmodes.swap(newdefaultmodes);
 		exemptions.swap(exempts);
+
 		extbanmgr.format = newformat;
 		invapi.announceinvites = newannouncestate;
 		joinhook.modefromuser = channelstag->getBool("cyclehostsfromuser");
+		defaulttopic = channelstag->getString("defaulttopic");
 
 		Implementation events[] = { I_OnCheckKey, I_OnCheckLimit, I_OnCheckList };
 		if (channelstag->getBool("invitebypassmodes", true))
@@ -251,7 +319,7 @@ public:
 		tokens["CHANLIMIT"] = FMT::format("#:{}", opermaxchans);
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, PrefixMode::Set& privs, const std::string& keygiven, bool override) override
 	{
 		if (override)
 		{
@@ -276,7 +344,14 @@ public:
 		}
 
 		if (!chan)
+		{
+			for (auto& defaultpriv : defaultprivs)
+			{
+				if (defaultpriv && defaultpriv->IsPrefixMode())
+					privs.insert(defaultpriv->IsPrefixMode());
+			}
 			return MOD_RES_PASSTHRU; // Can't have limits on a new channel.
+		}
 
 		// Check whether the channel key is correct.
 		const std::string ckey = chan->GetModeParameter(&keymode);
@@ -326,6 +401,28 @@ public:
 		// Everything looks okay.
 		return MOD_RES_PASSTHRU;
 	}
+
+	void OnUserJoin(Membership* memb, bool sync, bool created_by_local, CUList& excepts) override
+	{
+		if (!created_by_local)
+			return;
+
+		for (auto& [mh, mparam] : this->defaultmodes)
+		{
+			if (!mh || mh->IsPrefixMode())
+				continue; // Not settable here.
+
+			if (mh->NeedsParam(true) && mparam.empty())
+				continue; // Parameter missing.
+
+			Modes::Change modechange(*mh, true, mparam);
+			mh->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, memb->chan, modechange);
+		}
+
+		if (!this->defaulttopic.empty())
+			memb->chan->SetTopic(ServerInstance->FakeClient, this->defaulttopic, ServerInstance->Time());
+	}
+
 
 	void OnPostJoin(Membership* memb) override
 	{

@@ -119,42 +119,6 @@ Membership* Channel::GetUser(User* user) const
 	return i->second;
 }
 
-void Channel::SetDefaultModes()
-{
-	ServerInstance->Logs.Debug("CHANNELS", "Setting default modes on {}: {}", name,
-		ServerInstance->Config->DefaultModes);
-	irc::spacesepstream list(ServerInstance->Config->DefaultModes);
-	std::string modeseq;
-	std::string parameter;
-
-	list.GetToken(modeseq);
-
-	for (const auto modechr : modeseq)
-	{
-		ModeHandler* mode = ServerInstance->Modes.FindMode(modechr, MODETYPE_CHANNEL);
-		if (mode)
-		{
-			if (mode->IsPrefixMode())
-				continue;
-
-			if (mode->NeedsParam(true))
-			{
-				// If the parameter is missing or begins with a ':' then it's invalid
-				if (!list.GetToken(parameter) || parameter[0] == ':')
-					continue;
-			}
-			else
-			{
-				// The mode does not take a parameter.
-				parameter.clear();
-			}
-
-			Modes::Change modechange(mode, true, parameter);
-			mode->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, this, modechange);
-		}
-	}
-}
-
 /*
  * add a channel to a user, creating the record for it if needed and linking
  * it to the user record
@@ -173,12 +137,10 @@ Membership* Channel::JoinUser(LocalUser* user, std::string cname, bool override,
 
 	auto* chan = ServerInstance->Channels.Find(cname);
 	bool created_by_local = !chan; // Flag that will be passed to ForceJoin later
-	std::string privs; // Prefix mode(letter)s to give to the joining user
+	PrefixMode::Set privs; // Prefix modes to give to the joining user
 
 	if (!chan)
 	{
-		privs = ServerInstance->Config->DefaultModes.substr(0, ServerInstance->Config->DefaultModes.find(' '));
-
 		// Ask the modules whether they're ok with the join, pass NULL as Channel* as the channel is yet to be created
 		ModResult modres;
 		FIRST_MOD_RESULT(OnUserPreJoin, modres, (user, nullptr, cname, privs, key, override));
@@ -186,8 +148,6 @@ Membership* Channel::JoinUser(LocalUser* user, std::string cname, bool override,
 			return nullptr; // A module wasn't happy with the join, abort
 
 		chan = new Channel(cname, ServerInstance->Time());
-		// Set the default modes on the channel (<options:defaultmodes>)
-		chan->SetDefaultModes();
 	}
 	else
 	{
@@ -209,7 +169,7 @@ Membership* Channel::JoinUser(LocalUser* user, std::string cname, bool override,
 	return chan->ForceJoin(user, &privs, false, created_by_local);
 }
 
-Membership* Channel::ForceJoin(User* user, const std::string* privs, bool bursting, bool created_by_local)
+Membership* Channel::ForceJoin(User* user, const PrefixMode::Set* privs, bool bursting, bool created_by_local)
 {
 	if (user->IsServer())
 	{
@@ -228,15 +188,11 @@ Membership* Channel::ForceJoin(User* user, const std::string* privs, bool bursti
 	{
 		// If the user was granted prefix modes (in the OnUserPreJoin hook, or they're a
 		// remote user and their own server set the modes), then set them internally now
-		for (const auto priv : *privs)
+		for (auto* priv : *privs)
 		{
-			PrefixMode* mh = ServerInstance->Modes.FindPrefixMode(priv);
-			if (mh)
-			{
-				// Set the mode on the user.
-				Modes::Change modechange(mh, true, user->nick);
-				mh->OnModeChange(ServerInstance->FakeClient, nullptr, this, modechange);
-			}
+			// Set the mode on the user.
+			Modes::Change modechange(priv, true, user->nick);
+			priv->OnModeChange(ServerInstance->FakeClient, nullptr, this, modechange);
 		}
 	}
 

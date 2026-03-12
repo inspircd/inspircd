@@ -258,7 +258,7 @@ public:
 		action_limit = tag->getBool("limit", true);
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven, bool override) override
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, PrefixMode::Set& privs, const std::string& keygiven, bool override) override
 	{
 		if (override || !chan)
 			return MOD_RES_PASSTHRU; // No redirect possible.

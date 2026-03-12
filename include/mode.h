@@ -380,6 +380,9 @@ public:
 		}
 	};
 
+	/** Holds a list of prefix modes ordered by rank. */
+	using Set = std::set<PrefixMode*, PrefixMode::Sorter>;
+
 	/**
 	 * Constructor
 	 * @param Creator The module creating this mode
