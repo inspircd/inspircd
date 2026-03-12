@@ -57,7 +57,6 @@ private:
 	HelpOp helpop;
 	UserModeReference hideoper;
 	bool markhelpers;
-	std::string helpchanmodes;
 	insp::flat_map<std::string, std::string> helpchans;
 
 public:
@@ -72,6 +71,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
+		helpchans.clear();
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("helpchan"))
 		{
 			const auto name = tag->getString("name");
