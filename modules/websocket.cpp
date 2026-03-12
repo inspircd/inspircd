@@ -427,7 +427,10 @@ class WebSocketHook final
 
 		LocalUser* luser = nullptr;
 		if (sock->type == StreamSocket::SS_USER)
-			luser = reinterpret_cast<LocalUserIO*>(sock)->user;
+		{
+			auto* lio = reinterpret_cast<LocalUserIO*>(sock);
+			luser = lio ? lio->user : nullptr;
+		}
 
 		bool allowedorigin = false;
 		HTTPHeaderFinder originheader;
