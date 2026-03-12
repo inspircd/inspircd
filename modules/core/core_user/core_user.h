@@ -51,7 +51,7 @@ public:
 	 * @param fixedname Name of the config key to read the fixed string string from.
 	 * If this key has a non-empty value, all messages will be replaced with it.
 	 */
-	void ReadConfig(const char* prefixname, const char* suffixname, const char* fixedname);
+	void ReadConfig(const char* prefixname, const char* suffixname, const char* fixedname,  const char* newtagname);
 };
 
 class CommandAway final

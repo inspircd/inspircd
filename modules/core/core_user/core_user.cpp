@@ -127,9 +127,10 @@ void MessageWrapper::Wrap(const std::string& message, std::string& out)
 		out.append(message).append(suffix);
 }
 
-void MessageWrapper::ReadConfig(const char* prefixname, const char* suffixname, const char* fixedname)
+void MessageWrapper::ReadConfig(const char* tagname, const char* prefixname, const char* suffixname, const char* fixedname)
 {
-	const auto& tag = ServerInstance->Config->ConfValue("options");
+	const auto& newtag = ServerInstance->Config->ConfValue(tagname);
+	const auto& tag = (newtag == ServerInstance->Config->EmptyTag) ? ServerInstance->Config->ConfValue("options") : newtag;
 	fixed = tag->readString(fixedname, prefix);
 	if (!fixed)
 	{
@@ -276,8 +277,8 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		cmdpart.msgwrap.ReadConfig("prefixpart", "suffixpart", "fixedpart");
-		cmdquit.msgwrap.ReadConfig("prefixquit", "suffixquit", "fixedquit");
+		cmdpart.msgwrap.ReadConfig("channels", "prefixpart", "suffixpart", "fixedpart");
+		cmdquit.msgwrap.ReadConfig("options", "prefixquit", "suffixquit", "fixedquit");
 
 		const auto& performance = ServerInstance->Config->ConfValue("performance");
 		clonesonconnect = performance->getBool("clonesonconnect", true);
