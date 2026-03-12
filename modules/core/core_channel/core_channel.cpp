@@ -167,16 +167,16 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		const auto& optionstag = ServerInstance->Config->ConfValue("options");
+		const auto& channelstag = ServerInstance->Config->ConfValue("channels", ServerInstance->Config->ConfValue("options"));
 
 		std::string current;
-		irc::spacesepstream defaultstream(optionstag->getString("exemptchanops"));
+		irc::spacesepstream defaultstream(channelstag->getString("exemptchanops"));
 		insp::flat_map<std::string, char> exempts;
 		while (defaultstream.GetToken(current))
 		{
 			std::string::size_type pos = current.find(':');
 			if (pos == std::string::npos || (pos + 2) > current.size())
-				throw ModuleException(this, "Invalid exemptchanops value '" + current + "' at " + optionstag->source.str());
+				throw ModuleException(this, "Invalid exemptchanops value '" + current + "' at " + channelstag->source.str());
 
 			const std::string restriction = current.substr(0, pos);
 			const char prefix = current[pos + 1];
@@ -185,7 +185,7 @@ public:
 			exempts[restriction] = prefix;
 		}
 
-		const auto newformat = optionstag->getEnum("extbanformat", ExtBan::Format::NAME, {
+		const auto newformat = channelstag->getEnum("extbanformat", ExtBan::Format::NAME, {
 			{ "any",    ExtBan::Format::ANY },
 			{ "name",   ExtBan::Format::NAME },
 			{ "letter", ExtBan::Format::LETTER },
@@ -207,10 +207,10 @@ public:
 		exemptions.swap(exempts);
 		extbanmgr.format = newformat;
 		invapi.announceinvites = newannouncestate;
-		joinhook.modefromuser = optionstag->getBool("cyclehostsfromuser");
+		joinhook.modefromuser = channelstag->getBool("cyclehostsfromuser");
 
 		Implementation events[] = { I_OnCheckKey, I_OnCheckLimit, I_OnCheckList };
-		if (optionstag->getBool("invitebypassmodes", true))
+		if (channelstag->getBool("invitebypassmodes", true))
 			ServerInstance->Modules.Attach(events, this, sizeof(events)/sizeof(Implementation));
 		else
 			ServerInstance->Modules.Detach(events, this, sizeof(events)/sizeof(Implementation));
