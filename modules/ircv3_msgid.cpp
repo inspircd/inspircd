@@ -31,7 +31,7 @@ public:
 
 	ModResult OnProcessTag(User* user, const std::string& tagname, std::string& tagvalue) override
 	{
-		if (!irc::equals(tagname, "msgid"))
+		if (!insp::casemapped_equals(tagname, "msgid"))
 			return MOD_RES_PASSTHRU;
 
 		// We should only allow this tag if it is added by a remote server.

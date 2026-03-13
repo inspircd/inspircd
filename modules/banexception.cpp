@@ -58,7 +58,7 @@ public:
 			if (res != ExtBan::Comparison::NOT_AN_EXTBAN)
 				return res == ExtBan::Comparison::MATCH;
 		}
-		return irc::equals(entry, value);
+		return insp::casemapped_equals(entry, value);
 	}
 
 	bool ValidateParam(LocalUser* user, Channel* channel, std::string& parameter) override
@@ -122,7 +122,7 @@ public:
 			else
 			{
 				// It is an extban but not this extban.
-				if (!irc::equals(name, extban->GetName()))
+				if (!insp::casemapped_equals(name, extban->GetName()))
 					continue;
 			}
 
@@ -133,7 +133,7 @@ public:
 
 	ModResult OnCheckList(ListModeBase* lm, User* user, Channel* chan, bool full) override
 	{
-		if (!irc::equals(lm->service_name, "ban"))
+		if (!insp::casemapped_equals(lm->service_name, "ban"))
 			return MOD_RES_PASSTHRU;
 
 		ListModeBase::ModeList* list = be.GetList(chan);

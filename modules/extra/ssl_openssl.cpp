@@ -1048,7 +1048,7 @@ public:
 
 	void OnModuleRehash(User* user, const std::string& param) override
 	{
-		if (!irc::equals(param, "tls") && !irc::equals(param, "ssl"))
+		if (!insp::casemapped_equals(param, "tls") && !insp::casemapped_equals(param, "ssl"))
 			return;
 
 		try

@@ -317,10 +317,10 @@ public:
 		irc::spacesepstream accountstream(accountstr);
 		for (std::string account; accountstream.GetToken(account); )
 		{
-			if (accountid && irc::equals(account, *accountid))
+			if (accountid && insp::casemapped_equals(account, *accountid))
 				return MOD_RES_PASSTHRU; // Matches on account id.
 
-			if (accountname && irc::equals(account, *accountname))
+			if (accountname && insp::casemapped_equals(account, *accountname))
 				return MOD_RES_PASSTHRU; // Matches on account name.
 		}
 

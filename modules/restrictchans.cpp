@@ -26,7 +26,7 @@
 #include "inspircd.h"
 #include "modules/account.h"
 
-typedef insp::flat_set<std::string, irc::insensitive_swo> AllowChans;
+using AllowChans = insp::casemapped_flat_set<std::string>;
 
 class ModuleRestrictChans final
 	: public Module

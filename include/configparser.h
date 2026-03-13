@@ -27,7 +27,7 @@ typedef std::unique_ptr<FILE, int(*)(FILE*)> FilePtr;
 struct ParseStack final
 {
 	std::vector<std::string> reading;
-	insp::flat_map<std::string, std::string, irc::insensitive_swo> vars;
+	insp::casemapped_flat_map<std::string> vars;
 	ServerConfig::TagMap& output;
 	ServerConfig::FileSource& FilesOutput;
 	std::vector<std::string>& errors;

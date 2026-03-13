@@ -199,7 +199,7 @@ class ModuleFilter final
 	, public Timer
 {
 private:
-	typedef insp::flat_set<std::string, irc::insensitive_swo> ExemptTargetSet;
+	using ExemptTargetSet = insp::casemapped_flat_set<std::string>;
 
 	Account::API accountapi;
 	bool initing = true;
@@ -766,7 +766,7 @@ void ModuleFilter::OnSyncNetwork(Server& server)
 
 void ModuleFilter::OnDecodeMetadata(Extensible* target, const std::string& extname, const std::string& extdata)
 {
-	if (!target && irc::equals(extname, "filter"))
+	if (!target && insp::casemapped_equals(extname, "filter"))
 	{
 		try
 		{

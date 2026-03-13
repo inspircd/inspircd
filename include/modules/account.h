@@ -30,7 +30,7 @@ namespace Account
 	class ProviderAPIBase;
 
 	/** Encapsulates a list of nicknames associated with an account. */
-	typedef insp::flat_set<std::string, irc::insensitive_swo> NickList;
+	using NickList = insp::casemapped_flat_set<std::string>;
 }
 
 /** Defines the interface for the account API. */

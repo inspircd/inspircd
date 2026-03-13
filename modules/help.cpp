@@ -50,7 +50,7 @@ struct HelpTopic final
 	}
 };
 
-typedef std::map<std::string, HelpTopic, irc::insensitive_swo> HelpMap;
+using HelpMap = insp::casemapped_map<HelpTopic>;
 
 class CommandHelp final
 	: public Command
@@ -116,7 +116,7 @@ public:
 			const std::string key = tag->getString("key");
 			if (key.empty())
 				throw ModuleException(this, "<{}:key> is empty at {}", tag->name, tag->source.str());
-			else if (irc::equals(key, "index"))
+			else if (insp::casemapped_equals(key, "index"))
 				throw ModuleException(this, "<{}:key> is set to \"index\" which is reserved at {}", tag->name, tag->source.str());
 			else if (key.length() > longestkey)
 				longestkey = key.length();

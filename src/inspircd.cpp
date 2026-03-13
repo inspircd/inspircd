@@ -55,14 +55,6 @@
 
 InspIRCd* ServerInstance = nullptr;
 
-/** Separate from the other casemap tables so that code *can* still exclusively rely on RFC casemapping
- * if it must.
- *
- * This is provided as a pointer so that modules can change it to their custom mapping tables,
- * e.g. for national character support.
- */
-const unsigned char* national_case_insensitive_map = ascii_case_insensitive_map;
-
 namespace
 {
 	[[noreturn]]

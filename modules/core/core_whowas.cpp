@@ -149,7 +149,7 @@ namespace WhoWas
 		typedef insp::intrusive_list_tail<Nick> FIFO;
 
 		/** Sets of users in the whowas system */
-		typedef std::unordered_map<std::string, WhoWas::Nick*, irc::insensitive, irc::StrHashComp> whowas_users;
+		using whowas_users = insp::casemapped_unordered_map<WhoWas::Nick*>;
 
 		/** Primary container, links nicknames tracked by WHOWAS to a list of records */
 		whowas_users whowas;

@@ -67,7 +67,7 @@ private:
 
 	void UpdateStatus(const Server& server, bool online)
 	{
-		if (irc::equals(target, server.GetName()))
+		if (insp::casemapped_equals(target, server.GetName()))
 		{
 			ServerInstance->Logs.Debug(MODNAME, "Services server {} ({}) {}.", server.GetName(),
 				server.GetId(), online ? "came online" : "went offline");
@@ -92,7 +92,7 @@ public:
 		ServerInstance->PI->GetServerList(servers);
 		for (const auto& server : servers)
 		{
-			if (irc::equals(target, server.servername))
+			if (insp::casemapped_equals(target, server.servername))
 			{
 				ServerInstance->Logs.Debug(MODNAME, "Changed the services server to {}.", server.servername);
 				SetAvailable(true);
@@ -219,12 +219,12 @@ public:
 
 	bool Matches(User* user) const override
 	{
-		return irc::equals(user->nick, nickname);
+		return insp::casemapped_equals(user->nick, nickname);
 	}
 
 	bool Matches(const std::string& text) const override
 	{
-		return irc::equals(text, nickname);
+		return insp::casemapped_equals(text, nickname);
 	}
 };
 
@@ -311,7 +311,7 @@ public:
 
 		if (parameters.size() == 1)
 		{
-			if (irc::equals(parameters[0], "*"))
+			if (insp::casemapped_equals(parameters[0], "*"))
 			{
 				ServerInstance->XLines->DelAll("SVSHOLD", true);
 			}
@@ -790,7 +790,7 @@ public:
 
 	void OnUserPostNick(User* user, const std::string& oldnick) override
 	{
-		if (user->IsModeSet(registeredumode) && !irc::equals(oldnick, user->nick))
+		if (user->IsModeSet(registeredumode) && !insp::casemapped_equals(oldnick, user->nick))
 			registeredumode.RemoveMode(user);
 	}
 };

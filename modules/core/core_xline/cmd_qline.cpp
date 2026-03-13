@@ -63,7 +63,7 @@ CmdResult CommandQline::Handle(User* user, const Params& parameters)
 
 		auto local = false;
 		auto reason = parameters.back();
-		if (parameters.size() > 3 && irc::equals(parameters[2], "LOCAL"))
+		if (parameters.size() > 3 && insp::casemapped_equals(parameters[2], "LOCAL"))
 			local = true;
 		else
 			reason.insert(0, " ").insert(0, parameters[2]);

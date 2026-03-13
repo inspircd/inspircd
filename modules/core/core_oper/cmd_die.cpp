@@ -58,7 +58,7 @@ void DieRestart::SendError(const std::string& message)
 
 CmdResult CommandDie::Handle(User* user, const Params& parameters)
 {
-	if (irc::equals(parameters[0], ServerInstance->Config->ServerName))
+	if (insp::casemapped_equals(parameters[0], ServerInstance->Config->ServerName))
 	{
 		const std::string diebuf = "*** DIE command from " + user->GetMask() + ". Terminating.";
 		ServerInstance->Logs.Critical(MODNAME, diebuf);

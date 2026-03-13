@@ -35,7 +35,7 @@ bool TreeSocket::PreProcessNewProtocolMessage(User*& who, std::string& cmd, Comm
 {
 	if (proto_version == PROTO_INSPIRCD_4)
 	{
-		if (irc::equals(cmd, "ENCAP"))
+		if (insp::casemapped_equals(cmd, "ENCAP"))
 		{
 			if (params.size() < 2)
 				return false; // Malformed.
@@ -48,7 +48,7 @@ bool TreeSocket::PreProcessNewProtocolMessage(User*& who, std::string& cmd, Comm
 			params.erase(params.begin() + 2, params.end());
 			params.insert(params.end(), newparams.begin(), newparams.end());
 		}
-		else if (irc::equals(cmd, "FAIL") || irc::equals(cmd, "WARN") || irc::equals(cmd, "NOTE"))
+		else if (insp::casemapped_equals(cmd, "FAIL") || insp::casemapped_equals(cmd, "WARN") || insp::casemapped_equals(cmd, "NOTE"))
 		{
 			// <source-sid> <target-uuid> <command> <code> [<params>...] :<message>
 			if (params.size() < 5)
@@ -72,7 +72,7 @@ bool TreeSocket::PreProcessNewProtocolMessage(User*& who, std::string& cmd, Comm
 
 			std::swap(params, newparams);
 		}
-		else if (irc::equals(cmd, "FJOIN"))
+		else if (insp::casemapped_equals(cmd, "FJOIN"))
 		{
 			// :<sid> FJOIN <chan> <chants> <modes> :[<modes>],<uuid>:<membid>/<joined> [<modes>],<uuid>:<membid>/<joined>
 			//                                                                ^^^^^^^^^ New in 1207
@@ -89,7 +89,7 @@ bool TreeSocket::PreProcessNewProtocolMessage(User*& who, std::string& cmd, Comm
 				pos = next;
 			}
 		}
-		else if (irc::equals(cmd, "IJOIN"))
+		else if (insp::casemapped_equals(cmd, "IJOIN"))
 		{
 			if (params.size() < 3)
 				return false; // Malformed.
@@ -98,7 +98,7 @@ bool TreeSocket::PreProcessNewProtocolMessage(User*& who, std::string& cmd, Comm
 			//                               ^^^^^^^^ New in 1207
 			params.erase(params.begin() + 2);
 		}
-		else if (irc::equals(cmd, "SETHOST") || irc::equals(cmd, "SETIDENT") || irc::equals(cmd, "SETNAME"))
+		else if (insp::casemapped_equals(cmd, "SETHOST") || insp::casemapped_equals(cmd, "SETIDENT") || insp::casemapped_equals(cmd, "SETNAME"))
 		{
 				// CHG* was merged with SET* in v5. Rewrite to the old commands.
 			cmd.replace(0, 3, "CHG");
@@ -109,7 +109,7 @@ bool TreeSocket::PreProcessNewProtocolMessage(User*& who, std::string& cmd, Comm
 
 bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, CommandBase::Params& params)
 {
-	if (irc::equals(cmd, "CHGHOST") || irc::equals(cmd, "CHGIDENT") || irc::equals(cmd, "CHGNAME"))
+	if (insp::casemapped_equals(cmd, "CHGHOST") || insp::casemapped_equals(cmd, "CHGIDENT") || insp::casemapped_equals(cmd, "CHGNAME"))
 	{
 		if (params.size() < 2)
 			return false; // Malformed.
@@ -117,7 +117,7 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, Comm
 		// CHG* and SET* were merged in v5.
 		cmd.replace(0, 3, "SET");
 	}
-	else if (irc::equals(cmd, "ENCAP"))
+	else if (insp::casemapped_equals(cmd, "ENCAP"))
 	{
 		if (params.size() < 2)
 			return false; // Malformed.
@@ -130,7 +130,7 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, Comm
 		params.erase(params.begin() + 2, params.end());
 		params.insert(params.end(), newparams.begin(), newparams.end());
 	}
-	else if (irc::equals(cmd, "IJOIN"))
+	else if (insp::casemapped_equals(cmd, "IJOIN"))
 	{
 		if (params.size() < 3)
 			return false; // Malformed.

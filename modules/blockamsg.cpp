@@ -137,7 +137,7 @@ public:
 			// The number of target channels is equal to the number of channels the sender is on..a little suspicious.
 			// Check it's more than 1 too, or else users on one channel would have fun.
 			if ((m && (m->message == parameters[1]) &&
-					(!irc::equals(m->target, parameters[0])) &&
+					(!insp::casemapped_equals(m->target, parameters[0])) &&
 					ForgetDelay &&
 					(m->sent >= ServerInstance->Time()-(time_t)ForgetDelay)) ||
 				((targets > 1) && (targets == user->chans.size())))

@@ -107,9 +107,9 @@ void CommandServer::HandleExtra(TreeServer* newserver, Params& params)
 			val.assign(prop, p+1, std::string::npos);
 		}
 
-		if (irc::equals(key, "burst"))
+		if (insp::casemapped_equals(key, "burst"))
 			newserver->BeginBurst(ConvToNum<uint64_t>(val));
-		else if (irc::equals(key, "hidden"))
+		else if (insp::casemapped_equals(key, "hidden"))
 			newserver->Hidden = !!ConvToNum<uint8_t>(val);
 	}
 }

@@ -271,15 +271,15 @@ private:
 		if (!stream.GetToken(actionstr))
 			return false;
 
-		if (irc::equals(actionstr, "ban"))
+		if (insp::casemapped_equals(actionstr, "ban"))
 			action = ChannelSettings::ACT_BAN;
-		else if (irc::equals(actionstr, "kick"))
+		else if (insp::casemapped_equals(actionstr, "kick"))
 			action = ChannelSettings::ACT_KICK;
-		else if (irc::equals(actionstr, "block"))
+		else if (insp::casemapped_equals(actionstr, "block"))
 			action = ChannelSettings::ACT_BLOCK;
-		else if (irc::equals(actionstr, "mute"))
+		else if (insp::casemapped_equals(actionstr, "mute"))
 			action = ChannelSettings::ACT_MUTE;
-		else if (irc::equals(actionstr, "kickban"))
+		else if (insp::casemapped_equals(actionstr, "kickban"))
 			action = ChannelSettings::ACT_KICK_BAN;
 		else
 			return false;

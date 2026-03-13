@@ -182,7 +182,7 @@ public:
 	}
 
 private:
-	typedef std::unordered_map<std::string, Entry, irc::insensitive, irc::StrHashComp> NickHash;
+	using NickHash = insp::casemapped_unordered_map<Entry>;
 
 	Entry* Find(const std::string& nick)
 	{

@@ -219,13 +219,13 @@ public:
 			// if they didn't specify an action, this is probably a command
 			if (action != '+' && action != '-')
 			{
-				if (irc::equals(parameters[0], "LIST"))
+				if (insp::casemapped_equals(parameters[0], "LIST"))
 				{
 					// list current DCCALLOW list
 					DisplayDCCAllowList(user);
 					return CmdResult::FAILURE;
 				}
-				else if (irc::equals(parameters[0], "HELP"))
+				else if (insp::casemapped_equals(parameters[0], "HELP"))
 				{
 					// display help
 					DisplayHelp(user);
@@ -430,7 +430,7 @@ public:
 				// :jamie!jamie@test-D4457903BA652E0F.silverdream.org PRIVMSG eimaj :DCC SEND m_dnsbl.cpp 3232235786 52650 9676
 				// :jamie!jamie@test-D4457903BA652E0F.silverdream.org PRIVMSG eimaj :VERSION
 
-				if (irc::equals(ctcpname, "DCC") && !ctcpbody.empty())
+				if (insp::casemapped_equals(ctcpname, "DCC") && !ctcpbody.empty())
 				{
 					dl = ext.Get(u);
 					if (dl && !dl->empty())
@@ -448,7 +448,7 @@ public:
 
 					const std::string type = std::string(ctcpbody).substr(0, s);
 
-					if (irc::equals(type, "SEND"))
+					if (insp::casemapped_equals(type, "SEND"))
 					{
 						size_t first;
 
@@ -500,7 +500,7 @@ public:
 						u->WriteNotice("If you trust " + user->nick + " and were expecting this, you can type /DCCALLOW HELP for information on the DCCALLOW system.");
 						return MOD_RES_DENY;
 					}
-					else if (blockchat && irc::equals(type, "CHAT"))
+					else if (blockchat && insp::casemapped_equals(type, "CHAT"))
 					{
 						user->WriteNotice("The user " + u->nick + " is not accepting DCC CHAT requests from you.");
 						u->WriteNotice(user->nick + " (" + user->GetUserHost() + ") attempted to initiate a DCC CHAT session, which was blocked.");

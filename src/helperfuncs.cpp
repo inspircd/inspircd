@@ -102,7 +102,7 @@ void InspIRCd::ProcessColors(std::string& line)
 		{ 'u',  "\x1F" }, // Underline
 		{ 'x',  "\x0F" }, // Reset
 	};
-	static const insp::flat_map<std::string, uint8_t, irc::insensitive_swo> colors = {
+	static const insp::casemapped_flat_map<uint8_t> colors = {
 		{ "white",       0  },
 		{ "black",       1  },
 		{ "blue",        2  },

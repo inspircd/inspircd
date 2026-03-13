@@ -353,7 +353,7 @@ public:
 class CoreExport CommandParser final
 {
 public:
-	typedef std::unordered_map<std::string, Command*, irc::insensitive, irc::StrHashComp> CommandMap;
+	using CommandMap = insp::casemapped_unordered_map<Command*>;
 
 private:
 	/** Command list, a hash_map of command names to Command*

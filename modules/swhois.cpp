@@ -288,13 +288,13 @@ public:
 		}
 
 		const auto& subcmd = parameters[0];
-		if (irc::equals(subcmd, "ADD"))
+		if (insp::casemapped_equals(subcmd, "ADD"))
 			return DoAdd(user, target, parameters);
-		else if (irc::equals(subcmd, "CLEAR"))
+		else if (insp::casemapped_equals(subcmd, "CLEAR"))
 			return DoClear(user, target, parameters);
-		else if (irc::equals(subcmd, "DEL"))
+		else if (insp::casemapped_equals(subcmd, "DEL"))
 			return DoDel(user, target, parameters);
-		else if (irc::equals(subcmd, "LIST"))
+		else if (insp::casemapped_equals(subcmd, "LIST"))
 			return DoList(user, target, parameters);
 		else
 		{
@@ -388,9 +388,9 @@ public:
 			return; // Not for us
 
 		auto* user = static_cast<User*>(target);
-		if (irc::equals(extname, "swhois"))
+		if (insp::casemapped_equals(extname, "swhois"))
 			DecodeSWhoisLegacy(user, extvalue);
-		else if (irc::equals(extname, "specialwhois"))
+		else if (insp::casemapped_equals(extname, "specialwhois"))
 		{
 			irc::tokenstream msgstream(extvalue);
 
@@ -398,10 +398,10 @@ public:
 			if (!msgstream.GetMiddle(operation))
 				return; // Malformed.
 
-			if (irc::equals(operation, "+"))
+			if (insp::casemapped_equals(operation, "+"))
 				DecodeSWhoisAdd(user, msgstream);
 
-			else if (irc::equals(operation, "-"))
+			else if (insp::casemapped_equals(operation, "-"))
 				DecodeSWhoisDel(user, msgstream);
 		}
 	}

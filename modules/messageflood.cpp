@@ -114,15 +114,15 @@ private:
 		if (!stream.GetToken(actionstr))
 			return false;
 
-		if (irc::equals(actionstr, "ban"))
+		if (insp::casemapped_equals(actionstr, "ban"))
 			action = MsgFloodAction::BAN;
-		else if (irc::equals(actionstr, "block"))
+		else if (insp::casemapped_equals(actionstr, "block"))
 			action = MsgFloodAction::BLOCK;
-		else if (irc::equals(actionstr, "mute"))
+		else if (insp::casemapped_equals(actionstr, "mute"))
 			action = MsgFloodAction::MUTE;
-		else if (irc::equals(actionstr, "kick"))
+		else if (insp::casemapped_equals(actionstr, "kick"))
 			action = MsgFloodAction::KICK;
-		else if (irc::equals(actionstr, "kickban"))
+		else if (insp::casemapped_equals(actionstr, "kickban"))
 			action = MsgFloodAction::KICK_BAN;
 		else
 			return false;

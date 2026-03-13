@@ -55,7 +55,7 @@ public:
 			if (res != ExtBan::Comparison::NOT_AN_EXTBAN)
 				return res == ExtBan::Comparison::MATCH;
 		}
-		return irc::equals(entry, value);
+		return insp::casemapped_equals(entry, value);
 	}
 
 	bool ValidateParam(LocalUser* user, Channel* channel, std::string& parameter) override

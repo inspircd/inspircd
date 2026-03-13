@@ -29,7 +29,7 @@ private:
 	bool permissive = false;
 
 	/** Either the tokens to exclude if in permissive mode or the tokens to include if in strict mode. */
-	insp::flat_set<std::string, irc::insensitive_swo> tokens;
+	insp::casemapped_flat_set<std::string> tokens;
 
 public:
 	/** Creates a new empty token list. */

@@ -742,7 +742,7 @@ void dynamic_reference_base::resolve()
 		return; // No service found.
 
 	const auto& [stype, sname] = i->first;
-	if (!irc::equals(this->service_type, stype) || !irc::equals(this->service_name, sname))
+	if (!insp::casemapped_equals(this->service_type, stype) || !insp::casemapped_equals(this->service_name, sname))
 		return; // No service found.
 
 	if (this->strict_ref && sname.empty())

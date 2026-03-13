@@ -104,7 +104,7 @@ namespace DNS
 		{
 			size_t operator()(const Question& question) const
 			{
-				return irc::insensitive()(question.name);
+				return insp::casemapped_hash(question.name);
 			}
 		};
 	};

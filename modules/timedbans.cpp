@@ -188,7 +188,7 @@ public:
 				continue;
 
 			const std::string& target = i->mask;
-			if (irc::equals(change.param, target))
+			if (insp::casemapped_equals(change.param, target))
 			{
 				TimedBanList.erase(i);
 				break;

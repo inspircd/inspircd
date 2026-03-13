@@ -23,7 +23,7 @@ namespace WebIRC
 {
 	class EventListener;
 
-	typedef insp::flat_map<std::string, std::string, irc::insensitive_swo> FlagMap;
+	using FlagMap = insp::casemapped_flat_map<std::string>;
 }
 
 class WebIRC::EventListener

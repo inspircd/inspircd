@@ -69,8 +69,7 @@ class ModuleAlias final
 	 * We can, however, use a fancy invention: the multimap. Maps a key to one or more values.
 	 *		-- w00t
 	 */
-	typedef insp::flat_multimap<std::string, Alias, irc::insensitive_swo> AliasMap;
-
+	using AliasMap = insp::casemapped_flat_multimap<Alias>;
 	AliasMap Aliases;
 
 	/* whether or not +B users are allowed to use fantasy commands */

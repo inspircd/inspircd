@@ -40,7 +40,7 @@ extern SpanningTreeUtilities* Utils;
 
 /** Associative container type, mapping server names/ids to TreeServers
  */
-typedef std::unordered_map<std::string, TreeServer*, irc::insensitive, irc::StrHashComp> server_hash;
+using server_hash = insp::casemapped_unordered_map<TreeServer*>;
 
 /** Contains helper functions and variables for this module,
  * and keeps them out of the global namespace

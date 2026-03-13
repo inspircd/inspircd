@@ -67,6 +67,7 @@
 
 CoreExport extern InspIRCd* ServerInstance;
 
+#include "casemap.h"
 #include "config.h"
 #include "dynref.h"
 #include "cull.h"
@@ -326,7 +327,7 @@ public:
 	 * @param map The character map to use when matching.
 	 * @return True if the string matches the mask; otherwise, false.
 	 */
-	static bool Match(const std::string& str, const std::string& pattern, const unsigned char* map = nullptr);
+	static bool Match(const std::string& str, const std::string& pattern, const insp::casemap* map = nullptr);
 
 	/** Matches two strings using glob pattern matching, optionally with a case map to use instead
 	 * of the server case map.
@@ -335,7 +336,7 @@ public:
 	 * @param map The character map to use when matching.
 	 * @return True if the string matches the pattern; otherwise, false.
 	 */
-	static bool Match(const char* str, const char* pattern, const unsigned char* map = nullptr);
+	static bool Match(const char* str, const char* pattern, const insp::casemap* map = nullptr);
 
 	/** Matches two strings using glob pattern and CIDR range matching, optionally with a case map
 	 * to use instead of the server case map.
@@ -344,7 +345,7 @@ public:
 	 * @param map The character map to use when matching.
 	 * @return True if the string matches the pattern; otherwise, false.
 	 */
-	static bool MatchCIDR(const std::string& str, const std::string& pattern, const unsigned char* map = nullptr);
+	static bool MatchCIDR(const std::string& str, const std::string& pattern, const insp::casemap* map = nullptr);
 
 	/** Matches two strings using glob pattern and CIDR range matching, optionally with a case map
 	 * to use instead of the server case map.
@@ -353,7 +354,7 @@ public:
 	 * @param map The character map to use when matching.
 	 * @return True if the string matches the pattern; otherwise, false.
 	 */
-	static bool MatchCIDR(const char* str, const char* pattern, const unsigned char* map = nullptr);
+	static bool MatchCIDR(const char* str, const char* pattern, const insp::casemap* map = nullptr);
 
 	/** Matches a hostname and address against a space delimited list of hostmasks.
 	 * @param masks The space delimited masks to match against.

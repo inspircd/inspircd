@@ -362,7 +362,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 
 CmdResult CommandStats::Handle(User* user, const Params& parameters)
 {
-	if (parameters.size() > 1 && !irc::equals(parameters[1], ServerInstance->Config->ServerName))
+	if (parameters.size() > 1 && !insp::casemapped_equals(parameters[1], ServerInstance->Config->ServerName))
 	{
 		// Give extra penalty if a non-oper does /STATS <remoteserver>
 		auto* localuser = user->AsLocal();

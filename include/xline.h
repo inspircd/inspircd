@@ -40,7 +40,7 @@ typedef std::map<std::string, XLineFactory*> XLineFactMap;
 
 /** A map of XLines indexed by string
  */
-typedef std::map<std::string, XLine*, irc::insensitive_swo> XLineLookup;
+using XLineLookup = insp::casemapped_map<XLine*>;
 
 /** A map of XLineLookup maps indexed by string
  */

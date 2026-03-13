@@ -219,7 +219,7 @@ public:
 
 	void OnModuleRehash(User* user, const std::string& param) override
 	{
-		if (!irc::equals(param, "geolocation"))
+		if (!insp::casemapped_equals(param, "geolocation"))
 			return;
 
 		try

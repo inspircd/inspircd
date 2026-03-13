@@ -37,7 +37,7 @@
 namespace
 {
 	// A map which holds the difference between local and remote tokens.
-	typedef std::map<std::string, std::pair<std::optional<std::string>, std::optional<std::string>>, irc::insensitive_swo> TokenDiff;
+	using TokenDiff = insp::casemapped_map<std::pair<std::optional<std::string>, std::optional<std::string>>>;
 
 	// Builds a list of the local modules with the specified property.
 	CapabData::ModuleMap BuildModuleList(ModuleFlags property, uint16_t protocol)
@@ -57,12 +57,12 @@ namespace
 			if (protocol < PROTO_NEWEST)
 			{
 				// BEGIN COMPATIBILITY CODE
-				if (irc::equals(modname, "sethost") || irc::equals(modname, "setident") || irc::equals(modname, "setname"))
+				if (insp::casemapped_equals(modname, "sethost") || insp::casemapped_equals(modname, "setident") || insp::casemapped_equals(modname, "setname"))
 				{
 					// These modules were combined in v5.
 					modname.replace(0, 3, "chg");
 				}
-				if (irc::equals(modname, "sacommands"))
+				if (insp::casemapped_equals(modname, "sacommands"))
 				{
 					// These modules were combined in v5.
 					modules["sajoin"] = modules["sakick"] = modules["sanick"] =
@@ -436,7 +436,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 		this->SendError("Invalid number of parameters for CAPAB - Mismatched version");
 		return false;
 	}
-	if (irc::equals(params[0], "START"))
+	if (insp::casemapped_equals(params[0], "START"))
 	{
 		capab->requiredmodules.reset();
 		capab->optionalmodules.reset();
@@ -456,7 +456,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 
 		SendCapabilities(2);
 	}
-	else if (irc::equals(params[0], "END"))
+	else if (insp::casemapped_equals(params[0], "END"))
 	{
 		std::ostringstream errormsg;
 		if (!CompareModules(VF_COMMON, this->capab->requiredmodules, errormsg))
@@ -594,29 +594,29 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			}
 		}
 	}
-	else if (irc::equals(params[0] , "MODULES"))
+	else if (insp::casemapped_equals(params[0] , "MODULES"))
 	{
 		if (params.size() >= 2)
 			ParseModules(params[1], capab->requiredmodules);
 	}
-	else if (irc::equals(params[0], "MODSUPPORT"))
+	else if (insp::casemapped_equals(params[0], "MODSUPPORT"))
 	{
 		if (params.size() >= 2)
 			ParseModules(params[1], capab->optionalmodules);
 	}
-	else if (irc::equals(params[0], "CHANMODES") && (params.size() == 2))
+	else if (insp::casemapped_equals(params[0], "CHANMODES") && (params.size() == 2))
 	{
 		capab->ChanModes = params[1];
 	}
-	else if (irc::equals(params[0], "USERMODES") && (params.size() == 2))
+	else if (insp::casemapped_equals(params[0], "USERMODES") && (params.size() == 2))
 	{
 		capab->UserModes = params[1];
 	}
-	else if (irc::equals(params[0], "EXTBANS") && (params.size() == 2))
+	else if (insp::casemapped_equals(params[0], "EXTBANS") && (params.size() == 2))
 	{
 		capab->ExtBans = params[1];
 	}
-	else if (irc::equals(params[0], "CAPABILITIES") && (params.size() == 2))
+	else if (insp::casemapped_equals(params[0], "CAPABILITIES") && (params.size() == 2))
 	{
 		irc::spacesepstream capabs(params[1]);
 		std::string item;

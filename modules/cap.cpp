@@ -57,7 +57,7 @@ class Cap::ManagerImpl final
 		std::vector<Data> caps;
 	};
 
-	typedef insp::flat_map<std::string, Capability*, irc::insensitive_swo> CapMap;
+	using CapMap = insp::casemapped_flat_map<Capability*>;
 
 	ExtItem capext;
 	CapMap caps;
@@ -414,7 +414,7 @@ public:
 			holdext.Set(user);
 
 		const std::string& subcommand = parameters[0];
-		if (irc::equals(subcommand, "REQ"))
+		if (insp::casemapped_equals(subcommand, "REQ"))
 		{
 			if (parameters.size() < 2)
 				return CmdResult::FAILURE;
@@ -422,11 +422,11 @@ public:
 			const std::string replysubcmd = (manager.HandleReq(user, parameters[1]) ? "ACK" : "NAK");
 			DisplaySingleResult(user, replysubcmd, parameters[1], false);
 		}
-		else if (irc::equals(subcommand, "END"))
+		else if (insp::casemapped_equals(subcommand, "END"))
 		{
 			holdext.Unset(user);
 		}
-		else if (irc::equals(subcommand, "LS") || irc::equals(subcommand, "LIST"))
+		else if (insp::casemapped_equals(subcommand, "LS") || insp::casemapped_equals(subcommand, "LIST"))
 		{
 			Cap::Protocol capversion = Cap::CAP_LEGACY;
 			const bool is_ls = (subcommand.length() == 2);
@@ -445,7 +445,7 @@ public:
 			manager.HandleList(result, user, is_ls, ((is_ls) && (capversion != Cap::CAP_LEGACY)));
 			DisplayResult(user, subcommand, result, (capversion != Cap::CAP_LEGACY));
 		}
-		else if (irc::equals(subcommand, "CLEAR") && (manager.GetProtocol(user) == Cap::CAP_LEGACY))
+		else if (insp::casemapped_equals(subcommand, "CLEAR") && (manager.GetProtocol(user) == Cap::CAP_LEGACY))
 		{
 			std::vector<std::string> result;
 			manager.HandleClear(user, result);

@@ -27,7 +27,7 @@
 #include <list>
 
 /** A mapping of user nicks or uuids to their User object. */
-typedef std::unordered_map<std::string, User*, irc::insensitive, irc::StrHashComp> UserMap;
+using UserMap = insp::casemapped_unordered_map<User*>;
 
 class CoreExport UserManager final
 {

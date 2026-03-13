@@ -243,7 +243,7 @@ void TreeServer::CheckService()
 	for (const auto& [_, tag] : ServerInstance->Config->ConfTags("services", ServerInstance->Config->ConfTags("uline")))
 	{
 		std::string server = tag->getString("server");
-		if (irc::equals(server, GetName()))
+		if (insp::casemapped_equals(server, GetName()))
 		{
 			if (this->IsRoot())
 			{

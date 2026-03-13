@@ -102,7 +102,7 @@ public:
 
 class ServerCommandManager final
 {
-	using ServerCommandMap = std::unordered_map<std::string, ServerCommand*, irc::insensitive, irc::StrHashComp>;
+	using ServerCommandMap = insp::casemapped_unordered_map<ServerCommand*>;
 	ServerCommandMap commands;
 
 public:

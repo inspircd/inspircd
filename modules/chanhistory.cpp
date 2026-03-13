@@ -251,7 +251,7 @@ public:
 			return;
 
 		std::string_view ctcpname;
-		if (details.IsCTCP(ctcpname) && !irc::equals(ctcpname, "ACTION"))
+		if (details.IsCTCP(ctcpname) && !insp::casemapped_equals(ctcpname, "ACTION"))
 			return;
 
 		HistoryList* list = historymode.ext.Get(target.Get<Channel>());

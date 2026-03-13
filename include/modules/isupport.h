@@ -25,7 +25,7 @@ namespace ISupport
 	class EventProvider;
 
 	/* A mapping of ISUPPORT tokens to their values. */
-	typedef std::map<std::string, std::string, irc::insensitive_swo> TokenMap;
+	using TokenMap = insp::casemapped_map<std::string>;
 }
 
 enum

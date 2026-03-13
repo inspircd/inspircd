@@ -26,7 +26,7 @@ namespace
 {
 	void TokenDifference(ISupport::TokenMap& tokendiff, const ISupport::TokenMap& oldtokens, const ISupport::TokenMap& newtokens)
 	{
-		std::map<std::string, std::pair<std::optional<std::string>, std::optional<std::string>>, irc::insensitive_swo> changedtokens;
+		insp::casemapped_map<std::pair<std::optional<std::string>, std::optional<std::string>>> changedtokens;
 		insp::map::difference(oldtokens, newtokens, changedtokens);
 		for (const auto& [name, values] : changedtokens)
 		{

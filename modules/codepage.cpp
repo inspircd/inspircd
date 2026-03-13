@@ -199,7 +199,7 @@ private:
 	std::unique_ptr<Codepage> codepage = nullptr;
 
 	// The character map which was set before this module was loaded.
-	const unsigned char* origcasemap;
+	const insp::casemap* origcasemap;
 
 	// The name of the character map which was set before this module was loaded.
 	const std::string origcasemapname;

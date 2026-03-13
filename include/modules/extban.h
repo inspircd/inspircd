@@ -131,7 +131,7 @@ public:
 	typedef std::unordered_map<ExtBan::Letter, ExtBan::Base*> LetterMap;
 
 	/** A mapping of extban names to their associated objects. */
-	typedef std::unordered_map<std::string, ExtBan::Base*, irc::insensitive, irc::StrHashComp> NameMap;
+	using NameMap = insp::casemapped_unordered_map<ExtBan::Base*>;
 
 	/** Registers an extban with the manager.
 	 * @param extban The extban instance to register.

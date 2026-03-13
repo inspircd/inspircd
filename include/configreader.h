@@ -59,7 +59,7 @@ class CoreExport ConfigTag final
 {
 public:
 	/** A mapping of configuration keys to their assigned values. */
-	typedef insp::flat_map<std::string, std::string, irc::insensitive_swo> Items;
+	using Items = insp::casemapped_flat_map<std::string>;
 
 private:
 	Items items;
@@ -248,13 +248,13 @@ private:
 	friend struct ParseStack; // config_data, errors, filesources
 
 	/** Holds the contents of a cached file. */
-	typedef insp::flat_map<std::string, std::pair<std::string, time_t>> FileCache;
+	using FileCache = insp::casemapped_flat_map<std::pair<std::string, time_t>>;
 
 	/** Holds the contents of a cached file. */
-	typedef insp::flat_map<std::string, std::pair<std::string, bool>, irc::insensitive_swo> FileSource;
+	using FileSource = insp::casemapped_flat_map<std::pair<std::string, bool>>;
 
 	/** Holds the server config. */
-	typedef std::multimap<std::string, std::shared_ptr<ConfigTag>, irc::insensitive_swo> TagMap;
+	using TagMap = insp::casemapped_flat_multimap<std::shared_ptr<ConfigTag>>;
 
 	/** The server config. */
 	TagMap config_data;

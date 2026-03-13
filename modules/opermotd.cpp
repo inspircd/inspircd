@@ -52,7 +52,7 @@ public:
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		if (parameters.empty() || irc::equals(parameters[0], ServerInstance->Config->ServerName))
+		if (parameters.empty() || insp::casemapped_equals(parameters[0], ServerInstance->Config->ServerName))
 			return ShowOperMOTD(user, true);
 		return CmdResult::SUCCESS;
 	}

@@ -55,7 +55,7 @@ private:
 		if (sasl_target == "*")
 			return;
 
-		if (irc::equals(server.GetName(), sasl_target))
+		if (insp::casemapped_equals(server.GetName(), sasl_target))
 		{
 			ServerInstance->Logs.Debug(MODNAME, "SASL target server \"{}\" {}",
 				sasl_target, (linked ? "came online" : "went offline"));
@@ -466,7 +466,7 @@ public:
 
 	void OnDecodeMetadata(Extensible* target, const std::string& extname, const std::string& extdata) override
 	{
-		if (!target && irc::equals(extname, "saslmechlist"))
+		if (!target && insp::casemapped_equals(extname, "saslmechlist"))
 			cap.SetMechlist(extdata);
 	}
 };

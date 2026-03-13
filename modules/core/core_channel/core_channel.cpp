@@ -451,7 +451,7 @@ public:
 	ModResult OnCheckList(ListModeBase* lm, User* user, Channel* chan, bool full) override
 	{
 		// Hook only runs when being invited bypasses +bkl
-		if (irc::equals(lm->service_name, "ban"))
+		if (insp::casemapped_equals(lm->service_name, "ban"))
 			return MOD_RES_PASSTHRU;
 		return IsInvited(user, chan);
 	}

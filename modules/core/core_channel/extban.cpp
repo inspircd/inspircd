@@ -152,7 +152,7 @@ ModResult ExtBanManager::GetStatus(ExtBan::ActingBase* extban, User* user, Chann
 		else
 		{
 			// It is an extban but not this extban.
-			if (!irc::equals(xbname, extban->GetName()))
+			if (!insp::casemapped_equals(xbname, extban->GetName()))
 				continue;
 		}
 

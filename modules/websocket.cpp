@@ -712,8 +712,8 @@ public:
 		isupportprov.Call(&ISupport::EventListener::OnBuildISupport, tokens);
 		auto it = tokens.find("CHARSET");
 		config.allowtext = it == tokens.end()
-			|| irc::equals(it->second, "ascii")
-			|| irc::equals(it->second, "utf8");
+			|| insp::casemapped_equals(it->second, "ascii")
+			|| insp::casemapped_equals(it->second, "utf8");
 
 		for (const auto& [_, tag] : tags)
 		{

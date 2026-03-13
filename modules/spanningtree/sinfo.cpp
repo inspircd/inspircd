@@ -28,28 +28,28 @@ CmdResult CommandSInfo::HandleServer(TreeServer* server, CommandBase::Params& pa
 	const std::string& key = params.front();
 	const std::string& value = params.back();
 
-	if (irc::equals(key, "customversion"))
+	if (insp::casemapped_equals(key, "customversion"))
 	{
 		server->customversion = value;
 	}
-	else if (irc::equals(key,  "desc"))
+	else if (insp::casemapped_equals(key,  "desc"))
 	{
 		// Only sent when the description of a server changes because of a rehash; not sent on burst
 		ServerInstance->Logs.Debug(MODNAME, "Server description of {} changed: {}",
 			server->GetName(), value);
 		server->SetDesc(value);
 	}
-	else if (irc::equals(key,  "rawbranch"))
+	else if (insp::casemapped_equals(key,  "rawbranch"))
 	{
 		server->rawbranch = value;
 	}
-	else if (irc::equals(key,  "rawversion"))
+	else if (insp::casemapped_equals(key,  "rawversion"))
 	{
 		server->rawversion = value;
 	}
 
 	// BEGIN DEPRECATED KEYS
-	else if (irc::equals(key,  "fullversion"))
+	else if (insp::casemapped_equals(key,  "fullversion"))
 	{
 		// InspIRCd-4.0.0-a10. sadie.testnet.inspircd.org :[597] Test
 		// version             server                       uid  custom-version
@@ -69,7 +69,7 @@ CmdResult CommandSInfo::HandleServer(TreeServer* server, CommandBase::Params& pa
 		ServerInstance->Logs.Debug(MODNAME, "Extracted entries from fullversion key: rawversion={} customversion={}",
 			server->rawversion, server->customversion);
 	}
-	else if (irc::equals(key,  "version"))
+	else if (insp::casemapped_equals(key,  "version"))
 	{
 		// InspIRCd-4. testnet.inspircd.org :Test
 		irc::tokenstream versionstream(value);

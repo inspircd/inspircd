@@ -41,7 +41,7 @@ public:
 
 	ModResult OnProcessTag(User* user, const std::string& tagname, std::string& tagvalue) override
 	{
-		if (!irc::equals(tagname, labeltag))
+		if (!insp::casemapped_equals(tagname, labeltag))
 			return MOD_RES_PASSTHRU;
 
 		// If the tag is empty or too long then we can't accept it.

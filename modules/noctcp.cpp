@@ -56,7 +56,7 @@ public:
 			return MOD_RES_PASSTHRU;
 
 		std::string_view ctcpname;
-		if (!details.IsCTCP(ctcpname) || irc::equals(ctcpname, "ACTION"))
+		if (!details.IsCTCP(ctcpname) || insp::casemapped_equals(ctcpname, "ACTION"))
 			return MOD_RES_PASSTHRU;
 
 		switch (target.type)

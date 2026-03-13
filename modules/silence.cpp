@@ -338,7 +338,7 @@ private:
 		{
 			for (SilenceList::iterator iter = list->begin(); iter != list->end(); ++iter)
 			{
-				if (!irc::equals(iter->mask, mask) || iter->flags != flags)
+				if (!insp::casemapped_equals(iter->mask, mask) || iter->flags != flags)
 					continue;
 
 				list->erase(iter);
@@ -554,7 +554,7 @@ public:
 	ModResult OnUserPreMessage(User* user, MessageTarget& target, MessageDetails& details) override
 	{
 		std::string_view ctcpname;
-		bool is_ctcp = details.IsCTCP(ctcpname) && !irc::equals(ctcpname, "ACTION");
+		bool is_ctcp = details.IsCTCP(ctcpname) && !insp::casemapped_equals(ctcpname, "ACTION");
 
 		SilenceEntry::SilenceFlags flag = SilenceEntry::SF_NONE;
 		switch (target.type)

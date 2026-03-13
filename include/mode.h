@@ -556,7 +556,7 @@ public:
 
 	/** Type of the container that maps mode names to ModeHandlers
 	 */
-	typedef std::unordered_map<std::string, ModeHandler*, irc::insensitive, irc::StrHashComp> ModeHandlerMap;
+	using ModeHandlerMap = insp::casemapped_unordered_map<ModeHandler*>;
 
 	/** Type of the container that contains whether a mode is set. */
 	typedef std::bitset<MODEID_MAX> ModeStatus;

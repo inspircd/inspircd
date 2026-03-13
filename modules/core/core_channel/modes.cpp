@@ -49,7 +49,7 @@ bool ModeChannelBan::CompareEntry(const std::string& entry, const std::string& v
 		if (res != ExtBan::Comparison::NOT_AN_EXTBAN)
 			return res == ExtBan::Comparison::MATCH;
 	}
-	return irc::equals(entry, value);
+	return insp::casemapped_equals(entry, value);
 }
 
 bool ModeChannelBan::ValidateParam(LocalUser* user, Channel* channel, std::string& parameter)

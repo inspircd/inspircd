@@ -59,15 +59,15 @@ public:
 		if (!stream.GetToken(methodstr))
 			return false;
 
-		if (irc::equals(methodstr, "ban"))
+		if (insp::casemapped_equals(methodstr, "ban"))
 			method = AntiCapsMethod::BAN;
-		else if (irc::equals(methodstr, "block"))
+		else if (insp::casemapped_equals(methodstr, "block"))
 			method = AntiCapsMethod::BLOCK;
-		else if (irc::equals(methodstr, "mute"))
+		else if (insp::casemapped_equals(methodstr, "mute"))
 			method = AntiCapsMethod::MUTE;
-		else if (irc::equals(methodstr, "kick"))
+		else if (insp::casemapped_equals(methodstr, "kick"))
 			method = AntiCapsMethod::KICK;
-		else if (irc::equals(methodstr, "kickban"))
+		else if (insp::casemapped_equals(methodstr, "kickban"))
 			method = AntiCapsMethod::KICK_BAN;
 		else
 			return false;
@@ -239,7 +239,7 @@ public:
 		if (details.IsCTCP(ctcpname, msgbody))
 		{
 			// If the CTCP is not an action then skip it.
-			if (!irc::equals(ctcpname, "ACTION"))
+			if (!insp::casemapped_equals(ctcpname, "ACTION"))
 				return MOD_RES_PASSTHRU;
 		}
 

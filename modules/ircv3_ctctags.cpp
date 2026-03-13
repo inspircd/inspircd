@@ -182,7 +182,7 @@ private:
 				// Drop attempts to send a tag message to a server. This usually happens when the
 				// server is started in debug mode and a client tries to send a typing notification
 				// to a query window created by the debug message.
-				if (!target && irc::equals(parameters[0], ServerInstance->FakeClient->GetMask()))
+				if (!target && insp::casemapped_equals(parameters[0], ServerInstance->FakeClient->GetMask()))
 					return CmdResult::FAILURE;
 			}
 		}
@@ -296,7 +296,7 @@ private:
 	{
 		for (const auto* memb : user->chans)
 		{
-			if (irc::equals(memb->chan->name, tagvalue))
+			if (insp::casemapped_equals(memb->chan->name, tagvalue))
 				return true;
 		}
 		return false;
@@ -322,14 +322,14 @@ private:
 		//  A typing notification is represented by a TAGMSG command sent with a
 		// typing tag using the client-only prefix + and possible values of
 		// active, paused, and done.
-		return irc::equals(tagvalue, "active")
-			|| irc::equals(tagvalue, "paused")
-			|| irc::equals(tagvalue, "done");
+		return insp::casemapped_equals(tagvalue, "active")
+			|| insp::casemapped_equals(tagvalue, "paused")
+			|| insp::casemapped_equals(tagvalue, "done");
 	}
 
 public:
 	AllowTags allowclientonlytags;
-	insp::flat_map<std::string, std::function<bool(LocalUser*, const std::string&)>, irc::insensitive_swo> knowntags = {
+	insp::casemapped_flat_map<std::function<bool(LocalUser*, const std::string&)>> knowntags = {
 		{ "+draft/channel-context", ValidateChannel   }, // https://ircv3.net/specs/client-tags/channel-context
 		{ "+draft/react",           ValidateReaction  }, // https://ircv3.net/specs/client-tags/react
 		{ "+draft/reply",           ValidateMessageId }, // https://ircv3.net/specs/client-tags/reply

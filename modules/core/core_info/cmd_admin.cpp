@@ -43,7 +43,7 @@ CommandAdmin::CommandAdmin(Module* parent)
 
 CmdResult CommandAdmin::Handle(User* user, const Params& parameters)
 {
-	if (!parameters.empty() && !irc::equals(parameters[0], ServerInstance->Config->ServerName))
+	if (!parameters.empty() && !insp::casemapped_equals(parameters[0], ServerInstance->Config->ServerName))
 		return CmdResult::SUCCESS;
 
 	user->WriteRemoteNumeric(RPL_ADMINME, ServerInstance->Config->GetServerName(), "Administrative info");

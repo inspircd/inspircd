@@ -105,7 +105,7 @@ public:
 
 		// Apply the new policy.
 		bool changed = false;
-		if (!irc::equals(host, newhost))
+		if (!insp::casemapped_equals(host, newhost))
 		{
 			ServerInstance->Logs.Debug(MODNAME, "Changing STS SNI hostname from \"{}\" to \"{}\"", host, newhost);
 			host = newhost;

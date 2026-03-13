@@ -36,7 +36,7 @@ CommandTime::CommandTime(Module* parent)
 
 CmdResult CommandTime::Handle(User* user, const Params& parameters)
 {
-	if (!parameters.empty() && !irc::equals(parameters[0], ServerInstance->Config->ServerName))
+	if (!parameters.empty() && !insp::casemapped_equals(parameters[0], ServerInstance->Config->ServerName))
 		return CmdResult::SUCCESS;
 
 	auto timestr = Time::ToString(ServerInstance->Time(), Time::DEFAULT_LONG);

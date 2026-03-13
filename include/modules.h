@@ -237,10 +237,10 @@ protected:
 
 public:
 	/** Data which is synchronised between servers on link. */
-	typedef std::map<std::string, std::string, irc::insensitive_swo> LinkData;
+	using LinkData = insp::casemapped_map<std::string>;
 
 	/** Data which is synchronised between servers on link. */
-	typedef std::map<std::string, std::pair<std::optional<std::string>, std::optional<std::string>>, irc::insensitive_swo> LinkDataDiff;
+	using LinkDataDiff = insp::casemapped_map<std::pair<std::optional<std::string>, std::optional<std::string>>>;
 
 	/** A list of modules. */
 	typedef std::vector<Module*> List;
@@ -984,9 +984,9 @@ private:
 	{
 		bool CoreExport operator()(const ServicePair& lhs, const ServicePair& rhs) const
 		{
-			if (!irc::equals(lhs.first, rhs.first))
-				return irc::less(lhs.first, rhs.first);
-			return irc::less(lhs.second, rhs.second);
+			if (!insp::casemapped_equals(lhs.first, rhs.first))
+				return insp::casemapped_less(lhs.first, rhs.first);
+			return insp::casemapped_less(lhs.second, rhs.second);
 		}
 	};
 
