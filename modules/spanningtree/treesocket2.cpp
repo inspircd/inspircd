@@ -25,6 +25,7 @@
 
 
 #include "inspircd.h"
+#include "stringutils.h"
 #include "timeutils.h"
 
 #include "main.h"
@@ -44,7 +45,7 @@ void TreeSocket::Error(CommandBase::Params& params)
 void TreeSocket::Split(const std::string& line, std::string& tags, std::string& prefix, std::string& command, CommandBase::Params& params)
 {
 	std::string token;
-	irc::tokenstream tokens(line);
+	MessageTokenizer tokens(line);
 
 	if (!tokens.GetMiddle(token))
 		return;

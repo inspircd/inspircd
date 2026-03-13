@@ -171,3 +171,78 @@ namespace Template
 	 */
 	CoreExport std::string Replace(const std::string& str, const VariableMap& vars);
 }
+
+
+/** Alows tokens in the IRC wire format to be read from a string. */
+class CoreExport MessageTokenizer final
+{
+private:
+	/** The message to parse tokens from. */
+	std::string message;
+
+	/** The current position in the message. */
+	std::string::size_type position = 0;
+
+public:
+	/** Creates a message tokenizer and fills it with the provided data.
+	 * @param msg The messsage to parse tokens from.
+	 * @param start The index to start tokenizing from.
+	 * @param end The index to stop tokenizing at.
+	 */
+	MessageTokenizer(const std::string& msg, std::string::size_type start = 0, std::string::size_type end = std::string::npos);
+
+	/** Determines whether the tokenizer at at the end of the message. */
+	inline auto AtEnd() const { return this->position >= this->message.length(); }
+
+	/** Retrieves a reference to the whole message. */
+	auto& GetMessage() { return this->message; }
+
+	/** Retrieves the next \<middle> token in the message.
+	 * @param token The next token available, or an empty string if none remain.
+	 * @return True if a token was retrieved; otherwise, false.
+	 */
+	bool GetMiddle(std::string& token);
+
+	/** Retrieves the next \<middle> token in the message.
+	 * @param token The next token available, or an empty string view if none remain.
+	 * @return True if a token was retrieved; otherwise, false.
+	 */
+	bool GetMiddle(std::string_view& token);
+
+	/** Retrieves all remaining \<middle> tokens in the message.
+	 * @param tokens A vector to place all remaining \<middle> tokens in.
+	 */
+	template<typename Value>
+	void GetRemainingMiddle(std::vector<Value>& tokens)
+	{
+		tokens.clear();
+		for (Value token; GetMiddle(token); )
+			tokens.push_back(token);
+	}
+
+	/** Retrieves all remaining \<trailing> tokens in the message.
+	 * @param tokens A vector to place all remaining \<trailing> tokens in.
+	 */
+	template<typename Value>
+	void GetRemainingTrailing(std::vector<Value>& tokens)
+	{
+		tokens.clear();
+		for (Value token; GetTrailing(token); )
+			tokens.push_back(token);
+	}
+
+	/** Retrieves the current position in the message. */
+	auto GetPosition() const { return this->position; }
+
+	/** Retrieves the next \<trailing> token in the message.
+	 * @param token The next token available, or an empty string if none remain.
+	 * @return True if a token was retrieved; otherwise, false.
+	 */
+	bool GetTrailing(std::string& token);
+
+	/** Retrieve the next \<trailing> token in the message.
+	 * @param token The next token available, or an empty string view if none remain.
+	 * @return True if a token was retrieved; otherwise, false.
+	 */
+	bool GetTrailing(std::string_view& token);
+};

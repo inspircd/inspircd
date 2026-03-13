@@ -116,47 +116,6 @@ namespace irc
 		}
 	};
 
-	/** irc::tokenstream reads a string formatted as per RFC1459 and RFC2812.
-	 * It will split the string into 'tokens' each containing one parameter
-	 * from the string.
-	 * For instance, if it is instantiated with the string:
-	 * "PRIVMSG #test :foo bar baz qux"
-	 * then each successive call to tokenstream::GetToken() will return
-	 * "PRIVMSG", "#test", "foo bar baz qux", "".
-	 * Note that if the whole string starts with a colon this is not taken
-	 * to mean the string is all one parameter, and the first item in the
-	 * list will be ":item". This is to allow for parsing 'source' fields
-	 * from data.
-	 */
-	class CoreExport tokenstream
-	{
-	private:
-		/** The message we are parsing tokens from. */
-		std::string message;
-
-		/** The current position within the message. */
-		size_t position = 0;
-
-	public:
-		/** Create a tokenstream and fill it with the provided data. */
-		tokenstream(const std::string& msg, size_t start = 0, size_t end = std::string::npos);
-
-		/** Retrieves the underlying message. */
-		std::string& GetMessage() { return message; }
-
-		/** Retrieve the next \<middle> token in the token stream.
-		 * @param token The next token available, or an empty string if none remain.
-		 * @return True if tokens are left to be read, false if the last token was just retrieved.
-		 */
-		bool GetMiddle(std::string& token);
-
-		/** Retrieve the next \<trailing> token in the token stream.
-		 * @param token The next token available, or an empty string if none remain.
-		 * @return True if tokens are left to be read, false if the last token was just retrieved.
-		 */
-		bool GetTrailing(std::string& token);
-	};
-
 	/** The portparser class separates out a port range into integers.
 	 * A port range may be specified in the input string in the form
 	 * "6660,6661,6662-6669,7020". The end of the stream is indicated by

@@ -26,6 +26,7 @@
 
 
 #include "inspircd.h"
+#include "stringutils.h"
 
 /** An alias definition
  */
@@ -377,19 +378,16 @@ public:
 				result.push_back(c);
 		}
 
-		irc::tokenstream ss(result);
-		CommandBase::Params pars;
-		std::string command;
-		std::string token;
+		MessageTokenizer tokenizer(result);
 
-		ss.GetMiddle(command);
-		while (ss.GetTrailing(token))
-		{
-			pars.push_back(token);
-		}
+		std::string command;
+		tokenizer.GetMiddle(command);
+
+		CommandBase::Params parameters;
+		tokenizer.GetRemainingTrailing(parameters);
 
 		active = true;
-		ServerInstance->Parser.ProcessCommand(user, command, pars);
+		ServerInstance->Parser.ProcessCommand(user, command, parameters);
 		active = false;
 	}
 

@@ -29,6 +29,7 @@
 #include <fstream>
 
 #include "inspircd.h"
+#include "stringutils.h"
 #include "timeutils.h"
 #include "xline.h"
 
@@ -213,10 +214,8 @@ public:
 			ServerInstance->Logs.Debug(MODNAME, "Processing {}", line);
 
 			// Inspired by the command parser. :)
-			irc::tokenstream tokens(line);
 			std::vector<std::string> command_p;
-			for (std::string p; tokens.GetTrailing(p); )
-				command_p.push_back(p);
+			MessageTokenizer(line).GetRemainingTrailing(command_p);
 
 			if (command_p[0] == "VERSION")
 			{

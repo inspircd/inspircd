@@ -393,3 +393,74 @@ bool TokenList::operator==(const TokenList& other) const
 
 	return true;
 }
+
+MessageTokenizer::MessageTokenizer(const std::string& msg, std::string::size_type start, std::string::size_type end)
+	: message(msg, start, end)
+{
+}
+
+bool MessageTokenizer::GetMiddle(std::string& token)
+{
+	if (std::string_view sv; GetMiddle(sv))
+	{
+		token.assign(sv);
+		return true;
+	}
+	token.clear();
+	return false;
+}
+
+bool MessageTokenizer::GetMiddle(std::string_view& token)
+{
+	// If we are past the end of the string we can't do anything.
+	if (AtEnd())
+	{
+		token = std::string_view();
+		return false;
+	}
+
+	// If we can't find another separator this is the last token in the message.
+	const auto pos = message.find(' ', this->position);
+	if (pos == std::string::npos)
+	{
+		token = std::string_view(this->message.begin() + position, this->message.end());
+		this->position = message.length();
+		return true;
+	}
+
+	token = std::string_view(this->message.begin() + this->position, this->message.begin() + pos);
+	this->position = message.find_first_not_of(' ', pos + 1);
+	return true;
+}
+
+bool MessageTokenizer::GetTrailing(std::string& token)
+{
+	if (std::string_view sv; GetTrailing(sv))
+	{
+		token.assign(sv);
+		return true;
+	}
+	token.clear();
+	return false;
+}
+
+bool MessageTokenizer::GetTrailing(std::string_view& token)
+{
+	// If we are past the end of the string we can't do anything.
+	if (AtEnd())
+	{
+		token = std::string_view();
+		return false;
+	}
+
+	// If this is true then we have a <trailing> token!
+	if (message[position] == ':')
+	{
+		token = std::string_view(this->message.begin() + this->position + 1, this->message.end());
+		this->position = message.length();
+		return true;
+	}
+
+	// There is no <trailing> token so it must be a <middle> token.
+	return GetMiddle(token);
+}

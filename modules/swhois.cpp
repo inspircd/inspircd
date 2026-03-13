@@ -23,6 +23,7 @@
 #include "modules/server.h"
 #include "modules/whois.h"
 #include "numerichelper.h"
+#include "stringutils.h"
 
 struct SWhois final
 {
@@ -321,7 +322,7 @@ private:
 	CommandSWhois cmdswhois;
 	UserModeReference hideopermode;
 
-	void DecodeSWhoisAdd(User* user, irc::tokenstream& stream)
+	void DecodeSWhoisAdd(User* user, MessageTokenizer& stream)
 	{
 		std::string tag, flags, priority, message;
 		if (!stream.GetMiddle(tag) || !stream.GetMiddle(flags) || !stream.GetMiddle(priority) || !stream.GetTrailing(message))
@@ -342,7 +343,7 @@ private:
 		swhois.ParseFlags(flags);
 	}
 
-	void DecodeSWhoisDel(User* user, irc::tokenstream& stream)
+	void DecodeSWhoisDel(User* user, MessageTokenizer& stream)
 	{
 		std::string message;
 		if (!stream.GetTrailing(message))
@@ -392,7 +393,7 @@ public:
 			DecodeSWhoisLegacy(user, extvalue);
 		else if (insp::casemapped_equals(extname, "specialwhois"))
 		{
-			irc::tokenstream msgstream(extvalue);
+			MessageTokenizer msgstream(extvalue);
 
 			std::string operation;
 			if (!msgstream.GetMiddle(operation))

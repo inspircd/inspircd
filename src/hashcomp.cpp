@@ -26,55 +26,6 @@
 
 #include "inspircd.h"
 
-irc::tokenstream::tokenstream(const std::string& msg, size_t start, size_t end)
-	: message(msg, start, end)
-{
-}
-
-bool irc::tokenstream::GetMiddle(std::string& token)
-{
-	// If we are past the end of the string we can't do anything.
-	if (position >= message.length())
-	{
-		token.clear();
-		return false;
-	}
-
-	// If we can't find another separator this is the last token in the message.
-	size_t separator = message.find(' ', position);
-	if (separator == std::string::npos)
-	{
-		token.assign(message, position, std::string::npos);
-		position = message.length();
-		return true;
-	}
-
-	token.assign(message, position, separator - position);
-	position = message.find_first_not_of(' ', separator);
-	return true;
-}
-
-bool irc::tokenstream::GetTrailing(std::string& token)
-{
-	// If we are past the end of the string we can't do anything.
-	if (position >= message.length())
-	{
-		token.clear();
-		return false;
-	}
-
-	// If this is true then we have a <trailing> token!
-	if (message[position] == ':')
-	{
-		token.assign(message, position + 1, std::string::npos);
-		position = message.length();
-		return true;
-	}
-
-	// There is no <trailing> token so it must be a <middle> token.
-	return GetMiddle(token);
-}
-
 irc::sepstream::sepstream(const std::string& source, char separator, bool allowempty)
 	: tokens(source)
 	, sep(separator)

@@ -19,6 +19,7 @@
  */
 
 #include "inspircd.h"
+#include "stringutils.h"
 
 #include "treeserver.h"
 #include "commands.h"
@@ -53,7 +54,7 @@ CmdResult CommandSInfo::HandleServer(TreeServer* server, CommandBase::Params& pa
 	{
 		// InspIRCd-4.0.0-a10. sadie.testnet.inspircd.org :[597] Test
 		// version             server                       uid  custom-version
-		irc::tokenstream versionstream(value);
+		MessageTokenizer versionstream(value);
 
 		versionstream.GetMiddle(server->rawversion);
 		if (server->rawversion.back() == '.')
@@ -72,7 +73,7 @@ CmdResult CommandSInfo::HandleServer(TreeServer* server, CommandBase::Params& pa
 	else if (insp::casemapped_equals(key,  "version"))
 	{
 		// InspIRCd-4. testnet.inspircd.org :Test
-		irc::tokenstream versionstream(value);
+		MessageTokenizer versionstream(value);
 
 		versionstream.GetMiddle(server->rawbranch);
 		if (server->rawbranch.back() == '.')

@@ -39,6 +39,7 @@
 #include "modules/shun.h"
 #include "modules/stats.h"
 #include "numerichelper.h"
+#include "stringutils.h"
 #include "timeutils.h"
 #include "utility/string.h"
 #include "xline.h"
@@ -726,7 +727,7 @@ FilterResult ModuleFilter::DecodeFilter(const std::string& data)
 {
 	std::string filteraction;
 	FilterResult res;
-	irc::tokenstream tokens(data);
+	MessageTokenizer tokens(data);
 	tokens.GetMiddle(res.freeform);
 	tokens.GetMiddle(filteraction);
 	if (!StringToFilterAction(filteraction, res.action))
