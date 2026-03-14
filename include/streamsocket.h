@@ -239,6 +239,9 @@ private:
 	/** Whether the socket is currently closing or not, used to avoid repeatedly closing a closed socket */
 	bool closing = false;
 
+	/** Opaque data associated with this socket. */
+	void* opaque_data = nullptr;
+
 	/** The IOHook that handles raw I/O for this socket, or NULL */
 	IOHook* iohook = nullptr;
 
@@ -363,6 +366,16 @@ public:
 	 * @return The last IOHook attached to this socket or NULL if no IOHooks are attached
 	 */
 	IOHook* GetLastHook() const;
+
+	/** Gets opaque data that is associated with this socket. */
+	template<typename Data>
+	Data* GetData() const { return static_cast<Data*>(this->opaque_data); }
+
+	/** Sets opaque data that is associated with this socket.
+	 * @param ptr Pointer to the data.
+	 */
+	template<typename Data>
+	void SetData(Data* ptr) { this->opaque_data = static_cast<void*>(ptr); }
 };
 /**
  * BufferedSocket is an extendable socket class which modules

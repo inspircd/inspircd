@@ -32,6 +32,7 @@ public:
 	SocketUserIO(int nfd)
 		: StreamSocket(StreamSocket::SS_USER)
 	{
+		SetData(static_cast<LocalUserIO*>(this));
 		SetFd(nfd);
 	}
 

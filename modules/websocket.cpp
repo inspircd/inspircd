@@ -333,8 +333,8 @@ class WebSocketHook final
 		else if (sock->type == StreamSocket::SS_USER && config.nativeping)
 		{
 			// Pong reply on user socket; reset their idle time.
-			auto* lio = reinterpret_cast<LocalUserIO*>(sock);
-			lio->user->lastping = 1;
+			auto* luser = sock->GetData<LocalUserIO>()->user;
+			luser->lastping = 1;
 		}
 		return 1;
 	}
@@ -427,10 +427,7 @@ class WebSocketHook final
 
 		LocalUser* luser = nullptr;
 		if (sock->type == StreamSocket::SS_USER)
-		{
-			auto* lio = reinterpret_cast<LocalUserIO*>(sock);
-			luser = lio ? lio->user : nullptr;
-		}
+			luser = sock->GetData<LocalUserIO>()->user;
 
 		bool allowedorigin = false;
 		HTTPHeaderFinder originheader;
