@@ -466,6 +466,115 @@ bool MessageTokenizer::GetTrailing(std::string_view& token)
 	return GetMiddle(token);
 }
 
+NumberRange::NumberRange(const std::string& range, bool sd, std::string::size_type start, std::string::size_type end)
+	: splitter(range, ',', false, start, end)
+	, skip_duplicates(sd)
+{
+}
+
+bool NumberRange::GetRange(const std::string_view& sv1, const std::string_view& sv2, uintmax_t& num, uintmax_t min, uintmax_t max)
+{
+	uintmax_t start, end;
+	if (!Parse(sv1, start) || !Parse(sv2, end))
+		return false; // Range contains invalid characters.
+
+	if (start > end || start < min || end > max)
+		return false; // Number out of range.
+
+	while (start <= end)
+	{
+		if (Seen(start))
+		{
+			start++;
+			continue; // Number already seen.
+		}
+
+		// Store the rest of the range for later.
+		this->current_span = { start, end };
+		num = start;
+
+		return true;
+	}
+
+	return false;
+}
+
+bool NumberRange::GetSingle(const std::string_view& sv, uintmax_t& num, uintmax_t min, uintmax_t max)
+{
+	// Check whether the token is a single integer.
+	if (Parse(sv, num))
+	{
+		if (num < min || num > max)
+			return false; // Number out of range.
+
+		if (Seen(num))
+			return false; // Number already seen.
+
+		return true;
+	}
+
+	return false; // Not a number range.
+}
+
+bool NumberRange::GetSpan(uintmax_t& num, uintmax_t min, uintmax_t max)
+{
+	// We are within a span, clamp to the min/max and start iterating.
+	auto& [span_start, span_end] = this->current_span;
+	span_start = std::max(span_start, min);
+	while (++span_start <= std::min(span_end, max))
+	{
+		if (Seen(span_start))
+			continue; // Number already seen.
+
+		num = span_start;
+		return true;
+	}
+
+	// Reset the span as we have reached the end.
+	this->current_span = { 0, 0 };
+	return false;
+}
+
+bool NumberRange::GetToken(uintmax_t& num, uintmax_t min, uintmax_t max)
+{
+	if (min > max) [[unlikely]]
+		std::swap(min, max);
+
+	const auto& [span_start, span_end] = this->current_span;
+	if (span_start != span_end && GetSpan(num, min, max))
+		return true; // We read a token from the span.
+
+	for (std::string_view sv; this->splitter.GetToken(sv); )
+	{
+		const auto sep = sv.find('-');
+		if (sep == std::string_view::npos)
+		{
+			if (GetSingle(sv, num, min, max))
+				return true; // We have read a single token.
+			continue;
+		}
+
+		if (GetRange(sv.substr(0, sep), sv.substr(sep + 1), num, min, max))
+			return true; // We have read a token from a range.
+	}
+
+	num = 0;
+	return false; // Out of numbers.
+}
+
+bool NumberRange::Parse(const std::string_view& in, uintmax_t& out)
+{
+	return std::from_chars(in.data(), in.data() + in.size(), out).ec == std::errc{};
+}
+
+bool NumberRange::Seen(uintmax_t num)
+{
+	if (!this->skip_duplicates)
+		return false; // Duplicates are allowed.
+
+	return !this->seen.insert(num).second;
+}
+
 StringSplitter::StringSplitter(const std::string& str, std::string::value_type sep, bool ae, std::string::size_type start, std::string::size_type end)
 	: allow_empty(ae)
 	, separator(sep)

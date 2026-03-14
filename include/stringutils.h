@@ -310,3 +310,83 @@ public:
 		return true;
 	}
 };
+
+class CoreExport NumberRange final
+{
+private:
+	/** If we are in a num1-num2 range then the start and end of the current span. */
+	std::pair<uintmax_t, uintmax_t> current_span;
+
+	/** If we are skipping duplicates then numbers that have already been seen. */
+	std::set<uintmax_t> seen;
+
+	/** The splitter for separating comma-delimited ports. */
+	StringSplitter splitter;
+
+	/** Retrieves a single number from the range between \p sv1 and \p sv2.
+	 * @param sv1 A string view containing the start of the range.
+	 * @param sv2 A string view containing the end of the range.
+	 * @param num The next number available, or an default-initialised value if none remain.
+	 * @param min The minimum valid value to return.
+	 * @param max The maximum valid value to return.
+	 * @return True if a number was retrieved; otherwise, false.
+	 */
+	bool GetRange(const std::string_view& sv1, const std::string_view& sv2, uintmax_t& num, uintmax_t min, uintmax_t max);
+
+	/** Retrieves a single number from \p sv.
+	 * @param sv A string view containing a single number.
+	 * @param num The next number available, or an default-initialised value if none remain.
+	 * @param min The minimum valid value to return.
+	 * @param max The maximum valid value to return.
+	 * @return True if a number was retrieved; otherwise, false.
+	 */
+	bool GetSingle(const std::string_view& sv, uintmax_t& num, uintmax_t min, uintmax_t max);
+
+	/** Retrieves a number from the range stored in \ref current_span.
+	 * @param num The next number available, or an default-initialised value if none remain.
+	 * @param min The minimum valid value to return.
+	 * @param max The maximum valid value to return.
+	 * @return True if a number was retrieved; otherwise, false.
+	 */
+	bool GetSpan(uintmax_t& num, uintmax_t min, uintmax_t max);
+
+	/** Retrieves the next number in the range.
+	 * @param num The next number available, or an default-initialised value if none remain.
+	 * @param min The minimum valid value to return.
+	 * @param max The maximum valid value to return.
+	 * @return True if a number was retrieved; otherwise, false.
+	 */
+	bool GetToken(uintmax_t& num, uintmax_t min = std::numeric_limits<uintmax_t>::min(), uintmax_t max = std::numeric_limits<uintmax_t>::max());
+
+	/** Parses an integer. */
+	static bool Parse(const std::string_view& in, uintmax_t& out);
+
+	/** Determines if the specified number has been seen already and marks it as seen if not. */
+	bool Seen(uintmax_t num);
+
+public:
+	/** Whether to skip duplicates in the range. */
+	const bool skip_duplicates;
+
+	/**	Creates a number range and fills it with the provided data.
+	 * @param range A number range in the format 1,2,3-4,5.
+	 * @param sd Whether to skip duplicates in the range.
+	 * @param start The index to start tokenizing from.
+	 * @param end The index to stop tokenizing at.
+	 */
+	NumberRange(const std::string& range, bool sd = true, std::string::size_type start = 0, std::string::size_type end = std::string::npos);
+
+	/** @copydoc NumberRange::GetToken */
+	template<typename Numeric>
+	bool GetToken(Numeric& num, Numeric min = std::numeric_limits<Numeric>::min(), Numeric max = std::numeric_limits<Numeric>::max())
+	{
+		if (uintmax_t n; GetToken(n, static_cast<uintmax_t>(min), static_cast<uintmax_t>(max)))
+		{
+			num = static_cast<Numeric>(n);
+			return true;
+		}
+
+		num = Numeric();
+		return false;
+	}
+};

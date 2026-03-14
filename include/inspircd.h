@@ -81,7 +81,6 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "users.h"
 #include "channels.h"
 #include "timer.h"
-#include "hashcomp.h"
 #include "channelmanager.h"
 #include "usermanager.h"
 #include "socket.h"

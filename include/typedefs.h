@@ -72,7 +72,6 @@ namespace ClientProtocol
 	typedef insp::flat_map<std::string, MessageTagData, std::greater<>> TagMap;
 }
 
-#include "hashcomp.h"
 #include "base.h"
 
 /** Generic user list, used for exceptions */

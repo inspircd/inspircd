@@ -1020,12 +1020,9 @@ void ConnectClass::Configure(const std::string& classname, const std::shared_ptr
 			name, tag->source.str());
 	}
 
-	irc::portparser portrange(tag->getString("port"), false);
-	while (long port = portrange.GetToken())
-	{
-		if (port > std::numeric_limits<in_port_t>::min() && port <= std::numeric_limits<in_port_t>::max())
-			ports.insert(static_cast<in_port_t>(port));
-	}
+	NumberRange portrange(tag->getString("port"));
+	for (in_port_t port; portrange.GetToken(port); )
+		ports.insert(port);
 
 	commandrate = tag->getNum<unsigned long>("commandrate", commandrate, 1);
 	fakelag = tag->getBool("fakelag", fakelag);

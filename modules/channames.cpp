@@ -23,6 +23,7 @@
 
 
 #include "inspircd.h"
+#include "stringutils.h"
 
 static CharState allowedmap;
 
@@ -101,25 +102,16 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("channames");
-		std::string denyToken = tag->getString("denyrange");
-		std::string allowToken = tag->getString("allowrange");
-
-		if (!denyToken.compare(0, 2, "0-"))
-			denyToken[0] = '1';
-		if (!allowToken.compare(0, 2, "0-"))
-			allowToken[0] = '1';
 
 		allowedmap.set();
 
-		irc::portparser denyrange(denyToken, false);
-		long denyno = -1;
-		while (0 != (denyno = denyrange.GetToken()))
-			allowedmap[denyno & UCHAR_MAX] = false;
+		NumberRange denyrange(tag->getString("denyrange"));
+		for (size_t denynum; denyrange.GetToken<size_t>(denynum, 0, UCHAR_MAX); )
+			allowedmap[denynum] = false;
 
-		irc::portparser allowrange(allowToken, false);
-		long allowno = -1;
-		while (0 != (allowno = allowrange.GetToken()))
-			allowedmap[allowno & UCHAR_MAX] = true;
+		NumberRange allowrange(tag->getString("allowrange"));
+		for (size_t allownum; allowrange.GetToken<size_t>(allownum, 0, UCHAR_MAX); )
+			allowedmap[allownum] = true;
 
 		allowedmap[0x07] = false; // BEL
 		allowedmap[0x20] = false; // ' '

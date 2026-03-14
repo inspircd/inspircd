@@ -117,14 +117,10 @@ public:
 			{ "zline", Action::ZLINE },
 		});
 
-		irc::portparser recordrange(tag->getString("records"), false);
-		for (long record = 0; (record = recordrange.GetToken()); )
-		{
-			if (record < 0 || record > UCHAR_MAX)
-				throw ModuleException(mod, "<dnsbl:records> can only hold records between 0 and 255 at " + tag->source.str());
-
+		NumberRange recordrange(tag->getString("records"));
+		for (size_t record; recordrange.GetToken<size_t>(record, 0, UCHAR_MAX); )
 			records.set(record);
-		}
+
 		if (records.none())
 			throw ModuleException(mod, "<dnsbl:records> can not be empty at " + tag->source.str());
 

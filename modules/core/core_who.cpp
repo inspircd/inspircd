@@ -30,6 +30,7 @@
 #include "modules/account.h"
 #include "modules/isupport.h"
 #include "modules/who.h"
+#include "stringutils.h"
 #include "timeutils.h"
 
 enum
@@ -352,12 +353,10 @@ bool CommandWho::MatchUser(LocalUser* source, User* user, WhoData& data)
 	{
 		if (source_can_see_target && lu)
 		{
-			irc::portparser portrange(data.matchtext, false);
-			while (long port = portrange.GetToken())
+			NumberRange portrange(data.matchtext);
+			for (in_port_t port; portrange.GetToken(port); )
 			{
-				if (port >= std::numeric_limits<in_port_t>::min()
-					&& port <= std::numeric_limits<in_port_t>::max()
-					&& static_cast<in_port_t>(port) == lu->server_sa.port())
+				if (port == lu->server_sa.port())
 				{
 					match = true;
 					break;

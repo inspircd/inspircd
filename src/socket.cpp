@@ -112,24 +112,17 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 				continue;
 			}
 
-			irc::portparser portrange(portlist, false);
-			while (long port = portrange.GetToken())
+			NumberRange portrange(portlist);
+			for (in_port_t port; portrange.GetToken(port); )
 			{
-				// Check if the port is out of range.
-				if (port <= std::numeric_limits<in_port_t>::min() || port > std::numeric_limits<in_port_t>::max())
-				{
-					failed_ports.emplace_back(FMT::format("Port is not valid: {}", port), bindspec, tag);
-					continue;
-				}
-
 				switch (bindspec.family())
 				{
 					case AF_INET:
-						bindspec.in4.sin_port = htons(static_cast<in_port_t>(port));
+						bindspec.in4.sin_port = htons(port);
 						break;
 
 					case AF_INET6:
-						bindspec.in6.sin6_port = htons(static_cast<in_port_t>(port));
+						bindspec.in6.sin6_port = htons(port);
 						break;
 
 					default:
