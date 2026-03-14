@@ -88,7 +88,7 @@ bool RFCSerializer::Parse(LocalUser* user, const std::string& line, ClientProtoc
 
 		// Line begins with message tags, parse them.
 		std::string tagval;
-		StringSplitter ss(token, ':', true, 1);
+		StringSplitter ss(token, ';', true, 1);
 		while (ss.GetToken(token))
 		{
 			// Two or more tags with the same key must not be sent, but if a client violates that we accept
