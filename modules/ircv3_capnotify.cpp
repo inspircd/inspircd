@@ -151,8 +151,8 @@ public:
 
 	void OnCapValueChange(Cap::Capability* cap) override
 	{
-		// The value of a cap has changed, send CAP DEL and CAP NEW with the new value
-		Send(cap->GetName(), cap, false);
+		// We used to send a DEL then a NEW here but IRCv3 PR #480 clarified
+		// that this behaviour is unnecessary.
 		Send(cap->GetName(), cap, true);
 	}
 
