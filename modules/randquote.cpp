@@ -22,6 +22,7 @@
 
 
 #include "inspircd.h"
+#include "stringutils.h"
 
 class ModuleRandQuote final
 	: public Module
@@ -49,7 +50,7 @@ public:
 			throw ModuleException(this, "Unable to read quotes from " + filestr + ": " + file.error);
 
 		std::vector<std::string> newquotes;
-		irc::sepstream linestream(file.contents, '\n');
+		StringSplitter linestream(file.contents, '\n');
 		for (std::string line; linestream.GetToken(line); )
 			newquotes.push_back(line);
 		std::swap(quotes, newquotes);

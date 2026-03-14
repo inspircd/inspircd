@@ -222,7 +222,7 @@ public:
 	bool HandleReq(LocalUser* user, const std::string& reqlist)
 	{
 		Ext usercaps = capext.Get(user);
-		irc::spacesepstream ss(reqlist);
+		StringSplitter ss(reqlist);
 		for (std::string capname; ss.GetToken(capname); )
 		{
 			bool remove = (capname[0] == '-');

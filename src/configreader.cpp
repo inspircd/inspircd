@@ -35,6 +35,7 @@
 
 #include "inspircd.h"
 #include "configparser.h"
+#include "stringutils.h"
 #include "utility/string.h"
 
 ServerConfig::ReadResult::ReadResult(const std::string& c, const std::string& e)
@@ -163,7 +164,7 @@ void ServerConfig::CrossCheckOperBlocks()
 		auto type = std::make_shared<OperType>(name, nullptr);
 
 		// Copy the settings from the oper class.
-		irc::spacesepstream classlist(tag->getString("classes"));
+		StringSplitter classlist(tag->getString("classes"));
 		for (std::string classname; classlist.GetToken(classname); )
 		{
 			auto klass = operclass.find(classname);
@@ -291,7 +292,7 @@ void ServerConfig::CrossCheckConnectBlocks(const std::unique_ptr<ServerConfig>& 
 			names[name] = i;
 
 			std::vector<std::string> masks;
-			irc::spacesepstream maskstream(mask);
+			StringSplitter maskstream(mask);
 			for (std::string maskentry; maskstream.GetToken(maskentry); )
 				masks.push_back(maskentry);
 

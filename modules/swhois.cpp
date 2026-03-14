@@ -416,7 +416,7 @@ public:
 		if (!user->oper->GetConfig()->readString("swhois", swhoisstr, true) || swhoisstr.empty())
 			return;
 
-		irc::sepstream msgstream(swhoisstr, '\n', true);
+		StringSplitter msgstream(swhoisstr, '\n', true);
 		for (std::string msg; msgstream.GetToken(msg); )
 		{
 			auto& swhois = AddSWhois(cmdswhois.swhoisext, user, msg);

@@ -33,6 +33,7 @@
 #include "inspircd.h"
 #include "iohook.h"
 #include "modules/httpd.h"
+#include "stringutils.h"
 #include "utility/string.h"
 
 #ifdef __GNUC__
@@ -347,7 +348,7 @@ public:
 		{
 			// Normalise the path.
 			std::vector<std::string> pathsegments;
-			irc::sepstream pathstream(uri.substr(url.field_data[UF_PATH].off, url.field_data[UF_PATH].len), '/');
+			StringSplitter pathstream(uri, '/', true, url.field_data[UF_PATH].off, url.field_data[UF_PATH].len);
 			for (std::string pathsegment; pathstream.GetToken(pathsegment); )
 			{
 				if (pathsegment == ".")
@@ -378,12 +379,10 @@ public:
 		if (url.field_set & (1 << UF_QUERY))
 			param_str = uri.substr(url.field_data[UF_QUERY].off, url.field_data[UF_QUERY].len);
 
-		irc::sepstream param_stream(param_str, '&');
-		std::string token;
-		std::string::size_type eq_pos;
-		while (param_stream.GetToken(token))
+		StringSplitter paramstream(param_str, '&');
+		for (std::string_view token; paramstream.GetToken(token); )
 		{
-			eq_pos = token.find('=');
+			const auto eq_pos = token.find('=');
 			if (eq_pos == std::string::npos)
 			{
 				out.query_params.emplace(token, "");

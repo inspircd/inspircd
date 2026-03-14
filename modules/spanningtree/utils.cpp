@@ -230,7 +230,7 @@ void SpanningTreeUtilities::ReadConfiguration(ConfigStatus& status)
 	HideSplits = mtag->getBool("hidesplits", security->getBool("hidesplits"));
 
 	LocalRanges.clear();
-	irc::spacesepstream localrangestream(mtag->getString("localranges", security->getString("localranges")));
+	StringSplitter localrangestream(mtag->getString("localranges", security->getString("localranges")));
 	for (std::string localrange; localrangestream.GetToken(localrange); )
 	{
 		irc::sockets::cidr_mask cidr(localrange);
@@ -251,7 +251,7 @@ void SpanningTreeUtilities::ReadConfiguration(ConfigStatus& status)
 	{
 		auto L = std::make_shared<Link>(tag);
 
-		irc::spacesepstream sep = tag->getString("allowmask");
+		StringSplitter sep(tag->getString("allowmask"));
 		for (std::string s; sep.GetToken(s);)
 			L->AllowMasks.push_back(s);
 
@@ -334,7 +334,7 @@ void SpanningTreeUtilities::ReadConfiguration(ConfigStatus& status)
 		A->BootPeriod = tag->getDuration("bootperiod", A->Period, 1);
 		A->NextConnectTime = ServerInstance->Time() + (status.initial ? A->BootPeriod : A->Period);
 		A->position = -1;
-		irc::spacesepstream ss(tag->getString("server"));
+		StringSplitter ss(tag->getString("server"));
 		std::string server;
 		while (ss.GetToken(server))
 		{

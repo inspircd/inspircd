@@ -48,14 +48,14 @@ public:
 	{
 	}
 
-	static bool Parse(irc::sepstream& stream, AntiCapsMethod& method, uint16_t& minlen, uint8_t& percent)
+	static bool Parse(StringSplitter& stream, AntiCapsMethod& method, uint16_t& minlen, uint8_t& percent)
 	{
 		return ParseMethod(stream, method) && ParseMinimumLength(stream, minlen) && ParsePercent(stream, percent);
 	}
 
-	static bool ParseMethod(irc::sepstream& stream, AntiCapsMethod& method)
+	static bool ParseMethod(StringSplitter& stream, AntiCapsMethod& method)
 	{
-		std::string methodstr;
+		std::string_view methodstr;
 		if (!stream.GetToken(methodstr))
 			return false;
 
@@ -75,9 +75,9 @@ public:
 		return true;
 	}
 
-	static bool ParseMinimumLength(irc::sepstream& stream, uint16_t& minlen)
+	static bool ParseMinimumLength(StringSplitter& stream, uint16_t& minlen)
 	{
-		std::string minlenstr;
+		std::string_view minlenstr;
 		if (!stream.GetToken(minlenstr))
 			return false;
 
@@ -89,9 +89,9 @@ public:
 		return true;
 	}
 
-	static bool ParsePercent(irc::sepstream& stream, uint8_t& percent)
+	static bool ParsePercent(StringSplitter& stream, uint8_t& percent)
 	{
-		std::string percentstr;
+		std::string_view percentstr;
 		if (!stream.GetToken(percentstr))
 			return false;
 
@@ -116,7 +116,7 @@ public:
 
 	bool OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
-		irc::sepstream stream(parameter, ':');
+		StringSplitter stream(parameter, ':');
 		AntiCapsMethod method;
 		uint16_t minlen;
 		uint8_t percent;

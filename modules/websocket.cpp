@@ -510,7 +510,7 @@ class WebSocketHook final
 		HTTPHeaderFinder protocolheader;
 		if (protocolheader.Find(recvq, "Sec-WebSocket-Protocol:", 23, reqend))
 		{
-			irc::commasepstream protostream(protocolheader.ExtractValue(recvq));
+			StringSplitter protostream(protocolheader.ExtractValue(recvq), ',');
 			for (std::string proto; protostream.GetToken(proto); )
 			{
 				std::erase_if(proto, ::isspace);
@@ -740,7 +740,7 @@ public:
 		if (config.defaultmode == WebSocketConfig::DM_TEXT && !config.allowtext)
 			throw ModuleException(this, "You can not use text websockets when using a non-utf8 compatible server charset, at " + tag->source.str());
 
-		irc::spacesepstream proxyranges(tag->getString("proxyranges"));
+		StringSplitter proxyranges(tag->getString("proxyranges"));
 		for (std::string proxyrange; proxyranges.GetToken(proxyrange); )
 			config.proxyranges.push_back(proxyrange);
 

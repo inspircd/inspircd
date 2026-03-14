@@ -77,7 +77,7 @@ class BindInterface final
 	{
 		if (!vhost.empty())
 		{
-			irc::commasepstream stream(DN);
+			StringSplitter stream(DN, ',');
 
 			// mashed map of key:value parts of the DN
 			std::map<std::string, std::string> dnParts;

@@ -25,6 +25,7 @@
 #include "modules/isupport.h"
 #include "modules/monitor.h"
 #include "numericbuilder.h"
+#include "stringutils.h"
 
 namespace IRCv3::Monitor
 {
@@ -241,7 +242,7 @@ void IRCv3::Monitor::Manager::ExtItem::FromInternal(Extensible* container, const
 	if (container->extype != this->extype)
 		return;
 
-	irc::spacesepstream ss(value);
+	StringSplitter ss(value);
 	for (std::string nick; ss.GetToken(nick); )
 		manager.Watch(static_cast<LocalUser*>(container), nick, ULONG_MAX);
 }
@@ -270,14 +271,15 @@ class CommandMonitor final
 	{
 		ReplyBuilder online(user, RPL_MONONLINE);
 		ReplyBuilder offline(user, RPL_MONOFFLINE);
-		irc::commasepstream ss(input);
+		StringSplitter ss(input, ',');
 		for (std::string nick; ss.GetToken(nick); )
 		{
 			IRCv3::Monitor::Manager::WatchResult result = manager.Watch(user, nick, maxmonitor);
 			if (result == IRCv3::Monitor::Manager::WR_TOOMANY)
 			{
 				// List is full, send error which includes the remaining nicks that were not processed
-				user->WriteNumeric(ERR_MONLISTFULL, maxmonitor, FMT::format("{}{}{}", nick, (ss.StreamEnd() ? "" : ","), ss.GetRemaining()), "Monitor list is full");
+				user->WriteNumeric(ERR_MONLISTFULL, maxmonitor, FMT::format("{}{}{}", nick,
+					ss.AtEnd() ? "" : ",", ss.GetRemaining()), "Monitor list is full");
 				break;
 			}
 			else if (result != IRCv3::Monitor::Manager::WR_OK)
@@ -293,7 +295,7 @@ class CommandMonitor final
 
 	void HandleMinus(LocalUser* user, const std::string& input)
 	{
-		irc::commasepstream ss(input);
+		StringSplitter ss(input, ',');
 		for (std::string nick; ss.GetToken(nick); )
 			manager.Unwatch(user, nick);
 	}

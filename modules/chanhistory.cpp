@@ -80,9 +80,9 @@ class HistoryMode final
 	: public ParamMode<HistoryMode, SimpleExtItem<HistoryList>>
 {
 private:
-	bool ParseDuration(User* user, irc::sepstream& stream, unsigned long& duration)
+	bool ParseDuration(User* user, StringSplitter& stream, unsigned long& duration)
 	{
-		std::string durationstr;
+		std::string_view durationstr;
 		if (!stream.GetToken(durationstr))
 			return false;
 
@@ -95,9 +95,9 @@ private:
 		return true;
 	}
 
-	bool ParseLines(User* user, irc::sepstream& stream, unsigned long& lines)
+	bool ParseLines(User* user, StringSplitter& stream, unsigned long& lines)
 	{
-		std::string linesstr;
+		std::string_view linesstr;
 		if (!stream.GetToken(linesstr))
 			return false;
 
@@ -123,7 +123,7 @@ public:
 
 	bool OnSet(User* source, Channel* channel, std::string& parameter) override
 	{
-		irc::sepstream stream(parameter, ':');
+		StringSplitter stream(parameter, ':');
 
 		unsigned long lines;
 		unsigned long duration;

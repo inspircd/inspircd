@@ -310,7 +310,7 @@ public:
 				std::string flagvalue;
 
 				// Parse the flags.
-				irc::spacesepstream flagstream(parameters[4]);
+				StringSplitter flagstream(parameters[4]);
 				for (std::string flag; flagstream.GetToken(flag); )
 				{
 					// Does this flag have a value?
@@ -382,7 +382,7 @@ public:
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("gateway", ServerInstance->Config->ConfTags("cgihost")))
 		{
 			MaskList masks;
-			irc::spacesepstream maskstream(tag->getString("mask"));
+			StringSplitter maskstream(tag->getString("mask"));
 			for (std::string mask; maskstream.GetToken(mask); )
 				masks.push_back(mask);
 

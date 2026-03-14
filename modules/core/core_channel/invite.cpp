@@ -160,7 +160,7 @@ const Invite::List* Invite::APIImpl::GetList(LocalUser* user)
 
 void Invite::APIImpl::Unserialize(LocalUser* user, const std::string& value)
 {
-	irc::spacesepstream ss(value);
+	StringSplitter ss(value);
 	for (std::string channame, exptime; (ss.GetToken(channame) && ss.GetToken(exptime)); )
 	{
 		auto* chan = ServerInstance->Channels.Find(channame);

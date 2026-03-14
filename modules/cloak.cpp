@@ -93,7 +93,7 @@ public:
 		}
 
 		auto* cloaks = new Cloak::List();
-		irc::spacesepstream stream(value);
+		StringSplitter stream(value);
 		for (std::string cloak; stream.GetToken(cloak); )
 			cloaks->push_back(Cloak::Info::FromString(Percent::Decode(cloak)));
 

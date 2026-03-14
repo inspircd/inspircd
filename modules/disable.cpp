@@ -20,6 +20,7 @@
 #include "inspircd.h"
 #include "modules/isupport.h"
 #include "numerichelper.h"
+#include "stringutils.h"
 
 enum
 {
@@ -88,7 +89,7 @@ public:
 
 		// Parse the disabled commands.
 		CommandList newcommands;
-		irc::spacesepstream commandlist(tag->getString("commands"));
+		StringSplitter commandlist(tag->getString("commands"));
 		for (std::string command; commandlist.GetToken(command); )
 		{
 			// Check that the command actually exists.

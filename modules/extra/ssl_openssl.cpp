@@ -127,7 +127,7 @@ namespace OpenSSL
 				grouplist = groups;
 			else
 			{
-				irc::sepstream groupstream(groups, ':');
+				StringSplitter groupstream(groups, ':');
 				for (std::string group; groupstream.GetToken(group); )
 				{
 					if (OBJ_sn2nid(group.c_str()) == NID_undef)
@@ -339,7 +339,7 @@ namespace OpenSSL
 			, allowrenego(tag->getBool("renegotiation")) // Disallow by default
 			, outrecsize(tag->getNum<unsigned int>("outrecsize", 2048, 512, 16384))
 		{
-			irc::spacesepstream hashstream(tag->getString("hash", "sha256", 1));
+			StringSplitter hashstream(tag->getString("hash", "sha256", 1));
 			for (std::string hash; hashstream.GetToken(hash); )
 			{
 				const auto* digest = EVP_get_digestbyname(hash.c_str());

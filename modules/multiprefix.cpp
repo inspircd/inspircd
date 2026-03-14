@@ -87,7 +87,7 @@ public:
 			return MOD_RES_PASSTHRU;
 
 		std::stringstream newchannels;
-		irc::spacesepstream channelstream(numeric.GetParams().back());
+		StringSplitter channelstream(numeric.GetParams().back());
 		for (std::string channel; channelstream.GetToken(channel); )
 		{
 			size_t hashpos = channel.find('#');

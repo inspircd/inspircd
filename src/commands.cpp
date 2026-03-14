@@ -26,6 +26,7 @@
 
 #include "inspircd.h"
 #include "numerichelper.h"
+#include "stringutils.h"
 
 bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Params& parameters, size_t splithere, size_t extra, bool usemax)
 {
@@ -54,13 +55,13 @@ bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Pa
 	insp::casemapped_flat_set<std::string> dupes;
 	bool check_dupes = (extra == SIZE_MAX);
 
-	/* Create two sepstreams, if we have only one list, then initialize the second sepstream with
-	 * an empty string. The second parameter of the constructor of the sepstream tells whether
+	/* Create two splitters, if we have only one list, then initialize the second splitter with
+	 * an empty string. The second parameter of the constructor of the splitter tells whether
 	 * or not to allow empty tokens.
 	 * We allow empty keys, so "JOIN #a,#b ,bkey" will be interpreted as "JOIN #a", "JOIN #b bkey"
 	 */
-	irc::commasepstream items1(parameters[splithere]);
-	irc::commasepstream items2(extra != SIZE_MAX ? parameters[extra] : "", true);
+	StringSplitter items1(parameters[splithere], ',');
+	StringSplitter items2(extra != SIZE_MAX ? parameters[extra] : "", ',', true);
 	std::string item;
 	size_t max = 0;
 	auto* localuser = user->AsLocal();

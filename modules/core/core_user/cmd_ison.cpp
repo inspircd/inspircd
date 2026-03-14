@@ -61,7 +61,7 @@ CmdResult CommandIson::HandleLocal(LocalUser* user, const Params& parameters)
 	}
 
 	// Last parameter can be a space separated list
-	irc::spacesepstream ss(parameters.back());
+	StringSplitter ss(parameters.back());
 	for (std::string token; ss.GetToken(token); )
 		reply.AddNick(token);
 

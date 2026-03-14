@@ -23,6 +23,7 @@
 
 
 #include "inspircd.h"
+#include "stringutils.h"
 
 enum
 {
@@ -129,7 +130,7 @@ public:
 			// Parse the help body. Empty lines are replaced with a single
 			// space because some clients are unable to show blank lines.
 			HelpMessage helpmsg;
-			irc::sepstream linestream(value, '\n', true);
+			StringSplitter linestream(value, '\n', true);
 			for (std::string line; linestream.GetToken(line); )
 				helpmsg.push_back(line.empty() ? " " : line);
 

@@ -24,6 +24,7 @@
 
 
 #include "inspircd.h"
+#include "stringutils.h"
 
 class ModuleOperjoin final
 	: public Module
@@ -43,7 +44,7 @@ public:
 		const auto& tag = ServerInstance->Config->ConfValue("operjoin");
 
 		override = tag->getBool("override", false);
-		irc::commasepstream ss(tag->getString("channel"));
+		StringSplitter ss(tag->getString("channel"), ',');
 		operChans.clear();
 
 		for (std::string channame; ss.GetToken(channame); )
@@ -62,7 +63,7 @@ public:
 				Channel::JoinUser(localuser, operchan, override);
 		}
 
-		irc::commasepstream ss(localuser->oper->GetConfig()->getString("autojoin"));
+		StringSplitter ss(localuser->oper->GetConfig()->getString("autojoin"), ',');
 		for (std::string channame; ss.GetToken(channame); )
 		{
 			if (ServerInstance->Channels.IsChannel(channame))

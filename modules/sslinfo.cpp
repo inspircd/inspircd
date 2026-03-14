@@ -126,7 +126,7 @@ public:
 		{
 			std::string fingerprints;
 			getline(s, fingerprints, ' ');
-			irc::commasepstream fingerprintstream(fingerprints);
+			StringSplitter fingerprintstream(fingerprints, ',');
 			for (std::string fingerprint; fingerprintstream.GetToken(fingerprint); )
 				cert->fingerprints.push_back(fingerprint);
 
@@ -330,7 +330,7 @@ private:
 
 	static bool MatchFingerprint(const ssl_cert* cert, const std::string& fp)
 	{
-		irc::spacesepstream configfpstream(fp);
+		StringSplitter configfpstream(fp);
 		for (std::string configfp; configfpstream.GetToken(configfp); )
 		{
 			for (const auto& certfp : cert->GetFingerprints())
@@ -362,7 +362,7 @@ public:
 		warnexpiring = tag->getDuration("warnexpiring", 0, 0, 60*60*24*365);
 
 		hashes.clear();
-		irc::spacesepstream hashstream(tag->getString("hash"));
+		StringSplitter hashstream(tag->getString("hash"));
 		for (std::string hash; hashstream.GetToken(hash); )
 		{
 			if (!hash.compare(0, 5, "spki-", 5))

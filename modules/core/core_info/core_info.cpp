@@ -22,6 +22,7 @@
 
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
+#include "stringutils.h"
 #include "timeutils.h"
 #include "utility/string.h"
 
@@ -171,7 +172,7 @@ public:
 
 			// Process the MOTD entry.
 			auto& newmotd = newmotds[motd];
-			irc::sepstream linestream(file.contents, '\n', true);
+			StringSplitter linestream(file.contents, '\n', true);
 			for (std::string line; linestream.GetToken(line); )
 			{
 				// Some clients can not handle receiving RPL_MOTD with an empty

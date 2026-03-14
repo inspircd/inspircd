@@ -22,6 +22,7 @@
 
 
 #include "inspircd.h"
+#include "stringutils.h"
 
 class ModuleModesOnConnect final
 	: public Module
@@ -41,7 +42,7 @@ public:
 		CommandBase::Params params;
 		params.push_back(user->nick);
 
-		irc::spacesepstream modestream(modestr);
+		StringSplitter modestream(modestr);
 		for (std::string modetoken; modestream.GetToken(modetoken); )
 			params.push_back(modetoken);
 

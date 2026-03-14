@@ -283,7 +283,7 @@ TokenList::TokenList(const std::string& tokenlist)
 void TokenList::AddList(const std::string& tokenlist)
 {
 	std::string token;
-	irc::spacesepstream tokenstream(tokenlist);
+	StringSplitter tokenstream(tokenlist);
 	while (tokenstream.GetToken(token))
 	{
 		if (token[0] == '-')
@@ -464,4 +464,57 @@ bool MessageTokenizer::GetTrailing(std::string_view& token)
 
 	// There is no <trailing> token so it must be a <middle> token.
 	return GetMiddle(token);
+}
+
+StringSplitter::StringSplitter(const std::string& str, std::string::value_type sep, bool ae, std::string::size_type start, std::string::size_type end)
+	: allow_empty(ae)
+	, separator(sep)
+	, string(str, start, end)
+{
+}
+
+std::string_view StringSplitter::GetRemaining() const
+{
+	return AtEnd()
+		? std::string_view()
+		: std::string_view(this->string.begin() + this->position, this->string.end());
+}
+
+bool StringSplitter::GetToken(std::string& token)
+{
+	if (std::string_view sv; GetToken(sv))
+	{
+		token.assign(sv);
+		return true;
+	}
+	token.clear();
+	return false;
+}
+
+bool StringSplitter::GetToken(std::string_view& token)
+{
+	if (AtEnd())
+	{
+		token = std::string_view();
+		return false;
+	}
+
+	if (!this->allow_empty)
+	{
+		this->position = this->string.find_first_not_of(this->separator, this->position);
+		if (this->position == std::string::npos)
+		{
+			token = std::string_view();
+			this->position = this->string.length();
+			return false;
+		}
+	}
+
+	auto pos = this->string.find(this->separator, this->position);
+	if (pos == std::string::npos)
+		pos = this->string.length();
+
+	token = std::string_view(this->string.begin() + this->position, this->string.begin() + pos);
+	this->position = pos + 1;
+	return true;
 }

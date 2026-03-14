@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "stringutils.h"
+
 namespace Cloak
 {
 	class API;
@@ -131,7 +133,7 @@ protected:
 	Method(const Engine* engine, const std::shared_ptr<ConfigTag>& tag) ATTR_NOT_NULL(2)
 		: provname(engine->service_name)
 	{
-		irc::commasepstream klassstream(tag->getString("class"));
+		StringSplitter klassstream(tag->getString("class"), ',');
 		for (std::string klass; klassstream.GetToken(klass); )
 			classes.insert(klass);
 	}

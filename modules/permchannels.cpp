@@ -224,7 +224,7 @@ public:
 
 				ServerInstance->Logs.Debug(MODNAME, "Added {} with topic {}", channel, c->topic);
 
-				irc::spacesepstream modes(tag->getString("modes"));
+				StringSplitter modes(tag->getString("modes"));
 				std::string modechars;
 				modes.GetToken(modechars);
 				for (const auto modechr : modechars)
@@ -243,12 +243,12 @@ public:
 
 				for (auto* lm : ServerInstance->Modes.GetListModes())
 				{
-					irc::spacesepstream listmodes(tag->getString(lm->service_name + "list"));
+					StringSplitter listmodes(tag->getString(lm->service_name + "list"));
 
 					std::string mask;
 					std::string set_by;
 					time_t set_at;
-					while (listmodes.GetToken(mask) && listmodes.GetToken(set_by) && listmodes.GetNumericToken(set_at))
+					while (listmodes.GetToken(mask) && listmodes.GetToken(set_by) && listmodes.GetToken(set_at))
 					{
 						Modes::Change modechange(lm, true, mask, set_by, set_at);
 						lm->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, c, modechange);

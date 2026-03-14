@@ -181,7 +181,7 @@ public:
 		const auto& channelstag = ServerInstance->Config->ConfValue("channels", ServerInstance->Config->ConfValue("options"));
 
 		std::string current;
-		irc::spacesepstream defaultstream(channelstag->getString("exemptchanops"));
+		StringSplitter defaultstream(channelstag->getString("exemptchanops"));
 		insp::flat_map<std::string, char> exempts;
 		while (defaultstream.GetToken(current))
 		{
@@ -225,7 +225,7 @@ public:
 
 		DefaultModeList newdefaultmodes;
 		{
-			irc::spacesepstream defaultmodestream(channelstag->getString("defaultmodes", "nt"));
+			StringSplitter defaultmodestream(channelstag->getString("defaultmodes", "nt"));
 
 			std::string modestr;
 			defaultmodestream.GetToken(modestr);

@@ -108,12 +108,10 @@ struct CallerIDExtInfo final
 		auto* dat = new callerid_data();
 		SetRaw(container, dat);
 
-		irc::commasepstream s(value);
-		std::string tok;
-		if (s.GetToken(tok))
-			dat->lastnotify = ConvToNum<time_t>(tok);
+		StringSplitter s(value, ',');
+		s.GetToken(dat->lastnotify);
 
-		while (s.GetToken(tok))
+		for (std::string tok; s.GetToken(tok); )
 		{
 			auto* u = ServerInstance->Users.Find(tok, true);
 			if (u && !u->quitting)

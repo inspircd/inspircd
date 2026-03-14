@@ -29,10 +29,8 @@
 
 static void JoinChannels(LocalUser* u, const std::string& chanlist)
 {
-	irc::commasepstream chans(chanlist);
-	std::string chan;
-
-	while (chans.GetToken(chan))
+	StringSplitter chans(chanlist, ',');
+	for (std::string chan; chans.GetToken(chan); )
 	{
 		if (ServerInstance->Channels.IsChannel(chan))
 			Channel::JoinUser(u, chan);

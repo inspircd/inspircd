@@ -23,6 +23,7 @@
 
 
 #include "inspircd.h"
+#include "stringutils.h"
 
 static bool MatchInternal(const unsigned char* str, const unsigned char* mask, const insp::casemap* map)
 {
@@ -112,9 +113,8 @@ bool InspIRCd::MatchCIDR(const char* str, const char* mask, const insp::casemap*
 
 bool InspIRCd::MatchMask(const std::string& masks, const std::string& hostname, const std::string& ipaddr)
 {
-	irc::spacesepstream masklist(masks);
-	std::string mask;
-	while (masklist.GetToken(mask))
+	StringSplitter masklist(masks);
+	for (std::string mask; masklist.GetToken(mask); )
 	{
 		if (InspIRCd::Match(hostname, mask, ascii_case_insensitive_map) ||
 			InspIRCd::MatchCIDR(ipaddr, mask, ascii_case_insensitive_map))

@@ -28,94 +28,12 @@
 
 #include "inspircd.h"
 #include "convto.h"
+#include "stringutils.h"
 
 /** The irc namespace contains a number of helper classes.
  */
 namespace irc
 {
-	/** irc::sepstream allows for splitting token separated lists.
-	 * Each successive call to sepstream::GetToken() returns
-	 * the next token, until none remain, at which point the method returns
-	 * false.
-	 */
-	class CoreExport sepstream
-	{
-	protected:
-		/** Original string.
-		 */
-		std::string tokens;
-		/** Separator value
-		 */
-		char sep;
-		/** Current string position
-		 */
-		size_t pos = 0;
-		/** If set then GetToken() can return an empty string
-		 */
-		bool allow_empty;
-	public:
-		/** Create a sepstream and fill it with the provided data
-		 */
-		sepstream(const std::string& source, char separator, bool allowempty = false);
-
-		/** Fetch the next token from the stream
-		 * @param token The next token from the stream is placed here
-		 * @return True if tokens still remain, false if there are none left
-		 */
-		bool GetToken(std::string& token);
-
-		/** Fetch the next numeric token from the stream
-		 * @param token The next token from the stream is placed here
-		 * @return True if tokens still remain, false if there are none left
-		 */
-		template<typename Numeric>
-		bool GetNumericToken(Numeric& token)
-		{
-			std::string str;
-			if (!GetToken(str))
-				return false;
-
-			token = ConvToNum<Numeric>(str);
-			return true;
-		}
-
-		/** Fetch the entire remaining stream, without tokenizing
-		 * @return The remaining part of the stream
-		 */
-		std::string GetRemaining();
-
-		/** Returns true if the end of the stream has been reached
-		 * @return True if the end of the stream has been reached, otherwise false
-		 */
-		bool StreamEnd();
-	};
-
-	/** A derived form of sepstream, which separates on commas
-	 */
-	class CoreExport commasepstream : public sepstream
-	{
-	public:
-		/** Initialize with comma separator
-		 */
-		commasepstream(const std::string& source, bool allowempty = false)
-			: sepstream(source, ',', allowempty)
-		{
-		}
-	};
-
-	/** A derived form of sepstream, which separates on spaces
-	 */
-	class CoreExport spacesepstream : public sepstream
-	{
-	public:
-		/** Initialize with space separator
-		 */
-		spacesepstream(const std::string& source, bool allowempty = false)
-			: sepstream(source, ' ', allowempty)
-		{
-		}
-	};
-
 	/** The portparser class separates out a port range into integers.
 	 * A port range may be specified in the input string in the form
 	 * "6660,6661,6662-6669,7020". The end of the stream is indicated by
@@ -130,7 +48,7 @@ namespace irc
 
 		/** Used to split on commas
 		 */
-		commasepstream sep;
+		StringSplitter sep;
 
 		/** Current position in a range of ports
 		 */

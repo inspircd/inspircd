@@ -29,6 +29,7 @@
 #endif
 
 #include "inspircd.h"
+#include "stringutils.h"
 #include "utility/string.h"
 
 namespace
@@ -136,7 +137,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 				}
 
 				std::vector<int> protocols;
-				irc::spacesepstream protostream(tag->getString("protocols", "all", 1));
+				StringSplitter protostream(tag->getString("protocols", "all", 1));
 				for (std::string protocol; protostream.GetToken(protocol); )
 				{
 					if (insp::equalsci(protocol, "all"))

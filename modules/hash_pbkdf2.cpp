@@ -162,9 +162,9 @@ public:
 			return false; // No underlying hash (should never happen).
 
 		uint32_t iterations;
-		std::string key, salt;
-		irc::sepstream stream(hash, ':');
-		if (!stream.GetNumericToken(iterations) || !iterations || !stream.GetToken(key) || !stream.GetToken(salt))
+		std::string_view key, salt;
+		StringSplitter stream(hash, ':');
+		if (!stream.GetToken(iterations) || !iterations || !stream.GetToken(key) || !stream.GetToken(salt))
 			return false; // Malformed hash.
 
 		auto rawkey = Base64::Decode(key);

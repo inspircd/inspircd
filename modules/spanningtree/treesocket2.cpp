@@ -390,15 +390,13 @@ void TreeSocket::ProcessConnectedLine(std::string& taglist, std::string& prefix,
 		params.pop_back();
 	}
 
-	CmdResult res;
 	ClientProtocol::TagMap tags;
-	std::string tag;
-	irc::sepstream tagstream(taglist, ';');
-	while (tagstream.GetToken(tag))
+	StringSplitter tagstream(taglist, ';');
+	for (std::string tag; tagstream.GetToken(tag); )
 		ProcessTag(who, tag, tags);
 
 	CommandBase::Params newparams(params, tags);
-
+	CmdResult res;
 	if (scmd)
 		res = scmd->Handle(who, newparams);
 	else

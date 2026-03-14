@@ -70,8 +70,7 @@ public:
 		for (const auto& [_, c] : ServerInstance->Config->ConfTags("httpdacl"))
 		{
 			std::string path = c->getString("path");
-			std::string types = c->getString("types");
-			irc::commasepstream sep(types);
+			StringSplitter sep(c->getString("types"), ',');
 			std::string type;
 			std::string username;
 			std::string password;
@@ -137,10 +136,8 @@ public:
 					if (!acl.blacklist.empty())
 					{
 						/* Blacklist */
-						irc::commasepstream sep(acl.blacklist);
-						std::string entry;
-
-						while (sep.GetToken(entry))
+						StringSplitter sep(acl.blacklist, ',');
+						for (std::string entry; sep.GetToken(entry); )
 						{
 							if (InspIRCd::Match(http->GetIP(), entry, ascii_case_insensitive_map))
 							{
@@ -154,11 +151,9 @@ public:
 					if (!acl.whitelist.empty())
 					{
 						/* Whitelist */
-						irc::commasepstream sep(acl.whitelist);
-						std::string entry;
 						bool allow_access = false;
-
-						while (sep.GetToken(entry))
+						StringSplitter sep(acl.whitelist, ',');
+						for (std::string entry; sep.GetToken(entry); )
 						{
 							if (InspIRCd::Match(http->GetIP(), entry, ascii_case_insensitive_map))
 								allow_access = true;
@@ -182,7 +177,7 @@ public:
 						{
 							/* Password has been given, validate it */
 							std::string authorization = http->headers->GetHeader("Authorization");
-							irc::spacesepstream sep(authorization);
+							StringSplitter sep(authorization);
 							std::string authtype;
 							std::string base64;
 
@@ -196,7 +191,7 @@ public:
 								std::string userpass = Base64::Decode(base64);
 								ServerInstance->Logs.Debug(MODNAME, "HTTP authorization: {} ({})", userpass, base64);
 
-								irc::sepstream userpasspair(userpass, ':');
+								StringSplitter userpasspair(userpass, ':');
 								if (userpasspair.GetToken(user))
 								{
 									userpasspair.GetToken(pass);

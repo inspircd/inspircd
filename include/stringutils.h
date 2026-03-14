@@ -246,3 +246,67 @@ public:
 	 */
 	bool GetTrailing(std::string_view& token);
 };
+
+class CoreExport StringSplitter final
+{
+private:
+	/** The current position in the string. */
+	std::string::size_type position = 0;
+
+public:
+	/** Whether to allow empty values in the string. */
+	const bool allow_empty;
+
+	/** The value to split the string based on. */
+	const std::string::value_type separator;
+
+	/** The string to parse tokens from. */
+	const std::string string;
+
+	/** Creates a string splitter and fills it with the provided data.
+	 * @param str The string to split.
+	 * @param sep The value to split on.
+	 * @param ae Whether to allow empty tokens within the string.
+	 * @param start The index to start splitting from.
+	 * @param end The index to stop splitting at.
+	 */
+	StringSplitter(const std::string& str, std::string::value_type sep = ' ', bool ae = false, std::string::size_type start = 0, std::string::size_type end = std::string::npos);
+
+	/** Determines whether the splitter at at the end of the message. */
+	inline auto AtEnd() const { return this->position >= this->string.length(); }
+
+	/** Retrieves the current position in the string. */
+	inline auto GetPosition() const { return this->position; }
+
+	/** Retrieves a view to the part of the string which has not been split yet. */
+	std::string_view GetRemaining() const;
+
+	/** Retrieves the next token in the string.
+	 * @param token The next token available, or an empty string if none remain.
+	 * @return True if a token was retrieved; otherwise, false.
+	 */
+	bool GetToken(std::string& token);
+
+	/** Retrieves the next token in the string.
+	 * @param token The next token available, or an empty string view if none remain.
+	 * @return True if a token was retrieved; otherwise, false.
+	 */
+	bool GetToken(std::string_view& token);
+
+	/** Retrieves the next numeric token in the string.
+	 * @param token The next token available, or an default-initialised value if none remain.
+	 * @return True if a token was retrieved; otherwise, false.
+	 */
+	template<typename Numeric>
+	bool GetToken(Numeric& token)
+	{
+		if (std::string_view sv; GetToken(sv))
+		{
+			token = ConvToNum<Numeric>(sv);
+			return true;
+		}
+
+		token = Numeric();
+		return true;
+	}
+};

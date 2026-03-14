@@ -265,9 +265,9 @@ public:
 	}
 
 private:
-	bool ParseAction(irc::sepstream& stream, ChannelSettings::RepeatAction& action)
+	bool ParseAction(StringSplitter& stream, ChannelSettings::RepeatAction& action)
 	{
-		std::string actionstr;
+		std::string_view actionstr;
 		if (!stream.GetToken(actionstr))
 			return false;
 
@@ -289,16 +289,12 @@ private:
 
 	bool ParseSettings(User* source, std::string& parameter, ChannelSettings& settings)
 	{
-		irc::sepstream stream(parameter, ':');
-		std::string item;
-
-		if (!ParseAction(stream, settings.Action) || !stream.GetToken(item))
+		StringSplitter stream(parameter, ':');
+		if (!ParseAction(stream, settings.Action) || !stream.GetToken(settings.Lines) || settings.Lines == 0)
 			return false;
 
-		if ((settings.Lines = ConvToNum<unsigned int>(item)) == 0)
-			return false;
-
-		if ((!stream.GetToken(item)) || !Duration::TryFrom(item, settings.Seconds) || (settings.Seconds == 0))
+		std::string_view item;
+		if (!stream.GetToken(item) || !Duration::TryFrom(item, settings.Seconds) || settings.Seconds == 0)
 			// Required parameter missing
 			return false;
 

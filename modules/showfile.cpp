@@ -20,6 +20,7 @@
 
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
+#include "stringutils.h"
 
 enum
 {
@@ -97,7 +98,7 @@ public:
 		// Process the entry.
 		contents.clear();
 
-		irc::sepstream linestream(filecontents, '\n', true);
+		StringSplitter linestream(filecontents, '\n', true);
 		for (std::string line; linestream.GetToken(line); )
 		{
 			// Some clients can not handle receiving NOTICE/PRIVMSG/RPL_RULES

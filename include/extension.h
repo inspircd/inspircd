@@ -325,7 +325,7 @@ public:
 		}
 
 		auto list = new List();
-		irc::spacesepstream stream(value);
+		StringSplitter stream(value);
 		for (std::string element; stream.GetToken(element); )
 		{
 			// Argh! Why doesn't vector<string> have an insert(value_type) method?

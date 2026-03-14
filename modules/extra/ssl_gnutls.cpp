@@ -116,7 +116,7 @@ namespace GnuTLS
 		// Nothing to deallocate, constructor may throw freely
 		Hash(const std::string& hashlist)
 		{
-			irc::spacesepstream hashstream(hashlist);
+			StringSplitter hashstream(hashlist);
 			for (std::string hashname; hashstream.GetToken(hashname); )
 			{
 				bool spki = false;
@@ -280,7 +280,7 @@ namespace GnuTLS
 		static std::string RemoveUnknownTokens(const std::string& prio)
 		{
 			std::string ret;
-			irc::sepstream ss(prio, ':');
+			StringSplitter ss(prio, ':');
 			for (std::string token; ss.GetToken(token); )
 			{
 				// Save current position so we can revert later if needed

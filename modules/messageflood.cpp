@@ -108,9 +108,9 @@ class MsgFlood final
 	: public ParamMode<MsgFlood, SimpleExtItem<MsgFloodSettings>>
 {
 private:
-	static bool ParseAction(irc::sepstream& stream, MsgFloodAction& action)
+	static bool ParseAction(StringSplitter& stream, MsgFloodAction& action)
 	{
-		std::string actionstr;
+		std::string_view actionstr;
 		if (!stream.GetToken(actionstr))
 			return false;
 
@@ -130,9 +130,9 @@ private:
 		return true;
 	}
 
-	static bool ParseMessages(irc::sepstream& stream, unsigned int& messages)
+	static bool ParseMessages(StringSplitter& stream, unsigned int& messages)
 	{
-		std::string messagestr;
+		std::string_view messagestr;
 		if (!stream.GetToken(messagestr))
 			return false;
 
@@ -140,9 +140,9 @@ private:
 		return true;
 	}
 
-	static bool ParsePeriod(irc::sepstream& stream, unsigned long& period)
+	static bool ParsePeriod(StringSplitter& stream, unsigned long& period)
 	{
-		std::string periodstr;
+		std::string_view periodstr;
 		if (!stream.GetToken(periodstr))
 			return false;
 
@@ -162,7 +162,7 @@ public:
 		unsigned int messages;
 		unsigned long period;
 
-		irc::sepstream stream(parameter, ':');
+		StringSplitter stream(parameter, ':');
 		if (!ParseAction(stream, action) || !ParseMessages(stream, messages) || !ParsePeriod(stream, period))
 		{
 			source->WriteNumeric(Numerics::InvalidModeParameter(channel, this, parameter));

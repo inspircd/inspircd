@@ -226,8 +226,8 @@ public:
 		Unset(user, false);
 		SilenceList* list = nullptr;
 
-		irc::spacesepstream ts(value);
-		while (!ts.StreamEnd())
+		StringSplitter ts(value);
+		while (!ts.AtEnd())
 		{
 			// Check we have space for another entry.
 			if (list->size() >= maxsilence)

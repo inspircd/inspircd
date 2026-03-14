@@ -20,6 +20,7 @@
 #include "inspircd.h"
 #include "modules/geolocation.h"
 #include "modules/stats.h"
+#include "stringutils.h"
 #include "utility/string.h"
 
 class ModuleGeoClass final
@@ -48,7 +49,7 @@ public:
 		Geolocation::Location* location = geoapi ? geoapi->GetLocation(user) : nullptr;
 		const std::string code = location ? location->GetCode() : "XX";
 
-		irc::spacesepstream codes(country);
+		StringSplitter codes(country);
 		for (std::string token; codes.GetToken(token); )
 		{
 			if (token.length() != 2)

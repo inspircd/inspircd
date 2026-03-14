@@ -150,8 +150,8 @@ namespace
 
 			// Parse the remote link data.
 			Module::LinkData otherdata;
-			irc::sepstream datastream(linkdata, '&');
-			for (std::string datapair; datastream.GetToken(datapair); )
+			StringSplitter datastream(linkdata, '&');
+			for (std::string_view datapair; datastream.GetToken(datapair); )
 			{
 				size_t split = datapair.find('=');
 				if (split == std::string::npos)
@@ -257,7 +257,7 @@ namespace
 	void ParseModules(const std::string& modlist, std::optional<CapabData::ModuleMap>& out)
 	{
 		CapabData::ModuleMap& map = out ? *out : out.emplace();
-		irc::spacesepstream modstream(modlist);
+		StringSplitter modstream(modlist);
 		for (std::string mod; modstream.GetToken(mod); )
 		{
 			size_t split = mod.find('=');
@@ -407,8 +407,8 @@ void TreeSocket::ListDifference(const std::string& one, const std::string& two, 
 		std::string& mleft, std::string& mright)
 {
 	std::set<std::string> values;
-	irc::sepstream sepleft(one, sep);
-	irc::sepstream sepright(two, sep);
+	StringSplitter sepleft(one, sep);
+	StringSplitter sepright(two, sep);
 	std::string item;
 	while (sepleft.GetToken(item))
 	{
@@ -618,7 +618,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 	}
 	else if (insp::casemapped_equals(params[0], "CAPABILITIES") && (params.size() == 2))
 	{
-		irc::spacesepstream capabs(params[1]);
+		StringSplitter capabs(params[1]);
 		std::string item;
 		while (capabs.GetToken(item))
 		{

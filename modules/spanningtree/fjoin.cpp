@@ -24,6 +24,7 @@
 
 
 #include "inspircd.h"
+#include "stringutils.h"
 #include "timeutils.h"
 
 #include "commands.h"
@@ -185,7 +186,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, Params& params)
 	FwdFJoinBuilder fwdfjoin(chan, sourceserver);
 
 	// Process every member in the message
-	irc::spacesepstream users(params.back());
+	StringSplitter users(params.back());
 	std::string item;
 	Modes::ChangeList* modechangelistptr = (apply_other_sides_modes ? &modechangelist : nullptr);
 	while (users.GetToken(item))

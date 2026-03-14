@@ -55,10 +55,8 @@ private:
 
 		ServerInstance->Logs.Debug(MODNAME, "Packing name {}", name);
 
-		irc::sepstream sep(name, '.');
-		std::string token;
-
-		while (sep.GetToken(token))
+		StringSplitter sep(name, '.');
+		for (std::string token; sep.GetToken(token); )
 		{
 			output[pos++] = token.length();
 			memcpy(&output[pos], token.data(), token.length());

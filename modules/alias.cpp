@@ -121,7 +121,7 @@ public:
 
 	static std::string GetVar(std::string varname, const std::string& original_line)
 	{
-		irc::spacesepstream ss(original_line);
+		StringSplitter ss(original_line);
 		varname.erase(varname.begin());
 		int index = *(varname.begin()) - 48;
 		varname.erase(varname.begin());
@@ -227,7 +227,7 @@ public:
 		std::string scommand;
 
 		// text is like "!moo cows bite me", we want "!moo" first
-		irc::spacesepstream ss(details.text);
+		StringSplitter ss(details.text);
 		ss.GetToken(scommand);
 
 		if (scommand.size() <= fprefix.size())
@@ -309,12 +309,9 @@ public:
 		}
 		else
 		{
-			irc::sepstream commands(a.ReplaceFormat, '\n');
-			std::string scommand;
-			while (commands.GetToken(scommand))
-			{
+			StringSplitter commands(a.ReplaceFormat, '\n');
+			for (std::string scommand; commands.GetToken(scommand); )
 				DoCommand(scommand, user, c, safe, a);
-			}
 			return 1;
 		}
 	}

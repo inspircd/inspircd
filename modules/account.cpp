@@ -314,7 +314,7 @@ public:
 		const std::string* accountid = accountapi.GetAccountId(user);
 		const std::string* accountname = accountapi.GetAccountName(user);
 
-		irc::spacesepstream accountstream(accountstr);
+		StringSplitter accountstream(accountstr);
 		for (std::string account; accountstream.GetToken(account); )
 		{
 			if (accountid && insp::casemapped_equals(account, *accountid))

@@ -22,6 +22,7 @@
 
 
 #include "inspircd.h"
+#include "stringutils.h"
 
 class ModuleOperModes final
 	: public Module
@@ -44,7 +45,7 @@ public:
 		CommandBase::Params modeparams;
 		modeparams.push_back(user->nick);
 
-		irc::spacesepstream modestream(opermodes);
+		StringSplitter modestream(opermodes);
 		for (std::string modeparam; modestream.GetToken(modeparam); )
 			modeparams.push_back(modeparam);
 

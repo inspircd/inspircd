@@ -26,54 +26,8 @@
 
 #include "inspircd.h"
 
-irc::sepstream::sepstream(const std::string& source, char separator, bool allowempty)
-	: tokens(source)
-	, sep(separator)
-	, allow_empty(allowempty)
-{
-}
-
-bool irc::sepstream::GetToken(std::string& token)
-{
-	if (this->StreamEnd())
-	{
-		token.clear();
-		return false;
-	}
-
-	if (!this->allow_empty)
-	{
-		this->pos = this->tokens.find_first_not_of(this->sep, this->pos);
-		if (this->pos == std::string::npos)
-		{
-			this->pos = this->tokens.length() + 1;
-			token.clear();
-			return false;
-		}
-	}
-
-	size_t p = this->tokens.find(this->sep, this->pos);
-	if (p == std::string::npos)
-		p = this->tokens.length();
-
-	token.assign(tokens, this->pos, p - this->pos);
-	this->pos = p + 1;
-
-	return true;
-}
-
-std::string irc::sepstream::GetRemaining()
-{
-	return !this->StreamEnd() ? this->tokens.substr(this->pos) : "";
-}
-
-bool irc::sepstream::StreamEnd()
-{
-	return this->pos > this->tokens.length();
-}
-
 irc::portparser::portparser(const std::string& source, bool allow_overlapped)
-	: sep(source)
+	: sep(source, ',')
 	, overlapped(allow_overlapped)
 {
 }

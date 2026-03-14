@@ -132,8 +132,8 @@ public:
 		Unset(user, false);
 		dccallowlist* list = nullptr;
 
-		irc::spacesepstream ts(value);
-		while (!ts.StreamEnd())
+		StringSplitter ts(value);
+		while (!ts.AtEnd())
 		{
 			// Check we have space for another entry.
 			if (list->size() >= maxentries)
@@ -148,8 +148,8 @@ public:
 			DCCAllow dccallow;
 			if (!ts.GetToken(dccallow.nickname) ||
 				!ts.GetToken(dccallow.hostmask) ||
-				!ts.GetNumericToken(dccallow.set_on) ||
-				!ts.GetNumericToken(dccallow.length))
+				!ts.GetToken(dccallow.set_on) ||
+				!ts.GetToken(dccallow.length))
 			{
 				ServerInstance->Logs.Debug(MODNAME, "Malformed DCC allow list received for {}: {}",
 					user->uuid, value);

@@ -26,6 +26,7 @@
 
 #include "inspircd.h"
 #include "modules/isupport.h"
+#include "stringutils.h"
 
 enum class ShowModes
 	: uint8_t
@@ -96,7 +97,7 @@ CmdResult CommandList::Handle(User* user, const Params& parameters)
 
 	if (!parameters.empty())
 	{
-		irc::commasepstream constraints(parameters[0]);
+		StringSplitter constraints(parameters[0], ',');
 		for (std::string constraint; constraints.GetToken(constraint); )
 		{
 			if (constraint[0] == '<')
