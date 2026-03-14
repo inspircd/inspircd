@@ -259,13 +259,13 @@ std::string Template::Replace(const std::string_view& str, const VariableMap& va
 }
 
 
-bool InspIRCd::TimingSafeCompare(const std::string& one, const std::string& two)
+bool InspIRCd::TimingSafeCompare(const std::string_view& one, const std::string_view& two)
 {
 	if (one.length() != two.length())
 		return false;
 
 	unsigned int diff = 0;
-	for (std::string::const_iterator i = one.begin(), j = two.begin(); i != one.end(); ++i, ++j)
+	for (auto i = one.begin(), j = two.begin(); i != one.end(); ++i, ++j)
 	{
 		unsigned char a = static_cast<unsigned char>(*i);
 		unsigned char b = static_cast<unsigned char>(*j);
@@ -395,7 +395,7 @@ bool TokenList::operator==(const TokenList& other) const
 	return true;
 }
 
-MessageTokenizer::MessageTokenizer(const std::string& msg, std::string::size_type start, std::string::size_type end)
+MessageTokenizer::MessageTokenizer(const std::string_view& msg, std::string::size_type start, std::string::size_type end)
 	: message(msg, start, end)
 {
 }
@@ -466,7 +466,7 @@ bool MessageTokenizer::GetTrailing(std::string_view& token)
 	return GetMiddle(token);
 }
 
-NumberRange::NumberRange(const std::string& range, bool sd, std::string::size_type start, std::string::size_type end)
+NumberRange::NumberRange(const std::string_view& range, bool sd, std::string::size_type start, std::string::size_type end)
 	: splitter(range, ',', false, start, end)
 	, skip_duplicates(sd)
 {
@@ -575,7 +575,7 @@ bool NumberRange::Seen(uintmax_t num)
 	return !this->seen.insert(num).second;
 }
 
-StringSplitter::StringSplitter(const std::string& str, std::string::value_type sep, bool ae, std::string::size_type start, std::string::size_type end)
+StringSplitter::StringSplitter(const std::string_view& str, std::string::value_type sep, bool ae, std::string::size_type start, std::string::size_type end)
 	: allow_empty(ae)
 	, separator(sep)
 	, string(str, start, end)

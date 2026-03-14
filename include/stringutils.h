@@ -189,7 +189,7 @@ public:
 	 * @param start The index to start tokenizing from.
 	 * @param end The index to stop tokenizing at.
 	 */
-	MessageTokenizer(const std::string& msg, std::string::size_type start = 0, std::string::size_type end = std::string::npos);
+	MessageTokenizer(const std::string_view& msg, std::string::size_type start = 0, std::string::size_type end = std::string::npos);
 
 	/** Determines whether the tokenizer at at the end of the message. */
 	inline auto AtEnd() const { return this->position >= this->message.length(); }
@@ -270,7 +270,7 @@ public:
 	 * @param start The index to start splitting from.
 	 * @param end The index to stop splitting at.
 	 */
-	StringSplitter(const std::string& str, std::string::value_type sep = ' ', bool ae = false, std::string::size_type start = 0, std::string::size_type end = std::string::npos);
+	StringSplitter(const std::string_view& str, std::string::value_type sep = ' ', bool ae = false, std::string::size_type start = 0, std::string::size_type end = std::string::npos);
 
 	/** Determines whether the splitter at at the end of the message. */
 	inline auto AtEnd() const { return this->position >= this->string.length(); }
@@ -374,7 +374,7 @@ public:
 	 * @param start The index to start tokenizing from.
 	 * @param end The index to stop tokenizing at.
 	 */
-	NumberRange(const std::string& range, bool sd = true, std::string::size_type start = 0, std::string::size_type end = std::string::npos);
+	NumberRange(const std::string_view& range, bool sd = true, std::string::size_type start = 0, std::string::size_type end = std::string::npos);
 
 	/** @copydoc NumberRange::GetToken */
 	template<typename Numeric>
