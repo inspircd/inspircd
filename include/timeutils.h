@@ -68,7 +68,7 @@ namespace Duration
 	 * @param duration The location to store the resulting duration.
 	 * @return True if the conversion succeeded; otherwise, false.
 	 */
-	CoreExport bool TryFrom(const std::string& str, unsigned long& duration);
+	CoreExport bool TryFrom(const std::string_view& str, unsigned long& duration);
 }
 
 namespace Time

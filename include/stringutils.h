@@ -42,9 +42,9 @@ namespace Base64
 	 * @param table The index table to use for decoding.
 	 * @return The decoded form of the specified data.
 	 */
-	inline std::string Decode(const std::string& data, const char* table = nullptr)
+	inline std::string Decode(const std::string_view& data, const char* table = nullptr)
 	{
-		return Decode(data.c_str(), data.length(), table);
+		return Decode(data.data(), data.length(), table);
 	}
 
 	/** Encodes a byte array using Base64.
@@ -62,9 +62,9 @@ namespace Base64
 	 * @param padding If non-zero then the character to pad encoded strings with.
 	 * @return The encoded form of the specified data.
 	 */
-	inline std::string Encode(const std::string& data, const char* table = nullptr, char padding = 0)
+	inline std::string Encode(const std::string_view& data, const char* table = nullptr, char padding = 0)
 	{
-		return Encode(data.c_str(), data.length(), table, padding);
+		return Encode(data.data(), data.length(), table, padding);
 	}
 }
 
@@ -91,9 +91,9 @@ namespace Hex
 	 * @param separator If non-zero then the character hexadecimal digits are separated with.
 	 * @return The decoded form of the specified data.
 	 */
-	inline std::string Decode(const std::string& data, const char* table = nullptr, char separator = 0)
+	inline std::string Decode(const std::string_view& data, const char* table = nullptr, char separator = 0)
 	{
-		return Decode(data.c_str(), data.length(), table, separator);
+		return Decode(data.data(), data.length(), table, separator);
 	}
 
 	/** Encodes a byte array using hexadecimal encoding.
@@ -111,9 +111,9 @@ namespace Hex
 	 * @param separator If non-zero then the character to separate hexadecimal digits with.
 	 * @return The encoded form of the specified data.
 	 */
-	inline std::string Encode(const std::string& data, const char* table = nullptr, char separator = 0)
+	inline std::string Encode(const std::string_view& data, const char* table = nullptr, char separator = 0)
 	{
-		return Encode(data.c_str(), data.length(), table, separator);
+		return Encode(data.data(), data.length(), table, separator);
 	}
 }
 
@@ -133,9 +133,9 @@ namespace Percent
 	 * @param data The string to decode from.
 	 * @return The decoded form of the specified data.
 	 */
-	inline std::string Decode(const std::string& data)
+	inline std::string Decode(const std::string_view& data)
 	{
-		return Decode(data.c_str(), data.length());
+		return Decode(data.data(), data.length());
 	}
 
 	/** Encodes a byte array using percent encoding.
@@ -153,9 +153,9 @@ namespace Percent
 	 * @param upper Whether to use upper or lower case.
 	 * @return The encoded form of the specified data.
 	 */
-	inline std::string Encode(const std::string& data, const char* table = nullptr, bool upper = true)
+	inline std::string Encode(const std::string_view& data, const char* table = nullptr, bool upper = true)
 	{
-		return Encode(data.c_str(), data.length(), table, upper);
+		return Encode(data.data(), data.length(), table, upper);
 	}
 }
 
@@ -169,7 +169,7 @@ namespace Template
 	 * @param vars The variables to replace within the string.
 	 * @return The specified string with all variables replaced within it.
 	 */
-	CoreExport std::string Replace(const std::string& str, const VariableMap& vars);
+	CoreExport std::string Replace(const std::string_view& str, const VariableMap& vars);
 }
 
 

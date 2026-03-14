@@ -91,7 +91,7 @@ inline std::string ConvToStr(const Formattable& in)
  * @param def The value to return if the string could not be converted (defaults to 0)
  */
 template<typename Numeric>
-inline Numeric ConvToNum(const std::string& in, Numeric def = 0)
+inline Numeric ConvToNum(const std::string_view& in, Numeric def = 0)
 {
 	Numeric ret;
 	if (std::from_chars(in.data(), in.data() + in.size(), ret).ec != std::errc{})

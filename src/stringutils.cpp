@@ -216,7 +216,7 @@ std::string Base64::Decode(const void* data, size_t length, const char* table)
 	return buffer;
 }
 
-std::string Template::Replace(const std::string& str, const VariableMap& vars)
+std::string Template::Replace(const std::string_view& str, const VariableMap& vars)
 {
 	std::string out;
 	out.reserve(str.length());
@@ -241,7 +241,8 @@ std::string Template::Replace(const std::string& str, const VariableMap& vars)
 					break;
 				}
 
-				auto var = vars.find(str.substr(idx + 1, endidx - idx - 1));
+				const std::string varname(str.substr(idx + 1, endidx - idx - 1));
+				const auto var = vars.find(varname);
 				if (var != vars.end())
 				{
 					// We have a variable, replace it in the string.
