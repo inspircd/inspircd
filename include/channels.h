@@ -47,10 +47,6 @@ public:
 	typedef std::unordered_map<User*, insp::aligned_storage<Membership>> MemberMap;
 
 private:
-	/** Set default modes for the channel on creation
-	 */
-	void SetDefaultModes();
-
 	/** Modes for the channel.
 	 * It is a bitset where each item in it represents if a mode is set.
 	 * To see if a mode is set, inspect modes[mh->modeid]
