@@ -45,8 +45,8 @@ const insp::casemap* national_case_insensitive_map = ascii_case_insensitive_map;
 // insensitively using the IRC casemapping. Do not make changes to them if you
 // do not know what you are doing.
 #if SIZE_MAX == UINT64_MAX
-# define MURMUR_NUM_MAX UINT64_MAX
-# define MURMUR_NUM_TYPE uint64_t
+# define MURMUR_SEED_MAX UINT64_MAX
+# define MURMUR_SEED_TYPE uint64_t
 # define MURMUR_HASH MurmurHash64A
 static uint64_t MurmurHash64A(const void* key, int len, uint64_t seed)
 {
@@ -108,8 +108,8 @@ static uint64_t MurmurHash64A(const void* key, int len, uint64_t seed)
 # if SIZE_MAX != UINT32_MAX
 #  warning SIZE_MAX is an unknown size; falling back to 32-bit MurmurHash
 # endif
-# define MURMUR_NUM_MAX UINT32_MAX
-# define MURMUR_NUM_TYPE uint32_t
+# define MURMUR_SEED_MAX UINT32_MAX
+# define MURMUR_SEED_TYPE uint32_t
 # define MURMUR_HASH MurmurHash2A
 
 # define mmix(h,k) { k *= m; k ^= k >> r; k *= m; h *= m; h ^= k; }
@@ -194,11 +194,11 @@ bool insp::casemapped_less(const std::string_view& str1, const std::string_view&
 size_t insp::casemapped_hash(const std::string_view& str)
 {
 	static auto seed_initialized = false;
-	static MURMUR_NUM_TYPE seed;
+	static MURMUR_SEED_TYPE seed;
 	if (!seed_initialized) [[unlikely]]
 	{
-		seed = ServerInstance->GenRandomInt(MURMUR_NUM_MAX);
+		seed = ServerInstance->GenRandomInt(MURMUR_SEED_MAX);
 		seed_initialized = true;
 	}
-	return MURMUR_HASH(str.data(), static_cast<MURMUR_NUM_TYPE>(str.length()), seed);
+	return MURMUR_HASH(str.data(), static_cast<int>(str.length()), seed);
 }
