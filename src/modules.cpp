@@ -705,6 +705,12 @@ dynamic_reference_base::dynamic_reference_base(Module* mod, const std::string& s
 		resolve();
 }
 
+dynamic_reference_base::dynamic_reference_base(const dynamic_reference_base& other)
+	: dynamic_reference_base(other.creator, other.service_type, other.service_name, other.strict_ref)
+{
+	// Intentionally left blank.
+}
+
 dynamic_reference_base::~dynamic_reference_base()
 {
 	dynrefs->erase(this);

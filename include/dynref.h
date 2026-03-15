@@ -47,7 +47,7 @@ protected:
 public:
 	const reference<Module> creator;
 	dynamic_reference_base(Module* mod, const std::string& stype, const std::string& sname, bool strict);
-	dynamic_reference_base(const dynamic_reference_base&) = default;
+	dynamic_reference_base(const dynamic_reference_base& other);
 	~dynamic_reference_base();
 
 	inline const auto& GetProviderName() const { return this->service_name; }
