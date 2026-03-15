@@ -1,4 +1,4 @@
-Since the first commit in January 2003 110 people have submitted patches,
+Since the first commit in January 2003 109 people have submitted patches,
 commits, and other useful contributions to InspIRCd. These people, ordered by
 the number of contributions they have made, are:
 
@@ -32,10 +32,10 @@ the number of contributions they have made, are:
   * blitmap <blitternet@gmail.com>
   * jamie
   * Justin Crawford <Justasic@Gmail.com>
+  * Val Lorentz <progval+git@progval.net>
   * Wade Cline <wadecline@hotmail.com>
   * iwalkalone <iwalkalone69@gmail.com>
   * katsklaw <katsklaw@ircmojo.net>
-  * Val Lorentz <progval+git@progval.net>
   * satmd <satmd@satmd.de>
   * Steven Van Acker <steven@singularity.be>
   * Dan Parsons <dparsons@nyip.net>
@@ -49,7 +49,7 @@ the number of contributions they have made, are:
   * Andrio Celos
   * Ben Harris <ben@tilde.team>
   * Chin Lee <kwangchin@gmail.com>
-  * Christopher 'm4z' Holm <them4z@gmail.com>
+  * Christopher Holm <them4z@gmail.com>
   * eggy
   * Glen Miner <shaggie76@gmail.com>
   * Guillaume Delacour <gui@iroqwa.org>
@@ -89,7 +89,7 @@ the number of contributions they have made, are:
   * Hendrik Jäger <gitcommit@henk.geekmail.org>
   * James Wheare <james@wheare.org>
   * Joel Sing <joel@sing.id.au>
-  * Jordyn/The Linux Geek <onlinecloud1@gmail.com>
+  * Jordyn <onlinecloud1@gmail.com>
   * Josh Soref
   * Julien Vehent <julien@linuxwall.info>
   * JustArchi <JustArchi@JustArchi.net>
