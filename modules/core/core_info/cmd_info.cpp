@@ -23,7 +23,9 @@
 
 
 #include "inspircd.h"
+
 #include "core_info.h"
+#include "info.h"
 
 enum
 {
@@ -37,48 +39,6 @@ CommandInfo::CommandInfo(Module* parent)
 {
 	penalty = 3000;
 }
-
-static const char* const lines[] = {
-	"                   -/\\- \002InspIRCd\002 -\\/-",
-	"                 November 2002 - Present",
-	" ",
-	"\002Core Developers\002:",
-	"    Sadie Powell (Sadie)",
-	" ",
-	"\002Former Developers\002:",
-	"    Adam (Adam-)                    Attila Molnar (Attila)",
-	"    Daniel De Graaf (danieldg)      Dennis Friis (peavey)",
-	"    John Brooks (special)           Matt Schatz (genius3000)",
-	"    Matt Smith (dz)                 Oliver Lupton (Om)",
-	"    Thomas Stagner (aquanight)      Uli Schlachter (psychon)",
-	" ",
-	"\002Founding Developers\002:",
-	"    Craig Edwards (Brain)           Craig McLure (FrostyCoolSlug)",
-	"    Robin Burchell (w00t)",
-	" ",
-	"\002Active Contributors\002:",
-	"    progval",
-	" ",
-	"\002Former Contributors\002:",
-	"    Adremelech      Ankit           AnMaster        Bricker",
-	"    BuildSmart      Burlex          CC              ChrisTX",
-	"    Dan             djGrrr          dmb             eggy",
-	"    fraggeln        GreenReaper     HiroP           jackmcbarn",
-	"    jamie           Jason           jilles          John2",
-	"    kaniini         LeaChim         linuxdaemon     MacGyver",
-	"    majic           Namegduf        owine           Phoenix",
-	"    pippijn         praetorian      Quension        Robby",
-	"    satmd           Shawn           Sheogorath      Shutter",
-	"    skenmy          Skip            Stskeeps        Taros",
-	"    ThaPrince       Thunderhacker   typobox43       Zaba",
-	" ",
-	"\002Thanks To\002:",
-	"    Asmo            Brik            dan-            Duck",
-	"    jwheare         prawnsalad",
-	" ",
-	" Best experienced with \002an IRC client\002",
-	nullptr
-};
 
 CmdResult CommandInfo::HandleLocal(LocalUser* user, const Params& parameters)
 {
