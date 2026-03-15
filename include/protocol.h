@@ -30,18 +30,7 @@ class User;
 class CoreExport ProtocolInterface
 {
 public:
-	class ServerInfo final
-	{
-	public:
-		std::string servername;
-		std::string parentname;
-		std::string description;
-		size_t usercount;
-		size_t opercount;
-		unsigned long latencyms;
-	};
-
-	typedef std::vector<ServerInfo> ServerList;
+	typedef std::vector<Server*> ServerList;
 
 	virtual ~ProtocolInterface() = default;
 

@@ -92,9 +92,9 @@ public:
 		ServerInstance->PI->GetServerList(servers);
 		for (const auto& server : servers)
 		{
-			if (insp::casemapped_equals(target, server.servername))
+			if (insp::casemapped_equals(target, server->GetName()))
 			{
-				ServerInstance->Logs.Debug(MODNAME, "Changed the services server to {}.", server.servername);
+				ServerInstance->Logs.Debug(MODNAME, "Changed the services server to {}.", server->GetName());
 				SetAvailable(true);
 				return;
 			}

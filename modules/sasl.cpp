@@ -92,9 +92,9 @@ public:
 
 		ProtocolInterface::ServerList servers;
 		ServerInstance->PI->GetServerList(servers);
-		for (const auto& server : servers)
+		for (const auto* server : servers)
 		{
-			if (InspIRCd::Match(server.servername, sasl_target))
+			if (InspIRCd::Match(server->GetName(), sasl_target))
 			{
 				online = true;
 				break;

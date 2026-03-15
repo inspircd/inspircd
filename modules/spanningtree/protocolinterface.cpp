@@ -35,17 +35,7 @@
 void SpanningTreeProtocolInterface::GetServerList(ServerList& sl)
 {
 	for (const auto& [_, server] : Utils->serverlist)
-	{
-		ServerInfo ps;
-		ps.servername = server->GetName();
-		TreeServer* s = server->GetTreeParent();
-		ps.parentname = s ? s->GetName() : "";
-		ps.usercount = server->UserCount;
-		ps.opercount = server->OperCount;
-		ps.description = server->GetDesc();
-		ps.latencyms = server->rtt;
-		sl.push_back(ps);
-	}
+		sl.push_back(server);
 }
 
 bool SpanningTreeProtocolInterface::SendEncapsulatedData(const std::string& targetmask, const std::string& cmd, const CommandBase::Params& params, const User* source)

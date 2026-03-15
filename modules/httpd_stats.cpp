@@ -308,15 +308,15 @@ namespace Stats
 		ServerInstance->PI->GetServerList(sl);
 
 		serializer.BeginBlock("serverlist");
-		for (const auto& server : sl)
+		for (const auto* server : sl)
 		{
+			const auto* parent = server->GetParent();
 			serializer.BeginBlock("server")
-				.Attribute("servername", server.servername)
-				.Attribute("parentname", server.parentname)
-				.Attribute("description", server.description)
-				.Attribute("usercount", server.usercount)
-				.Attribute("opercount", server.opercount)
-				.Attribute("lagmillisecs", server.latencyms)
+				.Attribute("servername", server->GetName())
+				.Attribute("parentname", parent ? parent->GetName() : "")
+				.Attribute("description", server->GetDesc())
+				.Attribute("usercount", server->GetUserCount())
+				.Attribute("opercount", server->GetOperCount())
 				.EndBlock();
 		}
 		serializer.EndBlock();
