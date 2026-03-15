@@ -729,6 +729,12 @@ dynamic_reference_base::dynamic_reference_base(Module* Creator, const std::strin
 		resolve();
 }
 
+dynamic_reference_base::dynamic_reference_base(const dynamic_reference_base& other)
+	: dynamic_reference_base(other.creator, other.name)
+{
+	// Intentionally left blank.
+}
+
 dynamic_reference_base::~dynamic_reference_base()
 {
 	dynrefs->erase(this);

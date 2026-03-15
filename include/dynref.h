@@ -45,7 +45,7 @@ protected:
 public:
 	ModuleRef creator;
 	dynamic_reference_base(Module* Creator, const std::string& Name);
-	dynamic_reference_base(const dynamic_reference_base&) = default;
+	dynamic_reference_base(const dynamic_reference_base& other);
 	~dynamic_reference_base();
 
 	dynamic_reference_base& operator=(const dynamic_reference_base& rhs)
