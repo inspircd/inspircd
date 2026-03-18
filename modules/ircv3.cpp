@@ -24,6 +24,7 @@
 #include "modules/away.h"
 #include "modules/cap.h"
 #include "modules/ircv3.h"
+#include "modules/names.h"
 #include "modules/monitor.h"
 
 class AwayMessage final
@@ -120,9 +121,12 @@ class ModuleIRCv3 final
 	: public Module
 	, public Account::EventListener
 	, public Away::EventListener
+	, public Names::EventListener
 {
 private:
+	bool active = false;
 	Cap::Capability cap_accountnotify;
+	Cap::Capability cap_noimplicitnames;
 	JoinHook joinhook;
 	ClientProtocol::EventProvider accountprotoev;
 	Monitor::API monitorapi;
@@ -133,7 +137,9 @@ public:
 		: Module(VF_VENDOR, "Provides the IRCv3 account-notify, away-notify, extended-join, and standard-replies client capabilities.")
 		, Account::EventListener(this)
 		, Away::EventListener(this)
+		, Names::EventListener(this)
 		, cap_accountnotify(this, "account-notify")
+		, cap_noimplicitnames(this, "no-implicit-names")
 		, joinhook(this)
 		, accountprotoev(this, "ACCOUNT")
 		, monitorapi(this)
@@ -145,6 +151,7 @@ public:
 	{
 		const auto& conf = ServerInstance->Config->ConfValue("ircv3");
 		cap_accountnotify.SetActive(conf->getBool("accountnotify", true));
+		cap_noimplicitnames.SetActive(conf->getBool("noimplicitnames", true));
 		joinhook.awaycap.SetActive(conf->getBool("awaynotify", true));
 		joinhook.extendedjoincap.SetActive(conf->getBool("extendedjoin", true));
 		stdrplcap.SetActive(conf->getBool("standardreplies", true));
@@ -181,6 +188,24 @@ public:
 	{
 		// Back from away: n!u@h AWAY
 		OnUserAway(user, prevstate);
+	}
+
+	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except) override
+	{
+		active = true;
+	}
+
+	void OnPostJoin(Membership* memb) override
+	{
+		// The core_channel module prioritises this method to the front so this is safe.
+		active = false;
+	}
+
+	ModResult OnNamesListItem(LocalUser* issuer, Membership* memb, std::string& prefixes, std::string& nick) override
+	{
+		if (active && cap_noimplicitnames.IsEnabled(issuer))
+			return MOD_RES_DENY;
+		return MOD_RES_PASSTHRU;
 	}
 };
 
