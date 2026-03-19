@@ -176,7 +176,7 @@ class ServProtect final
 {
 public:
 	ServProtect(Module* Creator)
-		: SimpleUserMode(Creator, "servprotect", 'k', true)
+		: SimpleUserMode(Creator, "protect", 'k', true, "servprotect")
 	{
 	}
 

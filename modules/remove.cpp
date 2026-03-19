@@ -45,7 +45,7 @@ public:
 	CommandRemove(Module* Creator)
 		: Command(Creator, "REMOVE", 2, 3)
 		, nokicksmode(Creator, "nokick")
-		, servprotectmode(Creator, "servprotect")
+		, servprotectmode(Creator, "protect")
 	{
 		syntax = { "<channel> <nick> [:<reason>]" };
 		translation = { TranslateType::TEXT, TranslateType::NICK, TranslateType::TEXT };

@@ -33,7 +33,7 @@ struct SharedData final
 	bool sign = true;
 
 	SharedData(Module *mod)
-		: servprotectmode(mod, "servprotect")
+		: servprotectmode(mod, "protect")
 	{
 	}
 };
