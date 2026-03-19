@@ -56,6 +56,7 @@ ServerConfig::ServerLimits::ServerLimits(const std::shared_ptr<ConfigTag>& tag)
 	, MaxReal(tag->getNum<size_t>("maxreal", 130, 1, MaxLine))
 	, MaxAway(tag->getNum<size_t>("maxaway", 200, 1, MaxLine))
 	, MaxHost(tag->getNum<size_t>("maxhost", 64, 45, MaxLine))
+	, MaxKey(tag->getNum<size_t>("maxkey", 32, 1, ModeParser::MODE_PARAM_MAX))
 {
 }
 

@@ -193,8 +193,9 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		const auto& tag = ServerInstance->Config->ConfValue("sslinfo");
-		extban.operonly = tag->getBool("operonly");
+		const auto fpvisible = ServerInstance->Config->ConfValue("sslmodes")->getBool("operonly");
+		const auto& tag = ServerInstance->Config->ConfValue("sslmodes");
+		extban.operonly = tag->getBool("extbanoperonly", fpvisible);
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, PrefixMode::Set& privs, const std::string& keygiven, bool override) override

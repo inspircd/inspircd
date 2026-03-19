@@ -290,14 +290,10 @@ public:
 			ServerInstance->Modules.Attach(events, this, sizeof(events)/sizeof(Implementation));
 		else
 			ServerInstance->Modules.Detach(events, this, sizeof(events)/sizeof(Implementation));
-
-		const auto& limitstag = ServerInstance->Config->ConfValue("limits");
-		keymode.maxkeylen = limitstag->getNum<size_t>("maxkey", 32, 1, ModeParser::MODE_PARAM_MAX);
 	}
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
-		tokens["KEYLEN"] = ConvToStr(keymode.maxkeylen);
 		extbanmgr.BuildISupport(tokens["EXTBAN"]);
 
 		std::vector<std::string> limits;

@@ -126,6 +126,7 @@ void ISupportManager::Build()
 		{ "CHANNELLEN",  ConvToStr(ServerInstance->Config->Limits.MaxChannel) },
 		{ "CHANTYPES",   "#"                                                  },
 		{ "HOSTLEN",     ConvToStr(ServerInstance->Config->Limits.MaxHost)    },
+		{ "KEYLEN",      ConvToStr(ServerInstance->Config->Limits.MaxKey)     },
 		{ "KICKLEN",     ConvToStr(ServerInstance->Config->Limits.MaxKick)    },
 		{ "LINELEN",     ConvToStr(ServerInstance->Config->Limits.MaxLine)    },
 		{ "MODES",       ConvToStr(ServerInstance->Config->Limits.MaxModes)   },
