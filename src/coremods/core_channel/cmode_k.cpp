@@ -69,8 +69,8 @@ bool ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, Modes::
 			change.param.erase(commapos, 1);
 
 		// Truncate the parameter to the maximum key length.
-		if (change.param.length() > maxkeylen)
-			change.param.erase(maxkeylen);
+		if (change.param.length() > ServerInstance->Config->Limits.MaxKey)
+			change.param.erase(ServerInstance->Config->Limits.MaxKey);
 
 		// If the password is empty here then it only consisted of commas. This is not
 		// acceptable so we reject the mode change.

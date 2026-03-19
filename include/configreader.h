@@ -356,6 +356,9 @@ public:
 		/** Maximum hostname length */
 		size_t MaxHost;
 
+		/** Maximum key length */
+		size_t MaxKey;
+
 		/** Read all limits from a config tag. Limits which aren't specified in the tag are set to a default value.
 		 * @param tag Configuration tag to read the limits from
 		 */

@@ -346,6 +346,7 @@ void TreeSocket::SendCapabilities(int phase)
 		{ "MAXAWAY",     ConvToStr(ServerInstance->Config->Limits.MaxAway)    },
 		{ "MAXCHANNEL",  ConvToStr(ServerInstance->Config->Limits.MaxChannel) },
 		{ "MAXHOST",     ConvToStr(ServerInstance->Config->Limits.MaxHost)    },
+		{ "MAXKEY",      ConvToStr(ServerInstance->Config->Limits.MaxKey)     },
 		{ "MAXKICK",     ConvToStr(ServerInstance->Config->Limits.MaxKick)    },
 		{ "MAXLINE",     ConvToStr(ServerInstance->Config->Limits.MaxLine)    },
 		{ "MAXMODES",    ConvToStr(ServerInstance->Config->Limits.MaxModes)   },

@@ -121,7 +121,6 @@ class ModeChannelKey final
 	: public ParamMode<ModeChannelKey, StringExtItem>
 {
 public:
-	std::string::size_type maxkeylen;
 	ModeChannelKey(Module* Creator);
 	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 	void SerializeParam(Channel* chan, const std::string* key, std::string& out);
