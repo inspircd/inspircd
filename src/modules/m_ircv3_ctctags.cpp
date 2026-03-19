@@ -327,7 +327,7 @@ private:
 	}
 
 public:
-	AllowTags allowclientonlytags;
+	AllowTags clientonlytags;
 	insp::flat_map<std::string, std::function<bool(LocalUser*, const std::string&)>, irc::insensitive_swo> knowntags = {
 		{ "+draft/channel-context", ValidateChannel   }, // https://ircv3.net/specs/client-tags/channel-context
 		{ "+draft/react",           ValidateReaction  }, // https://ircv3.net/specs/client-tags/react
@@ -348,7 +348,7 @@ public:
 	{
 		// A client-only tag is prefixed with a plus sign (+) and otherwise conforms
 		// to the format specified in IRCv3.2 tags.
-		if (tagname[0] != '+' || tagname.length() < 2 || allowclientonlytags == AllowTags::NONE)
+		if (tagname[0] != '+' || tagname.length() < 2 || clientonlytags == AllowTags::NONE)
 			return MOD_RES_PASSTHRU;
 
 		// If the user is local then we check whether they have the message-tags cap
@@ -359,7 +359,7 @@ public:
 			if (!cap.IsEnabled(lu))
 				return MOD_RES_DENY; // Cap not enabled.
 
-			if (allowclientonlytags == AllowTags::KNOWN)
+			if (clientonlytags == AllowTags::KNOWN)
 			{
 				auto it = knowntags.find(tagname);
 				if (it == knowntags.end() || !it->second(lu, tagvalue))
@@ -416,24 +416,18 @@ public:
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("ctctags");
-		c2ctags.allowclientonlytags = tag->getEnum("allowclientonlytags", AllowTags::ALL, {
+
+		const auto allowclientonlytags = tag->getBool("allowclientonlytags", true);
+		c2ctags.clientonlytags = tag->getEnum("clientonlytags", allowclientonlytags ? AllowTags::ALL : AllowTags::NONE, {
 			{"all",   AllowTags::ALL   },
 			{"known", AllowTags::KNOWN },
 			{"none",  AllowTags::NONE  },
-
-			// Compatibility with v4.9 and older.
-			{"false", AllowTags::NONE },
-			{"no",    AllowTags::NONE },
-			{"off",   AllowTags::NONE },
-			{"on",    AllowTags::ALL  },
-			{"true",  AllowTags::ALL  },
-			{"yes",   AllowTags::ALL  },
 		});
 	}
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override
 	{
-		switch (c2ctags.allowclientonlytags)
+		switch (c2ctags.clientonlytags)
 		{
 			case AllowTags::NONE:
 				tokens["CLIENTTAGDENY"] = "*";
