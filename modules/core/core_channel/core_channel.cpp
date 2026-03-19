@@ -330,25 +330,20 @@ public:
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, PrefixMode::Set& privs, const std::string& keygiven, bool override) override
 	{
 		if (override)
-		{
-			// Don't enforce limits on overrides.
-			return MOD_RES_PASSTHRU;
-		}
-		else
-		{
-			/* We don't restrict the number of channels that remote users or users that are override-joining may be in.
-			 * We restrict local users to <connect:maxchans> channels.
-			 * We restrict local operators to <oper:maxchans> channels.
-			 */
-			unsigned long maxchans = user->GetClass()->maxchans;
-			if (user->IsOper())
-				maxchans = user->oper->GetConfig()->getNum<unsigned long>("maxchans", maxchans, maxchans);
+			return MOD_RES_PASSTHRU; // Don't enforce limits on overrides.
 
-			if (user->chans.size() >= maxchans)
-			{
-				user->WriteNumeric(ERR_TOOMANYCHANNELS, cname, "You are on too many channels");
-				return MOD_RES_DENY;
-			}
+		// We don't restrict the number of channels that remote users or users
+		// that are override-joining may be in.
+		// We restrict local users to <connect:maxchans> channels.
+		// We restrict local operators to <oper:maxchans> channels.
+		unsigned long maxchans = user->GetClass()->maxchans;
+		if (user->IsOper())
+			maxchans = user->oper->GetConfig()->getNum<unsigned long>("maxchans", maxchans, maxchans);
+
+		if (user->chans.size() >= maxchans)
+		{
+			user->WriteNumeric(ERR_TOOMANYCHANNELS, cname, "You are on too many channels");
+			return MOD_RES_DENY;
 		}
 
 		if (!chan)
