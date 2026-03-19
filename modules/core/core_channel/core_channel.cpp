@@ -255,8 +255,8 @@ public:
 			}
 		}
 
-		const auto& securitytag = ServerInstance->Config->ConfValue("security");
-		Invite::AnnounceState newannouncestate = securitytag->getEnum("announceinvites", Invite::ANNOUNCE_DYNAMIC, {
+		const auto& schannelstag = ServerInstance->Config->ConfValue("channels", ServerInstance->Config->ConfValue("security"));
+		const auto newannouncestate = schannelstag->getEnum("announceinvites", Invite::ANNOUNCE_DYNAMIC, {
 			{ "all",     Invite::ANNOUNCE_ALL },
 			{ "dynamic", Invite::ANNOUNCE_DYNAMIC },
 			{ "none",    Invite::ANNOUNCE_NONE },

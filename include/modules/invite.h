@@ -69,7 +69,7 @@ public:
 	 */
 	virtual Invite* Find(LocalUser* user, Channel* chan) = 0;
 
-	/** Returns the announcement behaviour for invites from <security:announceinvites>. */
+	/** Returns the announcement behaviour for invites from <channels:announceinvites>. */
 	virtual AnnounceState GetAnnounceState() const = 0;
 
 	/** Returns the list of channels a user has been invited to but has not yet joined.

@@ -343,8 +343,8 @@ public:
 
 	void ReadConfig(ConfigStatus&) override
 	{
-		const auto& options = ServerInstance->Config->ConfValue("options");
-		cmd.splitwhois = options->getEnum("splitwhois", SPLITWHOIS_NONE, {
+		const auto& channels = ServerInstance->Config->ConfValue("channels", ServerInstance->Config->ConfValue("options"));
+		cmd.splitwhois = channels->getEnum("splitwhois", SPLITWHOIS_NONE, {
 			{ "no",       SPLITWHOIS_NONE },
 			{ "split",    SPLITWHOIS_SPLIT },
 			{ "splitmsg", SPLITWHOIS_SPLITMSG },
