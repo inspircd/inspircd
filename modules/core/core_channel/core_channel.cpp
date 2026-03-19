@@ -218,8 +218,7 @@ public:
 					continue;
 				}
 
-				ChanModeReference moderef(this, pm->service_name);
-				newdefaultprivs.push_back(moderef);
+				newdefaultprivs.emplace_back(this, pm->service_name);
 			}
 		}
 
@@ -235,10 +234,19 @@ public:
 					continue; // This is implied.
 
 				auto* mh = ServerInstance->Modes.FindMode(modechr, MODETYPE_CHANNEL);
-				if (!mh || mh->IsPrefixMode())
+				if (!mh)
 				{
 					ServerInstance->Logs.Debug(MODNAME, "Ignoring invalid mode in <channels:defaultmodes>: {}",
 						modechr);
+					continue;
+				}
+
+				if (mh->IsPrefixMode())
+				{
+					// TODO: When we drop support for v4 configs we should remove this.
+					ServerInstance->Logs.Normal(MODNAME, "Prefix mode specified in in <channels:defaultmodes>: {} -- this should be in <channels:defaultprivs>",
+						modechr);
+					newdefaultprivs.emplace_back(this, mh->service_name);
 					continue;
 				}
 
