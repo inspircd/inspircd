@@ -157,6 +157,9 @@ protected:
 	/** If non-empty then the syntax of the parameter for this mode. */
 	std::string syntax;
 
+	/** If this mode has been renamed then the old name of the mode. */
+	std::string oldname;
+
 public:
 	/**
 	 * The constructor for ModeHandler initializes the mode handler.
@@ -177,6 +180,11 @@ public:
 
 	/** @copydoc ServiceProvider::UnregisterService */
 	void UnregisterService() override;
+
+	/** Retrieves the name of this mode.
+	 * @param compat Whether to return the old name (if available).
+	 */
+	const std::string& GetName(bool old) const;
 
 	/**
 	 * Returns true if the mode is a list mode
@@ -442,10 +450,11 @@ class CoreExport SimpleUserMode
 	: public ModeHandler
 {
 public:
-	SimpleUserMode(Module* Creator, const std::string& Name, char modeletter, bool operonly = false)
+	SimpleUserMode(Module* Creator, const std::string& Name, char modeletter, bool operonly = false, const std::string& old = "")
 		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_USER)
 	{
-		oper = operonly;
+		this->oldname = old;
+		this->oper = operonly;
 	}
 
 	/** @copydoc ModeHandler::OnModeChange */
@@ -462,10 +471,11 @@ class CoreExport SimpleChannelMode
 {
 public:
 
-	SimpleChannelMode(Module* Creator, const std::string& Name, char modeletter, bool operonly = false)
+	SimpleChannelMode(Module* Creator, const std::string& Name, char modeletter, bool operonly = false, const std::string& old = "")
 		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_CHANNEL)
 	{
-		oper = operonly;
+		this->oldname = old;
+		this->oper = operonly;
 	}
 
 	/** @copydoc ModeHandler::OnModeChange */

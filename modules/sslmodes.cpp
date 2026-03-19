@@ -141,6 +141,7 @@ public:
 		: ModeHandler(Creator, "sslonly", 'z', PARAM_NONE, MODETYPE_USER)
 		, sslapi(api)
 	{
+		this->oldname = "sslqueries";
 	}
 
 	bool OnModeChange(User* user, User* dest, Channel* channel, Modes::Change& change) override

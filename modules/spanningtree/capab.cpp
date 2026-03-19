@@ -285,35 +285,7 @@ std::string TreeSocket::BuildModeList(ModeType mtype)
 		else
 			mdesc.append("simple:");
 
-		// BEGIN COMPATIBILITY CODE
-		auto mname = mh->service_name;
-		if (proto_version < PROTO_INSPIRCD_5)
-		{
-			switch (mtype)
-			{
-				case MODETYPE_CHANNEL:
-				{
-					if (mh->service_name == "c_registered")
-						mname = "registered";
-					break;
-				}
-				case MODETYPE_USER:
-				{
-					if (mh->service_name == "noctcp")
-						mname = "u_noctcp";
-					else if (mh->service_name == "registered")
-						mname = "u_registered";
-					else if (mh->service_name == "sslonly")
-						mname = "sslqueries";
-					else if (mh->service_name == "stripcolor")
-						mname = "u_stripcolor";
-					break;
-				}
-			}
-		}
-		// END COMPATIBILITY CODE
-
-		mdesc.append(mname);
+		mdesc.append(mh->GetName(proto_version < PROTO_INSPIRCD_5));
 		mdesc.push_back('=');
 		if (pm)
 		{

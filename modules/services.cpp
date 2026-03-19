@@ -110,7 +110,7 @@ class RegisteredChannel final
 {
 public:
 	RegisteredChannel(Module* Creator)
-		: SimpleChannelMode(Creator, "registered", 'r')
+		: SimpleChannelMode(Creator, "registered", 'r', false, "c_registered")
 	{
 		if (ServerInstance->Config->ConfValue("servicesintegration")->getBool("disablemodes", true))
 			DisableAutoRegister();
@@ -135,7 +135,7 @@ class RegisteredUser final
 
 public:
 	RegisteredUser(Module* Creator)
-		: SimpleUserMode(Creator, "registered", 'r')
+		: SimpleUserMode(Creator, "registered", 'r', false, "u_registered")
 	{
 		if (ServerInstance->Config->ConfValue("servicesintegration")->getBool("disablemodes", true))
 			DisableAutoRegister();

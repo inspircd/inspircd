@@ -42,7 +42,7 @@ public:
 		, exemptionprov(this)
 		, extban(this, "stripcolor", 'S')
 		, csc(this, "stripcolor", 'S')
-		, usc(this, "stripcolor", 'S')
+		, usc(this, "stripcolor", 'S', false, "u_stripcolor")
 	{
 	}
 

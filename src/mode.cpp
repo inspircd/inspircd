@@ -126,6 +126,13 @@ void ModeHandler::UnregisterService()
 	ServerInstance->Modules.DelReferent(this);
 }
 
+const std::string& ModeHandler::GetName(bool old) const
+{
+	if (old && !this->oldname.empty())
+		return this->oldname;
+	return this->service_name;
+}
+
 bool SimpleUserMode::OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change)
 {
 	/* We're either trying to add a mode we already have or
