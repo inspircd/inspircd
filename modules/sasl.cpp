@@ -96,7 +96,7 @@ public:
 	void SetMechlist(const std::string& newmechlist)
 	{
 		if (mechlist == newmechlist)
-			return;
+			return; // No change.
 
 		mechlist = newmechlist;
 		NotifyValueChange();
@@ -130,8 +130,8 @@ private:
 	}
 
 public:
-	SaslAuthenticator(LocalUser* user_, const std::string& method, UserCertificateAPI& sslapi)
-		: user(user_)
+	SaslAuthenticator(LocalUser* lu, const std::string& method, UserCertificateAPI& sslapi)
+		: user(lu)
 	{
 		SendHostIP(sslapi);
 
@@ -256,49 +256,48 @@ private:
 	static constexpr size_t MAX_AUTHENTICATE_SIZE = 400;
 
 public:
-	SimpleExtItem<SaslAuthenticator>& authExt;
-	Cap::Capability& cap;
+	Cap::Capability& saslcap;
+	SimpleExtItem<SaslAuthenticator>& saslext;
 	UserCertificateAPI sslapi;
 
-	CommandAuthenticate(Module* Creator, SimpleExtItem<SaslAuthenticator>& ext, Cap::Capability& Cap)
-		: SplitCommand(Creator, "AUTHENTICATE", 1)
-		, authExt(ext)
-		, cap(Cap)
-		, sslapi(Creator)
+	CommandAuthenticate(Module* mod, SimpleExtItem<SaslAuthenticator>& ext, Cap::Capability& cap)
+		: SplitCommand(mod, "AUTHENTICATE", 1)
+		, saslcap(cap)
+		, saslext(ext)
+		, sslapi(mod)
 	{
 		works_before_reg = true;
 	}
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
 	{
+		if (!saslcap.IsEnabled(user))
 		{
-			if (!cap.IsEnabled(user))
-			{
-				user->WriteNumeric(ERR_UNKNOWNCOMMAND, this->service_name, "You must request the sasl capability to use this command");
-				return CmdResult::FAILURE;
-			}
-
-			if (parameters[0].find(' ') != std::string::npos || parameters[0][0] == ':')
-			{
-				user->WriteNumeric(ERR_SASLABORTED, "SASL authentication aborted");
-				return CmdResult::FAILURE;
-			}
-
-			if (parameters[0].length() > MAX_AUTHENTICATE_SIZE)
-			{
-				user->WriteNumeric(ERR_SASLTOOLONG, "SASL message too long");
-				return CmdResult::FAILURE;
-			}
-
-			SaslAuthenticator* sasl = authExt.Get(user);
-			if (!sasl)
-				authExt.SetFwd(user, user, parameters[0], sslapi);
-			else if (!sasl->SendClientMessage(parameters))
-			{
-				sasl->AnnounceState();
-				authExt.Unset(user);
-			}
+			user->WriteNumeric(ERR_UNKNOWNCOMMAND, this->service_name, "You must request the sasl capability to use this command");
+			return CmdResult::FAILURE;
 		}
+
+		if (parameters[0].find(' ') != std::string::npos || parameters[0][0] == ':')
+		{
+			user->WriteNumeric(ERR_SASLABORTED, "SASL authentication aborted");
+			return CmdResult::FAILURE;
+		}
+
+		if (parameters[0].length() > MAX_AUTHENTICATE_SIZE)
+		{
+			user->WriteNumeric(ERR_SASLTOOLONG, "SASL message too long");
+			return CmdResult::FAILURE;
+		}
+
+		auto* sasl = saslext.Get(user);
+		if (!sasl)
+			saslext.SetFwd(user, user, parameters[0], sslapi);
+		else if (!sasl->SendClientMessage(parameters))
+		{
+			sasl->AnnounceState();
+			saslext.Unset(user);
+		}
+
 		return CmdResult::FAILURE;
 	}
 };
@@ -306,33 +305,32 @@ public:
 class CommandSASL final
 	: public Command
 {
+private:
+	SimpleExtItem<SaslAuthenticator>& saslext;
+
 public:
-	SimpleExtItem<SaslAuthenticator>& authExt;
-	CommandSASL(Module* Creator, SimpleExtItem<SaslAuthenticator>& ext)
-		: Command(Creator, "SASL", 2)
-		, authExt(ext)
+	CommandSASL(Module* mod, SimpleExtItem<SaslAuthenticator>& ext)
+		: Command(mod, "SASL", 2)
+		, saslext(ext)
 	{
-		this->access_needed = CmdAccess::SERVER; // should not be called by users
+		this->access_needed = CmdAccess::SERVER;
 	}
 
 	CmdResult Handle(User* user, const Params& parameters) override
 	{
 		auto* target = ServerInstance->Users.FindUUID(parameters[1]);
 		if (!target)
-		{
-			ServerInstance->Logs.Debug(MODNAME, "User not found in sasl ENCAP event: {}", parameters[1]);
-			return CmdResult::FAILURE;
-		}
+			return CmdResult::FAILURE; // User has gone.
 
-		SaslAuthenticator* sasl = authExt.Get(target);
+		auto* sasl = saslext.Get(target);
 		if (!sasl)
-			return CmdResult::FAILURE;
+			return CmdResult::FAILURE; // User is not authenticating
 
-		SaslState state = sasl->ProcessInboundMessage(parameters);
+		const auto state = sasl->ProcessInboundMessage(parameters);
 		if (state == SASL_DONE)
 		{
 			sasl->AnnounceState();
-			authExt.Unset(target);
+			saslext.Unset(target);
 		}
 		return CmdResult::SUCCESS;
 	}
@@ -348,7 +346,7 @@ class ModuleSASL final
 {
 private:
 	Account::ProviderAPI accountproviderapi;
-	SimpleExtItem<SaslAuthenticator> authExt;
+	SimpleExtItem<SaslAuthenticator> saslext;
 	SASLCap cap;
 	CommandAuthenticate auth;
 	CommandSASL sasl;
@@ -358,10 +356,10 @@ public:
 	ModuleSASL()
 		: Module(VF_VENDOR, "Provides the IRCv3 sasl client capability.")
 		, accountproviderapi(this)
-		, authExt(this, "sasl-state", ExtensionType::USER)
+		, saslext(this, "sasl-state", ExtensionType::USER)
 		, cap(this)
-		, auth(this, authExt, cap)
-		, sasl(this, authExt)
+		, auth(this, saslext, cap)
+		, sasl(this, saslext)
 		, protoev(this, "AUTHENTICATE")
 	{
 		g_accountproviderapi = &accountproviderapi;
@@ -380,12 +378,12 @@ public:
 		// any other necessary messages) while the SASL authentication is still
 		// in progress, the server SHOULD abort it and send a 906 numeric, then
 		// register the client without authentication.
-		SaslAuthenticator* saslauth = authExt.Get(user);
+		auto* saslauth = saslext.Get(user);
 		if (saslauth && cap.GetProtocol(user) == Cap::CAP_LEGACY)
 		{
 			saslauth->Abort();
 			saslauth->AnnounceState();
-			authExt.Unset(user);
+			saslext.Unset(user);
 		}
 	}
 
