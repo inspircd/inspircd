@@ -45,6 +45,7 @@ class ServicesAccountProvider final
 {
 private:
 	std::string target;
+	const Server* targetserver = nullptr;
 
 	void OnServerLink(const Server& server) override
 	{
@@ -71,6 +72,7 @@ private:
 		{
 			ServerInstance->Logs.Debug(MODNAME, "Services server {} ({}) {}.", server.GetName(),
 				server.GetId(), online ? "came online" : "went offline");
+			targetserver = online ? &server : nullptr;
 			SetAvailable(online);
 		}
 	}
@@ -80,6 +82,11 @@ public:
 		: Account::ProviderAPIBase(mod)
 		, ServerProtocol::LinkEventListener(mod)
 	{
+	}
+
+	const Server* GetServer() const override
+	{
+		return targetserver;
 	}
 
 	void SetTarget(const std::string& newtarget)
@@ -600,7 +607,7 @@ class ModuleServices final
 {
 private:
 	Account::API accountapi;
-	ServicesAccountProvider accountprovapi;
+	ServicesAccountProvider accountproviderapi;
 	RegisteredChannel registeredcmode;
 	RegisteredUser registeredumode;
 	ServiceTag servicetag;
@@ -662,7 +669,7 @@ public:
 		, ServerProtocol::RouteEventListener(this)
 		, Stats::EventListener(this)
 		, accountapi(this)
-		, accountprovapi(this)
+		, accountproviderapi(this)
 		, registeredcmode(this)
 		, registeredumode(this)
 		, servicetag(this)
@@ -699,7 +706,7 @@ public:
 		if (target.empty())
 			throw ModuleException(this, "<servicesintegration:server> must be set to the name of your services server!");
 
-		accountprovapi.SetTarget(target);
+		accountproviderapi.SetTarget(target);
 		accountoverrideshold = tag->getBool("accountoverrideshold");
 	}
 

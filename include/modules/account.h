@@ -105,6 +105,9 @@ public:
 		: DataProvider(mod, "accountproviderapi")
 	{
 	}
+
+	/** Retrieves the server that handles accounts. */
+	virtual const Server* GetServer() const = 0;
 };
 
 /** Allows modules to provide backend support for accounts. */

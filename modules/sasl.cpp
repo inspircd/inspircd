@@ -42,76 +42,31 @@ enum
 	RPL_SASLMECHS = 908
 };
 
-static std::string sasl_target;
-
-class ServerTracker final
-	: public ServerProtocol::LinkEventListener
+namespace
 {
-private:
-	bool online;
+	Account::ProviderAPI* g_accountproviderapi;
+	ClientProtocol::EventProvider* g_protoev;
 
-	void Update(const Server& server, bool linked)
+	void SendSASL(LocalUser* user, const std::string& agent, char mode, const std::vector<std::string>& parameters)
 	{
-		if (sasl_target == "*")
-			return;
+		auto* target = (*g_accountproviderapi)->GetServer();
+		if (!target)
+			return; // Should never happen.
 
-		if (insp::casemapped_equals(server.GetName(), sasl_target))
-		{
-			ServerInstance->Logs.Debug(MODNAME, "SASL target server \"{}\" {}",
-				sasl_target, (linked ? "came online" : "went offline"));
-			online = linked;
-		}
+		CommandBase::Params params;
+		params.push_back(user->uuid);
+		params.push_back(agent);
+		params.push_back(ConvToStr(mode));
+		params.insert(params.end(), parameters.begin(), parameters.end());
+		ServerInstance->PI->SendEncapsulatedData(target->GetName(), "SASL", params);
 	}
-
-	void OnServerLink(const Server& server) override
-	{
-		Update(server, true);
-	}
-
-	void OnServerSplit(const Server& server, bool error) override
-	{
-		Update(server, false);
-	}
-
-public:
-	ServerTracker(Module* mod)
-		: ServerProtocol::LinkEventListener(mod)
-	{
-		Reset();
-	}
-
-	void Reset()
-	{
-		if (sasl_target == "*")
-		{
-			online = true;
-			return;
-		}
-
-		online = false;
-
-		ProtocolInterface::ServerList servers;
-		ServerInstance->PI->GetServerList(servers);
-		for (const auto* server : servers)
-		{
-			if (InspIRCd::Match(server->GetName(), sasl_target))
-			{
-				online = true;
-				break;
-			}
-		}
-	}
-
-	bool IsOnline() const { return online; }
-};
+}
 
 class SASLCap final
 	: public Cap::Capability
 {
 private:
 	std::string mechlist;
-	const ServerTracker& servertracker;
-	UserCertificateAPI sslapi;
 
 	bool OnRequest(LocalUser* user, bool adding) override
 	{
@@ -122,12 +77,9 @@ private:
 
 	bool OnList(LocalUser* user) override
 	{
-		if (requiressl && sslapi && !sslapi->IsSecure(user))
-			return false;
-
 		// Servers MUST NOT advertise the sasl capability if the authentication layer
 		// is unavailable.
-		return servertracker.IsOnline();
+		return *g_accountproviderapi;
 	}
 
 	const std::string* GetValue(LocalUser* user) const override
@@ -136,11 +88,8 @@ private:
 	}
 
 public:
-	bool requiressl;
-	SASLCap(Module* mod, const ServerTracker& tracker)
+	SASLCap(Module* mod)
 		: Cap::Capability(mod, "sasl")
-		, servertracker(tracker)
-		, sslapi(mod)
 	{
 	}
 
@@ -156,18 +105,6 @@ public:
 
 enum SaslState { SASL_INIT, SASL_COMM, SASL_DONE };
 enum SaslResult { SASL_OK, SASL_FAIL, SASL_ABORT };
-
-static void SendSASL(LocalUser* user, const std::string& agent, char mode, const std::vector<std::string>& parameters)
-{
-	CommandBase::Params params;
-	params.push_back(user->uuid);
-	params.push_back(agent);
-	params.push_back(ConvToStr(mode));
-	params.insert(params.end(), parameters.begin(), parameters.end());
-	ServerInstance->PI->SendEncapsulatedData(sasl_target, "SASL", params);
-}
-
-static ClientProtocol::EventProvider* g_protoev;
 
 /**
  * Tracks SASL authentication state like charybdis does. --nenolod
@@ -410,8 +347,8 @@ class ModuleSASL final
 	: public Module
 {
 private:
+	Account::ProviderAPI accountproviderapi;
 	SimpleExtItem<SaslAuthenticator> authExt;
-	ServerTracker servertracker;
 	SASLCap cap;
 	CommandAuthenticate auth;
 	CommandSASL sasl;
@@ -420,13 +357,14 @@ private:
 public:
 	ModuleSASL()
 		: Module(VF_VENDOR, "Provides the IRCv3 sasl client capability.")
+		, accountproviderapi(this)
 		, authExt(this, "sasl-state", ExtensionType::USER)
-		, servertracker(this)
-		, cap(this, servertracker)
+		, cap(this)
 		, auth(this, authExt, cap)
 		, sasl(this, authExt)
 		, protoev(this, "AUTHENTICATE")
 	{
+		g_accountproviderapi = &accountproviderapi;
 		g_protoev = &protoev;
 	}
 
@@ -434,19 +372,6 @@ public:
 	{
 		if (!ServerInstance->Modules.Find("account") || !ServerInstance->Modules.Find("cap"))
 			ServerInstance->Logs.Normal(MODNAME, "WARNING: the cap and services modules are not loaded! The sasl module will NOT function correctly until these two modules are loaded!");
-	}
-
-	void ReadConfig(ConfigStatus& status) override
-	{
-		const auto& tag = ServerInstance->Config->ConfValue("sasl");
-
-		const std::string target = tag->getString("target");
-		if (target.empty())
-			throw ModuleException(this, "<sasl:target> must be set to the name of your services server!");
-
-		cap.requiressl = tag->getBool("requiressl");
-		sasl_target = target;
-		servertracker.Reset();
 	}
 
 	void OnUserConnect(LocalUser* user) override
