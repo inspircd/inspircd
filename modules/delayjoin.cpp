@@ -111,7 +111,7 @@ private:
 	JoinHook joinhook;
 	DelayJoinMode djm;
 
-	void PopulateExcepts(CUList& except, Membership* memb)
+	void PopulateExcepts(User::List& except, Membership* memb)
 	{
 		if (!unjoined.Get(memb))
 			return;
@@ -140,10 +140,10 @@ public:
 	ModResult OnNamesListItem(LocalUser* issuer, Membership*, std::string& prefixes, std::string& nick) override;
 	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) override;
 	ModResult OnWhoVisible(const Who::Request& request, LocalUser* source, Membership* memb) override;
-	void OnUserJoin(Membership*, bool, bool, CUList&) override;
+	void OnUserJoin(Membership*, bool, bool, User::List&) override;
 	void CleanUser(User* user);
-	void OnUserPart(Membership*, std::string& partmessage, CUList&) override;
-	void OnUserKick(User* source, Membership*, const std::string& reason, CUList&) override;
+	void OnUserPart(Membership*, std::string& partmessage, User::List&) override;
+	void OnUserKick(User* source, Membership*, const std::string& reason, User::List&) override;
 	void OnBuildNeighborList(User* source, User::NeighborList& include, User::NeighborExceptions& exception) override;
 	void OnUserMessage(User* user, const MessageTarget& target, const MessageDetails& details) override;
 	void OnUserTagMessage(User* user, const MessageTarget& target, const CTCTags::TagMessageDetails& details) override;
@@ -189,18 +189,18 @@ ModResult ModuleDelayJoin::OnWhoVisible(const Who::Request& request, LocalUser* 
 	return source == memb->user || request.flags['d'] || !unjoined.Get(memb) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
 }
 
-void ModuleDelayJoin::OnUserJoin(Membership* memb, bool sync, bool created, CUList& except)
+void ModuleDelayJoin::OnUserJoin(Membership* memb, bool sync, bool created, User::List& except)
 {
 	if (memb->chan->IsModeSet(djm))
 		unjoined.Set(memb, ServerInstance->Time());
 }
 
-void ModuleDelayJoin::OnUserPart(Membership* memb, std::string& partmessage, CUList& except)
+void ModuleDelayJoin::OnUserPart(Membership* memb, std::string& partmessage, User::List& except)
 {
 	PopulateExcepts(except, memb);
 }
 
-void ModuleDelayJoin::OnUserKick(User* source, Membership* memb, const std::string& reason, CUList& except)
+void ModuleDelayJoin::OnUserKick(User* source, Membership* memb, const std::string& reason, User::List& except)
 {
 	PopulateExcepts(except, memb);
 }
@@ -247,7 +247,7 @@ void DelayJoinMode::RevealUser(User* user, Channel* chan)
 
 	/* Display the join to everyone else (the user who joined got it earlier) */
 	unjoined.Unset(memb);
-	CUList except_list;
+	User::List except_list;
 	except_list.insert(user);
 	ClientProtocol::Events::Join joinevent(memb);
 	if (servertime)

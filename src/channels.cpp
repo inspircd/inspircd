@@ -197,7 +197,7 @@ Membership* Channel::ForceJoin(User* user, const PrefixMode::Set* privs, bool bu
 	}
 
 	// Tell modules about this join, they have the chance now to populate except_list with users we won't send the JOIN (and possibly MODE) to
-	CUList except_list;
+	User::List except_list;
 	FOREACH_MOD(OnUserJoin, (memb, bursting, created_by_local, except_list));
 
 	ClientProtocol::Events::Join joinevent(memb);
@@ -269,7 +269,7 @@ void Channel::PartUser(const MemberMap::iterator& membiter, const std::string& r
 	User* user = membiter->first;
 	Membership* memb = membiter->second;
 	std::string partreason(reason);
-	CUList except_list;
+	User::List except_list;
 	FOREACH_MOD(OnUserPart, (memb, partreason, except_list));
 
 	ClientProtocol::Messages::Part partmsg(memb, partreason);
@@ -285,7 +285,7 @@ void Channel::PartUser(const MemberMap::iterator& membiter, const std::string& r
 void Channel::KickUser(User* src, const MemberMap::iterator& victimiter, const std::string& reason)
 {
 	Membership* memb = victimiter->second;
-	CUList except_list;
+	User::List except_list;
 	FOREACH_MOD(OnUserKick, (src, memb, reason, except_list));
 
 	ClientProtocol::Messages::Kick kickmsg(src, memb, reason);
@@ -295,7 +295,7 @@ void Channel::KickUser(User* src, const MemberMap::iterator& victimiter, const s
 	this->DelUser(victimiter);
 }
 
-void Channel::Write(ClientProtocol::Event& protoev, char status, const CUList& except_list) const
+void Channel::Write(ClientProtocol::Event& protoev, char status, const User::List& except_list) const
 {
 	ModeHandler::Rank minrank = 0;
 	if (status)

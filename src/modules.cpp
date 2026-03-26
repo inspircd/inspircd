@@ -114,9 +114,9 @@ void		Module::OnUserConnect(LocalUser*) { DetachEvent(I_OnUserConnect); }
 ModResult	Module::OnUserPreQuit(LocalUser*, std::string&, std::string&) { DetachEvent(I_OnUserPreQuit); return MOD_RES_PASSTHRU; }
 void		Module::OnUserQuit(User*, const std::string&, const std::string&) { DetachEvent(I_OnUserQuit); }
 void		Module::OnUserDisconnect(LocalUser*) { DetachEvent(I_OnUserDisconnect); }
-void		Module::OnUserJoin(Membership*, bool, bool, CUList&) { DetachEvent(I_OnUserJoin); }
+void		Module::OnUserJoin(Membership*, bool, bool, User::List&) { DetachEvent(I_OnUserJoin); }
 void		Module::OnPostJoin(Membership*) { DetachEvent(I_OnPostJoin); }
-void		Module::OnUserPart(Membership*, std::string&, CUList&) { DetachEvent(I_OnUserPart); }
+void		Module::OnUserPart(Membership*, std::string&, User::List&) { DetachEvent(I_OnUserPart); }
 void		Module::OnPreRehash(User*, const std::string&) { DetachEvent(I_OnPreRehash); }
 void		Module::OnModuleRehash(User*, const std::string&) { DetachEvent(I_OnModuleRehash); }
 ModResult	Module::OnUserPreJoin(LocalUser*, Channel*, const std::string&, PrefixMode::Set&, const std::string&, bool) { DetachEvent(I_OnUserPreJoin); return MOD_RES_PASSTHRU; }
@@ -138,7 +138,7 @@ void		Module::OnUserPostInit(LocalUser*) { DetachEvent(I_OnUserPostInit); }
 ModResult	Module::OnCheckReady(LocalUser*) { DetachEvent(I_OnCheckReady); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserRegister(LocalUser*) { DetachEvent(I_OnUserRegister); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserPreKick(User*, Membership*, const std::string&) { DetachEvent(I_OnUserPreKick); return MOD_RES_PASSTHRU; }
-void		Module::OnUserKick(User*, Membership*, const std::string&, CUList&) { DetachEvent(I_OnUserKick); }
+void		Module::OnUserKick(User*, Membership*, const std::string&, User::List&) { DetachEvent(I_OnUserKick); }
 ModResult	Module::OnRawMode(User*, Channel*, const Modes::Change&) { DetachEvent(I_OnRawMode); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckInvite(User*, Channel*) { DetachEvent(I_OnCheckInvite); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckKey(User*, Channel*, const std::string&) { DetachEvent(I_OnCheckKey); return MOD_RES_PASSTHRU; }
@@ -149,7 +149,7 @@ ModResult	Module::OnPreTopicChange(User*, Channel*, const std::string&) { Detach
 void		Module::OnPostConnect(User*) { DetachEvent(I_OnPostConnect); }
 void		Module::OnUserPostMessage(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserPostMessage); }
 void		Module::OnUserMessageBlocked(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserMessageBlocked); }
-void		Module::OnUserInvite(User*, User*, Channel*, time_t, ModeHandler::Rank, CUList&) { DetachEvent(I_OnUserInvite); }
+void		Module::OnUserInvite(User*, User*, Channel*, time_t, ModeHandler::Rank, User::List&) { DetachEvent(I_OnUserInvite); }
 void		Module::OnPostTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPostTopicChange); }
 void		Module::OnDecodeMetadata(Extensible*, const std::string&, const std::string&) { DetachEvent(I_OnDecodeMetadata); }
 void		Module::OnChangeHost(User*, const std::string&) { DetachEvent(I_OnChangeHost); }

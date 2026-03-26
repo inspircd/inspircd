@@ -167,7 +167,7 @@ public:
 	 * The resulting pointer to the vector should be considered
 	 * readonly and only modified via AddUser and DelUser.
 	 *
-	 * @return This function returns pointer to a map of User pointers (CUList*).
+	 * @return This function returns pointer to a map of User pointers (User::List*).
 	 */
 	const MemberMap& GetUsers() const { return userlist; }
 
@@ -250,7 +250,7 @@ public:
 	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
 	 * @param except_list List of users not to send to
 	 */
-	void Write(ClientProtocol::Event& protoev, char status = 0, const CUList& except_list = {}) const;
+	void Write(ClientProtocol::Event& protoev, char status = 0, const User::List& except_list = {}) const;
 
 	/** Write to all users on a channel except some users.
 	 * @param protoevprov Protocol event provider for the message.
@@ -258,7 +258,7 @@ public:
 	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
 	 * @param except_list List of users not to send to
 	 */
-	void Write(ClientProtocol::EventProvider& protoevprov, ClientProtocol::Message& msg, char status = 0, const CUList& except_list = {}) const;
+	void Write(ClientProtocol::EventProvider& protoevprov, ClientProtocol::Message& msg, char status = 0, const User::List& except_list = {}) const;
 
 	/** Return the channel's modes with parameters.
 	 * @param showsecret If this is set to true, the value of secret parameters

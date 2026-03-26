@@ -190,7 +190,7 @@ public:
 		OnUserAway(user, prevstate);
 	}
 
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except) override
+	void OnUserJoin(Membership* memb, bool sync, bool created, User::List& except) override
 	{
 		active = true;
 	}

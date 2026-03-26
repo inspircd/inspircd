@@ -73,7 +73,7 @@ public:
 	{
 	}
 
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList&) override;
+	void OnUserJoin(Membership* memb, bool sync, bool created, User::List&) override;
 	ModResult OnUserPreMessage(User* user, MessageTarget& target, MessageDetails& details) override;
 	ModResult OnUserPreTagMessage(User* user, MessageTarget& target, CTCTags::TagMessageDetails& details) override;
 };
@@ -95,7 +95,7 @@ void DelayMsgMode::OnUnset(User* source, Channel* chan)
 		jointime.Unset(memb);
 }
 
-void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CUList&)
+void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, User::List&)
 {
 	if ((memb->user->IsLocal()) && (memb->chan->IsModeSet(djm)))
 	{

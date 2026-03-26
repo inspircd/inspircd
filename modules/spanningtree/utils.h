@@ -138,7 +138,7 @@ public:
 
 	/** Compile a list of servers which contain members of channel c
 	 */
-	void GetListOfServersForChannel(const Channel* c, TreeSocketSet& list, char status, const CUList& exempt_list) const;
+	void GetListOfServersForChannel(const Channel* c, TreeSocketSet& list, char status, const User::List& exempt_list) const;
 
 	/** Find a server by name or SID
 	 */
@@ -167,7 +167,7 @@ public:
 
 	/** Sends a PRIVMSG or a NOTICE to a channel obeying an exempt list and an optional prefix
 	 */
-	void SendChannelMessage(const User* source, const Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const CUList& exempt_list, const char* message_type, const TreeSocket* omit = nullptr) const;
+	void SendChannelMessage(const User* source, const Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const User::List& exempt_list, const char* message_type, const TreeSocket* omit = nullptr) const;
 
 	// Builds link data to be sent to another server.
 	static std::string BuildLinkString(Module* mod);

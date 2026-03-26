@@ -401,7 +401,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnUserJoin(Membership* memb, bool sync, bool created_by_local, CUList& excepts) override
+	void OnUserJoin(Membership* memb, bool sync, bool created_by_local, User::List& excepts) override
 	{
 		if (!created_by_local)
 			return;

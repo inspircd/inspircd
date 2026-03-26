@@ -83,7 +83,7 @@ private:
 	std::string deaf_bypasschars_service;
 	bool privdeafservice;
 
-	ModResult HandleChannel(User* source, Channel* target, CUList& exemptions, bool is_bypasschar, bool is_bypasschar_service)
+	ModResult HandleChannel(User* source, Channel* target, User::List& exemptions, bool is_bypasschar, bool is_bypasschar_service)
 	{
 		for (const auto& [member, _] : target->GetUsers())
 		{

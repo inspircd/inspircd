@@ -44,7 +44,7 @@ public:
 	bool update_idle = true;
 
 	/** The users who are exempted from receiving this message. */
-	CUList exemptions;
+	User::List exemptions;
 
 	/* The original message as sent by the user. */
 	const std::string original_text;

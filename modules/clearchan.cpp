@@ -201,7 +201,7 @@ public:
 		}
 	}
 
-	void OnUserKick(User* source, Membership* memb, const std::string& reason, CUList& excepts) override
+	void OnUserKick(User* source, Membership* memb, const std::string& reason, User::List& excepts) override
 	{
 		// Hide the KICK from all non-opers
 		User* leaving = memb->user;

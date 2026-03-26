@@ -102,7 +102,7 @@ public:
 	bool update_idle = true;
 
 	/** The users who are exempted from receiving this message. */
-	CUList exemptions;
+	User::List exemptions;
 
 	/** IRCv3 message tags sent to the server by the user. */
 	const ClientProtocol::TagMap tags_in;

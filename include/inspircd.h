@@ -416,7 +416,7 @@ inline void Cullable::Deleter::operator()(Cullable* item) const
 		ServerInstance->GlobalCulls.AddItem(item);
 }
 
-inline void Channel::Write(ClientProtocol::EventProvider& protoevprov, ClientProtocol::Message& msg, char status, const CUList& except_list) const
+inline void Channel::Write(ClientProtocol::EventProvider& protoevprov, ClientProtocol::Message& msg, char status, const User::List& except_list) const
 {
 	ClientProtocol::Event event(protoevprov, msg);
 	Write(event, status, except_list);

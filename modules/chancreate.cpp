@@ -38,7 +38,7 @@ public:
 		ServerInstance->SNO.EnableSnomask('j', "CHANCREATE");
 	}
 
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except) override
+	void OnUserJoin(Membership* memb, bool sync, bool created, User::List& except) override
 	{
 		if ((created) && (memb->user->IsLocal()))
 		{

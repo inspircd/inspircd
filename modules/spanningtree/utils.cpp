@@ -137,7 +137,7 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 }
 
 // Returns a list of DIRECT servers for a specific channel
-void SpanningTreeUtilities::GetListOfServersForChannel(const Channel* c, TreeSocketSet& list, char status, const CUList& exempt_list) const
+void SpanningTreeUtilities::GetListOfServersForChannel(const Channel* c, TreeSocketSet& list, char status, const User::List& exempt_list) const
 {
 	ModeHandler::Rank minrank = 0;
 	if (status)
@@ -367,7 +367,7 @@ std::shared_ptr<Link> SpanningTreeUtilities::FindLink(const std::string& name)
 	return nullptr;
 }
 
-void SpanningTreeUtilities::SendChannelMessage(const User* source, const Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const CUList& exempt_list, const char* message_type, const TreeSocket* omit) const
+void SpanningTreeUtilities::SendChannelMessage(const User* source, const Channel* target, const std::string& text, char status, const ClientProtocol::TagMap& tags, const User::List& exempt_list, const char* message_type, const TreeSocket* omit) const
 {
 	MessageBuilder msg(source, message_type);
 	if (status)

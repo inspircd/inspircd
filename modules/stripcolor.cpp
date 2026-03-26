@@ -83,7 +83,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnUserPart(Membership* memb, std::string& partmessage, CUList& except_list) override
+	void OnUserPart(Membership* memb, std::string& partmessage, User::List& except_list) override
 	{
 		User* user = memb->user;
 		Channel* channel = memb->chan;

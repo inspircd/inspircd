@@ -95,7 +95,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 			if (!c)
 				return;
 			// TODO OnBuildExemptList hook was here
-			CUList exempts;
+			User::List exempts;
 			std::string message;
 			if (parameters.size() >= 2)
 				message.assign(parameters[1]);

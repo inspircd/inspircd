@@ -381,7 +381,7 @@ ModResult ModuleSpanningTree::HandleConnect(const CommandBase::Params& parameter
 	return MOD_RES_DENY;
 }
 
-void ModuleSpanningTree::OnUserInvite(User* source, User* dest, Channel* channel, time_t expiry, ModeHandler::Rank notifyrank, CUList& notifyexcepts)
+void ModuleSpanningTree::OnUserInvite(User* source, User* dest, Channel* channel, time_t expiry, ModeHandler::Rank notifyrank, User::List& notifyexcepts)
 {
 	if (!source->IsLocal())
 		return;
@@ -525,7 +525,7 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 	Utils->TreeRoot->UserCount++;
 }
 
-void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by_local, CUList& excepts)
+void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by_local, User::List& excepts)
 {
 	// Only do this for local users
 	if (!memb->user->IsLocal())
@@ -601,7 +601,7 @@ void ModuleSpanningTree::OnChangeRealUser(User* user, const std::string& newuser
 		.Broadcast();
 }
 
-void ModuleSpanningTree::OnUserPart(Membership* memb, std::string& partmessage, CUList& excepts)
+void ModuleSpanningTree::OnUserPart(Membership* memb, std::string& partmessage, User::List& excepts)
 {
 	if (!memb->user->IsLocal())
 		return;
@@ -657,7 +657,7 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string& oldnick)
 	}
 }
 
-void ModuleSpanningTree::OnUserKick(User* source, Membership* memb, const std::string& reason, CUList& excepts)
+void ModuleSpanningTree::OnUserKick(User* source, Membership* memb, const std::string& reason, User::List& excepts)
 {
 	if ((!source->IsLocal()) && (source != ServerInstance->FakeClient))
 		return;

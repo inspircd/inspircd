@@ -355,7 +355,7 @@ public:
 	 * @param created This is true if the join created the channel
 	 * @param except_list A list of users not to send to.
 	 */
-	virtual void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except_list) ATTR_NOT_NULL(2);
+	virtual void OnUserJoin(Membership* memb, bool sync, bool created, User::List& except_list) ATTR_NOT_NULL(2);
 
 	/** Called after a user joins a channel
 	 * Identical to OnUserJoin, but called immediately afterwards, when any linking module has
@@ -371,7 +371,7 @@ public:
 	 * @param partmessage The part message, or an empty string (may be modified)
 	 * @param except_list A list of users to not send to.
 	 */
-	virtual void OnUserPart(Membership* memb, std::string& partmessage, CUList& except_list) ATTR_NOT_NULL(2);
+	virtual void OnUserPart(Membership* memb, std::string& partmessage, User::List& except_list) ATTR_NOT_NULL(2);
 
 	/** Called on rehash.
 	 * This method is called prior to a /REHASH or when a SIGHUP is received from the operating
@@ -446,7 +446,7 @@ public:
 	 * @param reason The kick reason
 	 * @param except_list A list of users to not send to.
 	 */
-	virtual void OnUserKick(User* source, Membership* memb, const std::string& reason, CUList& except_list) ATTR_NOT_NULL(2, 3);
+	virtual void OnUserKick(User* source, Membership* memb, const std::string& reason, User::List& except_list) ATTR_NOT_NULL(2, 3);
 
 	/** Called whenever a user is about to invite another user into a channel, before any processing is done.
 	 * Returning 1 from this function stops the process immediately, causing no
@@ -470,7 +470,7 @@ public:
 	 * @param notifyrank Rank required to get an invite announcement (if enabled)
 	 * @param notifyexcepts List of users to not send the default NOTICE invite announcement to
 	 */
-	virtual void OnUserInvite(User* source, User* dest, Channel* channel, time_t timeout, ModeHandler::Rank notifyrank, CUList& notifyexcepts)  ATTR_NOT_NULL(2, 3, 4);
+	virtual void OnUserInvite(User* source, User* dest, Channel* channel, time_t timeout, ModeHandler::Rank notifyrank, User::List& notifyexcepts)  ATTR_NOT_NULL(2, 3, 4);
 
 	/** Called before a user sends a message to a channel, a user, or a server glob mask.
 	 * @param user The user sending the message.

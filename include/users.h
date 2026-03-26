@@ -412,6 +412,9 @@ public:
 		TYPE_SERVER = 2,
 	};
 
+	/** Generic user list, used for exceptions. */
+	using List = std::set<User*>;
+
 	/** List of Memberships for this user
 	 */
 	using ChanList = insp::intrusive_list<Membership>;

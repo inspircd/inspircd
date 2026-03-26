@@ -184,7 +184,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) override
+	void OnUserJoin(Membership* memb, bool sync, bool created, User::List& excepts) override
 	{
 		/* We arent interested in JOIN events caused by a network burst */
 		if (sync || ignoreuntil > ServerInstance->Time())

@@ -152,7 +152,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnUserKick(User* source, Membership* memb, const std::string& reason, CUList& excepts) override
+	void OnUserKick(User* source, Membership* memb, const std::string& reason, User::List& excepts) override
 	{
 		if ((!memb->user->IsLocal()) || (source == memb->user))
 			return;

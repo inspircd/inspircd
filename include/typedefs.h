@@ -74,8 +74,5 @@ namespace ClientProtocol
 
 #include "base.h"
 
-/** Generic user list, used for exceptions */
-using CUList = std::set<User*>;
-
 /** A bitset of characters which are enabled/set. */
 using CharState = std::bitset<UCHAR_MAX + 1>;

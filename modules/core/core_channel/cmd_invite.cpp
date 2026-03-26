@@ -183,7 +183,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 				break;
 		}
 
-		CUList excepts;
+		User::List excepts;
 		FOREACH_MOD(OnUserInvite, (user, u, c, timeout, minrank, excepts));
 
 		if (invapi.announceinvites != Invite::ANNOUNCE_NONE)

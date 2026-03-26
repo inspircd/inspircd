@@ -443,7 +443,7 @@ private:
 	bool exemptservice;
 	CommandSilence cmd;
 
-	void BuildChannelExempts(User* source, Channel* channel, SilenceEntry::SilenceFlags flag, CUList& exemptions, CUList& hides)
+	void BuildChannelExempts(User* source, Channel* channel, SilenceEntry::SilenceFlags flag, User::List& exemptions, User::List& hides)
 	{
 		for (const auto& [user, _] : channel->GetUsers())
 		{
@@ -568,7 +568,7 @@ public:
 				else if (details.type == MessageType::PRIVMSG)
 					flag = SilenceEntry::SF_PRIVMSG_CHANNEL;
 
-				CUList hides;
+				User::List hides;
 				BuildChannelExempts(user, target.Get<Channel>(), flag, details.exemptions, hides);
 				if (!hides.empty())
 				{
@@ -617,7 +617,7 @@ public:
 	{
 		if (target.type == MessageTarget::TYPE_CHANNEL)
 		{
-			CUList unused;
+			User::List unused;
 			BuildChannelExempts(user, target.Get<Channel>(), SilenceEntry::SF_TAGMSG_CHANNEL, details.exemptions, unused);
 			return MOD_RES_PASSTHRU;
 		}

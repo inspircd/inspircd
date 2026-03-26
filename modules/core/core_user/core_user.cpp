@@ -266,7 +266,7 @@ public:
 		}
 	}
 
-	void OnUserPart(Membership* memb, std::string& partmessage, CUList& excepts) override
+	void OnUserPart(Membership* memb, std::string& partmessage, User::List& excepts) override
 	{
 		if (memb->GetRank() < VOICE_VALUE && ServerInstance->Config->RestrictBannedUsers != ServerConfig::BUT_NORMAL && memb->chan->CheckList(*cmdnick.banmode, memb->user))
 		{

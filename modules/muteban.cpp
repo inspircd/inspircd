@@ -79,7 +79,7 @@ public:
 		return HandleMessage(user, target, details.echo_original);
 	}
 
-	void OnUserPart(Membership* memb, std::string& partmessage, CUList& except_list) override
+	void OnUserPart(Membership* memb, std::string& partmessage, User::List& except_list) override
 	{
 		auto* luser = memb->user->AsLocal();
 		if (!luser)

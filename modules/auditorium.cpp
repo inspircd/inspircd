@@ -135,8 +135,8 @@ public:
 		return MOD_RES_DENY;
 	}
 
-	/** Build CUList for showing this join/part/kick */
-	void BuildExcept(Membership* memb, CUList& excepts)
+	/** Build User::List for showing this join/part/kick */
+	void BuildExcept(Membership* memb, User::List& excepts)
 	{
 		if (IsVisible(memb))
 			return;
@@ -148,12 +148,12 @@ public:
 		}
 	}
 
-	void OnUserPart(Membership* memb, std::string& partmessage, CUList& excepts) override
+	void OnUserPart(Membership* memb, std::string& partmessage, User::List& excepts) override
 	{
 		BuildExcept(memb, excepts);
 	}
 
-	void OnUserKick(User* source, Membership* memb, const std::string& reason, CUList& excepts) override
+	void OnUserKick(User* source, Membership* memb, const std::string& reason, User::List& excepts) override
 	{
 		BuildExcept(memb, excepts);
 	}

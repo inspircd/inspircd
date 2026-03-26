@@ -31,7 +31,7 @@ private:
 	ExtBan::Acting extban;
 	SimpleChannelMode mode;
 
-	ModResult HandleMessage(User* user, MessageTarget& target, CUList& exemptions)
+	ModResult HandleMessage(User* user, MessageTarget& target, User::List& exemptions)
 	{
 		// We only handle messages from local users.
 		if (!user->IsLocal())
