@@ -19,7 +19,7 @@
 
 #pragma once
 
-typedef int LDAPQuery;
+using LDAPQuery = int;
 
 // XXX: This should be using ModuleException.
 class LDAPException final
@@ -46,7 +46,7 @@ struct LDAPModification final
 	std::vector<std::string> values;
 };
 
-typedef std::vector<LDAPModification> LDAPMods;
+using LDAPMods = std::vector<LDAPModification>;
 
 struct LDAPAttributes final
 	: public std::map<std::string, std::vector<std::string>>

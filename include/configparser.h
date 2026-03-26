@@ -22,7 +22,7 @@
 
 #pragma once
 
-typedef std::unique_ptr<FILE, int(*)(FILE*)> FilePtr;
+using FilePtr = std::unique_ptr<FILE, int(*)(FILE*)>;
 
 struct ParseStack final
 {

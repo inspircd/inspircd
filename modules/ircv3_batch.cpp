@@ -62,7 +62,7 @@ struct IRCv3::Batch::BatchInfo final
 class IRCv3::Batch::ManagerImpl final
 	: public Manager
 {
-	typedef std::vector<Batch*> BatchList;
+	using BatchList = std::vector<Batch*>;
 
 	Cap::Capability cap;
 	ClientProtocol::EventProvider protoevprov;

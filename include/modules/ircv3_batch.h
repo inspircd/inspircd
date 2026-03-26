@@ -26,7 +26,7 @@ namespace IRCv3
 {
 	namespace Batch
 	{
-		typedef uint64_t RefTag;
+		using RefTag = uint64_t;
 		class Manager;
 		class ManagerImpl;
 		class Batch;

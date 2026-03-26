@@ -160,7 +160,7 @@ class DataKeeper final
 	{
 		/** Type of data stored for each member who has any affected modes or extensions set
 		 */
-		typedef OwnedModesExts MemberData;
+		using MemberData = OwnedModesExts;
 
 		/** List of data (modes and extensions) about each member
 		 */

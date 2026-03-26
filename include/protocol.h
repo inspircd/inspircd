@@ -30,7 +30,7 @@ class User;
 class CoreExport ProtocolInterface
 {
 public:
-	typedef std::vector<Server*> ServerList;
+	using ServerList = std::vector<Server*>;
 
 	virtual ~ProtocolInterface() = default;
 

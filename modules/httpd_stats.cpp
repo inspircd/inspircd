@@ -413,7 +413,7 @@ namespace Stats
 		else
 			orderby = OB_NONE;
 
-		typedef std::list<User*> NewUserList;
+		using NewUserList = std::list<User*>;
 		NewUserList user_list;
 		for (const auto& [_, u] : ServerInstance->Users.GetUsers())
 		{

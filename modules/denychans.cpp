@@ -48,8 +48,8 @@ struct BadChannel final
 	}
 };
 
-typedef std::vector<BadChannel> BadChannels;
-typedef std::vector<std::string> GoodChannels;
+using BadChannels = std::vector<BadChannel>;
+using GoodChannels = std::vector<std::string>;
 
 class ModuleDenyChannels final
 	: public Module

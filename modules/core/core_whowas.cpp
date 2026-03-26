@@ -81,7 +81,7 @@ namespace WhoWas
 		: public insp::intrusive_list_node<Nick>
 	{
 		/** A group of users related by nickname */
-		typedef std::deque<Entry*> List;
+		using List = std::deque<Entry*>;
 
 		/** Container where each element has information about one occurrence of this nick */
 		List entries;
@@ -146,7 +146,7 @@ namespace WhoWas
 
 	private:
 		/** Order in which the users were added into the map, used to remove oldest nick */
-		typedef insp::intrusive_list_tail<Nick> FIFO;
+		using FIFO = insp::intrusive_list_tail<Nick>;
 
 		/** Sets of users in the whowas system */
 		using whowas_users = insp::casemapped_unordered_map<WhoWas::Nick*>;

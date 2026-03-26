@@ -1067,7 +1067,7 @@ GnuTLS::Profile& GnuTLSIOHook::GetProfile()
 class ModuleSSLGnuTLS final
 	: public Module
 {
-	typedef std::vector<std::shared_ptr<GnuTLSIOHookProvider>> ProfileList;
+	using ProfileList = std::vector<std::shared_ptr<GnuTLSIOHookProvider>>;
 
 	// First member of the class, gets constructed first and destructed last
 	GnuTLS::Init libinit;

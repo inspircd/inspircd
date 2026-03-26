@@ -124,9 +124,9 @@ struct ResultQueueItem final
 	}
 };
 
-typedef insp::flat_map<std::string, SQLConnection*> ConnMap;
-typedef std::deque<QueryQueueItem> QueryQueue;
-typedef std::deque<ResultQueueItem> ResultQueue;
+using ConnMap = insp::flat_map<std::string, SQLConnection*>;
+using QueryQueue = std::deque<QueryQueueItem>;
+using ResultQueue = std::deque<ResultQueueItem>;
 
 /** MySQL module
  *  */

@@ -31,10 +31,10 @@ namespace Cloak
 	struct Info;
 
 	/** Encapsulates a list of cloaks. */
-	typedef std::vector<Info> List;
+	using List = std::vector<Info>;
 
 	/** A shared pointer to a cloak method. */
-	typedef std::shared_ptr<Method> MethodPtr;
+	using MethodPtr = std::shared_ptr<Method>;
 
 	/** Takes a hostname and retrieves the part which should be visible.
 	 *

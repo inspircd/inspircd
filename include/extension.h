@@ -299,7 +299,7 @@ class ListExtItem
 {
 public:
 	/** The underlying list type. */
-	typedef Container List;
+	using List = Container;
 
 	/** Initializes an instance of the ListExtItem class.
 	 * @param owner The module which created the extension.

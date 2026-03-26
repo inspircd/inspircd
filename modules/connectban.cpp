@@ -37,7 +37,7 @@ class ModuleConnectBan final
 	, public WebIRC::EventListener
 {
 private:
-	typedef std::map<irc::sockets::cidr_mask, unsigned int> ConnectMap;
+	using ConnectMap = std::map<irc::sockets::cidr_mask, unsigned int>;
 
 	ConnectMap connects;
 	unsigned long threshold;

@@ -356,7 +356,7 @@ private:
 	}
 
 public:
-	typedef std::vector<LDAPRequest*> query_queue;
+	using query_queue = std::vector<LDAPRequest*>;
 	query_queue queries, results;
 	std::mutex process_mutex; /* held when processing requests not in either queue */
 
@@ -608,7 +608,7 @@ public:
 class ModuleLDAP final
 	: public Module
 {
-	typedef insp::flat_map<std::string, LDAPService*> ServiceMap;
+	using ServiceMap = insp::flat_map<std::string, LDAPService*>;
 	ServiceMap LDAPServices;
 
 public:

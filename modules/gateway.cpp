@@ -36,7 +36,7 @@
 #include "modules/whois.h"
 
 // One or more hostmask globs or CIDR ranges.
-typedef std::vector<std::string> MaskList;
+using MaskList = std::vector<std::string>;
 
 // Encapsulates information about a username gateway.
 class UserHost final

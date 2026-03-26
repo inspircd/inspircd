@@ -162,7 +162,7 @@ namespace Percent
 namespace Template
 {
 	/** A mapping of variable names to their values. */
-	typedef insp::flat_map<std::string, std::string> VariableMap;
+	using VariableMap = insp::flat_map<std::string, std::string>;
 
 	/** Replaces template variables like %foo% within a string.
 	 * @param str The string to template from.

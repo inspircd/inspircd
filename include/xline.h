@@ -32,11 +32,11 @@ namespace Stats
 
 /** Contains a username and hostname split into two strings
  */
-typedef std::pair<std::string, std::string> UserHostPair;
+using UserHostPair = std::pair<std::string, std::string>;
 
 /** A map of xline factories
  */
-typedef std::map<std::string, XLineFactory*> XLineFactMap;
+using XLineFactMap = std::map<std::string, XLineFactory*>;
 
 /** A map of XLines indexed by string
  */
@@ -44,15 +44,15 @@ using XLineLookup = insp::casemapped_map<XLine*>;
 
 /** A map of XLineLookup maps indexed by string
  */
-typedef std::map<std::string, XLineLookup > XLineContainer;
+using XLineContainer = std::map<std::string, XLineLookup >;
 
 /** An iterator in an XLineContainer
  */
-typedef XLineContainer::iterator ContainerIter;
+using ContainerIter = XLineContainer::iterator;
 
 /** An iterator in an XLineLookup
  */
-typedef XLineLookup::iterator LookupIter;
+using LookupIter = XLineLookup::iterator;
 
 /** XLine is the base class for ban lines such as G-lines and Z-lines.
  * Modules may derive from this, and their xlines will automatically be

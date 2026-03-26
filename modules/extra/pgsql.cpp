@@ -56,7 +56,7 @@
 class SQLConn;
 class ModulePgSQL;
 
-typedef insp::flat_map<std::string, SQLConn*> ConnMap;
+using ConnMap = insp::flat_map<std::string, SQLConn*>;
 
 enum SQLstatus
 {

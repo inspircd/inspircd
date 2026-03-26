@@ -43,7 +43,7 @@ public:
 	Channel* chan;
 };
 
-typedef std::vector<TimedBan> timedbans;
+using timedbans = std::vector<TimedBan>;
 timedbans TimedBanList;
 
 class CommandTban final

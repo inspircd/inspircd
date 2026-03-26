@@ -31,13 +31,13 @@ namespace Regex
 	template<typename> class SimpleEngine;
 
 	/** A list of matches that were captured by index. */
-	typedef std::vector<std::string> Captures;
+	using Captures = std::vector<std::string>;
 
 	/** A list of matches that were captured by name. */
-	typedef insp::flat_map<std::string, std::string> NamedCaptures;
+	using NamedCaptures = insp::flat_map<std::string, std::string>;
 
 	/** A shared pointer to a regex pattern. */
-	typedef std::shared_ptr<Pattern> PatternPtr;
+	using PatternPtr = std::shared_ptr<Pattern>;
 
 	/** The options to use when matching a pattern. */
 	enum PatternOptions

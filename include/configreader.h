@@ -404,16 +404,16 @@ public:
 	};
 
 	/** Holds the connect classes from the server config. */
-	typedef std::vector<std::shared_ptr<ConnectClass>> ClassVector;
+	using ClassVector = std::vector<std::shared_ptr<ConnectClass>>;
 
 	/** Holds the oper accounts from the server config. */
-	typedef insp::flat_map<std::string, std::shared_ptr<OperAccount>> OperAccountMap;
+	using OperAccountMap = insp::flat_map<std::string, std::shared_ptr<OperAccount>>;
 
 	/** Holds the oper types from the server config. */
-	typedef insp::flat_map<std::string, std::shared_ptr<OperType>> OperTypeMap;
+	using OperTypeMap = insp::flat_map<std::string, std::shared_ptr<OperType>>;
 
 	/** Holds iterators to a subsection of the server config map. */
-	typedef insp::iterator_range<TagMap::const_iterator> TagList;
+	using TagList = insp::iterator_range<TagMap::const_iterator>;
 
 	/** The connect classes from the server config. */
 	ClassVector Classes;

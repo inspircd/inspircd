@@ -70,7 +70,7 @@ struct Modes::Change final
 class Modes::ChangeList final
 {
 public:
-	typedef std::vector<Change> List;
+	using List = std::vector<Change>;
 
 	/** Add a new mode to be changed to this ChangeList
 	 * @param change Mode change to add

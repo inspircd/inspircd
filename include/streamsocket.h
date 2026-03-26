@@ -123,15 +123,15 @@ public:
 	public:
 		/** One element of the queue, a continuous buffer
 		 */
-		typedef std::string Element;
+		using Element = std::string;
 
 		/** Sequence container of buffers in the queue
 		 */
-		typedef std::deque<Element> Container;
+		using Container = std::deque<Element>;
 
 		/** Container iterator
 		 */
-		typedef Container::const_iterator const_iterator;
+		using const_iterator = Container::const_iterator;
 
 		/** Return whether the queue is empty
 		 * @return True if the queue is empty, false otherwise

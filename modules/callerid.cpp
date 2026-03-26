@@ -49,8 +49,8 @@ enum
 class callerid_data final
 {
 public:
-	typedef insp::flat_set<User*> UserSet;
-	typedef std::vector<callerid_data*> CallerIdDataSet;
+	using UserSet = insp::flat_set<User*>;
+	using CallerIdDataSet = std::vector<callerid_data*>;
 
 	time_t lastnotify = 0;
 
@@ -162,7 +162,7 @@ class CommandAccept final
 {
 	/** Pair: first is the target, second is true to add, false to remove
 	 */
-	typedef std::pair<User*, bool> ACCEPTAction;
+	using ACCEPTAction = std::pair<User*, bool>;
 
 	static ACCEPTAction GetTargetAndAction(const std::string& token, User* cmdfrom = nullptr)
 	{

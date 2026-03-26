@@ -39,7 +39,7 @@ namespace ReloadModule
 			{
 			}
 		};
-		typedef std::vector<Data> List;
+		using List = std::vector<Data>;
 		List list;
 
 	public:

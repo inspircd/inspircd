@@ -34,8 +34,8 @@
 # include <sys/un.h>
 #else
 # include <afunix.h>
-typedef USHORT in_port_t;
-typedef ADDRESS_FAMILY sa_family_t;
+using in_port_t = USHORT;
+using sa_family_t = ADDRESS_FAMILY;
 #endif
 
 #include <cerrno>
@@ -185,7 +185,7 @@ struct CoreExport FailedPort final
 };
 
 /** A list of failed port bindings, used for informational purposes on startup */
-typedef std::vector<FailedPort> FailedPortList;
+using FailedPortList = std::vector<FailedPort>;
 
 #include "socketengine.h"
 
@@ -210,7 +210,7 @@ public:
 		}
 	};
 
-	typedef std::array<IOHookProvRef, 2> IOHookProvList;
+	using IOHookProvList = std::array<IOHookProvRef, 2>;
 
 	/** IOHook providers for handling connections on this socket,
 	 * may be empty.

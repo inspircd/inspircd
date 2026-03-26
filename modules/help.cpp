@@ -34,7 +34,7 @@ enum
 	RPL_ENDOFHELP = 706
 };
 
-typedef std::vector<std::string> HelpMessage;
+using HelpMessage = std::vector<std::string>;
 
 struct HelpTopic final
 {

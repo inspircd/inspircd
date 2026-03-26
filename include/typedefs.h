@@ -52,9 +52,9 @@ namespace ClientProtocol
 	class MessageTagProvider;
 	class Serializer;
 
-	typedef std::vector<Message*> MessageList;
-	typedef std::vector<std::string> ParamList;
-	typedef std::string SerializedMessage;
+	using MessageList = std::vector<Message*>;
+	using ParamList = std::vector<std::string>;
+	using SerializedMessage = std::string;
 
 	struct CoreExport MessageTagData final
 	{
@@ -69,13 +69,13 @@ namespace ClientProtocol
 	 * Sorted in descending order to ensure tag names beginning with symbols (such as '+') come later when iterating
 	 * the container than tags with a normal name.
 	 */
-	typedef insp::flat_map<std::string, MessageTagData, std::greater<>> TagMap;
+	using TagMap = insp::flat_map<std::string, MessageTagData, std::greater<>>;
 }
 
 #include "base.h"
 
 /** Generic user list, used for exceptions */
-typedef std::set<User*> CUList;
+using CUList = std::set<User*>;
 
 /** A bitset of characters which are enabled/set. */
-typedef std::bitset<UCHAR_MAX + 1> CharState;
+using CharState = std::bitset<UCHAR_MAX + 1>;

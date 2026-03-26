@@ -414,13 +414,13 @@ public:
 
 	/** List of Memberships for this user
 	 */
-	typedef insp::intrusive_list<Membership> ChanList;
+	using ChanList = insp::intrusive_list<Membership>;
 
 	/** A list of memberships to consider when discovering the neighbors of a user. */
-	typedef std::vector<Membership*> NeighborList;
+	using NeighborList = std::vector<Membership*>;
 
 	/** A list of exceptions to the memberships that are considered when discovering the neighbours of a user. */
-	typedef std::unordered_map<User*, bool> NeighborExceptions;
+	using NeighborExceptions = std::unordered_map<User*, bool>;
 
 	/** The time at which this user's nickname was last changed. */
 	time_t nickchanged;

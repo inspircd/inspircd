@@ -72,7 +72,7 @@ public:
 		T* operator*() const { return curr; }
 	};
 
-	typedef iterator const_iterator;
+	using const_iterator = iterator;
 
 	bool empty() const
 	{

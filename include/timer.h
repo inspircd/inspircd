@@ -120,7 +120,7 @@ public:
  */
 class CoreExport TimerManager final
 {
-	typedef std::multimap<time_t, Timer*> TimerMap;
+	using TimerMap = std::multimap<time_t, Timer*>;
 
 	/** A list of all pending timers
 	 */

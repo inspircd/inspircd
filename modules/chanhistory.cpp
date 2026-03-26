@@ -29,7 +29,7 @@
 #include "modules/server.h"
 #include "numerichelper.h"
 
-typedef insp::flat_map<std::string, std::string> HistoryTagMap;
+using HistoryTagMap = insp::flat_map<std::string, std::string>;
 
 struct HistoryItem final
 {

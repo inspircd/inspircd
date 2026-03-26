@@ -153,9 +153,9 @@ public:
 	}
 };
 
-typedef std::vector<std::shared_ptr<DNSBLEntry>> DNSBLEntries;
-typedef SimpleExtItem<DNSBLMask> MaskExtItem;
-typedef ListExtItem<std::vector<std::string>> MarkExtItem;
+using DNSBLEntries = std::vector<std::shared_ptr<DNSBLEntry>>;
+using MaskExtItem = SimpleExtItem<DNSBLMask>;
+using MarkExtItem = ListExtItem<std::vector<std::string>>;
 
 // Data which is shared with DNS lookup classes.
 class SharedData final

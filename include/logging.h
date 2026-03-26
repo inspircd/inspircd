@@ -31,7 +31,7 @@ namespace Log
 	class Manager;
 
 	/** A shared pointer to a log method. */
-	typedef std::shared_ptr<Method> MethodPtr;
+	using MethodPtr = std::shared_ptr<Method>;
 
 	/** Levels at which messages can be logged. */
 	enum class Level

@@ -34,8 +34,8 @@ namespace IRCv3::Monitor
 	class Manager;
 	class ManagerInternal;
 
-	typedef std::vector<Entry*> WatchedList;
-	typedef std::vector<LocalUser*> WatcherList;
+	using WatchedList = std::vector<Entry*>;
+	using WatcherList = std::vector<LocalUser*>;
 }
 
 struct IRCv3::Monitor::Entry final
@@ -261,7 +261,7 @@ enum
 class CommandMonitor final
 	: public SplitCommand
 {
-	typedef Numeric::Builder<> ReplyBuilder;
+	using ReplyBuilder = Numeric::Builder<>;
 	// Additional penalty for the /MONITOR L and /MONITOR S commands that request a list from the server
 	static constexpr unsigned int ListPenalty = 3000;
 

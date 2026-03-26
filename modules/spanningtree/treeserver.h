@@ -80,7 +80,7 @@ class TreeServer final
 	void RemoveHash();
 
 public:
-	typedef std::vector<TreeServer*> ChildServers;
+	using ChildServers = std::vector<TreeServer*>;
 	FakeUser* const ServerUser;		/* User representing this server */
 	const time_t age;
 

@@ -49,7 +49,7 @@ public:
 		bool operator()(ModuleEventListener* lhs, ModuleEventListener* rhs) const;
 	};
 
-	typedef insp::flat_multiset<ModuleEventListener*, Comp, ElementComp> SubscriberList;
+	using SubscriberList = insp::flat_multiset<ModuleEventListener*, Comp, ElementComp>;
 
 	/** Constructor
 	 * @param mod Module providing the event(s)

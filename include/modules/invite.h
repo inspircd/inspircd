@@ -43,7 +43,7 @@ namespace Invite
 		ANNOUNCE_DYNAMIC
 	};
 
-	typedef insp::intrusive_list<Invite, LocalUser> List;
+	using List = insp::intrusive_list<Invite, LocalUser>;
 }
 
 class Invite::APIBase

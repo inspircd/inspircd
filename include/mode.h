@@ -92,10 +92,10 @@ class CoreExport ModeHandler
 {
 public:
 	/** The underlying type of a mode rank. */
-	typedef unsigned long Rank;
+	using Rank = unsigned long;
 
 	/** The underlying type of a mode id. */
-	typedef size_t Id;
+	using Id = size_t;
 
 	enum Class
 	{
@@ -569,12 +569,12 @@ public:
 	using ModeHandlerMap = insp::casemapped_unordered_map<ModeHandler*>;
 
 	/** Type of the container that contains whether a mode is set. */
-	typedef std::bitset<MODEID_MAX> ModeStatus;
+	using ModeStatus = std::bitset<MODEID_MAX>;
 
 private:
 	/** Type of the container that maps mode names to ModeWatchers
 	 */
-	typedef insp::flat_multimap<std::string, ModeWatcher*> ModeWatcherMap;
+	using ModeWatcherMap = insp::flat_multimap<std::string, ModeWatcher*>;
 
 	/** Last item in the ModeType enum
 	 */
@@ -629,10 +629,10 @@ private:
 	ModeHandler::Id AllocateModeId(ModeHandler* mh);
 
 public:
-	typedef std::vector<ListModeBase*> ListModeList;
-	typedef std::vector<PrefixMode*> PrefixModeList;
+	using ListModeList = std::vector<ListModeBase*>;
+	using PrefixModeList = std::vector<PrefixMode*>;
 
-	typedef unsigned int ModeProcessFlag;
+	using ModeProcessFlag = unsigned int;
 	enum ModeProcessFlags
 	{
 		/** If only this flag is specified, the mode change will be global

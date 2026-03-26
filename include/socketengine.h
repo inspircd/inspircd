@@ -297,9 +297,9 @@ private:
 
 public:
 #ifndef _WIN32
-	typedef iovec IOVector;
+	using IOVector = iovec;
 #else
-	typedef WindowsIOVec IOVector;
+	using IOVector = WindowsIOVec;
 #endif
 
 	/** Constructor.

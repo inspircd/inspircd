@@ -44,7 +44,7 @@ class CoreExport Channel final
 public:
 	/** A map of Memberships on a channel keyed by User pointers
 	 */
-	typedef std::unordered_map<User*, insp::aligned_storage<Membership>> MemberMap;
+	using MemberMap = std::unordered_map<User*, insp::aligned_storage<Membership>>;
 
 private:
 	/** Modes for the channel.

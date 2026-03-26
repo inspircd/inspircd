@@ -26,7 +26,7 @@
 #include "modules/server.h"
 #include "utility/map.h"
 
-typedef std::vector<Cloak::MethodPtr> CloakMethodList;
+using CloakMethodList = std::vector<Cloak::MethodPtr>;
 
 class CommandCloak final
 	: public SplitCommand

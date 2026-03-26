@@ -101,11 +101,11 @@ public:
 	}
 };
 
-typedef std::vector<User *> userlist;
+using userlist = std::vector<User *>;
 userlist ul;
-typedef std::vector<DCCAllow> dccallowlist;
+using dccallowlist = std::vector<DCCAllow>;
 dccallowlist* dl;
-typedef std::vector<BannedFileList> bannedfilelist;
+using bannedfilelist = std::vector<BannedFileList>;
 bannedfilelist bfl;
 
 class DCCAllowExt final

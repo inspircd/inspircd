@@ -243,7 +243,7 @@ public:
 	using LinkDataDiff = insp::casemapped_map<std::pair<std::optional<std::string>, std::optional<std::string>>>;
 
 	/** A list of modules. */
-	typedef std::vector<Module*> List;
+	using List = std::vector<Module*>;
 
 	/** Reference to the dynamic library. */
 	DLLManager* ModuleDLL = nullptr;

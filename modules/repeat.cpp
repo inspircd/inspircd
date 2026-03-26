@@ -99,7 +99,7 @@ private:
 		}
 	};
 
-	typedef std::deque<RepeatItem> RepeatItemList;
+	using RepeatItemList = std::deque<RepeatItem>;
 
 	struct MemberInfo final
 	{

@@ -28,7 +28,7 @@ namespace Cap
 	static constexpr intptr_t CAP_302_BIT = (intptr_t)1 << MAX_CAPS;
 	static constexpr unsigned int MAX_VALUE_LENGTH = 100;
 
-	typedef intptr_t Ext;
+	using Ext = intptr_t;
 	class ExtItem : public IntExtItem
 	{
 	public:
@@ -118,7 +118,7 @@ namespace Cap
 	 */
 	class Capability : public ServiceProvider, private dynamic_reference_base::CaptureHook
 	{
-		typedef size_t Bit;
+		using Bit = size_t;
 
 		/** Bit allocated to this cap, undefined if the cap is unregistered
 		 */

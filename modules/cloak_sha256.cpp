@@ -36,7 +36,7 @@
 #ifdef HAS_LIBPSL
 # include <libpsl.h>
 #else
-typedef void psl_ctx_t;
+using psl_ctx_t = void;
 #endif
 
 #include "inspircd.h"

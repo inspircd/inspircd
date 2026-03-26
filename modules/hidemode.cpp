@@ -27,7 +27,7 @@ namespace
 {
 class Settings final
 {
-	typedef insp::flat_map<std::string, ModeHandler::Rank> RanksToSeeMap;
+	using RanksToSeeMap = insp::flat_map<std::string, ModeHandler::Rank>;
 	RanksToSeeMap rankstosee;
 
 public:
@@ -63,7 +63,7 @@ public:
 class ModeHook final
 	: public ClientProtocol::EventHook
 {
-	typedef insp::flat_map<ModeHandler::Rank, const ClientProtocol::MessageList*> FilteredModeMap;
+	using FilteredModeMap = insp::flat_map<ModeHandler::Rank, const ClientProtocol::MessageList*>;
 
 	std::vector<Modes::ChangeList> modechangelists;
 	std::list<ClientProtocol::Messages::Mode> filteredmodelist;

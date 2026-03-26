@@ -76,7 +76,7 @@ namespace DNS
 		ERROR_INVALIDTYPE
 	};
 
-	typedef uint16_t RequestId;
+	using RequestId = uint16_t;
 
 	const int PORT = 53;
 

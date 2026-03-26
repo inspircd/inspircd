@@ -32,7 +32,7 @@ enum
 };
 
 // Holds a list of disabled commands.
-typedef std::vector<std::string> CommandList;
+using CommandList = std::vector<std::string>;
 
 class ModuleDisable final
 	: public Module

@@ -290,7 +290,7 @@ public:
 		bool IsOwned() const { return owned; }
 	};
 
-	typedef std::vector<Param> ParamList;
+	using ParamList = std::vector<Param>;
 
 	/** Escapes a value to the tag format.
 	 * @param value The value to escape.
@@ -303,7 +303,7 @@ public:
 	static std::string UnescapeTag(const std::string& value);
 
 private:
-	typedef std::vector<std::pair<SerializedInfo, SerializedMessage>> SerializedList;
+	using SerializedList = std::vector<std::pair<SerializedInfo, SerializedMessage>>;
 
 	ParamList params;
 	TagMap tags;

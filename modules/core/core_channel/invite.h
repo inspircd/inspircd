@@ -28,7 +28,7 @@ namespace Invite
 	template<typename T>
 	struct Store final
 	{
-		typedef insp::intrusive_list<Invite, T> List;
+		using List = insp::intrusive_list<Invite, T>;
 
 		/** List of pending Invites
 		 */

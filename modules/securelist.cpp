@@ -30,7 +30,7 @@
 #include "modules/isupport.h"
 #include "timeutils.h"
 
-typedef std::vector<std::string> AllowList;
+using AllowList = std::vector<std::string>;
 
 class ModuleSecureList final
 	: public Module

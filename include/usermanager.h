@@ -40,18 +40,18 @@ public:
 
 	/** Container that maps IP addresses to clone counts
 	 */
-	typedef std::map<irc::sockets::cidr_mask, CloneCounts> CloneMap;
+	using CloneMap = std::map<irc::sockets::cidr_mask, CloneCounts>;
 
 	/** Sequence container in which each element is a User*
 	 */
-	typedef std::vector<User*> OperList;
+	using OperList = std::vector<User*>;
 
 	/** A list containing users who are on a services server. */
-	typedef std::vector<User*> ServiceList;
+	using ServiceList = std::vector<User*>;
 
 	/** A list holding local users
 	*/
-	typedef insp::intrusive_list<LocalUser> LocalList;
+	using LocalList = insp::intrusive_list<LocalUser>;
 
 private:
 	/** Map of IP addresses for clone counting

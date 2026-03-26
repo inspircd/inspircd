@@ -44,7 +44,7 @@ class KickRejoinData final
 		}
 	};
 
-	typedef std::vector<KickedUser> KickedList;
+	using KickedList = std::vector<KickedUser>;
 
 	mutable KickedList kicked;
 

@@ -128,7 +128,7 @@ protected:
 
 public:
 	/** A mapping of extban letters to their associated object. */
-	typedef std::unordered_map<ExtBan::Letter, ExtBan::Base*> LetterMap;
+	using LetterMap = std::unordered_map<ExtBan::Letter, ExtBan::Base*>;
 
 	/** A mapping of extban names to their associated objects. */
 	using NameMap = insp::casemapped_unordered_map<ExtBan::Base*>;

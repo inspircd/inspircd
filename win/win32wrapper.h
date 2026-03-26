@@ -45,7 +45,7 @@
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 
-typedef SSIZE_T ssize_t;
+using ssize_t = SSIZE_T;
 
 // warning: 'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'
 // Normally, this is a huge problem, but due to our new/delete remap, we can ignore it.

@@ -208,7 +208,7 @@ void ServerConfig::CrossCheckOperBlocks()
 
 void ServerConfig::CrossCheckConnectBlocks(const std::unique_ptr<ServerConfig>& current)
 {
-	typedef std::map<std::pair<std::string, ConnectClass::Type>, std::shared_ptr<ConnectClass>> ClassMap;
+	using ClassMap = std::map<std::pair<std::string, ConnectClass::Type>, std::shared_ptr<ConnectClass>>;
 	ClassMap oldBlocksByMask;
 	if (current)
 	{

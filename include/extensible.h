@@ -44,7 +44,7 @@ class CoreExport Extensible
 {
 public:
 	/** The container which extension values are stored in. */
-	typedef insp::flat_map<ExtensionItem*, void*> ExtensibleStore;
+	using ExtensibleStore = insp::flat_map<ExtensionItem*, void*>;
 
 	/** Allows extensions to access the extension store. */
 	friend class ExtensionItem;

@@ -46,7 +46,7 @@ public:
 
 	/** Items stored in the channel's list
 	 */
-	typedef std::vector<ListItem> ModeList;
+	using ModeList = std::vector<ListItem>;
 
 private:
 	class ChanData final
@@ -73,7 +73,7 @@ private:
 
 	/** Max items per channel by name
 	 */
-	typedef std::vector<ListLimit> limitlist;
+	using limitlist = std::vector<ListLimit>;
 
 	/** The default maximum list size. */
 	static constexpr unsigned int DEFAULT_LIST_SIZE = 100;

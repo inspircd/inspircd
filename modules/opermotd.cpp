@@ -36,7 +36,7 @@ enum
 	RPL_ENDOFOMOTD = 722
 };
 
-typedef insp::flat_map<std::string, std::vector<std::string>> MOTDCache;
+using MOTDCache = insp::flat_map<std::string, std::vector<std::string>>;
 
 class CommandOperMOTD final
 	: public Command

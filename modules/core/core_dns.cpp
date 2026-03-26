@@ -383,7 +383,7 @@ class MyManager final
 	, public Timer
 	, public EventHandler
 {
-	typedef std::unordered_map<DNS::Question, DNS::Query, DNS::Question::hash> cache_map;
+	using cache_map = std::unordered_map<DNS::Question, DNS::Query, DNS::Question::hash>;
 	cache_map cache;
 
 	irc::sockets::sockaddrs myserver;

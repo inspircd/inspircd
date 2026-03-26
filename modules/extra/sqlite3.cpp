@@ -38,7 +38,7 @@
 #include <sqlite3.h>
 
 class SQLConn;
-typedef insp::flat_map<std::string, SQLConn*> ConnMap;
+using ConnMap = insp::flat_map<std::string, SQLConn*>;
 
 class SQLite3Result final
 	: public SQL::Result

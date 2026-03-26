@@ -72,7 +72,7 @@ public:
 	}
 };
 
-typedef insp::flat_map<std::string, Geolocation::Location*> LocationMap;
+using LocationMap = insp::flat_map<std::string, Geolocation::Location*>;
 
 class GeolocationAPIImpl final
 	: public Geolocation::APIBase

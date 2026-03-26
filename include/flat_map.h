@@ -30,8 +30,8 @@ template <typename T, typename Comp>
 class map_pair_compare final
 	: public Comp
 {
-	typedef T value_type;
-	typedef typename value_type::first_type key_type;
+	using value_type = T;
+	using key_type = typename value_type::first_type;
 
 public:
 	bool operator()(const value_type& x, const value_type& y) const
@@ -65,22 +65,22 @@ template <typename T, typename Comp, typename Key = T, typename ElementComp = Co
 class flat_map_base
 {
 protected:
-	typedef std::vector<T> storage_type;
+	using storage_type = std::vector<T>;
 	storage_type vect;
 
 public:
-	typedef typename storage_type::iterator iterator;
-	typedef typename storage_type::const_iterator const_iterator;
-	typedef typename storage_type::reverse_iterator reverse_iterator;
-	typedef typename storage_type::const_reverse_iterator const_reverse_iterator;
+	using iterator = typename storage_type::iterator;
+	using const_iterator = typename storage_type::const_iterator;
+	using reverse_iterator = typename storage_type::reverse_iterator;
+	using const_reverse_iterator = typename storage_type::const_reverse_iterator;
 
-	typedef typename storage_type::size_type size_type;
-	typedef typename storage_type::difference_type difference_type;
-	typedef Key key_type;
-	typedef T value_type;
+	using size_type = typename storage_type::size_type;
+	using difference_type = typename storage_type::difference_type;
+	using key_type = Key;
+	using value_type = T;
 
-	typedef Comp key_compare;
-	typedef ElementComp value_compare;
+	using key_compare = Comp;
+	using value_compare = ElementComp;
 
 	flat_map_base() = default;
 
@@ -205,11 +205,11 @@ template <typename T, typename Comp = std::less<T>, typename ElementComp = Comp>
 class flat_set
 	: public detail::flat_map_base<T, Comp, T, ElementComp>
 {
-	typedef detail::flat_map_base<T, Comp, T, ElementComp> base_type;
+	using base_type = detail::flat_map_base<T, Comp, T, ElementComp>;
 
 public:
-	typedef typename base_type::iterator iterator;
-	typedef typename base_type::value_type value_type;
+	using iterator = typename base_type::iterator;
+	using value_type = typename base_type::value_type;
 
 	flat_set() = default;
 
@@ -260,11 +260,11 @@ template <typename T, typename Comp = std::less<T>, typename ElementComp = Comp>
 class flat_multiset
 	: public detail::flat_map_base<T, Comp, T, ElementComp>
 {
-	typedef detail::flat_map_base<T, Comp, T, ElementComp> base_type;
+	using base_type = detail::flat_map_base<T, Comp, T, ElementComp>;
 
 public:
-	typedef typename base_type::iterator iterator;
-	typedef typename base_type::value_type value_type;
+	using iterator = typename base_type::iterator;
+	using value_type = typename base_type::value_type;
 
 	flat_multiset() = default;
 
@@ -315,14 +315,14 @@ template <typename T, typename U, typename Comp = std::less<T>, typename Element
 class flat_map
 	: public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp>>
 {
-	typedef detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp>> base_type;
+	using base_type = detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp>>;
 
 public:
-	typedef typename base_type::iterator iterator;
-	typedef typename base_type::key_type key_type;
-	typedef typename base_type::value_type value_type;
-	typedef U mapped_type;
-	typedef typename base_type::value_compare value_compare;
+	using iterator = typename base_type::iterator;
+	using key_type = typename base_type::key_type;
+	using value_type = typename base_type::value_type;
+	using mapped_type = U;
+	using value_compare = typename base_type::value_compare;
 
 	flat_map() = default;
 
@@ -383,13 +383,13 @@ template <typename T, typename U, typename Comp = std::less<T>, typename Element
 class flat_multimap
 	: public detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp>>
 {
-	typedef detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp>> base_type;
+	using base_type = detail::flat_map_base<std::pair<T, U>, Comp, T, detail::map_pair_compare<std::pair<T, U>, ElementComp>>;
 
 public:
-	typedef typename base_type::iterator iterator;
-	typedef typename base_type::value_type value_type;
-	typedef U mapped_type;
-	typedef typename base_type::value_compare value_compare;
+	using iterator = typename base_type::iterator;
+	using value_type = typename base_type::value_type;
+	using mapped_type = U;
+	using value_compare = typename base_type::value_compare;
 
 	flat_multimap() = default;
 

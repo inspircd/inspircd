@@ -38,7 +38,7 @@ class CoreExport Membership final
 public:
 	/** Type of the Membership id
 	 */
-	typedef uint64_t Id;
+	using Id = uint64_t;
 
 	/** User on the channel
 	 */

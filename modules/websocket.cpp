@@ -79,8 +79,8 @@ struct WebSocketConfig final
 		DM_TEXT
 	};
 
-	typedef std::vector<std::string> OriginList;
-	typedef std::vector<std::string> ProxyRanges;
+	using OriginList = std::vector<std::string>;
+	using ProxyRanges = std::vector<std::string>;
 
 	// The HTTP origins that can connect to the server.
 	OriginList allowedorigins;

@@ -30,16 +30,16 @@ namespace SQL
 	class Result;
 
 	/** A list of parameter replacement values. */
-	typedef std::vector<std::string> ParamList;
+	using ParamList = std::vector<std::string>;
 
 	/** A map of parameter replacement values. */
-	typedef std::map<std::string, std::string> ParamMap;
+	using ParamMap = std::map<std::string, std::string>;
 
 	/** A single SQL field. */
-	typedef std::optional<std::string> Field;
+	using Field = std::optional<std::string>;
 
 	/** A list of SQL fields from a specific row. */
-	typedef std::vector<Field> Row;
+	using Row = std::vector<Field>;
 
 	/** An enumeration of possible error codes. */
 	enum ErrorCode

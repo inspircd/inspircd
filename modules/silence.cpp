@@ -200,7 +200,7 @@ public:
 	}
 };
 
-typedef insp::flat_set<SilenceEntry> SilenceList;
+using SilenceList = insp::flat_set<SilenceEntry>;
 
 class SilenceExtItem final
 	: public SimpleExtItem<SilenceList>
