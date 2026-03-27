@@ -34,34 +34,6 @@
 #include "utility/uncopiable.h"
 #include "cull.h"
 
-/** The base class for inspircd classes that support reference counting.
- * Any objects that do not have a well-defined lifetime should inherit from
- * this, and should be assigned to a reference<type> object to establish their
- * lifetime.
- *
- * Reference objects should not hold circular references back to themselves,
- * even indirectly; this will cause a memory leak because the count will never
- * drop to zero.
- *
- * Using a normal pointer for the object is recommended if you can assure that
- * at least one reference<> will remain as long as that pointer is used; this
- * will avoid the slight overhead of changing the reference count.
- */
-class CoreExport refcountbase
-	: private insp::uncopiable
-{
-	mutable unsigned int refcount = 0;
-public:
-	refcountbase();
-	virtual ~refcountbase();
-	inline unsigned int GetReferenceCount() const { return refcount; }
-	static inline void* operator new(size_t, void* m) { return m; }
-	static void* operator new(size_t);
-	static void operator delete(void*);
-	inline void refcount_inc() const { refcount++; }
-	inline bool refcount_dec() const { refcount--; return !refcount; }
-};
-
 /** Base class for use count tracking. Uses reference<>, but does not
  * cause object deletion when the last user is removed.
  *
@@ -73,7 +45,6 @@ class CoreExport usecountbase
 	mutable unsigned int usecount = 0;
 public:
 	usecountbase() = default;
-	~usecountbase();
 	inline unsigned int GetUseCount() const { return usecount; }
 	inline void refcount_inc() const { usecount++; }
 	inline bool refcount_dec() const { usecount--; return false; }
