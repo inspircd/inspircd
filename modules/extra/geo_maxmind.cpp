@@ -34,45 +34,22 @@
 #include "modules/geolocation.h"
 
 class GeolocationExtItem final
-	: public ExtensionItem
+	: public SimpleExtItem<Geolocation::Location>
 {
 public:
-	GeolocationExtItem(Module* parent)
-		: ExtensionItem(parent, "geolocation", ExtensionType::USER)
+	GeolocationExtItem(Module* mod)
+		: SimpleExtItem<Geolocation::Location>(mod, "geolocation", ExtensionType::USER)
 	{
 	}
 
-	std::string ToHuman(const Extensible* container, void* item) const noexcept override
+	std::string ToHuman(const Extensible* container, const ExtensionPtr& item) const noexcept override
 	{
-		Geolocation::Location* location = static_cast<Geolocation::Location*>(item);
+		const auto& location = std::static_pointer_cast<Geolocation::Location>(item);
 		return location->GetName() + " [" + location->GetCode() + "]";
-	}
-
-	void Delete(Extensible* container, void* item) override
-	{
-		Geolocation::Location* old = static_cast<Geolocation::Location*>(item);
-		if (old)
-			old->refcount_dec();
-	}
-
-	Geolocation::Location* Get(const User* user) const
-	{
-		return static_cast<Geolocation::Location*>(GetRaw(user));
-	}
-
-	void Set(User* user, Geolocation::Location* value)
-	{
-		value->refcount_inc();
-		Delete(user, SetRaw(user, value));
-	}
-
-	void Unset(User* user)
-	{
-		Delete(user, UnsetRaw(user));
 	}
 };
 
-using LocationMap = insp::flat_map<std::string, Geolocation::Location*>;
+using LocationMap = insp::flat_map<std::string, std::weak_ptr<Geolocation::Location>>;
 
 class GeolocationAPIImpl final
 	: public Geolocation::APIBase
@@ -88,11 +65,11 @@ public:
 	{
 	}
 
-	Geolocation::Location* GetLocation(User* user) override
+	Geolocation::LocationPtr GetLocation(User* user) override
 	{
 		// If we have the location cached then use that instead.
-		Geolocation::Location* location = ext.Get(user);
-		if (location)
+		auto location = ext.GetPtr(user);
+		if (!location)
 			return location;
 
 		// Attempt to locate this user.
@@ -105,7 +82,7 @@ public:
 		return location;
 	}
 
-	Geolocation::Location* GetLocation(irc::sockets::sockaddrs& sa) override
+	Geolocation::LocationPtr GetLocation(irc::sockets::sockaddrs& sa) override
 	{
 		// Skip trying to look up a UNIX socket.
 		if (!sa.is_ip())
@@ -127,7 +104,11 @@ public:
 		const std::string code(country_code.utf8_string, country_code.data_size);
 		LocationMap::iterator liter = locations.find(code);
 		if (liter != locations.end())
-			return liter->second;
+		{
+			auto ptr = liter->second.lock();
+			if (ptr)
+				return ptr; // We have a country already.
+		}
 
 		// Attempt to retrieve the country name.
 		MMDB_entry_data_s country_name;
@@ -137,7 +118,7 @@ public:
 
 		// Create a Location object and cache it.
 		const std::string cname(country_name.utf8_string, country_name.data_size);
-		auto* location = new Geolocation::Location(code, cname);
+		auto location = std::make_shared<Geolocation::Location>(code, cname);
 		locations[code] = location;
 		return location;
 	}
@@ -192,20 +173,16 @@ public:
 	{
 		for (LocationMap::iterator iter = geoapi.locations.begin(); iter != geoapi.locations.end(); )
 		{
-			Geolocation::Location* location = iter->second;
-			if (location->GetUseCount())
+			auto location = iter->second.lock();
+			if (!location)
 			{
-				ServerInstance->Logs.Debug(MODNAME, "Preserving geolocation data for {} ({}) with use count {}... ",
-					location->GetName(), location->GetCode(), location->GetUseCount());
-				iter++;
-			}
-			else
-			{
-				ServerInstance->Logs.Debug(MODNAME, "Deleting unused geolocation data for {} ({})",
-					location->GetName(), location->GetCode());
-				delete location;
 				iter = geoapi.locations.erase(iter);
+				continue; // Entry expired.
 			}
+
+			ServerInstance->Logs.Debug(MODNAME, "Preserving geolocation data for {} ({}) with use count {}... ",
+				location->GetName(), location->GetCode(), location.use_count());
+			iter++;
 		}
 		geoapi.locations.shrink_to_fit();
 	}

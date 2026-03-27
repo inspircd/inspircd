@@ -46,7 +46,7 @@ public:
 
 		// If we can't find the location of this user then we can't assign
 		// them to a location-specific connect class.
-		Geolocation::Location* location = geoapi ? geoapi->GetLocation(user) : nullptr;
+		const auto location = geoapi ? geoapi->GetLocation(user) : nullptr;
 		const std::string code = location ? location->GetCode() : "XX";
 
 		StringSplitter codes(country);
@@ -78,14 +78,14 @@ public:
 			return MOD_RES_PASSTHRU;
 
 		// Counter for the number of users in each country.
-		std::map<Geolocation::Location*, size_t> counts;
+		std::map<Geolocation::LocationPtr, size_t> counts;
 
 		// Counter for the number of users in an unknown country.
 		size_t unknown = 0;
 
 		for (auto* user : ServerInstance->Users.GetLocalUsers())
 		{
-			Geolocation::Location* location = geoapi ? geoapi->GetLocation(user) : nullptr;
+			const auto location = geoapi ? geoapi->GetLocation(user) : nullptr;
 			if (location)
 				counts[location]++;
 			else

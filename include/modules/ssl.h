@@ -37,7 +37,6 @@
  * connected local users using SSLCertExt
  */
 class ssl_cert final
-	: public refcountbase
 {
 public:
 	std::string dn;
@@ -194,7 +193,7 @@ protected:
 
 	/** Peer TLS certificate, set by the TLS module
 	 */
-	reference<ssl_cert> certificate;
+	std::shared_ptr<ssl_cert> certificate;
 
 	/** The status of the TLS connection. */
 	Status status = STATUS_NONE;
@@ -246,7 +245,7 @@ public:
 	 * Get the certificate sent by this peer
 	 * @return The TLS certificate sent by the peer, NULL if no cert was sent
 	 */
-	virtual ssl_cert* GetCertificate() const
+	virtual const std::shared_ptr<ssl_cert>& GetCertificate() const
 	{
 		return certificate;
 	}
@@ -258,7 +257,7 @@ public:
 	 */
 	virtual std::string GetFingerprint() const
 	{
-		ssl_cert* cert = GetCertificate();
+		const auto& cert = GetCertificate();
 		if (cert && cert->IsUsable())
 			return cert->GetFingerprint();
 		return "";
@@ -304,7 +303,7 @@ public:
 	 * @param user The user whose certificate to set.
 	 * @param cert The TLS certificate to set for the user.
 	 */
-	virtual void SetCertificate(User* user, ssl_cert* cert) = 0;
+	virtual void SetCertificate(User* user, const std::shared_ptr<ssl_cert>& cert) = 0;
 
 	/** Get the primary fingerprint from a user's certificate
 	 * @param user The user whose primary fingerprint to get.

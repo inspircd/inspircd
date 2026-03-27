@@ -38,33 +38,12 @@
 #include "timeutils.h"
 
 class SSLCertExt final
-	: public ExtensionItem
+	: public SimpleExtItem<ssl_cert>
 {
 public:
-	SSLCertExt(Module* parent)
-		: ExtensionItem(parent, "ssl_cert", ExtensionType::USER)
+	SSLCertExt(Module* mod)
+		: SimpleExtItem<ssl_cert>(mod, "ssl_cert", ExtensionType::USER)
 	{
-	}
-
-	ssl_cert* Get(const User* user) const
-	{
-		return static_cast<ssl_cert*>(GetRaw(user));
-	}
-
-	void Set(User* user, ssl_cert* value, bool sync = true)
-	{
-		value->refcount_inc();
-		ssl_cert* old = static_cast<ssl_cert*>(SetRaw(user, value));
-		if (old && old->refcount_dec())
-			delete old;
-
-		if (sync)
-			Sync(user, value);
-	}
-
-	void Unset(User* user)
-	{
-		Delete(user, UnsetRaw(user));
 	}
 
 	static std::string GetFlags(const ssl_cert* cert)
@@ -78,16 +57,12 @@ public:
 		return ret;
 	}
 
-	std::string ToInternal(const Extensible* container, void* item) const noexcept override
+	std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept override
 	{
-		return ToNetwork(container, item);
-	}
+		const auto& cert = std::static_pointer_cast<ssl_cert>(item);
 
-	std::string ToNetwork(const Extensible* container, void* item) const noexcept override
-	{
-		const ssl_cert* cert = static_cast<ssl_cert*>(item);
 		std::stringstream value;
-		value << GetFlags(cert) << " ";
+		value << GetFlags(cert.get()) << " ";
 
 		if (cert->GetError().empty())
 			value << insp::join(cert->GetFingerprints(), ',') << " " << cert->GetDN() << " " << cert->GetIssuer();
@@ -99,16 +74,11 @@ public:
 
 	void FromInternal(Extensible* container, const std::string& value) noexcept override
 	{
-		FromNetwork(container, value);
-	}
-
-	void FromNetwork(Extensible* container, const std::string& value) noexcept override
-	{
 		if (container->extype != this->extype)
 			return;
 
-		auto* cert = new ssl_cert();
-		Set(static_cast<User*>(container), cert, false);
+		auto cert = std::make_shared<ssl_cert>();
+		Set(container, cert, false);
 
 		std::stringstream s(value);
 		std::string v;
@@ -133,13 +103,6 @@ public:
 			getline(s, cert->dn, ' ');
 			getline(s, cert->issuer, '\n');
 		}
-	}
-
-	void Delete(Extensible* container, void* item) override
-	{
-		ssl_cert* old = static_cast<ssl_cert*>(item);
-		if (old && old->refcount_dec())
-			delete old;
 	}
 };
 
@@ -172,11 +135,13 @@ public:
 		if (!ssliohook)
 			return nullptr;
 
-		cert = ssliohook->GetCertificate();
-		if (!cert)
-			return nullptr;
+		auto newcert = ssliohook->GetCertificate();
+		if (newcert)
+		{
+			SetCertificate(user, newcert);
+			cert = newcert.get();
+		}
 
-		SetCertificate(user, cert);
 		return cert;
 	}
 
@@ -192,7 +157,7 @@ public:
 		return false;
 	}
 
-	void SetCertificate(User* user, ssl_cert* cert) override
+	void SetCertificate(User* user, const std::shared_ptr<ssl_cert>& cert) override
 	{
 		ServerInstance->Logs.Debug(MODNAME, "Setting TLS client certificate for {}: {}",
 			user->GetMask(), sslext.ToNetwork(user, cert));
@@ -557,7 +522,7 @@ public:
 		}
 
 		// Create a fake ssl_cert for the user.
-		auto* cert = new ssl_cert();
+		auto cert = std::make_shared<ssl_cert>();
 		cert->dn = "(unknown)";
 		cert->invalid = false;
 		cert->issuer = "(unknown)";

@@ -24,6 +24,8 @@ namespace Geolocation
 	class APIBase;
 	class API;
 	class Location;
+
+	using LocationPtr = std::shared_ptr<Location>;
 }
 
 class Geolocation::APIBase
@@ -39,13 +41,13 @@ public:
 	 * @param user The user to look up the location of.
 	 * @return Either an instance of the Location class or NULL if no location could be found.
 	 */
-	virtual Location* GetLocation(User* user) = 0;
+	virtual LocationPtr GetLocation(User* user) = 0;
 
 	/** Looks up the location of the specified IP address.
 	 * @param sa The IP address to look up the location of.
 	 * @return Either an instance of the Location class or NULL if no location could be found.
 	 */
-	virtual Location* GetLocation(irc::sockets::sockaddrs& sa) = 0;
+	virtual LocationPtr GetLocation(irc::sockets::sockaddrs& sa) = 0;
 };
 
 class Geolocation::API final
@@ -59,7 +61,6 @@ public:
 };
 
 class Geolocation::Location final
-	: public usecountbase
 {
 private:
 	/** The two character country code for this location. */

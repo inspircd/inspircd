@@ -318,12 +318,12 @@ Cap::ExtItem::ExtItem(Module* mod)
 {
 }
 
-std::string Cap::ExtItem::ToHuman(const Extensible* container, void* item) const noexcept
+std::string Cap::ExtItem::ToHuman(const Extensible* container, const ExtensionPtr& item) const noexcept
 {
 	return SerializeCaps(container, true);
 }
 
-std::string Cap::ExtItem::ToInternal(const Extensible* container, void* item) const noexcept
+std::string Cap::ExtItem::ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept
 {
 	return SerializeCaps(container, false);
 }

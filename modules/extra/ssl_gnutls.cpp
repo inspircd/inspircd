@@ -653,7 +653,7 @@ private:
 
 	void VerifyCertificate()
 	{
-		auto* certinfo = new ssl_cert();
+		auto certinfo = std::make_shared<ssl_cert>();
 		this->certificate = certinfo;
 
 		unsigned int certstatus;

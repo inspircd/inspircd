@@ -110,9 +110,9 @@ public:
 		}
 	}
 
-	std::string ToHuman(const Extensible* container, void* item) const noexcept override
+	std::string ToHuman(const Extensible* container, const ExtensionPtr& item) const noexcept override
 	{
-		auto* cloaks = static_cast<Cloak::List*>(item);
+		const auto& cloaks = std::static_pointer_cast<Cloak::List>(item);
 		if (cloaks->empty())
 			return {};
 
@@ -124,9 +124,9 @@ public:
 		return value;
 	}
 
-	std::string ToInternal(const Extensible* container, void* item) const noexcept override
+	std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept override
 	{
-		auto* cloaks = static_cast<Cloak::List*>(item);
+		const auto& cloaks = std::static_pointer_cast<Cloak::List>(item);
 		if (cloaks->empty())
 			return {};
 

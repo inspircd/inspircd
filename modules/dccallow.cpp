@@ -168,9 +168,10 @@ public:
 			Set(user, list);
 	}
 
-	std::string ToInternal(const Extensible* container, void* item) const noexcept override
+	std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept override
 	{
-		auto* list = static_cast<dccallowlist*>(item);
+		const auto& list = std::static_pointer_cast<dccallowlist>(item);
+
 		std::string buf;
 		for (const auto& entry : *list)
 		{

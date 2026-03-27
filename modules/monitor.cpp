@@ -74,24 +74,27 @@ class IRCv3::Monitor::Manager final
 
 		ExtData* Get(User* user, bool create = false)
 		{
-			ExtData* extdata = static_cast<ExtData*>(GetRaw(user));
-			if ((!extdata) && (create))
+			auto* extdata = GetRaw(user);
+			if (!extdata)
 			{
-				extdata = new ExtData;
-				SetRaw(user, extdata);
+				if (!create)
+					return nullptr;
+
+				SetRaw(user, std::make_shared<ExtData>());
+				extdata = GetRaw(user);
 			}
-			return extdata;
+			return std::static_pointer_cast<ExtData>(*extdata).get();
 		}
 
 		void Unset(User* user)
 		{
-			Delete(user, UnsetRaw(user));
+			OnDelete(user, UnsetRaw(user));
 		}
 
-		std::string ToInternal(const Extensible* container, void* item) const noexcept override
+		std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept override
 		{
 			std::string ret;
-			const ExtData* extdata = static_cast<ExtData*>(item);
+			const auto& extdata = std::static_pointer_cast<ExtData>(item);
 			for (const auto* entry : extdata->list)
 				ret.append(entry->GetNick()).push_back(' ');
 			if (!ret.empty())
@@ -100,11 +103,6 @@ class IRCv3::Monitor::Manager final
 		}
 
 		void FromInternal(Extensible* container, const std::string& value) noexcept override;
-
-		void Delete(Extensible* container, void* item) override
-		{
-			delete static_cast<ExtData*>(item);
-		}
 	};
 
 public:

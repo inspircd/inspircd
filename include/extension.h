@@ -30,12 +30,6 @@ public:
 	/** The type of extensible that this extension extends. */
 	const ExtensionType extype:2;
 
-	/** Deletes a \p value which is set on \p container.
-	 * @param container The container that this extension is set on.
-	 * @param item The item to delete.
-	 */
-	virtual void Delete(Extensible* container, void* item) = 0;
-
 	/** Deserialises a value for this extension of the specified container from the internal format.
 	 * @param container A container this extension should be set on.
 	 * @param value A value in the internal format.
@@ -48,12 +42,18 @@ public:
 	 */
 	virtual void FromNetwork(Extensible* container, const std::string& value) noexcept;
 
+	/** Called when a value for this extension is deleted.
+	 * @param container The container that this extension is set on.
+	 * @param item The value that is set on the container.
+	 */
+	virtual void OnDelete(const Extensible* container, const ExtensionPtr& item);
+
 	/** Called when a value for this extension is synchronised across the network.
 	 * @param container The container that this extension is set on.
 	 * @param item The value that is set on the container.
 	 * @param server The server which is being synchronised to or nullptr for a broadcast.
 	 */
-	virtual void OnSync(const Extensible* container, void* item, Server* server);
+	virtual void OnSync(const Extensible* container, const ExtensionPtr& item, Server* server);
 
 	/** @copydoc ServiceProvider::RegisterService */
 	void RegisterService() override;
@@ -64,21 +64,21 @@ public:
 	 * @param item The value to convert to the human-readable format.
 	 * @return The value specified in \p item in the human-readable format.
 	 */
-	virtual std::string ToHuman(const Extensible* container, void* item) const noexcept;
+	virtual std::string ToHuman(const Extensible* container, const ExtensionPtr& item) const noexcept;
 
 	/** Serialises a value for this extension of the specified container to the internal format.
 	 * @param container The container that this extension is set on.
 	 * @param item The value to convert to the internal format.
 	 * @return The value specified in \p item in the internal format.
 	 */
-	virtual std::string ToInternal(const Extensible* container, void* item) const noexcept;
+	virtual std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept;
 
 	/** Serialises a value for this extension of the specified container to the network format.
 	 * @param container The container that this extension is set on.
 	 * @param item The value to convert to the network format.
 	 * @return The value specified in \p item in the network format.
 	 */
-	virtual std::string ToNetwork(const Extensible* container, void* item) const noexcept;
+	virtual std::string ToNetwork(const Extensible* container, const ExtensionPtr& item) const noexcept;
 
 protected:
 	/** Initializes an instance of the ExtensionItem class.
@@ -92,7 +92,7 @@ protected:
 	 * @param container The container that this extension is set on.
 	 * @return Either the value of this extension or nullptr if it does not exist.
 	 */
-	void* GetRaw(const Extensible* container) const;
+	const ExtensionPtr* GetRaw(const Extensible* container) const;
 
 	/** Sets a value for this extension of the specified container in the internal map and
 	 *  returns the old value if one was set
@@ -100,20 +100,20 @@ protected:
 	 * @param value The new value to set for this extension. Will NOT be copied.
 	 * @return Either the old value or nullptr if one is not set.
 	 */
-	void* SetRaw(Extensible* container, void* value);
+	ExtensionPtr SetRaw(Extensible* container, const ExtensionPtr& value);
 
 	/** Syncs the value of this extension of the specified container across the network. Does
 	 *   nothing if an inheritor does not implement ExtensionItem::ToNetwork.
 	 * @param container The container that this extension is set on.
 	 * @param item The value of this extension.
 	 */
-	void Sync(const Extensible* container, void* item);
+	void Sync(const Extensible* container, const ExtensionPtr& item);
 
 	/** Removes this extension from the specified container and returns it.
 	 * @param container The container that this extension should be removed from.
 	 * @return Either the old value of this extension or nullptr if it was not set.
 	 */
-	void* UnsetRaw(Extensible* container);
+	ExtensionPtr UnsetRaw(Extensible* container);
 };
 
 /** An extension which has a simple (usually POD) value. */
@@ -126,6 +126,9 @@ protected:
 	bool synced;
 
 public:
+	/** The underlying pointer type. */
+	using ValuePtr = std::shared_ptr<Value>;
+
 	/** Initializes an instance of the SimpleExtItem<T,Del> class.
 	 * @param owner The module which created the extension.
 	 * @param key The name of the extension (e.g. foo-bar).
@@ -146,16 +149,19 @@ public:
 	}
 
 	/** @copydoc ExtensionItem::ToNetwork */
-	std::string ToNetwork(const Extensible* container, void* item) const noexcept override
+	std::string ToNetwork(const Extensible* container, const ExtensionPtr& item) const noexcept override
 	{
 		return synced ? ToInternal(container, item) : std::string();
 	}
 
-	/** @copydoc ExtensionItem::Delete */
-	void Delete(Extensible* container, void* item) override
+	/** Creates a new shared pointer with the deleter specified in the extension item.
+	 * @param args The arguments to forward to the constructor of \p T.
+	 */
+	template <typename... Args>
+	ValuePtr Create(Args&&... args)
 	{
-		Del del;
-		del(static_cast<Value*>(item));
+		auto* ptr = new Value(std::forward<Args>(args)...);
+		return ValuePtr(ptr, Del());
 	}
 
 	/** Retrieves the value for this extension of the specified container.
@@ -164,7 +170,18 @@ public:
 	 */
 	inline Value* Get(const Extensible* container) const
 	{
-		return static_cast<Value*>(GetRaw(container));
+		auto* ptr = GetRaw(container);
+		return ptr ? std::static_pointer_cast<Value>(*ptr).get() : nullptr;
+	}
+
+	/** Retrieves the value for this extension of the specified container.
+	 * @param container The container that this extension is set on.
+	 * @return A shared pointer to the value of this extension, empty if it is not set.
+	 */
+	inline ValuePtr GetPtr(const Extensible* container) const
+	{
+		auto* ptr = GetRaw(container);
+		return ptr ? ValuePtr() : std::static_pointer_cast<Value>(*ptr);
 	}
 
 	/** Retrieves the value for this extension of the specified container.
@@ -173,13 +190,29 @@ public:
 	 */
 	inline Value& GetRef(Extensible* container)
 	{
-		auto* value = Get(container);
-		if (!value)
-		{
-			value = new Value();
-			Set(container, value, false);
-		}
-		return *value;
+		auto* ptr = GetRaw(container);
+		if (ptr)
+			return *std::static_pointer_cast<Value>(*ptr).get();
+
+		auto value = Create();
+		Set(container, value, false);
+		return *value.get();
+	}
+
+	/** Sets a value for this extension of the specified container.
+	 * @param container The container that this extension should be set on.
+	 * @param value The new value to set for this extension. Will NOT be copied.
+	 * @param sync If syncable then whether to sync this set to the network.
+	 */
+	inline void Set(Extensible* container, const ValuePtr& value, bool sync = true)
+	{
+		if (container->extype != this->extype)
+			return;
+
+		auto old = std::static_pointer_cast<Value>(SetRaw(container, value));
+		OnDelete(container, old);
+		if (sync && synced)
+			Sync(container, value);
 	}
 
 	/** Sets a value for this extension of the specified container.
@@ -189,13 +222,8 @@ public:
 	 */
 	inline void Set(Extensible* container, Value* value, bool sync = true)
 	{
-		if (container->extype != this->extype)
-			return;
-
-		auto old = static_cast<Value*>(SetRaw(container, value));
-		Delete(container, old);
-		if (sync && synced)
-			Sync(container, value);
+		if (container->extype == this->extype)
+			Set(container, ValuePtr(value,  Del()), sync);
 	}
 
 	/** Sets a value for this extension of the specified container.
@@ -206,7 +234,7 @@ public:
 	inline void Set(Extensible* container, const Value& value, bool sync = true)
 	{
 		if (container->extype == this->extype)
-			Set(container, new Value(value), sync);
+			Set(container, Create(value), sync);
 	}
 
 	/** Sets a forwarded value for this extension of the specified container.
@@ -220,7 +248,7 @@ public:
 		// be synced across the network. You can manually call Sync() if this
 		// is not the case.
 		if (container->extype == this->extype)
-			Set(container, new Value(std::forward<Args>(args)...), false);
+			Set(container, Create(std::forward<Args>(args)...), false);
 	}
 
 	/** Removes this extension from the specified container.
@@ -232,7 +260,7 @@ public:
 		if (container->extype != this->extype)
 			return;
 
-		Delete(container, UnsetRaw(container));
+		OnDelete(container, UnsetRaw(container));
 		if (synced && sync)
 			Sync(container, nullptr);
 	}
@@ -255,9 +283,6 @@ public:
 	 */
 	BoolExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync = false);
 
-	/** @copydoc ExtensionItem::Delete */
-	void Delete(Extensible* container, void* item) override;
-
 	/** Retrieves the value for this extension of the specified container.
 	 * @param container The container that this extension is set on.
 	 * @return Either the value of this extension or false if it is not set.
@@ -277,13 +302,13 @@ public:
 	void Set(Extensible* container, bool sync = true);
 
 	/** @copydoc ExtensionItem::ToHuman */
-	std::string ToHuman(const Extensible* container, void* item) const noexcept override;
+	std::string ToHuman(const Extensible* container, const ExtensionPtr& item) const noexcept override;
 
 	/** @copydoc ExtensionItem::ToInternal */
-	std::string ToInternal(const Extensible* container, void* item) const noexcept override;
+	std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept override;
 
 	/** @copydoc ExtensionItem::ToNetwork */
-	std::string ToNetwork(const Extensible* container, void* item) const noexcept override;
+	std::string ToNetwork(const Extensible* container, const ExtensionPtr& item) const noexcept override;
 
 	/** Removes this extension from the specified container.
 	 * @param container The container that this extension should be removed from.
@@ -300,6 +325,9 @@ class ListExtItem
 public:
 	/** The underlying list type. */
 	using List = Container;
+
+	/** A pointer to the underlying list type. */
+	using ListPtr = std::shared_ptr<List>;
 
 	/** Initializes an instance of the ListExtItem class.
 	 * @param owner The module which created the extension.
@@ -324,10 +352,13 @@ public:
 			return;
 		}
 
-		auto list = new List();
+		ListPtr list;
 		StringSplitter stream(value);
 		for (std::string element; stream.GetToken(element); )
 		{
+			if (!list)
+				list = this->Create();
+
 			// Argh! Why doesn't vector<string> have an insert(value_type) method?
 			if constexpr (std::is_same_v<Container, std::vector<typename Container::value_type>>)
 				list->push_back(Percent::Decode(element));
@@ -335,10 +366,9 @@ public:
 				list->insert(Percent::Decode(element));
 		}
 
-		if (list->empty())
+		if (!list)
 		{
 			// The remote sent an empty list.
-			delete list;
 			SimpleExtItem<Container>::Unset(container, false);
 		}
 		else
@@ -349,20 +379,20 @@ public:
 	}
 
 	/** @copydoc ExtensionItem::ToInternal */
-	std::string ToHuman(const Extensible* container, void* item) const noexcept override
+	std::string ToHuman(const Extensible* container, const ExtensionPtr& item) const noexcept override
 	{
-		auto list = static_cast<List*>(item);
-		if (list->empty())
+		const auto& list = std::static_pointer_cast<List>(item);
+		if (!list || list->empty())
 			return {};
 
 		return insp::join(*list, ' ');
 	}
 
 	/** @copydoc ExtensionItem::ToInternal */
-	std::string ToInternal(const Extensible* container, void* item) const noexcept override
+	std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept override
 	{
-		auto list = static_cast<List*>(item);
-		if (list->empty())
+		const auto& list = std::static_pointer_cast<List>(item);
+		if (!list || list->empty())
 			return {};
 
 		std::string value;
@@ -391,9 +421,6 @@ public:
 	 */
 	IntExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync = false);
 
-	/** @copydoc ExtensionItem::Delete */
-	void Delete(Extensible* container, void* item) override;
-
 	/** Retrieves the value for this extension of the specified container.
 	 * @param container The container that this extension is set on.
 	 * @return Either the value of this extension or 0 if it is not set.
@@ -414,10 +441,10 @@ public:
 	void Set(Extensible* container, intptr_t value, bool sync = true);
 
 	/** @copydoc ExtensionItem::ToInternal */
-	std::string ToInternal(const Extensible* container, void* item) const noexcept override;
+	std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept override;
 
 	/** @copydoc ExtensionItem::ToNetwork */
-	std::string ToNetwork(const Extensible* container, void* item) const noexcept override;
+	std::string ToNetwork(const Extensible* container, const ExtensionPtr& item) const noexcept override;
 
 	/** Removes this extension from the specified container.
 	 * @param container The container that this extension should be removed from.
@@ -443,5 +470,5 @@ public:
 	void FromInternal(Extensible* container, const std::string& value) noexcept override;
 
 	/** @copydoc ExtensionItem::ToInternal */
-	std::string ToInternal(const Extensible* container, void* item) const noexcept override;
+	std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept override;
 };

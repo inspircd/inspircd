@@ -67,9 +67,10 @@ public:
 		}
 	}
 
-	std::string ToInternal(const Extensible* container, void* item) const noexcept override
+	std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept override
 	{
-		return item ? Percent::Encode(static_cast<Cloak::Info*>(item)->ToString()) : std::string();
+		const auto& cloak = std::static_pointer_cast<Cloak::Info>(item);
+		return cloak ? Percent::Encode(cloak->ToString()) : std::string();
 	}
 };
 

@@ -49,10 +49,10 @@ class Invite::ExtItem final
 	: public ExtensionItem
 {
 private:
-	static std::string ToString(void* item, bool human)
+	static std::string ToString(const ExtensionPtr& item, bool human)
 	{
 		std::string ret;
-		Store<T>* store = static_cast<Store<T>*>(item);
+		const auto& store = std::static_pointer_cast<Store<T>>(item);
 		for (auto* inv : store->invites)
 			inv->Serialize(human, (ExtType == ExtensionType::USER), ret);
 
@@ -70,42 +70,43 @@ public:
 
 	Store<T>* Get(Extensible* ext, bool create = false)
 	{
-		Store<T>* store = static_cast<Store<T>*>(GetRaw(ext));
-		if ((create) && (!store))
+		auto* store = GetRaw(ext);
+		if (!store)
 		{
-			store = new Store<T>;
-			SetRaw(ext, store);
+			if (!create)
+				return nullptr;
+
+			SetRaw(ext, std::make_shared<Store<T>>());
+			store = GetRaw(ext);
 		}
-		return store;
+		return std::static_pointer_cast<Store<T>>(*store).get();
 	}
 
 	void Unset(Extensible* ext)
 	{
-		void* store = UnsetRaw(ext);
+		auto store = UnsetRaw(ext);
 		if (store)
-			Delete(ext, store);
+			OnDelete(ext, store);
 	}
 
-	void Delete(Extensible* container, void* item) override
+	void OnDelete(const Extensible* container, const ExtensionPtr& item) override
 	{
-		Store<T>* store = static_cast<Store<T>*>(item);
-		for (typename Store<T>::List::iterator i = store->invites.begin(); i != store->invites.end(); )
+		const auto& store = std::static_pointer_cast<Store<T>>(item);
+		for (auto i = store->invites.begin(); i != store->invites.end(); )
 		{
 			Invite* inv = *i;
 			// Destructing the Invite invalidates the iterator, so move it now
 			++i;
 			RemoveInvite(inv, (ExtType != ExtensionType::USER), (ExtType == ExtensionType::USER));
 		}
-
-		delete store;
 	}
 
-	std::string ToHuman(const Extensible* container, void* item) const noexcept override
+	std::string ToHuman(const Extensible* container, const ExtensionPtr& item) const noexcept override
 	{
 		return ToString(item, true);
 	}
 
-	std::string ToInternal(const Extensible* container, void* item) const noexcept override
+	std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept override
 	{
 		return ToString(item, false);
 	}

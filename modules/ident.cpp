@@ -342,8 +342,7 @@ public:
 
 		try
 		{
-			isock = new IdentRequestSocket(this, user);
-			socket.Set(user, isock);
+			socket.SetFwd(user, this, user);
 		}
 		catch (const ModuleException& e)
 		{

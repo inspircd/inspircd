@@ -20,6 +20,23 @@
 #include "inspircd.h"
 #include "extension.h"
 
+namespace
+{
+	// These templates are used by BoolExtItem and IntExtItem to allow storing a
+	// value within the pointer address of a shared pointer.
+	template <typename T>
+	ExtensionPtr CreateFakePointer(T value)
+	{
+		return ExtensionPtr(reinterpret_cast<void*>(value), [](auto*) { });
+	}
+
+	template <typename T>
+	T GetFakePointer(const ExtensionPtr* ptr)
+	{
+		return ptr ? reinterpret_cast<T>(ptr->get()) : T();
+	}
+}
+
 bool ExtensionManager::Register(ExtensionItem* item)
 {
 	return types.emplace(item->service_name, item).second;
@@ -73,7 +90,7 @@ Cullable::Result Extensible::Cull()
 void Extensible::FreeAllExtItems()
 {
 	for (const auto& [extension, item] : extensions)
-		extension->Delete(this, item);
+		extension->OnDelete(this, item);
 	extensions.clear();
 }
 
@@ -84,7 +101,7 @@ void Extensible::UnhookExtensions(const std::vector<ExtensionItem*>& items)
 		ExtensibleStore::iterator iter = extensions.find(item);
 		if (iter != extensions.end())
 		{
-			item->Delete(this, iter->second);
+			item->OnDelete(this, iter->second);
 			extensions.erase(iter);
 		}
 	}
@@ -96,7 +113,11 @@ ExtensionItem::ExtensionItem(Module* mod, const std::string& Key, ExtensionType 
 {
 }
 
-void ExtensionItem::OnSync(const Extensible* container, void* item, Server* server)
+void ExtensionItem::OnDelete(const Extensible* container, const ExtensionPtr& item)
+{
+}
+
+void ExtensionItem::OnSync(const Extensible* container, const ExtensionPtr& item, Server* server)
 {
 }
 
@@ -106,38 +127,38 @@ void ExtensionItem::RegisterService()
 		throw ModuleException(this->service_creator, "Extension already exists: {}", this->service_name);
 }
 
-void* ExtensionItem::GetRaw(const Extensible* container) const
+const ExtensionPtr* ExtensionItem::GetRaw(const Extensible* container) const
 {
 	auto iter = container->extensions.find(const_cast<ExtensionItem*>(this));
 	if (iter == container->extensions.end())
 		return nullptr;
 
-	return iter->second;
+	return &iter->second;
 }
 
-void* ExtensionItem::SetRaw(Extensible* container, void* value)
+ExtensionPtr ExtensionItem::SetRaw(Extensible* container, const ExtensionPtr& value)
 {
 	auto result = container->extensions.emplace(this, value);
 	if (result.second)
 		return nullptr;
 
-	void* old = result.first->second;
+	auto old = result.first->second;
 	result.first->second = value;
 	return old;
 }
 
-void* ExtensionItem::UnsetRaw(Extensible* container)
+ExtensionPtr ExtensionItem::UnsetRaw(Extensible* container)
 {
 	auto iter = container->extensions.find(this);
 	if (iter == container->extensions.end())
 		return nullptr;
 
-	void* result = iter->second;
+	auto result = iter->second;
 	container->extensions.erase(iter);
 	return result;
 }
 
-void ExtensionItem::Sync(const Extensible* container, void* item)
+void ExtensionItem::Sync(const Extensible* container, const ExtensionPtr& item)
 {
 	const std::string networkstr = item ? ToNetwork(container, item) : "";
 	ServerInstance->PI->SendMetadata(container, this->service_name, networkstr);
@@ -152,7 +173,7 @@ void ExtensionItem::FromNetwork(Extensible* container, const std::string& value)
 {
 }
 
-std::string ExtensionItem::ToHuman(const Extensible* container, void* item) const noexcept
+std::string ExtensionItem::ToHuman(const Extensible* container, const ExtensionPtr& item) const noexcept
 {
 	// Try to use the network form by default.
 	std::string ret = ToNetwork(container, item);
@@ -164,12 +185,12 @@ std::string ExtensionItem::ToHuman(const Extensible* container, void* item) cons
 	return ret;
 }
 
-std::string ExtensionItem::ToInternal(const Extensible* container, void* item) const noexcept
+std::string ExtensionItem::ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept
 {
 	return {};
 }
 
-std::string ExtensionItem::ToNetwork(const Extensible* container, void* item) const noexcept
+std::string ExtensionItem::ToNetwork(const Extensible* container, const ExtensionPtr& item) const noexcept
 {
 	return {};
 }
@@ -180,11 +201,6 @@ BoolExtItem::BoolExtItem(Module* owner, const std::string& key, ExtensionType ex
 {
 }
 
-void BoolExtItem::Delete(Extensible* container, void* item)
-{
-	// Intentionally left blank.
-}
-
 void BoolExtItem::FromInternal(Extensible* container, const std::string& value) noexcept
 {
 	if (ConvToNum<intptr_t>(value))
@@ -193,7 +209,7 @@ void BoolExtItem::FromInternal(Extensible* container, const std::string& value) 
 		Unset(container, false);
 }
 
-std::string BoolExtItem::ToHuman(const Extensible* container, void* item) const noexcept
+std::string BoolExtItem::ToHuman(const Extensible* container, const ExtensionPtr& item) const noexcept
 {
 	return item ? "set" : "unset";
 }
@@ -204,12 +220,12 @@ void BoolExtItem::FromNetwork(Extensible* container, const std::string& value) n
 		FromInternal(container, value);
 }
 
-std::string BoolExtItem::ToInternal(const Extensible* container, void* item) const noexcept
+std::string BoolExtItem::ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept
 {
 	return ConvToStr(!!item);
 }
 
-std::string BoolExtItem::ToNetwork(const Extensible* container, void* item) const noexcept
+std::string BoolExtItem::ToNetwork(const Extensible* container, const ExtensionPtr& item) const noexcept
 {
 	return synced ? ToInternal(container, item) : std::string();
 }
@@ -224,9 +240,10 @@ void BoolExtItem::Set(Extensible* container, bool sync)
 	if (container->extype != this->extype)
 		return;
 
-	SetRaw(container, reinterpret_cast<void*>(1));
+	auto ptr = CreateFakePointer(1);
+	SetRaw(container, ptr);
 	if (sync && synced)
-		Sync(container, reinterpret_cast<void*>(1));
+		Sync(container, ptr);
 }
 
 void BoolExtItem::Unset(Extensible* container, bool sync)
@@ -236,18 +253,13 @@ void BoolExtItem::Unset(Extensible* container, bool sync)
 
 	UnsetRaw(container);
 	if (sync && synced)
-		Sync(container, reinterpret_cast<void*>(0));
+		Sync(container, CreateFakePointer(0));
 }
 
 IntExtItem::IntExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync)
 	: ExtensionItem(owner, key, exttype)
 	, synced(sync)
 {
-}
-
-void IntExtItem::Delete(Extensible* container, void* item)
-{
-	// Intentionally left blank.
 }
 
 void IntExtItem::FromInternal(Extensible* container, const std::string& value) noexcept
@@ -263,7 +275,7 @@ void IntExtItem::FromNetwork(Extensible* container, const std::string& value) no
 
 intptr_t IntExtItem::Get(const Extensible* container) const
 {
-	return reinterpret_cast<intptr_t>(GetRaw(container));
+	return GetFakePointer<intptr_t>(GetRaw(container));
 }
 
 void IntExtItem::Set(Extensible* container, intptr_t value, bool sync)
@@ -272,20 +284,23 @@ void IntExtItem::Set(Extensible* container, intptr_t value, bool sync)
 		return;
 
 	if (value)
-		SetRaw(container, reinterpret_cast<void*>(value));
+		SetRaw(container, CreateFakePointer(value));
 	else
 		UnsetRaw(container);
 
 	if (sync && synced)
-		Sync(container, GetRaw(container));
+	{
+		auto* ptr = GetRaw(container);
+		Sync(container, ptr ? *ptr : nullptr);
+	}
 }
 
-std::string IntExtItem::ToInternal(const Extensible* container, void* item) const noexcept
+std::string IntExtItem::ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept
 {
-	return ConvToStr(reinterpret_cast<intptr_t>(item));
+	return ConvToStr(GetFakePointer<intptr_t>(&item));
 }
 
-std::string IntExtItem::ToNetwork(const Extensible* container, void* item) const noexcept
+std::string IntExtItem::ToNetwork(const Extensible* container, const ExtensionPtr& item) const noexcept
 {
 	return synced ? ToInternal(container, item) : std::string();
 }
@@ -314,8 +329,8 @@ void StringExtItem::FromInternal(Extensible* container, const std::string& value
 }
 
 
-std::string StringExtItem::ToInternal(const Extensible* container, void* item) const noexcept
+std::string StringExtItem::ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept
 {
-	return item ? *static_cast<std::string*>(item) : std::string();
+	return item ? *std::static_pointer_cast<std::string>(item) : std::string();
 }
 

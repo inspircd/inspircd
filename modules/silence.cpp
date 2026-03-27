@@ -224,7 +224,7 @@ public:
 
 		// Remove the old list and create a new one.
 		Unset(user, false);
-		SilenceList* list = nullptr;
+		std::shared_ptr<SilenceList> list;
 
 		StringSplitter ts(value);
 		while (!ts.AtEnd())
@@ -234,7 +234,6 @@ public:
 			{
 				ServerInstance->Logs.Debug(MODNAME, "Oversized silence list received for {}: {}",
 					user->uuid, value);
-				delete list;
 				return;
 			}
 
@@ -245,7 +244,6 @@ public:
 			{
 				ServerInstance->Logs.Debug(MODNAME, "Malformed silence list received for {}: {}",
 					user->uuid, value);
-				delete list;
 				return;
 			}
 
@@ -255,13 +253,12 @@ public:
 			{
 				ServerInstance->Logs.Debug(MODNAME, "Malformed silence flags received for {}: {}",
 					user->uuid, flagstr);
-				delete list;
 				return;
 			}
 
 			// Store the silence entry.
 			if (!list)
-				list = new SilenceList();
+				list = std::make_shared<SilenceList>();
 			list->emplace(flags, mask);
 		}
 
@@ -270,9 +267,10 @@ public:
 			Set(user, list, false);
 	}
 
-	std::string ToInternal(const Extensible* container, void* item) const noexcept override
+	std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept override
 	{
-		auto* list = static_cast<SilenceList*>(item);
+		const auto& list = std::static_pointer_cast<SilenceList>(item);
+
 		std::string buf;
 		for (const auto& entry : *list)
 		{
@@ -307,20 +305,14 @@ private:
 
 	CmdResult AddSilence(LocalUser* user, const std::string& mask, uint32_t flags)
 	{
-		SilenceList* list = ext.Get(user);
-		if (list && list->size() > ext.maxsilence)
+		auto& list = ext.GetRef(user);
+		if (!list.empty() && list.size() > ext.maxsilence)
 		{
 			user->WriteNumeric(ERR_SILELISTFULL, mask, SilenceEntry::BitsToFlags(flags), "Your SILENCE list is full");
 			return CmdResult::FAILURE;
 		}
-		else if (!list)
-		{
-			// There is no list; create it.
-			list = new SilenceList();
-			ext.Set(user, list);
-		}
 
-		if (!list->emplace(flags, mask).second)
+		if (!list.emplace(flags, mask).second)
 		{
 			user->WriteNumeric(ERR_SILENCE, mask, SilenceEntry::BitsToFlags(flags), "The SILENCE entry you specified already exists");
 			return CmdResult::FAILURE;

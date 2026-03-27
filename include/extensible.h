@@ -24,6 +24,9 @@
 
 class ExtensionItem;
 
+/** A pointer to an extensible item. */
+using ExtensionPtr = std::shared_ptr<void>;
+
 /** Types of extensible that an extension can extend. */
 enum class ExtensionType
 	: uint8_t
@@ -44,7 +47,7 @@ class CoreExport Extensible
 {
 public:
 	/** The container which extension values are stored in. */
-	using ExtensibleStore = insp::flat_map<ExtensionItem*, void*>;
+	using ExtensibleStore = insp::flat_map<ExtensionItem*, ExtensionPtr>;
 
 	/** Allows extensions to access the extension store. */
 	friend class ExtensionItem;

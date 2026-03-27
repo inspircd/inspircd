@@ -74,7 +74,7 @@ bool TreeSocket::ComparePass(const Link& link, const std::string& theirs)
 	capab->auth_challenge = !capab->ourchallenge.empty() && !capab->theirchallenge.empty();
 
 	const auto* sslhook = SSLIOHook::IsSSL(this);
-	const auto* sslcert = sslhook ? sslhook->GetCertificate() : nullptr;
+	const auto& sslcert = sslhook ? sslhook->GetCertificate() : nullptr;
 	const auto sslcert_usable = sslcert && sslcert->IsUsable();
 	const auto fp = sslcert_usable ? sslcert->GetFingerprint() : "";
 	if (capab->auth_fingerprint)

@@ -85,15 +85,15 @@ struct CallerIDExtInfo final
 	{
 	}
 
-	std::string ToHuman(const Extensible* container, void* item) const noexcept override
+	std::string ToHuman(const Extensible* container, const ExtensionPtr& item) const noexcept override
 	{
-		callerid_data* dat = static_cast<callerid_data*>(item);
+		const auto& dat = std::static_pointer_cast<callerid_data>(item);
 		return dat->ToString(true);
 	}
 
-	std::string ToInternal(const Extensible* container, void* item) const noexcept override
+	std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept override
 	{
-		callerid_data* dat = static_cast<callerid_data*>(item);
+		const auto& dat = std::static_pointer_cast<callerid_data>(item);
 		return dat->ToString(false);
 	}
 
@@ -102,10 +102,11 @@ struct CallerIDExtInfo final
 		if (container->extype != this->extype)
 			return;
 
-		void* old = GetRaw(container);
+		auto* old = GetRaw(container);
 		if (old)
-			this->Delete(nullptr, old);
-		auto* dat = new callerid_data();
+			this->OnDelete(container, *old);
+
+		auto dat = std::make_shared<callerid_data>();
 		SetRaw(container, dat);
 
 		StringSplitter s(value, ',');
@@ -119,7 +120,7 @@ struct CallerIDExtInfo final
 				if (dat->accepting.insert(u).second)
 				{
 					callerid_data* other = this->Get(u, true);
-					other->wholistsme.push_back(dat);
+					other->wholistsme.push_back(dat.get());
 				}
 			}
 		}
@@ -127,18 +128,21 @@ struct CallerIDExtInfo final
 
 	callerid_data* Get(User* user, bool create)
 	{
-		callerid_data* dat = static_cast<callerid_data*>(GetRaw(user));
-		if (create && !dat)
+		auto* dat = GetRaw(user);
+		if (!dat)
 		{
-			dat = new callerid_data;
-			SetRaw(user, dat);
+			if (!create)
+				return nullptr;
+
+			SetRaw(user, std::make_shared<callerid_data>());
+			dat = GetRaw(user);
 		}
-		return dat;
+		return std::static_pointer_cast<callerid_data>(*dat).get();
 	}
 
-	void Delete(Extensible* container, void* item) override
+	void OnDelete(const Extensible* container, const ExtensionPtr& item) override
 	{
-		callerid_data* dat = static_cast<callerid_data*>(item);
+		const auto& dat = std::static_pointer_cast<callerid_data>(item);
 
 		// We need to walk the list of users on our accept list, and remove ourselves from their wholistsme.
 		for (auto* user : dat->accepting)
@@ -150,10 +154,9 @@ struct CallerIDExtInfo final
 				continue; // shouldn't happen, but oh well.
 			}
 
-			if (!stdalgo::vector::swaperase(target->wholistsme, dat))
+			if (!stdalgo::vector::swaperase(target->wholistsme, dat.get()))
 				ServerInstance->Logs.Debug(MODNAME, "BUG: Inconsistency detected in callerid state, please report (2)");
 		}
-		delete dat;
 	}
 };
 
