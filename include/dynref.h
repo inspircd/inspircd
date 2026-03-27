@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "base.h"
+#include "service.h"
 
 class CoreExport dynamic_reference_base
 	: public insp::intrusive_list_node<dynamic_reference_base>
