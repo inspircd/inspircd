@@ -69,8 +69,10 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 	}
 	else
 	{
-		auto* srcmodule = thiscmd->service_creator.ptr();
-		if (!(srcmodule->properties & (VF_COMMON | VF_CORE)) && srcmodule != Creator)
+		// The lock here should always succeed because we were called by routing
+		// a command from it.
+		const auto& srcmodule = thiscmd->service_creator.lock();
+		if (!(srcmodule->properties & (VF_COMMON | VF_CORE)) && !insp::same_ptr(srcmodule, CreatorPtr))
 		{
 			ServerInstance->Logs.Normal(MODNAME, "Routed command {} from non-VF_COMMON module {}",
 				command, srcmodule->ModuleFile);

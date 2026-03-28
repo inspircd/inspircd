@@ -35,7 +35,7 @@ enum
 	RPL_REHASHING = 382,
 };
 
-CommandRehash::CommandRehash(Module* parent)
+CommandRehash::CommandRehash(const WeakModulePtr& parent)
 	: Command(parent, "REHASH", 0)
 {
 	access_needed = CmdAccess::OPERATOR;

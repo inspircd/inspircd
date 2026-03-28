@@ -63,8 +63,8 @@ private:
 public:
 	ModuleDenyChannels()
 		: Module(VF_VENDOR, "Allows the server administrator to prevent users from joining channels matching a glob.")
-		, antiredirectmode(this, "antiredirect")
-		, redirectmode(this, "redirect")
+		, antiredirectmode(weak_from_this(), "antiredirect")
+		, redirectmode(weak_from_this(), "redirect")
 	{
 	}
 
@@ -77,7 +77,7 @@ public:
 			// Ensure that we have the <goodchan:name> parameter.
 			const std::string name = tag->getString("name");
 			if (name.empty())
-				throw ModuleException(this, "<goodchan:name> is a mandatory field, at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<goodchan:name> is a mandatory field, at " + tag->source.str());
 
 			goodchans.push_back(name);
 		}
@@ -88,19 +88,19 @@ public:
 			// Ensure that we have the <badchan:name> parameter.
 			const std::string name = tag->getString("name");
 			if (name.empty())
-				throw ModuleException(this, "<badchan:name> is a mandatory field, at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<badchan:name> is a mandatory field, at " + tag->source.str());
 
 			// Ensure that we have the <badchan:reason> parameter.
 			const std::string reason = tag->getString("reason");
 			if (reason.empty())
-				throw ModuleException(this, "<badchan:reason> is a mandatory field, at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<badchan:reason> is a mandatory field, at " + tag->source.str());
 
 			const std::string redirect = tag->getString("redirect");
 			if (!redirect.empty())
 			{
 				// Ensure that <badchan:redirect> contains a channel name.
 				if (!ServerInstance->Channels.IsChannel(redirect))
-					throw ModuleException(this, "<badchan:redirect> is not a valid channel name, at " + tag->source.str());
+					throw ModuleException(weak_from_this(), "<badchan:redirect> is not a valid channel name, at " + tag->source.str());
 
 				// We defer the rest of the validation of the redirect channel until we have
 				// finished parsing all of the badchans.
@@ -135,7 +135,7 @@ public:
 			for (const auto& badchanredir : badchans)
 			{
 				if (InspIRCd::Match(badchan.redirect, badchanredir.name))
-					throw ModuleException(this, "<badchan:redirect> cannot be a blacklisted channel name");
+					throw ModuleException(weak_from_this(), "<badchan:redirect> cannot be a blacklisted channel name");
 			}
 		}
 

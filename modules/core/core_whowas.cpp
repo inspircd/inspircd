@@ -190,11 +190,11 @@ public:
 	// Manager handling all whowas database related tasks
 	WhoWas::Manager manager;
 
-	CommandWhowas(Module* parent);
+	CommandWhowas(const WeakModulePtr& parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
-CommandWhowas::CommandWhowas( Module* parent)
+CommandWhowas::CommandWhowas(const WeakModulePtr& parent)
 	: Command(parent, "WHOWAS", 1)
 {
 	allow_empty_last_param = true;
@@ -435,8 +435,8 @@ public:
 public:
 	ModuleWhoWas()
 		: Module(VF_CORE | VF_VENDOR, "Provides the WHOWAS command")
-		, Stats::EventListener(this)
-		, cmd(this)
+		, Stats::EventListener(weak_from_this())
+		, cmd(weak_from_this())
 	{
 	}
 

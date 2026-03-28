@@ -28,7 +28,7 @@
 #include "xline.h"
 #include "core_xline.h"
 
-CommandEline::CommandEline(Module* parent)
+CommandEline::CommandEline(const WeakModulePtr& parent)
 	: Command(parent, "ELINE", 1, 4)
 {
 	accepts_multiple_targets = true;

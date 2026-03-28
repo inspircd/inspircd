@@ -28,7 +28,7 @@ class ProtocolException final
 {
 public:
 	ProtocolException(const std::string& msg)
-		: ModuleException((Module*)Utils->Creator, "Protocol violation: " + msg)
+		: ModuleException(Utils->CreatorPtr, "Protocol violation: " + msg)
 	{
 	}
 };
@@ -39,7 +39,7 @@ class ServerCommand
 	: public CommandBase
 {
 public:
-	ServerCommand(Module* Creator, const std::string& Name, unsigned int MinPara = 0, unsigned int MaxPara = 0);
+	ServerCommand(const WeakModulePtr& Creator, const std::string& Name, unsigned int MinPara = 0, unsigned int MaxPara = 0);
 
 	/** Register this object in the ServerCommandManager
 	 */
@@ -66,7 +66,7 @@ class UserOnlyServerCommand
 	: public ServerCommand
 {
 public:
-	UserOnlyServerCommand(Module* Creator, const std::string& Name, unsigned int MinPara = 0, unsigned int MaxPara = 0)
+	UserOnlyServerCommand(const WeakModulePtr& Creator, const std::string& Name, unsigned int MinPara = 0, unsigned int MaxPara = 0)
 		: ServerCommand(Creator, Name, MinPara, MaxPara) { }
 
 	CmdResult Handle(User* user, Params& parameters) override
@@ -87,7 +87,7 @@ class ServerOnlyServerCommand
 	: public ServerCommand
 {
 public:
-	ServerOnlyServerCommand(Module* Creator, const std::string& Name, unsigned int MinPara = 0, unsigned int MaxPara = 0)
+	ServerOnlyServerCommand(const WeakModulePtr& Creator, const std::string& Name, unsigned int MinPara = 0, unsigned int MaxPara = 0)
 		: ServerCommand(Creator, Name, MinPara, MaxPara) { }
 
 	CmdResult Handle(User* user, CommandBase::Params& parameters) override

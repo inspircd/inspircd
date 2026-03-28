@@ -360,7 +360,7 @@ public:
 	query_queue queries, results;
 	std::mutex process_mutex; /* held when processing requests not in either queue */
 
-	LDAPService(Module* c, const std::shared_ptr<ConfigTag>& tag)
+	LDAPService(const WeakModulePtr& c, const std::shared_ptr<ConfigTag>& tag)
 		: LDAPProvider(c, tag->getString("id"))
 		, config(tag)
 	{
@@ -632,7 +632,7 @@ public:
 			ServiceMap::iterator curr = LDAPServices.find(id);
 			if (curr == LDAPServices.end())
 			{
-				auto* conn = new LDAPService(this, tag);
+				auto* conn = new LDAPService(weak_from_this(), tag);
 				conns[id] = conn;
 
 				ServerInstance->Modules.AddService(*conn);
@@ -656,7 +656,7 @@ public:
 		LDAPServices.swap(conns);
 	}
 
-	void OnUnloadModule(Module* m) override
+	void OnUnloadModule(const ModulePtr& m) override
 	{
 		for (const auto& [_, s] : LDAPServices)
 		{
@@ -668,7 +668,7 @@ public:
 				LDAPRequest* req = s->queries[i - 1];
 				LDAPInterface* li = req->inter;
 
-				if (li->creator == m)
+				if (insp::same_ptr(li->creator, m))
 				{
 					s->queries.erase(s->queries.begin() + i - 1);
 					delete req;
@@ -680,7 +680,7 @@ public:
 				LDAPRequest* req = s->results[i - 1];
 				LDAPInterface* li = req->inter;
 
-				if (li->creator == m)
+				if (insp::same_ptr(li->creator, m))
 				{
 					s->results.erase(s->results.begin() + i - 1);
 					delete req;

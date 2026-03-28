@@ -25,7 +25,7 @@ class CoreExport ServiceProvider
 {
 public:
 	/** Module that created this service */
-	const reference<Module> service_creator;
+	const WeakModulePtr service_creator;
 
 	/** Name of the service being provided */
 	const std::string service_name;
@@ -33,7 +33,7 @@ public:
 	/** Type of service (must match object type) */
 	const std::string service_type;
 
-	ServiceProvider(Module* mod, const std::string& stype, const std::string& sname);
+	ServiceProvider(const WeakModulePtr& mod, const std::string& stype, const std::string& sname);
 
 	/** Register this service in the appropriate registrar. */
 	virtual void RegisterService();
@@ -53,7 +53,7 @@ class CoreExport DataProvider
 	: public ServiceProvider
 {
 public:
-	DataProvider(Module* mod, const std::string& stype, const std::string& sname = "");
+	DataProvider(const WeakModulePtr& mod, const std::string& stype, const std::string& sname = "");
 
 	/** @copydoc ServiceProvider::RegisterService */
 	void RegisterService() override;

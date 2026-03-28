@@ -32,7 +32,7 @@ public:
 	bool op;
 	ModeHandler* npmh;
 	ChanModeReference opmode;
-	CommandOjoin(Module* parent, ModeHandler& mode)
+	CommandOjoin(const WeakModulePtr& parent, ModeHandler& mode)
 		: SplitCommand(parent, "OJOIN", 1)
 		, npmh(&mode)
 		, opmode(parent, "op")
@@ -87,7 +87,7 @@ class NetworkPrefix final
 	: public PrefixMode
 {
 public:
-	NetworkPrefix(Module* parent, char NPrefix)
+	NetworkPrefix(const WeakModulePtr& parent, char NPrefix)
 		: PrefixMode(parent, "official-join", 'Y', NETWORK_VALUE, NPrefix)
 	{
 		ranktoset = ranktounset = std::numeric_limits<ModeHandler::Rank>::max();
@@ -115,8 +115,8 @@ public:
 
 	ModuleOjoin()
 		: Module(VF_VENDOR, "Adds the /OJOIN command which allows server operators to join a channel and receive the server operator-only Y (official-join) channel prefix mode.")
-		, np(this, ServerInstance->Config->ConfValue("ojoin")->getCharacter("prefix", '\0', true))
-		, mycommand(this, np)
+		, np(weak_from_this(), ServerInstance->Config->ConfValue("ojoin")->getCharacter("prefix", '\0', true))
+		, mycommand(weak_from_this(), np)
 	{
 	}
 
@@ -156,7 +156,7 @@ public:
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules.SetPriority(this, I_OnUserPreJoin, PRIORITY_FIRST);
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnUserPreJoin, PRIORITY_FIRST);
 	}
 };
 

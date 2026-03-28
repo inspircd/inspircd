@@ -42,7 +42,7 @@ public:
 	ModeHandler::Rank protectedrank;
 	bool supportnokicks;
 
-	CommandRemove(Module* Creator)
+	CommandRemove(const WeakModulePtr& Creator)
 		: Command(Creator, "REMOVE", 2, 3)
 		, nokicksmode(Creator, "nokick")
 		, servprotectmode(Creator, "protect")
@@ -159,8 +159,8 @@ private:
 public:
 	ModuleRemove()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /REMOVE command which allows channel operators to force part users from a channel.")
-		, ISupport::EventListener(this)
-		, cmd(this)
+		, ISupport::EventListener(weak_from_this())
+		, cmd(weak_from_this())
 	{
 	}
 

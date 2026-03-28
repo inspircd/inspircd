@@ -248,7 +248,7 @@ class HTTPDocumentResponse final
 public:
 	/** Module that generated this reply
 	 */
-	Module* const module;
+	const WeakModulePtr module;
 
 	std::stringstream* document;
 	unsigned int responsecode;
@@ -266,7 +266,7 @@ public:
 	 * @param response A valid HTTP/1.0 or HTTP/1.1 response code. The response text will be determined for you
 	 * based upon the response code.
 	 */
-	HTTPDocumentResponse(Module* mod, HTTPRequest& req, std::stringstream* doc, unsigned int response)
+	HTTPDocumentResponse(const WeakModulePtr& mod, HTTPRequest& req, std::stringstream* doc, unsigned int response)
 		: module(mod)
 		, document(doc)
 		, responsecode(response)
@@ -279,7 +279,7 @@ class HTTPdAPIBase
 	: public DataProvider
 {
 public:
-	HTTPdAPIBase(Module* parent)
+	HTTPdAPIBase(const WeakModulePtr& parent)
 		: DataProvider(parent, "m_httpd_api")
 	{
 	}
@@ -297,7 +297,7 @@ class HTTPdAPI final
 	: public dynamic_reference<HTTPdAPIBase>
 {
 public:
-	HTTPdAPI(Module* parent)
+	HTTPdAPI(const WeakModulePtr& parent)
 		: dynamic_reference<HTTPdAPIBase>(parent, "m_httpd_api")
 	{
 	}
@@ -307,7 +307,7 @@ class HTTPACLEventListener
 	: public Events::ModuleEventListener
 {
 public:
-	HTTPACLEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+	HTTPACLEventListener(const WeakModulePtr& mod, unsigned int eventprio = DefaultPriority)
 		: ModuleEventListener(mod, "http-acl", eventprio)
 	{
 	}
@@ -319,7 +319,7 @@ class HTTPRequestEventListener
 	: public Events::ModuleEventListener
 {
 public:
-	HTTPRequestEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+	HTTPRequestEventListener(const WeakModulePtr& mod, unsigned int eventprio = DefaultPriority)
 		: ModuleEventListener(mod, "http-request", eventprio)
 	{
 	}

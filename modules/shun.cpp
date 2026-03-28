@@ -63,7 +63,7 @@ private:
 	IRCv3::ReplyCapReference stdrplcap;
 
 public:
-	CommandShun(Module* Creator)
+	CommandShun(const WeakModulePtr& Creator)
 		: Command(Creator, "SHUN", 1, 3)
 		, stdrplcap(Creator)
 	{
@@ -182,8 +182,8 @@ private:
 public:
 	ModuleShun()
 		: Module(VF_VENDOR | VF_COMMON, "Adds the /SHUN command which allows server operators to prevent users from executing commands.")
-		, Stats::EventListener(this)
-		, cmd(this)
+		, Stats::EventListener(weak_from_this())
+		, cmd(weak_from_this())
 	{
 	}
 
@@ -200,7 +200,7 @@ public:
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules.SetPriority(this, I_OnPreCommand, PRIORITY_BEFORE, "alias");
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnPreCommand, PRIORITY_BEFORE, "alias");
 	}
 
 	ModResult OnStats(Stats::Context& stats) override

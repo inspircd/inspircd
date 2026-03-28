@@ -29,7 +29,7 @@
 
 #include "core_channel.h"
 
-CommandKick::CommandKick(Module* parent)
+CommandKick::CommandKick(const WeakModulePtr& parent)
 	: Command(parent, "KICK", 2, 3)
 {
 	accepts_multiple_targets = true;

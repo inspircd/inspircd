@@ -273,7 +273,7 @@ private:
 	}
 
 public:
-	CommandMessage(Module* parent, MessageType mt)
+	CommandMessage(const WeakModulePtr& parent, MessageType mt)
 		: Command(parent, ClientProtocol::Messages::Privmsg::CommandStrFromMsgType(mt), 2, 2)
 		, msgtype(mt)
 	{
@@ -337,7 +337,7 @@ class CommandSQuery final
 	: public Command
 {
 public:
-	CommandSQuery(Module* Creator)
+	CommandSQuery(const WeakModulePtr& Creator)
 		: Command(Creator, "SQUERY", 2, 2)
 	{
 		allow_empty_last_param = true;
@@ -411,12 +411,12 @@ private:
 public:
 	ModuleCoreMessage()
 		: Module(VF_CORE | VF_VENDOR, "Provides the NOTICE, PRIVMSG, and SQUERY commands")
-		, cmdprivmsg(this, MessageType::PRIVMSG)
-		, cmdnotice(this, MessageType::NOTICE)
-		, cmdsquery(this)
-		, banmode(this, "ban")
-		, moderatedmode(this, "moderated")
-		, noextmsgmode(this, "noextmsg")
+		, cmdprivmsg(weak_from_this(), MessageType::PRIVMSG)
+		, cmdnotice(weak_from_this(), MessageType::NOTICE)
+		, cmdsquery(weak_from_this())
+		, banmode(weak_from_this(), "ban")
+		, moderatedmode(weak_from_this(), "moderated")
+		, noextmsgmode(weak_from_this(), "noextmsg")
 	{
 	}
 

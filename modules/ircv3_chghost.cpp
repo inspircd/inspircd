@@ -47,9 +47,9 @@ class ModuleIRCv3ChgHost final
 public:
 	ModuleIRCv3ChgHost()
 		: Module(VF_VENDOR, "Provides the IRCv3 chghost client capability.")
-		, cap(this, "chghost")
-		, protoevprov(this, "CHGHOST")
-		, monitorapi(this)
+		, cap(weak_from_this(), "chghost")
+		, protoevprov(weak_from_this(), "CHGHOST")
+		, monitorapi(weak_from_this())
 	{
 	}
 

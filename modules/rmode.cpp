@@ -41,7 +41,7 @@ private:
 	}
 
 public:
-	CommandRMode(Module* Creator)
+	CommandRMode(const WeakModulePtr& Creator)
 		: Command(Creator, "RMODE", 2, 3)
 	{
 		syntax = { "<channel> <mode> [<pattern>]" };
@@ -117,7 +117,7 @@ private:
 public:
 	ModuleRMode()
 		: Module(VF_VENDOR, "Allows removal of channel list modes using glob patterns.")
-		, cmd(this)
+		, cmd(weak_from_this())
 	{
 	}
 };

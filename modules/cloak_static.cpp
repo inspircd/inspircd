@@ -56,7 +56,7 @@ class StaticEngine final
 	: public Cloak::Engine
 {
 public:
-	StaticEngine(Module* Creator)
+	StaticEngine(const WeakModulePtr& Creator)
 		: Cloak::Engine(Creator, "static")
 	{
 	}
@@ -83,7 +83,7 @@ private:
 public:
 	ModuleCloakStatic()
 		: Module(VF_VENDOR, "Adds the static cloaking method for use with the cloak module.")
-		, nickcloak(this)
+		, nickcloak(weak_from_this())
 	{
 	}
 };

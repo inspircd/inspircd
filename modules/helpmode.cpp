@@ -28,7 +28,7 @@ class HelpOp final
 public:
 	std::vector<User*> helpers;
 
-	HelpOp(Module* mod)
+	HelpOp(const WeakModulePtr& mod)
 		: SimpleUserMode(mod, "helpop", 'h', true)
 	{
 	}
@@ -65,10 +65,10 @@ private:
 public:
 	ModuleHelpMode()
 		: Module(VF_VENDOR, "Adds user mode h (helpop) which marks a user as being available for help.")
-		, Stats::EventListener(this, 50)
-		, Whois::EventListener(this)
-		, helpop(this)
-		, hideoper(this, "hideoper")
+		, Stats::EventListener(weak_from_this(), 50)
+		, Whois::EventListener(weak_from_this())
+		, helpop(weak_from_this())
+		, hideoper(weak_from_this(), "hideoper")
 	{
 	}
 
@@ -79,14 +79,14 @@ public:
 		{
 			const auto name = tag->getString("name");
 			if (name.empty())
-				throw ModuleException(this, "<helpchan:name> must not be empty at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<helpchan:name> must not be empty at " + tag->source.str());
 
 			auto& newhelpchan = newhelpchans[name];
 			for (const auto modechr : tag->getString("prefix", "o", 1))
 			{
 				auto* mh = ServerInstance->Modes.FindPrefixMode(modechr);
 				if (mh)
-					newhelpchan.push_back(ChanModeReference(this, mh->service_name));
+					newhelpchan.push_back(ChanModeReference(weak_from_this(), mh->service_name));
 			}
 		}
 		std::swap(helpchans, newhelpchans);

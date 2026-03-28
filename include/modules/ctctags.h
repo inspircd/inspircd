@@ -34,7 +34,7 @@ class CTCTags::CapReference final
 	: public Cap::Reference
 {
 public:
-	CapReference(Module* mod)
+	CapReference(const WeakModulePtr& mod)
 		: Cap::Reference(mod, "message-tags")
 	{
 	}
@@ -120,7 +120,7 @@ class CTCTags::EventListener
 	: public Events::ModuleEventListener
 {
 protected:
-	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+	EventListener(const WeakModulePtr& mod, unsigned int eventprio = DefaultPriority)
 		: ModuleEventListener(mod, "tagmsg", eventprio)
 	{
 	}
@@ -172,7 +172,7 @@ private:
 	CapReference ctctagcap;
 
 public:
-	TagProvider(Module* mod)
+	TagProvider(const WeakModulePtr& mod)
 		: ClientProtocol::MessageTagProvider(mod)
 		, ctctagcap(mod)
 	{

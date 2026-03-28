@@ -59,8 +59,8 @@ private:
 public:
 	ModuleHTTPAccessList()
 		: Module(VF_VENDOR, "Allows the server administrator to control who can access resources served over HTTP with the httpd module.")
-		, HTTPACLEventListener(this)
-		, API(this)
+		, HTTPACLEventListener(weak_from_this())
+		, API(weak_from_this())
 	{
 	}
 
@@ -94,7 +94,7 @@ public:
 				}
 				else
 				{
-					throw ModuleException(this, "Invalid HTTP ACL type '" + type + "'");
+					throw ModuleException(weak_from_this(), "Invalid HTTP ACL type '" + type + "'");
 				}
 			}
 
@@ -117,7 +117,7 @@ public:
 			<< "<h2 style='font-size: 24pt'>Please contact your IRC administrator.</h2><hr>"
 			<< "<small>Powered by <a href='https://www.inspircd.org'>InspIRCd</a></small></body></html>";
 
-		HTTPDocumentResponse response(this, *http, &data, returnval);
+		HTTPDocumentResponse response(weak_from_this(), *http, &data, returnval);
 		response.headers.SetHeader("X-Powered-By", MODNAME);
 		if (!extraheaderkey.empty())
 			response.headers.SetHeader(extraheaderkey, extraheaderval);

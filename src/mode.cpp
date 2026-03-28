@@ -31,7 +31,7 @@
 #include "clientprotocolevent.h"
 #include "numerichelper.h"
 
-ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modeletter, ParamSpec Params, ModeType type, Class mclass)
+ModeHandler::ModeHandler(const WeakModulePtr& Creator, const std::string& Name, char modeletter, ParamSpec Params, ModeType type, Class mclass)
 	: ServiceProvider(Creator, FMT::format("ModeHandler/{}", type == MODETYPE_CHANNEL ? "C" : "U"), Name)
 	, modeid(ModeParser::MODEID_MAX)
 	, parameters_taken(Params)
@@ -169,7 +169,7 @@ bool SimpleChannelMode::OnModeChange(User* source, User* dest, Channel* channel,
 	return true;
 }
 
-ModeWatcher::ModeWatcher(Module* Creator, const std::string& modename, ModeType type)
+ModeWatcher::ModeWatcher(const WeakModulePtr& Creator, const std::string& modename, ModeType type)
 	: mode(modename)
 	, m_type(type)
 	, creator(Creator)
@@ -191,7 +191,7 @@ void ModeWatcher::AfterMode(User*, User*, Channel*, const Modes::Change&)
 {
 }
 
-PrefixMode::PrefixMode(Module* Creator, const std::string& Name, char ModeLetter, Rank PrefixRank, char PrefixChar)
+PrefixMode::PrefixMode(const WeakModulePtr& Creator, const std::string& Name, char ModeLetter, Rank PrefixRank, char PrefixChar)
 	: ModeHandler(Creator, Name, ModeLetter, PARAM_ALWAYS, MODETYPE_CHANNEL, MC_PREFIX)
 	, prefix(PrefixChar)
 	, prefixrank(PrefixRank)

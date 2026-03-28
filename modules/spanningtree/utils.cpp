@@ -110,7 +110,10 @@ TreeServer* SpanningTreeUtilities::FindRouteTarget(const std::string& target)
 
 SpanningTreeUtilities::SpanningTreeUtilities(ModuleSpanningTree* C)
 	: Creator(C)
+	, CreatorPtr(C->weak_from_this())
 {
+	Utils = this;
+
 	ServerInstance->Timers.AddTimer(&RefreshTimer);
 }
 
@@ -201,7 +204,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 			ValidIPs.push_back(L->IPAddr);
 		else if (this->Creator->DNS)
 		{
-			auto* sr = new SecurityIPResolver(Creator, *this->Creator->DNS, L->IPAddr, L, DNS::QUERY_AAAA);
+			auto* sr = new SecurityIPResolver(CreatorPtr, *this->Creator->DNS, L->IPAddr, L, DNS::QUERY_AAAA);
 			try
 			{
 				this->Creator->DNS->Process(sr);
@@ -265,7 +268,7 @@ void SpanningTreeUtilities::ReadConfiguration(ConfigStatus& status)
 #ifdef IPPROTO_SCTP
 				L->Protocol = IPPROTO_SCTP;
 #else
-				throw ModuleException((Module*)Creator, "Unable to use SCTP for outgoing connections as this platform does not support SCTP!");
+				throw ModuleException(Creator->weak_from_this(), "Unable to use SCTP for outgoing connections as this platform does not support SCTP!");
 #endif
 			}
 		}
@@ -287,30 +290,30 @@ void SpanningTreeUtilities::ReadConfiguration(ConfigStatus& status)
 
 		if (!tag->getString("ssl").empty())
 		{
-			throw ModuleException((Module*)Creator, "Obsolete TLS configuration in link block at {}. See {}modules/spanningtree/#link for the correct way to configure TLS.",
+			throw ModuleException(Creator->weak_from_this(), "Obsolete TLS configuration in link block at {}. See {}modules/spanningtree/#link for the correct way to configure TLS.",
 				tag->source.str(), INSPIRCD_DOCS);
 		}
 
 		if (L->Name.empty())
-			throw ModuleException((Module*)Creator, "Invalid configuration, found a link tag without a name!" + (!L->IPAddr.empty() ? " IP address: "+L->IPAddr : ""));
+			throw ModuleException(Creator->weak_from_this(), "Invalid configuration, found a link tag without a name!" + (!L->IPAddr.empty() ? " IP address: "+L->IPAddr : ""));
 
 		if (L->Name.find('.') == std::string::npos)
-			throw ModuleException((Module*)Creator, "The link name '"+L->Name+"' is invalid as it must contain at least one '.' character");
+			throw ModuleException(Creator->weak_from_this(), "The link name '"+L->Name+"' is invalid as it must contain at least one '.' character");
 
 		if (L->Name.length() > ServerInstance->Config->Limits.MaxHost)
-			throw ModuleException((Module*)Creator, "The link name '{}' is invalid as it is longer than {} characters", L->Name, ServerInstance->Config->Limits.MaxHost);
+			throw ModuleException(Creator->weak_from_this(), "The link name '{}' is invalid as it is longer than {} characters", L->Name, ServerInstance->Config->Limits.MaxHost);
 
 		if (L->RecvPass.empty())
-			throw ModuleException((Module*)Creator, "Invalid configuration for server '"+L->Name+"', recvpass not defined");
+			throw ModuleException(Creator->weak_from_this(), "Invalid configuration for server '"+L->Name+"', recvpass not defined");
 
 		if (L->SendPass.empty())
-			throw ModuleException((Module*)Creator, "Invalid configuration for server '"+L->Name+"', sendpass not defined");
+			throw ModuleException(Creator->weak_from_this(), "Invalid configuration for server '"+L->Name+"', sendpass not defined");
 
 		if ((L->SendPass.find(' ') != std::string::npos) || (L->RecvPass.find(' ') != std::string::npos))
-			throw ModuleException((Module*)Creator, "Link block '" + L->Name + "' has a password set that contains a space character which is invalid");
+			throw ModuleException(Creator->weak_from_this(), "Link block '" + L->Name + "' has a password set that contains a space character which is invalid");
 
 		if ((L->SendPass[0] == ':') || (L->RecvPass[0] == ':'))
-			throw ModuleException((Module*)Creator, "Link block '" + L->Name + "' has a password set that begins with a colon (:) which is invalid");
+			throw ModuleException(Creator->weak_from_this(), "Link block '" + L->Name + "' has a password set that begins with a colon (:) which is invalid");
 
 		if (L->IPAddr.empty())
 		{
@@ -343,7 +346,7 @@ void SpanningTreeUtilities::ReadConfiguration(ConfigStatus& status)
 
 		if (A->servers.empty())
 		{
-			throw ModuleException((Module*)Creator, "Invalid configuration for autoconnect, server cannot be empty!");
+			throw ModuleException(Creator->weak_from_this(), "Invalid configuration for autoconnect, server cannot be empty!");
 		}
 
 		AutoconnectBlocks.push_back(A);
@@ -389,7 +392,7 @@ void SpanningTreeUtilities::SendChannelMessage(const User* source, const Channel
 	}
 }
 
-std::string SpanningTreeUtilities::BuildLinkString(Module* mod)
+std::string SpanningTreeUtilities::BuildLinkString(const ModulePtr& mod)
 {
 	Module::LinkData data;
 	mod->GetLinkData(data);

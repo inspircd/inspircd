@@ -34,7 +34,7 @@ enum
 	RPL_ENDOFINFO = 374,
 };
 
-CommandInfo::CommandInfo(Module* parent)
+CommandInfo::CommandInfo(const WeakModulePtr& parent)
 	: SplitCommand(parent, "INFO")
 {
 	penalty = 3000;

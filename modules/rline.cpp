@@ -110,11 +110,11 @@ class RLineFactory final
 	: public XLineFactory
 {
 private:
-	const Module* creator;
+	const WeakModulePtr creator;
 	Regex::EngineReference& rxfactory;
 
 public:
-	RLineFactory(const Module* mod, Regex::EngineReference& rx)
+	RLineFactory(const WeakModulePtr& mod, Regex::EngineReference& rx)
 		: XLineFactory("R")
 		, creator(mod)
 		, rxfactory(rx)
@@ -144,7 +144,7 @@ private:
 	IRCv3::ReplyCapReference stdrplcap;
 
 public:
-	CommandRLine(Module* Creator, RLineFactory& rlf)
+	CommandRLine(const WeakModulePtr& Creator, RLineFactory& rlf)
 		: Command(Creator, "RLINE", 1, 3)
 		, factory(rlf)
 		, stdrplcap(Creator)
@@ -239,10 +239,10 @@ private:
 public:
 	ModuleRLine()
 		: Module(VF_VENDOR | VF_COMMON, "Adds the /RLINE command which allows server operators to prevent users matching a \"nickname!username@hostname realname\" regular expression from connecting to the server.")
-		, Stats::EventListener(this)
-		, rxfactory(this)
-		, f(this, rxfactory)
-		, r(this, f)
+		, Stats::EventListener(weak_from_this())
+		, rxfactory(weak_from_this())
+		, f(weak_from_this(), rxfactory)
+		, r(weak_from_this(), f)
 	{
 	}
 
@@ -345,7 +345,7 @@ public:
 		}
 	}
 
-	void OnUnloadModule(Module* mod) override
+	void OnUnloadModule(const ModulePtr& mod) override
 	{
 		// If the regex engine became unavailable or has changed, remove all R-lines.
 		if (!rxfactory)
@@ -361,7 +361,7 @@ public:
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules.SetPriority(this, I_OnUserRegister, PRIORITY_AFTER, "gateway");
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnUserRegister, PRIORITY_AFTER, "gateway");
 	}
 };
 

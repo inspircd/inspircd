@@ -62,7 +62,7 @@ DLLManager::~DLLManager()
 #endif
 }
 
-Module* DLLManager::CallInit()
+ModulePtr DLLManager::CallInit()
 {
 	if (!lib)
 		return nullptr;
@@ -95,7 +95,8 @@ Module* DLLManager::CallInit()
 		return nullptr;
 	}
 
-	return (*fptr)();
+	auto* ptr = (*fptr)();
+	return ptr->Share();
 }
 
 void* DLLManager::GetSymbol(const char* name) const

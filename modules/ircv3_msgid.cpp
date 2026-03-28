@@ -24,7 +24,7 @@ class MsgIdTag final
 	: public CTCTags::TagProvider
 {
 public:
-	MsgIdTag(Module* mod)
+	MsgIdTag(const WeakModulePtr& mod)
 		: CTCTags::TagProvider(mod)
 	{
 	}
@@ -87,8 +87,8 @@ private:
 public:
 	ModuleMsgId()
 		: Module(VF_VENDOR, "Provides support for the IRCv3 Message IDs specification.")
-		, CTCTags::EventListener(this)
-		, tag(this)
+		, CTCTags::EventListener(weak_from_this())
+		, tag(weak_from_this())
 	{
 	}
 

@@ -66,7 +66,7 @@ class IRCv3::Monitor::Manager final
 		Manager& manager;
 
 	public:
-		ExtItem(Module* mod, const std::string& extname, Manager& managerref)
+		ExtItem(const WeakModulePtr& mod, const std::string& extname, Manager& managerref)
 			: ExtensionItem(mod, extname, ExtensionType::USER)
 			, manager(managerref)
 		{
@@ -106,7 +106,7 @@ class IRCv3::Monitor::Manager final
 	};
 
 public:
-	Manager(Module* mod, const std::string& extname)
+	Manager(const WeakModulePtr& mod, const std::string& extname)
 		: ext(mod, extname, *this)
 	{
 	}
@@ -301,7 +301,7 @@ class CommandMonitor final
 public:
 	unsigned long maxmonitor;
 
-	CommandMonitor(Module* mod, IRCv3::Monitor::Manager& managerref)
+	CommandMonitor(const WeakModulePtr& mod, IRCv3::Monitor::Manager& managerref)
 		: SplitCommand(mod, "MONITOR", 1)
 		, manager(managerref)
 	{
@@ -382,11 +382,11 @@ private:
 public:
 	ModuleMonitor()
 		: Module(VF_VENDOR, "Adds the /MONITOR command which allows users to find out when their friends are connected to the server.")
-		, ISupport::EventListener(this)
-		, Monitor::APIBase(this)
-		, manager(this, "monitor")
-		, cmd(this, manager)
-		, extendedcap(this, "extended-monitor")
+		, ISupport::EventListener(weak_from_this())
+		, Monitor::APIBase(weak_from_this())
+		, manager(weak_from_this(), "monitor")
+		, cmd(weak_from_this(), manager)
+		, extendedcap(weak_from_this(), "extended-monitor")
 	{
 	}
 

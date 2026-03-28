@@ -87,10 +87,10 @@ class Cap::ManagerImpl final
 		throw ModuleException(this->service_creator, "Too many caps");
 	}
 
-	void OnReloadModuleSave(Module* mod, ReloadModule::CustomData& cd) override
+	void OnReloadModuleSave(const ModulePtr& mod, ReloadModule::CustomData& cd) override
 	{
 		ServerInstance->Logs.Debug(MODNAME, "OnReloadModuleSave()");
-		if (mod == this->service_creator)
+		if (insp::same_ptr(mod, this->service_creator))
 			return;
 
 		auto* capmoddata = new CapModData();
@@ -99,7 +99,7 @@ class Cap::ManagerImpl final
 		for (const auto& [_, cap] : caps)
 		{
 			// Only save users of caps that belong to the module being reloaded
-			if (cap->service_creator != mod)
+			if (!insp::same_ptr(cap->service_creator, mod))
 				continue;
 
 			ServerInstance->Logs.Debug(MODNAME, "Module being reloaded implements cap {}, saving cap users", cap->GetName());
@@ -115,7 +115,7 @@ class Cap::ManagerImpl final
 		}
 	}
 
-	void OnReloadModuleRestore(Module* mod, void* data) override
+	void OnReloadModuleRestore(const ModulePtr& mod, void* data) override
 	{
 		CapModData* capmoddata = static_cast<CapModData*>(data);
 		for (const auto& capdata : capmoddata->caps)
@@ -144,7 +144,7 @@ class Cap::ManagerImpl final
 	}
 
 public:
-	ManagerImpl(Module* mod, Events::ModuleEventProvider& evprovref)
+	ManagerImpl(const WeakModulePtr& mod, Events::ModuleEventProvider& evprovref)
 		: Cap::Manager(mod)
 		, ReloadModule::EventListener(mod)
 		, capext(mod)
@@ -313,7 +313,7 @@ namespace
 	}
 }
 
-Cap::ExtItem::ExtItem(Module* mod)
+Cap::ExtItem::ExtItem(const WeakModulePtr& mod)
 	: IntExtItem(mod, "caps", ExtensionType::USER, true)
 {
 }
@@ -398,7 +398,7 @@ private:
 public:
 	BoolExtItem holdext;
 
-	CommandCap(Module* mod)
+	CommandCap(const WeakModulePtr& mod)
 		: SplitCommand(mod, "CAP", 1)
 		, evprov(mod, "cap")
 		, manager(mod, evprov)
@@ -465,7 +465,7 @@ class PoisonCap final
 	: public Cap::Capability
 {
 public:
-	PoisonCap(Module* mod)
+	PoisonCap(const WeakModulePtr& mod)
 		: Cap::Capability(mod, "inspircd.org/poison")
 	{
 	}
@@ -487,8 +487,8 @@ private:
 public:
 	ModuleCap()
 		: Module(VF_VENDOR, "Provides support for the IRCv3 Client Capability Negotiation extension.")
-		, cmd(this)
-		, poisoncap(this)
+		, cmd(weak_from_this())
+		, poisoncap(weak_from_this())
 	{
 	}
 

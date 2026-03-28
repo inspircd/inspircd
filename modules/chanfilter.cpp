@@ -42,7 +42,7 @@ class ChanFilter final
 public:
 	unsigned long maxlen;
 
-	ChanFilter(Module* Creator)
+	ChanFilter(const WeakModulePtr& Creator)
 		: ListModeBase(Creator, "filter", 'g', RPL_SPAMFILTER, RPL_ENDOFSPAMFILTER)
 	{
 		syntax = "<pattern>";
@@ -97,8 +97,8 @@ public:
 
 	ModuleChanFilter()
 		: Module(VF_VENDOR, "Adds channel mode g (filter) which allows channel operators to define glob patterns for inappropriate phrases that are not allowed to be used in the channel.")
-		, exemptionprov(this)
-		, cf(this)
+		, exemptionprov(weak_from_this())
+		, cf(weak_from_this())
 	{
 	}
 

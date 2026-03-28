@@ -29,7 +29,7 @@ class CommandLoadmodule final
 	: public Command
 {
 public:
-	CommandLoadmodule(Module* parent)
+	CommandLoadmodule(const WeakModulePtr& parent)
 		: Command(parent, "LOADMODULE", 1, 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -58,7 +58,7 @@ class CommandUnloadmodule final
 	: public Command
 {
 public:
-	CommandUnloadmodule(Module* parent)
+	CommandUnloadmodule(const WeakModulePtr& parent)
 		: Command(parent, "UNLOADMODULE", 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -76,8 +76,8 @@ CmdResult CommandUnloadmodule::Handle(User* user, const Params& parameters)
 		return CmdResult::FAILURE;
 	}
 
-	Module* m = ServerInstance->Modules.Find(parameters[0]);
-	if (m == this->service_creator)
+	const auto m = ServerInstance->Modules.Find(parameters[0]);
+	if (insp::same_ptr(m, this->service_creator))
 	{
 		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "You cannot unload module loading commands!");
 		return CmdResult::FAILURE;
@@ -106,8 +106,8 @@ class CoreModLoadModule final
 public:
 	CoreModLoadModule()
 		: Module(VF_CORE | VF_VENDOR, "Provides the LOADMODULE and UNLOADMODULE commands")
-		, cmdloadmod(this)
-		, cmdunloadmod(this)
+		, cmdloadmod(weak_from_this())
+		, cmdunloadmod(weak_from_this())
 	{
 	}
 };

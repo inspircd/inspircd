@@ -310,7 +310,7 @@ private:
 	const CharState& hostmap;
 
 public:
-	UserEngine(Module* Creator, const std::string& Name, const CharState& hm)
+	UserEngine(const WeakModulePtr& Creator, const std::string& Name, const CharState& hm)
 		: Cloak::Engine(Creator, Name)
 		, hostmap(hm)
 	{
@@ -338,13 +338,13 @@ private:
 public:
 	ModuleCloakUser()
 		: Module(VF_VENDOR, "Adds the account, account-id, fingerprint, nickname, and username cloaking methods for use with the cloak module.")
-		, Account::EventListener(this)
-		, accountcloak(this, "account", hostmap)
-		, accountidcloak(this, "account-id", hostmap)
-		, fingerprintcloak(this, "fingerprint", hostmap)
-		, nicknamecloak(this, "nickname", hostmap)
-		, usernamecloak(this, "username", hostmap)
-		, cloakapi(this)
+		, Account::EventListener(weak_from_this())
+		, accountcloak(weak_from_this(), "account", hostmap)
+		, accountidcloak(weak_from_this(), "account-id", hostmap)
+		, fingerprintcloak(weak_from_this(), "fingerprint", hostmap)
+		, nicknamecloak(weak_from_this(), "nickname", hostmap)
+		, usernamecloak(weak_from_this(), "username", hostmap)
+		, cloakapi(weak_from_this())
 	{
 	}
 
@@ -356,7 +356,7 @@ public:
 		{
 			// A hostname can not contain NUL, LF, CR, or SPACE.
 			if (chr == 0x00 || chr == 0x0A || chr == 0x0D || chr == 0x20)
-				throw ModuleException(this, "<hostname:charmap> can not contain character 0x{:02X} ({})", chr, chr);
+				throw ModuleException(weak_from_this(), "<hostname:charmap> can not contain character 0x{:02X} ({})", chr, chr);
 			newhostmap.set(static_cast<unsigned char>(chr));
 		}
 		std::swap(newhostmap, hostmap);

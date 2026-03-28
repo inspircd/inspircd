@@ -45,8 +45,8 @@ private:
 protected:
 	ServiceProvider* value = nullptr;
 public:
-	const reference<Module> creator;
-	dynamic_reference_base(Module* mod, const std::string& stype, const std::string& sname, bool strict);
+	const WeakModulePtr creator;
+	dynamic_reference_base(const WeakModulePtr& mod, const std::string& stype, const std::string& sname, bool strict);
 	dynamic_reference_base(const dynamic_reference_base& other);
 	~dynamic_reference_base();
 
@@ -86,7 +86,7 @@ class dynamic_reference
 	: public dynamic_reference_base
 {
 public:
-	dynamic_reference(Module* mod, const std::string& stype, const std::string& sname = "", bool strict = false)
+	dynamic_reference(const WeakModulePtr& mod, const std::string& stype, const std::string& sname = "", bool strict = false)
 		: dynamic_reference_base(mod, stype, sname, strict)
 	{
 	}
@@ -118,7 +118,7 @@ class dynamic_reference_nocheck
 	: public dynamic_reference_base
 {
 public:
-	dynamic_reference_nocheck(Module* mod, const std::string& stype, const std::string& sname = "", bool strict = false)
+	dynamic_reference_nocheck(const WeakModulePtr& mod, const std::string& stype, const std::string& sname = "", bool strict = false)
 		: dynamic_reference_base(mod, stype, sname, strict)
 	{
 	}
@@ -149,7 +149,7 @@ class ChanModeReference final
 	: public dynamic_reference_nocheck<ModeHandler>
 {
 public:
-	ChanModeReference(Module* mod, const std::string& modename)
+	ChanModeReference(const WeakModulePtr& mod, const std::string& modename)
 		: dynamic_reference_nocheck<ModeHandler>(mod, "ModeHandler/C", modename, true)
 	{
 	}
@@ -159,7 +159,7 @@ class UserModeReference final
 	: public dynamic_reference_nocheck<ModeHandler>
 {
 public:
-	UserModeReference(Module* mod, const std::string& modename)
+	UserModeReference(const WeakModulePtr& mod, const std::string& modename)
 		: dynamic_reference_nocheck<ModeHandler>(mod, "ModeHandler/U", modename, true)
 	{
 	}

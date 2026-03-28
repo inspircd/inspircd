@@ -80,9 +80,10 @@ class ReconnectTimer final
 	: public Timer
 {
 private:
-	ModulePgSQL* mod;
+	const WeakModulePtr mod;
+
 public:
-	ReconnectTimer(ModulePgSQL* m)
+	ReconnectTimer(const WeakModulePtr& m)
 		: Timer(5, false)
 		, mod(m)
 	{
@@ -205,7 +206,7 @@ public:
 	SQLstatus status = CWRITE; /* PgSQL database connection status */
 	QueueItem qinprog; /* If there is currently a query in progress */
 
-	SQLConn(Module* Creator, const std::shared_ptr<ConfigTag>& tag)
+	SQLConn(const WeakModulePtr& Creator, const std::shared_ptr<ConfigTag>& tag)
 		: SQL::Provider(Creator, tag->getString("id"))
 		, conf(tag)
 		, qinprog(nullptr, "")
@@ -616,7 +617,7 @@ public:
 			ConnMap::iterator curr = connections.find(id);
 			if (curr == connections.end())
 			{
-				auto* conn = new SQLConn(this, tag);
+				auto* conn = new SQLConn(weak_from_this(), tag);
 				if (conn->status != DEAD)
 				{
 					conns.emplace(id, conn);
@@ -645,12 +646,12 @@ public:
 		connections.clear();
 	}
 
-	void OnUnloadModule(Module* mod) override
+	void OnUnloadModule(const ModulePtr& mod) override
 	{
 		SQL::Error err(SQL::BAD_DBID);
 		for (const auto& [_, conn] : connections)
 		{
-			if (conn->qinprog.c && conn->qinprog.c->creator == mod)
+			if (conn->qinprog.c && insp::same_ptr(conn->qinprog.c->creator, mod))
 			{
 				conn->qinprog.c->OnError(err);
 				delete conn->qinprog.c;
@@ -660,7 +661,7 @@ public:
 			while (j != conn->queue.end())
 			{
 				SQL::Query* q = j->c;
-				if (q->creator == mod)
+				if (insp::same_ptr(q->creator, mod))
 				{
 					q->OnError(err);
 					delete q;
@@ -675,8 +676,11 @@ public:
 
 bool ReconnectTimer::Tick()
 {
-	mod->retimer = nullptr;
-	mod->ReadConf();
+	// The lock here should always succeed because its for our creator.
+	const auto& thismod = std::static_pointer_cast<ModulePgSQL>(this->mod.lock());
+
+	thismod->retimer = nullptr;
+	thismod->ReadConf();
 	delete this;
 	return false;
 }
@@ -684,7 +688,9 @@ bool ReconnectTimer::Tick()
 void SQLConn::DelayReconnect()
 {
 	status = DEAD;
-	auto* mod = static_cast<ModulePgSQL*>(this->service_creator.ptr());
+
+	// The lock here should always succeed because its for our creator.
+	const auto& mod = std::static_pointer_cast<ModulePgSQL>(this->service_creator.lock());
 
 	ConnMap::iterator it = mod->connections.find(conf->getString("id"));
 	if (it != mod->connections.end())

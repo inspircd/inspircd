@@ -28,7 +28,7 @@ private:
 	IRCv3::ReplyCapReference stdrplcap;
 
 public:
-	CommandMakePassword(Module* mod)
+	CommandMakePassword(const WeakModulePtr& mod)
 		: SplitCommand(mod, "MKPASSWD", 2, 2)
 		, stdrplcap(mod)
 	{
@@ -78,7 +78,7 @@ private:
 public:
 	ModuleMakePassword()
 		: Module(VF_VENDOR, "Provides the /MKPASSWD command which allows the generation of hashed passwords for use in the server configuration.")
-		, cmd(this)
+		, cmd(weak_from_this())
 	{
 	}
 

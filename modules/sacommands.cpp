@@ -32,7 +32,7 @@ struct SharedData final
 	// Whether to sign messages with the executing operator's nick.
 	bool sign = true;
 
-	SharedData(Module *mod)
+	SharedData(const WeakModulePtr& mod)
 		: servprotectmode(mod, "protect")
 	{
 	}
@@ -45,7 +45,7 @@ private:
 	SharedData& data;
 
 public:
-	CommandSAJoin(Module* mod, SharedData& sd)
+	CommandSAJoin(const WeakModulePtr& mod, SharedData& sd)
 		: Command(mod, "SAJOIN", 1)
 		, data(sd)
 	{
@@ -132,7 +132,7 @@ private:
 	SharedData& data;
 
 public:
-	CommandSAKick(Module* mod, SharedData& sd)
+	CommandSAKick(const WeakModulePtr& mod, SharedData& sd)
 		: Command(mod, "SAKICK", 2, 3)
 		, data(sd)
 	{
@@ -198,7 +198,7 @@ private:
 public:
 	bool active = false;
 
-	CommandSAMode(Module* mod, SharedData& sd)
+	CommandSAMode(const WeakModulePtr& mod, SharedData& sd)
 		: Command(mod, "SAMODE", 2)
 		, data(sd)
 	{
@@ -269,7 +269,7 @@ private:
 	SharedData& data;
 
 public:
-	CommandSANick(Module* mod, SharedData& sd)
+	CommandSANick(const WeakModulePtr& mod, SharedData& sd)
 		: Command(mod, "SANICK", 2)
 		, data(sd)
 	{
@@ -344,7 +344,7 @@ private:
 	SharedData& data;
 
 public:
-	CommandSAPart(Module* mod, SharedData& sd)
+	CommandSAPart(const WeakModulePtr& mod, SharedData& sd)
 		: Command(mod, "SAPART", 2, 3)
 		, data(sd)
 	{
@@ -410,7 +410,7 @@ private:
 	SharedData& data;
 
 public:
-	CommandSAQuit(Module* mod, SharedData& sd)
+	CommandSAQuit(const WeakModulePtr& mod, SharedData& sd)
 		: Command(mod, "SAQUIT", 2, 2)
 		, data(sd)
 	{
@@ -458,7 +458,7 @@ class CommandSATopic final
 	: public Command
 {
 public:
-	CommandSATopic(Module* mod)
+	CommandSATopic(const WeakModulePtr& mod)
 		: Command(mod, "SATOPIC", 2, 2)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -508,14 +508,14 @@ private:
 public:
 	ModuleSACommands()
 		: Module(VF_VENDOR, "Adds various server operator-only versions of regular commands.")
-		, data(this)
-		, cmdsajoin(this, data)
-		, cmdsakick(this, data)
-		, cmdsamode(this, data)
-		, cmdsanick(this, data)
-		, cmdsapart(this, data)
-		, cmdsaquit(this, data)
-		, cmdsatopic(this)
+		, data(weak_from_this())
+		, cmdsajoin(weak_from_this(), data)
+		, cmdsakick(weak_from_this(), data)
+		, cmdsamode(weak_from_this(), data)
+		, cmdsanick(weak_from_this(), data)
+		, cmdsapart(weak_from_this(), data)
+		, cmdsaquit(weak_from_this(), data)
+		, cmdsatopic(weak_from_this())
 	{
 	}
 
@@ -527,8 +527,8 @@ public:
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules.SetPriority(this, I_OnRawMode, PRIORITY_BEFORE, "disable");
-		ServerInstance->Modules.SetPriority(this, I_OnPreMode, PRIORITY_BEFORE, "override");
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnRawMode, PRIORITY_BEFORE, "disable");
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnPreMode, PRIORITY_BEFORE, "override");
 	}
 
 	ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes) override

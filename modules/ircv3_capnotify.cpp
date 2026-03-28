@@ -40,7 +40,7 @@ class CapNotify final
 	}
 
 public:
-	CapNotify(Module* mod)
+	CapNotify(const WeakModulePtr& mod)
 		: Cap::Capability(mod, "cap-notify")
 	{
 	}
@@ -128,19 +128,22 @@ class ModuleIRCv3CapNotify final
 public:
 	ModuleIRCv3CapNotify()
 		: Module(VF_VENDOR, "Provides the IRCv3 cap-notify client capability.")
-		, Cap::EventListener(this)
-		, ReloadModule::EventListener(this)
-		, capnotify(this)
-		, protoev(this, "CAP_NOTIFY")
+		, Cap::EventListener(weak_from_this())
+		, ReloadModule::EventListener(weak_from_this())
+		, capnotify(weak_from_this())
+		, protoev(weak_from_this(), "CAP_NOTIFY")
 	{
 	}
 
 	void OnCapAddDel(Cap::Capability* cap, bool add) override
 	{
-		if (cap->service_creator == this)
+		if (insp::same_ptr(cap->service_creator, weak_from_this()))
 			return;
 
-		if (cap->service_creator->ModuleFile == reloadedmod)
+		// The lock here should always succeed because its for a module which is
+		// adding or deleting a cap.
+		const auto& mod = cap->service_creator.lock();
+		if (mod->ModuleFile == reloadedmod)
 		{
 			if (!add)
 				reloadedcaps.push_back(cap->GetName());
@@ -156,21 +159,21 @@ public:
 		Send(cap->GetName(), cap, true);
 	}
 
-	void OnReloadModuleSave(Module* mod, ReloadModule::CustomData& cd) override
+	void OnReloadModuleSave(const ModulePtr& mod, ReloadModule::CustomData& cd) override
 	{
-		if (mod == this)
+		if (insp::same_ptr(mod, weak_from_this()))
 			return;
 		reloadedmod = mod->ModuleFile;
 		// Request callback when reload is complete
 		cd.add(this, nullptr);
 	}
 
-	void OnReloadModuleRestore(Module* mod, void* data) override
+	void OnReloadModuleRestore(const ModulePtr& mod, void* data) override
 	{
 		// Reloading can change the set of caps provided by a module so assuming that if the reload succeeded all
 		// caps that the module previously provided are available or all were lost if the reload failed is wrong.
 		// Instead, we verify the availability of each cap individually.
-		dynamic_reference_nocheck<Cap::Manager> capmanager(this, "capmanager");
+		dynamic_reference_nocheck<Cap::Manager> capmanager(weak_from_this(), "capmanager");
 		if (capmanager)
 		{
 			for (const auto& capname : reloadedcaps)

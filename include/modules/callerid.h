@@ -29,7 +29,7 @@ class CallerID::APIBase
 	: public DataProvider
 {
 public:
-	APIBase(Module* parent)
+	APIBase(const WeakModulePtr& parent)
 		: DataProvider(parent, "m_callerid_api")
 	{
 	}
@@ -46,7 +46,7 @@ class CallerID::API final
 	: public dynamic_reference<CallerID::APIBase>
 {
 public:
-	API(Module* parent)
+	API(const WeakModulePtr& parent)
 		: dynamic_reference<CallerID::APIBase>(parent, "m_callerid_api")
 	{
 	}

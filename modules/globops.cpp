@@ -30,7 +30,7 @@ class CommandGlobops final
 	: public Command
 {
 public:
-	CommandGlobops(Module* Creator)
+	CommandGlobops(const WeakModulePtr& Creator)
 		: Command(Creator, "GLOBOPS", 1, 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -60,7 +60,7 @@ private:
 public:
 	ModuleGlobops()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /GLOBOPS command which allows server operators to send messages to all server operators with the g (globops) snomask.")
-		, cmd(this)
+		, cmd(weak_from_this())
 	{
 	}
 

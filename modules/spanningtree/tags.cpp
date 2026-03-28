@@ -19,7 +19,7 @@
 
 #include "main.h"
 
-ServerTags::ServerTags(Module* Creator)
+ServerTags::ServerTags(const WeakModulePtr& Creator)
 	: ClientProtocol::MessageTagProvider(Creator)
 {
 }

@@ -168,7 +168,7 @@ class SSLIOHookProvider
 	: public IOHookProvider
 {
 public:
-	SSLIOHookProvider(Module* mod, const std::string& Name)
+	SSLIOHookProvider(const WeakModulePtr& mod, const std::string& Name)
 		: IOHookProvider(mod, "ssl/" + Name, IOH_SSL)
 	{
 	}
@@ -283,7 +283,7 @@ class UserCertificateAPIBase
 	: public DataProvider
 {
 public:
-	UserCertificateAPIBase(Module* parent)
+	UserCertificateAPIBase(const WeakModulePtr& parent)
 		: DataProvider(parent, "m_sslinfo_api")
 	{
 	}
@@ -340,7 +340,7 @@ class UserCertificateAPI final
 	: public dynamic_reference<UserCertificateAPIBase>
 {
 public:
-	UserCertificateAPI(Module* parent)
+	UserCertificateAPI(const WeakModulePtr& parent)
 		: dynamic_reference<UserCertificateAPIBase>(parent, "m_sslinfo_api")
 	{
 	}

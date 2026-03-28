@@ -84,7 +84,7 @@ namespace DNS
 		: public ModuleException
 	{
 	public:
-		Exception(const Module* mod, const std::string& message)
+		Exception(const WeakModulePtr& mod, const std::string& message)
 			: ModuleException(mod, message)
 		{
 		}
@@ -174,7 +174,7 @@ namespace DNS
 	class Manager : public DataProvider
 	{
 	public:
-		Manager(Module* mod)
+		Manager(const WeakModulePtr& mod)
 			: DataProvider(mod, "DNS")
 		{
 		}
@@ -191,7 +191,7 @@ namespace DNS
 		: public dynamic_reference<DNS::Manager>
 	{
 	public:
-		ManagerRef(Module* mod)
+		ManagerRef(const WeakModulePtr& mod)
 			: dynamic_reference<DNS::Manager>(mod, "DNS")
 		{
 		}
@@ -210,9 +210,9 @@ namespace DNS
 		/* Request id */
 		RequestId id = 0;
 		/* Creator of this request */
-		Module* const creator;
+		const WeakModulePtr creator;
 
-		Request(Manager* mgr, Module* mod, const std::string& addr, QueryType qt, bool usecache = true, unsigned long timeout = 0)
+		Request(Manager* mgr, const WeakModulePtr& mod, const std::string& addr, QueryType qt, bool usecache = true, unsigned long timeout = 0)
 			: Timer(timeout ? timeout : mgr->GetDefaultTimeout(), false)
 			, manager(mgr)
 			, question(addr, qt)

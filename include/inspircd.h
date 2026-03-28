@@ -56,6 +56,7 @@
 
 #include "utility/aligned_storage.h"
 #include "utility/iterator_range.h"
+#include "utility/pointer.h"
 
 #include "intrusive_list.h"
 #include "flat_map.h"

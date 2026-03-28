@@ -115,7 +115,7 @@ public:
 	unsigned long maxduration;
 	unsigned long maxlines;
 
-	HistoryMode(Module* Creator)
+	HistoryMode(const WeakModulePtr& Creator)
 		: ParamMode<HistoryMode, SimpleExtItem<HistoryList>>(Creator, "history", 'H')
 	{
 		syntax = "<max-messages>:<max-duration>";
@@ -215,15 +215,15 @@ private:
 public:
 	ModuleChanHistory()
 		: Module(VF_VENDOR, "Adds channel mode H (history) which allows message history to be viewed on joining the channel.")
-		, ServerProtocol::RouteEventListener(this)
-		, historymode(this)
-		, nohistorymode(this, "nohistory", 'N')
-		, botmode(this, "bot")
-		, batchcap(this)
-		, batchmanager(this)
+		, ServerProtocol::RouteEventListener(weak_from_this())
+		, historymode(weak_from_this())
+		, nohistorymode(weak_from_this(), "nohistory", 'N')
+		, botmode(weak_from_this(), "bot")
+		, batchcap(weak_from_this())
+		, batchmanager(weak_from_this())
 		, batch("chathistory")
-		, servertimemanager(this)
-		, tagevent(this)
+		, servertimemanager(weak_from_this())
+		, tagevent(weak_from_this())
 	{
 	}
 

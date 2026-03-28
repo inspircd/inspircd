@@ -35,7 +35,7 @@ private:
 	IRCv3::ReplyCapReference stdrplcap;
 
 public:
-	CommandSetidle(Module* Creator)
+	CommandSetidle(const WeakModulePtr& Creator)
 		: SplitCommand(Creator, "SETIDLE", 1)
 		, stdrplcap(Creator)
 	{
@@ -72,7 +72,7 @@ private:
 public:
 	ModuleSetIdle()
 		: Module(VF_VENDOR, "Adds the /SETIDLE command which allows server operators to change their idle time.")
-		, cmd(this)
+		, cmd(weak_from_this())
 	{
 	}
 };

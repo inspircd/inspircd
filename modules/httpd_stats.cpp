@@ -453,9 +453,9 @@ private:
 public:
 	ModuleHttpStats()
 		: Module(VF_VENDOR, "Provides XML-serialised statistics about the server, channels, and users over HTTP via the /stats path.")
-		, HTTPRequestEventListener(this)
-		, API(this)
-		, isupportevprov(this)
+		, HTTPRequestEventListener(weak_from_this())
+		, API(weak_from_this())
+		, isupportevprov(weak_from_this())
 	{
 		isevprov = &isupportevprov;
 	}
@@ -495,7 +495,7 @@ public:
 		serializer.EndBlock();
 
 		/* Send the document back to m_httpd */
-		HTTPDocumentResponse response(this, request, serializer.GetData(), 200);
+		HTTPDocumentResponse response(weak_from_this(), request, serializer.GetData(), 200);
 		response.headers.SetHeader("X-Powered-By", MODNAME);
 		response.headers.SetHeader("Content-Type", "text/xml");
 		API->SendResponse(response);

@@ -51,13 +51,13 @@ private:
 		{
 			// Check that the character is a valid mode letter.
 			if (!ModeParser::IsModeChar(chr))
-				throw ModuleException(this, "Invalid mode '{}' was specified in <disabled:{}> at {}",
+				throw ModuleException(weak_from_this(), "Invalid mode '{}' was specified in <disabled:{}> at {}",
 					chr, field, tag->source.str());
 
 			// Check that the mode actually exists.
 			ModeHandler* mh = ServerInstance->Modes.FindMode(chr, type);
 			if (!mh)
-				throw ModuleException(this, FMT::format("Nonexistent mode '{}' was specified in <disabled:{}> at {}",
+				throw ModuleException(weak_from_this(), FMT::format("Nonexistent mode '{}' was specified in <disabled:{}> at {}",
 					chr, field, tag->source.str()));
 
 			// Disable the mode.
@@ -79,7 +79,7 @@ private:
 public:
 	ModuleDisable()
 		: Module(VF_VENDOR, "Allows commands, channel modes, and user modes to be disabled.")
-		, ISupport::EventListener(this)
+		, ISupport::EventListener(weak_from_this())
 	{
 	}
 
@@ -95,7 +95,7 @@ public:
 			// Check that the command actually exists.
 			Command* handler = ServerInstance->Parser.GetHandler(command);
 			if (!handler)
-				throw ModuleException(this, "Nonexistent command '{}' was specified in <disabled:commands> at {}",
+				throw ModuleException(weak_from_this(), "Nonexistent command '{}' was specified in <disabled:commands> at {}",
 					command, tag->source.str());
 
 			// Prevent admins from disabling MODULES for transparency reasons.

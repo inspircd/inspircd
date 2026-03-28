@@ -75,7 +75,7 @@ private:
 public:
 	bool sendnotice;
 
-	CommandTban(Module* Creator)
+	CommandTban(const WeakModulePtr& Creator)
 		: Command(Creator, "TBAN", 3)
 		, banmode(Creator, "ban")
 		, extbanmgr(Creator)
@@ -172,7 +172,7 @@ class BanWatcher final
 	: public ModeWatcher
 {
 public:
-	BanWatcher(Module* parent)
+	BanWatcher(const WeakModulePtr& parent)
 		: ModeWatcher(parent, "ban", MODETYPE_CHANNEL)
 	{
 	}
@@ -208,9 +208,9 @@ private:
 public:
 	ModuleTimedBans()
 		: Module(VF_VENDOR | VF_COMMON, "Adds the /TBAN command which allows channel operators to add bans which will be expired after the specified period.")
-		, banmode(this, "ban")
-		, cmd(this)
-		, banwatcher(this)
+		, banmode(weak_from_this(), "ban")
+		, cmd(weak_from_this())
+		, banwatcher(weak_from_this())
 	{
 	}
 

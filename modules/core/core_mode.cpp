@@ -83,12 +83,12 @@ private:
 	std::string GetSnomasks(const User* user);
 
 public:
-	CommandMode(Module* parent);
+	CommandMode(const WeakModulePtr& parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
 
-CommandMode::CommandMode(Module* mod)
+CommandMode::CommandMode(const WeakModulePtr& mod)
 	: Command(mod, "MODE", 1)
 	, secretmode(mod, "secret")
 	, privatemode(mod, "private")
@@ -379,8 +379,8 @@ private:
 public:
 	CoreModMode()
 		: Module(VF_CORE | VF_VENDOR, "Provides the MODE command")
-		, ISupport::EventListener(this)
-		, cmdmode(this)
+		, ISupport::EventListener(weak_from_this())
+		, cmdmode(weak_from_this())
 	{
 	}
 

@@ -29,7 +29,7 @@ class ListWatcher final
 	const ModeHandler::Rank minrank;
 
 public:
-	ListWatcher(Module* mod, const std::string& modename, ModeHandler::Rank rank)
+	ListWatcher(const WeakModulePtr& mod, const std::string& modename, ModeHandler::Rank rank)
 		: ModeWatcher(mod, modename, MODETYPE_CHANNEL)
 		, minrank(rank)
 	{
@@ -68,7 +68,7 @@ public:
 		{
 			std::string modename = tag->getString("mode");
 			if (modename.empty())
-				throw ModuleException(this, "Empty <hidelist:mode> at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "Empty <hidelist:mode> at " + tag->source.str());
 			// If rank is set to 0 everyone inside the channel can view the list,
 			// but non-members may not
 			ModeHandler::Rank rank = tag->getNum<ModeHandler::Rank>("rank", HALFOP_VALUE);
@@ -79,7 +79,7 @@ public:
 		watchers.clear();
 
 		for (const auto& [mode, rank] : newconfigs)
-			watchers.push_back(new ListWatcher(this, mode, rank));
+			watchers.push_back(new ListWatcher(weak_from_this(), mode, rank));
 	}
 
 	ModuleHideList()

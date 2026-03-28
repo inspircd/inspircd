@@ -82,7 +82,7 @@ public:
 	/** How to handle private/secret channels in the WHOIS response. */
 	SplitWhoisState splitwhois;
 
-	CommandWhois(Module* parent)
+	CommandWhois(const WeakModulePtr& parent)
 		: SplitCommand(parent, "WHOIS", 1)
 		, secretmode(parent, "secret")
 		, privatemode(parent, "private")
@@ -337,7 +337,7 @@ private:
 public:
 	CoreModWhois()
 		: Module(VF_CORE | VF_VENDOR, "Provides the WHOIS command")
-		, cmd(this)
+		, cmd(weak_from_this())
 	{
 	}
 

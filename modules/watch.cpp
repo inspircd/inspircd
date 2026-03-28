@@ -126,7 +126,7 @@ class CommandWatch final
 public:
 	unsigned long maxwatch;
 
-	CommandWatch(Module* mod, IRCv3::Monitor::Manager& managerref)
+	CommandWatch(const WeakModulePtr& mod, IRCv3::Monitor::Manager& managerref)
 		: SplitCommand(mod, "WATCH")
 		, manager(managerref)
 	{
@@ -212,10 +212,10 @@ private:
 public:
 	ModuleWatch()
 		: Module(VF_VENDOR, "Adds the /WATCH command which allows users to find out when their friends are connected to the server.")
-		, Away::EventListener(this)
-		, ISupport::EventListener(this)
-		, manager(this, "watch")
-		, cmd(this, manager)
+		, Away::EventListener(weak_from_this())
+		, ISupport::EventListener(weak_from_this())
+		, manager(weak_from_this(), "watch")
+		, cmd(weak_from_this(), manager)
 	{
 	}
 

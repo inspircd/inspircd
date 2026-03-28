@@ -48,11 +48,11 @@ public:
 		{
 			const std::string channel = tag->getString("channel");
 			if (!ServerInstance->Channels.IsChannel(channel))
-				throw ModuleException(this, "<chanlog:channel> must be set to a channel name, at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<chanlog:channel> must be set to a channel name, at " + tag->source.str());
 
 			const std::string snomasks = tag->getString("snomasks");
 			if (snomasks.empty())
-				throw ModuleException(this, "<chanlog:snomasks> must not be empty, at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<chanlog:snomasks> must not be empty, at " + tag->source.str());
 
 			for (const auto snomask : snomasks)
 			{

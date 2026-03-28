@@ -31,7 +31,7 @@ class ServerExtBan final
 public:
 	bool operonly;
 
-	ServerExtBan(Module* Creator)
+	ServerExtBan(const WeakModulePtr& Creator)
 		: ExtBan::MatchingBase(Creator, "server", 's')
 	{
 	}
@@ -62,7 +62,7 @@ private:
 public:
 	ModuleServerBan()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban s: (server) which check whether users are on a server matching the specified glob pattern.")
-		, extban(this)
+		, extban(weak_from_this())
 	{
 	}
 

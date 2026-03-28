@@ -27,7 +27,6 @@
 
 namespace
 {
-	Module* me;
 	std::string killreason;
 	BoolExtItem* authed;
 	bool verbose;
@@ -100,7 +99,7 @@ class BindInterface final
 	}
 
 public:
-	BindInterface(Module* c, const std::string& p, const std::string& u, const std::string& dn)
+	BindInterface(const WeakModulePtr& c, const std::string& p, const std::string& u, const std::string& dn)
 		: LDAPInterface(c)
 		, provider(p)
 		, uid(u)
@@ -111,7 +110,7 @@ public:
 	void OnResult(const LDAPResult& r) override
 	{
 		auto* user = ServerInstance->Users.FindUUID(uid);
-		dynamic_reference<LDAPProvider> LDAP(me, provider);
+		dynamic_reference<LDAPProvider> LDAP(this->creator, provider);
 
 		if (!user || !LDAP)
 		{
@@ -220,7 +219,7 @@ class SearchInterface final
 	const std::string uid;
 
 public:
-	SearchInterface(Module* c, const std::string& p, const std::string& u)
+	SearchInterface(const WeakModulePtr& c, const std::string& p, const std::string& u)
 		: LDAPInterface(c)
 		, provider(p)
 		, uid(u)
@@ -230,7 +229,7 @@ public:
 	void OnResult(const LDAPResult& r) override
 	{
 		LocalUser* user = ServerInstance->Users.FindUUID<LocalUser>(uid);
-		dynamic_reference<LDAPProvider> LDAP(me, provider);
+		dynamic_reference<LDAPProvider> LDAP(this->creator, provider);
 		if (!LDAP || r.empty() || !user)
 		{
 			if (user)
@@ -278,7 +277,7 @@ class AdminBindInterface final
 	const std::string what;
 
 public:
-	AdminBindInterface(Module* c, const std::string& p, const std::string& u, const std::string& b, const std::string& w)
+	AdminBindInterface(const WeakModulePtr& c, const std::string& p, const std::string& u, const std::string& b, const std::string& w)
 		: LDAPInterface(c)
 		, provider(p)
 		, uuid(u)
@@ -289,7 +288,7 @@ public:
 
 	void OnResult(const LDAPResult& r) override
 	{
-		dynamic_reference<LDAPProvider> LDAP(me, provider);
+		dynamic_reference<LDAPProvider> LDAP(this->creator, provider);
 		if (LDAP)
 		{
 			try
@@ -333,11 +332,10 @@ class ModuleLDAPAuth final
 public:
 	ModuleLDAPAuth()
 		: Module(VF_VENDOR, "Allows connecting users to be authenticated against an LDAP database.")
-		, LDAP(this, "LDAPProvider")
-		, ldapAuthed(this, "ldapauth", ExtensionType::USER)
-		, ldapVhost(this, "ldapauth-vhost", ExtensionType::USER)
+		, LDAP(weak_from_this(), "LDAPProvider")
+		, ldapAuthed(weak_from_this(), "ldapauth", ExtensionType::USER)
+		, ldapVhost(weak_from_this(), "ldapauth-vhost", ExtensionType::USER)
 	{
-		me = this;
 		authed = &ldapAuthed;
 		vhosts = &ldapVhost;
 	}
@@ -446,7 +444,7 @@ public:
 
 		try
 		{
-			LDAP->BindAsManager(new AdminBindInterface(this, LDAP.GetProviderName(), user->uuid, base, what));
+			LDAP->BindAsManager(new AdminBindInterface(weak_from_this(), LDAP.GetProviderName(), user->uuid, base, what));
 		}
 		catch (const LDAPException& ex)
 		{

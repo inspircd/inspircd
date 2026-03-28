@@ -31,7 +31,7 @@
 
 #include "core_channel.h"
 
-CommandNames::CommandNames(Module* parent)
+CommandNames::CommandNames(const WeakModulePtr& parent)
 	: SplitCommand(parent, "NAMES")
 	, secretmode(parent, "secret")
 	, privatemode(parent, "private")

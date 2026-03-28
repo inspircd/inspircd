@@ -34,7 +34,7 @@ private:
 	regex_t regex;
 
 public:
-	POSIXPattern(const Module* mod, const std::string& pattern, uint8_t options)
+	POSIXPattern(const WeakModulePtr& mod, const std::string& pattern, uint8_t options)
 		: Regex::Pattern(pattern, options)
 	{
 		int flags = REG_EXTENDED;
@@ -99,7 +99,7 @@ private:
 public:
 	ModuleRegexPOSIX()
 		: Module(VF_VENDOR, "Provides the posix regular expression engine which uses the POSIX.2 regular expression matching system.")
-		, regex(this, "posix")
+		, regex(weak_from_this(), "posix")
 	{
 	}
 };

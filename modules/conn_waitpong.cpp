@@ -35,7 +35,7 @@ class ModuleWaitPong final
 public:
 	ModuleWaitPong()
 		: Module(VF_VENDOR, "Requires all clients to respond to a PING request before they can fully connect.")
-		, ext(this, "waitpong-cookie", ExtensionType::USER)
+		, ext(weak_from_this(), "waitpong-cookie", ExtensionType::USER)
 	{
 	}
 

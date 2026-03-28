@@ -28,7 +28,7 @@ class CommandTline final
 	: public Command
 {
 public:
-	CommandTline(Module* Creator)
+	CommandTline(const WeakModulePtr& Creator)
 		: Command(Creator, "TLINE", 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -81,7 +81,7 @@ private:
 public:
 	ModuleTLine()
 		: Module(VF_VENDOR, "Adds the /TLINE command which allows server operators to determine how many users would be affected by an X-line on a specified pattern.")
-		, cmd(this)
+		, cmd(weak_from_this())
 	{
 	}
 };

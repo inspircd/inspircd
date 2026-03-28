@@ -30,7 +30,7 @@
 #include "utils.h"
 #include "commands.h"
 
-CommandRConnect::CommandRConnect (Module* Creator)
+CommandRConnect::CommandRConnect(const WeakModulePtr& Creator)
 	: Command(Creator, "RCONNECT", 2)
 {
 	access_needed = CmdAccess::OPERATOR;
@@ -55,7 +55,7 @@ CmdResult CommandRConnect::Handle(User* user, const Params& parameters)
 
 		CommandBase::Params para;
 		para.push_back(parameters[1]);
-		static_cast<ModuleSpanningTree*>(this->service_creator.ptr())->HandleConnect(para, user);
+		Utils->Creator->HandleConnect(para, user);
 	}
 	else
 	{

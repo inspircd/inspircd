@@ -59,7 +59,7 @@ public:
 	// Whether to show modes in the LIST response.
 	ShowModes showmodes;
 
-	CommandList(Module* mod)
+	CommandList(const WeakModulePtr& mod)
 		: Command(mod, "LIST")
 		, secretmode(mod, "secret")
 		, privatemode(mod, "private")
@@ -205,8 +205,8 @@ private:
 public:
 	CoreModList()
 		: Module(VF_CORE | VF_VENDOR, "Provides the LIST command")
-		, ISupport::EventListener(this)
-		, cmd(this)
+		, ISupport::EventListener(weak_from_this())
+		, cmd(weak_from_this())
 	{
 	}
 

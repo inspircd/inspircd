@@ -57,7 +57,7 @@ public:
 	 */
 	bool modefromuser;
 
-	JoinHook(Module* mod)
+	JoinHook(const WeakModulePtr& mod)
 		: ClientProtocol::EventHook(mod, "JOIN")
 	{
 	}
@@ -151,28 +151,28 @@ class CoreModChannel final
 public:
 	CoreModChannel()
 		: Module(VF_CORE | VF_VENDOR, "Provides the INVITE, JOIN, KICK, NAMES, and TOPIC commands")
-		, CheckExemption::EventListener(this, UINT_MAX)
-		, ISupport::EventListener(this)
-		, invapi(this)
-		, cmdinvite(this, invapi)
-		, cmdjoin(this)
-		, cmdkick(this)
-		, cmdnames(this)
-		, cmdtopic(this)
-		, evprov(this, "channel")
-		, joinhook(this)
-		, banmode(this)
-		, inviteonlymode(this, "inviteonly", 'i')
-		, keymode(this)
-		, limitmode(this)
-		, moderatedmode(this, "moderated", 'm')
-		, noextmsgmode(this, "noextmsg", 'n')
-		, opmode(this)
-		, privatemode(this, "private", 'p')
-		, secretmode(this, "secret", 's')
-		, topiclockmode(this, "topiclock", 't')
-		, voicemode(this)
-		, extbanmgr(this, banmode)
+		, CheckExemption::EventListener(weak_from_this(), UINT_MAX)
+		, ISupport::EventListener(weak_from_this())
+		, invapi(weak_from_this())
+		, cmdinvite(weak_from_this(), invapi)
+		, cmdjoin(weak_from_this())
+		, cmdkick(weak_from_this())
+		, cmdnames(weak_from_this())
+		, cmdtopic(weak_from_this())
+		, evprov(weak_from_this(), "channel")
+		, joinhook(weak_from_this())
+		, banmode(weak_from_this())
+		, inviteonlymode(weak_from_this(), "inviteonly", 'i')
+		, keymode(weak_from_this())
+		, limitmode(weak_from_this())
+		, moderatedmode(weak_from_this(), "moderated", 'm')
+		, noextmsgmode(weak_from_this(), "noextmsg", 'n')
+		, opmode(weak_from_this())
+		, privatemode(weak_from_this(), "private", 'p')
+		, secretmode(weak_from_this(), "secret", 's')
+		, topiclockmode(weak_from_this(), "topiclock", 't')
+		, voicemode(weak_from_this())
+		, extbanmgr(weak_from_this(), banmode)
 	{
 	}
 
@@ -187,7 +187,7 @@ public:
 		{
 			std::string::size_type pos = current.find(':');
 			if (pos == std::string::npos || (pos + 2) > current.size())
-				throw ModuleException(this, "Invalid exemptchanops value '" + current + "' at " + channelstag->source.str());
+				throw ModuleException(weak_from_this(), "Invalid exemptchanops value '" + current + "' at " + channelstag->source.str());
 
 			const std::string restriction = current.substr(0, pos);
 			const char prefix = current[pos + 1];
@@ -218,7 +218,7 @@ public:
 					continue;
 				}
 
-				newdefaultprivs.emplace_back(this, pm->service_name);
+				newdefaultprivs.emplace_back(weak_from_this(), pm->service_name);
 			}
 		}
 
@@ -246,7 +246,7 @@ public:
 					// TODO: When we drop support for v4 configs we should remove this.
 					ServerInstance->Logs.Normal(MODNAME, "Prefix mode specified in in <channels:defaultmodes>: {} -- this should be in <channels:defaultprivs>",
 						modechr);
-					newdefaultprivs.emplace_back(this, mh->service_name);
+					newdefaultprivs.emplace_back(weak_from_this(), mh->service_name);
 					continue;
 				}
 
@@ -258,7 +258,7 @@ public:
 					continue;
 				}
 
-				ChanModeReference moderef(this, mh->service_name);
+				ChanModeReference moderef(weak_from_this(), mh->service_name);
 				newdefaultmodes.emplace_back(std::make_pair(moderef, modeparam));
 			}
 		}
@@ -287,9 +287,9 @@ public:
 
 		Implementation events[] = { I_OnCheckKey, I_OnCheckLimit, I_OnCheckList };
 		if (channelstag->getBool("invitebypassmodes", true))
-			ServerInstance->Modules.Attach(events, this, sizeof(events)/sizeof(Implementation));
+			ServerInstance->Modules.Attach(events, shared_from_this(), sizeof(events)/sizeof(Implementation));
 		else
-			ServerInstance->Modules.Detach(events, this, sizeof(events)/sizeof(Implementation));
+			ServerInstance->Modules.Detach(events, shared_from_this(), sizeof(events)/sizeof(Implementation));
 	}
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override
@@ -522,8 +522,8 @@ public:
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules.SetPriority(this, I_OnPostJoin, PRIORITY_FIRST);
-		ServerInstance->Modules.SetPriority(this, I_OnUserPreJoin, PRIORITY_LAST);
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnPostJoin, PRIORITY_FIRST);
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnUserPreJoin, PRIORITY_LAST);
 	}
 };
 

@@ -38,7 +38,7 @@ class ISupport::EventListener
 	: public Events::ModuleEventListener
 {
 protected:
-	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+	EventListener(const WeakModulePtr& mod, unsigned int eventprio = DefaultPriority)
 		: ModuleEventListener(mod, "isupport", eventprio)
 	{
 	}
@@ -53,7 +53,7 @@ class ISupport::EventProvider final
 	: public Events::ModuleEventProvider
 {
 public:
-	EventProvider(Module* mod)
+	EventProvider(const WeakModulePtr& mod)
 		: Events::ModuleEventProvider(mod, "isupport")
 	{
 	}

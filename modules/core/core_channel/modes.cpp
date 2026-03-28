@@ -34,7 +34,7 @@ enum
 	RPL_ENDOFBANLIST = 368,
 };
 
-ModeChannelBan::ModeChannelBan(Module* Creator)
+ModeChannelBan::ModeChannelBan(const WeakModulePtr& Creator)
 	: ListModeBase(Creator, "ban", 'b', RPL_BANLIST, RPL_ENDOFBANLIST, true)
 	, extbanmgr(Creator)
 {
@@ -64,7 +64,7 @@ bool ModeChannelBan::ValidateParam(LocalUser* user, Channel* channel, std::strin
 	return true;
 }
 
-ModeChannelLimit::ModeChannelLimit(Module* Creator)
+ModeChannelLimit::ModeChannelLimit(const WeakModulePtr& Creator)
 	: ParamMode<ModeChannelLimit, IntExtItem>(Creator, "limit", 'l')
 {
 	syntax = "<limit>";
@@ -104,13 +104,13 @@ void ModeChannelLimit::SerializeParam(Channel* chan, intptr_t limit, std::string
 	out += ConvToStr(static_cast<size_t>(limit));
 }
 
-ModeChannelOp::ModeChannelOp(Module* Creator)
+ModeChannelOp::ModeChannelOp(const WeakModulePtr& Creator)
 	: PrefixMode(Creator, "op", 'o', OP_VALUE, '@')
 {
 	ranktoset = ranktounset = OP_VALUE;
 }
 
-ModeChannelVoice::ModeChannelVoice(Module* Creator)
+ModeChannelVoice::ModeChannelVoice(const WeakModulePtr& Creator)
 	: PrefixMode(Creator, "voice", 'v', VOICE_VALUE, '+')
 {
 	selfremove = false;

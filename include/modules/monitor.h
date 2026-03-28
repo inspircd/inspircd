@@ -32,7 +32,7 @@ class Monitor::APIBase
 	: public DataProvider
 {
 public:
-	APIBase(Module* parent)
+	APIBase(const WeakModulePtr& parent)
 		: DataProvider(parent, "monitor")
 	{
 	}
@@ -49,7 +49,7 @@ class Monitor::API final
 	: public dynamic_reference<Monitor::APIBase>
 {
 public:
-	API(Module* parent)
+	API(const WeakModulePtr& parent)
 		: dynamic_reference<Monitor::APIBase>(parent, "monitor")
 	{
 	}

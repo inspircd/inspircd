@@ -57,7 +57,7 @@ private:
 	Hash::HMACProvider hmacsha1algo;
 
 public:
-	SHA1Provider(Module* mod, const std::string& algorithm)
+	SHA1Provider(const WeakModulePtr& mod, const std::string& algorithm)
 		: Hash::Provider(mod, algorithm, SHA1_DIGEST_SIZE, SHA1_BLOCK_SIZE)
 		, hmacsha1algo(mod, algorithm)
 	{
@@ -87,7 +87,7 @@ private:
 public:
 	ModuleHashSHA1()
 		: Module(VF_VENDOR, "Allows other modules to generate SHA-1 hashes.")
-		, sha1algo(this, "sha1")
+		, sha1algo(weak_from_this(), "sha1")
 	{
 	}
 

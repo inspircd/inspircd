@@ -46,25 +46,26 @@
 
 ModuleSpanningTree::ModuleSpanningTree()
 	: Module(VF_VENDOR, "Allows linking multiple servers together as part of one network.")
-	, Away::EventListener(this)
-	, Stats::EventListener(this)
-	, CTCTags::EventListener(this)
-	, rconnect(this)
-	, rsquit(this)
-	, map(this)
-	, commands(this)
-	, routeeventprov(this, "server-route")
-	, linkeventprov(this, "server-link")
-	, messageeventprov(this, "server-message")
-	, synceventprov(this, "server-sync")
-	, sslapi(this)
-	, servertags(this)
-	, DNS(this)
-	, tagevprov(this)
+	, Away::EventListener(weak_from_this())
+	, Stats::EventListener(weak_from_this())
+	, CTCTags::EventListener(weak_from_this())
+	, utils(this)
+	, rconnect(weak_from_this())
+	, rsquit(weak_from_this())
+	, map(weak_from_this())
+	, commands(weak_from_this())
+	, routeeventprov(weak_from_this(), "server-route")
+	, linkeventprov(weak_from_this(), "server-link")
+	, messageeventprov(weak_from_this(), "server-message")
+	, synceventprov(weak_from_this(), "server-sync")
+	, sslapi(weak_from_this())
+	, servertags(weak_from_this())
+	, DNS(weak_from_this())
+	, tagevprov(weak_from_this())
 {
 }
 
-SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
+SpanningTreeCommands::SpanningTreeCommands(const WeakModulePtr& module)
 	: metadata(module)
 	, uid(module)
 	, opertype(module)
@@ -127,7 +128,6 @@ void ModuleSpanningTree::init()
 
 	ResetMembershipIds();
 
-	Utils = new SpanningTreeUtilities(this);
 	Utils->TreeRoot = new TreeServer;
 
 	ServerInstance->PI = &protocolinterface;
@@ -723,7 +723,7 @@ void ModuleSpanningTree::ReadConfig(ConfigStatus& status)
 
 namespace
 {
-	void BroadcastModuleState(Module* mod, bool loading)
+	void BroadcastModuleState(const ModulePtr& mod, bool loading)
 	{
 		std::stringstream buffer;
 		buffer << (loading ? '+' : '-') << ModuleManager::ShrinkModName(mod->ModuleFile);
@@ -739,18 +739,18 @@ namespace
 	}
 }
 
-void ModuleSpanningTree::OnLoadModule(Module* mod)
+void ModuleSpanningTree::OnLoadModule(const ModulePtr& mod)
 {
 	BroadcastModuleState(mod, true);
 }
 
-void ModuleSpanningTree::OnUnloadModule(Module* mod)
+void ModuleSpanningTree::OnUnloadModule(const ModulePtr& mod)
 {
 	if (!Utils)
 		return;
 
 	BroadcastModuleState(mod, false);
-	if (mod == this)
+	if (insp::same_ptr(mod, weak_from_this()))
 	{
 		// We are being unloaded, inform modules about all servers splitting which cannot be done later when the servers are actually disconnected
 		for (const auto& [_, server] : Utils->serverlist)
@@ -893,8 +893,8 @@ ModuleSpanningTree::~ModuleSpanningTree()
  */
 void ModuleSpanningTree::Prioritize()
 {
-	ServerInstance->Modules.SetPriority(this, PRIORITY_LAST);
-	ServerInstance->Modules.SetPriority(this, I_OnPreTopicChange, PRIORITY_FIRST);
+	ServerInstance->Modules.SetPriority(shared_from_this(), PRIORITY_LAST);
+	ServerInstance->Modules.SetPriority(shared_from_this(), I_OnPreTopicChange, PRIORITY_FIRST);
 }
 
 MODULE_INIT(ModuleSpanningTree)

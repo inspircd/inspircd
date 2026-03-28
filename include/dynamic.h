@@ -69,7 +69,7 @@ public:
 	/** Attempts to create a new module instance from this shared library.
 	 * @return Either a new instance of the Module class or NULL on error.
 	 */
-	Module* CallInit();
+	ModulePtr CallInit();
 
 	/** Retrieves the value of the specified symbol.
 	 * @param name The name of the symbol to retrieve.

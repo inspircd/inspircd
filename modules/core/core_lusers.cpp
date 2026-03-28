@@ -104,7 +104,7 @@ private:
 	LusersCounters& counters;
 
 public:
-	CommandLusers(Module* parent, LusersCounters& Counters)
+	CommandLusers(const WeakModulePtr& parent, LusersCounters& Counters)
 		: Command(parent, "LUSERS")
 		, counters(Counters)
 	{
@@ -141,7 +141,7 @@ class InvisibleWatcher final
 {
 	size_t& invisible;
 public:
-	InvisibleWatcher(Module* mod, size_t& Invisible)
+	InvisibleWatcher(const WeakModulePtr& mod, size_t& Invisible)
 		: ModeWatcher(mod, "invisible", MODETYPE_USER)
 		, invisible(Invisible)
 	{
@@ -171,11 +171,11 @@ class ModuleLusers final
 public:
 	ModuleLusers()
 		: Module(VF_CORE | VF_VENDOR, "Provides the LUSERS command")
-		, ServerProtocol::LinkEventListener(this)
-		, invisiblemode(this, "invisible")
+		, ServerProtocol::LinkEventListener(weak_from_this())
+		, invisiblemode(weak_from_this(), "invisible")
 		, counters(invisiblemode)
-		, cmd(this, counters)
-		, mw(this, counters.invisible)
+		, cmd(weak_from_this(), counters)
+		, mw(weak_from_this(), counters.invisible)
 	{
 	}
 

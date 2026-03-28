@@ -34,7 +34,7 @@ namespace
 	}
 }
 
-CommandOper::CommandOper(Module* parent)
+CommandOper::CommandOper(const WeakModulePtr& parent)
 	: SplitCommand(parent, "OPER", 1, 2)
 {
 	syntax = { "<username> [<password>]" };

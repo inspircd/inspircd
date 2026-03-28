@@ -38,7 +38,7 @@ class HideOper final
 public:
 	size_t opercount = 0;
 
-	HideOper(Module* Creator)
+	HideOper(const WeakModulePtr& Creator)
 		: SimpleUserMode(Creator, "hideoper", 'H', true)
 	{
 	}
@@ -70,10 +70,10 @@ private:
 public:
 	ModuleHideOper()
 		: Module(VF_VENDOR, "Adds user mode H (hideoper) which hides the server operator status of a user from unprivileged users.")
-		, Stats::EventListener(this)
-		, Who::EventListener(this)
-		, Whois::LineEventListener(this)
-		, hm(this)
+		, Stats::EventListener(weak_from_this())
+		, Who::EventListener(weak_from_this())
+		, Whois::LineEventListener(weak_from_this())
+		, hm(weak_from_this())
 	{
 	}
 

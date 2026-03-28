@@ -35,7 +35,7 @@ class ExemptChanOps final
 	: public ListModeBase
 {
 public:
-	ExemptChanOps(Module* Creator)
+	ExemptChanOps(const WeakModulePtr& Creator)
 		: ListModeBase(Creator, "exemptchanops", 'X', RPL_EXEMPTIONLIST, RPL_ENDOFEXEMPTIONLIST)
 	{
 		syntax = "<restriction>:<prefix>";
@@ -124,7 +124,7 @@ class ExemptHandler final
 {
 public:
 	ExemptChanOps ec;
-	ExemptHandler(Module* me)
+	ExemptHandler(const WeakModulePtr& me)
 		: CheckExemption::EventListener(me)
 		, ec(me)
 	{
@@ -169,7 +169,7 @@ private:
 public:
 	ModuleExemptChanOps()
 		: Module(VF_VENDOR, "Adds channel mode X (exemptchanops) which allows channel operators to grant exemptions to various channel-level restrictions.")
-		, eh(this)
+		, eh(weak_from_this())
 	{
 	}
 

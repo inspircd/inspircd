@@ -47,7 +47,7 @@ public:
 		const std::string filestr = conf->getString("file", "quotes", 1);
 		auto file = ServerInstance->Config->ReadFile(filestr);
 		if (!file)
-			throw ModuleException(this, "Unable to read quotes from " + filestr + ": " + file.error);
+			throw ModuleException(weak_from_this(), "Unable to read quotes from " + filestr + ": " + file.error);
 
 		std::vector<std::string> newquotes;
 		StringSplitter linestream(file.contents, '\n');

@@ -27,7 +27,7 @@ enum
 	RPL_SERVLISTEND = 235
 };
 
-CommandServList::CommandServList(Module* parent)
+CommandServList::CommandServList(const WeakModulePtr& parent)
 	: SplitCommand(parent, "SERVLIST")
 	, invisiblemode(parent, "invisible")
 {

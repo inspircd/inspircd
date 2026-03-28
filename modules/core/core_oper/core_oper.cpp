@@ -48,15 +48,15 @@ private:
 public:
 	CoreModOper()
 		: Module(VF_CORE | VF_VENDOR, "Provides the DIE, KILL, OPER, REHASH, and RESTART commands")
-		, Stats::EventListener(this, UINT_MAX)
-		, cmddie(this)
-		, cmdkill(this)
-		, cmdoper(this)
-		, cmdrehash(this)
-		, cmdrestart(this)
-		, operatormode(this)
-		, snomaskmode(this)
-		, hasoperclass(this, "has-oper-class", ExtensionType::USER)
+		, Stats::EventListener(weak_from_this(), UINT_MAX)
+		, cmddie(weak_from_this())
+		, cmdkill(weak_from_this())
+		, cmdoper(weak_from_this())
+		, cmdrehash(weak_from_this())
+		, cmdrestart(weak_from_this())
+		, operatormode(weak_from_this())
+		, snomaskmode(weak_from_this())
+		, hasoperclass(weak_from_this(), "has-oper-class", ExtensionType::USER)
 	{
 	}
 

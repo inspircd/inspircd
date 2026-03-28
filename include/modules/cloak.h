@@ -68,7 +68,7 @@ class Cloak::APIBase
 	: public DataProvider
 {
 public:
-	APIBase(Module* parent)
+	APIBase(const WeakModulePtr& parent)
 		: DataProvider(parent, "cloakapi")
 	{
 	}
@@ -95,7 +95,7 @@ class Cloak::API final
 	: public dynamic_reference<Cloak::APIBase>
 {
 public:
-	API(Module* parent)
+	API(const WeakModulePtr& parent)
 		: dynamic_reference<Cloak::APIBase>(parent, "cloakapi")
 	{
 	}
@@ -106,7 +106,7 @@ class Cloak::Engine
 	: public DataProvider
 {
 protected:
-	Engine(Module* Creator, const std::string& Name)
+	Engine(const WeakModulePtr& Creator, const std::string& Name)
 		: DataProvider(Creator, "Cloak::Engine", Name)
 	{
 	}

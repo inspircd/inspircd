@@ -33,13 +33,13 @@ private:
 public:
 	ModuleAbbreviation()
 		: Module(VF_VENDOR, "Allows commands to be abbreviated by appending a full stop.")
-		, stdrplcap(this)
+		, stdrplcap(weak_from_this())
 	{
 	}
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules.SetPriority(this, I_OnPreCommand, PRIORITY_FIRST);
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnPreCommand, PRIORITY_FIRST);
 	}
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override

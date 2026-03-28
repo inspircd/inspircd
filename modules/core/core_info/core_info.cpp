@@ -131,16 +131,16 @@ private:
 public:
 	CoreModInfo()
 		: Module(VF_CORE | VF_VENDOR, "Provides the ADMIN, COMMANDS, INFO, MODULES, MOTD, TIME, SERVLIST, and VERSION commands")
-		, ISupport::EventListener(this)
-		, cmdadmin(this)
-		, cmdcommands(this)
-		, cmdinfo(this)
-		, cmdmodules(this)
-		, cmdmotd(this)
-		, cmdservlist(this)
-		, cmdtime(this)
-		, isupport(this)
-		, cmdversion(this, isupport)
+		, ISupport::EventListener(weak_from_this())
+		, cmdadmin(weak_from_this())
+		, cmdcommands(weak_from_this())
+		, cmdinfo(weak_from_this())
+		, cmdmodules(weak_from_this())
+		, cmdmotd(weak_from_this())
+		, cmdservlist(weak_from_this())
+		, cmdtime(weak_from_this())
+		, isupport(weak_from_this())
+		, cmdversion(weak_from_this(), isupport)
 		, numeric003(RPL_CREATED)
 		, numeric004(RPL_MYINFO)
 	{
@@ -228,11 +228,11 @@ public:
 			Log::NotifyRawIO(user, MessageType::PRIVMSG);
 	}
 
-	void OnLoadModule(Module* mod) override
+	void OnLoadModule(const ModulePtr& mod) override
 	{
 		isupport.Build();
 	}
-	void OnUnloadModule(Module* mod) override
+	void OnUnloadModule(const ModulePtr& mod) override
 	{
 		isupport.Build();
 	}
@@ -250,7 +250,7 @@ public:
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules.SetPriority(this, I_OnUserConnect, PRIORITY_FIRST);
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnUserConnect, PRIORITY_FIRST);
 	}
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override

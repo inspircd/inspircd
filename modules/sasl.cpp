@@ -88,7 +88,7 @@ private:
 	}
 
 public:
-	SASLCap(Module* mod)
+	SASLCap(const WeakModulePtr& mod)
 		: Cap::Capability(mod, "sasl")
 	{
 	}
@@ -260,7 +260,7 @@ public:
 	SimpleExtItem<SaslAuthenticator>& saslext;
 	UserCertificateAPI sslapi;
 
-	CommandAuthenticate(Module* mod, SimpleExtItem<SaslAuthenticator>& ext, Cap::Capability& cap)
+	CommandAuthenticate(const WeakModulePtr& mod, SimpleExtItem<SaslAuthenticator>& ext, Cap::Capability& cap)
 		: SplitCommand(mod, "AUTHENTICATE", 1)
 		, saslcap(cap)
 		, saslext(ext)
@@ -309,7 +309,7 @@ private:
 	SimpleExtItem<SaslAuthenticator>& saslext;
 
 public:
-	CommandSASL(Module* mod, SimpleExtItem<SaslAuthenticator>& ext)
+	CommandSASL(const WeakModulePtr& mod, SimpleExtItem<SaslAuthenticator>& ext)
 		: Command(mod, "SASL", 2)
 		, saslext(ext)
 	{
@@ -355,12 +355,12 @@ private:
 public:
 	ModuleSASL()
 		: Module(VF_VENDOR, "Provides the IRCv3 sasl client capability.")
-		, accountproviderapi(this)
-		, saslext(this, "sasl-state", ExtensionType::USER)
-		, cap(this)
-		, auth(this, saslext, cap)
-		, sasl(this, saslext)
-		, protoev(this, "AUTHENTICATE")
+		, accountproviderapi(weak_from_this())
+		, saslext(weak_from_this(), "sasl-state", ExtensionType::USER)
+		, cap(weak_from_this())
+		, auth(weak_from_this(), saslext, cap)
+		, sasl(weak_from_this(), saslext)
+		, protoev(weak_from_this(), "AUTHENTICATE")
 	{
 		g_accountproviderapi = &accountproviderapi;
 		g_protoev = &protoev;

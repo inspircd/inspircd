@@ -400,7 +400,7 @@ class HTTPdAPIImpl final
 	: public HTTPdAPIBase
 {
 public:
-	HTTPdAPIImpl(Module* parent)
+	HTTPdAPIImpl(const WeakModulePtr& parent)
 		: HTTPdAPIBase(parent)
 	{
 	}
@@ -423,9 +423,9 @@ private:
 public:
 	ModuleHttpServer()
 		: Module(VF_VENDOR, "Allows the server administrator to serve various useful resources over HTTP.")
-		, APIImpl(this)
-		, acleventprov(this, "http-acl")
-		, reqeventprov(this, "http-request")
+		, APIImpl(weak_from_this())
+		, acleventprov(weak_from_this(), "http-acl")
+		, reqeventprov(weak_from_this(), "http-request")
 	{
 		aclevprov = &acleventprov;
 		reqevprov = &reqeventprov;
@@ -452,7 +452,7 @@ public:
 		return MOD_RES_ALLOW;
 	}
 
-	void OnUnloadModule(Module* mod) override
+	void OnUnloadModule(const ModulePtr& mod) override
 	{
 		for (insp::intrusive_list<HttpServerSocket>::const_iterator i = sockets.begin(); i != sockets.end(); )
 		{

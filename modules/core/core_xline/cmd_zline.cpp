@@ -31,7 +31,7 @@
 #include "xline.h"
 #include "core_xline.h"
 
-CommandZline::CommandZline(Module* parent)
+CommandZline::CommandZline(const WeakModulePtr& parent)
 	: Command(parent, "ZLINE", 1, 4)
 {
 	accepts_multiple_targets = true;

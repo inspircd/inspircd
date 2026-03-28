@@ -25,7 +25,7 @@
 #include "inspircd.h"
 #include "core_channel.h"
 
-CommandJoin::CommandJoin(Module* parent)
+CommandJoin::CommandJoin(const WeakModulePtr& parent)
 	: SplitCommand(parent, "JOIN", 1, 2)
 {
 	accepts_multiple_targets = true;

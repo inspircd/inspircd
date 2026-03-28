@@ -111,7 +111,7 @@ public:
 	time_t age;
 	bool done;			/* True if lookup is finished */
 
-	IdentRequestSocket(const Module* mod, LocalUser* luser)
+	IdentRequestSocket(const WeakModulePtr& mod, LocalUser* luser)
 		: user(luser)
 	{
 		age = ServerInstance->Time();
@@ -302,8 +302,8 @@ private:
 public:
 	ModuleIdent()
 		: Module(VF_VENDOR, "Allows the usernames of users to be looked up using the RFC 1413 Identification Protocol.")
-		, socket(this, "ident-socket", ExtensionType::USER)
-		, state(this, "ident-state", ExtensionType::USER)
+		, socket(weak_from_this(), "ident-socket", ExtensionType::USER)
+		, state(weak_from_this(), "ident-state", ExtensionType::USER)
 	{
 	}
 
@@ -342,7 +342,7 @@ public:
 
 		try
 		{
-			socket.SetFwd(user, this, user);
+			socket.SetFwd(user, weak_from_this(), user);
 		}
 		catch (const ModuleException& e)
 		{

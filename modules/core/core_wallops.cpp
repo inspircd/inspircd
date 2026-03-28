@@ -32,7 +32,7 @@ class CommandWallops final
 	ClientProtocol::EventProvider protoevprov;
 
 public:
-	CommandWallops(Module* parent)
+	CommandWallops(const WeakModulePtr& parent)
 		: Command(parent, "WALLOPS", 1, 1)
 		, wallopsmode(parent, "wallops", 'w')
 		, protoevprov(parent, "WALLOPS")
@@ -80,7 +80,7 @@ private:
 public:
 	CoreModWallops()
 		: Module(VF_CORE | VF_VENDOR, "Provides the WALLOPS command")
-		, cmd(this)
+		, cmd(weak_from_this())
 	{
 	}
 };

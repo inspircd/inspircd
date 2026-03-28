@@ -36,8 +36,8 @@ private:
 public:
 	ModuleNoKicks()
 		: Module(VF_VENDOR, "Adds channel mode Q (nokick) which prevents privileged users from using the /KICK command.")
-		, extban(this, "nokick", 'Q')
-		, nk(this, "nokick", 'Q')
+		, extban(weak_from_this(), "nokick", 'Q')
+		, nk(weak_from_this(), "nokick", 'Q')
 	{
 	}
 

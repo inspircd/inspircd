@@ -29,7 +29,7 @@
 #include "xline.h"
 #include "core_xline.h"
 
-CommandQline::CommandQline(Module* parent)
+CommandQline::CommandQline(const WeakModulePtr& parent)
 	: Command(parent, "QLINE", 1, 4)
 {
 	accepts_multiple_targets = true;

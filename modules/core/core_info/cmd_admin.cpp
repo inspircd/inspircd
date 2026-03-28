@@ -34,7 +34,7 @@ enum
 	RPL_ADMINEMAIL = 259,
 };
 
-CommandAdmin::CommandAdmin(Module* parent)
+CommandAdmin::CommandAdmin(const WeakModulePtr& parent)
 	: ServerTargetCommand(parent, "ADMIN")
 {
 	penalty = 2000;

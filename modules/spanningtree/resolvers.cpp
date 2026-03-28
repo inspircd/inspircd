@@ -35,7 +35,7 @@
 #include "treesocket.h"
 
 ServerNameResolver::ServerNameResolver(DNS::Manager* mgr, const std::string& hostname, const std::shared_ptr<Link>& l, DNS::QueryType qt, const std::shared_ptr<Autoconnect>& a)
-	: DNS::Request(mgr, Utils->Creator, hostname, qt)
+	: DNS::Request(mgr, Utils->CreatorPtr, hostname, qt)
 	, autoconnect(a)
 	, link(l)
 {
@@ -103,7 +103,7 @@ void ServerNameResolver::OnError(const DNS::Query* r)
 	Utils->Creator->ConnectServer(autoconnect, false);
 }
 
-SecurityIPResolver::SecurityIPResolver(Module* me, DNS::Manager* mgr, const std::string& hostname, const std::shared_ptr<Link>& l, DNS::QueryType qt)
+SecurityIPResolver::SecurityIPResolver(const WeakModulePtr& me, DNS::Manager* mgr, const std::string& hostname, const std::shared_ptr<Link>& l, DNS::QueryType qt)
 	: DNS::Request(mgr, me, hostname, qt)
 	, link(l)
 {

@@ -148,7 +148,7 @@ class CommandHexIP final
 private:
 	IRCv3::ReplyCapReference stdrplcap;
 public:
-	CommandHexIP(Module* Creator)
+	CommandHexIP(const WeakModulePtr& Creator)
 		: SplitCommand(Creator, "HEXIP", 1)
 		, stdrplcap(Creator)
 	{
@@ -237,7 +237,7 @@ class GatewayExtBan final
 public:
 	StringExtItem gateway;
 
-	GatewayExtBan(Module* Creator)
+	GatewayExtBan(const WeakModulePtr& Creator)
 		: ExtBan::MatchingBase(Creator, "gateway", 'w')
 		, gateway(Creator, "webirc-gateway", ExtensionType::USER, true)
 	{
@@ -261,7 +261,7 @@ public:
 	UserCertificateAPI sslapi;
 	Events::ModuleEventProvider webircevprov;
 
-	CommandWebIRC(Module* Creator)
+	CommandWebIRC(const WeakModulePtr& Creator)
 		: SplitCommand(Creator, "WEBIRC", 4)
 		, extban(Creator)
 		, realhost(Creator, "gateway-realhost", ExtensionType::USER, true)
@@ -362,10 +362,10 @@ private:
 public:
 	ModuleGateway()
 		: Module(VF_VENDOR, "Adds the ability for IRC gateways to forward the real IP address of users connecting through them.")
-		, WebIRC::EventListener(this)
-		, Whois::EventListener(this)
-		, cmdhexip(this)
-		, cmdwebirc(this)
+		, WebIRC::EventListener(weak_from_this())
+		, Whois::EventListener(weak_from_this())
+		, cmdhexip(weak_from_this())
+		, cmdwebirc(weak_from_this())
 	{
 	}
 
@@ -388,7 +388,7 @@ public:
 
 			// Ensure that we have the <gateway:mask> parameter.
 			if (masks.empty())
-				throw ModuleException(this, "<" + tag->name + ":mask> is a mandatory field, at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<" + tag->name + ":mask> is a mandatory field, at " + tag->source.str());
 
 			// Determine what lookup type this host uses.
 			const std::string type = tag->getString("type");
@@ -408,7 +408,7 @@ public:
 
 				// WebIRC blocks require a password.
 				if (fingerprint.empty() && password.empty())
-					throw ModuleException(this, "When using <" + tag->name + " type=\"webirc\"> either the fingerprint or password field is required, at " + tag->source.str());
+					throw ModuleException(weak_from_this(), "When using <" + tag->name + " type=\"webirc\"> either the fingerprint or password field is required, at " + tag->source.str());
 
 				if (!password.empty() && insp::equalsci(passwordhash, "plaintext"))
 				{
@@ -420,7 +420,7 @@ public:
 			}
 			else
 			{
-				throw ModuleException(this, type + " is an invalid <" + tag->name + ":mask> type, at " + tag->source.str());
+				throw ModuleException(weak_from_this(), type + " is an invalid <" + tag->name + ":mask> type, at " + tag->source.str());
 			}
 		}
 

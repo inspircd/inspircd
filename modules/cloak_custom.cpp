@@ -30,7 +30,7 @@ public:
 	Cloak::API cloakapi;
 	Cloak::Engine& customcloak;
 
-	CustomCloakExtItem(Module* mod, Cloak::Engine& cloak)
+	CustomCloakExtItem(const WeakModulePtr& mod, Cloak::Engine& cloak)
 		: SimpleExtItem<Cloak::Info>(mod, "custom-cloak", ExtensionType::USER, true)
 		, cloakapi(mod)
 		, customcloak(cloak)
@@ -128,7 +128,7 @@ private:
 public:
 	CloakAccounts accounts;
 
-	CommandCustomCloak(Module* mod, CustomCloakExtItem& ext)
+	CommandCustomCloak(const WeakModulePtr& mod, CustomCloakExtItem& ext)
 		: SplitCommand(mod, "CUSTOMCLOAK", 2)
 		, cloakext(ext)
 		, cloakmode(mod, "cloak")
@@ -238,7 +238,7 @@ class CustomEngine final
 public:
 	CustomCloakExtItem customcloakext;
 
-	CustomEngine(Module* mod)
+	CustomEngine(const WeakModulePtr& mod)
 		: Cloak::Engine(mod, "custom")
 		, customcloakext(mod, *this)
 	{
@@ -263,8 +263,8 @@ private:
 public:
 	ModuleCloakCustom()
 		: Module(VF_VENDOR, "Adds the custom cloaking method for use with the cloak module.")
-		, cmdcustomcloak(this, customcloak.customcloakext)
-		, customcloak(this)
+		, cmdcustomcloak(weak_from_this(), customcloak.customcloakext)
+		, customcloak(weak_from_this())
 	{
 	}
 
@@ -275,19 +275,19 @@ public:
 		{
 			const auto name = tag->getString("name");
 			if (name.empty())
-				throw ModuleException(this, "<customcloak:name> must not be empty, at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<customcloak:name> must not be empty, at " + tag->source.str());
 
 			const auto password = tag->getString("password");
 			if (password.empty())
-				throw ModuleException(this, "<customcloak:password> must not be empty, at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<customcloak:password> must not be empty, at " + tag->source.str());
 
 			Cloak::Info cloak(tag->getString("username"), tag->getString("hostname"));
 			if (cloak.hostname.empty())
-				throw ModuleException(this, "<customcloak:hostname> must not be empty, at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<customcloak:hostname> must not be empty, at " + tag->source.str());
 
 			CloakAccount account(tag, cloak, password);
 			if (!newaccounts.emplace(name, account).second)
-				throw ModuleException(this, "<customcloak:name> (" + name + ") used in multiple tags, at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<customcloak:name> (" + name + ") used in multiple tags, at " + tag->source.str());
 		}
 		std::swap(newaccounts, cmdcustomcloak.accounts);
 	}

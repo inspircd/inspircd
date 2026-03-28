@@ -33,7 +33,7 @@
 #include "inspircd.h"
 #include "core_oper.h"
 
-CommandRestart::CommandRestart(Module* parent)
+CommandRestart::CommandRestart(const WeakModulePtr& parent)
 	: Command(parent, "RESTART", 1, 1)
 {
 	access_needed = CmdAccess::OPERATOR;

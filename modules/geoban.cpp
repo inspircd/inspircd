@@ -31,7 +31,7 @@ private:
 	Geolocation::API& geoapi;
 
 public:
-	CountryExtBan(Module* Creator, Geolocation::API& api)
+	CountryExtBan(const WeakModulePtr& Creator, Geolocation::API& api)
 		: ExtBan::MatchingBase(Creator, "country", 'G')
 		, geoapi(api)
 	{
@@ -59,10 +59,10 @@ private:
 public:
 	ModuleGeoBan()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban G: (country) which matches against two letter country codes.")
-		, Who::MatchEventListener(this)
-		, Whois::EventListener(this)
-		, geoapi(this)
-		, extban(this, geoapi)
+		, Who::MatchEventListener(weak_from_this())
+		, Whois::EventListener(weak_from_this())
+		, geoapi(weak_from_this())
+		, extban(weak_from_this(), geoapi)
 	{
 	}
 

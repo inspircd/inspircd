@@ -75,7 +75,7 @@ private:
 	}
 
 public:
-	STSCap(Module* mod)
+	STSCap(const WeakModulePtr& mod)
 		: Cap::Capability(mod, "sts")
 		, sslapi(mod)
 	{
@@ -165,7 +165,7 @@ private:
 public:
 	ModuleIRCv3STS()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds support for the IRCv3 Strict Transport Security specification.")
-		, cap(this)
+		, cap(weak_from_this())
 	{
 	}
 
@@ -174,15 +174,15 @@ public:
 		// TODO: Multiple SNI profiles
 		const auto& tag = ServerInstance->Config->ConfValue("sts");
 		if (tag == ServerInstance->Config->EmptyTag)
-			throw ModuleException(this, "You must define a STS policy!");
+			throw ModuleException(weak_from_this(), "You must define a STS policy!");
 
 		const std::string host = tag->getString("host");
 		if (host.empty())
-			throw ModuleException(this, "<sts:host> must contain a hostname, at " + tag->source.str());
+			throw ModuleException(weak_from_this(), "<sts:host> must contain a hostname, at " + tag->source.str());
 
 		in_port_t port = tag->getNum<in_port_t>("port", 6697, 1);
 		if (!HasValidSSLPort(port))
-			throw ModuleException(this, "<sts:port> must be a TLS port, at " + tag->source.str());
+			throw ModuleException(weak_from_this(), "<sts:port> must be a TLS port, at " + tag->source.str());
 
 		unsigned long duration = tag->getDuration("duration", 5*60, 60);
 		bool preload = tag->getBool("preload");

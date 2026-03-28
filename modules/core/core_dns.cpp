@@ -46,7 +46,7 @@ class Packet final
 	: public DNS::Query
 {
 private:
-	const Module* creator;
+	const WeakModulePtr creator;
 
 	void PackName(unsigned char* output, unsigned short output_size, unsigned short& pos, const std::string& name)
 	{
@@ -262,7 +262,7 @@ public:
 	/* Flags on the packet */
 	unsigned short flags = 0;
 
-	Packet(const Module* mod)
+	Packet(const WeakModulePtr& mod)
 		: creator(mod)
 	{
 	}
@@ -454,7 +454,7 @@ public:
 	size_t stats_failure = 0;
 	unsigned long timeout = 0;
 
-	MyManager(Module* c)
+	MyManager(const WeakModulePtr& c)
 		: Manager(c)
 		, Timer(5*60, true)
 	{
@@ -503,8 +503,15 @@ public:
 
 	void Process(DNS::Request* req) override
 	{
-		if ((unloading) || (req->creator->dying))
-			throw DNS::Exception(this->service_creator, "Module is being unloaded");
+		if (unloading)
+			throw DNS::Exception(this->service_creator, "DNS module is being unloaded");
+
+		if (!insp::empty_ptr(req->creator))
+		{
+			auto mod = req->creator.lock();
+			if (!mod || mod->dying)
+				throw DNS::Exception(this->service_creator, "Requesting module is being unloaded");
+		}
 
 		if (!HasFd())
 		{
@@ -898,8 +905,8 @@ class ModuleDNS final
 public:
 	ModuleDNS()
 		: Module(VF_CORE | VF_VENDOR, "Provides support for DNS lookups")
-		, Stats::EventListener(this)
-		, manager(this)
+		, Stats::EventListener(weak_from_this())
+		, manager(weak_from_this())
 	{
 	}
 
@@ -945,7 +952,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnUnloadModule(Module* mod) override
+	void OnUnloadModule(const ModulePtr& mod) override
 	{
 		for (unsigned int i = 0; i <= DNS::MAX_REQUEST_ID; ++i)
 		{
@@ -953,7 +960,7 @@ public:
 			if (!req)
 				continue;
 
-			if (req->creator == mod)
+			if (insp::same_ptr(req->creator, mod))
 			{
 				DNS::Query rr(req->question);
 				rr.error = DNS::ERROR_UNLOADED;

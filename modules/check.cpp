@@ -133,7 +133,7 @@ class CommandCheck final
 	}
 
 public:
-	CommandCheck(Module* parent)
+	CommandCheck(const WeakModulePtr& parent)
 		: Command(parent, "CHECK", 1)
 		, snomaskmode(parent, "snomask")
 	{
@@ -317,7 +317,7 @@ private:
 public:
 	ModuleCheck()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /CHECK command which allows server operators to look up details about a channel, user, IP address, or hostname.")
-		, cmd(this)
+		, cmd(weak_from_this())
 	{
 	}
 };

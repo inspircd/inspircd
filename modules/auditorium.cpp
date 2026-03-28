@@ -33,7 +33,7 @@ class AuditoriumMode final
 	: public SimpleChannelMode
 {
 public:
-	AuditoriumMode(Module* Creator)
+	AuditoriumMode(const WeakModulePtr& Creator)
 		: SimpleChannelMode(Creator, "auditorium", 'u')
 	{
 		ranktoset = ranktounset = OP_VALUE;
@@ -80,11 +80,11 @@ class ModuleAuditorium final
 public:
 	ModuleAuditorium()
 		: Module(VF_VENDOR, "Adds channel mode u (auditorium) which hides unprivileged users in a channel from each other.")
-		, Names::EventListener(this)
-		, Who::EventListener(this)
-		, Who::VisibleEventListener(this)
-		, exemptionprov(this)
-		, aum(this)
+		, Names::EventListener(weak_from_this())
+		, Who::EventListener(weak_from_this())
+		, Who::VisibleEventListener(weak_from_this())
+		, exemptionprov(weak_from_this())
+		, aum(weak_from_this())
 		, joinhook(this)
 	{
 	}
@@ -199,7 +199,7 @@ public:
 };
 
 JoinHook::JoinHook(ModuleAuditorium* mod)
-	: ClientProtocol::EventHook(mod, "JOIN", 10)
+	: ClientProtocol::EventHook(mod->weak_from_this(), "JOIN", 10)
 	, parentmod(mod)
 {
 }

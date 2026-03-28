@@ -90,7 +90,7 @@ class NickFlood final
 	: public ParamMode<NickFlood, SimpleExtItem<nickfloodsettings>>
 {
 public:
-	NickFlood(Module* Creator)
+	NickFlood(const WeakModulePtr& Creator)
 		: ParamMode<NickFlood, SimpleExtItem<nickfloodsettings>>(Creator, "nickflood", 'F')
 	{
 		syntax = "<nick-changes>:<seconds>";
@@ -136,8 +136,8 @@ private:
 public:
 	ModuleNickFlood()
 		: Module(VF_VENDOR, "Adds channel mode F (nickflood) which helps protect against spammers which mass-change nicknames.")
-		, exemptionprov(this)
-		, nf(this)
+		, exemptionprov(weak_from_this())
+		, nf(weak_from_this())
 	{
 	}
 

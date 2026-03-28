@@ -31,7 +31,7 @@ class CommandCapab final
 	: public Command
 {
 public:
-	CommandCapab(Module* parent)
+	CommandCapab(const WeakModulePtr& parent)
 		: Command(parent, "CAPAB")
 	{
 		works_before_reg = true;
@@ -56,7 +56,7 @@ class CommandConnect final
 	: public Command
 {
 public:
-	CommandConnect(Module* parent)
+	CommandConnect(const WeakModulePtr& parent)
 		: Command(parent, "CONNECT", 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -77,7 +77,7 @@ class CommandLinks final
 	: public Command
 {
 public:
-	CommandLinks(Module* parent)
+	CommandLinks(const WeakModulePtr& parent)
 		: Command(parent, "LINKS")
 	{
 	}
@@ -94,7 +94,7 @@ class CommandSquit final
 	: public Command
 {
 public:
-	CommandSquit(Module* parent)
+	CommandSquit(const WeakModulePtr& parent)
 		: Command(parent, "SQUIT", 1, 2)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -112,7 +112,7 @@ class CommandSummon final
 	: public SplitCommand
 {
 public:
-	CommandSummon(Module* Creator)
+	CommandSummon(const WeakModulePtr& Creator)
 		: SplitCommand(Creator, "SUMMON", 1)
 	{
 	}
@@ -128,7 +128,7 @@ class CommandUsers final
 	: public SplitCommand
 {
 public:
-	CommandUsers(Module* Creator)
+	CommandUsers(const WeakModulePtr& Creator)
 		: SplitCommand(Creator, "USERS")
 	{
 	}
@@ -154,12 +154,12 @@ private:
 public:
 	CoreModStub()
 		: Module(VF_CORE | VF_VENDOR, "Provides stubs for unimplemented commands")
-		, cmdcapab(this)
-		, cmdconnect(this)
-		, cmdlinks(this)
-		, cmdsquit(this)
-		, cmdsummon(this)
-		, cmdusers(this)
+		, cmdcapab(weak_from_this())
+		, cmdconnect(weak_from_this())
+		, cmdlinks(weak_from_this())
+		, cmdsquit(weak_from_this())
+		, cmdsummon(weak_from_this())
+		, cmdusers(weak_from_this())
 	{
 	}
 };

@@ -95,7 +95,7 @@ class KickRejoin final
 public:
 	const unsigned int max = 60;
 
-	KickRejoin(Module* Creator)
+	KickRejoin(const WeakModulePtr& Creator)
 		: ParamMode<KickRejoin, SimpleExtItem<KickRejoinData>>(Creator, "kicknorejoin", 'J')
 	{
 		syntax = "<seconds>";
@@ -132,8 +132,8 @@ class ModuleKickNoRejoin final
 public:
 	ModuleKickNoRejoin()
 		: Module(VF_VENDOR | VF_COMMON, "Adds channel mode J (kicknorejoin) which prevents users from rejoining after being kicked from a channel.")
-		, kr(this)
-		, invapi(this)
+		, kr(weak_from_this())
+		, invapi(weak_from_this())
 	{
 	}
 

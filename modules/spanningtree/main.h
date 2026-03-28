@@ -56,6 +56,9 @@ class ModuleSpanningTree final
 	, public Stats::EventListener
 	, public CTCTags::EventListener
 {
+private:
+	SpanningTreeUtilities utils;
+
 	/** Client to server commands, registered in the core
 	 */
 	CommandRConnect rconnect;
@@ -179,8 +182,8 @@ public:
 	ModResult OnStats(Stats::Context& stats) override;
 	void OnUserAway(User* user, const std::optional<AwayState>& prevstate) override;
 	void OnUserBack(User* user, const std::optional<AwayState>& prevstate) override;
-	void OnLoadModule(Module* mod) override;
-	void OnUnloadModule(Module* mod) override;
+	void OnLoadModule(const ModulePtr& mod) override;
+	void OnUnloadModule(const ModulePtr& mod) override;
 	ModResult OnAcceptConnection(int newsock, ListenSocket* from, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server) override;
 	void OnMode(User* source, User* u, Channel* c, const Modes::ChangeList& modes, ModeParser::ModeProcessFlag processflags) override;
 	void OnShutdown(const std::string& reason) override;

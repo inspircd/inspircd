@@ -100,15 +100,15 @@ public:
 		{
 			const auto signame = tag->getString("signal");
 			if (signame.empty())
-				throw ModuleException(this, "<rehashsignal:signal> must not be empty, at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<rehashsignal:signal> must not be empty, at " + tag->source.str());
 
 			const auto signum = NameToSignal(signame);
 			if (signum < 0)
-				throw ModuleException(this, "<rehashsignal:signal> must a realtime or user signal, at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<rehashsignal:signal> must a realtime or user signal, at " + tag->source.str());
 
 			const auto rehash = tag->getString("rehash");
 			if (rehash.empty())
-				throw ModuleException(this, "<rehashsignal:rehash> must not be empty, at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<rehashsignal:rehash> must not be empty, at " + tag->source.str());
 
 			ServerInstance->Logs.Debug(MODNAME, "Signal rehash: {} => {}", SignalToName(signum), rehash);
 			newsignals.emplace(signum, rehash);

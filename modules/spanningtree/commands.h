@@ -46,7 +46,7 @@ class CommandRConnect final
 	: public Command
 {
 public:
-	CommandRConnect(Module* Creator);
+	CommandRConnect(const WeakModulePtr& Creator);
 	CmdResult Handle(User* user, const Params& parameters) override;
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
@@ -55,7 +55,7 @@ class CommandRSQuit final
 	: public Command
 {
 public:
-	CommandRSQuit(Module* Creator);
+	CommandRSQuit(const WeakModulePtr& Creator);
 	CmdResult Handle(User* user, const Params& parameters) override;
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
@@ -64,7 +64,7 @@ class CommandMap final
 	: public Command
 {
 public:
-	CommandMap(Module* Creator);
+	CommandMap(const WeakModulePtr& Creator);
 	CmdResult Handle(User* user, const Params& parameters) override;
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
@@ -73,7 +73,7 @@ class CommandMetadata final
 	: public ServerCommand
 {
 public:
-	CommandMetadata(Module* Creator)
+	CommandMetadata(const WeakModulePtr& Creator)
 		: ServerCommand(Creator, "METADATA", 2)
 	{
 	}
@@ -92,7 +92,7 @@ class CommandUID final
 	: public ServerOnlyServerCommand<CommandUID>
 {
 public:
-	CommandUID(Module* Creator)
+	CommandUID(const WeakModulePtr& Creator)
 		: ServerOnlyServerCommand<CommandUID>(Creator, "UID", 11)
 	{
 	}
@@ -110,7 +110,7 @@ class CommandOpertype final
 	: public UserOnlyServerCommand<CommandOpertype>
 {
 public:
-	CommandOpertype(Module* Creator)
+	CommandOpertype(const WeakModulePtr& Creator)
 		: UserOnlyServerCommand<CommandOpertype>(Creator, "OPERTYPE", 1)
 	{
 	}
@@ -144,7 +144,7 @@ class CommandFJoin final
 	static void LowerTS(Channel* chan, time_t TS, const std::string& newname);
 	static void ProcessModeUUIDPair(const std::string& item, TreeServer* sourceserver, Channel* chan, Modes::ChangeList* modechangelist, FwdFJoinBuilder& fwdfjoin);
 public:
-	CommandFJoin(Module* Creator)
+	CommandFJoin(const WeakModulePtr& Creator)
 		: ServerCommand(Creator, "FJOIN", 3)
 	{
 	}
@@ -172,7 +172,7 @@ class CommandFMode final
 	: public ServerCommand
 {
 public:
-	CommandFMode(Module* Creator)
+	CommandFMode(const WeakModulePtr& Creator)
 		: ServerCommand(Creator, "FMODE", 3)
 	{
 	}
@@ -183,7 +183,7 @@ class CommandFTopic final
 	: public ServerCommand
 {
 public:
-	CommandFTopic(Module* Creator)
+	CommandFTopic(const WeakModulePtr& Creator)
 		: ServerCommand(Creator, "FTOPIC", 4, 5)
 	{
 	}
@@ -202,7 +202,7 @@ class CommandFHost final
 	: public UserOnlyServerCommand<CommandFHost>
 {
 public:
-	CommandFHost(Module* Creator)
+	CommandFHost(const WeakModulePtr& Creator)
 		: UserOnlyServerCommand<CommandFHost>(Creator, "FHOST", 2)
 	{
 	}
@@ -213,7 +213,7 @@ class CommandFIdent final
 	: public UserOnlyServerCommand<CommandFIdent>
 {
 public:
-	CommandFIdent(Module* Creator)
+	CommandFIdent(const WeakModulePtr& Creator)
 		: UserOnlyServerCommand<CommandFIdent>(Creator, "FIDENT", 2)
 	{
 	}
@@ -224,7 +224,7 @@ class CommandFName final
 	: public UserOnlyServerCommand<CommandFName>
 {
 public:
-	CommandFName(Module* Creator)
+	CommandFName(const WeakModulePtr& Creator)
 		: UserOnlyServerCommand<CommandFName>(Creator, "FNAME", 1)
 	{
 	}
@@ -235,7 +235,7 @@ class CommandIJoin final
 	: public UserOnlyServerCommand<CommandIJoin>
 {
 public:
-	CommandIJoin(Module* Creator)
+	CommandIJoin(const WeakModulePtr& Creator)
 		: UserOnlyServerCommand<CommandIJoin>(Creator, "IJOIN", 3)
 	{
 	}
@@ -246,7 +246,7 @@ class CommandResync final
 	: public ServerOnlyServerCommand<CommandResync>
 {
 public:
-	CommandResync(Module* Creator)
+	CommandResync(const WeakModulePtr& Creator)
 		: ServerOnlyServerCommand<CommandResync>(Creator, "RESYNC", 1)
 	{
 	}
@@ -261,7 +261,7 @@ private:
 	Away::EventProvider awayevprov;
 
 public:
-	CommandAway(Module* Creator)
+	CommandAway(const WeakModulePtr& Creator)
 		: UserOnlyServerCommand<SpanningTree::CommandAway>(Creator, "AWAY", 0, 2)
 		, awayevprov(Creator)
 	{
@@ -281,7 +281,7 @@ class CommandAddLine final
 	: public ServerCommand
 {
 public:
-	CommandAddLine(Module* Creator)
+	CommandAddLine(const WeakModulePtr& Creator)
 		: ServerCommand(Creator, "ADDLINE", 6, 6)
 	{
 	}
@@ -299,7 +299,7 @@ class CommandDelLine final
 	: public ServerCommand
 {
 public:
-	CommandDelLine(Module* Creator)
+	CommandDelLine(const WeakModulePtr& Creator)
 		: ServerCommand(Creator, "DELLINE", 2, 2)
 	{
 	}
@@ -310,7 +310,7 @@ class CommandEncap final
 	: public ServerCommand
 {
 public:
-	CommandEncap(Module* Creator)
+	CommandEncap(const WeakModulePtr& Creator)
 		: ServerCommand(Creator, "ENCAP", 2)
 	{
 	}
@@ -322,7 +322,7 @@ class CommandIdle final
 	: public UserOnlyServerCommand<CommandIdle>
 {
 public:
-	CommandIdle(Module* Creator)
+	CommandIdle(const WeakModulePtr& Creator)
 		: UserOnlyServerCommand<CommandIdle>(Creator, "IDLE", 1)
 	{
 	}
@@ -337,7 +337,7 @@ private:
 	ChanModeReference banmode;
 
 public:
-	CommandNick(Module* Creator)
+	CommandNick(const WeakModulePtr& Creator)
 		: UserOnlyServerCommand<SpanningTree::CommandNick>(Creator, "NICK", 2)
 		, banmode(Creator, "ban")
 	{
@@ -349,7 +349,7 @@ class SpanningTree::CommandPing final
 	: public ServerCommand
 {
 public:
-	CommandPing(Module* Creator)
+	CommandPing(const WeakModulePtr& Creator)
 		: ServerCommand(Creator, "PING", 1)
 	{
 	}
@@ -361,7 +361,7 @@ class SpanningTree::CommandPong final
 	: public ServerOnlyServerCommand<SpanningTree::CommandPong>
 {
 public:
-	CommandPong(Module* Creator)
+	CommandPong(const WeakModulePtr& Creator)
 		: ServerOnlyServerCommand<SpanningTree::CommandPong>(Creator, "PONG", 1)
 	{
 	}
@@ -377,7 +377,7 @@ public:
 	 */
 	static constexpr time_t SavedTimestamp = 100;
 
-	CommandSave(Module* Creator)
+	CommandSave(const WeakModulePtr& Creator)
 		: ServerCommand(Creator, "SAVE", 2)
 	{
 	}
@@ -390,7 +390,7 @@ class SpanningTree::CommandServer final
 	static void HandleExtra(TreeServer* newserver, Params& params);
 
 public:
-	CommandServer(Module* Creator)
+	CommandServer(const WeakModulePtr& Creator)
 		: ServerOnlyServerCommand<SpanningTree::CommandServer>(Creator, "SERVER", 3)
 	{
 	}
@@ -413,7 +413,7 @@ class CommandSQuit final
 	: public ServerOnlyServerCommand<CommandSQuit>
 {
 public:
-	CommandSQuit(Module* Creator)
+	CommandSQuit(const WeakModulePtr& Creator)
 		: ServerOnlyServerCommand<CommandSQuit>(Creator, "SQUIT", 2)
 	{
 	}
@@ -424,7 +424,7 @@ class CommandSNONotice final
 	: public ServerCommand
 {
 public:
-	CommandSNONotice(Module* Creator)
+	CommandSNONotice(const WeakModulePtr& Creator)
 		: ServerCommand(Creator, "SNONOTICE", 2)
 	{
 	}
@@ -435,7 +435,7 @@ class CommandEndBurst final
 	: public ServerOnlyServerCommand<CommandEndBurst>
 {
 public:
-	CommandEndBurst(Module* Creator)
+	CommandEndBurst(const WeakModulePtr& Creator)
 		: ServerOnlyServerCommand<CommandEndBurst>(Creator, "ENDBURST")
 	{
 	}
@@ -446,7 +446,7 @@ class CommandSInfo final
 	: public ServerOnlyServerCommand<CommandSInfo>
 {
 public:
-	CommandSInfo(Module* Creator)
+	CommandSInfo(const WeakModulePtr& Creator)
 		: ServerOnlyServerCommand<CommandSInfo>(Creator, "SINFO", 2)
 	{
 	}
@@ -464,7 +464,7 @@ class CommandNum final
 	: public ServerOnlyServerCommand<CommandNum>
 {
 public:
-	CommandNum(Module* Creator)
+	CommandNum(const WeakModulePtr& Creator)
 		: ServerOnlyServerCommand<CommandNum>(Creator, "NUM", 3)
 	{
 	}
@@ -483,7 +483,7 @@ class CommandLMode final
 	: public ServerCommand
 {
 public:
-	CommandLMode(Module* Creator)
+	CommandLMode(const WeakModulePtr& Creator)
 		: ServerCommand(Creator, "LMODE", 3)
 	{
 	}
@@ -498,7 +498,7 @@ private:
 	Reply::Type type;
 
 public:
-	CommandReply(Module* Creator, Reply::Type rt)
+	CommandReply(const WeakModulePtr& Creator, Reply::Type rt)
 		: ServerOnlyServerCommand<CommandReply>(Creator, Reply::CommandStrFromType(rt), 5)
 		, type(rt)
 	{
@@ -548,5 +548,5 @@ public:
 	CommandReply fail;
 	CommandReply warn;
 	CommandReply note;
-	SpanningTreeCommands(ModuleSpanningTree* module);
+	SpanningTreeCommands(const WeakModulePtr& module);
 };

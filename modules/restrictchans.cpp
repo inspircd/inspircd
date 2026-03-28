@@ -56,7 +56,7 @@ private:
 public:
 	ModuleRestrictChans()
 		: Module(VF_VENDOR, "Prevents unprivileged users from creating new channels.")
-		, accountapi(this)
+		, accountapi(weak_from_this())
 	{
 	}
 
@@ -67,7 +67,7 @@ public:
 		{
 			const std::string name = tag->getString("name");
 			if (name.empty())
-				throw ModuleException(this, "Empty <allowchannel:name> at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "Empty <allowchannel:name> at " + tag->source.str());
 
 			newallows.insert(name);
 		}

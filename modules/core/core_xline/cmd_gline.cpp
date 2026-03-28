@@ -29,7 +29,7 @@
 #include "xline.h"
 #include "core_xline.h"
 
-CommandGline::CommandGline(Module* parent)
+CommandGline::CommandGline(const WeakModulePtr& parent)
 	: Command(parent, "GLINE", 1, 4)
 {
 	accepts_multiple_targets = true;

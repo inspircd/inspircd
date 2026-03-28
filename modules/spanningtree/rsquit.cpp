@@ -30,7 +30,7 @@
 #include "treeserver.h"
 #include "commands.h"
 
-CommandRSQuit::CommandRSQuit(Module* Creator)
+CommandRSQuit::CommandRSQuit(const WeakModulePtr& Creator)
 	: Command(Creator, "RSQUIT", 1)
 {
 	access_needed = CmdAccess::OPERATOR;

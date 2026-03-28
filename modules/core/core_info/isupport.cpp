@@ -44,7 +44,7 @@ namespace
 	}
 }
 
-ISupportManager::ISupportManager(Module* mod)
+ISupportManager::ISupportManager(const WeakModulePtr& mod)
 	: operext(mod, "isupport", ExtensionType::USER)
 	, isupportevprov(mod)
 {

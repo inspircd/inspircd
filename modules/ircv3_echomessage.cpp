@@ -33,7 +33,7 @@ private:
 public:
 	Cap::Capability echomsgcap;
 
-	EchoTag(Module* Creator)
+	EchoTag(const WeakModulePtr& Creator)
 		: ClientProtocol::MessageTagProvider(Creator)
 		, stdrplcap(Creator)
 		, echomsgcap(Creator, "echo-message")
@@ -62,9 +62,9 @@ private:
 public:
 	ModuleIRCv3EchoMessage()
 		: Module(VF_VENDOR, "Provides the IRCv3 echo-message client capability.")
-		, CTCTags::EventListener(this)
-		, echotag(this)
-		, tagmsgprov(this, "TAGMSG")
+		, CTCTags::EventListener(weak_from_this())
+		, echotag(weak_from_this())
+		, tagmsgprov(weak_from_this(), "TAGMSG")
 	{
 	}
 

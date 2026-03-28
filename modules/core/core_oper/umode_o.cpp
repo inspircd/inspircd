@@ -23,7 +23,7 @@
 #include "inspircd.h"
 #include "core_oper.h"
 
-ModeUserOperator::ModeUserOperator(Module* Creator)
+ModeUserOperator::ModeUserOperator(const WeakModulePtr& Creator)
 	: SimpleUserMode(Creator, "oper", 'o', true)
 {
 }

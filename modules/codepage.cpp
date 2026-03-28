@@ -337,7 +337,7 @@ private:
 public:
 	ModuleCodepage()
 		: Module(VF_VENDOR | VF_COMMON, "Allows the server administrator to define what characters are allowed in nicknames and how characters should be compared in a case insensitive way.")
-		, ISupport::EventListener(this)
+		, ISupport::EventListener(weak_from_this())
 		, origcasemap(national_case_insensitive_map)
 		, origcasemapname(ServerInstance->Config->CaseMapping)
 		, origisnick(ServerInstance->Users.IsNick)
@@ -363,18 +363,18 @@ public:
 
 		const std::string name = codepagetag->getString("name");
 		if (name.empty())
-			throw ModuleException(this, "<codepage:name> is a required field!");
+			throw ModuleException(weak_from_this(), "<codepage:name> is a required field!");
 
 		std::unique_ptr<Codepage> newcodepage = std::make_unique<SingleByteCodepage>();
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("cpchars"))
 		{
 			uint32_t begin = tag->getNum<uint32_t>("begin", tag->getNum<uint32_t>("index", 0));
 			if (!begin)
-				throw ModuleException(this, "<cpchars> tag without index or begin specified at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<cpchars> tag without index or begin specified at " + tag->source.str());
 
 			uint32_t end = tag->getNum<uint32_t>("end", begin);
 			if (begin > end)
-				throw ModuleException(this, "<cpchars:begin> must be lower than <cpchars:end> at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<cpchars:begin> must be lower than <cpchars:end> at " + tag->source.str());
 
 			bool front = tag->getBool("front", false);
 			for (uint32_t pos = begin; pos <= end; ++pos)
@@ -387,11 +387,11 @@ public:
 						break;
 
 					case Codepage::AllowCharacterResult::NOT_VALID:
-						throw ModuleException(this, "<cpchars> tag contains a forbidden character: {} at {}",
+						throw ModuleException(weak_from_this(), "<cpchars> tag contains a forbidden character: {} at {}",
 							GetPrintable(pos), tag->source.str());
 
 					case Codepage::AllowCharacterResult::NOT_VALID_AT_FRONT:
-						throw ModuleException(this, "<cpchars> tag contains a forbidden front character: {} at {}",
+						throw ModuleException(weak_from_this(), "<cpchars> tag contains a forbidden front character: {} at {}",
 							GetPrintable(pos), tag->source.str());
 				}
 			}
@@ -401,14 +401,14 @@ public:
 		{
 			uint32_t lower = tag->getNum<uint32_t>("lower", 0);
 			if (!lower)
-				throw ModuleException(this, "<cpcase:lower> is required at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<cpcase:lower> is required at " + tag->source.str());
 
 			uint32_t upper = tag->getNum<uint32_t>("upper", 0);
 			if (!upper)
-				throw ModuleException(this, "<cpcase:upper> is required at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<cpcase:upper> is required at " + tag->source.str());
 
 			if (!newcodepage->Map(upper, lower))
-				throw ModuleException(this, "Malformed <cpcase> tag at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "Malformed <cpcase> tag at " + tag->source.str());
 
 			ServerInstance->Logs.Debug(MODNAME, "Marked {} as the lower case version of {}",
 				GetPrintable(lower), GetPrintable(upper));

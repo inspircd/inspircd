@@ -50,7 +50,7 @@ class AccountExtItemImpl final
 	Events::ModuleEventProvider eventprov;
 
 public:
-	AccountExtItemImpl(Module* mod)
+	AccountExtItemImpl(const WeakModulePtr& mod)
 		: StringExtItem(mod, "accountname", ExtensionType::USER, true)
 		, eventprov(mod, "account")
 	{
@@ -92,7 +92,7 @@ private:
 	UserModeReference identifiedmode;
 
 public:
-	AccountAPIImpl(Module* mod)
+	AccountAPIImpl(const WeakModulePtr& mod)
 		: Account::APIBase(mod)
 		, accountext(mod)
 		, accountidext(mod, "accountid", ExtensionType::USER, true)
@@ -134,7 +134,7 @@ private:
 	AccountAPIImpl& accountapi;
 
 public:
-	AccountExtBan(Module* Creator, AccountAPIImpl& AccountAPI)
+	AccountExtBan(const WeakModulePtr& Creator, AccountAPIImpl& AccountAPI)
 		: ExtBan::MatchingBase(Creator, "account", 'R')
 		, accountapi(AccountAPI)
 	{
@@ -164,7 +164,7 @@ private:
 	AccountAPIImpl& accountapi;
 
 public:
-	UnauthedExtBan(Module* Creator, AccountAPIImpl& AccountAPI)
+	UnauthedExtBan(const WeakModulePtr& Creator, AccountAPIImpl& AccountAPI)
 		: ExtBan::MatchingBase(Creator, "unauthed", 'U')
 		, accountapi(AccountAPI)
 	{
@@ -197,18 +197,18 @@ private:
 public:
 	ModuleAccount()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds support for user accounts.")
-		, CTCTags::EventListener(this)
-		, ISupport::EventListener(this)
-		, Who::EventListener(this)
-		, Whois::EventListener(this)
-		, calleridapi(this)
-		, exemptionprov(this)
-		, reginvitemode(this, "reginvite", 'R')
-		, regmoderatedmode(this, "regmoderated", 'M')
-		, regdeafmode(this, "regdeaf", 'R')
-		, accountapi(this)
-		, accountextban(this, accountapi)
-		, unauthedextban(this, accountapi)
+		, CTCTags::EventListener(weak_from_this())
+		, ISupport::EventListener(weak_from_this())
+		, Who::EventListener(weak_from_this())
+		, Whois::EventListener(weak_from_this())
+		, calleridapi(weak_from_this())
+		, exemptionprov(weak_from_this())
+		, reginvitemode(weak_from_this(), "reginvite", 'R')
+		, regmoderatedmode(weak_from_this(), "regmoderated", 'M')
+		, regdeafmode(weak_from_this(), "regdeaf", 'R')
+		, accountapi(weak_from_this())
+		, accountextban(weak_from_this(), accountapi)
+		, unauthedextban(weak_from_this(), accountapi)
 	{
 	}
 

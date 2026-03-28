@@ -25,7 +25,7 @@
 #include "inspircd.h"
 #include "core_info.h"
 
-CommandVersion::CommandVersion(Module* parent, ISupportManager& isupportmgr)
+CommandVersion::CommandVersion(const WeakModulePtr& parent, ISupportManager& isupportmgr)
 	: Command(parent, "VERSION")
 	, isupport(isupportmgr)
 	, operversion(RPL_VERSION)

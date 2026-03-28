@@ -22,11 +22,6 @@
 #include "inspircd.h"
 #include "modules/ldap.h"
 
-namespace
-{
-	Module* me;
-}
-
 class LDAPOperBase
 	: public LDAPInterface
 {
@@ -58,7 +53,7 @@ protected:
 	}
 
 public:
-	LDAPOperBase(Module* mod, const std::string& uuid, const std::string& oper, const std::string& pass)
+	LDAPOperBase(const WeakModulePtr& mod, const std::string& uuid, const std::string& oper, const std::string& pass)
 		: LDAPInterface(mod)
 		, uid(uuid)
 		, opername(oper)
@@ -78,7 +73,7 @@ class BindInterface final
 	: public LDAPOperBase
 {
 public:
-	BindInterface(Module* mod, const std::string& uuid, const std::string& oper, const std::string& pass)
+	BindInterface(const WeakModulePtr& mod, const std::string& uuid, const std::string& oper, const std::string& pass)
 		: LDAPOperBase(mod, uuid, oper, pass)
 	{
 	}
@@ -107,7 +102,7 @@ class SearchInterface final
 
 	bool HandleResult(const LDAPResult& result)
 	{
-		dynamic_reference<LDAPProvider> LDAP(me, provider);
+		dynamic_reference<LDAPProvider> LDAP(this->creator, provider);
 		if (!LDAP || result.empty())
 			return false;
 
@@ -129,7 +124,7 @@ class SearchInterface final
 	}
 
 public:
-	SearchInterface(Module* mod, const std::string& prov, const std::string& uuid, const std::string& oper, const std::string& pass)
+	SearchInterface(const WeakModulePtr& mod, const std::string& prov, const std::string& uuid, const std::string& oper, const std::string& pass)
 		: LDAPOperBase(mod, uuid, oper, pass)
 		, provider(prov)
 	{
@@ -154,7 +149,7 @@ class AdminBindInterface final
 	const std::string what;
 
 public:
-	AdminBindInterface(Module* c, const std::string& p, const std::string& u, const std::string& o, const std::string& pa, const std::string& b, const std::string& w)
+	AdminBindInterface(const WeakModulePtr& c, const std::string& p, const std::string& u, const std::string& o, const std::string& pa, const std::string& b, const std::string& w)
 		: LDAPInterface(c)
 		, provider(p)
 		, user(u)
@@ -167,7 +162,7 @@ public:
 
 	void OnResult(const LDAPResult& r) override
 	{
-		dynamic_reference<LDAPProvider> LDAP(me, provider);
+		dynamic_reference<LDAPProvider> LDAP(this->creator, provider);
 		if (LDAP)
 		{
 			try
@@ -199,9 +194,8 @@ class ModuleLDAPOper final
 public:
 	ModuleLDAPOper()
 		: Module(VF_VENDOR, "Allows server operators to be authenticated against an LDAP database.")
-		, LDAP(this, "LDAPProvider")
+		, LDAP(weak_from_this(), "LDAPProvider")
 	{
-		me = this;
 	}
 
 	void ReadConfig(ConfigStatus& status) override
@@ -233,7 +227,7 @@ public:
 			try
 			{
 				std::string what = attribute + "=" + opername;
-				LDAP->BindAsManager(new AdminBindInterface(this, LDAP.GetProviderName(), user->uuid, opername, password, base, what));
+				LDAP->BindAsManager(new AdminBindInterface(weak_from_this(), LDAP.GetProviderName(), user->uuid, opername, password, base, what));
 				return MOD_RES_DENY;
 			}
 			catch (const LDAPException& ex)

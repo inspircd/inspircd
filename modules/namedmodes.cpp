@@ -61,7 +61,7 @@ class CommandProp final
 	: public SplitCommand
 {
 public:
-	CommandProp(Module* parent)
+	CommandProp(const WeakModulePtr& parent)
 		: SplitCommand(parent, "PROP", 1)
 	{
 		syntax = { "<channel> [[(+|-)]<mode> [<value>]]" };
@@ -113,7 +113,7 @@ class DummyZ final
 	: public ModeHandler
 {
 public:
-	DummyZ(Module* parent)
+	DummyZ(const WeakModulePtr& parent)
 		: ModeHandler(parent, "namebase", 'Z', PARAM_ALWAYS, MODETYPE_CHANNEL)
 	{
 		list = true;
@@ -138,14 +138,14 @@ private:
 public:
 	ModuleNamedModes()
 		: Module(VF_VENDOR, "Provides support for adding and removing modes via their long names.")
-		, cmd(this)
-		, dummyZ(this)
+		, cmd(weak_from_this())
+		, dummyZ(weak_from_this())
 	{
 	}
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules.SetPriority(this, I_OnPreMode, PRIORITY_FIRST);
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnPreMode, PRIORITY_FIRST);
 	}
 
 	ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes) override

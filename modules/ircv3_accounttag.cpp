@@ -39,7 +39,7 @@ public:
 		return accountapi->GetAccountName(user);
 	}
 
-	AccountTag(Module* mod, Account::API& api)
+	AccountTag(const WeakModulePtr& mod, Account::API& api)
 		: IRCv3::CapTag<AccountTag>(mod, "account-tag", "account")
 		, accountapi(api)
 	{
@@ -55,7 +55,7 @@ private:
 	CTCTags::CapReference ctctagcap;
 
 public:
-	AccountIdTag(Module* mod, AccountTag& tag, Account::API& api)
+	AccountIdTag(const WeakModulePtr& mod, AccountTag& tag, Account::API& api)
 		: ClientProtocol::MessageTagProvider(mod)
 		, accountapi(api)
 		, acctag(tag)
@@ -91,9 +91,9 @@ private:
 public:
 	ModuleIRCv3AccountTag()
 		: Module(VF_VENDOR, "Provides the IRCv3 account-tag client capability.")
-		, accountapi(this)
-		, tag(this, accountapi)
-		, idtag(this, tag, accountapi)
+		, accountapi(weak_from_this())
+		, tag(weak_from_this(), accountapi)
+		, idtag(weak_from_this(), tag, accountapi)
 	{
 	}
 };

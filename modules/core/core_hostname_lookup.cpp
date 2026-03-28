@@ -41,7 +41,7 @@ protected:
 	// The UUID of the user we are looking up the hostname of.
 	const std::string uuid;
 
-	UserResolver(DNS::Manager* mgr, Module* me, LocalUser* user, const std::string& to_resolve, DNS::QueryType qt)
+	UserResolver(DNS::Manager* mgr, const WeakModulePtr& me, LocalUser* user, const std::string& to_resolve, DNS::QueryType qt)
 		: DNS::Request(mgr, me, to_resolve, qt)
 		, sa(user->client_sa)
 		, uuid(user->uuid)
@@ -81,7 +81,7 @@ class UserIPResolver final
 	: public UserResolver
 {
 public:
-	UserIPResolver(DNS::Manager* mgr, Module* me, LocalUser* user, const std::string& host)
+	UserIPResolver(DNS::Manager* mgr, const WeakModulePtr& me, LocalUser* user, const std::string& host)
 		: UserResolver(mgr, me, user, host, user->client_sa.family() == AF_INET6 ? DNS::QUERY_AAAA : DNS::QUERY_A)
 	{
 	}
@@ -158,7 +158,7 @@ class UserHostResolver final
 	: public UserResolver
 {
 public:
-	UserHostResolver(DNS::Manager* mgr, Module* me, LocalUser* user)
+	UserHostResolver(DNS::Manager* mgr, const WeakModulePtr& me, LocalUser* user)
 		: UserResolver(mgr, me, user, user->GetAddress(), DNS::QUERY_PTR)
 	{
 	}
@@ -204,8 +204,8 @@ private:
 public:
 	ModuleHostnameLookup()
 		: Module(VF_CORE | VF_VENDOR, "Provides support for DNS lookups on connecting clients")
-		, dnsLookup(this, "dns-lookup", ExtensionType::USER)
-		, DNS(this)
+		, dnsLookup(weak_from_this(), "dns-lookup", ExtensionType::USER)
+		, DNS(weak_from_this())
 	{
 		dl = &dnsLookup;
 	}
@@ -223,7 +223,7 @@ public:
 
 		user->WriteNotice("*** Looking up your hostname...");
 
-		auto* res_reverse = new UserHostResolver(*this->DNS, this, user);
+		auto* res_reverse = new UserHostResolver(*this->DNS, weak_from_this(), user);
 		try
 		{
 			/* If both the reverse and forward queries are cached, the user will be able to pass DNS completely

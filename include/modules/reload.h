@@ -61,7 +61,7 @@ namespace ReloadModule
 	class EventListener : public Events::ModuleEventListener
 	{
 	public:
-		EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+		EventListener(const WeakModulePtr& mod, unsigned int eventprio = DefaultPriority)
 			: ModuleEventListener(mod, "reloadmodule", eventprio)
 		{
 		}
@@ -71,13 +71,13 @@ namespace ReloadModule
 		 * @param mod Module to be reloaded
 		 * @param cd CustomData instance that can store your data once.
 		 */
-		virtual void OnReloadModuleSave(Module* mod, CustomData& cd) = 0;
+		virtual void OnReloadModuleSave(const ModulePtr& mod, CustomData& cd) = 0;
 
 		/** Restore data after a reload. Only called if data was added in OnReloadModuleSave().
 		 * @param mod Reloaded module, if NULL the reload failed and the module no longer exists
 		 * @param data Pointer that was passed to CustomData::add() in OnReloadModuleSave() at the time when the module's state
 		 * was saved
 		 */
-		virtual void OnReloadModuleRestore(Module* mod, void* data) = 0;
+		virtual void OnReloadModuleRestore(const ModulePtr& mod, void* data) = 0;
 	};
 }

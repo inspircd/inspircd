@@ -37,7 +37,7 @@ public:
 	 *  Note: uid will be empty if this DB update was not called as a result of a user command (i.e. /REHASH)
 	 */
 	const std::string uid, username, password;
-	OperQuery(Module* me, std::vector<std::string>& mb, const std::string& u, const std::string& un, const std::string& pw)
+	OperQuery(const WeakModulePtr& me, std::vector<std::string>& mb, const std::string& u, const std::string& un, const std::string& pw)
 		: SQL::Query(me)
 		, my_blocks(mb)
 		, uid(u)
@@ -45,7 +45,7 @@ public:
 		, password(pw)
 	{
 	}
-	OperQuery(Module* me, std::vector<std::string>& mb)
+	OperQuery(const WeakModulePtr& me, std::vector<std::string>& mb)
 		: SQL::Query(me)
 		, my_blocks(mb)
 	{
@@ -163,7 +163,7 @@ private:
 public:
 	ModuleSQLOper()
 		: Module(VF_VENDOR, "Allows server operators to be authenticated against an SQL table.")
-		, SQL(this, "SQL::Provider")
+		, SQL(weak_from_this(), "SQL::Provider")
 	{
 	}
 
@@ -214,13 +214,13 @@ public:
 	// The one w/o params is for non-/OPER DB updates, such as a rehash.
 	void GetOperBlocks()
 	{
-		SQL->Submit(new OperQuery(this, my_blocks), query);
+		SQL->Submit(new OperQuery(weak_from_this(), my_blocks), query);
 	}
 	void GetOperBlocks(const std::string& u, const std::string& un, const std::string& pw)
 	{
 		active = true;
 		// Call to SQL query to fetch oper list from SQL table.
-		SQL->Submit(new OperQuery(this, my_blocks, u, un, pw), query);
+		SQL->Submit(new OperQuery(weak_from_this(), my_blocks, u, un, pw), query);
 	}
 
 	void Prioritize() override
@@ -228,7 +228,7 @@ public:
 		/** Run before other /OPER hooks that expect populated blocks, i.e. sslinfo or a TOTP module.
 		 *  We issue a DENY first, and will re-run OnPreCommand later to trigger the other hooks post-DB update.
 		 */
-		ServerInstance->Modules.SetPriority(this, I_OnPreCommand, PRIORITY_FIRST);
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnPreCommand, PRIORITY_FIRST);
 	}
 };
 

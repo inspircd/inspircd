@@ -127,9 +127,9 @@ struct LDAPResult final
 class LDAPInterface
 {
 public:
-	const reference<Module> creator;
+	const WeakModulePtr creator;
 
-	LDAPInterface(Module* m)
+	LDAPInterface(const WeakModulePtr& m)
 		: creator(m)
 	{
 	}
@@ -142,7 +142,7 @@ class LDAPProvider
 	: public DataProvider
 {
 public:
-	LDAPProvider(Module* Creator, const std::string& Name)
+	LDAPProvider(const WeakModulePtr& Creator, const std::string& Name)
 		: DataProvider(Creator, "LDAPProvider", Name)
 	{
 	}

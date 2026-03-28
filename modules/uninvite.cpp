@@ -37,7 +37,7 @@ private:
 	IRCv3::ReplyCapReference stdrplcap;
 
 public:
-	CommandUninvite(Module* Creator)
+	CommandUninvite(const WeakModulePtr& Creator)
 		: Command(Creator, "UNINVITE", 2)
 		, invapi(Creator)
 		, stdrplcap(Creator)
@@ -126,7 +126,7 @@ private:
 public:
 	ModuleUninvite()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /UNINVITE command which allows users who have invited another user to a channel to withdraw their invite.")
-		, cmd(this)
+		, cmd(weak_from_this())
 	{
 	}
 };

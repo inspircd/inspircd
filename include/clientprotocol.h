@@ -549,7 +549,7 @@ class CoreExport ClientProtocol::MessageTagEvent
 	: public Events::ModuleEventProvider
 {
 public:
-	MessageTagEvent(Module* mod)
+	MessageTagEvent(const WeakModulePtr& mod)
 		: ModuleEventProvider(mod, "messagetag")
 	{
 	}
@@ -568,7 +568,7 @@ public:
 	 * @param mod Module owning the provider.
 	 * @param eventprio The priority to give this event listener.
 	 */
-	MessageTagProvider(Module* mod, unsigned int eventprio = DefaultPriority)
+	MessageTagProvider(const WeakModulePtr& mod, unsigned int eventprio = DefaultPriority)
 		: Events::ModuleEventListener(mod, "messagetag", eventprio)
 	{
 	}
@@ -624,7 +624,7 @@ public:
 	 * @param priority Priority of the hook. Determines the order in which hooks for the same event get called.
 	 * Optional.
 	 */
-	EventHook(Module* mod, const std::string& name, unsigned int priority = Events::ModuleEventListener::DefaultPriority)
+	EventHook(const WeakModulePtr& mod, const std::string& name, unsigned int priority = Events::ModuleEventListener::DefaultPriority)
 		: Events::ModuleEventListener(mod, GetEventName(name), priority)
 	{
 	}
@@ -663,7 +663,7 @@ public:
 	 * @param eventname Name of the event this provider is for, e.g. "JOIN", "PART", "NUMERIC".
 	 * Should match command name if applicable.
 	 */
-	EventProvider(Module* Mod, const std::string& eventname)
+	EventProvider(const WeakModulePtr& Mod, const std::string& eventname)
 		: Events::ModuleEventProvider(Mod, ClientProtocol::EventHook::GetEventName(eventname))
 	{
 	}
@@ -690,20 +690,20 @@ struct CoreExport ClientProtocol::RFCEvents final
 	EventProvider error;
 
 	RFCEvents()
-		: numeric(nullptr, "NUMERIC")
-		, reply(nullptr, "REPLY")
-		, join(nullptr, "JOIN")
-		, part(nullptr, "PART")
-		, kick(nullptr, "KICK")
-		, quit(nullptr, "QUIT")
-		, nick(nullptr, "NICK")
-		, mode(nullptr, "MODE")
-		, topic(nullptr, "TOPIC")
-		, privmsg(nullptr, "PRIVMSG")
-		, invite(nullptr, "INVITE")
-		, ping(nullptr, "PING")
-		, pong(nullptr, "PONG")
-		, error(nullptr, "ERROR")
+		: numeric({}, "NUMERIC")
+		, reply({}, "REPLY")
+		, join({}, "JOIN")
+		, part({}, "PART")
+		, kick({}, "KICK")
+		, quit({}, "QUIT")
+		, nick({}, "NICK")
+		, mode({}, "MODE")
+		, topic({}, "TOPIC")
+		, privmsg({}, "PRIVMSG")
+		, invite({}, "INVITE")
+		, ping({}, "PING")
+		, pong({}, "PONG")
+		, error({}, "ERROR")
 	{
 	}
 };
@@ -729,7 +729,7 @@ public:
 	 * @param mod Module owning the serializer.
 	 * @param Name Name of the serializer, e.g. "rfc".
 	 */
-	Serializer(Module* mod, const std::string& Name);
+	Serializer(const WeakModulePtr& mod, const std::string& Name);
 
 	/** Handle a tag in a message being parsed. Call this method for each parsed tag.
 	 * @param user User sending the tag.

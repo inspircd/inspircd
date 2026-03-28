@@ -45,7 +45,7 @@ private:
 	}
 
 public:
-	RE2Pattern(const Module* mod, const std::string& pattern, uint8_t options)
+	RE2Pattern(const WeakModulePtr& mod, const std::string& pattern, uint8_t options)
 		: Regex::Pattern(pattern, options)
 		, regex(pattern, BuildOptions(options))
 	{
@@ -89,7 +89,7 @@ private:
 public:
 	ModuleRegexRE2()
 		: Module(VF_VENDOR, "Provides the re2 regular expression engine which uses the RE2 library.")
-		, regex(this, "re2")
+		, regex(weak_from_this(), "re2")
 	{
 	}
 };

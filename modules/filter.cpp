@@ -95,7 +95,7 @@ public:
 		, from_config(cfg)
 	{
 		if (!RegexEngine)
-			throw ModuleException(thismod, "Regex module implementing '"+RegexEngine.GetProviderName()+"' is not loaded!");
+			throw ModuleException(thismod->weak_from_this(), "Regex module implementing '"+RegexEngine.GetProviderName()+"' is not loaded!");
 		regex = RegexEngine->CreateHuman(free);
 		this->FillFlags(fla);
 	}
@@ -178,7 +178,7 @@ class CommandFilter final
 	: public Command
 {
 public:
-	CommandFilter(Module* f)
+	CommandFilter(const WeakModulePtr& f)
 		: Command(f, "FILTER", 1, 5)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -243,7 +243,7 @@ public:
 	void OnDecodeMetadata(Extensible* target, const std::string& extname, const std::string& extdata) override;
 	ModResult OnStats(Stats::Context& stats) override;
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override;
-	void OnUnloadModule(Module* mod) override;
+	void OnUnloadModule(const ModulePtr& mod) override;
 	bool Tick() override;
 	bool WriteDatabase();
 	bool AppliesToMe(User* user, const FilterResult& filter, int flags);
@@ -257,10 +257,8 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 	if (parameters.size() == 1)
 	{
 		/* Deleting a filter */
-		auto* me = this->service_creator.ptr();
 		std::string reason;
-
-		if (static_cast<ModuleFilter*>(me)->DeleteFilter(parameters[0], reason))
+		if (static_cast<ModuleFilter*>(thismod)->DeleteFilter(parameters[0], reason))
 		{
 			user->WriteNotice("*** Removed filter '" + parameters[0] + "': " + reason);
 			ServerInstance->SNO.WriteToSnoMask(user->IsLocal() ? 'f' : 'F', "{} removed filter '{}': {}",
@@ -315,8 +313,7 @@ CmdResult CommandFilter::Handle(User* user, const Params& parameters)
 				reasonindex = 3;
 			}
 
-			auto* me = this->service_creator.ptr();
-			std::pair<bool, std::string> result = static_cast<ModuleFilter*>(me)->AddFilter(freeform, type, parameters[reasonindex], duration, flags);
+			std::pair<bool, std::string> result = static_cast<ModuleFilter*>(thismod)->AddFilter(freeform, type, parameters[reasonindex], duration, flags);
 			if (result.first)
 			{
 				const std::string message = FMT::format("'{}', type '{}'{}, flags '{}', reason: {}", freeform, parameters[1],
@@ -362,12 +359,12 @@ bool ModuleFilter::AppliesToMe(User* user, const FilterResult& filter, int iflag
 
 ModuleFilter::ModuleFilter()
 	: Module(VF_VENDOR | VF_COMMON, "Adds the /FILTER command which allows server operators to define regex matches for inappropriate phrases that are not allowed to be used in channel messages, private messages, part messages, or quit messages.")
-	, ServerProtocol::SyncEventListener(this)
-	, Stats::EventListener(this)
+	, ServerProtocol::SyncEventListener(weak_from_this())
+	, Stats::EventListener(weak_from_this())
 	, Timer(0, true)
-	, accountapi(this)
-	, filtcommand(this)
-	, RegexEngine(this)
+	, accountapi(weak_from_this())
+	, filtcommand(weak_from_this())
+	, RegexEngine(weak_from_this())
 {
 	thismod = this;
 }
@@ -731,13 +728,13 @@ FilterResult ModuleFilter::DecodeFilter(const std::string& data)
 	tokens.GetMiddle(res.freeform);
 	tokens.GetMiddle(filteraction);
 	if (!StringToFilterAction(filteraction, res.action))
-		throw ModuleException(this, "Invalid action: " + filteraction);
+		throw ModuleException(weak_from_this(), "Invalid action: " + filteraction);
 
 	std::string filterflags;
 	tokens.GetMiddle(filterflags);
 	char c = res.FillFlags(filterflags);
 	if (c != 0)
-		throw ModuleException(this, "Invalid flag: '" + std::string(1, c) + "'");
+		throw ModuleException(weak_from_this(), "Invalid flag: '" + std::string(1, c) + "'");
 
 	std::string duration;
 	tokens.GetMiddle(duration);
@@ -946,7 +943,7 @@ ModResult ModuleFilter::OnStats(Stats::Context& stats)
 	return MOD_RES_PASSTHRU;
 }
 
-void ModuleFilter::OnUnloadModule(Module* mod)
+void ModuleFilter::OnUnloadModule(const ModulePtr& mod)
 {
 	// If the regex engine became unavailable or has changed, remove all filters
 	if (!RegexEngine)

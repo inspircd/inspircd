@@ -30,7 +30,7 @@
 
 #include "core_oper.h"
 
-CommandDie::CommandDie(Module* parent)
+CommandDie::CommandDie(const WeakModulePtr& parent)
 	: Command(parent, "DIE", 1, 1)
 {
 	access_needed = CmdAccess::OPERATOR;

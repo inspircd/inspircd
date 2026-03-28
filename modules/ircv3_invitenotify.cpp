@@ -30,7 +30,7 @@ class ModuleIRCv3InviteNotify final
 public:
 	ModuleIRCv3InviteNotify()
 		: Module(VF_VENDOR, "Provides the IRCv3 invite-notify client capability.")
-		, cap(this, "invite-notify")
+		, cap(weak_from_this(), "invite-notify")
 	{
 	}
 
@@ -59,7 +59,7 @@ public:
 	void Prioritize() override
 	{
 		// Prioritize after all modules to see all excepted users
-		ServerInstance->Modules.SetPriority(this, I_OnUserInvite, PRIORITY_LAST);
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnUserInvite, PRIORITY_LAST);
 	}
 };
 

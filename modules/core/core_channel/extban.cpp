@@ -169,12 +169,12 @@ void ExtBanManager::DelExtBan(ExtBan::Base* extban)
 	if (extban->GetLetter())
 	{
 		auto lit = byletter.find(extban->GetLetter());
-		if (lit != byletter.end() && lit->second->service_creator.ptr() == extban->service_creator.ptr())
+		if (lit != byletter.end() && insp::same_ptr(lit->second->service_creator, extban->service_creator))
 			byletter.erase(lit);
 	}
 
 	auto nit = byname.find(extban->GetName());
-	if (nit != byname.end() && nit->second->service_creator.ptr() == extban->service_creator.ptr())
+	if (nit != byname.end() && insp::same_ptr(nit->second->service_creator, extban->service_creator))
 		byname.erase(nit);
 }
 

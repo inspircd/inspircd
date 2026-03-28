@@ -42,7 +42,7 @@ class DummySerializer final
 	}
 
 public:
-	DummySerializer(Module* mod)
+	DummySerializer(const WeakModulePtr& mod)
 		: ClientProtocol::Serializer(mod, "dummy")
 	{
 	}
@@ -55,7 +55,7 @@ class CommandReloadmodule final
 	DummySerializer dummyser;
 
 public:
-	CommandReloadmodule(Module* parent)
+	CommandReloadmodule(const WeakModulePtr& parent)
 		: Command(parent, "RELOADMODULE", 1)
 		, evprov(parent, "reloadmodule")
 		, dummyser(parent)
@@ -188,7 +188,7 @@ class DataKeeper final
 
 	/** Module being reloaded
 	 */
-	Module* mod;
+	ModulePtr mod;
 
 	/** Stores all user and channel modes provided by the module
 	 */
@@ -296,12 +296,12 @@ public:
 	/** Save module state
 	 * @param currmod Module whose data to save
 	 */
-	void Save(Module* currmod);
+	void Save(const ModulePtr& currmod);
 
 	/** Restore module state
 	 * @param newmod Newly loaded instance of the module which had its data saved
 	 */
-	void Restore(Module* newmod);
+	void Restore(const ModulePtr& newmod);
 
 	/** Handle reload failure
 	 */
@@ -355,7 +355,7 @@ size_t DataKeeper::SaveSerializer(User* user)
 	auto* const localuser = user->AsLocal();
 	if ((!localuser) || (!localuser->serializer))
 		return UserData::UNUSED_INDEX;
-	if (localuser->serializer->service_creator != mod)
+	if (!insp::same_ptr(localuser->serializer->service_creator, mod))
 		return UserData::UNUSED_INDEX;
 
 	const size_t serializerindex = GetSerializerIndex(localuser->serializer);
@@ -477,18 +477,18 @@ void DataKeeper::CreateModeList(ModeType modetype)
 {
 	for (const auto& [_, mh] : ServerInstance->Modes.GetModes(modetype))
 	{
-		if (mh->service_creator == mod)
+		if (insp::same_ptr(mh->service_creator, mod))
 			handledmodes[modetype].emplace_back(mh);
 	}
 }
 
-void DataKeeper::Save(Module* currmod)
+void DataKeeper::Save(const ModulePtr& currmod)
 {
 	this->mod = currmod;
 
 	for (const auto& [_, ext] : ServerInstance->Extensions.GetExts())
 	{
-		if (ext->service_creator == mod)
+		if (insp::same_ptr(ext->service_creator, mod))
 			handledexts.emplace_back(ext);
 	}
 
@@ -508,7 +508,7 @@ void DataKeeper::VerifyServiceProvider(const ProviderInfo& service, const char* 
 	const ServiceProvider* sp = service.extitem;
 	if (!sp)
 		ServerInstance->Logs.Debug(MODNAME, "{} \"{}\" is no longer available", type, service.itemname);
-	else if (sp->service_creator != mod)
+	else if (!insp::same_ptr(sp->service_creator, mod))
 		ServerInstance->Logs.Debug(MODNAME, "{} \"{}\" is now handled by {}", type, service.itemname, sp->GetSource());
 }
 
@@ -539,7 +539,7 @@ void DataKeeper::LinkSerializers()
 	}
 }
 
-void DataKeeper::Restore(Module* newmod)
+void DataKeeper::Restore(const ModulePtr& newmod)
 {
 	this->mod = newmod;
 
@@ -671,12 +671,12 @@ void DataKeeper::DoRestoreModules()
 class ReloadAction final
 	: public ActionBase
 {
-	Module* const mod;
+	ModulePtr const mod;
 	const std::string uuid;
 	const std::string passedname;
 
 public:
-	ReloadAction(Module* m, const std::string& uid, const std::string& passedmodname)
+	ReloadAction(const ModulePtr& m, const std::string& uid, const std::string& passedmodname)
 		: mod(m)
 		, uuid(uid)
 		, passedname(passedmodname)
@@ -695,7 +695,7 @@ public:
 
 		if (result)
 		{
-			Module* newmod = ServerInstance->Modules.Find(name);
+			const auto newmod = ServerInstance->Modules.Find(name);
 			datakeeper.Restore(newmod);
 			ServerInstance->SNO.WriteGlobalSno('a', "The {} module was reloaded.", passedname);
 		}
@@ -720,14 +720,15 @@ public:
 
 CmdResult CommandReloadmodule::Handle(User* user, const Params& parameters)
 {
-	Module* m = ServerInstance->Modules.Find(parameters[0]);
-	if (m == this->service_creator)
+	const auto m = ServerInstance->Modules.Find(parameters[0]);
+	if (insp::same_ptr(m, this->service_creator))
 	{
 		user->WriteNumeric(ERR_CANTUNLOADMODULE, parameters[0], "You cannot reload core_reloadmodule (unload and load it)");
 		return CmdResult::FAILURE;
 	}
 
-	if (this->service_creator->dying)
+	auto thismod = this->service_creator.lock();
+	if (!thismod || thismod->dying)
 		return CmdResult::FAILURE;
 
 	if ((m) && (ServerInstance->Modules.CanUnload(m)))
@@ -751,7 +752,7 @@ private:
 public:
 	CoreModReloadmodule()
 		: Module(VF_CORE | VF_VENDOR, "Provides the RELOADMODULE command")
-		, cmd(this)
+		, cmd(weak_from_this())
 	{
 	}
 };

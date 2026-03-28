@@ -121,7 +121,7 @@ protected:
 	/** Initializes an instance of the ExtBan::Base class.
 	 * @param mod The module which created this instance.
 	 */
-	Manager(Module* mod)
+	Manager(const WeakModulePtr& mod)
 		: DataProvider(mod, "extbanmanager")
 	{
 	}
@@ -207,7 +207,7 @@ class ExtBan::ManagerRef final
 	: public dynamic_reference_nocheck<ExtBan::Manager>
 {
 public:
-	ManagerRef(Module* mod)
+	ManagerRef(const WeakModulePtr& mod)
 		: dynamic_reference_nocheck<ExtBan::Manager>(mod, "extbanmanager")
 	{
 	}
@@ -245,7 +245,7 @@ protected:
 	 * @param xbletter The character used in bans to signify this extban.
 	 * @param xbmatchflags The flags used for matching.
 	 */
-	Base(Module* mod, const std::string& xbname, ExtBan::Letter xbletter, uint8_t xbmatchflags = ExtBan::MATCH_DEFAULT)
+	Base(const WeakModulePtr& mod, const std::string& xbname, ExtBan::Letter xbletter, uint8_t xbmatchflags = ExtBan::MATCH_DEFAULT)
 		: ServiceProvider(mod, "ExtBan::Base", xbname)
 		, letter(ServerInstance->Config->ConfValue("extbans")->getCharacter(xbname, xbletter, true))
 		, manager(mod, "extbanmanager")
@@ -345,7 +345,7 @@ protected:
 	 * @param xbletter The character used in bans to signify this extban.
 	 * @param xbmatchflags The flags used for matching.
 	 */
-	ActingBase(Module* mod, const std::string& xbname, ExtBan::Letter xbletter, uint8_t xbmatchflags = ExtBan::MATCH_DEFAULT)
+	ActingBase(const WeakModulePtr& mod, const std::string& xbname, ExtBan::Letter xbletter, uint8_t xbmatchflags = ExtBan::MATCH_DEFAULT)
 		: Base(mod, xbname, xbletter, xbmatchflags | ExtBan::MATCH_REQUIRE_CHANNEL)
 	{
 	}
@@ -391,7 +391,7 @@ public:
 	 * @param xbname The name used in bans to signify this extban.
 	 * @param xbletter The character used in bans to signify this extban.
 	 */
-	Acting(Module* mod, const std::string& xbname, ExtBan::Letter xbletter)
+	Acting(const WeakModulePtr& mod, const std::string& xbname, ExtBan::Letter xbletter)
 		: ActingBase(mod, xbname, xbletter)
 	{
 	}
@@ -423,7 +423,7 @@ protected:
 	 * @param xbletter The character used in bans to signify this extban.
 	 * @param xbmatchflags The flags used for matching.
 	 */
-	MatchingBase(Module* mod, const std::string& xbname, ExtBan::Letter xbletter, uint8_t xbmatchflags = ExtBan::MATCH_DEFAULT)
+	MatchingBase(const WeakModulePtr& mod, const std::string& xbname, ExtBan::Letter xbletter, uint8_t xbmatchflags = ExtBan::MATCH_DEFAULT)
 		: Base(mod, xbname, xbletter, xbmatchflags)
 	{
 	}
@@ -441,7 +441,7 @@ class ExtBan::EventListener
 	: public Events::ModuleEventListener
 {
 protected:
-	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+	EventListener(const WeakModulePtr& mod, unsigned int eventprio = DefaultPriority)
 		: ModuleEventListener(mod, "extban", eventprio)
 	{
 	}

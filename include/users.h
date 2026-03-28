@@ -863,7 +863,7 @@ public:
 	 * @param mod Module whose I/O hook to return.
 	 * @return An I/O hook or nullptr if no hook is attached.
 	 */
-	virtual IOHook* GetModHook(Module* mod) const { return nullptr; }
+	virtual IOHook* GetModHook(const ModulePtr& mod) const { return nullptr; }
 
 	/** Called to write an IRC message to the I/O handler.
 	 * @param msg The message to write.

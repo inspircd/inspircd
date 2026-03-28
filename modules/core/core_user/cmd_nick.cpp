@@ -25,7 +25,7 @@
 #include "inspircd.h"
 #include "core_user.h"
 
-CommandNick::CommandNick(Module* parent)
+CommandNick::CommandNick(const WeakModulePtr& parent)
 	: SplitCommand(parent, "NICK", 1)
 	, banmode(parent, "ban")
 {

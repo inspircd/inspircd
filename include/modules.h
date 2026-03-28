@@ -210,12 +210,18 @@ enum Implementation
 /** Base class for all InspIRCd modules
  *  This class is the base class for InspIRCd modules. All modules must inherit from this class,
  *  its methods will be called when irc server events occur. class inherited from module must be
- *  instantiated by the ModuleFactory class (see relevant section) for the module to be initialised.
+ *  instantiated by MODULE_INIT (see relevant section) for the module to be initialised.
  */
 class CoreExport Module
 	: public Cullable
-	, public usecountbase
+	, public std::enable_shared_from_this<Module>
 {
+private:
+	/** Usually contains nothing. This is part of a hack that allows us to call
+	 * weak_from_this and shared_from_this from the constructor of modules.
+	 */
+	std::shared_ptr<Module> pointer;
+
 protected:
 	/** Initializes a new instance of the Module class.
 	 * @param mprops The properties of this module.
@@ -243,7 +249,7 @@ public:
 	using LinkDataDiff = insp::casemapped_map<std::pair<std::optional<std::string>, std::optional<std::string>>>;
 
 	/** A list of modules. */
-	using List = std::vector<Module*>;
+	using List = std::vector<ModulePtr>;
 
 	/** Reference to the dynamic library. */
 	DLLManager* ModuleDLL = nullptr;
@@ -264,6 +270,12 @@ public:
 
 	/** The version of this module. */
 	const std::string version;
+
+	/** Used internally to convert a module instance to a ModulePtr after
+	 * construction. You should call shared_from_this() to get a shared pointer
+	 * to an already converted module.
+	 */
+	ModulePtr Share();
 
 	/** Module setup
 	 * \exception ModuleException Throwing this class, or any class derived from ModuleException, causes loading of the module to abort.
@@ -672,7 +684,7 @@ public:
 	 * module).
 	 * @param mod A pointer to the new module
 	 */
-	virtual void OnLoadModule(Module* mod) ATTR_NOT_NULL(2);
+	virtual void OnLoadModule(const ModulePtr& mod);
 
 	/** Called whenever a module is unloaded.
 	 * mod will contain a pointer to the module, and string will contain its name,
@@ -685,7 +697,7 @@ public:
 	 * module).
 	 * @param mod Pointer to the module being unloaded (still valid)
 	 */
-	virtual void OnUnloadModule(Module* mod) ATTR_NOT_NULL(2);
+	virtual void OnUnloadModule(const ModulePtr& mod);
 
 	/** Called once every five seconds for background processing.
 	 * This timer can be used to control timed features. Its period is not accurate
@@ -970,7 +982,7 @@ class CoreExport ModuleManager final
 {
 public:
 	/** Holds a a list of modules keyed by their module name. */
-	using ModuleMap = std::map<std::string, Module*>;
+	using ModuleMap = std::map<std::string, ModulePtr>;
 
 	/** Holds one or more services. */
 	using ServiceList = std::vector<ServiceProvider*>;
@@ -1018,7 +1030,7 @@ private:
 	 * @param mod Module whose modes to unregister
 	 * @param modetype MODETYPE_USER to unregister user modes, MODETYPE_CHANNEL to unregister channel modes
 	 */
-	void UnregisterModes(Module* mod, ModeType modetype);
+	void UnregisterModes(const ModulePtr& mod, ModeType modetype);
 
 public:
 	/** Event handler hooks.
@@ -1069,8 +1081,8 @@ public:
 	 * then this contains a the module that your module must be placed before
 	 * or after.
 	 */
-	bool SetPriority(Module* mod, Implementation i, Priority s, const std::string &which);
-	bool SetPriority(Module* mod, Implementation i, Priority s, Module* which = nullptr);
+	bool SetPriority(const ModulePtr& mod, Implementation i, Priority s, const std::string &which);
+	bool SetPriority(const ModulePtr& mod, Implementation i, Priority s, const ModulePtr& which = nullptr);
 
 	/** Change the priority of all events in a module.
 	 * @param mod The module to set the priority of
@@ -1080,7 +1092,7 @@ public:
 	 * SetPriority method for this, where you may specify other modules to
 	 * be prioritized against.
 	 */
-	void SetPriority(Module* mod, Priority s);
+	void SetPriority(const ModulePtr& mod, Priority s);
 
 	/** Attach an event to a module.
 	 * You may later detach the event with ModuleManager::Detach().
@@ -1089,19 +1101,19 @@ public:
 	 * @param mod Module to attach event to
 	 * @return True if the event was attached
 	 */
-	bool Attach(Implementation i, Module* mod);
+	bool Attach(Implementation i, const ModulePtr& mod);
 
 	/** Attach an array of events to a module
 	 * @param i Event types (array) to attach
 	 * @param mod Module to attach events to
 	 * @param sz The size of the implementation array
 	 */
-	void Attach(const Implementation* i, Module* mod, size_t sz);
+	void Attach(const Implementation* i, const ModulePtr& mod, size_t sz);
 
 	/** Attach all events to a module (used on module load)
 	 * @param mod Module to attach to all events
 	 */
-	void AttachAll(Module* mod);
+	void AttachAll(const ModulePtr& mod);
 
 	/** Detach an event from a module.
 	 * This is not required when your module unloads, as the core will
@@ -1110,7 +1122,7 @@ public:
 	 * @param mod Module to detach event from
 	 * @return True if the event was detached
 	 */
-	bool Detach(Implementation i, Module* mod);
+	bool Detach(Implementation i, const ModulePtr& mod);
 
 	/** Detach an array of events from a module
 	 * This is not required when your module unloads, as the core will
@@ -1119,12 +1131,12 @@ public:
 	 * @param mod Module to detach events from
 	 * @param sz The size of the implementation array
 	 */
-	void Detach(const Implementation* i, Module* mod, size_t sz);
+	void Detach(const Implementation* i, const ModulePtr& mod, size_t sz);
 
 	/** Detach all events from a module (used on unload)
 	 * @param mod Module to detach from
 	 */
-	void DetachAll(Module* mod);
+	void DetachAll(const ModulePtr& mod);
 
 	/** Returns text describing the last module error
 	 * @return The last error message to occur
@@ -1143,27 +1155,27 @@ public:
 	 *
 	 * @return true on success; if false, LastError will give a reason
 	 */
-	bool Unload(Module* module);
+	bool Unload(const ModulePtr& module);
 
 	/** Called by the InspIRCd constructor to load all modules from the config file.
 	 */
 	void LoadAll();
 	void UnloadAll();
-	void DoSafeUnload(Module*);
+	void DoSafeUnload(const ModulePtr&);
 
 	/** Check if a module can be unloaded and if yes, prepare it for unload
 	 * @param mod Module to be unloaded
 	 * @return True if the module is unloadable, false otherwise.
 	 * If true the module must be unloaded in the current main loop iteration.
 	 */
-	bool CanUnload(Module* mod);
+	bool CanUnload(const ModulePtr& mod);
 
-	/** Find a module by name, and return a Module* to it.
+	/** Find a module by name, and return a ModulePtr to it.
 	 * This is preferred over iterating the module lists yourself.
 	 * @param name The module name to look up
 	 * @return A pointer to the module, or NULL if the module cannot be found
 	 */
-	Module* Find(const std::string& name);
+	ModulePtr Find(const std::string& name);
 
 	/** Register a service provided by a module */
 	void AddService(ServiceProvider&);
@@ -1220,7 +1232,7 @@ public:
 		const Module::List& _handlers = ServerInstance->Modules.EventHandlers[I_ ## EVENT]; \
 		for (Module::List::const_reverse_iterator _handler = _handlers.rbegin(); _handler != _handlers.rend(); ) \
 		{ \
-			Module* _mod = *_handler++; \
+			auto& _mod = *_handler++; \
 			try \
 			{ \
 				if (!_mod->dying) \
@@ -1244,7 +1256,7 @@ public:
 		const Module::List& _handlers = ServerInstance->Modules.EventHandlers[I_ ## EVENT]; \
 		for (Module::List::const_reverse_iterator _handler = _handlers.rbegin(); _handler != _handlers.rend(); ) \
 		{ \
-			Module* _mod = *_handler++; \
+			auto& _mod = *_handler++; \
 			try \
 			{ \
 				if (_mod->dying) \

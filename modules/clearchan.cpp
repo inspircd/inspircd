@@ -27,7 +27,7 @@ class CommandClearChan final
 public:
 	Channel* activechan;
 
-	CommandClearChan(Module* Creator)
+	CommandClearChan(const WeakModulePtr& Creator)
 		: Command(Creator, "CLEARCHAN", 1, 3)
 	{
 		syntax = { "<channel> [KILL|KICK|G|Z] [:<reason>]" };
@@ -89,9 +89,11 @@ public:
 			ServerInstance->PI->BroadcastEncap(this->service_name, eparams, user, user);
 		}
 
-		// Attach to the appropriate hook so we're able to hide the QUIT/KICK messages
+		// Attach to the appropriate hook so we're able to hide the QUIT/KICK
+		// messages. The lock here should always succeed because its for our
+		// creator.
 		Implementation hook = (kick ? I_OnUserKick : I_OnBuildNeighborList);
-		ServerInstance->Modules.Attach(hook, this->service_creator);
+		ServerInstance->Modules.Attach(hook, this->service_creator.lock());
 
 		std::string mask;
 		// Now remove all local non-opers from the channel
@@ -134,7 +136,8 @@ public:
 			ServerInstance->Users.QuitUser(curr, reason);
 		}
 
-		ServerInstance->Modules.Detach(hook, this->service_creator);
+		// The lock here should always succeed because its for our creator.
+		ServerInstance->Modules.Detach(hook, this->service_creator.lock());
 		if (xlf)
 			ServerInstance->XLines->ApplyLines();
 
@@ -151,7 +154,7 @@ private:
 public:
 	ModuleClearChan()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /CLEARCHAN command which allows server operators to mass-punish the members of a channel.")
-		, cmd(this)
+		, cmd(weak_from_this())
 	{
 	}
 
@@ -159,7 +162,7 @@ public:
 	{
 		// Only attached while we are working; don't react to events otherwise
 		Implementation events[] = { I_OnBuildNeighborList, I_OnUserKick };
-		ServerInstance->Modules.Detach(events, this, sizeof(events)/sizeof(Implementation));
+		ServerInstance->Modules.Detach(events, shared_from_this(), sizeof(events)/sizeof(Implementation));
 	}
 
 	void OnBuildNeighborList(User* source, User::NeighborList& include, User::NeighborExceptions& exception) override

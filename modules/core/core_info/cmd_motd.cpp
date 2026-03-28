@@ -33,7 +33,7 @@ enum
 	ERR_NOMOTD = 422,
 };
 
-CommandMotd::CommandMotd(Module* parent)
+CommandMotd::CommandMotd(const WeakModulePtr& parent)
 	: ServerTargetCommand(parent, "MOTD")
 {
 	syntax = { "[<servername>]" };

@@ -35,7 +35,7 @@ public:
 	Cap::Capability cap;
 	bool notifyopers;
 
-	CommandSetName(Module* mod)
+	CommandSetName(const WeakModulePtr& mod)
 		: Command(mod, "SETNAME", 1, 2)
 		, banmode(mod, "ban")
 		, cap(mod, "setname")
@@ -126,9 +126,9 @@ private:
 public:
 	ModuleSetName()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SETNAME command which allows users to change their real name.")
-		, cmd(this)
-		, setnameevprov(this, "SETNAME")
-		, monitorapi(this)
+		, cmd(weak_from_this())
+		, setnameevprov(weak_from_this(), "SETNAME")
+		, monitorapi(weak_from_this())
 	{
 	}
 

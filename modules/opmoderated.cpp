@@ -63,10 +63,10 @@ private:
 public:
 	ModuleOpModerated()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds channel mode U (opmoderated) which hides the messages of unprivileged users from other unprivileged users.")
-		, CTCTags::EventListener(this)
-		, exemptionprov(this)
-		, extban(this, "opmoderated", 'u')
-		, mode(this, "opmoderated", 'U')
+		, CTCTags::EventListener(weak_from_this())
+		, exemptionprov(weak_from_this())
+		, extban(weak_from_this(), "opmoderated", 'u')
+		, mode(weak_from_this(), "opmoderated", 'U')
 	{
 	}
 

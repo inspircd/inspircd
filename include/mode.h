@@ -172,7 +172,7 @@ public:
 	 * @param type Type of the mode (MODETYPE_USER or MODETYPE_CHANNEL)
 	 * @param mclass The object type of this mode handler, one of ModeHandler::Class
 	 */
-	ModeHandler(Module* me, const std::string& name, char modeletter, ParamSpec params, ModeType type, Class mclass = MC_OTHER);
+	ModeHandler(const WeakModulePtr& me, const std::string& name, char modeletter, ParamSpec params, ModeType type, Class mclass = MC_OTHER);
 	Cullable::Result Cull() override;
 
 	/** @copydoc ServiceProvider::RegisterService */
@@ -399,7 +399,7 @@ public:
 	 * @param PrefixRank Rank given by this prefix mode, see explanation above
 	 * @param PrefixChar Prefix character, or 0 if the mode has no prefix character
 	 */
-	PrefixMode(Module* Creator, const std::string& Name, char ModeLetter, Rank PrefixRank = 0, char PrefixChar = 0);
+	PrefixMode(const WeakModulePtr& Creator, const std::string& Name, char ModeLetter, Rank PrefixRank = 0, char PrefixChar = 0);
 
 	/** @copydoc ModeHandler::AccessCheck */
 	ModResult AccessCheck(User* source, Channel* channel, Modes::Change& change) override;
@@ -450,7 +450,7 @@ class CoreExport SimpleUserMode
 	: public ModeHandler
 {
 public:
-	SimpleUserMode(Module* Creator, const std::string& Name, char modeletter, bool operonly = false, const std::string& old = "")
+	SimpleUserMode(const WeakModulePtr& Creator, const std::string& Name, char modeletter, bool operonly = false, const std::string& old = "")
 		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_USER)
 	{
 		this->oldname = old;
@@ -471,7 +471,7 @@ class CoreExport SimpleChannelMode
 {
 public:
 
-	SimpleChannelMode(Module* Creator, const std::string& Name, char modeletter, bool operonly = false, const std::string& old = "")
+	SimpleChannelMode(const WeakModulePtr& Creator, const std::string& Name, char modeletter, bool operonly = false, const std::string& old = "")
 		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_CHANNEL)
 	{
 		this->oldname = old;
@@ -503,12 +503,12 @@ private:
 	ModeType m_type;
 
 public:
-	const reference<Module> creator;
+	const WeakModulePtr creator;
 
 	/**
 	 * The constructor initializes the mode and the mode type
 	 */
-	ModeWatcher(Module* creator, const std::string& modename, ModeType type);
+	ModeWatcher(const WeakModulePtr& creator, const std::string& modename, ModeType type);
 
 	/**
 	 * The default destructor does nothing.

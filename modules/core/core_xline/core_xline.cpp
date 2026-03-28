@@ -97,10 +97,10 @@ private:
 public:
 	CoreModXLine()
 		: Module(VF_CORE | VF_VENDOR, "Provides the ELINE, GLINE, QLINE, and ZLINE commands")
-		, cmdeline(this)
-		, cmdgline(this)
-		, cmdqline(this)
-		, cmdzline(this)
+		, cmdeline(weak_from_this())
+		, cmdgline(weak_from_this())
+		, cmdqline(weak_from_this())
+		, cmdzline(weak_from_this())
 	{
 	}
 

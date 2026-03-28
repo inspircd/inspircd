@@ -122,7 +122,7 @@ public:
 	 * @param lnum List numeric
 	 * @param eolnum End of list numeric
 	 */
-	ListModeBase(Module* Creator, const std::string& Name, char modechar, unsigned int lnum, unsigned int eolnum, bool am = false);
+	ListModeBase(const WeakModulePtr& Creator, const std::string& Name, char modechar, unsigned int lnum, unsigned int eolnum, bool am = false);
 
 	/** Determines whether some channels have longer lists than others. */
 	bool HasVariableLength() const { return chanlimits.size() > 1; }

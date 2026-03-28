@@ -50,7 +50,7 @@ class Invite::APIBase
 	: public DataProvider
 {
 public:
-	APIBase(Module* parent);
+	APIBase(const WeakModulePtr& parent);
 
 	/** Create or extend an Invite.
 	 * When a user is invited to join a channel either a new Invite object is created or
@@ -97,7 +97,7 @@ class Invite::API final
 	: public dynamic_reference<APIBase>
 {
 public:
-	API(Module* parent)
+	API(const WeakModulePtr& parent)
 		: dynamic_reference<APIBase>(parent, "core_channel_invite")
 	{
 	}

@@ -27,7 +27,7 @@ private:
 	virtual void OnUnsetInternal(User* source, Channel* chan) = 0;
 
 public:
-	ParamModeBase(Module* Creator, const std::string& Name, char modeletter, ParamSpec ps)
+	ParamModeBase(const WeakModulePtr& Creator, const std::string& Name, char modeletter, ParamSpec ps)
 		: ModeHandler(Creator, Name, modeletter, ps, MODETYPE_CHANNEL, MC_PARAM) { }
 
 	/** @copydoc ModeHandler::OnModeChange */
@@ -59,7 +59,7 @@ public:
 	 * @param modeletter The mode letter of this mode
 	 * @param ps The parameter type of this mode, one of ParamSpec
 	 */
-	ParamMode(Module* Creator, const std::string& Name, char modeletter, ParamSpec ps = PARAM_SETONLY)
+	ParamMode(const WeakModulePtr& Creator, const std::string& Name, char modeletter, ParamSpec ps = PARAM_SETONLY)
 		: ParamModeBase(Creator, Name, modeletter, ps)
 		, ext(Creator, "param-mode-" + Name, ExtensionType::CHANNEL)
 	{

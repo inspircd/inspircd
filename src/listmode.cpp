@@ -23,7 +23,7 @@
 #include "inspircd.h"
 #include "listmode.h"
 
-ListModeBase::ListModeBase(Module* Creator, const std::string& Name, char modechar, unsigned int lnum, unsigned int eolnum, bool am)
+ListModeBase::ListModeBase(const WeakModulePtr& Creator, const std::string& Name, char modechar, unsigned int lnum, unsigned int eolnum, bool am)
 	: ModeHandler(Creator, Name, modechar, PARAM_ALWAYS, MODETYPE_CHANNEL, MC_LIST)
 	, extItem(Creator, "list-mode-" + Name, ExtensionType::CHANNEL)
 	, accepts_mask(am)

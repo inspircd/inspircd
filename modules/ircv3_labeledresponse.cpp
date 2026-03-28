@@ -32,7 +32,7 @@ public:
 	std::string label;
 	const std::string labeltag;
 
-	LabeledResponseTag(Module* mod, const Cap::Capability& capref)
+	LabeledResponseTag(const WeakModulePtr& mod, const Cap::Capability& capref)
 		: ClientProtocol::MessageTagProvider(mod)
 		, cap(capref)
 		, labeltag("label")
@@ -90,13 +90,13 @@ private:
 public:
 	ModuleIRCv3LabeledResponse()
 		: Module(VF_VENDOR, "Provides support for the IRCv3 Labeled Response specification.")
-		, cap(this, "labeled-response")
-		, tag(this, cap)
-		, batchmanager(this)
+		, cap(weak_from_this(), "labeled-response")
+		, tag(weak_from_this(), cap)
+		, batchmanager(weak_from_this())
 		, batch("labeled-response")
-		, batchcap(this)
-		, ackmsgprov(this, "ACK")
-		, labelmsgprov(this, "labeled")
+		, batchcap(weak_from_this())
+		, ackmsgprov(weak_from_this(), "ACK")
+		, labelmsgprov(weak_from_this(), "labeled")
 	{
 	}
 
@@ -228,7 +228,7 @@ public:
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules.SetPriority(this, I_OnPreCommand, PRIORITY_BEFORE, "alias");
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnPreCommand, PRIORITY_BEFORE, "alias");
 	}
 };
 

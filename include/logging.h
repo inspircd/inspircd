@@ -132,7 +132,7 @@ class CoreExport Log::Engine
 	: public DataProvider
 {
 protected:
-	Engine(Module* Creator, const std::string& Name);
+	Engine(const WeakModulePtr& Creator, const std::string& Name);
 
 public:
 	virtual ~Engine() override;
@@ -149,7 +149,7 @@ class CoreExport Log::FileEngine final
 	: public Engine
 {
 public:
-	FileEngine(Module* Creator);
+	FileEngine(const WeakModulePtr& Creator);
 
 	/** @copydoc Log::Engine::Create */
 	MethodPtr Create(const std::shared_ptr<ConfigTag>& tag) override;
@@ -163,7 +163,7 @@ private:
 	FILE* file;
 
 public:
-	StreamEngine(Module* Creator, const std::string& Name, FILE* fh);
+	StreamEngine(const WeakModulePtr& Creator, const std::string& Name, FILE* fh);
 
 	/** @copydoc Log::Engine::Create */
 	MethodPtr Create(const std::shared_ptr<ConfigTag>& tag) override;

@@ -171,13 +171,13 @@ class SQL::Query
 {
 protected:
 	/** Creates a new SQL query. */
-	Query(Module* Creator)
+	Query(const WeakModulePtr& Creator)
 		: creator(Creator)
 	{
 	}
 
 public:
-	const reference<Module> creator;
+	const WeakModulePtr creator;
 
 	/** Called when an SQL error happens.
 	 * @param error The error that occurred.
@@ -201,7 +201,7 @@ private:
 	const std::string dbid;
 
 public:
-	Provider(Module* Creator, const std::string& Name)
+	Provider(const WeakModulePtr& Creator, const std::string& Name)
 		: DataProvider(Creator, "SQL::Provider", Name)
 		, dbid(Name)
 	{

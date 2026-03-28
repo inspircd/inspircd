@@ -108,7 +108,7 @@ class AntiCapsMode final
 	: public ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettings>>
 {
 public:
-	AntiCapsMode(Module* Creator)
+	AntiCapsMode(const WeakModulePtr& Creator)
 		: ParamMode<AntiCapsMode, SimpleExtItem<AntiCapsSettings>>(Creator, "anticaps", 'B')
 	{
 		syntax = "{ban|block|mute|kick|kickban}:<minlen>:<percent>";
@@ -190,9 +190,9 @@ private:
 public:
 	ModuleAntiCaps()
 		: Module(VF_VENDOR | VF_COMMON, "Adds channel mode B (anticaps) which allows channels to block messages which are excessively capitalised.")
-		, banmode(this, "ban")
-		, exemptionprov(this)
-		, mode(this)
+		, banmode(weak_from_this(), "ban")
+		, exemptionprov(weak_from_this())
+		, mode(weak_from_this())
 	{
 	}
 

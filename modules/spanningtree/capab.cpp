@@ -77,7 +77,7 @@ namespace
 	}
 
 	// Compares the module data sent by a remote server to that of the local server.
-	bool CompareModuleData(Module* mod, const Module::LinkData& otherdata, std::ostringstream& diffconfig)
+	bool CompareModuleData(const ModulePtr& mod, const Module::LinkData& otherdata, std::ostringstream& diffconfig)
 	{
 		Module::LinkDataDiff datadiff;
 		mod->CompareLinkData(otherdata, datadiff);
@@ -209,7 +209,7 @@ namespace
 			capabilities["CHALLENGE"] = ts->GetOurChallenge();
 		}
 
-		ExtBan::ManagerRef extbanmgr(Utils->Creator);
+		ExtBan::ManagerRef extbanmgr(Utils->CreatorPtr);
 		if (extbanmgr)
 		{
 			std::string& xbformat = capabilities["EXTBANFORMAT"];
@@ -302,7 +302,7 @@ std::string TreeSocket::BuildModeList(ModeType mtype)
 
 bool TreeSocket::BuildExtBanList(std::string& out)
 {
-	ExtBan::ManagerRef extbanmgr(Utils->Creator);
+	ExtBan::ManagerRef extbanmgr(Utils->CreatorPtr);
 	if (!extbanmgr)
 		return false;
 

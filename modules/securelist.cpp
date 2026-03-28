@@ -75,8 +75,8 @@ private:
 public:
 	ModuleSecureList()
 		: Module(VF_VENDOR, "Prevents users from using the /LIST command until a predefined period has passed.")
-		, ISupport::EventListener(this)
-		, accountapi(this)
+		, ISupport::EventListener(weak_from_this())
+		, accountapi(weak_from_this())
 	{
 	}
 
@@ -87,7 +87,7 @@ public:
 		{
 			const std::string host = tag->getString("exception");
 			if (host.empty())
-				throw ModuleException(this, "<securehost:exception> is a required field at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<securehost:exception> is a required field at " + tag->source.str());
 
 			newallows.push_back(host);
 		}

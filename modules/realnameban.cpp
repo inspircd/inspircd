@@ -29,7 +29,7 @@ class RealMaskExtBan final
 	: public ExtBan::MatchingBase
 {
 public:
-	RealMaskExtBan(Module* Creator)
+	RealMaskExtBan(const WeakModulePtr& Creator)
 		: ExtBan::MatchingBase(Creator, "realmask", 'a')
 	{
 	}
@@ -58,7 +58,7 @@ class RealNameExtBan final
 	: public ExtBan::MatchingBase
 {
 public:
-	RealNameExtBan(Module* Creator)
+	RealNameExtBan(const WeakModulePtr& Creator)
 		: ExtBan::MatchingBase(Creator, "realname", 'r')
 	{
 	}
@@ -85,8 +85,8 @@ private:
 public:
 	ModuleGecosBan()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended bans a: (realmask) and r:(realname) which checks whether users have a real name matching the specified glob pattern.")
-		, maskextban(this)
-		, realextban(this)
+		, maskextban(weak_from_this())
+		, realextban(weak_from_this())
 	{
 	}
 };

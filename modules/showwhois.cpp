@@ -31,7 +31,7 @@ class SeeWhois final
 	: public SimpleUserMode
 {
 public:
-	SeeWhois(Module* Creator)
+	SeeWhois(const WeakModulePtr& Creator)
 		: SimpleUserMode(Creator, "showwhois", 'W')
 	{
 	}
@@ -46,7 +46,7 @@ class WhoisNoticeCmd final
 	: public Command
 {
 public:
-	WhoisNoticeCmd(Module* Creator)
+	WhoisNoticeCmd(const WeakModulePtr& Creator)
 		: Command(Creator, "WHOISNOTICE", 2)
 	{
 		access_needed = CmdAccess::SERVER;
@@ -87,9 +87,9 @@ public:
 
 	ModuleShowwhois()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds user mode W (showwhois) which allows users to be informed when someone does a /WHOIS query on their nick.")
-		, Whois::EventListener(this)
-		, sw(this)
-		, cmd(this)
+		, Whois::EventListener(weak_from_this())
+		, sw(weak_from_this())
+		, cmd(weak_from_this())
 	{
 	}
 

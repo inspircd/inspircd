@@ -35,8 +35,8 @@ private:
 public:
 	ModuleHttpConfig()
 		: Module(VF_VENDOR, "Allows the server configuration to be viewed over HTTP via the /config path.")
-		, HTTPRequestEventListener(this)
-		, API(this)
+		, HTTPRequestEventListener(weak_from_this())
+		, API(weak_from_this())
 	{
 	}
 
@@ -72,7 +72,7 @@ public:
 			buffer << '>' << std::endl << std::endl;
 		}
 
-		HTTPDocumentResponse response(this, request, &buffer, 200);
+		HTTPDocumentResponse response(weak_from_this(), request, &buffer, 200);
 		response.headers.SetHeader("X-Powered-By", MODNAME);
 		response.headers.SetHeader("Content-Type", "text/plain");
 		API->SendResponse(response);

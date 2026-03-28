@@ -28,7 +28,7 @@ class GlobPattern final
 	: public Regex::Pattern
 {
 public:
-	GlobPattern(const Module* mod, const std::string& pattern, uint8_t options)
+	GlobPattern(const WeakModulePtr& mod, const std::string& pattern, uint8_t options)
 		: Regex::Pattern(pattern, options)
 	{
 	}
@@ -60,7 +60,7 @@ private:
 public:
 	ModuleRegexGlob()
 		: Module(VF_VENDOR, "Provides the glob regular expression engine which uses the built-in glob matching system.")
-		, regex(this, "glob")
+		, regex(weak_from_this(), "glob")
 	{
 	}
 };

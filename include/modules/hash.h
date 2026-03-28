@@ -88,7 +88,7 @@ public:
 	 * @param ds The byte size of the resulting digest or 0 if it is variable length.
 	 * @param bs The byte size of the block cipher or 0 if not a block cipher.
 	 */
-	Provider(Module* mod, const std::string& algorithm, size_t ds = 0, size_t bs = 0)
+	Provider(const WeakModulePtr& mod, const std::string& algorithm, size_t ds = 0, size_t bs = 0)
 		: DataProvider(mod, "Hash::Provider", algorithm)
 		, block_size(bs)
 		, digest_size(ds)
@@ -154,7 +154,7 @@ public:
 	 * @param mod The module that created this reference.
 	 * @param algorithm The name of the hash algorithm.
 	 */
-	ProviderRef(Module* mod, const std::string& algorithm)
+	ProviderRef(const WeakModulePtr& mod, const std::string& algorithm)
 		: dynamic_reference_nocheck<Hash::Provider>(mod, "Hash::Provider", algorithm)
 	{
 	}
@@ -229,7 +229,7 @@ public:
 	 * @param mod The module that created this provider.
 	 * @param algorithm The name of the hash algorithm.
 	 */
-	HMACProvider(Module* mod, const std::string& algorithm)
+	HMACProvider(const WeakModulePtr& mod, const std::string& algorithm)
 		: Hash::Provider(mod, FMT::format("hmac-{}", algorithm))
 		, provider(mod, algorithm)
 	{

@@ -89,11 +89,11 @@ public:
 			Alias a;
 			a.AliasedCommand = tag->getString("text");
 			if (a.AliasedCommand.empty())
-				throw ModuleException(this, "<alias:text> is empty! at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<alias:text> is empty! at " + tag->source.str());
 
 			tag->readString("replace", a.ReplaceFormat, true);
 			if (a.ReplaceFormat.empty())
-				throw ModuleException(this, "<alias:replace> is empty! at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<alias:replace> is empty! at " + tag->source.str());
 
 			a.RequiredNick = tag->getString("requires");
 			a.ServiceOnly = tag->getBool("service");
@@ -115,7 +115,7 @@ public:
 
 	ModuleAlias()
 		: Module(VF_VENDOR, "Allows the server administrator to define custom channel commands (e.g. !kick) and server commands (e.g. /OPERSERV).")
-		, botmode(this, "bot")
+		, botmode(weak_from_this(), "bot")
 	{
 	}
 
@@ -391,7 +391,7 @@ public:
 	void Prioritize() override
 	{
 		// Prioritise after spanningtree so that channel aliases show the alias before the effects.
-		ServerInstance->Modules.SetPriority(this, I_OnUserPostMessage, PRIORITY_AFTER, "spanningtree");
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnUserPostMessage, PRIORITY_AFTER, "spanningtree");
 	}
 };
 

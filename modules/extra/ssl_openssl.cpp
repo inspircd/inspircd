@@ -61,7 +61,7 @@
 #endif
 
 static int exdataindex;
-static Module* thismod;
+static WeakModulePtr thismod;
 
 char* get_error()
 {
@@ -925,7 +925,7 @@ class OpenSSLIOHookProvider final
 	OpenSSL::Profile profile;
 
 public:
-	OpenSSLIOHookProvider(Module* mod, const std::string& profilename, const std::shared_ptr<ConfigTag>& tag)
+	OpenSSLIOHookProvider(const WeakModulePtr& mod, const std::string& profilename, const std::shared_ptr<ConfigTag>& tag)
 		: SSLIOHookProvider(mod, profilename)
 		, profile(profilename, tag)
 	{
@@ -967,7 +967,7 @@ class ModuleSSLOpenSSL final
 		ProfileList newprofiles;
 		auto tags = ServerInstance->Config->ConfTags("sslprofile");
 		if (tags.empty())
-			throw ModuleException(this, "You have not specified any <sslprofile> tags that are usable by this module!");
+			throw ModuleException(weak_from_this(), "You have not specified any <sslprofile> tags that are usable by this module!");
 
 		for (const auto& [_, tag] : tags)
 		{
@@ -987,11 +987,11 @@ class ModuleSSLOpenSSL final
 			std::shared_ptr<OpenSSLIOHookProvider> prov;
 			try
 			{
-				prov = std::make_shared<OpenSSLIOHookProvider>(this, name, tag);
+				prov = std::make_shared<OpenSSLIOHookProvider>(weak_from_this(), name, tag);
 			}
 			catch (const CoreException& ex)
 			{
-				throw ModuleException(this, "Error while initializing TLS profile \"" + name + "\" at " + tag->source.str() + " - " + ex.GetReason());
+				throw ModuleException(weak_from_this(), "Error while initializing TLS profile \"" + name + "\" at " + tag->source.str() + " - " + ex.GetReason());
 			}
 
 			newprofiles.push_back(prov);
@@ -1011,7 +1011,7 @@ public:
 		OPENSSL_init_ssl(0, nullptr);
 		biomethods = OpenSSL::BIOMethod::alloc();
 
-		thismod = this;
+		thismod = weak_from_this();
 	}
 
 	~ModuleSSLOpenSSL() override
@@ -1028,7 +1028,7 @@ public:
 		char exdatastr[] = "inspircd";
 		exdataindex = SSL_get_ex_new_index(0, exdatastr, nullptr, nullptr, nullptr);
 		if (exdataindex < 0)
-			throw ModuleException(this, "Failed to register application specific data");
+			throw ModuleException(weak_from_this(), "Failed to register application specific data");
 	}
 
 	void ReadConfig(ConfigStatus& status) override
@@ -1040,7 +1040,7 @@ public:
 			for (const auto& field : {"cafile", "certfile", "ciphers", "clientclearoptions", "clientsetoptions", "compression", "crlfile", "crlmode", "crlpath", "dhfile", "ecdhcurve", "hash", "keyfile", "renegotiation", "requestclientcert", "serverclearoptions", "serversetoptions", "tlsv1", "tlsv11", "tlsv12", "tlsv13"})
 			{
 				if (!tag->getString(field).empty())
-					throw ModuleException(this, "TLS settings have moved from <openssl> to <sslprofile>. See " INSPIRCD_DOCS "modules/ssl_openssl/#sslprofile for more information.");
+					throw ModuleException(weak_from_this(), "TLS settings have moved from <openssl> to <sslprofile>. See " INSPIRCD_DOCS "modules/ssl_openssl/#sslprofile for more information.");
 			}
 			ReadProfiles();
 		}
@@ -1068,7 +1068,7 @@ public:
 			return;
 
 		auto* user = static_cast<User*>(item)->AsLocal();
-		if (!user || !user->io->GetModHook(this))
+		if (!user || !user->io->GetModHook(shared_from_this()))
 			return;
 
 		// User is using TLS, they're a local user, and they're using one of *our* TLS ports.
@@ -1078,7 +1078,7 @@ public:
 
 	ModResult OnCheckReady(LocalUser* user) override
 	{
-		const auto* const iohook = static_cast<OpenSSLIOHook*>(user->io->GetModHook(this));
+		const auto* const iohook = static_cast<OpenSSLIOHook*>(user->io->GetModHook(shared_from_this()));
 		if ((iohook) && (!iohook->IsHookReady()))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;

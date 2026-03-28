@@ -41,7 +41,7 @@ class CommandDie final
 	: public Command
 {
 public:
-	CommandDie(Module* parent);
+	CommandDie(const WeakModulePtr& parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
@@ -59,7 +59,7 @@ public:
 	/** Set to hide kills from clients of services servers in snotices. */
 	bool hideservicekills;
 
-	CommandKill(Module* parent);
+	CommandKill(const WeakModulePtr& parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 	std::string EncodeParameter(const std::string& param, size_t index) override;
@@ -69,7 +69,7 @@ class CommandOper final
 	: public SplitCommand
 {
 public:
-	CommandOper(Module* parent);
+	CommandOper(const WeakModulePtr& parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
@@ -77,7 +77,7 @@ class CommandRehash final
 	: public Command
 {
 public:
-	CommandRehash(Module* parent);
+	CommandRehash(const WeakModulePtr& parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
@@ -85,7 +85,7 @@ class CommandRestart final
 	: public Command
 {
 public:
-	CommandRestart(Module* parent);
+	CommandRestart(const WeakModulePtr& parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
@@ -103,7 +103,7 @@ private:
 	std::string ProcessNoticeMasks(User* user, const std::string& input);
 
 public:
-	ModeUserServerNoticeMask(Module* Creator);
+	ModeUserServerNoticeMask(const WeakModulePtr& Creator);
 	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 
 	/** Create a displayable mode string of the snomasks set on a given user
@@ -117,6 +117,6 @@ class ModeUserOperator final
 	: public SimpleUserMode
 {
 public:
-	ModeUserOperator(Module* Creator);
+	ModeUserOperator(const WeakModulePtr& Creator);
 	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 };

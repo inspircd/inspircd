@@ -67,7 +67,7 @@ private:
 public:
 	int notify;
 
-	CommandKnock(Module* Creator, SimpleChannelMode& Noknockmode)
+	CommandKnock(const WeakModulePtr& Creator, SimpleChannelMode& Noknockmode)
 		: Command(Creator, "KNOCK", 2, 2)
 		, noknockmode(Noknockmode)
 		, inviteonlymode(Creator, "inviteonly")
@@ -163,8 +163,8 @@ class ModuleKnock final
 public:
 	ModuleKnock()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /KNOCK command which allows users to request access to an invite-only channel and channel mode K (noknock) which allows channels to disable usage of this command.")
-		, kn(this, "noknock", 'K')
-		, cmd(this, kn)
+		, kn(weak_from_this(), "noknock", 'K')
+		, cmd(weak_from_this(), kn)
 	{
 	}
 

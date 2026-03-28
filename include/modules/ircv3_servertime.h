@@ -58,7 +58,7 @@ public:
 	/** Constructor.
 	 * @param mod Module that owns the Manager.
 	 */
-	Manager(Module* mod)
+	Manager(const WeakModulePtr& mod)
 		: DataProvider(mod, "servertimeapi")
 	{
 	}
@@ -99,7 +99,7 @@ class IRCv3::ServerTime::API final
 	: public dynamic_reference_nocheck<Manager>
 {
 public:
-	API(Module* mod)
+	API(const WeakModulePtr& mod)
 		: dynamic_reference_nocheck<Manager>(mod, "servertimeapi")
 	{
 	}

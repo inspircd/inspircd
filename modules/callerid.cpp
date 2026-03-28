@@ -80,7 +80,7 @@ public:
 struct CallerIDExtInfo final
 	: public ExtensionItem
 {
-	CallerIDExtInfo(Module* parent)
+	CallerIDExtInfo(const WeakModulePtr& parent)
 		: ExtensionItem(parent, "callerid_data", ExtensionType::USER)
 	{
 	}
@@ -189,7 +189,7 @@ class CommandAccept final
 public:
 	CallerIDExtInfo extInfo;
 	unsigned long maxaccepts;
-	CommandAccept(Module* Creator)
+	CommandAccept(const WeakModulePtr& Creator)
 		: Command(Creator, "ACCEPT", 1)
 		, extInfo(Creator)
 	{
@@ -344,7 +344,7 @@ private:
 	CallerIDExtInfo& ext;
 
 public:
-	CallerIDAPIImpl(Module* Creator, CallerIDExtInfo& Ext)
+	CallerIDAPIImpl(const WeakModulePtr& Creator, CallerIDExtInfo& Ext)
 		: CallerID::APIBase(Creator)
 		, ext(Ext)
 	{
@@ -395,11 +395,11 @@ private:
 public:
 	ModuleCallerID()
 		: Module(VF_VENDOR | VF_COMMON, "Provides user mode g (callerid) which allows users to require that other users are on their whitelist before messaging them.")
-		, CTCTags::EventListener(this)
-		, ISupport::EventListener(this)
-		, cmd(this)
-		, api(this, cmd.extInfo)
-		, myumode(this, "callerid", 'g')
+		, CTCTags::EventListener(weak_from_this())
+		, ISupport::EventListener(weak_from_this())
+		, cmd(weak_from_this())
+		, api(weak_from_this(), cmd.extInfo)
+		, myumode(weak_from_this(), "callerid", 'g')
 	{
 	}
 
@@ -472,7 +472,7 @@ public:
 	void Prioritize() override
 	{
 		// Want to be after modules like account or silence
-		ServerInstance->Modules.SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnUserPreMessage, PRIORITY_LAST);
 	}
 };
 

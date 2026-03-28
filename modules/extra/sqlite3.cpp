@@ -95,7 +95,7 @@ class SQLConn final
 	std::shared_ptr<ConfigTag> config;
 
 public:
-	SQLConn(Module* Parent, const std::shared_ptr<ConfigTag>& tag)
+	SQLConn(const WeakModulePtr& Parent, const std::shared_ptr<ConfigTag>& tag)
 		: SQL::Provider(Parent, tag->getString("id"))
 		, config(tag)
 	{
@@ -271,7 +271,7 @@ public:
 			if (!insp::equalsci(tag->getString("module"), "sqlite"))
 				continue;
 
-			auto* conn = new SQLConn(this, tag);
+			auto* conn = new SQLConn(weak_from_this(), tag);
 			conns.emplace(tag->getString("id"), conn);
 			ServerInstance->Modules.AddService(*conn);
 		}

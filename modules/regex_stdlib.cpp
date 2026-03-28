@@ -31,7 +31,7 @@ private:
 	std::regex regex;
 
 public:
-	StdLibPattern(const Module* mod, const std::string& pattern, uint8_t options, std::regex::flag_type type)
+	StdLibPattern(const WeakModulePtr& mod, const std::string& pattern, uint8_t options, std::regex::flag_type type)
 		: Regex::Pattern(pattern, options)
 	{
 		// Convert the generic pattern options to stdlib pattern flags.
@@ -77,7 +77,7 @@ class StdLibEngine final
 public:
 	std::regex::flag_type regextype;
 
-	StdLibEngine(Module* Creator)
+	StdLibEngine(const WeakModulePtr& Creator)
 		: Regex::Engine(Creator, "stdregex")
 	{
 	}
@@ -97,7 +97,7 @@ private:
 public:
 	ModuleRegexStdLib()
 		: Module(VF_VENDOR, "Provides the stdregex regular expression engine which uses the C++11 std::regex regular expression matching system.")
-		, regex(this)
+		, regex(weak_from_this())
 	{
 	}
 

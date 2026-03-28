@@ -150,7 +150,7 @@ private:
 	}
 
 public:
-	MsgFlood(Module* Creator)
+	MsgFlood(const WeakModulePtr& Creator)
 		: ParamMode<MsgFlood, SimpleExtItem<MsgFloodSettings>>(Creator, "flood", 'f')
 	{
 		syntax = "{ban|block|mute|kick|kickban}:<messages>:<period>";
@@ -244,10 +244,10 @@ private:
 public:
 	ModuleMsgFlood()
 		: Module(VF_VENDOR, "Adds channel mode f (flood) which helps protect against spammers which mass-message channels.")
-		, CTCTags::EventListener(this)
-		, banmode(this, "ban")
-		, exemptionprov(this)
-		, mf(this)
+		, CTCTags::EventListener(weak_from_this())
+		, banmode(weak_from_this(), "ban")
+		, exemptionprov(weak_from_this())
+		, mf(weak_from_this())
 	{
 	}
 
@@ -345,7 +345,7 @@ public:
 	void Prioritize() override
 	{
 		// we want to be after all modules that might deny the message (e.g. m_muteban, m_noctcp, m_blockcolor, etc.)
-		ServerInstance->Modules.SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnUserPreMessage, PRIORITY_LAST);
 	}
 };
 

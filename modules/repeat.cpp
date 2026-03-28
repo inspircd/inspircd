@@ -151,7 +151,7 @@ public:
 	ModuleSettings ms;
 	SimpleExtItem<MemberInfo> MemberInfoExt;
 
-	RepeatMode(Module* Creator)
+	RepeatMode(const WeakModulePtr& Creator)
 		: ParamMode<RepeatMode, SimpleExtItem<ChannelSettings>>(Creator, "repeat", 'E')
 		, MemberInfoExt(Creator, "repeat", ExtensionType::MEMBERSHIP)
 	{
@@ -386,9 +386,9 @@ private:
 public:
 	RepeatModule()
 		: Module(VF_VENDOR | VF_COMMON, "Adds channel mode E (repeat) which helps protect against spammers which spam the same message repeatedly.")
-		, banmode(this, "ban")
-		, exemptionprov(this)
-		, rm(this)
+		, banmode(weak_from_this(), "ban")
+		, exemptionprov(weak_from_this())
+		, rm(weak_from_this())
 	{
 	}
 
@@ -468,7 +468,7 @@ public:
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules.SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnUserPreMessage, PRIORITY_LAST);
 	}
 
 	void GetLinkData(LinkData& data) override

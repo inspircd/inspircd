@@ -32,7 +32,7 @@ class Geolocation::APIBase
 	: public DataProvider
 {
 public:
-	APIBase(Module* parent)
+	APIBase(const WeakModulePtr& parent)
 		: DataProvider(parent, "geolocationapi")
 	{
 	}
@@ -54,7 +54,7 @@ class Geolocation::API final
 	: public dynamic_reference<Geolocation::APIBase>
 {
 public:
-	API(Module* parent)
+	API(const WeakModulePtr& parent)
 		: dynamic_reference<Geolocation::APIBase>(parent, "geolocationapi")
 	{
 	}

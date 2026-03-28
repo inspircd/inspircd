@@ -50,7 +50,7 @@ private:
 public:
 	bool operonly;
 
-	FingerprintExtBan(Module* Creator, UserCertificateAPI& api)
+	FingerprintExtBan(const WeakModulePtr& Creator, UserCertificateAPI& api)
 		: ExtBan::MatchingBase(Creator, "fingerprint", 'z')
 		, sslapi(api)
 	{
@@ -90,7 +90,7 @@ private:
 	UserCertificateAPI& sslapi;
 
 public:
-	SSLOnlyChannel(Module* Creator, UserCertificateAPI& api)
+	SSLOnlyChannel(const WeakModulePtr& Creator, UserCertificateAPI& api)
 		: ModeHandler(Creator, "sslonly", 'z', PARAM_NONE, MODETYPE_CHANNEL)
 		, sslapi(api)
 	{
@@ -137,7 +137,7 @@ private:
 	UserCertificateAPI& sslapi;
 
 public:
-	SSLOnlyUser(Module* Creator, UserCertificateAPI& api)
+	SSLOnlyUser(const WeakModulePtr& Creator, UserCertificateAPI& api)
 		: ModeHandler(Creator, "sslonly", 'z', PARAM_NONE, MODETYPE_USER)
 		, sslapi(api)
 	{
@@ -182,12 +182,12 @@ private:
 public:
 	ModuleSSLModes()
 		: Module(VF_VENDOR, "Adds channel mode z (sslonly) which prevents users who are not connecting using TLS from joining the channel and user mode z (sslqueries) to prevent messages from non-TLS users.")
-		, CTCTags::EventListener(this)
-		, sslapi(this)
-		, calleridapi(this)
-		, sslonlychan(this, sslapi)
-		, sslonlyuser(this, sslapi)
-		, extban(this, sslapi)
+		, CTCTags::EventListener(weak_from_this())
+		, sslapi(weak_from_this())
+		, calleridapi(weak_from_this())
+		, sslonlychan(weak_from_this(), sslapi)
+		, sslonlyuser(weak_from_this(), sslapi)
+		, extban(weak_from_this(), sslapi)
 	{
 	}
 

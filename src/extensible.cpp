@@ -42,13 +42,14 @@ bool ExtensionManager::Register(ExtensionItem* item)
 	return types.emplace(item->service_name, item).second;
 }
 
-void ExtensionManager::BeginUnregister(Module* module, std::vector<ExtensionItem*>& items)
+void ExtensionManager::BeginUnregister(const ModulePtr& module, std::vector<ExtensionItem*>& items)
 {
 	for (ExtMap::iterator type = types.begin(); type != types.end(); )
 	{
 		ExtMap::iterator thistype = type++;
 		ExtensionItem* item = thistype->second;
-		if (item->service_creator == module)
+
+		if (insp::same_ptr(item->service_creator, module))
 		{
 			items.push_back(item);
 			types.erase(thistype);
@@ -107,7 +108,7 @@ void Extensible::UnhookExtensions(const std::vector<ExtensionItem*>& items)
 	}
 }
 
-ExtensionItem::ExtensionItem(Module* mod, const std::string& Key, ExtensionType exttype)
+ExtensionItem::ExtensionItem(const WeakModulePtr& mod, const std::string& Key, ExtensionType exttype)
 	: ServiceProvider(mod, "ExtensionItem", Key)
 	, extype(exttype)
 {
@@ -195,7 +196,7 @@ std::string ExtensionItem::ToNetwork(const Extensible* container, const Extensio
 	return {};
 }
 
-BoolExtItem::BoolExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync)
+BoolExtItem::BoolExtItem(const WeakModulePtr& owner, const std::string& key, ExtensionType exttype, bool sync)
 	: ExtensionItem(owner, key, exttype)
 	, synced(sync)
 {
@@ -256,7 +257,7 @@ void BoolExtItem::Unset(Extensible* container, bool sync)
 		Sync(container, CreateFakePointer(0));
 }
 
-IntExtItem::IntExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync)
+IntExtItem::IntExtItem(const WeakModulePtr& owner, const std::string& key, ExtensionType exttype, bool sync)
 	: ExtensionItem(owner, key, exttype)
 	, synced(sync)
 {
@@ -315,7 +316,7 @@ void IntExtItem::Unset(Extensible* container, bool sync)
 		Sync(container, nullptr);
 }
 
-StringExtItem::StringExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync)
+StringExtItem::StringExtItem(const WeakModulePtr& owner, const std::string& key, ExtensionType exttype, bool sync)
 	: SimpleExtItem(owner, key, exttype, sync)
 {
 }

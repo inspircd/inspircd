@@ -39,7 +39,7 @@ public:
 		return 0;
 	}
 
-	void Load(const Module* mod)
+	void Load(const WeakModulePtr& mod)
 	{
 		RanksToSeeMap newranks;
 
@@ -176,7 +176,7 @@ class ModeHook final
 public:
 	Settings settings;
 
-	ModeHook(Module* mod)
+	ModeHook(const WeakModulePtr& mod)
 		: ClientProtocol::EventHook(mod, "MODE", 10)
 	{
 	}
@@ -192,13 +192,13 @@ private:
 public:
 	ModuleHideMode()
 		: Module(VF_VENDOR, "Allows mode changes to be hidden from users without a prefix mode ranked equal to or higher than a defined level.")
-		, modehook(this)
+		, modehook(weak_from_this())
 	{
 	}
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		modehook.settings.Load(this);
+		modehook.settings.Load(weak_from_this());
 	}
 };
 

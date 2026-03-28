@@ -224,7 +224,7 @@ private:
 	}
 
 public:
-	CommandTagMsg(Module* Creator, Cap::Capability& Cap)
+	CommandTagMsg(const WeakModulePtr& Creator, Cap::Capability& Cap)
 		: Command(Creator, "TAGMSG", 1)
 		, cap(Cap)
 		, tagevprov(Creator, "tagmsg")
@@ -339,7 +339,7 @@ public:
 		{ "+typing",                ValidateTyping    }, // https://ircv3.net/specs/client-tags/typing
 	};
 
-	C2CTags(Module* Creator, Cap::Capability& Cap)
+	C2CTags(const WeakModulePtr& Creator, Cap::Capability& Cap)
 		: ClientProtocol::MessageTagProvider(Creator)
 		, cap(Cap)
 	{
@@ -405,14 +405,14 @@ private:
 public:
 	ModuleIRCv3CTCTags()
 		: Module(VF_VENDOR | VF_COMMON, "Provides the IRCv3 message-tags client capability.")
-		, CTCTags::EventListener(this)
-		, ISupport::EventListener(this)
-		, cap(this, "message-tags")
-		, cmd(this, cap)
-		, c2ctags(this, cap)
-		, banmode(this, "ban")
-		, moderatedmode(this, "moderated")
-		, noextmsgmode(this, "noextmsg")
+		, CTCTags::EventListener(weak_from_this())
+		, ISupport::EventListener(weak_from_this())
+		, cap(weak_from_this(), "message-tags")
+		, cmd(weak_from_this(), cap)
+		, c2ctags(weak_from_this(), cap)
+		, banmode(weak_from_this(), "ban")
+		, moderatedmode(weak_from_this(), "moderated")
+		, noextmsgmode(weak_from_this(), "noextmsg")
 	{
 	}
 

@@ -27,7 +27,7 @@
 #include "core_oper.h"
 #include "numerichelper.h"
 
-ModeUserServerNoticeMask::ModeUserServerNoticeMask(Module* Creator)
+ModeUserServerNoticeMask::ModeUserServerNoticeMask(const WeakModulePtr& Creator)
 	: ModeHandler(Creator, "snomask", 's', PARAM_SETONLY, MODETYPE_USER)
 {
 	oper = true;

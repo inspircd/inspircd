@@ -207,7 +207,7 @@ private:
 public:
 	insp::flat_map<char, std::string> oplevels;
 
-	CommandWho(Module* parent)
+	CommandWho(const WeakModulePtr& parent)
 		: SplitCommand(parent, "WHO", 1, 3)
 		, accountapi(parent)
 		, secretmode(parent, "secret")
@@ -644,8 +644,8 @@ private:
 public:
 	CoreModWho()
 		: Module(VF_CORE | VF_VENDOR, "Provides the WHO command")
-		, ISupport::EventListener(this)
-		, cmd(this)
+		, ISupport::EventListener(weak_from_this())
+		, cmd(weak_from_this())
 	{
 	}
 

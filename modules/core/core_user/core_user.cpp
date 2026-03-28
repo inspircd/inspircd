@@ -37,7 +37,7 @@ class CommandPass final
 	: public SplitCommand
 {
 public:
-	CommandPass(Module* parent)
+	CommandPass(const WeakModulePtr& parent)
 		: SplitCommand(parent, "PASS", 1, 1)
 	{
 		penalty = 0;
@@ -63,7 +63,7 @@ class CommandPing final
 	: public SplitCommand
 {
 public:
-	CommandPing(Module* parent)
+	CommandPing(const WeakModulePtr& parent)
 		: SplitCommand(parent, "PING", 1)
 	{
 		syntax = { "<cookie> [<servername>]" };
@@ -88,7 +88,7 @@ class CommandPong final
 	: public Command
 {
 public:
-	CommandPong(Module* parent)
+	CommandPong(const WeakModulePtr& parent)
 		: Command(parent, "PONG", 1)
 	{
 		penalty = 0;
@@ -159,17 +159,17 @@ private:
 public:
 	CoreModUser()
 		: Module(VF_CORE | VF_VENDOR, "Provides the AWAY, ISON, NICK, PART, PASS, PING, PONG, QUIT, USERHOST, and USER commands")
-		, cmdaway(this)
-		, cmdnick(this)
-		, cmdpart(this)
-		, cmdpass(this)
-		, cmdping(this)
-		, cmdpong(this)
-		, cmdquit(this)
-		, cmduser(this)
-		, cmdison(this)
-		, cmduserhost(this)
-		, invisiblemode(this, "invisible", 'i')
+		, cmdaway(weak_from_this())
+		, cmdnick(weak_from_this())
+		, cmdpart(weak_from_this())
+		, cmdpass(weak_from_this())
+		, cmdping(weak_from_this())
+		, cmdpong(weak_from_this())
+		, cmdquit(weak_from_this())
+		, cmduser(weak_from_this())
+		, cmdison(weak_from_this())
+		, cmduserhost(weak_from_this())
+		, invisiblemode(weak_from_this(), "invisible", 'i')
 
 	{
 	}
@@ -286,7 +286,7 @@ public:
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules.SetPriority(this, I_OnChangeConnectClass, PRIORITY_FIRST);
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnChangeConnectClass, PRIORITY_FIRST);
 	}
 };
 

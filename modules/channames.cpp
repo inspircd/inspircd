@@ -58,7 +58,7 @@ public:
 	ModuleChannelNames()
 		: Module(VF_VENDOR, "Allows the server administrator to define what characters are allowed in channel names.")
 		, rememberer(ServerInstance->Channels.IsChannel)
-		, permchannelmode(this, "permanent")
+		, permchannelmode(weak_from_this(), "permanent")
 	{
 	}
 

@@ -210,7 +210,7 @@ public:
 	 * @param maxpara Maximum number of parameters this command may have - extra parameters
 	 * will be tossed into one last space-separated param.
 	 */
-	CommandBase(Module* me, const std::string& cmd, size_t minpara = 0, size_t maxpara = 0);
+	CommandBase(const WeakModulePtr& me, const std::string& cmd, size_t minpara = 0, size_t maxpara = 0);
 
 	virtual RouteDescriptor GetRouting(User* user, const CommandBase::Params& parameters);
 
@@ -239,7 +239,7 @@ protected:
 	 * @param minpara The minimum number of parameters that the command accepts.
 	 * @param maxpara The maximum number of parameters that the command accepts.
 	 */
-	Command(Module* me, const std::string& cmd, size_t minpara = 0, size_t maxpara = 0);
+	Command(const WeakModulePtr& me, const std::string& cmd, size_t minpara = 0, size_t maxpara = 0);
 
 public:
 	/** Unregisters this command from the command parser. */
@@ -314,7 +314,7 @@ protected:
 	 * @param minpara The minimum number of parameters that the command accepts.
 	 * @param maxpara The maximum number of parameters that the command accepts.
 	 */
-	SplitCommand(Module* me, const std::string& cmd, size_t minpara = 0, size_t maxpara = 0);
+	SplitCommand(const WeakModulePtr& me, const std::string& cmd, size_t minpara = 0, size_t maxpara = 0);
 
 public:
 	/** @copydoc Command::Handle */

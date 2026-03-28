@@ -32,7 +32,7 @@ enum
 	RPL_NOWAWAY = 306
 };
 
-CommandAway::CommandAway(Module* parent)
+CommandAway::CommandAway(const WeakModulePtr& parent)
 	: Command(parent, "AWAY", 0, 1)
 	, awayevprov(parent)
 {

@@ -36,7 +36,7 @@ private:
 public:
 	ModulePassForward()
 		: Module(VF_VENDOR, "Allows an account password to be forwarded to a services pseudoclient such as NickServ.")
-		, accountapi(this)
+		, accountapi(weak_from_this())
 	{
 	}
 

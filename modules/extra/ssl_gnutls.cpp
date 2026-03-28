@@ -56,7 +56,7 @@
 # error GnuTLS 3.6.0 or newer is required by the ssl_openssl module.
 #endif
 
-static Module* thismod;
+static WeakModulePtr thismod;
 
 namespace GnuTLS
 {
@@ -818,7 +818,7 @@ info_done_dealloc:
 	{
 		StreamSocket* sock = reinterpret_cast<StreamSocket*>(session_wrap);
 #ifdef _WIN32
-		GnuTLSIOHook* session = static_cast<GnuTLSIOHook*>(sock->GetModHook(thismod));
+		GnuTLSIOHook* session = static_cast<GnuTLSIOHook*>(sock->GetModHook(shared_from_this()));
 #endif
 
 		if (sock->GetEventMask() & FD_READ_WILL_BLOCK)
@@ -853,7 +853,8 @@ info_done_dealloc:
 	{
 		StreamSocket* sock = reinterpret_cast<StreamSocket*>(transportptr);
 #ifdef _WIN32
-		GnuTLSIOHook* session = static_cast<GnuTLSIOHook*>(sock->GetModHook(thismod));
+		// The lock here should always succeed because its for our creator.
+		GnuTLSIOHook* session = static_cast<GnuTLSIOHook*>(sock->GetModHook(thismod.lock()));
 #endif
 
 		if (sock->GetEventMask() & FD_WRITE_WILL_BLOCK)
@@ -1017,8 +1018,9 @@ int GnuTLS::X509Credentials::cert_callback(gnutls_session_t sess, const gnutls_d
 	st->cert_type = GNUTLS_CRT_X509;
 	st->key_type = GNUTLS_PRIVKEY_X509;
 
+	// The lock here should always succeed because its for our creator.
 	StreamSocket* sock = reinterpret_cast<StreamSocket*>(gnutls_transport_get_ptr(sess));
-	GnuTLS::X509Credentials& cred = static_cast<GnuTLSIOHook*>(sock->GetModHook(thismod))->GetProfile().GetX509Credentials();
+	GnuTLS::X509Credentials& cred = static_cast<GnuTLSIOHook*>(sock->GetModHook(thismod.lock()))->GetProfile().GetX509Credentials();
 
 	st->ncerts = static_cast<unsigned int>(cred.certs.size());
 	st->cert.x509 = cred.certs.raw();
@@ -1034,7 +1036,7 @@ class GnuTLSIOHookProvider final
 	GnuTLS::Profile profile;
 
 public:
-	GnuTLSIOHookProvider(Module* mod, GnuTLS::Profile::Config& config)
+	GnuTLSIOHookProvider(const WeakModulePtr& mod, GnuTLS::Profile::Config& config)
 		: SSLIOHookProvider(mod, config.name)
 		, profile(config)
 	{
@@ -1083,7 +1085,7 @@ class ModuleSSLGnuTLS final
 
 		auto tags = ServerInstance->Config->ConfTags("sslprofile");
 		if (tags.empty())
-			throw ModuleException(this, "You have not specified any <sslprofile> tags that are usable by this module!");
+			throw ModuleException(weak_from_this(), "You have not specified any <sslprofile> tags that are usable by this module!");
 
 		for (const auto& [_, tag] : tags)
 		{
@@ -1104,11 +1106,11 @@ class ModuleSSLGnuTLS final
 			try
 			{
 				GnuTLS::Profile::Config profileconfig(name, tag);
-				prov = std::make_shared<GnuTLSIOHookProvider>(this, profileconfig);
+				prov = std::make_shared<GnuTLSIOHookProvider>(weak_from_this(), profileconfig);
 			}
 			catch (const CoreException& ex)
 			{
-				throw ModuleException(this, "Error while initializing TLS profile \"" + name + "\" at " + tag->source.str() + " - " + ex.GetReason());
+				throw ModuleException(weak_from_this(), "Error while initializing TLS profile \"" + name + "\" at " + tag->source.str() + " - " + ex.GetReason());
 			}
 
 			newprofiles.push_back(prov);
@@ -1127,7 +1129,7 @@ public:
 		: Module(VF_VENDOR, "Allows TLS encrypted connections using the GnuTLS library.")
 		, rememberer(ServerInstance->GenRandom)
 	{
-		thismod = this;
+		thismod = weak_from_this();
 	}
 
 	void init() override
@@ -1146,7 +1148,7 @@ public:
 			for (const auto& field : {"cafile", "certfile", "crlfile", "dhfile", "hash", "keyfile", "mindhbits", "outrecsize", "priority", "requestclientcert", "strictpriority"})
 			{
 				if (!tag->getString(field).empty())
-					throw ModuleException(this, "TLS settings have moved from <gnutls> to <sslprofile>. See " INSPIRCD_DOCS "modules/ssl_gnutls/#sslprofile for more information.");
+					throw ModuleException(weak_from_this(), "TLS settings have moved from <gnutls> to <sslprofile>. See " INSPIRCD_DOCS "modules/ssl_gnutls/#sslprofile for more information.");
 			}
 			ReadProfiles();
 		}
@@ -1179,7 +1181,7 @@ public:
 			return;
 
 		auto* user = static_cast<User*>(item)->AsLocal();
-		if (!user || !user->io->GetModHook(this))
+		if (!user || !user->io->GetModHook(shared_from_this()))
 			return;
 
 		// User is using TLS, they're a local user, and they're using one of *our* TLS ports.
@@ -1189,7 +1191,7 @@ public:
 
 	ModResult OnCheckReady(LocalUser* user) override
 	{
-		const auto* const iohook = static_cast<GnuTLSIOHook*>(user->io->GetModHook(this));
+		const auto* const iohook = static_cast<GnuTLSIOHook*>(user->io->GetModHook(shared_from_this()));
 		if ((iohook) && (!iohook->IsHookReady()))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;

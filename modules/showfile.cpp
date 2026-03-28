@@ -50,7 +50,7 @@ class CommandShowFile final
 	Method method;
 
 public:
-	CommandShowFile(Module* parent, const std::string& cmdname)
+	CommandShowFile(const WeakModulePtr& parent, const std::string& cmdname)
 		: Command(parent, cmdname)
 	{
 	}
@@ -121,35 +121,35 @@ private:
 	{
 		std::string cmdname = tag->getString("name");
 		if (cmdname.empty())
-			throw ModuleException(this, "Empty value for 'name'");
+			throw ModuleException(weak_from_this(), "Empty value for 'name'");
 
 		std::transform(cmdname.begin(), cmdname.end(), cmdname.begin(), ::toupper);
 
 		const std::string file = tag->getString("file", cmdname);
 		if (file.empty())
-			throw ModuleException(this, "Empty value for 'file'");
+			throw ModuleException(weak_from_this(), "Empty value for 'file'");
 
 		auto reader = ServerInstance->Config->ReadFile(file);
 		if (!reader)
-			throw ModuleException(this, "Unable to read " + file + ": " + reader.error);
+			throw ModuleException(weak_from_this(), "Unable to read " + file + ": " + reader.error);
 
 		CommandShowFile* sfcmd;
 		Command* handler = ServerInstance->Parser.GetHandler(cmdname);
 		if (handler)
 		{
 			// Command exists, check if it is ours
-			if (handler->service_creator != this)
-				throw ModuleException(this, "Command " + cmdname + " already exists");
+			if (!insp::same_ptr(handler->service_creator, weak_from_this()))
+				throw ModuleException(weak_from_this(), "Command " + cmdname + " already exists");
 
 			// This is our command, make sure we don't have the same entry twice
 			sfcmd = static_cast<CommandShowFile*>(handler);
 			if (stdalgo::isin(newcmds, sfcmd))
-				throw ModuleException(this, "Command " + cmdname + " is already used in a <showfile> tag");
+				throw ModuleException(weak_from_this(), "Command " + cmdname + " is already used in a <showfile> tag");
 		}
 		else
 		{
 			// Command doesn't exist, create it
-			sfcmd = new CommandShowFile(this, cmdname);
+			sfcmd = new CommandShowFile(weak_from_this(), cmdname);
 			ServerInstance->Modules.AddService(*sfcmd);
 		}
 

@@ -44,7 +44,7 @@ enum
 	RPL_ENDOFINVITELIST = 337
 };
 
-CommandInvite::CommandInvite(Module* parent, Invite::APIImpl& invapiimpl)
+CommandInvite::CommandInvite(const WeakModulePtr& parent, Invite::APIImpl& invapiimpl)
 	: Command(parent, "INVITE")
 	, invapi(invapiimpl)
 {

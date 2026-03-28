@@ -39,7 +39,7 @@ private:
 	pcre2_code* regex;
 
 public:
-	PCREPattern(const Module* mod, const std::string& pattern, uint8_t options)
+	PCREPattern(const WeakModulePtr& mod, const std::string& pattern, uint8_t options)
 		: Regex::Pattern(pattern, options)
 	{
 		int flags = 0;
@@ -129,7 +129,7 @@ private:
 public:
 	ModuleRegexPCRE()
 		: Module(VF_VENDOR, "Provides the pcre regular expression engine which uses the PCRE2 library.")
-		, regex(this, "pcre")
+		, regex(weak_from_this(), "pcre")
 	{
 	}
 

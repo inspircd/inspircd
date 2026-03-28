@@ -63,7 +63,7 @@ private:
 	}
 
 public:
-	ExtItem(Module* owner, const char* extname)
+	ExtItem(const WeakModulePtr& owner, const char* extname)
 		: ExtensionItem(owner, extname, ExtType)
 	{
 	}
@@ -128,7 +128,7 @@ private:
 public:
 	AnnounceState announceinvites;
 
-	APIImpl(Module* owner);
+	APIImpl(const WeakModulePtr& owner);
 	void Create(LocalUser* user, Channel* chan, time_t timeout) override;
 	Invite* Find(LocalUser* user, Channel* chan) override;
 	bool Remove(LocalUser* user, Channel* chan) override;

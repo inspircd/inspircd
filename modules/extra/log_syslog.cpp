@@ -59,7 +59,7 @@ class SyslogEngine final
 	: public Log::Engine
 {
 public:
-	SyslogEngine(Module* Creator) ATTR_NOT_NULL(2)
+	SyslogEngine(const WeakModulePtr& Creator)
 		: Log::Engine(Creator, "syslog")
 	{
 	}
@@ -79,7 +79,7 @@ private:
 public:
 	ModuleLogSyslog()
 		: Module(VF_VENDOR, "Provides the ability to log to syslog.")
-		, engine(this)
+		, engine(weak_from_this())
 	{
 		openlog("inspircd", LOG_NDELAY|LOG_PID, LOG_USER);
 	}

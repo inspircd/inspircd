@@ -39,7 +39,7 @@ private:
 	IRCv3::ReplyCapReference stdrplcap;
 
 public:
-	CommandCloak(Module* Creator, CloakMethodList& ce)
+	CommandCloak(const WeakModulePtr& Creator, CloakMethodList& ce)
 		: SplitCommand(Creator, "CLOAK", 1)
 		, cloakmethods(ce)
 		, stdrplcap(Creator)
@@ -75,7 +75,7 @@ class CloakExtItem final
 	: public SimpleExtItem<Cloak::List>
 {
 public:
-	CloakExtItem(Module *mod)
+	CloakExtItem(const WeakModulePtr& mod)
 		: SimpleExtItem<Cloak::List>(mod, "cloaks", ExtensionType::USER)
 	{
 	}
@@ -161,7 +161,7 @@ private:
 public:
 	bool recloaking = false;
 
-	CloakAPI(Module* Creator, CloakMethodList& cm, ModeHandler* mh)
+	CloakAPI(const WeakModulePtr& Creator, CloakMethodList& cm, ModeHandler* mh)
 		: Cloak::APIBase(Creator)
 		, cloakmethods(cm)
 		, cloakmode(mh)
@@ -280,7 +280,7 @@ public:
 	// Whether the mode has recently been changed.
 	bool active = false;
 
-	CloakMode(Module* Creator, CloakAPI& api)
+	CloakMode(const WeakModulePtr& Creator, CloakAPI& api)
 		: ModeHandler(Creator, "cloak", 'x', PARAM_NONE, MODETYPE_USER)
 		, cloakapi(api)
 	{
@@ -367,10 +367,10 @@ private:
 public:
 	ModuleCloak()
 		: Module(VF_VENDOR | VF_COMMON, "Adds user mode x (cloak) which allows user hostnames to be hidden.")
-		, ServerProtocol::SyncEventListener(this)
-		, cloakapi(this, cloakmethods, &cloakmode)
-		, cloakcmd(this, cloakmethods)
-		, cloakmode(this, cloakapi)
+		, ServerProtocol::SyncEventListener(weak_from_this())
+		, cloakapi(weak_from_this(), cloakmethods, &cloakmode)
+		, cloakcmd(weak_from_this(), cloakmethods)
+		, cloakmode(weak_from_this(), cloakapi)
 	{
 	}
 
@@ -378,7 +378,7 @@ public:
 	{
 		auto tags = ServerInstance->Config->ConfTags("cloak");
 		if (tags.empty())
-			throw ModuleException(this, "You have loaded the cloak module but not configured any <cloak> tags!");
+			throw ModuleException(weak_from_this(), "You have loaded the cloak module but not configured any <cloak> tags!");
 
 		bool primary = true;
 		CloakMethodList newcloakmethods;
@@ -386,11 +386,11 @@ public:
 		{
 			const std::string method = tag->getString("method");
 			if (method.empty())
-				throw ModuleException(this, "<cloak:method> must be set to the name of a cloak engine, at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<cloak:method> must be set to the name of a cloak engine, at " + tag->source.str());
 
 			auto* service = ServerInstance->Modules.FindDataService<Cloak::Engine>("Cloak::Engine", method);
 			if (!service)
-				throw ModuleException(this, "<cloak> tag was set to non-existent cloak method \"" + method + "\", at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<cloak> tag was set to non-existent cloak method \"" + method + "\", at " + tag->source.str());
 
 			newcloakmethods.push_back(service->Create(tag, primary));
 			primary = false;
@@ -438,7 +438,7 @@ public:
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules.SetPriority(this, I_OnCheckListEntry, PRIORITY_LAST);
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnCheckListEntry, PRIORITY_LAST);
 	}
 
 	void OnChangeHost(User* user, const std::string& host) override

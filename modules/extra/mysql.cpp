@@ -80,6 +80,9 @@ class SQLConnection;
 class MySQLresult;
 class DispatcherThread;
 
+class ModuleSQL;
+static ModuleSQL* thismod;
+
 namespace
 {
 	template<typename Numeric>
@@ -143,7 +146,7 @@ public:
 	ModuleSQL();
 	~ModuleSQL() override;
 	void ReadConfig(ConfigStatus& status) override;
-	void OnUnloadModule(Module* mod) override;
+	void OnUnloadModule(const ModulePtr& mod) override;
 };
 
 class DispatcherThread final
@@ -306,7 +309,7 @@ public:
 	std::mutex lock;
 
 	// This constructor creates an SQLConnection object with the given credentials, but does not connect yet.
-	SQLConnection(Module* p, const std::shared_ptr<ConfigTag>& tag)
+	SQLConnection(const WeakModulePtr& p, const std::shared_ptr<ConfigTag>& tag)
 		: SQL::Provider(p, tag->getString("id"))
 		, config(tag)
 	{
@@ -390,7 +393,8 @@ public:
 
 	ModuleSQL* Parent()
 	{
-		return static_cast<ModuleSQL*>(this->service_creator.ptr());
+		// TODO: refactor this.
+		return thismod;
 	}
 
 	MySQLresult* DoBlockingQuery(const std::string& query)
@@ -469,7 +473,7 @@ public:
 void ModuleSQL::init()
 {
 	if (mysql_library_init(0, nullptr, nullptr))
-		throw ModuleException(this, "Unable to initialise the MySQL library!");
+		throw ModuleException(weak_from_this(), "Unable to initialise the MySQL library!");
 
 	ServerInstance->Logs.Normal(MODNAME, "Module was compiled against MySQL version {}.{}.{} and is running against version {}",
 		MYSQL_VERSION_ID / 10000, MYSQL_VERSION_ID / 100 % 100, MYSQL_VERSION_ID % 100, mysql_get_client_info());
@@ -481,6 +485,7 @@ void ModuleSQL::init()
 ModuleSQL::ModuleSQL()
 	: Module(VF_VENDOR, "Provides the ability for SQL modules to query a MySQL database.")
 {
+	thismod = this;
 }
 
 ModuleSQL::~ModuleSQL()
@@ -511,7 +516,7 @@ void ModuleSQL::ReadConfig(ConfigStatus& status)
 		ConnMap::iterator curr = connections.find(id);
 		if (curr == connections.end())
 		{
-			auto* conn = new SQLConnection(this, tag);
+			auto* conn = new SQLConnection(weak_from_this(), tag);
 			conns.emplace(id, conn);
 			ServerInstance->Modules.AddService(*conn);
 		}
@@ -550,7 +555,7 @@ void ModuleSQL::ReadConfig(ConfigStatus& status)
 	connections.swap(conns);
 }
 
-void ModuleSQL::OnUnloadModule(Module* mod)
+void ModuleSQL::OnUnloadModule(const ModulePtr& mod)
 {
 	SQL::Error err(SQL::BAD_DBID);
 	Dispatcher->LockQueue();
@@ -558,7 +563,7 @@ void ModuleSQL::OnUnloadModule(Module* mod)
 	while (i > 0)
 	{
 		i--;
-		if (qq[i].query->creator == mod)
+		if (insp::same_ptr(qq[i].query->creator, mod))
 		{
 			if (i == 0)
 			{

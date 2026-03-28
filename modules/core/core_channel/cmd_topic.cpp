@@ -40,7 +40,7 @@ enum
 	RPL_TOPICTIME = 333,
 };
 
-CommandTopic::CommandTopic(Module* parent)
+CommandTopic::CommandTopic(const WeakModulePtr& parent)
 	: SplitCommand(parent, "TOPIC", 1, 2)
 	, exemptionprov(parent)
 	, secretmode(parent, "secret")

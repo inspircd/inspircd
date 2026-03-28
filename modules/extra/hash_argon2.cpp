@@ -113,7 +113,7 @@ class Argon2Provider final
 public:
 	Argon2Config config;
 
-	Argon2Provider(Module *mod, argon2_type at)
+	Argon2Provider(const WeakModulePtr& mod, argon2_type at)
 		: Hash::Provider(mod, argon2_type2string(at, 0))
 		, config(at)
 	{
@@ -149,9 +149,9 @@ private:
 public:
 	ModuleArgon2()
 		: Module(VF_VENDOR, "Allows other modules to generate Argon2 hashes.")
-		, argon2dalgo(this, Argon2_d)
-		, argon2ialgo(this, Argon2_i)
-		, argon2idalgo(this, Argon2_id)
+		, argon2dalgo(weak_from_this(), Argon2_d)
+		, argon2ialgo(weak_from_this(), Argon2_i)
+		, argon2idalgo(weak_from_this(), Argon2_id)
 	{
 	}
 

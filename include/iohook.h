@@ -45,7 +45,7 @@ public:
 	 * @param hooktype One of IOHookProvider::Type
 	 * @param middle True if the IOHook instances created by this hook are subclasses of IOHookMiddle, false otherwise
 	 */
-	IOHookProvider(Module* mod, const std::string& Name, Type hooktype = IOH_UNKNOWN, bool middle = false)
+	IOHookProvider(const WeakModulePtr& mod, const std::string& Name, Type hooktype = IOH_UNKNOWN, bool middle = false)
 		: DataProvider(mod, "IOHookProvider", Name)
 		, middlehook(middle)
 		, type(hooktype)

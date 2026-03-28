@@ -32,7 +32,7 @@ class Who::EventListener
 	: public Events::ModuleEventListener
 {
 public:
-	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+	EventListener(const WeakModulePtr& mod, unsigned int eventprio = DefaultPriority)
 		: ModuleEventListener(mod, "who", eventprio)
 	{
 	}
@@ -53,7 +53,7 @@ class Who::MatchEventListener
 	: public Events::ModuleEventListener
 {
 public:
-	MatchEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+	MatchEventListener(const WeakModulePtr& mod, unsigned int eventprio = DefaultPriority)
 		: ModuleEventListener(mod, "who-match", eventprio)
 	{
 	}
@@ -72,7 +72,7 @@ class Who::VisibleEventListener
 	: public Events::ModuleEventListener
 {
 public:
-	VisibleEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+	VisibleEventListener(const WeakModulePtr& mod, unsigned int eventprio = DefaultPriority)
 		: ModuleEventListener(mod, "who-visible", eventprio)
 	{
 	}

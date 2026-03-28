@@ -65,7 +65,7 @@ public:
 	Cap::Capability extendedjoincap;
 	Cap::Capability awaycap;
 
-	JoinHook(Module* mod)
+	JoinHook(const WeakModulePtr& mod)
 		: ClientProtocol::EventHook(mod, "JOIN")
 		, accountapi(mod)
 		, awayprotoev(mod, "AWAY")
@@ -135,15 +135,15 @@ private:
 public:
 	ModuleIRCv3()
 		: Module(VF_VENDOR, "Provides the IRCv3 account-notify, away-notify, extended-join, and standard-replies client capabilities.")
-		, Account::EventListener(this)
-		, Away::EventListener(this)
-		, Names::EventListener(this)
-		, cap_accountnotify(this, "account-notify")
-		, cap_noimplicitnames(this, "no-implicit-names")
-		, joinhook(this)
-		, accountprotoev(this, "ACCOUNT")
-		, monitorapi(this)
-		, stdrplcap(this, "standard-replies")
+		, Account::EventListener(weak_from_this())
+		, Away::EventListener(weak_from_this())
+		, Names::EventListener(weak_from_this())
+		, cap_accountnotify(weak_from_this(), "account-notify")
+		, cap_noimplicitnames(weak_from_this(), "no-implicit-names")
+		, joinhook(weak_from_this())
+		, accountprotoev(weak_from_this(), "ACCOUNT")
+		, monitorapi(weak_from_this())
+		, stdrplcap(weak_from_this(), "standard-replies")
 	{
 	}
 

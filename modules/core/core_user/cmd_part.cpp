@@ -30,7 +30,7 @@
 
 #include "core_user.h"
 
-CommandPart::CommandPart(Module* parent)
+CommandPart::CommandPart(const WeakModulePtr& parent)
 	: Command(parent, "PART", 1, 2)
 {
 	accepts_multiple_targets = true;

@@ -41,7 +41,7 @@ class SSLCertExt final
 	: public SimpleExtItem<ssl_cert>
 {
 public:
-	SSLCertExt(Module* mod)
+	SSLCertExt(const WeakModulePtr& mod)
 		: SimpleExtItem<ssl_cert>(mod, "ssl_cert", ExtensionType::USER)
 	{
 	}
@@ -114,7 +114,7 @@ public:
 	SSLCertExt sslext;
 	bool localsecure;
 
-	UserCertificateAPIImpl(Module* mod)
+	UserCertificateAPIImpl(const WeakModulePtr& mod)
 		: UserCertificateAPIBase(mod)
 		, nosslext(mod, "no-ssl-cert", ExtensionType::USER)
 		, sslext(mod)
@@ -258,7 +258,7 @@ public:
 	UserCertificateAPIImpl sslapi;
 	bool operonlyfp;
 
-	CommandSSLInfo(Module* Creator)
+	CommandSSLInfo(const WeakModulePtr& Creator)
 		: SplitCommand(Creator, "SSLINFO")
 		, sslonlymode(Creator, "sslonly")
 		, sslapi(Creator)
@@ -311,11 +311,11 @@ private:
 public:
 	ModuleSSLInfo()
 		: Module(VF_VENDOR, "Adds user facing TLS information, various TLS configuration options, and the /SSLINFO command to look up TLS certificate information for other users.")
-		, Stats::EventListener(this)
-		, WebIRC::EventListener(this)
-		, Who::EventListener(this)
-		, Whois::EventListener(this)
-		, cmd(this)
+		, Stats::EventListener(weak_from_this())
+		, WebIRC::EventListener(weak_from_this())
+		, Who::EventListener(weak_from_this())
+		, Whois::EventListener(weak_from_this())
+		, cmd(weak_from_this())
 	{
 	}
 

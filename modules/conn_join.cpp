@@ -76,7 +76,7 @@ private:
 public:
 	ModuleConnJoin()
 		: Module(VF_VENDOR, "Allows the server administrator to force users to join one or more channels on connect.")
-		, ext(this, "join-timer", ExtensionType::USER)
+		, ext(weak_from_this(), "join-timer", ExtensionType::USER)
 	{
 	}
 
@@ -89,7 +89,7 @@ public:
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules.SetPriority(this, I_OnPostConnect, PRIORITY_LAST);
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnPostConnect, PRIORITY_LAST);
 	}
 
 	void OnPostConnect(User* user) override

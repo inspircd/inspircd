@@ -149,7 +149,7 @@ private:
 public:
 	PBKDF2Config config;
 
-	PBKDF2Provider(Module* mod, const std::string& algorithm)
+	PBKDF2Provider(const WeakModulePtr& mod, const std::string& algorithm)
 		: Hash::Provider(mod, FMT::format("pbkdf2-hmac-{}", algorithm))
 		, provider(mod, algorithm)
 	{
@@ -235,12 +235,12 @@ public:
 		{
 			const auto hash = tag->getString("hash");
 			if (hash.empty())
-				throw ModuleException(this, "<pbkdf2prov:name> must not be empty, at {}", tag->source.str());
+				throw ModuleException(weak_from_this(), "<pbkdf2prov:name> must not be empty, at {}", tag->source.str());
 
 			PBKDF2Config newprovconfig;
 			newprovconfig.ReadConfig(tag, &newdefaultconfig);
 			if (!newconfigs.emplace(hash, newprovconfig).second)
-				throw ModuleException(this, "<pbkdf2prov:name> must be unique, at {}", tag->source.str());
+				throw ModuleException(weak_from_this(), "<pbkdf2prov:name> must be unique, at {}", tag->source.str());
 		}
 
 		// Apply the config.
@@ -264,7 +264,7 @@ public:
 		if (algos.find(hp->service_name) != algos.end())
 			return; // Already created.
 
-		auto* algo = new PBKDF2Provider(this, hp->service_name);
+		auto* algo = new PBKDF2Provider(weak_from_this(), hp->service_name);
 		Configure(algo);
 		ServerInstance->Logs.Debug("HASH", "The {} algorithm was added by {}, also adding {}",
 			hp->service_name, hp->GetSource(), algo->service_name);

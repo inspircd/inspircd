@@ -65,7 +65,7 @@ private:
 	static void BuildNumerics(ISupport::TokenMap& tokens, std::vector<Numeric::Numeric>& numerics);
 
 public:
-	ISupportManager(Module* mod);
+	ISupportManager(const WeakModulePtr& mod);
 
 	/** (Re)build the ISUPPORT vector.
 	 * Called by the core on boot after all modules have been loaded, and every time when a module is loaded
@@ -95,7 +95,7 @@ class ServerTargetCommand
 	: public Command
 {
 public:
-	ServerTargetCommand(Module* mod, const std::string& Name)
+	ServerTargetCommand(const WeakModulePtr& mod, const std::string& Name)
 		: Command(mod, Name)
 	{
 	}
@@ -110,7 +110,7 @@ public:
 	std::string adminname;
 	std::string admindesc;
 	std::string adminemail;
-	CommandAdmin(Module* parent);
+	CommandAdmin(const WeakModulePtr& parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
@@ -118,7 +118,7 @@ class CommandCommands final
 	: public SplitCommand
 {
 public:
-	CommandCommands(Module* parent);
+	CommandCommands(const WeakModulePtr& parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
@@ -126,7 +126,7 @@ class CommandInfo final
 	: public SplitCommand
 {
 public:
-	CommandInfo(Module* parent);
+	CommandInfo(const WeakModulePtr& parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
@@ -134,7 +134,7 @@ class CommandModules final
 	: public ServerTargetCommand
 {
 public:
-	CommandModules(Module* parent);
+	CommandModules(const WeakModulePtr& parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
@@ -145,7 +145,7 @@ public:
 	using MessageCache = insp::flat_map<std::string, std::vector<std::string>>;
 	MessageCache motds;
 
-	CommandMotd(Module* parent);
+	CommandMotd(const WeakModulePtr& parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
@@ -156,7 +156,7 @@ private:
 	UserModeReference invisiblemode;
 
 public:
-	CommandServList(Module* parent);
+	CommandServList(const WeakModulePtr& parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
@@ -164,7 +164,7 @@ class CommandTime final
 	: public ServerTargetCommand
 {
 public:
-	CommandTime(Module* parent);
+	CommandTime(const WeakModulePtr& parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
@@ -177,7 +177,7 @@ private:
 	Numeric::Numeric version;
 
 public:
-	CommandVersion(Module* parent, ISupportManager& isupportmgr);
+	CommandVersion(const WeakModulePtr& parent, ISupportManager& isupportmgr);
 	void BuildNumerics();
 	CmdResult Handle(User* user, const Params& parameters) override;
 };

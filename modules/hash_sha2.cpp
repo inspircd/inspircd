@@ -74,7 +74,7 @@ private:
 	Hash::HMACProvider hmacsha2algo;
 
 public:
-	SHA2Provider(Module* mod, const std::string& algorithm, size_t ds, size_t bs)
+	SHA2Provider(const WeakModulePtr& mod, const std::string& algorithm, size_t ds, size_t bs)
 		: Hash::Provider(mod, algorithm, ds, bs)
 		, hmacsha2algo(mod, algorithm)
 	{
@@ -106,10 +106,10 @@ private:
 public:
 	ModuleHashSHA2()
 		: Module(VF_VENDOR, "Allows other modules to generate SHA-2 hashes.")
-		, sha224algo(this, "sha224", SHA224_DIGEST_SIZE, SHA224_BLOCK_SIZE)
-		, sha256algo(this, "sha256", SHA256_DIGEST_SIZE, SHA256_BLOCK_SIZE)
-		, sha384algo(this, "sha384", SHA384_DIGEST_SIZE, SHA384_BLOCK_SIZE)
-		, sha512algo(this, "sha512", SHA512_DIGEST_SIZE, SHA512_BLOCK_SIZE)
+		, sha224algo(weak_from_this(), "sha224", SHA224_DIGEST_SIZE, SHA224_BLOCK_SIZE)
+		, sha256algo(weak_from_this(), "sha256", SHA256_DIGEST_SIZE, SHA256_BLOCK_SIZE)
+		, sha384algo(weak_from_this(), "sha384", SHA384_DIGEST_SIZE, SHA384_BLOCK_SIZE)
+		, sha512algo(weak_from_this(), "sha512", SHA512_DIGEST_SIZE, SHA512_BLOCK_SIZE)
 	{
 	}
 

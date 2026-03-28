@@ -39,7 +39,7 @@ private:
 public:
 	size_t maxdepth;
 
-	ShareExtBan(Module* mod)
+	ShareExtBan(const WeakModulePtr& mod)
 		: ExtBan::MatchingBase(mod, "share", 'b', ExtBan::MATCH_REQUIRE_CHANNEL)
 		, banmode(mod, "ban")
 		, secretmode(mod, "secret")
@@ -104,7 +104,7 @@ private:
 public:
 	ModuleShareBans()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban b: (share) which allows sharing bans between channels.")
-		, extban(this)
+		, extban(weak_from_this())
 	{
 	}
 

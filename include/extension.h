@@ -86,7 +86,7 @@ protected:
 	 * @param key The name of the extension (e.g. foo-bar).
 	 * @param exttype The type of extensible that the extension applies to.
 	 */
-	ExtensionItem(Module* owner, const std::string& key, ExtensionType exttype);
+	ExtensionItem(const WeakModulePtr& owner, const std::string& key, ExtensionType exttype);
 
 	/** Retrieves the value for this extension of the specified container from the internal map.
 	 * @param container The container that this extension is set on.
@@ -135,7 +135,7 @@ public:
 	 * @param exttype The type of extensible that the extension applies to.
 	 * @param sync Whether this extension should be broadcast to other servers.
 	 */
-	SimpleExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync = false)
+	SimpleExtItem(const WeakModulePtr& owner, const std::string& key, ExtensionType exttype, bool sync = false)
 		: ExtensionItem(owner, key, exttype)
 		, synced(sync)
 	{
@@ -281,7 +281,7 @@ public:
 	 * @param exttype The type of extensible that the extension applies to.
 	 * @param sync Whether this extension should be broadcast to other servers.
 	 */
-	BoolExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync = false);
+	BoolExtItem(const WeakModulePtr& owner, const std::string& key, ExtensionType exttype, bool sync = false);
 
 	/** Retrieves the value for this extension of the specified container.
 	 * @param container The container that this extension is set on.
@@ -335,7 +335,7 @@ public:
 	 * @param exttype The type of extensible that the extension applies to.
 	 * @param sync Whether this extension should be broadcast to other servers.
 	 */
-	ListExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync = false)
+	ListExtItem(const WeakModulePtr& owner, const std::string& key, ExtensionType exttype, bool sync = false)
 		: SimpleExtItem<List>(owner, key, exttype, sync)
 	{
 	}
@@ -419,7 +419,7 @@ public:
 	 * @param exttype The type of extensible that the extension applies to.
 	 * @param sync Whether this extension should be broadcast to other servers.
 	 */
-	IntExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync = false);
+	IntExtItem(const WeakModulePtr& owner, const std::string& key, ExtensionType exttype, bool sync = false);
 
 	/** Retrieves the value for this extension of the specified container.
 	 * @param container The container that this extension is set on.
@@ -464,7 +464,7 @@ public:
 	 * @param exttype The type of extensible that the extension applies to.
 	 * @param sync Whether this extension should be broadcast to other servers.
 	 */
-	StringExtItem(Module* owner, const std::string& key, ExtensionType exttype, bool sync = false);
+	StringExtItem(const WeakModulePtr& owner, const std::string& key, ExtensionType exttype, bool sync = false);
 
 	/** @copydoc ExtensionItem::FromInternal */
 	void FromInternal(Extensible* container, const std::string& value) noexcept override;

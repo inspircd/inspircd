@@ -38,7 +38,7 @@ class Account::APIBase
 	: public DataProvider
 {
 public:
-	APIBase(Module* parent)
+	APIBase(const WeakModulePtr& parent)
 		: DataProvider(parent, "accountapi")
 	{
 	}
@@ -73,7 +73,7 @@ class Account::API final
 	: public dynamic_reference<Account::APIBase>
 {
 public:
-	API(Module* parent)
+	API(const WeakModulePtr& parent)
 		: dynamic_reference<Account::APIBase>(parent, "accountapi")
 	{
 	}
@@ -84,7 +84,7 @@ class Account::EventListener
 	: public Events::ModuleEventListener
 {
 public:
-	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+	EventListener(const WeakModulePtr& mod, unsigned int eventprio = DefaultPriority)
 		: ModuleEventListener(mod, "account", eventprio)
 	{
 	}
@@ -101,7 +101,7 @@ class Account::ProviderAPIBase
 	: public DataProvider
 {
 public:
-	ProviderAPIBase(Module* mod)
+	ProviderAPIBase(const WeakModulePtr& mod)
 		: DataProvider(mod, "accountproviderapi")
 	{
 	}
@@ -115,7 +115,7 @@ class Account::ProviderAPI final
 	: public dynamic_reference<Account::ProviderAPIBase>
 {
 public:
-	ProviderAPI(Module* mod)
+	ProviderAPI(const WeakModulePtr& mod)
 		: dynamic_reference<Account::ProviderAPIBase>(mod, "accountproviderapi")
 	{
 	}

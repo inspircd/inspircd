@@ -28,7 +28,7 @@ class ClassExtBan final
 public:
 	bool operonly;
 
-	ClassExtBan(Module* Creator)
+	ClassExtBan(const WeakModulePtr& Creator)
 		: ExtBan::MatchingBase(Creator, "class", 'n')
 	{
 	}
@@ -66,7 +66,7 @@ private:
 public:
 	ModuleClassBan()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban n: (class) which check whether users are in a connect class matching the specified glob pattern.")
-		, extban(this)
+		, extban(weak_from_this())
 	{
 	}
 

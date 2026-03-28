@@ -38,6 +38,26 @@ class Events::ModuleEventProvider
 	: public DataProvider
 	, private dynamic_reference_base::CaptureHook
 {
+private:
+	/** Determines whether a module is dying or has died.
+	 * @param weakmod The module to check.
+	 * @param modreq Whether a module is required.
+	 */
+	inline static bool IsModuleDead(const WeakModulePtr& weakmod, bool modreq)
+	{
+		if (!insp::empty_ptr(weakmod))
+		{
+			// We have a module. Is it dead?
+			auto mod = weakmod.lock();
+			if (mod)
+				return mod->dying; // Module might be dying?
+
+			return true; //Module is dead.
+		}
+
+		return modreq; // We never had a module.
+	}
+
 public:
 	struct Comp final
 	{
@@ -55,7 +75,7 @@ public:
 	 * @param mod Module providing the event(s)
 	 * @param eventid Identifier of the event or event group provided, must be unique
 	 */
-	ModuleEventProvider(Module* mod, const std::string& eventid)
+	ModuleEventProvider(const WeakModulePtr& mod, const std::string& eventid)
 		: DataProvider(mod, "Events::ModuleEventProvider", eventid)
 		, prov(mod, this->service_type, this->service_name)
 	{
@@ -63,7 +83,7 @@ public:
 	}
 
 	/** Retrieves the module which created this listener. */
-	const Module* GetModule() const { return prov.creator; }
+	const auto& GetModule() const { return prov.creator; }
 
 	/** Get list of objects subscribed to this event
 	 * @return List of subscribed objects
@@ -156,7 +176,7 @@ protected:
 	 * @param eventid Identifier of the event to subscribe to
 	 * @param eventprio The priority to give this event listener
 	 */
-	ModuleEventListener(Module* mod, const std::string& eventid, unsigned int eventprio)
+	ModuleEventListener(const WeakModulePtr& mod, const std::string& eventid, unsigned int eventprio)
 		: prov(mod, "Events::ModuleEventProvider", eventid)
 		, eventpriority(eventprio)
 	{
@@ -176,7 +196,7 @@ public:
 	}
 
 	/** Retrieves the module which created this listener. */
-	const Module* GetModule() const { return prov.creator; }
+	const auto& GetModule() const { return prov.creator; }
 
 	/** Retrieves the priority of this event. */
 	unsigned int GetPriority() const { return eventpriority; }
@@ -199,13 +219,12 @@ inline bool Events::ModuleEventProvider::ElementComp::operator()(Events::ModuleE
 template<typename Class, typename... FunArgs, typename... FwdArgs>
 inline void Events::ModuleEventProvider::Call(void (Class::*function)(FunArgs...), FwdArgs&&... args) const
 {
-	if (GetModule() && GetModule()->dying)
+	if (IsModuleDead(GetModule(), false))
 		return;
 
 	for (auto* subscriber : GetSubscribers())
 	{
-		const Module* mod = subscriber->GetModule();
-		if (!mod || mod->dying)
+		if (IsModuleDead(subscriber->GetModule(), true))
 			continue;
 
 		Class* klass = static_cast<Class*>(subscriber);
@@ -216,14 +235,13 @@ inline void Events::ModuleEventProvider::Call(void (Class::*function)(FunArgs...
 template<typename Class, typename... FunArgs, typename... FwdArgs>
 inline ModResult Events::ModuleEventProvider::FirstResult(ModResult (Class::*function)(FunArgs...), FwdArgs&&... args) const
 {
-	if (GetModule() && GetModule()->dying)
+	if (IsModuleDead(GetModule(), false))
 		return MOD_RES_PASSTHRU;
 
 	ModResult result;
 	for (auto* subscriber : GetSubscribers())
 	{
-		const Module* mod = subscriber->GetModule();
-		if (!mod || mod->dying)
+		if (IsModuleDead(subscriber->GetModule(), true))
 			continue;
 
 		Class* klass = static_cast<Class*>(subscriber);

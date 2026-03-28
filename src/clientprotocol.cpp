@@ -20,7 +20,7 @@
 
 #include "inspircd.h"
 
-ClientProtocol::Serializer::Serializer(Module* mod, const std::string& Name)
+ClientProtocol::Serializer::Serializer(const WeakModulePtr& mod, const std::string& Name)
 	: DataProvider(mod, "ClientProtocol::Serializer", Name)
 	, evprov(mod)
 {

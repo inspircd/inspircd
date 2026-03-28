@@ -131,7 +131,7 @@ public:
 	 * See Cap::Capability for more info on client capabilities.
 	 * @param Tagname Name of the message tag, to use in the protocol.
 	 */
-	CapTag(Module* mod, const std::string& capname, const std::string& Tagname)
+	CapTag(const WeakModulePtr& mod, const std::string& capname, const std::string& Tagname)
 		: ClientProtocol::MessageTagProvider(mod)
 		, cap(mod, capname)
 		, tagname(Tagname)
@@ -147,7 +147,7 @@ class IRCv3::ReplyCapReference final
 	: public Cap::Reference
 {
 public:
-	ReplyCapReference(Module* mod)
+	ReplyCapReference(const WeakModulePtr& mod)
 		: Cap::Reference(mod, "standard-replies")
 	{
 	}

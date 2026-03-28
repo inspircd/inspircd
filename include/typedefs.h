@@ -76,3 +76,9 @@ namespace ClientProtocol
 
 /** A bitset of characters which are enabled/set. */
 using CharState = std::bitset<UCHAR_MAX + 1>;
+
+/** A pointer to a module instance. */
+using ModulePtr = std::shared_ptr<Module>;
+
+/** A weak pointer to a module instance. */
+using WeakModulePtr = std::weak_ptr<Module>;

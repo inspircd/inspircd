@@ -32,7 +32,7 @@ enum
 	ERR_KEYSET = 467,
 };
 
-ModeChannelKey::ModeChannelKey(Module* Creator)
+ModeChannelKey::ModeChannelKey(const WeakModulePtr& Creator)
 	: ParamMode<ModeChannelKey, StringExtItem>(Creator, "key", 'k', PARAM_ALWAYS)
 {
 	syntax = "<key>";

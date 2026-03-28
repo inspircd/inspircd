@@ -327,7 +327,7 @@ bool CommandParser::AddCommand(Command* cmd)
 	return cmdlist.emplace(cmd->service_name, cmd).second;
 }
 
-CommandBase::CommandBase(Module* mod, const std::string& cmd, size_t minpara, size_t maxpara)
+CommandBase::CommandBase(const WeakModulePtr& mod, const std::string& cmd, size_t minpara, size_t maxpara)
 	: ServiceProvider(mod, "CommandBase", cmd)
 	, min_params(minpara)
 	, max_params(maxpara)
@@ -344,7 +344,7 @@ RouteDescriptor CommandBase::GetRouting(User* user, const Params& parameters)
 	return ROUTE_LOCALONLY;
 }
 
-Command::Command(Module* mod, const std::string& cmd, size_t minpara, size_t maxpara)
+Command::Command(const WeakModulePtr& mod, const std::string& cmd, size_t minpara, size_t maxpara)
 	: CommandBase(mod, cmd, minpara, maxpara)
 {
 }
@@ -410,7 +410,7 @@ void Command::TellNotFullyConnected(LocalUser* user, const Params& parameters)
 	user->WriteNumeric(ERR_NOTREGISTERED, this->service_name, "You must be fully connected to use this command.");
 }
 
-SplitCommand::SplitCommand(Module* me, const std::string& cmd, size_t minpara, size_t maxpara)
+SplitCommand::SplitCommand(const WeakModulePtr& me, const std::string& cmd, size_t minpara, size_t maxpara)
 	: Command(me, cmd, minpara, maxpara)
 {
 }

@@ -61,7 +61,7 @@ private:
 	Away::EventProvider awayevprov;
 
 public:
-	CommandAway(Module* parent);
+	CommandAway(const WeakModulePtr& parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
@@ -70,7 +70,7 @@ class CommandIson final
 	: public SplitCommand
 {
 public:
-	CommandIson(Module* parent)
+	CommandIson(const WeakModulePtr& parent)
 		: SplitCommand(parent, "ISON", 1)
 	{
 		syntax = { "<nick> [<nick>]+" };
@@ -85,7 +85,7 @@ class CommandNick final
 public:
 	ChanModeReference banmode;
 
-	CommandNick(Module* parent);
+	CommandNick(const WeakModulePtr& parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
@@ -95,7 +95,7 @@ class CommandPart final
 public:
 	MessageWrapper msgwrap;
 
-	CommandPart(Module* parent);
+	CommandPart(const WeakModulePtr& parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
@@ -109,7 +109,7 @@ private:
 public:
 	MessageWrapper msgwrap;
 
-	CommandQuit(Module* parent);
+	CommandQuit(const WeakModulePtr& parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
@@ -118,7 +118,7 @@ class CommandUser final
 	: public SplitCommand
 {
 public:
-	CommandUser(Module* parent);
+	CommandUser(const WeakModulePtr& parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 
 	/** Run the OnUserRegister hook if the user has sent both NICK and USER. Called after a partially connected user
@@ -138,7 +138,7 @@ private:
 	UserModeReference hideopermode;
 
 public:
-	CommandUserhost(Module* parent)
+	CommandUserhost(const WeakModulePtr& parent)
 		: Command(parent, "USERHOST", 1)
 		, hideopermode(parent, "hideoper")
 	{

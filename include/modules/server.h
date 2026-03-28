@@ -44,7 +44,7 @@ class ServerProtocol::LinkEventListener
 	: public Events::ModuleEventListener
 {
 public:
-	LinkEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+	LinkEventListener(const WeakModulePtr& mod, unsigned int eventprio = DefaultPriority)
 		: ModuleEventListener(mod, "server-link", eventprio)
 	{
 	}
@@ -70,7 +70,7 @@ class ServerProtocol::MessageEventListener
 	: public Events::ModuleEventListener
 {
 public:
-	MessageEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+	MessageEventListener(const WeakModulePtr& mod, unsigned int eventprio = DefaultPriority)
 		: ModuleEventListener(mod, "server-message", eventprio)
 	{
 	}
@@ -87,7 +87,7 @@ class ServerProtocol::RouteEventListener
 	: public Events::ModuleEventListener
 {
 public:
-	RouteEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+	RouteEventListener(const WeakModulePtr& mod, unsigned int eventprio = DefaultPriority)
 		: ModuleEventListener(mod, "server-route", eventprio)
 	{
 	}
@@ -106,7 +106,7 @@ class ServerProtocol::SyncEventListener
 	: public Events::ModuleEventListener
 {
 public:
-	SyncEventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+	SyncEventListener(const WeakModulePtr& mod, unsigned int eventprio = DefaultPriority)
 		: ModuleEventListener(mod, "server-sync", eventprio)
 	{
 	}

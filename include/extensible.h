@@ -93,7 +93,7 @@ public:
 	 * @param module The module to unregister extensions for.
 	 * @param list The list to add unregistered extensions to.
 	 */
-	void BeginUnregister(Module* module, std::vector<ExtensionItem*>& list);
+	void BeginUnregister(const ModulePtr& module, std::vector<ExtensionItem*>& list);
 
 	/** Retrieves registered extensions keyed by their names. */
 	const ExtMap& GetExts() const { return types; }

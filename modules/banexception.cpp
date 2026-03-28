@@ -43,7 +43,7 @@ private:
 	ExtBan::ManagerRef extbanmgr;
 
 public:
-	BanException(Module* Creator)
+	BanException(const WeakModulePtr& Creator)
 		: ListModeBase(Creator, "banexception", 'e', RPL_EXCEPTLIST, RPL_ENDOFEXCEPTLIST, true)
 		, extbanmgr(Creator)
 	{
@@ -85,9 +85,9 @@ private:
 public:
 	ModuleBanException()
 		: Module(VF_VENDOR, "Adds channel mode e (banexception) which allows channel operators to exempt user masks from channel mode b (ban).")
-		, ExtBan::EventListener(this)
-		, ISupport::EventListener(this)
-		, be(this)
+		, ExtBan::EventListener(weak_from_this())
+		, ISupport::EventListener(weak_from_this())
+		, be(weak_from_this())
 	{
 	}
 

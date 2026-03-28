@@ -360,7 +360,7 @@ public:
 	 * @param mod Module whose IOHook to return
 	 * @return IOHook belonging to the module or NULL if the module haven't attached an IOHook to this socket
 	 */
-	IOHook* GetModHook(Module* mod) const;
+	IOHook* GetModHook(const ModulePtr& mod) const;
 
 	/** Get the last IOHook attached to this socket
 	 * @return The last IOHook attached to this socket or NULL if no IOHooks are attached

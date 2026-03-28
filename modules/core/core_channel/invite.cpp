@@ -45,12 +45,12 @@ void UnserializeInvite(LocalUser* user, const std::string& str)
 	apiimpl->Unserialize(user, str);
 }
 
-Invite::APIBase::APIBase(Module* parent)
+Invite::APIBase::APIBase(const WeakModulePtr& parent)
 	: DataProvider(parent, "core_channel_invite")
 {
 }
 
-Invite::APIImpl::APIImpl(Module* parent)
+Invite::APIImpl::APIImpl(const WeakModulePtr& parent)
 	: APIBase(parent)
 	, userext(parent, "invite_user")
 	, chanext(parent, "invite_chan")

@@ -78,7 +78,7 @@ private:
 	}
 
 public:
-	ServicesAccountProvider(Module* mod)
+	ServicesAccountProvider(const WeakModulePtr& mod)
 		: Account::ProviderAPIBase(mod)
 		, ServerProtocol::LinkEventListener(mod)
 	{
@@ -116,7 +116,7 @@ class RegisteredChannel final
 	: public SimpleChannelMode
 {
 public:
-	RegisteredChannel(Module* Creator)
+	RegisteredChannel(const WeakModulePtr& Creator)
 		: SimpleChannelMode(Creator, "registered", 'r', false, "c_registered")
 	{
 		if (ServerInstance->Config->ConfValue("servicesintegration")->getBool("disablemodes", true))
@@ -141,7 +141,7 @@ class RegisteredUser final
 {
 
 public:
-	RegisteredUser(Module* Creator)
+	RegisteredUser(const WeakModulePtr& Creator)
 		: SimpleUserMode(Creator, "registered", 'r', false, "u_registered")
 	{
 		if (ServerInstance->Config->ConfValue("servicesintegration")->getBool("disablemodes", true))
@@ -165,7 +165,7 @@ class ServiceTag final
 	: public CTCTags::TagProvider
 {
 public:
-	ServiceTag(Module* mod)
+	ServiceTag(const WeakModulePtr& mod)
 		: CTCTags::TagProvider(mod)
 	{
 	}
@@ -182,7 +182,7 @@ class ServProtect final
 	: public SimpleUserMode
 {
 public:
-	ServProtect(Module* Creator)
+	ServProtect(const WeakModulePtr& Creator)
 		: SimpleUserMode(Creator, "protect", 'k', true, "servprotect")
 	{
 	}
@@ -254,7 +254,7 @@ class CommandSVSCMode final
 	: public Command
 {
 public:
-	CommandSVSCMode(Module* mod)
+	CommandSVSCMode(const WeakModulePtr& mod)
 		: Command(mod, "SVSCMODE", 3)
 	{
 		access_needed = CmdAccess::SERVER;
@@ -304,7 +304,7 @@ class CommandSVSHold final
 	: public Command
 {
 public:
-	CommandSVSHold(Module* Creator)
+	CommandSVSHold(const WeakModulePtr& Creator)
 		: Command(Creator, "SVSHOLD")
 	{
 		access_needed = CmdAccess::SERVER;
@@ -355,7 +355,7 @@ class CommandSVSJoin final
 	: public Command
 {
 public:
-	CommandSVSJoin(Module* mod)
+	CommandSVSJoin(const WeakModulePtr& mod)
 		: Command(mod, "SVSJOIN", 2)
 	{
 		access_needed = CmdAccess::SERVER;
@@ -405,7 +405,7 @@ class CommandSVSNick final
 	: public Command
 {
 public:
-	CommandSVSNick(Module* mod)
+	CommandSVSNick(const WeakModulePtr& mod)
 		: Command(mod, "SVSNICK", 3)
 	{
 		access_needed = CmdAccess::SERVER;
@@ -477,7 +477,7 @@ class CommandSVSOper final
 	: public Command
 {
 public:
-	CommandSVSOper(Module* Creator)
+	CommandSVSOper(const WeakModulePtr& Creator)
 		: Command(Creator, "SVSOPER", 2, 2)
 	{
 		access_needed = CmdAccess::SERVER;
@@ -519,7 +519,7 @@ class CommandSVSPart final
 	: public Command
 {
 public:
-	CommandSVSPart(Module* mod)
+	CommandSVSPart(const WeakModulePtr& mod)
 		: Command(mod, "SVSPART", 2)
 	{
 		access_needed = CmdAccess::SERVER;
@@ -555,7 +555,7 @@ class CommandSVSTopic final
 	: public Command
 {
 public:
-	CommandSVSTopic(Module* mod)
+	CommandSVSTopic(const WeakModulePtr& mod)
 		: Command(mod, "SVSTOPIC", 1, 4)
 	{
 		access_needed = CmdAccess::SERVER;
@@ -666,24 +666,24 @@ private:
 public:
 	ModuleServices()
 		: Module(VF_COMMON | VF_VENDOR, "Provides support for integrating with a services server.")
-		, ServerProtocol::RouteEventListener(this)
-		, Stats::EventListener(this)
-		, accountapi(this)
-		, accountproviderapi(this)
-		, registeredcmode(this)
-		, registeredumode(this)
-		, servicetag(this)
-		, servprotectmode(this)
-		, auspexext(this, "auspex", ExtensionType::CHANNEL, true)
-		, mlockext(this, "mlock", ExtensionType::CHANNEL, true)
-		, topiclockext(this, "topiclock", ExtensionType::CHANNEL, true)
-		, svscmodecmd(this)
-		, svsholdcmd(this)
-		, svsjoincmd(this)
-		, svsnickcmd(this)
-		, svsopercmd(this)
-		, svspartcmd(this)
-		, svstopiccmd(this)
+		, ServerProtocol::RouteEventListener(weak_from_this())
+		, Stats::EventListener(weak_from_this())
+		, accountapi(weak_from_this())
+		, accountproviderapi(weak_from_this())
+		, registeredcmode(weak_from_this())
+		, registeredumode(weak_from_this())
+		, servicetag(weak_from_this())
+		, servprotectmode(weak_from_this())
+		, auspexext(weak_from_this(), "auspex", ExtensionType::CHANNEL, true)
+		, mlockext(weak_from_this(), "mlock", ExtensionType::CHANNEL, true)
+		, topiclockext(weak_from_this(), "topiclock", ExtensionType::CHANNEL, true)
+		, svscmodecmd(weak_from_this())
+		, svsholdcmd(weak_from_this())
+		, svsjoincmd(weak_from_this())
+		, svsnickcmd(weak_from_this())
+		, svsopercmd(weak_from_this())
+		, svspartcmd(weak_from_this())
+		, svstopiccmd(weak_from_this())
 	{
 	}
 
@@ -704,7 +704,7 @@ public:
 
 		const auto target = tag->getString("server", ServerInstance->Config->ConfValue("sasl")->getString("target"));
 		if (target.empty())
-			throw ModuleException(this, "<servicesintegration:server> must be set to the name of your services server!");
+			throw ModuleException(weak_from_this(), "<servicesintegration:server> must be set to the name of your services server!");
 
 		accountproviderapi.SetTarget(target);
 		accountoverrideshold = tag->getBool("accountoverrideshold");

@@ -22,14 +22,14 @@
 
 namespace
 {
-	Module* thismod;
+	WeakModulePtr thismod;
 }
 
 class SQLQuery final
 	: public SQL::Query
 {
 public:
-	SQLQuery(Module* mod) ATTR_NOT_NULL(2)
+	SQLQuery(const WeakModulePtr& mod)
 		: SQL::Query(mod)
 	{
 	}
@@ -88,7 +88,7 @@ class SQLEngine final
 	: public Log::Engine
 {
 public:
-	SQLEngine(Module* Creator) ATTR_NOT_NULL(2)
+	SQLEngine(const WeakModulePtr& Creator)
 		: Log::Engine(Creator, "sql")
 	{
 	}
@@ -110,11 +110,10 @@ private:
 public:
 	ModuleLogSQL()
 		: Module(VF_VENDOR, "Provides the ability to log to a SQL database.")
-		, engine(this)
+		, engine(weak_from_this())
 	{
-		thismod = this;
+		thismod = weak_from_this();
 	}
-
 };
 
 MODULE_INIT(ModuleLogSQL)

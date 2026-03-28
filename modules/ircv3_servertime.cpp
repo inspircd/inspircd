@@ -47,7 +47,7 @@ class ServerTimeTag final
 	}
 
 public:
-	ServerTimeTag(Module* mod)
+	ServerTimeTag(const WeakModulePtr& mod)
 		: IRCv3::ServerTime::Manager(mod)
 		, IRCv3::CapTag<ServerTimeTag>(mod, "server-time", "time")
 		, ServerProtocol::MessageEventListener(mod)
@@ -83,7 +83,7 @@ private:
 public:
 	ModuleIRCv3ServerTime()
 		: Module(VF_VENDOR, "Provides the IRCv3 server-time client capability.")
-		, tag(this)
+		, tag(weak_from_this())
 	{
 	}
 };

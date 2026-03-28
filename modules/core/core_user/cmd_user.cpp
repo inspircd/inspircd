@@ -31,7 +31,7 @@ enum
 	ERR_INVALIDUSERNAME = 468
 };
 
-CommandUser::CommandUser(Module* parent)
+CommandUser::CommandUser(const WeakModulePtr& parent)
 	: SplitCommand(parent, "USER", 4, 4)
 {
 	penalty = 0;

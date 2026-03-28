@@ -30,7 +30,7 @@ class CommandGLoadModule final
 	: public Command
 {
 public:
-	CommandGLoadModule(Module* Creator)
+	CommandGLoadModule(const WeakModulePtr& Creator)
 		: Command(Creator, "GLOADMODULE", 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -69,7 +69,7 @@ class CommandGUnloadModule final
 	: public Command
 {
 public:
-	CommandGUnloadModule(Module* Creator)
+	CommandGUnloadModule(const WeakModulePtr& Creator)
 		: Command(Creator, "GUNLOADMODULE", 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -88,7 +88,7 @@ public:
 
 		if (InspIRCd::Match(ServerInstance->Config->ServerName, servername))
 		{
-			Module* m = ServerInstance->Modules.Find(parameters[0]);
+			const auto m = ServerInstance->Modules.Find(parameters[0]);
 			if (m)
 			{
 				if (ServerInstance->Modules.Unload(m))
@@ -120,7 +120,7 @@ class CommandGReloadModule final
 	: public Command
 {
 public:
-	CommandGReloadModule(Module* Creator)
+	CommandGReloadModule(const WeakModulePtr& Creator)
 		: Command(Creator, "GRELOADMODULE", 1)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -133,7 +133,7 @@ public:
 
 		if (InspIRCd::Match(ServerInstance->Config->ServerName, servername))
 		{
-			Module* m = ServerInstance->Modules.Find(parameters[0]);
+			const auto m = ServerInstance->Modules.Find(parameters[0]);
 			if (m)
 			{
 				ServerInstance->SNO.WriteToSnoMask('a', "MODULE '{}' GLOBALLY RELOADED BY '{}'", parameters[0], user->nick);
@@ -168,9 +168,9 @@ private:
 public:
 	ModuleGlobalLoad()
 		: Module(VF_VENDOR | VF_COMMON, "Adds the /GLOADMODULE, /GRELOADMODULE, and /GUNLOADMODULE commands which allows server operators to load, reload, and unload modules on remote servers.")
-		, cmdgloadmodule(this)
-		, cmdgunloadmodule(this)
-		, cmdgreloadmodule(this)
+		, cmdgloadmodule(weak_from_this())
+		, cmdgunloadmodule(weak_from_this())
+		, cmdgreloadmodule(weak_from_this())
 	{
 	}
 };

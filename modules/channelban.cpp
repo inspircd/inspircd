@@ -28,7 +28,7 @@ class ChannelExtBan final
 	: public ExtBan::MatchingBase
 {
 public:
-	ChannelExtBan(Module* Creator)
+	ChannelExtBan(const WeakModulePtr& Creator)
 		: ExtBan::MatchingBase(Creator, "channel", 'j')
 	{
 	}
@@ -63,7 +63,7 @@ private:
 public:
 	ModuleBadChannelExtban()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban j: (channel) which checks whether users are in a channel matching the specified glob pattern.")
-		, extban(this)
+		, extban(weak_from_this())
 	{
 	}
 };

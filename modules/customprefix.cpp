@@ -28,7 +28,7 @@ class CustomPrefixMode final
 public:
 	std::shared_ptr<ConfigTag> tag;
 
-	CustomPrefixMode(Module* parent, const std::string& Name, char Letter, char Prefix, const std::shared_ptr<ConfigTag>& Tag)
+	CustomPrefixMode(const WeakModulePtr& parent, const std::string& Name, char Letter, char Prefix, const std::shared_ptr<ConfigTag>& Tag)
 		: PrefixMode(parent, Name, Letter, 0, Prefix)
 		, tag(Tag)
 	{
@@ -62,20 +62,20 @@ public:
 		{
 			const std::string name = tag->getString("name");
 			if (name.empty())
-				throw ModuleException(this, "<customprefix:name> must be specified at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<customprefix:name> must be specified at " + tag->source.str());
 
 			if (name.find(' ') != std::string::npos)
-				throw ModuleException(this, "<customprefix:name> must not contain spaces at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<customprefix:name> must not contain spaces at " + tag->source.str());
 
 			if (tag->getBool("change"))
 			{
 				ModeHandler* mh = ServerInstance->Modes.FindMode(name, MODETYPE_CHANNEL);
 				if (!mh)
-					throw ModuleException(this, "<customprefix:change> specified for a nonexistent mode at " + tag->source.str());
+					throw ModuleException(weak_from_this(), "<customprefix:change> specified for a nonexistent mode at " + tag->source.str());
 
 				PrefixMode* pm = mh->IsPrefixMode();
 				if (!pm)
-					throw ModuleException(this, "<customprefix:change> specified for a non-prefix mode at " + tag->source.str());
+					throw ModuleException(weak_from_this(), "<customprefix:change> specified for a non-prefix mode at " + tag->source.str());
 
 				ModeHandler::Rank rank = tag->getNum<ModeHandler::Rank>("rank", pm->GetPrefixRank(), 1);
 				ModeHandler::Rank setrank = tag->getNum<ModeHandler::Rank>("ranktoset", pm->GetLevelRequired(true), rank);
@@ -91,21 +91,21 @@ public:
 
 			const std::string letter = tag->getString("letter");
 			if (letter.length() != 1)
-				throw ModuleException(this, "<customprefix:letter> must be set to a mode character at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<customprefix:letter> must be set to a mode character at " + tag->source.str());
 
 			const std::string prefix = tag->getString("prefix");
 			if (prefix.length() != 1)
-				throw ModuleException(this, "<customprefix:prefix> must be set to a mode prefix at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<customprefix:prefix> must be set to a mode prefix at " + tag->source.str());
 
 			try
 			{
-				auto* mh = new CustomPrefixMode(this, name, letter[0], prefix[0], tag);
+				auto* mh = new CustomPrefixMode(weak_from_this(), name, letter[0], prefix[0], tag);
 				modes.push_back(mh);
 				ServerInstance->Modules.AddService(*mh);
 			}
 			catch (const ModuleException& e)
 			{
-				throw ModuleException(this, e.GetReason() + " (while creating mode from " + tag->source.str() + ")");
+				throw ModuleException(weak_from_this(), e.GetReason() + " (while creating mode from " + tag->source.str() + ")");
 			}
 		}
 	}

@@ -42,10 +42,10 @@ private:
 public:
 	ModuleMultiPrefix()
 		: Module(VF_VENDOR, "Provides the IRCv3 multi-prefix client capability.")
-		, Names::EventListener(this)
-		, Who::EventListener(this)
-		, Whois::LineEventListener(this)
-		, cap(this, "multi-prefix")
+		, Names::EventListener(weak_from_this())
+		, Who::EventListener(weak_from_this())
+		, Whois::LineEventListener(weak_from_this())
+		, cap(weak_from_this(), "multi-prefix")
 	{
 	}
 

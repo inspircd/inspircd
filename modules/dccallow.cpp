@@ -114,7 +114,7 @@ class DCCAllowExt final
 public:
 	unsigned long maxentries;
 
-	DCCAllowExt(Module* Creator)
+	DCCAllowExt(const WeakModulePtr& Creator)
 		: SimpleExtItem<dccallowlist>(Creator, "dccallow", ExtensionType::USER)
 	{
 	}
@@ -196,7 +196,7 @@ class CommandDccallow final
 public:
 	DCCAllowExt& ext;
 	unsigned long defaultlength;
-	CommandDccallow(Module* parent, DCCAllowExt& Ext)
+	CommandDccallow(const WeakModulePtr& parent, DCCAllowExt& Ext)
 		: Command(parent, "DCCALLOW", 0)
 		, ext(Ext)
 	{
@@ -386,8 +386,8 @@ private:
 public:
 	ModuleDCCAllow()
 		: Module(VF_VENDOR | VF_COMMON, "Allows the server administrator to configure what files are allowed to be sent via DCC SEND and allows users to configure who can send them DCC CHAT and DCC SEND requests.")
-		, ext(this)
-		, cmd(this, ext)
+		, ext(weak_from_this())
+		, cmd(weak_from_this(), ext)
 	{
 	}
 

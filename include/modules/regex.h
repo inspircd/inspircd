@@ -60,7 +60,7 @@ protected:
 	 * @param Creator The module which created this instance.
 	 * @param Name The name of this regular expression engine.
 	 */
-	Engine(Module* Creator, const std::string& Name)
+	Engine(const WeakModulePtr& Creator, const std::string& Name)
 		: DataProvider(Creator, "Regex::Engine", Name)
 	{
 	}
@@ -87,7 +87,7 @@ class Regex::SimpleEngine final
 {
 public:
 	/** @copydoc Regex::Engine::Engine */
-	SimpleEngine(Module* Creator, const std::string& Name)
+	SimpleEngine(const WeakModulePtr& Creator, const std::string& Name)
 		: Regex::Engine(Creator, Name)
 	{
 	}
@@ -108,7 +108,7 @@ public:
 	 * @param Creator The module which created this instance.
 	 * @param Name The name of the regular expression engine to reference.
 	 */
-	EngineReference(Module* Creator, const std::string& Name = "")
+	EngineReference(const WeakModulePtr& Creator, const std::string& Name = "")
 		: dynamic_reference_nocheck<Engine>(Creator, "Regex::Engine", Name)
 	{
 	}
@@ -132,7 +132,7 @@ public:
 	 * @param regex A regular expression which failed to compile.
 	 * @param error The error which occurred whilst compiling the regular expression.
 	*/
-	Exception(const Module* mod, const std::string& regex, const std::string& error)
+	Exception(const WeakModulePtr& mod, const std::string& regex, const std::string& error)
 		: ModuleException(mod, FMT::format("Error in regex '{}': {}", regex, error))
 	{
 	}
@@ -143,7 +143,7 @@ public:
 	 * @param error The error which occurred whilst compiling the regular expression.
 	 * @param offset The offset at which the errror occurred.
 	*/
-	Exception(const Module* mod, const std::string& regex, const std::string& error, size_t offset)
+	Exception(const WeakModulePtr& mod, const std::string& regex, const std::string& error, size_t offset)
 		: ModuleException(mod, FMT::format("Error in regex '{}' at offset {}: {}", regex, offset, error))
 	{
 	}

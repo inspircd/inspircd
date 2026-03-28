@@ -33,7 +33,7 @@
 #include "treeserver.h"
 #include "commands.h"
 
-CommandMap::CommandMap(Module* Creator)
+CommandMap::CommandMap(const WeakModulePtr& Creator)
 	: Command(Creator, "MAP")
 {
 	penalty = 2000;

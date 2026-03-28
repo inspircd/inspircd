@@ -37,7 +37,7 @@ private:
 	regex_t regex;
 
 public:
-	TREPattern(const Module* mod, const std::string& pattern, uint8_t options)
+	TREPattern(const WeakModulePtr& mod, const std::string& pattern, uint8_t options)
 		: Regex::Pattern(pattern, options)
 	{
 		int flags = REG_EXTENDED | REG_NOSUB;
@@ -91,7 +91,7 @@ class ModuleRegexTRE final
  public:
 	ModuleRegexTRE()
 		: Module(VF_VENDOR, "Provides the tre regular expression engine which uses the TRE library.")
-		, regex(this, "tre")
+		, regex(weak_from_this(), "tre")
 	{
 	}
 };

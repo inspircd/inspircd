@@ -46,7 +46,7 @@ public:
 	const std::string& kdf;
 	const std::string& pwcolumn;
 
-	AuthQuery(Module* me, const std::string& u, IntExtItem& e, bool v, const std::string& kd, const std::string& pwcol)
+	AuthQuery(const WeakModulePtr& me, const std::string& u, IntExtItem& e, bool v, const std::string& kd, const std::string& pwcol)
 		: SQL::Query(me)
 		, uid(u)
 		, pendingExt(e)
@@ -132,9 +132,9 @@ class ModuleSQLAuth final
 public:
 	ModuleSQLAuth()
 		: Module(VF_VENDOR, "Allows connecting users to be authenticated against an arbitrary SQL table.")
-		, pendingExt(this, "sqlauth-wait", ExtensionType::USER)
-		, SQL(this, "SQL::Provider")
-		, sslapi(this)
+		, pendingExt(weak_from_this(), "sqlauth-wait", ExtensionType::USER)
+		, SQL(weak_from_this(), "SQL::Provider")
+		, sslapi(weak_from_this())
 	{
 	}
 
@@ -185,7 +185,7 @@ public:
 		SQL::PopulateUserInfo(user, userinfo);
 		userinfo["sslfp"] = sslapi ? sslapi->GetFingerprint(user) : "";
 
-		SQL->Submit(new AuthQuery(this, user->uuid, pendingExt, verbose, kdf, pwcolumn), freeformquery, userinfo);
+		SQL->Submit(new AuthQuery(weak_from_this(), user->uuid, pendingExt, verbose, kdf, pwcolumn), freeformquery, userinfo);
 
 		return MOD_RES_PASSTHRU;
 	}

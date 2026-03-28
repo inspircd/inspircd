@@ -102,7 +102,7 @@ public:
 	// If action is set to gline or zline then the duration for an X-line to last for.
 	unsigned long xlineduration;
 
-	DNSBLEntry(const Module* mod, const std::shared_ptr<ConfigTag>& tag)
+	DNSBLEntry(const WeakModulePtr& mod, const std::shared_ptr<ConfigTag>& tag)
 	{
 		domain = tag->getString("domain");
 		if (domain.empty())
@@ -212,7 +212,7 @@ public:
 	// The user@host to set on a marked user when they are connected.
 	MaskExtItem maskext;
 
-	SharedData(Module* mod)
+	SharedData(const WeakModulePtr& mod)
 		: countext(mod, "dnsbl-pending", ExtensionType::USER)
 		, dns(mod)
 		, markext(mod, "dnsbl-match", ExtensionType::USER)
@@ -254,7 +254,7 @@ private:
 	}
 
 public:
-	DNSBLResolver(Module* mod, SharedData& sd, const std::string& hostname, LocalUser* u, const std::shared_ptr<DNSBLEntry>& cfg)
+	DNSBLResolver(const WeakModulePtr& mod, SharedData& sd, const std::string& hostname, LocalUser* u, const std::shared_ptr<DNSBLEntry>& cfg)
 		: DNS::Request(*sd.dns, mod, hostname, DNS::QUERY_A, true, cfg->timeout)
 		, config(cfg)
 		, data(sd)
@@ -340,9 +340,11 @@ public:
 						// Store the u@h mask for later to avoid being overwritten by username/hostname lookups.
 						data.maskext.SetFwd(them, config, reason);
 
-						// If the user is already connected we should just do this now.
+						// If the user is already connected we should just do
+						// this now. The lock here should always succeed as its
+						// for our module.
 						if (them->IsFullyConnected())
-							creator->OnUserConnect(them);
+							creator.lock()->OnUserConnect(them);
 					}
 
 					data.markext.GetRef(them).push_back(config->name);
@@ -413,7 +415,7 @@ private:
 	IRCv3::ReplyCapReference stdrplcap;
 
 public:
-	CommandDNSBL(Module* mod, SharedData& sd)
+	CommandDNSBL(const WeakModulePtr& mod, SharedData& sd)
 		: Command(mod, "DNSBL", 1, 2)
 		, data(sd)
 		, stdrplcap(mod)
@@ -515,9 +517,9 @@ private:
 public:
 	ModuleDNSBL()
 		: Module(VF_VENDOR, "Allows the server administrator to check the IP address of connecting users against a DNSBL.")
-		, Stats::EventListener(this)
-		, data(this)
-		, cmd(this, data)
+		, Stats::EventListener(weak_from_this())
+		, data(weak_from_this())
+		, cmd(weak_from_this(), data)
 	{
 	}
 
@@ -528,7 +530,7 @@ public:
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules.SetPriority(this, I_OnChangeRemoteAddress, PRIORITY_AFTER, "core_xline");
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnChangeRemoteAddress, PRIORITY_AFTER, "core_xline");
 	}
 
 	void ReadConfig(ConfigStatus& status) override
@@ -536,7 +538,7 @@ public:
 		DNSBLEntries newdnsbls;
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("dnsbl"))
 		{
-			auto entry = std::make_shared<DNSBLEntry>(this, tag);
+			auto entry = std::make_shared<DNSBLEntry>(weak_from_this(), tag);
 			newdnsbls.push_back(entry);
 		}
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("dnsblreply"))
@@ -547,16 +549,16 @@ public:
 				return insp::equalsci(d->name, dnsblname);
 			});
 			if (dnsbl == newdnsbls.end())
-				throw ModuleException(this, "<dnsblreply:name> must be set to the name of a DNSBL at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<dnsblreply:name> must be set to the name of a DNSBL at " + tag->source.str());
 
 			const auto dnsbldesc = tag->getString("description");
 			if (dnsbldesc.empty())
-				throw ModuleException(this, "<dnsblreply:description> must not be empty at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<dnsblreply:description> must not be empty at " + tag->source.str());
 
 			const auto dnsblreply = tag->getNum<uint32_t>("reply", std::numeric_limits<uint32_t>::max());
 			if (dnsblreply > 16'777'215)
 			{
-				throw ModuleException(this, "<dnsblreply:reply> ({}) is not a valid DNSBL reply at {}",
+				throw ModuleException(weak_from_this(), "<dnsblreply:reply> ({}) is not a valid DNSBL reply at {}",
 					dnsblreply, tag->source.str());
 			}
 

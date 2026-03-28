@@ -98,7 +98,7 @@ class CommandCBan final
 private:
 	IRCv3::ReplyCapReference stdrplcap;
 public:
-	CommandCBan(Module* Creator)
+	CommandCBan(const WeakModulePtr& Creator)
 		: Command(Creator, "CBAN", 1, 3)
 		, stdrplcap(Creator)
 	{
@@ -173,8 +173,8 @@ class ModuleCBan final
 public:
 	ModuleCBan()
 		: Module(VF_VENDOR | VF_COMMON, "Adds the /CBAN command which allows server operators to prevent channels matching a glob from being created.")
-		, Stats::EventListener(this)
-		, mycommand(this)
+		, Stats::EventListener(weak_from_this())
+		, mycommand(weak_from_this())
 	{
 	}
 

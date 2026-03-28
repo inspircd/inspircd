@@ -88,7 +88,7 @@ private:
 	gnutls_mac_algorithm_t algorithm;
 
 public:
-	GnuTLSHMACProvider(Module* mod, gnutls_mac_algorithm_t algo)
+	GnuTLSHMACProvider(const WeakModulePtr& mod, gnutls_mac_algorithm_t algo)
 		: Hash::Provider(mod, FMT::format("hmac-{}", GetAlgoName(algo)))
 		, algorithm(algo)
 	{
@@ -164,7 +164,7 @@ private:
 	GnuTLSHMACProvider hmacalgo;
 
 public:
-	GnuTLSProvider(Module* mod, gnutls_digest_algorithm_t algo, size_t bs)
+	GnuTLSProvider(const WeakModulePtr& mod, gnutls_digest_algorithm_t algo, size_t bs)
 		: Hash::Provider(mod, GetAlgoName(algo), gnutls_hash_get_len(algo), bs)
 		, algorithm(algo)
 		, hmacalgo(mod, static_cast<gnutls_mac_algorithm_t>(algo))
@@ -202,15 +202,15 @@ private:
 public:
 	ModuleHashGnuTLS()
 		: Module(VF_VENDOR, "Allows other modules to generate hashes using GnuTLS.")
-		, sha1algo(this, GNUTLS_DIG_SHA1, 64)
-		, sha224algo(this, GNUTLS_DIG_SHA224, 64)
-		, sha256algo(this, GNUTLS_DIG_SHA256, 64)
-		, sha384algo(this, GNUTLS_DIG_SHA384, 128)
-		, sha512algo(this, GNUTLS_DIG_SHA512, 128)
-		, sha3224algo(this, GNUTLS_DIG_SHA3_224, 144)
-		, sha3256algo(this, GNUTLS_DIG_SHA3_256, 136)
-		, sha3384algo(this, GNUTLS_DIG_SHA3_384, 104)
-		, sha3512algo(this, GNUTLS_DIG_SHA3_512, 72)
+		, sha1algo(weak_from_this(), GNUTLS_DIG_SHA1, 64)
+		, sha224algo(weak_from_this(), GNUTLS_DIG_SHA224, 64)
+		, sha256algo(weak_from_this(), GNUTLS_DIG_SHA256, 64)
+		, sha384algo(weak_from_this(), GNUTLS_DIG_SHA384, 128)
+		, sha512algo(weak_from_this(), GNUTLS_DIG_SHA512, 128)
+		, sha3224algo(weak_from_this(), GNUTLS_DIG_SHA3_224, 144)
+		, sha3256algo(weak_from_this(), GNUTLS_DIG_SHA3_256, 136)
+		, sha3384algo(weak_from_this(), GNUTLS_DIG_SHA3_384, 104)
+		, sha3512algo(weak_from_this(), GNUTLS_DIG_SHA3_512, 72)
 	{
 		gnutls_global_init();
 	}

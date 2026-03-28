@@ -84,7 +84,7 @@ private:
 public:
 	std::string matchchan;
 
-	RedirectExtBan(Module* mod)
+	RedirectExtBan(const WeakModulePtr& mod)
 		: ExtBan::Acting(mod, "redirect", 'd')
 	{
 	}
@@ -122,7 +122,7 @@ class RedirectMode final
 	: public ParamMode<RedirectMode, StringExtItem>
 {
 public:
-	RedirectMode(Module* mod)
+	RedirectMode(const WeakModulePtr& mod)
 		: ParamMode<RedirectMode, StringExtItem>(mod, "redirect", 'L')
 	{
 		syntax = "<target>";
@@ -156,7 +156,7 @@ private:
 	RedirectExtBan& redirectextban;
 
 public:
-	BanRedirect(Module* mod, RedirectExtBan& extban)
+	BanRedirect(const WeakModulePtr& mod, RedirectExtBan& extban)
 		: ModeWatcher(mod, "ban", MODETYPE_CHANNEL)
 		, redirectextban(extban)
 	{
@@ -238,14 +238,14 @@ private:
 public:
 	ModuleRedirect()
 		: Module(VF_VENDOR, "Allows users to be redirected to another channel.")
-		, antiredirectmode(this, "antiredirect", 'L')
-		, banmode(this, "ban")
-		, inviteonlymode(this, "inviteonly")
-		, keymode(this, "key")
-		, limitmode(this, "limit")
-		, redirectextban(this)
-		, redirectmode(this)
-		, banredirect(this, redirectextban)
+		, antiredirectmode(weak_from_this(), "antiredirect", 'L')
+		, banmode(weak_from_this(), "ban")
+		, inviteonlymode(weak_from_this(), "inviteonly")
+		, keymode(weak_from_this(), "key")
+		, limitmode(weak_from_this(), "limit")
+		, redirectextban(weak_from_this())
+		, redirectmode(weak_from_this())
+		, banredirect(weak_from_this(), redirectextban)
 	{
 	}
 

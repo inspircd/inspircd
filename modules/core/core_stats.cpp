@@ -47,7 +47,7 @@ private:
 	Cap::Capability statscap;
 
 public:
-	StatsTagsProvider(Module* mod)
+	StatsTagsProvider(const WeakModulePtr& mod)
 		: ClientProtocol::MessageTagProvider(mod)
 		, statscap(mod, "inspircd.org/stats-tags")
 	{
@@ -73,7 +73,7 @@ public:
 	/** STATS characters which non-opers can request. */
 	std::string userstats;
 
-	CommandStats(Module* Creator)
+	CommandStats(const WeakModulePtr& Creator)
 		: Command(Creator, "STATS", 1, 2)
 		, statsevprov(Creator, "stats")
 		, statstags(Creator)
@@ -389,7 +389,7 @@ private:
 public:
 	CoreModStats()
 		: Module(VF_CORE | VF_VENDOR, "Provides the STATS command")
-		, cmd(this)
+		, cmd(weak_from_this())
 	{
 	}
 

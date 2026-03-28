@@ -76,7 +76,7 @@ class BCryptProvider final
 	: public Hash::Provider
 {
 public:
-	BCryptProvider(Module* mod)
+	BCryptProvider(const WeakModulePtr& mod)
 		: Hash::Provider(mod, "bcrypt", 60)
 	{
 	}
@@ -108,7 +108,7 @@ private:
 public:
 	ModuleHashBCrypt()
 		: Module(VF_VENDOR, "Allows other modules to generate bcrypt hashes.")
-		, bcryptalgo(this)
+		, bcryptalgo(weak_from_this())
 	{
 	}
 

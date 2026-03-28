@@ -37,9 +37,9 @@ private:
 public:
 	ModuleNoNickChange()
 		: Module(VF_VENDOR, "Adds channel mode N (nonick) which prevents users from changing their nickname whilst in the channel.")
-		, exemptionprov(this)
-		, extban(this, "nonick", 'N')
-		, nn(this, "nonick", 'N')
+		, exemptionprov(weak_from_this())
+		, extban(weak_from_this(), "nonick", 'N')
+		, nn(weak_from_this(), "nonick", 'N')
 	{
 	}
 

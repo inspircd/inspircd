@@ -296,7 +296,7 @@ private:
 	Hash::ProviderRef sha256;
 
 public:
-	SHA256Engine(Module* Creator, const std::string& Name, bool ch)
+	SHA256Engine(const WeakModulePtr& Creator, const std::string& Name, bool ch)
 		: Cloak::Engine(Creator, Name)
 		, cloakhost(ch)
 		, sha256(Creator, "sha256")
@@ -347,8 +347,8 @@ private:
 public:
 	ModuleCloakSHA256()
 		: Module(VF_VENDOR, "Adds the hmac-sha256 and hmac-sha256-addr cloaking methods for use with the cloak module.")
-		, addrcloak(this, "hmac-sha256-addr", false)
-		, hostcloak(this, "hmac-sha256", true)
+		, addrcloak(weak_from_this(), "hmac-sha256-addr", false)
+		, hostcloak(weak_from_this(), "hmac-sha256", true)
 	{
 	}
 

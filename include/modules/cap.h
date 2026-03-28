@@ -32,7 +32,7 @@ namespace Cap
 	class ExtItem : public IntExtItem
 	{
 	public:
-		ExtItem(Module* mod);
+		ExtItem(const WeakModulePtr& mod);
 		void FromInternal(Extensible* container, const std::string& value) noexcept override;
 		std::string ToHuman(const Extensible* container, const ExtensionPtr& item) const noexcept override;
 		std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept override;
@@ -54,7 +54,7 @@ namespace Cap
 	class EventListener : public Events::ModuleEventListener
 	{
 	public:
-		EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+		EventListener(const WeakModulePtr& mod, unsigned int eventprio = DefaultPriority)
 			: ModuleEventListener(mod, "cap", eventprio)
 		{
 		}
@@ -74,7 +74,7 @@ namespace Cap
 	class Manager : public DataProvider
 	{
 	public:
-		Manager(Module* mod)
+		Manager(const WeakModulePtr& mod)
 			: DataProvider(mod, "capmanager")
 		{
 		}
@@ -170,7 +170,7 @@ namespace Cap
 		 * @param mod Module providing the cap
 		 * @param Name Raw name of the cap as used in the protocol (CAP LS, etc.)
 		 */
-		Capability(Module* mod, const std::string& Name)
+		Capability(const WeakModulePtr& mod, const std::string& Name)
 			: ServiceProvider(mod, "Cap::Capability", Name)
 			, manager(mod, "capmanager")
 		{
@@ -306,7 +306,7 @@ namespace Cap
 		 * @param mod Module creating this object
 		 * @param Name Raw name of the cap as used in the protocol (CAP LS, etc.)
 		 */
-		Reference(Module* mod, const std::string& Name)
+		Reference(const WeakModulePtr& mod, const std::string& Name)
 			: ref(mod, "Cap::Capability", Name)
 		{
 		}

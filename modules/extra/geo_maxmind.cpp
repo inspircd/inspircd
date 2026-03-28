@@ -37,7 +37,7 @@ class GeolocationExtItem final
 	: public SimpleExtItem<Geolocation::Location>
 {
 public:
-	GeolocationExtItem(Module* mod)
+	GeolocationExtItem(const WeakModulePtr& mod)
 		: SimpleExtItem<Geolocation::Location>(mod, "geolocation", ExtensionType::USER)
 	{
 	}
@@ -59,7 +59,7 @@ public:
 	LocationMap locations;
 	MMDB_s mmdb;
 
-	GeolocationAPIImpl(Module* parent)
+	GeolocationAPIImpl(const WeakModulePtr& parent)
 		: Geolocation::APIBase(parent)
 		, ext(parent)
 	{
@@ -133,7 +133,7 @@ private:
 public:
 	ModuleGeoMaxMind()
 		: Module(VF_VENDOR, "Allows the server to perform geolocation lookups on both IP addresses and users.")
-		, geoapi(this)
+		, geoapi(weak_from_this())
 	{
 		memset(&geoapi.mmdb, 0, sizeof(geoapi.mmdb));
 	}
@@ -159,7 +159,7 @@ public:
 		MMDB_s mmdb;
 		int result = MMDB_open(file.c_str(), MMDB_MODE_MMAP, &mmdb);
 		if (result != MMDB_SUCCESS)
-			throw ModuleException(this, "Unable to load the MaxMind database ({}): {}",
+			throw ModuleException(weak_from_this(), "Unable to load the MaxMind database ({}): {}",
 				file, MMDB_strerror(result));
 
 		// Swap the new database with the old database.

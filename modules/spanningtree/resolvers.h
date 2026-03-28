@@ -39,7 +39,7 @@ private:
 	bool CheckIPv4();
 
 public:
-	SecurityIPResolver(Module* mod, DNS::Manager* mgr, const std::string& hostname, const std::shared_ptr<Link>& l, DNS::QueryType qt);
+	SecurityIPResolver(const WeakModulePtr& mod, DNS::Manager* mgr, const std::string& hostname, const std::shared_ptr<Link>& l, DNS::QueryType qt);
 	void OnLookupComplete(const DNS::Query* r) override;
 	void OnError(const DNS::Query* q) override;
 };

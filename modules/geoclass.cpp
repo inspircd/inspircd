@@ -33,8 +33,8 @@ private:
 public:
 	ModuleGeoClass()
 		: Module(VF_VENDOR, "Allows the server administrator to assign users to connect classes by the country they are connecting from.")
-		, Stats::EventListener(this)
-		, geoapi(this)
+		, Stats::EventListener(weak_from_this())
+		, geoapi(weak_from_this())
 	{
 	}
 

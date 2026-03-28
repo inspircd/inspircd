@@ -190,7 +190,7 @@ public:
 		return line.length();
 	}
 
-	IOHook* GetModHook(Module* mod) const override
+	IOHook* GetModHook(const ModulePtr& mod) const override
 	{
 		return StreamSocket::GetModHook(mod);
 	}

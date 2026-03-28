@@ -208,7 +208,7 @@ class SilenceExtItem final
 public:
 	unsigned long maxsilence;
 
-	SilenceExtItem(Module* Creator)
+	SilenceExtItem(const WeakModulePtr& Creator)
 		: SimpleExtItem<SilenceList>(Creator, "silence-list", ExtensionType::USER)
 	{
 	}
@@ -360,7 +360,7 @@ public:
 	SilenceExtItem ext;
 	ExtBan::ManagerRef extbanmgr;
 
-	CommandSilence(Module* Creator)
+	CommandSilence(const WeakModulePtr& Creator)
 		: SplitCommand(Creator, "SILENCE")
 		, msgprov(Creator, "SILENCE")
 		, ext(Creator)
@@ -519,9 +519,9 @@ private:
 public:
 	ModuleSilence()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SILENCE command which allows users to ignore other users on server-side.")
-		, CTCTags::EventListener(this)
-		, ISupport::EventListener(this)
-		, cmd(this)
+		, CTCTags::EventListener(weak_from_this())
+		, ISupport::EventListener(weak_from_this())
+		, cmd(weak_from_this())
 	{
 	}
 

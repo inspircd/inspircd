@@ -35,7 +35,7 @@ class OperAccountExtBan final
 	: public ExtBan::MatchingBase
 {
 public:
-	OperAccountExtBan(Module* Creator)
+	OperAccountExtBan(const WeakModulePtr& Creator)
 		: ExtBan::MatchingBase(Creator, "oper", 'o')
 	{
 	}
@@ -57,7 +57,7 @@ class OperTypeExtBan final
 	: public ExtBan::MatchingBase
 {
 public:
-	OperTypeExtBan(Module* Creator)
+	OperTypeExtBan(const WeakModulePtr& Creator)
 		: ExtBan::MatchingBase(Creator, "opertype", 'O')
 	{
 	}
@@ -86,9 +86,9 @@ private:
 public:
 	ModuleOperChans()
 		: Module(VF_VENDOR, "Adds channel mode O (operonly) which prevents non-server operators from joining the channel.")
-		, oc(this, "operonly", 'O', true)
-		, operaccount(this)
-		, opertype(this)
+		, oc(weak_from_this(), "operonly", 'O', true)
+		, operaccount(weak_from_this())
+		, opertype(weak_from_this())
 	{
 	}
 

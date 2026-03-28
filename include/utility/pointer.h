@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2017, 2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2026 Sadie Powell <sadie@witchery.services>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -19,22 +19,24 @@
 
 #pragma once
 
-namespace WebIRC
+namespace insp
 {
-	class EventListener;
-
-	using FlagMap = insp::casemapped_flat_map<std::string>;
-}
-
-class WebIRC::EventListener
-	: public Events::ModuleEventListener
-{
-protected:
-	EventListener(const WeakModulePtr& mod, unsigned int eventprio = DefaultPriority)
-		: ModuleEventListener(mod, "webirc", eventprio)
+	/** Determines if the pointer in \p ptr1 is empty.
+	 * @param ptr Either a shared_ptr<> or a weak_ptr<>.
+	 */
+	template <typename Ptr>
+	bool empty_ptr(const Ptr& ptr)
 	{
+		return same_ptr(ptr, {});
 	}
 
-public:
-	virtual void OnWebIRCAuth(LocalUser* user, const FlagMap* flags) = 0;
-};
+	/** Determines if the pointer in \p ptr1 points to the same value as the pointer in \p ptr2.
+	 * @param ptr1 Either a shared_ptr<> or a weak_ptr<>.
+	 * @param ptr2 Either a shared_ptr<> or a weak_ptr<>.
+	 */
+	template <typename Ptr1, typename Ptr2 = Ptr1>
+	bool same_ptr(const Ptr1& ptr1, const Ptr2& ptr2)
+	{
+		return !ptr1.owner_before(ptr2) && !ptr2.owner_before(ptr1);
+	}
+}

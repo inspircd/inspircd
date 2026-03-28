@@ -72,7 +72,7 @@ class CommandEline final
 	: public Command
 {
 public:
-	CommandEline(Module* parent);
+	CommandEline(const WeakModulePtr& parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
@@ -80,7 +80,7 @@ class CommandGline final
 	: public Command
 {
 public:
-	CommandGline(Module* parent);
+	CommandGline(const WeakModulePtr& parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
@@ -88,7 +88,7 @@ class CommandKline final
 	: public Command
 {
 public:
-	CommandKline(Module* parent);
+	CommandKline(const WeakModulePtr& parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
@@ -104,7 +104,7 @@ private:
 	};
 
 public:
-	CommandQline(Module* parent);
+	CommandQline(const WeakModulePtr& parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };
 
@@ -120,6 +120,6 @@ private:
 	};
 
 public:
-	CommandZline(Module* parent);
+	CommandZline(const WeakModulePtr& parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 };

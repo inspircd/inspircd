@@ -78,7 +78,7 @@ class ModuleBlockAmsg final
 public:
 	ModuleBlockAmsg()
 		: Module(VF_VENDOR, "Blocks mass messages sent using the /AME and /AMSG commands that exist in clients such as mIRC and HexChat.")
-		, blockamsg(this, "blockamsg", ExtensionType::USER)
+		, blockamsg(weak_from_this(), "blockamsg", ExtensionType::USER)
 	{
 	}
 	void ReadConfig(ConfigStatus& status) override

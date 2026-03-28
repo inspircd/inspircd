@@ -35,7 +35,7 @@ class AutoOpList final
 	: public ListModeBase
 {
 public:
-	AutoOpList(Module* Creator)
+	AutoOpList(const WeakModulePtr& Creator)
 		: ListModeBase(Creator, "autoop", 'w', RPL_ACCESSLIST, RPL_ENDOFACCESSLIST, true)
 	{
 		ranktoset = ranktounset = OP_VALUE;
@@ -96,7 +96,7 @@ class ModuleAutoOp final
 public:
 	ModuleAutoOp()
 		: Module(VF_VENDOR, "Adds channel mode w (autoop) which allows channel operators to define an access list which gives status ranks to users on join.")
-		, mh(this)
+		, mh(weak_from_this())
 	{
 	}
 

@@ -32,7 +32,7 @@ enum
 	RPL_COMMANDSEND = 701
 };
 
-CommandCommands::CommandCommands(Module* parent)
+CommandCommands::CommandCommands(const WeakModulePtr& parent)
 	: SplitCommand(parent, "COMMANDS")
 {
 	penalty = 3000;
@@ -55,7 +55,11 @@ CmdResult CommandCommands::HandleLocal(LocalUser* user, const Params& parameters
 
 		Numeric::Numeric numeric(RPL_COMMANDS);
 		numeric.push(command->service_name);
-		numeric.push(ModuleManager::ShrinkModName(this->service_creator->ModuleFile));
+		auto mod = command->service_creator.lock();
+		if (mod)
+			numeric.push(ModuleManager::ShrinkModName(mod->ModuleFile));
+		else
+			numeric.push("*");
 		numeric.push(command->min_params);
 		if (command->max_params < command->min_params)
 			numeric.push("*");

@@ -35,7 +35,7 @@ class OperPrefixMode final
 	: public PrefixMode
 {
 public:
-	OperPrefixMode(Module* Creator)
+	OperPrefixMode(const WeakModulePtr& Creator)
 		: PrefixMode(Creator, "operprefix", 'y', OPERPREFIX_VALUE)
 	{
 		prefix = ServerInstance->Config->ConfValue("operprefix")->getCharacter("prefix", '!', true);
@@ -44,13 +44,13 @@ public:
 };
 
 class ModuleOperPrefixMode;
+ModuleOperPrefixMode* parentmod;
+
 class HideOperWatcher final
 	: public ModeWatcher
 {
-	ModuleOperPrefixMode* parentmod;
-
 public:
-	HideOperWatcher(ModuleOperPrefixMode* parent);
+	HideOperWatcher(const WeakModulePtr& parent);
 	void AfterMode(User* source, User* dest, Channel* channel, const Modes::Change& change) override;
 };
 
@@ -65,10 +65,11 @@ private:
 public:
 	ModuleOperPrefixMode()
 		: Module(VF_VENDOR, "Adds the server operator-only y (operprefix) channel prefix mode.")
-		, opm(this)
-		, hideoperwatcher(this)
-		, hideopermode(this, "hideoper")
+		, opm(weak_from_this())
+		, hideoperwatcher(weak_from_this())
+		, hideopermode(weak_from_this(), "hideoper")
 	{
+		parentmod = this;
 		/* To give clients a chance to learn about the new prefix we don't give +y to opers
 		 * right now. That means if the module was loaded after opers have joined channels
 		 * they need to rejoin them in order to get the oper prefix.
@@ -113,13 +114,12 @@ public:
 	void Prioritize() override
 	{
 		// m_opermodes may set +H on the oper to hide him, we don't want to set the oper prefix in that case
-		ServerInstance->Modules.SetPriority(this, I_OnPostOperLogin, PRIORITY_AFTER, "opermodes");
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnPostOperLogin, PRIORITY_AFTER, "opermodes");
 	}
 };
 
-HideOperWatcher::HideOperWatcher(ModuleOperPrefixMode* parent)
+HideOperWatcher::HideOperWatcher(const WeakModulePtr& parent)
 	: ModeWatcher(parent, "hideoper", MODETYPE_USER)
-	, parentmod(parent)
 {
 }
 

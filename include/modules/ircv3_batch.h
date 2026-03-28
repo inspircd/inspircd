@@ -50,7 +50,7 @@ public:
 	/** Constructor.
 	 * @param mod Module that owns the Manager.
 	 */
-	Manager(Module* mod)
+	Manager(const WeakModulePtr& mod)
 		: DataProvider(mod, "batchapi")
 		, ClientProtocol::MessageTagProvider(mod)
 	{
@@ -176,7 +176,7 @@ class IRCv3::Batch::API final
 	: public dynamic_reference_nocheck<Manager>
 {
 public:
-	API(Module* mod)
+	API(const WeakModulePtr& mod)
 		: dynamic_reference_nocheck<Manager>(mod, "batchapi")
 	{
 	}
@@ -189,7 +189,7 @@ class IRCv3::Batch::CapReference final
 	: public Cap::Reference
 {
 public:
-	CapReference(Module* mod)
+	CapReference(const WeakModulePtr& mod)
 		: Cap::Reference(mod, "batch")
 	{
 	}

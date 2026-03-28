@@ -29,7 +29,7 @@
 
 #include "core_oper.h"
 
-CommandKill::CommandKill(Module* parent)
+CommandKill::CommandKill(const WeakModulePtr& parent)
 	: Command(parent, "KILL", 2, 2)
 	, protoev(parent, "KILL")
 {

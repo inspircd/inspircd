@@ -63,7 +63,7 @@ public:
 	HelpMap help;
 	std::string nohelp;
 
-	CommandHelp(Module* Creator)
+	CommandHelp(const WeakModulePtr& Creator)
 		: Command(Creator, "HELP")
 		, startkey("start")
 	{
@@ -98,7 +98,7 @@ private:
 public:
 	ModuleHelp()
 		: Module(VF_VENDOR, "Adds the /HELP command which allows users to view help on various topics.")
-		, cmd(this)
+		, cmd(weak_from_this())
 	{
 	}
 
@@ -109,23 +109,23 @@ public:
 		HelpMap newhelp;
 		auto tags = ServerInstance->Config->ConfTags("helptopic", ServerInstance->Config->ConfTags("helpop"));
 		if (tags.empty())
-			throw ModuleException(this, "You have loaded the help module but not configured any help topics!");
+			throw ModuleException(weak_from_this(), "You have loaded the help module but not configured any help topics!");
 
 		for (const auto& [_, tag] : tags)
 		{
 			// Attempt to read the help key.
 			const std::string key = tag->getString("key");
 			if (key.empty())
-				throw ModuleException(this, "<{}:key> is empty at {}", tag->name, tag->source.str());
+				throw ModuleException(weak_from_this(), "<{}:key> is empty at {}", tag->name, tag->source.str());
 			else if (insp::casemapped_equals(key, "index"))
-				throw ModuleException(this, "<{}:key> is set to \"index\" which is reserved at {}", tag->name, tag->source.str());
+				throw ModuleException(weak_from_this(), "<{}:key> is set to \"index\" which is reserved at {}", tag->name, tag->source.str());
 			else if (key.length() > longestkey)
 				longestkey = key.length();
 
 			// Attempt to read the help value.
 			std::string value;
 			if (!tag->readString("value", value, true) || value.empty())
-				throw ModuleException(this, "<{}:value> is empty at {}", tag->name, tag->source.str());
+				throw ModuleException(weak_from_this(), "<{}:value> is empty at {}", tag->name, tag->source.str());
 
 			// Parse the help body. Empty lines are replaced with a single
 			// space because some clients are unable to show blank lines.
@@ -138,7 +138,7 @@ public:
 			const std::string title = tag->getString("title", FMT::format("*** Help for {}", key), 1);
 			if (!newhelp.emplace(key, HelpTopic(helpmsg, title)).second)
 			{
-				throw ModuleException(this, "<{}> tag with duplicate key '{}' at {}",
+				throw ModuleException(weak_from_this(), "<{}> tag with duplicate key '{}' at {}",
 					tag->name, key, tag->source.str());
 			}
 		}

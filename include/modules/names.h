@@ -28,7 +28,7 @@ class Names::EventListener
 	: public Events::ModuleEventListener
 {
 public:
-	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+	EventListener(const WeakModulePtr& mod, unsigned int eventprio = DefaultPriority)
 		: ModuleEventListener(mod, "names", eventprio)
 	{
 	}

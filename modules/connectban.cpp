@@ -83,14 +83,14 @@ private:
 public:
 	ModuleConnectBan()
 		: Module(VF_VENDOR, "Z-lines IP addresses which make excessive connections to the server.")
-		, ServerProtocol::LinkEventListener(this)
-		, WebIRC::EventListener(this)
+		, ServerProtocol::LinkEventListener(weak_from_this())
+		, WebIRC::EventListener(weak_from_this())
 	{
 	}
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules.SetPriority(this, I_OnChangeRemoteAddress, PRIORITY_AFTER, "core_xline");
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnChangeRemoteAddress, PRIORITY_AFTER, "core_xline");
 	}
 
 	void ReadConfig(ConfigStatus& status) override

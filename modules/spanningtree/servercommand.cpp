@@ -22,15 +22,14 @@
 #include "main.h"
 #include "servercommand.h"
 
-ServerCommand::ServerCommand(Module* Creator, const std::string& Name, unsigned int MinParams, unsigned int MaxParams)
+ServerCommand::ServerCommand(const WeakModulePtr& Creator, const std::string& Name, unsigned int MinParams, unsigned int MaxParams)
 	: CommandBase(Creator, Name, MinParams, MaxParams)
 {
 }
 
 void ServerCommand::RegisterService()
 {
-	auto* st = static_cast<ModuleSpanningTree*>(this->service_creator.ptr());
-	st->CmdManager.AddCommand(this);
+	Utils->Creator->CmdManager.AddCommand(this);
 }
 
 RouteDescriptor ServerCommand::GetRouting(User* user, const Params& parameters)

@@ -40,7 +40,7 @@ class CommandNicklock final
 {
 public:
 	BoolExtItem& locked;
-	CommandNicklock (Module* Creator, BoolExtItem& ext)
+	CommandNicklock(const WeakModulePtr& Creator, BoolExtItem& ext)
 		: Command(Creator, "NICKLOCK", 2)
 		, locked(ext)
 	{
@@ -99,7 +99,7 @@ class CommandNickunlock final
 {
 public:
 	BoolExtItem& locked;
-	CommandNickunlock (Module* Creator, BoolExtItem& ext)
+	CommandNickunlock(const WeakModulePtr& Creator, BoolExtItem& ext)
 		: Command(Creator, "NICKUNLOCK", 1)
 		, locked(ext)
 	{
@@ -153,9 +153,9 @@ private:
 public:
 	ModuleNickLock()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /NICKLOCK command which allows server operators to change a user's nickname and prevent them from changing it again until they disconnect.")
-		, locked(this, "nick-locked", ExtensionType::USER)
-		, cmd1(this, locked)
-		, cmd2(this, locked)
+		, locked(weak_from_this(), "nick-locked", ExtensionType::USER)
+		, cmd1(weak_from_this(), locked)
+		, cmd2(weak_from_this(), locked)
 	{
 	}
 
@@ -171,7 +171,7 @@ public:
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules.SetPriority(this, I_OnUserPreNick, PRIORITY_BEFORE, "nickflood");
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnUserPreNick, PRIORITY_BEFORE, "nickflood");
 	}
 };
 

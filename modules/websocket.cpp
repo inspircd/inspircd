@@ -54,7 +54,7 @@ struct SharedData final
 	// A reference to the SHA-1 provider.
 	Hash::ProviderRef sha1;
 
-	SharedData(Module* mod)
+	SharedData(const WeakModulePtr& mod)
 		: origin(mod, "websocket-origin", ExtensionType::USER, true)
 		, realhost(mod, "websocket-realhost", ExtensionType::USER, true)
 		, realip(mod, "websocket-realip", ExtensionType::USER, true)
@@ -106,7 +106,7 @@ class WebSocketHookProvider final
 {
 public:
 	WebSocketConfig config;
-	WebSocketHookProvider(Module* mod)
+	WebSocketHookProvider(const WeakModulePtr& mod)
 		: IOHookProvider(mod, "websocket", IOHookProvider::IOH_UNKNOWN, true)
 	{
 	}
@@ -687,10 +687,10 @@ private:
 public:
 	ModuleWebSocket()
 		: Module(VF_VENDOR, "Allows WebSocket clients to connect to the IRC server.")
-		, Whois::EventListener(this)
-		, hookprov(std::make_shared<WebSocketHookProvider>(this))
-		, isupportprov(this)
-		, data(this)
+		, Whois::EventListener(weak_from_this())
+		, hookprov(std::make_shared<WebSocketHookProvider>(weak_from_this()))
+		, isupportprov(weak_from_this())
+		, data(weak_from_this())
 	{
 		g_data = &data;
 	}
@@ -699,7 +699,7 @@ public:
 	{
 		auto tags = ServerInstance->Config->ConfTags("wsorigin");
 		if (tags.empty())
-			throw ModuleException(this, "You have loaded the websocket module but not configured any allowed origins!");
+			throw ModuleException(weak_from_this(), "You have loaded the websocket module but not configured any allowed origins!");
 
 		WebSocketConfig config;
 
@@ -717,7 +717,7 @@ public:
 			// Ensure that we have the <wsorigin:allow> parameter.
 			const std::string allow = tag->getString("allow");
 			if (allow.empty())
-				throw ModuleException(this, "<wsorigin:allow> is a mandatory field, at " + tag->source.str());
+				throw ModuleException(weak_from_this(), "<wsorigin:allow> is a mandatory field, at " + tag->source.str());
 
 			config.allowedorigins.push_back(allow);
 		}
@@ -732,10 +732,10 @@ public:
 		else if (insp::equalsci(defaultmodestr, "text"))
 			config.defaultmode = WebSocketConfig::DM_TEXT;
 		else
-			throw ModuleException(this, defaultmodestr + " is an invalid value for <websocket:defaultmode>; acceptable values are 'binary', 'text' and 'reject', at " + tag->source.str());
+			throw ModuleException(weak_from_this(), defaultmodestr + " is an invalid value for <websocket:defaultmode>; acceptable values are 'binary', 'text' and 'reject', at " + tag->source.str());
 
 		if (config.defaultmode == WebSocketConfig::DM_TEXT && !config.allowtext)
-			throw ModuleException(this, "You can not use text websockets when using a non-utf8 compatible server charset, at " + tag->source.str());
+			throw ModuleException(weak_from_this(), "You can not use text websockets when using a non-utf8 compatible server charset, at " + tag->source.str());
 
 		StringSplitter proxyranges(tag->getString("proxyranges"));
 		for (std::string proxyrange; proxyranges.GetToken(proxyrange); )
@@ -754,7 +754,7 @@ public:
 			return;
 
 		auto* user = static_cast<User*>(item)->AsLocal();
-		if (!user || !user->io->GetModHook(this))
+		if (!user || !user->io->GetModHook(shared_from_this()))
 			return;
 
 		ServerInstance->Users.QuitUser(user, "WebSocket module unloading");

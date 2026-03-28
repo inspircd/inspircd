@@ -119,18 +119,18 @@ bool Log::FileMethod::Tick()
 	return true;
 }
 
-Log::Engine::Engine(Module* Creator, const std::string& Name)
+Log::Engine::Engine(const WeakModulePtr& Creator, const std::string& Name)
 	: DataProvider(Creator, "Log::Engine", Name)
 {
 }
 
 Log::Engine::~Engine()
 {
-	if (this->service_creator)
+	if (!insp::empty_ptr(this->service_creator))
 		ServerInstance->Logs.UnloadEngine(this);
 }
 
-Log::FileEngine::FileEngine(Module* Creator)
+Log::FileEngine::FileEngine(const WeakModulePtr& Creator)
 	: Engine(Creator, "file")
 {
 }
@@ -153,7 +153,7 @@ Log::MethodPtr Log::FileEngine::Create(const std::shared_ptr<ConfigTag>& tag)
 	return std::make_shared<FileMethod>(fulltarget, fh, flush, true);
 }
 
-Log::StreamEngine::StreamEngine(Module* Creator, const std::string& Name, FILE* fh)
+Log::StreamEngine::StreamEngine(const WeakModulePtr& Creator, const std::string& Name, FILE* fh)
 	: Engine(Creator, Name)
 	, file(fh)
 {
@@ -187,9 +187,9 @@ bool Log::Manager::Info::Suitable(Level l, const std::string& t) const
 }
 
 Log::Manager::Manager()
-	: filelog(nullptr)
-	, stderrlog(nullptr, "stderr", stderr)
-	, stdoutlog(nullptr, "stdout", stdout)
+	: filelog({})
+	, stderrlog({}, "stderr", stderr)
+	, stdoutlog({}, "stdout", stdout)
 {
 }
 

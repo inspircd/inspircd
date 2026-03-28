@@ -66,7 +66,7 @@ public:
 	SimpleExtItem<UnsetTimer> ext;
 	unsigned long timeout;
 
-	Override(Module* Creator)
+	Override(const WeakModulePtr& Creator)
 		: SimpleUserMode(Creator, "override", 'O', true)
 		, ext(Creator, "override-timer", ExtensionType::USER)
 	{
@@ -124,14 +124,14 @@ private:
 public:
 	ModuleOverride()
 		: Module(VF_VENDOR, "Allows server operators to be given privileges that allow them to ignore various channel-level restrictions.")
-		, ISupport::EventListener(this)
-		, ou(this)
-		, ban(this, "ban")
-		, topiclock(this, "topiclock")
-		, inviteonly(this, "inviteonly")
-		, key(this, "key")
-		, limit(this, "limit")
-		, invapi(this)
+		, ISupport::EventListener(weak_from_this())
+		, ou(weak_from_this())
+		, ban(weak_from_this(), "ban")
+		, topiclock(weak_from_this(), "topiclock")
+		, inviteonly(weak_from_this(), "inviteonly")
+		, key(weak_from_this(), "key")
+		, limit(weak_from_this(), "limit")
+		, invapi(weak_from_this())
 	{
 	}
 

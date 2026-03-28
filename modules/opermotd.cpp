@@ -44,7 +44,7 @@ class CommandOperMOTD final
 public:
 	MOTDCache motds;
 
-	CommandOperMOTD(Module* Creator)
+	CommandOperMOTD(const WeakModulePtr& Creator)
 		: Command(Creator, "OPERMOTD")
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -125,7 +125,7 @@ private:
 public:
 	ModuleOperMOTD()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /OPERMOTD command which adds a special message of the day for server operators.")
-		, cmd(this)
+		, cmd(weak_from_this())
 	{
 	}
 

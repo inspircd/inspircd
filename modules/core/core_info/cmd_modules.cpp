@@ -36,7 +36,7 @@ enum
 	RPL_ENDOFMODLIST = 703
 };
 
-CommandModules::CommandModules(Module* parent)
+CommandModules::CommandModules(const WeakModulePtr& parent)
 	: ServerTargetCommand(parent, "MODULES")
 {
 	penalty = 4000;

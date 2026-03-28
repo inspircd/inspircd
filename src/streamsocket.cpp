@@ -485,11 +485,11 @@ void StreamSocket::CheckError(BufferedSocketError errcode)
 	}
 }
 
-IOHook* StreamSocket::GetModHook(Module* mod) const
+IOHook* StreamSocket::GetModHook(const ModulePtr& mod) const
 {
 	for (IOHook* curr = GetIOHook(); curr; curr = GetNextHook(curr))
 	{
-		if (curr->prov->service_creator == mod)
+		if (insp::same_ptr(curr->prov->service_creator, mod))
 			return curr;
 	}
 	return nullptr;

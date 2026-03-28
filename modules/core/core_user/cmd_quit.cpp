@@ -25,7 +25,7 @@
 #include "inspircd.h"
 #include "core_user.h"
 
-CommandQuit::CommandQuit(Module* parent)
+CommandQuit::CommandQuit(const WeakModulePtr& parent)
 	: Command(parent, "QUIT", 0, 1)
 	, operquit(parent, "operquit", ExtensionType::USER, true)
 {

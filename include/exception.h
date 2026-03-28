@@ -51,17 +51,16 @@ class CoreExport ModuleException
 {
 private:
 	/* The module which threw this exception. */
-	const Module* module;
+	const ModulePtr module;
 
 public:
-
 	/** Creates a new instance of the ModuleException class with the specified module instance and reason.
 	 * @param mod The module which threw this exception.
 	 * @param format A format string for a message that contains the reason this exception was thrown.
 	 * @param args The arguments to format the message.
 	 */
 	template <typename... Args>
-	ModuleException(const Module* mod, const char* format, Args&&... args)
+	ModuleException(const WeakModulePtr& mod, const char* format, Args&&... args)
 		: ModuleException(mod, FMT::vformat(format, FMT::make_format_args(args...)))
 	{
 	}
@@ -70,12 +69,12 @@ public:
 	 * @param mod The module which threw this exception.
 	 * @param message A message that contains the reason this exception was thrown.
 	 */
-	ModuleException(const Module* mod, const std::string& message)
+	ModuleException(const WeakModulePtr& mod, const std::string& message)
 		: CoreException(message)
 		, module(mod)
 	{
 	}
 
 	/** Retrieves the module which threw this exception. */
-	const Module* GetModule() const noexcept { return module; }
+	const auto& GetModule() const noexcept { return module; }
 };

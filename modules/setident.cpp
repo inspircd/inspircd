@@ -32,7 +32,7 @@ class CommandSetIdent final
 public:
 	IRCv3::ReplyCapReference cap;
 
-	CommandSetIdent(Module* mod)
+	CommandSetIdent(const WeakModulePtr& mod)
 		: Command(mod, "SETIDENT", 1, 2)
 		, cap(mod)
 	{
@@ -109,7 +109,7 @@ private:
 public:
 	ModuleSetIdent()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SETIDENT command which allows server operators to change the username of users.")
-		, cmd(this)
+		, cmd(weak_from_this())
 	{
 	}
 };

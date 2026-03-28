@@ -116,7 +116,7 @@ class JSONFileEngine final
 	: public Log::Engine
 {
 public:
-	JSONFileEngine(Module* Creator) ATTR_NOT_NULL(2)
+	JSONFileEngine(const WeakModulePtr& Creator)
 		: Log::Engine(Creator, "json")
 	{
 	}
@@ -147,7 +147,7 @@ private:
 	FILE* file;
 
 public:
-	JSONStreamEngine(Module* Creator, const std::string& Name, FILE* fh) ATTR_NOT_NULL(2, 4)
+	JSONStreamEngine(const WeakModulePtr& Creator, const std::string& Name, FILE* fh) ATTR_NOT_NULL(4)
 		: Log::Engine(Creator, Name)
 		, file(fh)
 	{
@@ -170,9 +170,9 @@ private:
 public:
 	ModuleLogJSON()
 		: Module(VF_VENDOR, "Provides the ability to log to JSON.")
-		, log(this)
-		, stderrlog(this, "json-stderr", stderr)
-		, stdoutlog(this, "json-stdout", stdout)
+		, log(weak_from_this())
+		, stderrlog(weak_from_this(), "json-stderr", stderr)
+		, stdoutlog(weak_from_this(), "json-stdout", stdout)
 	{
 	}
 

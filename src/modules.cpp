@@ -54,7 +54,8 @@ Module::Module(int mprops, const std::string& mdesc)
 }
 
 Module::Module(int mprops, const std::string& mversion, const std::string& mdesc)
-	: description(mdesc)
+	: pointer(this, Cullable::Deleter())
+	, description(mdesc)
 	, properties(mprops)
 	, version(mversion)
 {
@@ -101,9 +102,19 @@ std::string Module::GetVersion() const
 	return dll_version ? dll_version : "unknown";
 }
 
+ModulePtr Module::Share()
+{
+	if (!this->pointer) [[unlikely]]
+		throw CoreException("Module::Share called on an already shared module.");
+
+	ModulePtr newpointer;
+	std::swap(this->pointer, newpointer);
+	return newpointer;
+}
+
 void Module::DetachEvent(Implementation i)
 {
-	ServerInstance->Modules.Detach(i, this);
+	ServerInstance->Modules.Detach(i, shared_from_this());
 }
 
 void		Module::GetLinkData(LinkData&) { }
@@ -127,8 +138,8 @@ ModResult	Module::OnUserPreNick(LocalUser*, const std::string&) { DetachEvent(I_
 void		Module::OnUserPostNick(User*, const std::string&) { DetachEvent(I_OnUserPostNick); }
 ModResult	Module::OnPreMode(User*, User*, Channel*, Modes::ChangeList&) { DetachEvent(I_OnPreMode); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnKill(User*, User*, const std::string&) { DetachEvent(I_OnKill); return MOD_RES_PASSTHRU; }
-void		Module::OnLoadModule(Module*) { DetachEvent(I_OnLoadModule); }
-void		Module::OnUnloadModule(Module*) { DetachEvent(I_OnUnloadModule); }
+void		Module::OnLoadModule(const ModulePtr&) { DetachEvent(I_OnLoadModule); }
+void		Module::OnUnloadModule(const ModulePtr&) { DetachEvent(I_OnUnloadModule); }
 void		Module::OnBackgroundTimer(time_t) { DetachEvent(I_OnBackgroundTimer); }
 ModResult	Module::OnPreCommand(std::string&, CommandBase::Params&, LocalUser*, bool) { DetachEvent(I_OnPreCommand); return MOD_RES_PASSTHRU; }
 void		Module::OnPostCommand(Command*, const CommandBase::Params&, LocalUser*, CmdResult, bool) { DetachEvent(I_OnPostCommand); }
@@ -184,7 +195,7 @@ ModResult	Module::OnPreChangeConnectClass(LocalUser*, const std::shared_ptr<Conn
 void		Module::OnChangeConnectClass(LocalUser*, const std::shared_ptr<ConnectClass>&, bool) { DetachEvent(I_OnChangeConnectClass); }
 void		Module::OnPostChangeConnectClass(LocalUser*, const std::shared_ptr<ConnectClass>&, bool) { DetachEvent(I_OnPostChangeConnectClass); }
 
-ServiceProvider::ServiceProvider(Module* mod, const std::string& stype, const std::string& sname)
+ServiceProvider::ServiceProvider(const WeakModulePtr& mod, const std::string& stype, const std::string& sname)
 	: service_creator(mod)
 	, service_name(sname)
 	, service_type(stype)
@@ -201,9 +212,14 @@ void ServiceProvider::DisableAutoRegister()
 
 std::string ServiceProvider::GetSource() const
 {
-	if (!this->service_creator)
+	if (insp::empty_ptr(this->service_creator))
 		return "the core";
-	return FMT::format("the {} module", ModuleManager::ShrinkModName(this->service_creator->ModuleFile));
+
+	const auto mod = this->service_creator.lock();
+	if (!mod)
+		return "an unknown module";
+
+	return FMT::format("the {} module", ModuleManager::ShrinkModName(mod->ModuleFile));
 }
 
 void ServiceProvider::RegisterService()
@@ -216,7 +232,7 @@ void ServiceProvider::UnregisterService()
 	// Intentionally left blank.
 }
 
-DataProvider::DataProvider(Module* mod, const std::string& stype, const std::string& sname)
+DataProvider::DataProvider(const WeakModulePtr& mod, const std::string& stype, const std::string& sname)
 	: ServiceProvider(mod, stype, sname)
 {
 }
@@ -233,7 +249,7 @@ void DataProvider::UnregisterService()
 	ServerInstance->Modules.DelReferent(this);
 }
 
-bool ModuleManager::Attach(Implementation i, Module* mod)
+bool ModuleManager::Attach(Implementation i, const ModulePtr& mod)
 {
 	if (stdalgo::isin(EventHandlers[i], mod))
 		return false;
@@ -242,50 +258,50 @@ bool ModuleManager::Attach(Implementation i, Module* mod)
 	return true;
 }
 
-bool ModuleManager::Detach(Implementation i, Module* mod)
+bool ModuleManager::Detach(Implementation i, const ModulePtr& mod)
 {
 	return std::erase(EventHandlers[i], mod);
 }
 
-void ModuleManager::Attach(const Implementation* i, Module* mod, size_t sz)
+void ModuleManager::Attach(const Implementation* i, const ModulePtr& mod, size_t sz)
 {
 	for (size_t n = 0; n < sz; ++n)
 		Attach(i[n], mod);
 }
 
-void ModuleManager::Detach(const Implementation* i, Module* mod, size_t sz)
+void ModuleManager::Detach(const Implementation* i, const ModulePtr& mod, size_t sz)
 {
 	for (size_t n = 0; n < sz; ++n)
 		Detach(i[n], mod);
 }
 
-void ModuleManager::AttachAll(Module* mod)
+void ModuleManager::AttachAll(const ModulePtr& mod)
 {
 	for (size_t i = 0; i != I_END; ++i)
 		Attach(static_cast<Implementation>(i), mod);
 }
 
-void ModuleManager::DetachAll(Module* mod)
+void ModuleManager::DetachAll(const ModulePtr& mod)
 {
 	for (size_t n = 0; n != I_END; ++n)
 		Detach(static_cast<Implementation>(n), mod);
 }
 
-void ModuleManager::SetPriority(Module* mod, Priority s)
+void ModuleManager::SetPriority(const ModulePtr& mod, Priority s)
 {
 	for (size_t n = 0; n != I_END; ++n)
 		SetPriority(mod, static_cast<Implementation>(n), s);
 }
 
-bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, const std::string& which)
+bool ModuleManager::SetPriority(const ModulePtr& mod, Implementation i, Priority s, const std::string& which)
 {
-	Module* depmod = nullptr;
+	ModulePtr depmod;
 	if (!which.empty())
 		depmod = ServerInstance->Modules.Find(which);
 	return SetPriority(mod, i, s, depmod);
 }
 
-bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, Module* which)
+bool ModuleManager::SetPriority(const ModulePtr& mod, Implementation i, Priority s, const ModulePtr& which)
 {
 	/** To change the priority of a module, we first find its position in the vector,
 	 * then we find the position of the other modules in the vector that this module
@@ -419,10 +435,9 @@ bool ModuleManager::PrioritizeHooks()
 	return true;
 }
 
-bool ModuleManager::CanUnload(Module* mod)
+bool ModuleManager::CanUnload(const ModulePtr& mod)
 {
-	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleFile);
-
+	auto modfind = Modules.find(mod->ModuleFile);
 	if ((modfind == Modules.end()) || (modfind->second != mod) || (mod->dying))
 	{
 		LastModuleError = "Module " + mod->ModuleFile + " is not loaded, cannot unload it!";
@@ -434,26 +449,26 @@ bool ModuleManager::CanUnload(Module* mod)
 	return true;
 }
 
-void ModuleManager::UnregisterModes(Module* mod, ModeType modetype)
+void ModuleManager::UnregisterModes(const ModulePtr& mod, ModeType modetype)
 {
 	const ModeParser::ModeHandlerMap& modes = ServerInstance->Modes.GetModes(modetype);
 	for (ModeParser::ModeHandlerMap::const_iterator i = modes.begin(); i != modes.end(); )
 	{
 		ModeHandler* const mh = i->second;
 		++i;
-		if (mh->service_creator == mod)
+		if (insp::same_ptr(mh->service_creator, mod))
 			this->DelService(*mh);
 	}
 }
 
-void ModuleManager::DoSafeUnload(Module* mod)
+void ModuleManager::DoSafeUnload(const ModulePtr& mod)
 {
 	// First, notify all modules that a module is about to be unloaded, so in case
 	// they pass execution to the soon to be unloaded module, it will happen now,
 	// i.e. before we unregister the services of the module being unloaded
 	FOREACH_MOD(OnUnloadModule, (mod));
 
-	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleFile);
+	auto modfind = Modules.find(mod->ModuleFile);
 
 	// Unregister modes before extensions because modes may require their extension to show the mode being unset
 	UnregisterModes(mod, MODETYPE_USER);
@@ -489,7 +504,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	for (auto i = this->Services.begin(); i != this->Services.end(); )
 	{
 		auto curr = i++;
-		if (curr->second->service_creator == mod)
+		if (insp::same_ptr(curr->second->service_creator, mod))
 		{
 			this->Services.erase(curr);
 			FOREACH_MOD(OnServiceDel, (*curr->second));
@@ -501,7 +516,6 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	DetachAll(mod);
 
 	Modules.erase(modfind);
-	ServerInstance->GlobalCulls.AddItem(mod);
 
 	ServerInstance->Logs.Normal("MODULE", "The {} module was unloaded", mod->ModuleFile);
 }
@@ -516,10 +530,10 @@ void ModuleManager::UnloadAll()
 	 */
 	for (int tries = 0; tries < 4; tries++)
 	{
-		std::map<std::string, Module*>::iterator i = Modules.begin();
+		auto i = Modules.begin();
 		while (i != Modules.end())
 		{
-			std::map<std::string, Module*>::iterator me = i++;
+			auto me = i++;
 			if (CanUnload(me->second))
 			{
 				DoSafeUnload(me->second);
@@ -534,8 +548,8 @@ namespace
 	struct UnloadAction final
 		: public ActionBase
 	{
-		Module* const mod;
-		UnloadAction(Module* m)
+		const ModulePtr mod;
+		UnloadAction(const ModulePtr& m)
 			: mod(m)
 		{
 		}
@@ -548,7 +562,7 @@ namespace
 	};
 }
 
-bool ModuleManager::Unload(Module* mod)
+bool ModuleManager::Unload(const ModulePtr& mod)
 {
 	if (!CanUnload(mod))
 		return false;
@@ -690,7 +704,7 @@ std::string ModuleManager::ShrinkModName(const std::string& modname)
 	return modname.substr(startpos, modname.length() - endpos - startpos);
 }
 
-dynamic_reference_base::dynamic_reference_base(Module* mod, const std::string& stype, const std::string& sname, bool strict)
+dynamic_reference_base::dynamic_reference_base(const WeakModulePtr& mod, const std::string& stype, const std::string& sname, bool strict)
 	: service_name(sname)
 	, service_type(stype)
 	, strict_ref(strict)
@@ -759,10 +773,9 @@ void dynamic_reference_base::resolve()
 		hook->OnCapture();
 }
 
-Module* ModuleManager::Find(const std::string& name)
+ModulePtr ModuleManager::Find(const std::string& name)
 {
-	std::map<std::string, Module*>::const_iterator modfind = Modules.find(ExpandModName(name));
-
+	auto modfind = Modules.find(ExpandModName(name));
 	if (modfind == Modules.end())
 		return nullptr;
 	else

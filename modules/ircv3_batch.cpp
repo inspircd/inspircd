@@ -99,7 +99,7 @@ class IRCv3::Batch::ManagerImpl final
 	}
 
 public:
-	ManagerImpl(Module* mod)
+	ManagerImpl(const WeakModulePtr& mod)
 		: Manager(mod)
 		, cap(mod, "batch")
 		, protoevprov(mod, "BATCH")
@@ -190,7 +190,7 @@ private:
 public:
 	ModuleIRCv3Batch()
 		: Module(VF_VENDOR, "Provides the IRCv3 batch client capability.")
-		, manager(this)
+		, manager(weak_from_this())
 	{
 	}
 
@@ -199,9 +199,9 @@ public:
 		manager.Init();
 	}
 
-	void OnUnloadModule(Module* mod) override
+	void OnUnloadModule(const ModulePtr& mod) override
 	{
-		if (mod == this)
+		if (insp::same_ptr(mod, weak_from_this()))
 			manager.Shutdown();
 	}
 

@@ -28,7 +28,7 @@ class CommandAlltime final
 	: public Command
 {
 public:
-	CommandAlltime(Module* Creator)
+	CommandAlltime(const WeakModulePtr& Creator)
 		: Command(Creator, "ALLTIME", 0)
 	{
 		access_needed = CmdAccess::OPERATOR;
@@ -58,7 +58,7 @@ private:
 public:
 	Modulealltime()
 		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /ALLTIME command which allows server operators to see the current UTC time on all of the servers on the network.")
-		, mycommand(this)
+		, mycommand(weak_from_this())
 	{
 	}
 };

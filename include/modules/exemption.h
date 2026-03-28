@@ -29,7 +29,7 @@ class CheckExemption::EventListener
 	: public Events::ModuleEventListener
 {
 protected:
-	EventListener(Module* mod, unsigned int eventprio = DefaultPriority)
+	EventListener(const WeakModulePtr& mod, unsigned int eventprio = DefaultPriority)
 		: ModuleEventListener(mod, "exemption", eventprio)
 	{
 	}
@@ -49,7 +49,7 @@ class CheckExemption::EventProvider final
 	: public Events::ModuleEventProvider
 {
 public:
-	EventProvider(Module* mod)
+	EventProvider(const WeakModulePtr& mod)
 		: ModuleEventProvider(mod, "exemption")
 	{
 	}

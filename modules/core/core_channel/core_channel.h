@@ -49,7 +49,7 @@ private:
 	Invite::APIImpl& invapi;
 
 public:
-	CommandInvite(Module* parent, Invite::APIImpl& invapiimpl);
+	CommandInvite(const WeakModulePtr& parent, Invite::APIImpl& invapiimpl);
 	CmdResult Handle(User* user, const Params& parameters) override;
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
@@ -58,7 +58,7 @@ class CommandJoin final
 	: public SplitCommand
 {
 public:
-	CommandJoin(Module* parent);
+	CommandJoin(const WeakModulePtr& parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
@@ -71,7 +71,7 @@ private:
 	ChanModeReference topiclockmode;
 
 public:
-	CommandTopic(Module* parent);
+	CommandTopic(const WeakModulePtr& parent);
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 };
 
@@ -85,7 +85,7 @@ private:
 	Events::ModuleEventProvider namesevprov;
 
 public:
-	CommandNames(Module* parent);
+	CommandNames(const WeakModulePtr& parent);
 
 	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override;
 
@@ -101,7 +101,7 @@ class CommandKick final
 	: public Command
 {
 public:
-	CommandKick(Module* parent);
+	CommandKick(const WeakModulePtr& parent);
 	CmdResult Handle(User* user, const Params& parameters) override;
 	RouteDescriptor GetRouting(User* user, const Params& parameters) override;
 };
@@ -112,7 +112,7 @@ class ModeChannelBan final
 private:
 	ExtBan::ManagerRef extbanmgr;
 public:
-	ModeChannelBan(Module* Creator);
+	ModeChannelBan(const WeakModulePtr& Creator);
 	bool CompareEntry(const std::string& entry, const std::string& value) const override;
 	bool ValidateParam(LocalUser* user, Channel* channel, std::string& parameter) override;
 };
@@ -121,7 +121,7 @@ class ModeChannelKey final
 	: public ParamMode<ModeChannelKey, StringExtItem>
 {
 public:
-	ModeChannelKey(Module* Creator);
+	ModeChannelKey(const WeakModulePtr& Creator);
 	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 	void SerializeParam(Channel* chan, const std::string* key, std::string& out);
 	bool OnSet(User* source, Channel* chan, std::string& param) override;
@@ -132,7 +132,7 @@ class ModeChannelLimit final
 	: public ParamMode<ModeChannelLimit, IntExtItem>
 {
 public:
-	ModeChannelLimit(Module* Creator);
+	ModeChannelLimit(const WeakModulePtr& Creator);
 	bool ResolveModeConflict(const std::string& their_param, const std::string& our_param, Channel* channel) override;
 	void SerializeParam(Channel* chan, intptr_t n, std::string& out);
 	bool OnSet(User* source, Channel* channel, std::string& parameter) override;
@@ -142,14 +142,14 @@ class ModeChannelOp final
 	: public PrefixMode
 {
 public:
-	ModeChannelOp(Module* Creator);
+	ModeChannelOp(const WeakModulePtr& Creator);
 };
 
 class ModeChannelVoice final
 	: public PrefixMode
 {
 public:
-	ModeChannelVoice(Module* Creator);
+	ModeChannelVoice(const WeakModulePtr& Creator);
 };
 
 class ExtBanManager final
@@ -164,7 +164,7 @@ private:
 public:
 	ExtBan::Format format;
 
-	ExtBanManager(Module* Creator, ModeChannelBan& bm)
+	ExtBanManager(const WeakModulePtr& Creator, ModeChannelBan& bm)
 		: ExtBan::Manager(Creator)
 		, banmode(bm)
 		, evprov(Creator, "extban")

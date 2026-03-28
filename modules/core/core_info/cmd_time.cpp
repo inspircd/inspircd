@@ -28,7 +28,7 @@
 
 #include "core_info.h"
 
-CommandTime::CommandTime(Module* parent)
+CommandTime::CommandTime(const WeakModulePtr& parent)
 	: ServerTargetCommand(parent, "TIME")
 {
 	syntax = { "[<servername>]" };

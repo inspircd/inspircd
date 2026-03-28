@@ -97,7 +97,7 @@ class JoinFlood final
 	: public ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings>>
 {
 public:
-	JoinFlood(Module* Creator)
+	JoinFlood(const WeakModulePtr& Creator)
 		: ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings>>(Creator, "joinflood", 'j')
 	{
 		syntax = "<joins>:<seconds>";
@@ -146,8 +146,8 @@ private:
 public:
 	ModuleJoinFlood()
 		: Module(VF_VENDOR, "Adds channel mode j (joinflood) which helps protect against spammers which mass-join channels.")
-		, ServerProtocol::LinkEventListener(this)
-		, jf(this)
+		, ServerProtocol::LinkEventListener(weak_from_this())
+		, jf(weak_from_this())
 	{
 	}
 

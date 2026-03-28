@@ -64,7 +64,7 @@ private:
 	}
 
 public:
-	UTF8Serializer(Module* mod)
+	UTF8Serializer(const WeakModulePtr& mod)
 		: ClientProtocol::Serializer(mod, "utf8")
 	{
 	}
@@ -267,14 +267,14 @@ private:
 public:
 	IRCv3UTF8Only()
 		: Module(VF_CORE | VF_VENDOR, "RFC client protocol serializer and unserializer")
-		, ISupport::EventListener(this)
-		, utf8serializer(this)
+		, ISupport::EventListener(weak_from_this())
+		, utf8serializer(weak_from_this())
 	{
 	}
 
 	void Prioritize() override
 	{
-		ServerInstance->Modules.SetPriority(this, I_OnUserInit, PRIORITY_BEFORE, "core_serialize_rfc");
+		ServerInstance->Modules.SetPriority(shared_from_this(), I_OnUserInit, PRIORITY_BEFORE, "core_serialize_rfc");
 	}
 
 	void OnBuildISupport(ISupport::TokenMap& tokens) override
