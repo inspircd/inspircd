@@ -57,6 +57,7 @@
 #include "utility/aligned_storage.h"
 #include "utility/iterator_range.h"
 #include "utility/pointer.h"
+#include "utility/uncopiable.h"
 
 #include "intrusive_list.h"
 #include "flat_map.h"
@@ -70,8 +71,8 @@ CoreExport extern InspIRCd* ServerInstance;
 
 #include "casemap.h"
 #include "config.h"
-#include "dynref.h"
 #include "cull.h"
+#include "dynref.h"
 #include "extensible.h"
 #include "command.h"
 #include "numeric.h"

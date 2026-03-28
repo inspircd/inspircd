@@ -72,8 +72,6 @@ namespace ClientProtocol
 	using TagMap = insp::flat_map<std::string, MessageTagData, std::greater<>>;
 }
 
-#include "base.h"
-
 /** A bitset of characters which are enabled/set. */
 using CharState = std::bitset<UCHAR_MAX + 1>;
 

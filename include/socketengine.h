@@ -29,7 +29,6 @@
 
 #include <string>
 #include "socket.h"
-#include "base.h"
 
 #ifndef _WIN32
 #include <sys/uio.h>
