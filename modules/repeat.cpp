@@ -197,18 +197,13 @@ public:
 		if (message.size() > ms.MaxMessageSize)
 			message.erase(ms.MaxMessageSize);
 
-		MemberInfo* rp = MemberInfoExt.Get(memb);
-		if (!rp)
-		{
-			rp = new MemberInfo;
-			MemberInfoExt.Set(memb, rp);
-		}
+		auto& rp = MemberInfoExt.GetRef(memb);
 
 		unsigned int matches = 0;
 		if (!rs->Backlog)
-			matches = rp->Counter;
+			matches = rp.Counter;
 
-		RepeatItemList& items = rp->ItemList;
+		auto& items = rp.ItemList;
 		const unsigned long trigger = (message.size() * rs->Diff / 100);
 		const time_t now = ServerInstance->Time();
 
@@ -228,7 +223,7 @@ public:
 				if (++matches >= rs->Lines)
 				{
 					if (rs->Action != ChannelSettings::ACT_BLOCK)
-						rp->Counter = 0;
+						rp.Counter = 0;
 					return true;
 				}
 			}
@@ -245,7 +240,7 @@ public:
 			items.pop_back();
 
 		items.push_front(RepeatItem(now + rs->Seconds, message));
-		rp->Counter = matches;
+		rp.Counter = matches;
 		return false;
 	}
 

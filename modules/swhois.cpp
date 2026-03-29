@@ -114,20 +114,14 @@ namespace
 {
 	static SWhois& AddSWhois(SWhoisExtItem& swhoisext, User* user, const std::string& msg)
 	{
-		auto* swhoislist = swhoisext.Get(user);
-		if (!swhoislist)
-		{
-			swhoislist = new SWhoisList();
-			swhoisext.Set(user, swhoislist);
-		}
-
 		// If the message is empty we use a space to avoid client formatting issues.
 		SWhois swhois;
 		swhois.message = msg.empty() ? " " : msg;
 
 		// Insert sorted so we get the right order on iteration.
-		auto pos = std::upper_bound(swhoislist->begin(), swhoislist->end(), swhois);
-		return *swhoislist->insert(pos, swhois);
+		auto& swhoislist = swhoisext.GetRef(user);
+		auto pos = std::upper_bound(swhoislist.begin(), swhoislist.end(), swhois);
+		return *swhoislist.insert(pos, swhois);
 	}
 
 	static bool DelSWhois(SWhoisExtItem& swhoisext, User* user, std::function<bool(const SWhois&)> predicate, bool from_network = false)
