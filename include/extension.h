@@ -460,7 +460,7 @@ class NumExtItem
 {
 public:
 	/** The numeric type for this extension. */
-	using Numeric = std::conditional_t<std::is_enum_v<Value>, std::underlying_type<Value>, std::type_identity<Value>>::type;
+	using Numeric = typename std::conditional_t<std::is_enum_v<Value>, std::underlying_type<Value>, std::type_identity<Value>>::type;
 
 	/** Initializes an instance of the NumExtItem class.
 	 * @param owner The module which created the extension.
