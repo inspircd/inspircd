@@ -298,8 +298,7 @@ void Log::Manager::OpenLogs(bool requiremethods)
 
 void Log::Manager::RegisterServices()
 {
-	Service::Provider* coreloggers[] = { &filelog, &stderrlog, &stdoutlog };
-	ServerInstance->Modules.AddServices(coreloggers, sizeof(coreloggers)/sizeof(Service::Provider*));
+	ServerInstance->Modules.AddService(filelog, stderrlog, stdoutlog);
 }
 
 void Log::Manager::UnloadEngine(const Engine* engine)

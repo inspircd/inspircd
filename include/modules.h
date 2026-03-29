@@ -1165,19 +1165,22 @@ public:
 	/** Register a service provided by a module */
 	void AddService(Service::Provider&);
 
-	/** Unregister a service provided by a module */
-	void DelService(Service::Provider&);
+	/** Register all services in a given parameter pack.
+	 * @param services A parameter pack containing the services to register.
+	 */
+	template <typename... Services>
+	void AddService(Services&&... services)
+	{
+		(AddService(static_cast<Service::Provider&>(services)), ...);
+	}
 
 	/** Register all services in a given Service::List
 	 * @param list The list containing the services to register
 	 */
 	void AddServices(const Service::List& list);
 
-	inline void AddServices(Service::Provider** list, int count)
-	{
-		for(int i=0; i < count; i++)
-			AddService(*list[i]);
-	}
+	/** Unregister a service provided by a module */
+	void DelService(Service::Provider&);
 
 	/** Find a service by name.
 	 * If multiple modules provide a given service, the first one loaded will be chosen.

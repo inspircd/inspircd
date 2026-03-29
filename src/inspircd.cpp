@@ -453,15 +453,11 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->Config->CommandLine.argc = argc;
 	ParseOptions();
 
-	{
-		Service::Provider* provs[] =
-		{
-			&rfcevents.numeric, &rfcevents.join, &rfcevents.part, &rfcevents.kick, &rfcevents.quit, &rfcevents.nick,
-			&rfcevents.mode, &rfcevents.topic, &rfcevents.privmsg, &rfcevents.invite, &rfcevents.ping, &rfcevents.pong,
-			&rfcevents.reply, &rfcevents.error
-		};
-		Modules.AddServices(provs, sizeof(provs)/sizeof(provs[0]));
-	}
+	Modules.AddService(
+		rfcevents.numeric, rfcevents.join, rfcevents.part, rfcevents.kick, rfcevents.quit,
+		rfcevents.nick, rfcevents.mode, rfcevents.topic, rfcevents.privmsg, rfcevents.invite,
+		rfcevents.ping, rfcevents.pong, rfcevents.reply, rfcevents.error
+	);
 
 	fmt::println("{}", fmt::styled("InspIRCd - Internet Relay Chat Daemon", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::green)));
 	fmt::println("See {} for contributors & authors", fmt::styled("/INFO", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::green)));
