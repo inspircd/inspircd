@@ -76,7 +76,7 @@ public:
 	{
 		bool res = SimpleUserMode::OnModeChange(source, dest, channel, change);
 		if (change.adding && res && dest->IsLocal() && timeout)
-			ext.Set(dest, new UnsetTimer(dest->AsLocal(), timeout, *this));
+			ext.SetFwd(dest, dest->AsLocal(), timeout, *this);
 		return res;
 	}
 };
