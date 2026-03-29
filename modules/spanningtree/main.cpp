@@ -881,7 +881,7 @@ ModuleSpanningTree::~ModuleSpanningTree()
 	auto* newsrv = new Server(ServerInstance->Config->ServerId, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
 	SetLocalUsersServer(newsrv);
 
-	delete Utils;
+	Utils = nullptr;
 }
 
 /* It is IMPORTANT that m_spanningtree is the last module in the chain
