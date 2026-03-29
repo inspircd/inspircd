@@ -130,17 +130,16 @@ public:
 
 		// Remove the old list and create a new one.
 		Unset(user, false);
-		dccallowlist* list = nullptr;
+		ValuePtr list;
 
 		StringSplitter ts(value);
 		while (!ts.AtEnd())
 		{
 			// Check we have space for another entry.
-			if (list->size() >= maxentries)
+			if (list && list->size() >= maxentries)
 			{
 				ServerInstance->Logs.Debug(MODNAME, "Oversized DCC allow list received for {}: {}",
 					user->uuid, value);
-				delete list;
 				return;
 			}
 
@@ -153,13 +152,12 @@ public:
 			{
 				ServerInstance->Logs.Debug(MODNAME, "Malformed DCC allow list received for {}: {}",
 					user->uuid, value);
-				delete list;
 				return;
 			}
 
 			// Store the DCC allow entry.
 			if (!list)
-				list = new dccallowlist();
+				list = Create();
 			list->push_back(dccallow);
 		}
 
