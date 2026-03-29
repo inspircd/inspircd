@@ -73,7 +73,7 @@ namespace insp
 
 	/** Determines the unique hash of \p str for use in a hash map when hashed insensitively using
 	 * the configured IRC casemapping.
-	 * @param str1 The string to hash.
+	 * @param str The string to hash.
 	 * @return The unique hash of \p str.
 	 */
 	CoreExport size_t casemapped_hash(const std::string_view& str);

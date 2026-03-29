@@ -121,6 +121,7 @@ public:
 	 * @param modechar Mode character
 	 * @param lnum List numeric
 	 * @param eolnum End of list numeric
+	 * @param am Whether the list mode accepts a user mask.
 	 */
 	ListModeBase(const WeakModulePtr& Creator, const std::string& Name, char modechar, unsigned int lnum, unsigned int eolnum, bool am = false);
 

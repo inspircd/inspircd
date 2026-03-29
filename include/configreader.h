@@ -101,21 +101,21 @@ public:
 	 */
 	ConfigTag(const std::string& Name, const FilePosition& Source);
 
-	/** @copydoc getFloat */
+	/** @copydoc ConfigTag::getFloat */
 	template<typename T>
 	std::enable_if_t<std::is_floating_point_v<T>, T> getNum(const std::string& key, T def, T min = std::numeric_limits<T>::min(), T max = std::numeric_limits<T>::max()) const
 	{
 		return static_cast<T>(getFloat(key, def, min, max));
 	}
 
-	/** @copydoc getSInt */
+	/** @copydoc ConfigTag::getSInt */
 	template<typename T>
 	std::enable_if_t<std::is_signed_v<T> && !std::is_floating_point_v<T>, T> getNum(const std::string& key, T def, T min = std::numeric_limits<T>::min(), T max = std::numeric_limits<T>::max()) const
 	{
 		return static_cast<T>(getSInt(key, def, min, max));
 	}
 
-	/** @copydoc getUInt */
+	/** @copydoc ConfigTag::getUInt */
 	template<typename T>
 	std::enable_if_t<std::is_unsigned_v<T> && !std::is_floating_point_v<T>, T> getNum(const std::string& key, T def, T min = std::numeric_limits<T>::min(), T max = std::numeric_limits<T>::max()) const
 	{

@@ -826,7 +826,8 @@ public:
 	virtual ModResult OnCheckLimit(User* user, Channel* chan) ATTR_NOT_NULL(2, 3);
 
 	/**
-	 * Checks for a user's ban from the channel
+	 * Called to check whether a user matches any entry on a list.
+	 * @param lm The list mode which is being checked.
 	 * @param user The user to check
 	 * @param chan The channel to check in
 	 * @param full Whether to check bans against the real username and hostname.
@@ -836,7 +837,8 @@ public:
 	virtual ModResult OnCheckList(ListModeBase* lm, User* user, Channel* chan, bool full) ATTR_NOT_NULL(2, 3);
 
 	/**
-	 * Checks for a user's match of a single list entry.
+	 * Called to check whether a user matches a single list entry.
+	 * @param lm The list mode which is being checked.
 	 * @param user The user to check for match
 	 * @param chan The channel on which the match is being checked
 	 * @param mask The mask being checked

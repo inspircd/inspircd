@@ -182,7 +182,7 @@ public:
 	void UnregisterService() override;
 
 	/** Retrieves the name of this mode.
-	 * @param compat Whether to return the old name (if available).
+	 * @param old Whether to return the old name (if available).
 	 */
 	const std::string& GetName(bool old) const;
 

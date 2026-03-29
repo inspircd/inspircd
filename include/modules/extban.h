@@ -296,6 +296,7 @@ public:
 	bool IsActive() const { return active; }
 
 	/** Determines whether the specified user matches this extban.
+	 * @param lm The list mode which the extban is set on.
 	 * @param user The user to match the text against.
 	 * @param channel The channel which the extban is set on.
 	 * @param text The string to match the user against.

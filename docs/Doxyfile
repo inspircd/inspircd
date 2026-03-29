@@ -254,9 +254,9 @@ EXPAND_ONLY_PREDEF     = NO
 SEARCH_INCLUDES        = YES
 INCLUDE_PATH           =
 INCLUDE_FILE_PATTERNS  =
-PREDEFINED             = CoreExport=/**/ \
-                         ATTR_NOT_NULL(...)=/**/ \
-                         INSPIRCD_INTRUSIVE_LIST_NAME=intrusive_list
+PREDEFINED             = "__attribute__(...)" \
+                         "__declspec(..)" \
+                         "INSPIRCD_INTRUSIVE_LIST_NAME=intrusive_list"
 EXPAND_AS_DEFINED      =
 SKIP_FUNCTION_MACROS   = YES
 TAGFILES               =
