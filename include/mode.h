@@ -88,7 +88,7 @@ class ParamModeBase;
  * equivalent to returning false.
  */
 class CoreExport ModeHandler
-	: public ServiceProvider
+	: public Service::Provider
 {
 public:
 	/** The underlying type of a mode rank. */
@@ -175,10 +175,10 @@ public:
 	ModeHandler(const WeakModulePtr& me, const std::string& name, char modeletter, ParamSpec params, ModeType type, Class mclass = MC_OTHER);
 	Cullable::Result Cull() override;
 
-	/** @copydoc ServiceProvider::RegisterService */
+	/** @copydoc Service::Provider::RegisterService */
 	void RegisterService() override;
 
-	/** @copydoc ServiceProvider::UnregisterService */
+	/** @copydoc Service::Provider::UnregisterService */
 	void UnregisterService() override;
 
 	/** Retrieves the name of this mode.

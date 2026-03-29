@@ -35,11 +35,11 @@ namespace Account
 
 /** Defines the interface for the account API. */
 class Account::APIBase
-	: public DataProvider
+	: public Service::SimpleProvider
 {
 public:
 	APIBase(const WeakModulePtr& parent)
-		: DataProvider(parent, "accountapi")
+		: Service::SimpleProvider(parent, "accountapi")
 	{
 	}
 
@@ -98,11 +98,11 @@ public:
 
 /** Defines the interface for the account provider API. */
 class Account::ProviderAPIBase
-	: public DataProvider
+	: public Service::SimpleProvider
 {
 public:
 	ProviderAPIBase(const WeakModulePtr& mod)
-		: DataProvider(mod, "accountproviderapi")
+		: Service::SimpleProvider(mod, "accountproviderapi")
 	{
 	}
 

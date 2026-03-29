@@ -53,7 +53,7 @@ namespace Regex
 
 /** The base class for regular expression engines. */
 class Regex::Engine
-	: public DataProvider
+	: public Service::SimpleProvider
 {
 protected:
 	/** Initializes a new instance of the Regex::Engine class.
@@ -61,7 +61,7 @@ protected:
 	 * @param Name The name of this regular expression engine.
 	 */
 	Engine(const WeakModulePtr& Creator, const std::string& Name)
-		: DataProvider(Creator, "Regex::Engine", Name)
+		: Service::SimpleProvider(Creator, "Regex::Engine", Name)
 	{
 	}
 

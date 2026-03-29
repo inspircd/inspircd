@@ -47,7 +47,7 @@ namespace Invite
 }
 
 class Invite::APIBase
-	: public DataProvider
+	: public Service::SimpleProvider
 {
 public:
 	APIBase(const WeakModulePtr& parent);

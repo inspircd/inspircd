@@ -57,7 +57,7 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 
 	ModulePtr newmod;
 	auto* newhandle = new DLLManager(moduleFile);
-	ServiceList newservices;
+	Service::List newservices;
 	if (!defer)
 		this->NewServices = &newservices;
 
@@ -125,7 +125,7 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 }
 
 /* We must load the modules AFTER initializing the socket engine, now */
-void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicemap)
+void ModuleManager::LoadCoreModules(std::map<std::string, Service::List>& servicemap)
 {
 	fmt::print("Loading core modules ");
 	fflush(stdout);

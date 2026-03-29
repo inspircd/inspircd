@@ -712,7 +712,7 @@ struct CoreExport ClientProtocol::RFCEvents final
  * A serializer has to implement serialization and parsing of protocol messages to/from wire format.
  */
 class CoreExport ClientProtocol::Serializer
-	: public DataProvider
+	: public Service::SimpleProvider
 {
 private:
 	ClientProtocol::MessageTagEvent evprov;

@@ -73,11 +73,11 @@ namespace Cap
 		virtual void OnCapValueChange(Capability* cap) { }
 	};
 
-	class Manager : public DataProvider
+	class Manager : public Service::SimpleProvider
 	{
 	public:
 		Manager(const WeakModulePtr& mod)
-			: DataProvider(mod, "capmanager")
+			: Service::SimpleProvider(mod, "capmanager")
 		{
 		}
 
@@ -118,7 +118,9 @@ namespace Cap
 	 *
 	 * It is possible to implement special behavior by inheriting from this class and overriding some of its methods.
 	 */
-	class Capability : public ServiceProvider, private dynamic_reference_base::CaptureHook
+	class Capability
+		: public Service::Provider
+		, private dynamic_reference_base::CaptureHook
 	{
 		using Bit = size_t;
 
@@ -173,7 +175,7 @@ namespace Cap
 		 * @param Name Raw name of the cap as used in the protocol (CAP LS, etc.)
 		 */
 		Capability(const WeakModulePtr& mod, const std::string& Name)
-			: ServiceProvider(mod, "Cap::Capability", Name)
+			: Service::Provider(mod, "Cap::Capability", Name)
 			, manager(mod, "capmanager")
 		{
 			Unregister();
@@ -184,14 +186,14 @@ namespace Cap
 			SetActive(false);
 		}
 
-		/** @copydoc ServiceProvider::RegisterService */
+		/** @copydoc Service::Provider::RegisterService */
 		void RegisterService() override
 		{
 			manager.SetCaptureHook(this);
 			SetActive(true);
 		}
 
-		/** @copydoc ServiceProvider::UnregisterService */
+		/** @copydoc Service::Provider::UnregisterService */
 		void UnregisterService() override
 		{
 			manager.SetCaptureHook(nullptr);

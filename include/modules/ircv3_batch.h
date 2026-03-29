@@ -43,7 +43,7 @@ namespace IRCv3
  * all running batches are stopped.
  */
 class IRCv3::Batch::Manager
-	: public DataProvider
+	: public Service::SimpleProvider
 	, public ClientProtocol::MessageTagProvider
 {
 public:
@@ -51,7 +51,7 @@ public:
 	 * @param mod Module that owns the Manager.
 	 */
 	Manager(const WeakModulePtr& mod)
-		: DataProvider(mod, "batchapi")
+		: Service::SimpleProvider(mod, "batchapi")
 		, ClientProtocol::MessageTagProvider(mod)
 	{
 	}

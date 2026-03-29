@@ -328,7 +328,7 @@ bool CommandParser::AddCommand(Command* cmd)
 }
 
 CommandBase::CommandBase(const WeakModulePtr& mod, const std::string& cmd, size_t minpara, size_t maxpara)
-	: ServiceProvider(mod, "CommandBase", cmd)
+	: Service::Provider(mod, "CommandBase", cmd)
 	, min_params(minpara)
 	, max_params(maxpara)
 {

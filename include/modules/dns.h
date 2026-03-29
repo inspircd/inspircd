@@ -171,11 +171,11 @@ namespace DNS
 
 	/** DNS manager
 	 */
-	class Manager : public DataProvider
+	class Manager : public Service::SimpleProvider
 	{
 	public:
 		Manager(const WeakModulePtr& mod)
-			: DataProvider(mod, "DNS")
+			: Service::SimpleProvider(mod, "DNS")
 		{
 		}
 

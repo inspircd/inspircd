@@ -32,7 +32,7 @@
 #include "numerichelper.h"
 
 ModeHandler::ModeHandler(const WeakModulePtr& Creator, const std::string& Name, char modeletter, ParamSpec Params, ModeType type, Class mclass)
-	: ServiceProvider(Creator, FMT::format("ModeHandler/{}", type == MODETYPE_CHANNEL ? "C" : "U"), Name)
+	: Service::Provider(Creator, FMT::format("ModeHandler/{}", type == MODETYPE_CHANNEL ? "C" : "U"), Name)
 	, modeid(ModeParser::MODEID_MAX)
 	, parameters_taken(Params)
 	, mode(ServerInstance->Config->ConfValue("modes")->getCharacter(Name, modeletter))

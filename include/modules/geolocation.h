@@ -29,11 +29,11 @@ namespace Geolocation
 }
 
 class Geolocation::APIBase
-	: public DataProvider
+	: public Service::SimpleProvider
 {
 public:
 	APIBase(const WeakModulePtr& parent)
-		: DataProvider(parent, "geolocationapi")
+		: Service::SimpleProvider(parent, "geolocationapi")
 	{
 	}
 

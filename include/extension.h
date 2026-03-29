@@ -24,7 +24,7 @@
 
 /** Base class for types that extend an extensible. */
 class CoreExport ExtensionItem
-	: public ServiceProvider
+	: public Service::Provider
 {
 public:
 	/** The type of extensible that this extension extends. */
@@ -55,7 +55,7 @@ public:
 	 */
 	virtual void OnSync(const Extensible* container, const ExtensionPtr& item, Server* server);
 
-	/** @copydoc ServiceProvider::RegisterService */
+	/** @copydoc Service::Provider::RegisterService */
 	void RegisterService() override;
 
 	/** Serialises a value for this extension of the specified container to the human-readable

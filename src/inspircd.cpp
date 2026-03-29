@@ -454,7 +454,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	ParseOptions();
 
 	{
-		ServiceProvider* provs[] =
+		Service::Provider* provs[] =
 		{
 			&rfcevents.numeric, &rfcevents.join, &rfcevents.part, &rfcevents.kick, &rfcevents.quit, &rfcevents.nick,
 			&rfcevents.mode, &rfcevents.topic, &rfcevents.privmsg, &rfcevents.invite, &rfcevents.ping, &rfcevents.pong,

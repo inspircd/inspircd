@@ -49,7 +49,7 @@ namespace IRCv3
  * the appropriate protocol extension will receive it.
  */
 class IRCv3::ServerTime::Manager
-	: public DataProvider
+	: public Service::SimpleProvider
 {
 protected:
 	ClientProtocol::MessageTagProvider* tagprov;
@@ -59,7 +59,7 @@ public:
 	 * @param mod Module that owns the Manager.
 	 */
 	Manager(const WeakModulePtr& mod)
-		: DataProvider(mod, "servertimeapi")
+		: Service::SimpleProvider(mod, "servertimeapi")
 	{
 	}
 

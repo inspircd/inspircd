@@ -252,7 +252,7 @@ public:
 			Configure(algo);
 	}
 
-	void OnServiceAdd(ServiceProvider& service) override
+	void OnServiceAdd(Service::Provider& service) override
 	{
 		if (service.service_type != "Hash::Provider")
 			return; //  Not a hash provider.
@@ -293,7 +293,7 @@ public:
 		ServerInstance->Modules.AddService(*algo);
 	}
 
-	void OnServiceDel(ServiceProvider& service) override
+	void OnServiceDel(Service::Provider& service) override
 	{
 		if (service.service_type != "Hash::Provider")
 			return; //  Not a hash provider.

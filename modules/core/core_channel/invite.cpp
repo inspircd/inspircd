@@ -46,7 +46,7 @@ void UnserializeInvite(LocalUser* user, const std::string& str)
 }
 
 Invite::APIBase::APIBase(const WeakModulePtr& parent)
-	: DataProvider(parent, "core_channel_invite")
+	: Service::SimpleProvider(parent, "core_channel_invite")
 {
 }
 

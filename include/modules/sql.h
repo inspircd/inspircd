@@ -194,7 +194,7 @@ public:
  * Provider object for SQL servers
  */
 class SQL::Provider
-	: public DataProvider
+	: public Service::SimpleProvider
 {
 private:
 	/** The name of the database tag in the config. */
@@ -202,7 +202,7 @@ private:
 
 public:
 	Provider(const WeakModulePtr& Creator, const std::string& Name)
-		: DataProvider(Creator, "SQL::Provider", Name)
+		: Service::SimpleProvider(Creator, "SQL::Provider", Name)
 		, dbid(Name)
 	{
 	}

@@ -73,7 +73,7 @@ public:
 
 /** Provider of hash contexts. */
 class Hash::Provider
-	: public DataProvider
+	: public Service::SimpleProvider
 {
 public:
 	/** The byte size of the block cipher. */
@@ -89,7 +89,7 @@ public:
 	 * @param bs The byte size of the block cipher or 0 if not a block cipher.
 	 */
 	Provider(const WeakModulePtr& mod, const std::string& algorithm, size_t ds = 0, size_t bs = 0)
-		: DataProvider(mod, "Hash::Provider", algorithm)
+		: Service::SimpleProvider(mod, "Hash::Provider", algorithm)
 		, block_size(bs)
 		, digest_size(ds)
 	{

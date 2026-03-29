@@ -141,7 +141,7 @@ public:
  * in InspIRCd must be defined as derived from Command.
  */
 class CoreExport CommandBase
-	: public ServiceProvider
+	: public Service::Provider
 {
 public:
 	/** Encapsulates parameters to a command. */
@@ -285,10 +285,10 @@ public:
 	 */
 	bool IsUsableBy(User* user) const;
 
-	/** @copydoc ServiceProvider::RegisterService */
+	/** @copydoc Service::Provider::RegisterService */
 	void RegisterService() override;
 
-	/** @copydoc ServiceProvider::UnregisterService */
+	/** @copydoc Service::Provider::UnregisterService */
 	void UnregisterService() override;
 
 	/** Tells the user they did not specify enough parameters.

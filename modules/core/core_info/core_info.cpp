@@ -237,13 +237,13 @@ public:
 		isupport.Build();
 	}
 
-	void OnServiceAdd(ServiceProvider& service) override
+	void OnServiceAdd(Service::Provider& service) override
 	{
 		if (service.service_type.starts_with("ModeHandler/"))
 			Rebuild004();
 	}
 
-	void OnServiceDel(ServiceProvider& service) override
+	void OnServiceDel(Service::Provider& service) override
 	{
 		OnServiceAdd(service);
 	}

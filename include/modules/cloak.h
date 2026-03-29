@@ -65,11 +65,11 @@ namespace Cloak
 
 /** Defines the interface for the cloak API. */
 class Cloak::APIBase
-	: public DataProvider
+	: public Service::SimpleProvider
 {
 public:
 	APIBase(const WeakModulePtr& parent)
-		: DataProvider(parent, "cloakapi")
+		: Service::SimpleProvider(parent, "cloakapi")
 	{
 	}
 
@@ -103,11 +103,11 @@ public:
 
 /** Base class for cloak engines. */
 class Cloak::Engine
-	: public DataProvider
+	: public Service::SimpleProvider
 {
 protected:
 	Engine(const WeakModulePtr& Creator, const std::string& Name)
-		: DataProvider(Creator, "Cloak::Engine", Name)
+		: Service::SimpleProvider(Creator, "Cloak::Engine", Name)
 	{
 	}
 
@@ -183,7 +183,7 @@ public:
 	/** Determines whether this method is provided by the specified service provider.
 	 * @param prov The service provider to check.
 	 */
-	bool IsProvidedBy(const ServiceProvider& prov) const
+	bool IsProvidedBy(const Service::Provider& prov) const
 	{
 		return prov.service_name == provname;
 	}

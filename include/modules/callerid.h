@@ -26,11 +26,11 @@ namespace CallerID
 }
 
 class CallerID::APIBase
-	: public DataProvider
+	: public Service::SimpleProvider
 {
 public:
 	APIBase(const WeakModulePtr& parent)
-		: DataProvider(parent, "m_callerid_api")
+		: Service::SimpleProvider(parent, "m_callerid_api")
 	{
 	}
 

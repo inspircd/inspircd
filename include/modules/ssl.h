@@ -280,11 +280,11 @@ public:
 };
 
 class UserCertificateAPIBase
-	: public DataProvider
+	: public Service::SimpleProvider
 {
 public:
 	UserCertificateAPIBase(const WeakModulePtr& parent)
-		: DataProvider(parent, "m_sslinfo_api")
+		: Service::SimpleProvider(parent, "m_sslinfo_api")
 	{
 	}
 

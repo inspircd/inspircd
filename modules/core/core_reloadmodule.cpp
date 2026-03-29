@@ -505,7 +505,7 @@ void DataKeeper::Save(const ModulePtr& currmod)
 
 void DataKeeper::VerifyServiceProvider(const ProviderInfo& service, const char* type)
 {
-	const ServiceProvider* sp = service.extitem;
+	const auto* sp = service.extitem;
 	if (!sp)
 		ServerInstance->Logs.Debug(MODNAME, "{} \"{}\" is no longer available", type, service.itemname);
 	else if (!insp::same_ptr(sp->service_creator, mod))

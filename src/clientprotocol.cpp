@@ -21,7 +21,7 @@
 #include "inspircd.h"
 
 ClientProtocol::Serializer::Serializer(const WeakModulePtr& mod, const std::string& Name)
-	: DataProvider(mod, "ClientProtocol::Serializer", Name)
+	: Service::SimpleProvider(mod, "ClientProtocol::Serializer", Name)
 	, evprov(mod)
 {
 }

@@ -19,8 +19,32 @@
 
 #pragma once
 
+namespace Service
+{
+	struct PairCompare;
+	class Provider;
+	class SimpleProvider;
+
+	/** Holds one or more services. */
+	using List = std::vector<Service::Provider*>;
+
+	/** Holds a service type and names. */
+	using Pair = std::pair<std::string, std::string>;
+}
+
+/** Compares two service pairs case insensitively using the IRC casemapping. */
+struct Service::PairCompare final
+{
+	bool operator()(const Service::Pair& lhs, const Service::Pair& rhs) const
+	{
+		if (!insp::casemapped_equals(lhs.first, rhs.first))
+			return insp::casemapped_less(lhs.first, rhs.first);
+		return insp::casemapped_less(lhs.second, rhs.second);
+	}
+};
+
 /** A structure defining something that a module can provide */
-class CoreExport ServiceProvider
+class CoreExport Service::Provider
 	: public Cullable
 {
 public:
@@ -33,7 +57,12 @@ public:
 	/** Type of service (must match object type) */
 	const std::string service_type;
 
-	ServiceProvider(const WeakModulePtr& mod, const std::string& stype, const std::string& sname);
+	/** Creates a new instance of the Provider class.
+	 * @param mod The module which created this instance.
+	 * @param stype The type of the service (e.g. CommandBase).
+	 * @param sname The name of the service (e.g. PRIVMSG).
+	 */
+	Provider(const WeakModulePtr& mod, const std::string& stype, const std::string& sname);
 
 	/** Register this service in the appropriate registrar. */
 	virtual void RegisterService();
@@ -41,23 +70,27 @@ public:
 	/** Unregister this service in the appropriate registrar. */
 	virtual void UnregisterService();
 
-	/** If called, this ServiceProvider won't be registered automatically
-	 */
+	/** If called, this service won't be registered automatically. */
 	void DisableAutoRegister();
 
 	/** Retrieves the name of the service creator. */
 	std::string GetSource() const;
 };
 
-class CoreExport DataProvider
-	: public ServiceProvider
+class CoreExport Service::SimpleProvider
+	: public Service::Provider
 {
 public:
-	DataProvider(const WeakModulePtr& mod, const std::string& stype, const std::string& sname = "");
+	/** Creates a new instance of the SimpleProvider class.
+	 * @param mod The module which created this instance.
+	 * @param stype The type of the service (e.g. CommandBase).
+	 * @param sname The name of the service (e.g. PRIVMSG).
+	 */
+	SimpleProvider(const WeakModulePtr& mod, const std::string& stype, const std::string& sname = "");
 
-	/** @copydoc ServiceProvider::RegisterService */
+	/** @copydoc Service::Provider::RegisterService */
 	void RegisterService() override;
 
-	/** @copydoc ServiceProvider::UnregisterService */
+	/** @copydoc Service::Provider::UnregisterService */
 	void UnregisterService() override;
 };

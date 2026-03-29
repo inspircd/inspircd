@@ -654,14 +654,14 @@ public:
 		tokens["WHOX"];
 	}
 
-	void OnServiceAdd(ServiceProvider& provider) override
+	void OnServiceAdd(Service::Provider& provider) override
 	{
 		// If the service is a prefix mode we need to rebuild the oplevel map.
 		if (provider.service_type == "ModeHandler/C" && static_cast<ModeHandler&>(provider).IsPrefixMode())
 			cmd.oplevels.clear();
 	}
 
-	void OnServiceDel(ServiceProvider& provider) override
+	void OnServiceDel(Service::Provider& provider) override
 	{
 		this->OnServiceAdd(provider);
 	}

@@ -509,7 +509,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnServiceDel(ServiceProvider& service) override
+	void OnServiceDel(Service::Provider& service) override
 	{
 		size_t methods = 0;
 		for (auto it = cloakmethods.begin(); it != cloakmethods.end(); )

@@ -29,11 +29,11 @@ namespace Monitor
 }
 
 class Monitor::APIBase
-	: public DataProvider
+	: public Service::SimpleProvider
 {
 public:
 	APIBase(const WeakModulePtr& parent)
-		: DataProvider(parent, "monitor")
+		: Service::SimpleProvider(parent, "monitor")
 	{
 	}
 

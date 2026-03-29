@@ -129,7 +129,7 @@ public:
 
 /** Base class for logging engines. */
 class CoreExport Log::Engine
-	: public DataProvider
+	: public Service::SimpleProvider
 {
 protected:
 	Engine(const WeakModulePtr& Creator, const std::string& Name);

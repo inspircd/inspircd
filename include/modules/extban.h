@@ -115,14 +115,14 @@ public:
 
 /** Manager for the extban system. */
 class ExtBan::Manager
-	: public DataProvider
+	: public Service::SimpleProvider
 {
 protected:
 	/** Initializes an instance of the ExtBan::Base class.
 	 * @param mod The module which created this instance.
 	 */
 	Manager(const WeakModulePtr& mod)
-		: DataProvider(mod, "extbanmanager")
+		: Service::SimpleProvider(mod, "extbanmanager")
 	{
 	}
 
@@ -215,7 +215,7 @@ public:
 
 /** Base class for types of extban. */
 class ExtBan::Base
-	: public ServiceProvider
+	: public Service::Provider
 	, private dynamic_reference_base::CaptureHook
 {
 private:
@@ -246,7 +246,7 @@ protected:
 	 * @param xbmatchflags The flags used for matching.
 	 */
 	Base(const WeakModulePtr& mod, const std::string& xbname, ExtBan::Letter xbletter, uint8_t xbmatchflags = ExtBan::MATCH_DEFAULT)
-		: ServiceProvider(mod, "ExtBan::Base", xbname)
+		: Service::Provider(mod, "ExtBan::Base", xbname)
 		, letter(ServerInstance->Config->ConfValue("extbans")->getCharacter(xbname, xbletter, true))
 		, manager(mod, "extbanmanager")
 		, match_flags(xbmatchflags)
@@ -304,14 +304,14 @@ public:
 	 */
 	virtual bool IsMatch(ListModeBase* lm, User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) = 0;
 
-	/** @copydoc ServiceProvider::RegisterService */
+	/** @copydoc Service::Provider::RegisterService */
 	void RegisterService() override
 	{
 		manager.SetCaptureHook(this);
 		SetActive(true);
 	}
 
-	/** @copydoc ServiceProvider::UnregisterService */
+	/** @copydoc Service::Provider::UnregisterService */
 	void UnregisterService() override
 	{
 		manager.SetCaptureHook(nullptr);

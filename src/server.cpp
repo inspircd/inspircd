@@ -53,8 +53,7 @@ void InspIRCd::Exit(int status)
 	SetServiceStopped(status);
 #endif
 	this->Cleanup();
-	ServerInstance = nullptr;
-	delete this;
+	insp::delete_zero(ServerInstance);
 	exit(status);
 }
 

@@ -276,11 +276,11 @@ public:
 };
 
 class HTTPdAPIBase
-	: public DataProvider
+	: public Service::SimpleProvider
 {
 public:
 	HTTPdAPIBase(const WeakModulePtr& parent)
-		: DataProvider(parent, "m_httpd_api")
+		: Service::SimpleProvider(parent, "m_httpd_api")
 	{
 	}
 

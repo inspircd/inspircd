@@ -139,11 +139,11 @@ public:
 };
 
 class LDAPProvider
-	: public DataProvider
+	: public Service::SimpleProvider
 {
 public:
 	LDAPProvider(const WeakModulePtr& Creator, const std::string& Name)
-		: DataProvider(Creator, "LDAPProvider", Name)
+		: Service::SimpleProvider(Creator, "LDAPProvider", Name)
 	{
 	}
 

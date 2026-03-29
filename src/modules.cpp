@@ -182,8 +182,8 @@ void		Module::OnUserMessage(User*, const MessageTarget&, const MessageDetails&) 
 ModResult	Module::OnNumeric(User*, const Numeric::Numeric&) { DetachEvent(I_OnNumeric); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnAcceptConnection(int, ListenSocket*, const irc::sockets::sockaddrs&, const irc::sockets::sockaddrs&) { DetachEvent(I_OnAcceptConnection); return MOD_RES_PASSTHRU; }
 void		Module::OnChangeRemoteAddress(LocalUser*) { DetachEvent(I_OnChangeRemoteAddress); }
-void		Module::OnServiceAdd(ServiceProvider&) { DetachEvent(I_OnServiceAdd); }
-void		Module::OnServiceDel(ServiceProvider&) { DetachEvent(I_OnServiceDel); }
+void		Module::OnServiceAdd(Service::Provider&) { DetachEvent(I_OnServiceAdd); }
+void		Module::OnServiceDel(Service::Provider&) { DetachEvent(I_OnServiceDel); }
 ModResult	Module::OnUserWrite(LocalUser*, ClientProtocol::Message&) { DetachEvent(I_OnUserWrite); return MOD_RES_PASSTHRU; }
 void		Module::OnShutdown(const std::string& reason) { DetachEvent(I_OnShutdown); }
 ModResult	Module::OnPreOperLogin(LocalUser*, const std::shared_ptr<OperAccount>&, bool) { DetachEvent(I_OnPreOperLogin); return MOD_RES_PASSTHRU; }
@@ -194,60 +194,6 @@ void		Module::OnPostOperLogout(User*, const std::shared_ptr<OperAccount>&) { Det
 ModResult	Module::OnPreChangeConnectClass(LocalUser*, const std::shared_ptr<ConnectClass>&, std::optional<Numeric::Numeric>&) { DetachEvent(I_OnPreChangeConnectClass); return MOD_RES_PASSTHRU; }
 void		Module::OnChangeConnectClass(LocalUser*, const std::shared_ptr<ConnectClass>&, bool) { DetachEvent(I_OnChangeConnectClass); }
 void		Module::OnPostChangeConnectClass(LocalUser*, const std::shared_ptr<ConnectClass>&, bool) { DetachEvent(I_OnPostChangeConnectClass); }
-
-ServiceProvider::ServiceProvider(const WeakModulePtr& mod, const std::string& stype, const std::string& sname)
-	: service_creator(mod)
-	, service_name(sname)
-	, service_type(stype)
-{
-	if ((ServerInstance) && (ServerInstance->Modules.NewServices))
-		ServerInstance->Modules.NewServices->push_back(this);
-}
-
-void ServiceProvider::DisableAutoRegister()
-{
-	if ((ServerInstance) && (ServerInstance->Modules.NewServices))
-		std::erase(*ServerInstance->Modules.NewServices, this);
-}
-
-std::string ServiceProvider::GetSource() const
-{
-	if (insp::empty_ptr(this->service_creator))
-		return "the core";
-
-	const auto mod = this->service_creator.lock();
-	if (!mod)
-		return "an unknown module";
-
-	return FMT::format("the {} module", ModuleManager::ShrinkModName(mod->ModuleFile));
-}
-
-void ServiceProvider::RegisterService()
-{
-	// Intentionally left blank.
-}
-
-void ServiceProvider::UnregisterService()
-{
-	// Intentionally left blank.
-}
-
-DataProvider::DataProvider(const WeakModulePtr& mod, const std::string& stype, const std::string& sname)
-	: ServiceProvider(mod, stype, sname)
-{
-}
-
-void DataProvider::RegisterService()
-{
-	if (!this->service_name.empty())
-		ServerInstance->Modules.AddReferent(this->service_type, this->service_name, this);
-	ServerInstance->Modules.AddReferent(this->service_type, "", this);
-}
-
-void DataProvider::UnregisterService()
-{
-	ServerInstance->Modules.DelReferent(this);
-}
 
 bool ModuleManager::Attach(Implementation i, const ModulePtr& mod)
 {
@@ -572,7 +518,7 @@ bool ModuleManager::Unload(const ModulePtr& mod)
 
 void ModuleManager::LoadAll()
 {
-	std::map<std::string, ServiceList> servicemap;
+	std::map<std::string, Service::List> servicemap;
 	LoadCoreModules(servicemap);
 
 	// Step 1: load all of the modules.
@@ -648,13 +594,13 @@ std::string& ModuleManager::LastError()
 	return LastModuleError;
 }
 
-void ModuleManager::AddServices(const ServiceList& list)
+void ModuleManager::AddServices(const Service::List& list)
 {
 	for (auto* service : list)
 		AddService(*service);
 }
 
-void ModuleManager::AddService(ServiceProvider& item)
+void ModuleManager::AddService(Service::Provider& item)
 {
 #ifdef INSPIRCD_DEBUG
 	ServerInstance->Logs.Debug("SERVICE", "Adding {} {} ({}) provided by {}", item.service_type,
@@ -665,7 +611,7 @@ void ModuleManager::AddService(ServiceProvider& item)
 	FOREACH_MOD(OnServiceAdd, (item));
 }
 
-void ModuleManager::DelService(ServiceProvider& item)
+void ModuleManager::DelService(Service::Provider& item)
 {
 #ifdef INSPIRCD_DEBUG
 	ServerInstance->Logs.Debug("SERVICE", "Deleting {} {} ({}) provided by {}", item.service_type,
@@ -676,7 +622,7 @@ void ModuleManager::DelService(ServiceProvider& item)
 	FOREACH_MOD(OnServiceDel, (item));
 }
 
-ServiceProvider* ModuleManager::FindService(const std::string& type, const std::string& name)
+Service::Provider* ModuleManager::FindService(const std::string& type, const std::string& name)
 {
 	auto i = this->Services.find(std::make_pair(type, name));
 	if (i != this->Services.end())
@@ -782,7 +728,7 @@ ModulePtr ModuleManager::Find(const std::string& name)
 		return modfind->second;
 }
 
-void ModuleManager::AddReferent(const std::string& stype, const std::string& sname, ServiceProvider* service)
+void ModuleManager::AddReferent(const std::string& stype, const std::string& sname, Service::Provider* service)
 {
 #ifdef INSPIRCD_DEBUG
 	ServerInstance->Logs.Debug("SERVICE", "Adding reference to {} as {} {}",
@@ -792,11 +738,11 @@ void ModuleManager::AddReferent(const std::string& stype, const std::string& sna
 	dynamic_reference_base::reset_all(stype);
 }
 
-void ModuleManager::DelReferent(ServiceProvider* service)
+void ModuleManager::DelReferent(Service::Provider* service)
 {
 	for (auto i = this->Services.begin(); i != this->Services.end(); )
 	{
-		ServiceProvider* curr = i->second;
+		Service::Provider* curr = i->second;
 		if (curr == service)
 		{
 #ifdef INSPIRCD_DEBUG

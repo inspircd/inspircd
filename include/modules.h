@@ -895,15 +895,15 @@ public:
 	 */
 	virtual void OnChangeRemoteAddress(LocalUser* user) ATTR_NOT_NULL(2);
 
-	/** Called whenever a ServiceProvider is registered.
-	 * @param service ServiceProvider being registered.
+	/** Called whenever a service is registered.
+	 * @param service The service being registered.
 	 */
-	virtual void OnServiceAdd(ServiceProvider& service);
+	virtual void OnServiceAdd(Service::Provider& service);
 
-	/** Called whenever a ServiceProvider is unregistered.
-	 * @param service ServiceProvider being unregistered.
+	/** Called whenever a service is unregistered.
+	 * @param service The service being unregistered.
 	 */
-	virtual void OnServiceDel(ServiceProvider& service);
+	virtual void OnServiceDel(Service::Provider& service);
 
 	/** Called whenever a message is about to be written to a user.
 	 * @param user The user who is having a message sent to them.
@@ -984,24 +984,7 @@ public:
 	/** Holds a a list of modules keyed by their module name. */
 	using ModuleMap = std::map<std::string, ModulePtr>;
 
-	/** Holds one or more services. */
-	using ServiceList = std::vector<ServiceProvider*>;
-
-	/** Holds a service type and names. */
-	using ServicePair = std::pair<std::string, std::string>;
-
 private:
-	/** Compares two service pairs case insensitively using the IRC casemapping. */
-	struct ServicePairCompare final
-	{
-		bool CoreExport operator()(const ServicePair& lhs, const ServicePair& rhs) const
-		{
-			if (!insp::casemapped_equals(lhs.first, rhs.first))
-				return insp::casemapped_less(lhs.first, rhs.first);
-			return insp::casemapped_less(lhs.second, rhs.second);
-		}
-	};
-
 	/** Holds a string describing the last module error to occur
 	 */
 	std::string LastModuleError;
@@ -1019,7 +1002,7 @@ private:
 
 	/** Loads all core modules (core_*)
 	 */
-	void LoadCoreModules(std::map<std::string, ServiceList>& servicemap);
+	void LoadCoreModules(std::map<std::string, Service::List>& servicemap);
 
 	/** Calls the Prioritize() method in all loaded modules
 	 * @return True if all went well, false if a dependency loop was detected
@@ -1039,17 +1022,17 @@ public:
 	Module::List EventHandlers[I_END];
 
 	/** List of service providers keyed by service type and name. */
-	std::multimap<ServicePair, ServiceProvider*, ServicePairCompare> Services;
+	std::multimap<Service::Pair, Service::Provider*, Service::PairCompare> Services;
 
-	/** A list of ServiceProviders waiting to be registered.
+	/** A list of services waiting to be registered.
 	 * Non-NULL when constructing a Module, NULL otherwise.
-	 * When non-NULL ServiceProviders add themselves to this list on creation and the core
+	 * When non-NULL services add themselves to this list on creation and the core
 	 * automatically registers them (that is, call AddService()) after the Module is constructed,
 	 * and before Module::init() is called.
 	 * If a service is created after the construction of the Module (for example in init()) it
 	 * has to be registered manually.
 	 */
-	ServiceList* NewServices;
+	Service::List* NewServices;
 
 	/** Expands the name of a module by prepending "m_" and appending ".so".
 	 * No-op if the name is already expanded.
@@ -1178,17 +1161,17 @@ public:
 	ModulePtr Find(const std::string& name);
 
 	/** Register a service provided by a module */
-	void AddService(ServiceProvider&);
+	void AddService(Service::Provider&);
 
 	/** Unregister a service provided by a module */
-	void DelService(ServiceProvider&);
+	void DelService(Service::Provider&);
 
-	/** Register all services in a given ServiceList
+	/** Register all services in a given Service::List
 	 * @param list The list containing the services to register
 	 */
-	void AddServices(const ServiceList& list);
+	void AddServices(const Service::List& list);
 
-	inline void AddServices(ServiceProvider** list, int count)
+	inline void AddServices(Service::Provider** list, int count)
 	{
 		for(int i=0; i < count; i++)
 			AddService(*list[i]);
@@ -1197,7 +1180,7 @@ public:
 	/** Find a service by name.
 	 * If multiple modules provide a given service, the first one loaded will be chosen.
 	 */
-	ServiceProvider* FindService(const std::string& type, const std::string& name = "");
+	Service::Provider* FindService(const std::string& type, const std::string& name = "");
 
 	template<typename T>
 	inline T* FindDataService(const std::string& type, const std::string& name)
@@ -1215,12 +1198,12 @@ public:
 	 * @param sname The name of the service.
 	 * @param service Service to make referenceable by dynamic_references
 	 */
-	void AddReferent(const std::string& stype, const std::string& sname, ServiceProvider* service);
+	void AddReferent(const std::string& stype, const std::string& sname, Service::Provider* service);
 
 	/** Make a service no longer referenceable by dynamic_references
 	 * @param service Service to make no longer referenceable by dynamic_references
 	 */
-	void DelReferent(ServiceProvider* service);
+	void DelReferent(Service::Provider* service);
 };
 
 /** @def FOREACH_MOD(EVENT, ARGS)

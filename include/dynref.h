@@ -43,7 +43,7 @@ private:
 	static void* operator new(std::size_t) = delete;
 	static void* operator new[](std::size_t) = delete;
 protected:
-	ServiceProvider* value = nullptr;
+	Service::Provider* value = nullptr;
 public:
 	const WeakModulePtr creator;
 	dynamic_reference_base(const WeakModulePtr& mod, const std::string& stype, const std::string& sname, bool strict);

@@ -120,7 +120,7 @@ bool Log::FileMethod::Tick()
 }
 
 Log::Engine::Engine(const WeakModulePtr& Creator, const std::string& Name)
-	: DataProvider(Creator, "Log::Engine", Name)
+	: Service::SimpleProvider(Creator, "Log::Engine", Name)
 {
 }
 
@@ -298,8 +298,8 @@ void Log::Manager::OpenLogs(bool requiremethods)
 
 void Log::Manager::RegisterServices()
 {
-	ServiceProvider* coreloggers[] = { &filelog, &stderrlog, &stdoutlog };
-	ServerInstance->Modules.AddServices(coreloggers, sizeof(coreloggers)/sizeof(ServiceProvider*));
+	Service::Provider* coreloggers[] = { &filelog, &stderrlog, &stdoutlog };
+	ServerInstance->Modules.AddServices(coreloggers, sizeof(coreloggers)/sizeof(Service::Provider*));
 }
 
 void Log::Manager::UnloadEngine(const Engine* engine)
