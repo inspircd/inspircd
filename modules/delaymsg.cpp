@@ -28,13 +28,15 @@
 #include "timeutils.h"
 #include "numerichelper.h"
 
+using TimeExtItem = NumExtItem<time_t>;
+
 class DelayMsgMode final
-	: public ParamMode<DelayMsgMode, IntExtItem>
+	: public ParamMode<DelayMsgMode, TimeExtItem>
 {
 public:
-	IntExtItem jointime;
+	TimeExtItem jointime;
 	DelayMsgMode(const WeakModulePtr& Parent)
-		: ParamMode<DelayMsgMode, IntExtItem>(Parent, "delaymsg", 'd')
+		: ParamMode<DelayMsgMode, TimeExtItem>(Parent, "delaymsg", 'd')
 		, jointime(Parent, "delaymsg", ExtensionType::MEMBERSHIP)
 	{
 		ranktoset = ranktounset = OP_VALUE;
@@ -43,13 +45,13 @@ public:
 
 	bool ResolveModeConflict(const std::string& their_param, const std::string& our_param, Channel*) override
 	{
-		return ConvToNum<intptr_t>(their_param) < ConvToNum<intptr_t>(our_param);
+		return ConvToNum<time_t>(their_param) < ConvToNum<time_t>(our_param);
 	}
 
 	bool OnSet(User* source, Channel* chan, std::string& parameter) override;
 	void OnUnset(User* source, Channel* chan) override;
 
-	void SerializeParam(Channel* chan, intptr_t n, std::string& out)
+	void SerializeParam(Channel* chan, time_t n, std::string& out)
 	{
 		out += ConvToStr(n);
 	}
@@ -81,7 +83,7 @@ public:
 bool DelayMsgMode::OnSet(User* source, Channel* chan, std::string& parameter)
 {
 	// Setting a new limit, sanity check
-	intptr_t limit = ConvToNum<intptr_t>(parameter);
+	auto limit = ConvToNum<time_t>(parameter);
 	if (limit <= 0)
 		limit = 1;
 
@@ -129,7 +131,7 @@ ModResult ModuleDelayMsg::HandleMessage(User* user, const MessageTarget& target)
 	if (ts == 0)
 		return MOD_RES_PASSTHRU;
 
-	intptr_t len = djm.ext.Get(channel);
+	const auto len = djm.ext.Get(channel);
 
 	if ((ts + len) > ServerInstance->Time())
 	{

@@ -65,7 +65,7 @@ bool ModeChannelBan::ValidateParam(LocalUser* user, Channel* channel, std::strin
 }
 
 ModeChannelLimit::ModeChannelLimit(const WeakModulePtr& Creator)
-	: ParamMode<ModeChannelLimit, IntExtItem>(Creator, "limit", 'l')
+	: ParamMode<ModeChannelLimit, NumExtItem<size_t>>(Creator, "limit", 'l')
 {
 	syntax = "<limit>";
 }
@@ -73,7 +73,7 @@ ModeChannelLimit::ModeChannelLimit(const WeakModulePtr& Creator)
 bool ModeChannelLimit::ResolveModeConflict(const std::string& their_param, const std::string& our_param, Channel* channel)
 {
 	// When the timestamps are equal the higher channel limit wins.
-	return ConvToNum<intptr_t>(their_param) < ConvToNum<intptr_t>(our_param);
+	return ConvToNum<size_t>(their_param) < ConvToNum<size_t>(our_param);
 }
 
 bool ModeChannelLimit::OnSet(User* user, Channel* chan, std::string& parameter)
@@ -99,9 +99,9 @@ bool ModeChannelLimit::OnSet(User* user, Channel* chan, std::string& parameter)
 	return true;
 }
 
-void ModeChannelLimit::SerializeParam(Channel* chan, intptr_t limit, std::string& out)
+void ModeChannelLimit::SerializeParam(Channel* chan, size_t limit, std::string& out)
 {
-	out += ConvToStr(static_cast<size_t>(limit));
+	out += ConvToStr(limit);
 }
 
 ModeChannelOp::ModeChannelOp(const WeakModulePtr& Creator)

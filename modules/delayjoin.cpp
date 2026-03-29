@@ -31,15 +31,17 @@
 #include "modules/names.h"
 #include "modules/who.h"
 
+using TimeExtItem = NumExtItem<time_t>;
+
 class DelayJoinMode final
 	: public SimpleChannelMode
 {
 private:
-	IntExtItem& unjoined;
+	TimeExtItem& unjoined;
 	IRCv3::ServerTime::API servertime;
 
 public:
-	DelayJoinMode(const WeakModulePtr& Parent, IntExtItem& ext)
+	DelayJoinMode(const WeakModulePtr& Parent, TimeExtItem& ext)
 		: SimpleChannelMode(Parent, "delayjoin", 'D')
 		, unjoined(ext)
 		, servertime(Parent)
@@ -77,10 +79,10 @@ class JoinHook final
 	: public ClientProtocol::EventHook
 {
 private:
-	const IntExtItem& unjoined;
+	const TimeExtItem& unjoined;
 
 public:
-	JoinHook(const WeakModulePtr& mod, const IntExtItem& unjoinedref)
+	JoinHook(const WeakModulePtr& mod, const TimeExtItem& unjoinedref)
 		: ClientProtocol::EventHook(mod, "JOIN", 10)
 		, unjoined(unjoinedref)
 	{
@@ -107,7 +109,7 @@ class ModuleDelayJoin final
 	, public Who::VisibleEventListener
 {
 private:
-	IntExtItem unjoined;
+	TimeExtItem unjoined;
 	JoinHook joinhook;
 	DelayJoinMode djm;
 

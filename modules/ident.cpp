@@ -28,7 +28,8 @@
 #include "inspircd.h"
 #include "extension.h"
 
-enum
+enum IdentState
+	: uint8_t
 {
 	// Either the ident lookup has not started yet or the user is fully connected.
 	IDENT_UNKNOWN = 0,
@@ -279,7 +280,7 @@ private:
 	unsigned long timeout;
 	bool prefixunqueried;
 	SimpleExtItem<IdentRequestSocket, Cullable::Deleter> socket;
-	IntExtItem state;
+	NumExtItem<IdentState> state;
 
 	static void PrefixUser(LocalUser* user)
 	{

@@ -34,7 +34,7 @@ namespace IRCv3
 		class API;
 		class CapReference;
 
-		static constexpr unsigned int MAX_BATCHES = (sizeof(intptr_t) * 8) - 1;
+		static constexpr unsigned int MAX_BATCHES = (sizeof(size_t) * 8) - 1;
 	}
 }
 
@@ -101,7 +101,7 @@ class IRCv3::Batch::Batch final
 	}
 
 	unsigned int GetId() const { return bit; }
-	intptr_t GetBit() const { return reftag; }
+	size_t GetBit() const { return reftag; }
 
 public:
 	/** Constructor.

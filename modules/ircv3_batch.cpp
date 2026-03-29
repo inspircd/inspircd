@@ -66,7 +66,7 @@ class IRCv3::Batch::ManagerImpl final
 
 	Cap::Capability cap;
 	ClientProtocol::EventProvider protoevprov;
-	IntExtItem batchbits;
+	NumExtItem<size_t> batchbits;
 	BatchList active_batches;
 	bool unloading = false;
 
@@ -77,7 +77,7 @@ class IRCv3::Batch::ManagerImpl final
 
 		Batch& batch = *static_cast<Batch*>(tagdata.provdata);
 		// Check if this is the first message the user is getting that is part of the batch
-		const intptr_t bits = batchbits.Get(user);
+		const auto bits = batchbits.Get(user);
 		if (!(bits & batch.GetBit()))
 		{
 			// Send the start batch command ("BATCH +reftag TYPE"), remember the user so we can send them a
@@ -124,7 +124,7 @@ public:
 
 	void RemoveFromAll(LocalUser* user)
 	{
-		const intptr_t bits = batchbits.Get(user);
+		const auto bits = batchbits.Get(user);
 
 		// User is quitting, remove them from all lists
 		for (const auto& batch : active_batches)

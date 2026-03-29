@@ -30,23 +30,27 @@
 #include "modules/hash.h"
 #include "modules/ssl.h"
 
-enum AuthState {
+enum AuthState
+	: uint8_t
+{
 	AUTH_STATE_NONE = 0,
 	AUTH_STATE_BUSY = 1,
 	AUTH_STATE_FAIL = 2
 };
+
+using AuthExtItem = NumExtItem<AuthState>;
 
 class AuthQuery final
 	: public SQL::Query
 {
 public:
 	const std::string uid;
-	IntExtItem& pendingExt;
+	AuthExtItem& pendingExt;
 	bool verbose;
 	const std::string& kdf;
 	const std::string& pwcolumn;
 
-	AuthQuery(const WeakModulePtr& me, const std::string& u, IntExtItem& e, bool v, const std::string& kd, const std::string& pwcol)
+	AuthQuery(const WeakModulePtr& me, const std::string& u, AuthExtItem& e, bool v, const std::string& kd, const std::string& pwcol)
 		: SQL::Query(me)
 		, uid(u)
 		, pendingExt(e)
@@ -118,7 +122,7 @@ public:
 class ModuleSQLAuth final
 	: public Module
 {
-	IntExtItem pendingExt;
+	AuthExtItem pendingExt;
 	dynamic_reference<SQL::Provider> SQL;
 	UserCertificateAPI sslapi;
 

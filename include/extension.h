@@ -404,7 +404,7 @@ public:
 	}
 };
 
-/** An extension which has an integer value. */
+/** An extension which has a raw integer value. */
 class CoreExport IntExtItem
 	: public ExtensionItem
 {
@@ -412,15 +412,15 @@ protected:
 	/** Whether to sync this extension across the network. */
 	bool synced;
 
-public:
 	/** Initializes an instance of the IntExtItem class.
 	 * @param owner The module which created the extension.
 	 * @param key The name of the extension (e.g. foo-bar).
 	 * @param exttype The type of extensible that the extension applies to.
 	 * @param sync Whether this extension should be broadcast to other servers.
 	 */
-	IntExtItem(const WeakModulePtr& owner, const std::string& key, ExtensionType exttype, bool sync = false);
+	IntExtItem(const WeakModulePtr& owner, const std::string& key, ExtensionType exttype, bool sync);
 
+public:
 	/** Retrieves the value for this extension of the specified container.
 	 * @param container The container that this extension is set on.
 	 * @return Either the value of this extension or 0 if it is not set.
@@ -451,6 +451,51 @@ public:
 	 * @param sync If syncable then whether to sync this unset to the network.
 	 */
 	void Unset(Extensible* container, bool sync = true);
+};
+
+/** An extension which has a typed integer value. */
+template <typename Value>
+class NumExtItem
+	: public IntExtItem
+{
+public:
+	/** The numeric type for this extension. */
+	using Numeric = std::conditional_t<std::is_enum_v<Value>, std::underlying_type<Value>, std::type_identity<Value>>::type;
+
+	/** Initializes an instance of the NumExtItem class.
+	 * @param owner The module which created the extension.
+	 * @param key The name of the extension (e.g. foo-bar).
+	 * @param exttype The type of extensible that the extension applies to.
+	 * @param sync Whether this extension should be broadcast to other servers.
+	 */
+	NumExtItem(const WeakModulePtr& owner, const std::string& key, ExtensionType exttype, bool sync = false)
+		: IntExtItem(owner, key, exttype, sync)
+	{
+	}
+
+	/** @copydoc ExtensionItem::FromInternal */
+	void FromInternal(Extensible* container, const std::string& value) noexcept override
+	{
+		Set(container, ConvToNum<Numeric>(value), false);
+	}
+
+	/** @copydoc IntExtItem::Get */
+	Numeric Get(const Extensible* container) const
+	{
+		return static_cast<Numeric>(IntExtItem::Get(container));
+	}
+
+	/** @copydoc IntExtItem::Set */
+	void Set(Extensible* container, Numeric value, bool sync = true)
+	{
+		IntExtItem::Set(container, static_cast<intptr_t>(value), sync);
+	}
+
+	/** @copydoc ExtensionItem::ToInternal */
+	std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept override
+	{
+		return ConvToStr(static_cast<Numeric>(reinterpret_cast<intptr_t>(item.get())));
+	}
 };
 
 /** An extension which has a string value. */

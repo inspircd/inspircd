@@ -198,7 +198,7 @@ private:
 
 public:
 	// Counts the number of DNSBL lookups waiting for this user.
-	IntExtItem countext;
+	NumExtItem<size_t> countext;
 
 	// Reference to the DNS manager.
 	DNS::ManagerRef dns;
@@ -274,7 +274,7 @@ public:
 			return;
 		}
 
-		intptr_t i = data.countext.Get(them);
+		const auto i = data.countext.Get(them);
 		if (i)
 			data.countext.Set(them, i - 1);
 
@@ -395,7 +395,7 @@ public:
 		if (!them || them->client_sa != sa)
 			return;
 
-		intptr_t i = data.countext.Get(them);
+		const auto i = data.countext.Get(them);
 		if (i)
 			data.countext.Set(them, i - 1);
 
@@ -444,7 +444,7 @@ public:
 		if (!ltarget)
 			return CmdResult::SUCCESS; // The user is on another server so just let it forward.
 
-		intptr_t count = data.countext.Get(ltarget);
+		const auto count = data.countext.Get(ltarget);
 		if (count)
 		{
 			IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, this, "STILL_CHECKING", ltarget->nick,

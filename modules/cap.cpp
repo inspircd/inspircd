@@ -314,7 +314,7 @@ namespace
 }
 
 Cap::ExtItem::ExtItem(const WeakModulePtr& mod)
-	: IntExtItem(mod, "caps", ExtensionType::USER, true)
+	: NumExtItem<size_t>(mod, "caps", ExtensionType::USER, true)
 {
 }
 

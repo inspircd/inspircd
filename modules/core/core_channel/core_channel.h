@@ -129,12 +129,12 @@ public:
 };
 
 class ModeChannelLimit final
-	: public ParamMode<ModeChannelLimit, IntExtItem>
+	: public ParamMode<ModeChannelLimit, NumExtItem<size_t>>
 {
 public:
 	ModeChannelLimit(const WeakModulePtr& Creator);
 	bool ResolveModeConflict(const std::string& their_param, const std::string& our_param, Channel* channel) override;
-	void SerializeParam(Channel* chan, intptr_t n, std::string& out);
+	void SerializeParam(Channel* chan, size_t n, std::string& out);
 	bool OnSet(User* source, Channel* channel, std::string& parameter) override;
 };
 

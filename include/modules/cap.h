@@ -24,12 +24,14 @@
 
 namespace Cap
 {
-	static constexpr unsigned int MAX_CAPS = (sizeof(intptr_t) * 8) - 1;
-	static constexpr intptr_t CAP_302_BIT = (intptr_t)1 << MAX_CAPS;
+	using Ext = size_t;
+
+	static constexpr unsigned int MAX_CAPS = (sizeof(Ext) * 8) - 1;
+	static constexpr Ext CAP_302_BIT = (Ext)1 << MAX_CAPS;
 	static constexpr unsigned int MAX_VALUE_LENGTH = 100;
 
-	using Ext = intptr_t;
-	class ExtItem : public IntExtItem
+	class ExtItem final
+		: public NumExtItem<Ext>
 	{
 	public:
 		ExtItem(const WeakModulePtr& mod);
