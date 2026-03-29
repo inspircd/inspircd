@@ -79,9 +79,7 @@
 class SQLConnection;
 class MySQLresult;
 class DispatcherThread;
-
 class ModuleSQL;
-static ModuleSQL* thismod;
 
 namespace
 {
@@ -391,12 +389,6 @@ public:
 		return true;
 	}
 
-	ModuleSQL* Parent()
-	{
-		// TODO: refactor this.
-		return thismod;
-	}
-
 	MySQLresult* DoBlockingQuery(const std::string& query)
 	{
 
@@ -427,9 +419,12 @@ public:
 	void Submit(SQL::Query* q, const std::string& qs) override
 	{
 		ServerInstance->Logs.Debug(MODNAME, "Executing MySQL query: {}", qs);
-		Parent()->Dispatcher->LockQueue();
-		Parent()->qq.emplace_back(q, qs, this);
-		Parent()->Dispatcher->UnlockQueueWakeup();
+
+		// The lock here should always succeed because its for our creator.
+		auto mod = std::static_pointer_cast<ModuleSQL>(this->service_creator.lock());
+		mod->Dispatcher->LockQueue();
+		mod->qq.emplace_back(q, qs, this);
+		mod->Dispatcher->UnlockQueueWakeup();
 	}
 
 	void Submit(SQL::Query* call, const std::string& q, const SQL::ParamList& p) override
@@ -485,7 +480,6 @@ void ModuleSQL::init()
 ModuleSQL::ModuleSQL()
 	: Module(VF_VENDOR, "Provides the ability for SQL modules to query a MySQL database.")
 {
-	thismod = this;
 }
 
 ModuleSQL::~ModuleSQL()
