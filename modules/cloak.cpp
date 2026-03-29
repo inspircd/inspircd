@@ -72,70 +72,22 @@ public:
 };
 
 class CloakExtItem final
-	: public SimpleExtItem<Cloak::List>
+	: public ListExtItem<Cloak::List>
 {
 public:
 	CloakExtItem(const WeakModulePtr& mod)
-		: SimpleExtItem<Cloak::List>(mod, "cloaks", ExtensionType::USER)
+		: ListExtItem<Cloak::List>(mod, "cloaks", ExtensionType::USER)
 	{
 	}
 
-	/** @copydoc ExtensionItem::FromInternal */
-	void FromInternal(Extensible* container, const std::string& value) noexcept override
+	Cloak::Info DecodeElement(const std::string& element) const override
 	{
-		if (container->extype != this->extype)
-			return;
-
-		if (value.empty())
-		{
-			Unset(container, false);
-			return;
-		}
-
-		auto* cloaks = new Cloak::List();
-		StringSplitter stream(value);
-		for (std::string cloak; stream.GetToken(cloak); )
-			cloaks->push_back(Cloak::Info::FromString(Percent::Decode(cloak)));
-
-		if (cloaks->empty())
-		{
-			// The remote sent an empty list.
-			delete cloaks;
-			Unset(container, false);
-		}
-		else
-		{
-			// The remote sent a non-zero list.
-			Set(container, cloaks, false);
-		}
+		return Cloak::Info::FromString(element);
 	}
 
-	std::string ToHuman(const Extensible* container, const ExtensionPtr& item) const noexcept override
+	std::string EncodeElement(const Cloak::Info& element) const override
 	{
-		const auto& cloaks = std::static_pointer_cast<Cloak::List>(item);
-		if (cloaks->empty())
-			return {};
-
-		std::string value;
-		for (const auto& cloak : *cloaks)
-			value.append(cloak.ToString()).push_back(' ');
-		value.pop_back();
-
-		return value;
-	}
-
-	std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept override
-	{
-		const auto& cloaks = std::static_pointer_cast<Cloak::List>(item);
-		if (cloaks->empty())
-			return {};
-
-		std::string value;
-		for (const auto& cloak : *cloaks)
-			value.append(Percent::Encode(cloak.ToString())).push_back(' ');
-		value.pop_back();
-
-		return value;
+		return element.ToString();
 	}
 };
 

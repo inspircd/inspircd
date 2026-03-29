@@ -340,6 +340,26 @@ public:
 	{
 	}
 
+	/** Decodes an list element to a string.
+	 * @param element The list element to encode.
+	 */
+	virtual typename List::value_type DecodeElement(const std::string& element) const
+	{
+		if constexpr (std::is_convertible_v<std::string, typename List::value_type>)
+			return element;
+		return std::string();
+	}
+
+	/** Encodes an list element to a string.
+	 * @param element The list element to encode.
+	 */
+	virtual std::string EncodeElement(const typename List::value_type& element) const
+	{
+		if constexpr (std::is_same_v<typename List::value_type, std::string>)
+			return element;
+		return std::string();
+	}
+
 	/** @copydoc ExtensionItem::FromInternal */
 	void FromInternal(Extensible* container, const std::string& value) noexcept override
 	{
@@ -348,7 +368,7 @@ public:
 
 		if (value.empty())
 		{
-			SimpleExtItem<Container>::Unset(container, false);
+			SimpleExtItem<List>::Unset(container, false);
 			return;
 		}
 
@@ -360,21 +380,21 @@ public:
 				list = this->Create();
 
 			// Argh! Why doesn't vector<string> have an insert(value_type) method?
-			if constexpr (std::is_same_v<Container, std::vector<typename Container::value_type>>)
-				list->push_back(Percent::Decode(element));
+			if constexpr (std::is_same_v<List, std::vector<typename List::value_type>>)
+				list->push_back(DecodeElement(Percent::Decode(element)));
 			else
-				list->insert(Percent::Decode(element));
+				list->insert(DecodeElement(Percent::Decode(element)));
 		}
 
 		if (!list)
 		{
 			// The remote sent an empty list.
-			SimpleExtItem<Container>::Unset(container, false);
+			SimpleExtItem<List>::Unset(container, false);
 		}
 		else
 		{
 			// The remote sent a non-zero list.
-			SimpleExtItem<Container>::Set(container, list, false);
+			SimpleExtItem<List>::Set(container, list, false);
 		}
 	}
 
@@ -385,7 +405,12 @@ public:
 		if (!list || list->empty())
 			return {};
 
-		return insp::join(*list, ' ');
+		std::string buffer;
+		for (const auto& element : *list)
+			buffer.append(EncodeElement(element)).push_back(' ');
+
+		buffer.pop_back();
+		return buffer;
 	}
 
 	/** @copydoc ExtensionItem::ToInternal */
@@ -397,7 +422,7 @@ public:
 
 		std::string value;
 		for (const auto& element : *list)
-			value.append(Percent::Encode(element)).push_back(' ');
+			value.append(Percent::Encode(EncodeElement(element))).push_back(' ');
 		value.pop_back();
 
 		return value;
