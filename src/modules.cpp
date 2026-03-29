@@ -34,20 +34,6 @@
 #include "dynamic.h"
 #include "utility/map.h"
 
-static insp::intrusive_list<dynamic_reference_base>* dynrefs = nullptr;
-
-void dynamic_reference_base::reset_all(const std::string& stype)
-{
-	if (!dynrefs)
-		return;
-
-	for (auto* dynref : *dynrefs)
-	{
-		if (stype.empty() || dynref->service_type == stype)
-			dynref->resolve();
-	}
-}
-
 Module::Module(int mprops, const std::string& mdesc)
 	: Module(mprops, "", mdesc)
 {
@@ -648,75 +634,6 @@ std::string ModuleManager::ShrinkModName(const std::string& modname)
 	size_t startpos = modname.compare(0, 2, "m_", 2) ? 0 : 2;
 	size_t endpos = modname.length() < extlen || modname.compare(modname.length() - extlen, extlen, DLL_EXTENSION, extlen) ? 0 : extlen;
 	return modname.substr(startpos, modname.length() - endpos - startpos);
-}
-
-dynamic_reference_base::dynamic_reference_base(const WeakModulePtr& mod, const std::string& stype, const std::string& sname, bool strict)
-	: service_name(sname)
-	, service_type(stype)
-	, strict_ref(strict)
-	, creator(mod)
-{
-	if (!dynrefs)
-		dynrefs = new insp::intrusive_list<dynamic_reference_base>;
-	dynrefs->push_front(this);
-
-	// Resolve unless there is no ModuleManager (part of class InspIRCd)
-	if (ServerInstance)
-		resolve();
-}
-
-dynamic_reference_base::dynamic_reference_base(const dynamic_reference_base& other)
-	: dynamic_reference_base(other.creator, other.service_type, other.service_name, other.strict_ref)
-{
-	// Intentionally left blank.
-}
-
-dynamic_reference_base::~dynamic_reference_base()
-{
-	dynrefs->erase(this);
-	if (dynrefs->empty())
-		insp::delete_zero(dynrefs);
-}
-
-void dynamic_reference_base::SetProvider(const std::string& stype, const std::string& sname)
-{
-	this->service_type = stype;
-	this->service_name = sname;
-	resolve();
-}
-
-void dynamic_reference_base::SetProviderName(const std::string& sname)
-{
-	SetProvider(GetProviderType(), sname);
-}
-
-void dynamic_reference_base::ClearProviderName()
-{
-	this->service_name.clear();
-	value = nullptr;
-}
-
-void dynamic_reference_base::resolve()
-{
-	auto* oldvalue = this->value;
-	this->value = nullptr;
-
-	// Because find() may return any element with a matching key in case count(key) > 1 use lower_bound()
-	// to ensure a dynref with the same name as another one resolves to the same object
-	auto i = ServerInstance->Modules.Services.lower_bound(std::make_pair(this->service_type, this->service_name));
-	if (i == ServerInstance->Modules.Services.end())
-		return; // No service found.
-
-	const auto& [stype, sname] = i->first;
-	if (!insp::casemapped_equals(this->service_type, stype) || !insp::casemapped_equals(this->service_name, sname))
-		return; // No service found.
-
-	if (this->strict_ref && sname.empty())
-		return; // Can't use generic services for strict references.
-
-	this->value = i->second;
-	if (oldvalue != value && hook)
-		hook->OnCapture();
 }
 
 ModulePtr ModuleManager::Find(const std::string& name)
