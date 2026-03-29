@@ -21,6 +21,26 @@
 
 namespace insp
 {
+	/** Deletes all elements in a container using operator delete
+	 * @param cont The container containing the elements to delete
+	 */
+	template <typename Cont, typename Del = std::default_delete<std::remove_pointer_t<typename Cont::value_type>>>
+	void delete_all(const Cont& cont)
+	{
+		std::for_each(cont.begin(), cont.end(), Del());
+	}
+
+	/** Deletes a object and zeroes the memory location that pointed to it.
+	 * @param pr A reference to the pointer that contains the object to delete.
+	 */
+	template<typename T, typename Del = std::default_delete<T>>
+	void delete_zero(T*& pr)
+	{
+		auto* p = pr;
+		pr = nullptr;
+		Del()(p);
+	}
+
 	/** Determines if the pointer in \p ptr1 is empty.
 	 * @param ptr Either a shared_ptr<> or a weak_ptr<>.
 	 */

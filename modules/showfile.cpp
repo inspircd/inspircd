@@ -184,13 +184,13 @@ public:
 		std::sort(newcmds.begin(), newcmds.end());
 		std::set_difference(cmds.begin(), cmds.end(), newcmds.begin(), newcmds.end(), removed.begin());
 
-		stdalgo::delete_all(removed);
+		insp::delete_all(removed);
 		cmds.swap(newcmds);
 	}
 
 	~ModuleShowFile() override
 	{
-		stdalgo::delete_all(cmds);
+		insp::delete_all(cmds);
 	}
 };
 

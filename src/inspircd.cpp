@@ -406,8 +406,8 @@ void InspIRCd::Cleanup()
 		delete FakeClient->server;
 		FakeClient->Cull();
 	}
-	stdalgo::delete_zero(this->FakeClient);
-	stdalgo::delete_zero(this->XLines);
+	insp::delete_zero(this->FakeClient);
+	insp::delete_zero(this->XLines);
 	this->Config.reset(nullptr);
 	SocketEngine::Deinit();
 	Logs.CloseLogs();

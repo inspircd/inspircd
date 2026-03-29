@@ -111,7 +111,7 @@ void Invite::APIImpl::Create(LocalUser* user, Channel* chan, time_t timeout)
 		if (timeout == 0)
 		{
 			// Convert timed invite to non-expiring
-			stdalgo::delete_zero(inv->expiretimer);
+			insp::delete_zero(inv->expiretimer);
 		}
 		else if (inv->expiretimer->GetTrigger() >= ServerInstance->Time() + timeout)
 		{

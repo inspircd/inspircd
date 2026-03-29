@@ -729,7 +729,7 @@ dynamic_reference_base::~dynamic_reference_base()
 {
 	dynrefs->erase(this);
 	if (dynrefs->empty())
-		stdalgo::delete_zero(dynrefs);
+		insp::delete_zero(dynrefs);
 }
 
 void dynamic_reference_base::SetProvider(const std::string& stype, const std::string& sname)

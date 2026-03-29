@@ -421,7 +421,7 @@ WhoWas::Nick::Nick(const std::string& nickname)
 
 WhoWas::Nick::~Nick()
 {
-	stdalgo::delete_all(entries);
+	insp::delete_all(entries);
 }
 
 class ModuleWhoWas final

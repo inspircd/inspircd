@@ -75,7 +75,7 @@ public:
 			newconfigs.emplace_back(modename, rank);
 		}
 
-		stdalgo::delete_all(watchers);
+		insp::delete_all(watchers);
 		watchers.clear();
 
 		for (const auto& [mode, rank] : newconfigs)
@@ -89,7 +89,7 @@ public:
 
 	~ModuleHideList() override
 	{
-		stdalgo::delete_all(watchers);
+		insp::delete_all(watchers);
 	}
 };
 

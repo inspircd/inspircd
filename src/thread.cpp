@@ -62,7 +62,7 @@ bool Thread::Stop()
 	stopping = true;
 	thread->join();
 
-	stdalgo::delete_zero(thread);
+	insp::delete_zero(thread);
 	return true;
 }
 

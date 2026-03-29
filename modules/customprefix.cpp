@@ -112,7 +112,7 @@ public:
 
 	~ModuleCustomPrefix() override
 	{
-		stdalgo::delete_all(modes);
+		insp::delete_all(modes);
 	}
 };
 
