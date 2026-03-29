@@ -258,7 +258,7 @@ public:
 
 			// Store the silence entry.
 			if (!list)
-				list = std::make_shared<SilenceList>();
+				list = Create();
 			list->emplace(flags, mask);
 		}
 
