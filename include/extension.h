@@ -181,7 +181,7 @@ public:
 	inline ValuePtr GetPtr(const Extensible* container) const
 	{
 		auto* ptr = GetRaw(container);
-		return ptr ? ValuePtr() : std::static_pointer_cast<Value>(*ptr);
+		return ptr ? std::static_pointer_cast<Value>(*ptr) : ValuePtr();
 	}
 
 	/** Retrieves the value for this extension of the specified container.
