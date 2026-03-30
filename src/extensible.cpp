@@ -204,7 +204,7 @@ BoolExtItem::BoolExtItem(const WeakModulePtr& owner, const std::string& key, Ext
 
 void BoolExtItem::FromInternal(Extensible* container, const std::string& value) noexcept
 {
-	if (ConvToNum<intptr_t>(value))
+	if (ConvToNum<size_t>(value))
 		Set(container, false);
 	else
 		Unset(container, false);
@@ -265,7 +265,7 @@ IntExtItem::IntExtItem(const WeakModulePtr& owner, const std::string& key, Exten
 
 void IntExtItem::FromInternal(Extensible* container, const std::string& value) noexcept
 {
-	Set(container, ConvToNum<intptr_t>(value), false);
+	Set(container, ConvToNum<ssize_t>(value), false);
 }
 
 void IntExtItem::FromNetwork(Extensible* container, const std::string& value) noexcept
@@ -274,12 +274,12 @@ void IntExtItem::FromNetwork(Extensible* container, const std::string& value) no
 		FromInternal(container, value);
 }
 
-intptr_t IntExtItem::Get(const Extensible* container) const
+ssize_t IntExtItem::Get(const Extensible* container) const
 {
-	return GetFakePointer<intptr_t>(GetRaw(container));
+	return GetFakePointer<ssize_t>(GetRaw(container));
 }
 
-void IntExtItem::Set(Extensible* container, intptr_t value, bool sync)
+void IntExtItem::Set(Extensible* container, ssize_t value, bool sync)
 {
 	if (container->extype != this->extype)
 		return;
@@ -298,7 +298,7 @@ void IntExtItem::Set(Extensible* container, intptr_t value, bool sync)
 
 std::string IntExtItem::ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept
 {
-	return ConvToStr(GetFakePointer<intptr_t>(&item));
+	return ConvToStr(GetFakePointer<ssize_t>(&item));
 }
 
 std::string IntExtItem::ToNetwork(const Extensible* container, const ExtensionPtr& item) const noexcept

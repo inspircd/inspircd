@@ -450,7 +450,7 @@ public:
 	 * @param container The container that this extension is set on.
 	 * @return Either the value of this extension or 0 if it is not set.
 	 */
-	intptr_t Get(const Extensible* container) const;
+	ssize_t Get(const Extensible* container) const;
 
 	/** @copydoc ExtensionItem::FromInternal */
 	void FromInternal(Extensible* container, const std::string& value) noexcept override;
@@ -463,7 +463,7 @@ public:
 	 * @param value The new value to set for this extension.
 	 * @param sync If syncable then whether to sync this set to the network.
 	 */
-	void Set(Extensible* container, intptr_t value, bool sync = true);
+	void Set(Extensible* container, ssize_t value, bool sync = true);
 
 	/** @copydoc ExtensionItem::ToInternal */
 	std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept override;
@@ -513,13 +513,13 @@ public:
 	/** @copydoc IntExtItem::Set */
 	void Set(Extensible* container, Numeric value, bool sync = true)
 	{
-		IntExtItem::Set(container, static_cast<intptr_t>(value), sync);
+		IntExtItem::Set(container, static_cast<Value>(value), sync);
 	}
 
 	/** @copydoc ExtensionItem::ToInternal */
 	std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept override
 	{
-		return ConvToStr(static_cast<Numeric>(reinterpret_cast<intptr_t>(item.get())));
+		return ConvToStr(static_cast<Numeric>(reinterpret_cast<ssize_t>(item.get())));
 	}
 };
 
