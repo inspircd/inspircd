@@ -640,7 +640,7 @@ public:
 		if (!target || target->extype != ExtensionType::USER || !insp::casemapped_equals(extname, "ssl_cert"))
 			return; // Not for us
 
-		if (extvalue[0] != 'c')
+		if (extvalue[0] == 'c')
 			return; // The remote also sent a tls-cert metadata so we can ignore this.
 
 		cmd.tlsapi.SetCertificate(static_cast<User*>(target), std::make_shared<RemoteCertificate>(extvalue));
