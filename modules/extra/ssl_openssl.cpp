@@ -940,13 +940,13 @@ static int OpenSSL::BIOMethod::read(BIO* bio, char* buffer, int size)
 }
 
 class OpenSSLIOHookProvider final
-	: public SSLIOHookProvider
+	: public IOHookProvider
 {
 	OpenSSL::Profile profile;
 
 public:
 	OpenSSLIOHookProvider(const WeakModulePtr& mod, const std::string& profilename, const std::shared_ptr<ConfigTag>& tag)
-		: SSLIOHookProvider(mod, profilename)
+		: IOHookProvider(mod, FMT::format("ssl/{}", profilename))
 		, profile(profilename, tag)
 	{
 		ServerInstance->Modules.AddService(*this);

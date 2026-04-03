@@ -163,17 +163,6 @@ public:
 	}
 };
 
-/** I/O hook provider for TLS modules. */
-class SSLIOHookProvider
-	: public IOHookProvider
-{
-public:
-	SSLIOHookProvider(const WeakModulePtr& mod, const std::string& Name)
-		: IOHookProvider(mod, "ssl/" + Name)
-	{
-	}
-};
-
 class SSLIOHook
 	: public IOHook
 {
