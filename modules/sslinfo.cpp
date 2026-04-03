@@ -253,7 +253,7 @@ private:
 			if (can_see_full)
 			{
 				if (cert->HasError())
-					source->WriteNotice("Error: {}", cert->GetError());
+					source->WriteNotice("*** Error: {}", cert->GetError());
 
 				source->WriteNotice("*** Flags: {}known signer, {}revoked, {}trusted, {}valid",
 					cert->IsKnownSigner() ? "" : "un", cert->IsRevoked() ? "" : "un",
@@ -273,12 +273,15 @@ private:
 					return FMT::format("{} ({} {})",
 						Time::ToString(ts, Time::DEFAULT_LONG),
 						Duration::ToLongString(std::abs(tsdiff), true),
-						tsdiff < ServerInstance->Time() ? "ago" : "from now"
+						tsdiff <= 0 ? "from now" : "ago"
 					);
 				};
 
-				source->WriteNotice("*** Valid from: {}", timestr(cert->GetActivationTime()));
-				source->WriteNotice("*** Valid until: {}", timestr(cert->GetExpirationTime()));
+				if (cert->GetActivationTime())
+					source->WriteNotice("*** Valid from: {}", timestr(cert->GetActivationTime()));
+
+				if (cert->GetExpirationTime())
+					source->WriteNotice("*** Valid until: {}", timestr(cert->GetExpirationTime()));
 			}
 
 			auto first = true;
