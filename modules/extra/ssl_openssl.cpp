@@ -700,6 +700,26 @@ private:
 		return str ? str : "UNKNOWN";
 	}
 
+	static void FlattenSendQueue(StreamSocket::SendQueue& sendq, size_t targetsize)
+	{
+		if ((sendq.size() <= 1) || (sendq.front().length() >= targetsize))
+			return;
+
+		// Avoid multiple repeated TLS encryption invocations
+		// This adds a single copy of the queue, but avoids
+		// much more overhead in terms of system calls invoked
+		// by an IOHook.
+		std::string tmp;
+		tmp.reserve(std::min(targetsize, sendq.bytes())+1);
+		do
+		{
+			tmp.append(sendq.front());
+			sendq.pop_front();
+		}
+		while (!sendq.empty() && tmp.length() < targetsize);
+		sendq.push_front(tmp);
+	}
+
 public:
 	OpenSSLIOHook(const std::shared_ptr<IOHookProvider>& hookprov, StreamSocket* sock, SSL* session)
 		: SSLIOHook(hookprov)
