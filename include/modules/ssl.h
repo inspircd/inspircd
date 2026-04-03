@@ -169,7 +169,7 @@ class SSLIOHookProvider
 {
 public:
 	SSLIOHookProvider(const WeakModulePtr& mod, const std::string& Name)
-		: IOHookProvider(mod, "ssl/" + Name, IOH_SSL)
+		: IOHookProvider(mod, "ssl/" + Name)
 	{
 	}
 };
@@ -230,7 +230,7 @@ public:
 			return nullptr;
 
 		IOHook* const lasthook = sock->GetLastHook();
-		if (lasthook && (lasthook->prov->type == IOHookProvider::IOH_SSL))
+		if (lasthook && (lasthook->prov->service_name.starts_with("ssl/")))
 			return static_cast<SSLIOHook*>(lasthook);
 
 		return nullptr;

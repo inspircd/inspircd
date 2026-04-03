@@ -31,24 +31,14 @@ class IOHookProvider
 	const bool middlehook;
 
 public:
-	enum Type
-	{
-		IOH_UNKNOWN,
-		IOH_SSL
-	};
-
-	const Type type;
-
 	/** Constructor
 	 * @param mod Module that owns the IOHookProvider
 	 * @param Name Name of the provider
-	 * @param hooktype One of IOHookProvider::Type
 	 * @param middle True if the IOHook instances created by this hook are subclasses of IOHookMiddle, false otherwise
 	 */
-	IOHookProvider(const WeakModulePtr& mod, const std::string& Name, Type hooktype = IOH_UNKNOWN, bool middle = false)
+	IOHookProvider(const WeakModulePtr& mod, const std::string& Name, bool middle = false)
 		: Service::SimpleProvider(mod, "IOHookProvider", Name)
 		, middlehook(middle)
-		, type(hooktype)
 	{
 	}
 

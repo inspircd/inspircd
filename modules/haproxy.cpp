@@ -115,7 +115,7 @@ private:
 
 public:
 	HAProxyHookProvider(const WeakModulePtr& mod)
-		: IOHookProvider(mod, "haproxy", IOHookProvider::IOH_UNKNOWN, true)
+		: IOHookProvider(mod, "haproxy", true)
 		, sslapi(mod)
 	{
 	}

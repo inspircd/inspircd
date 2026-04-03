@@ -107,7 +107,7 @@ class WebSocketHookProvider final
 public:
 	WebSocketConfig config;
 	WebSocketHookProvider(const WeakModulePtr& mod)
-		: IOHookProvider(mod, "websocket", IOHookProvider::IOH_UNKNOWN, true)
+		: IOHookProvider(mod, "websocket", true)
 	{
 	}
 
