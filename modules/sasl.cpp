@@ -30,7 +30,7 @@
 #include "modules/account.h"
 #include "modules/cap.h"
 #include "modules/server.h"
-#include "modules/ssl.h"
+#include "modules/tls.h"
 
 enum
 {
@@ -118,29 +118,29 @@ private:
 	SaslResult result;
 	bool state_announced = false;
 
-	void SendHostIP(UserCertificateAPI& sslapi)
+	void SendHostIP(TLS::API& tlsapi)
 	{
 		std::vector<std::string> params;
 		params.reserve(3);
 		params.push_back(user->GetRealHost());
 		params.push_back(user->GetAddress());
-		params.emplace_back(sslapi && sslapi->IsSecure(user) ? "S" : "P");
+		params.emplace_back(tlsapi && tlsapi->IsSecure(user) ? "S" : "P");
 
 		SendSASL(user, "*", 'H', params);
 	}
 
 public:
-	SaslAuthenticator(LocalUser* lu, const std::string& method, UserCertificateAPI& sslapi)
+	SaslAuthenticator(LocalUser* lu, const std::string& method, TLS::API& tlsapi)
 		: user(lu)
 	{
-		SendHostIP(sslapi);
+		SendHostIP(tlsapi);
 
 		std::vector<std::string> params;
 		params.push_back(method);
 
-		if (sslapi)
+		if (tlsapi)
 		{
-			for (const auto& fingerprint : sslapi->GetFingerprints(user))
+			for (const auto& fingerprint : tlsapi->GetFingerprints(user))
 				params.push_back(fingerprint);
 		}
 
@@ -258,13 +258,13 @@ private:
 public:
 	Cap::Capability& saslcap;
 	SimpleExtItem<SaslAuthenticator>& saslext;
-	UserCertificateAPI sslapi;
+	TLS::API tlsapi;
 
 	CommandAuthenticate(const WeakModulePtr& mod, SimpleExtItem<SaslAuthenticator>& ext, Cap::Capability& cap)
 		: SplitCommand(mod, "AUTHENTICATE", 1)
 		, saslcap(cap)
 		, saslext(ext)
-		, sslapi(mod)
+		, tlsapi(mod)
 	{
 		works_before_reg = true;
 	}
@@ -291,7 +291,7 @@ public:
 
 		auto* sasl = saslext.Get(user);
 		if (!sasl)
-			saslext.SetFwd(user, user, parameters[0], sslapi);
+			saslext.SetFwd(user, user, parameters[0], tlsapi);
 		else if (!sasl->SendClientMessage(parameters))
 		{
 			sasl->AnnounceState();

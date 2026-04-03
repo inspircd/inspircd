@@ -29,47 +29,107 @@
 
 #include "inspircd.h"
 #include "extension.h"
-#include "modules/ssl.h"
 #include "modules/stats.h"
+#include "modules/tls.h"
 #include "modules/webirc.h"
 #include "modules/who.h"
 #include "modules/whois.h"
 #include "numerichelper.h"
+#include "stringutils.h"
 #include "timeutils.h"
 
-class SSLCertExt final
-	: public SimpleExtItem<ssl_cert>
+struct RemoteCertificate final
+	: public TLS::Certificate
+{
+	RemoteCertificate(const Percent::QueryData& data)
+	{
+		auto getstr = [&data](const auto& key) {
+			auto it = data.find(key);
+			return it == data.end() ? "" : it->second;
+		};
+
+		StringSplitter ss(getstr("fingerprints"));
+		for (std::string fingerprint; ss.GetToken(fingerprint); )
+			this->fingerprints.push_back(fingerprint);
+
+		this->dn = getstr("dn");
+		this->error = getstr("error");
+		this->issuer_dn = getstr("issuer-dn");
+
+		this->activation = ConvToNum<time_t>(getstr("activation"));
+		this->expiration = ConvToNum<time_t>(getstr("expiration"));
+
+		this->known_signer = !!ConvToNum<uintmax_t>(getstr("known-signer"));
+		this->revoked = !!ConvToNum<uintmax_t>(getstr("revoked"));
+		this->trusted = !!ConvToNum<uintmax_t>(getstr("trusted"));
+		this->valid = !!ConvToNum<uintmax_t>(getstr("valid"));
+	}
+
+	RemoteCertificate(const std::string& data)
+	{
+		// Compatibility for the old ssl_cert metadata.
+		std::stringstream stream(data);
+
+		std::string flags;
+		std::getline(stream, flags, ' ');
+		this->known_signer = (flags.find('S') != std::string::npos);
+		this->revoked = (flags.find('R') != std::string::npos);
+		this->trusted = (flags.find('T') != std::string::npos);
+		this->valid = (flags.find('V') != std::string::npos);
+
+		if (flags.find('E') != std::string::npos)
+		{
+			std::getline(stream, this->error, '\n');
+			return;
+		}
+
+		std::string fingerprint;
+		std::getline(stream, fingerprint, ' ');
+		StringSplitter ss(fingerprint, ',');
+		while (ss.GetToken(fingerprint))
+			this->fingerprints.push_back(fingerprint);
+
+		std::getline(stream, this->dn, ' ');
+		std::getline(stream, this->issuer_dn, '\n');
+	}
+};
+
+class TLSCertificateExt final
+	: public SimpleExtItem<TLS::Certificate>
 {
 public:
-	SSLCertExt(const WeakModulePtr& mod)
-		: SimpleExtItem<ssl_cert>(mod, "ssl_cert", ExtensionType::USER)
+	TLSCertificateExt(const WeakModulePtr& mod)
+		: SimpleExtItem<TLS::Certificate>(mod, "tls-cert", ExtensionType::USER, true)
 	{
 	}
 
-	static std::string GetFlags(const ssl_cert* cert)
+	void OnSync(const Extensible* container, const ExtensionPtr& item, Server* server) override
 	{
-		std::string ret;
-		ret.push_back(cert->IsInvalid() ? 'v' : 'V');
-		ret.push_back(cert->IsTrusted() ? 'T' : 't');
-		ret.push_back(cert->IsRevoked() ? 'R' : 'r');
-		ret.push_back(cert->IsUnknownSigner() ? 's' : 'S');
-		ret.push_back(cert->GetError().empty() ? 'e' : 'E');
-		return ret;
-	}
-
-	std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept override
-	{
-		const auto& cert = std::static_pointer_cast<ssl_cert>(item);
+		// Compatibility for the old ssl_cert metadata.
+		const auto& cert = std::static_pointer_cast<TLS::Certificate>(item);
 
 		std::stringstream value;
-		value << GetFlags(cert.get()) << " ";
+		value << 'c'
+			<< (cert->HasError() ? 'E' : 'e')
+			<< (cert->IsTrusted() ? 'T' : 't')
+			<< (cert->IsKnownSigner() ? 'S' : 's')
+			<< (cert->IsRevoked() ? 'R' : 'r')
+			<< (cert->IsValid() ? 'V' : 'v')
+			<< ' ';
 
-		if (cert->GetError().empty())
-			value << insp::join(cert->GetFingerprints(), ',') << " " << cert->GetDN() << " " << cert->GetIssuer();
-		else
+		if (cert->HasError())
 			value << cert->GetError();
+		else
+		{
+			value << insp::join(cert->GetFingerprints(), ',') << ' '
+				<< cert->GetDN() << ' '
+				<< cert->GetIssuerDN();
+		}
 
-		return value.str();
+		if (server)
+			server->SendMetadata(container, "ssl_cert", value.str());
+		else
+			ServerInstance->PI->SendMetadata(container, "ssl_cert", value.str());
 	}
 
 	void FromInternal(Extensible* container, const std::string& value) noexcept override
@@ -77,77 +137,71 @@ public:
 		if (container->extype != this->extype)
 			return;
 
-		auto cert = std::make_shared<ssl_cert>();
-		Set(container, cert, false);
+		const auto data = Percent::DecodeQuery(value);
+		Set(container, std::make_shared<RemoteCertificate>(data), false);
+	}
 
-		std::stringstream s(value);
-		std::string v;
-		getline(s, v, ' ');
+	std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept override
+	{
+		const auto& cert = std::static_pointer_cast<TLS::Certificate>(item);
+		return Percent::EncodeQuery({
+			{ "fingerprints", insp::join(cert->GetFingerprints())  },
 
-		cert->invalid = (v.find('v') != std::string::npos);
-		cert->trusted = (v.find('T') != std::string::npos);
-		cert->revoked = (v.find('R') != std::string::npos);
-		cert->unknownsigner = (v.find('s') != std::string::npos);
-		if (v.find('E') != std::string::npos)
-		{
-			getline(s, cert->error, '\n');
-		}
-		else
-		{
-			std::string fingerprints;
-			getline(s, fingerprints, ' ');
-			StringSplitter fingerprintstream(fingerprints, ',');
-			for (std::string fingerprint; fingerprintstream.GetToken(fingerprint); )
-				cert->fingerprints.push_back(fingerprint);
+			{ "dn",           cert->GetDN()                        },
+			{ "error",        cert->GetError()                     },
+			{ "issuer-dn",    cert->GetIssuerDN()                  },
 
-			getline(s, cert->dn, ' ');
-			getline(s, cert->issuer, '\n');
-		}
+			{ "activation",   ConvToStr(cert->GetActivationTime()) },
+			{ "expiration",   ConvToStr(cert->GetExpirationTime()) },
+
+			{ "known-signer", ConvToStr(cert->IsKnownSigner())     },
+			{ "revoked",      ConvToStr(cert->IsRevoked())         },
+			{ "trusted",      ConvToStr(cert->IsTrusted())         },
+			{ "valid",        ConvToStr(cert->IsValid())           },
+		});
 	}
 };
 
-class UserCertificateAPIImpl final
-	: public UserCertificateAPIBase
+class TLSAPIImpl final
+	: public TLS::APIBase
 {
 public:
-	BoolExtItem nosslext;
-	SSLCertExt sslext;
+	BoolExtItem notlsext;
+	TLSCertificateExt tlsext;
 	bool localsecure;
 
-	UserCertificateAPIImpl(const WeakModulePtr& mod)
-		: UserCertificateAPIBase(mod)
-		, nosslext(mod, "no-ssl-cert", ExtensionType::USER)
-		, sslext(mod)
+	TLSAPIImpl(const WeakModulePtr& mod)
+		: TLS::APIBase(mod)
+		, notlsext(mod, "no-tls-cert", ExtensionType::USER)
+		, tlsext(mod)
 	{
 	}
 
-	ssl_cert* GetCertificate(User* user) override
+	TLS::Certificate* GetCertificate(User* user) override
 	{
-		ssl_cert* cert = sslext.Get(user);
+		auto* cert = tlsext.Get(user);
 		if (cert)
 			return cert;
 
 		auto* luser = user->AsLocal();
-		if (!luser || nosslext.Get(luser))
+		if (!luser || notlsext.Get(luser))
 			return nullptr;
 
-		auto* ssliohook = SSLIOHook::IsSSL(luser->io->GetSocket());
-		if (!ssliohook)
+		auto* hook = TLS::GetHook(luser->io->GetSocket());
+		if (!hook)
 			return nullptr;
 
-		auto newcert = ssliohook->GetCertificate();
-		if (newcert)
-		{
-			SetCertificate(user, newcert);
-			cert = newcert.get();
-		}
+		auto newcert = hook->GetCertificate();
+		if (!newcert)
+			return nullptr;
 
-		return cert;
+		SetCertificate(user, newcert);
+		return newcert.get();
 	}
 
 	bool IsSecure(User* user) override
 	{
-		auto* cert = GetCertificate(user);
+		const auto* cert = GetCertificate(user);
 		if (cert)
 			return !!cert;
 
@@ -157,11 +211,11 @@ public:
 		return false;
 	}
 
-	void SetCertificate(User* user, const std::shared_ptr<ssl_cert>& cert) override
+	void SetCertificate(User* user, const TLS::CertificatePtr& cert) override
 	{
 		ServerInstance->Logs.Debug(MODNAME, "Setting TLS client certificate for {}: {}",
-			user->GetMask(), sslext.ToNetwork(user, cert));
-		sslext.Set(user, cert);
+			user->GetMask(), tlsext.ToNetwork(user, cert));
+		tlsext.Set(user, cert);
 	}
 };
 
@@ -173,12 +227,12 @@ private:
 
 	void HandleUserInternal(LocalUser* source, User* target, bool verbose)
 	{
-		ssl_cert* cert = sslapi.GetCertificate(target);
+		const auto* cert = tlsapi.GetCertificate(target);
 		if (!cert)
 		{
 			source->WriteNotice("*** {} is not connected using TLS.", target->nick);
 		}
-		else if (cert->GetError().length())
+		else if (cert->HasError())
 		{
 			source->WriteNotice("*** {} is connected using TLS but has not specified a valid client certificate ({}).",
 				target->nick, cert->GetError());
@@ -190,11 +244,46 @@ private:
 		}
 		else
 		{
-			source->WriteNotice("*** Flags:              " + SSLCertExt::GetFlags(cert));
-			source->WriteNotice("*** Distinguished Name: " + cert->GetDN());
-			source->WriteNotice("*** Issuer:             " + cert->GetIssuer());
+			source->WriteNotice("*** {} is connected using TLS.", target->nick);
+
+			const auto can_see_full = source->IsOper() || source == target;
+			if (can_see_full)
+			{
+				if (cert->HasError())
+					source->WriteNotice("Error: {}", cert->GetError());
+
+				source->WriteNotice("*** Flags: {}known signer, {}revoked, {}trusted, {}valid",
+					cert->IsKnownSigner() ? "" : "un", cert->IsRevoked() ? "" : "un",
+					cert->IsTrusted() ? "" : "un", cert->IsValid() ? "" : "in");
+			}
+
+			if (!cert->GetDN().empty())
+				source->WriteNotice("*** DN: {} ", cert->GetDN());
+
+			if (!cert->GetIssuerDN().empty())
+				source->WriteNotice("*** Issuer DN: {} ", cert->GetIssuerDN());
+
+			if (can_see_full)
+			{
+				auto timestr = [](auto ts) {
+					const auto tsdiff = ServerInstance->Time() - ts;
+					return FMT::format("{} ({} {})",
+						Time::ToString(ts, Time::DEFAULT_LONG),
+						Duration::ToLongString(std::abs(tsdiff), true),
+						tsdiff < ServerInstance->Time() ? "ago" : "from now"
+					);
+				};
+
+				source->WriteNotice("*** Valid from: {}", timestr(cert->GetActivationTime()));
+				source->WriteNotice("*** Valid until: {}", timestr(cert->GetExpirationTime()));
+			}
+
+			auto first = true;
 			for (const auto& fingerprint : cert->GetFingerprints())
-				source->WriteNotice("*** Key Fingerprint:    " + fingerprint);
+			{
+				source->WriteNotice("*** Fingerprint{}: {}", first ? "" : " (fallback)", fingerprint);
+				first = false;
+			}
 		}
 	}
 
@@ -255,13 +344,13 @@ private:
 	}
 
 public:
-	UserCertificateAPIImpl sslapi;
+	TLSAPIImpl tlsapi;
 	bool operonlyfp;
 
 	CommandSSLInfo(const WeakModulePtr& Creator)
 		: SplitCommand(Creator, "SSLINFO")
 		, sslonlymode(Creator, "sslonly")
-		, sslapi(Creator)
+		, tlsapi(Creator)
 	{
 		syntax = { "[<channel|nick>]" };
 	}
@@ -289,11 +378,32 @@ class ModuleSSLInfo final
 	, public Whois::EventListener
 {
 private:
+	struct WebIRCCertificate final
+		: public TLS::Certificate
+	{
+		WebIRCCertificate(const WebIRC::FlagMap& flags, const std::vector<std::string>& algos)
+		{
+			this->known_signer = true;
+			this->trusted = true;
+			this->valid = true;
+
+			for (const auto& algo : algos)
+			{
+				auto iter = flags.find(algo);
+				if (iter != flags.end() && !iter->second.empty())
+					this->fingerprints.push_back(iter->second);
+			}
+
+			if (this->GetFingerprints().empty())
+				this->error = "WebIRC gateway did not send a client fingerprint";
+		}
+	};
+
 	CommandSSLInfo cmd;
 	std::vector<std::string> hashes;
 	unsigned long warnexpiring;
 
-	static bool MatchFingerprint(const ssl_cert* cert, const std::string& fp)
+	static bool MatchFingerprint(const TLS::Certificate* cert, const std::string& fp)
 	{
 		StringSplitter configfpstream(fp);
 		for (std::string configfp; configfpstream.GetToken(configfp); )
@@ -323,7 +433,7 @@ public:
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("sslinfo");
 		cmd.operonlyfp = tag->getBool("operonly");
-		cmd.sslapi.localsecure = tag->getBool("localsecure", true);
+		cmd.tlsapi.localsecure = tag->getBool("localsecure", true);
 		warnexpiring = tag->getDuration("warnexpiring", 0, 0, 60*60*24*365);
 
 		hashes.clear();
@@ -340,10 +450,10 @@ public:
 
 	void OnWhois(Whois::Context& whois) override
 	{
-		if (cmd.sslapi.IsSecure(whois.GetTarget()))
+		if (cmd.tlsapi.IsSecure(whois.GetTarget()))
 			whois.SendLine(RPL_WHOISSECURE, "is using a secure connection");
 
-		ssl_cert* cert = cmd.sslapi.GetCertificate(whois.GetTarget());
+		const auto* cert = cmd.tlsapi.GetCertificate(whois.GetTarget());
 		if (cert && cert->IsUsable())
 		{
 			if (!cmd.operonlyfp || whois.IsSelfWhois() || whois.GetSource()->IsOper())
@@ -352,7 +462,7 @@ public:
 				for (const auto& fingerprint : cert->GetFingerprints())
 				{
 					whois.SendLine(RPL_WHOISCERTFP, FMT::format("has {}client certificate fingerprint {}",
-						first ? "" : "old ", fingerprint));
+						first ? "" : "fallback ", fingerprint));
 					first = false;
 				}
 			}
@@ -365,7 +475,7 @@ public:
 		if (!request.GetFieldIndex('f', flag_index))
 			return MOD_RES_PASSTHRU;
 
-		ssl_cert* cert = cmd.sslapi.GetCertificate(user);
+		const auto* cert = cmd.tlsapi.GetCertificate(user);
 		if (cert)
 			numeric.GetParams()[flag_index].push_back('s');
 
@@ -374,7 +484,7 @@ public:
 
 	ModResult OnPreOperLogin(LocalUser* user, const std::shared_ptr<OperAccount>& oper, bool automatic) override
 	{
-		auto* cert = cmd.sslapi.GetCertificate(user);
+		auto* cert = cmd.tlsapi.GetCertificate(user);
 		if (oper->GetConfig()->getBool("sslonly") && !cert)
 		{
 			if (!automatic)
@@ -418,7 +528,7 @@ public:
 		if (!localuser)
 			return;
 
-		ssl_cert* const cert = cmd.sslapi.GetCertificate(localuser);
+		auto* const cert = cmd.tlsapi.GetCertificate(localuser);
 		if (!cert || !warnexpiring || !cert->GetExpirationTime())
 			return;
 
@@ -435,12 +545,12 @@ public:
 
 	ModResult OnPreChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& klass, std::optional<Numeric::Numeric>& errnum) override
 	{
-		ssl_cert* cert = cmd.sslapi.GetCertificate(user);
+		const auto* cert = cmd.tlsapi.GetCertificate(user);
 		const char* error = nullptr;
 		const std::string requiressl = klass->config->getString("requiressl");
 		if (insp::equalsci(requiressl, "trusted"))
 		{
-			if (!cert || !cert->IsCAVerified())
+			if (!cert || !cert->IsUsable(true))
 				error = "a trusted TLS client certificate";
 		}
 		else if (klass->config->getBool("requiressl"))
@@ -470,16 +580,15 @@ public:
 		auto& unknown = counts["Unknown"];
 		for (auto* user : ServerInstance->Users.GetLocalUsers())
 		{
-			const auto* ssliohook = SSLIOHook::IsSSL(user->io->GetSocket());
-			if (!ssliohook)
+			const auto* hook = TLS::GetHook(user->io->GetSocket());
+			if (!hook)
 			{
 				plaintext++;
 				continue;
 			}
 
 			std::string ciphersuite;
-			ssliohook->GetCiphersuite(ciphersuite);
-			if (ciphersuite.empty())
+			if (!hook->GetCiphersuite(ciphersuite))
 				unknown++;
 			else
 				counts[ciphersuite]++;
@@ -508,7 +617,7 @@ public:
 
 		// We only care about the tls connection flag if the connection
 		// between the gateway and the server is secure.
-		if (!cmd.sslapi.GetCertificate(user))
+		if (!cmd.tlsapi.GetCertificate(user))
 			return;
 
 		WebIRC::FlagMap::const_iterator iter = flags->find("secure");
@@ -516,37 +625,25 @@ public:
 		{
 			// If this is not set then the connection between the client and
 			// the gateway is not secure.
-			cmd.sslapi.nosslext.Set(user);
-			cmd.sslapi.sslext.Unset(user);
+			cmd.tlsapi.notlsext.Set(user);
+			cmd.tlsapi.tlsext.Unset(user);
 			return;
 		}
 
-		// Create a fake ssl_cert for the user.
-		auto cert = std::make_shared<ssl_cert>();
-		cert->dn = "(unknown)";
-		cert->invalid = false;
-		cert->issuer = "(unknown)";
-		cert->trusted = true;
-		cert->unknownsigner = false;
-		for (const auto& hash : hashes)
-		{
-			iter = flags->find(hash);
-			if (iter != flags->end() && !iter->second.empty())
-			{
-				// If the gateway specifies this flag we put all trust onto them
-				// for having validated the client certificate. This is probably
-				// ill-advised but there's not much else we can do.
-				cert->fingerprints.push_back(iter->second);
-			}
-		}
+		// If the gateway specifies this flag we put all trust onto them for having validated the
+		// client certificate. This is probably ill-advised but there's not much else we can do.
+		cmd.tlsapi.SetCertificate(user, std::make_shared<WebIRCCertificate>(*flags, hashes));
+	}
 
-		if (cert->GetFingerprints().empty())
-		{
-			cert->error = "WebIRC gateway did not send a client fingerprint";
-			cert->revoked = true;
-		}
+	void OnDecodeMetadata(Extensible* target, const std::string& extname, const std::string& extvalue) override
+	{
+		if (!target || target->extype != ExtensionType::USER || !insp::casemapped_equals(extname, "ssl_cert"))
+			return; // Not for us
 
-		cmd.sslapi.SetCertificate(user, cert);
+		if (extvalue[0] != 'c')
+			return; // The remote also sent a tls-cert metadata so we can ignore this.
+
+		cmd.tlsapi.SetCertificate(static_cast<User*>(target), std::make_shared<RemoteCertificate>(extvalue));
 	}
 };
 

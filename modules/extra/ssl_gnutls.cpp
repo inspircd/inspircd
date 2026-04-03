@@ -39,7 +39,7 @@
 /// $PackageInfo: require_system("rhel~") gnutls-devel pkgconfig
 
 #include "inspircd.h"
-#include "modules/ssl.h"
+#include "modules/tls.h"
 #include "stringutils.h"
 #include "timeutils.h"
 #include "utility/string.h"
@@ -548,10 +548,166 @@ namespace GnuTLS
 		std::vector<std::pair<gnutls_digest_algorithm_t, bool>> GetHash() const { return hash.get(); }
 		unsigned int GetOutgoingRecordSize() const { return outrecsize; }
 	};
+
+	class Certificate final
+		: public TLS::Certificate
+	{
+	private:
+		static int GetCertFP(gnutls_x509_crt_t& cert, gnutls_digest_algorithm_t algo, char* buffer, size_t& buffer_size)
+		{
+			return gnutls_x509_crt_get_fingerprint(cert, algo, buffer, &buffer_size);
+		}
+
+		static int GetSPKIFP(gnutls_x509_crt_t& cert, gnutls_digest_algorithm_t algo, char* buffer, size_t& buffer_size)
+		{
+			int ret;
+			gnutls_pubkey_t pubkey;
+
+			if ((ret = gnutls_pubkey_init(&pubkey)) != GNUTLS_E_SUCCESS)
+				return ret;
+
+			if ((ret = gnutls_pubkey_import_x509(pubkey, cert, 0)) != GNUTLS_E_SUCCESS)
+			{
+				gnutls_pubkey_deinit(pubkey);
+				return ret;
+			}
+
+			// We need to do this twice in order to find the size of the public key.
+			size_t derkey_size = 0;
+			if (gnutls_pubkey_export(pubkey, GNUTLS_X509_FMT_DER, buffer, &derkey_size) != GNUTLS_E_SHORT_MEMORY_BUFFER)
+				return GNUTLS_E_SHORT_MEMORY_BUFFER;
+
+			std::vector<char> derkey(derkey_size);
+			if ((ret = gnutls_pubkey_export(pubkey, GNUTLS_X509_FMT_DER, &derkey[0], &derkey_size)) != GNUTLS_E_SUCCESS)
+				return ret;
+
+			gnutls_pubkey_deinit(pubkey);
+			if (gnutls_hash_fast(algo, &derkey[0], derkey_size, buffer) != GNUTLS_E_SUCCESS)
+				return ret;
+
+			buffer_size = gnutls_hash_get_len(algo);
+			return GNUTLS_E_SUCCESS;
+		}
+
+		static void ProcessDNString(const char* buffer, size_t buffer_size, std::string& out)
+		{
+			out.assign(buffer, buffer_size);
+			for (size_t pos = 0; ((pos = out.find_first_of("\r\n", pos)) != std::string::npos); )
+				out[pos] = ' ';
+		}
+
+		inline void SetError(int errcode)
+		{
+			this->error = gnutls_strerror(errcode);
+		}
+
+		inline void SetFlags(unsigned int status)
+		{
+			this->known_signer = !(status & GNUTLS_CERT_SIGNER_NOT_FOUND);
+			this->revoked = (status & GNUTLS_CERT_REVOKED);
+			this->trusted = !(status & GNUTLS_CERT_SIGNER_NOT_CA);
+			this->valid = !(status & GNUTLS_CERT_SIGNATURE_FAILURE);
+		}
+
+	public:
+		Certificate(gnutls_session_t sess, const GnuTLS::Profile& profile)
+		{
+			unsigned int status;
+			auto ret = gnutls_certificate_verify_peers2(sess, &status);
+			if (ret < 0)
+			{
+				SetError(ret);
+				return;
+			}
+			SetFlags(status);
+
+			if (gnutls_certificate_type_get(sess) != GNUTLS_CRT_X509)
+			{
+				SetError(GNUTLS_E_UNSUPPORTED_CERTIFICATE_TYPE);
+				return;
+			}
+
+			gnutls_x509_crt_t cert;
+			ret = gnutls_x509_crt_init(&cert);
+			if (ret < 0)
+			{
+				SetError(ret);
+				return;
+			}
+
+			char buffer[512];
+			size_t buffer_size = sizeof(buffer);
+
+			unsigned int cert_list_size = 0;
+			const gnutls_datum_t* cert_list = gnutls_certificate_get_peers(sess, &cert_list_size);
+			if (!cert_list)
+			{
+				SetError(GNUTLS_E_NO_CERTIFICATE_FOUND);
+				goto info_done_dealloc;
+			}
+
+			ret = gnutls_x509_crt_import(cert, &cert_list[0], GNUTLS_X509_FMT_DER);
+			if (ret < 0)
+			{
+				SetError(ret);
+				goto info_done_dealloc;
+			}
+
+			if (gnutls_x509_crt_get_dn(cert, buffer, &buffer_size) == GNUTLS_E_SUCCESS)
+				ProcessDNString(buffer, buffer_size, this->dn);
+
+			buffer_size = sizeof(buffer);
+			if (gnutls_x509_crt_get_issuer_dn(cert, buffer, &buffer_size) == GNUTLS_E_SUCCESS)
+				ProcessDNString(buffer, buffer_size, this->issuer_dn);
+
+			for (const auto& [hash, spki] : profile.GetHash())
+			{
+				buffer_size = sizeof(buffer);
+				ret = spki ? GetSPKIFP(cert, hash, buffer, buffer_size) : GetCertFP(cert, hash, buffer, buffer_size);
+				if (ret != GNUTLS_E_SUCCESS)
+				{
+					SetError(ret);
+				}
+				else
+				{
+					this->fingerprints.push_back(Hex::Encode(buffer, buffer_size));
+				}
+			}
+
+			this->activation = gnutls_x509_crt_get_activation_time(cert);
+			if (this->activation == -1)
+			{
+				this->activation = 0;
+				this->error = "Unable to check certificate activation time";
+			}
+			else if (this->activation >= ServerInstance->Time())
+			{
+				this->error = FMT::format("Certificate not active for {} (on {})",
+					Duration::ToLongString(this->activation - ServerInstance->Time(), true),
+					Time::ToString(this->activation));
+			}
+
+			this->expiration = gnutls_x509_crt_get_expiration_time(cert);
+			if (this->expiration == -1)
+			{
+				this->expiration = 0;
+				this->error = "Unable to check certificate expiration time";
+			}
+			else if (this->expiration <= ServerInstance->Time())
+			{
+				this->error = FMT::format("Certificate expired {} ago (on {})",
+					Duration::ToLongString(ServerInstance->Time() - this->expiration, true),
+					Time::ToString(this->expiration));
+			}
+
+info_done_dealloc:
+			gnutls_x509_crt_deinit(cert);
+		}
+	};
 }
 
 class GnuTLSIOHook final
-	: public SSLIOHook
+	: public TLS::IOHook
 {
 private:
 	gnutls_session_t sess = nullptr;
@@ -565,7 +721,7 @@ private:
 			gnutls_deinit(this->sess);
 		}
 		sess = nullptr;
-		certificate = nullptr;
+		certificate.reset();
 		status = STATUS_NONE;
 	}
 
@@ -605,159 +761,13 @@ private:
 		{
 			// Change the session state
 			this->status = STATUS_OPEN;
-
-			VerifyCertificate();
+			this->certificate = std::make_shared<GnuTLS::Certificate>(this->sess, GetProfile());
 
 			// Finish writing, if any left
 			SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE | FD_ADD_TRIAL_WRITE);
 
 			return 1;
 		}
-	}
-
-	int GetCertFP(gnutls_x509_crt_t& cert, gnutls_digest_algorithm_t algo, char* buffer, size_t& buffer_size)
-	{
-		return gnutls_x509_crt_get_fingerprint(cert, algo, buffer, &buffer_size);
-	}
-
-	int GetSPKIFP(gnutls_x509_crt_t& cert, gnutls_digest_algorithm_t algo, char* buffer, size_t& buffer_size)
-	{
-		int ret;
-		gnutls_pubkey_t pubkey;
-
-		if ((ret = gnutls_pubkey_init(&pubkey)) != GNUTLS_E_SUCCESS)
-			return ret;
-
-		if ((ret = gnutls_pubkey_import_x509(pubkey, cert, 0)) != GNUTLS_E_SUCCESS)
-		{
-			gnutls_pubkey_deinit(pubkey);
-			return ret;
-		}
-
-		// We need to do this twice in order to find the size of the public key.
-		size_t derkey_size = 0;
-		if (gnutls_pubkey_export(pubkey, GNUTLS_X509_FMT_DER, buffer, &derkey_size) != GNUTLS_E_SHORT_MEMORY_BUFFER)
-			return GNUTLS_E_SHORT_MEMORY_BUFFER;
-
-		std::vector<char> derkey(derkey_size);
-		if ((ret = gnutls_pubkey_export(pubkey, GNUTLS_X509_FMT_DER, &derkey[0], &derkey_size)) != GNUTLS_E_SUCCESS)
-			return ret;
-
-		gnutls_pubkey_deinit(pubkey);
-		if (gnutls_hash_fast(algo, &derkey[0], derkey_size, buffer) != GNUTLS_E_SUCCESS)
-			return ret;
-
-		buffer_size = gnutls_hash_get_len(algo);
-		return GNUTLS_E_SUCCESS;
-	}
-
-	void VerifyCertificate()
-	{
-		auto certinfo = std::make_shared<ssl_cert>();
-		this->certificate = certinfo;
-
-		unsigned int certstatus;
-		int ret = gnutls_certificate_verify_peers2(this->sess, &certstatus);
-		if (ret < 0)
-		{
-			certinfo->error = gnutls_strerror(ret);
-			return;
-		}
-
-		certinfo->invalid = (certstatus & GNUTLS_CERT_SIGNATURE_FAILURE);
-		certinfo->unknownsigner = (certstatus & GNUTLS_CERT_SIGNER_NOT_FOUND);
-		certinfo->revoked = (certstatus & GNUTLS_CERT_REVOKED);
-		certinfo->trusted = !(certstatus & GNUTLS_CERT_SIGNER_NOT_CA);
-
-		if (gnutls_certificate_type_get(this->sess) != GNUTLS_CRT_X509)
-		{
-			certinfo->error = "No X509 keys sent";
-			return;
-		}
-
-		gnutls_x509_crt_t cert;
-		ret = gnutls_x509_crt_init(&cert);
-		if (ret < 0)
-		{
-			certinfo->error = gnutls_strerror(ret);
-			return;
-		}
-
-		char buffer[512];
-		size_t buffer_size = sizeof(buffer);
-
-		unsigned int cert_list_size = 0;
-		const gnutls_datum_t* cert_list = gnutls_certificate_get_peers(this->sess, &cert_list_size);
-		if (!cert_list)
-		{
-			certinfo->error = "No certificate was found";
-			goto info_done_dealloc;
-		}
-
-		ret = gnutls_x509_crt_import(cert, &cert_list[0], GNUTLS_X509_FMT_DER);
-		if (ret < 0)
-		{
-			certinfo->error = gnutls_strerror(ret);
-			goto info_done_dealloc;
-		}
-
-		if (gnutls_x509_crt_get_dn(cert, buffer, &buffer_size) == 0)
-			ProcessDNString(buffer, buffer_size, certinfo->dn);
-
-		buffer_size = sizeof(buffer);
-		if (gnutls_x509_crt_get_issuer_dn(cert, buffer, &buffer_size) == 0)
-			ProcessDNString(buffer, buffer_size, certinfo->issuer);
-
-
-		for (const auto& [hash, spki] : GetProfile().GetHash())
-		{
-			buffer_size = sizeof(buffer);
-			ret = spki ? GetSPKIFP(cert, hash, buffer, buffer_size) : GetCertFP(cert, hash, buffer, buffer_size);
-			if (ret != GNUTLS_E_SUCCESS)
-			{
-				certinfo->error = gnutls_strerror(ret);
-			}
-			else
-			{
-				certinfo->fingerprints.push_back(Hex::Encode(buffer, buffer_size));
-			}
-		}
-
-		certinfo->activation = gnutls_x509_crt_get_activation_time(cert);
-		if (certinfo->activation == -1)
-		{
-			certinfo->activation = 0;
-			certinfo->error = "Unable to check certificate activation time";
-		}
-		else if (certinfo->activation >= ServerInstance->Time())
-		{
-			certinfo->error = FMT::format("Certificate not active for {} (on {})",
-				Duration::ToLongString(certinfo->activation - ServerInstance->Time(), true),
-				Time::ToString(certinfo->activation));
-		}
-
-		certinfo->expiration = gnutls_x509_crt_get_expiration_time(cert);
-		if (certinfo->expiration == -1)
-		{
-			certinfo->expiration = 0;
-			certinfo->error = "Unable to check certificate expiration time";
-		}
-		else if (certinfo->expiration <= ServerInstance->Time())
-		{
-			certinfo->error = FMT::format("Certificate expired {} ago (on {})",
-				Duration::ToLongString(ServerInstance->Time() - certinfo->expiration, true),
-				Time::ToString(certinfo->expiration));
-		}
-
-info_done_dealloc:
-		gnutls_x509_crt_deinit(cert);
-	}
-
-	static void ProcessDNString(const char* buffer, size_t buffer_size, std::string& out)
-	{
-		out.assign(buffer, buffer_size);
-		for (size_t pos = 0; ((pos = out.find_first_of("\r\n", pos)) != std::string::npos); )
-			out[pos] = ' ';
 	}
 
 	// Returns 1 if application I/O should proceed, 0 if it must wait for the underlying protocol to progress, -1 on fatal error
@@ -886,7 +896,7 @@ info_done_dealloc:
 
 public:
 	GnuTLSIOHook(const std::shared_ptr<IOHookProvider>& hookprov, StreamSocket* sock, unsigned int flags)
-		: SSLIOHook(hookprov)
+		: TLS::IOHook(hookprov)
 	{
 		gnutls_init(&sess, flags);
 		gnutls_transport_set_ptr(sess, reinterpret_cast<gnutls_transport_ptr_t>(sock));
@@ -981,14 +991,16 @@ public:
 		return 1;
 	}
 
-	void GetCiphersuite(std::string& out) const override
+	bool GetCiphersuite(std::string& out) const override
 	{
 		if (!IsHookReady())
-			return;
+			return false;
+
 		out.append(UnknownIfNULL(gnutls_protocol_get_name(gnutls_protocol_get_version(sess)))).push_back('-');
 		out.append(UnknownIfNULL(gnutls_kx_get_name(gnutls_kx_get(sess)))).push_back('-');
 		out.append(UnknownIfNULL(gnutls_cipher_get_name(gnutls_cipher_get(sess)))).push_back('-');
 		out.append(UnknownIfNULL(gnutls_mac_get_name(gnutls_mac_get(sess))));
+		return true;
 	}
 
 	bool GetServerName(std::string& out) const override

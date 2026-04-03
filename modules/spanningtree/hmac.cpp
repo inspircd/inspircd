@@ -24,7 +24,6 @@
 
 #include "inspircd.h"
 #include "modules/hash.h"
-#include "modules/ssl.h"
 
 #include "main.h"
 #include "link.h"
@@ -73,24 +72,24 @@ bool TreeSocket::ComparePass(const Link& link, const std::string& theirs)
 	capab->auth_fingerprint = !link.Fingerprint.empty();
 	capab->auth_challenge = !capab->ourchallenge.empty() && !capab->theirchallenge.empty();
 
-	const auto* sslhook = SSLIOHook::IsSSL(this);
-	const auto& sslcert = sslhook ? sslhook->GetCertificate() : nullptr;
-	const auto sslcert_usable = sslcert && sslcert->IsUsable();
-	const auto fp = sslcert_usable ? sslcert->GetFingerprint() : "";
+	const auto* tlshook = TLS::GetHook(this);
+	const auto& tlscert = tlshook ? tlshook->GetCertificate() : nullptr;
+	const auto tlscert_usable = tlscert && tlscert->IsUsable();
+	const auto fp = tlscert_usable ? tlscert->GetFingerprint() : "";
 	if (capab->auth_fingerprint)
 	{
-		std::string sslerror;
-		if (!sslhook)
-			sslerror = "not using TLS";
-		if (!sslcert)
-			sslerror = "not using a TLS client certificate";
-		else if (!sslcert_usable)
-			sslerror = "using an invalid (probably expired) TLS client certificate";
+		std::string tlserror;
+		if (!tlshook)
+			tlserror = "not using TLS";
+		if (!tlscert)
+			tlserror = "not using a TLS client certificate";
+		else if (!tlscert_usable)
+			tlserror = "using an invalid (probably expired) TLS client certificate";
 		else
 		{
 			std::string badfps;
 			auto foundfp = false;
-			for (const auto& fingerprint : sslcert->GetFingerprints())
+			for (const auto& fingerprint : tlscert->GetFingerprints())
 			{
 				if (InspIRCd::TimingSafeCompare(link.Fingerprint, fingerprint))
 				{
@@ -101,17 +100,17 @@ bool TreeSocket::ComparePass(const Link& link, const std::string& theirs)
 			}
 			if (!foundfp)
 			{
-				sslerror = FMT::format("not using the correct TLS client certificate (need \"{}\" got \"{}\")",
+				tlserror = FMT::format("not using the correct TLS client certificate (need \"{}\" got \"{}\")",
 					link.Fingerprint, badfps.empty() ? "(none)" : badfps);
 			}
 		}
 
 		/* Require fingerprint to exist and match */
-		if (!sslerror.empty())
+		if (!tlserror.empty())
 		{
 			ServerInstance->SNO.WriteToSnoMask('l', "Incorrect TLS client certificate on link {}: {}",
-				link.Name, sslerror);
-			SendError("Incorrect TLS client certificate: " + sslerror);
+				link.Name, tlserror);
+			SendError("Incorrect TLS client certificate: " + tlserror);
 			return false;
 		}
 	}

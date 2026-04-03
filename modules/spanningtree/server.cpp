@@ -26,7 +26,6 @@
 #include <filesystem>
 
 #include "inspircd.h"
-#include "modules/ssl.h"
 
 #include "main.h"
 #include "utils.h"
@@ -149,14 +148,7 @@ std::shared_ptr<Link> TreeSocket::AuthRemote(const CommandBase::Params& params)
 		if (!CheckDuplicate(sname, sid))
 			return nullptr;
 
-		const SSLIOHook* const ssliohook = SSLIOHook::IsSSL(this);
-		if (ssliohook)
-		{
-			std::string ciphersuite;
-			ssliohook->GetCiphersuite(ciphersuite);
-			ServerInstance->SNO.WriteToSnoMask('l', "Negotiated ciphersuite {} on link {}", ciphersuite, x->Name);
-		}
-		else if (!IsLocalRange(capab->remotesa))
+		if (TLS::GetHook(this) && !IsLocalRange(capab->remotesa))
 		{
 			this->SendError("Non-local server connections MUST be linked with SSL!");
 			return nullptr;

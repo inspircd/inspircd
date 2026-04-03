@@ -28,7 +28,7 @@
 #include "extension.h"
 #include "modules/sql.h"
 #include "modules/hash.h"
-#include "modules/ssl.h"
+#include "modules/tls.h"
 
 enum AuthState
 	: uint8_t
@@ -124,7 +124,7 @@ class ModuleSQLAuth final
 {
 	AuthExtItem pendingExt;
 	dynamic_reference<SQL::Provider> SQL;
-	UserCertificateAPI sslapi;
+	TLS::API tlsapi;
 
 	std::string freeformquery;
 	std::string killreason;
@@ -138,7 +138,7 @@ public:
 		: Module(VF_VENDOR, "Allows connecting users to be authenticated against an arbitrary SQL table.")
 		, pendingExt(weak_from_this(), "sqlauth-wait", ExtensionType::USER)
 		, SQL(weak_from_this(), "SQL::Provider")
-		, sslapi(weak_from_this())
+		, tlsapi(weak_from_this())
 	{
 	}
 
@@ -187,7 +187,7 @@ public:
 
 		SQL::ParamMap userinfo;
 		SQL::PopulateUserInfo(user, userinfo);
-		userinfo["sslfp"] = sslapi ? sslapi->GetFingerprint(user) : "";
+		userinfo["fingerprint"] = tlsapi ? tlsapi->GetFingerprint(user) : "";
 
 		SQL->Submit(new AuthQuery(weak_from_this(), user->uuid, pendingExt, verbose, kdf, pwcolumn), freeformquery, userinfo);
 

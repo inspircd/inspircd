@@ -19,7 +19,7 @@
 #include "inspircd.h"
 #include "modules/account.h"
 #include "modules/cloak.h"
-#include "modules/ssl.h"
+#include "modules/tls.h"
 
 class UserMethodBase
 	: public Cloak::Method
@@ -231,7 +231,7 @@ class FingerprintMethod final
 {
 private:
 	// Dynamic reference to the certificate api.
-	UserCertificateAPI sslapi;
+	TLS::API tlsapi;
 
 	// The number of octets of the fingerprint to use.
 	size_t length;
@@ -239,7 +239,7 @@ private:
 	// Retrieves the middle segment of the cloak.
 	std::string GetMiddle(LocalUser* user) override
 	{
-		const ssl_cert* cert = sslapi ? sslapi->GetCertificate(user) : nullptr;
+		const auto* cert = tlsapi ? tlsapi->GetCertificate(user) : nullptr;
 		if (!cert || !cert->IsUsable())
 			return {};
 
@@ -255,7 +255,7 @@ private:
 public:
 	FingerprintMethod(const Cloak::Engine* engine, const std::shared_ptr<ConfigTag>& tag, const CharState& hm) ATTR_NOT_NULL(2)
 		: UserMethodBase(engine, tag, hm)
-		, sslapi(engine->service_creator)
+		, tlsapi(engine->service_creator)
 		, length(tag->getNum<size_t>("length", GetMaxLength(), 1, GetMaxLength()))
 	{
 	}

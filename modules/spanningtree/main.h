@@ -30,11 +30,11 @@
 
 #include "inspircd.h"
 #include "event.h"
-#include "modules/dns.h"
-#include "modules/ssl.h"
-#include "modules/stats.h"
 #include "modules/ctctags.h"
+#include "modules/dns.h"
 #include "modules/server.h"
+#include "modules/stats.h"
+#include "modules/tls.h"
 #include "servercommand.h"
 #include "commands.h"
 #include "protocolinterface.h"
@@ -91,7 +91,7 @@ public:
 	Events::ModuleEventProvider synceventprov;
 
 	/** API for accessing user client certificates. */
-	UserCertificateAPI sslapi;
+	TLS::API tlsapi;
 
 	/** Tags for server to server messages. */
 	ServerTags servertags;

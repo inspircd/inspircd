@@ -19,7 +19,7 @@
 
 #include "inspircd.h"
 #include "modules/cap.h"
-#include "modules/ssl.h"
+#include "modules/tls.h"
 
 class STSCap final
 	: public Cap::Capability
@@ -28,7 +28,7 @@ private:
 	std::string host;
 	std::string plaintextpolicy;
 	std::string securepolicy;
-	mutable UserCertificateAPI sslapi;
+	mutable TLS::API tlsapi;
 
 	bool OnList(LocalUser* user) override
 	{
@@ -41,13 +41,13 @@ private:
 			return false;
 
 		// Plaintext listeners have their own policy.
-		SSLIOHook* sslhook = SSLIOHook::IsSSL(user->io->GetSocket());
-		if (!sslhook)
+		const auto* tlshook = TLS::GetHook(user->io->GetSocket());
+		if (!tlshook)
 			return true;
 
 		// If no hostname has been provided for the connection, an STS persistence policy SHOULD NOT be advertised.
 		std::string snihost;
-		if (!sslhook->GetServerName(snihost))
+		if (!tlshook->GetServerName(snihost))
 			return false;
 
 		// Before advertising an STS persistence policy over a secure connection, servers SHOULD verify whether the
@@ -65,10 +65,10 @@ private:
 
 	const std::string* GetValue(LocalUser* user) const override
 	{
-		if (SSLIOHook::IsSSL(user->io->GetSocket()))
+		if (TLS::GetHook(user->io->GetSocket()))
 			return &securepolicy; // Normal SSL connection.
 
-		if (sslapi && sslapi->GetCertificate(user))
+		if (tlsapi && tlsapi->GetCertificate(user))
 			return &securepolicy; // Proxied SSL connection.
 
 		return &plaintextpolicy; // Plain text connection.
@@ -77,7 +77,7 @@ private:
 public:
 	STSCap(const WeakModulePtr& mod)
 		: Cap::Capability(mod, "sts")
-		, sslapi(mod)
+		, tlsapi(mod)
 	{
 		DisableAutoRegister();
 	}

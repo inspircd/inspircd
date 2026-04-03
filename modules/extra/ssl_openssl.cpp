@@ -39,8 +39,7 @@
 
 
 #include "inspircd.h"
-#include "iohook.h"
-#include "modules/ssl.h"
+#include "modules/tls.h"
 #include "stringutils.h"
 #include "timeutils.h"
 #include "utility/string.h"
@@ -438,6 +437,103 @@ namespace OpenSSL
 		unsigned int GetOutgoingRecordSize() const { return outrecsize; }
 	};
 
+	class Certificate final
+		: public TLS::Certificate
+	{
+	private:
+		static void GetDNString(X509_NAME* x509name, std::string& out)
+		{
+			char buf[512];
+			X509_NAME_oneline(x509name, buf, sizeof(buf));
+
+			out.assign(buf);
+			for (size_t pos = 0; ((pos = out.find_first_of("\r\n", pos)) != std::string::npos); )
+				out[pos] = ' ';
+		}
+
+		static time_t GetTime(ASN1_TIME* x509time)
+		{
+			if (!x509time)
+				return 0;
+
+			struct tm ts;
+			if (!ASN1_TIME_to_tm(x509time, &ts))
+				return 0;
+
+			return timegm(&ts);
+		}
+
+	public:
+		Certificate(SSL* sess, OpenSSL::Profile& profile)
+		{
+			auto* cert = SSL_get0_peer_certificate(sess);
+			if (!cert)
+			{
+				this->error = FMT::format("Could not get peer certificate ({})", get_error());
+				return;
+			}
+
+			auto selfsigned = false;
+			switch (SSL_get_verify_result(sess))
+			{
+				case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN:
+				case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
+				case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
+					selfsigned = true;
+					[[fallthrough]];
+
+				case X509_V_OK:
+					this->valid = true;
+					break;
+
+				default:
+					break; // Nothing to do for other errors.
+			}
+
+			if (!selfsigned)
+			{
+				this->known_signer = true;
+				this->trusted = true;
+			}
+
+			GetDNString(X509_get_subject_name(cert), this->dn);
+			GetDNString(X509_get_issuer_name(cert), this->issuer_dn);
+
+			unsigned int mdlen;
+			unsigned char md[EVP_MAX_MD_SIZE];
+			for (const auto* digest : profile.GetDigests())
+			{
+				if (!X509_digest(cert, digest, md, &mdlen))
+				{
+					this->error = "Out of memory generating fingerprint";
+				}
+				else
+				{
+					this->fingerprints.push_back(Hex::Encode(md, mdlen));
+				}
+			}
+
+			this->activation = GetTime(X509_getm_notBefore(cert));
+			this->expiration = GetTime(X509_getm_notAfter(cert));
+
+			const auto activated = ASN1_TIME_cmp_time_t(X509_getm_notBefore(cert), ServerInstance->Time());
+			if (activated != -1 && activated != 0)
+			{
+				this->error = FMT::format("Certificate not active for {} (on {})",
+					Duration::ToLongString(this->activation - ServerInstance->Time(), true),
+					Time::ToString(this->activation));
+			}
+
+			const auto expired = ASN1_TIME_cmp_time_t(X509_getm_notAfter(cert), ServerInstance->Time());
+			if (expired != 0 && expired != 1)
+			{
+				this->error = FMT::format("Certificate expired {} ago (on {})",
+					Duration::ToLongString(ServerInstance->Time() - this->expiration, true),
+					Time::ToString(this->expiration));
+			}
+		}
+	};
+
 	namespace BIOMethod
 	{
 		static int create(BIO* bio)
@@ -483,7 +579,7 @@ static int OnVerify(int preverify_ok, X509_STORE_CTX* ctx)
 }
 
 class OpenSSLIOHook final
-	: public SSLIOHook
+	: public TLS::IOHook
 {
 private:
 	SSL* sess;
@@ -519,9 +615,8 @@ private:
 		else if (ret > 0)
 		{
 			// Handshake complete.
-			VerifyCertificate();
-
-			status = STATUS_OPEN;
+			this->status = STATUS_OPEN;
+			this->certificate = std::make_shared<OpenSSL::Certificate>(sess, GetProfile());
 
 			SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE | FD_ADD_TRIAL_WRITE);
 
@@ -542,112 +637,8 @@ private:
 			SSL_free(sess);
 		}
 		sess = nullptr;
-		certificate = nullptr;
+		certificate.reset();
 		status = STATUS_NONE;
-	}
-
-	void VerifyCertificate()
-	{
-		auto certinfo = std::make_shared<ssl_cert>();
-		this->certificate = certinfo;
-
-		auto* cert = SSL_get1_peer_certificate(sess);
-		if (!cert)
-		{
-			certinfo->error = "Could not get peer certificate: "+std::string(get_error());
-			return;
-		}
-
-		const auto verify = SSL_get_verify_result(sess);
-
-		auto selfsigned = false;
-		switch (verify)
-		{
-			case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN:
-			case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
-			case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
-				selfsigned = true;
-				[[fallthrough]];
-
-			case X509_V_OK:
-				certinfo->invalid = false;
-				break;
-
-			default:
-				certinfo->invalid = true;
-				break;
-		}
-
-		if (selfsigned)
-		{
-			certinfo->unknownsigner = true;
-			certinfo->trusted = false;
-		}
-		else
-		{
-			certinfo->unknownsigner = false;
-			certinfo->trusted = true;
-		}
-
-		GetDNString(X509_get_subject_name(cert), certinfo->dn);
-		GetDNString(X509_get_issuer_name(cert), certinfo->issuer);
-
-		unsigned int mdlen;
-		unsigned char md[EVP_MAX_MD_SIZE];
-		for (const auto* digest : GetProfile().GetDigests())
-		{
-			if (!X509_digest(cert, digest, md, &mdlen))
-			{
-				certinfo->error = "Out of memory generating fingerprint";
-			}
-			else
-			{
-				certinfo->fingerprints.push_back(Hex::Encode(md, mdlen));
-			}
-		}
-
-		certinfo->activation = GetTime(X509_getm_notBefore(cert));
-		certinfo->expiration = GetTime(X509_getm_notAfter(cert));
-
-		int activated = ASN1_TIME_cmp_time_t(X509_getm_notBefore(cert), ServerInstance->Time());
-		if (activated != -1 && activated != 0)
-		{
-			certinfo->error = FMT::format("Certificate not active for {} (on {})",
-				Duration::ToLongString(certinfo->activation - ServerInstance->Time(), true),
-				Time::ToString(certinfo->activation));
-		}
-
-		int expired = ASN1_TIME_cmp_time_t(X509_getm_notAfter(cert), ServerInstance->Time());
-		if (expired != 0 && expired != 1)
-		{
-			certinfo->error = FMT::format("Certificate expired {} ago (on {})",
-				Duration::ToLongString(ServerInstance->Time() - certinfo->expiration, true),
-				Time::ToString(certinfo->expiration));
-		}
-
-		X509_free(cert);
-	}
-
-	static void GetDNString(X509_NAME* x509name, std::string& out)
-	{
-		char buf[512];
-		X509_NAME_oneline(x509name, buf, sizeof(buf));
-
-		out.assign(buf);
-		for (size_t pos = 0; ((pos = out.find_first_of("\r\n", pos)) != std::string::npos); )
-			out[pos] = ' ';
-	}
-
-	static time_t GetTime(ASN1_TIME* x509time)
-	{
-		if (!x509time)
-			return 0;
-
-		struct tm ts;
-		if (!ASN1_TIME_to_tm(x509time, &ts))
-			return 0;
-
-		return timegm(&ts);
 	}
 
 	void SSLInfoCallback(int where, int rc)
@@ -722,7 +713,7 @@ private:
 
 public:
 	OpenSSLIOHook(const std::shared_ptr<IOHookProvider>& hookprov, StreamSocket* sock, SSL* session)
-		: SSLIOHook(hookprov)
+		: TLS::IOHook(hookprov)
 		, sess(session)
 	{
 		// Create BIO instance and store a pointer to the socket in it which will be used by the read and write functions
@@ -863,15 +854,17 @@ public:
 		return 1;
 	}
 
-	void GetCiphersuite(std::string& out) const override
+	bool GetCiphersuite(std::string& out) const override
 	{
 		if (!IsHookReady())
-			return;
+			return false;
+
 		out.append(SSL_get_version(sess)).push_back('-');
 #if OPENSSL_VERSION_NUMBER >= 0x30200000L
 		out.append(UnknownIfNULL(SSL_get0_group_name(sess))).push_back('-');
 #endif
 		out.append(UnknownIfNULL(SSL_get_cipher(sess)));
+		return true;
 	}
 
 	bool GetServerName(std::string& out) const override

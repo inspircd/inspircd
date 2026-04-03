@@ -58,7 +58,7 @@ ModuleSpanningTree::ModuleSpanningTree()
 	, linkeventprov(weak_from_this(), "server-link")
 	, messageeventprov(weak_from_this(), "server-message")
 	, synceventprov(weak_from_this(), "server-sync")
-	, sslapi(weak_from_this())
+	, tlsapi(weak_from_this())
 	, servertags(weak_from_this())
 	, DNS(weak_from_this())
 	, tagevprov(weak_from_this())
@@ -497,9 +497,9 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 	if (user->quitting)
 		return;
 
-	// Create the lazy ssl_cert metadata for this user if not already created.
-	if (sslapi)
-		sslapi->GetCertificate(user);
+	// Create the lazy TLS cert metadata for this user if not already created.
+	if (tlsapi)
+		tlsapi->GetCertificate(user);
 
 	CommandUID::Builder(user).Broadcast();
 

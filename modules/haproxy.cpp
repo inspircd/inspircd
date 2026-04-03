@@ -20,8 +20,7 @@
 
 
 #include "inspircd.h"
-#include "iohook.h"
-#include "modules/ssl.h"
+#include "modules/tls.h"
 
 enum
 {
@@ -107,16 +106,25 @@ struct HAProxyHeader final
 	uint16_t length;
 };
 
+struct HAProxyCertificate final
+	: public TLS::Certificate
+{
+	HAProxyCertificate()
+	{
+		this->error ="HAProxy does not forward client TLS certificates";
+	}
+};
+
 class HAProxyHookProvider final
 	: public IOHookProvider
 {
 private:
-	UserCertificateAPI sslapi;
+	TLS::API tlsapi;
 
 public:
 	HAProxyHookProvider(const WeakModulePtr& mod)
 		: IOHookProvider(mod, "haproxy", true)
-		, sslapi(mod)
+		, tlsapi(mod)
 	{
 	}
 
@@ -148,7 +156,7 @@ private:
 	irc::sockets::sockaddrs server;
 
 	// The API for interacting with user TLS internals.
-	UserCertificateAPI& sslapi;
+	TLS::API& tlsapi;
 
 	// The current state of the PROXY parser.
 	HAProxyState state = HPS_WAITING_FOR_HEADER;
@@ -199,7 +207,7 @@ private:
 
 		// If the sslinfo module is not loaded we can't
 		// do anything with this TLV.
-		if (!sslapi)
+		if (!tlsapi)
 			return true;
 
 		// If the client is not connecting via TLS the rest of this TLV is irrelevant.
@@ -207,19 +215,11 @@ private:
 		if ((recvq[start_index] & PP2_CLIENT_SSL) == 0)
 			return true;
 
-		// Create a fake ssl_cert for the user. Ideally we should use the user's
+		// Create a fake TLS cert for the user. Ideally we should use the user's
 		// TLS client certificate here but as of 2018-10-16 this is not forwarded
 		// by HAProxy.
-		auto cert = std::make_shared<ssl_cert>();
-		cert->error = "HAProxy does not forward client TLS certificates";
-		cert->invalid = true;
-		cert->revoked = true;
-		cert->trusted = false;
-		cert->unknownsigner = true;
-
-		// Extract the user for this socket and set their certificate.
 		auto* luser = sock->GetData<LocalUserIO>()->user;
-		sslapi->SetCertificate(luser, cert);
+		tlsapi->SetCertificate(luser, std::make_shared<HAProxyCertificate>());
 		return true;
 	}
 
@@ -377,9 +377,9 @@ private:
 	}
 
 public:
-	HAProxyHook(const std::shared_ptr<IOHookProvider>& Prov, StreamSocket* sock, UserCertificateAPI& api)
+	HAProxyHook(const std::shared_ptr<IOHookProvider>& Prov, StreamSocket* sock, TLS::API& api)
 		: IOHookMiddle(Prov)
-		, sslapi(api)
+		, tlsapi(api)
 	{
 		sock->AddIOHook(this);
 	}
@@ -417,7 +417,7 @@ public:
 
 void HAProxyHookProvider::OnAccept(StreamSocket* sock, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server)
 {
-	new HAProxyHook(shared_from_this(), sock, sslapi);
+	new HAProxyHook(shared_from_this(), sock, tlsapi);
 }
 
 class ModuleHAProxy final

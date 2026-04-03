@@ -31,7 +31,7 @@
 #include "modules/extban.h"
 #include "modules/hash.h"
 #include "modules/ircv3.h"
-#include "modules/ssl.h"
+#include "modules/tls.h"
 #include "modules/webirc.h"
 #include "modules/whois.h"
 
@@ -100,7 +100,7 @@ public:
 		return trustedflags.Contains(flag);
 	}
 
-	bool Matches(LocalUser* user, const std::string& pass, UserCertificateAPI& sslapi) const
+	bool Matches(LocalUser* user, const std::string& pass, TLS::API& tlsapi) const
 	{
 		// Did the user send a valid password?
 		if (!password.empty() && !Hash::CheckPassword(password, passhash, pass))
@@ -109,11 +109,11 @@ public:
 		// Does the user have a valid fingerprint?
 		if (!fingerprint.empty())
 		{
-			if (!sslapi)
+			if (!tlsapi)
 				return false;
 
 			bool okay = false;
-			for (const auto& fp : sslapi->GetFingerprints(user))
+			for (const auto& fp : tlsapi->GetFingerprints(user))
 			{
 				if (InspIRCd::TimingSafeCompare(fp, fingerprint))
 				{
@@ -258,7 +258,7 @@ public:
 	GatewayExtBan extban;
 	StringExtItem realhost;
 	StringExtItem realip;
-	UserCertificateAPI sslapi;
+	TLS::API tlsapi;
 	Events::ModuleEventProvider webircevprov;
 
 	CommandWebIRC(const WeakModulePtr& Creator)
@@ -266,7 +266,7 @@ public:
 		, extban(Creator)
 		, realhost(Creator, "gateway-realhost", ExtensionType::USER, true)
 		, realip(Creator, "gateway-realip", ExtensionType::USER, true)
-		, sslapi(Creator)
+		, tlsapi(Creator)
 		, webircevprov(Creator, "webirc")
 	{
 		works_before_reg = true;
@@ -281,7 +281,7 @@ public:
 		for (const auto& host : hosts)
 		{
 			// If we don't match the host then skip to the next host.
-			if (!host.Matches(user, parameters[0], sslapi))
+			if (!host.Matches(user, parameters[0], tlsapi))
 				continue;
 
 			irc::sockets::sockaddrs ipaddr(false);
