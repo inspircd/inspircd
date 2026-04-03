@@ -232,15 +232,18 @@ private:
 		{
 			source->WriteNotice("*** {} is not connected using TLS.", target->nick);
 		}
-		else if (cert->HasError())
-		{
-			source->WriteNotice("*** {} is connected using TLS but has not specified a valid client certificate ({}).",
-				target->nick, cert->GetError());
-		}
 		else if (!verbose)
 		{
-			source->WriteNotice("*** {} is connected using TLS with a valid client certificate ({}).",
-				target->nick, cert->GetFingerprint());
+			if (cert->HasError())
+			{
+				source->WriteNotice("*** {} is connected using TLS but has not specified a valid client certificate ({}).",
+					target->nick, cert->GetError());
+			}
+			else
+			{
+				source->WriteNotice("*** {} is connected using TLS with a valid client certificate ({}).",
+					target->nick, cert->GetFingerprint());
+			}
 		}
 		else
 		{
