@@ -24,6 +24,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+#include <sstream>
+
 #include <fmt/format.cc>
 
 #include "inspircd.h"
@@ -61,6 +64,21 @@ std::string Percent::Encode(const void* data, size_t length, const char* table, 
 	return buffer;
 }
 
+std::string Percent::EncodeQuery(const Percent::QueryData& data)
+{
+	std::stringstream buffer;
+	for (auto iter = data.begin(); iter != data.end(); ++iter)
+	{
+		if (iter != data.begin())
+			buffer << '&';
+
+		buffer << iter->first;
+		if (!iter->second.empty())
+			buffer << '=' << Percent::Encode(iter->second);
+	}
+	return buffer.str();
+}
+
 std::string Percent::Decode(const void* data, size_t length)
 {
 	// Preallocate the output buffer to avoid constant reallocations.
@@ -89,6 +107,23 @@ std::string Percent::Decode(const void* data, size_t length)
 	}
 
 	return buffer;
+}
+
+Percent::QueryData Percent::DecodeQuery(const std::string_view& str)
+{
+	Percent::QueryData data;
+
+	StringSplitter datastream(str, '&');
+	for (std::string_view datapair; datastream.GetToken(datapair); )
+	{
+		size_t split = datapair.find('=');
+		if (split == std::string::npos)
+			data.emplace(datapair, "");
+		else
+			data.emplace(datapair.substr(0, split), Percent::Decode(datapair.substr(split + 1)));
+	}
+
+	return data;
 }
 
 std::string Hex::Encode(const void* data, size_t length, const char* table, char separator)

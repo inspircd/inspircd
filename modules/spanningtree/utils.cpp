@@ -397,17 +397,7 @@ std::string SpanningTreeUtilities::BuildLinkString(const ModulePtr& mod)
 	Module::LinkData data;
 	mod->GetLinkData(data);
 
-	std::stringstream buffer;
-	for (Module::LinkData::const_iterator iter = data.begin(); iter != data.end(); ++iter)
-	{
-		if (iter != data.begin())
-			buffer << '&';
-
-		buffer << iter->first;
-		if (!iter->second.empty())
-			buffer << '=' << Percent::Encode(iter->second);
-	}
-	return buffer.str();
+	return Percent::EncodeQuery(data);
 }
 
 void SpanningTreeUtilities::SendListLimits(Channel* chan, TreeSocket* sock)

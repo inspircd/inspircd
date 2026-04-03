@@ -119,6 +119,9 @@ namespace Hex
 
 namespace Percent
 {
+	/** Holds a key-value list of query data. */
+	using QueryData = insp::casemapped_map<std::string>;
+
 	/** The table used to determine what characters are safe within a percent-encoded string. */
 	inline constexpr const char* TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~";
 
@@ -137,6 +140,12 @@ namespace Percent
 	{
 		return Decode(data.data(), data.length());
 	}
+
+	/** Decodes a percent-encoded query string.
+	 * @param str The string to decode from.
+	 * @return The decoded form of the specified data.
+	 */
+	CoreExport QueryData DecodeQuery(const std::string_view& str);
 
 	/** Encodes a byte array using percent encoding.
 	 * @param data The byte array to encode from.
@@ -157,6 +166,12 @@ namespace Percent
 	{
 		return Encode(data.data(), data.length(), table, upper);
 	}
+
+	/** Encodes query data using percent encoding.
+	 * @param data The data to encode from.
+	 * @return The encoded form of the specified data.
+	 */
+	CoreExport std::string EncodeQuery(const QueryData& data);
 }
 
 namespace Template

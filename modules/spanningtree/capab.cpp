@@ -148,19 +148,8 @@ namespace
 				continue;
 			}
 
-			// Parse the remote link data.
-			Module::LinkData otherdata;
-			StringSplitter datastream(linkdata, '&');
-			for (std::string_view datapair; datastream.GetToken(datapair); )
-			{
-				size_t split = datapair.find('=');
-				if (split == std::string::npos)
-					otherdata.emplace(datapair, "");
-				else
-					otherdata.emplace(datapair.substr(0, split), Percent::Decode(datapair.substr(split + 1)));
-			}
-
-			// Compare the link data.
+			// Parse and compare the link data.
+			Module::LinkData otherdata = Percent::DecodeQuery(linkdata);
 			if (!CompareModuleData(moditer->second, otherdata, diffconfig))
 				okay = false;
 			local.erase(moditer);
