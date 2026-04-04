@@ -124,7 +124,7 @@ public:
 		if (strict && (!IsTrusted() || !IsKnownSigner()))
 			return false;
 
-		return !HasError() && IsRevoked() && IsKnownSigner();
+		return !HasError() && !IsRevoked() && IsValid();
 	}
 };
 
