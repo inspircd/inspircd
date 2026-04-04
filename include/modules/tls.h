@@ -146,7 +146,7 @@ public:
 	 * @param user The user to retrieve the TLS certificate of.
 	 * @return The TLS certificate of the user or a null pointer if they are not using TLS.
 	 */
-	virtual const Certificate* GetCertificate(User* user) = 0;
+	virtual Certificate* GetCertificate(User* user) = 0;
 
 	/** Retrieves the primary TLS fingerprint of a user.
 	 * @param user The user to retrieve the primary TLS fingerprint of.

@@ -107,6 +107,8 @@ public:
 	{
 		// Compatibility for the old ssl_cert metadata.
 		const auto& cert = std::static_pointer_cast<TLS::Certificate>(item);
+		if (!cert)
+			return;
 
 		std::stringstream value;
 		value << 'c'
@@ -137,6 +139,13 @@ public:
 		if (container->extype != this->extype)
 			return;
 
+		if (insp::casemapped_equals(value, "*"))
+		{
+			// The user is connecting via an insecure gateway to a TLS endpoint.
+			Set(container, nullptr, false);
+			return;
+		}
+
 		const auto data = Percent::DecodeQuery(value);
 		Set(container, std::make_shared<RemoteCertificate>(data), false);
 	}
@@ -144,6 +153,9 @@ public:
 	std::string ToInternal(const Extensible* container, const ExtensionPtr& item) const noexcept override
 	{
 		const auto& cert = std::static_pointer_cast<TLS::Certificate>(item);
+		if (!cert)
+			return "*";
+
 		return Percent::EncodeQuery({
 			{ "fingerprints", insp::join(cert->GetFingerprints())  },
 
@@ -166,13 +178,11 @@ class TLSAPIImpl final
 	: public TLS::APIBase
 {
 public:
-	BoolExtItem notlsext;
 	TLSCertificateExt tlsext;
 	bool localsecure;
 
 	TLSAPIImpl(const WeakModulePtr& mod)
 		: TLS::APIBase(mod)
-		, notlsext(mod, "no-tls-cert", ExtensionType::USER)
 		, tlsext(mod)
 	{
 	}
@@ -184,7 +194,7 @@ public:
 			return cert;
 
 		auto* luser = user->AsLocal();
-		if (!luser || notlsext.Get(luser))
+		if (!luser)
 			return nullptr;
 
 		auto* hook = TLS::GetHook(luser->io->GetSocket());
@@ -631,8 +641,7 @@ public:
 		{
 			// If this is not set then the connection between the client and
 			// the gateway is not secure.
-			cmd.tlsapi.notlsext.Set(user);
-			cmd.tlsapi.tlsext.Unset(user);
+			cmd.tlsapi.tlsext.Set(user, nullptr);
 			return;
 		}
 
