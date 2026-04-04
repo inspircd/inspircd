@@ -710,9 +710,9 @@ public:
 		accountoverrideshold = tag->getBool("accountoverrideshold");
 	}
 
-	ModResult OnRouteMessage(const Channel* channel, const Server* server) override
+	ModResult OnRouteMessage(const Channel* channel, const Server& server) override
 	{
-		if (!server->IsService() || !auspexext.Get(channel))
+		if (!server.IsService() || !auspexext.Get(channel))
 			return MOD_RES_PASSTHRU;
 
 		// Allow services to see messages in this channel even if not guarded.

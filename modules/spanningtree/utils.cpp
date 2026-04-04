@@ -177,7 +177,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(const Channel* c, TreeSoc
 		if (!server->GetRoute())
 			continue; // Local server
 
-		ModResult result = Creator->routeeventprov.FirstResult(&ServerProtocol::RouteEventListener::OnRouteMessage, c, server);
+		ModResult result = Creator->routeeventprov.FirstResult(&ServerProtocol::RouteEventListener::OnRouteMessage, c, *server);
 		if (result == MOD_RES_ALLOW)
 			list.insert(server->GetRoute()->GetSocket());
 	}

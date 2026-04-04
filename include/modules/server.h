@@ -98,7 +98,7 @@ public:
 	 * @return Either MOD_RES_ALLOW to always send the message to the server, MOD_RES_DENY to never
 	 *         send the message to the server, or MOD_RES_PASSTHRU to not handle the event.
 	 */
-	virtual ModResult OnRouteMessage(const Channel* channel, const Server* server) { return MOD_RES_PASSTHRU; }
+	virtual ModResult OnRouteMessage(const Channel* channel, const Server& server) { return MOD_RES_PASSTHRU; }
 };
 
 
