@@ -28,12 +28,17 @@ namespace TLS
 	class Certificate;
 	class IOHook;
 
+	/** A shared pointer to a TLS certificate. */
 	using CertificatePtr = std::shared_ptr<Certificate>;
+
+	/** A list of TLS certificate fingerprints. */
 	using FingerprintList = std::vector<std::string>;
 
+	/** If a socket contains a TLS hook then returns the hook; otherwise, returns nullptr. */
 	inline IOHook* GetHook(StreamSocket* sock);
 }
 
+/** Encapsulates information about a TLS certificate. */
 class TLS::Certificate
 	: public std::enable_shared_from_this<TLS::Certificate>
 {
