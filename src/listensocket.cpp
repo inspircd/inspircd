@@ -27,6 +27,7 @@
 
 #include "inspircd.h"
 #include "iohook.h"
+#include "stringutils.h"
 
 #ifndef _WIN32
 # include <netinet/tcp.h>
@@ -269,26 +270,42 @@ void ListenSocket::OnEventHandlerRead()
 
 void ListenSocket::ResetIOHookProvider()
 {
-	iohookprovs[0].SetProviderName(bind_tag->getString("hook"));
-	ServerInstance->Logs.Debug("SOCKET", "Set hook 1 for {} to {}",
-		bind_sa.str(), iohookprovs[0].GetProviderName());
+	this->iohookprovs.clear();
 
-	// Check that all non-last hooks support being in the middle
-	for (IOHookProvList::iterator i = iohookprovs.begin(); i != iohookprovs.end()-1; ++i)
+	StringSplitter ss(bind_tag->getString("hook"));
+	for (std::string hook; ss.GetToken(hook); )
 	{
-		IOHookProvRef& curr = *i;
-		// Ignore if cannot be in the middle
-		if ((curr) && (!curr->IsMiddle()))
-			curr.ClearProviderName();
+		this->iohookprovs.emplace_back(hook);
+		ServerInstance->Logs.Debug("SOCKET", "Set hook {} for {} to {}",
+			this->iohookprovs.size(), this->bind_sa.str(),
+			this->iohookprovs.back().GetProviderName());
 	}
 
-	std::string provname = bind_tag->getString("sslprofile");
-	if (!provname.empty())
-		provname.insert(0, "ssl/");
+	// TLS always should be the last for now.
+	auto sslprofile = bind_tag->getString("sslprofile");
+	if (!sslprofile.empty())
+	{
+		sslprofile.insert(0, "ssl/");
+		this->iohookprovs.emplace_back(sslprofile);
+		ServerInstance->Logs.Debug("SOCKET", "Set hook {} for {} to {}",
+			this->iohookprovs.size(), this->bind_sa.str(),
+			this->iohookprovs.back().GetProviderName());
+	}
 
-	// TLS should be the last
-	iohookprovs.back().SetProviderName(provname);
-	ServerInstance->Logs.Debug("SOCKET", "Set hook {} for {} to {}", iohookprovs.size(),
-		bind_sa.str(), iohookprovs.back().GetProviderName());
+	// Check that all non-last hooks support being in the middle.
+	for (auto it = this->iohookprovs.begin(); it != this->iohookprovs.end(); )
+	{
+		const auto& curr = *it;
+		if (!curr || curr->IsMiddle() || std::distance(it, this->iohookprovs.end()) == 1)
+		{
+			it++;
+			continue;
+		}
 
+		ServerInstance->Logs.Debug("SOCKET", "Removing non-middle hook {} for {}",
+			curr.GetProviderName(), bind_sa.str());
+		it = this->iohookprovs.erase(it);
+	}
+
+	this->iohookprovs.shrink_to_fit();
 }

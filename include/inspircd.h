@@ -35,7 +35,6 @@
 #include <cstring>
 
 #include <algorithm>
-#include <array>
 #include <atomic>
 #include <bitset>
 #include <charconv>

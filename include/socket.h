@@ -201,16 +201,17 @@ public:
 	const irc::sockets::sockaddrs bind_sa;
 	const int bind_protocol;
 
-	class IOHookProvRef : public dynamic_reference_nocheck<IOHookProvider>
+	class IOHookProvRef final
+		: public dynamic_reference_nocheck<IOHookProvider>
 	{
 	public:
-		IOHookProvRef()
-			: dynamic_reference_nocheck<IOHookProvider>({}, "IOHookProvider", std::string(), true)
+		IOHookProvRef(const std::string &name)
+			: dynamic_reference_nocheck<IOHookProvider>({}, "IOHookProvider", name, true)
 		{
 		}
 	};
 
-	using IOHookProvList = std::array<IOHookProvRef, 2>;
+	using IOHookProvList = std::vector<IOHookProvRef>;
 
 	/** IOHook providers for handling connections on this socket,
 	 * may be empty.
