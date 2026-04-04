@@ -27,7 +27,7 @@
 #include "inspircd.h"
 #include "dynamic.h"
 #include "modules/extban.h"
-#include "utility/map.h"
+#include "utility/container.h"
 
 #include "treeserver.h"
 #include "utils.h"

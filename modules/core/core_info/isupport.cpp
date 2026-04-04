@@ -18,7 +18,7 @@
 
 
 #include "inspircd.h"
-#include "utility/map.h"
+#include "utility/container.h"
 
 #include "core_info.h"
 
@@ -27,7 +27,7 @@ namespace
 	void TokenDifference(ISupport::TokenMap& tokendiff, const ISupport::TokenMap& oldtokens, const ISupport::TokenMap& newtokens)
 	{
 		insp::casemapped_map<std::pair<std::optional<std::string>, std::optional<std::string>>> changedtokens;
-		insp::map::difference(oldtokens, newtokens, changedtokens);
+		insp::map_difference(oldtokens, newtokens, changedtokens);
 		for (const auto& [name, values] : changedtokens)
 		{
 			if (values.first && !values.second)

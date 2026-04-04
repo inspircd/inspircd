@@ -24,7 +24,7 @@
 #include "modules/cloak.h"
 #include "modules/ircv3.h"
 #include "modules/server.h"
-#include "utility/map.h"
+#include "utility/container.h"
 
 using CloakMethodList = std::vector<Cloak::MethodPtr>;
 
@@ -358,7 +358,7 @@ public:
 		this->GetLinkData(data);
 
 		// If the only difference is the method then just include that.
-		insp::map::difference(data, otherdata, diffs);
+		insp::map_difference(data, otherdata, diffs);
 		auto it = diffs.find("method");
 		if (it != diffs.end())
 			diffs = { *it };

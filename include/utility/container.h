@@ -20,7 +20,7 @@
 #pragma once
 
 
-namespace insp::map
+namespace insp
 {
 	/** Compares two maps and returns a list of the differences.
 	 * @param first The first map to compare.
@@ -28,7 +28,7 @@ namespace insp::map
 	 * @param out The map to store the differences in.
 	 */
 	template<typename Key, typename Value, typename Compare, template<typename...> typename Map>
-	void difference(const Map<Key, Value, Compare>& first, const Map<Key, Value, Compare>& second,
+	void map_difference(const Map<Key, Value, Compare>& first, const Map<Key, Value, Compare>& second,
 		Map<Key, std::pair<std::optional<Value>, std::optional<Value>>, Compare>& out)
 	{
 		auto fiter = first.cbegin();

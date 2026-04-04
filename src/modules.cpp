@@ -32,7 +32,7 @@
 
 #include "inspircd.h"
 #include "dynamic.h"
-#include "utility/map.h"
+#include "utility/container.h"
 
 Module::Module(int mprops, const std::string& mdesc)
 	: Module(mprops, "", mdesc)
@@ -61,7 +61,7 @@ void Module::CompareLinkData(const LinkData& otherdata, LinkDataDiff& diffs)
 {
 	LinkData data;
 	this->GetLinkData(data);
-	insp::map::difference(data, otherdata, diffs);
+	insp::map_difference(data, otherdata, diffs);
 }
 
 std::string Module::GetPropertyString() const
