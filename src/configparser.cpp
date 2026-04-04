@@ -28,6 +28,7 @@
 #include "inspircd.h"
 #include "configparser.h"
 #include "timeutils.h"
+#include "utility/container.h"
 #include "utility/string.h"
 
 #ifdef _WIN32
@@ -527,7 +528,7 @@ ParseStack::ParseStack(ServerConfig* conf)
 
 bool ParseStack::ParseFile(const std::string& path, int flags, const std::string& mandatory_tag, bool isexec)
 {
-	if (stdalgo::isin(reading, path))
+	if (insp::contains(reading, path))
 		throw CoreException((isexec ? "Executable " : "File ") + path + " is included recursively (looped inclusion)");
 
 	/* It's not already included, add it to the list of files we've loaded */

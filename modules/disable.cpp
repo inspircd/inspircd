@@ -21,6 +21,7 @@
 #include "modules/isupport.h"
 #include "numerichelper.h"
 #include "stringutils.h"
+#include "utility/container.h"
 
 enum
 {
@@ -161,7 +162,7 @@ public:
 		if (!fakenonexistent || !user->IsLocal())
 			return MOD_RES_PASSTHRU; // We're not hiding the numeric OR the user is remote.
 
-		if (!stdalgo::isin(commands, numeric.GetParams()[0]) || user->HasPrivPermission("servers/use-disabled-commands"))
+		if (!insp::contains(commands, numeric.GetParams()[0]) || user->HasPrivPermission("servers/use-disabled-commands"))
 			return MOD_RES_PASSTHRU; // Wrong command or the user is is an exempt oper.
 
 		return MOD_RES_DENY;
@@ -174,7 +175,7 @@ public:
 			return MOD_RES_PASSTHRU;
 
 		// If the command is not disabled or the user has the servers/use-disabled-commands priv we do nothing.
-		if (!stdalgo::isin(commands, command) || user->HasPrivPermission("servers/use-disabled-commands"))
+		if (!insp::contains(commands, command) || user->HasPrivPermission("servers/use-disabled-commands"))
 			return MOD_RES_PASSTHRU;
 
 		// The user has tried to execute a disabled command!

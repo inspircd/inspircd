@@ -63,7 +63,6 @@
 #include "compat.h"
 #include "typedefs.h"
 #include "convto.h"
-#include "stdalgo.h"
 #include "exception.h"
 
 CoreExport extern InspIRCd* ServerInstance;

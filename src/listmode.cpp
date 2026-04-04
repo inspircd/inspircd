@@ -22,6 +22,7 @@
 
 #include "inspircd.h"
 #include "listmode.h"
+#include "utility/container.h"
 
 ListModeBase::ListModeBase(const WeakModulePtr& Creator, const std::string& Name, char modechar, unsigned int lnum, unsigned int eolnum, bool am)
 	: ModeHandler(Creator, Name, modechar, PARAM_ALWAYS, MODETYPE_CHANNEL, MC_LIST)
@@ -214,7 +215,7 @@ bool ListModeBase::OnModeChange(User* source, User*, Channel* channel, Modes::Ch
 					continue; // Doesn't match the proposed removal.
 
 				change.param = it->mask;
-				stdalgo::vector::swaperase(cd->list, it);
+				insp::swap_erase(cd->list, it);
 				return true;
 			}
 		}

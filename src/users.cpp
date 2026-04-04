@@ -31,6 +31,7 @@
 #include "inspircd.h"
 #include "clientprotocolevent.h"
 #include "modules/hash.h"
+#include "utility/container.h"
 #include "utility/string.h"
 #include "xline.h"
 
@@ -309,7 +310,7 @@ void User::OperLogout()
 			SetMode(opermh, false);
 	}
 
-	stdalgo::vector::swaperase(ServerInstance->Users.all_opers, this);
+	insp::swap_erase(ServerInstance->Users.all_opers, this);
 	FOREACH_MOD(OnPostOperLogout, (this, account));
 }
 

@@ -22,6 +22,7 @@
 #include "inspircd.h"
 #include "modules/cap.h"
 #include "modules/ircv3_batch.h"
+#include "utility/container.h"
 
 class BatchMessage final
 	: public ClientProtocol::Message
@@ -131,7 +132,7 @@ public:
 		{
 			// Check the bit first to avoid list scan in case they're not on the list
 			if ((bits & batch->GetBit()) != 0)
-				stdalgo::vector::swaperase(batch->batchinfo->users, user);
+				insp::swap_erase(batch->batchinfo->users, user);
 		}
 	}
 

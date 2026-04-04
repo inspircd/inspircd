@@ -22,6 +22,17 @@
 
 namespace insp
 {
+	/** Checks whether an element with the given value is in a container.
+	 * @param container The ontainer to find the element in.
+	 * @param value The value of the element to look for.
+	 * @return True if the element was found in the container; otherwise, false.
+	 */
+	template <typename Container, typename Value = typename Container::value_type>
+	inline bool contains(const Container& container, const Value& value)
+	{
+		return std::find(container.begin(), container.end(), value) != container.end();
+	}
+
 	/** Compares two maps and returns a list of the differences.
 	 * @param first The first map to compare.
 	 * @param second The second map to compare.
@@ -80,5 +91,40 @@ namespace insp
 			out[siter->first] = { std::nullopt, siter->second };
 			siter++;
 		}
+	}
+
+	/** Erase a single element from a container by overwriting it with a copy of the last element,
+	 * which is then removed. This, in contrast to rase(), does not result in all elements after
+	 * the erased element being moved. All iterators, references and pointers to the erased element
+	 * and the last element are invalidated
+	 * @param container The container to remove the element from.
+	 * @param it An iterator to the element to remove.
+	 */
+	template <typename Container>
+	inline void swap_erase(Container& container, const typename Container::iterator& it)
+	{
+		*it = std::move(container.back());
+		container.pop_back();
+	}
+
+	/** Find and erase a single element from a vector by overwriting it with a copy of the last
+	 * element, which is then removed. This, in contrast to erase(), does not result in all elements
+	 * after the erased element being moved. If the given value occurs multiple times, the one with
+	 * the lowest index is removed. If the element is found then  all iterators, references and
+	 * pointers to the erased element and the last element are invalidated.
+	 * @param container The container to remove the element from.
+	 * @param value The value to look for and remove.
+	 * @return True if the element was found and removed; otherwise, false.
+	 */
+	template <typename Container>
+	inline bool swap_erase(Container& container, const typename Container::value_type& value)
+	{
+		auto it = std::find(container.begin(), container.end(), value);
+		if (it != container.end())
+		{
+			swap_erase(container, it);
+			return true;
+		}
+		return false;
 	}
 }

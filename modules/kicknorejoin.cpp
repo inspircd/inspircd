@@ -29,6 +29,7 @@
 #include "modules/invite.h"
 #include "numerichelper.h"
 #include "timeutils.h"
+#include "utility/container.h"
 
 class KickRejoinData final
 {
@@ -70,7 +71,7 @@ public:
 			else
 			{
 				// Expired record, remove.
-				stdalgo::vector::swaperase(kicked, i);
+				insp::swap_erase(kicked, i);
 				if (kicked.empty())
 					break;
 			}

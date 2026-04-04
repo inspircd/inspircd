@@ -26,6 +26,7 @@
 #include "modules/monitor.h"
 #include "numericbuilder.h"
 #include "stringutils.h"
+#include "utility/container.h"
 
 namespace IRCv3::Monitor
 {
@@ -129,7 +130,7 @@ public:
 			return WR_TOOMANY;
 
 		Entry* entry = AddWatcher(nick, user);
-		if (stdalgo::isin(*watched, entry))
+		if (insp::contains(*watched, entry))
 			return WR_ALREADYWATCHING;
 
 		entry->watchers.push_back(user);
@@ -209,11 +210,11 @@ private:
 
 		Entry& entry = it->second;
 		// Erase from the user's list of watched nicks
-		if (!stdalgo::vector::swaperase(watchedlist, &entry))
+		if (!insp::swap_erase(watchedlist, &entry))
 			return false; // User is not watching this nick
 
 		// Erase from the nick's list of watching users
-		stdalgo::vector::swaperase(entry.watchers, user);
+		insp::swap_erase(entry.watchers, user);
 
 		// If nobody else is watching the nick remove map entry
 		if (entry.watchers.empty())

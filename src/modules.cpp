@@ -183,7 +183,7 @@ void		Module::OnPostChangeConnectClass(LocalUser*, const std::shared_ptr<Connect
 
 bool ModuleManager::Attach(Implementation i, const ModulePtr& mod)
 {
-	if (stdalgo::isin(EventHandlers[i], mod))
+	if (insp::contains(EventHandlers[i], mod))
 		return false;
 
 	EventHandlers[i].push_back(mod);

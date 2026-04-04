@@ -33,6 +33,7 @@
 #include "modules/ctctags.h"
 #include "modules/isupport.h"
 #include "numerichelper.h"
+#include "utility/container.h"
 
 enum
 {
@@ -154,7 +155,7 @@ struct CallerIDExtInfo final
 				continue; // shouldn't happen, but oh well.
 			}
 
-			if (!stdalgo::vector::swaperase(target->wholistsme, dat.get()))
+			if (!insp::swap_erase(target->wholistsme, dat.get()))
 				ServerInstance->Logs.Debug(MODNAME, "BUG: Inconsistency detected in callerid state, please report (2)");
 		}
 	}
@@ -329,7 +330,7 @@ public:
 			return false;
 		}
 
-		if (!stdalgo::vector::swaperase(dat2->wholistsme, dat))
+		if (!insp::swap_erase(dat2->wholistsme, dat))
 			ServerInstance->Logs.Debug(MODNAME, "BUG: Inconsistency detected in callerid state, please report (4)");
 
 		user->WriteNotice(whotoremove->nick + " is no longer on your accept list");

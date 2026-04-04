@@ -21,6 +21,7 @@
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
 #include "stringutils.h"
+#include "utility/container.h"
 
 enum
 {
@@ -143,7 +144,7 @@ private:
 
 			// This is our command, make sure we don't have the same entry twice
 			sfcmd = static_cast<CommandShowFile*>(handler);
-			if (stdalgo::isin(newcmds, sfcmd))
+			if (insp::contains(newcmds, sfcmd))
 				throw ModuleException(weak_from_this(), "Command " + cmdname + " is already used in a <showfile> tag");
 		}
 		else
