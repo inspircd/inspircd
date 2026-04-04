@@ -19,8 +19,9 @@
 
 
 #include "inspircd.h"
-#include "modules/reload.h"
 #include "modules/cap.h"
+#include "modules/reload.h"
+#include "utility/container.h"
 #include "utility/string.h"
 
 enum
@@ -197,10 +198,7 @@ public:
 
 	Capability* Find(const std::string& capname) const override
 	{
-		CapMap::const_iterator it = caps.find(capname);
-		if (it != caps.end())
-			return it->second;
-		return nullptr;
+		return insp::find_value(caps, capname);
 	}
 
 	void NotifyValueChange(Capability* cap) override

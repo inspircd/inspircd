@@ -19,6 +19,8 @@
 
 
 #include "inspircd.h"
+#include "utility/container.h"
+
 #include "main.h"
 #include "servercommand.h"
 
@@ -48,10 +50,7 @@ time_t ServerCommand::ExtractTS(const std::string& tsstr)
 
 ServerCommand* ServerCommandManager::GetHandler(const std::string& command) const
 {
-	ServerCommandMap::const_iterator it = commands.find(command);
-	if (it != commands.end())
-		return it->second;
-	return nullptr;
+	return insp::find_value(commands, command);
 }
 
 bool ServerCommandManager::AddCommand(ServerCommand* cmd)

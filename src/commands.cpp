@@ -27,6 +27,7 @@
 #include "inspircd.h"
 #include "numerichelper.h"
 #include "stringutils.h"
+#include "utility/container.h"
 
 bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Params& parameters, size_t splithere, size_t extra, bool usemax)
 {
@@ -103,11 +104,7 @@ bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Pa
 
 Command* CommandParser::GetHandler(const std::string& commandname)
 {
-	CommandMap::iterator n = cmdlist.find(commandname);
-	if (n != cmdlist.end())
-		return n->second;
-
-	return nullptr;
+	return insp::find_value(cmdlist, commandname);
 }
 
 // calls a handler function for a command

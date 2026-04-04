@@ -28,6 +28,7 @@
 #include "modules/stats.h"
 #include "modules/whois.h"
 #include "timeutils.h"
+#include "utility/container.h"
 
 enum
 {
@@ -251,10 +252,7 @@ CmdResult CommandWhowas::Handle(User* user, const Params& parameters)
 
 const WhoWas::Nick* WhoWas::Manager::FindNick(const std::string& nickname) const
 {
-	whowas_users::const_iterator it = whowas.find(nickname);
-	if (it == whowas.end())
-		return nullptr;
-	return it->second;
+	return insp::find_value(whowas, nickname);
 }
 
 WhoWas::Manager::Stats WhoWas::Manager::GetStats() const

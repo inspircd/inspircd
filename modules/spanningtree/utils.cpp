@@ -28,6 +28,7 @@
 
 #include "inspircd.h"
 #include "listmode.h"
+#include "utility/container.h"
 
 #include "main.h"
 #include "utils.h"
@@ -62,15 +63,7 @@ TreeServer* SpanningTreeUtilities::FindServer(const std::string& ServerName)
 	if (InspIRCd::IsSID(ServerName))
 		return this->FindServerID(ServerName);
 
-	server_hash::iterator iter = serverlist.find(ServerName);
-	if (iter != serverlist.end())
-	{
-		return iter->second;
-	}
-	else
-	{
-		return nullptr;
-	}
+	return insp::find_value(serverlist, ServerName);
 }
 
 /** Find the first server matching a given glob mask.
@@ -88,11 +81,7 @@ TreeServer* SpanningTreeUtilities::FindServerMask(const std::string& ServerName)
 
 TreeServer* SpanningTreeUtilities::FindServerID(const std::string& id)
 {
-	server_hash::iterator iter = sidlist.find(id);
-	if (iter != sidlist.end())
-		return iter->second;
-	else
-		return nullptr;
+	return insp::find_value(sidlist, id);
 }
 
 TreeServer* SpanningTreeUtilities::FindRouteTarget(const std::string& target)

@@ -610,10 +610,7 @@ void ModuleManager::DelService(Service::Provider& item)
 
 Service::Provider* ModuleManager::FindService(const std::string& type, const std::string& name)
 {
-	auto i = this->Services.find(std::make_pair(type, name));
-	if (i != this->Services.end())
-		return i->second;
-	return nullptr;
+	return insp::find_value(this->Services, std::make_pair(type, name));
 }
 
 std::string ModuleManager::ExpandModName(const std::string& modname)

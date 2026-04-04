@@ -30,6 +30,7 @@
 #include "stringutils.h"
 #include "timeutils.h"
 #include "xline.h"
+#include "utility/container.h"
 
 /** An XLineFactory specialized to generate GLine* pointers
  */
@@ -709,12 +710,7 @@ bool XLineManager::UnregisterFactory(XLineFactory* xlf)
 
 XLineFactory* XLineManager::GetFactory(const std::string& type)
 {
-	XLineFactMap::iterator n = line_factory.find(type);
-
-	if (n == line_factory.end())
-		return nullptr;
-
-	return n->second;
+	return insp::find_value(line_factory, type);
 }
 
 void XLineManager::ExpireRemovedConfigLines(const std::string& type, const insp::flat_set<std::string>& configlines)

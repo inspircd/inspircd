@@ -33,6 +33,16 @@ namespace insp
 		return std::find(container.begin(), container.end(), value) != container.end();
 	}
 
+	template <typename Container, typename Key = typename Container::key_type, typename Value = typename Container::mapped_type>
+	inline std::remove_pointer_t<Value>* find_value(const Container& container, const Key& key)
+	{
+		auto it = container.find(key);
+		if (it == container.end())
+			return nullptr;
+
+		return insp::to_ptr(it->second);
+	}
+
 	/** Compares two maps and returns a list of the differences.
 	 * @param first The first map to compare.
 	 * @param second The second map to compare.

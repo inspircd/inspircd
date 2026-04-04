@@ -59,4 +59,31 @@ namespace insp
 	{
 		return !ptr1.owner_before(ptr2) && !ptr2.owner_before(ptr1);
 	}
+
+	/** Returns the raw pointer of the shared pointer passed to it.
+	 * @param value The shared pointer to return the raw pointer of.
+	 */
+	template <typename Value>
+	inline Value* to_ptr(std::shared_ptr<Value>& value)
+	{
+		return value.get();
+	}
+
+	/** Returns the raw pointer of the reference passed to it.
+	 * @param value The reference to return the raw pointer of.
+	 */
+	template <typename Value>
+	inline Value* to_ptr(Value& value)
+	{
+		return &value;
+	}
+
+	/** Returns the value passed to it.
+	 * @param value The value to return.
+	 */
+	template <typename Value>
+	inline Value* to_ptr(Value* value)
+	{
+		return value;
+	}
 }

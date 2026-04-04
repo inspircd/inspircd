@@ -18,6 +18,7 @@
 
 
 #include "inspircd.h"
+#include "utility/container.h"
 
 bool ChannelManager::DefaultIsChannel(const std::string_view& channel)
 {
@@ -43,11 +44,7 @@ bool ChannelManager::DefaultIsChannel(const std::string_view& channel)
 
 Channel* ChannelManager::Find(const std::string& channel) const
 {
-	ChannelMap::const_iterator iter = channels.find(channel);
-	if (iter == channels.end())
-		return nullptr;
-
-	return iter->second;
+	return insp::find_value(channels, channel);
 }
 
 bool ChannelManager::IsPrefix(unsigned char prefix) const

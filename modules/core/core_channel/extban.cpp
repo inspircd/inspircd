@@ -18,6 +18,8 @@
 
 
 #include "inspircd.h"
+#include "utility/container.h"
+
 #include "core_channel.h"
 
 void ExtBanManager::AddExtBan(ExtBan::Base* extban)
@@ -180,18 +182,12 @@ void ExtBanManager::DelExtBan(ExtBan::Base* extban)
 
 ExtBan::Base* ExtBanManager::FindName(const std::string& xbname) const
 {
-	NameMap::const_iterator iter = byname.find(xbname);
-	if (iter == byname.end())
-		return nullptr;
-	return iter->second;
+	return insp::find_value(byname, xbname);
 }
 
 ExtBan::Base* ExtBanManager::FindLetter(ExtBan::Letter letter) const
 {
-	LetterMap::const_iterator iter = byletter.find(letter);
-	if (iter == byletter.end())
-		return nullptr;
-	return iter->second;
+	return insp::find_value(byletter, letter);
 }
 
 ExtBan::Comparison ExtBanManager::Validate(ListModeBase* lm, LocalUser* user, Channel* channel, std::string& text) const

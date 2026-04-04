@@ -19,6 +19,7 @@
 
 #include "inspircd.h"
 #include "extension.h"
+#include "utility/container.h"
 
 namespace
 {
@@ -59,11 +60,7 @@ void ExtensionManager::BeginUnregister(const ModulePtr& module, std::vector<Exte
 
 ExtensionItem* ExtensionManager::GetItem(const std::string& name)
 {
-	ExtMap::iterator iter = types.find(name);
-	if (iter == types.end())
-		return nullptr;
-
-	return iter->second;
+	return insp::find_value(types, name);
 }
 
 Extensible::Extensible(ExtensionType exttype)
