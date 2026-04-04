@@ -107,6 +107,7 @@ namespace
 		// Does not change the server of quitting users because those are not in the list
 
 		ServerInstance->FakeClient->server = newserver;
+		ServerInstance->LocalServer = newserver;
 		for (auto* user : ServerInstance->Users.GetLocalUsers())
 			user->server = newserver;
 	}
@@ -132,7 +133,7 @@ void ModuleSpanningTree::init()
 
 	ServerInstance->PI = &protocolinterface;
 
-	delete ServerInstance->FakeClient->server;
+	delete ServerInstance->LocalServer;
 	SetLocalUsersServer(Utils->TreeRoot);
 }
 

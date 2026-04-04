@@ -91,7 +91,7 @@ struct LusersCounters final
 
 		for (const auto& server : serverlist)
 		{
-			if (server->GetParent() == ServerInstance->FakeClient->server)
+			if (server->GetParent() == ServerInstance->LocalServer)
 				local_servers++;
 		}
 	}

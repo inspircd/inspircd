@@ -403,7 +403,8 @@ void InspIRCd::Cleanup()
 	/* Must be deleted before modes as it decrements modelines */
 	if (FakeClient)
 	{
-		delete FakeClient->server;
+		LocalServer = nullptr;
+		insp::delete_zero(FakeClient->server);
 		FakeClient->Cull();
 	}
 	insp::delete_zero(this->FakeClient);
@@ -514,6 +515,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	// Create the server user for this server
 	this->FakeClient = new FakeUser(Config->ServerId, Config->ServerName, Config->ServerDesc);
+	this->LocalServer = this->FakeClient->server;
 
 	// This is needed as all new XLines are marked pending until ApplyLines() is called
 	this->XLines->ApplyLines();

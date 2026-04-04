@@ -169,7 +169,7 @@ const std::string& User::GetRealMask()
 }
 
 LocalUser::LocalUser(LocalUserIO* lio, const irc::sockets::sockaddrs& clientsa, const irc::sockets::sockaddrs& serversa)
-	: User(ServerInstance->UIDGen.GetUID(), ServerInstance->FakeClient->server, User::TYPE_LOCAL)
+	: User(ServerInstance->UIDGen.GetUID(), ServerInstance->LocalServer, User::TYPE_LOCAL)
 	, io(lio)
 	, server_sa(serversa)
 	, quitting_sendq(false)

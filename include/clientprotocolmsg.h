@@ -71,7 +71,7 @@ public:
 	 * @param user User to send the numeric to. May be partially connected, must remain valid as long as this object is alive.
 	 */
 	Numeric(const ::Numeric::Numeric& num, User* user)
-		: ClientProtocol::Message(nullptr, (num.GetServer() ? num.GetServer() : ServerInstance->FakeClient->server)->GetPublicName())
+		: ClientProtocol::Message(nullptr, (num.GetServer() ? num.GetServer() : ServerInstance->LocalServer)->GetPublicName())
 	{
 		if (user->connected & User::CONN_NICK)
 			PushParamRef(user->nick);
@@ -85,7 +85,7 @@ public:
 	 * @param target Target string, must stay valid as long as this object is alive.
 	 */
 	Numeric(const ::Numeric::Numeric& num, const std::string& target)
-		: ClientProtocol::Message(nullptr, (num.GetServer() ? num.GetServer() : ServerInstance->FakeClient->server)->GetPublicName())
+		: ClientProtocol::Message(nullptr, (num.GetServer() ? num.GetServer() : ServerInstance->LocalServer)->GetPublicName())
 	{
 		PushParamRef(target);
 		InitFromNumeric(num);
@@ -107,7 +107,7 @@ class CoreExport ClientProtocol::Messages::Reply
 {
 public:
 	Reply(const ::Reply::Reply& reply)
-		: ClientProtocol::Message(nullptr, (reply.GetSource() ? reply.GetSource() : ServerInstance->FakeClient->server)->GetPublicName())
+		: ClientProtocol::Message(nullptr, (reply.GetSource() ? reply.GetSource() : ServerInstance->LocalServer)->GetPublicName())
 	{
 		AddTags(reply.GetParams().GetTags());
 		SetCommand(::Reply::CommandStrFromType(reply.GetType()));

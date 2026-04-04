@@ -230,6 +230,9 @@ public:
 	/** A fake user that represents the local server. */
 	FakeUser* FakeClient = nullptr;
 
+	/** The local server. */
+	Server* LocalServer = nullptr;
+
 	/** The protocol interface used for interacting with remote servers by the linking module. */
 	ProtocolInterface* PI = &DefaultProtocolInterface;
 
