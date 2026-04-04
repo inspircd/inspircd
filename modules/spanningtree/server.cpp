@@ -141,18 +141,25 @@ std::shared_ptr<Link> TreeSocket::AuthRemote(const CommandBase::Params& params)
 
 		if (!ComparePass(*x, password))
 		{
-			ServerInstance->SNO.WriteToSnoMask('l', "Invalid password on link: {}", x->Name);
+			ServerInstance->SNO.WriteToSnoMask('l', "Invalid credentials on link: {}", x->Name);
 			continue;
+		}
+
+		auto* hook = TLS::GetHook(this);
+		if (hook && !hook->GetCertificate()->IsUsable(!x->AllowSelfSigned))
+		{
+			this->SendError("Peer provided an unusable (probably self-signed) TLS certificate");
+			return nullptr;
+		}
+
+		if (!hook && !IsLocalRange(capab->remotesa))
+		{
+			this->SendError("Non-local server connections MUST be linked with TLS");
+			return nullptr;
 		}
 
 		if (!CheckDuplicate(sname, sid))
 			return nullptr;
-
-		if (TLS::GetHook(this) && !IsLocalRange(capab->remotesa))
-		{
-			this->SendError("Non-local server connections MUST be linked with SSL!");
-			return nullptr;
-		}
 
 		ServerInstance->SNO.WriteToSnoMask('l', "Verified server connection " + linkID + " ("+description+")");
 		return x;

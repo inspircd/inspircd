@@ -75,7 +75,6 @@ bool TreeSocket::ComparePass(const Link& link, const std::string& theirs)
 	const auto* tlshook = TLS::GetHook(this);
 	const auto& tlscert = tlshook ? tlshook->GetCertificate() : nullptr;
 	const auto tlscert_usable = tlscert && tlscert->IsUsable();
-	const auto fp = tlscert_usable ? tlscert->GetFingerprint() : "";
 	if (capab->auth_fingerprint)
 	{
 		std::string tlserror;
@@ -128,14 +127,6 @@ bool TreeSocket::ComparePass(const Link& link, const std::string& theirs)
 		// Use the timing-safe compare function to compare the passwords
 		if (!InspIRCd::TimingSafeCompare(link.RecvPass, theirs))
 			return false;
-	}
-
-	// Tell opers to set up fingerprint verification if it's not already set up and the TLS mod gave us a fingerprint
-	// this time
-	if ((!capab->auth_fingerprint) && (!fp.empty()))
-	{
-		ServerInstance->SNO.WriteToSnoMask('l', "TLS client certificate fingerprint for link {} is \"{}\". "
-			"You can improve security by specifying this in <link:fingerprint>.", link.Name, fp);
 	}
 
 	return true;
