@@ -14,12 +14,13 @@ files   = "{include/fmt/{base,color,compile,format,format-inl}.h,LICENSE,src/for
 git     = "https://github.com/fmtlib/fmt/"
 license = "MIT License"
 
-[http_parser]
-author  = "Joyent, Inc. and other Node contributors"
-files   = "{http_parser.[ch],LICENSE-MIT}"
-git     = "https://git.in-ulm.de/cbiedl/http-parser"
+[llhttp]
+author  = "Fedor Indutny"
+build   = "npm ci && make generate"
+depth   = 2
+files   = "{build/llhttp.h,build/c/llhttp.c,src/native/api.c,src/native/http.c,LICENSE}"
+git     = "https://github.com/nodejs/llhttp"
 license = "MIT License"
-patches = "debian/patches/*.patch"
 
 [lyra]
 author  = "Build Frameworks Group"
@@ -50,6 +51,13 @@ depth   = 2
 files   = "{LICENSE,source/utf8/{core,unchecked}.h}"
 git     = "https://github.com/nemtrif/utfcpp"
 license = "Boost Software License"
+
+[yuarel]
+author  = "Jack Engqvist Johansson"
+files   = "{LICENSE,yuarel.[ch]}"
+git     = "https://github.com/jacketizer/libyuarel"
+license = "MIT License"
+tag     = 0
 
 [yyjson]
 author  = "Yaoyuan Guo"

@@ -27,14 +27,32 @@
  */
 
 /// BEGIN CMAKE
-/// if($ENV{SYSTEM_HTTP_PARSER})
-///   target_compile_definitions(${TARGET} "USE_SYSTEM_HTTP_PARSER")
-///   target_link_libraries(${TARGET} PRIVATE "http_parser")
+/// if($ENV{SYSTEM_LLHTTP})
+///   target_compile_definitions(${TARGET} "USE_SYSTEM_LLHTTP")
+///   target_link_libraries(${TARGET} PRIVATE "llhttp")
 /// else()
-///   target_link_libraries(${TARGET} PRIVATE "vendored_http_parser")
+///   target_link_libraries(${TARGET} PRIVATE "vendored_llhttp")
+/// endif()
+/// if($ENV{SYSTEM_YUAREL})
+///   target_compile_definitions(${TARGET} "USE_SYSTEM_YUAREL")
+///   target_link_libraries(${TARGET} PRIVATE "yuarel")
+/// else()
+///   target_link_libraries(${TARGET} PRIVATE "vendored_yuarel")
 /// endif()
 /// END CMAKE
 
+
+#ifdef USE_SYSTEM_LLHTTP
+# include <llhttp.h>
+#else
+# include <llhttp/llhttp.h>
+#endif
+
+#ifdef USE_SYSTEM_YUAREL
+# include <yuarel.h>
+#else
+# include <yuarel/yuarel.h>
+#endif
 
 #include "inspircd.h"
 #include "iohook.h"
@@ -42,32 +60,13 @@
 #include "stringutils.h"
 #include "utility/container.h"
 
-#ifdef __GNUC__
-# pragma GCC diagnostic push
-#endif
-
-// Fix warnings about shadowing in http_parser.
-#ifdef __GNUC__
-# pragma GCC diagnostic ignored "-Wshadow"
-#endif
-
-#ifdef USE_SYSTEM_HTTP_PARSER
-# include <http_parser.h>
-#else
-# include <http_parser/http_parser.h>
-#endif
-
-#ifdef __GNUC__
-# pragma GCC diagnostic pop
-#endif
-
 class ModuleHttpServer;
 
 static ModuleHttpServer* HttpModule;
 static insp::intrusive_list<HttpServerSocket> sockets;
 static Events::ModuleEventProvider* aclevprov;
 static Events::ModuleEventProvider* reqevprov;
-static http_parser_settings parser_settings;
+static llhttp_settings_t parser_settings;
 
 /** A socket used for HTTP transport
  */
@@ -79,8 +78,7 @@ class HttpServerSocket final
 private:
 	friend class ModuleHttpServer;
 
-	http_parser parser;
-	http_parser_url url;
+	llhttp_t parser;
 	std::string ip;
 	std::string uri;
 	HTTPHeaders headers;
@@ -106,14 +104,14 @@ private:
 	}
 
 	template<int (HttpServerSocket::*f)()>
-	static int Callback(http_parser* p)
+	static int Callback(llhttp_t* p)
 	{
 		HttpServerSocket* sock = static_cast<HttpServerSocket*>(p->data);
 		return (sock->*f)();
 	}
 
 	template<int (HttpServerSocket::*f)(const char*, size_t)>
-	static int DataCallback(http_parser* p, const char* buf, size_t len)
+	static int DataCallback(llhttp_t* p, const char* buf, size_t len)
 	{
 		HttpServerSocket* sock = static_cast<HttpServerSocket*>(p->data);
 		return (sock->*f)(buf, len);
@@ -121,7 +119,7 @@ private:
 
 	static void ConfigureParser()
 	{
-		http_parser_settings_init(&parser_settings);
+		llhttp_settings_init(&parser_settings);
 		parser_settings.on_message_begin = Callback<&HttpServerSocket::OnMessageBegin>;
 		parser_settings.on_url = DataCallback<&HttpServerSocket::OnUrl>;
 		parser_settings.on_header_field = DataCallback<&HttpServerSocket::OnHeaderField>;
@@ -238,8 +236,8 @@ public:
 			}
 		}
 
+		llhttp_init(&parser, HTTP_REQUEST, &parser_settings);
 		parser.data = this;
-		http_parser_init(&parser, HTTP_REQUEST);
 		ServerInstance->Timers.AddTimer(this);
 	}
 
@@ -268,7 +266,7 @@ public:
 	void SendHTTPError(unsigned int response, const char* errstr = nullptr)
 	{
 		if (!errstr)
-			errstr = http_status_str((http_status)response);
+			errstr = llhttp_status_name((llhttp_status)response);
 
 		ServerInstance->Logs.Debug(MODNAME, "Sending HTTP error {}: {}", response, errstr);
 		static HTTPHeaders empty;
@@ -283,7 +281,7 @@ public:
 
 	void SendHeaders(unsigned long size, unsigned int response, HTTPHeaders& rheaders)
 	{
-		WriteData(FMT::format("HTTP/{}.{} {} {}\r\n", parser.http_major ? parser.http_major : 1, parser.http_major ? parser.http_minor : 1, response, http_status_str((http_status)response)));
+		WriteData(FMT::format("HTTP/{}.{} {} {}\r\n", parser.http_major ? parser.http_major : 1, parser.http_major ? parser.http_minor : 1, response, llhttp_status_name((llhttp_status)response)));
 
 		rheaders.CreateHeader("Date", Time::ToString(ServerInstance->Time(), Time::RFC_1123, true));
 		rheaders.CreateHeader("Server", INSPIRCD_BRANCH);
@@ -305,18 +303,19 @@ public:
 
 	void OnDataReady() override
 	{
-		if (parser.upgrade || HTTP_PARSER_ERRNO(&parser))
+		if (parser.upgrade || llhttp_get_errno(&parser) != HPE_OK)
 			return;
-		http_parser_execute(&parser, &parser_settings, recvq.data(), recvq.size());
-		if (parser.upgrade)
+
+		auto res = llhttp_execute(&parser, recvq.data(), recvq.size());
+		if (parser.upgrade || res == HPE_PAUSED_UPGRADE)
 			SendHTTPError(status_code ? status_code : 400);
-		else if (HTTP_PARSER_ERRNO(&parser))
-			SendHTTPError(status_code ? status_code : 400, http_errno_description((http_errno)parser.http_errno));
+		else if (res != HPE_OK && res != HPE_PAUSED)
+			SendHTTPError(status_code ? status_code : 400, llhttp_errno_name(res));
 	}
 
 	void ServeData()
 	{
-		std::string method = http_method_str(static_cast<http_method>(parser.method));
+		const auto method = llhttp_method_name(static_cast<llhttp_method_t>(parser.method));
 		HTTPRequestURI parsed;
 		ParseURI(uri, parsed);
 		HTTPRequest acl(method, parsed, &headers, this, ip, body);
@@ -346,58 +345,67 @@ public:
 
 	bool ParseURI(const std::string& uristr, HTTPRequestURI& out)
 	{
-		http_parser_url_init(&url);
-		if (http_parser_parse_url(uristr.c_str(), uristr.size(), 0, &url) != 0)
-			return false;
+		// yuarel works in-place so we need a mutable copy of this.
+		std::vector<char> uribuf(uristr.begin(), uristr.end());
+		uribuf.push_back('\0');
 
-		if (url.field_set & (1 << UF_PATH))
+		yuarel url;
+		memset(&url, 0, sizeof(url));
+		if (yuarel_parse(&url, uribuf.data()) == -1)
 		{
-			// Normalise the path.
-			std::vector<std::string> pathsegments;
-			StringSplitter pathstream(uri, '/', true, url.field_data[UF_PATH].off, url.field_data[UF_PATH].len);
-			for (std::string pathsegment; pathstream.GetToken(pathsegment); )
-			{
-				if (pathsegment == ".")
-				{
-					// Stay at the current level.
-					continue;
-				}
-
-				if (pathsegment == "..")
-				{
-					// Traverse up to the previous level.
-					if (!pathsegments.empty())
-						pathsegments.pop_back();
-					continue;
-				}
-
-				pathsegments.push_back(pathsegment);
-			}
-
-			out.path.reserve(url.field_data[UF_PATH].len);
-			out.path.append("/").append(insp::join(pathsegments, '/'));
+			ServerInstance->Logs.Debug(MODNAME, "yuarel_parse() failed with {}", uristr);
+			return false; // Malformed URI
 		}
 
-		if (url.field_set & (1 << UF_FRAGMENT))
-			out.fragment = uri.substr(url.field_data[UF_FRAGMENT].off, url.field_data[UF_FRAGMENT].len);
+		insp::assign_ptr(out.scheme, url.scheme);
+		insp::assign_ptr(out.username, url.username);
+		insp::assign_ptr(out.password, url.password);
+		insp::assign_ptr(out.host, url.host);
+		out.port = url.port;
+		insp::assign_ptr(out.fragment, url.fragment);
 
-		std::string param_str;
-		if (url.field_set & (1 << UF_QUERY))
-			param_str = uri.substr(url.field_data[UF_QUERY].off, url.field_data[UF_QUERY].len);
-
-		StringSplitter paramstream(param_str, '&');
-		for (std::string_view token; paramstream.GetToken(token); )
+		// Parse and normalize the path.
+		char* path_segments[64];
+		memset(&path_segments, 0, sizeof(path_segments));
+		const auto path_segment_count = yuarel_split_path(url.path, path_segments, std::size(path_segments));
+		if (path_segment_count == -1)
 		{
-			const auto eq_pos = token.find('=');
-			if (eq_pos == std::string::npos)
-			{
-				out.query_params.emplace(token, "");
-			}
-			else
-			{
-				out.query_params.emplace(token.substr(0, eq_pos), token.substr(eq_pos + 1));
-			}
+			ServerInstance->Logs.Debug(MODNAME, "yuarel_split_path() failed with {}", url.path);
+			return false; // Malformed path.
 		}
+		std::vector<std::string> normalized_path;
+		for (auto idx = 0; idx < path_segment_count; ++idx)
+		{
+			const auto& path_segment = path_segments[idx];
+			if (insp::ascii_equals(path_segment, "."))
+				continue; // Stay at the current level.
+
+			if (insp::ascii_equals(path_segment, ".."))
+			{
+				// Traverse up to the previous level.
+				if (!normalized_path.empty())
+					normalized_path.pop_back();
+				continue;
+			}
+			normalized_path.push_back(path_segment);
+		}
+		out.path.append("/").append(insp::join(normalized_path, '/'));
+
+		// Parse and decode the query string.
+		yuarel_param params[64];
+		memset(&params, 0, sizeof(params));
+		const auto param_count = yuarel_parse_query(url.query, '&', params, std::size(params));
+		if (param_count == -1)
+		{
+			ServerInstance->Logs.Debug(MODNAME, "yuarel_parse_query() failed with {}", url.query);
+			return false; // Malformed query string.
+		}
+		for (auto idx = 0; idx < param_count; ++idx)
+		{
+			const auto* param_val = params[idx].val ? yuarel_url_decode(params[idx].val) : "";
+			out.query_params.emplace(yuarel_url_decode(params[idx].key), param_val);
+		}
+
 		return true;
 	}
 };

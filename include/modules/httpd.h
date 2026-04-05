@@ -80,6 +80,11 @@ public:
 
 struct HTTPRequestURI final
 {
+	std::string scheme;
+	std::string username;
+	std::string password;
+	std::string host;
+	in_port_t port = 0;
 	std::string path;
 	HTTPQueryParameters query_params;
 	std::string fragment;

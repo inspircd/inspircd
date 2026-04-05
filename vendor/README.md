@@ -22,15 +22,15 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **Website** &mdash; [https://github.com/fmtlib/fmt/](https://github.com/fmtlib/fmt/)
 
-## http_parser
+## llhttp
 
-**Author** &mdash; Joyent, Inc. and other Node contributors
+**Author** &mdash; Fedor Indutny
 
 **License** &mdash; MIT License
 
-**Version** &mdash; debian/2.9.4-6
+**Version** &mdash; v9.4.1
 
-**Website** &mdash; [https://git.in-ulm.de/cbiedl/http-parser](https://git.in-ulm.de/cbiedl/http-parser)
+**Website** &mdash; [https://github.com/nodejs/llhttp](https://github.com/nodejs/llhttp)
 
 ## lyra
 
@@ -71,6 +71,16 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 **Version** &mdash; v4.0.9
 
 **Website** &mdash; [https://github.com/nemtrif/utfcpp](https://github.com/nemtrif/utfcpp)
+
+## yuarel
+
+**Author** &mdash; Jack Engqvist Johansson
+
+**License** &mdash; MIT License
+
+**Version** &mdash; 1.0-64-gd4f6660
+
+**Website** &mdash; [https://github.com/jacketizer/libyuarel](https://github.com/jacketizer/libyuarel)
 
 ## yyjson
 

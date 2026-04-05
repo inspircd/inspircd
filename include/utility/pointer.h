@@ -24,6 +24,16 @@ namespace insp
 	/** A pointer to a FILE that closes when it goes out of scope. */
 	using file_ptr = std::unique_ptr<FILE, int(*)(FILE*)>;
 
+	/** Assigns a pointer type to a target if it is not null; otherwise, does nothing.
+	 * This is mainly intended for use with const char* to std::string assignment.
+	 */
+	template<typename Target, typename Source>
+	void assign_ptr(Target& target, const Source* source)
+	{
+		if (source)
+			target = source;
+	}
+
 	/** Deletes all elements in a container using operator delete
 	 * @param cont The container containing the elements to delete
 	 */
