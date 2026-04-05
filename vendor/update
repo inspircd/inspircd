@@ -61,6 +61,11 @@ while (my ($name, $info) = each %{$data}) {
 				$success |= execute 'git', '-C', $unpackdir, 'apply', $patch;
 			}
 		}
+		if (defined $info->{build}) {
+			chdir $unpackdir;
+			$success |= execute $info->{build};
+			chdir dirname $RealDir;
+		}
 	} elsif (defined $info->{tarball}) {
 		my $tarball = catfile $unpackdir, basename $info->{tarball};
 		$success ||= execute 'wget', '--output-document', $tarball, $info->{tarball};
