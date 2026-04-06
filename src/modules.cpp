@@ -588,7 +588,7 @@ void ModuleManager::AddServices(const Service::List& list)
 
 void ModuleManager::AddService(Service::Provider& item)
 {
-#ifdef INSPIRCD_DEBUG
+#ifndef NDEBUG
 	ServerInstance->Logs.Debug("SERVICE", "Adding {} {} ({}) provided by {}", item.service_type,
 		item.service_name, (void*)&item, item.GetSource());
 #endif
@@ -599,7 +599,7 @@ void ModuleManager::AddService(Service::Provider& item)
 
 void ModuleManager::DelService(Service::Provider& item)
 {
-#ifdef INSPIRCD_DEBUG
+#ifndef NDEBUG
 	ServerInstance->Logs.Debug("SERVICE", "Deleting {} {} ({}) provided by {}", item.service_type,
 		item.service_name, (void*)&item, item.GetSource());
 #endif
@@ -644,7 +644,7 @@ ModulePtr ModuleManager::Find(const std::string& name)
 
 void ModuleManager::AddReferent(const std::string& stype, const std::string& sname, Service::Provider* service)
 {
-#ifdef INSPIRCD_DEBUG
+#ifndef NDEBUG
 	ServerInstance->Logs.Debug("SERVICE", "Adding reference to {} as {} {}",
 		(void*)service, stype, sname);
 #endif
@@ -659,7 +659,7 @@ void ModuleManager::DelReferent(Service::Provider* service)
 		Service::Provider* curr = i->second;
 		if (curr == service)
 		{
-#ifdef INSPIRCD_DEBUG
+#ifndef NDEBUG
 			ServerInstance->Logs.Debug("SERVICE", "Deleting reference to {} as {} {}",
 				(void*)service, curr->service_type, curr->service_name);
 #endif

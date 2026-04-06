@@ -149,7 +149,7 @@ endif
 
 DBGOK=0
 ifeq ($(INSPIRCD_DEBUG), 0)
-  CORECXXFLAGS += -fno-rtti -O2
+  CORECXXFLAGS += -fno-rtti -O2 -DNDEBUG
 ifeq ($(COMPILER), GCC)
     CORECXXFLAGS += -g1
 endif
@@ -157,12 +157,12 @@ endif
   DBGOK=1
 endif
 ifeq ($(INSPIRCD_DEBUG), 1)
-  CORECXXFLAGS += -O0 -g3 -Werror -DINSPIRCD_DEBUG
+  CORECXXFLAGS += -O0 -g3 -Werror
   HEADER = debug-header
   DBGOK=1
 endif
 ifeq ($(INSPIRCD_DEBUG), 2)
-  CORECXXFLAGS += -fno-rtti -O2 -g3
+  CORECXXFLAGS += -fno-rtti -O2 -g3 -DNDEBUG
   HEADER = debug-header
   DBGOK=1
 endif
