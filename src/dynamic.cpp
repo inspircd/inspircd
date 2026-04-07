@@ -33,10 +33,10 @@
 DLLManager::DLLManager(const std::string& name)
 	: libname(name)
 {
-	const static size_t extlen = strlen(DLL_EXTENSION);
-	if (name.length() <= extlen || name.compare(name.length() - extlen, name.length(), DLL_EXTENSION))
+	const static size_t extlen = strlen(INSPIRCD_MODULE_EXT);
+	if (name.length() <= extlen || name.compare(name.length() - extlen, name.length(), INSPIRCD_MODULE_EXT))
 	{
-		err.assign(name + " is not a module (no " DLL_EXTENSION " extension)");
+		err.assign(name + " is not a module (no " INSPIRCD_MODULE_EXT " extension)");
 		return;
 	}
 

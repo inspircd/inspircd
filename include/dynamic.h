@@ -27,11 +27,11 @@
 
 /** The extension that dynamic libraries end with. */
 #if defined __APPLE__
-# define DLL_EXTENSION ".dylib"
+# define INSPIRCD_MODULE_EXT ".dylib"
 #elif defined  _WIN32
-# define DLL_EXTENSION ".dll"
+# define INSPIRCD_MODULE_EXT ".dll"
 #else
-# define DLL_EXTENSION ".so"
+# define INSPIRCD_MODULE_EXT ".so"
 #endif
 
 /** The DLLManager class is able to load a module file by filename,

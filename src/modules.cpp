@@ -615,21 +615,21 @@ Service::Provider* ModuleManager::FindService(const std::string& type, const std
 
 std::string ModuleManager::ExpandModName(const std::string& modname)
 {
-	const static size_t extlen = strlen(DLL_EXTENSION);
+	const static size_t extlen = strlen(INSPIRCD_MODULE_EXT);
 	std::string fullname;
 	if (modname.compare(0, 5, "core_") != 0 && modname.compare(0, 2, "m_") != 0)
 		fullname.append("m_");
 	fullname.append(modname);
-	if (modname.length() < extlen || modname.compare(modname.size() - extlen, extlen, DLL_EXTENSION) != 0)
-		fullname.append(DLL_EXTENSION);
+	if (modname.length() < extlen || modname.compare(modname.size() - extlen, extlen, INSPIRCD_MODULE_EXT) != 0)
+		fullname.append(INSPIRCD_MODULE_EXT);
 	return fullname;
 }
 
 std::string ModuleManager::ShrinkModName(const std::string& modname)
 {
-	const static size_t extlen = strlen(DLL_EXTENSION);
+	const static size_t extlen = strlen(INSPIRCD_MODULE_EXT);
 	size_t startpos = modname.compare(0, 2, "m_", 2) ? 0 : 2;
-	size_t endpos = modname.length() < extlen || modname.compare(modname.length() - extlen, extlen, DLL_EXTENSION, extlen) ? 0 : extlen;
+	size_t endpos = modname.length() < extlen || modname.compare(modname.length() - extlen, extlen, INSPIRCD_MODULE_EXT, extlen) ? 0 : extlen;
 	return modname.substr(startpos, modname.length() - endpos - startpos);
 }
 

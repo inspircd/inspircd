@@ -50,7 +50,7 @@ namespace
 
 			// Replace m_foo.dylib with foo
 			auto startpos = name.compare(0, 2, "m_", 2) ? 0 : 2;
-			auto endpos = name.length() - strlen(DLL_EXTENSION);
+			auto endpos = name.length() - strlen(INSPIRCD_MODULE_EXT);
 
 			auto modname = name.substr(startpos, endpos - startpos);
 

@@ -138,7 +138,7 @@ void ModuleManager::LoadCoreModules(std::map<std::string, Service::List>& servic
 				continue;
 
 			const std::string name = entry.path().filename().string();
-			if (!InspIRCd::Match(name, "core_*" DLL_EXTENSION))
+			if (!InspIRCd::Match(name, "core_*" INSPIRCD_MODULE_EXT))
 				continue;
 
 			fmt::print(".");
