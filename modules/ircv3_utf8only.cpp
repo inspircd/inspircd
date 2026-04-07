@@ -266,7 +266,7 @@ private:
 
 public:
 	IRCv3UTF8Only()
-		: Module(VF_CORE | VF_VENDOR, "RFC client protocol serializer and unserializer")
+		: Module(VF_CORE | VF_VENDOR, "Provides support for the IRCv3 UTF8ONLY specification.")
 		, ISupport::EventListener(weak_from_this())
 		, utf8serializer(weak_from_this())
 	{
