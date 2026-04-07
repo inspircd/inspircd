@@ -68,7 +68,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           path: irctest
-          ref: f1a1ad20dfbc2eaa27e1ecc73a9a1832f8a277f3
+          ref: f35ae5a7dcbf12b21c7267daf68a98df0e5be76d
           repository: progval/irctest
 
       - name: Install irctest dependencies
