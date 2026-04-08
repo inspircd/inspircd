@@ -3,7 +3,7 @@ on:
   pull_request:
   push:
   schedule:
-    - cron: '0 0 * * 0'
+    - cron: 0 0 * * 0
 jobs:
   build:
     if: "!contains(github.event.head_commit.message, '[skip macos ci]')"
@@ -17,13 +17,14 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Prepare the build environment
-        run: |
+      - name: Prepare build environment
+        run: |-
           echo "CPPFLAGS=-I$(brew --prefix)/include" >> $GITHUB_ENV
           echo "LDFLAGS=-L$(brew --prefix)/lib" >> $GITHUB_ENV
+          echo "MAKE_JOBS=$(($(sysctl -n hw.activecpu) + 1))" >> $GITHUB_ENV
 
       - name: Install dependencies
-        run: |
+        run: |-
           brew update || true
           for PACKAGE in pkg-config argon2 gnutls libmaxminddb libpq libpsl mysql-client openssl openldap pcre2 re2 sqlite tre yyjson
           do
@@ -43,30 +44,31 @@ jobs:
           echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
 
       - name: Run configure
-        run: |
+        run: |-
           ./configure --enable-extras "argon2 geo_maxmind ldap log_json log_syslog mysql pgsql regex_pcre2 regex_posix regex_re2 regex_tre sqlite3 ssl_gnutls ssl_openssl sslrehashsignal"
           ./configure --development --disable-auto-extras --socketengine ${{ matrix.socketengine }}
 
       - name: Build core
-        run: |
-          INSPIRCD_TARGET=inspircd make --jobs $(($(sysctl -n hw.activecpu) + 1))
+        run: |-
+          INSPIRCD_TARGET=inspircd make --jobs ${MAKE_JOBS}
 
       - name: Build core modules
-        run: |
-          INSPIRCD_TARGET=coremods make --jobs $(($(sysctl -n hw.activecpu) + 1))
+        run: |-
+          INSPIRCD_TARGET=coremods make --jobs ${MAKE_JOBS}
 
       - name: Build modules
-        run: |
-          INSPIRCD_TARGET=modules make --jobs $(($(sysctl -n hw.activecpu) + 1))
+        run: |-
+          INSPIRCD_TARGET=modules make --jobs ${MAKE_JOBS}
 
       - name: Install
-        run: |
-          make install
+        run: |-
+          make --jobs ${MAKE_JOBS} install
 
       - name: Run
-        run: |
-          touch ${{ github.workspace }}/run/conf/inspircd.conf
-          ${{ github.workspace }}/run/inspircd start
+        run: |-
+          touch ./run/conf/inspircd.conf
+          ./run/inspircd start
+
     strategy:
       fail-fast: false
       matrix:
