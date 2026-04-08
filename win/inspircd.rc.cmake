@@ -20,12 +20,12 @@ BEGIN
             VALUE "Comments", "InspIRCd @VERSION_MAJOR@.@VERSION_MINOR@ IRC Daemon"
             VALUE "CompanyName", "InspIRCd Development Team"
             VALUE "FileDescription", "InspIRCd"
-            VALUE "FileVersion", "@FULL_VERSION@"
+            VALUE "FileVersion", "@VERSION_FULL@"
             VALUE "InternalName", "InspIRCd"
             VALUE "LegalCopyright", "Copyright (C) InspIRCd Development Team"
             VALUE "OriginalFilename", "inspircd.exe"
             VALUE "ProductName", "InspIRCd - Internet Relay Chat Daemon"
-            VALUE "ProductVersion", "@FULL_VERSION@"
+            VALUE "ProductVersion", "@VERSION_FULL@"
         END
     END
     BLOCK "VarFileInfo"
