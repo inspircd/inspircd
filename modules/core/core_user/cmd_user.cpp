@@ -42,10 +42,16 @@ CommandUser::CommandUser(const WeakModulePtr& parent)
 CmdResult CommandUser::HandleLocal(LocalUser* user, const Params& parameters)
 {
 	/* A user may only send the USER command once */
-	const auto& newuser = parameters[0];
 	const auto& newreal = parameters[3];
 	if (!(user->connected & User::CONN_USER))
 	{
+		// If the username is too long then we have to truncate it to mimic the
+		// undocumented behaviour of other IRC servers. Failing to do so will
+		// break clients.
+		auto newuser = parameters[0];
+		if (newuser.length() > ServerInstance->Config->Limits.MaxUser)
+			newuser.erase(ServerInstance->Config->Limits.MaxUser);
+
 		if (!ServerInstance->Users.IsUser(newuser))
 		{
 			user->WriteNumeric(ERR_INVALIDUSERNAME, newuser, "Your username is not valid");
