@@ -7,6 +7,11 @@
 
 name: irctest
 
+env:
+  ANOPE_REF: 2.1.23
+  ATHEME_REF: 47fe56b86cbb845a658339c3f2f0fa1b80563c5a # 2026-02-28
+  IRCTEST_REF: c85b574765d67a0270d9c7b35f37ab57e7f95774 # 2026-04-08
+
 on:
   pull_request:
   push:
@@ -18,31 +23,33 @@ jobs:
     if: "!contains(github.event.head_commit.message, '[skip irctest ci]')"
     runs-on: ubuntu-24.04-arm
     steps:
-      - name: Checkout repository
+      - name: Checkout InspIRCd
         uses: actions/checkout@v6
 
       - name: Run configure
-        run: ./configure --development --disable-auto-extras --prefix=$HOME/inspircd
+        run: |-
+          ./configure --development --disable-auto-extras --prefix "$HOME/inspircd"
 
       # Speed-up build (6 min -> 5 min)
       - name: Precompile inspircd.h
-        run: c++ -Ivendor include/inspircd.h
+        run: |-
+          c++ -Ivendor include/inspircd.h
 
       - name: Build and install
         env:
           CXXFLAGS: -DINSPIRCD_UNLIMITED_MAINLOOP
-        run: make install --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))
+        run: |-
+          make --jobs $(($(getconf _NPROCESSORS_ONLN) + 1)) install
 
       - name: Make artifact tarball
         run: |-
-          cd ~
-          tar -czf artifacts-inspircd.tar.gz inspircd
+          tar --create --gzip --verbose --directory "$HOME" --file "${{ runner.temp }}/inspircd.tar.gz" inspircd
 
-      - name: Upload build artifacts
+      - name: Upload build artifact
         uses: actions/upload-artifact@v7
         with:
           name: installed-inspircd-for-irctest
-          path: ~/artifacts-inspircd.tar.gz
+          path: ${{ runner.temp }}/inspircd.tar.gz
           retention-days: 1
 
   test:
@@ -53,73 +60,81 @@ jobs:
     needs:
     - build
     steps:
-      - name: Download build artifacts
+      - name: Download build artifact
         uses: actions/download-artifact@v8
         with:
           name: installed-inspircd-for-irctest
-          path: "~"
+          path: ${{ runner.temp }}
 
-      - name: Unpack artifacts
+      - name: Unpack artifact
         run: |-
-          cd ~
-          find -name 'artifacts-inspircd.tar.gz' -exec tar -xzf '{}' \;
+          tar --extract --gzip  --verbose --directory "$HOME" --file "${{ runner.temp }}/inspircd.tar.gz"
+          echo "PATH=$HOME/inspircd/bin:$PATH" >> $GITHUB_ENV
 
       - name: Checkout irctest
         uses: actions/checkout@v6
         with:
           path: irctest
-          ref: f35ae5a7dcbf12b21c7267daf68a98df0e5be76d
+          ref: ${{ env.IRCTEST_REF }}
           repository: progval/irctest
 
       - name: Install irctest dependencies
-        run: sudo apt-get install --assume-yes faketime python3-pytest
+        run: |-
+          sudo apt-get install --assume-yes faketime python3-pytest
 
       - name: Run irctest (no services)
         if: matrix.services == 'no services'
-        run: PATH=$HOME/inspircd/bin:$PATH make -C irctest inspircd
+        working-directory: irctest
+        run:
+            make inspircd
 
       - name: Checkout Anope
         if: matrix.services == 'anope'
         uses: actions/checkout@v6
         with:
           path: anope
-          ref: 2.1.22
+          ref: ${{ env.ANOPE_REF }}
           repository: anope/anope
 
       - name: Build and install Anope
         if: matrix.services == 'anope'
-        run: |
-          cd $GITHUB_WORKSPACE/anope
+        working-directory: anope
+        run: |-
           sudo apt-get install ninja-build --no-install-recommends
-          mkdir build && cd build
-          cmake -DCMAKE_INSTALL_PREFIX=$HOME/anope -DPROGRAM_NAME=anope -GNinja ..
-          ninja install
+          cmake -B build -D CMAKE_INSTALL_PREFIX="$HOME/anope" -G Ninja
+          ninja -C build install
+          echo "PATH=$HOME/anope/bin:$PATH" >> $GITHUB_ENV
 
       - name: Run irctest (Anope services)
         if: matrix.services == 'anope'
-        run: PATH=$HOME/anope/bin:$HOME/inspircd/bin:$PATH make -C irctest inspircd-anope
+        working-directory: irctest
+        run:
+            make inspircd-anope
 
       - name: Checkout Atheme
         if: matrix.services == 'atheme'
         uses: actions/checkout@v6
         with:
           path: atheme
-          ref: master
+          ref: ${{ env.ATHEME_REF }}
           repository: atheme/atheme
           submodules: recursive
 
       - name: Build and install Atheme
         if: matrix.services == 'atheme'
+        working-directory: atheme
         run: |-
-          cd $GITHUB_WORKSPACE/atheme
-          sudo apt install gettext --assume-yes
-          ./configure --prefix=$HOME/atheme
+          sudo apt-get install gettext --assume-yes
+          ./configure --prefix "$HOME/atheme"
           make
           make install
+          echo "PATH=$HOME/atheme/bin:$PATH" >> $GITHUB_ENV
 
       - name: Run irctest (Atheme services)
         if: matrix.services == 'atheme'
-        run: PATH=$HOME/atheme/bin:$HOME/inspircd/bin:$PATH make -C irctest inspircd-atheme
+        working-directory: irctest
+        run:
+            make inspircd-atheme
 
     strategy:
       fail-fast: false
