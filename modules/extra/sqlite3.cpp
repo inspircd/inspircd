@@ -31,6 +31,7 @@
 /// $PackageInfo: require_system("debian~") libsqlite3-dev pkg-config
 /// $PackageInfo: require_system("rhel~") pkgconfig sqlite-devel
 
+
 #include "inspircd.h"
 #include "modules/sql.h"
 #include "utility/string.h"

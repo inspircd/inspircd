@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 /// $CompilerFlags: find_compiler_flags("gnutls")
 /// $LinkerFlags: find_linker_flags("gnutls")
 

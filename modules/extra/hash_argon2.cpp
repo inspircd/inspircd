@@ -24,6 +24,7 @@
 /// $PackageInfo: require_system("darwin") argon2 pkg-config
 /// $PackageInfo: require_system("debian~") libargon2-dev pkg-config
 
+
 #include <argon2.h>
 
 #include "inspircd.h"
