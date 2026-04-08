@@ -3,8 +3,8 @@
 set -e
 
 # IMPORTANT: This script is an example post-deploy hook for use with CertBot,
-# Dehydrated, or a similar SSL (TLS) renewal tool. You will need to customise
-# it for your setup before you use it
+# Dehydrated, or a similar TLS renewal tool. You will need to customise it for
+# your setup before you use it
 
 # The location your renewal tool places your certificates.
 CERT_DIR="/etc/letsencrypt/live/irc.example.com"
