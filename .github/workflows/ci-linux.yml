@@ -42,26 +42,31 @@ jobs:
           ./configure --enable-extras "geo_maxmind hash_argon2 hash_gnutls ldap log_syslog mysql pgsql regex_pcre2 regex_posix regex_re2 regex_tre rehashsignal sqlite3 ssl_gnutls ssl_openssl"
           ./configure --development --disable-auto-extras --socketengine ${{ matrix.socketengine }}
 
+      - name: Calculate build job count
+        run: |-
+          echo "MAKE_JOBS=$(($(getconf _NPROCESSORS_ONLN) + 1))" >> $GITHUB_ENV
+
       - name: Build core
-        run: |
-          INSPIRCD_TARGET=inspircd make --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))
+        run: |-
+          INSPIRCD_TARGET=inspircd make --jobs ${MAKE_JOBS}
 
       - name: Build core modules
-        run: |
-          INSPIRCD_TARGET=coremods make --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))
+        run: |-
+          INSPIRCD_TARGET=coremods make --jobs ${MAKE_JOBS}
 
       - name: Build modules
-        run: |
-          INSPIRCD_TARGET=modules make --jobs $(($(getconf _NPROCESSORS_ONLN) + 1))
+        run: |-
+          INSPIRCD_TARGET=modules make --jobs ${MAKE_JOBS}
 
       - name: Install
-        run: |
-          make install
+        run: |-
+          make --jobs ${MAKE_JOBS} install
 
       - name: Run
-        run: |
-          touch ${{ github.workspace }}/run/conf/inspircd.conf
-          ${{ github.workspace }}/run/inspircd start
+        run: |-
+          touch ./run/conf/inspircd.conf
+          ./run/inspircd start
+
     strategy:
       fail-fast: false
       matrix:

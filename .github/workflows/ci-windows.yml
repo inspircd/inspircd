@@ -6,7 +6,7 @@ on:
     types:
       - published
   schedule:
-    - cron: '0 0 * * 0'
+    - cron: 0 0 * * 0
 jobs:
   build:
     if: "!contains(github.event.head_commit.message, '[skip windows ci]')"
