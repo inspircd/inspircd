@@ -334,6 +334,7 @@ public:
 		{ "+draft/reply",           ValidateMessageId }, // https://ircv3.net/specs/client-tags/reply
 		{ "+draft/unreact",         ValidateReaction  }, // https://ircv3.net/specs/client-tags/react
 
+		{ "+channel-context",       ValidateChannel   }, // https://ircv3.net/specs/client-tags/channel-context
 		{ "+reply",                 ValidateMessageId }, // https://ircv3.net/specs/client-tags/reply
 		{ "+typing",                ValidateTyping    }, // https://ircv3.net/specs/client-tags/typing
 	};
