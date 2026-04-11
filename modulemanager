@@ -1,0 +1,649 @@
+#!/usr/bin/env python3
+#
+# InspIRCd -- Internet Relay Chat Daemon
+#
+#   Copyright (C) 2026 Sadie Powell <sadie@witchery.services>
+#
+# This file is part of InspIRCd.  InspIRCd is free software: you can
+# redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, version 2.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+
+import argparse
+import configparser
+import hashlib
+import json
+import pathlib
+import re
+import sys
+import urllib.request
+
+import src.python.console as console
+import src.python.module as module
+
+ROOT            = pathlib.Path(__file__).parent
+CONTRIB_MODULES = module.CONTRIB_DIR / "installed-modules.json"
+CONTRIB_SOURCES = module.CONTRIB_DIR / "module-sources.ini"
+
+
+def fetch_http(url):
+    try:
+        with urllib.request.urlopen(url) as response:
+            return response.read().decode("utf-8")
+
+    except (urllib.error.HTTPError, urllib.error.URLError, OSError) as e:
+        console.error(f"Unable to download {console.color(url, console.BOLD)}: {e}")
+
+
+def fetch_modules(repository):
+    config = configparser.ConfigParser()
+    config.read(CONTRIB_SOURCES)
+
+    modules = {}
+    for section in config.sections():
+        if repository and repository not in section:
+            continue  # Not what we're looking for.
+
+        repo = config[section]
+        if "url" not in repo:
+            console.warning(f"The {section} repository does not have an URL associated with it!")
+            continue
+
+        fetch_repository(section, repo, modules)
+    return modules
+
+
+def fetch_repository(name, repository, modules):
+    repository_url = repository["url"]
+    console.debug(f"Fetching modules for {name} from {repository_url}")
+
+    data = fetch_http(repository_url)
+    if data:
+        module_config = None
+        for line in data.split("\n"):
+            if match := re.fullmatch(r"\s*module (\S+) (\S+) (.+)", line, re.IGNORECASE):
+                module_name = match.group(1)
+                modules.setdefault(module_name, [])
+                module_config = {
+                    "author":          [],
+                    "checksum":        "",
+                    "conflicts":       {},
+                    "depends":         {},
+                    "description":     "",
+                    "mask":            "",
+                    "name":            module_name,
+                    "repository":      name,
+                    "repository-desc": repository["description"],
+                    "url":             match.group(3),
+                    "version":         module.version_parse(match.group(2))
+                }
+                modules[module_name].append(module_config)
+
+            elif match := re.fullmatch(r"\s*author\s+(.+)", line, re.IGNORECASE):
+                module_config["author"].append(match.group(1))
+
+            elif match := re.fullmatch(r"\s*checksum\s+(\S+)", line, re.IGNORECASE):
+                module_config["checksum"] = match.group(1)
+
+            elif match := re.fullmatch(r"\s*conflicts\s+(\S+)(?:\s+(.+))", line, re.IGNORECASE):
+                module_config["conflicts"][match.group(1)] = match.group(2)
+
+            elif match := re.fullmatch(r"^\s*depends\s+(\S+)\s+(\d+(?:\.\d+)*)(?:-(\d+(?:\.\d+)*))?", line, re.IGNORECASE):
+                oldest_version = module.version_parse(match.group(2))
+                newest_version = module.version_parse(match.group(3)) if match.group(3) else oldest_version
+                module_config["depends"][match.group(1)] = (oldest_version, newest_version)
+
+            elif match := re.fullmatch(r"\s*description\s+(.+)", line, re.IGNORECASE):
+                module_config["description"] = match.group(1)
+
+            elif match := re.fullmatch(r"\s*mask\s+(.+)", line, re.IGNORECASE):
+                module_config["mask"] = match.group(1)
+
+            elif match := re.fullmatch(r"\s*source\s+(.+)", line, re.IGNORECASE):
+                fetch_repository(repository, match.group(1), modules)
+
+            elif line:
+                console.debug(f"Unknown line: {line}")
+
+
+def find_module(modules, name, repository):
+    short_name = module.short_name(name)
+    selected_module = None
+    for module_data in modules.get(short_name, {}):
+        if repository and repository != module_data["repository"]:
+            continue
+
+        version = module_data["version"]
+        if not selected_module or module.version_compare(selected_module["version"], version) > 0:
+            console.debug(f"Potential remote module match: {name} {module.version_string(version)}")
+            selected_module = module_data
+
+    if selected_module:
+        console.debug(f"Remote dependency match: {name} {module.version_string(selected_module['version'])}")
+
+    return selected_module
+
+
+def resolve_conflicts(dependencies, module_to_install):
+    module_to_install_name = module_to_install["name"]
+    for conflict_module, conflict_reason in module_to_install["conflicts"].items():
+        console.debug(f"The {module_to_install_name} conflicts with {conflict_module}: {conflict_reason}")
+        if conflict_module in dependencies:
+            console.error(f"The {module_to_install_name} module can not be installed whilst the {conflict_module} is installed: {conflict_reason}")
+
+
+def resolve_dependencies(dependencies, installed_modules, remote_modules, module_to_install):
+    module_to_install_name = module_to_install["name"]
+    modules_to_install = []
+
+    for required_module, required_version in module_to_install["depends"].items():
+        requirement = required_module + " " + module.version_range_string(required_version)
+        console.debug(f"The {module_to_install_name} depends on {requirement}")
+
+        # Check for the dependency locally.
+        dependency = dependencies.get(required_module)
+        if dependency and module.version_in_range(dependency, required_version):
+            console.debug(f"Local dependency match: {required_module} {module.version_string(dependency)}")
+            continue
+
+        # Check for the dependency in the remotes.
+        remote_selection = None
+        for remote_module in remote_modules.get(required_module, []):
+            remote_version = remote_module["version"]
+            if not module.version_in_range(remote_version, required_version):
+                console.debug(f"Remote dependency not suitable: {required_module} {module.version_string(remote_version)}")
+                continue
+
+            # Check for a more recent potential dependency.
+            if not remote_selection or module.version_compare(remote_selection["version"], remote_version) > 0:
+                console.debug(f"Potential remote dependency match: {required_module} {module.version_string(remote_version)}")
+                remote_selection = remote_module
+
+        if not remote_selection:
+            console.error(f"Unable to find a module matching {console.color(requirement, console.BOLD)} in any remotes.")
+
+        console.debug(f"Remote dependency match: {required_module} {module.version_string(remote_selection['version'])}")
+        modules_to_install.append(remote_selection)
+
+    return modules_to_install
+
+
+def install_module(dependencies, installed_modules, remote_modules, module_to_install, upgrade):
+    module_to_install_name = module_to_install["name"]
+    if module_to_install_name in dependencies and not upgrade:
+        console.debug(f"The {module_to_install_name} module is already installed.")
+        return
+
+    module_to_install_version = module.version_string(module_to_install["version"])
+    print(f"Installing version {console.color(module_to_install_version, console.BOLD)} of the {console.color(module_to_install_name, console.BOLD)} module ...")
+
+    resolve_conflicts(dependencies, module_to_install)
+    for module_dependency in resolve_dependencies(dependencies, installed_modules, remote_modules, module_to_install):
+        install_module(dependencies, installed_modules, remote_modules, module_dependency, upgrade)
+
+    try:
+        contents = fetch_http(module_to_install["url"])
+
+        actual_checksum = hashlib.sha256(contents.encode("utf-8")).hexdigest()
+        if "checksum" in module_to_install:
+            expected_checksum = module_to_install["checksum"]
+            if actual_checksum != expected_checksum:
+                console.error(
+                    f"Checksum for the {console.color(module_to_install_name, console.BOLD)} module did not match, possibly corrupt module detected.",
+                    f"Expected checksum: {expected_checksum}",
+                    f"Actual checksum:   {actual_checksum}",
+                )
+
+        else:
+            console.warning(f"The module source for {console.color(module_to_install_name, console.BOLD)} module did not specify a checksum, unable to detect corruption.")
+
+        with open(module.CONTRIB_DIR / module.file_name(module_to_install_name), "w", encoding="utf-8") as fh:
+            fh.write(contents)
+
+        dependencies[module_to_install_name] = module_to_install["version"]
+        installed_modules[module_to_install_name] = {
+            "checksum": actual_checksum,
+            "repository": module_to_install["repository"],
+            "version": module_to_install_version,
+        }
+
+    except OSError as e:
+        console.error(f"Unable to write module source: {e}")
+
+
+def installed_dependencies(installed_modules):
+    dependencies = {}
+
+    # Core
+    with open(ROOT / "src" / "version.sh", "r") as fh:
+        match = re.search(r"InspIRCd-(\d+\.\d+\.\d+)", fh.read())
+        dependencies["core"] = module.version_parse(match.group(1))
+
+    # Official modules
+    for long_module in module.DIR.iterdir():
+        if long_module.suffix == ".cpp":
+            short_name = module.short_name(long_module)
+            dependencies[short_name] = dependencies["core"]
+
+    # Installed modules
+    for module_name, module_data in installed_modules.items():
+        dependencies[module_name] = module.version_parse(module_data["version"])
+
+    return dependencies
+
+
+def load_contrib_manifest():
+    try:
+        console.debug(f"Reading the contrib module manifest from {CONTRIB_MODULES} ...")
+        with open(CONTRIB_MODULES, "r", encoding="utf-8") as fh:
+            return json.load(fh)
+
+    except FileNotFoundError:
+        return {}  # No contrib modules installed
+
+    except (OSError, json.JSONDecodeError) as e:
+        console.error(f"Unable to read contrib module manifest: {e}")
+
+
+def save_contrib_manifest(installed_modules):
+    try:
+        console.debug(f"Writing the contrib module manifest to {CONTRIB_MODULES} ...")
+        with open(CONTRIB_MODULES, "w", encoding="utf-8") as fh:
+            json.dump(installed_modules, fh, indent=4)
+
+    except OSError as e:
+        console.error(f"Unable to write contrib module manifest: {e}")
+
+
+def cmd_contrib(commands, args, start):
+    return console.subcommand(args, 2, {
+        "info": {
+            "function": cmd_contrib_info,
+            "help": "Install a module from a contrib repository",
+            "options": {
+                "--only-installed": "Only list modules that are installed",
+                "--repository REPO": "The repository to show modules from",
+            }
+        },
+        "install": {
+            "function": cmd_contrib_install,
+            "help": "Install a module from a contrib repository",
+            "options": {
+                "--repository REPO": "The repository to install modules from",
+            }
+        },
+        "list": {
+            "function": cmd_contrib_list,
+            "help": "List available contrib modules",
+            "options": {
+                "--only-installed": "Only list modules that are installed",
+                "--repository REPO": "The repository to list modules from",
+                "--show-masked": "Show modules that have been masked",
+            },
+        },
+        "uninstall": {
+            "function": cmd_contrib_uninstall,
+            "help": "Uninstall a module installed from a contrib repository",
+        },
+        "upgrade": {
+            "function": cmd_contrib_upgrade,
+            "help": "Update installed contrib modules",
+        },
+
+        # Helper aliases for common synonyms.
+        "update": {
+            "function": cmd_contrib_upgrade,
+        },
+    })
+
+
+def cmd_contrib_info(commands, args, start):
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--only-installed", help="Only list modules that are installed", action="store_true")
+    parser.add_argument("--repository", help="The repository to list modules from", metavar="REPO")
+    (options, modules_to_show) = parser.parse_known_args(args[start:])
+
+    if not modules_to_show:
+        console.error("You must specify one or more modules to show information about.")
+
+    installed_modules = load_contrib_manifest()
+    remote_modules = fetch_modules(options.repository)
+
+    for module_name in modules_to_show:
+        short_name = module.short_name(module_name)
+        if short_name not in remote_modules:
+            console.warning(f"The {console.color(short_name, console.BOLD)} module is not available.")
+            continue  # Nothing to do
+
+        print(f"Information about the {console.color(short_name, console.BOLD)} module:")
+        print()
+
+        for idx, remote_module in enumerate(remote_modules[short_name]):
+            if idx:
+                print("---")
+
+            data = []
+            data.append(["Description", remote_module["description"]])
+            data.append(["Repository",  f"{remote_module['repository-desc']} ({remote_module['repository']})"])
+
+            for author in remote_module["author"]:
+                data.append(["Author", author])
+
+            for conflict_module, conflict_reason in remote_module["conflicts"].items():
+                data.append(["Conflicts with",  f"{conflict_module} ({conflict_reason})"])
+
+            for required_module, required_version in remote_module["depends"].items():
+                data.append(["Depends on", f"{required_module} {module.version_range_string(required_version)}"])
+
+            if remote_module["mask"]:
+                data.append(["Mask reason", remote_module['mask']])
+
+            if short_name in installed_modules:
+                installed_module = installed_modules[short_name]
+                if installed_module["repository"] == remote_module["repository"]:
+                    match module.version_compare(module.version_parse(installed_module["version"]), remote_module["version"]):
+                        case -1:  # Outdated
+                            data.append(["Status", "outdated"])
+                        case 0:  # Up-to-date
+                            data.append(["Status", "up to date"])
+                        case 1:  # More recent than contrib
+                            data.append(["Status", "more recent"])
+                else:
+                    data.append(["Status", "installed from different repository"])
+            else:
+                data.append(["Status", "not installed"])
+
+            console.table(None, data, ":")
+
+
+def cmd_contrib_install(commands, args, start):
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--repository", help="The repository to list modules from", metavar="REPO")
+    (options, modules_to_install) = parser.parse_known_args(args[start:])
+
+    if not modules_to_install:
+        console.error("You must specify one or more modules to install.")
+
+    installed_modules = load_contrib_manifest()
+    dependencies = installed_dependencies(installed_modules)
+    remote_modules = fetch_modules(options.repository)
+
+    modules_installed = False
+    for module_name in modules_to_install:
+        short_name = module.short_name(module_name)
+        if short_name in installed_modules:
+            console.warning(f"The {console.color(short_name, console.BOLD)} module is already installed.")
+            continue  # Nothing to do
+
+        remote_module = find_module(remote_modules, short_name, options.repository)
+        if not remote_module:
+            console.warning(f"The {console.color(short_name, console.BOLD)} module is not available in any repository.")
+            continue  # Not available
+
+        install_module(dependencies, installed_modules, remote_modules, remote_module, False)
+        modules_installed = True
+
+    if modules_installed:
+        save_contrib_manifest(installed_modules)
+
+
+def cmd_contrib_list(commands, args, start):
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--only-installed", help="Only list modules that are installed", action="store_true")
+    parser.add_argument("--repository", help="The repository to list modules from", metavar="REPO")
+    parser.add_argument("--show-masked", help="Show modules that have been masked", action="store_true")
+    (options, _) = parser.parse_known_args(args[start:])
+
+    installed_modules = load_contrib_manifest()
+    remote_modules = fetch_modules(options.repository)
+
+    module_table = []
+    dependencies = installed_dependencies(installed_modules)
+
+    for module_name, remote_variants in sorted(remote_modules.items()):
+        for remote_module in remote_variants:
+            available_core = dependencies.get("core")
+            module_core = remote_module["depends"].get("core")
+            if not module.version_in_range(available_core, module_core):
+                continue  # Module is not for this core version
+
+            installed_module = installed_modules.get(module_name)
+            version_string = module.version_string(remote_module["version"])
+            if installed_module:
+                if installed_module["repository"] == remote_module["repository"]:
+                    match module.version_compare(module.version_parse(installed_module["version"]), remote_module["version"]):
+                        case -1:  # Outdated
+                            version_string = console.color(version_string, console.BOLD_RED)
+                        case 0:  # Up-to-date
+                            version_string = console.color(version_string, console.BOLD_GREEN)
+                        case 1:  # More recent than contrib
+                            version_string = console.color(version_string, console.BOLD_YELLOW)
+
+            elif options.only_installed:
+                continue  # Not installed
+
+            remote_mask = remote_module["mask"]
+            if remote_mask:
+                if options.show_masked:
+                    module_name = console.color(module_name, console.FAINT)
+
+                else:
+                    console.debug(f"Module {module_name} {version_string} from {remote_module['repository']} is masked: {remote_mask}")
+                    continue
+
+            module_table.append([module_name, version_string, remote_module["description"]])
+
+    if not module_table:
+        console.error("No modules matching your requirements are available.")
+
+    console.table(["Module", "Version", "Description"], module_table)
+
+
+def cmd_contrib_uninstall(commands, args, start):
+    if len(args) <= start:
+        console.error("You must specify one or more modules to uninstall.")
+
+    installed_modules = load_contrib_manifest()
+    for module_name in args[start:]:
+        short_name = module.short_name(module_name)
+        long_module = module.CONTRIB_DIR / module.file_name(module_name)
+
+        if not long_module.is_file():
+            console.error(f"The {console.color(short_name, console.BOLD)} module is not installed.")
+
+        elif short_name not in installed_modules:
+            console.error(f"The {console.color(short_name, console.BOLD)} module is not a contrib module.")
+
+        try:
+            print(f"Removing the {console.color(short_name, console.BOLD)} module ...")
+            long_module.unlink()
+            del installed_modules[short_name]
+
+        except OSError as e:
+            console.error(f"Unable to unlink {long_module}: {e}")
+
+    save_contrib_manifest(installed_modules)
+
+
+def cmd_contrib_upgrade(commands, args, start):
+    installed_modules = load_contrib_manifest()
+    dependencies = installed_dependencies(installed_modules)
+    remote_modules = fetch_modules(None)
+
+    modules_to_upgrade = args[start:]
+    if not modules_to_upgrade:
+        modules_to_upgrade = list(installed_modules.keys())
+
+    modules_upgraded = False
+    for module_name in modules_to_upgrade:
+        short_name = module.short_name(module_name)
+        if short_name not in installed_modules:
+            console.error(f"The {console.color(short_name, console.BOLD)} module is not installed.")
+
+        installed_module = installed_modules[short_name]
+        remote_repository = installed_module["repository"]
+        remote_module = find_module(remote_modules, short_name, remote_repository)
+        if not remote_module:
+            console.warning(f"The {console.color(short_name, console.BOLD)} module is not available in the {remote_repository} repository.")
+            continue
+
+        installed_version = installed_module["version"]
+        remote_version = remote_module["version"]
+        if module.version_compare(module.version_parse(installed_version), remote_version) >= 0:
+            print(f"The {console.color(short_name, console.BOLD)} module is up to date.")
+            continue  # Module up to date
+
+        try:
+            with open(module.CONTRIB_DIR / module.file_name(module_name), "rb") as fh:
+                file_checksum = hashlib.file_digest(fh, "sha256").hexdigest()
+                installed_checksum = installed_module["checksum"]
+                if installed_checksum != file_checksum:
+                    console.warning(
+                        f"Local checksum for the {console.color(short_name, console.BOLD)} module did not match; not updating.",
+                        f"Expected checksum: {installed_checksum}",
+                        f"Actual checksum:   {file_checksum}",
+                    )
+                    continue  # Locally modified
+
+        except OSError as e:
+            console.warning(f"Unable to checksum {short_name}: {e}")
+
+        print(f"Upgrading the {console.color(short_name, console.BOLD)} module from {console.color(installed_version, console.BOLD)} ...")
+        install_module(dependencies, installed_modules, remote_modules, remote_module, True)
+        modules_upgraded = True
+
+    if modules_upgraded:
+        save_contrib_manifest(installed_modules)
+
+
+def cmd_extra(commands, args, start):
+    return console.subcommand(args, 2, {
+        "disable": {
+            "function": cmd_extra_disable,
+            "help": "Disable one or more extra modules",
+        },
+        "enable": {
+            "function": cmd_extra_enable,
+            "help": "Enable one or more extra modules",
+        },
+        "list": {
+            "function": cmd_extra_list,
+            "help": "List the status of extra modules",
+        },
+    })
+
+
+def cmd_extra_disable(commands, args, start):
+    if len(args) <= start:
+        console.error("You must specify one or more modules to disable.")
+
+    for module_name in args[start:]:
+        short_name = module.short_name(module_name)
+        long_module = module.DIR / module.file_name(module_name)
+        long_extra = module.EXTRA_DIR / module.file_name(module_name)
+
+        if not long_module.exists():
+            if not long_extra.exists():
+                console.error(f"The {console.color(short_name, console.BOLD)} module is not an extra module.")
+
+            elif long_module.is_symlink() and long_extra.readlink() != long_extra:
+                console.error(f"The {console.color(short_name, console.BOLD)} module is not a symlink to an extra module.")
+
+            else:
+                console.warning(f"The {console.color(short_name, console.BOLD)} module is not currently enabled.")
+                continue  # Nothing to do.
+
+        try:
+            print(f"Disabling the {console.color(short_name, console.BOLD)} module ...")
+            long_module.unlink(long_extra)
+
+        except OSError as e:
+            console.error(f"Unable to unlink {short_name} from {long_extra}: {e}")
+
+    cmd_extra_list(commands, args, start)
+
+
+def cmd_extra_enable(commands, args, start):
+    if len(args) <= start:
+        console.error("You must specify one or more modules to enable.")
+
+    for module_name in args[start:]:
+        short_name = module.short_name(module_name)
+        long_extra = module.EXTRA_DIR / module.file_name(module_name)
+
+        if not long_extra.exists():
+            console.error(f"{console.color(short_name, console.BOLD)} is not an extra module!")
+
+        long_module = module.DIR / module.file_name(module_name)
+        if long_module.is_symlink():
+            if long_module.readlink() == long_extra:
+                console.warning(f"The {console.color(short_name, console.BOLD)} module is already enabled.")
+                continue  # Nothing to do
+
+            else:
+                long_module.unlink(missing_ok=True)  # Remove the dead symlink.
+
+        try:
+            print(f"Enabling the {console.color(short_name, console.BOLD)} module ...")
+            long_module.symlink_to(long_extra)
+
+        except OSError as e:
+            console.error(f"Unable to symlink {short_name} to {long_extra}: {e}")
+
+    cmd_extra_list(commands, args, start)
+
+
+def cmd_extra_list(commands, args, start):
+    modules = []
+    for long_extra in module.EXTRA_DIR.iterdir():
+        if not long_extra.suffix == ".cpp":
+            continue  # Not a module
+
+        long_module = module.DIR / long_extra.name
+        short_module = module.short_name(long_extra)
+        if long_module.is_symlink():
+            if long_module.readlink() == long_extra:
+                modules.append([short_module, console.color("enabled", console.BOLD_GREEN)])
+
+            else:
+                modules.append([short_module, console.color("not an extra symlink", console.BOLD_YELLOW)])
+
+        elif long_module.exists():
+            modules.append([short_module, console.color("not a symlink", console.BOLD_RED)])
+
+        else:
+            modules.append([short_module, console.color("disabled", console.BOLD_YELLOW)])
+
+    console.table(["Name", "Status"], modules)
+
+
+sys.exit(console.subcommand(sys.argv, 1, {
+    "contrib": {
+        "function": cmd_contrib,
+        "help": "Manipulate contrib modules",
+    },
+    "extra": {
+        "function": cmd_extra,
+        "help": "Manipulate extra modules",
+    },
+
+    # These commands exist for compatibility with v4 and earlier.
+    "install": {
+        "function": cmd_contrib_install,
+    },
+    "list": {
+        "function": cmd_contrib_list,
+    },
+    "upgrade": {
+        "function": cmd_contrib_upgrade,
+    },
+}))

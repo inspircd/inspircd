@@ -84,7 +84,7 @@ END
 		push @core_deps, $out;
 	}
 
-	for my $directory (qw(../modules/core ../modules)) {
+	for my $directory (qw(../modules/core ../modules/contrib ../modules)) {
 		opendir(my $moddir, $directory);
 		my $mlist = $directory eq '../modules/core' ? \@coremodlist : \@modlist;
 		for my $file (sort readdir $moddir) {

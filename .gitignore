@@ -1,5 +1,6 @@
 *~
 *.pem
+*.pyc
 *.swp
 
 .*
@@ -18,6 +19,8 @@
 
 /include/config.h
 
+/modules/contrib/*.cpp
+/modules/contrib/installed-modules.json
 /modules/geo_maxmind.cpp
 /modules/hash_argon2.cpp
 /modules/hash_gnutls.cpp
