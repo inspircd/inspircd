@@ -25,13 +25,13 @@ namespace
 {
 	// These templates are used by BoolExtItem and IntExtItem to allow storing a
 	// value within the pointer address of a shared pointer.
-	template <typename T>
+	template <typename T = ssize_t>
 	ExtensionPtr CreateFakePointer(T value)
 	{
 		return ExtensionPtr(reinterpret_cast<void*>(value), [](auto*) { });
 	}
 
-	template <typename T>
+	template <typename T = ssize_t>
 	T GetFakePointer(const ExtensionPtr* ptr)
 	{
 		return ptr ? reinterpret_cast<T>(ptr->get()) : T();
