@@ -28,7 +28,6 @@ use File::Spec::Functions qw(catdir);
 use Exporter              qw(import);
 
 use make::common;
-use make::configure;
 use make::console;
 
 use constant DIRECTIVE_ERROR_PIPE => $ENV{INSPIRCD_VERBOSE} ? '' : '2>/dev/null';
