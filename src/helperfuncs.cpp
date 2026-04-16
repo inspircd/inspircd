@@ -28,7 +28,11 @@
 #include <random>
 
 #ifndef _WIN32
-# include <unistd.h>
+# ifdef __APPLE__
+#  include <sys/random.h>
+# else
+#  include <unistd.h>
+# endif
 #endif
 
 #include "inspircd.h"

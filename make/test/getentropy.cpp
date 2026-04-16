@@ -17,7 +17,11 @@
  */
 
 
-#include <unistd.h>
+#ifdef __APPLE__
+# include <sys/random.h>
+#else
+# include <unistd.h>
+#endif
 
 int main() {
 	char buffer[100];
