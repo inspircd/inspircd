@@ -43,9 +43,12 @@ jobs:
           echo "PATH=$PATH" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
 
-      - name: Run configure
+      - name: Enable extra modules
         run: |-
           ./modulemanager extra enable geo_maxmind hash_argon2 hash_gnutls ldap log_syslog mysql pgsql regex_pcre2 regex_posix regex_re2 regex_tre rehashsignal sqlite3 ssl_gnutls ssl_openssl
+
+      - name: Run configure
+        run: |-
           ./configure --development --disable-auto-extras --socketengine ${{ matrix.socketengine }}
 
       - name: Build core
