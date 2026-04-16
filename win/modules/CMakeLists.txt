@@ -82,7 +82,7 @@ foreach(MODULE_NAME ${INSPIRCD_MODULES})
 		string(REGEX REPLACE "^.*[/\\](.*).cpp$" "\\1" BASE_NAME ${MODULE_NAME})
 	endif()
 
-	if(${BASE_NAME} STREQUAL "core" OR ${BASE_NAME} STREQUAL "extra")
+	if(${BASE_NAME} STREQUAL "core" OR ${BASE_NAME} STREQUAL "contrib"  OR ${BASE_NAME} STREQUAL "extra")
 		continue()
 	endif()
 
