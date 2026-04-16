@@ -21,7 +21,6 @@ jobs:
         run: |-
           echo "CPPFLAGS=-I$(brew --prefix)/include" >> $GITHUB_ENV
           echo "LDFLAGS=-L$(brew --prefix)/lib" >> $GITHUB_ENV
-          echo "MAKE_JOBS=$(($(sysctl -n hw.activecpu) + 1))" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: |-
@@ -51,21 +50,9 @@ jobs:
         run: |-
           ./configure --development --disable-auto-extras --socketengine ${{ matrix.socketengine }}
 
-      - name: Build core
+      - name: Build and install
         run: |-
-          INSPIRCD_TARGET=inspircd make --jobs ${MAKE_JOBS}
-
-      - name: Build core modules
-        run: |-
-          INSPIRCD_TARGET=coremods make --jobs ${MAKE_JOBS}
-
-      - name: Build modules
-        run: |-
-          INSPIRCD_TARGET=modules make --jobs ${MAKE_JOBS}
-
-      - name: Install
-        run: |-
-          make --jobs ${MAKE_JOBS} install
+          make --jobs $(($(sysctl -n hw.activecpu) + 1)) install
 
       - name: Run
         run: |-

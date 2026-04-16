@@ -45,25 +45,9 @@ jobs:
         run: |-
           ./configure --development --disable-auto-extras --socketengine ${{ matrix.socketengine }}
 
-      - name: Calculate build job count
+      - name: Build and install
         run: |-
-          echo "MAKE_JOBS=$(($(getconf _NPROCESSORS_ONLN) + 1))" >> $GITHUB_ENV
-
-      - name: Build core
-        run: |-
-          INSPIRCD_TARGET=inspircd make --jobs ${MAKE_JOBS}
-
-      - name: Build core modules
-        run: |-
-          INSPIRCD_TARGET=coremods make --jobs ${MAKE_JOBS}
-
-      - name: Build modules
-        run: |-
-          INSPIRCD_TARGET=modules make --jobs ${MAKE_JOBS}
-
-      - name: Install
-        run: |-
-          make --jobs ${MAKE_JOBS} install
+          make --jobs $(($(getconf _NPROCESSORS_ONLN) + 1)) install
 
       - name: Run
         run: |-
