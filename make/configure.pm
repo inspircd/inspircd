@@ -145,13 +145,6 @@ non-interactive configuration is started and any omitted values are defaulted.
                                 init scripts, are stored.
                                 [${\CONFIGURE_ROOT}/run]
 
-<|GREEN EXTRA MODULE OPTIONS|>
-
-  <|BOLD --enable-extras <MODULE>|>      Enables a comma separated list of extra modules.
-  <|BOLD --disable-extras <MODULE>|>     Disables a comma separated list of extra modules.
-  <|BOLD --list-extras|>                 Shows the availability status of all extra
-                                modules.
-
 <|GREEN MISC OPTIONS|>
 
   <|BOLD --clean|>                       Remove the configuration cache file and start
