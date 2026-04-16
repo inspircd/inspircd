@@ -467,7 +467,7 @@ public:
 			if (no_chan_priv && chan->IsModeSet(moderatedmode))
 			{
 				// The moderated mode is set and the user has no status rank.
-				user->WriteNumeric(Numerics::CannotSendTo(chan, "messages", *noextmsgmode));
+				user->WriteNumeric(Numerics::CannotSendTo(chan, "messages", *moderatedmode));
 				return MOD_RES_DENY;
 			}
 

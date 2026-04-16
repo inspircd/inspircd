@@ -1,8 +1,8 @@
-# Last updated: 2026-02-26
+# Last updated: 2026-04-16
 #
 # Modules we can't legally ship: geo_maxmind, ssl_openssl
 # Modules which don't apply to Windows: log_syslog, rehashsignal
-# Modules without packages: ssl_gnutls
+# Modules without packages: hash_gnutls, ssl_gnutls
 
 [requires]
 argon2/20190702
@@ -10,10 +10,10 @@ argon2/20190702
 libmysqlclient/8.1.0
 libpq/17.7
 libpsl/0.21.5
-## openssl/3.6.1
+## openssl/3.6.2
 pcre2/10.44
 re2/20251105
-sqlite3/3.51.0
+sqlite3/3.53.0
 tre/cci.20230717
 
 [options]

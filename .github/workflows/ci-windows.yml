@@ -42,7 +42,7 @@ jobs:
         uses: actions/cache/restore@v5
         id: library-cache
         with:
-          key: conan-${{ env.BUILD_TYPE }}-${{ hashFiles(env.CONAN_FILE) }}
+          key: Conan ${{ env.BUILD_TYPE }} ${{ hashFiles(env.CONAN_FILE) }}
           path: ${{ env.CONAN_HOME }}/p
 
       - name: Install libraries
