@@ -27,10 +27,9 @@ import re
 import sys
 import urllib.request
 
-import src.python.console as console
-import src.python.module as module
+from src.python import console, module
 
-ROOT            = pathlib.Path(__file__).parent
+ROOT            = pathlib.Path(__file__).resolve().parent
 CONTRIB_MODULES = module.CONTRIB_DIR / "installed-modules.json"
 CONTRIB_SOURCES = module.CONTRIB_DIR / "module-sources.ini"
 
