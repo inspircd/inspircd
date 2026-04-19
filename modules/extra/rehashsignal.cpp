@@ -43,24 +43,25 @@ private:
 			return ConvToNum(signame, -1);
 
 		std::transform(signame.begin(), signame.end(), signame.begin(), ::toupper);
-		if (signame == "SIGUSR1" || signame == "USR1")
+		if (signame.starts_with("SIG"))
+			signame.erase(0, 3);
+
+		// These signals are supported on all UNIX systems.
+		if (signame == "USR1")
 			return SIGUSR1;
-		if (signame == "SIGUSR2" || signame == "USR2")
+		if (signame == "USR2")
 			return SIGUSR2;
 
+		// These signals are not supported on macOS.
 #if defined(SIGRTMIN) && defined(SIGRTMAX)
-		if (signame == "SIGRTMIN" || signame == "RTMIN")
+		if (signame == "RTMIN")
 			return SIGRTMIN;
-		if (signame == "SIGRTMAX" || signame == "RTMAX")
+		if (signame == "RTMAX")
 			return SIGRTMAX;
 
 		int rtnum = -1;
-		if (signame.compare(0, 9, "SIGRTMIN+") == 0)
-			rtnum = SIGRTMIN + ConvToNum<int>(signame.substr(9), -1);
-		else if (signame.compare(0, 6, "RTMIN+") == 0)
+		if (signame.compare(0, 6, "RTMIN+") == 0)
 			rtnum = SIGRTMIN + ConvToNum<int>(signame.substr(6), -1);
-		else if (signame.compare(0, 9, "SIGRTMAX-") == 0)
-			rtnum = SIGRTMAX - ConvToNum<int>(signame.substr(9), -1);
 		else if (signame.compare(0, 6, "RTMAX-") == 0)
 			rtnum = SIGRTMAX - ConvToNum<int>(signame.substr(6), -1);
 
