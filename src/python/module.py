@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #

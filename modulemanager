@@ -68,7 +68,7 @@ def fetch_repository(name, repository, modules):
     data = fetch_http(repository_url)
     if data:
         module_config = None
-        for line in data.split("\n"):
+        for line in data.splitlines():
             if match := re.fullmatch(r"\s*module (\S+) (\S+) (.+)", line, re.IGNORECASE):
                 module_name = match.group(1)
                 modules.setdefault(module_name, [])
