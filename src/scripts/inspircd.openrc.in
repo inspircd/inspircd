@@ -1,5 +1,3 @@
-%mode 0750
-%platform linux
 #!/sbin/openrc-run
 #
 # InspIRCd -- Internet Relay Chat Daemon
@@ -22,10 +20,10 @@
 name=$RC_SVCNAME
 description="InspIRCd - Internet Relay Chat Daemon"
 
-command="@BINARY_DIR@/inspircd"
+command="@ABSOLUTE_BINARY_DIR@/inspircd"
 command_args="--nofork --nopid"
-%ifndef DISABLE_OWNERSHIP command_user="@USER@:@GROUP@"
-pidfile="@RUNTIME_DIR@/${RC_SVCNAME}.pid"
+%ifndef DISABLE_OWNERSHIP command_user="@USER_NAME@:@GROUP_NAME@"
+pidfile="@ABSOLUTE_RUNTIME_DIR@/${RC_SVCNAME}.pid"
 supervisor="supervise-daemon"
 
 extra_commands="version"

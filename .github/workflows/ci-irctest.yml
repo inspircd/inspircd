@@ -26,20 +26,24 @@ jobs:
       - name: Checkout InspIRCd
         uses: actions/checkout@v6
 
-      - name: Run configure
-        run: |-
-          ./configure --development --disable-auto-extras --prefix "$HOME/inspircd"
-
-      # Speed-up build (6 min -> 5 min)
-      - name: Precompile inspircd.h
-        run: |-
-          c++ -std=c++20 -Ivendor include/inspircd.h
-
-      - name: Build and install
+      - name: Run CMake
         env:
           CXXFLAGS: -DINSPIRCD_UNLIMITED_MAINLOOP
         run: |-
-          make --jobs $(($(getconf _NPROCESSORS_ONLN) + 1)) install
+          cmake -B "build" \
+                -D "CMAKE_BUILD_TYPE=Release" \
+                -D "CMAKE_INSTALL_PREFIX=$HOME/inspircd" \
+                -D "CMAKE_UNITY_BUILD=ON" \
+                -D "AUTO_ENABLE_EXTRAS=OFF" \
+                -G "Ninja" \
+                -Wdeprecated \
+                -Wdev
+
+      - name: Build and install
+        env:
+          VERBOSE: ${{ runner.debug }}
+        run: |-
+          ninja -C "build" ${{ runner.debug == '1' && '-v' || '' }} install
 
       - name: Make artifact tarball
         run: |-

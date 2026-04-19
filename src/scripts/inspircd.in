@@ -1,4 +1,3 @@
-%mode 0750
 #!/usr/bin/env perl
 #
 # InspIRCd -- Internet Relay Chat Daemon
@@ -60,11 +59,11 @@ use constant {
     GENERIC_EXIT_NOT_RUNNING => 7
 };
 
-my $configdir      = "@CONFIG_DIR@";
+my $configdir      = "@ABSOLUTE_CONFIG_DIR@";
 my @debugargs      = qw(--nolog --nopid --protocoldebug);
-my $executable     = "@BINARY_DIR@/inspircd";
-my $runtimedir     = "@RUNTIME_DIR@";
-my $valgrindlogdir = "@LOG_DIR@/valgrind";
+my $executable     = "@ABSOLUTE_BINARY_DIR@/inspircd";
+my $runtimedir     = "@ABSOLUTE_RUNTIME_DIR@";
+my $valgrindlogdir = "@ABSOLUTE_LOG_DIR@/valgrind";
 
 my @gdbargs = (
 	'--eval-command', 'set pagination off',

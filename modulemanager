@@ -223,9 +223,11 @@ def installed_dependencies(installed_modules):
     dependencies = {}
 
     # Core
-    with open(ROOT / "src" / "version.sh", "r") as fh:
-        match = re.search(r"InspIRCd-(\d+\.\d+\.\d+)", fh.read())
-        dependencies["core"] = module.version_parse(match.group(1))
+    core_version = { "MAJOR": 0, "MINOR": 0, "PATCH": 0 }
+    with open(ROOT / "src" / "cmake" / "version.cmake", "r") as fh:
+        for type, version in re.findall(r"\bset\(VERSION_(MAJOR|MINOR|PATCH)\s+(\d+)\)", fh.read(), re.IGNORECASE):
+            core_version[type] = int(version)
+        dependencies["core"] = (core_version["MAJOR"], core_version["MINOR"], core_version["PATCH"])
 
     # Official modules
     for long_module in module.DIR.iterdir():

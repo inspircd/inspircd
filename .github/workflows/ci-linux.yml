@@ -8,18 +8,15 @@ jobs:
   build:
     if: "!contains(github.event.head_commit.message, '[skip ubuntu ci]')"
     runs-on: ubuntu-22.04
-    env:
-      CXX: ${{ matrix.compiler }}
-      INSPIRCD_DEBUG: 3
-      INSPIRCD_VERBOSE: 1
     steps:
       - uses: actions/checkout@v6
 
       - name: Install dependencies
-        run: |
+        run: |-
           sudo apt-get update --assume-yes
           sudo apt-get install --assume-yes --no-install-recommends \
             clang \
+            cmake \
             g++ \
             git \
             libargon2-dev \
@@ -34,20 +31,31 @@ jobs:
             libsqlite3-dev \
             libssl-dev \
             libtre-dev \
-            make \
+            ninja-build \
             pkg-config
 
       - name: Enable extra modules
         run: |-
           ./modulemanager extra enable geo_maxmind hash_argon2 hash_gnutls ldap log_syslog mysql pgsql regex_pcre2 regex_posix regex_re2 regex_tre rehashsignal sqlite3 ssl_gnutls ssl_openssl
 
-      - name: Run configure
+      - name: Run CMake
+        env:
+          CC: ${{ matrix.compiler.cc }}
+          CXX: ${{ matrix.compiler.cxx }}
         run: |-
-          ./configure --development --disable-auto-extras --socketengine ${{ matrix.socketengine }}
+          cmake -B "build" \
+                -D "CMAKE_BUILD_TYPE=Debug" \
+                -D "AUTO_ENABLE_EXTRAS=OFF" \
+                -D "SOCKET_ENGINE=${{ matrix.socketengine }}" \
+                -G "Ninja" \
+                -Wdeprecated \
+                -Wdev
 
       - name: Build and install
+        env:
+          VERBOSE: ${{ runner.debug }}
         run: |-
-          make --jobs $(($(getconf _NPROCESSORS_ONLN) + 1)) install
+          ninja -C "build" ${{ runner.debug == '1' && '-v' || '' }} install
 
       - name: Run
         run: |-
@@ -58,8 +66,10 @@ jobs:
       fail-fast: false
       matrix:
         compiler:
-          - clang++
-          - g++
+          - cc: clang
+            cxx: clang++
+          - cc: gcc
+            cxx: g++
         socketengine:
           - epoll
           - poll

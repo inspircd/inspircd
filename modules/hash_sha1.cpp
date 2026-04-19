@@ -16,8 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// BEGIN CMAKE
+/// target_link_libraries(${TARGET} PRIVATE "vendored_sha1")
+/// END CMAKE
 
-#include <sha1/sha1.c>
+
+#include <sha1/sha1.h>
 
 #include "inspircd.h"
 #include "modules/hash.h"

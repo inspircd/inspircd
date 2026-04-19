@@ -16,8 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: find_compiler_flags("libargon2")
-/// $LinkerFlags: find_linker_flags("libargon2")
+/// BEGIN CMAKE
+/// target_require_package(${TARGET} "libargon2" "argon2" "argon2::argon2")
+/// END CMAKE
 
 /// $PackageInfo: require_system("alpine") argon2-dev pkgconf
 /// $PackageInfo: require_system("arch") argon2 pkgconf

@@ -32,9 +32,7 @@ use make::console;
 
 our @EXPORT = qw(create_directory
                  execute
-                 get_cpu_count
                  get_version
-                 module_expand
                  module_shrink
                  read_config_file
                  write_config_file);
@@ -93,27 +91,6 @@ sub get_version {
 	}
 
 	return %version;
-}
-
-sub get_cpu_count {
-	my $count = 1;
-	if ($^O =~ /bsd/) {
-		$count = `sysctl -n hw.ncpu 2>/dev/null` || 1;
-	} elsif ($^O eq 'darwin') {
-		$count = `sysctl -n hw.activecpu 2>/dev/null` || 1;
-	} elsif ($^O eq 'linux') {
-		$count = `getconf _NPROCESSORS_ONLN 2>/dev/null` || 1;
-	} elsif ($^O eq 'solaris') {
-		$count = `psrinfo -p 2>/dev/null` || 1;
-	}
-	chomp($count);
-	return $count;
-}
-
-sub module_expand($) {
-	my $module = shift;
-	$module = "$module.cpp" unless $module =~ /\.cpp$/;
-	return $module;
 }
 
 sub module_shrink($) {

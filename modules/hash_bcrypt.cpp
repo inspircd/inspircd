@@ -16,11 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// BEGIN CMAKE
+/// target_link_libraries(${TARGET} PRIVATE "vendored_bcrypt")
+/// END CMAKE
+
 
 #include "inspircd.h"
 #include "modules/hash.h"
 
-#include <bcrypt/crypt_blowfish.c>
+extern "C"
+{
+#include <bcrypt/crypt_blowfish.h>
+}
 
 class BCryptContext final
 	: public Hash::Context

@@ -1,9 +1,7 @@
-%platform linux
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
-#   Copyright (C) 2015 Attila Molnar <attilamolnar@hush.com>
-#   Copyright (C) 2014, 2019-2020, 2025 Sadie Powell <sadie@witchery.services>
+#   Copyright (C) 2026 Sadie Powell <sadie@witchery.services>
 #
 # This file is part of InspIRCd.  InspIRCd is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -18,22 +16,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+	message(FATAL_ERROR "You must run CMake using the CMakeLists.txt in the root directory!")
+endif()
 
-[Unit]
-After=network.target
-Description=InspIRCd - Internet Relay Chat Daemon
-Documentation=https://docs.inspircd.org
-After=network-online.target
-Wants=network-online.target
+check_function_exists("arc4random_buf" HAS_ARC4RANDOM_BUF)
+check_function_exists("clock_gettime" HAS_CLOCK_GETTIME)
+check_function_exists("getentropy" HAS_GETENTROPY)
 
-[Service]
-ExecReload=/bin/kill -HUP $MAINPID
-ExecStart=@BINARY_DIR@/inspircd --nofork --nopid
-Restart=on-failure
-Type=simple
-%ifdef DISABLE_OWNERSHIP DynamicUser=yes
-%ifndef DISABLE_OWNERSHIP User=@USER@
-%ifndef DISABLE_OWNERSHIP Group=@GROUP@
-
-[Install]
-WantedBy=multi-user.target
+configure_file("config.h.in" "config.h")

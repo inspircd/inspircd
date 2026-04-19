@@ -17,8 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: find_compiler_flags("libmaxminddb")
-/// $LinkerFlags: find_linker_flags("libmaxminddb")
+/// BEGIN CMAKE
+/// target_require_package(${TARGET} "libmaxminddb" "maxminddb" "maxminddb::maxminddb")
+/// END CMAKE
 
 /// $PackageInfo: require_system("alpine") libmaxminddb-dev pkgconf
 /// $PackageInfo: require_system("arch") libmaxminddb pkgconf

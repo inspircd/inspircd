@@ -16,6 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// BEGIN CMAKE
+/// target_link_libraries(${TARGET} PRIVATE "vendored_sha2")
+/// END CMAKE
+
 
 // Fix a collision between the Haiku uint64 typedef and the
 // one from the sha2 library.
@@ -23,7 +27,7 @@
 # define uint64 sha2_uint64
 #endif
 
-#include <sha2/sha2.c>
+#include <sha2/sha2.h>
 
 #ifdef __HAIKU__
 # undef uint64

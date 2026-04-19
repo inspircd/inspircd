@@ -16,6 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// BEGIN CMAKE
+/// if(WIN32)
+///   target_report_error(${TARGET} "Windows does not support syslog!")
+/// endif()
+/// END CMAKE
+
 
 #include "inspircd.h"
 

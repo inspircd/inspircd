@@ -50,7 +50,6 @@ template<typename T> concept fmt_formattable = fmt::formattable<T>;
  * order to build on Windows correctly.
  */
 #ifdef _WIN32
-# include "win32wrapper.h"
 # ifdef INSPIRCD_CORE
 #  define CoreExport __declspec(dllexport)
 #  define DllExport __declspec(dllimport)
@@ -58,6 +57,7 @@ template<typename T> concept fmt_formattable = fmt::formattable<T>;
 #  define CoreExport __declspec(dllimport)
 #  define DllExport __declspec(dllexport)
 # endif
+# include "win32wrapper.h"
 #else
 # define DllExport __attribute__ ((visibility ("default")))
 # define CoreExport __attribute__ ((visibility ("default")))

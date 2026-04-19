@@ -27,8 +27,6 @@
 
 #include <sstream>
 
-#include <fmt/format.cc>
-
 #include "inspircd.h"
 #include "stringutils.h"
 #include "utility/string.h"

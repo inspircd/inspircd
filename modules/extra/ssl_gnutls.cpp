@@ -29,8 +29,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: find_compiler_flags("gnutls")
-/// $LinkerFlags: find_linker_flags("gnutls")
+/// BEGIN CMAKE
+/// if(WIN32)
+///   target_report_error(${TARGET} "GnuTLS can not be built on Windows!")
+/// else()
+///    target_require_package(${TARGET} "gnutls" "GnuTLS" "GnuTLS::GnuTLS")
+/// endif()
+/// END CMAKE
 
 /// $PackageInfo: require_system("arch") gnutls pkgconf
 /// $PackageInfo: require_system("alpine") gnutls-dev gnutls-utils pkgconf

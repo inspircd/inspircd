@@ -24,8 +24,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: execute("mysql_config --include" "MYSQL_CXXFLAGS")
-/// $LinkerFlags: execute("mysql_config --libs_r" "MYSQL_LDFLAGS" "-lmysqlclient")
+/// BEGIN CMAKE
+/// target_require_package(${TARGET} "mysqlclient mariadb" "libmysqlclient" "libmysqlclient::libmysqlclient")
+/// END CMAKE
 
 /// $PackageInfo: require_system("alpine") mariadb-dev
 /// $PackageInfo: require_system("arch") mariadb-libs

@@ -17,8 +17,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: require_library("libpsl") find_compiler_flags("libpsl") -DHAS_LIBPSL
-/// $LinkerFlags: require_library("libpsl") find_linker_flags("libpsl")
+/// BEGIN CMAKE
+/// if(WIN32)
+///   find_package("libpsl")
+///   if(libpsl_FOUND)
+///     target_compile_definitions(${TARGET} PRIVATE "HAS_LIBPSL")
+///     target_link_libraries(${TARGET} PRIVATE "libpsl::libpsl")
+///   endif()
+/// else()
+///   pkg_check_modules("libpsl" IMPORTED_TARGET "libpsl")
+///   if(libpsl_FOUND)
+///     target_compile_definitions(${TARGET} PRIVATE "HAS_LIBPSL")
+///     target_link_libraries(${TARGET} PRIVATE "PkgConfig::libpsl")
+///   endif()
+/// endif()
+/// END CMAKE
 
 /// $PackageInfo: require_system("alpine") libpsl-dev pkgconf
 /// $PackageInfo: require_system("arch") libpsl pkgconf
@@ -26,12 +39,6 @@
 /// $PackageInfo: require_system("debian~") libpsl-dev pkg-config
 /// $PackageInfo: require_system("rhel~") libpsl-devel pkg-config
 
-
-#ifdef _WIN32
-# if __has_include(<libpsl.h>)
-#  define HAS_LIBPSL
-# endif
-#endif
 
 #ifdef HAS_LIBPSL
 # include <libpsl.h>

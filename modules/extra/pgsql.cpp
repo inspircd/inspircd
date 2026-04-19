@@ -26,8 +26,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: find_compiler_flags("libpq")
-/// $LinkerFlags: find_linker_flags("libpq")
+/// BEGIN CMAKE
+/// target_require_package(${TARGET} "libpq" "PostgreSQL" "PostgreSQL::PostgreSQL")
+/// END CMAKE
+
 
 /// $PackageInfo: require_system("alpine") pcre2-dev pkgconf
 /// $PackageInfo: require_system("arch") pkgconf postgresql-libs

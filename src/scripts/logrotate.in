@@ -21,7 +21,7 @@
 
 @LOG_DIR@/*.log {
 	compress
-	%ifndef DISABLE_OWNERSHIP create 0644 @USER@ @GROUP@
+	%ifndef DISABLE_OWNERSHIP create 0644 @USER_NAME@ @GROUP_NAME@
 	dateext
 	delaycompress
 	missingok
@@ -29,18 +29,18 @@
 	rotate 8
 	weekly
 	postrotate
-		if [ -r "@RUNTIME_DIR@/inspircd.pid" ]
+		if [ -r "@ABSOLUTE_RUNTIME_DIR@/inspircd.pid" ]
 		then
-			kill -HUP $(cat "@RUNTIME_DIR@/inspircd.pid")
+			kill -HUP $(cat "@ABSOLUTE_RUNTIME_DIR@/inspircd.pid")
 		elif [ -d /lib/systemd ]
 		then
 			if systemctl --quiet is-active inspircd
 			then
 				systemctl kill --signal HUP inspircd
 			fi
-		elif [ -x "@SCRIPT_DIR@/inspircd" ]
+		elif [ -x "@ABSOLUTE_SCRIPT_DIR@/inspircd" ]
 		then
-			"@SCRIPT_DIR@/inspircd" rehash
+			"@ABSOLUTE_SCRIPT_DIR@/inspircd" rehash
 		fi
 	endscript
 }

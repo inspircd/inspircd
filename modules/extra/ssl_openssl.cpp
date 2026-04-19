@@ -28,8 +28,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: find_compiler_flags("openssl" "")
-/// $LinkerFlags: find_linker_flags("openssl" "-lssl -lcrypto")
+/// BEGIN CMAKE
+/// target_require_package(${TARGET} "libcrypto" "OpenSSL" "OpenSSL::Crypto")
+/// target_require_package(${TARGET} "libssl" "OpenSSL" "OpenSSL::SSL")
+/// END CMAKE
 
 /// $PackageInfo: require_system("alpine") openssl-dev pkgconf
 /// $PackageInfo: require_system("arch") openssl pkgconf

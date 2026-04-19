@@ -26,8 +26,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: require_environment("SYSTEM_HTTP_PARSER" "1") -DUSE_SYSTEM_HTTP_PARSER
-/// $LinkerFlags: require_environment("SYSTEM_HTTP_PARSER" "1") -lhttp_parser
+/// BEGIN CMAKE
+/// if($ENV{SYSTEM_HTTP_PARSER})
+///   target_compile_definitions(${TARGET} "USE_SYSTEM_HTTP_PARSER")
+///   target_link_libraries(${TARGET} PRIVATE "http_parser")
+/// else()
+///   target_link_libraries(${TARGET} PRIVATE "vendored_http_parser")
+/// endif()
+/// END CMAKE
 
 
 #include "inspircd.h"
@@ -48,7 +54,7 @@
 #ifdef USE_SYSTEM_HTTP_PARSER
 # include <http_parser.h>
 #else
-# include <http_parser/http_parser.c>
+# include <http_parser/http_parser.h>
 #endif
 
 #ifdef __GNUC__

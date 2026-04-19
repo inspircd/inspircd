@@ -16,6 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/// BEGIN CMAKE
+/// if(WIN32)
+///   target_require_package(${TARGET} "libpcre2-posix" "PCRE2" "PCRE2::POSIX")
+/// endif()
+/// END CMAKE
+
 
 #include "inspircd.h"
 #include "modules/regex.h"

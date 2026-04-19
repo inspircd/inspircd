@@ -16,8 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: find_compiler_flags("libpcre2-8")
-/// $LinkerFlags: find_linker_flags("libpcre2-8")
+/// BEGIN CMAKE
+/// target_require_package(${TARGET} "libpcre2-8" "PCRE2" "PCRE2::8BIT")
+/// END CMAKE
 
 /// $PackageInfo: require_system("alpine") pcre2-devel
 /// $PackageInfo: require_system("arch") pcre2

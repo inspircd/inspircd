@@ -6,8 +6,6 @@
 .*
 !.git*
 
-/.configure
-/GNUmakefile
 /build
 /core
 /core.*
@@ -16,8 +14,6 @@
 /docs/doxygen
 /src/modules
 /run
-
-/include/config.h
 
 /modules/contrib/*.cpp
 /modules/contrib/installed-modules.json
@@ -36,6 +32,4 @@
 /modules/sqlite3.cpp
 /modules/ssl_gnutls.cpp
 /modules/ssl_openssl.cpp
-
-/win/Win32
-/win/*.dir
+/src/windows/CMakeUserPresets.json

@@ -1,4 +1,3 @@
-%mode 0750
 #!/bin/sh
 set -e
 
@@ -10,13 +9,13 @@ set -e
 CERT_DIR="/etc/letsencrypt/live/irc.example.com"
 
 # The location of the InspIRCd config directory.
-INSPIRCD_CONFIG_DIR="@CONFIG_DIR@"
+INSPIRCD_CONFIG_DIR="@ABSOLUTE_CONFIG_DIR@"
 
 # The location of the InspIRCd pid file.
-INSPIRCD_PID_FILE="@RUNTIME_DIR@/inspircd.pid"
+INSPIRCD_PID_FILE="@ABSOLUTE_RUNTIME_DIR@/inspircd.pid"
 
 # The user:group that InspIRCd runs as.
-INSPIRCD_OWNER="@USER@:@GROUP@"
+INSPIRCD_OWNER="@USER_NAME@:@GROUP_NAME@"
 
 if [ -e ${CERT_DIR} -a -e ${INSPIRCD_CONFIG_DIR} ]
 then

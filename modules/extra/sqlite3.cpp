@@ -22,8 +22,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: find_compiler_flags("sqlite3")
-/// $LinkerFlags: find_linker_flags("sqlite3")
+/// BEGIN CMAKE
+/// target_require_package(${TARGET} "sqlite3" "SQLite3" "SQLite::SQLite3")
+/// END CMAKE
 
 /// $PackageInfo: require_system("alpine") pkgconf sqlite-dev
 /// $PackageInfo: require_system("arch") pkgconf sqlite

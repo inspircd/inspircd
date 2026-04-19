@@ -21,8 +21,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: find_compiler_flags("lber" "") find_compiler_flags("ldap" "")
-/// $LinkerFlags: find_linker_flags("lber" "-llber") find_linker_flags("ldap" "-lldap_r")
+/// BEGIN CMAKE
+/// if(NOT WIN32)
+///   target_require_package(${TARGET} "lber" "OpenLDAP" "OpenLDAP::LBER")
+///   target_require_package(${TARGET} "ldap" "OpenLDAP" "OpenLDAP::LDAP")
+/// endif()
+/// END CMAKE
 
 /// $PackageInfo: require_system("alpine") openldap-dev pkgconf
 /// $PackageInfo: require_system("arch") libldap pkgconf

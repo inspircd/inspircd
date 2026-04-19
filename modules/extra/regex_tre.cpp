@@ -16,8 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: find_compiler_flags("tre")
-/// $LinkerFlags: find_linker_flags("tre")
+/// BEGIN CMAKE
+/// target_require_package(${TARGET} "tre" "TRE" "tre::tre")
+/// END CMAKE
 
 /// $PackageInfo: require_system("arch") pkgconf tre
 /// $PackageInfo: require_system("darwin") pkg-config tre

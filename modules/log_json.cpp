@@ -16,14 +16,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: require_environment("SYSTEM_YYJSON" "1") find_compiler_flags("yyjson") -DUSE_SYSTEM_YYJSON
-/// $LinkerFlags: require_environment("SYSTEM_YYJSON" "1")  find_linker_flags("yyjson")
+/// BEGIN CMAKE
+/// if($ENV{SYSTEM_YYJSON})
+///   pkg_check_modules("yyjson" IMPORTED_TARGET REQUIRED "yyjson")
+///   target_compile_definitions(${TARGET} "USE_SYSTEM_YYJSON")
+///   target_link_libraries(${TARGET} PRIVATE "PkgConfig::yyjson")
+/// else()
+///   target_link_libraries(${TARGET} PRIVATE "vendored_yyjson")
+/// endif()
+/// END CMAKE
 
 
 #ifdef USE_SYSTEM_YYJSON
 # include <yyjson.h>
 #else
-# include <yyjson/yyjson.c>
+# include <yyjson/yyjson.h>
 #endif
 
 #include "inspircd.h"

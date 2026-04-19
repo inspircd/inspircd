@@ -19,7 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: require_environment("SYSTEM_UTFCPP" "1") -DUSE_SYSTEM_UTFCPP
+/// BEGIN CMAKE
+/// if($ENV{SYSTEM_UTFCPP})
+///   target_compile_definitions(${TARGET} "USE_SYSTEM_UTFCPP")
+/// endif()
+/// END CMAKE
 
 
 #ifdef USE_SYSTEM_UTFCPP

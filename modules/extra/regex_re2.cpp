@@ -16,8 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// $CompilerFlags: find_compiler_flags("re2")
-/// $LinkerFlags: find_linker_flags("re2")
+/// BEGIN CMAKE
+/// target_require_package(${TARGET} "re2" "RE2" "re2::re2")
+/// END CMAKE
 
 /// $PackageInfo: require_system("alpine") pkgconf re2-dev
 /// $PackageInfo: require_system("arch") pkgconf re2

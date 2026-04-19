@@ -15,6 +15,6 @@ When you are done you can run the following command to start InspIRCd:
 	@BINARY_DIR@/inspircd
 
 If you have installed from an official package you may need to prefix this
-command with `sudo -g @GROUP@ -u @USER@` to run as the correct group/user.
+command with `sudo -g @GROUP_NAME@ -u @USER_NAME@` to run as the correct group/user.
 
 You can also use one of the helper scripts in `@SCRIPT_DIR@`.

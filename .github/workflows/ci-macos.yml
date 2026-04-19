@@ -12,8 +12,6 @@ jobs:
       HOMEBREW_NO_AUTO_UPDATE: 1
       HOMEBREW_NO_INSTALL_CLEANUP: 1
       HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
-      INSPIRCD_DEBUG: 3
-      INSPIRCD_VERBOSE: 1
     steps:
       - uses: actions/checkout@v6
 
@@ -25,11 +23,12 @@ jobs:
       - name: Install dependencies
         run: |-
           brew update || true
-          for PACKAGE in pkg-config argon2 gnutls libmaxminddb libpq libpsl mysql-client openssl openldap pcre2 re2 sqlite tre
+          for PACKAGE in argon2 cmake gnutls libmaxminddb libpq libpsl mysql-client ninja openssl openldap pcre2 pkg-config re2 sqlite tre
           do
             brew install $PACKAGE || brew upgrade $PACKAGE
 
             BREW_PREFIX=$(brew --prefix $PACKAGE)
+            export CMAKE_PREFIX_PATH="$CMAKE_PREFIX_PATH:$BREW_PREFIX";
             if [ -d "$BREW_PREFIX/bin" ]
             then
               export PATH="$PATH:$BREW_PREFIX/bin"
@@ -39,6 +38,7 @@ jobs:
               export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$BREW_PREFIX/lib/pkgconfig"
             fi
           done
+          echo "CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH" >> $GITHUB_ENV
           echo "PATH=$PATH" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
 
@@ -46,13 +46,21 @@ jobs:
         run: |-
           ./modulemanager extra enable geo_maxmind hash_argon2 hash_gnutls ldap log_syslog mysql pgsql regex_pcre2 regex_posix regex_re2 regex_tre rehashsignal sqlite3 ssl_gnutls ssl_openssl
 
-      - name: Run configure
+      - name: Run CMake
         run: |-
-          ./configure --development --disable-auto-extras --socketengine ${{ matrix.socketengine }}
+          cmake -B "build" \
+                -D "CMAKE_BUILD_TYPE=Debug" \
+                -D "AUTO_ENABLE_EXTRAS=OFF" \
+                -D "SOCKET_ENGINE=${{ matrix.socketengine }}" \
+                -G "Ninja" \
+                -Wdeprecated \
+                -Wdev
 
       - name: Build and install
+        env:
+          VERBOSE: ${{ runner.debug }}
         run: |-
-          make --jobs $(($(sysctl -n hw.activecpu) + 1)) install
+          ninja -C "build" ${{ runner.debug == '1' && '-v' || '' }} install
 
       - name: Run
         run: |-
