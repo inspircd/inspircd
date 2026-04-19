@@ -56,15 +56,15 @@
  %target include/config.h
 
 // Whether the arc4random_buf() function was available at compile time.
- %define HAVE_ARC4RANDOM_BUF
+ %define HAS_ARC4RANDOM_BUF
 
 // Whether the clock_gettime() function was available at compile time.
- %define HAVE_CLOCK_GETTIME
+ %define HAS_CLOCK_GETTIME
 
 // Whether the getentropy() function was available at compile time.
- %define HAVE_GETENTROPY
+ %define HAS_GETENTROPY
 
 // Whether the sigabbrev_np() function was available at compile time.
- %define HAVE_SIGABBREV_NP
+ %define HAS_SIGABBREV_NP
 
 #endif
