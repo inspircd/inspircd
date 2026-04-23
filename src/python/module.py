@@ -19,9 +19,11 @@
 
 import pathlib
 
-DIR         = pathlib.Path(__file__).resolve().parents[2] / "modules"
-CONTRIB_DIR = DIR                                         / "contrib"
-EXTRA_DIR   = DIR                                         / "extra"
+from . import common
+
+DIR         = common.ROOT / "modules"
+CONTRIB_DIR = DIR         / "contrib"
+EXTRA_DIR   = DIR         / "extra"
 
 
 # Converts a module name to a file name.

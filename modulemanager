@@ -27,9 +27,8 @@ import re
 import sys
 import urllib.request
 
-from src.python import console, module
+from src.python import common, console, module
 
-ROOT            = pathlib.Path(__file__).resolve().parent
 CONTRIB_MODULES = module.CONTRIB_DIR / "installed-modules.json"
 CONTRIB_SOURCES = module.CONTRIB_DIR / "module-sources.ini"
 
@@ -223,11 +222,8 @@ def installed_dependencies(installed_modules):
     dependencies = {}
 
     # Core
-    core_version = { "MAJOR": 0, "MINOR": 0, "PATCH": 0 }
-    with open(ROOT / "src" / "cmake" / "version.cmake", "r") as fh:
-        for type, version in re.findall(r"\bset\(VERSION_(MAJOR|MINOR|PATCH)\s+(\d+)\)", fh.read(), re.IGNORECASE):
-            core_version[type] = int(version)
-        dependencies["core"] = (core_version["MAJOR"], core_version["MINOR"], core_version["PATCH"])
+    core_version = common.version()
+    dependencies["core"] = (core_version["MAJOR"], core_version["MINOR"], core_version["PATCH"])
 
     # Official modules
     for long_module in module.DIR.iterdir():
