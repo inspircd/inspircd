@@ -83,7 +83,6 @@ parser.add_argument("--uid",                type=str, metavar="ID",     help="Sp
 
 options = parser.parse_args()
 
-
 CMAKE = os.getenv("CMAKE", "cmake")
 if not shutil.which(CMAKE):
     console.error(f"CMake ({CMAKE}) must be installed to build InspIRCd!")
@@ -125,7 +124,7 @@ if not options.clean and interactive:
             with open(CONFIG_CACHE, 'r', encoding='utf-8') as file:
                 option_vars = vars(options)
                 for k, v in json.load(file).items():
-                    if option_vars.get(k) is None:
+                    if not option_vars.get(k):
                         option_vars[k] = v
     except FileNotFoundError:
         pass  # The script is probably being run for the first time.
@@ -194,7 +193,8 @@ if interactive and not options.update:
     )
 
     while True:
-        match kind := console.prompt_string("source").lower():
+        kind_default = "system" if options.system else "portable" if options.portable else "source"
+        match kind := console.prompt_string(kind_default).lower():
             case "source":
                 options.portable = False
                 options.system = False
@@ -222,8 +222,11 @@ if interactive and not options.update:
         Would you like to manually enable extra modules?
         """
     )
-    if console.prompt_boolean(False):
+
+    options.disable_auto_extras = console.prompt_boolean(options.disable_auto_extras)
+    if options.disable_auto_extras:
         subprocess.run([f"{common.ROOT}/modulemanager", "extra", "interactive"])
+        print()
 
     if any(shutil.which(n) for n in ["ninja", "ninja-build", "samu"]):
         print("-" * 80)
@@ -233,8 +236,11 @@ if interactive and not options.update:
             tools. Do you want to use it?
             """
         )
-        if console.prompt_boolean(True):
+        tool_default = not options.build_tool or options.build_tool == "Ninja"
+        if console.prompt_boolean(tool_default):
             options.build_tool = "Ninja";
+        else:
+            options.build_tool = "Unix Makefiles";
 
     print("-" * 80)
     print_wrapped(
@@ -246,9 +252,9 @@ if interactive and not options.update:
     input()
 
     try:
-        string_options = {k: v for k, v in vars(options).items() if isinstance(v, str)}
+        set_options = {k: v for k, v in vars(options).items() if v}
         with open(CONFIG_CACHE, "w", encoding="utf-8") as file:
-            json.dump(string_options, file, indent=4)
+            json.dump(set_options, file, indent=4)
     except OSError as e:
         console.warning(f"Unable to save config: {e}")
 
