@@ -75,6 +75,7 @@ parser.add_argument("--portable",            action="store_true", help="Preconfi
 parser.add_argument("--system",              action="store_true", help="Preconfigure paths for a system install")
 parser.add_argument("--update",              action="store_true", help=f"Regenerate the CMake build config from {CONFIG_CACHE}")
 
+parser.add_argument("--build-tool",         type=str, metavar="TOOL",   help="The build tool to generate build files for")
 parser.add_argument("--distribution-label", type=str, metavar="LABEL",  help="Specify a distribution label")
 parser.add_argument("--gid",                type=str, metavar="ID",     help="Specify the group to run as")
 parser.add_argument("--socketengine",       type=str, metavar="ENGINE", help="Specify the socket engine to build with")
@@ -107,6 +108,7 @@ interactive = console.interactive() and not any(
         options.portable,
         options.system,
 
+        options.build_tool,
         options.distribution_label,
         options.gid,
         options.socketengine,
@@ -223,6 +225,17 @@ if interactive and not options.update:
     if console.prompt_boolean(False):
         subprocess.run([f"{common.ROOT}/modulemanager", "extra", "interactive"])
 
+    if any(shutil.which(n) for n in ["ninja", "ninja-build", "samu"]):
+        print("-" * 80)
+        print_wrapped(
+            """
+            You have Ninja installed. Building InspIRCd with this is a lot faster than other build
+            tools. Do you want to use it?
+            """
+        )
+        if console.prompt_boolean(True):
+            options.build_tool = "Ninja";
+
     print("-" * 80)
     print_wrapped(
         """
@@ -280,6 +293,8 @@ if options.portable:
 if options.system:
     cmake_args.append(cmake_define("SYSTEM", "ON"))
 
+if options.build_tool:
+    cmake_args.append(f"-G {options.build_tool}")
 if options.distribution_label:
     cmake_args.append(cmake_define("DISTRIBUTION_LABEL", options.distribution_label))
 if options.gid:
@@ -305,6 +320,6 @@ except subprocess.CalledProcessError as e:
 
 print_wrapped(
     f"""
-    You can now run `make -C {BUILD_DIR_REL} install` to build and install InspIRCd.
+    You can now run `{CMAKE} --build {BUILD_DIR_REL} --target install` to build and install InspIRCd.
     """
 )
