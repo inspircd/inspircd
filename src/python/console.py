@@ -54,6 +54,29 @@ def error(*messages):
     sys.exit(1)
 
 
+# Determines if the script has been invoked in interactive mode.
+def interactive():
+    return os.isatty(sys.stdin.fileno()) and os.isatty(sys.stdout.fileno())
+
+
+# Prompts for the user to enter a boolean value.
+def prompt_boolean(default):
+    while True:
+        answer = prompt_string("yes" if default else "no").lower()
+        if answer in ("y", "yes"):
+            return True
+        if answer in ("n", "no"):
+            return False
+        warning(f'"{answer}" is not "yes" or "no". Please try again.')
+
+
+# Prompts for the user to enter a string value.
+def prompt_string(default):
+    answer = input(f"[{color(default, BOLD)}] => ").strip()
+    print()
+    return answer if answer else default
+
+
 # Dispatches commands to their handler method.
 def subcommand(args, start, commands, default="help"):
     commands["help"] = {

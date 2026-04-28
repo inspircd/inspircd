@@ -532,6 +532,10 @@ def cmd_extra(commands, args, start):
             "function": cmd_extra_enable,
             "help": "Enable one or more extra modules",
         },
+        "interactive": {
+            "function": cmd_extra_interactive,
+            "help": "Interactively enable or disable extra modules",
+        },
         "list": {
             "function": cmd_extra_list,
             "help": "List the status of extra modules",
@@ -599,9 +603,50 @@ def cmd_extra_enable(commands, args, start):
     cmd_extra_list(commands, args, start)
 
 
+def cmd_extra_interactive(commands, args, start):
+    if not console.interactive():
+        console.error("This command can not be used non-interactively!")
+
+    modules_to_enable = []
+    modules_to_disable = []
+    for module_name in sorted(module.EXTRA_DIR.glob("*.cpp")):
+        short_name = module.short_name(module_name)
+        print(f"Would you like to enable the {console.color(short_name, console.BOLD)} module?")
+
+        if console.prompt_boolean(False):
+            modules_to_enable.append(short_name)
+        else:
+            modules_to_disable.append(short_name)
+
+    for module_to_disable in modules_to_disable:
+        long_module = module.DIR / module.file_name(module_to_disable)
+        long_extra = module.EXTRA_DIR / module.file_name(module_to_disable)
+
+        if long_module.is_symlink() and long_module.readlink() == long_extra:
+            try:
+                console.debug(f"Disabling the {module_to_disable} module ...")
+                long_module.unlink()
+            except OSError as e:
+                console.warning(f"Unable to unlink {module_to_disable} from {long_extra}: {e}")
+
+    for module_to_enable in modules_to_enable:
+        long_module = module.DIR / module.file_name(module_to_enable)
+        long_extra = module.EXTRA_DIR / module.file_name(module_to_enable)
+
+        if not long_module.is_symlink() or long_module.readlink() != long_extra:
+            try:
+                console.debug(f"Enabling the {module_to_enable} module ...")
+                long_module.symlink_to(long_extra)
+            except OSError as e:
+                console.warning(f"Unable to symlink {module_to_enable} to {long_extra}: {e}")
+
+
+    cmd_extra_list(commands, args, start)
+
+
 def cmd_extra_list(commands, args, start):
     modules = []
-    for long_extra in module.EXTRA_DIR.iterdir():
+    for long_extra in sorted(module.EXTRA_DIR.iterdir()):
         if not long_extra.suffix == ".cpp":
             continue  # Not a module
 
