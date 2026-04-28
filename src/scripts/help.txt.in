@@ -1,7 +1,7 @@
 Thanks for installing InspIRCd!
 
 In order to get your server running you need to create config files. Examples
-can be found at `@EXAMPLE_DIR@`.
+can be found at `@ABSOLUTE_EXAMPLE_DIR@`.
 
 If you need any help with this then you can visit our support channel at
 ircs://irc.teranova.net/inspircd, open a support discussion at
@@ -12,9 +12,9 @@ https://git.io/JIuYv, or refer to the the docs site:
 
 When you are done you can run the following command to start InspIRCd:
 
-	@BINARY_DIR@/inspircd
+	@ABSOLUTE_BINARY_DIR@/inspircd
 
 If you have installed from an official package you may need to prefix this
 command with `sudo -g @GROUP_NAME@ -u @USER_NAME@` to run as the correct group/user.
 
-You can also use one of the helper scripts in `@SCRIPT_DIR@`.
+You can also use one of the helper scripts in `@ABSOLUTE_SCRIPT_DIR@`.

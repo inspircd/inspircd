@@ -30,7 +30,7 @@
 .TP
 .B "--config <file>"
 .br
-Sets the path to the main configuration file. Defaults to \fI@CONFIG_DIR@/inspircd.conf\fR.
+Sets the path to the main configuration file. Defaults to \fI@ABSOLUTE_CONFIG_DIR@/inspircd.conf\fR.
 .TP
 .B "--debug"
 .br

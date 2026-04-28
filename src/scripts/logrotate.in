@@ -19,7 +19,7 @@
 
 # To use this file move it to /etc/logrotate.d/inspircd
 
-@LOG_DIR@/*.log {
+@ABSOLUTE_LOG_DIR@/*.log {
 	compress
 	%ifndef DISABLE_OWNERSHIP create 0644 @USER_NAME@ @GROUP_NAME@
 	dateext
