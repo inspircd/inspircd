@@ -2,19 +2,20 @@
 *.pem
 *.pyc
 *.swp
-
 .*
 !.git*
 
-/build
 /core
 /core.*
 /vgcore
 /vgcore.*
-/docs/doxygen
-/src/modules
-/run
 
+/build
+/docs/doxygen
+/run
+/src/modules
+
+/configure.json
 /modules/contrib/*.cpp
 /modules/contrib/installed-modules.json
 /modules/geo_maxmind.cpp

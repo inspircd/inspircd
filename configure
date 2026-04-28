@@ -1,0 +1,310 @@
+#!/usr/bin/env python3
+#
+# InspIRCd -- Internet Relay Chat Daemon
+#
+#   Copyright (C) 2026 Sadie Powell <sadie@witchery.services>
+#
+# This file is part of InspIRCd.  InspIRCd is free software: you can
+# redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, version 2.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+
+import argparse
+import functools
+import json
+import os
+import pathlib
+import re
+import shutil
+import subprocess
+import sys
+import textwrap
+
+from src.python import common, console
+
+PROGRAM       = pathlib.Path(__file__).name
+CONFIG_CACHE  = common.ROOT / "configure.json"
+BUILD_DIR     = common.ROOT / "build"
+BUILD_DIR_REL = BUILD_DIR.relative_to(pathlib.Path.cwd())
+RUN_DIR       = common.ROOT / "run"
+RUN_DIR_REL   = RUN_DIR.relative_to(pathlib.Path.cwd())
+
+
+def cmake_define(name, value):
+    return f"-D {name}={value}"
+
+
+def print_wrapped(text, **kwargs):
+    dedented_text = textwrap.dedent(text)
+    left_pad, message, right_pad = re.match(r"(\s*)(.*?)(\s*)$", dedented_text, re.DOTALL).groups()
+    wrapped_messages = [textwrap.fill(dm, width=80) for dm in message.split("\n\n")]
+    final_message = "\n\n".join(wrapped_messages)
+    print(f"{left_pad}{final_message}{right_pad}", **kwargs)
+
+
+parser = argparse.ArgumentParser(
+    formatter_class=functools.partial(argparse.HelpFormatter, max_help_position=50)
+)
+
+parser.add_argument("--binary-dir",  type=str, metavar="DIR", help="The directory to install binary files to")
+parser.add_argument("--config-dir",  type=str, metavar="DIR", help="The directory to read config files from")
+parser.add_argument("--data-dir",    type=str, metavar="DIR", help="The directory to read and write data files to")
+parser.add_argument("--example-dir", type=str, metavar="DIR", help="The directory to install example config files to")
+parser.add_argument("--log-dir",     type=str, metavar="DIR", help="The directory to write log files to")
+parser.add_argument("--manual-dir",  type=str, metavar="DIR", help="The directory to install manual files to")
+parser.add_argument("--module-dir",  type=str, metavar="DIR", help="The directory to install module files to")
+parser.add_argument("--prefix",      type=str, metavar="DIR", help="The directory to install to")
+parser.add_argument("--runtime-dir", type=str, metavar="DIR", help="The directory to write runtime files to")
+parser.add_argument("--script-dir",  type=str, metavar="DIR", help="The directory to install script files to")
+
+parser.add_argument("--clean",               action="store_true", help=f"Don't load {CONFIG_CACHE} in interactive mode")
+parser.add_argument("--development",         action="store_true", help="Preconfigure for a development build")
+parser.add_argument("--disable-auto-extras", action="store_true", help="Disable automatically enabling extra modules")
+parser.add_argument("--disable-interactive", action="store_true", help="Disable interactive mode")
+parser.add_argument("--disable-ownership",   action="store_true", help="Disable file ownership")
+parser.add_argument("--portable",            action="store_true", help="Preconfigure paths for a portable install")
+parser.add_argument("--system",              action="store_true", help="Preconfigure paths for a system install")
+parser.add_argument("--update",              action="store_true", help=f"Regenerate the CMake build config from {CONFIG_CACHE}")
+
+parser.add_argument("--distribution-label", type=str, metavar="LABEL",  help="Specify a distribution label")
+parser.add_argument("--gid",                type=str, metavar="ID",     help="Specify the group to run as")
+parser.add_argument("--socketengine",       type=str, metavar="ENGINE", help="Specify the socket engine to build with")
+parser.add_argument("--uid",                type=str, metavar="ID",     help="Specify the user to run as")
+
+options = parser.parse_args()
+
+
+CMAKE = os.getenv("CMAKE", "cmake")
+if not shutil.which(CMAKE):
+    console.error(f"CMake ({CMAKE}) must be installed to build InspIRCd!")
+
+interactive = console.interactive() and not any(
+    [
+        options.binary_dir,
+        options.config_dir,
+        options.data_dir,
+        options.example_dir,
+        options.log_dir,
+        options.manual_dir,
+        options.module_dir,
+        options.prefix,
+        options.runtime_dir,
+        options.script_dir,
+
+        options.development,
+        options.disable_auto_extras,
+        options.disable_interactive,
+        options.disable_ownership,
+        options.portable,
+        options.system,
+
+        options.distribution_label,
+        options.gid,
+        options.socketengine,
+        options.uid,
+    ]
+)
+
+if not interactive:
+    console.warning(f"Using {PROGRAM} in non-interactive mode is deprecated, please switch to CMake.")
+
+if not options.clean and interactive:
+    try:
+        if not options.clean:
+            with open(CONFIG_CACHE, 'r', encoding='utf-8') as file:
+                option_vars = vars(options)
+                for k, v in json.load(file).items():
+                    if option_vars.get(k) is None:
+                        option_vars[k] = v
+    except FileNotFoundError:
+        pass  # The script is probably being run for the first time.
+    except json.JSONDecodeError as e:
+        console.warning(f"Unable to load previous config: {e}")
+
+with open(common.ROOT / "docs" / "BANNER.txt") as fh:
+    print(textwrap.indent(fh.read(), " " * 10))
+
+version = common.version()
+print(f"v{version['FULL']}".rjust(70))
+
+if interactive and not options.update:
+    print_wrapped(
+        f"""
+        This script will help you build InspIRCd, a high-performance Internet Relay Chat (IRCv3)
+        server for UNIX-like and Windows systems.
+
+        If you are upgrading from an older version and just want to re-run CMake with your previous
+        configuration you can run `{PROGRAM} --update`. Otherwise, please answer the following
+        questions to create the build configuration.
+        """
+    )
+    print("-" * 80)
+
+if version["LABEL"] and not options.development and not options.update:
+    print_wrapped(
+        """
+        You are building a development version. This contains code which has not been tested as much
+        and may contain faults that could seriously affect the running of your server. It is
+        recommended that you use a stable version instead.
+
+        You can obtain the latest stable version from https://www.inspircd.org/ or by running
+        `git checkout $(git describe --abbrev=0 --tags insp4)` if you are installing from Git.
+        """
+    )
+
+    exit_now = True
+    if interactive:
+        print_wrapped("I understand this warning and want to continue anyway.")
+        print()
+        exit_now = not console.prompt_boolean(False)
+    else:
+        print_wrapped("If you understand this warning and still want to continue pass the --development flag.")
+
+    if exit_now:
+        sys.exit(1)
+
+if interactive and not options.update:
+    print("-" * 80)
+    print_wrapped(
+        f"""
+        InspIRCd supports three kinds of installation:
+
+        * A "source" installation installs into `{RUN_DIR_REL}` with short paths selected for users
+        who are building in their home directory. This is the recommended install type.
+
+        * A "system" installation installs into `/` with FHS paths as you might expect for a program
+        installed from your system package manager.
+
+        * A "portable" installation is similar to a source installation but it uses relative paths
+        in the build configuration allowing you to move it between directories. If you pick this
+        build type you will need to run InspIRCd from `{RUN_DIR_REL}` so it knows where to find
+        files.
+        """,
+    )
+
+    while True:
+        match kind := console.prompt_string("source").lower():
+            case "source":
+                options.portable = False
+                options.system = False
+                break
+
+            case "system":
+                options.portable = False
+                options.system = True
+                break
+
+            case "portable":
+                options.portable = True
+                options.system = False
+                break
+
+            case _:
+                console.warning(f'"{kind}" is not one of  "source", "system", or "portable". Please try again.')
+
+    print("-" * 80)
+    print_wrapped(
+        """
+        By default InspIRCd will build all extra modules for which the dependencies exist.  If you
+        prefer you can manually select the extra modules to enable.
+
+        Would you like to manually enable extra modules?
+        """
+    )
+    if console.prompt_boolean(False):
+        subprocess.run([f"{common.ROOT}/modulemanager", "extra", "interactive"])
+
+    print("-" * 80)
+    print_wrapped(
+        """
+        You are now ready to configure InspIRCd. When you press Enter your build configuration will
+        be saved and CMake will be invoked to create the build files.
+        """
+    )
+    input()
+
+    try:
+        string_options = {k: v for k, v in vars(options).items() if isinstance(v, str)}
+        with open(CONFIG_CACHE, "w", encoding="utf-8") as file:
+            json.dump(string_options, file, indent=4)
+    except OSError as e:
+        console.warning(f"Unable to save config: {e}")
+
+
+# Synthesize a CMake command
+cmake_args = [
+    f"-B {BUILD_DIR}",
+    f"-S {common.ROOT}",
+]
+
+if options.prefix:
+    cmake_args.append(cmake_define("CMAKE_INSTALL_PREFIX", options.prefix))
+if options.binary_dir:
+    cmake_args.append(cmake_define("BINARY_DIR", options.binary_dir))
+if options.config_dir:
+    cmake_args.append(cmake_define("CONFIG_DIR", options.config_dir))
+if options.data_dir:
+    cmake_args.append(cmake_define("DATA_DIR", options.data_dir))
+if options.example_dir:
+    cmake_args.append(cmake_define("EXAMPLE_DIR", options.example_dir))
+if options.log_dir:
+    cmake_args.append(cmake_define("LOG_DIR", options.log_dir))
+if options.manual_dir:
+    cmake_args.append(cmake_define("MANUAL_DIR", options.manual_dir))
+if options.module_dir:
+    cmake_args.append(cmake_define("MODULE_DIR", options.module_dir))
+if options.runtime_dir:
+    cmake_args.append(cmake_define("RUNTIME_DIR", options.runtime_dir))
+if options.script_dir:
+    cmake_args.append(cmake_define("SCRIPT_DIR", options.script_dir))
+
+if options.development:
+    cmake_args.append(cmake_define("CMAKE_BUILD_TYPE", "Debug"))
+    cmake_args.append("-Wdev")
+    cmake_args.append("-Wdeprecated")
+if options.disable_auto_extras:
+    cmake_args.append(cmake_define("AUTO_ENABLE_EXTRAS", "OFF"))
+if options.disable_ownership:
+    cmake_args.append(cmake_define("DISABLE_OWNERSHIP", "OFF"))
+if options.portable:
+    cmake_args.append(cmake_define("PORTABLE", "ON"))
+if options.system:
+    cmake_args.append(cmake_define("SYSTEM", "ON"))
+
+if options.distribution_label:
+    cmake_args.append(cmake_define("DISTRIBUTION_LABEL", options.distribution_label))
+if options.gid:
+    cmake_args.append(cmake_define("GROUP", options.gid))
+if options.socketengine:
+    cmake_args.append(cmake_define("SOCKETENGINE", options.socketengine))
+if options.uid:
+    cmake_args.append(cmake_define("USER", options.uid))
+
+cmake_args.sort()
+
+try:
+    shutil.rmtree(BUILD_DIR, ignore_errors=True)
+
+    arg_indent = " " * (len(CMAKE) + 3)
+    cmake_args_str = f"\n{arg_indent}".join(sorted(cmake_args))
+
+    print(console.color(f"$ {CMAKE} {cmake_args_str}", console.BOLD))
+
+    subprocess.run([CMAKE, *cmake_args], check=True)
+except subprocess.CalledProcessError as e:
+    console.error(f"CMake failed with error code {e.returncode}")
+
+print_wrapped(
+    f"""
+    You can now run `make -C {BUILD_DIR_REL} install` to build and install InspIRCd.
+    """
+)
