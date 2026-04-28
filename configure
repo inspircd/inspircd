@@ -148,9 +148,9 @@ if interactive and not options.update:
         questions to create the build configuration.
         """
     )
-    print("-" * 80)
 
 if version["LABEL"] and not options.development and not options.update:
+    print("-" * 80)
     print_wrapped(
         """
         You are building a development version. This contains code which has not been tested as much
