@@ -85,7 +85,10 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "(^GNU|Clang)$")
 		"$<$<NOT:$<CONFIG:Debug,None>>:-fno-rtti>"
 	)
 	if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-		add_compile_options("-Wshadow")
+		add_compile_options(
+			"-Wshadow"
+			"$<$<COMPILE_LANGUAGE:CXX>:-Wno-subobject-linkage>"
+		)
 	elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang$")
 		add_compile_options("-Wshadow-all" "-Wshorten-64-to-32")
 	endif()

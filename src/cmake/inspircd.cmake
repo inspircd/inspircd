@@ -42,6 +42,12 @@ function(build_module MODULE MODULE_SOURCE)
 		FOLDER "Modules"
 		PREFIX ""
 	)
+	list(LENGTH MODULE_SOURCE MODULE_SOURCE_COUNT)
+	if(MODULE_SOURCE_COUNT LESS_EQUAL 1)
+		set_target_properties(${MODULE} PROPERTIES
+			UNITY_BUILD OFF
+		)
+	endif()
 	inline_cmake(${MODULE} ${MODULE_SOURCE})
 	install_owned(
 		TARGETS ${MODULE}
