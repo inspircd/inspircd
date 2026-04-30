@@ -138,7 +138,7 @@ class WebSocketHook final
 			while (startpos < maxpos)
 			{
 				size_t endpos = req.find(newline, startpos);
-				if (strncasecmp(req.c_str() + startpos, header, headerlen) != 0)
+				if (!insp::ascii_equals({req.c_str() + startpos, headerlen}, {header, headerlen}))
 				{
 					startpos = endpos + sizeof(newline) - 1;
 					continue; // Incorrect header.
