@@ -107,7 +107,7 @@ WARN_LINE_FORMAT       = "at line $line of file $file"
 WARN_LOGFILE           =
 INPUT                  = README.md \
                          include \
-                         win
+                         src/windows
 INPUT_ENCODING         = UTF-8
 INPUT_FILE_ENCODING    =
 FILE_PATTERNS          =
