@@ -49,7 +49,6 @@ using psl_ctx_t = void;
 #include "inspircd.h"
 #include "modules/cloak.h"
 #include "modules/hash.h"
-#include "utility/string.h"
 
 class SHA256Method final
 	: public Cloak::Method

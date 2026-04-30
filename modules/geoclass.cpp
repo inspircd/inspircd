@@ -21,7 +21,6 @@
 #include "modules/geolocation.h"
 #include "modules/stats.h"
 #include "stringutils.h"
-#include "utility/string.h"
 
 class ModuleGeoClass final
 	: public Module

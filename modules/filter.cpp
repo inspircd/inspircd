@@ -41,7 +41,6 @@
 #include "numerichelper.h"
 #include "stringutils.h"
 #include "timeutils.h"
-#include "utility/string.h"
 #include "xline.h"
 
 #include <fstream>

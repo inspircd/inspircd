@@ -22,7 +22,7 @@
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
 #include "numerichelper.h"
-#include "utility/string.h"
+#include "utility/container.h"
 
 struct SharedData final
 {

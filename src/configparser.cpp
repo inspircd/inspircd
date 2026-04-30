@@ -29,7 +29,6 @@
 #include "configparser.h"
 #include "timeutils.h"
 #include "utility/container.h"
-#include "utility/string.h"
 
 #ifdef _WIN32
 # define pclose _pclose

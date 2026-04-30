@@ -25,7 +25,7 @@
 #include "clientprotocolevent.h"
 #include "listmode.h"
 #include "modules/isupport.h"
-#include "utility/string.h"
+#include "utility/container.h"
 
 #include "core_channel.h"
 #include "invite.h"

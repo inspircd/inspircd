@@ -19,7 +19,6 @@
 
 #include "inspircd.h"
 #include "iohook.h"
-#include "utility/string.h"
 
 class SocketUserIO final
 	: public LocalUserIO

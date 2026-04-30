@@ -38,7 +38,6 @@
 #include "modules/hash.h"
 #include "modules/isupport.h"
 #include "modules/whois.h"
-#include "utility/string.h"
 
 static constexpr char MagicGUID[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 static constexpr char newline[] = "\r\n";

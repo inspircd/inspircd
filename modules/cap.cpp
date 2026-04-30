@@ -22,7 +22,6 @@
 #include "modules/cap.h"
 #include "modules/reload.h"
 #include "utility/container.h"
-#include "utility/string.h"
 
 enum
 {

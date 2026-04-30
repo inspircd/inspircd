@@ -20,7 +20,7 @@
 #pragma once
 
 #include "stringutils.h"
-#include "utility/string.h"
+#include "utility/container.h"
 
 /** Base class for types that extend an extensible. */
 class CoreExport ExtensionItem

@@ -24,7 +24,7 @@
 #include "clientprotocolmsg.h"
 #include "stringutils.h"
 #include "timeutils.h"
-#include "utility/string.h"
+#include "utility/container.h"
 
 #include "core_info.h"
 

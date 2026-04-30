@@ -20,7 +20,6 @@
 #pragma once
 
 #include "stringutils.h"
-#include "utility/string.h"
 
 namespace Hash
 {

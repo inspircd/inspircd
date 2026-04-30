@@ -31,8 +31,6 @@
 #include "inspircd.h"
 #include "clientprotocolevent.h"
 #include "modules/hash.h"
-#include "utility/container.h"
-#include "utility/string.h"
 #include "xline.h"
 
 ClientProtocol::MessageList LocalUser::sendmsglist;

@@ -40,7 +40,7 @@
 #include "iohook.h"
 #include "modules/httpd.h"
 #include "stringutils.h"
-#include "utility/string.h"
+#include "utility/container.h"
 
 #ifdef __GNUC__
 # pragma GCC diagnostic push

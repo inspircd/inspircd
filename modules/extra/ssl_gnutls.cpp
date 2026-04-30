@@ -48,7 +48,6 @@
 #include "modules/tls.h"
 #include "stringutils.h"
 #include "timeutils.h"
-#include "utility/string.h"
 
 #include <gnutls/gnutls.h>
 #include <gnutls/abstract.h>

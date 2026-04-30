@@ -37,7 +37,6 @@
 
 #include "inspircd.h"
 #include "timeutils.h"
-#include "utility/string.h"
 #include "xline.h"
 
 void InspIRCd::StripColor(std::string& line)

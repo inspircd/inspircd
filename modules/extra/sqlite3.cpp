@@ -35,7 +35,6 @@
 
 #include "inspircd.h"
 #include "modules/sql.h"
-#include "utility/string.h"
 
 #include <sqlite3.h>
 

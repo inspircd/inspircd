@@ -30,7 +30,6 @@
 
 #include "inspircd.h"
 #include "stringutils.h"
-#include "utility/string.h"
 
 namespace
 {

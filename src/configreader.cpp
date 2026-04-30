@@ -36,7 +36,7 @@
 #include "inspircd.h"
 #include "configparser.h"
 #include "stringutils.h"
-#include "utility/string.h"
+#include "utility/container.h"
 
 ServerConfig::ReadResult::ReadResult(const std::string& c, const std::string& e)
 	: contents(c)

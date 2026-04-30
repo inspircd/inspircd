@@ -27,7 +27,7 @@
 #include "listmode.h"
 #include "numericbuilder.h"
 #include "timeutils.h"
-#include "utility/string.h"
+#include "utility/container.h"
 
 enum
 {

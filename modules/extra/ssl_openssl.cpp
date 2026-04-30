@@ -44,7 +44,6 @@
 #include "modules/tls.h"
 #include "stringutils.h"
 #include "timeutils.h"
-#include "utility/string.h"
 
 #define OPENSSL_API_COMPAT 30000
 #define OPENSSL_NO_DEPRECATED

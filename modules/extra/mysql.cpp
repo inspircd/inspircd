@@ -40,7 +40,6 @@
 #include "inspircd.h"
 #include "modules/sql.h"
 #include "threadsocket.h"
-#include "utility/string.h"
 
 /* VERSION 3 API: With nonblocking (threaded) requests */
 

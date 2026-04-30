@@ -38,7 +38,6 @@
 #include "inspircd.h"
 #include "modules/ldap.h"
 #include "threadsocket.h"
-#include "utility/string.h"
 
 #if defined LDAP_API_FEATURE_X_OPENLDAP_REENTRANT && !LDAP_API_FEATURE_X_OPENLDAP_REENTRANT
 # error InspIRCd requires OpenLDAP to be built as reentrant.

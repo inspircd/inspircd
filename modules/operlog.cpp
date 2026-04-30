@@ -23,7 +23,7 @@
 
 #include "inspircd.h"
 #include "modules/isupport.h"
-#include "utility/string.h"
+#include "utility/container.h"
 
 class ModuleOperLog final
 	: public Module

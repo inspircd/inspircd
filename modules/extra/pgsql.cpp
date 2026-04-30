@@ -45,7 +45,6 @@
 
 #include "inspircd.h"
 #include "modules/sql.h"
-#include "utility/string.h"
 
 /* SQLConn rewritten by peavey to
  * use EventHandler instead of

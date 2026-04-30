@@ -29,7 +29,7 @@
 
 #include "inspircd.h"
 #include "stringutils.h"
-#include "utility/string.h"
+#include "utility/container.h"
 
 std::string Percent::Encode(const void* data, size_t length, const char* table, bool upper)
 {

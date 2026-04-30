@@ -30,7 +30,7 @@
 #include "inspircd.h"
 #include "modules/cap.h"
 #include "modules/stats.h"
-#include "utility/string.h"
+#include "utility/container.h"
 #include "xline.h"
 
 #ifdef _WIN32
