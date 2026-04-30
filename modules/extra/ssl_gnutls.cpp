@@ -1107,7 +1107,7 @@ class ModuleSSLGnuTLS final
 
 		for (const auto& [_, tag] : tags)
 		{
-			if (!insp::equalsci(tag->getString("provider", "gnutls", 1), "gnutls"))
+			if (!insp::ascii_equals(tag->getString("provider", "gnutls", 1), "gnutls"))
 			{
 				ServerInstance->Logs.Debug(MODNAME, "Ignoring non-GnuTLS <sslprofile> tag at {}", tag->source.str());
 				continue;

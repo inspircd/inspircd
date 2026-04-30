@@ -681,43 +681,43 @@ std::vector<std::string> ServerConfig::GetModules() const
 		}
 
 		// Rewrite the old names of renamed modules.
-		if (insp::equalsci(shortname, "argon2"))
+		if (insp::ascii_equals(shortname, "argon2"))
 			modules.push_back("hash_argon2");
-		else if (insp::equalsci(shortname, "banredirect"))
+		else if (insp::ascii_equals(shortname, "banredirect"))
 			modules.push_back("redirect");
-		else if (insp::equalsci(shortname, "bcrypt"))
+		else if (insp::ascii_equals(shortname, "bcrypt"))
 			modules.push_back("hash_bcrypt");
-		else if (insp::equalsci(shortname, "chghost"))
+		else if (insp::ascii_equals(shortname, "chghost"))
 			modules.push_back("sethost");
-		else if (insp::equalsci(shortname, "chgident"))
+		else if (insp::ascii_equals(shortname, "chgident"))
 			modules.push_back("setident");
-		else if (insp::equalsci(shortname, "chgname"))
+		else if (insp::ascii_equals(shortname, "chgname"))
 			modules.push_back("setname");
-		else if (insp::equalsci(shortname, "password_hash"))
+		else if (insp::ascii_equals(shortname, "password_hash"))
 			modules.push_back("mkpasswd");
-		else if (insp::equalsci(shortname, "pbkdf2"))
+		else if (insp::ascii_equals(shortname, "pbkdf2"))
 			modules.push_back("hash_pbkdf2");
-		else if (insp::equalsci(shortname, "sha1"))
+		else if (insp::ascii_equals(shortname, "sha1"))
 			modules.push_back("hash_sha1");
-		else if (insp::equalsci(shortname, "sha2"))
+		else if (insp::ascii_equals(shortname, "sha2"))
 			modules.push_back("hash_sha2");
-		else if (insp::equalsci(shortname, "sajoin"))
+		else if (insp::ascii_equals(shortname, "sajoin"))
 			modules.push_back("sacommands");
-		else if (insp::equalsci(shortname, "sakick"))
+		else if (insp::ascii_equals(shortname, "sakick"))
 			modules.push_back("sacommands");
-		else if (insp::equalsci(shortname, "samode"))
+		else if (insp::ascii_equals(shortname, "samode"))
 			modules.push_back("sacommands");
-		else if (insp::equalsci(shortname, "sanick"))
+		else if (insp::ascii_equals(shortname, "sanick"))
 			modules.push_back("sacommands");
-		else if (insp::equalsci(shortname, "sapart"))
+		else if (insp::ascii_equals(shortname, "sapart"))
 			modules.push_back("sacommands");
-		else if (insp::equalsci(shortname, "saquit"))
+		else if (insp::ascii_equals(shortname, "saquit"))
 			modules.push_back("sacommands");
-		else if (insp::equalsci(shortname, "satopic"))
+		else if (insp::ascii_equals(shortname, "satopic"))
 			modules.push_back("sacommands");
-		else if (insp::equalsci(shortname, "sslrehashsignal"))
+		else if (insp::ascii_equals(shortname, "sslrehashsignal"))
 			modules.push_back("rehashsignal");
-		else if (insp::equalsci(shortname, "swhois_ext"))
+		else if (insp::ascii_equals(shortname, "swhois_ext"))
 			modules.push_back("swhois");
 		else
 		{

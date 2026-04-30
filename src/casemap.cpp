@@ -161,28 +161,34 @@ static uint32_t MurmurHash2A(const void * key, int len, uint32_t seed)
 #endif
 
 
-bool insp::casemapped_equals(const std::string_view& str1, const std::string_view& str2)
+bool insp::casemapped_equals(const std::string_view& str1, const std::string_view& str2, const insp::casemap* map)
 {
 	if (str1.length() != str2.length())
 		return false;
+
+	if (!map) [[likely]]
+		map = national_case_insensitive_map;
 
 	for (size_t idx = 0; idx < str1.length(); ++idx)
 	{
 		const auto chr1 = static_cast<unsigned char>(str1[idx]);
 		const auto chr2 = static_cast<unsigned char>(str2[idx]);
-		if (national_case_insensitive_map[chr1] != national_case_insensitive_map[chr2])
+		if (map[chr1] != map[chr2])
 			return false;
 	}
 	return true;
 }
 
-bool insp::casemapped_less(const std::string_view& str1, const std::string_view& str2)
+bool insp::casemapped_less(const std::string_view& str1, const std::string_view& str2, const insp::casemap* map)
 {
+	if (!map) [[likely]]
+		map = national_case_insensitive_map;
+
 	const auto maxsize = std::min(str1.length(), str2.length());
 	for (size_t idx = 0; idx < maxsize; ++idx)
 	{
-		const auto chr1 = national_case_insensitive_map[static_cast<unsigned char>(str1[idx])];
-		const auto chr2 = national_case_insensitive_map[static_cast<unsigned char>(str2[idx])];
+		const auto chr1 = map[static_cast<unsigned char>(str1[idx])];
+		const auto chr2 = map[static_cast<unsigned char>(str2[idx])];
 		if (chr1 > chr2)
 			return false;
 		else if (chr1 < chr2)

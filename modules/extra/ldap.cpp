@@ -259,12 +259,12 @@ private:
 		if (urlComponents.dwSchemeLength > 0)
 		{
 			const std::string scheme(urlComponents.lpszScheme);
-			if (insp::equalsci(scheme, "ldaps"))
+			if (insp::ascii_equals(scheme, "ldaps"))
 			{
 				port = 636; // Default encrypted port.
 				secure = true;
 			}
-			else if (!insp::equalsci(scheme, "ldap"))
+			else if (!insp::ascii_equals(scheme, "ldap"))
 				return LDAP_CONNECT_ERROR; // Invalid protocol.
 		}
 
@@ -369,9 +369,9 @@ public:
 		, config(tag)
 	{
 		std::string scope = config->getString("searchscope");
-		if (insp::equalsci(scope, "base"))
+		if (insp::ascii_equals(scope, "base"))
 			searchscope = LDAP_SCOPE_BASE;
-		else if (insp::equalsci(scope, "onelevel"))
+		else if (insp::ascii_equals(scope, "onelevel"))
 			searchscope = LDAP_SCOPE_ONELEVEL;
 		else
 			searchscope = LDAP_SCOPE_SUBTREE;
@@ -628,7 +628,7 @@ public:
 
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("database"))
 		{
-			if (!insp::equalsci(tag->getString("module"), "ldap"))
+			if (!insp::ascii_equals(tag->getString("module"), "ldap"))
 				continue;
 
 			std::string id = tag->getString("id");

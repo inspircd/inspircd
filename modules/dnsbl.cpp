@@ -546,7 +546,7 @@ public:
 			const auto dnsblname = tag->getString("name");
 			auto dnsbl = std::find_if(newdnsbls.begin(), newdnsbls.end(), [&dnsblname](const auto& d)
 			{
-				return insp::equalsci(d->name, dnsblname);
+				return insp::ascii_equals(d->name, dnsblname);
 			});
 			if (dnsbl == newdnsbls.end())
 				throw ModuleException(weak_from_this(), "<dnsblreply:name> must be set to the name of a DNSBL at " + tag->source.str());

@@ -207,7 +207,7 @@ public:
 
 	ModResult OnAcceptConnection(int nfd, ListenSocket* from, const irc::sockets::sockaddrs& client, const irc::sockets::sockaddrs& server) override
 	{
-		if (!insp::equalsci(from->bind_tag->getString("type", "clients", 1), "clients"))
+		if (!insp::ascii_equals(from->bind_tag->getString("type", "clients", 1), "clients"))
 			return MOD_RES_PASSTHRU;
 
 		ServerInstance->Logs.Debug("USERS", "New user fd: {}", nfd);

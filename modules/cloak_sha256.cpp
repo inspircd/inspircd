@@ -325,7 +325,7 @@ public:
 		if (cloakhost && !psldb.empty())
 		{
 #ifdef HAS_LIBPSL
-			if (insp::equalsci(psldb, "system"))
+			if (insp::ascii_equals(psldb, "system"))
 			{
 				psldb = psl_dist_filename();
 				if (psldb.empty())

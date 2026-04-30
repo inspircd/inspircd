@@ -503,7 +503,7 @@ void ModuleSQL::ReadConfig(ConfigStatus& status)
 
 	for (const auto& [_, tag] : ServerInstance->Config->ConfTags("database"))
 	{
-		if (!insp::equalsci(tag->getString("module"), "mysql"))
+		if (!insp::ascii_equals(tag->getString("module"), "mysql"))
 			continue;
 
 		std::string id = tag->getString("id");

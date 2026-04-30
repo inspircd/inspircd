@@ -149,7 +149,7 @@ public:
 			return def;
 
 		for (const auto& [enumkey, enumval] : enumvals)
-			if (strcasecmp(val.c_str(), enumkey) == 0)
+			if (insp::ascii_equals(val, enumkey))
 				return enumval;
 
 		// Unfortunately we have to iterate this twice.

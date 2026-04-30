@@ -79,16 +79,16 @@ public:
 
 			while (sep.GetToken(type))
 			{
-				if (insp::equalsci(type, "password"))
+				if (insp::ascii_equals(type, "password"))
 				{
 					username = c->getString("username");
 					password = c->getString("password");
 				}
-				else if (insp::equalsci(type, "whitelist"))
+				else if (insp::ascii_equals(type, "whitelist"))
 				{
 					whitelist = c->getString("whitelist");
 				}
-				else if (insp::equalsci(type, "blacklist"))
+				else if (insp::ascii_equals(type, "blacklist"))
 				{
 					blacklist = c->getString("blacklist");
 				}

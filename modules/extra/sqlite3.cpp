@@ -270,7 +270,7 @@ public:
 
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("database"))
 		{
-			if (!insp::equalsci(tag->getString("module"), "sqlite"))
+			if (!insp::ascii_equals(tag->getString("module"), "sqlite"))
 				continue;
 
 			auto* conn = new SQLConn(weak_from_this(), tag);

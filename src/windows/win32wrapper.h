@@ -41,10 +41,6 @@
 #include <ws2tcpip.h>
 #include <io.h>
 
-/* strcasecmp is not defined on windows by default */
-#define strcasecmp _stricmp
-#define strncasecmp _strnicmp
-
 using ssize_t = SSIZE_T;
 
 // warning: 'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'

@@ -994,7 +994,7 @@ ConnectClass::ConnectClass(const std::shared_ptr<ConfigTag>& tag, Type t, const 
 	for (const auto& [key, value] : parent->config->GetItems())
 	{
 		// The class name and parent name are not inherited
-		if (insp::equalsci(key, "name") || insp::equalsci(key, "parent"))
+		if (insp::ascii_equals(key, "name") || insp::ascii_equals(key, "parent"))
 			continue;
 
 		// Store the item in the config tag. If this item also
@@ -1015,7 +1015,7 @@ void ConnectClass::Configure(const std::string& classname, const std::shared_ptr
 
 	password = tag->getString("password", password);
 	passwordhash = tag->getString("hash", passwordhash);
-	if (!password.empty() && (passwordhash.empty() || insp::equalsci(passwordhash, "plaintext")))
+	if (!password.empty() && (passwordhash.empty() || insp::ascii_equals(passwordhash, "plaintext")))
 	{
 		ServerInstance->Logs.Normal("CONNECTCLASS", "<connect> tag '{}' at {} contains an plain text password, this is insecure!",
 			name, tag->source.str());
@@ -1185,16 +1185,16 @@ void OperType::MergeTag(const std::shared_ptr<ConfigTag>& tag)
 {
 	for (const auto& [key, value] : tag->GetItems())
 	{
-		if (insp::equalsci(key, "name") || insp::equalsci(key, "type")
-			|| insp::equalsci(key, "classes"))
+		if (insp::ascii_equals(key, "name") || insp::ascii_equals(key, "type")
+			|| insp::ascii_equals(key, "classes"))
 		{
 			// These are meta keys for linking the oper/type/class tags.
 			continue;
 		}
 
-		if (insp::equalsci(key, "commands") || insp::equalsci(key, "privs")
-			|| insp::equalsci(key, "chanmodes") || insp::equalsci(key, "usermodes")
-			|| insp::equalsci(key, "snomasks"))
+		if (insp::ascii_equals(key, "commands") || insp::ascii_equals(key, "privs")
+			|| insp::ascii_equals(key, "chanmodes") || insp::ascii_equals(key, "usermodes")
+			|| insp::ascii_equals(key, "snomasks"))
 		{
 			// These have already been parsed into the object.
 			continue;

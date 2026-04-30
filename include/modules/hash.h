@@ -275,7 +275,7 @@ inline bool Hash::CheckPassword(const std::string& password, const std::string& 
 
 	// The hash algorithm wasn't provided by any modules. If its plain
 	// text then we can check it internally.
-	if (algorithm.empty() || insp::equalsci(algorithm, "plaintext"))
+	if (algorithm.empty() || insp::ascii_equals(algorithm, "plaintext"))
 		return InspIRCd::TimingSafeCompare(password, value);
 
 	ServerInstance->Logs.Debug("HASH", "Unable to check password hashed with an unknown algorithm: {}", algorithm);

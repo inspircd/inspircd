@@ -94,7 +94,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 		if (!address.empty() || !portlist.empty())
 		{
 			// InspIRCd supports IPv4 and IPv6 natively; no 4in6 required.
-			if (strncasecmp(address.c_str(), "::ffff:", 7) == 0)
+			if (insp::ascii_equals({address.c_str(), 7}, "::ffff:"))
 				this->Logs.Warning("SOCKET", "Using 4in6 (::ffff:) isn't recommended. You should bind IPv4 addresses directly instead.");
 
 			// Try to parse the bind address.
@@ -133,7 +133,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 				StringSplitter protostream(tag->getString("protocols", "all", 1));
 				for (std::string protocol; protostream.GetToken(protocol); )
 				{
-					if (insp::equalsci(protocol, "all"))
+					if (insp::ascii_equals(protocol, "all"))
 					{
 						protocols.push_back(0); // IPPROTO_TCP
 #ifdef IPPROTO_SCTP
@@ -141,7 +141,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 							protocols.push_back(IPPROTO_SCTP);
 #endif
 					}
-					else if (insp::equalsci(protocol, "sctp"))
+					else if (insp::ascii_equals(protocol, "sctp"))
 					{
 #ifdef IPPROTO_SCTP
 						protocols.push_back(IPPROTO_SCTP);
@@ -149,7 +149,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 						failed_ports.emplace_back("Platform does not support SCTP", tag);
 #endif
 					}
-					else if (insp::equalsci(protocol, "tcp"))
+					else if (insp::ascii_equals(protocol, "tcp"))
 					{
 						protocols.push_back(0); // IPPROTO_TCP
 					}

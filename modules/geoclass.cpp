@@ -61,7 +61,7 @@ public:
 
 			// If the user matches this country code then they can use this
 			// connect class.
-			if (insp::equalsci(token, code))
+			if (insp::ascii_equals(token, code))
 				return MOD_RES_PASSTHRU;
 		}
 

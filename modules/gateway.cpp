@@ -392,13 +392,13 @@ public:
 
 			// Determine what lookup type this host uses.
 			const std::string type = tag->getString("type");
-			if (insp::equalsci(type, "username") || insp::equalsci(type, "ident"))
+			if (insp::ascii_equals(type, "username") || insp::ascii_equals(type, "ident"))
 			{
 				// The IP address should be looked up from the hex IP address.
 				const std::string newuser = tag->getString("newusername", "gateway", ServerInstance->Users.IsUser);
 				userhosts.emplace_back(masks, newuser);
 			}
-			else if (insp::equalsci(type, "webirc"))
+			else if (insp::ascii_equals(type, "webirc"))
 			{
 				// The IP address will be received via the WEBIRC command.
 				const std::string fingerprint = tag->getString("fingerprint");
@@ -410,7 +410,7 @@ public:
 				if (fingerprint.empty() && password.empty())
 					throw ModuleException(weak_from_this(), "When using <" + tag->name + " type=\"webirc\"> either the fingerprint or password field is required, at " + tag->source.str());
 
-				if (!password.empty() && insp::equalsci(passwordhash, "plaintext"))
+				if (!password.empty() && insp::ascii_equals(passwordhash, "plaintext"))
 				{
 					ServerInstance->Logs.Normal(MODNAME, "<{}> tag at {} contains an plain text password, this is insecure!",
 						tag->name, tag->source.str());

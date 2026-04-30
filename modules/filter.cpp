@@ -841,21 +841,21 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string& freeform
 
 bool ModuleFilter::StringToFilterAction(const std::string& str, FilterAction& fa)
 {
-	if (insp::equalsci(str, "gline"))
+	if (insp::ascii_equals(str, "gline"))
 		fa = FA_GLINE;
-	else if (insp::equalsci(str, "zline"))
+	else if (insp::ascii_equals(str, "zline"))
 		fa = FA_ZLINE;
-	else if (insp::equalsci(str, "warn"))
+	else if (insp::ascii_equals(str, "warn"))
 		fa = FA_WARN;
-	else if (insp::equalsci(str, "block"))
+	else if (insp::ascii_equals(str, "block"))
 		fa = FA_BLOCK;
-	else if (insp::equalsci(str, "silent"))
+	else if (insp::ascii_equals(str, "silent"))
 		fa = FA_SILENT;
-	else if (insp::equalsci(str, "kill"))
+	else if (insp::ascii_equals(str, "kill"))
 		fa = FA_KILL;
-	else if (insp::equalsci(str, "shun") && (ServerInstance->XLines->GetFactory("SHUN")))
+	else if (insp::ascii_equals(str, "shun") && (ServerInstance->XLines->GetFactory("SHUN")))
 		fa = FA_SHUN;
-	else if (insp::equalsci(str, "none"))
+	else if (insp::ascii_equals(str, "none"))
 		fa = FA_NONE;
 	else
 		return false;

@@ -402,9 +402,9 @@ namespace Stats
 		bool desc = params.getBool("desc", false);
 
 		OrderBy orderby;
-		if (insp::equalsci(sortmethod, "nick"))
+		if (insp::ascii_equals(sortmethod, "nick"))
 			orderby = OB_NICK;
-		else if (insp::equalsci(sortmethod, "lastmsg"))
+		else if (insp::ascii_equals(sortmethod, "lastmsg"))
 		{
 			orderby = OB_LASTMSG;
 			// We can only check idle times on local users

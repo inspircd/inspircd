@@ -275,21 +275,21 @@ struct Parser final
 			mandatory_tag.clear();
 		}
 
-		if (insp::equalsci(name, "include"))
+		if (insp::ascii_equals(name, "include"))
 		{
 			stack.DoInclude(tag, flags);
 		}
-		else if (insp::equalsci(name, "files"))
+		else if (insp::ascii_equals(name, "files"))
 		{
 			for (const auto& [key, value] : tag->GetItems())
 				stack.DoReadFile(key, value, flags, false);
 		}
-		else if (insp::equalsci(name, "execfiles"))
+		else if (insp::ascii_equals(name, "execfiles"))
 		{
 			for (const auto& [key, value] : tag->GetItems())
 				stack.DoReadFile(key, value, flags, true);
 		}
-		else if (insp::equalsci(name, "define"))
+		else if (insp::ascii_equals(name, "define"))
 		{
 			const std::string varname = tag->getString("name");
 			if (varname.empty())
@@ -559,7 +559,7 @@ bool ConfigTag::readString(const std::string& key, std::string& value, bool allo
 {
 	for (const auto& [ikey, ivalue] : items)
 	{
-		if (!insp::equalsci(ikey, key))
+		if (!insp::ascii_equals(ikey, key))
 			continue;
 
 		value = ivalue;
@@ -735,10 +735,10 @@ bool ConfigTag::getBool(const std::string& key, bool def) const
 	if(!readString(key, result) || result.empty())
 		return def;
 
-	if (insp::equalsci(result, "yes") || insp::equalsci(result, "true") || insp::equalsci(result, "on"))
+	if (insp::ascii_equals(result, "yes") || insp::ascii_equals(result, "true") || insp::ascii_equals(result, "on"))
 		return true;
 
-	if (insp::equalsci(result, "no") || insp::equalsci(result, "false") || insp::equalsci(result, "off"))
+	if (insp::ascii_equals(result, "no") || insp::ascii_equals(result, "false") || insp::ascii_equals(result, "off"))
 		return false;
 
 	LogMalformed(key, result, def ? "yes" : "no", "is not a boolean");

@@ -56,20 +56,20 @@ namespace insp
 	using casemapped_unordered_map = std::unordered_map<Key, Value, casemapped_hash_obj<Key>, casemapped_equals_obj<Key, Key>>;
 
 	/** Determines if \p str1 and \p str2 are equivalent when compared case insensitively using the
-	 * configured IRC casemapping.
+	 * specified IRC casemapping.
 	 * @param str1 The first string to compare.
 	 * @param str2 The second string to compare.
 	 * @return True if \p str1 and \p str2 are equivalent; otherwise, false.
 	 */
-	CoreExport bool casemapped_equals(const std::string_view& str1, const std::string_view& str2);
+	CoreExport bool casemapped_equals(const std::string_view& str1, const std::string_view& str2, const casemap* map = nullptr);
 
 	/** Determines if \p str1 is lexographically less than \p str2 when compared insensitively using
-	 * the configured IRC casemapping.
+	 * the specified IRC casemapping.
 	 * @param str1 The first string to compare.
 	 * @param str2 The second string to compare.
 	 * @return True if \p str1 is ranked lower than \p str2; otherwise, false.
 	 */
-	CoreExport bool casemapped_less(const std::string_view& str1, const std::string_view& str2);
+	CoreExport bool casemapped_less(const std::string_view& str1, const std::string_view& str2, const casemap* map = nullptr);
 
 	/** Determines the unique hash of \p str for use in a hash map when hashed insensitively using
 	 * the configured IRC casemapping.
@@ -84,6 +84,31 @@ extern CoreExport const insp::casemap ascii_case_insensitive_map[256];
 
 /** The currently configured casemapping. This defaults to \ref ascii_case_insensitive_map. */
 extern CoreExport const insp::casemap* national_case_insensitive_map;
+
+namespace insp
+{
+	/** Determines if \p str1 and \p str2 are equivalent when compared case insensitively using
+	 * ASCII casemapping.
+	 * @param str1 The first string to compare.
+	 * @param str2 The second string to compare.
+	 * @return True if \p str1 and \p str2 are equivalent; otherwise, false.
+	 */
+	inline bool ascii_equals(const std::string_view& str1, const std::string_view& str2)
+	{
+		return casemapped_equals(str1, str2, ascii_case_insensitive_map);
+	}
+
+	/** Determines if \p str1 is lexographically less than \p str2 when compared insensitively using
+	 * ASCII casemapping.
+	 * @param str1 The first string to compare.
+	 * @param str2 The second string to compare.
+	 * @return True if \p str1 is ranked lower than \p str2; otherwise, false.
+	 */
+	inline bool ascii_less(const std::string_view& str1, const std::string_view& str2)
+	{
+		return casemapped_less(str1, str2, ascii_case_insensitive_map);
+	}
+}
 
 /** IRC casemapping variant of \p std::equal_to<String>. */
 template<typename String1, typename String2>

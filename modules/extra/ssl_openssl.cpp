@@ -185,11 +185,11 @@ namespace OpenSSL
 
 			/* Set CRL mode */
 			unsigned long crlflags = X509_V_FLAG_CRL_CHECK;
-			if (insp::equalsci(crlmode, "chain"))
+			if (insp::ascii_equals(crlmode, "chain"))
 			{
 				crlflags |= X509_V_FLAG_CRL_CHECK_ALL;
 			}
-			else if (!insp::equalsci(crlmode, "leaf"))
+			else if (!insp::ascii_equals(crlmode, "leaf"))
 			{
 				throw ModuleException(thismod, "Unknown mode '" + crlmode + "'; expected either 'chain' (default) or 'leaf'");
 			}
@@ -986,7 +986,7 @@ class ModuleSSLOpenSSL final
 
 		for (const auto& [_, tag] : tags)
 		{
-			if (!insp::equalsci(tag->getString("provider", "openssl", 1), "openssl"))
+			if (!insp::ascii_equals(tag->getString("provider", "openssl", 1), "openssl"))
 			{
 				ServerInstance->Logs.Debug(MODNAME, "Ignoring non-OpenSSL <sslprofile> tag at {}", tag->source.str());
 				continue;

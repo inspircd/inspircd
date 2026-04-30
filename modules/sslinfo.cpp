@@ -564,7 +564,7 @@ public:
 		const auto* cert = cmd.tlsapi.GetCertificate(user);
 		const char* error = nullptr;
 		const std::string requiressl = klass->config->getString("requiressl");
-		if (insp::equalsci(requiressl, "trusted"))
+		if (insp::ascii_equals(requiressl, "trusted"))
 		{
 			if (!cert || !cert->IsUsable(true))
 				error = "a trusted TLS client certificate";

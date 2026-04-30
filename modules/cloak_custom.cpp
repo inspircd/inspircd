@@ -90,7 +90,7 @@ public:
 		, passwordhash(tag->getString("hash", "plaintext", 1))
 		, cloak(c)
 	{
-		if (insp::equalsci(passwordhash, "plaintext"))
+		if (insp::ascii_equals(passwordhash, "plaintext"))
 		{
 			ServerInstance->Logs.Warning(MODNAME, "<customcloak> tag at {} contains an plain text password, this is insecure!",
 				tag->source.str());

@@ -612,7 +612,7 @@ public:
 
 		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("database"))
 		{
-			if (!insp::equalsci(tag->getString("module"), "pgsql"))
+			if (!insp::ascii_equals(tag->getString("module"), "pgsql"))
 				continue;
 
 			std::string id = tag->getString("id");

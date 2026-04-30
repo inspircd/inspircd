@@ -516,11 +516,11 @@ class WebSocketHook final
 			{
 				std::erase_if(proto, ::isspace);
 
-				auto is_binary = (sock->type == StreamSocket::SS_USER && insp::equalsci(proto, "binary.ircv3.net"))
-					|| insp::equalsci(proto, "binary.inspircd.org");
+				auto is_binary = (sock->type == StreamSocket::SS_USER && insp::ascii_equals(proto, "binary.ircv3.net"))
+					|| insp::ascii_equals(proto, "binary.inspircd.org");
 
-				auto is_text = (sock->type == StreamSocket::SS_USER && insp::equalsci(proto, "text.ircv3.net"))
-					|| insp::equalsci(proto, "text.inspircd.org");
+				auto is_text = (sock->type == StreamSocket::SS_USER && insp::ascii_equals(proto, "text.ircv3.net"))
+					|| insp::ascii_equals(proto, "text.inspircd.org");
 
 				if (is_binary || is_text)
 				{
@@ -729,11 +729,11 @@ public:
 		const auto& tag = ServerInstance->Config->ConfValue("websocket");
 
 		const std::string defaultmodestr = tag->getString("defaultmode", config.allowtext ? "text" : "binary", 1);
-		if (insp::equalsci(defaultmodestr, "reject"))
+		if (insp::ascii_equals(defaultmodestr, "reject"))
 			config.defaultmode = WebSocketConfig::DM_REJECT;
-		else if (insp::equalsci(defaultmodestr, "binary"))
+		else if (insp::ascii_equals(defaultmodestr, "binary"))
 			config.defaultmode = WebSocketConfig::DM_BINARY;
-		else if (insp::equalsci(defaultmodestr, "text"))
+		else if (insp::ascii_equals(defaultmodestr, "text"))
 			config.defaultmode = WebSocketConfig::DM_TEXT;
 		else
 			throw ModuleException(weak_from_this(), defaultmodestr + " is an invalid value for <websocket:defaultmode>; acceptable values are 'binary', 'text' and 'reject', at " + tag->source.str());

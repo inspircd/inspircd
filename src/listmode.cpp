@@ -74,7 +74,7 @@ void ListModeBase::DoRehash()
 	for (const auto& [_, c] : ServerInstance->Config->ConfTags("maxlist"))
 	{
 		const std::string mname = c->getString("mode");
-		if (!mname.empty() && !insp::equalsci(mname, this->service_name) && !(mname.length() == 1 && GetModeChar() == mname[0]))
+		if (!mname.empty() && !insp::ascii_equals(mname, this->service_name) && !(mname.length() == 1 && GetModeChar() == mname[0]))
 			continue;
 
 		ListLimit limit(c->getString("chan", "*", 1), c->getNum<size_t>("limit", DEFAULT_LIST_SIZE));
