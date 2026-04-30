@@ -25,21 +25,8 @@ use warnings FATAL => qw(all);
 use Cwd        qw(getcwd);
 use File::Temp ();
 
-# IMPORTANT: This script has to be able to run by itself so that it can be used
-#            by binary distributions where the make/console.pm module will not
-#            be available!
-eval {
-	use File::Basename qw(dirname);
-	use FindBin        qw($RealDir);
-
-	use lib dirname $RealDir;
-	require make::console;
-	make::console->import();
-};
-
 sub prompt($$) {
 	my ($question, $default) = @_;
-	return prompt_string(1, $question, $default) if defined main->can('prompt_string');
 	say $question;
 	print "[$default] => ";
 	chomp(my $answer = <STDIN>);

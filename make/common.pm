@@ -26,16 +26,14 @@ use warnings FATAL => qw(all);
 use Exporter              qw(import);
 use File::Basename        qw(basename);
 use File::Path            qw(mkpath);
-use File::Spec::Functions qw(rel2abs);
 
 use make::console;
 
-our @EXPORT = qw(create_directory
-                 execute
-                 get_version
-                 module_shrink
-                 read_config_file
-                 write_config_file);
+our @EXPORT = qw(
+	create_directory
+	execute
+	get_version
+);
 
 sub create_directory($$) {
 	my ($location, $permissions) = @_;
@@ -53,12 +51,6 @@ sub execute(@) {
 sub get_version {
 	state %version;
 	return %version if %version;
-
-	# Attempt to retrieve version information from src/version.sh
-	chomp(my $vf = `sh src/version.sh 2>/dev/null`);
-	if ($vf =~ /^InspIRCd-([0-9]+)\.([0-9]+)\.([0-9]+)(?:-(\w+))?$/) {
-		%version = ( MAJOR => $1, MINOR => $2, PATCH => $3, LABEL => $4 );
-	}
 
 	# Attempt to retrieve missing version information from Git
 	chomp(my $gr = `git describe --tags 2>/dev/null`);
@@ -91,35 +83,6 @@ sub get_version {
 	}
 
 	return %version;
-}
-
-sub module_shrink($) {
-	my $module = shift;
-	return basename($module,  '.cpp');
-}
-
-sub read_config_file($) {
-	my $path = shift;
-	my %config;
-	open(my $fh, $path) or return %config;
-	while (my $line = <$fh>) {
-		next if $line =~ /^\s*($|\#)/;
-		my ($key, $value) = ($line =~ /^(\S+)(?:\s(.*))?$/);
-		$config{$key} = $value;
-	}
-	close $fh;
-	return %config;
-}
-
-sub write_config_file($%) {
-	my $path = shift;
-	my %config = @_;
-	open(my $fh, '>', $path) or print_error "unable to write to $path: $!";
-	while (my ($key, $value) = each %config) {
-		$value //= '';
-		say $fh "$key $value";
-	}
-	close $fh;
 }
 
 1;
