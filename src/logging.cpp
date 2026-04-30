@@ -200,12 +200,12 @@ void Log::Manager::CloseLogs()
 	logging = false;
 }
 
-void Log::Manager::EnableDebugMode()
+void Log::Manager::EnableDebugMode(bool rawio)
 {
 	TokenList types = std::string("*");
 	MethodPtr method = std::make_shared<DebugLogMethod>();
 
-	if (ServerInstance->Config->CommandLine.forceprotodebug)
+	if (rawio)
 	{
 		// If we are doing a protocol debug we need to warn users.
 		loggers.emplace_back(Level::RAWIO, std::move(types), std::move(method), false, &stdoutlog);
@@ -220,16 +220,16 @@ void Log::Manager::EnableDebugMode()
 void Log::Manager::OpenLogs(bool requiremethods)
 {
 	// If the server is started in debug mode we don't write logs.
-	if (ServerInstance->Config->CommandLine.forcedebug)
+	if (ServerInstance->CommandLine.forcedebug)
 	{
-		const auto* option = ServerInstance->Config->CommandLine.forceprotodebug ? "--protocoldebug" : "--debug";
+		const auto* option = ServerInstance->CommandLine.forceprotodebug ? "--protocoldebug" : "--debug";
 		Normal("LOG", "Not opening loggers because we were started with {}", option);
 		CheckLevel();
 		return;
 	}
 
 	// If the server is started with logging disabled we don't write logs.
-	if (!ServerInstance->Config->CommandLine.writelog)
+	if (!ServerInstance->CommandLine.writelog)
 	{
 		Normal("LOG", "Not opening loggers because we were started with --nolog");
 		CheckLevel();

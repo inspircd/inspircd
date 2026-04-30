@@ -185,6 +185,9 @@ public:
 	/** Manager for state relating to channels. */
 	ChannelManager Channels;
 
+	/** The configuration read from the command line. */
+	CommandLineConf CommandLine;
+
 	/** Default implementation of the protocol interface which does nothing. */
 	ProtocolInterface DefaultProtocolInterface;
 

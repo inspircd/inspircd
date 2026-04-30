@@ -278,8 +278,10 @@ public:
 	/** Closes all loggers which were opened from the config. */
 	void CloseLogs();
 
-	/** Enables writing rawio logs to the standard output stream. */
-	void EnableDebugMode();
+	/** Enables writing logs to the standard output stream.
+	 * @param rawio Whether to write raw I/O logs as well.
+	 */
+	void EnableDebugMode(bool rawio);
 
 	/** Opens loggers that are specified in the config. */
 	void OpenLogs(bool requiremethods);

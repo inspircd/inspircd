@@ -443,7 +443,6 @@ void ServerConfig::Apply(const std::unique_ptr<ServerConfig>& old, const std::st
 		 * These values can only be set on boot. Keep their old values. Do it before we send messages so we actually have a servername.
 		 */
 		this->CaseMapping = old->CaseMapping;
-		this->CommandLine = old->CommandLine;
 		this->ServerId = old->ServerId;
 		this->ServerName = old->ServerName;
 	}

@@ -293,7 +293,7 @@ namespace
 				["-v"]["--version"]
 				("Show version and exit.");
 
-		auto result = cli.parse({ServerInstance->Config->CommandLine.argc, ServerInstance->Config->CommandLine.argv});
+		auto result = cli.parse({ServerInstance->CommandLine.argc, ServerInstance->CommandLine.argv});
 		if (!result)
 		{
 			fmt::println(stderr, "{} {}", fmt::styled("Error:", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), result.message());
@@ -315,12 +315,12 @@ namespace
 		// Store the relevant parsed arguments
 		if (!config.empty())
 			ServerInstance->ConfigFileName = ExpandPath(config.c_str());
-		ServerInstance->Config->CommandLine.forcedebug = do_debug || do_protocoldebug;
-		ServerInstance->Config->CommandLine.forceprotodebug = do_protocoldebug;
-		ServerInstance->Config->CommandLine.nofork = ServerInstance->Config->CommandLine.forcedebug || do_nofork;
-		ServerInstance->Config->CommandLine.runasroot = do_runasroot;
-		ServerInstance->Config->CommandLine.writelog = !do_nolog;
-		ServerInstance->Config->CommandLine.writepid = !do_nopid;
+		ServerInstance->CommandLine.forcedebug = do_debug || do_protocoldebug;
+		ServerInstance->CommandLine.forceprotodebug = do_protocoldebug;
+		ServerInstance->CommandLine.nofork = ServerInstance->CommandLine.forcedebug || do_nofork;
+		ServerInstance->CommandLine.runasroot = do_runasroot;
+		ServerInstance->CommandLine.writelog = !do_nolog;
+		ServerInstance->CommandLine.writepid = !do_nopid;
 	}
 
 	// Sets handlers for various process signals.
@@ -416,7 +416,7 @@ void InspIRCd::Cleanup()
 
 void InspIRCd::WritePID()
 {
-	if (!ServerInstance->Config->CommandLine.writepid)
+	if (!CommandLine.writepid)
 	{
 		this->Logs.Normal("STARTUP", "--nopid specified on command line; PID file not written.");
 		return;
@@ -450,8 +450,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	dynamic_reference_base::reset_all();
 	this->XLines = new XLineManager;
 
-	this->Config->CommandLine.argv = argv;
-	this->Config->CommandLine.argc = argc;
+	this->CommandLine.argv = argv;
+	this->CommandLine.argc = argc;
 	ParseOptions();
 
 	Modules.AddService(
@@ -465,8 +465,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	fmt::println("");
 
 	Logs.RegisterServices();
-	if (Config->CommandLine.forcedebug)
-		Logs.EnableDebugMode();
+	if (CommandLine.forcedebug)
+		Logs.EnableDebugMode(CommandLine.forceprotodebug);
 
 	std::error_code ec;
 	if (!std::filesystem::is_regular_file(ConfigFileName, ec))
@@ -478,9 +478,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 
 	SetSignals();
-	if (!Config->CommandLine.runasroot)
+	if (!CommandLine.runasroot)
 		CheckRoot();
-	if (!Config->CommandLine.nofork)
+	if (!CommandLine.nofork)
 		ForkIntoBackground();
 
 	fmt::println("InspIRCd Process ID: {}", fmt::styled(getpid(), fmt::emphasis::bold | fmt::fg(fmt::terminal_color::green)));
@@ -542,7 +542,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		Config->ServerName, Config->ServerId, SocketEngine::GetMaxFds());
 
 #ifndef _WIN32
-	if (!Config->CommandLine.nofork)
+	if (!CommandLine.nofork)
 	{
 		if (kill(getppid(), SIGTERM) == -1)
 		{
@@ -561,7 +561,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	 *
 	 *    -- nenolod
 	 */
-	if (!Config->CommandLine.nofork)
+	if (!CommandLine.nofork)
 	{
 		int fd = open("/dev/null", O_RDWR);
 
@@ -589,7 +589,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	SetServiceRunning();
 
 	// Handle forking
-	if(!Config->CommandLine.nofork)
+	if(!CommandLine.nofork)
 	{
 		FreeConsole();
 	}

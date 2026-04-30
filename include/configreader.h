@@ -418,9 +418,6 @@ public:
 	/** The connect classes from the server config. */
 	ClassVector Classes;
 
-	/** The configuration read from the command line. */
-	CommandLineConf CommandLine;
-
 	/** An empty configuration tag. */
 	std::shared_ptr<ConfigTag> EmptyTag;
 
