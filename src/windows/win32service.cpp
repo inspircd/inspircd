@@ -95,7 +95,7 @@ VOID ServiceCtrlHandler(DWORD controlCode)
 /** This callback is called by windows when the service is started */
 VOID ServiceMain(DWORD argc, LPCSTR* argv)
 {
-	g_ServiceStatusHandle = RegisterServiceCtrlHandler(TEXT("InspIRCd"), (LPHANDLER_FUNCTION)ServiceCtrlHandler);
+	g_ServiceStatusHandle = RegisterServiceCtrlHandler(TEXT(INSPIRCD_BRANCH), (LPHANDLER_FUNCTION)ServiceCtrlHandler);
 	if( !g_ServiceStatusHandle )
 		return;
 
@@ -176,7 +176,7 @@ void InstallService()
 			throw CWin32Exception();
 		}
 
-		InspServiceHandle = CreateService(SCMHandle, TEXT("InspIRCd"), TEXT("InspIRCd Daemon"), SERVICE_CHANGE_CONFIG, SERVICE_WIN32_OWN_PROCESS,
+		InspServiceHandle = CreateService(SCMHandle, TEXT(INSPIRCD_BRANCH), TEXT("InspIRCd - Internet Relay Chat Daemon"), SERVICE_CHANGE_CONFIG, SERVICE_WIN32_OWN_PROCESS,
 			SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, tszBinaryPath, 0, 0, 0, TEXT("NT AUTHORITY\\NetworkService"), nullptr);
 
 		if (!InspServiceHandle)
@@ -218,7 +218,7 @@ void UninstallService()
 		if (!SCMHandle)
 			throw CWin32Exception();
 
-		InspServiceHandle = OpenService(SCMHandle, TEXT("InspIRCd"), DELETE);
+		InspServiceHandle = OpenService(SCMHandle, TEXT(INSPIRCD_BRANCH), DELETE);
 		if (!InspServiceHandle)
 			throw CWin32Exception();
 
@@ -266,7 +266,7 @@ int main(int argc, char* argv[])
 
 	SERVICE_TABLE_ENTRY serviceTable[] =
 	{
-		{ (LPSTR)"InspIRCd", (LPSERVICE_MAIN_FUNCTION)ServiceMain },
+		{ (LPSTR)INSPIRCD_BRANCH, (LPSERVICE_MAIN_FUNCTION)ServiceMain },
 		{ nullptr, nullptr }
 	};
 
