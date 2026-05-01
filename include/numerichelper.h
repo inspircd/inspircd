@@ -162,14 +162,14 @@ public:
 		if (!user->IsOper())
 			push("Permission denied (you are not a server operator)");
 		else
-			push(FMT::format("Permission denied ({})", FMT::vformat(reason, FMT::make_format_args(args...))));
+			push_fmt("Permission denied ({})", FMT::vformat(reason, FMT::make_format_args(args...)));
 	}
 
 	template <typename... Args>
 	NoPrivileges(const char* reason, Args&&... args)
 		: Numeric(ERR_NOPRIVILEGES)
 	{
-		push(FMT::format("Permission denied ({})", FMT::vformat(reason, FMT::make_format_args(args...))));
+		push_fmt("Permission denied ({})", FMT::vformat(reason, FMT::make_format_args(args...)));
 	}
 };
 
