@@ -112,22 +112,23 @@ function(configure_path)
 		else()
 			set(${OPT_NAME} ${OPT_SOURCE_DEF} CACHE PATH ${OPT_DESCRIPTION})
 		endif()
-
-		if(PORTABLE OR WIN32)
-			set(ABSOLUTE_${OPT_NAME} ${${OPT_NAME}})
-		else()
-			cmake_path(
-				APPEND CMAKE_INSTALL_PREFIX "${${OPT_NAME}}"
-				OUTPUT_VARIABLE ABSOLUTE_${OPT_NAME}
-			)
-			cmake_path(NORMAL_PATH ABSOLUTE_${OPT_NAME})
-		endif()
 	endif()
+
+	if(PORTABLE OR WIN32)
+		set(ABSOLUTE_${OPT_NAME} ${${OPT_NAME}})
+	else()
+		cmake_path(
+			APPEND CMAKE_INSTALL_PREFIX "${${OPT_NAME}}"
+			OUTPUT_VARIABLE ABSOLUTE_${OPT_NAME}
+		)
+		cmake_path(NORMAL_PATH ABSOLUTE_${OPT_NAME})
+	endif()
+	set(ABSOLUTE_${OPT_NAME} ${ABSOLUTE_${OPT_NAME}} CACHE INTERNAL "" FORCE)
+
 	install_owned(
 		DIRECTORY
 		DESTINATION ${${OPT_NAME}}
 	)
-	return(PROPAGATE ABSOLUTE_${OPT_NAME} ${OPT_NAME})
 endfunction()
 
 ################################################################################
@@ -154,13 +155,14 @@ function(find_id ID FLAG ID_VAR NAME_VAR)
 		OUTPUT_STRIP_TRAILING_WHITESPACE
 		OUTPUT_VARIABLE ${ID_VAR}
 	)
+	set(${ID_VAR} ${${ID_VAR}} CACHE INTERNAL "" FORCE)
 	execute_process(
 		COMMAND ${ID_BINARY} "-${FLAG}n" ${ID}
 		COMMAND_ERROR_IS_FATAL ANY
 		OUTPUT_STRIP_TRAILING_WHITESPACE
 		OUTPUT_VARIABLE ${NAME_VAR}
 	)
-	return(PROPAGATE ${ID_VAR} ${NAME_VAR})
+	set(${NAME_VAR} ${${NAME_VAR}} CACHE INTERNAL "" FORCE)
 endfunction()
 
 ################################################################################
