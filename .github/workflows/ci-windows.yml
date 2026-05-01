@@ -22,7 +22,7 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Setup NSIS
-        uses: negrutiu/nsis-install@v2
+        uses: negrutiu/nsis-install@v3
         with:
           distro: official
 
