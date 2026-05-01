@@ -22,8 +22,8 @@ endif()
 
 option(AUTO_ENABLE_EXTRAS "Whether to automatically enable extra modules" ON)
 if(AUTO_ENABLE_EXTRAS)
-	set(FIND_DEPENDENCY_DRY_RUN YES CACHE BOOL "Whether prospective check for dependencies is currently being performed" FORCE)
-	set(FIND_DEPENDENCY_FOUND   NO  CACHE BOOL "Whether the dependencies were found during the last check" FORCE)
+	set(FIND_DEPENDENCY_DRY_RUN YES CACHE INTERNAL "Whether prospective check for dependencies is currently being performed" FORCE)
+	set(FIND_DEPENDENCY_FOUND   NO  CACHE INTERNAL "Whether the dependencies were found during the last check" FORCE)
 
 	file(GLOB EXTRAS CONFIGURE_DEPENDS "*.cpp")
 	foreach(EXTRA IN LISTS EXTRAS)
