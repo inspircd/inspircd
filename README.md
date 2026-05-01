@@ -10,13 +10,13 @@ InspIRCd is a modular C++ Internet Relay Chat (IRC) server for UNIX-like and Win
 
 InspIRCd is supported on the following platforms:
 
-- Most recent BSD variants using the Clang 10+ or GCC 10+ compilers and the GNU toolchains (Make, etc).
+- Most recent BSD variants using the Clang 10+ or GCC 10+ compilers, CMake 3.21+, and either Ninja (recommended) or Make.
 
-- Most recent Linux distributions using the Clang 10+ or GCC 10+ compilers and the GNU toolchain.
+- Most recent Linux distributions using the Clang 10+ or GCC 10+ compilers, CMake 3.21+, and either Ninja (recommended) or Make.
 
-- The most recent three major releases of macOS using the AppleClang 12, Clang 10+, or GCC 10+ compilers and the GNU toolchain.
+- The most recent three major releases of macOS using the AppleClang 12, Clang 10+, or GCC 10+ compilers, CMake 3.21+, and either Ninja (recommended) or Make.
 
-- Windows 10 April 2018 Update or newer using the MSVC 19.29+ (Visual Studio 16.10 2019) compiler and CMake 3.20 or newer.
+- Windows 10 April 2018 Update or newer using the MSVC 19.29+ (Visual Studio 16.10 2019) compiler, CMake 3.21+, and either Ninja (recommended) or MSBuild.
 
 Other platforms and toolchains may also work but are not officially supported by the InspIRCd team. Generally speaking if you are using a reasonably modern UNIX-like system you should be able to build InspIRCd on it. If you can not and you wish to submit a patch we are happy to accept it as long as it is not extremely large.
 
