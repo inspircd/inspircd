@@ -300,7 +300,13 @@ function(target_require_package TARGET PKGCONF_NAMES CMAKE_NAME LINK_TARGET)
 		elseif(PkgConfig_FOUND)
 			string(REPLACE " " ";" PKGCONF_NAMES "${PKGCONF_NAMES}")
 			foreach(PKGCONF_NAME IN LISTS PKGCONF_NAMES)
-				pkg_check_modules(${PKGCONF_NAME} IMPORTED_TARGET ${PKGCONF_NAME})
+				pkg_check_modules(${PKGCONF_NAME}
+					IMPORTED_TARGET ${PKGCONF_NAME}
+					QUIET
+				)
+				find_package_handle_standard_args(${PKGCONF_NAME}
+					REQUIRED_VARS ${PKGCONF_NAME}_VERSION
+				)
 				if(${PKGCONF_NAME}_FOUND)
 					add_library(${LINK_TARGET} ALIAS PkgConfig::${PKGCONF_NAME})
 					break()

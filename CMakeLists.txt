@@ -21,6 +21,7 @@ cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
 project("InspIRCd" LANGUAGES "C" "CXX")
 
 include("CheckFunctionExists")
+include("FindPackageHandleStandardArgs")
 
 # Include our custom CMake modules.
 list(PREPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/src/cmake")
