@@ -145,7 +145,8 @@ class CoreExport CommandBase
 {
 public:
 	/** Encapsulates parameters to a command. */
-	class Params : public std::vector<std::string>
+	class Params final
+		: public std::vector<std::string>
 	{
 	private:
 		/* IRCv3 message tags. */
