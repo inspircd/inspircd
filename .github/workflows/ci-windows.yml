@@ -39,6 +39,7 @@ jobs:
           Write-Output 'tools.cmake.cmaketoolchain:generator=Ninja' | Out-File -Append ${{ env.CONAN_HOME }}/global.conf
 
       - name: Try to restore libraries from the cache
+        if: github.event_name != 'release'
         uses: actions/cache/restore@v5
         id: library-cache
         with:
@@ -52,7 +53,7 @@ jobs:
           conan install ${{ env.CONAN_FILE }} --build missing --deployer runtime_deploy --deployer-folder extradll --output-folder .
 
       - name: Save libraries to the cache
-        if: ${{ steps.library-cache.outputs.cache-hit != 'true' }}
+        if: steps.library-cache.outputs.cache-hit != 'true' && github.event_name != 'release'
         uses: actions/cache/save@v5
         with:
           key:  ${{ steps.library-cache.outputs.cache-primary-key }}
