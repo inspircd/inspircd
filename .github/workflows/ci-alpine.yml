@@ -26,6 +26,7 @@ jobs:
             libpq-dev \
             libpsl-dev \
             mariadb-dev \
+            mold \
             openldap-dev \
             openssl-dev \
             pcre2-dev \

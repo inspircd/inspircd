@@ -21,6 +21,7 @@ cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
 project("InspIRCd" LANGUAGES "C" "CXX")
 
 include("CheckFunctionExists")
+include("CheckLinkerFlag")
 include("FindPackageHandleStandardArgs")
 
 # Include our custom CMake modules.
@@ -74,6 +75,15 @@ else()
 		# On Solaris and derivatives we need libsocket for creating sockets.
 		link_libraries("socket")
 	endif()
+
+	# Try to use a faster linker if one is available on the system.
+	foreach(LINKER "mold" "lld" "gold")
+		check_linker_flag(CXX "-fuse-ld=${LINKER}" "HAS_${LINKER}_LINKER")
+		if(HAS_${LINKER}_LINKER)
+			add_link_options("-fuse-ld=${LINKER}")
+			break()
+		endif()
+	endforeach()
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "(^GNU|Clang)$")
