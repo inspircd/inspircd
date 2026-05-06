@@ -136,7 +136,7 @@ public:
 		while (!ts.StreamEnd())
 		{
 			// Check we have space for another entry.
-			if (list->size() >= maxentries)
+			if (list && list->size() >= maxentries)
 			{
 				ServerInstance->Logs.Debug(MODNAME, "Oversized DCC allow list received for {}: {}",
 					user->uuid, value);

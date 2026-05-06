@@ -229,7 +229,7 @@ public:
 		while (!ts.StreamEnd())
 		{
 			// Check we have space for another entry.
-			if (list->size() >= maxsilence)
+			if (list && list->size() >= maxsilence)
 			{
 				ServerInstance->Logs.Debug(MODNAME, "Oversized silence list received for {}: {}",
 					user->uuid, value);
