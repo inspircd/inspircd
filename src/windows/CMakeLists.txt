@@ -39,14 +39,15 @@ install_owned(
 )
 
 # Set package metadata
-set(CPACK_PACKAGE_NAME              "InspIRCd - Internet Relay Chat Daemon")
-set(CPACK_PACKAGE_VENDOR            "InspIRCd Contributors")
-set(CPACK_PACKAGE_VERSION_MAJOR     ${VERSION_MAJOR})
-set(CPACK_PACKAGE_VERSION_MINOR     ${VERSION_MINOR})
-set(CPACK_PACKAGE_VERSION_PATCH     ${VERSION_PATCH})
-set(CPACK_PACKAGE_FILE_NAME         "InspIRCd-${VERSION_FULL}")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "InspIRCd ${VERSION_MAJOR}")
-set(CPACK_RESOURCE_FILE_LICENSE     "${PROJECT_SOURCE_DIR}/docs/LICENSE.txt")
+set(CPACK_PACKAGE_NAME                 "InspIRCd - Internet Relay Chat Daemon")
+set(CPACK_PACKAGE_VENDOR               "InspIRCd Contributors")
+set(CPACK_PACKAGE_VERSION_MAJOR        ${VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR        ${VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH        ${VERSION_PATCH})
+set(CPACK_PACKAGE_FILE_NAME            "InspIRCd-${VERSION_FULL}")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY    "InspIRCd ${VERSION_MAJOR}")
+set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "InspIRCd ${VERSION_MAJOR}")
+set(CPACK_RESOURCE_FILE_LICENSE        "${PROJECT_SOURCE_DIR}/docs/LICENSE.txt")
 
 # Configure NSIS-specific settings.
 set(CPACK_GENERATOR       "NSIS")
@@ -59,6 +60,15 @@ set(CPACK_NSIS_MUI_UNIICON         "${CMAKE_CURRENT_SOURCE_DIR}/inspircd.ico")
 set(CPACK_NSIS_CONTACT        "ircs://irc.teranova.net/inspircd")
 set(CPACK_NSIS_HELP_LINK      "https://docs.inspircd.org/support")
 set(CPACK_NSIS_URL_INFO_ABOUT "https://www.inspircd.org")
+
+list(APPEND CPACK_NSIS_EXTRA_INSTALL_COMMANDS
+	[=[DetailPrint 'Installing InspIRCd service...']=]
+	[=[nsExec::Exec /TIMEOUT=30000 '\"$INSTDIR\\inspircd.exe\" --installservice']=]
+)
+list(APPEND CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS
+	[=[DetailPrint 'Uninstalling InspIRCd service...']=]
+	[=[nsExec::Exec /TIMEOUT=30000 '\"$INSTDIR\\inspircd.exe\" --removeservice']=]
+)
 
 # Install the C runtime alongside InspIRCd.
 set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION "${BINARY_DIR}")
