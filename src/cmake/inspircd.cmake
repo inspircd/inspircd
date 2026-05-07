@@ -316,7 +316,6 @@ function(target_require_package TARGET PKGCONF_NAMES CMAKE_NAME LINK_TARGET)
 	endif()
 
 	if(TARGET ${LINK_TARGET})
-		update_cache(FIND_DEPENDENCY_FOUND YES)
 		if(NOT FIND_DEPENDENCY_DRY_RUN)
 			target_link_libraries(${TARGET} PRIVATE ${LINK_TARGET})
 		endif()
