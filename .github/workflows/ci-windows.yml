@@ -54,6 +54,7 @@ jobs:
         run: |-
           (Get-Content ${{ env.CONAN_FILE }}).replace('##', '') | Set-Content ${{ env.CONAN_FILE }}
           conan install ${{ env.CONAN_FILE }} --build missing --deployer runtime_deploy --deployer-folder extradll --output-folder .
+          conan cache clean "*"
 
       - name: Save libraries to the cache
         if: steps.library-cache.outputs.cache-hit != 'true' && github.event_name != 'release'
