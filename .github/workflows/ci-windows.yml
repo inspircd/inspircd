@@ -6,12 +6,13 @@ on:
     types:
       - published
   schedule:
-    - cron: '0 0 * * 0'
+    - cron: 0 0 * * 0
 jobs:
   build:
     if: "!contains(github.event.head_commit.message, '[skip windows ci]')"
     runs-on: windows-2025
     env:
+      BUILD_PATH: ${{ github.workspace }}/win/build
       BUILD_TYPE: ${{ github.event_name == 'release' && 'Release' || 'Debug' }}
       CONAN_FILE: ${{ github.workspace }}/win/conanfile.txt
       CONAN_HOME: ${{ github.workspace }}/win/build/conan
@@ -50,7 +51,7 @@ jobs:
           path: ${{ env.CONAN_HOME }}/p
 
       - name: Install libraries
-        working-directory: ${{ github.workspace }}/win/build
+        working-directory: ${{ env.BUILD_PATH }}
         run: |-
           (Get-Content ${{ env.CONAN_FILE }}).replace('##', '') | Set-Content ${{ env.CONAN_FILE }}
           conan install ${{ env.CONAN_FILE }} --build missing --deployer runtime_deploy --deployer-folder extradll --output-folder .
@@ -64,18 +65,23 @@ jobs:
           path: ${{ env.CONAN_HOME }}/p
 
       - name: Run CMake
-        working-directory: ${{ github.workspace }}/win/build
+        working-directory: ${{ env.BUILD_PATH }}
         run: |-
-          cmake -D "CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}" -D "CMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake" -G "Ninja Multi-Config" -S "${{ github.workspace }}/win" -Wdeprecated -Wdev
+          cmake -D "CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}" `
+                -D "CMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake" `
+                -G "Ninja Multi-Config" `
+                -S "${{ github.workspace }}/win" `
+                -Wdeprecated `
+                -Wdev
 
-      - name: Build InspIRCd
-        working-directory: ${{ github.workspace }}/win/build
+      - name: Build installer
+        working-directory: ${{ env.BUILD_PATH }}
         run: |-
           ninja -f "build-${{ env.BUILD_TYPE }}.ninja" ${{ runner.debug == '1' && '-v' || '' }} package
 
       - name: Upload installer
         if: "${{ github.event_name == 'release' }}"
-        working-directory: ${{ github.workspace }}/win/build
+        working-directory: ${{ env.BUILD_PATH }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |-
