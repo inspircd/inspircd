@@ -23,9 +23,31 @@
 
 #include "inspircd.h"
 #include "modules/ctctags.h"
+#include "modules/extban.h"
 #include "modules/isupport.h"
 #include "modules/who.h"
 #include "modules/whois.h"
+
+class BotExtBan final
+	: public ExtBan::MatchingBase
+{
+private:
+	SimpleUserMode& botmode;
+
+public:
+	BotExtBan(Module* Creator, SimpleUserMode& bm)
+		: ExtBan::MatchingBase(Creator, "bot", 'B')
+		, botmode(bm)
+	{
+		if (!ServerInstance->Config->ConfValue("botmode")->getBool("extban"))
+			DisableAutoRegister();
+	}
+
+	bool IsMatch(User* user, Channel* channel, const std::string& text) override
+	{
+		return user->IsModeSet(botmode) && channel->CheckBan(user, text);
+	}
+};
 
 class BotTag final
 	: public CTCTags::TagProvider
@@ -56,6 +78,7 @@ class ModuleBotMode final
 {
 private:
 	SimpleUserMode bm;
+	BotExtBan extban;
 	BotTag tag;
 	bool forcenotice;
 
@@ -66,6 +89,7 @@ public:
 		, Who::EventListener(this)
 		, Whois::EventListener(this)
 		, bm(this, "bot", 'B')
+		, extban(this, bm)
 		, tag(this, bm)
 	{
 	}
