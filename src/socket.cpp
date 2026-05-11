@@ -26,6 +26,7 @@
 #ifndef _WIN32
 # include <arpa/inet.h>
 # include <netinet/in.h>
+# include <sys/stat.h>
 #endif
 
 #include "inspircd.h"

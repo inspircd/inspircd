@@ -34,6 +34,7 @@
 # define pclose _pclose
 # define popen _popen
 #else
+# include <sys/stat.h>
 # include <unistd.h>
 #endif
 

@@ -30,7 +30,6 @@
 #ifndef _WIN32
 # include <netinet/in.h>
 # include <sys/socket.h>
-# include <sys/stat.h>
 # include <sys/un.h>
 #else
 # include <afunix.h>
