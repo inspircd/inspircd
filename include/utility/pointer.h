@@ -21,6 +21,9 @@
 
 namespace insp
 {
+	/** A pointer to a FILE that closes when it goes out of scope. */
+	using file_ptr = std::unique_ptr<FILE, int(*)(FILE*)>;
+
 	/** Deletes all elements in a container using operator delete
 	 * @param cont The container containing the elements to delete
 	 */

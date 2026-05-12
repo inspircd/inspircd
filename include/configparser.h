@@ -22,8 +22,6 @@
 
 #pragma once
 
-using FilePtr = std::unique_ptr<FILE, int(*)(FILE*)>;
-
 struct ParseStack final
 {
 	std::vector<std::string> reading;
@@ -36,5 +34,5 @@ struct ParseStack final
 	bool ParseFile(const std::string& name, int flags, const std::string& mandatory_tag = std::string(), bool isexec = false);
 	void DoInclude(const std::shared_ptr<ConfigTag>& includeTag, int flags);
 	void DoReadFile(const std::string& key, const std::string& file, int flags, bool exec);
-	static FilePtr DoOpenFile(const std::string& name, bool isexec);
+	static insp::file_ptr DoOpenFile(const std::string& name, bool isexec);
 };

@@ -68,14 +68,14 @@ struct Parser final
 {
 	ParseStack& stack;
 	int flags;
-	FilePtr file;
+	insp::file_ptr file;
 	FilePosition current;
 	FilePosition last_tag;
 	std::shared_ptr<ConfigTag> tag;
 	int ungot = -1;
 	std::string mandatory_tag;
 
-	Parser(ParseStack& me, int myflags, FilePtr conf, const std::string& name, const std::string& mandatorytag)
+	Parser(ParseStack& me, int myflags, insp::file_ptr conf, const std::string& name, const std::string& mandatorytag)
 		: stack(me)
 		, flags(myflags)
 		, file(std::move(conf))
@@ -443,12 +443,12 @@ void ParseStack::DoInclude(const std::shared_ptr<ConfigTag>& tag, int flags)
 	}
 }
 
-FilePtr ParseStack::DoOpenFile(const std::string& name, bool isexec)
+insp::file_ptr ParseStack::DoOpenFile(const std::string& name, bool isexec)
 {
 	if (isexec)
 	{
 		ServerInstance->Logs.Debug("CONFIG", "Opening executable: {}", name);
-		return FilePtr(popen(name.c_str(), "r"), pclose);
+		return insp::file_ptr(popen(name.c_str(), "r"), pclose);
 	}
 
 	const std::string path = ServerInstance->Config->Paths.PrependConfig(name);
@@ -469,7 +469,7 @@ FilePtr ParseStack::DoOpenFile(const std::string& name, bool isexec)
 		}
 	}
 #endif
-	return FilePtr(fopen(path.c_str(), "r"), fclose);
+	return insp::file_ptr(fopen(path.c_str(), "r"), fclose);
 }
 
 void ParseStack::DoReadFile(const std::string& key, const std::string& name, int flags, bool exec)
@@ -533,7 +533,7 @@ bool ParseStack::ParseFile(const std::string& path, int flags, const std::string
 
 	/* It's not already included, add it to the list of files we've loaded */
 
-	FilePtr file = DoOpenFile(path, isexec);
+	insp::file_ptr file = DoOpenFile(path, isexec);
 	if (!file)
 	{
 		if (flags & FLAG_MISSING_OKAY)
