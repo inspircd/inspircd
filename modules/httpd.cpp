@@ -27,18 +27,8 @@
  */
 
 /// BEGIN CMAKE
-/// if($ENV{SYSTEM_LLHTTP})
-///   target_compile_definitions(${TARGET} "USE_SYSTEM_LLHTTP")
-///   target_link_libraries(${TARGET} PRIVATE "llhttp")
-/// else()
-///   target_link_libraries(${TARGET} PRIVATE "vendored_llhttp")
-/// endif()
-/// if($ENV{SYSTEM_YUAREL})
-///   target_compile_definitions(${TARGET} "USE_SYSTEM_YUAREL")
-///   target_link_libraries(${TARGET} PRIVATE "yuarel")
-/// else()
-///   target_link_libraries(${TARGET} PRIVATE "vendored_yuarel")
-/// endif()
+/// target_vendor_library(${TARGET} "llhttp" NO)
+/// target_vendor_library(${TARGET} "yuarel" NO)
 /// END CMAKE
 
 

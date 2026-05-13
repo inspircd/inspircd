@@ -328,3 +328,28 @@ function(target_require_package TARGET PKGCONF_NAMES CMAKE_NAME LINK_TARGET)
 		endif()
 	endif()
 endfunction()
+
+################################################################################
+# target_vendor_library: Finds a library that is typically vendored but can also
+# use the system version if an environment variable is set.
+#
+# TARGET (STRING): The name of the CMake target to which the library will be
+#                  linked.
+#
+# LIBRARY (STRING): The name of the library to link against.
+#
+# LOOKUP (BOOL): Whether to look up the library with target_require_package
+#                instead of directly linking.
+function(target_vendor_library TARGET LIBRARY LOOKUP)
+	string(TOUPPER "SYSTEM_${LIBRARY}" SYSTEM_LIBRARY)
+	if($ENV{${SYSTEM_LIBRARY}})
+		target_compile_definitions(${TARGET} PRIVATE "USE_${SYSTEM_LIBRARY}")
+		if(LOOKUP)
+			target_require_package(${TARGET} ${LIBRARY} ${LIBRARY} "${LIBRARY}::${LIBRARY}")
+		else()
+			target_link_libraries(${TARGET} PRIVATE ${LIBRARY})
+		endif()
+	else()
+		target_link_libraries(${TARGET} PRIVATE "vendored_${LIBRARY}")
+	endif()
+endfunction()

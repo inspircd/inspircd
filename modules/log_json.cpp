@@ -17,13 +17,7 @@
  */
 
 /// BEGIN CMAKE
-/// if($ENV{SYSTEM_YYJSON})
-///   pkg_check_modules("yyjson" IMPORTED_TARGET REQUIRED "yyjson")
-///   target_compile_definitions(${TARGET} "USE_SYSTEM_YYJSON")
-///   target_link_libraries(${TARGET} PRIVATE "PkgConfig::yyjson")
-/// else()
-///   target_link_libraries(${TARGET} PRIVATE "vendored_yyjson")
-/// endif()
+/// target_vendor_library(${TARGET} "yyjson" YES)
 /// END CMAKE
 
 
