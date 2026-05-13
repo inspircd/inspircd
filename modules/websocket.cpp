@@ -21,7 +21,7 @@
 
 /// BEGIN CMAKE
 /// if($ENV{SYSTEM_UTFCPP})
-///   target_compile_definitions(${TARGET} "USE_SYSTEM_UTFCPP")
+///   target_compile_definitions(${TARGET} PRIVATE "USE_SYSTEM_UTFCPP")
 /// endif()
 /// END CMAKE
 
