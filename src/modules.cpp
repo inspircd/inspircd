@@ -476,8 +476,9 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		DataProviderMap::iterator curr = i++;
 		if (curr->second->creator == mod)
 		{
+			ServiceProvider* provider = curr->second;
 			DataProviders.erase(curr);
-			FOREACH_MOD(OnServiceDel, (*curr->second));
+			FOREACH_MOD(OnServiceDel, (*provider));
 		}
 	}
 
