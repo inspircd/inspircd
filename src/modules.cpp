@@ -438,8 +438,9 @@ void ModuleManager::DoSafeUnload(const ModulePtr& mod)
 		auto curr = i++;
 		if (insp::same_ptr(curr->second->service_creator, mod))
 		{
+			auto* service = curr->second;
 			this->Services.erase(curr);
-			FOREACH_MOD(OnServiceDel, (*curr->second));
+			FOREACH_MOD(OnServiceDel, (*service));
 		}
 	}
 
