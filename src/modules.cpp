@@ -440,6 +440,8 @@ void ModuleManager::DoSafeUnload(Module* mod)
 
 	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleFile);
 
+	std::string modfile = mod->ModuleFile;
+
 	// Unregister modes before extensions because modes may require their extension to show the mode being unset
 	UnregisterModes(mod, MODETYPE_USER);
 	UnregisterModes(mod, MODETYPE_CHANNEL);
@@ -476,8 +478,9 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		DataProviderMap::iterator curr = i++;
 		if (curr->second->creator == mod)
 		{
+			ServiceProvider* provider = curr->second;
 			DataProviders.erase(curr);
-			FOREACH_MOD(OnServiceDel, (*curr->second));
+			FOREACH_MOD(OnServiceDel, (*provider));
 		}
 	}
 
@@ -488,7 +491,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	Modules.erase(modfind);
 	ServerInstance->GlobalCulls.AddItem(mod);
 
-	ServerInstance->Logs.Normal("MODULE", "The {} module was unloaded", mod->ModuleFile);
+	ServerInstance->Logs.Normal("MODULE", "The {} module was unloaded", modfile);
 }
 
 void ModuleManager::UnloadAll()
