@@ -28,7 +28,7 @@ private:
 	std::string host;
 	std::string plaintextpolicy;
 	std::string securepolicy;
-	mutable TLS::API tlsapi;
+	TLS::API tlsapi;
 
 	bool OnList(LocalUser* user) override
 	{

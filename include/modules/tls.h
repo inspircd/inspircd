@@ -146,7 +146,7 @@ public:
 	 * @param user The user to retrieve the TLS certificate of.
 	 * @return The TLS certificate of the user or a null pointer if they are not using TLS.
 	 */
-	virtual Certificate* GetCertificate(User* user) = 0;
+	virtual Certificate* GetCertificate(User* user) const = 0;
 
 	/** Retrieves the primary TLS fingerprint of a user.
 	 * @param user The user to retrieve the primary TLS fingerprint of.
@@ -154,7 +154,7 @@ public:
 	 * @return The primary TLS fingerprint of the user or an empty string if \p user did not provide
 	 *         a TLS certificate.
 	 */
-	inline auto GetFingerprint(User* user, bool strict = false)
+	inline auto GetFingerprint(User* user, bool strict = false) const
 	{
 		const auto* cert = GetCertificate(user);
 		if (cert && cert->IsUsable(strict)) [[likely]]
@@ -168,7 +168,7 @@ public:
 	 * @return A list of TLS fingerprints or an empty list if \p user did not provide a TLS
 	 *         certificate.
 	 */
-	inline auto GetFingerprints(User* user, bool strict = false)
+	inline auto GetFingerprints(User* user, bool strict = false) const
 	{
 		const auto* cert = GetCertificate(user);
 		if (cert && cert->IsUsable(strict)) [[likely]]
@@ -180,13 +180,13 @@ public:
 	 * as using TLS or connecting locally to the server.
 	 * @return True if the user is connected securely; otherwise, false.
 	 */
-	virtual bool IsSecure(User* user) = 0;
+	virtual bool IsSecure(User* user) const = 0;
 
 	/** Sets the TLS certificate of a user.
 	 * @param user The user whose TLS certificate to set.
 	 * @param cert The TLS certificate to set for the user.
 	 */
-	virtual void SetCertificate(User* user, const TLS::CertificatePtr& cert) = 0;
+	virtual void SetCertificate(User* user, const TLS::CertificatePtr& cert) const = 0;
 };
 
 class TLS::API final

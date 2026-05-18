@@ -178,7 +178,7 @@ class TLSAPIImpl final
 	: public TLS::APIBase
 {
 public:
-	TLSCertificateExt tlsext;
+	mutable TLSCertificateExt tlsext;
 	bool localsecure;
 
 	TLSAPIImpl(const WeakModulePtr& mod)
@@ -187,7 +187,7 @@ public:
 	{
 	}
 
-	TLS::Certificate* GetCertificate(User* user) override
+	TLS::Certificate* GetCertificate(User* user) const override
 	{
 		auto* cert = tlsext.Get(user);
 		if (cert)
@@ -209,7 +209,7 @@ public:
 		return newcert.get();
 	}
 
-	bool IsSecure(User* user) override
+	bool IsSecure(User* user) const override
 	{
 		const auto* cert = GetCertificate(user);
 		if (cert)
@@ -221,7 +221,7 @@ public:
 		return false;
 	}
 
-	void SetCertificate(User* user, const TLS::CertificatePtr& cert) override
+	void SetCertificate(User* user, const TLS::CertificatePtr& cert) const override
 	{
 		ServerInstance->Logs.Debug(MODNAME, "Setting TLS client certificate for {}: {}",
 			user->GetMask(), tlsext.ToNetwork(user, cert));
