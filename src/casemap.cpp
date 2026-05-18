@@ -60,7 +60,7 @@ static uint64_t MurmurHash64A(const void* key, int len, uint64_t seed)
 
 	while (data != end)
 	{
-		uint64_t k = *data++;
+		uint64_t k = insp::map_case(*data++);
 
 		k *= m;
 		k ^= k >> r;
@@ -75,25 +75,25 @@ static uint64_t MurmurHash64A(const void* key, int len, uint64_t seed)
 	switch (len & 7)
 	{
 		case 7:
-			h ^= uint64_t(national_case_insensitive_map[data2[6]]) << 48;
+			h ^= uint64_t(insp::map_case(data2[6])) << 48;
 			[[fallthrough]];
 		case 6:
-			h ^= uint64_t(national_case_insensitive_map[data2[5]]) << 40;
+			h ^= uint64_t(insp::map_case(data2[5])) << 40;
 			[[fallthrough]];
 		case 5:
-			h ^= uint64_t(national_case_insensitive_map[data2[4]]) << 32;
+			h ^= uint64_t(insp::map_case(data2[4])) << 32;
 			[[fallthrough]];
 		case 4:
-			h ^= uint64_t(national_case_insensitive_map[data2[3]]) << 24;
+			h ^= uint64_t(insp::map_case(data2[3])) << 24;
 			[[fallthrough]];
 		case 3:
-			h ^= uint64_t(national_case_insensitive_map[data2[2]]) << 16;
+			h ^= uint64_t(insp::map_case(data2[2])) << 16;
 			[[fallthrough]];
 		case 2:
-			h ^= uint64_t(national_case_insensitive_map[data2[1]]) << 8;
+			h ^= uint64_t(insp::map_case(data2[1])) << 8;
 			[[fallthrough]];
 		case 1:
-			h ^= uint64_t(national_case_insensitive_map[data2[0]]);
+			h ^= uint64_t(insp::map_case(data2[0]));
 			h *= m;
 			break;
 	};
@@ -125,7 +125,7 @@ static uint32_t MurmurHash2A(const void * key, int len, uint32_t seed)
 
 	while(len >= 4)
 	{
-		uint32_t k = *(uint32_t*)data;
+		uint32_t k = insp::map_case(*(uint32_t*)data);
 
 		mmix(h, k);
 
@@ -138,13 +138,13 @@ static uint32_t MurmurHash2A(const void * key, int len, uint32_t seed)
 	switch(len)
 	{
 		case 3:
-			t ^= national_case_insensitive_map[data[2]] << 16;
+			t ^= insp::map_case(data[2]) << 16;
 			[[fallthrough]];
 		case 2:
-			t ^= national_case_insensitive_map[data[1]] << 8;
+			t ^= insp::map_case(data[1]) << 8;
 			[[fallthrough]];
 		case 1:
-			t ^= national_case_insensitive_map[data[0]];
+			t ^= insp::map_case(data[0]);
 			break;
 	};
 

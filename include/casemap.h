@@ -108,6 +108,18 @@ namespace insp
 	{
 		return casemapped_less(str1, str2, ascii_case_insensitive_map);
 	}
+
+	/** Maps the case of a multi-byte numeric value.
+	 * @param num The number to map the bytes of.
+	 */
+	template <typename Numeric> requires(std::is_integral_v<Numeric>)
+	Numeric map_case(Numeric num) {
+		auto bytes = std::bit_cast<std::array<uint8_t, sizeof(Numeric)>>(num);
+		for (size_t i = 0; i < sizeof(Numeric); ++i) {
+			bytes[i] = national_case_insensitive_map[bytes[i]];
+		}
+		return std::bit_cast<Numeric>(bytes);
+	}
 }
 
 /** IRC casemapping variant of \p std::equal_to<String>. */
