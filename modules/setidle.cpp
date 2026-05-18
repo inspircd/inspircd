@@ -26,40 +26,82 @@
 
 #include "inspircd.h"
 #include "modules/ircv3.h"
+#include "numerichelper.h"
 #include "timeutils.h"
 
-class CommandSetidle final
-	: public SplitCommand
+class CommandSetIdle final
+	: public Command
 {
 private:
 	IRCv3::ReplyCapReference stdrplcap;
 
 public:
-	CommandSetidle(const WeakModulePtr& Creator)
-		: SplitCommand(Creator, "SETIDLE", 1)
+	CommandSetIdle(const WeakModulePtr& Creator)
+		: Command(Creator, "SETIDLE", 1, 2)
 		, stdrplcap(Creator)
 	{
 		access_needed = CmdAccess::OPERATOR;
-		syntax = { "<duration>" };
+		syntax = { "[<nick>] <duration>" };
 	}
 
-	CmdResult HandleLocal(LocalUser* user, const Params& parameters) override
+	CmdResult Handle(User* user, const Params& parameters) override
 	{
-		unsigned long idle;
-		if (!Duration::TryFrom(parameters[0], idle))
+		auto* target = user;
+		if (parameters.size() > 1)
 		{
-			IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, this, "INVALID_IDLE_TIME", parameters[0], "Invalid idle time.");
+			const auto& targetnick = parameters[0];
+			if (user->IsLocal())
+			{
+				// For local users we need to check if they can use the command.
+				target = ServerInstance->Users.FindNick(targetnick, true);
+				if (user != target && !user->HasPrivPermission("users/setidle-others"))
+				{
+					user->WriteNumeric(Numerics::NoPrivileges("your server operator account does not have the users/setidle-others privilege"));
+					return CmdResult::FAILURE;
+				}
+			}
+			else
+			{
+				// For remote users their server will have checked privs.
+				target = ServerInstance->Users.Find(targetnick);
+			}
+
+			if (!target)
+			{
+				user->WriteNumeric(Numerics::NoSuchNick(targetnick));
+				return CmdResult::FAILURE;
+			}
+		}
+
+		auto* ltarget = target->AsLocal();
+		if (!ltarget)
+			return CmdResult::SUCCESS; // Their server will handle this.
+
+		const auto& newidle = parameters.back();
+		unsigned long idle;
+		if (!Duration::TryFrom(newidle, idle))
+		{
+			IRCv3::WriteReply(Reply::FAIL, user, stdrplcap, this, "INVALID_IDLE_TIME", newidle, "Invalid idle time.");
 			return CmdResult::FAILURE;
 		}
 
-		user->idle_lastmsg = (ServerInstance->Time() - idle);
-		// minor tweak - we cant have signon time shorter than our idle time!
-		if (user->signon > user->idle_lastmsg)
-			user->signon = user->idle_lastmsg;
+		ltarget->idle_lastmsg = (ServerInstance->Time() - idle);
+		// We cant have signon time shorter than our idle time!
+		if (ltarget->signon > ltarget->idle_lastmsg)
+			ltarget->signon = ltarget->idle_lastmsg;
 
-		ServerInstance->SNO.WriteToSnoMask('a', "{} used SETIDLE to set their idle time to {}", user->nick, Duration::ToLongString(idle));
-		IRCv3::WriteReply(Reply::NOTE, user, stdrplcap, this, "IDLE_TIME_SET", user->idle_lastmsg, "Idle time set.");
+		if (!user->server->IsService())
+		{
+			ServerInstance->SNO.WriteGlobalSno('a', "{} ({}) used {} to change the idle time of {} to {}",
+				user->GetRealMask(), user->GetAddress(), this->service_name, target->nick, Duration::ToLongString(idle));
+		}
+		IRCv3::WriteReply(Reply::NOTE, user, stdrplcap, this, "IDLE_TIME_SET", idle, "Idle time set.");
 		return CmdResult::SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const Params& parameters) override
+	{
+		return parameters.size() > 1 ? ROUTE_OPT_UCAST(parameters[0]) : ROUTE_LOCALONLY;
 	}
 };
 
@@ -67,11 +109,11 @@ class ModuleSetIdle final
 	: public Module
 {
 private:
-	CommandSetidle cmd;
+	CommandSetIdle cmd;
 
 public:
 	ModuleSetIdle()
-		: Module(VF_VENDOR, "Adds the /SETIDLE command which allows server operators to change their idle time.")
+		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SETIDLE command which allows server operators to change the idle time of users.")
 		, cmd(weak_from_this())
 	{
 	}

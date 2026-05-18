@@ -62,7 +62,12 @@ namespace
 					// These modules were combined in v5.
 					modname.replace(0, 3, "chg");
 				}
-				if (insp::casemapped_equals(modname, "sacommands"))
+				else if (insp::casemapped_equals(modname, "setidle"))
+				{
+					// Not VF_OPTCOMMON in v4.
+					continue;
+				}
+				else if (insp::casemapped_equals(modname, "sacommands"))
 				{
 					// These modules were combined in v5.
 					modules["sajoin"] = modules["sakick"] = modules["sanick"] =

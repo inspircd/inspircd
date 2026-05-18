@@ -100,9 +100,11 @@ bool TreeSocket::PreProcessNewProtocolMessage(User*& who, std::string& cmd, Comm
 		}
 		else if (insp::casemapped_equals(cmd, "SETHOST") || insp::casemapped_equals(cmd, "SETIDENT") || insp::casemapped_equals(cmd, "SETNAME"))
 		{
-				// CHG* was merged with SET* in v5. Rewrite to the old commands.
+			// CHG* was merged with SET* in v5. Rewrite to the old commands.
 			cmd.replace(0, 3, "CHG");
 		}
+		else if (insp::casemapped_equals(cmd, "SETIDLE"))
+			return false; // SETIDLE can't be networked in v4.
 	}
 	return true;
 }
