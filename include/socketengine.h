@@ -241,11 +241,11 @@ public:
 		void UpdateWriteCounters(ssize_t len_out);
 
 		/** Get data transfer statistics.
-		 * @param kbitpersec_in Filled with incoming traffic in this second in kbit/s.
-		 * @param kbitpersec_out Filled with outgoing traffic in this second in kbit/s.
-		 * @param kbitpersec_total Filled with total traffic in this second in kbit/s.
+		 * @param bitpersec_in Filled with incoming traffic in this second in bit/s.
+		 * @param bitpersec_out Filled with outgoing traffic in this second in bit/s.
+		 * @param bitpersec_total Filled with total traffic in this second in bit/s.
 		 */
-		void CoreExport GetBandwidth(float& kbitpersec_in, float& kbitpersec_out, float& kbitpersec_total) const;
+		void CoreExport GetBandwidth(float& bitpersec_in, float& bitpersec_out, float& bitpersec_total) const;
 
 		unsigned long TotalEvents = 0;
 		unsigned long ReadEvents = 0;

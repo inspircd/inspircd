@@ -328,14 +328,13 @@ void SocketEngine::Statistics::CheckFlush() const
 	}
 }
 
-void SocketEngine::Statistics::GetBandwidth(float& kbitpersec_in, float& kbitpersec_out, float& kbitpersec_total) const
+void SocketEngine::Statistics::GetBandwidth(float& bitpersec_in, float& bitpersec_out, float& bitpersec_total) const
 {
 	CheckFlush();
-	float in_kbit = static_cast<float>(indata) * 8;
-	float out_kbit = static_cast<float>(outdata) * 8;
-	kbitpersec_total = ((in_kbit + out_kbit) / 1024);
-	kbitpersec_in = in_kbit / 1024;
-	kbitpersec_out = out_kbit / 1024;
+	bitpersec_in = static_cast<float>(indata) * 8;
+	bitpersec_out = static_cast<float>(outdata) * 8;
+	bitpersec_total = bitpersec_in + bitpersec_out;
+
 }
 
 std::string SocketEngine::LastError()

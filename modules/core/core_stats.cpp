@@ -252,14 +252,14 @@ void CommandStats::DoStats(Stats::Context& stats)
 			stats.AddRow(249, "Channels: "+ConvToStr(ServerInstance->Channels.GetChans().size()));
 			stats.AddRow(249, "Commands: "+ConvToStr(ServerInstance->Parser.GetCommands().size()));
 
-			float kbitpersec_in;
-			float kbitpersec_out;
-			float kbitpersec_total;
-			SocketEngine::GetStats().GetBandwidth(kbitpersec_in, kbitpersec_out, kbitpersec_total);
+			float bitpersec_in;
+			float bitpersec_out;
+			float bitpersec_total;
+			SocketEngine::GetStats().GetBandwidth(bitpersec_in, bitpersec_out, bitpersec_total);
 
-			stats.AddRow(249, FMT::format("Bandwidth total:  {:03.5} kilobits/sec", kbitpersec_total));
-			stats.AddRow(249, FMT::format("Bandwidth out:    {:03.5} kilobits/sec", kbitpersec_out));
-			stats.AddRow(249, FMT::format("Bandwidth in:     {:03.5} kilobits/sec", kbitpersec_in));
+			stats.AddRow(249, FMT::format("Bandwidth total:  {}/sec", insp::binary_suffix(bitpersec_total, true)));
+			stats.AddRow(249, FMT::format("Bandwidth out:    {}/sec", insp::binary_suffix(bitpersec_out, true)));
+			stats.AddRow(249, FMT::format("Bandwidth in:     {}/sec", insp::binary_suffix(bitpersec_in, true)));
 
 #ifndef _WIN32
 			/* Moved this down here so all the not-windows stuff (look w00tie, I didn't say win32!) is in one ifndef.
@@ -271,7 +271,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 			if (!getrusage(RUSAGE_SELF,&R))	/* RUSAGE_SELF */
 			{
 #ifndef __HAIKU__
-				stats.AddRow(249, "Total allocation: "+ConvToStr(R.ru_maxrss)+"K");
+				stats.AddRow(249, "Total allocation: "+insp::binary_suffix(R.ru_maxrss * 1024));
 				stats.AddRow(249, "Signals:          "+ConvToStr(R.ru_nsignals));
 				stats.AddRow(249, "Page faults:      "+ConvToStr(R.ru_majflt));
 				stats.AddRow(249, "Swaps:            "+ConvToStr(R.ru_nswap));
@@ -294,8 +294,8 @@ void CommandStats::DoStats(Stats::Context& stats)
 			PROCESS_MEMORY_COUNTERS MemCounters;
 			if (GetProcessMemoryInfo(GetCurrentProcess(), &MemCounters, sizeof(MemCounters)))
 			{
-				stats.AddRow(249, "Total allocation: "+ConvToStr((MemCounters.WorkingSetSize + MemCounters.PagefileUsage) / 1024)+"K");
-				stats.AddRow(249, "Pagefile usage:   "+ConvToStr(MemCounters.PagefileUsage / 1024)+"K");
+				stats.AddRow(249, "Total allocation: "+insp::binary_suffix(MemCounters.WorkingSetSize + MemCounters.PagefileUsage));
+				stats.AddRow(249, "Pagefile usage:   "+insp::binary_suffix(MemCounters.PagefileUsage));
 				stats.AddRow(249, "Page faults:      "+ConvToStr(MemCounters.PageFaultCount));
 			}
 
@@ -331,8 +331,8 @@ void CommandStats::DoStats(Stats::Context& stats)
 			stats.AddRow(249, "unknown commands "+ConvToStr(ServerInstance->Stats.Unknown));
 			stats.AddRow(249, "nick collisions "+ConvToStr(ServerInstance->Stats.Collisions));
 			stats.AddRow(249, "connection count "+ConvToStr(ServerInstance->Stats.Connects));
-			stats.AddRow(249, FMT::format("bytes sent {:5.2}K recv {:5.2}K",
-				ServerInstance->Stats.Sent / 1024.0, ServerInstance->Stats.Recv / 1024.0));
+			stats.AddRow(249, FMT::format("bytes sent {} recv {}", insp::binary_suffix(ServerInstance->Stats.Sent),
+				insp::binary_suffix(ServerInstance->Stats.Recv)));
 		}
 		break;
 

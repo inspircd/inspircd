@@ -21,6 +21,27 @@
 
 namespace insp
 {
+	/** Converts a number into a string with a binary suffix (e.g. 3,292,549.12 -> 3.14 mebibytes).
+	 * @param value The value to convert.
+	 * @param bits Whether the value is bits or bytes.
+	 */
+	inline std::string binary_suffix(uintmax_t value, bool bits = false)
+	{
+		static const std::map<uintmax_t, const char*, std::greater<>> suffixes = {
+			{ 1ULL<<40, "tebi" },
+			{ 1ULL<<30, "gibi" },
+			{ 1ULL<<20, "mebi" },
+			{ 1ULL<<10, "kibi" },
+		};
+		const auto* unit = bits ? "bits" : "bytes";
+		for (const auto& [threshold, suffix] : suffixes)
+		{
+			if (value >= threshold)
+				return FMT::format("{:.5} {}{}", double(value) / threshold, suffix, unit);
+		}
+		return FMT::format("{} {}", value, unit);
+	}
+
 	/** Calculates the percentage of \p total that \p part makes up. This can be called without zero
 	 * checks.
 	 * @param part The partial value.
