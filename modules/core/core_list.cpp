@@ -47,11 +47,11 @@ private:
 	 * @param value The parameter containing a minute count.
 	 * @return The UNIX time at \p value minutes ago.
 	 */
-	static time_t ParseMinutes(const std::string& value)
+	static std::optional<time_t> ParseMinutes(const std::string& value)
 	{
-		time_t minutes = ConvToNum<time_t>(value.c_str() + 2);
-		if (!minutes)
-			return 0;
+		const auto minutes = ConvToNum<time_t>(value.c_str() + 2, -1);
+		if (minutes < 0)
+			return std::nullopt;
 		return ServerInstance->Time() - (minutes * 60);
 	}
 
@@ -75,8 +75,8 @@ CmdResult CommandList::Handle(User* user, const Params& parameters)
 	// C: Searching based on creation time, via the "C<val" and "C>val" modifiers
 	// to search for a channel creation time that is lower or higher than val
 	// respectively.
-	time_t mincreationtime = 0;
-	time_t maxcreationtime = 0;
+	std::optional<time_t> mincreationtime;
+	std::optional<time_t> maxcreationtime;
 
 	// M: Searching based on mask.
 	std::string match;
@@ -86,8 +86,8 @@ CmdResult CommandList::Handle(User* user, const Params& parameters)
 
 	// T: Searching based on topic time, via the "T<val" and "T>val" modifiers to
 	// search for a topic time that is lower or higher than val respectively.
-	time_t mintopictime = 0;
-	time_t maxtopictime = 0;
+	std::optional<time_t> mintopictime;
+	std::optional<time_t> maxtopictime;
 
 	// U: Searching based on user count within the channel, via the "<val" and
 	// ">val" modifiers to search for a channel that has less than or more than
@@ -151,12 +151,12 @@ CmdResult CommandList::Handle(User* user, const Params& parameters)
 
 		// Check the creation ts if a search has been specified.
 		const time_t creationtime = chan->age;
-		if ((mincreationtime && creationtime <= mincreationtime) || (maxcreationtime && creationtime >= maxcreationtime))
+		if ((mincreationtime && creationtime <= *mincreationtime) || (maxcreationtime && creationtime >= *maxcreationtime))
 			continue;
 
 		// Check the topic ts if a search has been specified.
 		const time_t topictime = chan->topicset;
-		if ((mintopictime && (!topictime || topictime <= mintopictime)) || (maxtopictime && (!topictime || topictime >= maxtopictime)))
+		if ((mintopictime && (!topictime || topictime <= *mintopictime)) || (maxtopictime && (!topictime || topictime >= *maxtopictime)))
 			continue;
 
 		// Attempt to match a glob pattern.
