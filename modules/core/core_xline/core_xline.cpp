@@ -22,7 +22,9 @@
 
 
 #include "inspircd.h"
+#include "utility/numeric.h"
 #include "xline.h"
+
 #include "core_xline.h"
 
 bool InsaneBan::MatchesEveryone(const std::string& mask, MatcherBase& test, User* user, char bantype, const char* confkey)
@@ -39,7 +41,7 @@ bool InsaneBan::MatchesEveryone(const std::string& mask, MatcherBase& test, User
 	if (!matches)
 		return false;
 
-	float percent = ((float)matches / (float)ServerInstance->Users.GetUsers().size()) * 100;
+	const auto percent = insp::percentage(matches, ServerInstance->Users.GetUsers().size());
 	if (percent > itrigger)
 	{
 		const char* article = strchr("AEIOUaeiou", bantype) ? "an" : "a";

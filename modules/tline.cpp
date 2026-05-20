@@ -23,6 +23,7 @@
 
 
 #include "inspircd.h"
+#include "utility/numeric.h"
 
 class CommandTline final
 	: public Command
@@ -61,7 +62,7 @@ public:
 		unsigned long n_counted = ServerInstance->Users.GetUsers().size();
 		if (n_matched)
 		{
-			float p = (n_matched / (float)n_counted) * 100;
+			const auto p = insp::percentage(n_matched, n_counted);
 			user->WriteNotice("*** TLINE: Counted {} user(s). Matched '{}' against {} user(s) ({:0.2}% of the userbase). {} by hostname and {} by IP address.",
 				n_counted, parameters[0], n_matched, p, n_match_host, n_match_ip);
 		}

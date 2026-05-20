@@ -23,6 +23,7 @@
 #include "extension.h"
 #include "modules/exemption.h"
 #include "numerichelper.h"
+#include "utility/numeric.h"
 
 enum class AntiCapsMethod
 	: uint8_t
@@ -275,7 +276,7 @@ public:
 			return MOD_RES_PASSTHRU;
 
 		// Calculate the percentage.
-		double percent = round((upper * 100) / length);
+		const auto percent = insp::percentage(upper, length);
 		if (percent < config->percent)
 			return MOD_RES_PASSTHRU;
 

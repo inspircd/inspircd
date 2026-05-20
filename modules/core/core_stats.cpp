@@ -31,6 +31,7 @@
 #include "modules/cap.h"
 #include "modules/stats.h"
 #include "utility/container.h"
+#include "utility/numeric.h"
 #include "xline.h"
 
 #ifdef _WIN32
@@ -279,13 +280,13 @@ void CommandStats::DoStats(Stats::Context& stats)
 				float n_elapsed = (ServerInstance->Time() - ServerInstance->Stats.LastSampled.tv_sec) * 1000000
 					+ (ServerInstance->Time_ns() - ServerInstance->Stats.LastSampled.tv_nsec) / 1000;
 				float n_eaten = ((R.ru_utime.tv_sec - ServerInstance->Stats.LastCPU.tv_sec) * 1000000 + R.ru_utime.tv_usec - ServerInstance->Stats.LastCPU.tv_usec);
-				float per = (n_eaten / n_elapsed) * 100;
+				auto per = insp::percentage(n_eaten, n_elapsed);
 
 				stats.AddRow(249, FMT::format("CPU Use (now):    {:03.5}%", per));
 
 				n_elapsed = ServerInstance->Time() - ServerInstance->StartTime;
 				n_eaten = (float)R.ru_utime.tv_sec + R.ru_utime.tv_usec / 100000.0;
-				per = (n_eaten / n_elapsed) * 100;
+				per = insp::percentage(n_eaten, n_elapsed);
 
 				stats.AddRow(249, FMT::format("CPU Use (total):  {:03.5}%", per));
 			}

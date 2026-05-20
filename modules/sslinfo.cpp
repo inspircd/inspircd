@@ -37,6 +37,7 @@
 #include "numerichelper.h"
 #include "stringutils.h"
 #include "timeutils.h"
+#include "utility/numeric.h"
 
 struct RemoteCertificate final
 	: public TLS::Certificate
@@ -616,7 +617,7 @@ public:
 			if (!count)
 				continue;
 
-			const auto percent = total ? round((count * 100) / total) : 0;
+			const auto percent = insp::percentage(count, total);
 			stats.AddGenericRow(FMT::format("{}: {} ({:3.2f}%)", ciphersuite, count, percent))
 				.AddTags(stats, {
 					{ "ciphersuite", ciphersuite                     },

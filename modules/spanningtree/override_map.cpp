@@ -27,6 +27,7 @@
 
 #include "inspircd.h"
 #include "timeutils.h"
+#include "utility/numeric.h"
 
 #include "main.h"
 #include "utils.h"
@@ -70,15 +71,6 @@ static void GetDepthAndLen(TreeServer* current, unsigned int depth, unsigned int
 
 static std::vector<std::string> GetMap(User* user, TreeServer* current, size_t max_len, size_t max_version_len, unsigned int depth)
 {
-	float percent = 0;
-
-	const UserMap& users = ServerInstance->Users.GetUsers();
-	if (!users.empty())
-	{
-		// If there are no users, WHO THE HELL DID THE /MAP?!?!?!
-		percent = current->UserCount * 100.0 / users.size();
-	}
-
 	std::string buffer = current->GetName();
 	if (user->IsOper())
 	{
@@ -95,6 +87,7 @@ static std::vector<std::string> GetMap(User* user, TreeServer* current, size_t m
 	// Pad with spaces until its at max len, max_len must always be >= my names length
 	buffer.append(max_len - current->GetName().length(), ' ');
 
+	const auto percent = insp::percentage(current->UserCount, ServerInstance->Users.GetUsers().size());
 	buffer += FMT::format("{:5} [{:5.2f}%]", current->UserCount, percent);
 
 	if (user->IsOper())
