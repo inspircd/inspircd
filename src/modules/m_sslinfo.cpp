@@ -538,15 +538,18 @@ public:
 				counts[ciphersuite]++;
 		}
 
+		const auto total = ServerInstance->Users.GetLocalUsers().size();
 		for (const auto& [ciphersuite, count] : counts)
 		{
 			if (!count)
 				continue;
 
-			stats.AddGenericRow(INSP_FORMAT("{}: {}", ciphersuite, count))
+			const auto percent = total ? round((count * 100) / total) : 0;
+			stats.AddGenericRow(INSP_FORMAT("{}: {} ({:3.2f}%)", ciphersuite, count, percent))
 				.AddTags(stats, {
-					{ "ciphersuite", ciphersuite      },
-					{ "count",       ConvToStr(count) },
+					{ "ciphersuite", ciphersuite                     },
+					{ "count",       ConvToStr(count)                },
+					{ "percent",     INSP_FORMAT("{:3.2f}", percent) },
 				});
 		}
 		return MOD_RES_DENY;
