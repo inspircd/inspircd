@@ -87,6 +87,49 @@ private:
 		firstmsg->~Message();
 	}
 
+	void PostCommand(LocalUser* user)
+	{
+		// If no label was sent we don't have to do anything.
+		if (!tag.labeluser)
+			return;
+
+		switch (msgcount)
+		{
+			case 0:
+			{
+				// There was no response so we send an ACK instead.
+				ClientProtocol::Message ackmsg("ACK", ServerInstance->FakeClient);
+				ackmsg.AddTag(tag.labeltag, &tag, tag.label);
+				ackmsg.SetSideEffect(true);
+				tag.labeluser->Send(ackmsgprov, ackmsg);
+				break;
+			}
+
+			case 1:
+			{
+				// There was one response which was cached; send it now.
+				firstmsg->AddTag(tag.labeltag, &tag, tag.label);
+				FlushFirstMsg(user);
+				break;
+			}
+
+			default:
+			{
+				// There was two or more responses; send an end-of-batch.
+				if (batchmanager)
+				{
+					// Set end start as side effect so we'll ignore it otherwise it'd end up added into the batch.
+					batch.GetBatchEndMessage().SetSideEffect(true);
+					batchmanager->End(batch);
+				}
+				break;
+			}
+		}
+
+		tag.labeluser = nullptr;
+		msgcount = 0;
+	}
+
 public:
 	ModuleIRCv3LabeledResponse()
 		: Module(VF_VENDOR, "Provides support for the IRCv3 Labeled Response specification.")
@@ -129,50 +172,12 @@ public:
 		// too will run for each element on the list plus once after the whole list has been processed.
 		// loop will only be false for the last run.
 		if (!loop)
-			OnCommandBlocked(command->name, parameters, user);
+			PostCommand(user);
 	}
 
 	void OnCommandBlocked(const std::string& command, const CommandBase::Params& parameters, LocalUser* user) override
 	{
-		// If no label was sent we don't have to do anything.
-		if (!tag.labeluser)
-			return;
-
-		switch (msgcount)
-		{
-			case 0:
-			{
-				// There was no response so we send an ACK instead.
-				ClientProtocol::Message ackmsg("ACK", ServerInstance->FakeClient);
-				ackmsg.AddTag(tag.labeltag, &tag, tag.label);
-				ackmsg.SetSideEffect(true);
-				tag.labeluser->Send(ackmsgprov, ackmsg);
-				break;
-			}
-
-			case 1:
-			{
-				// There was one response which was cached; send it now.
-				firstmsg->AddTag(tag.labeltag, &tag, tag.label);
-				FlushFirstMsg(user);
-				break;
-			}
-
-			default:
-			{
-				// There was two or more responses; send an end-of-batch.
-				if (batchmanager)
-				{
-					// Set end start as side effect so we'll ignore it otherwise it'd end up added into the batch.
-					batch.GetBatchEndMessage().SetSideEffect(true);
-					batchmanager->End(batch);
-				}
-				break;
-			}
-		}
-
-		tag.labeluser = nullptr;
-		msgcount = 0;
+		PostCommand(user);
 	}
 
 	ModResult OnUserWrite(LocalUser* user, ClientProtocol::Message& msg) override
@@ -224,6 +229,14 @@ public:
 				return MOD_RES_PASSTHRU;
 			}
 		}
+	}
+
+	void OnUserDisconnect(LocalUser* user) override
+	{
+		if (tag.labeluser != user)
+			return; // Not for this user.
+
+		PostCommand(user);
 	}
 
 	void Prioritize() override
