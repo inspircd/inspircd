@@ -201,7 +201,7 @@ public:
 				f->clear();
 				f->lock();
 
-				PrefixMode* pm = ServerInstance->Modes.FindNearestPrefixMode(notifyrank);
+				auto* pm = notifyrank ? ServerInstance->Modes.FindNearestPrefixMode(notifyrank) : nullptr;
 				memb->chan->WriteNotice(INSP_FORMAT("This channel has been closed to new users for {} because there have been more than {} joins in {}.",
 					Duration::ToLongString(duration), f->joins, Duration::ToLongString(f->secs)), pm ? pm->GetPrefix() : 0);
 			}
