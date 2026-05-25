@@ -192,7 +192,7 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		const auto fpvisible = ServerInstance->Config->ConfValue("sslmodes")->getBool("operonly");
+		const auto fpvisible = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
 		const auto& tag = ServerInstance->Config->ConfValue("sslmodes");
 		extban.operonly = tag->getBool("extbanoperonly", fpvisible);
 	}
