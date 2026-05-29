@@ -334,9 +334,13 @@ public:
 		mysql_options(connection, MYSQL_OPT_CONNECT_TIMEOUT, &timeout);
 
 		// Enable SSL if requested.
-#if defined LIBMYSQL_VERSION_ID && LIBMYSQL_VERSION_ID > 80000
+#ifdef MYSQL_OPT_SSL_MODE
 		unsigned int ssl = config->getBool("ssl") ? SSL_MODE_REQUIRED : SSL_MODE_PREFERRED;
 		mysql_options(connection, MYSQL_OPT_SSL_MODE, &ssl);
+#elif defined MYSQL_OPT_SSL_VERIFY_SERVER_CERT && defined MYSQL_OPT_SSL_ENFORCE
+        unsigned my_bool ssl = config->getBool("ssl"), on= 1;
+        mysql_options(connection, MYSQL_OPT_SSL_VERIFY_SERVER_CERT, &ssl);
+        mysql_options(connection, MYSQL_OPT_SSL_ENFORCE, &on);
 #endif
 
 		// Attempt to connect to the database.
