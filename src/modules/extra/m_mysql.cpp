@@ -335,7 +335,8 @@ public:
 
 		// Enable SSL if requested.
 #if defined LIBMYSQL_VERSION_ID && LIBMYSQL_VERSION_ID > 80000
-		unsigned int ssl = config->getBool("ssl") ? SSL_MODE_REQUIRED : SSL_MODE_PREFERRED;
+		const bool usetls = config->getBool("tls", config->getBool("ssl"));
+		unsigned int ssl = usetls ? SSL_MODE_REQUIRED : SSL_MODE_PREFERRED;
 		mysql_options(connection, MYSQL_OPT_SSL_MODE, &ssl);
 #endif
 
