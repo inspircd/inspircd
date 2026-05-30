@@ -58,6 +58,9 @@ enum
 	// The identifier for a TLS TLV entry.
 	PP2_TYPE_SSL = 0x20,
 
+	// The identifier for a TLS certificate fingerprint TLV entry.
+	PP2_TYPE_CERTFP = 0xE0,
+
 	// The minimum length of a PP2_TYPE_SSL TLV entry.
 	PP2_TYPE_SSL_LENGTH = 5,
 
@@ -150,6 +153,12 @@ private:
 	// The API for interacting with user TLS internals.
 	UserCertificateAPI& sslapi;
 
+	// The fingerprint forwarded by the proxy for the client certificate.
+	std::string certificate_fingerprint;
+
+	// The fake certificate we attach for this connection, if any.
+	ssl_cert* certificate = nullptr;
+
 	// The current state of the PROXY parser.
 	HAProxyState state = HPS_WAITING_FOR_HEADER;
 
@@ -172,15 +181,62 @@ private:
 		}
 
 		// What type of TLV are we parsing?
-		switch (recvq[start_index])
+		switch (static_cast<uint8_t>(recvq[start_index]))
 		{
 			case PP2_TYPE_SSL:
 				if (!ReadProxyTLVSSL(sock, start_index + PP2_TLV_LENGTH, length))
 					return 0;
 				break;
+
+			case PP2_TYPE_CERTFP:
+				if (!ReadProxyTLVCertFP(sock, start_index + PP2_TLV_LENGTH, length))
+					return 0;
+				break;
 		}
 
 		return PP2_TLV_LENGTH + length;
+	}
+
+	bool ReadProxyTLVCertFP(StreamSocket* sock, size_t start_index, uint16_t buffer_length)
+	{
+		// If the socket is not a user socket we don't have to do
+		// anything with this TLV's information.
+		if (sock->type != StreamSocket::SS_USER)
+			return true;
+
+		// The fingerprint must be a 20-byte raw SHA-1 digest.
+		if (buffer_length != 20)
+		{
+			ServerInstance->Logs.Debug(MODNAME, "Ignoring PP2_TYPE_CERTFP TLV with unexpected length {} (expected 20)", buffer_length);
+			return true;
+		}
+
+		std::string& recvq = GetRecvQ();
+
+		// Convert to lowercase hex to match InspIRCd's fingerprint format.
+		static constexpr char hex[] = "0123456789abcdef";
+		certificate_fingerprint.resize(40);
+		for (size_t i = 0; i < 20; ++i)
+		{
+			const uint8_t byte = static_cast<uint8_t>(recvq[start_index + i]);
+			certificate_fingerprint[i * 2]     = hex[byte >> 4];
+			certificate_fingerprint[i * 2 + 1] = hex[byte & 0x0F];
+		}
+
+		ServerInstance->Logs.Debug(MODNAME, "Received certificate fingerprint from HAProxy: {}", certificate_fingerprint);
+
+		// If the SSL TLV was already processed, patch the existing certificate
+		// with the fingerprint now that we have it.
+		if (certificate)
+		{
+			certificate->fingerprints.push_back(certificate_fingerprint);
+			certificate->invalid = false;
+			certificate->trusted = true;
+			certificate->unknownsigner = false;
+			certificate->revoked = false;
+			certificate->error.clear();
+		}
+		return true;
 	}
 
 	bool ReadProxyTLVSSL(StreamSocket* sock, size_t start_index, uint16_t buffer_length)
@@ -207,19 +263,35 @@ private:
 		if ((recvq[start_index] & PP2_CLIENT_SSL) == 0)
 			return true;
 
-		// Create a fake ssl_cert for the user. Ideally we should use the user's
-		// TLS client certificate here but as of 2018-10-16 this is not forwarded
-		// by HAProxy.
-		auto* cert = new ssl_cert();
-		cert->error = "HAProxy does not forward client TLS certificates";
-		cert->invalid = true;
-		cert->revoked = true;
-		cert->trusted = false;
-		cert->unknownsigner = true;
+		// Create a fake ssl_cert for the user. If the proxy already forwarded a
+		// certificate fingerprint via PP2_TYPE_CERTFP we use it; otherwise we only
+		// know the client was connected over TLS.
+		if (!certificate)
+		{
+			auto* cert = new ssl_cert();
+			cert->dn = "(unknown)";
+			cert->issuer = "(unknown)";
 
-		// Extract the user for this socket and set their certificate.
-		LocalUser* luser = static_cast<UserIOHandler*>(sock)->user;
-		sslapi->SetCertificate(luser, cert);
+			if (!certificate_fingerprint.empty())
+			{
+				cert->fingerprints.push_back(certificate_fingerprint);
+				cert->invalid = false;
+				cert->trusted = true;
+				cert->unknownsigner = false;
+			}
+			else
+			{
+				cert->error = "HAProxy does not forward client TLS certificates";
+				cert->invalid = true;
+				cert->revoked = true;
+				cert->trusted = false;
+				cert->unknownsigner = true;
+			}
+
+			LocalUser* luser = static_cast<UserIOHandler*>(sock)->user;
+			sslapi->SetCertificate(luser, cert);
+			certificate = cert;
+		}
 		return true;
 	}
 
