@@ -158,7 +158,7 @@ private:
 	std::string certificate_fingerprint;
 
 	// The fake certificate we attach for this connection, if any.
-	ssl_cert* certificate = nullptr;
+	reference<ssl_cert> certificate;
 
 	// The current state of the PROXY parser.
 	HAProxyState state = HPS_WAITING_FOR_HEADER;
