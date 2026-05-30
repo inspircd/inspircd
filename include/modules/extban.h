@@ -212,7 +212,7 @@ protected:
 	 * @param xbname The name used in bans to signify this extban.
 	 * @param xbletter The character used in bans to signify this extban.
 	 */
-	Base(Module* mod, const std::string& xbname, ExtBan::Letter xbletter)
+	Base(Module* mod, const std::string& xbname, ExtBan::Letter xbletter = '\0')
 		: ServiceProvider(mod, xbname, SERVICE_CUSTOM)
 		, letter(ServerInstance->Config->ConfValue("extbans")->getCharacter(xbname, xbletter, true))
 		, manager(mod, "extbanmanager")
@@ -299,7 +299,7 @@ protected:
 	 * @param xbname The name used in bans to signify this extban.
 	 * @param xbletter The character used in bans to signify this extban.
 	 */
-	ActingBase(Module* mod, const std::string& xbname, ExtBan::Letter xbletter)
+	ActingBase(Module* mod, const std::string& xbname, ExtBan::Letter xbletter = '\0')
 		: Base(mod, xbname, xbletter)
 	{
 	}
@@ -345,7 +345,7 @@ public:
 	 * @param xbname The name used in bans to signify this extban.
 	 * @param xbletter The character used in bans to signify this extban.
 	 */
-	Acting(Module* mod, const std::string& xbname, ExtBan::Letter xbletter)
+	Acting(Module* mod, const std::string& xbname, ExtBan::Letter xbletter = '\0')
 		: ActingBase(mod, xbname, xbletter)
 	{
 	}
@@ -375,7 +375,7 @@ protected:
 	 * @param xbname The name used in bans to signify this extban.
 	 * @param xbletter The character used in bans to signify this extban.
 	 */
-	MatchingBase(Module* mod, const std::string& xbname, ExtBan::Letter xbletter)
+	MatchingBase(Module* mod, const std::string& xbname, ExtBan::Letter xbletter = '\0')
 		: Base(mod, xbname, xbletter)
 	{
 	}
