@@ -205,10 +205,10 @@ private:
 		if (sock->type != StreamSocket::SS_USER)
 			return true;
 
-		// The fingerprint must be a 20-byte raw SHA-1 digest.
-		if (buffer_length != 20)
+		// The fingerprint must be a non-empty raw digest of a plausible size.
+		if (buffer_length == 0 || buffer_length > 64)
 		{
-			ServerInstance->Logs.Debug(MODNAME, "Ignoring PP2_TYPE_CERTFP TLV with unexpected length {} (expected 20)", buffer_length);
+			ServerInstance->Logs.Debug(MODNAME, "Ignoring PP2_TYPE_CERTFP TLV with unexpected length {}", buffer_length);
 			return true;
 		}
 
