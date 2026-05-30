@@ -21,6 +21,7 @@
 
 #include "inspircd.h"
 #include "iohook.h"
+#include "stringutils.h"
 #include "modules/ssl.h"
 
 enum
@@ -213,15 +214,7 @@ private:
 
 		std::string& recvq = GetRecvQ();
 
-		// Convert to lowercase hex to match InspIRCd's fingerprint format.
-		static constexpr char hex[] = "0123456789abcdef";
-		certificate_fingerprint.resize(40);
-		for (size_t i = 0; i < 20; ++i)
-		{
-			const uint8_t byte = static_cast<uint8_t>(recvq[start_index + i]);
-			certificate_fingerprint[i * 2]     = hex[byte >> 4];
-			certificate_fingerprint[i * 2 + 1] = hex[byte & 0x0F];
-		}
+		certificate_fingerprint = Hex::Encode(&recvq[start_index], buffer_length);
 
 		ServerInstance->Logs.Debug(MODNAME, "Received certificate fingerprint from HAProxy: {}", certificate_fingerprint);
 
