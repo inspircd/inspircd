@@ -334,10 +334,13 @@ public:
 		mysql_options(connection, MYSQL_OPT_CONNECT_TIMEOUT, &timeout);
 
 		// Enable SSL if requested.
+		const bool tls = config->getBool("tls", config->getBool("ssl"));
 #if defined LIBMYSQL_VERSION_ID && LIBMYSQL_VERSION_ID > 80000
-		const bool usetls = config->getBool("tls", config->getBool("ssl"));
-		unsigned int ssl = usetls ? SSL_MODE_REQUIRED : SSL_MODE_PREFERRED;
-		mysql_options(connection, MYSQL_OPT_SSL_MODE, &ssl);
+		unsigned int sslmode = tls ? SSL_MODE_REQUIRED : SSL_MODE_PREFERRED;
+		mysql_options(connection, MYSQL_OPT_SSL_MODE, &sslmode);
+#else
+		// my_bool and bool function the same with regards to truthiness.
+		mysql_options(connection, MYSQL_OPT_SSL_ENFORCE, &tls);
 #endif
 
 		// Attempt to connect to the database.
