@@ -505,7 +505,7 @@ namespace GnuTLS
 				, certstr(ReadFile(tag->getString("certfile", "cert.pem", 1)))
 				, keystr(ReadFile(tag->getString("keyfile", "key.pem", 1)))
 				, priostr(GetPrioStr(profilename, tag))
-				, mindh(tag->getNum<unsigned int>("mindhbits", 1024))
+				, mindh(tag->getNum<unsigned int>("mindhbits", 2048))
 				, hashstr(tag->getString("hash", "sha256", 1))
 				, requestclientcert(tag->getBool("requestclientcert", true))
 			{
