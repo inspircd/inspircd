@@ -213,7 +213,7 @@ private:
 		}
 
 		std::string& recvq = GetRecvQ();
-		const std::string certificate_fingerprint(&recvq[start_index], buffer_length);
+		certificate_fingerprint.assign(&recvq[start_index], buffer_length);
 
 		// Verify every character is a valid hexadecimal digit.
 		if (!std::all_of(certificate_fingerprint.begin(), certificate_fingerprint.end(), [](unsigned char c) { return std::isxdigit(c); }))
