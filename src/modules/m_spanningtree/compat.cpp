@@ -148,7 +148,7 @@ void TreeSocket::WriteLine(const std::string& original_line)
 					if (lastpos != std::string::npos)
 					{
 						WriteLineInternal(line.substr(0, lastpos));
-						line.erase(modesend, lastpos - modesend);
+						line.erase(modesend + 2, lastpos - modesend - 1);
 					}
 				}
 			}
