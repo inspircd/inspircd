@@ -205,16 +205,23 @@ private:
 		if (sock->type != StreamSocket::SS_USER)
 			return true;
 
-		// The fingerprint must be a non-empty raw digest of a plausible size.
-		if (buffer_length == 0 || buffer_length > 64)
+		// The fingerprint must be a non-empty hex-encoded digest of a plausible size.
+		// A hex string must have an even length and at most 128 chars (64-byte digest).
+		if (buffer_length == 0 || buffer_length % 2 != 0 || buffer_length > 128)
 		{
 			ServerInstance->Logs.Debug(MODNAME, "Ignoring PP2_TYPE_CERTFP TLV with unexpected length {}", buffer_length);
 			return true;
 		}
 
 		std::string& recvq = GetRecvQ();
+		const std::string certificate_fingerprint(&recvq[start_index], buffer_length);
 
-		certificate_fingerprint = Hex::Encode(&recvq[start_index], buffer_length);
+		// Verify every character is a valid hexadecimal digit.
+		if (!std::all_of(certificate_fingerprint.begin(), certificate_fingerprint.end(), [](unsigned char c) { return std::isxdigit(c); }))
+		{
+			ServerInstance->Logs.Debug(MODNAME, "Ignoring PP2_TYPE_CERTFP TLV with non-hex content");
+			return true;
+		}
 
 		ServerInstance->Logs.Debug(MODNAME, "Received certificate fingerprint from HAProxy: {}", certificate_fingerprint);
 
