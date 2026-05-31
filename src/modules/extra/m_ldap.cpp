@@ -465,6 +465,80 @@ public:
 		QueueRequest(new LDAPCompare(this, i, dn, attr, val));
 	}
 
+	std::string EscapeDN(const std::string& str) const override
+	{
+		if (str.empty())
+			return str;
+
+		std::string newstr;
+		newstr.reserve(str.length());
+		for (size_t idx = 0; idx < str.length(); ++idx)
+		{
+			const char chr = str[idx];
+			if (chr == '\0')
+			{
+				newstr.append("\\00");
+			}
+			else if (chr == '"'  || chr == '+' || chr == ',' || chr == ';' ||
+				chr == '<'  || chr == '=' || chr == '>' || chr == '\\')
+			{
+				newstr.push_back('\\');
+				newstr.push_back(chr);
+			}
+			else if (idx == 0 && (chr == '#' || chr == ' '))
+			{
+				newstr.push_back('\\');
+				newstr.push_back(chr);
+			}
+			else if (idx == str.length() - 1 && chr == ' ')
+			{
+				newstr.push_back('\\');
+				newstr.push_back(chr);
+			}
+			else
+			{
+				newstr.push_back(chr);
+			}
+		}
+
+		return newstr;
+	}
+
+	std::string EscapeSF(const std::string& str) const override
+	{
+		if (str.empty())
+			return str;
+
+		std::string newstr;
+		newstr.reserve(str.length());
+		for (size_t idx = 0; idx < str.length(); ++idx)
+		{
+			const char chr = str[idx];
+			switch (chr)
+			{
+				case '\0':
+					newstr.append("\\00");
+					break;
+				case '(':
+					newstr.append("\\28");
+					break;
+				case ')':
+					newstr.append("\\29");
+					break;
+				case '*':
+					newstr.append("\\2A");
+					break;
+				case '\\':
+					newstr.append("\\5C");
+					break;
+				default:
+					newstr.push_back(chr);
+					break;
+			}
+		}
+		return newstr;
+	}
+
 private:
 	void BuildReply(int res, LDAPRequest* req)
 	{

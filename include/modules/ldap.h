@@ -191,4 +191,15 @@ public:
 	 * @param val value to compare attr of dn
 	 */
 	virtual void Compare(LDAPInterface* i, const std::string& dn, const std::string& attr, const std::string& val) = 0;
+
+	/** Escapes a LDAP string for use in a DN.
+	 * @param str The string to escape.
+	 */
+	virtual std::string EscapeDN(const std::string& str) const = 0;
+
+	/** Escapes a LDAP string for use in a search filter.
+	 * @param str The string to escape.
+	 */
+	virtual std::string EscapeSF(const std::string& str) const = 0;
+
 };
