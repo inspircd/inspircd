@@ -21,7 +21,6 @@
 
 #include "inspircd.h"
 #include "iohook.h"
-#include "stringutils.h"
 #include "modules/ssl.h"
 
 enum
