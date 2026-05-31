@@ -48,6 +48,8 @@ struct LDAPModification final
 
 typedef std::vector<LDAPModification> LDAPMods;
 
+using LDAPAttribute = std::pair<std::string, std::string>;
+
 struct LDAPAttributes final
 	: public std::map<std::string, std::vector<std::string>>
 {
