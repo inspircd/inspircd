@@ -132,6 +132,7 @@ class ModuleNickFlood final
 private:
 	CheckExemption::EventProvider exemptionprov;
 	NickFlood nf;
+	ModeHandler::Rank notifyrank;
 
 public:
 	ModuleNickFlood()
@@ -145,6 +146,7 @@ public:
 	{
 		const auto& tag = ServerInstance->Config->ConfValue("nickflood");
 		duration = static_cast<unsigned int>(tag->getDuration("duration", 60, 10, 600));
+		notifyrank = tag->getNum<ModeHandler::Rank>("notifyrank", 0);
 	}
 
 	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) override
@@ -169,8 +171,10 @@ public:
 				{
 					f->clear();
 					f->lock();
+
+					auto* pm = notifyrank ? ServerInstance->Modes.FindNearestPrefixMode(notifyrank) : nullptr;
 					memb->chan->WriteNotice(FMT::format("No nick changes are allowed for {} because there have been more than {} nick changes in {}.",
-						Duration::ToLongString(duration), f->nicks, Duration::ToLongString(f->secs)));
+						Duration::ToLongString(duration), f->nicks, Duration::ToLongString(f->secs)), pm ? pm->GetPrefix() : 0);
 					return MOD_RES_DENY;
 				}
 			}

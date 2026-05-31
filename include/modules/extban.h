@@ -245,7 +245,7 @@ protected:
 	 * @param xbletter The character used in bans to signify this extban.
 	 * @param xbmatchflags The flags used for matching.
 	 */
-	Base(const WeakModulePtr& mod, const std::string& xbname, ExtBan::Letter xbletter, uint8_t xbmatchflags = ExtBan::MATCH_DEFAULT)
+	Base(const WeakModulePtr& mod, const std::string& xbname, ExtBan::Letter xbletter = '\0', uint8_t xbmatchflags = ExtBan::MATCH_DEFAULT)
 		: Service::Provider(mod, "ExtBan::Base", xbname)
 		, letter(ServerInstance->Config->ConfValue("extbans")->getCharacter(xbname, xbletter, true))
 		, manager(mod, "extbanmanager")
@@ -346,7 +346,7 @@ protected:
 	 * @param xbletter The character used in bans to signify this extban.
 	 * @param xbmatchflags The flags used for matching.
 	 */
-	ActingBase(const WeakModulePtr& mod, const std::string& xbname, ExtBan::Letter xbletter, uint8_t xbmatchflags = ExtBan::MATCH_DEFAULT)
+	ActingBase(const WeakModulePtr& mod, const std::string& xbname, ExtBan::Letter xbletter = '\0', uint8_t xbmatchflags = ExtBan::MATCH_DEFAULT)
 		: Base(mod, xbname, xbletter, xbmatchflags | ExtBan::MATCH_REQUIRE_CHANNEL)
 	{
 	}
@@ -392,7 +392,7 @@ public:
 	 * @param xbname The name used in bans to signify this extban.
 	 * @param xbletter The character used in bans to signify this extban.
 	 */
-	Acting(const WeakModulePtr& mod, const std::string& xbname, ExtBan::Letter xbletter)
+	Acting(const WeakModulePtr& mod, const std::string& xbname, ExtBan::Letter xbletter = '\0')
 		: ActingBase(mod, xbname, xbletter)
 	{
 	}
@@ -424,7 +424,7 @@ protected:
 	 * @param xbletter The character used in bans to signify this extban.
 	 * @param xbmatchflags The flags used for matching.
 	 */
-	MatchingBase(const WeakModulePtr& mod, const std::string& xbname, ExtBan::Letter xbletter, uint8_t xbmatchflags = ExtBan::MATCH_DEFAULT)
+	MatchingBase(const WeakModulePtr& mod, const std::string& xbname, ExtBan::Letter xbletter = '\0', uint8_t xbmatchflags = ExtBan::MATCH_DEFAULT)
 		: Base(mod, xbname, xbletter, xbmatchflags)
 	{
 	}
