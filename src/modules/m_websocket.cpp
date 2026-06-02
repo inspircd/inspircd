@@ -719,6 +719,12 @@ public:
 			if (allow.empty())
 				throw ModuleException(this, "<wsorigin:allow> is a mandatory field, at " + tag->source.str());
 
+			if (insp::equalsci(allow, "*") || insp::equalsci(allow, "http://*") || insp::equalsci(allow, "https://*"))
+			{
+				ServerInstance->Logs.Warning(MODNAME, "<wsorigin> tag for {} at {} allows any website to connect to your server, this puts you at risk of web-based spam attacks!",
+					allow, tag->source.str());
+			}
+
 			config.allowedorigins.push_back(allow);
 		}
 
