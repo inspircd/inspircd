@@ -228,12 +228,7 @@ private:
 		// with the fingerprint now that we have it.
 		if (certificate)
 		{
-			certificate->fingerprints.push_back(certificate_fingerprint);
-			certificate->invalid = false;
-			certificate->trusted = true;
-			certificate->unknownsigner = false;
-			certificate->revoked = false;
-			certificate->error.clear();
+			SetCertificateFingerprint(certificate);
 		}
 		return true;
 	}
@@ -273,10 +268,7 @@ private:
 
 			if (!certificate_fingerprint.empty())
 			{
-				cert->fingerprints.push_back(certificate_fingerprint);
-				cert->invalid = false;
-				cert->trusted = true;
-				cert->unknownsigner = false;
+				SetCertificateFingerprint(cert);
 			}
 			else
 			{
@@ -445,6 +437,16 @@ private:
 
 		state = HPS_WAITING_FOR_ADDRESS;
 		return ReadProxyAddress(sock, destrecvq);
+	}
+
+	void SetCertificateFingerprint(ssl_cert* cert)
+	{
+		cert->fingerprints.push_back(std::move(certificate_fingerprint));
+		cert->invalid = false;
+		cert->trusted = true;
+		cert->unknownsigner = false;
+		cert->revoked = false;
+		cert->error.clear();
 	}
 
 public:
