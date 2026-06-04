@@ -1,9 +1,9 @@
-Since the first commit in January 2003 109 people have submitted patches,
+Since the first commit in January 2003 111 people have submitted patches,
 commits, and other useful contributions to InspIRCd. These people, ordered by
 the number of contributions they have made, are:
 
   * Craig Edwards <brain@inspircd.org>
-  * Sadie Powell <sadie@witchery.services>
+  * Sadie Powell <sadie@sadiepowell.dev>
   * Attila Molnar <attilamolnar@hush.com>
   * Robin Burchell <robin+git@viroteck.net>
   * Daniel De Graaf <danieldg@inspircd.org>
@@ -65,9 +65,11 @@ the number of contributions they have made, are:
   * PhilSliderS
   * 0x277F <0x277F@gmail.com>
   * A_D
+  * aasb13 <as_above_so_below31@proton.me>
   * Adrien Bustany <adrien@bustany.org>
   * Akinwale Ariwodola <akinwale@gmail.com>
   * Alyx <alyx@malkier.net>
+  * Atlas
   * Boleslaw Tokarski <boleslaw.tokarski@tieto.com>
   * Chew
   * Chris Novakovic
