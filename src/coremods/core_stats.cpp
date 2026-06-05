@@ -257,9 +257,9 @@ void CommandStats::DoStats(Stats::Context& stats)
 			float kbitpersec_total;
 			SocketEngine::GetStats().GetBandwidth(kbitpersec_in, kbitpersec_out, kbitpersec_total);
 
-			stats.AddRow(249, INSP_FORMAT("Bandwidth total:  {:03.5} kilobits/sec", kbitpersec_total));
-			stats.AddRow(249, INSP_FORMAT("Bandwidth out:    {:03.5} kilobits/sec", kbitpersec_out));
-			stats.AddRow(249, INSP_FORMAT("Bandwidth in:     {:03.5} kilobits/sec", kbitpersec_in));
+			stats.AddRow(249, INSP_FORMAT("Bandwidth total:  {:.5} kilobits/sec", kbitpersec_total));
+			stats.AddRow(249, INSP_FORMAT("Bandwidth out:    {:.5} kilobits/sec", kbitpersec_out));
+			stats.AddRow(249, INSP_FORMAT("Bandwidth in:     {:.5} kilobits/sec", kbitpersec_in));
 
 #ifndef _WIN32
 			/* Moved this down here so all the not-windows stuff (look w00tie, I didn't say win32!) is in one ifndef.
@@ -331,7 +331,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 			stats.AddRow(249, "unknown commands "+ConvToStr(ServerInstance->Stats.Unknown));
 			stats.AddRow(249, "nick collisions "+ConvToStr(ServerInstance->Stats.Collisions));
 			stats.AddRow(249, "connection count "+ConvToStr(ServerInstance->Stats.Connects));
-			stats.AddRow(249, INSP_FORMAT("bytes sent {:5.2}K recv {:5.2}K",
+			stats.AddRow(249, INSP_FORMAT("bytes sent {:.2}K recv {:.2}K",
 				ServerInstance->Stats.Sent / 1024.0, ServerInstance->Stats.Recv / 1024.0));
 		}
 		break;
