@@ -5,7 +5,7 @@
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2017 Dylan Frank <b00mx0r@aureus.pw>
- *   Copyright (C) 2013, 2017, 2019-2023, 2025 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2013, 2017, 2019-2023, 2025 Sadie Powell <sadie@sadiepowell.dev>
  *   Copyright (C) 2012-2016 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2012 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>

@@ -4,7 +4,7 @@
  *   Copyright (C) 2021 Andrio Celos <AndrioCelos@users.noreply.github.com>
  *   Copyright (C) 2021 Andrio Celos
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2018-2024 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2018-2024 Sadie Powell <sadie@sadiepowell.dev>
  *   Copyright (C) 2017 Dylan Frank <b00mx0r@aureus.pw>
  *   Copyright (C) 2014-2016 Attila Molnar <attilamolnar@hush.com>
  *

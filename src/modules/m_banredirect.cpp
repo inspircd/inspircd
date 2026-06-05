@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2021 Dominic Hamon
- *   Copyright (C) 2020-2023, 2026 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2020-2023, 2026 Sadie Powell <sadie@sadiepowell.dev>
  *   Copyright (C) 2018 linuxdaemon <linuxdaemon.irc@gmail.com>
  *   Copyright (C) 2014 Adam <Adam@anope.org>
  *   Copyright (C) 2013-2014 Attila Molnar <attilamolnar@hush.com>
