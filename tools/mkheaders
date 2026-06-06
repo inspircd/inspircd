@@ -40,10 +40,11 @@ my @ignored_revisions = (
 	'f2acdbc3820f0f4f5ef76a0a64e73d2a320df91f', # peavey fixing line endings
 );
 
-sub make_range($@) {
-	my ($separator, @nums) = @_;
+sub make_range($$@) {
+	my ($separator, $collapse, @nums) = @_;
 	my ($last_num, $start_num, @num_ranges);
-	for my $num (uniq sort { $a <=> $b } @nums) {
+	my @sorted_nums = uniq sort { $a <=> $b } @nums;
+	for my $num (@sorted_nums) {
 		if (!defined $last_num) {
 			$start_num = $last_num = $num
 		} elsif ($num == $last_num + 1) {
@@ -63,6 +64,9 @@ sub make_range($@) {
 		} else {
 			push @num_ranges, "$start_num$separator$last_num";
 		}
+	}
+	if ($collapse > 1 && scalar(@num_ranges) >= $collapse) {
+		return "$sorted_nums[0]~$sorted_nums[-1]";
 	}
 	return @num_ranges;
 }
@@ -99,7 +103,7 @@ for my $path (@paths) {
 		say console_format "Updating copyright headers in <|GREEN $path|>." if defined $ENV{MKHEADERS_VERBOSE};
 		my (%authors, $commit, %commits);
 		my $ignored_args = join ' ', map { "--ignore-rev $_" } @ignored_revisions;
-		my $line_args = join ' ', map { "-L $_" } make_range ',', @linenums;
+		my $line_args = join ' ', map { "-L $_" } make_range ',', 0, @linenums;
 		for my $line (split /\n+/, `git blame $ignored_args $line_args --incremental -M -w HEAD -- $path`) {
 			if ($line =~ /^([0-9a-f]{40})(?:\s\d+){3}$/) {
 				$commit = $1;
@@ -135,7 +139,7 @@ for my $path (@paths) {
 		my @copyrights;
 		while (my ($display, $years) = each %authors) {
 			next if $display eq 'InspIRCd Robot <noreply@inspircd.org>';
-			my @year_ranges = make_range '-', @$years;
+			my @year_ranges = make_range '-', 5, @$years;
 			my $joined_years = join ', ', @year_ranges;
 			push @copyrights, "${\$indent}Copyright (C) $joined_years $display";
 		}
