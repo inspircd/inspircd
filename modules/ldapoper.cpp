@@ -146,10 +146,10 @@ class AdminBindInterface final
 	const std::string opername;
 	const std::string password;
 	const std::string base;
-	const std::string what;
+	const LDAPAttribute what;
 
 public:
-	AdminBindInterface(const WeakModulePtr& c, const std::string& p, const std::string& u, const std::string& o, const std::string& pa, const std::string& b, const std::string& w)
+	AdminBindInterface(const WeakModulePtr& c, const std::string& p, const std::string& u, const std::string& o, const std::string& pa, const std::string& b, const LDAPAttribute& w)
 		: LDAPInterface(c)
 		, provider(p)
 		, user(u)
@@ -167,7 +167,8 @@ public:
 		{
 			try
 			{
-				LDAP->Search(new SearchInterface(this->creator, provider, user, opername, password), base, what);
+				const auto sf = FMT::format("{}={}", what.first, LDAP->EscapeSF(what.second));
+				LDAP->Search(new SearchInterface(this->creator, provider, user, opername, password), base, sf);
 			}
 			catch (const LDAPException& ex)
 			{
@@ -226,7 +227,9 @@ public:
 
 			try
 			{
-				std::string what = attribute + "=" + opername;
+				LDAPAttribute what;
+				what.first = attribute;
+				what.second = opername;
 				LDAP->BindAsManager(new AdminBindInterface(weak_from_this(), LDAP.GetProviderName(), user->uuid, opername, password, base, what));
 				return MOD_RES_DENY;
 			}

@@ -274,10 +274,10 @@ class AdminBindInterface final
 	const std::string provider;
 	const std::string uuid;
 	const std::string base;
-	const std::string what;
+	const LDAPAttribute what;
 
 public:
-	AdminBindInterface(const WeakModulePtr& c, const std::string& p, const std::string& u, const std::string& b, const std::string& w)
+	AdminBindInterface(const WeakModulePtr& c, const std::string& p, const std::string& u, const std::string& b, const LDAPAttribute& w)
 		: LDAPInterface(c)
 		, provider(p)
 		, uuid(u)
@@ -293,7 +293,8 @@ public:
 		{
 			try
 			{
-				LDAP->Search(new SearchInterface(this->creator, provider, uuid), base, what);
+				const auto sf = FMT::format("{}={}", what.first, LDAP->EscapeSF(what.second));
+				LDAP->Search(new SearchInterface(this->creator, provider, uuid), base, sf);
 			}
 			catch (const LDAPException& ex)
 			{
@@ -413,15 +414,16 @@ public:
 			return MOD_RES_DENY;
 		}
 
-		std::string what = attribute + "=";
+		LDAPAttribute what;
+		what.first = attribute;
 		switch (field)
 		{
 			case AuthField::NICKNAME:
-				what += user->nick;
+				what.second = user->nick;
 				break;
 
 			case AuthField::USERNAME:
-				what += user->GetRealUser();
+				what.second = user->GetRealUser();
 				break;
 
 			case AuthField::PASSWORD:
@@ -435,7 +437,7 @@ public:
 					return MOD_RES_DENY;
 				}
 
-				what += user->password.substr(0, pos);
+				what.second = user->password.substr(0, pos);
 				user->password.erase(0, pos + 1);
 				user->password.shrink_to_fit();
 				break;
