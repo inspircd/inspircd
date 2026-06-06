@@ -3,7 +3,7 @@ commits, and other useful contributions to InspIRCd. These people, ordered by
 the number of contributions they have made, are:
 
   * Craig Edwards <brain@inspircd.org>
-  * Sadie Powell <sadie@witchery.services>
+  * Sadie Powell <sadie@sadiepowell.dev>
   * Attila Molnar <attilamolnar@hush.com>
   * Robin Burchell <robin+git@viroteck.net>
   * Daniel De Graaf <danieldg@inspircd.org>

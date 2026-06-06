@@ -2,7 +2,7 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *   Copyright (C) 2021 Dominic Hamon
- *   Copyright (C) 2020-2023 Sadie Powell <sadie@witchery.services>
+ *   Copyright (C) 2020-2023 Sadie Powell <sadie@sadiepowell.dev>
  *   Copyright (C) 2019 Robby <robby@chatbelgie.be>
  *   Copyright (C) 2013, 2016 Attila Molnar <attilamolnar@hush.com>
  *
