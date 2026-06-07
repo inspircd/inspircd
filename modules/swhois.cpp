@@ -174,7 +174,7 @@ private:
 		}
 
 		auto& swhois = AddSWhois(swhoisext, target, parameters.back());
-		if (parameters.size() > 3 && parameters[3].find_first_not_of("0123456789+-") == std::string::npos)
+		if (parameters.size() > 3 && parameters[2].find_first_not_of("0123456789+-") == std::string::npos)
 			swhois.priority = ConvToNum<time_t>(parameters[2]);
 		ServerInstance->PI->SendMetadata(target, "specialwhois", swhois.SerializeAdd());
 
