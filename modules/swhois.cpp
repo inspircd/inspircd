@@ -43,7 +43,7 @@ struct SWhois final
 		FLAG_OPER_ONLY = 4,
 
 		// The message was set by a server and can not be removed by an operator.
-		FLAG_SERVER_SET = 2,
+		FLAG_SERVER_SET = 8,
 	};
 
 	// The flags that apply to this entry.
