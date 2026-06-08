@@ -611,9 +611,10 @@ def cmd_extra_interactive(commands, args, start):
     modules_to_disable = []
     for module_name in sorted(module.EXTRA_DIR.glob("*.cpp")):
         short_name = module.short_name(module_name)
-        print(f"Would you like to enable the {console.color(short_name, console.BOLD)} module?")
+        long_module = module.DIR / module.file_name(short_name)
 
-        if console.prompt_boolean(False):
+        print(f"Would you like to build the {console.color(short_name, console.BOLD)} module?")
+        if console.prompt_boolean(long_module.exists()):
             modules_to_enable.append(short_name)
         else:
             modules_to_disable.append(short_name)
