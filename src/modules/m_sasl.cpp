@@ -272,7 +272,7 @@ public:
 		this->result = SASL_ABORT;
 	}
 
-	void NotifyServicesAbort()
+	void NotifyAbort()
 	{
 		if (this->state == SASL_DONE)
 			return;
@@ -476,7 +476,7 @@ public:
 	{
 		SaslAuthenticator* saslauth = authExt.Get(user);
 		if (saslauth)
-			saslauth->NotifyServicesAbort();
+			saslauth->NotifyAbort();
 	}
 
 	void OnDecodeMetadata(Extensible* target, const std::string& extname, const std::string& extdata) override
