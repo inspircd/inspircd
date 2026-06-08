@@ -272,6 +272,15 @@ public:
 		this->result = SASL_ABORT;
 	}
 
+	void NotifyServicesAbort()
+	{
+		if (this->state == SASL_DONE)
+			return;
+
+		SendSASL(this->user, this->agent.empty() ? "*" : this->agent, 'D', { "A" });
+		this->state = SASL_DONE;
+	}
+
 	bool SendClientMessage(const std::vector<std::string>& parameters)
 	{
 		if (this->state != SASL_COMM)
@@ -461,6 +470,13 @@ public:
 			saslauth->AnnounceState();
 			authExt.Unset(user);
 		}
+	}
+
+	void OnUserDisconnect(LocalUser* user) override
+	{
+		SaslAuthenticator* saslauth = authExt.Get(user);
+		if (saslauth)
+			saslauth->NotifyServicesAbort();
 	}
 
 	void OnDecodeMetadata(Extensible* target, const std::string& extname, const std::string& extdata) override
