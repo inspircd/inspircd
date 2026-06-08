@@ -62,7 +62,10 @@ def interactive():
 # Prompts for the user to enter a boolean value.
 def prompt_boolean(default):
     while True:
-        answer = prompt_string("yes" if default else "no").lower()
+        if default:
+            answer = prompt_string("yes", BOLD_GREEN).lower()
+        else:
+            answer = prompt_string("no", BOLD_RED).lower()
         if answer in ("y", "yes"):
             return True
         if answer in ("n", "no"):
@@ -71,8 +74,8 @@ def prompt_boolean(default):
 
 
 # Prompts for the user to enter a string value.
-def prompt_string(default):
-    answer = input(f"[{color(default, BOLD)}] => ").strip()
+def prompt_string(default, style=BOLD):
+    answer = input(f"[{color(default, style)}] => ").strip()
     print()
     return answer if answer else default
 
