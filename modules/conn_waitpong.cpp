@@ -28,6 +28,7 @@
 class ModuleWaitPong final
 	: public Module
 {
+private:
 	bool sendsnotice;
 	bool killonbadreply;
 	StringExtItem ext;
@@ -48,41 +49,37 @@ public:
 
 	ModResult OnUserRegister(LocalUser* user) override
 	{
-		std::string pingrpl = ServerInstance->GenRandomStr(10);
+		const auto pingcookie = ServerInstance->GenRandomStr(16);
+		ext.Set(user, pingcookie);
+
+		ClientProtocol::Messages::Ping pingmsg(pingcookie);
+		user->Send(ServerInstance->GetRFCEvents().ping, pingmsg);
+
+		if (sendsnotice)
 		{
-			ClientProtocol::Messages::Ping pingmsg(pingrpl);
-			user->Send(ServerInstance->GetRFCEvents().ping, pingmsg);
+			user->WriteNotice("*** If you are having problems connecting due to connection timeouts type `/QUOTE PONG {}` or `/RAW PONG {}` now.",
+				pingcookie, pingcookie);
 		}
 
-		if(sendsnotice)
-			user->WriteNotice("*** If you are having problems connecting due to connection timeouts type /quote PONG " + pingrpl + " or /raw PONG " + pingrpl + " now.");
-
-		ext.Set(user, pingrpl);
 		return MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnPreCommand(std::string& command, CommandBase::Params& parameters, LocalUser* user, bool validated) override
 	{
-		if (command == "PONG")
-		{
-			std::string* pingrpl = ext.Get(user);
+		if (command != "PONG")
+			return MOD_RES_PASSTHRU; // We don't care about this command.
 
-			if (pingrpl)
-			{
-				if (!parameters.empty() && *pingrpl == parameters[0])
-				{
-					ext.Unset(user);
-					return MOD_RES_DENY;
-				}
-				else
-				{
-					if(killonbadreply)
-						ServerInstance->Users.QuitUser(user, "Incorrect ping reply for connection");
-					return MOD_RES_DENY;
-				}
-			}
-		}
-		return MOD_RES_PASSTHRU;
+		const auto* pingcookie = ext.Get(user);
+		if (!pingcookie)
+			return MOD_RES_PASSTHRU; // User has responded with their ping cookie.
+
+		if (!parameters.empty() && *pingcookie == parameters[0])
+			ext.Unset(user); // The user specified the right ping cookie.
+
+		else if (killonbadreply)
+			ServerInstance->Users.QuitUser(user, "Incorrect ping reply for connection");
+
+		return MOD_RES_DENY;
 	}
 
 	ModResult OnCheckReady(LocalUser* user) override
