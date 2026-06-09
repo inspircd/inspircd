@@ -254,7 +254,7 @@ private:
 	using FileSource = insp::casemapped_flat_map<std::pair<std::string, bool>>;
 
 	/** Holds the server config. */
-	using TagMap = insp::casemapped_flat_multimap<std::shared_ptr<ConfigTag>>;
+	using TagMap = insp::casemapped_multimap<std::shared_ptr<ConfigTag>>;
 
 	/** The server config. */
 	TagMap config_data;
