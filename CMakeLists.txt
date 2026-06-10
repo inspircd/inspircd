@@ -22,6 +22,7 @@ project("InspIRCd" LANGUAGES "C" "CXX")
 
 include("CheckFunctionExists")
 include("CheckLinkerFlag")
+include("CheckPIESupported")
 include("FindPackageHandleStandardArgs")
 
 # Include our custom CMake modules.
@@ -41,6 +42,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # Enable -fPIC for all targets.
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+check_pie_supported()
 
 # Enable -fvisibility for all targets.
 set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
