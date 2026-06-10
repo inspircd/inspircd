@@ -40,6 +40,8 @@ enum AuthState
 
 using AuthExtItem = NumExtItem<AuthState>;
 
+static Hash::ProviderRef *g_hashprov;
+
 class AuthQuery final
 	: public SQL::Query
 {
@@ -47,15 +49,13 @@ public:
 	const std::string uid;
 	AuthExtItem& pendingExt;
 	bool verbose;
-	const std::string& kdf;
 	const std::string& pwcolumn;
 
-	AuthQuery(const WeakModulePtr& me, const std::string& u, AuthExtItem& e, bool v, const std::string& kd, const std::string& pwcol)
+	AuthQuery(const WeakModulePtr& me, const std::string& u, AuthExtItem& e, bool v, const std::string& pwcol)
 		: SQL::Query(me)
 		, uid(u)
 		, pendingExt(e)
 		, verbose(v)
-		, kdf(kd)
 		, pwcolumn(pwcol)
 	{
 	}
@@ -68,11 +68,10 @@ public:
 
 		if (res.Rows())
 		{
-			auto* hashprov = ServerInstance->Modules.FindDataService<Hash::Provider>("Hash::Provider", kdf);
-			if (!hashprov)
+			if (!*g_hashprov)
 			{
 				if (verbose)
-					ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from {} (a provider for {} was not loaded)", user->GetRealMask(), kdf);
+					ServerInstance->SNO.WriteGlobalSno('a', "Forbidden connection from {} (a provider for {} was not loaded)", user->GetRealMask(), g_hashprov->GetProviderName());
 				pendingExt.Set(user, AUTH_STATE_FAIL);
 				return;
 			}
@@ -89,7 +88,7 @@ public:
 			SQL::Row row;
 			while (res.GetRow(row))
 			{
-				if (row[colindex].has_value() && hashprov->Compare(user->password, *row[colindex]))
+				if (row[colindex].has_value() && (*g_hashprov)->Compare(user->password, *row[colindex]))
 				{
 					pendingExt.Set(user, AUTH_STATE_NONE);
 					return;
@@ -125,12 +124,12 @@ class ModuleSQLAuth final
 	AuthExtItem pendingExt;
 	dynamic_reference<SQL::Provider> SQL;
 	TLS::API tlsapi;
+	Hash::ProviderRef hashprov;
 
 	std::string freeformquery;
 	std::string killreason;
 	std::vector<std::string> exemptions;
 	bool verbose;
-	std::string kdf;
 	std::string pwcolumn;
 
 public:
@@ -139,17 +138,19 @@ public:
 		, pendingExt(weak_from_this(), "sqlauth-wait", ExtensionType::USER)
 		, SQL(weak_from_this(), "SQL::Provider")
 		, tlsapi(weak_from_this())
+		, hashprov(weak_from_this(), "")
 	{
+		g_hashprov = &hashprov;
 	}
 
 	void ReadConfig(ConfigStatus& status) override
 	{
 		const auto& conf = ServerInstance->Config->ConfValue("sqlauth");
 		SQL.SetProviderName(conf->getString("dbid"));
+		hashprov.SetProviderName(conf->getString("kdf", conf->getString("hash", "bcrypt", 1), 1));
 		freeformquery = conf->getString("query");
 		killreason = conf->getString("killreason");
 		verbose = conf->getBool("verbose");
-		kdf = conf->getString("kdf", conf->getString("hash", "bcrypt"));
 		pwcolumn = conf->getString("column");
 
 		exemptions.clear();
@@ -189,7 +190,7 @@ public:
 		SQL::PopulateUserInfo(user, userinfo);
 		userinfo["fingerprint"] = tlsapi ? tlsapi->GetFingerprint(user) : "";
 
-		SQL->Submit(new AuthQuery(weak_from_this(), user->uuid, pendingExt, verbose, kdf, pwcolumn), freeformquery, userinfo);
+		SQL->Submit(new AuthQuery(weak_from_this(), user->uuid, pendingExt, verbose, pwcolumn), freeformquery, userinfo);
 
 		return MOD_RES_PASSTHRU;
 	}
