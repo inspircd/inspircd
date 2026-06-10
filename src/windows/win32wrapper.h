@@ -120,6 +120,28 @@ inline ssize_t writev(int fd, const WindowsIOVec* iov, int count)
 	return -1;
 }
 
+inline tm* gmtime_r(const time_t* timep, struct tm* result)
+{
+	if (!timep || !result)
+		return nullptr;
+
+	if (gmtime_s(result, timep) != 0)
+		return nullptr;
+
+	return result;
+}
+
+inline tm* localtime_r(const time_t* timep, struct tm* result)
+{
+	if (!timep || !result)
+		return nullptr;
+
+	if (localtime_s(result, timep) != 0)
+		return nullptr;
+
+	return result;
+}
+
 inline std::string GetErrorMessage(DWORD dwErrorCode)
 {
 	char szErrorString[1024];

@@ -491,32 +491,34 @@ std::string Duration::ToLongString(unsigned long duration, bool brief)
 
 std::string Time::ToString(time_t curtime, const char* format, bool utc)
 {
-#ifdef _WIN32
-	if (curtime < 0)
-		curtime = 0;
-#endif
-
-	struct tm* timeinfo = utc ? gmtime(&curtime) : localtime(&curtime);
-	if (!timeinfo)
-	{
-		curtime = 0;
-		timeinfo = localtime(&curtime);
-	}
-
-	// If the calculated year exceeds four digits or is less than the year 1000,
-	// the behavior of asctime() is undefined
-	if (timeinfo->tm_year + 1900 > 9999)
-		timeinfo->tm_year = 9999 - 1900;
-	else if (timeinfo->tm_year + 1900 < 1000)
-		timeinfo->tm_year = 0;
-
-	// This is the default format used by asctime without the terminating new line.
 	if (!format)
 		format = Time::DEFAULT_SHORT;
 
-	char buffer[512];
-	if (!strftime(buffer, sizeof(buffer), format, timeinfo))
+	tm time_info{};
+	if (utc ? !gmtime_r(&curtime, &time_info) : !localtime_r(&curtime, &time_info)) [[unlikely]]
+	{
+		// If we've reached this point then either the time_t represents a year
+		// that can't be represented by tm_year (i.e. the year 2038 problem on
+		// 32-bit systems) or we are running on Windows which clamps the valid
+		// years on 64-bit systems to 1970-3000. There's not a lot we can do to
+		// give a correct timestamp here so we just return the UNIX epoch as
+		// that should never fail.
+		curtime = 0;
+		if (utc)
+			gmtime_r(&curtime, &time_info);
+		else
+			localtime_r(&curtime, &time_info);
+	}
+
+	static char buffer[512];
+	if (!strftime(buffer, sizeof(buffer), format, &time_info)) [[unlikely]]
+	{
+		// If we've reached this point then the buffer is not big enough to
+		// contain the formatted date. This probably will never happen because
+		// we give it a large buffer but in the cases it does happen we null
+		// terminate the buffer so the returned string is empty.
 		buffer[0] = '\0';
+	}
 
 	return buffer;
 }
