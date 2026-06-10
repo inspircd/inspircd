@@ -154,7 +154,7 @@ public:
 	 * @param algorithm The name of the hash algorithm.
 	 */
 	ProviderRef(const WeakModulePtr& mod, const std::string& algorithm)
-		: dynamic_reference_nocheck<Hash::Provider>(mod, "Hash::Provider", algorithm)
+		: dynamic_reference_nocheck<Hash::Provider>(mod, "Hash::Provider", algorithm, true)
 	{
 	}
 };

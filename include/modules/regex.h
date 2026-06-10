@@ -109,7 +109,7 @@ public:
 	 * @param Name The name of the regular expression engine to reference.
 	 */
 	EngineReference(const WeakModulePtr& Creator, const std::string& Name = "")
-		: dynamic_reference_nocheck<Engine>(Creator, "Regex::Engine", Name)
+		: dynamic_reference_nocheck<Engine>(Creator, "Regex::Engine", Name, true)
 	{
 	}
 
