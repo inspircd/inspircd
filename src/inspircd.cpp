@@ -403,11 +403,12 @@ void InspIRCd::Cleanup()
 	/* Must be deleted before modes as it decrements modelines */
 	if (FakeClient)
 	{
-		LocalServer = nullptr;
-		insp::delete_zero(FakeClient->server);
 		FakeClient->Cull();
+		insp::delete_zero(this->FakeClient);
 	}
-	insp::delete_zero(this->FakeClient);
+	if (LocalServer)
+		insp::delete_zero(LocalServer);
+
 	insp::delete_zero(this->XLines);
 	this->Config.reset(nullptr);
 	SocketEngine::Deinit();
