@@ -80,9 +80,16 @@ jobs:
           ninja -f "build-${{ env.BUILD_TYPE }}.ninja" ${{ runner.debug == '1' && '-v' || '' }} package
 
       - name: Upload installer
-        if: "${{ github.event_name == 'release' }}"
+        if: github.event_name == 'release'
         working-directory: ${{ env.BUILD_PATH }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |-
           gh release upload ${{ github.event.release.tag_name }} $(Get-ChildItem InspIRCd-*.exe)
+
+      - name: Upload artifact
+        if: github.event_name != 'release'
+        uses: actions/upload-artifact@v7
+        with:
+          name: windows-installer
+          path: ${{ env.BUILD_PATH }}\InspIRCd-*.exe
