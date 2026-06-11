@@ -39,22 +39,6 @@
 
 using ssize_t = SSIZE_T;
 
-#include <exception>
-
-class CWin32Exception final
-	: public std::exception
-{
-public:
-	CWin32Exception();
-	CWin32Exception(const CWin32Exception& other);
-	virtual const char* what() const noexcept;
-	DWORD GetErrorCode();
-
-private:
-	std::string szErrorString;
-	DWORD dwErrorCode;
-};
-
 // POSIX iovec
 struct iovec final
 {

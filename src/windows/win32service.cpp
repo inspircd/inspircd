@@ -38,6 +38,17 @@ struct Service_Data {
 
 static Service_Data g_ServiceData;
 
+static std::string GetWin32Error()
+{
+	const auto dwErrorCode = GetLastError();
+
+	auto szErrorString = GetErrorMessage(dwErrorCode);
+	for (size_t pos = 0; ((pos = szErrorString.find_first_of("\r\n", pos)) != std::string::npos); )
+		szErrorString[pos] = ' ';
+
+	return szErrorString;
+}
+
 /** The main part of inspircd runs within this thread function. This allows the service part to run
  * separately on its own and to be able to kill the worker thread when its time to quit.
  */
@@ -57,7 +68,7 @@ void SetServiceRunning()
 	g_ServiceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
 
 	if( !SetServiceStatus( g_ServiceStatusHandle, &g_ServiceStatus ) )
-		throw CWin32Exception();
+		throw CoreException(GetWin32Error());
 }
 
 /* In windows we hook this to InspIRCd::Exit(EXIT_FAILURE) */
@@ -167,13 +178,13 @@ void InstallService()
 		TCHAR tszBinaryPath[MAX_PATH];
 		if(!GetModuleFileName(nullptr, tszBinaryPath, _countof(tszBinaryPath)))
 		{
-			throw CWin32Exception();
+			throw CoreException(GetWin32Error());
 		}
 
 		SCMHandle = OpenSCManager(0, 0, SC_MANAGER_ALL_ACCESS);
 		if (!SCMHandle)
 		{
-			throw CWin32Exception();
+			throw CoreException(GetWin32Error());
 		}
 
 		InspServiceHandle = CreateService(SCMHandle, TEXT(INSPIRCD_BRANCH), TEXT("InspIRCd - Internet Relay Chat Daemon"), SERVICE_CHANGE_CONFIG, SERVICE_WIN32_OWN_PROCESS,
@@ -181,21 +192,21 @@ void InstallService()
 
 		if (!InspServiceHandle)
 		{
-			throw CWin32Exception();
+			throw CoreException(GetWin32Error());
 		}
 
 		TCHAR tszDescription[] = TEXT("The InspIRCd service hosts IRC channels and conversations. If this service is stopped, the IRC server will be unavailable.");
 		SERVICE_DESCRIPTION svDescription = { tszDescription };
 		if(!ChangeServiceConfig2(InspServiceHandle, SERVICE_CONFIG_DESCRIPTION, &svDescription))
 		{
-			throw CWin32Exception();
+			throw CoreException(GetWin32Error());
 		}
 
 		CloseServiceHandle(InspServiceHandle);
 		CloseServiceHandle(SCMHandle);
 		fmt::println("Service installed.");
 	}
-	catch(const CWin32Exception& e)
+	catch(const CoreException& e)
 	{
 		if(InspServiceHandle)
 			CloseServiceHandle(InspServiceHandle);
@@ -216,22 +227,22 @@ void UninstallService()
 	{
 		SCMHandle = OpenSCManager(nullptr, SERVICES_ACTIVE_DATABASE, DELETE);
 		if (!SCMHandle)
-			throw CWin32Exception();
+			throw CoreException(GetWin32Error());
 
 		InspServiceHandle = OpenService(SCMHandle, TEXT(INSPIRCD_BRANCH), DELETE);
 		if (!InspServiceHandle)
-			throw CWin32Exception();
+			throw CoreException(GetWin32Error());
 
 		if (!DeleteService(InspServiceHandle) && GetLastError() != ERROR_SERVICE_MARKED_FOR_DELETE)
 		{
-			throw CWin32Exception();
+			throw CoreException(GetWin32Error());
 		}
 
 		CloseServiceHandle(InspServiceHandle);
 		CloseServiceHandle(SCMHandle);
 		fmt::println("Service removed.");
 	}
-	catch(const CWin32Exception& e)
+	catch(const CoreException& e)
 	{
 		if(InspServiceHandle)
 			CloseServiceHandle(InspServiceHandle);
