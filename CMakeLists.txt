@@ -59,6 +59,8 @@ endif()
 
 if(WIN32)
 	add_compile_definitions(
+		"_CRT_SECURE_NO_DEPRECATE" # Disable warning about the use of non-Annex K functions.
+		"_CRT_NONSTDC_NO_WARNINGS" # Disable warning about the use of POSIX functions.
 		"_WIN32_WINNT=0x0A00"      # Set the minimum OS to Windows 10.
 		"FD_SETSIZE=24000"         # Increase the default socket limit to something reasonable.
 		"NOMINMAX"                 # Avoid the Windows API breaking std::{min,max}
@@ -106,8 +108,13 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "(^GNU|Clang)$")
 		add_compile_options("-Wshadow-all" "-Wshorten-64-to-32")
 	endif()
 elseif(MSVC)
-	# On MSVC we need to set the character set to UTF-8 so {fmt} unicode support works.
-	add_compile_options("/utf-8")
+	add_compile_options(
+		"/utf-8"  # Set the source and execution character sets to UTF-8 so {fmt} unicode support works.
+		"/wd4100" # Disable warning about unreferenced parameters in headers.
+		"/wd4244" # Disable warning about converting between integer types.
+		"/wd4267" # Disable warnign about converting between size_t and an integer type.
+		"$<$<CONFIG:Debug>:/WX>"
+	)
 endif()
 
 if(NOT WIN32)

@@ -30,10 +30,6 @@
 
 #include "win32service.h"
 
-/* Disable the deprecation warnings.. it spams :P */
-#define _CRT_SECURE_NO_DEPRECATE
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-
 /* Normal windows (platform-specific) includes */
 #include <winsock2.h>
 #pragma comment(lib, "Ws2_32.lib")
@@ -42,39 +38,6 @@
 #include <io.h>
 
 using ssize_t = SSIZE_T;
-
-// warning: 'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'
-// Normally, this is a huge problem, but due to our new/delete remap, we can ignore it.
-#pragma warning(disable:4251)
-
-// warning: DLL-interface classkey 'identifier' used as base for DLL-interface classkey 'identifier'
-#pragma warning(disable:4275)
-
-// warning: unreferenced formal parameter
-// Unimportant for now, but for the next version, we should take a look at these again.
-#pragma warning(disable:4100)
-
-// warning: 'class' : assignment operator could not be generated
-#pragma warning(disable:4512)
-
-// warning C4127: conditional expression is constant
-// This will be triggered like crazy because FOREACH_MOD and similar macros are wrapped in do { ... } while(0) constructs
-#pragma warning(disable:4127)
-
-// warning C4996: The POSIX name for this item is deprecated.
-#pragma warning(disable:4996)
-
-// warning C4244: conversion from 'x' to 'y', possible loss of data
-#pragma warning(disable:4244)
-
-// warning C4267: 'var' : conversion from 'size_t' to 'type', possible loss of data
-#pragma warning(disable:4267)
-
-// warning C4706: assignment within conditional expression
-#pragma warning(disable:4706)
-
-// warning C4800: 'type' : forcing value to bool 'true' or 'false' (performance warning)
-#pragma warning(disable:4800)
 
 #include <exception>
 
