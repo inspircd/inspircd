@@ -238,7 +238,7 @@ void BoolExtItem::Set(Extensible* container, bool sync)
 	if (container->extype != this->extype)
 		return;
 
-	auto ptr = CreateFakePointer(1);
+	auto ptr = CreateFakePointer<ssize_t>(1);
 	SetRaw(container, ptr);
 	if (sync && synced)
 		Sync(container, ptr);
@@ -251,7 +251,7 @@ void BoolExtItem::Unset(Extensible* container, bool sync)
 
 	UnsetRaw(container);
 	if (sync && synced)
-		Sync(container, CreateFakePointer(0));
+		Sync(container, CreateFakePointer<ssize_t>(0));
 }
 
 IntExtItem::IntExtItem(const WeakModulePtr& owner, const std::string& key, ExtensionType exttype, bool sync)
