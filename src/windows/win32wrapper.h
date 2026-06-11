@@ -76,10 +76,6 @@ using ssize_t = SSIZE_T;
 // warning C4800: 'type' : forcing value to bool 'true' or 'false' (performance warning)
 #pragma warning(disable:4800)
 
-/* Shared memory allocation functions */
-void * ::operator new(size_t iSize);
-void ::operator delete(void * ptr);
-
 #include <exception>
 
 class CWin32Exception final
