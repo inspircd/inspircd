@@ -30,9 +30,12 @@ ExecReload=/bin/kill -HUP $MAINPID
 ExecStart=@ABSOLUTE_BINARY_DIR@/inspircd --nofork --nopid
 Restart=on-failure
 Type=simple
-%ifdef DISABLE_OWNERSHIP DynamicUser=yes
-%ifndef DISABLE_OWNERSHIP User=@USER_NAME@
-%ifndef DISABLE_OWNERSHIP Group=@GROUP_NAME@
+#cmakeifdef DISABLE_OWNERSHIP
+DynamicUser=yes
+#cmakeelse
+User=@USER_NAME@
+Group=@GROUP_NAME@
+#cmakeendif
 
 [Install]
 WantedBy=multi-user.target
