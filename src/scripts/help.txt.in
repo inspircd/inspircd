@@ -12,9 +12,15 @@ https://git.io/JIuYv, or refer to the the docs site:
 
 When you are done you can run the following command to start InspIRCd:
 
+#cmakeifdef UNIX
 	@ABSOLUTE_BINARY_DIR@/inspircd
 
+# cmakeifndef DISABLE_OWNERSHIP
 If you have installed from an official package you may need to prefix this
 command with `sudo -g @GROUP_NAME@ -u @USER_NAME@` to run as the correct group/user.
 
 You can also use one of the helper scripts in `@ABSOLUTE_SCRIPT_DIR@`.
+# cmakeendif
+#cmakeelse
+	sc start "InspIRCd-@VERSION_MAJOR@"
+#cmakeendif
