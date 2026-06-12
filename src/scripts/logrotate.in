@@ -21,7 +21,9 @@
 
 @ABSOLUTE_LOG_DIR@/*.log {
 	compress
-	%ifndef DISABLE_OWNERSHIP create 0644 @USER_NAME@ @GROUP_NAME@
+#cmakeifndef DISABLE_OWNERSHIP
+	create 0644 @USER_NAME@ @GROUP_NAME@
+#cmakeendif
 	dateext
 	delaycompress
 	missingok

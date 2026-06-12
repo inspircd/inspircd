@@ -22,7 +22,9 @@ description="InspIRCd - Internet Relay Chat Daemon"
 
 command="@ABSOLUTE_BINARY_DIR@/inspircd"
 command_args="--nofork --nopid"
-%ifndef DISABLE_OWNERSHIP command_user="@USER_NAME@:@GROUP_NAME@"
+#cmakeifndef DISABLE_OWNERSHIP
+command_user="@USER_NAME@:@GROUP_NAME@"
+#cmakeendif
 pidfile="@ABSOLUTE_RUNTIME_DIR@/${RC_SVCNAME}.pid"
 supervisor="supervise-daemon"
 

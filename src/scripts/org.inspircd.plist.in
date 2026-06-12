@@ -25,9 +25,11 @@
 	<string>@ABSOLUTE_LOG_DIR@/launchd-stdout.log</string>
 	<key>StandardErrorPath</key>
 	<string>@ABSOLUTE_LOG_DIR@/launchd-stderr.log</string>
-	%ifndef DISABLE_OWNERSHIP <key>UserName</key>
-	%ifndef DISABLE_OWNERSHIP <string>@USER_NAME@</string>
-	%ifndef DISABLE_OWNERSHIP <key>GroupName</key>
-	%ifndef DISABLE_OWNERSHIP <string>@GROUP_NAME@</string>
+#cmakeifndef DISABLE_OWNERSHIP
+	<key>UserName</key>
+	<string>@USER_NAME@</string>
+	<key>GroupName</key>
+	<string>@GROUP_NAME@</string>
+#cmakeendif
 </dict>
 </plist>

@@ -15,13 +15,20 @@ INSPIRCD_CONFIG_DIR="@ABSOLUTE_CONFIG_DIR@"
 INSPIRCD_PID_FILE="@ABSOLUTE_RUNTIME_DIR@/inspircd.pid"
 
 # The user:group that InspIRCd runs as.
+#cmakeifdef DISABLE_OWNERSHIP
+INSPIRCD_OWNER=""
+#cmakeelse
 INSPIRCD_OWNER="@USER_NAME@:@GROUP_NAME@"
+#cmakeendif
 
 if [ -e ${CERT_DIR} -a -e ${INSPIRCD_CONFIG_DIR} ]
 then
     cp "${CERT_DIR}/fullchain.pem" "${INSPIRCD_CONFIG_DIR}/cert.pem"
     cp "${CERT_DIR}/privkey.pem" "${INSPIRCD_CONFIG_DIR}/key.pem"
-    chown ${INSPIRCD_OWNER} "${INSPIRCD_CONFIG_DIR}/cert.pem" "${INSPIRCD_CONFIG_DIR}/key.pem"
+    if [ -n "${INSPIRCD_OWNER}" ]
+    then
+        chown ${INSPIRCD_OWNER} "${INSPIRCD_CONFIG_DIR}/cert.pem" "${INSPIRCD_CONFIG_DIR}/key.pem"
+    fi
 
     if [ -r ${INSPIRCD_PID_FILE} ]
     then
