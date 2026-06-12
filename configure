@@ -293,7 +293,7 @@ if options.development:
 if options.disable_auto_extras:
     cmake_args.append(cmake_define("AUTO_ENABLE_EXTRAS", "OFF"))
 if options.disable_ownership:
-    cmake_args.append(cmake_define("DISABLE_OWNERSHIP", "OFF"))
+    cmake_args.append(cmake_define("DISABLE_OWNERSHIP", "ON"))
 if options.portable:
     cmake_args.append(cmake_define("PORTABLE", "ON"))
 if options.system:
