@@ -59,7 +59,7 @@ namespace
 		return SocketEngine::SetOption(ls, IPPROTO_TCP, TCP_DEFER_ACCEPT, timeout);
 #elif defined SO_ACCEPTFILTER
 		struct accept_filter_arg afa{};
-		strcpy(afa.af_name, "dataready");
+		std::ranges::copy("dataready", afa.af_name);
 		return SocketEngine::SetOption(ls, SOL_SOCKET, SO_ACCEPTFILTER, afa);
 #else
 		return 0;
@@ -246,9 +246,7 @@ void ListenSocket::OnEventHandlerRead()
 	{
 		// Clients connecting via UNIX sockets don't have paths so give them
 		// the server path as defined in RFC 1459 section 8.1.1.
-		//
-		// strcpy is safe here because sizeof(sockaddr_un.sun_path) is equal on both.
-		strcpy(client.un.sun_path, server.un.sun_path);
+		std::ranges::copy(server.un.sun_path, client.un.sun_path);
 	}
 
 	SocketEngine::NonBlocking(incomingfd);

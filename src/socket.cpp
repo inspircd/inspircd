@@ -356,13 +356,13 @@ std::string irc::sockets::sockaddrs::str() const
 		case AF_INET:
 			char ip4addr[INET_ADDRSTRLEN];
 			if (!inet_ntop(AF_INET, static_cast<const void*>(&in4.sin_addr), ip4addr, sizeof(ip4addr)))
-				strcpy(ip4addr, "0.0.0.0");
+				std::ranges::copy("0.0.0.0", ip4addr);
 			return FMT::format("{}:{}", ip4addr, ntohs(in4.sin_port));
 
 		case AF_INET6:
 			char ip6addr[INET6_ADDRSTRLEN];
 			if (!inet_ntop(AF_INET6, static_cast<const void*>(&in6.sin6_addr), ip6addr, sizeof(ip6addr)))
-				strcpy(ip6addr, "0:0:0:0:0:0:0:0");
+				std::ranges::copy("0:0:0:0:0:0:0:0", ip6addr);
 			return FMT::format("[{}]:{}", ip6addr, ntohs(in6.sin6_port));
 
 		case AF_UNIX:
