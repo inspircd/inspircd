@@ -29,6 +29,9 @@ public:
 	class CaptureHook
 	{
 	public:
+		/** @nodoc */
+		virtual ~CaptureHook() = default;
+
 		/** Called when the target of the dynamic_reference has been acquired
 		 */
 		virtual void OnCapture() = 0;

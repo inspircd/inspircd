@@ -115,6 +115,9 @@ public:
 	{
 	}
 
+	/** @nodoc */
+	virtual ~Context() = default;
+
 	/** Returns true if the user is /WHOISing himself
 	 * @return True if whois source is the same user as the whois target, false if they are different users
 	 */

@@ -114,6 +114,9 @@ public:
 	/** A user specified label for the WHOX response. */
 	std::string whox_querytype;
 
+	/** @nodoc */
+	virtual ~Request() = default;
+
 	/** Get the index in the response parameters for the different data fields
 	 *
 	 * The fields 'r' (realname) and 'd' (hops) will always be missing in a non-WHOX

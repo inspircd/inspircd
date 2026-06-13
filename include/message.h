@@ -86,6 +86,9 @@ protected:
 		, type(mt)
 	{
 	}
+
+	/** @nodoc */
+	virtual ~MessageDetails() = default;
 };
 
 /** Represents the target of a message (NOTICE, PRIVMSG, etc). */

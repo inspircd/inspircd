@@ -58,6 +58,9 @@ public:
 class Monitor::ForEachHandler
 {
 public:
+	/** @nodoc */
+	virtual ~ForEachHandler() = default;
+
 	/** Method to execute for each watcher of a user.
 	 * Derived classes must implement this.
 	 * @param user Current watcher of the user

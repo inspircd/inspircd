@@ -29,6 +29,7 @@ public:
 	class MatcherBase
 	{
 	public:
+		virtual ~MatcherBase() = default;
 		virtual long Run(const std::string& mask) = 0;
 	};
 

@@ -94,7 +94,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "(^GNU|Clang)$")
 	add_compile_options(
 		"-Wall" "-Wextra" "-Wfatal-errors" "-Wpedantic"
 		"-Wno-unused-parameter"
-		"$<$<COMPILE_LANGUAGE:CXX>:-Woverloaded-virtual>"
+		"$<$<COMPILE_LANGUAGE:CXX>:-Wnon-virtual-dtor;-Woverloaded-virtual>"
 		"$<$<CONFIG:Debug>:-g3;-Werror>"
 		"$<$<CONFIG:Release,RelWithDebInfo>:-g1>"
 		"$<$<NOT:$<CONFIG:Debug,None>>:-fno-rtti>"

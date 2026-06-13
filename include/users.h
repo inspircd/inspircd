@@ -371,6 +371,9 @@ public:
 	class ForEachNeighborHandler
 	{
 	public:
+		/** @nodoc */
+		virtual ~ForEachNeighborHandler() = default;
+
 		/** Method to execute for each local neighbor of a user.
 		 * Derived classes must implement this.
 		 * @param user Current neighbor

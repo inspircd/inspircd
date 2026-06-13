@@ -187,7 +187,7 @@ protected:
 public:
 	static constexpr unsigned int DefaultPriority = 100;
 
-	~ModuleEventListener()
+	virtual ~ModuleEventListener()
 	{
 		if (prov)
 			prov->Unsubscribe(this);
