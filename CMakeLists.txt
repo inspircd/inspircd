@@ -21,6 +21,7 @@ cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
 project("InspIRCd" LANGUAGES "C" "CXX")
 
 include("CheckFunctionExists")
+include("CheckIPOSupported")
 include("CheckLinkerFlag")
 include("CheckPIESupported")
 include("FindPackageHandleStandardArgs")
@@ -115,6 +116,20 @@ elseif(MSVC)
 		"/wd4267" # Disable warnign about converting between size_t and an integer type.
 		"$<$<CONFIG:Debug>:/WX>"
 	)
+endif()
+
+# Enable LTO if supported by the compiler.
+check_ipo_supported(RESULT HAS_IPO)
+if(HAS_IPO)
+	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+	set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO ON)
+	if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+		add_compile_options("$<$<CONFIG:Release,RelWithDebInfo>:-flto=thin>")
+		add_link_options("$<$<CONFIG:Release,RelWithDebInfo>:-flto=thin>")
+	elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+		add_compile_options("$<$<CONFIG:Release,RelWithDebInfo>:-flto=auto>")
+		add_link_options("$<$<CONFIG:Release,RelWithDebInfo>:-flto=auto>")
+	endif()
 endif()
 
 if(NOT WIN32)
