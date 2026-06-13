@@ -77,7 +77,7 @@ void SpanningTreeProtocolInterface::BroadcastEncap(const std::string& cmd, const
 	// If omit is non-NULL we pass the route belonging to the user to Forward(),
 	// otherwise we pass NULL, which is equivalent to Broadcast()
 	TreeServer* server = (omit ? TreeServer::Get(omit)->GetRoute() : nullptr);
-	MessageBuilder("ENCAP")
+	MessageBuilder(source, "ENCAP")
 		.Push('*', cmd)
 		.PushParams(params)
 		.Broadcast(server);
