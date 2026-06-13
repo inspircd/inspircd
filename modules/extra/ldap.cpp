@@ -238,8 +238,7 @@ private:
 	// Windows LDAP does not implement this so we need to do it.
 	int ldap_initialize(LDAP** ldap, const char* url)
 	{
-		URL_COMPONENTS urlComponents;
-		memset(&urlComponents, 0, sizeof(urlComponents));
+		URL_COMPONENTS urlComponents{};
 		urlComponents.dwStructSize = sizeof(urlComponents);
 
 		std::vector<char> schemebuf(16);
@@ -282,8 +281,7 @@ private:
 public:
 	static LDAPMod** BuildMods(const LDAPMods& attributes)
 	{
-		LDAPMod** mods = new LDAPMod*[attributes.size() + 1];
-		memset(mods, 0, sizeof(LDAPMod*) * (attributes.size() + 1));
+		auto** mods = new LDAPMod*[attributes.size() + 1]{};
 		for (unsigned int x = 0; x < attributes.size(); ++x)
 		{
 			const LDAPModification& l = attributes[x];
@@ -302,8 +300,7 @@ public:
 				throw LDAPException("Unknown LDAP operation");
 			}
 			mod->mod_type = strdup(l.name.c_str());
-			mod->mod_values = new char*[l.values.size() + 1];
-			memset(mod->mod_values, 0, sizeof(char*) * (l.values.size() + 1));
+			mod->mod_values = new char*[l.values.size() + 1]{};
 			for (unsigned int j = 0, c = 0; j < l.values.size(); ++j)
 				if (!l.values[j].empty())
 					mod->mod_values[c++] = strdup(l.values[j].c_str());

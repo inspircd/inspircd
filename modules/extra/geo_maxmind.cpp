@@ -58,7 +58,7 @@ class GeolocationAPIImpl final
 public:
 	GeolocationExtItem ext;
 	LocationMap locations;
-	MMDB_s mmdb;
+	MMDB_s mmdb{};
 
 	GeolocationAPIImpl(const WeakModulePtr& parent)
 		: Geolocation::APIBase(parent)
@@ -136,7 +136,6 @@ public:
 		: Module(VF_VENDOR, "Allows the server to perform geolocation lookups on both IP addresses and users.")
 		, geoapi(weak_from_this())
 	{
-		memset(&geoapi.mmdb, 0, sizeof(geoapi.mmdb));
 	}
 
 	~ModuleGeoMaxMind() override

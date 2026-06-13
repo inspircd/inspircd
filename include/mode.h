@@ -582,11 +582,11 @@ private:
 
 	/** Mode handlers for each mode indexed by the mode index
 	 */
-	ModeHandler* modehandlers[MODETYPE_LAST][MODEID_MAX];
+	ModeHandler* modehandlers[MODETYPE_LAST][MODEID_MAX]{};
 
 	/** An array of mode handlers indexed by the mode id
 	 */
-	ModeHandler* modehandlersbyid[MODETYPE_LAST][MODEID_MAX];
+	ModeHandler* modehandlersbyid[MODETYPE_LAST][MODEID_MAX]{};
 
 	/** A map of mode handlers keyed by their name
 	 */
@@ -662,8 +662,6 @@ public:
 		 */
 		MODE_CHECKACCESS = 4
 	};
-
-	ModeParser();
 
 	/** Determines whether the specified character is a valid mode. */
 	static bool IsModeChar(char chr);

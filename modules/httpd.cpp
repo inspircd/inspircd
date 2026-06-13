@@ -339,8 +339,7 @@ public:
 		std::vector<char> uribuf(uristr.begin(), uristr.end());
 		uribuf.push_back('\0');
 
-		yuarel url;
-		memset(&url, 0, sizeof(url));
+		yuarel url{};
 		if (yuarel_parse(&url, uribuf.data()) == -1)
 		{
 			ServerInstance->Logs.Debug(MODNAME, "yuarel_parse() failed with {}", uristr);
@@ -355,8 +354,7 @@ public:
 		insp::assign_ptr(out.fragment, url.fragment);
 
 		// Parse and normalize the path.
-		char* path_segments[64];
-		memset(&path_segments, 0, sizeof(path_segments));
+		char* path_segments[64]{};
 		const auto path_segment_count = yuarel_split_path(url.path, path_segments, std::size(path_segments));
 		if (path_segment_count == -1)
 		{
@@ -382,8 +380,7 @@ public:
 		out.path.append("/").append(insp::join(normalized_path, '/'));
 
 		// Parse and decode the query string.
-		yuarel_param params[64];
-		memset(&params, 0, sizeof(params));
+		yuarel_param params[64]{};
 		const auto param_count = yuarel_parse_query(url.query, '&', params, std::size(params));
 		if (param_count == -1)
 		{

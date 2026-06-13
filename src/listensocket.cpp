@@ -58,8 +58,7 @@ namespace
 #if defined TCP_DEFER_ACCEPT
 		return SocketEngine::SetOption(ls, IPPROTO_TCP, TCP_DEFER_ACCEPT, timeout);
 #elif defined SO_ACCEPTFILTER
-		struct accept_filter_arg afa;
-		memset(&afa, 0, sizeof(afa));
+		struct accept_filter_arg afa{};
 		strcpy(afa.af_name, "dataready");
 		return SocketEngine::SetOption(ls, SOL_SOCKET, SO_ACCEPTFILTER, afa);
 #else

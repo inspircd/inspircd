@@ -225,7 +225,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 irc::sockets::sockaddrs::sockaddrs(bool initialize)
 {
 	if (initialize)
-		memset(this, 0, sizeof(*this));
+		*this = sockaddrs{};
 }
 
 bool irc::sockets::sockaddrs::from_ip_port(const std::string& addr, in_port_t port)
@@ -234,13 +234,13 @@ bool irc::sockets::sockaddrs::from_ip_port(const std::string& addr, in_port_t po
 	{
 		if (ServerInstance->Config->WildcardIPv6)
 		{
-			memset(&in6.sin6_addr, 0, sizeof(in6.sin6_addr));
+			in6.sin6_addr = in6_addr{};
 			in6.sin6_family = AF_INET6;
 			in6.sin6_port = htons(port);
 		}
 		else
 		{
-			memset(&in4.sin_addr, 0, sizeof(in4.sin_addr));
+			in4.sin_addr = in_addr{};
 			in4.sin_family = AF_INET;
 			in4.sin_port = htons(port);
 		}
@@ -420,7 +420,7 @@ static void sa2cidr(irc::sockets::cidr_mask& cidr, const irc::sockets::sockaddrs
 	const unsigned char* base;
 	unsigned char target_byte;
 
-	memset(cidr.bits, 0, sizeof(cidr.bits));
+	std::ranges::fill(cidr.bits, 0);
 
 	cidr.type = sa.family();
 	switch (cidr.type)
@@ -477,7 +477,7 @@ irc::sockets::cidr_mask::cidr_mask(const std::string& mask)
 	{
 		if (!sa.from_ip(mask))
 		{
-			memset(this, 0, sizeof(*this));
+			*this = cidr_mask{};
 			return;
 		}
 		sa2cidr(*this, sa, 128);
@@ -487,7 +487,7 @@ irc::sockets::cidr_mask::cidr_mask(const std::string& mask)
 		unsigned char range = ConvToNum<unsigned char>(mask.substr(bits_chars + 1));
 		if (!sa.from_ip(mask.substr(0, bits_chars)))
 		{
-			memset(this, 0, sizeof(*this));
+			*this = cidr_mask{};
 			return;
 		}
 		sa2cidr(*this, sa, range);

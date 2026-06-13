@@ -100,8 +100,7 @@ bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 		return false;
 	}
 
-	struct epoll_event ev;
-	memset(&ev, 0, sizeof(ev));
+	struct epoll_event ev{};
 	ev.events = mask_to_epoll(event_mask);
 	ev.data.ptr = static_cast<void*>(eh);
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_ADD, fd, &ev);
@@ -126,8 +125,7 @@ void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 	if (old_events != new_events)
 	{
 		// ok, we actually have something to tell the kernel about
-		struct epoll_event ev;
-		memset(&ev, 0, sizeof(ev));
+		struct epoll_event ev{};
 		ev.events = new_events;
 		ev.data.ptr = static_cast<void*>(eh);
 		epoll_ctl(EngineHandle, EPOLL_CTL_MOD, eh->GetFd(), &ev);

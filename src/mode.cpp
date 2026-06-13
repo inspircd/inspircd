@@ -824,10 +824,3 @@ size_t ModeParser::GetModeIndex(char chr)
 
 	return ModeParser::MODEID_MAX;
 }
-
-ModeParser::ModeParser()
-{
-	/* Clear mode handler list */
-	memset(modehandlers, 0, sizeof(modehandlers));
-	memset(modehandlersbyid, 0, sizeof(modehandlersbyid));
-}

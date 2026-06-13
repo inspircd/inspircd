@@ -48,7 +48,7 @@ class CommandMode final
 	: public Command
 {
 private:
-	unsigned int sent[256];
+	unsigned int sent[256]{};
 	unsigned int seq = 0;
 	ChanModeReference secretmode;
 	ChanModeReference privatemode;
@@ -95,7 +95,6 @@ CommandMode::CommandMode(const WeakModulePtr& mod)
 	, snomaskmode(mod, "snomask")
 {
 	syntax = { "<target> [[(+|-)]<modes> [<mode-parameters>]]" };
-	memset(&sent, 0, sizeof(sent));
 }
 
 CmdResult CommandMode::Handle(User* user, const Params& parameters)
