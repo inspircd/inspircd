@@ -634,9 +634,9 @@ void ModeParser::AddMode(ModeHandler* mh)
 
 	slot = mh;
 	if (pm)
-		mhlist.prefix.push_back(pm);
+		prefixmodes.push_back(pm);
 	else if (mh->IsListModeBase())
-		mhlist.list.push_back(mh->IsListModeBase());
+		listmodes.push_back(mh->IsListModeBase());
 }
 
 bool ModeParser::DelMode(ModeHandler* mh)
@@ -691,9 +691,9 @@ bool ModeParser::DelMode(ModeHandler* mh)
 		modehandlersbyid[mh->GetModeType()][mh->GetId()] = nullptr;
 	slot = nullptr;
 	if (mh->IsPrefixMode())
-		mhlist.prefix.erase(std::find(mhlist.prefix.begin(), mhlist.prefix.end(), mh->IsPrefixMode()));
+		prefixmodes.erase(std::find(prefixmodes.begin(), prefixmodes.end(), mh->IsPrefixMode()));
 	else if (mh->IsListModeBase())
-		mhlist.list.erase(std::find(mhlist.list.begin(), mhlist.list.end(), mh->IsListModeBase()));
+		listmodes.erase(std::find(listmodes.begin(), listmodes.end(), mh->IsListModeBase()));
 	return true;
 }
 

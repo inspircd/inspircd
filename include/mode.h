@@ -592,18 +592,13 @@ private:
 	 */
 	ModeHandlerMap modehandlersbyname[MODETYPE_LAST];
 
-	/** Lists of mode handlers by type
+	/** List of mode handlers that inherit from ListModeBase
 	 */
-	struct
-	{
-		/** List of mode handlers that inherit from ListModeBase
-		 */
-		std::vector<ListModeBase*> list;
+	std::vector<ListModeBase*> listmodes;
 
-		/** List of mode handlers that inherit from PrefixMode
-		 */
-		std::vector<PrefixMode*> prefix;
-	} mhlist;
+	/** List of mode handlers that inherit from PrefixMode
+	 */
+	std::vector<PrefixMode*> prefixmodes;
 
 	/** Mode watcher classes
 	 */
@@ -798,12 +793,12 @@ public:
 	/** Get a list of all mode handlers that inherit from ListModeBase
 	 * @return A list containing ListModeBase modes
 	 */
-	const ListModeList& GetListModes() const { return mhlist.list; }
+	const ListModeList& GetListModes() const { return listmodes; }
 
 	/** Get a list of all prefix modes
 	 * @return A list containing all prefix modes
 	 */
-	const PrefixModeList& GetPrefixModes() const { return mhlist.prefix; }
+	const PrefixModeList& GetPrefixModes() const { return prefixmodes; }
 
 	/** Get a mode name -> ModeHandler* map containing all modes of the given type
 	 * @param mt Type of modes to return, MODETYPE_USER or MODETYPE_CHANNEL
