@@ -41,7 +41,7 @@ def version():
     segments = {"MAJOR": "0", "MINOR": "0", "PATCH": "0", "LABEL": None}
 
     # Attempt to retrieve version information from src/cmake/version.cmake
-    with open(ROOT / "src" / "cmake" / "version.cmake", "r") as fh:
+    with open(ROOT / "src" / "cmake" / "version.cmake") as fh:
         for type, version in re.findall(r"\bset\(VERSION_([A-Z]+)\s+\"?(.+?)\"?\)", fh.read()):
             segments[type] = version
 

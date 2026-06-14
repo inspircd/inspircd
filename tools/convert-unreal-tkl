@@ -85,7 +85,7 @@ print(f"Converting {count} TKLs ...")
 try:
     with open(sys.argv[2], mode="w") as fh:
         print("VERSION 1", file=fh)
-        for i in range(count):
+        for _i in range(count):
             type = db.read_char()
             set_by = db.read_str()
             set_at = db.read_i64()

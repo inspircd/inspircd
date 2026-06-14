@@ -77,7 +77,7 @@ print(f"Converting {count} channels ...")
 
 try:
     with open(sys.argv[2], mode="w") as fh:
-        for i in range(count):
+        for _i in range(count):
             magic = db.read_i32()
             if magic != 0x11111111:
                 error(f"Unrecognised database start magic: {magic}")
@@ -108,7 +108,7 @@ try:
                     continue
 
                 print(f'              {mode}list="', end="", file=fh)
-                for j in range(mode_count):
+                for _j in range(mode_count):
                     mode_str = db.read_str()
                     mode_set_by = db.read_str()
                     mode_set_at = db.read_i64()

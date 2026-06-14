@@ -88,7 +88,7 @@ with open(authors_txt, "w") as fh:
     sorted_authors = list(authors.items())
     sorted_authors.sort(key=lambda a: a[0].lower())
     sorted_authors.sort(key=lambda a: a[1], reverse=True)
-    for author, commits in sorted_authors:
+    for author, _commits in sorted_authors:
         print(f"  * {author}", file=fh)
 
 info_lines = []
@@ -97,7 +97,7 @@ with open(ROOT / "docs" / "BANNER.txt") as fh:
         escaped_line = line.rstrip().replace("\\", r"\\").replace('"', r"\"")
         info_lines.append(escaped_line)
 
-with open(ROOT / "modules" / "core" / "core_info" / "info.yml", "r") as fh:
+with open(ROOT / "modules" / "core" / "core_info" / "info.yml") as fh:
     seen = []
     for team, members in yaml.safe_load(fh).items():
         info_lines.append(" ")

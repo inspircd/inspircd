@@ -22,7 +22,6 @@ import argparse
 import configparser
 import hashlib
 import json
-import pathlib
 import re
 import sys
 import urllib.request
@@ -82,7 +81,7 @@ def fetch_repository(name, repository, modules):
                     "repository":      name,
                     "repository-desc": repository["description"],
                     "url":             match.group(3),
-                    "version":         module.version_parse(match.group(2))
+                    "version":         module.version_parse(match.group(2)),
                 }
                 modules[module_name].append(module_config)
 
@@ -241,7 +240,7 @@ def installed_dependencies(installed_modules):
 def load_contrib_manifest():
     try:
         console.debug(f"Reading the contrib module manifest from {CONTRIB_MODULES} ...")
-        with open(CONTRIB_MODULES, "r", encoding="utf-8") as fh:
+        with open(CONTRIB_MODULES, encoding="utf-8") as fh:
             return json.load(fh)
 
     except FileNotFoundError:
@@ -330,19 +329,19 @@ def cmd_contrib_info(commands, args, start):
 
             data = []
             data.append(["Description", remote_module["description"]])
-            data.append(["Repository",  f"{remote_module['repository-desc']} ({remote_module['repository']})"])
+            data.append(["Repository", f"{remote_module['repository-desc']} ({remote_module['repository']})"])
 
             for author in remote_module["author"]:
                 data.append(["Author", author])
 
             for conflict_module, conflict_reason in remote_module["conflicts"].items():
-                data.append(["Conflicts with",  f"{conflict_module} ({conflict_reason})"])
+                data.append(["Conflicts with", f"{conflict_module} ({conflict_reason})"])
 
             for required_module, required_version in remote_module["depends"].items():
                 data.append(["Depends on", f"{required_module} {module.version_range_string(required_version)}"])
 
             if remote_module["mask"]:
-                data.append(["Mask reason", remote_module['mask']])
+                data.append(["Mask reason", remote_module["mask"]])
 
             if short_name in installed_modules:
                 installed_module = installed_modules[short_name]
