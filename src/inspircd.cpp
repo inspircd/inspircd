@@ -363,7 +363,7 @@ namespace
 					fmt::print("{}: ", fmt::styled(fp.sa.str(), fmt::emphasis::bold));
 
 				fmt::println("{}.", fp.error);
-				fmt::println("Created from <bind> tag at {}", fp.tag->source.str());
+				fmt::println("  Created from <bind> tag at {}", fp.tag->source.str());
 				fmt::println("");
 			}
 
