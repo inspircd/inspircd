@@ -560,9 +560,7 @@ void ModuleManager::LoadAll()
 		fmt::println("[{}] Loading module:\t{}", fmt::styled("*", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::green)), name);
 		if (!this->Load(name, true))
 		{
-			fmt::println("");
 			fmt::println("[{}] {}", fmt::styled("*", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), LastError());
-			fmt::println("");
 			ServerInstance->Exit(EXIT_FAILURE);
 		}
 	}
@@ -581,9 +579,7 @@ void ModuleManager::LoadAll()
 		{
 			LastModuleError = "Unable to initialize " + modname + ": " + modexcept.GetReason();
 			ServerInstance->Logs.Critical("MODULE", LastModuleError);
-			fmt::println("");
 			fmt::println("[{}] {}", fmt::styled("*", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), LastModuleError);
-			fmt::println("");
 			ServerInstance->Exit(EXIT_FAILURE);
 		}
 	}
@@ -605,9 +601,7 @@ void ModuleManager::LoadAll()
 		{
 			LastModuleError = "Unable to read the configuration for " + modname + ": " + modexcept.GetReason();
 			ServerInstance->Logs.Critical("MODULE", LastModuleError);
-			fmt::println("");
 			fmt::println("[{}] {}", fmt::styled("*", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), LastModuleError);
-			fmt::println("");
 			ServerInstance->Exit(EXIT_FAILURE);
 		}
 	}

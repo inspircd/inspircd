@@ -31,6 +31,8 @@
 # include <unistd.h>
 #endif
 
+#include <fmt/color.h>
+
 #include "inspircd.h"
 #include "configparser.h"
 #include "utility/string.h"
@@ -480,9 +482,11 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
 
 	// Check errors before dealing with failed binds, since continuing on failed bind is wanted in some circumstances.
 	valid = errstr.str().empty();
+	if (!valid)
+		Classes.clear(); // XXX: is this still needed?
 
 	auto binds = ConfTags("bind");
-	if (binds.empty())
+	if (valid && binds.empty())
 		errstr << "Possible configuration error: you have not defined any <bind> blocks." << std::endl
 			<< "You will need to do this if you want clients to be able to connect!" << std::endl;
 
@@ -493,7 +497,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
 		ServerInstance->BindPorts(pl);
 		if (!pl.empty())
 		{
-			errstr << "Warning! Some of your listener" << (pl.size() == 1 ? "s" : "") << " failed to bind:" << std::endl;
+			errstr << "Some of your listener" << (pl.size() == 1 ? "s" : "") << " failed to bind:" << std::endl;
 			for (const auto& fp : pl)
 			{
 				if (fp.sa.family() != AF_UNSPEC)
@@ -504,14 +508,23 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
 		}
 	}
 
-	auto* user = ServerInstance->Users.FindUUID(useruid);
-
-	if (!valid)
+	if (!errstr.str().empty())
 	{
-		ServerInstance->Logs.Normal("CONFIG", "There were errors in your configuration file:");
-		Classes.clear();
+		ServerInstance->Logs.Normal("CONFIG", "There are problems with your configuration file:");
+		if (!old)
+		{
+			if (valid)
+				fmt::print("{} ", fmt::styled("Warning!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::yellow)));
+			else
+				fmt::print("{} ", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)));
+
+			fmt::println("There are problems with your configuration file:", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)));
+			fmt::println("");
+		}
 	}
 
+	auto message_shown = false;
+	auto* user = ServerInstance->Users.FindUUID(useruid);
 	while (errstr.good())
 	{
 		std::string line;
@@ -521,7 +534,10 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
 
 		// On startup, print out to console (still attached at this point)
 		if (!old)
+		{
+			message_shown = true;
 			fmt::println("{}", line);
+		}
 
 		// If a user is rehashing, tell them directly
 		if (user)
@@ -530,6 +546,9 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
 		ServerInstance->SNO.WriteGlobalSno('r', line);
 	}
 
+	if (message_shown)
+		fmt::println("");
+
 	errstr.clear();
 	errstr.str(std::string());
 
@@ -537,10 +556,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& useruid)
 	if (!old)
 	{
 		if (!valid)
-		{
 			ServerInstance->Exit(EXIT_FAILURE);
-		}
-
 		return;
 	}
 

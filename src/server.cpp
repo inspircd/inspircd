@@ -55,6 +55,11 @@ void InspIRCd::Exit(int status)
 	this->Cleanup();
 	ServerInstance = nullptr;
 	delete this;
+	if (isatty(fileno(stdout)))
+	{
+		fmt::println("");
+		fmt::println("Exiting with code {}.", status);
+	}
 	exit(status);
 }
 

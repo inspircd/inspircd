@@ -127,9 +127,6 @@ bool ModuleManager::Load(const std::string& modname, bool defer)
 /* We must load the modules AFTER initializing the socket engine, now */
 void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicemap)
 {
-	fmt::print("Loading core modules ");
-	fflush(stdout);
-
 	try
 	{
 		for (const auto& entry : std::filesystem::directory_iterator(ServerInstance->Config->Paths.Module))
@@ -141,24 +138,19 @@ void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicem
 			if (!InspIRCd::Match(name, "core_*" DLL_EXTENSION))
 				continue;
 
-			fmt::print(".");
 			fflush(stdout);
 			this->NewServices = &servicemap[name];
 
 			if (!Load(name, true))
 			{
-				fmt::println("");
 				fmt::println("[{}] {}", fmt::styled("*", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), LastError());
-				fmt::println("");
 				ServerInstance->Exit(EXIT_FAILURE);
 			}
 		}
 	}
 	catch (const std::filesystem::filesystem_error& err)
 	{
-		fmt::println("failed: {}", err.what());
+		fmt::println("{} {}", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), err.what());
 		ServerInstance->Exit(EXIT_FAILURE);
 	}
-
-	fmt::println("");
 }
