@@ -66,91 +66,38 @@ void ListModeBase::RemoveMode(Channel* channel, Modes::ChangeList& changelist)
 	}
 }
 
-void ListModeBase::DoRehash()
+size_t ListModeBase::FindLimit(const Channel* chan) const
 {
-	limitlist newlimits;
-	bool seen_default = false;
-
-	for (const auto& [_, c] : ServerInstance->Config->ConfTags("maxlist"))
+	auto newlimit = ListModeBase::DEFAULT_LIST_SIZE;
+	for (const auto& limit : ServerInstance->Config->Limits.MaxList)
 	{
-		const std::string mname = c->getString("mode");
-		if (!mname.empty() && !insp::ascii_equals(mname, this->service_name) && !(mname.length() == 1 && GetModeChar() == mname[0]))
-			continue;
+		if (!InspIRCd::Match(chan->name, limit.chan))
+			continue; // Channel does not match.
 
-		ListLimit limit(c->getString("chan", "*", 1), c->getNum<size_t>("limit", DEFAULT_LIST_SIZE));
+		if (!limit.mode.empty() && !this->IsSameMode(limit.mode))
+			continue; // Mode name does not match.
 
-		if (limit.mask.empty())
-			throw ModuleException(this->service_creator, "<maxlist:chan> is empty, at {}", c->source.str());
-
-		if (limit.mask == "*" || limit.mask == "#*")
-			seen_default = true;
-
-		newlimits.push_back(limit);
+		newlimit = limit.limit;
+		break;
 	}
 
-	// If no default limit has been specified then insert one.
-	if (!seen_default)
-	{
-		ServerInstance->Logs.Warning("MODE", "No default <maxlist> entry was found for the {} mode; defaulting to {}",
-			this->service_name, DEFAULT_LIST_SIZE);
-		newlimits.push_back(ListLimit("*", DEFAULT_LIST_SIZE));
-	}
+	ServerInstance->Logs.Debug("MODE", "List mode limit for +{} ({}) on {}: {}",
+		this->GetModeChar(), this->service_name, chan->name, newlimit);
 
-	// Most of the time our settings are unchanged, so we can avoid iterating the chanlist
-	if (chanlimits == newlimits)
-		return;
-
-	chanlimits.swap(newlimits);
-
-	for (const auto& [_, chan] : ServerInstance->Channels.GetChans())
-	{
-		ChanData* cd = extItem.Get(chan);
-		if (cd)
-			cd->maxitems.reset();
-	}
+	return newlimit;
 }
 
-size_t ListModeBase::FindLimit(const std::string& channame)
+size_t ListModeBase::GetLimit(Channel* chan, ChanData* data)
 {
-	for (const auto& chanlimit : chanlimits)
+	if (!data)
+		data = &extItem.GetRef(chan);
+
+	if (data->maxchecked < ServerInstance->Config->ReadTime)
 	{
-		if (InspIRCd::Match(channame, chanlimit.mask))
-		{
-			// We have a pattern matching the channel
-			return chanlimit.limit;
-		}
+		data->maxchecked = ServerInstance->Time();
+		data->maxentries = FindLimit(chan);
 	}
-	return 0;
-}
-
-size_t ListModeBase::GetLimitInternal(const std::string& channame, ChanData* cd)
-{
-	if (!cd->maxitems)
-		cd->maxitems = FindLimit(channame);
-	return cd->maxitems.value();
-}
-
-size_t ListModeBase::GetLimit(Channel* channel)
-{
-	ChanData* cd = extItem.Get(channel);
-	if (!cd) // just find the limit
-		return FindLimit(channel->name);
-
-	return GetLimitInternal(channel->name, cd);
-}
-
-size_t ListModeBase::GetLowerLimit()
-{
-	if (chanlimits.empty())
-		return DEFAULT_LIST_SIZE;
-
-	size_t limit = std::numeric_limits<size_t>::max();
-	for (const auto& chanlimit : chanlimits)
-	{
-		if (chanlimit.limit < limit)
-			limit = chanlimit.limit;
-	}
-	return limit;
+	return data->maxentries;
 }
 
 bool ListModeBase::OnModeChange(User* source, User*, Channel* channel, Modes::Change& change)
@@ -186,7 +133,7 @@ bool ListModeBase::OnModeChange(User* source, User*, Channel* channel, Modes::Ch
 
 		if (lsource)
 		{
-			size_t limit = GetLimitInternal(channel->name, cd);
+			size_t limit = GetLimit(channel, cd);
 			if (cd->list.size() >= limit)
 			{
 				// The list size might be 0 so we have to check even if just created.

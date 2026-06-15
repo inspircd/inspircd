@@ -140,6 +140,37 @@ class CoreModChannel final
 	// <channels:defaulttopic>
 	std::string defaulttopic;
 
+	static size_t GetLowerLimit(ListModeBase* lm)
+	{
+		if (ServerInstance->Config->Limits.MaxList.empty())
+			return ListModeBase::DEFAULT_LIST_SIZE;
+
+		auto lowerlimit = std::numeric_limits<size_t>::max();
+		for (const auto& limit : ServerInstance->Config->Limits.MaxList)
+		{
+			if (!limit.mode.empty() && !lm->IsSameMode(limit.mode))
+				continue; // Mode name does not match.
+
+			if (limit.limit < lowerlimit)
+				lowerlimit = limit.limit;
+		}
+		return lowerlimit;
+	}
+
+	static bool HasVariableLimit(ListModeBase* lm)
+	{
+		size_t seen_entries = 0;
+		for (const auto& limit : ServerInstance->Config->Limits.MaxList)
+		{
+			if (limit.mode.empty() || lm->IsSameMode(limit.mode))
+				seen_entries++;
+
+			if (seen_entries > 1)
+				return true;
+		}
+		return false;
+	}
+
 	ModResult IsInvited(User* user, Channel* chan)
 	{
 		auto* localuser = user->AsLocal();
@@ -272,10 +303,6 @@ public:
 		});
 
 		// Config is valid, apply it
-
-		// Validates and applies <maxlist> tags, so do it first
-		banmode.DoRehash();
-
 		defaultprivs.swap(newdefaultprivs);
 		defaultmodes.swap(newdefaultmodes);
 		exemptions.swap(exempts);
@@ -300,8 +327,8 @@ public:
 		std::string vlist;
 		for (auto* lm : ServerInstance->Modes.GetListModes())
 		{
-			limits.push_back(FMT::format("{}:{}", lm->GetModeChar(), lm->GetLowerLimit()));
-			if (lm->HasVariableLength())
+			limits.push_back(FMT::format("{}:{}", lm->GetModeChar(), GetLowerLimit(lm)));
+			if (HasVariableLimit(lm))
 				vlist.push_back(lm->GetModeChar());
 		}
 		if (!vlist.empty())

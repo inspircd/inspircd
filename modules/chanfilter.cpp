@@ -108,7 +108,6 @@ public:
 		hidemask = tag->getBool("hidemask");
 		cf.maxlen = tag->getNum<unsigned long>("maxlen", 35, 10, ModeParser::MODE_PARAM_MAX);
 		notifyuser = tag->getBool("notifyuser", true);
-		cf.DoRehash();
 	}
 
 	void OnUserPart(Membership* memb, std::string& partmessage, User::List& except_list) override

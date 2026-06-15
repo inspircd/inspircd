@@ -44,20 +44,28 @@ ServerConfig::ReadResult::ReadResult(const std::string& c, const std::string& e)
 {
 }
 
-ServerConfig::ServerLimits::ServerLimits(const std::shared_ptr<ConfigTag>& tag)
-	: MaxLine(tag->getNum<size_t>("maxline", 512, 512))
-	, MaxNick(tag->getNum<size_t>("maxnick", 30, 1, MaxLine))
-	, MaxChannel(tag->getNum<size_t>("maxchan", 60, 1, MaxLine))
-	, MaxModes(tag->getNum<size_t>("maxmodes", 20, 1))
-	, MaxUser(tag->getNum<size_t>("maxuser", 10, 1, MaxLine))
-	, MaxQuit(tag->getNum<size_t>("maxquit", 300, 0, MaxLine))
-	, MaxTopic(tag->getNum<size_t>("maxtopic", 330, 1, MaxLine))
-	, MaxKick(tag->getNum<size_t>("maxkick", 300, 1, MaxLine))
-	, MaxReal(tag->getNum<size_t>("maxreal", 130, 1, MaxLine))
-	, MaxAway(tag->getNum<size_t>("maxaway", 200, 1, MaxLine))
-	, MaxHost(tag->getNum<size_t>("maxhost", 64, 45, MaxLine))
-	, MaxKey(tag->getNum<size_t>("maxkey", 32, 1, ModeParser::MODE_PARAM_MAX))
+ServerConfig::ServerLimits::ServerLimits(const std::shared_ptr<ConfigTag>& limits, const TagList& maxlist)
+	: MaxLine(limits->getNum<size_t>("maxline", 512, 512))
+	, MaxNick(limits->getNum<size_t>("maxnick", 30, 1, MaxLine))
+	, MaxChannel(limits->getNum<size_t>("maxchan", 60, 1, MaxLine))
+	, MaxModes(limits->getNum<size_t>("maxmodes", 20, 1))
+	, MaxUser(limits->getNum<size_t>("maxuser", 10, 1, MaxLine))
+	, MaxQuit(limits->getNum<size_t>("maxquit", 300, 0, MaxLine))
+	, MaxTopic(limits->getNum<size_t>("maxtopic", 330, 1, MaxLine))
+	, MaxKick(limits->getNum<size_t>("maxkick", 300, 1, MaxLine))
+	, MaxReal(limits->getNum<size_t>("maxreal", 130, 1, MaxLine))
+	, MaxAway(limits->getNum<size_t>("maxaway", 200, 1, MaxLine))
+	, MaxHost(limits->getNum<size_t>("maxhost", 64, 45, MaxLine))
+	, MaxKey(limits->getNum<size_t>("maxkey", 32, 1, ModeParser::MODE_PARAM_MAX))
 {
+	for (const auto& [_, tag] : maxlist)
+	{
+		ListLimit limit;
+		limit.chan = tag->getString("chan", "*", 1);
+		limit.limit = tag->getNum<size_t>("limit", ListModeBase::DEFAULT_LIST_SIZE);
+		limit.mode = tag->getString("mode");
+		this->MaxList.push_back(std::move(limit));
+	}
 }
 
 ServerConfig::ServerPaths::ServerPaths(const std::shared_ptr<ConfigTag>& tag)
@@ -96,7 +104,7 @@ std::string ServerConfig::ServerPaths::ExpandPath(const std::string& base, const
 
 ServerConfig::ServerConfig()
 	: EmptyTag(std::make_shared<ConfigTag>("empty", FilePosition("<auto>", 0, 0)))
-	, Limits(EmptyTag)
+	, Limits(EmptyTag, TagList(GetConfig().end(), GetConfig().end()))
 	, Paths(EmptyTag)
 	, ReadTime(ServerInstance->Time())
 {
@@ -412,7 +420,7 @@ void ServerConfig::Fill()
 	IPv6Range = cidr->getNum<unsigned char>("ipv6clone", 128, 1, 128);
 
 	// Read any left over config tags.
-	Limits = ServerLimits(ConfValue("limits"));
+	Limits = ServerLimits(ConfValue("limits"), ConfTags("maxlist"));
 	Paths = ServerPaths(ConfValue("path"));
 }
 

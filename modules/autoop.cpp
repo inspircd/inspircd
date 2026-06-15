@@ -125,11 +125,6 @@ public:
 			ServerInstance->Modes.Process(ServerInstance->FakeClient, memb->chan, nullptr, changelist);
 		}
 	}
-
-	void ReadConfig(ConfigStatus& status) override
-	{
-		mh.DoRehash();
-	}
 };
 
 MODULE_INIT(ModuleAutoOp)

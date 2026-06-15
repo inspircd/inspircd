@@ -153,11 +153,6 @@ public:
 		}
 		return MOD_RES_PASSTHRU;
 	}
-
-	void ReadConfig(ConfigStatus& status) override
-	{
-		be.DoRehash();
-	}
 };
 
 MODULE_INIT(ModuleBanException)

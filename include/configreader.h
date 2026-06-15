@@ -335,6 +335,18 @@ public:
 	class CoreExport ServerLimits final
 	{
 	public:
+		struct CoreExport ListLimit final
+		{
+			/** A glob pattern matching the channels that the limit applies to. */
+			std::string chan;
+
+			/* The number of list mode entries that can be set. */
+			size_t limit = 0;
+
+			/** If non empty then the mode name or character that the limit applies to. */
+			std::string mode;
+		};
+
 		/** Maximum line length */
 		size_t MaxLine;
 
@@ -371,10 +383,16 @@ public:
 		/** Maximum key length */
 		size_t MaxKey;
 
-		/** Read all limits from a config tag. Limits which aren't specified in the tag are set to a default value.
-		 * @param tag Configuration tag to read the limits from
+		/** Maximum list lengths */
+		std::vector<ListLimit> MaxList;
+
+		/** Read all limits the server config. Limits which aren't specified in
+		 * the tag are set to a default value.
+		 * @param limits Configuration tag to read the field limits from.
+		 * @params maxlist Configuration tag to read the list limits from.
 		 */
-		ServerLimits(const std::shared_ptr<ConfigTag>& tag);
+		ServerLimits(const std::shared_ptr<ConfigTag>& limits, const TagList& maxlist);
+
 
 		/** Maximum length of a n!u\@h mask */
 		size_t GetMaxMask() const { return MaxNick + 1 + MaxUser + 1 + MaxHost; }

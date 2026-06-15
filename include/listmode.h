@@ -48,58 +48,32 @@ public:
 	 */
 	using ModeList = std::vector<ListItem>;
 
+	/** The default maximum list size. */
+	static constexpr size_t DEFAULT_LIST_SIZE = 100;
+
 private:
 	class ChanData final
 	{
 	public:
+		/* The entries on the list mode list. */
 		ModeList list;
-		std::optional<size_t> maxitems;
+
+		/** The time at which maxitems was last checked. */
+		time_t maxchecked = 0;
+
+		/** The maximum number of entries on the list mode list. */
+		size_t maxentries = 0;
 	};
 
-	/** The number of items a listmode's list may contain
+	/** Finds the maximum number of this list mode that can be placed on the
+	 * given channel name according to the \<maxlimit> config.
+	 * @param channame The channel name to find the limit for.
+	 * @return The maximum number of modes of this type that we allow to be se
+	 *         on the given channel name
 	 */
-	struct ListLimit final
-	{
-		std::string mask;
-		size_t limit;
-		ListLimit(const std::string& Mask, size_t Limit)
-			: mask(Mask)
-			, limit(Limit)
-		{
-		}
-
-		bool operator==(const ListLimit& other) const { return (this->mask == other.mask && this->limit == other.limit); }
-	};
-
-	/** Max items per channel by name
-	 */
-	using limitlist = std::vector<ListLimit>;
-
-	/** The default maximum list size. */
-	static constexpr unsigned int DEFAULT_LIST_SIZE = 100;
-
-	/** Finds the limit of modes that can be placed on the given channel name according to the config
-	 * @param channame The channel name to find the limit for
-	 * @return The maximum number of modes of this type that we allow to be set on the given channel name
-	 */
-	size_t FindLimit(const std::string& channame);
-
-	/** Returns the limit on the given channel for this mode.
-	 * If the limit is cached then the cached value is returned,
-	 * otherwise the limit is determined using FindLimit() and cached
-	 * for later queries before it is returned
-	 * @param channame The channel name to find the limit for
-	 * @param cd The ChanData associated with channel channame
-	 * @return The maximum number of modes of this type that we allow to be set on the given channel
-	 */
-	size_t GetLimitInternal(const std::string& channame, ChanData* cd);
+	size_t FindLimit(const Channel* chan) const;
 
 protected:
-	/** Limits on a per-channel basis read from the \<listmode>
-	 * config tag.
-	 */
-	limitlist chanlimits;
-
 	/** Storage key
 	 */
 	SimpleExtItem<ChanData> extItem;
@@ -125,9 +99,6 @@ public:
 	 */
 	ListModeBase(const WeakModulePtr& Creator, const std::string& Name, char modechar, unsigned int lnum, unsigned int eolnum, bool am = false);
 
-	/** Determines whether some channels have longer lists than others. */
-	bool HasVariableLength() const { return chanlimits.size() > 1; }
-
 	/** Compares an entry from this list with the specified value.
 	 * @param entry The list entry to compare against.
 	 * @param value The value to compare to.
@@ -139,11 +110,7 @@ public:
 	 * @param channel The channel to inspect
 	 * @return Maximum number of modes of this type that can be placed on the given channel
 	 */
-	size_t GetLimit(Channel* channel);
-
-	/** Gets the lower list limit for this listmode.
-	 */
-	size_t GetLowerLimit();
+	size_t GetLimit(Channel* chan, ChanData *data = nullptr);
 
 	/** Retrieves the list of all modes set on the given channel
 	 * @param channel Channel to get the list from
@@ -159,10 +126,6 @@ public:
 
 	/** @copydoc ModeHandler::RemoveMode(Channel*,Modes::ChangeList&) */
 	void RemoveMode(Channel* channel, Modes::ChangeList& changelist) override;
-
-	/** Perform a rehash of this mode's configuration data
-	 */
-	void DoRehash();
 
 	/** @copydoc ModeHandler::OnModeChange */
 	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;

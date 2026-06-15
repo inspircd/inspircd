@@ -118,7 +118,6 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		ie.DoRehash();
 		invite_bypass_key = ServerInstance->Config->ConfValue("inviteexception")->getBool("bypasskey", true);
 	}
 };

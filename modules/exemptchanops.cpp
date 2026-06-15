@@ -172,11 +172,6 @@ public:
 		, eh(weak_from_this())
 	{
 	}
-
-	void ReadConfig(ConfigStatus& status) override
-	{
-		eh.ec.DoRehash();
-	}
 };
 
 MODULE_INIT(ModuleExemptChanOps)
