@@ -24,6 +24,12 @@
  */
 
 
+#ifndef _WIN32
+# include <unistd.h>
+#endif
+
+#include <fmt/color.h>
+
 #include "inspircd.h"
 
 void InspIRCd::HandleSignal(sig_atomic_t signal)
