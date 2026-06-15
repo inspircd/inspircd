@@ -67,11 +67,17 @@ namespace
 		if (getegid() != 0 && geteuid() != 0)
 			return;
 
-		fmt::println("{} You have started as root. Running as root is generally not required", fmt::styled("Warning!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)));
+		const auto has_tty = isatty(fileno(stdout));
+		if (has_tty)
+			fmt::print("{} ", fmt::styled("Warning!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::yellow)));
+		else
+			fmt::print("{} ", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)));
+
+		fmt::println("You have started as root. Running as root is generally not required");
 		fmt::println("and may allow an attacker to gain access to your system if they find a way to");
 		fmt::println("exploit your IRC server.");
 		fmt::println("");
-		if (isatty(fileno(stdout)))
+		if (has_tty)
 		{
 			fmt::println("InspIRCd will start in 30 seconds. If you are sure that you need to run as root");
 			fmt::println("then you can pass the {} option to disable this wait.", fmt::styled("--runasroot", fmt::emphasis::bold));
@@ -211,7 +217,7 @@ namespace
 		if (childpid < 0)
 		{
 			ServerInstance->Logs.Critical("STARTUP", "fork() failed: {}", strerror(errno));
-			fmt::println("{} unable to fork into background: {}", fmt::styled("Error:", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), strerror(errno));
+			fmt::println("{} Unable to fork into background: {}", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), strerror(errno));
 			ServerInstance->Exit(EXIT_FAILURE);
 		}
 		else if (childpid > 0)
@@ -296,7 +302,7 @@ namespace
 		auto result = cli.parse({ServerInstance->CommandLine.argc, ServerInstance->CommandLine.argv});
 		if (!result)
 		{
-			fmt::println(stderr, "{} {}", fmt::styled("Error:", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), result.message());
+			fmt::println(stderr, "{} {}", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), result.message());
 			ServerInstance->Exit(EXIT_FAILURE);
 		}
 
@@ -349,7 +355,7 @@ namespace
 
 		if (!pl.empty())
 		{
-			fmt::println("{} Some of your listeners failed to bind:", fmt::styled("Warning!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)));
+			fmt::println("{} Some of your listeners failed to bind:", fmt::styled("Warning!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::yellow)));
 			fmt::println("");
 
 			for (const auto& fp : pl)
@@ -359,7 +365,7 @@ namespace
 					fmt::print("{}: ", fmt::styled(fp.sa.str(), fmt::emphasis::bold));
 
 				fmt::println("{}.", fp.error);
-				fmt::println("Created from <bind> tag at {}", fp.tag->source.str());
+				fmt::println("  Created from <bind> tag at {}", fp.tag->source.str());
 				fmt::println("");
 			}
 
@@ -367,6 +373,7 @@ namespace
 			fmt::println("- For TCP/IP listeners try using a public IP address in <bind:address> instead");
 			fmt::println("  of * or leaving it blank.");
 			fmt::println("- For UNIX socket listeners try enabling <bind:replace> to replace old sockets.");
+			fmt::println("");
 		}
 	}
 
@@ -461,8 +468,19 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		rfcevents.ping, rfcevents.pong, rfcevents.reply, rfcevents.error
 	);
 
-	fmt::println("{}", fmt::styled("InspIRCd - Internet Relay Chat Daemon", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::green)));
-	fmt::println("See {} for contributors & authors", fmt::styled("/INFO", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::green)));
+	fmt::println("{}{} - A high-performance IRCv3 server for UNIX-like and Windows systems.",
+		fmt::styled("Insp", fmt::emphasis::bold),
+		fmt::styled("IRCd", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red))
+	);
+	fmt::println("See {} for a list of developers and contributors.", fmt::styled("/INFO", fmt::emphasis::bold));
+	fmt::println("");
+	fmt::println("{:<15} https://www.inspircd.org", fmt::styled("Website:", fmt::emphasis::bold));
+	fmt::println("{:<15} https://docs.inspircd.org", fmt::styled("Documentation:", fmt::emphasis::bold));
+	fmt::println("{:<15} https://docs.inspircd.org/support", fmt::styled("Support:", fmt::emphasis::bold));
+	fmt::println("");
+	fmt::println("InspIRCd is open source and is reliant on your support to stay maintained. Read");
+	fmt::println("{} to find out how to become a contributor", fmt::styled("https://docs.inspircd.org/contributing", fmt::emphasis::bold));
+	fmt::println("or {} to donate to the project.", fmt::styled("https://www.inspircd.org/donate", fmt::emphasis::bold));
 	fmt::println("");
 
 	Logs.RegisterServices();
@@ -472,9 +490,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	std::error_code ec;
 	if (!std::filesystem::is_regular_file(ConfigFileName, ec))
 	{
-		this->Logs.Critical("STARTUP", "Unable to open config file {}", ConfigFileName);
-		fmt::println("ERROR: Cannot open config file: {}", ConfigFileName);
-		fmt::println("Exiting...");
+		this->Logs.Critical("STARTUP", "Unable to find config file {}", ConfigFileName);
+		fmt::println("{} Cannot find config file: {}", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), ConfigFileName);
 		Exit(EXIT_FAILURE);
 	}
 
@@ -483,8 +500,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		CheckRoot();
 	if (!CommandLine.nofork)
 		ForkIntoBackground();
-
-	fmt::println("InspIRCd Process ID: {}", fmt::styled(getpid(), fmt::emphasis::bold | fmt::fg(fmt::terminal_color::green)));
 
 	/* During startup we read the configuration now, not in
 	 * a separate thread
@@ -499,8 +514,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 	catch (const CoreException& ex)
 	{
-		fmt::println("ERROR: Cannot open log files: {}", ex.GetReason());
-		fmt::println("Exiting...");
+		fmt::println("{} Cannot open log files: {}", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), ex.GetReason());
 		Exit(EXIT_FAILURE);
 	}
 
@@ -521,8 +535,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	// This is needed as all new XLines are marked pending until ApplyLines() is called
 	this->XLines->ApplyLines();
 
-	fmt::println("");
-
 	TryBindPorts();
 
 	this->Modules.LoadAll();
@@ -534,13 +546,12 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 	catch (const CoreException& ex)
 	{
-		fmt::println("ERROR: Cannot open log files: {}", ex.GetReason());
-		fmt::println("Exiting...");
+		fmt::println("{} Cannot open log files: {}", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), ex.GetReason());
 		Exit(EXIT_FAILURE);
 	}
 
-	fmt::println("InspIRCd is now running as '{}'[{}] with {} max open sockets",
-		Config->ServerName, Config->ServerId, SocketEngine::GetMaxFds());
+	fmt::println("{} [PID {}] is now running as {} [{}] with {} max open sockets",
+		INSPIRCD_VERSION, getpid(), Config->ServerName, Config->ServerId, SocketEngine::GetMaxFds());
 
 #ifndef _WIN32
 	if (!CommandLine.nofork)

@@ -142,6 +142,7 @@ public:
 
 	bool IsMatch(ListModeBase* lm, User* user, Channel* channel, const std::string& text, const ExtBan::MatchConfig& config) override
 	{
+		// Try to glob match against a nickname in the nick group.
 		const auto* nicks = accountapi.GetAccountNicks(user);
 		if (nicks)
 		{
@@ -152,8 +153,14 @@ public:
 			}
 		}
 
+		// Try to glob match against the account name.
 		const auto* account = accountapi.GetAccountName(user);
-		return account && InspIRCd::Match(*account, text);
+		if (account && InspIRCd::Match(*account, text))
+			return true;
+
+		// Try to literal match against the account identifier.
+		const auto* accountid = accountapi.GetAccountId(user);
+		return accountid && InspIRCd::Match(*accountid, text);
 	}
 };
 

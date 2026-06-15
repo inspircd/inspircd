@@ -442,7 +442,7 @@ namespace OpenSSL
 		: public TLS::Certificate
 	{
 	private:
-		static void GetDNString(X509_NAME* x509name, std::string& out)
+		static void GetDNString(const X509_NAME* x509name, std::string& out)
 		{
 			char buf[512];
 			X509_NAME_oneline(x509name, buf, sizeof(buf));
@@ -452,7 +452,7 @@ namespace OpenSSL
 				out[pos] = ' ';
 		}
 
-		static time_t GetTime(ASN1_TIME* x509time)
+		static time_t GetTime(const ASN1_TIME* x509time)
 		{
 			if (!x509time)
 				return 0;

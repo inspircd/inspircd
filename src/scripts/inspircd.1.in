@@ -17,10 +17,10 @@
 .\"
 
 
-.TH "InspIRCd" "1" "2024-06-28" "InspIRCd @VERSION_FULL@" "InspIRCd Manual"
+.TH "InspIRCd" "1" "2026-06-14" "InspIRCd @VERSION_FULL@" "InspIRCd Manual"
 
 .SH "NAME"
-\t\fBInspIRCd\fR - \fIthe\fR stable, high-performance and modular Internet Relay Chat Daemon
+\t\fBInspIRCd\fR - A high-performance IRCv3 server for UNIX-like and Windows systems.
 .BR
 
 .SH "SYNOPSIS"
@@ -29,34 +29,50 @@
 .SH "OPTIONS"
 .TP
 .B "--config <file>"
+.TQ
+.B "-c <file>"
 .br
 Sets the path to the main configuration file. Defaults to \fI@ABSOLUTE_CONFIG_DIR@/inspircd.conf\fR.
 .TP
 .B "--debug"
+.TQ
+.B "-d"
 .br
 Log at the debug level to the standard output stream.
 .TP
 .B "--nofork"
+.TQ
+.B "-F"
 .br
 Don't fork into the background after starting up.
 .TP
 .B "--nolog"
+.TQ
+.B "-L"
 .br
 Don't write to log files.
 .TP
 .B "--nopid"
+.TQ
+.B "-P"
 .br
 Don't write to the PID file.
 .TP
 .B "--protocoldebug"
+.TQ
+.B "-p"
 .br
 Log at the raw I/O level to the standard output stream.
 .TP
 .B "--runasroot"
+.TQ
+.B "-r"
 .br
 Allow the server to start as root (not recommended).
 .TP
 .B "--version"
+.TQ
+.B "-v"
 .br
 Displays the InspIRCd version and exits.
 

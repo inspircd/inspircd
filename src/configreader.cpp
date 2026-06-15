@@ -31,7 +31,7 @@
 # include <unistd.h>
 #endif
 
-#include <fmt/format.h>
+#include <fmt/color.h>
 
 #include "inspircd.h"
 #include "configparser.h"
@@ -492,6 +492,8 @@ void ServerConfig::Apply(const std::unique_ptr<ServerConfig>& old, const std::st
 
 	// Check errors before dealing with failed binds, since continuing on failed bind is wanted in some circumstances.
 	valid = errors.empty();
+	if (!valid)
+		Classes.clear(); // XXX: is this still needed?
 
 	auto binds = ConfTags("bind");
 	if (binds.empty())
@@ -520,19 +522,31 @@ void ServerConfig::Apply(const std::unique_ptr<ServerConfig>& old, const std::st
 		}
 	}
 
-	auto* user = ServerInstance->Users.FindUUID(useruid);
-
-	if (!valid)
+	if (!errors.empty())
 	{
-		ServerInstance->Logs.Normal("CONFIG", "There were errors in your configuration file:");
-		Classes.clear();
+		ServerInstance->Logs.Normal("CONFIG", "There are problems with your configuration file:");
+		if (!old)
+		{
+			if (valid)
+				fmt::print("{} ", fmt::styled("Warning!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::yellow)));
+			else
+				fmt::print("{} ", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)));
+
+			fmt::println("There are problems with your configuration file:", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)));
+			fmt::println("");
+		}
 	}
 
-	for (const auto &line : errors)
+	auto message_shown = false;
+	auto* user = ServerInstance->Users.FindUUID(useruid);
+	for (const auto& line : errors)
 	{
 		// On startup, print out to console (still attached at this point)
 		if (!old)
+		{
+			message_shown = true;
 			fmt::println("{}", line);
+		}
 
 		// If a user is rehashing, tell them directly
 		if (user)
@@ -542,6 +556,9 @@ void ServerConfig::Apply(const std::unique_ptr<ServerConfig>& old, const std::st
 		ServerInstance->SNO.WriteGlobalSno('r', line);
 	}
 
+	if (message_shown)
+		fmt::println("");
+
 	errors.clear();
 	errors.shrink_to_fit();
 
@@ -549,10 +566,7 @@ void ServerConfig::Apply(const std::unique_ptr<ServerConfig>& old, const std::st
 	if (!old)
 	{
 		if (!valid)
-		{
 			ServerInstance->Exit(EXIT_FAILURE);
-		}
-
 		return;
 	}
 
