@@ -288,6 +288,18 @@ private:
 	void Fill();
 
 public:
+	/** Holds the connect classes from the server config. */
+	using ClassVector = std::vector<std::shared_ptr<ConnectClass>>;
+
+	/** Holds the oper accounts from the server config. */
+	using OperAccountMap = insp::flat_map<std::string, std::shared_ptr<OperAccount>>;
+
+	/** Holds the oper types from the server config. */
+	using OperTypeMap = insp::flat_map<std::string, std::shared_ptr<OperType>>;
+
+	/** Holds iterators to a subsection of the server config map. */
+	using TagList = insp::iterator_range<TagMap::const_iterator>;
+
 	/** How to treat a user in a channel who is banned. */
 	enum BannedUserTreatment
 		: uint8_t
@@ -402,18 +414,6 @@ public:
 		inline std::string PrependModule(const std::string& fn) const { return ExpandPath(Module, fn); }
 		inline std::string PrependRuntime(const std::string& fn) const { return ExpandPath(Runtime, fn); }
 	};
-
-	/** Holds the connect classes from the server config. */
-	using ClassVector = std::vector<std::shared_ptr<ConnectClass>>;
-
-	/** Holds the oper accounts from the server config. */
-	using OperAccountMap = insp::flat_map<std::string, std::shared_ptr<OperAccount>>;
-
-	/** Holds the oper types from the server config. */
-	using OperTypeMap = insp::flat_map<std::string, std::shared_ptr<OperType>>;
-
-	/** Holds iterators to a subsection of the server config map. */
-	using TagList = insp::iterator_range<TagMap::const_iterator>;
 
 	/** The connect classes from the server config. */
 	ClassVector Classes;
