@@ -186,6 +186,12 @@ public:
 	 */
 	const std::string& GetName(bool old) const;
 
+	/** Determines if this mode is the same mode referred to by \p mname. If a
+	 * single character is provided then it compares against the mode character.
+	 * Otherwise, it compares against the mode name..
+	 */
+	bool IsSameMode(const std::string& mname) const;
+
 	/**
 	 * Returns true if the mode is a list mode
 	 */

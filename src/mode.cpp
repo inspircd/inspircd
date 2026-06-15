@@ -133,6 +133,20 @@ const std::string& ModeHandler::GetName(bool old) const
 	return this->service_name;
 }
 
+bool ModeHandler::IsSameMode(const std::string& mname) const
+{
+	switch (mname.length())
+	{
+		case 0:
+			return false; // Can never match.
+		case 1:
+			return this->GetModeChar() == mname[0]; // Match the mode character.
+		default:
+			return insp::ascii_equals(this->service_name, mname); // Match the mode name.
+	}
+}
+
+
 bool SimpleUserMode::OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change)
 {
 	/* We're either trying to add a mode we already have or
