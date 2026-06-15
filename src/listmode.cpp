@@ -26,7 +26,7 @@
 
 ListModeBase::ListModeBase(const WeakModulePtr& Creator, const std::string& Name, char modechar, unsigned int lnum, unsigned int eolnum, bool am)
 	: ModeHandler(Creator, Name, modechar, PARAM_ALWAYS, MODETYPE_CHANNEL, MC_LIST)
-	, extItem(Creator, "list-mode-" + Name, ExtensionType::CHANNEL)
+	, listdata(Creator, "list-mode-" + Name, ExtensionType::CHANNEL)
 	, accepts_mask(am)
 	, listnumeric(lnum)
 	, endoflistnumeric(eolnum)
@@ -36,14 +36,14 @@ ListModeBase::ListModeBase(const WeakModulePtr& Creator, const std::string& Name
 
 void ListModeBase::DisplayList(User* user, Channel* channel)
 {
-	ChanData* cd = extItem.Get(channel);
-	if (!cd || cd->list.empty())
+	const auto* data = listdata.Get(channel);
+	if (!data || data->list.empty())
 	{
 		this->DisplayEmptyList(user, channel);
 		return;
 	}
 
-	for (const auto& item : cd->list)
+	for (const auto& item : data->list)
 		user->WriteNumeric(listnumeric, channel->name, item.mask, item.setter, item.time);
 
 	user->WriteNumeric(endoflistnumeric, channel->name, FMT::format("End of channel {} list.",
@@ -58,10 +58,10 @@ void ListModeBase::DisplayEmptyList(User* user, Channel* channel)
 
 void ListModeBase::RemoveMode(Channel* channel, Modes::ChangeList& changelist)
 {
-	ChanData* cd = extItem.Get(channel);
-	if (cd)
+	const auto* data = listdata.Get(channel);
+	if (data)
 	{
-		for (const auto& entry : cd->list)
+		for (const auto& entry : data->list)
 			changelist.push_remove(this, entry.mask);
 	}
 }
@@ -87,10 +87,10 @@ size_t ListModeBase::FindLimit(const Channel* chan) const
 	return newlimit;
 }
 
-size_t ListModeBase::GetLimit(Channel* chan, ChanData* data)
+size_t ListModeBase::GetLimit(Channel* chan, ListData* data)
 {
 	if (!data)
-		data = &extItem.GetRef(chan);
+		data = &listdata.GetRef(chan);
 
 	if (data->maxchecked < ServerInstance->Config->ReadTime)
 	{
@@ -109,32 +109,23 @@ bool ListModeBase::OnModeChange(User* source, User*, Channel* channel, Modes::Ch
 		if (lsource && !ValidateParam(lsource, channel, change.param))
 			return false;
 
-		ChanData* cd = extItem.Get(channel);
-		if (cd)
+		// Check if the item already exists in the list
+		auto& data = listdata.GetRef(channel);
+		for (const auto& entry : data.list)
 		{
-			// Check if the item already exists in the list
-			for (const auto& entry : cd->list)
-			{
-				if (!CompareEntry(entry.mask, change.param))
-					continue; // Doesn't match the proposed addition.
+			if (!CompareEntry(entry.mask, change.param))
+				continue; // Doesn't match the proposed addition.
 
-				if (lsource)
-					TellAlreadyOnList(lsource, channel, change.param);
+			if (lsource)
+				TellAlreadyOnList(lsource, channel, change.param);
 
-				return false;
-			}
-		}
-		else
-		{
-			// There's no channel list currently; create one.
-			cd = new ChanData;
-			extItem.Set(channel, cd);
+			return false;
 		}
 
 		if (lsource)
 		{
-			size_t limit = GetLimit(channel, cd);
-			if (cd->list.size() >= limit)
+			const auto limit = GetLimit(channel, &data);
+			if (data.list.size() >= limit)
 			{
 				// The list size might be 0 so we have to check even if just created.
 				TellListTooLong(lsource, channel, change.param, limit);
@@ -143,7 +134,7 @@ bool ListModeBase::OnModeChange(User* source, User*, Channel* channel, Modes::Ch
 		}
 
 		// Add the new entry to the list.
-		cd->list.emplace_back(
+		data.list.emplace_back(
 			change.param,
 			change.set_by.value_or(ServerInstance->Config->MaskInList ? source->GetMask() : source->nick),
 			change.set_at.value_or(ServerInstance->Time())
@@ -152,17 +143,17 @@ bool ListModeBase::OnModeChange(User* source, User*, Channel* channel, Modes::Ch
 	}
 	else
 	{
-		ChanData* cd = extItem.Get(channel);
-		if (cd)
+		auto* data = listdata.Get(channel);
+		if (data)
 		{
 			// We have a list and we're removing; is the entry in it?
-			for (ModeList::iterator it = cd->list.begin(); it != cd->list.end(); ++it)
+			for (auto it = data->list.begin(); it != data->list.end(); ++it)
 			{
 				if (!CompareEntry(it->mask, change.param))
 					continue; // Doesn't match the proposed removal.
 
 				change.param = it->mask;
-				insp::swap_erase(cd->list, it);
+				insp::swap_erase(data->list, it);
 				return true;
 			}
 		}

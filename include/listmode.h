@@ -52,7 +52,7 @@ public:
 	static constexpr size_t DEFAULT_LIST_SIZE = 100;
 
 private:
-	class ChanData final
+	class ListData final
 	{
 	public:
 		/* The entries on the list mode list. */
@@ -74,9 +74,8 @@ private:
 	size_t FindLimit(const Channel* chan) const;
 
 protected:
-	/** Storage key
-	 */
-	SimpleExtItem<ChanData> extItem;
+	/** Data relating to a list mode set on a channel */
+	SimpleExtItem<ListData> listdata;
 
 public:
 	/** Whether the list mode accepts a user mask. */
@@ -110,7 +109,7 @@ public:
 	 * @param channel The channel to inspect
 	 * @return Maximum number of modes of this type that can be placed on the given channel
 	 */
-	size_t GetLimit(Channel* chan, ChanData *data = nullptr);
+	size_t GetLimit(Channel* chan, ListData *data = nullptr);
 
 	/** Retrieves the list of all modes set on the given channel
 	 * @param channel Channel to get the list from
@@ -171,9 +170,9 @@ public:
 
 inline ListModeBase::ModeList* ListModeBase::GetList(Channel* channel)
 {
-	ChanData* cd = extItem.Get(channel);
-	if (!cd)
+	auto* data = listdata.Get(channel);
+	if (!data)
 		return nullptr;
 
-	return &cd->list;
+	return &data->list;
 }
