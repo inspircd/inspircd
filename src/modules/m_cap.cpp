@@ -374,16 +374,14 @@ private:
 		std::string line;
 		for (const auto& cap : result)
 		{
-			if (line.length() + cap.length() < maxline)
-			{
-				line.append(cap);
-				line.push_back(' ');
-			}
-			else
+			if (line.length() + cap.length() >= maxline)
 			{
 				DisplaySingleResult(user, subcmd, line, asterisk);
 				line.clear();
 			}
+			if (!line.empty())
+				line.push_back(' ');
+			line.append(cap);
 		}
 		DisplaySingleResult(user, subcmd, line, false);
 	}
