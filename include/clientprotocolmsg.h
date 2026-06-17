@@ -49,19 +49,22 @@ namespace ClientProtocol
 class CoreExport ClientProtocol::Messages::Numeric
 	: public ClientProtocol::Message
 {
+private:
+	unsigned int numeric;
 	char numericstr[4];
 
-	void InitCommand(unsigned int number)
+	void InitCommand(unsigned int num)
 	{
-		snprintf(numericstr, sizeof(numericstr), "%03u", number);
+		this->numeric = num;
+		snprintf(numericstr, sizeof(numericstr), "%03u", num);
 		SetCommand(numericstr);
 	}
 
-	void InitFromNumeric(const ::Numeric::Numeric& numeric)
+	void InitFromNumeric(const ::Numeric::Numeric& num)
 	{
-		AddTags(numeric.GetParams().GetTags());
-		InitCommand(numeric.GetNumeric());
-		for (const auto& param : numeric.GetParams())
+		AddTags(num.GetParams().GetTags());
+		InitCommand(num.GetNumeric());
+		for (const auto& param : num.GetParams())
 			PushParamRef(param);
 	}
 
@@ -100,6 +103,9 @@ public:
 		InitCommand(num);
 		PushParam("*");
 	}
+
+	/** Retrieves the underlying numeric for this message. */
+	auto GetNumeric() const { return this->numeric; }
 };
 
 class CoreExport ClientProtocol::Messages::Reply

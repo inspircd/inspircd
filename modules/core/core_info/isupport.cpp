@@ -45,7 +45,8 @@ namespace
 }
 
 ISupportManager::ISupportManager(const WeakModulePtr& mod)
-	: operext(mod, "isupport", ExtensionType::USER)
+	: ISupport::APIBase(mod)
+	, operext(mod, "isupport", ExtensionType::USER)
 	, isupportevprov(mod)
 {
 }
@@ -94,7 +95,7 @@ void ISupportManager::BuildClass(ISupport::TokenMap& newtokens, NumericList& new
 }
 
 void ISupportManager::BuildOper(ISupport::TokenMap& newtokens, NumericList& newnumerics,
-	NumericList& diffnumerics, LocalUser* user)
+	ISupport::TokenMap& difftokens, NumericList& diffnumerics, LocalUser* user)
 {
 	ServerInstance->Logs.Debug(MODNAME, "Rebuilding isupport for {}oper {}",
 		user->IsOper() ? "" : "ex-", user->nick);
@@ -112,7 +113,6 @@ void ISupportManager::BuildOper(ISupport::TokenMap& newtokens, NumericList& newn
 	const auto& oldtokens = ext ? ext->first : classtokens->second;
 
 	// Build the updated numeric diff to send to to the user.
-	ISupport::TokenMap difftokens;
 	TokenDifference(difftokens, oldtokens, newtokens);
 	BuildNumerics(difftokens, diffnumerics);
 }
@@ -153,7 +153,8 @@ void ISupportManager::Build()
 		for (LocalUser* user : ServerInstance->Users.GetLocalUsers())
 		{
 			const auto& klass = user->GetClass();
-			if (!(user->connected & User::CONN_FULL))
+			auto modres = isupportevprov.FirstResult(&ISupport::EventListener::OnSendISupportDiff, user, newtokens[klass]);
+			if (!modres.check(user->IsFullyConnected()))
 				continue; // User hasn't received 005 yet.
 
 			auto numerics = diffnumerics.find(klass);
@@ -169,8 +170,7 @@ void ISupportManager::Build()
 			if (user->IsOper())
 				continue; // Server operators are handled later.
 
-			for (const auto& numeric : numerics->second)
-				user->WriteNumeric(numeric);
+			user->WriteNumeric(numerics->second);
 		}
 	}
 
@@ -233,11 +233,14 @@ void ISupportManager::ChangeClass(LocalUser* user, const std::shared_ptr<Connect
 	else
 		TokenDifference(difftokens, oldtokens->second, newtokens->second);
 
+	auto modres = isupportevprov.FirstResult(&ISupport::EventListener::OnSendISupportDiff, user, difftokens);
+	if (!modres.check(user->IsFullyConnected()))
+		return; // User hasn't received 005 yet.
+
 	std::vector<Numeric::Numeric> diffnumerics;
 	BuildNumerics(difftokens, diffnumerics);
 
-	for (const auto& numeric : diffnumerics)
-		user->WriteNumeric(numeric);
+	user->WriteNumeric(diffnumerics);
 }
 
 void ISupportManager::SendTo(LocalUser* user)
@@ -254,22 +257,21 @@ void ISupportManager::SendTo(LocalUser* user)
 		numerics = (it == cachednumerics.end() ? nullptr : &it->second);
 	}
 
-	if (!numerics)
-		return; // Should never happen.
-
-	for (const auto& numeric : *numerics)
-		user->WriteNumeric(numeric);
+	if (numerics)
+		user->WriteNumeric(*numerics);
 }
 
 void ISupportManager::SendOper(LocalUser* user)
 {
 	NumericList diffnumerics;
 	NumericList newnumerics;
+	ISupport::TokenMap difftokens;
 	ISupport::TokenMap newtokens;
-	BuildOper(newtokens, newnumerics, diffnumerics, user);
+	BuildOper(newtokens, newnumerics, difftokens, diffnumerics, user);
 
-	for (const auto& numeric : diffnumerics)
-		user->WriteNumeric(numeric);
+	auto modres = isupportevprov.FirstResult(&ISupport::EventListener::OnSendISupportDiff, user, difftokens);
+	if (modres.check(user->IsFullyConnected()))
+		user->WriteNumeric(diffnumerics);
 
 	// Apply the new ISUPPORT values. If the user is still an oper we need to
 	// store the numerics for if the user executes /VERSION later. Otherwise,

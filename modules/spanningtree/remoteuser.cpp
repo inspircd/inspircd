@@ -39,6 +39,12 @@ void SpanningTree::RemoteUser::WriteRemoteNumeric(const Numeric::Numeric& numeri
 	CommandNum::Builder(this, numeric).Unicast(this);
 }
 
+void SpanningTree::RemoteUser::WriteRemoteNumeric(const std::vector<Numeric::Numeric>& numerics)
+{
+	for (const auto& numeric : numerics)
+		CommandNum::Builder(this, numeric).Unicast(this);
+}
+
 void SpanningTree::RemoteUser::WriteRemoteReply(const Reply::Reply& reply)
 {
 	CommandReply::Builder(this, reply).Unicast(this);

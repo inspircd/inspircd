@@ -26,6 +26,7 @@
 
 /** This class manages the generation and transmission of ISUPPORT. */
 class ISupportManager final
+	: public ISupport::APIBase
 {
 private:
 	/** The generated numerics which are sent to clients. */
@@ -55,8 +56,7 @@ private:
 		const std::shared_ptr<ConnectClass>& klass, bool dead);
 
 	// Builds the ISUPPORT tokens for a specific server operator.
-	void BuildOper(ISupport::TokenMap& newtokens, NumericList& newnumerics, NumericList& diffnumerics,
-		LocalUser* user);
+	void BuildOper(ISupport::TokenMap& newtokens, NumericList& newnumerics, ISupport::TokenMap& difftokens, NumericList& diffnumerics, LocalUser* user);
 
 	/** Builds the ISUPPORT numerics from a list of tokens.
 	 * @param tokens The tokens to build from.

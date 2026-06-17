@@ -625,8 +625,7 @@ CmdResult CommandWho::HandleLocal(LocalUser* user, const Params& parameters)
 		WhoUsers(user, parameters, ServerInstance->Users.GetUsers(), data);
 
 	// Send the results to the source.
-	for (const auto& numeric : data.results)
-		user->WriteNumeric(numeric);
+	user->WriteNumeric(data.results);
 	user->WriteNumeric(RPL_ENDOFWHO, (data.matchtext.empty() ? "*" : data.matchtext.c_str()), "End of /WHO list.");
 
 	// Penalize the source a bit for large queries with one unit of penalty per 200 results.

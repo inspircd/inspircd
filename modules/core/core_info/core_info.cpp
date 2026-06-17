@@ -198,7 +198,7 @@ public:
 
 	void OnPostChangeConnectClass(LocalUser* user, const std::shared_ptr<ConnectClass>& oldklass, bool force) override
 	{
-		if (user->IsFullyConnected() && !user->quitting)
+		if (!user->quitting)
 			isupport.ChangeClass(user, oldklass, user->GetClass());
 	}
 

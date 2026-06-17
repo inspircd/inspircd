@@ -641,6 +641,7 @@ void LocalUser::Send(ClientProtocol::Event& protoev, ClientProtocol::MessageList
 		this->bytes_out += bytessent;
 		this->cmds_out++;
 	}
+	protoev.PostSendMessagesToUser(this, msglist);
 }
 
 bool LocalUserIO::CheckMaxRecvQ() const
@@ -679,9 +680,7 @@ void User::WriteNumeric(const Numeric::Numeric& numeric)
 		return;
 
 	ModResult modres;
-
 	FIRST_MOD_RESULT(OnNumeric, modres, (this, numeric));
-
 	if (modres == MOD_RES_DENY)
 		return;
 
@@ -689,10 +688,35 @@ void User::WriteNumeric(const Numeric::Numeric& numeric)
 	localuser->Send(ServerInstance->GetRFCEvents().numeric, numericmsg);
 }
 
+void User::WriteNumeric(const std::vector<Numeric::Numeric>& numerics)
+{
+	auto* const lthis = this->AsLocal();
+	if (!lthis)
+		return;
+
+	ClientProtocol::MessageList messages;
+	for (const auto& numeric : numerics)
+	{
+		ModResult modres;
+		FIRST_MOD_RESULT(OnNumeric, modres, (this, numeric));
+		if (modres != MOD_RES_DENY)
+			messages.push_back(new ClientProtocol::Messages::Numeric(numeric, this));
+	}
+
+	if (!messages.empty())
+	{
+		ClientProtocol::Event numericev(ServerInstance->GetRFCEvents().numeric);
+		numericev.SetMessageList(messages);
+		lthis->Send(numericev);
+		insp::delete_all(messages);
+	}
+}
+
+
 void User::WriteReply(const Reply::Reply& reply)
 {
-	auto* lthis = this->AsLocal();
-	if (!this->IsLocal())
+	auto* const lthis = this->AsLocal();
+	if (!lthis)
 		return;
 
 	ClientProtocol::Messages::Reply replymsg(reply);
@@ -791,6 +815,11 @@ uint64_t User::ForEachNeighbor(ForEachNeighborHandler& handler, bool include_sel
 void User::WriteRemoteNumeric(const Numeric::Numeric& numeric)
 {
 	WriteNumeric(numeric);
+}
+
+void User::WriteRemoteNumeric(const std::vector<Numeric::Numeric>& numerics)
+{
+	WriteNumeric(numerics);
 }
 
 /* return 0 or 1 depending if users u and u2 share one or more common channels

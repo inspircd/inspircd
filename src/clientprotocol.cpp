@@ -175,3 +175,9 @@ void ClientProtocol::Event::GetMessagesForUser(LocalUser* user, MessageList& mes
 	if (res == MOD_RES_DENY)
 		messagelist.clear();
 }
+
+void ClientProtocol::Event::PostSendMessagesToUser(LocalUser* user, const MessageList& messagelist)
+{
+	if (this->event)
+		this->event->Call(&EventHook::OnPostEventSend, user, *this, messagelist);
+}

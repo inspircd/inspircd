@@ -543,6 +543,12 @@ public:
 	 * @param messagelist List to fill in with messages to send to the user for the event
 	 */
 	void GetMessagesForUser(LocalUser* user, MessageList& messagelist);
+
+	/** Called after a list of messages  was sent to a user.
+	 * @param user User that messages were sent to.
+	 * @param messagelist List containing messages that were sent to the user for the event.
+	 */
+	void PostSendMessagesToUser(LocalUser* user, const MessageList& messagelist);
 };
 
 class CoreExport ClientProtocol::MessageTagEvent
@@ -648,6 +654,15 @@ public:
 	 * MOD_RES_ALLOW to send the messages in messagelist to the user and to not run other hooks.
 	 */
 	virtual ModResult OnPreEventSend(LocalUser* user, const ClientProtocol::Event& ev, ClientProtocol::MessageList& messagelist) = 0;
+
+	/** Called for each user that received the event.
+	 * @param user User the message list was sent to.
+	 * @param ev Event associated with the messages.
+	 * @param messagelist List of messages that were sent to the user.
+	 */
+	virtual void OnPostEventSend(LocalUser* user, const ClientProtocol::Event& ev, const ClientProtocol::MessageList& messagelist)
+	{
+	}
 };
 
 /** Event provider for client protocol events.
