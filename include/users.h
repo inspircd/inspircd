@@ -694,6 +694,7 @@ public:
 	 * @param numeric The numeric to send.
 	 */
 	void WriteNumeric(const Numeric::Numeric& numeric);
+	void WriteNumeric(const std::vector<Numeric::Numeric>& numeric);
 
 	/** Sends a notice to this user.
 	 * @param numeric The numeric code to send.
@@ -711,6 +712,7 @@ public:
 	 * @param numeric The numeric to send.
 	 */
 	virtual void WriteRemoteNumeric(const Numeric::Numeric& numeric);
+	virtual void WriteRemoteNumeric(const std::vector<Numeric::Numeric>& numeric);
 
 	/** Sends a notice from the local server to this user.
 	 * @param numeric The numeric code to send.

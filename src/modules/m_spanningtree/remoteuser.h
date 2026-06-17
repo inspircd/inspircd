@@ -31,4 +31,5 @@ class SpanningTree::RemoteUser final
 public:
 	RemoteUser(const std::string& uid, Server* srv);
 	void WriteRemoteNumeric(const Numeric::Numeric& numeric) override;
+	void WriteRemoteNumeric(const std::vector<Numeric::Numeric>& numeric) override;
 };

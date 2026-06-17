@@ -70,9 +70,7 @@ CmdResult CommandCommands::HandleLocal(LocalUser* user, const Params& parameters
 		return lhs.GetParams()[0] < rhs.GetParams()[0];
 	});
 
-	for (const auto& numeric : numerics)
-		user->WriteNumeric(numeric);
-
+	user->WriteNumeric(numerics);
 	user->WriteNumeric(RPL_COMMANDSEND, "End of COMMANDS list");
 	return CmdResult::SUCCESS;
 }

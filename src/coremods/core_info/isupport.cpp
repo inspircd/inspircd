@@ -146,8 +146,7 @@ void ISupportManager::Build()
 			if (numerics == diffnumerics.end())
 				continue; // Should never happen.
 
-			for (const auto& numeric : numerics->second)
-				user->WriteNumeric(numeric);
+			user->WriteNumeric(numerics->second);
 		}
 	}
 
@@ -189,16 +188,12 @@ void ISupportManager::ChangeClass(LocalUser* user, const std::shared_ptr<Connect
 	std::vector<Numeric::Numeric> diffnumerics;
 	BuildNumerics(difftokens, diffnumerics);
 
-	for (const auto& numeric : diffnumerics)
-		user->WriteNumeric(numeric);
+	user->WriteNumeric(diffnumerics);
 }
 
 void ISupportManager::SendTo(LocalUser* user) const
 {
 	auto numerics = cachednumerics.find(user->GetClass());
-	if (numerics == cachednumerics.end())
-		return; // Should never happen.
-
-	for (const auto& numeric : numerics->second)
-		user->WriteNumeric(numeric);
+	if (numerics != cachednumerics.end())
+		user->WriteNumeric(numerics->second);
 }

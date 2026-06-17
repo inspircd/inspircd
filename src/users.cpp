@@ -773,15 +773,38 @@ void User::WriteNumeric(const Numeric::Numeric& numeric)
 		return;
 
 	ModResult modres;
-
 	FIRST_MOD_RESULT(OnNumeric, modres, (this, numeric));
-
 	if (modres == MOD_RES_DENY)
 		return;
 
 	ClientProtocol::Messages::Numeric numericmsg(numeric, localuser);
 	localuser->Send(ServerInstance->GetRFCEvents().numeric, numericmsg);
 }
+
+void User::WriteNumeric(const std::vector<Numeric::Numeric>& numerics)
+{
+	auto* const lthis = IS_LOCAL(this);
+	if (!lthis)
+		return;
+
+	ClientProtocol::MessageList messages;
+	for (const auto& numeric : numerics)
+	{
+		ModResult modres;
+		FIRST_MOD_RESULT(OnNumeric, modres, (this, numeric));
+		if (modres != MOD_RES_DENY)
+			messages.push_back(new ClientProtocol::Messages::Numeric(numeric, this));
+	}
+
+	if (!messages.empty())
+	{
+		ClientProtocol::Event numericev(ServerInstance->GetRFCEvents().numeric);
+		numericev.SetMessageList(messages);
+		lthis->Send(numericev);
+		stdalgo::delete_all(messages);
+	}
+}
+
 
 void User::WriteRemoteNotice(const std::string& text)
 {
@@ -875,6 +898,11 @@ uint64_t User::ForEachNeighbor(ForEachNeighborHandler& handler, bool include_sel
 void User::WriteRemoteNumeric(const Numeric::Numeric& numeric)
 {
 	WriteNumeric(numeric);
+}
+
+void User::WriteRemoteNumeric(const std::vector<Numeric::Numeric>& numerics)
+{
+	WriteNumeric(numerics);
 }
 
 /* return 0 or 1 depending if users u and u2 share one or more common channels
