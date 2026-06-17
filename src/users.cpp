@@ -764,6 +764,7 @@ void LocalUser::Send(ClientProtocol::Event& protoev, ClientProtocol::MessageList
 		if (res != MOD_RES_DENY)
 			Write(serializer->SerializeForUser(this, curr));
 	}
+	protoev.PostSendMessagesToUser(this, msglist);
 }
 
 void User::WriteNumeric(const Numeric::Numeric& numeric)
