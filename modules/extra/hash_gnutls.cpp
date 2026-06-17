@@ -20,7 +20,7 @@
 /// if(WIN32)
 ///   target_report_error(${TARGET} "GnuTLS can not be built on Windows!")
 /// else()
-///    target_require_package(${TARGET} "gnutls" "GnuTLS" "GnuTLS::GnuTLS")
+///   target_require_package(${TARGET} "gnutls" "GnuTLS" "GnuTLS::GnuTLS")
 /// endif()
 /// END CMAKE
 

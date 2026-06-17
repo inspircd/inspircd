@@ -21,6 +21,12 @@
 /// if(WIN32)
 ///   target_report_error(${TARGET} "Windows does not support user-defined signals!")
 /// endif()
+/// if(TARGET ${TARGET})
+///   check_function_exists("sigabbrev_np" HAS_SIGABBREV_NP)
+///   if(HAS_SIGABBREV_NP)
+///     target_compile_definitions(${TARGET} PRIVATE "HAS_SIGABBREV_NP")
+///   endif()
+/// endif()
 /// END CMAKE
 
 

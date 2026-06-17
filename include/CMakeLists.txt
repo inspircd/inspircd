@@ -23,6 +23,5 @@ endif()
 check_function_exists("arc4random_buf" HAS_ARC4RANDOM_BUF)
 check_function_exists("clock_gettime" HAS_CLOCK_GETTIME)
 check_function_exists("getentropy" HAS_GETENTROPY)
-check_function_exists("sigabbrev_np" HAS_SIGABBREV_NP)
 
 configure_file("config.h.in" "config.h")
