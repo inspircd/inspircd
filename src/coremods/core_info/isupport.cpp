@@ -46,7 +46,8 @@ namespace
 }
 
 ISupportManager::ISupportManager(Module* mod)
-	: isupportevprov(mod)
+	: ISupport::APIBase(mod)
+	, isupportevprov(mod)
 {
 }
 
@@ -192,7 +193,7 @@ void ISupportManager::ChangeClass(LocalUser* user, const std::shared_ptr<Connect
 		user->WriteNumeric(numeric);
 }
 
-void ISupportManager::SendTo(LocalUser* user)
+void ISupportManager::SendTo(LocalUser* user) const
 {
 	auto numerics = cachednumerics.find(user->GetClass());
 	if (numerics == cachednumerics.end())

@@ -21,6 +21,8 @@
 
 namespace ISupport
 {
+	class API;
+	class APIBase;
 	class EventListener;
 	class EventProvider;
 
@@ -32,6 +34,33 @@ enum
 {
 	// From draft-brocklesby-irc-isupport-03.
 	RPL_ISUPPORT = 5,
+};
+
+/** Defines the interface for the ISupport API. */
+class ISupport::APIBase
+	: public DataProvider
+{
+public:
+	APIBase(Module* mod)
+		: DataProvider(mod, "isupportapi")
+	{
+	}
+
+	/** Sends a full ISupport numeric set to the specified user.
+	 * @param user The user to send to.
+	 */
+	virtual void SendTo(LocalUser* user) const = 0;
+};
+
+/** Allows modules to send ISupport messages to users. */
+class ISupport::API final
+	: public dynamic_reference<ISupport::APIBase>
+{
+public:
+	API(Module* mod)
+		: dynamic_reference<ISupport::APIBase>(mod, "isupportapi")
+	{
+	}
 };
 
 class ISupport::EventListener
