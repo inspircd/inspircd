@@ -129,7 +129,8 @@ void ISupportManager::Build()
 		for (LocalUser* user : ServerInstance->Users.GetLocalUsers())
 		{
 			const auto& klass = user->GetClass();
-			if (!(user->connected & User::CONN_FULL))
+			auto modres = isupportevprov.FirstResult(&ISupport::EventListener::OnSendISupportDiff, user, newtokens[klass]);
+			if (!modres.check(user->IsFullyConnected()))
 				continue; // User hasn't received 005 yet.
 
 			auto numerics = diffnumerics.find(klass);
@@ -184,6 +185,10 @@ void ISupportManager::ChangeClass(LocalUser* user, const std::shared_ptr<Connect
 
 	ISupport::TokenMap difftokens;
 	TokenDifference(difftokens, oldtokens->second, newtokens->second);
+
+	auto modres = isupportevprov.FirstResult(&ISupport::EventListener::OnSendISupportDiff, user, difftokens);
+	if (!modres.check(user->IsFullyConnected()))
+		return; // User hasn't received 005 yet.
 
 	std::vector<Numeric::Numeric> diffnumerics;
 	BuildNumerics(difftokens, diffnumerics);

@@ -184,7 +184,7 @@ public:
 		// can't break the API in a stable release. For now we use this and
 		// prioritise it to be after core_user checks whether the user needs
 		// to die.
-		if (user->IsFullyConnected() && !user->quitting)
+		if (!user->quitting)
 			isupport.ChangeClass(user, user->GetClass(), klass);
 	}
 

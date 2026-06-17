@@ -75,6 +75,10 @@ protected:
 public:
 	virtual void OnBuildISupport(TokenMap& tokens) { }
 	virtual void OnBuildClassISupport(const std::shared_ptr<ConnectClass>& klass, TokenMap& tokens) { }
+	virtual ModResult OnSendISupportDiff(LocalUser* user, const TokenMap& tokens)
+	{
+		return MOD_RES_PASSTHRU;
+	}
 };
 
 class ISupport::EventProvider final
