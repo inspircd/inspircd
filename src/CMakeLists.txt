@@ -29,6 +29,7 @@ file(GLOB CORE_SOURCES CONFIGURE_DEPENDS "*.cpp")
 file(GLOB CORE_HEADERS CONFIGURE_DEPENDS
 	"${PROJECT_BINARY_DIR}/include/*.h"
 	"${PROJECT_SOURCE_DIR}/include/*.h"
+	"${PROJECT_SOURCE_DIR}/include/utility/*.h"
 )
 
 # Look for all possible socket engines.
