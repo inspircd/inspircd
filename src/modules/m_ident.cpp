@@ -350,6 +350,9 @@ public:
 		}
 		catch (const ModuleException& e)
 		{
+			state.Set(user, IDENT_MISSING);
+			PrefixUser(user);
+			user->WriteNotice("*** Could not find your username, using " + user->GetRealUser() + " instead.");
 			ServerInstance->Logs.Debug(MODNAME, "Ident exception: {}", e.GetReason());
 		}
 	}
