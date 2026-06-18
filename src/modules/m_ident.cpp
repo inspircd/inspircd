@@ -345,6 +345,7 @@ public:
 
 		try
 		{
+			state.Unset(user);
 			isock = new IdentRequestSocket(this, user);
 			socket.Set(user, isock);
 		}
