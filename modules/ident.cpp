@@ -37,14 +37,17 @@ enum IdentState
 	// Ident lookups are not enabled and a user has been marked as being skipped.
 	IDENT_SKIPPED,
 
-	// Ident lookups are not enabled and a user has been an insecure ident prefix.
+	// Ident lookups are not enabled and a user has been given an ident prefix.
 	IDENT_PREFIXED,
 
 	// An ident lookup was done and an ident was found.
 	IDENT_FOUND,
 
-	// An ident lookup was done but no ident was found
-	IDENT_MISSING
+	// An ident lookup was done but no ident was found.
+	IDENT_MISSING,
+
+	// An internal error prevented the ident lookup.
+	IDENT_ERROR,
 };
 
 /* --------------------------------------------------------------
@@ -103,6 +106,8 @@ enum IdentState
  * --------------------------------------------------------------
  */
 
+static unsigned long timeout = 0;
+
 class IdentRequestSocket final
 	: public EventHandler
 {
@@ -110,18 +115,16 @@ public:
 	LocalUser* user;			/* User we are attached to */
 	std::string result;		/* Holds the ident string if done */
 	time_t age;
-	bool done;			/* True if lookup is finished */
+	time_t done = 0;			/* True if lookup is finished */
+
 
 	IdentRequestSocket(const WeakModulePtr& mod, LocalUser* luser)
 		: user(luser)
+		, age(ServerInstance->Time())
 	{
-		age = ServerInstance->Time();
-
 		SetFd(socket(user->server_sa.family(), SOCK_STREAM, 0));
 		if (!HasFd())
-			throw ModuleException(mod, "Could not create socket");
-
-		done = false;
+			throw ModuleException(mod, "Could not create socket: {}", SocketEngine::LastError());
 
 		irc::sockets::sockaddrs bindaddr(user->server_sa);
 		irc::sockets::sockaddrs connaddr(user->client_sa);
@@ -137,11 +140,14 @@ public:
 			connaddr.in4.sin_port = htons(113);
 		}
 
+		ServerInstance->Logs.Debug(MODNAME, "Connecting to {} from {}",
+			bindaddr.str(), connaddr.str());
+
 		/* Attempt to bind (ident requests must come from the ip the query is referring to */
 		if (SocketEngine::Bind(this, bindaddr) < 0)
 		{
 			this->Close();
-			throw ModuleException(mod, "failed to bind()");
+			throw ModuleException(mod, "failed to bind(): {}", SocketEngine::LastError());
 		}
 
 		SocketEngine::NonBlocking(GetFd());
@@ -150,14 +156,14 @@ public:
 		if (SocketEngine::Connect(this, connaddr) == -1 && errno != EINPROGRESS)
 		{
 			this->Close();
-			throw ModuleException(mod, "connect() failed");
+			throw ModuleException(mod, "connect() failed: {}", SocketEngine::LastError());
 		}
 
 		/* Add fd to socket engine */
 		if (!SocketEngine::AddFd(this, FD_WANT_NO_READ | FD_WANT_POLL_WRITE))
 		{
 			this->Close();
-			throw ModuleException(mod, "out of fds");
+			throw ModuleException(mod, "out of fds: {}", SocketEngine::LastError());
 		}
 	}
 
@@ -180,7 +186,7 @@ public:
 		 * might as well give up if this happens!
 		 */
 		if (SocketEngine::Send(this, req, req_size, 0) < req_size)
-			done = true;
+			done = ServerInstance->Time();
 	}
 
 	void Close()
@@ -195,9 +201,14 @@ public:
 		}
 	}
 
+	bool HasTimeout() const
+	{
+		return time_t(age + timeout) <= (HasResult() ? done : ServerInstance->Time());
+	}
+
 	bool HasResult() const
 	{
-		return done;
+		return done != 0;
 	}
 
 	void OnEventHandlerRead() override
@@ -212,7 +223,7 @@ public:
 		 * and flag as done since the ident lookup has finished
 		 */
 		Close();
-		done = true;
+		done = ServerInstance->Time();
 
 		/* Cant possibly be a valid response shorter than 3 chars,
 		 * because the shortest possible response would look like: '1,1'
@@ -220,7 +231,7 @@ public:
 		if (recvresult < 3)
 			return;
 
-		ServerInstance->Logs.Debug(MODNAME, "ReadResponse()");
+		ServerInstance->Logs.Debug(MODNAME, "ReadResponse(): {:?}", ibuf);
 
 		/* Truncate at the first null character, but first make sure
 		 * there is at least one null char (at the end of the buffer).
@@ -263,7 +274,7 @@ public:
 	void OnEventHandlerError(int errornum) override
 	{
 		Close();
-		done = true;
+		done = ServerInstance->Time();
 	}
 
 	Cullable::Result Cull() override
@@ -277,12 +288,11 @@ class ModuleIdent final
 	: public Module
 {
 private:
-	unsigned long timeout;
 	bool prefixunqueried;
 	SimpleExtItem<IdentRequestSocket, Cullable::Deleter> socket;
 	NumExtItem<IdentState> state;
 
-	static void PrefixUser(LocalUser* user)
+	static void PrefixUser(LocalUser* user, const std::string& message = "")
 	{
 		// Check that they haven't been prefixed already.
 		if (user->GetRealUser().front() == '~')
@@ -298,6 +308,9 @@ private:
 
 		// Apply the new username.
 		user->ChangeRealUser(newuser, user->GetDisplayedUser() == user->GetRealUser());
+
+		if (!message.empty())
+			user->WriteNotice("*** {}; using {} instead.", message, user->GetRealUser());
 	}
 
 public:
@@ -343,10 +356,12 @@ public:
 
 		try
 		{
+			state.Unset(user);
 			socket.SetFwd(user, weak_from_this(), user);
 		}
 		catch (const ModuleException& e)
 		{
+			state.Set(user, IDENT_ERROR);
 			ServerInstance->Logs.Debug(MODNAME, "Ident exception: {}", e.GetReason());
 		}
 	}
@@ -361,23 +376,26 @@ public:
 		IdentRequestSocket* isock = socket.Get(user);
 		if (!isock)
 		{
-			if (prefixunqueried && state.Get(user) == IDENT_SKIPPED)
+			const auto istate = state.Get(user);
+			if (prefixunqueried && istate == IDENT_SKIPPED)
 			{
 				PrefixUser(user);
+				state.Set(user, IDENT_PREFIXED);
+			}
+			else if (istate == IDENT_ERROR)
+			{
+				PrefixUser(user, "Unable to look up your username");
 				state.Set(user, IDENT_PREFIXED);
 			}
 			return MOD_RES_PASSTHRU;
 		}
 
-		time_t compare = isock->age + timeout;
-
 		/* Check for timeout of the socket */
-		if (ServerInstance->Time() >= compare)
+		if (isock->HasTimeout())
 		{
 			/* Ident timeout */
 			state.Set(user, IDENT_MISSING);
-			PrefixUser(user);
-			user->WriteNotice("*** Ident lookup timed out, using " + user->GetRealUser() + " instead.");
+			PrefixUser(user, "Ident lookup timed out");
 		}
 		else if (!isock->HasResult())
 		{
@@ -389,8 +407,7 @@ public:
 		else if (isock->result.empty())
 		{
 			state.Set(user, IDENT_MISSING);
-			PrefixUser(user);
-			user->WriteNotice("*** Could not find your username, using " + user->GetRealUser() + " instead.");
+			PrefixUser(user, "Could not find your username");
 		}
 		else
 		{
