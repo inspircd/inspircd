@@ -36,14 +36,17 @@ enum
 	// Ident lookups are not enabled and a user has been marked as being skipped.
 	IDENT_SKIPPED,
 
-	// Ident lookups are not enabled and a user has been an insecure ident prefix.
+	// Ident lookups are not enabled and a user has been given an ident prefix.
 	IDENT_PREFIXED,
 
 	// An ident lookup was done and an ident was found.
 	IDENT_FOUND,
 
-	// An ident lookup was done but no ident was found
-	IDENT_MISSING
+	// An ident lookup was done but no ident was found.
+	IDENT_MISSING,
+
+	// An internal error prevented the ident lookup.
+	IDENT_ERROR,
 };
 
 /* --------------------------------------------------------------
@@ -354,9 +357,7 @@ public:
 		}
 		catch (const ModuleException& e)
 		{
-			state.Set(user, IDENT_MISSING);
-			PrefixUser(user);
-			user->WriteNotice("*** Could not find your username, using " + user->GetRealUser() + " instead.");
+			state.Set(user, IDENT_ERROR);
 			ServerInstance->Logs.Debug(MODNAME, "Ident exception: {}", e.GetReason());
 		}
 	}
@@ -371,9 +372,15 @@ public:
 		IdentRequestSocket* isock = socket.Get(user);
 		if (!isock)
 		{
-			if (prefixunqueried && state.Get(user) == IDENT_SKIPPED)
+			const auto istate = state.Get(user);
+			if (prefixunqueried && istate == IDENT_SKIPPED)
 			{
 				PrefixUser(user);
+				state.Set(user, IDENT_PREFIXED);
+			}
+			else if (istate == IDENT_ERROR)
+			{
+				PrefixUser(user, "Unable to look up your username");
 				state.Set(user, IDENT_PREFIXED);
 			}
 			return MOD_RES_PASSTHRU;
