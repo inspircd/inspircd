@@ -118,7 +118,7 @@ public:
 
 		SetFd(socket(user->server_sa.family(), SOCK_STREAM, 0));
 		if (!HasFd())
-			throw ModuleException(mod, "Could not create socket");
+			throw ModuleException(mod, "Could not create socket: {}", SocketEngine::LastError());
 
 		done = false;
 
@@ -136,11 +136,14 @@ public:
 			connaddr.in4.sin_port = htons(113);
 		}
 
+		ServerInstance->Logs.Debug(MODNAME, "Connecting to {} from {}",
+			bindaddr.str(), connaddr.str());
+
 		/* Attempt to bind (ident requests must come from the ip the query is referring to */
 		if (SocketEngine::Bind(this, bindaddr) < 0)
 		{
 			this->Close();
-			throw ModuleException(mod, "failed to bind()");
+			throw ModuleException(mod, "failed to bind(): {}", SocketEngine::LastError());
 		}
 
 		SocketEngine::NonBlocking(GetFd());
@@ -149,14 +152,14 @@ public:
 		if (SocketEngine::Connect(this, connaddr) == -1 && errno != EINPROGRESS)
 		{
 			this->Close();
-			throw ModuleException(mod, "connect() failed");
+			throw ModuleException(mod, "connect() failed: {}", SocketEngine::LastError());
 		}
 
 		/* Add fd to socket engine */
 		if (!SocketEngine::AddFd(this, FD_WANT_NO_READ | FD_WANT_POLL_WRITE))
 		{
 			this->Close();
-			throw ModuleException(mod, "out of fds");
+			throw ModuleException(mod, "out of fds: {}", SocketEngine::LastError());
 		}
 	}
 
