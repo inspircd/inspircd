@@ -105,6 +105,8 @@ enum
  * --------------------------------------------------------------
  */
 
+static unsigned long timeout = 0;
+
 class IdentRequestSocket final
 	: public EventHandler
 {
@@ -112,18 +114,16 @@ public:
 	LocalUser* user;			/* User we are attached to */
 	std::string result;		/* Holds the ident string if done */
 	time_t age;
-	bool done;			/* True if lookup is finished */
+	time_t done = 0;			/* True if lookup is finished */
+
 
 	IdentRequestSocket(const Module* mod, LocalUser* luser)
 		: user(luser)
+		, age(ServerInstance->Time())
 	{
-		age = ServerInstance->Time();
-
 		SetFd(socket(user->server_sa.family(), SOCK_STREAM, 0));
 		if (!HasFd())
 			throw ModuleException(mod, "Could not create socket: {}", SocketEngine::LastError());
-
-		done = false;
 
 		irc::sockets::sockaddrs bindaddr(user->server_sa);
 		irc::sockets::sockaddrs connaddr(user->client_sa);
@@ -185,7 +185,7 @@ public:
 		 * might as well give up if this happens!
 		 */
 		if (SocketEngine::Send(this, req, req_size, 0) < req_size)
-			done = true;
+			done = ServerInstance->Time();
 	}
 
 	void Close()
@@ -200,9 +200,14 @@ public:
 		}
 	}
 
+	bool HasTimeout() const
+	{
+		return time_t(age + timeout) <= (HasResult() ? done : ServerInstance->Time());
+	}
+
 	bool HasResult() const
 	{
-		return done;
+		return done != 0;
 	}
 
 	void OnEventHandlerRead() override
@@ -217,7 +222,7 @@ public:
 		 * and flag as done since the ident lookup has finished
 		 */
 		Close();
-		done = true;
+		done = ServerInstance->Time();
 
 		/* Cant possibly be a valid response shorter than 3 chars,
 		 * because the shortest possible response would look like: '1,1'
@@ -225,7 +230,7 @@ public:
 		if (recvresult < 3)
 			return;
 
-		ServerInstance->Logs.Debug(MODNAME, "ReadResponse()");
+		ServerInstance->Logs.Debug(MODNAME, "ReadResponse(): {:?}", ibuf);
 
 		/* Truncate at the first null character, but first make sure
 		 * there is at least one null char (at the end of the buffer).
@@ -268,7 +273,7 @@ public:
 	void OnEventHandlerError(int errornum) override
 	{
 		Close();
-		done = true;
+		done = ServerInstance->Time();
 	}
 
 	Cullable::Result Cull() override
@@ -282,7 +287,6 @@ class ModuleIdent final
 	: public Module
 {
 private:
-	unsigned long timeout;
 	bool prefixunqueried;
 	SimpleExtItem<IdentRequestSocket, Cullable::Deleter> socket;
 	IntExtItem state;
@@ -386,10 +390,8 @@ public:
 			return MOD_RES_PASSTHRU;
 		}
 
-		time_t compare = isock->age + timeout;
-
 		/* Check for timeout of the socket */
-		if (ServerInstance->Time() >= compare)
+		if (isock->HasTimeout())
 		{
 			/* Ident timeout */
 			state.Set(user, IDENT_MISSING);
