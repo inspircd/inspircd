@@ -284,7 +284,7 @@ private:
 	SimpleExtItem<IdentRequestSocket, Cullable::Deleter> socket;
 	IntExtItem state;
 
-	static void PrefixUser(LocalUser* user)
+	static void PrefixUser(LocalUser* user, const std::string& message = "")
 	{
 		// Check that they haven't been prefixed already.
 		if (user->GetRealUser().front() == '~')
@@ -300,6 +300,9 @@ private:
 
 		// Apply the new username.
 		user->ChangeRealUser(newuser, user->GetDisplayedUser() == user->GetRealUser());
+
+		if (!message.empty())
+			user->WriteNotice("*** {}; using {} instead.", message, user->GetRealUser());
 	}
 
 public:
@@ -383,8 +386,7 @@ public:
 		{
 			/* Ident timeout */
 			state.Set(user, IDENT_MISSING);
-			PrefixUser(user);
-			user->WriteNotice("*** Ident lookup timed out, using " + user->GetRealUser() + " instead.");
+			PrefixUser(user, "Ident lookup timed out");
 		}
 		else if (!isock->HasResult())
 		{
@@ -396,8 +398,7 @@ public:
 		else if (isock->result.empty())
 		{
 			state.Set(user, IDENT_MISSING);
-			PrefixUser(user);
-			user->WriteNotice("*** Could not find your username, using " + user->GetRealUser() + " instead.");
+			PrefixUser(user, "Could not find your username");
 		}
 		else
 		{
