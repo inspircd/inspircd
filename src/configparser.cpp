@@ -346,7 +346,7 @@ struct Parser final
 			if (tag)
 				stack.errors.back().append(FMT::format(" (inside {} tag on line {})", tag->name, tag->source.line));
 			else if (last_tag.line)
-				stack.errors.back().append(FMT::format(" (last tag was on line {})", tag->source.line));
+				stack.errors.back().append(FMT::format(" (last tag was on line {})", last_tag.line));
 		}
 		return false;
 	}
