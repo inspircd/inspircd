@@ -34,6 +34,20 @@ namespace insp
 			target = source;
 	}
 
+	/** Culls a object immediately, deletes it, and zeroes the memory location
+	 * that pointed to it.
+	 * IMPORTANT: Avoid using this during the main loop, add your object to the
+	 * global cull list instead.
+	 * @param pr A reference to the pointer that contains the object to delete.
+	 */
+	template<typename T, typename Del = std::default_delete<T>>
+	void cull_delete_zero(T*& pr)
+	{
+		if (pr)
+			pr->Cull();
+		delete_zero<T, Del>(pr);
+	}
+
 	/** Deletes all elements in a container using operator delete
 	 * @param cont The container containing the elements to delete
 	 */

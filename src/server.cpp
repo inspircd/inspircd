@@ -53,21 +53,6 @@ void InspIRCd::HandleSignal(sig_atomic_t signal)
 	}
 }
 
-void InspIRCd::Exit(int status)
-{
-#ifdef _WIN32
-	SetServiceStopped(status);
-#endif
-	this->Cleanup();
-	insp::delete_zero(ServerInstance);
-	if (status && isatty(fileno(stdout)))
-	{
-		fmt::println("");
-		fmt::println("Exiting with code {}.", status);
-	}
-	exit(status);
-}
-
 void InspIRCd::Rehash(const std::string& uuid)
 {
 	if (!ConfigThread)

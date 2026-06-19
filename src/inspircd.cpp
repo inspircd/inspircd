@@ -151,21 +151,21 @@ namespace
 			errno = 0;
 			if (setgroups(0, nullptr) == -1)
 			{
-				ServerInstance->Logs.Critical("STARTUP", "setgroups() failed (wtf?): {}", strerror(errno));
-				exit(EXIT_FAILURE);
+				InspIRCd::QuickExit(EXIT_FAILURE, FMT::format("Unable to drop supplementary groups: {}",
+					strerror(errno)), "STARTUP");
 			}
 
 			struct group* g = getgrnam(SetGroup.c_str());
 			if (!g)
 			{
-				ServerInstance->Logs.Critical("STARTUP", "getgrnam({}) failed (wrong group?): {}", SetGroup, strerror(errno));
-				exit(EXIT_FAILURE);
+				InspIRCd::QuickExit(EXIT_FAILURE, FMT::format("Unable to find the {} group to switch to: {}",
+					SetGroup, strerror(errno)), "STARTUP");
 			}
 
 			if (setgid(g->gr_gid) == -1)
 			{
-				ServerInstance->Logs.Critical("STARTUP", "setgid({}) failed (wrong group?): {}", g->gr_gid, strerror(errno));
-				exit(EXIT_FAILURE);
+				InspIRCd::QuickExit(EXIT_FAILURE, FMT::format("Unable to switch to the {} group: {}",
+					SetGroup, strerror(errno)), "STARTUP");
 			}
 		}
 
@@ -176,14 +176,14 @@ namespace
 			struct passwd* u = getpwnam(SetUser.c_str());
 			if (!u)
 			{
-				ServerInstance->Logs.Critical("STARTUP", "getpwnam({}) failed (wrong user?): {}", SetUser, strerror(errno));
-				exit(EXIT_FAILURE);
+				InspIRCd::QuickExit(EXIT_FAILURE, FMT::format("Unable to find the {} user to switch to: {}",
+					SetUser, strerror(errno)), "STARTUP");
 			}
 
 			if (setuid(u->pw_uid) == -1)
 			{
-				ServerInstance->Logs.Critical("STARTUP", "setuid({}) failed (wrong user?): {}", u->pw_uid, strerror(errno));
-				exit(EXIT_FAILURE);
+				InspIRCd::QuickExit(EXIT_FAILURE, FMT::format("Unable to switch to the {} user: {}",
+					SetUser, strerror(errno)), "STARTUP");
 			}
 		}
 #endif
@@ -216,9 +216,8 @@ namespace
 		int childpid = fork();
 		if (childpid < 0)
 		{
-			ServerInstance->Logs.Critical("STARTUP", "fork() failed: {}", strerror(errno));
-			fmt::println("{} Unable to fork into background: {}", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), strerror(errno));
-			ServerInstance->Exit(EXIT_FAILURE);
+			ServerInstance->Exit(EXIT_FAILURE, FMT::format("Unable to fork into the background: {}",
+				strerror(errno)), "STARTUP");
 		}
 		else if (childpid > 0)
 		{
@@ -301,10 +300,7 @@ namespace
 
 		auto result = cli.parse({ServerInstance->CommandLine.argc, ServerInstance->CommandLine.argv});
 		if (!result)
-		{
-			fmt::println(stderr, "{} {}", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), result.message());
-			ServerInstance->Exit(EXIT_FAILURE);
-		}
+			ServerInstance->Exit(EXIT_FAILURE, FMT::format("An invalid option was passed on the command line: {}", result.message()));
 
 		if (do_help)
 		{
@@ -360,7 +356,6 @@ namespace
 
 			for (const auto& fp : pl)
 			{
-				fmt::print("  ");
 				if (fp.sa.family() != AF_UNSPEC)
 					fmt::print("{}: ", fmt::styled(fp.sa.str(), fmt::emphasis::bold));
 
@@ -384,42 +379,74 @@ namespace
 	}
 }
 
-void InspIRCd::Cleanup()
+void InspIRCd::Cleanup(const std::string &reason)
 {
-	// Close all listening sockets
-	for (auto* port : Ports)
-	{
-		port->Cull();
-		delete port;
-	}
-	Ports.clear();
+	// Close all listening sockets.
+	for (auto& port : this->Ports)
+		insp::cull_delete_zero(port);
+	this->Ports.clear();
 
-	// Tell modules that we're shutting down.
-	const std::string quitmsg = "Server shutting down";
-	FOREACH_MOD(OnShutdown, (quitmsg));
-
-	// Disconnect all local users
-	const UserManager::LocalList& list = Users.GetLocalUsers();
+	// Disconnect all local users.
+	const auto& list = this->Users.GetLocalUsers();
 	while (!list.empty())
-		ServerInstance->Users.QuitUser(list.front(), quitmsg);
+		ServerInstance->Users.QuitUser(list.front(), reason);
 
+	// Ensure any users we just quit are culled.
 	GlobalCulls.Apply();
-	Modules.UnloadAll();
 
-	/* Delete objects dynamically allocated in constructor (destructor would be more appropriate, but we're likely exiting) */
-	/* Must be deleted before modes as it decrements modelines */
-	if (FakeClient)
-	{
-		FakeClient->Cull();
-		insp::delete_zero(this->FakeClient);
-	}
-	if (LocalServer)
-		insp::delete_zero(LocalServer);
+	// Unload all modules.
+	this->Modules.UnloadAll();
 
+	// Clean up the server objects.
+	insp::cull_delete_zero(this->FakeClient);
+	insp::cull_delete_zero(this->LocalServer);
 	insp::delete_zero(this->XLines);
 	this->Config.reset(nullptr);
+
+	// Deinit the remaining subsystems.
 	SocketEngine::Deinit();
 	Logs.CloseLogs();
+
+	// Finally, delete the server.
+	insp::delete_zero(ServerInstance);
+}
+
+void InspIRCd::QuickExit(int status, const std::string& reason, const std::string& logtype)
+{
+	const auto should_print = isatty(fileno(stdout)) && status != EXIT_SUCCESS;
+	if (should_print)
+		fmt::println("");
+
+	if (!reason.empty())
+	{
+		if (ServerInstance && !logtype.empty())
+			ServerInstance->Logs.Critical(logtype, reason);
+
+		if (should_print)
+		{
+			fmt::print("{} ", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)));
+			fmt::println("{}.", reason);
+		}
+	}
+
+	if (should_print)
+		fmt::println("Exiting with code {}.",status);
+
+#ifdef _WIN32
+	SetServiceStopped(status);
+#endif
+	exit(status);
+}
+
+void InspIRCd::Exit(int status, const std::string& reason, const std::string& logtype)
+{
+	// Tell modules that we're shutting down.
+	const auto quitmsg = reason.empty() ? "Server shutting down" : reason;
+	FOREACH_MOD(OnShutdown, (quitmsg));
+
+	// Clean up all subsystems and then exit.
+	this->Cleanup(quitmsg);
+	InspIRCd::QuickExit(status, reason, logtype);
 }
 
 void InspIRCd::WritePID()
@@ -491,8 +518,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	if (!std::filesystem::is_regular_file(ConfigFileName, ec))
 	{
 		this->Logs.Critical("STARTUP", "Unable to find config file {}", ConfigFileName);
-		fmt::println("{} Cannot find config file: {}", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), ConfigFileName);
-		Exit(EXIT_FAILURE);
+		Exit(EXIT_FAILURE, FMT::format("Unable to find the config file: {}", ConfigFileName));
 	}
 
 	SetSignals();
@@ -514,8 +540,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 	catch (const CoreException& ex)
 	{
-		fmt::println("{} Cannot open log files: {}", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), ex.GetReason());
-		Exit(EXIT_FAILURE);
+		Exit(EXIT_FAILURE, FMT::format("Cannot open log files: {}", ex.GetReason()));
 	}
 
 	// We only do this on boot because we might not be able to after dropping root.
@@ -546,8 +571,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 	catch (const CoreException& ex)
 	{
-		fmt::println("{} Cannot open log files: {}", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), ex.GetReason());
-		Exit(EXIT_FAILURE);
+		Exit(EXIT_FAILURE, FMT::format("Cannot open log files: {}", ex.GetReason()));
 	}
 
 	fmt::println("{} [PID {}] is now running as {} [{}] with {} max open sockets",

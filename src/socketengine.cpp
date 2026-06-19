@@ -70,8 +70,8 @@ void EventHandler::OnEventHandlerError(int errornum)
 
 void SocketEngine::InitError()
 {
-	fmt::println(stderr, "{} Socket engine initialization failed. {}.", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), strerror(errno));
-	exit(EXIT_FAILURE);
+	InspIRCd::QuickExit(EXIT_FAILURE, FMT::format("Socket engine initialization failed: {}",
+		strerror(errno)), "STARTUP");
 }
 
 void SocketEngine::LookupMaxFds()

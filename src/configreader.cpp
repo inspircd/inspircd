@@ -498,8 +498,10 @@ void ServerConfig::Apply(const std::unique_ptr<ServerConfig>& old, const std::st
 	auto binds = ConfTags("bind");
 	if (binds.empty())
 	{
-		errors.push_back("Possible configuration error: you have not defined any <bind> blocks.");
-		errors.push_back("You will need to do this if you want clients to be able to connect!");
+		errors.push_back(
+			"You have not defined any <bind> blocks. You will need to do this "
+			"if you want clients to be able to connect!"
+		);
 	}
 
 	if (old && valid)
@@ -532,21 +534,16 @@ void ServerConfig::Apply(const std::unique_ptr<ServerConfig>& old, const std::st
 			else
 				fmt::print("{} ", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)));
 
-			fmt::println("There are problems with your configuration file:", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)));
-			fmt::println("");
+			fmt::println("There are problems with your configuration file:");
 		}
 	}
 
-	auto message_shown = false;
 	auto* user = ServerInstance->Users.FindUUID(useruid);
 	for (const auto& line : errors)
 	{
 		// On startup, print out to console (still attached at this point)
 		if (!old)
-		{
-			message_shown = true;
-			fmt::println("{}", line);
-		}
+			fmt::println(" * {}", line);
 
 		// If a user is rehashing, tell them directly
 		if (user)
@@ -555,9 +552,6 @@ void ServerConfig::Apply(const std::unique_ptr<ServerConfig>& old, const std::st
 		// Also tell opers
 		ServerInstance->SNO.WriteGlobalSno('r', line);
 	}
-
-	if (message_shown)
-		fmt::println("");
 
 	errors.clear();
 	errors.shrink_to_fit();

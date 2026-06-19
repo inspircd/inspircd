@@ -165,8 +165,10 @@ private:
 	/** The current time, updated once per main loop iteration. */
 	struct timespec ts;
 
-	/** Prepares the server for restart or shutdown. */
-	void Cleanup();
+	/** Prepares the server for a restart or shutdown.
+	 * @param reason The reason to provide to users for their disconnection.
+	 */
+	void Cleanup(const std::string& reason);
 
 	/** Handles an stored signal in the main loop.
 	 * @param signal The signal received from the operating system.
@@ -303,9 +305,11 @@ public:
 
 	/** Causes the server to exit after unloading modules and closing all open file descriptors.
 	 * @param status The exit code to give to the operating system.
+	 * @param reason If non-empty then the reason the server is exiting.
+	 * @param logtype If non-empty then the log type to log the exit reason as.
 	 */
 	[[noreturn]]
-	void Exit(int status);
+	void Exit(int status, const std::string& reason = "", const std::string& logtype = "");
 
 	/** Determines whether a fully qualified hostname is valid according to RFC 5891 rules.
 	 * @param host The hostname to validate.
@@ -383,6 +387,14 @@ public:
 	 * @param str The string to replace color escapes in.
 	 */
 	static void ProcessColors(std::string& str);
+
+	/** Exits immediately without deinitialising any subsystems.
+	 * @param status The exit code to give to the operating system.
+	 * @param reason If non-empty then the reason the server is exiting.
+	 * @param logtype If non-empty then the log type to log the exit reason as.
+	 */
+	[[noreturn]]
+	static void QuickExit(int status, const std::string& reason = "", const std::string& logtype = "");
 
 	/** Stores an incoming signal when received from the operating system.
 	 * @param signal The signal received from the operating system.

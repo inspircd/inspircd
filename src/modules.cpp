@@ -522,7 +522,7 @@ void ModuleManager::LoadAll()
 		if (!this->Load(name, true))
 		{
 			fmt::println("[{}] {}", fmt::styled("*", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), LastError());
-			ServerInstance->Exit(EXIT_FAILURE);
+			ServerInstance->Exit(EXIT_FAILURE, "A module failed to load");
 		}
 	}
 
@@ -541,7 +541,7 @@ void ModuleManager::LoadAll()
 			LastModuleError = "Unable to initialize " + modname + ": " + modexcept.GetReason();
 			ServerInstance->Logs.Critical("MODULE", LastModuleError);
 			fmt::println("[{}] {}", fmt::styled("*", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), LastModuleError);
-			ServerInstance->Exit(EXIT_FAILURE);
+			ServerInstance->Exit(EXIT_FAILURE, "A module failed to initialize");
 		}
 	}
 
@@ -563,12 +563,12 @@ void ModuleManager::LoadAll()
 			LastModuleError = "Unable to read the configuration for " + modname + ": " + modexcept.GetReason();
 			ServerInstance->Logs.Critical("MODULE", LastModuleError);
 			fmt::println("[{}] {}", fmt::styled("*", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), LastModuleError);
-			ServerInstance->Exit(EXIT_FAILURE);
+			ServerInstance->Exit(EXIT_FAILURE, "A module has invalid configuration");
 		}
 	}
 
 	if (!PrioritizeHooks())
-		ServerInstance->Exit(EXIT_FAILURE);
+		ServerInstance->Exit(EXIT_FAILURE, "Unable to prioritise module hooks", "MODULE");
 }
 
 std::string& ModuleManager::LastError()

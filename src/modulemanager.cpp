@@ -144,13 +144,13 @@ void ModuleManager::LoadCoreModules(std::map<std::string, Service::List>& servic
 			if (!Load(name, true))
 			{
 				fmt::println("[{}] {}", fmt::styled("*", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), LastError());
-				ServerInstance->Exit(EXIT_FAILURE);
+				ServerInstance->Exit(EXIT_FAILURE, "A module failed to load");
 			}
 		}
 	}
 	catch (const std::filesystem::filesystem_error& err)
 	{
-		fmt::println("{} {}", fmt::styled("Error!", fmt::emphasis::bold | fmt::fg(fmt::terminal_color::red)), err.what());
-		ServerInstance->Exit(EXIT_FAILURE);
+		ServerInstance->Exit(EXIT_FAILURE, FMT::format("Unable to read from the module directory: ",
+			err.what()), "MODULE");
 	}
 }
