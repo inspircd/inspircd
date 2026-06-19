@@ -172,7 +172,7 @@ void		Module::OnChangeRemoteAddress(LocalUser*) { DetachEvent(I_OnChangeRemoteAd
 void		Module::OnServiceAdd(Service::Provider&) { DetachEvent(I_OnServiceAdd); }
 void		Module::OnServiceDel(Service::Provider&) { DetachEvent(I_OnServiceDel); }
 ModResult	Module::OnUserWrite(LocalUser*, ClientProtocol::Message&) { DetachEvent(I_OnUserWrite); return MOD_RES_PASSTHRU; }
-void		Module::OnShutdown(const std::string& reason) { DetachEvent(I_OnShutdown); }
+void		Module::OnShutdown(const std::string& reason, bool) { DetachEvent(I_OnShutdown); }
 ModResult	Module::OnPreOperLogin(LocalUser*, const std::shared_ptr<OperAccount>&, bool) { DetachEvent(I_OnPreOperLogin); return MOD_RES_PASSTHRU; }
 void		Module::OnOperLogin(User*, const std::shared_ptr<OperAccount>&, bool) { DetachEvent(I_OnOperLogin); }
 void		Module::OnPostOperLogin(User*, bool) { DetachEvent(I_OnPostOperLogin); }

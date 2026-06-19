@@ -29,14 +29,6 @@ enum
 	ERR_NOOPERHOST = 491,
 };
 
-namespace DieRestart
-{
-	/** Send an ERROR to partially connected users and a NOTICE to fully connected users
-	 * @param message Message to send
-	 */
-	void SendError(const std::string& message);
-}
-
 class CommandDie final
 	: public Command
 {

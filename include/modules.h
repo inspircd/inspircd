@@ -917,8 +917,9 @@ public:
 
 	/** Called before a server shuts down.
 	 * @param reason The reason the server is shutting down.
+	 * @param restarting Whether the server is restarting.
 	 */
-	virtual void OnShutdown(const std::string& reason);
+	virtual void OnShutdown(const std::string& reason, bool restarting);
 
 	/** Called when a local user is attempting to log in to an server operator account.
 	 * @param user The user who is attempting to log in.

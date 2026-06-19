@@ -23,13 +23,6 @@
  */
 
 
-#ifdef _WIN32
-# include <process.h>
-#else
-# include <fcntl.h>
-# include <unistd.h>
-#endif
-
 #include "inspircd.h"
 #include "core_oper.h"
 
@@ -42,31 +35,11 @@ CommandRestart::CommandRestart(const WeakModulePtr& parent)
 
 CmdResult CommandRestart::Handle(User* user, const Params& parameters)
 {
-	ServerInstance->Logs.Normal(MODNAME, "Restart: {}", user->nick);
 	if (insp::casemapped_equals(parameters[0], ServerInstance->Config->ServerName))
 	{
 		ServerInstance->SNO.WriteGlobalSno('a', "RESTART command from {}, restarting server.", user->GetRealMask());
-
-		DieRestart::SendError("Server restarting.");
-
-#ifdef FD_CLOEXEC
-		/* XXX: This hack sets FD_CLOEXEC on all possible file descriptors, so they're closed if the execvp() below succeeds.
-		 * Certainly, this is not a nice way to do things and it's slow when the fd limit is high.
-		 *
-		 * A better solution would be to set the close-on-exec flag for each fd we create (or create them with O_CLOEXEC),
-		 * however there is no guarantee that third party libs will do the same.
-		 */
-		for (int i = (int)SocketEngine::GetMaxFds(); --i > 2; )
-		{
-			int flags = fcntl(i, F_GETFD);
-			if (flags != -1)
-				fcntl(i, F_SETFD, flags | FD_CLOEXEC);
-		}
-#endif
-
-		execvp(ServerInstance->CommandLine.argv[0], ServerInstance->CommandLine.argv);
-		ServerInstance->SNO.WriteGlobalSno('a', "Failed RESTART - could not execute '{}' ({})",
-			ServerInstance->CommandLine.argv[0], strerror(errno));
+		const auto error = ServerInstance->Restart();
+		ServerInstance->SNO.WriteGlobalSno('a', "Failed RESTART: {}", error);
 	}
 	return CmdResult::FAILURE;
 }

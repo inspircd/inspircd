@@ -37,32 +37,11 @@ CommandDie::CommandDie(const WeakModulePtr& parent)
 	syntax = { "<servername>" };
 }
 
-void DieRestart::SendError(const std::string& message)
-{
-	ClientProtocol::Messages::Error errormsg(message);
-	ClientProtocol::Event errorevent(ServerInstance->GetRFCEvents().error, errormsg);
-
-	for (auto* user : ServerInstance->Users.GetLocalUsers())
-	{
-		if (user->IsFullyConnected())
-		{
-			user->WriteNotice(message);
-		}
-		else
-		{
-			// Partially connected users receive ERROR, not a NOTICE
-			user->Send(errorevent);
-		}
-	}
-}
-
 CmdResult CommandDie::Handle(User* user, const Params& parameters)
 {
 	if (insp::casemapped_equals(parameters[0], ServerInstance->Config->ServerName))
 	{
-		const std::string diebuf = "*** DIE command from " + user->GetMask() + ". Terminating.";
-		ServerInstance->Logs.Critical(MODNAME, diebuf);
-		DieRestart::SendError(diebuf);
+		ServerInstance->SNO.WriteGlobalSno('a', "DIE command from {}, shutting down server.", user->GetRealMask());
 		ServerInstance->Exit(EXIT_SUCCESS);
 	}
 	return CmdResult::FAILURE;

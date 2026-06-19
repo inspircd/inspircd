@@ -854,7 +854,7 @@ void ModuleSpanningTree::OnMode(User* source, User* u, Channel* c, const Modes::
 	}
 }
 
-void ModuleSpanningTree::OnShutdown(const std::string& reason)
+void ModuleSpanningTree::OnShutdown(const std::string& reason, bool restarting)
 {
 	const TreeServer::ChildServers& children = Utils->TreeRoot->GetChildren();
 	while (!children.empty())

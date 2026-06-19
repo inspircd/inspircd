@@ -396,6 +396,13 @@ public:
 	[[noreturn]]
 	static void QuickExit(int status, const std::string& reason = "", const std::string& logtype = "");
 
+	/** Causes the server to restart after unloading modules and closing all open file descriptors.
+	 * @param reason If non-empty then the reason the server is exiting.
+	 * @param logtype If non-empty then the log type to log the exit reason as.
+	 * @return If this function returns then the restart failed and the return value contains the reason why.
+	 */
+	std::string Restart(const std::string& reason = "", const std::string& logtype = "");
+
 	/** Stores an incoming signal when received from the operating system.
 	 * @param signal The signal received from the operating system.
 	 */

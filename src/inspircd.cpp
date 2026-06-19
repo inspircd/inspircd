@@ -442,11 +442,64 @@ void InspIRCd::Exit(int status, const std::string& reason, const std::string& lo
 {
 	// Tell modules that we're shutting down.
 	const auto quitmsg = reason.empty() ? "Server shutting down" : reason;
-	FOREACH_MOD(OnShutdown, (quitmsg));
+	FOREACH_MOD(OnShutdown, (quitmsg, false));
 
 	// Clean up all subsystems and then exit.
 	this->Cleanup(quitmsg);
 	InspIRCd::QuickExit(status, reason, logtype);
+}
+
+std::string InspIRCd::Restart(const std::string& reason, const std::string& logtype)
+{
+	// Tell modules that we're restarting.
+	const auto quitmsg = reason.empty() ? "Server restarting" : reason;
+	FOREACH_MOD(OnShutdown, (quitmsg, true));
+
+	// Clean up all subsystems.
+	this->Cleanup(quitmsg);
+
+	// HACK: Because execvp does not close any remaining open file descriptors
+	// we need ensure they are closed. On modern Linux we can do this with the
+	// close_range function but on older systems we need to fall back to setting
+	// the FD_CLOEXEC flag on all possible file descriptors. This is very slow
+	// but there's not much else we can do because we don't control the fd
+	// creation of all of our dependencies.
+	const auto first_fd = fileno(stderr) + 1;
+#if defined HAS_CLOSE_RANGE && defined CLOSE_RANGE_CLOEXEC
+	close_range(first_fd, ~0, CLOSE_RANGE_CLOEXEC);
+#elif defined FD_CLOEXEC
+	for (auto fd = SocketEngine::GetMaxFds(); fd >= size_t(first_fd); ++fd)
+	{
+		const auto flags = fcntl(int(fd), F_GETFD);
+		if (flags != 1)
+			fcntl(int(fd), F_SETFD, flags | FD_CLOEXEC);
+	}
+#endif
+
+	const auto should_print = isatty(fileno(stdout));
+	if (should_print)
+		fmt::println("");
+
+	if (!reason.empty())
+	{
+		if (!logtype.empty())
+			ServerInstance->Logs.Critical(logtype, reason);
+
+		if (should_print)
+			fmt::println("Server is restarting: {}.", reason);
+	}
+
+	execvp(this->CommandLine.argv[0], this->CommandLine.argv);
+
+	const std::string error = strerror(errno);
+	if (should_print)
+	{
+		if (!logtype.empty())
+			ServerInstance->Logs.Critical(logtype, "Server restart failed: {}", error);
+		fmt::println("Server restart failed: {}.", error);
+	}
+
+	return error;
 }
 
 void InspIRCd::WritePID()

@@ -58,6 +58,9 @@
 // Whether the arc4random_buf() function was available at compile time.
 #cmakedefine HAS_ARC4RANDOM_BUF
 
+// Whether the close_range() function was available at compile time.
+#cmakedefine HAS_CLOSE_RANGE
+
 // Whether the clock_gettime() function was available at compile time.
 #cmakedefine HAS_CLOCK_GETTIME
 
