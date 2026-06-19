@@ -63,7 +63,7 @@ CmdResult CommandDie::Handle(User* user, const Params& parameters)
 		const std::string diebuf = "*** DIE command from " + user->GetMask() + ". Terminating.";
 		ServerInstance->Logs.Critical(MODNAME, diebuf);
 		DieRestart::SendError(diebuf);
-		ServerInstance->Exit(EXIT_FAILURE);
+		ServerInstance->Exit(EXIT_SUCCESS);
 	}
 	return CmdResult::FAILURE;
 }
