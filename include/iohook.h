@@ -117,9 +117,10 @@ public:
 	virtual ssize_t OnStreamSocketRead(StreamSocket* sock, std::string& recvq) = 0;
 
 	/** Sends a ping to the remote client to check whether it is still connected.
+	 * @param sock Hooked socket
 	 * @return True if the client was pinged; otherwise, false.
 	 */
-	virtual bool Ping() { return false; }
+	virtual bool Ping(StreamSocket* sock) { return false; }
 };
 
 class IOHookMiddle

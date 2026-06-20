@@ -78,7 +78,7 @@ namespace
 		IOHook* hook = user->eh.GetIOHook();
 		while (hook)
 		{
-			if (hook->Ping())
+			if (hook->Ping(&(user->eh)))
 				return; // Client has been pinged.
 
 			IOHookMiddle* middlehook = IOHookMiddle::ToMiddleHook(hook);
