@@ -38,4 +38,3 @@ I have ensured that:
 - [ ] If the pull request contains a security fix I have followed the reporting rules mentioned in [the security policy](https://github.com/inspircd/inspircd/security/policy) (delete if not applicable).
 - [ ] I have documented any features added by this pull request (delete if not applicable).
 - [ ] This pull request does not introduce any incompatible API changes (stable branches only, delete if not applicable).
-- [ ] If ABI changes have been made I have incremented MODULE_ABI in `moduledefs.h` (stable branches only, delete if not applicable).
