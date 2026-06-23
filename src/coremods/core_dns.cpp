@@ -934,7 +934,7 @@ public:
 		if (oldserver != DNSServer || oldip != SourceIP || oldport != SourcePort || !SourcePort)
 			this->manager.Rehash(DNSServer, SourceIP, SourcePort);
 
-		this->manager.timeout = tag->getDuration("timeout", 5, 1);
+		this->manager.timeout = tag->getDuration("timeout", 10, 1);
 	}
 
 	ModResult OnStats(Stats::Context& stats) override
