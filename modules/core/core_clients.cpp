@@ -147,7 +147,7 @@ public:
 		auto* hook = GetIOHook();
 		while (hook)
 		{
-			if (hook->Ping())
+			if (hook->Ping(this))
 				return true; // Client has been pinged.
 
 			auto* middlehook = IOHookMiddle::ToMiddleHook(hook);

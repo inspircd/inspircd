@@ -658,7 +658,7 @@ public:
 		return wsret;
 	}
 
-	bool Ping() override
+	bool Ping(StreamSocket* sock) override
 	{
 		if (!config.nativeping)
 			return false;
@@ -668,6 +668,7 @@ public:
 		const std::string& message = ServerInstance->Config->GetServerName();
 		mysendq.push_back(PrepareSendQElem(message.length(), OP_PING));
 		mysendq.push_back(message);
+		SocketEngine::ChangeEventMask(sock, FD_ADD_TRIAL_WRITE);
 
 		return true;
 	}
