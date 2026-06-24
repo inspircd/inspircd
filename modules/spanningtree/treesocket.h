@@ -89,8 +89,14 @@ enum ServerState { CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED, DYING };
 
 struct CapabData final
 {
+	// A map of capabilities to their value.
+	using CapabilityMap = insp::casemapped_map<std::string>;
+
 	// A map of module names to their link data.
 	using ModuleMap = insp::casemapped_map<std::string>;
+
+	// The capabilities (settings) configured by the remote server.
+	CapabilityMap capabilities;
 
 	// The optional modules sent by the remote server.
 	std::optional<ModuleMap> optionalmodules;
@@ -103,7 +109,6 @@ struct CapabData final
 	std::string ChanModes;
 	std::string UserModes;
 	std::string ExtBans;
-	std::map<std::string, std::string> CapKeys;	/* CAPAB keys from other server */
 	std::string ourchallenge;		/* Challenge sent for challenge/response */
 	std::string theirchallenge;		/* Challenge recv for challenge/response */
 	int capab_phase = 0;			/* Have sent CAPAB already */

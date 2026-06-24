@@ -39,6 +39,53 @@ namespace
 	// A map which holds the difference between local and remote tokens.
 	using TokenDiff = insp::casemapped_map<std::pair<std::optional<std::string>, std::optional<std::string>>>;
 
+	// Builds a list of local capabilities.
+	CapabData::CapabilityMap BuildCapabilityList(TreeSocket* ts)
+	{
+		CapabData::CapabilityMap capabilities = {
+			{ "CASEMAPPING", ServerInstance->Config->CaseMapping                  },
+			{ "MAXAWAY",     ConvToStr(ServerInstance->Config->Limits.MaxAway)    },
+			{ "MAXCHANNEL",  ConvToStr(ServerInstance->Config->Limits.MaxChannel) },
+			{ "MAXHOST",     ConvToStr(ServerInstance->Config->Limits.MaxHost)    },
+			{ "MAXKEY",      ConvToStr(ServerInstance->Config->Limits.MaxKey)     },
+			{ "MAXKICK",     ConvToStr(ServerInstance->Config->Limits.MaxKick)    },
+			{ "MAXLINE",     ConvToStr(ServerInstance->Config->Limits.MaxLine)    },
+			{ "MAXMODES",    ConvToStr(ServerInstance->Config->Limits.MaxModes)   },
+			{ "MAXNICK",     ConvToStr(ServerInstance->Config->Limits.MaxNick)    },
+			{ "MAXQUIT",     ConvToStr(ServerInstance->Config->Limits.MaxQuit)    },
+			{ "MAXREAL",     ConvToStr(ServerInstance->Config->Limits.MaxReal)    },
+			{ "MAXTOPIC",    ConvToStr(ServerInstance->Config->Limits.MaxTopic)   },
+			{ "MAXUSER",     ConvToStr(ServerInstance->Config->Limits.MaxUser)    },
+		};
+
+		// If SHA256 hashing support is available then send a challenge token.
+		if (ts->proto_version < PROTO_INSPIRCD_5 && ServerInstance->Modules.FindService("Hash::Provider", "sha256"))
+		{
+			if (ts->GetOurChallenge().empty())
+				ts->SetOurChallenge(ServerInstance->GenRandomStr(20));
+			capabilities["CHALLENGE"] = ts->GetOurChallenge();
+		}
+
+		ExtBan::ManagerRef extbanmgr(Utils->CreatorPtr);
+		if (extbanmgr)
+		{
+			std::string& xbformat = capabilities["EXTBANFORMAT"];
+			switch (extbanmgr->GetFormat())
+			{
+				case ExtBan::Format::ANY:
+					xbformat = "any";
+					break;
+				case ExtBan::Format::NAME:
+					xbformat = "name";
+					break;
+				case ExtBan::Format::LETTER:
+					xbformat = "letter";
+					break;
+			}
+		}
+		return capabilities;
+	}
+
 	// Builds a list of the local modules with the specified property.
 	CapabData::ModuleMap BuildModuleList(ModuleFlags property, uint16_t protocol)
 	{
@@ -79,6 +126,25 @@ namespace
 			modules[modname] = SpanningTreeUtilities::BuildLinkString(module);
 		}
 		return modules;
+	}
+
+	bool CompareCapabilities(const CapabData::CapabilityMap& remote, TreeSocket* ts, std::ostringstream& out)
+	{
+		// For capabilities we only compare the common keys so we can add new
+		// tokens later without breaking compatibility.
+		auto okay = true;
+		for (const auto& [tname, tvalue] : BuildCapabilityList(ts))
+		{
+			auto it = remote.find(tname);
+			if (it != remote.end() && it->second != tvalue)
+			{
+				if (!okay)
+					out << ", ";
+				okay = false;
+				out << tname << " is set to " <<  tvalue << " here and " << it->second << " there";
+			}
+		}
+		return okay;
 	}
 
 	// Compares the module data sent by a remote server to that of the local server.
@@ -180,50 +246,9 @@ namespace
 	// Generates a capability list in the format "FOO=BAR BAZ=BAX".
 	std::string FormatCapabilities(TreeSocket* ts)
 	{
-		std::unordered_map<std::string, std::string> capabilities = {
-			{ "CASEMAPPING", ServerInstance->Config->CaseMapping                  },
-			{ "MAXAWAY",     ConvToStr(ServerInstance->Config->Limits.MaxAway)    },
-			{ "MAXCHANNEL",  ConvToStr(ServerInstance->Config->Limits.MaxChannel) },
-			{ "MAXHOST",     ConvToStr(ServerInstance->Config->Limits.MaxHost)    },
-			{ "MAXKEY",      ConvToStr(ServerInstance->Config->Limits.MaxKey)     },
-			{ "MAXKICK",     ConvToStr(ServerInstance->Config->Limits.MaxKick)    },
-			{ "MAXLINE",     ConvToStr(ServerInstance->Config->Limits.MaxLine)    },
-			{ "MAXMODES",    ConvToStr(ServerInstance->Config->Limits.MaxModes)   },
-			{ "MAXNICK",     ConvToStr(ServerInstance->Config->Limits.MaxNick)    },
-			{ "MAXQUIT",     ConvToStr(ServerInstance->Config->Limits.MaxQuit)    },
-			{ "MAXREAL",     ConvToStr(ServerInstance->Config->Limits.MaxReal)    },
-			{ "MAXTOPIC",    ConvToStr(ServerInstance->Config->Limits.MaxTopic)   },
-			{ "MAXUSER",     ConvToStr(ServerInstance->Config->Limits.MaxUser)    },
-		};
-
-		// If SHA256 hashing support is available then send a challenge token.
-		if (ts->proto_version < PROTO_INSPIRCD_5 && ServerInstance->Modules.FindService("Hash::Provider", "sha256"))
-		{
-			ts->SetOurChallenge(ServerInstance->GenRandomStr(20));
-			capabilities["CHALLENGE"] = ts->GetOurChallenge();
-		}
-
-		ExtBan::ManagerRef extbanmgr(Utils->CreatorPtr);
-		if (extbanmgr)
-		{
-			std::string& xbformat = capabilities["EXTBANFORMAT"];
-			switch (extbanmgr->GetFormat())
-			{
-				case ExtBan::Format::ANY:
-					xbformat = "any";
-					break;
-				case ExtBan::Format::NAME:
-					xbformat = "name";
-					break;
-				case ExtBan::Format::LETTER:
-					xbformat = "letter";
-					break;
-			}
-		}
-
 		auto first = true;
 		std::stringstream capabilitystr;
-		for (const auto& [capkey, capvalue] : capabilities)
+		for (const auto& [capkey, capvalue] : BuildCapabilityList(ts))
 		{
 			if (!first)
 				capabilitystr << ' ';
@@ -246,6 +271,33 @@ namespace
 			modules << ' ';
 		}
 		return modules.str();
+	}
+
+	// Parses a capability list in the format "FOO BAR=baz".
+	void ParseCapabilities(const std::string& caplist, CapabData::CapabilityMap& map, TreeSocket* ts)
+	{
+		StringSplitter capstream(caplist);
+		for (std::string cap; capstream.GetToken(cap); )
+		{
+			std::string capval;
+			const auto split = cap.find('=');
+			if (split != std::string::npos)
+			{
+				capval.assign(cap, split + 1);
+				cap.erase(split);
+			}
+
+			// BEGIN COMPATIBILITY CODE
+			if (ts->proto_version < PROTO_INSPIRCD_5 && insp::casemapped_equals(cap, "CHALLENGE"))
+			{
+				ts->SetTheirChallenge(capval);
+				continue;
+			}
+			// END COMPATIBILITY CODE
+
+			ServerInstance->Logs.Debug(MODNAME, "Parsed capability: {} {}", cap, capval);
+			map.emplace(cap, capval);
+		}
 	}
 
 	// Parses a challenge in the format "<algo> [<algo>]+ :<challenge>".
@@ -434,9 +486,9 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 	}
 	if (insp::casemapped_equals(params[0], "START"))
 	{
+		capab->capabilities.clear();
 		capab->requiredmodules.reset();
 		capab->optionalmodules.reset();
-		capab->CapKeys.clear();
 
 		if (params.size() > 1)
 			proto_version = ConvToNum<uint16_t>(params[1]);
@@ -472,6 +524,20 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			{
 				SendError("CAPAB negotiation failed. Optional modules incorrectly matched on these servers and <options:allowmismatch> is not enabled."
 					+ errormsg.str());
+				return false;
+			}
+		}
+		else if (!CompareCapabilities(this->capab->capabilities, this, errormsg))
+		{
+			if (Utils->AllowMismatch)
+			{
+				ServerInstance->SNO.WriteToSnoMask('l', "Capabilities do not match. Some functionality may behave inconsistently. {}.",
+					errormsg.str());
+			}
+			else
+			{
+				SendError(FMT::format("CAPAB negotiation failed. Capabilities do not match and <spanningtree:allowmismatch> is not enabled. {}.",
+					errormsg.str()));
 				return false;
 			}
 		}
@@ -545,19 +611,6 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			}
 		}
 
-		if (this->capab->CapKeys.find("CASEMAPPING") != this->capab->CapKeys.end())
-		{
-			const std::string casemapping = this->capab->CapKeys.find("CASEMAPPING")->second;
-			if (casemapping != ServerInstance->Config->CaseMapping)
-			{
-				std::string reason = "The casemapping of the remote server differs to that of the local server."
-					" Local casemapping: " + ServerInstance->Config->CaseMapping +
-					" Remote casemapping: " + casemapping;
-				this->SendError("CAPAB negotiation failed: " + reason);
-				return false;
-			}
-		}
-
 		if (this->LinkState == CONNECTING)
 		{
 			this->SendCapabilities(2);
@@ -584,6 +637,11 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 		if (params.size() >= 3)
 			ParseChallenge(params, capab->theirchallenge);
 	}
+	else if (insp::casemapped_equals(params[0], "CAPABILITIES"))
+	{
+		if (params.size() >= 2)
+			ParseCapabilities(params[1], capab->capabilities, this);
+	}
 	else if (insp::casemapped_equals(params[0], "CHANMODES") && (params.size() == 2))
 	{
 		capab->ChanModes = params[1];
@@ -595,29 +653,6 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 	else if (insp::casemapped_equals(params[0], "EXTBANS") && (params.size() == 2))
 	{
 		capab->ExtBans = params[1];
-	}
-	else if (insp::casemapped_equals(params[0], "CAPABILITIES") && (params.size() == 2))
-	{
-		StringSplitter capabs(params[1]);
-		std::string item;
-		while (capabs.GetToken(item))
-		{
-			/* Process each key/value pair */
-			std::string::size_type equals = item.find('=');
-			if (equals != std::string::npos)
-			{
-				std::string var(item, 0, equals);
-				std::string value(item, equals+1);
-
-				if (proto_version < PROTO_INSPIRCD_5 && insp::casemapped_equals(var, "CHALLENGE"))
-				{
-					this->SetTheirChallenge(value);
-					continue;
-				}
-
-				capab->CapKeys[var] = value;
-			}
-		}
 	}
 	return true;
 }
