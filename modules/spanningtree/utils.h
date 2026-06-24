@@ -76,7 +76,7 @@ public:
 
 	/** Allow modules marked as VF_OPTCOMMON to be mismatched when linking
 	 */
-	bool AllowOptCommon;
+	bool AllowMismatch;
 
 	/** Make snomasks +CQ quiet during bursts and splits
 	 */

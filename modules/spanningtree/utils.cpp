@@ -211,7 +211,7 @@ void SpanningTreeUtilities::ReadConfiguration(ConfigStatus& status)
 	const auto& mtag = ServerInstance->Config->ConfValue("spanningtree");
 
 	const auto& options = ServerInstance->Config->ConfValue("options");
-	AllowOptCommon = mtag->getBool("allowmismatch", options->getBool("allowmismatch"));
+	AllowMismatch = mtag->getBool("allowmismatch", options->getBool("allowmismatch"));
 	AnnounceTSChange = mtag->getBool("announcets", options->getBool("announcets"));
 	PingWarnTime = mtag->getDuration("pingwarning", options->getDuration("pingwarning", 15));
 	PingFreq = mtag->getDuration("pingfreq", options->getDuration("serverpingfreq", 60, 1), 60, 1);

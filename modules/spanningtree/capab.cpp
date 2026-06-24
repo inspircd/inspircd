@@ -463,7 +463,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 		}
 		else if (!CompareModules(VF_OPTCOMMON, this->capab->optionalmodules, errormsg))
 		{
-			if (Utils->AllowOptCommon)
+			if (Utils->AllowMismatch)
 			{
 				ServerInstance->SNO.WriteToSnoMask('l', "Optional modules do not match. Some features may not work globally!"
 					+ errormsg.str());
@@ -524,7 +524,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 				ListDifference(capab->ExtBans, myextbans, ' ', missing_here, missing_there);
 				if (!missing_here.empty() || !missing_there.empty())
 				{
-					if (Utils->AllowOptCommon)
+					if (Utils->AllowMismatch)
 					{
 						ServerInstance->SNO.WriteToSnoMask('l',
 							"ExtBan lists do not match, some bans/exemptions may not work globally.{}{}{}{}",
