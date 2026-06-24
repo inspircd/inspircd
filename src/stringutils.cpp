@@ -45,7 +45,7 @@ std::string Percent::Encode(const void* data, size_t length, const char* table, 
 	for (size_t idx = 0; idx < length; ++idx)
 	{
 		unsigned char chr = udata[idx];
-		if (strchr(table, chr))
+		if (memchr(table, chr, strlen(table)))
 		{
 			// The character is on the safe list; push it as is.
 			buffer.push_back(chr);
