@@ -513,16 +513,21 @@ namespace
 		}
 	}
 
+	template <typename... Args>
+	bool HandleCapabError(TreeSocket* ts, const char* format, Args&&... args)
+	{
+		const auto message = FMT::vformat(format, FMT::make_format_args(args...));
+		ts->SendError(FMT::format("CAPAB negotiation failed: {}. See the log on {} or snomasks +Ll for more details.",
+			message, ServerInstance->Config->ServerName));
+		return false;
+	}
+
 	// Handles a mismatch between servers during CAPAB negotiation.
 	bool HandleMismatch(TreeSocket* ts, const std::string& what, const CapabDiff& diff)
 	{
 		HandleDiff(ts, what, diff, !Utils->AllowMismatch);
 		if (!Utils->AllowMismatch)
-		{
-			ts->SendError(FMT::format("CAPAB negotiation failed: {} do not match and <spanningtree:allowmismatch> is not enabled. See the log or snomask +Ll on {} for more details.",
-				what, ServerInstance->Config->ServerName));
-			return false;
-		}
+			return HandleCapabError(ts, "{} do not match and <spanningtree:allowmismatch> is not enabled", what);
 		return true;
 	}
 
@@ -530,9 +535,7 @@ namespace
 	bool HandleMismatchFatal(TreeSocket* ts, const std::string& what, const CapabDiff& diff)
 	{
 		HandleDiff(ts, what, diff, true);
-		ts->SendError(FMT::format("CAPAB negotiation failed: {} do not match. See the log or snomask +Ll on {} for more details.",
-			what, ServerInstance->Config->ServerName));
-		return false;
+		return HandleCapabError(ts, "{} do not match", what);
 	}
 
 	// Parses a capability list in the format "FOO BAR=baz".
@@ -768,12 +771,13 @@ void TreeSocket::ListDifference(const std::string& one, const std::string& two, 
 bool TreeSocket::Capab(const CommandBase::Params& params)
 {
 	if (params.empty())
-	{
-		this->SendError("Invalid number of parameters for CAPAB - Mismatched version");
-		return false;
-	}
+		return HandleCapabError(this, "Remote server did not send a subcommand in CAPAB");
+
 	if (insp::casemapped_equals(params[0], "START"))
 	{
+		if (params.size() < 2)
+			return HandleCapabError(this, "Remote server did not send a protocol version in CAPAB START");
+
 		capab->capabilities.clear();
 		capab->channelmodes.reset();
 		capab->extbans.reset();
@@ -781,16 +785,11 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 		capab->requiredmodules.reset();
 		capab->usermodes.reset();
 
-		if (params.size() > 1)
-			proto_version = ConvToNum<uint16_t>(params[1]);
-
+		proto_version = ConvToNum<uint16_t>(params[1]);
 		if (proto_version < PROTO_OLDEST)
 		{
-			const auto proto_str = proto_version ? ConvToStr(proto_version) : "1201 or older";
-			SendError(FMT::format("CAPAB negotiation failed. Server is using protocol version {} which"
-				" is too old to link with this server (protocol versions {} to {} are supported)",
-				proto_str, (uint16_t)PROTO_OLDEST, (uint16_t)PROTO_NEWEST));
-			return false;
+			return HandleCapabError(this, "Remote server is using protocol version {} which is too old to link with this server (protocol versions {} to {} are supported)",
+				proto_version, (uint16_t)PROTO_OLDEST, (uint16_t)PROTO_NEWEST);
 		}
 
 		SendCapabilities(2);
