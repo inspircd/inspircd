@@ -123,7 +123,7 @@ namespace
 				}
 				// END COMPATIBILITY CODE.
 			}
-			modules[modname] = SpanningTreeUtilities::BuildLinkString(module);
+			module->GetLinkData(modules[modname]);
 		}
 		return modules;
 	}
@@ -208,7 +208,7 @@ namespace
 		std::ostringstream diffconfig;
 		std::ostringstream localmissing;
 		std::ostringstream remotemissing;
-		for (const auto& [name, linkdata] : *remote)
+		for (const auto& [name, otherdata] : *remote)
 		{
 			auto moditer = local.find(name);
 			if (moditer == local.end())
@@ -220,7 +220,6 @@ namespace
 			}
 
 			// Parse and compare the link data.
-			Module::LinkData otherdata = Percent::DecodeQuery(linkdata);
 			if (!CompareModuleData(moditer->second, otherdata, diffconfig))
 				okay = false;
 			local.erase(moditer);
@@ -262,12 +261,11 @@ namespace
 	std::string FormatModules(ModuleFlags property, uint16_t protocol)
 	{
 		std::ostringstream modules;
-		CapabData::ModuleMap mymodules = BuildModuleList(property, protocol);
-		for (const auto& [module, linkdata] : mymodules)
+		for (const auto& [module, linkdata] : BuildModuleList(property, protocol))
 		{
 			modules << module;
 			if (!linkdata.empty())
-				modules << '=' << linkdata;
+				modules << '=' << Percent::EncodeQuery(linkdata);
 			modules << ' ';
 		}
 		return modules.str();
@@ -339,11 +337,14 @@ namespace
 		StringSplitter modstream(modlist);
 		for (std::string mod; modstream.GetToken(mod); )
 		{
-			size_t split = mod.find('=');
+			const auto split = mod.find('=');
 			if (split == std::string::npos)
-				map.emplace(mod, "");
+				map.emplace(mod, Module::LinkData()); // No link data.
 			else
-				map.emplace(mod.substr(0, split), mod.substr(split + 1));
+			{
+				const auto linkdata = Percent::DecodeQuery(mod.substr(split + 1));
+				map.emplace(mod.substr(0, split), linkdata);
+			}
 		}
 	}
 }

@@ -382,14 +382,6 @@ void SpanningTreeUtilities::SendChannelMessage(const User* source, const Channel
 	}
 }
 
-std::string SpanningTreeUtilities::BuildLinkString(const ModulePtr& mod)
-{
-	Module::LinkData data;
-	mod->GetLinkData(data);
-
-	return Percent::EncodeQuery(data);
-}
-
 void SpanningTreeUtilities::SendListLimits(Channel* chan, TreeSocket* sock)
 {
 	std::stringstream buffer;

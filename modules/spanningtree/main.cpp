@@ -731,9 +731,10 @@ namespace
 
 		if (loading)
 		{
-			const std::string linkstring = SpanningTreeUtilities::BuildLinkString(mod);
-			if (!linkstring.empty())
-				buffer << '=' << linkstring;
+			Module::LinkData data;
+			mod->GetLinkData(data);
+			if (!data.empty())
+				buffer << '=' << Percent::EncodeQuery(data);
 		}
 
 		CommandMetadata::Builder("modules", buffer.str()).Broadcast();

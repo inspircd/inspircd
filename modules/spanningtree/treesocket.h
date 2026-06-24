@@ -93,7 +93,7 @@ struct CapabData final
 	using CapabilityMap = insp::casemapped_map<std::string>;
 
 	// A map of module names to their link data.
-	using ModuleMap = insp::casemapped_map<std::string>;
+	using ModuleMap = insp::casemapped_map<Module::LinkData>;
 
 	// The capabilities (settings) configured by the remote server.
 	CapabilityMap capabilities;
