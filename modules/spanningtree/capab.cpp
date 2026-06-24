@@ -116,6 +116,33 @@ namespace
 		return capabilities;
 	}
 
+	// Builds a list of the local extbans.
+	CapabData::ExtBanMap BuildExtBanList()
+	{
+		CapabData::ExtBanMap extbans;
+		ExtBan::ManagerRef extbanmgr(Utils->CreatorPtr);
+		if (extbanmgr)
+		{
+			for (const auto& [_, extban] : extbanmgr->GetNameMap())
+			{
+				CapabData::ExtBanData data;
+				data.name = extban->GetName();
+				data.letter = extban->GetLetter();
+				switch (extban->GetType())
+				{
+					case ExtBan::Type::ACTING:
+						data.type = "acting";
+						break;
+					case ExtBan::Type::MATCHING:
+						data.type = "matching";
+						break;
+				}
+				extbans.emplace(data.name, std::move(data));
+			}
+		}
+		return extbans;
+	}
+
 	// Builds a list of the local modes of the specified type.
 	CapabData::ModeMap BuildModeList(ModeType mt, uint16_t protocol)
 	{
@@ -204,6 +231,55 @@ namespace
 				});
 			}
 		}
+		return diff;
+	}
+
+	// Compares the lists of extbans on a remote server to the local server.
+	bool CompareExtBans(std::optional<CapabData::ExtBanMap>& remote, CapabDiff& diff)
+	{
+		// If the remote didn't send an extban list then don't compare.
+		if (!remote)
+			return true;
+
+		auto local = BuildExtBanList();
+		for (const auto& [_, data] : *remote)
+		{
+			auto extbaniter = local.find(data.name);
+			if (extbaniter == local.end())
+			{
+				// Only exists on the remote server.
+				diff.localmissing.push_back(FMT::format("{} ({}:)", data.name, data.letter));
+				continue;
+			}
+
+			// Check that the extban config is the same.
+			if (extbaniter->second.letter != data.letter)
+			{
+				diff.config.emplace(data.name, CapabDiff::Config {
+					.what = "extban character",
+					.local = FMT::format("+{}", extbaniter->second.letter),
+					.remote = FMT::format("+{}", data.letter),
+				});
+			}
+
+			if (!insp::casemapped_equals(extbaniter->second.type, data.type))
+			{
+				diff.config.emplace(data.name, CapabDiff::Config {
+					.what = "extban type",
+					.local = extbaniter->second.type,
+					.remote = data.type,
+				});
+			}
+
+			local.erase(extbaniter);
+		}
+
+		for (const auto& [_, data] : local)
+		{
+			// Only exists on the local server.
+			diff.remotemissing.push_back(FMT::format("{} ({}:)", data.name, data.letter));
+		}
+
 		return diff;
 	}
 
@@ -358,6 +434,20 @@ namespace
 		return capabilitystr.str();
 	}
 
+	// Generates an extban list in the format "acting:foo=a matching:bar=b".
+	std::string FormatExtBans()
+	{
+		std::ostringstream extbans;
+		for (const auto& [_, data] : BuildExtBanList())
+		{
+			extbans << data.type << ":" << data.name;
+			if (data.letter)
+				extbans << '=' << data.letter;
+			extbans << ' ';
+		}
+		return extbans.str();
+	}
+
 	// Generates a mode list in the format "simple:foo=b prefix:123:bar=c?".
 	std::string FormatModes(ModeType mt, uint16_t protocol)
 	{
@@ -402,7 +492,7 @@ namespace
 
 		if (!diff.localmissing.empty())
 			ServerInstance->SNO.WriteToSnoMask('l', "Missing on the local server: {}", insp::join(diff.localmissing));
-		if (!diff.localmissing.empty())
+		if (!diff.remotemissing.empty())
 			ServerInstance->SNO.WriteToSnoMask('l', "Missing on the remote server: {}", insp::join(diff.remotemissing));
 		if (!diff.config.empty())
 		{
@@ -487,6 +577,42 @@ namespace
 		}
 	}
 
+	// Parses an extban list in the format "type:name[=char]".
+	void ParseExtBans(const std::string& extbanlist, std::optional<CapabData::ExtBanMap>& out)
+	{
+		auto& map = out ? *out : out.emplace();
+		StringSplitter extbanstream(extbanlist);
+		for (std::string extban; extbanstream.GetToken(extban); )
+		{
+			CapabData::ExtBanData data;
+
+			// matching:mute=m acting:noctcp
+			//         A    B        A
+			const auto a = extban.find(':');
+			if (a == std::string::npos)
+				continue; // Malformed.
+
+			const auto b = extban.find('=', a + 1);
+			if (b == std::string::npos)
+			{
+				// ExtBan only has a name.
+				data.name = extban.substr(a + 1);
+			}
+			else
+			{
+				// ExtBan has a name and letter.
+				data.name = extban.substr(a + 1, b - a - 1);
+				data.letter = extban[b + 1];
+			}
+			data.type = extban.substr(0, a);
+
+			ServerInstance->Logs.Debug(MODNAME, "Parsed extban: type {} name {} letter {:?}",
+				data.type, data.name, data.letter);
+
+			map.emplace(data.name, std::move(data));
+		}
+	}
+
 	// Parses a mode list in the format "type:[rank:]name=[prefixchar][char]".
 	void ParseModes(const std::string& modelist, std::optional<CapabData::ModeMap>& out)
 	{
@@ -559,36 +685,6 @@ namespace
 	}
 }
 
-bool TreeSocket::BuildExtBanList(std::string& out)
-{
-	ExtBan::ManagerRef extbanmgr(Utils->CreatorPtr);
-	if (!extbanmgr)
-		return false;
-
-	const auto& extbans = extbanmgr->GetNameMap();
-	for (auto iter = extbans.begin(); iter != extbans.end(); ++iter)
-	{
-		if (iter != extbans.begin())
-			out.push_back(' ');
-
-		const ExtBan::Base* extban = iter->second;
-		switch (extban->GetType())
-		{
-			case ExtBan::Type::ACTING:
-				out.append("acting:");
-				break;
-			case ExtBan::Type::MATCHING:
-				out.append("matching:");
-				break;
-		}
-
-		out.append(extban->GetName());
-		if (extban->GetLetter())
-			out.append("=").push_back(extban->GetLetter());
-	}
-	return true;
-}
-
 void TreeSocket::SendCapabilities(int phase)
 {
 	if (capab->capab_phase >= phase)
@@ -634,15 +730,9 @@ void TreeSocket::SendCapabilities(int phase)
 	MessageBuilder("CAPAB", true)
 		.Push("USERMODES", FormatModes(MODETYPE_USER, proto_version))
 		.Unicast(this);
-
-	std::string extbans;
-	if (BuildExtBanList(extbans))
-	{
-		MessageBuilder("CAPAB", true)
-			.Push("EXTBANS", extbans)
-			.Unicast(this);
-	}
-
+	MessageBuilder("CAPAB", true)
+		.Push("EXTBANS", FormatExtBans())
+		.Unicast(this);
 	MessageBuilder("CAPAB", true)
 		.Push("END")
 		.Unicast(this);
@@ -686,6 +776,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 	{
 		capab->capabilities.clear();
 		capab->channelmodes.reset();
+		capab->extbans.reset();
 		capab->optionalmodules.reset();
 		capab->requiredmodules.reset();
 		capab->usermodes.reset();
@@ -728,35 +819,10 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 				return false;
 		}
 
-		if (!capab->ExtBans.empty())
+		else if (!CompareExtBans(this->capab->extbans, diff))
 		{
-			std::string myextbans;
-			if (BuildExtBanList(myextbans))
-			{
-				std::string missing_here;
-				std::string missing_there;
-				ListDifference(capab->ExtBans, myextbans, ' ', missing_here, missing_there);
-				if (!missing_here.empty() || !missing_there.empty())
-				{
-					if (Utils->AllowMismatch)
-					{
-						ServerInstance->SNO.WriteToSnoMask('l',
-							"ExtBan lists do not match, some bans/exemptions may not work globally.{}{}{}{}",
-							missing_here.length() ? " Not loaded here:" : "", missing_here,
-							missing_there.length() ? " Not loaded there:" : "", missing_there);
-					}
-					else
-					{
-						std::string reason = "ExtBans not matched on these servers.";
-						if (missing_here.length())
-							reason += " Not loaded here:" + missing_here;
-						if (missing_there.length())
-							reason += " Not loaded there:" + missing_there;
-						this->SendError("CAPAB negotiation failed: " + reason);
-						return false;
-					}
-				}
-			}
+			if (!HandleMismatch(this, "Extended bans", diff))
+				return false;
 		}
 
 		if (this->LinkState == CONNECTING)
@@ -800,10 +866,10 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 		if (params.size() >= 2)
 			ParseModes(params[1], capab->usermodes);
 	}
-
-	else if (insp::casemapped_equals(params[0], "EXTBANS") && (params.size() == 2))
+	else if (insp::casemapped_equals(params[0], "EXTBANS"))
 	{
-		capab->ExtBans = params[1];
+		if (params.size() >= 2)
+			ParseExtBans(params[1], capab->extbans);
 	}
 	return true;
 }

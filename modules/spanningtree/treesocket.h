@@ -89,6 +89,19 @@ enum ServerState { CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED, DYING };
 
 struct CapabData final
 {
+	// Holds data relating to an extban.
+	struct ExtBanData final
+	{
+		// The letter assigned to the extban.
+		char letter = 0;
+
+		// The name of the extban.
+		std::string name;
+
+		// The type of the extban.
+		std::string type;
+	};
+
 	// Holds data relating to a mode.
 	struct ModeData final
 	{
@@ -111,6 +124,9 @@ struct CapabData final
 	// A map of capabilities to their value.
 	using CapabilityMap = insp::casemapped_map<std::string>;
 
+	// A map of extban names to their info.
+	using ExtBanMap = insp::casemapped_map<ExtBanData>;
+
 	// A map of mode names to their info.
 	using ModeMap = insp::casemapped_map<ModeData>;
 
@@ -119,6 +135,9 @@ struct CapabData final
 
 	// The capabilities (settings) configured by the remote server.
 	CapabilityMap capabilities;
+
+	// The extended bans sent by the remote server.
+	std::optional<ExtBanMap> extbans;
 
 	// The channel modes sent by the remote server.
 	std::optional<ModeMap> channelmodes;
@@ -134,7 +153,6 @@ struct CapabData final
 
 	std::shared_ptr<Link> link;			/* Link block used for this connection */
 	std::shared_ptr<Autoconnect> ac;		/* Autoconnect used to cause this connection, if any */
-	std::string ExtBans;
 	std::string ourchallenge;		/* Challenge sent for challenge/response */
 	std::string theirchallenge;		/* Challenge recv for challenge/response */
 	int capab_phase = 0;			/* Have sent CAPAB already */
@@ -301,12 +319,6 @@ public:
 	 * (and any of ITS servers too) of what servers we know about.
 	 */
 	void SendServers(TreeServer* Current, TreeServer* s);
-
-	/** If the extban manager exists then build an extban list.
-	 * @param out The buffer to put the extban list in.
-	 * @return True if the extban manager exists; otherwise, false.
-	 */
-	static bool BuildExtBanList(std::string& out);
 
 	/** Send my capabilities to the remote side
 	 */
