@@ -273,6 +273,23 @@ namespace
 		return modules.str();
 	}
 
+	// Handles a mismatch between servers during CAPAB negotiation.
+	bool HandleMismatch(TreeSocket* ts, const std::string& what, const std::ostringstream& errmsg)
+	{
+		if (Utils->AllowMismatch)
+		{
+			ServerInstance->SNO.WriteToSnoMask('l', "{} do not match. Some functionality may behave inconsistently between servers.", what);
+			ServerInstance->SNO.WriteToSnoMask('l', "Mismatch details: {}.", errmsg.str());
+		}
+		else
+		{
+			ts->SendError(FMT::format("CAPAB negotiation failed. {} do not match and <spanningtree:allowmismatch> is not enabled. {}.",
+				what, errmsg.str()));
+			return false;
+		}
+		return true;
+	}
+
 	// Parses a capability list in the format "FOO BAR=baz".
 	void ParseCapabilities(const std::string& caplist, CapabData::CapabilityMap& map, TreeSocket* ts)
 	{
@@ -515,31 +532,13 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 		}
 		else if (!CompareModules(VF_OPTCOMMON, this->capab->optionalmodules, errormsg))
 		{
-			if (Utils->AllowMismatch)
-			{
-				ServerInstance->SNO.WriteToSnoMask('l', "Optional modules do not match. Some features may not work globally!"
-					+ errormsg.str());
-			}
-			else
-			{
-				SendError("CAPAB negotiation failed. Optional modules incorrectly matched on these servers and <options:allowmismatch> is not enabled."
-					+ errormsg.str());
+			if (!HandleMismatch(this, "Optional modules", errormsg))
 				return false;
-			}
 		}
 		else if (!CompareCapabilities(this->capab->capabilities, this, errormsg))
 		{
-			if (Utils->AllowMismatch)
-			{
-				ServerInstance->SNO.WriteToSnoMask('l', "Capabilities do not match. Some functionality may behave inconsistently. {}.",
-					errormsg.str());
-			}
-			else
-			{
-				SendError(FMT::format("CAPAB negotiation failed. Capabilities do not match and <spanningtree:allowmismatch> is not enabled. {}.",
-					errormsg.str()));
+			if (!HandleMismatch(this, "Capabilities", errormsg))
 				return false;
-			}
 		}
 
 		if (!capab->ChanModes.empty())
