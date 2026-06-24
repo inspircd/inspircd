@@ -225,7 +225,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 irc::sockets::sockaddrs::sockaddrs(bool initialize)
 {
 	if (initialize)
-		*this = sockaddrs{};
+		memset(this, 0, sizeof(*this));
 }
 
 bool irc::sockets::sockaddrs::from_ip_port(const std::string& addr, in_port_t port)
@@ -477,7 +477,7 @@ irc::sockets::cidr_mask::cidr_mask(const std::string& mask)
 	{
 		if (!sa.from_ip(mask))
 		{
-			*this = cidr_mask{};
+			memset(this, 0, sizeof(*this));
 			return;
 		}
 		sa2cidr(*this, sa, 128);
@@ -487,7 +487,7 @@ irc::sockets::cidr_mask::cidr_mask(const std::string& mask)
 		unsigned char range = ConvToNum<unsigned char>(mask.substr(bits_chars + 1));
 		if (!sa.from_ip(mask.substr(0, bits_chars)))
 		{
-			*this = cidr_mask{};
+			memset(this, 0, sizeof(*this));
 			return;
 		}
 		sa2cidr(*this, sa, range);

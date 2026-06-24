@@ -57,8 +57,7 @@ namespace irc
 			struct sockaddr_un un;
 
 			/** Initializes this sockaddrs optionally as an unspecified socket address. */
-			explicit sockaddrs(bool initialize);
-			explicit sockaddrs() = default;
+			explicit sockaddrs(bool initialize = true);
 
 			/** Returns the address segment of the socket address as a string. */
 			std::string addr() const;
