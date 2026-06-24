@@ -101,7 +101,7 @@ namespace
 
 			auto modname = name.substr(startpos, endpos - startpos);
 
-			if (protocol < PROTO_NEWEST)
+			if (protocol < PROTO_INSPIRCD_5)
 			{
 				// BEGIN COMPATIBILITY CODE
 				if (insp::casemapped_equals(modname, "sethost") || insp::casemapped_equals(modname, "setident") || insp::casemapped_equals(modname, "setname"))

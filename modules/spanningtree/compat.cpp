@@ -111,35 +111,38 @@ bool TreeSocket::PreProcessNewProtocolMessage(User*& who, std::string& cmd, Comm
 
 bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, CommandBase::Params& params)
 {
-	if (insp::casemapped_equals(cmd, "CHGHOST") || insp::casemapped_equals(cmd, "CHGIDENT") || insp::casemapped_equals(cmd, "CHGNAME"))
+	if (proto_version == PROTO_INSPIRCD_4)
 	{
-		if (params.size() < 2)
-			return false; // Malformed.
+		if (insp::casemapped_equals(cmd, "CHGHOST") || insp::casemapped_equals(cmd, "CHGIDENT") || insp::casemapped_equals(cmd, "CHGNAME"))
+		{
+			if (params.size() < 2)
+				return false; // Malformed.
 
-		// CHG* and SET* were merged in v5.
-		cmd.replace(0, 3, "SET");
-	}
-	else if (insp::casemapped_equals(cmd, "ENCAP"))
-	{
-		if (params.size() < 2)
-			return false; // Malformed.
+			// CHG* and SET* were merged in v5.
+			cmd.replace(0, 3, "SET");
+		}
+		else if (insp::casemapped_equals(cmd, "ENCAP"))
+		{
+			if (params.size() < 2)
+				return false; // Malformed.
 
-		// :<uuid> ENCAP <target> <command> [<params>...];
-		CommandBase::Params newparams(params.begin() + 2, params.end());
-		if (!PreProcessOldProtocolMessage(who, params[1], newparams))
-			return false; // Malformed.
+			// :<uuid> ENCAP <target> <command> [<params>...];
+			CommandBase::Params newparams(params.begin() + 2, params.end());
+			if (!PreProcessOldProtocolMessage(who, params[1], newparams))
+				return false; // Malformed.
 
-		params.erase(params.begin() + 2, params.end());
-		params.insert(params.end(), newparams.begin(), newparams.end());
-	}
-	else if (insp::casemapped_equals(cmd, "IJOIN"))
-	{
-		if (params.size() < 3)
-			return false; // Malformed.
+			params.erase(params.begin() + 2, params.end());
+			params.insert(params.end(), newparams.begin(), newparams.end());
+		}
+		else if (insp::casemapped_equals(cmd, "IJOIN"))
+		{
+			if (params.size() < 3)
+				return false; // Malformed.
 
-		// :<uuid> IJOIN <chan> <membid> <joints> [<chants> <modes>]
-		//                               ^^^^^^^^ New in 1207
-		params.insert(params.begin() + 2, "0");
+			// :<uuid> IJOIN <chan> <membid> <joints> [<chants> <modes>]
+			//                               ^^^^^^^^ New in 1207
+			params.insert(params.begin() + 2, "0");
+		}
 	}
 	return true;
 }
