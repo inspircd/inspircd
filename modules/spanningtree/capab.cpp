@@ -331,7 +331,7 @@ void TreeSocket::SendCapabilities(int phase)
 
 	if (capab->capab_phase < 1 && phase >= 1)
 	{
-		MessageBuilder("CAPAB")
+		MessageBuilder("CAPAB", true)
 			.Push("START", (uint16_t)PROTO_NEWEST)
 			.Unicast(this);
 	}
