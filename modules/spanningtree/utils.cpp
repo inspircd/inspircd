@@ -302,8 +302,8 @@ void SpanningTreeUtilities::ReadConfiguration(ConfigStatus& status)
 		if ((L->SendPass.find(' ') != std::string::npos) || (L->RecvPass.find(' ') != std::string::npos))
 			throw ModuleException(Creator->weak_from_this(), "Link block '" + L->Name + "' has a password set that contains a space character which is invalid");
 
-		if ((L->SendPass[0] == ':') || (L->RecvPass[0] == ':'))
-			throw ModuleException(Creator->weak_from_this(), "Link block '" + L->Name + "' has a password set that begins with a colon (:) which is invalid");
+		if ((L->SendPass[0] == ':') || (L->RecvPass[0] == ':') || (L->SendPass[0] == '$') || (L->RecvPass[0] == '$'))
+			throw ModuleException(Creator->weak_from_this(), "Link block '" + L->Name + "' has a password set that begins with a colon (:) or dollar sign ($) which is invalid");
 
 		if (L->IPAddr.empty())
 		{

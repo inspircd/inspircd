@@ -197,7 +197,7 @@ namespace
 		};
 
 		// If SHA256 hashing support is available then send a challenge token.
-		if (ServerInstance->Modules.FindService("Hash::Provider", "sha256"))
+		if (ts->proto_version < PROTO_INSPIRCD_5 && ServerInstance->Modules.FindService("Hash::Provider", "sha256"))
 		{
 			ts->SetOurChallenge(ServerInstance->GenRandomStr(20));
 			capabilities["CHALLENGE"] = ts->GetOurChallenge();
@@ -246,6 +246,21 @@ namespace
 			modules << ' ';
 		}
 		return modules.str();
+	}
+
+	// Parses a challenge in the format "<algo> [<algo>]+ :<challenge>".
+	void ParseChallenge(const CommandBase::Params& params, std::string& out)
+	{
+		for (const auto& algorithm : insp::iterator_range(params.begin() + 1, params.end() - 1))
+		{
+			// For now we only support HMAC-SHA-256 here.
+			if (insp::casemapped_equals(algorithm, "hmac-sha256"))
+			{
+				out = Percent::Decode(params.back());
+				ServerInstance->Logs.Debug(MODNAME, "Parsed challenge: {:?}", out);
+				break;
+			}
+		}
 	}
 
 	// Parses a module list in the format "m_foo.so=bar m_bar.so=baz" to a map.
@@ -339,6 +354,20 @@ void TreeSocket::SendCapabilities(int phase)
 	capab->capab_phase = phase;
 	if (phase < 2)
 		return;
+
+
+	std::vector<std::string> algorithms;
+	if (proto_version >= PROTO_INSPIRCD_5)
+	{
+		std::vector<char> challenge(32);
+		ServerInstance->GenRandom(challenge.data(), challenge.size());
+		SetOurChallenge(std::string(challenge.begin(), challenge.end()));
+
+		MessageBuilder("CAPAB", true)
+			.Push("CHALLENGE")
+			.Push("hmac-sha256", Percent::Encode(GetOurChallenge()))
+			.Unicast(this);
+	}
 
 	MessageBuilder("CAPAB", true)
 		.Push("CAPABILITIES", FormatCapabilities(this))
@@ -529,36 +558,15 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			}
 		}
 
-		/* Challenge response, store their challenge for our password */
-		std::map<std::string, std::string>::iterator n = this->capab->CapKeys.find("CHALLENGE");
-		if ((n != this->capab->CapKeys.end()) && (ServerInstance->Modules.FindService("Hash::Provider", "sha256")))
+		if (this->LinkState == CONNECTING)
 		{
-			/* Challenge-response is on now */
-			this->SetTheirChallenge(n->second);
-			if (!this->GetTheirChallenge().empty() && (this->LinkState == CONNECTING))
-			{
-				this->SendCapabilities(2);
-				MessageBuilder("SERVER", true)
-					.Push(ServerInstance->Config->ServerName,
-						TreeSocket::MakePass(capab->link->SendPass, capab->theirchallenge),
-						ServerInstance->Config->ServerId,
-						ServerInstance->Config->ServerDesc)
-					.Unicast(this);
-			}
-		}
-		else
-		{
-			// They didn't specify a challenge or we don't have sha256, we use plaintext
-			if (this->LinkState == CONNECTING)
-			{
-				this->SendCapabilities(2);
-				MessageBuilder("SERVER", true)
-					.Push(ServerInstance->Config->ServerName,
-						capab->link->SendPass,
-						ServerInstance->Config->ServerId,
-						ServerInstance->Config->ServerDesc)
-					.Unicast(this);
-			}
+			this->SendCapabilities(2);
+			MessageBuilder("SERVER", true)
+				.Push(ServerInstance->Config->ServerName,
+					MakePass(capab->link->SendPass, capab->theirchallenge),
+					ServerInstance->Config->ServerId,
+					ServerInstance->Config->ServerDesc)
+				.Unicast(this);
 		}
 	}
 	else if (insp::casemapped_equals(params[0] , "MODULES"))
@@ -570,6 +578,11 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 	{
 		if (params.size() >= 2)
 			ParseModules(params[1], capab->optionalmodules);
+	}
+	else if (insp::casemapped_equals(params[0], "CHALLENGE"))
+	{
+		if (params.size() >= 3)
+			ParseChallenge(params, capab->theirchallenge);
 	}
 	else if (insp::casemapped_equals(params[0], "CHANMODES") && (params.size() == 2))
 	{
@@ -595,6 +608,13 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 			{
 				std::string var(item, 0, equals);
 				std::string value(item, equals+1);
+
+				if (proto_version < PROTO_INSPIRCD_5 && insp::casemapped_equals(var, "CHALLENGE"))
+				{
+					this->SetTheirChallenge(value);
+					continue;
+				}
+
 				capab->CapKeys[var] = value;
 			}
 		}

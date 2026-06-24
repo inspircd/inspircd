@@ -243,7 +243,7 @@ public:
 	/** Construct a password, optionally hashed with the other side's
 	 * challenge string
 	 */
-	static std::string MakePass(const std::string& password, const std::string& challenge);
+	std::string MakePass(const std::string& password, const std::string& challenge);
 
 	/** When an outbound connection finishes connecting, we receive
 	 * this event, and must send our SERVER string to the other

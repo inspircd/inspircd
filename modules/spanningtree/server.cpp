@@ -241,7 +241,7 @@ bool TreeSocket::Inbound_Server(CommandBase::Params& params)
 		// along with the sendpass from this block.
 		MessageBuilder("SERVER", true)
 			.Push(ServerInstance->Config->ServerName,
-				TreeSocket::MakePass(x->SendPass, this->GetTheirChallenge()),
+				MakePass(x->SendPass, this->GetTheirChallenge()),
 				ServerInstance->Config->ServerId,
 				ServerInstance->Config->ServerDesc)
 			.Unicast(this);
