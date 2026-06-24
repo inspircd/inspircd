@@ -89,8 +89,30 @@ enum ServerState { CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED, DYING };
 
 struct CapabData final
 {
+	// Holds data relating to a mode.
+	struct ModeData final
+	{
+		// The letter assigned to the mode.
+		char letter = 0;
+
+		// The name of the mode.
+		std::string name;
+
+		// If a prefix mode then the letter associated with the prefix.
+		char prefixletter = 0;
+
+		// If a prefix mode then the rank of the prefix.
+		ModeHandler::Rank prefixrank = 0;
+
+		// The type of mode.
+		std::string type;
+	};
+
 	// A map of capabilities to their value.
 	using CapabilityMap = insp::casemapped_map<std::string>;
+
+	// A map of mode names to their info.
+	using ModeMap = insp::casemapped_map<ModeData>;
 
 	// A map of module names to their link data.
 	using ModuleMap = insp::casemapped_map<Module::LinkData>;
@@ -98,16 +120,20 @@ struct CapabData final
 	// The capabilities (settings) configured by the remote server.
 	CapabilityMap capabilities;
 
+	// The channel modes sent by the remote server.
+	std::optional<ModeMap> channelmodes;
+
 	// The optional modules sent by the remote server.
 	std::optional<ModuleMap> optionalmodules;
 
 	// The required modules sent by the remote server.
 	std::optional<ModuleMap> requiredmodules;
 
+	// The user modes sent by the remote server.
+	std::optional<ModeMap> usermodes;
+
 	std::shared_ptr<Link> link;			/* Link block used for this connection */
 	std::shared_ptr<Autoconnect> ac;		/* Autoconnect used to cause this connection, if any */
-	std::string ChanModes;
-	std::string UserModes;
 	std::string ExtBans;
 	std::string ourchallenge;		/* Challenge sent for challenge/response */
 	std::string theirchallenge;		/* Challenge recv for challenge/response */
@@ -272,11 +298,6 @@ public:
 	 * (and any of ITS servers too) of what servers we know about.
 	 */
 	void SendServers(TreeServer* Current, TreeServer* s);
-
-	/** Returns mode list as a string, filtered by type.
-	 * @param type The type of modes to return.
-	 */
-	std::string BuildModeList(ModeType type);
 
 	/** If the extban manager exists then build an extban list.
 	 * @param out The buffer to put the extban list in.

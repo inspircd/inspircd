@@ -86,6 +86,35 @@ namespace
 		return capabilities;
 	}
 
+	// Builds a list of the local modes of the specified type.
+	CapabData::ModeMap BuildModeList(ModeType mt, uint16_t protocol)
+	{
+		CapabData::ModeMap modes;
+		for (const auto& [name, mh] : ServerInstance->Modes.GetModes(mt))
+		{
+			CapabData::ModeData data;
+			data.letter = mh->GetModeChar();
+			data.name = mh->GetName(protocol < PROTO_INSPIRCD_5);
+
+			const auto* const pm = mh->IsPrefixMode();
+			if (pm)
+			{
+				data.type = "prefix";
+				data.prefixletter = pm->GetPrefix();
+				data.prefixrank = pm->GetPrefixRank();
+			}
+			else if (mh->IsListMode())
+				data.type = "list";
+			else if (mh->NeedsParam(true))
+				data.type = mh->NeedsParam(false) ? "param" : "param-set";
+			else
+				data.type = "simple";
+
+			modes.emplace(data.name, std::move(data));
+		}
+		return modes;
+	}
+
 	// Builds a list of the local modules with the specified property.
 	CapabData::ModuleMap BuildModuleList(ModuleFlags property, uint16_t protocol)
 	{
@@ -144,6 +173,130 @@ namespace
 				out << tname << " is set to " <<  tvalue << " here and " << it->second << " there";
 			}
 		}
+		return okay;
+	}
+
+	// Formats a diff between link config.
+	std::string FormatDiff(const std::ostringstream& diffconfig, const std::ostringstream& localmissing, const std::ostringstream& remotemissing)
+	{
+		std::ostringstream out;
+		if (!diffconfig.str().empty())
+			out << "Loaded on both with different config:" << diffconfig.str() << '.';
+
+		if (!localmissing.str().empty())
+		{
+			if (out.tellp() != 0)
+				out << " ";
+			out << "Not loaded on the local server:" << localmissing.str() << '.';
+		}
+		if (!remotemissing.str().empty())
+		{
+			if (out.tellp() != 0)
+				out << " ";
+			out << "Not loaded on the remote server:" << remotemissing.str() << '.';
+		}
+		return out.str();
+	}
+
+	// Compares the mode data sent by a remote server to that of the local server.
+	bool CompareModeData(const CapabData::ModeData& data, const CapabData::ModeData& otherdata,
+		std::ostringstream& diffconfig)
+	{
+		auto error = false;
+		std::ostringstream out;
+		if (data.letter != otherdata.letter)
+		{
+			error = true;
+			out << "uses character +" <<  data.letter << " here and +"
+				<< otherdata.letter << " there";
+		}
+
+		if (!insp::casemapped_equals(data.type, otherdata.type))
+		{
+			if (error)
+				out << ", ";
+			error = true;
+
+			out << "is a " << data.type << " mode here and a " << otherdata.type
+				<< " mode there";
+		}
+		else if (insp::casemapped_equals(data.type, "prefix"))
+		{
+			if (data.prefixletter != otherdata.prefixletter)
+			{
+				if (error)
+					out << ", ";
+				error = true;
+
+				const auto prefixletter = data.prefixletter ? ConvToStr(data.prefixletter) : "(none)";
+				const auto otherprefixletter = otherdata.prefixletter ? ConvToStr(otherdata.prefixletter) : "(none)";
+
+				out << "uses prefix " << prefixletter << " here and "
+				 	<< otherprefixletter << " there";
+			}
+
+			if (data.prefixrank != otherdata.prefixrank)
+			{
+				if (error)
+					out << ", ";
+				error = true;
+
+				out << "rank " <<  data.prefixrank << " here and "
+					<< otherdata.prefixrank << " there";
+			}
+		}
+
+		if (error)
+		{
+			diffconfig << ' ' << data.name << ' ' << out.str();
+			return false;
+		}
+		return true;
+	}
+
+	// Compares the lists of module on a remote server to the local server.
+	bool CompareModes(ModeType mt, std::optional<CapabData::ModeMap>& remote, uint16_t protocol,
+		std::ostringstream& out)
+	{
+		// If the remote didn't send a mode list then don't compare.
+		if (!remote)
+			return true;
+
+		std::ostringstream diffconfig;
+		std::ostringstream localmissing;
+		std::ostringstream remotemissing;
+
+		auto okay = true;
+		auto local = BuildModeList(mt, protocol);
+		for (const auto& [_, data] : *remote)
+		{
+			auto modeiter = local.find(data.name);
+			if (modeiter == local.end())
+			{
+				// Only exists on the remote server.
+				localmissing << ' ' << data.name << " (" << data.letter << ")";
+				okay = false;
+				continue;
+			}
+
+			// Check that the mode config is the same.
+			if (!CompareModeData(modeiter->second, data, diffconfig))
+			{
+				okay = false;
+				diffconfig << ", ";
+			}
+
+			local.erase(modeiter);
+		}
+
+		for (const auto& [_, data] : local)
+		{
+			// Only exists on the local server.
+			remotemissing << ' ' << data.name << " (" << data.letter << ")";
+			okay = false;
+		}
+
+		out << FormatDiff(diffconfig, localmissing, remotemissing);
 		return okay;
 	}
 
@@ -232,13 +385,7 @@ namespace
 			okay = false;
 		}
 
-		if (!diffconfig.str().empty())
-			out << " Loaded on both with different config:" << diffconfig.str() << '.';
-		if (!localmissing.str().empty())
-			out << " Not loaded on the local server:" << localmissing.str() << '.';
-		if (!remotemissing.str().empty())
-			out << " Not loaded on the remote server:" << remotemissing.str() << '.';
-
+		out << FormatDiff(diffconfig, localmissing, remotemissing);
 		return okay;
 	}
 
@@ -255,6 +402,23 @@ namespace
 			first = false;
 		}
 		return capabilitystr.str();
+	}
+
+	// Generates a mode list in the format "simple:foo=b prefix:123:bar=c?".
+	std::string FormatModes(ModeType mt, uint16_t protocol)
+	{
+		std::ostringstream modes;
+		for (const auto& [_, data] : BuildModeList(mt, protocol))
+		{
+			modes << data.type << ':';
+			if (insp::casemapped_equals(data.type, "prefix"))
+				modes << data.prefixrank << ':';
+			modes << data.name << '=';
+			if (data.prefixletter)
+				modes << data.prefixletter;
+			modes << data.letter << ' ';
+		}
+		return modes.str();
 	}
 
 	// Generates a module list in the format "m_foo.so=bar m_bar.so=baz".
@@ -286,6 +450,13 @@ namespace
 			return false;
 		}
 		return true;
+	}
+
+	// Handles a fatal mismatch between servers during CAPAB negotiation.
+	bool HandleMismatchFatal(TreeSocket* ts, const std::string& what, const std::ostringstream& errmsg)
+	{
+		ts->SendError(FMT::format("CAPAB negotiation failed. {} do not match. {}.", what, errmsg.str()));
+		return false;
 	}
 
 	// Parses a capability list in the format "FOO BAR=baz".
@@ -330,6 +501,59 @@ namespace
 		}
 	}
 
+	// Parses a mode list in the format "type:[rank:]name=[prefixchar][char]".
+	void ParseModes(const std::string& modelist, std::optional<CapabData::ModeMap>& out)
+	{
+		auto& map = out ? *out : out.emplace();
+		StringSplitter modestream(modelist);
+		for (std::string mode; modestream.GetToken(mode); )
+		{
+			CapabData::ModeData data;
+
+			// list:ban=b  param-set:limit=l  param:key=k  prefix:30000:op=@o  simple:noextmsg=n
+			//     A   C            A     C        A   C         A     B  C          A        C
+			auto a = mode.find(':');
+			if (a == std::string::npos)
+				continue; // Malformed.
+
+			// If the mode is a prefix mode then it also has a rank.
+			data.type = mode.substr(0, a);
+			if (insp::casemapped_equals(data.type, "prefix"))
+			{
+				const auto b = mode.find(':', a + 1);
+				if (b == std::string::npos)
+					continue; // Malformed.
+
+				const auto rank = mode.substr(a + 1, b - a - 1);
+				data.prefixrank = ConvToNum<ModeHandler::Rank>(rank);
+				a = b;
+			}
+
+			const auto c = mode.find('=', a + 1);
+			if (c == std::string::npos)
+				continue; // Malformed.
+
+			data.name = mode.substr(a + 1, c - a - 1);
+			switch (mode.length() - c)
+			{
+				case 2:
+					data.letter = mode[c + 1];
+					break;
+				case 3:
+					data.prefixletter = mode[c + 1];
+					data.letter = mode[c + 2];
+					break;
+				default:
+					continue; // Malformed.
+			}
+
+			ServerInstance->Logs.Debug(MODNAME, "Parsed mode: type {} name {} letter {} prefixrank {} prefixletter {:?}",
+				data.type, data.name, data.letter, data.prefixrank, data.prefixletter);
+
+			map.emplace(data.name, std::move(data));
+		}
+	}
+
 	// Parses a module list in the format "m_foo.so=bar m_bar.so=baz" to a map.
 	void ParseModules(const std::string& modlist, std::optional<CapabData::ModuleMap>& out)
 	{
@@ -347,36 +571,6 @@ namespace
 			}
 		}
 	}
-}
-
-std::string TreeSocket::BuildModeList(ModeType mtype)
-{
-	std::vector<std::string> modes;
-	for (const auto& [_, mh] : ServerInstance->Modes.GetModes(mtype))
-	{
-		const PrefixMode* const pm = mh->IsPrefixMode();
-		std::string mdesc;
-		if (pm)
-			mdesc.append("prefix:").append(ConvToStr(pm->GetPrefixRank())).push_back(':');
-		else if (mh->IsListMode())
-			mdesc.append("list:");
-		else if (mh->NeedsParam(true))
-			mdesc.append(mh->NeedsParam(false) ? "param:" : "param-set:");
-		else
-			mdesc.append("simple:");
-
-		mdesc.append(mh->GetName(proto_version < PROTO_INSPIRCD_5));
-		mdesc.push_back('=');
-		if (pm)
-		{
-			if (pm->GetPrefix())
-				mdesc.push_back(pm->GetPrefix());
-		}
-		mdesc.push_back(mh->GetModeChar());
-		modes.push_back(mdesc);
-	}
-	std::sort(modes.begin(), modes.end());
-	return insp::join(modes);
 }
 
 bool TreeSocket::BuildExtBanList(std::string& out)
@@ -449,10 +643,10 @@ void TreeSocket::SendCapabilities(int phase)
 		.Push("MODSUPPORT", FormatModules(VF_OPTCOMMON, proto_version))
 		.Unicast(this);
 	MessageBuilder("CAPAB", true)
-		.Push("CHANMODES", BuildModeList(MODETYPE_CHANNEL))
+		.Push("CHANMODES", FormatModes(MODETYPE_CHANNEL, proto_version))
 		.Unicast(this);
 	MessageBuilder("CAPAB", true)
-		.Push("USERMODES", BuildModeList(MODETYPE_USER))
+		.Push("USERMODES", FormatModes(MODETYPE_USER, proto_version))
 		.Unicast(this);
 
 	std::string extbans;
@@ -505,8 +699,10 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 	if (insp::casemapped_equals(params[0], "START"))
 	{
 		capab->capabilities.clear();
-		capab->requiredmodules.reset();
+		capab->channelmodes.reset();
 		capab->optionalmodules.reset();
+		capab->requiredmodules.reset();
+		capab->usermodes.reset();
 
 		if (params.size() > 1)
 			proto_version = ConvToNum<uint16_t>(params[1]);
@@ -526,58 +722,24 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 	{
 		std::ostringstream errormsg;
 		if (!CompareModules(VF_COMMON, this->capab->requiredmodules, errormsg))
-		{
-			SendError("CAPAB negotiation failed. Required modules incorrectly matched on these servers."
-				+ errormsg.str());
-			return false;
-		}
+			return HandleMismatchFatal(this, "Required modules", errormsg);
+
 		else if (!CompareModules(VF_OPTCOMMON, this->capab->optionalmodules, errormsg))
 		{
 			if (!HandleMismatch(this, "Optional modules", errormsg))
 				return false;
 		}
+
+		else if (!CompareModes(MODETYPE_CHANNEL, this->capab->channelmodes, this->proto_version, errormsg))
+			return HandleMismatchFatal(this, "Channel modes", errormsg);
+
+		else if (!CompareModes(MODETYPE_USER, this->capab->usermodes, this->proto_version, errormsg))
+			return HandleMismatchFatal(this, "User modes", errormsg);
+
 		else if (!CompareCapabilities(this->capab->capabilities, this, errormsg))
 		{
 			if (!HandleMismatch(this, "Capabilities", errormsg))
 				return false;
-		}
-
-		if (!capab->ChanModes.empty())
-		{
-			if (capab->ChanModes != BuildModeList(MODETYPE_CHANNEL))
-			{
-				std::string diffIneed;
-				std::string diffUneed;
-				ListDifference(capab->ChanModes, BuildModeList(MODETYPE_CHANNEL), ' ', diffIneed, diffUneed);
-				if (diffIneed.length() || diffUneed.length())
-				{
-					std::string reason = "Channel modes not matched on these servers.";
-					if (diffIneed.length())
-						reason += " Not loaded here:" + diffIneed;
-					if (diffUneed.length())
-						reason += " Not loaded there:" + diffUneed;
-					this->SendError("CAPAB negotiation failed: " + reason);
-				}
-			}
-		}
-
-		if (!capab->UserModes.empty())
-		{
-			if (capab->UserModes != BuildModeList(MODETYPE_USER))
-			{
-				std::string diffIneed;
-				std::string diffUneed;
-				ListDifference(capab->UserModes, BuildModeList(MODETYPE_USER), ' ', diffIneed, diffUneed);
-				if (diffIneed.length() || diffUneed.length())
-				{
-					std::string reason = "User modes not matched on these servers.";
-					if (diffIneed.length())
-						reason += " Not loaded here:" + diffIneed;
-					if (diffUneed.length())
-						reason += " Not loaded there:" + diffUneed;
-					this->SendError("CAPAB negotiation failed: " + reason);
-				}
-			}
 		}
 
 		if (!capab->ExtBans.empty())
@@ -642,14 +804,17 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 		if (params.size() >= 2)
 			ParseModules(params[1], capab->optionalmodules);
 	}
-	else if (insp::casemapped_equals(params[0], "CHANMODES") && (params.size() == 2))
+	else if (insp::casemapped_equals(params[0], "CHANMODES"))
 	{
-		capab->ChanModes = params[1];
+		if (params.size() >= 2)
+			ParseModes(params[1], capab->channelmodes);
 	}
-	else if (insp::casemapped_equals(params[0], "USERMODES") && (params.size() == 2))
+	else if (insp::casemapped_equals(params[0], "USERMODES"))
 	{
-		capab->UserModes = params[1];
+		if (params.size() >= 2)
+			ParseModes(params[1], capab->usermodes);
 	}
+
 	else if (insp::casemapped_equals(params[0], "EXTBANS") && (params.size() == 2))
 	{
 		capab->ExtBans = params[1];
