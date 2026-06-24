@@ -622,16 +622,6 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 				.Unicast(this);
 		}
 	}
-	else if (insp::casemapped_equals(params[0] , "MODULES"))
-	{
-		if (params.size() >= 2)
-			ParseModules(params[1], capab->requiredmodules);
-	}
-	else if (insp::casemapped_equals(params[0], "MODSUPPORT"))
-	{
-		if (params.size() >= 2)
-			ParseModules(params[1], capab->optionalmodules);
-	}
 	else if (insp::casemapped_equals(params[0], "CHALLENGE"))
 	{
 		if (params.size() >= 3)
@@ -641,6 +631,16 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 	{
 		if (params.size() >= 2)
 			ParseCapabilities(params[1], capab->capabilities, this);
+	}
+	else if (insp::casemapped_equals(params[0] , "MODULES"))
+	{
+		if (params.size() >= 2)
+			ParseModules(params[1], capab->requiredmodules);
+	}
+	else if (insp::casemapped_equals(params[0], "MODSUPPORT"))
+	{
+		if (params.size() >= 2)
+			ParseModules(params[1], capab->optionalmodules);
 	}
 	else if (insp::casemapped_equals(params[0], "CHANMODES") && (params.size() == 2))
 	{
