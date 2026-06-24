@@ -245,6 +245,9 @@ public:
 	 */
 	ServerState GetLinkState() const { return LinkState; }
 
+	// Retrieves the name of this link.
+	const auto& GetLinkName() const { return this->linkID; }
+
 	/** Get challenge set in our CAPAB for challenge/response
 	 */
 	const std::string& GetOurChallenge();

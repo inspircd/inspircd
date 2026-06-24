@@ -34,6 +34,36 @@
 #include "link.h"
 #include "main.h"
 
+struct CapabDiff final
+{
+	struct Config final
+	{
+		// The thing which differs.
+		std::string what;
+
+		// The value on the local server.
+		std::optional<std::string> local;
+
+		// The value on the remote server.
+		std::optional<std::string> remote;
+	};
+
+
+	// Feature with different config on the local server vs the remote server.
+	insp::casemapped_multimap<Config> config;
+
+	// Feature which is not available on the local server.
+	std::vector<std::string> localmissing;
+
+	// Feature which is not available on the remote server.
+	std::vector<std::string> remotemissing;
+
+	operator bool() const
+	{
+		return config.empty() && localmissing.empty() && remotemissing.empty();
+	}
+};
+
 namespace
 {
 	// A map which holds the difference between local and remote tokens.
@@ -157,116 +187,77 @@ namespace
 		return modules;
 	}
 
-	bool CompareCapabilities(const CapabData::CapabilityMap& remote, TreeSocket* ts, std::ostringstream& out)
+	bool CompareCapabilities(const CapabData::CapabilityMap& remote, TreeSocket* ts,
+		CapabDiff& diff)
 	{
 		// For capabilities we only compare the common keys so we can add new
 		// tokens later without breaking compatibility.
-		auto okay = true;
 		for (const auto& [tname, tvalue] : BuildCapabilityList(ts))
 		{
 			auto it = remote.find(tname);
 			if (it != remote.end() && it->second != tvalue)
 			{
-				if (!okay)
-					out << ", ";
-				okay = false;
-				out << tname << " is set to " <<  tvalue << " here and " << it->second << " there";
+				diff.config.emplace("", CapabDiff::Config {
+					.what = tname,
+					.local = tvalue,
+					.remote = it->second,
+				});
 			}
 		}
-		return okay;
-	}
-
-	// Formats a diff between link config.
-	std::string FormatDiff(const std::ostringstream& diffconfig, const std::ostringstream& localmissing, const std::ostringstream& remotemissing)
-	{
-		std::ostringstream out;
-		if (!diffconfig.str().empty())
-			out << "Loaded on both with different config:" << diffconfig.str() << '.';
-
-		if (!localmissing.str().empty())
-		{
-			if (out.tellp() != 0)
-				out << " ";
-			out << "Not loaded on the local server:" << localmissing.str() << '.';
-		}
-		if (!remotemissing.str().empty())
-		{
-			if (out.tellp() != 0)
-				out << " ";
-			out << "Not loaded on the remote server:" << remotemissing.str() << '.';
-		}
-		return out.str();
+		return diff;
 	}
 
 	// Compares the mode data sent by a remote server to that of the local server.
-	bool CompareModeData(const CapabData::ModeData& data, const CapabData::ModeData& otherdata,
-		std::ostringstream& diffconfig)
+	void CompareModeData(const CapabData::ModeData& data, const CapabData::ModeData& otherdata,
+		CapabDiff& diff)
 	{
-		auto error = false;
-		std::ostringstream out;
 		if (data.letter != otherdata.letter)
 		{
-			error = true;
-			out << "uses character +" <<  data.letter << " here and +"
-				<< otherdata.letter << " there";
+			diff.config.emplace(data.name, CapabDiff::Config {
+				.what = "mode character",
+				.local = FMT::format("+{}", data.letter),
+				.remote = FMT::format("+{}", otherdata.letter),
+			});
 		}
 
 		if (!insp::casemapped_equals(data.type, otherdata.type))
 		{
-			if (error)
-				out << ", ";
-			error = true;
-
-			out << "is a " << data.type << " mode here and a " << otherdata.type
-				<< " mode there";
+			diff.config.emplace(data.name, CapabDiff::Config {
+				.what = "mode type",
+				.local = data.type,
+				.remote = otherdata.type,
+			});
 		}
 		else if (insp::casemapped_equals(data.type, "prefix"))
 		{
 			if (data.prefixletter != otherdata.prefixletter)
 			{
-				if (error)
-					out << ", ";
-				error = true;
-
-				const auto prefixletter = data.prefixletter ? ConvToStr(data.prefixletter) : "(none)";
-				const auto otherprefixletter = otherdata.prefixletter ? ConvToStr(otherdata.prefixletter) : "(none)";
-
-				out << "uses prefix " << prefixletter << " here and "
-				 	<< otherprefixletter << " there";
+				diff.config.emplace(data.name, CapabDiff::Config {
+					.what = "prefix character",
+					.local = data.prefixletter ? ConvToStr(data.prefixletter) : "",
+					.remote = otherdata.prefixletter ? ConvToStr(otherdata.prefixletter) : "",
+				});
 			}
 
 			if (data.prefixrank != otherdata.prefixrank)
 			{
-				if (error)
-					out << ", ";
-				error = true;
-
-				out << "rank " <<  data.prefixrank << " here and "
-					<< otherdata.prefixrank << " there";
+				diff.config.emplace(data.name, CapabDiff::Config {
+					.what = "prefix rank",
+					.local = ConvToStr(data.prefixrank),
+					.remote = ConvToStr(otherdata.prefixrank),
+				});
 			}
 		}
-
-		if (error)
-		{
-			diffconfig << ' ' << data.name << ' ' << out.str();
-			return false;
-		}
-		return true;
 	}
 
 	// Compares the lists of module on a remote server to the local server.
 	bool CompareModes(ModeType mt, std::optional<CapabData::ModeMap>& remote, uint16_t protocol,
-		std::ostringstream& out)
+		CapabDiff& diff)
 	{
 		// If the remote didn't send a mode list then don't compare.
 		if (!remote)
 			return true;
 
-		std::ostringstream diffconfig;
-		std::ostringstream localmissing;
-		std::ostringstream remotemissing;
-
-		auto okay = true;
 		auto local = BuildModeList(mt, protocol);
 		for (const auto& [_, data] : *remote)
 		{
@@ -274,83 +265,53 @@ namespace
 			if (modeiter == local.end())
 			{
 				// Only exists on the remote server.
-				localmissing << ' ' << data.name << " (" << data.letter << ")";
-				okay = false;
+				diff.localmissing.push_back(FMT::format("{} (+{})", data.name, data.letter));
 				continue;
 			}
 
 			// Check that the mode config is the same.
-			if (!CompareModeData(modeiter->second, data, diffconfig))
-			{
-				okay = false;
-				diffconfig << ", ";
-			}
-
+			CompareModeData(modeiter->second, data, diff);
 			local.erase(modeiter);
 		}
 
 		for (const auto& [_, data] : local)
 		{
 			// Only exists on the local server.
-			remotemissing << ' ' << data.name << " (" << data.letter << ")";
-			okay = false;
+			diff.remotemissing.push_back(FMT::format("{} (+{})", data.name, data.letter));
 		}
 
-		out << FormatDiff(diffconfig, localmissing, remotemissing);
-		return okay;
+		return diff;
 	}
 
 	// Compares the module data sent by a remote server to that of the local server.
-	bool CompareModuleData(const ModulePtr& mod, const Module::LinkData& otherdata, std::ostringstream& diffconfig)
+	void CompareModuleData(const ModulePtr& mod, const Module::LinkData& otherdata,
+		CapabDiff& diff)
 	{
 		Module::LinkDataDiff datadiff;
 		mod->CompareLinkData(otherdata, datadiff);
-		if (!datadiff.empty())
+		if (datadiff.empty())
+			return;
+
+		const auto modname = ModuleManager::ShrinkModName(mod->ModuleFile);
+		for (const auto& [key, values] : datadiff)
 		{
-			diffconfig << ' ' << ModuleManager::ShrinkModName(mod->ModuleFile) << " (";
-			bool first = true;
-			for (const auto& [key, values] : datadiff)
-			{
-				// Keys are separated by commas.
-				if (!first)
-					diffconfig << ", ";
-				first = false;
-
-				diffconfig << key;
-				if (values.first && values.second)
-				{
-					// Exists on both but with a different value.
-					diffconfig << " set to " <<  *values.first << " here and " << *values.second << " there";
-				}
-				else if (values.first && !values.second)
-				{
-					// Only exists on the local server.
-					diffconfig << " only set here";
-				}
-				else if (!values.first && values.second)
-				{
-					// Only exists on the remote server.
-					diffconfig << " only set there";
-				}
-			}
-
-			diffconfig << ')';
-			return false;
+			diff.config.emplace(modname, CapabDiff::Config {
+				.what = key,
+				.local = values.first,
+				.remote = values.second,
+			});
 		}
-
-		return true;
 	}
 
 	// Compares the lists of module on a remote server to the local server.
 	bool CompareModules(ModuleFlags property, std::optional<CapabData::ModuleMap>& remote,
-		std::ostringstream& out)
+		CapabDiff& diff)
 	{
 		// If the remote didn't send a module list then don't compare.
 		if (!remote)
 			return true;
 
 		// Retrieve the local module list.
-		bool okay = true;
 		ModuleManager::ModuleMap local;
 		for (const auto& [name, module] : ServerInstance->Modules.GetModules())
 		{
@@ -358,35 +319,28 @@ namespace
 				local[ModuleManager::ShrinkModName(name)] = module;
 		}
 
-		std::ostringstream diffconfig;
-		std::ostringstream localmissing;
-		std::ostringstream remotemissing;
 		for (const auto& [name, otherdata] : *remote)
 		{
 			auto moditer = local.find(name);
 			if (moditer == local.end())
 			{
 				// Only exists on the remote server.
-				localmissing << ' ' << name;
-				okay = false;
+				diff.localmissing.push_back(name);
 				continue;
 			}
 
 			// Parse and compare the link data.
-			if (!CompareModuleData(moditer->second, otherdata, diffconfig))
-				okay = false;
+			CompareModuleData(moditer->second, otherdata, diff);
 			local.erase(moditer);
 		}
 
 		for (const auto& [name, _] : local)
 		{
 			// Only exists on the local server.
-			remotemissing << ' ' << name;
-			okay = false;
+			diff.remotemissing.push_back(name);
 		}
 
-		out << FormatDiff(diffconfig, localmissing, remotemissing);
-		return okay;
+		return diff;
 	}
 
 	// Generates a capability list in the format "FOO=BAR BAZ=BAX".
@@ -435,27 +389,59 @@ namespace
 		return modules.str();
 	}
 
-	// Handles a mismatch between servers during CAPAB negotiation.
-	bool HandleMismatch(TreeSocket* ts, const std::string& what, const std::ostringstream& errmsg)
+	void HandleDiff(TreeSocket* ts, const std::string& what, const CapabDiff& diff, bool fatal)
 	{
-		if (Utils->AllowMismatch)
+		if (fatal)
 		{
-			ServerInstance->SNO.WriteToSnoMask('l', "{} do not match. Some functionality may behave inconsistently between servers.", what);
-			ServerInstance->SNO.WriteToSnoMask('l', "Mismatch details: {}.", errmsg.str());
+			ServerInstance->SNO.WriteToSnoMask('l', "CAPAB negotiation mismatch on link {}: {} do not match with the remote server. You will not be able to link this server until this issue is resolved.",
+				ts->GetLinkName(), what);
 		}
 		else
+			ServerInstance->SNO.WriteToSnoMask('l', "CAPAB negotiation mismatch on link {}: {} do not match with the remote server. Some functionality may behave inconsistently between servers.",
+				ts->GetLinkName(), what);
+
+		if (!diff.localmissing.empty())
+			ServerInstance->SNO.WriteToSnoMask('l', "Missing on the local server: {}", insp::join(diff.localmissing));
+		if (!diff.localmissing.empty())
+			ServerInstance->SNO.WriteToSnoMask('l', "Missing on the remote server: {}", insp::join(diff.remotemissing));
+		if (!diff.config.empty())
 		{
-			ts->SendError(FMT::format("CAPAB negotiation failed. {} do not match and <spanningtree:allowmismatch> is not enabled. {}.",
-				what, errmsg.str()));
+			ServerInstance->SNO.WriteToSnoMask('l', "Different config between the local and remote servers:");
+			for (const auto& [feature, confdiff] : diff.config)
+			{
+				const auto localstate = confdiff.local
+					? confdiff.local->empty() ? "set" : FMT::format("set to {}", *confdiff.local)
+					: "not set";
+
+				const auto remotestate = confdiff.remote
+					? confdiff.remote->empty() ? "set" : FMT::format("set to {}", *confdiff.remote)
+					: "not set";
+
+				ServerInstance->SNO.WriteToSnoMask('l', "  {}{}{} {} on the local server and {} on the remote server.", feature, feature.empty() ? "" : ": ",
+					confdiff.what, localstate, remotestate);
+			}
+		}
+	}
+
+	// Handles a mismatch between servers during CAPAB negotiation.
+	bool HandleMismatch(TreeSocket* ts, const std::string& what, const CapabDiff& diff)
+	{
+		HandleDiff(ts, what, diff, !Utils->AllowMismatch);
+		if (!Utils->AllowMismatch)
+		{
+			ts->SendError(FMT::format("CAPAB negotiation failed: {} do not match and <spanningtree:allowmismatch> is not enabled. See the log or snomask +Ll on {} for more details.",
+				what, ServerInstance->Config->ServerName));
 			return false;
 		}
 		return true;
 	}
 
 	// Handles a fatal mismatch between servers during CAPAB negotiation.
-	bool HandleMismatchFatal(TreeSocket* ts, const std::string& what, const std::ostringstream& errmsg)
+	bool HandleMismatchFatal(TreeSocket* ts, const std::string& what, const CapabDiff& diff)
 	{
-		ts->SendError(FMT::format("CAPAB negotiation failed. {} do not match. {}.", what, errmsg.str()));
+		HandleDiff(ts, what, diff, true);
+		ts->SendError(FMT::format("CAPAB negotiation failed: {} do not match. See the log or snomask +Ll on {} for more details.",
+			what, ServerInstance->Config->ServerName));
 		return false;
 	}
 
@@ -720,25 +706,25 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 	}
 	else if (insp::casemapped_equals(params[0], "END"))
 	{
-		std::ostringstream errormsg;
-		if (!CompareModules(VF_COMMON, this->capab->requiredmodules, errormsg))
-			return HandleMismatchFatal(this, "Required modules", errormsg);
+		CapabDiff diff;
+		if (!CompareModules(VF_COMMON, this->capab->requiredmodules, diff))
+			return HandleMismatchFatal(this, "Required modules", diff);
 
-		else if (!CompareModules(VF_OPTCOMMON, this->capab->optionalmodules, errormsg))
+		else if (!CompareModules(VF_OPTCOMMON, this->capab->optionalmodules, diff))
 		{
-			if (!HandleMismatch(this, "Optional modules", errormsg))
+			if (!HandleMismatch(this, "Optional modules", diff))
 				return false;
 		}
 
-		else if (!CompareModes(MODETYPE_CHANNEL, this->capab->channelmodes, this->proto_version, errormsg))
-			return HandleMismatchFatal(this, "Channel modes", errormsg);
+		else if (!CompareModes(MODETYPE_CHANNEL, this->capab->channelmodes, this->proto_version, diff))
+			return HandleMismatchFatal(this, "Channel modes", diff);
 
-		else if (!CompareModes(MODETYPE_USER, this->capab->usermodes, this->proto_version, errormsg))
-			return HandleMismatchFatal(this, "User modes", errormsg);
+		else if (!CompareModes(MODETYPE_USER, this->capab->usermodes, this->proto_version, diff))
+			return HandleMismatchFatal(this, "User modes", diff);
 
-		else if (!CompareCapabilities(this->capab->capabilities, this, errormsg))
+		else if (!CompareCapabilities(this->capab->capabilities, this, diff))
 		{
-			if (!HandleMismatch(this, "Capabilities", errormsg))
+			if (!HandleMismatch(this, "Capabilities", diff))
 				return false;
 		}
 
