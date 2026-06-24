@@ -801,17 +801,17 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 		if (!CompareModules(VF_COMMON, this->capab->requiredmodules, diff))
 			return HandleMismatchFatal(this, "Required modules", diff);
 
-		else if (!CompareModules(VF_OPTCOMMON, this->capab->optionalmodules, diff))
-		{
-			if (!HandleMismatch(this, "Optional modules", diff))
-				return false;
-		}
-
 		else if (!CompareModes(MODETYPE_CHANNEL, this->capab->channelmodes, this->proto_version, diff))
 			return HandleMismatchFatal(this, "Channel modes", diff);
 
 		else if (!CompareModes(MODETYPE_USER, this->capab->usermodes, this->proto_version, diff))
 			return HandleMismatchFatal(this, "User modes", diff);
+
+		else if (!CompareModules(VF_OPTCOMMON, this->capab->optionalmodules, diff))
+		{
+			if (!HandleMismatch(this, "Optional modules", diff))
+				return false;
+		}
 
 		else if (!CompareCapabilities(this->capab->capabilities, this, diff))
 		{
