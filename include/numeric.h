@@ -94,6 +94,9 @@ class Numeric::Numeric
 	 */
 	CommandBase::Params params;
 
+	/** Either a user that this numeric relates to or nullptr for no related user. */
+	User* relateduser = nullptr;
+
 	/** Source server of the numeric, if NULL (the default) then it is the local server
 	 */
 	Server* sourceserver = nullptr;
@@ -148,6 +151,16 @@ public:
 		push(FMT::vformat(text, FMT::make_format_args(args...)));
 		return *this;
 	}
+
+	/** Sets the user that this numeric relates to.
+	 * @param user The user that this numeric relates to.
+	 */
+	void SetRelatedUser(User* user) { this->relateduser = user; }
+
+	/** Gets the user that this numeric relates to.
+	 * @return Either the user that this numeric relates to or nullptr if one is not set.
+	 */
+	auto* GetRelatedUser() const { return this->relateduser; }
 
 	/** Set the source server of the numeric. The source server defaults to the local server.
 	 * @param server Server to set as source

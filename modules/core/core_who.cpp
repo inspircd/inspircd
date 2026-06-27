@@ -463,6 +463,7 @@ void CommandWho::SendWhoLine(LocalUser* source, const std::vector<std::string>& 
 
 	bool source_can_see_target = source == user || source->HasPrivPermission("users/auspex");
 	Numeric::Numeric wholine(data.whox ? RPL_WHOSPCRPL : RPL_WHOREPLY);
+	wholine.SetRelatedUser(user);
 	if (data.whox)
 	{
 		// The source used WHOX so we send a fancy customised response.
