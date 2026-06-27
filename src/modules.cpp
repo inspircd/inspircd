@@ -166,7 +166,7 @@ void		Module::OnChannelDelete(Channel*) { DetachEvent(I_OnChannelDelete); }
 void		Module::OnBuildNeighborList(User*, User::NeighborList&, User::NeighborExceptions&) { DetachEvent(I_OnBuildNeighborList); }
 void		Module::OnGarbageCollect() { DetachEvent(I_OnGarbageCollect); }
 void		Module::OnUserMessage(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserMessage); }
-ModResult	Module::OnNumeric(User*, const Numeric::Numeric&) { DetachEvent(I_OnNumeric); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnNumeric(User*, Numeric::Numeric&) { DetachEvent(I_OnNumeric); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnAcceptConnection(int, ListenSocket*, const irc::sockets::sockaddrs&, const irc::sockets::sockaddrs&) { DetachEvent(I_OnAcceptConnection); return MOD_RES_PASSTHRU; }
 void		Module::OnChangeRemoteAddress(LocalUser*) { DetachEvent(I_OnChangeRemoteAddress); }
 void		Module::OnServiceAdd(Service::Provider&) { DetachEvent(I_OnServiceAdd); }

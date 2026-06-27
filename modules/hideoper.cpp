@@ -83,7 +83,7 @@ public:
 			hm.opercount--;
 	}
 
-	ModResult OnNumeric(User* user, const Numeric::Numeric& numeric) override
+	ModResult OnNumeric(User* user, Numeric::Numeric& numeric) override
 	{
 		if (numeric.GetNumeric() != RPL_LUSEROP || active || user->HasPrivPermission("users/auspex"))
 			return MOD_RES_PASSTHRU;

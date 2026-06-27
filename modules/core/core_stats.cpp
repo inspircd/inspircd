@@ -375,7 +375,7 @@ CmdResult CommandStats::Handle(User* user, const Params& parameters)
 	Stats::Context stats(statstags, user, parameters[0][0]);
 	DoStats(stats);
 
-	for (const auto& row : stats.GetRows())
+	for (auto& row : stats.GetRows())
 		user->WriteRemoteNumeric(row);
 
 	return CmdResult::SUCCESS;

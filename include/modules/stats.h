@@ -118,7 +118,6 @@ public:
 	/** Get the list of reply rows
 	 * @return List of rows generated as reply for the request
 	 */
-	const std::vector<Row>& GetRows() const { return rows; }
 	std::vector<Row>& GetRows() { return rows; }
 
 	/** Get the symbol (letter) indicating what type of STATS was requested

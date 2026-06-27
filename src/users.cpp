@@ -673,7 +673,7 @@ bool LocalUserIO::CheckMaxSendQ(size_t extra) const
 	return true;
 }
 
-void User::WriteNumeric(const Numeric::Numeric& numeric)
+void User::WriteNumeric(Numeric::Numeric& numeric)
 {
 	auto* const localuser = this->AsLocal();
 	if (!localuser)
@@ -688,14 +688,14 @@ void User::WriteNumeric(const Numeric::Numeric& numeric)
 	localuser->Send(ServerInstance->GetRFCEvents().numeric, numericmsg);
 }
 
-void User::WriteNumeric(const std::vector<Numeric::Numeric>& numerics)
+void User::WriteNumeric(std::vector<Numeric::Numeric>& numerics)
 {
 	auto* const lthis = this->AsLocal();
 	if (!lthis)
 		return;
 
 	ClientProtocol::MessageList messages;
-	for (const auto& numeric : numerics)
+	for (auto& numeric : numerics)
 	{
 		ModResult modres;
 		FIRST_MOD_RESULT(OnNumeric, modres, (this, numeric));
@@ -812,12 +812,12 @@ uint64_t User::ForEachNeighbor(ForEachNeighborHandler& handler, bool include_sel
 	return newid;
 }
 
-void User::WriteRemoteNumeric(const Numeric::Numeric& numeric)
+void User::WriteRemoteNumeric(Numeric::Numeric& numeric)
 {
 	WriteNumeric(numeric);
 }
 
-void User::WriteRemoteNumeric(const std::vector<Numeric::Numeric>& numerics)
+void User::WriteRemoteNumeric(std::vector<Numeric::Numeric>& numerics)
 {
 	WriteNumeric(numerics);
 }

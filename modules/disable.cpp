@@ -154,7 +154,7 @@ public:
 		}
 	}
 
-	ModResult OnNumeric(User* user, const Numeric::Numeric& numeric) override
+	ModResult OnNumeric(User* user, Numeric::Numeric& numeric) override
 	{
 		if (numeric.GetNumeric() != RPL_COMMANDS || numeric.GetParams().empty())
 			return MOD_RES_PASSTHRU; // The numeric isn't the one we care about.

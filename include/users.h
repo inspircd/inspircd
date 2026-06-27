@@ -708,13 +708,25 @@ public:
 		WriteRemoteNotice(FMT::vformat(text, FMT::make_format_args(p...)));
 	}
 
-	/** Sends a notice to this user.
+	/** Sends a numeric to this user if they are on the local server.
 	 * @param numeric The numeric to send.
 	 */
-	void WriteNumeric(const Numeric::Numeric& numeric);
-	void WriteNumeric(const std::vector<Numeric::Numeric>& numeric);
+	void WriteNumeric(Numeric::Numeric& numeric);
 
-	/** Sends a notice to this user.
+	/** Sends a numeric to this user if they are on the local server.
+	 * @param numeric The numeric to send.
+	 */
+	void WriteNumeric(Numeric::Numeric&& numeric)
+	{
+		WriteNumeric(numeric); // Allow calling WriteNumeric(Numerics::Foo())
+	}
+
+	/** Sends a list of numerics to this user if they are on the local server.
+	 * @param numeric A list of numerics to send.
+	 */
+	void WriteNumeric(std::vector<Numeric::Numeric>& numeric);
+
+	/** Sends a numeric to this user if they are on the local server.
 	 * @param numeric The numeric code to send.
 	 * @param p One or more parameters to the numeric.
 	 */
@@ -726,13 +738,25 @@ public:
 		WriteNumeric(n);
 	}
 
-	/** Sends a notice from the local server to this user.
+	/** Sends a numeric to this user.
 	 * @param numeric The numeric to send.
 	 */
-	virtual void WriteRemoteNumeric(const Numeric::Numeric& numeric);
-	virtual void WriteRemoteNumeric(const std::vector<Numeric::Numeric>& numeric);
+	virtual void WriteRemoteNumeric(Numeric::Numeric& numeric);
 
-	/** Sends a notice from the local server to this user.
+	/** Sends a numeric to this user.
+	 * @param numeric The numeric to send.
+	 */
+	void WriteRemoteNumeric(Numeric::Numeric&& numeric)
+	{
+		WriteRemoteNumeric(numeric); // Allow calling WriteRemoteNumeric(Numerics::Foo())
+	}
+
+	/** Sends a list of numerics to this user.
+	 * @param numeric A list of numerics to send.
+	 */
+	virtual void WriteRemoteNumeric(std::vector<Numeric::Numeric>& numeric);
+
+	/** Sends a numeric to this user.
 	 * @param numeric The numeric code to send.
 	 * @param p One or more parameters to the numeric.
 	 */

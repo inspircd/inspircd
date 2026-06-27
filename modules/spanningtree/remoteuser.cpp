@@ -34,12 +34,12 @@ void SpanningTree::RemoteUser::WriteRemoteNotice(const std::string& text)
 		.Unicast(this);
 }
 
-void SpanningTree::RemoteUser::WriteRemoteNumeric(const Numeric::Numeric& numeric)
+void SpanningTree::RemoteUser::WriteRemoteNumeric(Numeric::Numeric& numeric)
 {
 	CommandNum::Builder(this, numeric).Unicast(this);
 }
 
-void SpanningTree::RemoteUser::WriteRemoteNumeric(const std::vector<Numeric::Numeric>& numerics)
+void SpanningTree::RemoteUser::WriteRemoteNumeric(std::vector<Numeric::Numeric>& numerics)
 {
 	for (const auto& numeric : numerics)
 		CommandNum::Builder(this, numeric).Unicast(this);

@@ -890,7 +890,7 @@ public:
 	 */
 	virtual void OnGarbageCollect();
 
-	virtual ModResult OnNumeric(User* user, const Numeric::Numeric& numeric) ATTR_NOT_NULL(2);
+	virtual ModResult OnNumeric(User* user, Numeric::Numeric& numeric) ATTR_NOT_NULL(2);
 
 	/** Called whenever a local user's remote address is set or changed.
 	 * @param user The user whose remote address is being set or changed.
