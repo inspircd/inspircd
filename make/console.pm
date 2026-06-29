@@ -56,11 +56,22 @@ struct 'command' => {
 	'description' => '$',
 };
 
+sub _use_color() {
+	if ($ENV{FORCE_COLOR}) {
+		return 1;
+	} elsif ($ENV{NO_COLOR}) {
+		return 0;
+	} elsif ($ENV{GITHUB_ACTIONS}) {
+		return 1;
+	}
+	return -t STDOUT;
+}
+
 sub console_format($) {
 	my $message = shift;
 	while ($message =~ /(<\|(\S+)\s(.*?)\|>)/) {
 		my ($match, $type, $text) = ($1, uc $2, $3);
-		if (-t STDOUT && exists $FORMAT_CODES{$type}) {
+		if (_use_color() && exists $FORMAT_CODES{$type}) {
 			$message =~ s/\Q$match\E/$FORMAT_CODES{$type}$text$FORMAT_CODES{DEFAULT}/;
 		} else {
 			$message =~ s/\Q$match\E/$text/;
