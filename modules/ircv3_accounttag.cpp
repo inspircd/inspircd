@@ -19,9 +19,10 @@
 
 
 #include "inspircd.h"
+#include "modules/account.h"
 #include "modules/ctctags.h"
 #include "modules/ircv3.h"
-#include "modules/account.h"
+#include "modules/who.h"
 
 class AccountTag final
 	: public IRCv3::CapTag<AccountTag>
@@ -82,6 +83,7 @@ public:
 
 class ModuleIRCv3AccountTag final
 	: public Module
+	, public Who::EventListener
 {
 private:
 	Account::API accountapi;
@@ -91,10 +93,31 @@ private:
 public:
 	ModuleIRCv3AccountTag()
 		: Module(VF_VENDOR, "Provides the IRCv3 account-tag client capability.")
+		, Who::EventListener(weak_from_this())
 		, accountapi(weak_from_this())
 		, tag(weak_from_this(), accountapi)
 		, idtag(weak_from_this(), tag, accountapi)
 	{
+	}
+
+	ModResult OnWhoLine(const Who::Request& request, LocalUser* source, User* user, Membership* memb, Numeric::Numeric& numeric) override
+	{
+		if (!accountapi)
+			return MOD_RES_PASSTHRU; // No account API.
+
+		size_t flag_index;
+		if (!request.GetFieldIndex('a', flag_index))
+			return MOD_RES_PASSTHRU; // No account requested.
+
+		const auto* account = accountapi->GetAccountName(user);
+		if (account)
+			numeric.AddTag("account", &tag, *account);
+
+		const auto* accountid = accountapi->GetAccountId(user);
+		if (accountid)
+			numeric.AddTag("inspircd.org/account-id", &idtag, *accountid);
+
+		return MOD_RES_PASSTHRU;
 	}
 };
 
