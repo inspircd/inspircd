@@ -43,7 +43,7 @@ private:
 	static std::string FormatTime(time_t ts)
 	{
 		auto timestr = Time::ToString(ts, Time::DEFAULT_LONG, true);
-		timestr += FMT::format(" ({})", ServerInstance->Time());
+		timestr += FMT::format(" ({})", ts);
 		return timestr;
 	}
 
