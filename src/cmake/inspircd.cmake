@@ -199,10 +199,21 @@ function(inline_cmake TARGET FILE)
 endfunction()
 
 ################################################################################
+# install_message: Prints a message at install time.
+#
+# TYPE (STRING): The type of message to print. Should be one of the standard
+#                message types that message() uses.
+#
+# MESSAGE (STRING: The message to print.
+function(install_message TYPE MESSAGE)
+	install(CODE "message\(${TYPE} \"${MESSAGE}\"\)")
+endfunction()
+
+################################################################################
 # install_owned: Installs a target with the destination owned by the group and
 # user specified in GID and UID.
 #
-# DESTINATION (STRING): The location that the targt will be installed to.
+# DESTINATION (STRING): The location that the target will be installed to.
 function(install_owned)
 	install(${ARGN})
 

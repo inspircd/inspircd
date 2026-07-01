@@ -274,3 +274,7 @@ add_subdirectory("modules")
 # Miscellaneous data files.
 add_subdirectory("docs")
 add_subdirectory("tools")
+
+# This has to be at the end so its the last thing to run.
+install_message(STATUS "InspIRCd has now been installed to ${CMAKE_INSTALL_PREFIX}")
+install_message(STATUS "Please read ${ABSOLUTE_CONFIG_DIR}/help.txt for what to do next.")
