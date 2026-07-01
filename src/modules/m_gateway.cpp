@@ -259,6 +259,7 @@ public:
 		, sslapi(Creator)
 		, webircevprov(Creator, "event/webirc")
 	{
+		allow_empty_last_param = true;
 		works_before_reg = true;
 		syntax = { "<password> <gateway> <hostname> <ip> [<flags>]" };
 	}
