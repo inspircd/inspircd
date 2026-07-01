@@ -17,7 +17,7 @@ jobs:
       CONAN_FILE: ${{ github.workspace }}/win/conanfile.txt
       CONAN_HOME: ${{ github.workspace }}/win/build/conan
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup MSVC
         uses: TheMrMilchmann/setup-msvc-dev@v4
