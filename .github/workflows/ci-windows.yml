@@ -44,7 +44,7 @@ jobs:
 
       - name: Try to restore libraries from the cache
         if: github.event_name != 'release'
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         id: library-cache
         with:
           key: Conan VS${{ env.VisualStudioVersion }} ${{ env.BUILD_TYPE }} ${{ hashFiles(env.CONAN_FILE) }}
@@ -59,7 +59,7 @@ jobs:
 
       - name: Save libraries to the cache
         if: steps.library-cache.outputs.cache-hit != 'true' && github.event_name != 'release'
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         with:
           key:  ${{ steps.library-cache.outputs.cache-primary-key }}
           path: ${{ env.CONAN_HOME }}/p
