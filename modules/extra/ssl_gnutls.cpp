@@ -37,12 +37,6 @@
 /// endif()
 /// END CMAKE
 
-/// $PackageInfo: require_system("arch") gnutls pkgconf
-/// $PackageInfo: require_system("alpine") gnutls-dev gnutls-utils pkgconf
-/// $PackageInfo: require_system("darwin") gnutls pkg-config
-/// $PackageInfo: require_system("debian~") gnutls-bin libgnutls28-dev pkg-config
-/// $PackageInfo: require_system("rhel~") gnutls-devel pkgconfig
-
 
 #include "inspircd.h"
 #include "modules/tls.h"

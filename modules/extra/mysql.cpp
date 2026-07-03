@@ -28,12 +28,6 @@
 /// target_require_package(${TARGET} "mysqlclient mariadb" "libmysqlclient" "libmysqlclient::libmysqlclient")
 /// END CMAKE
 
-/// $PackageInfo: require_system("alpine") mariadb-dev
-/// $PackageInfo: require_system("arch") mariadb-libs
-/// $PackageInfo: require_system("darwin") mysql-client
-/// $PackageInfo: require_system("debian~") libmysqlclient-dev
-/// $PackageInfo: require_system("rhel~") mariadb-connector-c-devel
-
 
 #include <mysql.h>
 

@@ -33,12 +33,6 @@
 /// endif()
 /// END CMAKE
 
-/// $PackageInfo: require_system("alpine") libpsl-dev pkgconf
-/// $PackageInfo: require_system("arch") libpsl pkgconf
-/// $PackageInfo: require_system("darwin") libpsl pkg-config
-/// $PackageInfo: require_system("debian~") libpsl-dev pkg-config
-/// $PackageInfo: require_system("rhel~") libpsl-devel pkg-config
-
 
 #ifdef HAS_LIBPSL
 # include <libpsl.h>

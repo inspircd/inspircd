@@ -21,12 +21,6 @@
 /// target_require_package(${TARGET} "libmaxminddb" "maxminddb" "maxminddb::maxminddb")
 /// END CMAKE
 
-/// $PackageInfo: require_system("alpine") libmaxminddb-dev pkgconf
-/// $PackageInfo: require_system("arch") libmaxminddb pkgconf
-/// $PackageInfo: require_system("darwin") libmaxminddb pkg-config
-/// $PackageInfo: require_system("debian~") libmaxminddb-dev pkg-config
-/// $PackageInfo: require_system("rhel~") libmaxminddb-devel pkgconfig
-
 
 #include <maxminddb.h>
 

@@ -26,12 +26,6 @@
 /// target_require_package(${TARGET} "sqlite3" "SQLite3" "SQLite::SQLite3")
 /// END CMAKE
 
-/// $PackageInfo: require_system("alpine") pkgconf sqlite-dev
-/// $PackageInfo: require_system("arch") pkgconf sqlite
-/// $PackageInfo: require_system("darwin") pkg-config sqlite
-/// $PackageInfo: require_system("debian~") libsqlite3-dev pkg-config
-/// $PackageInfo: require_system("rhel~") pkgconfig sqlite-devel
-
 
 #include "inspircd.h"
 #include "modules/sql.h"

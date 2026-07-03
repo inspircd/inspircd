@@ -20,10 +20,6 @@
 /// target_require_package(${TARGET} "tre" "TRE" "tre::tre")
 /// END CMAKE
 
-/// $PackageInfo: require_system("arch") pkgconf tre
-/// $PackageInfo: require_system("darwin") pkg-config tre
-/// $PackageInfo: require_system("debian~") libtre-dev pkg-config
-
 
 #include "inspircd.h"
 #include "modules/regex.h"

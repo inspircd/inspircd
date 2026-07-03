@@ -33,12 +33,6 @@
 /// target_require_package(${TARGET} "libssl" "OpenSSL" "OpenSSL::SSL")
 /// END CMAKE
 
-/// $PackageInfo: require_system("alpine") openssl-dev pkgconf
-/// $PackageInfo: require_system("arch") openssl pkgconf
-/// $PackageInfo: require_system("darwin") openssl pkg-config
-/// $PackageInfo: require_system("debian~") libssl-dev openssl pkg-config
-/// $PackageInfo: require_system("rhel~") openssl-devel pkgconfig
-
 
 #include "inspircd.h"
 #include "modules/tls.h"

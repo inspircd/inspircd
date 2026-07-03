@@ -20,11 +20,6 @@
 /// target_require_package(${TARGET} "libargon2" "argon2" "argon2::argon2")
 /// END CMAKE
 
-/// $PackageInfo: require_system("alpine") argon2-dev pkgconf
-/// $PackageInfo: require_system("arch") argon2 pkgconf
-/// $PackageInfo: require_system("darwin") argon2 pkg-config
-/// $PackageInfo: require_system("debian~") libargon2-dev pkg-config
-
 
 #include <argon2.h>
 

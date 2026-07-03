@@ -20,12 +20,6 @@
 /// target_require_package(${TARGET} "libpcre2-8" "PCRE2" "PCRE2::8BIT")
 /// END CMAKE
 
-/// $PackageInfo: require_system("alpine") pcre2-devel
-/// $PackageInfo: require_system("arch") pcre2
-/// $PackageInfo: require_system("darwin") pcre2
-/// $PackageInfo: require_system("debian~") libpcre2-dev
-/// $PackageInfo: require_system("rhel~") pcre2-devel
-
 
 #include "inspircd.h"
 #include "modules/regex.h"

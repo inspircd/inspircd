@@ -28,12 +28,6 @@
 /// endif()
 /// END CMAKE
 
-/// $PackageInfo: require_system("alpine") openldap-dev pkgconf
-/// $PackageInfo: require_system("arch") libldap pkgconf
-/// $PackageInfo: require_system("darwin") openldap pkg-config
-/// $PackageInfo: require_system("debian~") libldap2-dev pkg-config
-/// $PackageInfo: require_system("rhel~") openldap-devel pkg-config
-
 
 #include "inspircd.h"
 #include "modules/ldap.h"

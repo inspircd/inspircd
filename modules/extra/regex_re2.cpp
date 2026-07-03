@@ -20,11 +20,6 @@
 /// target_require_package(${TARGET} "re2" "RE2" "re2::re2")
 /// END CMAKE
 
-/// $PackageInfo: require_system("alpine") pkgconf re2-dev
-/// $PackageInfo: require_system("arch") pkgconf re2
-/// $PackageInfo: require_system("darwin") pkg-config re2
-/// $PackageInfo: require_system("debian~") libre2-dev pkg-config
-
 
 #include "inspircd.h"
 #include "modules/regex.h"

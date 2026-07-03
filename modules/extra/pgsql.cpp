@@ -31,13 +31,6 @@
 /// END CMAKE
 
 
-/// $PackageInfo: require_system("alpine") pcre2-dev pkgconf
-/// $PackageInfo: require_system("arch") pkgconf postgresql-libs
-/// $PackageInfo: require_system("darwin") libpq pkg-config
-/// $PackageInfo: require_system("debian~") libpq-dev pkg-config
-/// $PackageInfo: require_system("rhel~") pkg-config postgresql-devel
-
-
 #include <sstream>
 
 #include <libpq-fe.h>

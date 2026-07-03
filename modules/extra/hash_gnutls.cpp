@@ -24,11 +24,6 @@
 /// endif()
 /// END CMAKE
 
-/// $PackageInfo: require_system("arch") gnutls pkgconf
-/// $PackageInfo: require_system("darwin") gnutls pkg-config
-/// $PackageInfo: require_system("debian~") libgnutls28-dev pkg-config
-/// $PackageInfo: require_system("rhel~") gnutls-devel pkgconfig
-
 
 #include <gnutls/gnutls.h>
 #include <gnutls/crypto.h>
