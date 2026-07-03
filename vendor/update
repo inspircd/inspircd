@@ -24,6 +24,7 @@ use warnings FATAL => qw(all);
 
 use File::Basename        qw(basename dirname);
 use File::Copy            qw(move);
+use File::Path            qw(mkpath);
 use File::Spec::Functions qw(abs2rel catdir catfile);
 use File::Temp            qw(tempdir);
 use FindBin               qw($RealDir);
@@ -86,7 +87,7 @@ while (my ($name, $info) = each %{$data}) {
 		}
 		my $filename = catfile $vendordir, $pathname;
 		my $dirname = dirname $filename;
-		create_directory $dirname, 0750;
+		mkpath($dirname, 0, 0750);
 		move $file, $filename;
 	}
 }

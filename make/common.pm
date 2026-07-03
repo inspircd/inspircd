@@ -23,25 +23,14 @@ use v5.26.0;
 use strict;
 use warnings FATAL => qw(all);
 
-use Exporter              qw(import);
-use File::Basename        qw(basename);
-use File::Path            qw(mkpath);
+use Exporter qw(import);
 
 use make::console;
 
 our @EXPORT = qw(
-	create_directory
 	execute
 	get_version
 );
-
-sub create_directory($$) {
-	my ($location, $permissions) = @_;
-	return eval {
-		mkpath($location, 0, $permissions);
-		return 1;
-	} // 0;
-}
 
 sub execute(@) {
 	say console_format "<|BOLD \$|> @_";
