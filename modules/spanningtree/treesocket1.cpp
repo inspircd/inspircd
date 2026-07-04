@@ -52,16 +52,16 @@ TreeSocket::TreeSocket(const std::shared_ptr<Link>& link, const std::shared_ptr<
 	{
 		if (!bind.from_ip(link->Bind))
 		{
-			state = I_ERROR;
+			state = BufferedSocketState::ERROR;
 			SetError("Bind address '" + link->Bind + "' is not a valid IPv4 or IPv6 address");
-			TreeSocket::OnError(I_ERR_BIND);
+			TreeSocket::OnError(BufferedSocketError::BIND);
 			return;
 		}
 		else if (bind.family() != dest.family())
 		{
-			state = I_ERROR;
+			state = BufferedSocketState::ERROR;
 			SetError("Bind address '" + bind.addr() + "' is not the same address family as destination address '" + dest.addr() + "'");
-			TreeSocket::OnError(I_ERR_BIND);
+			TreeSocket::OnError(BufferedSocketError::BIND);
 			return;
 		}
 	}
@@ -89,7 +89,7 @@ TreeSocket::TreeSocket(int newfd, ListenSocket* via, const irc::sockets::sockadd
 		// IOHook could have encountered a fatal error, e.g. if the TLS ClientHello was already in the queue and there was no common TLS version
 		if (!GetError().empty())
 		{
-			TreeSocket::OnError(I_ERR_OTHER);
+			TreeSocket::OnError(BufferedSocketError::OTHER);
 			return;
 		}
 	}

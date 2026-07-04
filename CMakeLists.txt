@@ -64,6 +64,7 @@ if(WIN32)
 		"_CRT_NONSTDC_NO_WARNINGS" # Disable warning about the use of POSIX functions.
 		"_WIN32_WINNT=0x0A00"      # Set the minimum OS to Windows 10.
 		"FD_SETSIZE=24000"         # Increase the default socket limit to something reasonable.
+		"NOGDI"                    # Avoid the Windows API breaking ERROR in enums
 		"NOMINMAX"                 # Avoid the Windows API breaking std::{min,max}
 		"NTDDI_VERSION=0x0A000005" # Set the minimum OS to Windows 10 1803 "Redstone 4"
 		"WIN32_LEAN_AND_MEAN"      # Trim down the size of the included headers.

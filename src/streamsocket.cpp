@@ -42,12 +42,12 @@ static IOHook* GetNextHook(IOHook* hook)
 }
 
 BufferedSocket::BufferedSocket()
-	: state(I_ERROR)
+	: state(BufferedSocketState::ERROR)
 {
 }
 
 BufferedSocket::BufferedSocket(int newfd)
-	: state(I_CONNECTED)
+	: state(BufferedSocketState::CONNECTED)
 {
 	SetFd(newfd);
 	if (HasFd())
@@ -57,9 +57,9 @@ BufferedSocket::BufferedSocket(int newfd)
 void BufferedSocket::DoConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long maxtime, sa_family_t protocol)
 {
 	BufferedSocketError err = BeginConnect(dest, bind, maxtime, protocol);
-	if (err != I_ERR_NONE)
+	if (err != BufferedSocketError::NONE)
 	{
-		state = I_ERROR;
+		state = BufferedSocketState::ERROR;
 		SetError(SocketEngine::LastError());
 		OnError(err);
 	}
@@ -71,12 +71,12 @@ BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& 
 		SetFd(socket(dest.family(), SOCK_STREAM, protocol));
 
 	if (!HasFd())
-		return I_ERR_SOCKET;
+		return BufferedSocketError::SOCKET;
 
 	if (bind.family() != 0)
 	{
 		if (SocketEngine::Bind(this, bind) < 0)
-			return I_ERR_BIND;
+			return BufferedSocketError::BIND;
 	}
 
 	SocketEngine::NonBlocking(GetFd());
@@ -84,19 +84,19 @@ BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& 
 	if (SocketEngine::Connect(this, dest) == -1)
 	{
 		if (errno != EINPROGRESS)
-			return I_ERR_CONNECT;
+			return BufferedSocketError::CONNECT;
 	}
 
-	this->state = I_CONNECTING;
+	this->state = BufferedSocketState::CONNECTING;
 
 	if (!SocketEngine::AddFd(this, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE | FD_WRITE_WILL_BLOCK))
-		return I_ERR_NOMOREFDS;
+		return BufferedSocketError::NO_MORE_FDS;
 
 	this->Timeout = new SocketTimeout(this->GetFd(), this, timeout);
 	ServerInstance->Timers.AddTimer(this->Timeout);
 
 	ServerInstance->Logs.Debug("SOCKET", "BufferedSocket::DoConnect success");
-	return I_ERR_NONE;
+	return BufferedSocketError::NONE;
 }
 
 void StreamSocket::Close()
@@ -376,15 +376,15 @@ bool SocketTimeout::Tick()
 		return false;
 	}
 
-	if (this->sock->state == I_CONNECTING)
+	if (this->sock->state == BufferedSocketState::CONNECTING)
 	{
 		// for connecting sockets, the timeout can occur
 		// which causes termination of the connection after
 		// the given number of seconds without a successful
 		// connection.
 		this->sock->OnTimeout();
-		this->sock->OnError(I_ERR_TIMEOUT);
-		this->sock->state = I_ERROR;
+		this->sock->OnError(BufferedSocketError::TIMEOUT);
+		this->sock->state = BufferedSocketState::ERROR;
 
 		ServerInstance->GlobalCulls.AddItem(sock);
 	}
@@ -399,9 +399,9 @@ void BufferedSocket::OnTimeout() { }
 
 void BufferedSocket::OnEventHandlerWrite()
 {
-	if (state == I_CONNECTING)
+	if (state == BufferedSocketState::CONNECTING)
 	{
-		state = I_CONNECTED;
+		state = BufferedSocketState::CONNECTED;
 		this->OnConnected();
 		if (!GetIOHook())
 			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE);
@@ -426,22 +426,22 @@ void StreamSocket::OnEventHandlerError(int errornum)
 	else
 		SetError(SocketEngine::GetError(errornum));
 
-	BufferedSocketError errcode = I_ERR_OTHER;
+	BufferedSocketError errcode = BufferedSocketError::OTHER;
 	switch (errornum)
 	{
 		case ETIMEDOUT:
-			errcode = I_ERR_TIMEOUT;
+			errcode = BufferedSocketError::TIMEOUT;
 			break;
 		case ECONNREFUSED:
 		case 0:
-			errcode = I_ERR_CONNECT;
+			errcode = BufferedSocketError::CONNECT;
 			break;
 		case EADDRINUSE:
-			errcode = I_ERR_BIND;
+			errcode = BufferedSocketError::BIND;
 			break;
 		case EPIPE:
 		case EIO:
-			errcode = I_ERR_WRITE;
+			errcode = BufferedSocketError::WRITE;
 			break;
 	}
 
@@ -464,7 +464,7 @@ void StreamSocket::OnEventHandlerRead()
 			GetFd(), ex.GetReason());
 		SetError(ex.GetReason());
 	}
-	CheckError(I_ERR_OTHER);
+	CheckError(BufferedSocketError::OTHER);
 }
 
 void StreamSocket::OnEventHandlerWrite()
@@ -473,7 +473,7 @@ void StreamSocket::OnEventHandlerWrite()
 		return;
 
 	DoWrite();
-	CheckError(I_ERR_OTHER);
+	CheckError(BufferedSocketError::OTHER);
 }
 
 void StreamSocket::CheckError(BufferedSocketError errcode)

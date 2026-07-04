@@ -36,41 +36,43 @@ class IOHook;
 /**
  * States which a socket may be in
  */
-enum BufferedSocketState
+enum class BufferedSocketState
+	: uint8_t
 {
 	/** Socket disconnected */
-	I_DISCONNECTED,
+	DISCONNECTED,
 	/** Socket connecting */
-	I_CONNECTING,
+	CONNECTING,
 	/** Socket fully connected */
-	I_CONNECTED,
+	CONNECTED,
 	/** Socket has an error */
-	I_ERROR
+	ERROR,
 };
 
 /**
  * Error types which a socket may exhibit
  */
-enum BufferedSocketError
+enum class BufferedSocketError
+	: uint8_t
 {
 	/** No error */
-	I_ERR_NONE,
+	NONE,
 	/** Socket was closed by peer */
-	I_ERR_DISCONNECT,
+	DISCONNECT,
 	/** Socket connect timed out */
-	I_ERR_TIMEOUT,
+	TIMEOUT,
 	/** Socket could not be created */
-	I_ERR_SOCKET,
+	SOCKET,
 	/** Socket could not connect (refused) */
-	I_ERR_CONNECT,
+	CONNECT,
 	/** Socket could not bind to local port/ip */
-	I_ERR_BIND,
+	BIND,
 	/** Socket could not write data */
-	I_ERR_WRITE,
+	WRITE,
 	/** No more file descriptors left to create socket! */
-	I_ERR_NOMOREFDS,
+	NO_MORE_FDS,
 	/** Some other error */
-	I_ERR_OTHER
+	OTHER,
 };
 
 /* Required forward declarations */
