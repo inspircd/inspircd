@@ -204,24 +204,24 @@ class TLS::IOHook
 {
 protected:
 	/** An enumeration of possible TLS socket states. */
-	enum Status
+	enum class Status
 		: uint8_t
 	{
 		/** The TLS socket has just been opened or has been closed. */
-		STATUS_NONE,
+		NONE,
 
 		/** The TLS socket is currently handshaking. */
-		STATUS_HANDSHAKING,
+		HANDSHAKING,
 
 		/** The TLS handshake has completed and data can be sent. */
-		STATUS_OPEN
+		OPEN
 	};
 
 	/** The TLS certificate of the peer. */
 	TLS::CertificatePtr certificate;
 
 	/** The status of the TLS connection. */
-	Status status = STATUS_NONE;
+	Status status = Status::NONE;
 
 public:
 	IOHook(const std::shared_ptr<IOHookProvider>& hookprov)
@@ -248,7 +248,7 @@ public:
 	virtual bool GetServerName(std::string& out) const = 0;
 
 	/** @copydoc IOHook::IsHookReady */
-	bool IsHookReady() const override { return this->status == STATUS_OPEN; }
+	bool IsHookReady() const override { return this->status == Status::OPEN; }
 };
 
 TLS::IOHook* TLS::GetHook(StreamSocket* sock)

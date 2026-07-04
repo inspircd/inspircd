@@ -592,13 +592,13 @@ private:
 			if (err == SSL_ERROR_WANT_READ)
 			{
 				SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
-				this->status = STATUS_HANDSHAKING;
+				this->status = Status::HANDSHAKING;
 				return 0;
 			}
 			else if (err == SSL_ERROR_WANT_WRITE)
 			{
 				SocketEngine::ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
-				this->status = STATUS_HANDSHAKING;
+				this->status = Status::HANDSHAKING;
 				return 0;
 			}
 			else
@@ -610,7 +610,7 @@ private:
 		else if (ret > 0)
 		{
 			// Handshake complete.
-			this->status = STATUS_OPEN;
+			this->status = Status::OPEN;
 			this->certificate = std::make_shared<OpenSSL::Certificate>(sess, GetProfile());
 
 			SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE | FD_ADD_TRIAL_WRITE);
@@ -633,19 +633,19 @@ private:
 		}
 		sess = nullptr;
 		certificate.reset();
-		status = STATUS_NONE;
+		status = Status::NONE;
 	}
 
 	void SSLInfoCallback(int where, int rc)
 	{
-		if ((where & SSL_CB_HANDSHAKE_START) && (status == STATUS_OPEN))
+		if ((where & SSL_CB_HANDSHAKE_START) && (status == Status::OPEN))
 		{
 			if (GetProfile().AllowRenegotiation())
 				return;
 
 			// The other side is trying to renegotiate, kill the connection and change status
-			// to STATUS_NONE so CheckRenego() closes the session
-			status = STATUS_NONE;
+			// to Status::NONE so CheckRenego() closes the session
+			status = Status::NONE;
 			BIO* bio = SSL_get_rbio(sess);
 			EventHandler* eh = static_cast<StreamSocket*>(BIO_get_data(bio));
 			SocketEngine::Shutdown(eh, 2);
@@ -654,7 +654,7 @@ private:
 
 	bool CheckRenego(StreamSocket* sock)
 	{
-		if (status != STATUS_NONE)
+		if (status != Status::NONE)
 			return true;
 
 		ServerInstance->Logs.Debug(MODNAME, "Session {} killed, attempted to renegotiate", (void*)sess);
@@ -666,9 +666,9 @@ private:
 	// Returns 1 if application I/O should proceed, 0 if it must wait for the underlying protocol to progress, -1 on fatal error
 	int PrepareIO(StreamSocket* sock)
 	{
-		if (status == STATUS_OPEN)
+		if (status == Status::OPEN)
 			return 1;
-		else if (status == STATUS_HANDSHAKING)
+		else if (status == Status::HANDSHAKING)
 		{
 			// The handshake isn't finished, try to finish it
 			return Handshake(sock);
@@ -733,7 +733,7 @@ public:
 		if (prepret <= 0)
 			return prepret;
 
-		// If we resumed the handshake then this->status will be STATUS_OPEN
+		// If we resumed the handshake then this->status will be OPEN.
 		{
 			ERR_clear_error();
 			char* buffer = ServerInstance->GetReadBuffer();

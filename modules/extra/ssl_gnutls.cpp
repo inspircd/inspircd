@@ -721,7 +721,7 @@ private:
 		}
 		sess = nullptr;
 		certificate.reset();
-		status = STATUS_NONE;
+		status = Status::NONE;
 	}
 
 	// Returns 1 if handshake succeeded, 0 if it is still in progress, -1 if it failed
@@ -734,7 +734,7 @@ private:
 			if(ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
 			{
 				// Handshake needs resuming later, read() or write() would have blocked.
-				this->status = STATUS_HANDSHAKING;
+				this->status = Status::HANDSHAKING;
 
 				if (gnutls_record_get_direction(this->sess) == 0)
 				{
@@ -759,7 +759,7 @@ private:
 		else
 		{
 			// Change the session state
-			this->status = STATUS_OPEN;
+			this->status = Status::OPEN;
 			this->certificate = std::make_shared<GnuTLS::Certificate>(this->sess, GetProfile());
 
 			// Finish writing, if any left
@@ -772,9 +772,9 @@ private:
 	// Returns 1 if application I/O should proceed, 0 if it must wait for the underlying protocol to progress, -1 on fatal error
 	int PrepareIO(StreamSocket* sock)
 	{
-		if (status == STATUS_OPEN)
+		if (status == Status::OPEN)
 			return 1;
-		else if (status == STATUS_HANDSHAKING)
+		else if (status == Status::HANDSHAKING)
 		{
 			// The handshake isn't finished, try to finish it
 			return Handshake(sock);
@@ -919,7 +919,7 @@ public:
 		if (prepret <= 0)
 			return prepret;
 
-		// If we resumed the handshake then this->status will be STATUS_OPEN.
+		// If we resumed the handshake then this->status will be OPEN.
 		{
 			GnuTLS::DataReader reader(sess);
 			ssize_t ret = reader.ret();
