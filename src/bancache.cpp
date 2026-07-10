@@ -22,11 +22,12 @@
 
 
 #include "inspircd.h"
+#include "timeutils.h"
 
 BanCacheHit::BanCacheHit(const std::string& type, const std::string& reason, time_t seconds)
 	: Type(type)
 	, Reason(reason)
-	, Expiry(ServerInstance->Time() + seconds)
+	, Expiry(Time::In(seconds))
 {
 }
 

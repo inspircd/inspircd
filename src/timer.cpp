@@ -26,6 +26,7 @@
 
 
 #include "inspircd.h"
+#include "timeutils.h"
 
 void Timer::SetInterval(unsigned long newinterval, bool restart)
 {
@@ -34,7 +35,7 @@ void Timer::SetInterval(unsigned long newinterval, bool restart)
 		return;
 
 	ServerInstance->Timers.DelTimer(this);
-	SetTrigger(ServerInstance->Time() + newinterval);
+	SetTrigger(Time::In(newinterval));
 	ServerInstance->Timers.AddTimer(this);
 }
 
@@ -89,7 +90,7 @@ void TimerManager::DelTimer(Timer* t)
 
 void TimerManager::AddTimer(Timer* t)
 {
-	time_t trigger = ServerInstance->Time() + t->GetInterval();
+	const auto trigger = Time::In(t->GetInterval());
 	t->SetTrigger(trigger);
 	Timers.emplace(trigger, t);
 }

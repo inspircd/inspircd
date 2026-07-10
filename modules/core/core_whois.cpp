@@ -27,6 +27,7 @@
 #include "modules/whois.h"
 #include "numericbuilder.h"
 #include "numerichelper.h"
+#include "timeutils.h"
 
 enum SplitWhoisState
 {
@@ -311,7 +312,7 @@ CmdResult CommandWhois::HandleLocal(LocalUser* user, const Params& parameters)
 		auto* localuser = dest->AsLocal();
 		if (localuser && (ServerInstance->Config->HideServer.empty() || parameters.size() > 1))
 		{
-			idle = ServerInstance->Time() - localuser->idle_lastmsg;
+			idle = Time::Ago(localuser->idle_lastmsg);
 			signon = dest->signon;
 		}
 

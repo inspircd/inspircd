@@ -19,6 +19,7 @@
 
 
 #include "inspircd.h"
+#include "timeutils.h"
 
 #include "invite.h"
 
@@ -113,7 +114,7 @@ void Invite::APIImpl::Create(LocalUser* user, Channel* chan, time_t timeout)
 			// Convert timed invite to non-expiring
 			insp::delete_zero(inv->expiretimer);
 		}
-		else if (inv->expiretimer->GetTrigger() >= ServerInstance->Time() + timeout)
+		else if (inv->expiretimer->GetTrigger() >= Time::In(timeout))
 		{
 			// New expiration time is further than the current, extend the expiration
 			inv->expiretimer->SetInterval(timeout - ServerInstance->Time());

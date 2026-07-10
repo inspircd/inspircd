@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "utility/numeric.h"
+
 namespace Duration
 {
 	/** Converts a string containing a duration to the number of seconds it
@@ -85,6 +87,26 @@ namespace Time
 	/** The time format specified in RFC 1123 (e.g. "Sun, 23 Mar 2025 10:20:30 GMT") */
 	inline constexpr const char* RFC_1123 = "%a, %d %b %Y %H:%M:%S %Z";
 
+	/** Calculates the time the specified number of seconds ago. This uses a saturating subtract so
+	 * if the result is too large for time_t it will return the largest/smallest possible value.
+	 * @param seconds The number of seconds from now to subtract from the current time.
+	 */
+	template<std::integral T>
+	inline time_t Ago(T seconds)
+	{
+		return insp::saturating_sub<time_t>(ServerInstance->Time(), seconds);
+	}
+
+	/** Calculates the time in the specified number of seconds. This uses a saturating add so if the
+	 * result is too large for time_t it will return the largest/smallest possible value.
+	 * @param seconds The number of seconds from now to add to the current time.
+	 */
+	template<std::integral T>
+	inline time_t In(T seconds)
+	{
+		return insp::saturating_add<time_t>(ServerInstance->Time(), seconds);
+	}
+
 	/** Converts a UNIX timestamp to a time string.
 	 *
 	 * @param ts The timestamp to convert to a string.
@@ -103,6 +125,6 @@ namespace Time
 	 */
 	inline std::string FromNow(unsigned long duration, const char* format = nullptr, bool utc = false)
 	{
-		return ToString(ServerInstance->Time() + duration, format, utc);
+		return ToString(In(duration), format, utc);
 	}
 }

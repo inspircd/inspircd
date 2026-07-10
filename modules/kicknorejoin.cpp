@@ -40,7 +40,7 @@ class KickRejoinData final
 
 		KickedUser(User* user, unsigned int Delay)
 			: uuid(user->uuid)
-			, expire(ServerInstance->Time() + Delay)
+			, expire(Time::In(Delay))
 		{
 		}
 	};

@@ -391,7 +391,7 @@ namespace Stats
 
 		// Minimum time since a user's last message
 		unsigned long min_idle = params.getDuration("minidle");
-		time_t maxlastmsg = ServerInstance->Time() - min_idle;
+		const auto maxlastmsg = Time::Ago(min_idle);
 
 		if (min_idle)
 			// We can only check idle times on local users

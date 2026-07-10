@@ -523,7 +523,7 @@ namespace OpenSSL
 			if (expired != 0 && expired != 1)
 			{
 				this->error = FMT::format("Certificate expired {} ago (on {})",
-					Duration::ToLongString(ServerInstance->Time() - this->expiration, true),
+					Duration::ToLongString(Time::Ago(this->expiration), true),
 					Time::ToString(this->expiration));
 			}
 		}

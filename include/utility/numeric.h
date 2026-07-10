@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <utility>
+
 namespace insp
 {
 	/** Converts a number into a string with a binary suffix (e.g. 3,292,549.12 -> 3.14 mebibytes).
@@ -52,5 +54,67 @@ namespace insp
 		if (total == 0)
 			return 0.0;
 		return (part / total) * 100.0;
+	}
+
+	/** Adds two integers saturating the return type on overflow.
+	 * @param lhs The first integer.
+	 * @param rhs The second integer.
+	 * @return The largest amount of the two integers added together that is representable by the
+	 *         return type on overflow.
+	 */
+	template <std::integral R, std::integral T1, std::integral T2>
+	constexpr R saturating_add(T1 lhs, T2 rhs) noexcept
+	{
+		if (std::cmp_greater(rhs, 0) && std::cmp_greater(lhs, std::numeric_limits<R>::max() - rhs))
+			return std::numeric_limits<R>::max(); // Too big for R.
+
+		if (std::cmp_less(rhs, 0) && std::cmp_less(lhs, std::numeric_limits<R>::min() - rhs))
+			return std::numeric_limits<R>::min(); // Too small for R.
+
+		using CommonType = std::common_type_t<R, T1, T2>;
+		const auto result = static_cast<CommonType>(lhs) + static_cast<CommonType>(rhs);
+
+		if constexpr (std::is_signed_v<T1> != std::is_signed_v<T2> || std::is_signed_v<R> != std::is_signed_v<CommonType>)
+		{
+			if (!std::in_range<R>(result))
+			{
+				return (std::cmp_less(lhs, 0) || std::cmp_less(rhs, 0))
+					? std::numeric_limits<R>::min()
+					: std::numeric_limits<R>::max();
+			}
+		}
+
+		return static_cast<R>(result);
+	}
+
+	/** Subtracts two integers saturating the return type on overflow.
+	 * @param lhs The first integer.
+	 * @param rhs The second integer.
+	 * @return The largest amount of the two integers added together that is representable by the
+	 *         return type on underflow.
+	 */
+	template <std::integral R, std::integral T1, std::integral T2>
+	constexpr R saturating_sub(T1 lhs, T2 rhs) noexcept
+	{
+		if (std::cmp_greater(rhs, 0) && std::cmp_less(lhs, std::numeric_limits<R>::min() + rhs))
+			return std::numeric_limits<R>::min(); // Too small for R.
+
+		if (std::cmp_less(rhs, 0) && std::cmp_greater(lhs, std::numeric_limits<R>::max() + rhs))
+			return std::numeric_limits<R>::max(); // Too big for R.
+
+		using CommonType = std::common_type_t<R, T1, T2>;
+		const auto result = static_cast<CommonType>(lhs) - static_cast<CommonType>(rhs);
+
+		if constexpr (std::is_signed_v<T1> != std::is_signed_v<T2> || std::is_signed_v<R> != std::is_signed_v<CommonType>)
+		{
+			if (!std::in_range<R>(result))
+			{
+				return (std::cmp_less(lhs, 0) || std::cmp_greater(rhs, 0))
+					? std::numeric_limits<R>::min()
+					: std::numeric_limits<R>::max();
+			}
+		}
+
+		return static_cast<R>(result);
 	}
 }

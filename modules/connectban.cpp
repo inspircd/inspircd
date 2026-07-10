@@ -106,7 +106,7 @@ public:
 		banmessage = tag->getString("banmessage", "Your IP range has been attempting to connect too many times in too short a duration. Wait a while, and you will be able to connect.");
 
 		if (status.initial)
-			ignoreuntil = ServerInstance->Time() + bootwait;
+			ignoreuntil = Time::In(bootwait);
 	}
 
 	void OnWebIRCAuth(LocalUser* user, const WebIRC::FlagMap* flags) override
@@ -126,7 +126,7 @@ public:
 	void OnServerSplit(const Server& server, bool error) override
 	{
 		if (splitwait)
-			ignoreuntil = std::max<time_t>(ignoreuntil, ServerInstance->Time() + splitwait);
+			ignoreuntil = std::max<time_t>(ignoreuntil, Time::In(splitwait));
 	}
 
 	void OnChangeRemoteAddress(LocalUser* u) override

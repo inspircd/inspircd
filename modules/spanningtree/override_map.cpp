@@ -27,7 +27,6 @@
 
 #include "inspircd.h"
 #include "timeutils.h"
-#include "utility/numeric.h"
 
 #include "main.h"
 #include "utils.h"
@@ -92,7 +91,7 @@ static std::vector<std::string> GetMap(User* user, TreeServer* current, size_t m
 
 	if (user->IsOper())
 	{
-		time_t secs_up = ServerInstance->Time() - current->age;
+		time_t secs_up = Time::Ago(current->age);
 		buffer += FMT::format(" [Up: {}", Duration::ToString(secs_up));
 		if (current->rtt)
 			buffer += FMT::format(" Lag: {}ms", current->rtt);

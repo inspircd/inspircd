@@ -32,6 +32,7 @@
 #include "inspircd.h"
 #include "modules/ldap.h"
 #include "threadsocket.h"
+#include "timeutils.h"
 
 #if defined LDAP_API_FEATURE_X_OPENLDAP_REENTRANT && !LDAP_API_FEATURE_X_OPENLDAP_REENTRANT
 # error InspIRCd requires OpenLDAP to be built as reentrant.
@@ -323,7 +324,7 @@ private:
 	void Reconnect()
 	{
 		// Only try one connect a minute. It is an expensive blocking operation
-		if (last_connect > ServerInstance->Time() - 60)
+		if (last_connect > Time::Ago(60))
 			throw LDAPException("Unable to connect to LDAP service " + this->service_name + ": reconnecting too fast");
 		last_connect = ServerInstance->Time();
 

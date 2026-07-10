@@ -31,6 +31,7 @@
 #include "inspircd.h"
 #include "clientprotocolevent.h"
 #include "modules/hash.h"
+#include "timeutils.h"
 #include "xline.h"
 
 ClientProtocol::MessageList LocalUser::sendmsglist;
@@ -592,7 +593,7 @@ void LocalUser::ChangeConnectClass(const std::shared_ptr<ConnectClass>& klass, b
 	connectclass->use_count++;
 
 	// Update the core user data that depends on connect class.
-	nextping = ServerInstance->Time() + klass->pingtime;
+	nextping = Time::In(klass->pingtime);
 	uniqueusername = klass->uniqueusername;
 
 	// Let modules know the class has been changed.

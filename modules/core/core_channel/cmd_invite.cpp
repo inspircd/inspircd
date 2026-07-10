@@ -76,7 +76,7 @@ CmdResult CommandInvite::Handle(User* user, const Params& parameters)
 					user->WriteNotice("*** Invalid duration for invite");
 					return CmdResult::FAILURE;
 				}
-				timeout = ServerInstance->Time() + duration;
+				timeout = Time::In(duration);
 			}
 			else if (parameters.size() > 3)
 				timeout = ConvToNum<time_t>(parameters[3]);

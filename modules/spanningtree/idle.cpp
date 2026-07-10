@@ -23,6 +23,8 @@
 
 
 #include "inspircd.h"
+#include "timeutils.h"
+
 #include "utils.h"
 #include "commands.h"
 
@@ -62,7 +64,7 @@ CmdResult CommandIdle::HandleRemote(RemoteUser* issuer, Params& params)
 			// Possible case when our clock ticked backwards
 			idle = 0;
 		else
-			idle = ((unsigned int) (ServerInstance->Time() - localtarget->idle_lastmsg));
+			idle = ((unsigned int) (Time::Ago(localtarget->idle_lastmsg)));
 
 		MessageBuilder(target, "IDLE")
 			.Push(issuer->uuid, target->signon, idle)

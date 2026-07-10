@@ -46,7 +46,7 @@ public:
 		: secs(b)
 		, nicks(c)
 	{
-		reset = ServerInstance->Time() + secs;
+		reset = Time::In(secs);
 	}
 
 	void addnick()
@@ -54,7 +54,7 @@ public:
 		if (ServerInstance->Time() > reset)
 		{
 			counter = 1;
-			reset = ServerInstance->Time() + secs;
+			reset = Time::In(secs);
 		}
 		else
 			counter++;
@@ -80,7 +80,7 @@ public:
 
 	void lock()
 	{
-		unlocktime = ServerInstance->Time() + duration;
+		unlocktime = Time::In(duration);
 	}
 };
 

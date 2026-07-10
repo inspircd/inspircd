@@ -48,7 +48,7 @@ public:
 		: secs(b)
 		, joins(c)
 	{
-		reset = ServerInstance->Time() + secs;
+		reset = Time::In(secs);
 	}
 
 	void addjoin()
@@ -56,7 +56,7 @@ public:
 		if (ServerInstance->Time() > reset)
 		{
 			counter = 1;
-			reset = ServerInstance->Time() + secs;
+			reset = Time::In(secs);
 		}
 		else
 			counter++;
@@ -82,7 +82,7 @@ public:
 
 	void lock()
 	{
-		unlocktime = ServerInstance->Time() + duration;
+		unlocktime = Time::In(duration);
 	}
 
 	bool operator==(const joinfloodsettings& other) const
@@ -166,7 +166,7 @@ public:
 	void OnServerSplit(const Server& server, bool error) override
 	{
 		if (splitwait)
-			ignoreuntil = std::max<time_t>(ignoreuntil, ServerInstance->Time() + splitwait);
+			ignoreuntil = std::max<time_t>(ignoreuntil, Time::In(splitwait));
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, PrefixMode::Set& privs, const std::string& keygiven, bool override) override

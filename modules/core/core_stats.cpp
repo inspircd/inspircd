@@ -30,6 +30,7 @@
 #include "inspircd.h"
 #include "modules/cap.h"
 #include "modules/stats.h"
+#include "timeutils.h"
 #include "utility/container.h"
 #include "utility/numeric.h"
 #include "xline.h"
@@ -97,7 +98,7 @@ static void GenerateStatsLl(Stats::Context& stats)
 	stats.AddRow(211, FMT::format("nick[user@{}] sendq cmds_out bytes_out cmds_in bytes_in time_open", stats.GetSymbol() == 'l' ? "host" : "ip"));
 
 	for (auto* u : ServerInstance->Users.GetLocalUsers())
-		stats.AddRow(211, u->nick+"["+u->GetDisplayedUser()+"@"+(stats.GetSymbol() == 'l' ? u->GetDisplayedHost() : u->GetAddress())+"] "+ConvToStr(u->io->GetSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "+ConvToStr(ServerInstance->Time() - u->signon));
+		stats.AddRow(211, u->nick+"["+u->GetDisplayedUser()+"@"+(stats.GetSymbol() == 'l' ? u->GetDisplayedHost() : u->GetAddress())+"] "+ConvToStr(u->io->GetSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "+ConvToStr(Time::Ago(u->signon)));
 }
 
 void CommandStats::DoStats(Stats::Context& stats)
@@ -284,7 +285,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 
 				stats.AddRow(249, FMT::format("CPU Use (now):    {:03.5}%", per));
 
-				n_elapsed = ServerInstance->Time() - ServerInstance->StartTime;
+				n_elapsed = Time::Ago(ServerInstance->StartTime);
 				n_eaten = (float)R.ru_utime.tv_sec + R.ru_utime.tv_usec / 100000.0;
 				per = insp::percentage(n_eaten, n_elapsed);
 
@@ -315,7 +316,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 
 				stats.AddRow(249, FMT::format("CPU Use (now):    {:03.5}%", per));
 
-				n_elapsed = ServerInstance->Time() - ServerInstance->StartTime;
+				n_elapsed = Time::Ago(ServerInstance->StartTime);
 				n_eaten = (double)(( (uint64_t)(KernelTime.dwHighDateTime) << 32 ) + (uint64_t)(KernelTime.dwLowDateTime))/100000;
 				per = (n_eaten / n_elapsed);
 
@@ -346,7 +347,7 @@ void CommandStats::DoStats(Stats::Context& stats)
 		/* stats u (show server uptime) */
 		case 'u':
 		{
-			unsigned int up = static_cast<unsigned int>(ServerInstance->Time() - ServerInstance->StartTime);
+			const auto up = Time::Ago(ServerInstance->StartTime);
 			stats.AddRow(242, FMT::format("Server up {} days, {:02}:{:02}:{:02}",
 				up / 86400, (up / 3600) % 24, (up / 60) % 60, up % 60));
 		}

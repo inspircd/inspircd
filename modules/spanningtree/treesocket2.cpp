@@ -432,7 +432,7 @@ void TreeSocket::Close()
 	else
 		ServerInstance->SNO.WriteGlobalSno('l', "Connection to '\002{}\002' closed.", linkID);
 
-	time_t server_uptime = ServerInstance->Time() - this->age;
+	time_t server_uptime = Time::Ago(this->age);
 	if (server_uptime)
 	{
 		std::string timestr = Duration::ToLongString(server_uptime);

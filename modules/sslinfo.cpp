@@ -37,7 +37,6 @@
 #include "numerichelper.h"
 #include "stringutils.h"
 #include "timeutils.h"
-#include "utility/numeric.h"
 
 struct RemoteCertificate final
 	: public TLS::Certificate
@@ -280,7 +279,7 @@ private:
 			if (can_see_full)
 			{
 				auto timestr = [](auto ts) {
-					const auto tsdiff = ServerInstance->Time() - ts;
+					const auto tsdiff = Time::Ago(ts);
 					return FMT::format("{} ({} {})",
 						Time::ToString(ts, Time::DEFAULT_LONG),
 						Duration::ToLongString(std::abs(tsdiff), true),
@@ -553,7 +552,7 @@ public:
 		{
 			user->WriteNotice("*** Your TLS client certificate has expired.");
 		}
-		else if (static_cast<time_t>(ServerInstance->Time() + warnexpiring) > cert->GetExpirationTime())
+		else if (Time::In(warnexpiring) > cert->GetExpirationTime())
 		{
 			const std::string duration = Duration::ToLongString(cert->GetExpirationTime() - ServerInstance->Time());
 			user->WriteNotice("*** Your TLS client certificate expires in " + duration + ".");

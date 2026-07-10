@@ -85,7 +85,7 @@ public:
 			return CmdResult::FAILURE;
 		}
 
-		ltarget->idle_lastmsg = (ServerInstance->Time() - idle);
+		ltarget->idle_lastmsg = Time::Ago(idle);
 		// We cant have signon time shorter than our idle time!
 		if (ltarget->signon > ltarget->idle_lastmsg)
 			ltarget->signon = ltarget->idle_lastmsg;

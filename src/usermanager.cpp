@@ -65,14 +65,14 @@ namespace
 		// This user didn't answer the last ping, remove them.
 		if (!user->lastping)
 		{
-			time_t secs = ServerInstance->Time() - (user->nextping - user->GetClass()->pingtime);
+			const auto secs = Time::Ago(user->nextping - user->GetClass()->pingtime);
 			const std::string message = FMT::format("Ping timeout: {}", Duration::ToLongString(secs));
 			ServerInstance->Users.QuitUser(user, message);
 			return;
 		}
 
 		user->lastping = 0;
-		user->nextping = ServerInstance->Time() + user->GetClass()->pingtime;
+		user->nextping = Time::In(user->GetClass()->pingtime);
 
 		// If the user has an I/O handler that can handle pinging use that
 		// instead. Otherwise, send a ping using an IRC message.

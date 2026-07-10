@@ -379,8 +379,7 @@ bool CommandWho::MatchUser(LocalUser* source, User* user, WhoData& data)
 	// The source wants to match against users' connection times.
 	else if (data.flags['t'])
 	{
-		time_t seconds = ServerInstance->Time() - Duration::From(data.matchtext);
-		if (user->signon >= seconds)
+		if (user->signon >= Time::Ago(Duration::From(data.matchtext)))
 			match = true;
 	}
 
@@ -530,7 +529,7 @@ void CommandWho::SendWhoLine(LocalUser* source, const std::vector<std::string>& 
 		if (data.whox_fields['l'])
 		{
 			auto* lu = user->AsLocal();
-			unsigned long idle = lu ? ServerInstance->Time() - lu->idle_lastmsg : 0;
+			unsigned long idle = lu ? Time::Ago(lu->idle_lastmsg) : 0;
 			wholine.push(ConvToStr(idle));
 		}
 

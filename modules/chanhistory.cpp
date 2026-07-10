@@ -68,7 +68,7 @@ struct HistoryList final
 		// Prune expired entries from the list.
 		if (maxtime)
 		{
-			time_t mintime = ServerInstance->Time() - maxtime;
+			const auto mintime = Time::Ago(maxtime);
 			while (!lines.empty() && lines.front().ts < mintime)
 				lines.pop_front();
 		}

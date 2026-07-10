@@ -19,6 +19,7 @@
 
 #include "inspircd.h"
 #include "modules/sql.h"
+#include "timeutils.h"
 
 namespace
 {
@@ -65,7 +66,7 @@ public:
 		if (!sql)
 		{
 			// Only give a warning every 5 minutes to avoid log spam.
-			if (ServerInstance->Time() - lastwarning > 300)
+			if (Time::Ago(lastwarning) > 300)
 			{
 				lastwarning = ServerInstance->Time();
 				ServerInstance->SNO.WriteGlobalSno('a', "Unable to write to SQL log (database {} not available).", sql->GetId());

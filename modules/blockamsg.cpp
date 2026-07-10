@@ -26,6 +26,7 @@
 
 #include "inspircd.h"
 #include "extension.h"
+#include "timeutils.h"
 #include "xline.h"
 
 enum BlockAction
@@ -139,7 +140,7 @@ public:
 			if ((m && (m->message == parameters[1]) &&
 					(!insp::casemapped_equals(m->target, parameters[0])) &&
 					ForgetDelay &&
-					(m->sent >= ServerInstance->Time()-(time_t)ForgetDelay)) ||
+					(m->sent >= Time::Ago(ForgetDelay))) ||
 				((targets > 1) && (targets == user->chans.size())))
 			{
 				// Block it...

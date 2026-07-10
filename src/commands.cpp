@@ -27,6 +27,7 @@
 #include "inspircd.h"
 #include "numerichelper.h"
 #include "stringutils.h"
+#include "timeutils.h"
 #include "utility/container.h"
 
 bool CommandParser::LoopCall(User* user, Command* handler, const CommandBase::Params& parameters, size_t splithere, size_t extra, bool usemax)
@@ -229,7 +230,7 @@ void CommandParser::ProcessCommand(LocalUser* user, std::string& command, Comman
 	}
 
 	/* activity resets the ping pending timer */
-	user->nextping = ServerInstance->Time() + user->GetClass()->pingtime;
+	user->nextping = Time::In(user->GetClass()->pingtime);
 	switch (handler->access_needed)
 	{
 		case CmdAccess::NORMAL:

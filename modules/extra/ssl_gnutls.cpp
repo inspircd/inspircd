@@ -695,7 +695,7 @@ namespace GnuTLS
 			else if (this->expiration <= ServerInstance->Time())
 			{
 				this->error = FMT::format("Certificate expired {} ago (on {})",
-					Duration::ToLongString(ServerInstance->Time() - this->expiration, true),
+					Duration::ToLongString(Time::Ago(this->expiration), true),
 					Time::ToString(this->expiration));
 			}
 

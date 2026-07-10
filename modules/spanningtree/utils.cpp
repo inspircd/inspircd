@@ -28,6 +28,7 @@
 
 #include "inspircd.h"
 #include "listmode.h"
+#include "timeutils.h"
 #include "utility/container.h"
 
 #include "main.h"
@@ -325,7 +326,7 @@ void SpanningTreeUtilities::ReadConfiguration(ConfigStatus& status)
 		auto A = std::make_shared<Autoconnect>(tag);
 		A->Period = tag->getDuration("period", 60, 1);
 		A->BootPeriod = tag->getDuration("bootperiod", A->Period, 1);
-		A->NextConnectTime = ServerInstance->Time() + (status.initial ? A->BootPeriod : A->Period);
+		A->NextConnectTime = Time::In(status.initial ? A->BootPeriod : A->Period);
 		A->position = -1;
 		StringSplitter ss(tag->getString("server"));
 		std::string server;

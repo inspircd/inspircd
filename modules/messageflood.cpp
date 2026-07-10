@@ -43,7 +43,7 @@ struct MsgFloodData final
 	double messages = 0;
 
 	MsgFloodData(unsigned long period)
-		: reset(ServerInstance->Time() + period)
+		: reset(Time::In(period))
 	{
 	}
 };

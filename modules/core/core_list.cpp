@@ -27,6 +27,7 @@
 #include "inspircd.h"
 #include "modules/isupport.h"
 #include "stringutils.h"
+#include "timeutils.h"
 
 enum class ShowModes
 	: uint8_t
@@ -52,7 +53,7 @@ private:
 		const auto minutes = ConvToNum<time_t>(value.c_str() + 2, -1);
 		if (minutes < 0)
 			return std::nullopt;
-		return ServerInstance->Time() - (minutes * 60);
+		return Time::Ago(minutes * 60);
 	}
 
 public:

@@ -309,7 +309,7 @@ void WhoWas::Manager::Add(User* user, const std::string& nickname)
 /* on rehash, refactor maps according to new conf values */
 void WhoWas::Manager::Prune()
 {
-	time_t min = ServerInstance->Time() - this->MaxKeep;
+	const auto min = Time::Ago(this->MaxKeep);
 
 	/* first cut the list to new size (maxgroups) and also prune entries that are timed out. */
 	while (!whowas_fifo.empty())
@@ -341,7 +341,7 @@ void WhoWas::Manager::Prune()
 /* call maintain once an hour to remove expired nicks */
 void WhoWas::Manager::Maintain()
 {
-	time_t min = ServerInstance->Time() - this->MaxKeep;
+	const auto min = Time::Ago(this->MaxKeep);
 	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); )
 	{
 		WhoWas::Nick::List& list = i->second->entries;
