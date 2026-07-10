@@ -22,7 +22,6 @@
 
 
 #include "inspircd.h"
-#include "utility/numeric.h"
 #include "xline.h"
 
 #include "core_xline.h"

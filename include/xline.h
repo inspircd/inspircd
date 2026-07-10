@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "utility/numeric.h"
+
 namespace Stats
 {
 	class Context;
@@ -88,7 +90,7 @@ public:
 		, reason(re)
 		, type(t)
 	{
-		expiry = set_time + duration;
+		expiry = insp::saturating_add<time_t>(set_time, duration);
 	}
 
 	/** Change creation time of an xline. Updates expiry
@@ -97,7 +99,7 @@ public:
 	inline void SetCreateTime(time_t created)
 	{
 		set_time = created;
-		expiry = created + duration;
+		expiry = insp::saturating_add<time_t>(created, duration);
 	}
 
 	/** Returns true whether or not the given user is covered by this line.
