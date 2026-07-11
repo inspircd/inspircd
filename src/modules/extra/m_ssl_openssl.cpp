@@ -59,6 +59,9 @@
 # define OPENSSL_VERSION_STR OPENSSL_VERSION_TEXT
 # define OPENSSL_VERSION_STRING OPENSSL_VERSION
 #else
+# if OPENSSL_VERSION_NUMBER >= 0x30500000L
+#  define INSPIRCD_OPENSSL_GET_GROUPS
+# endif
 # define INSPIRCD_OPENSSL_AUTO_DH
 #endif
 
@@ -168,17 +171,26 @@ namespace OpenSSL
 			else
 			{
 				irc::sepstream groupstream(groups, ':');
+#ifdef INSPIRCD_OPENSSL_GET_GROUPS
+				STACK_OF(OPENSSL_CSTRING) *implemented_groups = sk_OPENSSL_CSTRING_new_null();
+				const int GET_ALL = 1;
+				if (!SSL_CTX_get0_implemented_groups(ctx, GET_ALL, implemented_groups))
+					return false;
+#endif
 				for (std::string group; groupstream.GetToken(group); )
 				{
-					if (OBJ_sn2nid(group.c_str()) == NID_undef)
+#ifdef INSPIRCD_OPENSSL_GET_GROUPS
+					if (sk_OPENSSL_CSTRING_find(implemented_groups, group.c_str()) == -1)
+#else
+					if (!SSL_CTX_set1_groups_list(ctx, group.c_str()))
+#endif
 						continue;
-
 					grouplist.append(grouplist.empty() ? "" : ":");
 					grouplist.append(group);
 				}
-
-				ServerInstance->Logs.Debug(MODNAME, "Relaxed groups from {} to {}",
-					groups, grouplist);
+				if (groups != grouplist)
+					ServerInstance->Logs.Debug(MODNAME, "Relaxed groups from {} to {}",
+						groups, grouplist);
 			}
 
 			ERR_clear_error();
