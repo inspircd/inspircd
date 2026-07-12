@@ -188,8 +188,11 @@ namespace OpenSSL
 					grouplist.append(grouplist.empty() ? "" : ":");
 					grouplist.append(group);
 				}
+				if (grouplist.empty())
+					grouplist = "DEFAULT";
+
 				if (groups != grouplist)
-					ServerInstance->Logs.Debug(MODNAME, "Relaxed groups from {} to {}",
+				ServerInstance->Logs.Debug(MODNAME, "Relaxed groups from {} to {}",
 						groups, grouplist);
 			}
 
