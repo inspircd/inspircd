@@ -332,7 +332,7 @@ private:
 			tag.erase(0, 1);
 			DelSWhois(cmdswhois.swhoisext, user, [&tag](const SWhois& swhois) {
 				return swhois.tag == tag;
-			});
+			}, true);
 		}
 
 		auto& swhois = AddSWhois(cmdswhois.swhoisext, user, ConvToNum<time_t>(priority), message);
