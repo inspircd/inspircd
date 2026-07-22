@@ -269,6 +269,7 @@ public:
 		, tlsapi(Creator)
 		, webircevprov(Creator, "webirc")
 	{
+		allow_empty_last_param = true;
 		works_before_reg = true;
 		syntax = { "<password> <gateway> <hostname> <ip> [<flags>]" };
 	}

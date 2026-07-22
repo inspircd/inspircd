@@ -79,6 +79,9 @@ public:
 	{
 	}
 
+	/** Retrieves the provider of this I/O hook. */
+	const auto& GetHookProvider() const { return prov; }
+
 	/** Determines whether this I/O hook is ready to send and receive data. */
 	virtual bool IsHookReady() const { return true; }
 

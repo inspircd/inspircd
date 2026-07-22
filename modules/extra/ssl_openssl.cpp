@@ -124,12 +124,15 @@ namespace OpenSSL
 				StringSplitter groupstream(groups, ':');
 				for (std::string group; groupstream.GetToken(group); )
 				{
-					if (OBJ_sn2nid(group.c_str()) == NID_undef)
-						continue;
+					if (!SSL_CTX_set1_groups_list(ctx, group.c_str()))
+						continue; // Not supported.
 
 					grouplist.append(grouplist.empty() ? "" : ":");
 					grouplist.append(group);
 				}
+
+				if (grouplist.empty())
+					grouplist = "DEFAULT";
 
 				ServerInstance->Logs.Debug(MODNAME, "Relaxed groups from {} to {}",
 					groups, grouplist);

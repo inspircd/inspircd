@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-24.04-arm
     steps:
       - name: Checkout InspIRCd
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Run CMake
         env:
@@ -77,7 +77,7 @@ jobs:
           echo "PATH=$HOME/inspircd/bin:$PATH" >> $GITHUB_ENV
 
       - name: Checkout irctest
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: irctest
           ref: ${{ env.IRCTEST_REF }}
@@ -95,7 +95,7 @@ jobs:
 
       - name: Checkout Anope
         if: matrix.services == 'anope'
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: anope
           ref: ${{ env.ANOPE_REF }}
@@ -118,7 +118,7 @@ jobs:
 
       - name: Checkout Atheme
         if: matrix.services == 'atheme'
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: atheme
           ref: ${{ env.ATHEME_REF }}
