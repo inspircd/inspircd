@@ -27,6 +27,7 @@ class STSCap final
 private:
 	std::string host;
 	std::string plaintextpolicy;
+	std::string plaintextwspolicy;
 	std::string securepolicy;
 	mutable UserCertificateAPI sslapi;
 
@@ -39,6 +40,11 @@ private:
 		// Don't send the cap to clients in a class which has STS disabled.
 		if (!user->GetClass()->config->getBool("usests", true))
 			return false;
+
+		// Check whether we have a value for this hook type.
+		auto* value = GetValue(user);
+		if (!value || value->empty())
+			return false; // No sts for this (probably websocket) hook.
 
 		// Plaintext listeners have their own policy.
 		SSLIOHook* sslhook = SSLIOHook::IsSSL(&user->eh);
@@ -71,7 +77,10 @@ private:
 		if (sslapi && sslapi->GetCertificate(user))
 			return &securepolicy; // Proxied SSL connection.
 
-		return &plaintextpolicy; // Plain text connection.
+		auto* ioh = user->eh.GetIOHook();
+		return ioh && insp::equalsci(ioh->GetHookProvider()->name, "websocket")
+			? &plaintextwspolicy // Plain text websocket connection.
+			: &plaintextpolicy;  // Plain text connection.
 	}
 
 public:
@@ -87,12 +96,16 @@ public:
 		// TODO: Send duration=0 when STS vanishes.
 	}
 
-	void SetPolicy(const std::string& newhost, unsigned long duration, in_port_t port, bool preload)
+	void SetPolicy(const std::string& newhost, unsigned long duration, in_port_t port, in_port_t wsport, bool preload)
 	{
 		// To enforce an STS upgrade policy, servers MUST send this key to insecurely connected clients. Servers
 		// MAY send this key to securely connected clients, but it will be ignored.
 		std::string newplaintextpolicy("port=");
 		newplaintextpolicy.append(ConvToStr(port));
+
+		std::string newplaintextwspolicy;
+		if (wsport)
+			newplaintextwspolicy.append("port=").append(ConvToStr(wsport));
 
 		// To enforce an STS persistence policy, servers MUST send this key to securely connected clients. Servers
 		// MAY send this key to all clients, but insecurely connected clients MUST ignore it.
@@ -119,6 +132,13 @@ public:
 			changed = true;
 		}
 
+		if (plaintextwspolicy != newplaintextwspolicy)
+		{
+			ServerInstance->Logs.Debug(MODNAME, "Changing plaintext WebSocket STS policy from \"{}\" to \"{}\"", plaintextwspolicy, newplaintextwspolicy);
+			plaintextwspolicy.swap(newplaintextwspolicy);
+			changed = true;
+		}
+
 		if (securepolicy != newsecurepolicy)
 		{
 			ServerInstance->Logs.Debug(MODNAME, "Changing secure STS policy from \"{}\" to \"{}\"", securepolicy, newsecurepolicy);
@@ -139,26 +159,62 @@ private:
 	STSCap cap;
 
 	// The IRCv3 STS specification requires that the server is listening using TLS using a valid certificate.
-	static bool HasValidSSLPort(in_port_t port)
+	static bool HasValidSSLPort(in_port_t port, bool websocket)
 	{
 		for (const auto* ls : ServerInstance->ports)
 		{
-			// Is this listener marked as providing SSL over HAProxy?
-			if (!ls->bind_tag->getString("hook").empty() && ls->bind_tag->getBool("sslhook"))
-				return true;
+			ServerInstance->Logs.Debug(MODNAME, "HasValidSSLPort({}, {}): checking {} at {}",
+				port, websocket, ls->bind_sa.str(), ls->bind_tag->source.str());
 
 			// Is this listener on the right port?
-			in_port_t saport = ls->bind_sa.port();
+			const auto saport = ls->bind_sa.port();
 			if (saport != port)
+			{
+				ServerInstance->Logs.Debug(MODNAME, "BAD: wrong port.");
 				continue;
+			}
+
+			const auto bindhook = ls->bind_tag->getString("hook");
+			if (insp::equalsci(bindhook, "websocket"))
+			{
+				if (!websocket)
+				{
+					ServerInstance->Logs.Debug(MODNAME, "BAD: websocket hook when we want a non-websocket hook.");
+					continue; // Not a websocket connection.
+				}
+
+				// Port has a websocket hook and we want a websocket hook.
+			}
+			else if (websocket)
+			{
+				ServerInstance->Logs.Debug(MODNAME, "BAD: non-websocket hook when we want a websocket hook.");
+				continue;
+			}
+			else if (!bindhook.empty())
+			{
+				if (!ls->bind_tag->getBool("sslhook"))
+				{
+					ServerInstance->Logs.Debug(MODNAME, "BAD: {} hook and sslhook is not set.", bindhook);
+					continue; // Not explicitly marked as a SSL hook.
+				}
+
+				ServerInstance->Logs.Debug(MODNAME, "GOOD: {} hook and sslhook is set.", bindhook);
+				return true; // Listener is marked as providing SSL via a proxy like HAProxy.
+			}
 
 			// Is this listener using TLS?
 			if (ls->bind_tag->getString("sslprofile").empty())
+			{
+				ServerInstance->Logs.Debug(MODNAME, "BAD: no sslprofile.");
 				continue;
+			}
 
 			// TODO: Add a way to check if a listener's TLS cert is CA-verified.
+			ServerInstance->Logs.Debug(MODNAME, "GOOD: passed all checks.");
 			return true;
 		}
+
+		ServerInstance->Logs.Debug(MODNAME, "BAD: nothing passed checks.");
 		return false;
 	}
 
@@ -180,13 +236,17 @@ public:
 		if (host.empty())
 			throw ModuleException(this, "<sts:host> must contain a hostname, at " + tag->source.str());
 
-		in_port_t port = tag->getNum<in_port_t>("port", 6697, 1);
-		if (!HasValidSSLPort(port))
+		const auto port = tag->getNum<in_port_t>("port", 6697, 1);
+		if (!HasValidSSLPort(port, false))
 			throw ModuleException(this, "<sts:port> must be a TLS port, at " + tag->source.str());
+
+		const auto wsport = tag->getNum<in_port_t>("wsport", 0);
+		if (wsport && !HasValidSSLPort(wsport, true))
+			throw ModuleException(this, "<sts:wsport> must be a TLS WebSocket port, at " + tag->source.str());
 
 		unsigned long duration = tag->getDuration("duration", 5*60, 60);
 		bool preload = tag->getBool("preload");
-		cap.SetPolicy(host, duration, port, preload);
+		cap.SetPolicy(host, duration, port, wsport, preload);
 
 		if (!cap.IsRegistered())
 			ServerInstance->Modules.AddService(cap);
