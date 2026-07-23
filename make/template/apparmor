@@ -31,6 +31,16 @@ profile inspircd @BINARY_DIR@/inspircd {
 	capability setuid,
 	capability sys_resource,
 
+	# Required for client connections:
+	network inet stream tcp,
+	network inet6 stream tcp,
+	network inet stream sctp,
+	network inet6 stream sctp,
+
+	# Required for DNS lookups:
+	network inet dgram udp,
+	network inet6 dgram udp,
+
 	@BINARY_DIR@/inspircd ixr,
 	@CONFIG_DIR@/** rw,
 	@DATA_DIR@/** rw,
