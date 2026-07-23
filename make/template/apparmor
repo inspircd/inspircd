@@ -44,10 +44,11 @@ profile inspircd @BINARY_DIR@/inspircd {
 	@BINARY_DIR@/inspircd ixr,
 	@CONFIG_DIR@/** rw,
 	@DATA_DIR@/** rw,
+	@EXAMPLE_DIR@/ r,
+	@LOG_DIR@/** w,
 	@MODULE_DIR@/ r,
 	@MODULE_DIR@/core_*.so mr,
 	@MODULE_DIR@/m_*.so mr,
-	@LOG_DIR@/** w,
 	@RUNTIME_DIR@/** rw,
 
 	# Required by the cloak_sha256 module:
