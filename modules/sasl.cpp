@@ -47,7 +47,7 @@ namespace
 	Account::ProviderAPI* g_accountproviderapi;
 	ClientProtocol::EventProvider* g_protoev;
 
-	void SendSASL(LocalUser* user, const std::string& agent, char mode, const std::vector<std::string>& parameters)
+	void SendSASL(LocalUser* user, const std::string& agent, char mode, const CommandBase::Params& parameters)
 	{
 		auto* target = (*g_accountproviderapi)->GetServer();
 		if (!target)
@@ -120,7 +120,7 @@ private:
 
 	void SendHostIP(TLS::API& tlsapi)
 	{
-		std::vector<std::string> params;
+		CommandBase::Params params;
 		params.reserve(3);
 		params.push_back(user->GetRealHost());
 		params.push_back(user->GetAddress());
@@ -135,7 +135,7 @@ public:
 	{
 		SendHostIP(tlsapi);
 
-		std::vector<std::string> params;
+		CommandBase::Params params;
 		params.push_back(method);
 
 		if (tlsapi)
@@ -219,7 +219,7 @@ public:
 		this->state = SASL_DONE;
 	}
 
-	bool SendClientMessage(const std::vector<std::string>& parameters)
+	bool SendClientMessage(const CommandBase::Params& parameters)
 	{
 		if (this->state != SASL_COMM)
 			return true;
