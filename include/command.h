@@ -146,7 +146,7 @@ class CoreExport CommandBase
 public:
 	/** Encapsulates parameters to a command. */
 	class Params final
-		: public std::vector<std::string>
+		: public ClientProtocol::ParamList
 	{
 	private:
 		/* IRCv3 message tags. */
@@ -158,7 +158,7 @@ public:
 		 * @param tagsref IRCv3 message tags.
 		 */
 		Params(const std::vector<std::string>& paramsref, const ClientProtocol::TagMap& tagsref)
-			: std::vector<std::string>(paramsref)
+			: ClientProtocol::ParamList(paramsref)
 			, tags(tagsref)
 		{
 		}
@@ -169,7 +169,15 @@ public:
 		 */
 		template<typename Iterator>
 		Params(Iterator first, Iterator last)
-			: std::vector<std::string>(first, last)
+			: ClientProtocol::ParamList(first, last)
+		{
+		}
+
+		/** Initializes a new instance from a parameter initializer list.
+		 * @param first The parameter initializer list.
+		 */
+		Params(std::initializer_list<std::string> init)
+			: ClientProtocol::ParamList(init)
 		{
 		}
 
