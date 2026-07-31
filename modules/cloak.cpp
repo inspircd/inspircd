@@ -141,14 +141,13 @@ public:
 				{
 					cloaks->push_back(*cloak);
 
-					ServerInstance->Logs.Debug(MODNAME, "Cloaked {} ({}) [{}] as {} using the {} method.",
-						user->uuid, user->GetAddress(), user->GetRealHost(), cloak->ToString(),
-						cloakmethod->GetName());
+					ServerInstance->Logs.Debug(MODNAME, "Cloaked {} as {} using the {} method.",
+						user->GetDescription(), cloak->ToString(), cloakmethod->GetName());
 				}
 				else
 				{
-					ServerInstance->Logs.Debug(MODNAME, "Unable to cloak {} ({}) [{}] using the {} method.",
-						user->uuid, user->GetAddress(), user->GetRealHost(), cloakmethod->GetName());
+					ServerInstance->Logs.Debug(MODNAME, "Unable to cloak {} using the {} method.",
+						user->GetDescription(), cloakmethod->GetName());
 				}
 			}
 			ext.Set(user, cloaks);

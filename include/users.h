@@ -341,6 +341,9 @@ private:
 	/** Cached value for GetRealMask. */
 	std::string cached_realmask;
 
+	/** Cached value for GetDescription. */
+	std::string cached_description;
+
 	/** If set then the hostname which is displayed to users. */
 	std::string displayhost;
 
@@ -564,6 +567,11 @@ public:
 	 * If this method has not been called before then it will be cached.
 	 */
 	virtual const std::string& GetRealMask();
+
+	/** Retrieves a description of this user suitable for logging.
+	 * If this method has not been called before then it will be cached.
+	 */
+	virtual const std::string& GetDescription();
 
 	/** Changes the remote socket address for this user.
 	 * @param sa The new socket address.

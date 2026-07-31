@@ -343,8 +343,8 @@ public:
 
 		if (!automatic)
 		{
-			ServerInstance->SNO.WriteGlobalSno('o', "{} ({}) [{}] failed to log into the \x02{}\x02 oper account because they are not logged into the correct user account.",
-				user->nick, user->GetRealUserHost(), user->GetAddress(), oper->GetName());
+			ServerInstance->SNO.WriteGlobalSno('o', "{} failed to log into the \x02{}\x02 oper account because they are not logged into the correct user account.",
+				user->GetDescription(), oper->GetName());
 		}
 		return MOD_RES_DENY; // Account required but it does not match.
 	}

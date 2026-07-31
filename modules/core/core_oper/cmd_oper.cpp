@@ -46,8 +46,8 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 	auto it = ServerInstance->Config->OperAccounts.find(parameters[0]);
 	if (it == ServerInstance->Config->OperAccounts.end())
 	{
-		ServerInstance->SNO.WriteGlobalSno('o', "{} ({}) [{}] failed to log into the \x02{}\x02 oper account because no account with that name exists.",
-			user->nick, user->GetRealUserHost(), user->GetAddress(), parameters[0]);
+		ServerInstance->SNO.WriteGlobalSno('o', "{} failed to log into the \x02{}\x02 oper account because no account with that name exists.",
+			user->GetDescription(), parameters[0]);
 		return FailedOper(user, parameters[0]);
 	}
 
@@ -56,8 +56,8 @@ CmdResult CommandOper::HandleLocal(LocalUser* user, const Params& parameters)
 	const auto& password = parameters.size() > 1 ? parameters[1] : "";
 	if (!account->CheckPassword(password))
 	{
-		ServerInstance->SNO.WriteGlobalSno('o', "{} ({}) [{}] failed to log into the \x02{}\x02 oper account because they specified the wrong password.",
-			user->nick, user->GetRealUserHost(), user->GetAddress(), parameters[0]);
+		ServerInstance->SNO.WriteGlobalSno('o', "{} failed to log into the \x02{}\x02 oper account because they specified the wrong password.",
+			user->GetDescription(), parameters[0]);
 		return FailedOper(user, parameters[0]);
 	}
 

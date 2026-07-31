@@ -167,6 +167,17 @@ const std::string& User::GetRealMask()
 	return cached_realmask;
 }
 
+const std::string& User::GetDescription()
+{
+	if (cached_description.empty())
+	{
+		cached_description = FMT::format("{} ({}@{}) [{}]", nick, GetRealUser(), GetRealHost(), GetAddress());
+		cached_description.shrink_to_fit();
+	}
+
+	return cached_description;
+}
+
 LocalUser::LocalUser(LocalUserIO* lio, const irc::sockets::sockaddrs& clientsa, const irc::sockets::sockaddrs& serversa)
 	: User(ServerInstance->UIDGen.GetUID(), ServerInstance->LocalServer, User::TYPE_LOCAL)
 	, io(lio)
@@ -378,6 +389,7 @@ void User::InvalidateCache()
 	cached_realuserhost.clear();
 	cached_mask.clear();
 	cached_realmask.clear();
+	cached_description.clear();
 }
 
 bool User::ChangeNick(const std::string& newnick, time_t newts)

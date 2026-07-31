@@ -42,8 +42,8 @@ public:
 	{
 		if ((created) && (memb->user->IsLocal()))
 		{
-			ServerInstance->SNO.WriteGlobalSno('j', "Channel {} created by {} [{}]",
-				memb->chan->name, memb->user->GetRealMask(), memb->user->GetAddress());
+			ServerInstance->SNO.WriteGlobalSno('j', "Channel {} created by {}",
+				memb->chan->name, memb->user->GetDescription());
 		}
 	}
 };

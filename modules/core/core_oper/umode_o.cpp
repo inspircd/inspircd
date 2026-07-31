@@ -42,9 +42,9 @@ bool ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, Modes::C
 
 	// Notify server operators of the logout.
 	const auto snomask = dest->IsLocal() ? 'o' : 'O';
-	ServerInstance->SNO.WriteToSnoMask(snomask, "{} ({}) [{}] logged {}{}out of their server operator account.",
-		source->nick, source->GetRealUserHost(), source->GetAddress(),
-		source == dest ? "" : dest->nick, source == dest ? "" : " ");
+	ServerInstance->SNO.WriteToSnoMask(snomask, "{} logged {}{}out of their server operator account.",
+		source->GetDescription(), source == dest ? "" : dest->GetDescription(),
+		source == dest ? "" : " ");
 
 	// Log the server operator out of their account.
 	dest->OperLogout();

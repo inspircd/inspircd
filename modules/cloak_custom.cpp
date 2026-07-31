@@ -143,8 +143,8 @@ public:
 		auto it = accounts.find(parameters[0]);
 		if (it == accounts.end())
 		{
-			ServerInstance->Logs.Debug(MODNAME, "{} ({}) [{}] failed to log into the \x02{}\x02 custom cloak account because no account with that name exists.",
-				user->nick, user->GetRealUserHost(), user->GetAddress(), parameters[0]);
+			ServerInstance->Logs.Debug(MODNAME, "{} failed to log into the \x02{}\x02 custom cloak account because no account with that name exists.",
+				user->GetDescription(), parameters[0]);
 			return FailedLogin(user, parameters[0]);
 		}
 
@@ -152,16 +152,16 @@ public:
 		auto &account = it->second;
 		if (!account.CheckHost(user))
 		{
-			ServerInstance->Logs.Normal(MODNAME, "{} ({}) [{}] failed to log into the \x02{}\x02 custom cloak account because they are connecting from the wrong user@host.",
-				user->nick, user->GetRealUserHost(), user->GetAddress(), parameters[0]);
+			ServerInstance->Logs.Normal(MODNAME, "{} failed to log into the \x02{}\x02 custom cloak account because they are connecting from the wrong user@host.",
+				user->GetDescription(), parameters[0]);
 			return FailedLogin(user, it->first);
 		}
 
 		// Check whether the password is correct.
 		if (!account.CheckPassword(parameters[1]))
 		{
-			ServerInstance->Logs.Normal(MODNAME, "{} ({}) [{}] failed to log into the \x02{}\x02 custom cloak account because they specified the wrong password.",
-				user->nick, user->GetRealUserHost(), user->GetAddress(), parameters[0]);
+			ServerInstance->Logs.Normal(MODNAME, "{} failed to log into the \x02{}\x02 custom cloak account because they specified the wrong password.",
+				user->GetDescription(), parameters[0]);
 			return FailedLogin(user, it->first);
 		}
 
