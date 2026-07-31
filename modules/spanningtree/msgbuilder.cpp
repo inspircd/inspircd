@@ -46,6 +46,21 @@ MessageBuilder& MessageBuilder::PushTags(ClientProtocol::TagMap newtags)
 	return *this;
 }
 
+MessageBuilder& MessageBuilder::PushServerTags(std::initializer_list<std::pair<std::string, std::string>>&& tags)
+{
+	ClientProtocol::TagMap newtags;
+	for (const auto& [tname, tvalue] : tags)
+	{
+		ClientProtocol::MessageTagData tdata(&Utils->Creator->servertags, ClientProtocol::Message::EscapeTag(tvalue));
+		newtags.insert(std::make_pair(tname, tdata));
+	}
+
+	auto& oldtags = this->parameters.GetTags();
+	newtags.insert(oldtags.begin(), oldtags.end());
+	std::swap(oldtags, newtags);
+	return *this;
+}
+
 void MessageBuilder::Finalize()
 {
 	if (!Utils || this->finalized)

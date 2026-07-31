@@ -89,6 +89,9 @@ public:
 	// Adds tags to the tag list.
 	MessageBuilder& PushTags(ClientProtocol::TagMap newtags);
 
+	// Adds server tags to the tag list.
+	MessageBuilder& PushServerTags(std::initializer_list<std::pair<std::string, std::string>>&& tags);
+
 	// Converts this message to the RFC 1459 form.
 	std::string ToRFC1459() const;
 

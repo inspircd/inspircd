@@ -117,19 +117,19 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, CommandBase::Params& para
 CommandOpertype::Builder::Builder(User* user, const std::shared_ptr<OperAccount>& oper, bool automatic)
 	: MessageBuilder(user, "OPERTYPE")
 {
-	PushTags({
-		{ "~name",       { &Utils->Creator->servertags, ClientProtocol::Message::EscapeTag(oper->GetName())                        } },
-		{ "~chanmodes",  { &Utils->Creator->servertags, ClientProtocol::Message::EscapeTag(oper->GetModes(MODETYPE_CHANNEL, true)) } },
-		{ "~usermodes",  { &Utils->Creator->servertags, ClientProtocol::Message::EscapeTag(oper->GetModes(MODETYPE_USER, true))    } },
-		{ "~snomasks",   { &Utils->Creator->servertags, ClientProtocol::Message::EscapeTag(oper->GetSnomasks(true))                } },
-		{ "~commands",   { &Utils->Creator->servertags, ClientProtocol::Message::EscapeTag(oper->GetCommands(true))                } },
-		{ "~privileges", { &Utils->Creator->servertags, ClientProtocol::Message::EscapeTag(oper->GetPrivileges())                  } },
+	PushServerTags({
+		{ "~name",       oper->GetName()                        },
+		{ "~chanmodes",  oper->GetModes(MODETYPE_CHANNEL, true) },
+		{ "~usermodes",  oper->GetModes(MODETYPE_USER, true)    },
+		{ "~snomasks",   oper->GetSnomasks(true)                },
+		{ "~commands",   oper->GetCommands(true)                },
+		{ "~privileges", oper->GetPrivileges()                  },
 	});
 
 	if (automatic)
 	{
-		PushTags({
-			{ "~automatic", { &Utils->Creator->servertags, "" } },
+		PushServerTags({
+			{ "~automatic", "" },
 		});
 	}
 	Push(oper->GetType());
