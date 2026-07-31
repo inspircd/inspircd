@@ -139,7 +139,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, CommandBase::Params
 
 	if (dosend)
 	{
-		ServerInstance->SNO.WriteToSnoMask('C', "Client connecting at {}: {} ({}) [{}\x0F]", remoteserver->GetName(),
+		ServerInstance->SNO.WriteToSnoMask('C', "Client connecting to {}: {} ({}) [{}\x0F]", remoteserver->GetName(),
 			_new->GetRealMask(), _new->GetAddress(), _new->GetRealName());
 	}
 
