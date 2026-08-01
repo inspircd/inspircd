@@ -30,13 +30,24 @@ profile inspircd @ABSOLUTE_BINARY_DIR@/inspircd {
 	capability setuid,
 	capability sys_resource,
 
+	# Required for client connections:
+	network inet stream tcp,
+	network inet6 stream tcp,
+	network inet stream sctp,
+	network inet6 stream sctp,
+
+	# Required for DNS lookups:
+	network inet dgram udp,
+	network inet6 dgram udp,
+
 	@ABSOLUTE_BINARY_DIR@/inspircd ixr,
 	@ABSOLUTE_CONFIG_DIR@/** rw,
 	@ABSOLUTE_DATA_DIR@/** rw,
+	@ABSOLUTE_EXAMPLE_DIR@/ r,
+	@ABSOLUTE_LOG_DIR@/** w,
 	@ABSOLUTE_MODULE_DIR@/ r,
 	@ABSOLUTE_MODULE_DIR@/core_*.so mr,
 	@ABSOLUTE_MODULE_DIR@/m_*.so mr,
-	@ABSOLUTE_LOG_DIR@/** w,
 	@ABSOLUTE_RUNTIME_DIR@/** rw,
 
 	# Required by the cloak_sha256 module:
