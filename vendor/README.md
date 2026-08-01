@@ -28,7 +28,7 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **License** &mdash; MIT License
 
-**Version** &mdash; v9.4.2
+**Version** &mdash; v9.4.3
 
 **Website** &mdash; [https://github.com/nodejs/llhttp](https://github.com/nodejs/llhttp)
 
