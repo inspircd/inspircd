@@ -1,4 +1,4 @@
-Since the first commit in January 2003 108 people have submitted patches,
+Since the first commit in January 2003 112 people have submitted patches,
 commits, and other useful contributions to InspIRCd. These people, ordered by
 the number of contributions they have made, are:
 
@@ -38,6 +38,7 @@ the number of contributions they have made, are:
   * katsklaw <katsklaw@ircmojo.net>
   * satmd <satmd@satmd.de>
   * Steven Van Acker <steven@singularity.be>
+  * Kufat <kufat@kufat.net>
   * Michael Hazell <michaelhazell@hotmail.com>
   * Dan Parsons <dparsons@nyip.net>
   * Googolplexed <googol@googolplexed.net>
@@ -65,9 +66,11 @@ the number of contributions they have made, are:
   * PhilSliderS
   * 0x277F <0x277F@gmail.com>
   * A_D
+  * aasb13 <as_above_so_below31@proton.me>
   * Adrien Bustany <adrien@bustany.org>
   * Akinwale Ariwodola <akinwale@gmail.com>
   * Alyx <alyx@malkier.net>
+  * Atlas
   * Boleslaw Tokarski <boleslaw.tokarski@tieto.com>
   * Chew
   * Chris Novakovic
@@ -102,6 +105,7 @@ the number of contributions they have made, are:
   * R-V6
   * randomdan
   * Richard Bradfield <bradfirj@fstab.me>
+  * Runxi Yu <me@runxiyu.org>
   * systocrat <systocrat@outlook.com>
   * ThatOneRoadie <thatoneroadie+github@gmail.com>
   * The Aviator <aviator45003@gmail.com>
