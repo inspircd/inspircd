@@ -26,6 +26,7 @@
 
 
 #include "inspircd.h"
+#include "numerichelper.h"
 #include "timeutils.h"
 
 #include "main.h"
@@ -178,7 +179,7 @@ CmdResult CommandMap::Handle(User* user, const Params& parameters)
 		TreeServer* s = Utils->FindServerMask(parameters[0]);
 		if (!s)
 		{
-			user->WriteNumeric(ERR_NOSUCHSERVER, parameters[0], "No such server");
+			user->WriteNumeric(Numerics::NoSuchServer(parameters[0]));
 			return CmdResult::FAILURE;
 		}
 

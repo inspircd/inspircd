@@ -31,6 +31,7 @@
 #include "inspircd.h"
 #include "clientprotocolmsg.h"
 #include "iohook.h"
+#include "numerichelper.h"
 #include "socket.h"
 #include "timeutils.h"
 #include "xline.h"
@@ -346,7 +347,7 @@ ModResult ModuleSpanningTree::HandleVersion(const CommandBase::Params& parameter
 	}
 	else
 	{
-		user->WriteNumeric(ERR_NOSUCHSERVER, parameters[0], "No such server");
+		user->WriteNumeric(Numerics::NoSuchServer(parameters[0]));
 	}
 	return MOD_RES_DENY;
 }

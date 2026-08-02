@@ -38,6 +38,7 @@ namespace Numerics
 	class NoPrivileges;
 	class NoSuchChannel;
 	class NoSuchNick;
+	class NoSuchServer;
 }
 
 /** Helper for the ERR_CANNOTSENDTOCHAN and ERR_CANNOTSENDTOUSER numerics. */
@@ -196,5 +197,18 @@ public:
 	{
 		push(nick.empty() || nick[0] == ':' || nick.find(' ') == std::string::npos ? "*" : nick);
 		push("No such nick");
+	}
+};
+
+/** Helper for the ERR_NOSUCHSERVER numeric. */
+class Numerics::NoSuchServer final
+	: public Numeric::Numeric
+{
+public:
+	NoSuchServer(const std::string& server)
+		: Numeric(ERR_NOSUCHSERVER)
+	{
+		push(server.empty() || server[0] == ':' || server.find(' ') == std::string::npos ? "*" : server);
+		push("No such server");
 	}
 };
