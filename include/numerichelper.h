@@ -156,7 +156,7 @@ public:
 	NoSuchChannel(const std::string& chan)
 		: Numeric(ERR_NOSUCHCHANNEL)
 	{
-		push(chan.empty() || chan[0] == ':' || chan.find(' ') == std::string::npos ? "*" : chan);
+		push(chan.empty() || chan[0] == ':' || chan.find(' ') != std::string::npos ? "*" : chan);
 		push("No such channel");
 	}
 };
@@ -169,7 +169,7 @@ public:
 	NoSuchNick(const std::string& nick)
 		: Numeric(ERR_NOSUCHNICK)
 	{
-		push(nick.empty() || nick[0] == ':' || nick.find(' ') == std::string::npos ? "*" : nick);
+		push(nick.empty() || nick[0] == ':' || nick.find(' ') != std::string::npos ? "*" : nick);
 		push("No such nick");
 	}
 };
