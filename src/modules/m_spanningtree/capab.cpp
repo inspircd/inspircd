@@ -355,6 +355,7 @@ void TreeSocket::SendCapabilities(int phase)
 		{ "MAXREAL",     ConvToStr(ServerInstance->Config->Limits.MaxReal)    },
 		{ "MAXTOPIC",    ConvToStr(ServerInstance->Config->Limits.MaxTopic)   },
 		{ "MAXUSER",     ConvToStr(ServerInstance->Config->Limits.MaxUser)    },
+		{ "PROTOCOL",    ConvToStr(proto_version)                             },
 	};
 
 	ExtBan::ManagerRef extbanmgr(Utils->Creator);
