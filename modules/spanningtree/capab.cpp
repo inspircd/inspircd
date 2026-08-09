@@ -86,6 +86,7 @@ namespace
 			{ "MAXREAL",     ConvToStr(ServerInstance->Config->Limits.MaxReal)    },
 			{ "MAXTOPIC",    ConvToStr(ServerInstance->Config->Limits.MaxTopic)   },
 			{ "MAXUSER",     ConvToStr(ServerInstance->Config->Limits.MaxUser)    },
+			{ "PROTOCOL",    ConvToStr(ts->proto_version)                         },
 		};
 
 		// If SHA256 hashing support is available then send a challenge token.
