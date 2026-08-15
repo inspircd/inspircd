@@ -28,7 +28,7 @@ set(TOOLS
 
 foreach(TOOL IN LISTS TOOLS)
 	install_owned(
-		PROGRAMS "${PROJECT_SOURCE_DIR}/tools/${TOOL}"
+		PROGRAMS "${PROJECT_SOURCE_DIR}/tools/${TOOL}.py"
 		DESTINATION ${BINARY_DIR}
 		RENAME "inspircd-${TOOL}"
 	)
