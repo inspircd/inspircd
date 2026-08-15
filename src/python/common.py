@@ -31,6 +31,7 @@ def command(*args):
         args,
         stderr=subprocess.DEVNULL,
         stdout=subprocess.PIPE,
+        check=False,
         text=True,
     )
     return result.stdout.strip() if result.returncode == 0 else None
@@ -42,18 +43,24 @@ def version():
 
     # Attempt to retrieve version information from src/cmake/version.cmake
     with open(ROOT / "src" / "cmake" / "version.cmake") as fh:
-        for type, version in re.findall(r"\bset\(VERSION_([A-Z]+)\s+\"?(.+?)\"?\)", fh.read()):
+        for type, version in re.findall(
+            r"\bset\(VERSION_([A-Z]+)\s+\"?(.+?)\"?\)", fh.read()
+        ):
             segments[type] = version
 
     # Attempt to retrieve missing version information from Git
     git_version = command(os.getenv("GIT", "git"), "describe", "--tags")
-    if git_version:
-        if match := re.fullmatch(r"v([0-9]+)\.([0-9]+)\.([0-9]+)(?:[a-z]+\d+)?(?:-\d+-g([0-9a-f]+))?", git_version):
-            segments["MAJOR"] = match.group(1)
-            segments["MINOR"] = match.group(2)
-            segments["PATCH"] = match.group(3)
-            if match.group(4):
-                segments["LABEL"] = match.group(4)
+    if git_version and (
+        match := re.fullmatch(
+            r"v([0-9]+)\.([0-9]+)\.([0-9]+)(?:[a-z]+\d+)?(?:-\d+-g([0-9a-f]+))?",
+            git_version,
+        )
+    ):
+        segments["MAJOR"] = match.group(1)
+        segments["MINOR"] = match.group(2)
+        segments["PATCH"] = match.group(3)
+        if match.group(4):
+            segments["LABEL"] = match.group(4)
 
     # Build the full version string
     segments["FULL"] = ".".join(str(segments[k]) for k in ["MAJOR", "MINOR", "PATCH"])

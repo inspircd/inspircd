@@ -37,7 +37,7 @@ def ansi_len(text):
 
 # Wraps some text with console colored text.
 def color(text, color):
-    return "".join([color, text, RESET])
+    return f"{color}{text}{RESET}"
 
 
 # Prints a debug message to the standard output stream if INSPIRCD_DEBUG is set.
