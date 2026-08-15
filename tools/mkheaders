@@ -28,9 +28,26 @@ use FindBin        qw($RealDir);
 use List::Util     qw(uniq);
 use POSIX          qw(strftime);
 
-use lib dirname $RealDir;
-use make::common;
-use make::console;
+use constant {
+	CC_BOLD   => -t STDOUT ? "\e[1m"    : '',
+	CC_RESET  => -t STDOUT ? "\e[0m"    : '',
+	CC_RED    => -t STDOUT ? "\e[1;31m" : '',
+	CC_GREEN  => -t STDOUT ? "\e[1;32m" : '',
+	CC_YELLOW => -t STDOUT ? "\e[1;33m" : ''
+};
+
+sub execute(@) {
+	say "${\CC_BOLD}\$${\CC_RESET} @_";
+	return system @_;
+}
+
+sub print_error {
+	print STDERR "${\CC_RED}Error:${\CC_RESET} ";
+	for my $line (@_) {
+		say STDERR $line;
+	}
+	exit 1;
+}
 
 my @ignored_revisions = (
 	'46a39046196f55b52336e19662bb7bac85b731ac', # adding copyright headers
@@ -80,7 +97,7 @@ for my $path (@paths) {
 	next if $path =~ /\/vendor\//;
 
 	if (system "git ls-files --error-unmatch -- $path 1>/dev/null 2>/dev/null") {
-		say STDERR console_format "Skipping <|YELLOW $path|> as it has not been committed." if defined $ENV{MKHEADERS_VERBOSE};
+		say STDERR "Skipping ${\CC_YELLOW}$path${\CC_RESET} as it has not been committed." if defined $ENV{MKHEADERS_VERBOSE};
 		next;
 	}
 
@@ -100,7 +117,7 @@ for my $path (@paths) {
 	close $fh;
 
 	if (defined $copyright) {
-		say console_format "Updating copyright headers in <|GREEN $path|>." if defined $ENV{MKHEADERS_VERBOSE};
+		say "Updating copyright headers in ${\CC_GREEN}$path${\CC_RESET}." if defined $ENV{MKHEADERS_VERBOSE};
 		my (%authors, $commit, %commits);
 		my $ignored_args = join ' ', map { "--ignore-rev $_" } @ignored_revisions;
 		my $line_args = join ' ', map { "-L $_" } make_range ',', 0, @linenums;
@@ -152,7 +169,7 @@ for my $path (@paths) {
 		close $fh;
 		push @updated, $path;
 	} else {
-		say STDERR console_format "Skipping <|YELLOW $path|> as it contains no copyright headers." if defined $ENV{MKHEADERS_VERBOSE};
+		say STDERR "Skipping ${\CC_YELLOW}$path${\CC_RESET} as it contains no copyright headers." if defined $ENV{MKHEADERS_VERBOSE};
 	}
 }
 

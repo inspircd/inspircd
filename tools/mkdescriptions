@@ -31,24 +31,55 @@ use HTML::TreeBuilder       ();
 use Text::Sentence          qw(split_sentences);
 use YAML                    qw(LoadFile);
 
-use lib dirname $RealDir;
-use make::common;
-use make::console;
+use constant {
+	CC_BOLD      => -t STDOUT ? "\e[1m"    : '',
+	CC_RESET     => -t STDOUT ? "\e[0m"    : '',
+	CC_UNDERLINE => -t STDOUT ? "\e[4m"    : '',
+	CC_RED       => -t STDOUT ? "\e[1;31m" : '',
+	CC_GREEN     => -t STDOUT ? "\e[1;32m" : '',
+};
 
-unless (scalar @ARGV) {
-	say STDERR console_format "<|GREEN Usage:|> $0 <<|UNDERLINE DOCS-SITE|>>";
+sub execute(@) {
+	say "${\CC_BOLD}\$${\CC_RESET} @_";
+	return system @_;
+}
+
+sub print_error {
+	print STDERR "${\CC_RED}Error:${\CC_RESET} ";
+	for my $line (@_) {
+		say STDERR $line;
+	}
 	exit 1;
 }
 
-my %version = get_version();
-my $docdir = rel2abs catdir $ARGV[0], 'docs', $version{MAJOR}, 'modules';
+sub major_version {
+	my $path = catfile(dirname($RealDir), 'src', 'cmake', 'version.cmake');
+	open(my $vh, '<', $path) or print_error "unable to read $path: $!";
+	while (my $line = <$vh>) {
+		if ($line =~ /\bset\(VERSION_MAJOR\s+(.+?)\)/) {
+			close($vh);
+			return $1;
+		}
+	}
+	close($vh);
+	print_error "unable to find the InspIRCd version: $path.";
+}
+
+unless (scalar @ARGV) {
+	say STDERR "${\CC_GREEN}Usage:${\CC_RESET} $0 <${\CC_UNDERLINE}DOCS-SITE${\CC_RESET}>";
+	exit 1;
+}
+
+my $docdir = rel2abs catdir $ARGV[0], 'docs', major_version(), 'modules';
 print_error "unable to find the module directory at $docdir!" unless -d $docdir;
 
 my @updated;
 my $root = dirname $RealDir;
 for my $module (<$root/modules/extra/*.cpp>, <$root/modules/*.cpp>, <$root/modules/*/main.cpp>) {
-	print_error "unable to extract module name from $module!" unless $module =~ /m_(\w+)[.\/]/;
-	my $docfile = catfile $docdir, "$1.yml";
+	my $module_name = ($module =~ /main\.cpp$/) ? basename(dirname($module)) : basename($module, '.cpp');
+	print_error "unable to extract module name from $module!" unless $module_name;
+
+	my $docfile = catfile $docdir, "$module_name.yml";
 	print_error "unable to find the module documentation at $docfile!" unless -f $docfile;
 
 	my ($docdata, undef, undef) = LoadFile($docfile) or print_error "unable to read from $docfile: $!";

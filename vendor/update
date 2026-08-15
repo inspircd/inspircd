@@ -31,9 +31,25 @@ use FindBin               qw($RealDir);
 use POSIX                 qw(strftime);
 use TOML                  qw(from_toml);
 
-use lib dirname $RealDir;
-use make::common;
-use make::console;
+use constant {
+	CC_BOLD  => -t STDOUT ? "\e[1m"    : '',
+	CC_RESET => -t STDOUT ? "\e[0m"    : '',
+	CC_GREEN => -t STDOUT ? "\e[1;32m" : '',
+	CC_RED   => -t STDOUT ? "\e[1;31m" : '',
+};
+
+sub execute(@) {
+	say "${\CC_RED}\$${\CC_RESET} @_";
+	return system @_;
+}
+
+sub print_error {
+	print STDERR "${\CC_BOLD}Error:${\CC_RESET} ";
+	for my $line (@_) {
+		say STDERR $line;
+	}
+	exit 1;
+}
 
 my $config = catfile $RealDir, 'update.toml';
 open(my $fh, $config) or print_error "unable to read $config: $!";
@@ -44,7 +60,7 @@ my ($data, $error) = from_toml $contents;
 print_error "unable to parse $config: $!" if $error;
 
 while (my ($name, $info) = each %{$data}) {
-	say console_format "Updating <|GREEN $name|> ...";
+	say "Updating ${\CC_GREEN}$name${\CC_RESET} ...";
 
 	my $unpackdir = File::Temp->newdir;
 	my $vendordir = catdir $RealDir, $name;
