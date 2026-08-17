@@ -98,10 +98,6 @@ public:
 	}
 };
 
-/** Priority types which can be used by Module::Prioritize()
- */
-enum Priority { PRIORITY_FIRST, PRIORITY_LAST, PRIORITY_BEFORE, PRIORITY_AFTER };
-
 /** Implementation-specific flags which may be set in Module::Implements()
  */
 enum Implementation
@@ -203,6 +199,24 @@ public:
 
 	/** The properties of a module. */
 	using Properties = uint8_t;
+
+	/** Module::Priority types that can be used by Module::Prioritize(). */
+	enum Priority
+		: uint8_t
+	{
+		/** The event handler has to be called before all other module's handler. */
+		PRIORITY_FIRST,
+
+		/** The event handler has to be called after all other module's handler. */
+		PRIORITY_LAST,
+
+		/** The event handler has to be called before a specific module's handler. */
+		PRIORITY_BEFORE,
+
+		/** The event handler has to be called after a specific module's handler. */
+		PRIORITY_AFTER,
+	};
+
 
 	/** The properties that a module can have. */
 	enum Property
@@ -1070,8 +1084,8 @@ public:
 	 * then this contains a the module that your module must be placed before
 	 * or after.
 	 */
-	bool SetPriority(const ModulePtr& mod, Implementation i, Priority s, const std::string &which);
-	bool SetPriority(const ModulePtr& mod, Implementation i, Priority s, const ModulePtr& which = nullptr);
+	bool SetPriority(const ModulePtr& mod, Implementation i, Module::Priority s, const std::string &which);
+	bool SetPriority(const ModulePtr& mod, Implementation i, Module::Priority s, const ModulePtr& which = nullptr);
 
 	/** Change the priority of all events in a module.
 	 * @param mod The module to set the priority of
@@ -1081,7 +1095,7 @@ public:
 	 * SetPriority method for this, where you may specify other modules to
 	 * be prioritized against.
 	 */
-	void SetPriority(const ModulePtr& mod, Priority s);
+	void SetPriority(const ModulePtr& mod, Module::Priority s);
 
 	/** Attach an event to a module.
 	 * You may later detach the event with ModuleManager::Detach().

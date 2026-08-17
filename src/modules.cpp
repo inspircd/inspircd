@@ -245,13 +245,13 @@ void ModuleManager::DetachAll(const ModulePtr& mod)
 		Detach(static_cast<Implementation>(n), mod);
 }
 
-void ModuleManager::SetPriority(const ModulePtr& mod, Priority s)
+void ModuleManager::SetPriority(const ModulePtr& mod, Module::Priority s)
 {
 	for (size_t n = 0; n != I_END; ++n)
 		SetPriority(mod, static_cast<Implementation>(n), s);
 }
 
-bool ModuleManager::SetPriority(const ModulePtr& mod, Implementation i, Priority s, const std::string& which)
+bool ModuleManager::SetPriority(const ModulePtr& mod, Implementation i, Module::Priority s, const std::string& which)
 {
 	ModulePtr depmod;
 	if (!which.empty())
@@ -259,7 +259,7 @@ bool ModuleManager::SetPriority(const ModulePtr& mod, Implementation i, Priority
 	return SetPriority(mod, i, s, depmod);
 }
 
-bool ModuleManager::SetPriority(const ModulePtr& mod, Implementation i, Priority s, const ModulePtr& which)
+bool ModuleManager::SetPriority(const ModulePtr& mod, Implementation i, Module::Priority s, const ModulePtr& which)
 {
 	/** To change the priority of a module, we first find its position in the vector,
 	 * then we find the position of the other modules in the vector that this module
@@ -293,7 +293,7 @@ found_src:
 	size_t swap_pos;
 	switch (s)
 	{
-		case PRIORITY_LAST:
+		case Module::PRIORITY_LAST:
 		{
 			if (prioritizationState != PRIO_STATE_FIRST)
 				return true;
@@ -302,7 +302,7 @@ found_src:
 			break;
 		}
 
-		case PRIORITY_FIRST:
+		case Module::PRIORITY_FIRST:
 		{
 			if (prioritizationState != PRIO_STATE_FIRST)
 				return true;
@@ -311,7 +311,7 @@ found_src:
 			break;
 		}
 
-		case PRIORITY_BEFORE:
+		case Module::PRIORITY_BEFORE:
 		{
 			/* Find the latest possible position, only searching AFTER our position */
 			for (size_t x = EventHandlers[i].size() - 1; x > my_pos; --x)
@@ -327,7 +327,7 @@ found_src:
 		}
 
 		/* Place this module before a set of other modules */
-		case PRIORITY_AFTER:
+		case Module::PRIORITY_AFTER:
 		{
 			for (size_t x = 0; x < my_pos; ++x)
 			{
