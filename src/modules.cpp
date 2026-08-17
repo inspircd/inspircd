@@ -70,11 +70,6 @@ void Module::CompareLinkData(const LinkData& otherdata, LinkDataDiff& diffs)
 	insp::map_difference(data, otherdata, diffs);
 }
 
-void Module::DetachEvent(Implementation i)
-{
-	ServerInstance->Modules.Detach(i, shared_from_this());
-}
-
 void Module::GetLinkData(LinkData&)
 {
 	// Intentionally left blank.
@@ -124,79 +119,93 @@ ModulePtr Module::Share()
 	return newpointer;
 }
 
-ModResult	Module::OnSendSnotice(char& snomask, std::string& type, const std::string& message) { DetachEvent(I_OnSendSnotice); return MOD_RES_PASSTHRU; }
-void		Module::OnUserConnect(LocalUser*) { DetachEvent(I_OnUserConnect); }
-ModResult	Module::OnUserPreQuit(LocalUser*, std::string&, std::string&) { DetachEvent(I_OnUserPreQuit); return MOD_RES_PASSTHRU; }
-void		Module::OnUserQuit(User*, const std::string&, const std::string&) { DetachEvent(I_OnUserQuit); }
-void		Module::OnUserDisconnect(LocalUser*) { DetachEvent(I_OnUserDisconnect); }
-void		Module::OnUserJoin(Membership*, bool, bool, User::List&) { DetachEvent(I_OnUserJoin); }
-void		Module::OnPostJoin(Membership*) { DetachEvent(I_OnPostJoin); }
-void		Module::OnUserPart(Membership*, std::string&, User::List&) { DetachEvent(I_OnUserPart); }
-void		Module::OnPreRehash(User*, const std::string&) { DetachEvent(I_OnPreRehash); }
-void		Module::OnModuleRehash(User*, const std::string&) { DetachEvent(I_OnModuleRehash); }
-ModResult	Module::OnUserPreJoin(LocalUser*, Channel*, const std::string&, PrefixMode::Set&, const std::string&, bool) { DetachEvent(I_OnUserPreJoin); return MOD_RES_PASSTHRU; }
-void		Module::OnMode(User*, User*, Channel*, const Modes::ChangeList&, ModeParser::ModeProcessFlag) { DetachEvent(I_OnMode); }
-ModResult	Module::OnUserPreInvite(User*, User*, Channel*, time_t) { DetachEvent(I_OnUserPreInvite); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserPreMessage(User*, MessageTarget&, MessageDetails&) { DetachEvent(I_OnUserPreMessage); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserPreNick(LocalUser*, const std::string&) { DetachEvent(I_OnUserPreNick); return MOD_RES_PASSTHRU; }
-void		Module::OnUserPostNick(User*, const std::string&) { DetachEvent(I_OnUserPostNick); }
-ModResult	Module::OnPreMode(User*, User*, Channel*, Modes::ChangeList&) { DetachEvent(I_OnPreMode); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnKill(User*, User*, const std::string&) { DetachEvent(I_OnKill); return MOD_RES_PASSTHRU; }
-void		Module::OnLoadModule(const ModulePtr&) { DetachEvent(I_OnLoadModule); }
-void		Module::OnUnloadModule(const ModulePtr&) { DetachEvent(I_OnUnloadModule); }
-void		Module::OnBackgroundTimer(time_t) { DetachEvent(I_OnBackgroundTimer); }
-ModResult	Module::OnPreCommand(std::string&, CommandBase::Params&, LocalUser*, bool) { DetachEvent(I_OnPreCommand); return MOD_RES_PASSTHRU; }
-void		Module::OnPostCommand(Command*, const CommandBase::Params&, LocalUser*, CmdResult, bool) { DetachEvent(I_OnPostCommand); }
-void		Module::OnCommandBlocked(const std::string&, const CommandBase::Params&, LocalUser*) { DetachEvent(I_OnCommandBlocked); }
-void		Module::OnUserInit(LocalUser*) { DetachEvent(I_OnUserInit); }
-void		Module::OnUserPostInit(LocalUser*) { DetachEvent(I_OnUserPostInit); }
-ModResult	Module::OnCheckReady(LocalUser*) { DetachEvent(I_OnCheckReady); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserRegister(LocalUser*) { DetachEvent(I_OnUserRegister); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserPreKick(User*, Membership*, const std::string&) { DetachEvent(I_OnUserPreKick); return MOD_RES_PASSTHRU; }
-void		Module::OnUserKick(User*, Membership*, const std::string&, User::List&) { DetachEvent(I_OnUserKick); }
-ModResult	Module::OnRawMode(User*, Channel*, const Modes::Change&) { DetachEvent(I_OnRawMode); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckInvite(User*, Channel*) { DetachEvent(I_OnCheckInvite); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckKey(User*, Channel*, const std::string&) { DetachEvent(I_OnCheckKey); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckLimit(User*, Channel*) { DetachEvent(I_OnCheckLimit); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckList(ListModeBase* lm, User*, Channel*, bool) { DetachEvent(I_OnCheckList); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckListEntry(ListModeBase* lm, User*, Channel*, const std::string&, bool) { DetachEvent(I_OnCheckListEntry); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnPreTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPreTopicChange); return MOD_RES_PASSTHRU; }
-void		Module::OnPostConnect(User*) { DetachEvent(I_OnPostConnect); }
-void		Module::OnUserPostMessage(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserPostMessage); }
-void		Module::OnUserMessageBlocked(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserMessageBlocked); }
-void		Module::OnUserInvite(User*, User*, Channel*, time_t, ModeHandler::Rank, User::List&) { DetachEvent(I_OnUserInvite); }
-void		Module::OnPostTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPostTopicChange); }
-void		Module::OnDecodeMetadata(Extensible*, const std::string&, const std::string&) { DetachEvent(I_OnDecodeMetadata); }
-void		Module::OnChangeHost(User*, const std::string&) { DetachEvent(I_OnChangeHost); }
-void		Module::OnChangeRealHost(User*, const std::string&) { DetachEvent(I_OnChangeRealHost); }
-void		Module::OnPostChangeRealHost(User*) { DetachEvent(I_OnPostChangeRealHost); }
-void		Module::OnChangeRealName(User*, const std::string&) { DetachEvent(I_OnChangeRealName); }
-void		Module::OnChangeUser(User*, const std::string&) { DetachEvent(I_OnChangeUser); }
-void		Module::OnChangeRealUser(User*, const std::string&) { DetachEvent(I_OnChangeRealUser); }
-void		Module::OnPostChangeRealUser(User*) { DetachEvent(I_OnPostChangeRealUser); }
-void		Module::OnAddLine(User*, XLine*) { DetachEvent(I_OnAddLine); }
-void		Module::OnDelLine(User*, XLine*) { DetachEvent(I_OnDelLine); }
-void		Module::OnExpireLine(XLine*) { DetachEvent(I_OnExpireLine); }
-ModResult	Module::OnChannelPreDelete(Channel*) { DetachEvent(I_OnChannelPreDelete); return MOD_RES_PASSTHRU; }
-void		Module::OnChannelDelete(Channel*) { DetachEvent(I_OnChannelDelete); }
-void		Module::OnBuildNeighborList(User*, User::NeighborList&, User::NeighborExceptions&) { DetachEvent(I_OnBuildNeighborList); }
-void		Module::OnGarbageCollect() { DetachEvent(I_OnGarbageCollect); }
-void		Module::OnUserMessage(User*, const MessageTarget&, const MessageDetails&) { DetachEvent(I_OnUserMessage); }
-ModResult	Module::OnNumeric(User*, Numeric::Numeric&) { DetachEvent(I_OnNumeric); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnAcceptConnection(int, ListenSocket*, const irc::sockets::sockaddrs&, const irc::sockets::sockaddrs&) { DetachEvent(I_OnAcceptConnection); return MOD_RES_PASSTHRU; }
-void		Module::OnChangeRemoteAddress(LocalUser*) { DetachEvent(I_OnChangeRemoteAddress); }
-void		Module::OnServiceAdd(Service::Provider&) { DetachEvent(I_OnServiceAdd); }
-void		Module::OnServiceDel(Service::Provider&) { DetachEvent(I_OnServiceDel); }
-ModResult	Module::OnUserWrite(LocalUser*, ClientProtocol::Message&) { DetachEvent(I_OnUserWrite); return MOD_RES_PASSTHRU; }
-void		Module::OnShutdown(const std::string& reason, bool) { DetachEvent(I_OnShutdown); }
-ModResult	Module::OnPreOperLogin(LocalUser*, const std::shared_ptr<OperAccount>&, bool) { DetachEvent(I_OnPreOperLogin); return MOD_RES_PASSTHRU; }
-void		Module::OnOperLogin(User*, const std::shared_ptr<OperAccount>&, bool) { DetachEvent(I_OnOperLogin); }
-void		Module::OnPostOperLogin(User*, bool) { DetachEvent(I_OnPostOperLogin); }
-void		Module::OnOperLogout(User*) { DetachEvent(I_OnOperLogout); }
-void		Module::OnPostOperLogout(User*, const std::shared_ptr<OperAccount>&) { DetachEvent(I_OnPostOperLogout); }
-ModResult	Module::OnPreChangeConnectClass(LocalUser*, const std::shared_ptr<ConnectClass>&, std::optional<Numeric::Numeric>&) { DetachEvent(I_OnPreChangeConnectClass); return MOD_RES_PASSTHRU; }
-void		Module::OnChangeConnectClass(LocalUser*, const std::shared_ptr<ConnectClass>&, bool) { DetachEvent(I_OnChangeConnectClass); }
-void		Module::OnPostChangeConnectClass(LocalUser*, const std::shared_ptr<ConnectClass>&, bool) { DetachEvent(I_OnPostChangeConnectClass); }
+#define DEFAULT_MODULE_EVENT_RETURN_ModResult MOD_RES_PASSTHRU
+#define DEFAULT_MODULE_EVENT_RETURN_void
+#define DEFAULT_MODULE_EVENT(NAME, RETURN, ...) \
+	RETURN Module:: NAME ( __VA_ARGS__ ) \
+	{ \
+		ServerInstance->Modules.Detach(I_ ## NAME, shared_from_this()); \
+		return DEFAULT_MODULE_EVENT_RETURN_ ## RETURN; \
+	}
+
+//                   NAME                       RETURN      ARGS...
+DEFAULT_MODULE_EVENT(OnAcceptConnection,        ModResult,  int, ListenSocket*, const irc::sockets::sockaddrs&, const irc::sockets::sockaddrs&);
+DEFAULT_MODULE_EVENT(OnAddLine,                 void,       User*, XLine*);
+DEFAULT_MODULE_EVENT(OnBackgroundTimer,         void,       time_t);
+DEFAULT_MODULE_EVENT(OnBuildNeighborList,       void,       User*, User::NeighborList&, User::NeighborExceptions&);
+DEFAULT_MODULE_EVENT(OnChangeConnectClass,      void,       LocalUser*, const std::shared_ptr<ConnectClass>&, bool);
+DEFAULT_MODULE_EVENT(OnChangeHost,              void,       User*, const std::string&);
+DEFAULT_MODULE_EVENT(OnChangeRealHost,          void,       User*, const std::string&);
+DEFAULT_MODULE_EVENT(OnChangeRealName,          void,       User*, const std::string&);
+DEFAULT_MODULE_EVENT(OnChangeRealUser,          void,       User*, const std::string&);
+DEFAULT_MODULE_EVENT(OnChangeRemoteAddress,     void,       LocalUser*);
+DEFAULT_MODULE_EVENT(OnChangeUser,              void,       User*, const std::string&);
+DEFAULT_MODULE_EVENT(OnChannelDelete,           void,       Channel*);
+DEFAULT_MODULE_EVENT(OnChannelPreDelete,        ModResult,  Channel*);
+DEFAULT_MODULE_EVENT(OnCheckInvite,             ModResult,  User*, Channel*);
+DEFAULT_MODULE_EVENT(OnCheckKey,                ModResult,  User*, Channel*, const std::string&);
+DEFAULT_MODULE_EVENT(OnCheckLimit,              ModResult,  User*, Channel*);
+DEFAULT_MODULE_EVENT(OnCheckList,               ModResult,  ListModeBase* lm, User*, Channel*, bool);
+DEFAULT_MODULE_EVENT(OnCheckListEntry,          ModResult,  ListModeBase* lm, User*, Channel*, const std::string&, bool);
+DEFAULT_MODULE_EVENT(OnCheckReady,              ModResult,  LocalUser*);
+DEFAULT_MODULE_EVENT(OnCommandBlocked,          void,       const std::string&, const CommandBase::Params&, LocalUser*);
+DEFAULT_MODULE_EVENT(OnDecodeMetadata,          void,       Extensible*, const std::string&, const std::string&);
+DEFAULT_MODULE_EVENT(OnDelLine,                 void,       User*, XLine*);
+DEFAULT_MODULE_EVENT(OnExpireLine,              void,       XLine*);
+DEFAULT_MODULE_EVENT(OnGarbageCollect,          void);
+DEFAULT_MODULE_EVENT(OnKill,                    ModResult,  User*, User*, const std::string&);
+DEFAULT_MODULE_EVENT(OnLoadModule,              void,       const ModulePtr&);
+DEFAULT_MODULE_EVENT(OnMode,                    void,       User*, User*, Channel*, const Modes::ChangeList&, ModeParser::ModeProcessFlag);
+DEFAULT_MODULE_EVENT(OnModuleRehash,            void,       User*, const std::string&);
+DEFAULT_MODULE_EVENT(OnNumeric,                 ModResult,  User*, Numeric::Numeric&);
+DEFAULT_MODULE_EVENT(OnOperLogin,               void,       User*, const std::shared_ptr<OperAccount>&, bool);
+DEFAULT_MODULE_EVENT(OnOperLogout,              void,       User*);
+DEFAULT_MODULE_EVENT(OnPostChangeConnectClass,  void,       LocalUser*, const std::shared_ptr<ConnectClass>&, bool);
+DEFAULT_MODULE_EVENT(OnPostChangeRealHost,      void,       User*);
+DEFAULT_MODULE_EVENT(OnPostChangeRealUser,      void,       User*);
+DEFAULT_MODULE_EVENT(OnPostCommand,             void,       Command*, const CommandBase::Params&, LocalUser*, CmdResult, bool);
+DEFAULT_MODULE_EVENT(OnPostConnect,             void,       User*);
+DEFAULT_MODULE_EVENT(OnPostJoin,                void,       Membership*);
+DEFAULT_MODULE_EVENT(OnPostOperLogin,           void,       User*, bool);
+DEFAULT_MODULE_EVENT(OnPostOperLogout,          void,       User*, const std::shared_ptr<OperAccount>&);
+DEFAULT_MODULE_EVENT(OnPostTopicChange,         void,       User*, Channel*, const std::string&);
+DEFAULT_MODULE_EVENT(OnPreChangeConnectClass,   ModResult,  LocalUser*, const std::shared_ptr<ConnectClass>&, std::optional<Numeric::Numeric>&);
+DEFAULT_MODULE_EVENT(OnPreCommand,              ModResult,  std::string&, CommandBase::Params&, LocalUser*, bool);
+DEFAULT_MODULE_EVENT(OnPreMode,                 ModResult,  User*, User*, Channel*, Modes::ChangeList&);
+DEFAULT_MODULE_EVENT(OnPreOperLogin,            ModResult,  LocalUser*, const std::shared_ptr<OperAccount>&, bool);
+DEFAULT_MODULE_EVENT(OnPreRehash,               void,       User*, const std::string&);
+DEFAULT_MODULE_EVENT(OnPreTopicChange,          ModResult,  User*, Channel*, const std::string&);
+DEFAULT_MODULE_EVENT(OnRawMode,                 ModResult,  User*, Channel*, const Modes::Change&);
+DEFAULT_MODULE_EVENT(OnSendSnotice,             ModResult,  char& snomask, std::string& type, const std::string& message);
+DEFAULT_MODULE_EVENT(OnServiceAdd,              void,       Service::Provider&);
+DEFAULT_MODULE_EVENT(OnServiceDel,              void,       Service::Provider&);
+DEFAULT_MODULE_EVENT(OnShutdown,                void,       const std::string& reason, bool);
+DEFAULT_MODULE_EVENT(OnUnloadModule,            void,       const ModulePtr&);
+DEFAULT_MODULE_EVENT(OnUserConnect,             void,       LocalUser*);
+DEFAULT_MODULE_EVENT(OnUserDisconnect,          void,       LocalUser*);
+DEFAULT_MODULE_EVENT(OnUserInit,                void,       LocalUser*);
+DEFAULT_MODULE_EVENT(OnUserInvite,              void,       User*, User*, Channel*, time_t, ModeHandler::Rank, User::List&);
+DEFAULT_MODULE_EVENT(OnUserJoin,                void,       Membership*, bool, bool, User::List&);
+DEFAULT_MODULE_EVENT(OnUserKick,                void,       User*, Membership*, const std::string&, User::List&);
+DEFAULT_MODULE_EVENT(OnUserMessage,             void,       User*, const MessageTarget&, const MessageDetails&);
+DEFAULT_MODULE_EVENT(OnUserMessageBlocked,      void,       User*, const MessageTarget&, const MessageDetails&);
+DEFAULT_MODULE_EVENT(OnUserPart,                void,       Membership*, std::string&, User::List&);
+DEFAULT_MODULE_EVENT(OnUserPostInit,            void,       LocalUser*);
+DEFAULT_MODULE_EVENT(OnUserPostMessage,         void,       User*, const MessageTarget&, const MessageDetails&);
+DEFAULT_MODULE_EVENT(OnUserPostNick,            void,       User*, const std::string&);
+DEFAULT_MODULE_EVENT(OnUserPreInvite,           ModResult,  User*, User*, Channel*, time_t);
+DEFAULT_MODULE_EVENT(OnUserPreJoin,             ModResult,  LocalUser*, Channel*, const std::string&, PrefixMode::Set&, const std::string&, bool);
+DEFAULT_MODULE_EVENT(OnUserPreKick,             ModResult,  User*, Membership*, const std::string&);
+DEFAULT_MODULE_EVENT(OnUserPreMessage,          ModResult,  User*, MessageTarget&, MessageDetails&);
+DEFAULT_MODULE_EVENT(OnUserPreNick,             ModResult,  LocalUser*, const std::string&);
+DEFAULT_MODULE_EVENT(OnUserPreQuit,             ModResult,  LocalUser*, std::string&, std::string&);
+DEFAULT_MODULE_EVENT(OnUserQuit,                void,       User*, const std::string&, const std::string&);
+DEFAULT_MODULE_EVENT(OnUserRegister,            ModResult,  LocalUser*);
+DEFAULT_MODULE_EVENT(OnUserWrite,               ModResult,  LocalUser*, ClientProtocol::Message&);
+
+#undef DEFAULT_MODULE_EVENT
+#undef DEFAULT_MODULE_EVENT_RETURN_void
+#undef DEFAULT_MODULE_EVENT_RETURN_ModResult
 
 bool ModuleManager::Attach(Implementation i, const ModulePtr& mod)
 {

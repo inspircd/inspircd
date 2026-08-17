@@ -236,11 +236,6 @@ protected:
 	 */
 	Module(int mprops, const std::string& mversion, const std::string& mdesc);
 
-	/** Detach an event from this module
-	 * @param i Event type to detach
-	 */
-	void DetachEvent(Implementation i);
-
 public:
 	/** Data which is synchronised between servers on link. */
 	using LinkData = insp::casemapped_map<std::string>;
