@@ -758,7 +758,7 @@ public:
 		hookprov->config = config;
 	}
 
-	void OnCleanup(ExtensionType type, Extensible* item) override
+	void Cleanup(ExtensionType type, Extensible* item) override
 	{
 		if (type != ExtensionType::USER)
 			return;

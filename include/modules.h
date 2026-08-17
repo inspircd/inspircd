@@ -632,7 +632,7 @@ public:
 	 * @param type The type of extensible being cleaned up.
 	 * @param item A pointer to the extensible which is being cleaned up.
 	 */
-	virtual void OnCleanup(ExtensionType type, Extensible* item) ATTR_NOT_NULL(3);
+	virtual void Cleanup(ExtensionType type, Extensible* item) ATTR_NOT_NULL(3);
 
 	/** Called after any nickchange, local or remote. This can be used to track users after nickchanges
 	 * have been applied. Please note that although you can see remote nickchanges through this function, you should

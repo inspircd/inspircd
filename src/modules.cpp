@@ -58,6 +58,11 @@ Cullable::Result Module::Cull()
 	return Cullable::Cull();
 }
 
+void Module::Cleanup(ExtensionType type, Extensible* item)
+{
+	// Intentionally left blank.
+}
+
 void Module::CompareLinkData(const LinkData& otherdata, LinkDataDiff& diffs)
 {
 	LinkData data;
@@ -172,7 +177,6 @@ void		Module::OnPostChangeRealUser(User*) { DetachEvent(I_OnPostChangeRealUser);
 void		Module::OnAddLine(User*, XLine*) { DetachEvent(I_OnAddLine); }
 void		Module::OnDelLine(User*, XLine*) { DetachEvent(I_OnDelLine); }
 void		Module::OnExpireLine(XLine*) { DetachEvent(I_OnExpireLine); }
-void		Module::OnCleanup(ExtensionType, Extensible*) { }
 ModResult	Module::OnChannelPreDelete(Channel*) { DetachEvent(I_OnChannelPreDelete); return MOD_RES_PASSTHRU; }
 void		Module::OnChannelDelete(Channel*) { DetachEvent(I_OnChannelDelete); }
 void		Module::OnBuildNeighborList(User*, User::NeighborList&, User::NeighborExceptions&) { DetachEvent(I_OnBuildNeighborList); }
@@ -427,11 +431,11 @@ void ModuleManager::DoSafeUnload(const ModulePtr& mod)
 	{
 		Channel* chan = c->second;
 		++c;
-		mod->OnCleanup(ExtensionType::CHANNEL, chan);
+		mod->Cleanup(ExtensionType::CHANNEL, chan);
 		chan->UnhookExtensions(items);
 		for (const auto& [_, memb] : chan->GetUsers())
 		{
-			mod->OnCleanup(ExtensionType::MEMBERSHIP, memb);
+			mod->Cleanup(ExtensionType::MEMBERSHIP, memb);
 			memb->UnhookExtensions(items);
 		}
 	}
@@ -442,7 +446,7 @@ void ModuleManager::DoSafeUnload(const ModulePtr& mod)
 		User* user = u->second;
 		// The module may quit the user (e.g. TLS mod unloading) and that will remove it from the container
 		++u;
-		mod->OnCleanup(ExtensionType::USER, user);
+		mod->Cleanup(ExtensionType::USER, user);
 		user->UnhookExtensions(items);
 	}
 
