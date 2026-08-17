@@ -362,7 +362,7 @@ private:
 
 public:
 	ModuleGateway()
-		: Module(VF_VENDOR, "Adds the ability for IRC gateways to forward the real IP address of users connecting through them.")
+		: Module(VENDOR, "Adds the ability for IRC gateways to forward the real IP address of users connecting through them.")
 		, WebIRC::EventListener(weak_from_this())
 		, Whois::EventListener(weak_from_this())
 		, cmdhexip(weak_from_this())

@@ -33,7 +33,7 @@ private:
 
 public:
 	ModuleOperLog()
-		: Module(VF_VENDOR, "Allows the server administrator to make the server log when a server operator-only command is executed.")
+		: Module(VENDOR, "Allows the server administrator to make the server log when a server operator-only command is executed.")
 	{
 	}
 

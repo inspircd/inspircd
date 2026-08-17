@@ -191,7 +191,7 @@ private:
 
 public:
 	ModuleHideMode()
-		: Module(VF_VENDOR, "Allows mode changes to be hidden from users without a prefix mode ranked equal to or higher than a defined level.")
+		: Module(VENDOR, "Allows mode changes to be hidden from users without a prefix mode ranked equal to or higher than a defined level.")
 		, modehook(weak_from_this())
 	{
 	}

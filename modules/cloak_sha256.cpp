@@ -346,7 +346,7 @@ private:
 
 public:
 	ModuleCloakSHA256()
-		: Module(VF_VENDOR, "Adds the hmac-sha256 and hmac-sha256-addr cloaking methods for use with the cloak module.")
+		: Module(VENDOR, "Adds the hmac-sha256 and hmac-sha256-addr cloaking methods for use with the cloak module.")
 		, addrcloak(weak_from_this(), "hmac-sha256-addr", false)
 		, hostcloak(weak_from_this(), "hmac-sha256", true)
 	{

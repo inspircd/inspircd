@@ -82,7 +82,7 @@ private:
 
 public:
 	ModuleIRCv3ServerTime()
-		: Module(VF_VENDOR, "Provides the IRCv3 server-time client capability.")
+		: Module(VENDOR, "Provides the IRCv3 server-time client capability.")
 		, tag(weak_from_this())
 	{
 	}

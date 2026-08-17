@@ -85,7 +85,7 @@ private:
 
 public:
 	ModuleOperChans()
-		: Module(VF_VENDOR, "Adds channel mode O (operonly) which prevents non-server operators from joining the channel.")
+		: Module(VENDOR, "Adds channel mode O (operonly) which prevents non-server operators from joining the channel.")
 		, oc(weak_from_this(), "operonly", 'O', true)
 		, operaccount(weak_from_this())
 		, opertype(weak_from_this())

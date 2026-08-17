@@ -518,7 +518,7 @@ private:
 
 public:
 	ModuleSilence()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SILENCE command which allows users to ignore other users on server-side.")
+		: Module(VENDOR | OPTCOMMON, "Adds the /SILENCE command which allows users to ignore other users on server-side.")
 		, CTCTags::EventListener(weak_from_this())
 		, ISupport::EventListener(weak_from_this())
 		, cmd(weak_from_this())

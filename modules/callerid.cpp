@@ -395,7 +395,7 @@ private:
 
 public:
 	ModuleCallerID()
-		: Module(VF_VENDOR | VF_COMMON, "Provides user mode g (callerid) which allows users to require that other users are on their whitelist before messaging them.")
+		: Module(VENDOR | COMMON, "Provides user mode g (callerid) which allows users to require that other users are on their whitelist before messaging them.")
 		, CTCTags::EventListener(weak_from_this())
 		, ISupport::EventListener(weak_from_this())
 		, cmd(weak_from_this())

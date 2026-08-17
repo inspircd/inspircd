@@ -95,7 +95,7 @@ class ModuleAutoOp final
 
 public:
 	ModuleAutoOp()
-		: Module(VF_VENDOR, "Adds channel mode w (autoop) which allows channel operators to define an access list which gives status ranks to users on join.")
+		: Module(VENDOR, "Adds channel mode w (autoop) which allows channel operators to define an access list which gives status ranks to users on join.")
 		, mh(weak_from_this())
 	{
 	}

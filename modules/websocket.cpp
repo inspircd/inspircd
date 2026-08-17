@@ -690,7 +690,7 @@ private:
 
 public:
 	ModuleWebSocket()
-		: Module(VF_VENDOR, "Allows WebSocket clients to connect to the IRC server.")
+		: Module(VENDOR, "Allows WebSocket clients to connect to the IRC server.")
 		, Whois::EventListener(weak_from_this())
 		, hookprov(std::make_shared<WebSocketHookProvider>(weak_from_this()))
 		, isupportprov(weak_from_this())

@@ -51,7 +51,7 @@ private:
 
 public:
 	ModuleConnFlood()
-		: Module(VF_VENDOR, "Throttles excessive connections to the server.")
+		: Module(VENDOR, "Throttles excessive connections to the server.")
 	{
 	}
 

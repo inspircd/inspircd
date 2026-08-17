@@ -170,7 +170,7 @@ class ModuleLusers final
 
 public:
 	ModuleLusers()
-		: Module(VF_CORE | VF_VENDOR, "Provides the LUSERS command")
+		: Module(CORE | VENDOR, "Provides the LUSERS command")
 		, ServerProtocol::LinkEventListener(weak_from_this())
 		, invisiblemode(weak_from_this(), "invisible")
 		, counters(invisiblemode)

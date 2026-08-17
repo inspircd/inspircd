@@ -54,7 +54,7 @@ private:
 
 public:
 	ModuleRestrictMsg()
-		: Module(VF_VENDOR, "Prevents users who are not server operators from messaging each other.")
+		: Module(VENDOR, "Prevents users who are not server operators from messaging each other.")
 		, CTCTags::EventListener(weak_from_this())
 	{
 	}

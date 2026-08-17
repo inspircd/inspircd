@@ -153,7 +153,7 @@ private:
 
 public:
 	CoreModStub()
-		: Module(VF_CORE | VF_VENDOR, "Provides stubs for unimplemented commands")
+		: Module(CORE | VENDOR, "Provides stubs for unimplemented commands")
 		, cmdcapab(weak_from_this())
 		, cmdconnect(weak_from_this())
 		, cmdlinks(weak_from_this())

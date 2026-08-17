@@ -75,7 +75,7 @@ private:
 
 public:
 	ModuleConnJoin()
-		: Module(VF_VENDOR, "Allows the server administrator to force users to join one or more channels on connect.")
+		: Module(VENDOR, "Allows the server administrator to force users to join one or more channels on connect.")
 		, ext(weak_from_this(), "join-timer", ExtensionType::USER)
 	{
 	}

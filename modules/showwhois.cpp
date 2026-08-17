@@ -86,7 +86,7 @@ private:
 public:
 
 	ModuleShowwhois()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds user mode W (showwhois) which allows users to be informed when someone does a /WHOIS query on their nick.")
+		: Module(VENDOR | OPTCOMMON, "Adds user mode W (showwhois) which allows users to be informed when someone does a /WHOIS query on their nick.")
 		, Whois::EventListener(weak_from_this())
 		, sw(weak_from_this())
 		, cmd(weak_from_this())

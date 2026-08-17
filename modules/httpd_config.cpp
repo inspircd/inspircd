@@ -34,7 +34,7 @@ private:
 
 public:
 	ModuleHttpConfig()
-		: Module(VF_VENDOR, "Allows the server configuration to be viewed over HTTP via the /config path.")
+		: Module(VENDOR, "Allows the server configuration to be viewed over HTTP via the /config path.")
 		, HTTPRequestEventListener(weak_from_this())
 		, API(weak_from_this())
 	{

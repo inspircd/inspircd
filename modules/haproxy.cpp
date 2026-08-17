@@ -492,7 +492,7 @@ private:
 
 public:
 	ModuleHAProxy()
-		: Module(VF_VENDOR, "Allows IRC connections to be made using reverse proxies that implement version 2 of the HAProxy PROXY protocol.")
+		: Module(VENDOR, "Allows IRC connections to be made using reverse proxies that implement version 2 of the HAProxy PROXY protocol.")
 		, hookprov(std::make_shared<HAProxyHookProvider>(weak_from_this()))
 	{
 	}

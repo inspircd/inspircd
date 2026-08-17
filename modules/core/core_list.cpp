@@ -205,7 +205,7 @@ private:
 
 public:
 	CoreModList()
-		: Module(VF_CORE | VF_VENDOR, "Provides the LIST command")
+		: Module(CORE | VENDOR, "Provides the LIST command")
 		, ISupport::EventListener(weak_from_this())
 		, cmd(weak_from_this())
 	{

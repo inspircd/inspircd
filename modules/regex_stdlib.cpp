@@ -96,7 +96,7 @@ private:
 
 public:
 	ModuleRegexStdLib()
-		: Module(VF_VENDOR, "Provides the stdregex regular expression engine which uses the C++11 std::regex regular expression matching system.")
+		: Module(VENDOR, "Provides the stdregex regular expression engine which uses the C++11 std::regex regular expression matching system.")
 		, regex(weak_from_this())
 	{
 	}

@@ -108,7 +108,7 @@ private:
 
 public:
 	ModuleSetIdent()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SETIDENT command which allows server operators to change the username of users.")
+		: Module(VENDOR | OPTCOMMON, "Adds the /SETIDENT command which allows server operators to change the username of users.")
 		, cmd(weak_from_this())
 	{
 	}

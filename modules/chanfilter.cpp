@@ -96,7 +96,7 @@ class ModuleChanFilter final
 public:
 
 	ModuleChanFilter()
-		: Module(VF_VENDOR, "Adds channel mode g (filter) which allows channel operators to define glob patterns for inappropriate phrases that are not allowed to be used in the channel.")
+		: Module(VENDOR, "Adds channel mode g (filter) which allows channel operators to define glob patterns for inappropriate phrases that are not allowed to be used in the channel.")
 		, exemptionprov(weak_from_this())
 		, cf(weak_from_this())
 	{

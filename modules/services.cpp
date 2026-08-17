@@ -665,7 +665,7 @@ private:
 
 public:
 	ModuleServices()
-		: Module(VF_COMMON | VF_VENDOR, "Provides support for integrating with a services server.")
+		: Module(COMMON | VENDOR, "Provides support for integrating with a services server.")
 		, ServerProtocol::RouteEventListener(weak_from_this())
 		, Stats::EventListener(weak_from_this())
 		, accountapi(weak_from_this())

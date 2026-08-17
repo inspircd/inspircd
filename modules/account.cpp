@@ -203,7 +203,7 @@ private:
 
 public:
 	ModuleAccount()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds support for user accounts.")
+		: Module(VENDOR | OPTCOMMON, "Adds support for user accounts.")
 		, CTCTags::EventListener(weak_from_this())
 		, ISupport::EventListener(weak_from_this())
 		, Who::EventListener(weak_from_this())

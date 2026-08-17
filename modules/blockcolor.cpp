@@ -38,7 +38,7 @@ private:
 
 public:
 	ModuleBlockColor()
-		: Module(VF_VENDOR, "Adds channel mode c (blockcolor) which allows channels to block messages which contain IRC formatting codes.")
+		: Module(VENDOR, "Adds channel mode c (blockcolor) which allows channels to block messages which contain IRC formatting codes.")
 		, extban(weak_from_this(), "blockcolor", 'c')
 		, exemptionprov(weak_from_this())
 		, bc(weak_from_this(), "blockcolor", 'c')

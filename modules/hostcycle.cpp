@@ -93,7 +93,7 @@ class ModuleHostCycle final
 
 public:
 	ModuleHostCycle()
-		: Module(VF_VENDOR, "Sends a fake disconnection and reconnection when a user's username or hostname changes to allow clients to update their internal caches.")
+		: Module(VENDOR, "Sends a fake disconnection and reconnection when a user's username or hostname changes to allow clients to update their internal caches.")
 		, chghostcap(weak_from_this(), "chghost")
 		, quitmsghost("Changing hostname")
 		, quitmsguser("Changing username")

@@ -52,7 +52,7 @@ private:
 
 public:
 	ModuleCustomPrefix()
-		: Module(VF_VENDOR, "Allows the server administrator to configure custom channel prefix modes.")
+		: Module(VENDOR, "Allows the server administrator to configure custom channel prefix modes.")
 	{
 	}
 

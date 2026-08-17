@@ -436,7 +436,7 @@ private:
 
 public:
 	ModuleSSLInfo()
-		: Module(VF_VENDOR, "Adds user facing TLS information, various TLS configuration options, and the /SSLINFO command to look up TLS certificate information for other users.")
+		: Module(VENDOR, "Adds user facing TLS information, various TLS configuration options, and the /SSLINFO command to look up TLS certificate information for other users.")
 		, Stats::EventListener(weak_from_this())
 		, WebIRC::EventListener(weak_from_this())
 		, Who::EventListener(weak_from_this())

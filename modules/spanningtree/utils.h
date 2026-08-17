@@ -74,7 +74,7 @@ public:
 	 */
 	bool AnnounceTSChange;
 
-	/** Allow modules marked as VF_OPTCOMMON to be mismatched when linking
+	/** Allow modules marked as OPTCOMMON to be mismatched when linking
 	 */
 	bool AllowMismatch;
 

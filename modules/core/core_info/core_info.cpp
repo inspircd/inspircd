@@ -130,7 +130,7 @@ private:
 
 public:
 	CoreModInfo()
-		: Module(VF_CORE | VF_VENDOR, "Provides the ADMIN, COMMANDS, INFO, MODULES, MOTD, TIME, SERVLIST, and VERSION commands")
+		: Module(CORE | VENDOR, "Provides the ADMIN, COMMANDS, INFO, MODULES, MOTD, TIME, SERVLIST, and VERSION commands")
 		, ISupport::EventListener(weak_from_this())
 		, cmdadmin(weak_from_this())
 		, cmdcommands(weak_from_this())

@@ -61,7 +61,7 @@ private:
 
 public:
 	ModuleIRCv3EchoMessage()
-		: Module(VF_VENDOR, "Provides the IRCv3 echo-message client capability.")
+		: Module(VENDOR, "Provides the IRCv3 echo-message client capability.")
 		, CTCTags::EventListener(weak_from_this())
 		, echotag(weak_from_this())
 		, tagmsgprov(weak_from_this(), "TAGMSG")

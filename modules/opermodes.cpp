@@ -29,7 +29,7 @@ class ModuleOperModes final
 {
 public:
 	ModuleOperModes()
-		: Module(VF_VENDOR, "Allows the server administrator to set user modes on server operators when they log into their server operator account.")
+		: Module(VENDOR, "Allows the server administrator to set user modes on server operators when they log into their server operator account.")
 	{
 	}
 

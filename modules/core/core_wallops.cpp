@@ -79,7 +79,7 @@ private:
 
 public:
 	CoreModWallops()
-		: Module(VF_CORE | VF_VENDOR, "Provides the WALLOPS command")
+		: Module(CORE | VENDOR, "Provides the WALLOPS command")
 		, cmd(weak_from_this())
 	{
 	}

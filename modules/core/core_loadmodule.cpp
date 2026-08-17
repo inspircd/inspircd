@@ -105,7 +105,7 @@ class CoreModLoadModule final
 
 public:
 	CoreModLoadModule()
-		: Module(VF_CORE | VF_VENDOR, "Provides the LOADMODULE and UNLOADMODULE commands")
+		: Module(CORE | VENDOR, "Provides the LOADMODULE and UNLOADMODULE commands")
 		, cmdloadmod(weak_from_this())
 		, cmdunloadmod(weak_from_this())
 	{

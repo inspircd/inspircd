@@ -166,7 +166,7 @@ private:
 public:
 
 	ModulePermanentChannels()
-		: Module(VF_VENDOR, "Adds channel mode P (permanent) which prevents the channel from being deleted when the last user leaves.")
+		: Module(VENDOR, "Adds channel mode P (permanent) which prevents the channel from being deleted when the last user leaves.")
 		, Timer(0, true)
 		, p(weak_from_this())
 	{

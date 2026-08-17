@@ -66,7 +66,7 @@ private:
 
 public:
 	ModuleHideChans()
-		: Module(VF_VENDOR, "Adds user mode I (hidechans) which hides the channels users with it set are in from their /WHOIS response.")
+		: Module(VENDOR, "Adds user mode I (hidechans) which hides the channels users with it set are in from their /WHOIS response.")
 		, Who::VisibleEventListener(weak_from_this())
 		, Whois::LineEventListener(weak_from_this())
 		, hm(weak_from_this())

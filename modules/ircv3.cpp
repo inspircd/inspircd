@@ -134,7 +134,7 @@ private:
 
 public:
 	ModuleIRCv3()
-		: Module(VF_VENDOR, "Provides the IRCv3 account-notify, away-notify, extended-join, and standard-replies client capabilities.")
+		: Module(VENDOR, "Provides the IRCv3 account-notify, away-notify, extended-join, and standard-replies client capabilities.")
 		, Account::EventListener(weak_from_this())
 		, Away::EventListener(weak_from_this())
 		, Names::EventListener(weak_from_this())

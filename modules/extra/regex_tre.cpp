@@ -87,7 +87,7 @@ class ModuleRegexTRE final
 
  public:
 	ModuleRegexTRE()
-		: Module(VF_VENDOR, "Provides the tre regular expression engine which uses the TRE library.")
+		: Module(VENDOR, "Provides the tre regular expression engine which uses the TRE library.")
 		, regex(weak_from_this(), "tre")
 	{
 	}

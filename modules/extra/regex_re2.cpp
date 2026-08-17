@@ -84,7 +84,7 @@ private:
 
 public:
 	ModuleRegexRE2()
-		: Module(VF_VENDOR, "Provides the re2 regular expression engine which uses the RE2 library.")
+		: Module(VENDOR, "Provides the re2 regular expression engine which uses the RE2 library.")
 		, regex(weak_from_this(), "re2")
 	{
 	}

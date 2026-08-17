@@ -160,7 +160,7 @@ private:
 
 public:
 	ModuleShowFile()
-		: Module(VF_VENDOR, "Adds support for showing the contents of files to users when they execute a command.")
+		: Module(VENDOR, "Adds support for showing the contents of files to users when they execute a command.")
 	{
 	}
 

@@ -29,7 +29,7 @@ class ModuleIRCv3InviteNotify final
 
 public:
 	ModuleIRCv3InviteNotify()
-		: Module(VF_VENDOR, "Provides the IRCv3 invite-notify client capability.")
+		: Module(VENDOR, "Provides the IRCv3 invite-notify client capability.")
 		, cap(weak_from_this(), "invite-notify")
 	{
 	}

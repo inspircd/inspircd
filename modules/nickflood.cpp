@@ -136,7 +136,7 @@ private:
 
 public:
 	ModuleNickFlood()
-		: Module(VF_VENDOR, "Adds channel mode F (nickflood) which helps protect against spammers which mass-change nicknames.")
+		: Module(VENDOR, "Adds channel mode F (nickflood) which helps protect against spammers which mass-change nicknames.")
 		, exemptionprov(weak_from_this())
 		, nf(weak_from_this())
 	{

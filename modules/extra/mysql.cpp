@@ -475,7 +475,7 @@ void ModuleSQL::init()
 }
 
 ModuleSQL::ModuleSQL()
-	: Module(VF_VENDOR, "Provides the ability for SQL modules to query a MySQL database.")
+	: Module(VENDOR, "Provides the ability for SQL modules to query a MySQL database.")
 {
 }
 

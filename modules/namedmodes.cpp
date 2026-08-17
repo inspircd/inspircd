@@ -137,7 +137,7 @@ private:
 
 public:
 	ModuleNamedModes()
-		: Module(VF_VENDOR, "Provides support for adding and removing modes via their long names.")
+		: Module(VENDOR, "Provides support for adding and removing modes via their long names.")
 		, cmd(weak_from_this())
 		, dummyZ(weak_from_this())
 	{

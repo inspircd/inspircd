@@ -41,7 +41,7 @@ private:
 
 public:
 	ModuleNoCTCP()
-		: Module(VF_VENDOR, "Adds channel mode C (noctcp) which allows channels to block messages which contain CTCPs and user mode T (u_noctcp) which allows users to block private messages that contain CTCPs.")
+		: Module(VENDOR, "Adds channel mode C (noctcp) which allows channels to block messages which contain CTCPs and user mode T (u_noctcp) which allows users to block private messages that contain CTCPs.")
 		, calleridapi(weak_from_this())
 		, exemptionprov(weak_from_this())
 		, extban(weak_from_this(), "noctcp", 'C')

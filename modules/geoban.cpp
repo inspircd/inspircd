@@ -58,7 +58,7 @@ private:
 
 public:
 	ModuleGeoBan()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban G: (country) which matches against two letter country codes.")
+		: Module(VENDOR | OPTCOMMON, "Adds extended ban G: (country) which matches against two letter country codes.")
 		, Who::MatchEventListener(weak_from_this())
 		, Whois::EventListener(weak_from_this())
 		, geoapi(weak_from_this())

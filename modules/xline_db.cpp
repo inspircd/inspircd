@@ -46,7 +46,7 @@ private:
 
 public:
 	ModuleXLineDB()
-		: Module(VF_VENDOR, "Allows X-lines to be saved and reloaded on restart.")
+		: Module(VENDOR, "Allows X-lines to be saved and reloaded on restart.")
 		, Timer(0, true)
 	{
 	}

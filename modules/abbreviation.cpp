@@ -32,7 +32,7 @@ private:
 
 public:
 	ModuleAbbreviation()
-		: Module(VF_VENDOR, "Allows commands to be abbreviated by appending a full stop.")
+		: Module(VENDOR, "Allows commands to be abbreviated by appending a full stop.")
 		, stdrplcap(weak_from_this())
 	{
 	}

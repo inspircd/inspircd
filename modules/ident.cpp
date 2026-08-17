@@ -315,7 +315,7 @@ private:
 
 public:
 	ModuleIdent()
-		: Module(VF_VENDOR, "Allows the usernames of users to be looked up using the RFC 1413 Identification Protocol.")
+		: Module(VENDOR, "Allows the usernames of users to be looked up using the RFC 1413 Identification Protocol.")
 		, socket(weak_from_this(), "ident-socket", ExtensionType::USER)
 		, state(weak_from_this(), "ident-state", ExtensionType::USER)
 	{

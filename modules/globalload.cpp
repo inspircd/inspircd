@@ -167,7 +167,7 @@ private:
 
 public:
 	ModuleGlobalLoad()
-		: Module(VF_VENDOR | VF_COMMON, "Adds the /GLOADMODULE, /GRELOADMODULE, and /GUNLOADMODULE commands which allows server operators to load, reload, and unload modules on remote servers.")
+		: Module(VENDOR | COMMON, "Adds the /GLOADMODULE, /GRELOADMODULE, and /GUNLOADMODULE commands which allows server operators to load, reload, and unload modules on remote servers.")
 		, cmdgloadmodule(weak_from_this())
 		, cmdgunloadmodule(weak_from_this())
 		, cmdgreloadmodule(weak_from_this())

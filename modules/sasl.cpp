@@ -363,7 +363,7 @@ private:
 
 public:
 	ModuleSASL()
-		: Module(VF_VENDOR, "Provides the IRCv3 sasl client capability.")
+		: Module(VENDOR, "Provides the IRCv3 sasl client capability.")
 		, accountproviderapi(weak_from_this())
 		, saslext(weak_from_this(), "sasl-state", ExtensionType::USER)
 		, cap(weak_from_this())

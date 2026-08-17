@@ -316,7 +316,7 @@ private:
 
 public:
 	ModuleCheck()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /CHECK command which allows server operators to look up details about a channel, user, IP address, or hostname.")
+		: Module(VENDOR | OPTCOMMON, "Adds the /CHECK command which allows server operators to look up details about a channel, user, IP address, or hostname.")
 		, cmd(weak_from_this())
 	{
 	}

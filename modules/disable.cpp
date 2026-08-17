@@ -79,7 +79,7 @@ private:
 
 public:
 	ModuleDisable()
-		: Module(VF_VENDOR, "Allows commands, channel modes, and user modes to be disabled.")
+		: Module(VENDOR, "Allows commands, channel modes, and user modes to be disabled.")
 		, ISupport::EventListener(weak_from_this())
 	{
 	}

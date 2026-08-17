@@ -59,7 +59,7 @@ private:
 
 public:
 	ModuleRegexGlob()
-		: Module(VF_VENDOR, "Provides the glob regular expression engine which uses the built-in glob matching system.")
+		: Module(VENDOR, "Provides the glob regular expression engine which uses the built-in glob matching system.")
 		, regex(weak_from_this(), "glob")
 	{
 	}

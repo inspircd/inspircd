@@ -35,7 +35,7 @@ private:
 
 public:
 	ModuleUHNames()
-		: Module(VF_VENDOR, "Provides the IRCv3 userhost-in-names client capability.")
+		: Module(VENDOR, "Provides the IRCv3 userhost-in-names client capability.")
 		, Names::EventListener(weak_from_this())
 		, cap(weak_from_this(), "userhost-in-names")
 	{

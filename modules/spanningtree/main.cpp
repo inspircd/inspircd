@@ -46,7 +46,7 @@
 #include "utils.h"
 
 ModuleSpanningTree::ModuleSpanningTree()
-	: Module(VF_VENDOR, "Allows linking multiple servers together as part of one network.")
+	: Module(VENDOR, "Allows linking multiple servers together as part of one network.")
 	, Away::EventListener(weak_from_this())
 	, Stats::EventListener(weak_from_this())
 	, CTCTags::EventListener(weak_from_this())

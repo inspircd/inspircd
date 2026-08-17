@@ -145,7 +145,7 @@ private:
 
 public:
 	ModuleJoinFlood()
-		: Module(VF_VENDOR, "Adds channel mode j (joinflood) which helps protect against spammers which mass-join channels.")
+		: Module(VENDOR, "Adds channel mode j (joinflood) which helps protect against spammers which mass-join channels.")
 		, ServerProtocol::LinkEventListener(weak_from_this())
 		, jf(weak_from_this())
 	{

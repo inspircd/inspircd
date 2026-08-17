@@ -116,7 +116,7 @@ private:
 
 public:
 	ModuleRMode()
-		: Module(VF_VENDOR, "Allows removal of channel list modes using glob patterns.")
+		: Module(VENDOR, "Allows removal of channel list modes using glob patterns.")
 		, cmd(weak_from_this())
 	{
 	}

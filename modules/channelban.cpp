@@ -62,7 +62,7 @@ private:
 
 public:
 	ModuleBadChannelExtban()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban j: (channel) which checks whether users are in a channel matching the specified glob pattern.")
+		: Module(VENDOR | OPTCOMMON, "Adds extended ban j: (channel) which checks whether users are in a channel matching the specified glob pattern.")
 		, extban(weak_from_this())
 	{
 	}

@@ -157,7 +157,7 @@ private:
 
 public:
 	CoreModUser()
-		: Module(VF_CORE | VF_VENDOR, "Provides the AWAY, ISON, NICK, PART, PASS, PING, PONG, QUIT, USERHOST, and USER commands")
+		: Module(CORE | VENDOR, "Provides the AWAY, ISON, NICK, PART, PASS, PING, PONG, QUIT, USERHOST, and USER commands")
 		, cmdaway(weak_from_this())
 		, cmdnick(weak_from_this())
 		, cmdpart(weak_from_this())

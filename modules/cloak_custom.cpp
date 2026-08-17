@@ -262,7 +262,7 @@ private:
 
 public:
 	ModuleCloakCustom()
-		: Module(VF_VENDOR, "Adds the custom cloaking method for use with the cloak module.")
+		: Module(VENDOR, "Adds the custom cloaking method for use with the cloak module.")
 		, cmdcustomcloak(weak_from_this(), customcloak.customcloakext)
 		, customcloak(weak_from_this())
 	{

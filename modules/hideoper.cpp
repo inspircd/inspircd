@@ -69,7 +69,7 @@ private:
 
 public:
 	ModuleHideOper()
-		: Module(VF_VENDOR, "Adds user mode H (hideoper) which hides the server operator status of a user from unprivileged users.")
+		: Module(VENDOR, "Adds user mode H (hideoper) which hides the server operator status of a user from unprivileged users.")
 		, Stats::EventListener(weak_from_this())
 		, Who::EventListener(weak_from_this())
 		, Whois::LineEventListener(weak_from_this())

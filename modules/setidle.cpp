@@ -113,7 +113,7 @@ private:
 
 public:
 	ModuleSetIdle()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SETIDLE command which allows server operators to change the idle time of users.")
+		: Module(VENDOR | OPTCOMMON, "Adds the /SETIDLE command which allows server operators to change the idle time of users.")
 		, cmd(weak_from_this())
 	{
 	}

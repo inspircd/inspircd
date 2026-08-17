@@ -123,7 +123,7 @@ private:
 
 public:
 	ModuleRegexPCRE()
-		: Module(VF_VENDOR, "Provides the pcre regular expression engine which uses the PCRE2 library.")
+		: Module(VENDOR, "Provides the pcre regular expression engine which uses the PCRE2 library.")
 		, regex(weak_from_this(), "pcre")
 	{
 	}

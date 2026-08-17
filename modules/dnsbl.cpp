@@ -516,7 +516,7 @@ private:
 
 public:
 	ModuleDNSBL()
-		: Module(VF_VENDOR, "Allows the server administrator to check the IP address of connecting users against a DNSBL.")
+		: Module(VENDOR, "Allows the server administrator to check the IP address of connecting users against a DNSBL.")
 		, Stats::EventListener(weak_from_this())
 		, data(weak_from_this())
 		, cmd(weak_from_this(), data)

@@ -1137,7 +1137,7 @@ class ModuleSSLGnuTLS final
 
 public:
 	ModuleSSLGnuTLS()
-		: Module(VF_VENDOR, "Allows TLS encrypted connections using the GnuTLS library.")
+		: Module(VENDOR, "Allows TLS encrypted connections using the GnuTLS library.")
 		, rememberer(ServerInstance->GenRandom)
 	{
 		thismod = weak_from_this();

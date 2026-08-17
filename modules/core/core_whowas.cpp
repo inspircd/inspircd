@@ -432,7 +432,7 @@ public:
 
 public:
 	ModuleWhoWas()
-		: Module(VF_CORE | VF_VENDOR, "Provides the WHOWAS command")
+		: Module(CORE | VENDOR, "Provides the WHOWAS command")
 		, Stats::EventListener(weak_from_this())
 		, cmd(weak_from_this())
 	{

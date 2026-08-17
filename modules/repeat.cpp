@@ -380,7 +380,7 @@ private:
 
 public:
 	RepeatModule()
-		: Module(VF_VENDOR | VF_COMMON, "Adds channel mode E (repeat) which helps protect against spammers which spam the same message repeatedly.")
+		: Module(VENDOR | COMMON, "Adds channel mode E (repeat) which helps protect against spammers which spam the same message repeatedly.")
 		, banmode(weak_from_this(), "ban")
 		, exemptionprov(weak_from_this())
 		, rm(weak_from_this())

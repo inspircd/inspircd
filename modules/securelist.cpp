@@ -74,7 +74,7 @@ private:
 
 public:
 	ModuleSecureList()
-		: Module(VF_VENDOR, "Prevents users from using the /LIST command until a predefined period has passed.")
+		: Module(VENDOR, "Prevents users from using the /LIST command until a predefined period has passed.")
 		, ISupport::EventListener(weak_from_this())
 		, accountapi(weak_from_this())
 	{

@@ -64,7 +64,7 @@ private:
 
 public:
 	ModuleOperPrefixMode()
-		: Module(VF_VENDOR, "Adds the server operator-only y (operprefix) channel prefix mode.")
+		: Module(VENDOR, "Adds the server operator-only y (operprefix) channel prefix mode.")
 		, opm(weak_from_this())
 		, hideoperwatcher(weak_from_this())
 		, hideopermode(weak_from_this(), "hideoper")

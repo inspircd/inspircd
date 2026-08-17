@@ -481,7 +481,7 @@ private:
 
 public:
 	ModuleCap()
-		: Module(VF_VENDOR, "Provides support for the IRCv3 Client Capability Negotiation extension.")
+		: Module(VENDOR, "Provides support for the IRCv3 Client Capability Negotiation extension.")
 		, cmd(weak_from_this())
 		, poisoncap(weak_from_this())
 	{

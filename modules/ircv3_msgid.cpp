@@ -86,7 +86,7 @@ private:
 
 public:
 	ModuleMsgId()
-		: Module(VF_VENDOR, "Provides support for the IRCv3 Message IDs specification.")
+		: Module(VENDOR, "Provides support for the IRCv3 Message IDs specification.")
 		, CTCTags::EventListener(weak_from_this())
 		, tag(weak_from_this())
 	{

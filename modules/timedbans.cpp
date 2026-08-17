@@ -207,7 +207,7 @@ private:
 
 public:
 	ModuleTimedBans()
-		: Module(VF_VENDOR | VF_COMMON, "Adds the /TBAN command which allows channel operators to add bans which will be expired after the specified period.")
+		: Module(VENDOR | COMMON, "Adds the /TBAN command which allows channel operators to add bans which will be expired after the specified period.")
 		, banmode(weak_from_this(), "ban")
 		, cmd(weak_from_this())
 		, banwatcher(weak_from_this())

@@ -181,7 +181,7 @@ private:
 
 public:
 	ModuleShun()
-		: Module(VF_VENDOR | VF_COMMON, "Adds the /SHUN command which allows server operators to prevent users from executing commands.")
+		: Module(VENDOR | COMMON, "Adds the /SHUN command which allows server operators to prevent users from executing commands.")
 		, Stats::EventListener(weak_from_this())
 		, cmd(weak_from_this())
 	{

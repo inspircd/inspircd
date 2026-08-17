@@ -337,7 +337,7 @@ private:
 
 public:
 	ModuleCloakUser()
-		: Module(VF_VENDOR, "Adds the account, account-id, fingerprint, nickname, and username cloaking methods for use with the cloak module.")
+		: Module(VENDOR, "Adds the account, account-id, fingerprint, nickname, and username cloaking methods for use with the cloak module.")
 		, Account::EventListener(weak_from_this())
 		, accountcloak(weak_from_this(), "account", hostmap)
 		, accountidcloak(weak_from_this(), "account-id", hostmap)

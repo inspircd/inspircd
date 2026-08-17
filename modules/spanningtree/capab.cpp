@@ -174,7 +174,7 @@ namespace
 	}
 
 	// Builds a list of the local modules with the specified property.
-	CapabData::ModuleMap BuildModuleList(ModuleFlags property, uint16_t protocol)
+	CapabData::ModuleMap BuildModuleList(Module::Property property, uint16_t protocol)
 	{
 		CapabData::ModuleMap modules;
 		for (const auto& [name, module] : ServerInstance->Modules.GetModules())
@@ -198,7 +198,7 @@ namespace
 				}
 				else if (insp::casemapped_equals(modname, "setidle"))
 				{
-					// Not VF_OPTCOMMON in v4.
+					// Not OPTCOMMON in v4.
 					continue;
 				}
 				else if (insp::casemapped_equals(modname, "sacommands"))
@@ -381,7 +381,7 @@ namespace
 	}
 
 	// Compares the lists of module on a remote server to the local server.
-	bool CompareModules(ModuleFlags property, std::optional<CapabData::ModuleMap>& remote,
+	bool CompareModules(Module::Property property, std::optional<CapabData::ModuleMap>& remote,
 		CapabDiff& diff)
 	{
 		// If the remote didn't send a module list then don't compare.
@@ -467,7 +467,7 @@ namespace
 	}
 
 	// Generates a module list in the format "m_foo.so=bar m_bar.so=baz".
-	std::string FormatModules(ModuleFlags property, uint16_t protocol)
+	std::string FormatModules(Module::Property property, uint16_t protocol)
 	{
 		std::ostringstream modules;
 		for (const auto& [module, linkdata] : BuildModuleList(property, protocol))
@@ -723,10 +723,10 @@ void TreeSocket::SendCapabilities(int phase)
 		.Push("CAPABILITIES", FormatCapabilities(this))
 		.Unicast(this);
 	MessageBuilder("CAPAB", true)
-		.Push("MODULES", FormatModules(VF_COMMON, proto_version))
+		.Push("MODULES", FormatModules(Module::COMMON, proto_version))
 		.Unicast(this);
 	MessageBuilder("CAPAB", true)
-		.Push("MODSUPPORT", FormatModules(VF_OPTCOMMON, proto_version))
+		.Push("MODSUPPORT", FormatModules(Module::OPTCOMMON, proto_version))
 		.Unicast(this);
 	MessageBuilder("CAPAB", true)
 		.Push("CHANMODES", FormatModes(MODETYPE_CHANNEL, proto_version))
@@ -798,7 +798,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 	else if (insp::casemapped_equals(params[0], "END"))
 	{
 		CapabDiff diff;
-		if (!CompareModules(VF_COMMON, this->capab->requiredmodules, diff))
+		if (!CompareModules(Module::COMMON, this->capab->requiredmodules, diff))
 			return HandleMismatchFatal(this, "Required modules", diff);
 
 		else if (!CompareModes(MODETYPE_CHANNEL, this->capab->channelmodes, this->proto_version, diff))
@@ -807,7 +807,7 @@ bool TreeSocket::Capab(const CommandBase::Params& params)
 		else if (!CompareModes(MODETYPE_USER, this->capab->usermodes, this->proto_version, diff))
 			return HandleMismatchFatal(this, "User modes", diff);
 
-		else if (!CompareModules(VF_OPTCOMMON, this->capab->optionalmodules, diff))
+		else if (!CompareModules(Module::OPTCOMMON, this->capab->optionalmodules, diff))
 		{
 			if (!HandleMismatch(this, "Optional modules", diff))
 				return false;

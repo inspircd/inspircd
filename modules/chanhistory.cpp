@@ -214,7 +214,7 @@ private:
 
 public:
 	ModuleChanHistory()
-		: Module(VF_VENDOR, "Adds channel mode H (history) which allows message history to be viewed on joining the channel.")
+		: Module(VENDOR, "Adds channel mode H (history) which allows message history to be viewed on joining the channel.")
 		, ServerProtocol::RouteEventListener(weak_from_this())
 		, historymode(weak_from_this())
 		, nohistorymode(weak_from_this(), "nohistory", 'N')

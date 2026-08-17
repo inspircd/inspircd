@@ -31,31 +31,6 @@
 
 class DLLManager;
 
-/** Used to specify the behaviour of a module. */
-enum ModuleFlags
-{
-	/** The module has no special attributes. */
-	VF_NONE = 0,
-
-	/** The module is a coremod and can be assumed to be loaded on all servers. */
-	VF_CORE = 1,
-
-	/* The module is included with InspIRCd. */
-	VF_VENDOR = 2,
-
-	/** The module MUST be loaded on all servers on a network to link. */
-	VF_COMMON = 4,
-
-	/** The module SHOULD be loaded on all servers on a network for consistency. */
-	VF_OPTCOMMON = 8,
-
-	/** The module is deprecated and will be removed in the next version of InspIRCd. */
-	VF_DEPRECATED = 16,
-
-	/** Alias for the last vendor flag. Do not use this in module properties as it may change. */
-	VF_LAST = VF_DEPRECATED,
-};
-
 /** The event was explicitly allowed. */
 #define MOD_RES_ALLOW (ModResult(1))
 
@@ -216,6 +191,48 @@ class CoreExport Module
 	: public Cullable
 	, public std::enable_shared_from_this<Module>
 {
+public:
+	/** Data which is synchronised between servers on link. */
+	using LinkData = insp::casemapped_map<std::string>;
+
+	/** Data which is synchronised between servers on link. */
+	using LinkDataDiff = insp::casemapped_map<std::pair<std::optional<std::string>, std::optional<std::string>>>;
+
+	/** A list of modules. */
+	using List = std::vector<ModulePtr>;
+
+	/** The properties of a module. */
+	using Properties = uint8_t;
+
+	/** The properties that a module can have. */
+	enum Property
+		: Properties
+	{
+		/** The module has no special properties. */
+		NONE = 0,
+
+		/* The module is included with InspIRCd. */
+		VENDOR = 1,
+
+		/** The module is a core module and can be assumed to be loaded on all servers. */
+		CORE = 2,
+
+		/** The module MUST be loaded on all servers on a network to link. */
+		COMMON = 4,
+
+		/** The module SHOULD be loaded on all servers on a network for consistency. */
+		OPTCOMMON = 8,
+
+		/** The module is deprecated and will be removed in the next version of InspIRCd. */
+		DEPRECATED = 16,
+
+		/** Alias for the first property. Do not use this unless you know what you are doing. */
+		FIRST = VENDOR,
+
+		/** Alias for the last property. Do not use this unless you know what you are doing. */
+		LAST = DEPRECATED,
+	};
+
 private:
 	/** Usually contains nothing. This is part of a hack that allows us to call
 	 * weak_from_this and shared_from_this from the constructor of modules.
@@ -227,25 +244,16 @@ protected:
 	 * @param mprops The properties of this module.
 	 * @param mdesc A description of this module.
 	 */
-	Module(int mprops, const std::string& mdesc);
+	Module(Properties mprops, const std::string& mdesc);
 
 	/** Initializes a new instance of the Module class.
 	 * @param mprops The properties of this module.
 	 * @param mversion The version of this module (for contrib modules).
 	 * @param mdesc A description of this module.
 	 */
-	Module(int mprops, const std::string& mversion, const std::string& mdesc);
+	Module(Properties mprops, const std::string& mversion, const std::string& mdesc);
 
 public:
-	/** Data which is synchronised between servers on link. */
-	using LinkData = insp::casemapped_map<std::string>;
-
-	/** Data which is synchronised between servers on link. */
-	using LinkDataDiff = insp::casemapped_map<std::pair<std::optional<std::string>, std::optional<std::string>>>;
-
-	/** A list of modules. */
-	using List = std::vector<ModulePtr>;
-
 	/** Reference to the dynamic library. */
 	DLLManager* ModuleDLL = nullptr;
 
@@ -261,7 +269,7 @@ public:
 	const std::string description;
 
 	/** The properties of this module. */
-	const int properties;
+	const Properties properties;
 
 	/** The version of this module. */
 	const std::string version;

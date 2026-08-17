@@ -34,7 +34,7 @@ private:
 
 public:
 	ModuleRandQuote()
-		: Module(VF_VENDOR, "Allows random quotes to be sent to users when they connect to the server.")
+		: Module(VENDOR, "Allows random quotes to be sent to users when they connect to the server.")
 	{
 	}
 

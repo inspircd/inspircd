@@ -203,7 +203,7 @@ private:
 
 public:
 	ModuleHostnameLookup()
-		: Module(VF_CORE | VF_VENDOR, "Provides support for DNS lookups on connecting clients")
+		: Module(CORE | VENDOR, "Provides support for DNS lookups on connecting clients")
 		, dnsLookup(weak_from_this(), "dns-lookup", ExtensionType::USER)
 		, DNS(weak_from_this())
 	{

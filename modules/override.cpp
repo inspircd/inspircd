@@ -123,7 +123,7 @@ private:
 
 public:
 	ModuleOverride()
-		: Module(VF_VENDOR, "Allows server operators to be given privileges that allow them to ignore various channel-level restrictions.")
+		: Module(VENDOR, "Allows server operators to be given privileges that allow them to ignore various channel-level restrictions.")
 		, ISupport::EventListener(weak_from_this())
 		, ou(weak_from_this())
 		, ban(weak_from_this(), "ban")

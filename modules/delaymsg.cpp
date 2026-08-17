@@ -68,7 +68,7 @@ private:
 
 public:
 	ModuleDelayMsg()
-		: Module(VF_VENDOR, "Adds channel mode d (delaymsg) which prevents newly joined users from speaking until the specified number of seconds have passed.")
+		: Module(VENDOR, "Adds channel mode d (delaymsg) which prevents newly joined users from speaking until the specified number of seconds have passed.")
 		, CTCTags::EventListener(weak_from_this())
 		, djm(weak_from_this())
 		, exemptionprov(weak_from_this())

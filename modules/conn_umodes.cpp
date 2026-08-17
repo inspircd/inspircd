@@ -29,7 +29,7 @@ class ModuleModesOnConnect final
 {
 public:
 	ModuleModesOnConnect()
-		: Module(VF_VENDOR, "Allows the server administrator to set user modes on connecting users.")
+		: Module(VENDOR, "Allows the server administrator to set user modes on connecting users.")
 	{
 	}
 

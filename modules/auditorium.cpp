@@ -79,7 +79,7 @@ class ModuleAuditorium final
 
 public:
 	ModuleAuditorium()
-		: Module(VF_VENDOR, "Adds channel mode u (auditorium) which hides unprivileged users in a channel from each other.")
+		: Module(VENDOR, "Adds channel mode u (auditorium) which hides unprivileged users in a channel from each other.")
 		, Names::EventListener(weak_from_this())
 		, Who::EventListener(weak_from_this())
 		, Who::VisibleEventListener(weak_from_this())

@@ -904,7 +904,7 @@ class ModuleDNS final
 
 public:
 	ModuleDNS()
-		: Module(VF_CORE | VF_VENDOR, "Provides support for DNS lookups")
+		: Module(CORE | VENDOR, "Provides support for DNS lookups")
 		, Stats::EventListener(weak_from_this())
 		, manager(weak_from_this())
 	{

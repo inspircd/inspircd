@@ -125,7 +125,7 @@ private:
 
 public:
 	ModuleUninvite()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /UNINVITE command which allows users who have invited another user to a channel to withdraw their invite.")
+		: Module(VENDOR | OPTCOMMON, "Adds the /UNINVITE command which allows users who have invited another user to a channel to withdraw their invite.")
 		, cmd(weak_from_this())
 	{
 	}

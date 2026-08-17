@@ -221,7 +221,7 @@ private:
 
 public:
 	ModuleIRCv3STS()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds support for the IRCv3 Strict Transport Security specification.")
+		: Module(VENDOR | OPTCOMMON, "Adds support for the IRCv3 Strict Transport Security specification.")
 		, cap(weak_from_this())
 	{
 	}

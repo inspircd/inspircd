@@ -390,7 +390,7 @@ private:
 
 public:
 	CoreModStats()
-		: Module(VF_CORE | VF_VENDOR, "Provides the STATS command")
+		: Module(CORE | VENDOR, "Provides the STATS command")
 		, cmd(weak_from_this())
 	{
 	}

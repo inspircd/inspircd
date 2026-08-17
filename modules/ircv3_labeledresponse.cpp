@@ -132,7 +132,7 @@ private:
 
 public:
 	ModuleIRCv3LabeledResponse()
-		: Module(VF_VENDOR, "Provides support for the IRCv3 Labeled Response specification.")
+		: Module(VENDOR, "Provides support for the IRCv3 Labeled Response specification.")
 		, cap(weak_from_this(), "labeled-response")
 		, tag(weak_from_this(), cap)
 		, batchmanager(weak_from_this())

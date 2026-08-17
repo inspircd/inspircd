@@ -152,7 +152,7 @@ private:
 
 public:
 	ModuleNickLock()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /NICKLOCK command which allows server operators to change a user's nickname and prevent them from changing it again until they disconnect.")
+		: Module(VENDOR | OPTCOMMON, "Adds the /NICKLOCK command which allows server operators to change a user's nickname and prevent them from changing it again until they disconnect.")
 		, locked(weak_from_this(), "nick-locked", ExtensionType::USER)
 		, cmd1(weak_from_this(), locked)
 		, cmd2(weak_from_this(), locked)

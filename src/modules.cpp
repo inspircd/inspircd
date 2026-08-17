@@ -35,12 +35,12 @@
 #include "dynamic.h"
 #include "utility/container.h"
 
-Module::Module(int mprops, const std::string& mdesc)
+Module::Module(Module::Properties mprops, const std::string& mdesc)
 	: Module(mprops, "", mdesc)
 {
 }
 
-Module::Module(int mprops, const std::string& mversion, const std::string& mdesc)
+Module::Module(Module::Properties mprops, const std::string& mversion, const std::string& mdesc)
 	: pointer(this, Cullable::Deleter())
 	, description(mdesc)
 	, properties(mprops)
@@ -77,14 +77,14 @@ void Module::GetLinkData(LinkData&)
 
 std::string Module::GetPropertyString() const
 {
-	// R = VF_CORE ("required")
-	// V = VF_VENDOR
-	// C = VF_COMMON
-	// O = VF_OPTCOMMON
-	// D = VF_DEPRECATED
-	std::string propstr("RVCOD");
+	// V = VENDOR
+	// R = CORE ("required")
+	// C = COMMON
+	// O = OPTCOMMON
+	// D = DEPRECATED
+	std::string propstr("VRCOD");
 	size_t pos = 0;
-	for (int mult = VF_CORE; mult <= VF_LAST; mult *= 2, ++pos)
+	for (int mult = Module::FIRST; mult <= Module::LAST; mult *= 2, ++pos)
 		if (!(this->properties & mult))
 			propstr[pos] = '-';
 	return propstr;

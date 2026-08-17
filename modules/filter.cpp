@@ -357,7 +357,7 @@ bool ModuleFilter::AppliesToMe(User* user, const FilterResult& filter, int iflag
 }
 
 ModuleFilter::ModuleFilter()
-	: Module(VF_VENDOR | VF_COMMON, "Adds the /FILTER command which allows server operators to define regex matches for inappropriate phrases that are not allowed to be used in channel messages, private messages, part messages, or quit messages.")
+	: Module(VENDOR | COMMON, "Adds the /FILTER command which allows server operators to define regex matches for inappropriate phrases that are not allowed to be used in channel messages, private messages, part messages, or quit messages.")
 	, ServerProtocol::SyncEventListener(weak_from_this())
 	, Stats::EventListener(weak_from_this())
 	, Timer(0, true)

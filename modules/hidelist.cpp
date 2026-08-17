@@ -83,7 +83,7 @@ public:
 	}
 
 	ModuleHideList()
-		: Module(VF_VENDOR, "Allows list mode lists to be hidden from users without a prefix mode ranked equal to or higher than a defined level.")
+		: Module(VENDOR, "Allows list mode lists to be hidden from users without a prefix mode ranked equal to or higher than a defined level.")
 	{
 	}
 

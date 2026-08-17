@@ -642,7 +642,7 @@ private:
 
 public:
 	CoreModWho()
-		: Module(VF_CORE | VF_VENDOR, "Provides the WHO command")
+		: Module(CORE | VENDOR, "Provides the WHO command")
 		, ISupport::EventListener(weak_from_this())
 		, cmd(weak_from_this())
 	{

@@ -181,7 +181,7 @@ class CoreModChannel final
 
 public:
 	CoreModChannel()
-		: Module(VF_CORE | VF_VENDOR, "Provides the INVITE, JOIN, KICK, NAMES, and TOPIC commands")
+		: Module(CORE | VENDOR, "Provides the INVITE, JOIN, KICK, NAMES, and TOPIC commands")
 		, CheckExemption::EventListener(weak_from_this(), UINT_MAX)
 		, ISupport::EventListener(weak_from_this())
 		, invapi(weak_from_this())

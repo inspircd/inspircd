@@ -233,7 +233,7 @@ class ModuleCoreRFCSerializer final
 
 public:
 	ModuleCoreRFCSerializer()
-		: Module(VF_CORE | VF_VENDOR, "RFC client protocol serializer and unserializer")
+		: Module(CORE | VENDOR, "RFC client protocol serializer and unserializer")
 		, rfcserializer(weak_from_this())
 	{
 	}

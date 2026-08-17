@@ -32,7 +32,7 @@ private:
 
 public:
 	ModuleMapHide()
-		: Module(VF_VENDOR, "Allows the server administrator to replace the output of a /MAP and /LINKS with an URL.")
+		: Module(VENDOR, "Allows the server administrator to replace the output of a /MAP and /LINKS with an URL.")
 	{
 	}
 

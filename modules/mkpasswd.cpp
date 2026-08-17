@@ -77,7 +77,7 @@ private:
 
 public:
 	ModuleMakePassword()
-		: Module(VF_VENDOR, "Provides the /MKPASSWD command which allows the generation of hashed passwords for use in the server configuration.")
+		: Module(VENDOR, "Provides the /MKPASSWD command which allows the generation of hashed passwords for use in the server configuration.")
 		, cmd(weak_from_this())
 	{
 	}

@@ -452,7 +452,7 @@ private:
 
 public:
 	ModuleHttpStats()
-		: Module(VF_VENDOR, "Provides XML-serialised statistics about the server, channels, and users over HTTP via the /stats path.")
+		: Module(VENDOR, "Provides XML-serialised statistics about the server, channels, and users over HTTP via the /stats path.")
 		, HTTPRequestEventListener(weak_from_this())
 		, API(weak_from_this())
 		, isupportevprov(weak_from_this())

@@ -128,7 +128,7 @@ private:
 
 public:
 	ModuleDelayJoin()
-		: Module(VF_VENDOR, "Adds channel mode D (delayjoin) which hides JOIN messages from users until they speak.")
+		: Module(VENDOR, "Adds channel mode D (delayjoin) which hides JOIN messages from users until they speak.")
 		, CTCTags::EventListener(weak_from_this())
 		, Names::EventListener(weak_from_this())
 		, Who::EventListener(weak_from_this())

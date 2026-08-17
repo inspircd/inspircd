@@ -132,7 +132,7 @@ class ModuleKickNoRejoin final
 
 public:
 	ModuleKickNoRejoin()
-		: Module(VF_VENDOR | VF_COMMON, "Adds channel mode J (kicknorejoin) which prevents users from rejoining after being kicked from a channel.")
+		: Module(VENDOR | COMMON, "Adds channel mode J (kicknorejoin) which prevents users from rejoining after being kicked from a channel.")
 		, kr(weak_from_this())
 		, invapi(weak_from_this())
 	{

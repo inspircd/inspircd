@@ -32,7 +32,7 @@ class ModuleOperLevels final
 {
 public:
 	ModuleOperLevels()
-		: Module(VF_VENDOR, "Allows the server administrator to define ranks for server operators which prevent lower ranked server operators from using /KILL on higher ranked server operators.")
+		: Module(VENDOR, "Allows the server administrator to define ranks for server operators which prevent lower ranked server operators from using /KILL on higher ranked server operators.")
 	{
 	}
 

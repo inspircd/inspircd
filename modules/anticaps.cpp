@@ -190,7 +190,7 @@ private:
 
 public:
 	ModuleAntiCaps()
-		: Module(VF_VENDOR | VF_COMMON, "Adds channel mode B (anticaps) which allows channels to block messages which are excessively capitalised.")
+		: Module(VENDOR | COMMON, "Adds channel mode B (anticaps) which allows channels to block messages which are excessively capitalised.")
 		, banmode(weak_from_this(), "ban")
 		, exemptionprov(weak_from_this())
 		, mode(weak_from_this())

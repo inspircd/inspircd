@@ -62,7 +62,7 @@ private:
 
 public:
 	ModuleDenyChannels()
-		: Module(VF_VENDOR, "Allows the server administrator to prevent users from joining channels matching a glob.")
+		: Module(VENDOR, "Allows the server administrator to prevent users from joining channels matching a glob.")
 		, antiredirectmode(weak_from_this(), "antiredirect")
 		, redirectmode(weak_from_this(), "redirect")
 	{

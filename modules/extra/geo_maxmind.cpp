@@ -127,7 +127,7 @@ private:
 
 public:
 	ModuleGeoMaxMind()
-		: Module(VF_VENDOR, "Allows the server to perform geolocation lookups on both IP addresses and users.")
+		: Module(VENDOR, "Allows the server to perform geolocation lookups on both IP addresses and users.")
 		, geoapi(weak_from_this())
 	{
 	}

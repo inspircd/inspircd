@@ -377,7 +377,7 @@ private:
 
 public:
 	CoreModMode()
-		: Module(VF_CORE | VF_VENDOR, "Provides the MODE command")
+		: Module(CORE | VENDOR, "Provides the MODE command")
 		, ISupport::EventListener(weak_from_this())
 		, cmdmode(weak_from_this())
 	{

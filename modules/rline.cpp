@@ -238,7 +238,7 @@ private:
 
 public:
 	ModuleRLine()
-		: Module(VF_VENDOR | VF_COMMON, "Adds the /RLINE command which allows server operators to prevent users matching a \"nickname!username@hostname realname\" regular expression from connecting to the server.")
+		: Module(VENDOR | COMMON, "Adds the /RLINE command which allows server operators to prevent users matching a \"nickname!username@hostname realname\" regular expression from connecting to the server.")
 		, Stats::EventListener(weak_from_this())
 		, rxfactory(weak_from_this())
 		, f(weak_from_this(), rxfactory)

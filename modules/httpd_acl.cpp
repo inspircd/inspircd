@@ -57,7 +57,7 @@ private:
 
 public:
 	ModuleHTTPAccessList()
-		: Module(VF_VENDOR, "Allows the server administrator to control who can access resources served over HTTP with the httpd module.")
+		: Module(VENDOR, "Allows the server administrator to control who can access resources served over HTTP with the httpd module.")
 		, HTTPACLEventListener(weak_from_this())
 		, API(weak_from_this())
 	{

@@ -125,7 +125,7 @@ private:
 
 public:
 	ModuleSetName()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SETNAME command which allows users to change their real name.")
+		: Module(VENDOR | OPTCOMMON, "Adds the /SETNAME command which allows users to change their real name.")
 		, cmd(weak_from_this())
 		, setnameevprov(weak_from_this(), "SETNAME")
 		, monitorapi(weak_from_this())

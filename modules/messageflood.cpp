@@ -243,7 +243,7 @@ private:
 
 public:
 	ModuleMsgFlood()
-		: Module(VF_VENDOR, "Adds channel mode f (flood) which helps protect against spammers which mass-message channels.")
+		: Module(VENDOR, "Adds channel mode f (flood) which helps protect against spammers which mass-message channels.")
 		, CTCTags::EventListener(weak_from_this())
 		, banmode(weak_from_this(), "ban")
 		, exemptionprov(weak_from_this())

@@ -206,7 +206,7 @@ private:
 
 public:
 	ModuleHashPBKDF2()
-		: Module(VF_VENDOR, "Allows other modules to generate PBKDF2 hashes.")
+		: Module(VENDOR, "Allows other modules to generate PBKDF2 hashes.")
 	{
 	}
 

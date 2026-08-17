@@ -382,7 +382,7 @@ private:
 
 public:
 	ModuleMonitor()
-		: Module(VF_VENDOR, "Adds the /MONITOR command which allows users to find out when their friends are connected to the server.")
+		: Module(VENDOR, "Adds the /MONITOR command which allows users to find out when their friends are connected to the server.")
 		, ISupport::EventListener(weak_from_this())
 		, Monitor::APIBase(weak_from_this())
 		, manager(weak_from_this(), "monitor")

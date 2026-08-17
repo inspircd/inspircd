@@ -405,7 +405,7 @@ private:
 
 public:
 	ModuleIRCv3CTCTags()
-		: Module(VF_VENDOR | VF_COMMON, "Provides the IRCv3 message-tags client capability.")
+		: Module(VENDOR | COMMON, "Provides the IRCv3 message-tags client capability.")
 		, CTCTags::EventListener(weak_from_this())
 		, ISupport::EventListener(weak_from_this())
 		, cap(weak_from_this(), "message-tags")

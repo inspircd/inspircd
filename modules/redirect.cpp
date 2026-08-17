@@ -237,7 +237,7 @@ private:
 
 public:
 	ModuleRedirect()
-		: Module(VF_VENDOR, "Allows users to be redirected to another channel.")
+		: Module(VENDOR, "Allows users to be redirected to another channel.")
 		, antiredirectmode(weak_from_this(), "antiredirect", 'L')
 		, banmode(weak_from_this(), "ban")
 		, inviteonlymode(weak_from_this(), "inviteonly")

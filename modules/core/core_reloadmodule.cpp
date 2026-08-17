@@ -751,7 +751,7 @@ private:
 
 public:
 	CoreModReloadmodule()
-		: Module(VF_CORE | VF_VENDOR, "Provides the RELOADMODULE command")
+		: Module(CORE | VENDOR, "Provides the RELOADMODULE command")
 		, cmd(weak_from_this())
 	{
 	}

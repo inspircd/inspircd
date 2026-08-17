@@ -92,7 +92,7 @@ private:
 
 public:
 	ModuleCycle()
-		: Module(VF_VENDOR, "Allows channel members to part and rejoin a channel without needing to worry about channel modes such as +i (inviteonly) which might prevent rejoining.")
+		: Module(VENDOR, "Allows channel members to part and rejoin a channel without needing to worry about channel modes such as +i (inviteonly) which might prevent rejoining.")
 		, cmd(weak_from_this())
 	{
 	}

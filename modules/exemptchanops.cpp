@@ -168,7 +168,7 @@ private:
 
 public:
 	ModuleExemptChanOps()
-		: Module(VF_VENDOR, "Adds channel mode X (exemptchanops) which allows channel operators to grant exemptions to various channel-level restrictions.")
+		: Module(VENDOR, "Adds channel mode X (exemptchanops) which allows channel operators to grant exemptions to various channel-level restrictions.")
 		, eh(weak_from_this())
 	{
 	}

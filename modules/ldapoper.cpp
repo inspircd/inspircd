@@ -194,7 +194,7 @@ class ModuleLDAPOper final
 
 public:
 	ModuleLDAPOper()
-		: Module(VF_VENDOR, "Allows server operators to be authenticated against an LDAP database.")
+		: Module(VENDOR, "Allows server operators to be authenticated against an LDAP database.")
 		, LDAP(weak_from_this(), "LDAPProvider")
 	{
 	}

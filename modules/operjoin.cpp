@@ -35,7 +35,7 @@ private:
 
 public:
 	ModuleOperjoin()
-		: Module(VF_VENDOR, "Allows the server administrator to force server operators to join one or more channels when logging into their server operator account.")
+		: Module(VENDOR, "Allows the server administrator to force server operators to join one or more channels when logging into their server operator account.")
 	{
 	}
 

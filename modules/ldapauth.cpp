@@ -332,7 +332,7 @@ class ModuleLDAPAuth final
 
 public:
 	ModuleLDAPAuth()
-		: Module(VF_VENDOR, "Allows connecting users to be authenticated against an LDAP database.")
+		: Module(VENDOR, "Allows connecting users to be authenticated against an LDAP database.")
 		, LDAP(weak_from_this(), "LDAPProvider")
 		, ldapAuthed(weak_from_this(), "ldapauth", ExtensionType::USER)
 		, ldapVhost(weak_from_this(), "ldapauth-vhost", ExtensionType::USER)

@@ -90,7 +90,7 @@ private:
 
 public:
 	ModuleHashSHA1()
-		: Module(VF_VENDOR, "Allows other modules to generate SHA-1 hashes.")
+		: Module(VENDOR, "Allows other modules to generate SHA-1 hashes.")
 		, sha1algo(weak_from_this(), "sha1")
 	{
 	}

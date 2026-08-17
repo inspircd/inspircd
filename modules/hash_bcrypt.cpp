@@ -114,7 +114,7 @@ private:
 
 public:
 	ModuleHashBCrypt()
-		: Module(VF_VENDOR, "Allows other modules to generate bcrypt hashes.")
+		: Module(VENDOR, "Allows other modules to generate bcrypt hashes.")
 		, bcryptalgo(weak_from_this())
 	{
 	}

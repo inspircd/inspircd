@@ -200,7 +200,7 @@ private:
 
 public:
 	ModuleHashGnuTLS()
-		: Module(VF_VENDOR, "Allows other modules to generate hashes using GnuTLS.")
+		: Module(VENDOR, "Allows other modules to generate hashes using GnuTLS.")
 		, sha1algo(weak_from_this(), GNUTLS_DIG_SHA1, 64)
 		, sha224algo(weak_from_this(), GNUTLS_DIG_SHA224, 64)
 		, sha256algo(weak_from_this(), GNUTLS_DIG_SHA256, 64)

@@ -38,7 +38,7 @@ private:
 
 public:
 	ModuleStripColor()
-		: Module(VF_VENDOR, "Adds channel mode S (stripcolor) which allows channels to strip IRC formatting codes from messages.")
+		: Module(VENDOR, "Adds channel mode S (stripcolor) which allows channels to strip IRC formatting codes from messages.")
 		, exemptionprov(weak_from_this())
 		, extban(weak_from_this(), "stripcolor", 'S')
 		, csc(weak_from_this(), "stripcolor", 'S')

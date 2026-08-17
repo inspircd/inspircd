@@ -383,7 +383,7 @@ private:
 
 public:
 	ModuleDCCAllow()
-		: Module(VF_VENDOR | VF_COMMON, "Allows the server administrator to configure what files are allowed to be sent via DCC SEND and allows users to configure who can send them DCC CHAT and DCC SEND requests.")
+		: Module(VENDOR | COMMON, "Allows the server administrator to configure what files are allowed to be sent via DCC SEND and allows users to configure who can send them DCC CHAT and DCC SEND requests.")
 		, ext(weak_from_this())
 		, cmd(weak_from_this(), ext)
 	{

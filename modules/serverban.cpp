@@ -61,7 +61,7 @@ private:
 
 public:
 	ModuleServerBan()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban s: (server) which check whether users are on a server matching the specified glob pattern.")
+		: Module(VENDOR | OPTCOMMON, "Adds extended ban s: (server) which check whether users are on a server matching the specified glob pattern.")
 		, extban(weak_from_this())
 	{
 	}

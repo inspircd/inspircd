@@ -158,7 +158,7 @@ private:
 
 public:
 	ModuleRemove()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /REMOVE command which allows channel operators to force part users from a channel.")
+		: Module(VENDOR | OPTCOMMON, "Adds the /REMOVE command which allows channel operators to force part users from a channel.")
 		, ISupport::EventListener(weak_from_this())
 		, cmd(weak_from_this())
 	{

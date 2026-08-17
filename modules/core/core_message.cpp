@@ -409,7 +409,7 @@ private:
 
 public:
 	ModuleCoreMessage()
-		: Module(VF_CORE | VF_VENDOR, "Provides the NOTICE, PRIVMSG, and SQUERY commands")
+		: Module(CORE | VENDOR, "Provides the NOTICE, PRIVMSG, and SQUERY commands")
 		, cmdprivmsg(weak_from_this(), MessageType::PRIVMSG)
 		, cmdnotice(weak_from_this(), MessageType::NOTICE)
 		, cmdsquery(weak_from_this())

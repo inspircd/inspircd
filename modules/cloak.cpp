@@ -317,7 +317,7 @@ private:
 
 public:
 	ModuleCloak()
-		: Module(VF_VENDOR | VF_COMMON, "Adds user mode x (cloak) which allows user hostnames to be hidden.")
+		: Module(VENDOR | COMMON, "Adds user mode x (cloak) which allows user hostnames to be hidden.")
 		, ServerProtocol::SyncEventListener(weak_from_this())
 		, cloakapi(weak_from_this(), cloakmethods, &cloakmode)
 		, cloakcmd(weak_from_this(), cloakmethods)

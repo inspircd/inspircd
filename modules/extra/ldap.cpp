@@ -762,7 +762,7 @@ public:
 	}
 
 	ModuleLDAP()
-		: Module(VF_VENDOR, "Provides the ability for LDAP modules to query a LDAP directory.")
+		: Module(VENDOR, "Provides the ability for LDAP modules to query a LDAP directory.")
 	{
 	}
 

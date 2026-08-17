@@ -200,7 +200,7 @@ class CoreModClients final
 {
 public:
 	CoreModClients()
-		: Module(VF_CORE | VF_VENDOR, "Accepts connections to the server.")
+		: Module(CORE | VENDOR, "Accepts connections to the server.")
 	{
 	}
 

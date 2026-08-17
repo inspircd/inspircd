@@ -1016,7 +1016,7 @@ class ModuleSSLOpenSSL final
 
 public:
 	ModuleSSLOpenSSL()
-		: Module(VF_VENDOR, "Allows TLS encrypted connections using the OpenSSL library.")
+		: Module(VENDOR, "Allows TLS encrypted connections using the OpenSSL library.")
 	{
 		// Initialize OpenSSL
 		OPENSSL_init_ssl(0, nullptr);

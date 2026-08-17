@@ -232,7 +232,7 @@ private:
 
 public:
 	ModuleSQLite3()
-		: Module(VF_VENDOR, "Provides the ability for SQL modules to query a SQLite 3 database.")
+		: Module(VENDOR, "Provides the ability for SQL modules to query a SQLite 3 database.")
 	{
 	}
 

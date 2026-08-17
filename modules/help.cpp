@@ -97,7 +97,7 @@ private:
 
 public:
 	ModuleHelp()
-		: Module(VF_VENDOR, "Adds the /HELP command which allows users to view help on various topics.")
+		: Module(VENDOR, "Adds the /HELP command which allows users to view help on various topics.")
 		, cmd(weak_from_this())
 	{
 	}

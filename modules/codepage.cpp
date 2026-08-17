@@ -336,7 +336,7 @@ private:
 
 public:
 	ModuleCodepage()
-		: Module(VF_VENDOR | VF_COMMON, "Allows the server administrator to define what characters are allowed in nicknames and how characters should be compared in a case insensitive way.")
+		: Module(VENDOR | COMMON, "Allows the server administrator to define what characters are allowed in nicknames and how characters should be compared in a case insensitive way.")
 		, ISupport::EventListener(weak_from_this())
 		, origcasemap(national_case_insensitive_map)
 		, origcasemapname(ServerInstance->Config->CaseMapping)

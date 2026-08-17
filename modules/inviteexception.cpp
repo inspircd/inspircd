@@ -81,7 +81,7 @@ private:
 
 public:
 	ModuleInviteException()
-		: Module(VF_VENDOR, "Adds channel mode I (invex) which allows channel operators to exempt user masks from channel mode i (inviteonly).")
+		: Module(VENDOR, "Adds channel mode I (invex) which allows channel operators to exempt user masks from channel mode i (inviteonly).")
 		, ISupport::EventListener(weak_from_this())
 		, ie(weak_from_this())
 	{

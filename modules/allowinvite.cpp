@@ -34,7 +34,7 @@ private:
 
 public:
 	ModuleAllowInvite()
-		: Module(VF_VENDOR, "Adds channel mode A (allowinvite) which allows unprivileged users to use the /INVITE command and extended ban A: (blockinvite) which bans specific masks from using the /INVITE command.")
+		: Module(VENDOR, "Adds channel mode A (allowinvite) which allows unprivileged users to use the /INVITE command and extended ban A: (blockinvite) which bans specific masks from using the /INVITE command.")
 		, extban(weak_from_this(), "blockinvite", 'A')
 		, ni(weak_from_this(), "allowinvite", 'A')
 	{

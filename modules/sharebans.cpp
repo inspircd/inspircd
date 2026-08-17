@@ -103,7 +103,7 @@ private:
 
 public:
 	ModuleShareBans()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds extended ban b: (share) which allows sharing bans between channels.")
+		: Module(VENDOR | OPTCOMMON, "Adds extended ban b: (share) which allows sharing bans between channels.")
 		, extban(weak_from_this())
 	{
 	}

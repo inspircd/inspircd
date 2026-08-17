@@ -110,7 +110,7 @@ private:
 
 public:
 	ModuleLogSQL()
-		: Module(VF_VENDOR, "Provides the ability to log to a SQL database.")
+		: Module(VENDOR, "Provides the ability to log to a SQL database.")
 		, engine(weak_from_this())
 	{
 		thismod = weak_from_this();

@@ -190,7 +190,7 @@ private:
 
 public:
 	ModuleIRCv3Batch()
-		: Module(VF_VENDOR, "Provides the IRCv3 batch client capability.")
+		: Module(VENDOR, "Provides the IRCv3 batch client capability.")
 		, manager(weak_from_this())
 	{
 	}

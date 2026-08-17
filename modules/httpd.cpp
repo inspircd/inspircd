@@ -423,7 +423,7 @@ private:
 
 public:
 	ModuleHttpServer()
-		: Module(VF_VENDOR, "Allows the server administrator to serve various useful resources over HTTP.")
+		: Module(VENDOR, "Allows the server administrator to serve various useful resources over HTTP.")
 		, APIImpl(weak_from_this())
 		, acleventprov(weak_from_this(), "http-acl")
 		, reqeventprov(weak_from_this(), "http-request")

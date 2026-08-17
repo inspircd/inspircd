@@ -82,7 +82,7 @@ private:
 
 public:
 	ModuleBotMode()
-		: Module(VF_VENDOR, "Adds user mode B (bot) which marks users with it set as bots.")
+		: Module(VENDOR, "Adds user mode B (bot) which marks users with it set as bots.")
 		, ISupport::EventListener(weak_from_this())
 		, Who::EventListener(weak_from_this())
 		, Whois::EventListener(weak_from_this())

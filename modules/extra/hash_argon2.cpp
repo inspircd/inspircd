@@ -145,7 +145,7 @@ private:
 
 public:
 	ModuleArgon2()
-		: Module(VF_VENDOR, "Allows other modules to generate Argon2 hashes.")
+		: Module(VENDOR, "Allows other modules to generate Argon2 hashes.")
 		, argon2dalgo(weak_from_this(), Argon2_d)
 		, argon2ialgo(weak_from_this(), Argon2_i)
 		, argon2idalgo(weak_from_this(), Argon2_id)

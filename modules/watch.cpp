@@ -211,7 +211,7 @@ private:
 
 public:
 	ModuleWatch()
-		: Module(VF_VENDOR, "Adds the /WATCH command which allows users to find out when their friends are connected to the server.")
+		: Module(VENDOR, "Adds the /WATCH command which allows users to find out when their friends are connected to the server.")
 		, Away::EventListener(weak_from_this())
 		, ISupport::EventListener(weak_from_this())
 		, manager(weak_from_this(), "watch")

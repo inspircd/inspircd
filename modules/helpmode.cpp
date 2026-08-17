@@ -64,7 +64,7 @@ private:
 
 public:
 	ModuleHelpMode()
-		: Module(VF_VENDOR, "Adds user mode h (helpop) which marks a user as being available for help.")
+		: Module(VENDOR, "Adds user mode h (helpop) which marks a user as being available for help.")
 		, Stats::EventListener(weak_from_this(), 50)
 		, Whois::EventListener(weak_from_this())
 		, helpop(weak_from_this())

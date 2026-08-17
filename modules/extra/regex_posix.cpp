@@ -104,7 +104,7 @@ private:
 
 public:
 	ModuleRegexPOSIX()
-		: Module(VF_VENDOR, "Provides the posix regular expression engine which uses the POSIX.2 regular expression matching system.")
+		: Module(VENDOR, "Provides the posix regular expression engine which uses the POSIX.2 regular expression matching system.")
 		, regex(weak_from_this(), "posix")
 	{
 	}

@@ -124,7 +124,7 @@ private:
 
 public:
 	ModuleOperMOTD()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /OPERMOTD command which adds a special message of the day for server operators.")
+		: Module(VENDOR | OPTCOMMON, "Adds the /OPERMOTD command which adds a special message of the day for server operators.")
 		, cmd(weak_from_this())
 	{
 	}

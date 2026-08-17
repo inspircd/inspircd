@@ -57,7 +57,7 @@ private:
 
 public:
 	Modulealltime()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /ALLTIME command which allows server operators to see the current UTC time on all of the servers on the network.")
+		: Module(VENDOR | OPTCOMMON, "Adds the /ALLTIME command which allows server operators to see the current UTC time on all of the servers on the network.")
 		, mycommand(weak_from_this())
 	{
 	}

@@ -507,7 +507,7 @@ private:
 
 public:
 	ModuleSACommands()
-		: Module(VF_VENDOR, "Adds various server operator-only versions of regular commands.")
+		: Module(VENDOR, "Adds various server operator-only versions of regular commands.")
 		, data(weak_from_this())
 		, cmdsajoin(weak_from_this(), data)
 		, cmdsakick(weak_from_this(), data)

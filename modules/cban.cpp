@@ -172,7 +172,7 @@ class ModuleCBan final
 
 public:
 	ModuleCBan()
-		: Module(VF_VENDOR | VF_COMMON, "Adds the /CBAN command which allows server operators to prevent channels matching a glob from being created.")
+		: Module(VENDOR | COMMON, "Adds the /CBAN command which allows server operators to prevent channels matching a glob from being created.")
 		, Stats::EventListener(weak_from_this())
 		, mycommand(weak_from_this())
 	{

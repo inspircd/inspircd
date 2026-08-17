@@ -55,7 +55,7 @@ private:
 
 public:
 	ModuleRestrictChans()
-		: Module(VF_VENDOR, "Prevents unprivileged users from creating new channels.")
+		: Module(VENDOR, "Prevents unprivileged users from creating new channels.")
 		, accountapi(weak_from_this())
 	{
 	}

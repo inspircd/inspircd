@@ -96,7 +96,7 @@ private:
 
 public:
 	 ModuleRehashSignal()
-		: Module(VF_VENDOR, "Allows signals to be sent to the server to reload module data files.")
+		: Module(VENDOR, "Allows signals to be sent to the server to reload module data files.")
 	{
 	}
 

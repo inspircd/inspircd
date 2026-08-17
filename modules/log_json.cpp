@@ -170,7 +170,7 @@ private:
 
 public:
 	ModuleLogJSON()
-		: Module(VF_VENDOR, "Provides the ability to log to JSON.")
+		: Module(VENDOR, "Provides the ability to log to JSON.")
 		, log(weak_from_this())
 		, stderrlog(weak_from_this(), "json-stderr", stderr)
 		, stdoutlog(weak_from_this(), "json-stdout", stdout)

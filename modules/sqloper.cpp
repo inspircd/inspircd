@@ -162,7 +162,7 @@ private:
 
 public:
 	ModuleSQLOper()
-		: Module(VF_VENDOR, "Allows server operators to be authenticated against an SQL table.")
+		: Module(VENDOR, "Allows server operators to be authenticated against an SQL table.")
 		, SQL(weak_from_this(), "SQL::Provider")
 	{
 	}

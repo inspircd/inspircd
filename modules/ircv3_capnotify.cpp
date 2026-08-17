@@ -127,7 +127,7 @@ class ModuleIRCv3CapNotify final
 
 public:
 	ModuleIRCv3CapNotify()
-		: Module(VF_VENDOR, "Provides the IRCv3 cap-notify client capability.")
+		: Module(VENDOR, "Provides the IRCv3 cap-notify client capability.")
 		, Cap::EventListener(weak_from_this())
 		, ReloadModule::EventListener(weak_from_this())
 		, capnotify(weak_from_this())

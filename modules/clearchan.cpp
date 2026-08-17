@@ -153,7 +153,7 @@ private:
 
 public:
 	ModuleClearChan()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /CLEARCHAN command which allows server operators to mass-punish the members of a channel.")
+		: Module(VENDOR | OPTCOMMON, "Adds the /CLEARCHAN command which allows server operators to mass-punish the members of a channel.")
 		, cmd(weak_from_this())
 	{
 	}

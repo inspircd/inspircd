@@ -36,7 +36,7 @@ private:
 
 public:
 	ModuleNoNotice()
-		: Module(VF_VENDOR, "Adds channel mode T (nonotice) which allows channels to block messages sent with the /NOTICE command.")
+		: Module(VENDOR, "Adds channel mode T (nonotice) which allows channels to block messages sent with the /NOTICE command.")
 		, extban(weak_from_this(), "nonotice", 'T')
 		, exemptionprov(weak_from_this())
 		, nt(weak_from_this(), "nonotice", 'T')

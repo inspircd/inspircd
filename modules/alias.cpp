@@ -114,7 +114,7 @@ public:
 	}
 
 	ModuleAlias()
-		: Module(VF_VENDOR, "Allows the server administrator to define custom channel commands (e.g. !kick) and server commands (e.g. /OPERSERV).")
+		: Module(VENDOR, "Allows the server administrator to define custom channel commands (e.g. !kick) and server commands (e.g. /OPERSERV).")
 		, botmode(weak_from_this(), "bot")
 	{
 	}

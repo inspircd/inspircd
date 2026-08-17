@@ -337,7 +337,7 @@ private:
 
 public:
 	CoreModWhois()
-		: Module(VF_CORE | VF_VENDOR, "Provides the WHOIS command")
+		: Module(CORE | VENDOR, "Provides the WHOIS command")
 		, cmd(weak_from_this())
 	{
 	}

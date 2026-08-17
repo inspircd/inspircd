@@ -82,7 +82,7 @@ private:
 
 public:
 	ModuleCloakStatic()
-		: Module(VF_VENDOR, "Adds the static cloaking method for use with the cloak module.")
+		: Module(VENDOR, "Adds the static cloaking method for use with the cloak module.")
 		, nickcloak(weak_from_this())
 	{
 	}

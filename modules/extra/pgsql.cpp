@@ -568,7 +568,7 @@ public:
 	ReconnectTimer* retimer = nullptr;
 
 	ModulePgSQL()
-		: Module(VF_VENDOR, "Provides the ability for SQL modules to query a PostgreSQL database.")
+		: Module(VENDOR, "Provides the ability for SQL modules to query a PostgreSQL database.")
 	{
 	}
 

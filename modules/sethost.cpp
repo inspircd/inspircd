@@ -112,7 +112,7 @@ private:
 
 public:
 	ModuleSetHost()
-		: Module(VF_VENDOR | VF_OPTCOMMON, "Adds the /SETHOST command which allows server operators to change the hostname of users.")
+		: Module(VENDOR | OPTCOMMON, "Adds the /SETHOST command which allows server operators to change the hostname of users.")
 		, cmd(weak_from_this())
 	{
 	}

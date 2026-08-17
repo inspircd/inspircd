@@ -82,7 +82,7 @@ private:
 
 public:
 	ModuleConnectBan()
-		: Module(VF_VENDOR, "Z-lines IP addresses which make excessive connections to the server.")
+		: Module(VENDOR, "Z-lines IP addresses which make excessive connections to the server.")
 		, ServerProtocol::LinkEventListener(weak_from_this())
 		, WebIRC::EventListener(weak_from_this())
 	{

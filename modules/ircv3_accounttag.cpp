@@ -92,7 +92,7 @@ private:
 
 public:
 	ModuleIRCv3AccountTag()
-		: Module(VF_VENDOR, "Provides the IRCv3 account-tag client capability.")
+		: Module(VENDOR, "Provides the IRCv3 account-tag client capability.")
 		, Who::EventListener(weak_from_this())
 		, accountapi(weak_from_this())
 		, tag(weak_from_this(), accountapi)

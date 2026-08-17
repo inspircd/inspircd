@@ -134,7 +134,7 @@ class ModuleSQLAuth final
 
 public:
 	ModuleSQLAuth()
-		: Module(VF_VENDOR, "Allows connecting users to be authenticated against an arbitrary SQL table.")
+		: Module(VENDOR, "Allows connecting users to be authenticated against an arbitrary SQL table.")
 		, pendingExt(weak_from_this(), "sqlauth-wait", ExtensionType::USER)
 		, SQL(weak_from_this(), "SQL::Provider")
 		, tlsapi(weak_from_this())
