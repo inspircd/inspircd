@@ -25,6 +25,9 @@
 // The full version that is shown to privileged users.
 #define INSPIRCD_VERSION "InspIRCd-@VERSION_FULL@"
 
+// The ABI version for modules.
+#define INSPIRCD_MODULE_ABI ((@VERSION_MAJOR@ * 1000) + @VERSION_MINOR@)
+
 // Determines whether this version of InspIRCd is older than the requested version.
 #define INSPIRCD_VERSION_BEFORE(MAJOR, MINOR) (((@VERSION_MAJOR@ << 8) | @VERSION_MINOR@) < ((MAJOR << 8) | (MINOR)))
 

@@ -73,12 +73,12 @@ ModulePtr DLLManager::CallInit()
 		err.assign(libname + " is not a module (no ABI symbol)");
 		return nullptr;
 	}
-	else if (*abi != MODULE_ABI)
+	else if (*abi != INSPIRCD_MODULE_ABI)
 	{
 		const char* version = GetVersion();
 		err.assign(FMT::format("{} was built against {} ({}) which is too {} to use with {} ({}).",
 			libname, version ? version : "an unknown version", *abi,
-			*abi < MODULE_ABI ? "old" : "new", INSPIRCD_VERSION, MODULE_ABI));
+			*abi < INSPIRCD_MODULE_ABI ? "old" : "new", INSPIRCD_VERSION, INSPIRCD_MODULE_ABI));
 		return nullptr;
 	}
 
