@@ -65,6 +65,16 @@ void Module::CompareLinkData(const LinkData& otherdata, LinkDataDiff& diffs)
 	insp::map_difference(data, otherdata, diffs);
 }
 
+void Module::DetachEvent(Implementation i)
+{
+	ServerInstance->Modules.Detach(i, shared_from_this());
+}
+
+void Module::GetLinkData(LinkData&)
+{
+	// Intentionally left blank.
+}
+
 std::string Module::GetPropertyString() const
 {
 	// R = VF_CORE ("required")
@@ -89,6 +99,16 @@ std::string Module::GetVersion() const
 	return dll_version ? dll_version : "unknown";
 }
 
+void Module::Prioritize()
+{
+	// Intentionally left blank.
+}
+
+void Module::ReadConfig(ConfigStatus& status)
+{
+	// Intentionally left blank.
+}
+
 ModulePtr Module::Share()
 {
 	if (!this->pointer) [[unlikely]]
@@ -99,14 +119,6 @@ ModulePtr Module::Share()
 	return newpointer;
 }
 
-void Module::DetachEvent(Implementation i)
-{
-	ServerInstance->Modules.Detach(i, shared_from_this());
-}
-
-void		Module::GetLinkData(LinkData&) { }
-void		Module::Prioritize() { }
-void		Module::ReadConfig(ConfigStatus& status) { }
 ModResult	Module::OnSendSnotice(char& snomask, std::string& type, const std::string& message) { DetachEvent(I_OnSendSnotice); return MOD_RES_PASSTHRU; }
 void		Module::OnUserConnect(LocalUser*) { DetachEvent(I_OnUserConnect); }
 ModResult	Module::OnUserPreQuit(LocalUser*, std::string&, std::string&) { DetachEvent(I_OnUserPreQuit); return MOD_RES_PASSTHRU; }
