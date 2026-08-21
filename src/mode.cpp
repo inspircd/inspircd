@@ -31,11 +31,21 @@
 #include "clientprotocolevent.h"
 #include "numerichelper.h"
 
+namespace
+{
+	char GetModeLetter(const std::string& name, ModeType type, char defmode)
+	{
+		const char* tagname = (type == MODETYPE_CHANNEL ? "channelmodes" : "usermodes");
+		const auto& tag = ServerInstance->Config->ConfValue(tagname, ServerInstance->Config->ConfValue("modes"));
+		return tag->getCharacter(name, defmode);
+	}
+}
+
 ModeHandler::ModeHandler(const WeakModulePtr& Creator, const std::string& Name, char modeletter, ParamSpec Params, ModeType type, Class mclass)
 	: Service::Provider(Creator, FMT::format("ModeHandler/{}", type == MODETYPE_CHANNEL ? "C" : "U"), Name)
 	, modeid(ModeParser::MODEID_MAX)
 	, parameters_taken(Params)
-	, mode(ServerInstance->Config->ConfValue("modes")->getCharacter(Name, modeletter))
+	, mode(GetModeLetter(Name, type, modeletter))
 	, m_type(type)
 	, type_id(mclass)
 {
