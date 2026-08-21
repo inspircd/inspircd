@@ -237,6 +237,7 @@ bool PrefixMode::IsPrefixChar(char chr)
 		return false;
 
 	return (
+		(chr == '\0') ||
 		(chr >= '!' && chr <= '/') ||
 		(chr >= ';' && chr <= '@') ||
 		(chr == '~')
