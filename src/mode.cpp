@@ -231,6 +231,18 @@ ModResult PrefixMode::AccessCheck(User* src, Channel*, Modes::Change& change)
 	return MOD_RES_PASSTHRU;
 }
 
+bool PrefixMode::IsPrefixChar(char chr)
+{
+	if (ServerInstance->Channels.IsPrefix(chr))
+		return false;
+
+	return (
+		(chr >= '!' && chr <= '/') ||
+		(chr >= ';' && chr <= '@') ||
+		(chr == '~')
+	);
+}
+
 bool PrefixMode::OnModeChange(User* source, User*, Channel* chan, Modes::Change& change)
 {
 	User* target;
@@ -615,7 +627,7 @@ void ModeParser::AddMode(ModeHandler* mh)
 	PrefixMode* pm = mh->IsPrefixMode();
 	if (pm)
 	{
-		if ((pm->GetPrefix() > 126) || (pm->GetPrefix() == ',') || (pm->GetPrefix() == ':') || ServerInstance->Channels.IsPrefix(pm->GetPrefix()))
+		if (!PrefixMode::IsPrefixChar(pm->GetPrefix()))
 			throw ModuleException(mh->service_creator, "Mode prefix for {} is invalid: {}", mh->service_name, pm->GetPrefix());
 
 		PrefixMode* otherpm = FindPrefix(pm->GetPrefix());
@@ -828,7 +840,11 @@ void PrefixMode::RemoveMode(Channel* chan, Modes::ChangeList& changelist)
 
 bool ModeParser::IsModeChar(char chr)
 {
-	return ((chr >= '0' && chr <= '9') || (chr >= 'A' && chr <= 'Z') || (chr >= 'a' && chr <= 'z'));
+	return (
+		(chr >= '0' && chr <= '9') ||
+		(chr >= 'A' && chr <= 'Z') ||
+		(chr >= 'a' && chr <= 'z')
+	);
 }
 
 size_t ModeParser::GetModeIndex(char chr)

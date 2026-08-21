@@ -410,6 +410,9 @@ public:
 	/** @copydoc ModeHandler::AccessCheck */
 	ModResult AccessCheck(User* source, Channel* channel, Modes::Change& change) override;
 
+	/** Determines whether the specified character is a valid prefix. */
+	static bool IsPrefixChar(char chr);
+
 	/** @copydoc ModeHandler::OnModeChange */
 	bool OnModeChange(User* source, User* dest, Channel* channel, Modes::Change& change) override;
 
