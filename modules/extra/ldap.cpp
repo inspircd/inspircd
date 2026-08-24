@@ -34,12 +34,6 @@
 #include "threadsocket.h"
 #include "timeutils.h"
 
-// Ignore OpenLDAP deprecation warnings on OS X Yosemite and newer.
-#if defined __APPLE__
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 #ifdef _WIN32
 # include <Wininet.h>
 # include <Winldap.h>
@@ -61,10 +55,6 @@
 # include <ldap.h>
 # define LDAP_STR(X) ((X).c_str())
 # define LDAP_TIME(X) (&(X))
-#endif
-
-#ifdef __APPLE__
-# pragma GCC diagnostic pop
 #endif
 
 #if defined LDAP_API_FEATURE_X_OPENLDAP_REENTRANT && !LDAP_API_FEATURE_X_OPENLDAP_REENTRANT
