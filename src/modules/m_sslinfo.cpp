@@ -88,7 +88,15 @@ public:
 		value << GetFlags(cert) << " ";
 
 		if (cert->GetError().empty())
-			value << insp::join(cert->GetFingerprints(), ',') << " " << cert->GetDN() << " " << cert->GetIssuer();
+		{
+			std::string escaped_dn(cert->GetDN());
+			std::replace(escaped_dn.begin(), escaped_dn.end(), ' ', '_');
+
+			std::string escaped_issuer(cert->GetIssuer());
+			std::replace(escaped_issuer.begin(), escaped_issuer.end(), ' ', '_');
+
+			value << insp::join(cert->GetFingerprints(), ',') << " " << escaped_dn << " " << escaped_issuer;
+		}
 		else
 			value << cert->GetError();
 
@@ -129,7 +137,10 @@ public:
 				cert->fingerprints.push_back(fingerprint);
 
 			getline(s, cert->dn, ' ');
+			std::replace(cert->dn.begin(), cert->dn.end(), '_', ' ');
+
 			getline(s, cert->issuer, '\n');
+			std::replace(cert->issuer.begin(), cert->issuer.end(), '_', ' ');
 		}
 	}
 
