@@ -90,7 +90,10 @@ struct RemoteCertificate final
 			this->fingerprints.push_back(fingerprint);
 
 		std::getline(stream, this->dn, ' ');
+		std::replace(this->dn.begin(), this->dn.end(), '_', ' ');
+
 		std::getline(stream, this->issuer_dn, '\n');
+		std::replace(this->issuer_dn.begin(), this->issuer_dn.end(), '_', ' ');
 	}
 };
 
@@ -123,9 +126,15 @@ public:
 			value << cert->GetError();
 		else
 		{
-			value << insp::join(cert->GetFingerprints(), ',') << ' '
-				<< cert->GetDN() << ' '
-				<< cert->GetIssuerDN();
+			value << insp::join(cert->GetFingerprints(), ',');
+
+			std::string escaped_dn(cert->GetDN());
+			std::replace(escaped_dn.begin(), escaped_dn.end(), ' ', '_');
+			value << ' ' << escaped_dn;
+
+			std::string escaped_issuer_dn(cert->GetIssuerDN());
+			std::replace(escaped_issuer_dn.begin(), escaped_issuer_dn.end(), ' ', '_');
+			value << ' ' << escaped_issuer_dn;
 		}
 
 		if (server)
