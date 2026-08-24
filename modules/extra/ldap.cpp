@@ -34,10 +34,6 @@
 #include "threadsocket.h"
 #include "timeutils.h"
 
-#if defined LDAP_API_FEATURE_X_OPENLDAP_REENTRANT && !LDAP_API_FEATURE_X_OPENLDAP_REENTRANT
-# error InspIRCd requires OpenLDAP to be built as reentrant.
-#endif
-
 // Ignore OpenLDAP deprecation warnings on OS X Yosemite and newer.
 #if defined __APPLE__
 # pragma GCC diagnostic push
@@ -69,6 +65,10 @@
 
 #ifdef __APPLE__
 # pragma GCC diagnostic pop
+#endif
+
+#if defined LDAP_API_FEATURE_X_OPENLDAP_REENTRANT && !LDAP_API_FEATURE_X_OPENLDAP_REENTRANT
+# error InspIRCd requires OpenLDAP to be built as reentrant.
 #endif
 
 class LDAPService;
