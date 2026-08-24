@@ -20,10 +20,6 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
 	message(FATAL_ERROR "You must run CMake using the CMakeLists.txt in the root directory!")
 endif()
 
-# We need to manually add this first because otherwise the glob in build_modules()
-# gets invalidated and forces CMake to re-run when building.
-add_subdirectory("extra")
-
 build_modules(${CMAKE_CURRENT_SOURCE_DIR}
-	SKIP "extra"
+	PREFIX "core"
 )

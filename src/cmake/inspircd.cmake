@@ -26,10 +26,6 @@
 #
 # MODULE_SOURCE(LIST): One or more source files for the module.
 function(build_module MODULE MODULE_SOURCE)
-	if(NOT ${MODULE} MATCHES "^core_")
-		set(MODULE "m_${MODULE}")
-	endif()
-
 	add_library(${MODULE} MODULE ${MODULE_SOURCE})
 	target_compile_definitions(${MODULE} PRIVATE
 		"MODNAME=\"${MODULE}\""
@@ -64,24 +60,36 @@ endfunction()
 # build_modules (i.e. this function) will be called on it.
 #
 # MODULE_SOURCE_DIR (STRING): The directory to build modules in.
+#
+# MODULE_PREFIX (STRING): The prefix for the module name.
+#
+# MODULE_SKIP (STRING): The directories to skip when building.
+
 function(build_modules MODULE_SOURCE_DIR)
+	cmake_parse_arguments(PARSE_ARGV 0 "MODULE" "" "PREFIX" "SKIP")
+	if(NOT MODULE_PREFIX)
+		set(MODULE_PREFIX "m")
+	endif()
+
 	file(GLOB MODULES CONFIGURE_DEPENDS "${MODULE_SOURCE_DIR}/*")
 	foreach(MODULE IN LISTS MODULES)
 		cmake_path(GET MODULE STEM MODULE_NAME)
-		if(IS_DIRECTORY ${MODULE} AND NOT MODULE_NAME IN_LIST ARGN)
+		if(IS_DIRECTORY ${MODULE} AND NOT MODULE_NAME IN_LIST MODULE_SKIP)
 			if(EXISTS "${MODULE}/CMakeLists.txt")
 				add_subdirectory(${MODULE})
-			elseif(EXISTS "${MODULE}/${MODULE_NAME}.cpp" OR EXISTS "${MODULE}/main.cpp")
+			elseif(EXISTS "${MODULE}/${MODULE_PREFIX}_${MODULE_NAME}.cpp" OR EXISTS "${MODULE}/main.cpp")
 				file(GLOB_RECURSE MODULE_SOURCE CONFIGURE_DEPENDS
 					"${MODULE}/*.cpp"
 					"${MODULE}/*.h"
 				)
-				build_module(${MODULE_NAME} "${MODULE_SOURCE}")
+				build_module("${MODULE_PREFIX}_${MODULE_NAME}" "${MODULE_SOURCE}")
 			else()
-				build_modules(${MODULE})
+				build_modules(${MODULE}
+					PREFIX ${MODULE_PREFIX}
+				)
 			endif()
 		elseif(MODULE MATCHES "\\.cpp$")
-			build_module(${MODULE_NAME} ${MODULE})
+			build_module("${MODULE_PREFIX}_${MODULE_NAME}" ${MODULE})
 		endif()
 	endforeach()
 endfunction()
