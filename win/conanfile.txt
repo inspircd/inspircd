@@ -1,4 +1,4 @@
-# Last updated: 2026-04-16
+# Last updated: 2026-08-25
 #
 # Modules we can't legally ship: geo_maxmind, ssl_openssl
 # Modules which don't apply to Windows: log_syslog, sslrehashsignal
@@ -10,16 +10,18 @@ argon2/20190702
 libmysqlclient/8.1.0
 libpq/17.7
 libpsl/0.21.5
-## openssl/3.6.2
-pcre2/10.44
+## openssl/3.6.3 # Blocked from upgrading to OpenSSL 4 by libmysqlclient.
+pcre2/10.47
 re2/20251105
-sqlite3/3.53.0
+sqlite3/3.53.4
 tre/cci.20230717
 yyjson/0.12.0
 
 [options]
 */*:shared=True
 libmaxminddb/*:with_binaries=False
+# When we can update to OpenSSL 4 we should change the lines below to:
+# openssl/:extra_build_opts=--api=1.1.1,no-apps,no-engine,no-legacy
 openssl/*:no_apps=True
 openssl/*:no_legacy=True
 pcre2/*:build_pcre2_16=False
