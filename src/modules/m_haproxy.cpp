@@ -163,6 +163,17 @@ private:
 	// The current state of the PROXY parser.
 	HAProxyState state = HPS_WAITING_FOR_HEADER;
 
+	bool ApplyPath(StreamSocket* sock, irc::sockets::sockaddrs& sa, const char* buffer)
+	{
+		memcpy(sa.un.sun_path, &buffer[0], std::min<size_t>(sizeof(sa.un.sun_path) - 1, 108));
+		if (!sa.un.sun_path[0] || strpbrk(sa.un.sun_path, "\n\r\t!@:"))
+		{
+			sock->SetError("Malformed HAProxy PROXY UNIX socket address");
+			return false;
+		}
+		return true;
+	}
+
 	size_t ReadProxyTLV(StreamSocket* sock, size_t start_index, uint16_t buffer_length)
 	{
 		// A TLV must at least consist of a type (uint8_t) and a length (uint16_t).
@@ -332,8 +343,10 @@ private:
 						break;
 
 					case AF_UNIX:
-						memcpy(client.un.sun_path, &recvq[0], 108);
-						memcpy(server.un.sun_path, &recvq[108], 108);
+						if (!ApplyPath(sock, client, &recvq[0]))
+							return -1;
+						if (!ApplyPath(sock, server, &recvq[108]))
+							return -1;
 						tlv_index = 216;
 						break;
 				}
