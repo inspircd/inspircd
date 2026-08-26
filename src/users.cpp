@@ -100,11 +100,16 @@ const std::string& User::GetAddress()
 	{
 		cached_address = client_sa.addr();
 
-		// If the user is connecting from an IPv4 address like ::1 we
-		// need to partially expand the address to avoid issues with
-		// the IRC wire format.
+		// If the user is connecting from an IPv6 address like ::1 we need to
+		// partially expand the address to avoid issues with the IRC wire
+		// format.
 		if (cached_address[0] == ':')
 			cached_address.insert(cached_address.begin(), 1, '0');
+
+		// If the user is connecting from a UNIX socket path that contains a
+		// space we need to replace it with an underscore to avoid issues with
+		// the IRC wire format.
+		std::replace(cached_address.begin(), cached_address.end(), ' ', '_');
 
 		cached_address.shrink_to_fit();
 	}
