@@ -186,7 +186,7 @@ size_t InspIRCd::BindPorts(FailedPortList& failed_ports)
 			}
 
 			// Check for characters which are problematic in the IRC message format.
-			if (fullpath.find_first_of("\n\r\t!@: ") != std::string::npos)
+			if (fullpath.find_first_of("\n\r\t!@:") != std::string::npos)
 			{
 				failed_ports.emplace_back("Path contains invalid characters: " + fullpath, tag);
 				continue;
