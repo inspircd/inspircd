@@ -24,6 +24,10 @@ endif()
 # gets invalidated and forces CMake to re-run when building.
 add_subdirectory("extra")
 
+# We need to manually build this first so that contrib modules can override
+# vendor modules with the same name.
+build_modules("${CMAKE_CURRENT_SOURCE_DIR}/contrib")
+
 build_modules(${CMAKE_CURRENT_SOURCE_DIR}
-	SKIP "extra"
+	SKIP "contrib" "extra"
 )

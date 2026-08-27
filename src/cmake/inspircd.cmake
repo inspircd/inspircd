@@ -26,6 +26,14 @@
 #
 # MODULE_SOURCE(LIST): One or more source files for the module.
 function(build_module MODULE MODULE_SOURCE)
+	if(TARGET ${MODULE})
+		get_target_property(OTHER_MODULE_SOURCE ${MODULE} SOURCES)
+		message(STATUS "Skipping ${MODULE} because another module with the same name already exists!")
+		message(STATUS "  This module: ${MODULE_SOURCE}")
+		message(STATUS "  That module: ${OTHER_MODULE_SOURCE}")
+		return()
+	endif()
+
 	add_library(${MODULE} MODULE ${MODULE_SOURCE})
 	target_compile_definitions(${MODULE} PRIVATE
 		"MODNAME=\"${MODULE}\""
