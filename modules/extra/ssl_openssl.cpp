@@ -29,8 +29,8 @@
  */
 
 /// BEGIN CMAKE
-/// target_require_package(${TARGET} "libcrypto" "OpenSSL" "OpenSSL::Crypto")
-/// target_require_package(${TARGET} "libssl" "OpenSSL" "OpenSSL::SSL")
+/// target_require_package(${TARGET} "crypto" "OpenSSL" "OpenSSL::Crypto")
+/// target_require_package(${TARGET} "ssl" "OpenSSL" "OpenSSL::SSL")
 /// END CMAKE
 
 

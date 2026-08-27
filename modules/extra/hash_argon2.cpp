@@ -17,7 +17,7 @@
  */
 
 /// BEGIN CMAKE
-/// target_require_package(${TARGET} "libargon2" "argon2" "argon2::argon2")
+/// target_require_package(${TARGET} "argon2" "argon2" "argon2::argon2")
 /// END CMAKE
 
 

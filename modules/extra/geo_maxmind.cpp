@@ -18,7 +18,7 @@
  */
 
 /// BEGIN CMAKE
-/// target_require_package(${TARGET} "libmaxminddb" "maxminddb" "maxminddb::maxminddb")
+/// target_require_package(${TARGET} "maxminddb" "maxminddb" "maxminddb::maxminddb")
 /// END CMAKE
 
 

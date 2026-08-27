@@ -18,7 +18,7 @@
 
 /// BEGIN CMAKE
 /// if(WIN32)
-///   target_require_package(${TARGET} "libpcre2-posix" "PCRE2" "PCRE2::POSIX")
+///   target_require_package(${TARGET} "pcre2-posix" "PCRE2" "PCRE2::POSIX")
 /// endif()
 /// END CMAKE
 

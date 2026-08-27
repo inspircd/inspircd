@@ -17,7 +17,7 @@
  */
 
 /// BEGIN CMAKE
-/// target_require_package(${TARGET} "libpcre2-8" "PCRE2" "PCRE2::8BIT")
+/// target_require_package(${TARGET} "pcre2-8" "PCRE2" "PCRE2::8BIT")
 /// END CMAKE
 
 

@@ -27,7 +27,7 @@
  */
 
 /// BEGIN CMAKE
-/// target_require_package(${TARGET} "libpq" "PostgreSQL" "PostgreSQL::PostgreSQL")
+/// target_require_package(${TARGET} "pq" "PostgreSQL" "PostgreSQL::PostgreSQL")
 /// END CMAKE
 
 

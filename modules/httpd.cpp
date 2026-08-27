@@ -27,7 +27,7 @@
  */
 
 /// BEGIN CMAKE
-/// target_vendor_library(${TARGET} "llhttp" NO)
+/// target_vendor_library(${TARGET} "llhttp" YES)
 /// target_vendor_library(${TARGET} "yuarel" NO)
 /// END CMAKE
 

@@ -331,10 +331,16 @@ function(target_require_package TARGET PKGCONF_NAMES CMAKE_NAME LINK_TARGET)
 		elseif(PkgConfig_FOUND)
 			string(REPLACE " " ";" PKGCONF_NAMES "${PKGCONF_NAMES}")
 			foreach(PKGCONF_NAME IN LISTS PKGCONF_NAMES)
-				pkg_check_modules(${PKGCONF_NAME}
-					IMPORTED_TARGET ${PKGCONF_NAME}
-					QUIET
-				)
+				# Some distributions use lib prefixes and some do not.
+				foreach(PKGCONF_ALT_NAME IN ITEMS ${PKGCONF_NAME} "lib${PKGCONF_NAME}")
+					pkg_check_modules(${PKGCONF_NAME}
+						IMPORTED_TARGET ${PKGCONF_ALT_NAME}
+						QUIET
+					)
+					if(${PKGCONF_NAME}_FOUND)
+						break()
+					endif()
+				endforeach()
 				find_package_handle_standard_args(${PKGCONF_NAME}
 					REQUIRED_VARS ${PKGCONF_NAME}_VERSION
 				)
