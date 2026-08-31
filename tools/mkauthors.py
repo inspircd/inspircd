@@ -97,7 +97,7 @@ with open(ROOT / "docs" / "BANNER.txt") as fh:
         escaped_line = line.rstrip().replace("\\", r"\\").replace('"', r"\"")
         info_lines.append(escaped_line)
 
-with open(ROOT / "modules" / "core" / "core_info" / "info.yml") as fh:
+with open(ROOT / "modules" / "core" / "info" / "info.yml") as fh:
     seen = []
     for team, members in yaml.safe_load(fh).items():
         info_lines.append(" ")
@@ -126,7 +126,7 @@ with open(ROOT / "modules" / "core" / "core_info" / "info.yml") as fh:
         ).splitlines()
         info_lines.extend([f"  {line.strip()}" for line in columnized_names])
 
-info_h = ROOT / "modules" / "core" / "core_info" / "info.h"
+info_h = ROOT / "modules" / "core" / "info" / "info.h"
 with open(info_h, "w") as fh:
     print(
         textwrap.dedent(
