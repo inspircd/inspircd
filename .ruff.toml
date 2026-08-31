@@ -1,0 +1,4 @@
+src = ["."]
+
+[lint.per-file-ignores]
+"tools/**" = ["E402"]

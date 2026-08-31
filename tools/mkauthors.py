@@ -37,9 +37,17 @@ GIT = os.getenv("GIT", "git")
 if not shutil.which(GIT):
     console.error(f"Git ({GIT}) must be installed to build the author list!")
 
-commit_log = subprocess.check_output(
-    [GIT, "log", "--pretty=%an <%ae>%n%(trailers:key=Co-Authored-By,valueonly)", "HEAD"]
-).splitlines()
+commit_log = subprocess.run(
+    [
+        GIT,
+        "log",
+        "--pretty=%an <%ae>%n%(trailers:key=Co-Authored-By,valueonly)",
+        "HEAD",
+    ],
+    check=True,
+    stdout=subprocess.PIPE,
+    text=True,
+).stdout.splitlines()
 
 committers = {}
 for committer in [c for c in commit_log if c]:
@@ -47,11 +55,9 @@ for committer in [c for c in commit_log if c]:
 
 authors = {}
 for committer, commits in committers.items():
-    author = (
-        subprocess.check_output([GIT, "check-mailmap", committer])
-        .strip()
-        .decode("utf-8")
-    )
+    author = subprocess.run(
+        [GIT, "check-mailmap", committer], check=True, stdout=subprocess.PIPE, text=True
+    ).stdout.strip()
 
     # Remove email addresses that aren"t real.
     author = re.sub(
@@ -156,14 +162,17 @@ with open(info_h, "w") as fh:
     )
 
 if int(os.getenv("MKAUTHORS_COMMIT", "1")) > 0:
-    subprocess.check_call(
+    subprocess.run(
         [
             GIT,
             "commit",
-            "--author", "InspIRCd Robot <noreply@inspircd.org>",
-            "--message", "Update the author list.",
+            "--author",
+            "InspIRCd Robot <noreply@inspircd.org>",
+            "--message",
+            "Update the author list.",
             "--",
             authors_txt,
             info_h,
-        ]
+        ],
+        check=False,
     )
