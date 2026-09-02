@@ -24,17 +24,18 @@
 #include "modules/away.h"
 #include "modules/cap.h"
 #include "modules/ircv3.h"
-#include "modules/names.h"
+#include "modules/ircv3_servertime.h"
 #include "modules/monitor.h"
+#include "modules/names.h"
 
 class AwayMessage final
 	: public ClientProtocol::Message
 {
 public:
-	AwayMessage(User* user)
+	AwayMessage(User* user, IRCv3::ServerTime::API& servertimeapi)
 		: ClientProtocol::Message("AWAY", user)
 	{
-		SetParams(user, user->away);
+		SetParams(user->away, servertimeapi);
 	}
 
 	AwayMessage()
@@ -42,12 +43,16 @@ public:
 	{
 	}
 
-	void SetParams(User* user, const std::optional<AwayState>& awaystate)
+	void SetParams(const std::optional<AwayState>& awaystate, IRCv3::ServerTime::API& servertimeapi)
 	{
 		// Going away: 1 parameter which is the away reason
 		// Back from away: no parameter
 		if (awaystate)
+		{
 			PushParam(awaystate->message);
+			if (servertimeapi)
+				servertimeapi->Set(*this, awaystate->time);
+		}
 	}
 };
 
@@ -64,6 +69,7 @@ public:
 	AwayMessage awaymsg;
 	Cap::Capability extendedjoincap;
 	Cap::Capability awaycap;
+	IRCv3::ServerTime::API servertimeapi;
 
 	JoinHook(Module* mod)
 		: ClientProtocol::EventHook(mod, "JOIN")
@@ -71,6 +77,7 @@ public:
 		, awayprotoev(mod, "AWAY")
 		, extendedjoincap(mod, "extended-join")
 		, awaycap(mod, "away-notify")
+		, servertimeapi(mod)
 	{
 	}
 
@@ -101,7 +108,7 @@ public:
 		if ((memb->user->IsAway()) && (awaycap.IsActive()))
 		{
 			awaymsg.SetSource(join);
-			awaymsg.SetParams(memb->user, memb->user->away);
+			awaymsg.SetParams(memb->user->away, servertimeapi);
 		}
 	}
 
@@ -178,7 +185,7 @@ public:
 			return;
 
 		// Going away: n!u@h AWAY :reason
-		AwayMessage msg(user);
+		AwayMessage msg(user, joinhook.servertimeapi);
 		ClientProtocol::Event awayevent(joinhook.awayprotoev, msg);
 		IRCv3::WriteNeighborsWithCap res(user, awayevent, joinhook.awaycap);
 		Monitor::WriteWatchersWithCap(monitorapi, user, awayevent, joinhook.awaycap, res.GetAlreadySentId());
