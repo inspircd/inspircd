@@ -67,10 +67,6 @@ target_link_libraries("inspircd" PUBLIC
 	${CMAKE_DL_LIBS}
 	Threads::Threads
 )
-target_precompile_headers("inspircd" PRIVATE
-	"${PROJECT_SOURCE_DIR}/include/inspircd.h"
-	${CORE_HEADERS}
-)
 set_target_properties("inspircd" PROPERTIES
 	ENABLE_EXPORTS ON
 )

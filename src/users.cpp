@@ -32,6 +32,7 @@
 #include "clientprotocolevent.h"
 #include "modules/hash.h"
 #include "timeutils.h"
+#include "utility/container.h"
 #include "xline.h"
 
 ClientProtocol::MessageList LocalUser::sendmsglist;

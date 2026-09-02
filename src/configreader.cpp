@@ -35,6 +35,7 @@
 
 #include "inspircd.h"
 #include "configparser.h"
+#include "listmode.h"
 #include "stringutils.h"
 #include "utility/container.h"
 
