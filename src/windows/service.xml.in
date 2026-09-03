@@ -1,0 +1,20 @@
+<CPackWiXPatch>
+    <CPackWiXFragment Id="CM_CP_bin.inspircd.exe">
+        <ServiceInstall
+            Id="InspIRCdService"
+            Name="InspIRCd-@VERSION_MAJOR@"
+            Description="InspIRCd is a high-performance Internet Relay Chat (IRCv3) server for UNIX-like and Windows systems."
+            Start="auto"
+            Account="NT AUTHORITY\NETWORKSERVICE"
+            ErrorControl="normal"
+            Type="ownProcess"
+        />
+        <ServiceControl
+            Id="ControlInspIRCdService"
+            Name="InspIRCd-@VERSION_MAJOR@"
+            Start="install"
+            Stop="both"
+            Remove="uninstall"
+        />
+    </CPackWiXFragment>
+</CPackWiXPatch>

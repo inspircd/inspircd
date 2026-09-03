@@ -24,11 +24,6 @@ jobs:
         with:
           arch: x64
 
-      - name: Setup NSIS
-        uses: negrutiu/nsis-install@v3
-        with:
-          distro: official
-
       - name: Setup Conan
         uses: turtlebrowser/get-conan@v1.2
 
@@ -87,11 +82,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |-
-          gh release upload ${{ github.event.release.tag_name }} $(Get-ChildItem InspIRCd-*.exe)
+          gh release upload ${{ github.event.release.tag_name }} $(Get-ChildItem InspIRCd-*.msi)
 
       - name: Upload artifact
         if: github.event_name != 'release'
         uses: actions/upload-artifact@v7
         with:
           name: windows-installer
-          path: ${{ env.BUILD_PATH }}\InspIRCd-*.exe
+          path: ${{ env.BUILD_PATH }}\InspIRCd-*.msi

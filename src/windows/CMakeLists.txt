@@ -49,26 +49,17 @@ set(CPACK_PACKAGE_INSTALL_DIRECTORY    "InspIRCd ${VERSION_MAJOR}")
 set(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "InspIRCd ${VERSION_MAJOR}")
 set(CPACK_RESOURCE_FILE_LICENSE        "${PROJECT_SOURCE_DIR}/docs/LICENSE.txt")
 
-# Configure NSIS-specific settings.
-set(CPACK_GENERATOR       "NSIS")
-set(CPACK_NSIS_COMPRESSOR "/SOLID zlib")
+# Configure WiX-specific settings.
+set(CPACK_GENERATOR        "WIX")
+set(CPACK_WIX_PRODUCT_ICON "${CMAKE_CURRENT_SOURCE_DIR}/inspircd.ico")
+set(CPACK_WIX_UPGRADE_GUID "14788a8b-f049-4fdb-a71a-76dc35e2bf45")
 
-set(CPACK_NSIS_INSTALLED_ICON_NAME "${BINARY_DIR}\\\\inspircd.exe")
-set(CPACK_NSIS_MUI_ICON            "${CMAKE_CURRENT_SOURCE_DIR}/inspircd.ico")
-set(CPACK_NSIS_MUI_UNIICON         "${CMAKE_CURRENT_SOURCE_DIR}/inspircd.ico")
+set(CPACK_WIX_PROPERTY_ARPCONTACT      "ircs://irc.teranova.net/inspircd")
+set(CPACK_WIX_PROPERTY_ARPHELPLINK     "https://docs.inspircd.org/support")
+set(CPACK_WIX_PROPERTY_ARPURLINFOABOUT "https://www.inspircd.org")
 
-set(CPACK_NSIS_CONTACT        "ircs://irc.teranova.net/inspircd")
-set(CPACK_NSIS_HELP_LINK      "https://docs.inspircd.org/support")
-set(CPACK_NSIS_URL_INFO_ABOUT "https://www.inspircd.org")
-
-list(APPEND CPACK_NSIS_EXTRA_INSTALL_COMMANDS
-	[=[DetailPrint 'Installing InspIRCd service...']=]
-	[=[nsExec::Exec /TIMEOUT=30000 '\"$INSTDIR\\inspircd.exe\" --installservice']=]
-)
-list(APPEND CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS
-	[=[DetailPrint 'Uninstalling InspIRCd service...']=]
-	[=[nsExec::Exec /TIMEOUT=30000 '\"$INSTDIR\\inspircd.exe\" --removeservice']=]
-)
+configure_file("service.xml.in" "service.xml")
+set(CPACK_WIX_PATCH_FILE "${CMAKE_CURRENT_BINARY_DIR}/service.xml")
 
 # Install the C runtime alongside InspIRCd.
 set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION "${BINARY_DIR}")
