@@ -39,7 +39,7 @@ install_owned(
 )
 
 # Set package metadata
-set(CPACK_PACKAGE_NAME                 "InspIRCd - Internet Relay Chat Daemon")
+set(CPACK_PACKAGE_NAME                 "InspIRCd Internet Relay Chat Daemon")
 set(CPACK_PACKAGE_VENDOR               "InspIRCd Contributors")
 set(CPACK_PACKAGE_VERSION_MAJOR        ${VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR        ${VERSION_MINOR})

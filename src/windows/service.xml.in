@@ -12,7 +12,6 @@
         <ServiceControl
             Id="ControlInspIRCdService"
             Name="InspIRCd-@VERSION_MAJOR@"
-            Start="install"
             Stop="both"
             Remove="uninstall"
         />
