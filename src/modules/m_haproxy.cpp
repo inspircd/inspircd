@@ -4,7 +4,7 @@
  *   Copyright (C) 2026 Atlas
  *   Copyright (C) 2021 Dominic Hamon
  *   Copyright (C) 2019 linuxdaemon <linuxdaemon.irc@gmail.com>
- *   Copyright (C) 2018-2019, 2021-2023 Sadie Powell <sadie@sadiepowell.dev>
+ *   Copyright (C) 2018-2019, 2021-2023, 2026 Sadie Powell <sadie@sadiepowell.dev>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public

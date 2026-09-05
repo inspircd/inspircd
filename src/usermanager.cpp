@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2026 Kufat <kufat@kufat.net>
  *   Copyright (C) 2019 iwalkalone <iwalkalone69@gmail.com>
  *   Copyright (C) 2013-2016, 2018 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2013, 2018-2025 Sadie Powell <sadie@sadiepowell.dev>
