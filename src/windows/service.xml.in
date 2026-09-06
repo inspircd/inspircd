@@ -1,5 +1,5 @@
-<CPackWiXPatch>
-    <CPackWiXFragment Id="CM_CP_bin.inspircd.exe">
+    <CPackWiXPatch>
+    <CPackWiXFragment Id="CM_CP_inspircd.exe">
         <ServiceInstall
             Id="InspIRCdService"
             Name="InspIRCd-@VERSION_MAJOR@"

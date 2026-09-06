@@ -140,14 +140,13 @@ if(NOT WIN32)
 		message(FATAL_ERROR "PORTABLE and SYSTEM can not be used together!")
 	endif()
 	if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-		if(PORTABLE)
-			# Portable installs use relative paths for relocatability.
-			update_cache(CMAKE_INSTALL_PREFIX "run")
-		elseif(SYSTEM)
+		if(SYSTEM)
 			# System installs all have paths relative to the root.
 			update_cache(CMAKE_INSTALL_PREFIX "/")
 		else()
-			# If nothing else is specified we install into the source directory.
+			# Other installs have paths relative to the <root>/run directory. On
+			# portable installs paths are not made absolute to allow the run
+			# directory to be moved to another location.
 			update_cache(CMAKE_INSTALL_PREFIX "${PROJECT_SOURCE_DIR}/run")
 		endif()
 	endif()
@@ -166,71 +165,63 @@ endif()
 
 configure_path(
 	NAME         "BINARY_DIR"
+	PORTABLE_DEF "."
 	SOURCE_DEF   "bin"
-	PORTABLE_DEF "bin"
 	SYSTEM_DEF   "usr/bin"
-	DESCRIPTION  "The directory to install binary files to"
+	DESCRIPTION "The directory to install binary files to"
 )
 configure_path(
-	NAME         "CONFIG_DIR"
-	SOURCE_DEF   "conf"
-	PORTABLE_DEF "conf"
-	SYSTEM_DEF   "etc/inspircd"
-	DESCRIPTION  "The directory to read config files from"
+	NAME        "CONFIG_DIR"
+	SOURCE_DEF  "conf"
+	SYSTEM_DEF  "etc/inspircd"
+	DESCRIPTION "The directory to read config files from"
 )
 configure_path(
-	NAME         "DATA_DIR"
-	SOURCE_DEF   "data"
-	PORTABLE_DEF "data"
-	SYSTEM_DEF   "var/lib/inspircd"
-	DESCRIPTION  "The directory to read and write data files to"
+	NAME        "DATA_DIR"
+	SOURCE_DEF  "data"
+	SYSTEM_DEF  "var/lib/inspircd"
+	DESCRIPTION "The directory to read and write data files to"
 )
 configure_path(
-	NAME         "DOC_DIR"
-	SOURCE_DEF   "docs"
-	PORTABLE_DEF "docs"
-	SYSTEM_DEF   "usr/share/doc/inspircd"
-	DESCRIPTION  "The directory to write documentation files to"
+	NAME        "DOC_DIR"
+	SOURCE_DEF  "docs"
+	SYSTEM_DEF  "usr/share/doc/inspircd"
+	DESCRIPTION "The directory to write documentation files to"
 )
 configure_path(
-	NAME         "EXAMPLE_DIR"
-	SOURCE_DEF   "${CONFIG_DIR}/examples"
-	PORTABLE_DEF "${CONFIG_DIR}/examples"
-	SYSTEM_DEF   "usr/share/doc/inspircd/examples"
-	DESCRIPTION  "The directory to install example config files to"
+	NAME        "EXAMPLE_DIR"
+	SOURCE_DEF  "${CONFIG_DIR}/examples"
+	SYSTEM_DEF  "usr/share/doc/inspircd/examples"
+	DESCRIPTION "The directory to install example config files to"
 )
 configure_path(
-	NAME         "LOG_DIR"
-	SOURCE_DEF   "logs"
-	PORTABLE_DEF "logs"
-	SYSTEM_DEF   "var/log/inspircd"
-	DESCRIPTION  "The directory to write log files to"
+	NAME        "LOG_DIR"
+	SOURCE_DEF  "logs"
+	SYSTEM_DEF  "var/log/inspircd"
+	DESCRIPTION "The directory to write log files to"
 )
 configure_path(
-	NAME         "MANUAL_DIR"
-	SOURCE_DEF   "manuals"
-	PORTABLE_DEF "manuals"
-	SYSTEM_DEF   "usr/share/man/man1"
-	DESCRIPTION  "The directory to install manual files to"
+	NAME        "MANUAL_DIR"
+	SOURCE_DEF  "${DOC_DIR}"
+	SYSTEM_DEF  "usr/share/man/man1"
+	DESCRIPTION "The directory to install manual files to"
 )
 configure_path(
-	NAME          "MODULE_DIR"
-	SOURCE_DEF    "modules"
-	PORTABLE_DEF  "modules"
-	SYSTEM_DEF    "usr/lib/inspircd"
-	DESCRIPTION   "The directory to install modules files to"
+	NAME        "MODULE_DIR"
+	SOURCE_DEF  "modules"
+	SYSTEM_DEF  "usr/lib/inspircd"
+	DESCRIPTION "The directory to install modules files to"
 )
 configure_path(
-	NAME          "RUNTIME_DIR"
-	SOURCE_DEF    "${DATA_DIR}"
-	PORTABLE_DEF  "${DATA_DIR}"
-	SYSTEM_DEF    "$<$<NOT:$<PLATFORM_ID:Linux>>:var/>run/inspircd"
-	DESCRIPTION   "The directory to write runtime files to"
+	NAME        "RUNTIME_DIR"
+	SOURCE_DEF  "${DATA_DIR}"
+	SYSTEM_DEF  "$<$<NOT:$<PLATFORM_ID:Linux>>:var/>run/inspircd"
+	DESCRIPTION "The directory to write runtime files to"
 )
 configure_path(
 	NAME         "SCRIPT_DIR"
+	PORTABLE_DEF "scripts"
 	SOURCE_DEF   "."
-	PORTABLE_DEF "."
 	SYSTEM_DEF   "usr/share/inspircd"
 	DESCRIPTION  "The directory to install script files to"
 )
