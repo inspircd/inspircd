@@ -47,11 +47,16 @@ if not port.isnumeric() or int(port) < 1 or int(port) > 65535:
 
 self_signed = len(sys.argv) > 3 and sys.argv[3] == "selfsigned"
 try:
-    print(f"Checking whether {CC_BOLD}{hostip}/{port}{CC_RESET} is reachable ... ", end="", flush=True)
+    print(
+        f"Checking whether {CC_BOLD}{hostip}/{port}{CC_RESET} is reachable ... ",
+        end="",
+        flush=True,
+    )
     sock = socket.create_connection((hostip, int(port)), 30)
     print(f"{CC_GREEN}yes{CC_RESET}")
-except socket.error as error:
-    print(textwrap.dedent(f"""
+except OSError as error:
+    print(
+        textwrap.dedent(f"""
         {CC_RED}no{CC_RESET}
 
         It seems like the server endpoint you specified is not reachable! Make sure that:
@@ -66,18 +71,24 @@ except socket.error as error:
           {error}
 
         See https://docs.inspircd.org/4/configuration/#bind for more information.
-    """).strip())
+    """).strip()
+    )
     sys.exit(1)
 
 data = b""
 try:
-    print(f"Checking whether {CC_BOLD}{hostip}/{port}{CC_RESET} is using plaintext ... ", end="", flush=True)
+    print(
+        f"Checking whether {CC_BOLD}{hostip}/{port}{CC_RESET} is using plaintext ... ",
+        end="",
+        flush=True,
+    )
     sock.settimeout(5)
     data = sock.recv(1, socket.MSG_PEEK)
-except socket.timeout:
-    pass # The server is probably using deferred sockets
-except socket.error as error:
-    print(textwrap.dedent(f"""
+except TimeoutError:
+    pass  # The server is probably using deferred sockets
+except OSError as error:
+    print(
+        textwrap.dedent(f"""
         {CC_RED}error{CC_RESET}
 
         It seems like the server dropped the connection before sending anything! Make sure that:
@@ -91,11 +102,13 @@ except socket.error as error:
           {error}
 
         See https://docs.inspircd.org/4/configuration/#bind for more information.
-    """).strip())
+    """).strip()
+    )
     sys.exit(1)
 
-if re.match(br"[A-Z:@]", data):
-    print(textwrap.dedent(f"""
+if re.match(rb"^[A-Z:@]", data):
+    print(
+        textwrap.dedent(f"""
         {CC_RED}yes{CC_RESET}
 
         It appears that the server endpoint is using plaintext! Make sure that:
@@ -117,12 +130,17 @@ if re.match(br"[A-Z:@]", data):
 
           https://docs.inspircd.org/4/modules/ssl_gnutls/#configuration
           https://docs.inspircd.org/4/modules/ssl_openssl/#configuration
-    """).strip())
+    """).strip()
+    )
     sys.exit(0)
 
 try:
     print(f"{CC_GREEN}no{CC_RESET}")
-    print(f"Checking whether {CC_BOLD}{hostip}/{port}{CC_RESET} can have an TLS session negotiated ... ", end="", flush=True)
+    print(
+        f"Checking whether {CC_BOLD}{hostip}/{port}{CC_RESET} can have an TLS session negotiated ... ",
+        end="",
+        flush=True,
+    )
 
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
     context.check_hostname = not self_signed
@@ -130,7 +148,8 @@ try:
     context.load_default_certs()
     context.wrap_socket(sock, server_hostname=hostip)
 except ssl.SSLError as error:
-    print(textwrap.dedent(  f"""
+    print(
+        textwrap.dedent(f"""
         {CC_RED}no{CC_RESET}
 
         It appears that something is wrong with your server. Make sure that:
@@ -143,10 +162,12 @@ except ssl.SSLError as error:
         The error provided by the TLS library was:
 
           {error}
-    """).strip())
+    """).strip()
+    )
     sys.exit(0)
 
-print(textwrap.dedent(f"""
+print(
+    textwrap.dedent(f"""
     {CC_GREEN}yes{CC_RESET}
 
     It seems like TLS is working fine on your server. If you are having trouble
@@ -159,4 +180,5 @@ print(textwrap.dedent(f"""
 
     If you need any help working out what is wrong then visit our support channel
     at ircs://irc.teranova.net/inspircd.
-""").strip())
+""").strip()
+)
