@@ -23,6 +23,7 @@ endif()
 set(TOOLS
 	"convert-unreal-channel" # Converts an UnrealIRCd channel database to InspIRCd permchannels config.
 	"convert-unreal-tkl" # Converts an UnrealIRCd TKL database to an InspIRCd xline_db database.
+	"mkpasswd" # Generates a hashed password from a plaintext for use in the config.
 	"test-tls" # Tests whether TLS is correctly configured on an endpoint.
 )
 
