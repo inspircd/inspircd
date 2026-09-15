@@ -188,7 +188,7 @@ namespace Template
 }
 
 
-/** Alows tokens in the IRC wire format to be read from a string. */
+/** Allows tokens in the IRC wire format to be read from a string. */
 class CoreExport MessageTokenizer final
 {
 private:
@@ -200,7 +200,7 @@ private:
 
 public:
 	/** Creates a message tokenizer and fills it with the provided data.
-	 * @param msg The messsage to parse tokens from.
+	 * @param msg The message to parse tokens from.
 	 * @param start The index to start tokenizing from.
 	 * @param end The index to stop tokenizing at.
 	 */

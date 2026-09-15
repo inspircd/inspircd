@@ -500,7 +500,7 @@ public:
 			LinkData data;
 			cloakmethod->GetLinkData(data);
 			if (data.empty())
-				continue; // This method has no data so thats all we need to do.
+				continue; // This method has no data so that's all we need to do.
 
 			// Serialize the data in the same format as CAPAB MODULES.
 			buf << '=';
