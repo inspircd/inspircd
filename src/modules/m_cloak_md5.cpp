@@ -240,7 +240,7 @@ struct CloakInfo final
 			case MODE_HALF_CLOAK:
 			{
 				if (!host_is_ip)
-					chost = prefix + SegmentCloak(host, 1, 6) + "." + Cloak::VisiblePart(host, domainparts, '.');
+					chost = prefix + SegmentCloak(host, 1, 6) + Cloak::VisiblePart(host, domainparts, '.');
 				if (chost.empty() || chost.length() > 50)
 					chost = SegmentIP(ip, false);
 				break;
