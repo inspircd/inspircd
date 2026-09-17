@@ -300,7 +300,10 @@ public:
 	{
 		if (parser.upgrade || HTTP_PARSER_ERRNO(&parser))
 			return;
-		http_parser_execute(&parser, &parser_settings, recvq.data(), recvq.size());
+
+		const auto nparsed = http_parser_execute(&parser, &parser_settings, recvq.data(), recvq.size());
+		recvq.erase(0, nparsed);
+
 		if (parser.upgrade)
 			SendHTTPError(status_code ? status_code : 400);
 		else if (HTTP_PARSER_ERRNO(&parser))
