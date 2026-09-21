@@ -18,7 +18,7 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **License** &mdash; MIT License
 
-**Version** &mdash; 12.2.0
+**Version** &mdash; 12.2.0-3-g588b3a0f
 
 **Website** &mdash; [https://github.com/fmtlib/fmt/](https://github.com/fmtlib/fmt/)
 
@@ -68,6 +68,6 @@ This directory contains vendored dependencies that are shipped with InspIRCd to 
 
 **License** &mdash; Boost Software License
 
-**Version** &mdash; v4.2.0
+**Version** &mdash; v4.2.1
 
 **Website** &mdash; [https://github.com/nemtrif/utfcpp](https://github.com/nemtrif/utfcpp)
