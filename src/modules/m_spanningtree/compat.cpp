@@ -135,10 +135,13 @@ void TreeSocket::WriteLine(const std::string& original_line)
 		else if (irc::equals(command, "FJOIN"))
 		{
 			// FJOIN has no length limit in v4
-			// :<sid> FJOIN <chan> <TS> <modes> :[<member> [<member> ...]]
+			// :<sid> FJOIN <chan> <TS> <modes> [<mode-params> :[<member> [<member> ...]]
 			const auto chanend = NextToken(line, cmdend);
 			const auto chantsend = NextToken(line, chanend);
-			const auto modesend = NextToken(line, chantsend);
+			auto modesend = NextToken(line, chantsend);
+			while (modesend != std::string::npos && line[modesend + 1] != ':')
+				modesend = NextToken(line, modesend);
+
 			if (modesend != std::string::npos)
 			{
 				const auto maxlinelen = cmdstart + COMPAT_LINE_LEN;
