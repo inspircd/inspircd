@@ -242,8 +242,6 @@ if interactive and not options.update:
         tool_default = not options.build_tool or options.build_tool == "Ninja"
         if console.prompt_boolean(tool_default):
             options.build_tool = "Ninja"
-        else:
-            options.build_tool = "Unix Makefiles"
 
     print("-" * 80)
     print_wrapped(
@@ -329,8 +327,9 @@ try:
 except subprocess.CalledProcessError as e:
     console.error(f"CMake failed with error code {e.returncode}")
 
+target = "package" if os.name == "nt" else "install"
 print_wrapped(
     f"""
-    You can now run `{CMAKE} --build {BUILD_DIR_REL} --target install` to build and install InspIRCd.
+    You can now run `{CMAKE} --build {BUILD_DIR_REL} --target {target}` to build and install InspIRCd.
     """
 )
