@@ -335,6 +335,60 @@ public:
 		Page(n->str(), response, hheaders);
 	}
 
+	bool ParseURIPath(std::vector<std::string>& normalized_path, char* path)
+	{
+		if (!path || strlen(path) == 0)
+			return true;
+
+		// Parse the path.
+		char* path_segments[64]{};
+		const auto path_segment_count = yuarel_split_path(path, path_segments, std::size(path_segments));
+		if (path_segment_count == -1)
+		{
+			ServerInstance->Logs.Debug(MODNAME, "yuarel_split_path() failed with {}", path);
+			return false; // Malformed path.
+		}
+
+		// Normalize the path.
+		for (auto idx = 0; idx < path_segment_count; ++idx)
+		{
+			const auto& path_segment = path_segments[idx];
+			if (insp::ascii_equals(path_segment, "."))
+				continue; // Stay at the current level.
+
+			if (insp::ascii_equals(path_segment, ".."))
+			{
+				// Traverse up to the previous level.
+				if (!normalized_path.empty())
+					normalized_path.pop_back();
+				continue;
+			}
+			normalized_path.push_back(path_segment);
+		}
+		return true;
+	}
+
+	bool ParseURIQuery(HTTPQueryParameters& query_params, char* query)
+	{
+		if (!query || strlen(query) == 0)
+			return true;
+
+		// Parse and decode the query string.
+		yuarel_param params[64]{};
+		const auto param_count = yuarel_parse_query(query, '&', params, std::size(params));
+		if (param_count == -1)
+		{
+			ServerInstance->Logs.Debug(MODNAME, "yuarel_parse_query() failed with {}", query);
+			return false; // Malformed query string.
+		}
+		for (auto idx = 0; idx < param_count; ++idx)
+		{
+			const auto* param_val = params[idx].val ? yuarel_url_decode(params[idx].val) : "";
+			query_params.emplace(yuarel_url_decode(params[idx].key), param_val);
+		}
+		return true;
+	}
+
 	bool ParseURI(const std::string& uristr, HTTPRequestURI& out)
 	{
 		// yuarel works in-place so we need a mutable copy of this.
@@ -355,45 +409,13 @@ public:
 		out.port = url.port;
 		insp::assign_ptr(out.fragment, url.fragment);
 
-		// Parse and normalize the path.
-		char* path_segments[64]{};
-		const auto path_segment_count = yuarel_split_path(url.path, path_segments, std::size(path_segments));
-		if (path_segment_count == -1)
-		{
-			ServerInstance->Logs.Debug(MODNAME, "yuarel_split_path() failed with {}", url.path);
-			return false; // Malformed path.
-		}
 		std::vector<std::string> normalized_path;
-		for (auto idx = 0; idx < path_segment_count; ++idx)
-		{
-			const auto& path_segment = path_segments[idx];
-			if (insp::ascii_equals(path_segment, "."))
-				continue; // Stay at the current level.
-
-			if (insp::ascii_equals(path_segment, ".."))
-			{
-				// Traverse up to the previous level.
-				if (!normalized_path.empty())
-					normalized_path.pop_back();
-				continue;
-			}
-			normalized_path.push_back(path_segment);
-		}
+		if (!ParseURIPath(normalized_path, url.path))
+			return false;
 		out.path.append("/").append(insp::join(normalized_path, '/'));
 
-		// Parse and decode the query string.
-		yuarel_param params[64]{};
-		const auto param_count = yuarel_parse_query(url.query, '&', params, std::size(params));
-		if (param_count == -1)
-		{
-			ServerInstance->Logs.Debug(MODNAME, "yuarel_parse_query() failed with {}", url.query);
-			return false; // Malformed query string.
-		}
-		for (auto idx = 0; idx < param_count; ++idx)
-		{
-			const auto* param_val = params[idx].val ? yuarel_url_decode(params[idx].val) : "";
-			out.query_params.emplace(yuarel_url_decode(params[idx].key), param_val);
-		}
+		if (!ParseURIQuery(out.query_params, url.query))
+			return false;
 
 		return true;
 	}
