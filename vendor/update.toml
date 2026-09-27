@@ -9,6 +9,7 @@ website = "https://www.openwall.com/crypt/"
 
 [fmt]
 author  = "Victor Zverovich and fmt contributors"
+commit  = "588b3a0f8f6a8bcf2a959cae882d5b2703e86737" # TODO: remove this after next {fmt} release.
 depth   = 2
 files   = "{include/fmt/{base,color,compile,format,format-inl}.h,LICENSE,src/format.cc}"
 git     = "https://github.com/fmtlib/fmt/"

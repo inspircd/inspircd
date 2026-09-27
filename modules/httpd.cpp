@@ -297,6 +297,8 @@ public:
 			return;
 
 		auto res = llhttp_execute(&parser, recvq.data(), recvq.size());
+		recvq.clear();
+
 		if (parser.upgrade || res == HPE_PAUSED_UPGRADE)
 			SendHTTPError(status_code ? status_code : 400);
 		else if (res != HPE_OK && res != HPE_PAUSED)
