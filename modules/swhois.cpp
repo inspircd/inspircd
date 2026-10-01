@@ -189,7 +189,7 @@ private:
 
 	CmdResult DoClear(LocalUser* source, User* target, const Params& parameters)
 	{
-		if (DelSWhois(swhoisext, source, [](const SWhois& swhois) { return true; }))
+		if (DelSWhois(swhoisext, target, [](const SWhois& swhois) { return true; }))
 		{
 			IRCv3::WriteReply(Reply::NOTE, source, stdrplcap, this, "LIST_CLEARED", target->nick, FMT::format("Special whois list for {} has been cleared.",
 				target->nick));
@@ -216,13 +216,13 @@ private:
 		{
 			size_t currentidx = 0;;
 			const auto idx = ConvToNum<size_t>(msg);
-			deleted = DelSWhois(swhoisext, source, [&currentidx, idx](const SWhois& swhois) {
+			deleted = DelSWhois(swhoisext, target, [&currentidx, idx](const SWhois& swhois) {
 				return ++currentidx == idx;
 			});
 		}
 		if (!deleted)
 		{
-			deleted = DelSWhois(swhoisext, source, [&msg](const SWhois& swhois) {
+			deleted = DelSWhois(swhoisext, target, [&msg](const SWhois& swhois) {
 				return msg == swhois.message;
 			});
 		}
