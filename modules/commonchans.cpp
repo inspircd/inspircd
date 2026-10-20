@@ -63,10 +63,10 @@ private:
 
 public:
 	ModuleCommonChans()
-		: Module(VENDOR, "Adds user mode c (deaf_commonchan) which requires users to have a common channel before they can privately message each other.")
+		: Module(VENDOR, "Adds user mode c (commonchan) which requires users to have a common channel before they can privately message each other.")
 		, CTCTags::EventListener(weak_from_this())
 		, calleridapi(weak_from_this())
-		, mode(weak_from_this(), "deaf_commonchan", 'c')
+		, mode(weak_from_this(), "commonchan", 'c', false, "deaf_commonchan")
 	{
 	}
 
