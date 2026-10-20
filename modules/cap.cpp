@@ -34,6 +34,20 @@ namespace Cap
 	class ManagerImpl;
 }
 
+class CapMessage final
+	: public Cap::MessageBase
+{
+public:
+	CapMessage(LocalUser* user, const std::string& subcmd, const std::string& result, bool asterisk)
+		: Cap::MessageBase(subcmd)
+	{
+		SetUser(user);
+		if (asterisk)
+			PushParam("*");
+		PushParamRef(result);
+	}
+};
+
 static Cap::ManagerImpl* managerimpl;
 
 class Cap::ManagerImpl final
@@ -62,6 +76,7 @@ class Cap::ManagerImpl final
 	ExtItem capext;
 	CapMap caps;
 	Events::ModuleEventProvider& evprov;
+	ClientProtocol::EventProvider protoevprov;
 
 	static bool CanRequest(LocalUser* user, Ext usercaps, Capability* cap, bool adding)
 	{
@@ -149,6 +164,8 @@ public:
 		, ReloadModule::EventListener(mod)
 		, capext(mod)
 		, evprov(evprovref)
+		, protoevprov(mod, "CAP")
+
 	{
 		managerimpl = this;
 	}
@@ -211,12 +228,19 @@ public:
 		return ((capext.Get(user) & CAP_302_BIT) ? CAP_302 : CAP_LEGACY);
 	}
 
+	void DisplaySingleResult(LocalUser* user, const std::string& subcmd, const std::string& result, bool asterisk)
+	{
+		CapMessage msg(user, subcmd, result, asterisk);
+		ClientProtocol::Event ev(protoevprov, msg);
+		user->Send(ev);
+	}
+
 	void Set302Protocol(LocalUser* user)
 	{
 		capext.Set(user, capext.Get(user) | CAP_302_BIT);
 	}
 
-	bool HandleReq(LocalUser* user, const std::string& reqlist)
+	void HandleReq(LocalUser* user, const std::string& reqlist, bool notify)
 	{
 		Ext usercaps = capext.Get(user);
 		StringSplitter ss(reqlist);
@@ -228,7 +252,11 @@ public:
 
 			Capability* cap = ManagerImpl::Find(capname);
 			if ((!cap) || (!CanRequest(user, usercaps, cap, !remove)))
-				return false;
+			{
+				if (notify)
+					DisplaySingleResult(user, "NAK", reqlist, false);
+				return;
+			}
 
 			if (remove)
 				usercaps = cap->DelFromMask(usercaps);
@@ -236,8 +264,9 @@ public:
 				usercaps = cap->AddToMask(usercaps);
 		}
 
+		if (notify)
+			DisplaySingleResult(user, "ACK", reqlist, false);
 		capext.Set(user, usercaps);
-		return true;
 	}
 
 	void HandleList(std::vector<std::string>& out, LocalUser* user, bool show_all, bool show_values, bool minus_prefix = false) const
@@ -340,22 +369,8 @@ void Cap::ExtItem::FromInternal(Extensible* container, const std::string& value)
 
 	// Remove the version indicator from the string passed to HandleReq
 	std::string caplist(value, 0, value.size()-1);
-	managerimpl->HandleReq(user, caplist);
+	managerimpl->HandleReq(user, caplist, false);
 }
-
-class CapMessage final
-	: public Cap::MessageBase
-{
-public:
-	CapMessage(LocalUser* user, const std::string& subcmd, const std::string& result, bool asterisk)
-		: Cap::MessageBase(subcmd)
-	{
-		SetUser(user);
-		if (asterisk)
-			PushParam("*");
-		PushParamRef(result);
-	}
-};
 
 class CommandCap final
 	: public SplitCommand
@@ -363,7 +378,6 @@ class CommandCap final
 private:
 	Events::ModuleEventProvider evprov;
 	Cap::ManagerImpl manager;
-	ClientProtocol::EventProvider protoevprov;
 
 	void DisplayResult(LocalUser* user, const std::string& subcmd, const std::vector<std::string>& result, bool asterisk)
 	{
@@ -373,21 +387,14 @@ private:
 		{
 			if (line.length() + cap.length() >= maxline)
 			{
-				DisplaySingleResult(user, subcmd, line, asterisk);
+				manager.DisplaySingleResult(user, subcmd, line, asterisk);
 				line.clear();
 			}
 			if (!line.empty())
 				line.push_back(' ');
 			line.append(cap);
 		}
-		DisplaySingleResult(user, subcmd, line, false);
-	}
-
-	void DisplaySingleResult(LocalUser* user, const std::string& subcmd, const std::string& result, bool asterisk)
-	{
-		CapMessage msg(user, subcmd, result, asterisk);
-		ClientProtocol::Event ev(protoevprov, msg);
-		user->Send(ev);
+		manager.DisplaySingleResult(user, subcmd, line, false);
 	}
 
 public:
@@ -397,7 +404,6 @@ public:
 		: SplitCommand(mod, "CAP", 1)
 		, evprov(mod, "cap")
 		, manager(mod, evprov)
-		, protoevprov(mod, "CAP")
 		, holdext(mod, "cap-hold", ExtensionType::USER)
 	{
 		works_before_reg = true;
@@ -414,8 +420,7 @@ public:
 			if (parameters.size() < 2)
 				return CmdResult::FAILURE;
 
-			const std::string replysubcmd = (manager.HandleReq(user, parameters[1]) ? "ACK" : "NAK");
-			DisplaySingleResult(user, replysubcmd, parameters[1], false);
+			manager.HandleReq(user, parameters[1], true);
 		}
 		else if (insp::casemapped_equals(subcommand, "END"))
 		{
