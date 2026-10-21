@@ -647,7 +647,7 @@ def cmd_extra_interactive(commands, args, start):
 def cmd_extra_list(commands, args, start):
     modules = []
     for long_extra in sorted(module.EXTRA_DIR.iterdir()):
-        if not long_extra.suffix == ".cpp":
+        if long_extra.suffix != ".cpp":
             continue  # Not a module
 
         long_module = module.DIR / long_extra.name
