@@ -83,14 +83,14 @@ struct WebSocketConfig final
 		DM_TEXT
 	};
 
-	// The HTTP origins that can connect to the server.
-	std::vector<std::string> allowedorigins;
-
 	// Whether text encoding can be used on this server.
 	bool allowtext;
 
 	// The method to use if a subprotocol is not negotiated.
 	DefaultMode defaultmode;
+
+	// The HTTP origins that can connect to the server.
+	std::vector<std::pair<std::string, bool>> origins;
 
 	// The IP ranges which send trustworthy X-Real-IP or X-Forwarded-For headers.
 	std::vector<std::string> proxyranges;
@@ -435,12 +435,12 @@ class WebSocketHook final
 		if (originheader.Find(recvq, "Origin:", 7, reqend))
 		{
 			const std::string origin = originheader.ExtractValue(recvq);
-			for (const auto& cfgorigin : config.allowedorigins)
+			for (const auto& [host, allow] : config.origins)
 			{
-				if (InspIRCd::Match(origin, cfgorigin, ascii_case_insensitive_map))
+				if (InspIRCd::Match(origin, host, ascii_case_insensitive_map))
 				{
-					allowedorigin = true;
-					if (luser)
+					allowedorigin = allow;
+					if (luser && allowedorigin)
 						g_data->origin.Set(luser, origin);
 					break;
 				}
@@ -699,10 +699,6 @@ public:
 
 	void ReadConfig(ConfigStatus& status) override
 	{
-		auto tags = ServerInstance->Config->ConfTags("wsorigin");
-		if (tags.empty())
-			throw ModuleException(weak_from_this(), "You have loaded the websocket module but not configured any allowed origins!");
-
 		WebSocketConfig config;
 
 		// If a server has a non-utf8 compatible character set configured
@@ -714,21 +710,31 @@ public:
 			|| insp::casemapped_equals(it->second, "ascii")
 			|| insp::casemapped_equals(it->second, "utf8");
 
-		for (const auto& [_, tag] : tags)
+		for (const auto& [_, tag] : ServerInstance->Config->ConfTags("wsorigin"))
 		{
-			// Ensure that we have the <wsorigin:allow> parameter.
-			const std::string allow = tag->getString("allow");
-			if (allow.empty())
-				throw ModuleException(weak_from_this(), "<wsorigin:allow> is a mandatory field, at " + tag->source.str());
+			const auto host = tag->getString("host", tag->getString("allow"));
+			if (host.empty())
+				throw ModuleException(weak_from_this(), "<wsorigin:host> is a required field, at " + tag->source.str());
 
-			if (insp::ascii_equals(allow, "*") || insp::ascii_equals(allow, "http://*") || insp::ascii_equals(allow, "https://*"))
+			const auto allow = tag->getEnum("type", true, {
+				{ "allow", true   },
+				{ "deny",  false, },
+			});
+
+			if (allow && (insp::ascii_equals(host, "*") || insp::ascii_equals(host, "http://*") || insp::ascii_equals(host, "https://*")))
 			{
 				ServerInstance->Logs.Warning(MODNAME, "<wsorigin> tag for {} at {} allows any website to connect to your server, this puts you at risk of web-based spam attacks!",
 					allow, tag->source.str());
 			}
 
-			config.allowedorigins.push_back(allow);
+			config.origins.emplace_back(host, allow);
 		}
+
+		const auto has_allow = std::any_of(config.origins.begin(), config.origins.end(), [](const auto &o) {
+			return o.second;
+		});
+		if (!has_allow)
+			throw ModuleException(weak_from_this(), "You have loaded the websocket module but not configured any allowed origins!");
 
 		const auto& tag = ServerInstance->Config->ConfValue("websocket");
 
