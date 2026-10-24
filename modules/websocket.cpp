@@ -83,11 +83,8 @@ struct WebSocketConfig final
 		DM_TEXT
 	};
 
-	using OriginList = std::vector<std::string>;
-	using ProxyRanges = std::vector<std::string>;
-
 	// The HTTP origins that can connect to the server.
-	OriginList allowedorigins;
+	std::vector<std::string> allowedorigins;
 
 	// Whether text encoding can be used on this server.
 	bool allowtext;
@@ -96,7 +93,7 @@ struct WebSocketConfig final
 	DefaultMode defaultmode;
 
 	// The IP ranges which send trustworthy X-Real-IP or X-Forwarded-For headers.
-	ProxyRanges proxyranges;
+	std::vector<std::string> proxyranges;
 
 	// Whether to allow connections from clients that do not send an Origin header.
 	bool allowmissingorigin;
