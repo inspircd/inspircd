@@ -515,7 +515,9 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 		const std::string value = item->ToNetwork(user, obj);
 		if (!value.empty())
 		{
-			ServerInstance->PI->SendMetadata(user, item->name, value);
+			// The user is not fully connected yet so this must not go via the
+			// protocol interface which would suppress it.
+			CommandMetadata::Builder(user, item->name, value).Broadcast();
 			item->OnSync(user, obj, nullptr);
 		}
 	}
