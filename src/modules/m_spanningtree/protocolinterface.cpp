@@ -88,6 +88,14 @@ void SpanningTreeProtocolInterface::BroadcastEncap(const std::string& cmd, const
 
 void SpanningTreeProtocolInterface::SendMetadata(const Extensible* ext, const std::string& key, const std::string& data)
 {
+	// Users which are not yet fully connected (remote users always are) have not been introduced to
+	// the network yet. Their metadata is sent after the UID in OnUserConnect.
+	if (ext->extype == ExtensionType::USER)
+	{
+		const auto* user = static_cast<const User*>(ext);
+		if (!user->IsFullyConnected())
+			return;
+	}
 	CommandMetadata::Builder(ext, key, data).Broadcast();
 }
 
