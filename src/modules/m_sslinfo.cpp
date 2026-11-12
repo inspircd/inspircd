@@ -35,6 +35,11 @@
 #include "numerichelper.h"
 #include "timeutils.h"
 
+enum {
+	// InspIRCd-specific.
+	RPL_WHOISCIPHER = 260
+};
+
 class SSLCertExt final
 	: public ExtensionItem
 {
@@ -337,6 +342,7 @@ private:
 	std::vector<std::string> hashes;
 	unsigned long warnexpiring;
 	bool welcomemsg;
+	bool opercipher;
 
 	static bool MatchFingerprint(const ssl_cert* cert, const std::string& fp)
 	{
@@ -371,6 +377,7 @@ public:
 		cmd.sslapi.localsecure = tag->getBool("localsecure", true);
 		warnexpiring = tag->getDuration("warnexpiring", 0, 0, 60*60*24*365);
 		welcomemsg = tag->getBool("welcomemsg");
+		opercipher = tag->getBool("opercipher", true);
 
 		hashes.clear();
 		irc::spacesepstream hashstream(tag->getString("hash"));
@@ -386,10 +393,29 @@ public:
 
 	void OnWhois(Whois::Context& whois) override
 	{
-		if (cmd.sslapi.IsSecure(whois.GetTarget()))
+		User* const dest = whois.GetTarget();
+
+		if (cmd.sslapi.IsSecure(dest))
 			whois.SendLine(RPL_WHOISSECURE, "is using a secure connection");
 
-		ssl_cert* cert = cmd.sslapi.GetCertificate(whois.GetTarget());
+		User* const source = whois.GetSource();
+		if (whois.IsSelfWhois() || (opercipher && source->HasPrivPermission("users/auspex")))
+		{
+			auto* ldest = IS_LOCAL(dest);
+			if (ldest)
+			{
+				const auto* ssliohook = SSLIOHook::IsSSL(&ldest->eh);
+				if (ssliohook)
+				{
+					std::string ciphersuite;
+					ssliohook->GetCiphersuite(ciphersuite);
+					if (!ciphersuite.empty())
+						whois.SendLine(RPL_WHOISCIPHER, INSP_FORMAT("is using TLS ciphersuite {}", ciphersuite));
+				}
+			}
+		}
+
+		ssl_cert* cert = cmd.sslapi.GetCertificate(dest);
 		if (cert && cert->IsUsable())
 		{
 			if (!cmd.operonlyfp || whois.IsSelfWhois() || whois.GetSource()->IsOper())
