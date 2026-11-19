@@ -50,7 +50,8 @@ enum FilterFlags
 	FLAG_PART = 2,
 	FLAG_QUIT = 4,
 	FLAG_PRIVMSG = 8,
-	FLAG_NOTICE = 16
+	FLAG_NOTICE = 16,
+	FLAG_USER_TARGET = 32
 };
 
 enum FilterAction
@@ -84,6 +85,8 @@ public:
 	bool flag_notice;
 	bool flag_strip_color;
 	bool flag_no_registered;
+	bool flag_private_privmsg;
+	bool flag_private_notice;
 
 	FilterResult(Regex::EngineReference& RegexEngine, const std::string& free, const std::string& rea, FilterAction act, unsigned long gt, const std::string& fla, bool cfg, bool ef)
 		: freeform(free)
@@ -101,7 +104,8 @@ public:
 	char FillFlags(const std::string& flags)
 	{
 		flag_no_opers = flag_part_message = flag_quit_message = flag_privmsg =
-			flag_notice = flag_strip_color = flag_no_registered = false;
+			flag_notice = flag_strip_color = flag_no_registered =
+			flag_private_privmsg = flag_private_notice = false;
 
 		for (const auto flag : flags)
 		{
@@ -128,6 +132,12 @@ public:
 				case 'r':
 					flag_no_registered = true;
 				break;
+				case 'M':
+					flag_private_privmsg = true;
+				break;
+				case 'N':
+					flag_private_notice = true;
+				break;
 				case '*':
 					flag_no_opers = flag_part_message = flag_quit_message =
 						flag_privmsg = flag_notice = flag_strip_color = true;
@@ -152,6 +162,10 @@ public:
 			flags.push_back('p');
 		if (flag_notice)
 			flags.push_back('n');
+		if (flag_private_privmsg)
+			flags.push_back('M');
+		if (flag_private_notice)
+			flags.push_back('N');
 
 		/* Order is important here, as the logic in FillFlags() stops parsing when it encounters
 		 * an unknown character. So the following characters must be last in the string.
@@ -348,9 +362,14 @@ bool ModuleFilter::AppliesToMe(User* user, const FilterResult& filter, int iflag
 		return false;
 	if ((filter.flag_no_registered) && accountapi && accountapi->GetAccountName(user))
 		return false;
-	if ((iflags & FLAG_PRIVMSG) && (!filter.flag_privmsg))
+	const bool private_target = (iflags & FLAG_USER_TARGET) != 0;
+	if ((iflags & FLAG_PRIVMSG) &&
+		!filter.flag_privmsg &&
+		!(private_target && filter.flag_private_privmsg))
 		return false;
-	if ((iflags & FLAG_NOTICE) && (!filter.flag_notice))
+	if ((iflags & FLAG_NOTICE) &&
+		!filter.flag_notice &&
+		!(private_target && filter.flag_private_notice))
 		return false;
 	if ((iflags & FLAG_QUIT)   && (!filter.flag_quit_message))
 		return false;
@@ -395,6 +414,9 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, MessageTarget& msgtarget, M
 		return MOD_RES_PASSTHRU;
 
 	flags = (details.type == MessageType::PRIVMSG) ? FLAG_PRIVMSG : FLAG_NOTICE;
+
+	if (msgtarget.type == MessageTarget::TYPE_USER)
+		flags |= FLAG_USER_TARGET;
 
 	const FilterResult* f = this->FilterMatch(user, details.text, flags);
 	if (f)
